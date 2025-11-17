@@ -1,4 +1,4 @@
-import { http } from '~/modules/http.module';
+import { http, type Response } from '~/modules/http.module';
 
 export interface TelegramStatus {
     connected: boolean;
@@ -9,19 +9,19 @@ export interface TelegramStatus {
  * Check Telegram connection status
  */
 export const getTelegramStatus = async () => {
-    return http.get('v1/setting/integration-telegram');
+    return http.get<Response<TelegramStatus>>('v1/setting/integration-telegram');
 };
 
 /**
  * Generate Telegram authentication token
  */
 export const generateTelegramToken = async () => {
-    return http.post('v1/telegram/makeToken');
+    return http.post<Response<{ token: string }>>('v1/telegram/makeToken');
 };
 
 /**
  * Disconnect Telegram integration
  */
 export const disconnectTelegram = async () => {
-    return http.post('v1/telegram/unsync');
+    return http.post<Response<{ success: boolean }>>('v1/telegram/unsync');
 };

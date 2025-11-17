@@ -1,4 +1,4 @@
-import { http } from '~/modules/http.module';
+import { http, type Response } from '~/modules/http.module';
 
 export interface AccountData {
     username: string;
@@ -53,7 +53,7 @@ export interface TempPost {
  * Get account settings
  */
 export const getAccountSettings = async () => {
-    return http.get('v1/setting/account');
+    return http.get<Response<AccountData>>('v1/setting/account');
 };
 
 /**
@@ -67,18 +67,14 @@ export const updateAccountSettings = async (data: AccountUpdateData) => {
         }
     });
 
-    return http.put('v1/setting/account', formData, {
-        headers: {
-            'Content-Type': 'application/x-www-form-urlencoded',
-        },
-    });
+    return http.put<Response<{ success: boolean }>>('v1/setting/account', formData, { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } });
 };
 
 /**
  * Get profile settings
  */
 export const getProfileSettings = async () => {
-    return http.get('v1/setting/profile');
+    return http.get<Response<ProfileData>>('v1/setting/profile');
 };
 
 /**
@@ -89,11 +85,7 @@ export const updateProfileSettings = async (data: ProfileUpdateData) => {
     if (data.bio !== undefined) formData.append('bio', data.bio);
     if (data.homepage !== undefined) formData.append('homepage', data.homepage);
 
-    return http.put('v1/setting/profile', formData, {
-        headers: {
-            'Content-Type': 'application/x-www-form-urlencoded',
-        },
-    });
+    return http.put<Response<{ success: boolean }>>('v1/setting/profile', formData, { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } });
 };
 
 /**
@@ -103,11 +95,7 @@ export const uploadAvatar = async (file: File) => {
     const formData = new FormData();
     formData.append('image', file);
 
-    return http.post('v1/setting/avatar', formData, {
-        headers: {
-            'Content-Type': 'multipart/form-data',
-        },
-    });
+    return http.post<Response<{ url: string }>>('v1/setting/avatar', formData, { headers: { 'Content-Type': 'multipart/form-data' } });
 };
 
 /**
@@ -119,37 +107,33 @@ export const updateNotifyConfig = async (config: NotifyConfig) => {
         formData.append(key, value.toString());
     });
 
-    return http.put('v1/setting/notify-config', formData, {
-        headers: {
-            'Content-Type': 'application/x-www-form-urlencoded',
-        },
-    });
+    return http.put<Response<{ success: boolean }>>('v1/setting/notify-config', formData, { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } });
 };
 
 /**
  * Get user tags
  */
 export const getTags = async () => {
-    return http.get('v1/setting/tag');
+    return http.get<Response<Tag[]>>('v1/setting/tag');
 };
 
 /**
  * Get user series
  */
 export const getSeries = async () => {
-    return http.get('v1/setting/series');
+    return http.get<Response<Series[]>>('v1/setting/series');
 };
 
 /**
  * Get temporary posts
  */
 export const getTempPosts = async () => {
-    return http.get('v1/temp-posts');
+    return http.get<Response<{ temps: TempPost[] }>>('v1/temp-posts');
 };
 
 /**
  * Delete temporary post
  */
 export const deleteTempPost = async (token: string) => {
-    return http.delete(`v1/temp-posts/${token}`);
+    return http.delete<Response<{ success: boolean }>>(`v1/temp-posts/${token}`);
 };

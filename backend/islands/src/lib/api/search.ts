@@ -1,26 +1,27 @@
+import { http, type Response } from '~/modules/http.module';
+
 export interface SearchResult {
     url: string;
     title: string;
     image: string;
     description: string;
-    created_date: string;
+    createdDate: string;
     author: string;
-    author_image: string;
+    authorImage: string;
+    readTime?: number;
+    positions?: string[];
 }
 
-export interface SearchResponse {
-    status: 'DONE' | 'ERROR';
-    body?: {
-        posts: SearchResult[];
-        last_page: number;
-    };
-    errorMessage?: string;
+export interface SearchResponseBody {
+    posts: SearchResult[];
+    lastPage: number;
 }
+
+export type SearchResponse = Response<SearchResponseBody>;
 
 /**
  * Search posts
  */
-export const searchPosts = async (query: string, page: number = 1): Promise<SearchResponse> => {
-    const response = await fetch(`/v1/search?q=${encodeURIComponent(query)}&page=${page}`);
-    return response.json();
+export const searchPosts = async (query: string, page: number = 1) => {
+    return http.get<SearchResponse>(`/v1/search?q=${encodeURIComponent(query)}&page=${page}`);
 };

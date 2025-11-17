@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import type { Response } from '~/modules/http.module';
 import { notification } from '@baejino/ui';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
@@ -9,14 +8,6 @@ import { Button, Input, Card } from '~/components/shared';
 import { useConfirm } from '~/contexts/ConfirmContext';
 import { getAccountSettings, updateAccountSettings } from '~/lib/api/settings';
 import { enable2FA, disable2FA } from '~/lib/api/auth';
-
-interface AccountData {
-    username: string;
-    name: string;
-    email: string;
-    createdDate: string;
-    has2fa: boolean;
-}
 
 // Zod schema for username form
 const usernameSchema = z.object({ username: z.string().min(3, '아이디는 3자 이상이어야 합니다.').max(30, '아이디는 30자 이내여야 합니다.') });

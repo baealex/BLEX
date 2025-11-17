@@ -1,11 +1,5 @@
 import { useState, useEffect } from 'react';
-import { getSocialProviders } from '~/lib/api';
-
-interface SocialProvider {
-  key: string;
-  name: string;
-  color: string;
-}
+import { getSocialProviders, type SocialProvider } from '~/lib/api';
 
 export const useSocialProviders = () => {
   const [providers, setProviders] = useState<SocialProvider[]>([]);
@@ -14,7 +8,7 @@ export const useSocialProviders = () => {
   useEffect(() => {
     const loadProviders = async () => {
       try {
-        const data = await getSocialProviders();
+        const { data } = await getSocialProviders();
 
         if (data.status === 'DONE' && data.body) {
           setProviders(data.body);

@@ -4,11 +4,6 @@ import LoginForm from './components/LoginForm';
 import TwoFactorForm from './components/TwoFactorForm';
 import { login, submit2FACode } from '~/lib/api';
 
-const getCsrfToken = (): string => {
-    const token = document.querySelector<HTMLInputElement>('[name=csrfmiddlewaretoken]')?.value;
-    return token || '';
-};
-
 const Login = () => {
     const {
         state,
@@ -143,7 +138,7 @@ const Login = () => {
         }
 
         try {
-            const data = await login({
+            const { data } = await login({
                 username: state.username,
                 password: state.password,
                 captcha_token: state.captchaToken || undefined
@@ -197,7 +192,7 @@ const Login = () => {
         }
 
         try {
-            const data = await submit2FACode({ auth_code: code });
+            const { data } = await submit2FACode({ auth_code: code });
 
             if (data.status === 'DONE') {
                 updateState({

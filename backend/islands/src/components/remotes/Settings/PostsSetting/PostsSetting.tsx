@@ -1,10 +1,15 @@
 import { useState, useEffect, useRef } from 'react';
-import type { Response } from '~/modules/http.module';
 import { notification } from '@baejino/ui';
 import { useFetch } from '~/hooks/use-fetch';
 import { Button, Input } from '~/components/shared';
 import { useConfirm } from '~/contexts/ConfirmContext';
-import { getPosts, togglePostVisibility, deletePost, updatePostTags, updatePostSeries } from '~/lib/api/posts';
+import {
+    getPosts,
+    togglePostVisibility,
+    deletePost,
+    updatePostTags,
+    updatePostSeries
+} from '~/lib/api/posts';
 import { getTags, getSeries } from '~/lib/api/settings';
 
 interface Post {
@@ -22,12 +27,6 @@ interface Post {
     series: string;
     hasTagChanged?: boolean;
     hasSeriesChanged?: boolean;
-}
-
-interface PostsData {
-    username: string;
-    posts: Post[];
-    lastPage: number;
 }
 
 interface Tag {
@@ -159,7 +158,7 @@ const PostsSetting = () => {
     useEffect(() => {
         if (postsData) {
             setPostsMounted(true);
-            setPosts(postsData.posts.map(post => ({
+            setPosts(postsData.posts.map((post: Post) => ({
                 ...post,
                 hasTagChanged: false,
                 hasSeriesChanged: false
@@ -376,7 +375,7 @@ const PostsSetting = () => {
                             onChange={(e) => handleFilterChange('tag', e.target.value)}
                             className="block w-full px-4 py-3 border border-gray-200 rounded-xl bg-white focus:border-gray-500 focus:ring-2 focus:ring-gray-500 text-sm">
                             <option value="">태그 선택</option>
-                            {tags?.map((tag, index) => (
+                            {tags?.map((tag: Tag, index: number) => (
                                 <option key={index} value={tag.name}>
                                     {tag.name} ({tag.count})
                                 </option>
@@ -390,7 +389,7 @@ const PostsSetting = () => {
                             onChange={(e) => handleFilterChange('series', e.target.value)}
                             className="block w-full px-4 py-3 border border-gray-200 rounded-xl bg-white focus:border-gray-500 focus:ring-2 focus:ring-gray-500 text-sm">
                             <option value="">시리즈 선택</option>
-                            {series?.map((item, index) => (
+                            {series?.map((item: Series, index: number) => (
                                 <option key={index} value={item.url}>
                                     {item.title} ({item.totalPosts})
                                 </option>
@@ -431,7 +430,7 @@ const PostsSetting = () => {
                 </div>
             ) : (
                 <div className="space-y-3">
-                    {posts.map((post) => (
+                    {posts.map((post: Post) => (
                         <div key={post.url} className="bg-gray-50 border border-gray-200 rounded-2xl overflow-hidden hover:shadow-md transition-all duration-300">
                             {/* 헤더 */}
                             <div className="p-4 border-b border-gray-200">
@@ -545,7 +544,7 @@ const PostsSetting = () => {
                                         onChange={(e) => handleSeriesChange(post.url, e.target.value)}
                                         className="flex-1 px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:border-gray-500 focus:ring-2 focus:ring-gray-500 bg-white">
                                         <option value="">시리즈 선택 안함</option>
-                                        {series?.map((item, index) => (
+                                        {series?.map((item: Series, index: number) => (
                                             <option key={index} value={item.url}>
                                                 {item.title}
                                             </option>

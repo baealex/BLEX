@@ -1,4 +1,4 @@
-import { http } from '~/modules/http.module';
+import { http, type Response } from '~/modules/http.module';
 
 export interface LoginRequest {
     username: string;
@@ -6,57 +6,44 @@ export interface LoginRequest {
     captcha_token?: string;
 }
 
-export interface LoginResponse {
-    status: 'DONE' | 'ERROR' | 'NEED_2FA';
-    body?: {
-        url: string;
-    };
-    errorMessage?: string;
+export interface LoginResponseBody {
+    url: string;
+    security?: boolean;
 }
+
+export type LoginResponse = Response<LoginResponseBody>;
 
 export interface SecurityCodeRequest {
     auth_code: string;
 }
 
 export interface SocialProvider {
-    provider: string;
-    url: string;
+    key: string;
+    name: string;
+    color: string;
 }
+
+export type SocialProvidersResponse = Response<SocialProvider[]>;
 
 /**
  * Login with username and password
  */
-export const login = async (data: LoginRequest): Promise<LoginResponse> => {
-    const response = await fetch('/v1/login', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(data),
-    });
-    return response.json();
+export const login = async (data: LoginRequest) => {
+    return http.post<LoginResponse>('/v1/login', data);
 };
 
 /**
  * Submit 2FA verification code
  */
-export const submit2FACode = async (data: SecurityCodeRequest): Promise<LoginResponse> => {
-    const response = await fetch('/v1/auth/security/send', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(data),
-    });
-    return response.json();
+export const submit2FACode = async (data: SecurityCodeRequest) => {
+    return http.post<LoginResponse>('/v1/auth/security/send', data);
 };
 
 /**
  * Get available social login providers
  */
-export const getSocialProviders = async (): Promise<SocialProvider[]> => {
-    const response = await fetch('/v1/social-providers');
-    return response.json();
+export const getSocialProviders = async () => {
+    return http.get<SocialProvidersResponse>('/v1/social-providers');
 };
 
 /**

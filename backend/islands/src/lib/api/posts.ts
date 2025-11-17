@@ -1,4 +1,4 @@
-import { http } from '~/modules/http.module';
+import { http, type Response } from '~/modules/http.module';
 
 export interface Post {
     url: string;
@@ -16,14 +16,13 @@ export interface Post {
     series: string | null;
 }
 
-export interface PostsResponse {
-    status: 'DONE' | 'ERROR';
-    body?: {
-        posts: Post[];
-        last_page: number;
-    };
-    errorMessage?: string;
+interface PostsResponseBody {
+    posts: Post[];
+    last_page: number;
 }
+
+export type PostsResponse = Response<PostsResponseBody>;
+export type PostActionResponse = Response<{ success: boolean }>;
 
 export interface PostsFilters {
     search?: string;
@@ -46,21 +45,21 @@ export const getPosts = async (filters: PostsFilters = {}) => {
     });
 
     const queryString = params.toString();
-    return http.get(`v1/setting/posts${queryString ? `?${queryString}` : ''}`);
+    return http.get<PostsResponse>(`v1/setting/posts${queryString ? `?${queryString}` : ''}`);
 };
 
 /**
  * Toggle post visibility
  */
 export const togglePostVisibility = async (username: string, postUrl: string) => {
-    return http.put(`v1/users/@${username}/posts/${postUrl}?hide=hide`);
+    return http.put<PostActionResponse>(`v1/users/@${username}/posts/${postUrl}?hide=hide`);
 };
 
 /**
  * Delete a post
  */
 export const deletePost = async (username: string, postUrl: string) => {
-    return http.delete(`v1/users/@${username}/posts/${postUrl}`);
+    return http.delete<PostActionResponse>(`v1/users/@${username}/posts/${postUrl}`);
 };
 
 /**
@@ -70,11 +69,7 @@ export const updatePostTags = async (username: string, postUrl: string, tags: st
     const formData = new URLSearchParams();
     formData.append('tag', tags);
 
-    return http.put(`v1/users/@${username}/posts/${postUrl}?tag=tag`, formData, {
-        headers: {
-            'Content-Type': 'application/x-www-form-urlencoded',
-        },
-    });
+    return http.put<PostActionResponse>(`v1/users/@${username}/posts/${postUrl}?tag=tag`, formData, { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } });
 };
 
 /**
@@ -84,9 +79,5 @@ export const updatePostSeries = async (username: string, postUrl: string, series
     const formData = new URLSearchParams();
     formData.append('series', series);
 
-    return http.put(`v1/users/@${username}/posts/${postUrl}?series=series`, formData, {
-        headers: {
-            'Content-Type': 'application/x-www-form-urlencoded',
-        },
-    });
+    return http.put<PostActionResponse>(`v1/users/@${username}/posts/${postUrl}?series=series`, formData, { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } });
 };

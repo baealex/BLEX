@@ -1,20 +1,9 @@
 import { useEffect } from 'react';
-import type { Response } from '~/modules/http.module';
 import { notification } from '@baejino/ui';
 import { useFetch } from '~/hooks/use-fetch';
 import { Button } from '~/components/shared';
 import { useConfirm } from '~/contexts/ConfirmContext';
 import { getTempPosts, deleteTempPost } from '~/lib/api/settings';
-
-interface TempPost {
-    token: string;
-    title: string;
-    createdDate: string;
-}
-
-interface TempPostsData {
-    temps: TempPost[];
-}
 
 const TempPostsSetting = () => {
     const { confirm } = useConfirm();

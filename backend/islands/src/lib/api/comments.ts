@@ -1,35 +1,27 @@
-import { http } from '~/modules/http.module';
+import { http, type Response } from '~/modules/http.module';
 
 export interface Comment {
-    pk: number;
+    id: number;
     author: string;
-    author_image: string;
-    created_date: string;
-    content_html: string;
-    content_markdown: string;
-    total_liked: number;
-    is_edited: boolean;
-    is_mine: boolean;
-    has_liked: boolean;
+    authorImage: string;
+    createdDate: string;
+    renderedContent: string;
+    contentMarkdown: string;
+    countLikes: number;
+    isLiked: boolean;
+    isEdited: boolean;
+    isMine: boolean;
 }
 
-export interface CommentsResponse {
-    status: 'DONE' | 'ERROR';
-    body?: Comment[];
-    errorMessage?: string;
-}
-
-export interface CommentResponse {
-    status: 'DONE' | 'ERROR';
-    body?: Comment;
-    errorMessage?: string;
-}
+export type CommentsResponse = Response<{ comments: Comment[] }>;
+export type CommentResponse = Response<{ textMd: string }>;
+export type CommentActionResponse = Response<{ success: boolean }>;
 
 /**
  * Get all comments for a post
  */
 export const getComments = async (postUrl: string) => {
-    return http.get(`v1/posts/${postUrl}/comments`);
+    return http.get<CommentsResponse>(`v1/posts/${postUrl}/comments`);
 };
 
 /**
@@ -39,18 +31,14 @@ export const createComment = async (postUrl: string, commentMarkdown: string) =>
     const formData = new URLSearchParams();
     formData.append('comment_md', commentMarkdown);
 
-    return http.post(`v1/comments?url=${postUrl}`, formData, {
-        headers: {
-            'Content-Type': 'application/x-www-form-urlencoded',
-        },
-    });
+    return http.post<CommentActionResponse>(`v1/comments?url=${postUrl}`, formData, { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } });
 };
 
 /**
  * Get a single comment for editing
  */
 export const getComment = async (commentId: number) => {
-    return http.get(`v1/comments/${commentId}`);
+    return http.get<CommentResponse>(`v1/comments/${commentId}`);
 };
 
 /**
@@ -60,18 +48,14 @@ export const updateComment = async (commentId: number, commentMarkdown: string) 
     const formData = new URLSearchParams();
     formData.append('comment_md', commentMarkdown);
 
-    return http.put(`v1/comments/${commentId}`, formData, {
-        headers: {
-            'Content-Type': 'application/x-www-form-urlencoded',
-        },
-    });
+    return http.put<CommentActionResponse>(`v1/comments/${commentId}`, formData, { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } });
 };
 
 /**
  * Delete a comment
  */
 export const deleteComment = async (commentId: number) => {
-    return http.delete(`v1/comments/${commentId}`);
+    return http.delete<CommentActionResponse>(`v1/comments/${commentId}`);
 };
 
 /**
@@ -81,9 +65,5 @@ export const toggleCommentLike = async (commentId: number) => {
     const formData = new URLSearchParams();
     formData.append('like', 'like');
 
-    return http.put(`v1/comments/${commentId}`, formData, {
-        headers: {
-            'Content-Type': 'application/x-www-form-urlencoded',
-        },
-    });
+    return http.put<CommentActionResponse>(`v1/comments/${commentId}`, formData, { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } });
 };

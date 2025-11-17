@@ -1,14 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { notification } from '@baejino/ui';
 import { useFetch } from '~/hooks/use-fetch';
-import type { Response } from '~/modules/http.module';
 import { Button } from '~/components/shared';
 import { useConfirm } from '~/contexts/ConfirmContext';
 import { getTelegramStatus, generateTelegramToken, disconnectTelegram as disconnectTelegramAPI } from '~/lib/api/telegram';
-
-interface TelegramStatusData {
-    isConnected: boolean;
-}
 
 const IntegrationSettings: React.FC = () => {
     const [telegramToken, setTelegramToken] = useState('');

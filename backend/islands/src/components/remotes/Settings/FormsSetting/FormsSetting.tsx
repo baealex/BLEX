@@ -4,19 +4,20 @@ import { useFetch } from '~/hooks/use-fetch';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
-import type { Response } from '~/modules/http.module';
 import { Button, Input, Modal } from '~/components/shared';
 import { useConfirm } from '~/contexts/ConfirmContext';
-import { getForms, getForm, createForm, updateForm, deleteForm } from '~/lib/api/forms';
+import {
+    getForms,
+    getForm,
+    createForm,
+    updateForm,
+    deleteForm
+} from '~/lib/api/forms';
 
 interface FormItem {
     id: number;
     title: string;
     content?: string;
-}
-
-interface FormsData {
-    forms: FormItem[];
 }
 
 const formSchema = z.object({
@@ -72,9 +73,9 @@ const FormsManagement: React.FC = () => {
     const handleCreateForm = () => {
         setEditingForm(null);
         reset({
- title: '',
-content: ''
-});
+            title: '',
+            content: ''
+        });
         setIsModalOpen(true);
     };
 
@@ -100,7 +101,10 @@ content: ''
         setIsSubmitting(true);
         try {
             if (editingForm) {
-                const { data } = await updateForm(editingForm.id, formData);
+                const { data } = await updateForm(editingForm.id, {
+                    title: formData.title,
+                    description: formData.content
+                });
                 if (data.status === 'DONE') {
                     notification('서식이 수정되었습니다.', { type: 'success' });
                     setIsModalOpen(false);
@@ -109,7 +113,11 @@ content: ''
                     notification('서식 수정에 실패했습니다.', { type: 'error' });
                 }
             } else {
-                const { data } = await createForm(formData);
+                const { data } = await createForm({
+                    title: formData.title,
+                    description: formData.content,
+                    fields: []
+                });
                 if (data.status === 'DONE') {
                     notification('서식이 생성되었습니다.', { type: 'success' });
                     setIsModalOpen(false);
@@ -129,9 +137,9 @@ content: ''
         setIsModalOpen(false);
         setEditingForm(null);
         reset({
- title: '',
-content: ''
-});
+            title: '',
+            content: ''
+        });
     };
 
     if (isLoading) {
@@ -168,7 +176,7 @@ content: ''
                 </div>
             ) : (
                 <div className="space-y-3">
-                    {forms.map((form) => (
+                    {forms.map((form: FormItem) => (
                         <div key={form.id} className="bg-gray-50 border border-gray-200 rounded-2xl p-4 hover:bg-gray-100 hover:shadow-sm transition-all duration-300">
                             <div className="flex items-center justify-between gap-3">
                                 <button

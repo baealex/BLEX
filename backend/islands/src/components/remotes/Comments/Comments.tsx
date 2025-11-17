@@ -1,5 +1,4 @@
 import { useState, useMemo, useCallback } from 'react';
-import type { Response } from '~/modules/http.module';
 import { useFetch } from '~/hooks/use-fetch';
 import { useConfirm } from '~/contexts/ConfirmContext';
 import { isLoggedIn as checkIsLoggedIn, showLoginPrompt } from '~/utils/loginPrompt';
@@ -15,14 +14,9 @@ import {
 import { ErrorAlert } from './components/ErrorAlert';
 import { CommentList } from './components/CommentList';
 import { CommentForm } from './components/CommentForm';
-import type { Comment } from './components/CommentItem';
 
 interface CommentsProps {
     postUrl: string;
-}
-
-interface CommentEditData {
-    textMd: string;
 }
 
 const Comments = (props: CommentsProps) => {
@@ -105,15 +99,16 @@ const Comments = (props: CommentsProps) => {
 
     const startEditing = async (commentId: number) => {
         try {
-            const response = await getComment(commentId);
+            const { data } = await getComment(commentId);
 
-            if (response.data.status === 'DONE' && response.data.body) {
+            if (data.status === 'DONE') {
                 setEditingCommentId(commentId);
-                setEditText(response.data.body.textMd);
+                setEditText(data.body.textMd || '');
             } else {
                 setError('댓글 정보를 불러오는데 실패했습니다.');
             }
-        } catch {
+        } catch (err) {
+            console.error('댓글 수정 오류:', err);
             setError('댓글 정보를 불러오는 중 오류가 발생했습니다.');
         }
     };
@@ -220,7 +215,7 @@ const Comments = (props: CommentsProps) => {
             )}
 
             <CommentList
-                comments={data?.comments || []}
+                comments={data?.comments ?? []}
                 currentUser={window.configuration.user?.username}
                 editingCommentId={editingCommentId}
                 editText={editText}
