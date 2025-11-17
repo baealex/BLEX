@@ -39,7 +39,7 @@ export const useAutoSave = (data: AutoSaveData, options: UseAutoSaveOptions) => 
     dataRef.current = data;
     optionsRef.current = options;
 
-    const { intervalMs = 10000 } = options;
+    const { intervalMs = 3000 } = options;
 
     // Serialize only the auto-save relevant data
     const currentDataString = JSON.stringify({
