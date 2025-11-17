@@ -44,8 +44,8 @@
     <article itemscope itemtype="https://schema.org/BlogPosting" lang="{{ LANGUAGE_CODE|default:'ko' }}">
         <meta itemprop="headline" content="{{ post.title }}">
         <meta itemprop="description" content="{{ post.meta_description }}">
-        <meta itemprop="datePublished" content="{{ post.created_at|date:'c' }}">
-        <meta itemprop="dateModified" content="{{ post.updated_at|date:'c' }}">
+        <meta itemprop="datePublished" content="{{ post.created_date|date:'c' }}">
+        <meta itemprop="dateModified" content="{{ post.updated_date|date:'c' }}">
         {% if post.image %}
         <meta itemprop="image" content="{{ request.scheme }}://{{ request.get_host }}{{ post.image.url }}">
         {% endif %}
@@ -77,7 +77,7 @@
                 
                 <div class="flex items-center gap-2">
                     <i class="far fa-calendar text-gray-400"></i>
-                    <span itemprop="datePublished" content="{{ post.created_at|date:'c' }}">{{ post.created_date }}</span>
+                    <span itemprop="datePublished" content="{{ post.created_date|date:'c' }}">{{ post.created_date }}</span>
                 </div>
                 
                 <div class="flex items-center gap-2" aria-label="읽는 데 걸리는 시간">
@@ -312,7 +312,11 @@
   "author": {
     "@type": "Person",
     "name": "{{ post.author_username }}",
-    "url": "{{ request.scheme }}://{{ request.get_host }}/@{{ post.author_username }}"
+    "url": "{{ request.scheme }}://{{ request.get_host }}/@{{ post.author_username }}"{% if post.author.profile.homepage or post.author.userlinkmeta_set.all %},
+    "sameAs": [
+      {% if post.author.profile.homepage %}"{{ post.author.profile.homepage }}"{% if post.author.userlinkmeta_set.all %},{% endif %}{% endif %}{% for link in post.author.userlinkmeta_set.all %}
+      "{{ link.value }}"{% if not forloop.last %},{% endif %}{% endfor %}
+    ]{% endif %}
   },
   "publisher": {
     "@type": "Organization",
@@ -322,8 +326,8 @@
       "url": "{{ request.scheme }}://{{ request.get_host }}{% resource 'logo.png' %}"
     }
   },
-  "datePublished": "{{ post.created_at|date:'c' }}",
-  "dateModified": "{{ post.updated_at|date:'c' }}",
+  "datePublished": "{{ post.created_date|date:'c' }}",
+  "dateModified": "{{ post.updated_date|date:'c' }}",
   {% if post.tags.all %}"keywords": "{% for tag in post.tags.all %}{{ tag }}{% if not forloop.last %}, {% endif %}{% endfor %}",{% endif %}
   "articleSection": {% if post.series %}"{{ post.series.name }}"{% else %}"Blog"{% endif %},
   "wordCount": "{{ post.read_time|default:5|stringformat:'i' }}00"

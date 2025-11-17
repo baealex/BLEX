@@ -7,7 +7,7 @@
 {% block content %}
 <div x-data="{ settingsMenuOpen: false }">
     <!-- 모바일 헤더 (상단 고정) -->
-    <div class="xl:hidden sticky top-0 z-10 bg-white border-b border-gray-200 backdrop-blur-lg bg-white/95">
+    <div class="xl:hidden sticky top-0 mb-3 z-10 bg-white border-b border-gray-200 rounded-2xl backdrop-blur-lg bg-white/95">
         <div class="flex items-center justify-between px-4 py-3">
             <button @click="settingsMenuOpen = !settingsMenuOpen"
                     class="w-10 h-10 flex items-center justify-center rounded-xl hover:bg-gray-100 active:bg-gray-200 transition-colors">
@@ -142,18 +142,6 @@
                                 <i class="fas fa-save text-sm {% if active == 'temp_posts' %}text-white{% else %}text-gray-600{% endif %}"></i>
                             </div>
                             <span class="font-medium text-[15px]">임시저장</span>
-                        </a>
-                    </li>
-                    <li>
-                        <a href="{% url 'setting_analytics' %}"
-                           @click="settingsMenuOpen = false"
-                           class="flex items-center px-3 py-3 rounded-xl transition-all duration-200
-                            {% if active == 'analytics' or active == 'analytics/views' %}bg-black text-white shadow-md{% else %}text-gray-700 hover:bg-gray-50 active:bg-gray-100{% endif %}">
-                            <div class="w-9 h-9 rounded-lg flex items-center justify-center mr-3
-                                {% if active == 'analytics' or active == 'analytics/views' %}bg-white/20{% else %}bg-gray-100{% endif %}">
-                                <i class="fas fa-chart-bar text-sm {% if active == 'analytics' or active == 'analytics/views' %}text-white{% else %}text-gray-600{% endif %}"></i>
-                            </div>
-                            <span class="font-medium text-[15px]">통계</span>
                         </a>
                     </li>
                     <li>
@@ -292,16 +280,6 @@
                                         <i class="fas fa-save text-lg {% if active == 'temp_posts' %}text-white{% else %}text-gray-600 group-hover:text-gray-900{% endif %}"></i>
                                     </div>
                                     <span class="font-semibold text-base">임시저장</span>
-                                </a>
-                            </li>
-                            <li>
-                                <a href="{% url 'setting_analytics' %}" class="group flex items-center px-5 py-4 rounded-2xl transition-all duration-300
-                                    {% if active == 'analytics' or active == 'analytics/views' %}bg-black text-white shadow-md{% else %}text-gray-700 hover:bg-gray-50 hover:text-gray-900{% endif %}">
-                                    <div class="w-10 h-10 rounded-xl flex items-center justify-center mr-4
-                                        {% if active == 'analytics' or active == 'analytics/views' %}bg-white/20{% else %}bg-gray-100 group-hover:bg-gray-200{% endif %}">
-                                        <i class="fas fa-chart-bar text-lg {% if active == 'analytics' or active == 'analytics/views' %}text-white{% else %}text-gray-600 group-hover:text-gray-900{% endif %}"></i>
-                                    </div>
-                                    <span class="font-semibold text-base">통계</span>
                                 </a>
                             </li>
                             <li>
