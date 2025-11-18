@@ -17,7 +17,7 @@ from django.db.models import Count, Case, When, Value, Exists, OuterRef, Q
 from board.constants.config_meta import CONFIG_TYPE
 from board.models import (
     Config, Profile, TelegramSync,
-    TwoFactorAuth, UsernameChangeLog
+    TwoFactorAuth, UsernameChangeLog, SiteSetting
 )
 from board.modules.notify import create_notify
 from board.modules.response import ErrorCode
@@ -162,15 +162,25 @@ class AuthService:
         user_config.create_or_update_meta(CONFIG_TYPE.NOTIFY_COMMENT_LIKE, 'true')
 
         # Create welcome notification
-        create_notify(
-            user=user,
-            url='https://www.notion.so/edfab7c5d5be4acd8d10f347c017fcca',
-            content=(
-                f'{user.first_name}님의 가입을 진심으로 환영합니다! '
-                f'블렉스의 다양한 기능을 활용하고 싶으시다면 개발자가 직접 작성한 '
-                f'\'블렉스 노션\'을 살펴보시는 것을 추천드립니다 :)'
-            )
-        )
+        # Get welcome message from site settings (if available)
+        try:
+            site_setting = SiteSetting.get_instance()
+            if site_setting.welcome_notification_message:
+                content = site_setting.welcome_notification_message.replace('{name}', user.first_name)
+                url = site_setting.welcome_notification_url or '/'
+            else:
+                # Fallback to default message
+                content = (
+                    f'{user.first_name}님의 가입을 진심으로 환영합니다! '
+                    f'블렉스의 다양한 기능을 활용하고 싶으시다면 개발자가 직접 작성한 '
+                    f'\'블렉스 노션\'을 살펴보시는 것을 추천드립니다 :)'
+                )
+                url = 'https://www.notion.so/edfab7c5d5be4acd8d10f347c017fcca'
+
+            create_notify(user=user, url=url, content=content)
+        except Exception:
+            # If anything goes wrong, don't fail user creation
+            pass
 
         return user, user_profile, user_config
 

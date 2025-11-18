@@ -8,6 +8,7 @@ from django.utils.html import format_html
 from django.utils.safestring import mark_safe, SafeString
 from django.db.models import QuerySet
 
+from board.models import Profile
 from .constants import (
     AVATAR_SIZE, COVER_MAX_WIDTH, MAX_TAGS_DISPLAY,
     DATETIME_FORMAT_SHORT, COLOR_PRIMARY, COLOR_MUTED,
@@ -82,10 +83,7 @@ class AdminDisplayService:
     @staticmethod
     def role_badge(role: str, profile_model: Optional[Any] = None) -> SafeString:
         """역할 뱃지 생성 (관리자/편집자/독자)"""
-        from board.models import Profile
-
         badge_configs = {
-            Profile.Role.ADMIN: (COLOR_DANGER, '관리자'),
             Profile.Role.EDITOR: (COLOR_SUCCESS, '편집자'),
             Profile.Role.READER: (COLOR_MUTED, '독자'),
         }
@@ -115,6 +113,15 @@ class AdminDisplayService:
         return format_html(
             '<span style="color: {};">✗ {}</span>',
             false_color or COLOR_MUTED, false_text
+        )
+
+    @staticmethod
+    def active_status_badge(is_active: bool) -> SafeString:
+        """활성화 상태 뱃지 생성"""
+        return AdminDisplayService.boolean_badge(
+            is_active,
+            true_text='활성',
+            false_text='비활성'
         )
 
     @staticmethod

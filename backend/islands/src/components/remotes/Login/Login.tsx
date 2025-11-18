@@ -280,13 +280,6 @@ const Login = () => {
                             </a>
                         </p>
                     )}
-                    <div className="flex items-center justify-center space-x-6 text-xs text-gray-400">
-                        <a href="/about" className="hover:text-gray-600 transition-colors">서비스 소개</a>
-                        <span className="text-gray-300">•</span>
-                        <a href="/privacy" className="hover:text-gray-600 transition-colors">개인정보처리방침</a>
-                        <span className="text-gray-300">•</span>
-                        <a href="/terms" className="hover:text-gray-600 transition-colors">이용약관</a>
-                    </div>
                 </div>
             </div>
         </div>

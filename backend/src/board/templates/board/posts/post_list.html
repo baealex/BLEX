@@ -10,6 +10,11 @@
 
 {% block content %}
 <div class="container mx-auto">
+{% if global_notices %}
+    {% with notices=global_notices bg_color='bg-zinc-800 text-white' hover_color='hover:bg-gray-900' url_prefix='' size='large' %}
+        {% include 'components/notice_carousel.html' %}
+    {% endwith %}
+{% endif %}
 {% if posts %}
     <div class="flex flex-col md:flex-row items-start md:items-center justify-between mb-6 gap-4">
         <h1 class="text-2xl md:text-3xl font-bold text-gray-900">전체 포스트</h1>

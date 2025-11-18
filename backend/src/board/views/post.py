@@ -132,7 +132,6 @@ def post_editor(request, username=None, post_url=None):
     temp_token = request.GET.get('temp_token') or request.GET.get('tempToken')
     if temp_token and not is_edit:
         try:
-            from board.models import TempPosts
             temp_post = TempPosts.objects.get(token=temp_token, author=request.user)
         except TempPosts.DoesNotExist:
             pass
@@ -180,9 +179,9 @@ def post_editor(request, username=None, post_url=None):
             tags = [tag.strip() for tag in tags_str.split(',') if tag.strip()]
         
         # Process config options
-        hide = request.POST.get('hide') == 'on'
-        notice = request.POST.get('notice') == 'on'
-        advertise = request.POST.get('advertise') == 'on'
+        hide = request.POST.get('hide') in ['on', 'true']
+        notice = request.POST.get('notice') in ['on', 'true']
+        advertise = request.POST.get('advertise') in ['on', 'true']
         is_draft = request.POST.get('is_draft') == 'true'
         
         # Process series

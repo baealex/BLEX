@@ -1,0 +1,52 @@
+{% extends "admin/base_site.html" %}
+{% load static %}
+
+{% block title %}{{ title }} | {{ site_title|default:_('Django site admin') }}{% endblock %}
+
+{% block breadcrumbs %}
+<div class="breadcrumbs">
+<a href="{% url 'admin:index' %}">홈</a>
+&rsaquo; <a href="{% url 'admin:board_notify_changelist' %}">알림</a>
+&rsaquo; {{ title }}
+</div>
+{% endblock %}
+
+{% block content %}
+<div id="content-main">
+    <form method="post" novalidate>
+        {% csrf_token %}
+
+        <div>
+            <fieldset class="module aligned">
+                <h2>전체 사용자에게 알림 발송</h2>
+                <div class="form-row">
+                    {{ form.url.errors }}
+                    <div>
+                        <label for="{{ form.url.id_for_label }}">{{ form.url.label }}:</label>
+                        {{ form.url }}
+                        {% if form.url.help_text %}
+                        <p class="help">{{ form.url.help_text }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    {{ form.content.errors }}
+                    <div>
+                        <label for="{{ form.content.id_for_label }}">{{ form.content.label }}:</label>
+                        {{ form.content }}
+                        {% if form.content.help_text %}
+                        <p class="help">{{ form.content.help_text }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </fieldset>
+
+            <div class="submit-row">
+                <input type="submit" value="전체 사용자에게 발송" class="default" />
+                <a href="{% url 'admin:board_notify_changelist' %}" class="button cancel-link">취소</a>
+            </div>
+        </div>
+    </form>
+</div>
+{% endblock %}

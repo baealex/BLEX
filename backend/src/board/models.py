@@ -12,6 +12,7 @@ from django.utils.text import slugify
 from django.utils.html import strip_tags
 
 from PIL import Image, ImageFilter
+from dateutil import parser as dateutil_parser
 
 from modules.cipher import encrypt_value, decrypt_value
 from modules.hash import get_sha256
@@ -265,6 +266,20 @@ class Notify(models.Model):
         return str(self.user)
 
 
+class GlobalNotice(models.Model):
+    title = models.CharField(max_length=200, help_text='공지 제목')
+    url = models.CharField(max_length=255, help_text='공지 클릭 시 이동할 URL')
+    is_active = models.BooleanField(default=True, help_text='활성화 여부')
+    created_date = models.DateTimeField(default=timezone.now)
+    updated_date = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['-created_date']
+
+    def __str__(self):
+        return self.title
+
+
 class Tag(models.Model):
     value = models.CharField(max_length=50)
 
@@ -315,8 +330,7 @@ class Post(models.Model):
         try:
             # Handle case where created_date might not be a datetime object
             if isinstance(self.created_date, str):
-                from dateutil import parser
-                created_date = parser.parse(self.created_date)
+                created_date = dateutil_parser.parse(self.created_date)
             else:
                 created_date = self.created_date
             return created_date < timezone.now()
@@ -459,22 +473,17 @@ class Profile(models.Model):
     class Role(models.TextChoices):
         READER = 'READER', '독자'
         EDITOR = 'EDITOR', '편집자'
-        ADMIN = 'ADMIN', '관리자'
 
     role = models.CharField(
         max_length=10,
         choices=Role.choices,
         default=Role.READER,
-        help_text='사용자 역할 (독자: 읽기만, 편집자: 글 작성 및 통계, 관리자: 전체 관리)'
+        help_text='사용자 역할 (독자: 읽기만, 편집자: 글 작성 및 통계)'
     )
 
     def is_editor(self):
-        """Check if user has editor or admin role"""
-        return self.role in [self.Role.EDITOR, self.Role.ADMIN]
-
-    def is_profile_admin(self):
-        """Check if user has admin role"""
-        return self.role == self.Role.ADMIN
+        """Check if user has editor role"""
+        return self.role == self.Role.EDITOR
 
     def collect_social(self):
         socials = []
@@ -730,6 +739,19 @@ class SiteSetting(models.Model):
                                       help_text='<head> 태그 안에 삽입될 스크립트 (예: Google Analytics, Umami)')
     footer_script = models.TextField(blank=True,
                                       help_text='</body> 태그 전에 삽입될 스크립트')
+
+    # Welcome notification settings
+    welcome_notification_message = models.TextField(
+        blank=True,
+        default='',
+        help_text='회원가입 시 발송될 환영 알림 메시지 ({name}을 사용하여 사용자 이름 삽입 가능)'
+    )
+    welcome_notification_url = models.CharField(
+        max_length=255,
+        blank=True,
+        default='/',
+        help_text='회원가입 알림 클릭 시 이동할 URL'
+    )
 
     # Metadata
     updated_date = models.DateTimeField(auto_now=True)

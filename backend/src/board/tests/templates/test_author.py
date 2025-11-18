@@ -194,24 +194,6 @@ class AuthorPostsPageTestCase(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'board/author/author.html')
 
-    def test_admin_can_access_posts(self):
-        """ADMIN 역할 사용자는 posts 페이지 정상 접근"""
-        admin_user = User.objects.create_user(
-            username='admin',
-            email='admin@example.com',
-            password='testpass123'
-        )
-        Profile.objects.create(
-            user=admin_user,
-            role=Profile.Role.ADMIN
-        )
-
-        response = self.client.get(
-            reverse('user_profile', kwargs={'username': admin_user.username})
-        )
-        self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed(response, 'board/author/author.html')
-
 
 class AuthorSeriesPageTestCase(TestCase):
     """작가 시리즈 페이지 (@<username>/series) 템플릿 테스트"""
@@ -381,24 +363,6 @@ class AuthorSeriesPageTestCase(TestCase):
 
         response = self.client.get(
             reverse('user_series', kwargs={'username': editor_user.username})
-        )
-        self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed(response, 'board/author/author_series.html')
-
-    def test_admin_can_access_series(self):
-        """ADMIN 역할 사용자는 series 페이지 정상 접근"""
-        admin_user = User.objects.create_user(
-            username='admin',
-            email='admin@example.com',
-            password='testpass123'
-        )
-        Profile.objects.create(
-            user=admin_user,
-            role=Profile.Role.ADMIN
-        )
-
-        response = self.client.get(
-            reverse('user_series', kwargs={'username': admin_user.username})
         )
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'board/author/author_series.html')

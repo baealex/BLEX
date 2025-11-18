@@ -83,6 +83,7 @@ TEMPLATES = [
                 'django.contrib.messages.context_processors.messages',
                 'board.context_processors.oauth_settings',
                 'board.context_processors.site_settings',
+                'board.context_processors.global_notices',
             ],
         },
     },

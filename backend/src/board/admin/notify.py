@@ -3,14 +3,36 @@ Notification Admin Configuration
 """
 from typing import Any, Optional
 from django.contrib import admin
-from django.http import HttpRequest
+from django.http import HttpRequest, HttpResponse
 from django.db.models import QuerySet
 from django.template.defaultfilters import truncatewords
+from django.shortcuts import render, redirect
+from django.urls import path
+from django.contrib.auth.models import User
+from django import forms
 
 from board.models import Notify
+from board.modules.notify import create_notify
 
 from .service import AdminLinkService, AdminDisplayService
 from .constants import LIST_PER_PAGE_DEFAULT, CONTENT_PREVIEW_WORDS, DATETIME_FORMAT_FULL
+
+
+class BulkNotificationForm(forms.Form):
+    """일괄 알림 발송 폼"""
+    url = forms.CharField(
+        label='링크 URL',
+        max_length=255,
+        required=False,
+        initial='/',
+        help_text='알림 클릭 시 이동할 URL (기본값: /)',
+        widget=forms.TextInput(attrs={'style': 'width: 100%;'})
+    )
+    content = forms.CharField(
+        label='알림 내용',
+        widget=forms.Textarea(attrs={'rows': 5, 'style': 'width: 100%;'}),
+        help_text='모든 사용자에게 전송될 알림 메시지'
+    )
 
 
 @admin.register(Notify)
@@ -107,3 +129,55 @@ class NotifyAdmin(admin.ModelAdmin):
             obj.send_notify()
         except Exception as e:
             self.message_user(request, f'알림 전송 실패: {str(e)}', level='ERROR')
+
+    def get_urls(self):
+        """Custom URL 추가"""
+        urls = super().get_urls()
+        custom_urls = [
+            path('bulk-send/', self.admin_site.admin_view(self.bulk_send_view), name='board_notify_bulk_send'),
+        ]
+        return custom_urls + urls
+
+    def bulk_send_view(self, request: HttpRequest) -> HttpResponse:
+        """일괄 알림 발송 페이지"""
+        if request.method == 'POST':
+            form = BulkNotificationForm(request.POST)
+            if form.is_valid():
+                url = form.cleaned_data['url'] or '/'
+                content = form.cleaned_data['content']
+
+                # 모든 활성 사용자에게 발송
+                users = User.objects.filter(is_active=True)
+                success_count = 0
+                fail_count = 0
+
+                for user in users:
+                    try:
+                        create_notify(user=user, url=url, content=content)
+                        success_count += 1
+                    except Exception as e:
+                        fail_count += 1
+                        print(f'Failed to send notification to {user.username}: {e}')
+
+                self.message_user(
+                    request,
+                    f'총 {success_count}명에게 알림을 발송했습니다. (실패: {fail_count}명)',
+                    level='SUCCESS'
+                )
+                return redirect('..')
+        else:
+            form = BulkNotificationForm()
+
+        context = {
+            **self.admin_site.each_context(request),
+            'title': '전체 사용자에게 알림 발송',
+            'form': form,
+            'opts': self.model._meta,
+        }
+        return render(request, 'admin/board/notify/bulk_send.html', context)
+
+    def changelist_view(self, request, extra_context=None):
+        """알림 목록 페이지에 일괄 발송 버튼 추가"""
+        extra_context = extra_context or {}
+        extra_context['show_bulk_send_button'] = True
+        return super().changelist_view(request, extra_context=extra_context)

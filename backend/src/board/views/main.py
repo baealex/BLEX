@@ -30,9 +30,9 @@ def index(request):
             )
         ),
     )
-    
+
     sort_type = request.GET.get('sort', 'latest')
-    
+
     if sort_type == 'popular':
         posts = posts.order_by('-count_likes', '-created_date')
     elif sort_type == 'comments':
@@ -47,17 +47,17 @@ def index(request):
         offset=24,
         page=page
     )
-    
+
     # Format dates and prepare context
     for post in paginated_posts:
         post.created_date = post.time_since()
-    
+
     context = {
         'posts': paginated_posts,
         'page_number': page,
         'page_count': paginated_posts.paginator.num_pages,
     }
-    
+
     return render(request, 'board/posts/post_list.html', context)
 
 

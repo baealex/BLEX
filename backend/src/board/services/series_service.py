@@ -9,6 +9,7 @@ from typing import Optional, List, Tuple
 from django.contrib.auth.models import User
 from django.db import transaction
 from django.db.models import Count, Case, When, F
+from django.utils import timezone
 
 from board.models import Series, Post
 from board.modules.response import ErrorCode
@@ -319,8 +320,6 @@ class SeriesService:
         Returns:
             QuerySet of Post
         """
-        from django.utils import timezone
-
         return Post.objects.filter(
             author=user,
             series=None,
@@ -341,8 +340,6 @@ class SeriesService:
         Returns:
             QuerySet of Series with annotations
         """
-        from django.utils import timezone
-
         return Series.objects.annotate(
             owner_username=F('owner__username'),
             total_posts=Count(
