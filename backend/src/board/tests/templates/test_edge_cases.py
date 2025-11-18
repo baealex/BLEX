@@ -121,10 +121,9 @@ class EdgeCaseTemplateTestCase(TestCase):
         """여러 페이지에 동시 요청 처리 테스트"""
         urls = [
             reverse('index'),
-            reverse('about'),
-            reverse('privacy'),
-            reverse('terms'),
             reverse('tag_list'),
+            reverse('login'),
+            reverse('signup'),
         ]
 
         for url in urls:

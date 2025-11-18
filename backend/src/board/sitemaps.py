@@ -2,7 +2,7 @@ from django.contrib.sitemaps import Sitemap
 from django.urls import reverse
 from django.conf import settings
 
-from board.models import Post, Series, Profile
+from board.models import Post, Series, Profile, StaticPage
 
 
 class SiteSitemap(Sitemap):
@@ -14,10 +14,10 @@ class SiteSitemap(Sitemap):
             '',
             '/tags',
             '/authors',
-            '/about',
             '/user/sitemap.xml',
             '/posts/sitemap.xml',
             '/series/sitemap.xml',
+            '/staticpages/sitemap.xml',
         ]
 
     def location(self, item):
@@ -68,6 +68,20 @@ class SeriesSitemap(Sitemap):
         return element.updated_date
 
 
+class StaticPageSitemap(Sitemap):
+    changefreq = 'monthly'
+    priority = 0.8
+
+    def items(self):
+        return StaticPage.objects.filter(is_published=True).order_by('-updated_date')
+
+    def location(self, element):
+        return reverse('static_page', args=[element.slug])
+
+    def lastmod(self, element):
+        return element.updated_date
+
+
 sitemaps = {
     'static': SiteSitemap,
 }
@@ -76,4 +90,5 @@ sitemap_section = {
     'user': UserSitemap,
     'posts': PostsSitemap,
     'series': SeriesSitemap,
+    'staticpages': StaticPageSitemap,
 }

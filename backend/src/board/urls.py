@@ -16,7 +16,7 @@ from board.views.series import series_detail, series_create, series_edit
 from board.views.auth import login_view, signup_view
 from board.views.oauth_callback import oauth_callback
 from board.views.tag import tag_list_view, tag_detail_view
-from board.views.static_pages import about_view, privacy_view, terms_view
+from board.views.static_pages import static_page_view
 from board.views.settings import (
     setting_overview, setting_profile, setting_account, setting_series,
     setting_posts,
@@ -37,9 +37,7 @@ urlpatterns = [
     path('logout', auth_views.LogoutView.as_view(), name='logout'),
 
     # Static pages
-    path('about', about_view, name='about'),
-    path('privacy', privacy_view, name='privacy'),
-    path('terms', terms_view, name='terms'),
+    path('static/<slug:slug>', static_page_view, name='static_page'),
 
     # Settings Pages
     path('settings/overview', setting_overview, name='setting_overview'),

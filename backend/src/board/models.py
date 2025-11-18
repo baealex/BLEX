@@ -736,7 +736,7 @@ class SiteSetting(models.Model):
 
     class Meta:
         verbose_name = 'Site Setting'
-        verbose_name_plural = 'Site Settings'
+        verbose_name_plural = '# Site Settings'
 
     def __str__(self):
         return 'Site Settings'
@@ -751,3 +751,37 @@ class SiteSetting(models.Model):
         """Get or create the singleton instance"""
         obj, created = cls.objects.get_or_create(pk=1)
         return obj
+
+
+class StaticPage(models.Model):
+    """
+    Static pages that can be created and edited from admin panel.
+    Accessible via /static/<slug>/ URLs.
+    """
+    slug = models.SlugField(max_length=100, unique=True,
+                            help_text='URL 경로 (예: about, privacy, terms)')
+    title = models.CharField(max_length=200, help_text='페이지 제목')
+    content = models.TextField(help_text='페이지 내용 (HTML 지원)')
+    meta_description = models.CharField(max_length=160, blank=True,
+                                        help_text='SEO용 메타 설명 (최대 160자)')
+
+    # Display settings
+    is_published = models.BooleanField(default=True, help_text='공개 여부')
+    show_in_footer = models.BooleanField(default=False,
+                                         help_text='푸터에 링크 표시')
+    order = models.IntegerField(default=0, help_text='정렬 순서 (낮을수록 먼저)')
+
+    # Metadata
+    created_date = models.DateTimeField(auto_now_add=True)
+    updated_date = models.DateTimeField(auto_now=True)
+    author = models.ForeignKey('auth.User', on_delete=models.SET_NULL,
+                               null=True, blank=True)
+
+    class Meta:
+        ordering = ['order', 'slug']
+
+    def __str__(self):
+        return self.title
+
+    def get_absolute_url(self):
+        return f'/static/{self.slug}/'

@@ -1,4 +1,7 @@
-from django.shortcuts import render
+from django.shortcuts import render, get_object_or_404
+
+from board.models import StaticPage
+
 
 def custom_404_view(request, exception=None):
     """
@@ -6,20 +9,19 @@ def custom_404_view(request, exception=None):
     """
     return render(request, 'board/404.html', status=404)
 
-def about_view(request):
-    """
-    View function for the About page.
-    """
-    return render(request, 'board/pages/about.html')
 
-def privacy_view(request):
+def static_page_view(request, slug):
     """
-    View function for the Privacy Policy page.
+    Dynamic view for static pages created in admin.
+    Accessible via /static/<slug>/ URLs.
     """
-    return render(request, 'board/pages/privacy.html')
+    # Get the page by slug, only if it's published
+    page = get_object_or_404(StaticPage, slug=slug, is_published=True)
 
-def terms_view(request):
-    """
-    View function for the Terms of Service page.
-    """
-    return render(request, 'board/pages/terms.html')
+    context = {
+        'page': page,
+        'title': page.title,
+        'meta_description': page.meta_description or page.title,
+    }
+
+    return render(request, 'board/pages/static_page.html', context)
