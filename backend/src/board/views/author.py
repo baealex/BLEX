@@ -27,13 +27,26 @@ def author_posts(request, username):
     sort_option = request.GET.get('sort', 'recent')
     tag_filter = request.GET.get('tag', '')
     
-    # Base query for author's posts
+    # Get blog notices for EDITOR role authors only
+    blog_notices = None
+    if author.profile.role == Profile.Role.EDITOR:
+        blog_notices = Post.objects.select_related(
+            'config', 'author', 'author__profile'
+        ).filter(
+            author=author,
+            created_date__lte=timezone.now(),
+            config__notice=True,
+            config__hide=False,
+        ).order_by('-created_date')
+
+    # Base query for author's posts (exclude notices)
     posts = Post.objects.select_related(
         'config', 'series', 'author', 'author__profile', 'content'
     ).filter(
         author=author,
         created_date__lte=timezone.now(),
         config__hide=False,
+        config__notice=False,
     )
     
     # Apply search query if provided
@@ -128,6 +141,7 @@ def author_posts(request, username):
         'tag_filter': tag_filter,
         'tag_options': tag_options,
         'sort_options': sort_options,
+        'blog_notices': blog_notices,
     }
     
     return render(request, 'board/author/author.html', context)

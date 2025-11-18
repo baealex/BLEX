@@ -49,6 +49,7 @@ def post_list(request):
                 tag=request.POST.get('tag', ''),
                 image=image,
                 is_hide=BooleanType(request.POST.get('is_hide', '')),
+                is_notice=BooleanType(request.POST.get('is_notice', '')),
                 is_advertise=BooleanType(request.POST.get('is_advertise', '')),
                 temp_post_token=request.POST.get('token', '')
             )
@@ -217,6 +218,7 @@ def user_posts(request, username, url=None):
 
             post_config = post.config
             post_config.hide = BooleanType(request.POST.get('is_hide', ''))
+            post_config.notice = BooleanType(request.POST.get('is_notice', ''))
             post_config.advertise = BooleanType(
                 request.POST.get('is_advertise', ''))
             post_config.save()

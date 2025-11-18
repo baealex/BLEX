@@ -1,5 +1,5 @@
 from django.conf import settings
-from board.models import SiteSetting
+from board.models import SiteSetting, GlobalNotice
 
 
 def oauth_settings(request):
@@ -18,4 +18,13 @@ def site_settings(request):
     """
     return {
         'site_setting': SiteSetting.get_instance(),
+    }
+
+
+def global_notices(request):
+    """
+    Add active global notices to template context
+    """
+    return {
+        'global_notices': GlobalNotice.objects.filter(is_active=True).order_by('-created_date'),
     }

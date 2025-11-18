@@ -17,7 +17,7 @@ from django.utils import timezone
 
 from board.models import (
     Profile, UsernameChangeLog, Post, PinnedPost,
-    Series, Comment, Tag
+    Series, Comment, Tag, PostLikes
 )
 from board.modules.response import ErrorCode
 from modules.markdown import parse_to_html
@@ -381,8 +381,6 @@ class UserService:
         Returns:
             List of activity dictionaries (max 5 items, sorted by date)
         """
-        from board.models import PostLikes
-
         cutoff_date = timezone.now() - datetime.timedelta(days=days)
 
         # Optimized queries with proper select_related and limited date range

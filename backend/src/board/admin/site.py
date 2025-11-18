@@ -18,6 +18,10 @@ class SiteSettingAdmin(admin.ModelAdmin):
             'description': '사이트 전체에 적용될 분석 스크립트를 설정합니다. (Google Analytics, Umami 등)',
             'fields': ('header_script', 'footer_script')
         }),
+        ('회원가입 알림 설정', {
+            'description': '회원가입 시 자동으로 발송될 환영 알림을 설정합니다.',
+            'fields': ('welcome_notification_message', 'welcome_notification_url')
+        }),
         ('메타데이터', {
             'fields': ('updated_date',),
             'classes': ('collapse',)
