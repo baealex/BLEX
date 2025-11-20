@@ -734,24 +734,6 @@ class SiteSetting(models.Model):
     Site-wide settings for custom scripts and analytics.
     Only one instance should exist (singleton pattern).
     """
-    # Site identity
-    site_name = models.CharField(
-        max_length=50,
-        default='BLEX',
-        help_text='사이트 이름 (영문)'
-    )
-    site_name_korean = models.CharField(
-        max_length=50,
-        default='블렉스',
-        help_text='사이트 이름 (한글)'
-    )
-    site_description = models.CharField(
-        max_length=200,
-        default='BLOG EXPRESS ME',
-        blank=True,
-        help_text='사이트 설명 (RSS 피드 등에 사용)'
-    )
-
     # Custom scripts for site-wide analytics
     header_script = models.TextField(blank=True,
                                       help_text='<head> 태그 안에 삽입될 스크립트 (예: Google Analytics, Umami)')
