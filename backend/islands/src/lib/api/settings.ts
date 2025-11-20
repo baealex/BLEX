@@ -6,6 +6,7 @@ export interface AccountData {
     email: string;
     has2fa: boolean;
     createdDate: string;
+    accountDeletionRedirectUrl?: string;
 }
 
 export interface AccountUpdateData {
@@ -244,4 +245,11 @@ export const updateSocialLinks = async (data: { update: string; create: string; 
     formData.append('delete', data.delete);
 
     return http.put<Response<SocialLink[]>>('v1/setting/social', formData, { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } });
+};
+
+/**
+ * Delete user account
+ */
+export const deleteAccount = async () => {
+    return http.delete<Response<{ success: boolean }>>('v1/sign');
 };
