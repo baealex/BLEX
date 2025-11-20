@@ -36,7 +36,7 @@ def telegram(request, parameter):
                             req_userid, '기간이 만료된 토큰입니다. 홈페이지에서 연동을 다시 시도하십시오.'))
 
             except:
-                message = '블렉스 다양한 정보를 살펴보세요!\n\n' + settings.SITE_URL + '/notion'
+                message = f'{settings.SITE_NAME} 다양한 정보를 살펴보세요!\n\n' + settings.SITE_URL + '/notion'
                 SubTaskProcessor.process(
                     lambda: bot.send_message(req_userid, message))
             return StatusDone()

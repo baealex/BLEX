@@ -172,8 +172,8 @@ class AuthService:
                 # Fallback to default message
                 content = (
                     f'{user.first_name}님의 가입을 진심으로 환영합니다! '
-                    f'블렉스의 다양한 기능을 활용하고 싶으시다면 개발자가 직접 작성한 '
-                    f'\'블렉스 노션\'을 살펴보시는 것을 추천드립니다 :)'
+                    f'{settings.SITE_NAME}의 다양한 기능을 활용하고 싶으시다면 개발자가 직접 작성한 '
+                    f'\'{settings.SITE_NAME} 노션\'을 살펴보시는 것을 추천드립니다 :)'
                 )
                 url = 'https://www.notion.so/edfab7c5d5be4acd8d10f347c017fcca'
 

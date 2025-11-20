@@ -1,5 +1,6 @@
 import re
 
+from django.conf import settings
 from django.contrib.syndication.views import Feed
 from django.utils.feedgenerator import Rss201rev2Feed
 from django.contrib.auth.models import User
@@ -29,9 +30,9 @@ class ImageRssFeedGenerator(Rss201rev2Feed):
 class SitePostsFeed(Feed):
     feed_type = CorrectMimeTypeFeed
 
-    title = 'BLEX'
+    title = settings.SITE_NAME
     link = '/'
-    description = 'BLOG EXPRESS ME'
+    description = settings.SITE_NAME
 
     def items(self):
         posts = Post.objects.filter(

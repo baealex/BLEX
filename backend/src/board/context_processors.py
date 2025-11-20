@@ -9,6 +9,7 @@ def oauth_settings(request):
     return {
         'GOOGLE_OAUTH_CLIENT_ID': getattr(settings, 'GOOGLE_OAUTH_CLIENT_ID', ''),
         'GITHUB_OAUTH_CLIENT_ID': getattr(settings, 'GITHUB_OAUTH_CLIENT_ID', ''),
+        'SITE_NAME': getattr(settings, 'SITE_NAME', 'BLEX'),
     }
 
 

@@ -7,7 +7,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="referrer" content="origin" />
-    <title>{% block title %}BLEX{% endblock %}</title>
+    <title>{% block title %}{{ SITE_NAME }}{% endblock %}</title>
     <link rel="stylesheet" href="{% island_css 'styles/main.scss' %}">
     <link rel="icon" href="{% resource 'favicon.ico' %}" />
     <link rel="apple-touch-icon" sizes="57x57" href="{% resource 'logo57.png' %}" />
@@ -23,7 +23,7 @@
     <link rel="icon" type="image/png" sizes="192x192" href="{% resource 'logo192.png' %}" />
     <link rel="icon" type="image/png" sizes="512x512" href="{% resource 'logo512.png' %}" />
     <meta name="theme-color" content="#000" />
-    <meta name="application-name" content="BLEX" />
+    <meta name="application-name" content="{{ SITE_NAME }}" />
     <meta name="msapplication-TileImage" content="{% resource 'logo144.png' %}" />
     <meta name="msapplication-TileColor" content="#000" />
     {% block extra_styles %}{% endblock %}

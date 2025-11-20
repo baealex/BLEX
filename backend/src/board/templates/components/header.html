@@ -9,7 +9,7 @@
     <div class="container mx-auto">
         <div class="flex justify-between items-center py-3 md:py-3.5">
             <a href="/" class="flex items-center group">
-                <img class="h-8 md:h-9 w-auto transition-all duration-200 group-hover:scale-105" src="{% resource 'logob.svg' %}" alt="BLEX">
+                <img class="h-8 md:h-9 w-auto transition-all duration-200 group-hover:scale-105" src="{% resource 'logob.svg' %}" alt="{{ SITE_NAME }}">
             </a>
             <nav class="flex items-center space-x-3">
                 {% if user.is_authenticated %}

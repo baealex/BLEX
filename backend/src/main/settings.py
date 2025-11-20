@@ -132,6 +132,7 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/2.0/howto/static-files/
 
 SITE_URL = os.environ.get('SITE_URL')
+SITE_NAME = os.environ.get('SITE_NAME', 'BLEX')
 RESOURCE_URL = os.environ.get('RESOURCE_URL') + '/resources/'
 
 STATIC_URL = RESOURCE_URL + 'staticfiles/'
