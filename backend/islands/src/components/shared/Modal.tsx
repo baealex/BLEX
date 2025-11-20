@@ -49,16 +49,22 @@ const Modal: React.FC<ModalProps> = ({
         '4xl': 'max-w-4xl'
     };
 
+    const handleBackdropClick = (e: React.MouseEvent) => {
+        if (e.target === e.currentTarget) {
+            onClose();
+        }
+    };
+
     return (
         <div
             className="fixed inset-0 z-[60] flex items-end sm:items-center justify-center p-0 sm:p-4"
-            onClick={onClose}>
+            onClick={handleBackdropClick}>
             {/* 블러 백드롭 */}
             <div className="fixed inset-0 bg-black/50 backdrop-blur-sm" aria-hidden="true" />
 
             {/* 모달 컨텐츠 */}
             <div
-                className={`relative w-full ${maxWidthClasses[maxWidth]} max-h-[90vh] sm:max-h-[85vh] overflow-y-auto bg-white rounded-t-2xl sm:rounded-2xl shadow-2xl`}
+                className={`relative w-full ${maxWidthClasses[maxWidth]} max-h-[85vh] sm:max-h-[85vh] overflow-y-auto bg-white rounded-t-2xl sm:rounded-2xl shadow-2xl`}
                 onClick={(e) => e.stopPropagation()}>
                 {/* 헤더 (title이나 showCloseButton이 있을 때만 표시) */}
                 {(title || showCloseButton) && (

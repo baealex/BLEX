@@ -8,7 +8,7 @@ interface SearchModalProps {
 }
 
 interface SearchResultsData {
-    posts: SearchResult[];
+    results: SearchResult[];
     lastPage: number;
     query?: string;
     totalSize?: number;
@@ -55,7 +55,13 @@ const SearchModal: React.FC<SearchModalProps> = ({ isOpen: initialIsOpen = false
             const { data } = await searchPosts(searchQuery, pageNum);
 
             if (data.status === 'DONE') {
-                setSearchResults(data.body);
+                setSearchResults({
+                    results: data.body.results || [],
+                    lastPage: data.body.lastPage || 1,
+                    query: searchQuery,
+                    totalSize: data.body.totalSize,
+                    elapsedTime: data.body.elapsedTime
+                });
                 setPage(pageNum);
             }
         } catch (error) {
@@ -130,7 +136,7 @@ const SearchModal: React.FC<SearchModalProps> = ({ isOpen: initialIsOpen = false
                                 autoComplete="off"
                                 autoFocus
                             />
-                            <div className="absolute right-2 top-1/2 flex align-center gap-2">
+                            <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-2">
                                 {query && (
                                     <button
                                         type="button"
@@ -139,14 +145,14 @@ const SearchModal: React.FC<SearchModalProps> = ({ isOpen: initialIsOpen = false
                                             setSearchResults(null);
                                             setHasSearched(false);
                                         }}
-                                        className="-translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors">
+                                        className="text-gray-400 hover:text-gray-600 transition-colors">
                                         <i className="fas fa-times" />
                                     </button>
                                 )}
                                 <button
                                     type="submit"
                                     disabled={!query.trim() || isLoading}
-                                    className="-translate-y-1/2 bg-gray-900 hover:bg-gray-800 text-white px-4 py-1.5 rounded-lg font-medium transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed text-sm">
+                                    className="bg-gray-900 hover:bg-gray-800 text-white px-4 py-1.5 rounded-lg font-medium transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed text-sm">
                                     {isLoading ? '검색 중...' : '검색'}
                                 </button>
                             </div>
@@ -194,9 +200,9 @@ const SearchModal: React.FC<SearchModalProps> = ({ isOpen: initialIsOpen = false
                         </div>
 
                         {/* 포스트 목록 */}
-                        {searchResults.posts.length > 0 ? (
+                        {searchResults.results && searchResults.results.length > 0 ? (
                             <div className="space-y-3">
-                                {searchResults.posts.map((result: SearchResult, index: number) => (
+                                {searchResults.results.map((result: SearchResult, index: number) => (
                                     <article key={index} className="bg-white rounded-xl border border-gray-200 hover:border-gray-300 hover:shadow-sm transition-all duration-200 overflow-hidden">
                                         <div className="p-5">
                                             {/* 작성자 정보 */}
