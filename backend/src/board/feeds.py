@@ -32,7 +32,7 @@ class SitePostsFeed(Feed):
 
     title = settings.SITE_NAME
     link = '/'
-    description = settings.SITE_NAME
+    description = settings.SITE_DESCRIPTION
 
     def items(self):
         posts = Post.objects.filter(

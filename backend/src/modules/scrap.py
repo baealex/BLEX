@@ -8,9 +8,10 @@ import requests
 
 from typing import Union
 from urllib.parse import urlparse
+from django.conf import settings
 
 headers = {
-    'user-agent': 'blexmebot-MetaTagCollector/1.0 (+https://blex.me/)',
+    'user-agent': f'{settings.SITE_NAME.lower()}bot-MetaTagCollector/1.0 (+{settings.SITE_URL}/)',
 }
 
 def page_parser(url: str):
