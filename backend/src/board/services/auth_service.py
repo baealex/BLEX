@@ -112,6 +112,7 @@ class AuthService:
         username: str,
         name: str,
         email: str,
+        password: Optional[str] = None,
         avatar_url: Optional[str] = None,
         token: Optional[str] = None
     ) -> Tuple[User, Profile, Config]:
@@ -122,6 +123,7 @@ class AuthService:
             username: Username (will be made unique if needed)
             name: User's display name
             email: User's email
+            password: Password for the user (optional, for regular signup)
             avatar_url: URL to download avatar from (optional)
             token: Token to store in last_name field (optional)
 
@@ -135,6 +137,7 @@ class AuthService:
         user = User.objects.create_user(
             username=unique_username,
             email=email,
+            password=password,
             first_name=name,
         )
 
@@ -161,26 +164,8 @@ class AuthService:
         user_config.create_or_update_meta(CONFIG_TYPE.NOTIFY_MENTION, 'true')
         user_config.create_or_update_meta(CONFIG_TYPE.NOTIFY_COMMENT_LIKE, 'true')
 
-        # Create welcome notification
-        # Get welcome message from site settings (if available)
-        try:
-            site_setting = SiteSetting.get_instance()
-            if site_setting.welcome_notification_message:
-                content = site_setting.welcome_notification_message.replace('{name}', user.first_name)
-                url = site_setting.welcome_notification_url or '/'
-            else:
-                # Fallback to default message
-                content = (
-                    f'{user.first_name}님의 가입을 진심으로 환영합니다! '
-                    f'블렉스의 다양한 기능을 활용하고 싶으시다면 개발자가 직접 작성한 '
-                    f'\'블렉스 노션\'을 살펴보시는 것을 추천드립니다 :)'
-                )
-                url = 'https://www.notion.so/edfab7c5d5be4acd8d10f347c017fcca'
-
-            create_notify(user=user, url=url, content=content)
-        except Exception:
-            # If anything goes wrong, don't fail user creation
-            pass
+        # Send welcome notification
+        AuthService.send_welcome_notification(user)
 
         return user, user_profile, user_config
 
@@ -370,6 +355,24 @@ class AuthService:
 
         profile.save()
         return profile
+
+    @staticmethod
+    def send_welcome_notification(user: User) -> None:
+        """
+        Send welcome notification to user based on site settings.
+
+        Args:
+            user: User instance to send notification to
+        """
+        try:
+            site_setting = SiteSetting.get_instance()
+            if site_setting.welcome_notification_message:
+                content = site_setting.welcome_notification_message.replace('{name}', user.first_name)
+                url = site_setting.welcome_notification_url or '/'
+                create_notify(user=user, url=url, content=content)
+        except Exception:
+            # If anything goes wrong, don't fail the operation
+            pass
 
     @staticmethod
     @transaction.atomic

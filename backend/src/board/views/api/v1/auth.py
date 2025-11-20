@@ -1,4 +1,3 @@
-import re
 import datetime
 import traceback
 import json
@@ -7,40 +6,22 @@ from django.conf import settings
 from django.contrib import auth
 from django.core.cache import cache
 from django.contrib.auth.models import User
-from django.core.files import File
 from django.db.models import Count, Case, When, Value, Exists, OuterRef
 from django.http import Http404, QueryDict
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
 
-from board.constants.config_meta import CONFIG_TYPE
 from board.models import (
     TwoFactorAuth, Config, Profile, Post,
-    UserLinkMeta, UsernameChangeLog, TelegramSync, SocialAuthProvider)
+    UserLinkMeta, UsernameChangeLog, TelegramSync, SocialAuthProvider, SiteSetting)
 from board.modules.notify import create_notify
 from board.modules.response import StatusDone, StatusError, ErrorCode
+from board.services.auth_service import AuthService, AuthValidationError
 from modules import oauth
 from modules.challenge import auth_hcaptcha
 from modules.sub_task import SubTaskProcessor
 from modules.telegram import TelegramBot
 from modules.randomness import randnum, randstr
-from modules.scrap import download_image
-
-
-def check_username(username: str):
-    has_username = User.objects.filter(username=username)
-    if has_username.exists():
-        return '이미 사용중인 사용자 이름 입니다.'
-
-    regex = re.compile('[a-z0-9]{4,15}')
-    if not regex.match(username) or not len(regex.match(username).group()) == len(username):
-        return '사용자 이름은 4~15자 사이의 소문자 영어, 숫자만 가능합니다.'
-
-
-def check_email(email: str):
-    regex = re.compile('[A-Z0-9a-z._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,64}')
-    if not regex.match(email) or not len(regex.match(email).group()) == len(email):
-        return '올바른 이메일 주소가 아닙니다.'
 
 
 def login_response(user: User, is_first_login=False):
@@ -95,50 +76,6 @@ def common_auth(request, user):
             })
     auth.login(request, user)
     return login_response(request.user)
-
-
-def create_user(username, name, email, avatar_url, token=None):
-    counter = 0
-    created_username = username.lower()
-    user = User.objects.filter(username=created_username)
-    while user.exists():
-        counter += 1
-        created_username = f'{username}{counter}'
-        user = User.objects.filter(username=created_username)
-
-    user = User.objects.create_user(
-        username=created_username,
-        email=email,
-        first_name=name,
-    )
-
-    if token:
-        user.last_name = token
-        user.save()
-
-    user_profile = Profile.objects.create(user=user)
-
-    if avatar_url:
-        avatar = download_image(avatar_url, stream=True)
-        if avatar:
-            user_profile.avatar.save(name='png', content=File(avatar))
-            user_profile.save()
-
-    user_config = Config.objects.create(user=user)
-    user_config.create_or_update_meta(CONFIG_TYPE.NOTIFY_MENTION, 'true')
-    user_config.create_or_update_meta(CONFIG_TYPE.NOTIFY_COMMENT_LIKE, 'true')
-
-    create_notify(
-        user=user,
-        url='https://www.notion.so/edfab7c5d5be4acd8d10f347c017fcca',
-        content=(
-            f'{user.first_name}님의 가입을 진심으로 환영합니다! '
-            f'블렉스의 다양한 기능을 활용하고 싶으시다면 개발자가 직접 작성한 '
-            f'\'블렉스 노션\'을 살펴보시는 것을 추천드립니다 :)'
-        )
-    )
-
-    return [user, user_profile, user_config]
 
 
 def login(request):
@@ -222,13 +159,11 @@ def sign(request):
         email = request.POST.get('email', '')
         hcaptcha_response = request.POST.get('h-captcha-response', '')
 
-        username_error = check_username(username)
-        if username_error:
-            return StatusError(ErrorCode.REJECT, username_error)
-
-        email_error = check_email(email)
-        if email_error:
-            return StatusError(ErrorCode.REJECT, email_error)
+        try:
+            AuthService.validate_username(username)
+            AuthService.validate_email(email)
+        except AuthValidationError as e:
+            return StatusError(e.code, e.message)
 
         # Verify HCaptcha if HCAPTCHA_SECRET_KEY is set
         if settings.HCAPTCHA_SECRET_KEY:
@@ -237,31 +172,12 @@ def sign(request):
             if not auth_hcaptcha(hcaptcha_response):
                 return StatusError(ErrorCode.REJECT, '보안 검증에 실패했습니다.')
 
-        new_user = User.objects.create_user(
-            username,
-            email,
-            password
-        )
-        new_user.first_name = name
-
-        new_user.save()
-
-        profile = Profile(user=new_user)
-        profile.save()
-
-        config = Config(user=new_user)
-        config.save()
-        config.create_or_update_meta(CONFIG_TYPE.NOTIFY_MENTION, 'true')
-        config.create_or_update_meta(CONFIG_TYPE.NOTIFY_COMMENT_LIKE, 'true')
-
-        create_notify(
-            user=new_user,
-            url='https://www.notion.so/edfab7c5d5be4acd8d10f347c017fcca',
-            content=(
-                f'{new_user.first_name}님의 가입을 진심으로 환영합니다! '
-                f'블렉스의 다양한 기능을 활용하고 싶으시다면 개발자가 직접 작성한 '
-                f'\'블렉스 노션\'을 살펴보시는 것을 추천드립니다 :)'
-            )
+        # Create user using AuthService
+        new_user, profile, config = AuthService.create_user(
+            username=username,
+            name=name,
+            email=email,
+            password=password
         )
 
         auth.login(request, new_user)
@@ -281,9 +197,11 @@ def sign(request):
 
             username = body.get('username', '')
 
-            result_check_username = check_username(username)
-            if result_check_username:
-                return StatusError(ErrorCode.REJECT, result_check_username)
+            # Validate username using AuthService
+            try:
+                AuthService.validate_username(username)
+            except AuthValidationError as e:
+                return StatusError(e.code, e.message)
 
             if Post.objects.filter(author=request.user).exists():
                 UsernameChangeLog.objects.create(
@@ -299,7 +217,7 @@ def sign(request):
         return StatusDone()
 
     if request.method == 'DELETE':
-        request.user.delete()
+        AuthService.delete_user_account(request.user)
         auth.logout(request)
         return StatusDone()
 
@@ -324,7 +242,7 @@ def sign_social(request, social):
                 if users.exists():
                     return common_auth(request, users.first())
 
-                user, profile, config = create_user(
+                user, profile, config = AuthService.create_user(
                     username=user_id,
                     name=name,
                     email='',
@@ -358,7 +276,7 @@ def sign_social(request, social):
                 if users.exists():
                     return common_auth(request, users.first())
 
-                user, profile, config = create_user(
+                user, profile, config = AuthService.create_user(
                     username=user_id,
                     name=name,
                     email=email,
@@ -405,15 +323,7 @@ def email_verify(request, token):
         config = Config(user=user)
         config.save()
 
-        create_notify(
-            user=user,
-            url='https://www.notion.so/edfab7c5d5be4acd8d10f347c017fcca',
-            content=(
-                f'{user.first_name}님의 가입을 진심으로 환영합니다! '
-                f'블렉스의 다양한 기능을 활용하고 싶으시다면 개발자가 직접 작성한 '
-                f'\'블렉스 노션\'을 살펴보시는 것을 추천드립니다 :)'
-            )
-        )
+        AuthService.send_welcome_notification(user)
 
         auth.login(request, user)
         return login_response(request.user)
