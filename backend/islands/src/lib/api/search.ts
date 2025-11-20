@@ -13,8 +13,11 @@ export interface SearchResult {
 }
 
 export interface SearchResponseBody {
-    posts: SearchResult[];
+    results: SearchResult[];
     lastPage: number;
+    query?: string;
+    totalSize?: number;
+    elapsedTime?: number;
 }
 
 export type SearchResponse = Response<SearchResponseBody>;
