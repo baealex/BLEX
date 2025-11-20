@@ -6,7 +6,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useFetch } from '~/hooks/use-fetch';
 import { Button, Input, Card } from '~/components/shared';
 import { useConfirm } from '~/contexts/ConfirmContext';
-import { getAccountSettings, updateAccountSettings } from '~/lib/api/settings';
+import { getAccountSettings, updateAccountSettings, deleteAccount } from '~/lib/api/settings';
 import { enable2FA, disable2FA } from '~/lib/api/auth';
 
 // Zod schema for username form
@@ -146,6 +146,36 @@ const AccountSettings: React.FC = () => {
                 setTimeout(() => location.reload(), 1000);
             } else {
                 notification(`2차 인증 ${enable ? '활성화' : '해제'}에 실패했습니다.`, { type: 'error' });
+            }
+        } catch {
+            notification('네트워크 오류가 발생했습니다.', { type: 'error' });
+        }
+    };
+
+    const handleDeleteAccount = async () => {
+        const confirmed = await confirm({
+            title: '계정 삭제',
+            message: '정말로 계정을 삭제하시겠습니까? 모든 데이터가 영구적으로 삭제되며 복구할 수 없습니다.',
+            confirmText: '삭제',
+            variant: 'warning'
+        });
+
+        if (!confirmed) return;
+
+        try {
+            const { data } = await deleteAccount();
+
+            if (data.status === 'DONE') {
+                notification('계정이 삭제되었습니다.', { type: 'success' });
+
+                // Use configured redirect URL from site settings, or fallback to home page
+                const redirectUrl = accountData?.accountDeletionRedirectUrl || '/';
+
+                setTimeout(() => {
+                    window.location.href = redirectUrl;
+                }, 1500);
+            } else {
+                notification(data.errorMessage || '계정 삭제에 실패했습니다.', { type: 'error' });
             }
         } catch {
             notification('네트워크 오류가 발생했습니다.', { type: 'error' });
@@ -352,7 +382,7 @@ const AccountSettings: React.FC = () => {
                         <Button
                             variant="primary"
                             size="sm"
-                            onClick={() => notification('계정 삭제 기능을 구현 중입니다.', { type: 'info' })}>
+                            onClick={handleDeleteAccount}>
                             삭제
                         </Button>
                     </div>

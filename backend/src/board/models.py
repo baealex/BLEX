@@ -753,6 +753,14 @@ class SiteSetting(models.Model):
         help_text='회원가입 알림 클릭 시 이동할 URL'
     )
 
+    # Account deletion settings
+    account_deletion_redirect_url = models.CharField(
+        max_length=500,
+        blank=True,
+        default='',
+        help_text='회원 탈퇴 시 리다이렉트할 URL (비워두면 메인 페이지로 이동, 설문 링크 등을 설정할 수 있습니다)'
+    )
+
     # Metadata
     updated_date = models.DateTimeField(auto_now=True)
 

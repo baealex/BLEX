@@ -11,10 +11,9 @@ from django.http import Http404, QueryDict
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
 from django.utils.dateparse import parse_datetime
-
 from board.constants.config_meta import CONFIG_TYPE
 from board.models import (
-    User, Series, Post, UserLinkMeta,
+    User, Series, Post, UserLinkMeta, SiteSetting,
     TempPosts, Profile, Notify, Comment, PostLikes)
 from board.modules.paginator import Paginator
 from board.modules.response import StatusDone, StatusError, ErrorCode
@@ -67,11 +66,18 @@ def setting(request, parameter):
             })
 
         if parameter == 'account':
+            try:
+                site_setting = SiteSetting.get_instance()
+                deletion_redirect_url = site_setting.account_deletion_redirect_url or ''
+            except Exception:
+                deletion_redirect_url = ''
+
             return StatusDone({
                 'username': user.username,
                 'name': user.first_name,
                 'email': user.email,
                 'created_date': convert_to_localtime(user.date_joined).strftime('%Y년 %m월 %d일'),
+                'account_deletion_redirect_url': deletion_redirect_url,
             })
 
         if parameter == 'heatmap':

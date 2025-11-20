@@ -4,7 +4,7 @@ from django.contrib import messages, auth
 from django.conf import settings
 
 from modules import oauth
-from board.views.api.v1.auth import create_user
+from board.services.auth_service import AuthService
 from board.models import User, UserLinkMeta
 from modules.randomness import randnum
 from modules.sub_task import SubTaskProcessor
@@ -66,7 +66,7 @@ def oauth_callback(request, provider):
             if users.exists():
                 return handle_oauth_auth(request, users.first())
 
-            user, _, _ = create_user(
+            user, _, _ = AuthService.create_user(
                 username=user_id,
                 name=name,
                 email='',
@@ -99,7 +99,7 @@ def oauth_callback(request, provider):
             if users.exists():
                 return handle_oauth_auth(request, users.first())
 
-            user, _, _ = create_user(
+            user, _, _ = AuthService.create_user(
                 username=user_id,
                 name=name,
                 email=email,
