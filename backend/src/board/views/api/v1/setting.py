@@ -52,12 +52,22 @@ def setting(request, parameter):
             })
         
         if parameter == 'notify-config':
+            # Check if user has written any posts
+            has_posts = Post.objects.filter(author=user).exists()
+
+            # Base configs for all users
             configs = [
-                CONFIG_TYPE.NOTIFY_POSTS_LIKE,
-                CONFIG_TYPE.NOTIFY_POSTS_COMMENT,
                 CONFIG_TYPE.NOTIFY_COMMENT_LIKE,
                 CONFIG_TYPE.NOTIFY_MENTION,
             ]
+
+            # Add editor-specific configs if user has posts
+            if has_posts:
+                configs = [
+                    CONFIG_TYPE.NOTIFY_POSTS_LIKE,
+                    CONFIG_TYPE.NOTIFY_POSTS_COMMENT,
+                ] + configs
+
             return StatusDone({
                 'config': list(map(lambda config: {
                     'name': config.value,
@@ -339,12 +349,22 @@ def setting(request, parameter):
             return StatusDone()
 
         if parameter == 'notify-config':
+            # Check if user has written any posts
+            has_posts = Post.objects.filter(author=user).exists()
+
+            # Base configs for all users
             configs = [
-                CONFIG_TYPE.NOTIFY_POSTS_LIKE,
-                CONFIG_TYPE.NOTIFY_POSTS_COMMENT,
                 CONFIG_TYPE.NOTIFY_COMMENT_LIKE,
                 CONFIG_TYPE.NOTIFY_MENTION,
             ]
+
+            # Add editor-specific configs if user has posts
+            if has_posts:
+                configs = [
+                    CONFIG_TYPE.NOTIFY_POSTS_LIKE,
+                    CONFIG_TYPE.NOTIFY_POSTS_COMMENT,
+                ] + configs
+
             for config in configs:
                 user.config.create_or_update_meta(
                     config, put.get(config.value, ''))
