@@ -72,7 +72,8 @@ export const LoginPromptProvider: React.FC<{ children: ReactNode }> = ({ childre
     }, []);
 
     const handleLogin = useCallback(() => {
-        window.location.href = '/login';
+        const currentPath = window.location.pathname + window.location.search;
+        window.location.href = `/login?next=${encodeURIComponent(currentPath)}`;
     }, []);
 
     return (
