@@ -15,6 +15,9 @@ def handle_oauth_auth(request, user):
     """
     Handle OAuth authentication with 2FA support
     """
+    # Get next URL from query string
+    next_url = request.GET.get('next', '')
+
     # Check if 2FA is required
     if not settings.DEBUG and user.config.has_two_factor_auth():
         # Create and send 2FA token
@@ -24,17 +27,20 @@ def handle_oauth_auth(request, user):
             bot = TelegramBot(settings.TELEGRAM_BOT_TOKEN)
             bot.send_message(user.telegramsync.get_decrypted_tid(),
                             f'2차 인증 코드입니다 : {token}')
-        
+
         SubTaskProcessor.process(create_auth_token)
         # Store user info in session for 2FA completion
         request.session['pending_2fa_user_id'] = user.id
         request.session['pending_2fa_username'] = user.username
+        # Store next URL in session for after 2FA
+        if next_url:
+            request.session['auth_next_url'] = next_url
         messages.info(request, '2차 인증이 필요합니다. 텔레그램으로 전송된 코드를 입력해주세요.')
-        return redirect('/login')
-    
+        return redirect(f'/login{("?next=" + next_url) if next_url else ""}')
+
     # No 2FA required, login directly
     auth.login(request, user)
-    return redirect('/')
+    return redirect(next_url or '/')
 
 
 def oauth_callback(request, provider):

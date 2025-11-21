@@ -16,16 +16,19 @@ const SocialLogin: React.FC = () => {
             github: window.configuration?.githubClientId
         };
 
+        // Get next URL from window (set by template)
+        const nextUrl = (window as any).NEXT_URL || '';
+
         const redirectUris: Record<string, string> = {
-            google: `${window.location.origin}/login/callback/google`,
-            github: `${window.location.origin}/login/callback/github`
+            google: `${window.location.origin}/login/callback/google${nextUrl ? '?next=' + encodeURIComponent(nextUrl) : ''}`,
+            github: `${window.location.origin}/login/callback/github${nextUrl ? '?next=' + encodeURIComponent(nextUrl) : ''}`
         };
 
         const authUrls: Record<string, (clientId: string, redirectUri: string) => string> = {
             google: (clientId, redirectUri) =>
-                `https://accounts.google.com/o/oauth2/v2/auth?client_id=${clientId}&redirect_uri=${redirectUri}&response_type=code&scope=openid email profile`,
+                `https://accounts.google.com/o/oauth2/v2/auth?client_id=${clientId}&redirect_uri=${encodeURIComponent(redirectUri)}&response_type=code&scope=openid email profile`,
             github: (clientId, redirectUri) =>
-                `https://github.com/login/oauth/authorize?client_id=${clientId}&redirect_uri=${redirectUri}&scope=user:email`
+                `https://github.com/login/oauth/authorize?client_id=${clientId}&redirect_uri=${encodeURIComponent(redirectUri)}&scope=user:email`
         };
 
         const clientId = clientIds[provider.key];

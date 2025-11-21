@@ -14,6 +14,9 @@ const Login = () => {
         handleFailedTwoFactor
     } = useLoginState();
 
+    // Get the next URL from window (set by the template)
+    const nextUrl = (window as any).NEXT_URL || '';
+
     const focusNext = (index: number) => {
         if (index < 5) {
             setTimeout(() => {
@@ -154,7 +157,7 @@ const Login = () => {
                 if (data.body?.security) {
                     updateState({ showTwoFactor: true });
                 } else {
-                    window.location.href = '/';
+                    window.location.href = nextUrl || '/';
                 }
             } else {
                 handleFailedLogin();
@@ -200,7 +203,7 @@ const Login = () => {
                     successMessage: '인증이 완료되었습니다. 잠시 후 홈 페이지로 이동합니다.'
                 });
                 setTimeout(() => {
-                    window.location.href = '/';
+                    window.location.href = nextUrl || '/';
                 }, 1000);
             } else {
                 const isBlocked = handleFailedTwoFactor();
@@ -275,7 +278,7 @@ const Login = () => {
                     {!state.showTwoFactor && (
                         <p className="text-base text-gray-600">
                             아직 독자가 아니신가요?
-                            <a href="/sign" className="font-bold text-gray-900 hover:text-gray-700 transition-colors duration-200 ml-1 underline decoration-2 underline-offset-2">
+                            <a href={`/sign${nextUrl ? '?next=' + encodeURIComponent(nextUrl) : ''}`} className="font-bold text-gray-900 hover:text-gray-700 transition-colors duration-200 ml-1 underline decoration-2 underline-offset-2">
                                 가입하기
                             </a>
                         </p>

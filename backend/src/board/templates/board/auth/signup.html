@@ -8,6 +8,7 @@
 <script src="https://js.hcaptcha.com/1/api.js" async defer></script>
 <script>
     window.HCAPTCHA_SITE_KEY = '{{ HCAPTCHA_SITE_KEY }}';
+    window.NEXT_URL = '{{ next_url|escapejs }}';
 </script>
 {% endblock %}
 
@@ -168,8 +169,8 @@
                         const data = await response.json();
 
                         if (data.status === 'DONE') {
-                            // 회원가입 성공 후 바로 로그인되어 홈으로 이동
-                            window.location.href = '/';
+                            // 회원가입 성공 후 바로 로그인되어 원래 페이지 또는 홈으로 이동
+                            window.location.href = window.NEXT_URL || '/';
                         } else {
                             this.signupError = data.errorMessage || '회원가입에 실패했습니다.';
                         }
@@ -291,7 +292,7 @@
             <div class="text-center space-y-5 pt-6 border-t border-gray-100">
                 <p class="text-base text-gray-600">
                     이미 독자이신가요?
-                    <a href="/login" class="font-bold text-gray-900 hover:text-gray-700 transition-colors duration-200 ml-1 underline decoration-2 underline-offset-2">
+                    <a :href="`/login${window.NEXT_URL ? '?next=' + encodeURIComponent(window.NEXT_URL) : ''}`" class="font-bold text-gray-900 hover:text-gray-700 transition-colors duration-200 ml-1 underline decoration-2 underline-offset-2">
                         로그인
                     </a>
                 </p>
