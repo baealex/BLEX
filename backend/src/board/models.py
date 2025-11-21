@@ -629,20 +629,8 @@ class TempPosts(models.Model):
 class TwoFactorAuth(models.Model):
     user = models.OneToOneField('auth.User', on_delete=models.CASCADE)
     recovery_key = models.CharField(max_length=45, blank=True)
-    otp = models.CharField(max_length=15, blank=True)
-    otp_exp_date = models.DateTimeField(default=timezone.now)
+    totp_secret = models.CharField(max_length=32, blank=True)  # TOTP secret key
     created_date = models.DateTimeField(default=timezone.now)
-
-    def create_token(self, token):
-        self.otp = token
-        self.otp_exp_date = timezone.now()
-        self.save()
-
-    def is_token_expire(self):
-        five_minute_ago = timezone.now() - datetime.timedelta(minutes=5)
-        if self.otp_exp_date < five_minute_ago:
-            return True
-        return False
 
     def has_been_a_day(self):
         one_day_ago = timezone.now() - datetime.timedelta(days=1)
@@ -650,33 +638,24 @@ class TwoFactorAuth(models.Model):
             return True
         return False
 
-    def verify_token(self, token):
-        """
-        Verify 2FA token (OTP or recovery key).
+    def verify_totp(self, token):
+        """Verify TOTP token"""
+        import pyotp
+        if not self.totp_secret:
+            return False
+        totp = pyotp.TOTP(self.totp_secret)
+        return totp.verify(token, valid_window=1)  # Allow 30s window on each side
 
-        Args:
-            token: 6-digit OTP code or 45-character recovery key
-
-        Returns:
-            True if token is valid, False otherwise
-        """
-        if len(token) == 6:
-            # Verify OTP
-            if self.otp == token:
-                if self.is_token_expire():
-                    return False
-                # Clear OTP after successful verification
-                self.otp = ''
-                self.save()
-                return True
-        elif len(token) == 45:
-            # Verify recovery key
-            if self.recovery_key == token:
-                # Clear OTP after successful verification
-                self.otp = ''
-                self.save()
-                return True
-        return False
+    def get_provisioning_uri(self):
+        """Get provisioning URI for QR code"""
+        import pyotp
+        if not self.totp_secret:
+            return None
+        totp = pyotp.TOTP(self.totp_secret)
+        return totp.provisioning_uri(
+            name=self.user.email,
+            issuer_name='BLEX'
+        )
 
     def __str__(self):
         return self.user.username

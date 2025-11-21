@@ -110,12 +110,6 @@ const IntegrationSettings: React.FC = () => {
                         </div>
                         실시간으로 댓글, 좋아요 등의 알림을 전달받습니다
                     </div>
-                    <div className="flex items-center text-sm text-gray-700">
-                        <div className="w-6 h-6 bg-black rounded-full flex items-center justify-center mr-3 flex-shrink-0">
-                            <i className="fas fa-check text-white text-xs" />
-                        </div>
-                        로그인 시 2차 인증을 사용할 수 있습니다
-                    </div>
                 </div>
             </div>
 

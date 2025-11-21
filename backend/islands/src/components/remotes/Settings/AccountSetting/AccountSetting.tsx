@@ -7,7 +7,7 @@ import { useFetch } from '~/hooks/use-fetch';
 import { Button, Input, Card } from '~/components/shared';
 import { useConfirm } from '~/contexts/ConfirmContext';
 import { getAccountSettings, updateAccountSettings, deleteAccount } from '~/lib/api/settings';
-import { enable2FA, disable2FA } from '~/lib/api/auth';
+import { enable2FA, disable2FA, verify2FASetup } from '~/lib/api/auth';
 
 // Zod schema for username form
 const usernameSchema = z.object({ username: z.string().min(3, '아이디는 3자 이상이어야 합니다.').max(30, '아이디는 30자 이내여야 합니다.') });
@@ -37,6 +37,12 @@ const AccountSettings: React.FC = () => {
     const [isUsernameLoading, setIsUsernameLoading] = useState(false);
     const [isNameLoading, setIsNameLoading] = useState(false);
     const [isPasswordLoading, setIsPasswordLoading] = useState(false);
+    const [showQRModal, setShowQRModal] = useState(false);
+    const [qrCode, setQrCode] = useState<string>('');
+    const [recoveryKey, setRecoveryKey] = useState<string>('');
+    const [verificationCode, setVerificationCode] = useState<string>('');
+    const [isVerifying, setIsVerifying] = useState(false);
+    const [verificationError, setVerificationError] = useState<string>('');
     const { confirm } = useConfirm();
 
     // Forms
@@ -139,16 +145,60 @@ const AccountSettings: React.FC = () => {
         }
 
         try {
-            const { data } = enable ? await enable2FA() : await disable2FA();
+            if (enable) {
+                const { data } = await enable2FA();
+
+                if (data.status === 'DONE') {
+                    setQrCode(data.body.qrCode);
+                    setRecoveryKey(data.body.recoveryKey);
+                    setVerificationCode('');
+                    setVerificationError('');
+                    setShowQRModal(true);
+                } else {
+                    const errorMsg = data.errorMessage || '2차 인증 활성화에 실패했습니다.';
+                    notification(errorMsg, { type: 'error' });
+                }
+            } else {
+                const { data } = await disable2FA();
+
+                if (data.status === 'DONE') {
+                    notification('2차 인증이 해제되었습니다.', { type: 'success' });
+                    setTimeout(() => location.reload(), 1000);
+                } else {
+                    const errorMsg = data.errorMessage || '2차 인증 해제에 실패했습니다.';
+                    notification(errorMsg, { type: 'error' });
+                }
+            }
+        } catch (error) {
+            console.error('2FA Error:', error);
+            notification('네트워크 오류가 발생했습니다.', { type: 'error' });
+        }
+    };
+
+    const handleVerify2FA = async () => {
+        if (!verificationCode || verificationCode.length !== 6) {
+            setVerificationError('올바른 6자리 코드를 입력해주세요.');
+            return;
+        }
+
+        setIsVerifying(true);
+        setVerificationError('');
+
+        try {
+            const { data } = await verify2FASetup(verificationCode);
 
             if (data.status === 'DONE') {
-                notification(`2차 인증이 ${enable ? '활성화' : '해제'}되었습니다.`, { type: 'success' });
+                notification('2차 인증이 활성화되었습니다.', { type: 'success' });
+                setShowQRModal(false);
                 setTimeout(() => location.reload(), 1000);
             } else {
-                notification(`2차 인증 ${enable ? '활성화' : '해제'}에 실패했습니다.`, { type: 'error' });
+                setVerificationError(data.errorMessage || '잘못된 인증 코드입니다.');
             }
-        } catch {
-            notification('네트워크 오류가 발생했습니다.', { type: 'error' });
+        } catch (error) {
+            console.error('2FA Verification Error:', error);
+            setVerificationError('네트워크 오류가 발생했습니다.');
+        } finally {
+            setIsVerifying(false);
         }
     };
 
@@ -388,6 +438,85 @@ const AccountSettings: React.FC = () => {
                     </div>
                 </div>
             </Card>
+
+            {/* QR Code Modal */}
+            {showQRModal && (
+                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+                    <div className="bg-white rounded-2xl shadow-xl max-w-md w-full p-6">
+                        <h3 className="text-xl font-bold text-gray-900 mb-4">2차 인증 설정</h3>
+
+                        <div className="space-y-4">
+                            <div>
+                                <p className="text-sm text-gray-600 mb-3">
+                                    인증 앱(Google Authenticator, Authy 등)으로 아래 QR 코드를 스캔하세요.
+                                </p>
+                                <div className="flex justify-center bg-white p-4 rounded-lg border border-gray-200">
+                                    <img src={qrCode} alt="QR Code" className="w-48 h-48" />
+                                </div>
+                            </div>
+
+                            <div>
+                                <p className="text-sm font-medium text-gray-900 mb-2">복구 키</p>
+                                <p className="text-xs text-gray-600 mb-2">
+                                    기기를 분실했을 때 이 키로 로그인할 수 있습니다. 안전한 곳에 보관하세요.
+                                </p>
+                                <div className="bg-gray-50 p-3 rounded-md border border-gray-200">
+                                    <code className="text-sm font-mono text-gray-900 break-all">{recoveryKey}</code>
+                                </div>
+                            </div>
+
+                            <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3">
+                                <div className="flex items-start">
+                                    <svg className="w-5 h-5 text-yellow-600 mr-2 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                                    </svg>
+                                    <p className="text-xs text-yellow-800">
+                                        복구 키를 잃어버리면 기기 분실 시 계정에 접근할 수 없습니다.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="mt-6 space-y-4">
+                            <div>
+                                <label className="block text-sm font-medium text-gray-900 mb-2">
+                                    인증 앱에 표시된 6자리 코드를 입력하세요
+                                </label>
+                                <Input
+                                    type="text"
+                                    placeholder="000000"
+                                    maxLength={6}
+                                    value={verificationCode}
+                                    onChange={(e) => {
+                                        const value = e.target.value.replace(/\D/g, '');
+                                        setVerificationCode(value);
+                                        setVerificationError('');
+                                    }}
+                                    error={verificationError}
+                                />
+                            </div>
+
+                            <div className="flex gap-3">
+                                <Button
+                                    variant="secondary"
+                                    size="md"
+                                    fullWidth
+                                    onClick={() => setShowQRModal(false)}>
+                                    취소
+                                </Button>
+                                <Button
+                                    variant="primary"
+                                    size="md"
+                                    fullWidth
+                                    isLoading={isVerifying}
+                                    onClick={handleVerify2FA}>
+                                    {isVerifying ? '확인 중...' : '인증'}
+                                </Button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };

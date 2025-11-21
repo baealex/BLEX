@@ -16,6 +16,8 @@ Markdown==3.8.2
 pillow==11.1.0
 promise==2.3
 pycparser==2.22
+pyotp==2.9.0
+qrcode==7.4.2
 pyhumps==3.8.0
 pymdown-extensions==10.16
 python-dateutil==2.9.0.post0

@@ -32,8 +32,8 @@ def login_response(user: User, is_first_login=False):
 def common_auth(request, user):
     # Check if 2FA is required
     if AuthService.check_two_factor_auth(user):
-        # Send 2FA token via Telegram
-        AuthService.send_2fa_token(user)
+        # For TOTP, just indicate that 2FA is required
+        # No token generation/sending needed - user uses authenticator app
         return StatusDone({
             'username': user.username,
             'security': True,
@@ -295,20 +295,64 @@ def security(request):
     if not request.user.is_active:
         return StatusError(ErrorCode.NEED_LOGIN)
 
-    if request.method == 'POST':
-        if not request.user.config.has_telegram_id():
-            return StatusError(ErrorCode.NEED_TELEGRAM)
-
+    if request.method == 'GET':
+        # Return QR code for existing 2FA setup (so user can reconfigure their app if needed)
         if hasattr(request.user, 'twofactorauth'):
-            return StatusError(ErrorCode.ALREADY_CONNECTED)
+            two_factor_auth = request.user.twofactorauth
+            qr_code = AuthService.get_totp_qr_code(request.user)
+            if qr_code:
+                return StatusDone({
+                    'qr_code': qr_code,
+                    'recovery_key': two_factor_auth.recovery_key
+                })
+        return StatusError(ErrorCode.NOT_FOUND)
 
-        recovery_key = randstr(45)
-        # TODO: 이메일로 복구키 전송
+    if request.method == 'POST':
+        try:
+            # Check if 2FA already exists
+            if hasattr(request.user, 'twofactorauth'):
+                return StatusError(ErrorCode.ALREADY_CONNECTED)
 
-        two_factor_auth = TwoFactorAuth(user=request.user)
-        two_factor_auth.recovery_key = recovery_key
-        two_factor_auth.save()
-        return StatusDone()
+            # Generate TOTP secret and recovery key
+            totp_secret = AuthService.create_totp_secret()
+            recovery_key = randstr(45)
+
+            # Store in session (NOT database yet - wait for verification)
+            request.session['totp_setup'] = {
+                'secret': totp_secret,
+                'recovery_key': recovery_key,
+                'user_id': request.user.id
+            }
+
+            # Generate QR code using temporary TOTP object
+            import pyotp
+            import qrcode
+            import io
+            import base64
+
+            totp = pyotp.TOTP(totp_secret)
+            provisioning_uri = totp.provisioning_uri(
+                name=request.user.email,
+                issuer_name='BLEX'
+            )
+
+            qr = qrcode.QRCode(version=1, box_size=10, border=5)
+            qr.add_data(provisioning_uri)
+            qr.make(fit=True)
+
+            img = qr.make_image(fill_color="black", back_color="white")
+            buffer = io.BytesIO()
+            img.save(buffer, format='PNG')
+            img_str = base64.b64encode(buffer.getvalue()).decode()
+            qr_code = f"data:image/png;base64,{img_str}"
+
+            return StatusDone({
+                'qr_code': qr_code,
+                'recovery_key': recovery_key
+            })
+        except Exception as e:
+            traceback.print_exc()
+            return StatusError(ErrorCode.ERROR, f'2FA 설정 초기화에 실패했습니다: {str(e)}')
 
     if request.method == 'DELETE':
         if not hasattr(request.user, 'twofactorauth'):
@@ -319,6 +363,57 @@ def security(request):
 
         request.user.twofactorauth.delete()
         return StatusDone()
+
+    raise Http404
+
+
+def security_verify(request):
+    """Verify TOTP code and complete 2FA setup"""
+    if not request.user.is_active:
+        return StatusError(ErrorCode.NEED_LOGIN)
+
+    if request.method == 'POST':
+        try:
+            # Get setup data from session
+            setup_data = request.session.get('totp_setup')
+            if not setup_data:
+                return StatusError(ErrorCode.ERROR, '2FA 설정 세션이 만료되었습니다. 다시 시도해주세요.')
+
+            if setup_data['user_id'] != request.user.id:
+                return StatusError(ErrorCode.ERROR, '잘못된 세션입니다.')
+
+            # Check if 2FA already exists
+            if hasattr(request.user, 'twofactorauth'):
+                del request.session['totp_setup']
+                return StatusError(ErrorCode.ALREADY_CONNECTED)
+
+            # Get verification code from request
+            data = json.loads(request.body.decode('utf-8')) if request.body else {}
+            code = data.get('code', '').strip()
+
+            if not code:
+                return StatusError(ErrorCode.ERROR, '인증 코드를 입력해주세요.')
+
+            # Verify the TOTP code
+            import pyotp
+            totp = pyotp.TOTP(setup_data['secret'])
+            if not totp.verify(code, valid_window=1):
+                return StatusError(ErrorCode.REJECT, '잘못된 인증 코드입니다.')
+
+            # Verification successful - save to database
+            two_factor_auth = TwoFactorAuth(user=request.user)
+            two_factor_auth.totp_secret = setup_data['secret']
+            two_factor_auth.recovery_key = setup_data['recovery_key']
+            two_factor_auth.save()
+
+            # Clear session
+            del request.session['totp_setup']
+
+            return StatusDone({'message': '2차 인증이 활성화되었습니다.'})
+
+        except Exception as e:
+            traceback.print_exc()
+            return StatusError(ErrorCode.ERROR, f'2FA 활성화에 실패했습니다: {str(e)}')
 
     raise Http404
 
@@ -367,8 +462,8 @@ def security_send(request):
                 cache.set(cache_key, attempts + 1, 300)
                 return StatusError(ErrorCode.REJECT)
 
-            # Verify token using AuthService
-            if AuthService.verify_2fa_token(user, verification_code):
+            # Verify TOTP token or recovery key using AuthService
+            if AuthService.verify_totp_token(user, verification_code):
                 # Reset 2FA attempts on success
                 cache.delete(cache_key)
 
