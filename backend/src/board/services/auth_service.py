@@ -278,13 +278,14 @@ class AuthService:
 
     @staticmethod
     @transaction.atomic
-    def change_username(user: User, new_username: str) -> None:
+    def change_username(user: User, new_username: str, create_log: bool = True) -> None:
         """
         Change user's username.
 
         Args:
             user: User instance
             new_username: New username
+            create_log: Whether to create username change log (default True)
 
         Raises:
             AuthValidationError: If validation fails
@@ -292,12 +293,12 @@ class AuthService:
         # Validate new username
         AuthService.validate_username(new_username)
 
-        # Store old username in log
-        UsernameChangeLog.objects.create(
-            user=user,
-            old_username=user.username,
-            new_username=new_username
-        )
+        # Store old username in log if requested
+        if create_log:
+            UsernameChangeLog.objects.create(
+                user=user,
+                username=user.username
+            )
 
         # Update username
         user.username = new_username

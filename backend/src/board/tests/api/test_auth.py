@@ -1,8 +1,10 @@
 import json
 
-from unittest.mock import patch
+from unittest.mock import patch, MagicMock
+from datetime import timedelta
 
 from django.test import TestCase, override_settings
+from django.utils import timezone
 
 from board.models import User, UsernameChangeLog, Profile, Config
 from modules import oauth

@@ -650,6 +650,34 @@ class TwoFactorAuth(models.Model):
             return True
         return False
 
+    def verify_token(self, token):
+        """
+        Verify 2FA token (OTP or recovery key).
+
+        Args:
+            token: 6-digit OTP code or 45-character recovery key
+
+        Returns:
+            True if token is valid, False otherwise
+        """
+        if len(token) == 6:
+            # Verify OTP
+            if self.otp == token:
+                if self.is_token_expire():
+                    return False
+                # Clear OTP after successful verification
+                self.otp = ''
+                self.save()
+                return True
+        elif len(token) == 45:
+            # Verify recovery key
+            if self.recovery_key == token:
+                # Clear OTP after successful verification
+                self.otp = ''
+                self.save()
+                return True
+        return False
+
     def __str__(self):
         return self.user.username
 

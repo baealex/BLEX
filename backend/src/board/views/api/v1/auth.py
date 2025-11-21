@@ -6,7 +6,6 @@ from django.conf import settings
 from django.contrib import auth
 from django.core.cache import cache
 from django.contrib.auth.models import User
-from django.db.models import Count, Case, When, Value, Exists, OuterRef
 from django.http import Http404, QueryDict
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
@@ -25,55 +24,21 @@ from modules.randomness import randnum, randstr
 
 
 def login_response(user: User, is_first_login=False):
-    _user = get_object_or_404(User.objects.select_related(
-        'profile', 'config'
-    ).annotate(
-        notify_count=Count(
-            Case(
-                When(notify__has_read=False, then=Value(1))
-            )
-        ),
-        has_connected_telegram=Exists(
-            TelegramSync.objects.filter(
-                user_id=OuterRef('id'),
-                tid__regex=r'^.+'
-            )
-        ),
-        has_connected_2fa=Exists(
-            TwoFactorAuth.objects.filter(
-                user_id=OuterRef('id')
-            )
-        ),
-    ), id=user.id)
-
-    return StatusDone({
-        'username': _user.username,
-        'name': _user.first_name,
-        'email': _user.email,
-        'avatar': _user.profile.avatar.url if _user.profile.avatar else '',
-        'notify_count': _user.notify_count,
-        'is_first_login': is_first_login,
-        'has_connected_telegram': _user.has_connected_telegram,
-        'has_connected_2fa': _user.has_connected_2fa,
-        'has_editor_role': _user.profile.is_editor(),
-    })
+    data = AuthService.get_user_login_data(user)
+    data['is_first_login'] = is_first_login
+    return StatusDone(data)
 
 
 def common_auth(request, user):
-    if not settings.DEBUG:
-        if user.config.has_two_factor_auth():
-            def create_auth_token():
-                token = randnum(6)
-                user.twofactorauth.create_token(token)
-                bot = TelegramBot(settings.TELEGRAM_BOT_TOKEN)
-                bot.send_message(user.telegramsync.get_decrypted_tid(),
-                                 f'2차 인증 코드입니다 : {token}')
-
-            SubTaskProcessor.process(create_auth_token)
-            return StatusDone({
-                'username': user.username,
-                'security': True,
-            })
+    # Check if 2FA is required
+    if AuthService.check_two_factor_auth(user):
+        # Send 2FA token via Telegram
+        AuthService.send_2fa_token(user)
+        return StatusDone({
+            'username': user.username,
+            'security': True,
+        })
+    # No 2FA required, proceed with login
     auth.login(request, user)
     return login_response(request.user)
 
@@ -197,18 +162,13 @@ def sign(request):
 
             username = body.get('username', '')
 
-            # Validate username using AuthService
+            # Change username using AuthService
             try:
-                AuthService.validate_username(username)
+                # Only create change log if user has posts
+                create_log = Post.objects.filter(author=request.user).exists()
+                AuthService.change_username(user, username, create_log=create_log)
             except AuthValidationError as e:
                 return StatusError(e.code, e.message)
-
-            if Post.objects.filter(author=request.user).exists():
-                UsernameChangeLog.objects.create(
-                    user=user,
-                    username=user.username,
-                )
-            user.username = username
 
         if body.get('name', ''):
             user.first_name = body.get('name', '')
@@ -368,64 +328,66 @@ def security_send(request):
         # Server-side 2FA rate limiting
         client_ip = request.META.get('HTTP_X_FORWARDED_FOR', request.META.get('REMOTE_ADDR'))
         cache_key = f'2fa_attempts:{client_ip}'
-        
+
         attempts = cache.get(cache_key, 0)
-        
+
         # Block if too many 2FA attempts
         if attempts >= 5:
             return StatusError(ErrorCode.REJECT, '너무 많은 실패로 인해 5분 동안 차단되었습니다.')
 
-        body = QueryDict(request.body)
-        auth_token = body.get('auth_token', '')
-        code = body.get('code', '')  # For the new 2FA flow
-        
         try:
-            # Handle 6-digit 2FA code
-            verification_code = code or auth_token
-            if len(verification_code) == 6:
-                two_factor_auth = TwoFactorAuth.objects.get(otp=verification_code)
-                if two_factor_auth:
-                    if two_factor_auth.is_token_expire():
-                        return StatusError(ErrorCode.EXPIRED)
-                    user = two_factor_auth.user
-                    two_factor_auth.otp = ''
-                    two_factor_auth.save()
-                    
-                    # Reset 2FA attempts on success
-                    cache.delete(cache_key)
-                    
-                    # Clear OAuth 2FA session data if exists
-                    if 'pending_2fa_user_id' in request.session:
-                        del request.session['pending_2fa_user_id']
-                        del request.session['pending_2fa_username']
-                    
-                    auth.login(request, user)
-                    return login_response(request.user)
-            # Handle recovery key
-            elif len(verification_code) > 6:
-                two_factor_auth = TwoFactorAuth.objects.get(
-                    recovery_key=verification_code)
-                if two_factor_auth:
-                    user = two_factor_auth.user
-                    two_factor_auth.otp = ''
-                    two_factor_auth.save()
-                    
-                    # Reset 2FA attempts on success
-                    cache.delete(cache_key)
-                    
-                    # Clear OAuth 2FA session data if exists
-                    if 'pending_2fa_user_id' in request.session:
-                        del request.session['pending_2fa_user_id']
-                        del request.session['pending_2fa_username']
-                    
-                    auth.login(request, user)
-                    return login_response(request.user)
+            data = json.loads(request.body.decode('utf-8')) if request.body else {}
+        except (json.JSONDecodeError, UnicodeDecodeError):
+            cache.set(cache_key, attempts + 1, 300)
+            return StatusError(ErrorCode.VALIDATE, 'Invalid JSON format')
+
+        code = data.get('code', '')
+        username = data.get('username', '')
+
+        try:
+            verification_code = code
+
+            # Username is required for 2FA verification
+            if not username:
+                cache.set(cache_key, attempts + 1, 300)
+                return StatusError(ErrorCode.VALIDATE, '사용자 이름이 필요합니다.')
+
+            if not verification_code or len(verification_code) < 6:
+                cache.set(cache_key, attempts + 1, 300)
+                return StatusError(ErrorCode.VALIDATE, '인증 코드를 입력해주세요.')
+
+            # Find user and verify 2FA is enabled
+            try:
+                user = User.objects.get(username=username)
+                TwoFactorAuth.objects.get(user=user)
+            except User.DoesNotExist:
+                cache.set(cache_key, attempts + 1, 300)
+                return StatusError(ErrorCode.REJECT)
+            except TwoFactorAuth.DoesNotExist:
+                cache.set(cache_key, attempts + 1, 300)
+                return StatusError(ErrorCode.REJECT)
+
+            # Verify token using AuthService
+            if AuthService.verify_2fa_token(user, verification_code):
+                # Reset 2FA attempts on success
+                cache.delete(cache_key)
+
+                # Clear OAuth 2FA session data if exists
+                if 'pending_2fa_user_id' in request.session:
+                    del request.session['pending_2fa_user_id']
+                    del request.session['pending_2fa_username']
+
+                auth.login(request, user)
+                return login_response(request.user)
+            else:
+                # Verification failed
+                cache.set(cache_key, attempts + 1, 300)
+                return StatusError(ErrorCode.REJECT)
+
         except Exception as e:
             traceback.print_exc()
-
-        # Increment failed 2FA attempts
-        cache.set(cache_key, attempts + 1, 300)  # 5 minutes
-        return StatusError(ErrorCode.REJECT)
+            cache.set(cache_key, attempts + 1, 300)
+            return StatusError(ErrorCode.REJECT)
 
     raise Http404
 
