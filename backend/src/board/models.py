@@ -1,5 +1,6 @@
 import datetime
 import os
+import pyotp
 
 from django.conf import settings
 from django.contrib.auth.models import User
@@ -640,7 +641,6 @@ class TwoFactorAuth(models.Model):
 
     def verify_totp(self, token):
         """Verify TOTP token"""
-        import pyotp
         if not self.totp_secret:
             return False
         totp = pyotp.TOTP(self.totp_secret)
@@ -648,7 +648,6 @@ class TwoFactorAuth(models.Model):
 
     def get_provisioning_uri(self):
         """Get provisioning URI for QR code"""
-        import pyotp
         if not self.totp_secret:
             return None
         totp = pyotp.TOTP(self.totp_secret)

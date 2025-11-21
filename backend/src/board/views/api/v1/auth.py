@@ -1,6 +1,10 @@
 import datetime
 import traceback
 import json
+import io
+import pyotp
+import qrcode
+import base64
 
 from django.conf import settings
 from django.contrib import auth
@@ -325,11 +329,6 @@ def security(request):
             }
 
             # Generate QR code using temporary TOTP object
-            import pyotp
-            import qrcode
-            import io
-            import base64
-
             totp = pyotp.TOTP(totp_secret)
             provisioning_uri = totp.provisioning_uri(
                 name=request.user.email,
@@ -395,7 +394,6 @@ def security_verify(request):
                 return StatusError(ErrorCode.ERROR, '인증 코드를 입력해주세요.')
 
             # Verify the TOTP code
-            import pyotp
             totp = pyotp.TOTP(setup_data['secret'])
             if not totp.verify(code, valid_window=1):
                 return StatusError(ErrorCode.REJECT, '잘못된 인증 코드입니다.')
