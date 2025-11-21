@@ -15,7 +15,7 @@ const Login = () => {
     } = useLoginState();
 
     // Get the next URL from window (set by the template)
-    const nextUrl = (window as any).NEXT_URL || '';
+    const nextUrl = window.NEXT_URL || '';
 
     const focusNext = (index: number) => {
         if (index < 5) {

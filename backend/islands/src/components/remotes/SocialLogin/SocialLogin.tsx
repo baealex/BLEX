@@ -17,7 +17,7 @@ const SocialLogin: React.FC = () => {
         };
 
         // Get next URL from window (set by template)
-        const nextUrl = (window as any).NEXT_URL || '';
+        const nextUrl = window.NEXT_URL || '';
 
         const redirectUris: Record<string, string> = {
             google: `${window.location.origin}/login/callback/google${nextUrl ? '?next=' + encodeURIComponent(nextUrl) : ''}`,

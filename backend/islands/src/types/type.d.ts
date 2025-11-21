@@ -26,5 +26,6 @@ declare global {
             googleClientId?: string;
             githubClientId?: string;
         };
+        NEXT_URL: string;
     }
 }
