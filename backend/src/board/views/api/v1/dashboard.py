@@ -25,7 +25,6 @@ def dashboard_stats(request):
     if cached_stats:
         return StatusDone(cached_stats)
 
-    # Get stats from UserService
     stats = UserService.get_user_dashboard_stats(request.user)
 
     # Cache the results for 5 minutes
@@ -53,7 +52,6 @@ def dashboard_activities(request):
     if cached_activities:
         return StatusDone({'recentActivities': cached_activities})
 
-    # Get activities from UserService
     recent_activities = UserService.get_user_dashboard_activities(request.user, days=30)
 
     # Cache the results for 2 minutes

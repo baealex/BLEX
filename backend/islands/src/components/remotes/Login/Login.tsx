@@ -14,7 +14,6 @@ const Login = () => {
         handleFailedTwoFactor
     } = useLoginState();
 
-    // Get the next URL from window (set by the template)
     const nextUrl = window.NEXT_URL || '';
 
     const focusNext = (index: number) => {

@@ -16,7 +16,6 @@ const SocialLogin: React.FC = () => {
             github: window.configuration?.githubClientId
         };
 
-        // Get next URL from window (set by template)
         const nextUrl = window.NEXT_URL || '';
 
         const redirectUris: Record<string, string> = {

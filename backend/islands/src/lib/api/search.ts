@@ -22,9 +22,6 @@ export interface SearchResponseBody {
 
 export type SearchResponse = Response<SearchResponseBody>;
 
-/**
- * Search posts
- */
 export const searchPosts = async (query: string, page: number = 1) => {
     return http.get<SearchResponse>(`/v1/search?q=${encodeURIComponent(query)}&page=${page}`);
 };

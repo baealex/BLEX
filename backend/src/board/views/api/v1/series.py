@@ -57,7 +57,6 @@ def user_series(request, username, url=None):
                         parts = item.split('=')
                         if len(parts) == 2:
                             url_part, order = parts
-                            # Find series by URL to get ID
                             series_item = Series.objects.filter(
                                 owner=request.user,
                                 url=url_part
@@ -230,7 +229,6 @@ def series_order(request):
             return StatusError(ErrorCode.INVALID_PARAMETER, '순서 정보가 필요합니다.')
 
         try:
-            # Convert order_data to list of tuples
             order_tuples = [(item[0], item[1]) for item in order_data if len(item) >= 2]
             SeriesService.update_series_order(request.user, order_tuples)
             return StatusDone({'message': '시리즈 순서가 변경되었습니다.'})
