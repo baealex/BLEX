@@ -60,7 +60,7 @@ const Modal: React.FC<ModalProps> = ({
             className="fixed inset-0 z-[60] flex items-end sm:items-center justify-center p-0 sm:p-4"
             onClick={handleBackdropClick}>
             {/* 블러 백드롭 */}
-            <div className="fixed inset-0 bg-black/50 backdrop-blur-sm" aria-hidden="true" />
+            <div className="fixed inset-0 bg-black/50 backdrop-blur-sm" aria-hidden="true" onClick={onClose} />
 
             {/* 모달 컨텐츠 */}
             <div
