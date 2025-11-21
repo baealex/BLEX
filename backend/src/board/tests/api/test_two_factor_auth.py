@@ -42,10 +42,10 @@ class TwoFactorAuthTestCase(TestCase):
         self.assertEqual(content['status'], 'DONE')
 
         # Check QR code and recovery key are returned
-        self.assertIn('qr_code', content['body'])
-        self.assertIn('recovery_key', content['body'])
-        self.assertTrue(content['body']['qr_code'].startswith('data:image/png;base64,'))
-        self.assertEqual(len(content['body']['recovery_key']), 45)
+        self.assertIn('qrCode', content['body'])
+        self.assertIn('recoveryKey', content['body'])
+        self.assertTrue(content['body']['qrCode'].startswith('data:image/png;base64,'))
+        self.assertEqual(len(content['body']['recoveryKey']), 45)
 
         # At this point, 2FA should NOT be saved to database yet
         user = User.objects.get(username='test2fa')
