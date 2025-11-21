@@ -242,7 +242,7 @@ const Login = () => {
                     {state.showTwoFactor ? '이중 인증' : '다시 오신 것을 환영합니다'}
                 </h1>
                 <p className="text-lg text-gray-600 leading-relaxed">
-                    {state.showTwoFactor ? '텔레그램으로 전송된 인증 코드를 입력해주세요' : '좋아하는 작가들의 새로운 글이 기다리고 있어요'}
+                    {state.showTwoFactor ? '인증 앱에서 생성된 6자리 코드를 입력해주세요' : '좋아하는 작가들의 새로운 글이 기다리고 있어요'}
                 </p>
             </div>
 

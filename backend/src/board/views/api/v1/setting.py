@@ -78,6 +78,7 @@ def setting(request, parameter):
                 'email': user.email,
                 'created_date': convert_to_localtime(user.date_joined).strftime('%Y년 %m월 %d일'),
                 'account_deletion_redirect_url': deletion_redirect_url,
+                'has2fa': hasattr(user, 'twofactorauth'),
             })
 
         if parameter == 'heatmap':

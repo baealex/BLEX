@@ -89,6 +89,7 @@ urlpatterns = [
     path('v1/social-providers', api_v1.social_providers),
     path('v1/auth/email-verify/<token>', api_v1.email_verify),
     path('v1/auth/security', api_v1.security),
+    path('v1/auth/security/verify', api_v1.security_verify),
     path('v1/auth/security/send', api_v1.security_send),
     path('v1/setting/<parameter>', api_v1.setting),
     path('v1/dashboard/activities', api_v1.dashboard_activities),

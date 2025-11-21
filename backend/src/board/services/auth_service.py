@@ -6,6 +6,10 @@ Extracted from views to improve testability and reusability.
 """
 
 import re
+import io
+import pyotp
+import qrcode
+import base64
 from typing import Optional, Tuple, Dict, Any
 
 from django.conf import settings
@@ -240,41 +244,72 @@ class AuthService:
         return user.config.has_two_factor_auth()
 
     @staticmethod
-    def send_2fa_token(user: User) -> None:
+    def create_totp_secret() -> str:
         """
-        Generate and send 2FA token via Telegram.
+        Generate a new TOTP secret.
 
-        Args:
-            user: User instance
+        Returns:
+            Base32 encoded secret string
         """
-        def create_and_send_token():
-            token = randnum(6)
-            user.twofactorauth.create_token(token)
-            bot = TelegramBot(settings.TELEGRAM_BOT_TOKEN)
-            bot.send_message(
-                user.telegramsync.get_decrypted_tid(),
-                f'2차 인증 코드입니다 : {token}'
-            )
-
-        SubTaskProcessor.process(create_and_send_token)
+        return pyotp.random_base32()
 
     @staticmethod
-    def verify_2fa_token(user: User, token: str) -> bool:
+    def verify_totp_token(user: User, token: str) -> bool:
         """
-        Verify 2FA token.
+        Verify TOTP token or recovery key.
 
         Args:
             user: User instance
-            token: Token to verify
+            token: TOTP token (6 digits) or recovery key (45 chars)
 
         Returns:
             True if token is valid, False otherwise
         """
         try:
             two_factor_auth = TwoFactorAuth.objects.get(user=user)
-            return two_factor_auth.verify_token(token)
+
+            # Check if it's a recovery key (longer than 6 chars)
+            if len(token) > 6:
+                return two_factor_auth.recovery_key == token
+
+            # Otherwise verify TOTP
+            return two_factor_auth.verify_totp(token)
         except TwoFactorAuth.DoesNotExist:
             return False
+
+    @staticmethod
+    def get_totp_qr_code(user: User) -> Optional[str]:
+        """
+        Get QR code data URL for TOTP setup.
+
+        Args:
+            user: User instance
+
+        Returns:
+            Base64 encoded QR code image data URL, or None if 2FA not set up
+        """
+        try:
+            two_factor_auth = TwoFactorAuth.objects.get(user=user)
+            provisioning_uri = two_factor_auth.get_provisioning_uri()
+
+            if not provisioning_uri:
+                return None
+
+            # Generate QR code
+            qr = qrcode.QRCode(version=1, box_size=10, border=5)
+            qr.add_data(provisioning_uri)
+            qr.make(fit=True)
+
+            img = qr.make_image(fill_color="black", back_color="white")
+
+            # Convert to base64
+            buffer = io.BytesIO()
+            img.save(buffer, format='PNG')
+            img_str = base64.b64encode(buffer.getvalue()).decode()
+
+            return f"data:image/png;base64,{img_str}"
+        except TwoFactorAuth.DoesNotExist:
+            return None
 
     @staticmethod
     @transaction.atomic
