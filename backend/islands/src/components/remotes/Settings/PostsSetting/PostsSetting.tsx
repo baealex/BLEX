@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { notification } from '@baejino/ui';
 import { useFetch } from '~/hooks/use-fetch';
-import { Button, Input, Dropdown } from '~/components/shared';
+import { Button, Input, Dropdown, Alert } from '~/components/shared';
 import { getIconClass } from '~/components/shared/settingsStyles';
 import { useConfirm } from '~/contexts/ConfirmContext';
 import {
@@ -538,18 +538,10 @@ const PostsSetting = () => {
                                 </div>
 
                                 {post.readTime > 30 && (
-                                    <div className="bg-yellow-50 border-l-4 border-yellow-400 rounded-xl p-4">
-                                        <div className="flex items-start">
-                                            <i className="fas fa-exclamation-triangle text-yellow-600 mr-3 mt-0.5" />
-                                            <div>
-                                                <h4 className="text-sm font-semibold text-gray-900 mb-1">긴 글 주의</h4>
-                                                <p className="text-sm text-gray-600">
-                                                    이 글은 읽는데 {post.readTime}분이 걸립니다.
-                                                    내용을 나누어 여러 포스트로 작성하는 것을 고려해보세요.
-                                                </p>
-                                            </div>
-                                        </div>
-                                    </div>
+                                    <Alert variant="warning" title="긴 글 주의">
+                                        이 글은 읽는데 {post.readTime}분이 걸립니다.
+                                        내용을 나누어 여러 포스트로 작성하는 것을 고려해보세요.
+                                    </Alert>
                                 )}
                             </div>
                         </div>
