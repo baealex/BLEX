@@ -26,23 +26,14 @@ export interface SocialProvider {
 
 export type SocialProvidersResponse = Response<SocialProvider[]>;
 
-/**
- * Login with username and password
- */
 export const login = async (data: LoginRequest) => {
     return http.post<LoginResponse>('v1/login', data);
 };
 
-/**
- * Submit 2FA verification code
- */
 export const submit2FACode = async (data: SecurityCodeRequest) => {
     return http.post<LoginResponse>('v1/auth/security/send', data);
 };
 
-/**
- * Get available social login providers
- */
 export const getSocialProviders = async () => {
     return http.get<SocialProvidersResponse>('v1/social-providers');
 };
@@ -54,23 +45,14 @@ export interface Enable2FAResponseBody {
 
 export type Enable2FAResponse = Response<Enable2FAResponseBody>;
 
-/**
- * Enable 2FA for account
- */
 export const enable2FA = async () => {
     return http.post<Enable2FAResponse>('v1/auth/security');
 };
 
-/**
- * Verify 2FA setup code
- */
 export const verify2FASetup = async (code: string) => {
     return http.post<Response<{ message: string }>>('v1/auth/security/verify', { code });
 };
 
-/**
- * Disable 2FA for account
- */
 export const disable2FA = async () => {
     return http.delete('v1/auth/security');
 };

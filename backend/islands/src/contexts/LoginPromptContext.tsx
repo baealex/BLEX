@@ -28,13 +28,11 @@ export const LoginPromptProvider: React.FC<{ children: ReactNode }> = ({ childre
         action: ''
     });
 
-    // Check if user is logged in
     const isLoggedIn = useMemo(() => {
         return !!window.configuration?.user?.username;
     }, []);
 
     const showLoginPrompt = useCallback((action: string) => {
-        // If already logged in, don't show prompt
         if (isLoggedIn) {
             return;
         }

@@ -36,9 +36,6 @@ export interface PostsFilters {
     page?: number;
 }
 
-/**
- * Get user's posts with filters
- */
 export const getPosts = async (filters: PostsFilters = {}) => {
     const params = new URLSearchParams();
     Object.entries(filters).forEach(([key, value]) => {
@@ -51,23 +48,14 @@ export const getPosts = async (filters: PostsFilters = {}) => {
     return http.get<PostsResponse>(`v1/setting/posts${queryString ? `?${queryString}` : ''}`);
 };
 
-/**
- * Toggle post visibility
- */
 export const togglePostVisibility = async (username: string, postUrl: string) => {
     return http.put<Response<{ isHide: boolean }>>(`v1/users/@${username}/posts/${postUrl}?hide=hide`);
 };
 
-/**
- * Delete a post
- */
 export const deletePost = async (username: string, postUrl: string) => {
     return http.delete<Response<unknown>>(`v1/users/@${username}/posts/${postUrl}`);
 };
 
-/**
- * Update post tags
- */
 export const updatePostTags = async (username: string, postUrl: string, tags: string) => {
     const formData = new URLSearchParams();
     formData.append('tag', tags);
@@ -75,9 +63,6 @@ export const updatePostTags = async (username: string, postUrl: string, tags: st
     return http.put<Response<{ tag: string }>>(`v1/users/@${username}/posts/${postUrl}?tag=tag`, formData, { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } });
 };
 
-/**
- * Update post series
- */
 export const updatePostSeries = async (username: string, postUrl: string, series: string) => {
     const formData = new URLSearchParams();
     formData.append('series', series);
@@ -95,23 +80,14 @@ export interface RelatedPost {
     readTime: number;
 }
 
-/**
- * Get related posts
- */
 export const getRelatedPosts = async (username: string, postUrl: string) => {
     return http.get<Response<{ posts: RelatedPost[] }>>(`v1/users/@${username}/posts/${postUrl}/related`);
 };
 
-/**
- * Create temporary post
- */
 export const createTempPost = async (data: { title: string; content: string; tags: string }) => {
     return http.post<Response<{ token: string }>>('v1/temp-posts', data, { headers: { 'Content-Type': 'application/json' } });
 };
 
-/**
- * Update temporary post
- */
 export const updateTempPost = async (token: string, data: { title: string; text_md: string; tag: string }) => {
     const formData = new URLSearchParams();
     formData.append('title', data.title);
@@ -130,9 +106,6 @@ export interface TempPostDetail {
     createdDate: string;
 }
 
-/**
- * Get temporary post by token
- */
 export const getTempPost = async (token: string) => {
     return http.get<Response<TempPostDetail>>(`v1/temp-posts/${token}`);
 };
@@ -153,16 +126,10 @@ export interface PostForEdit {
     isAdvertise: boolean;
 }
 
-/**
- * Get post for editing
- */
 export const getPostForEdit = async (username: string, postUrl: string) => {
     return http.get<Response<PostForEdit>>(`v1/users/@${username}/posts/${postUrl}?mode=edit`);
 };
 
-/**
- * Upload image
- */
 export const uploadImage = async (file: File) => {
     const formData = new FormData();
     formData.append('image', file);

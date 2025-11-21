@@ -25,7 +25,6 @@ const likeButton = (options: LikeButtonOptions = {}): Alpine.AlpineComponent<Sta
     postUrl: options.postUrl ?? '',
 
     async handleLike() {
-        // Check if user is logged in
         if (!isLoggedIn()) {
             showLoginPrompt('좋아요');
             return;

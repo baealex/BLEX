@@ -57,14 +57,12 @@ class AuthService:
         Raises:
             AuthValidationError: If validation fails
         """
-        # Check if username already exists
         if User.objects.filter(username=username).exists():
             raise AuthValidationError(
                 ErrorCode.VALIDATE,
                 '이미 사용중인 사용자 이름 입니다.'
             )
 
-        # Check format
         match = AuthService.USERNAME_PATTERN.match(username)
         if not match or len(match.group()) != len(username):
             raise AuthValidationError(
@@ -134,10 +132,8 @@ class AuthService:
         Returns:
             Tuple of (User, Profile, Config)
         """
-        # Generate unique username
         unique_username = AuthService.generate_unique_username(username)
 
-        # Create user
         user = User.objects.create_user(
             username=unique_username,
             email=email,
@@ -149,10 +145,8 @@ class AuthService:
             user.last_name = token
             user.save()
 
-        # Create profile
         user_profile = Profile.objects.create(user=user)
 
-        # Download and set avatar
         if avatar_url:
             try:
                 avatar = download_image(avatar_url, stream=True)
@@ -163,12 +157,10 @@ class AuthService:
                 # Don't fail user creation if avatar download fails
                 pass
 
-        # Create config
         user_config = Config.objects.create(user=user)
         user_config.create_or_update_meta(CONFIG_TYPE.NOTIFY_MENTION, 'true')
         user_config.create_or_update_meta(CONFIG_TYPE.NOTIFY_COMMENT_LIKE, 'true')
 
-        # Send welcome notification
         AuthService.send_welcome_notification(user)
 
         return user, user_profile, user_config

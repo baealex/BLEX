@@ -35,7 +35,6 @@ export const useAutoSave = (data: AutoSaveData, options: UseAutoSaveOptions) => 
     }));
     const isInitialLoadRef = useRef(true);
 
-    // Keep refs updated
     dataRef.current = data;
     optionsRef.current = options;
 
@@ -63,14 +62,12 @@ export const useAutoSave = (data: AutoSaveData, options: UseAutoSaveOptions) => 
         setIsSaving(true);
         try {
             if (tempTokenRef.current) {
-                // Update temp post
                 await updateTempPost(tempTokenRef.current, {
                     title: currentData.title || '제목 없음',
                     text_md: currentData.content,
                     tag: currentData.tags
                 });
             } else {
-                // Create temp post
                 const response = await createTempPost({
                     title: currentData.title || '제목 없음',
                     content: currentData.content,
@@ -124,29 +121,23 @@ export const useAutoSave = (data: AutoSaveData, options: UseAutoSaveOptions) => 
 
         isInitialLoadRef.current = false;
 
-        // Update previous data
         prevDataStringRef.current = currentDataString;
 
-        // Clear existing timers
         if (autoSaveRef.current) clearTimeout(autoSaveRef.current);
         if (countdownRef.current) clearInterval(countdownRef.current);
         if (progressRef.current) clearInterval(progressRef.current);
 
-        // Start countdown and progress
         setNextSaveIn(intervalMs);
         setSaveProgress(0);
 
-        // Countdown timer
         countdownRef.current = window.setInterval(() => {
             setNextSaveIn(prev => Math.max(0, prev - 1000));
         }, 1000);
 
-        // Progress bar
         progressRef.current = window.setInterval(() => {
             setSaveProgress(prev => Math.min(100, prev + (100 / (intervalMs / 100))));
         }, 100);
 
-        // Auto save timer
         autoSaveRef.current = window.setTimeout(() => {
             const currentData = dataRef.current;
             if (currentData.title || currentData.content) {
