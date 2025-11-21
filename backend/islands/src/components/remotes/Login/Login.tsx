@@ -195,7 +195,10 @@ const Login = () => {
         }
 
         try {
-            const { data } = await submit2FACode({ auth_code: code });
+            const { data } = await submit2FACode({
+                username: state.username,
+                code: code
+            });
 
             if (data.status === 'DONE') {
                 updateState({

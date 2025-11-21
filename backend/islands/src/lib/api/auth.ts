@@ -14,7 +14,8 @@ export interface LoginResponseBody {
 export type LoginResponse = Response<LoginResponseBody>;
 
 export interface SecurityCodeRequest {
-    auth_code: string;
+    username: string;
+    code: string;
 }
 
 export interface SocialProvider {
