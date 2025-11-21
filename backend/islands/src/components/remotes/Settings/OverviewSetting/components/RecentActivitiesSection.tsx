@@ -77,7 +77,7 @@ const RecentActivitiesSection = ({ activities, isLoading }: RecentActivitiesSect
                                 <i className="fas fa-clock text-gray-400 text-2xl" />
                             </div>
                             <h3 className="text-lg font-bold text-gray-900 mb-1">아직 활동이 없습니다</h3>
-                            <p className="text-gray-500 text-sm">첫 번째 포스트를 작성해보세요!</p>
+                            <p className="text-gray-500 text-sm">활동을 시작해보세요!</p>
                         </div>
                     )}
                 </div>
