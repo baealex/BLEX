@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { notification } from '@baejino/ui';
 import { useFetch } from '~/hooks/use-fetch';
-import { Button, Input } from '~/components/shared';
+import { Button, Input, Dropdown } from '~/components/shared';
 import { getIconClass } from '~/components/shared/settingsStyles';
 import { useConfirm } from '~/contexts/ConfirmContext';
 import {
@@ -410,93 +410,83 @@ const PostsSetting = () => {
             ) : (
                 <div className="space-y-3">
                     {posts.map((post) => (
-                        <div key={post.url} className="bg-gray-50 border border-gray-200 rounded-xl overflow-hidden hover:bg-white hover:border-gray-300 transition-all duration-200">
+                        <div key={post.url} className="bg-white border border-gray-100 rounded-2xl shadow-sm hover:shadow-md hover:border-gray-200 transition-all duration-200 overflow-hidden">
                             {/* 헤더 */}
-                            <div className="p-4 border-b border-gray-100">
-                                <div className="flex items-center gap-3 mb-3">
-                                    {/* 아이콘 */}
-                                    <div className={getIconClass('dark')}>
-                                        <i className="fas fa-file-alt text-sm" />
-                                    </div>
-
-                                    {/* 컨텐츠 */}
+                            <div
+                                className="p-5 border-b border-gray-50 cursor-pointer hover:bg-gray-50 transition-colors"
+                                onClick={() => window.location.href = `/@${postsData?.username}/${post.url}/edit`}>
+                                <div className="flex items-start justify-between gap-4 mb-3">
+                                    {/* 제목 영역 */}
                                     <div className="flex-1 min-w-0">
-                                        <h3 className="text-base font-semibold text-gray-900 truncate mb-1">
-                                            <a
-                                                href={`/@${postsData?.username}/${post.url}`}
-                                                target="_blank"
-                                                rel="noopener noreferrer"
-                                                className="hover:text-gray-600 transition-colors">
-                                                {post.title}
-                                            </a>
+                                        <h3 className="text-lg font-bold text-gray-900 mb-2 break-words leading-tight">
+                                            {post.title}
                                         </h3>
-                                        <div className="flex items-center gap-3 text-xs text-gray-500 flex-wrap">
+                                        <div className="flex items-center gap-3 text-sm text-gray-500 flex-wrap">
                                             <span className="flex items-center">
                                                 <i className="fas fa-calendar mr-1.5" />
                                                 {formatDate(post.createdDate)}
                                             </span>
                                             {post.createdDate !== post.updatedDate && (
-                                                <span className="flex items-center">
-                                                    <i className="fas fa-edit mr-1.5" />
-                                                    수정됨
-                                                </span>
+                                                <span className="text-gray-400">•</span>
                                             )}
-                                            {post.isHide && (
-                                                <span className="bg-gray-100 text-gray-700 px-2 py-0.5 rounded-lg text-xs flex items-center font-medium">
-                                                    <i className="fas fa-lock mr-1" />
-                                                    비공개
+                                            {post.createdDate !== post.updatedDate && (
+                                                <span>수정됨</span>
+                                            )}
+                                            <span className="text-gray-400">•</span>
+                                            <span className="flex items-center gap-3">
+                                                <span className="flex items-center">
+                                                    <i className="fas fa-heart text-red-400 mr-1" />
+                                                    {post.countLikes}
                                                 </span>
+                                                <span className="flex items-center">
+                                                    <i className="fas fa-comment text-blue-400 mr-1" />
+                                                    {post.countComments}
+                                                </span>
+                                                <span className="flex items-center">
+                                                    <i className="fas fa-clock text-gray-400 mr-1" />
+                                                    {post.readTime}분
+                                                </span>
+                                            </span>
+                                            {post.isHide && (
+                                                <>
+                                                    <span className="text-gray-400">•</span>
+                                                    <span className="inline-flex items-center px-2.5 py-1 bg-gray-100 text-gray-700 rounded-full text-xs font-medium">
+                                                        <i className="fas fa-lock mr-1.5" />
+                                                        비공개
+                                                    </span>
+                                                </>
                                             )}
                                         </div>
                                     </div>
 
                                     {/* 액션 */}
-                                    <div className="flex items-center gap-2 flex-shrink-0">
-                                        <Button
-                                            variant="secondary"
-                                            size="md"
-                                            onClick={() => handlePostVisibilityToggle(post.url)}
-                                            title={post.isHide ? '공개로 변경' : '비공개로 변경'}>
-                                            <i className={`fas ${post.isHide ? 'fa-eye' : 'fa-eye-slash'}`} />
-                                        </Button>
-
-                                        <Button
-                                            variant="secondary"
-                                            size="md"
-                                            onClick={() => window.location.href = `/@${postsData?.username}/${post.url}/edit`}
-                                            title="포스트 수정">
-                                            <i className="fas fa-edit" />
-                                        </Button>
-
-                                        <Button
-                                            variant="secondary"
-                                            size="md"
-                                            onClick={() => handlePostDelete(post.url)}
-                                            title="포스트 삭제">
-                                            <i className="fas fa-trash" />
-                                        </Button>
+                                    <div className="flex-shrink-0" onClick={(e) => e.stopPropagation()}>
+                                        <Dropdown
+                                            items={[
+                                                {
+                                                    label: '포스트 보기',
+                                                    icon: 'fas fa-eye',
+                                                    onClick: () => window.open(`/@${postsData?.username}/${post.url}`, '_blank')
+                                                },
+                                                {
+                                                    label: post.isHide ? '공개로 변경' : '비공개로 변경',
+                                                    icon: `fas ${post.isHide ? 'fa-eye' : 'fa-eye-slash'}`,
+                                                    onClick: () => handlePostVisibilityToggle(post.url)
+                                                },
+                                                {
+                                                    label: '삭제',
+                                                    icon: 'fas fa-trash',
+                                                    onClick: () => handlePostDelete(post.url),
+                                                    variant: 'danger'
+                                                }
+                                            ]}
+                                        />
                                     </div>
-                                </div>
-
-                                {/* 통계 */}
-                                <div className="flex items-center gap-4 text-sm ml-13">
-                                    <span className="flex items-center text-gray-700">
-                                        <i className="fas fa-heart text-red-500 mr-1.5" />
-                                        <span className="font-semibold">{post.countLikes}</span>
-                                    </span>
-                                    <span className="flex items-center text-gray-700">
-                                        <i className="fas fa-comment text-blue-500 mr-1.5" />
-                                        <span className="font-semibold">{post.countComments}</span>
-                                    </span>
-                                    <span className="flex items-center text-gray-700">
-                                        <i className="fas fa-clock text-gray-500 mr-1.5" />
-                                        <span className="font-semibold">{post.readTime}분</span>
-                                    </span>
                                 </div>
                             </div>
 
                             {/* 편집 영역 */}
-                            <div className="p-4 space-y-3 border-t border-solid border-gray-100">
+                            <div className="p-3 space-y-3 bg-gray-50">
                                 {/* 태그 */}
                                 <div className="flex items-center gap-3">
                                     <div className={getIconClass('light')}>
