@@ -19,7 +19,7 @@ import {
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { restrictToVerticalAxis, restrictToFirstScrollableAncestor } from '@dnd-kit/modifiers';
-import { useFetch } from '~/hooks/use-fetch';
+import { useQuery } from '@tanstack/react-query';
 import { Button, Dropdown } from '~/components/shared';
 import {
  getCardClass,
@@ -141,7 +141,7 @@ const SeriesSetting = () => {
     const [series, setSeries] = useState<Series[]>([]);
     const [username, setUsername] = useState<string>('');
 
-    const { data: seriesData, isLoading, isError } = useFetch({
+    const { data: seriesData, isLoading, isError } = useQuery({
         queryKey: ['series-setting'],
         queryFn: async () => {
             const { data } = await getSeriesWithUsername();

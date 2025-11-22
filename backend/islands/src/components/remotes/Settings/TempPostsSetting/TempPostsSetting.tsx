@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { notification } from '@baejino/ui';
-import { useFetch } from '~/hooks/use-fetch';
+import { useQuery } from '@tanstack/react-query';
 import { Button, Dropdown } from '~/components/shared';
 import {
     getCardClass,
@@ -16,7 +16,7 @@ import { getTempPosts, deleteTempPost } from '~/lib/api/settings';
 
 const TempPostsSetting = () => {
     const { confirm } = useConfirm();
-    const { data: tempPosts, isLoading, isError, refetch } = useFetch({
+    const { data: tempPosts, isLoading, isError, refetch } = useQuery({
         queryKey: ['temp-posts'],
         queryFn: async () => {
             const { data } = await getTempPosts();

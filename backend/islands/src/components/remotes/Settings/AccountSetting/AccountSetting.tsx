@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { notification } from '@baejino/ui';
-import { useFetch } from '~/hooks/use-fetch';
+import { useQuery } from '@tanstack/react-query';
 import { useConfirm } from '~/contexts/ConfirmContext';
 import { getAccountSettings, updateAccountSettings, deleteAccount } from '~/lib/api/settings';
 import { enable2FA, disable2FA, verify2FASetup } from '~/lib/api/auth';
@@ -20,7 +20,7 @@ const AccountSettings: React.FC = () => {
     const [recoveryKey, setRecoveryKey] = useState<string>('');
     const { confirm } = useConfirm();
 
-    const { data: accountData, isLoading: isDataLoading, isError, refetch } = useFetch({
+    const { data: accountData, isLoading: isDataLoading, isError, refetch } = useQuery({
         queryKey: ['account-setting'],
         queryFn: async () => {
             const { data } = await getAccountSettings();

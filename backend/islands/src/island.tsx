@@ -1,6 +1,8 @@
 import { createRoot } from 'react-dom/client';
+import { PersistQueryClientProvider } from '@tanstack/react-query-persist-client';
 import App from './components/App';
 import ErrorBoundary from './components/ErrorBoundary';
+import { createQueryClient, sessionStoragePersister } from './lib/query-client';
 
 customElements.define('island-component', class extends HTMLElement {
     private observer: IntersectionObserver | null = null;
@@ -61,10 +63,18 @@ customElements.define('island-component', class extends HTMLElement {
             : {};
 
         try {
+            const queryClient = createQueryClient();
             const root = createRoot(this);
             root.render(
                 <ErrorBoundary fallback={<div>Component Error: {name}</div>}>
-                    <App __name={name} {...props} />
+                    <PersistQueryClientProvider
+                        client={queryClient}
+                        persistOptions={{
+                            persister: sessionStoragePersister,
+                            maxAge: 1000 * 60 * 60 * 24
+                        }}>
+                        <App __name={name} {...props} />
+                    </PersistQueryClientProvider>
                 </ErrorBoundary>
             );
         } catch {

@@ -1,5 +1,5 @@
 import { useState, useMemo, useCallback } from 'react';
-import { useFetch } from '~/hooks/use-fetch';
+import { useQuery } from '@tanstack/react-query';
 import { useConfirm } from '~/contexts/ConfirmContext';
 import { isLoggedIn as checkIsLoggedIn, showLoginPrompt } from '~/utils/loginPrompt';
 import {
@@ -33,7 +33,7 @@ const Comments = (props: CommentsProps) => {
         return checkIsLoggedIn();
     }, []);
 
-    const { data, isError, isLoading, refetch } = useFetch({
+    const { data, isError, isLoading, refetch } = useQuery({
         queryKey: [postUrl, 'comments'],
         queryFn: async () => {
             const response = await getComments(postUrl);
@@ -42,7 +42,7 @@ const Comments = (props: CommentsProps) => {
             }
             return response.data.body;
         },
-        enable: !!postUrl
+        enabled: !!postUrl
     });
 
     const handleLike = useCallback(

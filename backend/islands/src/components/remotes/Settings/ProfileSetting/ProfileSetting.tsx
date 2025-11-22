@@ -3,7 +3,7 @@ import { notification } from '@baejino/ui';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useFetch } from '~/hooks/use-fetch';
+import { useQuery } from '@tanstack/react-query';
 import { Button, Input, Card } from '~/components/shared';
 import { getProfileSettings, updateProfileSettings, uploadAvatar } from '~/lib/api/settings';
 
@@ -21,7 +21,7 @@ const ProfileSetting = () => {
 
     const { register, handleSubmit, reset, formState: { errors } } = useForm<ProfileFormInputs>({ resolver: zodResolver(profileSchema) });
 
-    const { data: profileData, isError, refetch } = useFetch({
+    const { data: profileData, isError, refetch } = useQuery({
         queryKey: ['profile-setting'],
         queryFn: async () => {
             const { data } = await getProfileSettings();

@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { notification } from '@baejino/ui';
-import { useFetch } from '~/hooks/use-fetch';
+import { useQuery } from '@tanstack/react-query';
 import { Button, Input, Dropdown, Alert } from '~/components/shared';
 import { getIconClass } from '~/components/shared/settingsStyles';
 import { useConfirm } from '~/contexts/ConfirmContext';
@@ -86,7 +86,7 @@ const PostsSetting = () => {
     const [postsMounted, setPostsMounted] = useState(false);
     const searchDebounce = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-    const { data: postsData, isLoading, isError, refetch } = useFetch({
+    const { data: postsData, isLoading, isError, refetch } = useQuery({
         queryKey: ['posts-setting', JSON.stringify(filters)],
         queryFn: async () => {
             setPostsMounted(false);
@@ -112,7 +112,7 @@ const PostsSetting = () => {
         }
     });
 
-    const { data: tags } = useFetch({
+    const { data: tags } = useQuery({
         queryKey: ['setting-tags'],
         queryFn: async () => {
             const { data } = await getTags();
@@ -123,7 +123,7 @@ const PostsSetting = () => {
         }
     });
 
-    const { data: series } = useFetch({
+    const { data: series } = useQuery({
         queryKey: ['setting-series'],
         queryFn: async () => {
             const { data } = await getSeries();
