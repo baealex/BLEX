@@ -19,7 +19,7 @@ from board.models import (
     UserLinkMeta, UsernameChangeLog, TelegramSync, SocialAuthProvider, SiteSetting)
 from board.modules.notify import create_notify
 from board.modules.response import StatusDone, StatusError, ErrorCode
-from board.services.auth_service import AuthService, AuthValidationError
+from board.services.auth_service import AuthService, OAuthService, AuthValidationError
 from modules import oauth
 from modules.challenge import auth_hcaptcha
 from modules.sub_task import SubTaskProcessor
@@ -33,18 +33,120 @@ def login_response(user: User, is_first_login=False):
     return StatusDone(data)
 
 
-def common_auth(request, user):
-    # Check if 2FA is required
+def common_auth(request, user, two_factor_code=None, is_oauth=False):
+    """
+    Handle authentication with optional 2FA code.
+
+    Args:
+        request: HTTP request
+        user: Authenticated user
+        two_factor_code: Optional 2FA code from client
+        is_oauth: Whether this is OAuth authentication
+
+    Returns:
+        StatusDone with login data or security requirement
+    """
     if AuthService.check_two_factor_auth(user):
-        # For TOTP, just indicate that 2FA is required
-        # No token generation/sending needed - user uses authenticator app
-        return StatusDone({
-            'username': user.username,
-            'security': True,
-        })
-    # No 2FA required, proceed with login
+        if two_factor_code:
+            client_ip = get_client_ip(request)
+            cache_key = f'login_attempts:{client_ip}'
+
+            if AuthService.verify_totp_token(user, two_factor_code):
+                cache.delete(cache_key)
+                auth.login(request, user)
+                return login_response(request.user)
+            else:
+                cache.set(cache_key, cache.get(cache_key, 0) + 1, 300)
+                return StatusError(ErrorCode.REJECT, '2차 인증 코드가 올바르지 않습니다.')
+        else:
+            return StatusDone({
+                'username': user.username,
+                'security': True,
+                'is_oauth': is_oauth,
+            })
+
     auth.login(request, user)
     return login_response(request.user)
+
+
+def parse_login_request(request):
+    """Parse login request data from JSON or POST"""
+    try:
+        return json.loads(request.body.decode('utf-8')) if request.body else {}
+    except (json.JSONDecodeError, UnicodeDecodeError):
+        return {}
+
+
+def get_client_ip(request):
+    """Get client IP address from request"""
+    return request.META.get('HTTP_X_FORWARDED_FOR', request.META.get('REMOTE_ADDR'))
+
+
+def check_login_rate_limit(request):
+    """
+    Check login rate limiting for the client IP.
+    Returns StatusError if blocked, None otherwise.
+    """
+    client_ip = get_client_ip(request)
+    cache_key = f'login_attempts:{client_ip}'
+    attempts = cache.get(cache_key, 0)
+
+    if attempts >= 5:
+        return StatusError(ErrorCode.REJECT, '너무 많은 실패로 인해 잠시 후 다시 시도해주세요.')
+
+    return None
+
+
+def handle_oauth_token_login(request, data):
+    """Handle OAuth token-based login with 2FA"""
+    client_ip = get_client_ip(request)
+    oauth_token = data.get('oauth_token', '') or request.POST.get('oauth_token', '')
+    two_factor_code = data.get('code', '') or request.POST.get('code', '')
+
+    oauth_data = OAuthService.get_2fa_data(oauth_token)
+
+    if not oauth_data:
+        return StatusError(ErrorCode.REJECT, '인증 토큰이 만료되었습니다. 다시 로그인해주세요.')
+
+    try:
+        user = User.objects.get(id=oauth_data['user_id'])
+    except User.DoesNotExist:
+        OAuthService.delete_2fa_token(oauth_token)
+        return StatusError(ErrorCode.REJECT)
+
+    if not two_factor_code:
+        return StatusError(ErrorCode.VALIDATE, '2차 인증 코드가 필요합니다.')
+
+    cache_key = f'login_attempts:{client_ip}'
+
+    if AuthService.verify_totp_token(user, two_factor_code):
+        cache.delete(cache_key)
+        OAuthService.delete_2fa_token(oauth_token)
+        auth.login(request, user)
+        return login_response(request.user)
+    else:
+        cache.set(cache_key, cache.get(cache_key, 0) + 1, 300)
+        return StatusError(ErrorCode.REJECT, '2차 인증 코드가 올바르지 않습니다.')
+
+
+def handle_password_login(request, data):
+    """Handle username/password-based login with optional 2FA"""
+    client_ip = get_client_ip(request)
+    cache_key = f'login_attempts:{client_ip}'
+
+    username = data.get('username', '') or request.POST.get('username', '')
+    password = data.get('password', '') or request.POST.get('password', '')
+    two_factor_code = data.get('code', '') or request.POST.get('code', '')
+
+    user = auth.authenticate(username=username, password=password)
+
+    if user is not None:
+        if user.is_active:
+            cache.delete(cache_key)
+            return common_auth(request, user, two_factor_code=two_factor_code)
+    else:
+        cache.set(cache_key, cache.get(cache_key, 0) + 1, 300)
+        return StatusError(ErrorCode.AUTHENTICATION)
 
 
 def login(request):
@@ -54,49 +156,18 @@ def login(request):
         return StatusError(ErrorCode.NEED_LOGIN)
 
     if request.method == 'POST':
-        # Server-side rate limiting check
-        client_ip = request.META.get('HTTP_X_FORWARDED_FOR', request.META.get('REMOTE_ADDR'))
-        cache_key = f'login_attempts:{client_ip}'
+        rate_limit_error = check_login_rate_limit(request)
+        if rate_limit_error:
+            return rate_limit_error
 
-        attempts = cache.get(cache_key, 0)
+        data = parse_login_request(request)
 
-        # Block if too many attempts
-        if attempts >= 5:
-            return StatusError(ErrorCode.REJECT, '너무 많은 실패로 인해 잠시 후 다시 시도해주세요.')
-
-        # Try to parse JSON first, then fallback to POST data
-        try:
-            data = json.loads(request.body.decode('utf-8')) if request.body else {}
-        except (json.JSONDecodeError, UnicodeDecodeError):
-            data = {}
-
-        social = data.get('social', '') or request.POST.get('social', '')
-        if not social:
-            username = data.get('username', '') or request.POST.get('username', '')
-            password = data.get('password', '') or request.POST.get('password', '')
-            # hcaptcha_response = data.get('h-captcha-response', '') or request.POST.get('h-captcha-response', '')
-
-        # Validate hCaptcha if attempts >= 3
-        # if attempts >= 3:
-        #     if not hcaptcha_response:
-        #         return StatusError(ErrorCode.VALIDATE, '보안 검증이 필요합니다.')
-        #
-        #     if settings.HCAPTCHA_SECRET_KEY and not auth_hcaptcha(hcaptcha_response):
-        #         # Increment attempts for failed captcha
-        #         cache.set(cache_key, attempts + 1, 300)  # 5 minutes
-        #         return StatusError(ErrorCode.REJECT, '보안 검증에 실패했습니다.')
-
-        user = auth.authenticate(username=username, password=password)
-
-        if user is not None:
-            if user.is_active:
-                # Reset attempts on successful login
-                cache.delete(cache_key)
-                return common_auth(request, user)
+        oauth_token = data.get('oauth_token', '') or request.POST.get('oauth_token', '')
+        if oauth_token:
+            return handle_oauth_token_login(request, data)
         else:
-            # Increment failed attempts
-            cache.set(cache_key, attempts + 1, 300)  # 5 minutes
-            return StatusError(ErrorCode.AUTHENTICATION)
+            return handle_password_login(request, data)
+
     raise Http404
 
 
@@ -204,7 +275,7 @@ def sign_social(request, social):
 
                 users = User.objects.filter(last_name=token)
                 if users.exists():
-                    return common_auth(request, users.first())
+                    return common_auth(request, users.first(), is_oauth=True)
 
                 user, profile, config = AuthService.create_user(
                     username=user_id,
@@ -238,7 +309,7 @@ def sign_social(request, social):
 
                 users = User.objects.filter(last_name=token)
                 if users.exists():
-                    return common_auth(request, users.first())
+                    return common_auth(request, users.first(), is_oauth=True)
 
                 user, profile, config = AuthService.create_user(
                     username=user_id,
@@ -417,14 +488,15 @@ def security_verify(request):
 
 
 def security_send(request):
+    """
+    DEPRECATED: This endpoint is kept for backwards compatibility.
+    New clients should use /v1/login with the 'code' parameter instead.
+    """
     if request.method == 'POST':
-        # Server-side 2FA rate limiting
-        client_ip = request.META.get('HTTP_X_FORWARDED_FOR', request.META.get('REMOTE_ADDR'))
-        cache_key = f'2fa_attempts:{client_ip}'
-
+        client_ip = get_client_ip(request)
+        cache_key = f'login_attempts:{client_ip}'
         attempts = cache.get(cache_key, 0)
 
-        # Block if too many 2FA attempts
         if attempts >= 5:
             return StatusError(ErrorCode.REJECT, '너무 많은 실패로 인해 5분 동안 차단되었습니다.')
 
@@ -438,18 +510,14 @@ def security_send(request):
         username = data.get('username', '')
 
         try:
-            verification_code = code
-
-            # Username is required for 2FA verification
             if not username:
                 cache.set(cache_key, attempts + 1, 300)
                 return StatusError(ErrorCode.VALIDATE, '사용자 이름이 필요합니다.')
 
-            if not verification_code or len(verification_code) < 6:
+            if not code or len(code) < 6:
                 cache.set(cache_key, attempts + 1, 300)
                 return StatusError(ErrorCode.VALIDATE, '인증 코드를 입력해주세요.')
 
-            # Find user and verify 2FA is enabled
             try:
                 user = User.objects.get(username=username)
                 TwoFactorAuth.objects.get(user=user)
@@ -460,20 +528,11 @@ def security_send(request):
                 cache.set(cache_key, attempts + 1, 300)
                 return StatusError(ErrorCode.REJECT)
 
-            # Verify TOTP token or recovery key using AuthService
-            if AuthService.verify_totp_token(user, verification_code):
-                # Reset 2FA attempts on success
+            if AuthService.verify_totp_token(user, code):
                 cache.delete(cache_key)
-
-                # Clear OAuth 2FA session data if exists
-                if 'pending_2fa_user_id' in request.session:
-                    del request.session['pending_2fa_user_id']
-                    del request.session['pending_2fa_username']
-
                 auth.login(request, user)
                 return login_response(request.user)
             else:
-                # Verification failed
                 cache.set(cache_key, attempts + 1, 300)
                 return StatusError(ErrorCode.REJECT)
 

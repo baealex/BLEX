@@ -2,7 +2,7 @@ import React from 'react';
 import { useLoginState } from './hooks/useLoginState';
 import LoginForm from './components/LoginForm';
 import TwoFactorForm from './components/TwoFactorForm';
-import { login, submit2FACode } from '~/lib/api';
+import { login } from '~/lib/api';
 
 const Login = () => {
     const {
@@ -34,29 +34,20 @@ const Login = () => {
         }
     };
 
+    const handlePastedCode = (pastedCode: string) => {
+        const newCodes = ['', '', '', '', '', ''];
+        for (let i = 0; i < Math.min(6, pastedCode.length); i++) {
+            newCodes[i] = pastedCode[i];
+        }
+        updateState({
+            codes: newCodes,
+            verificationError: '',
+            successMessage: ''
+        });
+    };
+
     const handleCodeInput = (index: number, value: string) => {
         const newCodes = [...state.codes];
-
-        // Handle pasted content (6-digit code)
-        if (value.length > 1) {
-            const pastedCode = value.replace(/\D/g, '').slice(0, 6);
-            if (pastedCode.length === 6) {
-                for (let i = 0; i < 6; i++) {
-                    newCodes[i] = pastedCode[i] || '';
-                }
-                updateState({
-                    codes: newCodes,
-                    verificationError: '',
-                    successMessage: ''
-                });
-                const lastIndex = Math.min(5, pastedCode.length - 1);
-                setTimeout(() => {
-                    const inputs = document.querySelectorAll('input[inputmode="numeric"]');
-                    (inputs[lastIndex] as HTMLInputElement)?.focus();
-                }, 0);
-                return;
-            }
-        }
 
         if (/^[0-9]$/.test(value)) {
             newCodes[index] = value;
@@ -79,28 +70,6 @@ const Login = () => {
             focusPrev(index);
         } else if (e.key === 'ArrowRight' && index < 5) {
             focusNext(index);
-        } else if ((e.ctrlKey || e.metaKey) && e.key === 'v') {
-            e.preventDefault();
-            navigator.clipboard.readText().then(text => {
-                const pastedCode = text.replace(/\D/g, '').slice(0, 6);
-                if (pastedCode.length === 6) {
-                    const newCodes = ['', '', '', '', '', ''];
-                    for (let i = 0; i < 6; i++) {
-                        newCodes[i] = pastedCode[i] || '';
-                    }
-                    updateState({
-                        codes: newCodes,
-                        verificationError: '',
-                        successMessage: ''
-                    });
-                    setTimeout(() => {
-                        const inputs = document.querySelectorAll('input[inputmode="numeric"]');
-                        (inputs[5] as HTMLInputElement)?.focus();
-                    }, 0);
-                }
-            }).catch(() => {
-                // Fallback if clipboard access fails
-            });
         }
     };
 
@@ -194,10 +163,20 @@ const Login = () => {
         }
 
         try {
-            const { data } = await submit2FACode({
-                username: state.username,
-                code: code
-            });
+            // If OAuth token exists, use it instead of username/password
+            const loginData = state.oauthToken
+                ? {
+                    oauth_token: state.oauthToken,
+                    code: code
+                }
+                : {
+                    username: state.username,
+                    password: state.password,
+                    code: code,
+                    captcha_token: state.captchaToken || undefined
+                };
+
+            const { data } = await login(loginData);
 
             if (data.status === 'DONE') {
                 updateState({
@@ -267,9 +246,9 @@ const Login = () => {
                         verificationError={state.verificationError}
                         successMessage={state.successMessage}
                         isTwoFactorLoading={state.isTwoFactorLoading}
-                        isResending={state.isResending}
                         onCodeChange={handleCodeInput}
                         onKeyDown={handleCodeKeyDown}
+                        onPaste={handlePastedCode}
                         onSubmit={submitTwoFactor}
                         onGoBack={goBackToLogin}
                     />

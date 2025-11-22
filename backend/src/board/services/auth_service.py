@@ -14,6 +14,7 @@ from typing import Optional, Tuple, Dict, Any
 
 from django.conf import settings
 from django.contrib.auth.models import User
+from django.core.cache import cache
 from django.core.files import File
 from django.db import transaction
 from django.db.models import Count, Case, When, Value, Exists, OuterRef, Q
@@ -37,6 +38,59 @@ class AuthValidationError(Exception):
         self.code = code
         self.message = message
         super().__init__(message)
+
+
+class OAuthService:
+    """Service class for handling OAuth authentication"""
+
+    OAUTH_2FA_CACHE_TIMEOUT = 300  # 5 minutes
+
+    @staticmethod
+    def create_2fa_token(user_id: int, next_url: str = '') -> str:
+        """
+        Create one-time OAuth 2FA token and store in cache.
+
+        Args:
+            user_id: User ID requiring 2FA
+            next_url: Redirect URL after successful authentication
+
+        Returns:
+            OAuth token string
+        """
+        oauth_token = randstr(32)
+        cache_key = f'oauth_2fa:{oauth_token}'
+
+        cache.set(cache_key, {
+            'user_id': user_id,
+            'next_url': next_url,
+        }, OAuthService.OAUTH_2FA_CACHE_TIMEOUT)
+
+        return oauth_token
+
+    @staticmethod
+    def get_2fa_data(oauth_token: str) -> Optional[Dict[str, Any]]:
+        """
+        Retrieve OAuth 2FA token data from cache.
+
+        Args:
+            oauth_token: Token to retrieve
+
+        Returns:
+            Dictionary with user_id and next_url, or None if expired/invalid
+        """
+        cache_key = f'oauth_2fa:{oauth_token}'
+        return cache.get(cache_key)
+
+    @staticmethod
+    def delete_2fa_token(oauth_token: str) -> None:
+        """
+        Delete used OAuth 2FA token from cache.
+
+        Args:
+            oauth_token: Token to delete
+        """
+        cache_key = f'oauth_2fa:{oauth_token}'
+        cache.delete(cache_key)
 
 
 class AuthService:

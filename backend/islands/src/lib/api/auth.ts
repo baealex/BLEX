@@ -1,9 +1,11 @@
 import { http, type Response } from '~/modules/http.module';
 
 export interface LoginRequest {
-    username: string;
-    password: string;
+    username?: string;
+    password?: string;
+    code?: string;
     captcha_token?: string;
+    oauth_token?: string;
 }
 
 export interface LoginResponseBody {
