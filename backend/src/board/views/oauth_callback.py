@@ -4,41 +4,26 @@ from django.contrib import messages, auth
 from django.conf import settings
 
 from modules import oauth
-from board.services.auth_service import AuthService
+from board.services.auth_service import AuthService, OAuthService
 from board.models import User, UserLinkMeta
-from modules.randomness import randnum
-from modules.sub_task import SubTaskProcessor
-from modules.telegram import TelegramBot
 
 
 def handle_oauth_auth(request, user):
     """
     Handle OAuth authentication with 2FA support
     """
-    # Get next URL from query string
     next_url = request.GET.get('next', '')
 
-    # Check if 2FA is required
     if not settings.DEBUG and user.config.has_two_factor_auth():
-        # Create and send 2FA token
-        def create_auth_token():
-            token = randnum(6)
-            user.twofactorauth.create_token(token)
-            bot = TelegramBot(settings.TELEGRAM_BOT_TOKEN)
-            bot.send_message(user.telegramsync.get_decrypted_tid(),
-                            f'2차 인증 코드입니다 : {token}')
+        oauth_token = OAuthService.create_2fa_token(user.id, next_url)
 
-        SubTaskProcessor.process(create_auth_token)
-        # Store user info in session for 2FA completion
-        request.session['pending_2fa_user_id'] = user.id
-        request.session['pending_2fa_username'] = user.username
-        # Store next URL in session for after 2FA
+        messages.info(request, '2차 인증이 필요합니다. 인증 앱에서 생성된 코드를 입력해주세요.')
+
+        redirect_url = f'/login?oauth_token={oauth_token}'
         if next_url:
-            request.session['auth_next_url'] = next_url
-        messages.info(request, '2차 인증이 필요합니다. 텔레그램으로 전송된 코드를 입력해주세요.')
-        return redirect(f'/login{("?next=" + next_url) if next_url else ""}')
+            redirect_url += f'&next={next_url}'
+        return redirect(redirect_url)
 
-    # No 2FA required, login directly
     auth.login(request, user)
     return redirect(next_url or '/')
 

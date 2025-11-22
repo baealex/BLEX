@@ -166,147 +166,6 @@ class TwoFactorAuthTestCase(TestCase):
         self.assertEqual(content['status'], 'DONE')
         self.assertEqual(content['body']['username'], 'test2fa')
 
-    def test_verify_2fa_with_valid_totp(self):
-        """유효한 TOTP 코드로 2FA 인증 테스트"""
-        user = User.objects.get(username='test2fa')
-        # Clean up any existing 2FA records
-        TwoFactorAuth.objects.filter(user=user).delete()
-
-        # Generate TOTP secret and create 2FA record
-        totp_secret = pyotp.random_base32()
-        two_factor_auth = TwoFactorAuth.objects.create(
-            user=user,
-            recovery_key='a' * 45,
-            totp_secret=totp_secret
-        )
-
-        # Generate valid TOTP code
-        totp = pyotp.TOTP(totp_secret)
-        valid_code = totp.now()
-
-        response = self.client.post(
-            '/v1/auth/security/send',
-            data=json.dumps({
-                'username': 'test2fa',
-                'code': valid_code,
-            }),
-            content_type='application/json'
-        )
-
-        self.assertEqual(response.status_code, 200)
-        content = json.loads(response.content)
-        self.assertEqual(content['status'], 'DONE')
-        self.assertEqual(content['body']['username'], 'test2fa')
-
-        # Verify user is now logged in
-        response = self.client.get('/v1/login')
-        content = json.loads(response.content)
-        self.assertEqual(content['status'], 'DONE')
-        self.assertEqual(content['body']['username'], 'test2fa')
-
-    def test_verify_2fa_with_invalid_totp(self):
-        """잘못된 TOTP 코드로 2FA 인증 테스트"""
-        user = User.objects.get(username='test2fa')
-        totp_secret = pyotp.random_base32()
-        TwoFactorAuth.objects.create(
-            user=user,
-            recovery_key='c' * 45,
-            totp_secret=totp_secret
-        )
-
-        response = self.client.post(
-            '/v1/auth/security/send',
-            data=json.dumps({
-                'username': 'test2fa',
-                'code': '999999',  # Invalid TOTP code
-            }),
-            content_type='application/json'
-        )
-
-        self.assertEqual(response.status_code, 200)
-        content = json.loads(response.content)
-        self.assertEqual(content['status'], 'ERROR')
-        self.assertEqual(content['errorCode'], 'error:RJ')
-
-        # Verify user is NOT logged in
-        response = self.client.get('/v1/login')
-        content = json.loads(response.content)
-        self.assertEqual(content['status'], 'ERROR')
-
-    def test_verify_2fa_with_recovery_key(self):
-        """복구 키로 2FA 인증 테스트"""
-        user = User.objects.get(username='test2fa')
-        # Clean up any existing 2FA records
-        TwoFactorAuth.objects.filter(user=user).delete()
-        recovery_key = 'd' * 45
-        totp_secret = pyotp.random_base32()
-        TwoFactorAuth.objects.create(
-            user=user,
-            recovery_key=recovery_key,
-            totp_secret=totp_secret
-        )
-
-        response = self.client.post(
-            '/v1/auth/security/send',
-            data=json.dumps({
-                'username': 'test2fa',
-                'code': recovery_key,
-            }),
-            content_type='application/json'
-        )
-
-        self.assertEqual(response.status_code, 200)
-        content = json.loads(response.content)
-        self.assertEqual(content['status'], 'DONE')
-        self.assertEqual(content['body']['username'], 'test2fa')
-
-        # Verify user is now logged in
-        response = self.client.get('/v1/login')
-        content = json.loads(response.content)
-        self.assertEqual(content['status'], 'DONE')
-        self.assertEqual(content['body']['username'], 'test2fa')
-
-    def test_2fa_rate_limiting(self):
-        """2FA 인증 실패 시 Rate Limiting 테스트"""
-        user = User.objects.get(username='test2fa')
-        totp_secret = pyotp.random_base32()
-        TwoFactorAuth.objects.create(
-            user=user,
-            recovery_key='e' * 45,
-            totp_secret=totp_secret
-        )
-
-        # Try 5 failed attempts
-        for i in range(5):
-            response = self.client.post(
-                '/v1/auth/security/send',
-                data=json.dumps({
-                    'username': 'test2fa',
-                    'code': '000000',  # Wrong OTP
-                }),
-                content_type='application/json'
-            )
-            self.assertEqual(response.status_code, 200)
-
-        # 6th attempt should be blocked
-        # Generate a valid TOTP code
-        totp = pyotp.TOTP(totp_secret)
-        valid_code = totp.now()
-
-        response = self.client.post(
-            '/v1/auth/security/send',
-            data=json.dumps({
-                'username': 'test2fa',
-                'code': valid_code,  # Even with correct TOTP
-            }),
-            content_type='application/json'
-        )
-        self.assertEqual(response.status_code, 200)
-        content = json.loads(response.content)
-        self.assertEqual(content['status'], 'ERROR')
-        # Should contain rate limiting message
-        self.assertIn('차단', content['errorMessage'])
-
     def test_disable_2fa_too_soon(self):
         """2FA 활성화 후 24시간 이내 비활성화 시도 테스트"""
         user = User.objects.get(username='test2fa')
@@ -359,3 +218,123 @@ class TwoFactorAuthTestCase(TestCase):
         content = json.loads(response.content)
         self.assertEqual(content['status'], 'ERROR')
         self.assertEqual(content['errorCode'], 'error:AU')
+
+    @override_settings(DEBUG=False)
+    def test_login_with_valid_2fa_code(self):
+        """2FA가 활성화된 사용자가 올바른 TOTP 코드로 로그인 성공 테스트"""
+        user = User.objects.get(username='test2fa')
+        totp_secret = pyotp.random_base32()
+        TwoFactorAuth.objects.create(
+            user=user,
+            recovery_key='a' * 45,
+            totp_secret=totp_secret
+        )
+
+        # Generate valid TOTP code
+        totp = pyotp.TOTP(totp_secret)
+        valid_code = totp.now()
+
+        # First login - should return security requirement
+        response = self.client.post('/v1/login', {
+            'username': 'test2fa',
+            'password': 'test2fa',
+        })
+        self.assertEqual(response.status_code, 200)
+        content = json.loads(response.content)
+        self.assertEqual(content['status'], 'DONE')
+        self.assertEqual(content['body']['security'], True)
+
+        # User should not be logged in yet
+        response = self.client.get('/v1/login')
+        content = json.loads(response.content)
+        self.assertEqual(content['status'], 'ERROR')
+
+        # Second login with valid TOTP code - should succeed
+        response = self.client.post('/v1/login', {
+            'username': 'test2fa',
+            'password': 'test2fa',
+            'code': valid_code,
+        })
+        self.assertEqual(response.status_code, 200)
+        content = json.loads(response.content)
+        self.assertEqual(content['status'], 'DONE')
+        self.assertEqual(content['body']['username'], 'test2fa')
+        self.assertNotIn('security', content['body'])
+
+        # Verify user is now logged in
+        response = self.client.get('/v1/login')
+        content = json.loads(response.content)
+        self.assertEqual(content['status'], 'DONE')
+        self.assertEqual(content['body']['username'], 'test2fa')
+
+    @override_settings(DEBUG=False)
+    def test_login_with_invalid_2fa_code(self):
+        """2FA가 활성화된 사용자가 잘못된 TOTP 코드로 로그인 실패 테스트"""
+        user = User.objects.get(username='test2fa')
+        totp_secret = pyotp.random_base32()
+        TwoFactorAuth.objects.create(
+            user=user,
+            recovery_key='b' * 45,
+            totp_secret=totp_secret
+        )
+
+        # First login - should return security requirement
+        response = self.client.post('/v1/login', {
+            'username': 'test2fa',
+            'password': 'test2fa',
+        })
+        self.assertEqual(response.status_code, 200)
+        content = json.loads(response.content)
+        self.assertEqual(content['status'], 'DONE')
+        self.assertEqual(content['body']['security'], True)
+
+        # Second login with invalid TOTP code - should fail
+        response = self.client.post('/v1/login', {
+            'username': 'test2fa',
+            'password': 'test2fa',
+            'code': '000000',  # Invalid code
+        })
+        self.assertEqual(response.status_code, 200)
+        content = json.loads(response.content)
+        self.assertEqual(content['status'], 'ERROR')
+        self.assertEqual(content['errorCode'], 'error:RJ')
+        self.assertIn('2차 인증 코드가 올바르지 않습니다', content['errorMessage'])
+
+        # Verify user is still not logged in
+        response = self.client.get('/v1/login')
+        content = json.loads(response.content)
+        self.assertEqual(content['status'], 'ERROR')
+
+    @override_settings(DEBUG=False)
+    def test_2fa_rate_limiting(self):
+        """2FA 코드 5번 실패 시 rate limiting 테스트"""
+        user = User.objects.get(username='test2fa')
+        totp_secret = pyotp.random_base32()
+        TwoFactorAuth.objects.create(
+            user=user,
+            recovery_key='c' * 45,
+            totp_secret=totp_secret
+        )
+
+        # Fail 5 times with invalid password (not TOTP)
+        # This will increment the rate limit counter
+        for i in range(5):
+            response = self.client.post('/v1/login', {
+                'username': 'test2fa',
+                'password': 'wrongpassword',
+            })
+            self.assertEqual(response.status_code, 200)
+            content = json.loads(response.content)
+            self.assertEqual(content['status'], 'ERROR')
+            self.assertEqual(content['errorCode'], 'error:AT')
+
+        # 6th attempt should be blocked by rate limiting even with correct password
+        response = self.client.post('/v1/login', {
+            'username': 'test2fa',
+            'password': 'test2fa',
+        })
+        self.assertEqual(response.status_code, 200)
+        content = json.loads(response.content)
+        self.assertEqual(content['status'], 'ERROR')
+        self.assertEqual(content['errorCode'], 'error:RJ')
+        self.assertIn('너무 많은 실패', content['errorMessage'])
