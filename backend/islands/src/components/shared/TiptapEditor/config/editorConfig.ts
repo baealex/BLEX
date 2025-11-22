@@ -34,7 +34,6 @@ import { IframeNode } from '../extensions/IframeNode';
 import { VideoNode } from '../extensions/VideoNode';
 import { CustomImage } from '../extensions/CustomImage';
 import { CodeBlockWithLanguageSelector } from '../extensions/CodeBlockWithLanguageSelector';
-import { ImageGrid, ImageGridItem } from '../extensions/ImageGrid';
 
 const customLowlight = createLowlight(common);
 
@@ -76,7 +75,5 @@ export const getEditorExtensions = (placeholder: string) => [
     TableHeader,
     TableCell,
     IframeNode,
-    VideoNode,
-    ImageGrid,
-    ImageGridItem
+    VideoNode
 ];
