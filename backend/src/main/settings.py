@@ -133,8 +133,6 @@ USE_TZ = True
 
 SITE_URL = os.environ.get('SITE_URL')
 SITE_NAME = os.environ.get('SITE_NAME', 'BLEX')
-SITE_NAME_KOREAN = os.environ.get('SITE_NAME_KOREAN', '블렉스')
-SITE_DESCRIPTION = os.environ.get('SITE_DESCRIPTION', 'BLOG EXPRESS ME')
 RESOURCE_URL = os.environ.get('RESOURCE_URL') + '/resources/'
 
 STATIC_URL = RESOURCE_URL + 'staticfiles/'

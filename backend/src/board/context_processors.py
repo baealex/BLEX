@@ -10,8 +10,6 @@ def oauth_settings(request):
         'GOOGLE_OAUTH_CLIENT_ID': getattr(settings, 'GOOGLE_OAUTH_CLIENT_ID', ''),
         'GITHUB_OAUTH_CLIENT_ID': getattr(settings, 'GITHUB_OAUTH_CLIENT_ID', ''),
         'SITE_NAME': getattr(settings, 'SITE_NAME', 'BLEX'),
-        'SITE_NAME_KOREAN': getattr(settings, 'SITE_NAME_KOREAN', '블렉스'),
-        'SITE_DESCRIPTION': getattr(settings, 'SITE_DESCRIPTION', 'BLOG EXPRESS ME'),
     }
 
 
