@@ -91,22 +91,26 @@ def island_css(entry_name):
     return static(f"islands/{entry_name}")
 
 @register.simple_tag
-def island_component(component_name, **props):
+def island_component(component_name, lazy=False, **props):
     """
     템플릿에서 React 컴포넌트를 렌더링하기 위한 템플릿 태그
-    
+
     사용법:
     {% load island %}
     {% island_component 'LikeButton' post_id=post.id likes_count=post.count_likes has_liked=post.has_liked %}
+
+    Lazy loading 사용법:
+    {% island_component 'RelatedPosts' lazy=True postUrl=post.url username=post.author_username %}
     """
-    
+
     for key, value in props.items():
         if hasattr(value, 'isoformat'):
             props[key] = value.isoformat()
-    
+
     props_json = json.dumps(props)
-    html_output = f'<island-component name="{component_name}" props="{urllib.parse.quote(props_json)}"></island-component>'
-    
+    lazy_attr = ' lazy="true"' if lazy else ''
+    html_output = f'<island-component name="{component_name}" props="{urllib.parse.quote(props_json)}"{lazy_attr}></island-component>'
+
     return mark_safe(html_output)
 
 @register.simple_tag

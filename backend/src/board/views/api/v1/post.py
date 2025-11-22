@@ -1,9 +1,10 @@
+import random
 import datetime
 
 from django.conf import settings
 from django.db.models import (
     Q, F, Case, Exists, When, Subquery,
-    Value, OuterRef, Count)
+    Value, OuterRef, Count,  IntegerField)
 from django.http import Http404, QueryDict
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
@@ -306,26 +307,24 @@ def user_posts(request, username, url=None):
 
 def user_post_related(request, username, url):
     """
-    Get related posts for a specific post based on shared tags.
+    Get related posts for a specific post based on shared tags and popularity.
+    Uses a scoring system to rank relevance.
     """
     if request.method == 'GET':
-        post = get_object_or_404(Post.objects.select_related('config').prefetch_related('tags'), 
+        post = get_object_or_404(Post.objects.select_related('config').prefetch_related('tags'),
                                  author__username=username, url=url)
-        
-        # Check if the post is accessible
+
         if post.config.hide and (not request.user.is_authenticated or request.user != post.author):
             raise Http404
-        
-        # Get related posts (posts with similar tags) - limit to 3 for performance
+
         related_posts = []
         if post.tags.exists():
-            # Get tag values for current post
             current_tags = list(post.tags.values_list('value', flat=True))
-            
-            # Find related posts with shared tags
-            related_posts = Post.objects.select_related(
+            current_tag_set = set(current_tags)
+
+            candidates = Post.objects.select_related(
                 'author', 'author__profile', 'config'
-            ).filter(
+            ).prefetch_related('tags').filter(
                 tags__value__in=current_tags,
                 config__hide=False,
                 created_date__lte=timezone.now(),
@@ -334,8 +333,52 @@ def user_post_related(request, username, url):
             ).annotate(
                 author_username=F('author__username'),
                 author_image=F('author__profile__avatar'),
-            ).order_by('-created_date').distinct()[:3]
-        
+                likes_count=Count('likes', distinct=True),
+                comments_count=Count('comments', distinct=True),
+            ).distinct()
+
+            scored_posts = []
+            now = timezone.now()
+
+            for candidate in candidates:
+                score = 0
+
+                candidate_tags = set(candidate.tags.values_list('value', flat=True))
+                tag_overlap = len(current_tag_set & candidate_tags)
+                tag_score = min(tag_overlap * 3, 10)
+                score += tag_score
+
+                popularity = (candidate.likes_count * 2) + candidate.comments_count
+                popularity_score = min(popularity, 10)
+                score += popularity_score
+
+                days_old = (now - candidate.created_date).days
+                if days_old < 7:
+                    recency_score = 5
+                elif days_old < 30:
+                    recency_score = 3
+                elif days_old < 90:
+                    recency_score = 1
+                else:
+                    recency_score = 0
+                score += recency_score
+
+                if candidate.author.id == post.author.id:
+                    score -= 5
+
+                random_score = random.uniform(-3, 3)
+                score += random_score
+
+                scored_posts.append({
+                    'post': candidate,
+                    'score': score,
+                    'tag_overlap': tag_overlap,
+                })
+
+            scored_posts.sort(key=lambda x: (x['score'], x['tag_overlap']), reverse=True)
+
+            related_posts = map(lambda x: x['post'], scored_posts[:6])
+
         return StatusDone({
             'posts': list(map(lambda related_post: {
                 'url': related_post.url,
@@ -348,5 +391,5 @@ def user_post_related(request, username, url):
                 'author_image': str(related_post.author_image) if related_post.author_image else None,
             }, related_posts))
         })
-    
+
     raise Http404
