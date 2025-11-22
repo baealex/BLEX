@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { notification } from '@baejino/ui';
-import { useFetch } from '~/hooks/use-fetch';
+import { useQuery } from '@tanstack/react-query';
 import { Button } from '~/components/shared';
 import { useConfirm } from '~/contexts/ConfirmContext';
 import { getTelegramStatus, generateTelegramToken, disconnectTelegram as disconnectTelegramAPI } from '~/lib/api/telegram';
@@ -11,7 +11,7 @@ const IntegrationSettings: React.FC = () => {
     const [isDisconnecting, setIsDisconnecting] = useState(false);
     const { confirm } = useConfirm();
 
-    const { data: telegramData, isLoading, refetch } = useFetch({
+    const { data: telegramData, isLoading, refetch } = useQuery({
         queryKey: ['telegram-integration'],
         queryFn: async () => {
             const { data } = await getTelegramStatus();

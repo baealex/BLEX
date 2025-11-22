@@ -20,7 +20,7 @@ import { CSS } from '@dnd-kit/utilities';
 import { restrictToVerticalAxis, restrictToFirstScrollableAncestor } from '@dnd-kit/modifiers';
 
 import { notification } from '@baejino/ui';
-import { useFetch } from '~/hooks/use-fetch';
+import { useQuery } from '@tanstack/react-query';
 import { Button } from '~/components/shared';
 import { getSocialLinks, updateSocialLinks, type SocialLink as ApiSocialLink } from '~/lib/api/settings';
 
@@ -162,7 +162,7 @@ const SocialLinks = () => {
     const [originalSocials, setOriginalSocials] = useState<SocialLink[]>([]);
     const [isLoading, setIsLoading] = useState(false);
 
-    const { data: socialData, isError } = useFetch({
+    const { data: socialData, isError } = useQuery({
         queryKey: ['social-links-setting'],
         queryFn: async () => {
             const { data } = await getSocialLinks();

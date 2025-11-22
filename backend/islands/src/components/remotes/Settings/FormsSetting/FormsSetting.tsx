@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { notification } from '@baejino/ui';
-import { useFetch } from '~/hooks/use-fetch';
+import { useQuery } from '@tanstack/react-query';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -43,7 +43,7 @@ const FormsManagement: React.FC = () => {
 
     const { register, handleSubmit, reset, formState: { errors } } = useForm<FormInputs>({ resolver: zodResolver(formSchema) });
 
-    const { data: formsData, isLoading, refetch } = useFetch({
+    const { data: formsData, isLoading, refetch } = useQuery({
         queryKey: ['forms'],
         queryFn: async () => {
             const { data } = await getForms();

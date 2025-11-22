@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useFetch } from '~/hooks/use-fetch';
+import { useQuery } from '@tanstack/react-query';
 import HeatmapSection from './components/HeatmapSection';
 import RecentActivitiesSection from './components/RecentActivitiesSection';
 import NotificationsSection from './components/NotificationsSection';
@@ -18,7 +18,7 @@ const OverviewSetting = () => {
     const [isOpenConfig, setIsOpenConfig] = useState(false);
 
     // Fetch heatmap data
-    const { data: heatmapData, isLoading: isHeatmapLoading } = useFetch<{ [key: string]: number }>({
+    const { data: heatmapData, isLoading: isHeatmapLoading } = useQuery<{ [key: string]: number }>({
         queryKey: ['dashboard-heatmap'],
         queryFn: async () => {
             const { data: response } = await getHeatmap();
@@ -48,7 +48,7 @@ const OverviewSetting = () => {
     });
 
     // Fetch recent activities
-    const { data: activitiesData, isLoading: isActivitiesLoading } = useFetch<{ recentActivities: Activity[] }>({
+    const { data: activitiesData, isLoading: isActivitiesLoading } = useQuery<{ recentActivities: Activity[] }>({
         queryKey: ['dashboard-activities'],
         queryFn: async () => {
             const { data: response } = await getRecentActivities();
@@ -60,7 +60,7 @@ const OverviewSetting = () => {
     });
 
     // Fetch notify list
-    const { data: notifyData, isLoading: isNotifyLoading, isError: isNotifyError } = useFetch({
+    const { data: notifyData, isLoading: isNotifyLoading, isError: isNotifyError } = useQuery({
         queryKey: ['notify-list'],
         queryFn: async () => {
             const { data } = await getNotifications();
@@ -72,7 +72,7 @@ const OverviewSetting = () => {
     });
 
     // Fetch notify config for settings modal
-    const { data: notifyConfig, isLoading: isConfigLoading, isError: isConfigError, refetch: refetchConfig } = useFetch({
+    const { data: notifyConfig, isLoading: isConfigLoading, isError: isConfigError, refetch: refetchConfig } = useQuery({
         queryKey: ['notify-config'],
         queryFn: async () => {
             const { data } = await getNotifyConfig();
@@ -81,7 +81,7 @@ const OverviewSetting = () => {
             }
             throw new Error('알림 설정을 불러오는데 실패했습니다.');
         },
-        enable: isOpenConfig
+        enabled: isOpenConfig
     });
 
     const activities = activitiesData?.recentActivities || [];
