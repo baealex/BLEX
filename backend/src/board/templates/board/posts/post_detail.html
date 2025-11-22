@@ -287,12 +287,12 @@
     <!-- 댓글 섹션 -->
     <div class="bg-white border border-gray-200 rounded-2xl shadow-sm mb-8">
         <div class="p-4 sm:p-6 lg:p-8">
-            {% island_component 'Comments' postUrl=post.url %}
+            {% island_component 'Comments' lazy=True postUrl=post.url %}
         </div>
     </div>
 
     <!-- 관련 포스트 -->
-    {% island_component 'RelatedPosts' postUrl=post.url username=post.author_username %}
+    {% island_component 'RelatedPosts' lazy=True postUrl=post.url username=post.author_username %}
 </div>
 {% endblock %}
 

@@ -3,17 +3,62 @@ import App from './components/App';
 import ErrorBoundary from './components/ErrorBoundary';
 
 customElements.define('island-component', class extends HTMLElement {
+    private observer: IntersectionObserver | null = null;
+    private isRendered = false;
+
     constructor() {
         super();
     }
 
     connectedCallback(): void {
         const name = this.getAttribute('name');
-        const props = this.getAttribute('props') ? JSON.parse(decodeURIComponent(this.getAttribute('props') || '')) : {};
+        const lazy = this.getAttribute('lazy') === 'true';
 
         if (!name) {
             return;
         }
+
+        if (lazy) {
+            this.setupLazyLoading(name);
+        } else {
+            this.renderComponent(name);
+        }
+    }
+
+    disconnectedCallback(): void {
+        if (this.observer) {
+            this.observer.disconnect();
+            this.observer = null;
+        }
+    }
+
+    private setupLazyLoading(name: string): void {
+        this.observer = new IntersectionObserver(
+            (entries) => {
+                entries.forEach((entry) => {
+                    if (entry.isIntersecting && !this.isRendered) {
+                        this.renderComponent(name);
+                        this.isRendered = true;
+                        if (this.observer) {
+                            this.observer.disconnect();
+                            this.observer = null;
+                        }
+                    }
+                });
+            },
+            {
+                rootMargin: '100px',
+                threshold: 0.1
+            }
+        );
+
+        this.observer.observe(this);
+    }
+
+    private renderComponent(name: string): void {
+        const props = this.getAttribute('props')
+            ? JSON.parse(decodeURIComponent(this.getAttribute('props') || ''))
+            : {};
 
         try {
             const root = createRoot(this);
