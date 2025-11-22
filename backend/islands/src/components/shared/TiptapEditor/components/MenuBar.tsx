@@ -33,6 +33,7 @@ const MenuBar: React.FC<MenuBarProps> = ({ editor }) => {
                 ref={imageInput}
                 type="file"
                 accept="image/*"
+                multiple
                 className="hidden"
                 onChange={handleImageUpload}
             />

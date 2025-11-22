@@ -2,16 +2,10 @@
 
 .blog-post-content {
     max-width: 100%;
-    font-size: 1.1rem;
+    font-size: 1.1em;
     line-height: 2;
     word-break: keep-all;
     overflow-wrap: anywhere;
-    overflow-x: hidden;
-
-    @media (max-width: 640px) {
-        font-size: 1rem;
-        line-height: 1.8;
-    }
 
     // General margin for all child elements
     & > * {
@@ -51,6 +45,11 @@
     h5,
     h6 {
         font-size: 1.35rem;
+    }
+
+    p::before {
+        content: "";
+        display: inline-block;
     }
 
     // Links
@@ -133,12 +132,6 @@
         white-space: pre-wrap;
         word-wrap: break-word;
 
-        @media (max-width: 640px) {
-            padding: 12px;
-            font-size: 14px;
-            line-height: 1.4;
-        }
-
         code {
             background-color: transparent;
             white-space: pre-wrap;
@@ -171,11 +164,6 @@
     video {
         max-width: 100%;
         height: auto;
-        border-radius: 8px;
-        
-        @media (max-width: 640px) {
-            border-radius: 6px;
-        }
     }
 
     // Quotes
@@ -246,9 +234,6 @@
         img,
         video {
             order: -1;
-            border-radius: 8px;
-            max-width: 100%;
-            height: auto;
         }
 
         figcaption {

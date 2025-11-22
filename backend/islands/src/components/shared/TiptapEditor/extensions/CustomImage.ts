@@ -16,7 +16,10 @@ export const CustomImage = Node.create({
             height: { default: null },
             align: { default: 'center' }, // left, center, right
             objectFit: { default: 'cover' }, // cover, contain, fill, none
-            caption: { default: null }
+            caption: { default: null },
+            border: { default: false }, // border 적용 여부
+            shadow: { default: false }, // shadow 적용 여부
+            aspectRatio: { default: null } // 16:9, 4:3, 1:1, etc
         };
     },
 
@@ -52,7 +55,10 @@ export const CustomImage = Node.create({
                         height: img.height || null,
                         align: figure.style.textAlign || figure.getAttribute('data-align') || 'center',
                         objectFit: img.style.objectFit || 'cover',
-                        caption: caption?.textContent || null
+                        caption: caption?.textContent || null,
+                        border: figure.getAttribute('data-border') === 'true',
+                        shadow: figure.getAttribute('data-shadow') === 'true',
+                        aspectRatio: img.getAttribute('data-aspect-ratio') || null
                     };
                 }
             },
@@ -81,7 +87,10 @@ export const CustomImage = Node.create({
                         height: img.height || null,
                         align: 'center',
                         objectFit: img.style.objectFit || 'cover',
-                        caption: null
+                        caption: null,
+                        border: false,
+                        shadow: false,
+                        aspectRatio: img.getAttribute('data-aspect-ratio') || null
                     };
                 }
             }
@@ -90,7 +99,7 @@ export const CustomImage = Node.create({
 
     renderHTML({ HTMLAttributes }) {
         const {
-            src, alt, title, width, height, align, objectFit, caption
+            src, alt, title, width, height, align, objectFit, caption, border, shadow, aspectRatio
         } = HTMLAttributes;
 
         const imgAttrs: Record<string, string> = {
@@ -101,20 +110,57 @@ export const CustomImage = Node.create({
         if (title) imgAttrs.title = title;
         if (width) imgAttrs.width = width;
         if (height) imgAttrs.height = height;
-        if (objectFit && objectFit !== 'cover') imgAttrs.style = `object-fit: ${objectFit}`;
 
+        const imgStyles: string[] = [];
+
+        if (aspectRatio) {
+            imgStyles.push(`aspect-ratio: ${aspectRatio.replace(':', ' / ')}`);
+            imgAttrs['data-aspect-ratio'] = aspectRatio;
+        }
+
+        if (objectFit) {
+            imgStyles.push(`object-fit: ${objectFit}`);
+        }
+
+        if (imgStyles.length > 0) {
+            imgAttrs.style = imgStyles.join('; ');
+        }
+
+        const figureStyles: string[] = [];
         const figureAttrs: Record<string, string> = {};
+
         if (align) {
-            let alignStyle = `text-align: ${align};`;
-            // 이미지 정렬을 위한 추가 스타일
+            figureStyles.push(`text-align: ${align}`);
             if (align === 'center') {
-                alignStyle += ' display: flex; justify-content: center; flex-direction: column; align-items: center;';
+                figureStyles.push('display: flex');
+                figureStyles.push('justify-content: center');
+                figureStyles.push('flex-direction: column');
+                figureStyles.push('align-items: center');
             } else if (align === 'left') {
-                alignStyle += ' display: flex; justify-content: flex-start; flex-direction: column; align-items: flex-start;';
+                figureStyles.push('display: flex');
+                figureStyles.push('justify-content: flex-start');
+                figureStyles.push('flex-direction: column');
+                figureStyles.push('align-items: flex-start');
             } else if (align === 'right') {
-                alignStyle += ' display: flex; justify-content: flex-end; flex-direction: column; align-items: flex-end;';
+                figureStyles.push('display: flex');
+                figureStyles.push('justify-content: flex-end');
+                figureStyles.push('flex-direction: column');
+                figureStyles.push('align-items: flex-end');
             }
-            figureAttrs.style = alignStyle;
+        }
+
+        if (border) {
+            figureStyles.push('border: 1px solid #e5e7eb');
+            figureStyles.push('overflow: hidden');
+            figureAttrs['data-border'] = 'true';
+        }
+        if (shadow) {
+            figureStyles.push('box-shadow: 8px 8px 40px 2px rgba(0, 0, 0, 0.15)');
+            figureAttrs['data-shadow'] = 'true';
+        }
+
+        if (figureStyles.length > 0) {
+            figureAttrs.style = figureStyles.join('; ');
         }
 
         const content = [

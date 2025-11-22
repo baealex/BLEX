@@ -88,10 +88,7 @@ const TiptapEditor: React.FC<TiptapEditorProps> = ({
 
             {editable && <MenuBar editor={editor} />}
 
-            <EditorContent
-                className="overflow-hidden break-words"
-                editor={editor}
-            />
+            <EditorContent editor={editor} />
             <style jsx global>{`
                 .ProseMirror {
                     min-height: ${height};
