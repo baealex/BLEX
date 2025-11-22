@@ -325,53 +325,11 @@ def sign_social(request, social):
     raise Http404
 
 
-def email_verify(request, token):
-    user = get_object_or_404(User, last_name='email:' + token)
-
-    if request.method == 'GET':
-        return StatusDone({
-            'first_name': user.first_name
-        })
-
-    if request.method == 'POST':
-        if user.is_active:
-            return StatusError(ErrorCode.ALREADY_VERIFICATION)
-
-        if user.date_joined < timezone.now() - datetime.timedelta(days=7):
-            return StatusError(ErrorCode.EXPIRED)
-
-        if settings.HCAPTCHA_SECRET_KEY:
-            hctoken = request.POST.get('hctoken', '')
-            if not hctoken:
-                return StatusError(ErrorCode.VALIDATE)
-
-            if not auth_hcaptcha(hctoken):
-                return StatusError(ErrorCode.REJECT)
-
-        user.is_active = True
-        user.last_name = ''
-        user.save()
-
-        profile = Profile(user=user)
-        profile.save()
-
-        config = Config(user=user)
-        config.save()
-
-        AuthService.send_welcome_notification(user)
-
-        auth.login(request, user)
-        return login_response(request.user)
-
-    raise Http404
-
-
 def security(request):
     if not request.user.is_active:
         return StatusError(ErrorCode.NEED_LOGIN)
 
     if request.method == 'GET':
-        # Return QR code for existing 2FA setup (so user can reconfigure their app if needed)
         if hasattr(request.user, 'twofactorauth'):
             two_factor_auth = request.user.twofactorauth
             qr_code = AuthService.get_totp_qr_code(request.user)
@@ -384,22 +342,18 @@ def security(request):
 
     if request.method == 'POST':
         try:
-            # Check if 2FA already exists
             if hasattr(request.user, 'twofactorauth'):
                 return StatusError(ErrorCode.ALREADY_CONNECTED)
 
-            # Generate TOTP secret and recovery key
             totp_secret = AuthService.create_totp_secret()
             recovery_key = randstr(45)
 
-            # Store in session (NOT database yet - wait for verification)
             request.session['totp_setup'] = {
                 'secret': totp_secret,
                 'recovery_key': recovery_key,
                 'user_id': request.user.id
             }
 
-            # Generate QR code using temporary TOTP object
             totp = pyotp.TOTP(totp_secret)
             provisioning_uri = totp.provisioning_uri(
                 name=request.user.email,
@@ -444,7 +398,6 @@ def security_verify(request):
 
     if request.method == 'POST':
         try:
-            # Get setup data from session
             setup_data = request.session.get('totp_setup')
             if not setup_data:
                 return StatusError(ErrorCode.ERROR, '2FA 설정 세션이 만료되었습니다. 다시 시도해주세요.')
@@ -452,30 +405,25 @@ def security_verify(request):
             if setup_data['user_id'] != request.user.id:
                 return StatusError(ErrorCode.ERROR, '잘못된 세션입니다.')
 
-            # Check if 2FA already exists
             if hasattr(request.user, 'twofactorauth'):
                 del request.session['totp_setup']
                 return StatusError(ErrorCode.ALREADY_CONNECTED)
 
-            # Get verification code from request
             data = json.loads(request.body.decode('utf-8')) if request.body else {}
             code = data.get('code', '').strip()
 
             if not code:
                 return StatusError(ErrorCode.ERROR, '인증 코드를 입력해주세요.')
 
-            # Verify the TOTP code
             totp = pyotp.TOTP(setup_data['secret'])
             if not totp.verify(code, valid_window=1):
                 return StatusError(ErrorCode.REJECT, '잘못된 인증 코드입니다.')
 
-            # Verification successful - save to database
             two_factor_auth = TwoFactorAuth(user=request.user)
             two_factor_auth.totp_secret = setup_data['secret']
             two_factor_auth.recovery_key = setup_data['recovery_key']
             two_factor_auth.save()
 
-            # Clear session
             del request.session['totp_setup']
 
             return StatusDone({'message': '2차 인증이 활성화되었습니다.'})
@@ -483,63 +431,6 @@ def security_verify(request):
         except Exception as e:
             traceback.print_exc()
             return StatusError(ErrorCode.ERROR, f'2FA 활성화에 실패했습니다: {str(e)}')
-
-    raise Http404
-
-
-def security_send(request):
-    """
-    DEPRECATED: This endpoint is kept for backwards compatibility.
-    New clients should use /v1/login with the 'code' parameter instead.
-    """
-    if request.method == 'POST':
-        client_ip = get_client_ip(request)
-        cache_key = f'login_attempts:{client_ip}'
-        attempts = cache.get(cache_key, 0)
-
-        if attempts >= 5:
-            return StatusError(ErrorCode.REJECT, '너무 많은 실패로 인해 5분 동안 차단되었습니다.')
-
-        try:
-            data = json.loads(request.body.decode('utf-8')) if request.body else {}
-        except (json.JSONDecodeError, UnicodeDecodeError):
-            cache.set(cache_key, attempts + 1, 300)
-            return StatusError(ErrorCode.VALIDATE, 'Invalid JSON format')
-
-        code = data.get('code', '')
-        username = data.get('username', '')
-
-        try:
-            if not username:
-                cache.set(cache_key, attempts + 1, 300)
-                return StatusError(ErrorCode.VALIDATE, '사용자 이름이 필요합니다.')
-
-            if not code or len(code) < 6:
-                cache.set(cache_key, attempts + 1, 300)
-                return StatusError(ErrorCode.VALIDATE, '인증 코드를 입력해주세요.')
-
-            try:
-                user = User.objects.get(username=username)
-                TwoFactorAuth.objects.get(user=user)
-            except User.DoesNotExist:
-                cache.set(cache_key, attempts + 1, 300)
-                return StatusError(ErrorCode.REJECT)
-            except TwoFactorAuth.DoesNotExist:
-                cache.set(cache_key, attempts + 1, 300)
-                return StatusError(ErrorCode.REJECT)
-
-            if AuthService.verify_totp_token(user, code):
-                cache.delete(cache_key)
-                auth.login(request, user)
-                return login_response(request.user)
-            else:
-                cache.set(cache_key, attempts + 1, 300)
-                return StatusError(ErrorCode.REJECT)
-
-        except Exception as e:
-            traceback.print_exc()
-            cache.set(cache_key, attempts + 1, 300)
-            return StatusError(ErrorCode.REJECT)
 
     raise Http404
 

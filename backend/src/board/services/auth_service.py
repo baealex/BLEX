@@ -284,8 +284,8 @@ class AuthService:
         Returns:
             True if 2FA is enabled and should be checked
         """
-        if settings.DEBUG:
-            return False
+        # if settings.DEBUG:
+        #     return False
 
         return user.config.has_two_factor_auth()
 
