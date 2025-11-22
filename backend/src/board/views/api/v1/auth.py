@@ -1,144 +1,152 @@
-import re
 import datetime
 import traceback
 import json
+import io
+import pyotp
+import qrcode
+import base64
 
 from django.conf import settings
 from django.contrib import auth
 from django.core.cache import cache
 from django.contrib.auth.models import User
-from django.core.files import File
-from django.db.models import Count, Case, When, Value, Exists, OuterRef
 from django.http import Http404, QueryDict
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
 
-from board.constants.config_meta import CONFIG_TYPE
 from board.models import (
     TwoFactorAuth, Config, Profile, Post,
-    UserLinkMeta, UsernameChangeLog, TelegramSync, SocialAuthProvider)
+    UserLinkMeta, UsernameChangeLog, TelegramSync, SocialAuthProvider, SiteSetting)
 from board.modules.notify import create_notify
 from board.modules.response import StatusDone, StatusError, ErrorCode
+from board.services.auth_service import AuthService, OAuthService, AuthValidationError
 from modules import oauth
 from modules.challenge import auth_hcaptcha
 from modules.sub_task import SubTaskProcessor
 from modules.telegram import TelegramBot
 from modules.randomness import randnum, randstr
-from modules.scrap import download_image
-
-
-def check_username(username: str):
-    has_username = User.objects.filter(username=username)
-    if has_username.exists():
-        return '이미 사용중인 사용자 이름 입니다.'
-
-    regex = re.compile('[a-z0-9]{4,15}')
-    if not regex.match(username) or not len(regex.match(username).group()) == len(username):
-        return '사용자 이름은 4~15자 사이의 소문자 영어, 숫자만 가능합니다.'
-
-
-def check_email(email: str):
-    regex = re.compile('[A-Z0-9a-z._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,64}')
-    if not regex.match(email) or not len(regex.match(email).group()) == len(email):
-        return '올바른 이메일 주소가 아닙니다.'
 
 
 def login_response(user: User, is_first_login=False):
-    _user = get_object_or_404(User.objects.select_related(
-        'profile', 'config'
-    ).annotate(
-        notify_count=Count(
-            Case(
-                When(notify__has_read=False, then=Value(1))
-            )
-        ),
-        has_connected_telegram=Exists(
-            TelegramSync.objects.filter(
-                user_id=OuterRef('id'),
-                tid__regex=r'^.+'
-            )
-        ),
-        has_connected_2fa=Exists(
-            TwoFactorAuth.objects.filter(
-                user_id=OuterRef('id')
-            )
-        ),
-    ), id=user.id)
-
-    return StatusDone({
-        'username': _user.username,
-        'name': _user.first_name,
-        'email': _user.email,
-        'avatar': _user.profile.avatar.url if _user.profile.avatar else '',
-        'notify_count': _user.notify_count,
-        'is_first_login': is_first_login,
-        'has_connected_telegram': _user.has_connected_telegram,
-        'has_connected_2fa': _user.has_connected_2fa,
-        'has_editor_role': _user.profile.is_editor(),
-    })
+    data = AuthService.get_user_login_data(user)
+    data['is_first_login'] = is_first_login
+    return StatusDone(data)
 
 
-def common_auth(request, user):
-    if not settings.DEBUG:
-        if user.config.has_two_factor_auth():
-            def create_auth_token():
-                token = randnum(6)
-                user.twofactorauth.create_token(token)
-                bot = TelegramBot(settings.TELEGRAM_BOT_TOKEN)
-                bot.send_message(user.telegramsync.get_decrypted_tid(),
-                                 f'2차 인증 코드입니다 : {token}')
+def common_auth(request, user, two_factor_code=None, is_oauth=False):
+    """
+    Handle authentication with optional 2FA code.
 
-            SubTaskProcessor.process(create_auth_token)
+    Args:
+        request: HTTP request
+        user: Authenticated user
+        two_factor_code: Optional 2FA code from client
+        is_oauth: Whether this is OAuth authentication
+
+    Returns:
+        StatusDone with login data or security requirement
+    """
+    if AuthService.check_two_factor_auth(user):
+        if two_factor_code:
+            client_ip = get_client_ip(request)
+            cache_key = f'login_attempts:{client_ip}'
+
+            if AuthService.verify_totp_token(user, two_factor_code):
+                cache.delete(cache_key)
+                auth.login(request, user)
+                return login_response(request.user)
+            else:
+                cache.set(cache_key, cache.get(cache_key, 0) + 1, 300)
+                return StatusError(ErrorCode.REJECT, '2차 인증 코드가 올바르지 않습니다.')
+        else:
             return StatusDone({
                 'username': user.username,
                 'security': True,
+                'is_oauth': is_oauth,
             })
+
     auth.login(request, user)
     return login_response(request.user)
 
 
-def create_user(username, name, email, avatar_url, token=None):
-    counter = 0
-    created_username = username.lower()
-    user = User.objects.filter(username=created_username)
-    while user.exists():
-        counter += 1
-        created_username = f'{username}{counter}'
-        user = User.objects.filter(username=created_username)
+def parse_login_request(request):
+    """Parse login request data from JSON or POST"""
+    try:
+        return json.loads(request.body.decode('utf-8')) if request.body else {}
+    except (json.JSONDecodeError, UnicodeDecodeError):
+        return {}
 
-    user = User.objects.create_user(
-        username=created_username,
-        email=email,
-        first_name=name,
-    )
 
-    if token:
-        user.last_name = token
-        user.save()
+def get_client_ip(request):
+    """Get client IP address from request"""
+    return request.META.get('HTTP_X_FORWARDED_FOR', request.META.get('REMOTE_ADDR'))
 
-    user_profile = Profile.objects.create(user=user)
 
-    if avatar_url:
-        avatar = download_image(avatar_url, stream=True)
-        if avatar:
-            user_profile.avatar.save(name='png', content=File(avatar))
-            user_profile.save()
+def check_login_rate_limit(request):
+    """
+    Check login rate limiting for the client IP.
+    Returns StatusError if blocked, None otherwise.
+    """
+    client_ip = get_client_ip(request)
+    cache_key = f'login_attempts:{client_ip}'
+    attempts = cache.get(cache_key, 0)
 
-    user_config = Config.objects.create(user=user)
-    user_config.create_or_update_meta(CONFIG_TYPE.NOTIFY_MENTION, 'true')
-    user_config.create_or_update_meta(CONFIG_TYPE.NOTIFY_COMMENT_LIKE, 'true')
+    if attempts >= 5:
+        return StatusError(ErrorCode.REJECT, '너무 많은 실패로 인해 잠시 후 다시 시도해주세요.')
 
-    create_notify(
-        user=user,
-        url='https://www.notion.so/edfab7c5d5be4acd8d10f347c017fcca',
-        content=(
-            f'{user.first_name}님의 가입을 진심으로 환영합니다! '
-            f'{settings.SITE_NAME}의 다양한 기능을 활용하고 싶으시다면 개발자가 직접 작성한 '
-            f'\'{settings.SITE_NAME} 노션\'을 살펴보시는 것을 추천드립니다 :)'
-        )
-    )
+    return None
 
-    return [user, user_profile, user_config]
+
+def handle_oauth_token_login(request, data):
+    """Handle OAuth token-based login with 2FA"""
+    client_ip = get_client_ip(request)
+    oauth_token = data.get('oauth_token', '') or request.POST.get('oauth_token', '')
+    two_factor_code = data.get('code', '') or request.POST.get('code', '')
+
+    oauth_data = OAuthService.get_2fa_data(oauth_token)
+
+    if not oauth_data:
+        return StatusError(ErrorCode.REJECT, '인증 토큰이 만료되었습니다. 다시 로그인해주세요.')
+
+    try:
+        user = User.objects.get(id=oauth_data['user_id'])
+    except User.DoesNotExist:
+        OAuthService.delete_2fa_token(oauth_token)
+        return StatusError(ErrorCode.REJECT)
+
+    if not two_factor_code:
+        return StatusError(ErrorCode.VALIDATE, '2차 인증 코드가 필요합니다.')
+
+    cache_key = f'login_attempts:{client_ip}'
+
+    if AuthService.verify_totp_token(user, two_factor_code):
+        cache.delete(cache_key)
+        OAuthService.delete_2fa_token(oauth_token)
+        auth.login(request, user)
+        return login_response(request.user)
+    else:
+        cache.set(cache_key, cache.get(cache_key, 0) + 1, 300)
+        return StatusError(ErrorCode.REJECT, '2차 인증 코드가 올바르지 않습니다.')
+
+
+def handle_password_login(request, data):
+    """Handle username/password-based login with optional 2FA"""
+    client_ip = get_client_ip(request)
+    cache_key = f'login_attempts:{client_ip}'
+
+    username = data.get('username', '') or request.POST.get('username', '')
+    password = data.get('password', '') or request.POST.get('password', '')
+    two_factor_code = data.get('code', '') or request.POST.get('code', '')
+
+    user = auth.authenticate(username=username, password=password)
+
+    if user is not None:
+        if user.is_active:
+            cache.delete(cache_key)
+            return common_auth(request, user, two_factor_code=two_factor_code)
+    else:
+        cache.set(cache_key, cache.get(cache_key, 0) + 1, 300)
+        return StatusError(ErrorCode.AUTHENTICATION)
 
 
 def login(request):
@@ -148,49 +156,18 @@ def login(request):
         return StatusError(ErrorCode.NEED_LOGIN)
 
     if request.method == 'POST':
-        # Server-side rate limiting check
-        client_ip = request.META.get('HTTP_X_FORWARDED_FOR', request.META.get('REMOTE_ADDR'))
-        cache_key = f'login_attempts:{client_ip}'
+        rate_limit_error = check_login_rate_limit(request)
+        if rate_limit_error:
+            return rate_limit_error
 
-        attempts = cache.get(cache_key, 0)
+        data = parse_login_request(request)
 
-        # Block if too many attempts
-        if attempts >= 5:
-            return StatusError(ErrorCode.REJECT, '너무 많은 실패로 인해 잠시 후 다시 시도해주세요.')
-
-        # Try to parse JSON first, then fallback to POST data
-        try:
-            data = json.loads(request.body.decode('utf-8')) if request.body else {}
-        except (json.JSONDecodeError, UnicodeDecodeError):
-            data = {}
-
-        social = data.get('social', '') or request.POST.get('social', '')
-        if not social:
-            username = data.get('username', '') or request.POST.get('username', '')
-            password = data.get('password', '') or request.POST.get('password', '')
-            # hcaptcha_response = data.get('h-captcha-response', '') or request.POST.get('h-captcha-response', '')
-
-        # Validate hCaptcha if attempts >= 3
-        # if attempts >= 3:
-        #     if not hcaptcha_response:
-        #         return StatusError(ErrorCode.VALIDATE, '보안 검증이 필요합니다.')
-        #
-        #     if settings.HCAPTCHA_SECRET_KEY and not auth_hcaptcha(hcaptcha_response):
-        #         # Increment attempts for failed captcha
-        #         cache.set(cache_key, attempts + 1, 300)  # 5 minutes
-        #         return StatusError(ErrorCode.REJECT, '보안 검증에 실패했습니다.')
-
-        user = auth.authenticate(username=username, password=password)
-
-        if user is not None:
-            if user.is_active:
-                # Reset attempts on successful login
-                cache.delete(cache_key)
-                return common_auth(request, user)
+        oauth_token = data.get('oauth_token', '') or request.POST.get('oauth_token', '')
+        if oauth_token:
+            return handle_oauth_token_login(request, data)
         else:
-            # Increment failed attempts
-            cache.set(cache_key, attempts + 1, 300)  # 5 minutes
-            return StatusError(ErrorCode.AUTHENTICATION)
+            return handle_password_login(request, data)
+
     raise Http404
 
 
@@ -222,13 +199,11 @@ def sign(request):
         email = request.POST.get('email', '')
         hcaptcha_response = request.POST.get('h-captcha-response', '')
 
-        username_error = check_username(username)
-        if username_error:
-            return StatusError(ErrorCode.REJECT, username_error)
-
-        email_error = check_email(email)
-        if email_error:
-            return StatusError(ErrorCode.REJECT, email_error)
+        try:
+            AuthService.validate_username(username)
+            AuthService.validate_email(email)
+        except AuthValidationError as e:
+            return StatusError(e.code, e.message)
 
         # Verify HCaptcha if HCAPTCHA_SECRET_KEY is set
         if settings.HCAPTCHA_SECRET_KEY:
@@ -237,31 +212,12 @@ def sign(request):
             if not auth_hcaptcha(hcaptcha_response):
                 return StatusError(ErrorCode.REJECT, '보안 검증에 실패했습니다.')
 
-        new_user = User.objects.create_user(
-            username,
-            email,
-            password
-        )
-        new_user.first_name = name
-
-        new_user.save()
-
-        profile = Profile(user=new_user)
-        profile.save()
-
-        config = Config(user=new_user)
-        config.save()
-        config.create_or_update_meta(CONFIG_TYPE.NOTIFY_MENTION, 'true')
-        config.create_or_update_meta(CONFIG_TYPE.NOTIFY_COMMENT_LIKE, 'true')
-
-        create_notify(
-            user=new_user,
-            url='https://www.notion.so/edfab7c5d5be4acd8d10f347c017fcca',
-            content=(
-                f'{new_user.first_name}님의 가입을 진심으로 환영합니다! '
-                f'{settings.SITE_NAME}의 다양한 기능을 활용하고 싶으시다면 개발자가 직접 작성한 '
-                f'\'{settings.SITE_NAME} 노션\'을 살펴보시는 것을 추천드립니다 :)'
-            )
+        # Create user using AuthService
+        new_user, profile, config = AuthService.create_user(
+            username=username,
+            name=name,
+            email=email,
+            password=password
         )
 
         auth.login(request, new_user)
@@ -281,16 +237,13 @@ def sign(request):
 
             username = body.get('username', '')
 
-            result_check_username = check_username(username)
-            if result_check_username:
-                return StatusError(ErrorCode.REJECT, result_check_username)
-
-            if Post.objects.filter(author=request.user).exists():
-                UsernameChangeLog.objects.create(
-                    user=user,
-                    username=user.username,
-                )
-            user.username = username
+            # Change username using AuthService
+            try:
+                # Only create change log if user has posts
+                create_log = Post.objects.filter(author=request.user).exists()
+                AuthService.change_username(user, username, create_log=create_log)
+            except AuthValidationError as e:
+                return StatusError(e.code, e.message)
 
         if body.get('name', ''):
             user.first_name = body.get('name', '')
@@ -299,7 +252,7 @@ def sign(request):
         return StatusDone()
 
     if request.method == 'DELETE':
-        request.user.delete()
+        AuthService.delete_user_account(request.user)
         auth.logout(request)
         return StatusDone()
 
@@ -322,9 +275,9 @@ def sign_social(request, social):
 
                 users = User.objects.filter(last_name=token)
                 if users.exists():
-                    return common_auth(request, users.first())
+                    return common_auth(request, users.first(), is_oauth=True)
 
-                user, profile, config = create_user(
+                user, profile, config = AuthService.create_user(
                     username=user_id,
                     name=name,
                     email='',
@@ -356,9 +309,9 @@ def sign_social(request, social):
 
                 users = User.objects.filter(last_name=token)
                 if users.exists():
-                    return common_auth(request, users.first())
+                    return common_auth(request, users.first(), is_oauth=True)
 
-                user, profile, config = create_user(
+                user, profile, config = AuthService.create_user(
                     username=user_id,
                     name=name,
                     email=email,
@@ -372,73 +325,58 @@ def sign_social(request, social):
     raise Http404
 
 
-def email_verify(request, token):
-    user = get_object_or_404(User, last_name='email:' + token)
-
-    if request.method == 'GET':
-        return StatusDone({
-            'first_name': user.first_name
-        })
-
-    if request.method == 'POST':
-        if user.is_active:
-            return StatusError(ErrorCode.ALREADY_VERIFICATION)
-
-        if user.date_joined < timezone.now() - datetime.timedelta(days=7):
-            return StatusError(ErrorCode.EXPIRED)
-
-        if settings.HCAPTCHA_SECRET_KEY:
-            hctoken = request.POST.get('hctoken', '')
-            if not hctoken:
-                return StatusError(ErrorCode.VALIDATE)
-
-            if not auth_hcaptcha(hctoken):
-                return StatusError(ErrorCode.REJECT)
-
-        user.is_active = True
-        user.last_name = ''
-        user.save()
-
-        profile = Profile(user=user)
-        profile.save()
-
-        config = Config(user=user)
-        config.save()
-
-        create_notify(
-            user=user,
-            url='https://www.notion.so/edfab7c5d5be4acd8d10f347c017fcca',
-            content=(
-                f'{user.first_name}님의 가입을 진심으로 환영합니다! '
-                f'{settings.SITE_NAME}의 다양한 기능을 활용하고 싶으시다면 개발자가 직접 작성한 '
-                f'\'{settings.SITE_NAME} 노션\'을 살펴보시는 것을 추천드립니다 :)'
-            )
-        )
-
-        auth.login(request, user)
-        return login_response(request.user)
-
-    raise Http404
-
-
 def security(request):
     if not request.user.is_active:
         return StatusError(ErrorCode.NEED_LOGIN)
 
-    if request.method == 'POST':
-        if not request.user.config.has_telegram_id():
-            return StatusError(ErrorCode.NEED_TELEGRAM)
-
+    if request.method == 'GET':
         if hasattr(request.user, 'twofactorauth'):
-            return StatusError(ErrorCode.ALREADY_CONNECTED)
+            two_factor_auth = request.user.twofactorauth
+            qr_code = AuthService.get_totp_qr_code(request.user)
+            if qr_code:
+                return StatusDone({
+                    'qr_code': qr_code,
+                    'recovery_key': two_factor_auth.recovery_key
+                })
+        return StatusError(ErrorCode.NOT_FOUND)
 
-        recovery_key = randstr(45)
-        # TODO: 이메일로 복구키 전송
+    if request.method == 'POST':
+        try:
+            if hasattr(request.user, 'twofactorauth'):
+                return StatusError(ErrorCode.ALREADY_CONNECTED)
 
-        two_factor_auth = TwoFactorAuth(user=request.user)
-        two_factor_auth.recovery_key = recovery_key
-        two_factor_auth.save()
-        return StatusDone()
+            totp_secret = AuthService.create_totp_secret()
+            recovery_key = randstr(45)
+
+            request.session['totp_setup'] = {
+                'secret': totp_secret,
+                'recovery_key': recovery_key,
+                'user_id': request.user.id
+            }
+
+            totp = pyotp.TOTP(totp_secret)
+            provisioning_uri = totp.provisioning_uri(
+                name=request.user.email,
+                issuer_name='BLEX'
+            )
+
+            qr = qrcode.QRCode(version=1, box_size=10, border=5)
+            qr.add_data(provisioning_uri)
+            qr.make(fit=True)
+
+            img = qr.make_image(fill_color="black", back_color="white")
+            buffer = io.BytesIO()
+            img.save(buffer, format='PNG')
+            img_str = base64.b64encode(buffer.getvalue()).decode()
+            qr_code = f"data:image/png;base64,{img_str}"
+
+            return StatusDone({
+                'qr_code': qr_code,
+                'recovery_key': recovery_key
+            })
+        except Exception as e:
+            traceback.print_exc()
+            return StatusError(ErrorCode.ERROR, f'2FA 설정 초기화에 실패했습니다: {str(e)}')
 
     if request.method == 'DELETE':
         if not hasattr(request.user, 'twofactorauth'):
@@ -453,69 +391,46 @@ def security(request):
     raise Http404
 
 
-def security_send(request):
-    if request.method == 'POST':
-        # Server-side 2FA rate limiting
-        client_ip = request.META.get('HTTP_X_FORWARDED_FOR', request.META.get('REMOTE_ADDR'))
-        cache_key = f'2fa_attempts:{client_ip}'
-        
-        attempts = cache.get(cache_key, 0)
-        
-        # Block if too many 2FA attempts
-        if attempts >= 5:
-            return StatusError(ErrorCode.REJECT, '너무 많은 실패로 인해 5분 동안 차단되었습니다.')
+def security_verify(request):
+    """Verify TOTP code and complete 2FA setup"""
+    if not request.user.is_active:
+        return StatusError(ErrorCode.NEED_LOGIN)
 
-        body = QueryDict(request.body)
-        auth_token = body.get('auth_token', '')
-        code = body.get('code', '')  # For the new 2FA flow
-        
+    if request.method == 'POST':
         try:
-            # Handle 6-digit 2FA code
-            verification_code = code or auth_token
-            if len(verification_code) == 6:
-                two_factor_auth = TwoFactorAuth.objects.get(otp=verification_code)
-                if two_factor_auth:
-                    if two_factor_auth.is_token_expire():
-                        return StatusError(ErrorCode.EXPIRED)
-                    user = two_factor_auth.user
-                    two_factor_auth.otp = ''
-                    two_factor_auth.save()
-                    
-                    # Reset 2FA attempts on success
-                    cache.delete(cache_key)
-                    
-                    # Clear OAuth 2FA session data if exists
-                    if 'pending_2fa_user_id' in request.session:
-                        del request.session['pending_2fa_user_id']
-                        del request.session['pending_2fa_username']
-                    
-                    auth.login(request, user)
-                    return login_response(request.user)
-            # Handle recovery key
-            elif len(verification_code) > 6:
-                two_factor_auth = TwoFactorAuth.objects.get(
-                    recovery_key=verification_code)
-                if two_factor_auth:
-                    user = two_factor_auth.user
-                    two_factor_auth.otp = ''
-                    two_factor_auth.save()
-                    
-                    # Reset 2FA attempts on success
-                    cache.delete(cache_key)
-                    
-                    # Clear OAuth 2FA session data if exists
-                    if 'pending_2fa_user_id' in request.session:
-                        del request.session['pending_2fa_user_id']
-                        del request.session['pending_2fa_username']
-                    
-                    auth.login(request, user)
-                    return login_response(request.user)
+            setup_data = request.session.get('totp_setup')
+            if not setup_data:
+                return StatusError(ErrorCode.ERROR, '2FA 설정 세션이 만료되었습니다. 다시 시도해주세요.')
+
+            if setup_data['user_id'] != request.user.id:
+                return StatusError(ErrorCode.ERROR, '잘못된 세션입니다.')
+
+            if hasattr(request.user, 'twofactorauth'):
+                del request.session['totp_setup']
+                return StatusError(ErrorCode.ALREADY_CONNECTED)
+
+            data = json.loads(request.body.decode('utf-8')) if request.body else {}
+            code = data.get('code', '').strip()
+
+            if not code:
+                return StatusError(ErrorCode.ERROR, '인증 코드를 입력해주세요.')
+
+            totp = pyotp.TOTP(setup_data['secret'])
+            if not totp.verify(code, valid_window=1):
+                return StatusError(ErrorCode.REJECT, '잘못된 인증 코드입니다.')
+
+            two_factor_auth = TwoFactorAuth(user=request.user)
+            two_factor_auth.totp_secret = setup_data['secret']
+            two_factor_auth.recovery_key = setup_data['recovery_key']
+            two_factor_auth.save()
+
+            del request.session['totp_setup']
+
+            return StatusDone({'message': '2차 인증이 활성화되었습니다.'})
+
         except Exception as e:
             traceback.print_exc()
-
-        # Increment failed 2FA attempts
-        cache.set(cache_key, attempts + 1, 300)  # 5 minutes
-        return StatusError(ErrorCode.REJECT)
+            return StatusError(ErrorCode.ERROR, f'2FA 활성화에 실패했습니다: {str(e)}')
 
     raise Http404
 

@@ -28,13 +28,11 @@ export const LoginPromptProvider: React.FC<{ children: ReactNode }> = ({ childre
         action: ''
     });
 
-    // Check if user is logged in
     const isLoggedIn = useMemo(() => {
         return !!window.configuration?.user?.username;
     }, []);
 
     const showLoginPrompt = useCallback((action: string) => {
-        // If already logged in, don't show prompt
         if (isLoggedIn) {
             return;
         }
@@ -72,7 +70,8 @@ export const LoginPromptProvider: React.FC<{ children: ReactNode }> = ({ childre
     }, []);
 
     const handleLogin = useCallback(() => {
-        window.location.href = '/login';
+        const currentPath = window.location.pathname + window.location.search;
+        window.location.href = `/login?next=${encodeURIComponent(currentPath)}`;
     }, []);
 
     return (

@@ -6,10 +6,15 @@ Extracted from views to improve testability and reusability.
 """
 
 import re
+import io
+import pyotp
+import qrcode
+import base64
 from typing import Optional, Tuple, Dict, Any
 
 from django.conf import settings
 from django.contrib.auth.models import User
+from django.core.cache import cache
 from django.core.files import File
 from django.db import transaction
 from django.db.models import Count, Case, When, Value, Exists, OuterRef, Q
@@ -35,6 +40,59 @@ class AuthValidationError(Exception):
         super().__init__(message)
 
 
+class OAuthService:
+    """Service class for handling OAuth authentication"""
+
+    OAUTH_2FA_CACHE_TIMEOUT = 300  # 5 minutes
+
+    @staticmethod
+    def create_2fa_token(user_id: int, next_url: str = '') -> str:
+        """
+        Create one-time OAuth 2FA token and store in cache.
+
+        Args:
+            user_id: User ID requiring 2FA
+            next_url: Redirect URL after successful authentication
+
+        Returns:
+            OAuth token string
+        """
+        oauth_token = randstr(32)
+        cache_key = f'oauth_2fa:{oauth_token}'
+
+        cache.set(cache_key, {
+            'user_id': user_id,
+            'next_url': next_url,
+        }, OAuthService.OAUTH_2FA_CACHE_TIMEOUT)
+
+        return oauth_token
+
+    @staticmethod
+    def get_2fa_data(oauth_token: str) -> Optional[Dict[str, Any]]:
+        """
+        Retrieve OAuth 2FA token data from cache.
+
+        Args:
+            oauth_token: Token to retrieve
+
+        Returns:
+            Dictionary with user_id and next_url, or None if expired/invalid
+        """
+        cache_key = f'oauth_2fa:{oauth_token}'
+        return cache.get(cache_key)
+
+    @staticmethod
+    def delete_2fa_token(oauth_token: str) -> None:
+        """
+        Delete used OAuth 2FA token from cache.
+
+        Args:
+            oauth_token: Token to delete
+        """
+        cache_key = f'oauth_2fa:{oauth_token}'
+        cache.delete(cache_key)
+
+
 class AuthService:
     """Service class for handling authentication-related business logic"""
 
@@ -53,14 +111,12 @@ class AuthService:
         Raises:
             AuthValidationError: If validation fails
         """
-        # Check if username already exists
         if User.objects.filter(username=username).exists():
             raise AuthValidationError(
                 ErrorCode.VALIDATE,
                 '이미 사용중인 사용자 이름 입니다.'
             )
 
-        # Check format
         match = AuthService.USERNAME_PATTERN.match(username)
         if not match or len(match.group()) != len(username):
             raise AuthValidationError(
@@ -112,6 +168,7 @@ class AuthService:
         username: str,
         name: str,
         email: str,
+        password: Optional[str] = None,
         avatar_url: Optional[str] = None,
         token: Optional[str] = None
     ) -> Tuple[User, Profile, Config]:
@@ -122,19 +179,19 @@ class AuthService:
             username: Username (will be made unique if needed)
             name: User's display name
             email: User's email
+            password: Password for the user (optional, for regular signup)
             avatar_url: URL to download avatar from (optional)
             token: Token to store in last_name field (optional)
 
         Returns:
             Tuple of (User, Profile, Config)
         """
-        # Generate unique username
         unique_username = AuthService.generate_unique_username(username)
 
-        # Create user
         user = User.objects.create_user(
             username=unique_username,
             email=email,
+            password=password,
             first_name=name,
         )
 
@@ -142,10 +199,8 @@ class AuthService:
             user.last_name = token
             user.save()
 
-        # Create profile
         user_profile = Profile.objects.create(user=user)
 
-        # Download and set avatar
         if avatar_url:
             try:
                 avatar = download_image(avatar_url, stream=True)
@@ -156,31 +211,11 @@ class AuthService:
                 # Don't fail user creation if avatar download fails
                 pass
 
-        # Create config
         user_config = Config.objects.create(user=user)
         user_config.create_or_update_meta(CONFIG_TYPE.NOTIFY_MENTION, 'true')
         user_config.create_or_update_meta(CONFIG_TYPE.NOTIFY_COMMENT_LIKE, 'true')
 
-        # Create welcome notification
-        # Get welcome message from site settings (if available)
-        try:
-            site_setting = SiteSetting.get_instance()
-            if site_setting.welcome_notification_message:
-                content = site_setting.welcome_notification_message.replace('{name}', user.first_name)
-                url = site_setting.welcome_notification_url or '/'
-            else:
-                # Fallback to default message
-                content = (
-                    f'{user.first_name}님의 가입을 진심으로 환영합니다! '
-                    f'{settings.SITE_NAME}의 다양한 기능을 활용하고 싶으시다면 개발자가 직접 작성한 '
-                    f'\'{settings.SITE_NAME} 노션\'을 살펴보시는 것을 추천드립니다 :)'
-                )
-                url = 'https://www.notion.so/edfab7c5d5be4acd8d10f347c017fcca'
-
-            create_notify(user=user, url=url, content=content)
-        except Exception:
-            # If anything goes wrong, don't fail user creation
-            pass
+        AuthService.send_welcome_notification(user)
 
         return user, user_profile, user_config
 
@@ -255,51 +290,83 @@ class AuthService:
         return user.config.has_two_factor_auth()
 
     @staticmethod
-    def send_2fa_token(user: User) -> None:
+    def create_totp_secret() -> str:
         """
-        Generate and send 2FA token via Telegram.
+        Generate a new TOTP secret.
 
-        Args:
-            user: User instance
+        Returns:
+            Base32 encoded secret string
         """
-        def create_and_send_token():
-            token = randnum(6)
-            user.twofactorauth.create_token(token)
-            bot = TelegramBot(settings.TELEGRAM_BOT_TOKEN)
-            bot.send_message(
-                user.telegramsync.get_decrypted_tid(),
-                f'2차 인증 코드입니다 : {token}'
-            )
-
-        SubTaskProcessor.process(create_and_send_token)
+        return pyotp.random_base32()
 
     @staticmethod
-    def verify_2fa_token(user: User, token: str) -> bool:
+    def verify_totp_token(user: User, token: str) -> bool:
         """
-        Verify 2FA token.
+        Verify TOTP token or recovery key.
 
         Args:
             user: User instance
-            token: Token to verify
+            token: TOTP token (6 digits) or recovery key (45 chars)
 
         Returns:
             True if token is valid, False otherwise
         """
         try:
             two_factor_auth = TwoFactorAuth.objects.get(user=user)
-            return two_factor_auth.verify_token(token)
+
+            # Check if it's a recovery key (longer than 6 chars)
+            if len(token) > 6:
+                return two_factor_auth.recovery_key == token
+
+            # Otherwise verify TOTP
+            return two_factor_auth.verify_totp(token)
         except TwoFactorAuth.DoesNotExist:
             return False
 
     @staticmethod
+    def get_totp_qr_code(user: User) -> Optional[str]:
+        """
+        Get QR code data URL for TOTP setup.
+
+        Args:
+            user: User instance
+
+        Returns:
+            Base64 encoded QR code image data URL, or None if 2FA not set up
+        """
+        try:
+            two_factor_auth = TwoFactorAuth.objects.get(user=user)
+            provisioning_uri = two_factor_auth.get_provisioning_uri()
+
+            if not provisioning_uri:
+                return None
+
+            # Generate QR code
+            qr = qrcode.QRCode(version=1, box_size=10, border=5)
+            qr.add_data(provisioning_uri)
+            qr.make(fit=True)
+
+            img = qr.make_image(fill_color="black", back_color="white")
+
+            # Convert to base64
+            buffer = io.BytesIO()
+            img.save(buffer, format='PNG')
+            img_str = base64.b64encode(buffer.getvalue()).decode()
+
+            return f"data:image/png;base64,{img_str}"
+        except TwoFactorAuth.DoesNotExist:
+            return None
+
+    @staticmethod
     @transaction.atomic
-    def change_username(user: User, new_username: str) -> None:
+    def change_username(user: User, new_username: str, create_log: bool = True) -> None:
         """
         Change user's username.
 
         Args:
             user: User instance
             new_username: New username
+            create_log: Whether to create username change log (default True)
 
         Raises:
             AuthValidationError: If validation fails
@@ -307,12 +374,12 @@ class AuthService:
         # Validate new username
         AuthService.validate_username(new_username)
 
-        # Store old username in log
-        UsernameChangeLog.objects.create(
-            user=user,
-            old_username=user.username,
-            new_username=new_username
-        )
+        # Store old username in log if requested
+        if create_log:
+            UsernameChangeLog.objects.create(
+                user=user,
+                username=user.username
+            )
 
         # Update username
         user.username = new_username
@@ -370,6 +437,33 @@ class AuthService:
 
         profile.save()
         return profile
+
+    @staticmethod
+    def send_welcome_notification(user: User) -> None:
+        """
+        Send welcome notification to user based on site settings.
+
+        Args:
+            user: User instance to send notification to
+        """
+        try:
+            site_setting = SiteSetting.get_instance()
+            if site_setting.welcome_notification_message:
+                content = site_setting.welcome_notification_message.replace('{name}', user.first_name)
+                url = site_setting.welcome_notification_url or '/'
+            else:
+                # Fallback to default message
+                content = (
+                    f'{user.first_name}님의 가입을 진심으로 환영합니다! '
+                    f'{settings.SITE_NAME}의 다양한 기능을 활용하고 싶으시다면 개발자가 직접 작성한 '
+                    f'\'{settings.SITE_NAME} 노션\'을 살펴보시는 것을 추천드립니다 :)'
+                )
+                url = 'https://www.notion.so/edfab7c5d5be4acd8d10f347c017fcca'
+
+            create_notify(user=user, url=url, content=content)
+        except Exception:
+            # If anything goes wrong, don't fail the operation
+            pass
 
     @staticmethod
     @transaction.atomic

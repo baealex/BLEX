@@ -13,15 +13,15 @@ export interface SearchResult {
 }
 
 export interface SearchResponseBody {
-    posts: SearchResult[];
+    results: SearchResult[];
     lastPage: number;
+    query?: string;
+    totalSize?: number;
+    elapsedTime?: number;
 }
 
 export type SearchResponse = Response<SearchResponseBody>;
 
-/**
- * Search posts
- */
 export const searchPosts = async (query: string, page: number = 1) => {
     return http.get<SearchResponse>(`/v1/search?q=${encodeURIComponent(query)}&page=${page}`);
 };

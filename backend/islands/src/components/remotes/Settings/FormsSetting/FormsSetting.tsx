@@ -4,7 +4,7 @@ import { useFetch } from '~/hooks/use-fetch';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Button, Input, Modal } from '~/components/shared';
+import { Button, Input, Modal, Dropdown } from '~/components/shared';
 import {
  getCardClass,
  getIconClass,
@@ -202,26 +202,16 @@ const FormsManagement: React.FC = () => {
 
                                     {/* Actions */}
                                     <div className={ACTIONS_CONTAINER}>
-                                        <Button
-                                            variant="secondary"
-                                            size="md"
-                                            onClick={(e) => {
-                                                e.stopPropagation();
-                                                handleEditForm(form.id);
-                                            }}
-                                            title="서식 수정">
-                                            <i className="fas fa-edit" />
-                                        </Button>
-                                        <Button
-                                            variant="secondary"
-                                            size="md"
-                                            onClick={(e) => {
-                                                e.stopPropagation();
-                                                handleDeleteForm(form.id);
-                                            }}
-                                            title="서식 삭제">
-                                            <i className="fas fa-trash" />
-                                        </Button>
+                                        <Dropdown
+                                            items={[
+                                                {
+                                                    label: '삭제',
+                                                    icon: 'fas fa-trash',
+                                                    onClick: () => handleDeleteForm(form.id),
+                                                    variant: 'danger'
+                                                }
+                                            ]}
+                                        />
                                     </div>
                                 </div>
                             </div>

@@ -120,10 +120,7 @@ class TempPostService:
         Raises:
             TempPostValidationError: If validation fails
         """
-        # Validate permissions
         TempPostService.validate_user_permissions(user)
-
-        # Check temp post limit
         TempPostService.check_user_temp_post_limit(user)
 
         # Process title and tags
@@ -137,11 +134,9 @@ class TempPostService:
             else:
                 tag_string = str(tags) if tags else ''
 
-        # Try to find existing temp post with same content
         existing_temp = TempPostService.find_existing_temp_post(user, content)
 
         if existing_temp:
-            # Update existing temp post
             existing_temp.title = title
             existing_temp.text_md = content
             existing_temp.tag = tag_string
@@ -149,7 +144,6 @@ class TempPostService:
             existing_temp.save()
             return existing_temp
         else:
-            # Create new temp post
             token = TempPostService.generate_unique_token(user)
             temp_post = TempPosts(
                 token=token,

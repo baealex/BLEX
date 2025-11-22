@@ -2,7 +2,7 @@ import React from 'react';
 import { useLoginState } from './hooks/useLoginState';
 import LoginForm from './components/LoginForm';
 import TwoFactorForm from './components/TwoFactorForm';
-import { login, submit2FACode } from '~/lib/api';
+import { login } from '~/lib/api';
 
 const Login = () => {
     const {
@@ -13,6 +13,8 @@ const Login = () => {
         handleFailedLogin,
         handleFailedTwoFactor
     } = useLoginState();
+
+    const nextUrl = window.NEXT_URL || '';
 
     const focusNext = (index: number) => {
         if (index < 5) {
@@ -32,29 +34,20 @@ const Login = () => {
         }
     };
 
+    const handlePastedCode = (pastedCode: string) => {
+        const newCodes = ['', '', '', '', '', ''];
+        for (let i = 0; i < Math.min(6, pastedCode.length); i++) {
+            newCodes[i] = pastedCode[i];
+        }
+        updateState({
+            codes: newCodes,
+            verificationError: '',
+            successMessage: ''
+        });
+    };
+
     const handleCodeInput = (index: number, value: string) => {
         const newCodes = [...state.codes];
-
-        // Handle pasted content (6-digit code)
-        if (value.length > 1) {
-            const pastedCode = value.replace(/\D/g, '').slice(0, 6);
-            if (pastedCode.length === 6) {
-                for (let i = 0; i < 6; i++) {
-                    newCodes[i] = pastedCode[i] || '';
-                }
-                updateState({
-                    codes: newCodes,
-                    verificationError: '',
-                    successMessage: ''
-                });
-                const lastIndex = Math.min(5, pastedCode.length - 1);
-                setTimeout(() => {
-                    const inputs = document.querySelectorAll('input[inputmode="numeric"]');
-                    (inputs[lastIndex] as HTMLInputElement)?.focus();
-                }, 0);
-                return;
-            }
-        }
 
         if (/^[0-9]$/.test(value)) {
             newCodes[index] = value;
@@ -77,28 +70,6 @@ const Login = () => {
             focusPrev(index);
         } else if (e.key === 'ArrowRight' && index < 5) {
             focusNext(index);
-        } else if ((e.ctrlKey || e.metaKey) && e.key === 'v') {
-            e.preventDefault();
-            navigator.clipboard.readText().then(text => {
-                const pastedCode = text.replace(/\D/g, '').slice(0, 6);
-                if (pastedCode.length === 6) {
-                    const newCodes = ['', '', '', '', '', ''];
-                    for (let i = 0; i < 6; i++) {
-                        newCodes[i] = pastedCode[i] || '';
-                    }
-                    updateState({
-                        codes: newCodes,
-                        verificationError: '',
-                        successMessage: ''
-                    });
-                    setTimeout(() => {
-                        const inputs = document.querySelectorAll('input[inputmode="numeric"]');
-                        (inputs[5] as HTMLInputElement)?.focus();
-                    }, 0);
-                }
-            }).catch(() => {
-                // Fallback if clipboard access fails
-            });
         }
     };
 
@@ -154,7 +125,7 @@ const Login = () => {
                 if (data.body?.security) {
                     updateState({ showTwoFactor: true });
                 } else {
-                    window.location.href = '/';
+                    window.location.href = nextUrl || '/';
                 }
             } else {
                 handleFailedLogin();
@@ -192,7 +163,20 @@ const Login = () => {
         }
 
         try {
-            const { data } = await submit2FACode({ auth_code: code });
+            // If OAuth token exists, use it instead of username/password
+            const loginData = state.oauthToken
+                ? {
+                    oauth_token: state.oauthToken,
+                    code: code
+                }
+                : {
+                    username: state.username,
+                    password: state.password,
+                    code: code,
+                    captcha_token: state.captchaToken || undefined
+                };
+
+            const { data } = await login(loginData);
 
             if (data.status === 'DONE') {
                 updateState({
@@ -200,7 +184,7 @@ const Login = () => {
                     successMessage: '인증이 완료되었습니다. 잠시 후 홈 페이지로 이동합니다.'
                 });
                 setTimeout(() => {
-                    window.location.href = '/';
+                    window.location.href = nextUrl || '/';
                 }, 1000);
             } else {
                 const isBlocked = handleFailedTwoFactor();
@@ -236,7 +220,7 @@ const Login = () => {
                     {state.showTwoFactor ? '이중 인증' : '다시 오신 것을 환영합니다'}
                 </h1>
                 <p className="text-lg text-gray-600 leading-relaxed">
-                    {state.showTwoFactor ? '텔레그램으로 전송된 인증 코드를 입력해주세요' : '좋아하는 작가들의 새로운 글이 기다리고 있어요'}
+                    {state.showTwoFactor ? '인증 앱에서 생성된 6자리 코드를 입력해주세요' : '좋아하는 작가들의 새로운 글이 기다리고 있어요'}
                 </p>
             </div>
 
@@ -262,9 +246,9 @@ const Login = () => {
                         verificationError={state.verificationError}
                         successMessage={state.successMessage}
                         isTwoFactorLoading={state.isTwoFactorLoading}
-                        isResending={state.isResending}
                         onCodeChange={handleCodeInput}
                         onKeyDown={handleCodeKeyDown}
+                        onPaste={handlePastedCode}
                         onSubmit={submitTwoFactor}
                         onGoBack={goBackToLogin}
                     />
@@ -275,7 +259,7 @@ const Login = () => {
                     {!state.showTwoFactor && (
                         <p className="text-base text-gray-600">
                             아직 독자가 아니신가요?
-                            <a href="/sign" className="font-bold text-gray-900 hover:text-gray-700 transition-colors duration-200 ml-1 underline decoration-2 underline-offset-2">
+                            <a href={`/sign${nextUrl ? '?next=' + encodeURIComponent(nextUrl) : ''}`} className="font-bold text-gray-900 hover:text-gray-700 transition-colors duration-200 ml-1 underline decoration-2 underline-offset-2">
                                 가입하기
                             </a>
                         </p>

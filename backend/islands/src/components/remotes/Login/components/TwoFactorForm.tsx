@@ -6,9 +6,9 @@ interface TwoFactorFormProps {
     verificationError: string;
     successMessage: string;
     isTwoFactorLoading: boolean;
-    isResending: boolean;
     onCodeChange: (index: number, value: string) => void;
     onKeyDown: (index: number, e: React.KeyboardEvent) => void;
+    onPaste?: (pastedCode: string) => void;
     onSubmit: (e: React.FormEvent) => void;
     onGoBack: () => void;
 }
@@ -25,6 +25,7 @@ const TwoFactorForm: React.FC<TwoFactorFormProps> = ({
     isTwoFactorLoading,
     onCodeChange,
     onKeyDown,
+    onPaste,
     onSubmit,
     onGoBack
 }) => {
@@ -39,7 +40,7 @@ const TwoFactorForm: React.FC<TwoFactorFormProps> = ({
                 </div>
                 <h3 className="text-lg font-semibold text-gray-900 mb-2">이중 인증</h3>
                 <p className="text-sm text-gray-600">
-                    텔레그램으로 전송된 6자리 코드를 입력하세요
+                    인증 앱에서 생성된 6자리 코드를 입력하세요
                 </p>
             </div>
 
@@ -51,6 +52,7 @@ const TwoFactorForm: React.FC<TwoFactorFormProps> = ({
                     codes={codes}
                     onCodeChange={onCodeChange}
                     onKeyDown={onKeyDown}
+                    onPaste={onPaste}
                     autoFocus={true}
                 />
 

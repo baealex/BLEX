@@ -22,6 +22,10 @@ class SiteSettingAdmin(admin.ModelAdmin):
             'description': '회원가입 시 자동으로 발송될 환영 알림을 설정합니다.',
             'fields': ('welcome_notification_message', 'welcome_notification_url')
         }),
+        ('회원 탈퇴 설정', {
+            'description': '회원 탈퇴 시 설문조사 등을 위한 리다이렉트 URL을 설정합니다. (예: Google Forms, Typeform 등)',
+            'fields': ('account_deletion_redirect_url',)
+        }),
         ('메타데이터', {
             'fields': ('updated_date',),
             'classes': ('collapse',)

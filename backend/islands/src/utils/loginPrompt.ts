@@ -27,12 +27,10 @@ export const isLoggedIn = (): boolean => {
  * showLoginPrompt('댓글 작성');
  */
 export const showLoginPrompt = (action: string): void => {
-    // If already logged in, don't show prompt
     if (isLoggedIn()) {
         return;
     }
 
-    // Dispatch custom event that will be caught by LoginPromptProvider
     const event = new CustomEvent('showLoginPrompt', { detail: { action } });
     window.dispatchEvent(event);
 };

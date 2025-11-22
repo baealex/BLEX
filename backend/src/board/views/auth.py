@@ -1,36 +1,75 @@
 from django.shortcuts import render, redirect
 from django.conf import settings
+from urllib.parse import urlparse, urljoin
+
+
+def get_safe_redirect_url(request):
+    """
+    Get and validate the 'next' parameter from request.
+    Returns the safe redirect URL or None if invalid.
+    Prevents open redirect vulnerabilities by only allowing same-domain URLs.
+    """
+    next_url = request.GET.get('next', '').strip()
+
+    if not next_url:
+        return None
+
+    # Parse the URL
+    parsed = urlparse(next_url)
+
+    # Allow only relative URLs or same-domain absolute URLs
+    if parsed.netloc:
+        # If there's a network location (domain), it must match the request host
+        request_host = request.get_host()
+        if parsed.netloc != request_host:
+            return None
+
+    # Don't allow javascript: or data: URLs
+    if parsed.scheme and parsed.scheme not in ['http', 'https', '']:
+        return None
+
+    # Return the path only (removes any domain if present)
+    return parsed.path or '/'
 
 
 def login_view(request):
     """
     Login page view that renders the login template.
-    If user is already authenticated, redirects to home page.
+    If user is already authenticated, redirects to the 'next' URL or home page.
     """
-    # If user is already authenticated, redirect to home page
+    next_url = get_safe_redirect_url(request)
+
+    # If user is already authenticated, redirect to next URL or home page
     if request.user.is_authenticated:
-        return redirect('/')
-    
+        return redirect(next_url or '/')
+
+    # Use next_url from query param, or fall back to session (for OAuth → 2FA flow)
+    display_next_url = next_url or request.session.get('auth_next_url', '')
+
     context = {
         'HCAPTCHA_SITE_KEY': getattr(settings, 'HCAPTCHA_SITE_KEY', ''),
         'show_2fa': 'pending_2fa_user_id' in request.session,
-        'username': request.session.get('pending_2fa_username', '')
+        'username': request.session.get('pending_2fa_username', ''),
+        'next_url': display_next_url,
     }
-    
+
     return render(request, 'board/auth/login.html', context)
 
 
 def signup_view(request):
     """
     Signup page view that renders the signup template.
-    If user is already authenticated, redirects to home page.
+    If user is already authenticated, redirects to the 'next' URL or home page.
     """
-    # If user is already authenticated, redirect to home page
+    next_url = get_safe_redirect_url(request)
+
+    # If user is already authenticated, redirect to next URL or home page
     if request.user.is_authenticated:
-        return redirect('/')
+        return redirect(next_url or '/')
 
     context = {
         'HCAPTCHA_SITE_KEY': getattr(settings, 'HCAPTCHA_SITE_KEY', ''),
+        'next_url': next_url or '',
     }
 
     return render(request, 'board/auth/signup.html', context)

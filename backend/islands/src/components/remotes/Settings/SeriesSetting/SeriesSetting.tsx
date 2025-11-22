@@ -20,7 +20,7 @@ import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { restrictToVerticalAxis, restrictToFirstScrollableAncestor } from '@dnd-kit/modifiers';
 import { useFetch } from '~/hooks/use-fetch';
-import { Button } from '~/components/shared';
+import { Button, Dropdown } from '~/components/shared';
 import {
  getCardClass,
  getIconClass,
@@ -85,13 +85,14 @@ const SortableSeriesItem = ({ series, username, onDelete }: SortableSeriesItemPr
 
     return (
         <div ref={setNodeRef} style={style} className="mb-3">
-            <div className={getCardClass()}>
+            <div className={getCardClass('cursor-pointer')} onClick={handleEdit}>
                 <div className={CARD_PADDING}>
                     <div className={FLEX_ROW}>
                         {/* Drag handle */}
                         <div
                             className={DRAG_HANDLE}
                             style={{ touchAction: 'none' }}
+                            onClick={(e) => e.stopPropagation()}
                             {...attributes}
                             {...listeners}>
                             <i className="fas fa-grip-vertical" />
@@ -112,28 +113,22 @@ const SortableSeriesItem = ({ series, username, onDelete }: SortableSeriesItemPr
                         </div>
 
                         {/* Actions */}
-                        <div className={ACTIONS_CONTAINER}>
-                            <Button
-                                variant="secondary"
-                                size="md"
-                                onClick={handleView}
-                                title="시리즈 보기">
-                                <i className="fas fa-eye" />
-                            </Button>
-                            <Button
-                                variant="secondary"
-                                size="md"
-                                onClick={handleEdit}
-                                title="시리즈 수정">
-                                <i className="fas fa-edit" />
-                            </Button>
-                            <Button
-                                variant="secondary"
-                                size="md"
-                                onClick={handleDelete}
-                                title="시리즈 삭제">
-                                <i className="fas fa-trash" />
-                            </Button>
+                        <div className={ACTIONS_CONTAINER} onClick={(e) => e.stopPropagation()}>
+                            <Dropdown
+                                items={[
+                                    {
+                                        label: '시리즈 보기',
+                                        icon: 'fas fa-eye',
+                                        onClick: handleView
+                                    },
+                                    {
+                                        label: '삭제',
+                                        icon: 'fas fa-trash',
+                                        onClick: handleDelete,
+                                        variant: 'danger'
+                                    }
+                                ]}
+                            />
                         </div>
                     </div>
                 </div>

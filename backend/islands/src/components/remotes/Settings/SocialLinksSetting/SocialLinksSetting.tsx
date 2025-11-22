@@ -319,6 +319,7 @@ const SocialLinks = () => {
                             <h3 className="text-xl font-bold text-gray-900 mb-2">소셜 링크가 없습니다</h3>
                             <p className="text-gray-500 mb-6">첫 번째 소셜 링크를 추가해보세요!</p>
                             <Button
+                                type="button"
                                 variant="primary"
                                 size="md"
                                 leftIcon={<i className="fas fa-plus" />}
@@ -352,6 +353,7 @@ const SocialLinks = () => {
                 {socials.length > 0 && (
                     <div className="flex flex-col sm:flex-row gap-3 sm:justify-between border-t border-gray-200 pt-6">
                         <Button
+                            type="button"
                             variant="secondary"
                             size="md"
                             leftIcon={<i className="fas fa-plus" />}

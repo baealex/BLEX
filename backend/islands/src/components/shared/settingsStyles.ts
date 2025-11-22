@@ -2,12 +2,12 @@
  * Settings UI Style Constants
  *
  * 일관된 설정 페이지 UI를 위한 공통 스타일 상수
- * Shopify/Apple 디자인 원칙을 따름
+ * Modern minimal design principles
  */
 
-// Card styles - Clean grayscale with subtle differentiation
-export const CARD_BASE = 'bg-gray-50 border border-gray-200 rounded-xl hover:bg-white hover:border-gray-300 transition-all duration-200';
-export const CARD_PADDING = 'p-4';
+// Card styles - Clean, modern design with subtle shadows
+export const CARD_BASE = 'bg-white border border-gray-100 rounded-2xl shadow-sm hover:shadow-md hover:border-gray-200 transition-all duration-200';
+export const CARD_PADDING = 'p-5';
 
 // Icon container styles - Minimal grayscale design
 export const ICON_BASE = 'w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0';
@@ -21,7 +21,7 @@ export const ICON_VARIANTS = {
 } as const;
 
 // Typography
-export const TITLE = 'text-base font-semibold text-gray-900 truncate';
+export const TITLE = 'text-base font-semibold text-gray-900';
 export const SUBTITLE = 'text-xs text-gray-500';
 
 // Layout

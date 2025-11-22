@@ -11,6 +11,7 @@
     window.HCAPTCHA_SITE_KEY = '{{ HCAPTCHA_SITE_KEY }}';
     window.SHOW_2FA = {{ show_2fa|yesno:"true,false" }};
     window.USERNAME = '{{ username|escapejs }}';
+    window.NEXT_URL = '{{ next_url|escapejs }}';
 </script>
 <style>
     island-component {

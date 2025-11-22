@@ -34,7 +34,6 @@ def temp_posts_list(request):
         except (ValueError, json.JSONDecodeError):
             data = request.POST
 
-        # Extract data
         title = data.get('title') or '제목 없음'
         content = data.get('content') or data.get('text_md', '')
         tags = data.get('tags', [])

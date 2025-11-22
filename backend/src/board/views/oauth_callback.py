@@ -4,37 +4,28 @@ from django.contrib import messages, auth
 from django.conf import settings
 
 from modules import oauth
-from board.views.api.v1.auth import create_user
+from board.services.auth_service import AuthService, OAuthService
 from board.models import User, UserLinkMeta
-from modules.randomness import randnum
-from modules.sub_task import SubTaskProcessor
-from modules.telegram import TelegramBot
 
 
 def handle_oauth_auth(request, user):
     """
     Handle OAuth authentication with 2FA support
     """
-    # Check if 2FA is required
+    next_url = request.GET.get('next', '')
+
     if not settings.DEBUG and user.config.has_two_factor_auth():
-        # Create and send 2FA token
-        def create_auth_token():
-            token = randnum(6)
-            user.twofactorauth.create_token(token)
-            bot = TelegramBot(settings.TELEGRAM_BOT_TOKEN)
-            bot.send_message(user.telegramsync.get_decrypted_tid(),
-                            f'2차 인증 코드입니다 : {token}')
-        
-        SubTaskProcessor.process(create_auth_token)
-        # Store user info in session for 2FA completion
-        request.session['pending_2fa_user_id'] = user.id
-        request.session['pending_2fa_username'] = user.username
-        messages.info(request, '2차 인증이 필요합니다. 텔레그램으로 전송된 코드를 입력해주세요.')
-        return redirect('/login')
-    
-    # No 2FA required, login directly
+        oauth_token = OAuthService.create_2fa_token(user.id, next_url)
+
+        messages.info(request, '2차 인증이 필요합니다. 인증 앱에서 생성된 코드를 입력해주세요.')
+
+        redirect_url = f'/login?oauth_token={oauth_token}'
+        if next_url:
+            redirect_url += f'&next={next_url}'
+        return redirect(redirect_url)
+
     auth.login(request, user)
-    return redirect('/')
+    return redirect(next_url or '/')
 
 
 def oauth_callback(request, provider):
@@ -66,7 +57,7 @@ def oauth_callback(request, provider):
             if users.exists():
                 return handle_oauth_auth(request, users.first())
 
-            user, _, _ = create_user(
+            user, _, _ = AuthService.create_user(
                 username=user_id,
                 name=name,
                 email='',
@@ -99,7 +90,7 @@ def oauth_callback(request, provider):
             if users.exists():
                 return handle_oauth_auth(request, users.first())
 
-            user, _, _ = create_user(
+            user, _, _ = AuthService.create_user(
                 username=user_id,
                 name=name,
                 email=email,

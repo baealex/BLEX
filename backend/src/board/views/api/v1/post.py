@@ -34,10 +34,8 @@ def post_list(request):
             raise Http404
 
         try:
-            # Get image from FILES if provided
             image = request.FILES.get('image', None)
 
-            # Create post using service
             post, post_content, post_config = PostService.create_post(
                 user=request.user,
                 title=request.POST.get('title', ''),

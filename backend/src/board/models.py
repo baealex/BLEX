@@ -1,5 +1,6 @@
 import datetime
 import os
+import pyotp
 
 from django.conf import settings
 from django.contrib.auth.models import User
@@ -629,26 +630,31 @@ class TempPosts(models.Model):
 class TwoFactorAuth(models.Model):
     user = models.OneToOneField('auth.User', on_delete=models.CASCADE)
     recovery_key = models.CharField(max_length=45, blank=True)
-    otp = models.CharField(max_length=15, blank=True)
-    otp_exp_date = models.DateTimeField(default=timezone.now)
+    totp_secret = models.CharField(max_length=32, blank=True)  # TOTP secret key
     created_date = models.DateTimeField(default=timezone.now)
-
-    def create_token(self, token):
-        self.otp = token
-        self.otp_exp_date = timezone.now()
-        self.save()
-
-    def is_token_expire(self):
-        five_minute_ago = timezone.now() - datetime.timedelta(minutes=5)
-        if self.otp_exp_date < five_minute_ago:
-            return True
-        return False
 
     def has_been_a_day(self):
         one_day_ago = timezone.now() - datetime.timedelta(days=1)
         if self.created_date < one_day_ago:
             return True
         return False
+
+    def verify_totp(self, token):
+        """Verify TOTP token"""
+        if not self.totp_secret:
+            return False
+        totp = pyotp.TOTP(self.totp_secret)
+        return totp.verify(token, valid_window=1)  # Allow 30s window on each side
+
+    def get_provisioning_uri(self):
+        """Get provisioning URI for QR code"""
+        if not self.totp_secret:
+            return None
+        totp = pyotp.TOTP(self.totp_secret)
+        return totp.provisioning_uri(
+            name=self.user.email,
+            issuer_name='BLEX'
+        )
 
     def __str__(self):
         return self.user.username
@@ -751,6 +757,14 @@ class SiteSetting(models.Model):
         blank=True,
         default='/',
         help_text='회원가입 알림 클릭 시 이동할 URL'
+    )
+
+    # Account deletion settings
+    account_deletion_redirect_url = models.CharField(
+        max_length=500,
+        blank=True,
+        default='',
+        help_text='회원 탈퇴 시 리다이렉트할 URL (비워두면 메인 페이지로 이동, 설문 링크 등을 설정할 수 있습니다)'
     )
 
     # Metadata

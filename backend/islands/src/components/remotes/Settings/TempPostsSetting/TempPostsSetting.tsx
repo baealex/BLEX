@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 import { notification } from '@baejino/ui';
 import { useFetch } from '~/hooks/use-fetch';
-import { Button } from '~/components/shared';
+import { Button, Dropdown } from '~/components/shared';
 import {
     getCardClass,
     getIconClass,
@@ -88,7 +88,10 @@ const TempPostsSetting = () => {
                 ) : (
                     <div className="space-y-3">
                         {[...tempPosts].reverse().map((tempPost) => (
-                            <div key={tempPost.token} className={getCardClass()}>
+                            <div
+                                key={tempPost.token}
+                                className={getCardClass('cursor-pointer')}
+                                onClick={() => window.location.href = `/write?tempToken=${tempPost.token}`}>
                                 <div className={CARD_PADDING}>
                                     <div className={FLEX_ROW}>
                                         {/* Icon */}
@@ -113,21 +116,17 @@ const TempPostsSetting = () => {
                                         </div>
 
                                         {/* Actions */}
-                                        <div className={ACTIONS_CONTAINER}>
-                                            <Button
-                                                variant="secondary"
-                                                size="md"
-                                                onClick={() => window.location.href = `/write?tempToken=${tempPost.token}`}
-                                                title="편집">
-                                                <i className="fas fa-edit" />
-                                            </Button>
-                                            <Button
-                                                variant="secondary"
-                                                size="md"
-                                                onClick={() => handleTempPostDelete(tempPost.token)}
-                                                title="삭제">
-                                                <i className="fas fa-trash" />
-                                            </Button>
+                                        <div className={ACTIONS_CONTAINER} onClick={(e) => e.stopPropagation()}>
+                                            <Dropdown
+                                                items={[
+                                                    {
+                                                        label: '삭제',
+                                                        icon: 'fas fa-trash',
+                                                        onClick: () => handleTempPostDelete(tempPost.token),
+                                                        variant: 'danger'
+                                                    }
+                                                ]}
+                                            />
                                         </div>
                                     </div>
                                 </div>

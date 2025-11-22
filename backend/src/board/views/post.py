@@ -60,8 +60,7 @@ def post_detail(request, username, post_url):
     post.visible_series_posts = []
     post.prev_post = None
     post.next_post = None
-    
-    # Get series posts if the post is part of a series
+
     if post.series:
         series_posts = list(Post.objects.filter(
             series=post.series,
@@ -69,8 +68,7 @@ def post_detail(request, username, post_url):
         ).order_by('created_date'))
         
         post.series_total = len(series_posts)
-        
-        # Add series_index to each post in the series
+
         for i, series_post in enumerate(series_posts):
             series_post.series_index = i + 1
             if series_post.id == post.id:
@@ -95,8 +93,7 @@ def post_detail(request, username, post_url):
             start = max(0, current_idx - 2)
             end = min(post.series_total, current_idx + 3)
             visible_posts = series_posts[start:end]
-        
-        # Get previous and next posts if they exist
+
         post.prev_post = series_posts[current_idx - 1] if current_idx > 0 else None
         post.next_post = series_posts[current_idx + 1] if current_idx < post.series_total - 1 else None
         post.visible_series_posts = visible_posts
