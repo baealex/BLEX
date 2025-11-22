@@ -11,8 +11,7 @@ const MediaFloatingMenu: React.FC<MediaFloatingMenuProps> = ({ editor }) => {
         top: 0,
         left: 0
     });
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const [selectedNode, setSelectedNode] = useState<{ type: string; attrs: any; pos: number } | null>(null);
+    const [selectedNode, setSelectedNode] = useState<{ type: string; attrs: Record<string, unknown>; pos: number } | null>(null);
 
     useEffect(() => {
         if (!editor) return;
@@ -45,7 +44,7 @@ const MediaFloatingMenu: React.FC<MediaFloatingMenuProps> = ({ editor }) => {
                     const rect = nodeDOM.getBoundingClientRect();
                     setPosition({
                         top: rect.top - 60,
-                        left: rect.left + rect.width / 2 - 150
+                        left: rect.left + rect.width / 2 - 200
                     });
                 }
             } else {
@@ -61,13 +60,12 @@ const MediaFloatingMenu: React.FC<MediaFloatingMenuProps> = ({ editor }) => {
             editor.off('selectionUpdate', updateMenu);
             editor.off('transaction', updateMenu);
         };
-    }, [editor]);
+    }, [editor, selectedNode]);
 
     if (!isVisible || !selectedNode || !editor) return null;
 
     const updateAttribute = (attr: string, value: unknown) => {
         if (selectedNode) {
-            // focus() 호출하지 않고 직접 업데이트
             editor.chain().updateAttributes(selectedNode.type, { [attr]: value }).run();
         }
     };
@@ -93,190 +91,155 @@ const MediaFloatingMenu: React.FC<MediaFloatingMenuProps> = ({ editor }) => {
         updateAttribute('caption', caption.trim() === '' ? null : caption);
     };
 
+    const handleToggle = (e: React.MouseEvent, attr: string) => {
+        e.preventDefault();
+        e.stopPropagation();
+        updateAttribute(attr, !selectedNode.attrs[attr]);
+    };
+
+    const handleAspectRatioChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+        e.preventDefault();
+        e.stopPropagation();
+        const value = e.target.value;
+        updateAttribute('aspectRatio', value === '' ? null : value);
+    };
+
+    const IconButton = ({
+        icon,
+        active,
+        onClick,
+        title
+    }: {
+        icon: string;
+        active?: boolean;
+        onClick: (e: React.MouseEvent) => void;
+        title: string;
+    }) => (
+        <button
+            type="button"
+            onClick={onClick}
+            className={`
+                w-7 h-7 rounded-md flex items-center justify-center transition-all
+                ${active
+                    ? 'bg-blue-500 text-white'
+                    : 'text-gray-600 hover:bg-gray-100'
+                }
+            `}
+            title={title}>
+            <i className={`${icon} text-sm`} />
+        </button>
+    );
+
     return (
         <div
-            className="media-floating-menu"
+            className="fixed z-[1100] bg-white/95 backdrop-blur-xl rounded-xl shadow-lg border border-gray-200/60 p-2.5 flex flex-col gap-2.5"
             onMouseDown={(e) => {
-                // 입력 필드가 아닌 경우에만 preventDefault
                 if (e.target instanceof HTMLElement &&
                     !['INPUT', 'SELECT'].includes(e.target.tagName)) {
                     e.preventDefault();
                 }
                 e.stopPropagation();
             }}
-            onClick={(e) => {
-                e.stopPropagation();
-            }}
+            onClick={(e) => e.stopPropagation()}
             style={{
-                position: 'fixed',
                 top: position.top,
-                left: position.left,
-                zIndex: 1100,
-                background: 'var(--color-white)',
-                border: '1px solid var(--color-border-default)',
-                borderRadius: '8px',
-                padding: '12px',
-                boxShadow: '0 4px 12px var(--color-shadow-sm)',
-                display: 'flex',
-                gap: '8px',
-                alignItems: 'center',
-                fontSize: '14px'
+                left: position.left
             }}>
-            {/* 정렬 버튼 */}
-            <div
-                className="align-group"
-                style={{
-                    display: 'flex',
-                    gap: '4px'
-                }}>
-                <button
-                    type="button"
-                    onClick={(e) => handleAlignChange(e, 'left')}
-                    className={selectedNode.attrs.align === 'left' ? 'active' : ''}
-                    style={{
-                        padding: '4px 8px',
-                        border: '1px solid var(--color-border-light)',
-                        background: selectedNode.attrs.align === 'left' ? 'var(--color-interactive-primary)' : 'var(--color-white)',
-                        color: selectedNode.attrs.align === 'left' ? 'var(--color-text-inverted)' : 'var(--color-text-primary)',
-                        borderRadius: '4px',
-                        cursor: 'pointer'
-                    }}>
-                    왼쪽
-                </button>
-                <button
-                    type="button"
-                    onClick={(e) => handleAlignChange(e, 'center')}
-                    className={selectedNode.attrs.align === 'center' ? 'active' : ''}
-                    style={{
-                        padding: '4px 8px',
-                        border: '1px solid var(--color-border-light)',
-                        background: selectedNode.attrs.align === 'center' ? 'var(--color-interactive-primary)' : 'var(--color-white)',
-                        color: selectedNode.attrs.align === 'center' ? 'var(--color-text-inverted)' : 'var(--color-text-primary)',
-                        borderRadius: '4px',
-                        cursor: 'pointer'
-                    }}>
-                    가운데
-                </button>
-                <button
-                    type="button"
-                    onClick={(e) => handleAlignChange(e, 'right')}
-                    className={selectedNode.attrs.align === 'right' ? 'active' : ''}
-                    style={{
-                        padding: '4px 8px',
-                        border: '1px solid var(--color-border-light)',
-                        background: selectedNode.attrs.align === 'right' ? 'var(--color-interactive-primary)' : 'var(--color-white)',
-                        color: selectedNode.attrs.align === 'right' ? 'var(--color-text-inverted)' : 'var(--color-text-primary)',
-                        borderRadius: '4px',
-                        cursor: 'pointer'
-                    }}>
-                    오른쪽
-                </button>
+            {/* Row 1: 정렬 + 스타일 */}
+            <div className="flex items-center gap-2">
+                {/* 정렬 */}
+                <div className="flex gap-0.5 bg-gray-100 rounded-lg p-0.5">
+                    <IconButton icon="fas fa-align-left" active={selectedNode.attrs.align === 'left'} onClick={(e) => handleAlignChange(e, 'left')} title="왼쪽 정렬" />
+                    <IconButton icon="fas fa-align-center" active={selectedNode.attrs.align === 'center'} onClick={(e) => handleAlignChange(e, 'center')} title="가운데 정렬" />
+                    <IconButton icon="fas fa-align-right" active={selectedNode.attrs.align === 'right'} onClick={(e) => handleAlignChange(e, 'right')} title="오른쪽 정렬" />
+                </div>
+
+                {selectedNode.type === 'image' && (
+                    <>
+                        <div className="w-px h-5 bg-gray-300" />
+
+                        {/* Object Fit */}
+                        <select
+                            value={selectedNode.attrs.objectFit as string || 'cover'}
+                            onChange={handleObjectFitChange}
+                            className="px-2 py-1 text-xs bg-gray-50 border border-gray-200 rounded-md hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500">
+                            <option value="cover">맞춤</option>
+                            <option value="contain">포함</option>
+                            <option value="fill">채움</option>
+                            <option value="none">원본</option>
+                        </select>
+
+                        <div className="w-px h-5 bg-gray-300" />
+
+                        {/* 스타일 옵션 */}
+                        <div className="flex gap-0.5">
+                            <IconButton icon="fas fa-border-style" active={!!selectedNode.attrs.border} onClick={(e) => handleToggle(e, 'border')} title="테두리" />
+                            <IconButton icon="fas fa-clone" active={!!selectedNode.attrs.shadow} onClick={(e) => handleToggle(e, 'shadow')} title="그림자" />
+                        </div>
+                    </>
+                )}
             </div>
 
-            {/* 구분선 */}
-            <div
-                style={{
-                    width: '1px',
-                    height: '24px',
-                    background: 'var(--color-border-light)'
-                }}
-            />
+            {/* Row 2: 비율 + 크기 */}
+            <div className="flex items-center gap-2">
+                {selectedNode.type === 'image' && (
+                    <>
+                        <select
+                            value={selectedNode.attrs.aspectRatio as string || ''}
+                            onChange={handleAspectRatioChange}
+                            className="px-2 py-1 text-xs bg-gray-50 border border-gray-200 rounded-md hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500">
+                            <option value="">비율</option>
+                            <option value="16:9">16:9</option>
+                            <option value="4:3">4:3</option>
+                            <option value="1:1">1:1</option>
+                            <option value="3:2">3:2</option>
+                            <option value="21:9">21:9</option>
+                        </select>
+                        <div className="w-px h-5 bg-gray-300" />
+                    </>
+                )}
 
-            {/* Object Fit (이미지만) */}
-            {selectedNode.type === 'image' && (
-                <>
-                    <select
-                        value={selectedNode.attrs.objectFit || 'cover'}
-                        onChange={handleObjectFitChange}
-                        style={{
-                            padding: '4px 8px',
-                            border: '1px solid var(--color-border-light)',
-                            borderRadius: '4px'
-                        }}>
-                        <option value="cover">맞춤</option>
-                        <option value="contain">포함</option>
-                        <option value="fill">채움</option>
-                        <option value="none">원본</option>
-                    </select>
-
-                    <div
-                        style={{
-                            width: '1px',
-                            height: '24px',
-                            background: 'var(--color-border-light)'
+                <div className="flex items-center gap-1">
+                    <input
+                        type="number"
+                        placeholder="W"
+                        value={selectedNode.attrs.width as number || ''}
+                        onChange={(e) => handleSizeChange('width', e.target.value)}
+                        onKeyDown={(e) => {
+                            if (e.key === 'Enter') {
+                                e.currentTarget.blur();
+                            }
                         }}
+                        className="w-14 px-2 py-1 text-xs bg-gray-50 border border-gray-200 rounded-md text-center hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
                     />
-                </>
-            )}
+                    <span className="text-gray-400 text-xs">×</span>
+                    <input
+                        type="number"
+                        placeholder="H"
+                        value={selectedNode.attrs.height as number || ''}
+                        onChange={(e) => handleSizeChange('height', e.target.value)}
+                        onKeyDown={(e) => {
+                            if (e.key === 'Enter') {
+                                e.currentTarget.blur();
+                            }
+                        }}
+                        className="w-14 px-2 py-1 text-xs bg-gray-50 border border-gray-200 rounded-md text-center hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
+                    />
+                </div>
+            </div>
 
-            {/* 크기 조절 */}
-            <input
-                type="number"
-                placeholder="너비"
-                value={selectedNode.attrs.width || ''}
-                onChange={(e) => {
-                    handleSizeChange('width', e.target.value);
-                }}
-                onKeyDown={(e) => {
-                    if (e.key === 'Enter') {
-                        e.currentTarget.blur();
-                    }
-                }}
-                style={{
-                    width: '60px',
-                    padding: '4px',
-                    border: '1px solid var(--color-border-light)',
-                    borderRadius: '4px'
-                }}
-            />
-            <span>×</span>
-            <input
-                type="number"
-                placeholder="높이"
-                value={selectedNode.attrs.height || ''}
-                onChange={(e) => {
-                    handleSizeChange('height', e.target.value);
-                }}
-                onKeyDown={(e) => {
-                    if (e.key === 'Enter') {
-                        e.currentTarget.blur();
-                    }
-                }}
-                style={{
-                    width: '60px',
-                    padding: '4px',
-                    border: '1px solid var(--color-border-light)',
-                    borderRadius: '4px'
-                }}
-            />
-
-            <div
-                style={{
-                    width: '1px',
-                    height: '24px',
-                    background: 'var(--color-border-light)'
-                }}
-            />
-
-            {/* 캡션 */}
+            {/* Row 3: 캡션 */}
             <input
                 type="text"
-                placeholder="설명..."
-                value={selectedNode.attrs.caption || ''}
-                onChange={(e) => {
-                    handleCaptionChange(e.target.value);
-                }}
+                placeholder="캡션..."
+                value={selectedNode.attrs.caption as string || ''}
+                onChange={(e) => handleCaptionChange(e.target.value)}
                 onKeyDown={(e) => {
                     if (e.key === 'Enter') {
                         e.currentTarget.blur();
                     }
                 }}
-                style={{
-                    width: '120px',
-                    padding: '4px 8px',
-                    border: '1px solid var(--color-border-light)',
-                    borderRadius: '4px'
-                }}
+                className="w-full px-2 py-1 text-xs bg-gray-50 border border-gray-200 rounded-md hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
             />
         </div>
     );
