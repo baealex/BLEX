@@ -1,12 +1,12 @@
 import React, { useRef, useState } from 'react';
 import type { Editor } from '@tiptap/react';
-import YoutubeModal from './YoutubeModal';
+import YoutubeModal from '../modals/YoutubeModal';
 import FloatingMenuBar from './FloatingMenuBar';
 import MediaFloatingMenu from './MediaFloatingMenu';
 import SlashCommandMenu from './SlashCommandMenu';
-import EditorHelpText from './EditorHelpText';
-import { useImageUpload } from '../hooks/useImageUpload';
-import { useSlashCommand } from '../hooks/useSlashCommand';
+import EditorHelpText from '../ui/EditorHelpText';
+import { useImageUpload } from '../../hooks/useImageUpload';
+import { useSlashCommand } from '../../hooks/useSlashCommand';
 
 interface MenuBarProps {
     editor: Editor | null;

@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect, useMemo } from 'react';
 import { createPortal } from 'react-dom';
 import type { Editor } from '@tiptap/react';
 import type { NodeViewProps } from '@tiptap/react';
-import { SUPPORTED_LANGUAGES, getLanguageLabel } from '../../../../utils/languages';
+import { SUPPORTED_LANGUAGES, getLanguageLabel } from '~/utils/languages';
 
 interface CodeBlockLanguageSelectorProps {
     editor: Editor;
@@ -17,9 +17,9 @@ const CodeBlockLanguageSelector: React.FC<CodeBlockLanguageSelectorProps> = ({
     const [isOpen, setIsOpen] = useState(false);
     const [searchQuery, setSearchQuery] = useState('');
     const [dropdownPosition, setDropdownPosition] = useState({
- top: 0,
-left: 0
-});
+        top: 0,
+        left: 0
+    });
     const buttonRef = useRef<HTMLButtonElement>(null);
     const searchInputRef = useRef<HTMLInputElement>(null);
     const dropdownRef = useRef<HTMLDivElement>(null);
