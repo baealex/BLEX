@@ -78,7 +78,7 @@
         "autoprefixer": "^10.4.21",
         "chokidar": "^4.0.3",
         "eslint": "^9.34.0",
-        "glob": "^11.0.3",
+        "glob": "^11.1.0",
         "postcss": "^8.5.6",
         "sass": "^1.90.0",
         "tailwindcss": "^3.4.17",
