@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { toast } from '~/utils/toast';
 import { useQuery } from '@tanstack/react-query';
 import { useForm } from 'react-hook-form';
