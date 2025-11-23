@@ -1,6 +1,6 @@
 import React, { useEffect, useCallback } from 'react';
 import { useEditor, EditorContent } from '@tiptap/react';
-import MenuBar from './components/MenuBar';
+import MenuBar from './components/menus/MenuBar';
 import { getEditorExtensions } from './config/editorConfig';
 import { useImageUpload } from './hooks/useImageUpload';
 
@@ -19,7 +19,7 @@ const TiptapEditor: React.FC<TiptapEditorProps> = ({
     editable = true,
     onChange,
     height = '400px',
-    placeholder = '마크다운으로 작성할 수 있어요...'
+    placeholder = '내용을 입력하세요… ㅋ'
 }) => {
     const handleChange = useCallback((html: string) => {
         if (onChange) {
@@ -89,6 +89,7 @@ const TiptapEditor: React.FC<TiptapEditorProps> = ({
             {editable && <MenuBar editor={editor} />}
 
             <EditorContent editor={editor} />
+
             <style jsx global>{`
                 .ProseMirror {
                     min-height: ${height};
@@ -96,6 +97,23 @@ const TiptapEditor: React.FC<TiptapEditorProps> = ({
 
                 .ProseMirror-focused {
                     outline: none;
+                }
+
+                /* 드래그 중인 요소 스타일 */
+                .ProseMirror figure.ProseMirror-selectednode {
+                    position: relative;
+                    cursor: grab;
+                    outline: 2px solid #3b82f6;
+                    outline-offset: 2px;
+                    transition: opacity 0.2s;
+
+                    &:hover {
+                        opacity: 0.9;
+                    }
+
+                    &:active {
+                        cursor: grabbing;
+                    }
                 }
             `}</style>
         </div>
