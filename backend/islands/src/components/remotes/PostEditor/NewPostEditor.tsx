@@ -1,7 +1,12 @@
 import {
- useState, useEffect, useCallback, useMemo, useRef
+ useState,
+ useEffect,
+ useCallback,
+ useMemo,
+ useRef
 } from 'react';
-import { notification } from '@baejino/ui';
+import { toast } from '~/utils/toast';
+import { useConfirm } from '~/contexts/ConfirmContext';
 import PostHeader from './components/PostHeader';
 import PostForm from './components/PostForm';
 import TempPostsPanel from './components/TempPostsPanel';
@@ -21,12 +26,12 @@ interface NewPostEditorProps {
     tempToken?: string;
 }
 
-const NewPostEditor: React.FC<NewPostEditorProps> = ({ tempToken }) => {
+const NewPostEditor = ({ tempToken }: NewPostEditorProps) => {
+    const { confirm } = useConfirm();
     const [isLoading, setIsLoading] = useState(true);
     const [seriesList, setSeriesList] = useState<Series[]>([]);
     const [isTempPostsPanelOpen, setIsTempPostsPanelOpen] = useState(false);
     const [isSettingsDrawerOpen, setIsSettingsDrawerOpen] = useState(false);
-    const [pendingTempToken, setPendingTempToken] = useState<string | null>(null);
 
     const [formData, setFormData] = useState({
         title: '',
@@ -146,7 +151,7 @@ const NewPostEditor: React.FC<NewPostEditorProps> = ({ tempToken }) => {
                     }
                 }
             } catch {
-                notification(tempToken ? '임시 포스트 데이터를 불러오는데 실패했습니다.' : '시리즈 목록을 불러오는데 실패했습니다.', { type: 'error' });
+                toast.error(tempToken ? '임시 포스트 데이터를 불러오는데 실패했습니다.' : '시리즈 목록을 불러오는데 실패했습니다.');
             } finally {
                 setIsLoading(false);
             }
@@ -166,7 +171,7 @@ const NewPostEditor: React.FC<NewPostEditorProps> = ({ tempToken }) => {
     }, [formData.title, formData.content, tags]);
 
     // Handle temp post selection
-    const handleSelectTempPost = useCallback((token: string) => {
+    const handleSelectTempPost = useCallback(async (token: string) => {
         if (token === tempToken) {
             // Already on this post
             setIsTempPostsPanelOpen(false);
@@ -175,31 +180,30 @@ const NewPostEditor: React.FC<NewPostEditorProps> = ({ tempToken }) => {
 
         if (hasUnsavedChanges()) {
             // Show confirmation
-            setPendingTempToken(token);
+            const confirmed = await confirm({
+                title: '저장되지 않은 변경사항',
+                message: '현재 작성 중인 내용이 저장되지 않았습니다. 다른 임시 글로 이동하시겠습니까?',
+                confirmText: '이동',
+                cancelText: '취소'
+            });
+
+            if (confirmed) {
+                window.location.href = `/write?tempToken=${token}`;
+            }
         } else {
             // Navigate directly
             window.location.href = `/write?tempToken=${token}`;
         }
-    }, [tempToken, hasUnsavedChanges]);
-
-    const handleConfirmNavigation = useCallback(() => {
-        if (pendingTempToken) {
-            window.location.href = `/write?tempToken=${pendingTempToken}`;
-        }
-    }, [pendingTempToken]);
-
-    const handleCancelNavigation = useCallback(() => {
-        setPendingTempToken(null);
-    }, []);
+    }, [tempToken, hasUnsavedChanges, confirm]);
 
     const handleManualSave = async () => {
         if (!formData.title.trim()) {
-            notification('제목을 입력해주세요.', { type: 'error' });
+            toast.error('제목을 입력해주세요.');
             return;
         }
 
         await manualSave();
-        notification('임시저장되었습니다.', { type: 'success' });
+        toast.success('임시저장되었습니다.');
     };
 
     const generateUrlFromTitle = (title: string) => {
@@ -325,31 +329,6 @@ const NewPostEditor: React.FC<NewPostEditorProps> = ({ tempToken }) => {
                 onSelectPost={handleSelectTempPost}
                 currentToken={tempToken}
             />
-
-            {/* Navigation Warning Modal */}
-            {pendingTempToken && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-                    <div className="absolute inset-0 bg-black bg-opacity-50" onClick={handleCancelNavigation} />
-                    <div className="relative bg-white rounded-2xl shadow-2xl max-w-md w-full p-6">
-                        <h3 className="text-lg font-semibold text-gray-900 mb-2">저장되지 않은 변경사항</h3>
-                        <p className="text-sm text-gray-600 mb-6">
-                            현재 작성 중인 내용이 저장되지 않았습니다. 다른 임시 글로 이동하시겠습니까?
-                        </p>
-                        <div className="flex gap-3 justify-end">
-                            <button
-                                onClick={handleCancelNavigation}
-                                className="px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-lg transition-colors">
-                                취소
-                            </button>
-                            <button
-                                onClick={handleConfirmNavigation}
-                                className="px-4 py-2 text-sm bg-black text-white rounded-lg hover:bg-gray-800 transition-colors">
-                                이동
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            )}
         </div>
     );
 };

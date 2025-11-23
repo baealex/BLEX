@@ -3,6 +3,15 @@ import { PersistQueryClientProvider } from '@tanstack/react-query-persist-client
 import App from './components/App';
 import ErrorBoundary from './components/ErrorBoundary';
 import { createQueryClient, sessionStoragePersister } from './lib/query-client';
+import { toast } from './utils/toast';
+
+declare global {
+    interface Window {
+        toast: typeof toast;
+    }
+}
+
+window.toast = toast;
 
 customElements.define('island-component', class extends HTMLElement {
     private observer: IntersectionObserver | null = null;

@@ -1,6 +1,6 @@
 import { useCallback } from 'react';
 import type { Editor } from '@tiptap/react';
-import { notification } from '@baejino/ui';
+import { toast } from '~/utils/toast';
 import { uploadImage as uploadImageAPI } from '~/lib/api/posts';
 
 export const useImageUpload = (editor: Editor | null) => {
@@ -13,7 +13,7 @@ export const useImageUpload = (editor: Editor | null) => {
         if (!editor) return;
 
         if (!isImageFile(file)) {
-            notification('이미지 파일이 아닙니다.', { type: 'error' });
+            toast.error('이미지 파일이 아닙니다.');
             return;
         }
 
@@ -54,10 +54,10 @@ export const useImageUpload = (editor: Editor | null) => {
                 // 삽입 후 새로운 위치 반환 (다음 이미지를 위해)
                 return editor.state.doc.content.size;
             } else {
-                notification('이미지 업로드에 실패했습니다.', { type: 'error' });
+                toast.error('이미지 업로드에 실패했습니다.');
             }
         } catch {
-            notification('이미지 업로드에 실패했습니다.', { type: 'error' });
+            toast.error('이미지 업로드에 실패했습니다.');
         }
     }, [editor, isImageFile]);
 
@@ -105,7 +105,7 @@ export const useImageUpload = (editor: Editor | null) => {
         const imageFiles = Array.from(files).filter(file => file.type.startsWith('image/'));
 
         if (imageFiles.length === 0) {
-            notification('이미지 파일이 아닙니다.', { type: 'error' });
+            toast.error('이미지 파일이 아닙니다.');
             return;
         }
 

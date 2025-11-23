@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { notification } from '@baejino/ui';
+import { toast } from '~/utils/toast';
 import { Button } from '~/components/shared';
 import { markNotificationAsRead, type NotifyItem } from '~/lib/api/settings';
 
@@ -18,7 +18,7 @@ const NotificationsSection = ({
 }: NotificationsSectionProps) => {
     useEffect(() => {
         if (isError) {
-            notification('알림 목록을 불러오는데 실패했습니다.', { type: 'error' });
+            toast.error('알림 목록을 불러오는데 실패했습니다.');
         }
     }, [isError]);
 

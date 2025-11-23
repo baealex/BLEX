@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { notification } from '@baejino/ui';
+import { toast } from '~/utils/toast';
 import { useConfirm } from '~/contexts/ConfirmContext';
 import PostHeader from './components/PostHeader';
 import PostForm from './components/PostForm';
@@ -86,7 +86,7 @@ const EditPostEditor: React.FC<EditPostEditorProps> = ({ username, postUrl }) =>
                     });
                 }
             } catch {
-                notification('데이터를 불러오는데 실패했습니다.', { type: 'error' });
+                toast.error('데이터를 불러오는데 실패했습니다.');
             } finally {
                 setIsLoading(false);
             }
@@ -120,7 +120,7 @@ const EditPostEditor: React.FC<EditPostEditorProps> = ({ username, postUrl }) =>
 
     const validateForm = () => {
         if (!formData.title.trim()) {
-            notification('제목을 입력해주세요.', { type: 'error' });
+            toast.error('제목을 입력해주세요.');
             return false;
         }
 
@@ -162,7 +162,7 @@ const EditPostEditor: React.FC<EditPostEditorProps> = ({ username, postUrl }) =>
 
             form.submit();
         } catch {
-            notification('게시글 수정에 실패했습니다.', { type: 'error' });
+            toast.error('게시글 수정에 실패했습니다.');
             setIsSubmitting(false);
         }
     };
@@ -190,7 +190,7 @@ const EditPostEditor: React.FC<EditPostEditorProps> = ({ username, postUrl }) =>
 
             form.submit();
         } catch {
-            notification('게시글 삭제에 실패했습니다.', { type: 'error' });
+            toast.error('게시글 삭제에 실패했습니다.');
             setIsSubmitting(false);
         }
     };

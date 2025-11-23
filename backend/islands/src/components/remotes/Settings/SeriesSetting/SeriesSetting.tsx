@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { notification } from '@baejino/ui';
+import { toast } from '~/utils/toast';
 import type { DragEndEvent } from '@dnd-kit/core';
 import {
     DndContext,
@@ -161,7 +161,7 @@ const SeriesSetting = () => {
 
     useEffect(() => {
         if (isError) {
-            notification('시리즈 목록을 불러오는데 실패했습니다.', { type: 'error' });
+            toast.error('시리즈 목록을 불러오는데 실패했습니다.');
         }
     }, [isError]);
 
@@ -195,10 +195,10 @@ const SeriesSetting = () => {
                     throw new Error('Order update failed');
                 }
 
-                notification('시리즈 순서가 변경되었습니다.', { type: 'success' });
+                toast.success('시리즈 순서가 변경되었습니다.');
             } catch {
                 setSeries(series);
-                notification('시리즈 순서 변경에 실패했습니다.', { type: 'error' });
+                toast.error('시리즈 순서 변경에 실패했습니다.');
             }
         }
     };
@@ -216,12 +216,12 @@ const SeriesSetting = () => {
 
             if (data.status === 'DONE') {
                 setSeries(series.filter(s => s.id !== seriesId));
-                notification('시리즈가 삭제되었습니다.', { type: 'success' });
+                toast.success('시리즈가 삭제되었습니다.');
             } else {
                 throw new Error('시리즈 삭제에 실패했습니다.');
             }
         } catch {
-            notification('시리즈 삭제에 실패했습니다.', { type: 'error' });
+            toast.error('시리즈 삭제에 실패했습니다.');
         }
     };
 

@@ -8,7 +8,7 @@ interface ConfirmOptions {
     message: string;
     confirmText?: string;
     cancelText?: string;
-    variant?: 'default' | 'danger' | 'warning';
+    variant?: 'default' | 'danger';
 }
 
 interface ConfirmContextType {
@@ -56,17 +56,17 @@ export const ConfirmProvider: React.FC<{ children: ReactNode }> = ({ children })
 
     const handleClose = useCallback(() => {
         setDialogState((prev) => ({
- ...prev,
-isOpen: false
-}));
+            ...prev,
+            isOpen: false
+        }));
         dialogState.resolve(false);
     }, [dialogState]);
 
     const handleConfirm = useCallback(() => {
         setDialogState((prev) => ({
- ...prev,
-isOpen: false
-}));
+            ...prev,
+            isOpen: false
+        }));
         dialogState.resolve(true);
     }, [dialogState]);
 
@@ -76,8 +76,6 @@ isOpen: false
         switch (dialogState.variant) {
             case 'danger':
                 return `${baseClass} bg-red-600 text-white hover:bg-red-700`;
-            case 'warning':
-                return `${baseClass} bg-yellow-600 text-white hover:bg-yellow-700`;
             default:
                 return `${baseClass} bg-black text-white hover:bg-gray-800`;
         }
@@ -87,14 +85,13 @@ isOpen: false
         <ConfirmContext.Provider value={{ confirm }}>
             {children}
 
-            {/* Confirm Dialog using Modal component */}
             <Modal
                 isOpen={dialogState.isOpen}
                 onClose={handleClose}
-                title={dialogState.title}
                 maxWidth="md"
                 showCloseButton={false}>
                 <div className="p-6">
+                    <h3 className="text-lg font-semibold text-gray-900 mb-2">{dialogState.title}</h3>
                     <p className="text-sm text-gray-600 mb-6">
                         {dialogState.message}
                     </p>

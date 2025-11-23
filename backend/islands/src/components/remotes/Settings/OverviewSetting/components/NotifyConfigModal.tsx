@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { notification } from '@baejino/ui';
+import { toast } from '~/utils/toast';
 import { Modal } from '~/components/shared';
 import { updateNotifyConfig } from '~/lib/api/settings';
 
@@ -30,7 +30,7 @@ const NotifyConfigModal = ({
 }: NotifyConfigModalProps) => {
     useEffect(() => {
         if (isError) {
-            notification('알림 설정을 불러오는데 실패했습니다.', { type: 'error' });
+            toast.error('알림 설정을 불러오는데 실패했습니다.');
         }
     }, [isError]);
 
@@ -57,13 +57,13 @@ const NotifyConfigModal = ({
             const { data } = await updateNotifyConfig(config);
 
             if (data.status === 'DONE') {
-                notification('알림 설정이 업데이트 되었습니다.', { type: 'success' });
+                toast.success('알림 설정이 업데이트 되었습니다.');
                 refetch();
             } else {
-                notification('알림 설정 업데이트에 실패했습니다.', { type: 'error' });
+                toast.error('알림 설정 업데이트에 실패했습니다.');
             }
         } catch {
-            notification('알림 설정 업데이트에 실패했습니다.', { type: 'error' });
+            toast.error('알림 설정 업데이트에 실패했습니다.');
         }
     };
 

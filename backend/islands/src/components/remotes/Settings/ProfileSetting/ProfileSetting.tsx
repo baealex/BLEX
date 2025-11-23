@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { notification } from '@baejino/ui';
+import { toast } from '~/utils/toast';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -44,7 +44,7 @@ const ProfileSetting = () => {
 
     useEffect(() => {
         if (isError) {
-            notification('프로필 정보를 불러오는데 실패했습니다.', { type: 'error' });
+            toast.error('프로필 정보를 불러오는데 실패했습니다.');
         }
     }, [isError]);
 
@@ -58,13 +58,13 @@ const ProfileSetting = () => {
             });
 
             if (data.status === 'DONE') {
-                notification('프로필이 업데이트 되었습니다.', { type: 'success' });
+                toast.success('프로필이 업데이트 되었습니다.');
                 refetch();
             } else {
-                notification('프로필 업데이트에 실패했습니다.', { type: 'error' });
+                toast.error('프로필 업데이트에 실패했습니다.');
             }
         } catch {
-            notification('프로필 업데이트에 실패했습니다.', { type: 'error' });
+            toast.error('프로필 업데이트에 실패했습니다.');
         } finally {
             setIsLoading(false);
         }
@@ -79,13 +79,13 @@ const ProfileSetting = () => {
 
             if (data.status === 'DONE') {
                 setAvatar(data.body.url);
-                notification('프로필 이미지가 업데이트 되었습니다.', { type: 'success' });
+                toast.success('프로필 이미지가 업데이트 되었습니다.');
                 refetch();
             } else {
-                notification('프로필 이미지 업데이트에 실패했습니다.', { type: 'error' });
+                toast.error('프로필 이미지 업데이트에 실패했습니다.');
             }
         } catch {
-            notification('프로필 이미지 업데이트에 실패했습니다.', { type: 'error' });
+            toast.error('프로필 이미지 업데이트에 실패했습니다.');
         }
     };
 

@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { notification } from '@baejino/ui';
+import { toast } from '~/utils/toast';
 import { useQuery } from '@tanstack/react-query';
 import { useConfirm } from '~/contexts/ConfirmContext';
 import { getAccountSettings, updateAccountSettings, deleteAccount } from '~/lib/api/settings';
@@ -11,7 +11,7 @@ import PasswordSection from './components/PasswordSection';
 import SecuritySection from './components/SecuritySection';
 import TwoFactorModal from './components/TwoFactorModal';
 
-const AccountSettings: React.FC = () => {
+const AccountSettings = () => {
     const [isUsernameLoading, setIsUsernameLoading] = useState(false);
     const [isNameLoading, setIsNameLoading] = useState(false);
     const [isPasswordLoading, setIsPasswordLoading] = useState(false);
@@ -33,7 +33,7 @@ const AccountSettings: React.FC = () => {
 
     useEffect(() => {
         if (isError) {
-            notification('계정 정보를 불러오는데 실패했습니다.', { type: 'error' });
+            toast.error('계정 정보를 불러오는데 실패했습니다.');
         }
     }, [isError]);
 
@@ -43,13 +43,13 @@ const AccountSettings: React.FC = () => {
             const { data } = await updateAccountSettings({ username });
 
             if (data.status === 'DONE') {
-                notification('아이디가 변경되었습니다.', { type: 'success' });
+                toast.success('아이디가 변경되었습니다.');
                 refetch();
             } else {
-                notification(data.errorMessage || '아이디 변경에 실패했습니다.', { type: 'error' });
+                toast.error(data.errorMessage || '아이디 변경에 실패했습니다.');
             }
         } catch {
-            notification('네트워크 오류가 발생했습니다.', { type: 'error' });
+            toast.error('네트워크 오류가 발생했습니다.');
         } finally {
             setIsUsernameLoading(false);
         }
@@ -61,13 +61,13 @@ const AccountSettings: React.FC = () => {
             const { data } = await updateAccountSettings({ name });
 
             if (data.status === 'DONE') {
-                notification('이름이 업데이트되었습니다.', { type: 'success' });
+                toast.success('이름이 업데이트되었습니다.');
                 refetch();
             } else {
-                notification(data.errorMessage || '이름 업데이트에 실패했습니다.', { type: 'error' });
+                toast.error(data.errorMessage || '이름 업데이트에 실패했습니다.');
             }
         } catch {
-            notification('네트워크 오류가 발생했습니다.', { type: 'error' });
+            toast.error('네트워크 오류가 발생했습니다.');
         } finally {
             setIsNameLoading(false);
         }
@@ -79,13 +79,13 @@ const AccountSettings: React.FC = () => {
             const { data } = await updateAccountSettings({ new_password: password });
 
             if (data.status === 'DONE') {
-                notification('비밀번호가 변경되었습니다.', { type: 'success' });
+                toast.success('비밀번호가 변경되었습니다.');
                 refetch();
             } else {
-                notification(data.errorMessage || '비밀번호 변경에 실패했습니다.', { type: 'error' });
+                toast.error(data.errorMessage || '비밀번호 변경에 실패했습니다.');
             }
         } catch {
-            notification('네트워크 오류가 발생했습니다.', { type: 'error' });
+            toast.error('네트워크 오류가 발생했습니다.');
         } finally {
             setIsPasswordLoading(false);
         }
@@ -97,7 +97,7 @@ const AccountSettings: React.FC = () => {
                 title: '2차 인증 해제',
                 message: '정말 2차 인증을 해제할까요?',
                 confirmText: '해제',
-                variant: 'warning'
+                variant: 'danger'
             });
 
             if (!confirmed) return;
@@ -113,22 +113,22 @@ const AccountSettings: React.FC = () => {
                     setShowQRModal(true);
                 } else {
                     const errorMsg = data.errorMessage || '2차 인증 활성화에 실패했습니다.';
-                    notification(errorMsg, { type: 'error' });
+                    toast.error(errorMsg);
                 }
             } else {
                 const { data } = await disable2FA();
 
                 if (data.status === 'DONE') {
-                    notification('2차 인증이 해제되었습니다.', { type: 'success' });
+                    toast.success('2차 인증이 해제되었습니다.');
                     setTimeout(() => location.reload(), 1000);
                 } else {
                     const errorMsg = data.errorMessage || '2차 인증 해제에 실패했습니다.';
-                    notification(errorMsg, { type: 'error' });
+                    toast.error(errorMsg);
                 }
             }
         } catch (error) {
             console.error('2FA Error:', error);
-            notification('네트워크 오류가 발생했습니다.', { type: 'error' });
+            toast.error('네트워크 오류가 발생했습니다.');
         }
     };
 
@@ -137,7 +137,7 @@ const AccountSettings: React.FC = () => {
             const { data } = await verify2FASetup(code);
 
             if (data.status === 'DONE') {
-                notification('2차 인증이 활성화되었습니다.', { type: 'success' });
+                toast.success('2차 인증이 활성화되었습니다.');
                 setShowQRModal(false);
                 setTimeout(() => location.reload(), 1000);
                 return { success: true };
@@ -161,7 +161,7 @@ const AccountSettings: React.FC = () => {
             title: '계정 삭제',
             message: '정말로 계정을 삭제하시겠습니까? 모든 데이터가 영구적으로 삭제되며 복구할 수 없습니다.',
             confirmText: '삭제',
-            variant: 'warning'
+            variant: 'danger'
         });
 
         if (!confirmed) return;
@@ -170,7 +170,7 @@ const AccountSettings: React.FC = () => {
             const { data } = await deleteAccount();
 
             if (data.status === 'DONE') {
-                notification('계정이 삭제되었습니다.', { type: 'success' });
+                toast.success('계정이 삭제되었습니다.');
 
                 // Use configured redirect URL from site settings, or fallback to home page
                 const redirectUrl = accountData?.accountDeletionRedirectUrl || '/';
@@ -179,10 +179,10 @@ const AccountSettings: React.FC = () => {
                     window.location.href = redirectUrl;
                 }, 1500);
             } else {
-                notification(data.errorMessage || '계정 삭제에 실패했습니다.', { type: 'error' });
+                toast.error(data.errorMessage || '계정 삭제에 실패했습니다.');
             }
         } catch {
-            notification('네트워크 오류가 발생했습니다.', { type: 'error' });
+            toast.error('네트워크 오류가 발생했습니다.');
         }
     };
 

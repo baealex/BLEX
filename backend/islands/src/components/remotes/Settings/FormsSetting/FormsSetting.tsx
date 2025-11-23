@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { notification } from '@baejino/ui';
+import { useState } from 'react';
+import { toast } from '~/utils/toast';
 import { useQuery } from '@tanstack/react-query';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
@@ -35,7 +35,7 @@ const formSchema = z.object({
 
 type FormInputs = z.infer<typeof formSchema>;
 
-const FormsManagement: React.FC = () => {
+const FormsManagement = () => {
     const { confirm } = useConfirm();
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [editingForm, setEditingForm] = useState<FormItem | null>(null);
@@ -68,13 +68,13 @@ const FormsManagement: React.FC = () => {
             const { data } = await deleteForm(formId);
 
             if (data.status === 'DONE') {
-                notification('서식이 삭제되었습니다.', { type: 'success' });
+                toast.success('서식이 삭제되었습니다.');
                 refetch();
             } else {
-                notification('서식 삭제에 실패했습니다.', { type: 'error' });
+                toast.error('서식 삭제에 실패했습니다.');
             }
         } catch {
-            notification('네트워크 오류가 발생했습니다.', { type: 'error' });
+            toast.error('네트워크 오류가 발생했습니다.');
         }
     };
 
@@ -98,10 +98,10 @@ const FormsManagement: React.FC = () => {
                 });
                 setIsModalOpen(true);
             } else {
-                notification('서식을 불러오는데 실패했습니다.', { type: 'error' });
+                toast.error('서식을 불러오는데 실패했습니다.');
             }
         } catch {
-            notification('네트워크 오류가 발생했습니다.', { type: 'error' });
+            toast.error('네트워크 오류가 발생했습니다.');
         }
     };
 
@@ -114,11 +114,11 @@ const FormsManagement: React.FC = () => {
                     content: formData.content
                 });
                 if (data.status === 'DONE') {
-                    notification('서식이 수정되었습니다.', { type: 'success' });
+                    toast.success('서식이 수정되었습니다.');
                     setIsModalOpen(false);
                     refetch();
                 } else {
-                    notification('서식 수정에 실패했습니다.', { type: 'error' });
+                    toast.error('서식 수정에 실패했습니다.');
                 }
             } else {
                 const { data } = await createForm({
@@ -126,15 +126,15 @@ const FormsManagement: React.FC = () => {
                     content: formData.content
                 });
                 if (data.status === 'DONE') {
-                    notification('서식이 생성되었습니다.', { type: 'success' });
+                    toast.success('서식이 생성되었습니다.');
                     setIsModalOpen(false);
                     refetch();
                 } else {
-                    notification('서식 생성에 실패했습니다.', { type: 'error' });
+                    toast.error('서식 생성에 실패했습니다.');
                 }
             }
         } catch {
-            notification('네트워크 오류가 발생했습니다.', { type: 'error' });
+            toast.error('네트워크 오류가 발생했습니다.');
         } finally {
             setIsSubmitting(false);
         }

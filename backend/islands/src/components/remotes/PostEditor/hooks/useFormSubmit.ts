@@ -1,5 +1,5 @@
 import { useState, useCallback, useRef } from 'react';
-import { notification } from '@baejino/ui';
+import { toast } from '~/utils/toast';
 
 interface FormSubmitData {
     title: string;
@@ -29,12 +29,12 @@ export const useFormSubmit = (options: UseFormSubmitOptions) => {
 
     const validateForm = useCallback((data: FormSubmitData, isEdit = false) => {
         if (!data.title.trim()) {
-            notification('제목을 입력해주세요.', { type: 'error' });
+            toast.error('제목을 입력해주세요.');
             return false;
         }
 
         if (!isEdit && !data.url.trim()) {
-            notification('URL 주소를 입력해주세요.', { type: 'error' });
+            toast.error('URL 주소를 입력해주세요.');
             return false;
         }
 
@@ -96,7 +96,7 @@ export const useFormSubmit = (options: UseFormSubmitOptions) => {
             onSubmitSuccess?.();
         } catch (error) {
             const errorMessage = isEdit ? '게시글 수정에 실패했습니다.' : '게시글 저장에 실패했습니다.';
-            notification(errorMessage, { type: 'error' });
+            toast.error(errorMessage);
             onSubmitError?.(error as Error);
             setIsSubmitting(false);
         }
@@ -120,7 +120,7 @@ export const useFormSubmit = (options: UseFormSubmitOptions) => {
 
             form.submit();
         } catch (error) {
-            notification('게시글 삭제에 실패했습니다.', { type: 'error' });
+            toast.error('게시글 삭제에 실패했습니다.');
             onSubmitError?.(error as Error);
             setIsSubmitting(false);
         }

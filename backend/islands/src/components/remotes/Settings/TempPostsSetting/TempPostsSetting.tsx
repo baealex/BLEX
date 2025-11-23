@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { notification } from '@baejino/ui';
+import { toast } from '~/utils/toast';
 import { useQuery } from '@tanstack/react-query';
 import { Button, Dropdown } from '~/components/shared';
 import {
@@ -29,7 +29,7 @@ const TempPostsSetting = () => {
 
     useEffect(() => {
         if (isError) {
-            notification('임시저장 포스트 목록을 불러오는데 실패했습니다.', { type: 'error' });
+            toast.error('임시저장 포스트 목록을 불러오는데 실패했습니다.');
         }
     }, [isError]);
 
@@ -47,13 +47,13 @@ const TempPostsSetting = () => {
             const { data } = await deleteTempPost(token);
 
             if (data.status === 'DONE') {
-                notification('임시저장 포스트가 삭제되었습니다.', { type: 'success' });
+                toast.success('임시저장 포스트가 삭제되었습니다.');
                 refetch();
             } else {
                 throw new Error('Failed to delete temp post');
             }
         } catch {
-            notification('임시저장 포스트 삭제에 실패했습니다.', { type: 'error' });
+            toast.error('임시저장 포스트 삭제에 실패했습니다.');
         }
     };
 

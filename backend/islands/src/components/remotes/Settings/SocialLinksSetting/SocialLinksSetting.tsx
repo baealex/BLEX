@@ -19,7 +19,7 @@ import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { restrictToVerticalAxis, restrictToFirstScrollableAncestor } from '@dnd-kit/modifiers';
 
-import { notification } from '@baejino/ui';
+import { toast } from '~/utils/toast';
 import { useQuery } from '@tanstack/react-query';
 import { Button } from '~/components/shared';
 import { getSocialLinks, updateSocialLinks, type SocialLink as ApiSocialLink } from '~/lib/api/settings';
@@ -186,7 +186,7 @@ const SocialLinks = () => {
 
     useEffect(() => {
         if (isError) {
-            notification('소셜 링크 정보를 불러오는데 실패했습니다.', { type: 'error' });
+            toast.error('소셜 링크 정보를 불러오는데 실패했습니다.');
         }
     }, [isError]);
 
@@ -246,25 +246,25 @@ const SocialLinks = () => {
 
         try {
             if (socials.some((social) => !social.name)) {
-                notification('소셜 아이콘을 모두 선택해주세요.', { type: 'error' });
+                toast.error('소셜 아이콘을 모두 선택해주세요.');
                 setIsLoading(false);
                 return;
             }
 
             if (socials.some((social) => !social.value)) {
-                notification('소셜 주소를 모두 입력해주세요.', { type: 'error' });
+                toast.error('소셜 주소를 모두 입력해주세요.');
                 setIsLoading(false);
                 return;
             }
 
             if (socials.some((social) => !social.value.startsWith('https://'))) {
-                notification('소셜 주소는 https:// 로 시작해야 합니다.', { type: 'error' });
+                toast.error('소셜 주소는 https:// 로 시작해야 합니다.');
                 setIsLoading(false);
                 return;
             }
 
             if (socials.some((social) => social.value.includes(',') || social.value.includes('&'))) {
-                notification('소셜 주소에는 , 와 & 를 포함할 수 없습니다.', { type: 'error' });
+                toast.error('소셜 주소에는 , 와 & 를 포함할 수 없습니다.');
                 setIsLoading(false);
                 return;
             }
@@ -284,7 +284,7 @@ const SocialLinks = () => {
             });
 
             if (data.status === 'DONE') {
-                notification('소셜 정보가 업데이트 되었습니다.', { type: 'success' });
+                toast.success('소셜 정보가 업데이트 되었습니다.');
                 const updatedSocials = (data.body as SocialLink[]).map((social) => ({
                     ...social,
                     prepare: false
@@ -292,10 +292,10 @@ const SocialLinks = () => {
                 setSocials(updatedSocials);
                 setOriginalSocials(updatedSocials);
             } else {
-                notification('소셜 정보 업데이트에 실패했습니다.', { type: 'error' });
+                toast.error('소셜 정보 업데이트에 실패했습니다.');
             }
         } catch {
-            notification('소셜 정보 업데이트에 실패했습니다.', { type: 'error' });
+            toast.error('소셜 정보 업데이트에 실패했습니다.');
         } finally {
             setIsLoading(false);
         }
