@@ -1,17 +1,26 @@
 import React, { useState, useEffect } from 'react';
 import type { Editor } from '@tiptap/react';
+import { useFloatingMenu } from '../../hooks/useFloatingMenu';
 
 interface MediaFloatingMenuProps {
     editor: Editor | null;
 }
 
 const MediaFloatingMenu: React.FC<MediaFloatingMenuProps> = ({ editor }) => {
-    const [isVisible, setIsVisible] = useState(false);
-    const [position, setPosition] = useState({
-        top: 0,
-        left: 0
-    });
     const [selectedNode, setSelectedNode] = useState<{ type: string; attrs: Record<string, unknown>; pos: number } | null>(null);
+
+    const {
+        isVisible,
+        setIsVisible,
+        setReferenceElement,
+        refs,
+        floatingStyles,
+        isHidden
+    } = useFloatingMenu({
+        placement: 'top',
+        offsetValue: 10,
+        isVirtual: false
+    });
 
     useEffect(() => {
         if (!editor) return;
@@ -36,20 +45,17 @@ const MediaFloatingMenu: React.FC<MediaFloatingMenuProps> = ({ editor }) => {
                     setSelectedNode(newSelectedNode);
                 }
 
-                setIsVisible(true);
-
-                // 노드의 DOM 요소 찾아서 위치 계산
+                // 노드의 DOM 요소를 reference로 설정
                 const nodeDOM = editor.view.nodeDOM(from) as HTMLElement;
                 if (nodeDOM) {
-                    const rect = nodeDOM.getBoundingClientRect();
-                    setPosition({
-                        top: rect.top - 60,
-                        left: rect.left + rect.width / 2 - 200
-                    });
+                    setReferenceElement(nodeDOM);
                 }
+
+                setIsVisible(true);
             } else {
                 setIsVisible(false);
                 setSelectedNode(null);
+                setReferenceElement(null);
             }
         };
 
@@ -60,7 +66,40 @@ const MediaFloatingMenu: React.FC<MediaFloatingMenuProps> = ({ editor }) => {
             editor.off('selectionUpdate', updateMenu);
             editor.off('transaction', updateMenu);
         };
-    }, [editor, selectedNode]);
+    }, [editor, selectedNode, setIsVisible, setSelectedNode, setReferenceElement]);
+
+    // 외부 클릭시 메뉴 닫기
+    useEffect(() => {
+        if (!isVisible) return;
+
+        const handleClickOutside = (event: MouseEvent) => {
+            const target = event.target as Node;
+
+            // 메뉴 외부를 클릭했을 때만 닫기
+            if (refs.floating.current && !refs.floating.current.contains(target)) {
+                // 에디터 내부 클릭인 경우, 이미지/비디오가 아니면 닫기
+                if (editor?.view.dom.contains(target)) {
+                    const { selection } = editor.state;
+                    const node = editor.state.doc.nodeAt(selection.from);
+                    if (!node || (node.type.name !== 'image' && node.type.name !== 'video')) {
+                        setIsVisible(false);
+                        setSelectedNode(null);
+                        setReferenceElement(null);
+                    }
+                } else {
+                    // 완전히 외부 클릭이면 닫기
+                    setIsVisible(false);
+                    setSelectedNode(null);
+                    setReferenceElement(null);
+                }
+            }
+        };
+
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => {
+            document.removeEventListener('mousedown', handleClickOutside);
+        };
+    }, [isVisible, editor, refs.floating, setIsVisible, setSelectedNode, setReferenceElement]);
 
     if (!isVisible || !selectedNode || !editor) return null;
 
@@ -104,6 +143,13 @@ const MediaFloatingMenu: React.FC<MediaFloatingMenuProps> = ({ editor }) => {
         updateAttribute('aspectRatio', value === '' ? null : value);
     };
 
+    const handleBorderRadiusChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+        e.preventDefault();
+        e.stopPropagation();
+        const value = e.target.value;
+        updateAttribute('borderRadius', value === '' ? null : value);
+    };
+
     const IconButton = ({
         icon,
         active,
@@ -132,7 +178,8 @@ const MediaFloatingMenu: React.FC<MediaFloatingMenuProps> = ({ editor }) => {
 
     return (
         <div
-            className="fixed z-[1100] bg-white/95 backdrop-blur-xl rounded-xl shadow-lg border border-gray-200/60 p-2.5 flex flex-col gap-2.5"
+            ref={refs.setFloating}
+            className="z-[1100] bg-white/95 backdrop-blur-xl rounded-xl shadow-lg border border-gray-200/60 p-2.5 flex flex-col gap-2.5"
             onMouseDown={(e) => {
                 if (e.target instanceof HTMLElement &&
                     !['INPUT', 'SELECT'].includes(e.target.tagName)) {
@@ -142,8 +189,8 @@ const MediaFloatingMenu: React.FC<MediaFloatingMenuProps> = ({ editor }) => {
             }}
             onClick={(e) => e.stopPropagation()}
             style={{
-                top: position.top,
-                left: position.left
+                ...floatingStyles,
+                visibility: isHidden ? 'hidden' : 'visible'
             }}>
             {/* Row 1: 정렬 + 스타일 */}
             <div className="flex items-center gap-2">
@@ -176,6 +223,21 @@ const MediaFloatingMenu: React.FC<MediaFloatingMenuProps> = ({ editor }) => {
                             <IconButton icon="fas fa-border-style" active={!!selectedNode.attrs.border} onClick={(e) => handleToggle(e, 'border')} title="테두리" />
                             <IconButton icon="fas fa-clone" active={!!selectedNode.attrs.shadow} onClick={(e) => handleToggle(e, 'shadow')} title="그림자" />
                         </div>
+
+                        <div className="w-px h-5 bg-gray-300" />
+
+                        {/* Border Radius */}
+                        <select
+                            value={selectedNode.attrs.borderRadius as string || ''}
+                            onChange={handleBorderRadiusChange}
+                            className="px-2 py-1 text-xs bg-gray-50 border border-gray-200 rounded-md hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500">
+                            <option value="">둥글기</option>
+                            <option value="0">각짐</option>
+                            <option value="4">약간</option>
+                            <option value="8">보통</option>
+                            <option value="16">많이</option>
+                            <option value="9999">원형</option>
+                        </select>
                     </>
                 )}
             </div>
