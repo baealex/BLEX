@@ -1,86 +1,91 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect } from 'react';
 import type { Editor } from '@tiptap/react';
-import ToolbarButton from './ToolbarButton';
+import type { VirtualElement } from '@floating-ui/react';
+import ToolbarButton from '../ui/ToolbarButton';
+import { useFloatingMenu } from '../../hooks/useFloatingMenu';
 
 interface FloatingMenuBarProps {
     editor: Editor | null;
 }
 
 const FloatingMenuBar: React.FC<FloatingMenuBarProps> = ({ editor }) => {
-    const [isVisible, setIsVisible] = useState(false);
-    const [position, setPosition] = useState({
-        top: 0,
-        left: 0
+    const {
+        isVisible,
+        setIsVisible,
+        setReferenceElement,
+        refs,
+        floatingStyles,
+        isHidden
+    } = useFloatingMenu({
+        placement: 'top',
+        offsetValue: 10,
+        isVirtual: true
     });
-    const menuRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
         if (!editor) return;
 
-        const updateMenuPosition = () => {
+        const updateMenu = () => {
             const { state } = editor;
             const { selection } = state;
+            const { empty, from, to } = selection;
 
-            if (selection.empty) {
+            // 선택이 비어있으면 숨김
+            if (empty) {
                 setIsVisible(false);
+                setReferenceElement(null);
                 return;
             }
 
-            const { from, to } = selection;
-
-            // 이미지나 비디오가 선택된 경우 FloatingMenuBar 숨김
+            // 이미지나 비디오가 선택된 경우 숨김
             const node = state.doc.nodeAt(from);
             if (node && (node.type.name === 'image' || node.type.name === 'video')) {
                 setIsVisible(false);
+                setReferenceElement(null);
                 return;
             }
-            const start = editor.view.coordsAtPos(from);
-            const end = editor.view.coordsAtPos(to);
 
-            const rect = {
-                left: Math.min(start.left, end.left),
-                right: Math.max(start.right, end.right),
-                top: Math.min(start.top, end.top),
-                bottom: Math.max(start.bottom, end.bottom)
+            // 가상 참조 요소 생성 (getBoundingClientRect가 호출될 때마다 최신 좌표 계산)
+            const virtualElement: VirtualElement = {
+                getBoundingClientRect: () => {
+                    const start = editor.view.coordsAtPos(from);
+                    const end = editor.view.coordsAtPos(to);
+
+                    return {
+                        top: Math.min(start.top, end.top),
+                        right: Math.max(start.right, end.right),
+                        bottom: Math.max(start.bottom, end.bottom),
+                        left: Math.min(start.left, end.left),
+                        width: Math.abs(end.right - start.left),
+                        height: Math.abs(end.bottom - start.top),
+                        x: Math.min(start.left, end.left),
+                        y: Math.min(start.top, end.top)
+                    };
+                }
             };
 
-            const centerX = (rect.left + rect.right) / 2;
-            const menuWidth = menuRef.current?.offsetWidth || 300;
-
-            setPosition({
-                top: rect.top - 50,
-                left: Math.max(10, centerX - menuWidth / 2)
-            });
-
+            setReferenceElement(virtualElement);
             setIsVisible(true);
         };
 
-        const handleSelectionUpdate = () => {
-            setTimeout(updateMenuPosition, 10);
-        };
-
-        const handleTransaction = () => {
-            setTimeout(updateMenuPosition, 10);
-        };
-
-        editor.on('selectionUpdate', handleSelectionUpdate);
-        editor.on('transaction', handleTransaction);
+        editor.on('selectionUpdate', updateMenu);
+        editor.on('transaction', updateMenu);
 
         return () => {
-            editor.off('selectionUpdate', handleSelectionUpdate);
-            editor.off('transaction', handleTransaction);
+            editor.off('selectionUpdate', updateMenu);
+            editor.off('transaction', updateMenu);
         };
-    }, [editor]);
+    }, [editor, setIsVisible, setReferenceElement]);
 
     if (!editor || !isVisible) return null;
 
     return (
         <div
-            ref={menuRef}
-            className="fixed z-50 bg-white border border-gray-200 rounded-lg shadow-lg p-2 transition-all duration-200"
+            ref={refs.setFloating}
+            className="bg-white border border-gray-200 rounded-lg shadow-lg p-2 transition-all duration-200 z-50"
             style={{
-                top: `${position.top}px`,
-                left: `${position.left}px`
+                ...floatingStyles,
+                visibility: isHidden ? 'hidden' : 'visible'
             }}>
             <div className="flex gap-1">
                 <ToolbarButton

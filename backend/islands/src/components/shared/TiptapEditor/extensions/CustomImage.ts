@@ -19,7 +19,8 @@ export const CustomImage = Node.create({
             caption: { default: null },
             border: { default: false }, // border 적용 여부
             shadow: { default: false }, // shadow 적용 여부
-            aspectRatio: { default: null } // 16:9, 4:3, 1:1, etc
+            aspectRatio: { default: null }, // 16:9, 4:3, 1:1, etc
+            borderRadius: { default: null } // 0, 4, 8, 16, 9999 (px)
         };
     },
 
@@ -58,7 +59,8 @@ export const CustomImage = Node.create({
                         caption: caption?.textContent || null,
                         border: figure.getAttribute('data-border') === 'true',
                         shadow: figure.getAttribute('data-shadow') === 'true',
-                        aspectRatio: img.getAttribute('data-aspect-ratio') || null
+                        aspectRatio: img.getAttribute('data-aspect-ratio') || null,
+                        borderRadius: figure.getAttribute('data-border-radius') || null
                     };
                 }
             },
@@ -90,7 +92,8 @@ export const CustomImage = Node.create({
                         caption: null,
                         border: false,
                         shadow: false,
-                        aspectRatio: img.getAttribute('data-aspect-ratio') || null
+                        aspectRatio: img.getAttribute('data-aspect-ratio') || null,
+                        borderRadius: null
                     };
                 }
             }
@@ -99,7 +102,7 @@ export const CustomImage = Node.create({
 
     renderHTML({ HTMLAttributes }) {
         const {
-            src, alt, title, width, height, align, objectFit, caption, border, shadow, aspectRatio
+            src, alt, title, width, height, align, objectFit, caption, border, shadow, aspectRatio, borderRadius
         } = HTMLAttributes;
 
         const imgAttrs: Record<string, string> = {
@@ -115,6 +118,9 @@ export const CustomImage = Node.create({
 
         if (aspectRatio) {
             imgStyles.push(`aspect-ratio: ${aspectRatio.replace(':', ' / ')}`);
+            if (!width && !height) {
+                imgStyles.push('width: 100%');
+            }
             imgAttrs['data-aspect-ratio'] = aspectRatio;
         }
 
@@ -157,6 +163,11 @@ export const CustomImage = Node.create({
         if (shadow) {
             figureStyles.push('box-shadow: 8px 8px 40px 2px rgba(0, 0, 0, 0.15)');
             figureAttrs['data-shadow'] = 'true';
+        }
+        if (borderRadius) {
+            figureStyles.push(`border-radius: ${borderRadius}px`);
+            figureStyles.push('overflow: hidden');
+            figureAttrs['data-border-radius'] = borderRadius;
         }
 
         if (figureStyles.length > 0) {
