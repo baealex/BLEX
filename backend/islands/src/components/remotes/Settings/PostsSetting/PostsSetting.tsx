@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { notification } from '@baejino/ui';
+import { toast } from '~/utils/toast';
 import { useQuery } from '@tanstack/react-query';
 import { Button, Input, Dropdown, Alert } from '~/components/shared';
 import { getIconClass } from '~/components/shared/settingsStyles';
@@ -147,7 +147,7 @@ const PostsSetting = () => {
 
     useEffect(() => {
         if (isError) {
-            notification('포스트 목록을 불러오는데 실패했습니다.', { type: 'error' });
+            toast.error('포스트 목록을 불러오는데 실패했습니다.');
         }
     }, [isError]);
 
@@ -184,12 +184,12 @@ const PostsSetting = () => {
                         }
                         : post
                 ));
-                notification(`포스트가 ${data.body.isHide ? '비공개' : '공개'}로 변경되었습니다.`, { type: 'success' });
+                toast.success(`포스트가 ${data.body.isHide ? '비공개' : '공개'}로 변경되었습니다.`);
             } else {
                 throw new Error('Failed to toggle visibility');
             }
         } catch {
-            notification('포스트 공개 설정 변경에 실패했습니다.', { type: 'error' });
+            toast.error('포스트 공개 설정 변경에 실패했습니다.');
         }
     };
 
@@ -207,13 +207,13 @@ const PostsSetting = () => {
             const { data } = await deletePost(postsData!.username, postUrl);
 
             if (data.status === 'DONE') {
-                notification('포스트가 삭제되었습니다.', { type: 'success' });
+                toast.success('포스트가 삭제되었습니다.');
                 refetch();
             } else {
                 throw new Error('Failed to delete post');
             }
         } catch {
-            notification('포스트 삭제에 실패했습니다.', { type: 'error' });
+            toast.error('포스트 삭제에 실패했습니다.');
         }
     };
 
@@ -246,12 +246,12 @@ const PostsSetting = () => {
                         }
                         : p
                 ));
-                notification('태그가 수정되었습니다.', { type: 'success' });
+                toast.success('태그가 수정되었습니다.');
             } else {
                 throw new Error('Failed to update tag');
             }
         } catch {
-            notification('태그 수정에 실패했습니다.', { type: 'error' });
+            toast.error('태그 수정에 실패했습니다.');
         }
     };
 
@@ -284,12 +284,12 @@ const PostsSetting = () => {
                         }
                         : p
                 ));
-                notification('시리즈가 수정되었습니다.', { type: 'success' });
+                toast.success('시리즈가 수정되었습니다.');
             } else {
                 throw new Error('Failed to update series');
             }
         } catch {
-            notification('시리즈 수정에 실패했습니다.', { type: 'error' });
+            toast.error('시리즈 수정에 실패했습니다.');
         }
     };
 
@@ -466,7 +466,7 @@ const PostsSetting = () => {
                                                 {
                                                     label: '포스트 보기',
                                                     icon: 'fas fa-eye',
-                                                    onClick: () => window.open(`/@${postsData?.username}/${post.url}`, '_blank')
+                                                    onClick: () => location.assign(`/@${postsData?.username}/${post.url}`)
                                                 },
                                                 {
                                                     label: post.isHide ? '공개로 변경' : '비공개로 변경',

@@ -1,5 +1,4 @@
 @forward "@baejino/style/css/reset.css";
-@forward "@baejino/ui/css/main.css";
 @forward "./variables.css";
 @forward "./forwarded.scss";
 @forward "./tailwind.css";
@@ -16,25 +15,6 @@ a {
     text-decoration: none;
     color: inherit;
     transition: color var(--transition-fast);
-}
-
-.notification__container {
-    top: 88px;
-}
-
-.notification__item {
-    background-color: var(--color-white);
-    color: var(--color-black);
-    border-right: none;
-    border-bottom: none;
-    border-top: none;
-    box-shadow: none;
-    border-radius: 0;
-    padding: 18px;
-
-    .notification__close {
-        color: var(--color-black);
-    }
 }
 
 [x-cloak] {

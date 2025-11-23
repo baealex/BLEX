@@ -1,11 +1,11 @@
-import React, { useState, useEffect } from 'react';
-import { notification } from '@baejino/ui';
+import { useState, useEffect } from 'react';
+import { toast } from '~/utils/toast';
 import { useQuery } from '@tanstack/react-query';
 import { Button } from '~/components/shared';
 import { useConfirm } from '~/contexts/ConfirmContext';
 import { getTelegramStatus, generateTelegramToken, disconnectTelegram as disconnectTelegramAPI } from '~/lib/api/telegram';
 
-const IntegrationSettings: React.FC = () => {
+const IntegrationSettings = () => {
     const [telegramToken, setTelegramToken] = useState('');
     const [isGeneratingToken, setIsGeneratingToken] = useState(false);
     const [isDisconnecting, setIsDisconnecting] = useState(false);
@@ -33,10 +33,10 @@ const IntegrationSettings: React.FC = () => {
             if (data.status === 'DONE' && data.body.token) {
                 setTelegramToken(data.body.token);
             } else {
-                notification('토큰 생성에 실패했습니다.', { type: 'error' });
+                toast.error('토큰 생성에 실패했습니다.');
             }
         } catch {
-            notification('토큰 생성 중 오류가 발생했습니다.', { type: 'error' });
+            toast.error('토큰 생성 중 오류가 발생했습니다.');
         } finally {
             setIsGeneratingToken(false);
         }
@@ -56,17 +56,17 @@ const IntegrationSettings: React.FC = () => {
         try {
             const { data } = await disconnectTelegramAPI();
             if (data.status === 'DONE') {
-                notification('텔레그램 연동이 해제되었습니다.', { type: 'success' });
+                toast.success('텔레그램 연동이 해제되었습니다.');
                 setTelegramToken('');
                 refetch();
             } else if (data.errorCode === 'ALREADY_DISCONNECTED') {
-                notification('이미 연동이 해제된 상태입니다.', { type: 'info' });
+                toast.info('이미 연동이 해제된 상태입니다.');
                 refetch();
             } else {
-                notification(data.errorMessage || '연동 해제에 실패했습니다.', { type: 'error' });
+                toast.error(data.errorMessage || '연동 해제에 실패했습니다.');
             }
         } catch {
-            notification('네트워크 오류가 발생했습니다.', { type: 'error' });
+            toast.error('네트워크 오류가 발생했습니다.');
         } finally {
             setIsDisconnecting(false);
         }

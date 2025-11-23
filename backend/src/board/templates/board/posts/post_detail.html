@@ -123,80 +123,76 @@
     </article>
 
     <!-- 스티키 액션 바 (Alpine.js 사용) -->
-    <div x-data="{ 
-        shareMessage: '공유',
-        showFeedback: false,
+    <div x-data="{
         async copyToClipboard() {
             try {
                 const decodedUrl = decodeURIComponent(window.location.href);
                 await navigator.clipboard.writeText(decodedUrl);
-                this.shareMessage = '링크 복사됨!';
-                this.showFeedback = true;
-                
+                window.toast.success('링크가 복사되었습니다');
+
                 if (navigator.vibrate) {
                     navigator.vibrate(50);
                 }
-                
-                setTimeout(() => {
-                    this.shareMessage = '공유';
-                    this.showFeedback = false;
-                }, 2000);
             } catch (error) {
-                this.shareMessage = '복사 실패';
-                setTimeout(() => this.shareMessage = '공유', 2000);
+                window.toast.error('복사에 실패했습니다');
             }
         }
-    }" class="sticky bottom-0 left-0 right-0 z-40 mb-6 sm:mb-8">
-        <div class="max-w-4xl w-full mx-auto px-2 sm:px-4 py-3 bg-white shadow-sm rounded-2xl">
-            <div class="flex items-center justify-between">
-                <!-- 왼쪽: 포스트 정보 -->
-                <div class="flex items-center gap-2 sm:gap-3 min-w-0 flex-1">
-                    <div class="flex items-center gap-2 min-w-0">
-                        <a href="/@{{ post.author_username }}">
-                            <img class="w-8 h-8 rounded-full object-cover flex-shrink-0" 
-                                src="{% media post.author_image %}" 
+    }" class="fixed sm:sticky bottom-0 left-0 right-0 z-40 sm:mb-6 md:mb-8">
+        <div class="max-w-4xl w-full mx-auto sm:px-4">
+            <!-- 모바일: 하단 네비게이션 바 스타일 -->
+            <div class="bg-white sm:bg-white/10 sm:backdrop-blur-lg border-t sm:border sm:border-gray-200/80 border-gray-200 shadow-sm sm:shadow-[0_-4px_16px_rgba(0,0,0,0.08)] sm:rounded-2xl px-4 sm:px-5 py-2 sm:py-3">
+                <div class="flex items-center justify-around sm:justify-between gap-2 sm:gap-4">
+                    <!-- 왼쪽: 포스트 정보 (데스크톱만) -->
+                    <div class="hidden sm:flex items-center gap-3 min-w-0 flex-1">
+                        <a href="/@{{ post.author_username }}" class="flex-shrink-0 group">
+                            <img class="w-10 h-10 rounded-full object-cover ring-2 ring-transparent group-hover:ring-gray-200 transition-all"
+                                src="{% media post.author_image %}"
                                 alt="{{ post.author_username }}">
                         </a>
-                        <div class="min-w-0 hidden sm:block">
-                            <div class="font-semibold text-gray-900 truncate">{{ post.title }}</div>
-                            <div class="text-xs text-gray-500">by {{ post.author_username }}</div>
+                        <div class="min-w-0">
+                            <div class="font-semibold text-gray-900 truncate text-sm leading-tight">{{ post.title }}</div>
+                            <div class="text-xs text-gray-500 mt-0.5">by {{ post.author_username }}</div>
                         </div>
                     </div>
-                </div>
-                
-                <!-- 오른쪽: 액션 버튼들 -->
-                <div class="flex items-center gap-2 sm:gap-3 flex-shrink-0">
-                    {% include 'components/like_button.html' with post_url=post.url likes_count=post.count_likes has_liked=post.has_liked size='small' %}
-                    
-                    <button @click="
-                        if (navigator.share) {
-                            const decodedUrl = decodeURIComponent(window.location.href);
-                            navigator.share({
-                                title: '{{ post.title }}',
-                                text: '{{ post.meta_description }}',
-                                url: decodedUrl
-                            }).catch(error => {
-                                console.log('Error sharing:', error);
-                                copyToClipboard();
-                            });
-                        } else {
-                            copyToClipboard();
-                        }
-                    "
-                    class="flex items-center gap-1 sm:gap-2 px-3 py-2.5 sm:px-3 sm:py-2 transition-all duration-200 text-sm rounded-xl font-medium min-h-[44px] min-w-[44px] sm:min-h-auto sm:min-w-auto"
-                    :class="showFeedback ? 'bg-gray-100 text-gray-900 transform scale-95' : 'bg-gray-100 hover:bg-gray-200 text-gray-700 hover:scale-105 active:scale-95'"
-                    aria-label="게시물 공유하기">
-                        <i class="fas fa-share-alt" :class="showFeedback ? 'text-gray-900' : ''"></i>
-                        <span x-text="shareMessage"></span>
-                        <span class="text-xs" x-show="showFeedback" x-transition>✓</span>
-                    </button>
 
-                    {% if user.is_authenticated and user.username == post.author_username %}
-                    <a href="{% url 'post_edit' post.author_username post.url %}" class="flex items-center gap-1 sm:gap-2 px-3 py-2.5 sm:px-3 sm:py-2 bg-black hover:bg-gray-800 text-white rounded-xl font-medium transition-all duration-200 text-sm min-h-[44px] min-w-[44px] sm:min-h-auto sm:min-w-auto shadow-md">
-                        <i class="fas fa-edit"></i>
-                        <span>편집</span>
-                    </a>
-                    {% endif %}
+                    <!-- 액션 버튼들 -->
+                    <div class="flex items-center gap-3 sm:gap-2 sm:flex-shrink-0">
+                        <!-- 좋아요 버튼 -->
+                        {% include 'components/like_button.html' with post_url=post.url likes_count=post.count_likes has_liked=post.has_liked size='small' %}
+
+                        <!-- 공유 버튼 -->
+                        <button @click="
+                            const decodedUrl = decodeURIComponent(window.location.href);
+                            if (navigator.share) {
+                                navigator.share({
+                                    title: '{{ post.title }}',
+                                    text: '{{ post.meta_description }}',
+                                    url: decodedUrl
+                                }).catch(error => {
+                                    if (error.name !== 'AbortError') {
+                                        console.error('Error sharing:', error);
+                                        window.toast.error('공유에 실패했습니다');
+                                    }
+                                });
+                            } else {
+                                copyToClipboard();
+                            }
+                        "
+                        class="group flex items-center justify-center gap-1.5 px-4 py-2.5 sm:px-4 sm:py-2.5 bg-gray-50 hover:bg-gray-100 border border-gray-200 hover:border-gray-300 text-gray-700 hover:text-gray-900 rounded-xl font-medium transition-all duration-200 min-h-[44px] min-w-[44px] sm:min-w-auto active:scale-95"
+                        aria-label="게시물 공유하기">
+                            <i class="fas fa-share-alt text-base"></i>
+                            <span class="hidden sm:inline text-sm">공유</span>
+                        </button>
+
+                        <!-- 편집 버튼 (작성자만) -->
+                        {% if user.is_authenticated and user.username == post.author_username %}
+                        <a href="{% url 'post_edit' post.author_username post.url %}"
+                           class="group flex items-center justify-center gap-1.5 px-4 py-2.5 sm:px-4 sm:py-2.5 bg-gray-900 hover:bg-black border border-gray-900 text-white rounded-xl font-medium transition-all duration-200 min-h-[44px] min-w-[44px] sm:min-w-auto shadow-sm hover:shadow-md active:scale-95">
+                            <i class="fas fa-edit text-base"></i>
+                            <span class="hidden sm:inline text-sm">편집</span>
+                        </a>
+                        {% endif %}
+                    </div>
                 </div>
             </div>
         </div>

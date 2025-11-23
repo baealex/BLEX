@@ -9,25 +9,24 @@ Alpine.js 기반 좋아요 버튼 컴포넌트
 - size: 버튼 크기 'small' 또는 'normal' (선택, 기본값: normal)
 {% endcomment %}
 
-<button 
-    x-data="likeButton({ 
-        count: {{ likes_count }}, 
+<button
+    x-data="likeButton({
+        count: {{ likes_count }},
         liked: {{ has_liked|yesno:'true,false' }},
         postUrl: '{{ post_url }}'
     })"
     @click="handleLike()"
     :class="{
-        'bg-black text-white hover:bg-gray-800': liked,
-        'bg-gray-100 text-gray-700 hover:bg-gray-200': !liked,
+        'bg-black border-black text-white hover:bg-gray-800': liked,
+        'bg-gray-50 border-gray-200 hover:border-gray-300 text-gray-700 hover:bg-gray-100 hover:text-gray-900': !liked,
         'opacity-70 cursor-not-allowed': loading,
         'active:scale-95': !loading
     }"
     :disabled="loading"
-    class="inline-flex items-center justify-center gap-1.5 border-0 font-medium transition-all duration-200 outline-none cursor-pointer
-    {% if size == 'small' %}px-3 py-2.5 sm:py-2 min-h-[44px] sm:min-h-auto text-sm rounded-lg{% else %}px-3 py-1 rounded-3xl text-sm{% endif %}">
+    class="group inline-flex items-center justify-center border font-medium transition-all duration-200 outline-none cursor-pointer
+    {% if size == 'small' %}gap-1.5 px-4 py-2.5 sm:px-4 sm:py-2.5 min-h-[44px] sm:min-h-auto rounded-xl{% else %}gap-1.5 px-3 py-1 rounded-3xl{% endif %}">
     <i :class="{
-        'fas fa-heart text-white': liked,
-        'fas fa-heart text-gray-600': !liked
-    }"></i>
-    <span x-text="count"></span>
+        'fas fa-heart': true
+    }" class="{% if size == 'small' %}text-base{% endif %}"></i>
+    <span x-text="count" class="text-sm"></span>
 </button>
