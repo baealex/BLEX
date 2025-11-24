@@ -22,7 +22,7 @@ from django.db.models import Count, Case, When, Value, Exists, OuterRef, Q
 from board.constants.config_meta import CONFIG_TYPE
 from board.models import (
     Config, Profile, TelegramSync,
-    TwoFactorAuth, UsernameChangeLog, SiteSetting
+    TwoFactorAuth, UsernameChangeLog, SiteSetting, Post
 )
 from board.modules.notify import create_notify
 from board.modules.response import ErrorCode
@@ -114,7 +114,7 @@ class AuthService:
         if User.objects.filter(username=username).exists():
             raise AuthValidationError(
                 ErrorCode.VALIDATE,
-                '이미 사용중인 사용자 이름 입니다.'
+                '이미 사용중인 아이디입니다.'
             )
 
         match = AuthService.USERNAME_PATTERN.match(username)
@@ -356,6 +356,35 @@ class AuthService:
             return f"data:image/png;base64,{img_str}"
         except TwoFactorAuth.DoesNotExist:
             return None
+
+    @staticmethod
+    def validate_username_change_restriction(user: User) -> None:
+        """
+        Validate username change restriction for users with posts.
+        Users with posts can only change username once every 6 months.
+
+        Args:
+            user: User instance
+
+        Raises:
+            AuthValidationError: If user changed username within 6 months
+        """
+        import datetime
+        from django.utils import timezone
+
+        if Post.objects.filter(author=user).exists():
+            six_months_ago = timezone.now() - datetime.timedelta(days=180)
+
+            recent_change = UsernameChangeLog.objects.filter(
+                user=user,
+                created_date__gt=six_months_ago
+            ).exists()
+
+            if recent_change:
+                raise AuthValidationError(
+                    ErrorCode.VALIDATE,
+                    '작성한 포스트가 존재하는 경우 6개월에 한번만 변경할 수 있습니다.'
+                )
 
     @staticmethod
     @transaction.atomic

@@ -14,10 +14,11 @@ from django.utils.dateparse import parse_datetime
 from board.constants.config_meta import CONFIG_TYPE
 from board.models import (
     User, Series, Post, UserLinkMeta, SiteSetting,
-    TempPosts, Profile, Notify, Comment, PostLikes)
+    TempPosts, Profile, Notify, Comment, PostLikes, UsernameChangeLog)
 from board.modules.paginator import Paginator
 from board.modules.response import StatusDone, StatusError, ErrorCode
 from board.modules.time import convert_to_localtime
+from board.services.auth_service import AuthService, AuthValidationError
 
 
 def setting(request, parameter):
@@ -374,8 +375,17 @@ def setting(request, parameter):
         if parameter == 'account':
             should_update = False
 
+            username = put.get('username', '')
             name = put.get('name', '')
             password = put.get('password', '')
+
+            if username and user.username != username:
+                try:
+                    AuthService.validate_username_change_restriction(user)
+                    AuthService.change_username(user, username, create_log=True)
+                    should_update = False
+                except AuthValidationError as e:
+                    return StatusError(e.code, e.message)
 
             if name and user.first_name != name:
                 user.first_name = name

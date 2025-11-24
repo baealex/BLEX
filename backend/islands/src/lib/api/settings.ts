@@ -81,7 +81,7 @@ export const updateProfileSettings = async (data: ProfileUpdateData) => {
 
 export const uploadAvatar = async (file: File) => {
     const formData = new FormData();
-    formData.append('image', file);
+    formData.append('avatar', file);
 
     return http.post<Response<{ url: string }>>('v1/setting/avatar', formData, { headers: { 'Content-Type': 'multipart/form-data' } });
 };

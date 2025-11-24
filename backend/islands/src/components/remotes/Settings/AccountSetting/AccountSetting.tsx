@@ -38,6 +38,19 @@ const AccountSettings = () => {
     }, [isError]);
 
     const handleUsernameSubmit = async (username: string) => {
+        if (username === accountData?.username) {
+            toast.error('변경할 아이디를 입력해주세요.');
+            return;
+        }
+
+        const confirmed = await confirm({
+            title: '사용자 필명 변경',
+            message: '사용자 필명을 변경하시겠습니까? 작성한 포스트가 존재하는 경우 6개월에 한번만 변경할 수 있습니다.',
+            confirmText: '변경'
+        });
+
+        if (!confirmed) return;
+
         setIsUsernameLoading(true);
         try {
             const { data } = await updateAccountSettings({ username });

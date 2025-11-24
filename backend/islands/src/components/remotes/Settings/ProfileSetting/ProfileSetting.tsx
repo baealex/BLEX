@@ -4,6 +4,7 @@ import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useQuery } from '@tanstack/react-query';
+import { useConfirm } from '~/contexts/ConfirmContext';
 import { Button, Input, Card } from '~/components/shared';
 import { getProfileSettings, updateProfileSettings, uploadAvatar } from '~/lib/api/settings';
 
@@ -18,6 +19,7 @@ type ProfileFormInputs = z.infer<typeof profileSchema>;
 const ProfileSetting = () => {
     const [avatar, setAvatar] = useState('/resources/staticfiles/images/default-avatar.jpg');
     const [isLoading, setIsLoading] = useState(false);
+    const { confirm } = useConfirm();
 
     const { register, handleSubmit, reset, formState: { errors } } = useForm<ProfileFormInputs>({ resolver: zodResolver(profileSchema) });
 
@@ -74,6 +76,17 @@ const ProfileSetting = () => {
         const file = e.target.files?.[0];
         if (!file) return;
 
+        const confirmed = await confirm({
+            title: '프로필 이미지 변경',
+            message: '프로필 이미지를 변경하시겠습니까?',
+            confirmText: '변경'
+        });
+
+        if (!confirmed) {
+            e.target.value = '';
+            return;
+        }
+
         try {
             const { data } = await uploadAvatar(file);
 
@@ -86,6 +99,8 @@ const ProfileSetting = () => {
             }
         } catch {
             toast.error('프로필 이미지 업데이트에 실패했습니다.');
+        } finally {
+            e.target.value = '';
         }
     };
 
