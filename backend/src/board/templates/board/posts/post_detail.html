@@ -165,8 +165,8 @@
                             const decodedUrl = decodeURIComponent(window.location.href);
                             if (navigator.share) {
                                 navigator.share({
-                                    title: '{{ post.title }}',
-                                    text: '{{ post.meta_description }}',
+                                    title: '{{ post.title|escapejs }}',
+                                    text: '{{ post.meta_description|escapejs }}',
                                     url: decodedUrl
                                 }).catch(error => {
                                     if (error.name !== 'AbortError') {
@@ -302,8 +302,8 @@
     "@type": "WebPage",
     "@id": "{{ request.build_absolute_uri }}"
   },
-  "headline": "{{ post.title }}",
-  "description": "{{ post.meta_description }}",
+  "headline": "{{ post.title|escapejs }}",
+  "description": "{{ post.meta_description|escapejs }}",
   "image": {% if post.image %}"{{ request.scheme }}://{{ request.get_host }}{{ post.image.url }}"{% else %}null{% endif %},
   "author": {
     "@type": "Person",
