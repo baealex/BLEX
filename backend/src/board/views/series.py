@@ -69,16 +69,6 @@ def series_detail(request, username, series_url):
     for i, post in enumerate(paginated_posts):
         post.created_date = post.created_date.strftime('%Y-%m-%d')
 
-        try:
-            if hasattr(post, 'content') and isinstance(post.content, str):
-                word_count = len(post.content)
-            else:
-                word_count = 500
-        except:
-            word_count = 500
-
-        post.read_time = max(1, round(word_count / 200))
-
         if sort_order == 'desc':
             post_number = total_posts - start_idx - i
         else:

@@ -11,11 +11,9 @@ from django.utils import timezone
 from django.utils.dateparse import parse_datetime
 from django.utils.text import slugify
 
-from board.constants.config_meta import CONFIG_TYPE
 from board.models import (
-    Comment, Series,
-    TempPosts, Post, PostContent, PostConfig, PinnedPost,
-    PostLikes, calc_read_time)
+    Comment, Series, TempPosts, Post, PostContent,
+    PostConfig, PinnedPost, PostLikes)
 from board.modules.notify import create_notify
 from board.modules.paginator import Paginator
 from board.modules.post_description import create_post_description
@@ -29,7 +27,6 @@ from modules.discord import Discord
 
 
 def post_list(request):
-    """Create a new post using PostService"""
     if request.method == 'POST':
         if not request.user.is_authenticated:
             raise Http404
@@ -177,10 +174,7 @@ def user_posts(request, username, url=None):
             if not text_html:
                 return StatusError(ErrorCode.VALIDATE, '내용을 입력해주세요.')
 
-            read_time = calc_read_time(text_html)
-
             post.title = title
-            post.read_time = read_time
 
             description = request.POST.get('description', '')
             if description:
@@ -197,19 +191,14 @@ def user_posts(request, username, url=None):
                 if series.exists():
                     post.series = series.first()
 
-            # Handle image updates and deletions
             if 'image_delete' in request.POST and request.POST.get('image_delete') == 'true':
-                # User explicitly wants to delete the image
                 if post.image:
                     post.image.delete(save=False)
                     post.image = None
             elif 'image' in request.FILES:
-                # User uploaded a new image
                 if post.image:
-                    # Delete old image before assigning new one
                     post.image.delete(save=False)
                 post.image = request.FILES['image']
-            # If neither condition is met, keep the existing image unchanged
 
             post_content = post.content
             post_content.text_html = text_html
