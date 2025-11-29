@@ -134,7 +134,6 @@ class UserService:
         Returns:
             List of post dictionaries
         """
-        # Try to get pinned posts first
         pinned_posts = PinnedPost.objects.select_related(
             'post'
         ).filter(
@@ -155,7 +154,6 @@ class UserService:
                 'author': pinned_post.author_username,
             }, pinned_posts))
 
-        # If no pinned posts, get most liked posts
         posts = Post.objects.filter(
             author=user,
             config__hide=False,
@@ -211,7 +209,6 @@ class UserService:
             post__config__hide=False
         ).order_by('-created_date')
 
-        # Combine and sort all activities
         activity = sorted(
             chain(posts, series, comments),
             key=lambda instance: instance.created_date,
@@ -383,7 +380,6 @@ class UserService:
         """
         cutoff_date = timezone.now() - datetime.timedelta(days=days)
 
-        # Optimized queries with proper select_related and limited date range
         recent_posts = Post.objects.filter(
             author=user,
             created_date__gte=cutoff_date,
@@ -414,10 +410,8 @@ class UserService:
             'created_date', 'post__title', 'post__url', 'post__author__username'
         ).order_by('-created_date')[:5]
 
-        # Convert to activities list efficiently
         activities = []
 
-        # Add posts
         for post in recent_posts:
             activities.append({
                 'type': 'post',
@@ -427,7 +421,6 @@ class UserService:
                 'sort_date': post.created_date,
             })
 
-        # Add series
         for series_item in recent_series:
             activities.append({
                 'type': 'series',
@@ -437,7 +430,6 @@ class UserService:
                 'sort_date': series_item.created_date,
             })
 
-        # Add comments
         for comment in recent_comments:
             activities.append({
                 'type': 'comment',
@@ -447,7 +439,6 @@ class UserService:
                 'sort_date': comment.created_date,
             })
 
-        # Add likes
         for like in recent_likes:
             activities.append({
                 'type': 'like',
@@ -457,10 +448,8 @@ class UserService:
                 'sort_date': like.created_date,
             })
 
-        # Sort by actual datetime and limit to 5
         recent_activities = sorted(activities, key=lambda x: x['sort_date'], reverse=True)[:5]
 
-        # Remove sort_date from final output
         for activity in recent_activities:
             del activity['sort_date']
 

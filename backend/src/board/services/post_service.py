@@ -5,7 +5,7 @@ Business logic for post operations.
 Extracted from views to improve testability and reusability.
 """
 
-from typing import Optional, Dict, Any, Tuple
+from typing import Optional, Dict, Any, Tuple, List
 from datetime import datetime
 
 from django.conf import settings
@@ -223,22 +223,17 @@ class PostService:
         Raises:
             PostValidationError: If validation fails
         """
-        # Validate permissions
         PostService.validate_user_permissions(user)
 
-        # Validate data
         PostService.validate_post_data(title, text_html)
 
-        # Calculate read time
         read_time = calc_read_time(text_html)
 
-        # Create post instance
         post = Post()
         post.title = title
         post.author = user
         post.read_time = read_time
 
-        # Set description
         if description:
             post.meta_description = description
         else:
@@ -246,37 +241,30 @@ class PostService:
                 post_content_html=text_html
             )
 
-        # Set reserved date
         reserved_date = PostService.validate_reserved_date(reserved_date_str)
         if reserved_date:
             post.created_date = reserved_date
             post.updated_date = reserved_date
 
-        # Set series
         series = PostService.get_or_none_series(user, series_url)
         if series:
             post.series = series
 
-        # Set image if provided
         if image:
             post.image = image
 
-        # Create and set unique URL
         url = PostService.create_post_url(title, custom_url)
         post.create_unique_url(url)
         post.save()
 
-        # Set tags
         post.set_tags(tag)
 
-        # Create post content
         post_content = PostContent.objects.create(
             post=post,
             text_md=text_html,  # Store HTML in both fields for compatibility
             text_html=text_html
         )
 
-        # Create post config
         post_config = PostConfig.objects.create(
             post=post,
             hide=is_hide,
@@ -284,10 +272,8 @@ class PostService:
             advertise=is_advertise
         )
 
-        # Send Discord notification
         PostService.send_discord_notification(post, post_config)
 
-        # Delete temp post
         PostService.delete_temp_post(user, temp_post_token)
 
         return post, post_content, post_config
@@ -326,7 +312,6 @@ class PostService:
         Returns:
             Updated Post instance
         """
-        # Update basic fields
         if title is not None:
             post.title = title
 
@@ -334,14 +319,12 @@ class PostService:
             PostService.validate_post_data(title or post.title, text_html)
             post.read_time = calc_read_time(text_html)
 
-            # Update content
             try:
                 post_content = post.content
                 post_content.text_html = text_html
                 post_content.text_md = text_html
                 post_content.save()
             except PostContent.DoesNotExist:
-                # Create content if it doesn't exist
                 PostContent.objects.create(
                     post=post,
                     text_html=text_html,
@@ -355,28 +338,23 @@ class PostService:
                 post_content_html=text_html
             )
 
-        # Update series
         if series_url is not None:
             series = PostService.get_or_none_series(post.author, series_url)
             post.series = series
 
-        # Update URL
         if custom_url is not None:
             url = PostService.create_post_url(post.title, custom_url)
             post.create_unique_url(url)
 
-        # Update tags
         if tag is not None:
             post.set_tags(tag)
 
-        # Update image
         if image is not None:
             post.image = image
 
         post.updated_date = timezone.now()
         post.save()
 
-        # Update config
         if is_hide is not None or is_notice is not None or is_advertise is not None:
             post_config = post.config
             if is_hide is not None:
@@ -431,3 +409,45 @@ class PostService:
             post: Post instance to delete
         """
         post.delete()
+
+    @staticmethod
+    def get_visible_series_posts(post: Post) -> List[Post]:
+        """
+        Get visible series posts for pagination.
+        
+        Args:
+            post: Current post instance
+            
+        Returns:
+            List of visible posts
+        """
+        if not post.series:
+            return []
+
+        series_posts = list(Post.objects.filter(
+            series=post.series,
+            config__hide=False,
+        ).order_by('created_date'))
+        
+        post.series_total = len(series_posts)
+
+        for i, series_post in enumerate(series_posts):
+            series_post.series_index = i + 1
+            if series_post.id == post.id:
+                post.series_index = i + 1
+        
+        current_idx = post.series_index - 1
+        
+        post.prev_post = series_posts[current_idx - 1] if current_idx > 0 else None
+        post.next_post = series_posts[current_idx + 1] if current_idx < post.series_total - 1 else None
+
+        if post.series_total <= 5:
+            return series_posts
+        elif post.series_index <= 3:
+            return series_posts[:5]
+        elif post.series_index >= post.series_total - 2:
+            return series_posts[-5:]
+        else:
+            start = max(0, current_idx - 2)
+            end = min(post.series_total, current_idx + 3)
+            return series_posts[start:end]
