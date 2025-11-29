@@ -34,7 +34,7 @@ Parameters:
             </div>
         </div>
 
-        <p class="text-sm text-gray-600 leading-relaxed flex-grow mb-4 line-clamp-3">{{ post.meta_description }}</p>
+        <p class="text-sm text-gray-600 leading-relaxed mb-4 {% if post.image %}line-clamp-3{% else %}flex-grow{% endif %}">{{ post.meta_description }}</p>
 
         <footer class="flex justify-between items-center mt-auto pt-4 border-t border-gray-100">
             {% if show_author != 'false' and show_author != False %}
