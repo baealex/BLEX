@@ -47,13 +47,9 @@ def post_detail(request, username, post_url):
     # Check if the post is hidden and if the user has permission to view it
     if post.config.hide and (not request.user.is_authenticated or request.user != author):
         raise Http404("Post does not exist")
-    
-    # Calculate read time (approximately 200 words per minute)
-    word_count = len(post.content.text_html.strip().split())
-    post.read_time = max(1, round(word_count / 200))
-    
-    # Format date
-    post.created_date = post.created_date.strftime('%Y-%m-%d')
+
+    # Format date for display
+    post.created_date_display = post.created_date.strftime('%Y-%m-%d')
     
     # Initialize series attributes to avoid AttributeError
     post.series_total = 0
