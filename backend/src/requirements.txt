@@ -12,6 +12,7 @@ graphql-core==3.2.5
 graphql-relay==3.2.0
 gunicorn==23.0.0
 idna==3.10
+imageio-ffmpeg==0.5.1
 Markdown==3.8.2
 minify-html==0.15.0
 pillow==11.1.0

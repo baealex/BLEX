@@ -1,6 +1,8 @@
 import os
 import datetime
 import traceback
+import subprocess
+import imageio_ffmpeg
 
 from django.conf import settings
 from django.http import Http404
@@ -67,10 +69,17 @@ def image(request):
                 preview_image.save(
                     image_path + '.mp4.preview.jpg', quality=50)
 
-                os.system('ffmpeg -i ' + upload_path + '/' + file_name + '.gif' +
-                          ' -vf "scale=trunc(iw/2)*2:trunc(ih/2)*2" -c:v libx264 -pix_fmt yuv420p -movflags +faststart ' + upload_path + '/' + file_name + '.mp4')
-                os.system('rm ' + upload_path +
-                          '/' + file_name + '.gif')
+                ffmpeg_exe = imageio_ffmpeg.get_ffmpeg_exe()
+                subprocess.run([
+                    ffmpeg_exe,
+                    '-i', f'{upload_path}/{file_name}.gif',
+                    '-vf', 'scale=trunc(iw/2)*2:trunc(ih/2)*2',
+                    '-c:v', 'libx264',
+                    '-pix_fmt', 'yuv420p',
+                    '-movflags', '+faststart',
+                    f'{upload_path}/{file_name}.mp4'
+                ], check=True)
+                os.remove(f'{upload_path}/{file_name}.gif')
                 ext = 'mp4'
             except:
                 return StatusError(ErrorCode.REJECT, '이미지 업로드를 실패했습니다.')
