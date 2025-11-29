@@ -74,7 +74,7 @@ def series_detail(request, username, series_url):
 
     # Create list of (post_number, post) tuples
     posts_with_numbers = []
-    for i, post in enumerate(paginated_posts, start=start_idx + 1):
+    for i, post in enumerate(paginated_posts):
         # Format post date and calculate read time
         post.created_date = post.created_date.strftime('%Y-%m-%d')
 
@@ -91,7 +91,13 @@ def series_detail(request, username, series_url):
             word_count = 500
 
         post.read_time = max(1, round(word_count / 200))
-        posts_with_numbers.append((i, post))
+
+        if sort_order == 'desc':
+            post_number = total_posts - start_idx - i
+        else:
+            post_number = start_idx + i + 1
+
+        posts_with_numbers.append((post_number, post))
 
     # Determine if we need previous/next page buttons
     has_previous = page > 1

@@ -73,15 +73,12 @@
     <!-- 정렬 컨트롤 -->
     <div class="flex justify-end mb-4">
         <div class="inline-flex bg-gray-100 p-1 rounded-lg border border-gray-200">
-            {% if sort_order == 'desc' %}
-            <a href="?sort=asc" class="px-3 py-1.5 bg-white text-gray-900 rounded-md text-xs font-medium transition-all">
+            <a href="?sort=asc" class="px-3 py-1.5 {% if sort_order == 'asc' %}bg-white text-gray-900{% else %}text-gray-600 hover:text-gray-900{% endif %} rounded-md text-xs font-medium transition-all">
                 <i class="fas fa-sort-amount-up mr-1.5 text-xs"></i>오래된순
             </a>
-            {% else %}
-            <a href="?sort=desc" class="px-3 py-1.5 bg-white text-gray-900 rounded-md text-xs font-medium transition-all">
+            <a href="?sort=desc" class="px-3 py-1.5 {% if sort_order == 'desc' %}bg-white text-gray-900{% else %}text-gray-600 hover:text-gray-900{% endif %} rounded-md text-xs font-medium transition-all">
                 <i class="fas fa-sort-amount-down mr-1.5 text-xs"></i>최신순
             </a>
-            {% endif %}
         </div>
     </div>
 
