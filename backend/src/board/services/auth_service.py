@@ -95,8 +95,6 @@ class OAuthService:
 
 class AuthService:
     """Service class for handling authentication-related business logic"""
-
-    # Regex patterns
     USERNAME_PATTERN = re.compile(r'[a-z0-9]{4,15}')
     EMAIL_PATTERN = re.compile(r'[A-Z0-9a-z._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,64}')
 
@@ -400,17 +398,14 @@ class AuthService:
         Raises:
             AuthValidationError: If validation fails
         """
-        # Validate new username
         AuthService.validate_username(new_username)
 
-        # Store old username in log if requested
         if create_log:
             UsernameChangeLog.objects.create(
                 user=user,
                 username=user.username
             )
 
-        # Update username
         user.username = new_username
         user.save()
 
@@ -494,6 +489,5 @@ class AuthService:
         Args:
             user: User instance to delete
         """
-        # Delete related data through CASCADE
-        # Profile, Config, Posts, Comments, etc. will be deleted automatically
+
         user.delete()

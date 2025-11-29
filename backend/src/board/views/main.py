@@ -7,11 +7,6 @@ from board.modules.paginator import Paginator
 
 
 def index(request):
-    """
-    Main page view that renders the homepage with newest posts and handles search functionality.
-    This replaces the frontend React component with a Django template.
-    """
-    # Regular index page (no search)
     posts = Post.objects.select_related(
         'config', 'series', 'author', 'author__profile'
     ).filter(
@@ -40,7 +35,6 @@ def index(request):
     else:
         posts = posts.order_by('-created_date')
 
-    # Paginate the results
     page = int(request.GET.get('page', 1))
     paginated_posts = Paginator(
         objects=posts,
@@ -48,7 +42,6 @@ def index(request):
         page=page
     )
 
-    # Format dates and prepare context
     for post in paginated_posts:
         post.created_date = post.time_since()
 

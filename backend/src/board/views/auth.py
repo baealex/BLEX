@@ -14,21 +14,16 @@ def get_safe_redirect_url(request):
     if not next_url:
         return None
 
-    # Parse the URL
     parsed = urlparse(next_url)
 
-    # Allow only relative URLs or same-domain absolute URLs
     if parsed.netloc:
-        # If there's a network location (domain), it must match the request host
         request_host = request.get_host()
         if parsed.netloc != request_host:
             return None
 
-    # Don't allow javascript: or data: URLs
     if parsed.scheme and parsed.scheme not in ['http', 'https', '']:
         return None
 
-    # Return the path only (removes any domain if present)
     return parsed.path or '/'
 
 
@@ -39,11 +34,9 @@ def login_view(request):
     """
     next_url = get_safe_redirect_url(request)
 
-    # If user is already authenticated, redirect to next URL or home page
     if request.user.is_authenticated:
         return redirect(next_url or '/')
 
-    # Use next_url from query param, or fall back to session (for OAuth → 2FA flow)
     display_next_url = next_url or request.session.get('auth_next_url', '')
 
     context = {
@@ -63,7 +56,6 @@ def signup_view(request):
     """
     next_url = get_safe_redirect_url(request)
 
-    # If user is already authenticated, redirect to next URL or home page
     if request.user.is_authenticated:
         return redirect(next_url or '/')
 

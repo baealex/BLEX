@@ -131,20 +131,15 @@ class SeriesService:
         Raises:
             SeriesValidationError: If validation fails
         """
-        # Validate permissions
         SeriesService.validate_user_permissions(user)
 
-        # Auto-generate URL if not provided
         auto_generate_url = not url or not url.strip()
 
-        # Validate data
         SeriesService.validate_series_data(name, url, require_url=not auto_generate_url)
 
-        # Check URL duplicate only if URL is provided
         if not auto_generate_url:
             SeriesService.check_url_duplicate(user, url)
 
-        # Create series
         series = Series(
             owner=user,
             name=name.strip(),
@@ -152,7 +147,6 @@ class SeriesService:
             text_html=description.strip()
         )
 
-        # Set URL (auto-generate if needed)
         if auto_generate_url:
             series.create_unique_url()
         else:
@@ -160,7 +154,6 @@ class SeriesService:
 
         series.save()
 
-        # Add posts to series if provided
         if post_ids:
             SeriesService.add_posts_to_series(series, post_ids)
 
@@ -191,7 +184,7 @@ class SeriesService:
         Raises:
             SeriesValidationError: If validation fails
         """
-        # Update fields
+
         if name is not None:
             name = name.strip()
             if not name:
@@ -208,7 +201,7 @@ class SeriesService:
                     ErrorCode.REQUIRE,
                     'URL을 입력해주세요.'
                 )
-            # Check URL duplicate (excluding current series)
+
             SeriesService.check_url_duplicate(series.owner, url, exclude_series_id=series.id)
             series.url = url
 
@@ -218,11 +211,8 @@ class SeriesService:
 
         series.save()
 
-        # Update posts if provided
         if post_ids is not None:
-            # Remove all current posts from series
             Post.objects.filter(series=series).update(series=None)
-            # Add new posts
             SeriesService.add_posts_to_series(series, post_ids)
 
         return series
