@@ -1,6 +1,7 @@
 import datetime
 import os
 import pyotp
+import readtime
 
 from django.conf import settings
 from django.contrib.auth.models import User
@@ -25,7 +26,13 @@ from board.modules.time import time_since, time_stamp
 
 
 def calc_read_time(html):
-    return int(len(strip_tags(html)) / 500)
+    """
+    Calculate reading time for HTML content using readtime library.
+    Returns reading time in minutes (rounded to nearest integer, minimum 1 minute).
+    """
+    result = readtime.of_html(html)
+    # Return minutes, with minimum of 1 minute
+    return max(1, round(result.minutes))
 
 
 def cover_path(instance, filename):
