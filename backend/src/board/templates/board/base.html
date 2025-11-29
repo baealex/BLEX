@@ -60,11 +60,13 @@
     </main>
     {% include 'components/footer.html' %}
 
-    <!-- 검색 모달 -->
+    {% if debug %}
+        <div class="fixed bottom-3 right-3 z-50 border border-solid border-black backdrop-blur-sm text-sm rounded-2xl px-4 py-2">
+            DEV
+        </div>
+    {% endif %}
     <island-component name="SearchModal"></island-component>
-    <!-- 로그인 프롬프트 모달 -->
     <island-component name="LoginPrompt"></island-component>
-    <!-- 토스트 알림 -->
     <island-component name="Toaster"></island-component>
     <script>
         window.configuration = {

@@ -28,3 +28,12 @@ def global_notices(request):
     return {
         'global_notices': GlobalNotice.objects.filter(is_active=True).order_by('-created_date'),
     }
+
+
+def debug_mode(request):
+    """
+    Add debug mode to template context
+    """
+    return {
+        'debug': settings.DEBUG,
+    }
