@@ -66,22 +66,15 @@ def series_detail(request, username, series_url):
     paginated_posts = all_posts[start_idx:end_idx]
 
     posts_with_numbers = []
-    for i, post in enumerate(paginated_posts, start=start_idx + 1):
+    for i, post in enumerate(paginated_posts):
         post.created_date = post.created_date.strftime('%Y-%m-%d')
 
-        try:
-            # Try to get content length if it's a string
-            if hasattr(post, 'content') and isinstance(post.content, str):
-                word_count = len(post.content)
-            else:
-                # Default word count if content is not a string or doesn't exist
-                word_count = 500
-        except:
-            # Fallback if any error occurs
-            word_count = 500
+        if sort_order == 'desc':
+            post_number = total_posts - start_idx - i
+        else:
+            post_number = start_idx + i + 1
 
-        post.read_time = max(1, round(word_count / 200))
-        posts_with_numbers.append((i, post))
+        posts_with_numbers.append((post_number, post))
 
     has_previous = page > 1
     has_next = page < total_pages

@@ -15,10 +15,7 @@ from django.utils import timezone
 from django.utils.dateparse import parse_datetime
 from django.utils.text import slugify
 
-from board.models import (
-    Post, PostContent, PostConfig, Series,
-    TempPosts, calc_read_time
-)
+from board.models import Post, PostContent, PostConfig, Series, TempPosts
 from board.modules.post_description import create_post_description
 from board.modules.response import ErrorCode
 from modules.discord import Discord
@@ -227,12 +224,9 @@ class PostService:
 
         PostService.validate_post_data(title, text_html)
 
-        read_time = calc_read_time(text_html)
-
         post = Post()
         post.title = title
         post.author = user
-        post.read_time = read_time
 
         if description:
             post.meta_description = description
@@ -317,7 +311,6 @@ class PostService:
 
         if text_html is not None:
             PostService.validate_post_data(title or post.title, text_html)
-            post.read_time = calc_read_time(text_html)
 
             try:
                 post_content = post.content

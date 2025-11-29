@@ -23,16 +23,7 @@ from modules.sub_task import SubTaskProcessor
 from modules.telegram import TelegramBot
 from board.constants.config_meta import CONFIG_TYPE, CONFIG_TYPES, CONFIG_MAP
 from board.modules.time import time_since, time_stamp
-
-
-def calc_read_time(html):
-    """
-    Calculate reading time for HTML content using readtime library.
-    Returns reading time in minutes (rounded to nearest integer, minimum 1 minute).
-    """
-    result = readtime.of_html(html)
-    # Return minutes, with minimum of 1 minute
-    return max(1, round(result.minutes))
+from board.modules.read_time import calc_read_time
 
 
 def cover_path(instance, filename):
@@ -403,6 +394,12 @@ class PostContent(models.Model):
     post = models.OneToOneField('board.Post', related_name='content', on_delete=models.CASCADE)
     text_md = models.TextField(blank=True)
     text_html = models.TextField(blank=True)
+
+    def save(self, *args, **kwargs):
+        if self.post:
+            self.post.read_time = calc_read_time(self.text_html)
+            self.post.save()
+        super().save(*args, **kwargs)
 
     def __str__(self):
         return self.post.title
