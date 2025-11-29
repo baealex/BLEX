@@ -1,0 +1,8 @@
+src/mvenv
+src/db.sqlite3
+src/resources/media
+**/__pycache__
+**/*.pyc
+.git
+.env
+.DS_Store
