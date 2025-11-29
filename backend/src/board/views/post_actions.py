@@ -21,25 +21,21 @@ def like_post(request, url):
     
     post = get_object_or_404(Post, url=url)
     
-    # Check if the user has already liked this post
     like_exists = PostLikes.objects.filter(
         post=post,
         user=request.user
     ).exists()
     
     if like_exists:
-        # Unlike the post
         PostLikes.objects.filter(
             post=post,
             user=request.user
         ).delete()
     else:
-        # Like the post
         PostLikes.objects.create(
             post=post,
             user=request.user
         )
-        # Send notification to post author
         if request.user != post.author and post.author.config.get_meta(CONFIG_TYPE.NOTIFY_POSTS_LIKE):
             send_notify_content = (
                 f"'{post.title}' 글을 "
@@ -49,7 +45,6 @@ def like_post(request, url):
                 url=post.get_absolute_url(),
                 content=send_notify_content)
     
-    # Get updated like count
     count_likes = PostLikes.objects.filter(post=post).count()
     
     return JsonResponse({

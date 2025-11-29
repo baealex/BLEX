@@ -9,20 +9,15 @@ def tag_list_view(request):
     """
     View function for displaying a list of all tags.
     """
-    # Get search query
     search_query = request.GET.get('q', '').strip()
 
-    # Get sort parameter
     sort = request.GET.get('sort', 'popular')
 
-    # Get base queryset from TagService
     tags = TagService.get_tag_list_with_count()
 
-    # Apply search filter
     if search_query:
         tags = tags.filter(value__icontains=search_query)
 
-    # Apply sorting
     if sort == 'popular':
         tags = tags.order_by('-count', 'value')
     elif sort == 'name':
@@ -32,7 +27,6 @@ def tag_list_view(request):
     else:
         tags = tags.order_by('-count', 'value')
 
-    # Pagination
     page = int(request.GET.get('page', 1))
     paginated_tags = Paginator(
         objects=tags,
@@ -50,7 +44,6 @@ def tag_list_view(request):
             'image': tag.get_image(),
         })
 
-    # Sort options for dropdown
     sort_options = [
         {'value': 'popular', 'label': '인기순'},
         {'value': 'name', 'label': '이름순'},
@@ -87,7 +80,6 @@ def tag_detail_view(request, name):
 
     posts_page = paginated_posts
 
-    # Get head post if exists
     head_post = TagService.get_head_post_by_tag(name)
 
     head_post_data = None

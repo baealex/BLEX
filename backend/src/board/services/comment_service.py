@@ -28,8 +28,6 @@ class CommentValidationError(Exception):
 
 class CommentService:
     """Service class for handling comment-related business logic"""
-
-    # Regex pattern for user mentions
     MENTION_PATTERN = re.compile(r'`@([a-zA-Z0-9\.]*)`\s?')
 
     @staticmethod
@@ -156,11 +154,9 @@ class CommentService:
         post = comment.post
         post_author = post.author
 
-        # Don't notify if commenter is the post author
         if comment.author == post_author:
             return
 
-        # Check if post author wants notifications
         if not post_author.config.get_meta(CONFIG_TYPE.NOTIFY_POSTS_COMMENT):
             return
 
@@ -189,7 +185,6 @@ class CommentService:
         if not mentioned_users:
             return
 
-        # Only notify users who have commented on this post
         commenters = CommentService.get_post_commenters(post)
 
         for username in mentioned_users:
@@ -199,11 +194,9 @@ class CommentService:
             try:
                 user = User.objects.get(username=username)
 
-                # Don't notify self
                 if user == comment.author:
                     continue
 
-                # Check if user wants mention notifications
                 if not user.config.get_meta(CONFIG_TYPE.NOTIFY_MENTION):
                     continue
 
@@ -229,7 +222,6 @@ class CommentService:
             comment: Comment instance
             liker: User who liked the comment
         """
-        # Check if author wants like notifications
         if not comment.author.config.get_meta(CONFIG_TYPE.NOTIFY_COMMENT_LIKE):
             return
 
@@ -265,13 +257,10 @@ class CommentService:
         Raises:
             CommentValidationError: If validation fails
         """
-        # Validate permissions
         CommentService.validate_user_can_comment(user)
 
-        # Convert markdown to HTML
         text_html = markdown.parse_to_html(text_md)
 
-        # Create comment
         comment = Comment(
             post=post,
             author=user,
@@ -281,7 +270,6 @@ class CommentService:
         comment.save()
         comment.refresh_from_db()
 
-        # Send notifications
         CommentService.notify_post_author(comment)
         CommentService.notify_mentioned_users(comment)
 
@@ -341,21 +329,16 @@ class CommentService:
         Raises:
             CommentValidationError: If validation fails
         """
-        # Validate permissions
         CommentService.validate_user_can_like(user, comment)
 
-        # Check if already liked
         if comment.likes.filter(id=user.id).exists():
-            # Unlike
             comment.likes.remove(user)
             comment.refresh_from_db()
             return False, comment.likes.count()
         else:
-            # Like
             comment.likes.add(user)
             comment.refresh_from_db()
 
-            # Send notification
             CommentService.notify_comment_like(comment, user)
 
             return True, comment.likes.count()

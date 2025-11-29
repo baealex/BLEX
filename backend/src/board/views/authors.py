@@ -12,18 +12,15 @@ def authors_view(request):
     """
     Authors page view - Lists all authors and provides search functionality for authors
     """
-    # Get query parameter for search
     query = request.GET.get('q', '')
     page = int(request.GET.get('page', 1))
     results = []
     total_size = 0
     elapsed_time = 0
     
-    # If search query is provided, search for authors
     if query:
         start_time = time.time()
 
-        # Search for users
         users = User.objects.filter(
             Q(username__icontains=query) |
             Q(first_name__icontains=query) |
@@ -33,7 +30,6 @@ def authors_view(request):
             avatar=F('profile__avatar')
         ).order_by('-post_count')
         
-        # Paginate results
         paginator = DjangoPaginator(users, 10)
         try:
             paginated_users = paginator.page(page)
@@ -42,7 +38,6 @@ def authors_view(request):
         except EmptyPage:
             paginated_users = paginator.page(paginator.num_pages)
         
-        # Format results
         for user in paginated_users:
             results.append({
                 'username': user.username,
@@ -65,8 +60,6 @@ def authors_view(request):
             'page_count': paginator.num_pages,
         }
     else:
-        # If no search query, list all authors
-        # Get all authors with post count
         authors = User.objects.annotate(
             post_count=Count('post', filter=Q(post__config__hide=False)),
             avatar=F('profile__avatar')
@@ -74,7 +67,6 @@ def authors_view(request):
             post_count__gt=0
         ).order_by('-post_count')
         
-        # Paginate results
         paginator = DjangoPaginator(authors, 24)
         try:
             paginated_authors = paginator.page(page)
@@ -83,7 +75,6 @@ def authors_view(request):
         except EmptyPage:
             paginated_authors = paginator.page(paginator.num_pages)
         
-        # Format results
         authors_list = []
         for author in paginated_authors:
             authors_list.append({

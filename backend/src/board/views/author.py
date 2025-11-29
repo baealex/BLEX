@@ -17,8 +17,6 @@ def author_posts(request, username):
     """
     author = get_object_or_404(User, username=username)
 
-    # If author is a reader (not an editor), redirect to about page
-    # If profile doesn't exist, treat as reader
     if not hasattr(author, 'profile') or not author.profile.is_editor():
         return redirect('user_about', username=username)
     
@@ -27,7 +25,6 @@ def author_posts(request, username):
     sort_option = request.GET.get('sort', 'recent')
     tag_filter = request.GET.get('tag', '')
     
-    # Get blog notices for EDITOR role authors only
     blog_notices = None
     if author.profile.role == Profile.Role.EDITOR:
         blog_notices = Post.objects.select_related(
@@ -39,7 +36,6 @@ def author_posts(request, username):
             config__hide=False,
         ).order_by('-created_date')
 
-    # Base query for author's posts (exclude notices)
     posts = Post.objects.select_related(
         'config', 'series', 'author', 'author__profile', 'content'
     ).filter(
@@ -49,7 +45,6 @@ def author_posts(request, username):
         config__notice=False,
     )
     
-    # Apply search query if provided
     if search_query:
         posts = posts.filter(
             Q(title__icontains=search_query) | 
@@ -57,11 +52,9 @@ def author_posts(request, username):
             Q(content__text_html__icontains=search_query)
         )
     
-    # Apply tag filter if provided
     if tag_filter:
         posts = posts.filter(tags__value=tag_filter)
     
-    # Annotate with additional fields
     posts = posts.annotate(
         author_username=F('author__username'),
         author_image=F('author__profile__avatar'),
@@ -75,7 +68,6 @@ def author_posts(request, username):
         ),
     )
     
-    # Apply sorting
     if sort_option == 'popular':
         posts = posts.order_by('-count_likes', '-created_date')
     elif sort_option == 'comments':
@@ -83,7 +75,6 @@ def author_posts(request, username):
     else:  # default to 'recent'
         posts = posts.order_by('-created_date')
     
-    # Get author's series
     series = Series.objects.filter(
         owner__username=username,
         hide=False,
@@ -91,7 +82,6 @@ def author_posts(request, username):
         count_posts=Count('posts', filter=Q(posts__config__hide=False)),
     ).order_by('-updated_date')
     
-    # Get author's tags with post counts
     author_tags = Tag.objects.filter(
         posts__author=author,
         posts__config__hide=False
@@ -99,12 +89,10 @@ def author_posts(request, username):
         count=Count('posts', distinct=True)
     ).order_by('-count', 'value')
 
-    # Transform author_tags for dropdown_filter
     tag_options = [{'value': '', 'label': '전체 태그'}] # Default option
     for tag in author_tags:
         tag_options.append({'value': tag.value, 'label': f'{tag.value} ({tag.count})'})
     
-    # Count posts and series
     post_count = Post.objects.filter(
         author=author,
         created_date__lte=timezone.now(),
@@ -163,17 +151,14 @@ def author_series(request, username):
     search_query = request.GET.get('q', '')
     sort_option = request.GET.get('sort', 'custom')
     
-    # Base query for author's series
     series_list = Series.objects.filter(owner=author)
     
-    # Apply search query if provided
     if search_query:
         series_list = series_list.filter(
             Q(name__icontains=search_query) | 
             Q(text_md__icontains=search_query)
         )
     
-    # Annotate with post count
     series_list = series_list.annotate(post_count=Count('posts'))
     
     if sort_option == 'newest':
@@ -185,7 +170,6 @@ def author_series(request, username):
     elif sort_option == 'custom':
         series_list = series_list.order_by('order')
     
-    # Apply pagination
     page = int(request.GET.get('page', 1))
     paginated_series = Paginator(
         objects=series_list,
@@ -200,11 +184,9 @@ def author_series(request, username):
         {'value': 'posts', 'label': '포스트 많은 순'},
     ]
     
-    # Process series data
     for series in paginated_series:
         series.updated_date = series.updated_date.strftime('%Y-%m-%d')
     
-    # Get author's tags with post counts
     author_tags = Tag.objects.filter(
         posts__author=author,
         posts__config__hide=False
@@ -212,7 +194,6 @@ def author_series(request, username):
         count=Count('posts', distinct=True)
     ).order_by('-count', 'value')
 
-    # Count posts and series
     post_count = Post.objects.filter(
         author=author,
         created_date__lte=timezone.now(),
@@ -243,11 +224,9 @@ def author_about(request, username):
     """
     author = get_object_or_404(User, username=username)
     
-    # Get author's profile
     profile = getattr(author, 'profile', None)
     about_content = getattr(profile, 'about_html', None)
 
-    # Count posts and series
     post_count = Post.objects.filter(
         author=author,
         created_date__lte=timezone.now(),
@@ -273,7 +252,6 @@ def author_about_edit(request, username):
     """
     author = get_object_or_404(User, username=username)
     
-    # Check if the current user is the author
     if request.user != author:
         return render(request, 'board/error/403.html', status=403)
     
@@ -292,7 +270,6 @@ def author_about_edit(request, username):
     # GET request handling
     about_md = getattr(profile, 'about_md', '') if profile else ''
 
-    # Count posts and series
     post_count = Post.objects.filter(
         author=author,
         created_date__lte=timezone.now(),

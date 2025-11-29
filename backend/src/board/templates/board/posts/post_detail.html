@@ -50,9 +50,7 @@
         <meta itemprop="image" content="{{ request.scheme }}://{{ request.get_host }}{{ post.image.url }}">
         {% endif %}
         
-        <!-- 포스트 헤더 -->
         <div class="bg-white border border-gray-200 rounded-2xl p-4 sm:p-6 lg:p-8 mb-6 sm:mb-8 shadow-sm">
-            <!-- 포스트 제목과 메타 정보 -->
             <div class="flex items-center gap-2 mb-4">
                 <div class="w-3 h-3 bg-black rounded-full"></div>
                 <span class="text-sm font-medium text-gray-500 uppercase tracking-wide">Article</span>
@@ -62,7 +60,6 @@
                 {{ post.title }}
             </h1>
             
-            <!-- 포스트 메타 정보 -->
             <div class="flex flex-wrap items-center gap-4 sm:gap-6 text-sm text-gray-600 mb-6 sm:mb-8">
                 <div class="flex items-center gap-2" itemprop="author" itemscope itemtype="https://schema.org/Person">
                     <a href="/@{{ post.author_username }}">
@@ -87,7 +84,6 @@
             </div>
             
             
-            <!-- 커버 이미지 -->
             {% if post.image %}
             <div class="mt-0">
                 <img class="w-full rounded-2xl shadow-sm" src="{{ post.image.url }}" alt="{{ post.title }}" itemprop="image">
@@ -95,13 +91,11 @@
             {% endif %}
         </div>
         
-        <!-- 본문 콘텐츠 -->
         <div class="bg-white border border-gray-200 rounded-2xl p-4 sm:p-6 lg:p-8 mb-6 sm:mb-8 shadow-sm">
             <div class="prose prose-sm sm:prose-lg max-w-none blog-post-content break-words" itemprop="articleBody" lang="{{ LANGUAGE_CODE|default:'ko' }}">
                 {{ post.content.text_html|safe }}
             </div>
 
-            <!-- 태그 -->
             {% if post.tags %}
             <div class="mt-6 sm:mt-8 pt-6 sm:pt-8 border-t border-gray-200" itemprop="keywords">
                 <div class="flex items-center gap-2 mb-3">
@@ -122,7 +116,6 @@
         </div>
     </article>
 
-    <!-- 스티키 액션 바 (Alpine.js 사용) -->
     <div x-data="{
         async copyToClipboard() {
             try {
@@ -139,10 +132,8 @@
         }
     }" class="fixed sm:sticky bottom-0 left-0 right-0 z-40 sm:mb-6 md:mb-8">
         <div class="max-w-4xl w-full mx-auto sm:px-4">
-            <!-- 모바일: 하단 네비게이션 바 스타일 -->
             <div class="bg-white sm:bg-white/10 sm:backdrop-blur-lg border-t sm:border sm:border-gray-200/80 border-gray-200 shadow-sm sm:shadow-[0_-4px_16px_rgba(0,0,0,0.08)] sm:rounded-2xl px-4 sm:px-5 py-2 sm:py-3">
                 <div class="flex items-center justify-around sm:justify-between gap-2 sm:gap-4">
-                    <!-- 왼쪽: 포스트 정보 (데스크톱만) -->
                     <div class="hidden sm:flex items-center gap-3 min-w-0 flex-1">
                         <a href="/@{{ post.author_username }}" class="flex-shrink-0 group">
                             <img class="w-10 h-10 rounded-full object-cover ring-2 ring-transparent group-hover:ring-gray-200 transition-all"
@@ -155,12 +146,9 @@
                         </div>
                     </div>
 
-                    <!-- 액션 버튼들 -->
                     <div class="flex items-center gap-3 sm:gap-2 sm:flex-shrink-0">
-                        <!-- 좋아요 버튼 -->
                         {% include 'components/like_button.html' with post_url=post.url likes_count=post.count_likes has_liked=post.has_liked size='small' %}
 
-                        <!-- 공유 버튼 -->
                         <button @click="
                             const decodedUrl = decodeURIComponent(window.location.href);
                             if (navigator.share) {
@@ -184,7 +172,6 @@
                             <span class="hidden sm:inline text-sm">공유</span>
                         </button>
 
-                        <!-- 편집 버튼 (작성자만) -->
                         {% if user.is_authenticated and user.username == post.author_username %}
                         <a href="{% url 'post_edit' post.author_username post.url %}"
                            class="group flex items-center justify-center gap-1.5 px-4 py-2.5 sm:px-4 sm:py-2.5 bg-gray-900 hover:bg-black border border-gray-900 text-white rounded-xl font-medium transition-all duration-200 min-h-[44px] min-w-[44px] sm:min-w-auto shadow-sm hover:shadow-md active:scale-95">
@@ -198,11 +185,9 @@
         </div>
     </div>
 
-    <!-- 시리즈 정보 -->
     {% if post.series %}
     <div class="bg-white border border-gray-200 rounded-2xl p-4 sm:p-6 lg:p-8 mb-8 shadow-sm">
         <div class="flex flex-col lg:flex-row lg:items-start gap-6">
-            <!-- 시리즈 제목과 진행률 -->
             <div class="flex-1">
                 <div class="flex items-center gap-2 mb-4">
                     <div class="w-3 h-3 bg-black rounded-full"></div>
@@ -221,7 +206,6 @@
             </div>
         </div>
         
-        <!-- 시리즈 포스트 목록 -->
         <div class="mt-8 border-t border-gray-200 pt-6">
             <h4 class="font-semibold text-gray-900 mb-4">시리즈 목록</h4>
             <div class="space-y-3">
@@ -242,7 +226,6 @@
                 {% endfor %}
             </div>
         </div>
-        <!-- 네비게이션 버튼들 -->
         {% if post.series_total > 1 %}
         <div class="mt-6 sm:mt-8 flex-shrink-0">
             <div class="flex flex-col sm:flex-row sm:justify-center gap-3">
@@ -280,14 +263,12 @@
     </div>
     {% endif %}
 
-    <!-- 댓글 섹션 -->
     <div class="bg-white border border-gray-200 rounded-2xl shadow-sm mb-8">
         <div class="p-4 sm:p-6 lg:p-8">
             {% island_component 'Comments' lazy=True postUrl=post.url %}
         </div>
     </div>
 
-    <!-- 관련 포스트 -->
     {% island_component 'RelatedPosts' lazy=True postUrl=post.url username=post.author_username %}
 </div>
 {% endblock %}
