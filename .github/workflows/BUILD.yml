@@ -1,8 +1,8 @@
-name: BUILD BE IMAGE
+name: BUILD
 
 on:
   workflow_run:
-    workflows: ["BUILD BE BASE IMAGE", "CI BE"]
+    workflows: ["CI"]
     types:
       - completed
     branches:
