@@ -241,6 +241,7 @@ class Notify(models.Model):
         return get_sha256(user.username + url + content + (hidden_key if hidden_key else ''))
 
     def send_notify(self):
+        # Telegram 알림
         if hasattr(self.user, 'telegramsync'):
             tid = self.user.telegramsync.get_decrypted_tid()
             if not tid == '':
@@ -249,6 +250,21 @@ class Notify(models.Model):
                     settings.SITE_URL + str(self.url),
                     self.content
                 ]))
+
+        # Developer 웹훅 알림
+        from modules.webhook import WebhookService
+        from board.constants.webhook_events import WEBHOOK_EVENT
+
+        webhook_data = {
+            'content': self.content,
+            'url': settings.SITE_URL + str(self.url),
+        }
+
+        WebhookService.trigger_event(
+            WEBHOOK_EVENT.NOTIFY_CREATED.value,
+            webhook_data,
+            user=self.user
+        )
 
     def to_dict(self):
         return {
@@ -716,6 +732,47 @@ class DeveloperRequestLog(models.Model):
     headers = models.TextField(blank=True)
     payload = models.TextField(blank=True)
     created_date = models.DateTimeField(default=timezone.now)
+
+
+class DeveloperWebhook(models.Model):
+    """개발자가 등록한 웹훅"""
+    user = models.ForeignKey('auth.User', on_delete=models.CASCADE)
+    name = models.CharField(max_length=100, help_text='웹훅 이름')
+    url = models.URLField(max_length=500, help_text='웹훅 URL')
+    provider = models.CharField(
+        max_length=20,
+        default='generic',
+        help_text='웹훅 제공자 (generic, discord, slack)'
+    )
+    events = models.JSONField(default=list, help_text='구독할 이벤트 목록')
+    is_active = models.BooleanField(default=True, help_text='활성화 여부')
+    secret = models.CharField(max_length=100, blank=True, help_text='웹훅 서명용 시크릿')
+    created_date = models.DateTimeField(default=timezone.now)
+    updated_date = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['-created_date']
+
+    def __str__(self):
+        return f'{self.user.username} - {self.name}'
+
+
+class DeveloperWebhookLog(models.Model):
+    """웹훅 전송 로그"""
+    webhook = models.ForeignKey('board.DeveloperWebhook', on_delete=models.CASCADE)
+    event = models.CharField(max_length=50, help_text='이벤트 타입')
+    payload = models.TextField(help_text='전송한 페이로드')
+    status_code = models.IntegerField(null=True, blank=True, help_text='HTTP 응답 코드')
+    response = models.TextField(blank=True, help_text='응답 내용')
+    error = models.TextField(blank=True, help_text='에러 메시지')
+    retry_count = models.IntegerField(default=0, help_text='재시도 횟수')
+    created_date = models.DateTimeField(default=timezone.now)
+
+    class Meta:
+        ordering = ['-created_date']
+
+    def __str__(self):
+        return f'{self.webhook.name} - {self.event} - {self.status_code}'
 
 
 class UsernameChangeLog(models.Model):

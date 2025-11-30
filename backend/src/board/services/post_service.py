@@ -163,6 +163,34 @@ class PostService:
             SubTaskProcessor.process(send_webhook)
 
     @staticmethod
+    def send_developer_webhooks(post: Post, post_config: PostConfig) -> None:
+        """
+        Send developer webhooks for new post.
+
+        Args:
+            post: Post instance
+            post_config: PostConfig instance
+        """
+        if not post_config.hide and post.is_published():
+            from modules.webhook import WebhookService
+            from board.constants.webhook_events import WEBHOOK_EVENT
+
+            post_url = settings.SITE_URL + post.get_absolute_url()
+            webhook_data = {
+                'title': post.title,
+                'url': post_url,
+                'author': post.author.username,
+                'description': post.meta_description or '',
+            }
+
+            # 전체 공개 글 - 모든 사용자의 웹훅 트리거
+            WebhookService.trigger_event(
+                WEBHOOK_EVENT.POST_PUBLISHED.value,
+                webhook_data,
+                user=None  # 모든 사용자
+            )
+
+    @staticmethod
     def delete_temp_post(user: User, token: str) -> None:
         """
         Delete temporary post if exists.
@@ -267,6 +295,7 @@ class PostService:
         )
 
         PostService.send_discord_notification(post, post_config)
+        PostService.send_developer_webhooks(post, post_config)
 
         PostService.delete_temp_post(user, temp_post_token)
 

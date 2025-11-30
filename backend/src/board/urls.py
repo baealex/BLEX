@@ -114,4 +114,11 @@ urlpatterns = [
     path('v1/forms', api_v1.forms_list),
     path('v1/forms/<int:id>', api_v1.forms_detail),
     path('v1/telegram/<parameter>', api_v1.telegram),
+
+    # Developer Webhooks
+    path('v1/developer/webhooks', api_v1.webhooks),
+    path('v1/developer/webhooks/<int:webhook_id>', api_v1.webhooks),
+    path('v1/developer/webhooks/<int:webhook_id>/logs', api_v1.webhook_logs),
+    path('v1/developer/webhooks/<int:webhook_id>/test', api_v1.webhook_test),
+    path('v1/developer/webhook-events', api_v1.webhook_events_info),
 ]
