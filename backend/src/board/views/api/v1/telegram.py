@@ -16,6 +16,7 @@ def telegram(request, parameter):
         if request.method == 'POST':
             print(request.body.decode("utf-8"))
             bot = TelegramBot(settings.TELEGRAM_BOT_TOKEN)
+            req_userid = None
             try:
                 req = json.loads(request.body.decode("utf-8"))
                 req_userid = req['message']['from']['id']
@@ -24,7 +25,7 @@ def telegram(request, parameter):
                 telegram_sync = TelegramSync.objects.get(auth_token=req_token)
                 if telegram_sync:
                     if not telegram_sync.is_token_expire():
-                        telegram_sync.tid = req_userid
+                        telegram_sync.tid = str(req_userid)
                         telegram_sync.auth_token = ''
                         telegram_sync.save()
                         SubTaskProcessor.process(
@@ -36,18 +37,23 @@ def telegram(request, parameter):
                             req_userid, '기간이 만료된 토큰입니다. 홈페이지에서 연동을 다시 시도하십시오.'))
 
             except:
-                message = '블렉스 다양한 정보를 살펴보세요!\n\n' + settings.SITE_URL + '/notion'
-                SubTaskProcessor.process(
-                    lambda: bot.send_message(req_userid, message))
+                if req_userid:
+                    message = '블렉스 다양한 정보를 살펴보세요!\n\n' + settings.SITE_URL + '/notion'
+                    SubTaskProcessor.process(
+                        lambda: bot.send_message(req_userid, message))
             return StatusDone()
 
     if parameter == 'makeToken':
         if request.method == 'POST':
+            if not request.user.is_authenticated:
+                return StatusError(ErrorCode.NEED_LOGIN)
+
             token = randstr(6)
             has_token = TelegramSync.objects.filter(auth_token=token)
             while len(has_token) > 0:
                 token = randstr(6)
                 has_token = TelegramSync.objects.filter(auth_token=token)
+
             if hasattr(request.user, 'telegramsync'):
                 telegramsync = request.user.telegramsync
                 telegramsync.auth_token = token
@@ -59,6 +65,7 @@ def telegram(request, parameter):
             else:
                 telegramsync = TelegramSync(user=request.user)
                 telegramsync.auth_token = token
+                telegramsync.auth_token_exp = timezone.now()
                 telegramsync.save()
                 return StatusDone({
                     'token': token
@@ -66,6 +73,9 @@ def telegram(request, parameter):
 
     if parameter == 'unsync':
         if request.method == 'POST':
+            if not request.user.is_authenticated:
+                return StatusError(ErrorCode.NEED_LOGIN)
+
             if hasattr(request.user, 'telegramsync'):
                 telegramsync = request.user.telegramsync
                 if not telegramsync.tid == '':

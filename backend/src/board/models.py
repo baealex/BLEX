@@ -369,6 +369,15 @@ class Post(models.Model):
             return self.image.url
         return None
 
+    def get_minify_image(self):
+        if self.image:
+            try:
+                ext = self.image.name.split('.')[-1]
+                return f"{self.image.url}.minify.{ext}"
+            except:
+                return self.image.url
+        return self.get_image()
+
     def __str__(self):
         return self.title
 

@@ -39,7 +39,7 @@ class SeriesService:
         """
         if not user.is_authenticated:
             raise SeriesValidationError(
-                ErrorCode.AUTHENTICATION,
+                ErrorCode.NEED_LOGIN,
                 '로그인이 필요합니다.'
             )
 

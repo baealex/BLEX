@@ -99,6 +99,7 @@ urlpatterns = [
     path('v1/comments', api_v1.comment_list),
     path('v1/comments/user', api_v1.user_comment),
     path('v1/comments/<int:id>', api_v1.comment_detail),
+    path('v1/users/@<username>', api_v1.users),
     path('v1/users/@<username>/posts/<url>', api_v1.user_posts),
     path('v1/users/@<username>/posts/<url>/related', api_v1.user_post_related),
     path('v1/users/@<username>/series', api_v1.user_series),
