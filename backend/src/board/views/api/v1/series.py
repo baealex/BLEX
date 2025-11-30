@@ -14,8 +14,8 @@ from board.modules.time import convert_to_localtime
 
 def posts_can_add_series(request):
     if request.method == 'GET':
-        if not request.user:
-            raise Http404
+        if not request.user.is_authenticated:
+            return StatusError(ErrorCode.NEED_LOGIN)
 
         posts = SeriesService.get_posts_available_for_series(request.user)
         return StatusDone(list(map(lambda post: {

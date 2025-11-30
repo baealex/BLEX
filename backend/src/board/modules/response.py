@@ -37,6 +37,7 @@ class ErrorCode(Enum):
     EMAIL_NOT_MATCH = 'EN'
     USERNAME_NOT_MATCH = 'UN'
     INVALID_PARAMETER = 'IP'
+    NOT_FOUND = 'NF'
 
 
 def StatusError(code: ErrorCode, message: str = ''):

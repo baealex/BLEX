@@ -40,6 +40,9 @@ def error_report(request):
             message += '\n' + content
 
             bot = TelegramBot(settings.TELEGRAM_BOT_TOKEN)
-            bot.send_message(settings.TELEGRAM_ERROR_REPORT_ID, message)
+            try:
+                bot.send_message(settings.TELEGRAM_ERROR_REPORT_ID, message)
+            except Exception:
+                pass
         return HttpResponse(status=200)
     raise Http404

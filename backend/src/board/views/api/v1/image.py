@@ -20,7 +20,7 @@ def image(request):
         if not request.user.is_active:
             raise Http404
 
-        if not request.FILES['image']:
+        if 'image' not in request.FILES:
             return StatusError(ErrorCode.VALIDATE, '이미지가 없습니다.')
 
         allowed_ext = ['jpg', 'jpeg', 'png', 'gif']

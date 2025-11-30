@@ -58,7 +58,7 @@
 
         <div class="masonry-grid">
             {% for post in posts %}
-                {% include 'components/post_card.html' with post=post show_author=true %}
+                {% include 'components/post_card.html' with post=post show_author=true priority=forloop.first %}
             {% endfor %}
         </div>
 
