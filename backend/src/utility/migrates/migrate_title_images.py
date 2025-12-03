@@ -15,12 +15,24 @@ import re
 import django
 
 # Django setup
-# Current file: backend/src/utility/migrates/migrate_title_images.py
-# Root: backend/
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
+# Robustly find the directory containing 'main' package (backend/src)
+current_dir = os.path.dirname(os.path.abspath(__file__))
+SRC_DIR = None
+while True:
+    if os.path.isdir(os.path.join(current_dir, 'main')) and os.path.isfile(os.path.join(current_dir, 'main', 'settings.py')):
+        SRC_DIR = current_dir
+        break
+    parent_dir = os.path.dirname(current_dir)
+    if parent_dir == current_dir:
+        break
+    current_dir = parent_dir
+
+if not SRC_DIR:
+    print("Error: Could not find project root (directory containing 'main' package).")
+    sys.exit(1)
 
 # Load .env file manually
-env_path = os.path.join(BASE_DIR, '.env')
+env_path = os.path.join(os.path.dirname(SRC_DIR), '.env')
 if os.path.exists(env_path):
     with open(env_path, 'r') as f:
         for line in f:
@@ -29,7 +41,7 @@ if os.path.exists(env_path):
                 key, value = line.split('=', 1)
                 os.environ.setdefault(key, value)
 
-sys.path.append(os.path.join(BASE_DIR, 'src'))
+sys.path.append(SRC_DIR)
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'main.settings')
 django.setup()
 
