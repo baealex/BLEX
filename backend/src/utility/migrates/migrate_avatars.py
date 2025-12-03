@@ -17,26 +17,12 @@ import hashlib
 import django
 
 # Django setup
-# Robustly find the directory containing 'main' package (backend/src)
-current_dir = os.path.dirname(os.path.abspath(__file__))
-SRC_DIR = None
-while True:
-    if os.path.isdir(os.path.join(current_dir, 'main')) and os.path.isfile(os.path.join(current_dir, 'main', 'settings.py')):
-        SRC_DIR = current_dir
-        break
-    parent_dir = os.path.dirname(current_dir)
-    if parent_dir == current_dir:
-        # Reached root without finding main
-        break
-    current_dir = parent_dir
+# Current file: backend/src/utility/migrates/migrate_avatars.py
+# Root: backend/
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 
-if not SRC_DIR:
-    # Fallback or error
-    print("Error: Could not find project root (directory containing 'main' package).")
-    sys.exit(1)
-
-# Load .env file manually (assumed to be in parent of SRC_DIR)
-env_path = os.path.join(os.path.dirname(SRC_DIR), '.env')
+# Load .env file manually
+env_path = os.path.join(BASE_DIR, '.env')
 if os.path.exists(env_path):
     with open(env_path, 'r') as f:
         for line in f:
@@ -45,7 +31,7 @@ if os.path.exists(env_path):
                 key, value = line.split('=', 1)
                 os.environ.setdefault(key, value)
 
-sys.path.append(SRC_DIR)
+sys.path.append(os.path.join(BASE_DIR, 'src'))
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'main.settings')
 django.setup()
 
