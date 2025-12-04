@@ -28,40 +28,7 @@
             </ul>
             <p style="margin-top: 41px;"><a href="{% url 'admin:clean_logs' %}" class="button">시작하기</a></p>
         </div>
-        
-        <!-- 아바타 마이그레이션 -->
-        <div class="module">
-            <h2>👤 아바타 마이그레이션</h2>
-            <p>아바타 이미지를 hex-sharded 구조로 마이그레이션합니다.</p>
-            <ul>
-                <li>MD5 기반 디렉토리 구조</li>
-                <li>자동 경로 업데이트</li>
-            </ul>
-            <p style="margin-top: 18px;"><a href="{% url 'admin:migrate_avatars' %}" class="button">시작하기</a></p>
-        </div>
-        
-        <!-- 타이틀 이미지 마이그레이션 -->
-        <div class="module">
-            <h2>🎨 타이틀 이미지 마이그레이션</h2>
-            <p>타이틀 이미지를 날짜 기반 구조로 마이그레이션합니다.</p>
-            <ul>
-                <li>YYYY/M/D 디렉토리 구조</li>
-                <li>관련 파일 자동 이동</li>
-            </ul>
-            <p style="margin-top: 18px;"><a href="{% url 'admin:migrate_titles' %}" class="button">시작하기</a></p>
-        </div>
-        
-        <!-- 중복 포스트 이미지 제거 -->
-        <div class="module">
-            <h2>🔄 중복 포스트 이미지 제거</h2>
-            <p>동일한 내용의 포스트 이미지를 통합하고 중복 파일을 삭제합니다.</p>
-            <ul>
-                <li>파일 해시 기반 중복 검사</li>
-                <li>자동 포스트 업데이트</li>
-            </ul>
-            <p style="margin-top: 18px;"><a href="{% url 'admin:deduplicate_posts' %}" class="button">시작하기</a></p>
-        </div>
-        
+
         <!-- HTML 태그 검증 -->
         <div class="module">
             <h2>🔍 헤딩 태그 검증</h2>
