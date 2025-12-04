@@ -1,0 +1,148 @@
+{% extends "admin/base_site.html" %}
+
+{% block content %}
+<div id="content-main">
+    <h1>404 링크 체커</h1>
+
+    {% if result %}
+        <div class="messagelist">
+            {% for msg_type, message in result.messages %}
+                <div class="{% if msg_type == 'success' %}success{% elif msg_type == 'error' %}error{% elif msg_type == 'warning' %}warning{% else %}info{% endif %}">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        </div>
+
+        {% if result.statistics %}
+            <h2>통계</h2>
+            <table>
+                <tbody>
+                    <tr>
+                        <th>총 깨진 링크:</th>
+                        <td><strong style="color: {% if result.statistics.total_broken > 0 %}#ba2121{% else %}#417690{% endif %};">
+                            {{ result.statistics.total_broken }}개
+                        </strong></td>
+                    </tr>
+                    <tr>
+                        <th>포스트:</th>
+                        <td>{{ result.statistics.broken_in_posts }}개</td>
+                    </tr>
+                    <tr>
+                        <th>댓글:</th>
+                        <td>{{ result.statistics.broken_in_comments }}개</td>
+                    </tr>
+                    <tr>
+                        <th>프로필:</th>
+                        <td>{{ result.statistics.broken_in_profiles }}개</td>
+                    </tr>
+                    <tr>
+                        <th>시리즈:</th>
+                        <td>{{ result.statistics.broken_in_series }}개</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            {% if result.statistics.details and result.statistics.total_broken > 0 %}
+                <h2>상세 정보</h2>
+
+                {% if result.statistics.details.posts %}
+                    <h3>포스트 ({{ result.statistics.broken_in_posts }}개)</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>제목</th>
+                                <th>작성자</th>
+                                <th>깨진 링크</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item in result.statistics.details.posts %}
+                            <tr>
+                                <td>{{ item.id }}</td>
+                                <td><a href="{{ item.url }}" target="_blank">{{ item.title }}</a></td>
+                                <td>{{ item.author }}</td>
+                                <td><code>{{ item.broken_link }}</code></td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                {% endif %}
+
+                {% if result.statistics.details.comments %}
+                    <h3>댓글 ({{ result.statistics.broken_in_comments }}개)</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>작성자</th>
+                                <th>깨진 링크</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item in result.statistics.details.comments %}
+                            <tr>
+                                <td>{{ item.id }}</td>
+                                <td>{{ item.author }}</td>
+                                <td><code>{{ item.broken_link }}</code></td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                {% endif %}
+
+                {% if result.statistics.details.profiles %}
+                    <h3>프로필 ({{ result.statistics.broken_in_profiles }}개)</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>사용자</th>
+                                <th>깨진 링크</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item in result.statistics.details.profiles %}
+                            <tr>
+                                <td>{{ item.username }}</td>
+                                <td><code>{{ item.broken_link }}</code></td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                {% endif %}
+
+                {% if result.statistics.details.series %}
+                    <h3>시리즈 ({{ result.statistics.broken_in_series }}개)</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>시리즈명</th>
+                                <th>소유자</th>
+                                <th>깨진 링크</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item in result.statistics.details.series %}
+                            <tr>
+                                <td>{{ item.name }}</td>
+                                <td>{{ item.owner }}</td>
+                                <td><code>{{ item.broken_link }}</code></td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                {% endif %}
+            {% endif %}
+        {% endif %}
+    {% else %}
+        <p>사이트 내부의 깨진 링크와 이미지를 찾습니다.</p>
+        <p><strong>주의:</strong> 외부 링크는 체크하지 않으며, 내부 이미지와 링크만 확인합니다.</p>
+    {% endif %}
+
+    <form method="post" style="margin-top: 20px;">
+        {% csrf_token %}
+        <button type="submit" class="button">체크 시작</button>
+        <a href="{% url 'admin:utility_dashboard' %}" class="button" style="margin-left: 10px;">돌아가기</a>
+    </form>
+</div>
+{% endblock %}

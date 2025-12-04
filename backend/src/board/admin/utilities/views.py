@@ -12,6 +12,8 @@ from .result import UtilityResult
 from .image_cleaner import ImageCleanerService
 from .html_validator import HTMLValidationService
 from .database import DatabaseStatsService, SessionCleanerService
+from .link_checker import LinkCheckerService
+from .tag_cleaner import TagCleanerService
 
 
 def utility_dashboard_view(admin_site, request: HttpRequest) -> HttpResponse:
@@ -318,3 +320,75 @@ def clean_sessions_view(admin_site, request: HttpRequest) -> HttpResponse:
         'result': result,
     }
     return render(request, 'admin/clean_sessions.html', context)
+
+
+def check_broken_links_view(admin_site, request: HttpRequest) -> HttpResponse:
+    """404 링크 체커"""
+    result = None
+
+    if request.method == 'POST':
+        service = LinkCheckerService()
+        broken = service.check_all()
+
+        result = UtilityResult()
+        result.add_statistic('total_broken', broken['total_broken'])
+        result.add_statistic('broken_in_posts', len(broken['posts']))
+        result.add_statistic('broken_in_comments', len(broken['comments']))
+        result.add_statistic('broken_in_profiles', len(broken['profiles']))
+        result.add_statistic('broken_in_series', len(broken['series']))
+        result.add_statistic('details', broken)
+
+        if broken['total_broken'] > 0:
+            result.add_message('warning', f'총 {broken["total_broken"]}개의 깨진 링크를 발견했습니다.')
+        else:
+            result.add_message('success', '모든 링크가 정상입니다!')
+
+    context = {
+        **admin_site.each_context(request),
+        'title': '404 링크 체커',
+        'result': result,
+    }
+    return render(request, 'admin/check_broken_links.html', context)
+
+
+def clean_tags_view(admin_site, request: HttpRequest) -> HttpResponse:
+    """태그 정리"""
+    result = None
+
+    if request.method == 'POST':
+        execute = request.POST.get('execute') == 'true'
+
+        service = TagCleanerService()
+        result = UtilityResult()
+
+        # 태그 통계
+        stats = service.get_tag_statistics()
+        for key, value in stats.items():
+            result.add_statistic(key, value)
+
+        # 미사용 태그 삭제
+        count, tag_names = service.clean_unused_tags(execute)
+
+        if execute:
+            if count > 0:
+                result.add_message('success', f'{count}개의 미사용 태그를 삭제했습니다.')
+                # 삭제된 태그 목록 (최대 20개)
+                if tag_names:
+                    result.add_statistic('deleted_tags', tag_names[:20])
+            else:
+                result.add_message('info', '삭제할 미사용 태그가 없습니다.')
+        else:
+            if count > 0:
+                result.add_message('info', f'{count}개의 미사용 태그를 발견했습니다.')
+                # 미사용 태그 목록 (최대 20개)
+                unused_tags = service.get_unused_tags()
+                result.add_statistic('unused_tag_list', unused_tags[:20])
+            else:
+                result.add_message('info', '미사용 태그가 없습니다.')
+
+    context = {
+        **admin_site.each_context(request),
+        'title': '태그 정리',
+        'result': result,
+    }
+    return render(request, 'admin/clean_tags.html', context)

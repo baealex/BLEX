@@ -61,6 +61,28 @@
             </ul>
             <p style="margin-top: 18px;"><a href="{% url 'admin:database_stats' %}" class="button">확인하기</a></p>
         </div>
+
+        <!-- 404 링크 체커 -->
+        <div class="module">
+            <h2>🔗 404 링크 체커</h2>
+            <p>사이트 내부의 깨진 링크와 이미지를 찾습니다.</p>
+            <ul>
+                <li>포스트/댓글/프로필 링크 체크</li>
+                <li>깨진 이미지 탐지</li>
+            </ul>
+            <p style="margin-top: 18px;"><a href="{% url 'admin:check_broken_links' %}" class="button">체크하기</a></p>
+        </div>
+
+        <!-- 태그 정리 -->
+        <div class="module">
+            <h2>🏷️ 태그 정리</h2>
+            <p>사용되지 않는 태그를 정리합니다.</p>
+            <ul>
+                <li>미사용 태그 탐지</li>
+                <li>태그 통계 확인</li>
+            </ul>
+            <p style="margin-top: 41px;"><a href="{% url 'admin:clean_tags' %}" class="button">시작하기</a></p>
+        </div>
     </div>
     
     <div class="help" style="margin-top: 30px;">

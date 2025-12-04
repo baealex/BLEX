@@ -19,7 +19,9 @@ class UtilityAdmin(admin.ModelAdmin):
             path('clean-images/', self.admin_site.admin_view(self.clean_images_view), name='clean_images'),
             path('clean-logs/', self.admin_site.admin_view(self.clean_logs_view), name='clean_logs'),
             path('clean-sessions/', self.admin_site.admin_view(self.clean_sessions_view), name='clean_sessions'),
+            path('clean-tags/', self.admin_site.admin_view(self.clean_tags_view), name='clean_tags'),
             path('validate-html/', self.admin_site.admin_view(self.validate_html_view), name='validate_html'),
+            path('check-broken-links/', self.admin_site.admin_view(self.check_broken_links_view), name='check_broken_links'),
             path('database-stats/', self.admin_site.admin_view(self.database_stats_view), name='database_stats'),
         ]
         return custom_urls + urls
@@ -47,6 +49,14 @@ class UtilityAdmin(admin.ModelAdmin):
     def database_stats_view(self, request):
         """데이터베이스 통계"""
         return views.database_stats_view(self.admin_site, request)
+
+    def check_broken_links_view(self, request):
+        """404 링크 체커"""
+        return views.check_broken_links_view(self.admin_site, request)
+
+    def clean_tags_view(self, request):
+        """태그 정리"""
+        return views.clean_tags_view(self.admin_site, request)
 
 
 # 더미 모델 (URL 라우팅을 위한)
