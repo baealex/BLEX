@@ -39,6 +39,28 @@
             </ul>
             <p style="margin-top: 18px;"><a href="{% url 'admin:validate_html' %}" class="button">시작하기</a></p>
         </div>
+
+        <!-- 세션 정리 -->
+        <div class="module">
+            <h2>🔐 세션 정리</h2>
+            <p>만료되거나 불필요한 세션을 정리합니다.</p>
+            <ul>
+                <li>만료된 세션 삭제</li>
+                <li>데이터베이스 용량 절약</li>
+            </ul>
+            <p style="margin-top: 41px;"><a href="{% url 'admin:clean_sessions' %}" class="button">시작하기</a></p>
+        </div>
+
+        <!-- 데이터베이스 통계 -->
+        <div class="module">
+            <h2>📊 데이터베이스 통계</h2>
+            <p>전체 시스템의 데이터베이스 통계를 확인합니다.</p>
+            <ul>
+                <li>포스트/댓글/사용자 통계</li>
+                <li>데이터베이스 크기 확인</li>
+            </ul>
+            <p style="margin-top: 18px;"><a href="{% url 'admin:database_stats' %}" class="button">확인하기</a></p>
+        </div>
     </div>
     
     <div class="help" style="margin-top: 30px;">

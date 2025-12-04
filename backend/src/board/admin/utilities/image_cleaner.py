@@ -222,3 +222,54 @@ class ImageCleanerService:
                 time.sleep(0.01)
 
         return count, count
+
+    def find_and_remove_duplicates(self, target_dir: str, execute: bool = False) -> Tuple[int, int, List[Dict[str, Any]]]:
+        """중복 파일 찾기 및 제거"""
+        if not os.path.exists(target_dir):
+            return 0, 0, []
+
+        hashes = {}
+        duplicates = []
+        total_size = 0
+        removed_count = 0
+
+        # 파일 해시 맵 생성
+        for root, dirs, files in os.walk(target_dir):
+            for filename in files:
+                full_path = os.path.join(root, filename)
+                file_hash = self.calculate_file_hash(full_path)
+
+                if file_hash:
+                    if file_hash in hashes:
+                        # 중복 발견
+                        original_path = hashes[file_hash]
+                        file_size = os.path.getsize(full_path)
+
+                        # 파생 파일이 아닌 경우만 중복으로 처리
+                        if not (full_path.startswith(original_path) or original_path.startswith(full_path)):
+                            duplicates.append({
+                                'duplicate_path': full_path,
+                                'original_path': original_path,
+                                'size': file_size,
+                                'hash': file_hash[:8]
+                            })
+
+                            if execute:
+                                try:
+                                    os.remove(full_path)
+                                    # 관련 파일도 삭제 (.preview, .minify)
+                                    for suffix in ['.preview.jpg', '.minify.jpg', '.minify.png']:
+                                        preview_path = f"{full_path}{suffix}"
+                                        if os.path.exists(preview_path):
+                                            os.remove(preview_path)
+                                    removed_count += 1
+                                    total_size += file_size
+                                    time.sleep(0.01)
+                                except OSError:
+                                    pass
+                            else:
+                                total_size += file_size
+                    else:
+                        hashes[file_hash] = full_path
+
+        return len(duplicates), total_size, duplicates
