@@ -305,6 +305,7 @@ const NewPostEditor = ({ tempToken }: NewPostEditorProps) => {
                 isOpen={isSettingsDrawerOpen}
                 onClose={() => setIsSettingsDrawerOpen(false)}
                 isEdit={false}
+                title={formData.title}
                 url={formData.url}
                 metaDescription={formData.metaDescription}
                 selectedSeries={selectedSeries}

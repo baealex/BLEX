@@ -2,17 +2,29 @@ import React, { useRef, useState } from 'react';
 
 interface ImageUploaderProps {
     imagePreview: string | null;
+    imageAlt?: string;
     onImageUpload: (event: React.ChangeEvent<HTMLInputElement>) => void;
     onRemoveImage: () => void;
+    onAltChange?: (alt: string) => void;
 }
 
 const ImageUploader: React.FC<ImageUploaderProps> = ({
     imagePreview,
+    imageAlt = '',
     onImageUpload,
-    onRemoveImage
+    onRemoveImage,
+    onAltChange
 }) => {
     const imageInputRef = useRef<HTMLInputElement>(null);
     const [showUploader, setShowUploader] = useState(!!imagePreview);
+    const [altText, setAltText] = useState(imageAlt);
+
+    const handleAltChange = (value: string) => {
+        setAltText(value);
+        if (onAltChange) {
+            onAltChange(value);
+        }
+    };
 
     const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         onImageUpload(e);
@@ -42,16 +54,39 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
 
             {showUploader && imagePreview ? (
                 // Image preview - clean and minimal
-                <div className="relative group">
-                    <img src={imagePreview} alt="Cover" className="w-full rounded-xl" />
-                    <button
-                        type="button"
-                        onClick={handleRemove}
-                        className="absolute top-3 right-3 w-8 h-8 bg-black bg-opacity-60 hover:bg-opacity-90 text-white rounded-full flex items-center justify-center transition-all duration-200 opacity-0 group-hover:opacity-100">
-                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
-                        </svg>
-                    </button>
+                <div className="space-y-3">
+                    <div className="relative group">
+                        <img src={imagePreview} alt={altText || "Cover"} className="w-full rounded-xl" />
+                        <button
+                            type="button"
+                            onClick={handleRemove}
+                            className="absolute top-3 right-3 w-8 h-8 bg-black bg-opacity-60 hover:bg-opacity-90 text-white rounded-full flex items-center justify-center transition-all duration-200 opacity-0 group-hover:opacity-100">
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                        </button>
+                    </div>
+                    {/* Alt text input */}
+                    <div>
+                        <label htmlFor="image-alt" className="block text-sm font-medium text-gray-700 mb-1.5">
+                            이미지 설명 (Alt)
+                        </label>
+                        <input
+                            type="text"
+                            id="image-alt"
+                            value={altText}
+                            onChange={(e) => handleAltChange(e.target.value)}
+                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-black focus:border-black text-sm transition-all"
+                            placeholder="검색 엔진과 접근성을 위한 이미지 설명"
+                            maxLength={125}
+                        />
+                        <p className="text-xs text-gray-500 mt-1">
+                            <svg className="w-3 h-3 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                            SEO와 접근성 향상에 도움이 됩니다
+                        </p>
+                    </div>
                 </div>
             ) : showUploader && !imagePreview ? (
                 // Upload area - simple and clean

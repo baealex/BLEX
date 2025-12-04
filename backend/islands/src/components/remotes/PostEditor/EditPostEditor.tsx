@@ -251,6 +251,7 @@ const EditPostEditor: React.FC<EditPostEditorProps> = ({ username, postUrl }) =>
                 isOpen={isSettingsDrawerOpen}
                 onClose={() => setIsSettingsDrawerOpen(false)}
                 isEdit={true}
+                title={formData.title}
                 url={formData.url}
                 metaDescription={formData.metaDescription}
                 selectedSeries={selectedSeries}
