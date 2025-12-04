@@ -1,0 +1,78 @@
+{% extends "admin/base_site.html" %}
+{% load static %}
+
+{% block content %}
+<div id="content-main">
+    <div class="breadcrumbs">
+        <a href="{% url 'admin:utility_dashboard' %}">유틸리티 관리</a> &rsaquo; 아바타 마이그레이션
+    </div>
+    
+    <h1>👤 아바타 마이그레이션</h1>
+    
+    {% if not result %}
+    <form method="post" class="module aligned">
+        {% csrf_token %}
+        
+        <div class="help">
+            <h3>ℹ️ 마이그레이션 안내</h3>
+            <p>아바타 및 커버 이미지를 hex-sharded 구조로 마이그레이션합니다.</p>
+            <ul>
+                <li>기존: <code>images/avatar/u/{username}/...</code></li>
+                <li>변경: <code>images/avatar/{hex}/{username}/...</code></li>
+                <li>{hex}는 MD5(username)의 앞 2자리</li>
+            </ul>
+            <p><strong>⚠️ Dry-run 모드</strong>를 먼저 실행하여 마이그레이션 대상을 확인하세요.</p>
+        </div>
+        
+        <div class="submit-row" style="display: flex; gap: 10px;">
+            <button type="submit" name="execute" value="false" class="default">Dry-run (미리보기)</button>
+            <button type="submit" name="execute" value="true" class="button" 
+                    onclick="return confirm('정말로 마이그레이션을 실행하시겠습니까?');">
+                실행 (마이그레이션)
+            </button>
+        </div>
+    </form>
+    {% else %}
+    <div class="module">
+        <h2>실행 결과</h2>
+        
+        {% for msg_type, message in result.messages %}
+        <p class="
+            {% if msg_type == 'success' %}success
+            {% elif msg_type == 'error' %}errornote
+            {% elif msg_type == 'warning' %}warning
+            {% else %}help{% endif %}">
+            {{ message }}
+        </p>
+        {% endfor %}
+        
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin: 20px 0;">
+            <div style="text-align: center; padding: 20px; background: var(--body-bg); border: 1px solid var(--hairline-color); border-radius: 4px;">
+                <div style="font-size: 36px; font-weight: 600;">{{ result.statistics.total_profiles }}</div>
+                <div style="font-size: 14px; opacity: 0.7; margin-top: 5px;">전체 프로필 수</div>
+            </div>
+            
+            <div style="text-align: center; padding: 20px; background: var(--body-bg); border: 1px solid var(--hairline-color); border-radius: 4px;">
+                <div style="font-size: 36px; font-weight: 600; color: var(--button-bg);">{{ result.statistics.migrated_count }}</div>
+                <div style="font-size: 14px; opacity: 0.7; margin-top: 5px;">
+                    {% if request.POST.execute == 'true' %}마이그레이션 완료{% else %}마이그레이션 예정{% endif %}
+                </div>
+            </div>
+        </div>
+        
+        {% if result.statistics.errors %}
+        <h3>오류 발생</h3>
+        <div style="max-height: 300px; overflow-y: auto; border: 1px solid var(--hairline-color); border-radius: 4px; padding: 10px;">
+            {% for error in result.statistics.errors %}
+            <p class="errornote" style="font-family: monospace; font-size: 12px;">{{ error }}</p>
+            {% endfor %}
+        </div>
+        {% endif %}
+        
+        <div class="submit-row">
+            <a href="{% url 'admin:migrate_avatars' %}" class="button">다시 실행</a>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

@@ -11,6 +11,7 @@ from .site import *
 from .post import *
 from .tag import *
 from .user import *
+from .utility import *
 
 from django.contrib import admin
 from django.contrib.admin.models import LogEntry

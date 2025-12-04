@@ -1,0 +1,122 @@
+{% extends "admin/base_site.html" %}
+{% load static %}
+
+{% block content %}
+<div id="content-main">
+    <div class="breadcrumbs">
+        <a href="{% url 'admin:utility_dashboard' %}">유틸리티 관리</a> &rsaquo; 이미지 정리
+    </div>
+    
+    <h1>🖼️ 이미지 정리</h1>
+    
+    {% if not result %}
+    <form method="post" class="module aligned">
+        {% csrf_token %}
+        
+        <div class="form-row">
+            <div>
+                <label for="id_target">정리 대상:</label>
+                <select name="target" id="id_target" class="vTextField">
+                    <option value="all">전체 (컨텐츠 + 타이틀 + 아바타)</option>
+                    <option value="content">컨텐츠 이미지만</option>
+                    <option value="title">타이틀 이미지만</option>
+                    <option value="avatar">아바타 이미지만</option>
+                </select>
+            </div>
+        </div>
+        
+        <div class="help">
+            <strong>⚠️ Dry-run 모드</strong>를 먼저 실행하여 삭제될 파일을 확인하세요.
+        </div>
+        
+        <div class="submit-row" style="display: flex; gap: 10px;">
+            <button type="submit" name="execute" value="false" class="default">Dry-run (미리보기)</button>
+            <button type="submit" name="execute" value="true" class="deletelink" 
+                    onclick="return confirm('정말로 파일을 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.');">
+                실행 (파일 삭제)
+            </button>
+        </div>
+    </form>
+    {% else %}
+    <div class="module">
+        <h2>실행 결과</h2>
+        
+        {% for msg_type, message in result.messages %}
+        <p class="
+            {% if msg_type == 'success' %}success
+            {% elif msg_type == 'error' %}errornote
+            {% elif msg_type == 'warning' %}warning
+            {% else %}help{% endif %}">
+            {{ message }}
+        </p>
+        {% endfor %}
+        
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px; margin: 20px 0;">
+            {% if result.statistics.used_content_count is not None %}
+            <div style="text-align: center; padding: 15px; background: var(--body-bg); border: 1px solid var(--hairline-color); border-radius: 4px;">
+                <div style="font-size: 28px; font-weight: 600;">{{ result.statistics.used_content_count }}</div>
+                <div style="font-size: 12px; opacity: 0.7; margin-top: 5px;">사용 중 컨텐츠</div>
+            </div>
+            {% endif %}
+            
+            {% if result.statistics.used_title_count is not None %}
+            <div style="text-align: center; padding: 15px; background: var(--body-bg); border: 1px solid var(--hairline-color); border-radius: 4px;">
+                <div style="font-size: 28px; font-weight: 600;">{{ result.statistics.used_title_count }}</div>
+                <div style="font-size: 12px; opacity: 0.7; margin-top: 5px;">사용 중 타이틀</div>
+            </div>
+            {% endif %}
+            
+            {% if result.statistics.used_avatar_count is not None %}
+            <div style="text-align: center; padding: 15px; background: var(--body-bg); border: 1px solid var(--hairline-color); border-radius: 4px;">
+                <div style="font-size: 28px; font-weight: 600;">{{ result.statistics.used_avatar_count }}</div>
+                <div style="font-size: 12px; opacity: 0.7; margin-top: 5px;">사용 중 아바타</div>
+            </div>
+            {% endif %}
+            
+            {% if result.statistics.total_unused is not None %}
+            <div style="text-align: center; padding: 15px; background: var(--body-bg); border: 1px solid var(--hairline-color); border-radius: 4px;">
+                <div style="font-size: 28px; font-weight: 600; color: var(--error-fg);">{{ result.statistics.total_unused }}</div>
+                <div style="font-size: 12px; opacity: 0.7; margin-top: 5px;">미사용 파일</div>
+            </div>
+            {% endif %}
+            
+            {% if result.statistics.total_size_mb is not None %}
+            <div style="text-align: center; padding: 15px; background: var(--body-bg); border: 1px solid var(--hairline-color); border-radius: 4px;">
+                <div style="font-size: 28px; font-weight: 600; color: var(--error-fg);">{{ result.statistics.total_size_mb }} MB</div>
+                <div style="font-size: 12px; opacity: 0.7; margin-top: 5px;">절약 가능</div>
+            </div>
+            {% endif %}
+        </div>
+        
+        {% if result.files %}
+        <h3>미사용 파일 목록 (최대 100개)</h3>
+        <div style="max-height: 400px; overflow-y: auto; border: 1px solid var(--hairline-color); border-radius: 4px;">
+            <table>
+                <thead>
+                    <tr>
+                        <th>파일명</th>
+                        <th style="text-align: right;">크기 (KB)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for file in result.files|slice:":100" %}
+                    <tr class="{% cycle 'row1' 'row2' %}">
+                        <td style="font-family: monospace; font-size: 12px;">{{ file.relative_path }}</td>
+                        <td style="text-align: right;">{{ file.size_kb }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% if result.files|length > 100 %}
+        <p class="help">... 외 {{ result.files|length|add:"-100" }}개 파일</p>
+        {% endif %}
+        {% endif %}
+        
+        <div class="submit-row">
+            <a href="{% url 'admin:clean_images' %}" class="button">다시 실행</a>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
