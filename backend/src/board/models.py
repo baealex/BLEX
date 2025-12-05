@@ -2,6 +2,7 @@ import datetime
 import os
 import pyotp
 import readtime
+import hashlib
 
 from django.conf import settings
 from django.contrib.auth.models import User
@@ -26,12 +27,18 @@ from board.modules.time import time_since, time_stamp
 from board.modules.read_time import calc_read_time
 
 
+def get_user_hex(username):
+    return hashlib.md5(username.encode()).hexdigest()[:2]
+
+
 def cover_path(instance, filename):
-    return f"images/avatar/u/{instance.user.username}/c{randstr(4)}.{filename.split('.')[-1]}"
+    hex_prefix = get_user_hex(instance.user.username)
+    return f"images/avatar/{hex_prefix}/{instance.user.username}/c{randstr(4)}.{filename.split('.')[-1]}"
 
 
 def avatar_path(instance, filename):
-    return f"images/avatar/u/{instance.user.username}/a{randstr(4)}.{filename.split('.')[-1]}"
+    hex_prefix = get_user_hex(instance.user.username)
+    return f"images/avatar/{hex_prefix}/{instance.user.username}/a{randstr(4)}.{filename.split('.')[-1]}"
 
 
 def create_description(text):

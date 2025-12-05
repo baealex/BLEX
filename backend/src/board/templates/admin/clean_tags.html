@@ -1,0 +1,95 @@
+{% extends "admin/base_site.html" %}
+
+{% block content %}
+<div id="content-main">
+    <h1>태그 정리</h1>
+
+    {% if result %}
+        <div class="messagelist">
+            {% for msg_type, message in result.messages %}
+                <div class="{% if msg_type == 'success' %}success{% elif msg_type == 'error' %}error{% elif msg_type == 'warning' %}warning{% else %}info{% endif %}">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        </div>
+
+        {% if result.statistics %}
+            <h2>태그 통계</h2>
+            <table>
+                <tbody>
+                    <tr>
+                        <th>전체 태그:</th>
+                        <td><strong>{{ result.statistics.total_tags }}</strong>개</td>
+                    </tr>
+                    <tr>
+                        <th>사용 중인 태그:</th>
+                        <td style="color: #417690;">{{ result.statistics.used_tags }}개</td>
+                    </tr>
+                    <tr>
+                        <th>미사용 태그:</th>
+                        <td style="color: {% if result.statistics.unused_tags > 0 %}#ba2121{% else %}#417690{% endif %};">
+                            {{ result.statistics.unused_tags }}개
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+
+            {% if result.statistics.top_tags %}
+                <h3>가장 많이 사용된 태그 Top 10</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>태그명</th>
+                            <th>사용 횟수</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for tag in result.statistics.top_tags %}
+                        <tr>
+                            <td><strong>{{ tag.name }}</strong></td>
+                            <td>{{ tag.count }}회</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            {% endif %}
+
+            {% if result.statistics.unused_tag_list %}
+                <h3>미사용 태그 목록 (최대 20개)</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>태그명</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for tag in result.statistics.unused_tag_list %}
+                        <tr>
+                            <td>{{ tag.name }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            {% endif %}
+
+            {% if result.statistics.deleted_tags %}
+                <h3>삭제된 태그 (최대 20개)</h3>
+                <ul>
+                    {% for tag_name in result.statistics.deleted_tags %}
+                    <li>{{ tag_name }}</li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
+        {% endif %}
+    {% else %}
+        <p>어떤 포스트에도 사용되지 않는 태그를 찾아서 정리합니다.</p>
+    {% endif %}
+
+    <form method="post" style="margin-top: 20px;">
+        {% csrf_token %}
+        <button type="submit" name="execute" value="false" class="button">Dry-run (미리보기)</button>
+        <button type="submit" name="execute" value="true" class="button" style="background-color: #ba2121; margin-left: 10px;">실행</button>
+        <a href="{% url 'admin:utility_dashboard' %}" class="button" style="margin-left: 10px;">돌아가기</a>
+    </form>
+</div>
+{% endblock %}
