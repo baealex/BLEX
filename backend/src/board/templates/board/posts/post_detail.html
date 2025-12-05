@@ -40,17 +40,21 @@
 {% endblock %}
 
 {% block content %}
-<div class="max-w-4xl w-full mx-auto sm:py-8" role="main">
-    <article itemscope itemtype="https://schema.org/BlogPosting" lang="{{ LANGUAGE_CODE|default:'ko' }}">
-        <meta itemprop="headline" content="{{ post.title }}">
-        <meta itemprop="description" content="{{ post.meta_description }}">
-        <meta itemprop="datePublished" content="{{ post.created_date|date:'c' }}">
-        <meta itemprop="dateModified" content="{{ post.updated_date|date:'c' }}">
-        {% if post.image %}
-        <meta itemprop="image" content="{{ request.scheme }}://{{ request.get_host }}{{ post.image.url }}">
-        {% endif %}
-        
-        <div class="bg-white border border-gray-200 rounded-2xl p-4 sm:p-6 lg:p-8 mb-6 sm:mb-8 shadow-sm">
+<div class="relative w-full mx-auto sm:py-8" role="main">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex gap-8">
+            <!-- Main content column -->
+            <div class="flex-1 min-w-0">
+                <article class="max-w-4xl" itemscope itemtype="https://schema.org/BlogPosting" lang="{{ LANGUAGE_CODE|default:'ko' }}">
+                <meta itemprop="headline" content="{{ post.title }}">
+                <meta itemprop="description" content="{{ post.meta_description }}">
+                <meta itemprop="datePublished" content="{{ post.created_date|date:'c' }}">
+                <meta itemprop="dateModified" content="{{ post.updated_date|date:'c' }}">
+                {% if post.image %}
+                <meta itemprop="image" content="{{ request.scheme }}://{{ request.get_host }}{{ post.image.url }}">
+                {% endif %}
+
+                <div class="bg-white border border-gray-200 rounded-2xl p-4 sm:p-6 lg:p-8 mb-6 sm:mb-8 shadow-sm">
             <div class="flex items-center gap-2 mb-4">
                 <div class="w-3 h-3 bg-black rounded-full"></div>
                 <span class="text-sm font-medium text-gray-500 uppercase tracking-wide">Article</span>
@@ -92,9 +96,6 @@
         </div>
 
         <div class="bg-white border border-gray-200 rounded-2xl p-4 sm:p-6 lg:p-8 mb-6 sm:mb-8 shadow-sm">
-            <!-- Table of Contents -->
-            {% island_component 'TableOfContents' %}
-
             <div class="prose prose-sm sm:prose-lg max-w-none blog-post-content break-words" itemprop="articleBody" lang="{{ LANGUAGE_CODE|default:'ko' }}">
                 {{ post.content.text_html|safe }}
             </div>
@@ -272,7 +273,17 @@
         </div>
     </div>
 
-    {% island_component 'RelatedPosts' lazy=True postUrl=post.url username=post.author_username %}
+                {% island_component 'RelatedPosts' lazy=True postUrl=post.url username=post.author_username %}
+            </div>
+
+            <!-- Sidebar with TOC (hidden on mobile, sticky on desktop) -->
+            <aside class="hidden lg:block w-64 flex-shrink-0">
+                <div class="sticky top-24">
+                    {% island_component 'TableOfContents' %}
+                </div>
+            </aside>
+        </div>
+    </div>
 </div>
 {% endblock %}
 
