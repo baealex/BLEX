@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { getMediaPath } from '~/modules/static.module';
 import Modal from '~/components/shared/Modal';
-import { searchPosts, type SearchResult } from '~/lib/api';
+import { searchPosts, type SearchResult, type SearchFilters } from '~/lib/api';
 
 interface SearchModalProps {
     isOpen?: boolean;
@@ -22,6 +22,10 @@ const SearchModal: React.FC<SearchModalProps> = ({ isOpen: initialIsOpen = false
     const [isLoading, setIsLoading] = useState(false);
     const [page, setPage] = useState(1);
     const [hasSearched, setHasSearched] = useState(false);
+    const [showFilters, setShowFilters] = useState(false);
+    const [filters, setFilters] = useState<SearchFilters>({
+        sort: 'relevance'
+    });
 
     // 전역 이벤트로 모달 열기
     useEffect(() => {
@@ -41,6 +45,8 @@ const SearchModal: React.FC<SearchModalProps> = ({ isOpen: initialIsOpen = false
         setSearchResults(null);
         setHasSearched(false);
         setPage(1);
+        setShowFilters(false);
+        setFilters({ sort: 'relevance' });
     };
 
     const handleSearch = useCallback(async (searchQuery: string, pageNum: number = 1) => {
@@ -52,7 +58,7 @@ const SearchModal: React.FC<SearchModalProps> = ({ isOpen: initialIsOpen = false
         setHasSearched(true);
 
         try {
-            const { data } = await searchPosts(searchQuery, pageNum);
+            const { data } = await searchPosts(searchQuery, pageNum, filters);
 
             if (data.status === 'DONE') {
                 setSearchResults({
@@ -69,7 +75,7 @@ const SearchModal: React.FC<SearchModalProps> = ({ isOpen: initialIsOpen = false
         } finally {
             setIsLoading(false);
         }
-    }, []);
+    }, [filters]);
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
@@ -131,7 +137,7 @@ const SearchModal: React.FC<SearchModalProps> = ({ isOpen: initialIsOpen = false
                                 value={query}
                                 onChange={(e) => setQuery(e.target.value)}
                                 placeholder="검색어를 입력하세요..."
-                                maxLength={20}
+                                maxLength={100}
                                 className="w-full px-4 py-3 pr-24 border border-solid border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-gray-200 focus:border-gray-300 transition-all text-gray-900 placeholder-gray-500"
                                 autoComplete="off"
                                 autoFocus
@@ -158,6 +164,112 @@ const SearchModal: React.FC<SearchModalProps> = ({ isOpen: initialIsOpen = false
                             </div>
                         </div>
                     </form>
+
+                    {/* 필터 토글 버튼 */}
+                    <button
+                        type="button"
+                        onClick={() => setShowFilters(!showFilters)}
+                        className="flex items-center gap-2 text-sm text-gray-600 hover:text-gray-900 transition-colors mt-2">
+                        <i className={`fas fa-filter text-xs`} />
+                        <span>고급 필터</span>
+                        <i className={`fas fa-chevron-${showFilters ? 'up' : 'down'} text-xs`} />
+                    </button>
+
+                    {/* 필터 옵션 */}
+                    {showFilters && (
+                        <div className="mt-4 p-4 bg-gray-50 rounded-xl border border-gray-200 space-y-3">
+                            {/* 정렬 */}
+                            <div>
+                                <label className="block text-xs font-semibold text-gray-700 mb-2">정렬</label>
+                                <div className="flex gap-2">
+                                    <button
+                                        type="button"
+                                        onClick={() => setFilters({ ...filters, sort: 'relevance' })}
+                                        className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
+                                            filters.sort === 'relevance'
+                                                ? 'bg-gray-900 text-white'
+                                                : 'bg-white text-gray-700 border border-gray-200 hover:border-gray-300'
+                                        }`}>
+                                        관련도순
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onClick={() => setFilters({ ...filters, sort: 'latest' })}
+                                        className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
+                                            filters.sort === 'latest'
+                                                ? 'bg-gray-900 text-white'
+                                                : 'bg-white text-gray-700 border border-gray-200 hover:border-gray-300'
+                                        }`}>
+                                        최신순
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onClick={() => setFilters({ ...filters, sort: 'popular' })}
+                                        className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
+                                            filters.sort === 'popular'
+                                                ? 'bg-gray-900 text-white'
+                                                : 'bg-white text-gray-700 border border-gray-200 hover:border-gray-300'
+                                        }`}>
+                                        인기순
+                                    </button>
+                                </div>
+                            </div>
+
+                            {/* 작성자 */}
+                            <div>
+                                <label className="block text-xs font-semibold text-gray-700 mb-2">작성자</label>
+                                <input
+                                    type="text"
+                                    value={filters.username || ''}
+                                    onChange={(e) => setFilters({ ...filters, username: e.target.value })}
+                                    placeholder="작성자 이름"
+                                    className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-gray-200"
+                                />
+                            </div>
+
+                            {/* 태그 */}
+                            <div>
+                                <label className="block text-xs font-semibold text-gray-700 mb-2">태그</label>
+                                <input
+                                    type="text"
+                                    value={filters.tag || ''}
+                                    onChange={(e) => setFilters({ ...filters, tag: e.target.value })}
+                                    placeholder="태그 이름"
+                                    className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-gray-200"
+                                />
+                            </div>
+
+                            {/* 날짜 범위 */}
+                            <div className="grid grid-cols-2 gap-2">
+                                <div>
+                                    <label className="block text-xs font-semibold text-gray-700 mb-2">시작일</label>
+                                    <input
+                                        type="date"
+                                        value={filters.dateFrom || ''}
+                                        onChange={(e) => setFilters({ ...filters, dateFrom: e.target.value })}
+                                        className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-gray-200"
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-xs font-semibold text-gray-700 mb-2">종료일</label>
+                                    <input
+                                        type="date"
+                                        value={filters.dateTo || ''}
+                                        onChange={(e) => setFilters({ ...filters, dateTo: e.target.value })}
+                                        className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-gray-200"
+                                    />
+                                </div>
+                            </div>
+
+                            {/* 필터 초기화 */}
+                            <button
+                                type="button"
+                                onClick={() => setFilters({ sort: 'relevance' })}
+                                className="w-full px-3 py-2 bg-white border border-gray-200 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-50 transition-colors">
+                                필터 초기화
+                            </button>
+                        </div>
+                    )}
                 </div>
             </div>
 

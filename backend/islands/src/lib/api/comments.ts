@@ -1,16 +1,17 @@
 import { http, type Response } from '~/modules/http.module';
 
 export interface Comment {
-    id: number;
+    pk: number;
     author: string;
     authorImage: string;
     createdDate: string;
-    renderedContent: string;
-    contentMarkdown: string;
+    textHtml: string;
+    textMd: string;
     countLikes: number;
-    isLiked: boolean;
+    hasLiked: boolean;
     isEdited: boolean;
-    isMine: boolean;
+    isDeleted: boolean;
+    replies?: Comment[];
 }
 
 export type CommentsResponse = Response<{ comments: Comment[] }>;
@@ -18,12 +19,15 @@ export type CommentResponse = Response<{ textMd: string }>;
 export type CommentActionResponse = Response<{ success: boolean }>;
 
 export const getComments = async (postUrl: string) => {
-    return http.get<CommentsResponse>(`v1/posts/${postUrl}/comments`);
+    return http.get<CommentsResponse>(`v1/comments?url=${postUrl}`);
 };
 
-export const createComment = async (postUrl: string, commentMarkdown: string) => {
+export const createComment = async (postUrl: string, commentMarkdown: string, parentId?: number) => {
     const formData = new URLSearchParams();
     formData.append('comment_md', commentMarkdown);
+    if (parentId) {
+        formData.append('parent_id', parentId.toString());
+    }
 
     return http.post<CommentActionResponse>(`v1/comments?url=${postUrl}`, formData, { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } });
 };

@@ -28,6 +28,8 @@ const Comments = (props: CommentsProps) => {
     const [editingCommentId, setEditingCommentId] = useState<number | null>(null);
     const [editText, setEditText] = useState('');
     const [error, setError] = useState<string | null>(null);
+    const [replyingToId, setReplyingToId] = useState<number | null>(null);
+    const [replyText, setReplyText] = useState('');
 
     const isLoggedIn = useMemo(() => {
         return checkIsLoggedIn();
@@ -96,6 +98,37 @@ const Comments = (props: CommentsProps) => {
             setIsSubmitting(false);
         }
     }, [isLoggedIn, commentText, postUrl, refetch]);
+
+    const handleReply = useCallback(async (parentId: number) => {
+        if (!isLoggedIn) {
+            showLoginPrompt('답글 작성');
+            return;
+        }
+
+        if (!replyText.trim()) {
+            setError('답글 내용을 입력해주세요.');
+            return;
+        }
+
+        setIsSubmitting(true);
+        setError(null);
+
+        try {
+            const response = await createComment(postUrl, replyText, parentId);
+
+            if (response.data.status === 'DONE') {
+                setReplyText('');
+                setReplyingToId(null);
+                refetch();
+            } else {
+                setError(response.data.errorMessage || '답글 작성에 실패했습니다.');
+            }
+        } catch {
+            setError('답글 작성 중 오류가 발생했습니다.');
+        } finally {
+            setIsSubmitting(false);
+        }
+    }, [isLoggedIn, replyText, postUrl, refetch]);
 
     const startEditing = async (commentId: number) => {
         try {
@@ -220,12 +253,21 @@ const Comments = (props: CommentsProps) => {
                 editingCommentId={editingCommentId}
                 editText={editText}
                 isSubmitting={isSubmitting}
+                replyingToId={replyingToId}
+                replyText={replyText}
                 onLike={handleLike}
                 onEdit={startEditing}
                 onDelete={deleteComment}
                 onEditTextChange={setEditText}
                 onSaveEdit={saveEdit}
                 onCancelEdit={cancelEditing}
+                onReply={(commentId) => setReplyingToId(commentId)}
+                onReplyTextChange={setReplyText}
+                onSendReply={handleReply}
+                onCancelReply={() => {
+                    setReplyingToId(null);
+                    setReplyText('');
+                }}
             />
 
             <div className="border-t border-gray-200 pt-6 mt-6">

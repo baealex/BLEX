@@ -14,8 +14,12 @@ from board.modules.time import convert_to_localtime
 
 def search(request):
     if request.method == 'GET':
-        query = request.GET.get('q', '')[:20]
+        query = request.GET.get('q', '')[:100]
         username = request.GET.get('username', '')
+        tag = request.GET.get('tag', '')
+        date_from = request.GET.get('date_from', '')
+        date_to = request.GET.get('date_to', '')
+        sort = request.GET.get('sort', 'relevance')  # relevance, latest, popular
 
         if len(query) < 0:
             return StatusError(ErrorCode.VALIDATE, '검색어를 입력하세요.')
@@ -105,17 +109,45 @@ def search(request):
                 default=False,
                 output_field=BooleanField(),
             ),
-        ).order_by(
-            '-is_contain_title',
-            '-is_contain_description',
-            '-is_contain_tags',
-            '-is_contain_content',
-            '-likes_count',
-            '-created_date',
         )
 
+        # Apply filters
         if username:
             posts = posts.filter(author__username=username)
+
+        if tag:
+            posts = posts.filter(tags__value=tag)
+
+        if date_from:
+            try:
+                date_from_obj = datetime.datetime.strptime(date_from, '%Y-%m-%d')
+                posts = posts.filter(created_date__gte=date_from_obj)
+            except ValueError:
+                pass
+
+        if date_to:
+            try:
+                date_to_obj = datetime.datetime.strptime(date_to, '%Y-%m-%d')
+                # Add one day to include the entire end date
+                date_to_obj = date_to_obj + datetime.timedelta(days=1)
+                posts = posts.filter(created_date__lt=date_to_obj)
+            except ValueError:
+                pass
+
+        # Apply sorting
+        if sort == 'latest':
+            posts = posts.order_by('-created_date')
+        elif sort == 'popular':
+            posts = posts.order_by('-likes_count', '-created_date')
+        else:  # relevance (default)
+            posts = posts.order_by(
+                '-is_contain_title',
+                '-is_contain_description',
+                '-is_contain_tags',
+                '-is_contain_content',
+                '-likes_count',
+                '-created_date',
+            )
 
         total_size = posts.count()
 

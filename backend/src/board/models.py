@@ -105,6 +105,7 @@ def make_thumbnail(instance, size, quality=100, type='normal'):
 class Comment(models.Model):
     author = models.ForeignKey('auth.User', on_delete=models.SET_NULL, null=True)
     post = models.ForeignKey('board.Post', related_name='comments', on_delete=models.CASCADE)
+    parent = models.ForeignKey('self', on_delete=models.CASCADE, null=True, blank=True, related_name='replies')
     text_md = models.TextField(max_length=500)
     text_html = models.TextField()
     edited = models.BooleanField(default=False)

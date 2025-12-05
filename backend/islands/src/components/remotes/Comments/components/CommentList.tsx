@@ -8,12 +8,18 @@ interface CommentListProps {
     editingCommentId: number | null;
     editText: string;
     isSubmitting: boolean;
+    replyingToId: number | null;
+    replyText: string;
     onLike: (commentId: number) => void;
     onEdit: (commentId: number) => void;
     onDelete: (commentId: number) => void;
     onEditTextChange: (text: string) => void;
     onSaveEdit: (commentId: number) => void;
     onCancelEdit: () => void;
+    onReply: (commentId: number) => void;
+    onReplyTextChange: (text: string) => void;
+    onSendReply: (commentId: number) => void;
+    onCancelReply: () => void;
 }
 
 export const CommentList = ({
@@ -22,33 +28,45 @@ export const CommentList = ({
     editingCommentId,
     editText,
     isSubmitting,
+    replyingToId,
+    replyText,
     onLike,
     onEdit,
     onDelete,
     onEditTextChange,
     onSaveEdit,
-    onCancelEdit
+    onCancelEdit,
+    onReply,
+    onReplyTextChange,
+    onSendReply,
+    onCancelReply
 }: CommentListProps) => {
     if (comments.length === 0) {
         return <EmptyState />;
     }
 
     return (
-        <div className="space-y-2" role="list">
+        <div className="space-y-4" role="list">
             {comments.map((comment) => (
                 <CommentItem
-                    key={comment.id}
+                    key={comment.pk}
                     comment={comment}
                     currentUser={currentUser}
                     editingCommentId={editingCommentId}
                     editText={editText}
                     isSubmitting={isSubmitting}
+                    replyingToId={replyingToId}
+                    replyText={replyText}
                     onLike={onLike}
                     onEdit={onEdit}
                     onDelete={onDelete}
                     onEditTextChange={onEditTextChange}
                     onSaveEdit={onSaveEdit}
                     onCancelEdit={onCancelEdit}
+                    onReply={onReply}
+                    onReplyTextChange={onReplyTextChange}
+                    onSendReply={onSendReply}
+                    onCancelReply={onCancelReply}
                 />
             ))}
         </div>

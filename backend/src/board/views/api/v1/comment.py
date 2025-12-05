@@ -16,17 +16,91 @@ from modules import markdown
 
 
 def comment_list(request):
-    """Create a new comment using CommentService"""
+    """Get comments or create a new comment"""
+    post_url = request.GET.get('url')
+    post = get_object_or_404(Post, url=post_url)
+
+    if request.method == 'GET':
+        # Get all comments for the post with nested structure
+        comments = Comment.objects.filter(
+            post=post,
+            parent=None  # Only get top-level comments
+        ).select_related(
+            'author',
+            'author__profile',
+            'author__config'
+        ).prefetch_related('replies__author__profile').annotate(
+            count_likes=Count('likes', distinct=True),
+            has_liked=Case(
+                When(
+                    Exists(
+                        Comment.objects.filter(
+                            id=OuterRef('id'),
+                            likes__id=request.user.id if request.user.id else -1
+                        )
+                    ),
+                    then=Value(True)
+                ),
+                default=Value(False),
+            )
+        ).order_by('created_date')
+
+        def format_comment(comment):
+            # Get replies with their like counts
+            replies = Comment.objects.filter(parent=comment).select_related(
+                'author',
+                'author__profile'
+            ).annotate(
+                count_likes=Count('likes', distinct=True),
+                has_liked=Case(
+                    When(
+                        Exists(
+                            Comment.objects.filter(
+                                id=OuterRef('id'),
+                                likes__id=request.user.id if request.user.id else -1
+                            )
+                        ),
+                        then=Value(True)
+                    ),
+                    default=Value(False),
+                )
+            ).order_by('created_date')
+
+            return {
+                'pk': comment.id,
+                'author': comment.author_username(),
+                'authorImage': comment.author.profile.get_thumbnail() if comment.author else None,
+                'textHtml': comment.get_text_html(),
+                'textMd': comment.text_md if comment.author else '',
+                'isEdited': comment.edited,
+                'createdDate': comment.time_since(),
+                'countLikes': comment.count_likes,
+                'hasLiked': comment.has_liked,
+                'isDeleted': comment.is_deleted(),
+                'replies': [format_comment(reply) for reply in replies]
+            }
+
+        comments_data = [format_comment(comment) for comment in comments]
+
+        return StatusDone({
+            'comments': comments_data
+        })
+
     if request.method == 'POST':
         try:
-            post = get_object_or_404(Post, url=request.GET.get('url'))
             text_md = request.POST.get('comment_md', '')
+            parent_id = request.POST.get('parent_id')
+
+            parent = None
+            if parent_id:
+                parent = get_object_or_404(Comment, id=parent_id, post=post)
 
             # Create comment using service
             comment = CommentService.create_comment(
                 user=request.user,
                 post=post,
-                text_md=text_md
+                text_md=text_md,
+                parent=parent
             )
 
             return StatusDone({
@@ -38,6 +112,7 @@ def comment_list(request):
                 'created_date': comment.time_since(),
                 'count_likes': 0,
                 'is_liked': False,
+                'parent_id': parent.id if parent else None,
             })
 
         except CommentValidationError as e:

@@ -132,21 +132,21 @@
         }
     }" class="fixed sm:sticky bottom-0 left-0 right-0 z-40 sm:mb-6 md:mb-8">
         <div class="max-w-4xl w-full mx-auto sm:px-4">
-            <div class="bg-white sm:bg-white/10 sm:backdrop-blur-lg border-t sm:border sm:border-gray-200/80 border-gray-200 shadow-sm sm:shadow-[0_-4px_16px_rgba(0,0,0,0.08)] sm:rounded-2xl px-4 sm:px-5 py-2 sm:py-3">
-                <div class="flex items-center justify-around sm:justify-between gap-2 sm:gap-4">
-                    <div class="hidden sm:flex items-center gap-3 min-w-0 flex-1">
+            <div class="bg-white sm:bg-white/10 sm:backdrop-blur-lg border-t sm:border sm:border-gray-200/80 border-gray-200 shadow-sm sm:shadow-[0_-4px_16px_rgba(0,0,0,0.08)] sm:rounded-2xl px-4 sm:px-5 py-3 sm:py-3">
+                <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-4">
+                    <div class="flex items-center gap-3 min-w-0 flex-1 sm:flex-1">
                         <a href="/@{{ post.author_username }}" class="flex-shrink-0 group">
                             <img class="w-10 h-10 rounded-full object-cover ring-2 ring-transparent group-hover:ring-gray-200 transition-all"
                                 src="{% media post.author_image %}"
                                 alt="{{ post.author_username }}">
                         </a>
-                        <div class="min-w-0">
+                        <div class="min-w-0 flex-1">
                             <div class="font-semibold text-gray-900 truncate text-sm leading-tight">{{ post.title }}</div>
                             <div class="text-xs text-gray-500 mt-0.5">by {{ post.author_username }}</div>
                         </div>
                     </div>
 
-                    <div class="flex items-center gap-3 sm:gap-2 sm:flex-shrink-0">
+                    <div class="flex items-center gap-2 sm:gap-2 sm:flex-shrink-0">
                         {% include 'components/like_button.html' with post_url=post.url likes_count=post.count_likes has_liked=post.has_liked size='small' %}
 
                         <button @click="
@@ -166,17 +166,17 @@
                                 copyToClipboard();
                             }
                         "
-                        class="group flex items-center justify-center gap-1.5 px-4 py-2.5 sm:px-4 sm:py-2.5 bg-gray-50 hover:bg-gray-100 border border-gray-200 hover:border-gray-300 text-gray-700 hover:text-gray-900 rounded-xl font-medium transition-all duration-200 min-h-[44px] min-w-[44px] sm:min-w-auto active:scale-95"
+                        class="group flex items-center justify-center gap-1.5 px-3 py-2.5 sm:px-4 sm:py-2.5 bg-gray-50 hover:bg-gray-100 border border-gray-200 hover:border-gray-300 text-gray-700 hover:text-gray-900 rounded-xl font-medium transition-all duration-200 min-h-[44px] min-w-[44px] active:scale-95"
                         aria-label="게시물 공유하기">
                             <i class="fas fa-share-alt text-base"></i>
-                            <span class="hidden sm:inline text-sm">공유</span>
+                            <span class="text-sm">공유</span>
                         </button>
 
                         {% if user.is_authenticated and user.username == post.author_username %}
                         <a href="{% url 'post_edit' post.author_username post.url %}"
-                           class="group flex items-center justify-center gap-1.5 px-4 py-2.5 sm:px-4 sm:py-2.5 bg-gray-900 hover:bg-black border border-gray-900 text-white rounded-xl font-medium transition-all duration-200 min-h-[44px] min-w-[44px] sm:min-w-auto shadow-sm hover:shadow-md active:scale-95">
+                           class="group flex items-center justify-center gap-1.5 px-3 py-2.5 sm:px-4 sm:py-2.5 bg-gray-900 hover:bg-black border border-gray-900 text-white rounded-xl font-medium transition-all duration-200 min-h-[44px] min-w-[44px] shadow-sm hover:shadow-md active:scale-95">
                             <i class="fas fa-edit text-base"></i>
-                            <span class="hidden sm:inline text-sm">편집</span>
+                            <span class="text-sm">편집</span>
                         </a>
                         {% endif %}
                     </div>

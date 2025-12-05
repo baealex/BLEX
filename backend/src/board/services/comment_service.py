@@ -241,7 +241,8 @@ class CommentService:
     def create_comment(
         user: User,
         post: Post,
-        text_md: str
+        text_md: str,
+        parent: Optional[Comment] = None
     ) -> Comment:
         """
         Create new comment.
@@ -250,6 +251,7 @@ class CommentService:
             user: Comment author
             post: Post to comment on
             text_md: Comment text in markdown
+            parent: Parent comment for replies (optional)
 
         Returns:
             Created Comment instance
@@ -264,6 +266,7 @@ class CommentService:
         comment = Comment(
             post=post,
             author=user,
+            parent=parent,
             text_md=text_md,
             text_html=text_html
         )
@@ -272,6 +275,20 @@ class CommentService:
 
         CommentService.notify_post_author(comment)
         CommentService.notify_mentioned_users(comment)
+
+        # If it's a reply, notify the parent comment author
+        if parent and parent.author and parent.author != user:
+            if parent.author.config.get_meta(CONFIG_TYPE.NOTIFY_MENTION):
+                send_notify_content = (
+                    f"'{post.title}' 글에서 "
+                    f"@{user.username}님이 "
+                    f"회원님의 댓글에 답글을 남겼습니다. #{comment.pk}"
+                )
+                create_notify(
+                    user=parent.author,
+                    url=post.get_absolute_url(),
+                    content=send_notify_content
+                )
 
         return comment
 

@@ -7,6 +7,7 @@ interface CommentFormProps {
     onSubmit: () => void;
     isSubmitting: boolean;
     onShowLoginPrompt: () => void;
+    placeholder?: string;
 }
 
 export const CommentForm = ({
@@ -15,7 +16,8 @@ export const CommentForm = ({
     onCommentTextChange,
     onSubmit,
     isSubmitting,
-    onShowLoginPrompt
+    onShowLoginPrompt,
+    placeholder = "댓글을 작성해보세요..."
 }: CommentFormProps) => {
     const textareaRef = useRef<HTMLTextAreaElement>(null);
 
@@ -32,7 +34,7 @@ export const CommentForm = ({
             <div className="relative group cursor-pointer" onClick={onShowLoginPrompt}>
                 <textarea
                     className="w-full p-4 border border-solid border-gray-200 rounded-xl resize-none bg-white text-sm placeholder-gray-400 pointer-events-none transition-all duration-200 group-hover:border-gray-300"
-                    placeholder="댓글을 작성해보세요..."
+                    placeholder={placeholder}
                     rows={4}
                     disabled
                     aria-hidden="true"
@@ -72,7 +74,7 @@ export const CommentForm = ({
                     value={commentText}
                     onChange={(e) => onCommentTextChange(e.target.value)}
                     disabled={isSubmitting}
-                    placeholder="댓글을 작성해보세요..."
+                    placeholder={placeholder}
                     rows={4}
                     aria-label="댓글 내용"
                 />

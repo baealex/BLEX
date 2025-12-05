@@ -22,6 +22,35 @@ export interface SearchResponseBody {
 
 export type SearchResponse = Response<SearchResponseBody>;
 
-export const searchPosts = async (query: string, page: number = 1) => {
-    return http.get<SearchResponse>(`/v1/search?q=${encodeURIComponent(query)}&page=${page}`);
+export interface SearchFilters {
+    username?: string;
+    tag?: string;
+    dateFrom?: string;
+    dateTo?: string;
+    sort?: 'relevance' | 'latest' | 'popular';
+}
+
+export const searchPosts = async (query: string, page: number = 1, filters?: SearchFilters) => {
+    const params = new URLSearchParams({
+        q: query,
+        page: page.toString(),
+    });
+
+    if (filters?.username) {
+        params.append('username', filters.username);
+    }
+    if (filters?.tag) {
+        params.append('tag', filters.tag);
+    }
+    if (filters?.dateFrom) {
+        params.append('date_from', filters.dateFrom);
+    }
+    if (filters?.dateTo) {
+        params.append('date_to', filters.dateTo);
+    }
+    if (filters?.sort) {
+        params.append('sort', filters.sort);
+    }
+
+    return http.get<SearchResponse>(`/v1/search?${params.toString()}`);
 };
