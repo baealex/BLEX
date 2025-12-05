@@ -1,0 +1,54 @@
+{% extends "admin/base_site.html" %}
+
+{% block content %}
+<div id="content-main">
+    <h1>세션 정리</h1>
+
+    {% if result %}
+        <div class="messagelist">
+            {% for msg_type, message in result.messages %}
+                <div class="{% if msg_type == 'success' %}success{% elif msg_type == 'error' %}error{% elif msg_type == 'warning' %}warning{% else %}info{% endif %}">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        </div>
+
+        {% if result.statistics %}
+            <h2>통계</h2>
+            <table>
+                <tbody>
+                    {% if result.statistics.expired_sessions is not None %}
+                    <tr>
+                        <th>만료된 세션:</th>
+                        <td>{{ result.statistics.expired_sessions }}개</td>
+                    </tr>
+                    {% endif %}
+                    {% if result.statistics.total_sessions is not None %}
+                    <tr>
+                        <th>전체 세션:</th>
+                        <td>{{ result.statistics.total_sessions }}개</td>
+                    </tr>
+                    {% endif %}
+                </tbody>
+            </table>
+        {% endif %}
+    {% else %}
+        <p>만료된 세션을 정리하여 데이터베이스 공간을 절약합니다.</p>
+    {% endif %}
+
+    <form method="post" style="margin-top: 20px;">
+        {% csrf_token %}
+
+        <div style="margin-bottom: 10px;">
+            <label>
+                <input type="checkbox" name="clean_all" value="true">
+                <strong>모든 세션 삭제</strong> (주의: 모든 사용자가 로그아웃됩니다)
+            </label>
+        </div>
+
+        <button type="submit" name="execute" value="false" class="button">Dry-run (미리보기)</button>
+        <button type="submit" name="execute" value="true" class="button" style="background-color: #ba2121; margin-left: 10px;">실행</button>
+        <a href="{% url 'admin:utility_dashboard' %}" class="button" style="margin-left: 10px;">돌아가기</a>
+    </form>
+</div>
+{% endblock %}
