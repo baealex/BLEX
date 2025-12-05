@@ -28,49 +28,38 @@
             </ul>
             <p style="margin-top: 41px;"><a href="{% url 'admin:clean_logs' %}" class="button">시작하기</a></p>
         </div>
-        
-        <!-- 아바타 마이그레이션 -->
+
+        <!-- 세션 정리 -->
         <div class="module">
-            <h2>👤 아바타 마이그레이션</h2>
-            <p>아바타 이미지를 hex-sharded 구조로 마이그레이션합니다.</p>
+            <h2>🔐 세션 정리</h2>
+            <p>만료되거나 불필요한 세션을 정리합니다.</p>
             <ul>
-                <li>MD5 기반 디렉토리 구조</li>
-                <li>자동 경로 업데이트</li>
+                <li>만료된 세션 삭제</li>
+                <li>데이터베이스 용량 절약</li>
             </ul>
-            <p style="margin-top: 18px;"><a href="{% url 'admin:migrate_avatars' %}" class="button">시작하기</a></p>
+            <p style="margin-top: 41px;"><a href="{% url 'admin:clean_sessions' %}" class="button">시작하기</a></p>
         </div>
-        
-        <!-- 타이틀 이미지 마이그레이션 -->
+
+        <!-- 데이터베이스 통계 -->
         <div class="module">
-            <h2>🎨 타이틀 이미지 마이그레이션</h2>
-            <p>타이틀 이미지를 날짜 기반 구조로 마이그레이션합니다.</p>
+            <h2>📊 데이터베이스 통계</h2>
+            <p>전체 시스템의 데이터베이스 통계를 확인합니다.</p>
             <ul>
-                <li>YYYY/M/D 디렉토리 구조</li>
-                <li>관련 파일 자동 이동</li>
+                <li>포스트/댓글/사용자 통계</li>
+                <li>데이터베이스 크기 확인</li>
             </ul>
-            <p style="margin-top: 18px;"><a href="{% url 'admin:migrate_titles' %}" class="button">시작하기</a></p>
+            <p style="margin-top: 18px;"><a href="{% url 'admin:database_stats' %}" class="button">확인하기</a></p>
         </div>
-        
-        <!-- 중복 포스트 이미지 제거 -->
+
+        <!-- 태그 정리 -->
         <div class="module">
-            <h2>🔄 중복 포스트 이미지 제거</h2>
-            <p>동일한 내용의 포스트 이미지를 통합하고 중복 파일을 삭제합니다.</p>
+            <h2>🏷️ 태그 정리</h2>
+            <p>사용되지 않는 태그를 정리합니다.</p>
             <ul>
-                <li>파일 해시 기반 중복 검사</li>
-                <li>자동 포스트 업데이트</li>
+                <li>미사용 태그 탐지</li>
+                <li>태그 통계 확인</li>
             </ul>
-            <p style="margin-top: 18px;"><a href="{% url 'admin:deduplicate_posts' %}" class="button">시작하기</a></p>
-        </div>
-        
-        <!-- HTML 태그 검증 -->
-        <div class="module">
-            <h2>🔍 헤딩 태그 검증</h2>
-            <p>포스트의 HTML에서 잘못 매칭된 헤딩 태그(h1~h6)를 찾아서 수정합니다.</p>
-            <ul>
-                <li>헤딩 태그 불일치 검사</li>
-                <li>자동 태그 수정</li>
-            </ul>
-            <p style="margin-top: 18px;"><a href="{% url 'admin:validate_html' %}" class="button">시작하기</a></p>
+            <p style="margin-top: 41px;"><a href="{% url 'admin:clean_tags' %}" class="button">시작하기</a></p>
         </div>
     </div>
     
