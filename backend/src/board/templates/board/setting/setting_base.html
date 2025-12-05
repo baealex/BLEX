@@ -176,6 +176,18 @@
                             <span class="font-medium text-[15px]">연동</span>
                         </a>
                     </li>
+                    <li>
+                        <a href="{% url 'setting_developer' %}"
+                           @click="settingsMenuOpen = false"
+                           class="flex items-center px-3 py-3 rounded-xl transition-all duration-200
+                            {% if active == 'developer' %}bg-black text-white shadow-md{% else %}text-gray-700 hover:bg-gray-50 active:bg-gray-100{% endif %}">
+                            <div class="w-9 h-9 rounded-lg flex items-center justify-center mr-3
+                                {% if active == 'developer' %}bg-white/20{% else %}bg-gray-100{% endif %}">
+                                <i class="fas fa-code text-sm {% if active == 'developer' %}text-white{% else %}text-gray-600{% endif %}"></i>
+                            </div>
+                            <span class="font-medium text-[15px]">개발자</span>
+                        </a>
+                    </li>
                 </ul>
             </div>
 
@@ -301,6 +313,16 @@
                                         <i class="fas fa-plug text-lg {% if active == 'integration' %}text-white{% else %}text-gray-600 group-hover:text-gray-900{% endif %}"></i>
                                     </div>
                                     <span class="font-semibold text-base">연동</span>
+                                </a>
+                            </li>
+                            <li>
+                                <a href="{% url 'setting_developer' %}" class="group flex items-center px-5 py-4 rounded-2xl transition-all duration-300
+                                    {% if active == 'developer' %}bg-black text-white shadow-md{% else %}text-gray-700 hover:bg-gray-50 hover:text-gray-900{% endif %}">
+                                    <div class="w-10 h-10 rounded-xl flex items-center justify-center mr-4
+                                        {% if active == 'developer' %}bg-white/20{% else %}bg-gray-100 group-hover:bg-gray-200{% endif %}">
+                                        <i class="fas fa-code text-lg {% if active == 'developer' %}text-white{% else %}text-gray-600 group-hover:text-gray-900{% endif %}"></i>
+                                    </div>
+                                    <span class="font-semibold text-base">개발자</span>
                                 </a>
                             </li>
                             {% if request.user.is_staff %}

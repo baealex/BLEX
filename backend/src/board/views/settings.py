@@ -115,3 +115,15 @@ def setting_temp_posts(request):
         'active': 'temp_posts'
     }
     return render(request, 'board/setting/setting_temp_posts.html', context)
+
+
+@login_required
+def setting_developer(request):
+    """
+    Developer settings page view.
+    Renders the developer settings template with user's webhooks.
+    """
+    context = {
+        'active': 'developer'
+    }
+    return render(request, 'board/setting/setting_developer.html', context)

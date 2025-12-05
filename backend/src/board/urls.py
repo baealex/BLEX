@@ -20,7 +20,7 @@ from board.views.static_pages import static_page_view
 from board.views.settings import (
     setting_overview, setting_profile, setting_account, setting_series,
     setting_posts,
-    setting_integration, setting_forms, setting_temp_posts
+    setting_integration, setting_forms, setting_temp_posts, setting_developer
 )
 from board.decorators import staff_member_required
 
@@ -48,6 +48,7 @@ urlpatterns = [
     path('settings/integration', setting_integration, name='setting_integration'),
     path('settings/forms', setting_forms, name='setting_forms'),
     path('settings/temp-posts', setting_temp_posts, name='setting_temp_posts'),
+    path('settings/developer', setting_developer, name='setting_developer'),
 
     # Post actions
     path('like/<url>', like_post, name='like_post'),
