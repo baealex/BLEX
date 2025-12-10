@@ -105,7 +105,7 @@ const LoginForm: React.FC<LoginFormProps> = ({
                         required
                         value={username}
                         onChange={(e) => onUsernameChange(e.target.value)}
-                        className="w-full px-4 py-3 border border-solid border-gray-300 rounded-xl focus:ring-2 focus:ring-gray-500 focus:border-transparent text-gray-900 placeholder-slate-500 transition-all duration-200 bg-white/50"
+                        className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-gray-500 focus:border-transparent text-gray-900 placeholder-slate-500 transition-all duration-200 bg-white/50"
                         placeholder="사용자 이름을 입력하세요"
                     />
                     {usernameError && (
@@ -125,7 +125,7 @@ const LoginForm: React.FC<LoginFormProps> = ({
                         required
                         value={password}
                         onChange={(e) => onPasswordChange(e.target.value)}
-                        className="w-full px-4 py-3 border border-solid border-gray-300 rounded-xl focus:ring-2 focus:ring-gray-500 focus:border-transparent text-gray-900 placeholder-slate-500 transition-all duration-200 bg-white/50"
+                        className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-gray-500 focus:border-transparent text-gray-900 placeholder-slate-500 transition-all duration-200 bg-white/50"
                         placeholder="비밀번호를 입력하세요"
                     />
                     {passwordError && (

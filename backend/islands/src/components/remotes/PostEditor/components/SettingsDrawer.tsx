@@ -97,7 +97,7 @@ const SettingsDrawer: React.FC<SettingsDrawerProps> = ({
                                             id="drawer-url"
                                             value={url}
                                             onChange={(e) => onUrlChange(e.target.value)}
-                                            className="w-full px-4 py-2.5 border border-solid border-gray-300 rounded-xl focus:ring-2 focus:ring-black focus:border-black text-sm transition-all"
+                                            className="w-full px-4 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-black focus:border-black text-sm transition-all"
                                             placeholder="게시글-url"
                                         />
                                         <p className="text-xs text-gray-400 mt-2">중복 시 자동으로 번호가 추가됩니다</p>
@@ -112,7 +112,7 @@ const SettingsDrawer: React.FC<SettingsDrawerProps> = ({
                                         id="drawer-meta"
                                         value={metaDescription}
                                         onChange={(e) => onMetaDescriptionChange(e.target.value)}
-                                        className="w-full px-4 py-3 border border-solid border-gray-300 rounded-xl focus:ring-2 focus:ring-black focus:border-black resize-none text-sm transition-all"
+                                        className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-black focus:border-black resize-none text-sm transition-all"
                                         rows={4}
                                         maxLength={150}
                                         placeholder="검색 엔진을 위한 설명을 입력하세요..."
@@ -163,7 +163,7 @@ const SettingsDrawer: React.FC<SettingsDrawerProps> = ({
                                         <button
                                             type="button"
                                             onClick={() => setIsSeriesDropdownOpen(!isSeriesDropdownOpen)}
-                                            className="w-full flex items-center justify-between px-4 py-2.5 border border-solid border-gray-300 rounded-xl focus:ring-2 focus:ring-black focus:border-black text-sm hover:bg-gray-50 transition-all">
+                                            className="w-full flex items-center justify-between px-4 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-black focus:border-black text-sm hover:bg-gray-50 transition-all">
                                             <span className={selectedSeries.name ? 'text-gray-900' : 'text-gray-400'}>
                                                 {selectedSeries.name || '선택 안 함'}
                                             </span>
@@ -177,9 +177,9 @@ const SettingsDrawer: React.FC<SettingsDrawerProps> = ({
                                                 <div
                                                     onClick={() => {
                                                         onSeriesChange({
- id: '',
-name: ''
-});
+                                                            id: '',
+                                                            name: ''
+                                                        });
                                                         setIsSeriesDropdownOpen(false);
                                                     }}
                                                     className="px-4 py-3 hover:bg-gray-50 cursor-pointer border-b border-gray-100 text-sm text-gray-600 transition-colors">
@@ -192,9 +192,8 @@ name: ''
                                                             onSeriesChange(series);
                                                             setIsSeriesDropdownOpen(false);
                                                         }}
-                                                        className={`px-4 py-3 hover:bg-gray-50 cursor-pointer border-b border-gray-100 last:border-b-0 text-sm transition-colors ${
-                                                            selectedSeries.id === series.id ? 'bg-gray-50 text-gray-900 font-medium' : 'text-gray-700'
-                                                        }`}>
+                                                        className={`px-4 py-3 hover:bg-gray-50 cursor-pointer border-b border-gray-100 last:border-b-0 text-sm transition-colors ${selectedSeries.id === series.id ? 'bg-gray-50 text-gray-900 font-medium' : 'text-gray-700'
+                                                            }`}>
                                                         {series.name}
                                                     </div>
                                                 ))}

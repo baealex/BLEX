@@ -18,7 +18,7 @@
             <p class="text-lg text-gray-600">자신을 소개하는 글을 작성해 보세요.</p>
         </div>
 
-        <div class="bg-white rounded-xl p-6 mb-6 text-gray-800 border border-solid border-gray-200"
+        <div class="bg-white rounded-xl p-6 mb-6 text-gray-800 border border-gray-200"
              x-data="{
                 tips: [],
                 currentIndex: 0,
@@ -33,7 +33,7 @@
                 <div class="flex items-center"
                      x-show="currentIndex === index"
                      class="text-base leading-relaxed">
-                     <span class="bg-black text-black px-2 py-1 border border-solid border-gray-300 rounded-md mr-2 text-xs">TIP</span>
+                     <span class="bg-black text-black px-2 py-1 border border-gray-300 rounded-md mr-2 text-xs">TIP</span>
                      <span x-text="tip"
                            x-show="currentIndex === index"
                            x-transition:enter="transition ease-out duration-500"
@@ -100,7 +100,7 @@
             <textarea
                 x-model="content"
                 :placeholder="placeholder"
-                class="w-full p-4 border border-solid border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 h-64"
+                class="w-full p-4 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 h-64"
             ></textarea>
             <button
                 @click="saveAbout()"

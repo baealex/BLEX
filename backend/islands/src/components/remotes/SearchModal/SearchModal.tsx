@@ -132,7 +132,7 @@ const SearchModal: React.FC<SearchModalProps> = ({ isOpen: initialIsOpen = false
                                 onChange={(e) => setQuery(e.target.value)}
                                 placeholder="검색어를 입력하세요..."
                                 maxLength={20}
-                                className="w-full px-4 py-3 pr-24 border border-solid border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-gray-200 focus:border-gray-300 transition-all text-gray-900 placeholder-gray-500"
+                                className="w-full px-4 py-3 pr-24 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-gray-200 focus:border-gray-300 transition-all text-gray-900 placeholder-gray-500"
                                 autoComplete="off"
                                 autoFocus
                             />
@@ -300,8 +300,8 @@ const SearchModal: React.FC<SearchModalProps> = ({ isOpen: initialIsOpen = false
                                                     key={i}
                                                     onClick={() => handlePageChange(pageNum)}
                                                     className={`px-3 py-1.5 rounded-lg transition-colors text-sm font-medium ${pageNum === page
-                                                            ? 'bg-gray-900 text-white'
-                                                            : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                                                        ? 'bg-gray-900 text-white'
+                                                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                                                         }`}>
                                                     {pageNum}
                                                 </button>

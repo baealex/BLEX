@@ -1,22 +1,15 @@
-@forward "@baejino/style/css/reset.css";
-@forward "./variables.css";
-@forward "./forwarded.scss";
-@forward "./tailwind.css";
-@forward "./fontawesome.scss";
+@use "./forwarded.scss";
+@use "./fontawesome.scss";
 
-body {
-    font-family: 'SpoqaHanSansNeo', -apple-system, BlinkMacSystemFont, sans-serif;
-    word-break: keep-all;
-    overflow-wrap: anywhere;
-    overflow-x: hidden;
-}
+@layer base {
+    body {
+        font-family: 'SpoqaHanSansNeo', -apple-system, BlinkMacSystemFont, sans-serif;
+        word-break: keep-all;
+        overflow-x: hidden;
+        overflow-wrap: anywhere;
+    }
 
-a {
-    text-decoration: none;
-    color: inherit;
-    transition: color var(--transition-fast);
-}
-
-[x-cloak] {
-    display: none !important;
+    [x-cloak] {
+        display: none !important;
+    }
 }

@@ -31,7 +31,7 @@ export const CommentForm = ({
         return (
             <div className="relative group cursor-pointer" onClick={onShowLoginPrompt}>
                 <textarea
-                    className="w-full p-4 border border-solid border-gray-200 rounded-xl resize-none bg-white text-sm placeholder-gray-400 pointer-events-none transition-all duration-200 group-hover:border-gray-300"
+                    className="w-full p-4 border border-gray-200 rounded-xl resize-none bg-white text-sm placeholder-gray-400 pointer-events-none transition-all duration-200 group-hover:border-gray-300"
                     placeholder="댓글을 작성해보세요..."
                     rows={4}
                     disabled
@@ -68,7 +68,7 @@ export const CommentForm = ({
             <div className="relative">
                 <textarea
                     ref={textareaRef}
-                    className="w-full p-4 border border-solid border-gray-200 rounded-xl focus:ring-2 focus:ring-gray-300 focus:border-gray-300 resize-none bg-white transition-all duration-200 placeholder-gray-400 text-sm hover:border-gray-300"
+                    className="w-full p-4 border border-gray-200 rounded-xl focus:ring-2 focus:ring-gray-300 focus:border-gray-300 resize-none bg-white transition-all duration-200 placeholder-gray-400 text-sm hover:border-gray-300"
                     value={commentText}
                     onChange={(e) => onCommentTextChange(e.target.value)}
                     disabled={isSubmitting}

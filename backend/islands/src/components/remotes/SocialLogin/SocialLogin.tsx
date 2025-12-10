@@ -1,4 +1,3 @@
-import React from 'react';
 import { useSocialProviders } from './hooks/useSocialProviders';
 
 interface SocialProvider {
@@ -7,7 +6,7 @@ interface SocialProvider {
     color: string;
 }
 
-const SocialLogin: React.FC = () => {
+const SocialLogin = () => {
     const { providers, loading } = useSocialProviders();
 
     const handleSocialLogin = (provider: SocialProvider) => {

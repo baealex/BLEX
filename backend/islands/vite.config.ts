@@ -1,5 +1,6 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
+import tailwindcss from '@tailwindcss/vite';
 import { resolve } from 'path';
 
 export default defineConfig(({ mode }) => {
@@ -9,6 +10,7 @@ export default defineConfig(({ mode }) => {
         base: './',
 
         plugins: [
+            tailwindcss(),
             ...(isDevelopment ? [] : [react()])
         ],
 
@@ -29,6 +31,7 @@ export default defineConfig(({ mode }) => {
                 input: {
                     island: resolve(__dirname, 'src/island.tsx'),
                     mainStyle: resolve(__dirname, 'styles/main.scss'),
+                    tailwindStyle: resolve(__dirname, 'styles/tailwind.css'),
                     postStyle: resolve(__dirname, 'styles/post.scss'),
                     lazyLoading: resolve(__dirname, 'src/scripts/lazy-loading.ts'),
                     alpineLoader: resolve(__dirname, 'src/scripts/alpine-loader.ts'),

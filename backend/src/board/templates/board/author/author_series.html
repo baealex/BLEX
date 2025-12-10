@@ -48,7 +48,7 @@
             {% else %}
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                     {% for series in series_list %}
-                    <a href="/@{{ author.username }}/series/{{ series.url }}" class="block bg-white rounded-2xl overflow-hidden border border-solid border-gray-200 hover:shadow-md hover:border-gray-300 transition-all duration-200 hover:-translate-y-1">
+                    <a href="/@{{ author.username }}/series/{{ series.url }}" class="block bg-white rounded-2xl overflow-hidden border border-gray-200 hover:shadow-md hover:border-gray-300 transition-all duration-200 hover:-translate-y-1">
                         <div class="p-6 flex flex-col h-full">
                             <h2 class="text-lg font-bold text-gray-900 leading-snug mb-3 hover:text-black">{{ series.name }}</h2>
                             <p class="text-sm text-gray-600 leading-relaxed flex-grow mb-4 line-clamp-3">{{ series.description }}</p>
