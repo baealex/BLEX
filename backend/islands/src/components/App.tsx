@@ -8,14 +8,18 @@ interface AppProps {
 }
 
 const LazyComponents = {
+    // Island components
     Comments: lazy(() => import('./remotes/Comments')),
-    PostEditor: lazy(() => import('./remotes/PostEditor')),
-    Login: lazy(() => import('./remotes/Login')),
     SocialLogin: lazy(() => import('./remotes/SocialLogin')),
     RelatedPosts: lazy(() => import('./remotes/RelatedPosts')),
     SearchModal: lazy(() => import('./remotes/SearchModal')),
     LoginPrompt: lazy(() => import('./remotes/LoginPrompt')),
     Toaster: lazy(() => import('./remotes/Toaster')),
+
+    // Pages
+    Login: lazy(() => import('./remotes/Login')),
+    Signup: lazy(() => import('./remotes/Signup')),
+    PostEditor: lazy(() => import('./remotes/PostEditor')),
 
     // Settings
     OverviewSetting: lazy(() => import('./remotes/Settings/OverviewSetting')),
