@@ -6,7 +6,7 @@
  */
 
 // Card styles - Clean, modern design with subtle shadows
-export const CARD_BASE = 'bg-white border border-gray-100 rounded-2xl shadow-sm hover:shadow-md hover:border-gray-200 transition-all duration-200';
+export const CARD_BASE = 'bg-white border border-gray-100 rounded-2xl hover:border-gray-200 transition-all duration-200';
 export const CARD_PADDING = 'p-5';
 
 // Icon container styles - Minimal grayscale design

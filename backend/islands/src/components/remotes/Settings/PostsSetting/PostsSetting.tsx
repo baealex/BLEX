@@ -302,7 +302,7 @@ const PostsSetting = () => {
     }
 
     return (
-        <div className="p-6 bg-white shadow-sm rounded-2xl border border-gray-200">
+        <div>
             {/* 헤더 섹션 */}
             <div className="mb-6">
                 <div className="flex items-center justify-between mb-6">
@@ -310,18 +310,9 @@ const PostsSetting = () => {
                         <h2 className="text-2xl font-bold text-gray-900 mb-2">포스트</h2>
                         <p className="text-gray-600">포스트를 관리하고 태그, 시리즈를 편집하세요.</p>
                     </div>
-                    <Button
-                        variant="primary"
-                        size="md"
-                        leftIcon={<i className="fas fa-plus" />}
-                        onClick={() => window.location.href = '/write'}
-                        className="hidden sm:inline-flex">
-                        새 포스트 작성
-                    </Button>
                 </div>
 
-                {/* Mobile button */}
-                <div className="sm:hidden">
+                <div>
                     <Button
                         variant="primary"
                         size="md"
@@ -410,7 +401,7 @@ const PostsSetting = () => {
             ) : (
                 <div className="space-y-3">
                     {posts.map((post) => (
-                        <div key={post.url} className="bg-white border border-gray-100 rounded-2xl shadow-sm hover:shadow-md hover:border-gray-200 transition-all duration-200 overflow-hidden">
+                        <div key={post.url} className="bg-white border border-gray-100 rounded-2xl hover:border-gray-200 transition-all duration-200 overflow-hidden">
                             {/* 헤더 */}
                             <div
                                 className="p-5 border-b border-gray-50 cursor-pointer hover:bg-gray-50 transition-colors"

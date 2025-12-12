@@ -17,16 +17,28 @@ Alpine.js 기반 좋아요 버튼 컴포넌트
     })"
     @click="handleLike()"
     :class="{
-        'bg-black border-black text-white hover:bg-gray-800': liked,
-        'bg-gray-50 border-gray-200 hover:border-gray-300 text-gray-700 hover:bg-gray-100 hover:text-gray-900': !liked,
+        'text-red-500': liked,
+        'text-gray-600 hover:text-black': !liked && '{{ variant }}' === 'floating',
+        'bg-red-50 border-red-100 text-red-500 hover:bg-red-100': liked && '{{ variant }}' !== 'floating',
+        'bg-white border-gray-200 text-gray-400 hover:border-gray-300 hover:text-gray-600 hover:bg-gray-50': !liked && '{{ variant }}' !== 'floating',
         'opacity-70 cursor-not-allowed': loading,
-        'active:scale-95': !loading
+        'active:scale-95': !loading,
+        'hover:bg-gray-100/50': '{{ variant }}' === 'floating' && !liked
     }"
     :disabled="loading"
-    class="group inline-flex items-center justify-center border font-medium transition-all duration-200 outline-none cursor-pointer
-    {% if size == 'small' %}gap-1.5 px-4 py-2.5 sm:px-4 sm:py-2.5 min-h-[44px] sm:min-h-auto rounded-xl{% else %}gap-1.5 px-3 py-1 rounded-3xl{% endif %}">
+    class="group inline-flex items-center justify-center transition-all duration-300 outline-none cursor-pointer select-none
+    {% if variant == 'floating' %}
+        gap-2 px-3 py-2 rounded-full font-medium
+    {% elif size == 'mini' %}
+        border gap-1.5 px-2.5 py-1 rounded-lg text-xs font-medium h-7
+    {% elif size == 'small' %}
+        border gap-1.5 px-4 py-2.5 min-h-[44px] rounded-xl text-sm font-medium
+    {% else %}
+        border gap-2 px-4 py-2 rounded-full text-sm font-medium
+    {% endif %}">
     <i :class="{
-        'fas fa-heart': true
-    }" class="{% if size == 'small' %}text-base{% endif %}"></i>
-    <span x-text="count" class="text-sm"></span>
+        'fas fa-heart': true,
+        'animate-heart-beat': liked && !loading
+    }" class="transition-transform duration-300 {% if size == 'mini' %}text-xs{% else %}text-sm{% endif %}"></i>
+    <span x-text="count" class="{% if size == 'mini' %}text-xs{% endif %}"></span>
 </button>

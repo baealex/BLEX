@@ -22,19 +22,19 @@ const Button = ({
     disabled,
     ...props
 }: ButtonProps) => {
-    const baseStyles = 'inline-flex justify-center items-center border border-transparent font-semibold transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed';
+    const baseStyles = 'inline-flex justify-center items-center border border-transparent font-semibold transition-all duration-200 focus:outline-none focus:ring-4 focus:ring-offset-1 disabled:opacity-50 disabled:cursor-not-allowed active:scale-[0.98]';
 
     const variantStyles = {
-        primary: 'text-white bg-black hover:bg-gray-800 hover:shadow-lg focus:ring-gray-500 hover:scale-105 shadow-md',
-        secondary: 'text-gray-700 bg-white border-gray-300 hover:bg-gray-50 hover:border-gray-400 focus:ring-gray-500',
-        danger: 'text-white bg-red-600 hover:bg-red-700 hover:shadow-lg focus:ring-red-500 hover:scale-105 shadow-md',
-        ghost: 'text-gray-600 hover:text-gray-900 hover:bg-gray-100 focus:ring-gray-500'
+        primary: 'text-white bg-black hover:bg-gray-800 hover:shadow-lg shadow-md focus:ring-black/20 border-transparent',
+        secondary: 'text-gray-700 bg-white border-gray-200 hover:bg-gray-50 hover:border-gray-300 focus:ring-gray-200 shadow-sm hover:shadow-md',
+        danger: 'text-white bg-red-600 hover:bg-red-700 hover:shadow-lg shadow-md focus:ring-red-500/30 border-transparent',
+        ghost: 'text-gray-600 hover:text-gray-900 hover:bg-gray-100/50 focus:ring-gray-200 border-transparent'
     };
 
     const sizeStyles = {
-        sm: 'px-3 py-2 text-xs rounded-xl min-h-[36px]',
-        md: 'px-4 py-3 text-sm rounded-2xl min-h-[48px]',
-        lg: 'px-6 py-4 text-base rounded-2xl min-h-[56px]'
+        sm: 'px-3.5 py-2 text-xs rounded-xl min-h-[36px]',
+        md: 'px-5 py-3 text-sm rounded-2xl min-h-[48px]',
+        lg: 'px-7 py-4 text-base rounded-2xl min-h-[56px]'
     };
 
     const widthStyle = fullWidth ? 'w-full' : '';

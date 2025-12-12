@@ -11,36 +11,39 @@
 {% block content %}
 {% include 'board/author/components/author_header.html' %}
 
-<div class="container mx-auto">
+<div class="max-w-5xl w-full mx-auto px-4 sm:px-6">
     {% with active_tab='about' %}
         {% include 'board/author/components/tabs_nav.html' %}
     {% endwith %}
 
     {% if not about_content %}
-        <div class="text-center py-16">
-            <h2 class="text-2xl font-bold mb-2 text-gray-900">소개글이 없습니다.</h2>
-            <p class="text-base text-gray-600 mb-6">{{ author.username }}님이 아직 소개글을 작성하지 않았어요.</p>
-            {% if user == author %}
-                <a href="/@{{ author.username }}/about/edit" class="inline-flex items-center gap-2 bg-black text-white px-5 py-2.5 rounded-xl font-medium hover:bg-gray-800 transition-all duration-200">
-                    <i class="fas fa-plus"></i>
-                    소개글 추가하기
-                </a>
-            {% endif %}
+        <div class="text-center py-20 bg-gray-50 rounded-3xl border border-gray-100">
+            <div class="max-w-md mx-auto px-6">
+                <div class="inline-flex items-center justify-center w-16 h-16 bg-white shadow-sm rounded-2xl mb-6">
+                    <i class="fas fa-user text-2xl text-gray-300"></i>
+                </div>
+                <h2 class="text-xl font-bold text-gray-900 mb-2">No introduction yet</h2>
+                <p class="text-gray-500 mb-8">{{ author.username }} hasn't written an introduction yet.</p>
+                {% if user == author %}
+                    <a href="/@{{ author.username }}/about/edit" class="inline-flex items-center gap-2 bg-black text-white px-6 py-3 rounded-full font-medium hover:bg-gray-800 transition-all duration-300 hover:shadow-lg hover:-translate-y-0.5">
+                        <i class="fas fa-plus text-sm"></i>
+                        <span>소개글 추가</span>
+                    </a>
+                {% endif %}
+            </div>
         </div>
     {% else %}
-    <div class="max-w-3xl w-full mx-auto">
+    <div class="mb-24">
         {% if user == author %}
-            <div class="text-right mb-3">
-                <a href="#" x-data="{ url: '/@{{ author.username }}/about/edit' }" @click="window.location.replace(url)" class="inline-flex items-center gap-2 bg-gray-50 hover:bg-gray-100 text-gray-700 hover:text-gray-900 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 border border-gray-200">
+            <div class="flex justify-end mb-4">
+                <a href="#" x-data="{ url: '/@{{ author.username }}/about/edit' }" @click="window.location.replace(url)" class="inline-flex items-center gap-2 bg-white text-gray-600 hover:text-black px-4 py-2 rounded-full text-sm font-medium transition-all duration-200 border border-gray-200 hover:border-gray-300 hover:shadow-sm">
                     <i class="fas fa-edit text-xs"></i>
-                    <span>수정하기</span>
+                    <span>편집</span>
                 </a>
             </div>
         {% endif %}
-        <div class="bg-white border border-gray-200 rounded-2xl p-6 sm:p-8 mb-8">
-            <div class="prose blog-post-content lg:prose-xl max-w-none">
-                {{ about_content|safe }}
-            </div>
+        <div class="prose blog-post-content lg:prose-xl max-w-none prose-headings:font-bold prose-a:text-blue-600 hover:prose-a:text-blue-700 prose-img:rounded-2xl">
+            {{ about_content|safe }}
         </div>
     </div>
     {% endif %}

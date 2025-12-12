@@ -4,127 +4,76 @@
 
 {% block extra_styles %}
 <style>
-    .floating-animation {
-        animation: float 6s ease-in-out infinite;
-    }
-    .floating-animation-delayed {
-        animation: float 6s ease-in-out infinite 2s;
-    }
-    .floating-animation-slow {
-        animation: float 8s ease-in-out infinite 1s;
-    }
     @keyframes float {
         0%, 100% { transform: translateY(0px); }
         50% { transform: translateY(-20px); }
     }
-    @keyframes text-glow {
-        0%, 100% {
-            text-shadow: 0 0 20px var(--color-overlay-light), 0 0 40px rgba(255, 255, 255, 0.3);
-        }
-        50% {
-            text-shadow: 0 0 30px var(--color-overlay-medium), 0 0 60px var(--color-overlay-light);
-        }
+    .animate-float {
+        animation: float 6s ease-in-out infinite;
     }
-    @keyframes gradient-shift {
-        0% { background-position: 0% 50%; }
-        50% { background-position: 100% 50%; }
-        100% { background-position: 0% 50%; }
-    }
-    .gradient-bg {
-        background: var(--color-bg-darker);
-    }
-    .glass-effect {
-        backdrop-filter: blur(16px);
-        background: var(--color-glass-bg);
-        border: 1px solid var(--color-glass-border);
-        box-shadow: 0 8px 32px var(--color-shadow-sm);
-    }
-    .glow-text {
-        animation: text-glow 3s ease-in-out infinite;
-    }
-    /* Override main layout for full screen */
-    main {
-        min-height: 100vh !important;
-        display: flex !important;
-        align-items: center !important;
-        justify-content: center !important;
-        padding: 1rem !important;
-        margin: 0 !important;
-        position: fixed !important;
-        top: 0 !important;
-        left: 0 !important;
-        right: 0 !important;
-        bottom: 0 !important;
-        z-index: 1000 !important;
-    }
-    body {
-        overflow: hidden;
+    .animate-float-delayed {
+        animation: float 6s ease-in-out infinite 2s;
     }
 </style>
 {% endblock %}
 
 {% block content %}
-<div class="gradient-bg absolute inset-0"></div>
-    <div class="max-w-4xl mx-auto text-center" x-data="pageNotFound()">
-        <!-- Floating Elements -->
-        <div class="absolute inset-0 overflow-hidden pointer-events-none">
-            <div class="floating-animation absolute top-20 left-10 w-16 h-16 bg-white/20 rounded-full"></div>
-            <div class="floating-animation-delayed absolute top-40 right-20 w-12 h-12 bg-white/15 rounded-full"></div>
-            <div class="floating-animation absolute bottom-20 left-20 w-20 h-20 bg-white/10 rounded-full"></div>
-            <div class="floating-animation-delayed absolute bottom-40 right-10 w-14 h-14 bg-white/25 rounded-full"></div>
-        </div>
-
-        <!-- Main Content -->
-        <div class="relative z-10">
-            <!-- 404 Number -->
-            <div class="mb-8">
-                <h1 class="glow-text text-9xl md:text-[12rem] font-bold text-white/95 leading-none tracking-tight transform hover:scale-105 transition-transform duration-500 cursor-default">
-                    404
-                </h1>
-            </div>
-
-            <!-- Error Message -->
-            <div class="glass-effect rounded-2xl p-8 md:p-12 mb-8 mx-auto max-w-2xl">
-                <h2 class="text-3xl md:text-4xl font-bold text-white mb-4">
-                    페이지를 찾을 수 없습니다
-                </h2>
-                
-                <p class="text-xl text-white/80 leading-relaxed">
-                    요청하신 페이지가 존재하지 않거나 이동되었습니다.<br>
-                    URL을 다시 확인해주세요.
-                </p>
-            </div>
-
-            <!-- Action Buttons -->
-            <div class="flex flex-col sm:flex-row gap-4 justify-center items-center">
-                <button
-                    @click="goBack()"
-                    class="px-8 py-4 bg-white text-gray-900 font-semibold rounded-full hover:bg-gray-100 transform hover:scale-105 transition-all duration-300 shadow-xl min-w-[160px]"
-                >
-                    <svg class="w-5 h-5 inline-block mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
-                    </svg>
-                    뒤로가기
-                </button>
-
-                <a href="/" class="px-8 py-4 bg-transparent border-2 border-white text-white font-semibold rounded-full hover:bg-white hover:text-gray-900 transform hover:scale-105 transition-all duration-300 min-w-[160px]">
-                    홈으로 이동
-                </a>
-            </div>
-        </div>
+<div class="fixed inset-0 bg-gray-50 overflow-hidden flex items-center justify-center">
+    <!-- Background Elements -->
+    <div class="absolute inset-0 overflow-hidden pointer-events-none">
+        <div class="absolute -top-[20%] -left-[10%] w-[70%] h-[70%] bg-blue-100/30 rounded-full blur-3xl animate-float"></div>
+        <div class="absolute top-[20%] -right-[10%] w-[60%] h-[60%] bg-purple-100/30 rounded-full blur-3xl animate-float-delayed"></div>
     </div>
 
-    <script>
-        function pageNotFound() {
-            return {
-                goBack() {
-                    if (window.history.length > 1) {
-                        window.history.back();
-                    } else {
-                        window.location.href = '/';
-                    }
+    <div class="relative z-10 max-w-2xl mx-auto px-6 text-center" x-data="pageNotFound()">
+        <!-- 404 Display -->
+        <div class="mb-12 relative">
+            <h1 class="text-[10rem] sm:text-[12rem] font-bold text-black/5 leading-none select-none">
+                404
+            </h1>
+            <div class="absolute inset-0 flex items-center justify-center">
+                <div class="w-24 h-24 bg-white rounded-3xl shadow-[0_8px_30px_rgba(0,0,0,0.12)] flex items-center justify-center transform rotate-12 hover:rotate-0 transition-transform duration-500">
+                    <i class="fas fa-exclamation text-4xl text-gray-900"></i>
+                </div>
+            </div>
+        </div>
+
+        <!-- Message -->
+        <h2 class="text-3xl sm:text-4xl font-bold text-gray-900 mb-6 tracking-tight">
+            Page Not Found
+        </h2>
+        
+        <p class="text-lg text-gray-500 mb-12 leading-relaxed max-w-md mx-auto">
+            The page you are looking for might have been removed, had its name changed, or is temporarily unavailable.
+        </p>
+
+        <!-- Actions -->
+        <div class="flex flex-col sm:flex-row gap-4 justify-center items-center">
+            <button
+                @click="goBack()"
+                class="px-8 py-3.5 bg-white text-gray-900 font-semibold rounded-full border border-gray-200 hover:border-gray-300 hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300 min-w-[160px]"
+            >
+                Go Back
+            </button>
+
+            <a href="/" class="px-8 py-3.5 bg-black text-white font-semibold rounded-full hover:bg-gray-800 hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300 min-w-[160px]">
+                Back to Home
+            </a>
+        </div>
+    </div>
+</div>
+
+<script>
+    function pageNotFound() {
+        return {
+            goBack() {
+                if (window.history.length > 1) {
+                    window.history.back();
+                } else {
+                    window.location.href = '/';
                 }
             }
         }
-    </script>
+    }
+</script>
 {% endblock %}

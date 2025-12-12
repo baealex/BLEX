@@ -42,7 +42,7 @@ const RecentActivitiesSection = ({ activities, isLoading }: RecentActivitiesSect
     };
 
     return (
-        <div className="p-6 bg-white shadow-sm rounded-2xl border border-gray-200">
+        <div>
             <h2 className="text-2xl font-bold text-gray-900 mb-6 flex items-center">
                 <i className="fas fa-clock mr-3" />
                 최근 활동

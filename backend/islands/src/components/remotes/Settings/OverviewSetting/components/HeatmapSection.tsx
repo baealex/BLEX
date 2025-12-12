@@ -41,7 +41,7 @@ const HeatmapSection = ({ heatmapData, isLoading }: HeatmapSectionProps) => {
 
     if (!heatmapData || Object.keys(heatmapData).length === 0) {
         return (
-            <div className="p-6 bg-white shadow-sm rounded-2xl border border-gray-200">
+            <div>
                 <div className="mb-6">
                     <h2 className="text-2xl font-bold text-gray-900 mb-2 flex items-center">
                         <i className="fas fa-fire mr-3" />
@@ -62,7 +62,7 @@ const HeatmapSection = ({ heatmapData, isLoading }: HeatmapSectionProps) => {
     }
 
     return (
-        <div className="p-6 bg-white shadow-sm rounded-2xl border border-gray-200">
+        <div>
             <div className="mb-6">
                 <h2 className="text-2xl font-bold text-gray-900 mb-2 flex items-center">
                     <i className="fas fa-fire mr-3" />

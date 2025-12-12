@@ -62,7 +62,7 @@ const TempPostsSetting = () => {
     }
 
     return (
-        <div className="p-6 bg-white shadow-sm rounded-2xl border border-gray-200">
+        <div>
             {/* 헤더 섹션 */}
             <div className="mb-6">
                 <h2 className="text-2xl font-bold text-gray-900 mb-2">임시저장</h2>

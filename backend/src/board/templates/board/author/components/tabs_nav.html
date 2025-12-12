@@ -1,28 +1,25 @@
 {% if author.profile.is_editor %}
-<div class="relative mb-6">
-    <div class="flex justify-center overflow-x-auto">
-        <div class="inline-flex bg-white rounded-2xl p-1 shadow-sm border border-gray-100 min-w-fit">
-            <a href="/@{{ author.username }}" class="relative px-5 sm:px-6 py-2.5 text-sm font-semibold rounded-xl transition-all duration-200 whitespace-nowrap {% if active_tab == 'posts' %}bg-black text-white{% else %}text-gray-600 hover:text-gray-900 hover:bg-gray-50{% endif %}">
+<div class="relative mb-10">
+    <div class="flex justify-center overflow-x-auto pb-2 sm:pb-0 hide-scrollbar">
+        <div class="inline-flex bg-gray-100/80 backdrop-blur-sm rounded-xl p-1.5 min-w-fit">
+            <a href="/@{{ author.username }}" class="relative px-6 py-2 text-sm font-bold rounded-lg transition-all duration-200 whitespace-nowrap {% if active_tab == 'posts' %}bg-white text-black shadow-sm{% else %}text-gray-500 hover:text-gray-900{% endif %}">
                 <span class="relative z-10 flex items-center gap-2">
-                    <i class="fas fa-file-alt text-xs"></i>
                     <span class="flex items-center gap-1.5">
                         포스트
-                        <span class="text-xs px-1.5 py-0.5 rounded-md {% if active_tab == 'posts' %}bg-gray-800 text-white{% else %}bg-gray-100 text-gray-500{% endif %}">{{ post_count }}</span>
+                        <span class="text-[10px] px-1.5 py-0.5 rounded-md {% if active_tab == 'posts' %}bg-black text-white{% else %}bg-gray-200 text-gray-500{% endif %}">{{ post_count }}</span>
                     </span>
                 </span>
             </a>
-            <a href="/@{{ author.username }}/series" class="relative px-5 sm:px-6 py-2.5 text-sm font-semibold rounded-xl transition-all duration-200 whitespace-nowrap {% if active_tab == 'series' %}bg-black text-white{% else %}text-gray-600 hover:text-gray-900 hover:bg-gray-50{% endif %}">
+            <a href="/@{{ author.username }}/series" class="relative px-6 py-2 text-sm font-bold rounded-lg transition-all duration-200 whitespace-nowrap {% if active_tab == 'series' %}bg-white text-black shadow-sm{% else %}text-gray-500 hover:text-gray-900{% endif %}">
                 <span class="relative z-10 flex items-center gap-2">
-                    <i class="fas fa-th-list text-xs"></i>
                     <span class="flex items-center gap-1.5">
                         시리즈
-                        <span class="text-xs px-1.5 py-0.5 rounded-md {% if active_tab == 'series' %}bg-gray-800 text-white{% else %}bg-gray-100 text-gray-500{% endif %}">{{ series_count }}</span>
+                        <span class="text-[10px] px-1.5 py-0.5 rounded-md {% if active_tab == 'series' %}bg-black text-white{% else %}bg-gray-200 text-gray-500{% endif %}">{{ series_count }}</span>
                     </span>
                 </span>
             </a>
-            <a href="/@{{ author.username }}/about" class="relative px-5 sm:px-6 py-2.5 text-sm font-semibold rounded-xl transition-all duration-200 whitespace-nowrap {% if active_tab == 'about' %}bg-black text-white{% else %}text-gray-600 hover:text-gray-900 hover:bg-gray-50{% endif %}">
+            <a href="/@{{ author.username }}/about" class="relative px-6 py-2 text-sm font-bold rounded-lg transition-all duration-200 whitespace-nowrap {% if active_tab == 'about' %}bg-white text-black shadow-sm{% else %}text-gray-500 hover:text-gray-900{% endif %}">
                 <span class="relative z-10 flex items-center gap-2">
-                    <i class="fas fa-user text-xs"></i>
                     소개
                 </span>
             </a>
@@ -31,5 +28,5 @@
 </div>
 {% else %}
 <!-- 편집자가 아닐 경우 탭 네비게이션 숨김 -->
-<div class="mb-6"></div>
+<div class="mb-8"></div>
 {% endif %}

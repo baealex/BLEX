@@ -249,7 +249,7 @@ const NewPostEditor = ({ tempToken }: NewPostEditorProps) => {
     };
 
     return (
-        <div className="bg-gray-50 min-h-screen relative transition-all duration-300">
+        <div className="bg-gray-50 py-8 min-h-screen relative transition-all duration-300">
             <div className="w-full max-w-4xl mx-auto transition-all duration-300">
                 <PostHeader
                     topOnly

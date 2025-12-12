@@ -90,60 +90,67 @@ const LoginForm: React.FC<LoginFormProps> = ({
     return (
         <>
             {/* Email Login Form */}
-            <form className="space-y-6" onSubmit={onSubmit}>
+            <form className="space-y-5" onSubmit={onSubmit}>
                 <input type="hidden" name="csrfmiddlewaretoken" value={getCsrfToken()} />
 
-                <div>
-                    <label htmlFor="username" className="block text-sm font-semibold text-gray-700 mb-2">
-                        사용자 이름
-                    </label>
-                    <input
-                        id="username"
-                        name="username"
-                        type="text"
-                        autoComplete="username"
-                        required
-                        value={username}
-                        onChange={(e) => onUsernameChange(e.target.value)}
-                        className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-gray-500 focus:border-transparent text-gray-900 placeholder-slate-500 transition-all duration-200 bg-white/50"
-                        placeholder="사용자 이름을 입력하세요"
-                    />
-                    {usernameError && (
-                        <p className="text-gray-500 text-sm mt-1.5 font-medium">{usernameError}</p>
-                    )}
-                </div>
+                <div className="space-y-4">
+                    <div>
+                        <label htmlFor="username" className="block text-xs font-semibold text-gray-500 mb-1.5 uppercase tracking-wide">
+                            사용자 이름
+                        </label>
+                        <input
+                            id="username"
+                            name="username"
+                            type="text"
+                            autoComplete="username"
+                            required
+                            value={username}
+                            onChange={(e) => onUsernameChange(e.target.value)}
+                            className="w-full px-4 py-3.5 border border-gray-200 rounded-2xl focus:ring-4 focus:ring-black/5 focus:border-black/30 text-gray-900 placeholder-gray-400 transition-all duration-200 bg-white/40 text-sm font-medium"
+                            placeholder="사용자 이름을 입력하세요"
+                        />
+                        {usernameError && (
+                            <p className="text-red-500 text-xs mt-1.5 font-medium flex items-center gap-1">
+                                <i className="fas fa-exclamation-circle" /> {usernameError}
+                            </p>
+                        )}
+                    </div>
 
-                <div>
-                    <label htmlFor="password" className="block text-sm font-semibold text-gray-700 mb-2">
-                        비밀번호
-                    </label>
-                    <input
-                        id="password"
-                        name="password"
-                        type="password"
-                        autoComplete="current-password"
-                        required
-                        value={password}
-                        onChange={(e) => onPasswordChange(e.target.value)}
-                        className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-gray-500 focus:border-transparent text-gray-900 placeholder-slate-500 transition-all duration-200 bg-white/50"
-                        placeholder="비밀번호를 입력하세요"
-                    />
-                    {passwordError && (
-                        <p className="text-gray-500 text-sm mt-1.5 font-medium">{passwordError}</p>
-                    )}
+                    <div>
+                        <label htmlFor="password" className="block text-xs font-semibold text-gray-500 mb-1.5 uppercase tracking-wide">
+                            비밀번호
+                        </label>
+                        <input
+                            id="password"
+                            name="password"
+                            type="password"
+                            autoComplete="current-password"
+                            required
+                            value={password}
+                            onChange={(e) => onPasswordChange(e.target.value)}
+                            className="w-full px-4 py-3.5 border border-gray-200 rounded-2xl focus:ring-4 focus:ring-black/5 focus:border-black/30 text-gray-900 placeholder-gray-400 transition-all duration-200 bg-white/40 text-sm font-medium"
+                            placeholder="비밀번호를 입력하세요"
+                        />
+                        {passwordError && (
+                            <p className="text-red-500 text-xs mt-1.5 font-medium flex items-center gap-1">
+                                <i className="fas fa-exclamation-circle" /> {passwordError}
+                            </p>
+                        )}
+                    </div>
                 </div>
 
                 {/* HCaptcha */}
                 {showCaptcha && (
-                    <div className="flex justify-center">
+                    <div className="flex justify-center py-2">
                         <div ref={captchaRef} className="transform scale-100 origin-center" />
                     </div>
                 )}
 
                 {/* Error Message */}
                 {loginError && (
-                    <div className="bg-gray-50 border border-gray-200 rounded-xl p-4">
-                        <p className="text-gray-700 text-sm font-medium text-center">{loginError}</p>
+                    <div className="bg-red-50 border border-red-100 rounded-xl p-4 flex items-center gap-3">
+                        <i className="fas fa-exclamation-triangle text-red-500" />
+                        <p className="text-red-600 text-sm font-medium">{loginError}</p>
                     </div>
                 )}
 
@@ -151,9 +158,9 @@ const LoginForm: React.FC<LoginFormProps> = ({
                 <button
                     type="submit"
                     disabled={isLoading}
-                    className="w-full flex items-center justify-center py-4 px-6 bg-gray-900 hover:bg-gray-800 text-white font-bold rounded-xl shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none text-base">
+                    className="w-full flex items-center justify-center py-3.5 px-6 bg-black hover:bg-gray-800 text-white font-semibold rounded-2xl shadow-lg shadow-black/20 hover:shadow-xl hover:-translate-y-0.5 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none text-sm">
                     {isLoading && (
-                        <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                             <circle
                                 className="opacity-25"
                                 cx="12"
@@ -170,12 +177,12 @@ const LoginForm: React.FC<LoginFormProps> = ({
             </form>
 
             {/* Divider */}
-            <div className="relative">
+            <div className="relative py-4">
                 <div className="absolute inset-0 flex items-center">
-                    <div className="w-full border-t border-gray-200 border-solid" />
+                    <div className="w-full border-t border-gray-200" />
                 </div>
-                <div className="relative flex justify-center text-sm">
-                    <span className="px-4 bg-white text-gray-500 font-medium">
+                <div className="relative flex justify-center text-xs uppercase tracking-wider">
+                    <span className="px-4 bg-white/50 backdrop-blur-sm text-gray-400 font-medium">
                         또는 간편하게
                     </span>
                 </div>
