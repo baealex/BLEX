@@ -40,7 +40,7 @@
 {% endblock %}
 
 {% block content %}
-<div class="max-w-4xl w-full mx-auto sm:py-8" role="main">
+<div class="max-w-4xl w-full mx-auto mt-6 px-4 md:px-6" role="main">
     <article itemscope itemtype="https://schema.org/BlogPosting" lang="{{ LANGUAGE_CODE|default:'ko' }}">
         <meta itemprop="headline" content="{{ post.title }}">
         <meta itemprop="description" content="{{ post.meta_description }}">
@@ -50,72 +50,77 @@
         <meta itemprop="image" content="{{ request.scheme }}://{{ request.get_host }}{{ post.image.url }}">
         {% endif %}
         
-        <div class="bg-white border border-gray-200 rounded-2xl p-4 sm:p-6 lg:p-8 mb-6 sm:mb-8 shadow-sm">
-            <div class="flex items-center gap-2 mb-4">
-                <div class="w-3 h-3 bg-black rounded-full"></div>
-                <span class="text-sm font-medium text-gray-500 uppercase tracking-wide">Article</span>
+        <!-- Article Header -->
+        <div class="mb-12 sm:mb-16">
+            <div class="flex items-center gap-2 mb-6">
+                <span class="px-3 py-1 bg-gray-100 text-gray-600 rounded-full text-xs font-semibold uppercase tracking-wider">
+                    포스트
+                </span>
             </div>
             
-            <h1 class="text-2xl sm:text-3xl lg:text-5xl font-bold text-gray-900 mb-4 sm:mb-6 leading-tight break-words" itemprop="headline">
+            <h1 class="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 mb-8 leading-tight tracking-tight break-words" itemprop="headline">
                 {{ post.title }}
             </h1>
             
-            <div class="flex flex-wrap items-center gap-4 sm:gap-6 text-sm text-gray-600 mb-6 sm:mb-8">
-                <div class="flex items-center gap-2" itemprop="author" itemscope itemtype="https://schema.org/Person">
-                    <a href="/@{{ post.author_username }}">
-                        <img class="w-8 h-8 rounded-full object-cover" 
+            <div class="flex flex-wrap items-center gap-6 text-sm text-gray-500 border-b border-gray-100 pb-8">
+                <div class="flex items-center gap-3" itemprop="author" itemscope itemtype="https://schema.org/Person">
+                    <a href="/@{{ post.author_username }}" class="group relative">
+                        <div class="absolute -inset-1 bg-gradient-to-tr from-gray-200 to-gray-100 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                        <img class="relative w-10 h-10 rounded-full object-cover ring-2 ring-white" 
                              src="{% media post.author_image %}"
                              alt="{{ post.author_username }}">
                     </a>
-                    <a href="/@{{ post.author_username }}" class="font-semibold text-gray-900 hover:text-black transition-colors" itemprop="name">
-                        {{ post.author_username }}
-                    </a>
-                </div>
-                
-                <div class="flex items-center gap-2">
-                    <i class="far fa-calendar text-gray-400"></i>
-                    <span itemprop="datePublished" content="{{ post.created_date|date:'c' }}">{{ post.created_date_display }}</span>
-                </div>
-                
-                <div class="flex items-center gap-2" aria-label="읽는 데 걸리는 시간">
-                    <i class="far fa-clock text-gray-400"></i>
-                    <span>{{ post.read_time }}분</span>
-                </div>
-            </div>
-            
-            
-            {% if post.image %}
-            <div class="mt-0">
-                <img class="w-full rounded-2xl shadow-sm" src="{{ post.image.url }}" alt="{{ post.title }}" itemprop="image">
-            </div>
-            {% endif %}
-        </div>
-        
-        <div class="bg-white border border-gray-200 rounded-2xl p-4 sm:p-6 lg:p-8 mb-6 sm:mb-8 shadow-sm">
-            <div class="prose prose-sm sm:prose-lg max-w-none blog-post-content break-words" itemprop="articleBody" lang="{{ LANGUAGE_CODE|default:'ko' }}">
-                {{ post.content.text_html|safe }}
-            </div>
-
-            {% if post.tags %}
-            <div class="mt-6 sm:mt-8 pt-6 sm:pt-8 border-t border-gray-200" itemprop="keywords">
-                <div class="flex items-center gap-2 mb-3">
-                    <div class="w-6 h-6 bg-gray-100 rounded-lg flex items-center justify-center">
-                        <i class="fas fa-hashtag text-gray-900 text-xs"></i>
-                    </div>
-                    <h3 class="text-sm font-semibold text-gray-900">태그</h3>
-                </div>
-                <div class="flex flex-wrap gap-2">
-                    {% for tag in post.tags.all %}
-                        <a href="{% url 'tag_detail' tag %}" class="inline-flex items-center px-4 py-2 bg-gray-50 hover:bg-black hover:text-white text-gray-700 rounded-xl text-sm font-medium transition-all duration-200 break-all border border-gray-200 hover:border-black">
-                            <i class="fas fa-hashtag text-xs mr-1.5 flex-shrink-0"></i>{{ tag }}
+                    <div class="flex flex-col">
+                        <span class="text-xs text-gray-400 font-medium mb-0.5">에디터</span>
+                        <a href="/@{{ post.author_username }}" class="font-semibold text-gray-900 hover:text-black transition-colors" itemprop="name">
+                            {{ post.author_username }}
                         </a>
-                    {% endfor %}
+                    </div>
+                </div>
+                
+                <div class="w-px h-8 bg-gray-200 mx-2 hidden sm:block"></div>
+                
+                <div class="flex items-center gap-6">
+                    <div class="flex flex-col">
+                        <span class="text-xs text-gray-400 font-medium mb-0.5">게시일</span>
+                        <span class="text-gray-900 font-medium" itemprop="datePublished" content="{{ post.created_date|date:'c' }}">{{ post.created_date_display }}</span>
+                    </div>
+                    
+                    <div class="flex flex-col" aria-label="읽는 시간">
+                        <span class="text-xs text-gray-400 font-medium mb-0.5">읽는 시간</span>
+                        <span class="text-gray-900 font-medium">{{ post.read_time }} 분</span>
+                    </div>
                 </div>
             </div>
-            {% endif %}
         </div>
+
+        <!-- Featured Image -->
+        {% if post.image %}
+        <div class="mb-12 sm:mb-16">
+            <img class="w-full rounded-3xl shadow-2xl shadow-gray-200/50" src="{{ post.image.url }}" alt="{{ post.title }}" itemprop="image">
+        </div>
+        {% endif %}
+        
+        <!-- Content -->
+        <div class="prose prose-lg max-w-none blog-post-content break-words mb-16" itemprop="articleBody" lang="{{ LANGUAGE_CODE|default:'ko' }}">
+            {{ post.content.text_html|safe }}
+        </div>
+
+        <!-- Tags -->
+        {% if post.tags %}
+        <div class="mb-16" itemprop="keywords">
+            <div class="flex flex-wrap gap-2">
+                {% for tag in post.tags.all %}
+                    <a href="{% url 'tag_detail' tag %}" class="inline-flex items-center px-4 py-2 bg-gray-50 hover:bg-black hover:text-white text-gray-600 rounded-full text-sm font-medium transition-all duration-300 border border-gray-100 hover:border-black">
+                        <span class="mr-1 opacity-50">#</span>{{ tag }}
+                    </a>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
     </article>
 
+    <!-- Floating Action Bar -->
     <div x-data="{
         async copyToClipboard() {
             try {
@@ -130,146 +135,126 @@
                 window.toast.error('복사에 실패했습니다');
             }
         }
-    }" class="fixed sm:sticky bottom-0 left-0 right-0 z-40 sm:mb-6 md:mb-8">
-        <div class="max-w-4xl w-full mx-auto sm:px-4">
-            <div class="bg-white sm:bg-white/10 sm:backdrop-blur-lg border-t sm:border sm:border-gray-200/80 border-gray-200 shadow-sm sm:shadow-[0_-4px_16px_rgba(0,0,0,0.08)] sm:rounded-2xl px-4 sm:px-5 py-2 sm:py-3">
-                <div class="flex items-center justify-around sm:justify-between gap-2 sm:gap-4">
-                    <div class="hidden sm:flex items-center gap-3 min-w-0 flex-1">
-                        <a href="/@{{ post.author_username }}" class="flex-shrink-0 group">
-                            <img class="w-10 h-10 rounded-full object-cover ring-2 ring-transparent group-hover:ring-gray-200 transition-all"
-                                src="{% media post.author_image %}"
-                                alt="{{ post.author_username }}">
-                        </a>
-                        <div class="min-w-0">
-                            <div class="font-semibold text-gray-900 truncate text-sm leading-tight">{{ post.title }}</div>
-                            <div class="text-xs text-gray-500 mt-0.5">by {{ post.author_username }}</div>
-                        </div>
-                    </div>
-
-                    <div class="flex items-center gap-3 sm:gap-2 sm:flex-shrink-0">
-                        {% include 'components/like_button.html' with post_url=post.url likes_count=post.count_likes has_liked=post.has_liked size='small' %}
-
-                        <button @click="
-                            const decodedUrl = decodeURIComponent(window.location.href);
-                            if (navigator.share) {
-                                navigator.share({
-                                    title: '{{ post.title|escapejs }}',
-                                    text: '{{ post.meta_description|escapejs }}',
-                                    url: decodedUrl
-                                }).catch(error => {
-                                    if (error.name !== 'AbortError') {
-                                        console.error('Error sharing:', error);
-                                        window.toast.error('공유에 실패했습니다');
-                                    }
-                                });
-                            } else {
-                                copyToClipboard();
-                            }
-                        "
-                        class="group flex items-center justify-center gap-1.5 px-4 py-2.5 sm:px-4 sm:py-2.5 bg-gray-50 hover:bg-gray-100 border border-gray-200 hover:border-gray-300 text-gray-700 hover:text-gray-900 rounded-xl font-medium transition-all duration-200 min-h-[44px] min-w-[44px] sm:min-w-auto active:scale-95"
-                        aria-label="게시물 공유하기">
-                            <i class="fas fa-share-alt text-base"></i>
-                            <span class="hidden sm:inline text-sm">공유</span>
-                        </button>
-
-                        {% if user.is_authenticated and user.username == post.author_username %}
-                        <a href="{% url 'post_edit' post.author_username post.url %}"
-                           class="group flex items-center justify-center gap-1.5 px-4 py-2.5 sm:px-4 sm:py-2.5 bg-gray-900 hover:bg-black border border-gray-900 text-white rounded-xl font-medium transition-all duration-200 min-h-[44px] min-w-[44px] sm:min-w-auto shadow-sm hover:shadow-md active:scale-95">
-                            <i class="fas fa-edit text-base"></i>
-                            <span class="hidden sm:inline text-sm">편집</span>
-                        </a>
-                        {% endif %}
-                    </div>
-                </div>
+    }" class="fixed sm:sticky bottom-6 left-0 right-0 z-5 flex justify-center pointer-events-none">
+        <div class="pointer-events-auto bg-white/80 backdrop-blur-xl border border-white/20 shadow-[0_8px_30px_rgb(0,0,0,0.12)] rounded-full px-2 py-2 flex items-center gap-2 transform transition-all duration-300 hover:scale-105 hover:shadow-[0_8px_40px_rgb(0,0,0,0.16)]">
+            
+            <!-- Like Button -->
+            <div class="flex items-center">
+                {% include 'components/like_button.html' with post_url=post.url likes_count=post.count_likes has_liked=post.has_liked size='medium' variant='floating' %}
             </div>
+
+            <div class="w-px h-8 bg-gray-200/50 mx-1"></div>
+
+            <!-- Share Button -->
+            <button @click="
+                const decodedUrl = decodeURIComponent(window.location.href);
+                if (navigator.share) {
+                    navigator.share({
+                        title: '{{ post.title|escapejs }}',
+                        text: '{{ post.meta_description|escapejs }}',
+                        url: decodedUrl
+                    }).catch(error => {
+                        if (error.name !== 'AbortError') {
+                            console.error('Error sharing:', error);
+                            window.toast.error('공유에 실패했습니다');
+                        }
+                    });
+                } else {
+                    copyToClipboard();
+                }
+            "
+            class="w-10 h-10 flex items-center justify-center rounded-full text-gray-600 hover:text-black hover:bg-gray-100/50 transition-all duration-200"
+            aria-label="게시물 공유하기">
+                <i class="fas fa-share-alt"></i>
+            </button>
+
+            <!-- Edit Button (Author Only) -->
+            {% if user.is_authenticated and user.username == post.author_username %}
+            <a href="{% url 'post_edit' post.author_username post.url %}"
+               class="w-10 h-10 flex items-center justify-center rounded-full text-gray-600 hover:text-black hover:bg-gray-100/50 transition-all duration-200">
+                <i class="fas fa-edit"></i>
+            </a>
+            {% endif %}
         </div>
     </div>
 
+    <!-- Series Card -->
     {% if post.series %}
-    <div class="bg-white border border-gray-200 rounded-2xl p-4 sm:p-6 lg:p-8 mb-8 shadow-sm">
+    <div class="mt-16 bg-white rounded-2xl p-6 sm:p-8 mb-16 ring-1 ring-gray-900/5">
         <div class="flex flex-col lg:flex-row lg:items-start gap-6">
             <div class="flex-1">
-                <div class="flex items-center gap-2 mb-4">
-                    <div class="w-3 h-3 bg-black rounded-full"></div>
-                    <span class="text-sm font-medium text-gray-500 uppercase tracking-wide">Series</span>
+                <div class="flex items-center gap-2 mb-3">
+                    <span class="px-2.5 py-0.5 bg-black text-white rounded-md text-[10px] font-bold uppercase tracking-widest">시리즈</span>
+                    <span class="text-sm text-gray-500 font-medium">{{ post.series_index }} / {{ post.series_total }}</span>
                 </div>
 
-                <h3 class="text-2xl font-bold text-gray-900 mb-4">
-                    <a href="{% url 'series_detail' post.author_username post.series.url %}" class="hover:text-black transition-colors">
+                <h3 class="text-2xl font-bold text-gray-900 mb-2">
+                    <a href="{% url 'series_detail' post.author_username post.series.url %}" class="hover:text-gray-600 transition-colors">
                         {{ post.series.name }}
                     </a>
                 </h3>
-                
-                <div class="inline-flex items-center px-3 py-1 bg-gray-100 text-gray-700 rounded-full text-sm font-medium">
-                    {{ post.series_index }} / {{ post.series_total }} 포스트
-                </div>
             </div>
         </div>
         
-        <div class="mt-8 border-t border-gray-200 pt-6">
-            <h4 class="font-semibold text-gray-900 mb-4">시리즈 목록</h4>
-            <div class="space-y-3">
-                {% for series_post in post.visible_series_posts %}
-                <div class="flex items-center gap-3 p-4 {% if series_post.url == post.url %}bg-gray-100 border-2 border-gray-300{% else %}bg-gray-50 border border-gray-200{% endif %} rounded-xl transition-all duration-200">
-                    <div class="w-8 h-8 {% if series_post.url == post.url %}bg-black text-white{% else %}bg-gray-200 text-gray-600{% endif %} rounded-2xl flex items-center justify-center text-sm font-bold flex-shrink-0">
-                        {{ series_post.series_index }}
-                    </div>
-                    {% if series_post.url == post.url %}
-                    <span class="flex-1 font-semibold text-black">{{ series_post.title }}</span>
-                    <span class="text-xs flex items-center gap-1 text-black font-medium"><i class="fas fa-check"></i><span>읽는 중</span></span>
-                    {% else %}
-                    <a href="{% url 'post_detail' post.author_username series_post.url %}" class="flex-1 font-medium text-gray-700 hover:text-black transition-colors">
-                        {{ series_post.title }}
-                    </a>
-                    {% endif %}
+        <div class="mt-6 space-y-2">
+            {% for series_post in post.visible_series_posts %}
+            <div class="flex items-center gap-4 p-3 rounded-xl transition-all duration-200 {% if series_post.url == post.url %}bg-gray-50{% else %}hover:bg-gray-50{% endif %}">
+                <div class="w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold flex-shrink-0 {% if series_post.url == post.url %}bg-black text-white{% else %}bg-gray-100 text-gray-400{% endif %}">
+                    {{ series_post.series_index }}
                 </div>
-                {% endfor %}
+                {% if series_post.url == post.url %}
+                <span class="flex-1 font-semibold text-gray-900">{{ series_post.title }}</span>
+                <span class="text-xs font-medium text-blue-600 px-2 py-1 bg-blue-50 rounded-md">읽는 중</span>
+                {% else %}
+                <a href="{% url 'post_detail' post.author_username series_post.url %}" class="flex-1 font-medium text-gray-600 hover:text-gray-900 transition-colors">
+                    {{ series_post.title }}
+                </a>
+                {% endif %}
             </div>
+            {% endfor %}
         </div>
+
         {% if post.series_total > 1 %}
-        <div class="mt-6 sm:mt-8 flex-shrink-0">
-            <div class="flex flex-col sm:flex-row sm:justify-center gap-3">
-                {% if post.prev_post %}
-                <a href="{% url 'post_detail' post.author_username post.prev_post.url %}" class="flex items-center justify-center gap-2 px-6 py-3 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-xl font-medium transition-all duration-200 text-sm sm:text-base shadow-sm hover:shadow-md">
-                    <i class="fas fa-chevron-left"></i>
-                    <span>이전 포스트</span>
-                </a>
-                {% else %}
-                <div class="flex items-center justify-center gap-2 px-6 py-3 bg-gray-50 text-gray-400 rounded-xl font-medium cursor-not-allowed text-sm sm:text-base">
-                    <i class="fas fa-chevron-left"></i>
-                    <span>이전 포스트</span>
-                </div>
-                {% endif %}
+        <div class="mt-8 flex items-center justify-between gap-4 pt-6 border-t border-gray-100">
+            {% if post.prev_post %}
+            <a href="{% url 'post_detail' post.author_username post.prev_post.url %}" class="flex items-center gap-2 text-sm font-medium text-gray-600 hover:text-black transition-colors">
+                <i class="fas fa-arrow-left"></i>
+                <span>이전</span>
+            </a>
+            {% else %}
+            <span class="flex items-center gap-2 text-sm font-medium text-gray-300 cursor-not-allowed">
+                <i class="fas fa-arrow-left"></i>
+                <span>이전</span>
+            </span>
+            {% endif %}
 
-                <a href="{% url 'series_detail' post.author_username post.series.url %}" class="flex items-center justify-center gap-2 px-6 py-3 bg-black hover:bg-gray-800 text-white rounded-xl font-medium transition-all duration-200 text-sm sm:text-base shadow-md hover:shadow-lg">
-                    <i class="fas fa-th-list"></i>
-                    <span>전체 시리즈</span>
-                </a>
+            <a href="{% url 'series_detail' post.author_username post.series.url %}" class="text-sm font-medium text-gray-400 hover:text-gray-600 transition-colors">
+                전체 포스트
+            </a>
 
-                {% if post.next_post %}
-                <a href="{% url 'post_detail' post.author_username post.next_post.url %}" class="flex items-center justify-center gap-2 px-6 py-3 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-xl font-medium transition-all duration-200 text-sm sm:text-base shadow-sm hover:shadow-md">
-                    <span>다음 포스트</span>
-                    <i class="fas fa-chevron-right"></i>
-                </a>
-                {% else %}
-                <div class="flex items-center justify-center gap-2 px-6 py-3 bg-gray-50 text-gray-400 rounded-xl font-medium cursor-not-allowed text-sm sm:text-base">
-                    <span>다음 포스트</span>
-                    <i class="fas fa-chevron-right"></i>
-                </div>
-                {% endif %}
-            </div>
+            {% if post.next_post %}
+            <a href="{% url 'post_detail' post.author_username post.next_post.url %}" class="flex items-center gap-2 text-sm font-medium text-gray-600 hover:text-black transition-colors">
+                <span>다음</span>
+                <i class="fas fa-arrow-right"></i>
+            </a>
+            {% else %}
+            <span class="flex items-center gap-2 text-sm font-medium text-gray-300 cursor-not-allowed">
+                <span>다음</span>
+                <i class="fas fa-arrow-right"></i>
+            </span>
+            {% endif %}
         </div>
         {% endif %}
     </div>
     {% endif %}
 
-    <div class="bg-white border border-gray-200 rounded-2xl shadow-sm mb-8">
-        <div class="p-4 sm:p-6 lg:p-8">
-            {% island_component 'Comments' lazy=True postUrl=post.url %}
-        </div>
+    <div class="mt-16">
+        {% island_component 'Comments' lazy=True postUrl=post.url %}
     </div>
 
-    {% island_component 'RelatedPosts' lazy=True postUrl=post.url username=post.author_username %}
+    <div class="my-16">
+        {% island_component 'RelatedPosts' lazy=True postUrl=post.url username=post.author_username %}
+    </div>
 </div>
 {% endblock %}
 

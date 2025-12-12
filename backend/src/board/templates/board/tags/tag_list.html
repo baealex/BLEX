@@ -4,51 +4,63 @@
 {% block title %}BLEX - Tags{% endblock %}
 
 {% block content %}
-<div class="container mx-auto">
+<div class="max-w-7xl w-full mx-auto px-4 sm:px-6 py-8 sm:py-12">
+    <!-- Header -->
+    <div class="mb-10 text-center">
+        <h1 class="text-3xl sm:text-4xl font-bold text-gray-900 mb-3 tracking-tight">태그 클라우드</h1>
+        <p class="text-gray-500">전체 태그와 태그별 포스트를 확인할 수 있습니다</p>
+    </div>
+
     <!-- 필터 영역 -->
-    <div class="bg-white border border-gray-200 rounded-xl p-5 mb-8">
-        <div class="flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-4">
-            <div class="w-full sm:w-auto sm:flex-1 sm:max-w-md">
-                <label class="block text-sm font-medium text-gray-700 mb-2">태그 찾기</label>
-                {% include 'components/search_query_filter.html' with placeholder='태그를 검색해주세요' %}
+    <div class="bg-gray-50/50 backdrop-blur-sm border border-gray-200/50 rounded-2xl p-6 mb-10">
+        <div class="flex flex-col sm:flex-row justify-between items-end sm:items-center gap-6">
+            <div class="w-full sm:flex-1 sm:max-w-md">
+                <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2 ml-1">태그 검색</label>
+                {% include 'components/search_query_filter.html' with placeholder='검색어를 입력하세요.' %}
             </div>
             
-            <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-4">
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">정렬</label>
-                    {% include 'components/dropdown_filter.html' with options=sort_options param_name='sort' current_value=request.GET.sort|default:'popular' default_label='인기순' %}
-                </div>
+            <div class="w-full sm:w-auto">
+                <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2 ml-1">정렬 방식</label>
+                {% include 'components/dropdown_filter.html' with options=sort_options param_name='sort' current_value=request.GET.sort|default:'popular' default_label='인기순' %}
             </div>
         </div>
     </div>
 
     {% if tags %}
-        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
             {% for tag in tags %}
-                <a href="/tag/{{ tag.name }}" class="group block bg-white rounded-xl border border-gray-200 p-4 hover:shadow-lg transition-all duration-200 hover:-translate-y-1">
+                <a href="/tag/{{ tag.name }}" class="group block bg-white rounded-2xl border border-gray-100 p-6 shadow-[0_2px_8px_rgba(0,0,0,0.02)] hover:shadow-[0_8px_24px_rgba(0,0,0,0.06)] transition-all duration-300 hover:-translate-y-1">
                     <div class="flex flex-col h-full">
-                        <h3 class="text-lg font-semibold text-gray-900 mb-2 truncate group-hover:text-black transition-colors duration-200">
-                            #{{ tag.name }}
+                        <div class="flex items-center justify-between mb-4">
+                            <span class="w-8 h-8 rounded-full bg-gray-50 flex items-center justify-center text-gray-400 group-hover:bg-black group-hover:text-white transition-colors duration-300">
+                                <i class="fas fa-hashtag text-sm"></i>
+                            </span>
+                            <span class="text-xs font-bold text-gray-400 bg-gray-50 px-2 py-1 rounded-md group-hover:bg-gray-100 transition-colors">
+                                {{ tag.count }}
+                            </span>
+                        </div>
+                        <h3 class="text-lg font-bold text-gray-900 mb-1 truncate group-hover:text-black transition-colors duration-200">
+                            {{ tag.name }}
                         </h3>
-                        <span class="text-sm text-gray-500 mt-auto">
-                            {{ tag.count }} post{% if tag.count != 1 %}s{% endif %}
-                        </span>
+                        <p class="text-sm text-gray-500 line-clamp-2">
+                            {{ tag.count }}개 포스트에서 태그됨
+                        </p>
                     </div>
                 </a>
             {% endfor %}
         </div>
 
-        <div class="mt-8">
+        <div class="mt-12">
             {% include 'components/pagination.html' with style='numbered' page=page last=last_page %}
         </div>
     {% else %}
-        <div class="text-center py-16">
-            <div class="bg-white rounded-xl border border-gray-200 p-8 max-w-md mx-auto">
-                <div class="text-gray-400 mb-4">
-                    <i class="fas fa-tags text-4xl"></i>
+        <div class="text-center py-20 bg-gray-50 rounded-3xl border border-gray-100">
+            <div class="max-w-md mx-auto px-6">
+                <div class="inline-flex items-center justify-center w-16 h-16 bg-white shadow-sm rounded-2xl mb-6">
+                    <i class="fas fa-tags text-2xl text-gray-300"></i>
                 </div>
-                <h3 class="text-xl font-semibold text-gray-900 mb-2">No tags found</h3>
-                <p class="text-gray-600">
+                <h3 class="text-xl font-bold text-gray-900 mb-2">No tags found</h3>
+                <p class="text-gray-500">
                     {% if request.GET.q %}
                         No tags match your search criteria.
                     {% else %}

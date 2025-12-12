@@ -57,7 +57,7 @@
                zIndex: currentIndex === {{ forloop.counter0 }} ? 10 : 0,
                pointerEvents: currentIndex === {{ forloop.counter0 }} ? 'auto' : 'none'
            }">
-            <div class="flex items-center gap-{% if size == 'small' %}3{% else %}4{% endif %} {% if size == 'large' %}pr-16{% endif %}">
+            <div class="flex items-center gap-{% if size == 'small' %}3{% else %}4{% endif %}">
                 <div class="flex-1 min-w-0">
                     {% if size == 'large' %}
                     <div class="flex items-center gap-2 mb-1.5">

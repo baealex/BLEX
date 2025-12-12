@@ -156,7 +156,7 @@ const FormsManagement = () => {
     const forms = formsData?.forms || [];
 
     return (
-        <div className="p-6 bg-white shadow-sm rounded-2xl border border-gray-200">
+        <div>
             {/* Header Section */}
             <div className="mb-6">
                 <h2 className="text-2xl font-bold text-gray-900 mb-2">서식 관리</h2>

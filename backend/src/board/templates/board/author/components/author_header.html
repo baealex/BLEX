@@ -2,35 +2,39 @@
 {% load island %}
 {% load resource %}
 
+{% load static %}
+{% load island %}
+{% load resource %}
+
 <div class="relative overflow-hidden">
-    <div class="relative flex flex-col items-center text-center py-8 sm:py-10 md:py-12 px-4 sm:px-6 max-w-4xl mx-auto">
-        <div class="relative group mb-5 sm:mb-6">
+    <div class="relative flex flex-col items-center text-center py-12 sm:py-16 px-4 sm:px-6 max-w-4xl mx-auto">
+        <div class="relative group mb-6 sm:mb-8">
             {% if author.profile.avatar %}
-            <img class="relative w-24 h-24 sm:w-28 sm:h-28 md:w-32 md:h-32 rounded-full object-cover border-2 border-gray-100 shadow-lg transition-all duration-200 group-hover:shadow-xl" src="{{ author.profile.avatar.url }}" alt="{{ author.username }}">
+            <img class="relative w-28 h-28 sm:w-32 sm:h-32 md:w-40 md:h-40 rounded-full object-cover ring-4 ring-white shadow-[0_8px_30px_rgba(0,0,0,0.12)] transition-all duration-500 group-hover:scale-105 group-hover:shadow-[0_20px_40px_rgba(0,0,0,0.16)]" src="{{ author.profile.avatar.url }}" alt="{{ author.username }}">
             {% else %}
-            <div class="relative w-24 h-24 sm:w-28 sm:h-28 md:w-32 md:h-32 rounded-full border-2 border-gray-100 shadow-lg transition-all duration-200 group-hover:shadow-xl bg-black flex items-center justify-center text-4xl sm:text-6xl font-bold text-white uppercase">
+            <div class="relative w-28 h-28 sm:w-32 sm:h-32 md:w-40 md:h-40 rounded-full ring-4 ring-white shadow-[0_8px_30px_rgba(0,0,0,0.12)] transition-all duration-500 group-hover:scale-105 group-hover:shadow-[0_20px_40px_rgba(0,0,0,0.16)] bg-black flex items-center justify-center text-5xl sm:text-6xl font-bold text-white uppercase">
                 {{ author.username|slice:':1' }}
             </div>
             {% endif %}
         </div>
 
-        <h1 class="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 mb-2 sm:mb-3">
+        <h1 class="text-2xl font-bold text-gray-900 mb-2 tracking-tight">
             {{ author.username }}
         </h1>
 
         {% if author.profile.bio %}
-        <p class="text-base sm:text-lg text-gray-600 max-w-2xl mx-auto mb-5 sm:mb-6 leading-relaxed px-2">
+        <p class="text-md text-gray-500 max-w-2xl mx-auto mb-6 leading-relaxed px-4 font-medium">
             {{ author.profile.bio }}
         </p>
         {% endif %}
 
         {% if author.profile.homepage %}
-        <div class="mb-5 sm:mb-6">
+        <div class="mb-8">
             <a href="{{ author.profile.homepage }}" target="_blank"
-               class="inline-flex items-center gap-2 px-4 py-2 bg-gray-50 border border-gray-200 rounded-lg
-                      text-gray-600 hover:text-gray-900 hover:border-gray-300
-                      transition-all duration-200 text-sm font-medium">
-                <i class="fas fa-external-link-alt text-xs"></i>
+               class="inline-flex items-center gap-2 px-5 py-2.5 bg-white border border-gray-200 rounded-full
+                      text-gray-600 hover:text-black hover:border-gray-400 hover:shadow-md
+                      transition-all duration-300 text-sm font-semibold group">
+                <i class="fas fa-link text-xs text-gray-400 group-hover:text-black transition-colors"></i>
                 <span>
                     {% if 'https://' in author.profile.homepage %}
                         {{ author.profile.homepage|slice:"8:"|truncatechars:30 }}
@@ -46,32 +50,32 @@
 
         {% with author.profile.collect_social as social_links %}
         {% if social_links %}
-        <div class="flex gap-1.5 sm:gap-2 flex-wrap justify-center max-w-xs mx-auto">
+        <div class="flex gap-3 flex-wrap justify-center max-w-lg mx-auto">
             {% for social in social_links %}
             <a href="{{ social.value }}" target="_blank"
-               class="w-9 h-9 sm:w-10 sm:h-10 rounded-lg bg-gray-50 border border-gray-200
-                      flex items-center justify-center text-gray-600
-                      hover:bg-gray-100 hover:text-gray-900 hover:border-gray-300
-                      transition-all duration-200"
+               class="w-10 h-10 sm:w-11 sm:h-11 rounded-full bg-white border border-gray-200
+                      flex items-center justify-center text-gray-500
+                      hover:bg-black hover:text-white hover:border-black hover:shadow-lg hover:-translate-y-1
+                      transition-all duration-300"
                title="{{ social.name }}">
                 {% if social.name|lower == 'github' %}
-                    <i class="fab fa-github text-sm"></i>
+                    <i class="fab fa-github text-lg"></i>
                 {% elif social.name|lower == 'twitter' or social.name|lower == 'x' %}
-                    <i class="fab fa-twitter text-sm"></i>
+                    <i class="fab fa-twitter text-lg"></i>
                 {% elif social.name|lower == 'facebook' %}
-                    <i class="fab fa-facebook-f text-sm"></i>
+                    <i class="fab fa-facebook-f text-lg"></i>
                 {% elif social.name|lower == 'instagram' %}
-                    <i class="fab fa-instagram text-sm"></i>
+                    <i class="fab fa-instagram text-lg"></i>
                 {% elif social.name|lower == 'linkedin' %}
-                    <i class="fab fa-linkedin-in text-sm"></i>
+                    <i class="fab fa-linkedin-in text-lg"></i>
                 {% elif social.name|lower == 'youtube' %}
-                    <i class="fab fa-youtube text-sm"></i>
+                    <i class="fab fa-youtube text-lg"></i>
                 {% elif social.name|lower == 'tiktok' %}
-                    <i class="fab fa-tiktok text-sm"></i>
+                    <i class="fab fa-tiktok text-lg"></i>
                 {% elif social.name|lower == 'discord' %}
-                    <i class="fab fa-discord text-sm"></i>
+                    <i class="fab fa-discord text-lg"></i>
                 {% else %}
-                    <i class="fas fa-link text-sm"></i>
+                    <i class="fas fa-link text-lg"></i>
                 {% endif %}
             </a>
             {% endfor %}

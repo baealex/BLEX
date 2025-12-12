@@ -1,89 +1,108 @@
 {% load static %}
 {% load resource %}
 <header
-    class="bg-white/95 backdrop-blur-md shadow-sm sticky top-0 z-30 transition-all duration-300 border-b border-gray-100 px-4 md:px-6"
-    x-data="headerScroll()"
-    :style="`transform: translateY(-${translateY}px)`"
-    style="transform: translateY(var(--translate-y, 0)); transition: transform 0.3s ease-in-out;"
+    class="sticky top-0 left-0 right-0 z-30 transition-all duration-300"
+    x-data="{ isTop: true }"
+    @scroll.window="isTop = (window.pageYOffset < 10)"
+    :class="{ 'bg-white/70 backdrop-blur-xl border-b border-white/20 shadow-sm supports-[backdrop-filter]:bg-white/60': !isTop, 'bg-transparent': isTop }"
+    style="transition: background-color 0.3s ease, backdrop-filter 0.3s ease, transform 0.3s ease-in-out;"
 >
-    <div class="container mx-auto">
-        <div class="flex justify-between items-center py-3 md:py-3.5">
-            <a href="/" class="flex items-center group">
-                <img class="h-8 md:h-9 w-auto transition-all duration-200 group-hover:scale-105" src="{% resource 'logob.svg' %}" alt="BLEX">
+    <div class="max-w-7xl mx-auto px-4 md:px-6">
+        <div class="flex justify-between items-center h-14 md:h-16">
+            <a href="/" class="flex items-center group relative z-10">
+                <img class="h-6 md:h-7 w-auto transition-transform duration-300 group-hover:scale-105 opacity-90 group-hover:opacity-100" src="{% resource 'logob.svg' %}" alt="BLEX">
             </a>
-            <nav class="flex items-center space-x-3">
+
+            <nav class="flex items-center gap-1 md:gap-2">
                 {% if user.is_authenticated %}
-                    <!-- 검색 버튼 -->
                     <button
                         onclick="window.dispatchEvent(new CustomEvent('openSearchModal'))"
-                        class="w-10 h-10 flex items-center justify-center text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-full transition-all duration-200"
+                        class="w-9 h-9 flex items-center justify-center text-gray-500 hover:text-gray-900 hover:bg-gray-100/50 rounded-full transition-all duration-200"
                         aria-label="검색"
                     >
-                        <i class="fas fa-search text-lg"></i>
+                        <i class="fas fa-search text-base"></i>
                     </button>
+
                     {% if not is_editor_page and user.profile.is_editor %}
-                    <a href="/write" class="bg-black hover:bg-gray-800 text-white px-4 py-2 rounded-xl font-medium flex items-center gap-2 transition-all duration-200 shadow-sm hover:shadow-md">
-                        <i class="fas fa-pen text-sm"></i>
-                        <span class="hidden sm:inline">글 작성</span>
+                    <a href="/write" class="hidden md:flex items-center gap-2 bg-black hover:bg-gray-800 text-white px-4 py-1.5 rounded-full text-sm font-medium transition-all duration-200 shadow-sm hover:shadow-md hover:-translate-y-0.5">
+                        <i class="fas fa-pen text-xs"></i>
+                        <span>글 작성</span>
                     </a>
                     {% endif %}
-                <div class="relative" x-data="{ open: false }">
-                    <button @click="open = !open" class="flex items-center space-x-2 focus:outline-none bg-gray-50 hover:bg-gray-100 px-2.5 py-1.5 rounded-lg transition-all duration-200 group">
-                        <div class="w-7 h-7 bg-gradient-to-br from-gray-700 to-gray-900 rounded-full flex items-center justify-center text-white font-medium text-xs">
-                            {{ user.username|first|upper }}
+
+                    <div class="relative ml-1" x-data="{ open: false }">
+                        <button 
+                            @click="open = !open" 
+                            class="flex items-center gap-2 focus:outline-none hover:bg-gray-100/50 pl-1 pr-2 py-1 rounded-full transition-all duration-200 group border border-transparent hover:border-gray-200/50"
+                            :class="{ 'bg-gray-100/80': open }"
+                        >
+                            <div class="w-8 h-8 bg-gradient-to-br from-gray-700 to-gray-900 rounded-full flex items-center justify-center text-white font-medium text-xs shadow-sm ring-2 ring-white group-hover:ring-gray-100 transition-all">
+                                {{ user.username|first|upper }}
+                            </div>
+                            <i class="fas fa-chevron-down text-[10px] text-gray-400 transition-transform duration-200 group-hover:text-gray-600" :class="{ 'rotate-180': open }"></i>
+                        </button>
+
+                        <div x-show="open" 
+                             x-cloak
+                             x-transition:enter="transition ease-out duration-200" 
+                             x-transition:enter-start="opacity-0 translate-y-2 scale-95" 
+                             x-transition:enter-end="opacity-100 translate-y-0 scale-100" 
+                             x-transition:leave="transition ease-in duration-150" 
+                             x-transition:leave-start="opacity-100 translate-y-0 scale-100" 
+                             x-transition:leave-end="opacity-0 translate-y-2 scale-95" 
+                             @click.away="open = false" 
+                             class="absolute right-0 mt-2 w-56 bg-white/80 backdrop-blur-xl rounded-2xl shadow-2xl py-2 z-50 border border-white/20 ring-1 ring-black/5 origin-top-right">
+                            
+                            <div class="px-4 py-3 border-b border-gray-100/50 mb-1">
+                                <p class="text-xs text-gray-500 font-medium">Signed in as</p>
+                                <p class="text-sm font-bold text-gray-900 truncate">{{ user.username }}</p>
+                            </div>
+
+                            <div class="px-2 space-y-0.5">
+                                <a href="/@{{ user.username }}" class="flex items-center gap-3 px-3 py-2 text-sm text-gray-700 hover:bg-black/5 rounded-xl transition-colors duration-150 group">
+                                    <div class="w-7 h-7 bg-gray-100 rounded-lg flex items-center justify-center group-hover:bg-white group-hover:shadow-sm transition-all">
+                                        <i class="fas fa-user text-gray-500 text-xs group-hover:text-black"></i>
+                                    </div>
+                                    <span class="font-medium">프로필</span>
+                                </a>
+                                <a href="/settings/overview" class="flex items-center gap-3 px-3 py-2 text-sm text-gray-700 hover:bg-black/5 rounded-xl transition-colors duration-150 group">
+                                    <div class="w-7 h-7 bg-gray-100 rounded-lg flex items-center justify-center group-hover:bg-white group-hover:shadow-sm transition-all">
+                                        <i class="fas fa-cog text-gray-500 text-xs group-hover:text-black"></i>
+                                    </div>
+                                    <span class="font-medium">설정</span>
+                                </a>
+                            </div>
+
+                            <div class="border-t border-gray-100/50 my-1 mx-2"></div>
+
+                            <div class="px-2">
+                                <form x-ref="logoutForm" action="/logout" method="post" class="w-full">
+                                    <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
+                                    <button type="submit" @click.prevent="$refs.logoutForm.submit()" class="flex items-center gap-3 px-3 py-2 text-sm text-red-600 hover:bg-red-50 rounded-xl transition-colors duration-150 w-full text-left group">
+                                        <div class="w-7 h-7 bg-red-50 rounded-lg flex items-center justify-center group-hover:bg-white group-hover:shadow-sm transition-all">
+                                            <i class="fas fa-sign-out-alt text-red-500 text-xs"></i>
+                                        </div>
+                                        <span class="font-medium">로그아웃</span>
+                                    </button>
+                                </form>
+                            </div>
                         </div>
-                        <span class="font-medium text-gray-700 text-sm hidden md:inline">{{ user.username }}</span>
-                        <i class="fas fa-chevron-down text-xs text-gray-500 transition-transform duration-200 group-hover:text-gray-700" :class="{ 'transform rotate-180': open }"></i>
-                    </button>
-                    <div x-show="open" 
-                         x-cloak
-                         x-transition:enter="transition ease-out duration-200" 
-                         x-transition:enter-start="opacity-0 scale-95" 
-                         x-transition:enter-end="opacity-100 scale-100" 
-                         x-transition:leave="transition ease-in duration-150" 
-                         x-transition:leave-start="opacity-100 scale-100" 
-                         x-transition:leave-end="opacity-0 scale-95" 
-                         @click.away="open = false" 
-                         class="absolute right-0 mt-2 w-52 bg-white rounded-xl shadow-xl py-2 z-50 border border-gray-100">
-                        <a href="/@{{ user.username }}" class="flex items-center gap-3 px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 transition-colors duration-150">
-                            <div class="w-8 h-8 bg-gradient-to-br from-gray-400 to-gray-600 rounded-full flex items-center justify-center">
-                                <i class="fas fa-user text-white text-xs"></i>
-                            </div>
-                            <span class="font-medium">프로필</span>
-                        </a>
-                        <a href="/settings/overview" class="flex items-center gap-3 px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 transition-colors duration-150">
-                            <div class="w-8 h-8 bg-gradient-to-br from-gray-400 to-gray-600 rounded-full flex items-center justify-center">
-                                <i class="fas fa-cog text-white text-xs"></i>
-                            </div>
-                            <span class="font-medium">설정</span>
-                        </a>
-                        <div class="border-t border-gray-100 my-1"></div>
-                        <form x-ref="logoutForm" action="/logout" method="post" class="w-full">
-                            <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
-                            <button type="submit" @click.prevent="$refs.logoutForm.submit()" class="flex items-center gap-3 px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 hover:text-black transition-colors duration-150 w-full text-left">
-                                <div class="w-8 h-8 bg-gradient-to-br from-gray-400 to-gray-600 rounded-full flex items-center justify-center">
-                                    <i class="fas fa-sign-out-alt text-white text-xs"></i>
-                                </div>
-                                <span class="font-medium">로그아웃</span>
-                            </button>
-                        </form>
                     </div>
-                </div>
                 {% else %}
-                <!-- 검색 버튼 (비로그인) -->
-                <button
-                    onclick="window.dispatchEvent(new CustomEvent('openSearchModal'))"
-                    class="w-10 h-10 flex items-center justify-center text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-full transition-all duration-200"
-                    aria-label="검색"
-                >
-                    <i class="fas fa-search text-lg"></i>
-                </button>
-                <a href="/login" class="text-gray-600 hover:text-black font-medium transition-all duration-200 px-3 py-2 rounded-lg hover:bg-gray-50 text-sm">
-                    로그인
-                </a>
-                <a href="/sign" class="bg-black hover:bg-gray-800 text-white px-4 py-2 rounded-xl font-medium transition-all duration-200 shadow-sm hover:shadow-md text-sm">
-                    회원가입
-                </a>
+                    <button
+                        onclick="window.dispatchEvent(new CustomEvent('openSearchModal'))"
+                        class="w-9 h-9 flex items-center justify-center text-gray-500 hover:text-gray-900 hover:bg-gray-100/50 rounded-full transition-all duration-200"
+                        aria-label="검색"
+                    >
+                        <i class="fas fa-search text-base"></i>
+                    </button>
+                    <div class="h-4 w-px bg-gray-200 mx-1"></div>
+                    <a href="/login" class="text-gray-600 hover:text-black font-medium transition-all duration-200 px-3 py-2 rounded-full hover:bg-gray-100/50 text-sm">
+                        로그인
+                    </a>
+                    <a href="/sign" class="bg-black hover:bg-gray-800 text-white px-4 py-1.5 rounded-full font-medium transition-all duration-200 shadow-sm hover:shadow-md text-sm hover:-translate-y-0.5">
+                        회원가입
+                    </a>
                 {% endif %}
             </nav>
         </div>

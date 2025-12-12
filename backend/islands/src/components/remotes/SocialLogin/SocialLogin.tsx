@@ -88,28 +88,20 @@ const SocialLogin = () => {
     }
 
     return (
-        <div className="space-y-3">
+        <div className="grid grid-cols-1 gap-3">
             {Array.isArray(providers) && providers.map((provider) => (
                 <button
                     key={provider.key}
                     onClick={() => handleSocialLogin(provider)}
-                    onMouseEnter={(e) => {
-                        e.currentTarget.style.borderColor = provider.color;
-                        e.currentTarget.style.color = provider.color;
-                    }}
-                    onMouseLeave={(e) => {
-                        e.currentTarget.style.borderColor = '';
-                        e.currentTarget.style.color = '';
-                    }}
-                    className="w-full flex items-center justify-center gap-3 px-4 py-3 border border-gray-300 rounded-lg text-gray-700 bg-white hover:bg-gray-50 hover:border-gray-400 transition-all duration-200 shadow-sm hover:shadow-md group">
-                    <span className="flex-shrink-0">
+                    className="relative w-full flex items-center justify-center gap-3 px-4 py-3.5 border border-gray-200 rounded-2xl text-gray-700 bg-white hover:bg-gray-50 hover:border-gray-300 transition-all duration-200 group active:scale-[0.98]">
+                    <span className="absolute left-5 flex items-center justify-center transition-transform duration-200 group-hover:scale-110">
                         {provider.key === 'google' && <GoogleIcon />}
                         {provider.key === 'github' && <GitHubIcon />}
                         {provider.key !== 'google' && provider.key !== 'github' && (
                             <DefaultIcon />
                         )}
                     </span>
-                    <span className="font-medium">{provider.name}으로 계속하기</span>
+                    <span className="font-semibold text-sm">{provider.name}으로 계속하기</span>
                 </button>
             ))}
         </div>

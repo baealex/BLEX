@@ -65,7 +65,7 @@ const SocialLinkItem = ({ social, index, onRemove, onChange }: SocialLinkItemPro
 
     return (
         <div ref={setNodeRef} style={style} className="mb-4">
-            <div className="bg-white border border-gray-200 rounded-2xl shadow-sm hover:shadow-md transition-all duration-300 group overflow-hidden">
+            <div className="bg-white border border-gray-200 rounded-2xl transition-all duration-300 group overflow-hidden">
                 {/* 헤더 영역 - 모든 화면 크기에서 표시 */}
                 <div className="flex items-center justify-between p-4 sm:hidden bg-gray-50 border-b border-gray-200/60">
                     <div className="flex items-center gap-3">
@@ -302,7 +302,7 @@ const SocialLinks = () => {
     };
 
     return (
-        <div className="p-6 bg-white shadow-sm rounded-2xl border border-gray-200">
+        <div>
             {/* 헤더 섹션 */}
             <div className="mb-6">
                 <h2 className="text-2xl font-bold text-gray-900 mb-2">소셜 링크</h2>

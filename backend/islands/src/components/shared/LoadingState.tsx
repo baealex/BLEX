@@ -41,7 +41,7 @@ const LoadingState = ({ rows = 3, type = 'form' }: LoadingStateProps) => {
 
     // Default form type
     return (
-        <div className="p-6 bg-white shadow-sm rounded-2xl border border-gray-200">
+        <div>
             <div className="animate-pulse">
                 <div className="h-8 bg-gray-200 rounded w-32 mb-6" />
                 <div className="space-y-4">

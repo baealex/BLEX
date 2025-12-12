@@ -230,7 +230,7 @@ const SeriesSetting = () => {
     }
 
     return (
-        <div className="p-6 bg-white shadow-sm rounded-2xl border border-gray-200">
+        <div>
             {/* Header */}
             <div className="mb-6">
                 <div className="flex items-center justify-between mb-6">
@@ -238,18 +238,9 @@ const SeriesSetting = () => {
                         <h2 className="text-2xl font-bold text-gray-900 mb-2">시리즈 ({series.length})</h2>
                         <p className="text-gray-600">드래그하여 시리즈 순서를 조정하거나 새로운 시리즈를 만들어보세요.</p>
                     </div>
-                    <Button
-                        variant="primary"
-                        size="md"
-                        leftIcon={<i className="fas fa-plus" />}
-                        onClick={handleCreateSeries}
-                        className="hidden sm:inline-flex">
-                        새 시리즈 만들기
-                    </Button>
                 </div>
 
-                {/* Mobile button */}
-                <div className="sm:hidden">
+                <div>
                     <Button
                         variant="primary"
                         size="md"

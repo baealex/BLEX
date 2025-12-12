@@ -35,7 +35,7 @@ export const CommentItem = ({
 
     return (
         <article
-            className="py-5 px-4 bg-gray-50/30 hover:bg-gray-50 rounded-xl transition-colors duration-200"
+            className="py-6 px-5 bg-white border border-gray-100 hover:border-gray-200 rounded-2xl transition-all duration-200 hover:shadow-sm"
             aria-label={`${comment.author}의 댓글`}>
             <CommentHeader
                 author={comment.author}
@@ -44,7 +44,7 @@ export const CommentItem = ({
                 isEdited={comment.isEdited}
             />
 
-            <div className="mt-3.5 ml-0 sm:ml-12">
+            <div className="mt-4 ml-0 sm:ml-12">
                 {isEditing ? (
                     <CommentEditForm
                         editText={editText}

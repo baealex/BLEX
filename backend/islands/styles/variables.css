@@ -6,105 +6,52 @@
  * - 액센트: 최소한의 강조 색상만 사용
  */
 
-:root {
-    /* ========================================
-     기본 색상 (Base Colors)
-     ======================================== */
-    --color-white: #ffffff;
-    --color-black: #000000;
+@layer base {
+    :root {
+        --color-white: #ffffff;
+        --color-black: #000000;
 
-    /* ========================================
-     회색 계열 (Grayscale)
-     - 통일된 회색 팔레트 (zinc 계열)
-     ======================================== */
-    --color-gray-50: #fafafa;
-    --color-gray-100: #f4f4f5;
-    --color-gray-200: #e4e4e7;
-    --color-gray-300: #d4d4d8;
-    --color-gray-400: #a1a1aa;
-    --color-gray-500: #71717a;
-    --color-gray-600: #52525b;
-    --color-gray-700: #3f3f46;
-    --color-gray-800: #27272a;
-    --color-gray-900: #18181b;
+        --color-gray-50: #fbfbfd;
+        --color-gray-100: #f5f5f7;
+        --color-gray-200: #e5e5e7;
+        --color-gray-300: #d2d2d7;
+        --color-gray-400: #aeaeb2;
+        --color-gray-500: #86868b;
+        --color-gray-600: #6e6e73;
+        --color-gray-700: #424245;
+        --color-gray-800: #1d1d1f;
+        --color-gray-900: #121212;
 
-    /* ========================================
-     의미론적 색상 (Semantic Colors)
-     - 용도별로 명확하게 정의
-     ======================================== */
+        --color-bg-base: var(--color-white);
+        --color-bg-page: var(--color-gray-50);
+        --color-bg-subtle: var(--color-gray-100);
+        --color-bg-muted: var(--color-gray-200);
+        --color-bg-dark: var(--color-gray-900);
 
-    /* 배경 색상 */
-    --color-bg-base: var(--color-white);
-    --color-bg-page: var(--color-gray-50);
-    --color-bg-subtle: var(--color-gray-100);
-    --color-bg-muted: var(--color-gray-200);
-    --color-bg-dark: var(--color-gray-800);
-    --color-bg-darker: var(--color-gray-900);
+        --color-text-primary: var(--color-gray-800);
+        --color-text-secondary: var(--color-gray-600);
+        --color-text-muted: var(--color-gray-500);
+        --color-text-subtle: var(--color-gray-400);
+        --color-text-inverted: var(--color-white);
 
-    /* 텍스트 색상 - 명확한 대비 */
-    --color-text-primary: var(--color-black);
-    --color-text-secondary: var(--color-gray-600);
-    --color-text-muted: var(--color-gray-500);
-    --color-text-subtle: var(--color-gray-400);
-    --color-text-inverted: var(--color-white);
-    --color-text-on-dark: var(--color-gray-100);
+        --color-border-light: var(--color-gray-100);
+        --color-border-default: var(--color-gray-200);
+        --color-border-medium: var(--color-gray-300);
 
-    /* 테두리 색상 - 연하게 */
-    --color-border-light: var(--color-gray-100);
-    --color-border-default: var(--color-gray-200);
-    --color-border-medium: var(--color-gray-300);
-    --color-border-dark: var(--color-gray-400);
+        --color-interactive-primary: #000000;
+        --color-interactive-hover: #000000;
+        --color-interactive-active: #000000;
 
-    /* 상호작용 색상 (Interactive) - 순수 블랙 */
-    --color-interactive-primary: var(--color-black);
-    --color-interactive-hover: var(--color-gray-900);
-    --color-interactive-active: var(--color-gray-800);
+        --color-shadow-sm: rgba(0, 0, 0, 0.04);
+        --color-shadow-md: rgba(0, 0, 0, 0.08);
+        --color-shadow-lg: rgba(0, 0, 0, 0.12);
+        --color-shadow-xl: rgba(0, 0, 0, 0.16);
 
-    /* 링크 색상 - 진하게 */
-    --color-link-default: var(--color-gray-900);
-    --color-link-hover: var(--color-black);
+        --glass-bg: rgba(255, 255, 255, 0.72);
+        --glass-border: rgba(255, 255, 255, 0.5);
+        --glass-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.07);
+        --glass-blur: 20px;
 
-    /* 그림자 색상 - 더 명확하게 */
-    --color-shadow-sm: rgba(0, 0, 0, 0.08);
-    --color-shadow-md: rgba(0, 0, 0, 0.12);
-    --color-shadow-lg: rgba(0, 0, 0, 0.18);
-    --color-shadow-xl: rgba(0, 0, 0, 0.25);
-
-    /* 오버레이 */
-    --color-overlay-light: rgba(0, 0, 0, 0.3);
-    --color-overlay-medium: rgba(0, 0, 0, 0.5);
-    --color-overlay-dark: rgba(0, 0, 0, 0.75);
-    --color-overlay-darker: rgba(0, 0, 0, 0.9);
-
-    /* 글래스모피즘 효과 (최소한으로만 사용) */
-    --color-glass-bg: rgba(255, 255, 255, 0.1);
-    --color-glass-border: rgba(255, 255, 255, 0.2);
-
-    /* ========================================
-     특수 용도 색상 (Special Purpose)
-     - 꼭 필요한 경우에만 사용
-     ======================================== */
-
-    /* 코드 블록 */
-    --color-code-bg: var(--color-gray-100);
-    --color-code-inline-bg: var(--color-gray-200);
-    --color-code-border: var(--color-gray-300);
-
-    /* 차트/그래프 (데이터 시각화용) */
-    --color-chart-primary: var(--color-gray-800);
-    --color-chart-secondary: var(--color-gray-600);
-    --color-chart-accent: var(--color-gray-400);
-
-    /* 히트맵 (그레이스케일) */
-    --color-heatmap-0: var(--color-gray-100);
-    --color-heatmap-1: var(--color-gray-300);
-    --color-heatmap-2: var(--color-gray-500);
-    --color-heatmap-3: var(--color-gray-700);
-    --color-heatmap-4: var(--color-gray-900);
-
-    /* 상태 색상 (필요시에만) */
-    --color-success: #10b981;
-    --color-error: #ef4444;
-    --color-warning: #f59e0b;
-    --color-info: var(--color-gray-700);
+        --ease-apple: cubic-bezier(0.25, 0.1, 0.25, 1);
+    }
 }

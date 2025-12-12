@@ -41,7 +41,6 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
             />
 
             {showUploader && imagePreview ? (
-                // Image preview - clean and minimal
                 <div className="relative group">
                     <img src={imagePreview} alt="Cover" className="w-full rounded-xl" />
                     <button
@@ -54,7 +53,6 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
                     </button>
                 </div>
             ) : showUploader && !imagePreview ? (
-                // Upload area - simple and clean
                 <div className="relative">
                     <label htmlFor="image" className="flex flex-col items-center justify-center w-full px-4 py-12 border-2 border-dashed border-gray-200 rounded-xl cursor-pointer hover:border-gray-300 hover:bg-gray-50 transition-all duration-200 group">
                         <svg className="w-10 h-10 text-gray-300 mb-3 group-hover:text-gray-400 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -71,7 +69,6 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
                     </button>
                 </div>
             ) : (
-                // Compact button - Apple style
                 <button
                     type="button"
                     onClick={() => setShowUploader(true)}
