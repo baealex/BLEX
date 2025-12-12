@@ -1,7 +1,5 @@
 {% extends 'board/base.html' %}
-{% load static %}
 {% load island %}
-{% load humanize %}
 
 {% block title %}로그인 - BLEX{% endblock %}
 
@@ -13,17 +11,11 @@
     window.USERNAME = '{{ username|escapejs }}';
     window.NEXT_URL = '{{ next_url|escapejs }}';
 </script>
-<style>
-    island-component {
-        flex: 1;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-    }
-</style>
 {% endblock %}
 
 {% block content %}
+<div class="flex-1 flex items-center justify-center">
     {% island_component 'Login' %}
     {% csrf_token %}
+</div>
 {% endblock %}
