@@ -1,0 +1,208 @@
+{% extends 'board/base.html' %}
+{% load static %}
+{% load island %}
+{% load resource %}
+
+{% block title %}{{ author.username }} - BLEX{% endblock %}
+
+{% block content %}
+{% include 'board/author/components/author_header.html' %}
+
+<div class="max-w-7xl w-full mx-auto px-4 sm:px-6">
+    {% with active_tab='overview' %}
+        {% include 'board/author/components/tabs_nav.html' %}
+    {% endwith %}
+
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 mb-20">
+        <!-- Main Content Column -->
+        <div class="lg:col-span-8 space-y-10">
+            
+            <!-- Introduction Section -->
+            <section>
+                <div class="bg-white rounded-2xl ring-1 ring-gray-900/5 p-8">
+                    <div class="flex items-baseline gap-3 mb-6 pb-4 border-b border-gray-100">
+                        <h2 class="text-2xl font-bold text-gray-900">README</h2>
+                        <span class="text-sm font-mono text-gray-400">.md</span>
+                    </div>
+                    {% if about_html %}
+                        <div class="prose prose-lg max-w-none text-gray-700">
+                            {{ about_html|safe }}
+                        </div>
+                    {% else %}
+                        <div class="text-center py-16">
+                            <div class="inline-flex items-center justify-center w-14 h-14 rounded-xl bg-gray-50 mb-3">
+                                <i class="fas fa-file-alt text-gray-300 text-lg"></i>
+                            </div>
+                            <p class="text-gray-400 font-medium">아직 소개글이 없습니다</p>
+                            <p class="text-gray-400 text-sm mt-1">작성자가 소개글을 작성하지 않았습니다</p>
+                        </div>
+                    {% endif %}
+
+                    {% if user == author %}
+                    <div class="mt-6 pt-6 border-t border-gray-100">
+                        <a href="{% url 'user_about_edit' author.username %}" class="flex items-center justify-center w-full px-4 py-2.5 bg-gray-900 hover:bg-gray-800 rounded-xl text-sm font-semibold text-white transition-colors">
+                            <i class="fas fa-edit mr-2"></i>
+                            소개글 수정
+                        </a>
+                    </div>
+                    {% endif %}
+                </div>
+            </section>
+
+            <!-- Activity Section -->
+            <section>
+                <div class="flex items-center justify-between mb-4">
+                    <h2 class="text-2xl font-bold text-gray-900">활동</h2>
+                    <span class="px-2.5 py-1 rounded-full bg-blue-50 text-blue-600 text-xs font-semibold">베타</span>
+                </div>
+                
+                <!-- Heatmap -->
+                <div class="bg-white rounded-2xl ring-1 ring-gray-900/5 p-6 mb-6" style="min-height: 280px;">
+                    <island-component name="AuthorHeatmap" props="{{ author_activity_props }}"></island-component>
+                </div>
+
+                <!-- Recent Activities (Server-side rendered) -->
+                <div class="bg-white rounded-2xl ring-1 ring-gray-900/5 p-6">
+                    <h3 class="text-sm font-bold text-gray-500 uppercase tracking-wider mb-4">최근 활동</h3>
+                    {% if recent_activities %}
+                        <div class="space-y-2">
+                            {% for activity in recent_activities %}
+                            <a href="{{ activity.url }}" class="flex items-center gap-4 p-3 -mx-3 rounded-2xl hover:bg-gray-50 transition-all duration-200 group">
+                                <div class="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0
+                                    {% if activity.type == 'post' %}bg-blue-50 text-blue-600
+                                    {% elif activity.type == 'series' %}bg-indigo-50 text-indigo-600
+                                    {% elif activity.type == 'comment' %}bg-emerald-50 text-emerald-600
+                                    {% elif activity.type == 'like' %}bg-rose-50 text-rose-600
+                                    {% else %}bg-gray-100 text-gray-600{% endif %}">
+                                    {% if activity.type == 'post' %}
+                                        <i class="fas fa-pen-nib text-sm"></i>
+                                    {% elif activity.type == 'series' %}
+                                        <i class="fas fa-layer-group text-sm"></i>
+                                    {% elif activity.type == 'comment' %}
+                                        <i class="fas fa-comment-alt text-sm"></i>
+                                    {% elif activity.type == 'like' %}
+                                        <i class="fas fa-heart text-sm"></i>
+                                    {% else %}
+                                        <i class="fas fa-clock text-sm"></i>
+                                    {% endif %}
+                                </div>
+                                <div class="flex-1 min-w-0">
+                                    <div class="flex items-center justify-between mb-0.5">
+                                        <span class="text-xs text-gray-500">
+                                            {% if activity.type == 'post' %}새 글을 작성했어요
+                                            {% elif activity.type == 'series' %}시리즈를 만들었어요
+                                            {% elif activity.type == 'comment' %}댓글을 남겼어요
+                                            {% elif activity.type == 'like' %}좋아요를 눌렀어요
+                                            {% else %}활동{% endif %}
+                                        </span>
+                                        <span class="text-[11px] text-gray-400 font-medium tabular-nums">{{ activity.date }}</span>
+                                    </div>
+                                    <h4 class="text-sm font-semibold text-gray-700 line-clamp-1 group-hover:text-blue-600 transition-colors">
+                                        {% if activity.type == 'comment' or activity.type == 'like' %}
+                                            {{ activity.postTitle }}
+                                        {% else %}
+                                            {{ activity.title }}
+                                        {% endif %}
+                                    </h4>
+                                </div>
+                            </a>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="py-12 text-center">
+                            <i class="fas fa-wind text-gray-300 text-2xl mb-3"></i>
+                            <p class="text-sm text-gray-400">기록된 활동이 없습니다</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </section>
+
+            <!-- Pinned Posts Section -->
+            {% if pinned_posts %}
+            <section>
+                <h2 class="text-2xl font-bold text-gray-900 mb-4">추천 포스트</h2>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                    {% for post in pinned_posts %}
+                    <a href="/@{{ post.author }}/{{ post.url }}" class="group block h-full">
+                        <article class="flex flex-col h-full bg-white rounded-2xl ring-1 ring-gray-900/5 overflow-hidden hover:shadow-xl transition-all duration-300">
+                            <div class="aspect-[16/9] overflow-hidden bg-gray-50">
+                                {% if post.image %}
+                                    <img 
+                                        src="{% resource 'media/'|add:post.image %}" 
+                                        alt="{{ post.title }}" 
+                                        class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
+                                {% else %}
+                                    <img 
+                                        src="{% resource 'assets/images/default-cover-1.jpg' %}" 
+                                        alt="{{ post.title }}" 
+                                        class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
+                                {% endif %}
+                            </div>
+                            <div class="p-5 flex flex-col flex-1">
+                                <span class="text-xs font-semibold text-blue-600 mb-2">추천</span>
+                                <h3 class="text-lg font-bold text-gray-900 mb-2 leading-snug line-clamp-2 group-hover:text-gray-700 transition-colors">
+                                    {{ post.title }}
+                                </h3>
+                                <div class="mt-auto pt-4 flex items-center gap-3 text-sm text-gray-400 border-t border-gray-100">
+                                    <time class="flex items-center gap-1.5">
+                                        <i class="far fa-calendar text-xs"></i>
+                                        {{ post.created_date|date:"M j, Y" }}
+                                    </time>
+                                    <span class="w-1 h-1 rounded-full bg-gray-300"></span>
+                                    <span class="flex items-center gap-1.5">
+                                        <i class="far fa-clock text-xs"></i>
+                                        {{ post.read_time }}분
+                                    </span>
+                                </div>
+                            </div>
+                        </article>
+                    </a>
+                    {% endfor %}
+                </div>
+            </section>
+            {% endif %}
+
+        </div>
+
+        <!-- Sidebar / Secondary Column -->
+        <aside class="lg:col-span-4">
+            <div class="lg:sticky lg:top-24 space-y-6">
+                <!-- Stats Card -->
+                <div class="bg-white rounded-2xl ring-1 ring-gray-900/5 p-6">
+                    <h3 class="text-lg font-bold text-gray-900 mb-6">통계</h3>
+                    
+                    <dl class="grid grid-cols-2 gap-6">
+                        <div>
+                            <dt class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">게시글</dt>
+                            <dd class="text-3xl font-bold text-gray-900">{{ post_count }}</dd>
+                        </div>
+                        <div>
+                            <dt class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">시리즈</dt>
+                            <dd class="text-3xl font-bold text-gray-900">{{ series_count }}</dd>
+                        </div>
+                    </dl>
+                </div>
+
+                <!-- Quick Links -->
+                <div class="bg-white rounded-2xl ring-1 ring-gray-900/5 p-6">
+                    <h3 class="text-sm font-bold text-gray-900 mb-4">빠른 접근</h3>
+                    <div class="space-y-2">
+                        <a href="/@{{ author.username }}/posts" class="flex items-center gap-3 px-4 py-2.5 rounded-xl hover:bg-gray-50 transition-colors group">
+                            <div class="w-8 h-8 rounded-lg bg-blue-50 flex items-center justify-center">
+                                <i class="fas fa-file-alt text-blue-600 text-sm"></i>
+                            </div>
+                            <span class="text-sm font-medium text-gray-700">모든 게시글</span>
+                        </a>
+                        <a href="/@{{ author.username }}/series" class="flex items-center gap-3 px-4 py-2.5 rounded-xl hover:bg-gray-50 transition-colors group">
+                            <div class="w-8 h-8 rounded-lg bg-purple-50 flex items-center justify-center">
+                                <i class="fas fa-layer-group text-purple-600 text-sm"></i>
+                            </div>
+                            <span class="text-sm font-medium text-gray-700">모든 시리즈</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </aside>
+    </div>
+</div>
+{% endblock %}

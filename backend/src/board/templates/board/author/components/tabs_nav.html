@@ -2,7 +2,12 @@
 <div class="relative mb-10">
     <div class="flex justify-center overflow-x-auto pb-2 sm:pb-0 hide-scrollbar">
         <div class="inline-flex bg-gray-100/80 backdrop-blur-sm rounded-xl p-1.5 min-w-fit">
-            <a href="/@{{ author.username }}" class="relative px-6 py-2 text-sm font-bold rounded-lg transition-all duration-200 whitespace-nowrap {% if active_tab == 'posts' %}bg-white text-black shadow-sm{% else %}text-gray-500 hover:text-gray-900{% endif %}">
+            <a href="/@{{ author.username }}" class="relative px-6 py-2 text-sm font-bold rounded-lg transition-all duration-200 whitespace-nowrap {% if active_tab == 'overview' %}bg-white text-black shadow-sm{% else %}text-gray-500 hover:text-gray-900{% endif %}">
+                <span class="relative z-10 flex items-center gap-2">
+                    개요
+                </span>
+            </a>
+            <a href="/@{{ author.username }}/posts" class="relative px-6 py-2 text-sm font-bold rounded-lg transition-all duration-200 whitespace-nowrap {% if active_tab == 'posts' %}bg-white text-black shadow-sm{% else %}text-gray-500 hover:text-gray-900{% endif %}">
                 <span class="relative z-10 flex items-center gap-2">
                     <span class="flex items-center gap-1.5">
                         포스트
@@ -16,11 +21,6 @@
                         시리즈
                         <span class="text-[10px] px-1.5 py-0.5 rounded-md {% if active_tab == 'series' %}bg-black text-white{% else %}bg-gray-200 text-gray-500{% endif %}">{{ series_count }}</span>
                     </span>
-                </span>
-            </a>
-            <a href="/@{{ author.username }}/about" class="relative px-6 py-2 text-sm font-bold rounded-lg transition-all duration-200 whitespace-nowrap {% if active_tab == 'about' %}bg-white text-black shadow-sm{% else %}text-gray-500 hover:text-gray-900{% endif %}">
-                <span class="relative z-10 flex items-center gap-2">
-                    소개
                 </span>
             </a>
         </div>

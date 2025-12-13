@@ -15,6 +15,7 @@ const LazyComponents = {
     SearchModal: lazy(() => import('./remotes/SearchModal')),
     LoginPrompt: lazy(() => import('./remotes/LoginPrompt')),
     Toaster: lazy(() => import('./remotes/Toaster')),
+    AuthorHeatmap: lazy(() => import('./remotes/Author/AuthorHeatmap')),
 
     // Pages
     Login: lazy(() => import('./remotes/Login')),
@@ -22,7 +23,7 @@ const LazyComponents = {
     PostEditor: lazy(() => import('./remotes/PostEditor')),
 
     // Settings
-    OverviewSetting: lazy(() => import('./remotes/Settings/OverviewSetting')),
+    NotifySetting: lazy(() => import('./remotes/Settings/NotifySetting')),
     FormsSetting: lazy(() => import('./remotes/Settings/FormsSetting')),
     IntegrationSetting: lazy(() => import('./remotes/Settings/IntegrationSetting')),
     PostsSetting: lazy(() => import('./remotes/Settings/PostsSetting')),

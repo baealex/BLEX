@@ -279,7 +279,7 @@ class EdgeCaseTemplateTestCase(TestCase):
     def test_author_page_with_empty_search(self):
         """작가 페이지에서 빈 검색어 처리 테스트"""
         response = self.client.get(
-            reverse('user_profile', kwargs={'username': self.user.username}) + '?q='
+            reverse('user_posts', kwargs={'username': self.user.username}) + '?q='
         )
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.context['search_query'], '')

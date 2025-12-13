@@ -56,11 +56,11 @@
                     <h3 class="px-4 mb-2 text-xs font-bold text-gray-400 uppercase tracking-wider">일반</h3>
                     <ul class="space-y-1">
                         <li>
-                            <a href="{% url 'setting_overview' %}"
+                            <a href="{% url 'setting_notify' %}"
                                class="flex items-center px-4 py-3 rounded-xl transition-all duration-200
-                                {% if active == 'overview' or active == 'dashboard' or active == 'notify' %}bg-gray-100 text-gray-900 font-bold{% else %}text-gray-600 hover:bg-gray-50 hover:text-gray-900 font-medium{% endif %}">
-                                <i class="fas fa-home w-6 text-center mr-3 {% if active == 'overview' or active == 'dashboard' or active == 'notify' %}text-gray-900{% else %}text-gray-400{% endif %}"></i>
-                                <span>개요</span>
+                                {% if active == 'notify' %}bg-gray-100 text-gray-900 font-bold{% else %}text-gray-600 hover:bg-gray-50 hover:text-gray-900 font-medium{% endif %}">
+                                <i class="fas fa-bell w-6 text-center mr-3 {% if active == 'notify' %}text-gray-900{% else %}text-gray-400{% endif %}"></i>
+                                <span>알림</span>
                             </a>
                         </li>
                         <li>
@@ -168,11 +168,11 @@
                             <h3 class="px-4 mb-3 text-xs font-bold text-gray-400 uppercase tracking-wider">일반</h3>
                             <ul class="space-y-1">
                                 <li>
-                                    <a href="{% url 'setting_overview' %}"
+                                    <a href="{% url 'setting_notify' %}"
                                        class="flex items-center px-4 py-2.5 rounded-xl transition-all duration-200 group
-                                        {% if active == 'overview' or active == 'dashboard' or active == 'notify' %}bg-gray-100 text-gray-900 font-bold{% else %}text-gray-600 hover:bg-gray-50 hover:text-gray-900 font-medium{% endif %}">
-                                        <i class="fas fa-home w-6 text-center mr-3 transition-colors {% if active == 'overview' or active == 'dashboard' or active == 'notify' %}text-gray-900{% else %}text-gray-400 group-hover:text-gray-600{% endif %}"></i>
-                                        <span>개요</span>
+                                        {% if active == 'notify' %}bg-gray-100 text-gray-900 font-bold{% else %}text-gray-600 hover:bg-gray-50 hover:text-gray-900 font-medium{% endif %}">
+                                        <i class="fas fa-bell w-6 text-center mr-3 transition-colors {% if active == 'notify' %}text-gray-900{% else %}text-gray-400 group-hover:text-gray-600{% endif %}"></i>
+                                        <span>알림</span>
                                     </a>
                                 </li>
                                 <li>
