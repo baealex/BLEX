@@ -3,11 +3,11 @@ import { useQuery } from '@tanstack/react-query';
 import { Chart as FrappeCharts } from 'frappe-charts';
 import { getAuthorHeatmap } from '~/lib/api/author';
 
-interface AuthorHeatmapProps {
+interface HeatmapProps {
     username: string;
 }
 
-const AuthorHeatmap = ({ username }: AuthorHeatmapProps) => {
+const Heatmap = ({ username }: HeatmapProps) => {
     const chartRef = useRef<HTMLDivElement>(null);
 
     // Fetch heatmap data
@@ -78,4 +78,4 @@ const AuthorHeatmap = ({ username }: AuthorHeatmapProps) => {
     return <div ref={chartRef} className="overflow-x-auto" />;
 };
 
-export default AuthorHeatmap;
+export default Heatmap;

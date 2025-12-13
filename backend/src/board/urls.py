@@ -91,7 +91,6 @@ urlpatterns = [
     path('v1/auth/security', api_v1.security),
     path('v1/auth/security/verify', api_v1.security_verify),
     path('v1/setting/<parameter>', api_v1.setting),
-    path('v1/dashboard/activities', api_v1.dashboard_activities),
     path('v1/search', api_v1.search),
     path('v1/posts', api_v1.post_list),
     path('v1/posts/<url>/comments', api_v1.post_comment_list),
