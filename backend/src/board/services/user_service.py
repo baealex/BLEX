@@ -448,8 +448,8 @@ class UserService:
                 'sort_date': like.created_date,
             })
 
-        recent_activities = sorted(activities, key=lambda x: x['sort_date'], reverse=True)[:5]
-
+        recent_activities = sorted(activities, key=lambda x: x['sort_date'], reverse=True)
+        
         for activity in recent_activities:
             del activity['sort_date']
 

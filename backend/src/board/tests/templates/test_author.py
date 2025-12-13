@@ -53,16 +53,25 @@ class AuthorPostsPageTestCase(TestCase):
     def test_author_posts_page_renders(self):
         """작가 포스트 페이지가 정상적으로 렌더링되는지 테스트"""
         response = self.client.get(
-            reverse('user_profile', kwargs={'username': self.user.username})
+            reverse('user_posts', kwargs={'username': self.user.username})
         )
 
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'board/author/author.html')
 
+    def test_author_overview_page_renders(self):
+        """작가 개요 페이지가 정상적으로 렌더링되는지 테스트"""
+        response = self.client.get(
+            reverse('user_profile', kwargs={'username': self.user.username})
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'board/author/author_overview.html')
+
     def test_author_posts_page_has_required_context(self):
         """작가 포스트 페이지 컨텍스트에 필수 필드 확인"""
         response = self.client.get(
-            reverse('user_profile', kwargs={'username': self.user.username})
+            reverse('user_posts', kwargs={'username': self.user.username})
         )
 
         required_fields = [
@@ -78,7 +87,7 @@ class AuthorPostsPageTestCase(TestCase):
     def test_author_posts_page_with_search(self):
         """작가 포스트 페이지 검색 기능 테스트"""
         response = self.client.get(
-            reverse('user_profile', kwargs={'username': self.user.username}) + '?q=Test'
+            reverse('user_posts', kwargs={'username': self.user.username}) + '?q=Test'
         )
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.context['search_query'], 'Test')
@@ -86,7 +95,7 @@ class AuthorPostsPageTestCase(TestCase):
     def test_author_posts_page_with_tag_filter(self):
         """작가 포스트 페이지 태그 필터 테스트"""
         response = self.client.get(
-            reverse('user_profile', kwargs={'username': self.user.username}) + '?tag=python'
+            reverse('user_posts', kwargs={'username': self.user.username}) + '?tag=python'
         )
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.context['tag_filter'], 'python')
@@ -94,7 +103,7 @@ class AuthorPostsPageTestCase(TestCase):
     def test_author_posts_page_sorting_recent(self):
         """작가 포스트 페이지 최신순 정렬 테스트"""
         response = self.client.get(
-            reverse('user_profile', kwargs={'username': self.user.username}) + '?sort=recent'
+            reverse('user_posts', kwargs={'username': self.user.username}) + '?sort=recent'
         )
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.context['sort_option'], 'recent')
@@ -102,7 +111,7 @@ class AuthorPostsPageTestCase(TestCase):
     def test_author_posts_page_sorting_popular(self):
         """작가 포스트 페이지 인기순 정렬 테스트"""
         response = self.client.get(
-            reverse('user_profile', kwargs={'username': self.user.username}) + '?sort=popular'
+            reverse('user_posts', kwargs={'username': self.user.username}) + '?sort=popular'
         )
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.context['sort_option'], 'popular')
@@ -110,7 +119,7 @@ class AuthorPostsPageTestCase(TestCase):
     def test_author_posts_page_sorting_comments(self):
         """작가 포스트 페이지 댓글 많은 순 정렬 테스트"""
         response = self.client.get(
-            reverse('user_profile', kwargs={'username': self.user.username}) + '?sort=comments'
+            reverse('user_posts', kwargs={'username': self.user.username}) + '?sort=comments'
         )
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.context['sort_option'], 'comments')
@@ -136,13 +145,13 @@ class AuthorPostsPageTestCase(TestCase):
         )
 
         response = self.client.get(
-            reverse('user_profile', kwargs={'username': new_user.username})
+            reverse('user_posts', kwargs={'username': new_user.username})
         )
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.context['post_count'], 0)
 
     def test_author_without_profile(self):
-        """프로필이 없는 작가 페이지 접근 - about 페이지로 리다이렉트"""
+        """프로필이 없는 작가 - overview 페이지는 정상 렌더링"""
         new_user = User.objects.create_user(
             username='noprofile',
             email='noprofile@example.com',
@@ -152,12 +161,11 @@ class AuthorPostsPageTestCase(TestCase):
         response = self.client.get(
             reverse('user_profile', kwargs={'username': new_user.username})
         )
-        # Profile이 없으면 about 페이지로 리다이렉트
-        self.assertEqual(response.status_code, 302)
-        self.assertRedirects(response, reverse('user_about', kwargs={'username': new_user.username}))
+        # Overview 페이지는 프로필 없이도 표시 가능
+        self.assertEqual(response.status_code, 200)
 
-    def test_reader_redirected_to_about(self):
-        """READER 역할 사용자의 posts 페이지 접근 시 about으로 리다이렉트"""
+    def test_reader_can_access_overview(self):
+        """READER 역할 사용자도 overview 페이지 정상 접근"""
         reader_user = User.objects.create_user(
             username='reader',
             email='reader@example.com',
@@ -172,9 +180,9 @@ class AuthorPostsPageTestCase(TestCase):
         response = self.client.get(
             reverse('user_profile', kwargs={'username': reader_user.username})
         )
-        # READER는 about 페이지로 리다이렉트
-        self.assertEqual(response.status_code, 302)
-        self.assertRedirects(response, reverse('user_about', kwargs={'username': reader_user.username}))
+        # Overview는 모두에게 공개
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'board/author/author_overview.html')
 
     def test_editor_can_access_posts(self):
         """EDITOR 역할 사용자는 posts 페이지 정상 접근"""
@@ -189,7 +197,7 @@ class AuthorPostsPageTestCase(TestCase):
         )
 
         response = self.client.get(
-            reverse('user_profile', kwargs={'username': editor_user.username})
+            reverse('user_posts', kwargs={'username': editor_user.username})
         )
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'board/author/author.html')
@@ -330,7 +338,7 @@ class AuthorSeriesPageTestCase(TestCase):
         self.assertEqual(response.status_code, 200)
 
     def test_reader_redirected_to_about_from_series(self):
-        """READER 역할 사용자의 series 페이지 접근 시 about으로 리다이렉트"""
+        """READER 역할 사용자의 series 페이지 접근 시 overview로 리다이렉트"""
         reader_user = User.objects.create_user(
             username='reader',
             email='reader@example.com',
@@ -345,9 +353,14 @@ class AuthorSeriesPageTestCase(TestCase):
         response = self.client.get(
             reverse('user_series', kwargs={'username': reader_user.username})
         )
-        # READER는 about 페이지로 리다이렉트
+        # READER는 overview 페이지로 리다이렉트 (about는 다시 overview로 리다이렉트)
         self.assertEqual(response.status_code, 302)
-        self.assertRedirects(response, reverse('user_about', kwargs={'username': reader_user.username}))
+        # Follow redirect to check final destination
+        final_response = self.client.get(
+            reverse('user_series', kwargs={'username': reader_user.username}),
+            follow=True
+        )
+        self.assertEqual(final_response.status_code, 200)
 
     def test_editor_can_access_series(self):
         """EDITOR 역할 사용자는 series 페이지 정상 접근"""
@@ -393,32 +406,34 @@ class AuthorAboutPageTestCase(TestCase):
         )
 
     def test_author_about_page_renders(self):
-        """작가 소개 페이지가 정상적으로 렌더링되는지 테스트"""
+        """작가 소개 페이지는 overview로 리다이렉트"""
         response = self.client.get(
             reverse('user_about', kwargs={'username': self.user.username})
         )
 
-        self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed(response, 'board/author/author_about.html')
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response, reverse('user_profile', kwargs={'username': self.user.username}))
 
     def test_author_about_page_has_required_context(self):
-        """작가 소개 페이지 컨텍스트에 필수 필드 확인"""
+        """작가 overview 페이지 컨텍스트에 필수 필드 확인 (redirect 후)"""
         response = self.client.get(
-            reverse('user_about', kwargs={'username': self.user.username})
+            reverse('user_about', kwargs={'username': self.user.username}),
+            follow=True
         )
 
-        required_fields = ['author', 'about_content', 'post_count', 'series_count']
+        required_fields = ['author', 'pinned_posts', 'recent_activities', 'about_html', 'post_count', 'series_count']
 
         for field in required_fields:
             with self.subTest(field=field):
                 self.assertIn(field, response.context)
 
     def test_nonexistent_author_about_returns_404(self):
-        """존재하지 않는 작가의 소개 페이지 접근 시 404 반환"""
+        """존재하지 않는 작가의 소개 페이지 접근 시 리다이렉트 시도 후 404"""
         response = self.client.get(
             reverse('user_about', kwargs={'username': 'nonexistent'})
         )
-        self.assertEqual(response.status_code, 404)
+        # Redirect는 발생하지만, overview에서 404 발생
+        self.assertEqual(response.status_code, 302)
 
     def test_author_about_edit_requires_login(self):
         """작가 소개 편집 페이지는 로그인 필요"""

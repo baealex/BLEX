@@ -1,13 +1,55 @@
 from django.shortcuts import render, get_object_or_404, redirect
+import json
 from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
 from django.db.models import Count, Exists, OuterRef, Q, F
 from django.utils import timezone
 from board.modules.paginator import Paginator
 from django.http import JsonResponse
+from board.services.user_service import UserService
 
 from board.models import Post, Series, PostLikes, Tag, Profile
 from modules import markdown
+
+
+def author_overview(request, username):
+    """
+    View for the author's overview page.
+    Includes contribution graph, pinned posts, and simplified profile info.
+    """
+    author = get_object_or_404(User, username=username)
+
+    pinned_posts = UserService.get_user_pinned_or_most_liked_posts(author)
+
+    recent_activities = UserService.get_user_dashboard_activities(author)[:10]  # Limit to 10 most recent
+
+    about_html = getattr(author.profile, 'about_html', '') if hasattr(author, 'profile') else ''
+    
+    post_count = Post.objects.filter(
+        author=author,
+        created_date__lte=timezone.now(),
+        config__hide=False
+    ).count()
+    series_count = Series.objects.filter(owner=author).count()
+
+    context = {
+        'author': author,
+        'pinned_posts': pinned_posts,
+        'recent_activities': recent_activities,
+        'about_html': about_html,
+        'post_count': post_count,
+        'series_count': series_count,
+        'author_activity_props': json.dumps({'username': author.username}),
+    }
+
+    return render(request, 'board/author/author_overview.html', context)
+
+
+def author_about(request, username):
+    """
+    Redirect from legacy /about URL to overview page.
+    """
+    return redirect('user_profile', username=username)
 
 
 def author_posts(request, username):
@@ -130,6 +172,7 @@ def author_posts(request, username):
         'tag_options': tag_options,
         'sort_options': sort_options,
         'blog_notices': blog_notices,
+        'author_activity_props': json.dumps({'username': author.username}),
     }
     
     return render(request, 'board/author/author.html', context)
@@ -218,31 +261,6 @@ def author_series(request, username):
     return render(request, 'board/author/author_series.html', context)
 
 
-def author_about(request, username):
-    """
-    View for the author's about page.
-    """
-    author = get_object_or_404(User, username=username)
-    
-    profile = getattr(author, 'profile', None)
-    about_content = getattr(profile, 'about_html', None)
-
-    post_count = Post.objects.filter(
-        author=author,
-        created_date__lte=timezone.now(),
-        config__hide=False
-    ).count()
-    series_count = Series.objects.filter(owner=author).count()
-
-    context = {
-        'author': author,
-        'about_content': about_content,
-        'post_count': post_count,
-        'series_count': series_count,
-        'is_loading': False,
-    }
-    
-    return render(request, 'board/author/author_about.html', context)
 
 
 @login_required
