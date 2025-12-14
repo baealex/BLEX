@@ -40,6 +40,7 @@ export interface Tag {
 }
 
 export interface Series {
+    id: number;
     url: string;
     title: string;
     totalPosts: number;

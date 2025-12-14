@@ -21,7 +21,8 @@ import { restrictToVerticalAxis, restrictToFirstScrollableAncestor } from '@dnd-
 
 import { toast } from '~/utils/toast';
 import { useQuery } from '@tanstack/react-query';
-import { Button } from '~/components/shared';
+import { Button, Input, Dropdown } from '~/components/shared';
+import { baseInputStyles } from '~/components/shared/settingsStyles';
 import { getSocialLinks, updateSocialLinks, type SocialLink as ApiSocialLink } from '~/lib/api/settings';
 
 interface SocialLink extends ApiSocialLink {
@@ -62,6 +63,47 @@ const SocialLinkItem = ({ social, index, onRemove, onChange }: SocialLinkItemPro
         transform: CSS.Transform.toString(transform),
         transition
     };
+
+    const platformOptions = [
+        {
+ label: '아이콘 선택',
+value: ''
+},
+        {
+ label: '깃허브',
+value: 'github'
+},
+        {
+ label: '트위터',
+value: 'twitter'
+},
+        {
+ label: '페이스북',
+value: 'facebook'
+},
+        {
+ label: '텔레그램',
+value: 'telegram'
+},
+        {
+ label: '인스타그램',
+value: 'instagram'
+},
+        {
+ label: '링크드인',
+value: 'linkedin'
+},
+        {
+ label: '유튜브',
+value: 'youtube'
+},
+        {
+ label: '기타',
+value: 'other'
+}
+    ];
+
+    const currentPlatform = platformOptions.find(opt => opt.value === social.name);
 
     return (
         <div ref={setNodeRef} style={style} className="mb-4">
@@ -114,29 +156,30 @@ const SocialLinkItem = ({ social, index, onRemove, onChange }: SocialLinkItemPro
                     {/* 플랫폼 선택 */}
                     <div className="w-full sm:w-44 flex-shrink-0">
                         <label className="block text-xs font-medium text-gray-600 mb-2 sm:hidden">플랫폼 선택</label>
-                        <select
-                            className="block w-full rounded-lg border-gray-200 shadow-sm focus:border-gray-500 focus:ring-2 focus:ring-gray-200/50 focus:ring-offset-0 text-sm p-3 transition-all duration-200 bg-gray-50/50 hover:bg-white"
-                            value={social.name}
-                            onChange={(e) => onChange(index, 'name', e.target.value)}>
-                            <option disabled value="">아이콘 선택</option>
-                            <option value="github">깃허브</option>
-                            <option value="twitter">트위터</option>
-                            <option value="facebook">페이스북</option>
-                            <option value="telegram">텔레그램</option>
-                            <option value="instagram">인스타그램</option>
-                            <option value="linkedin">링크드인</option>
-                            <option value="youtube">유튜브</option>
-                            <option value="other">기타</option>
-                        </select>
+                        <Dropdown
+                            trigger={
+                                <button type="button" className={`${baseInputStyles} flex items-center justify-between`}>
+                                    <span className={!social.name ? 'text-gray-400' : 'text-gray-900'}>
+                                        {currentPlatform?.label || '아이콘 선택'}
+                                    </span>
+                                    <i className="fas fa-chevron-down text-gray-400 text-xs" />
+                                </button>
+                            }
+                            items={platformOptions.map(opt => ({
+                                label: opt.label,
+                                onClick: () => onChange(index, 'name', opt.value),
+                                checked: social.name === opt.value
+                            }))}
+                            align="start"
+                        />
                     </div>
 
                     {/* 링크 주소 */}
                     <div className="flex-1">
                         <label className="block text-xs font-medium text-gray-600 mb-2 sm:hidden">링크 주소</label>
-                        <input
+                        <Input
                             type="url"
                             placeholder="https://example.com"
-                            className="block w-full rounded-lg border-gray-200 shadow-sm focus:border-gray-500 focus:ring-2 focus:ring-gray-200/50 focus:ring-offset-0 text-sm p-3 transition-all duration-200 bg-gray-50/50 hover:bg-white"
                             value={social.value}
                             onChange={(e) => onChange(index, 'value', e.target.value)}
                         />
