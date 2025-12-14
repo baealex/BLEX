@@ -7,6 +7,7 @@ import { useConfirm } from '~/contexts/ConfirmContext';
 import {
     getPosts,
     togglePostVisibility,
+    togglePostNotice,
     deletePost,
     updatePostTags,
     updatePostSeries,
@@ -17,6 +18,8 @@ import { getTags, getSeries, type Tag, type Series } from '~/lib/api/settings';
 interface Post extends ApiPost {
     hasTagChanged?: boolean;
     hasSeriesChanged?: boolean;
+    isNotice?: boolean;
+    isPinned?: boolean;
 }
 
 interface FilterOptions {
@@ -25,7 +28,8 @@ interface FilterOptions {
     series: string;
     order: string;
     page: string;
-    status: string;
+    visibility: string;
+    notice: string;
 }
 
 const POSTS_ORDER = [
@@ -79,8 +83,11 @@ const PostsSetting = () => {
         series: '',
         order: '-created_date',
         page: '1',
-        status: ''
+        visibility: '',
+        notice: '',
+        pinned: ''
     });
+    const [isFilterExpanded, setIsFilterExpanded] = useState(true);
 
     const [posts, setPosts] = useState<Post[]>([]);
     const [postsMounted, setPostsMounted] = useState(false);
@@ -131,21 +138,17 @@ const PostsSetting = () => {
     });
 
     useEffect(() => {
-        if (postsData) {
-            setPostsMounted(true);
-            setPosts(postsData.posts.map((post) => ({
-                ...post,
-                hasTagChanged: false,
-                hasSeriesChanged: false
-            })));
-        }
-    }, [postsData]);
-
-    useEffect(() => {
         if (isError) {
             toast.error('포스트 목록을 불러오는데 실패했습니다.');
         }
     }, [isError]);
+
+    useEffect(() => {
+        if (postsData?.posts) {
+            setPosts(postsData.posts);
+            setPostsMounted(true);
+        }
+    }, [postsData]);
 
     const handleFilterChange = (key: keyof FilterOptions, value: string) => {
         setFilters(prev => ({
@@ -186,6 +189,29 @@ const PostsSetting = () => {
             }
         } catch {
             toast.error('포스트 공개 설정 변경에 실패했습니다.');
+        }
+    };
+
+    const handlePostNoticeToggle = async (postUrl: string) => {
+        try {
+            const { data } = await togglePostNotice(postsData!.username, postUrl);
+
+            if (data.status === 'DONE') {
+                setPosts(prev => prev.map(post =>
+                    post.url === postUrl
+                        ? {
+                            ...post,
+                            isNotice: data.body.isNotice
+                        }
+                        : post
+                ));
+                toast.success(`포스트가 ${data.body.isNotice ? '공지로 설정' : '공지 해제'}되었습니다.`);
+                refetch();
+            } else {
+                throw new Error('Failed to toggle notice');
+            }
+        } catch {
+            toast.error('공지 설정 변경에 실패했습니다.');
         }
     };
 
@@ -321,88 +347,246 @@ const PostsSetting = () => {
             </div>
 
             {/* 필터 및 검색 섹션 */}
-            <div className="mb-6 p-6 bg-gray-50 border border-gray-200 rounded-2xl">
-                <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
-                    <i className="fas fa-filter mr-3" />
-                    필터 및 검색
-                </h3>
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-                    <Input
-                        type="text"
-                        placeholder="포스트 제목 검색..."
-                        defaultValue={filters.search}
-                        onChange={handleSearchChange}
-                        leftIcon={<i className="fas fa-search" />}
-                    />
-
-                    {/* 태그 필터 */}
-                    <Dropdown
-                        align="left"
-                        trigger={
-                            <button className={`${baseInputStyles} flex items-center justify-between text-left`}>
-                                <span className={filters.tag ? 'text-gray-900 font-medium' : 'text-gray-400'}>
-                                    {filters.tag || '태그 선택'}
-                                </span>
-                                <i className="fas fa-chevron-down text-gray-400" />
-                            </button>
-                        }
-                        items={[
-                            {
-                                label: '태그 선택 (전체)',
-                                onClick: () => handleFilterChange('tag', ''),
-                                checked: filters.tag === ''
-                            },
-                            ...(tags?.map((tag: Tag) => ({
-                                label: `${tag.name} (${tag.count})`,
-                                onClick: () => handleFilterChange('tag', tag.name),
-                                checked: filters.tag === tag.name
-                            })) || [])
-                        ]}
-                    />
-
-                    {/* 시리즈 필터 */}
-                    <Dropdown
-                        align="left"
-                        trigger={
-                            <button className={`${baseInputStyles} flex items-center justify-between text-left`}>
-                                <span className={filters.series ? 'text-gray-900 font-medium' : 'text-gray-400'}>
-                                    {series?.find((s: Series) => s.url === filters.series)?.title || '시리즈 선택'}
-                                </span>
-                                <i className="fas fa-chevron-down text-gray-400" />
-                            </button>
-                        }
-                        items={[
-                            {
-                                label: '시리즈 선택 (전체)',
-                                onClick: () => handleFilterChange('series', ''),
-                                checked: filters.series === ''
-                            },
-                            ...(series?.map((item: Series) => ({
-                                label: `${item.title} (${item.totalPosts})`,
-                                onClick: () => handleFilterChange('series', item.url),
-                                checked: filters.series === item.url
-                            })) || [])
-                        ]}
-                    />
-
-                    {/* 정렬 필터 */}
-                    <Dropdown
-                        align="left"
-                        trigger={
-                            <button className={`${baseInputStyles} flex items-center justify-between text-left`}>
-                                <span className="text-gray-900 font-medium">
-                                    {POSTS_ORDER.find(order => order.order === filters.order)?.name || '정렬'}
-                                </span>
-                                <i className="fas fa-chevron-down text-gray-400" />
-                            </button>
-                        }
-                        items={POSTS_ORDER.map((order) => ({
-                            label: order.name,
-                            onClick: () => handleFilterChange('order', order.order),
-                            checked: filters.order === order.order
-                        }))}
-                    />
+            <div className="mb-6">
+                {/* 필터 헤더 */}
+                <div className="flex items-center justify-between mb-4">
+                    <button
+                        onClick={() => setIsFilterExpanded(!isFilterExpanded)}
+                        className="flex items-center gap-2 text-lg font-semibold text-gray-900 hover:text-gray-700 transition-colors">
+                        <i className={`fas fa-chevron-${isFilterExpanded ? 'down' : 'right'} text-sm`} />
+                        <i className="fas fa-filter" />
+                        <span>필터 및 검색</span>
+                        {(filters.tag || filters.series || filters.visibility || filters.notice || filters.search) && (
+                            <span className="ml-2 px-2 py-0.5 bg-blue-100 text-blue-700 text-xs font-medium rounded-full">
+                                활성
+                            </span>
+                        )}
+                    </button>
+                    {(filters.tag || filters.series || filters.visibility || filters.notice || filters.search) && (
+                        <Button
+                            variant="secondary"
+                            size="sm"
+                            leftIcon={<i className="fas fa-times" />}
+                            onClick={() => setFilters({
+                                search: '',
+                                tag: '',
+                                series: '',
+                                order: filters.order,
+                                page: '1',
+                                visibility: '',
+                                notice: '',
+                                pinned: ''
+                            })}>
+                            필터 초기화
+                        </Button>
+                    )}
                 </div>
+
+                {/* 활성 필터 뱃지 */}
+                {(filters.tag || filters.series || filters.visibility || filters.notice || filters.search) && (
+                    <div className="flex flex-wrap gap-2 mb-4">
+                        {filters.search && (
+                            <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-blue-50 text-blue-700 rounded-lg text-sm">
+                                <i className="fas fa-search text-xs" />
+                                <span>검색: {filters.search}</span>
+                                <button
+                                    onClick={() => handleFilterChange('search', '')}
+                                    className="hover:text-blue-900">
+                                    <i className="fas fa-times text-xs" />
+                                </button>
+                            </div>
+                        )}
+                        {filters.tag && (
+                            <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-purple-50 text-purple-700 rounded-lg text-sm">
+                                <i className="fas fa-tag text-xs" />
+                                <span>{filters.tag}</span>
+                                <button
+                                    onClick={() => handleFilterChange('tag', '')}
+                                    className="hover:text-purple-900">
+                                    <i className="fas fa-times text-xs" />
+                                </button>
+                            </div>
+                        )}
+                        {filters.series && (
+                            <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-green-50 text-green-700 rounded-lg text-sm">
+                                <i className="fas fa-book text-xs" />
+                                <span>{series?.find((s: Series) => s.url === filters.series)?.title}</span>
+                                <button
+                                    onClick={() => handleFilterChange('series', '')}
+                                    className="hover:text-green-900">
+                                    <i className="fas fa-times text-xs" />
+                                </button>
+                            </div>
+                        )}
+                        {filters.visibility && (
+                            <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-orange-50 text-orange-700 rounded-lg text-sm">
+                                <i className={`fas ${filters.visibility === 'public' ? 'fa-eye' : 'fa-eye-slash'} text-xs`} />
+                                <span>{filters.visibility === 'public' ? '공개' : '숨김'}</span>
+                                <button
+                                    onClick={() => handleFilterChange('visibility', '')}
+                                    className="hover:text-orange-900">
+                                    <i className="fas fa-times text-xs" />
+                                </button>
+                            </div>
+                        )}
+                        {filters.notice && (
+                            <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-red-50 text-red-700 rounded-lg text-sm">
+                                <i className="fas fa-bell text-xs" />
+                                <span>{filters.notice === 'notice' ? '공지만' : '일반만'}</span>
+                                <button
+                                    onClick={() => handleFilterChange('notice', '')}
+                                    className="hover:text-red-900">
+                                    <i className="fas fa-times text-xs" />
+                                </button>
+                            </div>
+                        )}
+                    </div>
+                )}
+
+                {/* 필터 컨트롤 */}
+                {isFilterExpanded && (
+                    <div className="p-6 bg-gray-50 border border-gray-200 rounded-2xl">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 mb-4">
+                            <Input
+                                type="text"
+                                placeholder="포스트 제목 검색..."
+                                defaultValue={filters.search}
+                                onChange={handleSearchChange}
+                                leftIcon={<i className="fas fa-search" />}
+                            />
+
+                            {/* 태그 필터 */}
+                            <Dropdown
+                                align="left"
+                                trigger={
+                                    <button className={`${baseInputStyles} flex items-center justify-between text-left`}>
+                                        <span className={filters.tag ? 'text-gray-900 font-medium' : 'text-gray-400'}>
+                                            {filters.tag || '태그'}
+                                        </span>
+                                        <i className="fas fa-chevron-down text-gray-400" />
+                                    </button>
+                                }
+                                items={[
+                                    {
+                                        label: '전체',
+                                        onClick: () => handleFilterChange('tag', ''),
+                                        checked: filters.tag === ''
+                                    },
+                                    ...(tags?.map((tag: Tag) => ({
+                                        label: `${tag.name} (${tag.count})`,
+                                        onClick: () => handleFilterChange('tag', tag.name),
+                                        checked: filters.tag === tag.name
+                                    })) || [])
+                                ]}
+                            />
+
+                            {/* 시리즈 필터 */}
+                            <Dropdown
+                                align="left"
+                                trigger={
+                                    <button className={`${baseInputStyles} flex items-center justify-between text-left`}>
+                                        <span className={filters.series ? 'text-gray-900 font-medium' : 'text-gray-400'}>
+                                            {series?.find((s: Series) => s.url === filters.series)?.title || '시리즈'}
+                                        </span>
+                                        <i className="fas fa-chevron-down text-gray-400" />
+                                    </button>
+                                }
+                                items={[
+                                    {
+                                        label: '전체',
+                                        onClick: () => handleFilterChange('series', ''),
+                                        checked: filters.series === ''
+                                    },
+                                    ...(series?.map((item: Series) => ({
+                                        label: `${item.title} (${item.totalPosts})`,
+                                        onClick: () => handleFilterChange('series', item.url),
+                                        checked: filters.series === item.url
+                                    })) || [])
+                                ]}
+                            />
+
+                            {/* 공개 상태 필터 */}
+                            <Dropdown
+                                align="left"
+                                trigger={
+                                    <button className={`${baseInputStyles} flex items-center justify-between text-left`}>
+                                        <span className={filters.visibility ? 'text-gray-900 font-medium' : 'text-gray-400'}>
+                                            {filters.visibility === 'public' ? '공개' : filters.visibility === 'hidden' ? '숨김' : '공개 상태'}
+                                        </span>
+                                        <i className="fas fa-chevron-down text-gray-400" />
+                                    </button>
+                                }
+                                items={[
+                                    {
+                                        label: '전체',
+                                        onClick: () => handleFilterChange('visibility', ''),
+                                        checked: filters.visibility === ''
+                                    },
+                                    {
+                                        label: '공개',
+                                        onClick: () => handleFilterChange('visibility', 'public'),
+                                        checked: filters.visibility === 'public'
+                                    },
+                                    {
+                                        label: '숨김',
+                                        onClick: () => handleFilterChange('visibility', 'hidden'),
+                                        checked: filters.visibility === 'hidden'
+                                    }
+                                ]}
+                            />
+                        </div>
+
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                            {/* 공지 필터 */}
+                            <Dropdown
+                                align="left"
+                                trigger={
+                                    <button className={`${baseInputStyles} flex items-center justify-between text-left`}>
+                                        <span className={filters.notice ? 'text-gray-900 font-medium' : 'text-gray-400'}>
+                                            {filters.notice === 'notice' ? '공지만' : filters.notice === 'normal' ? '일반만' : '공지 여부'}
+                                        </span>
+                                        <i className="fas fa-chevron-down text-gray-400" />
+                                    </button>
+                                }
+                                items={[
+                                    {
+                                        label: '전체',
+                                        onClick: () => handleFilterChange('notice', ''),
+                                        checked: filters.notice === ''
+                                    },
+                                    {
+                                        label: '공지만',
+                                        onClick: () => handleFilterChange('notice', 'notice'),
+                                        checked: filters.notice === 'notice'
+                                    },
+                                    {
+                                        label: '일반만',
+                                        onClick: () => handleFilterChange('notice', 'normal'),
+                                        checked: filters.notice === 'normal'
+                                    }
+                                ]}
+                            />
+
+                            {/* 정렬 */}
+                            <Dropdown
+                                align="left"
+                                trigger={
+                                    <button className={`${baseInputStyles} flex items-center justify-between text-left`}>
+                                        <span className="text-gray-900 font-medium">
+                                            {POSTS_ORDER.find(o => o.order === filters.order)?.name || '정렬 방식'}
+                                        </span>
+                                        <i className="fas fa-chevron-down text-gray-400" />
+                                    </button>
+                                }
+                                items={POSTS_ORDER.map((orderOption) => ({
+                                    label: orderOption.name,
+                                    onClick: () => handleFilterChange('order', orderOption.order),
+                                    checked: filters.order === orderOption.order
+                                }))}
+                            />
+                        </div>
+                    </div>
+                )}
             </div>
 
             {/* 포스트 리스트 */}
@@ -470,6 +654,15 @@ const PostsSetting = () => {
                                                     </span>
                                                 </>
                                             )}
+                                            {post.isNotice && (
+                                                <>
+                                                    <span className="text-gray-400">•</span>
+                                                    <span className="inline-flex items-center px-2.5 py-1 bg-red-100 text-red-700 rounded-full text-xs font-medium">
+                                                        <i className="fas fa-bell mr-1.5" />
+                                                        공지
+                                                    </span>
+                                                </>
+                                            )}
                                         </div>
                                     </div>
 
@@ -486,6 +679,11 @@ const PostsSetting = () => {
                                                     label: post.isHide ? '공개로 변경' : '비공개로 변경',
                                                     icon: `fas ${post.isHide ? 'fa-eye' : 'fa-eye-slash'}`,
                                                     onClick: () => handlePostVisibilityToggle(post.url)
+                                                },
+                                                {
+                                                    label: post.isNotice ? '공지 해제' : '공지로 설정',
+                                                    icon: `fas ${post.isNotice ? 'fa-bell-slash' : 'fa-bell'}`,
+                                                    onClick: () => handlePostNoticeToggle(post.url)
                                                 },
                                                 {
                                                     label: '삭제',

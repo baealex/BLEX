@@ -241,6 +241,16 @@ def user_posts(request, username, url=None):
                     'is_hide': post.config.hide
                 })
 
+            if request.GET.get('notice', ''):
+                if not request.user == post.author:
+                    raise Http404
+
+                post.config.notice = not post.config.notice
+                post.config.save()
+                return StatusDone({
+                    'is_notice': post.config.notice
+                })
+
             if request.GET.get('tag', ''):
                 if not request.user == post.author:
                     raise Http404
