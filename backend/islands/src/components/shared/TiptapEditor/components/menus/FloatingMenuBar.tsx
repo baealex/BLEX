@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import { useEffect } from 'react';
 import type { Editor } from '@tiptap/react';
 import type { VirtualElement } from '@floating-ui/react';
 import ToolbarButton from '../ui/ToolbarButton';
@@ -8,7 +8,7 @@ interface FloatingMenuBarProps {
     editor: Editor | null;
 }
 
-const FloatingMenuBar: React.FC<FloatingMenuBarProps> = ({ editor }) => {
+const FloatingMenuBar = ({ editor }: FloatingMenuBarProps) => {
     const {
         isVisible,
         setIsVisible,

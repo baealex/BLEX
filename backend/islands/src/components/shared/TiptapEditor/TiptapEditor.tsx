@@ -1,4 +1,4 @@
-import React, { useEffect, useCallback } from 'react';
+import { useEffect, useCallback } from 'react';
 import { useEditor, EditorContent } from '@tiptap/react';
 import MenuBar from './components/menus/MenuBar';
 import { getEditorExtensions } from './config/editorConfig';
@@ -13,14 +13,14 @@ interface TiptapEditorProps {
     placeholder?: string;
 }
 
-const TiptapEditor: React.FC<TiptapEditorProps> = ({
+const TiptapEditor = ({
     name,
     content = '',
     editable = true,
     onChange,
     height = '400px',
     placeholder = '내용을 입력하세요… ㅋ'
-}) => {
+}: TiptapEditorProps) => {
     const handleChange = useCallback((html: string) => {
         if (onChange) {
             onChange(html);

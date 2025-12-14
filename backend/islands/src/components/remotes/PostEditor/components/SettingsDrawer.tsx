@@ -1,4 +1,3 @@
-import React from 'react';
 import * as Dialog from '@radix-ui/react-dialog';
 import { Dropdown, Input, Button } from '~/components/shared';
 import { baseInputStyles } from '~/components/shared/settingsStyles';
@@ -32,7 +31,7 @@ interface SettingsDrawerProps {
     onFormDataChange: (field: string, value: boolean) => void;
 }
 
-const SettingsDrawer: React.FC<SettingsDrawerProps> = ({
+const SettingsDrawer = ({
     isOpen,
     onClose,
     isEdit,
@@ -45,7 +44,7 @@ const SettingsDrawer: React.FC<SettingsDrawerProps> = ({
     onMetaDescriptionChange,
     onSeriesChange,
     onFormDataChange
-}) => {
+}: SettingsDrawerProps) => {
     return (
         <Dialog.Root open={isOpen} onOpenChange={(open) => !open && onClose()}>
             <Dialog.Portal>

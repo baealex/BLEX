@@ -1,5 +1,9 @@
-import React, {
- createContext, useContext, useState, useCallback, type ReactNode
+import {
+ createContext,
+ useContext,
+ useState,
+ useCallback,
+ type ReactNode
 } from 'react';
 import Modal from '~/components/shared/Modal';
 
@@ -30,7 +34,7 @@ interface ConfirmDialogState extends ConfirmOptions {
     resolve: (value: boolean) => void;
 }
 
-export const ConfirmProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
+export const ConfirmProvider = ({ children }: { children: ReactNode }) => {
     const [dialogState, setDialogState] = useState<ConfirmDialogState>({
         isOpen: false,
         title: '',

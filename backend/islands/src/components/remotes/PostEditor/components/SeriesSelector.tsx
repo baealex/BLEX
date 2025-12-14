@@ -1,4 +1,3 @@
-import React from 'react';
 import Dropdown from '~/components/shared/Dropdown';
 import { baseInputStyles } from '~/components/shared/settingsStyles';
 
@@ -13,11 +12,11 @@ interface SeriesSelectorProps {
     onSeriesChange: (series: { id: string; name: string }) => void;
 }
 
-const SeriesSelector: React.FC<SeriesSelectorProps> = ({
+const SeriesSelector = ({
     seriesList,
     selectedSeries,
     onSeriesChange
-}) => {
+}: SeriesSelectorProps) => {
     const handleSeriesSelect = (series: Series | null) => {
         onSeriesChange({
             id: series?.id || '',

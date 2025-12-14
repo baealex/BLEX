@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { getMediaPath } from '~/modules/static.module';
 import Modal from '~/components/shared/Modal';
 import { searchPosts, type SearchResult } from '~/lib/api';
@@ -15,7 +15,7 @@ interface SearchResultsData {
     elapsedTime?: number;
 }
 
-const SearchModal: React.FC<SearchModalProps> = ({ isOpen: initialIsOpen = false }) => {
+const SearchModal = ({ isOpen: initialIsOpen = false }: SearchModalProps) => {
     const [isOpen, setIsOpen] = useState(initialIsOpen);
     const [query, setQuery] = useState('');
     const [searchResults, setSearchResults] = useState<SearchResultsData | null>(null);

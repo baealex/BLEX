@@ -1,5 +1,3 @@
-import React from 'react';
-
 interface PostSettingsProps {
     formData: {
         hide: boolean;
@@ -9,7 +7,7 @@ interface PostSettingsProps {
     onChange: (field: string, value: boolean) => void;
 }
 
-const PostSettings: React.FC<PostSettingsProps> = ({ formData, onChange }) => {
+const PostSettings = ({ formData, onChange }: PostSettingsProps) => {
     return (
         <div className="bg-white rounded-xl border border-gray-200 p-4 sm:p-5">
             <label className="block text-xs font-medium text-gray-500 uppercase tracking-wide mb-3">설정</label>

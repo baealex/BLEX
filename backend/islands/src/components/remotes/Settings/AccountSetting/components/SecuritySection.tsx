@@ -1,4 +1,3 @@
-import React from 'react';
 import { Button, Card } from '~/components/shared';
 
 interface SecuritySectionProps {
@@ -7,7 +6,7 @@ interface SecuritySectionProps {
     onDeleteAccount: () => Promise<void>;
 }
 
-const SecuritySection: React.FC<SecuritySectionProps> = ({ has2fa, onToggle2FA, onDeleteAccount }) => {
+const SecuritySection = ({ has2fa, onToggle2FA, onDeleteAccount }: SecuritySectionProps) => {
     return (
         <Card
             title="보안 설정"

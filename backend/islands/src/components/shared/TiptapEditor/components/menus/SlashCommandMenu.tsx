@@ -19,14 +19,14 @@ interface CommandItem {
     action: (editor: Editor) => void;
 }
 
-const SlashCommandMenu: React.FC<SlashCommandMenuProps> = ({
+const SlashCommandMenu = ({
     editor,
     isVisible,
     position,
     onClose,
     onImageUpload,
     onYoutubeUpload
-}) => {
+}: SlashCommandMenuProps) => {
     const [selectedIndex, setSelectedIndex] = useState(0);
     const [searchTerm, setSearchTerm] = useState('');
     const menuRef = useRef<HTMLDivElement>(null);

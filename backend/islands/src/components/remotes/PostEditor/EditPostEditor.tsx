@@ -17,7 +17,7 @@ interface EditPostEditorProps {
     postUrl: string;
 }
 
-const EditPostEditor: React.FC<EditPostEditorProps> = ({ username, postUrl }) => {
+const EditPostEditor = ({ username, postUrl }: EditPostEditorProps) => {
     const { confirm } = useConfirm();
     const [isLoading, setIsLoading] = useState(true);
     const [seriesList, setSeriesList] = useState<Series[]>([]);

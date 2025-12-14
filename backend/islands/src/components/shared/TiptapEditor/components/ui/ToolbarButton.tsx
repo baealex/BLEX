@@ -1,5 +1,3 @@
-import React from 'react';
-
 interface ToolbarButtonProps {
     onClick: () => void;
     isActive?: boolean;
@@ -9,14 +7,14 @@ interface ToolbarButtonProps {
     className?: string;
 }
 
-const ToolbarButton: React.FC<ToolbarButtonProps> = ({
+const ToolbarButton = ({
     onClick,
     isActive = false,
     disabled = false,
     title,
     children,
     className = ''
-}) => (
+}: ToolbarButtonProps) => (
     <button
         type="button"
         onClick={onClick}

@@ -1,5 +1,4 @@
 import type { ReactNode } from 'react';
-import React from 'react';
 import * as Dialog from '@radix-ui/react-dialog';
 import { cx } from '~/lib/classnames';
 
@@ -12,14 +11,14 @@ interface ModalProps {
     showCloseButton?: boolean;
 }
 
-const Modal: React.FC<ModalProps> = ({
+const Modal = ({
     isOpen,
     onClose,
     title,
     children,
     maxWidth = '2xl',
     showCloseButton = true
-}) => {
+}: ModalProps) => {
     // Use explicit class names for Tailwind to detect at build time
     const getMaxWidthClass = () => {
         switch (maxWidth) {

@@ -337,7 +337,7 @@ const PostsSetting = () => {
 
                     {/* 태그 필터 */}
                     <Dropdown
-                        align="start"
+                        align="left"
                         trigger={
                             <button className={`${baseInputStyles} flex items-center justify-between text-left`}>
                                 <span className={filters.tag ? 'text-gray-900 font-medium' : 'text-gray-400'}>
@@ -362,7 +362,7 @@ const PostsSetting = () => {
 
                     {/* 시리즈 필터 */}
                     <Dropdown
-                        align="start"
+                        align="left"
                         trigger={
                             <button className={`${baseInputStyles} flex items-center justify-between text-left`}>
                                 <span className={filters.series ? 'text-gray-900 font-medium' : 'text-gray-400'}>
@@ -387,7 +387,7 @@ const PostsSetting = () => {
 
                     {/* 정렬 필터 */}
                     <Dropdown
-                        align="start"
+                        align="left"
                         trigger={
                             <button className={`${baseInputStyles} flex items-center justify-between text-left`}>
                                 <span className="text-gray-900 font-medium">
@@ -530,7 +530,7 @@ const PostsSetting = () => {
                                         <i className="fas fa-book text-sm" />
                                     </div>
                                     <Dropdown
-                                        align="start"
+                                        align="left"
                                         trigger={
                                             // Override padding to match previous design for this smaller context
                                             <button className={`${baseInputStyles} flex-1 flex items-center justify-between text-left py-2.5`}>
@@ -550,7 +550,7 @@ const PostsSetting = () => {
                                                 label: item.title,
                                                 onClick: () => handleSeriesChange(post.url, item.url),
                                                 checked: post.series === item.url
-                        })) || [])
+                                            })) || [])
                                         ]}
                                     />
                                     {post.hasSeriesChanged && (

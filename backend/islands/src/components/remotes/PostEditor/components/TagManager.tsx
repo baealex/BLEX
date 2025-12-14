@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import { useState, useRef } from 'react';
 import { Button } from '~/components/shared';
 
 interface TagManagerProps {
@@ -6,7 +6,7 @@ interface TagManagerProps {
     onTagsChange: (tags: string[]) => void;
 }
 
-const TagManager: React.FC<TagManagerProps> = ({ tags, onTagsChange }) => {
+const TagManager = ({ tags, onTagsChange }: TagManagerProps) => {
     const [newTag, setNewTag] = useState('');
     const [isAdding, setIsAdding] = useState(false);
     const inputRef = useRef<HTMLInputElement>(null);

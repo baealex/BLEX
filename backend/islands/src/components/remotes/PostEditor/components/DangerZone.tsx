@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Button } from '~/components/shared';
 
 interface DangerZoneProps {
@@ -6,7 +6,7 @@ interface DangerZoneProps {
     onDelete: () => void;
 }
 
-const DangerZone: React.FC<DangerZoneProps> = ({ isSubmitting, onDelete }) => {
+const DangerZone = ({ isSubmitting, onDelete }: DangerZoneProps) => {
     const [isExpanded, setIsExpanded] = useState(false);
 
     return (

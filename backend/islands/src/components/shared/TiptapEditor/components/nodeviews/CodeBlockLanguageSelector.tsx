@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect, useMemo } from 'react';
+import { useState, useRef, useEffect, useMemo } from 'react';
 import { createPortal } from 'react-dom';
 import type { Editor } from '@tiptap/react';
 import type { NodeViewProps } from '@tiptap/react';
@@ -10,10 +10,10 @@ interface CodeBlockLanguageSelectorProps {
     updateAttributes: (attributes: Record<string, unknown>) => void;
 }
 
-const CodeBlockLanguageSelector: React.FC<CodeBlockLanguageSelectorProps> = ({
+const CodeBlockLanguageSelector = ({
     node,
     updateAttributes
-}) => {
+}: CodeBlockLanguageSelectorProps) => {
     const [isOpen, setIsOpen] = useState(false);
     const [searchQuery, setSearchQuery] = useState('');
     const [dropdownPosition, setDropdownPosition] = useState({

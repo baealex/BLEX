@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from '~/components/shared';
 import AutoSaveStatus from './AutoSaveStatus';
 
@@ -18,7 +18,7 @@ interface PostHeaderProps {
     bottomOnly?: boolean;
 }
 
-const PostHeader: React.FC<PostHeaderProps> = ({
+const PostHeader = ({
     mode,
     isSaving,
     isSubmitting,
@@ -31,7 +31,7 @@ const PostHeader: React.FC<PostHeaderProps> = ({
     onOpenSettings,
     topOnly = false,
     bottomOnly = false
-}) => {
+}: PostHeaderProps) => {
     const isEdit = mode === 'edit';
     const [isScrolled, setIsScrolled] = useState(false);
 

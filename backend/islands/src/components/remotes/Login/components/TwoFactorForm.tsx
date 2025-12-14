@@ -18,7 +18,7 @@ const getCsrfToken = (): string => {
     return token || '';
 };
 
-const TwoFactorForm: React.FC<TwoFactorFormProps> = ({
+const TwoFactorForm = ({
     codes,
     verificationError,
     successMessage,
@@ -28,7 +28,7 @@ const TwoFactorForm: React.FC<TwoFactorFormProps> = ({
     onPaste,
     onSubmit,
     onGoBack
-}) => {
+}: TwoFactorFormProps) => {
     return (
         <>
             {/* 2FA Header */}

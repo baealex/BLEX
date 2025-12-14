@@ -1,5 +1,3 @@
-import React from 'react';
-
 interface AutoSaveStatusProps {
     isSaving: boolean;
     lastSaved: Date | null;
@@ -7,12 +5,12 @@ interface AutoSaveStatusProps {
     saveProgress: number;
 }
 
-const AutoSaveStatus: React.FC<AutoSaveStatusProps> = ({
+const AutoSaveStatus = ({
     isSaving,
     lastSaved,
     nextSaveIn,
     saveProgress
-}) => {
+}: AutoSaveStatusProps) => {
     const isWaiting = nextSaveIn > 0 && !isSaving;
 
     return (

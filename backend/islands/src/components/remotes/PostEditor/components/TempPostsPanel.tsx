@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import * as Dialog from '@radix-ui/react-dialog';
 import { getTempPosts, type TempPost } from '~/lib/api/settings';
 import { cx } from '~/lib/classnames';
@@ -10,12 +10,12 @@ interface TempPostsPanelProps {
     currentToken?: string;
 }
 
-const TempPostsPanel: React.FC<TempPostsPanelProps> = ({
+const TempPostsPanel = ({
     isOpen,
     onClose,
     onSelectPost,
     currentToken
-}) => {
+}: TempPostsPanelProps) => {
     const [tempPosts, setTempPosts] = useState<TempPost[]>([]);
     const [isLoading, setIsLoading] = useState(false);
 

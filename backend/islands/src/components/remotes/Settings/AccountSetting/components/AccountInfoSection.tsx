@@ -1,4 +1,3 @@
-import React from 'react';
 import { Card, Input } from '~/components/shared';
 
 interface AccountInfoSectionProps {
@@ -6,7 +5,7 @@ interface AccountInfoSectionProps {
     email: string;
 }
 
-const AccountInfoSection: React.FC<AccountInfoSectionProps> = ({ createdDate, email }) => {
+const AccountInfoSection = ({ createdDate, email }: AccountInfoSectionProps) => {
     return (
         <>
             {/* 가입일 */}

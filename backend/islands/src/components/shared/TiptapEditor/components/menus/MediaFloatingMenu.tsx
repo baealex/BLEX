@@ -6,7 +6,7 @@ interface MediaFloatingMenuProps {
     editor: Editor | null;
 }
 
-const MediaFloatingMenu: React.FC<MediaFloatingMenuProps> = ({ editor }) => {
+const MediaFloatingMenu = ({ editor }: MediaFloatingMenuProps) => {
     const [selectedNode, setSelectedNode] = useState<{ type: string; attrs: Record<string, unknown>; pos: number } | null>(null);
 
     const {
