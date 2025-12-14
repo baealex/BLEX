@@ -24,7 +24,18 @@ def author_overview(request, username):
     recent_activities = UserService.get_user_dashboard_activities(author)[:10]  # Limit to 10 most recent
 
     about_html = getattr(author.profile, 'about_html', '') if hasattr(author, 'profile') else ''
-    
+
+    blog_notices = None
+    if hasattr(author, 'profile') and author.profile.role == Profile.Role.EDITOR:
+        blog_notices = Post.objects.select_related(
+            'config', 'author', 'author__profile'
+        ).filter(
+            author=author,
+            created_date__lte=timezone.now(),
+            config__notice=True,
+            config__hide=False,
+        ).order_by('-created_date')[:5]
+
     post_count = Post.objects.filter(
         author=author,
         created_date__lte=timezone.now(),
@@ -39,6 +50,7 @@ def author_overview(request, username):
         'about_html': about_html,
         'post_count': post_count,
         'series_count': series_count,
+        'blog_notices': blog_notices,
         'author_activity_props': json.dumps({'username': author.username}),
     }
 
@@ -66,17 +78,6 @@ def author_posts(request, username):
     search_query = request.GET.get('q', '')
     sort_option = request.GET.get('sort', 'recent')
     tag_filter = request.GET.get('tag', '')
-    
-    blog_notices = None
-    if author.profile.role == Profile.Role.EDITOR:
-        blog_notices = Post.objects.select_related(
-            'config', 'author', 'author__profile'
-        ).filter(
-            author=author,
-            created_date__lte=timezone.now(),
-            config__notice=True,
-            config__hide=False,
-        ).order_by('-created_date')
 
     posts = Post.objects.select_related(
         'config', 'series', 'author', 'author__profile', 'content'
@@ -171,11 +172,10 @@ def author_posts(request, username):
         'tag_filter': tag_filter,
         'tag_options': tag_options,
         'sort_options': sort_options,
-        'blog_notices': blog_notices,
         'author_activity_props': json.dumps({'username': author.username}),
     }
     
-    return render(request, 'board/author/author.html', context)
+    return render(request, 'board/author/author_posts.html', context)
 
 
 def author_series(request, username):

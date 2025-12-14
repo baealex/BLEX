@@ -131,14 +131,14 @@
                         <article class="flex flex-col h-full bg-white rounded-2xl ring-1 ring-gray-900/5 overflow-hidden hover:shadow-xl transition-all duration-300">
                             <div class="aspect-[16/9] overflow-hidden bg-gray-50">
                                 {% if post.image %}
-                                    <img 
-                                        src="{% resource 'media/'|add:post.image %}" 
-                                        alt="{{ post.title }}" 
+                                    <img
+                                        src="{% resource 'media/'|add:post.image %}"
+                                        alt="{{ post.title }}"
                                         class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
                                 {% else %}
-                                    <img 
-                                        src="{% resource 'assets/images/default-cover-1.jpg' %}" 
-                                        alt="{{ post.title }}" 
+                                    <img
+                                        src="{% resource 'assets/images/default-cover-1.jpg' %}"
+                                        alt="{{ post.title }}"
                                         class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
                                 {% endif %}
                             </div>
@@ -187,9 +187,26 @@
                     </dl>
                 </div>
 
+                <!-- Blog Notices -->
+                {% if blog_notices %}
+                <div class="bg-white rounded-2xl ring-1 ring-gray-900/5 p-6">
+                    <h3 class="text-sm font-bold text-gray-900 mb-4">블로그 공지</h3>
+                    <div class="space-y-2">
+                        {% for notice in blog_notices %}
+                        <a href="/@{{ notice.author.username }}/{{ notice.url }}" class="flex items-center gap-3 px-4 py-2.5 rounded-xl hover:bg-gray-50 transition-colors group">
+                            <div class="w-8 h-8 rounded-lg bg-amber-50 flex items-center justify-center flex-shrink-0">
+                                <i class="fas fa-bullhorn text-amber-600 text-sm"></i>
+                            </div>
+                            <span class="text-sm font-medium text-gray-700 line-clamp-2">{{ notice.title }}</span>
+                        </a>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
+
                 <!-- Quick Links -->
                 <div class="bg-white rounded-2xl ring-1 ring-gray-900/5 p-6">
-                    <h3 class="text-sm font-bold text-gray-900 mb-4">빠른 접근</h3>
+                    <h3 class="text-sm font-bold text-gray-900 mb-4">바로 가기</h3>
                     <div class="space-y-2">
                         <a href="/@{{ author.username }}/posts" class="flex items-center gap-3 px-4 py-2.5 rounded-xl hover:bg-gray-50 transition-colors group">
                             <div class="w-8 h-8 rounded-lg bg-blue-50 flex items-center justify-center">

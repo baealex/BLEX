@@ -12,16 +12,6 @@
         {% include 'board/author/components/tabs_nav.html' %}
     {% endwith %}
 
-    {% if blog_notices %}
-        <div class="mb-8">
-        {% with notices=blog_notices bg_color='bg-zinc-900 text-white' hover_color='hover:bg-black' url_prefix='/@' size='small' %}
-            {% include 'components/notice_carousel.html' %}
-        {% endwith %}
-        </div>
-    {% endif %}
-
-
-
     <div class="bg-gray-50/50 backdrop-blur-sm border border-gray-200/50 rounded-2xl p-6 mb-10">
         <div class="flex flex-col sm:flex-row justify-between items-end sm:items-center gap-6">
             <div class="w-full sm:flex-1 sm:max-w-md">
