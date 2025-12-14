@@ -57,7 +57,7 @@ class AuthorPostsPageTestCase(TestCase):
         )
 
         self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed(response, 'board/author/author.html')
+        self.assertTemplateUsed(response, 'board/author/author_posts.html')
 
     def test_author_overview_page_renders(self):
         """작가 개요 페이지가 정상적으로 렌더링되는지 테스트"""
@@ -200,7 +200,7 @@ class AuthorPostsPageTestCase(TestCase):
             reverse('user_posts', kwargs={'username': editor_user.username})
         )
         self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed(response, 'board/author/author.html')
+        self.assertTemplateUsed(response, 'board/author/author_posts.html')
 
 
 class AuthorSeriesPageTestCase(TestCase):
