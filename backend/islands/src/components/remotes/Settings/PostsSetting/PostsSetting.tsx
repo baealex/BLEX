@@ -84,8 +84,7 @@ const PostsSetting = () => {
         order: '-created_date',
         page: '1',
         visibility: '',
-        notice: '',
-        pinned: ''
+        notice: ''
     });
     const [isFilterExpanded, setIsFilterExpanded] = useState(true);
 
@@ -374,8 +373,7 @@ const PostsSetting = () => {
                                 order: filters.order,
                                 page: '1',
                                 visibility: '',
-                                notice: '',
-                                pinned: ''
+                                notice: ''
                             })}>
                             필터 초기화
                         </Button>
