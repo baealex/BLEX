@@ -1,5 +1,4 @@
 import type { ReactNode } from 'react';
-import React from 'react';
 
 interface AlertProps {
     variant?: 'info' | 'warning' | 'success' | 'error';
@@ -9,13 +8,13 @@ interface AlertProps {
     className?: string;
 }
 
-const Alert: React.FC<AlertProps> = ({
+const Alert = ({
     variant = 'info',
     title,
     children,
     icon,
     className = ''
-}) => {
+}: AlertProps) => {
     const variants = {
         info: {
             container: 'bg-blue-50 border-blue-200',

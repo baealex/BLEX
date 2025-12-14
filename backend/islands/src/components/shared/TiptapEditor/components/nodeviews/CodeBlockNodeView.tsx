@@ -1,13 +1,12 @@
-import React from 'react';
 import { NodeViewWrapper, NodeViewContent } from '@tiptap/react';
 import type { NodeViewProps } from '@tiptap/react';
 import CodeBlockLanguageSelector from './CodeBlockLanguageSelector';
 
-export const CodeBlockNodeView: React.FC<NodeViewProps> = ({
+export const CodeBlockNodeView = ({
     node,
     updateAttributes,
     editor
-}) => {
+}: NodeViewProps) => {
     return (
         <NodeViewWrapper className="code-block-wrapper">
             <div className="code-block-header">

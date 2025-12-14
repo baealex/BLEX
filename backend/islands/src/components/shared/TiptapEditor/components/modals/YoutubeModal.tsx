@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import Modal from '~/components/shared/Modal';
 import Button from '~/components/shared/Button';
 import Input from '~/components/shared/Input';
@@ -9,7 +9,7 @@ interface YoutubeModalProps {
     onUpload: (id: string) => void;
 }
 
-const YoutubeModal: React.FC<YoutubeModalProps> = ({ isOpen, onClose, onUpload }) => {
+const YoutubeModal = ({ isOpen, onClose, onUpload }: YoutubeModalProps) => {
     const [youtubeId, setYoutubeId] = useState('');
 
     const handleUpload = () => {

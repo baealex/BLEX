@@ -1,11 +1,12 @@
-import React, { useState, useRef } from 'react';
+import { useState, useRef } from 'react';
+import { Button } from '~/components/shared';
 
 interface TagManagerProps {
     tags: string[];
     onTagsChange: (tags: string[]) => void;
 }
 
-const TagManager: React.FC<TagManagerProps> = ({ tags, onTagsChange }) => {
+const TagManager = ({ tags, onTagsChange }: TagManagerProps) => {
     const [newTag, setNewTag] = useState('');
     const [isAdding, setIsAdding] = useState(false);
     const inputRef = useRef<HTMLInputElement>(null);
@@ -82,18 +83,21 @@ const TagManager: React.FC<TagManagerProps> = ({ tags, onTagsChange }) => {
                     />
                 </div>
             ) : (
-                <button
+                <Button
                     type="button"
                     onClick={() => {
                         setIsAdding(true);
                         setTimeout(() => inputRef.current?.focus(), 100);
                     }}
-                    className="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-full transition-colors">
+                    variant="ghost"
+                    size="sm"
+                    compact
+                    className="rounded-full">
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4" />
                     </svg>
                     <span>태그 추가</span>
-                </button>
+                </Button>
             )}
         </div>
     );

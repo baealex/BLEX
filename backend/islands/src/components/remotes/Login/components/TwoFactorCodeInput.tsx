@@ -8,13 +8,13 @@ interface TwoFactorCodeInputProps {
     autoFocus?: boolean;
 }
 
-const TwoFactorCodeInput: React.FC<TwoFactorCodeInputProps> = ({
+const TwoFactorCodeInput = ({
     codes,
     onCodeChange,
     onKeyDown,
     onPaste,
     autoFocus = false
-}) => {
+}: TwoFactorCodeInputProps) => {
     const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
 
     useEffect(() => {

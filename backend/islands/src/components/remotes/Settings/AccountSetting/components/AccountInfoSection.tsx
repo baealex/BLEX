@@ -1,12 +1,11 @@
-import React from 'react';
-import { Card } from '~/components/shared';
+import { Card, Input } from '~/components/shared';
 
 interface AccountInfoSectionProps {
     createdDate: string;
     email: string;
 }
 
-const AccountInfoSection: React.FC<AccountInfoSectionProps> = ({ createdDate, email }) => {
+const AccountInfoSection = ({ createdDate, email }: AccountInfoSectionProps) => {
     return (
         <>
             {/* 가입일 */}
@@ -18,7 +17,10 @@ const AccountInfoSection: React.FC<AccountInfoSectionProps> = ({ createdDate, em
                     </svg>
                 }
                 className="mb-6">
-                <p className="text-gray-700 bg-white px-4 py-3 rounded-md border border-gray-200">{createdDate}</p>
+                <Input
+                    value={createdDate}
+                    readOnly
+                />
             </Card>
 
             {/* 이메일 */}
@@ -31,7 +33,10 @@ const AccountInfoSection: React.FC<AccountInfoSectionProps> = ({ createdDate, em
                     </svg>
                 }
                 className="mb-6">
-                <p className="text-gray-700 bg-white px-4 py-3 rounded-md border border-gray-200">{email}</p>
+                <Input
+                    value={email}
+                    readOnly
+                />
             </Card>
         </>
     );

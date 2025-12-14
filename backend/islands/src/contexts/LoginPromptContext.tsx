@@ -1,5 +1,11 @@
-import React, {
-    createContext, useContext, useState, useCallback, useMemo, useEffect, type ReactNode
+import {
+    createContext,
+    useContext,
+    useState,
+    useCallback,
+    useMemo,
+    useEffect,
+    type ReactNode
 } from 'react';
 import Modal from '~/components/shared/Modal';
 
@@ -22,7 +28,7 @@ interface LoginPromptDialogState {
     action: string;
 }
 
-export const LoginPromptProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
+export const LoginPromptProvider = ({ children }: { children: ReactNode }) => {
     const [dialogState, setDialogState] = useState<LoginPromptDialogState>({
         isOpen: false,
         action: ''

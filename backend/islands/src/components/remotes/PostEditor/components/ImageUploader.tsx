@@ -6,11 +6,11 @@ interface ImageUploaderProps {
     onRemoveImage: () => void;
 }
 
-const ImageUploader: React.FC<ImageUploaderProps> = ({
+const ImageUploader = ({
     imagePreview,
     onImageUpload,
     onRemoveImage
-}) => {
+}: ImageUploaderProps) => {
     const imageInputRef = useRef<HTMLInputElement>(null);
     const [showUploader, setShowUploader] = useState(!!imagePreview);
 

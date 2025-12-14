@@ -38,3 +38,6 @@ export const getIconClass = (variant: keyof typeof ICON_VARIANTS = 'default') =>
 // Helper function to create card class
 export const getCardClass = (extraClasses = '') =>
     `${CARD_BASE} ${extraClasses}`;
+
+// Shared Input Styles
+export const baseInputStyles = 'block w-full rounded-lg border border-gray-200 focus:border-black/30 focus:ring-2 focus:ring-black/5 text-sm py-2.5 px-3 transition-all duration-200 bg-white placeholder-gray-400 text-gray-900';

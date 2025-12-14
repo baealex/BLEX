@@ -31,7 +31,7 @@ const getCsrfToken = (): string => {
     return token || '';
 };
 
-const LoginForm: React.FC<LoginFormProps> = ({
+const LoginForm = ({
     username,
     password,
     usernameError,
@@ -43,7 +43,7 @@ const LoginForm: React.FC<LoginFormProps> = ({
     onPasswordChange,
     onSubmit,
     onCaptchaVerify
-}) => {
+}: LoginFormProps) => {
     const captchaRef = useRef<HTMLDivElement>(null);
     const widgetIdRef = useRef<string | null>(null);
 

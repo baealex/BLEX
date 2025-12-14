@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Button, Input, Modal, Alert } from '~/components/shared';
 
 interface TwoFactorModalProps {
@@ -9,13 +9,13 @@ interface TwoFactorModalProps {
     onVerify: (code: string) => Promise<{ success: boolean; error?: string }>;
 }
 
-const TwoFactorModal: React.FC<TwoFactorModalProps> = ({
+const TwoFactorModal = ({
     isOpen,
     qrCode,
     recoveryKey,
     onClose,
     onVerify
-}) => {
+}: TwoFactorModalProps) => {
     const [verificationCode, setVerificationCode] = useState('');
     const [isVerifying, setIsVerifying] = useState(false);
     const [verificationError, setVerificationError] = useState('');

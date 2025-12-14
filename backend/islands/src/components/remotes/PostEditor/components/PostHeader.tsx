@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
+import { Button } from '~/components/shared';
 import AutoSaveStatus from './AutoSaveStatus';
 
 interface PostHeaderProps {
@@ -17,7 +18,7 @@ interface PostHeaderProps {
     bottomOnly?: boolean;
 }
 
-const PostHeader: React.FC<PostHeaderProps> = ({
+const PostHeader = ({
     mode,
     isSaving,
     isSubmitting,
@@ -30,7 +31,7 @@ const PostHeader: React.FC<PostHeaderProps> = ({
     onOpenSettings,
     topOnly = false,
     bottomOnly = false
-}) => {
+}: PostHeaderProps) => {
     const isEdit = mode === 'edit';
     const [isScrolled, setIsScrolled] = useState(false);
 
@@ -64,56 +65,64 @@ const PostHeader: React.FC<PostHeaderProps> = ({
             <div className="flex items-center gap-2">
                 {/* Temp Posts */}
                 {!isEdit && onOpenTempPosts && (
-                    <button
+                    <Button
                         type="button"
                         onClick={onOpenTempPosts}
-                        className="p-2 hover:bg-gray-100 rounded-lg transition-colors group"
+                        variant="ghost"
+                        size="sm"
+                        compact
                         title="임시 저장 글">
-                        <svg className="w-4 h-4 text-gray-600 group-hover:text-gray-900" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                         </svg>
-                    </button>
+                    </Button>
                 )}
 
                 {/* Settings */}
                 {onOpenSettings && (
-                    <button
+                    <Button
                         type="button"
                         onClick={onOpenSettings}
-                        className="flex items-center gap-1.5 px-3 py-2 hover:bg-gray-100 rounded-lg transition-colors text-sm text-gray-700 font-medium"
+                        variant="ghost"
+                        size="sm"
+                        compact
                         title="게시 설정">
                         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
                         </svg>
                         <span className="hidden sm:inline">설정</span>
-                    </button>
+                    </Button>
                 )}
 
                 {/* Manual Save */}
                 {!isEdit && (
-                    <button
+                    <Button
                         type="button"
                         onClick={onManualSave}
                         disabled={isSubmitting || isSaving}
-                        className="flex items-center gap-1.5 px-3 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg text-sm text-gray-700 font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+                        variant="secondary"
+                        size="sm"
+                        compact>
                         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3-3m0 0l-3 3m3-3v12" />
                         </svg>
-                        <span className="hidden sm:inline">저장</span>
-                    </button>
+                        <span className="hidden sm:inline">임시 저장</span>
+                    </Button>
                 )}
 
                 {/* Publish/Update */}
-                <button
+                <Button
                     type="button"
                     onClick={onSubmit}
                     disabled={isSubmitting || isSaving}
-                    className="flex items-center gap-1.5 px-5 py-2 bg-black text-white rounded-lg text-sm font-medium hover:bg-gray-800 transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-sm hover:shadow">
+                    variant="primary"
+                    size="sm"
+                    compact>
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
                     </svg>
                     <span>{isEdit ? '수정' : '게시'}</span>
-                </button>
+                </Button>
             </div>
         </div>
     );

@@ -1,4 +1,3 @@
-import React from 'react';
 import NewPostEditor from './NewPostEditor';
 import EditPostEditor from './EditPostEditor';
 
@@ -11,12 +10,12 @@ interface PostEditorProps {
     tempToken?: string;
 }
 
-const PostEditor: React.FC<PostEditorProps> = ({
+const PostEditor = ({
     mode,
     username,
     postUrl,
     tempToken
-}) => {
+}: PostEditorProps) => {
     if (mode === 'edit' && (!username || !postUrl)) {
         return (
             <div className="bg-gray-50 py-4 sm:py-8">

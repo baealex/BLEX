@@ -5,6 +5,10 @@
 
 {% block title %}{{ author.username }} - BLEX{% endblock %}
 
+{% block extra_styles %}
+<link rel="stylesheet" href="{% island_css 'styles/post.scss' %}">
+{% endblock %}
+
 {% block content %}
 {% include 'board/author/components/author_header.html' %}
 
@@ -25,7 +29,7 @@
                         <span class="text-sm font-mono text-gray-400">.md</span>
                     </div>
                     {% if about_html %}
-                        <div class="prose prose-lg max-w-none text-gray-700">
+                        <div class="prose blog-post-content">
                             {{ about_html|safe }}
                         </div>
                     {% else %}

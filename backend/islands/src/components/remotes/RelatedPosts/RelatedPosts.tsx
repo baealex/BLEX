@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { getRelatedPosts, type RelatedPost } from '~/lib/api/posts';
 
 interface RelatedPostsProps {
@@ -6,7 +6,7 @@ interface RelatedPostsProps {
     username: string;
 }
 
-const RelatedPosts: React.FC<RelatedPostsProps> = ({ postUrl, username }) => {
+const RelatedPosts = ({ postUrl, username }: RelatedPostsProps) => {
     const [relatedPosts, setRelatedPosts] = useState<RelatedPost[]>([]);
     const [isLoading, setIsLoading] = useState(true);
 

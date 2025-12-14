@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { toast } from '~/utils/toast';
 import { useQuery } from '@tanstack/react-query';
 import { Button, Input, Dropdown, Alert } from '~/components/shared';
-import { getIconClass } from '~/components/shared/settingsStyles';
+import { getIconClass, baseInputStyles } from '~/components/shared/settingsStyles';
 import { useConfirm } from '~/contexts/ConfirmContext';
 import {
     getPosts,
@@ -91,15 +91,11 @@ const PostsSetting = () => {
         queryFn: async () => {
             setPostsMounted(false);
 
-            // Map filters to API format (order -> sort)
+            // Map filters to API format
             const apiFilters: Record<string, string | number> = {};
             Object.entries(filters).forEach(([key, value]) => {
                 if (value) {
-                    if (key === 'order') {
-                        apiFilters['sort'] = value;
-                    } else {
-                        apiFilters[key] = value;
-                    }
+                    apiFilters[key] = value;
                 }
             });
 
@@ -339,46 +335,73 @@ const PostsSetting = () => {
                         leftIcon={<i className="fas fa-search" />}
                     />
 
-                    <div className="relative">
-                        <select
-                            value={filters.tag}
-                            onChange={(e) => handleFilterChange('tag', e.target.value)}
-                            className="block w-full px-4 py-3 border border-gray-200 rounded-xl bg-white focus:border-gray-500 focus:ring-2 focus:ring-gray-500 text-sm">
-                            <option value="">태그 선택</option>
-                            {tags?.map((tag: Tag, index: number) => (
-                                <option key={index} value={tag.name}>
-                                    {tag.name} ({tag.count})
-                                </option>
-                            ))}
-                        </select>
-                    </div>
+                    {/* 태그 필터 */}
+                    <Dropdown
+                        align="left"
+                        trigger={
+                            <button className={`${baseInputStyles} flex items-center justify-between text-left`}>
+                                <span className={filters.tag ? 'text-gray-900 font-medium' : 'text-gray-400'}>
+                                    {filters.tag || '태그 선택'}
+                                </span>
+                                <i className="fas fa-chevron-down text-gray-400" />
+                            </button>
+                        }
+                        items={[
+                            {
+                                label: '태그 선택 (전체)',
+                                onClick: () => handleFilterChange('tag', ''),
+                                checked: filters.tag === ''
+                            },
+                            ...(tags?.map((tag: Tag) => ({
+                                label: `${tag.name} (${tag.count})`,
+                                onClick: () => handleFilterChange('tag', tag.name),
+                                checked: filters.tag === tag.name
+                            })) || [])
+                        ]}
+                    />
 
-                    <div className="relative">
-                        <select
-                            value={filters.series}
-                            onChange={(e) => handleFilterChange('series', e.target.value)}
-                            className="block w-full px-4 py-3 border border-gray-200 rounded-xl bg-white focus:border-gray-500 focus:ring-2 focus:ring-gray-500 text-sm">
-                            <option value="">시리즈 선택</option>
-                            {series?.map((item: Series, index: number) => (
-                                <option key={index} value={item.url}>
-                                    {item.title} ({item.totalPosts})
-                                </option>
-                            ))}
-                        </select>
-                    </div>
+                    {/* 시리즈 필터 */}
+                    <Dropdown
+                        align="left"
+                        trigger={
+                            <button className={`${baseInputStyles} flex items-center justify-between text-left`}>
+                                <span className={filters.series ? 'text-gray-900 font-medium' : 'text-gray-400'}>
+                                    {series?.find((s: Series) => s.url === filters.series)?.title || '시리즈 선택'}
+                                </span>
+                                <i className="fas fa-chevron-down text-gray-400" />
+                            </button>
+                        }
+                        items={[
+                            {
+                                label: '시리즈 선택 (전체)',
+                                onClick: () => handleFilterChange('series', ''),
+                                checked: filters.series === ''
+                            },
+                            ...(series?.map((item: Series) => ({
+                                label: `${item.title} (${item.totalPosts})`,
+                                onClick: () => handleFilterChange('series', item.url),
+                                checked: filters.series === item.url
+                            })) || [])
+                        ]}
+                    />
 
-                    <div className="relative">
-                        <select
-                            value={filters.order}
-                            onChange={(e) => handleFilterChange('order', e.target.value)}
-                            className="block w-full px-4 py-3 border border-gray-200 rounded-xl bg-white focus:border-gray-500 focus:ring-2 focus:ring-gray-500 text-sm">
-                            {POSTS_ORDER.map((order, index) => (
-                                <option key={index} value={order.order}>
-                                    {order.name}
-                                </option>
-                            ))}
-                        </select>
-                    </div>
+                    {/* 정렬 필터 */}
+                    <Dropdown
+                        align="left"
+                        trigger={
+                            <button className={`${baseInputStyles} flex items-center justify-between text-left`}>
+                                <span className="text-gray-900 font-medium">
+                                    {POSTS_ORDER.find(order => order.order === filters.order)?.name || '정렬'}
+                                </span>
+                                <i className="fas fa-chevron-down text-gray-400" />
+                            </button>
+                        }
+                        items={POSTS_ORDER.map((order) => ({
+                            label: order.name,
+                            onClick: () => handleFilterChange('order', order.order),
+                            checked: filters.order === order.order
+                        }))}
+                    />
                 </div>
             </div>
 
@@ -506,17 +529,30 @@ const PostsSetting = () => {
                                     <div className={getIconClass('light')}>
                                         <i className="fas fa-book text-sm" />
                                     </div>
-                                    <select
-                                        value={post.series || ''}
-                                        onChange={(e) => handleSeriesChange(post.url, e.target.value)}
-                                        className="flex-1 px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:border-gray-500 focus:ring-2 focus:ring-gray-500 bg-white">
-                                        <option value="">시리즈 선택 안함</option>
-                                        {series?.map((item, index) => (
-                                            <option key={index} value={item.url}>
-                                                {item.title}
-                                            </option>
-                                        ))}
-                                    </select>
+                                    <Dropdown
+                                        align="left"
+                                        trigger={
+                                            // Override padding to match previous design for this smaller context
+                                            <button className={`${baseInputStyles} flex-1 flex items-center justify-between text-left py-2.5`}>
+                                                <span className={post.series ? 'text-gray-900' : 'text-gray-400'}>
+                                                    {series?.find((s: Series) => s.url === post.series)?.title || '시리즈 선택 안함'}
+                                                </span>
+                                                <i className="fas fa-chevron-down text-gray-400 text-xs" />
+                                            </button>
+                                        }
+                                        items={[
+                                            {
+                                                label: '시리즈 선택 안함',
+                                                onClick: () => handleSeriesChange(post.url, ''),
+                                                checked: !post.series
+                                            },
+                                            ...(series?.map((item: Series) => ({
+                                                label: item.title,
+                                                onClick: () => handleSeriesChange(post.url, item.url),
+                                                checked: post.series === item.url
+                                            })) || [])
+                                        ]}
+                                    />
                                     {post.hasSeriesChanged && (
                                         <Button
                                             variant="primary"

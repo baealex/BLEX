@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 
-const EditorHelpText: React.FC = () => {
+const EditorHelpText = () => {
     const [isExpanded, setIsExpanded] = useState(false);
 
     return (

@@ -120,7 +120,7 @@ const NewPostEditor = ({ tempToken }: NewPostEditorProps) => {
                 const { data: seriesResponse } = await getSeries();
                 if (seriesResponse.status === 'DONE') {
                     const mappedSeries = (seriesResponse.body.series || []).map(s => ({
-                        id: s.url,
+                        id: String(s.id),
                         name: s.title
                     }));
                     setSeriesList(mappedSeries);

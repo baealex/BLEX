@@ -35,7 +35,7 @@ interface PostFormProps {
     getCsrfToken: () => string;
 }
 
-const PostForm: React.FC<PostFormProps> = ({
+const PostForm = ({
     formRef: externalFormRef,
     isLoading,
     isEdit,
@@ -50,7 +50,7 @@ const PostForm: React.FC<PostFormProps> = ({
     onRemoveImage,
     onDelete,
     getCsrfToken
-}) => {
+}: PostFormProps) => {
     const internalFormRef = useRef<HTMLFormElement>(null);
     const formRef = externalFormRef || internalFormRef;
 
