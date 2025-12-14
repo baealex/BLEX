@@ -52,6 +52,10 @@ export const togglePostVisibility = async (username: string, postUrl: string) =>
     return http.put<Response<{ isHide: boolean }>>(`v1/users/@${username}/posts/${postUrl}?hide=hide`);
 };
 
+export const togglePostNotice = async (username: string, postUrl: string) => {
+    return http.put<Response<{ isNotice: boolean }>>(`v1/users/@${username}/posts/${postUrl}?notice=notice`);
+};
+
 export const deletePost = async (username: string, postUrl: string) => {
     return http.delete<Response<unknown>>(`v1/users/@${username}/posts/${postUrl}`);
 };
