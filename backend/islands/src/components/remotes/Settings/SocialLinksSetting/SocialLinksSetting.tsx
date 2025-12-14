@@ -66,41 +66,41 @@ const SocialLinkItem = ({ social, index, onRemove, onChange }: SocialLinkItemPro
 
     const platformOptions = [
         {
- label: '아이콘 선택',
-value: ''
-},
+            label: '아이콘 선택',
+            value: ''
+        },
         {
- label: '깃허브',
-value: 'github'
-},
+            label: '깃허브',
+            value: 'github'
+        },
         {
- label: '트위터',
-value: 'twitter'
-},
+            label: '트위터',
+            value: 'twitter'
+        },
         {
- label: '페이스북',
-value: 'facebook'
-},
+            label: '페이스북',
+            value: 'facebook'
+        },
         {
- label: '텔레그램',
-value: 'telegram'
-},
+            label: '텔레그램',
+            value: 'telegram'
+        },
         {
- label: '인스타그램',
-value: 'instagram'
-},
+            label: '인스타그램',
+            value: 'instagram'
+        },
         {
- label: '링크드인',
-value: 'linkedin'
-},
+            label: '링크드인',
+            value: 'linkedin'
+        },
         {
- label: '유튜브',
-value: 'youtube'
-},
+            label: '유튜브',
+            value: 'youtube'
+        },
         {
- label: '기타',
-value: 'other'
-}
+            label: '기타',
+            value: 'other'
+        }
     ];
 
     const currentPlatform = platformOptions.find(opt => opt.value === social.name);
