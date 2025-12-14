@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import type { Editor } from '@tiptap/react';
-import { useFloatingMenu } from '../../hooks/useFloatingMenu';
+import * as Popover from '@radix-ui/react-popover';
 
 interface MediaFloatingMenuProps {
     editor: Editor | null;
@@ -8,19 +8,8 @@ interface MediaFloatingMenuProps {
 
 const MediaFloatingMenu = ({ editor }: MediaFloatingMenuProps) => {
     const [selectedNode, setSelectedNode] = useState<{ type: string; attrs: Record<string, unknown>; pos: number } | null>(null);
-
-    const {
-        isVisible,
-        setIsVisible,
-        setReferenceElement,
-        refs,
-        floatingStyles,
-        isHidden
-    } = useFloatingMenu({
-        placement: 'top',
-        offsetValue: 10,
-        isVirtual: false
-    });
+    const [isOpen, setIsOpen] = useState(false);
+    const [anchorElement, setAnchorElement] = useState<HTMLElement | null>(null);
 
     useEffect(() => {
         if (!editor) return;
@@ -45,17 +34,17 @@ const MediaFloatingMenu = ({ editor }: MediaFloatingMenuProps) => {
                     setSelectedNode(newSelectedNode);
                 }
 
-                // 노드의 DOM 요소를 reference로 설정
+                // 노드의 DOM 요소를 anchor로 설정
                 const nodeDOM = editor.view.nodeDOM(from) as HTMLElement;
                 if (nodeDOM) {
-                    setReferenceElement(nodeDOM);
+                    setAnchorElement(nodeDOM);
                 }
 
-                setIsVisible(true);
+                setIsOpen(true);
             } else {
-                setIsVisible(false);
+                setIsOpen(false);
                 setSelectedNode(null);
-                setReferenceElement(null);
+                setAnchorElement(null);
             }
         };
 
@@ -66,42 +55,9 @@ const MediaFloatingMenu = ({ editor }: MediaFloatingMenuProps) => {
             editor.off('selectionUpdate', updateMenu);
             editor.off('transaction', updateMenu);
         };
-    }, [editor, selectedNode, setIsVisible, setSelectedNode, setReferenceElement]);
+    }, [editor, selectedNode]);
 
-    // 외부 클릭시 메뉴 닫기
-    useEffect(() => {
-        if (!isVisible) return;
-
-        const handleClickOutside = (event: MouseEvent) => {
-            const target = event.target as Node;
-
-            // 메뉴 외부를 클릭했을 때만 닫기
-            if (refs.floating.current && !refs.floating.current.contains(target)) {
-                // 에디터 내부 클릭인 경우, 이미지/비디오가 아니면 닫기
-                if (editor?.view.dom.contains(target)) {
-                    const { selection } = editor.state;
-                    const node = editor.state.doc.nodeAt(selection.from);
-                    if (!node || (node.type.name !== 'image' && node.type.name !== 'video')) {
-                        setIsVisible(false);
-                        setSelectedNode(null);
-                        setReferenceElement(null);
-                    }
-                } else {
-                    // 완전히 외부 클릭이면 닫기
-                    setIsVisible(false);
-                    setSelectedNode(null);
-                    setReferenceElement(null);
-                }
-            }
-        };
-
-        document.addEventListener('mousedown', handleClickOutside);
-        return () => {
-            document.removeEventListener('mousedown', handleClickOutside);
-        };
-    }, [isVisible, editor, refs.floating, setIsVisible, setSelectedNode, setReferenceElement]);
-
-    if (!isVisible || !selectedNode || !editor) return null;
+    if (!isOpen || !selectedNode || !editor || !anchorElement) return null;
 
     const updateAttribute = (attr: string, value: unknown) => {
         if (selectedNode) {
@@ -177,133 +133,137 @@ const MediaFloatingMenu = ({ editor }: MediaFloatingMenuProps) => {
     );
 
     return (
-        <div
-            ref={refs.setFloating}
-            className="z-[1100] bg-white/95 backdrop-blur-xl rounded-xl shadow-lg border border-gray-200/60 p-2.5 flex flex-col gap-2.5"
-            onMouseDown={(e) => {
-                if (e.target instanceof HTMLElement &&
-                    !['INPUT', 'SELECT'].includes(e.target.tagName)) {
-                    e.preventDefault();
-                }
-                e.stopPropagation();
-            }}
-            onClick={(e) => e.stopPropagation()}
-            style={{
-                ...floatingStyles,
-                visibility: isHidden ? 'hidden' : 'visible'
-            }}>
-            {/* Row 1: 정렬 + 스타일 */}
-            <div className="flex items-center gap-2">
-                {/* 정렬 */}
-                <div className="flex gap-0.5 bg-gray-100 rounded-lg p-0.5">
-                    <IconButton icon="fas fa-align-left" active={selectedNode.attrs.align === 'left'} onClick={(e) => handleAlignChange(e, 'left')} title="왼쪽 정렬" />
-                    <IconButton icon="fas fa-align-center" active={selectedNode.attrs.align === 'center'} onClick={(e) => handleAlignChange(e, 'center')} title="가운데 정렬" />
-                    <IconButton icon="fas fa-align-right" active={selectedNode.attrs.align === 'right'} onClick={(e) => handleAlignChange(e, 'right')} title="오른쪽 정렬" />
-                </div>
-
-                {selectedNode.type === 'image' && (
-                    <>
-                        <div className="w-px h-5 bg-gray-300" />
-
-                        {/* Object Fit */}
-                        <select
-                            value={selectedNode.attrs.objectFit as string || 'cover'}
-                            onChange={handleObjectFitChange}
-                            className="px-2 py-1 text-xs bg-gray-50 border border-gray-200 rounded-md hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500">
-                            <option value="cover">맞춤</option>
-                            <option value="contain">포함</option>
-                            <option value="fill">채움</option>
-                            <option value="none">원본</option>
-                        </select>
-
-                        <div className="w-px h-5 bg-gray-300" />
-
-                        {/* 스타일 옵션 */}
-                        <div className="flex gap-0.5">
-                            <IconButton icon="fas fa-border-style" active={!!selectedNode.attrs.border} onClick={(e) => handleToggle(e, 'border')} title="테두리" />
-                            <IconButton icon="fas fa-clone" active={!!selectedNode.attrs.shadow} onClick={(e) => handleToggle(e, 'shadow')} title="그림자" />
+        <Popover.Root open={isOpen} onOpenChange={setIsOpen}>
+            <Popover.Anchor virtualRef={{ current: anchorElement }} />
+            <Popover.Portal>
+                <Popover.Content
+                    className="z-[1100] bg-white/95 backdrop-blur-xl rounded-xl shadow-lg border border-gray-200/60 p-2.5 flex flex-col gap-2.5 outline-none"
+                    side="top"
+                    sideOffset={10}
+                    onOpenAutoFocus={(e) => e.preventDefault()}
+                    onCloseAutoFocus={(e) => e.preventDefault()}
+                    onMouseDown={(e) => {
+                        if (e.target instanceof HTMLElement &&
+                            !['INPUT', 'SELECT'].includes(e.target.tagName)) {
+                            e.preventDefault();
+                        }
+                        e.stopPropagation();
+                    }}
+                    onClick={(e) => e.stopPropagation()}>
+                    {/* Row 1: 정렬 + 스타일 */}
+                    <div className="flex items-center gap-2">
+                        {/* 정렬 */}
+                        <div className="flex gap-0.5 bg-gray-100 rounded-lg p-0.5">
+                            <IconButton icon="fas fa-align-left" active={selectedNode.attrs.align === 'left'} onClick={(e) => handleAlignChange(e, 'left')} title="왼쪽 정렬" />
+                            <IconButton icon="fas fa-align-center" active={selectedNode.attrs.align === 'center'} onClick={(e) => handleAlignChange(e, 'center')} title="가운데 정렬" />
+                            <IconButton icon="fas fa-align-right" active={selectedNode.attrs.align === 'right'} onClick={(e) => handleAlignChange(e, 'right')} title="오른쪽 정렬" />
                         </div>
 
-                        <div className="w-px h-5 bg-gray-300" />
+                        {selectedNode.type === 'image' && (
+                            <>
+                                <div className="w-px h-5 bg-gray-300" />
 
-                        {/* Border Radius */}
-                        <select
-                            value={selectedNode.attrs.borderRadius as string || ''}
-                            onChange={handleBorderRadiusChange}
-                            className="px-2 py-1 text-xs bg-gray-50 border border-gray-200 rounded-md hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500">
-                            <option value="">둥글기</option>
-                            <option value="0">각짐</option>
-                            <option value="4">약간</option>
-                            <option value="8">보통</option>
-                            <option value="16">많이</option>
-                            <option value="9999">원형</option>
-                        </select>
-                    </>
-                )}
-            </div>
+                                {/* Object Fit */}
+                                <select
+                                    value={selectedNode.attrs.objectFit as string || 'cover'}
+                                    onChange={handleObjectFitChange}
+                                    className="px-2 py-1 text-xs bg-gray-50 border border-gray-200 rounded-md hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500">
+                                    <option value="cover">맞춤</option>
+                                    <option value="contain">포함</option>
+                                    <option value="fill">채움</option>
+                                    <option value="none">원본</option>
+                                </select>
 
-            {/* Row 2: 비율 + 크기 */}
-            <div className="flex items-center gap-2">
-                {selectedNode.type === 'image' && (
-                    <>
-                        <select
-                            value={selectedNode.attrs.aspectRatio as string || ''}
-                            onChange={handleAspectRatioChange}
-                            className="px-2 py-1 text-xs bg-gray-50 border border-gray-200 rounded-md hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500">
-                            <option value="">비율</option>
-                            <option value="16:9">16:9</option>
-                            <option value="4:3">4:3</option>
-                            <option value="1:1">1:1</option>
-                            <option value="3:2">3:2</option>
-                            <option value="21:9">21:9</option>
-                        </select>
-                        <div className="w-px h-5 bg-gray-300" />
-                    </>
-                )}
+                                <div className="w-px h-5 bg-gray-300" />
 
-                <div className="flex items-center gap-1">
+                                {/* 스타일 옵션 */}
+                                <div className="flex gap-0.5">
+                                    <IconButton icon="fas fa-border-style" active={!!selectedNode.attrs.border} onClick={(e) => handleToggle(e, 'border')} title="테두리" />
+                                    <IconButton icon="fas fa-clone" active={!!selectedNode.attrs.shadow} onClick={(e) => handleToggle(e, 'shadow')} title="그림자" />
+                                </div>
+
+                                <div className="w-px h-5 bg-gray-300" />
+
+                                {/* Border Radius */}
+                                <select
+                                    value={selectedNode.attrs.borderRadius as string || ''}
+                                    onChange={handleBorderRadiusChange}
+                                    className="px-2 py-1 text-xs bg-gray-50 border border-gray-200 rounded-md hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500">
+                                    <option value="">둥글기</option>
+                                    <option value="0">각짐</option>
+                                    <option value="4">약간</option>
+                                    <option value="8">보통</option>
+                                    <option value="16">많이</option>
+                                    <option value="9999">원형</option>
+                                </select>
+                            </>
+                        )}
+                    </div>
+
+                    {/* Row 2: 비율 + 크기 */}
+                    <div className="flex items-center gap-2">
+                        {selectedNode.type === 'image' && (
+                            <>
+                                <select
+                                    value={selectedNode.attrs.aspectRatio as string || ''}
+                                    onChange={handleAspectRatioChange}
+                                    className="px-2 py-1 text-xs bg-gray-50 border border-gray-200 rounded-md hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500">
+                                    <option value="">비율</option>
+                                    <option value="16:9">16:9</option>
+                                    <option value="4:3">4:3</option>
+                                    <option value="1:1">1:1</option>
+                                    <option value="3:2">3:2</option>
+                                    <option value="21:9">21:9</option>
+                                </select>
+                                <div className="w-px h-5 bg-gray-300" />
+                            </>
+                        )}
+
+                        <div className="flex items-center gap-1">
+                            <input
+                                type="number"
+                                placeholder="W"
+                                value={selectedNode.attrs.width as number || ''}
+                                onChange={(e) => handleSizeChange('width', e.target.value)}
+                                onKeyDown={(e) => {
+                                    if (e.key === 'Enter') {
+                                        e.currentTarget.blur();
+                                    }
+                                }}
+                                className="w-14 px-2 py-1 text-xs bg-gray-50 border border-gray-200 rounded-md text-center hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
+                            />
+                            <span className="text-gray-400 text-xs">×</span>
+                            <input
+                                type="number"
+                                placeholder="H"
+                                value={selectedNode.attrs.height as number || ''}
+                                onChange={(e) => handleSizeChange('height', e.target.value)}
+                                onKeyDown={(e) => {
+                                    if (e.key === 'Enter') {
+                                        e.currentTarget.blur();
+                                    }
+                                }}
+                                className="w-14 px-2 py-1 text-xs bg-gray-50 border border-gray-200 rounded-md text-center hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
+                            />
+                        </div>
+                    </div>
+
+                    {/* Row 3: 캡션 */}
                     <input
-                        type="number"
-                        placeholder="W"
-                        value={selectedNode.attrs.width as number || ''}
-                        onChange={(e) => handleSizeChange('width', e.target.value)}
+                        type="text"
+                        placeholder="캡션..."
+                        value={selectedNode.attrs.caption as string || ''}
+                        onChange={(e) => handleCaptionChange(e.target.value)}
                         onKeyDown={(e) => {
                             if (e.key === 'Enter') {
                                 e.currentTarget.blur();
                             }
                         }}
-                        className="w-14 px-2 py-1 text-xs bg-gray-50 border border-gray-200 rounded-md text-center hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
+                        className="w-full px-2 py-1 text-xs bg-gray-50 border border-gray-200 rounded-md hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
                     />
-                    <span className="text-gray-400 text-xs">×</span>
-                    <input
-                        type="number"
-                        placeholder="H"
-                        value={selectedNode.attrs.height as number || ''}
-                        onChange={(e) => handleSizeChange('height', e.target.value)}
-                        onKeyDown={(e) => {
-                            if (e.key === 'Enter') {
-                                e.currentTarget.blur();
-                            }
-                        }}
-                        className="w-14 px-2 py-1 text-xs bg-gray-50 border border-gray-200 rounded-md text-center hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
-                    />
-                </div>
-            </div>
-
-            {/* Row 3: 캡션 */}
-            <input
-                type="text"
-                placeholder="캡션..."
-                value={selectedNode.attrs.caption as string || ''}
-                onChange={(e) => handleCaptionChange(e.target.value)}
-                onKeyDown={(e) => {
-                    if (e.key === 'Enter') {
-                        e.currentTarget.blur();
-                    }
-                }}
-                className="w-full px-2 py-1 text-xs bg-gray-50 border border-gray-200 rounded-md hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
-            />
-        </div>
+                </Popover.Content>
+            </Popover.Portal>
+        </Popover.Root>
     );
 };
 

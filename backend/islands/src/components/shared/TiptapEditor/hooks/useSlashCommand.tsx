@@ -3,17 +3,12 @@ import type { Editor } from '@tiptap/react';
 
 interface SlashCommandState {
     isVisible: boolean;
-    position: { top: number; left: number };
     slashPos: number | null;
 }
 
 export const useSlashCommand = (editor: Editor | null) => {
     const [state, setState] = useState<SlashCommandState>({
         isVisible: false,
-        position: {
-            top: 0,
-            left: 0
-        },
         slashPos: null
     });
 
@@ -25,10 +20,9 @@ export const useSlashCommand = (editor: Editor | null) => {
         }));
     }, []);
 
-    const showMenu = useCallback((position: { top: number; left: number }, slashPos: number) => {
+    const showMenu = useCallback((slashPos: number) => {
         setState({
             isVisible: true,
-            position,
             slashPos
         });
     }, []);
@@ -66,13 +60,7 @@ export const useSlashCommand = (editor: Editor | null) => {
                     const slashPosition = from;
 
                     setTimeout(() => {
-                        // "/" 문자가 삽입된 후 위치 계산
-                        const coords = editor.view.coordsAtPos(slashPosition + 1);
-
-                        showMenu({
-                            top: coords.top + 25,
-                            left: coords.left
-                        }, slashPosition); // 원래 위치 저장
+                        showMenu(slashPosition);
                     }, 10);
                 }
             }
@@ -130,7 +118,7 @@ export const useSlashCommand = (editor: Editor | null) => {
 
     return {
         isVisible: state.isVisible,
-        position: state.position,
+        slashPos: state.slashPos,
         closeMenu
     };
 };

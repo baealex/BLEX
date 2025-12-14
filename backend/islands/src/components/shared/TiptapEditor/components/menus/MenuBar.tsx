@@ -16,7 +16,7 @@ const MenuBar = ({ editor }: MenuBarProps) => {
     const [isYoutubeModalOpen, setIsYoutubeModalOpen] = useState(false);
     const imageInput = useRef<HTMLInputElement>(null);
     const { handleImageUpload } = useImageUpload(editor);
-    const { isVisible: isSlashMenuVisible, position: slashMenuPosition, closeMenu } = useSlashCommand(editor);
+    const { isVisible: isSlashMenuVisible, slashPos, closeMenu } = useSlashCommand(editor);
 
     if (!editor) return null;
 
@@ -53,7 +53,7 @@ const MenuBar = ({ editor }: MenuBarProps) => {
             <SlashCommandMenu
                 editor={editor}
                 isVisible={isSlashMenuVisible}
-                position={slashMenuPosition}
+                slashPos={slashPos}
                 onClose={closeMenu}
                 onImageUpload={() => {
                     closeMenu();

@@ -1,10 +1,11 @@
 import React, { useEffect, useRef, useState, useCallback } from 'react';
 import type { Editor } from '@tiptap/react';
+import * as Popover from '@radix-ui/react-popover';
 
 interface SlashCommandMenuProps {
     editor: Editor | null;
     isVisible: boolean;
-    position: { top: number; left: number };
+    slashPos: number | null;
     onClose: () => void;
     onImageUpload: () => void;
     onYoutubeUpload: () => void;
@@ -22,16 +23,16 @@ interface CommandItem {
 const SlashCommandMenu = ({
     editor,
     isVisible,
-    position,
+    slashPos,
     onClose,
     onImageUpload,
     onYoutubeUpload
 }: SlashCommandMenuProps) => {
     const [selectedIndex, setSelectedIndex] = useState(0);
     const [searchTerm, setSearchTerm] = useState('');
-    const menuRef = useRef<HTMLDivElement>(null);
     const inputRef = useRef<HTMLInputElement>(null);
-    const selectedItemRef = useRef<HTMLButtonElement>(null);
+    const selectedItemRef = useRef<HTMLDivElement>(null);
+    const [virtualAnchor, setVirtualAnchor] = useState<HTMLElement | null>(null);
 
     const commandItems: CommandItem[] = [
         {
@@ -142,7 +143,6 @@ const SlashCommandMenu = ({
                 e.preventDefault();
                 setSelectedIndex(prev => {
                     const newIndex = Math.min(prev + 1, filteredCommands.length - 1);
-                    // 선택된 항목으로 스크롤
                     setTimeout(() => {
                         selectedItemRef.current?.scrollIntoView({
                             behavior: 'smooth',
@@ -156,7 +156,6 @@ const SlashCommandMenu = ({
                 e.preventDefault();
                 setSelectedIndex(prev => {
                     const newIndex = Math.max(prev - 1, 0);
-                    // 선택된 항목으로 스크롤
                     setTimeout(() => {
                         selectedItemRef.current?.scrollIntoView({
                             behavior: 'smooth',
@@ -169,7 +168,6 @@ const SlashCommandMenu = ({
             case 'Enter':
                 e.preventDefault();
                 if (filteredCommands[selectedIndex] && editor) {
-                    // "/" 문자 제거 후 명령 실행
                     onClose();
                     filteredCommands[selectedIndex].action(editor);
                 }
@@ -183,9 +181,7 @@ const SlashCommandMenu = ({
 
     const handleCommandClick = (item: CommandItem) => {
         if (editor) {
-            // "/" 문자 제거 후 명령 실행
             if (onClose) {
-                // onClose에서 슬래시 문자 제거 처리
                 onClose();
             }
             item.action(editor);
@@ -193,68 +189,110 @@ const SlashCommandMenu = ({
     };
 
     useEffect(() => {
-        if (isVisible) {
+        if (isVisible && slashPos !== null && editor) {
             setSelectedIndex(0);
             setSearchTerm('');
             setTimeout(() => inputRef.current?.focus(), 10);
+
+            // 가상 앵커 요소 생성 (매번 최신 좌표를 계산하도록)
+            const anchor = {
+                getBoundingClientRect: () => {
+                    // getBoundingClientRect가 호출될 때마다 최신 좌표 계산
+                    try {
+                        const coords = editor.view.coordsAtPos(slashPos + 1);
+                        return {
+                            top: coords.top + 25,
+                            left: coords.left,
+                            right: coords.left,
+                            bottom: coords.top + 25,
+                            width: 0,
+                            height: 0,
+                            x: coords.left,
+                            y: coords.top + 25,
+                            toJSON: () => ({})
+                        };
+                    } catch {
+                        // 위치 계산 실패 시 기본값 반환
+                        return {
+                            top: 0,
+                            left: 0,
+                            right: 0,
+                            bottom: 0,
+                            width: 0,
+                            height: 0,
+                            x: 0,
+                            y: 0,
+                            toJSON: () => ({})
+                        };
+                    }
+                }
+            } as unknown as HTMLElement;
+            setVirtualAnchor(anchor);
+        } else {
+            setVirtualAnchor(null);
         }
-    }, [isVisible]);
+    }, [isVisible, slashPos, editor]);
 
     useEffect(() => {
         setSelectedIndex(0);
     }, [searchTerm]);
 
-    if (!isVisible || !editor) return null;
+    if (!isVisible || !editor || !virtualAnchor) return null;
 
     return (
-        <div
-            ref={menuRef}
-            className="fixed z-50 bg-white border border-gray-200 rounded-lg shadow-lg min-w-64 max-w-80"
-            style={{
-                top: `${position.top}px`,
-                left: `${position.left}px`
-            }}>
-            <div className="p-2 border-b border-gray-100">
-                <input
-                    ref={inputRef}
-                    type="text"
-                    placeholder="명령어 검색..."
-                    className="w-full px-2 py-1 text-sm border-none outline-none"
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    onKeyDown={handleKeyDown}
-                />
-            </div>
-
-            <div className="max-h-64 overflow-y-auto">
-                {filteredCommands.length > 0 ? (
-                    filteredCommands.map((item, index) => (
-                        <button
-                            key={item.id}
-                            ref={index === selectedIndex ? selectedItemRef : null}
-                            className={`w-full px-3 py-2 text-left hover:bg-gray-50 flex items-center gap-3 ${index === selectedIndex ? 'bg-gray-50' : ''
-                                }`}
-                            onClick={() => handleCommandClick(item)}>
-                            <div className="w-8 h-8 flex items-center justify-center bg-gray-100 rounded">
-                                <i className={`${item.icon} text-sm text-gray-600`} />
-                            </div>
-                            <div>
-                                <div className="text-sm font-medium text-gray-900">
-                                    {item.title}
-                                </div>
-                                <div className="text-xs text-gray-500">
-                                    {item.description}
-                                </div>
-                            </div>
-                        </button>
-                    ))
-                ) : (
-                    <div className="px-3 py-4 text-sm text-gray-500 text-center">
-                        검색 결과가 없습니다
+        <Popover.Root open={isVisible} onOpenChange={(open) => !open && onClose()}>
+            <Popover.Anchor virtualRef={{ current: virtualAnchor }} />
+            <Popover.Portal>
+                <Popover.Content
+                    className="bg-white border border-gray-200 rounded-lg shadow-lg min-w-64 max-w-80 z-50 outline-none"
+                    onOpenAutoFocus={(e) => e.preventDefault()}
+                    onCloseAutoFocus={(e) => e.preventDefault()}
+                    align="start"
+                    side="bottom"
+                    sideOffset={5}>
+                    <div className="p-2 border-b border-gray-100">
+                        <input
+                            ref={inputRef}
+                            type="text"
+                            placeholder="명령어 검색..."
+                            className="w-full px-2 py-1 text-sm border-none outline-none"
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.target.value)}
+                            onKeyDown={handleKeyDown}
+                        />
                     </div>
-                )}
-            </div>
-        </div>
+
+                    <div className="max-h-64 overflow-y-auto">
+                        {filteredCommands.length > 0 ? (
+                            filteredCommands.map((item, index) => (
+                                <div
+                                    key={item.id}
+                                    ref={index === selectedIndex ? selectedItemRef : null}
+                                    className={`w-full px-3 py-2 text-left hover:bg-gray-50 flex items-center gap-3 cursor-pointer ${index === selectedIndex ? 'bg-gray-50' : ''
+                                        }`}
+                                    onClick={() => handleCommandClick(item)}>
+                                    <div className="w-8 h-8 flex items-center justify-center bg-gray-100 rounded">
+                                        <i className={`${item.icon} text-sm text-gray-600`} />
+                                    </div>
+                                    <div>
+                                        <div className="text-sm font-medium text-gray-900">
+                                            {item.title}
+                                        </div>
+                                        <div className="text-xs text-gray-500">
+                                            {item.description}
+                                        </div>
+                                    </div>
+                                </div>
+                            ))
+                        ) : (
+                            <div className="px-3 py-4 text-sm text-gray-500 text-center">
+                                검색 결과가 없습니다
+                            </div>
+                        )}
+                    </div>
+                </Popover.Content>
+            </Popover.Portal>
+        </Popover.Root>
     );
 };
 
