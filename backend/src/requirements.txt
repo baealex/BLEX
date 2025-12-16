@@ -21,7 +21,7 @@ pycparser==2.22
 pyotp==2.9.0
 qrcode==7.4.2
 pyhumps==3.8.0
-pymdown-extensions==10.16
+pymdown-extensions==10.16.1
 python-dateutil==2.9.0.post0
 pytz==2024.2
 PyYAML==6.0.2
