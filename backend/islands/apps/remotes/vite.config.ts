@@ -1,6 +1,7 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import tailwindcss from '@tailwindcss/vite';
+import { visualizer } from 'rollup-plugin-visualizer';
 import { resolve } from 'path';
 
 export default defineConfig(({ mode }) => {
@@ -11,7 +12,12 @@ export default defineConfig(({ mode }) => {
 
         plugins: [
             tailwindcss(),
-            ...(isDevelopment ? [] : [react()])
+            ...(isDevelopment ? [] : [react()]),
+            visualizer({
+                filename: 'stats.html',
+                open: false,
+                gzipSize: true
+            })
         ],
 
         server: {
@@ -40,7 +46,28 @@ export default defineConfig(({ mode }) => {
                 output: {
                     entryFileNames: '[name].[hash].js',
                     assetFileNames: '[name].[hash][extname]',
-                    chunkFileNames: 'chunks/[name].[hash].js'
+                    chunkFileNames: 'chunks/[name].[hash].js',
+                    manualChunks: (id) => {
+                        // React core - shared across all components
+                        if (id.includes('react-dom') || id.includes('node_modules/react/')) {
+                            return 'react-vendor';
+                        }
+
+                        // Tiptap editor - only used by PostEditor (doesn't need React at init)
+                        if (id.includes('@tiptap') || id.includes('prosemirror')) {
+                            return 'tiptap';
+                        }
+
+                        // Zod - pure JS, no React dependency
+                        if (id.includes('/zod')) {
+                            return 'zod';
+                        }
+
+                        // Highlight.js & lowlight - pure JS, no React dependency
+                        if (id.includes('highlight.js') || id.includes('lowlight')) {
+                            return 'highlight';
+                        }
+                    }
                 }
             }
         },

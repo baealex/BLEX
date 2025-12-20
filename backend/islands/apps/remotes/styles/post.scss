@@ -1,4 +1,4 @@
-@forward 'highlight.js/styles/github.css';
+@forward '@blex/editor/styles/highlight-theme';
 
 .blog-post-content {
     max-width: 100%;
@@ -8,7 +8,7 @@
     overflow-wrap: anywhere;
 
     // General margin for all child elements
-    & > * {
+    &>* {
         margin: 0 0 1.5rem;
     }
 
@@ -56,7 +56,7 @@
     a {
         text-decoration: none;
         color: #2563eb;
-        
+
         &:hover {
             color: #1d4ed8;
             text-decoration: underline;
@@ -68,9 +68,11 @@
     ol {
         padding-left: 30px;
     }
+
     ul {
         list-style: disc;
     }
+
     ol {
         list-style: decimal;
     }
@@ -145,7 +147,7 @@
         border-radius: 0 0 8px 8px;
         border: none;
         padding: 16px;
-        
+
         code {
             background-color: transparent;
             padding: 0;
@@ -187,7 +189,7 @@
         overflow-x: auto;
         border-collapse: collapse;
         border-spacing: 0;
-        
+
         @media (max-width: 640px) {
             font-size: 14px;
         }
@@ -203,7 +205,7 @@
         td {
             border: 1px solid #dfe2e5;
             padding: 6px 13px;
-            
+
             @media (max-width: 640px) {
                 padding: 4px 8px;
             }
@@ -242,7 +244,7 @@
             color: #919191;
             order: 2;
             grid-column: 1 / -1;
-            
+
             @media (max-width: 640px) {
                 font-size: 12px;
             }
@@ -260,7 +262,7 @@
 
     figure.col-2 {
         grid-template: 1fr / repeat(2, minmax(0, 1fr));
-        
+
         @media (max-width: 640px) {
             grid-template: repeat(2, 1fr) / minmax(0, 1fr);
         }
@@ -268,7 +270,7 @@
 
     figure.col-3 {
         grid-template: 1fr / repeat(3, minmax(0, 1fr));
-        
+
         @media (max-width: 640px) {
             grid-template: repeat(3, 1fr) / minmax(0, 1fr);
         }

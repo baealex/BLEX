@@ -1,5 +1,9 @@
-import hljs from 'highlight.js/lib/core';
-import { getLanguageLoader, getLanguageLabel } from '../../../../packages/editor/src/utils/languages';
+import {
+    getLanguageLoader,
+    getLanguageLabel,
+    registerLanguage,
+    highlightElement
+} from '@blex/editor';
 
 const loadedLanguages = new Set<string>();
 
@@ -12,7 +16,7 @@ async function loadLanguage(language: string): Promise<void> {
     if (loader) {
         try {
             const module = await loader();
-            hljs.registerLanguage(language, module.default);
+            registerLanguage(language, module.default);
             loadedLanguages.add(language);
         } catch (error) {
             console.warn(`Failed to load language: ${language}`, error);
@@ -42,7 +46,7 @@ async function processCodeBlocks() {
         if (languageClass && preElement && !preElement.parentElement?.classList.contains('code-block-wrapper')) {
             const language = languageClass[1];
 
-            hljs.highlightElement(codeElement);
+            highlightElement(codeElement);
 
             const wrapper = document.createElement('div');
             wrapper.className = 'code-block-wrapper';

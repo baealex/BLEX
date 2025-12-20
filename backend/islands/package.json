@@ -8,7 +8,6 @@
         "type-check": "turbo run type-check"
     },
     "devDependencies": {
-        "@types/node": "^25.0.3",
         "glob": "^13.0.0",
         "tsup": "^8.5.1",
         "turbo": "^2.7.0",

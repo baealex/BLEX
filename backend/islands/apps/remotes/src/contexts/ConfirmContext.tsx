@@ -5,7 +5,7 @@ import {
  useCallback,
  type ReactNode
 } from 'react';
-import { Modal } from '~/components/shared';
+import { Modal } from '@blex/ui';
 
 interface ConfirmOptions {
     title: string;
