@@ -66,11 +66,6 @@ class Migration(migrations.Migration):
         ),
         migrations.RenameField(
             model_name='postanalytics',
-            old_name='table',
-            new_name='devices',
-        ),
-        migrations.RenameField(
-            model_name='postanalytics',
             old_name='posts',
             new_name='post',
         ),

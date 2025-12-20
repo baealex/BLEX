@@ -11,9 +11,8 @@
 </p>
 
 <p align="center">
-    <img src="https://img.shields.io/badge/django-5-blue?style=flat-square">
-    <img src="https://img.shields.io/badge/react-18-blue?style=flat-square">
-    <img src="https://img.shields.io/badge/typescript-5-blue?style=flat-square">
+    <img src="https://img.shields.io/badge/django-6-blue?style=flat-square">
+    <img src="https://img.shields.io/badge/react-19-blue?style=flat-square">
 </p>
 
 <br>
@@ -56,10 +55,10 @@ BLEX는 미니멀한 디자인과 실용성을 지향하는 오픈소스 블로�
 ## 기술 스택
 
 ### Backend
-- **Framework**: Django 5.x
+- **Framework**: Django 6.x
 
 ### Frontend
-- **Framework**: React 18
+- **Framework**: React 19, Alpine 3
 - **Styling**: Tailwind CSS
 - **Build Tool**: Vite
 
