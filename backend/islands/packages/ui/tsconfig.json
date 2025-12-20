@@ -21,8 +21,6 @@
         "declaration": true
     },
     "include": [
-        "src",
-        "../../apps/remotes/src/lib/http.module.ts",
-        "../../apps/remotes/src/lib/static.module.ts"
+        "src"
     ]
 }
