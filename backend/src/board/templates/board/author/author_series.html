@@ -33,11 +33,11 @@
         <div class="md:col-span-3">        
             {% if not series_list %}
                 {% if request.GET.q %}
-                    {% with empty_title='No series found' empty_message='Try adjusting your search.' %}
+                    {% with empty_title='검색 결과가 없습니다' empty_message='검색어를 다시 확인해주세요.' %}
                         {% include 'board/author/components/empty_state.html' %}
                     {% endwith %}
                 {% else %}
-                    {% with empty_title='No series yet' empty_message=author.username|add:" hasn't created any series yet." %}
+                    {% with empty_title='생성된 시리즈가 없습니다' empty_message=author.username|add:"님이 시리즈를 준비중이에요." %}
                         {% include 'board/author/components/empty_state.html' %}
                     {% endwith %}
                 {% endif %}
