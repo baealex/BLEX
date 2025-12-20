@@ -6,7 +6,8 @@
                 "^build"
             ],
             "outputs": [
-                "dist/**"
+                "dist/**",
+                "../../../src/resources/staticfiles/islands/**"
             ]
         },
         "lint": {},

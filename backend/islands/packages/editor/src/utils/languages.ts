@@ -1,4 +1,5 @@
 import type { LanguageFn } from 'highlight.js';
+import hljs from 'highlight.js/lib/core';
 
 export interface Language {
     value: string;
@@ -141,4 +142,12 @@ export function getLanguageLabel(value: string): string {
 export function getLanguageLoader(value: string): (() => Promise<{ default: LanguageFn }>) | null {
     const language = SUPPORTED_LANGUAGES.find(lang => lang.value === value);
     return language?.loader || null;
+}
+
+export function registerLanguage(name: string, languageFn: LanguageFn): void {
+    hljs.registerLanguage(name, languageFn);
+}
+
+export function highlightElement(element: HTMLElement): void {
+    hljs.highlightElement(element);
 }
