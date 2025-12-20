@@ -61,10 +61,6 @@ class Migration(migrations.Migration):
             name='device',
         ),
         migrations.RemoveField(
-            model_name='postanalytics',
-            name='devices',
-        ),
-        migrations.RemoveField(
             model_name='follow',
             name='follower',
         ),
