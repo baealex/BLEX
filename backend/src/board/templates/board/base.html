@@ -8,8 +8,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="referrer" content="origin" />
     <title>{% block title %}BLEX{% endblock %}</title>
-    <link rel="preload" href="/resources/assets/fonts/SpoqaHanSansNeo/SpoqaHanSansNeo-Regular.woff2" as="font" type="font/woff2" crossorigin>
-    <link rel="preload" href="/resources/assets/fonts/SpoqaHanSansNeo/SpoqaHanSansNeo-Bold.woff2" as="font" type="font/woff2" crossorigin>
     <link rel="stylesheet" href="{% island_css 'styles/tailwind.css' %}">
     <link rel="stylesheet" href="{% island_css 'styles/main.scss' %}">
     <link rel="icon" href="{% resource 'favicon.ico' %}" />
@@ -30,35 +28,6 @@
     <meta name="msapplication-TileImage" content="{% resource 'logo144.png' %}" />
     <meta name="msapplication-TileColor" content="#000" />
     {% block extra_styles %}{% endblock %}
-    <style>
-        @font-face {
-            font-family: 'SpoqaHanSansNeo';
-            src:
-                url('/resources/assets/fonts/SpoqaHanSansNeo/SpoqaHanSansNeo-Regular.ttf') format('truetype'),
-                url('/resources/assets/fonts/SpoqaHanSansNeo/SpoqaHanSansNeo-Regular.woff2') format('woff2'),
-                url('/resources/assets/fonts/SpoqaHanSansNeo/SpoqaHanSansNeo-Regular.woff') format('woff');
-            font-weight: normal;
-            font-style: normal;
-            font-display: swap;
-        }
-
-        @font-face {
-            font-family: 'SpoqaHanSansNeo';
-            src:
-                url('/resources/assets/fonts/SpoqaHanSansNeo/SpoqaHanSansNeo-Bold.ttf') format('truetype'),
-                url('/resources/assets/fonts/SpoqaHanSansNeo/SpoqaHanSansNeo-Bold.woff2') format('woff2'),
-                url('/resources/assets/fonts/SpoqaHanSansNeo/SpoqaHanSansNeo-Bold.woff') format('woff');
-            font-weight: bold;
-            font-style: normal;
-            font-display: swap;
-        }
-
-        html {
-            scroll-behavior: smooth;
-            -webkit-font-smoothing: antialiased;
-            -moz-osx-font-smoothing: grayscale;
-        }
-    </style>
     {% include 'custom/custom_head.html' %}
 </head>
 

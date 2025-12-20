@@ -214,7 +214,7 @@ const Login = () => {
     };
 
     return (
-        <div className={`max-w-[420px] w-full transition-all duration-700 ease-out transform ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
+        <div className={`w-[420px] max-w-[90vw] transition-all duration-700 ease-out transform ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
             {/* Logo & Title */}
             <div className="text-center mb-8">
                 <div className="mx-auto h-16 w-16 bg-black rounded-2xl flex items-center justify-center mb-6 shadow-2xl shadow-black/20 ring-1 ring-white/20">
