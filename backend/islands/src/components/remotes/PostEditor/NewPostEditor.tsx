@@ -7,6 +7,7 @@ import {
 } from 'react';
 import { toast } from '~/utils/toast';
 import { useConfirm } from '~/contexts/ConfirmContext';
+import PostEditorWrapper from './PostEditorWrapper';
 import PostHeader from './components/PostHeader';
 import PostForm from './components/PostForm';
 import TempPostsPanel from './components/TempPostsPanel';
@@ -249,56 +250,39 @@ const NewPostEditor = ({ tempToken }: NewPostEditorProps) => {
     };
 
     return (
-        <div className="bg-gray-50 py-8 min-h-screen relative transition-all duration-300">
-            <div className="w-full max-w-4xl mx-auto transition-all duration-300">
-                <PostHeader
-                    topOnly
-                    mode={tempToken ? 'temp' : 'new'}
-                    isSaving={isSaving}
-                    isSubmitting={isSubmitting}
-                    lastSaved={lastSaved}
-                    nextSaveIn={nextSaveIn}
-                    saveProgress={saveProgress}
-                    onManualSave={handleManualSave}
-                    onSubmit={() => handleSubmit()}
-                    onOpenTempPosts={() => setIsTempPostsPanelOpen(true)}
-                    onOpenSettings={() => setIsSettingsDrawerOpen(true)}
-                />
+        <PostEditorWrapper>
+            <PostForm
+                formRef={formRef}
+                isLoading={isLoading}
+                isEdit={false}
+                formData={formData}
+                tags={tags}
+                imagePreview={imagePreview}
+                selectedSeries={selectedSeries}
+                onTitleChange={handleTitleChange}
+                onContentChange={(content) => setFormData(prev => ({
+                    ...prev,
+                    content
+                }))}
+                onTagsChange={setTags}
+                onImageUpload={handleImageUpload}
+                onRemoveImage={handleRemoveImage}
+                getCsrfToken={getCsrfToken}
+            />
 
-                <PostForm
-                    formRef={formRef}
-                    isLoading={isLoading}
-                    isEdit={false}
-                    formData={formData}
-                    tags={tags}
-                    imagePreview={imagePreview}
-                    selectedSeries={selectedSeries}
-                    onTitleChange={handleTitleChange}
-                    onContentChange={(content) => setFormData(prev => ({
-                        ...prev,
-                        content
-                    }))}
-                    onTagsChange={setTags}
-                    onImageUpload={handleImageUpload}
-                    onRemoveImage={handleRemoveImage}
-                    getCsrfToken={getCsrfToken}
-                />
-
-                {/* Bottom sticky header */}
-                <PostHeader
-                    bottomOnly
-                    mode={tempToken ? 'temp' : 'new'}
-                    isSaving={isSaving}
-                    isSubmitting={isSubmitting}
-                    lastSaved={lastSaved}
-                    nextSaveIn={nextSaveIn}
-                    saveProgress={saveProgress}
-                    onManualSave={handleManualSave}
-                    onSubmit={() => handleSubmit()}
-                    onOpenTempPosts={() => setIsTempPostsPanelOpen(true)}
-                    onOpenSettings={() => setIsSettingsDrawerOpen(true)}
-                />
-            </div>
+            {/* Floating Action Bar */}
+            <PostHeader
+                mode={tempToken ? 'temp' : 'new'}
+                isSaving={isSaving}
+                isSubmitting={isSubmitting}
+                lastSaved={lastSaved}
+                nextSaveIn={nextSaveIn}
+                saveProgress={saveProgress}
+                onManualSave={handleManualSave}
+                onSubmit={() => handleSubmit()}
+                onOpenTempPosts={() => setIsTempPostsPanelOpen(true)}
+                onOpenSettings={() => setIsSettingsDrawerOpen(true)}
+            />
 
             {/* Settings Drawer */}
             <SettingsDrawer
@@ -329,7 +313,7 @@ const NewPostEditor = ({ tempToken }: NewPostEditorProps) => {
                 onSelectPost={handleSelectTempPost}
                 currentToken={tempToken}
             />
-        </div>
+        </PostEditorWrapper>
     );
 };
 

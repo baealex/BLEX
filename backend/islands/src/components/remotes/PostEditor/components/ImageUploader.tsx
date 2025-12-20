@@ -41,13 +41,13 @@ const ImageUploader = ({
             />
 
             {showUploader && imagePreview ? (
-                <div className="relative group">
-                    <img src={imagePreview} alt="Cover" className="w-full rounded-xl" />
+                <div className="mb-12 sm:mb-16 relative group">
+                    <img src={imagePreview} alt="Cover" className="w-full rounded-3xl shadow-2xl shadow-gray-200/50" />
                     <button
                         type="button"
                         onClick={handleRemove}
-                        className="absolute top-3 right-3 w-8 h-8 bg-black bg-opacity-60 hover:bg-opacity-90 text-white rounded-full flex items-center justify-center transition-all duration-200 opacity-0 group-hover:opacity-100">
-                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        className="absolute top-4 right-4 w-10 h-10 bg-black bg-opacity-60 hover:bg-opacity-90 text-white rounded-full flex items-center justify-center transition-all duration-200 opacity-0 group-hover:opacity-100">
+                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
                         </svg>
                     </button>

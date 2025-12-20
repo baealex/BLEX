@@ -47,13 +47,13 @@ const TagManager = ({ tags, onTagsChange }: TagManagerProps) => {
             {tags.map((tag, index) => (
                 <span
                     key={tag}
-                    className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-full text-sm font-medium transition-all duration-200 group">
-                    <i className="fas fa-hashtag text-xs text-gray-400" />
+                    className="inline-flex items-center px-4 py-2 bg-gray-50 hover:bg-black hover:text-white text-gray-600 rounded-full text-sm font-medium transition-all duration-300 border border-gray-100 hover:border-black group">
+                    <span className="mr-1 opacity-50">#</span>
                     <span className="break-all">{tag}</span>
                     <button
                         type="button"
                         onClick={() => handleRemoveTag(index)}
-                        className="ml-1 w-4 h-4 text-gray-400 hover:text-gray-600 transition-colors flex items-center justify-center"
+                        className="ml-2 w-4 h-4 text-gray-400 group-hover:text-white/80 transition-colors flex items-center justify-center"
                         aria-label={`${tag} 태그 제거`}>
                         <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />

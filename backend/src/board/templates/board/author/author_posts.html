@@ -36,11 +36,11 @@
         <div class="md:col-span-3">
             {% if not posts %}
                 {% if request.GET.q or request.GET.tag %}
-                    {% with empty_title='No posts found' empty_message='Try adjusting your search or filters.' %}
+                    {% with empty_title='검색 결과가 없습니다' empty_message='검색어를 다시 확인해주세요.' %}
                         {% include 'board/author/components/empty_state.html' %}
                     {% endwith %}
                 {% else %}
-                    {% with empty_title='No posts yet' empty_message=author.username|add:" hasn't posted anything yet." %}
+                    {% with empty_title='작성된 포스트가 없습니다' empty_message=author.username|add:"님이 포스트를 검토중이에요." %}
                         {% include 'board/author/components/empty_state.html' %}
                     {% endwith %}
                 {% endif %}
