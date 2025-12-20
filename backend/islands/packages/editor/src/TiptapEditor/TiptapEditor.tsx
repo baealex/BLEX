@@ -20,7 +20,7 @@ const TiptapEditor = ({
     content = '',
     editable = true,
     onChange,
-    height = '400px',
+    height = 'auto',
     placeholder = '내용을 입력하세요…',
     onImageUpload,
     onImageUploadError
@@ -107,7 +107,14 @@ const TiptapEditor = ({
                     outline: none;
                 }
 
-                /* 드래그 중인 요소 스타일 */
+                .ProseMirror p.is-editor-empty:first-child::before {
+                    content: '${placeholder}';
+                    float: left;
+                    color: #adb5bd;
+                    pointer-events: none;
+                    height: 0;
+                }
+
                 .ProseMirror figure.ProseMirror-selectednode {
                     position: relative;
                     cursor: grab;

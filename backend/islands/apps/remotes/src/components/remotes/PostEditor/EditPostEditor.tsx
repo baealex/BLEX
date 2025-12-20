@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { toast } from '~/utils/toast';
 import { useConfirm } from '~/contexts/ConfirmContext';
 import PostEditorWrapper from './PostEditorWrapper';
-import PostHeader from './components/PostHeader';
+import PostActions from './components/PostActions';
 import PostForm from './components/PostForm';
 import SettingsDrawer from './components/SettingsDrawer';
 import { getSeries } from '~/lib/api/settings';
@@ -237,7 +237,7 @@ const EditPostEditor = ({ username, postUrl }: EditPostEditorProps) => {
             />
 
             {/* Floating Action Bar */}
-            <PostHeader
+            <PostActions
                 mode="edit"
                 isSaving={false}
                 isSubmitting={isSubmitting}

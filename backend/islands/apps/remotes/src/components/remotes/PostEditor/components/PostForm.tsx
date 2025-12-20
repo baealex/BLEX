@@ -88,8 +88,7 @@ const PostForm = ({
                             name="text_md"
                             content={formData.content}
                             onChange={onContentChange}
-                            height="480px"
-                            placeholder="내용을 입력하세요..."
+                            placeholder="내용을 입력하세요"
                             onImageUpload={onEditorImageUpload}
                         />
                     )}
@@ -111,7 +110,7 @@ const PostForm = ({
             </div>
 
             {isEdit && onDelete && (
-                <div className="mb-4">
+                <div className="mb-16">
                     <DangerZone
                         isSubmitting={false}
                         onDelete={onDelete}
