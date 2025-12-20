@@ -1,10 +1,15 @@
-@use "./forwarded.scss";
-@use "./fontawesome.scss";
 @use "./variables.css";
+@use "./forwarded.scss";
+@use "./fonts/fontawesome.scss";
+@use "./fonts/pretendard.scss";
 
 @layer base {
+    html {
+        scroll-behavior: smooth;
+    }
+
     body {
-        font-family: 'SpoqaHanSansNeo', -apple-system, BlinkMacSystemFont, sans-serif;
+        font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, sans-serif;
         word-break: keep-all;
         overflow-x: hidden;
         overflow-wrap: anywhere;
