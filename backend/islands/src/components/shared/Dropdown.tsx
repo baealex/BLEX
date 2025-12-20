@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react';
+import { useState } from 'react';
 import * as DropdownMenu from '@radix-ui/react-dropdown-menu';
 
 interface DropdownItem {
@@ -17,14 +18,19 @@ interface DropdownProps {
 }
 
 const Dropdown = ({ items, trigger, align = 'end' }: DropdownProps) => {
+    const [open, setOpen] = useState(false);
+
     const alignProp: 'start' | 'end' | 'center' =
         align === 'right' ? 'end' :
         align === 'left' ? 'start' :
         align;
 
     return (
-        <DropdownMenu.Root>
-            <DropdownMenu.Trigger asChild>
+        <DropdownMenu.Root open={open} modal={false} onOpenChange={setOpen}>
+            <DropdownMenu.Trigger
+                asChild
+                onClick={() => setOpen(!open)}
+                onPointerDown={(e) => e.preventDefault()}>
                 {trigger ? (
                     trigger
                 ) : (
