@@ -444,7 +444,7 @@ const PostsSetting = () => {
                 {/* 필터 컨트롤 */}
                 {isFilterExpanded && (
                     <div className="p-6 bg-gray-50 border border-gray-200 rounded-2xl">
-                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 mb-4">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">
                             <Input
                                 type="text"
                                 placeholder="포스트 제목 검색..."
@@ -453,6 +453,26 @@ const PostsSetting = () => {
                                 leftIcon={<i className="fas fa-search" />}
                             />
 
+                            {/* 정렬 */}
+                            <Dropdown
+                                align="left"
+                                trigger={
+                                    <button className={`${baseInputStyles} flex items-center justify-between text-left`}>
+                                        <span className="text-gray-900 font-medium">
+                                            {POSTS_ORDER.find(o => o.order === filters.order)?.name || '정렬 방식'}
+                                        </span>
+                                        <i className="fas fa-chevron-down text-gray-400" />
+                                    </button>
+                                }
+                                items={POSTS_ORDER.map((orderOption) => ({
+                                    label: orderOption.name,
+                                    onClick: () => handleFilterChange('order', orderOption.order),
+                                    checked: filters.order === orderOption.order
+                                }))}
+                            />
+                        </div>
+
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
                             {/* 태그 필터 */}
                             <Dropdown
                                 align="left"
@@ -532,9 +552,7 @@ const PostsSetting = () => {
                                     }
                                 ]}
                             />
-                        </div>
 
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                             {/* 공지 필터 */}
                             <Dropdown
                                 align="left"
@@ -563,24 +581,6 @@ const PostsSetting = () => {
                                         checked: filters.notice === 'normal'
                                     }
                                 ]}
-                            />
-
-                            {/* 정렬 */}
-                            <Dropdown
-                                align="left"
-                                trigger={
-                                    <button className={`${baseInputStyles} flex items-center justify-between text-left`}>
-                                        <span className="text-gray-900 font-medium">
-                                            {POSTS_ORDER.find(o => o.order === filters.order)?.name || '정렬 방식'}
-                                        </span>
-                                        <i className="fas fa-chevron-down text-gray-400" />
-                                    </button>
-                                }
-                                items={POSTS_ORDER.map((orderOption) => ({
-                                    label: orderOption.name,
-                                    onClick: () => handleFilterChange('order', orderOption.order),
-                                    checked: filters.order === orderOption.order
-                                }))}
                             />
                         </div>
                     </div>
