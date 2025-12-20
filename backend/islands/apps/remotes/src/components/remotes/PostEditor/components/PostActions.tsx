@@ -1,4 +1,4 @@
-interface PostHeaderProps {
+interface PostActionsProps {
     mode: 'new' | 'edit' | 'temp';
     isSaving: boolean;
     isSubmitting: boolean;
@@ -11,47 +11,22 @@ interface PostHeaderProps {
     onOpenSettings?: () => void;
 }
 
-const PostHeader = ({
+const PostActions = ({
     mode,
     isSaving,
     isSubmitting,
     lastSaved,
     nextSaveIn = 0,
-    saveProgress = 0,
     onManualSave,
     onSubmit,
     onOpenTempPosts,
     onOpenSettings
-}: PostHeaderProps) => {
+}: PostActionsProps) => {
     const isEdit = mode === 'edit';
 
-    const renderBottomHeader = () => (
+    return (
         <div className="fixed sm:sticky bottom-6 left-0 right-0 z-30 flex justify-center pointer-events-none">
             <div className="pointer-events-auto bg-white/80 backdrop-blur-xl border border-white/20 shadow-[0_8px_30px_rgb(0,0,0,0.12)] rounded-full px-3 py-3 flex items-center gap-2 transform transition-all duration-300 hover:scale-105 hover:shadow-[0_8px_40px_rgb(0,0,0,0.16)]">
-                {/* Auto-save status - compact */}
-                {(lastSaved || !!saveProgress) && !isEdit && (
-                    <div className="flex items-center gap-2 px-2 text-xs text-gray-500">
-                        {isSaving ? (
-                            <>
-                                <div className="w-1.5 h-1.5 rounded-full bg-blue-500 animate-pulse" />
-                                <span className="hidden sm:inline">저장 중...</span>
-                            </>
-                        ) : nextSaveIn > 0 ? (
-                            <>
-                                <div className="w-1.5 h-1.5 rounded-full bg-yellow-500" />
-                                <span className="hidden sm:inline">{Math.ceil(nextSaveIn / 1000)}초 후 저장</span>
-                            </>
-                        ) : lastSaved ? (
-                            <>
-                                <div className="w-1.5 h-1.5 rounded-full bg-green-500" />
-                                <span className="hidden sm:inline">저장됨</span>
-                            </>
-                        ) : null}
-                    </div>
-                )}
-
-                {!isEdit && (isSaving || nextSaveIn > 0 || lastSaved) && <div className="w-px h-8 bg-gray-200/50 mx-1" />}
-
                 {/* Temp Posts */}
                 {!isEdit && onOpenTempPosts && (
                     <button
@@ -86,11 +61,29 @@ const PostHeader = ({
                             type="button"
                             onClick={onManualSave}
                             disabled={isSubmitting || isSaving}
-                            className="px-4 h-10 flex items-center gap-2 rounded-full text-gray-700 hover:text-black hover:bg-gray-100/50 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed font-medium text-sm">
-                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3-3m0 0l-3 3m3-3v12" />
-                            </svg>
-                            <span className="hidden sm:inline">임시 저장</span>
+                            className="flex items-center gap-2 px-2 text-xs text-gray-500"
+                            title="임시 저장">
+                            {lastSaved && isSaving ? (
+                                <>
+                                    <div className="w-1.5 h-1.5 rounded-full bg-blue-500 animate-pulse" />
+                                    <span className="hidden sm:inline">저장 중...</span>
+                                </>
+                            ) : nextSaveIn > 0 ? (
+                                <>
+                                    <div className="w-1.5 h-1.5 rounded-full bg-yellow-500" />
+                                    <span className="hidden sm:inline">{Math.ceil(nextSaveIn / 1000)}초 후 저장</span>
+                                </>
+                            ) : lastSaved ? (
+                                <>
+                                    <div className="w-1.5 h-1.5 rounded-full bg-green-500" />
+                                    <span className="hidden sm:inline">저장됨</span>
+                                </>
+                            ) : (
+                                <>
+                                    <div className="w-1.5 h-1.5 rounded-full bg-gray-500" />
+                                    <span className="hidden sm:inline">저장 대기</span>
+                                </>
+                            )}
                         </button>
                     </>
                 )}
@@ -109,9 +102,6 @@ const PostHeader = ({
             </div>
         </div>
     );
-
-    // Always render bottom floating bar only
-    return renderBottomHeader();
 };
 
-export default PostHeader;
+export default PostActions;

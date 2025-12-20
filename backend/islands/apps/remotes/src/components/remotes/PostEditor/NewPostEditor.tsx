@@ -8,7 +8,7 @@ import {
 import { toast } from '~/utils/toast';
 import { useConfirm } from '~/contexts/ConfirmContext';
 import PostEditorWrapper from './PostEditorWrapper';
-import PostHeader from './components/PostHeader';
+import PostActions from './components/PostActions';
 import PostForm from './components/PostForm';
 import TempPostsPanel from './components/TempPostsPanel';
 import SettingsDrawer from './components/SettingsDrawer';
@@ -285,7 +285,7 @@ const NewPostEditor = ({ tempToken }: NewPostEditorProps) => {
             />
 
             {/* Floating Action Bar */}
-            <PostHeader
+            <PostActions
                 mode={tempToken ? 'temp' : 'new'}
                 isSaving={isSaving}
                 isSubmitting={isSubmitting}

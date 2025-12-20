@@ -184,10 +184,7 @@ const FormsManagement = () => {
             ) : (
                 <div className="space-y-3">
                     {forms.map((form) => (
-                        <div
-                            key={form.id}
-                            className={getCardClass('cursor-pointer')}
-                            onClick={() => handleEditForm(form.id)}>
+                        <div key={form.id} className={getCardClass()}>
                             <div className={CARD_PADDING}>
                                 <div className={FLEX_ROW}>
                                     {/* Icon */}
@@ -196,7 +193,7 @@ const FormsManagement = () => {
                                     </div>
 
                                     {/* Content */}
-                                    <div className="flex-1 min-w-0">
+                                    <div className="flex-1 min-w-0 cursor-pointer" onClick={() => handleEditForm(form.id)}>
                                         <h3 className={TITLE}>{form.title}</h3>
                                     </div>
 
