@@ -1,5 +1,0 @@
-@import "tailwindcss";
-@plugin "tailwindcss-animate";
-
-@source "../src/**/*.{ts,tsx}";
-@source "../../src/board/templates/**/*.html";

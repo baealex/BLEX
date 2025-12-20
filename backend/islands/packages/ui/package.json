@@ -1,0 +1,40 @@
+{
+    "name": "@blex/ui",
+    "version": "1.0.0",
+    "type": "module",
+    "main": "./dist/index.cjs",
+    "module": "./dist/index.js",
+    "types": "./src/index.ts",
+    "exports": {
+        ".": {
+            "import": "./dist/index.js",
+            "require": "./dist/index.cjs",
+            "types": "./src/index.ts"
+        }
+    },
+    "scripts": {
+        "type-check": "tsc --noEmit",
+        "build": "tsup",
+        "dev": "tsup --watch",
+        "lint": "eslint src"
+    },
+    "dependencies": {
+        "@fortawesome/fontawesome-free": "^7.0.1",
+        "@radix-ui/react-dialog": "^1.1.15",
+        "@radix-ui/react-dropdown-menu": "^2.1.16",
+        "@radix-ui/react-popover": "^1.1.15",
+        "frappe-charts": "^1.6.2",
+        "sonner": "^2.0.7"
+    },
+    "peerDependencies": {
+        "react": "^19.0.0",
+        "react-dom": "^19.0.0"
+    },
+    "devDependencies": {
+        "@types/react": "^19.1.11",
+        "@types/react-dom": "^19.1.7",
+        "react": "^19.1.1",
+        "react-dom": "^19.1.1",
+        "typescript": "^5.9.2"
+    }
+}
