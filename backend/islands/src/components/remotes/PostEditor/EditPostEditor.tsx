@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { toast } from '~/utils/toast';
 import { useConfirm } from '~/contexts/ConfirmContext';
+import PostEditorWrapper from './PostEditorWrapper';
 import PostHeader from './components/PostHeader';
 import PostForm from './components/PostForm';
 import SettingsDrawer from './components/SettingsDrawer';
@@ -200,51 +201,37 @@ const EditPostEditor = ({ username, postUrl }: EditPostEditorProps) => {
     }
 
     return (
-        <div className="bg-gray-50 py-8 min-h-screen relative transition-all duration-300">
-            <div className="w-full max-w-4xl mx-auto transition-all duration-300">
-                <PostHeader
-                    topOnly
-                    mode="edit"
-                    isSaving={false}
-                    isSubmitting={isSubmitting}
-                    lastSaved={null}
-                    onManualSave={() => { }}
-                    onSubmit={() => handleSubmit()}
-                    onOpenSettings={() => setIsSettingsDrawerOpen(true)}
-                />
+        <PostEditorWrapper>
+            <PostForm
+                formRef={formRef}
+                isLoading={false}
+                isEdit={true}
+                formData={formData}
+                tags={tags}
+                imagePreview={imagePreview}
+                selectedSeries={selectedSeries}
+                onTitleChange={handleTitleChange}
+                onContentChange={(content) => setFormData(prev => ({
+                    ...prev,
+                    content
+                }))}
+                onTagsChange={setTags}
+                onImageUpload={handleImageUpload}
+                onRemoveImage={handleRemoveImage}
+                onDelete={handleDelete}
+                getCsrfToken={getCsrfToken}
+            />
 
-                <PostForm
-                    formRef={formRef}
-                    isLoading={false}
-                    isEdit={true}
-                    formData={formData}
-                    tags={tags}
-                    imagePreview={imagePreview}
-                    selectedSeries={selectedSeries}
-                    onTitleChange={handleTitleChange}
-                    onContentChange={(content) => setFormData(prev => ({
-                        ...prev,
-                        content
-                    }))}
-                    onTagsChange={setTags}
-                    onImageUpload={handleImageUpload}
-                    onRemoveImage={handleRemoveImage}
-                    onDelete={handleDelete}
-                    getCsrfToken={getCsrfToken}
-                />
-
-                {/* Bottom sticky header */}
-                <PostHeader
-                    bottomOnly
-                    mode="edit"
-                    isSaving={false}
-                    isSubmitting={isSubmitting}
-                    lastSaved={null}
-                    onManualSave={() => { }}
-                    onSubmit={() => handleSubmit()}
-                    onOpenSettings={() => setIsSettingsDrawerOpen(true)}
-                />
-            </div>
+            {/* Floating Action Bar */}
+            <PostHeader
+                mode="edit"
+                isSaving={false}
+                isSubmitting={isSubmitting}
+                lastSaved={null}
+                onManualSave={() => { }}
+                onSubmit={() => handleSubmit()}
+                onOpenSettings={() => setIsSettingsDrawerOpen(true)}
+            />
 
             {/* Settings Drawer */}
             <SettingsDrawer
@@ -267,7 +254,7 @@ const EditPostEditor = ({ username, postUrl }: EditPostEditorProps) => {
                     [field]: value
                 }))}
             />
-        </div>
+        </PostEditorWrapper>
     );
 };
 
