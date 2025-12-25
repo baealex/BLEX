@@ -1,12 +1,11 @@
 {% comment %}
 Alpine.js 기반 좋아요 버튼 컴포넌트
-사용법: {% include 'components/like_button.html' with post_url=post.url likes_count=post.count_likes has_liked=post.has_liked size='small' %}
 
 매개변수:
 - post_url: 포스트 URL (필수)
 - likes_count: 좋아요 수 (필수) 
 - has_liked: 사용자가 좋아요 했는지 여부 (필수)
-- size: 버튼 크기 'small' 또는 'normal' (선택, 기본값: normal)
+- size: 'small' (카드용) 또는 생략 (상세페이지용, 기본값)
 {% endcomment %}
 
 <button
@@ -18,27 +17,25 @@ Alpine.js 기반 좋아요 버튼 컴포넌트
     @click="handleLike()"
     :class="{
         'text-red-500': liked,
-        'text-gray-600 hover:text-black': !liked && '{{ variant }}' === 'floating',
-        'bg-red-50 border-red-100 text-red-500 hover:bg-red-100': liked && '{{ variant }}' !== 'floating',
-        'bg-white border-gray-200 text-gray-400 hover:border-gray-300 hover:text-gray-600 hover:bg-gray-50': !liked && '{{ variant }}' !== 'floating',
+        {% if size == 'small' %}
+        'bg-red-50 border-red-100 hover:bg-red-100': liked,
+        'bg-white border-gray-200 text-gray-400 hover:border-gray-300 hover:text-gray-600 hover:bg-gray-50': !liked,
+        {% else %}
+        'text-gray-600 hover:text-black hover:bg-gray-100/50': !liked,
+        {% endif %}
         'opacity-70 cursor-not-allowed': loading,
-        'active:scale-95': !loading,
-        'hover:bg-gray-100/50': '{{ variant }}' === 'floating' && !liked
+        'active:scale-95': !loading
     }"
     :disabled="loading"
     class="group inline-flex items-center justify-center transition-all duration-300 outline-none cursor-pointer select-none
-    {% if variant == 'floating' %}
-        gap-2 px-3 py-2 rounded-full font-medium
-    {% elif size == 'mini' %}
+    {% if size == 'small' %}
         border gap-1.5 px-2.5 py-1 rounded-lg text-xs font-medium h-7
-    {% elif size == 'small' %}
-        border gap-1.5 px-4 py-2.5 min-h-[44px] rounded-xl text-sm font-medium
     {% else %}
-        border gap-2 px-4 py-2 rounded-full text-sm font-medium
+        gap-2 px-3 py-2 rounded-full font-medium
     {% endif %}">
     <i :class="{
         'fas fa-heart': true,
         'animate-heart-beat': liked && !loading
-    }" class="transition-transform duration-300 {% if size == 'mini' %}text-xs{% else %}text-sm{% endif %}"></i>
-    <span x-text="count" class="{% if size == 'mini' %}text-xs{% endif %}"></span>
+    }" class="transition-transform duration-300 {% if size == 'small' %}text-xs{% else %}text-sm{% endif %}"></i>
+    <span x-text="count" class="{% if size == 'small' %}text-xs{% endif %}"></span>
 </button>
