@@ -194,7 +194,6 @@ def setting(request, parameter):
                 'updated_date',
                 'count_likes',
                 'count_comments',
-                'hide',
             ]
             order = request.GET.get('order', '')
             if order:
@@ -205,11 +204,7 @@ def setting(request, parameter):
                 if not is_valid:
                     raise Http404
 
-                if order == 'hide':
-                    order = 'config__hide'
-                elif order == '-hide':
-                    order = '-config__hide'
-                elif order == 'count_likes':
+                if order == 'count_likes':
                     order = 'likes__count'
                 elif order == '-count_likes':
                     order = '-likes__count'

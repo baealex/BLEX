@@ -18,9 +18,9 @@ import {
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { restrictToVerticalAxis, restrictToFirstScrollableAncestor } from '@dnd-kit/modifiers';
-
 import { toast } from '~/utils/toast';
 import { useQuery } from '@tanstack/react-query';
+import { SettingsHeader } from '../components';
 import { Button, Input, Dropdown } from '~/components/shared';
 import { baseInputStyles } from '~/components/shared';
 import { getSocialLinks, updateSocialLinks, type SocialLink as ApiSocialLink } from '~/lib/api/settings';
@@ -346,11 +346,10 @@ const SocialLinks = () => {
 
     return (
         <div>
-            {/* 헤더 섹션 */}
-            <div className="mb-6">
-                <h2 className="text-2xl font-bold text-gray-900 mb-2">소셜 링크</h2>
-                <p className="text-gray-600">프로필에 표시될 소셜 미디어 링크를 추가하고 순서를 조정하세요.</p>
-            </div>
+            <SettingsHeader
+                title="소셜 링크"
+                description="프로필에 표시될 소셜 미디어 링크를 추가하고 순서를 조정하세요."
+            />
 
             <form onSubmit={handleSubmit}>
                 <div className="mb-6">

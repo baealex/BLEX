@@ -20,6 +20,7 @@ import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { restrictToVerticalAxis, restrictToFirstScrollableAncestor } from '@dnd-kit/modifiers';
 import { useQuery } from '@tanstack/react-query';
+import { SettingsHeader } from '../components';
 import { Button, Dropdown } from '~/components/shared';
 import {
  getCardClass,
@@ -231,44 +232,23 @@ const SeriesSetting = () => {
 
     return (
         <div>
-            {/* Header */}
-            <div className="mb-6">
-                <div className="flex items-center justify-between mb-6">
-                    <div>
-                        <h2 className="text-2xl font-bold text-gray-900 mb-2">시리즈 ({series.length})</h2>
-                        <p className="text-gray-600">드래그하여 시리즈 순서를 조정하거나 새로운 시리즈를 만들어보세요.</p>
-                    </div>
-                </div>
-
-                <div>
+            <SettingsHeader
+                title={`시리즈 (${series.length})`}
+                description="드래그하여 시리즈 순서를 조정하거나 새로운 시리즈를 만들어보세요."
+                action={
                     <Button
                         variant="primary"
                         size="md"
                         fullWidth
                         leftIcon={<i className="fas fa-plus" />}
                         onClick={handleCreateSeries}>
-                        새 시리즈 만들기
+                        새 시리즈 생성
                     </Button>
-                </div>
-            </div>
+                }
+            />
 
             {/* Series list */}
-            {series.length === 0 ? (
-                <div className="text-center py-16">
-                    <div className="w-20 h-20 mx-auto bg-gray-100 rounded-2xl flex items-center justify-center mb-6">
-                        <i className="fas fa-book text-gray-400 text-3xl" />
-                    </div>
-                    <h3 className="text-xl font-bold text-gray-900 mb-2">시리즈가 없습니다</h3>
-                    <p className="text-gray-500 mb-6">첫 번째 시리즈를 만들어보세요!</p>
-                    <Button
-                        variant="primary"
-                        size="md"
-                        leftIcon={<i className="fas fa-plus" />}
-                        onClick={handleCreateSeries}>
-                        첫 시리즈 만들기
-                    </Button>
-                </div>
-            ) : (
+            {series.length >= 1 && (
                 <DndContext
                     sensors={sensors}
                     modifiers={[restrictToVerticalAxis, restrictToFirstScrollableAncestor]}

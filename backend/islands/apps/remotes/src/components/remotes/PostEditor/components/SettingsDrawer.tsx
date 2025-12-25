@@ -1,6 +1,5 @@
-import { Dialog } from '@blex/ui';
-import { Dropdown, Input, Button } from '~/components/shared';
-import { baseInputStyles } from '~/components/shared';
+import { Dialog, Select } from '@blex/ui';
+import { Input, Button } from '~/components/shared';
 import { cx } from '~/lib/classnames';
 
 interface Series {
@@ -158,33 +157,30 @@ const SettingsDrawer = ({
                                         <label className="block text-sm font-medium text-gray-700 mb-2">
                                             시리즈
                                         </label>
-                                        <Dropdown
-                                            trigger={
-                                                <button
-                                                    type="button"
-                                                    className={`w-full flex items-center justify-between ${baseInputStyles}`}>
-                                                    <span className={selectedSeries.name ? 'text-gray-900' : 'text-gray-400'}>
-                                                        {selectedSeries.name || '선택 안 함'}
-                                                    </span>
-                                                    <i className="fas fa-chevron-down text-gray-400 text-xs" />
-                                                </button>
-                                            }
-                                            items={[
-                                                {
-                                                    label: '선택 안 함',
-                                                    onClick: () => onSeriesChange({
+                                        <Select
+                                            value={selectedSeries.id}
+                                            onValueChange={(value) => {
+                                                if (value === '') {
+                                                    onSeriesChange({
                                                         id: '',
                                                         name: ''
-                                                    }),
-                                                    checked: !selectedSeries.id
+                                                    });
+                                                } else {
+                                                    const series = seriesList.find(s => s.id === value);
+                                                    if (series) onSeriesChange(series);
+                                                }
+                                            }}
+                                            items={[
+                                                {
+                                                    value: '',
+                                                    label: '선택 안 함'
                                                 },
                                                 ...seriesList.map((series) => ({
-                                                    label: series.name,
-                                                    onClick: () => onSeriesChange(series),
-                                                    checked: selectedSeries.id === series.id
+                                                    value: series.id,
+                                                    label: series.name
                                                 }))
                                             ]}
-                                            align="start"
+                                            placeholder="선택 안 함"
                                         />
                                     </div>
 

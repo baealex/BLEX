@@ -4,6 +4,7 @@ import { useQuery } from '@tanstack/react-query';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { SettingsHeader } from '../components';
 import { Button, Input, Modal, Dropdown } from '~/components/shared';
 import {
  getCardClass,
@@ -157,31 +158,23 @@ const FormsManagement = () => {
 
     return (
         <div>
-            {/* Header Section */}
-            <div className="mb-6">
-                <h2 className="text-2xl font-bold text-gray-900 mb-2">서식 관리</h2>
-                <p className="text-gray-600 mb-6">자주 사용하는 서식을 미리 만들어두면, 글을 더 빠르게 작성할 수 있어요.</p>
-
-                <Button
-                    variant="primary"
-                    size="md"
-                    fullWidth
-                    leftIcon={<i className="fas fa-plus" />}
-                    onClick={handleCreateForm}>
-                    서식 추가
-                </Button>
-            </div>
+            <SettingsHeader
+                title="서식 관리"
+                description="자주 사용하는 서식을 미리 만들어두면, 글을 더 빠르게 작성할 수 있어요."
+                action={
+                    <Button
+                        variant="primary"
+                        size="md"
+                        fullWidth
+                        leftIcon={<i className="fas fa-plus" />}
+                        onClick={handleCreateForm}>
+                        새 서식 추가
+                    </Button>
+                }
+            />
 
             {/* Forms List */}
-            {forms.length === 0 ? (
-                <div className="text-center py-16">
-                    <div className="w-20 h-20 mx-auto bg-gray-100 rounded-2xl flex items-center justify-center mb-6">
-                        <i className="far fa-file-alt text-gray-400 text-3xl" />
-                    </div>
-                    <h3 className="text-xl font-bold text-gray-900 mb-2">서식이 없습니다</h3>
-                    <p className="text-gray-500">서식 추가 버튼을 눌러 첫 번째 서식을 만들어보세요.</p>
-                </div>
-            ) : (
+            {forms.length > 0 && (
                 <div className="space-y-3">
                     {forms.map((form) => (
                         <div key={form.id} className={getCardClass()}>
