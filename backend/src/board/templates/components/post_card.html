@@ -62,7 +62,7 @@ Parameters:
                     <i class="far fa-comment"></i>
                     <span>{{ post.count_comments }}</span>
                 </div>
-                {% include 'components/like_button.html' with post_url=post.url likes_count=post.count_likes has_liked=post.has_liked size='mini' %}
+                {% include 'components/like_button.html' with post_url=post.url likes_count=post.count_likes has_liked=post.has_liked size='small' %}
             </div>
         </footer>
     </div>

@@ -5,12 +5,11 @@
     "sideEffects": false,
     "main": "./dist/index.cjs",
     "module": "./dist/index.js",
-    "types": "./src/index.ts",
+    "types": "./dist/index.d.ts",
     "exports": {
         ".": {
             "import": "./dist/index.js",
-            "require": "./dist/index.cjs",
-            "types": "./src/index.ts"
+            "require": "./dist/index.cjs"
         }
     },
     "scripts": {
