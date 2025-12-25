@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { toast } from '~/utils/toast';
 import { useQuery } from '@tanstack/react-query';
 import { useConfirm } from '~/contexts/ConfirmContext';
+import { SettingsHeader } from '../components';
 import { getAccountSettings, updateAccountSettings, deleteAccount } from '~/lib/api/settings';
 import { enable2FA, disable2FA, verify2FASetup } from '~/lib/api/auth';
 import AccountInfoSection from './components/AccountInfoSection';
@@ -205,11 +206,10 @@ const AccountSettings = () => {
 
     return (
         <div>
-            {/* Header Section */}
-            <div className="mb-6">
-                <h2 className="text-2xl font-bold text-gray-900 mb-2">계정 설정</h2>
-                <p className="text-gray-600">아이디, 이름, 비밀번호 등 계정 정보를 관리하세요.</p>
-            </div>
+            <SettingsHeader
+                title="계정 설정"
+                description="아이디, 이름, 비밀번호 등 계정 정보를 관리하세요."
+            />
 
             {/* Account Info */}
             <AccountInfoSection

@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import { toast } from '~/utils/toast';
 import { Button } from '~/components/shared';
+import { SettingsHeader } from '../../components';
 import { markNotificationAsRead, type NotifyItem } from '~/lib/api/settings';
 
 interface NotificationsSectionProps {
@@ -35,21 +36,20 @@ const NotificationsSection = ({
 
     return (
         <div>
-            <div className="flex items-center justify-between mb-6">
-                <div>
-                    <h2 className="text-2xl font-bold text-gray-900 flex items-center">
-                        알림
-                    </h2>
-                    <p className="text-gray-600">주요 알림을 확인할 수 있습니다.</p>
-                </div>
-                <Button
-                    variant="secondary"
-                    size="md"
-                    leftIcon={<i className="fas fa-cog" />}
-                    onClick={onOpenConfig}>
-                    설정
-                </Button>
-            </div>
+            <SettingsHeader
+                title="알림"
+                description="주요 알림을 확인할 수 있습니다."
+                actionPosition="right"
+                action={
+                    <Button
+                        variant="secondary"
+                        size="md"
+                        leftIcon={<i className="fas fa-cog" />}
+                        onClick={onOpenConfig}>
+                        설정
+                    </Button>
+                }
+            />
 
             {/* Telegram integration banner */}
             <a

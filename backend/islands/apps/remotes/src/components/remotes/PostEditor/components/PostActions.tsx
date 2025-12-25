@@ -66,22 +66,22 @@ const PostActions = ({
                             {lastSaved && isSaving ? (
                                 <>
                                     <div className="w-1.5 h-1.5 rounded-full bg-blue-500 animate-pulse" />
-                                    <span className="hidden sm:inline">저장 중...</span>
+                                    <span>저장 중...</span>
                                 </>
                             ) : nextSaveIn > 0 ? (
                                 <>
                                     <div className="w-1.5 h-1.5 rounded-full bg-yellow-500" />
-                                    <span className="hidden sm:inline">{Math.ceil(nextSaveIn / 1000)}초 후 저장</span>
+                                    <span>{Math.ceil(nextSaveIn / 1000)}초 후 저장</span>
                                 </>
                             ) : lastSaved ? (
                                 <>
                                     <div className="w-1.5 h-1.5 rounded-full bg-green-500" />
-                                    <span className="hidden sm:inline">저장됨</span>
+                                    <span>저장됨</span>
                                 </>
                             ) : (
                                 <>
                                     <div className="w-1.5 h-1.5 rounded-full bg-gray-500" />
-                                    <span className="hidden sm:inline">저장 대기</span>
+                                    <span>저장 대기</span>
                                 </>
                             )}
                         </button>

@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { toast } from '~/utils/toast';
 import { useQuery } from '@tanstack/react-query';
+import { SettingsHeader } from '../components';
 import { Button } from '~/components/shared';
 import { useConfirm } from '~/contexts/ConfirmContext';
 import { getTelegramStatus, generateTelegramToken, disconnectTelegram as disconnectTelegramAPI } from '~/lib/api/telegram';
@@ -98,20 +99,20 @@ const IntegrationSettings = () => {
 
     return (
         <div>
-            {/* Header Section */}
-            <div className="mb-6">
-                <h2 className="text-2xl font-bold text-gray-900 mb-2">텔레그램 연동</h2>
-                <p className="text-gray-600 mb-6">텔레그램 봇과 연동하여 실시간 알림을 받아보세요.</p>
-
-                <div className="bg-gray-50 border border-gray-200 rounded-2xl p-5 space-y-3">
-                    <div className="flex items-center text-sm text-gray-700">
-                        <div className="w-6 h-6 bg-black rounded-full flex items-center justify-center mr-3 flex-shrink-0">
-                            <i className="fas fa-check text-white text-xs" />
+            <SettingsHeader
+                title="텔레그램 연동"
+                description="텔레그램 봇과 연동하여 실시간 알림을 받아보세요."
+                action={
+                    <div className="bg-gray-50 border border-gray-200 rounded-2xl p-5 space-y-3">
+                        <div className="flex items-center text-sm text-gray-700">
+                            <div className="w-6 h-6 bg-black rounded-full flex items-center justify-center mr-3 flex-shrink-0">
+                                <i className="fas fa-check text-white text-xs" />
+                            </div>
+                            실시간으로 댓글, 좋아요 등의 알림을 전달받습니다
                         </div>
-                        실시간으로 댓글, 좋아요 등의 알림을 전달받습니다
                     </div>
-                </div>
-            </div>
+                }
+            />
 
             {/* Connection Status */}
             {isConnected ? (

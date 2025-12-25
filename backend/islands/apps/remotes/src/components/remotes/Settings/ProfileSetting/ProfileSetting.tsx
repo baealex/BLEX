@@ -5,6 +5,7 @@ import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useQuery } from '@tanstack/react-query';
 import { useConfirm } from '~/contexts/ConfirmContext';
+import { SettingsHeader } from '../components';
 import { Button, Input, Card } from '~/components/shared';
 import { getProfileSettings, updateProfileSettings, uploadAvatar } from '~/lib/api/settings';
 
@@ -106,11 +107,10 @@ const ProfileSetting = () => {
 
     return (
         <div>
-            {/* Header Section */}
-            <div className="mb-6">
-                <h2 className="text-2xl font-bold text-gray-900 mb-2">프로필 설정</h2>
-                <p className="text-gray-600">다른 사용자들에게 보여질 프로필 정보를 관리하세요.</p>
-            </div>
+            <SettingsHeader
+                title="프로필 설정"
+                description="다른 사용자들에게 보여질 프로필 정보를 관리하세요."
+            />
 
             <form onSubmit={handleSubmit(onSubmit)}>
                 {/* Profile Image Section */}

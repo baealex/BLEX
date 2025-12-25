@@ -1,5 +1,4 @@
-import { Dropdown } from '~/components/shared';
-import { baseInputStyles } from '~/components/shared';
+import { Select } from '@blex/ui';
 
 interface Series {
     id: string;
@@ -17,45 +16,40 @@ const SeriesSelector = ({
     selectedSeries,
     onSeriesChange
 }: SeriesSelectorProps) => {
-    const handleSeriesSelect = (series: Series | null) => {
-        onSeriesChange({
-            id: series?.id || '',
-            name: series?.name || ''
-        });
+    const handleValueChange = (value: string) => {
+        if (value === '') {
+            onSeriesChange({
+ id: '',
+name: ''
+});
+        } else {
+            const series = seriesList.find(s => s.id === value);
+            onSeriesChange({
+                id: series?.id || '',
+                name: series?.name || ''
+            });
+        }
     };
 
-    const dropdownItems = [
+    const selectItems = [
         {
-            label: '선택 안 함',
-            onClick: () => handleSeriesSelect(null),
-            checked: !selectedSeries.id
-        },
+ value: '',
+label: '선택 안 함'
+},
         ...seriesList.map(series => ({
-            label: series.name,
-            onClick: () => handleSeriesSelect(series),
-            checked: selectedSeries.id === series.id
+            value: series.id,
+            label: series.name
         }))
     ];
 
     return (
         <div className="bg-white rounded-xl border border-gray-200 p-4 sm:p-5">
             <label className="block text-xs font-medium text-gray-500 uppercase tracking-wide mb-2">시리즈</label>
-
-            <Dropdown
-                align="start"
-                items={dropdownItems}
-                trigger={
-                    <button
-                        type="button"
-                        className={`${baseInputStyles} flex items-center justify-between text-left`}>
-                        <span className={selectedSeries.name ? 'text-gray-900 font-medium' : 'text-gray-400'}>
-                            {selectedSeries.name || '선택 안 함'}
-                        </span>
-                        <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
-                        </svg>
-                    </button>
-                }
+            <Select
+                value={selectedSeries.id}
+                onValueChange={handleValueChange}
+                items={selectItems}
+                placeholder="선택 안 함"
             />
         </div>
     );
