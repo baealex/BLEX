@@ -1,5 +1,6 @@
 from django.contrib import admin
 from django.utils.html import strip_tags, format_html
+from django.utils.safestring import mark_safe
 from django.template.defaultfilters import truncatewords
 from django.db.models import Count
 
@@ -98,7 +99,7 @@ class CommentAdmin(admin.ModelAdmin):
                 '<span style="background: {}; color: {}; padding: 2px 6px; border-radius: 4px; font-size: 10px; opacity: 0.8;">삭제됨</span>',
                 COLOR_DARKENED_BG, COLOR_TEXT
             ))
-        return format_html(' '.join(str(b) for b in badges)) if badges else format_html('<span style="color: {};">-</span>', COLOR_MUTED)
+        return mark_safe(' '.join(str(b) for b in badges)) if badges else format_html('<span style="color: {};">-</span>', COLOR_MUTED)
     status_badges.short_description = '상태'
 
     def author_info(self, obj):
