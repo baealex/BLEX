@@ -56,5 +56,9 @@ FROM backend-runner
 # Copy islands static files to the final backend image as well if needed for serving or just consistency
 COPY --from=islands-builder /app/src/resources/staticfiles/islands/ /app/resources/staticfiles/islands/
 
-ENTRYPOINT ["gunicorn"]
+# Copy and set up entrypoint script
+COPY entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
+
+ENTRYPOINT ["/entrypoint.sh"]
 CMD ["--bind", "0.0.0.0:8000", "--workers", "4", "--access-logfile", "-", "--log-level", "info", "main.wsgi:application"]
