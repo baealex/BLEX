@@ -2,7 +2,7 @@ from django.shortcuts import render, get_object_or_404, redirect
 import json
 from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
-from django.db.models import Count, Exists, OuterRef, Q, F
+from django.db.models import Case, When, Count, Exists, OuterRef, Q, F
 from django.utils import timezone
 from board.modules.paginator import Paginator
 from django.http import JsonResponse
@@ -194,7 +194,10 @@ def author_series(request, username):
     search_query = request.GET.get('q', '')
     sort_option = request.GET.get('sort', 'custom')
     
-    series_list = Series.objects.filter(owner=author)
+    series_list = Series.objects.filter(
+        owner=author,
+        hide=False
+    )
     
     if search_query:
         series_list = series_list.filter(
@@ -202,7 +205,17 @@ def author_series(request, username):
             Q(text_md__icontains=search_query)
         )
     
-    series_list = series_list.annotate(post_count=Count('posts'))
+    series_list = series_list.annotate(
+        post_count=Count(
+            Case(
+                When(
+                    posts__created_date__lte=timezone.now(),
+                    posts__config__hide=False,
+                    then=1
+                )
+            )
+        )
+    ).filter(post_count__gte=1)
     
     if sort_option == 'newest':
         series_list = series_list.order_by('-created_date')

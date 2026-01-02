@@ -54,7 +54,7 @@ const PostSettings = ({ formData, onChange }: PostSettingsProps) => {
                     />
                     <div className="flex-1">
                         <div className="text-sm font-medium text-gray-900">광고 표시</div>
-                        <div className="text-xs text-gray-500">게시글에 광고 표시</div>
+                        <div className="text-xs text-gray-500">포스트에 광고 표시</div>
                     </div>
                 </label>
             </div>

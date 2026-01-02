@@ -95,7 +95,7 @@ export const useFormSubmit = (options: UseFormSubmitOptions) => {
             form.submit();
             onSubmitSuccess?.();
         } catch (error) {
-            const errorMessage = isEdit ? '게시글 수정에 실패했습니다.' : '게시글 저장에 실패했습니다.';
+            const errorMessage = isEdit ? '포스트 수정에 실패했습니다.' : '포스트 저장에 실패했습니다.';
             toast.error(errorMessage);
             onSubmitError?.(error as Error);
             setIsSubmitting(false);
@@ -103,7 +103,7 @@ export const useFormSubmit = (options: UseFormSubmitOptions) => {
     }, [validateForm, addHiddenField, tempToken, onBeforeSubmit, onSubmitSuccess, onSubmitError]);
 
     const deletePost = useCallback(async () => {
-        if (!confirm('정말로 이 게시글을 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.')) {
+        if (!confirm('정말로 이 포스트를 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.')) {
             return;
         }
 
@@ -120,7 +120,7 @@ export const useFormSubmit = (options: UseFormSubmitOptions) => {
 
             form.submit();
         } catch (error) {
-            toast.error('게시글 삭제에 실패했습니다.');
+            toast.error('포스트 삭제에 실패했습니다.');
             onSubmitError?.(error as Error);
             setIsSubmitting(false);
         }

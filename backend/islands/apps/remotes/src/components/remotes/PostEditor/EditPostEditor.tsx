@@ -176,15 +176,15 @@ const EditPostEditor = ({ username, postUrl }: EditPostEditorProps) => {
 
             form.submit();
         } catch {
-            toast.error('게시글 수정에 실패했습니다.');
+            toast.error('포스트 수정에 실패했습니다.');
             setIsSubmitting(false);
         }
     };
 
     const handleDelete = async () => {
         const confirmed = await confirm({
-            title: '게시글 삭제',
-            message: '정말로 이 게시글을 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.',
+            title: '포스트 삭제',
+            message: '정말로 이 포스트를 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.',
             confirmText: '삭제',
             variant: 'danger'
         });
@@ -204,7 +204,7 @@ const EditPostEditor = ({ username, postUrl }: EditPostEditorProps) => {
 
             form.submit();
         } catch {
-            toast.error('게시글 삭제에 실패했습니다.');
+            toast.error('포스트 삭제에 실패했습니다.');
             setIsSubmitting(false);
         }
     };

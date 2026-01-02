@@ -570,8 +570,8 @@ class Series(models.Model):
         self.url = url
 
     def thumbnail(self):
-        posts = Post.objects.filter(series=self, config__hide=False)
-        return posts[0].get_thumbnail() if posts else ''
+        post = Post.objects.filter(series=self, config__hide=False).first()
+        return post.get_thumbnail() if post else ''
 
     def get_absolute_url(self):
         return reverse('series_detail', args=[self.owner.username, self.url])

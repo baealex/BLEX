@@ -67,7 +67,7 @@ class CommentTestCase(TestCase):
         )
 
     def test_get_post_comment_list(self):
-        """게시글 댓글 목록 조회 테스트"""
+        """포스트 댓글 목록 조회 테스트"""
         response = self.client.get('/v1/posts/test-post/comments')
         self.assertEqual(response.status_code, 200)
 

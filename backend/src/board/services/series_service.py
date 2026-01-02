@@ -294,7 +294,15 @@ class SeriesService:
 
         if include_post_count:
             query = query.annotate(
-                total_posts=Count('posts')
+                total_posts=Count(
+                    Case(
+                        When(
+                            posts__created_date__lte=timezone.now(),
+                            posts__config__hide=False,
+                            then=1
+                        )
+                    )
+                )
             )
 
         return query.order_by('order', '-id')

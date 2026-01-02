@@ -9,7 +9,7 @@ from django.test import TestCase
 from django.core.files.uploadedfile import SimpleUploadedFile
 
 from board.models import (
-    User, Config, Post, PostContent, PostConfig, Profile
+    User, Config, Post, PostContent, PostConfig, Profile, Series
 )
 
 
@@ -58,19 +58,19 @@ class PostTestCase(TestCase):
 
 
     def test_get_user_post_detail(self):
-        """게시글 상세 조회 테스트"""
+        """포스트 상세 조회 테스트"""
         params = {'mode': 'view'}
         response = self.client.get('/v1/users/@author/posts/test-post-1', params)
         self.assertEqual(response.status_code, 200)
 
     def test_no_access_other_user_post_edit_mode(self):
-        """다른 사용자의 게시글 편집 모드 접근 차단 테스트"""
+        """다른 사용자의 포스트 편집 모드 접근 차단 테스트"""
         params = {'mode': 'edit'}
         response = self.client.get('/v1/users/@author/posts/test-post-1', params)
         self.assertEqual(response.status_code, 404)
 
     def test_get_user_post_detail_edit_mode(self):
-        """게시글 편집 모드 조회 테스트"""
+        """포스트 편집 모드 조회 테스트"""
         self.client.login(username='author', password='author')
 
         params = {'mode': 'edit'}
@@ -79,7 +79,7 @@ class PostTestCase(TestCase):
 
     @patch('modules.markdown.parse_to_html', return_value='<h1>Mocked Text</h1>')
     def test_update_user_post(self, mock_service):
-        """게시글 수정 테스트"""
+        """포스트 수정 테스트"""
         self.client.login(username='author', password='author')
 
         post = Post.objects.get(url='test-post-1')
@@ -95,7 +95,7 @@ class PostTestCase(TestCase):
         self.assertEqual(post.title, 'Test Post 1 Updated')
 
     def test_get_user_post_detail_edit_mode_with_not_exist_post(self):
-        """존재하지 않는 게시글 편집 모드 접근 시 404 에러 테스트"""
+        """존재하지 않는 포스트 편집 모드 접근 시 404 에러 테스트"""
         self.client.login(username='author', password='author')
 
         params = {'mode': 'edit'}
@@ -104,7 +104,7 @@ class PostTestCase(TestCase):
         self.assertEqual(response.status_code, 404)
 
     def test_get_user_post_detail_edit_mode_with_not_exist_user(self):
-        """존재하지 않는 사용자의 게시글 편집 모드 접근 시 404 에러 테스트"""
+        """존재하지 않는 사용자의 포스트 편집 모드 접근 시 404 에러 테스트"""
         self.client.login(username='author', password='author')
 
         params = {'mode': 'edit'}
@@ -113,7 +113,7 @@ class PostTestCase(TestCase):
         self.assertEqual(response.status_code, 404)
 
     def test_get_user_post_detail_edit_mode_with_not_match_user(self):
-        """작성자가 일치하지 않는 게시글 편집 모드 접근 시 404 에러 테스트"""
+        """작성자가 일치하지 않는 포스트 편집 모드 접근 시 404 에러 테스트"""
         self.client.login(username='author', password='author')
 
         params = {'mode': 'edit'}
@@ -123,7 +123,7 @@ class PostTestCase(TestCase):
 
     @patch('modules.markdown.parse_to_html', return_value='<h1>Mocked Text</h1>')
     def test_create_post_duplicate_url(self, mock_service):
-        """중복된 URL로 게시글 생성 시 자동 URL 생성 테스트"""
+        """중복된 URL로 포스트 생성 시 자동 URL 생성 테스트"""
         self.client.login(username='author', password='author')
 
         response = self.client.post('/v1/posts', {
@@ -139,7 +139,7 @@ class PostTestCase(TestCase):
 
     @patch('modules.markdown.parse_to_html', return_value='<h1>Mocked Text</h1>')
     def test_create_post_custom_url(self, mock_service):
-        """커스텀 URL로 게시글 생성 테스트"""
+        """커스텀 URL로 포스트 생성 테스트"""
         self.client.login(username='author', password='author')
 
         response = self.client.post('/v1/posts', {
@@ -155,7 +155,7 @@ class PostTestCase(TestCase):
         self.assertEqual(content['body']['url'], 'custom-url')
 
     def test_create_post(self):
-        """게시글 생성 테스트"""
+        """포스트 생성 테스트"""
         self.client.login(username='author', password='author')
 
         response = self.client.post('/v1/posts', {
@@ -170,7 +170,7 @@ class PostTestCase(TestCase):
         self.assertEqual(content['body']['url'], 'test-post-1000')
 
     def test_create_post_with_not_logged_in_user(self):
-        """비로그인 사용자의 게시글 생성 차단 테스트"""
+        """비로그인 사용자의 포스트 생성 차단 테스트"""
         response = self.client.post('/v1/posts', {
             'title': 'Test Post',
             'text_html': '# Test Post',
@@ -181,7 +181,7 @@ class PostTestCase(TestCase):
         self.assertEqual(response.status_code, 404)
 
     def test_create_post_empty_title(self):
-        """빈 제목으로 게시글 생성 시 에러 테스트"""
+        """빈 제목으로 포스트 생성 시 에러 테스트"""
         self.client.login(username='author', password='author')
 
         response = self.client.post('/v1/posts', {
@@ -193,7 +193,7 @@ class PostTestCase(TestCase):
         self.assertEqual(response.json()['status'], 'ERROR')
 
     def test_create_post_empty_text(self):
-        """빈 내용으로 게시글 생성 시 에러 테스트"""
+        """빈 내용으로 포스트 생성 시 에러 테스트"""
         self.client.login(username='author', password='author')
 
         response = self.client.post('/v1/posts', {
@@ -205,7 +205,7 @@ class PostTestCase(TestCase):
         self.assertEqual(response.json()['status'], 'ERROR')
 
     def test_create_post_reserved(self):
-        """예약 게시글 생성 및 공개 제한 테스트"""
+        """예약 포스트 생성 및 공개 제한 테스트"""
         self.client.login(username='author', password='author')
 
         response = self.client.post('/v1/posts', {
@@ -231,7 +231,7 @@ class PostTestCase(TestCase):
         self.assertEqual(response.status_code, 404)
     
     def test_create_post_reserved_before(self):
-        """과거 날짜로 예약 게시글 생성 시 에러 테스트"""
+        """과거 날짜로 예약 포스트 생성 시 에러 테스트"""
         self.client.login(username='author', password='author')
 
         response = self.client.post('/v1/posts', {
@@ -244,7 +244,7 @@ class PostTestCase(TestCase):
         self.assertEqual(response.json()['status'], 'ERROR')
 
     def test_create_post_custom_description(self):
-        """커스텀 설명을 포함한 게시글 생성 테스트"""
+        """커스텀 설명을 포함한 포스트 생성 테스트"""
         self.client.login(username='author', password='author')
 
         response = self.client.post('/v1/posts', {
@@ -261,7 +261,7 @@ class PostTestCase(TestCase):
         self.assertEqual(post.meta_description, 'Custom Description')
     
     def test_create_post_without_invitation(self):
-        """초대받지 않은 사용자의 게시글 생성 차단 테스트"""
+        """초대받지 않은 사용자의 포스트 생성 차단 테스트"""
         self.client.login(username='viewer', password='viewer')
 
         response = self.client.post('/v1/posts', {
@@ -287,14 +287,14 @@ class PostTestCase(TestCase):
         )
 
     def test_update_post_add_image(self):
-        """이미지가 없는 게시글에 이미지 추가 테스트"""
+        """이미지가 없는 포스트에 이미지 추가 테스트"""
         self.client.login(username='author', password='author')
 
         post = Post.objects.get(url='test-post-1')
         # 초기 상태 확인: 이미지가 없음
         self.assertFalse(post.image)
 
-        # 이미지와 함께 게시글 업데이트
+        # 이미지와 함께 포스트 업데이트
         image = self._create_test_image('new_image.jpg')
         response = self.client.post('/v1/users/@author/posts/test-post-1', {
             'title': post.title,
@@ -318,7 +318,7 @@ class PostTestCase(TestCase):
         """기존 이미지를 새 이미지로 변경 테스트"""
         self.client.login(username='author', password='author')
 
-        # 먼저 이미지가 있는 게시글 생성
+        # 먼저 이미지가 있는 포스트 생성
         post = Post.objects.get(url='test-post-2')
         old_image = self._create_test_image('old_image.jpg', color='blue')
         post.image = old_image
@@ -347,10 +347,10 @@ class PostTestCase(TestCase):
         self.assertNotEqual(post.image.name, old_image_name)
 
     def test_update_post_delete_image(self):
-        """게시글의 이미지 삭제 테스트"""
+        """포스트의 이미지 삭제 테스트"""
         self.client.login(username='author', password='author')
 
-        # 먼저 이미지가 있는 게시글 생성
+        # 먼저 이미지가 있는 포스트 생성
         post = Post.objects.get(url='test-post-3')
         image = self._create_test_image('to_delete.jpg')
         post.image = image
@@ -379,7 +379,7 @@ class PostTestCase(TestCase):
         """기존 이미지를 유지하는 테스트 (이미지 필드를 건드리지 않음)"""
         self.client.login(username='author', password='author')
 
-        # 먼저 이미지가 있는 게시글 생성
+        # 먼저 이미지가 있는 포스트 생성
         post = Post.objects.get(url='test-post-4')
         image = self._create_test_image('keep_image.jpg')
         post.image = image
@@ -403,3 +403,26 @@ class PostTestCase(TestCase):
         self.assertTrue(post.image)
         self.assertEqual(post.image.name, original_image_name)
         self.assertEqual(post.title, 'Test Post 4 Updated')
+
+    def test_post_detail_hidden_in_series(self):
+        """시리즈에 포함된 숨김 포스트 조회 시 에러 없이 안내 문구 표시 테스트"""
+        self.client.login(username='author', password='author')
+        
+        # 시리즈 생성
+        author = User.objects.get(username='author')
+        series = Series.objects.create(owner=author, name='Test Series', url='test-series')
+        
+        # 기존 포스트를 시리즈에 연결
+        post = Post.objects.get(url='test-post-1')
+        post.series = series
+        post.save()
+        
+        # 포스트 숨김 처리
+        post.config.hide = True
+        post.config.save()
+        
+        # 뷰 페이지 조회 (템플릿 뷰)
+        response = self.client.get('/@author/test-post-1')
+        self.assertEqual(response.status_code, 200)
+        # 안내 문구 확인
+        self.assertContains(response, '이 포스트는 숨김 처리되어 시리즈 목록에 표시되지 않습니다.')
