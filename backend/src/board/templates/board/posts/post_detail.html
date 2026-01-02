@@ -181,6 +181,25 @@
     <!-- Series Card -->
     {% if post.series %}
     <div class="mt-16 bg-white rounded-2xl p-6 sm:p-8 mb-16 ring-1 ring-gray-900/5">
+        {% if not post.visible_series_posts %}
+        <div class="flex flex-col items-center justify-center text-center py-6">
+            <div class="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center text-gray-500 mb-4">
+                <i class="fas fa-eye-slash"></i>
+            </div>
+            <h3 class="text-lg font-bold text-gray-900 mb-2">
+                <a href="{% url 'series_detail' post.author_username post.series.url %}" class="hover:text-gray-600 transition-colors">
+                    {{ post.series.name }}
+                </a>
+            </h3>
+            <p class="text-sm text-gray-500 mb-6">
+                이 포스트는 숨김 처리되어 시리즈 목록에 표시되지 않습니다.
+            </p>
+            <a href="{% url 'series_detail' post.author_username post.series.url %}" class="inline-flex items-center px-4 py-2 bg-gray-900 text-white rounded-lg text-sm font-medium hover:bg-gray-800 transition-colors">
+                시리즈 전체 보기
+                <i class="fas fa-arrow-right ml-2 opacity-60"></i>
+            </a>
+        </div>
+        {% else %}
         <div class="flex flex-col lg:flex-row lg:items-start gap-6">
             <div class="flex-1">
                 <div class="flex items-center gap-2 mb-3">
@@ -244,6 +263,7 @@
             </span>
             {% endif %}
         </div>
+        {% endif %}
         {% endif %}
     </div>
     {% endif %}

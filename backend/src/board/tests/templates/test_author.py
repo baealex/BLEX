@@ -322,7 +322,7 @@ class AuthorSeriesPageTestCase(TestCase):
         self.assertEqual(response.context['series_count'], 0)
 
     def test_series_without_posts(self):
-        """포스트가 없는 시리즈 렌더링"""
+        """포스트가 없는 시리즈는 목록에 표시되지 않아야 함"""
         empty_series = Series.objects.create(
             owner=self.user,
             name='Empty Series',
@@ -336,6 +336,45 @@ class AuthorSeriesPageTestCase(TestCase):
             reverse('user_series', kwargs={'username': self.user.username})
         )
         self.assertEqual(response.status_code, 200)
+        # test-series는 setUp에서 생성했지만 포스트가 없음, 그래서 0개여야 함
+        self.assertEqual(len(response.context['series_list']), 0)
+        
+    def test_series_with_hidden_posts(self):
+        """숨김 처리된 포스트는 카운트에서 제외되어야 하며, 모든 포스트가 숨겨지면 시리즈도 제외됨"""
+        # setUp에서 생성된 test-series에 포스트 추가
+        post1 = Post.objects.create(
+            title='Hidden Post',
+            url='hidden-post-url',
+            author=self.user,
+            series=self.series
+        )
+        PostConfig.objects.create(post=post1, hide=True)
+        
+        post2 = Post.objects.create(
+            title='Visible Post',
+            url='visible-post-url',
+            author=self.user,
+            series=self.series
+        )
+        PostConfig.objects.create(post=post2, hide=False)
+        
+        # 1. 하나는 숨김, 하나는 공개일 때 -> 카운트 1개로 표시, 목록에 나타남
+        response = self.client.get(
+            reverse('user_series', kwargs={'username': self.user.username})
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(response.context['series_list']), 1)
+        self.assertEqual(response.context['series_list'][0].post_count, 1)
+        
+        # 2. 둘 다 숨김일 때 -> 목록에서 사라짐
+        post2.config.hide = True
+        post2.config.save()
+        
+        response = self.client.get(
+            reverse('user_series', kwargs={'username': self.user.username})
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(response.context['series_list']), 0)
 
     def test_reader_redirected_to_about_from_series(self):
         """READER 역할 사용자의 series 페이지 접근 시 overview로 리다이렉트"""

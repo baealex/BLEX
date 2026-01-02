@@ -184,7 +184,7 @@ def post_editor(request, username=None, post_url=None):
                 return redirect('post_write')
         
         if is_draft:
-            messages.success(request, '게시글이 임시저장되었습니다.')
+            messages.success(request, '포스트가 임시저장되었습니다.')
             return redirect('post_edit', username=request.user.username, post_url=post.url)
 
         return redirect('post_detail', username=request.user.username, post_url=post.url)

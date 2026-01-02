@@ -98,7 +98,7 @@ const SettingsDrawer = ({
                                                 label="URL"
                                                 value={url}
                                                 onChange={(e) => onUrlChange(e.target.value)}
-                                                placeholder="게시글-url"
+                                                placeholder="포스트-url"
                                             />
                                             <p className="text-xs text-gray-400 mt-2">중복 시 자동으로 번호가 추가됩니다</p>
                                         </div>
@@ -240,7 +240,7 @@ const SettingsDrawer = ({
                                                         </svg>
                                                         <div className="text-sm font-medium text-gray-900">광고 표시</div>
                                                     </div>
-                                                    <div className="text-xs text-gray-500">게시글에 광고가 표시됩니다</div>
+                                                    <div className="text-xs text-gray-500">포스트에 광고가 표시됩니다</div>
                                                 </div>
                                             </label>
                                         </div>
