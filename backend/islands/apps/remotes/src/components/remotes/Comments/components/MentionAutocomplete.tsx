@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef } from 'react';
 import { Popover } from '@blex/ui';
 
 interface MentionAutocompleteProps {
@@ -53,7 +53,12 @@ export const MentionAutocomplete = ({
     return (
         <Popover.Root open={open} modal={false}>
             <Popover.Anchor asChild>
-                <div style={{ position: 'absolute', pointerEvents: 'none' }} />
+                <div
+                    style={{
+                        position: 'absolute',
+                        pointerEvents: 'none'
+                    }}
+                />
             </Popover.Anchor>
             <Popover.Portal>
                 <Popover.Content
@@ -71,11 +76,10 @@ export const MentionAutocomplete = ({
                                 type="button"
                                 onClick={() => onSelect(user)}
                                 onMouseEnter={() => onSelectedIndexChange(index)}
-                                className={`w-full px-4 py-2 text-left text-sm transition-colors ${
-                                    index === selectedIndex
+                                className={`w-full px-4 py-2 text-left text-sm transition-colors ${index === selectedIndex
                                         ? 'bg-blue-50 text-blue-700'
                                         : 'text-gray-700 hover:bg-gray-50'
-                                }`}>
+                                    }`}>
                                 <span className="font-medium">@{user}</span>
                             </button>
                         ))}

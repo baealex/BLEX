@@ -19,7 +19,7 @@ export const CommentForm = ({
     onSubmit,
     isSubmitting,
     onShowLoginPrompt,
-    placeholder = "댓글을 작성해보세요...",
+    placeholder = '댓글을 작성해보세요...',
     mentionableUsers = []
 }: CommentFormProps) => {
     const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -58,7 +58,7 @@ export const CommentForm = ({
             if (lastAtIndex !== -1) {
                 const textAfterAt = textBeforeCursor.substring(lastAtIndex + 1);
                 // @ 뒤에 공백이 없고, 알파벳/숫자/점만 있으면 자동완성 표시
-                if (/^[a-zA-Z0-9\.]*$/.test(textAfterAt)) {
+                if (/^[a-zA-Z0-9.]*$/.test(textAfterAt)) {
                     setMentionQuery(textAfterAt);
                     setMentionStartPos(lastAtIndex);
                     setShowMentionAutocomplete(true);
