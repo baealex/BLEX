@@ -358,16 +358,13 @@ def setting(request, parameter):
             return StatusDone()
 
         if parameter == 'notify-config':
-            # Check if user has written any posts
             has_posts = Post.objects.filter(author=user).exists()
 
-            # Base configs for all users
             configs = [
                 CONFIG_TYPE.NOTIFY_COMMENT_LIKE,
                 CONFIG_TYPE.NOTIFY_MENTION,
             ]
 
-            # Add editor-specific configs if user has posts
             if has_posts:
                 configs = [
                     CONFIG_TYPE.NOTIFY_POSTS_LIKE,
@@ -375,8 +372,12 @@ def setting(request, parameter):
                 ] + configs
 
             for config in configs:
-                user.config.create_or_update_meta(
-                    config, put.get(config.value, ''))
+                value = put.get(config.value)
+                if isinstance(value, bool):
+                    value = 'true' if value else 'false'
+                elif value is None:
+                    value = ''
+                user.config.create_or_update_meta(config, value)
 
             return StatusDone()
 

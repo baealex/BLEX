@@ -2,18 +2,20 @@ import { useState, useMemo, useCallback } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useConfirm } from '~/contexts/ConfirmContext';
 import { isLoggedIn as checkIsLoggedIn, showLoginPrompt } from '~/utils/loginPrompt';
+import { toast } from '~/utils/toast';
 import {
     getComments,
     createComment,
     getComment,
     updateComment,
     deleteComment as deleteCommentAPI,
-    toggleCommentLike
+    toggleCommentLike,
+    getCommentAuthors
 } from '~/lib/api';
 
-import { ErrorAlert } from './components/ErrorAlert';
 import { CommentList } from './components/CommentList';
 import { CommentForm } from './components/CommentForm';
+import type { Comment } from '~/lib/api/comments';
 
 interface CommentsProps {
     postUrl: string;
@@ -27,7 +29,9 @@ const Comments = (props: CommentsProps) => {
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [editingCommentId, setEditingCommentId] = useState<number | null>(null);
     const [editText, setEditText] = useState('');
-    const [error, setError] = useState<string | null>(null);
+    const [replyingToCommentId, setReplyingToCommentId] = useState<number | null>(null);
+    const [replyText, setReplyText] = useState('');
+    const [replyParentId, setReplyParentId] = useState<number | null>(null);
 
     const isLoggedIn = useMemo(() => {
         return checkIsLoggedIn();
@@ -45,6 +49,27 @@ const Comments = (props: CommentsProps) => {
         enabled: !!postUrl
     });
 
+    const mentionableUsers = useMemo(() => {
+        if (!data?.comments) return [];
+        return getCommentAuthors(data.comments);
+    }, [data?.comments]);
+
+    const findRootParentId = useCallback((commentId: number, comments: Comment[]): number => {
+        for (const comment of comments) {
+            if (comment.id === commentId) {
+                return comment.id;
+            }
+            if (comment.replies) {
+                for (const reply of comment.replies) {
+                    if (reply.id === commentId) {
+                        return comment.id;
+                    }
+                }
+            }
+        }
+        return commentId;
+    }, []);
+
     const handleLike = useCallback(
         async (commentId: number) => {
             if (!isLoggedIn) {
@@ -58,10 +83,10 @@ const Comments = (props: CommentsProps) => {
                 if (response.data.status === 'DONE') {
                     refetch();
                 } else {
-                    setError('좋아요 처리에 실패했습니다.');
+                    toast.error('좋아요 처리에 실패했습니다.');
                 }
             } catch {
-                setError('좋아요 처리 중 오류가 발생했습니다.');
+                toast.error('좋아요 처리 중 오류가 발생했습니다.');
             }
         },
         [isLoggedIn, refetch]
@@ -74,12 +99,11 @@ const Comments = (props: CommentsProps) => {
         }
 
         if (!commentText.trim()) {
-            setError('댓글 내용을 입력해주세요.');
+            toast.error('댓글 내용을 입력해주세요.');
             return;
         }
 
         setIsSubmitting(true);
-        setError(null);
 
         try {
             const response = await createComment(postUrl, commentText);
@@ -87,11 +111,12 @@ const Comments = (props: CommentsProps) => {
             if (response.data.status === 'DONE') {
                 setCommentText('');
                 refetch();
+                toast.success('댓글이 작성되었습니다.');
             } else {
-                setError(response.data.errorMessage || '댓글 작성에 실패했습니다.');
+                toast.error(response.data.errorMessage || '댓글 작성에 실패했습니다.');
             }
         } catch {
-            setError('댓글 작성 중 오류가 발생했습니다.');
+            toast.error('댓글 작성 중 오류가 발생했습니다.');
         } finally {
             setIsSubmitting(false);
         }
@@ -105,11 +130,11 @@ const Comments = (props: CommentsProps) => {
                 setEditingCommentId(commentId);
                 setEditText(data.body.textMd || '');
             } else {
-                setError('댓글 정보를 불러오는데 실패했습니다.');
+                toast.error('댓글 정보를 불러오는데 실패했습니다.');
             }
         } catch (err) {
             console.error('댓글 수정 오류:', err);
-            setError('댓글 정보를 불러오는 중 오류가 발생했습니다.');
+            toast.error('댓글 정보를 불러오는 중 오류가 발생했습니다.');
         }
     };
 
@@ -120,12 +145,11 @@ const Comments = (props: CommentsProps) => {
 
     const saveEdit = async (commentId: number) => {
         if (!editText.trim()) {
-            setError('댓글 내용을 입력해주세요.');
+            toast.error('댓글 내용을 입력해주세요.');
             return;
         }
 
         setIsSubmitting(true);
-        setError(null);
 
         try {
             const response = await updateComment(commentId, editText);
@@ -134,11 +158,12 @@ const Comments = (props: CommentsProps) => {
                 setEditingCommentId(null);
                 setEditText('');
                 refetch();
+                toast.success('댓글이 수정되었습니다.');
             } else {
-                setError(response.data.errorMessage || '댓글 수정에 실패했습니다.');
+                toast.error(response.data.errorMessage || '댓글 수정에 실패했습니다.');
             }
         } catch {
-            setError('댓글 수정 중 오류가 발생했습니다.');
+            toast.error('댓글 수정 중 오류가 발생했습니다.');
         } finally {
             setIsSubmitting(false);
         }
@@ -159,11 +184,66 @@ const Comments = (props: CommentsProps) => {
 
             if (response.data.status === 'DONE') {
                 refetch();
+                toast.success('댓글이 삭제되었습니다.');
             } else {
-                setError(response.data.errorMessage || '댓글 삭제에 실패했습니다.');
+                toast.error(response.data.errorMessage || '댓글 삭제에 실패했습니다.');
             }
         } catch {
-            setError('댓글 삭제 중 오류가 발생했습니다.');
+            toast.error('댓글 삭제 중 오류가 발생했습니다.');
+        }
+    };
+
+    const startReplying = (commentId: number, authorUsername: string) => {
+        if (!isLoggedIn) {
+            showLoginPrompt('답글 작성');
+            return;
+        }
+        setReplyingToCommentId(commentId);
+        const rootParentId = findRootParentId(commentId, data?.comments ?? []);
+        setReplyParentId(rootParentId);
+        setReplyText(`\`@${authorUsername}\` `);
+    };
+
+    const cancelReplying = () => {
+        setReplyingToCommentId(null);
+        setReplyText('');
+        setReplyParentId(null);
+    };
+
+    const handleReply = async () => {
+        if (!isLoggedIn) {
+            showLoginPrompt('답글 작성');
+            return;
+        }
+
+        if (!replyText.trim()) {
+            toast.error('답글 내용을 입력해주세요.');
+            return;
+        }
+
+        if (!replyParentId) {
+            toast.error('답글을 작성할 댓글을 찾을 수 없습니다.');
+            return;
+        }
+
+        setIsSubmitting(true);
+
+        try {
+            const response = await createComment(postUrl, replyText, replyParentId);
+
+            if (response.data.status === 'DONE') {
+                setReplyText('');
+                setReplyingToCommentId(null);
+                setReplyParentId(null);
+                refetch();
+                toast.success('답글이 작성되었습니다.');
+            } else {
+                toast.error(response.data.errorMessage || '답글 작성에 실패했습니다.');
+            }
+        } catch {
+            toast.error('답글 작성 중 오류가 발생했습니다.');
+        } finally {
+            setIsSubmitting(false);
         }
     };
 
@@ -207,12 +287,6 @@ const Comments = (props: CommentsProps) => {
 
     return (
         <div className="space-y-6">
-            {error && (
-                <ErrorAlert
-                    message={error}
-                    onDismiss={() => setError(null)}
-                />
-            )}
 
             <CommentList
                 comments={data?.comments ?? []}
@@ -220,12 +294,19 @@ const Comments = (props: CommentsProps) => {
                 editingCommentId={editingCommentId}
                 editText={editText}
                 isSubmitting={isSubmitting}
+                replyingToCommentId={replyingToCommentId}
+                replyText={replyText}
+                mentionableUsers={mentionableUsers}
                 onLike={handleLike}
                 onEdit={startEditing}
                 onDelete={deleteComment}
                 onEditTextChange={setEditText}
                 onSaveEdit={saveEdit}
                 onCancelEdit={cancelEditing}
+                onReply={startReplying}
+                onReplyTextChange={setReplyText}
+                onSaveReply={handleReply}
+                onCancelReply={cancelReplying}
             />
 
             <div className="border-t border-gray-200 pt-6 mt-6">
@@ -240,6 +321,7 @@ const Comments = (props: CommentsProps) => {
                     onSubmit={handleWrite}
                     isSubmitting={isSubmitting}
                     onShowLoginPrompt={() => showLoginPrompt('댓글 작성')}
+                    mentionableUsers={mentionableUsers}
                 />
             </div>
         </div>

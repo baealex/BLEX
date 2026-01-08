@@ -3,3 +3,8 @@
 
 @source "../../../**/*.{ts,tsx}";
 @source "../../../../src/board/templates/**/*.html";
+
+/* Mention 스타일 */
+.prose a.mention {
+    @apply inline-flex items-center px-1.5 py-0.5 rounded bg-blue-50 text-blue-700 font-medium no-underline hover:bg-blue-100 hover:text-blue-800 transition-colors;
+}

@@ -105,6 +105,7 @@ def make_thumbnail(instance, size, quality=100, type='normal'):
 class Comment(models.Model):
     author = models.ForeignKey('auth.User', on_delete=models.SET_NULL, null=True)
     post = models.ForeignKey('board.Post', related_name='comments', on_delete=models.CASCADE)
+    parent = models.ForeignKey('self', on_delete=models.CASCADE, null=True, blank=True, related_name='replies')
     text_md = models.TextField(max_length=500)
     text_html = models.TextField()
     edited = models.BooleanField(default=False)
@@ -135,6 +136,18 @@ class Comment(models.Model):
 
     def is_deleted(self):
         return self.author is None
+
+    def is_reply(self):
+        return self.parent is not None
+
+    def get_replies(self):
+        return self.replies.all().order_by('created_date')
+
+    def clean(self):
+        from django.core.exceptions import ValidationError
+        # 1레벨 제한: 대댓글의 대댓글 방지
+        if self.parent and self.parent.parent:
+            raise ValidationError('대댓글에는 답글을 달 수 없습니다.')
 
     def __str__(self):
         return self.text_md
