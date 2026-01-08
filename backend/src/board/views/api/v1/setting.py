@@ -175,6 +175,18 @@ def setting(request, parameter):
             if search:
                 posts = posts.filter(title__icontains=search)
 
+            visibility = request.GET.get('visibility', '')
+            if visibility == 'public':
+                posts = posts.filter(config__hide=False)
+            elif visibility == 'hidden':
+                posts = posts.filter(config__hide=True)
+
+            notice = request.GET.get('notice', '')
+            if notice == 'notice':
+                posts = posts.filter(config__notice=True)
+            elif notice == 'normal':
+                posts = posts.filter(config__notice=False)
+
             valid_orders = [
                 'title',
                 'read_time',
@@ -182,7 +194,6 @@ def setting(request, parameter):
                 'updated_date',
                 'count_likes',
                 'count_comments',
-                'hide',
             ]
             order = request.GET.get('order', '')
             if order:
@@ -193,11 +204,7 @@ def setting(request, parameter):
                 if not is_valid:
                     raise Http404
 
-                if order == 'hide':
-                    order = 'config__hide'
-                elif order == '-hide':
-                    order = '-config__hide'
-                elif order == 'count_likes':
+                if order == 'count_likes':
                     order = 'likes__count'
                 elif order == '-count_likes':
                     order = '-likes__count'
@@ -221,6 +228,7 @@ def setting(request, parameter):
                     'created_date': convert_to_localtime(post.created_date).strftime('%Y-%m-%d'),
                     'updated_date': convert_to_localtime(post.updated_date).strftime('%Y-%m-%d'),
                     'is_hide': post.config.hide,
+                    'is_notice': post.config.notice,
                     'count_likes': post.likes.count(),
                     'count_comments': post.comments.count(),
                     'read_time': post.read_time,

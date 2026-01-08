@@ -80,22 +80,8 @@ def tag_detail_view(request, name):
 
     posts_page = paginated_posts
 
-    head_post = TagService.get_head_post_by_tag(name)
-
-    head_post_data = None
-    if head_post:
-        head_post_data = {
-            'author': head_post.author_username,
-            'author_image': head_post.author_image,
-            'url': head_post.url,
-            'title': head_post.title,
-            'description': head_post.meta_description,
-            'image': str(head_post.image) if head_post.image else None,
-        }
-
     context = {
         'tag': name,
-        'head_post': head_post_data,
         'posts': paginated_posts,
         'page': page,
         'last_page': paginated_posts.paginator.num_pages,

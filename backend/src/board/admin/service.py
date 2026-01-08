@@ -276,7 +276,7 @@ class AdminDisplayService:
         if not badges:
             return format_html('<span style="color: {};">-</span>', COLOR_MUTED)
 
-        return format_html(' '.join(badges))
+        return mark_safe(' '.join(badges))
 
     @staticmethod
     def post_status_badges(config: Any) -> SafeString:
@@ -308,7 +308,7 @@ class AdminDisplayService:
                     '<span style="background: {}; color: {}; padding: 2px 6px; border-radius: 4px; font-size: 10px; opacity: 0.8;">댓글차단</span>',
                     COLOR_DANGER, COLOR_BG
                 ))
-        return format_html(' '.join(str(b) for b in badges)) if badges else format_html('<span style="color: {};">-</span>', COLOR_MUTED)
+        return mark_safe(' '.join(str(b) for b in badges)) if badges else format_html('<span style="color: {};">-</span>', COLOR_MUTED)
 
     @staticmethod
     def tags_badges(tags_queryset: QuerySet, max_display: int = MAX_TAGS_DISPLAY) -> SafeString:
@@ -338,7 +338,7 @@ class AdminDisplayService:
             remaining = actual_count - max_display
             html_parts.append(format_html(' <span style="color: {};">+{}</span>', COLOR_MUTED, remaining))
 
-        return format_html(''.join(str(part) for part in html_parts))
+        return mark_safe(''.join(str(part) for part in html_parts))
 
     @staticmethod
     def html(

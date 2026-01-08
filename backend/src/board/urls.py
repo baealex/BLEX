@@ -10,7 +10,7 @@ from board.views.api import v1 as api_v1
 from board.views import main
 from board.views.post_actions import like_post
 from board.views.authors import authors_view
-from board.views.author import author_posts, author_series, author_about, author_about_edit
+from board.views.author import author_posts, author_series, author_about, author_about_edit, author_overview
 from board.views.post import post_detail, post_editor
 from board.views.series import series_detail, series_create, series_edit
 from board.views.auth import login_view, signup_view
@@ -18,7 +18,7 @@ from board.views.oauth_callback import oauth_callback
 from board.views.tag import tag_list_view, tag_detail_view
 from board.views.static_pages import static_page_view
 from board.views.settings import (
-    setting_overview, setting_profile, setting_account, setting_series,
+    setting_notify, setting_profile, setting_account, setting_series,
     setting_posts,
     setting_integration, setting_forms, setting_temp_posts
 )
@@ -40,7 +40,7 @@ urlpatterns = [
     path('static/<slug:slug>', static_page_view, name='static_page'),
 
     # Settings Pages
-    path('settings/overview', setting_overview, name='setting_overview'),
+    path('settings/notify', setting_notify, name='setting_notify'),
     path('settings/profile', setting_profile, name='setting_profile'),
     path('settings/account', setting_account, name='setting_account'),
     path('settings/series', setting_series, name='setting_series'),
@@ -57,11 +57,12 @@ urlpatterns = [
     path('@<username>/series/create', series_create, name='series_create'),
     path('@<username>/about', author_about, name='user_about'),
     path('@<username>/about/edit', author_about_edit, name='user_about_edit'),
-    path('@<username>/<post_url>', post_detail, name='post_detail'),
     path('@<username>/series/<series_url>', series_detail, name='series_detail'),
     path('@<username>/series/<series_url>/edit', series_edit, name='series_edit'),
+    path('@<username>/posts', author_posts, name='user_posts'),
     path('@<username>/<post_url>/edit', post_editor, name='post_edit'),
-    path('@<username>', author_posts, name='user_profile'),
+    path('@<username>/<post_url>', post_detail, name='post_detail'),
+    path('@<username>', author_overview, name='user_profile'),
 
     # Posts write
     path('write', post_editor, name='post_write'),
@@ -90,7 +91,6 @@ urlpatterns = [
     path('v1/auth/security', api_v1.security),
     path('v1/auth/security/verify', api_v1.security_verify),
     path('v1/setting/<parameter>', api_v1.setting),
-    path('v1/dashboard/activities', api_v1.dashboard_activities),
     path('v1/search', api_v1.search),
     path('v1/posts', api_v1.post_list),
     path('v1/posts/<url>/comments', api_v1.post_comment_list),
@@ -99,6 +99,7 @@ urlpatterns = [
     path('v1/comments', api_v1.comment_list),
     path('v1/comments/user', api_v1.user_comment),
     path('v1/comments/<int:id>', api_v1.comment_detail),
+    path('v1/users/@<username>/heatmap', api_v1.get_author_heatmap),
     path('v1/users/@<username>', api_v1.users),
     path('v1/users/@<username>/posts/<url>', api_v1.user_posts),
     path('v1/users/@<username>/posts/<url>/related', api_v1.user_post_related),

@@ -132,7 +132,7 @@ class SearchAPITestCase(TestCase):
         self.assertGreater(len(results), 0)
 
     def test_search_hidden_posts_not_shown(self):
-        """숨겨진 게시글은 검색 결과에 나타나지 않음"""
+        """숨겨진 포스트는 검색 결과에 나타나지 않음"""
         response = self.client.get('/v1/search?q=Hidden')
         self.assertEqual(response.status_code, 200)
         content = json.loads(response.content)
@@ -142,7 +142,7 @@ class SearchAPITestCase(TestCase):
             self.assertNotEqual(result['title'], 'Hidden Post with Python')
 
     def test_search_with_username_filter(self):
-        """특정 사용자의 게시글만 검색"""
+        """특정 사용자의 포스트만 검색"""
         response = self.client.get('/v1/search?q=javascript&username=another')
         self.assertEqual(response.status_code, 200)
         content = json.loads(response.content)

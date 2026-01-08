@@ -37,3 +37,18 @@ def debug_mode(request):
     return {
         'debug': settings.DEBUG,
     }
+
+
+def admin_url_context(request):
+    """
+    Add admin URL to template context for staff users only.
+    The admin path changes on every server restart for security.
+    """
+    from main.admin_path import get_admin_url
+    
+    if request.user.is_authenticated and request.user.is_staff:
+        return {
+            'admin_url': get_admin_url(),
+        }
+    return {}
+

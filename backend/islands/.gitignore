@@ -1,1 +1,4 @@
+.turbo
+dist
 node_modules
+stats.html

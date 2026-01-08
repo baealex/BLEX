@@ -170,7 +170,7 @@ class AuthTestCase(TestCase):
         self.assertEqual(content['status'], 'DONE')
 
     def test_change_username_when_have_post(self):
-        """게시글이 있는 사용자의 유저네임 변경 테스트"""
+        """포스트가 있는 사용자의 유저네임 변경 테스트"""
         self.client.login(username='test', password='test')
 
         response = self.client.post('/v1/posts', {

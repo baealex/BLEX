@@ -1,5 +1,5 @@
 <!-- Series Posts Selection Component -->
-<div class="space-y-5 border-t border-gray-100 pt-6">
+<div class="space-y-5">
     <div class="flex items-center justify-between">
         <div class="flex items-center space-x-2.5">
             <div class="w-8 h-8 bg-gray-100 rounded-lg flex items-center justify-center">
@@ -41,7 +41,7 @@
             <div class="space-y-2 max-h-80 overflow-y-auto overflow-x-hidden">
                 {% for post in available_posts %}
                 <label class="flex items-center p-3.5 bg-white border border-gray-200 rounded-lg cursor-pointer hover:border-gray-300 hover:bg-gray-50 transition-all duration-200 group w-full"
-                       :class="selectedPosts.includes({{ post.id }}) ? 'border-gray-300 bg-gray-50' : ''">
+                       :class="selectedPosts.includes('{{ post.id }}') ? 'border-gray-300 bg-gray-50' : ''">
                     <input
                         type="checkbox"
                         value="{{ post.id }}"
@@ -54,7 +54,7 @@
                         <p class="text-xs text-gray-500 mt-0.5 truncate">{{ post.created_date|date:"Y.m.d" }}</p>
                     </div>
                     <svg class="w-4 h-4 flex-shrink-0 text-black opacity-0 group-hover:opacity-100 transition-opacity ml-2"
-                         :class="selectedPosts.includes({{ post.id }}) ? 'opacity-100' : ''"
+                         :class="selectedPosts.includes('{{ post.id }}') ? 'opacity-100' : ''"
                          fill="currentColor" viewBox="0 0 20 20">
                         <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
                     </svg>

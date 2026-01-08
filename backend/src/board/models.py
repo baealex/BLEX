@@ -348,7 +348,7 @@ class Post(models.Model):
         return time_stamp(self.created_date)
 
     def get_absolute_url(self):
-        return reverse('post_detail', args=[self.author, self.url])
+        return reverse('post_detail', args=[self.author.username, self.url])
 
     def time_since(self):
         return time_since(self.created_date)
@@ -541,7 +541,7 @@ class Profile(models.Model):
             make_thumbnail(self, size=500)
 
     def get_absolute_url(self):
-        return reverse('user_profile', args=[self.user])
+        return reverse('user_profile', args=[self.user.username])
 
     def __str__(self):
         return self.user.username
@@ -570,11 +570,11 @@ class Series(models.Model):
         self.url = url
 
     def thumbnail(self):
-        posts = Post.objects.filter(series=self, config__hide=False)
-        return posts[0].get_thumbnail() if posts else ''
+        post = Post.objects.filter(series=self, config__hide=False).first()
+        return post.get_thumbnail() if post else ''
 
     def get_absolute_url(self):
-        return reverse('series_detail', args=[self.owner, self.url])
+        return reverse('series_detail', args=[self.owner.username, self.url])
 
     def time_since(self):
         return time_since(self.created_date)

@@ -1,0 +1,57 @@
+/**
+ * BLEX 색상 시스템
+ *
+ * 브랜드 통일성을 위한 미니멀한 색상 팔레트
+ * - 기본: 흑/백/회색
+ * - 액센트: 최소한의 강조 색상만 사용
+ */
+
+@layer base {
+    :root {
+        --color-white: #ffffff;
+        --color-black: #000000;
+
+        --color-gray-50: #fbfbfd;
+        --color-gray-100: #f5f5f7;
+        --color-gray-200: #e5e5e7;
+        --color-gray-300: #d2d2d7;
+        --color-gray-400: #aeaeb2;
+        --color-gray-500: #86868b;
+        --color-gray-600: #6e6e73;
+        --color-gray-700: #424245;
+        --color-gray-800: #1d1d1f;
+        --color-gray-900: #121212;
+
+        --color-bg-base: var(--color-white);
+        --color-bg-page: var(--color-gray-50);
+        --color-bg-subtle: var(--color-gray-100);
+        --color-bg-muted: var(--color-gray-200);
+        --color-bg-dark: var(--color-gray-900);
+
+        --color-text-primary: var(--color-gray-800);
+        --color-text-secondary: var(--color-gray-600);
+        --color-text-muted: var(--color-gray-500);
+        --color-text-subtle: var(--color-gray-400);
+        --color-text-inverted: var(--color-white);
+
+        --color-border-light: var(--color-gray-100);
+        --color-border-default: var(--color-gray-200);
+        --color-border-medium: var(--color-gray-300);
+
+        --color-interactive-primary: #000000;
+        --color-interactive-hover: #000000;
+        --color-interactive-active: #000000;
+
+        --color-shadow-sm: rgba(0, 0, 0, 0.04);
+        --color-shadow-md: rgba(0, 0, 0, 0.08);
+        --color-shadow-lg: rgba(0, 0, 0, 0.12);
+        --color-shadow-xl: rgba(0, 0, 0, 0.16);
+
+        --glass-bg: rgba(255, 255, 255, 0.72);
+        --glass-border: rgba(255, 255, 255, 0.5);
+        --glass-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.07);
+        --glass-blur: 20px;
+
+        --ease-apple: cubic-bezier(0.25, 0.1, 0.25, 1);
+    }
+}

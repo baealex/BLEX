@@ -83,6 +83,7 @@ TEMPLATES = [
                 'board.context_processors.oauth_settings',
                 'board.context_processors.site_settings',
                 'board.context_processors.global_notices',
+                'board.context_processors.admin_url_context',
                 'board.context_processors.debug_mode',
             ],
         },

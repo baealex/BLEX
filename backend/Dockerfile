@@ -2,11 +2,15 @@ FROM node:22-alpine AS islands-builder
 
 COPY ./islands/package.json /app/islands/package.json
 COPY ./islands/pnpm-lock.yaml /app/islands/pnpm-lock.yaml
+COPY ./islands/pnpm-workspace.yaml /app/islands/pnpm-workspace.yaml
+COPY ./islands/apps/remotes/package.json /app/islands/apps/remotes/package.json
+COPY ./islands/packages/ui/package.json /app/islands/packages/ui/package.json
+COPY ./islands/packages/editor/package.json /app/islands/packages/editor/package.json
 
 WORKDIR /app/islands
 
 RUN npm i -g pnpm
-RUN pnpm i
+RUN pnpm i --frozen-lockfile
 
 COPY ./islands/ /app/islands/
 COPY ./src/board/templates/ /app/src/board/templates/
@@ -52,5 +56,9 @@ FROM backend-runner
 # Copy islands static files to the final backend image as well if needed for serving or just consistency
 COPY --from=islands-builder /app/src/resources/staticfiles/islands/ /app/resources/staticfiles/islands/
 
-ENTRYPOINT ["gunicorn"]
+# Copy and set up entrypoint script
+COPY entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
+
+ENTRYPOINT ["/entrypoint.sh"]
 CMD ["--bind", "0.0.0.0:8000", "--workers", "4", "--access-logfile", "-", "--log-level", "info", "main.wsgi:application"]

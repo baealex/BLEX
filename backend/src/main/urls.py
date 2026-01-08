@@ -29,8 +29,10 @@ if settings.DEBUG:
         path('404', custom_404_view),
     ]
 
+from main.admin_path import get_admin_path
+
 urlpatterns += [
-    path('djangomyadmin/', admin.site.urls),
+    path(f'{get_admin_path()}/', admin.site.urls),
     path('', include('board.urls')),
 ]
 

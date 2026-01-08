@@ -4,17 +4,26 @@ from django.contrib import messages
 from django.core.exceptions import PermissionDenied
 
 @login_required
-def setting_overview(request):
+@login_required
+def setting_notify(request):
     """
-    Overview settings page view.
-    Shows user's blog statistics, activities, and notifications in one unified dashboard.
-    Combines the functionality of dashboard and notifications for better UX.
-    Data is loaded asynchronously through island components for better performance.
+    Notification settings page view.
+    Replaces the previous overview page.
     """
+    from board.models import Config, CONFIG_TYPE
+
+    # Ensure config exists
+    if not hasattr(request.user, 'config'):
+        Config.objects.create(user=request.user)
+
     context = {
-        'active': 'overview',
+        'active': 'notify',
+        'notify_settings': {
+            'email': request.user.config.get_meta(CONFIG_TYPE.NOTIFY_POSTS_COMMENT) or False,
+            # Add other settings as needed based on ConfigMeta
+        }
     }
-    return render(request, 'board/setting/setting_overview.html', context)
+    return render(request, 'board/setting/setting_notify.html', context)
 
 
 @login_required

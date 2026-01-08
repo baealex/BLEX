@@ -205,7 +205,7 @@ class SeriesAPITestCase(TestCase):
 
     # GET /v1/series/valid-posts - Get posts available for series
     def test_get_valid_posts_for_series(self):
-        """시리즈에 추가 가능한 게시글 조회 테스트"""
+        """시리즈에 추가 가능한 포스트 조회 테스트"""
         self.client.login(username='author', password='author')
         response = self.client.get('/v1/series/valid-posts')
         self.assertEqual(response.status_code, 200)
@@ -214,7 +214,7 @@ class SeriesAPITestCase(TestCase):
         self.assertIsInstance(content['body'], list)
 
     def test_get_valid_posts_requires_login(self):
-        """시리즈 추가 가능 게시글 조회는 로그인이 필요함"""
+        """시리즈 추가 가능 포스트 조회는 로그인이 필요함"""
         response = self.client.get('/v1/series/valid-posts')
         self.assertEqual(response.status_code, 200)
         content = json.loads(response.content)
@@ -325,7 +325,7 @@ class SeriesAPITestCase(TestCase):
     # POST /v1/users/@<username>/series - Create series with posts
     @patch('modules.markdown.parse_to_html', return_value='<p>Series with posts</p>')
     def test_create_series_with_posts(self, mock_service):
-        """게시글을 포함한 시리즈 생성"""
+        """포스트를 포함한 시리즈 생성"""
         self.client.login(username='author', password='author')
         post5 = Post.objects.get(url='test-post-5')
         post6 = Post.objects.get(url='test-post-6')
@@ -349,3 +349,43 @@ class SeriesAPITestCase(TestCase):
             self.assertEqual(series.posts.count(), 2)
         else:
             self.fail(f"Failed to create series: {content}")
+
+    def test_series_with_hidden_posts_integration(self):
+        """숨김 포스트가 포함된 시리즈의 통합 동작 테스트 (API & Thumbnail)"""
+        self.client.login(username='author', password='author')
+        
+        # 1. 썸네일 테스트를 위한 숨김 포스트 전용 시리즈 생성
+        hidden_series = Series.objects.create(
+            owner=User.objects.get(username='author'),
+            name='Hidden Series',
+            url='hidden-series'
+        )
+        post = Post.objects.create(author=User.objects.get(username='author'), title='Hidden Post', url='hidden-post')
+        PostConfig.objects.create(post=post, hide=True)
+        post.series = hidden_series
+        post.save()
+
+        # 2. Owner API 조회 - 시리즈가 존재해야 하며, thumbnail() 에러가 없어야 함
+        # get_user_series_list 사용
+        response = self.client.get('/v1/series')
+        self.assertEqual(response.status_code, 200)
+        content = json.loads(response.content)
+        
+        series_data = next((s for s in content['body']['series'] if s['url'] == 'hidden-series'), None)
+        self.assertIsNotNone(series_data)
+        self.assertEqual(series_data['totalPosts'], 0) # 숨김 포스트는 카운트 제외
+        
+        # 썸네일 생성 로직이 API 응답 구성 시 호출되므로, 
+        # 위 API 호출이 성공했다면 Series.thumbnail()의 IndexError 수정도 검증된 것임.
+
+        # 3. Public API 조회 - 숨김 포스트만 있는 시리즈는 목록에서 제외되어야 함
+        response = self.client.get('/v1/users/@author/series')
+        self.assertEqual(response.status_code, 200)
+        content = json.loads(response.content)
+        
+        series_urls = [s['url'] for s in content['body']['series']]
+        self.assertNotIn('hidden-series', series_urls)
+
+
+
+

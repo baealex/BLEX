@@ -429,6 +429,9 @@ class PostService:
             if series_post.id == post.id:
                 post.series_index = i + 1
         
+        if not hasattr(post, 'series_index'):
+            return []
+        
         current_idx = post.series_index - 1
         
         post.prev_post = series_posts[current_idx - 1] if current_idx > 0 else None

@@ -1,0 +1,121 @@
+import React, { useRef, useState } from 'react';
+
+interface ImageUploaderProps {
+    imagePreview: string | null;
+    imageAlt?: string;
+    onImageUpload: (event: React.ChangeEvent<HTMLInputElement>) => void;
+    onRemoveImage: () => void;
+    onAltChange?: (alt: string) => void;
+}
+
+const ImageUploader = ({
+    imagePreview,
+    imageAlt = '',
+    onImageUpload,
+    onRemoveImage,
+    onAltChange
+}: ImageUploaderProps) => {
+    const imageInputRef = useRef<HTMLInputElement>(null);
+    const [showUploader, setShowUploader] = useState(!!imagePreview);
+    const [altText, setAltText] = useState(imageAlt);
+
+    const handleAltChange = (value: string) => {
+        setAltText(value);
+        if (onAltChange) {
+            onAltChange(value);
+        }
+    };
+
+    const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        onImageUpload(e);
+        setShowUploader(true);
+    };
+
+    const handleRemove = () => {
+        onRemoveImage();
+        setShowUploader(false);
+        if (imageInputRef.current) {
+            imageInputRef.current.value = '';
+        }
+    };
+
+    return (
+        <div className="mb-6">
+            {/* File input - always rendered but hidden */}
+            <input
+                ref={imageInputRef}
+                type="file"
+                id="image"
+                name="image"
+                className="hidden"
+                accept="image/*"
+                onChange={handleImageChange}
+            />
+
+            {showUploader && imagePreview ? (
+                <div className="space-y-4">
+                    <div className="mb-12 sm:mb-16 relative group">
+                        <img src={imagePreview} alt={altText || "Cover"} className="w-full rounded-3xl shadow-2xl shadow-gray-200/50" />
+                        <button
+                            type="button"
+                            onClick={handleRemove}
+                            className="absolute top-4 right-4 w-10 h-10 bg-black bg-opacity-60 hover:bg-opacity-90 text-white rounded-full flex items-center justify-center transition-all duration-200 opacity-0 group-hover:opacity-100">
+                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                        </button>
+                    </div>
+                    {/* Alt text input */}
+                    <div>
+                        <label htmlFor="image-alt" className="block text-sm font-medium text-gray-700 mb-1.5">
+                            이미지 설명 (Alt)
+                        </label>
+                        <input
+                            type="text"
+                            id="image-alt"
+                            value={altText}
+                            onChange={(e) => handleAltChange(e.target.value)}
+                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-black focus:border-black text-sm transition-all"
+                            placeholder="검색 엔진과 접근성을 위한 이미지 설명"
+                            maxLength={125}
+                        />
+                        <p className="text-xs text-gray-500 mt-1">
+                            <svg className="w-3 h-3 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                            SEO와 접근성 향상에 도움이 됩니다
+                        </p>
+                    </div>
+                </div>
+            ) : showUploader && !imagePreview ? (
+                <div className="relative">
+                    <label htmlFor="image" className="flex flex-col items-center justify-center w-full px-4 py-12 border-2 border-dashed border-gray-200 rounded-xl cursor-pointer hover:border-gray-300 hover:bg-gray-50 transition-all duration-200 group">
+                        <svg className="w-10 h-10 text-gray-300 mb-3 group-hover:text-gray-400 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                        </svg>
+                        <span className="text-sm text-gray-500 mb-1">커버 이미지 추가</span>
+                        <span className="text-xs text-gray-400">클릭하거나 드래그하여 업로드</span>
+                    </label>
+                    <button
+                        type="button"
+                        onClick={() => setShowUploader(false)}
+                        className="absolute -top-2 -right-2 w-6 h-6 bg-gray-200 hover:bg-gray-300 text-gray-600 rounded-full flex items-center justify-center text-xs transition-colors">
+                        ✕
+                    </button>
+                </div>
+            ) : (
+                <button
+                    type="button"
+                    onClick={() => setShowUploader(true)}
+                    className="inline-flex items-center gap-2 px-3 py-2 text-sm text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors">
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                    </svg>
+                    <span>커버 이미지 추가</span>
+                </button>
+            )}
+        </div>
+    );
+};
+
+export default ImageUploader;
