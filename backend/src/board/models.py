@@ -490,6 +490,14 @@ class Profile(models.Model):
     analytics_share_url = models.URLField(max_length=500, blank=True,
                                            help_text='분석 도구 공유 URL (예: Umami, Google Analytics 등)')
 
+    # Blog banners (HTML content displayed at top/bottom of blog)
+    banner_top_html = models.TextField(blank=True,
+                                        help_text='블로그 상단에 표시될 배너 HTML (스크립트는 제거됨)')
+    banner_bottom_html = models.TextField(blank=True,
+                                           help_text='블로그 하단에 표시될 배너 HTML (스크립트는 제거됨)')
+    banner_enabled = models.BooleanField(default=False,
+                                          help_text='배너 표시 여부')
+
     # User role for permission control
     class Role(models.TextChoices):
         READER = 'READER', '독자'

@@ -12,6 +12,15 @@
 {% block content %}
 {% include 'board/author/components/author_header.html' %}
 
+<!-- Top Banner -->
+{% if author.profile.banner_enabled and author.profile.banner_top_html %}
+<div class="max-w-7xl w-full mx-auto px-4 sm:px-6 mb-6">
+    <div class="bg-white rounded-2xl ring-1 ring-gray-900/5 overflow-hidden">
+        {{ author.profile.banner_top_html|safe }}
+    </div>
+</div>
+{% endif %}
+
 <div class="max-w-7xl w-full mx-auto px-4 sm:px-6">
     {% with active_tab='overview' %}
         {% include 'board/author/components/tabs_nav.html' %}
@@ -225,5 +234,14 @@
             </div>
         </aside>
     </div>
+
+    <!-- Bottom Banner -->
+    {% if author.profile.banner_enabled and author.profile.banner_bottom_html %}
+    <div class="mb-6">
+        <div class="bg-white rounded-2xl ring-1 ring-gray-900/5 overflow-hidden">
+            {{ author.profile.banner_bottom_html|safe }}
+        </div>
+    </div>
+    {% endif %}
 </div>
 {% endblock %}

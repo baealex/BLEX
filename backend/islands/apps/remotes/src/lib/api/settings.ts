@@ -20,11 +20,17 @@ export interface ProfileData {
     bio: string;
     homepage: string;
     avatar: string;
+    banner_top_html: string;
+    banner_bottom_html: string;
+    banner_enabled: boolean;
 }
 
 export interface ProfileUpdateData {
     bio?: string;
     homepage?: string;
+    banner_top_html?: string;
+    banner_bottom_html?: string;
+    banner_enabled?: boolean;
 }
 
 export interface NotifyConfig {
@@ -76,6 +82,9 @@ export const updateProfileSettings = async (data: ProfileUpdateData) => {
     const formData = new URLSearchParams();
     if (data.bio !== undefined) formData.append('bio', data.bio);
     if (data.homepage !== undefined) formData.append('homepage', data.homepage);
+    if (data.banner_top_html !== undefined) formData.append('banner_top_html', data.banner_top_html);
+    if (data.banner_bottom_html !== undefined) formData.append('banner_bottom_html', data.banner_bottom_html);
+    if (data.banner_enabled !== undefined) formData.append('banner_enabled', data.banner_enabled.toString());
 
     return http.put<Response<{ success: boolean }>>('v1/setting/profile', formData, { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } });
 };

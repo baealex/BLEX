@@ -12,7 +12,10 @@ import { getProfileSettings, updateProfileSettings, uploadAvatar } from '~/lib/a
 // Define Zod schema for profile form
 const profileSchema = z.object({
     bio: z.string().max(500, '소개는 500자 이내여야 합니다.').optional(),
-    homepage: z.string().url('유효한 URL을 입력해주세요.').optional().or(z.literal(''))
+    homepage: z.string().url('유효한 URL을 입력해주세요.').optional().or(z.literal('')),
+    banner_top_html: z.string().optional(),
+    banner_bottom_html: z.string().optional(),
+    banner_enabled: z.boolean().optional()
 });
 
 type ProfileFormInputs = z.infer<typeof profileSchema>;
@@ -40,7 +43,10 @@ const ProfileSetting = () => {
             setAvatar(profileData.avatar || '/resources/staticfiles/images/default-avatar.jpg');
             reset({
                 bio: profileData.bio || '',
-                homepage: profileData.homepage || ''
+                homepage: profileData.homepage || '',
+                banner_top_html: profileData.banner_top_html || '',
+                banner_bottom_html: profileData.banner_bottom_html || '',
+                banner_enabled: profileData.banner_enabled || false
             });
         }
     }, [profileData, reset]);
@@ -57,7 +63,10 @@ const ProfileSetting = () => {
         try {
             const { data } = await updateProfileSettings({
                 bio: formData.bio || '',
-                homepage: formData.homepage || ''
+                homepage: formData.homepage || '',
+                banner_top_html: formData.banner_top_html || '',
+                banner_bottom_html: formData.banner_bottom_html || '',
+                banner_enabled: formData.banner_enabled || false
             });
 
             if (data.status === 'DONE') {
@@ -175,6 +184,80 @@ const ProfileSetting = () => {
                         error={errors.homepage?.message}
                         {...register('homepage')}
                     />
+                </Card>
+
+                {/* Banner Settings Section */}
+                <Card title="블로그 배너" className="mb-6">
+                    <div className="mb-4">
+                        <label className="flex items-center space-x-3 cursor-pointer">
+                            <input
+                                type="checkbox"
+                                {...register('banner_enabled')}
+                                className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500"
+                            />
+                            <div>
+                                <span className="text-sm font-medium text-gray-900">배너 표시</span>
+                                <p className="text-xs text-gray-500 mt-1">
+                                    블로그에서 배너를 활성화합니다. HTML 콘텐츠를 사용할 수 있습니다.
+                                </p>
+                            </div>
+                        </label>
+                    </div>
+
+                    <div className="mb-6">
+                        <Input
+                            label="상단 배너 HTML"
+                            leftIcon={
+                                <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fillRule="evenodd" d="M3 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z" clipRule="evenodd" />
+                                </svg>
+                            }
+                            multiline
+                            rows={4}
+                            placeholder='<div style="padding: 1rem; background: #f3f4f6; text-align: center;">상단 배너 내용</div>'
+                            error={errors.banner_top_html?.message}
+                            {...register('banner_top_html')}
+                        />
+                        <p className="text-xs text-gray-500 mt-1">
+                            블로그 상단에 표시될 HTML입니다. 스크립트는 보안상 제거됩니다.
+                        </p>
+                    </div>
+
+                    <div>
+                        <Input
+                            label="하단 배너 HTML"
+                            leftIcon={
+                                <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fillRule="evenodd" d="M3 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z" clipRule="evenodd" />
+                                </svg>
+                            }
+                            multiline
+                            rows={4}
+                            placeholder='<div style="padding: 1rem; background: #f3f4f6; text-align: center;">하단 배너 내용</div>'
+                            error={errors.banner_bottom_html?.message}
+                            {...register('banner_bottom_html')}
+                        />
+                        <p className="text-xs text-gray-500 mt-1">
+                            블로그 하단에 표시될 HTML입니다. 스크립트는 보안상 제거됩니다.
+                        </p>
+                    </div>
+
+                    <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-md">
+                        <div className="flex">
+                            <svg className="w-5 h-5 text-blue-600 mr-2 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                                <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
+                            </svg>
+                            <div className="text-sm text-blue-800">
+                                <p className="font-medium mb-1">배너 사용 예시:</p>
+                                <ul className="list-disc list-inside space-y-1 text-xs">
+                                    <li>Buy Me a Coffee 위젯 추가</li>
+                                    <li>뉴스레터 구독 링크 추가</li>
+                                    <li>중요한 공지사항 표시</li>
+                                    <li>스폰서십 배너 표시</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
                 </Card>
 
                 <Button
