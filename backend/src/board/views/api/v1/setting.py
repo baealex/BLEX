@@ -19,7 +19,6 @@ from board.modules.paginator import Paginator
 from board.modules.response import StatusDone, StatusError, ErrorCode
 from board.modules.time import convert_to_localtime
 from board.services.auth_service import AuthService, AuthValidationError
-from board.utils import sanitize_html
 
 
 def setting(request, parameter):
@@ -152,9 +151,6 @@ def setting(request, parameter):
                 'bio': user.profile.bio,
                 'homepage': user.profile.homepage,
                 'social': user.profile.collect_social(),
-                'banner_top_html': user.profile.banner_top_html,
-                'banner_bottom_html': user.profile.banner_bottom_html,
-                'banner_enabled': user.profile.banner_enabled,
             })
 
         if parameter == 'posts':
@@ -437,28 +433,6 @@ def setting(request, parameter):
             ]
             for attr in attrs:
                 setattr(profile, attr, put.get(attr, ''))
-
-            # Handle banner fields with HTML sanitization
-            banner_top_html = put.get('banner_top_html', '')
-            banner_bottom_html = put.get('banner_bottom_html', '')
-            banner_enabled = put.get('banner_enabled', False)
-
-            # Sanitize HTML to prevent XSS attacks
-            if banner_top_html:
-                profile.banner_top_html = sanitize_html(banner_top_html)
-            else:
-                profile.banner_top_html = ''
-
-            if banner_bottom_html:
-                profile.banner_bottom_html = sanitize_html(banner_bottom_html)
-            else:
-                profile.banner_bottom_html = ''
-
-            # Convert string 'true'/'false' to boolean
-            if isinstance(banner_enabled, str):
-                profile.banner_enabled = banner_enabled.lower() == 'true'
-            else:
-                profile.banner_enabled = bool(banner_enabled)
 
             profile.save()
             return StatusDone()
