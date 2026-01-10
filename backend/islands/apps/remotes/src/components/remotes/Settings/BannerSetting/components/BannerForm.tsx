@@ -96,7 +96,8 @@ export const BannerForm = ({ banner, onSubmit, onCancel, isLoading }: BannerForm
                         배너 타입
                     </label>
                     <div className="grid grid-cols-2 gap-3">
-                        <label className={`relative flex items-center p-5 cursor-pointer border-2 rounded-2xl transition-all duration-200 ${
+                        <label
+                            className={`relative flex items-center p-5 cursor-pointer border-2 rounded-2xl transition-all duration-200 ${
                             watch('bannerType') === 'horizontal'
                                 ? 'border-blue-500 bg-blue-50/50 shadow-sm'
                                 : 'border-gray-200 hover:border-gray-300 bg-white'
@@ -127,7 +128,8 @@ export const BannerForm = ({ banner, onSubmit, onCancel, isLoading }: BannerForm
                             )}
                         </label>
 
-                        <label className={`relative flex items-center p-5 cursor-pointer border-2 rounded-2xl transition-all duration-200 ${
+                        <label
+                            className={`relative flex items-center p-5 cursor-pointer border-2 rounded-2xl transition-all duration-200 ${
                             watch('bannerType') === 'sidebar'
                                 ? 'border-blue-500 bg-blue-50/50 shadow-sm'
                                 : 'border-gray-200 hover:border-gray-300 bg-white'
@@ -168,7 +170,8 @@ export const BannerForm = ({ banner, onSubmit, onCancel, isLoading }: BannerForm
                     <div className="grid grid-cols-2 gap-3">
                         {bannerType === 'horizontal' ? (
                             <>
-                                <label className={`relative flex items-center p-5 cursor-pointer border-2 rounded-2xl transition-all duration-200 ${
+                                <label
+                                    className={`relative flex items-center p-5 cursor-pointer border-2 rounded-2xl transition-all duration-200 ${
                                     watch('position') === 'top'
                                         ? 'border-blue-500 bg-blue-50/50 shadow-sm'
                                         : 'border-gray-200 hover:border-gray-300 bg-white'
@@ -190,7 +193,8 @@ export const BannerForm = ({ banner, onSubmit, onCancel, isLoading }: BannerForm
                                         </div>
                                     )}
                                 </label>
-                                <label className={`relative flex items-center p-5 cursor-pointer border-2 rounded-2xl transition-all duration-200 ${
+                                <label
+                                    className={`relative flex items-center p-5 cursor-pointer border-2 rounded-2xl transition-all duration-200 ${
                                     watch('position') === 'bottom'
                                         ? 'border-blue-500 bg-blue-50/50 shadow-sm'
                                         : 'border-gray-200 hover:border-gray-300 bg-white'
@@ -215,7 +219,8 @@ export const BannerForm = ({ banner, onSubmit, onCancel, isLoading }: BannerForm
                             </>
                         ) : (
                             <>
-                                <label className={`relative flex items-center p-5 cursor-pointer border-2 rounded-2xl transition-all duration-200 ${
+                                <label
+                                    className={`relative flex items-center p-5 cursor-pointer border-2 rounded-2xl transition-all duration-200 ${
                                     watch('position') === 'left'
                                         ? 'border-blue-500 bg-blue-50/50 shadow-sm'
                                         : 'border-gray-200 hover:border-gray-300 bg-white'
@@ -237,7 +242,8 @@ export const BannerForm = ({ banner, onSubmit, onCancel, isLoading }: BannerForm
                                         </div>
                                     )}
                                 </label>
-                                <label className={`relative flex items-center p-5 cursor-pointer border-2 rounded-2xl transition-all duration-200 ${
+                                <label
+                                    className={`relative flex items-center p-5 cursor-pointer border-2 rounded-2xl transition-all duration-200 ${
                                     watch('position') === 'right'
                                         ? 'border-blue-500 bg-blue-50/50 shadow-sm'
                                         : 'border-gray-200 hover:border-gray-300 bg-white'
