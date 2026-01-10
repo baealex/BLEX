@@ -1,8 +1,9 @@
-import { useEffect, useCallback } from 'react';
+import { useEffect, useCallback, useRef } from 'react';
 import { useEditor, EditorContent } from '@tiptap/react';
 import MenuBar from './components/menus/MenuBar';
 import { getEditorExtensions } from './config/editorConfig';
 import { useImageUpload } from './hooks/useImageUpload';
+import { useMarkdownPaste, detectMarkdownPatterns } from './hooks/useMarkdownPaste';
 
 interface TiptapEditorProps {
     name: string;
@@ -13,6 +14,11 @@ interface TiptapEditorProps {
     placeholder?: string;
     onImageUpload?: (file: File) => Promise<string | undefined>;
     onImageUploadError?: (errorMessage: string) => void;
+}
+
+interface HandlersRef {
+    handleMarkdownPaste: (text: string) => Promise<boolean>;
+    handleImagePaste: (event: ClipboardEvent) => void;
 }
 
 const TiptapEditor = ({
@@ -31,51 +37,75 @@ const TiptapEditor = ({
         }
     }, [onChange]);
 
+    const { handleDrop, handlePaste: handleImagePaste } = useImageUpload({
+        editor: null,
+        onImageUpload,
+        onImageUploadError
+    });
+
+    const handlersRef = useRef<HandlersRef>({
+        handleMarkdownPaste: async () => false,
+        handleImagePaste: () => {}
+    });
+
     const editor = useEditor({
         extensions: getEditorExtensions(placeholder),
         content,
         editable,
-        editorProps: { attributes: { class: 'blog-post-content' } },
+        editorProps: {
+            attributes: { class: 'blog-post-content' },
+            handlePaste: (view, event, slice) => {
+                void view;
+                void slice;
+                const text = event.clipboardData?.getData('text/plain');
+                const items = event.clipboardData?.items;
+
+                if (items) {
+                    for (let i = 0; i < items.length; i++) {
+                        if (items[i].type.startsWith('image/')) {
+                            handlersRef.current.handleImagePaste(event);
+                            return true;
+                        }
+                    }
+                }
+
+                if (text && detectMarkdownPatterns(text)) {
+                    handlersRef.current.handleMarkdownPaste(text);
+                    return true;
+                }
+
+                return false;
+            }
+        },
         onUpdate: ({ editor }) => {
             handleChange(editor.getHTML());
         }
     });
 
-    const { handleDrop, handlePaste } = useImageUpload({
-        editor,
-        onImageUpload,
-        onImageUploadError
-    });
+    const {
+        pasteState,
+        handleMarkdownPaste,
+        insertAsHtml,
+        insertAsText,
+        closeModal
+    } = useMarkdownPaste({ editor });
 
     useEffect(() => {
-        if (!editor) return;
-
-        const handlePasteEvent = (event: ClipboardEvent) => {
-            handlePaste(event);
+        handlersRef.current = {
+            handleMarkdownPaste,
+            handleImagePaste
         };
-
-        // document에 paste 이벤트 리스너 추가
-        document.addEventListener('paste', handlePasteEvent);
-
-        return () => {
-            document.removeEventListener('paste', handlePasteEvent);
-        };
-    }, [editor, handlePaste]);
+    }, [handleMarkdownPaste, handleImagePaste]);
 
     useEffect(() => {
         if (editor && content !== undefined) {
             const currentContent = editor.getHTML();
             if (content !== currentContent && !editor.isFocused) {
-                // content를 설정하기 전에 lazy 로딩 관련 내용 모두 제거
                 const cleanedContent = content
-                    // preview.jpg 제거
                     .replace(/\.preview\.jpg/g, '')
-                    // data-src를 src로 변경
                     .replace(/data-src="([^"]+)"/g, 'src="$1"')
-                    // lazy 클래스 제거
                     .replace(/class="[^"]*lazy[^"]*"/g, '')
                     .replace(/class="lazy"/g, '')
-                    // 비디오에 자동재생 속성 추가
                     .replace(/<video([^>]*)>/g, '<video$1 autoplay muted loop playsinline>');
 
                 editor.commands.setContent(cleanedContent, { emitUpdate: false });
@@ -88,25 +118,25 @@ const TiptapEditor = ({
             onDragOver={(e) => e.preventDefault()}
             onDrop={handleDrop}
             style={{ minHeight: height }}>
-            <input
-                type="hidden"
-                name={name}
-                value={editor?.getHTML() || content}
-            />
+            <input type="hidden" name={name} value={editor?.getHTML() || content} />
 
-            {editable && <MenuBar editor={editor} onImageUpload={onImageUpload} onImageUploadError={onImageUploadError} />}
+            {editable && (
+                <MenuBar
+                    editor={editor}
+                    onImageUpload={onImageUpload}
+                    onImageUploadError={onImageUploadError}
+                    pasteState={pasteState}
+                    onInsertHtml={insertAsHtml}
+                    onInsertText={insertAsText}
+                    onCloseModal={closeModal}
+                />
+            )}
 
             <EditorContent editor={editor} />
 
             <style>{`
-                .ProseMirror {
-                    min-height: ${height};
-                }
-
-                .ProseMirror-focused {
-                    outline: none;
-                }
-
+                .ProseMirror { min-height: ${height}; }
+                .ProseMirror-focused { outline: none; }
                 .ProseMirror p.is-editor-empty:first-child::before {
                     content: '${placeholder}';
                     float: left;
@@ -114,21 +144,14 @@ const TiptapEditor = ({
                     pointer-events: none;
                     height: 0;
                 }
-
                 .ProseMirror figure.ProseMirror-selectednode {
                     position: relative;
                     cursor: grab;
                     outline: 2px solid #3b82f6;
                     outline-offset: 2px;
                     transition: opacity 0.2s;
-
-                    &:hover {
-                        opacity: 0.9;
-                    }
-
-                    &:active {
-                        cursor: grabbing;
-                    }
+                    &:hover { opacity: 0.9; }
+                    &:active { cursor: grabbing; }
                 }
             `}</style>
         </div>
