@@ -8,7 +8,7 @@ import django.db.models.deletion
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('board', '0020_sitesetting_account_deletion_redirect_url'),
+        ('board', '0022_comment_parent'),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
     ]
 
