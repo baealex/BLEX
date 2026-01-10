@@ -31,7 +31,8 @@ const LazyComponents = {
     AccountSetting: lazy(() => import('./remotes/Settings/AccountSetting')),
     ProfileSetting: lazy(() => import('./remotes/Settings/ProfileSetting')),
     TempPostsSetting: lazy(() => import('./remotes/Settings/TempPostsSetting')),
-    SocialLinksSetting: lazy(() => import('./remotes/Settings/SocialLinksSetting'))
+    SocialLinksSetting: lazy(() => import('./remotes/Settings/SocialLinksSetting')),
+    BannerSetting: lazy(() => import('./remotes/Settings/BannerSetting'))
 };
 
 const App = ({ __name, ...props }: AppProps) => {

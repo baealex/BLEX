@@ -8,7 +8,7 @@ from board.modules.paginator import Paginator
 from django.http import JsonResponse
 from board.services.user_service import UserService
 
-from board.models import Post, Series, PostLikes, Tag, Profile
+from board.models import Post, Series, PostLikes, Tag, Profile, Banner
 from modules import markdown
 
 
@@ -43,6 +43,15 @@ def author_overview(request, username):
     ).count()
     series_count = Series.objects.filter(owner=author).count()
 
+    # Get active banners
+    banners = Banner.objects.filter(user=author, is_active=True).order_by('order')
+    banners_by_position = {
+        'top': banners.filter(position='top'),
+        'bottom': banners.filter(position='bottom'),
+        'left': banners.filter(position='left'),
+        'right': banners.filter(position='right'),
+    }
+
     context = {
         'author': author,
         'pinned_posts': pinned_posts,
@@ -52,6 +61,7 @@ def author_overview(request, username):
         'series_count': series_count,
         'blog_notices': blog_notices,
         'author_activity_props': json.dumps({'username': author.username}),
+        'banners': banners_by_position,
     }
 
     return render(request, 'board/author/author_overview.html', context)

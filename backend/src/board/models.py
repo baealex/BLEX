@@ -854,3 +854,79 @@ class StaticPage(models.Model):
 
     def get_absolute_url(self):
         return f'/static/{self.slug}/'
+
+
+class Banner(models.Model):
+    """
+    User blog banners that can be displayed at various positions.
+    Supports both horizontal (full-width) and sidebar banners.
+    """
+    user = models.ForeignKey('auth.User', on_delete=models.CASCADE,
+                             related_name='banners')
+    title = models.CharField(max_length=100,
+                             help_text='배너 이름 (관리용)')
+    content_html = models.TextField(
+        help_text='배너 HTML 콘텐츠 (스크립트는 자동 제거됨)')
+
+    # Banner type
+    class BannerType(models.TextChoices):
+        HORIZONTAL = 'horizontal', '줄배너 (가로 전체)'
+        SIDEBAR = 'sidebar', '사이드배너 (좌우 측면)'
+
+    banner_type = models.CharField(
+        max_length=20,
+        choices=BannerType.choices,
+        default=BannerType.HORIZONTAL,
+        help_text='배너 타입'
+    )
+
+    # Position
+    class Position(models.TextChoices):
+        TOP = 'top', '상단'
+        BOTTOM = 'bottom', '하단'
+        LEFT = 'left', '좌측'
+        RIGHT = 'right', '우측'
+
+    position = models.CharField(
+        max_length=10,
+        choices=Position.choices,
+        default=Position.TOP,
+        help_text='배너 위치'
+    )
+
+    # Settings
+    is_active = models.BooleanField(default=True,
+                                    help_text='배너 활성화 여부')
+    order = models.IntegerField(default=0,
+                                help_text='표시 순서 (낮을수록 먼저)')
+
+    # Metadata
+    created_date = models.DateTimeField(auto_now_add=True)
+    updated_date = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['order', '-created_date']
+        indexes = [
+            models.Index(fields=['user', 'is_active', 'position']),
+        ]
+
+    def __str__(self):
+        return f'{self.user.username} - {self.title}'
+
+    def clean(self):
+        """Validate banner type and position compatibility"""
+        from django.core.exceptions import ValidationError
+
+        # Horizontal banners can only be top/bottom
+        if self.banner_type == self.BannerType.HORIZONTAL:
+            if self.position not in [self.Position.TOP, self.Position.BOTTOM]:
+                raise ValidationError({
+                    'position': '줄배너는 상단 또는 하단에만 배치할 수 있습니다.'
+                })
+
+        # Sidebar banners can only be left/right
+        if self.banner_type == self.BannerType.SIDEBAR:
+            if self.position not in [self.Position.LEFT, self.Position.RIGHT]:
+                raise ValidationError({
+                    'position': '사이드배너는 좌측 또는 우측에만 배치할 수 있습니다.'
+                })

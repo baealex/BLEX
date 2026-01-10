@@ -186,3 +186,58 @@ export const updateSocialLinks = async (data: { update: string; create: string; 
 export const deleteAccount = async () => {
     return http.delete<Response<{ success: boolean }>>('v1/sign');
 };
+
+// Banner API
+export interface BannerData {
+    id: number;
+    title: string;
+    contentHtml: string;
+    bannerType: 'horizontal' | 'sidebar';
+    position: 'top' | 'bottom' | 'left' | 'right';
+    isActive: boolean;
+    order: number;
+    createdDate?: string;
+    updatedDate?: string;
+}
+
+export interface BannerCreateData {
+    title: string;
+    content_html: string;
+    banner_type: 'horizontal' | 'sidebar';
+    position: 'top' | 'bottom' | 'left' | 'right';
+    is_active?: boolean;
+    order?: number;
+}
+
+export interface BannerUpdateData {
+    title?: string;
+    content_html?: string;
+    banner_type?: 'horizontal' | 'sidebar';
+    position?: 'top' | 'bottom' | 'left' | 'right';
+    is_active?: boolean;
+    order?: number;
+}
+
+export const getBanners = async () => {
+    return http.get<Response<{ banners: BannerData[] }>>('v1/banners');
+};
+
+export const getBanner = async (id: number) => {
+    return http.get<Response<BannerData>>(`v1/banners/${id}`);
+};
+
+export const createBanner = async (data: BannerCreateData) => {
+    return http.post<Response<BannerData>>('v1/banners', data, { headers: { 'Content-Type': 'application/json' } });
+};
+
+export const updateBanner = async (id: number, data: BannerUpdateData) => {
+    return http.put<Response<BannerData>>(`v1/banners/${id}`, data, { headers: { 'Content-Type': 'application/json' } });
+};
+
+export const deleteBanner = async (id: number) => {
+    return http.delete<Response<{ message: string }>>(`v1/banners/${id}`);
+};
+
+export const updateBannerOrder = async (order: [number, number][]) => {
+    return http.put<Response<{ message: string }>>('v1/banners/order', { order }, { headers: { 'Content-Type': 'application/json' } });
+};
