@@ -237,11 +237,43 @@ class CommentService:
         )
 
     @staticmethod
+    def notify_parent_comment_author(comment: Comment) -> None:
+        """
+        Send notification to parent comment author about reply.
+
+        Args:
+            comment: Reply comment instance
+        """
+        if not comment.parent:
+            return
+
+        parent_author = comment.parent.author
+
+        # 삭제된 댓글이거나 자신의 댓글에 답글을 단 경우 알림 안 보냄
+        if not parent_author or parent_author == comment.author:
+            return
+
+        if not parent_author.config.get_meta(CONFIG_TYPE.NOTIFY_POSTS_COMMENT):
+            return
+
+        send_notify_content = (
+            f"'{comment.post.title}'글에 작성한 "
+            f"회원님의 댓글에 @{comment.author.username}님이 "
+            f"답글을 남겼습니다. #{comment.pk}"
+        )
+        create_notify(
+            user=parent_author,
+            url=comment.post.get_absolute_url(),
+            content=send_notify_content
+        )
+
+    @staticmethod
     @transaction.atomic
     def create_comment(
         user: User,
         post: Post,
-        text_md: str
+        text_md: str,
+        parent: Optional[Comment] = None
     ) -> Comment:
         """
         Create new comment.
@@ -250,6 +282,7 @@ class CommentService:
             user: Comment author
             post: Post to comment on
             text_md: Comment text in markdown
+            parent: Parent comment for nested replies (optional)
 
         Returns:
             Created Comment instance
@@ -259,18 +292,31 @@ class CommentService:
         """
         CommentService.validate_user_can_comment(user)
 
+        # 1레벨 제한: 대댓글의 대댓글 방지
+        if parent and parent.parent:
+            raise CommentValidationError(
+                ErrorCode.REJECT,
+                '대댓글에는 답글을 달 수 없습니다.'
+            )
+
         text_html = markdown.parse_to_html(text_md)
 
         comment = Comment(
             post=post,
             author=user,
+            parent=parent,
             text_md=text_md,
             text_html=text_html
         )
         comment.save()
         comment.refresh_from_db()
 
-        CommentService.notify_post_author(comment)
+        # 대댓글이면 부모 댓글 작성자에게 알림, 아니면 포스트 작성자에게 알림
+        if parent:
+            CommentService.notify_parent_comment_author(comment)
+        else:
+            CommentService.notify_post_author(comment)
+
         CommentService.notify_mentioned_users(comment)
 
         return comment

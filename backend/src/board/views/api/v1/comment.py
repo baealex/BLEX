@@ -21,12 +21,19 @@ def comment_list(request):
         try:
             post = get_object_or_404(Post, url=request.GET.get('url'))
             text_md = request.POST.get('comment_md', '')
+            parent_id = request.POST.get('parent_id')
+
+            # Get parent comment if parent_id is provided
+            parent = None
+            if parent_id:
+                parent = get_object_or_404(Comment, id=parent_id)
 
             # Create comment using service
             comment = CommentService.create_comment(
                 user=request.user,
                 post=post,
-                text_md=text_md
+                text_md=text_md,
+                parent=parent
             )
 
             return StatusDone({
@@ -38,6 +45,7 @@ def comment_list(request):
                 'created_date': comment.time_since(),
                 'count_likes': 0,
                 'is_liked': False,
+                'parent_id': parent.id if parent else None,
             })
 
         except CommentValidationError as e:

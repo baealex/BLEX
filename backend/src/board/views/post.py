@@ -4,7 +4,7 @@ from django.db.models import Count, F, Exists, OuterRef
 from django.http import Http404
 from django.contrib import messages
 
-from board.models import Post, Series, PostLikes, TempPosts, UsernameChangeLog
+from board.models import Post, Series, PostLikes, TempPosts, UsernameChangeLog, Banner
 from board.services.post_service import PostService, PostValidationError
 
 
@@ -55,9 +55,37 @@ def post_detail(request, username, post_url):
     if post.series:
         post.visible_series_posts = PostService.get_visible_series_posts(post)
     
+    # Fetch active banners for the post author
+    banners = {
+        'top': Banner.objects.filter(
+            user=author,
+            is_active=True,
+            banner_type=Banner.BannerType.HORIZONTAL,
+            position=Banner.Position.TOP
+        ).order_by('order', '-created_date'),
+        'bottom': Banner.objects.filter(
+            user=author,
+            is_active=True,
+            banner_type=Banner.BannerType.HORIZONTAL,
+            position=Banner.Position.BOTTOM
+        ).order_by('order', '-created_date'),
+        'left': Banner.objects.filter(
+            user=author,
+            is_active=True,
+            banner_type=Banner.BannerType.SIDEBAR,
+            position=Banner.Position.LEFT
+        ).order_by('order', '-created_date'),
+        'right': Banner.objects.filter(
+            user=author,
+            is_active=True,
+            banner_type=Banner.BannerType.SIDEBAR,
+            position=Banner.Position.RIGHT
+        ).order_by('order', '-created_date'),
+    }
     
     context = {
         'post': post,
+        'banners': banners,
     }
     
     return render(request, 'board/posts/post_detail.html', context)

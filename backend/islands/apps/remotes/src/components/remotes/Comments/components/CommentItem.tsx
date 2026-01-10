@@ -2,6 +2,7 @@ import { CommentHeader } from './CommentHeader';
 import { CommentContent } from './CommentContent';
 import { CommentActions } from './CommentActions';
 import { CommentEditForm } from './CommentEditForm';
+import { CommentForm } from './CommentForm';
 import type { Comment } from '~/lib/api/comments';
 
 interface CommentItemProps {
@@ -10,12 +11,19 @@ interface CommentItemProps {
     editingCommentId: number | null;
     editText: string;
     isSubmitting: boolean;
+    replyingToCommentId: number | null;
+    replyText: string;
+    mentionableUsers: string[];
     onLike: (commentId: number) => void;
     onEdit: (commentId: number) => void;
     onDelete: (commentId: number) => void;
     onEditTextChange: (text: string) => void;
     onSaveEdit: (commentId: number) => void;
     onCancelEdit: () => void;
+    onReply: (commentId: number, authorUsername: string) => void;
+    onReplyTextChange: (text: string) => void;
+    onSaveReply: () => void;
+    onCancelReply: () => void;
 }
 
 export const CommentItem = ({
@@ -24,51 +32,124 @@ export const CommentItem = ({
     editingCommentId,
     editText,
     isSubmitting,
+    replyingToCommentId,
+    replyText,
+    mentionableUsers,
     onLike,
     onEdit,
     onDelete,
     onEditTextChange,
     onSaveEdit,
-    onCancelEdit
+    onCancelEdit,
+    onReply,
+    onReplyTextChange,
+    onSaveReply,
+    onCancelReply
 }: CommentItemProps) => {
     const isEditing = editingCommentId === comment.id;
+    const isReplying = replyingToCommentId === comment.id;
+    const isReply = !!comment.parentId;
 
     return (
-        <article
-            className="py-6 px-5 bg-white border border-gray-100 hover:border-gray-200 rounded-2xl transition-all duration-200 hover:shadow-sm"
-            aria-label={`${comment.author}의 댓글`}>
-            <CommentHeader
-                author={comment.author}
-                authorImage={comment.authorImage}
-                createdDate={comment.createdDate}
-                isEdited={comment.isEdited}
-            />
+        <div>
+            <article
+                className={`py-6 px-5 bg-white border border-gray-100 hover:border-gray-200 rounded-2xl transition-all duration-200 hover:shadow-sm ${
+                    isReply ? 'ml-8 sm:ml-12' : ''
+                }`}
+                aria-label={`${comment.author}의 ${isReply ? '답글' : '댓글'}`}>
+                <CommentHeader
+                    author={comment.author}
+                    authorImage={comment.authorImage}
+                    createdDate={comment.createdDate}
+                    isEdited={comment.isEdited}
+                />
 
-            <div className="mt-4 ml-0 sm:ml-12">
-                {isEditing ? (
-                    <CommentEditForm
-                        editText={editText}
-                        onEditTextChange={onEditTextChange}
-                        onSave={() => onSaveEdit(comment.id)}
-                        onCancel={onCancelEdit}
-                        isSubmitting={isSubmitting}
-                    />
-                ) : (
-                    <>
-                        <CommentContent renderedContent={comment.renderedContent} />
-                        <CommentActions
-                            commentId={comment.id}
-                            commentAuthor={comment.author}
+                <div className="mt-4 ml-0 sm:ml-12">
+                    {isEditing ? (
+                        <CommentEditForm
+                            editText={editText}
+                            onEditTextChange={onEditTextChange}
+                            onSave={() => onSaveEdit(comment.id)}
+                            onCancel={onCancelEdit}
+                            isSubmitting={isSubmitting}
+                        />
+                    ) : (
+                        <>
+                            <CommentContent renderedContent={comment.renderedContent} />
+                            <CommentActions
+                                commentId={comment.id}
+                                commentAuthor={comment.author}
+                                currentUser={currentUser}
+                                isLiked={comment.isLiked}
+                                countLikes={comment.countLikes}
+                                isDeleted={comment.author === 'Ghost'}
+                                onLike={onLike}
+                                onEdit={onEdit}
+                                onDelete={onDelete}
+                                onReply={() => onReply(comment.id, comment.author)}
+                            />
+                        </>
+                    )}
+                </div>
+            </article>
+
+            {/* 답글 작성 폼 */}
+            {isReplying && (
+                <div className="mt-3 ml-8 sm:ml-12">
+                    <div className="border border-gray-200 rounded-xl p-4 bg-gray-50">
+                        <p className="text-sm text-gray-600 mb-3">
+                            <span className="font-semibold text-gray-900">{comment.author}</span>님에게 답글 작성
+                        </p>
+                        <CommentForm
+                            isLoggedIn={true}
+                            commentText={replyText}
+                            onCommentTextChange={onReplyTextChange}
+                            onSubmit={onSaveReply}
+                            isSubmitting={isSubmitting}
+                            onShowLoginPrompt={() => {}}
+                            placeholder="답글을 입력하세요..."
+                            mentionableUsers={mentionableUsers}
+                        />
+                        <div className="mt-2 flex justify-end">
+                            <button
+                                onClick={onCancelReply}
+                                className="px-4 py-2 text-sm font-medium text-gray-700 hover:text-gray-900 transition-colors"
+                                disabled={isSubmitting}>
+                                취소
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* 대댓글 렌더링 */}
+            {!isReply && comment.replies && comment.replies.length > 0 && (
+                <div className="mt-2 space-y-2">
+                    {comment.replies.map((reply) => (
+                        <CommentItem
+                            key={reply.id}
+                            comment={reply}
                             currentUser={currentUser}
-                            isLiked={comment.isLiked}
-                            countLikes={comment.countLikes}
+                            editingCommentId={editingCommentId}
+                            editText={editText}
+                            isSubmitting={isSubmitting}
+                            replyingToCommentId={replyingToCommentId}
+                            replyText={replyText}
+                            mentionableUsers={mentionableUsers}
                             onLike={onLike}
                             onEdit={onEdit}
                             onDelete={onDelete}
+                            onEditTextChange={onEditTextChange}
+                            onSaveEdit={onSaveEdit}
+                            onCancelEdit={onCancelEdit}
+                            onReply={onReply}
+                            onReplyTextChange={onReplyTextChange}
+                            onSaveReply={onSaveReply}
+                            onCancelReply={onCancelReply}
                         />
-                    </>
-                )}
-            </div>
-        </article>
+                    ))}
+                </div>
+            )}
+        </div>
     );
 };
