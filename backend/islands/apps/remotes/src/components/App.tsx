@@ -15,7 +15,6 @@ const LazyComponents = {
     SearchModal: lazy(() => import('./remotes/SearchModal')),
     LoginPrompt: lazy(() => import('./remotes/LoginPrompt')),
     Toaster: lazy(() => import('./remotes/Toaster')),
-    TableOfContents: lazy(() => import('./remotes/TableOfContents')),
     Heatmap: lazy(() => import('./remotes/Author/Heatmap')),
 
     // Pages

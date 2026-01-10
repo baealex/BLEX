@@ -1,0 +1,85 @@
+<nav
+    x-data="{
+        toc: [],
+        activeId: '',
+        init() {
+            this.generateTOC();
+            this.observeHeadings();
+        },
+        generateTOC() {
+            const content = document.querySelector('.blog-post-content');
+            if (!content) return;
+
+            const headings = content.querySelectorAll('h2, h3');
+            this.toc = Array.from(headings).map((heading, index) => {
+                const level = parseInt(heading.tagName.substring(1));
+                const text = heading.textContent || '';
+                let id = heading.id;
+
+                if (!id) {
+                    id = `heading-${index}`;
+                    heading.id = id;
+                }
+
+                return { id, text, level };
+            });
+        },
+        observeHeadings() {
+            const content = document.querySelector('.blog-post-content');
+            if (!content) return;
+
+            const headings = content.querySelectorAll('h2, h3');
+            const observerOptions = {
+                rootMargin: '-80px 0px -80% 0px',
+                threshold: 0
+            };
+
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach((entry) => {
+                    if (entry.isIntersecting) {
+                        this.activeId = entry.target.id;
+                    }
+                });
+            }, observerOptions);
+
+            headings.forEach((heading) => observer.observe(heading));
+        },
+        scrollToHeading(id) {
+            const element = document.getElementById(id);
+            if (element) {
+                const offset = 80;
+                const elementPosition = element.getBoundingClientRect().top;
+                const offsetPosition = elementPosition + window.pageYOffset - offset;
+
+                window.scrollTo({
+                    top: offsetPosition,
+                    behavior: 'smooth'
+                });
+            }
+        }
+    }"
+    x-show="toc.length > 0"
+    class="toc-container"
+    x-cloak
+>
+    <div class="toc-header">
+        <svg class="toc-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h7" />
+        </svg>
+        <h3>목차</h3>
+    </div>
+    <ul class="toc-list">
+        <template x-for="item in toc" :key="item.id">
+            <li
+                :class="`toc-item toc-level-${item.level} ${activeId === item.id ? 'toc-active' : ''}`"
+            >
+                <a
+                    :href="`#${item.id}`"
+                    @click.prevent="scrollToHeading(item.id)"
+                    class="toc-link"
+                    x-text="item.text"
+                ></a>
+            </li>
+        </template>
+    </ul>
+</nav>
