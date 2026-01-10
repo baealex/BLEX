@@ -20,7 +20,7 @@ from board.views.static_pages import static_page_view
 from board.views.settings import (
     setting_notify, setting_profile, setting_account, setting_series,
     setting_posts,
-    setting_integration, setting_forms, setting_temp_posts
+    setting_integration, setting_forms, setting_temp_posts, setting_banners
 )
 from board.decorators import staff_member_required
 
@@ -48,6 +48,7 @@ urlpatterns = [
     path('settings/integration', setting_integration, name='setting_integration'),
     path('settings/forms', setting_forms, name='setting_forms'),
     path('settings/temp-posts', setting_temp_posts, name='setting_temp_posts'),
+    path('settings/banners', setting_banners, name='setting_banners'),
 
     # Post actions
     path('like/<url>', like_post, name='like_post'),
@@ -115,4 +116,7 @@ urlpatterns = [
     path('v1/forms', api_v1.forms_list),
     path('v1/forms/<int:id>', api_v1.forms_detail),
     path('v1/telegram/<parameter>', api_v1.telegram),
+    path('v1/banners', api_v1.banner),
+    path('v1/banners/order', api_v1.banner_order),
+    path('v1/banners/<int:banner_id>', api_v1.banner),
 ]

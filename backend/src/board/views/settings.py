@@ -124,3 +124,15 @@ def setting_temp_posts(request):
         'active': 'temp_posts'
     }
     return render(request, 'board/setting/setting_temp_posts.html', context)
+
+
+@login_required
+def setting_banners(request):
+    """
+    Banner management page view.
+    Renders the banner management template for managing blog banners.
+    """
+    context = {
+        'active': 'banners'
+    }
+    return render(request, 'board/setting/setting_banners.html', context)
