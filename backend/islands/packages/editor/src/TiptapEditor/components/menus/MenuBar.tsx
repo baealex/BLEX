@@ -92,7 +92,6 @@ const MenuBar = ({
 
             <MarkdownPasteModal
                 isOpen={pasteState.isOpen}
-                markdown={pasteState.markdown}
                 html={pasteState.html}
                 onInsertHtml={onInsertHtml}
                 onInsertText={onInsertText}
