@@ -1,6 +1,7 @@
 # export
 from .auth import *
 from .author import *
+from .banner import *
 from .comment import *
 from .form import *
 from .image import *
