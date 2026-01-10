@@ -1,6 +1,7 @@
 import { useRef, useState } from 'react';
 import type { Editor } from '@tiptap/react';
 import YoutubeModal from '../modals/YoutubeModal';
+import MarkdownPasteModal from '../modals/MarkdownPasteModal';
 import FloatingMenuBar from './FloatingMenuBar';
 import MediaFloatingMenu from './MediaFloatingMenu';
 import SlashCommandMenu from './SlashCommandMenu';
@@ -8,13 +9,31 @@ import EditorHelpText from '../ui/EditorHelpText';
 import { useImageUpload } from '../../hooks/useImageUpload';
 import { useSlashCommand } from '../../hooks/useSlashCommand';
 
+interface MarkdownPasteState {
+    isOpen: boolean;
+    markdown: string;
+    html: string;
+}
+
 interface MenuBarProps {
     editor: Editor | null;
     onImageUpload?: (file: File) => Promise<string | undefined>;
     onImageUploadError?: (errorMessage: string) => void;
+    pasteState: MarkdownPasteState;
+    onInsertHtml: () => void;
+    onInsertText: () => void;
+    onCloseModal: () => void;
 }
 
-const MenuBar = ({ editor, onImageUpload, onImageUploadError }: MenuBarProps) => {
+const MenuBar = ({
+    editor,
+    onImageUpload,
+    onImageUploadError,
+    pasteState,
+    onInsertHtml,
+    onInsertText,
+    onCloseModal
+}: MenuBarProps) => {
     const [isYoutubeModalOpen, setIsYoutubeModalOpen] = useState(false);
     const imageInput = useRef<HTMLInputElement>(null);
     const { handleImageUpload } = useImageUpload({
@@ -44,18 +63,12 @@ const MenuBar = ({ editor, onImageUpload, onImageUploadError }: MenuBarProps) =>
                 onChange={handleImageUpload}
             />
 
-            {/* 에디터 도움말 */}
             <EditorHelpText />
 
-            {/* LazyImage CSS */}
-
-            {/* 플로팅 메뉴바 - 텍스트 선택 시 나타남 */}
             <FloatingMenuBar editor={editor} />
 
-            {/* 미디어 플로팅 메뉴바 - 이미지/비디오 선택 시 나타남 */}
             <MediaFloatingMenu editor={editor} />
 
-            {/* 슬래시 커맨드 메뉴 - "/" 키 입력 시 나타남 */}
             <SlashCommandMenu
                 editor={editor}
                 isVisible={isSlashMenuVisible}
@@ -75,6 +88,15 @@ const MenuBar = ({ editor, onImageUpload, onImageUploadError }: MenuBarProps) =>
                 isOpen={isYoutubeModalOpen}
                 onClose={() => setIsYoutubeModalOpen(false)}
                 onUpload={handleYoutubeUpload}
+            />
+
+            <MarkdownPasteModal
+                isOpen={pasteState.isOpen}
+                markdown={pasteState.markdown}
+                html={pasteState.html}
+                onInsertHtml={onInsertHtml}
+                onInsertText={onInsertText}
+                onClose={onCloseModal}
             />
         </>
     );

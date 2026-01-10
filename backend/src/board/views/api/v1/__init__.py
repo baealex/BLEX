@@ -4,6 +4,7 @@ from .author import *
 from .comment import *
 from .form import *
 from .image import *
+from .markdown import *
 from .post import *
 from .report import *
 from .search import *
