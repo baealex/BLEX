@@ -81,17 +81,24 @@ class CustomPostprocessor:
         )
         html_content = re.sub(r'<li>\[ \] ', r'<li class="checkbox">', html_content)
         html_content = re.sub(r'<li>\[x\] ', r'<li class="checkbox checked">', html_content)
-        
+
+        # Mention: `@username` -> <a href="/@username" class="mention">@username</a>
+        html_content = re.sub(
+            r'<code>@([a-zA-Z0-9\.]+)</code>',
+            r'<a href="/@\1" class="mention">@\1</a>',
+            html_content
+        )
+
         # Allow Markup
         html_content = re.sub(r'&lt;br\/?&gt;', '<br/>', html_content)
         html_content = re.sub(r'&lt;center&gt;', '<div style="text-align: center;">', html_content)
         html_content = re.sub(r'&lt;\/center&gt;', '</div>', html_content)
-        
+
         # Grid Image
         html_content = re.sub(r'&lt;grid-image col=&quot;(1|2|3)&quot;&gt;', r'<figure class="col-\1">', html_content)
         html_content = re.sub(r'&lt;caption&gt;(.*)&lt;\/caption&gt;', r'<figcaption>\1</figcaption>', html_content)
         html_content = re.sub(r'&lt;\/grid-image&gt;', '</figure>', html_content)
-        
+
         return html_content
 
 def parse_to_html(text):

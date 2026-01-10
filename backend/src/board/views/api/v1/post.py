@@ -62,9 +62,14 @@ def post_list(request):
 
 def post_comment_list(request, url):
     if request.method == 'GET':
-        comments = Comment.objects.select_related(
+        # 부모 댓글만 조회 (parent__isnull=True)
+        parent_comments = Comment.objects.select_related(
             'author',
             'author__profile'
+        ).prefetch_related(
+            'replies',
+            'replies__author',
+            'replies__author__profile'
         ).annotate(
             count_likes=Count('likes', distinct=True),
             has_liked=Case(
@@ -79,10 +84,27 @@ def post_comment_list(request, url):
                 ),
                 default=Value(False),
             )
-        ).filter(post__url=url).order_by('created_date')
+        ).filter(post__url=url, parent__isnull=True).order_by('created_date')
 
-        return StatusDone({
-            'comments': list(map(lambda comment: {
+        def serialize_comment(comment):
+            # 대댓글 직렬화
+            replies = comment.replies.all().annotate(
+                count_likes=Count('likes', distinct=True),
+                has_liked=Case(
+                    When(
+                        Exists(
+                            Comment.objects.filter(
+                                id=OuterRef('id'),
+                                likes__id=request.user.id if request.user.id else -1
+                            )
+                        ),
+                        then=Value(True)
+                    ),
+                    default=Value(False),
+                )
+            ).order_by('created_date')
+
+            return {
                 'id': comment.id,
                 'author': comment.author_username(),
                 'author_image': None if not comment.author else comment.author.profile.get_thumbnail(),
@@ -91,7 +113,21 @@ def post_comment_list(request, url):
                 'created_date': comment.time_since(),
                 'count_likes': comment.count_likes,
                 'is_liked': comment.has_liked,
-            }, comments))
+                'replies': list(map(lambda reply: {
+                    'id': reply.id,
+                    'author': reply.author_username(),
+                    'author_image': None if not reply.author else reply.author.profile.get_thumbnail(),
+                    'is_edited': reply.edited,
+                    'rendered_content': reply.get_text_html(),
+                    'created_date': reply.time_since(),
+                    'count_likes': reply.count_likes,
+                    'is_liked': reply.has_liked,
+                    'parent_id': comment.id,
+                }, replies))
+            }
+
+        return StatusDone({
+            'comments': list(map(serialize_comment, parent_comments))
         })
 
 

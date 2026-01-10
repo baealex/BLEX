@@ -83,6 +83,85 @@ class CommentTestCase(TestCase):
         self.assertEqual(Comment.objects.last().text_md, '# New Comment')
 
     @patch('modules.markdown.parse_to_html', return_value='<h1>Mocked Text</h1>')
+    def test_create_nested_comment(self, mock_service):
+        """대댓글 생성 테스트"""
+        parent_comment = Comment.objects.last()
+        
+        self.client.login(username='author', password='test')
+        data = {
+            'comment_md': 'Reply to comment',
+            'parent_id': parent_comment.id,
+        }
+        response = self.client.post('/v1/comments?url=test-post', data)
+        self.assertEqual(response.status_code, 200)
+        
+        reply = Comment.objects.last()
+        self.assertEqual(reply.parent_id, parent_comment.id)
+        self.assertEqual(reply.text_md, 'Reply to comment')
+
+    @patch('modules.markdown.parse_to_html', return_value='<h1>Mocked Text</h1>')
+    def test_prevent_deeply_nested_comments(self, mock_service):
+        """대댓글의 대댓글 방지 테스트"""
+        parent_comment = Comment.objects.last()
+        
+        self.client.login(username='author', password='test')
+        response = self.client.post('/v1/comments?url=test-post', {
+            'comment_md': 'First reply',
+            'parent_id': parent_comment.id,
+        })
+        self.assertEqual(response.status_code, 200)
+        
+        first_reply = Comment.objects.last()
+        
+        response = self.client.post('/v1/comments?url=test-post', {
+            'comment_md': 'Second reply (should fail)',
+            'parent_id': first_reply.id,
+        })
+        content = json.loads(response.content)
+        self.assertEqual(content['status'], 'ERROR')
+        self.assertIn('대댓글에는 답글을 달 수 없습니다', content['errorMessage'])
+
+    @patch('modules.markdown.parse_to_html', return_value='<h1>Mocked Text</h1>')
+    def test_notify_parent_comment_author_on_reply(self, mock_service):
+        """대댓글 작성 시 부모 댓글 작성자에게 알림 발송 테스트"""
+        viewer = User.objects.get(username='viewer')
+        viewer.config.create_or_update_meta(CONFIG_TYPE.NOTIFY_POSTS_COMMENT, 'true')
+        
+        parent_comment = Comment.objects.last()
+        
+        self.client.login(username='author', password='test')
+        self.client.post('/v1/comments?url=test-post', {
+            'comment_md': 'Reply to your comment',
+            'parent_id': parent_comment.id,
+        })
+        
+        last_notify = Notify.objects.filter(user=viewer).last()
+        self.assertIsNotNone(last_notify)
+        self.assertIn('@author', last_notify.content)
+        self.assertIn('답글', last_notify.content)
+
+    @patch('modules.markdown.parse_to_html', return_value='<h1>Mocked Text</h1>')
+    def test_notify_mentioned_user_in_reply(self, mock_service):
+        """대댓글에서 멘션된 사용자에게 알림 발송 테스트"""
+        viewer = User.objects.get(username='viewer')
+        viewer.config.create_or_update_meta(CONFIG_TYPE.NOTIFY_MENTION, 'true')
+        
+        parent_comment = Comment.objects.last()
+        
+        self.client.login(username='author', password='test')
+        self.client.post('/v1/comments?url=test-post', {
+            'comment_md': '`@viewer` mentioned in reply',
+            'parent_id': parent_comment.id,
+        })
+        
+        mention_notify = Notify.objects.filter(
+            user=viewer,
+            content__contains='태그'
+        ).last()
+        self.assertIsNotNone(mention_notify)
+        self.assertIn('@author', mention_notify.content)
+
+    @patch('modules.markdown.parse_to_html', return_value='<h1>Mocked Text</h1>')
     def test_notify_on_create_comment(self, mock_service):
         """댓글 생성 시 작성자에게 알림 발송 테스트"""
         author = User.objects.get(username='author')

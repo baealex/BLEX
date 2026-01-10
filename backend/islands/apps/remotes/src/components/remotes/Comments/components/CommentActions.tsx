@@ -4,9 +4,11 @@ interface CommentActionsProps {
     currentUser: string | undefined;
     isLiked: boolean;
     countLikes: number;
+    isDeleted: boolean;
     onLike: (commentId: number) => void;
     onEdit: (commentId: number) => void;
     onDelete: (commentId: number) => void;
+    onReply?: () => void;
 }
 
 export const CommentActions = ({
@@ -15,31 +17,47 @@ export const CommentActions = ({
     currentUser,
     isLiked,
     countLikes,
+    isDeleted,
     onLike,
     onEdit,
-    onDelete
+    onDelete,
+    onReply
 }: CommentActionsProps) => {
     const isOwner = currentUser === commentAuthor;
 
     return (
         <div className="flex items-center gap-2 mt-3">
-            <button
-                className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-medium transition-colors duration-200 ${
+            {!isDeleted && (
+                <button
+                    className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-medium transition-colors duration-200 ${
                     isLiked
                         ? 'bg-gray-900 text-white hover:bg-gray-800'
                         : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
                 }`}
-                onClick={() => onLike(commentId)}
-                aria-label={isLiked ? '좋아요 취소' : '좋아요'}
-                aria-pressed={isLiked}>
-                <svg
-                    className={`w-3.5 h-3.5 ${isLiked ? 'fill-white' : 'fill-none stroke-current stroke-2'}`}
-                    viewBox="0 0 24 24"
-                    aria-hidden="true">
-                    <path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3" />
-                </svg>
-                {countLikes > 0 && <span>{countLikes}</span>}
-            </button>
+                    onClick={() => onLike(commentId)}
+                    aria-label={isLiked ? '좋아요 취소' : '좋아요'}
+                    aria-pressed={isLiked}>
+                    <svg
+                        className={`w-3.5 h-3.5 ${isLiked ? 'fill-white' : 'fill-none stroke-current stroke-2'}`}
+                        viewBox="0 0 24 24"
+                        aria-hidden="true">
+                        <path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3" />
+                    </svg>
+                    {countLikes > 0 && <span>{countLikes}</span>}
+                </button>
+            )}
+
+            {!isDeleted && onReply && (
+                <button
+                    className="inline-flex items-center gap-1.5 px-2.5 py-1 text-xs text-gray-700 bg-white hover:bg-gray-50 border border-gray-200 hover:border-gray-300 rounded-md transition-all duration-200 font-medium"
+                    onClick={onReply}
+                    aria-label="답글 작성">
+                    <svg className="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
+                        <path fillRule="evenodd" d="M7.707 3.293a1 1 0 010 1.414L5.414 7H11a7 7 0 017 7v2a1 1 0 11-2 0v-2a5 5 0 00-5-5H5.414l2.293 2.293a1 1 0 11-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clipRule="evenodd" />
+                    </svg>
+                    답글
+                </button>
+            )}
 
             {isOwner && (
                 <>

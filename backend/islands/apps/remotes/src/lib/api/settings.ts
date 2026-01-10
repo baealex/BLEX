@@ -87,13 +87,8 @@ export const uploadAvatar = async (file: File) => {
     return http.post<Response<{ url: string }>>('v1/setting/avatar', formData, { headers: { 'Content-Type': 'multipart/form-data' } });
 };
 
-export const updateNotifyConfig = async (config: NotifyConfig) => {
-    const formData = new URLSearchParams();
-    Object.entries(config).forEach(([key, value]) => {
-        formData.append(key, value.toString());
-    });
-
-    return http.put<Response<{ success: boolean }>>('v1/setting/notify-config', formData, { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } });
+export const updateNotifyConfig = async (config: Record<string, boolean>) => {
+    return http.put<Response<{ success: boolean }>>('v1/setting/notify-config', config, { headers: { 'Content-Type': 'application/json' } });
 };
 
 export const getTags = async () => {
