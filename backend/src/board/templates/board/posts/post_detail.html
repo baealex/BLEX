@@ -47,9 +47,7 @@
             {% if banners.left %}
             <div class="sticky top-28 space-y-4">
                 {% for banner in banners.left %}
-                <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-md transition-shadow">
                     {{ banner.content_html|safe }}
-                </div>
                 {% endfor %}
             </div>
             {% endif %}
@@ -115,9 +113,7 @@
                     {% if banners.top %}
                     <div class="mb-16 space-y-4">
                         {% for banner in banners.top %}
-                        <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-md transition-shadow">
                             {{ banner.content_html|safe }}
-                        </div>
                         {% endfor %}
                     </div>
                     {% endif %}
@@ -151,9 +147,7 @@
                     {% if banners.bottom %}
                     <div class="mb-16 space-y-4">
                         {% for banner in banners.bottom %}
-                        <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-md transition-shadow">
                             {{ banner.content_html|safe }}
-                        </div>
                         {% endfor %}
                     </div>
                     {% endif %}
@@ -320,9 +314,7 @@
                 
                 {% if banners.right %}
                     {% for banner in banners.right %}
-                    <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-md transition-shadow">
                         {{ banner.content_html|safe }}
-                    </div>
                     {% endfor %}
                 {% endif %}
             </div>

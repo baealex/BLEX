@@ -37,12 +37,6 @@ const TiptapEditor = ({
         }
     }, [onChange]);
 
-    const { handleDrop, handlePaste: handleImagePaste } = useImageUpload({
-        editor: null,
-        onImageUpload,
-        onImageUploadError
-    });
-
     const handlersRef = useRef<HandlersRef>({
         handleMarkdownPaste: async () => false,
         handleImagePaste: () => {}
@@ -80,6 +74,12 @@ const TiptapEditor = ({
         onUpdate: ({ editor }) => {
             handleChange(editor.getHTML());
         }
+    });
+
+    const { handleDrop, handlePaste: handleImagePaste } = useImageUpload({
+        editor,
+        onImageUpload,
+        onImageUploadError
     });
 
     const {
