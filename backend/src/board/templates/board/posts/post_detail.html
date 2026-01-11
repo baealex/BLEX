@@ -45,7 +45,7 @@
         <!-- Left Sidebar Space (Always present on desktop) -->
         <aside class="hidden xl:block w-64 flex-shrink-0">
             {% if banners.left %}
-            <div class="sticky top-20 space-y-4">
+            <div class="sticky top-28 space-y-4">
                 {% for banner in banners.left %}
                 <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-md transition-shadow">
                     {{ banner.content_html|safe }}
@@ -315,15 +315,17 @@
 
         <!-- Right Sidebar Space (Always present on desktop) -->
         <aside class="hidden xl:block w-64 flex-shrink-0">
-            {% if banners.right %}
-            <div class="sticky top-20 space-y-4">
-                {% for banner in banners.right %}
-                <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-md transition-shadow">
-                    {{ banner.content_html|safe }}
-                </div>
-                {% endfor %}
+            <div class="sticky top-28 space-y-4">
+                {% include 'components/toc.html' %}
+                
+                {% if banners.right %}
+                    {% for banner in banners.right %}
+                    <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-md transition-shadow">
+                        {{ banner.content_html|safe }}
+                    </div>
+                    {% endfor %}
+                {% endif %}
             </div>
-            {% endif %}
         </aside>
     </div>
 
