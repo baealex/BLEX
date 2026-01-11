@@ -16,32 +16,13 @@ def author_overview(request, username):
     """
     View for the author's overview page.
     Includes contribution graph, pinned posts, and simplified profile info.
+    Readers and editors see different templates.
     """
     author = get_object_or_404(User, username=username)
-
-    pinned_posts = UserService.get_user_pinned_or_most_liked_posts(author)
 
     recent_activities = UserService.get_user_dashboard_activities(author)[:10]  # Limit to 10 most recent
 
     about_html = getattr(author.profile, 'about_html', '') if hasattr(author, 'profile') else ''
-
-    blog_notices = None
-    if hasattr(author, 'profile') and author.profile.role == Profile.Role.EDITOR:
-        blog_notices = Post.objects.select_related(
-            'config', 'author', 'author__profile'
-        ).filter(
-            author=author,
-            created_date__lte=timezone.now(),
-            config__notice=True,
-            config__hide=False,
-        ).order_by('-created_date')[:5]
-
-    post_count = Post.objects.filter(
-        author=author,
-        created_date__lte=timezone.now(),
-        config__hide=False
-    ).count()
-    series_count = Series.objects.filter(owner=author).count()
 
     # Get active banners
     banners = Banner.objects.filter(user=author, is_active=True).order_by('order')
@@ -52,19 +33,51 @@ def author_overview(request, username):
         'right': banners.filter(position='right'),
     }
 
-    context = {
-        'author': author,
-        'pinned_posts': pinned_posts,
-        'recent_activities': recent_activities,
-        'about_html': about_html,
-        'post_count': post_count,
-        'series_count': series_count,
-        'blog_notices': blog_notices,
-        'author_activity_props': json.dumps({'username': author.username}),
-        'banners': banners_by_position,
-    }
+    # Check if author is a reader (not an editor)
+    is_reader = not hasattr(author, 'profile') or author.profile.role == Profile.Role.READER
 
-    return render(request, 'board/author/author_overview.html', context)
+    if is_reader:
+        # Reader template - minimal view with just README and activity
+        context = {
+            'author': author,
+            'recent_activities': recent_activities,
+            'about_html': about_html,
+            'author_activity_props': json.dumps({'username': author.username}),
+            'banners': banners_by_position,
+        }
+        return render(request, 'board/author/author_reader_overview.html', context)
+    else:
+        # Editor template - full view with stats, pinned posts, notices
+        pinned_posts = UserService.get_user_pinned_or_most_liked_posts(author)
+
+        blog_notices = Post.objects.select_related(
+            'config', 'author', 'author__profile'
+        ).filter(
+            author=author,
+            created_date__lte=timezone.now(),
+            config__notice=True,
+            config__hide=False,
+        ).order_by('-created_date')[:5]
+
+        post_count = Post.objects.filter(
+            author=author,
+            created_date__lte=timezone.now(),
+            config__hide=False
+        ).count()
+        series_count = Series.objects.filter(owner=author).count()
+
+        context = {
+            'author': author,
+            'pinned_posts': pinned_posts,
+            'recent_activities': recent_activities,
+            'about_html': about_html,
+            'post_count': post_count,
+            'series_count': series_count,
+            'blog_notices': blog_notices,
+            'author_activity_props': json.dumps({'username': author.username}),
+            'banners': banners_by_position,
+        }
+        return render(request, 'board/author/author_overview.html', context)
 
 
 def author_about(request, username):
