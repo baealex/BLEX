@@ -1,0 +1,47 @@
+<nav x-data="toc" class="toc-component hidden xl:block" aria-label="Table of Contents">
+    {% if toc %}
+    <div class="mb-4">
+        <span class="text-xs font-bold text-gray-400 uppercase tracking-wider">포스트 목차</span>
+    </div>
+
+    <ul class="space-y-2 relative">
+        {% for item in toc %}
+        <li class="relative pl-4 group">
+            <!-- Active indicator line -->
+            <div class="absolute left-0 top-1.5 bottom-1.5 w-0.5 bg-gray-900 rounded-full transition-all duration-300 transform origin-left scale-y-0 opacity-0"
+                 :class="{ 'scale-y-100 opacity-100': activeId === '{{ item.id }}' }"></div>
+
+            <a href="#{{ item.id }}" 
+               @click.prevent="scrollTo('{{ item.id }}')"
+               class="block text-[13px] leading-relaxed transition-all duration-200 line-clamp-2"
+               :class="{ 
+                   'text-gray-900 font-medium': activeId === '{{ item.id }}',
+                   'text-gray-500 hover:text-gray-800': activeId !== '{{ item.id }}',
+                   'pl-0': {{ item.level }} == 1,
+                   'pl-3': {{ item.level }} == 2,
+                   'pl-6': {{ item.level }} >= 3
+               }">
+                {{ item.text }}
+            </a>
+        </li>
+        {% endfor %}
+    </ul>
+    {% endif %}
+</nav>
+
+<style>
+/* Custom scrollbar for webkit */
+.custom-scrollbar::-webkit-scrollbar {
+    width: 4px;
+}
+.custom-scrollbar::-webkit-scrollbar-track {
+    background: transparent;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+    background-color: transparent;
+    border-radius: 20px;
+}
+.custom-scrollbar:hover::-webkit-scrollbar-thumb {
+    background-color: #e5e7eb;
+}
+</style>
