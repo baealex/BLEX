@@ -9,7 +9,7 @@ Alpine.js 기반 좋아요 버튼 컴포넌트
 {% endcomment %}
 
 <button
-    x-data="likeButton({
+    x-data="like_button({
         count: {{ likes_count }},
         liked: {{ has_liked|yesno:'true,false' }},
         postUrl: '{{ post_url }}'

@@ -22,12 +22,20 @@
         "paths": {
             "~/*": [
                 "src/*"
+            ],
+            "@templates/*": [
+                "../../../src/board/templates/*"
+            ],
+            "alpinejs": [
+                "./node_modules/@types/alpinejs",
+                "./node_modules/alpinejs"
             ]
         }
     },
     "include": [
         "src",
-        "../../packages/editor/src/utils/languages.ts"
+        "../../packages/editor/src/utils/languages.ts",
+        "../../../src/board/templates/**/*.alpine.ts"
     ],
     "references": [
         {

@@ -4,7 +4,8 @@
     "description": "React islands for BLEX Django project",
     "type": "module",
     "scripts": {
-        "dev": "vite dev",
+        "dev": "node scripts/watch-assets.js & vite dev",
+        "watch:assets": "node scripts/watch-assets.js",
         "build": "vite build",
         "lint": "eslint src",
         "type-check": "tsc --noEmit"

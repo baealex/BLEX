@@ -4,7 +4,7 @@ Parameters:
 - placeholder: Placeholder text for the input field (optional, default: '검색어를 입력하세요')
 {% endcomment %}
 
-<div x-data="{ query: '{{ request.GET.q|default:'' }}' }">
+<div x-data="search_query_filter({ query: '{{ request.GET.q|default:'' }}' })">
     <form method="get" class="relative">
         <!-- Preserve other query parameters -->
         {% for key, value in request.GET.items %}
