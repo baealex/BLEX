@@ -53,8 +53,8 @@ export const CommentItem = ({
     return (
         <div>
             <article
-                className={`py-6 px-5 bg-white border border-gray-100 hover:border-gray-200 rounded-2xl transition-all duration-200 hover:shadow-sm ${
-                    isReply ? 'ml-8 sm:ml-12' : ''
+                className={`py-5 px-3 sm:px-5 ${
+                    isReply ? 'ml-6 sm:ml-12' : ''
                 }`}
                 aria-label={`${comment.author}의 ${isReply ? '답글' : '댓글'}`}>
                 <CommentHeader
@@ -95,36 +95,28 @@ export const CommentItem = ({
 
             {/* 답글 작성 폼 */}
             {isReplying && (
-                <div className="mt-3 ml-8 sm:ml-12">
-                    <div className="border border-gray-200 rounded-xl p-4 bg-gray-50">
-                        <p className="text-sm text-gray-600 mb-3">
-                            <span className="font-semibold text-gray-900">{comment.author}</span>님에게 답글 작성
-                        </p>
-                        <CommentForm
-                            isLoggedIn={true}
-                            commentText={replyText}
-                            onCommentTextChange={onReplyTextChange}
-                            onSubmit={onSaveReply}
-                            isSubmitting={isSubmitting}
-                            onShowLoginPrompt={() => {}}
-                            placeholder="답글을 입력하세요..."
-                            mentionableUsers={mentionableUsers}
-                        />
-                        <div className="mt-2 flex justify-end">
-                            <button
-                                onClick={onCancelReply}
-                                className="px-4 py-2 text-sm font-medium text-gray-700 hover:text-gray-900 transition-colors"
-                                disabled={isSubmitting}>
-                                취소
-                            </button>
-                        </div>
-                    </div>
+                <div className="mt-4 ml-6 sm:ml-12 pt-4 border-t border-gray-100">
+                    <p className="text-sm text-gray-600 mb-3">
+                        <span className="font-medium text-gray-900">{comment.author}</span>님에게 답글
+                    </p>
+                    <CommentForm
+                        isLoggedIn={true}
+                        commentText={replyText}
+                        onCommentTextChange={onReplyTextChange}
+                        onSubmit={onSaveReply}
+                        isSubmitting={isSubmitting}
+                        onShowLoginPrompt={() => {}}
+                        placeholder="답글을 입력하세요..."
+                        mentionableUsers={mentionableUsers}
+                        onCancel={onCancelReply}
+                        submitButtonText="답글 작성"
+                    />
                 </div>
             )}
 
             {/* 대댓글 렌더링 */}
             {!isReply && comment.replies && comment.replies.length > 0 && (
-                <div className="mt-2 space-y-2">
+                <div>
                     {comment.replies.map((reply) => (
                         <CommentItem
                             key={reply.id}

@@ -10,6 +10,8 @@ interface CommentFormProps {
     onShowLoginPrompt: () => void;
     placeholder?: string;
     mentionableUsers?: string[];
+    onCancel?: () => void;
+    submitButtonText?: string;
 }
 
 export const CommentForm = ({
@@ -20,7 +22,9 @@ export const CommentForm = ({
     isSubmitting,
     onShowLoginPrompt,
     placeholder = '댓글을 작성해보세요...',
-    mentionableUsers = []
+    mentionableUsers = [],
+    onCancel,
+    submitButtonText = '댓글 작성'
 }: CommentFormProps) => {
     const textareaRef = useRef<HTMLTextAreaElement>(null);
     const [showMentionAutocomplete, setShowMentionAutocomplete] = useState(false);
@@ -130,20 +134,17 @@ export const CommentForm = ({
         return (
             <div className="relative group cursor-pointer" onClick={onShowLoginPrompt}>
                 <textarea
-                    className="w-full p-5 border border-gray-200 rounded-2xl resize-none bg-gray-50/50 text-sm placeholder-gray-400 pointer-events-none transition-all duration-200 group-hover:border-gray-300 group-hover:bg-white"
+                    className="w-full p-4 border border-gray-200 resize-none bg-gray-50 text-sm placeholder-gray-400 pointer-events-none"
                     placeholder={placeholder}
-                    rows={4}
+                    rows={3}
                     disabled
                     aria-hidden="true"
                 />
 
                 {/* Hover 시 나타나는 안내 */}
-                <div className="absolute inset-0 flex items-center justify-center bg-white/0 group-hover:bg-white/60 backdrop-blur-0 group-hover:backdrop-blur-sm transition-all duration-300 rounded-2xl pointer-events-none">
-                    <div className="opacity-0 group-hover:opacity-100 transition-all duration-300 transform group-hover:translate-y-0 translate-y-2 text-center px-4">
-                        <div className="inline-flex items-center gap-2 px-4 py-2 bg-black/80 text-white rounded-full text-sm font-medium shadow-lg backdrop-blur-md">
-                            <i className="fas fa-lock text-xs" />
-                            <span>로그인이 필요합니다</span>
-                        </div>
+                <div className="absolute inset-0 flex items-center justify-center bg-white/0 group-hover:bg-white/80 transition-all duration-200 pointer-events-none">
+                    <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                        <span className="text-sm text-gray-600">로그인이 필요합니다</span>
                     </div>
                 </div>
             </div>
@@ -151,17 +152,17 @@ export const CommentForm = ({
     }
 
     return (
-        <div className="space-y-4">
+        <div className="space-y-3">
             <div className="relative">
                 <textarea
                     ref={textareaRef}
-                    className="w-full p-5 border border-gray-200 rounded-2xl focus:ring-4 focus:ring-black/5 focus:border-black resize-none bg-white transition-all duration-200 placeholder-gray-400 text-sm hover:border-gray-300 leading-relaxed"
+                    className="w-full p-4 border border-gray-200 focus:border-gray-900 focus:outline-none resize-none bg-white text-sm placeholder-gray-400 leading-relaxed"
                     value={commentText}
                     onChange={handleTextChange}
                     onKeyDown={handleKeyDown}
                     disabled={isSubmitting}
                     placeholder={placeholder}
-                    rows={4}
+                    rows={3}
                     aria-label="댓글 내용"
                 />
 
@@ -177,18 +178,21 @@ export const CommentForm = ({
                 />
             </div>
 
-            <div className="flex justify-end">
+            <div className="flex justify-end gap-2">
+                {onCancel && (
+                    <button
+                        className="px-4 py-2 text-sm text-gray-600 hover:text-gray-900 font-medium disabled:opacity-50"
+                        onClick={onCancel}
+                        disabled={isSubmitting}>
+                        취소
+                    </button>
+                )}
                 <button
-                    className="px-6 py-2.5 bg-black hover:bg-gray-800 disabled:bg-gray-100 disabled:text-gray-400 text-white rounded-xl text-sm font-medium transition-all duration-200 disabled:cursor-not-allowed hover:-translate-y-0.5 active:scale-95"
+                    className="px-5 py-2 bg-gray-900 hover:bg-gray-800 disabled:bg-gray-200 disabled:text-gray-400 text-white text-sm font-medium disabled:cursor-not-allowed"
                     onClick={onSubmit}
                     disabled={isSubmitting || !commentText.trim()}
                     aria-label={isSubmitting ? '댓글 작성 중' : '댓글 작성하기'}>
-                    {isSubmitting ? (
-                        <span className="flex items-center gap-2">
-                            <i className="fas fa-spinner fa-spin text-xs" />
-                            <span>작성 중...</span>
-                        </span>
-                    ) : '댓글 작성'}
+                    {isSubmitting ? '작성 중...' : submitButtonText}
                 </button>
             </div>
         </div>
