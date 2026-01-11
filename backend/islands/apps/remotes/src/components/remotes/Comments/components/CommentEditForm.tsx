@@ -39,7 +39,7 @@ export const CommentEditForm = ({
             <div className="relative">
                 <textarea
                     ref={textareaRef}
-                    className="w-full p-4 border border-gray-200 rounded-xl focus:ring-2 focus:ring-gray-300 focus:border-gray-300 resize-none bg-white transition-all duration-200 placeholder-gray-400 text-sm hover:border-gray-300"
+                    className="w-full p-4 border border-gray-200 focus:border-gray-900 focus:outline-none resize-none bg-white text-sm placeholder-gray-400 leading-relaxed"
                     value={editText}
                     onChange={(e) => onEditTextChange(e.target.value)}
                     placeholder="댓글을 수정하세요..."
@@ -50,14 +50,14 @@ export const CommentEditForm = ({
             </div>
             <div className="flex gap-2 justify-end">
                 <button
-                    className="px-4 py-2 bg-gray-900 hover:bg-gray-800 text-white rounded-lg text-sm font-medium transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-gray-300"
+                    className="px-4 py-2 bg-gray-900 hover:bg-gray-800 text-white text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed"
                     onClick={onSave}
                     disabled={isSubmitting || !editText.trim()}
                     aria-label={isSubmitting ? '저장 중' : '댓글 저장'}>
                     {isSubmitting ? '저장 중...' : '저장'}
                 </button>
                 <button
-                    className="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg text-sm font-medium transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-gray-200"
+                    className="px-4 py-2 text-gray-600 hover:text-gray-900 text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed"
                     onClick={onCancel}
                     disabled={isSubmitting}
                     aria-label="수정 취소">

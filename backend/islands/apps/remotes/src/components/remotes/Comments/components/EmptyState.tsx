@@ -2,7 +2,7 @@ export const EmptyState = () => {
     return (
         <div className="py-12 text-center">
             <svg
-                className="w-12 h-12 text-gray-300 mx-auto mb-3"
+                className="w-10 h-10 text-gray-300 mx-auto mb-3"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -15,7 +15,7 @@ export const EmptyState = () => {
                 />
             </svg>
             <p className="text-gray-500 text-sm">
-                아직 댓글이 없습니다. 첫 번째 댓글을 작성해보세요!
+                아직 댓글이 없습니다
             </p>
         </div>
     );
