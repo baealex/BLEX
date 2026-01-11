@@ -153,6 +153,35 @@ const TiptapEditor = ({
                     &:hover { opacity: 0.9; }
                     &:active { cursor: grabbing; }
                 }
+                .code-block-wrapper .code-block-header {
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
+                }
+                .code-copy-button {
+                    display: inline-flex;
+                    align-items: center;
+                    justify-content: center;
+                    padding: 4px;
+                    background: transparent;
+                    border: 1px solid #d1d5db;
+                    border-radius: 4px;
+                    color: #6b7280;
+                    cursor: pointer;
+                    transition: all 0.2s;
+                }
+                .code-copy-button:hover {
+                    background: #e5e7eb;
+                    color: #374151;
+                    border-color: #9ca3af;
+                }
+                .code-copy-button:active {
+                    transform: scale(0.95);
+                }
+                .code-copy-button svg {
+                    width: 16px;
+                    height: 16px;
+                }
             `}</style>
         </div>
     );

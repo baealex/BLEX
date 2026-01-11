@@ -7,6 +7,40 @@ import {
 
 const loadedLanguages = new Set<string>();
 
+function createCopyButton(codeElement: HTMLElement): HTMLButtonElement {
+    const button = document.createElement('button');
+    button.type = 'button';
+    button.className = 'code-copy-button';
+    button.title = 'Copy code';
+
+    const copyIcon = `<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+    </svg>`;
+
+    const checkIcon = `<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+    </svg>`;
+
+    button.innerHTML = copyIcon;
+
+    button.addEventListener('click', async () => {
+        try {
+            const code = codeElement.textContent || '';
+            await navigator.clipboard.writeText(code);
+            button.innerHTML = checkIcon;
+            button.title = 'Copied!';
+            setTimeout(() => {
+                button.innerHTML = copyIcon;
+                button.title = 'Copy code';
+            }, 2000);
+        } catch (err) {
+            console.error('Failed to copy code:', err);
+        }
+    });
+
+    return button;
+}
+
 async function loadLanguage(language: string): Promise<void> {
     if (loadedLanguages.has(language)) {
         return;
@@ -58,7 +92,10 @@ async function processCodeBlocks() {
             languageSpan.className = 'code-language';
             languageSpan.textContent = getLanguageLabel(language);
 
+            const copyButton = createCopyButton(codeElement);
+
             header.appendChild(languageSpan);
+            header.appendChild(copyButton);
             wrapper.appendChild(header);
 
             preElement.parentElement?.insertBefore(wrapper, preElement);
