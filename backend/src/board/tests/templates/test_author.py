@@ -441,7 +441,8 @@ class AuthorAboutPageTestCase(TestCase):
         self.profile = Profile.objects.create(
             user=self.user,
             about_md='Test about content',
-            about_html='<p>Test about content</p>'
+            about_html='<p>Test about content</p>',
+            role=Profile.Role.EDITOR
         )
 
     def test_author_about_page_renders(self):
