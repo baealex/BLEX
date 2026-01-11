@@ -78,6 +78,8 @@ export interface RelatedPost {
     title: string;
     url: string;
     authorUsername: string;
+    authorName: string;
+    authorImage?: string;
     metaDescription: string;
     image?: string;
     createdDate: string;
