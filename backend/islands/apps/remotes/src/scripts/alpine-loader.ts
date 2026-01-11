@@ -6,14 +6,12 @@ import alpineModule1 from '@templates/components/header.alpine.ts';
 import alpineModule2 from '@templates/components/like_button.alpine.ts';
 import alpineModule3 from '@templates/components/notice_carousel.alpine.ts';
 import alpineModule4 from '@templates/components/search_query_filter.alpine.ts';
-import alpineModule5 from '@templates/components/toc.alpine.ts';
 
 Alpine.data('dropdown_filter', alpineModule0);
 Alpine.data('header', alpineModule1);
 Alpine.data('like_button', alpineModule2);
 Alpine.data('notice_carousel', alpineModule3);
 Alpine.data('search_query_filter', alpineModule4);
-Alpine.data('toc', alpineModule5);
 
 // Alpine Init
 if (document.readyState === 'loading') {
