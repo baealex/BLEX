@@ -182,7 +182,7 @@ class AuthorPostsPageTestCase(TestCase):
         )
         # Overview는 모두에게 공개
         self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed(response, 'board/author/author_overview.html')
+        self.assertTemplateUsed(response, 'board/author/author_reader_overview.html')
 
     def test_editor_can_access_posts(self):
         """EDITOR 역할 사용자는 posts 페이지 정상 접근"""
@@ -441,7 +441,8 @@ class AuthorAboutPageTestCase(TestCase):
         self.profile = Profile.objects.create(
             user=self.user,
             about_md='Test about content',
-            about_html='<p>Test about content</p>'
+            about_html='<p>Test about content</p>',
+            role=Profile.Role.EDITOR
         )
 
     def test_author_about_page_renders(self):

@@ -17,9 +17,9 @@ def series_detail(request, username, series_url):
 
     author = get_object_or_404(User, username=username)
 
-    sort_order = request.GET.get('sort', 'asc')
+    sort_order = request.GET.get('sort', 'desc')
     if sort_order not in ['asc', 'desc']:
-        sort_order = 'asc'
+        sort_order = 'desc'
 
     try:
         series = Series.objects.get(
