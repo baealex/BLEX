@@ -50,8 +50,7 @@ const RelatedPosts = ({ postUrl, username }: RelatedPostsProps) => {
                     return (
                         <article
                             key={`${relatedPost.authorUsername}-${relatedPost.url}`}
-                            className="group flex flex-col h-full bg-white rounded-3xl overflow-hidden shadow-sm hover:shadow-2xl transition-all duration-500 ease-out"
-                        >
+                            className="group flex flex-col h-full bg-white rounded-3xl overflow-hidden shadow-sm hover:shadow-2xl transition-all duration-500 ease-out">
                             {/* Thumbnail */}
                             <a href={postUrl} className="block overflow-hidden">
                                 <div className="aspect-[16/10] relative bg-gray-100">
@@ -89,8 +88,7 @@ const RelatedPosts = ({ postUrl, username }: RelatedPostsProps) => {
                                     {/* Author */}
                                     <a
                                         href={authorUrl}
-                                        className="flex items-center gap-2.5 mb-3 group/author"
-                                    >
+                                        className="flex items-center gap-2.5 mb-3 group/author">
                                         {relatedPost.authorImage ? (
                                             <img
                                                 src={window.configuration.media + relatedPost.authorImage}
