@@ -367,6 +367,7 @@ def user_post_related(request, username, url):
                 id=post.id
             ).annotate(
                 author_username=F('author__username'),
+                author_name=F('author__first_name'),
                 author_image=F('author__profile__avatar'),
                 likes_count=Count('likes', distinct=True),
                 comments_count=Count('comments', distinct=True),
@@ -423,6 +424,7 @@ def user_post_related(request, username, url):
                 'read_time': related_post.read_time,
                 'created_date': convert_to_localtime(related_post.created_date).strftime('%Y-%m-%d'),
                 'author_username': related_post.author_username,
+                'author_name': related_post.author_name,
                 'author_image': str(related_post.author_image) if related_post.author_image else None,
             }, related_posts))
         })
