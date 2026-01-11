@@ -6,8 +6,6 @@ from django.contrib import messages
 
 from board.models import Post, Series, PostLikes, TempPosts, UsernameChangeLog, Banner
 from board.services.post_service import PostService, PostValidationError
-from board.modules.toc import generate_toc
-
 
 def post_detail(request, username, post_url):
     """
@@ -56,11 +54,6 @@ def post_detail(request, username, post_url):
     if post.series:
         post.visible_series_posts = PostService.get_visible_series_posts(post)
 
-    toc_list = []
-    if hasattr(post, 'content') and post.content.text_html:
-        modified_html, toc_list = generate_toc(post.content.text_html)
-        post.content.text_html = modified_html
-
     # Fetch active banners for the post author
     banners = {
         'top': Banner.objects.filter(
@@ -92,7 +85,6 @@ def post_detail(request, username, post_url):
     context = {
         'post': post,
         'banners': banners,
-        'toc': toc_list,
     }
     
     return render(request, 'board/posts/post_detail.html', context)

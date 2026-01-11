@@ -310,8 +310,6 @@
         <!-- Right Sidebar Space (Always present on desktop) -->
         <aside class="hidden xl:block w-64 flex-shrink-0">
             <div class="sticky top-28 space-y-4">
-                {% include 'components/toc.html' %}
-                
                 {% if banners.right %}
                     {% for banner in banners.right %}
                         {{ banner.content_html|safe }}
