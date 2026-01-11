@@ -7,45 +7,7 @@
     - size: 크기 ('large' 또는 'small', 기본값 'large')
 -->
 <div class="{% if size == 'small' %}mb-4{% else %}mb-6{% endif %} relative"
-     x-data="{
-         currentIndex: 0,
-         totalBanners: {{ notices|length }},
-         interval: null,
-         init() {
-             if (this.totalBanners > 1) {
-                 this.startAutoPlay();
-             }
-         },
-         goTo(index) {
-             this.currentIndex = index;
-             this.resetAutoPlay();
-         },
-         prev() {
-             this.currentIndex = this.currentIndex === 0 ? this.totalBanners - 1 : this.currentIndex - 1;
-             this.resetAutoPlay();
-         },
-         next() {
-             this.currentIndex = (this.currentIndex + 1) % this.totalBanners;
-             this.resetAutoPlay();
-         },
-         startAutoPlay() {
-             this.interval = setInterval(() => {
-                 this.currentIndex = (this.currentIndex + 1) % this.totalBanners;
-             }, 5000);
-         },
-         stopAutoPlay() {
-             if (this.interval) {
-                 clearInterval(this.interval);
-                 this.interval = null;
-             }
-         },
-         resetAutoPlay() {
-             this.stopAutoPlay();
-             if (this.totalBanners > 1) {
-                 this.startAutoPlay();
-             }
-         }
-     }"
+     x-data="notice_carousel({ totalBanners: {{ notices|length }} })"
      @mouseenter="stopAutoPlay()"
      @mouseleave="totalBanners > 1 && startAutoPlay()">
     <div class="relative overflow-hidden group/carousel">

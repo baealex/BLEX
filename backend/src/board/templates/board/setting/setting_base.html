@@ -79,16 +79,6 @@
                                 <span>프로필</span>
                             </a>
                         </li>
-                        {% if user.profile.is_editor %}
-                        <li>
-                            <a href="{% url 'setting_banners' %}"
-                               class="flex items-center px-4 py-3 rounded-xl transition-all duration-200
-                                {% if active == 'banners' %}bg-gray-100 text-gray-900 font-bold{% else %}text-gray-600 hover:bg-gray-50 hover:text-gray-900 font-medium{% endif %}">
-                                <i class="fas fa-rectangle-ad w-6 text-center mr-3 {% if active == 'banners' %}text-gray-900{% else %}text-gray-400{% endif %}"></i>
-                                <span>배너</span>
-                            </a>
-                        </li>
-                        {% endif %}
                     </ul>
                 </div>
 
@@ -127,6 +117,14 @@
                                 {% if active == 'forms' %}bg-gray-100 text-gray-900 font-bold{% else %}text-gray-600 hover:bg-gray-50 hover:text-gray-900 font-medium{% endif %}">
                                 <i class="fas fa-align-left w-6 text-center mr-3 {% if active == 'forms' %}text-gray-900{% else %}text-gray-400{% endif %}"></i>
                                 <span>서식</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{% url 'setting_banners' %}"
+                               class="flex items-center px-4 py-3 rounded-xl transition-all duration-200
+                                {% if active == 'banners' %}bg-gray-100 text-gray-900 font-bold{% else %}text-gray-600 hover:bg-gray-50 hover:text-gray-900 font-medium{% endif %}">
+                                <i class="fas fa-rectangle-ad w-6 text-center mr-3 {% if active == 'banners' %}text-gray-900{% else %}text-gray-400{% endif %}"></i>
+                                <span>배너</span>
                             </a>
                         </li>
                     </ul>
@@ -201,16 +199,6 @@
                                         <span>프로필</span>
                                     </a>
                                 </li>
-                                {% if user.profile.is_editor %}
-                                <li>
-                                    <a href="{% url 'setting_banners' %}"
-                                       class="flex items-center px-4 py-2.5 rounded-xl transition-all duration-200 group
-                                        {% if active == 'banners' %}bg-gray-100 text-gray-900 font-bold{% else %}text-gray-600 hover:bg-gray-50 hover:text-gray-900 font-medium{% endif %}">
-                                        <i class="fas fa-rectangle-ad w-6 text-center mr-3 transition-colors {% if active == 'banners' %}text-gray-900{% else %}text-gray-400 group-hover:text-gray-600{% endif %}"></i>
-                                        <span>배너</span>
-                                    </a>
-                                </li>
-                                {% endif %}
                             </ul>
                         </div>
 
@@ -248,6 +236,14 @@
                                         {% if active == 'forms' %}bg-gray-100 text-gray-900 font-bold{% else %}text-gray-600 hover:bg-gray-50 hover:text-gray-900 font-medium{% endif %}">
                                         <i class="fas fa-align-left w-6 text-center mr-3 transition-colors {% if active == 'forms' %}text-gray-900{% else %}text-gray-400 group-hover:text-gray-600{% endif %}"></i>
                                         <span>서식</span>
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="{% url 'setting_banners' %}"
+                                       class="flex items-center px-4 py-2.5 rounded-xl transition-all duration-200 group
+                                        {% if active == 'banners' %}bg-gray-100 text-gray-900 font-bold{% else %}text-gray-600 hover:bg-gray-50 hover:text-gray-900 font-medium{% endif %}">
+                                        <i class="fas fa-rectangle-ad w-6 text-center mr-3 transition-colors {% if active == 'banners' %}text-gray-900{% else %}text-gray-400 group-hover:text-gray-600{% endif %}"></i>
+                                        <span>배너</span>
                                     </a>
                                 </li>
                             </ul>
