@@ -8,7 +8,7 @@ from board.modules.paginator import Paginator
 from django.http import JsonResponse
 from board.services.user_service import UserService
 
-from board.models import Post, Series, PostLikes, Tag, Profile, Banner
+from board.models import Post, Series, PostLikes, Tag, Profile
 from modules import markdown
 
 
@@ -24,15 +24,6 @@ def author_overview(request, username):
 
     about_html = getattr(author.profile, 'about_html', '') if hasattr(author, 'profile') else ''
 
-    # Get active banners
-    banners = Banner.objects.filter(user=author, is_active=True).order_by('order')
-    banners_by_position = {
-        'top': banners.filter(position='top'),
-        'bottom': banners.filter(position='bottom'),
-        'left': banners.filter(position='left'),
-        'right': banners.filter(position='right'),
-    }
-
     # Check if author is a reader (not an editor)
     is_reader = not hasattr(author, 'profile') or author.profile.role == Profile.Role.READER
 
@@ -42,8 +33,7 @@ def author_overview(request, username):
             'author': author,
             'recent_activities': recent_activities,
             'about_html': about_html,
-            'author_activity_props': json.dumps({'username': author.username}),
-            'banners': banners_by_position,
+            'author_activity_props': json.dumps({'username': author.username})
         }
         return render(request, 'board/author/author_reader_overview.html', context)
     else:
@@ -74,8 +64,7 @@ def author_overview(request, username):
             'post_count': post_count,
             'series_count': series_count,
             'blog_notices': blog_notices,
-            'author_activity_props': json.dumps({'username': author.username}),
-            'banners': banners_by_position,
+            'author_activity_props': json.dumps({'username': author.username})
         }
         return render(request, 'board/author/author_overview.html', context)
 
