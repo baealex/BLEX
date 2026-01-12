@@ -9,7 +9,7 @@ COPY ./islands/packages/editor/package.json /app/islands/packages/editor/package
 
 WORKDIR /app/islands
 
-RUN npm i -g pnpm
+RUN npm i -g pnpm@10.27.0
 RUN pnpm i --frozen-lockfile
 
 COPY ./islands/ /app/islands/
