@@ -51,7 +51,17 @@ def setting(request, parameter):
                 }, notify)),
                 'is_telegram_sync': request.user.config.has_telegram_id()
             })
-        
+
+        if parameter == 'unread-notify':
+            unread_count = Notify.objects.filter(
+                user=user,
+                has_read=False
+            ).count()
+
+            return StatusDone({
+                'count': unread_count
+            })
+
         if parameter == 'notify-config':
             # Check if user has written any posts
             has_posts = Post.objects.filter(author=user).exists()

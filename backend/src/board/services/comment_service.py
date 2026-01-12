@@ -28,7 +28,7 @@ class CommentValidationError(Exception):
 
 class CommentService:
     """Service class for handling comment-related business logic"""
-    MENTION_PATTERN = re.compile(r'`@([a-zA-Z0-9\.]*)`\s?')
+    MENTION_PATTERN = re.compile(r'`@([a-zA-Z0-9\.\_\-\+]*)`\s?')
 
     @staticmethod
     def validate_user_can_comment(user: User) -> None:
