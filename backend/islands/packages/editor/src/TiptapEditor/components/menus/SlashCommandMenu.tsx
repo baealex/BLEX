@@ -20,6 +20,12 @@ interface CommandItem {
     action: (editor: Editor) => void;
 }
 
+interface Form {
+    id: number;
+    title: string;
+    created_date: string;
+}
+
 const SlashCommandMenu = ({
     editor,
     isVisible,
@@ -33,6 +39,66 @@ const SlashCommandMenu = ({
     const inputRef = useRef<HTMLInputElement>(null);
     const selectedItemRef = useRef<HTMLDivElement>(null);
     const [virtualAnchor, setVirtualAnchor] = useState<HTMLElement | null>(null);
+    const [forms, setForms] = useState<Form[]>([]);
+
+    // 서식 목록 불러오기
+    useEffect(() => {
+        const fetchForms = async () => {
+            try {
+                const response = await fetch('/v1/forms');
+                if (response.ok) {
+                    const data = await response.json();
+                    setForms(data.body?.forms || []);
+                }
+            } catch (error) {
+                console.error('서식 목록 불러오기 실패:', error);
+            }
+        };
+
+        if (isVisible) {
+            fetchForms();
+        }
+    }, [isVisible]);
+
+    // 서식 삽입 처리
+    const handleFormInsert = useCallback(async (formId: number) => {
+        if (!editor) return;
+
+        try {
+            // 서식 내용 가져오기
+            const response = await fetch(`/v1/forms/${formId}`);
+            if (!response.ok) return;
+
+            const data = await response.json();
+            const markdown = data.body?.content || '';
+
+            if (!markdown.trim()) {
+                console.warn('서식 내용이 비어있습니다.');
+                return;
+            }
+
+            // 마크다운을 HTML로 변환
+            const htmlResponse = await fetch('/v1/markdown', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ text: markdown })
+            });
+
+            if (!htmlResponse.ok) {
+                // 변환 실패 시 원본 마크다운 삽입
+                editor.chain().focus().insertContent(markdown).run();
+                return;
+            }
+
+            const htmlData = await htmlResponse.json();
+            const html = htmlData.body?.html || '';
+
+            // 에디터에 HTML 삽입
+            editor.chain().focus().insertContent(html).run();
+        } catch (error) {
+            console.error('서식 삽입 실패:', error);
+        }
+    }, [editor]);
 
     const commandItems: CommandItem[] = [
         {
@@ -129,7 +195,23 @@ const SlashCommandMenu = ({
         }
     ];
 
-    const filteredCommands = commandItems.filter(item => {
+    // 서식 항목 동적 생성
+    const formItems: CommandItem[] = forms.map(form => ({
+        id: `form-${form.id}`,
+        title: form.title,
+        description: '서식',
+        icon: 'fa fa-file-alt',
+        keywords: ['서식', 'form', 'template', form.title.toLowerCase()],
+        action: (editor) => {
+            void editor;
+            handleFormInsert(form.id);
+        }
+    }));
+
+    // 모든 명령어 합치기
+    const allCommandItems = [...commandItems, ...formItems];
+
+    const filteredCommands = allCommandItems.filter(item => {
         if (!searchTerm) return true;
         const term = searchTerm.toLowerCase();
         return item.title.toLowerCase().includes(term) ||
