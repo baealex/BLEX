@@ -16,6 +16,7 @@ from django.utils.html import strip_tags
 
 from PIL import Image, ImageFilter
 from dateutil import parser as dateutil_parser
+from cryptography.fernet import InvalidToken
 
 from modules.cipher import encrypt_value, decrypt_value
 from modules.hash import get_sha256
@@ -620,7 +621,10 @@ class TelegramSync(models.Model):
     created_date = models.DateTimeField(default=timezone.now)
 
     def get_decrypted_tid(self):
-        return decrypt_value(self.tid)
+        try:
+            return decrypt_value(self.tid)
+        except (InvalidToken, Exception):
+            return ''
 
     def is_token_expire(self):
         one_day_ago = timezone.now() - datetime.timedelta(days=1)
