@@ -51,11 +51,17 @@ export const CommentItem = ({
     const isReply = !!comment.parentId;
 
     return (
-        <div>
+        <div className="group">
             <article
-                className={`py-5 px-3 sm:px-5 ${
-                    isReply ? 'ml-6 sm:ml-12' : ''
-                }`}
+                className={`
+                    py-6 px-4 sm:px-6
+                    bg-white hover:bg-gray-50/50
+                    transition-colors duration-200
+                    ${isReply
+                        ? 'ml-6 sm:ml-14 border-l-2 border-gray-200 pl-6 sm:pl-8'
+                        : 'rounded-xl ring-1 ring-gray-900/5'
+                    }
+                `}
                 aria-label={`${comment.author}의 ${isReply ? '답글' : '댓글'}`}>
                 <CommentHeader
                     author={comment.author}
@@ -64,7 +70,7 @@ export const CommentItem = ({
                     isEdited={comment.isEdited}
                 />
 
-                <div className="mt-4 ml-0 sm:ml-12">
+                <div className="mt-4 ml-0 sm:ml-14">
                     {isEditing ? (
                         <CommentEditForm
                             editText={editText}
@@ -95,10 +101,15 @@ export const CommentItem = ({
 
             {/* 답글 작성 폼 */}
             {isReplying && (
-                <div className="mt-4 ml-6 sm:ml-12 pt-4 border-t border-gray-100">
-                    <p className="text-sm text-gray-600 mb-3">
-                        <span className="font-medium text-gray-900">{comment.author}</span>님에게 답글
-                    </p>
+                <div className="mt-4 ml-6 sm:ml-14 pl-6 sm:pl-8 pt-4 border-l-2 border-gray-300">
+                    <div className="flex items-center gap-2 mb-3">
+                        <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6" />
+                        </svg>
+                        <p className="text-sm text-gray-600">
+                            <span className="font-semibold text-gray-900">{comment.author}</span>님에게 답글
+                        </p>
+                    </div>
                     <CommentForm
                         isLoggedIn={true}
                         commentText={replyText}
@@ -116,7 +127,7 @@ export const CommentItem = ({
 
             {/* 대댓글 렌더링 */}
             {!isReply && comment.replies && comment.replies.length > 0 && (
-                <div>
+                <div className="mt-2">
                     {comment.replies.map((reply) => (
                         <CommentItem
                             key={reply.id}
