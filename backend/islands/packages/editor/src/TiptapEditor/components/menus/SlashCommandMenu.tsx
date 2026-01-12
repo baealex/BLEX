@@ -40,12 +40,10 @@ const SlashCommandMenu = ({
     const selectedItemRef = useRef<HTMLDivElement>(null);
     const [virtualAnchor, setVirtualAnchor] = useState<HTMLElement | null>(null);
     const [forms, setForms] = useState<Form[]>([]);
-    const [isLoadingForms, setIsLoadingForms] = useState(false);
 
     // 서식 목록 불러오기
     useEffect(() => {
         const fetchForms = async () => {
-            setIsLoadingForms(true);
             try {
                 const response = await fetch('/v1/forms');
                 if (response.ok) {
@@ -54,8 +52,6 @@ const SlashCommandMenu = ({
                 }
             } catch (error) {
                 console.error('서식 목록 불러오기 실패:', error);
-            } finally {
-                setIsLoadingForms(false);
             }
         };
 
