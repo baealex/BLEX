@@ -48,7 +48,7 @@ export const CommentList = ({
     }
 
     return (
-        <div className="divide-y divide-gray-100" role="list">
+        <div className="space-y-4" role="list">
             {comments.map((comment) => (
                 <CommentItem
                     key={comment.id}
