@@ -4,25 +4,25 @@
 
 ## 1. The Soul of the Product
 
-BLEX is not just a tool; it is an environment. Our users should feel a sense of calm and clarity when they enter. We do not impress with complexity; we impress with **restraint**.
+BLEX is not just a tool; it is an environment. We do not impress with complexity; we impress with **restraint**.
 
 ### Sophistication through Subtraction
-- **Less is Premium**: Every element on the screen must fight for its existence. If it doesn't serve a clear purpose, delete it.
-- **The "High-End" Detail**: It's not about big features. It's about the perfect 8px radius, the subtle border color (gray-900/5), and the way a button presses down when clicked. Use whitespace courageously.
+- **Less is Premium**: Every element must fight for its existence. If it doesn't serve a clear purpose, delete it.
+- **The "High-End" Detail**: It's about the perfect 8px radius, the subtle border (gray-900/5), and the way a button presses down when clicked.
 
 ### It Must Feel "Alive"
-- **Motion is Meaning**: Nothing should just "appear". It should fade in, slide up, or scale. Use `duration-150` for crisp interactions and `duration-500` for dramatic entrances.
-- **Tangible Feedback**: When a user clicks a button, it must *feel* clicked (scale down, change color). A lack of feedback is a broken promise.
+- **Motion is Meaning**: Nothing just "appears". It fades in, slides up, or scales. `duration-150` for interactions, `duration-500` for entrances.
+- **Tangible Feedback**: When clicked, it must *feel* clicked. A lack of feedback is a broken promise.
 
 ---
 
-## 2. The "Beacon" Rule (The Ceiling, Not the Floor)
+## 2. The "Beacon" Rule
 
 This document is the **minimum standard**, not the maximum limit.
 
-> **If you see a screen or component in the codebase that looks or feels better than what is described here, follow that.**
+> **If you see a component in the codebase that feels better than what is described here, follow that. Then update this document.**
 
-Your goal is to raise the bar. If the design guide says "use gray-100" but you see a new module using a stunning `gray-50/50` backdrop with a `backdrop-blur`, adopt the superior pattern. We evolve by copying our best work.
+We evolve by copying our best work, then making it the new baseline.
 
 ---
 
@@ -31,50 +31,96 @@ Your goal is to raise the bar. If the design guide says "use gray-100" but you s
 Our aesthetic is **Minimalism** meets **Boldness**.
 
 ### The Palette of Restraint
-We primarily use **Monochrome**. Color is precious; use it only for warnings (Red) or critical focus.
+
+> **"Content is the only color. Everything else whispers."**
+
+We use **Monochrome** because user content must be the star. Our interface is the stage, not the performer.
+
 - **Surface**: Pure White (`bg-white`) for focus, subtle Grays (`bg-gray-50`) for structure.
-- **Action**: Deep Black (`bg-gray-900`) for primary actions. It commands attention without shouting.
-- **Hierarchy**: Use text shades (`gray-900`, `gray-600`, `gray-400`) to guide the eye. Never use pure black (#000) for text; it causes eye strain.
+- **Action**: Deep Black (`bg-gray-900`) for primary actions. It commands without shouting.
+- **Hierarchy**: Text shades (`gray-900`, `gray-600`, `gray-400`) guide the eye. Never pure black (#000)—it causes eye strain.
+- **Accent**: Red for warnings. That's it.
 
 ### Typography
 - **Readability is Luxury**: Use generous line heights (`leading-relaxed`).
-- **Headings**: Semantic and structural. Do not use bold weights excessively.
+- **Headings**: Semantic and structural. Avoid excessive bold weights.
 
 ---
 
-## 4. Interaction Patterns (Reference)
+## 4. Interaction Patterns
 
-While we prioritize feeling, consistency creates comfort. Use these values as your baseline.
+Consistency creates comfort. Use these as your baseline.
 
 ### Essential Tokens
 
-| Context | Value | Tailwind Class | Note |
+| Context | Value | Tailwind | Why |
 |:---|:---|:---|:---|
-| **Radius** | 8px / 12px | `rounded-lg` / `rounded-xl` | Buttons / Cards. Soft but structured. |
-| **Duration** | 150ms | `duration-150` | Micro-interactions (hover, click). |
-| **Space** | 8px Grid | `p-4`, `gap-2` | Everything aligns to 8px. |
-| **Shadow** | Subtle | `ring-1 ring-gray-900/5` | Prefer rings over heavy drop shadows. |
+| **Radius** | 6-16px | `rounded-md` to `rounded-2xl` | Scale with information density |
+| **Duration** | 150ms | `duration-150` | Crisp, not sluggish |
+| **Space** | 8px Grid | `p-4`, `gap-2` | Everything aligns |
+| **Shadow** | Subtle | `ring-1 ring-gray-900/5` | Depth without drama |
 
-### Component "Vibe" Checks
+### Radius as Intent, Not Size
 
-**The Primary Button**
+Radius signals **information density** and **hierarchy**, not just visual weight.
+
+- **Cards, Modals** (`rounded-2xl` / 16px): High information density. Needs substance to hold attention.
+- **Dropdowns, Popovers** (`rounded-xl` / 12px): Focused context. Balanced refinement.
+- **Buttons, Inputs** (`rounded-lg` / 8px): Instant action. Crisp and confident.
+- **Tags, Badges** (`rounded-md` / 6px or `rounded-full`): Low priority. Subtle or playful.
+- **Avatars, Indicators** (`rounded-full`): Identity. Always circular.
+
+*Why stop at 16px?* Beyond this, corners compete with content. We want sophisticated, not decorative.
+
+### Component Vibe Checks
+
+**The Button**
 *Does it feel solid?*
-It should be `bg-gray-900` text-white. On hover, it lightens slightly (`bg-gray-800`). It is the anchor of the page.
+`bg-gray-900` with `hover:bg-gray-800`. It anchors the page.
 
 **The Card**
-*Does it feel like a physical object?*
-It needs a subtle border (`ring-1 ring-gray-900/5`) and a soft background transition on hover. It frames content, it doesn't cage it.
+*Does it feel real?*
+`ring-1 ring-gray-900/5` with soft hover transition. It frames, never cages.
 
 **The Action**
 *Did I acknowledge the user?*
-Every `<button>` needs a `:active` state (e.g., `active:scale-95`).
+Every interactive element needs `:active` state (`active:scale-95`).
 
 ---
 
-## 5. Checklist for Greatness
+## 5. Mobile First (For Real)
 
-Before considering a task "done", ask:
-1.  **Is it minimal?** Can I remove one more line or border?
-2.  **Does it breathe?** Is there enough whitespace?
-3.  **Is it smooth?** Did that modal open abruptly, or did it glide continuously?
-4.  **Would ship this?** If it feels "janky" or "dev-art", fix it.
+Mobile is not a "version". It is *the* version.
+
+> "On mobile, every pixel is precious, every tap is intentional, and every hesitation is a failure."
+
+### Touch Demands Substance
+
+- **Touch is Commitment**: Minimum 44×44px touch targets. Tiny targets are betrayals.
+- **Feedback is Respect**: Buttons must press down (`active:scale-95`, `active:bg-gray-100`).
+- **Space is Generosity**: Use `py-3` for menu items, `gap-3` for icons. Let the thumb land safely.
+
+### Mobile Vibe Checks
+
+**The Dropdown**
+*Can I tap without hesitation?*
+`py-3` feels safe. `py-2` feels risky.
+
+**The Header**
+*Is it calm?*
+Collapse to essentials: search, notifications, user menu.
+
+**The Input**
+*Does it want my text?*
+`h-12` minimum. If it feels timid, make it taller.
+
+---
+
+## 6. Checklist for Greatness
+
+Before calling it "done":
+1. **Is it minimal?** Can I remove one more element?
+2. **Does it breathe?** Enough whitespace?
+3. **Is it smooth?** Did that modal glide or jerk?
+4. **Does it work on mobile?** Test at 375px width.
+5. **Would I ship this?** If it feels "janky", fix it.

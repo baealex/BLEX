@@ -8,29 +8,29 @@ Parameters:
 {% endcomment %}
 
 <div class="relative" x-data="dropdown_filter">
-    <button @click="open = !open" class="flex items-center justify-between w-full sm:w-48 px-4 py-2 bg-white border border-gray-200 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-300">
+    <button @click="open = !open" class="flex items-center justify-between w-full sm:w-48 px-4 py-2 bg-white ring-1 ring-gray-900/5 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-900/10">
         <span class="truncate">
             {% for option in options %}
                 {% if option.value == current_value %}{{ option.label }}{% endif %}
             {% endfor %}
             {% if not current_value or current_value == '' %}{{ default_label }}{% endif %}
         </span>
-        <i class="fas fa-chevron-down text-xs ml-2 transition-transform duration-200" :class="{ 'transform rotate-180': open }"></i>
+        <i class="fas fa-chevron-down text-xs ml-2 transition-transform duration-150" :class="{ 'transform rotate-180': open }"></i>
     </button>
-    <div 
-        x-show="open" 
-        @click.away="open = false" 
-        class="absolute left-0 sm:right-0 mt-2 w-full sm:w-full bg-white rounded-md shadow-lg py-1 z-50 ring-1 ring-black ring-opacity-5 max-h-60 overflow-y-auto"
-        x-transition:enter="transition ease-out duration-100"
+    <div
+        x-show="open"
+        @click.away="open = false"
+        class="absolute left-0 sm:right-0 mt-2 w-full sm:w-full bg-white rounded-lg shadow-lg py-1 z-50 ring-1 ring-gray-900/5 max-h-60 overflow-y-auto"
+        x-transition:enter="transition ease-out duration-150"
         x-transition:enter-start="transform opacity-0 scale-95"
         x-transition:enter-end="transform opacity-100 scale-100"
-        x-transition:leave="transition ease-in duration-75"
+        x-transition:leave="transition ease-in duration-150"
         x-transition:leave-start="transform opacity-100 scale-100"
         x-transition:leave-end="transform opacity-0 scale-95"
         style="display: none;"
     >
         {% for option in options %}
-        <a href="#" @click.prevent="updateQueryParams('{{ param_name }}', '{{ option.value }}'); open = false" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 {% if current_value|default:'' == option.value|default:'' %}bg-gray-100 font-semibold{% endif %}">
+        <a href="#" @click.prevent="updateQueryParams('{{ param_name }}', '{{ option.value }}'); open = false" class="block px-4 py-3 text-sm text-gray-700 hover:bg-gray-100 transition-colors duration-150 {% if current_value|default:'' == option.value|default:'' %}bg-gray-100 font-semibold{% endif %}">
             {{ option.label }}
         </a>
         {% endfor %}
