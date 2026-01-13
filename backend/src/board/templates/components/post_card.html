@@ -10,7 +10,7 @@ Parameters:
 {% load island %}
 {% load resource %}
 
-<article class="group bg-white rounded-2xl flex flex-col overflow-hidden ring-1 ring-gray-900/5 hover:shadow-xl transition-all duration-300">
+<article class="group bg-white rounded-2xl flex flex-col overflow-hidden ring-1 ring-gray-900/5 hover:ring-gray-900/10 active:scale-[0.98] transition-all duration-150">
     {% if post.image %}
         <div class="aspect-[16/9] overflow-hidden">
             <a href="/@{{ post.author }}/{{ post.url }}" class="block h-full">
@@ -20,7 +20,7 @@ Parameters:
     {% endif %}
     <div class="p-5 flex flex-col flex-grow">
         <h3 class="text-md font-bold text-gray-900 leading-snug mb-3 line-clamp-2">
-            <a href="/@{{ post.author }}/{{ post.url }}" class="hover:text-gray-700 transition-colors duration-300">{{ post.title }}</a>
+            <a href="/@{{ post.author }}/{{ post.url }}" class="hover:text-gray-700 transition-colors duration-150">{{ post.title }}</a>
         </h3>
 
         <div class="text-xs text-gray-500 mb-3 flex items-center gap-3">
@@ -49,7 +49,7 @@ Parameters:
                 </div>
             </div>
             {% elif show_author == 'false' or show_author == False and post.series %}
-                <a href="/@{{ post.author }}/series/{{ post.series.url }}" class="inline-flex items-center px-3 py-1.5 max-w-40 bg-gray-100 text-black rounded-full text-xs font-semibold hover:bg-gray-200 transition-all duration-300 truncate">
+                <a href="/@{{ post.author }}/series/{{ post.series.url }}" class="inline-flex items-center px-3 py-1.5 max-w-32 bg-gray-100 text-black rounded-full text-xs font-semibold hover:bg-gray-200 transition-all duration-150 truncate">
                     <i class="fas fa-layer-group mr-1.5"></i>
                     <span class="truncate">{{ post.series.name }}</span>
                 </a>
@@ -58,7 +58,7 @@ Parameters:
             {% endif %}
 
             <div class="flex items-center gap-4 text-gray-500">
-                <div class="flex items-center gap-1.5 text-xs hover:text-gray-700 transition-colors duration-300">
+                <div class="flex items-center gap-1.5 text-xs hover:text-gray-700 transition-colors duration-150">
                     <i class="far fa-comment"></i>
                     <span>{{ post.count_comments }}</span>
                 </div>

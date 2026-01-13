@@ -50,71 +50,72 @@ const RelatedPosts = ({ postUrl, username }: RelatedPostsProps) => {
                     return (
                         <article
                             key={`${relatedPost.authorUsername}-${relatedPost.url}`}
-                            className="group flex flex-col h-full bg-white rounded-xl overflow-hidden ring-1 ring-gray-900/5 hover:bg-gray-50/50 transition-colors duration-200">
+                            className="group flex flex-col h-full bg-white rounded-2xl overflow-hidden ring-1 ring-gray-900/5 hover:ring-gray-900/10 active:scale-[0.98] transition-all duration-150">
                             {/* Thumbnail */}
-                            <a href={postUrl} className="block overflow-hidden">
-                                <div className="aspect-[16/10] relative bg-gray-100">
-                                    {relatedPost.image ? (
+                            {relatedPost.image && (
+                                <div className="aspect-[16/9] overflow-hidden">
+                                    <a href={postUrl} className="block h-full">
                                         <img
-                                            className="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-500"
+                                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                                             src={window.configuration.media + relatedPost.image}
                                             alt={relatedPost.title}
                                         />
-                                    ) : (
-                                        <div className="w-full h-full bg-gray-100 flex items-center justify-center">
-                                            <i className="fas fa-file-alt text-4xl text-gray-300" />
-                                        </div>
-                                    )}
+                                    </a>
                                 </div>
-                            </a>
+                            )}
 
                             {/* Content */}
-                            <div className="flex flex-col flex-grow p-5 sm:p-6">
+                            <div className="flex flex-col flex-grow p-5">
                                 {/* Title */}
-                                <a href={postUrl} className="block mb-2">
-                                    <h4 className="font-semibold text-gray-900 text-lg leading-snug line-clamp-2">
+                                <h3 className="text-md font-bold text-gray-900 leading-snug mb-3 line-clamp-2">
+                                    <a
+                                        href={postUrl}
+                                        className="hover:text-gray-700 transition-colors duration-150">
                                         {relatedPost.title}
-                                    </h4>
-                                </a>
+                                    </a>
+                                </h3>
+
+                                {/* Meta Info (Date & Read Time) */}
+                                <div className="text-xs text-gray-500 mb-3 flex items-center gap-3">
+                                    <div className="flex items-center gap-1.5">
+                                        <i className="far fa-calendar-alt text-gray-400" />
+                                        <span>{relatedPost.createdDate}</span>
+                                    </div>
+                                    <div className="flex items-center gap-1.5">
+                                        <i className="far fa-clock text-gray-400" />
+                                        <span>{relatedPost.readTime}분</span>
+                                    </div>
+                                </div>
 
                                 {/* Description */}
-                                <p className="text-gray-600 text-sm mb-4 line-clamp-2 leading-relaxed flex-grow">
-                                    {relatedPost.metaDescription}
+                                <p
+                                    className={`text-sm text-gray-600 leading-relaxed mb-4 ${
+                                        relatedPost.image ? 'line-clamp-3' : 'flex-grow'
+                                    }`}>
+                                    <a href={postUrl}>{relatedPost.metaDescription}</a>
                                 </p>
 
-                                {/* Meta Info */}
-                                <div className="mt-auto pt-4 border-t border-gray-100">
-                                    {/* Author */}
-                                    <a
-                                        href={authorUrl}
-                                        className="flex items-center gap-2 mb-2 group/author">
+                                {/* Author */}
+                                <div className="flex items-center gap-2 mt-auto pt-4 border-t border-gray-100">
+                                    <a href={authorUrl} className="flex-shrink-0">
                                         {relatedPost.authorImage ? (
                                             <img
                                                 src={window.configuration.media + relatedPost.authorImage}
                                                 alt={relatedPost.authorName}
-                                                className="w-6 h-6 rounded-full object-cover ring-2 ring-gray-100 group-hover/author:ring-gray-300 transition-all duration-200"
+                                                className="w-6 h-6 rounded-full ring-2 ring-gray-100"
                                             />
                                         ) : (
                                             <div className="w-6 h-6 rounded-full bg-gray-100 flex items-center justify-center">
                                                 <i className="far fa-user text-xs text-gray-400" />
                                             </div>
                                         )}
-                                        <span className="text-sm font-medium text-gray-700 group-hover/author:text-gray-900 transition-colors duration-150">
-                                            {relatedPost.authorUsername}
-                                        </span>
                                     </a>
-
-                                    {/* Date & Read Time */}
-                                    <div className="flex items-center gap-2 text-xs text-gray-600">
-                                        <span className="flex items-center gap-1">
-                                            <i className="far fa-calendar" />
-                                            {relatedPost.createdDate}
-                                        </span>
-                                        <span>·</span>
-                                        <span className="flex items-center gap-1">
-                                            <i className="far fa-clock" />
-                                            {relatedPost.readTime}분
-                                        </span>
+                                    <div className="flex flex-col min-w-0">
+                                        <a
+                                            href={authorUrl}
+                                            className="font-semibold text-gray-900 hover:text-gray-700 transition-colors text-xs truncate">
+                                            {relatedPost.authorUsername}
+                                        </a>
                                     </div>
                                 </div>
                             </div>

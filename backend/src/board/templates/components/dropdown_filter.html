@@ -8,7 +8,7 @@ Parameters:
 {% endcomment %}
 
 <div class="relative" x-data="dropdown_filter">
-    <button @click="open = !open" class="flex items-center justify-between w-full sm:w-48 px-4 py-2 bg-white ring-1 ring-gray-900/5 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-900/10">
+    <button @click="open = !open" class="flex items-center justify-between w-full sm:w-48 px-4 py-2 bg-white ring-1 ring-gray-900/5 rounded-2xl text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-900/10">
         <span class="truncate">
             {% for option in options %}
                 {% if option.value == current_value %}{{ option.label }}{% endif %}

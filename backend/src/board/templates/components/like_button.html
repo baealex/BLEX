@@ -29,7 +29,7 @@ Alpine.js 기반 좋아요 버튼 컴포넌트
     :disabled="loading"
     class="group inline-flex items-center justify-center transition-all duration-300 outline-none cursor-pointer select-none
     {% if size == 'small' %}
-        border gap-1.5 px-2.5 py-1 rounded-lg text-xs font-medium h-7
+        border border-gray-200 gap-1.5 px-2.5 py-1 rounded-lg text-xs font-medium h-7 min-w-[51px]
     {% else %}
         gap-2 px-3 py-2 rounded-full font-medium
     {% endif %}">

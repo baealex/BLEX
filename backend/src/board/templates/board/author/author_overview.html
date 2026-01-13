@@ -55,22 +55,18 @@
             <!-- Activity Section -->
             <section>
                 <div class="flex items-center justify-between mb-4">
-                    <h2 class="text-2xl font-bold text-gray-900">활동</h2>
+                    <h2 class="text-2xl font-bold text-gray-900">최근 활동</h2>
                     <span class="px-2.5 py-1 rounded-full bg-blue-50 text-blue-600 text-xs font-semibold">베타</span>
                 </div>
                 
-                <!-- Heatmap -->
+                <!-- Recent Activities -->
                 <div class="bg-white rounded-2xl ring-1 ring-gray-900/5 p-6 mb-6" style="min-height: 280px;">
                     <island-component name="Heatmap" props="{{ author_activity_props }}"></island-component>
-                </div>
-
-                <!-- Recent Activities (Server-side rendered) -->
-                <div class="bg-white rounded-2xl ring-1 ring-gray-900/5 p-6">
-                    <h3 class="text-sm font-bold text-gray-500 uppercase tracking-wider mb-4">최근 활동</h3>
+                    
                     {% if recent_activities %}
-                        <div class="space-y-2">
+                        <div class="space-y-2 mt-6">
                             {% for activity in recent_activities %}
-                            <a href="{{ activity.url }}" class="flex items-center gap-4 p-3 -mx-3 rounded-2xl hover:bg-gray-50 transition-all duration-200 group">
+                            <a href="{{ activity.url }}" class="flex items-center gap-4 p-3 -mx-3 rounded-2xl hover:bg-gray-50 transition-all duration-150 active:scale-[0.99] group">
                                 <div class="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0
                                     {% if activity.type == 'post' %}bg-blue-50 text-blue-600
                                     {% elif activity.type == 'series' %}bg-indigo-50 text-indigo-600
@@ -123,11 +119,14 @@
             <!-- Pinned Posts Section -->
             {% if pinned_posts %}
             <section>
-                <h2 class="text-2xl font-bold text-gray-900 mb-4">추천 포스트</h2>
+                <div class="flex items-center justify-between mb-4">
+                    <h2 class="text-2xl font-bold text-gray-900">추천 포스트</h2>
+                    <span class="px-2.5 py-1 rounded-full bg-blue-50 text-blue-600 text-xs font-semibold">베타</span>
+                </div>
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
                     {% for post in pinned_posts %}
                     <a href="/@{{ post.author }}/{{ post.url }}" class="group block h-full">
-                        <article class="flex flex-col h-full bg-white rounded-2xl ring-1 ring-gray-900/5 overflow-hidden hover:shadow-xl transition-all duration-300">
+                        <article class="flex flex-col h-full bg-white rounded-2xl ring-1 ring-gray-900/5 overflow-hidden hover:ring-gray-900/10 active:scale-[0.98] transition-all duration-150">
                             <div class="aspect-[16/9] overflow-hidden bg-gray-50">
                                 {% if post.image %}
                                     <img
@@ -142,11 +141,10 @@
                                 {% endif %}
                             </div>
                             <div class="p-5 flex flex-col flex-1">
-                                <span class="text-xs font-semibold text-blue-600 mb-2">추천</span>
-                                <h3 class="text-lg font-bold text-gray-900 mb-2 leading-snug line-clamp-2 group-hover:text-gray-700 transition-colors">
+                                <h3 class="text-md font-bold text-gray-900 mb-2 leading-snug line-clamp-2 group-hover:text-gray-700 transition-colors">
                                     {{ post.title }}
                                 </h3>
-                                <div class="mt-auto pt-4 flex items-center gap-3 text-sm text-gray-400 border-t border-gray-100">
+                                <div class="mt-auto pt-4 flex items-center gap-3 text-xs text-gray-400 border-t border-gray-100">
                                     <time class="flex items-center gap-1.5">
                                         <i class="far fa-calendar text-xs"></i>
                                         {{ post.created_date|date:"M j, Y" }}
@@ -192,7 +190,7 @@
                     <h3 class="text-sm font-bold text-gray-900 mb-4">블로그 공지</h3>
                     <div class="space-y-2">
                         {% for notice in blog_notices %}
-                        <a href="/@{{ notice.author.username }}/{{ notice.url }}" class="flex items-center gap-3 px-4 py-2.5 rounded-xl hover:bg-gray-50 transition-colors group">
+                        <a href="/@{{ notice.author.username }}/{{ notice.url }}" class="flex items-center gap-3 px-4 py-2.5 rounded-xl hover:bg-gray-50 transition-all duration-150 active:scale-[0.98] group">
                             <div class="w-8 h-8 rounded-lg bg-amber-50 flex items-center justify-center flex-shrink-0">
                                 <i class="fas fa-bullhorn text-amber-600 text-sm"></i>
                             </div>
@@ -207,13 +205,13 @@
                 <div class="bg-white rounded-2xl ring-1 ring-gray-900/5 p-6">
                     <h3 class="text-sm font-bold text-gray-900 mb-4">바로 가기</h3>
                     <div class="space-y-2">
-                        <a href="/@{{ author.username }}/posts" class="flex items-center gap-3 px-4 py-2.5 rounded-xl hover:bg-gray-50 transition-colors group">
+                        <a href="/@{{ author.username }}/posts" class="flex items-center gap-3 px-4 py-2.5 rounded-xl hover:bg-gray-50 transition-all duration-150 active:scale-[0.98] group">
                             <div class="w-8 h-8 rounded-lg bg-blue-50 flex items-center justify-center">
                                 <i class="fas fa-file-alt text-blue-600 text-sm"></i>
                             </div>
                             <span class="text-sm font-medium text-gray-700">모든 포스트</span>
                         </a>
-                        <a href="/@{{ author.username }}/series" class="flex items-center gap-3 px-4 py-2.5 rounded-xl hover:bg-gray-50 transition-colors group">
+                        <a href="/@{{ author.username }}/series" class="flex items-center gap-3 px-4 py-2.5 rounded-xl hover:bg-gray-50 transition-all duration-150 active:scale-[0.98] group">
                             <div class="w-8 h-8 rounded-lg bg-purple-50 flex items-center justify-center">
                                 <i class="fas fa-layer-group text-purple-600 text-sm"></i>
                             </div>
