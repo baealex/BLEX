@@ -33,7 +33,7 @@
             <div class="w-1 h-1 bg-gray-300 rounded-full"></div>
             <div class="flex items-center gap-1.5">
                 <i class="far fa-file-alt text-xs"></i>
-                <span>{{ posts|length }} 포스트</span>
+                <span>{{ series.post_count }} 포스트</span>
             </div>
             <div class="w-1 h-1 bg-gray-300 rounded-full"></div>
             <div class="flex items-center gap-1.5">
@@ -46,7 +46,7 @@
         {% if request.user == author %}
         <div class="mt-8">
             <a href="/@{{ author.username }}/series/{{ series.url }}/edit"
-            class="inline-flex items-center gap-2 bg-black text-white px-5 py-2.5 rounded-full font-medium transition-all duration-300 hover:bg-gray-800 hover:shadow-lg hover:-translate-y-0.5 text-sm">
+            class="inline-flex items-center gap-2 bg-black text-white px-5 py-2.5 rounded-full font-medium transition-all duration-150 hover:bg-gray-800 active:scale-[0.98] text-sm">
                 <i class="fas fa-edit text-xs"></i>
                 <span>시리즈 편집</span>
             </a>
@@ -72,10 +72,10 @@
     <!-- 정렬 컨트롤 -->
     <div class="flex justify-end mb-6">
         <div class="inline-flex bg-gray-100/80 backdrop-blur-sm p-1 rounded-xl">
-            <a href="?sort=asc" class="px-4 py-1.5 {% if sort_order == 'asc' %}bg-white text-black shadow-sm{% else %}text-gray-500 hover:text-gray-900{% endif %} rounded-lg text-xs font-bold transition-all duration-200">
+            <a href="?sort=asc" class="px-4 py-1.5 {% if sort_order == 'asc' %}bg-white text-black shadow-sm{% else %}text-gray-500 hover:text-gray-900{% endif %} rounded-lg text-xs font-bold transition-all duration-150">
                 오래된순
             </a>
-            <a href="?sort=desc" class="px-4 py-1.5 {% if sort_order == 'desc' %}bg-white text-black shadow-sm{% else %}text-gray-500 hover:text-gray-900{% endif %} rounded-lg text-xs font-bold transition-all duration-200">
+            <a href="?sort=desc" class="px-4 py-1.5 {% if sort_order == 'desc' %}bg-white text-black shadow-sm{% else %}text-gray-500 hover:text-gray-900{% endif %} rounded-lg text-xs font-bold transition-all duration-150">
                 최신순
             </a>
         </div>
@@ -84,10 +84,10 @@
     <!-- 포스트 목록 -->
     <div class="space-y-4">
         {% for post_number, post in posts %}
-        <article class="group relative bg-white p-6 rounded-3xl border border-gray-100 shadow-[0_2px_8px_rgba(0,0,0,0.02)] hover:shadow-[0_8px_24px_rgba(0,0,0,0.06)] transition-all duration-300 hover:-translate-y-0.5">
+        <article class="group relative bg-white p-6 rounded-2xl border border-gray-100 hover:ring-1 hover:ring-gray-900/5 active:scale-[0.98] transition-all duration-150">
             <a href="/@{{ author.username }}/{{ post.url }}" class="flex items-start gap-5">
                 <!-- 포스트 번호 -->
-                <div class="flex-shrink-0 w-10 h-10 bg-gray-50 group-hover:bg-black group-hover:text-white transition-colors duration-300 rounded-xl flex items-center justify-center text-gray-400 text-sm font-bold font-mono">
+                <div class="flex-shrink-0 w-10 h-10 bg-gray-50 group-hover:bg-black group-hover:text-white transition-colors duration-150 rounded-xl flex items-center justify-center text-gray-400 text-sm font-bold font-mono">
                     {{ post_number }}
                 </div>
 

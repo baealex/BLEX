@@ -12,24 +12,22 @@
     </div>
 
     <!-- 필터 영역 -->
-    <div class="bg-gray-50/50 backdrop-blur-sm border border-gray-200/50 rounded-2xl p-6 mb-10">
-        <div class="flex flex-col sm:flex-row justify-between items-end sm:items-center gap-6">
-            <div class="w-full sm:flex-1 sm:max-w-md">
-                <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2 ml-1">태그 검색</label>
-                {% include 'components/search_query_filter.html' with placeholder='검색어를 입력하세요.' %}
-            </div>
-            
-            <div class="w-full sm:w-auto">
-                <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2 ml-1">정렬 방식</label>
-                {% include 'components/dropdown_filter.html' with options=sort_options param_name='sort' current_value=request.GET.sort|default:'popular' default_label='인기순' %}
-            </div>
+    <div class="flex flex-col sm:flex-row justify-between items-end sm:items-center gap-6 mb-12">
+        <div class="w-full sm:flex-1 sm:max-w-md">
+            <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2 ml-1">태그 검색</label>
+            {% include 'components/search_query_filter.html' with placeholder='검색어를 입력하세요.' %}
+        </div>
+        
+        <div class="w-full sm:w-auto">
+            <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2 ml-1">정렬 방식</label>
+            {% include 'components/dropdown_filter.html' with options=sort_options param_name='sort' current_value=request.GET.sort|default:'popular' default_label='인기순' %}
         </div>
     </div>
 
     {% if tags %}
         <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
             {% for tag in tags %}
-                <a href="/tag/{{ tag.name }}" class="group block bg-white rounded-2xl border border-gray-100 p-6 shadow-[0_2px_8px_rgba(0,0,0,0.02)] hover:shadow-[0_8px_24px_rgba(0,0,0,0.06)] transition-all duration-300 hover:-translate-y-1">
+                <a href="/tag/{{ tag.name }}" class="group block bg-white rounded-2xl border border-gray-100 p-6 hover:ring-1 hover:ring-gray-900/5 active:scale-[0.98] transition-all duration-150">
                     <div class="flex flex-col h-full">
                         <div class="flex items-center justify-between mb-4">
                             <span class="w-8 h-8 rounded-full bg-gray-50 flex items-center justify-center text-gray-400 group-hover:bg-black group-hover:text-white transition-colors duration-300">
