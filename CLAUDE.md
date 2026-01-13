@@ -4,6 +4,7 @@ Complete environment setup (backend + frontend) can be done with `npm i`.
 
 ## Backend (Python Django) Work
 
+- **Always read `docs/BACKEND_GUIDE.md` first.**
 - Always write test code for all development.
   - Run tests with `npm run server:test`.
 - For server-side rendering + client interactions, use `alpine`.

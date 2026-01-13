@@ -1,3 +1,4 @@
+import json
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.models import User
 from django.db.models import Count, F, Exists, OuterRef
@@ -6,6 +7,7 @@ from django.contrib import messages
 
 from board.models import Post, Series, PostLikes, TempPosts, UsernameChangeLog, Banner
 from board.services.post_service import PostService, PostValidationError
+from board.utils import extract_table_of_contents
 
 def post_detail(request, username, post_url):
     """
@@ -20,24 +22,8 @@ def post_detail(request, username, post_url):
     author = get_object_or_404(User, username=username)
 
     try:
-        post = Post.objects.select_related(
-            'config', 'series', 'author', 'author__profile'
-        ).filter(
-            author=author,
-            url=post_url,
-        ).annotate(
-            author_username=F('author__username'),
-            author_image=F('author__profile__avatar'),
-            count_likes=Count('likes', distinct=True),
-            count_comments=Count('comments', distinct=True),
-            has_liked=Exists(
-                PostLikes.objects.filter(
-                    post__id=OuterRef('id'),
-                    user__id=request.user.id if request.user.id else -1
-                )
-            ),
-        ).get()
-    except Post.DoesNotExist:
+        post = PostService.get_post_detail(username, post_url, request.user)
+    except Http404:
         raise Http404("Post does not exist")
     
     if post.config.hide and (not request.user.is_authenticated or request.user != author):
@@ -53,6 +39,9 @@ def post_detail(request, username, post_url):
 
     if post.series:
         post.visible_series_posts = PostService.get_visible_series_posts(post)
+
+    # Extract table of contents from post content
+    content_html_with_ids, table_of_contents = extract_table_of_contents(post.content.text_html)
 
     # Fetch active banners for the post author
     banners = {
@@ -81,12 +70,14 @@ def post_detail(request, username, post_url):
             position=Banner.Position.RIGHT
         ).order_by('order', '-created_date'),
     }
-    
+
     context = {
         'post': post,
         'banners': banners,
+        'content_html': content_html_with_ids,
+        'table_of_contents': table_of_contents,
     }
-    
+
     return render(request, 'board/posts/post_detail.html', context)
 
 
@@ -121,12 +112,9 @@ def post_editor(request, username=None, post_url=None):
             raise Http404("You don't have permission to edit this post")
         
         try:
-            post = Post.objects.select_related('config', 'series', 'content').get(
-                author=author,
-                url=post_url,
-            )
-        except Post.DoesNotExist:
-            raise Http404("Post does not exist")
+            post = PostService.get_post_detail(username, post_url, request.user)
+        except Http404:
+             raise Http404("Post does not exist")
     
     series_list = Series.objects.filter(owner=request.user).order_by('-updated_date')
     

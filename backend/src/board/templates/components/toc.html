@@ -1,0 +1,35 @@
+<div
+    x-data="toc()"
+    x-init="init()"
+    class="bg-white rounded-2xl ring-1 ring-gray-900/5 max-h-[400px] overflow-y-auto overscroll-contain"
+>
+    <!-- Header -->
+    <div class="px-6 py-4 border-b border-gray-100 sticky top-0 bg-white z-10">
+        <h2 class="text-sm font-bold text-gray-900 uppercase tracking-wider">
+            목차
+        </h2>
+    </div>
+
+    <!-- ToC List -->
+    <nav class="px-4 py-4" aria-label="Table of Contents">
+        <ul class="space-y-1">
+            {% for heading in table_of_contents %}
+                <li>
+                    <a
+                        href="#{{ heading.id }}"
+                        @click.prevent="scrollToHeading('{{ heading.id }}')"
+                        :class="{
+                            'text-gray-900 font-semibold bg-gray-50': activeId === '{{ heading.id }}',
+                            'text-gray-600 hover:text-gray-900 hover:bg-gray-50': activeId !== '{{ heading.id }}'
+                        }"
+                        class="toc-item block py-2 px-3 rounded-lg text-sm transition-all duration-150 active:scale-95 scroll-mt-20"
+                        data-id="{{ heading.id }}"
+                        style="padding-left: calc({{ heading.level }} * 12px - 6px)"
+                    >
+                        {{ heading.text }}
+                    </a>
+                </li>
+            {% endfor %}
+        </ul>
+    </nav>
+</div>
