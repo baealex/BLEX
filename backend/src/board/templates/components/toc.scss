@@ -1,0 +1,44 @@
+@layer components {
+
+    // Smooth scrolling for the entire document when ToC links are clicked
+    html {
+        scroll-behavior: smooth;
+    }
+
+    // Ensure headings have proper scroll margin for fixed header offset
+    h1[id],
+    h2[id],
+    h3[id],
+    h4[id],
+    h5[id],
+    h6[id] {
+        scroll-margin-top: 100px;
+    }
+
+    // Custom scrollbar styling for ToC if needed
+    [x-data*="toc"] nav {
+        overflow-y: auto;
+
+        // Webkit scrollbar styling (Chrome, Safari, Edge)
+        &::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        &::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        &::-webkit-scrollbar-thumb {
+            background: rgba(0, 0, 0, 0.1);
+            border-radius: 2px;
+
+            &:hover {
+                background: rgba(0, 0, 0, 0.2);
+            }
+        }
+
+        // Firefox scrollbar styling
+        scrollbar-width: thin;
+        scrollbar-color: rgba(0, 0, 0, 0.1) transparent;
+    }
+}

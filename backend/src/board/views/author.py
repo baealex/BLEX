@@ -1,13 +1,14 @@
-from django.shortcuts import render, get_object_or_404, redirect
 import json
+
 from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
 from django.db.models import Case, When, Count, Exists, OuterRef, Q, F
+from django.shortcuts import render, get_object_or_404, redirect
 from django.utils import timezone
-from board.modules.paginator import Paginator
 from django.http import JsonResponse
-from board.services.user_service import UserService
 
+from board.modules.paginator import Paginator
+from board.services.user_service import UserService
 from board.models import Post, Series, PostLikes, Tag, Profile
 from modules import markdown
 

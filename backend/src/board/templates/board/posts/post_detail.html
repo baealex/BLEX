@@ -127,7 +127,7 @@
                     
                     <!-- Content -->
                     <div class="prose prose-lg max-w-none blog-post-content break-words mb-16" itemprop="articleBody" lang="{{ LANGUAGE_CODE|default:'ko' }}">
-                        {{ post.content.text_html|safe }}
+                        {{ content_html|safe }}
                     </div>
 
                     <!-- Tags -->
@@ -310,6 +310,12 @@
         <!-- Right Sidebar Space (Always present on desktop) -->
         <aside class="hidden xl:block w-64 flex-shrink-0">
             <div class="sticky top-28 space-y-4">
+                <!-- Table of Contents -->
+                {% if table_of_contents %}
+                    {% include 'components/toc.html' with headings_json=table_of_contents|safe %}
+                {% endif %}
+
+                <!-- Right Banners -->
                 {% if banners.right %}
                     {% for banner in banners.right %}
                         {{ banner.content_html|safe }}

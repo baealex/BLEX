@@ -5,17 +5,22 @@ Business logic for post operations.
 Extracted from views to improve testability and reusability.
 """
 
+import random
 from typing import Optional, Dict, Any, Tuple, List
 from datetime import datetime
 
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.db import transaction
+from django.db.models import (
+    Q, F, Case, Exists, When, Value, OuterRef, Count
+)
+from django.shortcuts import get_object_or_404
 from django.utils import timezone
 from django.utils.dateparse import parse_datetime
 from django.utils.text import slugify
 
-from board.models import Post, PostContent, PostConfig, Series, TempPosts
+from board.models import Post, PostContent, PostConfig, Series, TempPosts, PostLikes
 from board.modules.post_description import create_post_description
 from board.modules.response import ErrorCode
 from modules.discord import Discord
@@ -273,6 +278,113 @@ class PostService:
         return post, post_content, post_config
 
     @staticmethod
+    def get_post_detail(
+        username: str,
+        url: str,
+        user: Optional[User] = None
+    ) -> Post:
+        """
+        Get post detail with all necessary related data.
+
+        Args:
+            username: Author username
+            url: Post URL
+            user: Requesting user (optional)
+
+        Returns:
+            Post instance with annotated data
+        """
+        return get_object_or_404(Post.objects.select_related(
+            'config', 'content', 'series'
+        ).annotate(
+            author_username=F('author__username'),
+            author_image=F('author__profile__avatar'),
+            count_likes=Count('likes', distinct=True),
+            count_comments=Count('comments', distinct=True),
+            has_liked=Exists(
+                PostLikes.objects.filter(
+                    post__id=OuterRef('id'),
+                    user__id=user.id if user and user.id else -1
+                )
+            ),
+        ), author__username=username, url=url)
+
+    @staticmethod
+    def get_related_posts(post: Post) -> List[Post]:
+        """
+        Get related posts based on tags and popularity.
+
+        Args:
+            post: Reference post
+
+        Returns:
+            List of related posts
+        """
+        if not post.tags.exists():
+            return []
+
+        current_tags = list(post.tags.values_list('value', flat=True))
+        current_tag_set = set(current_tags)
+
+        candidates = Post.objects.select_related(
+            'author', 'author__profile', 'config'
+        ).prefetch_related('tags').filter(
+            tags__value__in=current_tags,
+            config__hide=False,
+            created_date__lte=timezone.now(),
+        ).exclude(
+            id=post.id
+        ).annotate(
+            author_username=F('author__username'),
+            author_name=F('author__first_name'),
+            author_image=F('author__profile__avatar'),
+            likes_count=Count('likes', distinct=True),
+            comments_count=Count('comments', distinct=True),
+        ).distinct()
+
+        scored_posts = []
+        now = timezone.now()
+
+        for candidate in candidates:
+            score = 0
+
+            candidate_tags = set(candidate.tags.values_list('value', flat=True))
+            tag_overlap = len(current_tag_set & candidate_tags)
+            tag_score = min(tag_overlap * 3, 10)
+            score += tag_score
+
+            popularity = (candidate.likes_count * 2) + candidate.comments_count
+            popularity_score = min(popularity, 10)
+            score += popularity_score
+
+            days_old = (now - candidate.created_date).days
+            if days_old < 7:
+                recency_score = 5
+            elif days_old < 30:
+                recency_score = 3
+            elif days_old < 90:
+                recency_score = 1
+            else:
+                recency_score = 0
+            score += recency_score
+
+            if candidate.author.id == post.author.id:
+                score -= 5
+
+            random_score = random.uniform(-3, 3)
+            score += random_score
+
+            scored_posts.append({
+                'post': candidate,
+                'score': score,
+                'tag_overlap': tag_overlap,
+            })
+
+        scored_posts.sort(key=lambda x: (x['score'], x['tag_overlap']), reverse=True)
+
+        return [x['post'] for x in scored_posts[:6]]
+
+    @staticmethod
     @transaction.atomic
     def update_post(
         post: Post,
@@ -283,6 +395,7 @@ class PostService:
         custom_url: Optional[str] = None,
         tag: Optional[str] = None,
         image: Optional[Any] = None,
+        image_delete: bool = False,
         is_hide: Optional[bool] = None,
         is_notice: Optional[bool] = None,
         is_advertise: Optional[bool] = None,
@@ -342,10 +455,18 @@ class PostService:
         if tag is not None:
             post.set_tags(tag)
 
-        if image is not None:
+        if image_delete:
+            if post.image:
+                post.image.delete(save=False)
+                post.image = None
+        elif image is not None:
+            if post.image:
+                post.image.delete(save=False)
             post.image = image
 
-        post.updated_date = timezone.now()
+        if post.is_published():
+            post.updated_date = timezone.now()
+        
         post.save()
 
         if is_hide is not None or is_notice is not None or is_advertise is not None:
