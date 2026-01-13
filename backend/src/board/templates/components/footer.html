@@ -1,12 +1,12 @@
 {% load resource %}
-<footer class="bg-gray-50 border-t border-gray-200 mt-auto">
+<footer class="bg-white border-t border-gray-100 mt-auto">
     <div class="max-w-7xl mx-auto px-4 md:px-6 py-12">
-        <div class="flex flex-col md:flex-row justify-between items-center gap-6">
-            <div class="flex flex-col items-center md:items-start gap-4">
+        <div class="flex flex-col md:flex-row justify-between items-center md:items-start gap-8">
+            <div class="flex flex-col items-center md:items-start gap-3">
                 <a href="/" class="flex items-center group">
-                    <img class="h-6 w-auto opacity-80 group-hover:opacity-100 transition-opacity duration-200" src="{% resource 'logob.svg' %}" alt="BLEX">
+                    <img class="h-7 w-auto transition-opacity duration-150 group-hover:opacity-70" src="{% resource 'logob.svg' %}" alt="BLEX">
                 </a>
-                <p class="text-xs text-gray-400 font-medium">
+                <p class="text-xs text-gray-500">
                     &copy; {% now "Y" %} BLEX. All rights reserved.
                 </p>
             </div>

@@ -1,27 +1,32 @@
-전체 (백엔드 + 프론트엔드) 환경 셋업은 `npm i`로 가능하다.
+# BLEX Development Guide
 
-## 백엔드 (Python Django) 작업 시
+Complete environment setup (backend + frontend) can be done with `npm i`.
 
-- 모든 개발에는 테스트 코드를 작성한다.
-  - 테스트 실행은 `npm run server:test`로 실행한다.
-- 서버 사이드 렌더링 + 클라이언트 동작이 필요한 것은 `alpine`을 사용한다.
-  - 템플릿 컴포넌트와 같은 위치에 `*.alpine.ts` 스크립트와 `*.scss` 파일이 위치한다.
-    - `pnpm dev` 실행중엔 자동으로 매핑되지만 그렇지 않은 경우 아래 파일을 업데이트 해야한다.
+## Backend (Python Django) Work
+
+- Always write test code for all development.
+  - Run tests with `npm run server:test`.
+- For server-side rendering + client interactions, use `alpine`.
+  - Template components should have corresponding `*.alpine.ts` scripts and `*.scss` files in the same location.
+    - These are automatically mapped when running `pnpm dev`, but if not, you need to update the following files:
       - `/backend/islands/apps/remotes/styles/forwarded.scss`
       - `/backend/islands/apps/remotes/src/scripts/alpine-loader.ts`
 
-## 아일랜드 프론트엔드 (React + Vite) 작업 시
+## Islands Frontend (React + Vite) Work
 
-- 개발 후 린트와 타입 체크를 실행한다.
-  - `npm run islands:lint`와 `npm run islands:type-check`로 실행한다.
-- 모노레포로 구성된 프론트엔드이다.
-  - 공통 컴포넌트는 `/backend/islands/packages/ui`에 위치한다.
-    - 바퀴를 재발명하지 마라, `radix`와 같은 검증된 라이브러리를 써야한다.
-    - 컴포넌트는 재사용성을 높히고 디자인 철학을 따라야 한다. 
-  - 에디터는 `/backend/islands/packages/editor`에 위치한다.
-    - 에디터는 `tiptap`을 기반으로 한다.
-    - 에디터는 프로젝트의 핵심 기능이므로 UI와 UX를 최우선으로 고려한다.
+- **IMPORTANT**: Lint and type checks are **ONLY** for Islands (React) work, **NOT** for template work.
+  - After development, run lint and type checks:
+    - `npm run islands:lint` for linting
+    - `npm run islands:type-check` for type checking
+  - These checks have no meaning for Django template work.
+- This is a monorepo frontend architecture.
+  - Common components are located in `/backend/islands/packages/ui`.
+    - Don't reinvent the wheel—use proven libraries like `radix`.
+    - Components should be highly reusable and follow the design philosophy.
+  - The editor is located in `/backend/islands/packages/editor`.
+    - The editor is based on `tiptap`.
+    - As a core feature of the project, prioritize UI and UX above all.
 
-## 디자인/UI 작업 시
+## Design/UI Work
 
-**반드시 `docs/DESIGN_GUIDE.md`를 먼저 읽어라.**
+**Always read `docs/DESIGN_GUIDE.md` first.**
