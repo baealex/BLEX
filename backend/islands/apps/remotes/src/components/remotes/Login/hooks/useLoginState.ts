@@ -71,7 +71,7 @@ export const useLoginState = () => {
     const goBackToLogin = () => {
         // If OAuth token exists, redirect to login page to restart OAuth flow
         if (state.oauthToken) {
-            window.location.href = '/login';
+            window.location.assign('/login');
             return;
         }
 

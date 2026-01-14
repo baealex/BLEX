@@ -26,7 +26,7 @@ const NotificationsSection = ({
                 // Silently handle error
             }
         }
-        window.location.href = notify.url;
+        window.location.assign(notify.url);
     };
 
     return (

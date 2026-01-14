@@ -11,11 +11,11 @@
         "server:makemigrations": "./scripts/manage.sh makemigrations",
         "server:migrate": "./scripts/manage.sh migrate",
         "server:tool": "./scripts/tools.sh",
-        "island:setup": "pnpm install --prefix backend/islands",
-        "island:dev": "npm run dev --prefix backend/islands",
-        "island:lint": "npm run lint --prefix backend/islands",
-        "island:build": "npm run build --prefix backend/islands",
-        "island:type-check": "npm run type-check --prefix backend/islands",
+        "islands:setup": "pnpm install --prefix backend/islands",
+        "islands:dev": "npm run dev --prefix backend/islands",
+        "islands:lint": "npm run lint --prefix backend/islands",
+        "islands:build": "npm run build --prefix backend/islands",
+        "islands:type-check": "npm run type-check --prefix backend/islands",
         "dev": "concurrently \"npm run server:dev\" \"npm run island:dev\""
     },
     "repository": {

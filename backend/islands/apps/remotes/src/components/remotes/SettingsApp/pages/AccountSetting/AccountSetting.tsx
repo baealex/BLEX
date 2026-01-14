@@ -184,7 +184,7 @@ const AccountSettings = () => {
                 const redirectUrl = accountData?.accountDeletionRedirectUrl || '/';
 
                 setTimeout(() => {
-                    window.location.href = redirectUrl;
+                    window.location.assign(redirectUrl);
                 }, 1500);
             } else {
                 toast.error(data.errorMessage || '계정 삭제에 실패했습니다.');

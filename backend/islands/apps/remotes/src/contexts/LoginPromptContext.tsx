@@ -59,9 +59,6 @@ export const LoginPromptProvider = ({ children }: { children: ReactNode }) => {
         };
 
         window.addEventListener('showLoginPrompt', handleShowLoginPrompt as EventListener);
-        return () => {
-            window.removeEventListener('showLoginPrompt', handleShowLoginPrompt as EventListener);
-        };
     }, [showLoginPrompt, dialogState.isOpen]);
 
     const handleClose = () => {
@@ -73,7 +70,7 @@ export const LoginPromptProvider = ({ children }: { children: ReactNode }) => {
 
     const handleLogin = () => {
         const currentPath = window.location.pathname + window.location.search;
-        window.location.href = `/login?next=${encodeURIComponent(currentPath)}`;
+        window.location.assign(`/login?next=${encodeURIComponent(currentPath)}`);
     };
 
     return (

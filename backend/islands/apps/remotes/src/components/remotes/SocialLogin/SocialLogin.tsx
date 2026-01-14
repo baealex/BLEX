@@ -35,9 +35,9 @@ const SocialLogin = () => {
 
         if (clientId && authUrlBuilder) {
             const authUrl = authUrlBuilder(clientId, redirectUri);
-            window.location.href = authUrl;
+            window.location.assign(authUrl);
         } else {
-            console.error(`Social login not configured for ${provider.name}`);
+            // Social login not configured
         }
     };
 

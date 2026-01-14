@@ -111,7 +111,7 @@ export const SettingsMobileNavigation = ({ currentPath }: SettingsNavigationProp
     const handleNavClick = (item: NavigationItem) => {
         setMobileMenuOpen(false);
         if (item.path === 'admin' && adminUrl) {
-            window.location.href = adminUrl;
+            window.location.assign(adminUrl);
         }
     };
 
@@ -224,8 +224,8 @@ export const SettingsDesktopNavigation = ({ currentPath }: SettingsNavigationPro
     };
 
     const handleNavClick = (item: NavigationItem) => {
-         if (item.path === 'admin' && adminUrl) {
-            window.location.href = adminUrl;
+        if (item.path === 'admin' && adminUrl) {
+            window.location.assign(adminUrl);
         }
     };
 

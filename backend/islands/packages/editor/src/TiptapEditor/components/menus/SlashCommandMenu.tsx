@@ -50,8 +50,8 @@ const SlashCommandMenu = ({
                     const data = await response.json();
                     setForms(data.body?.forms || []);
                 }
-            } catch (error) {
-                console.error('서식 목록 불러오기 실패:', error);
+            } catch {
+                // Ignore error
             }
         };
 
@@ -73,7 +73,6 @@ const SlashCommandMenu = ({
             const markdown = data.body?.content || '';
 
             if (!markdown.trim()) {
-                console.warn('서식 내용이 비어있습니다.');
                 return;
             }
 
@@ -95,8 +94,8 @@ const SlashCommandMenu = ({
 
             // 에디터에 HTML 삽입
             editor.chain().focus().insertContent(html).run();
-        } catch (error) {
-            console.error('서식 삽입 실패:', error);
+        } catch {
+            // Error handling
         }
     };
 

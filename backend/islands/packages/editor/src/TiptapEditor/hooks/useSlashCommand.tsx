@@ -109,8 +109,8 @@ export const useSlashCommand = (editor: Editor | null) => {
                     const { tr } = editor.state;
                     editor.view.dispatch(tr.delete(state.slashPos, state.slashPos + 1));
                 }
-            } catch (error) {
-                console.warn('슬래시 문자 제거 중 오류:', error);
+            } catch {
+                // Ignore error
             }
         }
         hideMenu();

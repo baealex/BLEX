@@ -29,7 +29,7 @@ const LoginPrompt = ({ isOpen: initialIsOpen = false }: LoginPromptProps) => {
 
     const handleLogin = () => {
         const currentPath = window.location.pathname + window.location.search;
-        window.location.href = `/login?next=${encodeURIComponent(currentPath)}`;
+        window.location.assign(`/login?next=${encodeURIComponent(currentPath)}`);
     };
 
     return (

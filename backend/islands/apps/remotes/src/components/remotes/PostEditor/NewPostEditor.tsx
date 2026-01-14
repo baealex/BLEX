@@ -73,14 +73,13 @@ const NewPostEditor = ({ tempToken }: NewPostEditorProps) => {
             if (data.status === 'DONE') {
                 return data.body.url;
             }
-        } catch (error) {
-            console.error('Image upload failed', error);
+        } catch {
+            // Ignore error
         }
         return undefined;
     };
 
     const handleAutoSaveSuccess = (token?: string) => {
-        // Update URL to include tempToken for first save
         if (token && !tempToken) {
             const newUrl = new URL(window.location.href);
             newUrl.searchParams.set('tempToken', token);
@@ -204,11 +203,11 @@ const NewPostEditor = ({ tempToken }: NewPostEditorProps) => {
             });
 
             if (confirmed) {
-                window.location.href = `/ write ? tempToken = ${token} `;
+                window.location.assign(`/write?tempToken=${token}`);
             }
         } else {
             // Navigate directly
-            window.location.href = `/ write ? tempToken = ${token} `;
+            window.location.assign(`/write?tempToken=${token}`);
         }
     };
 

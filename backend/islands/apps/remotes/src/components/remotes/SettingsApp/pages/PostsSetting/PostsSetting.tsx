@@ -27,7 +27,7 @@ const PostsSetting = () => {
                         size="md"
                         fullWidth
                         leftIcon={<i className="fas fa-plus" />}
-                        onClick={() => window.location.href = '/write'}>
+                        onClick={() => window.location.assign('/write')}>
                         새 포스트 작성
                     </Button>
                 }
@@ -46,13 +46,14 @@ const PostsSetting = () => {
                 />
             </Suspense>
 
-            <Suspense fallback={
-                <div className="space-y-3 mt-6">
-                    {[1, 2, 3].map(i => (
-                        <div key={i} className="h-40 bg-gray-50 animate-pulse rounded-lg border border-gray-100" />
-                    ))}
-                </div>
-            }>
+            <Suspense
+                fallback={
+                    <div className="space-y-3 mt-6">
+                        {[1, 2, 3].map(i => (
+                            <div key={i} className="h-40 bg-gray-50 animate-pulse rounded-lg border border-gray-100" />
+                        ))}
+                    </div>
+                }>
                 <div className="mt-6">
                     <PostListContent
                         filters={filters}

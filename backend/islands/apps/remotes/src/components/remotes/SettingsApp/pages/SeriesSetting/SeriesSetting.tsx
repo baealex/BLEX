@@ -64,11 +64,11 @@ const SortableSeriesItem = ({ series, username, onDelete }: SortableSeriesItemPr
     };
 
     const handleEdit = () => {
-        window.location.href = `/@${username}/series/${series.url}/edit`;
+        window.location.assign(`/@${username}/series/${series.url}/edit`);
     };
 
     const handleView = () => {
-        window.location.href = `/@${username}/series/${series.url}`;
+        window.location.assign(`/@${username}/series/${series.url}`);
     };
 
     const handleDelete = async () => {
@@ -199,7 +199,7 @@ const SeriesSetting = () => {
     };
 
     const handleCreateSeries = () => {
-        window.location.href = `/@${username}/series/create`;
+        window.location.assign(`/@${username}/series/create`);
     };
 
     const handleDeleteSeries = async (seriesId: number) => {
