@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react';
+import { useState } from 'react';
 import type { Editor } from '@tiptap/react';
 
 interface UseMarkdownPasteProps {
@@ -44,7 +44,7 @@ export const useMarkdownPaste = ({ editor }: UseMarkdownPasteProps) => {
         html: ''
     });
 
-    const convertMarkdownToHtml = useCallback(async (markdown: string): Promise<string | null> => {
+    const convertMarkdownToHtml = async (markdown: string): Promise<string | null> => {
         try {
             const response = await fetch('/v1/markdown', {
                 method: 'POST',
@@ -61,9 +61,9 @@ export const useMarkdownPaste = ({ editor }: UseMarkdownPasteProps) => {
         } catch {
             return null;
         }
-    }, []);
+    };
 
-    const handleMarkdownPaste = useCallback(async (text: string): Promise<boolean> => {
+    const handleMarkdownPaste = async (text: string): Promise<boolean> => {
         if (!editor || !text) return false;
 
         if (detectMarkdownPatterns(text)) {
@@ -82,9 +82,9 @@ export const useMarkdownPaste = ({ editor }: UseMarkdownPasteProps) => {
         }
 
         return false;
-    }, [editor, convertMarkdownToHtml]);
+    };
 
-    const insertAsHtml = useCallback(() => {
+    const insertAsHtml = () => {
         if (!editor || !pasteState.html) return;
 
         editor.chain().focus().insertContent(pasteState.html).run();
@@ -93,9 +93,9 @@ export const useMarkdownPaste = ({ editor }: UseMarkdownPasteProps) => {
             markdown: '',
             html: ''
         });
-    }, [editor, pasteState.html]);
+    };
 
-    const insertAsText = useCallback(() => {
+    const insertAsText = () => {
         if (!editor || !pasteState.markdown) return;
 
         editor.chain().focus().insertContent(pasteState.markdown).run();
@@ -104,15 +104,15 @@ export const useMarkdownPaste = ({ editor }: UseMarkdownPasteProps) => {
             markdown: '',
             html: ''
         });
-    }, [editor, pasteState.markdown]);
+    };
 
-    const closeModal = useCallback(() => {
+    const closeModal = () => {
         setPasteState({
             isOpen: false,
             markdown: '',
             html: ''
         });
-    }, []);
+    };
 
     return {
         pasteState,

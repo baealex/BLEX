@@ -63,7 +63,7 @@ const TempPostsSetting = () => {
                         size="md"
                         fullWidth
                         leftIcon={<i className="fas fa-plus" />}
-                        onClick={() => window.location.href = '/write'}>
+                        onClick={() => window.location.assign('/write')}>
                         새 포스트 작성
                     </Button>
                 }
@@ -75,7 +75,7 @@ const TempPostsSetting = () => {
                         <div
                             key={tempPost.token}
                             className={getCardClass('cursor-pointer')}
-                            onClick={() => window.location.href = `/write?tempToken=${tempPost.token}`}>
+                            onClick={() => window.location.assign(`/write?tempToken=${tempPost.token}`)}>
                             <div className={CARD_PADDING}>
                                 <div className={FLEX_ROW}>
                                     {/* Icon */}

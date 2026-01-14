@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState } from 'react';
 import type { Editor } from '@tiptap/react';
 
 interface SlashCommandState {
@@ -12,20 +12,20 @@ export const useSlashCommand = (editor: Editor | null) => {
         slashPos: null
     });
 
-    const hideMenu = useCallback(() => {
+    const hideMenu = () => {
         setState(prev => ({
             ...prev,
             isVisible: false,
             slashPos: null
         }));
-    }, []);
+    };
 
-    const showMenu = useCallback((slashPos: number) => {
+    const showMenu = (slashPos: number) => {
         setState({
             isVisible: true,
             slashPos
         });
-    }, []);
+    };
 
     useEffect(() => {
         if (!editor || !editor.isEditable) return;
@@ -95,9 +95,9 @@ export const useSlashCommand = (editor: Editor | null) => {
             editor.off('transaction', handleTransaction);
             document.removeEventListener('click', handleClick);
         };
-    }, [editor, state, hideMenu, showMenu]);
+    }, [editor, state]);
 
-    const closeMenu = useCallback(() => {
+    const closeMenu = () => {
         if (state.slashPos !== null && editor) {
             try {
                 // "/" 문자 제거
@@ -109,12 +109,12 @@ export const useSlashCommand = (editor: Editor | null) => {
                     const { tr } = editor.state;
                     editor.view.dispatch(tr.delete(state.slashPos, state.slashPos + 1));
                 }
-            } catch (error) {
-                console.warn('슬래시 문자 제거 중 오류:', error);
+            } catch {
+                // Ignore error
             }
         }
         hideMenu();
-    }, [editor, state.slashPos, hideMenu]);
+    };
 
     return {
         isVisible: state.isVisible,

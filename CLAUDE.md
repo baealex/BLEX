@@ -15,6 +15,7 @@ Complete environment setup (backend + frontend) can be done with `npm i`.
 
 ## Islands Frontend (React + Vite) Work
 
+- **Always read `docs/FRONTEND_GUIDE.md` first.**
 - **IMPORTANT**: Lint and type checks are **ONLY** for Islands (React) work, **NOT** for template work.
   - After development, run lint and type checks:
     - `npm run islands:lint` for linting

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { toast } from '~/utils/toast';
 import { useConfirm } from '~/contexts/ConfirmContext';
 import PostEditorWrapper from './PostEditorWrapper';
@@ -97,12 +97,12 @@ const EditPostEditor = ({ username, postUrl }: EditPostEditorProps) => {
         fetchData();
     }, [username, postUrl]);
 
-    const handleTitleChange = useCallback((title: string) => {
+    const handleTitleChange = (title: string) => {
         setFormData(prev => ({
             ...prev,
             title
         }));
-    }, []);
+    };
 
     const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
         const file = event.target.files?.[0];
@@ -120,7 +120,7 @@ const EditPostEditor = ({ username, postUrl }: EditPostEditorProps) => {
         setImageDeleted(true);
     };
 
-    const handleEditorImageUpload = useCallback(async (file: File) => {
+    const handleEditorImageUpload = async (file: File) => {
         try {
             const { data } = await api.uploadImage(file);
             if (data.status === 'DONE') {
@@ -130,7 +130,7 @@ const EditPostEditor = ({ username, postUrl }: EditPostEditorProps) => {
             console.error('Image upload failed', error);
         }
         return undefined;
-    }, []);
+    };
 
     const validateForm = () => {
         if (!formData.title.trim()) {

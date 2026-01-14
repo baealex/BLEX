@@ -1,9 +1,8 @@
 import {
- createContext,
- useContext,
- useState,
- useCallback,
- type ReactNode
+    createContext,
+    useContext,
+    useState,
+    type ReactNode
 } from 'react';
 import { Modal } from '@blex/ui';
 
@@ -42,10 +41,10 @@ export const ConfirmProvider = ({ children }: { children: ReactNode }) => {
         confirmText: '확인',
         cancelText: '취소',
         variant: 'default',
-        resolve: () => {}
+        resolve: () => { }
     });
 
-    const confirm = useCallback((options: ConfirmOptions): Promise<boolean> => {
+    const confirm = (options: ConfirmOptions): Promise<boolean> => {
         return new Promise((resolve) => {
             setDialogState({
                 isOpen: true,
@@ -56,23 +55,23 @@ export const ConfirmProvider = ({ children }: { children: ReactNode }) => {
                 resolve
             });
         });
-    }, []);
+    };
 
-    const handleClose = useCallback(() => {
+    const handleClose = () => {
         setDialogState((prev) => ({
             ...prev,
             isOpen: false
         }));
         dialogState.resolve(false);
-    }, [dialogState]);
+    };
 
-    const handleConfirm = useCallback(() => {
+    const handleConfirm = () => {
         setDialogState((prev) => ({
             ...prev,
             isOpen: false
         }));
         dialogState.resolve(true);
-    }, [dialogState]);
+    };
 
     const getConfirmButtonClass = () => {
         const baseClass = 'px-4 py-2 text-sm rounded-lg transition-colors';

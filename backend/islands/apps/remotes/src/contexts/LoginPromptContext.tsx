@@ -2,8 +2,6 @@ import {
     createContext,
     useContext,
     useState,
-    useCallback,
-    useMemo,
     useEffect,
     type ReactNode
 } from 'react';
@@ -34,11 +32,9 @@ export const LoginPromptProvider = ({ children }: { children: ReactNode }) => {
         action: ''
     });
 
-    const isLoggedIn = useMemo(() => {
-        return !!window.configuration?.user?.username;
-    }, []);
+    const isLoggedIn = !!window.configuration?.user?.username;
 
-    const showLoginPrompt = useCallback((action: string) => {
+    const showLoginPrompt = (action: string) => {
         if (isLoggedIn) {
             return;
         }
@@ -47,7 +43,7 @@ export const LoginPromptProvider = ({ children }: { children: ReactNode }) => {
             isOpen: true,
             action
         });
-    }, [isLoggedIn]);
+    };
 
     // 전역 커스텀 이벤트로 모달 열기 (Alpine.js에서도 사용 가능)
     // 중복 방지: 같은 페이지에 여러 island가 있어도 한 번만 모달 표시
@@ -63,22 +59,19 @@ export const LoginPromptProvider = ({ children }: { children: ReactNode }) => {
         };
 
         window.addEventListener('showLoginPrompt', handleShowLoginPrompt as EventListener);
-        return () => {
-            window.removeEventListener('showLoginPrompt', handleShowLoginPrompt as EventListener);
-        };
     }, [showLoginPrompt, dialogState.isOpen]);
 
-    const handleClose = useCallback(() => {
+    const handleClose = () => {
         setDialogState({
             isOpen: false,
             action: ''
         });
-    }, []);
+    };
 
-    const handleLogin = useCallback(() => {
+    const handleLogin = () => {
         const currentPath = window.location.pathname + window.location.search;
-        window.location.href = `/login?next=${encodeURIComponent(currentPath)}`;
-    }, []);
+        window.location.assign(`/login?next=${encodeURIComponent(currentPath)}`);
+    };
 
     return (
         <LoginPromptContext.Provider value={{ showLoginPrompt }}>

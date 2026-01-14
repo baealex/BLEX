@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect } from 'react';
 import { Modal } from '~/components/shared';
 
 interface LoginPromptProps {
@@ -23,14 +23,14 @@ const LoginPrompt = ({ isOpen: initialIsOpen = false }: LoginPromptProps) => {
         };
     }, []);
 
-    const handleClose = useCallback(() => {
+    const handleClose = () => {
         setIsOpen(false);
-    }, []);
+    };
 
-    const handleLogin = useCallback(() => {
+    const handleLogin = () => {
         const currentPath = window.location.pathname + window.location.search;
-        window.location.href = `/login?next=${encodeURIComponent(currentPath)}`;
-    }, []);
+        window.location.assign(`/login?next=${encodeURIComponent(currentPath)}`);
+    };
 
     return (
         <Modal

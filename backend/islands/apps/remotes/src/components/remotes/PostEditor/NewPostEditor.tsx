@@ -1,9 +1,8 @@
+
 import {
- useState,
- useEffect,
- useCallback,
- useMemo,
- useRef
+    useState,
+    useEffect,
+    useRef
 } from 'react';
 import { toast } from '~/utils/toast';
 import { useConfirm } from '~/contexts/ConfirmContext';
@@ -59,52 +58,52 @@ const NewPostEditor = ({ tempToken }: NewPostEditorProps) => {
     });
 
     // Get CSRF token from DOM
-    const getCsrfToken = useCallback(() => {
+    // Get CSRF token from DOM
+    const getCsrfToken = () => {
         const tokenElement = document.querySelector('[name=csrfmiddlewaretoken]') as HTMLInputElement;
         return tokenElement ? tokenElement.value : '';
-    }, []);
+    };
 
     // Custom hooks
     const { imagePreview, handleImageUpload, handleRemoveImage } = useImageUpload();
 
-    const handleEditorImageUpload = useCallback(async (file: File) => {
+    const handleEditorImageUpload = async (file: File) => {
         try {
             const { data } = await api.uploadImage(file);
             if (data.status === 'DONE') {
                 return data.body.url;
             }
-        } catch (error) {
-            console.error('Image upload failed', error);
+        } catch {
+            // Ignore error
         }
         return undefined;
-    }, []);
+    };
 
-    const handleAutoSaveSuccess = useCallback((token?: string) => {
-        // Update URL to include tempToken for first save
+    const handleAutoSaveSuccess = (token?: string) => {
         if (token && !tempToken) {
             const newUrl = new URL(window.location.href);
             newUrl.searchParams.set('tempToken', token);
             window.history.replaceState({}, '', newUrl.toString());
         }
-    }, [tempToken]);
+    };
 
-    const handleAutoSaveError = useCallback(() => {
+    const handleAutoSaveError = () => {
         // Auto-save failure is not critical, no notification needed
-    }, []);
+    };
 
-    const autoSaveData = useMemo(() => ({
+    const autoSaveData = {
         title: formData.title,
         content: formData.content,
         tags: tags.join(',')
-    }), [formData.title, formData.content, tags]);
+    };
 
-    const autoSaveOptions = useMemo(() => ({
+    const autoSaveOptions = {
         enabled: !isLoading,
         getCsrfToken,
         tempToken,
         onSuccess: handleAutoSaveSuccess,
         onError: handleAutoSaveError
-    }), [getCsrfToken, tempToken, handleAutoSaveSuccess, handleAutoSaveError, isLoading]);
+    };
 
     const {
         lastSaved,
@@ -114,14 +113,14 @@ const NewPostEditor = ({ tempToken }: NewPostEditorProps) => {
         manualSave
     } = useAutoSave(autoSaveData, autoSaveOptions);
 
-    const handleSubmitError = useCallback(() => {
+    const handleSubmitError = () => {
         // Error notification is handled inside useFormSubmit
-    }, []);
+    };
 
-    const submitOptions = useMemo(() => ({
+    const submitOptions = {
         getCsrfToken,
         onSubmitError: handleSubmitError
-    }), [getCsrfToken, handleSubmitError]);
+    };
 
     const { formRef, isSubmitting, submitForm } = useFormSubmit(submitOptions);
 
@@ -175,17 +174,19 @@ const NewPostEditor = ({ tempToken }: NewPostEditorProps) => {
     }, [tempToken]);
 
     // Check if form has unsaved changes
-    const hasUnsavedChanges = useCallback(() => {
+    // Check if form has unsaved changes
+    const hasUnsavedChanges = () => {
         const initial = initialDataRef.current;
         return (
             formData.title !== initial.title ||
             formData.content !== initial.content ||
             JSON.stringify(tags) !== JSON.stringify(initial.tags)
         );
-    }, [formData.title, formData.content, tags]);
+    };
 
     // Handle temp post selection
-    const handleSelectTempPost = useCallback(async (token: string) => {
+    // Handle temp post selection
+    const handleSelectTempPost = async (token: string) => {
         if (token === tempToken) {
             // Already on this post
             setIsTempPostsPanelOpen(false);
@@ -202,13 +203,13 @@ const NewPostEditor = ({ tempToken }: NewPostEditorProps) => {
             });
 
             if (confirmed) {
-                window.location.href = `/write?tempToken=${token}`;
+                window.location.assign(`/write?tempToken=${token}`);
             }
         } else {
             // Navigate directly
-            window.location.href = `/write?tempToken=${token}`;
+            window.location.assign(`/write?tempToken=${token}`);
         }
-    }, [tempToken, hasUnsavedChanges, confirm]);
+    };
 
     const handleManualSave = async () => {
         if (!formData.title.trim()) {
@@ -228,15 +229,15 @@ const NewPostEditor = ({ tempToken }: NewPostEditorProps) => {
             .substring(0, 50);
     };
 
-    const handleTitleChange = useCallback((title: string) => {
+    const handleTitleChange = (title: string) => {
         setFormData(prev => ({
             ...prev,
             title,
             url: title ? generateUrlFromTitle(title) : ''
         }));
-    }, []);
+    };
 
-    const handleUrlChange = useCallback((url: string) => {
+    const handleUrlChange = (url: string) => {
         const cleanUrl = url
             .toLowerCase()
             .replace(/[^a-z0-9가-힣\s-]/g, '')
@@ -246,7 +247,7 @@ const NewPostEditor = ({ tempToken }: NewPostEditorProps) => {
             ...prev,
             url: cleanUrl
         }));
-    }, []);
+    };
 
     const handleSubmit = async (isDraft = false) => {
         await submitForm(

@@ -38,6 +38,24 @@ const Signup = () => {
     const captchaRef = useRef<HTMLDivElement>(null);
     const widgetIdRef = useRef<string | null>(null);
 
+    const renderCaptcha = () => {
+        if (!captchaRendered && captchaRef.current && window.hcaptcha && window.HCAPTCHA_SITE_KEY) {
+            try {
+                widgetIdRef.current = window.hcaptcha.render(captchaRef.current, {
+                    sitekey: window.HCAPTCHA_SITE_KEY,
+                    theme: 'light',
+                    size: 'normal',
+                    callback: (token: string) => {
+                        setCaptchaToken(token);
+                    }
+                });
+                setCaptchaRendered(true);
+            } catch {
+                // Ignore error
+            }
+        }
+    };
+
     useEffect(() => {
         setIsVisible(true);
         if (window.HCAPTCHA_SITE_KEY && window.hcaptcha) {
@@ -51,25 +69,8 @@ const Signup = () => {
             }, 100);
             return () => clearInterval(checkHCaptcha);
         }
-    }, []);
 
-    const renderCaptcha = () => {
-        if (!captchaRendered && captchaRef.current && window.hcaptcha && window.HCAPTCHA_SITE_KEY) {
-            try {
-                widgetIdRef.current = window.hcaptcha.render(captchaRef.current, {
-                    sitekey: window.HCAPTCHA_SITE_KEY,
-                    theme: 'light',
-                    size: 'normal',
-                    callback: (token: string) => {
-                        setCaptchaToken(token);
-                    }
-                });
-                setCaptchaRendered(true);
-            } catch (e) {
-                console.error('Failed to render hCaptcha:', e);
-            }
-        }
-    };
+    }, [renderCaptcha]);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -138,13 +139,12 @@ const Signup = () => {
             const data = await response.json();
 
             if (data.status === 'DONE') {
-                window.location.href = window.NEXT_URL || '/';
+                window.location.assign(window.NEXT_URL || '/');
             } else {
                 setSignupError(data.errorMessage || '회원가입에 실패했습니다.');
             }
-        } catch (error) {
+        } catch {
             setSignupError('오류가 발생했습니다. 다시 시도해주세요.');
-            console.error('Error:', error);
         } finally {
             setIsLoading(false);
         }

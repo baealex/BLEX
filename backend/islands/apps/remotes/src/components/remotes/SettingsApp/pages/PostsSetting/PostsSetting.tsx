@@ -1,38 +1,20 @@
+import { Suspense } from 'react';
 import { Button } from '~/components/shared';
 import { SettingsHeader } from '../../components';
-import { usePostsData, usePostsActions } from './hooks';
-import { PostsFilter, PostCard, Pagination } from './components';
+import { usePostsFilterState } from './hooks/usePostsData';
+import { PostsFilter, PostListContent } from './components';
 
 const PostsSetting = () => {
     const {
-        posts,
-        setPosts,
-        postsData,
+        filters,
         tags,
         series,
-        filters,
         isFilterExpanded,
         setIsFilterExpanded,
         handleFilterChange,
         handleSearchChange,
-        clearFilters,
-        refetch
-    } = usePostsData();
-
-    const {
-        handleVisibilityToggle,
-        handleNoticeToggle,
-        handleDelete,
-        handleTagChange,
-        handleTagSubmit,
-        handleSeriesChange,
-        handleSeriesSubmit
-    } = usePostsActions({
-        username: postsData?.username || '',
-        posts,
-        setPosts,
-        refetch
-    });
+        clearFilters
+    } = usePostsFilterState();
 
     return (
         <div>
@@ -45,49 +27,41 @@ const PostsSetting = () => {
                         size="md"
                         fullWidth
                         leftIcon={<i className="fas fa-plus" />}
-                        onClick={() => window.location.href = '/write'}>
+                        onClick={() => window.location.assign('/write')}>
                         새 포스트 작성
                     </Button>
                 }
             />
 
-            <PostsFilter
-                filters={filters}
-                isExpanded={isFilterExpanded}
-                onExpandToggle={() => setIsFilterExpanded(!isFilterExpanded)}
-                onFilterChange={handleFilterChange}
-                onSearchChange={handleSearchChange}
-                onClearFilters={clearFilters}
-                tags={tags}
-                series={series}
-            />
+            <Suspense fallback={<div className="h-32 bg-gray-50 animate-pulse rounded-lg mb-6" />}>
+                <PostsFilter
+                    filters={filters}
+                    isExpanded={isFilterExpanded}
+                    onExpandToggle={() => setIsFilterExpanded(!isFilterExpanded)}
+                    onFilterChange={handleFilterChange}
+                    onSearchChange={handleSearchChange}
+                    onClearFilters={clearFilters}
+                    tags={tags}
+                    series={series}
+                />
+            </Suspense>
 
-            {/* 포스트 리스트 */}
-            {postsData?.posts && posts.length >= 1 && (
-                <div className="space-y-3">
-                    {posts.map((post) => (
-                        <PostCard
-                            key={post.url}
-                            post={post}
-                            username={postsData.username}
-                            series={series}
-                            onVisibilityToggle={handleVisibilityToggle}
-                            onNoticeToggle={handleNoticeToggle}
-                            onDelete={handleDelete}
-                            onTagChange={handleTagChange}
-                            onTagSubmit={handleTagSubmit}
-                            onSeriesChange={handleSeriesChange}
-                            onSeriesSubmit={handleSeriesSubmit}
-                        />
-                    ))}
+            <Suspense
+                fallback={
+                    <div className="space-y-3 mt-6">
+                        {[1, 2, 3].map(i => (
+                            <div key={i} className="h-40 bg-gray-50 animate-pulse rounded-lg border border-gray-100" />
+                        ))}
+                    </div>
+                }>
+                <div className="mt-6">
+                    <PostListContent
+                        filters={filters}
+                        series={series}
+                        onPageChange={(page) => handleFilterChange('page', page)}
+                    />
                 </div>
-            )}
-
-            <Pagination
-                page={filters.page}
-                lastPage={postsData?.lastPage || 1}
-                onPageChange={(page) => handleFilterChange('page', page)}
-            />
+            </Suspense>
         </div>
     );
 };

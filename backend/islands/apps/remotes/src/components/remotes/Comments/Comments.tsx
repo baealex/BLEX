@@ -1,4 +1,4 @@
-import { useState, useMemo, useCallback } from 'react';
+import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useConfirm } from '~/contexts/ConfirmContext';
 import { isLoggedIn as checkIsLoggedIn, showLoginPrompt } from '~/utils/loginPrompt';
@@ -33,9 +33,7 @@ const Comments = (props: CommentsProps) => {
     const [replyText, setReplyText] = useState('');
     const [replyParentId, setReplyParentId] = useState<number | null>(null);
 
-    const isLoggedIn = useMemo(() => {
-        return checkIsLoggedIn();
-    }, []);
+    const isLoggedIn = checkIsLoggedIn();
 
     const { data, isError, isLoading, refetch } = useQuery({
         queryKey: [postUrl, 'comments'],
@@ -49,12 +47,9 @@ const Comments = (props: CommentsProps) => {
         enabled: !!postUrl
     });
 
-    const mentionableUsers = useMemo(() => {
-        if (!data?.comments) return [];
-        return getCommentAuthors(data.comments);
-    }, [data?.comments]);
+    const mentionableUsers = data?.comments ? getCommentAuthors(data.comments) : [];
 
-    const findRootParentId = useCallback((commentId: number, comments: Comment[]): number => {
+    const findRootParentId = (commentId: number, comments: Comment[]): number => {
         for (const comment of comments) {
             if (comment.id === commentId) {
                 return comment.id;
@@ -68,31 +63,28 @@ const Comments = (props: CommentsProps) => {
             }
         }
         return commentId;
-    }, []);
+    };
 
-    const handleLike = useCallback(
-        async (commentId: number) => {
-            if (!isLoggedIn) {
-                showLoginPrompt('좋아요');
-                return;
+    const handleLike = async (commentId: number) => {
+        if (!isLoggedIn) {
+            showLoginPrompt('좋아요');
+            return;
+        }
+
+        try {
+            const response = await toggleCommentLike(commentId);
+
+            if (response.data.status === 'DONE') {
+                refetch();
+            } else {
+                toast.error('좋아요 처리에 실패했습니다.');
             }
+        } catch {
+            toast.error('좋아요 처리 중 오류가 발생했습니다.');
+        }
+    };
 
-            try {
-                const response = await toggleCommentLike(commentId);
-
-                if (response.data.status === 'DONE') {
-                    refetch();
-                } else {
-                    toast.error('좋아요 처리에 실패했습니다.');
-                }
-            } catch {
-                toast.error('좋아요 처리 중 오류가 발생했습니다.');
-            }
-        },
-        [isLoggedIn, refetch]
-    );
-
-    const handleWrite = useCallback(async () => {
+    const handleWrite = async () => {
         if (!isLoggedIn) {
             showLoginPrompt('댓글 작성');
             return;
@@ -120,7 +112,7 @@ const Comments = (props: CommentsProps) => {
         } finally {
             setIsSubmitting(false);
         }
-    }, [isLoggedIn, commentText, postUrl, refetch]);
+    };
 
     const startEditing = async (commentId: number) => {
         try {

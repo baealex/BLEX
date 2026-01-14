@@ -131,7 +131,7 @@ const Login = () => {
                 if (data.body?.security) {
                     updateState({ showTwoFactor: true });
                 } else {
-                    window.location.href = nextUrl || '/';
+                    window.location.assign(nextUrl || '/');
                 }
             } else {
                 handleFailedLogin();
@@ -190,7 +190,7 @@ const Login = () => {
                     successMessage: '인증이 완료되었습니다. 잠시 후 홈 페이지로 이동합니다.'
                 });
                 setTimeout(() => {
-                    window.location.href = nextUrl || '/';
+                    window.location.assign(nextUrl || '/');
                 }, 1000);
             } else {
                 const isBlocked = handleFailedTwoFactor();

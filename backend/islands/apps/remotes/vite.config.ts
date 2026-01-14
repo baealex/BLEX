@@ -12,7 +12,13 @@ export default defineConfig(({ mode }) => {
 
         plugins: [
             tailwindcss(),
-            ...(isDevelopment ? [] : [react()]),
+            react({
+                babel: {
+                    plugins: [
+                        ['babel-plugin-react-compiler', {}]
+                    ]
+                }
+            }),
             visualizer({
                 filename: 'stats.html',
                 open: false,

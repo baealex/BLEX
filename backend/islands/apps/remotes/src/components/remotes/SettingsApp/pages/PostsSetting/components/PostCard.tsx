@@ -38,7 +38,7 @@ const PostCard = ({
             {/* 헤더 */}
             <div
                 className="p-5 border-b border-gray-50 cursor-pointer hover:bg-gray-50 transition-colors"
-                onClick={() => window.location.href = `/@${username}/${post.url}/edit`}>
+                onClick={() => window.location.assign(`/@${username}/${post.url}/edit`)}>
                 <div className="flex items-start justify-between gap-4 mb-3">
                     {/* 제목 영역 */}
                     <div className="flex-1 min-w-0">

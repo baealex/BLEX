@@ -1,4 +1,4 @@
-import { useState, useCallback, useRef } from 'react';
+import { useState, useRef } from 'react';
 import { toast } from '~/utils/toast';
 
 interface FormSubmitData {
@@ -27,7 +27,7 @@ export const useFormSubmit = (options: UseFormSubmitOptions) => {
         onSubmitError
     } = options;
 
-    const validateForm = useCallback((data: FormSubmitData, isEdit = false) => {
+    const validateForm = (data: FormSubmitData, isEdit = false) => {
         if (!data.title.trim()) {
             toast.error('제목을 입력해주세요.');
             return false;
@@ -39,9 +39,9 @@ export const useFormSubmit = (options: UseFormSubmitOptions) => {
         }
 
         return true;
-    }, []);
+    };
 
-    const addHiddenField = useCallback((form: HTMLFormElement, name: string, value: string) => {
+    const addHiddenField = (form: HTMLFormElement, name: string, value: string) => {
         let field = form.querySelector(`input[name="${name}"]`) as HTMLInputElement;
         if (!field) {
             field = document.createElement('input');
@@ -50,9 +50,9 @@ export const useFormSubmit = (options: UseFormSubmitOptions) => {
             form.appendChild(field);
         }
         field.value = value;
-    }, []);
+    };
 
-    const submitForm = useCallback(async (data: FormSubmitData, isDraft = false, isEdit = false) => {
+    const submitForm = async (data: FormSubmitData, isDraft = false, isEdit = false) => {
         if (!validateForm(data, isEdit)) return;
 
         setIsSubmitting(true);
@@ -100,9 +100,9 @@ export const useFormSubmit = (options: UseFormSubmitOptions) => {
             onSubmitError?.(error as Error);
             setIsSubmitting(false);
         }
-    }, [validateForm, addHiddenField, tempToken, onBeforeSubmit, onSubmitSuccess, onSubmitError]);
+    };
 
-    const deletePost = useCallback(async () => {
+    const deletePost = async () => {
         if (!confirm('정말로 이 포스트를 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.')) {
             return;
         }
@@ -124,7 +124,7 @@ export const useFormSubmit = (options: UseFormSubmitOptions) => {
             onSubmitError?.(error as Error);
             setIsSubmitting(false);
         }
-    }, [onSubmitError]);
+    };
 
     return {
         formRef,
