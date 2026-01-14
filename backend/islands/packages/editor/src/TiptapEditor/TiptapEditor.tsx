@@ -1,4 +1,4 @@
-import { useEffect, useCallback, useRef } from 'react';
+import { useEffect, useRef } from 'react';
 import { useEditor, EditorContent } from '@tiptap/react';
 import MenuBar from './components/menus/MenuBar';
 import { getEditorExtensions } from './config/editorConfig';
@@ -31,11 +31,11 @@ const TiptapEditor = ({
     onImageUpload,
     onImageUploadError
 }: TiptapEditorProps) => {
-    const handleChange = useCallback((html: string) => {
+    const handleChange = (html: string) => {
         if (onChange) {
             onChange(html);
         }
-    }, [onChange]);
+    };
 
     const handlersRef = useRef<HandlersRef>({
         handleMarkdownPaste: async () => false,

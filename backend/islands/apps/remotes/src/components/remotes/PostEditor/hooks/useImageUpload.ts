@@ -1,9 +1,9 @@
-import { useState, useCallback } from 'react';
+import { useState } from 'react';
 
 export const useImageUpload = () => {
     const [imagePreview, setImagePreview] = useState<string | null>(null);
 
-    const handleImageUpload = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
+    const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
         const file = event.target.files?.[0];
         if (file) {
             const reader = new FileReader();
@@ -12,15 +12,15 @@ export const useImageUpload = () => {
             };
             reader.readAsDataURL(file);
         }
-    }, []);
+    };
 
-    const handleRemoveImage = useCallback(() => {
+    const handleRemoveImage = () => {
         setImagePreview(null);
-    }, []);
+    };
 
-    const setImagePreviewUrl = useCallback((url: string | null) => {
+    const setImagePreviewUrl = (url: string | null) => {
         setImagePreview(url);
-    }, []);
+    };
 
     return {
         imagePreview,

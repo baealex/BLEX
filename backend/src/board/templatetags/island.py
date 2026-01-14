@@ -119,5 +119,15 @@ def vite_hmr_client():
     DEBUG 모드일 때만 Vite HMR 클라이언트를 로드
     """
     if settings.DEBUG:
-        return mark_safe('<script type="module" src="http://localhost:5173/@vite/client"></script>')
+        preamble = """
+        <script type="module">
+            import RefreshRuntime from 'http://localhost:5173/@react-refresh'
+            RefreshRuntime.injectIntoGlobalHook(window)
+            window.$RefreshReg$ = () => {}
+            window.$RefreshSig$ = () => (type) => type
+            window.__vite_plugin_react_preamble_installed__ = true
+        </script>
+        """
+        client = '<script type="module" src="http://localhost:5173/@vite/client"></script>'
+        return mark_safe(preamble + client)
     return ""

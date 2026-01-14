@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState, useCallback } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import type { Editor } from '@tiptap/react';
 import * as Popover from '@radix-ui/react-popover';
 
@@ -61,7 +61,7 @@ const SlashCommandMenu = ({
     }, [isVisible]);
 
     // 서식 삽입 처리
-    const handleFormInsert = useCallback(async (formId: number) => {
+    const handleFormInsert = async (formId: number) => {
         if (!editor) return;
 
         try {
@@ -98,7 +98,7 @@ const SlashCommandMenu = ({
         } catch (error) {
             console.error('서식 삽입 실패:', error);
         }
-    }, [editor]);
+    };
 
     const commandItems: CommandItem[] = [
         {
@@ -219,7 +219,7 @@ const SlashCommandMenu = ({
             item.keywords.some(keyword => keyword.toLowerCase().includes(term));
     });
 
-    const handleKeyDown = useCallback((e: React.KeyboardEvent) => {
+    const handleKeyDown = (e: React.KeyboardEvent) => {
         switch (e.key) {
             case 'ArrowDown':
                 e.preventDefault();
@@ -259,7 +259,7 @@ const SlashCommandMenu = ({
                 onClose();
                 break;
         }
-    }, [selectedIndex, filteredCommands, editor, onClose]);
+    };
 
     const handleCommandClick = (item: CommandItem) => {
         if (editor) {

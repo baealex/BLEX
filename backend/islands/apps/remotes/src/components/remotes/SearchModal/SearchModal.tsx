@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect } from 'react';
 import { getMediaPath } from '~/modules/static.module';
 import { Modal } from '~/components/shared';
 import { searchPosts, type SearchResult } from '~/lib/api';
@@ -43,7 +43,7 @@ const SearchModal = ({ isOpen: initialIsOpen = false }: SearchModalProps) => {
         setPage(1);
     };
 
-    const handleSearch = useCallback(async (searchQuery: string, pageNum: number = 1) => {
+    const handleSearch = async (searchQuery: string, pageNum: number = 1) => {
         if (!searchQuery.trim()) {
             return;
         }
@@ -69,7 +69,7 @@ const SearchModal = ({ isOpen: initialIsOpen = false }: SearchModalProps) => {
         } finally {
             setIsLoading(false);
         }
-    }, []);
+    };
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
@@ -240,9 +240,8 @@ const SearchModal = ({ isOpen: initialIsOpen = false }: SearchModalProps) => {
                                                     {result.positions.map((position: string, idx: number) => (
                                                         <span
                                                             key={idx}
-                                                            className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold transition-colors ${
-                                                                position === '제목' ? 'bg-black text-white' : 'bg-gray-100 text-gray-600'
-                                                            }`}>
+                                                            className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold transition-colors ${position === '제목' ? 'bg-black text-white' : 'bg-gray-100 text-gray-600'
+                                                                }`}>
                                                             <span>{getPositionEmoji(position)}</span>
                                                             <span>{position}</span>
                                                         </span>

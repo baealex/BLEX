@@ -1,4 +1,3 @@
-import { useCallback } from 'react';
 import type { Editor } from '@tiptap/react';
 
 interface UseImageUploadProps {
@@ -8,12 +7,12 @@ interface UseImageUploadProps {
 }
 
 export const useImageUpload = ({ editor, onImageUpload, onImageUploadError }: UseImageUploadProps) => {
-    const isImageFile = useCallback((file: File) => {
+    const isImageFile = (file: File) => {
         const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif'];
         return validTypes.includes(file.type);
-    }, []);
+    };
 
-    const uploadImage = useCallback(async (file: File, position?: number) => {
+    const uploadImage = async (file: File, position?: number) => {
         if (!editor || !onImageUpload) return;
 
         if (!isImageFile(file)) {
@@ -61,9 +60,9 @@ export const useImageUpload = ({ editor, onImageUpload, onImageUploadError }: Us
         } catch {
             onImageUploadError?.('이미지 업로드에 실패했습니다.');
         }
-    }, [editor, isImageFile, onImageUpload]);
+    };
 
-    const handlePaste = useCallback(async (event: ClipboardEvent) => {
+    const handlePaste = async (event: ClipboardEvent) => {
         if (!editor) return;
 
         const items = event.clipboardData?.items;
@@ -86,18 +85,18 @@ export const useImageUpload = ({ editor, onImageUpload, onImageUploadError }: Us
                 await uploadImage(file);
             }
         }
-    }, [editor, uploadImage]);
+    };
 
-    const handleImageUpload = useCallback(async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
         const files = event.target.files;
         if (!files || files.length === 0) return;
 
         for (let i = 0; i < files.length; i++) {
             await uploadImage(files[i]);
         }
-    }, [uploadImage]);
+    };
 
-    const handleDrop = useCallback(async (e: React.DragEvent<HTMLDivElement>) => {
+    const handleDrop = async (e: React.DragEvent<HTMLDivElement>) => {
         e.preventDefault();
         e.stopPropagation();
 
@@ -114,7 +113,7 @@ export const useImageUpload = ({ editor, onImageUpload, onImageUploadError }: Us
         for (const file of imageFiles) {
             await uploadImage(file);
         }
-    }, [uploadImage]);
+    };
 
     return {
         handleImageUpload,

@@ -1,4 +1,4 @@
-import { useRef, useEffect, useState, useCallback } from 'react';
+import { useRef, useEffect, useState } from 'react';
 import { MentionAutocomplete } from './MentionAutocomplete';
 
 interface CommentFormProps {
@@ -43,92 +43,85 @@ export const CommentForm = ({
     // 멘션 자동완성을 위한 사용자 필터링
     const filteredUsers = mentionQuery
         ? mentionableUsers.filter(user =>
-              user.toLowerCase().includes(mentionQuery.toLowerCase())
-          )
+            user.toLowerCase().includes(mentionQuery.toLowerCase())
+        )
         : mentionableUsers;
 
     // 텍스트 변경 감지 및 멘션 자동완성 트리거
-    const handleTextChange = useCallback(
-        (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-            const newText = e.target.value;
-            const cursorPos = e.target.selectionStart;
+    // 텍스트 변경 감지 및 멘션 자동완성 트리거
+    const handleTextChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+        const newText = e.target.value;
+        const cursorPos = e.target.selectionStart;
 
-            onCommentTextChange(newText);
+        onCommentTextChange(newText);
 
-            // @ 기호 감지
-            const textBeforeCursor = newText.substring(0, cursorPos);
-            const lastAtIndex = textBeforeCursor.lastIndexOf('@');
+        // @ 기호 감지
+        const textBeforeCursor = newText.substring(0, cursorPos);
+        const lastAtIndex = textBeforeCursor.lastIndexOf('@');
 
-            if (lastAtIndex !== -1) {
-                const textAfterAt = textBeforeCursor.substring(lastAtIndex + 1);
-                // @ 뒤에 공백이 없고, 알파벳/숫자/점만 있으면 자동완성 표시
-                if (/^[a-zA-Z0-9.]*$/.test(textAfterAt)) {
-                    setMentionQuery(textAfterAt);
-                    setMentionStartPos(lastAtIndex);
-                    setShowMentionAutocomplete(true);
-                    setSelectedUserIndex(0);
-                } else {
-                    setShowMentionAutocomplete(false);
-                }
+        if (lastAtIndex !== -1) {
+            const textAfterAt = textBeforeCursor.substring(lastAtIndex + 1);
+            // @ 뒤에 공백이 없고, 알파벳/숫자/점만 있으면 자동완성 표시
+            if (/^[a-zA-Z0-9.]*$/.test(textAfterAt)) {
+                setMentionQuery(textAfterAt);
+                setMentionStartPos(lastAtIndex);
+                setShowMentionAutocomplete(true);
+                setSelectedUserIndex(0);
             } else {
                 setShowMentionAutocomplete(false);
             }
-        },
-        [onCommentTextChange]
-    );
+        } else {
+            setShowMentionAutocomplete(false);
+        }
+    };
 
     // 사용자 선택
-    const selectUser = useCallback(
-        (username: string) => {
-            const before = commentText.substring(0, mentionStartPos);
-            const after = commentText.substring(textareaRef.current?.selectionStart || commentText.length);
-            const newText = `${before}\`@${username}\` ${after}`;
+    const selectUser = (username: string) => {
+        const before = commentText.substring(0, mentionStartPos);
+        const after = commentText.substring(textareaRef.current?.selectionStart || commentText.length);
+        const newText = `${before}\`@${username}\` ${after}`;
 
-            onCommentTextChange(newText);
-            setShowMentionAutocomplete(false);
+        onCommentTextChange(newText);
+        setShowMentionAutocomplete(false);
 
-            // 커서 위치 조정
-            setTimeout(() => {
-                const newCursorPos = before.length + username.length + 4; // ` + @ + username + ` + space
-                textareaRef.current?.setSelectionRange(newCursorPos, newCursorPos);
-                textareaRef.current?.focus();
-            }, 0);
-        },
-        [commentText, mentionStartPos, onCommentTextChange]
-    );
+        // 커서 위치 조정
+        setTimeout(() => {
+            const newCursorPos = before.length + username.length + 4; // ` + @ + username + ` + space
+            textareaRef.current?.setSelectionRange(newCursorPos, newCursorPos);
+            textareaRef.current?.focus();
+        }, 0);
+    };
 
     // 키보드 이벤트 처리
-    const handleKeyDown = useCallback(
-        (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-            if (!showMentionAutocomplete || filteredUsers.length === 0) return;
+    // 키보드 이벤트 처리
+    const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+        if (!showMentionAutocomplete || filteredUsers.length === 0) return;
 
-            switch (e.key) {
-                case 'ArrowDown':
+        switch (e.key) {
+            case 'ArrowDown':
+                e.preventDefault();
+                setSelectedUserIndex(prev =>
+                    prev < filteredUsers.length - 1 ? prev + 1 : 0
+                );
+                break;
+            case 'ArrowUp':
+                e.preventDefault();
+                setSelectedUserIndex(prev =>
+                    prev > 0 ? prev - 1 : filteredUsers.length - 1
+                );
+                break;
+            case 'Enter':
+                if (showMentionAutocomplete) {
                     e.preventDefault();
-                    setSelectedUserIndex(prev =>
-                        prev < filteredUsers.length - 1 ? prev + 1 : 0
-                    );
-                    break;
-                case 'ArrowUp':
-                    e.preventDefault();
-                    setSelectedUserIndex(prev =>
-                        prev > 0 ? prev - 1 : filteredUsers.length - 1
-                    );
-                    break;
-                case 'Enter':
-                    if (showMentionAutocomplete) {
-                        e.preventDefault();
-                        selectUser(filteredUsers[selectedUserIndex]);
-                    }
-                    break;
-                case 'Escape':
-                    e.preventDefault();
-                    setShowMentionAutocomplete(false);
-                    break;
-            }
-        },
-        [showMentionAutocomplete, filteredUsers, selectedUserIndex, selectUser]
-    );
+                    selectUser(filteredUsers[selectedUserIndex]);
+                }
+                break;
+            case 'Escape':
+                e.preventDefault();
+                setShowMentionAutocomplete(false);
+                break;
+        }
+    };
 
     if (!isLoggedIn) {
         return (

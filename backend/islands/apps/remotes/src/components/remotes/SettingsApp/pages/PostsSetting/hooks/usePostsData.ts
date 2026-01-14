@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { useSuspenseQuery } from '@tanstack/react-query';
 
 import { getPosts, type Post as ApiPost } from '~/lib/api/posts';
-import { getTags, getSeries, type Tag, type Series } from '~/lib/api/settings';
+import { getTags, getSeries } from '~/lib/api/settings';
 
 export interface Post extends ApiPost {
     hasTagChanged?: boolean;
@@ -101,54 +101,10 @@ const syncFiltersToURL = (filters: FilterOptions) => {
     window.history.replaceState({}, '', newURL);
 };
 
-interface UsePostsDataReturn {
-    // Data
-    posts: Post[];
-    setPosts: React.Dispatch<React.SetStateAction<Post[]>>;
-    postsData: {
-        posts: Post[];
-        username: string;
-        lastPage: number;
-    } | undefined;
-    tags: Tag[] | undefined;
-    series: Series[] | undefined;
-
-    // State
-    filters: FilterOptions;
-    isFilterExpanded: boolean;
-    setIsFilterExpanded: React.Dispatch<React.SetStateAction<boolean>>;
-
-    // Actions
-    handleFilterChange: (key: keyof FilterOptions, value: string) => void;
-    handleSearchChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
-    clearFilters: () => void;
-    refetch: () => void;
-}
-
-export const usePostsData = (): UsePostsDataReturn => {
+export const usePostsFilterState = () => {
     const [filters, setFilters] = useState<FilterOptions>(getFiltersFromURL());
     const [isFilterExpanded, setIsFilterExpanded] = useState(true);
-    const [posts, setPosts] = useState<Post[]>([]);
     const searchDebounce = useRef<ReturnType<typeof setTimeout> | null>(null);
-
-    const { data: postsData, refetch } = useSuspenseQuery({
-        queryKey: ['posts-setting', JSON.stringify(filters)],
-        queryFn: async () => {
-            const apiFilters: Record<string, string | number> = {};
-            Object.entries(filters).forEach(([key, value]) => {
-                if (value) {
-                    apiFilters[key] = value;
-                }
-            });
-
-            const { data } = await getPosts(apiFilters);
-
-            if (data.status === 'DONE') {
-                return data.body;
-            }
-            throw new Error('포스트 목록을 불러오는데 실패했습니다.');
-        }
-    });
 
     const { data: tags } = useSuspenseQuery({
         queryKey: ['setting-tags'],
@@ -171,12 +127,6 @@ export const usePostsData = (): UsePostsDataReturn => {
             throw new Error('시리즈 목록을 불러오는데 실패했습니다.');
         }
     });
-
-    useEffect(() => {
-        if (postsData?.posts) {
-            setPosts(postsData.posts);
-        }
-    }, [postsData]);
 
     // 필터 변경 시 URL 동기화
     useEffect(() => {
@@ -208,7 +158,7 @@ export const usePostsData = (): UsePostsDataReturn => {
             search: '',
             tag: '',
             series: '',
-            order: filters.order,
+            order: filters.order || '-created_date',
             page: '1',
             visibility: '',
             notice: ''
@@ -216,17 +166,49 @@ export const usePostsData = (): UsePostsDataReturn => {
     };
 
     return {
-        posts,
-        setPosts,
-        postsData,
-        tags,
-        series,
         filters,
         isFilterExpanded,
         setIsFilterExpanded,
         handleFilterChange,
         handleSearchChange,
         clearFilters,
+        tags,
+        series
+    };
+};
+
+export const usePostsQuery = (filters: FilterOptions) => {
+    const [posts, setPosts] = useState<Post[]>([]);
+
+    const { data: postsData, refetch } = useSuspenseQuery({
+        queryKey: ['posts-setting', JSON.stringify(filters)],
+        queryFn: async () => {
+            const apiFilters: Record<string, string | number> = {};
+            Object.entries(filters).forEach(([key, value]) => {
+                if (value) {
+                    apiFilters[key] = value;
+                }
+            });
+
+            const { data } = await getPosts(apiFilters);
+
+            if (data.status === 'DONE') {
+                return data.body;
+            }
+            throw new Error('포스트 목록을 불러오는데 실패했습니다.');
+        }
+    });
+
+    useEffect(() => {
+        if (postsData?.posts) {
+            setPosts(postsData.posts);
+        }
+    }, [postsData]);
+
+    return {
+        posts,
+        setPosts,
+        postsData,
         refetch
     };
 };
