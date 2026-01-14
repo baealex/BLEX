@@ -1,0 +1,11 @@
+{% extends 'board/base.html' %}
+{% load static %}
+{% load island %}
+
+{% block title %}설정 | BLEX{% endblock %}
+
+{% block content %}
+<div>
+    {% island_component 'SettingsApp' isEditor=is_editor isStaff=is_staff adminUrl=admin_url %}
+</div>
+{% endblock %}

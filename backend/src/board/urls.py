@@ -17,11 +17,7 @@ from board.views.auth import login_view, signup_view
 from board.views.oauth_callback import oauth_callback
 from board.views.tag import tag_list_view, tag_detail_view
 from board.views.static_pages import static_page_view
-from board.views.settings import (
-    setting_notify, setting_profile, setting_account, setting_series,
-    setting_posts,
-    setting_integration, setting_forms, setting_temp_posts, setting_banners
-)
+from board.views.settings import settings
 from board.decorators import staff_member_required
 
 def empty():
@@ -39,16 +35,9 @@ urlpatterns = [
     # Static pages
     path('static/<slug:slug>', static_page_view, name='static_page'),
 
-    # Settings Pages
-    path('settings/notify', setting_notify, name='setting_notify'),
-    path('settings/profile', setting_profile, name='setting_profile'),
-    path('settings/account', setting_account, name='setting_account'),
-    path('settings/series', setting_series, name='setting_series'),
-    path('settings/posts', setting_posts, name='setting_posts'),
-    path('settings/integration', setting_integration, name='setting_integration'),
-    path('settings/forms', setting_forms, name='setting_forms'),
-    path('settings/temp-posts', setting_temp_posts, name='setting_temp_posts'),
-    path('settings/banners', setting_banners, name='setting_banners'),
+    # Settings - Unified Settings App with client-side routing
+    path('settings/', settings, name='settings'),
+    path('settings/<path:path>', settings, name='settings_path'),
 
     # Post actions
     path('like/<url>', like_post, name='like_post'),

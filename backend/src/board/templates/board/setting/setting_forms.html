@@ -1,9 +1,0 @@
-{% extends 'board/setting/setting_base.html' %}
-{% load static %}
-{% load island %}
-
-{% block setting_title %}서식 관리{% endblock %}
-
-{% block setting_content %}
-{% island_component 'FormsSetting' forms=forms %}
-{% endblock %}
