@@ -1,5 +1,6 @@
 import { lazy, Suspense } from 'react';
 import { ConfirmProvider } from '~/contexts/ConfirmContext';
+import { LoadingState } from '@blex/ui';
 
 interface AppProps {
     __name: keyof typeof LazyComponents;
@@ -22,17 +23,8 @@ const LazyComponents = {
     Signup: lazy(() => import('./remotes/Signup')),
     PostEditor: lazy(() => import('./remotes/PostEditor')),
 
-    // Settings
-    NotifySetting: lazy(() => import('./remotes/Settings/NotifySetting')),
-    FormsSetting: lazy(() => import('./remotes/Settings/FormsSetting')),
-    IntegrationSetting: lazy(() => import('./remotes/Settings/IntegrationSetting')),
-    PostsSetting: lazy(() => import('./remotes/Settings/PostsSetting')),
-    SeriesSetting: lazy(() => import('./remotes/Settings/SeriesSetting')),
-    AccountSetting: lazy(() => import('./remotes/Settings/AccountSetting')),
-    ProfileSetting: lazy(() => import('./remotes/Settings/ProfileSetting')),
-    TempPostsSetting: lazy(() => import('./remotes/Settings/TempPostsSetting')),
-    SocialLinksSetting: lazy(() => import('./remotes/Settings/SocialLinksSetting')),
-    BannerSetting: lazy(() => import('./remotes/Settings/BannerSetting'))
+    // Unified Settings App
+    SettingsApp: lazy(() => import('./remotes/SettingsApp'))
 };
 
 const App = ({ __name, ...props }: AppProps) => {
@@ -40,7 +32,7 @@ const App = ({ __name, ...props }: AppProps) => {
 
     return (
         <ConfirmProvider>
-            <Suspense>
+            <Suspense fallback={<LoadingState type="spinner" />}>
                 {/* @ts-expect-error - 동적 컴포넌트 props 타입 처리를 위한 임시 방법 */}
                 <Component {...props} />
             </Suspense>

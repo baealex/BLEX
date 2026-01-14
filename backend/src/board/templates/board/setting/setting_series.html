@@ -1,9 +1,0 @@
-{% extends 'board/setting/setting_base.html' %}
-{% load static %}
-{% load island %}
-
-{% block setting_title %}시리즈 설정{% endblock %}
-
-{% block setting_content %}
-{% island_component 'SeriesSetting' series=user_series_json %}
-{% endblock %}
