@@ -3,7 +3,7 @@
     "version": "1.0.0",
     "description": "BLOG EXPRESS ME",
     "scripts": {
-        "install": "npm run server:setup && npm run island:setup",
+        "install": "npm run server:setup && npm run islands:setup",
         "server:setup": "./scripts/setup.sh",
         "server:dev": "./scripts/manage.sh runserver 0.0.0.0:8000",
         "server:test": "./scripts/manage.sh test -v 2",
@@ -16,7 +16,7 @@
         "islands:lint": "npm run lint --prefix backend/islands",
         "islands:build": "npm run build --prefix backend/islands",
         "islands:type-check": "npm run type-check --prefix backend/islands",
-        "dev": "concurrently \"npm run server:dev\" \"npm run island:dev\""
+        "dev": "concurrently \"npm run server:dev\" \"npm run islands:dev\""
     },
     "repository": {
         "type": "git",

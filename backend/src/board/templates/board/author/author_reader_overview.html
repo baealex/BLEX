@@ -20,104 +20,11 @@
     <!-- Single Column Layout for Readers -->
     <div class="max-w-4xl mx-auto mb-20 space-y-10">
 
-        <!-- Introduction Section -->
-        <section>
-            <div class="bg-white rounded-2xl ring-1 ring-gray-900/5 p-8">
-                <div class="flex items-baseline gap-3 mb-6 pb-4 border-b border-gray-100">
-                    <h2 class="text-2xl font-bold text-gray-900">README</h2>
-                    <span class="text-sm font-mono text-gray-400">.md</span>
-                </div>
-                {% if about_html %}
-                    <div class="prose blog-post-content">
-                        {{ about_html|safe }}
-                    </div>
-                {% else %}
-                    <div class="text-center py-16">
-                        <div class="inline-flex items-center justify-center w-14 h-14 rounded-xl bg-gray-50 mb-3">
-                            <i class="fas fa-file-alt text-gray-300 text-lg"></i>
-                        </div>
-                        <p class="text-gray-400 font-medium">아직 소개글이 없습니다</p>
-                    </div>
-                {% endif %}
+        {% include 'board/author/components/readme_section.html' %}
 
-                {% if user == author %}
-                <div class="mt-6 pt-6 border-t border-gray-100">
-                    <a href="{% url 'user_about_edit' author.username %}" class="flex items-center justify-center w-full px-4 py-2.5 bg-gray-900 hover:bg-gray-800 rounded-xl text-sm font-semibold text-white transition-colors">
-                        <i class="fas fa-edit mr-2"></i>
-                        소개글 수정
-                    </a>
-                </div>
-                {% endif %}
-            </div>
-        </section>
-
-        <!-- Activity Section -->
-        <section>
-            <div class="flex items-center justify-between mb-4">
-                <h2 class="text-2xl font-bold text-gray-900">활동</h2>
-                <span class="px-2.5 py-1 rounded-full bg-blue-50 text-blue-600 text-xs font-semibold">베타</span>
-            </div>
-
-            <!-- Heatmap -->
-            <div class="bg-white rounded-2xl ring-1 ring-gray-900/5 p-6 mb-6" style="min-height: 280px;">
-                <island-component name="Heatmap" props="{{ author_activity_props }}"></island-component>
-            </div>
-
-            <!-- Recent Activities (Server-side rendered) -->
-            <div class="bg-white rounded-2xl ring-1 ring-gray-900/5 p-6">
-                <h3 class="text-sm font-bold text-gray-500 uppercase tracking-wider mb-4">최근 활동</h3>
-                {% if recent_activities %}
-                    <div class="space-y-2">
-                        {% for activity in recent_activities %}
-                        <a href="{{ activity.url }}" class="flex items-center gap-4 p-3 -mx-3 rounded-2xl hover:bg-gray-50 transition-all duration-200 group">
-                            <div class="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0
-                                {% if activity.type == 'post' %}bg-blue-50 text-blue-600
-                                {% elif activity.type == 'series' %}bg-indigo-50 text-indigo-600
-                                {% elif activity.type == 'comment' %}bg-emerald-50 text-emerald-600
-                                {% elif activity.type == 'like' %}bg-rose-50 text-rose-600
-                                {% else %}bg-gray-100 text-gray-600{% endif %}">
-                                {% if activity.type == 'post' %}
-                                    <i class="fas fa-pen-nib text-sm"></i>
-                                {% elif activity.type == 'series' %}
-                                    <i class="fas fa-layer-group text-sm"></i>
-                                {% elif activity.type == 'comment' %}
-                                    <i class="fas fa-comment-alt text-sm"></i>
-                                {% elif activity.type == 'like' %}
-                                    <i class="fas fa-heart text-sm"></i>
-                                {% else %}
-                                    <i class="fas fa-clock text-sm"></i>
-                                {% endif %}
-                            </div>
-                            <div class="flex-1 min-w-0">
-                                <div class="flex items-center justify-between mb-0.5">
-                                    <span class="text-xs text-gray-500">
-                                        {% if activity.type == 'post' %}새 글을 작성했어요
-                                        {% elif activity.type == 'series' %}시리즈를 만들었어요
-                                        {% elif activity.type == 'comment' %}댓글을 남겼어요
-                                        {% elif activity.type == 'like' %}좋아요를 눌렀어요
-                                        {% else %}활동{% endif %}
-                                    </span>
-                                    <span class="text-[11px] text-gray-400 font-medium tabular-nums">{{ activity.date }}</span>
-                                </div>
-                                <h4 class="text-sm font-semibold text-gray-700 line-clamp-1 group-hover:text-blue-600 transition-colors">
-                                    {% if activity.type == 'comment' or activity.type == 'like' %}
-                                        {{ activity.postTitle }}
-                                    {% else %}
-                                        {{ activity.title }}
-                                    {% endif %}
-                                </h4>
-                            </div>
-                        </a>
-                        {% endfor %}
-                    </div>
-                {% else %}
-                    <div class="py-12 text-center">
-                        <i class="fas fa-wind text-gray-300 text-2xl mb-3"></i>
-                        <p class="text-sm text-gray-400">기록된 활동이 없습니다</p>
-                    </div>
-                {% endif %}
-            </div>
-        </section>
+        {% with is_editor_view=False %}
+            {% include 'board/author/components/activity_section.html' %}
+        {% endwith %}
 
     </div>
 </div>

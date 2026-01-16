@@ -228,7 +228,8 @@ class ProfileAdmin(admin.ModelAdmin):
     """프로필 관리 페이지"""
     autocomplete_fields = ['user']
 
-    list_display = ['user_link', 'role_badge', 'avatar_preview', 'analytics_status', 'post_count']
+    list_display = ['id', 'user_link', 'role_badge', 'avatar_preview', 'analytics_status', 'post_count']
+    list_display_links = ['id']
     list_filter = ['role', ('user__date_joined', admin.DateFieldListFilter)]
     search_fields = ['user__username', 'user__email', 'bio', 'homepage']
     list_per_page = LIST_PER_PAGE_DEFAULT

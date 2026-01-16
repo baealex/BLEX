@@ -7,7 +7,7 @@ import { useSuspenseQuery } from '@tanstack/react-query';
 import { useConfirm } from '~/contexts/ConfirmContext';
 import { SettingsHeader } from '../../components';
 import { Button, Input, Card } from '~/components/shared';
-import { getProfileSettings, updateProfileSettings, uploadAvatar } from '~/lib/api/settings';
+import { getProfileSettings, updateProfileSettings, uploadAvatar, uploadCover } from '~/lib/api/settings';
 
 // Define Zod schema for profile form
 const profileSchema = z.object({
@@ -19,6 +19,7 @@ type ProfileFormInputs = z.infer<typeof profileSchema>;
 
 const ProfileSetting = () => {
     const [avatar, setAvatar] = useState('/resources/staticfiles/images/default-avatar.jpg');
+    const [cover, setCover] = useState<string | null>(null);
     const [isLoading, setIsLoading] = useState(false);
     const { confirm } = useConfirm();
 
@@ -38,6 +39,7 @@ const ProfileSetting = () => {
     useEffect(() => {
         if (profileData) {
             setAvatar(profileData.avatar || '/resources/staticfiles/images/default-avatar.jpg');
+            setCover(profileData.cover || null);
             reset({
                 bio: profileData.bio || '',
                 homepage: profileData.homepage || ''
@@ -99,6 +101,38 @@ const ProfileSetting = () => {
         }
     };
 
+    const handleCoverChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+
+        const confirmed = await confirm({
+            title: '커버 이미지 변경',
+            message: '커버 이미지를 변경하시겠습니까?',
+            confirmText: '변경'
+        });
+
+        if (!confirmed) {
+            e.target.value = '';
+            return;
+        }
+
+        try {
+            const { data } = await uploadCover(file);
+
+            if (data.status === 'DONE') {
+                setCover(data.body.url);
+                toast.success('커버 이미지가 업데이트 되었습니다.');
+                refetch();
+            } else {
+                toast.error('커버 이미지 업데이트에 실패했습니다.');
+            }
+        } catch {
+            toast.error('커버 이미지 업데이트에 실패했습니다.');
+        } finally {
+            e.target.value = '';
+        }
+    };
+
     return (
         <div>
             <SettingsHeader
@@ -135,6 +169,60 @@ const ProfileSetting = () => {
                             <h4 className="text-base sm:text-lg font-semibold text-gray-800 mb-1">이미지 변경</h4>
                             <p className="text-sm text-gray-500 mb-2">카메라 아이콘을 클릭하여 새로운 프로필 이미지를 업로드하세요.</p>
                             <p className="text-xs text-gray-400">권장 크기: 400x400px, 최대 5MB</p>
+                        </div>
+                    </div>
+                </Card>
+
+                {/* Cover Image Section */}
+                <Card title="커버 이미지" className="mb-6">
+                    <div className="space-y-4">
+                        {cover ? (
+                            <div className="relative group">
+                                <div className="aspect-[21/9] w-full rounded-2xl overflow-hidden ring-1 ring-gray-900/5">
+                                    <img
+                                        src={cover}
+                                        alt="커버 이미지"
+                                        className="w-full h-full object-cover"
+                                    />
+                                </div>
+                                <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-40 transition-all duration-200 rounded-2xl flex items-center justify-center opacity-0 group-hover:opacity-100">
+                                    <label
+                                        htmlFor="cover-input"
+                                        className="px-6 py-3 bg-white hover:bg-gray-50 rounded-xl text-sm font-semibold text-gray-900 cursor-pointer transition-colors shadow-lg">
+                                        이미지 변경
+                                    </label>
+                                </div>
+                                <input
+                                    id="cover-input"
+                                    type="file"
+                                    accept="image/*"
+                                    onChange={handleCoverChange}
+                                    className="hidden"
+                                />
+                            </div>
+                        ) : (
+                            <label htmlFor="cover-input-empty" className="block">
+                                <div className="aspect-[21/9] w-full rounded-2xl border-2 border-dashed border-gray-200 hover:border-gray-300 hover:bg-gray-50 transition-all duration-200 cursor-pointer flex flex-col items-center justify-center gap-3 group">
+                                    <svg className="w-12 h-12 text-gray-300 group-hover:text-gray-400 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                    </svg>
+                                    <div className="text-center">
+                                        <p className="text-sm font-semibold text-gray-600 mb-1">커버 이미지 추가</p>
+                                        <p className="text-xs text-gray-400">클릭하여 이미지를 업로드하세요</p>
+                                    </div>
+                                </div>
+                                <input
+                                    id="cover-input-empty"
+                                    type="file"
+                                    accept="image/*"
+                                    onChange={handleCoverChange}
+                                    className="hidden"
+                                />
+                            </label>
+                        )}
+                        <div>
+                            <p className="text-sm text-gray-500 mb-1">프로필 페이지 상단에 표시되는 배너 이미지입니다.</p>
+                            <p className="text-xs text-gray-400">권장 크기: 1200x514px (21:9 비율), 최대 5MB</p>
                         </div>
                     </div>
                 </Card>
