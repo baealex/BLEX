@@ -60,9 +60,8 @@
             githubClientId: "{{ GITHUB_OAUTH_CLIENT_ID|default:'' }}"
         };
     </script>
-    {% block extra_scripts %}{% endblock %}
-
     {% vite_hmr_client %}
+    {% block extra_scripts %}{% endblock %}
     <script type="module" src="{% island_entry 'src/island.tsx' %}"></script>
     <script type="module" src="{% island_entry 'src/scripts/lazy-loading.ts' %}"></script>
     <script type="module" src="{% island_entry 'src/scripts/alpine-loader.ts' %}"></script>

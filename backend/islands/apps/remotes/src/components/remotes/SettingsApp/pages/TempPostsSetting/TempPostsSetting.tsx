@@ -12,7 +12,7 @@ import {
     SUBTITLE,
     ACTIONS_CONTAINER
 } from '~/components/shared';
-import { useConfirm } from '~/contexts/ConfirmContext';
+import { useConfirm } from '~/hooks/useConfirm';
 import { getTempPosts, deleteTempPost } from '~/lib/api/settings';
 
 const TempPostsSetting = () => {

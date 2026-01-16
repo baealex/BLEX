@@ -5,7 +5,7 @@ import {
     useRef
 } from 'react';
 import { toast } from '~/utils/toast';
-import { useConfirm } from '~/contexts/ConfirmContext';
+import { useConfirm } from '~/hooks/useConfirm';
 import PostEditorWrapper from './PostEditorWrapper';
 import PostActions from './components/PostActions';
 import PostForm from './components/PostForm';

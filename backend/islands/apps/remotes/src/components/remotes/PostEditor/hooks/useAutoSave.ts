@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { createTempPost, updateTempPost } from '~/lib/api/posts';
 
 interface AutoSaveData {
@@ -48,7 +48,7 @@ export const useAutoSave = (data: AutoSaveData, options: UseAutoSaveOptions) => 
     });
 
     // Manual save
-    const manualSave = async () => {
+    const manualSave = useCallback(async () => {
         const currentData = dataRef.current;
         const currentOptions = optionsRef.current;
 
@@ -98,7 +98,7 @@ export const useAutoSave = (data: AutoSaveData, options: UseAutoSaveOptions) => 
         } finally {
             setIsSaving(false);
         }
-    };
+    }, [isSaving]);
 
     // Auto-save effect
     useEffect(() => {

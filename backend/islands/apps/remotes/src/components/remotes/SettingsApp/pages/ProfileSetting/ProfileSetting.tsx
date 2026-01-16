@@ -4,7 +4,7 @@ import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useSuspenseQuery } from '@tanstack/react-query';
-import { useConfirm } from '~/contexts/ConfirmContext';
+import { useConfirm } from '~/hooks/useConfirm';
 import { SettingsHeader } from '../../components';
 import { Button, Input, Card } from '~/components/shared';
 import { getProfileSettings, updateProfileSettings, uploadAvatar, uploadCover } from '~/lib/api/settings';

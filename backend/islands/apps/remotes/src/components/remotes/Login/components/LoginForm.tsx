@@ -1,5 +1,6 @@
 import React, { useEffect, useRef } from 'react';
 import SocialLogin from '~/components/remotes/SocialLogin';
+import { logger } from '~/utils/logger';
 
 interface LoginFormProps {
     username: string;
@@ -71,7 +72,7 @@ const LoginForm = ({
                     }
                 });
             } catch (e) {
-                console.error('Failed to render hCaptcha:', e);
+                logger.error('Failed to render hCaptcha:', e);
             }
         }
 

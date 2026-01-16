@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { logger } from '~/utils/logger';
 import { getSocialProviders, type SocialProvider } from '~/lib/api';
 
 export const useSocialProviders = () => {
@@ -14,7 +15,7 @@ export const useSocialProviders = () => {
           setProviders(data.body);
         }
       } catch (error) {
-        console.error('Failed to load social providers:', error);
+        logger.error('Failed to load social providers:', error);
       }
       setLoading(false);
     };

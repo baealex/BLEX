@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { logger } from '~/utils/logger';
 import { getRelatedPosts, type RelatedPost } from '~/lib/api/posts';
 
 interface RelatedPostsProps {
@@ -18,7 +19,7 @@ const RelatedPosts = ({ postUrl, username }: RelatedPostsProps) => {
                     setRelatedPosts(data.body.posts || []);
                 }
             } catch (error) {
-                console.error('Failed to fetch related posts:', error);
+                logger.error('Failed to fetch related posts:', error);
             } finally {
                 setIsLoading(false);
             }

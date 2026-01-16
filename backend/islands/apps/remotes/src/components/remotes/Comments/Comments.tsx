@@ -1,8 +1,9 @@
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { useConfirm } from '~/contexts/ConfirmContext';
+import { useConfirm } from '~/hooks/useConfirm';
 import { isLoggedIn as checkIsLoggedIn, showLoginPrompt } from '~/utils/loginPrompt';
 import { toast } from '~/utils/toast';
+import { logger } from '~/utils/logger';
 import {
     getComments,
     createComment,
@@ -125,7 +126,7 @@ const Comments = (props: CommentsProps) => {
                 toast.error('댓글 정보를 불러오는데 실패했습니다.');
             }
         } catch (err) {
-            console.error('댓글 수정 오류:', err);
+            logger.error('댓글 수정 오류:', err);
             toast.error('댓글 정보를 불러오는 중 오류가 발생했습니다.');
         }
     };
