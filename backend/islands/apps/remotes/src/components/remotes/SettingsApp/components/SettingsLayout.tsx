@@ -15,7 +15,7 @@ export const SettingsLayout = () => {
                     <SettingsDesktopNavigation currentPath={currentPath} />
                     {/* Main Content */}
                     <main className="flex-1 min-w-0 py-6">
-                        <Suspense fallback={<LoadingState type="list" rows={5} />}>
+                        <Suspense fallback={<LoadingState type="form" />}>
                             <Outlet />
                         </Suspense>
                     </main>

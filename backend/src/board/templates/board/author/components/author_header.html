@@ -2,12 +2,20 @@
 {% load island %}
 {% load resource %}
 
-{% load static %}
-{% load island %}
-{% load resource %}
-
 <div class="relative overflow-hidden">
-    <div class="relative flex flex-col items-center text-center py-12 sm:py-16 px-4 sm:px-6 max-w-4xl mx-auto">
+    {# Cover Image Section #}
+    {% if author.profile.cover %}
+    <div class="relative w-full h-64 sm:h-80 md:h-100 overflow-hidden">
+        <img
+            src="{{ author.profile.cover.url }}"
+            alt="{{ author.username }} cover"
+            class="w-full h-full object-cover"
+        />
+        <div class="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-white"></div>
+    </div>
+    {% endif %}
+
+    <div class="relative flex flex-col items-center text-center {% if author.profile.cover %}-mt-16 sm:-mt-20{% else %}pt-12{% endif %} px-4 sm:px-6 pb-12 sm:pb-16 max-w-4xl mx-auto">
         <div class="relative group mb-6 sm:mb-8">
             {% if author.profile.avatar %}
             <img class="relative w-28 h-28 sm:w-32 sm:h-32 md:w-40 md:h-40 rounded-full object-cover ring-4 ring-white shadow-[0_8px_30px_rgba(0,0,0,0.12)] transition-all duration-500 group-hover:scale-105 group-hover:shadow-[0_20px_40px_rgba(0,0,0,0.16)]" src="{{ author.profile.avatar.url }}" alt="{{ author.username }}">

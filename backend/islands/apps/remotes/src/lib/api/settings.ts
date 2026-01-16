@@ -20,6 +20,7 @@ export interface ProfileData {
     bio: string;
     homepage: string;
     avatar: string;
+    cover: string | null;
 }
 
 export interface ProfileUpdateData {
@@ -85,6 +86,13 @@ export const uploadAvatar = async (file: File) => {
     formData.append('avatar', file);
 
     return http.post<Response<{ url: string }>>('v1/setting/avatar', formData, { headers: { 'Content-Type': 'multipart/form-data' } });
+};
+
+export const uploadCover = async (file: File) => {
+    const formData = new FormData();
+    formData.append('cover', file);
+
+    return http.post<Response<{ url: string | null }>>('v1/setting/cover', formData, { headers: { 'Content-Type': 'multipart/form-data' } });
 };
 
 export const updateNotifyConfig = async (config: Record<string, boolean>) => {

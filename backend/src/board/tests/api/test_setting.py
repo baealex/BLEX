@@ -197,6 +197,29 @@ class SettingTestCase(TestCase):
         self.assertEqual(content['status'], 'DONE')
         self.assertIn('url', content['body'])
 
+    def test_upload_cover(self):
+        """커버 이미지 업로드 테스트"""
+        from io import BytesIO
+        from PIL import Image
+
+        self.client.login(username='test', password='test')
+
+        image = Image.new('RGB', (1200, 514), color='blue')
+        image_file = BytesIO()
+        image.save(image_file, 'PNG')
+        image_file.name = 'cover.png'
+        image_file.seek(0)
+
+        response = self.client.post(
+            '/v1/setting/cover',
+            {'cover': image_file},
+            format='multipart'
+        )
+        self.assertEqual(response.status_code, 200)
+        content = json.loads(response.content)
+        self.assertEqual(content['status'], 'DONE')
+        self.assertIn('url', content['body'])
+
     def test_get_setting_profile(self):
         """프로필 설정 조회 테스트"""
         self.client.login(username='test', password='test')
@@ -206,6 +229,7 @@ class SettingTestCase(TestCase):
         content = json.loads(response.content)
         self.assertEqual(content['status'], 'DONE')
         self.assertIn('avatar', content['body'])
+        self.assertIn('cover', content['body'])
         self.assertIn('bio', content['body'])
         self.assertIn('homepage', content['body'])
 

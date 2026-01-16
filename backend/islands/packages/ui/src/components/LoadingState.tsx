@@ -1,27 +1,9 @@
 interface LoadingStateProps {
     rows?: number;
-    type?: 'card' | 'list' | 'form' | 'spinner';
+    type?: 'list' | 'form' | 'spinner';
 }
 
 const LoadingState = ({ rows = 3, type = 'form' }: LoadingStateProps) => {
-    if (type === 'card') {
-        return (
-            <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6">
-                <div className="animate-pulse">
-                    <div className="h-8 bg-gray-200 rounded w-40 mb-6" />
-                    <div className="space-y-4">
-                        {[...Array(rows)].map((_, i) => (
-                            <div key={i} className="bg-gray-50 rounded-2xl p-6">
-                                <div className="h-4 bg-gray-200 rounded w-24 mb-3" />
-                                <div className="h-10 bg-gray-200 rounded" />
-                            </div>
-                        ))}
-                    </div>
-                </div>
-            </div>
-        );
-    }
-
     if (type === 'list') {
         return (
             <div className="space-y-3 animate-pulse">

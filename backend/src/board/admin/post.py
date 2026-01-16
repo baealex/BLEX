@@ -248,7 +248,8 @@ class TempPostsAdmin(admin.ModelAdmin):
 
 @admin.register(PostLikes)
 class PostLikesAdmin(admin.ModelAdmin):
-    list_display = ['user', 'post', 'created_date']
+    list_display = ['id', 'user', 'post', 'created_date']
+    list_display_links = ['id']
 
     def get_form(self, request: HttpRequest, obj: Optional[PostLikes] = None, **kwargs: Any) -> Any:
         kwargs['exclude'] = ['user', 'post']

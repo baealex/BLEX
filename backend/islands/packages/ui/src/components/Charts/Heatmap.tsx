@@ -9,12 +9,14 @@ export interface HeatmapProps {
     };
     countLabel?: string;
     colors?: string[];
+    className?: string;
 }
 
 export const Heatmap = ({
     data,
     countLabel = 'Contribution',
-    colors = ['#ebedf0', '#c6e48b', '#7bc96f', '#239a3b', '#196127']
+    colors = ['#ebedf0', '#c6e48b', '#7bc96f', '#239a3b', '#196127'],
+    className = 'w-full'
 }: HeatmapProps) => {
     const chartRef = useRef<HTMLDivElement>(null);
     const chartInstance = useRef<Chart>(null);
@@ -39,5 +41,5 @@ export const Heatmap = ({
 
     }, [data, countLabel, colors]);
 
-    return <div ref={chartRef} className="w-full" />;
+    return <div ref={chartRef} className={className} />;
 };

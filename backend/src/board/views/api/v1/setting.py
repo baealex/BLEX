@@ -158,6 +158,7 @@ def setting(request, parameter):
         if parameter == 'profile':
             return StatusDone({
                 'avatar': user.profile.get_thumbnail(),
+                'cover': user.profile.cover.url if user.profile.cover else None,
                 'bio': user.profile.bio,
                 'homepage': user.profile.homepage,
                 'social': user.profile.collect_social(),
@@ -343,6 +344,14 @@ def setting(request, parameter):
             profile.save()
             return StatusDone({
                 'url': profile.get_thumbnail(),
+            })
+
+        if parameter == 'cover':
+            profile = Profile.objects.get(user=user)
+            profile.cover = request.FILES['cover']
+            profile.save()
+            return StatusDone({
+                'url': profile.cover.url if profile.cover else None,
             })
 
     if request.method == 'PUT':

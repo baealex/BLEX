@@ -33,18 +33,10 @@ const Heatmap = ({ username }: HeatmapProps) => {
         }
     });
 
-    if (isLoading) {
+    if (!heatmapData || isLoading) {
         return (
             <div className="flex items-center justify-center py-12">
                 <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900" />
-            </div>
-        );
-    }
-
-    if (!heatmapData || Object.keys(heatmapData).length === 0) {
-        return (
-            <div className="text-center py-12">
-                <p className="text-gray-400">활동 데이터가 없습니다</p>
             </div>
         );
     }
@@ -62,6 +54,7 @@ const Heatmap = ({ username }: HeatmapProps) => {
                     end: new Date()
                 }}
                 countLabel="활동"
+                className="mx-auto w-fit"
             />
         </div>
     );
