@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { toast } from '~/utils/toast';
 import { useSuspenseQuery } from '@tanstack/react-query';
-import { useConfirm } from '~/contexts/ConfirmContext';
+import { useConfirm } from '~/hooks/useConfirm';
 import { SettingsHeader } from '../../components';
 import { getAccountSettings, updateAccountSettings, deleteAccount } from '~/lib/api/settings';
 import { enable2FA, disable2FA, verify2FASetup } from '~/lib/api/auth';

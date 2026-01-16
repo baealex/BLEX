@@ -32,7 +32,7 @@ import {
  ACTIONS_CONTAINER,
  DRAG_HANDLE
 } from '~/components/shared';
-import { useConfirm } from '~/contexts/ConfirmContext';
+import { useConfirm } from '~/hooks/useConfirm';
 import {
     getSeriesWithUsername,
     updateSeriesOrder,

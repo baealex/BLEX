@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { logger } from '~/utils/logger';
 import { Dialog } from '@blex/ui';
 import { getTempPosts, type TempPost } from '~/lib/api/settings';
 import { cx } from '~/lib/classnames';
@@ -35,7 +36,7 @@ const TempPostsPanel = ({
                 setTempPosts([]);
             }
         } catch (error) {
-            console.error('Failed to fetch temp posts:', error);
+            logger.error('Failed to fetch temp posts:', error);
             setTempPosts([]);
         } finally {
             setIsLoading(false);

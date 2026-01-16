@@ -1,5 +1,6 @@
 import { QueryClient } from '@tanstack/react-query';
 import type { PersistedClient, Persister } from '@tanstack/react-query-persist-client';
+import { logger } from '~/utils/logger';
 
 const getCurrentUsername = () => {
     return window.configuration?.user?.username || 'anonymous';
@@ -17,7 +18,7 @@ export const sessionStoragePersister: Persister = {
             const key = getUserCacheKey();
             sessionStorage.setItem(key, JSON.stringify(client));
         } catch (error) {
-            console.error('Failed to persist client:', error);
+            logger.error('Failed to persist client:', error);
         }
     },
     restoreClient: async () => {
@@ -28,7 +29,7 @@ export const sessionStoragePersister: Persister = {
             const cached = sessionStorage.getItem(key);
             return cached ? JSON.parse(cached) : undefined;
         } catch (error) {
-            console.error('Failed to restore client:', error);
+            logger.error('Failed to restore client:', error);
             return undefined;
         }
     },
@@ -39,7 +40,7 @@ export const sessionStoragePersister: Persister = {
             const key = getUserCacheKey();
             sessionStorage.removeItem(key);
         } catch (error) {
-            console.error('Failed to remove client:', error);
+            logger.error('Failed to remove client:', error);
         }
     }
 };

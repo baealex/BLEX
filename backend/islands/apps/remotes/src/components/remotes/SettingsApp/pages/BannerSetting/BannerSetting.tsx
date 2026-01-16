@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { toast } from '~/utils/toast';
 import { useMutation, useQueryClient, useSuspenseQuery } from '@tanstack/react-query';
-import { useConfirm } from '~/contexts/ConfirmContext';
+import { useConfirm } from '~/hooks/useConfirm';
 import { SettingsHeader } from '../../components';
 import { Button, Modal } from '~/components/shared';
 import {

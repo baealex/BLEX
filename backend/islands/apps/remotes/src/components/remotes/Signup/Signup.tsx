@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import SocialLogin from '~/components/remotes/SocialLogin';
 
 declare global {
@@ -38,7 +38,7 @@ const Signup = () => {
     const captchaRef = useRef<HTMLDivElement>(null);
     const widgetIdRef = useRef<string | null>(null);
 
-    const renderCaptcha = () => {
+    const renderCaptcha = useCallback(() => {
         if (!captchaRendered && captchaRef.current && window.hcaptcha && window.HCAPTCHA_SITE_KEY) {
             try {
                 widgetIdRef.current = window.hcaptcha.render(captchaRef.current, {
@@ -54,7 +54,7 @@ const Signup = () => {
                 // Ignore error
             }
         }
-    };
+    }, [captchaRendered]);
 
     useEffect(() => {
         setIsVisible(true);

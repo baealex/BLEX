@@ -1,3 +1,4 @@
+import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import { PersistQueryClientProvider } from '@tanstack/react-query-persist-client';
 import App from './components/App';
@@ -75,16 +76,18 @@ customElements.define('island-component', class extends HTMLElement {
             const queryClient = createQueryClient();
             const root = createRoot(this);
             root.render(
-                <ErrorBoundary fallback={<div>Component Error: {name}</div>}>
-                    <PersistQueryClientProvider
-                        client={queryClient}
-                        persistOptions={{
-                            persister: sessionStoragePersister,
-                            maxAge: 1000 * 60 * 60 * 24
-                        }}>
-                        <App __name={name} {...props} />
-                    </PersistQueryClientProvider>
-                </ErrorBoundary>
+                <StrictMode>
+                    <ErrorBoundary fallback={<div>Component Error: {name}</div>}>
+                        <PersistQueryClientProvider
+                            client={queryClient}
+                            persistOptions={{
+                                persister: sessionStoragePersister,
+                                maxAge: 1000 * 60 * 60 * 24
+                            }}>
+                            <App __name={name} {...props} />
+                        </PersistQueryClientProvider>
+                    </ErrorBoundary>
+                </StrictMode>
             );
         } catch {
             this.innerHTML = `<div>Component Error: ${name}</div>`;
