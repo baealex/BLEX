@@ -1,25 +1,11 @@
 import {
-    createContext,
-    useContext,
     useState,
     useEffect,
+    useCallback,
     type ReactNode
 } from 'react';
 import { Modal } from '~/components/shared';
-
-interface LoginPromptContextType {
-    showLoginPrompt: (action: string) => void;
-}
-
-const LoginPromptContext = createContext<LoginPromptContextType | null>(null);
-
-export const useLoginPrompt = () => {
-    const context = useContext(LoginPromptContext);
-    if (!context) {
-        throw new Error('useLoginPrompt must be used within LoginPromptProvider');
-    }
-    return context;
-};
+import { LoginPromptContext } from './internal/LoginPromptContextDef';
 
 interface LoginPromptDialogState {
     isOpen: boolean;
@@ -34,7 +20,7 @@ export const LoginPromptProvider = ({ children }: { children: ReactNode }) => {
 
     const isLoggedIn = !!window.configuration?.user?.username;
 
-    const showLoginPrompt = (action: string) => {
+    const showLoginPrompt = useCallback((action: string) => {
         if (isLoggedIn) {
             return;
         }
@@ -43,7 +29,7 @@ export const LoginPromptProvider = ({ children }: { children: ReactNode }) => {
             isOpen: true,
             action
         });
-    };
+    }, [isLoggedIn]);
 
     // 전역 커스텀 이벤트로 모달 열기 (Alpine.js에서도 사용 가능)
     // 중복 방지: 같은 페이지에 여러 island가 있어도 한 번만 모달 표시
@@ -131,9 +117,4 @@ export const LoginPromptProvider = ({ children }: { children: ReactNode }) => {
             </Modal>
         </LoginPromptContext.Provider>
     );
-};
-
-// Export a helper to check login status
-export const isUserLoggedIn = (): boolean => {
-    return !!window.configuration?.user?.username;
 };

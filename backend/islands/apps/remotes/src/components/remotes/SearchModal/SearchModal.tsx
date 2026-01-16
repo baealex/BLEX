@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { getMediaPath } from '~/modules/static.module';
 import { Modal } from '~/components/shared';
 import { searchPosts, type SearchResult } from '~/lib/api';
+import { logger } from '~/utils/logger';
 
 interface SearchModalProps {
     isOpen?: boolean;
@@ -65,7 +66,7 @@ const SearchModal = ({ isOpen: initialIsOpen = false }: SearchModalProps) => {
                 setPage(pageNum);
             }
         } catch (error) {
-            console.error('Search error:', error);
+            logger.error('Search error:', error);
         } finally {
             setIsLoading(false);
         }

@@ -1,32 +1,9 @@
 import {
-    createContext,
-    useContext,
     useState,
     type ReactNode
 } from 'react';
 import { Modal } from '@blex/ui';
-
-interface ConfirmOptions {
-    title: string;
-    message: string;
-    confirmText?: string;
-    cancelText?: string;
-    variant?: 'default' | 'danger';
-}
-
-interface ConfirmContextType {
-    confirm: (options: ConfirmOptions) => Promise<boolean>;
-}
-
-const ConfirmContext = createContext<ConfirmContextType | null>(null);
-
-export const useConfirm = () => {
-    const context = useContext(ConfirmContext);
-    if (!context) {
-        throw new Error('useConfirm must be used within ConfirmProvider');
-    }
-    return context;
-};
+import { ConfirmContext, type ConfirmOptions } from './internal/ConfirmContextDef';
 
 interface ConfirmDialogState extends ConfirmOptions {
     isOpen: boolean;

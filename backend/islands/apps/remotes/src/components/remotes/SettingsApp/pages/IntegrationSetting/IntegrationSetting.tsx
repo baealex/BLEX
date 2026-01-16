@@ -3,7 +3,7 @@ import { toast } from '~/utils/toast';
 import { useSuspenseQuery } from '@tanstack/react-query';
 import { SettingsHeader } from '../../components';
 import { Button } from '~/components/shared';
-import { useConfirm } from '~/contexts/ConfirmContext';
+import { useConfirm } from '~/hooks/useConfirm';
 import { getTelegramStatus, generateTelegramToken, disconnectTelegram as disconnectTelegramAPI } from '~/lib/api/telegram';
 
 const IntegrationSettings = () => {

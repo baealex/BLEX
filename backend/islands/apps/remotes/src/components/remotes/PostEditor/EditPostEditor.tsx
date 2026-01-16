@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { toast } from '~/utils/toast';
-import { useConfirm } from '~/contexts/ConfirmContext';
+import { useConfirm } from '~/hooks/useConfirm';
 import PostEditorWrapper from './PostEditorWrapper';
 import PostActions from './components/PostActions';
 import PostForm from './components/PostForm';
@@ -8,6 +8,7 @@ import SettingsDrawer from './components/SettingsDrawer';
 import { getSeries } from '~/lib/api/settings';
 import { getPostForEdit } from '~/lib/api/posts';
 import { api } from '~/components/shared';
+import { logger } from '~/utils/logger';
 
 interface Series {
     id: string;
@@ -127,7 +128,7 @@ const EditPostEditor = ({ username, postUrl }: EditPostEditorProps) => {
                 return data.body.url;
             }
         } catch (error) {
-            console.error('Image upload failed', error);
+            logger.error('Image upload failed', error);
         }
         return undefined;
     };

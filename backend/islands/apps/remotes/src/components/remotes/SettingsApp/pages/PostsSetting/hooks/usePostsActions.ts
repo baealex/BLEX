@@ -1,5 +1,5 @@
 import { toast } from '~/utils/toast';
-import { useConfirm } from '~/contexts/ConfirmContext';
+import { useConfirm } from '~/hooks/useConfirm';
 import {
     togglePostVisibility,
     togglePostNotice,
