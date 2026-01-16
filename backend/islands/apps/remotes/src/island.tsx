@@ -24,12 +24,17 @@ customElements.define('island-component', class extends HTMLElement {
 
     connectedCallback(): void {
         const name = this.getAttribute('name');
+        const lazy = this.getAttribute('lazy') === 'true';
 
         if (!name) {
             return;
         }
 
-        this.renderComponent(name);
+        if (lazy) {
+            this.setupLazyLoading(name);
+        } else {
+            this.renderComponent(name);
+        }
     }
 
     disconnectedCallback(): void {
