@@ -182,6 +182,38 @@ const TiptapEditor = ({
                     width: 16px;
                     height: 16px;
                 }
+                /* Columns styles */
+                .ProseMirror div[data-type="columns"] {
+                    margin: 16px 0;
+                    border-radius: 8px;
+                }
+                .ProseMirror div[data-type="columns"] > div[data-type="column"] {
+                    padding: 12px;
+                    background: #f9fafb;
+                    border-radius: 8px;
+                    border: 1px dashed #e5e7eb;
+                    min-height: 80px;
+                }
+                .ProseMirror div[data-type="columns"] > div[data-type="column"]:focus-within {
+                    border-color: #3b82f6;
+                    background: #f0f7ff;
+                }
+                .ProseMirror div[data-type="columns"] > div[data-type="column"] > *:first-child {
+                    margin-top: 0;
+                }
+                .ProseMirror div[data-type="columns"] > div[data-type="column"] > *:last-child {
+                    margin-bottom: 0;
+                }
+                /* Responsive columns */
+                @media (max-width: 640px) {
+                    .ProseMirror div[data-type="columns"] {
+                        display: flex !important;
+                        flex-direction: column !important;
+                    }
+                    .ProseMirror div[data-type="columns"] > div[data-type="column"] {
+                        width: 100% !important;
+                    }
+                }
             `}</style>
         </div>
     );

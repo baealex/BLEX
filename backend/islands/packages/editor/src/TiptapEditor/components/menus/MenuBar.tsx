@@ -4,6 +4,7 @@ import YoutubeModal from '../modals/YoutubeModal';
 import MarkdownPasteModal from '../modals/MarkdownPasteModal';
 import FloatingMenuBar from './FloatingMenuBar';
 import MediaFloatingMenu from './MediaFloatingMenu';
+import ColumnsFloatingMenu from './ColumnsFloatingMenu';
 import SlashCommandMenu from './SlashCommandMenu';
 import EditorHelpText from '../ui/EditorHelpText';
 import { useImageUpload } from '../../hooks/useImageUpload';
@@ -68,6 +69,8 @@ const MenuBar = ({
             <FloatingMenuBar editor={editor} />
 
             <MediaFloatingMenu editor={editor} />
+
+            <ColumnsFloatingMenu editor={editor} />
 
             <SlashCommandMenu
                 editor={editor}

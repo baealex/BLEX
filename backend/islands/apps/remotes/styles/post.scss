@@ -311,4 +311,33 @@
     .katex-html[aria-hidden="true"] {
         display: none;
     }
+
+    // Multi-column layout
+    div[data-type="columns"] {
+        display: grid;
+        gap: 16px;
+        margin: 1.5rem 0;
+
+        @media (max-width: 640px) {
+            display: flex !important;
+            flex-direction: column !important;
+            gap: 12px;
+        }
+
+        div[data-type="column"] {
+            min-width: 0;
+
+            @media (max-width: 640px) {
+                width: 100% !important;
+            }
+
+            &>*:first-child {
+                margin-top: 0;
+            }
+
+            &>*:last-child {
+                margin-bottom: 0;
+            }
+        }
+    }
 }

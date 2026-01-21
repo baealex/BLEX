@@ -191,6 +191,22 @@ const SlashCommandMenu = ({
             icon: 'fa fa-minus',
             keywords: ['divider', '구분선', 'hr', '수평선'],
             action: (editor) => editor.chain().focus().setHorizontalRule().run()
+        },
+        {
+            id: 'columns2',
+            title: '2단 레이아웃',
+            description: '2개의 컬럼으로 나누기',
+            icon: 'fa fa-columns',
+            keywords: ['columns', '컬럼', '2단', '레이아웃', 'layout'],
+            action: (editor) => editor.chain().focus().setColumns('1:1').run()
+        },
+        {
+            id: 'columns3',
+            title: '3단 레이아웃',
+            description: '3개의 컬럼으로 나누기',
+            icon: 'fa fa-columns',
+            keywords: ['columns', '컬럼', '3단', '레이아웃', 'layout'],
+            action: (editor) => editor.chain().focus().setColumns('1:1:1').run()
         }
     ];
 
