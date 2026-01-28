@@ -8,6 +8,7 @@ interface SlashCommandMenuProps {
     slashPos: number | null;
     onClose: () => void;
     onImageUpload: () => void;
+    onVideoUpload: () => void;
     onYoutubeUpload: () => void;
 }
 
@@ -32,6 +33,7 @@ const SlashCommandMenu = ({
     slashPos,
     onClose,
     onImageUpload,
+    onVideoUpload,
     onYoutubeUpload
 }: SlashCommandMenuProps) => {
     const [selectedIndex, setSelectedIndex] = useState(0);
@@ -173,15 +175,23 @@ const SlashCommandMenu = ({
             title: '이미지',
             description: '이미지 업로드',
             icon: 'fa fa-image',
-            keywords: ['image', '이미지', 'img'],
+            keywords: ['image', '이미지', 'img', '사진'],
             action: () => onImageUpload()
+        },
+        {
+            id: 'video',
+            title: '비디오',
+            description: 'MP4/WebM 비디오 업로드',
+            icon: 'fa fa-video',
+            keywords: ['video', '비디오', '동영상', 'mp4', 'webm', '영상'],
+            action: () => onVideoUpload()
         },
         {
             id: 'youtube',
             title: 'YouTube',
             description: 'YouTube 동영상 삽입',
             icon: 'fab fa-youtube',
-            keywords: ['youtube', '유튜브', '동영상', 'video'],
+            keywords: ['youtube', '유튜브'],
             action: () => onYoutubeUpload()
         },
         {

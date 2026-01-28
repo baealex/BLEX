@@ -7,16 +7,22 @@ interface UseImageUploadProps {
 }
 
 export const useImageUpload = ({ editor, onImageUpload, onImageUploadError }: UseImageUploadProps) => {
-    const isImageFile = (file: File) => {
-        const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif'];
-        return validTypes.includes(file.type);
+    const isMediaFile = (file: File) => {
+        const validImageTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif'];
+        const validVideoTypes = ['video/mp4', 'video/webm'];
+        return validImageTypes.includes(file.type) || validVideoTypes.includes(file.type);
     };
 
-    const uploadImage = async (file: File, position?: number) => {
+    const isVideoFile = (file: File) => {
+        const validVideoTypes = ['video/mp4', 'video/webm'];
+        return validVideoTypes.includes(file.type);
+    };
+
+    const uploadMedia = async (file: File, position?: number) => {
         if (!editor || !onImageUpload) return;
 
-        if (!isImageFile(file)) {
-            onImageUploadError?.('이미지 파일이 아닙니다.');
+        if (!isMediaFile(file)) {
+            onImageUploadError?.('지원하지 않는 파일 형식입니다.');
             return;
         }
 
@@ -27,10 +33,22 @@ export const useImageUpload = ({ editor, onImageUpload, onImageUploadError }: Us
                 // position이 지정되지 않았으면 현재 selection 사용
                 const insertPos = position ?? editor.state.selection.to;
 
-                if (url.includes('mp4')) {
-                    // mp4는 비디오로 삽입
+                if (isVideoFile(file) || url.includes('.mp4') || url.includes('.webm')) {
+                    // 비디오는 video 노드로 삽입
                     editor.chain()
-                        .insertContentAt(insertPos, `<video src="${url}" controls autoplay muted loop playsinline style="max-width: 100%; height: auto;"></video><p></p>`)
+                        .insertContentAt(insertPos, [
+                            {
+                                type: 'video',
+                                attrs: {
+                                    src: url,
+                                    align: 'center',
+                                    playMode: 'gif', // 기본값: 움짤 모드
+                                    aspectRatio: null,
+                                    objectFit: 'cover'
+                                }
+                            },
+                            { type: 'paragraph' }
+                        ])
                         .focus()
                         .run();
                 } else {
@@ -52,13 +70,13 @@ export const useImageUpload = ({ editor, onImageUpload, onImageUploadError }: Us
                         .run();
                 }
 
-                // 삽입 후 새로운 위치 반환 (다음 이미지를 위해)
+                // 삽입 후 새로운 위치 반환 (다음 파일을 위해)
                 return editor.state.doc.content.size;
             } else {
-                onImageUploadError?.('이미지 업로드에 실패했습니다.');
+                onImageUploadError?.('파일 업로드에 실패했습니다.');
             }
         } catch {
-            onImageUploadError?.('이미지 업로드에 실패했습니다.');
+            onImageUploadError?.('파일 업로드에 실패했습니다.');
         }
     };
 
@@ -68,21 +86,21 @@ export const useImageUpload = ({ editor, onImageUpload, onImageUploadError }: Us
         const items = event.clipboardData?.items;
         if (!items) return;
 
-        const imageFiles: File[] = [];
+        const mediaFiles: File[] = [];
         for (let i = 0; i < items.length; i++) {
             const item = items[i];
-            if (item.type.startsWith('image/')) {
+            if (item.type.startsWith('image/') || item.type.startsWith('video/')) {
                 const file = item.getAsFile();
                 if (file) {
-                    imageFiles.push(file);
+                    mediaFiles.push(file);
                 }
             }
         }
 
-        if (imageFiles.length > 0) {
+        if (mediaFiles.length > 0) {
             event.preventDefault();
-            for (const file of imageFiles) {
-                await uploadImage(file);
+            for (const file of mediaFiles) {
+                await uploadMedia(file);
             }
         }
     };
@@ -92,7 +110,16 @@ export const useImageUpload = ({ editor, onImageUpload, onImageUploadError }: Us
         if (!files || files.length === 0) return;
 
         for (let i = 0; i < files.length; i++) {
-            await uploadImage(files[i]);
+            await uploadMedia(files[i]);
+        }
+    };
+
+    const handleVideoUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+        const files = event.target.files;
+        if (!files || files.length === 0) return;
+
+        for (let i = 0; i < files.length; i++) {
+            await uploadMedia(files[i]);
         }
     };
 
@@ -103,20 +130,23 @@ export const useImageUpload = ({ editor, onImageUpload, onImageUploadError }: Us
         const { files } = e.dataTransfer;
         if (files.length === 0) return;
 
-        const imageFiles = Array.from(files).filter(file => file.type.startsWith('image/'));
+        const mediaFiles = Array.from(files).filter(
+            file => file.type.startsWith('image/') || file.type.startsWith('video/')
+        );
 
-        if (imageFiles.length === 0) {
-            onImageUploadError?.('이미지 파일이 아닙니다.');
+        if (mediaFiles.length === 0) {
+            onImageUploadError?.('지원하지 않는 파일 형식입니다.');
             return;
         }
 
-        for (const file of imageFiles) {
-            await uploadImage(file);
+        for (const file of mediaFiles) {
+            await uploadMedia(file);
         }
     };
 
     return {
         handleImageUpload,
+        handleVideoUpload,
         handleDrop,
         handlePaste
     };

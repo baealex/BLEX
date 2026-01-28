@@ -20,7 +20,7 @@ const MediaFloatingMenu = ({ editor }: MediaFloatingMenuProps) => {
 
             // 현재 선택된 노드 찾기
             const node = doc.nodeAt(from);
-            if (node && (node.type.name === 'image' || node.type.name === 'video')) {
+            if (node && (node.type.name === 'image' || node.type.name === 'video' || node.type.name === 'iframe')) {
                 const newSelectedNode = {
                     type: node.type.name,
                     attrs: node.attrs,
@@ -106,6 +106,31 @@ const MediaFloatingMenu = ({ editor }: MediaFloatingMenuProps) => {
         updateAttribute('borderRadius', value === '' ? null : value);
     };
 
+    const handlePlayModeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+        e.preventDefault();
+        e.stopPropagation();
+        const mode = e.target.value;
+        updateAttribute('playMode', mode);
+        // playMode에 따라 관련 속성도 함께 업데이트
+        if (mode === 'gif') {
+            editor.chain()
+                .updateAttributes('video', {
+                    autoplay: true,
+                    muted: true,
+                    loop: true
+                })
+                .run();
+        } else {
+            editor.chain()
+                .updateAttributes('video', {
+                    autoplay: false,
+                    muted: false,
+                    loop: false
+                })
+                .run();
+        }
+    };
+
     const IconButton = ({
         icon,
         active,
@@ -152,15 +177,70 @@ const MediaFloatingMenu = ({ editor }: MediaFloatingMenuProps) => {
                     onClick={(e) => e.stopPropagation()}>
                     {/* Row 1: 정렬 + 스타일 */}
                     <div className="flex items-center gap-2">
-                        {/* 정렬 */}
-                        <div className="flex gap-0.5 bg-gray-100 rounded-lg p-0.5">
-                            <IconButton icon="fas fa-align-left" active={selectedNode.attrs.align === 'left'} onClick={(e) => handleAlignChange(e, 'left')} title="왼쪽 정렬" />
-                            <IconButton icon="fas fa-align-center" active={selectedNode.attrs.align === 'center'} onClick={(e) => handleAlignChange(e, 'center')} title="가운데 정렬" />
-                            <IconButton icon="fas fa-align-right" active={selectedNode.attrs.align === 'right'} onClick={(e) => handleAlignChange(e, 'right')} title="오른쪽 정렬" />
-                        </div>
+                        {/* 정렬 (image, video만) */}
+                        {(selectedNode.type === 'image' || selectedNode.type === 'video') && (
+                            <div className="flex gap-0.5 bg-gray-100 rounded-lg p-0.5">
+                                <IconButton icon="fas fa-align-left" active={selectedNode.attrs.align === 'left'} onClick={(e) => handleAlignChange(e, 'left')} title="왼쪽 정렬" />
+                                <IconButton icon="fas fa-align-center" active={selectedNode.attrs.align === 'center'} onClick={(e) => handleAlignChange(e, 'center')} title="가운데 정렬" />
+                                <IconButton icon="fas fa-align-right" active={selectedNode.attrs.align === 'right'} onClick={(e) => handleAlignChange(e, 'right')} title="오른쪽 정렬" />
+                            </div>
+                        )}
 
+                        {/* Image 전용 옵션 */}
                         {selectedNode.type === 'image' && (
                             <>
+                                <div className="w-px h-5 bg-gray-300" />
+
+                                {/* Object Fit */}
+                                <select
+                                    value={selectedNode.attrs.objectFit as string || 'cover'}
+                                    onChange={handleObjectFitChange}
+                                    className="px-2 py-1 text-xs bg-gray-50 border border-gray-200 rounded-md hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500">
+                                    <option value="cover">맞춤</option>
+                                    <option value="contain">포함</option>
+                                    <option value="fill">채움</option>
+                                    <option value="none">원본</option>
+                                </select>
+
+                                <div className="w-px h-5 bg-gray-300" />
+
+                                {/* 스타일 옵션 */}
+                                <div className="flex gap-0.5">
+                                    <IconButton icon="fas fa-border-style" active={!!selectedNode.attrs.border} onClick={(e) => handleToggle(e, 'border')} title="테두리" />
+                                    <IconButton icon="fas fa-clone" active={!!selectedNode.attrs.shadow} onClick={(e) => handleToggle(e, 'shadow')} title="그림자" />
+                                </div>
+
+                                <div className="w-px h-5 bg-gray-300" />
+
+                                {/* Border Radius */}
+                                <select
+                                    value={selectedNode.attrs.borderRadius as string || ''}
+                                    onChange={handleBorderRadiusChange}
+                                    className="px-2 py-1 text-xs bg-gray-50 border border-gray-200 rounded-md hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500">
+                                    <option value="">둥글기</option>
+                                    <option value="0">각짐</option>
+                                    <option value="4">약간</option>
+                                    <option value="8">보통</option>
+                                    <option value="16">많이</option>
+                                    <option value="9999">원형</option>
+                                </select>
+                            </>
+                        )}
+
+                        {/* Video 전용 옵션 */}
+                        {selectedNode.type === 'video' && (
+                            <>
+                                <div className="w-px h-5 bg-gray-300" />
+
+                                {/* 재생 모드 */}
+                                <select
+                                    value={selectedNode.attrs.playMode as string || 'gif'}
+                                    onChange={handlePlayModeChange}
+                                    className="px-2 py-1 text-xs bg-gray-50 border border-gray-200 rounded-md hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500">
+                                    <option value="gif">움짤</option>
+                                    <option value="video">영상</option>
+                                </select>
+
                                 <div className="w-px h-5 bg-gray-300" />
 
                                 {/* Object Fit */}
@@ -202,6 +282,7 @@ const MediaFloatingMenu = ({ editor }: MediaFloatingMenuProps) => {
 
                     {/* Row 2: 비율 + 크기 */}
                     <div className="flex items-center gap-2">
+                        {/* Image 비율 */}
                         {selectedNode.type === 'image' && (
                             <>
                                 <select
@@ -219,36 +300,73 @@ const MediaFloatingMenu = ({ editor }: MediaFloatingMenuProps) => {
                             </>
                         )}
 
-                        <div className="flex items-center gap-1">
-                            <input
-                                type="number"
-                                placeholder="W"
-                                value={selectedNode.attrs.width as number || ''}
-                                onChange={(e) => handleSizeChange('width', e.target.value)}
-                                onKeyDown={(e) => {
-                                    if (e.key === 'Enter') {
-                                        e.currentTarget.blur();
-                                    }
-                                }}
-                                className="w-14 px-2 py-1 text-xs bg-gray-50 border border-gray-200 rounded-md text-center hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
-                            />
-                            <span className="text-gray-400 text-xs">×</span>
-                            <input
-                                type="number"
-                                placeholder="H"
-                                value={selectedNode.attrs.height as number || ''}
-                                onChange={(e) => handleSizeChange('height', e.target.value)}
-                                onKeyDown={(e) => {
-                                    if (e.key === 'Enter') {
-                                        e.currentTarget.blur();
-                                    }
-                                }}
-                                className="w-14 px-2 py-1 text-xs bg-gray-50 border border-gray-200 rounded-md text-center hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
-                            />
-                        </div>
+                        {/* Video 비율 */}
+                        {selectedNode.type === 'video' && (
+                            <>
+                                <select
+                                    value={selectedNode.attrs.aspectRatio as string || ''}
+                                    onChange={handleAspectRatioChange}
+                                    className="px-2 py-1 text-xs bg-gray-50 border border-gray-200 rounded-md hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500">
+                                    <option value="">비율</option>
+                                    <option value="16:9">16:9 (와이드)</option>
+                                    <option value="4:3">4:3 (표준)</option>
+                                    <option value="21:9">21:9 (시네마)</option>
+                                    <option value="9:16">9:16 (세로)</option>
+                                    <option value="1:1">1:1 (정사각)</option>
+                                </select>
+                                <div className="w-px h-5 bg-gray-300" />
+                            </>
+                        )}
+
+                        {/* iframe(YouTube) 비율 */}
+                        {selectedNode.type === 'iframe' && (
+                            <>
+                                <span className="text-xs text-gray-500">비율</span>
+                                <select
+                                    value={selectedNode.attrs.aspectRatio as string || '16:9'}
+                                    onChange={handleAspectRatioChange}
+                                    className="px-2 py-1 text-xs bg-gray-50 border border-gray-200 rounded-md hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500">
+                                    <option value="16:9">16:9 (와이드)</option>
+                                    <option value="4:3">4:3 (표준)</option>
+                                    <option value="21:9">21:9 (시네마)</option>
+                                    <option value="1:1">1:1 (정사각)</option>
+                                </select>
+                            </>
+                        )}
+
+                        {/* 크기 입력 (image, video만) */}
+                        {(selectedNode.type === 'image' || selectedNode.type === 'video') && (
+                            <div className="flex items-center gap-1">
+                                <input
+                                    type="number"
+                                    placeholder="W"
+                                    value={selectedNode.attrs.width as number || ''}
+                                    onChange={(e) => handleSizeChange('width', e.target.value)}
+                                    onKeyDown={(e) => {
+                                        if (e.key === 'Enter') {
+                                            e.currentTarget.blur();
+                                        }
+                                    }}
+                                    className="w-14 px-2 py-1 text-xs bg-gray-50 border border-gray-200 rounded-md text-center hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
+                                />
+                                <span className="text-gray-400 text-xs">×</span>
+                                <input
+                                    type="number"
+                                    placeholder="H"
+                                    value={selectedNode.attrs.height as number || ''}
+                                    onChange={(e) => handleSizeChange('height', e.target.value)}
+                                    onKeyDown={(e) => {
+                                        if (e.key === 'Enter') {
+                                            e.currentTarget.blur();
+                                        }
+                                    }}
+                                    className="w-14 px-2 py-1 text-xs bg-gray-50 border border-gray-200 rounded-md text-center hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
+                                />
+                            </div>
+                        )}
                     </div>
 
-                    {/* Row 3: 캡션 */}
+                    {/* Row 3: 캡션 (image, video, iframe 모두) */}
                     <input
                         type="text"
                         placeholder="캡션..."

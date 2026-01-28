@@ -37,7 +37,8 @@ const MenuBar = ({
 }: MenuBarProps) => {
     const [isYoutubeModalOpen, setIsYoutubeModalOpen] = useState(false);
     const imageInput = useRef<HTMLInputElement>(null);
-    const { handleImageUpload } = useImageUpload({
+    const videoInput = useRef<HTMLInputElement>(null);
+    const { handleImageUpload, handleVideoUpload } = useImageUpload({
         editor,
         onImageUpload,
         onImageUploadError
@@ -48,8 +49,21 @@ const MenuBar = ({
 
     const handleYoutubeUpload = (id: string) => {
         if (id) {
-            const youtubeMd = `@youtube[${id}]`;
-            editor.chain().focus().insertContent(youtubeMd).run();
+            // iframe 노드로 직접 삽입
+            editor.chain()
+                .focus()
+                .insertContent([
+                    {
+                        type: 'iframe',
+                        attrs: {
+                            src: `https://www.youtube.com/embed/${id}`,
+                            aspectRatio: '16:9',
+                            align: 'center'
+                        }
+                    },
+                    { type: 'paragraph' }
+                ])
+                .run();
         }
     };
 
@@ -62,6 +76,14 @@ const MenuBar = ({
                 multiple
                 className="hidden"
                 onChange={handleImageUpload}
+            />
+            <input
+                ref={videoInput}
+                type="file"
+                accept="video/mp4,video/webm"
+                multiple
+                className="hidden"
+                onChange={handleVideoUpload}
             />
 
             <EditorHelpText />
@@ -80,6 +102,10 @@ const MenuBar = ({
                 onImageUpload={() => {
                     closeMenu();
                     imageInput.current?.click();
+                }}
+                onVideoUpload={() => {
+                    closeMenu();
+                    videoInput.current?.click();
                 }}
                 onYoutubeUpload={() => {
                     closeMenu();
