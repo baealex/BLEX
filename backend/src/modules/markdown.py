@@ -74,9 +74,16 @@ class CustomPostprocessor:
             r'<video class="lazy" autoplay muted loop playsinline poster="\1.preview.jpg"><source data-src="\1" type="video/mp4"/></video>',
             html_content
         )
+        # YouTube with aspect ratio: @youtube[ID]{16:9} or @youtube[ID]
+        def youtube_replace(match):
+            video_id = match.group(1)
+            aspect_ratio = match.group(2) if match.group(2) else '16:9'
+            aspect_css = aspect_ratio.replace(':', ' / ')
+            return f'<figure style="text-align: center; display: flex; justify-content: center; flex-direction: column; align-items: center;"><iframe style="width: 100%; aspect-ratio: {aspect_css}; border: 0;" data-aspect-ratio="{aspect_ratio}" src="https://www.youtube.com/embed/{video_id}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></figure>'
+
         html_content = re.sub(
-            r'@youtube\[(.*)\]',
-            r'<iframe width="100%" height="350" src="https://www.youtube.com/embed/\1" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>',
+            r'@youtube\[([^\]]+)\](?:\{([^\}]+)\})?',
+            youtube_replace,
             html_content
         )
         html_content = re.sub(r'<li>\[ \] ', r'<li class="checkbox">', html_content)

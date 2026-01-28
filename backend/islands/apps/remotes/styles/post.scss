@@ -260,12 +260,9 @@
         max-width: 100%;
         overflow: hidden;
 
-        :not(img, figcaption, video) {
-            display: none;
-        }
-
         img,
-        video {
+        video,
+        iframe {
             order: -1;
         }
 

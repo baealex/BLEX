@@ -23,7 +23,7 @@ def image(request):
         if 'image' not in request.FILES:
             return StatusError(ErrorCode.VALIDATE, '이미지가 없습니다.')
 
-        allowed_ext = ['jpg', 'jpeg', 'png', 'gif']
+        allowed_ext = ['jpg', 'jpeg', 'png', 'gif', 'mp4', 'webm']
 
         image = request.FILES['image']
         image_key = get_sha256(image.read())
@@ -83,6 +83,30 @@ def image(request):
                 ext = 'mp4'
             except:
                 return StatusError(ErrorCode.REJECT, '이미지 업로드를 실패했습니다.')
+
+        elif ext in ['mp4', 'webm']:
+            try:
+                video_path = upload_path + '/' + file_name + '.' + ext
+                preview_path = video_path + '.preview.jpg'
+
+                ffmpeg_exe = imageio_ffmpeg.get_ffmpeg_exe()
+                subprocess.run([
+                    ffmpeg_exe,
+                    '-i', video_path,
+                    '-ss', '00:00:00',
+                    '-vframes', '1',
+                    '-vf', 'scale=480:-1',
+                    '-q:v', '10',
+                    preview_path
+                ], check=True)
+
+                if os.path.exists(preview_path):
+                    preview_image = Image.open(preview_path).convert('RGB')
+                    preview_image = preview_image.filter(ImageFilter.GaussianBlur(50))
+                    preview_image.save(preview_path, quality=50)
+            except:
+                traceback.print_exc()
+                return StatusError(ErrorCode.REJECT, '비디오 업로드를 실패했습니다.')
 
         elif ext == 'png':
             try:

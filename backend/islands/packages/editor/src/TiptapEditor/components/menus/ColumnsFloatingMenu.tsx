@@ -55,8 +55,17 @@ const ColumnsFloatingMenu = ({ editor }: ColumnsFloatingMenuProps) => {
         if (!editor) return;
 
         const updateMenu = () => {
-            const { selection } = editor.state;
-            const { $from } = selection;
+            const { selection, doc } = editor.state;
+            const { $from, from } = selection;
+
+            // 현재 직접 선택된 노드가 미디어 노드이면 이 메뉴를 숨김
+            const directNode = doc.nodeAt(from);
+            if (directNode && ['image', 'video', 'iframe'].includes(directNode.type.name)) {
+                setIsOpen(false);
+                setSelectedNode(null);
+                setAnchorElement(null);
+                return;
+            }
 
             // Find if we're inside a columns node
             let columnsNode = null;
