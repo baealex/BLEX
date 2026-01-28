@@ -157,9 +157,7 @@ export const VideoNode = Node.create({
         } = HTMLAttributes;
 
         // 비디오 속성 설정
-        const videoAttrs: Record<string, string> = {
-            playsinline: ''
-        };
+        const videoAttrs: Record<string, string> = { playsinline: '' };
 
         // playMode에 따라 재생 속성 결정
         if (playMode === 'gif') {

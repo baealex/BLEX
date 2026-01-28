@@ -73,10 +73,8 @@ export const IframeNode = Node.create({
     renderHTML({ HTMLAttributes }) {
         const {
             src,
-            width,
             height,
             frameborder,
-            allowfullscreen,
             align,
             aspectRatio,
             caption

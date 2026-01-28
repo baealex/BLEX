@@ -114,11 +114,19 @@ const MediaFloatingMenu = ({ editor }: MediaFloatingMenuProps) => {
         // playMode에 따라 관련 속성도 함께 업데이트
         if (mode === 'gif') {
             editor.chain()
-                .updateAttributes('video', { autoplay: true, muted: true, loop: true })
+                .updateAttributes('video', {
+                    autoplay: true,
+                    muted: true,
+                    loop: true
+                })
                 .run();
         } else {
             editor.chain()
-                .updateAttributes('video', { autoplay: false, muted: false, loop: false })
+                .updateAttributes('video', {
+                    autoplay: false,
+                    muted: false,
+                    loop: false
+                })
                 .run();
         }
     };
