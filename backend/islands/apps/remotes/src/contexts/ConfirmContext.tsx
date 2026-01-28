@@ -1,5 +1,8 @@
 import {
     useState,
+    useRef,
+    useEffect,
+    useCallback,
     type ReactNode
 } from 'react';
 import { Modal } from '@blex/ui';
@@ -7,7 +10,6 @@ import { ConfirmContext, type ConfirmOptions } from './internal/ConfirmContextDe
 
 interface ConfirmDialogState extends ConfirmOptions {
     isOpen: boolean;
-    resolve: (value: boolean) => void;
 }
 
 export const ConfirmProvider = ({ children }: { children: ReactNode }) => {
@@ -17,38 +19,62 @@ export const ConfirmProvider = ({ children }: { children: ReactNode }) => {
         message: '',
         confirmText: '확인',
         cancelText: '취소',
-        variant: 'default',
-        resolve: () => { }
+        variant: 'default'
     });
 
-    const confirm = (options: ConfirmOptions): Promise<boolean> => {
+    const resolveRef = useRef<((value: boolean) => void) | null>(null);
+
+    // Handle bfcache restoration - reset modal state when page is restored
+    useEffect(() => {
+        const handlePageShow = (event: PageTransitionEvent) => {
+            if (event.persisted) {
+                // Page was restored from bfcache, reset modal state
+                setDialogState((prev) => ({
+                    ...prev,
+                    isOpen: false
+                }));
+                resolveRef.current = null;
+            }
+        };
+
+        window.addEventListener('pageshow', handlePageShow);
+        return () => window.removeEventListener('pageshow', handlePageShow);
+    }, []);
+
+    const confirm = useCallback((options: ConfirmOptions): Promise<boolean> => {
         return new Promise((resolve) => {
+            resolveRef.current = resolve;
             setDialogState({
                 isOpen: true,
                 ...options,
                 confirmText: options.confirmText || '확인',
                 cancelText: options.cancelText || '취소',
-                variant: options.variant || 'default',
-                resolve
+                variant: options.variant || 'default'
             });
         });
-    };
+    }, []);
 
-    const handleClose = () => {
+    const handleClose = useCallback(() => {
+        if (resolveRef.current) {
+            resolveRef.current(false);
+            resolveRef.current = null;
+        }
         setDialogState((prev) => ({
             ...prev,
             isOpen: false
         }));
-        dialogState.resolve(false);
-    };
+    }, []);
 
-    const handleConfirm = () => {
+    const handleConfirm = useCallback(() => {
+        if (resolveRef.current) {
+            resolveRef.current(true);
+            resolveRef.current = null;
+        }
         setDialogState((prev) => ({
             ...prev,
             isOpen: false
         }));
-        dialogState.resolve(true);
-    };
+    }, []);
 
     const getConfirmButtonClass = () => {
         const baseClass = 'px-4 py-2 text-sm rounded-lg transition-colors';
