@@ -15,6 +15,7 @@ const AccountSetting = lazy(() => import('./pages/AccountSetting'));
 const ProfileSetting = lazy(() => import('./pages/ProfileSetting'));
 const SeriesSetting = lazy(() => import('./pages/SeriesSetting'));
 const PostsSetting = lazy(() => import('./pages/PostsSetting'));
+const PinnedPostsSetting = lazy(() => import('./pages/PinnedPostsSetting'));
 const TempPostsSetting = lazy(() => import('./pages/TempPostsSetting'));
 const FormsSetting = lazy(() => import('./pages/FormsSetting'));
 const BannerSetting = lazy(() => import('./pages/BannerSetting'));
@@ -74,6 +75,12 @@ const postsRoute = createRoute({
     component: PostsSetting
 });
 
+const pinnedPostsRoute = createRoute({
+    getParentRoute: () => settingsRoute,
+    path: '/pinned-posts',
+    component: PinnedPostsSetting
+});
+
 const tempPostsRoute = createRoute({
     getParentRoute: () => settingsRoute,
     path: '/temp-posts',
@@ -107,6 +114,7 @@ const routeTree = rootRoute.addChildren([
         profileRoute,
         seriesRoute,
         postsRoute,
+        pinnedPostsRoute,
         tempPostsRoute,
         formsRoute,
         bannersRoute,

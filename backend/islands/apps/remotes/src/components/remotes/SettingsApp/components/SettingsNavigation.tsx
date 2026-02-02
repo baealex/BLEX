@@ -52,6 +52,12 @@ const navigationSections = [
                 requiresEditor: true
             },
             {
+                name: '고정 글',
+                path: '/pinned-posts',
+                icon: 'fa-thumbtack',
+                requiresEditor: true
+            },
+            {
                 name: '임시글',
                 path: '/temp-posts',
                 icon: 'fa-save',

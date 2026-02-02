@@ -249,3 +249,54 @@ export const deleteBanner = async (id: number) => {
 export const updateBannerOrder = async (order: [number, number][]) => {
     return http.put<Response<{ message: string }>>('v1/banners/order', { order }, { headers: { 'Content-Type': 'application/json' } });
 };
+
+// Pinned Posts API
+export interface PinnedPostData {
+    id: number;
+    order: number;
+    post: {
+        url: string;
+        title: string;
+        image: string | null;
+        createdDate: string;
+    };
+}
+
+export interface PinnablePostData {
+    url: string;
+    title: string;
+    image: string | null;
+    createdDate: string;
+}
+
+export const getPinnedPosts = async () => {
+    return http.get<Response<{ pinnedPosts: PinnedPostData[]; username: string; maxCount: number }>>('v1/setting/pinned-posts');
+};
+
+export const getPinnablePosts = async () => {
+    return http.get<Response<{ posts: PinnablePostData[] }>>('v1/setting/pinnable-posts');
+};
+
+export const addPinnedPost = async (postUrl: string) => {
+    const formData = new URLSearchParams();
+    formData.append('post_url', postUrl);
+
+    return http.post<Response<{ success: boolean }>>('v1/setting/pinned-posts', formData, { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } });
+};
+
+export const removePinnedPost = async (postUrl: string) => {
+    const formData = new URLSearchParams();
+    formData.append('post_url', postUrl);
+
+    return http.delete<Response<{ success: boolean }>>('v1/setting/pinned-posts', {
+        data: formData,
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
+    });
+};
+
+export const updatePinnedPostsOrder = async (postUrls: string[]) => {
+    const formData = new URLSearchParams();
+    formData.append('post_urls', JSON.stringify(postUrls));
+
+    return http.put<Response<{ success: boolean }>>('v1/setting/pinned-posts/order', formData, { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } });
+};
