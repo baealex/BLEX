@@ -3,6 +3,44 @@
 @use "./fonts/fontawesome.scss";
 @use "./fonts/pretendard.scss";
 
+@view-transition {
+    navigation: auto;
+}
+
+::view-transition-old(root),
+::view-transition-new(root) {
+    animation-duration: 200ms;
+    animation-timing-function: ease-out;
+}
+
+::view-transition-old(root) {
+    animation-name: fade-out;
+}
+
+::view-transition-new(root) {
+    animation-name: fade-in;
+}
+
+@keyframes fade-out {
+    from {
+        opacity: 1;
+    }
+
+    to {
+        opacity: 0;
+    }
+}
+
+@keyframes fade-in {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
 @layer base {
     html {
         scroll-behavior: smooth;
