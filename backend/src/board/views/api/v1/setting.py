@@ -14,11 +14,12 @@ from django.utils.dateparse import parse_datetime
 from board.constants.config_meta import CONFIG_TYPE
 from board.models import (
     User, Series, Post, UserLinkMeta, SiteSetting,
-    TempPosts, Profile, Notify, Comment, PostLikes, UsernameChangeLog)
+    TempPosts, Profile, Notify, Comment, PostLikes, UsernameChangeLog, PinnedPost)
 from board.modules.paginator import Paginator
 from board.modules.response import StatusDone, StatusError, ErrorCode
 from board.modules.time import convert_to_localtime
 from board.services.auth_service import AuthService, AuthValidationError
+from board.services.pinned_post_service import PinnedPostService, PinnedPostError
 
 
 def setting(request, parameter):
@@ -337,6 +338,20 @@ def setting(request, parameter):
                 'is_connected': False,
             })
 
+        if parameter == 'pinned-posts':
+            pinned_posts = PinnedPostService.get_user_pinned_posts(user)
+            return StatusDone({
+                'pinned_posts': pinned_posts,
+                'username': user.username,
+                'max_count': PinnedPostService.MAX_PINNED_POSTS,
+            })
+
+        if parameter == 'pinnable-posts':
+            posts = PinnedPostService.get_pinnable_posts(user)
+            return StatusDone({
+                'posts': posts,
+            })
+
     if request.method == 'POST':
         if parameter == 'avatar':
             profile = Profile.objects.get(user=user)
@@ -353,6 +368,30 @@ def setting(request, parameter):
             return StatusDone({
                 'url': profile.cover.url if profile.cover else None,
             })
+
+        if parameter == 'pinned-posts':
+            post_url = request.POST.get('post_url', '')
+            if not post_url:
+                return StatusError(ErrorCode.INVALID_PARAMETER, '글 URL이 필요합니다.')
+
+            try:
+                PinnedPostService.add_pinned_post(user, post_url)
+                return StatusDone()
+            except PinnedPostError as e:
+                return StatusError(e.code, e.message)
+
+    if request.method == 'DELETE':
+        if parameter == 'pinned-posts':
+            delete = QueryDict(request.body)
+            post_url = delete.get('post_url', '')
+            if not post_url:
+                return StatusError(ErrorCode.INVALID_PARAMETER, '글 URL이 필요합니다.')
+
+            try:
+                PinnedPostService.remove_pinned_post(user, post_url)
+                return StatusDone()
+            except PinnedPostError as e:
+                return StatusError(e.code, e.message)
 
     if request.method == 'PUT':
         # Try to parse JSON first, fallback to QueryDict
@@ -498,5 +537,22 @@ def setting(request, parameter):
                 ).delete()
             
             return StatusDone(user.profile.collect_social())
+
+        if parameter == 'pinned-posts/order':
+            post_urls_str = put.get('post_urls', '[]')
+
+            try:
+                post_urls = json.loads(post_urls_str)
+            except json.JSONDecodeError:
+                return StatusError(ErrorCode.INVALID_PARAMETER, '잘못된 형식입니다.')
+
+            if not isinstance(post_urls, list):
+                return StatusError(ErrorCode.INVALID_PARAMETER, '잘못된 형식입니다.')
+
+            try:
+                PinnedPostService.reorder_pinned_posts(user, post_urls)
+                return StatusDone()
+            except PinnedPostError as e:
+                return StatusError(e.code, e.message)
 
     raise Http404
