@@ -13,6 +13,7 @@ from .series_service import SeriesService
 from .tag_service import TagService
 from .temp_post_service import TempPostService
 from .user_service import UserService
+from .webhook_service import WebhookService
 
 __all__ = [
     'PostService',
@@ -23,4 +24,5 @@ __all__ = [
     'TagService',
     'TempPostService',
     'UserService',
+    'WebhookService',
 ]

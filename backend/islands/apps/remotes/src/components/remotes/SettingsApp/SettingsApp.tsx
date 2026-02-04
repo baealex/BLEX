@@ -20,6 +20,7 @@ const TempPostsSetting = lazy(() => import('./pages/TempPostsSetting'));
 const FormsSetting = lazy(() => import('./pages/FormsSetting'));
 const BannerSetting = lazy(() => import('./pages/BannerSetting'));
 const IntegrationSetting = lazy(() => import('./pages/IntegrationSetting'));
+const WebhookSetting = lazy(() => import('./pages/WebhookSetting'));
 
 export interface SettingsAppProps {
     isEditor: boolean;
@@ -105,6 +106,12 @@ const integrationRoute = createRoute({
     component: IntegrationSetting
 });
 
+const webhookRoute = createRoute({
+    getParentRoute: () => settingsRoute,
+    path: '/webhook',
+    component: WebhookSetting
+});
+
 // Route tree
 const routeTree = rootRoute.addChildren([
     settingsRoute.addChildren([
@@ -118,7 +125,8 @@ const routeTree = rootRoute.addChildren([
         tempPostsRoute,
         formsRoute,
         bannersRoute,
-        integrationRoute
+        integrationRoute,
+        webhookRoute
     ])
 ]);
 

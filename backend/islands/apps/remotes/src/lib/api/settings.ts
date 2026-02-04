@@ -300,3 +300,29 @@ export const updatePinnedPostsOrder = async (postUrls: string[]) => {
 
     return http.put<Response<{ success: boolean }>>('v1/setting/pinned-posts/order', formData, { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } });
 };
+
+// Webhook Channel API
+export interface WebhookChannel {
+    id: number;
+    name: string;
+    webhookUrl: string;
+    isActive: boolean;
+    failureCount: number;
+    createdDate: string;
+}
+
+export const getWebhookChannels = async () => {
+    return http.get<Response<{ channels: WebhookChannel[] }>>('v1/webhook/channels');
+};
+
+export const addWebhookChannel = async (data: { webhook_url: string; name?: string }) => {
+    return http.post<Response<{ success: boolean; channelId: number }>>('v1/webhook/channels', data, { headers: { 'Content-Type': 'application/json' } });
+};
+
+export const deleteWebhookChannel = async (channelId: number) => {
+    return http.delete<Response<{ success: boolean }>>(`v1/webhook/channels/${channelId}`);
+};
+
+export const testWebhook = async (webhookUrl: string) => {
+    return http.post<Response<{ success: boolean }>>('v1/webhook/test', { webhook_url: webhookUrl }, { headers: { 'Content-Type': 'application/json' } });
+};

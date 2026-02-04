@@ -15,3 +15,4 @@ from .setting import *
 from .telegram import *
 from .temp_post import *
 from .user import *
+from .webhook import *

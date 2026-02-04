@@ -84,6 +84,12 @@ const navigationSections = [
                 name: '연동',
                 path: '/integration',
                 icon: 'fa-plug'
+            },
+            {
+                name: '웹훅',
+                path: '/webhook',
+                icon: 'fa-bolt',
+                requiresEditor: true
             }
         ]
     },
