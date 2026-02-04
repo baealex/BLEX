@@ -67,44 +67,34 @@
                     
                     <!-- Article Header -->
                     <div class="mb-12 sm:mb-16">
+                        {% if post.series %}
                         <div class="flex items-center gap-2 mb-6">
-                            <span class="px-3 py-1 bg-gray-100 text-gray-600 rounded-full text-xs font-semibold uppercase tracking-wider">
-                                포스트
-                            </span>
+                            <a href="{% url 'series_detail' post.author_username post.series.url %}" class="inline-flex items-center gap-1.5 px-3 py-1 bg-gray-900 text-white rounded-full text-xs font-semibold hover:bg-gray-800 transition-colors">
+                                <i class="fas fa-layer-group text-[10px] opacity-70"></i>
+                                {{ post.series.name }}
+                            </a>
+                            <span class="text-xs text-gray-400 font-medium">{{ post.series_index }} / {{ post.series_total }}</span>
                         </div>
-                        
+                        {% endif %}
+
                         <h1 class="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 mb-8 leading-tight tracking-tight break-words" itemprop="headline">
                             {{ post.title }}
                         </h1>
                         
-                        <div class="flex flex-wrap items-center gap-6 text-sm text-gray-500 border-b border-gray-100 pb-8">
-                            <div class="flex items-center gap-3" itemprop="author" itemscope itemtype="https://schema.org/Person">
-                                <a href="/@{{ post.author_username }}" class="group relative">
-                                    <div class="absolute -inset-1 bg-gradient-to-tr from-gray-200 to-gray-100 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                                    <img class="relative w-10 h-10 rounded-full object-cover ring-2 ring-white" 
-                                        src="{% media post.author_image %}"
-                                        alt="{{ post.author_username }}">
+                        <div class="flex items-center gap-4 text-sm border-b border-gray-100 pb-8" itemprop="author" itemscope itemtype="https://schema.org/Person">
+                            <a href="/@{{ post.author_username }}" class="group flex-shrink-0">
+                                <img class="w-10 h-10 rounded-full object-cover ring-2 ring-gray-100 group-hover:ring-gray-200 transition-all"
+                                    src="{% media post.author_image %}"
+                                    alt="{{ post.author_username }}">
+                            </a>
+                            <div class="flex flex-wrap items-center gap-x-2 gap-y-1">
+                                <a href="/@{{ post.author_username }}" class="font-semibold text-gray-900 hover:text-gray-600 transition-colors" itemprop="name">
+                                    {{ post.author_username }}
                                 </a>
-                                <div class="flex flex-col">
-                                    <span class="text-xs text-gray-400 font-medium mb-0.5">에디터</span>
-                                    <a href="/@{{ post.author_username }}" class="font-semibold text-gray-900 hover:text-black transition-colors" itemprop="name">
-                                        {{ post.author_username }}
-                                    </a>
-                                </div>
-                            </div>
-                            
-                            <div class="w-px h-8 bg-gray-200 mx-2 hidden sm:block"></div>
-                            
-                            <div class="flex items-center gap-6">
-                                <div class="flex flex-col">
-                                    <span class="text-xs text-gray-400 font-medium mb-0.5">게시일</span>
-                                    <span class="text-gray-900 font-medium" itemprop="datePublished" content="{{ post.created_date|date:'c' }}">{{ post.created_date_display }}</span>
-                                </div>
-                                
-                                <div class="flex flex-col" aria-label="읽는 시간">
-                                    <span class="text-xs text-gray-400 font-medium mb-0.5">읽는 시간</span>
-                                    <span class="text-gray-900 font-medium">{{ post.read_time }} 분</span>
-                                </div>
+                                <span class="text-gray-300">·</span>
+                                <span class="text-gray-500" itemprop="datePublished" content="{{ post.created_date|date:'c' }}">{{ post.created_date_display }}</span>
+                                <span class="text-gray-300">·</span>
+                                <span class="text-gray-500" aria-label="읽는 시간">{{ post.read_time }}분 소요</span>
                             </div>
                         </div>
                     </div>
@@ -121,7 +111,7 @@
                     <!-- Featured Image -->
                     {% if post.image %}
                     <div class="mb-12 sm:mb-16">
-                        <img class="w-full rounded-3xl shadow-2xl shadow-gray-200/50" src="{{ post.image.url }}" alt="{{ post.title }}" itemprop="image">
+                        <img class="w-full rounded-2xl ring-1 ring-gray-900/5" src="{{ post.image.url }}" alt="{{ post.title }}" itemprop="image">
                     </div>
                     {% endif %}
                     
@@ -135,8 +125,8 @@
                     <div class="mb-16" itemprop="keywords">
                         <div class="flex flex-wrap gap-2">
                             {% for tag in post.tags.all %}
-                                <a href="{% url 'tag_detail' tag %}" class="inline-flex items-center px-4 py-2 bg-gray-50 hover:bg-black hover:text-white text-gray-600 rounded-full text-sm font-medium transition-all duration-300 border border-gray-100 hover:border-black">
-                                    <span class="mr-1 opacity-50">#</span>{{ tag }}
+                                <a href="{% url 'tag_detail' tag %}" class="inline-flex items-center px-4 py-2 bg-gray-50 hover:bg-gray-100 text-gray-600 hover:text-gray-900 rounded-full text-sm font-medium transition-all duration-150 border border-gray-100 hover:border-gray-200 active:scale-95">
+                                    <span class="mr-1 text-gray-400">#</span>{{ tag }}
                                 </a>
                             {% endfor %}
                         </div>
@@ -160,7 +150,6 @@
                             const decodedUrl = decodeURIComponent(window.location.href);
                             await navigator.clipboard.writeText(decodedUrl);
                             window.toast.success('링크가 복사되었습니다');
-
                             if (navigator.vibrate) {
                                 navigator.vibrate(50);
                             }
@@ -168,15 +157,24 @@
                             window.toast.error('복사에 실패했습니다');
                         }
                     }
-                }" class="fixed sm:sticky bottom-6 left-0 right-0 z-5 flex justify-center pointer-events-none">
-                    <div class="pointer-events-auto bg-white/80 backdrop-blur-xl border border-white/20 shadow-[0_8px_30px_rgb(0,0,0,0.12)] rounded-full px-2 py-2 flex items-center gap-2 transform transition-all duration-300 hover:scale-105 hover:shadow-[0_8px_40px_rgb(0,0,0,0.16)]">
-                        
+                }" class="fixed sm:sticky bottom-6 left-0 right-0 z-20 flex justify-center pointer-events-none">
+                    <div class="pointer-events-auto bg-white/80 backdrop-blur-xl border border-white/20 shadow-[0_8px_30px_rgb(0,0,0,0.12)] rounded-full px-2 py-2 flex items-center gap-1 transform transition-all duration-300 hover:shadow-[0_8px_40px_rgb(0,0,0,0.16)]">
+
                         <!-- Like Button -->
                         <div class="flex items-center">
                             {% include 'components/like_button.html' with post_url=post.url likes_count=post.count_likes has_liked=post.has_liked %}
                         </div>
 
                         <div class="w-px h-8 bg-gray-200/50 mx-1"></div>
+
+                        <!-- TOC Button (Mobile Only) -->
+                        {% if table_of_contents %}
+                        <button @click="$dispatch('toc-sheet-open')"
+                            class="xl:hidden w-11 h-11 flex items-center justify-center rounded-full text-gray-600 hover:text-black hover:bg-gray-100/50 transition-all duration-200 active:scale-95"
+                            aria-label="목차 보기">
+                            <i class="fas fa-list-ul"></i>
+                        </button>
+                        {% endif %}
 
                         <!-- Share Button -->
                         <button @click="
@@ -196,7 +194,7 @@
                                 copyToClipboard();
                             }
                         "
-                        class="w-10 h-10 flex items-center justify-center rounded-full text-gray-600 hover:text-black hover:bg-gray-100/50 transition-all duration-200"
+                        class="w-11 h-11 flex items-center justify-center rounded-full text-gray-600 hover:text-black hover:bg-gray-100/50 transition-all duration-200 active:scale-95"
                         aria-label="게시물 공유하기">
                             <i class="fas fa-share-alt"></i>
                         </button>
@@ -204,7 +202,8 @@
                         <!-- Edit Button -->
                         {% if user.is_authenticated and user.username == post.author_username %}
                         <a href="{% url 'post_edit' post.author_username post.url %}"
-                        class="w-10 h-10 flex items-center justify-center rounded-full text-gray-600 hover:text-black hover:bg-gray-100/50 transition-all duration-200">
+                            class="w-11 h-11 flex items-center justify-center rounded-full text-gray-600 hover:text-black hover:bg-gray-100/50 transition-all duration-200 active:scale-95"
+                            aria-label="포스트 수정">
                             <i class="fas fa-edit"></i>
                         </a>
                         {% endif %}
@@ -331,6 +330,76 @@
         </div>
     </div>
 </div>
+
+<!-- Mobile TOC Bottom Sheet (Body Level) -->
+{% if table_of_contents %}
+<div x-data="{
+    open: false,
+    scrollToHeading(id) {
+        const element = document.getElementById(id);
+        if (element) {
+            element.scrollIntoView({ behavior: 'smooth' });
+            this.open = false;
+        }
+    }
+}"
+x-effect="document.body.style.overflow = open ? 'hidden' : ''"
+@toc-sheet-open.window="open = true"
+@keydown.escape.window="open = false"
+class="xl:hidden">
+    <!-- Backdrop Overlay -->
+    <div x-show="open"
+        x-transition:enter="transition ease-out duration-300"
+        x-transition:enter-start="opacity-0"
+        x-transition:enter-end="opacity-100"
+        x-transition:leave="transition ease-in duration-200"
+        x-transition:leave-start="opacity-100"
+        x-transition:leave-end="opacity-0"
+        @click="open = false"
+        class="fixed inset-0 bg-black/50 backdrop-blur-sm z-[100]"
+        style="display: none;">
+    </div>
+    <!-- Bottom Sheet -->
+    <div x-show="open"
+        x-transition:enter="transition ease-out duration-300"
+        x-transition:enter-start="translate-y-full"
+        x-transition:enter-end="translate-y-0"
+        x-transition:leave="transition ease-in duration-200"
+        x-transition:leave-start="translate-y-0"
+        x-transition:leave-end="translate-y-full"
+        class="fixed bottom-0 left-0 right-0 bg-white rounded-t-3xl shadow-2xl z-[101] max-h-[70vh] flex flex-col"
+        style="display: none;">
+        <!-- Handle -->
+        <div class="flex justify-center py-3 cursor-grab" @click="open = false">
+            <div class="w-12 h-1.5 bg-gray-300 rounded-full"></div>
+        </div>
+        <!-- Header -->
+        <div class="flex items-center justify-between px-6 pb-4 border-b border-gray-100">
+            <h3 class="text-lg font-bold text-gray-900">목차</h3>
+            <button @click="open = false" class="w-11 h-11 flex items-center justify-center rounded-full text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-all active:scale-95">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <!-- TOC List -->
+        <nav class="flex-1 overflow-y-auto overscroll-contain px-4 py-4" aria-label="목차">
+            <ul class="space-y-1">
+                {% for heading in table_of_contents %}
+                <li>
+                    <button
+                        @click="scrollToHeading('{{ heading.id }}')"
+                        class="w-full text-left py-3 px-4 rounded-xl text-sm text-gray-600 hover:text-gray-900 hover:bg-gray-50 transition-all duration-150 active:scale-[0.98]"
+                        style="padding-left: calc({{ heading.level }} * 12px + 16px)">
+                        {{ heading.text }}
+                    </button>
+                </li>
+                {% endfor %}
+            </ul>
+        </nav>
+        <!-- Safe area for bottom -->
+        <div class="h-safe-area-inset-bottom min-h-6"></div>
+    </div>
+</div>
+{% endif %}
 {% endblock %}
 
 {% block extra_scripts %}
