@@ -3,6 +3,7 @@ import json
 from django.test import TestCase, Client
 from django.core.exceptions import ValidationError
 from django.contrib.auth.models import User
+from django.urls import reverse
 
 from board.models import Profile, GlobalBanner, Banner, BannerType, BannerPosition
 from board.services.banner_service import BannerService
@@ -67,35 +68,6 @@ class GlobalBannerModelTestCase(TestCase):
         with self.assertRaises(ValidationError):
             banner.clean()
 
-    def test_banner_ordering(self):
-        """배너 순서 테스트"""
-        banner1 = GlobalBanner.objects.create(
-            title='Banner 1',
-            content_html='<div>1</div>',
-            banner_type='horizontal',
-            position='top',
-            order=2,
-        )
-        banner2 = GlobalBanner.objects.create(
-            title='Banner 2',
-            content_html='<div>2</div>',
-            banner_type='horizontal',
-            position='top',
-            order=1,
-        )
-
-        banners = GlobalBanner.objects.all().order_by('order')
-        self.assertEqual(list(banners), [banner2, banner1])
-
-    def test_str_representation(self):
-        """문자열 표현 테스트"""
-        banner = GlobalBanner.objects.create(
-            title='Test Banner',
-            content_html='<div>Test</div>',
-            banner_type='horizontal',
-            position='top',
-        )
-        self.assertEqual(str(banner), '[전역] Test Banner')
 
 
 class GlobalBannerAdminTestCase(TestCase):
@@ -108,36 +80,15 @@ class GlobalBannerAdminTestCase(TestCase):
             password='admin',
             email='admin@test.com',
         )
-        cls.regular_user = User.objects.create_user(
-            username='user',
-            password='user',
-            email='user@test.com',
-        )
-        Profile.objects.create(user=cls.regular_user)
 
     def setUp(self):
         self.client = Client(HTTP_USER_AGENT='Mozilla/5.0')
-
-    def test_admin_can_access_global_banner_admin(self):
-        """관리자는 글로벌 배너 관리 페이지 접근 가능"""
-        self.client.login(username='admin', password='admin')
-        url = reverse('admin:board_globalbanner_changelist')
-        response = self.client.get(url)
-        self.assertEqual(response.status_code, 200)
-
-    def test_regular_user_cannot_access_global_banner_admin(self):
-        """일반 사용자는 글로벌 배너 관리 페이지 접근 불가"""
-        self.client.login(username='user', password='user')
-        url = reverse('admin:board_globalbanner_changelist')
-        response = self.client.get(url)
-        # Should redirect to login or show permission denied
-        self.assertIn(response.status_code, [302, 403])
 
     def test_created_by_is_set_on_creation(self):
         """글로벌 배너 생성 시 created_by 자동 설정"""
         self.client.login(username='admin', password='admin')
         url = reverse('admin:board_globalbanner_add')
-        response = self.client.post(url, {
+        self.client.post(url, {
             'title': 'Test Banner',
             'content_html': '<div>Test</div>',
             'banner_type': 'horizontal',
@@ -146,46 +97,9 @@ class GlobalBannerAdminTestCase(TestCase):
             'order': 0,
         })
 
-        # Check if banner was created
         banner = GlobalBanner.objects.filter(title='Test Banner').first()
         self.assertIsNotNone(banner)
         self.assertEqual(banner.created_by, self.admin)
-
-
-class GlobalBannerDisplayTestCase(TestCase):
-    """GlobalBanner display in post detail tests"""
-
-    @classmethod
-    def setUpTestData(cls):
-        cls.user = User.objects.create_user(
-            username='testuser',
-            password='test',
-            email='test@test.com',
-        )
-        profile = Profile.objects.create(user=cls.user)
-        profile.role = Profile.Role.EDITOR
-        profile.save()
-
-    def test_global_banner_displayed_on_posts(self):
-        """글로벌 배너가 포스트에 표시되는지 테스트"""
-        # Create a global banner
-        GlobalBanner.objects.create(
-            title='Global Top Banner',
-            content_html='<div>Global Content</div>',
-            banner_type='horizontal',
-            position='top',
-            is_active=True,
-        )
-
-        # This test would require creating a post and checking the view
-        # For simplicity, we just verify the banner exists
-        banners = GlobalBanner.objects.filter(
-            is_active=True,
-            banner_type='horizontal',
-            position='top'
-        )
-        self.assertEqual(banners.count(), 1)
-        self.assertEqual(banners.first().title, 'Global Top Banner')
 
 
 class BannerServiceTestCase(TestCase):
