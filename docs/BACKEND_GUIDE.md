@@ -51,6 +51,68 @@ Python is dynamic, but our codebase shouldn't be a guessing game. Use Type Hints
 -   **Explicit > Implicit**: `get_active_user_by_email()` is better than `get_user()`.
 -   **English Only**: Code, comments, and commit messages must be in English.
 
+### Anti-Patterns to Avoid
+
+#### 1. Inline Imports
+**Never** import modules inside functions. All imports must be at the top of the file.
+
+```python
+# BAD - Import inside function
+def set_tags(self, tags: str):
+    from board.services.tag_service import TagService  # Don't do this!
+    TagService.set_post_tags(self, tags)
+
+# GOOD - Import at top of file
+from board.services.tag_service import TagService
+
+def set_tags(self, tags: str):
+    TagService.set_post_tags(self, tags)
+```
+
+For circular import issues, use `TYPE_CHECKING`:
+```python
+from __future__ import annotations
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from board.models import Post
+```
+
+#### 2. Redundant Comments
+Don't write comments that repeat what the code does. Code should be self-explanatory.
+
+```python
+# BAD
+query_dict = request.GET.copy()  # Get the current query parameters
+query_dict['page'] = page_number  # Update the page parameter
+
+# GOOD
+query_dict = request.GET.copy()
+query_dict['page'] = page_number
+```
+
+#### 3. Underscore Private Functions
+Avoid creating `_private_functions` at module level. Use classes to group related functionality.
+
+```python
+# BAD
+def _parse_tags(tags: str) -> set:
+    ...
+
+def _get_or_create_tags(tag_values: set) -> dict:
+    ...
+
+# GOOD
+class TagService:
+    @staticmethod
+    def parse_tags(tags: str) -> Set[str]:
+        ...
+
+    @staticmethod
+    def get_or_create_tags(tag_values: Set[str]) -> Dict[str, Tag]:
+        ...
+```
+
 ---
 
 ## 5. Checklist for Backend Work

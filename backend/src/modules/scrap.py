@@ -1,24 +1,66 @@
 import html
 import io
-import re
-import urllib
-import traceback
+import urllib.parse
 
 import requests
 
-from typing import Union
+from typing import Optional, Union
 from urllib.parse import urlparse
+from bs4 import BeautifulSoup
 
-headers = {
+HEADERS = {
     'user-agent': 'blexmebot-MetaTagCollector/1.0 (+https://blex.me/)',
 }
 
-def page_parser(url: str):
-    url_parse = urlparse(url)
 
+class OpenGraphParser:
+    """Parses Open Graph meta tags from HTML content."""
+
+    def __init__(self, soup: BeautifulSoup, origin: str):
+        self.soup = soup
+        self.origin = origin
+
+    def get_meta_content(self, property_name: str) -> str:
+        meta = self.soup.find('meta', property=property_name)
+        if meta and meta.get('content'):
+            return meta['content']
+        return ''
+
+    def get_title(self) -> str:
+        title = self.get_meta_content('og:title')
+        if title:
+            return title
+
+        title_tag = self.soup.find('title')
+        if title_tag and title_tag.string:
+            return title_tag.string.strip()
+
+        return ''
+
+    def get_image(self) -> str:
+        image = self.get_meta_content('og:image')
+        if image and '//' not in image:
+            image = self.origin + '/' + image.lstrip('/')
+        return image
+
+    def get_description(self) -> str:
+        return self.get_meta_content('og:description')[:200]
+
+
+def page_parser(url: str) -> dict:
+    """
+    Parse a web page and extract Open Graph metadata.
+
+    Args:
+        url: The URL to parse
+
+    Returns:
+        Dictionary containing title, image, and description
+    """
+    url_parse = urlparse(url)
     protocol = url_parse.scheme
-    host     = url_parse.netloc
-    origin   = f'{url_parse.scheme}://{url_parse.netloc}'
+    host = url_parse.netloc
+    origin = f'{protocol}://{host}'
 
     data = {
         'title': '',
@@ -26,94 +68,87 @@ def page_parser(url: str):
         'description': '',
     }
 
-    if not protocol == 'http' and not protocol == 'https':
+    if protocol not in ('http', 'https'):
         data['title'] = host
         return data
 
     try:
-        response = requests.get(url, headers=headers, timeout=10)
-        
-        og_title = re.search(r'<meta(?=\s|>)(?=(?:[^>=]|=\'[^\']*\'|=\"[^"]*\"|=[^\'\"][^\s>]*)*?\sproperty=(?:\'og:title|\"og:title\"|og:title))(?=(?:[^>=]|=\'[^\']*\'|=\"[^\"]*\"|=[^\'\"][^\s>]*)*?\scontent=(\'[^\']*\'|\"[^\"]*\"|[^\'\"][^\s>]*))(?:[^\'\">=]*|=\'[^\']*\'|="[^\"]*\"|=[^\'\"][^\s>]*)*>', response.text)
-        og_image = re.search(r'<meta(?=\s|>)(?=(?:[^>=]|=\'[^\']*\'|=\"[^"]*\"|=[^\'\"][^\s>]*)*?\sproperty=(?:\'og:image|\"og:image\"|og:image))(?=(?:[^>=]|=\'[^\']*\'|=\"[^\"]*\"|=[^\'\"][^\s>]*)*?\scontent=(\'[^\']*\'|\"[^\"]*\"|[^\'\"][^\s>]*))(?:[^\'\">=]*|=\'[^\']*\'|="[^\"]*\"|=[^\'\"][^\s>]*)*>', response.text)
-        og_description = re.search(r'<meta(?=\s|>)(?=(?:[^>=]|=\'[^\']*\'|=\"[^"]*\"|=[^\'\"][^\s>]*)*?\sproperty=(?:\'og:description|\"og:description\"|og:description))(?=(?:[^>=]|=\'[^\']*\'|=\"[^\"]*\"|=[^\'\"][^\s>]*)*?\scontent=(\'[^\']*\'|\"[^\"]*\"|[^\'\"][^\s>]*))(?:[^\'\">=]*|=\'[^\']*\'|="[^\"]*\"|=[^\'\"][^\s>]*)*>', response.text)
-        
-        if og_title:
-            data['title'] = og_title[1].replace('\'', '').replace('\"', '')
-        
-        if og_image:
-            data['image'] = og_image[1].replace('\'', '').replace('\"', '')
-            if not '//' in data['image']:
-                data['image'] = origin + '/' + data['image']
-        
-        if og_description:
-            data['description'] = og_description[1].replace('\'', '').replace('\"', '')[:200] + ' '
-        data['description'] += '(' + str(round(len(response.text) / 1024)) + 'kb)'
+        response = requests.get(url, headers=HEADERS, timeout=10)
+        soup = BeautifulSoup(response.text, 'html.parser')
+        parser = OpenGraphParser(soup, origin)
 
-        if not data['title']:
-            title = re.search(r'<title.*?>(.+?)</title>', response.text)
-            if title:
-                title = title.group(1)
-                if not f'{protocol}://' in title:
-                    data['title'] = title
-        
-        if not data['title']:
-            data['title'] = host
+        data['title'] = parser.get_title() or host
+        data['image'] = parser.get_image()
+        data['description'] = parser.get_description()
+
+        if data['description']:
+            data['description'] += ' '
+        data['description'] += f'({round(len(response.text) / 1024)}kb)'
 
         for name in ['title', 'description']:
             if data[name]:
                 data[name] = html.unescape(data[name])
                 data[name] = urllib.parse.unquote(data[name])
-    except:
-        traceback.print_exc()
-    
+
+    except requests.RequestException:
+        pass
+
     return data
+
 
 def download_image(
     src: str,
-    path='.',
-    stream=False,
-    referer='',
-    filename='test',
-) -> Union[None, str]:
+    path: str = '.',
+    stream: bool = False,
+    referer: str = '',
+    filename: str = 'test',
+) -> Union[None, str, io.BytesIO]:
+    """
+    Download an image from a URL.
+
+    Args:
+        src: Image source URL
+        path: Directory path to save the image
+        stream: If True, return BytesIO instead of saving to file
+        referer: Referer header value
+        filename: Filename without extension
+
+    Returns:
+        File path, BytesIO object, or None on failure
+    """
     try:
         url_parse = urlparse(src)
 
         if not referer:
             referer = f'{url_parse.scheme}://{url_parse.netloc}/'
 
-        headers = {
-            'Referer': referer
-        }
+        headers = {'Referer': referer}
+        res = requests.get(src, headers=headers, stream=stream, timeout=10)
 
-        res = requests.get(src, headers=headers, stream=stream)
+        if res.status_code != 200:
+            return None
 
-        if not res.status_code == 200:
+        content_type = res.headers.get('content-type', '')
+        if 'image' not in content_type:
             return None
-        
-        content_type = res.headers['content-type']
-        if not 'image' in content_type:
-            return None
-        
+
         if stream:
-            binary_image = res.content
             temp_image = io.BytesIO()
-            temp_image.write(binary_image)
+            temp_image.write(res.content)
             temp_image.seek(0)
             return temp_image
-        
+
         ext = content_type.split('/')[-1]
-        path = f'{path}/{filename}.{ext}'
-        with open(path, 'wb') as f:
+        file_path = f'{path}/{filename}.{ext}'
+        with open(file_path, 'wb') as f:
             for chunk in res.iter_content():
                 f.write(chunk)
-        return path
-    except:
-        traceback.print_exc()
-    
-    return None
+        return file_path
+
+    except requests.RequestException:
+        return None
+
 
 if __name__ == '__main__':
     x = page_parser('https://blex.me/popular')
-    # print(x)
-    # print(download_image(x['image']))
     print(download_image(x['image'], stream=True))

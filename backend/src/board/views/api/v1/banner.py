@@ -3,7 +3,7 @@ from django.http import Http404, QueryDict
 from django.shortcuts import get_object_or_404
 from board.models import Banner
 from board.modules.response import StatusDone, StatusError, ErrorCode
-from board.utils import sanitize_html
+from board.html_utils import sanitize_html
 
 
 def banner(request, banner_id=None):

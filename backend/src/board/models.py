@@ -1,8 +1,6 @@
 import datetime
-import os
-import pyotp
-import readtime
 import hashlib
+import pyotp
 
 from django.conf import settings
 from django.contrib.auth.models import User
@@ -14,7 +12,6 @@ from django.utils import timezone
 from django.utils.text import slugify
 from django.utils.html import strip_tags
 
-from PIL import Image, ImageFilter
 from dateutil import parser as dateutil_parser
 from cryptography.fernet import InvalidToken
 
@@ -23,6 +20,7 @@ from modules.hash import get_sha256
 from modules.randomness import randstr
 from modules.sub_task import SubTaskProcessor
 from modules.telegram import TelegramBot
+from modules.thumbnail import make_thumbnail
 from board.constants.config_meta import CONFIG_TYPE, CONFIG_TYPES, CONFIG_MAP
 from board.modules.time import time_since, time_stamp
 from board.modules.read_time import calc_read_time
@@ -52,56 +50,6 @@ def title_image_path(instance, filename):
     name = f"{dt.hour}_{randstr(8)}.{filename.split('.')[-1]}"
     return f"{path}/{name}"
 
-
-def make_thumbnail(instance, size, quality=100, type='normal'):
-
-    if hasattr(instance, 'avatar'):
-        instance.image = instance.avatar
-
-    # Check if image exists before processing
-    if not instance.image:
-        return
-
-    # Use instance.image.path for uploaded files, which gives the full system path
-    # If no path attribute, construct path in media directory
-    if hasattr(instance.image, 'path'):
-        image_path = instance.image.path
-    else:
-        image_path = os.path.join(settings.MEDIA_ROOT, str(instance.image))
-    
-    if not os.path.exists(image_path):
-        print(f"Warning: Image file not found at {image_path}")
-        return
-    
-    try:
-        image = Image.open(image_path)
-    except Exception as e:
-        print(f"Error opening image: {e}")
-        return
-
-    if type == 'preview':
-        convert_image = image.convert('RGB')
-        preview_image = convert_image.filter(ImageFilter.GaussianBlur(50))
-        preview_path = f"{image_path}.preview.jpg"
-        # Ensure directory exists
-        os.makedirs(os.path.dirname(preview_path), exist_ok=True)
-        preview_image.save(preview_path, quality=quality)
-        return
-    
-    if type == 'minify':
-        image.thumbnail((size, size), Image.LANCZOS)
-        minify_path = f"{image_path}.minify.{str(instance.image).split('.')[-1]}"
-        os.makedirs(os.path.dirname(minify_path), exist_ok=True)
-        image.save(minify_path, quality=quality)
-        return
-    
-    image.thumbnail((size, size), Image.LANCZOS)
-    os.makedirs(os.path.dirname(image_path), exist_ok=True)
-    image.save(image_path, quality=quality)
-    return
-
-
-# Models
 
 class Comment(models.Model):
     class Meta:
@@ -383,33 +331,6 @@ class Post(models.Model):
     def time_since(self):
         return time_since(self.created_date)
 
-    def set_tags(self, tags: str):
-        self.tags.clear()
-        tags = tags.replace(',', '-').replace('_', '-')
-        tags = slugify(tags, allow_unicode=True).split('-')
-
-        if len(tags) == 1 and tags[0] == '':
-            tags = ['미분류']
-
-        unique_tags = set(tags)
-
-        # 한 번의 쿼리로 기존 태그 조회
-        existing_tags = {t.value: t for t in Tag.objects.filter(value__in=unique_tags)}
-
-        # 새 태그 bulk create
-        new_tag_values = unique_tags - set(existing_tags.keys())
-        if new_tag_values:
-            Tag.objects.bulk_create(
-                [Tag(value=tag) for tag in new_tag_values],
-                ignore_conflicts=True
-            )
-            # 새로 생성된 태그 조회
-            new_tags = Tag.objects.filter(value__in=new_tag_values)
-            existing_tags.update({t.value: t for t in new_tags})
-
-        # 한 번에 모든 태그 추가
-        self.tags.add(*[existing_tags[tag] for tag in unique_tags])
-
     def tagging(self):
         return [tag.value for tag in self.tags.all() if tag]
 
@@ -443,8 +364,8 @@ class Post(models.Model):
 
         super(Post, self).save(*args, **kwargs)
         if will_make_thumbnail:
-            make_thumbnail(self, size=750, quality=50, type='preview')
-            make_thumbnail(self, size=750, quality=85, type='minify')
+            make_thumbnail(self, size=750, quality=50, thumbnail_type='preview')
+            make_thumbnail(self, size=750, quality=85, thumbnail_type='minify')
             make_thumbnail(self, size=1920, quality=85)
 
 
@@ -626,10 +547,8 @@ class Series(models.Model):
         return time_since(self.created_date)
 
     def save(self, *args, **kwargs):
-        # URL이 없거나 새로 생성하는 경우에만 URL 생성
         if not self.url:
             self.create_unique_url()
-        # 업데이트 시간 갱신
         self.updated_date = timezone.now()
         super(Series, self).save(*args, **kwargs)
 
@@ -765,8 +684,6 @@ class DeveloperToken(models.Model):
 
 class DeveloperRequestLog(models.Model):
     developer = models.ForeignKey('board.DeveloperToken', on_delete=models.CASCADE)
-    # device field removed as Device model has been deprecated
-    # Use user_agent field to store device information
     user_agent = models.CharField(max_length=500, blank=True, help_text='User agent string')
     endpoint = models.CharField(max_length=255)
     headers = models.TextField(blank=True)

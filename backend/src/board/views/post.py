@@ -7,7 +7,7 @@ from django.contrib import messages
 
 from board.models import Post, Series, PostLikes, TempPosts, UsernameChangeLog, Banner
 from board.services.post_service import PostService, PostValidationError
-from board.utils import extract_table_of_contents
+from board.html_utils import extract_table_of_contents
 
 def post_detail(request, username, post_url):
     """

@@ -22,6 +22,7 @@ from django.utils.text import slugify
 
 from board.models import Post, PostContent, PostConfig, Series, TempPosts, PostLikes
 from board.modules.post_description import create_post_description
+from board.services.tag_service import TagService
 from board.modules.response import ErrorCode
 from modules.discord import Discord
 from modules.sub_task import SubTaskProcessor
@@ -256,7 +257,7 @@ class PostService:
         post.create_unique_url(url)
         post.save()
 
-        post.set_tags(tag)
+        TagService.set_post_tags(post, tag)
 
         post_content = PostContent.objects.create(
             post=post,
@@ -312,6 +313,30 @@ class PostService:
         ), author__username=username, url=url)
 
     @staticmethod
+    def _calculate_tag_score(candidate_tags: set, current_tag_set: set) -> int:
+        """Calculate score based on tag overlap (max 10)."""
+        tag_overlap = len(current_tag_set & candidate_tags)
+        return min(tag_overlap * 3, 10), tag_overlap
+
+    @staticmethod
+    def _calculate_popularity_score(likes_count: int, comments_count: int) -> int:
+        """Calculate score based on engagement (max 10)."""
+        popularity = (likes_count * 2) + comments_count
+        return min(popularity, 10)
+
+    @staticmethod
+    def _calculate_recency_score(created_date, now) -> int:
+        """Calculate score based on post age."""
+        days_old = (now - created_date).days
+        if days_old < 7:
+            return 5
+        elif days_old < 30:
+            return 3
+        elif days_old < 90:
+            return 1
+        return 0
+
+    @staticmethod
     def get_related_posts(post: Post) -> List[Post]:
         """
         Get related posts based on tags and popularity.
@@ -348,34 +373,21 @@ class PostService:
         now = timezone.now()
 
         for candidate in candidates:
-            score = 0
-
-            # prefetch된 캐시 사용 (values_list는 캐시 우회)
             candidate_tags = set(tag.value for tag in candidate.tags.all())
-            tag_overlap = len(current_tag_set & candidate_tags)
-            tag_score = min(tag_overlap * 3, 10)
-            score += tag_score
+            tag_score, tag_overlap = PostService._calculate_tag_score(
+                candidate_tags, current_tag_set
+            )
+            popularity_score = PostService._calculate_popularity_score(
+                candidate.likes_count, candidate.comments_count
+            )
+            recency_score = PostService._calculate_recency_score(
+                candidate.created_date, now
+            )
 
-            popularity = (candidate.likes_count * 2) + candidate.comments_count
-            popularity_score = min(popularity, 10)
-            score += popularity_score
-
-            days_old = (now - candidate.created_date).days
-            if days_old < 7:
-                recency_score = 5
-            elif days_old < 30:
-                recency_score = 3
-            elif days_old < 90:
-                recency_score = 1
-            else:
-                recency_score = 0
-            score += recency_score
-
+            score = tag_score + popularity_score + recency_score
             if candidate.author.id == post.author.id:
                 score -= 5
-
-            random_score = random.uniform(-3, 3)
-            score += random_score
+            score += random.uniform(-3, 3)
 
             scored_posts.append({
                 'post': candidate,
@@ -456,7 +468,7 @@ class PostService:
             post.create_unique_url(url)
 
         if tag is not None:
-            post.set_tags(tag)
+            TagService.set_post_tags(post, tag)
 
         if image_delete:
             if post.image:
