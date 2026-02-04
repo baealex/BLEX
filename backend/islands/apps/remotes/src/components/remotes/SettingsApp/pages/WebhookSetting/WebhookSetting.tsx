@@ -116,20 +116,20 @@ const WebhookSetting = () => {
     const getStatusBadge = (channel: { isActive: boolean; failureCount: number }) => {
         if (!channel.isActive) {
             return (
-                <span className="bg-red-100 text-red-700 px-2 py-0.5 rounded-md text-xs font-medium">
+                <span className="bg-gray-900 text-white px-2 py-0.5 rounded-md text-xs font-medium">
                     비활성화
                 </span>
             );
         }
         if (channel.failureCount > 0) {
             return (
-                <span className="bg-yellow-100 text-yellow-700 px-2 py-0.5 rounded-md text-xs font-medium">
+                <span className="bg-gray-200 text-gray-700 px-2 py-0.5 rounded-md text-xs font-medium">
                     실패 {channel.failureCount}회
                 </span>
             );
         }
         return (
-            <span className="bg-green-100 text-green-700 px-2 py-0.5 rounded-md text-xs font-medium">
+            <span className="bg-gray-100 text-gray-600 px-2 py-0.5 rounded-md text-xs font-medium">
                 활성
             </span>
         );
@@ -159,7 +159,7 @@ const WebhookSetting = () => {
             />
 
             {/* Add Channel Button or Form */}
-            {!showAddForm ? (
+            {!showAddForm && channels && channels.length > 0 && (
                 <div className="mb-6">
                     <Button
                         variant="primary"
@@ -169,7 +169,8 @@ const WebhookSetting = () => {
                         채널 추가
                     </Button>
                 </div>
-            ) : (
+            )}
+            {showAddForm && (
                 <div className="mb-6 bg-gray-50 border border-gray-200 rounded-2xl p-6">
                     <h3 className="text-base font-semibold text-gray-900 mb-4">새 웹훅 채널 추가</h3>
                     <div className="space-y-4">
@@ -237,7 +238,7 @@ const WebhookSetting = () => {
                             <div className={CARD_PADDING}>
                                 <div className={FLEX_ROW}>
                                     {/* Icon */}
-                                    <div className={getIconClass(channel.isActive ? 'default' : 'danger')}>
+                                    <div className={getIconClass(channel.isActive ? 'default' : 'light')}>
                                         <i className={`fas ${channel.isActive ? 'fa-bolt' : 'fa-exclamation-triangle'} text-sm`} />
                                     </div>
 
@@ -278,10 +279,19 @@ const WebhookSetting = () => {
                     ))}
                 </div>
             ) : (
-                <div className="text-center py-12 text-gray-500">
-                    <i className="fas fa-bolt text-4xl mb-4 opacity-50" />
-                    <p>등록된 웹훅 채널이 없습니다.</p>
-                    <p className="text-sm mt-1">새 채널을 추가해서 글 발행 알림을 받아보세요.</p>
+                <div className="text-center py-16">
+                    <div className="w-20 h-20 mx-auto bg-gray-100 rounded-2xl flex items-center justify-center mb-6">
+                        <i className="fas fa-bolt text-gray-400 text-3xl" />
+                    </div>
+                    <h3 className="text-xl font-bold text-gray-900 mb-2">등록된 웹훅 채널이 없습니다</h3>
+                    <p className="text-gray-500 mb-6">새 채널을 추가해서 글 발행 알림을 받아보세요.</p>
+                    <Button
+                        variant="primary"
+                        size="md"
+                        leftIcon={<i className="fas fa-plus" />}
+                        onClick={() => setShowAddForm(true)}>
+                        첫 채널 추가하기
+                    </Button>
                 </div>
             )}
         </div>
