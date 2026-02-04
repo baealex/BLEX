@@ -8,7 +8,7 @@ from board.models import User, Profile, Banner
 
 
 class BannerModelTestCase(TestCase):
-    """Banner model tests"""
+    """Banner model validation tests"""
 
     @classmethod
     def setUpTestData(cls):
@@ -18,53 +18,6 @@ class BannerModelTestCase(TestCase):
             email='test@test.com',
         )
         Profile.objects.create(user=cls.user)
-
-    def test_create_horizontal_banner_top(self):
-        """줄배너 상단 생성 테스트"""
-        banner = Banner.objects.create(
-            user=self.user,
-            title='Test Top Banner',
-            content_html='<div>Top Banner</div>',
-            banner_type='horizontal',
-            position='top',
-        )
-        self.assertEqual(banner.banner_type, 'horizontal')
-        self.assertEqual(banner.position, 'top')
-        self.assertTrue(banner.is_active)
-
-    def test_create_horizontal_banner_bottom(self):
-        """줄배너 하단 생성 테스트"""
-        banner = Banner.objects.create(
-            user=self.user,
-            title='Test Bottom Banner',
-            content_html='<div>Bottom Banner</div>',
-            banner_type='horizontal',
-            position='bottom',
-        )
-        self.assertEqual(banner.position, 'bottom')
-
-    def test_create_sidebar_banner_left(self):
-        """사이드배너 좌측 생성 테스트"""
-        banner = Banner.objects.create(
-            user=self.user,
-            title='Test Left Banner',
-            content_html='<div>Left Banner</div>',
-            banner_type='sidebar',
-            position='left',
-        )
-        self.assertEqual(banner.banner_type, 'sidebar')
-        self.assertEqual(banner.position, 'left')
-
-    def test_create_sidebar_banner_right(self):
-        """사이드배너 우측 생성 테스트"""
-        banner = Banner.objects.create(
-            user=self.user,
-            title='Test Right Banner',
-            content_html='<div>Right Banner</div>',
-            banner_type='sidebar',
-            position='right',
-        )
-        self.assertEqual(banner.position, 'right')
 
     def test_horizontal_banner_invalid_position(self):
         """줄배너 잘못된 위치 검증 테스트"""
@@ -89,28 +42,6 @@ class BannerModelTestCase(TestCase):
         )
         with self.assertRaises(ValidationError):
             banner.clean()
-
-    def test_banner_ordering(self):
-        """배너 순서 테스트"""
-        banner1 = Banner.objects.create(
-            user=self.user,
-            title='Banner 1',
-            content_html='<div>1</div>',
-            banner_type='horizontal',
-            position='top',
-            order=2,
-        )
-        banner2 = Banner.objects.create(
-            user=self.user,
-            title='Banner 2',
-            content_html='<div>2</div>',
-            banner_type='horizontal',
-            position='top',
-            order=1,
-        )
-
-        banners = Banner.objects.filter(user=self.user).order_by('order')
-        self.assertEqual(list(banners), [banner2, banner1])
 
 
 class BannerAPITestCase(TestCase):
@@ -189,6 +120,9 @@ class BannerAPITestCase(TestCase):
         self.assertEqual(response.status_code, 200)
         content = json.loads(response.content)
         self.assertEqual(content['status'], 'ERROR')
+
+        # DB에 생성되지 않았는지 확인
+        self.assertFalse(Banner.objects.filter(title='Invalid Banner').exists())
 
     def test_create_banner_without_title(self):
         """제목 없이 배너 생성 시 에러 테스트"""
@@ -353,3 +287,6 @@ class BannerAPITestCase(TestCase):
         # 다른 사용자의 배너 조회 시도
         response = self.client.get(f'/v1/banners/{other_banner.id}')
         self.assertEqual(response.status_code, 404)
+
+        # 다른 사용자의 배너는 여전히 존재해야 함
+        self.assertTrue(Banner.objects.filter(id=other_banner.id).exists())

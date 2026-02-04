@@ -7,6 +7,7 @@ Complete environment setup (backend + frontend) can be done with `npm i`.
 - **Always read `docs/BACKEND_GUIDE.md` first.**
 - Always write test code for all development.
   - Run tests with `npm run server:test`.
+  - Read `docs/TESTING_GUIDE.md` for more information.
 - For server-side rendering + client interactions, use `alpine`.
   - Template components should have corresponding `*.alpine.ts` scripts and `*.scss` files in the same location.
     - These are automatically mapped when running `pnpm dev`, but if not, you need to update the following files:

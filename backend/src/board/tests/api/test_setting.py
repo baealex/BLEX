@@ -249,3 +249,15 @@ class SettingTestCase(TestCase):
         profile = Profile.objects.get(user=User.objects.get(username='test'))
         self.assertEqual(profile.bio, 'Test bio')
         self.assertEqual(profile.homepage, 'https://example.com')
+
+    def test_update_account_not_logged_in(self):
+        """비로그인 상태에서 계정 수정 시도"""
+        response = self.client.put(
+            '/v1/setting/account',
+            'username=hacked',
+            content_type='application/x-www-form-urlencoded'
+        )
+        self.assertEqual(response.status_code, 200)
+        content = json.loads(response.content)
+        self.assertEqual(content['status'], 'ERROR')
+        self.assertEqual(content['errorCode'], 'error:NL')
