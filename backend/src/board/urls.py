@@ -109,4 +109,9 @@ urlpatterns = [
     path('v1/banners/order', api_v1.banner_order),
     path('v1/banners/<int:banner_id>', api_v1.banner),
     path('v1/markdown', api_v1.markdown_to_html),
+
+    # Webhook channels (author's notification channels)
+    path('v1/webhook/channels', api_v1.my_channels),
+    path('v1/webhook/channels/<int:channel_id>', api_v1.delete_channel),
+    path('v1/webhook/test', api_v1.test_channel),
 ]

@@ -489,8 +489,9 @@ class Profile(models.Model):
             return self.avatar.url
         return settings.RESOURCE_URL + 'assets/images/default-avatar.jpg'
 
-    def total_subscriber(self):
-        return self.subscriber.count()
+    def total_channels(self):
+        """Return count of active notification channels"""
+        return self.webhook_subscribers.filter(is_active=True).count()
 
     def save(self, *args, **kwargs):
         will_make_thumbnail = False
@@ -671,24 +672,63 @@ class EditRequest(models.Model):
         return self.title
 
 
-class DeveloperToken(models.Model):
-    user = models.ForeignKey('auth.User', on_delete=models.CASCADE)
-    name = models.CharField(max_length=50, blank=True)
-    token = models.CharField(max_length=50, blank=True)
-    is_deleted = models.BooleanField(default=False)
+class WebhookSubscription(models.Model):
+    """
+    Webhook subscription for author-based notifications.
+    When an author publishes a new post, notifications are sent to all
+    webhook URLs subscribed to that author.
+    """
+    MAX_FAILURES = 3  # Auto-deactivate after this many consecutive failures
+
+    author = models.ForeignKey(
+        'board.Profile',
+        on_delete=models.CASCADE,
+        related_name='webhook_subscribers',
+        help_text='The author being subscribed to'
+    )
+    webhook_url = models.URLField(
+        max_length=500,
+        help_text='Webhook URL (Discord, Slack, etc.)'
+    )
+    name = models.CharField(
+        max_length=100,
+        blank=True,
+        help_text='Optional name/description for this subscription'
+    )
+    is_active = models.BooleanField(default=True)
+    failure_count = models.PositiveSmallIntegerField(
+        default=0,
+        help_text='Consecutive webhook delivery failures'
+    )
+    last_success_date = models.DateTimeField(
+        null=True,
+        blank=True,
+        help_text='Last successful webhook delivery'
+    )
     created_date = models.DateTimeField(default=timezone.now)
+
+    class Meta:
+        unique_together = ['author', 'webhook_url']
+        ordering = ['-created_date']
 
     def __str__(self):
-        return self.user
+        return f'{self.name or "Webhook"} -> {self.author.user.username}'
 
+    def record_success(self):
+        """Record a successful webhook delivery"""
+        self.failure_count = 0
+        self.last_success_date = timezone.now()
+        self.save(update_fields=['failure_count', 'last_success_date'])
 
-class DeveloperRequestLog(models.Model):
-    developer = models.ForeignKey('board.DeveloperToken', on_delete=models.CASCADE)
-    user_agent = models.CharField(max_length=500, blank=True, help_text='User agent string')
-    endpoint = models.CharField(max_length=255)
-    headers = models.TextField(blank=True)
-    payload = models.TextField(blank=True)
-    created_date = models.DateTimeField(default=timezone.now)
+    def record_failure(self):
+        """
+        Record a failed webhook delivery.
+        Auto-deactivates after MAX_FAILURES consecutive failures.
+        """
+        self.failure_count += 1
+        if self.failure_count >= self.MAX_FAILURES:
+            self.is_active = False
+        self.save(update_fields=['failure_count', 'is_active'])
 
 
 class UsernameChangeLog(models.Model):

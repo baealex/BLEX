@@ -24,6 +24,7 @@ from board.models import Post, PostContent, PostConfig, Series, TempPosts, PostL
 from board.modules.post_description import create_post_description
 from board.services.tag_service import TagService
 from board.modules.response import ErrorCode
+from board.services.webhook_service import WebhookService
 from modules.discord import Discord
 from modules.sub_task import SubTaskProcessor
 
@@ -147,26 +148,31 @@ class PostService:
         return slugify(title, allow_unicode=True)
 
     @staticmethod
-    def send_discord_notification(post: Post, post_config: PostConfig) -> None:
+    def send_post_notifications(post: Post, post_config: PostConfig) -> None:
         """
-        Send Discord webhook notification for new post.
+        Send notifications for new post publication.
+        - Sends to site-wide Discord webhook (if configured)
+        - Sends to all webhook subscribers of the author
 
         Args:
             post: Post instance
             post_config: PostConfig instance
         """
-        if (not post_config.hide and
-            post.is_published() and
-            settings.DISCORD_NEW_POSTS_WEBHOOK):
+        if post_config.hide or not post.is_published():
+            return
 
-            def send_webhook():
+        # Site-wide Discord notification (optional, via environment variable)
+        if settings.DISCORD_NEW_POSTS_WEBHOOK:
+            def send_site_webhook():
                 post_url = settings.SITE_URL + post.get_absolute_url()
                 Discord.send_webhook(
                     url=settings.DISCORD_NEW_POSTS_WEBHOOK,
                     content=f'[새 글이 발행되었어요!]({post_url})'
                 )
+            SubTaskProcessor.process(send_site_webhook)
 
-            SubTaskProcessor.process(send_webhook)
+        # Author's notification channels
+        WebhookService.notify_channels(post, post_config)
 
     @staticmethod
     def delete_temp_post(user: User, token: str) -> None:
@@ -272,7 +278,7 @@ class PostService:
             advertise=is_advertise
         )
 
-        PostService.send_discord_notification(post, post_config)
+        PostService.send_post_notifications(post, post_config)
 
         PostService.delete_temp_post(user, temp_post_token)
 

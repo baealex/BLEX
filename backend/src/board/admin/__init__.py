@@ -2,7 +2,7 @@ from .auth import *
 from .banner import *
 from .comment import *
 from .connection import *
-from .developer import *
+from .webhook import *
 from .form import *
 from .global_notice import *
 from .image import *
