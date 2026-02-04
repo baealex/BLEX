@@ -4,6 +4,7 @@ from .comment import *
 from .connection import *
 from .webhook import *
 from .form import *
+from .global_banner import *
 from .global_notice import *
 from .image import *
 from .notify import *
@@ -23,4 +24,5 @@ admin.site.site_header = 'BLEX 관리자'
 admin.site.site_title = 'BLEX Admin'
 admin.site.index_title = '대시보드'
 
+# Register LogEntry for audit trail
 admin.site.register(LogEntry)

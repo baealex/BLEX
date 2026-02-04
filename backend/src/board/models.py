@@ -4,6 +4,7 @@ import pyotp
 
 from django.conf import settings
 from django.contrib.auth.models import User
+from django.core.exceptions import ValidationError
 from django.db import models
 from django.db.models import Sum, Count
 from django.template.defaultfilters import truncatewords
@@ -249,6 +250,8 @@ class GlobalNotice(models.Model):
 
     class Meta:
         ordering = ['-created_date']
+        verbose_name = '🏢 [사이트 운영] 글로벌 공지'
+        verbose_name_plural = '🏢 [사이트 운영] 글로벌 공지'
 
     def __str__(self):
         return self.title
@@ -802,8 +805,8 @@ class SiteSetting(models.Model):
     updated_date = models.DateTimeField(auto_now=True)
 
     class Meta:
-        verbose_name = 'Site Setting'
-        verbose_name_plural = '# Site Settings'
+        verbose_name = '🏢 [사이트 운영] 사이트 설정'
+        verbose_name_plural = '🏢 [사이트 운영] 사이트 설정'
 
     def __str__(self):
         return 'Site Settings'
@@ -846,12 +849,28 @@ class StaticPage(models.Model):
 
     class Meta:
         ordering = ['order', 'slug']
+        verbose_name = '🏢 [사이트 운영] 정적 페이지'
+        verbose_name_plural = '🏢 [사이트 운영] 정적 페이지'
 
     def __str__(self):
         return self.title
 
     def get_absolute_url(self):
         return f'/static/{self.slug}/'
+
+
+class BannerType(models.TextChoices):
+    """Banner type choices shared by Banner and GlobalBanner"""
+    HORIZONTAL = 'horizontal', '줄배너 (가로 전체)'
+    SIDEBAR = 'sidebar', '사이드배너 (좌우 측면)'
+
+
+class BannerPosition(models.TextChoices):
+    """Banner position choices shared by Banner and GlobalBanner"""
+    TOP = 'top', '상단'
+    BOTTOM = 'bottom', '하단'
+    LEFT = 'left', '좌측'
+    RIGHT = 'right', '우측'
 
 
 class Banner(models.Model):
@@ -866,11 +885,6 @@ class Banner(models.Model):
     content_html = models.TextField(
         help_text='배너 HTML 콘텐츠 (스크립트는 자동 제거됨)')
 
-    # Banner type
-    class BannerType(models.TextChoices):
-        HORIZONTAL = 'horizontal', '줄배너 (가로 전체)'
-        SIDEBAR = 'sidebar', '사이드배너 (좌우 측면)'
-
     banner_type = models.CharField(
         max_length=20,
         choices=BannerType.choices,
@@ -878,17 +892,10 @@ class Banner(models.Model):
         help_text='배너 타입'
     )
 
-    # Position
-    class Position(models.TextChoices):
-        TOP = 'top', '상단'
-        BOTTOM = 'bottom', '하단'
-        LEFT = 'left', '좌측'
-        RIGHT = 'right', '우측'
-
     position = models.CharField(
         max_length=10,
-        choices=Position.choices,
-        default=Position.TOP,
+        choices=BannerPosition.choices,
+        default=BannerPosition.TOP,
         help_text='배너 위치'
     )
 
@@ -905,7 +912,7 @@ class Banner(models.Model):
     class Meta:
         ordering = ['order', '-created_date']
         indexes = [
-            models.Index(fields=['user', 'is_active', 'position']),
+            models.Index(fields=['user', 'is_active', 'banner_type', 'position']),
         ]
 
     def __str__(self):
@@ -913,18 +920,83 @@ class Banner(models.Model):
 
     def clean(self):
         """Validate banner type and position compatibility"""
-        from django.core.exceptions import ValidationError
-
         # Horizontal banners can only be top/bottom
-        if self.banner_type == self.BannerType.HORIZONTAL:
-            if self.position not in [self.Position.TOP, self.Position.BOTTOM]:
+        if self.banner_type == BannerType.HORIZONTAL:
+            if self.position not in [BannerPosition.TOP, BannerPosition.BOTTOM]:
                 raise ValidationError({
                     'position': '줄배너는 상단 또는 하단에만 배치할 수 있습니다.'
                 })
 
         # Sidebar banners can only be left/right
-        if self.banner_type == self.BannerType.SIDEBAR:
-            if self.position not in [self.Position.LEFT, self.Position.RIGHT]:
+        if self.banner_type == BannerType.SIDEBAR:
+            if self.position not in [BannerPosition.LEFT, BannerPosition.RIGHT]:
+                raise ValidationError({
+                    'position': '사이드배너는 좌측 또는 우측에만 배치할 수 있습니다.'
+                })
+
+
+class GlobalBanner(models.Model):
+    """
+    Site-wide banners managed by administrators only.
+    Displayed across all user posts regardless of author.
+    No HTML sanitization applied - admin-controlled content.
+    """
+    title = models.CharField(max_length=100,
+                             help_text='배너 이름 (관리용)')
+    content_html = models.TextField(
+        help_text='배너 HTML 콘텐츠 (관리자 전용 - sanitize 없음)')
+
+    banner_type = models.CharField(
+        max_length=20,
+        choices=BannerType.choices,
+        default=BannerType.HORIZONTAL,
+        help_text='배너 타입'
+    )
+
+    position = models.CharField(
+        max_length=10,
+        choices=BannerPosition.choices,
+        default=BannerPosition.TOP,
+        help_text='배너 위치'
+    )
+
+    # Settings
+    is_active = models.BooleanField(default=True,
+                                    help_text='배너 활성화 여부')
+    order = models.IntegerField(default=0,
+                                help_text='표시 순서 (낮을수록 먼저)')
+
+    # Metadata
+    created_by = models.ForeignKey('auth.User', on_delete=models.SET_NULL,
+                                   null=True, blank=True,
+                                   related_name='created_global_banners',
+                                   help_text='생성한 관리자')
+    created_date = models.DateTimeField(auto_now_add=True)
+    updated_date = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['order', '-created_date']
+        indexes = [
+            models.Index(fields=['is_active', 'banner_type', 'position']),
+        ]
+        verbose_name = '🏢 [사이트 운영] 글로벌 배너'
+        verbose_name_plural = '🏢 [사이트 운영] 글로벌 배너'
+
+    def __str__(self):
+        return f'[전역] {self.title}'
+
+    def clean(self):
+        """Validate banner type and position compatibility"""
+        # Horizontal banners can only be top/bottom
+        if self.banner_type == BannerType.HORIZONTAL:
+            if self.position not in [BannerPosition.TOP, BannerPosition.BOTTOM]:
+                raise ValidationError({
+                    'position': '줄배너는 상단 또는 하단에만 배치할 수 있습니다.'
+                })
+
+        # Sidebar banners can only be left/right
+        if self.banner_type == BannerType.SIDEBAR:
+            if self.position not in [BannerPosition.LEFT, BannerPosition.RIGHT]:
                 raise ValidationError({
                     'position': '사이드배너는 좌측 또는 우측에만 배치할 수 있습니다.'
                 })
