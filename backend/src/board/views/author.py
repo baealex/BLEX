@@ -19,7 +19,7 @@ def author_overview(request, username):
     Includes contribution graph, pinned posts, and simplified profile info.
     Readers and editors see different templates.
     """
-    author = get_object_or_404(User, username=username)
+    author = get_object_or_404(User.objects.select_related('profile'), username=username)
 
     recent_activities = UserService.get_user_dashboard_activities(author)[:10]  # Limit to 10 most recent
 
@@ -43,6 +43,10 @@ def author_overview(request, username):
 
         blog_notices = Post.objects.select_related(
             'config', 'author', 'author__profile'
+        ).only(
+            'title', 'url', 'created_date',
+            'config__notice', 'config__hide',
+            'author__username', 'author__profile__avatar'
         ).filter(
             author=author,
             created_date__lte=timezone.now(),
@@ -50,20 +54,23 @@ def author_overview(request, username):
             config__hide=False,
         ).order_by('-created_date')[:5]
 
-        post_count = Post.objects.filter(
-            author=author,
-            created_date__lte=timezone.now(),
-            config__hide=False
-        ).count()
-        series_count = Series.objects.filter(owner=author).count()
+        # 한 번의 쿼리로 post_count와 series_count 가져오기
+        from django.db.models import Count, Q
+        stats = User.objects.filter(id=author.id).annotate(
+            post_count=Count('post', filter=Q(
+                post__created_date__lte=timezone.now(),
+                post__config__hide=False
+            )),
+            series_count=Count('series', distinct=True)
+        ).values('post_count', 'series_count').first()
 
         context = {
             'author': author,
             'pinned_posts': pinned_posts,
             'recent_activities': recent_activities,
             'about_html': about_html,
-            'post_count': post_count,
-            'series_count': series_count,
+            'post_count': stats['post_count'],
+            'series_count': stats['series_count'],
             'blog_notices': blog_notices,
             'author_activity_props': json.dumps({'username': author.username})
         }
@@ -82,7 +89,7 @@ def author_posts(request, username):
     View for the author's posts page.
     Only accessible for editors. Readers are redirected to about page.
     """
-    author = get_object_or_404(User, username=username)
+    author = get_object_or_404(User.objects.select_related('profile'), username=username)
 
     if not hasattr(author, 'profile') or not author.profile.is_editor():
         return redirect('user_about', username=username)
@@ -148,20 +155,17 @@ def author_posts(request, username):
     tag_options = [{'value': '', 'label': '전체 태그'}] # Default option
     for tag in author_tags:
         tag_options.append({'value': tag.value, 'label': f'{tag.value} ({tag.count})'})
-    
-    post_count = Post.objects.filter(
-        author=author,
-        created_date__lte=timezone.now(),
-        config__hide=False
-    ).count()
-    series_count = series.count()
-    
+
     page = int(request.GET.get('page', 1))
     paginated_posts = Paginator(
         objects=posts,
         offset=24,
         page=page
     )
+
+    # paginator에서 total count 가져오기 (별도 쿼리 불필요)
+    post_count = paginated_posts.paginator.count
+    series_count = series.count()
     
     sort_options = [
         {'value': 'recent', 'label': '최신순'},
@@ -196,7 +200,7 @@ def author_series(request, username):
     View for the author's series page.
     Only accessible for editors. Readers are redirected to about page.
     """
-    author = get_object_or_404(User, username=username)
+    author = get_object_or_404(User.objects.select_related('profile'), username=username)
 
     # If author is a reader (not an editor), redirect to about page
     # If profile doesn't exist, treat as reader
@@ -253,9 +257,9 @@ def author_series(request, username):
         {'value': 'posts', 'label': '포스트 많은 순'},
     ]
     
-    for series in paginated_series:
-        series.updated_date = series.updated_date.strftime('%Y-%m-%d')
-    
+    for series_item in paginated_series:
+        series_item.updated_date = series_item.updated_date.strftime('%Y-%m-%d')
+
     author_tags = Tag.objects.filter(
         posts__author=author,
         posts__config__hide=False
@@ -263,18 +267,21 @@ def author_series(request, username):
         count=Count('posts', distinct=True)
     ).order_by('-count', 'value')
 
-    post_count = Post.objects.filter(
-        author=author,
-        created_date__lte=timezone.now(),
-        config__hide=False
-    ).count()
-    series_count = Series.objects.filter(owner=author).count()
+    # 한 번의 쿼리로 post_count와 series_count 가져오기
+    from django.db.models import Q
+    stats = User.objects.filter(id=author.id).annotate(
+        post_count=Count('post', filter=Q(
+            post__created_date__lte=timezone.now(),
+            post__config__hide=False
+        )),
+        series_count=Count('series', distinct=True)
+    ).values('post_count', 'series_count').first()
 
     context = {
         'author': author,
         'series_list': paginated_series,
-        'post_count': post_count,
-        'series_count': series_count,
+        'post_count': stats['post_count'],
+        'series_count': stats['series_count'],
         'is_loading': False,
         'author_tags': author_tags,
         'search_query': search_query,
@@ -294,11 +301,11 @@ def author_about_edit(request, username):
     """
     View for the author's about edit page.
     """
-    author = get_object_or_404(User, username=username)
-    
+    author = get_object_or_404(User.objects.select_related('profile'), username=username)
+
     if request.user != author:
         return render(request, 'board/error/403.html', status=403)
-    
+
     profile, created = Profile.objects.get_or_create(user=author)
 
     if request.method == 'POST':
@@ -307,26 +314,29 @@ def author_about_edit(request, username):
         profile.about_html = markdown.parse_to_html(new_about_md)
         try:
             profile.save()
-            return JsonResponse({'status': 'success', 'message': '소개가 성공적으로 업데이트되었습니다.'}) 
+            return JsonResponse({'status': 'success', 'message': '소개가 성공적으로 업데이트되었습니다.'})
         except Exception as e:
             return JsonResponse({'status': 'error', 'message': str(e)}, status=500)
 
     # GET request handling
     about_md = getattr(profile, 'about_md', '') if profile else ''
 
-    post_count = Post.objects.filter(
-        author=author,
-        created_date__lte=timezone.now(),
-        config__hide=False
-    ).count()
-    series_count = Series.objects.filter(owner=author).count()
+    # 한 번의 쿼리로 post_count와 series_count 가져오기
+    from django.db.models import Q
+    stats = User.objects.filter(id=author.id).annotate(
+        post_count=Count('post', filter=Q(
+            post__created_date__lte=timezone.now(),
+            post__config__hide=False
+        )),
+        series_count=Count('series', distinct=True)
+    ).values('post_count', 'series_count').first()
 
     context = {
         'author': author,
         'about_md': about_md,
-        'post_count': post_count,
-        'series_count': series_count,
+        'post_count': stats['post_count'],
+        'series_count': stats['series_count'],
         'is_loading': False,
     }
-    
+
     return render(request, 'board/author/author_about_edit.html', context)
