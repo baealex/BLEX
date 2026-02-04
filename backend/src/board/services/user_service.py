@@ -134,46 +134,44 @@ class UserService:
         Returns:
             List of post dictionaries
         """
-        pinned_posts = PinnedPost.objects.select_related(
-            'post'
+        # 한 번의 쿼리로 데이터를 가져오고 len()으로 체크 (exists() 별도 쿼리 방지)
+        pinned_posts = list(PinnedPost.objects.select_related(
+            'post', 'user', 'user__profile'
         ).filter(
             user=user
-        ).annotate(
-            author_username=F('user__username'),
-            author_image=F('user__profile__avatar'),
-        ).order_by('order')
+        ).order_by('order')[:6])
 
-        if pinned_posts.exists():
-            return list(map(lambda pinned_post: {
+        if pinned_posts:
+            return [{
                 'url': pinned_post.post.url,
                 'title': pinned_post.post.title,
                 'image': str(pinned_post.post.image),
                 'read_time': pinned_post.post.read_time,
                 'created_date': pinned_post.post.created_date,
-                'author_image': pinned_post.author_image,
-                'author': pinned_post.author_username,
-            }, pinned_posts))
+                'author_image': pinned_post.user.profile.avatar if hasattr(pinned_post.user, 'profile') else '',
+                'author': pinned_post.user.username,
+            } for pinned_post in pinned_posts]
 
-        posts = Post.objects.filter(
+        posts = Post.objects.select_related(
+            'config', 'author', 'author__profile'
+        ).filter(
             author=user,
             config__hide=False,
             config__notice=False,
             created_date__lte=timezone.now(),
         ).annotate(
-            author_username=F('author__username'),
-            author_image=F('author__profile__avatar'),
             likes_count=Count('likes', distinct=True),
         ).order_by('-likes_count', '-created_date')[:6]
 
-        return list(map(lambda post: {
+        return [{
             'url': post.url,
             'title': post.title,
             'image': str(post.image),
             'read_time': post.read_time,
             'created_date': post.created_date,
-            'author_image': post.author_image,
-            'author': post.author_username,
-        }, posts))
+            'author_image': post.author.profile.avatar if hasattr(post.author, 'profile') else '',
+            'author': post.author.username,
+        } for post in posts]
 
     @staticmethod
     def get_user_recent_activity(user: User, days: int = 7) -> List[Dict[str, Any]]:

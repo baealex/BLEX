@@ -104,6 +104,12 @@ def make_thumbnail(instance, size, quality=100, type='normal'):
 # Models
 
 class Comment(models.Model):
+    class Meta:
+        indexes = [
+            models.Index(fields=['post', 'parent', 'created_date']),
+            models.Index(fields=['author', 'created_date']),
+        ]
+
     author = models.ForeignKey('auth.User', on_delete=models.SET_NULL, null=True)
     post = models.ForeignKey('board.Post', related_name='comments', on_delete=models.CASCADE)
     parent = models.ForeignKey('self', on_delete=models.CASCADE, null=True, blank=True, related_name='replies')
@@ -301,6 +307,11 @@ class GlobalNotice(models.Model):
 
 
 class Tag(models.Model):
+    class Meta:
+        indexes = [
+            models.Index(fields=['value']),
+        ]
+
     value = models.CharField(max_length=50)
 
     def get_image(self):
@@ -308,17 +319,22 @@ class Tag(models.Model):
             config__hide=False,
             tags__value=self.value,
             image__contains='images'
-        ).order_by('-created_date')
+        ).order_by('-created_date').first()
 
-        if post.exists():
-            return post.first().image.url
-        return ''
+        return post.image.url if post else ''
 
     def __str__(self):
         return str(self.value)
 
 
 class Post(models.Model):
+    class Meta:
+        indexes = [
+            models.Index(fields=['author', 'created_date']),
+            models.Index(fields=['created_date']),
+            models.Index(fields=['url']),
+        ]
+
     author = models.ForeignKey('auth.User', on_delete=models.CASCADE)
     series = models.ForeignKey('board.Series', related_name='posts', on_delete=models.SET_NULL, null=True, blank=True)
     title = models.CharField(max_length=65)
@@ -375,12 +391,24 @@ class Post(models.Model):
         if len(tags) == 1 and tags[0] == '':
             tags = ['미분류']
 
-        for tag in set(tags):
-            tag_object = Tag.objects.filter(value=tag)
-            if not tag_object.exists():
-                Tag(value=tag).save()
-                tag_object = Tag.objects.filter(value=tag)
-            self.tags.add(tag_object.first())
+        unique_tags = set(tags)
+
+        # 한 번의 쿼리로 기존 태그 조회
+        existing_tags = {t.value: t for t in Tag.objects.filter(value__in=unique_tags)}
+
+        # 새 태그 bulk create
+        new_tag_values = unique_tags - set(existing_tags.keys())
+        if new_tag_values:
+            Tag.objects.bulk_create(
+                [Tag(value=tag) for tag in new_tag_values],
+                ignore_conflicts=True
+            )
+            # 새로 생성된 태그 조회
+            new_tags = Tag.objects.filter(value__in=new_tag_values)
+            existing_tags.update({t.value: t for t in new_tags})
+
+        # 한 번에 모든 태그 추가
+        self.tags.add(*[existing_tags[tag] for tag in unique_tags])
 
     def tagging(self):
         return [tag.value for tag in self.tags.all() if tag]
@@ -467,6 +495,10 @@ class PinnedPost(models.Model):
 class PostLikes(models.Model):
     class Meta:
         db_table = 'board_post_likes'
+        indexes = [
+            models.Index(fields=['post', 'user']),
+            models.Index(fields=['user', 'created_date']),
+        ]
 
     post = models.ForeignKey('board.Post', related_name='likes', on_delete=models.CASCADE)
     user = models.ForeignKey('auth.User', on_delete=models.CASCADE)
@@ -743,6 +775,11 @@ class DeveloperRequestLog(models.Model):
 
 
 class UsernameChangeLog(models.Model):
+    class Meta:
+        indexes = [
+            models.Index(fields=['username']),
+        ]
+
     user = models.ForeignKey('auth.User', on_delete=models.CASCADE)
     username = models.CharField(max_length=50)
     created_date = models.DateTimeField(default=timezone.now)

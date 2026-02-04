@@ -4,7 +4,7 @@ import datetime
 from django.conf import settings
 from django.db.models import (
     Q, F, Case, Exists, When, Subquery,
-    Value, OuterRef, Count,  IntegerField)
+    Value, OuterRef, Count, IntegerField, Prefetch)
 from django.http import Http404, QueryDict
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
@@ -62,14 +62,12 @@ def post_list(request):
 
 def post_comment_list(request, url):
     if request.method == 'GET':
-        # 부모 댓글만 조회 (parent__isnull=True)
-        parent_comments = Comment.objects.select_related(
+        user_id = request.user.id if request.user.id else -1
+
+        # 대댓글용 queryset (미리 annotate 적용)
+        replies_queryset = Comment.objects.select_related(
             'author',
             'author__profile'
-        ).prefetch_related(
-            'replies',
-            'replies__author',
-            'replies__author__profile'
         ).annotate(
             count_likes=Count('likes', distinct=True),
             has_liked=Case(
@@ -77,7 +75,29 @@ def post_comment_list(request, url):
                     Exists(
                         Comment.objects.filter(
                             id=OuterRef('id'),
-                            likes__id=request.user.id if request.user.id else -1
+                            likes__id=user_id
+                        )
+                    ),
+                    then=Value(True)
+                ),
+                default=Value(False),
+            )
+        ).order_by('created_date')
+
+        # 부모 댓글만 조회 (parent__isnull=True)
+        parent_comments = Comment.objects.select_related(
+            'author',
+            'author__profile'
+        ).prefetch_related(
+            Prefetch('replies', queryset=replies_queryset)
+        ).annotate(
+            count_likes=Count('likes', distinct=True),
+            has_liked=Case(
+                When(
+                    Exists(
+                        Comment.objects.filter(
+                            id=OuterRef('id'),
+                            likes__id=user_id
                         )
                     ),
                     then=Value(True)
@@ -87,23 +107,7 @@ def post_comment_list(request, url):
         ).filter(post__url=url, parent__isnull=True).order_by('created_date')
 
         def serialize_comment(comment):
-            # 대댓글 직렬화
-            replies = comment.replies.all().annotate(
-                count_likes=Count('likes', distinct=True),
-                has_liked=Case(
-                    When(
-                        Exists(
-                            Comment.objects.filter(
-                                id=OuterRef('id'),
-                                likes__id=request.user.id if request.user.id else -1
-                            )
-                        ),
-                        then=Value(True)
-                    ),
-                    default=Value(False),
-                )
-            ).order_by('created_date')
-
+            # prefetch된 replies 사용 (추가 쿼리 없음)
             return {
                 'id': comment.id,
                 'author': comment.author_username(),
@@ -123,7 +127,7 @@ def post_comment_list(request, url):
                     'count_likes': reply.count_likes,
                     'is_liked': reply.has_liked,
                     'parent_id': comment.id,
-                }, replies))
+                }, comment.replies.all()))
             }
 
         return StatusDone({
