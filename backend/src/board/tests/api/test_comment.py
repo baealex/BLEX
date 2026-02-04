@@ -1,7 +1,5 @@
 import json
 
-from unittest.mock import patch
-
 from django.test import TestCase
 
 from board.constants.config_meta import CONFIG_TYPE
@@ -71,8 +69,7 @@ class CommentTestCase(TestCase):
         response = self.client.get('/v1/posts/test-post/comments')
         self.assertEqual(response.status_code, 200)
 
-    @patch('modules.markdown.parse_to_html', return_value='<h1>Mocked Text</h1>')
-    def test_create_comment(self, mock_service):
+    def test_create_comment(self):
         """댓글 생성 테스트"""
         self.client.login(username='viewer', password='test')
         data = {
@@ -82,11 +79,10 @@ class CommentTestCase(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(Comment.objects.last().text_md, '# New Comment')
 
-    @patch('modules.markdown.parse_to_html', return_value='<h1>Mocked Text</h1>')
-    def test_create_nested_comment(self, mock_service):
+    def test_create_nested_comment(self):
         """대댓글 생성 테스트"""
         parent_comment = Comment.objects.last()
-        
+
         self.client.login(username='author', password='test')
         data = {
             'comment_md': 'Reply to comment',
@@ -94,25 +90,24 @@ class CommentTestCase(TestCase):
         }
         response = self.client.post('/v1/comments?url=test-post', data)
         self.assertEqual(response.status_code, 200)
-        
+
         reply = Comment.objects.last()
         self.assertEqual(reply.parent_id, parent_comment.id)
         self.assertEqual(reply.text_md, 'Reply to comment')
 
-    @patch('modules.markdown.parse_to_html', return_value='<h1>Mocked Text</h1>')
-    def test_prevent_deeply_nested_comments(self, mock_service):
+    def test_prevent_deeply_nested_comments(self):
         """대댓글의 대댓글 방지 테스트"""
         parent_comment = Comment.objects.last()
-        
+
         self.client.login(username='author', password='test')
         response = self.client.post('/v1/comments?url=test-post', {
             'comment_md': 'First reply',
             'parent_id': parent_comment.id,
         })
         self.assertEqual(response.status_code, 200)
-        
+
         first_reply = Comment.objects.last()
-        
+
         response = self.client.post('/v1/comments?url=test-post', {
             'comment_md': 'Second reply (should fail)',
             'parent_id': first_reply.id,
@@ -121,39 +116,37 @@ class CommentTestCase(TestCase):
         self.assertEqual(content['status'], 'ERROR')
         self.assertIn('대댓글에는 답글을 달 수 없습니다', content['errorMessage'])
 
-    @patch('modules.markdown.parse_to_html', return_value='<h1>Mocked Text</h1>')
-    def test_notify_parent_comment_author_on_reply(self, mock_service):
+    def test_notify_parent_comment_author_on_reply(self):
         """대댓글 작성 시 부모 댓글 작성자에게 알림 발송 테스트"""
         viewer = User.objects.get(username='viewer')
         viewer.config.create_or_update_meta(CONFIG_TYPE.NOTIFY_POSTS_COMMENT, 'true')
-        
+
         parent_comment = Comment.objects.last()
-        
+
         self.client.login(username='author', password='test')
         self.client.post('/v1/comments?url=test-post', {
             'comment_md': 'Reply to your comment',
             'parent_id': parent_comment.id,
         })
-        
+
         last_notify = Notify.objects.filter(user=viewer).last()
         self.assertIsNotNone(last_notify)
         self.assertIn('@author', last_notify.content)
         self.assertIn('답글', last_notify.content)
 
-    @patch('modules.markdown.parse_to_html', return_value='<h1>Mocked Text</h1>')
-    def test_notify_mentioned_user_in_reply(self, mock_service):
+    def test_notify_mentioned_user_in_reply(self):
         """대댓글에서 멘션된 사용자에게 알림 발송 테스트"""
         viewer = User.objects.get(username='viewer')
         viewer.config.create_or_update_meta(CONFIG_TYPE.NOTIFY_MENTION, 'true')
-        
+
         parent_comment = Comment.objects.last()
-        
+
         self.client.login(username='author', password='test')
         self.client.post('/v1/comments?url=test-post', {
             'comment_md': '`@viewer` mentioned in reply',
             'parent_id': parent_comment.id,
         })
-        
+
         mention_notify = Notify.objects.filter(
             user=viewer,
             content__contains='태그'
@@ -161,8 +154,7 @@ class CommentTestCase(TestCase):
         self.assertIsNotNone(mention_notify)
         self.assertIn('@author', mention_notify.content)
 
-    @patch('modules.markdown.parse_to_html', return_value='<h1>Mocked Text</h1>')
-    def test_notify_on_create_comment(self, mock_service):
+    def test_notify_on_create_comment(self):
         """댓글 생성 시 작성자에게 알림 발송 테스트"""
         author = User.objects.get(username='author')
         author.config.create_or_update_meta(CONFIG_TYPE.NOTIFY_POSTS_COMMENT, 'true')
@@ -178,8 +170,7 @@ class CommentTestCase(TestCase):
             'Post' in last_notify.content
         )
 
-    @patch('modules.markdown.parse_to_html', return_value='<h1>Mocked Text</h1>')
-    def test_not_notify_on_create_comment_when_user_disagree_notify(self, mock_service):
+    def test_not_notify_on_create_comment_when_user_disagree_notify(self):
         """사용자가 알림 거부 시 댓글 생성 알림 미발송 테스트"""
         author = User.objects.get(username='author')
         Notify.objects.create(
@@ -197,8 +188,7 @@ class CommentTestCase(TestCase):
         last_notify = Notify.objects.filter(user=author).last()
         self.assertTrue('mock last notify' in last_notify.content)
 
-    @patch('modules.markdown.parse_to_html', return_value='<h1>Mocked Text</h1>')
-    def test_create_comment_not_logged_in(self, mock_service):
+    def test_create_comment_not_logged_in(self):
         """비로그인 상태에서 댓글 생성 실패 테스트"""
         data = {
             'comment_md': '# New Comment',
@@ -207,8 +197,7 @@ class CommentTestCase(TestCase):
         content = json.loads(response.content)
         self.assertEqual(content['status'], 'ERROR')
 
-    @patch('modules.markdown.parse_to_html', return_value='<h1>Mocked Text</h1>')
-    def test_notify_user_tag_on_comment_when_user_agree_notify(self, mock_service):
+    def test_notify_user_tag_on_comment_when_user_agree_notify(self):
         """댓글에서 사용자 태그 시 알림 발송 테스트"""
         viewer = User.objects.get(username='viewer')
         viewer.config.create_or_update_meta(CONFIG_TYPE.NOTIFY_MENTION, 'true')
@@ -222,8 +211,7 @@ class CommentTestCase(TestCase):
         last_notify = Notify.objects.filter(user=viewer).last()
         self.assertTrue('@author' in last_notify.content)
 
-    @patch('modules.markdown.parse_to_html', return_value='<h1>Mocked Text</h1>')
-    def test_not_notify_user_tag_on_comment_when_user_disagree_notify(self, mock_service):
+    def test_not_notify_user_tag_on_comment_when_user_disagree_notify(self):
         """사용자가 멘션 알림 거부 시 태그 알림 미발송 테스트"""
         viewer = User.objects.get(username='viewer')
         Notify.objects.create(
@@ -313,3 +301,91 @@ class CommentTestCase(TestCase):
         content = json.loads(response.content)
         self.assertEqual(content['status'], 'ERROR')
         self.assertEqual(Comment.objects.last().likes.count(), 0)
+
+    # Comment Edit Tests
+    def test_edit_comment(self):
+        """댓글 수정 테스트"""
+        comment = Comment.objects.last()
+        self.client.login(username='viewer', password='test')
+
+        response = self.client.put(
+            f'/v1/comments/{comment.id}',
+            'comment=comment&comment_md=Edited comment'
+        )
+        self.assertEqual(response.status_code, 200)
+
+        comment.refresh_from_db()
+        self.assertEqual(comment.text_md, 'Edited comment')
+        self.assertTrue(comment.edited)
+
+    def test_edit_comment_not_author(self):
+        """본인이 아닌 댓글 수정 시도 시 실패"""
+        comment = Comment.objects.last()
+        self.client.login(username='author', password='test')
+
+        response = self.client.put(
+            f'/v1/comments/{comment.id}',
+            'comment=comment&comment_md=Hacked'
+        )
+        content = json.loads(response.content)
+        self.assertEqual(content['status'], 'ERROR')
+
+        comment.refresh_from_db()
+        self.assertNotEqual(comment.text_md, 'Hacked')
+
+    def test_edit_comment_not_logged_in(self):
+        """비로그인 상태에서 댓글 수정 시도 시 실패"""
+        comment = Comment.objects.last()
+
+        response = self.client.put(
+            f'/v1/comments/{comment.id}',
+            'comment=comment&comment_md=Hacked'
+        )
+        content = json.loads(response.content)
+        self.assertEqual(content['status'], 'ERROR')
+
+    # Comment Delete Tests
+    def test_delete_comment(self):
+        """댓글 삭제 테스트 (소프트 삭제)"""
+        comment = Comment.objects.last()
+        comment_id = comment.id
+        self.client.login(username='viewer', password='test')
+
+        response = self.client.delete(f'/v1/comments/{comment_id}')
+        self.assertEqual(response.status_code, 200)
+
+        comment.refresh_from_db()
+        self.assertIsNone(comment.author)  # Soft delete removes author
+
+    def test_delete_comment_not_author(self):
+        """본인이 아닌 댓글 삭제 시도 시 실패"""
+        comment = Comment.objects.last()
+        self.client.login(username='author', password='test')
+
+        response = self.client.delete(f'/v1/comments/{comment.id}')
+        content = json.loads(response.content)
+        self.assertEqual(content['status'], 'ERROR')
+
+        comment.refresh_from_db()
+        self.assertIsNotNone(comment.author)
+
+    def test_delete_comment_not_logged_in(self):
+        """비로그인 상태에서 댓글 삭제 시도 시 실패"""
+        comment = Comment.objects.last()
+
+        response = self.client.delete(f'/v1/comments/{comment.id}')
+        self.assertEqual(response.status_code, 200)
+        content = json.loads(response.content)
+        self.assertEqual(content['status'], 'ERROR')
+
+    def test_like_deleted_comment(self):
+        """삭제된 댓글에 좋아요 시도 시 실패"""
+        comment = Comment.objects.last()
+        comment.author = None  # Simulate soft delete
+        comment.save()
+
+        self.client.login(username='author', password='test')
+        response = self.client.put(
+            f'/v1/comments/{comment.id}', "like=like")
+        content = json.loads(response.content)
+        self.assertEqual(content['status'], 'ERROR')

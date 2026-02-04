@@ -1,5 +1,4 @@
 import json
-from unittest.mock import patch
 
 from django.test import TestCase
 
@@ -85,8 +84,7 @@ class SeriesAPITestCase(TestCase):
         self.assertEqual(content['errorCode'], 'error:NL')
 
     # POST /v1/series - Create new series
-    @patch('modules.markdown.parse_to_html', return_value='<p>New Series Description</p>')
-    def test_create_series(self, mock_service):
+    def test_create_series(self):
         """시리즈 생성 테스트"""
         self.client.login(username='author', password='author')
         data = {
@@ -104,8 +102,7 @@ class SeriesAPITestCase(TestCase):
         self.assertEqual(content['body']['name'], 'New Series')
         self.assertTrue(Series.objects.filter(name='New Series').exists())
 
-    @patch('modules.markdown.parse_to_html', return_value='<p>Series without URL</p>')
-    def test_create_series_without_url(self, mock_service):
+    def test_create_series_without_url(self):
         """URL 없이 시리즈 생성 시 자동 URL 생성 테스트"""
         self.client.login(username='author', password='author')
         data = {
@@ -149,8 +146,7 @@ class SeriesAPITestCase(TestCase):
         self.assertNotEqual(content['status'], 'DONE')
 
     # PUT /v1/series/<id> - Update series
-    @patch('modules.markdown.parse_to_html', return_value='<p>Updated Description</p>')
-    def test_update_series(self, mock_service):
+    def test_update_series(self):
         """시리즈 수정 테스트"""
         self.client.login(username='author', password='author')
         series = Series.objects.get(url='test-series')
@@ -287,8 +283,7 @@ class SeriesAPITestCase(TestCase):
         self.assertEqual(response.status_code, 404)
 
     # PUT /v1/users/@<username>/series/<url> - Update series via user endpoint
-    @patch('modules.markdown.parse_to_html', return_value='<p>Updated via user endpoint</p>')
-    def test_update_series_via_user_endpoint(self, mock_service):
+    def test_update_series_via_user_endpoint(self):
         """사용자 엔드포인트를 통한 시리즈 수정"""
         self.client.login(username='author', password='author')
         post3 = Post.objects.get(url='test-post-3')
@@ -323,8 +318,7 @@ class SeriesAPITestCase(TestCase):
         self.assertFalse(Series.objects.filter(url='series-to-delete-2').exists())
 
     # POST /v1/users/@<username>/series - Create series with posts
-    @patch('modules.markdown.parse_to_html', return_value='<p>Series with posts</p>')
-    def test_create_series_with_posts(self, mock_service):
+    def test_create_series_with_posts(self):
         """포스트를 포함한 시리즈 생성"""
         self.client.login(username='author', password='author')
         post5 = Post.objects.get(url='test-post-5')

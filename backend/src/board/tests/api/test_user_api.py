@@ -1,5 +1,4 @@
 import json
-from unittest.mock import patch
 
 from django.test import TestCase
 
@@ -30,8 +29,7 @@ class UserAPITestCase(TestCase):
         self.client.defaults['HTTP_USER_AGENT'] = 'BLEX_TEST'
 
     # PUT /v1/users/@<username> - Update user about
-    @patch('board.services.user_service.parse_to_html', return_value='<p>Updated About</p>')
-    def test_update_user_about(self, mock_service):
+    def test_update_user_about(self):
         """사용자 소개 업데이트 테스트"""
         self.client.login(username='testuser', password='testpass')
 
@@ -46,8 +44,7 @@ class UserAPITestCase(TestCase):
         content = json.loads(response.content)
         self.assertEqual(content['status'], 'DONE')
 
-    @patch('board.services.user_service.parse_to_html', return_value='<p>Updated</p>')
-    def test_update_own_about_only(self, mock_service):
+    def test_update_own_about_only(self):
         """본인의 소개만 업데이트 가능"""
         self.client.login(username='testuser', password='testpass')
 
@@ -80,15 +77,14 @@ class UserAPITestCase(TestCase):
         """빈 내용으로 소개 업데이트"""
         self.client.login(username='testuser', password='testpass')
 
-        with patch('board.services.user_service.parse_to_html', return_value=''):
-            data = 'about=true&about_md='
-            response = self.client.put(
-                '/v1/users/@testuser',
-                data=data,
-                content_type='application/x-www-form-urlencoded'
-            )
+        data = 'about=true&about_md='
+        response = self.client.put(
+            '/v1/users/@testuser',
+            data=data,
+            content_type='application/x-www-form-urlencoded'
+        )
 
-            self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, 200)
 
     def test_update_about_nonexistent_user(self):
         """존재하지 않는 사용자 업데이트 시도 시 404"""
@@ -204,8 +200,7 @@ class UserAPITestCase(TestCase):
         response = self.client.delete('/v1/users/@testuser/check-redirect')
         self.assertEqual(response.status_code, 404)
 
-    @patch('board.services.user_service.parse_to_html', return_value='<p>Markdown content</p>')
-    def test_update_about_with_markdown(self, mock_service):
+    def test_update_about_with_markdown(self):
         """마크다운 형식의 소개 업데이트"""
         self.client.login(username='testuser', password='testpass')
 
@@ -219,8 +214,8 @@ class UserAPITestCase(TestCase):
         )
 
         self.assertEqual(response.status_code, 200)
-        # Verify markdown parser was called
-        mock_service.assert_called()
+        content = json.loads(response.content)
+        self.assertEqual(content['status'], 'DONE')
 
     def test_update_about_without_about_parameter(self):
         """about 파라미터 없이 업데이트 시도"""
@@ -240,21 +235,19 @@ class UserAPITestCase(TestCase):
         """동시 업데이트 처리"""
         self.client.login(username='testuser', password='testpass')
 
-        with patch('board.services.user_service.parse_to_html', return_value='<p>First</p>'):
-            data1 = 'about=true&about_md=First update'
-            response1 = self.client.put(
-                '/v1/users/@testuser',
-                data=data1,
-                content_type='application/x-www-form-urlencoded'
-            )
+        data1 = 'about=true&about_md=First update'
+        response1 = self.client.put(
+            '/v1/users/@testuser',
+            data=data1,
+            content_type='application/x-www-form-urlencoded'
+        )
 
-        with patch('board.services.user_service.parse_to_html', return_value='<p>Second</p>'):
-            data2 = 'about=true&about_md=Second update'
-            response2 = self.client.put(
-                '/v1/users/@testuser',
-                data=data2,
-                content_type='application/x-www-form-urlencoded'
-            )
+        data2 = 'about=true&about_md=Second update'
+        response2 = self.client.put(
+            '/v1/users/@testuser',
+            data=data2,
+            content_type='application/x-www-form-urlencoded'
+        )
 
         # Both updates should succeed
         self.assertEqual(response1.status_code, 200)

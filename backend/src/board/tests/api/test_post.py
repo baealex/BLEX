@@ -2,7 +2,6 @@ import json
 import datetime
 from io import BytesIO
 
-from unittest.mock import patch
 from PIL import Image
 
 from django.test import TestCase
@@ -77,8 +76,7 @@ class PostTestCase(TestCase):
         response = self.client.get('/v1/users/@author/posts/test-post-1', params)
         self.assertEqual(response.status_code, 200)
 
-    @patch('modules.markdown.parse_to_html', return_value='<h1>Mocked Text</h1>')
-    def test_update_user_post(self, mock_service):
+    def test_update_user_post(self):
         """포스트 수정 테스트"""
         self.client.login(username='author', password='author')
 
@@ -121,8 +119,7 @@ class PostTestCase(TestCase):
             '/v1/users/@not-test-user/posts/test-post-1', params)
         self.assertEqual(response.status_code, 404)
 
-    @patch('modules.markdown.parse_to_html', return_value='<h1>Mocked Text</h1>')
-    def test_create_post_duplicate_url(self, mock_service):
+    def test_create_post_duplicate_url(self):
         """중복된 URL로 포스트 생성 시 자동 URL 생성 테스트"""
         self.client.login(username='author', password='author')
 
@@ -137,8 +134,7 @@ class PostTestCase(TestCase):
         self.assertEqual(len(content['body']['url']),
                          len('test-post-1-00000000'))
 
-    @patch('modules.markdown.parse_to_html', return_value='<h1>Mocked Text</h1>')
-    def test_create_post_custom_url(self, mock_service):
+    def test_create_post_custom_url(self):
         """커스텀 URL로 포스트 생성 테스트"""
         self.client.login(username='author', password='author')
 
