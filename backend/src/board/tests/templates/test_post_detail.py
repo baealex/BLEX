@@ -5,7 +5,6 @@ from django.test import TestCase, Client
 from django.contrib.auth.models import User
 from django.urls import reverse
 from django.utils import timezone
-import json
 
 from board.models import Post, PostContent, PostConfig
 
@@ -45,8 +44,7 @@ class PostDetailViewTestCase(TestCase):
         self.assertIn('table_of_contents', response.context)
         
         toc = response.context['table_of_contents']
-        # toc = json.loads(toc_json) # No longer needed
-        
+
         self.assertEqual(len(toc), 2)
         self.assertEqual(toc[0]['text'], 'Header 1')
         self.assertEqual(toc[0]['level'], 1)

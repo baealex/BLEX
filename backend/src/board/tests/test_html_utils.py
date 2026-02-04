@@ -3,7 +3,7 @@ Tests for board app utility functions
 """
 from django.test import TestCase
 
-from board.utils import extract_table_of_contents
+from board.html_utils import extract_table_of_contents
 
 
 class TableOfContentsTestCase(TestCase):

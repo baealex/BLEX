@@ -2,7 +2,6 @@ from django.contrib.sitemaps.views import sitemap
 from django.urls import path
 from django.views.generic import TemplateView
 from django.contrib.auth import views as auth_views
-# from graphene_django.views import GraphQLView
 
 from board.sitemaps import sitemaps, sitemap_section
 from board.feeds import SitePostsFeed, UserPostsFeed
@@ -69,8 +68,6 @@ urlpatterns = [
     path('rss', SitePostsFeed()),
     path('rss/@<username>', UserPostsFeed(), name='user_rss_feed'),
     path('robots.txt', TemplateView.as_view(template_name='robots.txt', content_type='text/plain')),
-    # GraphQL
-    # path('graphql', GraphQLView.as_view(graphiql=True)),
 
     # API V1
     path('v1/login', api_v1.login),
