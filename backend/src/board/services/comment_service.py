@@ -187,31 +187,34 @@ class CommentService:
 
         commenters = CommentService.get_post_commenters(post)
 
-        for username in mentioned_users:
-            if username not in commenters:
+        # 유효한 멘션 사용자만 필터링 (댓글 작성자 중에서)
+        valid_usernames = mentioned_users & commenters
+
+        if not valid_usernames:
+            return
+
+        # 한 번의 쿼리로 모든 사용자 조회
+        users = User.objects.filter(
+            username__in=valid_usernames
+        ).select_related('config')
+
+        for user in users:
+            if user == comment.author:
                 continue
 
-            try:
-                user = User.objects.get(username=username)
-
-                if user == comment.author:
-                    continue
-
-                if not user.config.get_meta(CONFIG_TYPE.NOTIFY_MENTION):
-                    continue
-
-                send_notify_content = (
-                    f"'{post.title}' 글에서 "
-                    f"@{comment.author.username}님이 "
-                    f"회원님을 태그했습니다. #{comment.pk}"
-                )
-                create_notify(
-                    user=user,
-                    url=post.get_absolute_url(),
-                    content=send_notify_content
-                )
-            except User.DoesNotExist:
+            if not user.config.get_meta(CONFIG_TYPE.NOTIFY_MENTION):
                 continue
+
+            send_notify_content = (
+                f"'{post.title}' 글에서 "
+                f"@{comment.author.username}님이 "
+                f"회원님을 태그했습니다. #{comment.pk}"
+            )
+            create_notify(
+                user=user,
+                url=post.get_absolute_url(),
+                content=send_notify_content
+            )
 
     @staticmethod
     def notify_comment_like(comment: Comment, liker: User) -> None:

@@ -295,7 +295,9 @@ class PostService:
             Post instance with annotated data
         """
         return get_object_or_404(Post.objects.select_related(
-            'config', 'content', 'series'
+            'config', 'content', 'series', 'author', 'author__profile'
+        ).prefetch_related(
+            'tags'
         ).annotate(
             author_username=F('author__username'),
             author_image=F('author__profile__avatar'),
@@ -348,7 +350,8 @@ class PostService:
         for candidate in candidates:
             score = 0
 
-            candidate_tags = set(candidate.tags.values_list('value', flat=True))
+            # prefetch된 캐시 사용 (values_list는 캐시 우회)
+            candidate_tags = set(tag.value for tag in candidate.tags.all())
             tag_overlap = len(current_tag_set & candidate_tags)
             tag_score = min(tag_overlap * 3, 10)
             score += tag_score

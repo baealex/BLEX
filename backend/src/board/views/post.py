@@ -43,33 +43,24 @@ def post_detail(request, username, post_url):
     # Extract table of contents from post content
     content_html_with_ids, table_of_contents = extract_table_of_contents(post.content.text_html)
 
-    # Fetch active banners for the post author
-    banners = {
-        'top': Banner.objects.filter(
-            user=author,
-            is_active=True,
-            banner_type=Banner.BannerType.HORIZONTAL,
-            position=Banner.Position.TOP
-        ).order_by('order', '-created_date'),
-        'bottom': Banner.objects.filter(
-            user=author,
-            is_active=True,
-            banner_type=Banner.BannerType.HORIZONTAL,
-            position=Banner.Position.BOTTOM
-        ).order_by('order', '-created_date'),
-        'left': Banner.objects.filter(
-            user=author,
-            is_active=True,
-            banner_type=Banner.BannerType.SIDEBAR,
-            position=Banner.Position.LEFT
-        ).order_by('order', '-created_date'),
-        'right': Banner.objects.filter(
-            user=author,
-            is_active=True,
-            banner_type=Banner.BannerType.SIDEBAR,
-            position=Banner.Position.RIGHT
-        ).order_by('order', '-created_date'),
-    }
+    # Fetch all active banners in one query and categorize in Python
+    all_banners = Banner.objects.filter(
+        user=author,
+        is_active=True,
+    ).order_by('order', '-created_date')
+
+    banners = {'top': [], 'bottom': [], 'left': [], 'right': []}
+    for banner in all_banners:
+        if banner.banner_type == Banner.BannerType.HORIZONTAL:
+            if banner.position == Banner.Position.TOP:
+                banners['top'].append(banner)
+            elif banner.position == Banner.Position.BOTTOM:
+                banners['bottom'].append(banner)
+        elif banner.banner_type == Banner.BannerType.SIDEBAR:
+            if banner.position == Banner.Position.LEFT:
+                banners['left'].append(banner)
+            elif banner.position == Banner.Position.RIGHT:
+                banners['right'].append(banner)
 
     context = {
         'post': post,

@@ -33,7 +33,26 @@ const RelatedPosts = ({ postUrl, username }: RelatedPostsProps) => {
     }
 
     if (relatedPosts.length === 0) {
-        return null;
+        const authorUrl = `/@${username}`;
+        return (
+            <div className="text-center py-12">
+                <div className="inline-flex items-center justify-center w-16 h-16 bg-gray-100 rounded-full mb-4">
+                    <i className="fas fa-feather-alt text-2xl text-gray-400" />
+                </div>
+                <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                    더 많은 글이 궁금하신가요?
+                </h3>
+                <p className="text-gray-500 text-sm mb-6">
+                    작성자의 프로필에서 다른 글들을 확인해보세요.
+                </p>
+                <a
+                    href={authorUrl}
+                    className="inline-flex items-center gap-2 px-5 py-2.5 bg-gray-900 text-white rounded-full text-sm font-medium hover:bg-gray-800 transition-colors active:scale-95">
+                    <span>{username}의 프로필 보기</span>
+                    <i className="fas fa-arrow-right text-xs opacity-70" />
+                </a>
+            </div>
+        );
     }
 
     return (
@@ -68,7 +87,7 @@ const RelatedPosts = ({ postUrl, username }: RelatedPostsProps) => {
                             {/* Content */}
                             <div className="flex flex-col flex-grow p-5">
                                 {/* Title */}
-                                <h3 className="text-md font-bold text-gray-900 leading-snug mb-3 line-clamp-2">
+                                <h3 className="text-md font-bold text-gray-900 leading-snug mb-2 line-clamp-2">
                                     <a
                                         href={postUrl}
                                         className="hover:text-gray-700 transition-colors duration-150">
@@ -76,48 +95,37 @@ const RelatedPosts = ({ postUrl, username }: RelatedPostsProps) => {
                                     </a>
                                 </h3>
 
-                                {/* Meta Info (Date & Read Time) */}
-                                <div className="text-xs text-gray-500 mb-3 flex items-center gap-3">
-                                    <div className="flex items-center gap-1.5">
-                                        <i className="far fa-calendar-alt text-gray-400" />
-                                        <span>{relatedPost.createdDate}</span>
-                                    </div>
-                                    <div className="flex items-center gap-1.5">
-                                        <i className="far fa-clock text-gray-400" />
-                                        <span>{relatedPost.readTime}분</span>
-                                    </div>
-                                </div>
-
                                 {/* Description */}
                                 <p
-                                    className={`text-sm text-gray-600 leading-relaxed mb-4 ${
-                                        relatedPost.image ? 'line-clamp-3' : 'flex-grow'
+                                    className={`text-sm text-gray-500 leading-relaxed mb-4 ${
+                                        relatedPost.image ? 'line-clamp-2' : 'line-clamp-3 flex-grow'
                                     }`}>
-                                    <a href={postUrl}>{relatedPost.metaDescription}</a>
+                                    <a href={postUrl} className="hover:text-gray-600 transition-colors">
+                                        {relatedPost.metaDescription}
+                                    </a>
                                 </p>
 
-                                {/* Author */}
-                                <div className="flex items-center gap-2 mt-auto pt-4 border-t border-gray-100">
-                                    <a href={authorUrl} className="flex-shrink-0">
+                                {/* Footer: Author + Read Time */}
+                                <div className="flex items-center justify-between mt-auto pt-3 border-t border-gray-100">
+                                    <a href={authorUrl} className="flex items-center gap-2 min-w-0">
                                         {relatedPost.authorImage ? (
                                             <img
                                                 src={window.configuration.media + relatedPost.authorImage}
                                                 alt={relatedPost.authorName}
-                                                className="w-6 h-6 rounded-full ring-2 ring-gray-100"
+                                                className="w-5 h-5 rounded-full ring-1 ring-gray-100 flex-shrink-0"
                                             />
                                         ) : (
-                                            <div className="w-6 h-6 rounded-full bg-gray-100 flex items-center justify-center">
-                                                <i className="far fa-user text-xs text-gray-400" />
+                                            <div className="w-5 h-5 rounded-full bg-gray-100 flex items-center justify-center flex-shrink-0">
+                                                <i className="far fa-user text-[10px] text-gray-400" />
                                             </div>
                                         )}
-                                    </a>
-                                    <div className="flex flex-col min-w-0">
-                                        <a
-                                            href={authorUrl}
-                                            className="font-semibold text-gray-900 hover:text-gray-700 transition-colors text-xs truncate">
+                                        <span className="text-xs font-medium text-gray-600 hover:text-gray-900 transition-colors truncate">
                                             {relatedPost.authorUsername}
-                                        </a>
-                                    </div>
+                                        </span>
+                                    </a>
+                                    <span className="text-xs text-gray-400 flex-shrink-0">
+                                        {relatedPost.readTime}분
+                                    </span>
                                 </div>
                             </div>
                         </article>
