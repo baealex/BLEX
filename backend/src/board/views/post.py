@@ -5,8 +5,9 @@ from django.db.models import Count, F, Exists, OuterRef
 from django.http import Http404
 from django.contrib import messages
 
-from board.models import Post, Series, PostLikes, TempPosts, UsernameChangeLog, Banner
+from board.models import Post, Series, PostLikes, TempPosts, UsernameChangeLog
 from board.services.post_service import PostService, PostValidationError
+from board.services.banner_service import BannerService
 from board.html_utils import extract_table_of_contents
 
 def post_detail(request, username, post_url):
@@ -43,24 +44,7 @@ def post_detail(request, username, post_url):
     # Extract table of contents from post content
     content_html_with_ids, table_of_contents = extract_table_of_contents(post.content.text_html)
 
-    # Fetch all active banners in one query and categorize in Python
-    all_banners = Banner.objects.filter(
-        user=author,
-        is_active=True,
-    ).order_by('order', '-created_date')
-
-    banners = {'top': [], 'bottom': [], 'left': [], 'right': []}
-    for banner in all_banners:
-        if banner.banner_type == Banner.BannerType.HORIZONTAL:
-            if banner.position == Banner.Position.TOP:
-                banners['top'].append(banner)
-            elif banner.position == Banner.Position.BOTTOM:
-                banners['bottom'].append(banner)
-        elif banner.banner_type == Banner.BannerType.SIDEBAR:
-            if banner.position == Banner.Position.LEFT:
-                banners['left'].append(banner)
-            elif banner.position == Banner.Position.RIGHT:
-                banners['right'].append(banner)
+    banners = BannerService.get_all_banners_for_author(author)
 
     context = {
         'post': post,
