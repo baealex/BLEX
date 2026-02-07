@@ -10,7 +10,6 @@ interface FormSubmitData {
 }
 
 interface UseFormSubmitOptions {
-    getCsrfToken: () => string;
     tempToken?: string;
     onBeforeSubmit?: () => void;
     onSubmitSuccess?: () => void;

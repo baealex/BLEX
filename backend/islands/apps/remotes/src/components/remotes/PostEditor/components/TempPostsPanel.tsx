@@ -1,6 +1,12 @@
 import { useState, useEffect } from 'react';
 import { logger } from '~/utils/logger';
-import { Dialog } from '@blex/ui';
+import {
+    Dialog,
+    IconButton,
+    X,
+    AlertTriangle,
+    FileText
+} from '@blex/ui';
 import { getTempPosts, type TempPost } from '~/lib/api/settings';
 import { cx } from '~/lib/classnames';
 
@@ -19,6 +25,7 @@ const TempPostsPanel = ({
 }: TempPostsPanelProps) => {
     const [tempPosts, setTempPosts] = useState<TempPost[]>([]);
     const [isLoading, setIsLoading] = useState(false);
+    const [hasError, setHasError] = useState(false);
 
     useEffect(() => {
         if (isOpen) {
@@ -28,6 +35,7 @@ const TempPostsPanel = ({
 
     const fetchTempPosts = async () => {
         setIsLoading(true);
+        setHasError(false);
         try {
             const { data } = await getTempPosts();
             if (data.status === 'DONE' && data.body?.temps) {
@@ -37,6 +45,7 @@ const TempPostsPanel = ({
             }
         } catch (error) {
             logger.error('Failed to fetch temp posts:', error);
+            setHasError(true);
             setTempPosts([]);
         } finally {
             setIsLoading(false);
@@ -62,27 +71,32 @@ const TempPostsPanel = ({
                     <div className="flex items-center justify-between p-5 border-b border-gray-200">
                         <Dialog.Title className="text-lg font-semibold text-gray-900">임시 저장 글</Dialog.Title>
                         <Dialog.Close asChild>
-                            <button
-                                className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
-                                aria-label="닫기">
-                                <svg className="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
-                                </svg>
-                            </button>
+                            <IconButton aria-label="닫기">
+                                <X className="w-5 h-5" />
+                            </IconButton>
                         </Dialog.Close>
                     </div>
 
                     {/* Content */}
                     <div className="flex-1 overflow-y-auto">
                         {isLoading ? (
-                            <div className="flex items-center justify-center h-32">
+                            <div className="flex items-center justify-center flex-1 min-h-[200px]">
                                 <div className="w-6 h-6 border-2 border-gray-200 border-t-gray-600 rounded-full animate-spin" />
                             </div>
+                        ) : hasError ? (
+                            <div className="flex flex-col items-center justify-center flex-1 min-h-[200px] text-gray-500 px-6">
+                                <AlertTriangle className="w-12 h-12 mb-3 text-gray-300" />
+                                <p className="text-sm mb-3">임시 글 목록을 불러오지 못했습니다</p>
+                                <button
+                                    type="button"
+                                    onClick={fetchTempPosts}
+                                    className="text-sm text-blue-600 hover:text-blue-800 font-medium">
+                                    다시 시도
+                                </button>
+                            </div>
                         ) : tempPosts.length === 0 ? (
-                            <div className="flex flex-col items-center justify-center h-32 text-gray-500">
-                                <svg className="w-12 h-12 mb-2 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                                </svg>
+                            <div className="flex flex-col items-center justify-center flex-1 min-h-[200px] text-gray-500">
+                                <FileText className="w-12 h-12 mb-3 text-gray-300" />
                                 <p className="text-sm">임시 저장된 글이 없습니다</p>
                             </div>
                         ) : (
@@ -91,9 +105,10 @@ const TempPostsPanel = ({
                                     <button
                                         key={post.token}
                                         onClick={() => onSelectPost(post.token)}
-                                        className={`w-full text-left p-4 hover:bg-gray-50 transition-colors ${
-                                            post.token === currentToken ? 'bg-blue-50 border-l-4 border-blue-500' : ''
-                                        }`}>
+                                        className={cx(
+                                            'w-full text-left p-4 hover:bg-gray-50 transition-colors',
+                                            post.token === currentToken && 'bg-blue-50 border-l-4 border-blue-500'
+                                        )}>
                                         <div className="flex items-start justify-between gap-3">
                                             <div className="flex-1 min-w-0">
                                                 <h3 className="text-sm font-medium text-gray-900 truncate mb-1">

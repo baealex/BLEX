@@ -9,11 +9,7 @@ import { getSeries } from '~/lib/api/settings';
 import { getPostForEdit } from '~/lib/api/posts';
 import { api } from '~/components/shared';
 import { logger } from '~/utils/logger';
-
-interface Series {
-    id: string;
-    name: string;
-}
+import type { Series } from './types';
 
 interface EditPostEditorProps {
     username: string;
@@ -47,12 +43,11 @@ const EditPostEditor = ({ username, postUrl }: EditPostEditorProps) => {
     const [isSubmitting, setIsSubmitting] = useState(false);
 
     const formRef = useRef<HTMLFormElement>(null);
-
-    // Get CSRF token from DOM
-    const getCsrfToken = () => {
-        const tokenElement = document.querySelector('[name=csrfmiddlewaretoken]') as HTMLInputElement;
-        return tokenElement ? tokenElement.value : '';
-    };
+    const initialDataRef = useRef({
+        title: '',
+        content: '',
+        tags: [] as string[]
+    });
 
     // Fetch data
     useEffect(() => {
@@ -84,6 +79,11 @@ const EditPostEditor = ({ username, postUrl }: EditPostEditorProps) => {
                         advertise: postData.isAdvertise || false
                     });
                     setTags(postData.tags || []);
+                    initialDataRef.current = {
+                        title: postData.title || '',
+                        content: postData.textHtml || '',
+                        tags: postData.tags || []
+                    };
                     setImagePreview(postData.image || null);
                     setSelectedSeries({
                         id: postData.series?.id || '',
@@ -99,6 +99,26 @@ const EditPostEditor = ({ username, postUrl }: EditPostEditorProps) => {
 
         fetchData();
     }, [username, postUrl]);
+
+    const hasUnsavedChanges = () => {
+        const initial = initialDataRef.current;
+        return (
+            formData.title !== initial.title ||
+            formData.content !== initial.content ||
+            JSON.stringify(tags) !== JSON.stringify(initial.tags)
+        );
+    };
+
+    // Warn on page unload if there are unsaved changes
+    useEffect(() => {
+        const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+            if (hasUnsavedChanges()) {
+                e.preventDefault();
+            }
+        };
+        window.addEventListener('beforeunload', handleBeforeUnload);
+        return () => window.removeEventListener('beforeunload', handleBeforeUnload);
+    });
 
     const handleTitleChange = (title: string) => {
         setFormData(prev => ({
@@ -138,6 +158,7 @@ const EditPostEditor = ({ username, postUrl }: EditPostEditorProps) => {
             }
         } catch (error) {
             logger.error('Image upload failed', error);
+            toast.error('이미지 업로드에 실패했습니다.');
         }
         return undefined;
     };
@@ -220,7 +241,16 @@ const EditPostEditor = ({ username, postUrl }: EditPostEditorProps) => {
     };
 
     if (isLoading) {
-        return null;
+        return (
+            <PostEditorWrapper>
+                <div className="flex items-center justify-center py-32">
+                    <div className="text-center space-y-4">
+                        <div className="inline-block animate-spin rounded-full h-12 w-12 border-4 border-gray-200 border-t-gray-900" />
+                        <p className="text-gray-500 text-sm font-medium">포스트를 불러오는 중...</p>
+                    </div>
+                </div>
+            </PostEditorWrapper>
+        );
     }
 
     return (
@@ -228,7 +258,6 @@ const EditPostEditor = ({ username, postUrl }: EditPostEditorProps) => {
             <PostForm
                 formRef={formRef}
                 isLoading={false}
-                isEdit={true}
                 formData={formData}
                 tags={tags}
                 imagePreview={imagePreview}
@@ -243,8 +272,6 @@ const EditPostEditor = ({ username, postUrl }: EditPostEditorProps) => {
                 onImageUpload={handleImageUpload}
                 onEditorImageUpload={handleEditorImageUpload}
                 onRemoveImage={handleRemoveImage}
-                onDelete={handleDelete}
-                getCsrfToken={getCsrfToken}
             />
 
             {/* Floating Action Bar */}
@@ -278,6 +305,7 @@ const EditPostEditor = ({ username, postUrl }: EditPostEditorProps) => {
                     ...prev,
                     [field]: value
                 }))}
+                onDelete={handleDelete}
             />
         </PostEditorWrapper>
     );

@@ -17,11 +17,7 @@ import { useFormSubmit } from './hooks/useFormSubmit';
 import { getSeries } from '~/lib/api/settings';
 import { getTempPost } from '~/lib/api/posts';
 import { api } from '~/components/shared';
-
-interface Series {
-    id: string;
-    name: string;
-}
+import type { Series } from './types';
 
 interface NewPostEditorProps {
     tempToken?: string;
@@ -58,13 +54,6 @@ const NewPostEditor = ({ tempToken }: NewPostEditorProps) => {
         tags: [] as string[]
     });
 
-    // Get CSRF token from DOM
-    // Get CSRF token from DOM
-    const getCsrfToken = () => {
-        const tokenElement = document.querySelector('[name=csrfmiddlewaretoken]') as HTMLInputElement;
-        return tokenElement ? tokenElement.value : '';
-    };
-
     // Custom hooks
     const { imagePreview, handleImageUpload, handleRemoveImage } = useImageUpload();
 
@@ -75,7 +64,7 @@ const NewPostEditor = ({ tempToken }: NewPostEditorProps) => {
                 return data.body.url;
             }
         } catch {
-            // Ignore error
+            toast.error('이미지 업로드에 실패했습니다.');
         }
         return undefined;
     };
@@ -100,7 +89,6 @@ const NewPostEditor = ({ tempToken }: NewPostEditorProps) => {
 
     const autoSaveOptions = {
         enabled: !isLoading,
-        getCsrfToken,
         tempToken,
         onSuccess: handleAutoSaveSuccess,
         onError: handleAutoSaveError
@@ -109,6 +97,7 @@ const NewPostEditor = ({ tempToken }: NewPostEditorProps) => {
     const {
         lastSaved,
         isSaving,
+        hasSaveError,
         nextSaveIn,
         saveProgress,
         manualSave
@@ -118,10 +107,7 @@ const NewPostEditor = ({ tempToken }: NewPostEditorProps) => {
         // Error notification is handled inside useFormSubmit
     };
 
-    const submitOptions = {
-        getCsrfToken,
-        onSubmitError: handleSubmitError
-    };
+    const submitOptions = { onSubmitError: handleSubmitError };
 
     const { formRef, isSubmitting, submitForm } = useFormSubmit(submitOptions);
 
@@ -175,7 +161,6 @@ const NewPostEditor = ({ tempToken }: NewPostEditorProps) => {
     }, [tempToken]);
 
     // Check if form has unsaved changes
-    // Check if form has unsaved changes
     const hasUnsavedChanges = () => {
         const initial = initialDataRef.current;
         return (
@@ -185,7 +170,17 @@ const NewPostEditor = ({ tempToken }: NewPostEditorProps) => {
         );
     };
 
-    // Handle temp post selection
+    // Warn on page unload if there are unsaved changes
+    useEffect(() => {
+        const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+            if (hasUnsavedChanges()) {
+                e.preventDefault();
+            }
+        };
+        window.addEventListener('beforeunload', handleBeforeUnload);
+        return () => window.removeEventListener('beforeunload', handleBeforeUnload);
+    });
+
     // Handle temp post selection
     const handleSelectTempPost = async (token: string) => {
         if (token === tempToken) {
@@ -218,8 +213,12 @@ const NewPostEditor = ({ tempToken }: NewPostEditorProps) => {
             return;
         }
 
-        await manualSave();
-        toast.success('임시저장되었습니다.');
+        const success = await manualSave();
+        if (success) {
+            toast.success('임시저장되었습니다.');
+        } else {
+            toast.error('임시저장에 실패했습니다.');
+        }
     };
 
     const generateUrlFromTitle = (title: string) => {
@@ -276,7 +275,6 @@ const NewPostEditor = ({ tempToken }: NewPostEditorProps) => {
             <PostForm
                 formRef={formRef}
                 isLoading={isLoading}
-                isEdit={false}
                 formData={formData}
                 tags={tags}
                 imagePreview={imagePreview}
@@ -291,7 +289,6 @@ const NewPostEditor = ({ tempToken }: NewPostEditorProps) => {
                 onImageUpload={handleImageUpload}
                 onEditorImageUpload={handleEditorImageUpload}
                 onRemoveImage={handleRemoveImage}
-                getCsrfToken={getCsrfToken}
             />
 
             {/* Floating Action Bar */}
@@ -300,6 +297,7 @@ const NewPostEditor = ({ tempToken }: NewPostEditorProps) => {
                 isSaving={isSaving}
                 isSubmitting={isSubmitting}
                 lastSaved={lastSaved}
+                hasSaveError={hasSaveError}
                 nextSaveIn={nextSaveIn}
                 saveProgress={saveProgress}
                 onManualSave={handleManualSave}

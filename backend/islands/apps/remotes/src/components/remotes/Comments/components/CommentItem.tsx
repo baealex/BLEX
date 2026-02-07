@@ -1,3 +1,4 @@
+import { Reply } from '@blex/ui';
 import { CommentHeader } from './CommentHeader';
 import { CommentContent } from './CommentContent';
 import { CommentActions } from './CommentActions';
@@ -103,9 +104,7 @@ export const CommentItem = ({
             {isReplying && (
                 <div className="mt-4 ml-6 sm:ml-14 pl-6 sm:pl-8 pt-4 border-l-2 border-gray-300">
                     <div className="flex items-center gap-2 mb-3">
-                        <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6" />
-                        </svg>
+                        <Reply className="w-4 h-4 text-gray-400" />
                         <p className="text-sm text-gray-600">
                             <span className="font-semibold text-gray-900">{comment.author}</span>님에게 답글
                         </p>
