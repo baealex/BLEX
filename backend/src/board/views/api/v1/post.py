@@ -38,6 +38,7 @@ def post_list(request):
                 user=request.user,
                 title=request.POST.get('title', ''),
                 text_html=request.POST.get('text_html', ''),
+                subtitle=request.POST.get('subtitle', ''),
                 description=request.POST.get('description', ''),
                 reserved_date_str=request.POST.get('reserved_date', ''),
                 series_url=request.POST.get('series', ''),
@@ -147,6 +148,7 @@ def user_posts(request, username, url=None):
                 return StatusDone({
                     'image': post.get_thumbnail(),
                     'title': post.title,
+                    'subtitle': post.subtitle,
                     'url': post.url,
                     'description': post.meta_description,
                     'series': {
@@ -200,6 +202,7 @@ def user_posts(request, username, url=None):
                 PostService.update_post(
                     post=post,
                     title=title,
+                    subtitle=request.POST.get('subtitle', ''),
                     text_html=text_html,
                     description=request.POST.get('description', ''),
                     series_url=request.POST.get('series', ''),

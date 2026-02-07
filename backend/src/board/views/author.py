@@ -54,13 +54,7 @@ def author_overview(request, username):
             config__hide=False,
         ).order_by('-created_date')[:5]
 
-        stats = User.objects.filter(id=author.id).annotate(
-            post_count=Count('post', filter=Q(
-                post__created_date__lte=timezone.now(),
-                post__config__hide=False
-            )),
-            series_count=Count('series', distinct=True)
-        ).values('post_count', 'series_count').first()
+        stats = UserService.get_author_stats(author)
 
         context = {
             'author': author,
@@ -265,13 +259,7 @@ def author_series(request, username):
         count=Count('posts', distinct=True)
     ).order_by('-count', 'value')
 
-    stats = User.objects.filter(id=author.id).annotate(
-        post_count=Count('post', filter=Q(
-            post__created_date__lte=timezone.now(),
-            post__config__hide=False
-        )),
-        series_count=Count('series', distinct=True)
-    ).values('post_count', 'series_count').first()
+    stats = UserService.get_author_stats(author)
 
     context = {
         'author': author,
@@ -317,13 +305,7 @@ def author_about_edit(request, username):
     # GET request handling
     about_md = getattr(profile, 'about_md', '') if profile else ''
 
-    stats = User.objects.filter(id=author.id).annotate(
-        post_count=Count('post', filter=Q(
-            post__created_date__lte=timezone.now(),
-            post__config__hide=False
-        )),
-        series_count=Count('series', distinct=True)
-    ).values('post_count', 'series_count').first()
+    stats = UserService.get_author_stats(author)
 
     context = {
         'author': author,

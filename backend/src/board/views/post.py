@@ -100,6 +100,7 @@ def post_editor(request, username=None, post_url=None):
             return redirect('user_profile', username=request.user.username)
         
         title = request.POST.get('title')
+        subtitle = request.POST.get('subtitle', '')
         url = request.POST.get('url')
         text_html = request.POST.get('text_md')  # Now receiving HTML directly from editor
         text_md = text_html  # Keep text_md for backward compatibility, but it's now HTML
@@ -133,6 +134,7 @@ def post_editor(request, username=None, post_url=None):
             PostService.update_post(
                 post=post,
                 title=title,
+                subtitle=subtitle,
                 text_html=text_html,
                 description=meta_description,
                 series_url=series.url if series else None,
@@ -158,6 +160,7 @@ def post_editor(request, username=None, post_url=None):
                     user=request.user,
                     title=title,
                     text_html=text_html,
+                    subtitle=subtitle,
                     description=meta_description,
                     series_url=series.url if series else '',
                     custom_url=url,
