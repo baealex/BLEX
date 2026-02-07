@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
+import { AlertTriangle, MessageCircle, RotateCw } from '@blex/ui';
 import { useConfirm } from '~/hooks/useConfirm';
 import { isLoggedIn as checkIsLoggedIn, showLoginPrompt } from '~/utils/loginPrompt';
 import { toast } from '~/utils/toast';
@@ -244,25 +245,20 @@ const Comments = (props: CommentsProps) => {
         return (
             <div className="text-center py-12 bg-red-50 border border-red-100 rounded-2xl">
                 <div className="inline-flex items-center justify-center w-16 h-16 bg-red-100 rounded-full mb-4">
-                    <svg
-                        className="w-8 h-8 text-red-600"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24">
-                        <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={2}
-                            d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
-                        />
-                    </svg>
+                    <AlertTriangle className="w-8 h-8 text-red-600" />
                 </div>
                 <h3 className="text-lg font-semibold text-gray-900 mb-2">
                     댓글을 불러올 수 없습니다
                 </h3>
-                <p className="text-gray-600 text-sm">
+                <p className="text-gray-600 text-sm mb-4">
                     잠시 후 다시 시도해 주세요.
                 </p>
+                <button
+                    onClick={() => refetch()}
+                    className="inline-flex items-center gap-2 px-4 py-2 bg-gray-900 text-white rounded-lg text-sm font-medium hover:bg-gray-800 transition-colors active:scale-95">
+                    <RotateCw className="w-3.5 h-3.5" />
+                    다시 시도
+                </button>
             </div>
         );
     }
@@ -303,9 +299,7 @@ const Comments = (props: CommentsProps) => {
 
             <div className="border-t border-gray-100 pt-8 mt-8">
                 <div className="flex items-center gap-3 mb-6">
-                    <svg className="w-5 h-5 text-gray-900" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
-                    </svg>
+                    <MessageCircle className="w-5 h-5 text-gray-900" />
                     <h2 className="text-lg font-bold text-gray-900">
                         댓글 남기기
                     </h2>

@@ -1,4 +1,5 @@
 import React, { useRef, useState } from 'react';
+import { IconButton, Button, X, Image } from '@blex/ui';
 
 interface ImageUploaderProps {
     imagePreview: string | null;
@@ -46,38 +47,36 @@ const ImageUploader = ({
                     <button
                         type="button"
                         onClick={handleRemove}
-                        className="absolute top-4 right-4 w-10 h-10 bg-black bg-opacity-60 hover:bg-opacity-90 text-white rounded-full flex items-center justify-center transition-all duration-200 opacity-0 group-hover:opacity-100">
-                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
-                        </svg>
+                        className="absolute top-4 right-4 w-10 h-10 bg-black bg-opacity-60 hover:bg-opacity-90 text-white rounded-full flex items-center justify-center transition-all duration-200 sm:opacity-0 sm:group-hover:opacity-100"
+                        aria-label="커버 이미지 삭제">
+                        <X className="w-5 h-5" />
                     </button>
                 </div>
             ) : showUploader && !imagePreview ? (
                 <div className="relative">
                     <label htmlFor="image" className="flex flex-col items-center justify-center w-full px-4 py-12 border-2 border-dashed border-gray-200 rounded-xl cursor-pointer hover:border-gray-300 hover:bg-gray-50 transition-all duration-200 group">
-                        <svg className="w-10 h-10 text-gray-300 mb-3 group-hover:text-gray-400 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                        </svg>
+                        <Image className="w-10 h-10 text-gray-300 mb-3 group-hover:text-gray-400 transition-colors" />
                         <span className="text-sm text-gray-500 mb-1">커버 이미지 추가</span>
-                        <span className="text-xs text-gray-400">클릭하거나 드래그하여 업로드</span>
+                        <span className="text-xs text-gray-400">클릭하여 업로드</span>
                     </label>
-                    <button
-                        type="button"
+                    <IconButton
+                        size="sm"
+                        rounded="full"
                         onClick={() => setShowUploader(false)}
-                        className="absolute -top-2 -right-2 w-6 h-6 bg-gray-200 hover:bg-gray-300 text-gray-600 rounded-full flex items-center justify-center text-xs transition-colors">
-                        ✕
-                    </button>
+                        className="absolute -top-2 -right-2 !w-6 !h-6 !bg-gray-200 hover:!bg-gray-300 !text-gray-600"
+                        aria-label="업로더 닫기">
+                        <X className="w-3 h-3" />
+                    </IconButton>
                 </div>
             ) : (
-                <button
-                    type="button"
+                <Button
+                    variant="ghost"
+                    size="sm"
+                    compact
                     onClick={() => setShowUploader(true)}
-                    className="inline-flex items-center gap-2 px-3 py-2 text-sm text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors">
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                    </svg>
-                    <span>커버 이미지 추가</span>
-                </button>
+                    leftIcon={<Image className="w-4 h-4" />}>
+                    커버 이미지 추가
+                </Button>
             )}
         </div>
     );

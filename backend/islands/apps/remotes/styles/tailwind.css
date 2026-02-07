@@ -4,6 +4,23 @@
 @source "../../../**/*.{ts,tsx}";
 @source "../../../../src/board/templates/**/*.html";
 
+@theme {
+    --color-surface: var(--color-bg-base);
+    --color-surface-page: var(--color-bg-page);
+    --color-surface-subtle: var(--color-bg-subtle);
+    --color-content: var(--color-text-primary);
+    --color-content-secondary: var(--color-text-secondary);
+    --color-content-hint: var(--color-text-subtle);
+    --color-content-inverted: var(--color-text-inverted);
+    --color-line: var(--color-border-default);
+    --color-line-light: var(--color-border-light);
+    --color-action: var(--color-interactive-primary);
+    --shadow-subtle: 0 1px 2px var(--color-shadow-sm);
+    --shadow-elevated: 0 4px 6px var(--color-shadow-md);
+    --shadow-floating: 0 10px 15px var(--color-shadow-lg);
+    --ease-apple: var(--ease-apple);
+}
+
 /* Mention 스타일 */
 .prose a.mention {
     @apply inline-flex items-center px-1.5 py-0.5 rounded bg-blue-50 text-blue-700 font-medium no-underline hover:bg-blue-100 hover:text-blue-800 transition-colors;

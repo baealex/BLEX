@@ -1,7 +1,9 @@
 import { forwardRef } from 'react';
 import type { InputHTMLAttributes, ReactNode, ForwardedRef } from 'react';
-const baseInputStyles = 'block w-full rounded-lg border border-gray-200 focus:border-black/30 focus:ring-2 focus:ring-black/5 text-sm py-2.5 px-3 transition-all duration-200 bg-white placeholder-gray-400 text-gray-900';
+import { AlertCircle } from 'lucide-react';
 import { cx } from '../lib/classnames';
+
+const baseInputStyles = 'block w-full rounded-lg border border-gray-200 focus:border-black/30 focus:ring-2 focus:ring-black/5 text-sm py-2.5 px-3 transition-all duration-200 bg-white placeholder-gray-400 text-gray-900';
 
 interface InputProps extends InputHTMLAttributes<HTMLInputElement | HTMLTextAreaElement> {
     label?: string;
@@ -95,7 +97,7 @@ const Input = forwardRef<HTMLInputElement | HTMLTextAreaElement, InputProps>(
 
                 {error && (
                     <p className="mt-1.5 text-sm text-red-500 ml-1 flex items-center gap-1.5">
-                        <i className="fas fa-exclamation-circle text-xs" />
+                        <AlertCircle className="w-3.5 h-3.5 shrink-0" />
                         {error}
                     </p>
                 )}

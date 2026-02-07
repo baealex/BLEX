@@ -10,7 +10,6 @@ interface AutoSaveData {
 interface UseAutoSaveOptions {
     enabled: boolean;
     intervalMs?: number;
-    getCsrfToken: () => string;
     tempToken?: string;
     onSuccess?: (token?: string) => void;
     onError?: (error: Error) => void;
@@ -19,6 +18,7 @@ interface UseAutoSaveOptions {
 export const useAutoSave = (data: AutoSaveData, options: UseAutoSaveOptions) => {
     const [lastSaved, setLastSaved] = useState<Date | null>(null);
     const [isSaving, setIsSaving] = useState(false);
+    const [hasSaveError, setHasSaveError] = useState(false);
     const [nextSaveIn, setNextSaveIn] = useState<number>(0);
     const [saveProgress, setSaveProgress] = useState<number>(0);
 
@@ -47,12 +47,12 @@ export const useAutoSave = (data: AutoSaveData, options: UseAutoSaveOptions) => 
         tags: data.tags
     });
 
-    // Manual save
-    const manualSave = useCallback(async () => {
+    // Manual save - returns true on success, false on failure
+    const manualSave = useCallback(async (): Promise<boolean> => {
         const currentData = dataRef.current;
         const currentOptions = optionsRef.current;
 
-        if (isSaving || !currentOptions.enabled) return;
+        if (isSaving || !currentOptions.enabled) return false;
 
         // Clear existing timers when manually saving
         if (autoSaveRef.current) clearTimeout(autoSaveRef.current);
@@ -83,6 +83,7 @@ export const useAutoSave = (data: AutoSaveData, options: UseAutoSaveOptions) => 
             }
 
             setLastSaved(new Date());
+            setHasSaveError(false);
             // Reset progress after manual save
             setNextSaveIn(0);
             setSaveProgress(0);
@@ -93,8 +94,11 @@ export const useAutoSave = (data: AutoSaveData, options: UseAutoSaveOptions) => 
                 tags: currentData.tags
             });
             currentOptions.onSuccess?.();
+            return true;
         } catch (error) {
+            setHasSaveError(true);
             currentOptions.onError?.(error as Error);
+            return false;
         } finally {
             setIsSaving(false);
         }
@@ -155,6 +159,7 @@ export const useAutoSave = (data: AutoSaveData, options: UseAutoSaveOptions) => 
     return {
         lastSaved,
         isSaving,
+        hasSaveError,
         nextSaveIn,
         saveProgress,
         manualSave

@@ -1,4 +1,5 @@
 import * as RadixSelect from '@radix-ui/react-select';
+import { ChevronDown, Check } from 'lucide-react';
 
 const EMPTY_VALUE = '__select_none__';
 
@@ -50,9 +51,7 @@ const Select = ({
                 `}>
                 <RadixSelect.Value placeholder={placeholder} />
                 <RadixSelect.Icon>
-                    <svg className="w-4 h-4 text-gray-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
-                    </svg>
+                    <ChevronDown className="w-4 h-4 text-gray-400 shrink-0" />
                 </RadixSelect.Icon>
             </RadixSelect.Trigger>
 
@@ -77,9 +76,7 @@ const Select = ({
                                 `}>
                                 <RadixSelect.ItemText>{item.label}</RadixSelect.ItemText>
                                 <RadixSelect.ItemIndicator className="absolute right-3">
-                                    <svg className="w-4 h-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
-                                    </svg>
+                                    <Check className="w-4 h-4 text-gray-600" />
                                 </RadixSelect.ItemIndicator>
                             </RadixSelect.Item>
                         ))}

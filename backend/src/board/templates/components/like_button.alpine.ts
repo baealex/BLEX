@@ -50,6 +50,7 @@ const likeButton = (options: LikeButtonOptions = {}): Alpine.AlpineComponent<Sta
             }
         } catch (error) {
             console.error('Like failed:', error);
+            window.toast.error('좋아요 처리에 실패했습니다');
         } finally {
             this.loading = false;
         }

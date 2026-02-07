@@ -1,8 +1,8 @@
 import React, { useRef } from 'react';
 import { TiptapEditor } from '~/components/shared';
+import { getCsrfToken } from '~/utils/csrf';
 import ImageUploader from './ImageUploader';
 import TagManager from './TagManager';
-import DangerZone from './DangerZone';
 
 interface PostFormData {
     title: string;
@@ -18,7 +18,6 @@ interface PostFormData {
 interface PostFormProps {
     formRef?: React.RefObject<HTMLFormElement | null>;
     isLoading: boolean;
-    isEdit: boolean;
     formData: PostFormData;
     tags: string[];
     imagePreview: string | null;
@@ -32,16 +31,11 @@ interface PostFormProps {
     onImageUpload: (event: React.ChangeEvent<HTMLInputElement>) => void;
     onEditorImageUpload?: (file: File) => Promise<string | undefined>;
     onRemoveImage: () => void;
-    onDelete?: () => void;
-
-    // Form submission
-    getCsrfToken: () => string;
 }
 
 const PostForm = ({
     formRef: externalFormRef,
     isLoading,
-    isEdit,
     formData,
     tags,
     imagePreview,
@@ -52,9 +46,7 @@ const PostForm = ({
     onTagsChange,
     onImageUpload,
     onEditorImageUpload,
-    onRemoveImage,
-    onDelete,
-    getCsrfToken
+    onRemoveImage
 }: PostFormProps) => {
     const internalFormRef = useRef<HTMLFormElement>(null);
     const formRef = externalFormRef || internalFormRef;
@@ -119,15 +111,6 @@ const PostForm = ({
                 <input type="hidden" name="tag" value={tags.join(',')} />
                 {selectedSeries.id && <input type="hidden" name="series" value={selectedSeries.id} />}
             </div>
-
-            {isEdit && onDelete && (
-                <div className="mb-16">
-                    <DangerZone
-                        isSubmitting={false}
-                        onDelete={onDelete}
-                    />
-                </div>
-            )}
         </form>
     );
 };
