@@ -12,7 +12,7 @@ from typing import Optional, Dict, Any, List
 
 from django.contrib.auth.models import User
 from django.db import transaction
-from django.db.models import F, Count, Case, When
+from django.db.models import F, Q, Count, Case, When
 from django.utils import timezone
 
 from board.models import (
@@ -77,6 +77,23 @@ class UserService:
             'bio': user_profile.bio,
             'homepage': user_profile.homepage,
         }
+
+    @staticmethod
+    def get_author_stats(author: User) -> Dict[str, int]:
+        """
+        Get post count and series count for an author profile.
+
+        Excludes hidden and notice posts to match the post list page.
+        Uses distinct=True to prevent inflated counts from joins.
+        """
+        return User.objects.filter(id=author.id).annotate(
+            post_count=Count('post', filter=Q(
+                post__created_date__lte=timezone.now(),
+                post__config__hide=False,
+                post__config__notice=False,
+            ), distinct=True),
+            series_count=Count('series', distinct=True)
+        ).values('post_count', 'series_count').first()
 
     @staticmethod
     def get_user_social_data(user: User) -> Dict[str, Any]:

@@ -6,6 +6,7 @@ import DangerZone from './DangerZone';
 
 interface PostFormData {
     title: string;
+    subtitle: string;
     url: string;
     content: string;
     metaDescription: string;
@@ -25,6 +26,7 @@ interface PostFormProps {
 
     // Handlers
     onTitleChange: (title: string) => void;
+    onSubtitleChange: (subtitle: string) => void;
     onContentChange: (content: string) => void;
     onTagsChange: (tags: string[]) => void;
     onImageUpload: (event: React.ChangeEvent<HTMLInputElement>) => void;
@@ -45,6 +47,7 @@ const PostForm = ({
     imagePreview,
     selectedSeries,
     onTitleChange,
+    onSubtitleChange,
     onContentChange,
     onTagsChange,
     onImageUpload,
@@ -72,6 +75,14 @@ const PostForm = ({
                         className="w-full px-0 py-0 border-0 focus:ring-0 text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 placeholder-gray-300 leading-tight tracking-tight break-words"
                         placeholder="제목을 입력하세요"
                         required
+                    />
+                    <input
+                        type="text"
+                        name="subtitle"
+                        value={formData.subtitle}
+                        onChange={(e) => onSubtitleChange(e.target.value)}
+                        className="w-full px-0 py-0 border-0 focus:ring-0 text-lg sm:text-xl text-gray-500 placeholder-gray-300 leading-tight mt-2"
+                        placeholder="부제목 (선택사항)"
                     />
                 </div>
 

@@ -118,6 +118,7 @@ export const getTempPost = async (token: string) => {
 
 export interface PostForEdit {
     title: string;
+    subtitle: string;
     url: string;
     textHtml: string;
     image: string;

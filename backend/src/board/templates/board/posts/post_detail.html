@@ -77,10 +77,15 @@
                         </div>
                         {% endif %}
 
-                        <h1 class="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 mb-8 leading-tight tracking-tight break-words" itemprop="headline">
+                        <h1 class="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 {% if not post.subtitle %}mb-8{% else %}mb-3{% endif %} leading-tight tracking-tight break-words" itemprop="headline">
                             {{ post.title }}
                         </h1>
-                        
+                        {% if post.subtitle %}
+                        <p class="text-lg sm:text-xl text-gray-500 mb-8 leading-relaxed font-medium">
+                            {{ post.subtitle }}
+                        </p>
+                        {% endif %}
+
                         <div class="flex items-center gap-4 text-sm border-b border-gray-100 pb-8" itemprop="author" itemscope itemtype="https://schema.org/Person">
                             <a href="/@{{ post.author_username }}" class="group flex-shrink-0">
                                 <img class="w-10 h-10 rounded-full object-cover ring-2 ring-gray-100 group-hover:ring-gray-200 transition-all"

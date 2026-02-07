@@ -197,6 +197,7 @@ class PostService:
         user: User,
         title: str,
         text_html: str,
+        subtitle: str = '',
         description: str = '',
         reserved_date_str: str = '',
         series_url: str = '',
@@ -238,6 +239,7 @@ class PostService:
 
         post = Post()
         post.title = title
+        post.subtitle = subtitle
         post.author = user
 
         if description:
@@ -410,6 +412,7 @@ class PostService:
     def update_post(
         post: Post,
         title: Optional[str] = None,
+        subtitle: Optional[str] = None,
         text_html: Optional[str] = None,
         description: Optional[str] = None,
         series_url: Optional[str] = None,
@@ -442,6 +445,9 @@ class PostService:
         """
         if title is not None:
             post.title = title
+
+        if subtitle is not None:
+            post.subtitle = subtitle
 
         if text_html is not None:
             PostService.validate_post_data(title or post.title, text_html)

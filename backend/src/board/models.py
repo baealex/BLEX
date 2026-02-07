@@ -289,6 +289,7 @@ class Post(models.Model):
     author = models.ForeignKey('auth.User', on_delete=models.CASCADE)
     series = models.ForeignKey('board.Series', related_name='posts', on_delete=models.SET_NULL, null=True, blank=True)
     title = models.CharField(max_length=65)
+    subtitle = models.CharField(max_length=120, blank=True, default='')
     url = models.SlugField(max_length=65, unique=True, allow_unicode=True)
     image = models.ImageField(blank=True, upload_to=title_image_path)
     read_time = models.IntegerField(default=0)
