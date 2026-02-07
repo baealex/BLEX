@@ -28,6 +28,7 @@ const EditPostEditor = ({ username, postUrl }: EditPostEditorProps) => {
 
     const [formData, setFormData] = useState({
         title: '',
+        subtitle: '',
         url: '',
         content: '',
         metaDescription: '',
@@ -74,6 +75,7 @@ const EditPostEditor = ({ username, postUrl }: EditPostEditorProps) => {
                     const postData = postResponse.body;
                     setFormData({
                         title: postData.title || '',
+                        subtitle: postData.subtitle || '',
                         url: postData.url || '',
                         content: postData.textHtml || '',
                         metaDescription: postData.description || '',
@@ -102,6 +104,13 @@ const EditPostEditor = ({ username, postUrl }: EditPostEditorProps) => {
         setFormData(prev => ({
             ...prev,
             title
+        }));
+    };
+
+    const handleSubtitleChange = (subtitle: string) => {
+        setFormData(prev => ({
+            ...prev,
+            subtitle
         }));
     };
 
@@ -225,6 +234,7 @@ const EditPostEditor = ({ username, postUrl }: EditPostEditorProps) => {
                 imagePreview={imagePreview}
                 selectedSeries={selectedSeries}
                 onTitleChange={handleTitleChange}
+                onSubtitleChange={handleSubtitleChange}
                 onContentChange={(content) => setFormData(prev => ({
                     ...prev,
                     content

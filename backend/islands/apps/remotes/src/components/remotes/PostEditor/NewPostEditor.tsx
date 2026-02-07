@@ -36,6 +36,7 @@ const NewPostEditor = ({ tempToken }: NewPostEditorProps) => {
 
     const [formData, setFormData] = useState({
         title: '',
+        subtitle: '',
         url: '',
         content: '',
         metaDescription: '',
@@ -237,6 +238,13 @@ const NewPostEditor = ({ tempToken }: NewPostEditorProps) => {
         }));
     };
 
+    const handleSubtitleChange = (subtitle: string) => {
+        setFormData(prev => ({
+            ...prev,
+            subtitle
+        }));
+    };
+
     const handleUrlChange = (url: string) => {
         const cleanUrl = url
             .toLowerCase()
@@ -274,6 +282,7 @@ const NewPostEditor = ({ tempToken }: NewPostEditorProps) => {
                 imagePreview={imagePreview}
                 selectedSeries={selectedSeries}
                 onTitleChange={handleTitleChange}
+                onSubtitleChange={handleSubtitleChange}
                 onContentChange={(content) => setFormData(prev => ({
                     ...prev,
                     content
