@@ -11,8 +11,8 @@
                 <img class="h-6 md:h-7 w-auto transition-opacity duration-150 group-hover:opacity-70" src="{% resource 'logob.svg' %}" alt="BLEX">
             </a>
 
-            <nav class="flex items-center gap-2">
-                {% if user.is_authenticated %}
+            {% if user.is_authenticated %}
+                <nav class="hidden md:flex items-center gap-2">
                     <button
                         onclick="window.dispatchEvent(new CustomEvent('openSearchModal'))"
                         class="w-11 h-11 inline-flex items-center justify-center text-gray-600 hover:text-gray-900 hover:bg-gray-50 rounded-lg transition-all duration-150 active:scale-95"
@@ -47,9 +47,9 @@
                     </div>
 
                     {% if not is_editor_page and user.profile.is_editor %}
-                    <a href="/write" class="inline-flex items-center gap-1.5 ml-0.5 px-3 py-2 md:px-4 md:py-2 rounded-lg bg-gray-900 hover:bg-gray-800 text-white font-medium text-sm transition-all duration-150 active:scale-95">
+                    <a href="/write" class="inline-flex items-center gap-1.5 ml-0.5 px-4 py-2 rounded-lg bg-gray-900 hover:bg-gray-800 text-white font-medium text-sm transition-all duration-150 active:scale-95">
                         <i class="fas fa-pen text-xs"></i>
-                        <span class="hidden sm:inline">글쓰기</span>
+                        <span>글쓰기</span>
                     </a>
                     {% endif %}
 
@@ -103,7 +103,53 @@
                             </div>
                         </div>
                     </div>
-                {% else %}
+                </nav>
+
+                <div class="flex items-center gap-1 md:hidden">
+                    <button
+                        onclick="window.dispatchEvent(new CustomEvent('openSearchModal'))"
+                        class="w-11 h-11 inline-flex items-center justify-center text-gray-600 hover:text-gray-900 hover:bg-gray-50 rounded-lg transition-all duration-150 active:scale-95"
+                        aria-label="검색"
+                    >
+                        <i class="fas fa-search text-base"></i>
+                    </button>
+
+                    <div class="relative" x-data="{ unreadCount: 0 }" x-init="
+                        fetch('/v1/setting/unread-notify')
+                            .then(res => res.json())
+                            .then(data => {
+                                if (data.status === 'DONE' && data.body) {
+                                    unreadCount = data.body.count;
+                                }
+                            })
+                            .catch(err => console.error('Failed to fetch unread count:', err));
+                    ">
+                        <a
+                            href="/settings/notify"
+                            class="relative w-11 h-11 inline-flex items-center justify-center text-gray-600 hover:text-gray-900 hover:bg-gray-50 rounded-lg transition-all duration-150 active:scale-95"
+                            aria-label="알림"
+                        >
+                            <i class="fas fa-bell text-base"></i>
+                            <span
+                                x-show="unreadCount > 0"
+                                x-text="unreadCount > 99 ? '99+' : unreadCount"
+                                class="absolute top-1 right-1 min-w-[16px] h-[16px] px-1 bg-red-600 text-white text-[9px] font-bold rounded-full flex items-center justify-center"
+                                style="display: none;"
+                            ></span>
+                        </a>
+                    </div>
+
+                    <button
+                        @click="toggleMobileMenu()"
+                        class="w-11 h-11 inline-flex items-center justify-center text-gray-600 hover:text-gray-900 hover:bg-gray-50 rounded-lg transition-all duration-150 active:scale-95"
+                        aria-label="메뉴"
+                        :aria-expanded="mobileMenuOpen"
+                    >
+                        <i class="fas fa-bars text-base"></i>
+                    </button>
+                </div>
+            {% else %}
+                <nav class="hidden md:flex items-center gap-2">
                     <button
                         onclick="window.dispatchEvent(new CustomEvent('openSearchModal'))"
                         class="w-11 h-11 inline-flex items-center justify-center text-gray-600 hover:text-gray-900 hover:bg-gray-50 rounded-lg transition-all duration-150 active:scale-95"
@@ -118,8 +164,120 @@
                     <a href="/sign" class="inline-flex items-center px-4 py-2 rounded-lg bg-gray-900 hover:bg-gray-800 text-white font-medium text-sm transition-all duration-150 active:scale-95">
                         회원가입
                     </a>
-                {% endif %}
-            </nav>
+                </nav>
+
+                <div class="flex items-center gap-1 md:hidden">
+                    <button
+                        onclick="window.dispatchEvent(new CustomEvent('openSearchModal'))"
+                        class="w-11 h-11 inline-flex items-center justify-center text-gray-600 hover:text-gray-900 hover:bg-gray-50 rounded-lg transition-all duration-150 active:scale-95"
+                        aria-label="검색"
+                    >
+                        <i class="fas fa-search text-base"></i>
+                    </button>
+
+                    <button
+                        @click="toggleMobileMenu()"
+                        class="w-11 h-11 inline-flex items-center justify-center text-gray-600 hover:text-gray-900 hover:bg-gray-50 rounded-lg transition-all duration-150 active:scale-95"
+                        aria-label="메뉴"
+                        :aria-expanded="mobileMenuOpen"
+                    >
+                        <i class="fas fa-bars text-base"></i>
+                    </button>
+                </div>
+            {% endif %}
         </div>
     </div>
+
+    <template x-teleport="body">
+        <div
+            x-show="mobileMenuOpen"
+            x-cloak
+            class="md:hidden fixed inset-0 z-50"
+        >
+            <div
+                x-show="mobileMenuOpen"
+                x-transition:enter="transition ease-out duration-200"
+                x-transition:enter-start="opacity-0"
+                x-transition:enter-end="opacity-100"
+                x-transition:leave="transition ease-in duration-150"
+                x-transition:leave-start="opacity-100"
+                x-transition:leave-end="opacity-0"
+                @click="closeMobileMenu()"
+                class="absolute inset-0 bg-black/20 backdrop-blur-[2px]"
+            ></div>
+
+            <div
+                x-show="mobileMenuOpen"
+                x-transition:enter="transition ease-out duration-200"
+                x-transition:enter-start="translate-x-full"
+                x-transition:enter-end="translate-x-0"
+                x-transition:leave="transition ease-in duration-150"
+                x-transition:leave-start="translate-x-0"
+                x-transition:leave-end="translate-x-full"
+                class="absolute top-0 right-0 h-full w-72 bg-white shadow-xl flex flex-col"
+            >
+                <div class="flex items-center justify-between px-4 h-14 border-b border-gray-100 flex-shrink-0">
+                    <span class="text-sm font-semibold text-gray-900">메뉴</span>
+                    <button
+                        @click="closeMobileMenu()"
+                        class="w-11 h-11 inline-flex items-center justify-center text-gray-500 hover:text-gray-900 hover:bg-gray-50 rounded-lg transition-all duration-150 active:scale-95"
+                        aria-label="닫기"
+                    >
+                        <i class="fas fa-times text-base"></i>
+                    </button>
+                </div>
+
+                <div class="flex-1 overflow-y-auto py-2 px-3">
+                    {% if user.is_authenticated %}
+                        <div class="flex items-center gap-3 px-3 py-3 mb-1">
+                            <div class="w-9 h-9 bg-gray-900 rounded-full flex items-center justify-center text-white font-semibold text-xs flex-shrink-0">
+                                {{ user.username|first|upper }}
+                            </div>
+                            <div class="min-w-0">
+                                <p class="text-sm font-semibold text-gray-900 truncate">{{ user.username }}</p>
+                            </div>
+                        </div>
+
+                        <div class="border-t border-gray-100 py-1">
+                            {% if not is_editor_page and user.profile.is_editor %}
+                            <a href="/write" @click="closeMobileMenu()" class="flex items-center gap-3 px-3 py-3 text-sm font-medium text-gray-900 hover:bg-gray-50 active:bg-gray-100 rounded-lg transition-colors duration-150">
+                                <i class="fas fa-pen text-gray-500 text-xs w-5 text-center"></i>
+                                <span>글쓰기</span>
+                            </a>
+                            {% endif %}
+                            <a href="/@{{ user.username }}" @click="closeMobileMenu()" class="flex items-center gap-3 px-3 py-3 text-sm text-gray-700 hover:bg-gray-50 active:bg-gray-100 rounded-lg transition-colors duration-150">
+                                <i class="fas fa-user text-gray-400 text-xs w-5 text-center"></i>
+                                <span>프로필</span>
+                            </a>
+                            <a href="/settings/notify" @click="closeMobileMenu()" class="flex items-center gap-3 px-3 py-3 text-sm text-gray-700 hover:bg-gray-50 active:bg-gray-100 rounded-lg transition-colors duration-150">
+                                <i class="fas fa-cog text-gray-400 text-xs w-5 text-center"></i>
+                                <span>설정</span>
+                            </a>
+                        </div>
+
+                        <div class="border-t border-gray-100 py-1">
+                            <form x-ref="mobileLogoutForm" action="/logout" method="post">
+                                <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
+                                <button type="submit" @click.prevent="$refs.mobileLogoutForm.submit()" class="flex items-center gap-3 px-3 py-3 text-sm text-red-600 hover:bg-red-50 active:bg-red-100 rounded-lg transition-colors duration-150 w-full text-left">
+                                    <i class="fas fa-sign-out-alt text-xs w-5 text-center"></i>
+                                    <span>로그아웃</span>
+                                </button>
+                            </form>
+                        </div>
+                    {% else %}
+                        <div class="py-1 space-y-1">
+                            <a href="/login" @click="closeMobileMenu()" class="flex items-center gap-3 px-3 py-3 text-sm text-gray-700 hover:bg-gray-50 active:bg-gray-100 rounded-lg transition-colors duration-150">
+                                <i class="fas fa-sign-in-alt text-gray-400 text-xs w-5 text-center"></i>
+                                <span>로그인</span>
+                            </a>
+                            <a href="/sign" @click="closeMobileMenu()" class="flex items-center gap-3 px-3 py-3 text-sm font-medium text-gray-900 hover:bg-gray-50 active:bg-gray-100 rounded-lg transition-colors duration-150">
+                                <i class="fas fa-user-plus text-gray-500 text-xs w-5 text-center"></i>
+                                <span>회원가입</span>
+                            </a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </template>
 </header>
