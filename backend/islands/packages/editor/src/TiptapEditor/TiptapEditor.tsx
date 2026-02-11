@@ -76,7 +76,7 @@ const TiptapEditor = ({
         }
     });
 
-    const { handleDrop, handlePaste: handleImagePaste } = useImageUpload({
+    const { handleDrop, handlePaste: handleImagePaste, isUploading } = useImageUpload({
         editor,
         onImageUpload,
         onImageUploadError
@@ -133,6 +133,13 @@ const TiptapEditor = ({
             )}
 
             <EditorContent editor={editor} />
+
+            {isUploading && (
+                <div className="flex items-center gap-2 px-3 py-2 text-sm text-gray-500 bg-gray-50 rounded-lg mt-2 animate-pulse">
+                    <div className="w-4 h-4 border-2 border-gray-300 border-t-gray-600 rounded-full animate-spin" />
+                    <span>파일 업로드 중...</span>
+                </div>
+            )}
 
             <style>{`
                 .ProseMirror { min-height: ${height}; }

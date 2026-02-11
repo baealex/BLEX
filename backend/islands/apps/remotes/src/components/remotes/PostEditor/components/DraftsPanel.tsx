@@ -5,10 +5,33 @@ import {
     IconButton,
     X,
     AlertTriangle,
-    FileText
+    FileText,
+    Clock
 } from '@blex/ui';
 import { getDrafts, type DraftSummary } from '~/lib/api/posts';
 import { cx } from '~/lib/classnames';
+
+const formatRelativeTime = (dateString: string): string => {
+    const date = new Date(dateString);
+    if (isNaN(date.getTime())) return dateString;
+
+    const now = new Date();
+    const diffMs = now.getTime() - date.getTime();
+    const diffMinutes = Math.floor(diffMs / 60000);
+    const diffHours = Math.floor(diffMs / 3600000);
+    const diffDays = Math.floor(diffMs / 86400000);
+
+    if (diffMinutes < 1) return '방금 전';
+    if (diffMinutes < 60) return `${diffMinutes}분 전`;
+    if (diffHours < 24) return `${diffHours}시간 전`;
+    if (diffDays < 7) return `${diffDays}일 전`;
+
+    return date.toLocaleDateString('ko-KR', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+    });
+};
 
 interface DraftsPanelProps {
     isOpen: boolean;
@@ -114,8 +137,9 @@ const DraftsPanel = ({
                                                 <h3 className="text-sm font-medium text-gray-900 truncate mb-1">
                                                     {draft.title || '제목 없음'}
                                                 </h3>
-                                                <p className="text-xs text-gray-400">
-                                                    {draft.createdDate}
+                                                <p className="text-xs text-gray-400 flex items-center gap-1">
+                                                    <Clock className="w-3 h-3" />
+                                                    <span title={draft.createdDate}>{formatRelativeTime(draft.createdDate)}</span>
                                                 </p>
                                             </div>
                                             {draft.url === currentDraftUrl && (

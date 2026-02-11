@@ -1,5 +1,5 @@
 from django.conf import settings
-from board.models import SiteSetting, GlobalNotice
+from board.models import SiteSetting, GlobalNotice, StaticPage
 
 
 def oauth_settings(request):
@@ -27,6 +27,18 @@ def global_notices(request):
     """
     return {
         'global_notices': GlobalNotice.objects.filter(is_active=True).order_by('-created_date'),
+    }
+
+
+def footer_pages(request):
+    """
+    Add published static pages marked for footer display
+    """
+    return {
+        'footer_pages': StaticPage.objects.filter(
+            is_published=True,
+            show_in_footer=True
+        ).order_by('order', 'slug'),
     }
 
 

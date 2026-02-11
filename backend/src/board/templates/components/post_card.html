@@ -14,7 +14,7 @@ Parameters:
     {% if post.image %}
         <div class="aspect-[16/9] overflow-hidden">
             <a href="/@{{ post.author }}/{{ post.url }}" class="block h-full">
-                <img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" src="{{ post.get_minify_image }}" alt="{{ post.title }}" loading="{% if priority %}eager{% else %}lazy{% endif %}">
+                <img class="w-full h-full object-cover motion-safe:group-hover:scale-105 motion-safe:transition-transform motion-safe:duration-500" src="{{ post.get_minify_image }}" alt="{{ post.title }}" loading="{% if priority %}eager{% else %}lazy{% endif %}">
             </a>
         </div>
     {% endif %}
@@ -26,7 +26,7 @@ Parameters:
         <div class="text-xs text-gray-500 mb-3 flex items-center gap-3">
             <div class="flex items-center gap-1.5">
                 <i class="far fa-calendar-alt text-gray-400"></i>
-                <time datetime="{{ post.created_date }}">{{ post.created_date }}</time>
+                <time datetime="{{ post.created_date }}">{{ post.created_date|date:"Y년 n월 j일" }}</time>
             </div>
             <div class="flex items-center gap-1.5">
                 <i class="far fa-clock text-gray-400"></i>

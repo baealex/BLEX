@@ -64,10 +64,16 @@ const PostForm = ({
                         name="title"
                         value={formData.title}
                         onChange={(e) => onTitleChange(e.target.value)}
+                        maxLength={65}
                         className="w-full px-0 py-0 border-0 focus:ring-0 text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 placeholder-gray-300 leading-tight tracking-tight break-words"
                         placeholder="제목을 입력하세요"
                         required
                     />
+                    {formData.title.length > 50 && (
+                        <p className={`text-xs mt-1 ${formData.title.length >= 65 ? 'text-red-500' : 'text-gray-400'}`}>
+                            {formData.title.length}/65
+                        </p>
+                    )}
                     <input
                         type="text"
                         name="subtitle"

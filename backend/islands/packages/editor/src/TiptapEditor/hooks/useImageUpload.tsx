@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import type { Editor } from '@tiptap/react';
 
 interface UseImageUploadProps {
@@ -7,6 +8,7 @@ interface UseImageUploadProps {
 }
 
 export const useImageUpload = ({ editor, onImageUpload, onImageUploadError }: UseImageUploadProps) => {
+    const [uploadingCount, setUploadingCount] = useState(0);
     const isMediaFile = (file: File) => {
         const validImageTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif'];
         const validVideoTypes = ['video/mp4', 'video/webm'];
@@ -26,6 +28,7 @@ export const useImageUpload = ({ editor, onImageUpload, onImageUploadError }: Us
             return;
         }
 
+        setUploadingCount(prev => prev + 1);
         try {
             const url = await onImageUpload(file);
 
@@ -77,6 +80,8 @@ export const useImageUpload = ({ editor, onImageUpload, onImageUploadError }: Us
             }
         } catch {
             onImageUploadError?.('파일 업로드에 실패했습니다.');
+        } finally {
+            setUploadingCount(prev => Math.max(0, prev - 1));
         }
     };
 
@@ -148,6 +153,8 @@ export const useImageUpload = ({ editor, onImageUpload, onImageUploadError }: Us
         handleImageUpload,
         handleVideoUpload,
         handleDrop,
-        handlePaste
+        handlePaste,
+        isUploading: uploadingCount > 0,
+        uploadingCount
     };
 };

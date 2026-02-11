@@ -1,15 +1,20 @@
 {% load resource %}
 <footer class="bg-white border-t border-gray-100 mt-auto">
     <div class="max-w-7xl mx-auto px-4 md:px-6 py-12">
-        <div class="flex flex-col md:flex-row justify-between items-center md:items-start gap-8">
-            <div class="flex flex-col items-center md:items-start gap-3">
-                <a href="/" class="flex items-center group">
-                    <img class="h-7 w-auto transition-opacity duration-150 group-hover:opacity-70" src="{% resource 'logob.svg' %}" alt="BLEX">
-                </a>
-                <p class="text-xs text-gray-500">
-                    &copy; {% now "Y" %} BLEX. All rights reserved.
-                </p>
-            </div>
+        {% if footer_pages %}
+        <nav class="flex flex-wrap justify-center gap-2 mb-8">
+            {% for page in footer_pages %}
+            <a href="{% url 'static_page' slug=page.slug %}" class="px-4 py-2 text-sm text-gray-500 hover:text-gray-900 hover:bg-gray-50 rounded-lg transition-all duration-150">{{ page.title }}</a>
+            {% endfor %}
+        </nav>
+        {% endif %}
+        <div class="flex flex-col items-center gap-3">
+            <a href="/" class="flex items-center group">
+                <img class="h-6 w-auto transition-opacity duration-150 group-hover:opacity-70" src="{% resource 'logob.svg' %}" alt="BLEX">
+            </a>
+            <p class="text-xs text-gray-400">
+                &copy; {% now "Y" %} BLEX. All rights reserved.
+            </p>
         </div>
     </div>
 </footer>
