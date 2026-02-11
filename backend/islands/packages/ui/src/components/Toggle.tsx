@@ -38,7 +38,7 @@ const Toggle = ({
             disabled={disabled}
             className={cx(
                 s.root,
-                'rounded-full transition-colors duration-200 relative',
+                'rounded-full transition-colors duration-150 relative',
                 'focus:outline-none focus:ring-2 focus:ring-black/10 focus:ring-offset-1',
                 'disabled:opacity-50 disabled:cursor-not-allowed',
                 checked ? 'bg-black' : 'bg-gray-300',
@@ -48,7 +48,7 @@ const Toggle = ({
             <RadixSwitch.Thumb
                 className={cx(
                     s.thumb,
-                    'block rounded-full bg-white shadow-sm transition-transform duration-200',
+                    'block rounded-full bg-white shadow-sm transition-transform duration-150',
                     'translate-x-0.5'
                 )}
             />

@@ -36,13 +36,13 @@ def get_author_heatmap(request, username):
         # Fetch posts
         posts = Post.objects.filter(
             author=user,
-            created_date__date__gte=start_date,
-            created_date__date__lte=end_date,
+            published_date__date__gte=start_date,
+            published_date__date__lte=end_date,
             config__hide=False
-        ).values('created_date__date').annotate(count=Count('id'))
+        ).values('published_date__date').annotate(count=Count('id'))
 
         for post in posts:
-            date_str = post['created_date__date'].strftime('%Y-%m-%d')
+            date_str = post['published_date__date'].strftime('%Y-%m-%d')
             heatmap[date_str] += post['count']
 
         # Fetch comments

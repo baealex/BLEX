@@ -6,6 +6,10 @@
         display: grid;
         grid-template-columns: repeat(1, 1fr);
         gap: 24px;
+
+        > *:last-child {
+            justify-self: stretch;
+        }
     }
 
     @media (min-width: 768px) {
@@ -28,7 +32,7 @@
 
         .masonry-grid,
         .posts-grid {
-            grid-template-columns: repeat(4, 1fr);
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
         }
     }
 }

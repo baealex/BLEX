@@ -25,7 +25,7 @@ interface SettingsDrawerProps {
     isEdit: boolean;
     url: string;
     metaDescription: string;
-    selectedSeries: { id: string; name: string };
+    selectedSeries: Series;
     seriesList: Series[];
     formData: {
         hide: boolean;
@@ -36,7 +36,7 @@ interface SettingsDrawerProps {
     // Handlers
     onUrlChange: (url: string) => void;
     onMetaDescriptionChange: (description: string) => void;
-    onSeriesChange: (series: { id: string; name: string }) => void;
+    onSeriesChange: (series: Series) => void;
     onFormDataChange: (field: string, value: boolean) => void;
     onDelete?: () => void;
 }
@@ -163,7 +163,8 @@ const SettingsDrawer = ({
                                                 if (value === '') {
                                                     onSeriesChange({
                                                         id: '',
-                                                        name: ''
+                                                        name: '',
+                                                        url: ''
                                                     });
                                                 } else {
                                                     const series = seriesList.find(s => s.id === value);

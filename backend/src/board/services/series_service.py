@@ -325,7 +325,7 @@ class SeriesService:
             config__hide=False,
             published_date__isnull=False,
             published_date__lte=timezone.now()
-        ).order_by('-created_date')
+        ).order_by('-published_date')
 
     @staticmethod
     def get_public_series_list(username: str, page: int = 1, offset: int = 10):

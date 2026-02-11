@@ -152,7 +152,7 @@ def user_series(request, username, url=None):
                 published_date__lte=timezone.now(),
                 config__hide=False,
                 series=series,
-            ).order_by('-created_date' if order == 'latest' else 'created_date')
+            ).order_by('-published_date' if order == 'latest' else 'published_date')
             posts = Paginator(
                 objects=posts,
                 offset=12,
@@ -174,7 +174,7 @@ def user_series(request, username, url=None):
                     'image': str(post.image),
                     'read_time': post.read_time,
                     'description': post.meta_description,
-                    'created_date': convert_to_localtime(post.created_date).strftime('%Y년 %m월 %d일')
+                    'created_date': convert_to_localtime(post.published_date).strftime('%Y년 %m월 %d일')
                 }, posts)),
                 'last_page': posts.paginator.num_pages
             })

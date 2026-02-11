@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { IconButton, Button, X, Image } from '@blex/ui';
 
 interface ImageUploaderProps {
@@ -14,6 +14,13 @@ const ImageUploader = ({
 }: ImageUploaderProps) => {
     const imageInputRef = useRef<HTMLInputElement>(null);
     const [showUploader, setShowUploader] = useState(!!imagePreview);
+
+    // Sync showUploader when imagePreview is set externally (e.g. draft restore)
+    useEffect(() => {
+        if (imagePreview) {
+            setShowUploader(true);
+        }
+    }, [imagePreview]);
 
     const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         onImageUpload(e);

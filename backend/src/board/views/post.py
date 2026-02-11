@@ -31,7 +31,7 @@ def post_detail(request, username, post_url):
     if post.config.hide and (not request.user.is_authenticated or request.user != author):
         raise Http404("Post does not exist")
 
-    post.created_date_display = post.created_date.strftime('%Y-%m-%d')
+    post.created_date_display = post.published_date.strftime('%Y-%m-%d')
 
     # Initialize series attributes to avoid AttributeError
     post.series_total = 0

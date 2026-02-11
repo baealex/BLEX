@@ -1,5 +1,6 @@
 import { useState, useRef, useCallback } from 'react';
 import { useQuery } from '@tanstack/react-query';
+import { AxiosError } from 'axios';
 import { AlertTriangle, MessageCircle, RotateCw } from '@blex/ui';
 import { useConfirm } from '~/hooks/useConfirm';
 import { isLoggedIn as checkIsLoggedIn, showLoginPrompt } from '~/utils/loginPrompt';
@@ -65,6 +66,13 @@ const Comments = (props: CommentsProps) => {
 
     const mentionableUsers = data?.comments ? getCommentAuthors(data.comments) : [];
 
+    const getErrorMessage = (error: unknown, fallback: string): string => {
+        if (error instanceof AxiosError && error.response?.data?.errorMessage) {
+            return error.response.data.errorMessage;
+        }
+        return fallback;
+    };
+
     const findRootParentId = (commentId: number, comments: Comment[]): number => {
         for (const comment of comments) {
             if (comment.id === commentId) {
@@ -93,10 +101,10 @@ const Comments = (props: CommentsProps) => {
             if (response.data.status === 'DONE') {
                 refetch();
             } else {
-                toast.error('좋아요 처리에 실패했습니다.');
+                toast.error(response.data.errorMessage || '좋아요 처리에 실패했습니다.');
             }
-        } catch {
-            toast.error('좋아요 처리 중 오류가 발생했습니다.');
+        } catch (error) {
+            toast.error(getErrorMessage(error, '좋아요 처리 중 오류가 발생했습니다.'));
         }
     };
 
@@ -124,8 +132,8 @@ const Comments = (props: CommentsProps) => {
             } else {
                 toast.error(response.data.errorMessage || '댓글 작성에 실패했습니다.');
             }
-        } catch {
-            toast.error('댓글 작성 중 오류가 발생했습니다.');
+        } catch (error) {
+            toast.error(getErrorMessage(error, '댓글 작성 중 오류가 발생했습니다.'));
         } finally {
             setIsSubmitting(false);
         }
@@ -171,8 +179,8 @@ const Comments = (props: CommentsProps) => {
             } else {
                 toast.error(response.data.errorMessage || '댓글 수정에 실패했습니다.');
             }
-        } catch {
-            toast.error('댓글 수정 중 오류가 발생했습니다.');
+        } catch (error) {
+            toast.error(getErrorMessage(error, '댓글 수정 중 오류가 발생했습니다.'));
         } finally {
             setIsSubmitting(false);
         }
@@ -197,8 +205,8 @@ const Comments = (props: CommentsProps) => {
             } else {
                 toast.error(response.data.errorMessage || '댓글 삭제에 실패했습니다.');
             }
-        } catch {
-            toast.error('댓글 삭제 중 오류가 발생했습니다.');
+        } catch (error) {
+            toast.error(getErrorMessage(error, '댓글 삭제 중 오류가 발생했습니다.'));
         }
     };
 
@@ -250,8 +258,8 @@ const Comments = (props: CommentsProps) => {
             } else {
                 toast.error(response.data.errorMessage || '답글 작성에 실패했습니다.');
             }
-        } catch {
-            toast.error('답글 작성 중 오류가 발생했습니다.');
+        } catch (error) {
+            toast.error(getErrorMessage(error, '답글 작성 중 오류가 발생했습니다.'));
         } finally {
             setIsSubmitting(false);
         }

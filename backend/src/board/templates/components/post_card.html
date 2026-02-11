@@ -14,7 +14,14 @@ Parameters:
     {% if post.image %}
         <div class="aspect-[16/9] overflow-hidden">
             <a href="/@{{ post.author }}/{{ post.url }}" class="block h-full">
-                <img class="w-full h-full object-cover motion-safe:group-hover:scale-105 motion-safe:transition-transform motion-safe:duration-500" src="{{ post.get_minify_image }}" alt="{{ post.title }}" loading="{% if priority %}eager{% else %}lazy{% endif %}">
+                <img
+                    class="w-full h-full object-cover motion-safe:group-hover:scale-105 motion-safe:transition-transform motion-safe:duration-500"
+                    src="{{ post.get_minify_image }}"
+                    srcset="{{ post.get_minify_image }} 400w, {{ post.image.url }} 800w"
+                    sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 25vw"
+                    alt="{{ post.title }}"
+                    loading="{% if priority %}eager{% else %}lazy{% endif %}"
+                >
             </a>
         </div>
     {% endif %}
@@ -26,7 +33,7 @@ Parameters:
         <div class="text-xs text-gray-500 mb-3 flex items-center gap-3">
             <div class="flex items-center gap-1.5">
                 <i class="far fa-calendar-alt text-gray-400"></i>
-                <time datetime="{{ post.created_date }}">{{ post.created_date|date:"Y년 n월 j일" }}</time>
+                <time datetime="{{ post.published_date|date:'c' }}">{% if post.time_display %}{{ post.time_display }}{% else %}{{ post.published_date|date:"Y년 n월 j일" }}{% endif %}</time>
             </div>
             <div class="flex items-center gap-1.5">
                 <i class="far fa-clock text-gray-400"></i>
@@ -48,13 +55,15 @@ Parameters:
                     <a href="/@{{ post.author }}" class="font-semibold text-gray-900 hover:text-gray-700 transition-colors text-xs truncate">{{ post.author }}</a>
                 </div>
             </div>
-            {% elif show_author == 'false' or show_author == False and post.series %}
+            {% else %}
+                {% if post.series %}
                 <a href="/@{{ post.author }}/series/{{ post.series.url }}" class="inline-flex items-center px-3 py-1.5 max-w-32 bg-gray-100 text-black rounded-full text-xs font-semibold hover:bg-gray-200 transition-all duration-150 truncate">
                     <i class="fas fa-layer-group mr-1.5"></i>
                     <span class="truncate">{{ post.series.name }}</span>
                 </a>
-            {% else %}
+                {% else %}
                 <div></div>
+                {% endif %}
             {% endif %}
 
             <div class="flex items-center gap-4 text-gray-500">

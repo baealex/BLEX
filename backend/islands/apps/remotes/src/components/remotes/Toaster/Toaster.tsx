@@ -7,7 +7,6 @@ const Toaster = () => {
             expand={false}
             richColors
             closeButton
-            duration={3000}
         />
     );
 };

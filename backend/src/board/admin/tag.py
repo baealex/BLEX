@@ -19,7 +19,7 @@ class TagAdmin(admin.ModelAdmin):
     list_per_page = 50
 
     list_filter = [
-        ('posts__created_date', admin.DateFieldListFilter),
+        ('posts__published_date', admin.DateFieldListFilter),
     ]
 
     def get_queryset(self, request):

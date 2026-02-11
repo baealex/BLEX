@@ -42,9 +42,10 @@ const NewPostEditor = ({ draftUrl }: NewPostEditorProps) => {
     });
 
     const [tags, setTags] = useState<string[]>([]);
-    const [selectedSeries, setSelectedSeries] = useState({
+    const [selectedSeries, setSelectedSeries] = useState<Series>({
         id: '',
-        name: ''
+        name: '',
+        url: ''
     });
 
     // Track initial state for dirty check
@@ -55,7 +56,14 @@ const NewPostEditor = ({ draftUrl }: NewPostEditorProps) => {
     });
 
     // Custom hooks
-    const { imagePreview, handleImageUpload, handleRemoveImage } = useImageUpload();
+    const {
+        imagePreview,
+        imageFile,
+        imageDeleted,
+        handleImageUpload,
+        handleRemoveImage,
+        setImagePreviewUrl
+    } = useImageUpload();
 
     const handleEditorImageUpload = async (file: File) => {
         try {
@@ -87,7 +95,10 @@ const NewPostEditor = ({ draftUrl }: NewPostEditorProps) => {
         tags: tags.join(','),
         subtitle: formData.subtitle,
         description: formData.metaDescription,
-        seriesUrl: selectedSeries.id ? undefined : undefined // Series is optional for auto-save
+        seriesUrl: selectedSeries.url || undefined,
+        customUrl: formData.url || undefined,
+        imageFile,
+        imageDeleted
     };
 
     const autoSaveOptions = {
@@ -101,6 +112,8 @@ const NewPostEditor = ({ draftUrl }: NewPostEditorProps) => {
         lastSaved,
         isSaving,
         hasSaveError,
+        hasPendingChanges,
+        autoSaveCountdown,
         manualSave
     } = useAutoSave(autoSaveData, autoSaveOptions);
 
@@ -122,10 +135,12 @@ const NewPostEditor = ({ draftUrl }: NewPostEditorProps) => {
             try {
                 // Fetch series list
                 const { data: seriesResponse } = await getSeries();
+                let mappedSeries: Series[] = [];
                 if (seriesResponse.status === 'DONE') {
-                    const mappedSeries = (seriesResponse.body.series || []).map(s => ({
+                    mappedSeries = (seriesResponse.body.series || []).map(s => ({
                         id: String(s.id),
-                        name: s.title
+                        name: s.title,
+                        url: s.url
                     }));
                     setSeriesList(mappedSeries);
                 }
@@ -145,10 +160,24 @@ const NewPostEditor = ({ draftUrl }: NewPostEditorProps) => {
                             ...prev,
                             title: newTitle,
                             subtitle: newSubtitle,
+                            url: draftData.url || '',
                             content: newContent,
                             metaDescription: newDescription
                         }));
                         setTags(newTags);
+
+                        // Restore series
+                        if (draftData.series) {
+                            const matchingSeries = mappedSeries.find(s => s.url === draftData.series?.url);
+                            if (matchingSeries) {
+                                setSelectedSeries(matchingSeries);
+                            }
+                        }
+
+                        // Restore image
+                        if (draftData.image) {
+                            setImagePreviewUrl(draftData.image);
+                        }
 
                         // Store initial state
                         initialDataRef.current = {
@@ -306,6 +335,8 @@ const NewPostEditor = ({ draftUrl }: NewPostEditorProps) => {
                 isSubmitting={isSubmitting}
                 lastSaved={lastSaved}
                 hasSaveError={hasSaveError}
+                hasPendingChanges={hasPendingChanges}
+                autoSaveCountdown={autoSaveCountdown}
                 onManualSave={handleManualSave}
                 onSubmit={() => handleSubmit()}
                 onOpenDrafts={() => setIsDraftsPanelOpen(true)}

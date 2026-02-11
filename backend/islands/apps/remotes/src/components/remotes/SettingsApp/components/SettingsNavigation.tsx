@@ -61,7 +61,7 @@ const navigationSections = [
             },
             {
                 name: '임시글',
-                path: '/temp-posts',
+                path: '/drafts',
                 icon: 'fa-save',
                 requiresEditor: true
             },

@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react';
 import {
     IconButton,
     Button,
@@ -12,11 +13,22 @@ interface PostActionsProps {
     isSubmitting: boolean;
     lastSaved: Date | null;
     hasSaveError?: boolean;
+    hasPendingChanges?: boolean;
+    autoSaveCountdown?: number | null;
     onManualSave: () => void;
     onSubmit: () => void;
     onOpenDrafts?: () => void;
     onOpenSettings?: () => void;
 }
+
+const formatTimeSince = (date: Date): string => {
+    const seconds = Math.floor((Date.now() - date.getTime()) / 1000);
+    if (seconds < 60) return '방금 저장됨';
+    const minutes = Math.floor(seconds / 60);
+    if (minutes < 60) return `${minutes}분 전 저장됨`;
+    const hours = Math.floor(minutes / 60);
+    return `${hours}시간 전 저장됨`;
+};
 
 const PostActions = ({
     mode,
@@ -24,12 +36,22 @@ const PostActions = ({
     isSubmitting,
     lastSaved,
     hasSaveError = false,
+    hasPendingChanges = false,
+    autoSaveCountdown = null,
     onManualSave,
     onSubmit,
     onOpenDrafts,
     onOpenSettings
 }: PostActionsProps) => {
     const isEdit = mode === 'edit';
+    const [, setTick] = useState(0);
+
+    // Update time display every 30 seconds
+    useEffect(() => {
+        if (!lastSaved) return;
+        const timer = setInterval(() => setTick(t => t + 1), 30000);
+        return () => clearInterval(timer);
+    }, [lastSaved]);
 
     return (
         <div className="fixed sm:sticky bottom-6 left-0 right-0 z-30 flex justify-center pointer-events-none">
@@ -66,19 +88,34 @@ const PostActions = ({
                             {isSaving ? (
                                 <>
                                     <div className="w-1.5 h-1.5 rounded-full bg-blue-500 animate-pulse" />
-                                    <span>자동 저장 중...</span>
+                                    <span className="text-blue-500">저장 중...</span>
                                 </>
                             ) : hasSaveError ? (
                                 <>
                                     <div className="w-1.5 h-1.5 rounded-full bg-red-500" />
-                                    <span className="text-red-500">자동 저장 실패</span>
+                                    <span className="text-red-500">저장 실패</span>
+                                </>
+                            ) : autoSaveCountdown !== null ? (
+                                <>
+                                    <div className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse" />
+                                    <span className="text-amber-500 tabular-nums">{autoSaveCountdown}초 후 저장</span>
+                                </>
+                            ) : hasPendingChanges ? (
+                                <>
+                                    <div className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse" />
+                                    <span className="text-amber-500">저장 대기 중</span>
                                 </>
                             ) : lastSaved ? (
                                 <>
                                     <div className="w-1.5 h-1.5 rounded-full bg-green-500" />
-                                    <span>자동 저장됨</span>
+                                    <span>{formatTimeSince(lastSaved)}</span>
                                 </>
-                            ) : null}
+                            ) : (
+                                <>
+                                    <div className="w-1.5 h-1.5 rounded-full bg-gray-500" />
+                                    <span>변경 사항 없음</span>
+                                </>
+                            )}
                         </div>
 
                         {/* Manual Save Button */}
@@ -98,7 +135,6 @@ const PostActions = ({
                     onClick={onSubmit}
                     disabled={isSubmitting || isSaving}
                     variant="primary"
-                    size="sm"
                     compact
                     className="!rounded-full"
                     leftIcon={<Send className="w-4 h-4" />}>
