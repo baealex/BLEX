@@ -16,7 +16,7 @@ import { useConfirm } from '~/hooks/useConfirm';
 import { getDraftPosts } from '~/lib/api/settings';
 import { deleteDraft } from '~/lib/api/posts';
 
-const TempPostsSetting = () => {
+const DraftsSetting = () => {
     const { confirm } = useConfirm();
     const { data: draftPosts, refetch } = useSuspenseQuery({
         queryKey: ['draft-posts'],
@@ -123,4 +123,4 @@ const TempPostsSetting = () => {
     );
 };
 
-export default TempPostsSetting;
+export default DraftsSetting;
