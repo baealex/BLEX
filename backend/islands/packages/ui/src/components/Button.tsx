@@ -32,7 +32,7 @@ const Button = ({
         primary: 'text-white bg-black hover:bg-gray-800 hover:shadow-lg shadow-md focus:ring-black/20 border-transparent',
         secondary: 'text-gray-700 bg-white border-gray-200 hover:bg-gray-50 hover:border-gray-300 focus:ring-gray-200 shadow-sm hover:shadow-md',
         danger: 'text-white bg-red-600 hover:bg-red-700 hover:shadow-lg shadow-md focus:ring-red-500/30 border-transparent',
-        ghost: 'text-gray-600 hover:text-gray-900 hover:bg-gray-100/50 focus:ring-gray-200 border-transparent'
+        ghost: 'text-gray-700 hover:text-gray-900 hover:bg-gray-100/50 focus:ring-gray-200 border-transparent'
     };
 
     const sizeStyles = compact ? {

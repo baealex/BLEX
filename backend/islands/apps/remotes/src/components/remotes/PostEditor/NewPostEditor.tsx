@@ -101,8 +101,6 @@ const NewPostEditor = ({ draftUrl }: NewPostEditorProps) => {
         lastSaved,
         isSaving,
         hasSaveError,
-        nextSaveIn,
-        saveProgress,
         manualSave
     } = useAutoSave(autoSaveData, autoSaveOptions);
 
@@ -308,8 +306,6 @@ const NewPostEditor = ({ draftUrl }: NewPostEditorProps) => {
                 isSubmitting={isSubmitting}
                 lastSaved={lastSaved}
                 hasSaveError={hasSaveError}
-                nextSaveIn={nextSaveIn}
-                saveProgress={saveProgress}
                 onManualSave={handleManualSave}
                 onSubmit={() => handleSubmit()}
                 onOpenDrafts={() => setIsDraftsPanelOpen(true)}

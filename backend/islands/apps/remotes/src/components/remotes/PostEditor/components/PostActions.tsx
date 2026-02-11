@@ -12,8 +12,6 @@ interface PostActionsProps {
     isSubmitting: boolean;
     lastSaved: Date | null;
     hasSaveError?: boolean;
-    nextSaveIn?: number;
-    saveProgress?: number;
     onManualSave: () => void;
     onSubmit: () => void;
     onOpenDrafts?: () => void;
@@ -26,7 +24,6 @@ const PostActions = ({
     isSubmitting,
     lastSaved,
     hasSaveError = false,
-    nextSaveIn = 0,
     onManualSave,
     onSubmit,
     onOpenDrafts,
@@ -59,42 +56,39 @@ const PostActions = ({
                     </IconButton>
                 )}
 
-                {/* Manual Save */}
+                {/* Save Section */}
                 {!isEdit && (
                     <>
                         <div className="w-px h-8 bg-gray-200/50 mx-1" />
-                        <button
-                            type="button"
-                            onClick={onManualSave}
-                            disabled={isSubmitting || isSaving}
-                            className="flex items-center gap-2 px-2 text-xs text-gray-500"
-                            title="임시 저장">
+
+                        {/* Autosave Status */}
+                        <div className="flex items-center gap-1.5 px-1 text-xs text-gray-400" aria-live="polite">
                             {isSaving ? (
                                 <>
                                     <div className="w-1.5 h-1.5 rounded-full bg-blue-500 animate-pulse" />
-                                    <span>저장 중...</span>
+                                    <span>자동 저장 중...</span>
                                 </>
                             ) : hasSaveError ? (
                                 <>
                                     <div className="w-1.5 h-1.5 rounded-full bg-red-500" />
-                                    <span className="text-red-500">저장 실패</span>
-                                </>
-                            ) : nextSaveIn > 0 ? (
-                                <>
-                                    <div className="w-1.5 h-1.5 rounded-full bg-yellow-500" />
-                                    <span>{Math.ceil(nextSaveIn / 1000)}초 후 저장</span>
+                                    <span className="text-red-500">자동 저장 실패</span>
                                 </>
                             ) : lastSaved ? (
                                 <>
                                     <div className="w-1.5 h-1.5 rounded-full bg-green-500" />
-                                    <span>저장됨</span>
+                                    <span>자동 저장됨</span>
                                 </>
-                            ) : (
-                                <>
-                                    <div className="w-1.5 h-1.5 rounded-full bg-gray-500" />
-                                    <span>저장 대기</span>
-                                </>
-                            )}
+                            ) : null}
+                        </div>
+
+                        {/* Manual Save Button */}
+                        <button
+                            type="button"
+                            onClick={onManualSave}
+                            disabled={isSubmitting || isSaving}
+                            className="flex items-center gap-1.5 px-2.5 py-1 text-xs font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-full transition-colors disabled:opacity-50"
+                            title="임시 저장">
+                            <span>임시 저장</span>
                         </button>
                     </>
                 )}

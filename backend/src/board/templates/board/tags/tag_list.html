@@ -1,7 +1,7 @@
 {% extends 'board/base.html' %}
 {% load static %}
 
-{% block title %}BLEX - Tags{% endblock %}
+{% block title %}BLEX - 태그{% endblock %}
 
 {% block content %}
 <div class="max-w-7xl w-full mx-auto px-4 sm:px-6 py-8 sm:py-12">
@@ -57,12 +57,12 @@
                 <div class="inline-flex items-center justify-center w-16 h-16 bg-white shadow-sm rounded-2xl mb-6">
                     <i class="fas fa-tags text-2xl text-gray-300"></i>
                 </div>
-                <h3 class="text-xl font-bold text-gray-900 mb-2">No tags found</h3>
+                <h3 class="text-xl font-bold text-gray-900 mb-2">태그가 없습니다</h3>
                 <p class="text-gray-500">
                     {% if request.GET.q %}
-                        No tags match your search criteria.
+                        검색 조건에 맞는 태그가 없습니다.
                     {% else %}
-                        Tags will appear here once posts are created with tags.
+                        포스트에 태그를 추가하면 여기에 표시됩니다.
                     {% endif %}
                 </p>
             </div>

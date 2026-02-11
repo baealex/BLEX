@@ -17,6 +17,7 @@ interface SettingsNavigationProps {
 const navigationSections = [
     {
         title: '일반',
+        description: '알림, 계정, 프로필 관리',
         items: [
             {
                 name: '알림',
@@ -36,19 +37,20 @@ const navigationSections = [
         ]
     },
     {
-        title: '에디터',
+        title: '콘텐츠',
+        description: '포스트, 시리즈, 서식 관리',
         requiresEditor: true,
         items: [
-            {
-                name: '시리즈',
-                path: '/series',
-                icon: 'fa-layer-group',
-                requiresEditor: true
-            },
             {
                 name: '포스트',
                 path: '/posts',
                 icon: 'fa-file-alt',
+                requiresEditor: true
+            },
+            {
+                name: '시리즈',
+                path: '/series',
+                icon: 'fa-layer-group',
                 requiresEditor: true
             },
             {
@@ -68,18 +70,19 @@ const navigationSections = [
                 path: '/forms',
                 icon: 'fa-align-left',
                 requiresEditor: true
-            },
+            }
+        ]
+    },
+    {
+        title: '확장',
+        description: '배너, 연동, 웹훅 설정',
+        items: [
             {
                 name: '배너',
                 path: '/banners',
                 icon: 'fa-rectangle-ad',
                 requiresEditor: true
-            }
-        ]
-    },
-    {
-        title: '고급',
-        items: [
+            },
             {
                 name: '연동',
                 path: '/integration',
@@ -95,6 +98,7 @@ const navigationSections = [
     },
     {
         title: '관리자',
+        description: '사이트 관리',
         requiresStaff: true,
         items: [
             {
@@ -132,7 +136,7 @@ export const SettingsMobileNavigation = ({ currentPath }: SettingsNavigationProp
         if (item.requiresStaff && !isStaff) return null;
 
         const isActive = currentPath === `/settings${item.path}` || currentPath === item.path;
-        const baseClasses = 'flex items-center px-4 rounded-xl transition-all duration-200';
+        const baseClasses = 'flex items-center px-4 rounded-xl transition-all duration-150';
         const activeClasses = isActive
             ? 'bg-gray-100 text-gray-900 font-bold'
             : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900 font-medium';
@@ -173,9 +177,14 @@ export const SettingsMobileNavigation = ({ currentPath }: SettingsNavigationProp
 
         return (
             <div key={section.title}>
-                <h3 className="px-4 mb-3 text-xs font-bold text-gray-400 uppercase tracking-wider">
+                <h3 className="px-4 mb-1 text-xs font-bold text-gray-400 uppercase tracking-wider">
                     {section.title}
                 </h3>
+                {section.description && (
+                    <p className="px-4 mb-3 text-xs text-gray-400">
+                        {section.description}
+                    </p>
+                )}
                 <ul className="space-y-1">
                     {section.items.map(renderNavItem)}
                 </ul>
@@ -246,7 +255,7 @@ export const SettingsDesktopNavigation = ({ currentPath }: SettingsNavigationPro
         if (item.requiresStaff && !isStaff) return null;
 
         const isActive = currentPath === `/settings${item.path}` || currentPath === item.path;
-        const baseClasses = 'flex items-center px-5 rounded-xl transition-all duration-200';
+        const baseClasses = 'flex items-center px-5 rounded-xl transition-all duration-150';
         const activeClasses = isActive
             ? 'bg-gray-100 text-gray-900 font-semibold'
             : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900 font-medium';
@@ -286,9 +295,14 @@ export const SettingsDesktopNavigation = ({ currentPath }: SettingsNavigationPro
 
         return (
             <div key={section.title}>
-                <h3 className="px-5 mb-4 text-sm font-semibold text-gray-400 uppercase tracking-wider">
+                <h3 className="px-5 mb-1 text-sm font-semibold text-gray-400 uppercase tracking-wider">
                     {section.title}
                 </h3>
+                {section.description && (
+                    <p className="px-5 mb-3 text-xs text-gray-400">
+                        {section.description}
+                    </p>
+                )}
                 <ul className="space-y-2">
                     {section.items.map(renderNavItem)}
                 </ul>

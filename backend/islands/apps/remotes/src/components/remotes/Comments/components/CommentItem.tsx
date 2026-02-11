@@ -52,7 +52,7 @@ export const CommentItem = ({
     const isReply = !!comment.parentId;
 
     return (
-        <div className="group">
+        <div className="group" data-comment-id={comment.id}>
             <article
                 className={`
                     py-6 px-4 sm:px-6

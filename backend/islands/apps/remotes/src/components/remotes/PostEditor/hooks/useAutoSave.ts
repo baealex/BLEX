@@ -22,12 +22,8 @@ export const useAutoSave = (data: AutoSaveData, options: UseAutoSaveOptions) => 
     const [lastSaved, setLastSaved] = useState<Date | null>(null);
     const [isSaving, setIsSaving] = useState(false);
     const [hasSaveError, setHasSaveError] = useState(false);
-    const [nextSaveIn, setNextSaveIn] = useState<number>(0);
-    const [saveProgress, setSaveProgress] = useState<number>(0);
 
     const autoSaveRef = useRef<number | null>(null);
-    const countdownRef = useRef<number | null>(null);
-    const progressRef = useRef<number | null>(null);
     const dataRef = useRef(data);
     const optionsRef = useRef(options);
     const draftUrlRef = useRef<string | undefined>(options.draftUrl);
@@ -64,10 +60,8 @@ export const useAutoSave = (data: AutoSaveData, options: UseAutoSaveOptions) => 
 
         if (isSaving || !currentOptions.enabled) return false;
 
-        // Clear existing timers when manually saving
+        // Clear existing timer when manually saving
         if (autoSaveRef.current) clearTimeout(autoSaveRef.current);
-        if (countdownRef.current) clearInterval(countdownRef.current);
-        if (progressRef.current) clearInterval(progressRef.current);
 
         setIsSaving(true);
         try {
@@ -100,9 +94,6 @@ export const useAutoSave = (data: AutoSaveData, options: UseAutoSaveOptions) => 
 
             setLastSaved(new Date());
             setHasSaveError(false);
-            // Reset progress after manual save
-            setNextSaveIn(0);
-            setSaveProgress(0);
             // Update previous data to prevent auto-save from triggering immediately
             prevDataStringRef.current = JSON.stringify({
                 title: currentData.title,
@@ -144,19 +135,6 @@ export const useAutoSave = (data: AutoSaveData, options: UseAutoSaveOptions) => 
         prevDataStringRef.current = currentDataString;
 
         if (autoSaveRef.current) clearTimeout(autoSaveRef.current);
-        if (countdownRef.current) clearInterval(countdownRef.current);
-        if (progressRef.current) clearInterval(progressRef.current);
-
-        setNextSaveIn(intervalMs);
-        setSaveProgress(0);
-
-        countdownRef.current = window.setInterval(() => {
-            setNextSaveIn(prev => Math.max(0, prev - 1000));
-        }, 1000);
-
-        progressRef.current = window.setInterval(() => {
-            setSaveProgress(prev => Math.min(100, prev + (100 / (intervalMs / 100))));
-        }, 100);
 
         autoSaveRef.current = window.setTimeout(() => {
             const currentData = dataRef.current;
@@ -167,8 +145,6 @@ export const useAutoSave = (data: AutoSaveData, options: UseAutoSaveOptions) => 
 
         return () => {
             if (autoSaveRef.current) clearTimeout(autoSaveRef.current);
-            if (countdownRef.current) clearInterval(countdownRef.current);
-            if (progressRef.current) clearInterval(progressRef.current);
         };
     }, [currentDataString, options.enabled, intervalMs, manualSave]);
 
@@ -176,8 +152,6 @@ export const useAutoSave = (data: AutoSaveData, options: UseAutoSaveOptions) => 
         lastSaved,
         isSaving,
         hasSaveError,
-        nextSaveIn,
-        saveProgress,
         manualSave
     };
 };

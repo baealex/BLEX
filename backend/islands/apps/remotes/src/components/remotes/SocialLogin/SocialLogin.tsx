@@ -1,4 +1,5 @@
 import { useSocialProviders } from './hooks/useSocialProviders';
+import { toast } from '~/utils/toast';
 
 interface SocialProvider {
     key: string;
@@ -37,7 +38,7 @@ const SocialLogin = () => {
             const authUrl = authUrlBuilder(clientId, redirectUri);
             window.location.assign(authUrl);
         } else {
-            // Social login not configured
+            toast.error('소셜 로그인이 설정되지 않았습니다. 관리자에게 문의해주세요.');
         }
     };
 
@@ -93,8 +94,8 @@ const SocialLogin = () => {
                 <button
                     key={provider.key}
                     onClick={() => handleSocialLogin(provider)}
-                    className="relative w-full flex items-center justify-center gap-3 px-4 py-3.5 border border-gray-200 rounded-2xl text-gray-700 bg-white hover:bg-gray-50 hover:border-gray-300 transition-all duration-200 group active:scale-[0.98]">
-                    <span className="absolute left-5 flex items-center justify-center transition-transform duration-200 group-hover:scale-110">
+                    className="relative w-full flex items-center justify-center gap-3 px-4 py-3.5 border border-gray-200 rounded-2xl text-gray-700 bg-white hover:bg-gray-50 hover:border-gray-300 transition-all duration-150 group active:scale-[0.98]">
+                    <span className="absolute left-5 flex items-center justify-center transition-transform duration-150 group-hover:scale-110">
                         {provider.key === 'google' && <GoogleIcon />}
                         {provider.key === 'github' && <GitHubIcon />}
                         {provider.key !== 'google' && provider.key !== 'github' && (

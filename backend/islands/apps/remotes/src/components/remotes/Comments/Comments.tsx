@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef, useCallback } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { AlertTriangle, MessageCircle, RotateCw } from '@blex/ui';
 import { useConfirm } from '~/hooks/useConfirm';
@@ -36,6 +36,20 @@ const Comments = (props: CommentsProps) => {
     const [replyParentId, setReplyParentId] = useState<number | null>(null);
 
     const isLoggedIn = checkIsLoggedIn();
+    const commentListRef = useRef<HTMLDivElement>(null);
+
+    const scrollToLatestComment = useCallback(() => {
+        setTimeout(() => {
+            if (commentListRef.current) {
+                const comments = commentListRef.current.querySelectorAll('[data-comment-id]');
+                const lastComment = comments[comments.length - 1];
+                lastComment?.scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'center'
+                });
+            }
+        }, 300);
+    }, []);
 
     const { data, isError, isLoading, refetch } = useQuery({
         queryKey: [postUrl, 'comments'],
@@ -104,7 +118,8 @@ const Comments = (props: CommentsProps) => {
 
             if (response.data.status === 'DONE') {
                 setCommentText('');
-                refetch();
+                await refetch();
+                scrollToLatestComment();
                 toast.success('댓글이 작성되었습니다.');
             } else {
                 toast.error(response.data.errorMessage || '댓글 작성에 실패했습니다.');
@@ -229,7 +244,8 @@ const Comments = (props: CommentsProps) => {
                 setReplyText('');
                 setReplyingToCommentId(null);
                 setReplyParentId(null);
-                refetch();
+                await refetch();
+                scrollToLatestComment();
                 toast.success('답글이 작성되었습니다.');
             } else {
                 toast.error(response.data.errorMessage || '답글 작성에 실패했습니다.');
@@ -276,26 +292,28 @@ const Comments = (props: CommentsProps) => {
 
     return (
         <div className="space-y-8">
-            <CommentList
-                comments={data?.comments ?? []}
-                currentUser={window.configuration.user?.username}
-                editingCommentId={editingCommentId}
-                editText={editText}
-                isSubmitting={isSubmitting}
-                replyingToCommentId={replyingToCommentId}
-                replyText={replyText}
-                mentionableUsers={mentionableUsers}
-                onLike={handleLike}
-                onEdit={startEditing}
-                onDelete={deleteComment}
-                onEditTextChange={setEditText}
-                onSaveEdit={saveEdit}
-                onCancelEdit={cancelEditing}
-                onReply={startReplying}
-                onReplyTextChange={setReplyText}
-                onSaveReply={handleReply}
-                onCancelReply={cancelReplying}
-            />
+            <div ref={commentListRef}>
+                <CommentList
+                    comments={data?.comments ?? []}
+                    currentUser={window.configuration.user?.username}
+                    editingCommentId={editingCommentId}
+                    editText={editText}
+                    isSubmitting={isSubmitting}
+                    replyingToCommentId={replyingToCommentId}
+                    replyText={replyText}
+                    mentionableUsers={mentionableUsers}
+                    onLike={handleLike}
+                    onEdit={startEditing}
+                    onDelete={deleteComment}
+                    onEditTextChange={setEditText}
+                    onSaveEdit={saveEdit}
+                    onCancelEdit={cancelEditing}
+                    onReply={startReplying}
+                    onReplyTextChange={setReplyText}
+                    onSaveReply={handleReply}
+                    onCancelReply={cancelReplying}
+                />
+            </div>
 
             <div className="border-t border-gray-100 pt-8 mt-8">
                 <div className="flex items-center gap-3 mb-6">

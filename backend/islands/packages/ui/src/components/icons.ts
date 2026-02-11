@@ -5,6 +5,7 @@ export {
     Check,
     ChevronDown,
     CircleDollarSign,
+    Clock,
     Code,
     Copy,
     Eye,
