@@ -1,6 +1,7 @@
 import json
 
 from django.http import Http404
+from django.http.multipartparser import MultiPartParser
 from django.shortcuts import get_object_or_404
 
 from board.models import Post, PostContent
@@ -24,13 +25,15 @@ def drafts_list(request):
         })
 
     if request.method == 'POST':
-        try:
-            if request.content_type == 'application/json':
-                data = json.loads(request.body)
-            else:
-                data = request.POST
-        except (ValueError, json.JSONDecodeError):
+        if request.content_type and 'multipart' in request.content_type:
             data = request.POST
+            files = request.FILES
+        else:
+            try:
+                data = json.loads(request.body)
+            except (ValueError, json.JSONDecodeError):
+                data = request.POST
+            files = {}
 
         title = data.get('title', '')
         content = data.get('content', '')
@@ -38,6 +41,8 @@ def drafts_list(request):
         subtitle = data.get('subtitle', '')
         description = data.get('description', '')
         series_url = data.get('series_url', '')
+        custom_url = data.get('custom_url', '')
+        image = files.get('image') if files else None
 
         try:
             draft = PostService.create_draft(
@@ -48,6 +53,8 @@ def drafts_list(request):
                 description=description,
                 series_url=series_url,
                 tag=tags,
+                image=image,
+                custom_url=custom_url,
             )
 
             return StatusDone({
@@ -79,20 +86,28 @@ def drafts_detail(request, url):
             'raw_content': draft.content.text_html if hasattr(draft, 'content') else '',
             'tags': ','.join(draft.tagging()),
             'description': draft.meta_description,
-            'series': draft.series.url if draft.series else '',
+            'image': draft.get_thumbnail(),
+            'series': {
+                'url': draft.series.url,
+                'name': draft.series.name,
+            } if draft.series else None,
             'created_date': draft.time_since(),
         })
 
     if request.method == 'PUT':
-        try:
-            if request.content_type == 'application/json':
+        if request.content_type and 'multipart' in request.content_type:
+            parser = MultiPartParser(request.META, request, request.upload_handlers)
+            data, files = parser.parse()
+        else:
+            try:
                 data = json.loads(request.body)
-            else:
+            except (ValueError, json.JSONDecodeError):
                 from django.http import QueryDict
                 data = QueryDict(request.body)
-        except (ValueError, json.JSONDecodeError):
-            from django.http import QueryDict
-            data = QueryDict(request.body)
+            files = {}
+
+        image = files.get('image') if files else None
+        image_delete = data.get('image_delete') == 'true'
 
         try:
             PostService.update_draft(
@@ -103,6 +118,9 @@ def drafts_detail(request, url):
                 description=data.get('description'),
                 series_url=data.get('series_url'),
                 tag=data.get('tags'),
+                image=image,
+                image_delete=image_delete,
+                custom_url=data.get('custom_url'),
             )
             return StatusDone({
                 'url': draft.url,

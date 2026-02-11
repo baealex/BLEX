@@ -153,6 +153,7 @@ def user_posts(request, username, url=None):
                     'series': {
                         'id': str(post.series.id),
                         'name': post.series.name,
+                        'url': post.series.url,
                     } if post.series else None,
                     'text_html': post.content.text_html,  # Now sending HTML instead of markdown
                     'tags': post.tagging(),
@@ -178,7 +179,7 @@ def user_posts(request, username, url=None):
                         'url': post.series.url,
                         'name': post.series.name,
                     } if post.series else None,
-                    'created_date': convert_to_localtime(post.created_date).strftime('%Y-%m-%d %H:%M'),
+                    'created_date': convert_to_localtime(post.published_date).strftime('%Y-%m-%d %H:%M'),
                     'updated_date': convert_to_localtime(post.updated_date).strftime('%Y-%m-%d %H:%M'),
                     'author_image': str(post.author_image),
                     'author': post.author_username,
@@ -271,7 +272,7 @@ def user_posts(request, username, url=None):
                 if reserved_date_str and not post.is_published():
                     reserved_date = parse_datetime(reserved_date_str)
                     if reserved_date:
-                        post.created_date = reserved_date
+                        post.published_date = reserved_date
                         post.updated_date = reserved_date
                         post.save()
                 return StatusDone()

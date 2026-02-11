@@ -165,7 +165,7 @@ class UserService:
                 'title': pinned_post.post.title,
                 'image': str(pinned_post.post.image),
                 'read_time': pinned_post.post.read_time,
-                'created_date': pinned_post.post.created_date,
+                'published_date': pinned_post.post.published_date,
                 'author_image': pinned_post.user.profile.avatar if hasattr(pinned_post.user, 'profile') else '',
                 'author': pinned_post.user.username,
             } for pinned_post in pinned_posts]
@@ -180,14 +180,14 @@ class UserService:
             published_date__lte=timezone.now(),
         ).annotate(
             likes_count=Count('likes', distinct=True),
-        ).order_by('-likes_count', '-created_date')[:6]
+        ).order_by('-likes_count', '-published_date')[:6]
 
         return [{
             'url': post.url,
             'title': post.title,
             'image': str(post.image),
             'read_time': post.read_time,
-            'created_date': post.created_date,
+            'published_date': post.published_date,
             'author_image': post.author.profile.avatar if hasattr(post.author, 'profile') else '',
             'author': post.author.username,
         } for post in posts]
@@ -207,12 +207,12 @@ class UserService:
         cutoff_date = timezone.now() - datetime.timedelta(days=days)
 
         posts = Post.objects.filter(
-            created_date__gte=cutoff_date,
+            published_date__gte=cutoff_date,
             published_date__isnull=False,
             published_date__lte=timezone.now(),
             author=user,
             config__hide=False
-        ).order_by('-created_date')
+        ).order_by('-published_date')
 
         series = Series.objects.filter(
             created_date__gte=cutoff_date,
@@ -229,7 +229,7 @@ class UserService:
 
         activity = sorted(
             chain(posts, series, comments),
-            key=lambda instance: instance.created_date,
+            key=lambda instance: getattr(instance, 'published_date', None) or instance.created_date,
             reverse=True
         )
 
@@ -255,7 +255,7 @@ class UserService:
                 }
 
             active_dict['url'] = active.get_absolute_url()
-            active_dict['created_date'] = active.created_date
+            active_dict['created_date'] = getattr(active, 'published_date', None) or active.created_date
             result.append(active_dict)
 
         return result
@@ -401,12 +401,12 @@ class UserService:
 
         recent_posts = Post.objects.filter(
             author=user,
-            created_date__gte=cutoff_date,
+            published_date__gte=cutoff_date,
             published_date__isnull=False,
             published_date__lte=timezone.now(),
         ).select_related('author').only(
-            'title', 'url', 'created_date', 'author__username'
-        ).order_by('-created_date')[:5]
+            'title', 'url', 'published_date', 'author__username'
+        ).order_by('-published_date')[:5]
 
         recent_series = Series.objects.filter(
             owner=user,
@@ -438,7 +438,7 @@ class UserService:
                 'title': post.title,
                 'url': post.get_absolute_url(),
                 'date': post.time_since(),
-                'sort_date': post.created_date,
+                'sort_date': post.published_date,
             })
 
         for series_item in recent_series:

@@ -29,7 +29,7 @@ def series_detail(request, username, series_url):
     except Series.DoesNotExist:
         raise Http404("Series does not exist")
 
-    order_by = 'created_date' if sort_order == 'asc' else '-created_date'
+    order_by = 'published_date' if sort_order == 'asc' else '-published_date'
 
     all_posts = Post.objects.select_related(
         'config', 'author', 'author__profile'
@@ -68,7 +68,7 @@ def series_detail(request, username, series_url):
 
     posts_with_numbers = []
     for i, post in enumerate(paginated_posts):
-        post.created_date = post.created_date.strftime('%Y-%m-%d')
+        post.published_date_display = post.published_date.strftime('%Y-%m-%d')
 
         if sort_order == 'desc':
             post_number = total_posts - start_idx - i
@@ -142,7 +142,7 @@ def series_edit(request, username, series_url):
         config__hide=False,
     ).filter(
         Q(series__isnull=True) | Q(series=series)
-    ).order_by('-created_date')
+    ).order_by('-published_date')
 
     current_post_ids = list(Post.objects.filter(series=series).values_list('id', flat=True))
 

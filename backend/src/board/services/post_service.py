@@ -232,7 +232,6 @@ class PostService:
 
         reserved_date = PostService.validate_reserved_date(reserved_date_str)
         if reserved_date:
-            post.created_date = reserved_date
             post.updated_date = reserved_date
             post.published_date = reserved_date
         else:
@@ -372,7 +371,7 @@ class PostService:
                 candidate.likes_count, candidate.comments_count
             )
             recency_score = PostService._calculate_recency_score(
-                candidate.created_date, now
+                candidate.published_date, now
             )
 
             score = tag_score + popularity_score + recency_score
@@ -546,6 +545,8 @@ class PostService:
         description: str = '',
         series_url: str = '',
         tag: str = '',
+        image: Optional[Any] = None,
+        custom_url: str = '',
     ) -> Post:
         """
         Create a draft post (published_date=null).
@@ -586,7 +587,10 @@ class PostService:
         if series:
             post.series = series
 
-        url = PostService.create_post_url(post.title)
+        if image:
+            post.image = image
+
+        url = PostService.create_post_url(post.title, custom_url)
         post.create_unique_url(url)
         post.save()
 
@@ -613,6 +617,9 @@ class PostService:
         description: Optional[str] = None,
         series_url: Optional[str] = None,
         tag: Optional[str] = None,
+        image: Optional[Any] = None,
+        image_delete: bool = False,
+        custom_url: Optional[str] = None,
     ) -> Post:
         """
         Update a draft post. No notifications sent.
@@ -652,6 +659,19 @@ class PostService:
 
         if tag is not None:
             TagService.set_post_tags(post, tag)
+
+        if image_delete:
+            if post.image:
+                post.image.delete(save=False)
+                post.image = None
+        elif image is not None:
+            if post.image:
+                post.image.delete(save=False)
+            post.image = image
+
+        if custom_url is not None:
+            url = PostService.create_post_url(post.title, custom_url)
+            post.create_unique_url(url)
 
         post.updated_date = timezone.now()
         post.save()
@@ -775,7 +795,7 @@ class PostService:
         series_posts = list(Post.objects.filter(
             series=post.series,
             config__hide=False,
-        ).order_by('created_date'))
+        ).order_by('published_date'))
         
         post.series_total = len(series_posts)
 

@@ -120,12 +120,12 @@ def setting(request, parameter):
                 # Fetch posts within the date range
                 posts = Post.objects.filter(
                     author=user,
-                    created_date__date__gte=start_date,
-                    created_date__date__lte=end_date,
-                ).values('created_date__date').annotate(count=Count('id'))
+                    published_date__date__gte=start_date,
+                    published_date__date__lte=end_date,
+                ).values('published_date__date').annotate(count=Count('id'))
 
                 for post in posts:
-                    date_str = post['created_date__date'].strftime('%Y-%m-%d')
+                    date_str = post['published_date__date'].strftime('%Y-%m-%d')
                     heatmap[date_str] += post['count']
 
                 # Fetch comments within the date range
@@ -174,7 +174,7 @@ def setting(request, parameter):
                 author=user,
                 published_date__isnull=False,
                 published_date__lte=timezone.now(),
-            ).order_by('-created_date')
+            ).order_by('-published_date')
 
             tag = request.GET.get('tag', '')
             if tag:
@@ -203,7 +203,7 @@ def setting(request, parameter):
             valid_orders = [
                 'title',
                 'read_time',
-                'created_date',
+                'published_date',
                 'updated_date',
                 'count_likes',
                 'count_comments',
@@ -238,7 +238,7 @@ def setting(request, parameter):
                 'posts': list(map(lambda post: {
                     'url': post.url,
                     'title': post.title,
-                    'created_date': convert_to_localtime(post.created_date).strftime('%Y-%m-%d'),
+                    'created_date': convert_to_localtime(post.published_date).strftime('%Y-%m-%d'),
                     'updated_date': convert_to_localtime(post.updated_date).strftime('%Y-%m-%d'),
                     'is_hide': post.config.hide,
                     'is_notice': post.config.notice,
@@ -270,7 +270,7 @@ def setting(request, parameter):
                 'posts': list(map(lambda post: {
                     'url': post.url,
                     'title': post.title,
-                    'created_date': convert_to_localtime(post.created_date).strftime('%Y-%m-%d %H:%M'),
+                    'created_date': convert_to_localtime(post.published_date).strftime('%Y-%m-%d %H:%M'),
                 }, posts)),
                 'last_page': posts.paginator.num_pages,
             })

@@ -45,7 +45,7 @@ def author_overview(request, username):
         blog_notices = Post.objects.select_related(
             'config', 'author', 'author__profile'
         ).only(
-            'title', 'url', 'created_date',
+            'title', 'url', 'published_date',
             'config__notice', 'config__hide',
             'author__username', 'author__profile__avatar'
         ).filter(
@@ -54,7 +54,7 @@ def author_overview(request, username):
             published_date__lte=timezone.now(),
             config__notice=True,
             config__hide=False,
-        ).order_by('-created_date')[:5]
+        ).order_by('-published_date')[:5]
 
         stats = UserService.get_author_stats(author)
 
@@ -127,11 +127,11 @@ def author_posts(request, username):
     )
     
     if sort_option == 'popular':
-        posts = posts.order_by('-count_likes', '-created_date')
+        posts = posts.order_by('-count_likes', '-published_date')
     elif sort_option == 'comments':
-        posts = posts.order_by('-count_comments', '-created_date')
+        posts = posts.order_by('-count_comments', '-published_date')
     else:  # default to 'recent'
-        posts = posts.order_by('-created_date')
+        posts = posts.order_by('-published_date')
     
     series = Series.objects.filter(
         owner__username=username,

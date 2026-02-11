@@ -99,7 +99,11 @@ export interface DraftDetail {
     rawContent: string;
     tags: string;
     description: string;
-    series: string;
+    image: string | null;
+    series: {
+        url: string;
+        name: string;
+    } | null;
     createdDate: string;
 }
 
@@ -110,11 +114,17 @@ export interface DraftSummary {
     updatedDate: string;
 }
 
-export const createDraft = async (data: { title: string; content: string; tags: string; subtitle?: string; description?: string; series_url?: string }) => {
+export const createDraft = async (data: { title: string; content: string; tags: string; subtitle?: string; description?: string; series_url?: string } | FormData) => {
+    if (data instanceof FormData) {
+        return http.post<Response<{ url: string }>>('v1/drafts', data, { headers: { 'Content-Type': 'multipart/form-data' } });
+    }
     return http.post<Response<{ url: string }>>('v1/drafts', data, { headers: { 'Content-Type': 'application/json' } });
 };
 
-export const updateDraft = async (url: string, data: { title?: string; content?: string; tags?: string; subtitle?: string; description?: string; series_url?: string }) => {
+export const updateDraft = async (url: string, data: { title?: string; content?: string; tags?: string; subtitle?: string; description?: string; series_url?: string } | FormData) => {
+    if (data instanceof FormData) {
+        return http.put<Response<{ url: string }>>(`v1/drafts/${url}`, data, { headers: { 'Content-Type': 'multipart/form-data' } });
+    }
     return http.put<Response<{ url: string }>>(`v1/drafts/${url}`, data, { headers: { 'Content-Type': 'application/json' } });
 };
 
@@ -141,6 +151,7 @@ export interface PostForEdit {
     series: {
         id: string;
         name: string;
+        url: string;
     } | null;
     isHide: boolean;
     isNotice: boolean;

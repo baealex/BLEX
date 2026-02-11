@@ -132,7 +132,7 @@ class TagService:
                     user__id=user_id if user_id else -1
                 )
             ),
-        ).order_by('-created_date')
+        ).order_by('-published_date')
 
     @staticmethod
     def get_head_post_by_tag(tag_name: str):

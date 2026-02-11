@@ -112,7 +112,7 @@ def search(request):
             '-is_contain_tags',
             '-is_contain_content',
             '-likes_count',
-            '-created_date',
+            '-published_date',
         )
 
         if username:
@@ -138,7 +138,7 @@ def search(request):
                 'image': str(post.image),
                 'description': post.meta_description,
                 'read_time': post.read_time,
-                'created_date': convert_to_localtime(post.created_date).strftime('%Y년 %m월 %d일'),
+                'created_date': convert_to_localtime(post.published_date).strftime('%Y년 %m월 %d일'),
                 'author_image': post.author_image,
                 'author': post.author_username,
                 'positions': list(filter(lambda item: item, [

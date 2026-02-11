@@ -38,7 +38,7 @@ class SitePostsFeed(Feed):
             config__hide=False,
             published_date__isnull=False,
             published_date__lte=timezone.now(),
-        ).select_related('content').order_by('-created_date')
+        ).select_related('content').order_by('-published_date')
         return posts[:20]
 
     def item_title(self, item):
@@ -51,7 +51,7 @@ class SitePostsFeed(Feed):
         return item.get_absolute_url()
 
     def item_pubdate(self, item):
-        return convert_to_localtime(item.created_date)
+        return convert_to_localtime(item.published_date)
 
 
 class UserPostsFeed(Feed):
@@ -63,9 +63,9 @@ class UserPostsFeed(Feed):
             config__hide=False,
             published_date__isnull=False,
             published_date__lte=timezone.now(),
-        ).select_related('content').order_by('-created_date')
+        ).select_related('content').order_by('-published_date')
         return posts[:20]
-    
+
     def get_object(self, request, username):
         return User.objects.select_related('profile').get(username=username)
 
@@ -94,4 +94,4 @@ class UserPostsFeed(Feed):
         return item.get_absolute_url()
 
     def item_pubdate(self, item):
-        return convert_to_localtime(item.created_date)
+        return convert_to_localtime(item.published_date)

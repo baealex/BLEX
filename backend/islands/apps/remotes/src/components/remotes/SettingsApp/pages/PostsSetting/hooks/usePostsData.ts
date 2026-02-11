@@ -24,11 +24,11 @@ export interface FilterOptions {
 export const POSTS_ORDER = [
     {
         name: '최신순',
-        order: '-created_date'
+        order: '-published_date'
     },
     {
         name: '오래된순',
-        order: 'created_date'
+        order: 'published_date'
     },
     {
         name: '제목순',
@@ -60,7 +60,7 @@ const DEFAULT_FILTERS: FilterOptions = {
     search: '',
     tag: '',
     series: '',
-    order: '-created_date',
+    order: '-published_date',
     page: '1',
     visibility: '',
     notice: ''
@@ -75,7 +75,7 @@ const getFiltersFromURL = (): FilterOptions => {
         search: params.get('search') || '',
         tag: params.get('tag') || '',
         series: params.get('series') || '',
-        order: params.get('order') || '-created_date',
+        order: params.get('order') || '-published_date',
         page: params.get('page') || '1',
         visibility: params.get('visibility') || '',
         notice: params.get('notice') || ''
@@ -158,7 +158,7 @@ export const usePostsFilterState = () => {
             search: '',
             tag: '',
             series: '',
-            order: filters.order || '-created_date',
+            order: filters.order || '-published_date',
             page: '1',
             visibility: '',
             notice: ''

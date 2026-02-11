@@ -52,7 +52,7 @@ class PinnedPostService:
                 'url': pinned.post.url,
                 'title': pinned.post.title,
                 'image': str(pinned.post.image) if pinned.post.image else None,
-                'created_date': pinned.post.created_date,
+                'created_date': pinned.post.published_date.strftime('%Y-%m-%d') if pinned.post.published_date else '',
             }
         } for pinned in pinned_posts]
 
@@ -77,13 +77,13 @@ class PinnedPostService:
             config__hide=False
         ).exclude(
             id__in=pinned_post_ids
-        ).order_by('-created_date')
+        ).order_by('-published_date')
 
         return [{
             'url': post.url,
             'title': post.title,
             'image': str(post.image) if post.image else None,
-            'created_date': post.created_date,
+            'created_date': post.published_date.strftime('%Y-%m-%d') if post.published_date else '',
         } for post in posts]
 
     @staticmethod

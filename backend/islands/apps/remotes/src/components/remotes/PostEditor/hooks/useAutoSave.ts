@@ -8,6 +8,9 @@ interface AutoSaveData {
     subtitle?: string;
     description?: string;
     seriesUrl?: string;
+    customUrl?: string;
+    imageFile?: File | null;
+    imageDeleted?: boolean;
 }
 
 interface UseAutoSaveOptions {
@@ -18,12 +21,40 @@ interface UseAutoSaveOptions {
     onError?: (error: Error) => void;
 }
 
+const buildDraftPayload = (data: AutoSaveData, useFormData: boolean) => {
+    if (useFormData) {
+        const formData = new FormData();
+        formData.append('title', data.title || '제목 없음');
+        formData.append('content', data.content);
+        formData.append('tags', data.tags);
+        if (data.subtitle) formData.append('subtitle', data.subtitle);
+        if (data.description) formData.append('description', data.description);
+        if (data.seriesUrl) formData.append('series_url', data.seriesUrl);
+        if (data.customUrl) formData.append('custom_url', data.customUrl);
+        if (data.imageFile) formData.append('image', data.imageFile);
+        if (data.imageDeleted) formData.append('image_delete', 'true');
+        return formData;
+    }
+
+    return {
+        title: data.title || '제목 없음',
+        content: data.content,
+        tags: data.tags,
+        subtitle: data.subtitle,
+        description: data.description,
+        series_url: data.seriesUrl
+    };
+};
+
 export const useAutoSave = (data: AutoSaveData, options: UseAutoSaveOptions) => {
     const [lastSaved, setLastSaved] = useState<Date | null>(null);
     const [isSaving, setIsSaving] = useState(false);
     const [hasSaveError, setHasSaveError] = useState(false);
+    const [hasPendingChanges, setHasPendingChanges] = useState(false);
+    const [autoSaveCountdown, setAutoSaveCountdown] = useState<number | null>(null);
 
     const autoSaveRef = useRef<number | null>(null);
+    const countdownRef = useRef<number | null>(null);
     const dataRef = useRef(data);
     const optionsRef = useRef(options);
     const draftUrlRef = useRef<string | undefined>(options.draftUrl);
@@ -60,29 +91,29 @@ export const useAutoSave = (data: AutoSaveData, options: UseAutoSaveOptions) => 
 
         if (isSaving || !currentOptions.enabled) return false;
 
-        // Clear existing timer when manually saving
+        // Clear existing timer and countdown when manually saving
         if (autoSaveRef.current) clearTimeout(autoSaveRef.current);
+        if (countdownRef.current) clearInterval(countdownRef.current);
+        setAutoSaveCountdown(null);
+
+        const needsFormData = !!currentData.imageFile || !!currentData.imageDeleted;
 
         setIsSaving(true);
         try {
+            const payload = buildDraftPayload(currentData, needsFormData);
+
             if (draftUrlRef.current) {
-                await updateDraft(draftUrlRef.current, {
-                    title: currentData.title || '제목 없음',
-                    content: currentData.content,
-                    tags: currentData.tags,
-                    subtitle: currentData.subtitle,
-                    description: currentData.description,
-                    series_url: currentData.seriesUrl
-                });
+                const response = await updateDraft(draftUrlRef.current, payload);
+                // Update draftUrlRef if URL changed (e.g. custom_url was applied)
+                if (response.data.status === 'DONE' && response.data.body.url) {
+                    const newUrl = response.data.body.url;
+                    if (newUrl !== draftUrlRef.current) {
+                        draftUrlRef.current = newUrl;
+                        currentOptions.onSuccess?.(newUrl);
+                    }
+                }
             } else {
-                const response = await createDraft({
-                    title: currentData.title || '제목 없음',
-                    content: currentData.content,
-                    tags: currentData.tags,
-                    subtitle: currentData.subtitle,
-                    description: currentData.description,
-                    series_url: currentData.seriesUrl
-                });
+                const response = await createDraft(payload);
                 if (response.data.status === 'DONE') {
                     const url = response.data.body.url;
                     if (url) {
@@ -94,6 +125,7 @@ export const useAutoSave = (data: AutoSaveData, options: UseAutoSaveOptions) => 
 
             setLastSaved(new Date());
             setHasSaveError(false);
+            setHasPendingChanges(false);
             // Update previous data to prevent auto-save from triggering immediately
             prevDataStringRef.current = JSON.stringify({
                 title: currentData.title,
@@ -111,7 +143,7 @@ export const useAutoSave = (data: AutoSaveData, options: UseAutoSaveOptions) => 
         }
     }, [isSaving]);
 
-    // Auto-save effect
+    // Auto-save effect (JSON only, no image)
     useEffect(() => {
         if (!options.enabled) return;
 
@@ -133,18 +165,48 @@ export const useAutoSave = (data: AutoSaveData, options: UseAutoSaveOptions) => 
         isInitialLoadRef.current = false;
 
         prevDataStringRef.current = currentDataString;
+        setHasPendingChanges(true);
 
         if (autoSaveRef.current) clearTimeout(autoSaveRef.current);
+        if (countdownRef.current) clearInterval(countdownRef.current);
+
+        // Start countdown
+        const totalSeconds = Math.ceil(intervalMs / 1000);
+        setAutoSaveCountdown(totalSeconds);
+        countdownRef.current = window.setInterval(() => {
+            setAutoSaveCountdown(prev => {
+                if (prev === null || prev <= 1) return null;
+                return prev - 1;
+            });
+        }, 1000);
 
         autoSaveRef.current = window.setTimeout(() => {
+            if (countdownRef.current) clearInterval(countdownRef.current);
+            setAutoSaveCountdown(null);
+
             const currentData = dataRef.current;
             if (currentData.title || currentData.content) {
-                manualSave();
+                // Auto-save uses JSON (no image), so temporarily clear image fields
+                const savedImageFile = dataRef.current.imageFile;
+                const savedImageDeleted = dataRef.current.imageDeleted;
+                dataRef.current = {
+                    ...dataRef.current,
+                    imageFile: null,
+                    imageDeleted: false
+                };
+                manualSave().finally(() => {
+                    dataRef.current = {
+                        ...dataRef.current,
+                        imageFile: savedImageFile,
+                        imageDeleted: savedImageDeleted
+                    };
+                });
             }
         }, intervalMs);
 
         return () => {
             if (autoSaveRef.current) clearTimeout(autoSaveRef.current);
+            if (countdownRef.current) clearInterval(countdownRef.current);
         };
     }, [currentDataString, options.enabled, intervalMs, manualSave]);
 
@@ -152,6 +214,8 @@ export const useAutoSave = (data: AutoSaveData, options: UseAutoSaveOptions) => 
         lastSaved,
         isSaving,
         hasSaveError,
+        hasPendingChanges,
+        autoSaveCountdown,
         manualSave
     };
 };

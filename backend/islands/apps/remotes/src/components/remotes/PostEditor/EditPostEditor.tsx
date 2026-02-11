@@ -36,9 +36,10 @@ const EditPostEditor = ({ username, postUrl }: EditPostEditorProps) => {
     const [tags, setTags] = useState<string[]>([]);
     const [imagePreview, setImagePreview] = useState<string | null>(null);
     const [imageDeleted, setImageDeleted] = useState(false);
-    const [selectedSeries, setSelectedSeries] = useState({
+    const [selectedSeries, setSelectedSeries] = useState<Series>({
         id: '',
-        name: ''
+        name: '',
+        url: ''
     });
     const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -59,7 +60,8 @@ const EditPostEditor = ({ username, postUrl }: EditPostEditorProps) => {
                 if (seriesResponse.status === 'DONE') {
                     const mappedSeries = (seriesResponse.body.series || []).map(s => ({
                         id: String(s.id),
-                        name: s.title
+                        name: s.title,
+                        url: s.url
                     }));
                     setSeriesList(mappedSeries);
                 }
@@ -87,7 +89,8 @@ const EditPostEditor = ({ username, postUrl }: EditPostEditorProps) => {
                     setImagePreview(postData.image || null);
                     setSelectedSeries({
                         id: postData.series?.id || '',
-                        name: postData.series?.name || ''
+                        name: postData.series?.name || '',
+                        url: postData.series?.url || ''
                     });
                 }
             } catch {

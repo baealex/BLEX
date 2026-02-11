@@ -19,7 +19,7 @@
 <meta property="og:title" content="{{ post.title }}">
 <meta property="og:description" content="{{ post.meta_description }}">
 {% if post.image %}<meta property="og:image" content="{{ request.scheme }}://{{ request.get_host }}{{ post.image.url }}">{% endif %}
-<meta property="article:published_time" content="{{ post.created_date|date:'c' }}">
+<meta property="article:published_time" content="{{ post.published_date|date:'c' }}">
 <meta property="article:modified_time" content="{{ post.updated_date|date:'c' }}">
 <meta property="article:author" content="{{ request.scheme }}://{{ request.get_host }}/@{{ post.author_username }}">
 {% for tag in post.tags.all %}<meta property="article:tag" content="{{ tag }}">{% endfor %}
@@ -59,7 +59,7 @@
                 <article itemscope itemtype="https://schema.org/BlogPosting" lang="{{ LANGUAGE_CODE|default:'ko' }}">
                     <meta itemprop="headline" content="{{ post.title }}">
                     <meta itemprop="description" content="{{ post.meta_description }}">
-                    <meta itemprop="datePublished" content="{{ post.created_date|date:'c' }}">
+                    <meta itemprop="datePublished" content="{{ post.published_date|date:'c' }}">
                     <meta itemprop="dateModified" content="{{ post.updated_date|date:'c' }}">
                     {% if post.image %}
                     <meta itemprop="image" content="{{ request.scheme }}://{{ request.get_host }}{{ post.image.url }}">
@@ -99,7 +99,7 @@
                                     {{ post.author_username }}
                                 </a>
                                 <span class="text-gray-300">·</span>
-                                <span class="text-gray-500" itemprop="datePublished" content="{{ post.created_date|date:'c' }}">{{ post.created_date_display }}</span>
+                                <span class="text-gray-500" itemprop="datePublished" content="{{ post.published_date|date:'c' }}">{{ post.created_date_display }}</span>
                                 <span class="text-gray-300">·</span>
                                 <span class="text-gray-500" aria-label="읽는 시간">{{ post.read_time }}분 소요</span>
                             </div>
@@ -439,7 +439,7 @@ class="xl:hidden">
       "url": "{{ request.scheme }}://{{ request.get_host }}{% resource 'logo.png' %}"
     }
   },
-  "datePublished": "{{ post.created_date|date:'c' }}",
+  "datePublished": "{{ post.published_date|date:'c' }}",
   "dateModified": "{{ post.updated_date|date:'c' }}",
   {% if post.tags.all %}"keywords": "{% for tag in post.tags.all %}{{ tag }}{% if not forloop.last %}, {% endif %}{% endfor %}",{% endif %}
   "articleSection": {% if post.series %}"{{ post.series.name }}"{% else %}"Blog"{% endif %}

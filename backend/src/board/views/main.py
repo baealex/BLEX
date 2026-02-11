@@ -31,11 +31,11 @@ def index(request):
     sort_type = request.GET.get('sort', 'latest')
 
     if sort_type == 'popular':
-        posts = posts.order_by('-count_likes', '-created_date')
+        posts = posts.order_by('-count_likes', '-published_date')
     elif sort_type == 'comments':
-        posts = posts.order_by('-count_comments', '-created_date')
+        posts = posts.order_by('-count_comments', '-published_date')
     else:
-        posts = posts.order_by('-created_date')
+        posts = posts.order_by('-published_date')
 
     page = int(request.GET.get('page', 1))
     paginated_posts = Paginator(

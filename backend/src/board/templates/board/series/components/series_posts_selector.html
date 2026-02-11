@@ -51,7 +51,7 @@
                     >
                     <div class="flex-1 min-w-0 overflow-hidden">
                         <p class="text-sm font-medium text-gray-900 truncate">{{ post.title }}</p>
-                        <p class="text-xs text-gray-500 mt-0.5 truncate">{{ post.created_date|date:"Y.m.d" }}</p>
+                        <p class="text-xs text-gray-500 mt-0.5 truncate">{{ post.published_date|date:"Y.m.d" }}</p>
                     </div>
                     <svg class="w-4 h-4 flex-shrink-0 text-black opacity-0 group-hover:opacity-100 transition-opacity ml-2"
                          :class="selectedPosts.includes('{{ post.id }}') ? 'opacity-100' : ''"
