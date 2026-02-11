@@ -17,6 +17,21 @@
 {% endif %}
 
 {% if posts %}
+    <!-- Sort Controls -->
+    <div class="flex justify-end mb-6">
+        <div class="inline-flex bg-gray-100/80 backdrop-blur-sm p-1 rounded-xl">
+            <a href="?sort=latest" class="px-4 py-1.5 {% if sort_type == 'latest' %}bg-white text-black shadow-sm{% else %}text-gray-500 hover:text-gray-900{% endif %} rounded-lg text-xs font-bold transition-all duration-150">
+                최신순
+            </a>
+            <a href="?sort=popular" class="px-4 py-1.5 {% if sort_type == 'popular' %}bg-white text-black shadow-sm{% else %}text-gray-500 hover:text-gray-900{% endif %} rounded-lg text-xs font-bold transition-all duration-150">
+                인기순
+            </a>
+            <a href="?sort=comments" class="px-4 py-1.5 {% if sort_type == 'comments' %}bg-white text-black shadow-sm{% else %}text-gray-500 hover:text-gray-900{% endif %} rounded-lg text-xs font-bold transition-all duration-150">
+                댓글순
+            </a>
+        </div>
+    </div>
+
     <!-- Posts Grid -->
     <div class="masonry-grid gap-6 mb-16">
         {% for post in posts %}

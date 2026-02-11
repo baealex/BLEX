@@ -50,6 +50,7 @@ def index(request):
         'posts': paginated_posts,
         'page_number': page,
         'page_count': paginated_posts.paginator.num_pages,
+        'sort_type': sort_type,
     }
 
     return render(request, 'board/posts/post_list.html', context)

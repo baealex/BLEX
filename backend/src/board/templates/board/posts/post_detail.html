@@ -262,7 +262,7 @@
                             </div>
                             {% if series_post.url == post.url %}
                             <span class="flex-1 font-semibold text-gray-900">{{ series_post.title }}</span>
-                            <span class="text-xs font-medium text-blue-600 px-2 py-1 bg-blue-50 rounded-md">읽는 중</span>
+                            <span class="text-xs font-bold text-white px-2.5 py-1 bg-black rounded-md">읽는 중</span>
                             {% else %}
                             <a href="{% url 'post_detail' post.author_username series_post.url %}" class="flex-1 font-medium text-gray-600 hover:text-gray-900 transition-colors">
                                 {{ series_post.title }}

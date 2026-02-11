@@ -57,7 +57,7 @@ const Dropdown = ({ items, trigger, align = 'end' }: DropdownProps) => {
                                 transition-colors
                                 ${item.variant === 'danger'
                                     ? 'text-red-600 focus:bg-red-50 hover:bg-red-50'
-                                    : 'text-gray-700 focus:bg-gray-50 hover:bg-gray-50'
+                                    : 'text-gray-700 focus:bg-gray-100 hover:bg-gray-100'
                                 }
                                 ${item.checked ? 'bg-gray-50 text-gray-900 font-medium' : ''}
                                 ${item.className || ''}

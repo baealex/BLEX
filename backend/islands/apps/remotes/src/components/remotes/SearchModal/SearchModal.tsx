@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { getMediaPath } from '~/modules/static.module';
 import { Modal } from '~/components/shared';
 import { searchPosts, type SearchResult } from '~/lib/api';
@@ -16,6 +16,32 @@ interface SearchResultsData {
     elapsedTime?: number;
 }
 
+const RECENT_SEARCHES_KEY = 'blex_recent_searches';
+const MAX_RECENT_SEARCHES = 5;
+
+const getRecentSearches = (): string[] => {
+    try {
+        const stored = localStorage.getItem(RECENT_SEARCHES_KEY);
+        return stored ? JSON.parse(stored) : [];
+    } catch {
+        return [];
+    }
+};
+
+const saveRecentSearch = (query: string) => {
+    const searches = getRecentSearches().filter((s) => s !== query);
+    searches.unshift(query);
+    localStorage.setItem(
+        RECENT_SEARCHES_KEY,
+        JSON.stringify(searches.slice(0, MAX_RECENT_SEARCHES))
+    );
+};
+
+const removeRecentSearch = (query: string) => {
+    const searches = getRecentSearches().filter((s) => s !== query);
+    localStorage.setItem(RECENT_SEARCHES_KEY, JSON.stringify(searches));
+};
+
 const SearchModal = ({ isOpen: initialIsOpen = false }: SearchModalProps) => {
     const [isOpen, setIsOpen] = useState(initialIsOpen);
     const [query, setQuery] = useState('');
@@ -23,11 +49,13 @@ const SearchModal = ({ isOpen: initialIsOpen = false }: SearchModalProps) => {
     const [isLoading, setIsLoading] = useState(false);
     const [page, setPage] = useState(1);
     const [hasSearched, setHasSearched] = useState(false);
+    const [recentSearches, setRecentSearches] = useState<string[]>([]);
 
     // 전역 이벤트로 모달 열기
     useEffect(() => {
         const handleOpenSearch = () => {
             setIsOpen(true);
+            setRecentSearches(getRecentSearches());
         };
 
         window.addEventListener('openSearchModal', handleOpenSearch);
@@ -36,13 +64,33 @@ const SearchModal = ({ isOpen: initialIsOpen = false }: SearchModalProps) => {
         };
     }, []);
 
-    const handleClose = () => {
+    // Cmd+K / Ctrl+K 단축키
+    useEffect(() => {
+        const handleKeyDown = (e: KeyboardEvent) => {
+            if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+                e.preventDefault();
+                setIsOpen((prev) => {
+                    if (!prev) {
+                        setRecentSearches(getRecentSearches());
+                    }
+                    return !prev;
+                });
+            }
+        };
+
+        window.addEventListener('keydown', handleKeyDown);
+        return () => {
+            window.removeEventListener('keydown', handleKeyDown);
+        };
+    }, []);
+
+    const handleClose = useCallback(() => {
         setIsOpen(false);
         setQuery('');
         setSearchResults(null);
         setHasSearched(false);
         setPage(1);
-    };
+    }, []);
 
     const handleSearch = async (searchQuery: string, pageNum: number = 1) => {
         if (!searchQuery.trim()) {
@@ -64,6 +112,11 @@ const SearchModal = ({ isOpen: initialIsOpen = false }: SearchModalProps) => {
                     elapsedTime: data.body.elapsedTime
                 });
                 setPage(pageNum);
+
+                if (pageNum === 1) {
+                    saveRecentSearch(searchQuery);
+                    setRecentSearches(getRecentSearches());
+                }
             }
         } catch (error) {
             logger.error('Search error:', error);
@@ -75,6 +128,17 @@ const SearchModal = ({ isOpen: initialIsOpen = false }: SearchModalProps) => {
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
         handleSearch(query, 1);
+    };
+
+    const handleRecentSearchClick = (searchQuery: string) => {
+        setQuery(searchQuery);
+        handleSearch(searchQuery, 1);
+    };
+
+    const handleRemoveRecentSearch = (searchQuery: string, e: React.MouseEvent) => {
+        e.stopPropagation();
+        removeRecentSearch(searchQuery);
+        setRecentSearches(getRecentSearches());
     };
 
     const handlePageChange = (newPage: number) => {
@@ -108,11 +172,16 @@ const SearchModal = ({ isOpen: initialIsOpen = false }: SearchModalProps) => {
                         </div>
                         <h2 className="text-xl font-bold tracking-tight">포스트 검색</h2>
                     </div>
-                    <button
-                        onClick={handleClose}
-                        className="w-8 h-8 flex items-center justify-center text-gray-400 hover:text-gray-900 hover:bg-gray-100 rounded-full transition-all duration-200">
-                        <i className="fas fa-times text-lg" />
-                    </button>
+                    <div className="flex items-center gap-2">
+                        <kbd className="hidden sm:inline-flex items-center gap-1 px-2 py-1 bg-gray-100 text-gray-500 text-xs font-mono rounded-md border border-gray-200">
+                            <span className="text-[10px]">⌘</span>K
+                        </kbd>
+                        <button
+                            onClick={handleClose}
+                            className="w-8 h-8 flex items-center justify-center text-gray-400 hover:text-gray-900 hover:bg-gray-100 rounded-full transition-all duration-150">
+                            <i className="fas fa-times text-lg" />
+                        </button>
+                    </div>
                 </div>
 
                 {/* 검색 폼 */}
@@ -124,7 +193,7 @@ const SearchModal = ({ isOpen: initialIsOpen = false }: SearchModalProps) => {
                                 value={query}
                                 onChange={(e) => setQuery(e.target.value)}
                                 placeholder="검색어를 입력하세요..."
-                                maxLength={20}
+
                                 className="w-full px-5 py-4 pr-24 border border-gray-200 rounded-2xl focus:outline-none focus:ring-4 focus:ring-black/5 focus:border-black transition-all text-gray-900 placeholder-gray-400 text-base bg-gray-50/50 focus:bg-white"
                                 autoComplete="off"
                                 autoFocus
@@ -145,7 +214,7 @@ const SearchModal = ({ isOpen: initialIsOpen = false }: SearchModalProps) => {
                                 <button
                                     type="submit"
                                     disabled={!query.trim() || isLoading}
-                                    className="bg-black hover:bg-gray-800 text-white px-5 py-2 rounded-xl font-medium transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed text-sm shadow-sm hover:shadow-md hover:-translate-y-0.5 active:scale-95">
+                                    className="bg-black hover:bg-gray-800 text-white px-5 py-2 rounded-xl font-medium transition-all duration-150 disabled:opacity-50 disabled:cursor-not-allowed text-sm shadow-sm hover:shadow-md hover:-translate-y-0.5 active:scale-95">
                                     {isLoading ? '검색 중...' : '검색'}
                                 </button>
                             </div>
@@ -315,12 +384,36 @@ const SearchModal = ({ isOpen: initialIsOpen = false }: SearchModalProps) => {
 
                 {/* 검색 전 안내 */}
                 {!isLoading && !hasSearched && (
-                    <div className="text-center py-24">
+                    <div className="text-center py-16">
                         <div className="w-24 h-24 bg-gradient-to-br from-gray-50 to-gray-100 rounded-[2rem] flex items-center justify-center mx-auto mb-8 shadow-inner">
                             <i className="fas fa-search text-4xl text-gray-300" />
                         </div>
                         <h3 className="text-2xl font-bold text-gray-900 mb-3 tracking-tight">무엇을 찾고 계신가요?</h3>
-                        <p className="text-gray-500 font-medium">제목, 내용, 태그로 원하는 포스트를 검색해보세요</p>
+                        <p className="text-gray-500 font-medium mb-8">제목, 내용, 태그로 원하는 포스트를 검색해보세요</p>
+
+                        {/* 최근 검색어 */}
+                        {recentSearches.length > 0 && (
+                            <div className="max-w-sm mx-auto">
+                                <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">최근 검색어</p>
+                                <div className="flex flex-wrap justify-center gap-2">
+                                    {recentSearches.map((search) => (
+                                        <button
+                                            key={search}
+                                            onClick={() => handleRecentSearchClick(search)}
+                                            className="group inline-flex items-center gap-1.5 px-3 py-1.5 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-full text-sm font-medium transition-all duration-150">
+                                            <span>{search}</span>
+                                            <button
+                                                type="button"
+                                                onClick={(e) => handleRemoveRecentSearch(search, e)}
+                                                className="w-5 h-5 flex items-center justify-center rounded-full text-gray-400 hover:text-gray-600 hover:bg-gray-300 transition-colors"
+                                                aria-label={`${search} 검색어 삭제`}>
+                                                <i className="fas fa-times text-[8px]" />
+                                            </button>
+                                        </button>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
                     </div>
                 )}
             </div>

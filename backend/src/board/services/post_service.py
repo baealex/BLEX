@@ -388,7 +388,7 @@ class PostService:
 
         scored_posts.sort(key=lambda x: (x['score'], x['tag_overlap']), reverse=True)
 
-        return [x['post'] for x in scored_posts[:6]]
+        return [x['post'] for x in scored_posts[:8]]
 
     @staticmethod
     @transaction.atomic

@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Button, Input } from '~/components/shared';
+import { Button, Input, Checkbox } from '~/components/shared';
 import type { BannerData, BannerCreateData } from '~/lib/api/settings';
 
 const bannerSchema = z.object({
@@ -287,18 +287,13 @@ export const BannerForm = ({ banner, onSubmit, onCancel, isLoading }: BannerForm
                 </div>
 
                 {/* Active Toggle */}
-                <div className="flex items-center gap-3 p-4 bg-gray-50 rounded-xl border border-gray-200">
-                    <input
-                        type="checkbox"
-                        {...register('isActive')}
-                        className="w-5 h-5 text-blue-600 bg-white border-gray-300 rounded focus:ring-blue-500 focus:ring-2 transition-all"
+                <div className="p-4 bg-gray-50 rounded-xl border border-gray-200">
+                    <Checkbox
+                        checked={watch('isActive') ?? true}
+                        onCheckedChange={(checked) => setValue('isActive', checked)}
+                        label="배너 활성화"
+                        description="활성화된 배너만 사용자에게 표시됩니다."
                     />
-                    <div className="flex-1">
-                        <label className="text-sm font-semibold text-gray-900 cursor-pointer">
-                            배너 활성화
-                        </label>
-                        <p className="text-xs text-gray-500 mt-0.5">활성화된 배너만 사용자에게 표시됩니다.</p>
-                    </div>
                 </div>
             </div>
 
