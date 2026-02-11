@@ -297,7 +297,8 @@ class SeriesService:
                 total_posts=Count(
                     Case(
                         When(
-                            posts__created_date__lte=timezone.now(),
+                            posts__published_date__isnull=False,
+                            posts__published_date__lte=timezone.now(),
                             posts__config__hide=False,
                             then=1
                         )
@@ -322,7 +323,8 @@ class SeriesService:
             author=user,
             series=None,
             config__hide=False,
-            created_date__lte=timezone.now()
+            published_date__isnull=False,
+            published_date__lte=timezone.now()
         ).order_by('-created_date')
 
     @staticmethod
@@ -343,7 +345,8 @@ class SeriesService:
             total_posts=Count(
                 Case(
                     When(
-                        posts__created_date__lte=timezone.now(),
+                        posts__published_date__isnull=False,
+                            posts__published_date__lte=timezone.now(),
                         posts__config__hide=False,
                         then=1
                     )

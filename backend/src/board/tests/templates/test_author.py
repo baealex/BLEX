@@ -32,7 +32,8 @@ class AuthorPostsPageTestCase(TestCase):
             title='Author Test Post',
             url='author-test-post',
             author=self.user,
-            created_date=timezone.now()
+            created_date=timezone.now(),
+            published_date=timezone.now()
         )
         PostContent.objects.create(
             post=self.post,
@@ -346,15 +347,17 @@ class AuthorSeriesPageTestCase(TestCase):
             title='Hidden Post',
             url='hidden-post-url',
             author=self.user,
-            series=self.series
+            series=self.series,
+            published_date=timezone.now()
         )
         PostConfig.objects.create(post=post1, hide=True)
-        
+
         post2 = Post.objects.create(
             title='Visible Post',
             url='visible-post-url',
             author=self.user,
-            series=self.series
+            series=self.series,
+            published_date=timezone.now()
         )
         PostConfig.objects.create(post=post2, hide=False)
         

@@ -45,7 +45,10 @@ class PostsSitemap(Sitemap):
     priority = 0.9
 
     def items(self):
-        return Post.objects.filter(config__hide=False).select_related('author').order_by('-updated_date')
+        return Post.objects.filter(
+            config__hide=False,
+            published_date__isnull=False,
+        ).select_related('author').order_by('-updated_date')
 
     def location(self, element):
         return reverse('post_detail', args=[element.author.username, element.url])

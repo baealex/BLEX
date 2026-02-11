@@ -33,7 +33,8 @@ class TagListPageTestCase(TestCase):
                     title=f'{tag_name} Post {i}',
                     url=f'{tag_name}-post-{i}',
                     author=self.user,
-                    created_date=timezone.now()
+                    created_date=timezone.now(),
+                    published_date=timezone.now()
                 )
                 PostContent.objects.create(
                     post=post,
@@ -100,7 +101,8 @@ class TagDetailPageTestCase(TestCase):
                 title=f'Python Post {i}',
                 url=f'python-post-{i}',
                 author=self.user,
-                created_date=timezone.now()
+                created_date=timezone.now(),
+                published_date=timezone.now()
             )
             PostContent.objects.create(
                 post=post,
@@ -171,7 +173,8 @@ class TagDetailPageTestCase(TestCase):
             title='Hidden Python Post',
             url='hidden-python-post',
             author=self.user,
-            created_date=timezone.now()
+            created_date=timezone.now(),
+            published_date=timezone.now()
         )
         PostContent.objects.create(
             post=hidden_post,
@@ -200,7 +203,8 @@ class TagDetailPageTestCase(TestCase):
             title='Korean Python Post',
             url='korean-python-post',
             author=self.user,
-            created_date=timezone.now()
+            created_date=timezone.now(),
+            published_date=timezone.now()
         )
         PostContent.objects.create(
             post=post,

@@ -10,7 +10,8 @@ def index(request):
     posts = Post.objects.select_related(
         'config', 'series', 'author', 'author__profile'
     ).filter(
-        created_date__lte=timezone.now(),
+        published_date__isnull=False,
+        published_date__lte=timezone.now(),
         config__notice=False,
         config__hide=False,
     ).annotate(

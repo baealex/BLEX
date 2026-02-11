@@ -33,7 +33,8 @@ class UsernameRedirectTestCase(TestCase):
             title='Test Post',
             url='test-post',
             author=self.user,
-            created_date=timezone.now()
+            created_date=timezone.now(),
+            published_date=timezone.now()
         )
         PostContent.objects.create(
             post=self.post,
@@ -110,7 +111,8 @@ class UsernameRedirectTestCase(TestCase):
             title='Reader Post',
             url='reader-post',
             author=reader_user,
-            created_date=timezone.now()
+            created_date=timezone.now(),
+            published_date=timezone.now()
         )
         PostContent.objects.create(
             post=reader_post,

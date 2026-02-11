@@ -2,6 +2,7 @@ import json
 
 from django.test import TestCase
 from django.test.client import Client
+from django.utils import timezone
 
 from board.constants.config_meta import CONFIG_TYPE
 from board.models import (
@@ -94,6 +95,7 @@ class SettingTestCase(TestCase):
             url='test-post',
             title='Test Post',
             author=user,
+            published_date=timezone.now(),
         )
         PostContent.objects.create(
             post=post,

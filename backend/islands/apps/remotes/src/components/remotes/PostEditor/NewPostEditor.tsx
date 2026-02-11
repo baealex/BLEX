@@ -9,25 +9,25 @@ import { useConfirm } from '~/hooks/useConfirm';
 import PostEditorWrapper from './PostEditorWrapper';
 import PostActions from './components/PostActions';
 import PostForm from './components/PostForm';
-import TempPostsPanel from './components/TempPostsPanel';
+import DraftsPanel from './components/DraftsPanel';
 import SettingsDrawer from './components/SettingsDrawer';
 import { useAutoSave } from './hooks/useAutoSave';
 import { useImageUpload } from './hooks/useImageUpload';
 import { useFormSubmit } from './hooks/useFormSubmit';
 import { getSeries } from '~/lib/api/settings';
-import { getTempPost } from '~/lib/api/posts';
+import { getDraft } from '~/lib/api/posts';
 import { api } from '~/components/shared';
 import type { Series } from './types';
 
 interface NewPostEditorProps {
-    tempToken?: string;
+    draftUrl?: string;
 }
 
-const NewPostEditor = ({ tempToken }: NewPostEditorProps) => {
+const NewPostEditor = ({ draftUrl }: NewPostEditorProps) => {
     const { confirm } = useConfirm();
     const [isLoading, setIsLoading] = useState(true);
     const [seriesList, setSeriesList] = useState<Series[]>([]);
-    const [isTempPostsPanelOpen, setIsTempPostsPanelOpen] = useState(false);
+    const [isDraftsPanelOpen, setIsDraftsPanelOpen] = useState(false);
     const [isSettingsDrawerOpen, setIsSettingsDrawerOpen] = useState(false);
 
     const [formData, setFormData] = useState({
@@ -69,10 +69,10 @@ const NewPostEditor = ({ tempToken }: NewPostEditorProps) => {
         return undefined;
     };
 
-    const handleAutoSaveSuccess = (token?: string) => {
-        if (token && !tempToken) {
+    const handleAutoSaveSuccess = (url?: string) => {
+        if (url && !draftUrl) {
             const newUrl = new URL(window.location.href);
-            newUrl.searchParams.set('tempToken', token);
+            newUrl.searchParams.set('draft', url);
             window.history.replaceState({}, '', newUrl.toString());
         }
     };
@@ -84,12 +84,15 @@ const NewPostEditor = ({ tempToken }: NewPostEditorProps) => {
     const autoSaveData = {
         title: formData.title,
         content: formData.content,
-        tags: tags.join(',')
+        tags: tags.join(','),
+        subtitle: formData.subtitle,
+        description: formData.metaDescription,
+        seriesUrl: selectedSeries.id ? undefined : undefined // Series is optional for auto-save
     };
 
     const autoSaveOptions = {
         enabled: !isLoading,
-        tempToken,
+        draftUrl,
         onSuccess: handleAutoSaveSuccess,
         onError: handleAutoSaveError
     };
@@ -107,11 +110,14 @@ const NewPostEditor = ({ tempToken }: NewPostEditorProps) => {
         // Error notification is handled inside useFormSubmit
     };
 
-    const submitOptions = { onSubmitError: handleSubmitError };
+    const submitOptions = {
+        draftUrl,
+        onSubmitError: handleSubmitError
+    };
 
     const { formRef, isSubmitting, submitForm } = useFormSubmit(submitOptions);
 
-    // Fetch series list and temp post data if tempToken exists
+    // Fetch series list and draft data if draftUrl exists
     useEffect(() => {
         const fetchData = async () => {
             setIsLoading(true);
@@ -126,19 +132,23 @@ const NewPostEditor = ({ tempToken }: NewPostEditorProps) => {
                     setSeriesList(mappedSeries);
                 }
 
-                // Fetch temp post data if tempToken exists
-                if (tempToken) {
-                    const { data: tempResponse } = await getTempPost(tempToken);
-                    if (tempResponse.status === 'DONE' && tempResponse.body) {
-                        const tempData = tempResponse.body;
-                        const newTitle = tempData.title || '';
-                        const newContent = tempData.textMd || '';
-                        const newTags = tempData.tags ? tempData.tags.split(',').filter(Boolean) : [];
+                // Fetch draft data if draftUrl exists
+                if (draftUrl) {
+                    const { data: draftResponse } = await getDraft(draftUrl);
+                    if (draftResponse.status === 'DONE' && draftResponse.body) {
+                        const draftData = draftResponse.body;
+                        const newTitle = draftData.title || '';
+                        const newContent = draftData.textMd || '';
+                        const newTags = draftData.tags ? draftData.tags.split(',').filter(Boolean) : [];
+                        const newSubtitle = draftData.subtitle || '';
+                        const newDescription = draftData.description || '';
 
                         setFormData(prev => ({
                             ...prev,
                             title: newTitle,
-                            content: newContent
+                            subtitle: newSubtitle,
+                            content: newContent,
+                            metaDescription: newDescription
                         }));
                         setTags(newTags);
 
@@ -151,14 +161,14 @@ const NewPostEditor = ({ tempToken }: NewPostEditorProps) => {
                     }
                 }
             } catch {
-                toast.error(tempToken ? '임시 포스트 데이터를 불러오는데 실패했습니다.' : '시리즈 목록을 불러오는데 실패했습니다.');
+                toast.error(draftUrl ? '임시 포스트 데이터를 불러오는데 실패했습니다.' : '시리즈 목록을 불러오는데 실패했습니다.');
             } finally {
                 setIsLoading(false);
             }
         };
 
         fetchData();
-    }, [tempToken]);
+    }, [draftUrl]);
 
     // Check if form has unsaved changes
     const hasUnsavedChanges = () => {
@@ -181,11 +191,11 @@ const NewPostEditor = ({ tempToken }: NewPostEditorProps) => {
         return () => window.removeEventListener('beforeunload', handleBeforeUnload);
     });
 
-    // Handle temp post selection
-    const handleSelectTempPost = async (token: string) => {
-        if (token === tempToken) {
+    // Handle draft selection
+    const handleSelectDraft = async (url: string) => {
+        if (url === draftUrl) {
             // Already on this post
-            setIsTempPostsPanelOpen(false);
+            setIsDraftsPanelOpen(false);
             return;
         }
 
@@ -199,11 +209,11 @@ const NewPostEditor = ({ tempToken }: NewPostEditorProps) => {
             });
 
             if (confirmed) {
-                window.location.assign(`/write?tempToken=${token}`);
+                window.location.assign(`/write?draft=${url}`);
             }
         } else {
             // Navigate directly
-            window.location.assign(`/write?tempToken=${token}`);
+            window.location.assign(`/write?draft=${url}`);
         }
     };
 
@@ -293,7 +303,7 @@ const NewPostEditor = ({ tempToken }: NewPostEditorProps) => {
 
             {/* Floating Action Bar */}
             <PostActions
-                mode={tempToken ? 'temp' : 'new'}
+                mode={draftUrl ? 'draft' : 'new'}
                 isSaving={isSaving}
                 isSubmitting={isSubmitting}
                 lastSaved={lastSaved}
@@ -302,7 +312,7 @@ const NewPostEditor = ({ tempToken }: NewPostEditorProps) => {
                 saveProgress={saveProgress}
                 onManualSave={handleManualSave}
                 onSubmit={() => handleSubmit()}
-                onOpenTempPosts={() => setIsTempPostsPanelOpen(true)}
+                onOpenDrafts={() => setIsDraftsPanelOpen(true)}
                 onOpenSettings={() => setIsSettingsDrawerOpen(true)}
             />
 
@@ -328,12 +338,12 @@ const NewPostEditor = ({ tempToken }: NewPostEditorProps) => {
                 }))}
             />
 
-            {/* Temp Posts Panel */}
-            <TempPostsPanel
-                isOpen={isTempPostsPanelOpen}
-                onClose={() => setIsTempPostsPanelOpen(false)}
-                onSelectPost={handleSelectTempPost}
-                currentToken={tempToken}
+            {/* Drafts Panel */}
+            <DraftsPanel
+                isOpen={isDraftsPanelOpen}
+                onClose={() => setIsDraftsPanelOpen(false)}
+                onSelectPost={handleSelectDraft}
+                currentDraftUrl={draftUrl}
             />
         </PostEditorWrapper>
     );

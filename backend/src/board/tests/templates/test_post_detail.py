@@ -20,7 +20,8 @@ class PostDetailViewTestCase(TestCase):
             title='Test Post',
             url='test-post',
             author=self.user,
-            created_date=timezone.now()
+            created_date=timezone.now(),
+            published_date=timezone.now()
         )
         # Create PostContent with headers
         PostContent.objects.create(

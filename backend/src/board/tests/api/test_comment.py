@@ -1,6 +1,7 @@
 import json
 
 from django.test import TestCase
+from django.utils import timezone
 
 from board.constants.config_meta import CONFIG_TYPE
 from board.models import (
@@ -43,6 +44,7 @@ class CommentTestCase(TestCase):
             url='test-post',
             title='Post',
             author=User.objects.get(username='author'),
+            published_date=timezone.now(),
         )
 
         PostContent.objects.create(

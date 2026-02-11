@@ -1,17 +1,20 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { createTempPost, updateTempPost } from '~/lib/api/posts';
+import { createDraft, updateDraft } from '~/lib/api/posts';
 
 interface AutoSaveData {
     title: string;
     content: string;
     tags: string;
+    subtitle?: string;
+    description?: string;
+    seriesUrl?: string;
 }
 
 interface UseAutoSaveOptions {
     enabled: boolean;
     intervalMs?: number;
-    tempToken?: string;
-    onSuccess?: (token?: string) => void;
+    draftUrl?: string;
+    onSuccess?: (url?: string) => void;
     onError?: (error: Error) => void;
 }
 
@@ -27,7 +30,7 @@ export const useAutoSave = (data: AutoSaveData, options: UseAutoSaveOptions) => 
     const progressRef = useRef<number | null>(null);
     const dataRef = useRef(data);
     const optionsRef = useRef(options);
-    const tempTokenRef = useRef<string | undefined>(options.tempToken);
+    const draftUrlRef = useRef<string | undefined>(options.draftUrl);
     const prevDataStringRef = useRef<string>(JSON.stringify({
         title: data.title,
         content: data.content,
@@ -37,6 +40,13 @@ export const useAutoSave = (data: AutoSaveData, options: UseAutoSaveOptions) => 
 
     dataRef.current = data;
     optionsRef.current = options;
+
+    // Keep draftUrlRef in sync with options
+    useEffect(() => {
+        if (options.draftUrl) {
+            draftUrlRef.current = options.draftUrl;
+        }
+    }, [options.draftUrl]);
 
     const { intervalMs = 3000 } = options;
 
@@ -61,24 +71,30 @@ export const useAutoSave = (data: AutoSaveData, options: UseAutoSaveOptions) => 
 
         setIsSaving(true);
         try {
-            if (tempTokenRef.current) {
-                await updateTempPost(tempTokenRef.current, {
-                    title: currentData.title || '제목 없음',
-                    text_md: currentData.content,
-                    tag: currentData.tags
-                });
-            } else {
-                const response = await createTempPost({
+            if (draftUrlRef.current) {
+                await updateDraft(draftUrlRef.current, {
                     title: currentData.title || '제목 없음',
                     content: currentData.content,
-                    tags: currentData.tags
+                    tags: currentData.tags,
+                    subtitle: currentData.subtitle,
+                    description: currentData.description,
+                    series_url: currentData.seriesUrl
+                });
+            } else {
+                const response = await createDraft({
+                    title: currentData.title || '제목 없음',
+                    content: currentData.content,
+                    tags: currentData.tags,
+                    subtitle: currentData.subtitle,
+                    description: currentData.description,
+                    series_url: currentData.seriesUrl
                 });
                 if (response.data.status === 'DONE') {
-                    const token = response.data.body.token;
-                    if (token) {
-                        tempTokenRef.current = token;
+                    const url = response.data.body.url;
+                    if (url) {
+                        draftUrlRef.current = url;
                     }
-                    currentOptions.onSuccess?.(token);
+                    currentOptions.onSuccess?.(url);
                 }
             }
 

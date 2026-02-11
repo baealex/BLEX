@@ -12,7 +12,6 @@ from .comment_service import CommentService
 from .pinned_post_service import PinnedPostService
 from .series_service import SeriesService
 from .tag_service import TagService
-from .temp_post_service import TempPostService
 from .user_service import UserService
 from .webhook_service import WebhookService
 
@@ -24,7 +23,6 @@ __all__ = [
     'PinnedPostService',
     'SeriesService',
     'TagService',
-    'TempPostService',
     'UserService',
     'WebhookService',
 ]

@@ -5,10 +5,11 @@ from typing import Any, Optional
 from django.contrib import admin
 from django.db.models import Count, QuerySet
 from django.http import HttpRequest
+from django.utils import timezone
 
 from board.models import (
     EditHistory, EditRequest, Post, PinnedPost,
-    PostConfig, PostContent, PostLikes, TempPosts,
+    PostConfig, PostContent, PostLikes,
 )
 
 from .service import AdminDisplayService, AdminLinkService
@@ -16,6 +17,28 @@ from .constants import (
     LIST_PER_PAGE_DEFAULT, LIST_PER_PAGE_LARGE,
     THUMBNAIL_SIZE, DATETIME_FORMAT_FULL
 )
+
+
+class PublishStatusFilter(admin.SimpleListFilter):
+    """발행 상태 필터 (임시글/발행됨/예약됨)"""
+    title = '발행 상태'
+    parameter_name = 'publish_status'
+
+    def lookups(self, request, model_admin):
+        return [
+            ('draft', '임시글'),
+            ('published', '발행됨'),
+            ('scheduled', '예약됨'),
+        ]
+
+    def queryset(self, request, queryset):
+        now = timezone.now()
+        if self.value() == 'draft':
+            return queryset.filter(published_date__isnull=True)
+        elif self.value() == 'published':
+            return queryset.filter(published_date__isnull=False, published_date__lte=now)
+        elif self.value() == 'scheduled':
+            return queryset.filter(published_date__isnull=False, published_date__gt=now)
 
 
 admin.site.register(EditHistory)
@@ -57,6 +80,7 @@ class PostAdmin(admin.ModelAdmin):
     autocomplete_fields = ['author', 'series']
 
     list_filter = [
+        PublishStatusFilter,
         ('created_date', admin.DateFieldListFilter),
         ('updated_date', admin.DateFieldListFilter),
         'config__hide',
@@ -73,16 +97,21 @@ class PostAdmin(admin.ModelAdmin):
         'tags_preview',
         'likes_count',
         'comments_count',
+        'publish_status',
         'status_badges',
+        'published_date_display',
         'created_date',
     ]
     list_display_links = ['title']
     list_per_page = LIST_PER_PAGE_DEFAULT
-    actions = ['make_hidden', 'make_visible', 'make_notice', 'remove_notice']
+    actions = ['make_hidden', 'make_visible', 'make_notice', 'remove_notice', 'publish_drafts']
 
     fieldsets = (
         ('기본 정보', {
             'fields': ('author', 'title', 'url', 'series')
+        }),
+        ('발행', {
+            'fields': ('published_date', 'publish_status_display'),
         }),
         ('이미지', {
             'fields': ('image', 'image_preview'),
@@ -97,7 +126,7 @@ class PostAdmin(admin.ModelAdmin):
         }),
     )
 
-    readonly_fields = ['url', 'image_preview', 'total_likes', 'total_comments', 'created_at', 'updated_at']
+    readonly_fields = ['url', 'image_preview', 'publish_status_display', 'total_likes', 'total_comments', 'created_at', 'updated_at']
 
     def get_queryset(self, request):
         return super().get_queryset(request).select_related(
@@ -140,11 +169,25 @@ class PostAdmin(admin.ModelAdmin):
     comments_count.short_description = '댓글'
     comments_count.admin_order_field = 'comments_count'
 
+    def publish_status(self, obj: Post) -> str:
+        return AdminDisplayService.publish_status_badge(obj)
+    publish_status.short_description = '발행'
+    publish_status.admin_order_field = 'published_date'
+
+    def published_date_display(self, obj: Post) -> str:
+        return AdminDisplayService.date_display(obj.published_date, DATETIME_FORMAT_FULL)
+    published_date_display.short_description = '발행일'
+    published_date_display.admin_order_field = 'published_date'
+
+    def publish_status_display(self, obj: Post) -> str:
+        return AdminDisplayService.publish_status_badge(obj)
+    publish_status_display.short_description = '발행 상태'
+
     def status_badges(self, obj: Post) -> str:
         if hasattr(obj, 'config'):
             return AdminDisplayService.post_status_badges(obj.config)
         return AdminDisplayService.empty_placeholder()
-    status_badges.short_description = '상태'
+    status_badges.short_description = '설정'
 
     def image_preview(self, obj: Post) -> str:
         if obj.image:
@@ -197,6 +240,12 @@ class PostAdmin(admin.ModelAdmin):
         self.message_user(request, f'{count}개의 포스트를 일반 포스트로 변경했습니다.')
     remove_notice.short_description = '선택한 포스트 공지 해제'
 
+    def publish_drafts(self, request: HttpRequest, queryset: QuerySet[Post]) -> None:
+        """선택한 임시글을 즉시 발행 (bulk update)"""
+        count = queryset.filter(published_date__isnull=True).update(published_date=timezone.now())
+        self.message_user(request, f'{count}개의 임시글을 발행했습니다.')
+    publish_drafts.short_description = '선택한 임시글 즉시 발행'
+
 
 @admin.register(PostConfig)
 class PostConfigAdmin(admin.ModelAdmin):
@@ -227,23 +276,6 @@ class PostContentAdmin(admin.ModelAdmin):
     list_display = ['id']
     list_per_page = LIST_PER_PAGE_LARGE
 
-
-@admin.register(TempPosts)
-class TempPostsAdmin(admin.ModelAdmin):
-    list_display = ['author_link', 'title', 'created_date', 'updated_date']
-    list_display_links = ['title']
-    list_per_page = LIST_PER_PAGE_DEFAULT
-
-    def get_queryset(self, request: HttpRequest) -> QuerySet[TempPosts]:
-        return super().get_queryset(request).select_related('author')
-
-    def author_link(self, obj: TempPosts) -> str:
-        return AdminLinkService.create_user_link(obj.author)
-    author_link.short_description = 'author'
-
-    def get_form(self, request: HttpRequest, obj: Optional[TempPosts] = None, **kwargs: Any) -> Any:
-        kwargs['exclude'] = ['author', 'token']
-        return super().get_form(request, obj, **kwargs)
 
 
 @admin.register(PostLikes)

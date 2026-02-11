@@ -47,11 +47,12 @@ export interface Series {
     totalPosts: number;
 }
 
-export interface TempPost {
-    token: string;
+export interface DraftPost {
+    url: string;
     title: string;
-    description: string;
     createdDate: string;
+    updatedDate: string;
+    tag: string;
 }
 
 export const getAccountSettings = async () => {
@@ -107,12 +108,8 @@ export const getSeries = async () => {
     return http.get<Response<{ series: Series[] }>>('v1/setting/series');
 };
 
-export const getTempPosts = async () => {
-    return http.get<Response<{ temps: TempPost[] }>>('v1/temp-posts');
-};
-
-export const deleteTempPost = async (token: string) => {
-    return http.delete<Response<{ success: boolean }>>(`v1/temp-posts/${token}`);
+export const getDraftPosts = async () => {
+    return http.get<Response<{ drafts: DraftPost[] }>>('v1/drafts');
 };
 
 export interface NotifyItem {

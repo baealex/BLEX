@@ -7,7 +7,7 @@ import {
 } from '@blex/ui';
 
 interface PostActionsProps {
-    mode: 'new' | 'edit' | 'temp';
+    mode: 'new' | 'edit' | 'draft';
     isSaving: boolean;
     isSubmitting: boolean;
     lastSaved: Date | null;
@@ -16,7 +16,7 @@ interface PostActionsProps {
     saveProgress?: number;
     onManualSave: () => void;
     onSubmit: () => void;
-    onOpenTempPosts?: () => void;
+    onOpenDrafts?: () => void;
     onOpenSettings?: () => void;
 }
 
@@ -29,7 +29,7 @@ const PostActions = ({
     nextSaveIn = 0,
     onManualSave,
     onSubmit,
-    onOpenTempPosts,
+    onOpenDrafts,
     onOpenSettings
 }: PostActionsProps) => {
     const isEdit = mode === 'edit';
@@ -38,9 +38,9 @@ const PostActions = ({
         <div className="fixed sm:sticky bottom-6 left-0 right-0 z-30 flex justify-center pointer-events-none">
             <div className="pointer-events-auto bg-white/80 backdrop-blur-xl border border-white/20 shadow-[0_8px_30px_rgb(0,0,0,0.12)] rounded-full px-3 py-3 flex items-center gap-2 transform transition-all duration-300 hover:scale-105 hover:shadow-[0_8px_40px_rgb(0,0,0,0.16)]">
                 {/* Temp Posts */}
-                {!isEdit && onOpenTempPosts && (
+                {!isEdit && onOpenDrafts && (
                     <IconButton
-                        onClick={onOpenTempPosts}
+                        onClick={onOpenDrafts}
                         rounded="full"
                         aria-label="임시 저장 글"
                         title="임시 저장 글">

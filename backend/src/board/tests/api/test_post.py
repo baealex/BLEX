@@ -6,6 +6,7 @@ from PIL import Image
 
 from django.test import TestCase
 from django.core.files.uploadedfile import SimpleUploadedFile
+from django.utils import timezone
 
 from board.models import (
     User, Config, Post, PostContent, PostConfig, Profile, Series
@@ -40,6 +41,7 @@ class PostTestCase(TestCase):
                 url=f'test-post-{post_num}',
                 title=f'Test Post {post_num}',
                 author=author,
+                published_date=timezone.now(),
             )
             PostContent.objects.create(
                 post=post,

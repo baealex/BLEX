@@ -7,46 +7,46 @@ import {
     AlertTriangle,
     FileText
 } from '@blex/ui';
-import { getTempPosts, type TempPost } from '~/lib/api/settings';
+import { getDrafts, type DraftSummary } from '~/lib/api/posts';
 import { cx } from '~/lib/classnames';
 
-interface TempPostsPanelProps {
+interface DraftsPanelProps {
     isOpen: boolean;
     onClose: () => void;
-    onSelectPost: (token: string) => void;
-    currentToken?: string;
+    onSelectPost: (url: string) => void;
+    currentDraftUrl?: string;
 }
 
-const TempPostsPanel = ({
+const DraftsPanel = ({
     isOpen,
     onClose,
     onSelectPost,
-    currentToken
-}: TempPostsPanelProps) => {
-    const [tempPosts, setTempPosts] = useState<TempPost[]>([]);
+    currentDraftUrl
+}: DraftsPanelProps) => {
+    const [drafts, setDrafts] = useState<DraftSummary[]>([]);
     const [isLoading, setIsLoading] = useState(false);
     const [hasError, setHasError] = useState(false);
 
     useEffect(() => {
         if (isOpen) {
-            fetchTempPosts();
+            fetchDrafts();
         }
     }, [isOpen]);
 
-    const fetchTempPosts = async () => {
+    const fetchDrafts = async () => {
         setIsLoading(true);
         setHasError(false);
         try {
-            const { data } = await getTempPosts();
-            if (data.status === 'DONE' && data.body?.temps) {
-                setTempPosts(Array.isArray(data.body.temps) ? data.body.temps : []);
+            const { data } = await getDrafts();
+            if (data.status === 'DONE' && data.body?.drafts) {
+                setDrafts(Array.isArray(data.body.drafts) ? data.body.drafts : []);
             } else {
-                setTempPosts([]);
+                setDrafts([]);
             }
         } catch (error) {
-            logger.error('Failed to fetch temp posts:', error);
+            logger.error('Failed to fetch drafts:', error);
             setHasError(true);
-            setTempPosts([]);
+            setDrafts([]);
         } finally {
             setIsLoading(false);
         }
@@ -89,36 +89,36 @@ const TempPostsPanel = ({
                                 <p className="text-sm mb-3">임시 글 목록을 불러오지 못했습니다</p>
                                 <button
                                     type="button"
-                                    onClick={fetchTempPosts}
+                                    onClick={fetchDrafts}
                                     className="text-sm text-blue-600 hover:text-blue-800 font-medium">
                                     다시 시도
                                 </button>
                             </div>
-                        ) : tempPosts.length === 0 ? (
+                        ) : drafts.length === 0 ? (
                             <div className="flex flex-col items-center justify-center flex-1 min-h-[200px] text-gray-500">
                                 <FileText className="w-12 h-12 mb-3 text-gray-300" />
                                 <p className="text-sm">임시 저장된 글이 없습니다</p>
                             </div>
                         ) : (
                             <div className="divide-y divide-gray-100">
-                                {[...tempPosts].reverse().map((post) => (
+                                {drafts.map((draft) => (
                                     <button
-                                        key={post.token}
-                                        onClick={() => onSelectPost(post.token)}
+                                        key={draft.url}
+                                        onClick={() => onSelectPost(draft.url)}
                                         className={cx(
                                             'w-full text-left p-4 hover:bg-gray-50 transition-colors',
-                                            post.token === currentToken && 'bg-blue-50 border-l-4 border-blue-500'
+                                            draft.url === currentDraftUrl && 'bg-blue-50 border-l-4 border-blue-500'
                                         )}>
                                         <div className="flex items-start justify-between gap-3">
                                             <div className="flex-1 min-w-0">
                                                 <h3 className="text-sm font-medium text-gray-900 truncate mb-1">
-                                                    {post.title || '제목 없음'}
+                                                    {draft.title || '제목 없음'}
                                                 </h3>
                                                 <p className="text-xs text-gray-400">
-                                                    {post.createdDate}
+                                                    {draft.createdDate}
                                                 </p>
                                             </div>
-                                            {post.token === currentToken && (
+                                            {draft.url === currentDraftUrl && (
                                                 <div className="flex-shrink-0">
                                                     <div className="w-2 h-2 bg-blue-500 rounded-full" />
                                                 </div>
@@ -133,7 +133,7 @@ const TempPostsPanel = ({
                     {/* Footer */}
                     <div className="p-4 border-t border-gray-200 bg-gray-50">
                         <p className="text-xs text-gray-500 text-center">
-                            총 {tempPosts.length}개의 임시 저장 글
+                            총 {drafts.length}개의 임시 저장 글
                         </p>
                     </div>
                 </Dialog.Content>
@@ -142,4 +142,4 @@ const TempPostsPanel = ({
     );
 };
 
-export default TempPostsPanel;
+export default DraftsPanel;

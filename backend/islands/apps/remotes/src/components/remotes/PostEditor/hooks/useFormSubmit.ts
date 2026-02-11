@@ -10,7 +10,7 @@ interface FormSubmitData {
 }
 
 interface UseFormSubmitOptions {
-    tempToken?: string;
+    draftUrl?: string;
     onBeforeSubmit?: () => void;
     onSubmitSuccess?: () => void;
     onSubmitError?: (error: Error) => void;
@@ -20,7 +20,7 @@ export const useFormSubmit = (options: UseFormSubmitOptions) => {
     const [isSubmitting, setIsSubmitting] = useState(false);
     const formRef = useRef<HTMLFormElement>(null);
     const {
-        tempToken,
+        draftUrl,
         onBeforeSubmit,
         onSubmitSuccess,
         onSubmitError
@@ -70,25 +70,19 @@ export const useFormSubmit = (options: UseFormSubmitOptions) => {
                 addHiddenField(form, 'is_draft', 'true');
             }
 
-            // Handle temp token
-            if (tempToken) {
-                addHiddenField(form, 'token', tempToken);
-
-                // Remove tempToken from URL when submitting the post
-                const newUrl = new URL(window.location.href);
-                newUrl.searchParams.delete('tempToken');
-                window.history.replaceState({}, '', newUrl.toString());
-            } else {
-                // Get tempToken from URL if exists (for new posts)
+            // Handle draft URL
+            const currentDraftUrl = draftUrl || (() => {
                 const urlParams = new URLSearchParams(window.location.search);
-                const urlTempToken = urlParams.get('tempToken');
-                if (urlTempToken) {
-                    addHiddenField(form, 'token', urlTempToken);
+                return urlParams.get('draft') || '';
+            })();
 
-                    const newUrl = new URL(window.location.href);
-                    newUrl.searchParams.delete('tempToken');
-                    window.history.replaceState({}, '', newUrl.toString());
-                }
+            if (currentDraftUrl) {
+                addHiddenField(form, 'draft_url', currentDraftUrl);
+
+                // Remove draft param from URL when submitting the post
+                const newUrl = new URL(window.location.href);
+                newUrl.searchParams.delete('draft');
+                window.history.replaceState({}, '', newUrl.toString());
             }
 
             form.submit();
