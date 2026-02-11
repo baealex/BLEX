@@ -306,7 +306,7 @@ def user_post_related(request, username, url):
                 'image': str(related_post.image) if related_post.image else None,
                 'meta_description': related_post.meta_description,
                 'read_time': related_post.read_time,
-                'created_date': convert_to_localtime(related_post.created_date).strftime('%Y-%m-%d'),
+                'published_date': time_since(related_post.published_date),
                 'author_username': related_post.author_username,
                 'author_name': related_post.author_name,
                 'author_image': str(related_post.author_image) if related_post.author_image else None,

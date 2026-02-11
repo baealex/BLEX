@@ -64,8 +64,8 @@ const PostCard = ({ relatedPost }: { relatedPost: RelatedPost }) => {
                 </h3>
 
                 <div className="text-xs text-gray-500 mb-3 flex items-center gap-3">
-                    <time dateTime={relatedPost.createdDate}>
-                        {relatedPost.createdDate}
+                    <time dateTime={relatedPost.publishedDate}>
+                        {relatedPost.publishedDate}
                     </time>
                     <span>{relatedPost.readTime}분</span>
                 </div>

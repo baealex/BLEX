@@ -4,6 +4,7 @@ from django.db.models import F, Count, Exists, OuterRef
 
 from board.models import Post, PostLikes
 from board.modules.paginator import Paginator
+from board.modules.time import time_since
 
 
 def index(request):
@@ -44,7 +45,7 @@ def index(request):
     )
 
     for post in paginated_posts:
-        post.created_date = post.time_since()
+        post.time_display = time_since(post.published_date)
 
     context = {
         'posts': paginated_posts,

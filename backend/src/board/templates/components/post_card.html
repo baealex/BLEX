@@ -33,7 +33,7 @@ Parameters:
         <div class="text-xs text-gray-500 mb-3 flex items-center gap-3">
             <div class="flex items-center gap-1.5">
                 <i class="far fa-calendar-alt text-gray-400"></i>
-                <time datetime="{{ post.created_date }}">{{ post.created_date|date:"Y년 n월 j일" }}</time>
+                <time datetime="{{ post.published_date|date:'c' }}">{% if post.time_display %}{{ post.time_display }}{% else %}{{ post.published_date|date:"Y년 n월 j일" }}{% endif %}</time>
             </div>
             <div class="flex items-center gap-1.5">
                 <i class="far fa-clock text-gray-400"></i>

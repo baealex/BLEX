@@ -82,7 +82,7 @@ export interface RelatedPost {
     authorImage?: string;
     metaDescription: string;
     image?: string;
-    createdDate: string;
+    publishedDate: string;
     readTime: number;
 }
 

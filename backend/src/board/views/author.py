@@ -8,6 +8,7 @@ from django.utils import timezone
 from django.http import JsonResponse
 
 from board.modules.paginator import Paginator
+from board.modules.time import time_since
 from board.services.user_service import UserService
 from board.models import Post, Series, PostLikes, Tag, Profile
 from modules import markdown
@@ -168,7 +169,7 @@ def author_posts(request, username):
     ]
 
     for post in paginated_posts:
-        post.created_date = post.time_since()
+        post.time_display = time_since(post.published_date)
 
     context = {
         'author': author,
