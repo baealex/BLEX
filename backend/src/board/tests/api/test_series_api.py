@@ -1,6 +1,7 @@
 import json
 
 from django.test import TestCase
+from django.utils import timezone
 
 from board.models import (
     User, Config, Post, PostContent, PostConfig,
@@ -37,6 +38,7 @@ class SeriesAPITestCase(TestCase):
                 url=f'test-post-{i}',
                 title=f'Test Post {i}',
                 author=author,
+                published_date=timezone.now(),
             )
             PostContent.objects.create(
                 post=post,
@@ -354,7 +356,7 @@ class SeriesAPITestCase(TestCase):
             name='Hidden Series',
             url='hidden-series'
         )
-        post = Post.objects.create(author=User.objects.get(username='author'), title='Hidden Post', url='hidden-post')
+        post = Post.objects.create(author=User.objects.get(username='author'), title='Hidden Post', url='hidden-post', published_date=timezone.now())
         PostConfig.objects.create(post=post, hide=True)
         post.series = hidden_series
         post.save()

@@ -6,6 +6,7 @@ from unittest.mock import patch
 
 from django.test import TestCase, Client
 from django.contrib.auth.models import User
+from django.utils import timezone
 
 from board.models import Profile, Post, PostConfig, PostContent, WebhookSubscription
 from board.services import WebhookService
@@ -239,7 +240,8 @@ class WebhookNotificationTestCase(TestCase):
         cls.post = Post.objects.create(
             author=cls.user,
             title='Test Post',
-            url='test-post'
+            url='test-post',
+            published_date=timezone.now(),
         )
         PostContent.objects.create(
             post=cls.post,

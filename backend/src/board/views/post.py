@@ -4,8 +4,9 @@ from django.contrib.auth.models import User
 from django.db.models import Count, F, Exists, OuterRef
 from django.http import Http404
 from django.contrib import messages
+from django.utils import timezone
 
-from board.models import Post, Series, PostLikes, TempPosts, UsernameChangeLog
+from board.models import Post, Series, PostLikes, UsernameChangeLog
 from board.services.post_service import PostService, PostValidationError
 from board.services.banner_service import BannerService
 from board.html_utils import extract_table_of_contents
@@ -26,12 +27,12 @@ def post_detail(request, username, post_url):
         post = PostService.get_post_detail(username, post_url, request.user)
     except Http404:
         raise Http404("Post does not exist")
-    
+
     if post.config.hide and (not request.user.is_authenticated or request.user != author):
         raise Http404("Post does not exist")
 
     post.created_date_display = post.created_date.strftime('%Y-%m-%d')
-    
+
     # Initialize series attributes to avoid AttributeError
     post.series_total = 0
     post.visible_series_posts = []
@@ -63,42 +64,46 @@ def post_editor(request, username=None, post_url=None):
     """
     if not request.user.is_authenticated:
         return redirect('login')
-    
+
     if not request.user.profile.is_editor():
         messages.error(request, '편집자 권한이 필요합니다. 관리자에게 문의하세요.')
         return redirect('index')
 
     is_edit = username is not None and post_url is not None
     post = None
-    temp_post = None
+    draft_post = None
     series_list = []
-    
-    temp_token = request.GET.get('temp_token') or request.GET.get('tempToken')
-    if temp_token and not is_edit:
+
+    draft_url = request.GET.get('draft')
+    if draft_url and not is_edit:
         try:
-            temp_post = TempPosts.objects.get(token=temp_token, author=request.user)
-        except TempPosts.DoesNotExist:
+            draft_post = Post.objects.select_related('content').get(
+                url=draft_url,
+                author=request.user,
+                published_date__isnull=True,
+            )
+        except Post.DoesNotExist:
             pass
-    
+
     if is_edit:
         author = get_object_or_404(User, username=username)
-        
+
         if request.user != author:
             raise Http404("You don't have permission to edit this post")
-        
+
         try:
             post = PostService.get_post_detail(username, post_url, request.user)
         except Http404:
              raise Http404("Post does not exist")
-    
+
     series_list = Series.objects.filter(owner=request.user).order_by('-updated_date')
-    
+
     if request.method == 'POST':
         if is_edit and request.POST.get('delete') == 'true':
             PostService.delete_post(post)
             messages.success(request, 'Post has been deleted successfully.')
             return redirect('user_profile', username=request.user.username)
-        
+
         title = request.POST.get('title')
         subtitle = request.POST.get('subtitle', '')
         url = request.POST.get('url')
@@ -107,23 +112,23 @@ def post_editor(request, username=None, post_url=None):
         meta_description = request.POST.get('meta_description', '')
         tags_str = request.POST.get('tag', '')
         series_id = request.POST.get('series', '')
-        
+
         tags = []
         if tags_str:
             tags = [tag.strip() for tag in tags_str.split(',') if tag.strip()]
-        
+
         hide = request.POST.get('hide') in ['on', 'true']
         notice = request.POST.get('notice') in ['on', 'true']
         advertise = request.POST.get('advertise') in ['on', 'true']
         is_draft = request.POST.get('is_draft') == 'true'
-        
+
         series = None
         if series_id:
             try:
                 series = Series.objects.get(id=series_id, owner=request.user)
             except Series.DoesNotExist:
                 pass
-        
+
         if is_edit:
             image = None
             if 'image' in request.FILES:
@@ -153,41 +158,72 @@ def post_editor(request, username=None, post_url=None):
         else:
             image = request.FILES.get('image', None)
 
-            temp_token = request.POST.get('token', '')
+            # Check if publishing from a draft
+            post_draft_url = request.POST.get('draft_url', '')
 
-            try:
-                post, post_content, post_config = PostService.create_post(
-                    user=request.user,
-                    title=title,
-                    text_html=text_html,
-                    subtitle=subtitle,
-                    description=meta_description,
-                    series_url=series.url if series else '',
-                    custom_url=url,
-                    tag=','.join(tags) if tags else '',
-                    image=image,
-                    is_hide=hide,
-                    is_notice=notice,
-                    is_advertise=advertise,
-                    temp_post_token=temp_token,
-                )
-                messages.success(request, 'Post has been created successfully.')
-            except PostValidationError as e:
-                messages.error(request, e.message)
-                return redirect('post_write')
-        
+            if post_draft_url:
+                # Publishing an existing draft
+                try:
+                    existing_draft = Post.objects.select_related('content', 'config').get(
+                        url=post_draft_url,
+                        author=request.user,
+                        published_date__isnull=True,
+                    )
+                    post = PostService.publish_draft(
+                        post=existing_draft,
+                        title=title,
+                        subtitle=subtitle,
+                        text_html=text_html,
+                        description=meta_description,
+                        series_url=series.url if series else '',
+                        custom_url=url,
+                        tag=','.join(tags) if tags else '',
+                        image=image,
+                        is_hide=hide,
+                        is_notice=notice,
+                        is_advertise=advertise,
+                    )
+                    messages.success(request, 'Post has been published successfully.')
+                except Post.DoesNotExist:
+                    # Draft doesn't exist, create as normal post
+                    post_draft_url = ''
+                except PostValidationError as e:
+                    messages.error(request, e.message)
+                    return redirect('post_write')
+
+            if not post_draft_url:
+                try:
+                    post, post_content, post_config = PostService.create_post(
+                        user=request.user,
+                        title=title,
+                        text_html=text_html,
+                        subtitle=subtitle,
+                        description=meta_description,
+                        series_url=series.url if series else '',
+                        custom_url=url,
+                        tag=','.join(tags) if tags else '',
+                        image=image,
+                        is_hide=hide,
+                        is_notice=notice,
+                        is_advertise=advertise,
+                    )
+                    messages.success(request, 'Post has been created successfully.')
+                except PostValidationError as e:
+                    messages.error(request, e.message)
+                    return redirect('post_write')
+
         if is_draft:
             messages.success(request, '포스트가 임시저장되었습니다.')
             return redirect('post_edit', username=request.user.username, post_url=post.url)
 
         return redirect('post_detail', username=request.user.username, post_url=post.url)
-    
+
     context = {
         'is_edit': is_edit,
         'post': post,
-        'temp_post': temp_post,
+        'draft_post': draft_post,
         'series_list': series_list,
         'is_editor_page': True,
     }
-    
+
     return render(request, 'board/posts/post_editor.html', context)

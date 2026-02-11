@@ -35,7 +35,8 @@ def series_detail(request, username, series_url):
         'config', 'author', 'author__profile'
     ).filter(
         series=series,
-        created_date__lte=timezone.now(),
+        published_date__isnull=False,
+        published_date__lte=timezone.now(),
         config__hide=False,
     ).annotate(
         count_likes=Count('likes', distinct=True),
@@ -136,7 +137,8 @@ def series_edit(request, username, series_url):
 
     available_posts = Post.objects.select_related('config').filter(
         author=author,
-        created_date__lte=timezone.now(),
+        published_date__isnull=False,
+        published_date__lte=timezone.now(),
         config__hide=False,
     ).filter(
         Q(series__isnull=True) | Q(series=series)

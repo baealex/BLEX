@@ -12,7 +12,7 @@ from django.utils.dateparse import parse_datetime
 from django.utils.text import slugify
 
 from board.models import (
-    Comment, Series, TempPosts, Post, PostContent,
+    Comment, Series, Post, PostContent,
     PostConfig, PinnedPost, PostLikes)
 from board.modules.notify import create_notify
 from board.modules.paginator import Paginator
@@ -47,8 +47,7 @@ def post_list(request):
                 image=image,
                 is_hide=BooleanType(request.POST.get('is_hide', '')),
                 is_notice=BooleanType(request.POST.get('is_notice', '')),
-                is_advertise=BooleanType(request.POST.get('is_advertise', '')),
-                temp_post_token=request.POST.get('token', '')
+                is_advertise=BooleanType(request.POST.get('is_advertise', ''))
             )
 
             return StatusDone({

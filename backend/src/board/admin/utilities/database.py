@@ -6,7 +6,7 @@ from django.db import connection
 from django.contrib.sessions.models import Session
 from django.utils import timezone
 
-from board.models import Post, Comment, Profile, Series, TempPosts, ImageCache
+from board.models import Post, Comment, Profile, Series, ImageCache
 
 
 class DatabaseStatsService:
@@ -21,7 +21,7 @@ class DatabaseStatsService:
         stats['total_posts'] = Post.objects.count()
         stats['published_posts'] = Post.objects.filter(config__hide=False).count()
         stats['hidden_posts'] = Post.objects.filter(config__hide=True).count()
-        stats['temp_posts'] = TempPosts.objects.count()
+        stats['draft_posts'] = Post.objects.filter(published_date__isnull=True).count()
 
         # 댓글 통계
         stats['total_comments'] = Comment.objects.count()

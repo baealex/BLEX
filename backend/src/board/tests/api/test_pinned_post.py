@@ -1,6 +1,7 @@
 import json
 
 from django.test import TestCase
+from django.utils import timezone
 
 from board.models import User, Config, Profile, Post, PostContent, PostConfig, PinnedPost
 
@@ -33,6 +34,7 @@ class PinnedPostAPITestCase(TestCase):
                 author=cls.user,
                 title=f'Test Post {i}',
                 url=f'test-post-{i}',
+                published_date=timezone.now(),
             )
             PostContent.objects.create(post=post, text_md='', text_html='')
             PostConfig.objects.create(post=post)
@@ -43,6 +45,7 @@ class PinnedPostAPITestCase(TestCase):
             author=cls.user,
             title='Hidden Post',
             url='hidden-post',
+            published_date=timezone.now(),
         )
         PostContent.objects.create(post=cls.hidden_post, text_md='', text_html='')
         PostConfig.objects.create(post=cls.hidden_post, hide=True)

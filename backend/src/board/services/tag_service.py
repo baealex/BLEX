@@ -117,7 +117,8 @@ class TagService:
         return Post.objects.select_related(
             'config', 'content'
         ).filter(
-            created_date__lte=timezone.now(),
+            published_date__isnull=False,
+            published_date__lte=timezone.now(),
             config__hide=False,
             tags__value=tag_name
         ).annotate(

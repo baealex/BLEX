@@ -90,30 +90,44 @@ export const getRelatedPosts = async (username: string, postUrl: string) => {
     return http.get<Response<{ posts: RelatedPost[] }>>(`v1/users/@${username}/posts/${postUrl}/related`);
 };
 
-export const createTempPost = async (data: { title: string; content: string; tags: string }) => {
-    return http.post<Response<{ token: string }>>('v1/temp-posts', data, { headers: { 'Content-Type': 'application/json' } });
-};
-
-export const updateTempPost = async (token: string, data: { title: string; text_md: string; tag: string }) => {
-    const formData = new URLSearchParams();
-    formData.append('title', data.title);
-    formData.append('text_md', data.text_md);
-    formData.append('tag', data.tag);
-
-    return http.put<Response<{ success: boolean }>>(`v1/temp-posts/${token}`, formData, { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } });
-};
-
-export interface TempPostDetail {
-    token: string;
+// Draft API
+export interface DraftDetail {
+    url: string;
     title: string;
+    subtitle: string;
     textMd: string;
     rawContent: string;
     tags: string;
+    description: string;
+    series: string;
     createdDate: string;
 }
 
-export const getTempPost = async (token: string) => {
-    return http.get<Response<TempPostDetail>>(`v1/temp-posts/${token}`);
+export interface DraftSummary {
+    url: string;
+    title: string;
+    createdDate: string;
+    updatedDate: string;
+}
+
+export const createDraft = async (data: { title: string; content: string; tags: string; subtitle?: string; description?: string; series_url?: string }) => {
+    return http.post<Response<{ url: string }>>('v1/drafts', data, { headers: { 'Content-Type': 'application/json' } });
+};
+
+export const updateDraft = async (url: string, data: { title?: string; content?: string; tags?: string; subtitle?: string; description?: string; series_url?: string }) => {
+    return http.put<Response<{ url: string }>>(`v1/drafts/${url}`, data, { headers: { 'Content-Type': 'application/json' } });
+};
+
+export const getDraft = async (url: string) => {
+    return http.get<Response<DraftDetail>>(`v1/drafts/${url}`);
+};
+
+export const getDrafts = async () => {
+    return http.get<Response<{ drafts: DraftSummary[] }>>('v1/drafts');
+};
+
+export const deleteDraft = async (url: string) => {
+    return http.delete<Response<unknown>>(`v1/drafts/${url}`);
 };
 
 export interface PostForEdit {

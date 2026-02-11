@@ -2,7 +2,7 @@
 {% load static %}
 {% load island %}
 
-{% block title %}{% if is_edit %}포스트 수정{% elif temp_post %}임시저장{% else %}새 포스트{% endif %} - BLEX{% endblock %}
+{% block title %}{% if is_edit %}포스트 수정{% elif draft_post %}임시저장{% else %}새 포스트{% endif %} - BLEX{% endblock %}
 
 {% block extra_styles %}
 <link rel="stylesheet" href="{% island_css 'styles/post.scss' %}">
@@ -12,8 +12,8 @@
 {% csrf_token %}
 {% if is_edit %}
     {% island_component 'PostEditor' mode="edit" username=post.author.username postUrl=post.url %}
-{% elif temp_post %}
-    {% island_component 'PostEditor' mode="temp" username=request.user.username tempToken=temp_post.token %}
+{% elif draft_post %}
+    {% island_component 'PostEditor' mode="draft" username=request.user.username draftUrl=draft_post.url %}
 {% else %}
     {% island_component 'PostEditor' mode="new" username=request.user.username %}
 {% endif %}

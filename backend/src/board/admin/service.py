@@ -279,6 +279,30 @@ class AdminDisplayService:
         return mark_safe(' '.join(badges))
 
     @staticmethod
+    def publish_status_badge(post: Any) -> SafeString:
+        """발행 상태 뱃지 생성 (임시글/발행됨/예약됨)"""
+        from django.utils import timezone
+
+        if post.published_date is None:
+            return format_html(
+                '<span style="background: {}; color: {}; padding: 3px 8px; '
+                'border-radius: 4px; font-size: 11px; font-weight: 600;">임시글</span>',
+                COLOR_MUTED, COLOR_BG
+            )
+        elif post.published_date > timezone.now():
+            return format_html(
+                '<span style="background: {}; color: {}; padding: 3px 8px; '
+                'border-radius: 4px; font-size: 11px; font-weight: 600;">예약됨</span>',
+                COLOR_WARNING, COLOR_TEXT
+            )
+        else:
+            return format_html(
+                '<span style="background: {}; color: {}; padding: 3px 8px; '
+                'border-radius: 4px; font-size: 11px; font-weight: 600;">발행됨</span>',
+                COLOR_SUCCESS, COLOR_BG
+            )
+
+    @staticmethod
     def post_status_badges(config: Any) -> SafeString:
         """포스트 전체 상태 뱃지 생성"""
         badges = []

@@ -88,7 +88,8 @@ class UserService:
         """
         return User.objects.filter(id=author.id).annotate(
             post_count=Count('post', filter=Q(
-                post__created_date__lte=timezone.now(),
+                post__published_date__isnull=False,
+                post__published_date__lte=timezone.now(),
                 post__config__hide=False,
                 post__config__notice=False,
             ), distinct=True),
@@ -175,7 +176,8 @@ class UserService:
             author=user,
             config__hide=False,
             config__notice=False,
-            created_date__lte=timezone.now(),
+            published_date__isnull=False,
+            published_date__lte=timezone.now(),
         ).annotate(
             likes_count=Count('likes', distinct=True),
         ).order_by('-likes_count', '-created_date')[:6]
@@ -206,7 +208,8 @@ class UserService:
 
         posts = Post.objects.filter(
             created_date__gte=cutoff_date,
-            created_date__lte=timezone.now(),
+            published_date__isnull=False,
+            published_date__lte=timezone.now(),
             author=user,
             config__hide=False
         ).order_by('-created_date')
@@ -365,7 +368,8 @@ class UserService:
         """
         stats_query = Post.objects.filter(
             author=user,
-            created_date__lte=timezone.now(),
+            published_date__isnull=False,
+            published_date__lte=timezone.now(),
         ).aggregate(
             total_posts=Count('id'),
             total_likes=Count('likes', distinct=True),
@@ -398,7 +402,8 @@ class UserService:
         recent_posts = Post.objects.filter(
             author=user,
             created_date__gte=cutoff_date,
-            created_date__lte=timezone.now(),
+            published_date__isnull=False,
+            published_date__lte=timezone.now(),
         ).select_related('author').only(
             'title', 'url', 'created_date', 'author__username'
         ).order_by('-created_date')[:5]

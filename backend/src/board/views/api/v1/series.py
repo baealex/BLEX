@@ -113,7 +113,8 @@ def user_series(request, username, url=None):
             total_posts=Count(
                 Case(
                     When(
-                        posts__created_date__lte=timezone.now(),
+                        posts__published_date__isnull=False,
+                        posts__published_date__lte=timezone.now(),
                         posts__config__hide=False,
                         then=1
                     )
@@ -124,7 +125,8 @@ def user_series(request, username, url=None):
         if request.method == 'GET':
             if request.GET.get('kind', '') == 'continue':
                 posts = Post.objects.filter(
-                    created_date__lte=timezone.now(),
+                    published_date__isnull=False,
+                    published_date__lte=timezone.now(),
                     config__hide=False,
                     series=series,
                 ).values_list('title', 'url')
@@ -146,7 +148,8 @@ def user_series(request, username, url=None):
             posts = Post.objects.select_related(
                 'content'
             ).filter(
-                created_date__lte=timezone.now(),
+                published_date__isnull=False,
+                published_date__lte=timezone.now(),
                 config__hide=False,
                 series=series,
             ).order_by('-created_date' if order == 'latest' else 'created_date')

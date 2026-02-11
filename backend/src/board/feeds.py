@@ -36,7 +36,8 @@ class SitePostsFeed(Feed):
     def items(self):
         posts = Post.objects.filter(
             config__hide=False,
-            created_date__lte=timezone.now(),
+            published_date__isnull=False,
+            published_date__lte=timezone.now(),
         ).select_related('content').order_by('-created_date')
         return posts[:20]
 
@@ -60,7 +61,8 @@ class UserPostsFeed(Feed):
         posts = Post.objects.filter(
             author=item,
             config__hide=False,
-            created_date__lte=timezone.now(),
+            published_date__isnull=False,
+            published_date__lte=timezone.now(),
         ).select_related('content').order_by('-created_date')
         return posts[:20]
     

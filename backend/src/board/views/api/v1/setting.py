@@ -14,7 +14,7 @@ from django.utils.dateparse import parse_datetime
 from board.constants.config_meta import CONFIG_TYPE
 from board.models import (
     User, Series, Post, UserLinkMeta, SiteSetting,
-    TempPosts, Profile, Notify, Comment, PostLikes, UsernameChangeLog, PinnedPost)
+    Profile, Notify, Comment, PostLikes, UsernameChangeLog, PinnedPost)
 from board.modules.paginator import Paginator
 from board.modules.response import StatusDone, StatusError, ErrorCode
 from board.modules.time import convert_to_localtime
@@ -172,7 +172,8 @@ def setting(request, parameter):
                 'tags', 'likes', 'comments'
             ).filter(
                 author=user,
-                created_date__lte=timezone.now(),
+                published_date__isnull=False,
+                published_date__lte=timezone.now(),
             ).order_by('-created_date')
 
             tag = request.GET.get('tag', '')
@@ -255,8 +256,9 @@ def setting(request, parameter):
                 'config'
             ).filter(
                 author=user,
-                created_date__gt=timezone.now(),
-            ).order_by('-created_date')
+                published_date__isnull=False,
+                published_date__gt=timezone.now(),
+            ).order_by('-published_date')
 
             posts = Paginator(
                 objects=posts,
@@ -273,29 +275,6 @@ def setting(request, parameter):
                 'last_page': posts.paginator.num_pages,
             })
 
-        if parameter == 'temp-posts':
-            posts = TempPosts.objects.filter(
-                created_date__lte=timezone.now(),
-                author=user,
-            ).order_by('-created_date')
-
-            posts = Paginator(
-                objects=posts,
-                offset=10,
-                page=request.GET.get('page', 1)
-            )
-            return StatusDone({
-                'username': request.user.username,
-                'posts': list(map(lambda post: {
-                    'token': post.token,
-                    'title': post.title,
-                    'created_date': convert_to_localtime(post.created_date).strftime('%Y-%m-%d'),
-                    'updated_date': convert_to_localtime(post.updated_date).strftime('%Y-%m-%d'),
-                    'tag': post.tag,
-                }, posts)),
-                'last_page': posts.paginator.num_pages,
-            })
-    
         if parameter == 'tag':
             tags = Post.objects.filter(
                 author=user

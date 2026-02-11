@@ -49,7 +49,8 @@ def author_overview(request, username):
             'author__username', 'author__profile__avatar'
         ).filter(
             author=author,
-            created_date__lte=timezone.now(),
+            published_date__isnull=False,
+            published_date__lte=timezone.now(),
             config__notice=True,
             config__hide=False,
         ).order_by('-created_date')[:5]
@@ -95,7 +96,8 @@ def author_posts(request, username):
         'config', 'series', 'author', 'author__profile', 'content'
     ).filter(
         author=author,
-        created_date__lte=timezone.now(),
+        published_date__isnull=False,
+        published_date__lte=timezone.now(),
         config__hide=False,
         config__notice=False,
     )
@@ -218,7 +220,8 @@ def author_series(request, username):
         post_count=Count(
             Case(
                 When(
-                    posts__created_date__lte=timezone.now(),
+                    posts__published_date__isnull=False,
+                    posts__published_date__lte=timezone.now(),
                     posts__config__hide=False,
                     then=1
                 )

@@ -27,7 +27,8 @@ class MainPageTemplateTestCase(TestCase):
             title='Test Post',
             url='test-post',
             author=self.user,
-            created_date=timezone.now()
+            created_date=timezone.now(),
+            published_date=timezone.now()
         )
         PostContent.objects.create(
             post=self.post,
@@ -84,7 +85,8 @@ class MainPageTemplateTestCase(TestCase):
             title='Hidden Post',
             url='hidden-post',
             author=self.user,
-            created_date=timezone.now()
+            created_date=timezone.now(),
+            published_date=timezone.now()
         )
         PostContent.objects.create(
             post=hidden_post,
@@ -111,7 +113,8 @@ class MainPageTemplateTestCase(TestCase):
             title='Future Post',
             url='future-post',
             author=self.user,
-            created_date=future_date
+            created_date=future_date,
+            published_date=future_date
         )
         PostContent.objects.create(
             post=future_post,
@@ -146,7 +149,8 @@ class MainPageTemplateTestCase(TestCase):
                 title=f'Test Post {i}',
                 url=f'test-post-{i}',
                 author=self.user,
-                created_date=timezone.now()
+                created_date=timezone.now(),
+                published_date=timezone.now()
             )
             PostContent.objects.create(
                 post=post,

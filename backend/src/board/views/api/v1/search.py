@@ -28,7 +28,8 @@ def search(request):
             Q(tags__value__contains=query) |
             Q(content__text_md__contains=query),
             config__hide=False,
-            created_date__lte=timezone.now(),
+            published_date__isnull=False,
+            published_date__lte=timezone.now(),
         ).annotate(
             is_contain_title=Case(
                 When(title__contains=query, then=True),

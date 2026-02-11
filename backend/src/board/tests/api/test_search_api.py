@@ -1,5 +1,6 @@
 import json
 from django.test import TestCase
+from django.utils import timezone
 
 from board.models import (
     User, Config, Post, PostContent, PostConfig,
@@ -73,6 +74,7 @@ class SearchAPITestCase(TestCase):
                 title=data['title'],
                 meta_description=data['description'],
                 author=author if i < 3 else author2,
+                published_date=timezone.now(),
             )
             PostContent.objects.create(
                 post=post,

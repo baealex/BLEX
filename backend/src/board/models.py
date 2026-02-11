@@ -284,6 +284,8 @@ class Post(models.Model):
             models.Index(fields=['author', 'created_date']),
             models.Index(fields=['created_date']),
             models.Index(fields=['url']),
+            models.Index(fields=['published_date']),
+            models.Index(fields=['author', 'published_date']),
         ]
 
     author = models.ForeignKey('auth.User', on_delete=models.CASCADE)
@@ -296,6 +298,7 @@ class Post(models.Model):
     tags = models.ManyToManyField(Tag, related_name='posts', blank=True)
     created_date = models.DateTimeField(default=timezone.now)
     updated_date = models.DateTimeField(default=timezone.now)
+    published_date = models.DateTimeField(null=True, blank=True)
     meta_description = models.CharField(max_length=250, blank=True)
 
     def create_unique_url(self, url=None):
@@ -315,16 +318,12 @@ class Post(models.Model):
             return settings.RESOURCE_URL + 'assets/images/default-cover-1.jpg'
 
     def is_published(self):
-        try:
-            # Handle case where created_date might not be a datetime object
-            if isinstance(self.created_date, str):
-                created_date = dateutil_parser.parse(self.created_date)
-            else:
-                created_date = self.created_date
-            return created_date < timezone.now()
-        except (ValueError, TypeError, AttributeError) as e:
-            # If we can't parse the date, assume it's published to be safe
-            return True
+        if self.published_date is None:
+            return False
+        return self.published_date <= timezone.now()
+
+    def is_draft(self):
+        return self.published_date is None
 
     def time_stamp(self):
         return time_stamp(self.created_date)
@@ -603,21 +602,6 @@ class TelegramSync(models.Model):
         except:
             return False
 
-
-class TempPosts(models.Model):
-    author = models.ForeignKey('auth.User', on_delete=models.CASCADE)
-    title = models.CharField(max_length=50)
-    token = models.CharField(max_length=50)
-    text_md = models.TextField(blank=True)
-    tag = models.CharField(max_length=50)
-    created_date = models.DateTimeField(default=timezone.now)
-    updated_date = models.DateTimeField(default=timezone.now)
-
-    def time_since(self):
-        return time_since(self.created_date)
-
-    def __str__(self):
-        return self.title
 
 
 class TwoFactorAuth(models.Model):

@@ -53,7 +53,8 @@ class EdgeCaseTemplateTestCase(TestCase):
             title=long_title,
             url='long-title-post',
             author=self.user,
-            created_date=timezone.now()
+            created_date=timezone.now(),
+            published_date=timezone.now()
         )
         PostContent.objects.create(
             post=post,
@@ -77,7 +78,8 @@ class EdgeCaseTemplateTestCase(TestCase):
             url='no-series-post',
             author=self.user,
             series=None,
-            created_date=timezone.now()
+            created_date=timezone.now(),
+            published_date=timezone.now()
         )
         PostContent.objects.create(
             post=post,
@@ -100,7 +102,8 @@ class EdgeCaseTemplateTestCase(TestCase):
             title='한글 제목 テスト 测试 🚀',
             url='unicode-post',
             author=self.user,
-            created_date=timezone.now()
+            created_date=timezone.now(),
+            published_date=timezone.now()
         )
         PostContent.objects.create(
             post=unicode_post,
@@ -164,7 +167,8 @@ class EdgeCaseTemplateTestCase(TestCase):
             title='Empty Content Post',
             url='empty-content-post',
             author=self.user,
-            created_date=timezone.now()
+            created_date=timezone.now(),
+            published_date=timezone.now()
         )
         PostContent.objects.create(
             post=empty_post,

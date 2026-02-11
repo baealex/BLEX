@@ -20,7 +20,7 @@ from django.utils import timezone
 from django.utils.dateparse import parse_datetime
 from django.utils.text import slugify
 
-from board.models import Post, PostContent, PostConfig, Series, TempPosts, PostLikes
+from board.models import Post, PostContent, PostConfig, Series, PostLikes
 from board.modules.post_description import create_post_description
 from board.services.tag_service import TagService
 from board.modules.response import ErrorCode
@@ -175,23 +175,6 @@ class PostService:
         WebhookService.notify_channels(post, post_config)
 
     @staticmethod
-    def delete_temp_post(user: User, token: str) -> None:
-        """
-        Delete temporary post if exists.
-
-        Args:
-            user: Post author
-            token: Temp post token
-        """
-        if not token:
-            return
-
-        try:
-            TempPosts.objects.get(token=token, author=user).delete()
-        except TempPosts.DoesNotExist:
-            pass
-
-    @staticmethod
     @transaction.atomic
     def create_post(
         user: User,
@@ -207,7 +190,6 @@ class PostService:
         is_hide: bool = False,
         is_notice: bool = False,
         is_advertise: bool = False,
-        temp_post_token: str = ''
     ) -> Tuple[Post, PostContent, PostConfig]:
         """
         Create a new post with all related objects.
@@ -225,7 +207,6 @@ class PostService:
             is_hide: Hide post flag
             is_notice: Notice post flag
             is_advertise: Advertisement flag
-            temp_post_token: Token to delete temp post (optional)
 
         Returns:
             Tuple of (Post, PostContent, PostConfig)
@@ -253,6 +234,9 @@ class PostService:
         if reserved_date:
             post.created_date = reserved_date
             post.updated_date = reserved_date
+            post.published_date = reserved_date
+        else:
+            post.published_date = timezone.now()
 
         series = PostService.get_or_none_series(user, series_url)
         if series:
@@ -281,8 +265,6 @@ class PostService:
         )
 
         PostService.send_post_notifications(post, post_config)
-
-        PostService.delete_temp_post(user, temp_post_token)
 
         return post, post_content, post_config
 
@@ -366,7 +348,8 @@ class PostService:
         ).prefetch_related('tags').filter(
             tags__value__in=current_tags,
             config__hide=False,
-            created_date__lte=timezone.now(),
+            published_date__isnull=False,
+            published_date__lte=timezone.now(),
         ).exclude(
             id=post.id
         ).annotate(
@@ -550,6 +533,230 @@ class PostService:
             post: Post instance to delete
         """
         post.delete()
+
+    MAX_DRAFTS_PER_USER = 100
+
+    @staticmethod
+    @transaction.atomic
+    def create_draft(
+        user: User,
+        title: str = '',
+        text_html: str = '',
+        subtitle: str = '',
+        description: str = '',
+        series_url: str = '',
+        tag: str = '',
+    ) -> Post:
+        """
+        Create a draft post (published_date=null).
+        Relaxed validation: empty content is allowed.
+
+        Returns:
+            Post instance (draft)
+
+        Raises:
+            PostValidationError: If validation fails
+        """
+        PostService.validate_user_permissions(user)
+
+        draft_count = Post.objects.filter(
+            author=user,
+            published_date__isnull=True,
+        ).count()
+        if draft_count >= PostService.MAX_DRAFTS_PER_USER:
+            raise PostValidationError(
+                ErrorCode.SIZE_OVERFLOW,
+                f'임시 저장 글은 최대 {PostService.MAX_DRAFTS_PER_USER}개까지 가능합니다.'
+            )
+
+        post = Post()
+        post.title = title or '제목 없음'
+        post.subtitle = subtitle
+        post.author = user
+        post.published_date = None
+
+        if description:
+            post.meta_description = description
+        elif text_html:
+            post.meta_description = create_post_description(
+                post_content_html=text_html
+            )
+
+        series = PostService.get_or_none_series(user, series_url)
+        if series:
+            post.series = series
+
+        url = PostService.create_post_url(post.title)
+        post.create_unique_url(url)
+        post.save()
+
+        if tag:
+            TagService.set_post_tags(post, tag)
+
+        PostContent.objects.create(
+            post=post,
+            text_md=text_html,
+            text_html=text_html
+        )
+
+        PostConfig.objects.create(post=post)
+
+        return post
+
+    @staticmethod
+    @transaction.atomic
+    def update_draft(
+        post: Post,
+        title: Optional[str] = None,
+        text_html: Optional[str] = None,
+        subtitle: Optional[str] = None,
+        description: Optional[str] = None,
+        series_url: Optional[str] = None,
+        tag: Optional[str] = None,
+    ) -> Post:
+        """
+        Update a draft post. No notifications sent.
+
+        Returns:
+            Updated Post instance
+        """
+        if title is not None:
+            post.title = title or '제목 없음'
+
+        if subtitle is not None:
+            post.subtitle = subtitle
+
+        if text_html is not None:
+            try:
+                post_content = post.content
+                post_content.text_html = text_html
+                post_content.text_md = text_html
+                post_content.save()
+            except PostContent.DoesNotExist:
+                PostContent.objects.create(
+                    post=post,
+                    text_html=text_html,
+                    text_md=text_html
+                )
+
+        if description is not None:
+            post.meta_description = description
+        elif text_html is not None and text_html:
+            post.meta_description = create_post_description(
+                post_content_html=text_html
+            )
+
+        if series_url is not None:
+            series = PostService.get_or_none_series(post.author, series_url)
+            post.series = series
+
+        if tag is not None:
+            TagService.set_post_tags(post, tag)
+
+        post.updated_date = timezone.now()
+        post.save()
+
+        return post
+
+    @staticmethod
+    @transaction.atomic
+    def publish_draft(
+        post: Post,
+        title: Optional[str] = None,
+        text_html: Optional[str] = None,
+        subtitle: Optional[str] = None,
+        description: Optional[str] = None,
+        series_url: Optional[str] = None,
+        custom_url: Optional[str] = None,
+        tag: Optional[str] = None,
+        image: Optional[Any] = None,
+        is_hide: bool = False,
+        is_notice: bool = False,
+        is_advertise: bool = False,
+        reserved_date_str: str = '',
+    ) -> Post:
+        """
+        Publish a draft by setting published_date and sending notifications.
+
+        Returns:
+            Published Post instance
+
+        Raises:
+            PostValidationError: If validation fails
+        """
+        if title is not None:
+            post.title = title
+        if subtitle is not None:
+            post.subtitle = subtitle
+
+        PostService.validate_post_data(post.title, text_html or (post.content.text_html if hasattr(post, 'content') else ''))
+
+        if text_html is not None:
+            try:
+                post_content = post.content
+                post_content.text_html = text_html
+                post_content.text_md = text_html
+                post_content.save()
+            except PostContent.DoesNotExist:
+                PostContent.objects.create(
+                    post=post,
+                    text_html=text_html,
+                    text_md=text_html
+                )
+
+        if description is not None:
+            post.meta_description = description
+        elif text_html is not None:
+            post.meta_description = create_post_description(
+                post_content_html=text_html
+            )
+
+        if series_url is not None:
+            series = PostService.get_or_none_series(post.author, series_url)
+            post.series = series
+
+        if custom_url is not None:
+            url = PostService.create_post_url(post.title, custom_url)
+            post.create_unique_url(url)
+
+        if tag is not None:
+            TagService.set_post_tags(post, tag)
+
+        if image is not None:
+            if post.image:
+                post.image.delete(save=False)
+            post.image = image
+
+        reserved_date = PostService.validate_reserved_date(reserved_date_str)
+        if reserved_date:
+            post.published_date = reserved_date
+        else:
+            post.published_date = timezone.now()
+
+        post.updated_date = timezone.now()
+        post.save()
+
+        post_config = post.config
+        post_config.hide = is_hide
+        post_config.notice = is_notice
+        post_config.advertise = is_advertise
+        post_config.save()
+
+        PostService.send_post_notifications(post, post_config)
+
+        return post
+
+    @staticmethod
+    def get_user_drafts(user: User):
+        """Get all draft posts for a user."""
+        return Post.objects.select_related(
+            'config',
+        ).prefetch_related(
+            'tags',
+        ).filter(
+            author=user,
+            published_date__isnull=True,
+        ).order_by('-updated_date')
 
     @staticmethod
     def get_visible_series_posts(post: Post) -> List[Post]:
