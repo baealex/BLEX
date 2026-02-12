@@ -33,6 +33,11 @@ const navigationSections = [
                 name: '프로필',
                 path: '/profile',
                 icon: 'fa-user'
+            },
+            {
+                name: '소셜 링크',
+                path: '/social-links',
+                icon: 'fa-share-nodes'
             }
         ]
     },

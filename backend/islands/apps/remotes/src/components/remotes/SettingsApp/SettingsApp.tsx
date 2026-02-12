@@ -20,6 +20,7 @@ const DraftsSetting = lazy(() => import('./pages/DraftsSetting'));
 const FormsSetting = lazy(() => import('./pages/FormsSetting'));
 const BannerSetting = lazy(() => import('./pages/BannerSetting'));
 const IntegrationSetting = lazy(() => import('./pages/IntegrationSetting'));
+const SocialLinksSetting = lazy(() => import('./pages/SocialLinksSetting'));
 const WebhookSetting = lazy(() => import('./pages/WebhookSetting'));
 
 export interface SettingsAppProps {
@@ -106,6 +107,12 @@ const integrationRoute = createRoute({
     component: IntegrationSetting
 });
 
+const socialLinksRoute = createRoute({
+    getParentRoute: () => settingsRoute,
+    path: '/social-links',
+    component: SocialLinksSetting
+});
+
 const webhookRoute = createRoute({
     getParentRoute: () => settingsRoute,
     path: '/webhook',
@@ -125,6 +132,7 @@ const routeTree = rootRoute.addChildren([
         draftsRoute,
         formsRoute,
         bannersRoute,
+        socialLinksRoute,
         integrationRoute,
         webhookRoute
     ])

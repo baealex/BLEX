@@ -95,12 +95,12 @@
 
     // Links
     a {
-        text-decoration: none;
+        text-decoration: underline;
+        text-underline-offset: 2px;
         color: #2563eb;
 
         &:hover {
             color: #1d4ed8;
-            text-decoration: underline;
         }
     }
 
@@ -183,6 +183,11 @@
                     background: #e5e7eb;
                     color: #374151;
                     border-color: #9ca3af;
+                }
+
+                &:focus-visible {
+                    outline: 2px solid #000;
+                    outline-offset: 2px;
                 }
 
                 &:active {

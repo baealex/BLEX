@@ -20,17 +20,12 @@ import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { restrictToVerticalAxis, restrictToFirstScrollableAncestor } from '@dnd-kit/modifiers';
 import { useSuspenseQuery } from '@tanstack/react-query';
-import { SettingsHeader } from '../../components';
+import { SettingsHeader, SettingsListItem } from '../../components';
 import { Button, Dropdown } from '~/components/shared';
 import {
- getCardClass,
  getIconClass,
- CARD_PADDING,
- FLEX_ROW,
  TITLE,
- SUBTITLE,
- ACTIONS_CONTAINER,
- DRAG_HANDLE
+ SUBTITLE
 } from '~/components/shared';
 import { useConfirm } from '~/hooks/useConfirm';
 import {
@@ -86,54 +81,40 @@ const SortableSeriesItem = ({ series, username, onDelete }: SortableSeriesItemPr
 
     return (
         <div ref={setNodeRef} style={style} className="mb-3">
-            <div className={getCardClass('cursor-pointer')} onClick={handleEdit}>
-                <div className={CARD_PADDING}>
-                    <div className={FLEX_ROW}>
-                        {/* Drag handle */}
-                        <div
-                            className={DRAG_HANDLE}
-                            style={{ touchAction: 'none' }}
-                            onClick={(e) => e.stopPropagation()}
-                            {...attributes}
-                            {...listeners}>
-                            <i className="fas fa-grip-vertical" />
-                        </div>
-
-                        {/* Icon */}
-                        <div className={getIconClass('dark')}>
-                            <i className="fas fa-book text-sm" />
-                        </div>
-
-                        {/* Content */}
-                        <div className="flex-1 min-w-0">
-                            <h3 className={`${TITLE} mb-0.5`}>{series.title}</h3>
-                            <div className={SUBTITLE}>
-                                <i className="fas fa-file-alt mr-1.5" />
-                                {series.totalPosts}개의 포스트
-                            </div>
-                        </div>
-
-                        {/* Actions */}
-                        <div className={ACTIONS_CONTAINER} onClick={(e) => e.stopPropagation()}>
-                            <Dropdown
-                                items={[
-                                    {
-                                        label: '시리즈 보기',
-                                        icon: 'fas fa-eye',
-                                        onClick: handleView
-                                    },
-                                    {
-                                        label: '삭제',
-                                        icon: 'fas fa-trash',
-                                        onClick: handleDelete,
-                                        variant: 'danger'
-                                    }
-                                ]}
-                            />
-                        </div>
+            <SettingsListItem
+                onClick={handleEdit}
+                dragHandleProps={{
+                    attributes,
+                    listeners
+                }}
+                left={
+                    <div className={getIconClass('default')}>
+                        <i className="fas fa-book text-sm" />
                     </div>
+                }
+                actions={
+                    <Dropdown
+                        items={[
+                            {
+                                label: '시리즈 보기',
+                                icon: 'fas fa-eye',
+                                onClick: handleView
+                            },
+                            {
+                                label: '삭제',
+                                icon: 'fas fa-trash',
+                                onClick: handleDelete,
+                                variant: 'danger'
+                            }
+                        ]}
+                    />
+                }>
+                <h3 className={`${TITLE} mb-0.5`}>{series.title}</h3>
+                <div className={SUBTITLE}>
+                    <i className="fas fa-file-alt mr-1.5" />
+                    {series.totalPosts}개의 포스트
                 </div>
-            </div>
+            </SettingsListItem>
         </div>
     );
 };
@@ -238,7 +219,7 @@ const SeriesSetting = () => {
             />
 
             {/* Series list */}
-            {series.length >= 1 && (
+            {series.length >= 1 ? (
                 <DndContext
                     sensors={sensors}
                     modifiers={[restrictToVerticalAxis, restrictToFirstScrollableAncestor]}
@@ -259,6 +240,17 @@ const SeriesSetting = () => {
                         </div>
                     </SortableContext>
                 </DndContext>
+            ) : (
+                <div className="py-16 text-center border border-dashed border-gray-200 rounded-2xl">
+                    <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gray-50 mb-4">
+                        <i className="fas fa-book text-2xl text-gray-300" />
+                    </div>
+                    <h3 className="text-lg font-semibold text-gray-900 mb-1">시리즈가 없습니다</h3>
+                    <p className="text-gray-500 text-sm mb-6">첫 번째 시리즈를 만들어보세요.</p>
+                    <Button variant="secondary" size="md" onClick={handleCreateSeries}>
+                        시리즈 생성하기
+                    </Button>
+                </div>
             )}
         </div>
     );

@@ -27,6 +27,8 @@ Alpine.js 기반 좋아요 버튼 컴포넌트
         'active:scale-95': !loading
     }"
     :disabled="loading"
+    :aria-label="liked ? '좋아요 취소 (' + count + ')' : '좋아요 (' + count + ')'"
+    :aria-pressed="liked"
     class="group inline-flex items-center justify-center transition-all duration-300 outline-none cursor-pointer select-none
     {% if size == 'small' %}
         border border-gray-200 gap-1.5 px-2.5 py-1 rounded-lg text-xs font-medium h-7 min-w-[51px]

@@ -34,6 +34,7 @@ const Input = forwardRef<HTMLInputElement | HTMLTextAreaElement, InputProps>(
         ref
     ) => {
         const inputId = id || `input-${Math.random().toString(36).substr(2, 9)}`;
+        const errorId = `${inputId}-error`;
         const errorStyles = error ? 'border-red-300 focus:border-red-500 focus:ring-red-500/10 bg-red-50/30' : '';
         const readOnlyStyles = readOnly ? '!bg-gray-50 !text-gray-500 cursor-default focus:!ring-0 focus:!border-gray-200' : '';
 
@@ -76,6 +77,8 @@ const Input = forwardRef<HTMLInputElement | HTMLTextAreaElement, InputProps>(
                             rows={rows}
                             readOnly={readOnly}
                             className={inputClasses}
+                            aria-invalid={!!error}
+                            aria-describedby={error ? errorId : undefined}
                             {...(props as InputHTMLAttributes<HTMLTextAreaElement>)}
                         />
                     ) : (
@@ -84,6 +87,8 @@ const Input = forwardRef<HTMLInputElement | HTMLTextAreaElement, InputProps>(
                             id={inputId}
                             readOnly={readOnly}
                             className={inputClasses}
+                            aria-invalid={!!error}
+                            aria-describedby={error ? errorId : undefined}
                             {...(props as InputHTMLAttributes<HTMLInputElement>)}
                         />
                     )}
@@ -96,7 +101,7 @@ const Input = forwardRef<HTMLInputElement | HTMLTextAreaElement, InputProps>(
                 </div>
 
                 {error && (
-                    <p className="mt-1.5 text-sm text-red-500 ml-1 flex items-center gap-1.5">
+                    <p id={errorId} role="alert" className="mt-1.5 text-sm text-red-500 ml-1 flex items-center gap-1.5">
                         <AlertCircle className="w-3.5 h-3.5 shrink-0" />
                         {error}
                     </p>

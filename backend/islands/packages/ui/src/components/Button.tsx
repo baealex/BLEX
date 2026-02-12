@@ -38,11 +38,11 @@ const Button = ({
     const sizeStyles = compact ? {
         sm: 'px-2 py-1.5 text-xs rounded-lg',
         md: 'px-3 py-2 text-sm rounded-lg',
-        lg: 'px-4 py-2.5 text-base rounded-xl'
+        lg: 'px-4 py-2.5 text-base rounded-lg'
     } : {
-        sm: 'px-3.5 py-2 text-xs rounded-xl min-h-[36px]',
-        md: 'px-5 py-3 text-sm rounded-2xl min-h-[48px]',
-        lg: 'px-7 py-4 text-base rounded-2xl min-h-[56px]'
+        sm: 'px-3.5 py-2 text-xs rounded-lg min-h-[36px]',
+        md: 'px-5 py-3 text-sm rounded-lg min-h-[48px]',
+        lg: 'px-7 py-4 text-base rounded-lg min-h-[56px]'
     };
 
     const widthStyle = fullWidth ? 'w-full' : '';

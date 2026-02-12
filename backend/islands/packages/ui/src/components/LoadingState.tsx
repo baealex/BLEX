@@ -6,7 +6,7 @@ interface LoadingStateProps {
 const LoadingState = ({ rows = 3, type = 'form' }: LoadingStateProps) => {
     if (type === 'list') {
         return (
-            <div className="space-y-3 animate-pulse">
+            <div className="space-y-3 animate-pulse" role="status" aria-live="polite" aria-label="로딩 중">
                 {[...Array(rows)].map((_, i) => (
                     <div key={i} className="flex items-start gap-4 p-5 bg-gray-50 rounded-2xl">
                         <div className="w-12 h-12 bg-gray-200 rounded-xl flex-shrink-0" />
@@ -23,7 +23,7 @@ const LoadingState = ({ rows = 3, type = 'form' }: LoadingStateProps) => {
 
     if (type === 'spinner') {
         return (
-            <div className="flex items-center justify-center p-8">
+            <div className="flex items-center justify-center p-8" role="status" aria-live="polite" aria-label="로딩 중">
                 <div className="relative w-8 h-8">
                     <svg className="animate-spin text-gray-900" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                         <circle
@@ -43,7 +43,7 @@ const LoadingState = ({ rows = 3, type = 'form' }: LoadingStateProps) => {
 
     // Default form type
     return (
-        <div>
+        <div role="status" aria-live="polite" aria-label="로딩 중">
             <div className="animate-pulse">
                 <div className="h-8 bg-gray-200 rounded w-32 mb-6" />
                 <div className="space-y-4">
