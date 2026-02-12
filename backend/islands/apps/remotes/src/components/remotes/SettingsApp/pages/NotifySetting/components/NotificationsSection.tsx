@@ -1,10 +1,8 @@
 import {
     Button,
-    getCardClass,
-    CARD_PADDING,
-    FLEX_ROW,
     TITLE
 } from '~/components/shared';
+import { SettingsListItem } from '../../../components';
 import { SettingsHeader } from '../../../components';
 import { markNotificationAsRead, type NotifyItem } from '~/lib/api/settings';
 
@@ -69,40 +67,36 @@ const NotificationsSection = ({
             <div className="space-y-3">
                 {notifyList.length > 0 ? (
                     notifyList.slice(0, 10).map((item) => (
-                        <div
+                        <SettingsListItem
                             key={item.id}
-                            className={getCardClass('cursor-pointer')}
-                            onClick={() => handleClickNotify(item)}>
-                            <div className={CARD_PADDING}>
-                                <div className={`${FLEX_ROW} items-start`}>
-                                    <div className="flex-1 min-w-0">
-                                        <div className={`${TITLE} ${!item.isRead ? 'font-semibold' : 'font-medium! text-gray-600!'} mb-1.5 leading-relaxed`}>
-                                            {item.content}
-                                        </div>
-                                        <div className="flex items-center gap-2 text-xs text-gray-400">
-                                            <i className="far fa-clock" />
-                                            <span>{item.createdDate}</span>
-                                            {!item.isRead && (
-                                                <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold bg-red-50 text-red-600 border border-red-100">
-                                                    NEW
-                                                </span>
-                                            )}
-                                        </div>
-                                    </div>
-                                    <div className="flex-shrink-0 self-center text-gray-300 ml-3">
-                                        <i className="fas fa-chevron-right" />
-                                    </div>
+                            className="items-start"
+                            onClick={() => handleClickNotify(item)}
+                            actions={
+                                <div className="flex-shrink-0 self-center text-gray-300">
+                                    <i className="fas fa-chevron-right" />
                                 </div>
+                            }>
+                            <div className={`${TITLE} ${!item.isRead ? 'font-semibold' : 'font-medium! text-gray-600!'} mb-1.5 leading-relaxed`}>
+                                {item.content}
                             </div>
-                        </div>
+                            <div className="flex items-center gap-2 text-xs text-gray-400">
+                                <i className="far fa-clock" />
+                                <span>{item.createdDate}</span>
+                                {!item.isRead && (
+                                    <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold bg-red-50 text-red-600 border border-red-100">
+                                        NEW
+                                    </span>
+                                )}
+                            </div>
+                        </SettingsListItem>
                     ))
                 ) : (
-                    <div className="text-center py-16 bg-white rounded-2xl border border-gray-100 border-dashed">
-                        <div className="w-12 h-12 mx-auto bg-gray-50 rounded-xl flex items-center justify-center mb-4 text-gray-300">
-                            <i className="fas fa-bell-slash text-xl" />
+                    <div className="py-16 text-center border border-dashed border-gray-200 rounded-2xl">
+                        <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gray-50 mb-4">
+                            <i className="fas fa-bell-slash text-2xl text-gray-300" />
                         </div>
-                        <h3 className="text-base font-semibold text-gray-900 mb-1">알림이 없습니다</h3>
-                        <p className="text-gray-400 text-sm">새로운 알림이 도착하면 여기에 표시됩니다.</p>
+                        <h3 className="text-lg font-semibold text-gray-900 mb-1">알림이 없습니다</h3>
+                        <p className="text-gray-500 text-sm">새로운 알림이 도착하면 여기에 표시됩니다.</p>
                     </div>
                 )}
             </div>

@@ -348,19 +348,14 @@ const SocialLinks = () => {
             <form onSubmit={handleSubmit}>
                 <div className="mb-6">
                     {socials.length === 0 ? (
-                        <div className="text-center py-16">
-                            <div className="w-20 h-20 mx-auto bg-gray-100 rounded-2xl flex items-center justify-center mb-6">
-                                <i className="fas fa-share-alt text-gray-400 text-3xl" />
+                        <div className="py-16 text-center border border-dashed border-gray-200 rounded-2xl">
+                            <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gray-50 mb-4">
+                                <i className="fas fa-share-alt text-2xl text-gray-300" />
                             </div>
-                            <h3 className="text-xl font-bold text-gray-900 mb-2">소셜 링크가 없습니다</h3>
-                            <p className="text-gray-500 mb-6">첫 번째 소셜 링크를 추가해보세요!</p>
-                            <Button
-                                type="button"
-                                variant="primary"
-                                size="md"
-                                leftIcon={<i className="fas fa-plus" />}
-                                onClick={handleSocialAdd}>
-                                첫 링크 추가하기
+                            <h3 className="text-lg font-semibold text-gray-900 mb-1">소셜 링크가 없습니다</h3>
+                            <p className="text-gray-500 text-sm mb-6">첫 번째 소셜 링크를 추가해보세요.</p>
+                            <Button type="button" variant="secondary" size="md" onClick={handleSocialAdd}>
+                                소셜 링크 추가하기
                             </Button>
                         </div>
                     ) : (

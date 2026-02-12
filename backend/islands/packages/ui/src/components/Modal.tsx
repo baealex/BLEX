@@ -82,7 +82,7 @@ const Modal = ({
                             {showCloseButton && (
                                 <Dialog.Close asChild>
                                     <button
-                                        className="text-gray-400 hover:text-gray-600 transition-colors p-2 hover:bg-gray-100 rounded-lg ml-auto"
+                                        className="text-gray-400 hover:text-gray-600 transition-colors p-2 hover:bg-gray-100 rounded-lg ml-auto focus:outline-none focus:ring-2 focus:ring-black/20"
                                         aria-label="Close">
                                         <X className="w-6 h-6" />
                                     </button>

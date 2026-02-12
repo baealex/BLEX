@@ -107,7 +107,7 @@ const LoginForm = ({
                             required
                             value={username}
                             onChange={(e) => onUsernameChange(e.target.value)}
-                            className="w-full px-4 py-3.5 border border-gray-200 rounded-2xl focus:ring-4 focus:ring-black/5 focus:border-black/30 text-gray-900 placeholder-gray-400 transition-all duration-200 bg-white/40 text-sm font-medium"
+                            className="w-full px-4 py-3.5 border border-gray-200 rounded-lg focus:ring-4 focus:ring-black/5 focus:border-black/30 text-gray-900 placeholder-gray-400 transition-all duration-200 bg-white/40 text-sm font-medium"
                             placeholder="사용자 이름을 입력하세요"
                         />
                         {usernameError && (
@@ -129,7 +129,7 @@ const LoginForm = ({
                             required
                             value={password}
                             onChange={(e) => onPasswordChange(e.target.value)}
-                            className="w-full px-4 py-3.5 border border-gray-200 rounded-2xl focus:ring-4 focus:ring-black/5 focus:border-black/30 text-gray-900 placeholder-gray-400 transition-all duration-200 bg-white/40 text-sm font-medium"
+                            className="w-full px-4 py-3.5 border border-gray-200 rounded-lg focus:ring-4 focus:ring-black/5 focus:border-black/30 text-gray-900 placeholder-gray-400 transition-all duration-200 bg-white/40 text-sm font-medium"
                             placeholder="비밀번호를 입력하세요"
                         />
                         {passwordError && (
@@ -159,7 +159,7 @@ const LoginForm = ({
                 <button
                     type="submit"
                     disabled={isLoading}
-                    className="w-full flex items-center justify-center py-3.5 px-6 bg-black hover:bg-gray-800 text-white font-semibold rounded-2xl shadow-lg shadow-black/20 hover:shadow-xl hover:-translate-y-0.5 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none text-sm">
+                    className="w-full flex items-center justify-center py-3.5 px-6 bg-black hover:bg-gray-800 text-white font-semibold rounded-lg shadow-lg shadow-black/20 hover:shadow-xl hover:-translate-y-0.5 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none text-sm">
                     {isLoading && (
                         <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                             <circle
