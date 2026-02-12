@@ -1,7 +1,6 @@
 """
 Post Admin Configuration
 """
-from typing import Any, Optional
 from django.contrib import admin
 from django.db.models import Count, QuerySet
 from django.http import HttpRequest
@@ -9,12 +8,12 @@ from django.utils import timezone
 
 from board.models import (
     EditHistory, EditRequest, Post, PinnedPost,
-    PostConfig, PostContent, PostLikes,
+    PostConfig, PostContent,
 )
 
 from .service import AdminDisplayService, AdminLinkService
 from .constants import (
-    LIST_PER_PAGE_DEFAULT, LIST_PER_PAGE_LARGE,
+    LIST_PER_PAGE_DEFAULT,
     THUMBNAIL_SIZE, DATETIME_FORMAT_FULL
 )
 
@@ -41,9 +40,27 @@ class PublishStatusFilter(admin.SimpleListFilter):
             return queryset.filter(published_date__isnull=False, published_date__gt=now)
 
 
-admin.site.register(EditHistory)
-admin.site.register(EditRequest)
-admin.site.register(PinnedPost)
+@admin.register(EditHistory)
+class EditHistoryAdmin(admin.ModelAdmin):
+    list_display = ['id', 'post', 'created_date']
+    list_per_page = LIST_PER_PAGE_DEFAULT
+    search_fields = ['post__title']
+    readonly_fields = ['post', 'created_date']
+
+
+@admin.register(EditRequest)
+class EditRequestAdmin(admin.ModelAdmin):
+    list_display = ['id', 'post', 'created_date']
+    list_per_page = LIST_PER_PAGE_DEFAULT
+    search_fields = ['post__title']
+
+
+@admin.register(PinnedPost)
+class PinnedPostAdmin(admin.ModelAdmin):
+    list_display = ['id', 'post', 'user', 'order']
+    list_per_page = LIST_PER_PAGE_DEFAULT
+    search_fields = ['post__title', 'user__username']
+    autocomplete_fields = ['post', 'user']
 
 
 class PostContentInline(admin.StackedInline):
@@ -104,6 +121,8 @@ class PostAdmin(admin.ModelAdmin):
     ]
     list_display_links = ['title']
     list_per_page = LIST_PER_PAGE_DEFAULT
+    save_on_top = True
+    date_hierarchy = 'created_date'
     actions = ['make_hidden', 'make_visible', 'make_notice', 'remove_notice', 'publish_drafts']
 
     fieldsets = (
@@ -247,42 +266,3 @@ class PostAdmin(admin.ModelAdmin):
     publish_drafts.short_description = '선택한 임시글 즉시 발행'
 
 
-@admin.register(PostConfig)
-class PostConfigAdmin(admin.ModelAdmin):
-    list_display = ['id']
-    list_per_page = LIST_PER_PAGE_LARGE
-
-    def get_form(self, request: HttpRequest, obj: Optional[PostConfig] = None, **kwargs: Any) -> Any:
-        kwargs['exclude'] = ['post']
-        return super().get_form(request, obj, **kwargs)
-
-
-@admin.register(PostContent)
-class PostContentAdmin(admin.ModelAdmin):
-    fieldsets = (
-        (None, {
-            'fields': ('text_md', 'text_html'),
-        }),
-        ('Preview', {
-            'fields': ('text_html_preview',),
-        }),
-    )
-    readonly_fields = ['text_html_preview']
-
-    def text_html_preview(self, obj: PostContent) -> str:
-        return AdminDisplayService.html(obj.text_html)
-    text_html_preview.short_description = 'HTML 미리보기'
-
-    list_display = ['id']
-    list_per_page = LIST_PER_PAGE_LARGE
-
-
-
-@admin.register(PostLikes)
-class PostLikesAdmin(admin.ModelAdmin):
-    list_display = ['id', 'user', 'post', 'created_date']
-    list_display_links = ['id']
-
-    def get_form(self, request: HttpRequest, obj: Optional[PostLikes] = None, **kwargs: Any) -> Any:
-        kwargs['exclude'] = ['user', 'post']
-        return super().get_form(request, obj, **kwargs)

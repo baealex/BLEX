@@ -90,6 +90,7 @@ class SeriesAdmin(admin.ModelAdmin):
     ]
     list_display_links = ['name']
     list_per_page = 30
+    save_on_top = True
 
     def owner_link(self, obj):
         return AdminLinkService.create_user_link(obj.owner)

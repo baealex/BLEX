@@ -7,7 +7,7 @@ from .service import AdminDisplayService
 
 
 class ImageFilter(admin.SimpleListFilter):
-    title = 'image type'
+    title = '이미지 타입'
     parameter_name = 'image_type'
 
     def lookups(self, request, model_admin):
@@ -38,11 +38,11 @@ class ImageCacheAdmin(admin.ModelAdmin):
     def file_size(self, obj):
         size = obj.size
         if size > 1024 * 1024:
-            return f'{round(size / 1024 / 1024, 2)} mb'
+            return f'{round(size / 1024 / 1024, 2)} MB'
         elif size > 1024:
-            return f'{round(size / 1024, 2)} kb'
-        return f'{size} b'
-    file_size.short_description = 'size'
+            return f'{round(size / 1024, 2)} KB'
+        return f'{size} B'
+    file_size.short_description = '파일 크기'
     file_size.admin_order_field = 'size'
 
     def image(self, obj):
@@ -52,8 +52,9 @@ class ImageCacheAdmin(admin.ModelAdmin):
         if obj.path.endswith('.mp4'):
             return AdminDisplayService.video(media_path, image_size)
         return AdminDisplayService.image(media_path, image_size)
+    image.short_description = '미리보기'
     image.admin_order_field = 'path'
 
     def open_image(self, obj):
         return AdminDisplayService.link(settings.MEDIA_URL + obj.path)
-    open_image.short_description = 'open'
+    open_image.short_description = '열기'

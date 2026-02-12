@@ -59,7 +59,7 @@ def migrate_temp_posts_to_drafts(apps, schema_editor):
             tag_names = [t.strip() for t in temp.tag.split(',') if t.strip()]
             for tag_name in tag_names:
                 tag_obj, _ = Tag.objects.get_or_create(value=tag_name)
-                post.tag.add(tag_obj)
+                post.tags.add(tag_obj)
 
 
 def reverse_migration(apps, schema_editor):

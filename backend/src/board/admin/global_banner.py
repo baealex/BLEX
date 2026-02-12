@@ -5,6 +5,7 @@ Site Operations / 사이트 운영
 from django.contrib import admin
 from django.http import HttpRequest
 from django.db.models import QuerySet
+from django.utils.html import format_html
 
 from board.models import GlobalBanner
 
@@ -59,26 +60,30 @@ class GlobalBannerAdmin(admin.ModelAdmin):
     def banner_type_display(self, obj: GlobalBanner) -> str:
         """배너 타입 표시"""
         type_colors = {
-            'horizontal': '#3b82f6',  # blue
-            'sidebar': '#8b5cf6',  # purple
+            'horizontal': '#3b82f6',
+            'sidebar': '#8b5cf6',
         }
         color = type_colors.get(obj.banner_type, '#6b7280')
-        return f'<span style="color: {color}; font-weight: bold;">● {obj.get_banner_type_display()}</span>'
+        return format_html(
+            '<span style="background: {}; color: white; padding: 2px 8px; border-radius: 4px; font-size: 11px;">{}</span>',
+            color, obj.get_banner_type_display()
+        )
     banner_type_display.short_description = '배너 타입'
-    banner_type_display.allow_tags = True
 
     def position_display(self, obj: GlobalBanner) -> str:
         """배너 위치 표시"""
         position_colors = {
-            'top': '#3b82f6',  # blue
-            'bottom': '#10b981',  # green
-            'left': '#8b5cf6',  # purple
-            'right': '#ec4899',  # pink
+            'top': '#3b82f6',
+            'bottom': '#10b981',
+            'left': '#8b5cf6',
+            'right': '#ec4899',
         }
         color = position_colors.get(obj.position, '#6b7280')
-        return f'<span style="background: {color}; color: white; padding: 2px 8px; border-radius: 4px; font-size: 11px;">{obj.get_position_display()}</span>'
+        return format_html(
+            '<span style="background: {}; color: white; padding: 2px 8px; border-radius: 4px; font-size: 11px;">{}</span>',
+            color, obj.get_position_display()
+        )
     position_display.short_description = '위치'
-    position_display.allow_tags = True
 
     def active_status(self, obj: GlobalBanner) -> str:
         return AdminDisplayService.active_status_badge(obj.is_active)

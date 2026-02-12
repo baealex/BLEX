@@ -22,8 +22,20 @@ from .constants import COLOR_MUTED, COLOR_INFO, COLOR_BG, COLOR_TEXT
 from .constants import LIST_PER_PAGE_DEFAULT
 
 
-admin.site.register(EmailChange)
-admin.site.register(UsernameChangeLog)
+@admin.register(EmailChange)
+class EmailChangeAdmin(admin.ModelAdmin):
+    list_display = ['id', 'user', 'email', 'created_date']
+    list_per_page = LIST_PER_PAGE_DEFAULT
+    search_fields = ['user__username', 'email']
+    readonly_fields = ['user', 'email', 'created_date']
+
+
+@admin.register(UsernameChangeLog)
+class UsernameChangeLogAdmin(admin.ModelAdmin):
+    list_display = ['id', 'user', 'username', 'created_date']
+    list_per_page = LIST_PER_PAGE_DEFAULT
+    search_fields = ['user__username', 'username']
+    readonly_fields = ['user', 'username', 'created_date']
 
 
 class UserLinkMetaInline(admin.TabularInline):
@@ -233,6 +245,7 @@ class ProfileAdmin(admin.ModelAdmin):
     list_filter = ['role', ('user__date_joined', admin.DateFieldListFilter)]
     search_fields = ['user__username', 'user__email', 'bio', 'homepage']
     list_per_page = LIST_PER_PAGE_DEFAULT
+    save_on_top = True
 
     actions = ['set_role_editor', 'set_role_reader', 'set_role_admin']
 
