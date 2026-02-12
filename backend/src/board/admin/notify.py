@@ -52,6 +52,7 @@ class NotifyAdmin(admin.ModelAdmin):
     list_display = ['id', 'user_link', 'content_preview', 'read_status', 'url_link', 'created_date']
     list_display_links = ['content_preview']
     list_per_page = LIST_PER_PAGE_DEFAULT
+    date_hierarchy = 'created_date'
 
     fieldsets = (
         ('기본 정보', {

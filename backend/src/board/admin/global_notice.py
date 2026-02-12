@@ -27,11 +27,12 @@ class GlobalNoticeAdmin(admin.ModelAdmin):
         'id',
         'title',
         'url',
-        'active_status',
+        'is_active',
         'created_date',
         'updated_date'
     ]
     list_display_links = ['title']
+    list_editable = ['is_active']
     list_per_page = LIST_PER_PAGE_DEFAULT
 
     fieldsets = (

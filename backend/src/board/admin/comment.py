@@ -51,6 +51,8 @@ class CommentAdmin(admin.ModelAdmin):
     list_display = ['id', 'content_preview', 'post_link', 'author_link', 'likes_display', 'status_badges', 'created_date']
     list_display_links = ['content_preview']
     list_per_page = 30
+    save_on_top = True
+    date_hierarchy = 'created_date'
 
     def get_queryset(self, request):
         return super().get_queryset(request).select_related('author', 'post').prefetch_related('likes').annotate(

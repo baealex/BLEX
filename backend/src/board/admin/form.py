@@ -11,13 +11,15 @@ from .service import AdminLinkService
 class FormAdmin(admin.ModelAdmin):
     list_display = ['id', 'user_link', 'title', 'is_public', 'created_date']
     list_per_page = 30
+    search_fields = ['title', 'user__username']
+    list_filter = ['is_public', ('created_date', admin.DateFieldListFilter)]
 
     def get_queryset(self, request):
         return super().get_queryset(request).select_related('user')
 
     def user_link(self, obj):
         return AdminLinkService.create_user_link(obj.user)
-    user_link.short_description = 'user'
+    user_link.short_description = '사용자'
 
     def get_form(self, request, obj=None, **kwargs):
         kwargs['exclude'] = ['user']
