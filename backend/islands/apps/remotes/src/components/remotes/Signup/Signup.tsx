@@ -18,6 +18,42 @@ const getCsrfToken = (): string => {
     return token || '';
 };
 
+interface PasswordStrength {
+    label: string;
+    color: string;
+}
+
+const getPasswordStrength = (pw: string): PasswordStrength | null => {
+    if (!pw) return null;
+    if (pw.length < 6) {
+        return {
+            label: '너무 짧음',
+            color: 'text-red-500'
+        };
+    }
+    let score = 0;
+    if (pw.length >= 8) score++;
+    if (/[a-z]/.test(pw) && /[A-Z]/.test(pw)) score++;
+    if (/\d/.test(pw)) score++;
+    if (/[^a-zA-Z0-9]/.test(pw)) score++;
+    if (score <= 1) {
+        return {
+            label: '약함',
+            color: 'text-yellow-600'
+        };
+    }
+    if (score <= 2) {
+        return {
+            label: '보통',
+            color: 'text-yellow-500'
+        };
+    }
+    return {
+        label: '강함',
+        color: 'text-green-500'
+    };
+};
+
 const Signup = () => {
     const [username, setUsername] = useState('');
     const [name, setName] = useState('');
@@ -34,6 +70,8 @@ const Signup = () => {
     const [captchaToken, setCaptchaToken] = useState('');
     const [captchaRendered, setCaptchaRendered] = useState(false);
     const [isVisible, setIsVisible] = useState(false);
+
+    const passwordStrength = getPasswordStrength(password);
 
     const captchaRef = useRef<HTMLDivElement>(null);
     const widgetIdRef = useRef<string | null>(null);
@@ -187,11 +225,22 @@ const Signup = () => {
                                     autoComplete="username"
                                     required
                                     value={username}
-                                    onChange={(e) => setUsername(e.target.value)}
-                                    className="w-full px-4 py-3.5 border border-gray-200 rounded-2xl focus:ring-4 focus:ring-black/5 focus:border-black/30 text-gray-900 placeholder-gray-400 transition-all duration-200 bg-white/40 text-sm font-medium"
+                                    onChange={(e) => {
+                                        const val = e.target.value;
+                                        setUsername(val);
+                                        if (val && !/^[a-z0-9]*$/.test(val)) {
+                                            setUsernameError('영문 소문자와 숫자만 사용할 수 있습니다.');
+                                        } else if (val.length > 15) {
+                                            setUsernameError('15자를 초과할 수 없습니다.');
+                                        } else {
+                                            setUsernameError('');
+                                        }
+                                    }}
+                                    className="w-full px-4 py-3.5 border border-gray-200 rounded-lg focus:ring-4 focus:ring-black/5 focus:border-black/30 text-gray-900 placeholder-gray-400 transition-all duration-200 bg-white/40 text-sm font-medium"
                                     placeholder="4-15자 영문 소문자, 숫자"
                                 />
                                 {usernameError && <p className="text-red-500 text-xs mt-1.5 font-medium flex items-center gap-1"><i className="fas fa-exclamation-circle" /> {usernameError}</p>}
+                                {!usernameError && <p className="text-gray-400 text-xs mt-1.5 font-medium">4-15자 영문 소문자, 숫자</p>}
                             </div>
 
                             <div>
@@ -204,7 +253,7 @@ const Signup = () => {
                                     required
                                     value={name}
                                     onChange={(e) => setName(e.target.value)}
-                                    className="w-full px-4 py-3.5 border border-gray-200 rounded-2xl focus:ring-4 focus:ring-black/5 focus:border-black/30 text-gray-900 placeholder-gray-400 transition-all duration-200 bg-white/40 text-sm font-medium"
+                                    className="w-full px-4 py-3.5 border border-gray-200 rounded-lg focus:ring-4 focus:ring-black/5 focus:border-black/30 text-gray-900 placeholder-gray-400 transition-all duration-200 bg-white/40 text-sm font-medium"
                                     placeholder="표시할 이름을 입력하세요"
                                 />
                                 {nameError && <p className="text-red-500 text-xs mt-1.5 font-medium flex items-center gap-1"><i className="fas fa-exclamation-circle" /> {nameError}</p>}
@@ -220,7 +269,7 @@ const Signup = () => {
                                     required
                                     value={email}
                                     onChange={(e) => setEmail(e.target.value)}
-                                    className="w-full px-4 py-3.5 border border-gray-200 rounded-2xl focus:ring-4 focus:ring-black/5 focus:border-black/30 text-gray-900 placeholder-gray-400 transition-all duration-200 bg-white/40 text-sm font-medium"
+                                    className="w-full px-4 py-3.5 border border-gray-200 rounded-lg focus:ring-4 focus:ring-black/5 focus:border-black/30 text-gray-900 placeholder-gray-400 transition-all duration-200 bg-white/40 text-sm font-medium"
                                     placeholder="이메일 주소를 입력하세요"
                                 />
                                 {emailError && <p className="text-red-500 text-xs mt-1.5 font-medium flex items-center gap-1"><i className="fas fa-exclamation-circle" /> {emailError}</p>}
@@ -235,11 +284,24 @@ const Signup = () => {
                                     autoComplete="new-password"
                                     required
                                     value={password}
-                                    onChange={(e) => setPassword(e.target.value)}
-                                    className="w-full px-4 py-3.5 border border-gray-200 rounded-2xl focus:ring-4 focus:ring-black/5 focus:border-black/30 text-gray-900 placeholder-gray-400 transition-all duration-200 bg-white/40 text-sm font-medium"
+                                    onChange={(e) => {
+                                        const val = e.target.value;
+                                        setPassword(val);
+                                        if (confirmPassword && val !== confirmPassword) {
+                                            setConfirmPasswordError('비밀번호가 일치하지 않습니다.');
+                                        } else if (confirmPassword) {
+                                            setConfirmPasswordError('');
+                                        }
+                                    }}
+                                    className="w-full px-4 py-3.5 border border-gray-200 rounded-lg focus:ring-4 focus:ring-black/5 focus:border-black/30 text-gray-900 placeholder-gray-400 transition-all duration-200 bg-white/40 text-sm font-medium"
                                     placeholder="안전한 비밀번호를 입력하세요"
                                 />
                                 {passwordError && <p className="text-red-500 text-xs mt-1.5 font-medium flex items-center gap-1"><i className="fas fa-exclamation-circle" /> {passwordError}</p>}
+                                {!passwordError && passwordStrength && (
+                                    <p className={`text-xs mt-1.5 font-medium ${passwordStrength.color}`}>
+                                        비밀번호 강도: {passwordStrength.label}
+                                    </p>
+                                )}
                             </div>
 
                             <div>
@@ -251,8 +313,16 @@ const Signup = () => {
                                     autoComplete="new-password"
                                     required
                                     value={confirmPassword}
-                                    onChange={(e) => setConfirmPassword(e.target.value)}
-                                    className="w-full px-4 py-3.5 border border-gray-200 rounded-2xl focus:ring-4 focus:ring-black/5 focus:border-black/30 text-gray-900 placeholder-gray-400 transition-all duration-200 bg-white/40 text-sm font-medium"
+                                    onChange={(e) => {
+                                        const val = e.target.value;
+                                        setConfirmPassword(val);
+                                        if (val && password && val !== password) {
+                                            setConfirmPasswordError('비밀번호가 일치하지 않습니다.');
+                                        } else {
+                                            setConfirmPasswordError('');
+                                        }
+                                    }}
+                                    className="w-full px-4 py-3.5 border border-gray-200 rounded-lg focus:ring-4 focus:ring-black/5 focus:border-black/30 text-gray-900 placeholder-gray-400 transition-all duration-200 bg-white/40 text-sm font-medium"
                                     placeholder="비밀번호를 다시 입력하세요"
                                 />
                                 {confirmPasswordError && <p className="text-red-500 text-xs mt-1.5 font-medium flex items-center gap-1"><i className="fas fa-exclamation-circle" /> {confirmPasswordError}</p>}
@@ -276,7 +346,7 @@ const Signup = () => {
                         <button
                             type="submit"
                             disabled={isLoading}
-                            className="w-full flex items-center justify-center py-3.5 px-6 bg-black hover:bg-gray-800 text-white font-semibold rounded-2xl shadow-lg shadow-black/20 hover:shadow-xl hover:-translate-y-0.5 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none text-sm">
+                            className="w-full flex items-center justify-center py-3.5 px-6 bg-black hover:bg-gray-800 text-white font-semibold rounded-lg shadow-lg shadow-black/20 hover:shadow-xl hover:-translate-y-0.5 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none text-sm">
                             {isLoading ? (
                                 <>
                                     <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">

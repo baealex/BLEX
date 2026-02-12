@@ -161,16 +161,13 @@ data
                     />
                 </div>
             ) : (
-                <div className="py-20 text-center bg-gray-50/50 border border-dashed border-gray-200 rounded-2xl">
-                    <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-white shadow-sm ring-1 ring-gray-900/5 mb-4">
+                <div className="py-16 text-center border border-dashed border-gray-200 rounded-2xl">
+                    <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gray-50 mb-4">
                         <i className="fas fa-shapes text-2xl text-gray-300" />
                     </div>
                     <h3 className="text-lg font-semibold text-gray-900 mb-1">등록된 배너가 없습니다</h3>
                     <p className="text-gray-500 text-sm mb-6">첫 번째 배너를 만들어보세요.</p>
-                    <Button
-                        onClick={handleCreateBanner}
-                        variant="secondary"
-                        size="md">
+                    <Button variant="secondary" size="md" onClick={handleCreateBanner}>
                         배너 생성하기
                     </Button>
                 </div>

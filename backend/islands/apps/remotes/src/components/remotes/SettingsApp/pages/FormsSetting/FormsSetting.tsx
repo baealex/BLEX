@@ -4,15 +4,11 @@ import { useSuspenseQuery } from '@tanstack/react-query';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { SettingsHeader } from '../../components';
+import { SettingsHeader, SettingsListItem } from '../../components';
 import { Button, Input, Modal, Dropdown } from '~/components/shared';
 import {
- getCardClass,
  getIconClass,
- CARD_PADDING,
- FLEX_ROW,
- TITLE,
- ACTIONS_CONTAINER
+ TITLE
 } from '~/components/shared';
 import { useConfirm } from '~/hooks/useConfirm';
 import {
@@ -170,39 +166,43 @@ const FormsManagement = () => {
             />
 
             {/* Forms List */}
-            {forms.length > 0 && (
+            {forms.length > 0 ? (
                 <div className="space-y-3">
                     {forms.map((form) => (
-                        <div key={form.id} className={getCardClass()}>
-                            <div className={CARD_PADDING}>
-                                <div className={FLEX_ROW}>
-                                    {/* Icon */}
-                                    <div className={getIconClass('default')}>
-                                        <i className="fas fa-file-lines text-sm" />
-                                    </div>
-
-                                    {/* Content */}
-                                    <div className="flex-1 min-w-0 cursor-pointer" onClick={() => handleEditForm(form.id)}>
-                                        <h3 className={TITLE}>{form.title}</h3>
-                                    </div>
-
-                                    {/* Actions */}
-                                    <div className={ACTIONS_CONTAINER}>
-                                        <Dropdown
-                                            items={[
-                                                {
-                                                    label: '삭제',
-                                                    icon: 'fas fa-trash',
-                                                    onClick: () => handleDeleteForm(form.id),
-                                                    variant: 'danger'
-                                                }
-                                            ]}
-                                        />
-                                    </div>
+                        <SettingsListItem
+                            key={form.id}
+                            onClick={() => handleEditForm(form.id)}
+                            left={
+                                <div className={getIconClass('default')}>
+                                    <i className="fas fa-file-lines text-sm" />
                                 </div>
-                            </div>
-                        </div>
+                            }
+                            actions={
+                                <Dropdown
+                                    items={[
+                                        {
+                                            label: '삭제',
+                                            icon: 'fas fa-trash',
+                                            onClick: () => handleDeleteForm(form.id),
+                                            variant: 'danger'
+                                        }
+                                    ]}
+                                />
+                            }>
+                            <h3 className={TITLE}>{form.title}</h3>
+                        </SettingsListItem>
                     ))}
+                </div>
+            ) : (
+                <div className="py-16 text-center border border-dashed border-gray-200 rounded-2xl">
+                    <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gray-50 mb-4">
+                        <i className="fas fa-file-lines text-2xl text-gray-300" />
+                    </div>
+                    <h3 className="text-lg font-semibold text-gray-900 mb-1">등록된 서식이 없습니다</h3>
+                    <p className="text-gray-500 text-sm mb-6">자주 사용하는 서식을 추가해보세요.</p>
+                    <Button variant="secondary" size="md" onClick={handleCreateForm}>
+                        서식 추가하기
+                    </Button>
                 </div>
             )}
 

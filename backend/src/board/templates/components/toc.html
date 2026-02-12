@@ -22,7 +22,7 @@
                             'text-gray-900 font-semibold bg-gray-50': activeId === '{{ heading.id }}',
                             'text-gray-600 hover:text-gray-900 hover:bg-gray-50': activeId !== '{{ heading.id }}'
                         }"
-                        class="toc-item block py-2 px-3 rounded-lg text-sm transition-all duration-150 active:scale-95 scroll-mt-20"
+                        class="toc-item block py-2 px-3 rounded-lg text-sm transition-all duration-150 active:scale-95 scroll-mt-20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-black/20"
                         data-id="{{ heading.id }}"
                         style="padding-left: calc({{ heading.level }} * 12px - 6px)"
                     >

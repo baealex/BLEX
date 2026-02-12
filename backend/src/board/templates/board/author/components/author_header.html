@@ -88,6 +88,14 @@
             </a>
             {% endfor %}
         </div>
+        {% elif request.user == author %}
+        <a href="/settings/social-links"
+           class="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-dashed border-gray-300
+                  text-sm text-gray-400 hover:text-gray-600 hover:border-gray-400
+                  transition-all duration-200">
+            <i class="fas fa-plus text-xs"></i>
+            <span>소셜 링크 추가</span>
+        </a>
         {% endif %}
         {% endwith %}
     </div>

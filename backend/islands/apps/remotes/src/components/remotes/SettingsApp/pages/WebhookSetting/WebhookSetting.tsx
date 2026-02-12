@@ -1,16 +1,12 @@
 import { useState } from 'react';
 import { toast } from '~/utils/toast';
 import { useSuspenseQuery } from '@tanstack/react-query';
-import { SettingsHeader } from '../../components';
+import { SettingsHeader, SettingsListItem } from '../../components';
 import { Button, Dropdown, Input } from '~/components/shared';
 import {
-    getCardClass,
     getIconClass,
-    CARD_PADDING,
-    FLEX_ROW,
     TITLE,
-    SUBTITLE,
-    ACTIONS_CONTAINER
+    SUBTITLE
 } from '~/components/shared';
 import { useConfirm } from '~/hooks/useConfirm';
 import {
@@ -234,63 +230,51 @@ const WebhookSetting = () => {
             {channels && channels.length > 0 ? (
                 <div className="space-y-3">
                     {channels.map((channel) => (
-                        <div key={channel.id} className={getCardClass()}>
-                            <div className={CARD_PADDING}>
-                                <div className={FLEX_ROW}>
-                                    {/* Icon */}
-                                    <div className={getIconClass(channel.isActive ? 'default' : 'light')}>
-                                        <i className={`fas ${channel.isActive ? 'fa-bolt' : 'fa-exclamation-triangle'} text-sm`} />
-                                    </div>
-
-                                    {/* Content */}
-                                    <div className="flex-1 min-w-0">
-                                        <h3 className={`${TITLE} mb-0.5`}>
-                                            {channel.name || '이름 없는 채널'}
-                                        </h3>
-                                        <div className={`${SUBTITLE} flex flex-wrap items-center gap-3`}>
-                                            <span className="flex items-center truncate max-w-[200px]" title={channel.webhookUrl}>
-                                                <i className="fas fa-link mr-1.5" />
-                                                {channel.webhookUrl.replace(/^https?:\/\//, '').slice(0, 30)}...
-                                            </span>
-                                            <span className="flex items-center">
-                                                <i className="fas fa-clock mr-1.5" />
-                                                {channel.createdDate}
-                                            </span>
-                                            {getStatusBadge(channel)}
-                                        </div>
-                                    </div>
-
-                                    {/* Actions */}
-                                    <div className={ACTIONS_CONTAINER}>
-                                        <Dropdown
-                                            items={[
-                                                {
-                                                    label: '삭제',
-                                                    icon: 'fas fa-trash',
-                                                    onClick: () => handleDelete(channel.id),
-                                                    variant: 'danger'
-                                                }
-                                            ]}
-                                        />
-                                    </div>
+                        <SettingsListItem
+                            key={channel.id}
+                            left={
+                                <div className={getIconClass('default')}>
+                                    <i className={`fas ${channel.isActive ? 'fa-bolt' : 'fa-exclamation-triangle'} text-sm`} />
                                 </div>
+                            }
+                            actions={
+                                <Dropdown
+                                    items={[
+                                        {
+                                            label: '삭제',
+                                            icon: 'fas fa-trash',
+                                            onClick: () => handleDelete(channel.id),
+                                            variant: 'danger'
+                                        }
+                                    ]}
+                                />
+                            }>
+                            <h3 className={`${TITLE} mb-0.5`}>
+                                {channel.name || '이름 없는 채널'}
+                            </h3>
+                            <div className={`${SUBTITLE} flex flex-wrap items-center gap-3`}>
+                                <span className="flex items-center truncate max-w-[200px]" title={channel.webhookUrl}>
+                                    <i className="fas fa-link mr-1.5" />
+                                    {channel.webhookUrl.replace(/^https?:\/\//, '').slice(0, 30)}...
+                                </span>
+                                <span className="flex items-center">
+                                    <i className="fas fa-clock mr-1.5" />
+                                    {channel.createdDate}
+                                </span>
+                                {getStatusBadge(channel)}
                             </div>
-                        </div>
+                        </SettingsListItem>
                     ))}
                 </div>
             ) : (
-                <div className="text-center py-16">
-                    <div className="w-20 h-20 mx-auto bg-gray-100 rounded-2xl flex items-center justify-center mb-6">
-                        <i className="fas fa-bolt text-gray-400 text-3xl" />
+                <div className="py-16 text-center border border-dashed border-gray-200 rounded-2xl">
+                    <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gray-50 mb-4">
+                        <i className="fas fa-bolt text-2xl text-gray-300" />
                     </div>
-                    <h3 className="text-xl font-bold text-gray-900 mb-2">등록된 웹훅 채널이 없습니다</h3>
-                    <p className="text-gray-500 mb-6">새 채널을 추가해서 글 발행 알림을 받아보세요.</p>
-                    <Button
-                        variant="primary"
-                        size="md"
-                        leftIcon={<i className="fas fa-plus" />}
-                        onClick={() => setShowAddForm(true)}>
-                        첫 채널 추가하기
+                    <h3 className="text-lg font-semibold text-gray-900 mb-1">등록된 웹훅 채널이 없습니다</h3>
+                    <p className="text-gray-500 text-sm mb-6">새 채널을 추가해서 글 발행 알림을 받아보세요.</p>
+                    <Button variant="secondary" size="md" onClick={() => setShowAddForm(true)}>
+                        채널 추가하기
                     </Button>
                 </div>
             )}
