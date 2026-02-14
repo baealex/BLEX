@@ -16,7 +16,7 @@ const layoutToGridTemplate: Record<ColumnLayout, string> = {
     '1:1:2': '1fr 1fr 2fr'
 };
 
-export const layoutToColumnCount: Record<ColumnLayout, number> = {
+const layoutToColumnCount: Record<ColumnLayout, number> = {
     '1:1': 2,
     '1:2': 2,
     '2:1': 2,
@@ -58,9 +58,44 @@ export const ColumnsNode = Node.create({
 
     group: 'block',
 
-    content: 'column+',
+    content: 'column{2,3}',
 
     defining: true,
+
+    addKeyboardShortcuts() {
+        return {
+            'Backspace': ({ editor }) => {
+                const { selection, doc } = editor.state;
+                const { $from, empty: isCollapsed } = selection;
+
+                // 빈 문단에서 커서가 맨 앞에 있을 때만 처리
+                if (!isCollapsed || $from.parentOffset !== 0) return false;
+
+                const parent = $from.parent;
+                if (parent.type.name !== 'paragraph' || parent.textContent !== '') return false;
+                if ($from.depth !== 1) return false;
+
+                const $beforeParagraph = doc.resolve($from.before($from.depth));
+                const index = $beforeParagraph.index();
+                const docNode = $beforeParagraph.parent;
+
+                // 인접한 형제가 columns 노드인지 확인
+                const prevSibling = index > 0 ? docNode.child(index - 1) : null;
+                const nextSibling = index < docNode.childCount - 1 ? docNode.child(index + 1) : null;
+
+                if (prevSibling?.type.name === 'columns' || nextSibling?.type.name === 'columns') {
+                    const from = $from.before($from.depth);
+                    const to = $from.after($from.depth);
+                    const { tr } = editor.state;
+                    tr.delete(from, to);
+                    editor.view.dispatch(tr);
+                    return true;
+                }
+
+                return false;
+            }
+        };
+    },
 
     addAttributes() {
         return {
@@ -115,70 +150,6 @@ export const ColumnsNode = Node.create({
                             attrs: { layout },
                             content: columns
                         });
-                    },
-
-            addColumn:
-                () =>
-                    ({ editor, chain }) => {
-                        const { selection } = editor.state;
-                        const { $from } = selection;
-
-                        // Find the columns node
-                        for (let depth = $from.depth; depth >= 0; depth--) {
-                            const node = $from.node(depth);
-                            if (node.type.name === 'columns') {
-                                const columnsPos = $from.before(depth);
-                                const currentCount = node.childCount;
-
-                                if (currentCount >= 3) return false; // Max 3 columns
-
-                                // Insert new column at the end
-                                const insertPos = columnsPos + node.nodeSize - 1;
-                                const newLayout = currentCount === 1 ? '1:1' : '1:1:1';
-
-                                return chain()
-                                    .insertContentAt(insertPos, {
-                                        type: 'column',
-                                        content: [{ type: 'paragraph' }]
-                                    })
-                                    .updateAttributes('columns', { layout: newLayout })
-                                    .run();
-                            }
-                        }
-                        return false;
-                    },
-
-            removeColumn:
-                () =>
-                    ({ editor, chain }) => {
-                        const { selection } = editor.state;
-                        const { $from } = selection;
-
-                        // Find the columns node
-                        for (let depth = $from.depth; depth >= 0; depth--) {
-                            const node = $from.node(depth);
-                            if (node.type.name === 'columns') {
-                                const columnsPos = $from.before(depth);
-                                const currentCount = node.childCount;
-
-                                if (currentCount <= 2) return false; // Min 2 columns
-
-                                // Delete the last column
-                                const lastChild = node.child(currentCount - 1);
-                                const deleteFrom = columnsPos + node.nodeSize - 1 - lastChild.nodeSize;
-                                const deleteTo = columnsPos + node.nodeSize - 1;
-                                const newLayout = '1:1'; // Back to 2 columns
-
-                                return chain()
-                                    .deleteRange({
-                                        from: deleteFrom,
-                                        to: deleteTo
-                                    })
-                                    .updateAttributes('columns', { layout: newLayout })
-                                    .run();
-                            }
-                        }
-                        return false;
                     }
         };
     }
@@ -188,8 +159,6 @@ declare module '@tiptap/react' {
     interface Commands<ReturnType> {
         columns: {
             setColumns: (layout?: ColumnLayout) => ReturnType;
-            addColumn: () => ReturnType;
-            removeColumn: () => ReturnType;
         };
     }
 }

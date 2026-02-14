@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import type { Editor } from '@tiptap/react';
+import { Fragment } from '@tiptap/pm/model';
 import * as Popover from '@radix-ui/react-popover';
 import type { ColumnLayout } from '../../extensions/ColumnsNode';
-import { layoutToColumnCount } from '../../extensions/ColumnsNode';
 
 interface ColumnsFloatingMenuProps {
     editor: Editor | null;
@@ -58,7 +58,6 @@ const ColumnsFloatingMenu = ({ editor }: ColumnsFloatingMenuProps) => {
             const { selection, doc } = editor.state;
             const { $from, from } = selection;
 
-            // 현재 직접 선택된 노드가 미디어 노드이면 이 메뉴를 숨김
             const directNode = doc.nodeAt(from);
             if (directNode && ['image', 'video', 'iframe'].includes(directNode.type.name)) {
                 setIsOpen(false);
@@ -67,7 +66,6 @@ const ColumnsFloatingMenu = ({ editor }: ColumnsFloatingMenuProps) => {
                 return;
             }
 
-            // Find if we're inside a columns node
             let columnsNode = null;
             let columnsPos: number | null = null;
 
@@ -126,18 +124,6 @@ const ColumnsFloatingMenu = ({ editor }: ColumnsFloatingMenuProps) => {
         editor.chain().focus().updateAttributes('columns', { layout }).run();
     };
 
-    const handleAddColumn = (e: React.MouseEvent) => {
-        e.preventDefault();
-        e.stopPropagation();
-        editor.chain().focus().addColumn().run();
-    };
-
-    const handleRemoveColumn = (e: React.MouseEvent) => {
-        e.preventDefault();
-        e.stopPropagation();
-        editor.chain().focus().removeColumn().run();
-    };
-
     const handleDeleteColumns = (e: React.MouseEvent) => {
         e.preventDefault();
         e.stopPropagation();
@@ -160,6 +146,74 @@ const ColumnsFloatingMenu = ({ editor }: ColumnsFloatingMenuProps) => {
         }
     };
 
+    const handleMoveUp = (e: React.MouseEvent) => {
+        e.preventDefault();
+        e.stopPropagation();
+
+        const { doc } = editor.state;
+        const pos = selectedNode.pos;
+        const $pos = doc.resolve(pos);
+        const index = $pos.index();
+
+        if (index === 0) return;
+
+        const columnsNode = doc.nodeAt(pos);
+        if (!columnsNode) return;
+
+        const prevNode = $pos.parent.child(index - 1);
+        const prevNodePos = pos - prevNode.nodeSize;
+        const rangeEnd = pos + columnsNode.nodeSize;
+
+        const { tr } = editor.state;
+        tr.replaceWith(
+            prevNodePos,
+            rangeEnd,
+            Fragment.from([columnsNode, prevNode])
+        );
+        editor.view.dispatch(tr);
+        editor.commands.focus();
+    };
+
+    const handleMoveDown = (e: React.MouseEvent) => {
+        e.preventDefault();
+        e.stopPropagation();
+
+        const { doc } = editor.state;
+        const pos = selectedNode.pos;
+        const $pos = doc.resolve(pos);
+        const index = $pos.index();
+        const parent = $pos.parent;
+
+        if (index >= parent.childCount - 1) return;
+
+        const columnsNode = doc.nodeAt(pos);
+        if (!columnsNode) return;
+
+        const nextNode = parent.child(index + 1);
+        const rangeEnd = pos + columnsNode.nodeSize + nextNode.nodeSize;
+
+        const { tr } = editor.state;
+        tr.replaceWith(
+            pos,
+            rangeEnd,
+            Fragment.from([nextNode, columnsNode])
+        );
+        editor.view.dispatch(tr);
+        editor.commands.focus();
+    };
+
+    const canMove = (() => {
+        const { doc } = editor.state;
+        const pos = selectedNode.pos;
+        const $pos = doc.resolve(pos);
+        const index = $pos.index();
+        const parent = $pos.parent;
+        return {
+            up: index > 0,
+            down: index < parent.childCount - 1
+        };
+    })();
+
     const currentLayout = selectedNode.attrs.layout as ColumnLayout;
     const columnCount = selectedNode.columnCount;
     const currentLayouts = columnCount === 2 ? twoColumnLayouts : threeColumnLayouts;
@@ -169,7 +223,7 @@ const ColumnsFloatingMenu = ({ editor }: ColumnsFloatingMenuProps) => {
             <Popover.Anchor virtualRef={{ current: anchorElement }} />
             <Popover.Portal>
                 <Popover.Content
-                    className="z-[1100] bg-white/95 backdrop-blur-xl rounded-xl shadow-lg border border-gray-200/60 p-3 flex flex-col gap-3 outline-none"
+                    className="z-[1100] bg-white/95 backdrop-blur-xl rounded-xl shadow-lg border border-gray-200/60 p-2 flex items-center gap-2 outline-none"
                     side="top"
                     sideOffset={10}
                     onOpenAutoFocus={(e) => e.preventDefault()}
@@ -184,78 +238,63 @@ const ColumnsFloatingMenu = ({ editor }: ColumnsFloatingMenuProps) => {
                         e.stopPropagation();
                     }}
                     onClick={(e) => e.stopPropagation()}>
-                    {/* Row 1: Column count control */}
-                    <div className="flex items-center justify-between gap-4">
-                        <div className="flex items-center gap-2">
-                            <span className="text-xs font-medium text-gray-700">컬럼 수</span>
-                            <div className="flex items-center gap-1 bg-gray-100 rounded-lg p-0.5">
-                                <button
-                                    type="button"
-                                    onClick={handleRemoveColumn}
-                                    disabled={columnCount <= 2}
-                                    className={`
-                                        w-7 h-7 rounded-md flex items-center justify-center text-sm transition-all
-                                        ${columnCount <= 2
-                                            ? 'text-gray-300 cursor-not-allowed'
-                                            : 'text-gray-600 hover:bg-white hover:shadow-sm active:scale-95'}
-                                    `}
-                                    title="컬럼 줄이기">
-                                    <i className="fas fa-minus text-xs" />
-                                </button>
-                                <span className="w-6 text-center text-sm font-medium text-gray-900">
-                                    {columnCount}
-                                </span>
-                                <button
-                                    type="button"
-                                    onClick={handleAddColumn}
-                                    disabled={columnCount >= 3}
-                                    className={`
-                                        w-7 h-7 rounded-md flex items-center justify-center text-sm transition-all
-                                        ${columnCount >= 3
-                                            ? 'text-gray-300 cursor-not-allowed'
-                                            : 'text-gray-600 hover:bg-white hover:shadow-sm active:scale-95'}
-                                    `}
-                                    title="컬럼 늘리기">
-                                    <i className="fas fa-plus text-xs" />
-                                </button>
-                            </div>
-                        </div>
+                    {/* 비율 프리셋 */}
+                    <div className="flex gap-0.5">
+                        {currentLayouts.map((preset) => (
+                            <button
+                                key={preset.value}
+                                type="button"
+                                onClick={(e) => handleLayoutChange(e, preset.value)}
+                                className={`
+                                    h-8 px-2.5 rounded-lg flex items-center justify-center gap-1.5 transition-all text-xs font-medium
+                                    ${currentLayout === preset.value
+                                        ? 'bg-gray-900 text-white'
+                                        : 'bg-gray-100 text-gray-600 hover:bg-gray-200 active:scale-95'}
+                                `}
+                                title={preset.label}>
+                                <LayoutPreview layout={preset.value} active={currentLayout === preset.value} />
+                                <span>{preset.label}</span>
+                            </button>
+                        ))}
+                    </div>
 
+                    <div className="w-px h-5 bg-gray-200" />
+
+                    {/* 이동 + 삭제 */}
+                    <div className="flex items-center gap-0.5">
+                        <button
+                            type="button"
+                            onClick={handleMoveUp}
+                            disabled={!canMove.up}
+                            className={`
+                                w-7 h-7 rounded-md flex items-center justify-center transition-all
+                                ${!canMove.up
+                                    ? 'text-gray-300 cursor-not-allowed'
+                                    : 'text-gray-600 hover:bg-gray-100 active:scale-95'}
+                            `}
+                            title="위로 이동">
+                            <i className="fas fa-arrow-up text-xs" />
+                        </button>
+                        <button
+                            type="button"
+                            onClick={handleMoveDown}
+                            disabled={!canMove.down}
+                            className={`
+                                w-7 h-7 rounded-md flex items-center justify-center transition-all
+                                ${!canMove.down
+                                    ? 'text-gray-300 cursor-not-allowed'
+                                    : 'text-gray-600 hover:bg-gray-100 active:scale-95'}
+                            `}
+                            title="아래로 이동">
+                            <i className="fas fa-arrow-down text-xs" />
+                        </button>
                         <button
                             type="button"
                             onClick={handleDeleteColumns}
                             className="w-7 h-7 rounded-md flex items-center justify-center text-gray-400 hover:text-red-500 hover:bg-red-50 transition-colors"
-                            title="컬럼 삭제">
+                            title="레이아웃 삭제">
                             <i className="fas fa-trash-alt text-xs" />
                         </button>
-                    </div>
-
-                    {/* Row 2: Layout presets */}
-                    <div className="flex flex-col gap-1.5">
-                        <span className="text-xs text-gray-500">비율</span>
-                        <div className="flex gap-1">
-                            {currentLayouts.map((preset) => {
-                                const isActive = currentLayout === preset.value ||
-                                    (layoutToColumnCount[currentLayout] !== columnCount && preset.value === currentLayouts[0].value);
-
-                                return (
-                                    <button
-                                        key={preset.value}
-                                        type="button"
-                                        onClick={(e) => handleLayoutChange(e, preset.value)}
-                                        className={`
-                                            flex-1 h-10 rounded-lg flex flex-col items-center justify-center gap-1 transition-all
-                                            ${isActive
-                                                ? 'bg-gray-900 text-white'
-                                                : 'bg-gray-100 text-gray-600 hover:bg-gray-200 active:scale-95'}
-                                        `}
-                                        title={preset.label}>
-                                        <LayoutPreview layout={preset.value} active={isActive} />
-                                        <span className="text-[10px] font-medium">{preset.label}</span>
-                                    </button>
-                                );
-                            })}
-                        </div>
                     </div>
                 </Popover.Content>
             </Popover.Portal>
@@ -263,7 +302,6 @@ const ColumnsFloatingMenu = ({ editor }: ColumnsFloatingMenuProps) => {
     );
 };
 
-// Visual preview component for layouts
 const LayoutPreview = ({ layout, active }: { layout: ColumnLayout; active: boolean }) => {
     const getColumns = () => {
         switch (layout) {
@@ -295,7 +333,7 @@ const LayoutPreview = ({ layout, active }: { layout: ColumnLayout; active: boole
                 <div
                     key={i}
                     className={`h-full rounded-sm ${active ? 'bg-white/60' : 'bg-gray-400'}`}
-                    style={{ width: `${(ratio / total) * 36}px` }}
+                    style={{ width: `${(ratio / total) * 24}px` }}
                 />
             ))}
         </div>

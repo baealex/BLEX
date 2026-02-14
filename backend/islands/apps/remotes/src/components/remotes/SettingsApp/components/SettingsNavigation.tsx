@@ -107,6 +107,12 @@ const navigationSections = [
         requiresStaff: true,
         items: [
             {
+                name: '정적 페이지',
+                path: '/static-pages',
+                icon: 'fa-file-lines',
+                requiresStaff: true
+            },
+            {
                 name: '관리자 패널',
                 path: 'admin',
                 icon: 'fa-shield-alt',

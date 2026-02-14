@@ -21,7 +21,6 @@ const LazyComponents = {
     Login: lazy(() => import('./remotes/Login')),
     Signup: lazy(() => import('./remotes/Signup')),
     PostEditor: lazy(() => import('./remotes/PostEditor')),
-
     // Unified Settings App
     SettingsApp: lazy(() => import('./remotes/SettingsApp'))
 };

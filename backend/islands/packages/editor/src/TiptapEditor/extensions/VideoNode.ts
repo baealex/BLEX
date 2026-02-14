@@ -1,4 +1,6 @@
-import { Node } from '@tiptap/react';
+import { Node, ReactNodeViewRenderer } from '@tiptap/react';
+import { VideoNodeView } from '../components/nodeviews/VideoNodeView';
+import { buildFigureAttrsForHTML } from '../utils/mediaStyles';
 
 export const VideoNode = Node.create({
     name: 'video',
@@ -6,6 +8,12 @@ export const VideoNode = Node.create({
     group: 'block',
 
     atom: true,
+
+    draggable: true,
+
+    addNodeView() {
+        return ReactNodeViewRenderer(VideoNodeView);
+    },
 
     addAttributes() {
         return {
@@ -21,6 +29,7 @@ export const VideoNode = Node.create({
             border: { default: false },
             shadow: { default: false },
             borderRadius: { default: null }, // 0, 4, 8, 16, 9999 (px)
+            sizePreset: { default: null }, // 'small', 'medium', 'large', null(=full)
             // 재생 모드: 'gif'(움짤) 또는 'video'(일반 영상)
             playMode: { default: 'gif' },
             autoplay: {
@@ -91,6 +100,7 @@ export const VideoNode = Node.create({
                         border: figure.getAttribute('data-border') === 'true',
                         shadow: figure.getAttribute('data-shadow') === 'true',
                         borderRadius: figure.getAttribute('data-border-radius') || null,
+                        sizePreset: figure.getAttribute('data-size') || null,
                         playMode,
                         autoplay: !hasControls,
                         muted: !hasControls,
@@ -129,6 +139,7 @@ export const VideoNode = Node.create({
                         border: false,
                         shadow: false,
                         borderRadius: null,
+                        sizePreset: null,
                         playMode,
                         autoplay: !hasControls,
                         muted: !hasControls,
@@ -153,6 +164,7 @@ export const VideoNode = Node.create({
             border,
             shadow,
             borderRadius,
+            sizePreset,
             playMode
         } = HTMLAttributes;
 
@@ -193,37 +205,14 @@ export const VideoNode = Node.create({
         const sourceAttrs: Record<string, string> = { type: 'video/mp4' };
         if (src) sourceAttrs.src = src;
 
-        // figure 스타일
-        const figureStyles: string[] = [];
-        const figureAttrs: Record<string, string> = {};
-
-        if (align) {
-            figureStyles.push(`text-align: ${align}`);
-            if (align === 'center') {
-                figureStyles.push('display: flex', 'justify-content: center', 'flex-direction: column', 'align-items: center');
-            } else if (align === 'left') {
-                figureStyles.push('display: flex', 'justify-content: flex-start', 'flex-direction: column', 'align-items: flex-start');
-            } else if (align === 'right') {
-                figureStyles.push('display: flex', 'justify-content: flex-end', 'flex-direction: column', 'align-items: flex-end');
-            }
-        }
-
-        if (border) {
-            figureStyles.push('border: 1px solid #e5e7eb', 'overflow: hidden');
-            figureAttrs['data-border'] = 'true';
-        }
-        if (shadow) {
-            figureStyles.push('box-shadow: 8px 8px 40px 2px rgba(0, 0, 0, 0.15)');
-            figureAttrs['data-shadow'] = 'true';
-        }
-        if (borderRadius) {
-            figureStyles.push(`border-radius: ${borderRadius}px`, 'overflow: hidden');
-            figureAttrs['data-border-radius'] = borderRadius;
-        }
-
-        if (figureStyles.length > 0) {
-            figureAttrs.style = figureStyles.join('; ');
-        }
+        // figure 스타일 (공유 유틸 사용)
+        const { attrs: figureAttrs } = buildFigureAttrsForHTML({
+            align,
+            border,
+            shadow,
+            borderRadius,
+            sizePreset
+        });
 
         const content = [
             ['video', videoAttrs, ['source', sourceAttrs]]

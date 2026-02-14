@@ -108,6 +108,8 @@ urlpatterns = [
     path('v1/banners', api_v1.banner),
     path('v1/banners/order', api_v1.banner_order),
     path('v1/banners/<int:banner_id>', api_v1.banner),
+    path('v1/static-pages', api_v1.static_pages),
+    path('v1/static-pages/<int:page_id>', api_v1.static_pages),
     path('v1/markdown', api_v1.markdown_to_html),
 
     # Webhook channels (author's notification channels)

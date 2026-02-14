@@ -4,6 +4,10 @@
 
 {% block title %}설정 | BLEX{% endblock %}
 
+{% block extra_styles %}
+<link rel="stylesheet" href="{% island_css 'styles/post.scss' %}">
+{% endblock %}
+
 {% block content %}
 <div>
     {% island_component 'SettingsApp' isEditor=is_editor isStaff=is_staff adminUrl=admin_url %}

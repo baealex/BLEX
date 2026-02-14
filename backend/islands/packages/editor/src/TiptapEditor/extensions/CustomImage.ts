@@ -1,4 +1,6 @@
-import { Node } from '@tiptap/react';
+import { Node, ReactNodeViewRenderer } from '@tiptap/react';
+import { ImageNodeView } from '../components/nodeviews/ImageNodeView';
+import { buildFigureAttrsForHTML } from '../utils/mediaStyles';
 
 export const CustomImage = Node.create({
     name: 'image',
@@ -7,6 +9,12 @@ export const CustomImage = Node.create({
 
     atom: true,
 
+    draggable: true,
+
+    addNodeView() {
+        return ReactNodeViewRenderer(ImageNodeView);
+    },
+
     addAttributes() {
         return {
             src: { default: null },
@@ -14,13 +22,14 @@ export const CustomImage = Node.create({
             title: { default: null },
             width: { default: null },
             height: { default: null },
-            align: { default: 'center' }, // left, center, right
-            objectFit: { default: 'cover' }, // cover, contain, fill, none
+            align: { default: 'center' },
+            objectFit: { default: 'cover' },
             caption: { default: null },
-            border: { default: false }, // border 적용 여부
-            shadow: { default: false }, // shadow 적용 여부
-            aspectRatio: { default: null }, // 16:9, 4:3, 1:1, etc
-            borderRadius: { default: null } // 0, 4, 8, 16, 9999 (px)
+            border: { default: false },
+            shadow: { default: false },
+            aspectRatio: { default: null },
+            borderRadius: { default: null },
+            sizePreset: { default: null } // 'small', 'medium', 'large', null(=full)
         };
     },
 
@@ -38,12 +47,9 @@ export const CustomImage = Node.create({
 
                     let src = img.src || img.getAttribute('src') || '';
 
-                    // data-src가 있으면 사용
                     if (img.dataset.src) {
                         src = img.dataset.src;
                     }
-
-                    // preview.jpg 제거
                     if (src.includes('.preview.jpg')) {
                         src = src.replace('.preview.jpg', '');
                     }
@@ -60,7 +66,8 @@ export const CustomImage = Node.create({
                         border: figure.getAttribute('data-border') === 'true',
                         shadow: figure.getAttribute('data-shadow') === 'true',
                         aspectRatio: img.getAttribute('data-aspect-ratio') || null,
-                        borderRadius: figure.getAttribute('data-border-radius') || null
+                        borderRadius: figure.getAttribute('data-border-radius') || null,
+                        sizePreset: figure.getAttribute('data-size') || null
                     };
                 }
             },
@@ -71,12 +78,9 @@ export const CustomImage = Node.create({
                     const img = element as HTMLImageElement;
                     let src = img.src || img.getAttribute('src') || '';
 
-                    // data-src가 있으면 사용
                     if (img.dataset.src) {
                         src = img.dataset.src;
                     }
-
-                    // preview.jpg 제거
                     if (src.includes('.preview.jpg')) {
                         src = src.replace('.preview.jpg', '');
                     }
@@ -93,7 +97,8 @@ export const CustomImage = Node.create({
                         border: false,
                         shadow: false,
                         aspectRatio: img.getAttribute('data-aspect-ratio') || null,
-                        borderRadius: null
+                        borderRadius: null,
+                        sizePreset: null
                     };
                 }
             }
@@ -102,7 +107,8 @@ export const CustomImage = Node.create({
 
     renderHTML({ HTMLAttributes }) {
         const {
-            src, alt, title, width, height, align, objectFit, caption, border, shadow, aspectRatio, borderRadius
+            src, alt, title, width, height, objectFit, caption, aspectRatio,
+            align, border, shadow, borderRadius, sizePreset
         } = HTMLAttributes;
 
         const imgAttrs: Record<string, string> = {
@@ -115,7 +121,6 @@ export const CustomImage = Node.create({
         if (height) imgAttrs.height = height;
 
         const imgStyles: string[] = [];
-
         if (aspectRatio) {
             imgStyles.push(`aspect-ratio: ${aspectRatio.replace(':', ' / ')}`);
             if (!width && !height) {
@@ -123,61 +128,24 @@ export const CustomImage = Node.create({
             }
             imgAttrs['data-aspect-ratio'] = aspectRatio;
         }
-
         if (objectFit) {
             imgStyles.push(`object-fit: ${objectFit}`);
         }
-
         if (imgStyles.length > 0) {
             imgAttrs.style = imgStyles.join('; ');
         }
 
-        const figureStyles: string[] = [];
-        const figureAttrs: Record<string, string> = {};
-
-        if (align) {
-            figureStyles.push(`text-align: ${align}`);
-            if (align === 'center') {
-                figureStyles.push('display: flex');
-                figureStyles.push('justify-content: center');
-                figureStyles.push('flex-direction: column');
-                figureStyles.push('align-items: center');
-            } else if (align === 'left') {
-                figureStyles.push('display: flex');
-                figureStyles.push('justify-content: flex-start');
-                figureStyles.push('flex-direction: column');
-                figureStyles.push('align-items: flex-start');
-            } else if (align === 'right') {
-                figureStyles.push('display: flex');
-                figureStyles.push('justify-content: flex-end');
-                figureStyles.push('flex-direction: column');
-                figureStyles.push('align-items: flex-end');
-            }
-        }
-
-        if (border) {
-            figureStyles.push('border: 1px solid #e5e7eb');
-            figureStyles.push('overflow: hidden');
-            figureAttrs['data-border'] = 'true';
-        }
-        if (shadow) {
-            figureStyles.push('box-shadow: 8px 8px 40px 2px rgba(0, 0, 0, 0.15)');
-            figureAttrs['data-shadow'] = 'true';
-        }
-        if (borderRadius) {
-            figureStyles.push(`border-radius: ${borderRadius}px`);
-            figureStyles.push('overflow: hidden');
-            figureAttrs['data-border-radius'] = borderRadius;
-        }
-
-        if (figureStyles.length > 0) {
-            figureAttrs.style = figureStyles.join('; ');
-        }
+        const { attrs: figureAttrs } = buildFigureAttrsForHTML({
+            align,
+            border,
+            shadow,
+            borderRadius,
+            sizePreset
+        });
 
         const content = [
             ['img', imgAttrs]
         ];
-
         if (caption) {
             content.push(['figcaption', {}, caption]);
         }

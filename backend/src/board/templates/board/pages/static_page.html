@@ -1,10 +1,19 @@
 {% extends 'board/base.html' %}
 {% load static %}
+{% load island %}
 
 {% block title %}{{ page.title }} - BLEX{% endblock %}
 
 {% block meta_description %}{{ meta_description }}{% endblock %}
 
+{% block extra_styles %}
+<link rel="stylesheet" href="{% island_css 'styles/post.scss' %}">
+{% endblock %}
+
 {% block content %}
-{{ page.content|safe }}
+<div class="max-w-7xl mx-auto px-4 md:px-6 py-8">
+    <div class="prose prose-lg max-w-none blog-post-content break-words">
+        {{ page.content|safe }}
+    </div>
+</div>
 {% endblock %}
