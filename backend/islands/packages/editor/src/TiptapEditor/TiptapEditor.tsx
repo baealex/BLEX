@@ -48,6 +48,29 @@ const TiptapEditor = ({
         editable,
         editorProps: {
             attributes: { class: 'blog-post-content' },
+            handleDrop: (view, event, _slice, moved) => {
+                // 외부 파일 드롭은 React onDrop(useImageUpload)에서 처리
+                if (!moved) return false;
+
+                const coords = {
+                    left: event.clientX,
+                    top: event.clientY
+                };
+                const posInfo = view.posAtCoords(coords);
+                if (!posInfo) return false;
+
+                const $pos = view.state.doc.resolve(posInfo.pos);
+
+                // columns 구조 내에서 드롭 위치 확인
+                for (let d = $pos.depth; d >= 0; d--) {
+                    // column 안이면 ProseMirror가 정상 처리
+                    if ($pos.node(d).type.name === 'column') return false;
+                    // columns 컨테이너 레벨이면 차단 (새 column 생성 방지)
+                    if ($pos.node(d).type.name === 'columns') return true;
+                }
+
+                return false;
+            },
             handlePaste: (view, event, slice) => {
                 void view;
                 void slice;
@@ -105,8 +128,7 @@ const TiptapEditor = ({
                     .replace(/\.preview\.jpg/g, '')
                     .replace(/data-src="([^"]+)"/g, 'src="$1"')
                     .replace(/class="[^"]*lazy[^"]*"/g, '')
-                    .replace(/class="lazy"/g, '')
-                    .replace(/<video([^>]*)>/g, '<video$1 autoplay muted loop playsinline>');
+                    .replace(/class="lazy"/g, '');
 
                 editor.commands.setContent(cleanedContent, { emitUpdate: false });
             }

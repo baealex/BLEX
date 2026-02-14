@@ -18,6 +18,7 @@ interface CommandItem {
     description: string;
     icon: string;
     keywords: string[];
+    category: string;
     action: (editor: Editor) => void;
 }
 
@@ -108,6 +109,7 @@ const SlashCommandMenu = ({
             description: 'H2 헤딩',
             icon: 'fa fa-heading',
             keywords: ['heading', '헤딩', '제목', 'h2'],
+            category: '텍스트',
             action: (editor) => editor.chain().focus().toggleHeading({ level: 2 }).run()
         },
         {
@@ -116,6 +118,7 @@ const SlashCommandMenu = ({
             description: 'H3 헤딩',
             icon: 'fa fa-heading',
             keywords: ['heading', '헤딩', '제목', 'h3'],
+            category: '텍스트',
             action: (editor) => editor.chain().focus().toggleHeading({ level: 3 }).run()
         },
         {
@@ -124,6 +127,7 @@ const SlashCommandMenu = ({
             description: 'H4 헤딩',
             icon: 'fa fa-heading',
             keywords: ['heading', '헤딩', '제목', 'h4'],
+            category: '텍스트',
             action: (editor) => editor.chain().focus().toggleHeading({ level: 4 }).run()
         },
         {
@@ -132,6 +136,7 @@ const SlashCommandMenu = ({
             description: '글머리 기호 목록',
             icon: 'fa fa-list-ul',
             keywords: ['list', '목록', 'bullet', '글머리'],
+            category: '텍스트',
             action: (editor) => editor.chain().focus().toggleBulletList().run()
         },
         {
@@ -140,15 +145,8 @@ const SlashCommandMenu = ({
             description: '번호가 있는 목록',
             icon: 'fa fa-list-ol',
             keywords: ['list', '목록', 'numbered', '번호'],
+            category: '텍스트',
             action: (editor) => editor.chain().focus().toggleOrderedList().run()
-        },
-        {
-            id: 'codeBlock',
-            title: '코드 블록',
-            description: '구문 강조 코드 블록',
-            icon: 'fa fa-code',
-            keywords: ['code', '코드', 'block'],
-            action: (editor) => editor.chain().focus().toggleCodeBlock().run()
         },
         {
             id: 'blockquote',
@@ -156,7 +154,17 @@ const SlashCommandMenu = ({
             description: '인용문 블록',
             icon: 'fa fa-quote-left',
             keywords: ['quote', '인용', 'blockquote'],
+            category: '블록',
             action: (editor) => editor.chain().focus().toggleBlockquote().run()
+        },
+        {
+            id: 'codeBlock',
+            title: '코드 블록',
+            description: '구문 강조 코드 블록',
+            icon: 'fa fa-code',
+            keywords: ['code', '코드', 'block'],
+            category: '블록',
+            action: (editor) => editor.chain().focus().toggleCodeBlock().run()
         },
         {
             id: 'table',
@@ -164,6 +172,7 @@ const SlashCommandMenu = ({
             description: '3x3 표 삽입',
             icon: 'fa fa-table',
             keywords: ['table', '표', '테이블'],
+            category: '블록',
             action: (editor) => editor.chain().focus().insertTable({
                 rows: 3,
                 cols: 3,
@@ -171,11 +180,21 @@ const SlashCommandMenu = ({
             }).run()
         },
         {
+            id: 'divider',
+            title: '구분선',
+            description: '수평선 삽입',
+            icon: 'fa fa-minus',
+            keywords: ['divider', '구분선', 'hr', '수평선'],
+            category: '블록',
+            action: (editor) => editor.chain().focus().setHorizontalRule().run()
+        },
+        {
             id: 'image',
             title: '이미지',
             description: '이미지 업로드',
             icon: 'fa fa-image',
             keywords: ['image', '이미지', 'img', '사진'],
+            category: '미디어',
             action: () => onImageUpload()
         },
         {
@@ -184,6 +203,7 @@ const SlashCommandMenu = ({
             description: 'MP4/WebM 비디오 업로드',
             icon: 'fa fa-video',
             keywords: ['video', '비디오', '동영상', 'mp4', 'webm', '영상'],
+            category: '미디어',
             action: () => onVideoUpload()
         },
         {
@@ -192,15 +212,8 @@ const SlashCommandMenu = ({
             description: 'YouTube 동영상 삽입',
             icon: 'fab fa-youtube',
             keywords: ['youtube', '유튜브'],
+            category: '미디어',
             action: () => onYoutubeUpload()
-        },
-        {
-            id: 'divider',
-            title: '구분선',
-            description: '수평선 삽입',
-            icon: 'fa fa-minus',
-            keywords: ['divider', '구분선', 'hr', '수평선'],
-            action: (editor) => editor.chain().focus().setHorizontalRule().run()
         },
         {
             id: 'columns2',
@@ -208,6 +221,7 @@ const SlashCommandMenu = ({
             description: '2개의 컬럼으로 나누기',
             icon: 'fa fa-columns',
             keywords: ['columns', '컬럼', '2단', '레이아웃', 'layout'],
+            category: '레이아웃',
             action: (editor) => editor.chain().focus().setColumns('1:1').run()
         },
         {
@@ -216,6 +230,7 @@ const SlashCommandMenu = ({
             description: '3개의 컬럼으로 나누기',
             icon: 'fa fa-columns',
             keywords: ['columns', '컬럼', '3단', '레이아웃', 'layout'],
+            category: '레이아웃',
             action: (editor) => editor.chain().focus().setColumns('1:1:1').run()
         }
     ];
@@ -224,16 +239,16 @@ const SlashCommandMenu = ({
     const formItems: CommandItem[] = forms.map(form => ({
         id: `form-${form.id}`,
         title: form.title,
-        description: '서식',
+        description: '저장된 서식 삽입',
         icon: 'fa fa-file-alt',
         keywords: ['서식', 'form', 'template', form.title.toLowerCase()],
+        category: '서식',
         action: (editor) => {
             void editor;
             handleFormInsert(form.id);
         }
     }));
 
-    // 모든 명령어 합치기
     const allCommandItems = [...commandItems, ...formItems];
 
     const filteredCommands = allCommandItems.filter(item => {
@@ -371,26 +386,37 @@ const SlashCommandMenu = ({
 
                     <div className="max-h-64 overflow-y-auto">
                         {filteredCommands.length > 0 ? (
-                            filteredCommands.map((item, index) => (
-                                <div
-                                    key={item.id}
-                                    ref={index === selectedIndex ? selectedItemRef : null}
-                                    className={`w-full px-3 py-2 text-left hover:bg-gray-50 flex items-center gap-3 cursor-pointer ${index === selectedIndex ? 'bg-gray-50' : ''
-                                        }`}
-                                    onClick={() => handleCommandClick(item)}>
-                                    <div className="w-8 h-8 flex items-center justify-center bg-gray-100 rounded">
-                                        <i className={`${item.icon} text-sm text-gray-600`} />
-                                    </div>
-                                    <div>
-                                        <div className="text-sm font-medium text-gray-900">
-                                            {item.title}
+                            filteredCommands.map((item, index) => {
+                                const prevItem = filteredCommands[index - 1];
+                                const showCategoryHeader = item.category !== prevItem?.category;
+
+                                return (
+                                    <React.Fragment key={item.id}>
+                                        {showCategoryHeader && (
+                                            <div className="px-3 pt-3 pb-1 text-xs font-medium text-gray-400">
+                                                {item.category}
+                                            </div>
+                                        )}
+                                        <div
+                                            ref={index === selectedIndex ? selectedItemRef : null}
+                                            className={`w-full px-3 py-2 text-left hover:bg-gray-50 flex items-center gap-3 cursor-pointer ${index === selectedIndex ? 'bg-gray-50' : ''
+                                                }`}
+                                            onClick={() => handleCommandClick(item)}>
+                                            <div className="w-8 h-8 flex items-center justify-center bg-gray-100 rounded">
+                                                <i className={`${item.icon} text-sm text-gray-600`} />
+                                            </div>
+                                            <div>
+                                                <div className="text-sm font-medium text-gray-900">
+                                                    {item.title}
+                                                </div>
+                                                <div className="text-xs text-gray-500">
+                                                    {item.description}
+                                                </div>
+                                            </div>
                                         </div>
-                                        <div className="text-xs text-gray-500">
-                                            {item.description}
-                                        </div>
-                                    </div>
-                                </div>
-                            ))
+                                    </React.Fragment>
+                                );
+                            })
                         ) : (
                             <div className="px-3 py-4 text-sm text-gray-500 text-center">
                                 검색 결과가 없습니다

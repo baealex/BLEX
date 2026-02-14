@@ -13,6 +13,7 @@ from .report import *
 from .search import *
 from .series import *
 from .setting import *
+from .static_page import *
 from .telegram import *
 from .user import *
 from .webhook import *

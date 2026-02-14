@@ -323,3 +323,57 @@ export const deleteWebhookChannel = async (channelId: number) => {
 export const testWebhook = async (webhookUrl: string) => {
     return http.post<Response<{ success: boolean }>>('v1/webhook/test', { webhook_url: webhookUrl }, { headers: { 'Content-Type': 'application/json' } });
 };
+
+// Static Page API
+export interface StaticPageData {
+    id: number;
+    title: string;
+    slug: string;
+    content: string;
+    metaDescription: string;
+    isPublished: boolean;
+    showInFooter: boolean;
+    order: number;
+    createdDate: string;
+    updatedDate: string;
+}
+
+export interface StaticPageCreateData {
+    title: string;
+    slug: string;
+    content: string;
+    meta_description?: string;
+    is_published?: boolean;
+    show_in_footer?: boolean;
+    order?: number;
+}
+
+export interface StaticPageUpdateData {
+    title?: string;
+    slug?: string;
+    content?: string;
+    meta_description?: string;
+    is_published?: boolean;
+    show_in_footer?: boolean;
+    order?: number;
+}
+
+export const getStaticPages = async () => {
+    return http.get<Response<{ pages: StaticPageData[] }>>('v1/static-pages');
+};
+
+export const getStaticPage = async (id: number) => {
+    return http.get<Response<StaticPageData>>(`v1/static-pages/${id}`);
+};
+
+export const createStaticPage = async (data: StaticPageCreateData) => {
+    return http.post<Response<StaticPageData>>('v1/static-pages', data, { headers: { 'Content-Type': 'application/json' } });
+};
+
+export const updateStaticPage = async (id: number, data: StaticPageUpdateData) => {
+    return http.put<Response<StaticPageData>>(`v1/static-pages/${id}`, data, { headers: { 'Content-Type': 'application/json' } });
+};
+
+export const deleteStaticPage = async (id: number) => {
+    return http.delete<Response<{ message: string }>>(`v1/static-pages/${id}`);
+};

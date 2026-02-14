@@ -129,20 +129,19 @@ export const useImageUpload = ({ editor, onImageUpload, onImageUploadError }: Us
     };
 
     const handleDrop = async (e: React.DragEvent<HTMLDivElement>) => {
-        e.preventDefault();
-        e.stopPropagation();
-
         const { files } = e.dataTransfer;
+
+        // 외부 파일 드롭이 아니면 ProseMirror가 내부 노드 이동을 처리하도록 그대로 둠
         if (files.length === 0) return;
 
         const mediaFiles = Array.from(files).filter(
             file => file.type.startsWith('image/') || file.type.startsWith('video/')
         );
 
-        if (mediaFiles.length === 0) {
-            onImageUploadError?.('지원하지 않는 파일 형식입니다.');
-            return;
-        }
+        if (mediaFiles.length === 0) return;
+
+        e.preventDefault();
+        e.stopPropagation();
 
         for (const file of mediaFiles) {
             await uploadMedia(file);

@@ -8,6 +8,7 @@ import {
 } from '@tanstack/react-router';
 import { lazy } from 'react';
 import { SettingsLayout } from './components/SettingsLayout';
+import { StaticPageEditor } from './pages/StaticPagesSetting/components/StaticPageEditor';
 
 // Lazy load settings pages
 const NotifySetting = lazy(() => import('./pages/NotifySetting'));
@@ -22,6 +23,7 @@ const BannerSetting = lazy(() => import('./pages/BannerSetting'));
 const IntegrationSetting = lazy(() => import('./pages/IntegrationSetting'));
 const SocialLinksSetting = lazy(() => import('./pages/SocialLinksSetting'));
 const WebhookSetting = lazy(() => import('./pages/WebhookSetting'));
+const StaticPagesSetting = lazy(() => import('./pages/StaticPagesSetting'));
 
 export interface SettingsAppProps {
     isEditor: boolean;
@@ -119,8 +121,34 @@ const webhookRoute = createRoute({
     component: WebhookSetting
 });
 
+const staticPagesRoute = createRoute({
+    getParentRoute: () => settingsRoute,
+    path: '/static-pages',
+    component: StaticPagesSetting
+});
+
+// Layout-less routes for fullscreen editors
+const staticPageCreateRoute = createRoute({
+    getParentRoute: () => rootRoute,
+    path: '/static-pages/create',
+    component: StaticPageEditor
+});
+
+const staticPageEditRoute = createRoute({
+    getParentRoute: () => rootRoute,
+    path: '/static-pages/edit/$pageId',
+    component: () => {
+        const { pageId } = staticPageEditRoute.useParams();
+        return (
+            <StaticPageEditor pageId={Number(pageId)} />
+        );
+    }
+});
+
 // Route tree
 const routeTree = rootRoute.addChildren([
+    staticPageCreateRoute,
+    staticPageEditRoute,
     settingsRoute.addChildren([
         indexRoute,
         notifyRoute,
@@ -134,7 +162,8 @@ const routeTree = rootRoute.addChildren([
         bannersRoute,
         socialLinksRoute,
         integrationRoute,
-        webhookRoute
+        webhookRoute,
+        staticPagesRoute
     ])
 ]);
 

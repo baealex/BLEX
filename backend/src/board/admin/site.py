@@ -2,7 +2,6 @@ from django.contrib import admin
 from django.shortcuts import redirect
 from django.urls import reverse
 from django.http import HttpResponse
-from django import forms
 
 from board.models import SiteSetting, StaticPage
 
@@ -65,28 +64,12 @@ class SiteSettingAdmin(admin.ModelAdmin):
             )
 
 
-class StaticPageAdminForm(forms.ModelForm):
-    """Custom form for StaticPage with rich text editor styling"""
-    content = forms.CharField(
-        widget=forms.Textarea(attrs={
-            'rows': 20,
-            'style': 'width: 100%; font-family: monospace; font-size: 14px;'
-        }),
-        help_text='HTML 태그를 사용할 수 있습니다. (예: <h1>, <p>, <div>, <section> 등)'
-    )
-
-    class Meta:
-        model = StaticPage
-        fields = '__all__'
-
-
 @admin.register(StaticPage)
 class StaticPageAdmin(admin.ModelAdmin):
     """
     Admin interface for static pages.
     Allows creating and editing static pages with HTML content.
     """
-    form = StaticPageAdminForm
     list_display = ['title', 'slug', 'is_published', 'show_in_footer', 'order', 'updated_date']
     list_editable = ['is_published', 'show_in_footer', 'order']
     list_filter = ['is_published', 'show_in_footer']
@@ -99,7 +82,6 @@ class StaticPageAdmin(admin.ModelAdmin):
         }),
         ('페이지 내용', {
             'fields': ('content',),
-            'description': 'HTML 코드를 작성하여 페이지를 디자인할 수 있습니다. Tailwind CSS 클래스를 사용할 수 있습니다.'
         }),
         ('표시 설정', {
             'fields': ('is_published', 'show_in_footer', 'order')
