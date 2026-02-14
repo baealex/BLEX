@@ -107,9 +107,33 @@ const navigationSections = [
         requiresStaff: true,
         items: [
             {
+                name: '사이트 설정',
+                path: '/site-settings',
+                icon: 'fa-gear',
+                requiresStaff: true
+            },
+            {
                 name: '정적 페이지',
                 path: '/static-pages',
                 icon: 'fa-file-lines',
+                requiresStaff: true
+            },
+            {
+                name: '공지 관리',
+                path: '/global-notices',
+                icon: 'fa-bullhorn',
+                requiresStaff: true
+            },
+            {
+                name: '전역 배너',
+                path: '/global-banners',
+                icon: 'fa-rectangle-ad',
+                requiresStaff: true
+            },
+            {
+                name: '유틸리티',
+                path: '/utilities',
+                icon: 'fa-toolbox',
                 requiresStaff: true
             },
             {

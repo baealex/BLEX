@@ -5,6 +5,8 @@ from .banner import *
 from .comment import *
 from .draft import *
 from .form import *
+from .global_banner import *
+from .global_notice import *
 from .image import *
 from .markdown import *
 from .pinned_post import *
@@ -13,7 +15,9 @@ from .report import *
 from .search import *
 from .series import *
 from .setting import *
+from .site_setting import *
 from .static_page import *
 from .telegram import *
 from .user import *
+from .utility import *
 from .webhook import *

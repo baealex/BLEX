@@ -23,7 +23,11 @@ const BannerSetting = lazy(() => import('./pages/BannerSetting'));
 const IntegrationSetting = lazy(() => import('./pages/IntegrationSetting'));
 const SocialLinksSetting = lazy(() => import('./pages/SocialLinksSetting'));
 const WebhookSetting = lazy(() => import('./pages/WebhookSetting'));
+const GlobalNoticeSetting = lazy(() => import('./pages/GlobalNoticeSetting'));
+const GlobalBannerSetting = lazy(() => import('./pages/GlobalBannerSetting'));
+const SiteSettingSetting = lazy(() => import('./pages/SiteSettingSetting'));
 const StaticPagesSetting = lazy(() => import('./pages/StaticPagesSetting'));
+const UtilitySetting = lazy(() => import('./pages/UtilitySetting'));
 
 export interface SettingsAppProps {
     isEditor: boolean;
@@ -121,10 +125,34 @@ const webhookRoute = createRoute({
     component: WebhookSetting
 });
 
+const globalNoticesRoute = createRoute({
+    getParentRoute: () => settingsRoute,
+    path: '/global-notices',
+    component: GlobalNoticeSetting
+});
+
+const globalBannersRoute = createRoute({
+    getParentRoute: () => settingsRoute,
+    path: '/global-banners',
+    component: GlobalBannerSetting
+});
+
+const siteSettingsRoute = createRoute({
+    getParentRoute: () => settingsRoute,
+    path: '/site-settings',
+    component: SiteSettingSetting
+});
+
 const staticPagesRoute = createRoute({
     getParentRoute: () => settingsRoute,
     path: '/static-pages',
     component: StaticPagesSetting
+});
+
+const utilitiesRoute = createRoute({
+    getParentRoute: () => settingsRoute,
+    path: '/utilities',
+    component: UtilitySetting
 });
 
 // Layout-less routes for fullscreen editors
@@ -163,7 +191,11 @@ const routeTree = rootRoute.addChildren([
         socialLinksRoute,
         integrationRoute,
         webhookRoute,
-        staticPagesRoute
+        globalNoticesRoute,
+        globalBannersRoute,
+        siteSettingsRoute,
+        staticPagesRoute,
+        utilitiesRoute
     ])
 ]);
 
