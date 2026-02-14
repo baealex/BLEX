@@ -3,7 +3,8 @@ from django.shortcuts import redirect
 from django.urls import reverse
 from django.http import HttpResponse
 
-from board.models import SiteSetting, StaticPage
+from board.models import SiteSetting
+
 
 
 @admin.register(SiteSetting)
@@ -62,39 +63,3 @@ class SiteSettingAdmin(admin.ModelAdmin):
                 f'<p>Error: {str(e)}</p>',
                 status=503
             )
-
-
-@admin.register(StaticPage)
-class StaticPageAdmin(admin.ModelAdmin):
-    """
-    Admin interface for static pages.
-    Allows creating and editing static pages with HTML content.
-    """
-    list_display = ['title', 'slug', 'is_published', 'show_in_footer', 'order', 'updated_date']
-    list_editable = ['is_published', 'show_in_footer', 'order']
-    list_filter = ['is_published', 'show_in_footer']
-    search_fields = ['title', 'slug', 'content']
-    prepopulated_fields = {'slug': ('title',)}
-
-    fieldsets = (
-        ('기본 정보', {
-            'fields': ('title', 'slug', 'meta_description')
-        }),
-        ('페이지 내용', {
-            'fields': ('content',),
-        }),
-        ('표시 설정', {
-            'fields': ('is_published', 'show_in_footer', 'order')
-        }),
-        ('메타데이터', {
-            'fields': ('author', 'created_date', 'updated_date'),
-            'classes': ('collapse',)
-        }),
-    )
-
-    readonly_fields = ['created_date', 'updated_date']
-
-    def save_model(self, request, obj, form, change):
-        if not obj.author:
-            obj.author = request.user
-        super().save_model(request, obj, form, change)

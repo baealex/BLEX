@@ -377,3 +377,86 @@ export const updateStaticPage = async (id: number, data: StaticPageUpdateData) =
 export const deleteStaticPage = async (id: number) => {
     return http.delete<Response<{ message: string }>>(`v1/static-pages/${id}`);
 };
+
+// Utility API
+export interface UtilityStats {
+    totalPosts: number;
+    publishedPosts: number;
+    hiddenPosts: number;
+    draftPosts: number;
+    totalComments: number;
+    totalUsers: number;
+    activeProfiles: number;
+    totalSeries: number;
+    imageCacheCount: number;
+    totalSessions: number;
+    expiredSessions: number;
+    dbSize?: string;
+    logCount: number;
+}
+
+export interface TagCleanResult {
+    totalTags: number;
+    usedTags: number;
+    unusedTags: number;
+    topTags: { name: string; count: number }[];
+    cleanedCount: number;
+    cleanedTags: string[];
+    dryRun: boolean;
+}
+
+export interface SessionCleanResult {
+    totalSessions: number;
+    expiredSessions: number;
+    cleanedCount: number;
+    cleanAll: boolean;
+    dryRun: boolean;
+}
+
+export interface LogCleanResult {
+    logCount: number;
+    cleanedCount: number;
+    dryRun: boolean;
+}
+
+export interface ImageCleanResult {
+    totalUnused: number;
+    totalSizeMb: number;
+    totalDuplicates: number;
+    totalDuplicateSizeMb: number;
+    totalSavedMb: number;
+    messages: string[];
+    dryRun: boolean;
+    unusedFiles?: {
+        path: string;
+        url: string;
+        sizeKb: number;
+    }[];
+}
+
+export const getUtilityStats = async () => {
+    return http.get<Response<UtilityStats>>('v1/utilities/stats');
+};
+
+export const cleanTags = async (dryRun: boolean) => {
+    return http.post<Response<TagCleanResult>>('v1/utilities/clean-tags', { dry_run: dryRun }, { headers: { 'Content-Type': 'application/json' } });
+};
+
+export const cleanSessions = async (dryRun: boolean, cleanAll: boolean) => {
+    return http.post<Response<SessionCleanResult>>('v1/utilities/clean-sessions', {
+        dry_run: dryRun,
+        clean_all: cleanAll
+    }, { headers: { 'Content-Type': 'application/json' } });
+};
+
+export const cleanLogs = async (dryRun: boolean) => {
+    return http.post<Response<LogCleanResult>>('v1/utilities/clean-logs', { dry_run: dryRun }, { headers: { 'Content-Type': 'application/json' } });
+};
+
+export const cleanImages = async (dryRun: boolean, target: string, removeDuplicates: boolean) => {
+    return http.post<Response<ImageCleanResult>>('v1/utilities/clean-images', {
+        dry_run: dryRun,
+        target,
+        remove_duplicates: removeDuplicates
+    }, { headers: { 'Content-Type': 'application/json' } });
+};

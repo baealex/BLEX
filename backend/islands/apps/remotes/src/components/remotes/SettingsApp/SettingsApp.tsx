@@ -24,6 +24,7 @@ const IntegrationSetting = lazy(() => import('./pages/IntegrationSetting'));
 const SocialLinksSetting = lazy(() => import('./pages/SocialLinksSetting'));
 const WebhookSetting = lazy(() => import('./pages/WebhookSetting'));
 const StaticPagesSetting = lazy(() => import('./pages/StaticPagesSetting'));
+const UtilitySetting = lazy(() => import('./pages/UtilitySetting'));
 
 export interface SettingsAppProps {
     isEditor: boolean;
@@ -127,6 +128,12 @@ const staticPagesRoute = createRoute({
     component: StaticPagesSetting
 });
 
+const utilitiesRoute = createRoute({
+    getParentRoute: () => settingsRoute,
+    path: '/utilities',
+    component: UtilitySetting
+});
+
 // Layout-less routes for fullscreen editors
 const staticPageCreateRoute = createRoute({
     getParentRoute: () => rootRoute,
@@ -163,7 +170,8 @@ const routeTree = rootRoute.addChildren([
         socialLinksRoute,
         integrationRoute,
         webhookRoute,
-        staticPagesRoute
+        staticPagesRoute,
+        utilitiesRoute
     ])
 ]);
 

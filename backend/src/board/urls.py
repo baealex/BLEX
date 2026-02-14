@@ -112,6 +112,13 @@ urlpatterns = [
     path('v1/static-pages/<int:page_id>', api_v1.static_pages),
     path('v1/markdown', api_v1.markdown_to_html),
 
+    # Utility endpoints
+    path('v1/utilities/stats', api_v1.utility_stats),
+    path('v1/utilities/clean-tags', api_v1.utility_clean_tags),
+    path('v1/utilities/clean-sessions', api_v1.utility_clean_sessions),
+    path('v1/utilities/clean-logs', api_v1.utility_clean_logs),
+    path('v1/utilities/clean-images', api_v1.utility_clean_images),
+
     # Webhook channels (author's notification channels)
     path('v1/webhook/channels', api_v1.my_channels),
     path('v1/webhook/channels/<int:channel_id>', api_v1.delete_channel),

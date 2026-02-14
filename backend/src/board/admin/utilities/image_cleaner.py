@@ -11,7 +11,7 @@ from itertools import chain
 from django.conf import settings
 from django.db.models import F
 
-from board.models import Post, Comment, ImageCache, Profile, Series
+from board.models import Post, Comment, ImageCache, Profile, Series, StaticPage
 
 
 class ImageCleanerService:
@@ -64,8 +64,11 @@ class ImageCleanerService:
             text_html=F('about_html')
         )
         series = Series.objects.all()
+        static_pages = StaticPage.objects.all().annotate(
+            text_html=F('content')
+        )
 
-        for item in chain(posts, comments, profiles, series):
+        for item in chain(posts, comments, profiles, series, static_pages):
             text_md = getattr(item, 'text_md', '') or ''
             text_html = getattr(item, 'text_html', '') or ''
 

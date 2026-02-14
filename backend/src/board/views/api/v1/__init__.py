@@ -16,4 +16,5 @@ from .setting import *
 from .static_page import *
 from .telegram import *
 from .user import *
+from .utility import *
 from .webhook import *

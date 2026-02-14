@@ -113,6 +113,12 @@ const navigationSections = [
                 requiresStaff: true
             },
             {
+                name: '유틸리티',
+                path: '/utilities',
+                icon: 'fa-toolbox',
+                requiresStaff: true
+            },
+            {
                 name: '관리자 패널',
                 path: 'admin',
                 icon: 'fa-shield-alt',
