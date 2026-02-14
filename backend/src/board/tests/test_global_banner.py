@@ -1,9 +1,6 @@
-import json
-
-from django.test import TestCase, Client
+from django.test import TestCase
 from django.core.exceptions import ValidationError
 from django.contrib.auth.models import User
-from django.urls import reverse
 
 from board.models import Profile, GlobalBanner, Banner, BannerType, BannerPosition
 from board.services.banner_service import BannerService
@@ -69,37 +66,6 @@ class GlobalBannerModelTestCase(TestCase):
             banner.clean()
 
 
-
-class GlobalBannerAdminTestCase(TestCase):
-    """GlobalBanner Admin tests"""
-
-    @classmethod
-    def setUpTestData(cls):
-        cls.admin = User.objects.create_superuser(
-            username='admin',
-            password='admin',
-            email='admin@test.com',
-        )
-
-    def setUp(self):
-        self.client = Client(HTTP_USER_AGENT='Mozilla/5.0')
-
-    def test_created_by_is_set_on_creation(self):
-        """글로벌 배너 생성 시 created_by 자동 설정"""
-        self.client.login(username='admin', password='admin')
-        url = reverse('admin:board_globalbanner_add')
-        self.client.post(url, {
-            'title': 'Test Banner',
-            'content_html': '<div>Test</div>',
-            'banner_type': 'horizontal',
-            'position': 'top',
-            'is_active': True,
-            'order': 0,
-        })
-
-        banner = GlobalBanner.objects.filter(title='Test Banner').first()
-        self.assertIsNotNone(banner)
-        self.assertEqual(banner.created_by, self.admin)
 
 
 class BannerServiceTestCase(TestCase):

@@ -378,6 +378,122 @@ export const deleteStaticPage = async (id: number) => {
     return http.delete<Response<{ message: string }>>(`v1/static-pages/${id}`);
 };
 
+// Global Notice API
+export interface GlobalNoticeData {
+    id: number;
+    title: string;
+    url: string;
+    isActive: boolean;
+    createdDate: string;
+    updatedDate: string;
+}
+
+export interface GlobalNoticeCreateData {
+    title: string;
+    url: string;
+    is_active?: boolean;
+}
+
+export interface GlobalNoticeUpdateData {
+    title?: string;
+    url?: string;
+    is_active?: boolean;
+}
+
+export const getGlobalNotices = async () => {
+    return http.get<Response<{ notices: GlobalNoticeData[] }>>('v1/global-notices');
+};
+
+export const createGlobalNotice = async (data: GlobalNoticeCreateData) => {
+    return http.post<Response<GlobalNoticeData>>('v1/global-notices', data, { headers: { 'Content-Type': 'application/json' } });
+};
+
+export const updateGlobalNotice = async (id: number, data: GlobalNoticeUpdateData) => {
+    return http.put<Response<GlobalNoticeData>>(`v1/global-notices/${id}`, data, { headers: { 'Content-Type': 'application/json' } });
+};
+
+export const deleteGlobalNotice = async (id: number) => {
+    return http.delete<Response<{ message: string }>>(`v1/global-notices/${id}`);
+};
+
+// Global Banner API
+export interface GlobalBannerData {
+    id: number;
+    title: string;
+    contentHtml: string;
+    bannerType: 'horizontal' | 'sidebar';
+    position: 'top' | 'bottom' | 'left' | 'right';
+    isActive: boolean;
+    order: number;
+    createdBy: string | null;
+    createdDate?: string;
+    updatedDate?: string;
+}
+
+export interface GlobalBannerCreateData {
+    title: string;
+    content_html: string;
+    banner_type: 'horizontal' | 'sidebar';
+    position: 'top' | 'bottom' | 'left' | 'right';
+    is_active?: boolean;
+    order?: number;
+}
+
+export interface GlobalBannerUpdateData {
+    title?: string;
+    content_html?: string;
+    banner_type?: 'horizontal' | 'sidebar';
+    position?: 'top' | 'bottom' | 'left' | 'right';
+    is_active?: boolean;
+    order?: number;
+}
+
+export const getGlobalBanners = async () => {
+    return http.get<Response<{ banners: GlobalBannerData[] }>>('v1/global-banners');
+};
+
+export const createGlobalBanner = async (data: GlobalBannerCreateData) => {
+    return http.post<Response<GlobalBannerData>>('v1/global-banners', data, { headers: { 'Content-Type': 'application/json' } });
+};
+
+export const updateGlobalBanner = async (id: number, data: GlobalBannerUpdateData) => {
+    return http.put<Response<GlobalBannerData>>(`v1/global-banners/${id}`, data, { headers: { 'Content-Type': 'application/json' } });
+};
+
+export const deleteGlobalBanner = async (id: number) => {
+    return http.delete<Response<{ message: string }>>(`v1/global-banners/${id}`);
+};
+
+export const updateGlobalBannerOrder = async (order: [number, number][]) => {
+    return http.put<Response<{ message: string }>>('v1/global-banners/order', { order }, { headers: { 'Content-Type': 'application/json' } });
+};
+
+// Site Setting API
+export interface SiteSettingData {
+    headerScript: string;
+    footerScript: string;
+    welcomeNotificationMessage: string;
+    welcomeNotificationUrl: string;
+    accountDeletionRedirectUrl: string;
+    updatedDate: string;
+}
+
+export interface SiteSettingUpdateData {
+    header_script?: string;
+    footer_script?: string;
+    welcome_notification_message?: string;
+    welcome_notification_url?: string;
+    account_deletion_redirect_url?: string;
+}
+
+export const getSiteSettings = async () => {
+    return http.get<Response<SiteSettingData>>('v1/site-settings');
+};
+
+export const updateSiteSettings = async (data: SiteSettingUpdateData) => {
+    return http.put<Response<SiteSettingData>>('v1/site-settings', data, { headers: { 'Content-Type': 'application/json' } });
+};
+
 // Utility API
 export interface UtilityStats {
     totalPosts: number;

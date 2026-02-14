@@ -4,12 +4,9 @@ from .comment import *
 from .connection import *
 from .webhook import *
 from .form import *
-from .global_banner import *
-from .global_notice import *
 from .image import *
 from .notify import *
 from .series import *
-from .site import *
 from .post import *
 from .tag import *
 from .user import *

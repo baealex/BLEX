@@ -4,7 +4,7 @@ import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Button, Input, Checkbox } from '~/components/shared';
 import { CodeEditor } from '~/components/CodeEditor';
-import type { BannerData, BannerCreateData } from '~/lib/api/settings';
+import type { GlobalBannerData, GlobalBannerCreateData } from '~/lib/api/settings';
 
 const bannerSchema = z.object({
     title: z.string().min(1, '배너 이름을 입력해주세요.').max(100, '배너 이름은 100자 이내여야 합니다.'),
@@ -17,17 +17,17 @@ const bannerSchema = z.object({
 
 type BannerFormInputs = z.infer<typeof bannerSchema>;
 
-interface BannerFormProps {
-    banner?: BannerData;
-    onSubmit: (data: BannerCreateData) => void;
+interface GlobalBannerFormProps {
+    banner?: GlobalBannerData;
+    onSubmit: (data: GlobalBannerCreateData) => void;
     onCancel: () => void;
     isLoading: boolean;
 }
 
-export const BannerForm = ({ banner, onSubmit, onCancel, isLoading }: BannerFormProps) => {
+export const GlobalBannerForm = ({ banner, onSubmit, onCancel, isLoading }: GlobalBannerFormProps) => {
     const {
- register, handleSubmit, watch, setValue, control, formState: { errors }
-} = useForm<BannerFormInputs>({
+        register, handleSubmit, watch, setValue, control, formState: { errors }
+    } = useForm<BannerFormInputs>({
         resolver: zodResolver(bannerSchema),
         defaultValues: banner ? {
             title: banner.title,
@@ -48,7 +48,6 @@ export const BannerForm = ({ banner, onSubmit, onCancel, isLoading }: BannerForm
 
     const bannerType = watch('bannerType');
 
-    // Adjust position when banner type changes
     useEffect(() => {
         if (bannerType === 'horizontal') {
             const currentPosition = watch('position');
@@ -77,7 +76,6 @@ export const BannerForm = ({ banner, onSubmit, onCancel, isLoading }: BannerForm
     return (
         <form onSubmit={handleSubmit(handleFormSubmit)}>
             <div className="p-6 space-y-6">
-                {/* Banner Name */}
                 <div className="space-y-2">
                     <label className="block text-sm font-semibold text-gray-900">
                         배너 이름
@@ -91,7 +89,6 @@ export const BannerForm = ({ banner, onSubmit, onCancel, isLoading }: BannerForm
                     <p className="text-xs text-gray-500">관리용 이름입니다. 사용자에게는 표시되지 않습니다.</p>
                 </div>
 
-                {/* Banner Type */}
                 <div className="space-y-3">
                     <label className="block text-sm font-semibold text-gray-900">
                         배너 타입
@@ -163,7 +160,6 @@ export const BannerForm = ({ banner, onSubmit, onCancel, isLoading }: BannerForm
                     </div>
                 </div>
 
-                {/* Banner Position */}
                 <div className="space-y-3">
                     <label className="block text-sm font-semibold text-gray-900">
                         배너 위치
@@ -271,7 +267,6 @@ export const BannerForm = ({ banner, onSubmit, onCancel, isLoading }: BannerForm
                     </div>
                 </div>
 
-                {/* Banner HTML */}
                 <div className="space-y-2">
                     <label className="block text-sm font-semibold text-gray-900">
                         배너 HTML
@@ -289,10 +284,9 @@ export const BannerForm = ({ banner, onSubmit, onCancel, isLoading }: BannerForm
                             />
                         )}
                     />
-                    <p className="text-xs text-gray-500">HTML 코드를 입력하세요. 스크립트는 보안상 자동 제거됩니다.</p>
+                    <p className="text-xs text-gray-500">HTML 코드를 입력하세요. 관리자 전용이므로 스크립트가 허용됩니다.</p>
                 </div>
 
-                {/* Active Toggle */}
                 <div className="p-4 bg-gray-50 rounded-xl border border-gray-200">
                     <Checkbox
                         checked={watch('isActive') ?? true}
@@ -303,7 +297,6 @@ export const BannerForm = ({ banner, onSubmit, onCancel, isLoading }: BannerForm
                 </div>
             </div>
 
-            {/* Modal Footer */}
             <div className="flex items-center justify-end gap-3 px-6 py-4 border-t border-gray-200 bg-gray-50">
                 <Button
                     type="button"
