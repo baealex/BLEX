@@ -9,7 +9,6 @@ import {
     FileText,
     Info,
     EyeOff,
-    Bookmark,
     CircleDollarSign,
     Trash2
 } from '@blex/ui';
@@ -29,7 +28,6 @@ interface SettingsDrawerProps {
     seriesList: Series[];
     formData: {
         hide: boolean;
-        notice: boolean;
         advertise: boolean;
     };
 
@@ -199,21 +197,6 @@ const SettingsDrawer = ({
                                                 checked={formData.hide}
                                                 onCheckedChange={(checked) => onFormDataChange('hide', checked)}
                                                 aria-label="비공개"
-                                            />
-                                        </div>
-
-                                        <div className="flex items-center justify-between py-3">
-                                            <div className="flex items-center gap-3">
-                                                <Bookmark className="w-4 h-4 text-gray-400" />
-                                                <div>
-                                                    <div className="text-sm font-medium text-gray-900">공지사항</div>
-                                                    <div className="text-xs text-gray-500">블로그 상단에 고정됩니다</div>
-                                                </div>
-                                            </div>
-                                            <Toggle
-                                                checked={formData.notice}
-                                                onCheckedChange={(checked) => onFormDataChange('notice', checked)}
-                                                aria-label="공지사항"
                                             />
                                         </div>
 

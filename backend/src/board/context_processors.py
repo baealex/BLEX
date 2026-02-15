@@ -1,5 +1,5 @@
 from django.conf import settings
-from board.models import SiteSetting, GlobalNotice, StaticPage
+from board.models import SiteSetting, SiteNotice, SiteContentScope, StaticPage
 
 
 def oauth_settings(request):
@@ -26,7 +26,10 @@ def global_notices(request):
     Add active global notices to template context
     """
     return {
-        'global_notices': GlobalNotice.objects.filter(is_active=True).order_by('-created_date'),
+        'global_notices': SiteNotice.objects.filter(
+            scope=SiteContentScope.GLOBAL,
+            is_active=True,
+        ).order_by('-created_date'),
     }
 
 
@@ -57,10 +60,9 @@ def admin_url_context(request):
     The admin path changes on every server restart for security.
     """
     from main.admin_path import get_admin_url
-    
+
     if request.user.is_authenticated and request.user.is_staff:
         return {
             'admin_url': get_admin_url(),
         }
     return {}
-

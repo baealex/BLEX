@@ -1,7 +1,7 @@
 import json
 from django.http import Http404
 from django.shortcuts import get_object_or_404
-from board.models import GlobalBanner
+from board.models import SiteBanner, SiteContentScope
 from board.modules.response import StatusDone, StatusError, ErrorCode
 
 
@@ -14,7 +14,7 @@ def _serialize_global_banner(banner):
         'position': banner.position,
         'is_active': banner.is_active,
         'order': banner.order,
-        'created_by': banner.created_by.username if banner.created_by else None,
+        'created_by': banner.user.username if banner.user else None,
         'created_date': banner.created_date.isoformat(),
         'updated_date': banner.updated_date.isoformat(),
     }
@@ -36,9 +36,13 @@ def global_banners(request, banner_id=None):
     if not request.user.is_staff:
         return StatusError(ErrorCode.REJECT, '관리자 권한이 필요합니다.')
 
+    qs = SiteBanner.objects.filter(
+        scope=SiteContentScope.GLOBAL,
+    )
+
     # List all global banners
     if request.method == 'GET' and banner_id is None:
-        banners = GlobalBanner.objects.all().order_by('order', '-created_date')
+        banners = qs.select_related('user').order_by('order', '-created_date')
 
         return StatusDone({
             'banners': list(map(_serialize_global_banner, banners))
@@ -46,7 +50,7 @@ def global_banners(request, banner_id=None):
 
     # Get single global banner
     if request.method == 'GET' and banner_id:
-        banner = get_object_or_404(GlobalBanner, id=banner_id)
+        banner = get_object_or_404(qs.select_related('user'), id=banner_id)
 
         return StatusDone(_serialize_global_banner(banner))
 
@@ -77,21 +81,22 @@ def global_banners(request, banner_id=None):
         if banner_type == 'sidebar' and position not in ['left', 'right']:
             return StatusError(ErrorCode.VALIDATE, '사이드배너는 좌측 또는 우측에만 배치할 수 있습니다.')
 
-        banner = GlobalBanner.objects.create(
+        banner = SiteBanner.objects.create(
+            scope=SiteContentScope.GLOBAL,
+            user=request.user,
             title=title,
             content_html=content_html,
             banner_type=banner_type,
             position=position,
             is_active=is_active,
             order=order,
-            created_by=request.user,
         )
 
         return StatusDone(_serialize_global_banner(banner))
 
     # Update global banner
     if request.method == 'PUT' and banner_id:
-        banner = get_object_or_404(GlobalBanner, id=banner_id)
+        banner = get_object_or_404(qs.select_related('user'), id=banner_id)
 
         try:
             put_data = json.loads(request.body.decode('utf-8')) if request.body else {}
@@ -129,7 +134,7 @@ def global_banners(request, banner_id=None):
 
     # Delete global banner
     if request.method == 'DELETE' and banner_id:
-        banner = get_object_or_404(GlobalBanner, id=banner_id)
+        banner = get_object_or_404(qs, id=banner_id)
         banner.delete()
 
         return StatusDone({'message': '글로벌 배너가 삭제되었습니다.'})
@@ -166,10 +171,13 @@ def global_banner_order(request):
 
         banner_id, order = item
         try:
-            banner = GlobalBanner.objects.get(id=banner_id)
+            banner = SiteBanner.objects.get(
+                id=banner_id,
+                scope=SiteContentScope.GLOBAL,
+            )
             banner.order = order
             banner.save()
-        except GlobalBanner.DoesNotExist:
+        except SiteBanner.DoesNotExist:
             continue
 
     return StatusDone({'message': '글로벌 배너 순서가 업데이트되었습니다.'})

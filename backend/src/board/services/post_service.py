@@ -188,7 +188,6 @@ class PostService:
         tag: str = '',
         image: Optional[Any] = None,
         is_hide: bool = False,
-        is_notice: bool = False,
         is_advertise: bool = False,
     ) -> Tuple[Post, PostContent, PostConfig]:
         """
@@ -205,7 +204,6 @@ class PostService:
             tag: Tags string (optional)
             image: Post cover image (optional)
             is_hide: Hide post flag
-            is_notice: Notice post flag
             is_advertise: Advertisement flag
 
         Returns:
@@ -259,7 +257,6 @@ class PostService:
         post_config = PostConfig.objects.create(
             post=post,
             hide=is_hide,
-            notice=is_notice,
             advertise=is_advertise
         )
 
@@ -403,7 +400,6 @@ class PostService:
         image: Optional[Any] = None,
         image_delete: bool = False,
         is_hide: Optional[bool] = None,
-        is_notice: Optional[bool] = None,
         is_advertise: Optional[bool] = None,
     ) -> Post:
         """
@@ -419,7 +415,6 @@ class PostService:
             tag: New tags (optional)
             image: New image (optional)
             is_hide: New hide flag (optional)
-            is_notice: New notice flag (optional)
             is_advertise: New advertise flag (optional)
 
         Returns:
@@ -478,12 +473,10 @@ class PostService:
         
         post.save()
 
-        if is_hide is not None or is_notice is not None or is_advertise is not None:
+        if is_hide is not None or is_advertise is not None:
             post_config = post.config
             if is_hide is not None:
                 post_config.hide = is_hide
-            if is_notice is not None:
-                post_config.notice = is_notice
             if is_advertise is not None:
                 post_config.advertise = is_advertise
             post_config.save()
@@ -691,7 +684,6 @@ class PostService:
         tag: Optional[str] = None,
         image: Optional[Any] = None,
         is_hide: bool = False,
-        is_notice: bool = False,
         is_advertise: bool = False,
         reserved_date_str: str = '',
     ) -> Post:
@@ -758,7 +750,6 @@ class PostService:
 
         post_config = post.config
         post_config.hide = is_hide
-        post_config.notice = is_notice
         post_config.advertise = is_advertise
         post_config.save()
 

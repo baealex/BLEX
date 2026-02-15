@@ -19,6 +19,7 @@ const PostsSetting = lazy(() => import('./pages/PostsSetting'));
 const PinnedPostsSetting = lazy(() => import('./pages/PinnedPostsSetting'));
 const DraftsSetting = lazy(() => import('./pages/DraftsSetting'));
 const FormsSetting = lazy(() => import('./pages/FormsSetting'));
+const NoticeSetting = lazy(() => import('./pages/NoticeSetting'));
 const BannerSetting = lazy(() => import('./pages/BannerSetting'));
 const IntegrationSetting = lazy(() => import('./pages/IntegrationSetting'));
 const SocialLinksSetting = lazy(() => import('./pages/SocialLinksSetting'));
@@ -99,6 +100,12 @@ const formsRoute = createRoute({
     getParentRoute: () => settingsRoute,
     path: '/forms',
     component: FormsSetting
+});
+
+const noticesRoute = createRoute({
+    getParentRoute: () => settingsRoute,
+    path: '/notices',
+    component: NoticeSetting
 });
 
 const bannersRoute = createRoute({
@@ -187,6 +194,7 @@ const routeTree = rootRoute.addChildren([
         pinnedPostsRoute,
         draftsRoute,
         formsRoute,
+        noticesRoute,
         bannersRoute,
         socialLinksRoute,
         integrationRoute,

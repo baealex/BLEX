@@ -16,7 +16,7 @@ interface PostsFilterProps {
 }
 
 const hasActiveFilters = (filters: FilterOptions) => {
-    return filters.tag || filters.series || filters.visibility || filters.notice || filters.search;
+    return filters.tag || filters.series || filters.visibility || filters.search;
 };
 
 const PostsFilter = ({
@@ -103,17 +103,6 @@ const PostsFilter = ({
                             </button>
                         </div>
                     )}
-                    {filters.notice && (
-                        <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-red-50 text-red-700 rounded-lg text-sm">
-                            <i className="fas fa-bell text-xs" />
-                            <span>{filters.notice === 'notice' ? '공지만' : '일반만'}</span>
-                            <button
-                                onClick={() => onFilterChange('notice', '')}
-                                className="hover:text-red-900">
-                                <i className="fas fa-times text-xs" />
-                            </button>
-                        </div>
-                    )}
                 </div>
             )}
 
@@ -148,7 +137,7 @@ const PostsFilter = ({
                         />
                     </div>
 
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
                         {/* 태그 필터 */}
                         <Dropdown
                             align="left"
@@ -229,35 +218,6 @@ const PostsFilter = ({
                             ]}
                         />
 
-                        {/* 공지 필터 */}
-                        <Dropdown
-                            align="left"
-                            trigger={
-                                <button className={`${baseInputStyles} flex items-center justify-between text-left`}>
-                                    <span className={filters.notice ? 'text-gray-900 font-medium' : 'text-gray-400'}>
-                                        {filters.notice === 'notice' ? '공지만' : filters.notice === 'normal' ? '일반만' : '공지 여부'}
-                                    </span>
-                                    <i className="fas fa-chevron-down text-gray-400" />
-                                </button>
-                            }
-                            items={[
-                                {
-                                    label: '전체',
-                                    onClick: () => onFilterChange('notice', ''),
-                                    checked: filters.notice === ''
-                                },
-                                {
-                                    label: '공지만',
-                                    onClick: () => onFilterChange('notice', 'notice'),
-                                    checked: filters.notice === 'notice'
-                                },
-                                {
-                                    label: '일반만',
-                                    onClick: () => onFilterChange('notice', 'normal'),
-                                    checked: filters.notice === 'normal'
-                                }
-                            ]}
-                        />
                     </div>
                 </div>
             )}

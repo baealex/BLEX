@@ -44,7 +44,7 @@ class TagListPageTestCase(TestCase):
                 PostConfig.objects.create(
                     post=post,
                     hide=False,
-                    notice=False,
+        
                     advertise=False
                 )
                 post.tags.add(tag)
@@ -112,7 +112,7 @@ class TagDetailPageTestCase(TestCase):
             PostConfig.objects.create(
                 post=post,
                 hide=False,
-                notice=False,
+    
                 advertise=False
             )
             post.tags.add(self.tag)
@@ -184,7 +184,7 @@ class TagDetailPageTestCase(TestCase):
         PostConfig.objects.create(
             post=hidden_post,
             hide=True,
-            notice=False,
+
             advertise=False
         )
         hidden_post.tags.add(self.tag)
@@ -214,7 +214,7 @@ class TagDetailPageTestCase(TestCase):
         PostConfig.objects.create(
             post=post,
             hide=False,
-            notice=False,
+
             advertise=False
         )
         post.tags.add(unicode_tag)

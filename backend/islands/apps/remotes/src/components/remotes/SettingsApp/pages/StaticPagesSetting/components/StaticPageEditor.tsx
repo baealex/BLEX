@@ -26,13 +26,16 @@ import {
     type StaticPageCreateData
 } from '~/lib/api/settings';
 
-const toSlug = (text: string) => {
-    return text
+const toSlug = (text: string, trim = false) => {
+    let result = text
         .toLowerCase()
         .replace(/[^a-z0-9가-힣\s-]/g, '')
         .replace(/\s+/g, '-')
-        .replace(/-+/g, '-')
-        .replace(/^-|-$/g, '');
+        .replace(/-+/g, '-');
+    if (trim) {
+        result = result.replace(/^-|-$/g, '');
+    }
+    return result;
 };
 
 interface StaticPageEditorProps {
@@ -178,7 +181,7 @@ export const StaticPageEditor = ({ pageId }: StaticPageEditorProps) => {
 
         const pageData: StaticPageCreateData = {
             title: title.trim(),
-            slug: slug.trim(),
+            slug: toSlug(slug, true),
             content,
             meta_description: metaDescription.trim(),
             is_published: isPublished,

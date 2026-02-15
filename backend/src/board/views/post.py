@@ -118,7 +118,6 @@ def post_editor(request, username=None, post_url=None):
             tags = [tag.strip() for tag in tags_str.split(',') if tag.strip()]
 
         hide = request.POST.get('hide') in ['on', 'true']
-        notice = request.POST.get('notice') in ['on', 'true']
         advertise = request.POST.get('advertise') in ['on', 'true']
         is_draft = request.POST.get('is_draft') == 'true'
 
@@ -146,7 +145,6 @@ def post_editor(request, username=None, post_url=None):
                 tag=','.join(tags) if tags else None,
                 image=image,
                 is_hide=hide,
-                is_notice=notice,
                 is_advertise=advertise,
             )
 
@@ -180,7 +178,6 @@ def post_editor(request, username=None, post_url=None):
                         tag=','.join(tags) if tags else '',
                         image=image,
                         is_hide=hide,
-                        is_notice=notice,
                         is_advertise=advertise,
                     )
                     messages.success(request, 'Post has been published successfully.')
@@ -204,7 +201,6 @@ def post_editor(request, username=None, post_url=None):
                         tag=','.join(tags) if tags else '',
                         image=image,
                         is_hide=hide,
-                        is_notice=notice,
                         is_advertise=advertise,
                     )
                     messages.success(request, 'Post has been created successfully.')

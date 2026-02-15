@@ -43,7 +43,7 @@ class AuthorPostsPageTestCase(TestCase):
         PostConfig.objects.create(
             post=self.post,
             hide=False,
-            notice=False,
+
             advertise=False
         )
 

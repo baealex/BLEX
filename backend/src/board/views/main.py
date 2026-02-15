@@ -13,7 +13,6 @@ def index(request):
     ).filter(
         published_date__isnull=False,
         published_date__lte=timezone.now(),
-        config__notice=False,
         config__hide=False,
     ).annotate(
         author_username=F('author__username'),

@@ -29,7 +29,6 @@ const EditPostEditor = ({ username, postUrl }: EditPostEditorProps) => {
         content: '',
         metaDescription: '',
         hide: false,
-        notice: false,
         advertise: false
     });
 
@@ -77,7 +76,6 @@ const EditPostEditor = ({ username, postUrl }: EditPostEditorProps) => {
                         content: postData.textHtml || '',
                         metaDescription: postData.description || '',
                         hide: postData.isHide || false,
-                        notice: postData.isNotice || false,
                         advertise: postData.isAdvertise || false
                     });
                     setTags(postData.tags || []);

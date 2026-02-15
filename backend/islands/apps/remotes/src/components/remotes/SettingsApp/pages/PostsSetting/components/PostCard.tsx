@@ -9,7 +9,6 @@ interface PostCardProps {
     username: string;
     series?: Series[];
     onVisibilityToggle: (postUrl: string) => void;
-    onNoticeToggle: (postUrl: string) => void;
     onDelete: (postUrl: string) => void;
     onTagChange: (postUrl: string, value: string) => void;
     onTagSubmit: (postUrl: string) => void;
@@ -26,7 +25,6 @@ const PostCard = ({
     username,
     series,
     onVisibilityToggle,
-    onNoticeToggle,
     onDelete,
     onTagChange,
     onTagSubmit,
@@ -80,15 +78,6 @@ const PostCard = ({
                                     </span>
                                 </>
                             )}
-                            {post.isNotice && (
-                                <>
-                                    <span className="text-gray-400">•</span>
-                                    <span className="inline-flex items-center px-2.5 py-1 bg-red-100 text-red-700 rounded-full text-xs font-medium">
-                                        <i className="fas fa-bell mr-1.5" />
-                                        공지
-                                    </span>
-                                </>
-                            )}
                         </div>
                     </div>
 
@@ -105,11 +94,6 @@ const PostCard = ({
                                     label: post.isHide ? '공개로 변경' : '비공개로 변경',
                                     icon: `fas ${post.isHide ? 'fa-eye' : 'fa-eye-slash'}`,
                                     onClick: () => onVisibilityToggle(post.url)
-                                },
-                                {
-                                    label: post.isNotice ? '공지 해제' : '공지로 설정',
-                                    icon: `fas ${post.isNotice ? 'fa-bell-slash' : 'fa-bell'}`,
-                                    onClick: () => onNoticeToggle(post.url)
                                 },
                                 {
                                     label: '삭제',

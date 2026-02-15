@@ -3,7 +3,7 @@ import json
 from django.test import TestCase
 from django.test.client import Client
 
-from board.models import User, Profile, GlobalBanner
+from board.models import User, Profile, SiteBanner, SiteContentScope
 
 
 class GlobalBannerAPITestCase(TestCase):
@@ -29,6 +29,18 @@ class GlobalBannerAPITestCase(TestCase):
     def setUp(self):
         self.client = Client(HTTP_USER_AGENT='Mozilla/5.0')
         self.client.login(username='staffuser', password='test')
+
+    def _create_global_banner(self, **kwargs):
+        defaults = dict(
+            scope=SiteContentScope.GLOBAL,
+            user=self.staff_user,
+            title='Test Banner',
+            content_html='<div>Test</div>',
+            banner_type='horizontal',
+            position='top',
+        )
+        defaults.update(kwargs)
+        return SiteBanner.objects.create(**defaults)
 
     def test_get_banners_not_login(self):
         """비로그인 상태에서 글로벌 배너 목록 조회 시 에러 테스트"""
@@ -76,9 +88,10 @@ class GlobalBannerAPITestCase(TestCase):
         self.assertEqual(content['body']['title'], 'Test Banner')
         self.assertEqual(content['body']['createdBy'], 'staffuser')
 
-        # DB에서 created_by 확인
-        banner = GlobalBanner.objects.get(title='Test Banner')
-        self.assertEqual(banner.created_by, self.staff_user)
+        # DB에서 created_by(user) 확인
+        banner = SiteBanner.objects.get(title='Test Banner')
+        self.assertEqual(banner.user, self.staff_user)
+        self.assertEqual(banner.scope, SiteContentScope.GLOBAL)
 
     def test_create_banner_without_title(self):
         """제목 없이 글로벌 배너 생성 시 에러 테스트"""
@@ -145,13 +158,7 @@ class GlobalBannerAPITestCase(TestCase):
 
     def test_get_banner_detail(self):
         """글로벌 배너 상세 조회 테스트"""
-        banner = GlobalBanner.objects.create(
-            title='Detail Banner',
-            content_html='<div>Detail</div>',
-            banner_type='horizontal',
-            position='top',
-            created_by=self.staff_user,
-        )
+        banner = self._create_global_banner(title='Detail Banner', content_html='<div>Detail</div>')
 
         response = self.client.get(f'/v1/global-banners/{banner.id}')
         self.assertEqual(response.status_code, 200)
@@ -161,13 +168,7 @@ class GlobalBannerAPITestCase(TestCase):
 
     def test_update_banner(self):
         """글로벌 배너 수정 테스트"""
-        banner = GlobalBanner.objects.create(
-            title='Original Title',
-            content_html='<div>Original</div>',
-            banner_type='horizontal',
-            position='top',
-            created_by=self.staff_user,
-        )
+        banner = self._create_global_banner(title='Original Title', content_html='<div>Original</div>')
 
         data = {
             'title': 'Updated Title',
@@ -188,37 +189,19 @@ class GlobalBannerAPITestCase(TestCase):
 
     def test_delete_banner(self):
         """글로벌 배너 삭제 테스트"""
-        banner = GlobalBanner.objects.create(
-            title='Delete Banner',
-            content_html='<div>Delete</div>',
-            banner_type='horizontal',
-            position='top',
-            created_by=self.staff_user,
-        )
+        banner = self._create_global_banner(title='Delete Banner', content_html='<div>Delete</div>')
 
         response = self.client.delete(f'/v1/global-banners/{banner.id}')
         self.assertEqual(response.status_code, 200)
         content = json.loads(response.content)
         self.assertEqual(content['status'], 'DONE')
 
-        self.assertFalse(GlobalBanner.objects.filter(id=banner.id).exists())
+        self.assertFalse(SiteBanner.objects.filter(id=banner.id).exists())
 
     def test_update_banner_order(self):
         """글로벌 배너 순서 변경 테스트"""
-        banner1 = GlobalBanner.objects.create(
-            title='Banner 1',
-            content_html='<div>1</div>',
-            banner_type='horizontal',
-            position='top',
-            order=0,
-        )
-        banner2 = GlobalBanner.objects.create(
-            title='Banner 2',
-            content_html='<div>2</div>',
-            banner_type='horizontal',
-            position='top',
-            order=1,
-        )
+        banner1 = self._create_global_banner(title='Banner 1', content_html='<div>1</div>', order=0)
+        banner2 = self._create_global_banner(title='Banner 2', content_html='<div>2</div>', order=1)
 
         data = {
             'order': [[banner1.id, 1], [banner2.id, 0]]

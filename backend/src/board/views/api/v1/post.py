@@ -46,7 +46,6 @@ def post_list(request):
                 tag=request.POST.get('tag', ''),
                 image=image,
                 is_hide=BooleanType(request.POST.get('is_hide', '')),
-                is_notice=BooleanType(request.POST.get('is_notice', '')),
                 is_advertise=BooleanType(request.POST.get('is_advertise', ''))
             )
 
@@ -158,7 +157,6 @@ def user_posts(request, username, url=None):
                     'text_html': post.content.text_html,  # Now sending HTML instead of markdown
                     'tags': post.tagging(),
                     'is_hide': post.config.hide,
-                    'is_notice': post.config.notice,
                     'is_advertise': post.config.advertise
                 })
 
@@ -209,7 +207,6 @@ def user_posts(request, username, url=None):
                     image=request.FILES.get('image', None),
                     image_delete=request.POST.get('image_delete') == 'true',
                     is_hide=BooleanType(request.POST.get('is_hide', '')),
-                    is_notice=BooleanType(request.POST.get('is_notice', '')),
                     is_advertise=BooleanType(request.POST.get('is_advertise', '')),
                     tag=request.POST.get('tag', '')
                 )
@@ -233,16 +230,6 @@ def user_posts(request, username, url=None):
                 PostService.update_post(post=post, is_hide=is_hide)
                 return StatusDone({
                     'is_hide': is_hide
-                })
-
-            if request.GET.get('notice', ''):
-                if not PostService.can_user_edit_post(request.user, post):
-                    raise Http404
-
-                is_notice = not post.config.notice
-                PostService.update_post(post=post, is_notice=is_notice)
-                return StatusDone({
-                    'is_notice': is_notice
                 })
 
             if request.GET.get('tag', ''):

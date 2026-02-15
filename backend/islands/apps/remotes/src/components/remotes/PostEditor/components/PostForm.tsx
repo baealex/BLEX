@@ -11,7 +11,6 @@ interface PostFormData {
     content: string;
     metaDescription: string;
     hide: boolean;
-    notice: boolean;
     advertise: boolean;
 }
 
@@ -112,7 +111,6 @@ const PostForm = ({
                 <input type="hidden" name="url" value={formData.url} />
                 <input type="hidden" name="meta_description" value={formData.metaDescription} />
                 <input type="hidden" name="hide" value={formData.hide ? 'true' : 'false'} />
-                <input type="hidden" name="notice" value={formData.notice ? 'true' : 'false'} />
                 <input type="hidden" name="advertise" value={formData.advertise ? 'true' : 'false'} />
                 <input type="hidden" name="tag" value={tags.join(',')} />
                 {selectedSeries.id && <input type="hidden" name="series" value={selectedSeries.id} />}

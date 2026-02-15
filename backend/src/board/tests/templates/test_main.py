@@ -38,7 +38,7 @@ class MainPageTemplateTestCase(TestCase):
         PostConfig.objects.create(
             post=self.post,
             hide=False,
-            notice=False,
+
             advertise=False
         )
 
@@ -96,7 +96,7 @@ class MainPageTemplateTestCase(TestCase):
         PostConfig.objects.create(
             post=hidden_post,
             hide=True,
-            notice=False,
+
             advertise=False
         )
 
@@ -124,7 +124,7 @@ class MainPageTemplateTestCase(TestCase):
         PostConfig.objects.create(
             post=future_post,
             hide=False,
-            notice=False,
+
             advertise=False
         )
 
@@ -160,7 +160,7 @@ class MainPageTemplateTestCase(TestCase):
             PostConfig.objects.create(
                 post=post,
                 hide=False,
-                notice=False,
+    
                 advertise=False
             )
 

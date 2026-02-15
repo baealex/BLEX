@@ -37,7 +37,6 @@ const NewPostEditor = ({ draftUrl }: NewPostEditorProps) => {
         content: '',
         metaDescription: '',
         hide: false,
-        notice: false,
         advertise: false
     });
 

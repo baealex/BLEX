@@ -83,7 +83,7 @@ class UserService:
         """
         Get post count and series count for an author profile.
 
-        Excludes hidden and notice posts to match the post list page.
+        Excludes hidden posts to match the post list page.
         Uses distinct=True to prevent inflated counts from joins.
         """
         return User.objects.filter(id=author.id).annotate(
@@ -91,7 +91,6 @@ class UserService:
                 post__published_date__isnull=False,
                 post__published_date__lte=timezone.now(),
                 post__config__hide=False,
-                post__config__notice=False,
             ), distinct=True),
             series_count=Count('series', distinct=True)
         ).values('post_count', 'series_count').first()
@@ -175,7 +174,6 @@ class UserService:
         ).filter(
             author=user,
             config__hide=False,
-            config__notice=False,
             published_date__isnull=False,
             published_date__lte=timezone.now(),
         ).annotate(
