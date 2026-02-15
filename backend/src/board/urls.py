@@ -32,7 +32,7 @@ urlpatterns = [
     path('logout', auth_views.LogoutView.as_view(), name='logout'),
 
     # Static pages
-    path('static/<slug:slug>', static_page_view, name='static_page'),
+    path('static/<path:slug>', static_page_view, name='static_page'),
 
     # Settings - Unified Settings App with client-side routing
     path('settings/', settings, name='settings'),
@@ -108,6 +108,8 @@ urlpatterns = [
     path('v1/banners', api_v1.banner),
     path('v1/banners/order', api_v1.banner_order),
     path('v1/banners/<int:banner_id>', api_v1.banner),
+    path('v1/notices', api_v1.notices),
+    path('v1/notices/<int:notice_id>', api_v1.notices),
     path('v1/global-notices', api_v1.global_notices),
     path('v1/global-notices/<int:notice_id>', api_v1.global_notices),
     path('v1/global-banners', api_v1.global_banners),

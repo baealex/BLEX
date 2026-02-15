@@ -10,7 +10,7 @@ from django.http import JsonResponse
 from board.modules.paginator import Paginator
 from board.modules.time import time_since
 from board.services.user_service import UserService
-from board.models import Post, Series, PostLikes, Tag, Profile
+from board.models import Post, Series, PostLikes, Tag, Profile, SiteNotice, SiteContentScope
 from modules import markdown
 
 
@@ -39,24 +39,16 @@ def author_overview(request, username):
         }
         return render(request, 'board/author/author_reader_overview.html', context)
     else:
-        # Editor template - full view with stats, pinned posts, notices
+        # Editor template - full view with stats, pinned posts
         pinned_posts = UserService.get_user_pinned_or_most_liked_posts(author)
 
-        blog_notices = Post.objects.select_related(
-            'config', 'author', 'author__profile'
-        ).only(
-            'title', 'url', 'published_date',
-            'config__notice', 'config__hide',
-            'author__username', 'author__profile__avatar'
-        ).filter(
-            author=author,
-            published_date__isnull=False,
-            published_date__lte=timezone.now(),
-            config__notice=True,
-            config__hide=False,
-        ).order_by('-published_date')[:5]
-
         stats = UserService.get_author_stats(author)
+
+        user_notices = SiteNotice.objects.filter(
+            scope=SiteContentScope.USER,
+            user=author,
+            is_active=True,
+        ).order_by('order', '-created_date')
 
         context = {
             'author': author,
@@ -65,7 +57,7 @@ def author_overview(request, username):
             'about_html': about_html,
             'post_count': stats['post_count'],
             'series_count': stats['series_count'],
-            'blog_notices': blog_notices,
+            'user_notices': user_notices,
             'author_activity_props': json.dumps({'username': author.username})
         }
         return render(request, 'board/author/author_overview.html', context)
@@ -100,7 +92,6 @@ def author_posts(request, username):
         published_date__isnull=False,
         published_date__lte=timezone.now(),
         config__hide=False,
-        config__notice=False,
     )
     
     if search_query:

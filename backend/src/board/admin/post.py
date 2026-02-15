@@ -74,10 +74,10 @@ class PostContentInline(admin.StackedInline):
 
 
 class PostConfigInline(admin.TabularInline):
-    """Inline editor for post configuration (visibility, notices, etc)."""
+    """Inline editor for post configuration (visibility, etc)."""
     model = PostConfig
     can_delete = False
-    fields = ['hide', 'notice', 'advertise', 'block_comment']
+    fields = ['hide', 'advertise', 'block_comment']
     extra = 0
     max_num = 1
 
@@ -101,7 +101,6 @@ class PostAdmin(admin.ModelAdmin):
         ('created_date', admin.DateFieldListFilter),
         ('updated_date', admin.DateFieldListFilter),
         'config__hide',
-        'config__notice',
         'config__advertise',
         'config__block_comment',
     ]
@@ -123,7 +122,7 @@ class PostAdmin(admin.ModelAdmin):
     list_per_page = LIST_PER_PAGE_DEFAULT
     save_on_top = True
     date_hierarchy = 'created_date'
-    actions = ['make_hidden', 'make_visible', 'make_notice', 'remove_notice', 'publish_drafts']
+    actions = ['make_hidden', 'make_visible', 'publish_drafts']
 
     fieldsets = (
         ('기본 정보', {
@@ -244,20 +243,6 @@ class PostAdmin(admin.ModelAdmin):
         count = PostConfig.objects.filter(post_id__in=post_ids).update(hide=False)
         self.message_user(request, f'{count}개의 포스트를 공개 처리했습니다.')
     make_visible.short_description = '선택한 포스트 공개 처리'
-
-    def make_notice(self, request: HttpRequest, queryset: QuerySet[Post]) -> None:
-        """선택한 포스트 공지로 설정 (bulk update)"""
-        post_ids = list(queryset.values_list('id', flat=True))
-        count = PostConfig.objects.filter(post_id__in=post_ids).update(notice=True)
-        self.message_user(request, f'{count}개의 포스트를 공지로 설정했습니다.')
-    make_notice.short_description = '선택한 포스트 공지로 설정'
-
-    def remove_notice(self, request: HttpRequest, queryset: QuerySet[Post]) -> None:
-        """선택한 포스트 공지 해제 (bulk update)"""
-        post_ids = list(queryset.values_list('id', flat=True))
-        count = PostConfig.objects.filter(post_id__in=post_ids).update(notice=False)
-        self.message_user(request, f'{count}개의 포스트를 일반 포스트로 변경했습니다.')
-    remove_notice.short_description = '선택한 포스트 공지 해제'
 
     def publish_drafts(self, request: HttpRequest, queryset: QuerySet[Post]) -> None:
         """선택한 임시글을 즉시 발행 (bulk update)"""

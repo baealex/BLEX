@@ -42,7 +42,7 @@ const navigationSections = [
         ]
     },
     {
-        title: '콘텐츠',
+        title: '블로그',
         description: '포스트, 시리즈, 서식 관리',
         requiresEditor: true,
         items: [
@@ -75,26 +75,32 @@ const navigationSections = [
                 path: '/forms',
                 icon: 'fa-align-left',
                 requiresEditor: true
-            }
-        ]
-    },
-    {
-        title: '확장',
-        description: '배너, 연동, 웹훅 설정',
-        items: [
+            },
+            {
+                name: '공지',
+                path: '/notices',
+                icon: 'fa-bullhorn',
+                requiresEditor: true
+            },
             {
                 name: '배너',
                 path: '/banners',
                 icon: 'fa-rectangle-ad',
                 requiresEditor: true
-            },
+            }
+        ]
+    },
+    {
+        title: '확장',
+        description: '연동, 웹훅 설정',
+        items: [
             {
                 name: '연동',
                 path: '/integration',
                 icon: 'fa-plug'
             },
             {
-                name: '웹훅',
+                name: '웹훅 채널',
                 path: '/webhook',
                 icon: 'fa-bolt',
                 requiresEditor: true
@@ -119,7 +125,7 @@ const navigationSections = [
                 requiresStaff: true
             },
             {
-                name: '공지 관리',
+                name: '전역 공지',
                 path: '/global-notices',
                 icon: 'fa-bullhorn',
                 requiresStaff: true

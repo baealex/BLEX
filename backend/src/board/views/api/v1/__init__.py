@@ -8,6 +8,7 @@ from .form import *
 from .global_banner import *
 from .global_notice import *
 from .image import *
+from .notice import *
 from .markdown import *
 from .pinned_post import *
 from .post import *

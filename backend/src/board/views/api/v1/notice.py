@@ -5,29 +5,32 @@ from board.models import SiteNotice, SiteContentScope
 from board.modules.response import StatusDone, StatusError, ErrorCode
 
 
-def global_notices(request, notice_id=None):
+def notices(request, notice_id=None):
     """
-    GlobalNotice CRUD API endpoint (staff only)
+    User Notice CRUD API endpoint (editor only)
 
-    GET /v1/global-notices - List all global notices
-    POST /v1/global-notices - Create new global notice
-    GET /v1/global-notices/<id> - Get global notice details
-    PUT /v1/global-notices/<id> - Update global notice
-    DELETE /v1/global-notices/<id> - Delete global notice
+    GET /v1/notices - List all notices for current user
+    POST /v1/notices - Create new notice
+    GET /v1/notices/<id> - Get notice details
+    PUT /v1/notices/<id> - Update notice
+    DELETE /v1/notices/<id> - Delete notice
     """
     if not request.user.is_active:
         return StatusError(ErrorCode.NEED_LOGIN)
 
-    if not request.user.is_staff:
-        return StatusError(ErrorCode.REJECT, '관리자 권한이 필요합니다.')
+    if not request.user.profile.is_editor():
+        return StatusError(ErrorCode.REJECT, '에디터 권한이 필요합니다.')
+
+    user = request.user
 
     qs = SiteNotice.objects.filter(
-        scope=SiteContentScope.GLOBAL,
+        scope=SiteContentScope.USER,
+        user=user,
     )
 
-    # List all global notices
+    # List all notices
     if request.method == 'GET' and notice_id is None:
-        notices = qs.order_by('-created_date')
+        notice_list = qs.order_by('-created_date')
 
         return StatusDone({
             'notices': list(map(lambda notice: {
@@ -37,10 +40,10 @@ def global_notices(request, notice_id=None):
                 'is_active': notice.is_active,
                 'created_date': notice.created_date.isoformat(),
                 'updated_date': notice.updated_date.isoformat(),
-            }, notices))
+            }, notice_list))
         })
 
-    # Get single global notice
+    # Get single notice
     if request.method == 'GET' and notice_id:
         notice = get_object_or_404(qs, id=notice_id)
 
@@ -53,7 +56,7 @@ def global_notices(request, notice_id=None):
             'updated_date': notice.updated_date.isoformat(),
         })
 
-    # Create new global notice
+    # Create new notice
     if request.method == 'POST':
         try:
             post_data = json.loads(request.body.decode('utf-8')) if request.body else {}
@@ -71,7 +74,8 @@ def global_notices(request, notice_id=None):
             return StatusError(ErrorCode.VALIDATE, 'URL을 입력해주세요.')
 
         notice = SiteNotice.objects.create(
-            scope=SiteContentScope.GLOBAL,
+            scope=SiteContentScope.USER,
+            user=user,
             title=title,
             url=url,
             is_active=is_active,
@@ -86,7 +90,7 @@ def global_notices(request, notice_id=None):
             'updated_date': notice.updated_date.isoformat(),
         })
 
-    # Update global notice
+    # Update notice
     if request.method == 'PUT' and notice_id:
         notice = get_object_or_404(qs, id=notice_id)
 
@@ -115,7 +119,7 @@ def global_notices(request, notice_id=None):
             'updated_date': notice.updated_date.isoformat(),
         })
 
-    # Delete global notice
+    # Delete notice
     if request.method == 'DELETE' and notice_id:
         notice = get_object_or_404(qs, id=notice_id)
         notice.delete()

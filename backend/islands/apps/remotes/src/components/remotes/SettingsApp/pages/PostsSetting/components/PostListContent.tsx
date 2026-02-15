@@ -24,7 +24,6 @@ export const PostListContent = ({
 
     const {
         handleVisibilityToggle,
-        handleNoticeToggle,
         handleDelete,
         handleTagChange,
         handleTagSubmit,
@@ -51,7 +50,6 @@ export const PostListContent = ({
                             username={postsData.username}
                             series={series}
                             onVisibilityToggle={handleVisibilityToggle}
-                            onNoticeToggle={handleNoticeToggle}
                             onDelete={handleDelete}
                             onTagChange={handleTagChange}
                             onTagSubmit={handleTagSubmit}

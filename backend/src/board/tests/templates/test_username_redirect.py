@@ -44,7 +44,7 @@ class UsernameRedirectTestCase(TestCase):
         PostConfig.objects.create(
             post=self.post,
             hide=False,
-            notice=False,
+
             advertise=False
         )
 
@@ -122,7 +122,7 @@ class UsernameRedirectTestCase(TestCase):
         PostConfig.objects.create(
             post=reader_post,
             hide=False,
-            notice=False,
+
             advertise=False
         )
 

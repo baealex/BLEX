@@ -241,21 +241,6 @@ class Notify(models.Model):
         return str(self.user)
 
 
-class GlobalNotice(models.Model):
-    title = models.CharField(max_length=200, help_text='공지 제목')
-    url = models.CharField(max_length=255, help_text='공지 클릭 시 이동할 URL')
-    is_active = models.BooleanField(default=True, help_text='활성화 여부')
-    created_date = models.DateTimeField(default=timezone.now)
-    updated_date = models.DateTimeField(auto_now=True)
-
-    class Meta:
-        ordering = ['-created_date']
-        verbose_name = '🏢 [사이트 운영] 글로벌 공지'
-        verbose_name_plural = '🏢 [사이트 운영] 글로벌 공지'
-
-    def __str__(self):
-        return self.title
-
 
 class Tag(models.Model):
     class Meta:
@@ -390,7 +375,6 @@ class PostContent(models.Model):
 class PostConfig(models.Model):
     post = models.OneToOneField('board.Post', related_name='config', on_delete=models.CASCADE)
     hide = models.BooleanField(default=False)
-    notice = models.BooleanField(default=False)
     advertise = models.BooleanField(default=False)
     block_comment = models.BooleanField(default=False)
 
@@ -813,7 +797,7 @@ class StaticPage(models.Model):
     Static pages that can be created and edited from admin panel.
     Accessible via /static/<slug>/ URLs.
     """
-    slug = models.SlugField(max_length=100, unique=True,
+    slug = models.SlugField(max_length=100, unique=True, allow_unicode=True,
                             help_text='URL 경로 (예: about, privacy, terms)')
     title = models.CharField(max_length=200, help_text='페이지 제목')
     content = models.TextField(help_text='페이지 내용 (HTML 지원)')
@@ -845,141 +829,70 @@ class StaticPage(models.Model):
 
 
 class BannerType(models.TextChoices):
-    """Banner type choices shared by Banner and GlobalBanner"""
+    """Banner type choices"""
     HORIZONTAL = 'horizontal', '줄배너 (가로 전체)'
     SIDEBAR = 'sidebar', '사이드배너 (좌우 측면)'
 
 
 class BannerPosition(models.TextChoices):
-    """Banner position choices shared by Banner and GlobalBanner"""
+    """Banner position choices"""
     TOP = 'top', '상단'
     BOTTOM = 'bottom', '하단'
     LEFT = 'left', '좌측'
     RIGHT = 'right', '우측'
 
 
-class Banner(models.Model):
-    """
-    User blog banners that can be displayed at various positions.
-    Supports both horizontal (full-width) and sidebar banners.
-    """
-    user = models.ForeignKey('auth.User', on_delete=models.CASCADE,
-                             related_name='banners')
-    title = models.CharField(max_length=100,
-                             help_text='배너 이름 (관리용)')
-    content_html = models.TextField(
-        help_text='배너 HTML 콘텐츠 (스크립트는 자동 제거됨)')
+class SiteContentScope(models.TextChoices):
+    USER = 'user', '사용자'
+    GLOBAL = 'global', '전역'
 
-    banner_type = models.CharField(
-        max_length=20,
-        choices=BannerType.choices,
-        default=BannerType.HORIZONTAL,
-        help_text='배너 타입'
-    )
 
-    position = models.CharField(
-        max_length=10,
-        choices=BannerPosition.choices,
-        default=BannerPosition.TOP,
-        help_text='배너 위치'
-    )
-
-    # Settings
-    is_active = models.BooleanField(default=True,
-                                    help_text='배너 활성화 여부')
-    order = models.IntegerField(default=0,
-                                help_text='표시 순서 (낮을수록 먼저)')
-
-    # Metadata
+class SiteContentBase(models.Model):
+    scope = models.CharField(max_length=10, choices=SiteContentScope.choices)
+    user = models.ForeignKey('auth.User', on_delete=models.CASCADE, null=True, blank=True)
+    title = models.CharField(max_length=200)
+    is_active = models.BooleanField(default=True)
+    order = models.IntegerField(default=0)
     created_date = models.DateTimeField(auto_now_add=True)
     updated_date = models.DateTimeField(auto_now=True)
 
     class Meta:
+        abstract = True
         ordering = ['order', '-created_date']
-        indexes = [
-            models.Index(fields=['user', 'is_active', 'banner_type', 'position']),
-        ]
 
     def __str__(self):
-        return f'{self.user.username} - {self.title}'
+        return f'[{self.scope}] {self.title}'
+
+
+class SiteNotice(SiteContentBase):
+    url = models.CharField(max_length=255, blank=True, default='')
+
+    class Meta(SiteContentBase.Meta):
+        indexes = [
+            models.Index(fields=['scope', 'is_active']),
+            models.Index(fields=['user', 'is_active']),
+        ]
+
+
+class SiteBanner(SiteContentBase):
+    content_html = models.TextField(blank=True, default='')
+    banner_type = models.CharField(max_length=20, choices=BannerType.choices,
+                                   default=BannerType.HORIZONTAL)
+    position = models.CharField(max_length=10, choices=BannerPosition.choices,
+                                default=BannerPosition.TOP)
+
+    class Meta(SiteContentBase.Meta):
+        indexes = [
+            models.Index(fields=['scope', 'is_active', 'banner_type', 'position']),
+            models.Index(fields=['user', 'is_active']),
+        ]
 
     def clean(self):
-        """Validate banner type and position compatibility"""
-        # Horizontal banners can only be top/bottom
         if self.banner_type == BannerType.HORIZONTAL:
             if self.position not in [BannerPosition.TOP, BannerPosition.BOTTOM]:
                 raise ValidationError({
                     'position': '줄배너는 상단 또는 하단에만 배치할 수 있습니다.'
                 })
-
-        # Sidebar banners can only be left/right
-        if self.banner_type == BannerType.SIDEBAR:
-            if self.position not in [BannerPosition.LEFT, BannerPosition.RIGHT]:
-                raise ValidationError({
-                    'position': '사이드배너는 좌측 또는 우측에만 배치할 수 있습니다.'
-                })
-
-
-class GlobalBanner(models.Model):
-    """
-    Site-wide banners managed by administrators only.
-    Displayed across all user posts regardless of author.
-    No HTML sanitization applied - admin-controlled content.
-    """
-    title = models.CharField(max_length=100,
-                             help_text='배너 이름 (관리용)')
-    content_html = models.TextField(
-        help_text='배너 HTML 콘텐츠 (관리자 전용 - sanitize 없음)')
-
-    banner_type = models.CharField(
-        max_length=20,
-        choices=BannerType.choices,
-        default=BannerType.HORIZONTAL,
-        help_text='배너 타입'
-    )
-
-    position = models.CharField(
-        max_length=10,
-        choices=BannerPosition.choices,
-        default=BannerPosition.TOP,
-        help_text='배너 위치'
-    )
-
-    # Settings
-    is_active = models.BooleanField(default=True,
-                                    help_text='배너 활성화 여부')
-    order = models.IntegerField(default=0,
-                                help_text='표시 순서 (낮을수록 먼저)')
-
-    # Metadata
-    created_by = models.ForeignKey('auth.User', on_delete=models.SET_NULL,
-                                   null=True, blank=True,
-                                   related_name='created_global_banners',
-                                   help_text='생성한 관리자')
-    created_date = models.DateTimeField(auto_now_add=True)
-    updated_date = models.DateTimeField(auto_now=True)
-
-    class Meta:
-        ordering = ['order', '-created_date']
-        indexes = [
-            models.Index(fields=['is_active', 'banner_type', 'position']),
-        ]
-        verbose_name = '🏢 [사이트 운영] 글로벌 배너'
-        verbose_name_plural = '🏢 [사이트 운영] 글로벌 배너'
-
-    def __str__(self):
-        return f'[전역] {self.title}'
-
-    def clean(self):
-        """Validate banner type and position compatibility"""
-        # Horizontal banners can only be top/bottom
-        if self.banner_type == BannerType.HORIZONTAL:
-            if self.position not in [BannerPosition.TOP, BannerPosition.BOTTOM]:
-                raise ValidationError({
-                    'position': '줄배너는 상단 또는 하단에만 배치할 수 있습니다.'
-                })
-
-        # Sidebar banners can only be left/right
         if self.banner_type == BannerType.SIDEBAR:
             if self.position not in [BannerPosition.LEFT, BannerPosition.RIGHT]:
                 raise ValidationError({

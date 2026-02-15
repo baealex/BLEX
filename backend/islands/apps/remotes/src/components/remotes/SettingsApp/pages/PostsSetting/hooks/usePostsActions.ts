@@ -2,7 +2,6 @@ import { toast } from '~/utils/toast';
 import { useConfirm } from '~/hooks/useConfirm';
 import {
     togglePostVisibility,
-    togglePostNotice,
     deletePost,
     updatePostTags,
     updatePostSeries
@@ -18,7 +17,6 @@ interface UsePostsActionsProps {
 
 interface UsePostsActionsReturn {
     handleVisibilityToggle: (postUrl: string) => Promise<void>;
-    handleNoticeToggle: (postUrl: string) => Promise<void>;
     handleDelete: (postUrl: string) => Promise<void>;
     handleTagChange: (postUrl: string, value: string) => void;
     handleTagSubmit: (postUrl: string) => Promise<void>;
@@ -53,29 +51,6 @@ export const usePostsActions = ({
             }
         } catch {
             toast.error('포스트 공개 설정 변경에 실패했습니다.');
-        }
-    };
-
-    const handleNoticeToggle = async (postUrl: string) => {
-        try {
-            const { data } = await togglePostNotice(username, postUrl);
-
-            if (data.status === 'DONE') {
-                setPosts(prev => prev.map(post =>
-                    post.url === postUrl
-                        ? {
-                            ...post,
-                            isNotice: data.body.isNotice
-                        }
-                        : post
-                ));
-                toast.success(`포스트가 ${data.body.isNotice ? '공지로 설정' : '공지 해제'}되었습니다.`);
-                refetch();
-            } else {
-                throw new Error('Failed to toggle notice');
-            }
-        } catch {
-            toast.error('공지 설정 변경에 실패했습니다.');
         }
     };
 
@@ -181,7 +156,6 @@ export const usePostsActions = ({
 
     return {
         handleVisibilityToggle,
-        handleNoticeToggle,
         handleDelete,
         handleTagChange,
         handleTagSubmit,

@@ -7,7 +7,6 @@ import { getTags, getSeries } from '~/lib/api/settings';
 export interface Post extends ApiPost {
     hasTagChanged?: boolean;
     hasSeriesChanged?: boolean;
-    isNotice?: boolean;
     isPinned?: boolean;
 }
 
@@ -18,7 +17,6 @@ export interface FilterOptions {
     order: string;
     page: string;
     visibility: string;
-    notice: string;
 }
 
 export const POSTS_ORDER = [
@@ -62,8 +60,7 @@ const DEFAULT_FILTERS: FilterOptions = {
     series: '',
     order: '-published_date',
     page: '1',
-    visibility: '',
-    notice: ''
+    visibility: ''
 };
 
 // URL에서 필터 초기값 읽기
@@ -77,8 +74,7 @@ const getFiltersFromURL = (): FilterOptions => {
         series: params.get('series') || '',
         order: params.get('order') || '-published_date',
         page: params.get('page') || '1',
-        visibility: params.get('visibility') || '',
-        notice: params.get('notice') || ''
+        visibility: params.get('visibility') || ''
     };
 };
 
@@ -160,8 +156,7 @@ export const usePostsFilterState = () => {
             series: '',
             order: filters.order || '-published_date',
             page: '1',
-            visibility: '',
-            notice: ''
+            visibility: ''
         });
     };
 

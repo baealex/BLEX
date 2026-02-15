@@ -378,6 +378,44 @@ export const deleteStaticPage = async (id: number) => {
     return http.delete<Response<{ message: string }>>(`v1/static-pages/${id}`);
 };
 
+// Notice API (user notices)
+export interface NoticeData {
+    id: number;
+    title: string;
+    url: string;
+    isActive: boolean;
+    createdDate: string;
+    updatedDate: string;
+}
+
+export interface NoticeCreateData {
+    title: string;
+    url: string;
+    is_active?: boolean;
+}
+
+export interface NoticeUpdateData {
+    title?: string;
+    url?: string;
+    is_active?: boolean;
+}
+
+export const getNotices = async () => {
+    return http.get<Response<{ notices: NoticeData[] }>>('v1/notices');
+};
+
+export const createNotice = async (data: NoticeCreateData) => {
+    return http.post<Response<NoticeData>>('v1/notices', data, { headers: { 'Content-Type': 'application/json' } });
+};
+
+export const updateNotice = async (id: number, data: NoticeUpdateData) => {
+    return http.put<Response<NoticeData>>(`v1/notices/${id}`, data, { headers: { 'Content-Type': 'application/json' } });
+};
+
+export const deleteNotice = async (id: number) => {
+    return http.delete<Response<{ message: string }>>(`v1/notices/${id}`);
+};
+
 // Global Notice API
 export interface GlobalNoticeData {
     id: number;

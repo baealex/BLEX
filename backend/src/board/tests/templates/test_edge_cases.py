@@ -64,7 +64,7 @@ class EdgeCaseTemplateTestCase(TestCase):
         PostConfig.objects.create(
             post=post,
             hide=False,
-            notice=False,
+
             advertise=False
         )
 
@@ -89,7 +89,7 @@ class EdgeCaseTemplateTestCase(TestCase):
         PostConfig.objects.create(
             post=post,
             hide=False,
-            notice=False,
+
             advertise=False
         )
 
@@ -113,7 +113,7 @@ class EdgeCaseTemplateTestCase(TestCase):
         PostConfig.objects.create(
             post=unicode_post,
             hide=False,
-            notice=False,
+
             advertise=False
         )
 
@@ -178,7 +178,7 @@ class EdgeCaseTemplateTestCase(TestCase):
         PostConfig.objects.create(
             post=empty_post,
             hide=False,
-            notice=False,
+
             advertise=False
         )
 
@@ -208,7 +208,7 @@ class EdgeCaseTemplateTestCase(TestCase):
                 PostConfig.objects.create(
                     post=post,
                     hide=False,
-                    notice=False,
+        
                     advertise=False
                 )
                 post.tags.add(tag)
@@ -260,7 +260,7 @@ class EdgeCaseTemplateTestCase(TestCase):
         PostConfig.objects.create(
             post=minimal_post,
             hide=False,
-            notice=False,
+
             advertise=False
         )
 

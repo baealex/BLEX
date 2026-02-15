@@ -1,7 +1,7 @@
 import json
 from django.http import Http404, QueryDict
 from django.shortcuts import get_object_or_404
-from board.models import Banner
+from board.models import SiteBanner, SiteContentScope
 from board.modules.response import StatusDone, StatusError, ErrorCode
 from board.html_utils import sanitize_html
 
@@ -18,7 +18,7 @@ def banner(request, banner_id=None):
     """
     if not request.user.is_active:
         return StatusError(ErrorCode.NEED_LOGIN)
-    
+
     # Check if user is an editor
     if not request.user.profile.is_editor():
         return StatusError(ErrorCode.REJECT, '에디터 권한이 필요합니다.')
@@ -27,7 +27,10 @@ def banner(request, banner_id=None):
 
     # List all banners
     if request.method == 'GET' and banner_id is None:
-        banners = Banner.objects.filter(user=user).order_by('order', '-created_date')
+        banners = SiteBanner.objects.filter(
+            scope=SiteContentScope.USER,
+            user=user,
+        ).order_by('order', '-created_date')
 
         return StatusDone({
             'banners': list(map(lambda banner: {
@@ -45,7 +48,12 @@ def banner(request, banner_id=None):
 
     # Get single banner
     if request.method == 'GET' and banner_id:
-        banner = get_object_or_404(Banner, id=banner_id, user=user)
+        banner = get_object_or_404(
+            SiteBanner,
+            id=banner_id,
+            scope=SiteContentScope.USER,
+            user=user,
+        )
 
         return StatusDone({
             'id': banner.id,
@@ -89,7 +97,8 @@ def banner(request, banner_id=None):
         sanitized_content = sanitize_html(content_html)
 
         # Create banner
-        banner = Banner.objects.create(
+        banner = SiteBanner.objects.create(
+            scope=SiteContentScope.USER,
             user=user,
             title=title,
             content_html=sanitized_content,
@@ -111,7 +120,12 @@ def banner(request, banner_id=None):
 
     # Update banner
     if request.method == 'PUT' and banner_id:
-        banner = get_object_or_404(Banner, id=banner_id, user=user)
+        banner = get_object_or_404(
+            SiteBanner,
+            id=banner_id,
+            scope=SiteContentScope.USER,
+            user=user,
+        )
 
         try:
             put_data = json.loads(request.body.decode('utf-8')) if request.body else {}
@@ -159,7 +173,12 @@ def banner(request, banner_id=None):
 
     # Delete banner
     if request.method == 'DELETE' and banner_id:
-        banner = get_object_or_404(Banner, id=banner_id, user=user)
+        banner = get_object_or_404(
+            SiteBanner,
+            id=banner_id,
+            scope=SiteContentScope.USER,
+            user=user,
+        )
         banner.delete()
 
         return StatusDone({'message': '배너가 삭제되었습니다.'})
@@ -176,7 +195,7 @@ def banner_order(request):
     """
     if not request.user.is_active:
         return StatusError(ErrorCode.NEED_LOGIN)
-    
+
     # Check if user is an editor
     if not request.user.profile.is_editor():
         return StatusError(ErrorCode.REJECT, '에디터 권한이 필요합니다.')
@@ -197,10 +216,14 @@ def banner_order(request):
 
         banner_id, order = item
         try:
-            banner = Banner.objects.get(id=banner_id, user=request.user)
+            banner = SiteBanner.objects.get(
+                id=banner_id,
+                scope=SiteContentScope.USER,
+                user=request.user,
+            )
             banner.order = order
             banner.save()
-        except Banner.DoesNotExist:
+        except SiteBanner.DoesNotExist:
             continue
 
     return StatusDone({'message': '배너 순서가 업데이트되었습니다.'})
