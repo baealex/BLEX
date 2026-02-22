@@ -38,7 +38,7 @@ const LoginPrompt = ({ isOpen: initialIsOpen = false }: LoginPromptProps) => {
             onClose={handleClose}
             maxWidth="sm"
             showCloseButton={false}>
-            <div className="p-8 text-center">
+            <Modal.Body className="p-8 text-center">
                 {/* Icon */}
                 <div className="mx-auto w-16 h-16 bg-gradient-to-br from-gray-100 to-gray-50 rounded-full flex items-center justify-center mb-6 ring-4 ring-gray-50">
                     <svg
@@ -65,21 +65,21 @@ const LoginPrompt = ({ isOpen: initialIsOpen = false }: LoginPromptProps) => {
                 <p className="text-gray-600 mb-8">
                     {action}을(를) 하려면 먼저 로그인해주세요.
                 </p>
-
-                {/* Actions */}
-                <div className="space-y-3">
-                    <button
-                        onClick={handleLogin}
-                        className="block w-full py-3.5 px-6 bg-gray-900 hover:bg-gray-800 text-white font-semibold rounded-xl transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 focus:outline-none focus:ring-4 focus:ring-gray-300">
-                        로그인하기
-                    </button>
-                    <button
-                        onClick={handleClose}
-                        className="block w-full py-3.5 px-6 bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold rounded-xl transition-all duration-200 focus:outline-none focus:ring-4 focus:ring-gray-300">
-                        취소
-                    </button>
-                </div>
-            </div>
+            </Modal.Body>
+            <Modal.Footer className="flex-col px-8 pt-0 pb-8 border-t-0 bg-transparent">
+                <Modal.FooterAction
+                    variant="primary"
+                    onClick={handleLogin}
+                    className="w-full">
+                    로그인하기
+                </Modal.FooterAction>
+                <Modal.FooterAction
+                    variant="secondary"
+                    onClick={handleClose}
+                    className="w-full">
+                    취소
+                </Modal.FooterAction>
+            </Modal.Footer>
         </Modal>
     );
 };

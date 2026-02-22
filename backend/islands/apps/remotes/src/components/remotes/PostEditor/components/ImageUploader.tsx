@@ -79,7 +79,6 @@ const ImageUploader = ({
                 <Button
                     variant="ghost"
                     size="sm"
-                    compact
                     onClick={() => setShowUploader(true)}
                     leftIcon={<Image className="w-4 h-4" />}>
                     커버 이미지 추가

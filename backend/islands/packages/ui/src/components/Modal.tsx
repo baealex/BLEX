@@ -1,6 +1,12 @@
-import type { ReactNode } from 'react';
+import type {
+    ButtonHTMLAttributes,
+    ComponentProps,
+    HTMLAttributes,
+    ReactNode
+} from 'react';
 import { X } from 'lucide-react';
 import { Dialog } from './Dialog';
+import Button from './Button';
 import { cx } from '../lib/classnames';
 import { DIM_OVERLAY_DEFAULT, INTERACTION_DURATION } from '../lib/designTokens';
 
@@ -13,7 +19,85 @@ interface ModalProps {
     showCloseButton?: boolean;
 }
 
-const Modal = ({
+interface ModalSectionProps extends HTMLAttributes<HTMLDivElement> {
+    children: ReactNode;
+}
+
+type ModalTitleProps = ComponentProps<typeof Dialog.Title>;
+
+interface ModalCloseButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
+    ariaLabel?: string;
+    iconClassName?: string;
+}
+
+type ModalFooterActionProps = Omit<ComponentProps<typeof Button>, 'size'> & {
+    size?: ComponentProps<typeof Button>['size'];
+};
+
+const ModalHeader = ({ children, className = '', ...props }: ModalSectionProps) => (
+    <div
+        className={cx(
+            'flex items-center justify-between gap-3 px-6 py-5 border-b border-gray-200 sticky top-0 bg-white z-10',
+            className
+        )}
+        {...props}>
+        {children}
+    </div>
+);
+
+const ModalTitle = ({ className = '', ...props }: ModalTitleProps) => (
+    <Dialog.Title className={cx('text-xl font-bold text-gray-900', className)} {...props} />
+);
+
+const ModalBody = ({ children, className = '', ...props }: ModalSectionProps) => (
+    <div className={cx('p-6', className)} {...props}>
+        {children}
+    </div>
+);
+
+const ModalFooter = ({ children, className = '', ...props }: ModalSectionProps) => (
+    <div
+        className={cx(
+            'flex items-center justify-end gap-3 px-6 py-4 border-t border-gray-200 bg-gray-50',
+            className
+        )}
+        {...props}>
+        {children}
+    </div>
+);
+
+const ModalCloseButton = ({
+    ariaLabel = 'Close',
+    iconClassName = '',
+    className = '',
+    ...props
+}: ModalCloseButtonProps) => (
+    <Dialog.Close asChild>
+        <button
+            className={cx(
+                'text-gray-400 hover:text-gray-600 transition-colors p-2 hover:bg-gray-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-black/20',
+                className
+            )}
+            aria-label={ariaLabel}
+            {...props}>
+            <X className={cx('w-6 h-6', iconClassName)} />
+        </button>
+    </Dialog.Close>
+);
+
+const ModalFooterAction = ({
+    size = 'md',
+    className = '',
+    ...props
+}: ModalFooterActionProps) => (
+    <Button
+        size={size}
+        className={cx('min-w-[88px]', className)}
+        {...props}
+    />
+);
+
+const ModalRoot = ({
     isOpen,
     onClose,
     title,
@@ -74,22 +158,14 @@ const Modal = ({
 
                     {/* 헤더 */}
                     {(title || showCloseButton) && (
-                        <div className="flex items-center justify-between p-6 border-b border-gray-200 sticky top-0 bg-white z-10">
+                        <ModalHeader>
                             {title && (
-                                <Dialog.Title className="text-xl font-bold text-gray-900">
-                                    {title}
-                                </Dialog.Title>
+                                <ModalTitle>{title}</ModalTitle>
                             )}
                             {showCloseButton && (
-                                <Dialog.Close asChild>
-                                    <button
-                                        className="text-gray-400 hover:text-gray-600 transition-colors p-2 hover:bg-gray-100 rounded-lg ml-auto focus:outline-none focus:ring-2 focus:ring-black/20"
-                                        aria-label="Close">
-                                        <X className="w-6 h-6" />
-                                    </button>
-                                </Dialog.Close>
+                                <ModalCloseButton className={!title ? 'ml-auto' : ''} />
                             )}
-                        </div>
+                        </ModalHeader>
                     )}
 
                     {/* 컨텐츠 */}
@@ -101,5 +177,24 @@ const Modal = ({
         </Dialog.Root>
     );
 };
+
+interface ModalCompoundComponent {
+    (props: ModalProps): ReactNode;
+    Header: typeof ModalHeader;
+    Title: typeof ModalTitle;
+    Body: typeof ModalBody;
+    Footer: typeof ModalFooter;
+    CloseButton: typeof ModalCloseButton;
+    FooterAction: typeof ModalFooterAction;
+}
+
+const Modal = Object.assign(ModalRoot, {
+    Header: ModalHeader,
+    Title: ModalTitle,
+    Body: ModalBody,
+    Footer: ModalFooter,
+    CloseButton: ModalCloseButton,
+    FooterAction: ModalFooterAction
+}) as ModalCompoundComponent;
 
 export default Modal;

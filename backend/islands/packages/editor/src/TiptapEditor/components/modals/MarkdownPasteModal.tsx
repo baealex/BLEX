@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Modal, Button } from '@blex/ui';
+import { Modal } from '@blex/ui';
 
 interface MarkdownPasteModalProps {
     isOpen: boolean;
@@ -20,7 +20,7 @@ const MarkdownPasteModal = ({
 
     return (
         <Modal isOpen={isOpen} onClose={onClose} title="마크다운 감지됨" maxWidth="md">
-            <div className="p-6">
+            <Modal.Body>
                 <p className="mb-4 text-gray-600">
                     붙여넣은 텍스트에서 마크다운 문법이 감지되었습니다. 어떻게 붙여넣으시겠습니까?
                 </p>
@@ -41,31 +41,31 @@ const MarkdownPasteModal = ({
                         />
                     </div>
                 )}
+            </Modal.Body>
 
-                <div className="flex flex-col sm:flex-row gap-3">
-                    <Button
-                        variant="primary"
-                        onClick={onInsertHtml}
-                        className="flex-1">
-                        <i className="fas fa-code mr-2 text-xs opacity-70" />
-                        마크다운으로 변환
-                    </Button>
-                    <Button
-                        variant="secondary"
-                        onClick={onInsertText}
-                        className="flex-1">
-                        <i className="fas fa-font mr-2 text-xs opacity-70" />
-                        텍스트로 붙여넣기
-                    </Button>
-                </div>
-
-                <button
+            <Modal.Footer className="flex-col sm:flex-row">
+                <Modal.FooterAction
                     type="button"
+                    variant="ghost"
                     onClick={onClose}
-                    className="w-full mt-2 py-2 text-sm text-gray-400 hover:text-gray-600 transition-colors text-center">
+                    className="w-full sm:w-auto text-gray-500 hover:!text-gray-700">
                     취소
-                </button>
-            </div>
+                </Modal.FooterAction>
+                <Modal.FooterAction
+                    variant="secondary"
+                    onClick={onInsertText}
+                    className="w-full sm:w-auto">
+                    <i className="fas fa-font mr-2 text-xs opacity-70" />
+                    텍스트로 붙여넣기
+                </Modal.FooterAction>
+                <Modal.FooterAction
+                    variant="primary"
+                    onClick={onInsertHtml}
+                    className="w-full sm:w-auto">
+                    <i className="fas fa-code mr-2 text-xs opacity-70" />
+                    마크다운으로 변환
+                </Modal.FooterAction>
+            </Modal.Footer>
         </Modal>
     );
 };

@@ -25,13 +25,13 @@ export const StaticPageList = ({ pages, onDelete }: StaticPageListProps) => {
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 onClick={(e) => e.stopPropagation()}>
-                                <Button variant="ghost" size="sm" compact>
+                                <Button variant="ghost" size="sm">
                                     <i className="fas fa-external-link-alt text-xs" />
                                     <span className="hidden sm:inline">보기</span>
                                 </Button>
                             </a>
                             <Link to={`/static-pages/edit/${page.id}`}>
-                                <Button variant="ghost" size="sm" compact>
+                                <Button variant="ghost" size="sm">
                                     <i className="fas fa-pen text-xs" />
                                     <span className="hidden sm:inline">편집</span>
                                 </Button>
@@ -39,7 +39,6 @@ export const StaticPageList = ({ pages, onDelete }: StaticPageListProps) => {
                             <Button
                                 variant="ghost"
                                 size="sm"
-                                compact
                                 className="text-red-500 hover:text-red-700 hover:bg-red-50"
                                 onClick={() => onDelete(page.id)}>
                                 <i className="fas fa-trash text-xs" />

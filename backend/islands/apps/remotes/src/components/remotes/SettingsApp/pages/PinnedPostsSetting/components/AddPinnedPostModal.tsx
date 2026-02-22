@@ -1,5 +1,5 @@
 import { useState, useMemo } from 'react';
-import { Button, Modal } from '~/components/shared';
+import { Modal } from '~/components/shared';
 import { getMediaPath } from '~/modules/static.module';
 import type { PinnablePostData } from '~/lib/api/settings';
 
@@ -131,16 +131,14 @@ export const AddPinnedPostModal = ({
                     )}
                 </div>
 
-                <div className="p-6 border-t border-gray-100 flex items-center justify-end bg-white gap-3">
-                    <Button variant="secondary" size="lg" onClick={handleClose}>
+                <Modal.Footer>
+                    <Modal.FooterAction variant="secondary" onClick={handleClose}>
                         취소
-                    </Button>
-                    <Button
+                    </Modal.FooterAction>
+                    <Modal.FooterAction
                         variant="primary"
-                        size="lg"
                         onClick={handleAdd}
-                        disabled={!selectedPost || isLoading}
-                        className="px-8">
+                        disabled={!selectedPost || isLoading}>
                         {isLoading ? (
                             <span className="flex items-center gap-2">
                                 <i className="fas fa-spinner fa-spin" />
@@ -149,8 +147,8 @@ export const AddPinnedPostModal = ({
                         ) : (
                             '고정하기'
                         )}
-                    </Button>
-                </div>
+                    </Modal.FooterAction>
+                </Modal.Footer>
             </div>
         </Modal>
     );

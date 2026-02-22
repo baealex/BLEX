@@ -163,29 +163,29 @@ const SearchModal = ({ isOpen: initialIsOpen = false }: SearchModalProps) => {
             onClose={handleClose}
             maxWidth="3xl"
             showCloseButton={false}>
-            {/* 헤더 */}
-            <div className="sticky top-0 frosted-surface border-b border-gray-200/50 rounded-t-3xl z-10">
-                <div className="flex items-center justify-between px-6 py-5">
-                    <div className="flex items-center gap-3 text-gray-900">
+            <Modal.Header className="frosted-surface rounded-t-2xl border-b border-gray-200/60 flex-col items-stretch justify-start !px-0 !py-0 !gap-0">
+                <div className="flex items-center justify-between gap-4 px-6 pt-5 pb-4">
+                    <div className="min-w-0 flex items-center gap-3 text-gray-900">
                         <div className="w-8 h-8 bg-black rounded-full flex items-center justify-center">
                             <i className="fas fa-search text-white text-sm" />
                         </div>
-                        <h2 className="text-xl font-bold tracking-tight">포스트 검색</h2>
+                        <h2 className="text-lg font-semibold tracking-tight">포스트 검색</h2>
                     </div>
-                    <div className="flex items-center gap-2">
-                        <kbd className="hidden sm:inline-flex items-center gap-1 px-2 py-1 bg-gray-100 text-gray-500 text-xs font-mono rounded-md border border-gray-200">
+                    <div className="shrink-0 flex items-center gap-1.5">
+                        <kbd className="hidden sm:inline-flex h-8 items-center gap-1 px-2.5 bg-gray-100 text-gray-500 text-xs font-mono leading-none rounded-md border border-gray-200">
                             <span className="text-[10px]">⌘</span>K
                         </kbd>
-                        <button
+                        <Modal.CloseButton
+                            ariaLabel="검색 모달 닫기"
                             onClick={handleClose}
-                            className="w-8 h-8 flex items-center justify-center text-gray-400 hover:text-gray-900 hover:bg-gray-100 rounded-full transition-all duration-150">
-                            <i className="fas fa-times text-lg" />
-                        </button>
+                            className="h-8 w-8 p-0 rounded-md text-gray-400 hover:text-gray-900 hover:bg-gray-100"
+                            iconClassName="w-4 h-4"
+                        />
                     </div>
                 </div>
 
                 {/* 검색 폼 */}
-                <div className="px-6 pb-6">
+                <div className="px-6 pb-5">
                     <form onSubmit={handleSubmit} className="relative">
                         <div className="relative group">
                             <input
@@ -193,7 +193,6 @@ const SearchModal = ({ isOpen: initialIsOpen = false }: SearchModalProps) => {
                                 value={query}
                                 onChange={(e) => setQuery(e.target.value)}
                                 placeholder="검색어를 입력하세요..."
-
                                 className="w-full px-5 py-4 pr-24 border border-gray-200 rounded-2xl focus:outline-none focus:ring-4 focus:ring-black/5 focus:border-black transition-all text-gray-900 placeholder-gray-400 text-base bg-gray-50/50 focus:bg-white"
                                 autoComplete="off"
                                 autoFocus
@@ -221,10 +220,9 @@ const SearchModal = ({ isOpen: initialIsOpen = false }: SearchModalProps) => {
                         </div>
                     </form>
                 </div>
-            </div>
+            </Modal.Header>
 
-            {/* 검색 결과 */}
-            <div className="px-6 py-6 min-h-[400px]">
+            <Modal.Body className="min-h-[400px] px-6 py-6">
                 <div id="search-results-top" />
 
                 {isLoading && (
@@ -397,11 +395,15 @@ const SearchModal = ({ isOpen: initialIsOpen = false }: SearchModalProps) => {
                                 <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">최근 검색어</p>
                                 <div className="flex flex-wrap justify-center gap-2">
                                     {recentSearches.map((search) => (
-                                        <button
+                                        <div
                                             key={search}
-                                            onClick={() => handleRecentSearchClick(search)}
                                             className="group inline-flex items-center gap-1.5 px-3 py-1.5 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-full text-sm font-medium transition-all duration-150">
-                                            <span>{search}</span>
+                                            <button
+                                                type="button"
+                                                onClick={() => handleRecentSearchClick(search)}
+                                                className="max-w-[140px] truncate text-left">
+                                                {search}
+                                            </button>
                                             <button
                                                 type="button"
                                                 onClick={(e) => handleRemoveRecentSearch(search, e)}
@@ -409,14 +411,14 @@ const SearchModal = ({ isOpen: initialIsOpen = false }: SearchModalProps) => {
                                                 aria-label={`${search} 검색어 삭제`}>
                                                 <i className="fas fa-times text-[8px]" />
                                             </button>
-                                        </button>
+                                        </div>
                                     ))}
                                 </div>
                             </div>
                         )}
                     </div>
                 )}
-            </div>
+            </Modal.Body>
         </Modal>
     );
 };

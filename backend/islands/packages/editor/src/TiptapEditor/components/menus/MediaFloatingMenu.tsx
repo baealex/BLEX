@@ -161,7 +161,7 @@ const MediaFloatingMenu = ({ editor }: MediaFloatingMenuProps) => {
                                 type="button"
                                 onClick={() => setIsOpen(true)}
                                 onMouseDown={(e) => e.preventDefault()}
-                                className="w-7 h-7 rounded-full bg-white/90 backdrop-blur-sm shadow-md border border-gray-200/60 flex items-center justify-center text-gray-500 hover:text-gray-800 hover:bg-white hover:shadow-lg transition-all"
+                                className="w-7 h-7 rounded-full floating-glass-surface flex items-center justify-center text-gray-500 hover:text-gray-800 transition-all"
                                 title="설정">
                                 <i className="fas fa-cog text-xs" />
                             </button>
@@ -175,7 +175,7 @@ const MediaFloatingMenu = ({ editor }: MediaFloatingMenuProps) => {
                 <Popover.Anchor virtualRef={{ current: anchorElement }} />
                 <Popover.Portal>
                     <Popover.Content
-                        className="z-[1100] bg-white/95 backdrop-blur-xl rounded-xl shadow-lg border border-gray-200/60 p-2 flex items-center gap-2 outline-none"
+                        className="z-[1100] floating-glass-surface rounded-xl p-2 flex items-center gap-2 outline-none"
                         side="top"
                         sideOffset={10}
                         onOpenAutoFocus={(e) => e.preventDefault()}

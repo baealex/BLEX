@@ -8,7 +8,7 @@ import {
     TiptapEditor,
     api,
     DIM_OVERLAY_DEFAULT,
-    FROSTED_SURFACE,
+    FLOATING_GLASS_SURFACE,
     ENTRANCE_DURATION
 } from '~/components/shared';
 import {
@@ -260,7 +260,7 @@ export const StaticPageEditor = ({ pageId }: StaticPageEditorProps) => {
 
             {/* Floating bottom bar */}
             <div className="fixed sm:sticky bottom-6 left-0 right-0 z-30 flex justify-center pointer-events-none">
-                <div className={`pointer-events-auto ${FROSTED_SURFACE} border border-white/30 shadow-[0_8px_30px_rgb(0,0,0,0.12)] rounded-full px-3 py-3 flex items-center gap-2 transform transition-all motion-interaction`}>
+                <div className={`pointer-events-auto ${FLOATING_GLASS_SURFACE} rounded-full px-3 py-3 flex items-center gap-2 transform transition-all motion-interaction`}>
                     {/* Settings */}
                     <IconButton
                         onClick={() => setIsSettingsOpen(true)}
@@ -292,7 +292,6 @@ export const StaticPageEditor = ({ pageId }: StaticPageEditorProps) => {
                         onClick={handleSubmit}
                         disabled={isLoading}
                         variant="primary"
-                        compact
                         className="!rounded-full"
                         leftIcon={<Send className="w-4 h-4" />}>
                         {isLoading ? '저장 중...' : isEditMode ? '수정' : '생성'}
@@ -443,7 +442,6 @@ export const StaticPageEditor = ({ pageId }: StaticPageEditorProps) => {
                                                 type="button"
                                                 variant="ghost"
                                                 size="sm"
-                                                compact
                                                 onClick={handleDelete}
                                                 className="!text-red-500 hover:!text-red-700 hover:!bg-red-50 !px-0"
                                                 leftIcon={<Trash2 className="w-4 h-4" />}>
