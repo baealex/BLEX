@@ -15,7 +15,7 @@ const PostSelector = ({ posts, selectedPostIds, onChange }: PostSelectorProps) =
     const [query, setQuery] = useState('');
     const [filterMode, setFilterMode] = useState<FilterMode>('all');
 
-    const safePosts = Array.isArray(posts) ? posts : [];
+    const safePosts = useMemo(() => (Array.isArray(posts) ? posts : []), [posts]);
 
     const filteredPosts = useMemo(() => {
         let result = safePosts;
