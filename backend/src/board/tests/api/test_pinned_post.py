@@ -50,6 +50,16 @@ class PinnedPostAPITestCase(TestCase):
         PostContent.objects.create(post=cls.hidden_post, text_md='', text_html='')
         PostConfig.objects.create(post=cls.hidden_post, hide=True)
 
+        # Create a draft post
+        cls.draft_post = Post.objects.create(
+            author=cls.user,
+            title='Draft Post',
+            url='draft-post',
+            published_date=None,
+        )
+        PostContent.objects.create(post=cls.draft_post, text_md='', text_html='')
+        PostConfig.objects.create(post=cls.draft_post)
+
     def setUp(self):
         self.client.defaults['HTTP_USER_AGENT'] = 'BLEX_TEST'
         # Clear pinned posts before each test
@@ -76,6 +86,19 @@ class PinnedPostAPITestCase(TestCase):
         self.assertEqual(len(content['body']['pinnedPosts']), 2)
         self.assertEqual(content['body']['pinnedPosts'][0]['post']['url'], 'test-post-0')
         self.assertEqual(content['body']['pinnedPosts'][1]['post']['url'], 'test-post-1')
+
+    def test_get_pinned_posts_excludes_draft_posts(self):
+        """고정 목록에서 임시 포스트는 제외"""
+        PinnedPost.objects.create(user=self.user, post=self.posts[0], order=0)
+        PinnedPost.objects.create(user=self.user, post=self.draft_post, order=1)
+
+        response = self.client.get('/v1/users/@testuser/pinned-posts')
+        self.assertEqual(response.status_code, 200)
+        content = json.loads(response.content)
+
+        urls = [item['post']['url'] for item in content['body']['pinnedPosts']]
+        self.assertIn('test-post-0', urls)
+        self.assertNotIn('draft-post', urls)
 
     def test_get_pinned_posts_nonexistent_user(self):
         """존재하지 않는 사용자의 고정 글 조회"""
@@ -166,6 +189,19 @@ class PinnedPostAPITestCase(TestCase):
         content = json.loads(response.content)
         self.assertEqual(content['status'], 'ERROR')
         self.assertIn('숨김', content['errorMessage'])
+
+    def test_add_pinned_post_draft_post(self):
+        """임시 포스트는 고정 불가"""
+        self.client.login(username='testuser', password='testpass')
+
+        response = self.client.post(
+            '/v1/users/@testuser/pinned-posts',
+            {'post_url': 'draft-post'}
+        )
+        self.assertEqual(response.status_code, 200)
+        content = json.loads(response.content)
+        self.assertEqual(content['status'], 'ERROR')
+        self.assertIn('발행된 포스트', content['errorMessage'])
 
     def test_add_pinned_post_nonexistent_post(self):
         """존재하지 않는 글 고정 시도"""
@@ -342,6 +378,7 @@ class PinnedPostAPITestCase(TestCase):
         urls = [p['url'] for p in content['body']['posts']]
         self.assertNotIn('test-post-0', urls)  # Already pinned
         self.assertNotIn('hidden-post', urls)  # Hidden
+        self.assertNotIn('draft-post', urls)  # Draft
         self.assertIn('test-post-1', urls)
 
     def test_get_pinnable_posts_requires_login(self):

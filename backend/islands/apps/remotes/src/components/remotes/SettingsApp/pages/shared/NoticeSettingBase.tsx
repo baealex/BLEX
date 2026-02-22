@@ -299,7 +299,6 @@ const NoticeSettingBase = ({ scope }: NoticeSettingBaseProps) => {
                     {noticesData.map((notice) => (
                         <SettingsListItem
                             key={notice.id}
-                            onClick={() => handleEdit(notice)}
                             actions={
                                 <Dropdown
                                     items={[

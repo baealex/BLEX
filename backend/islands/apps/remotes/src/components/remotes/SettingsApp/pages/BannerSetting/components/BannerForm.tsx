@@ -47,6 +47,7 @@ export const BannerForm = ({ banner, onSubmit, onCancel, isLoading }: BannerForm
     });
 
     const bannerType = watch('bannerType');
+    const previewHtml = watch('contentHtml')?.trim() || '';
 
     // Adjust position when banner type changes
     useEffect(() => {
@@ -290,6 +291,21 @@ export const BannerForm = ({ banner, onSubmit, onCancel, isLoading }: BannerForm
                         )}
                     />
                     <p className="text-xs text-gray-500">HTML 코드를 입력하세요. 스크립트는 보안상 자동 제거됩니다.</p>
+
+                    <div className="rounded-xl border border-gray-200 bg-white overflow-hidden">
+                        <div className="px-4 py-2 border-b border-gray-200 bg-gray-50 text-xs font-semibold text-gray-700">
+                            미리보기
+                        </div>
+                        {previewHtml ? (
+                            <div className="p-4 text-sm text-gray-900 overflow-x-auto">
+                                <div dangerouslySetInnerHTML={{ __html: previewHtml }} />
+                            </div>
+                        ) : (
+                            <p className="p-4 text-sm text-gray-400">
+                                HTML을 입력하면 여기에 미리보기가 표시됩니다.
+                            </p>
+                        )}
+                    </div>
                 </div>
 
                 {/* Active Toggle */}

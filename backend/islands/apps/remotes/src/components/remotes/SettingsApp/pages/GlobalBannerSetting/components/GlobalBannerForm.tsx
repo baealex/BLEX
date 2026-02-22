@@ -47,6 +47,7 @@ export const GlobalBannerForm = ({ banner, onSubmit, onCancel, isLoading }: Glob
     });
 
     const bannerType = watch('bannerType');
+    const previewHtml = watch('contentHtml')?.trim() || '';
 
     useEffect(() => {
         if (bannerType === 'horizontal') {
@@ -285,6 +286,21 @@ export const GlobalBannerForm = ({ banner, onSubmit, onCancel, isLoading }: Glob
                         )}
                     />
                     <p className="text-xs text-gray-500">HTML 코드를 입력하세요. 관리자 전용이므로 스크립트가 허용됩니다.</p>
+
+                    <div className="rounded-xl border border-gray-200 bg-white overflow-hidden">
+                        <div className="px-4 py-2 border-b border-gray-200 bg-gray-50 text-xs font-semibold text-gray-700">
+                            미리보기
+                        </div>
+                        {previewHtml ? (
+                            <div className="p-4 text-sm text-gray-900 overflow-x-auto">
+                                <div dangerouslySetInnerHTML={{ __html: previewHtml }} />
+                            </div>
+                        ) : (
+                            <p className="p-4 text-sm text-gray-400">
+                                HTML을 입력하면 여기에 미리보기가 표시됩니다.
+                            </p>
+                        )}
+                    </div>
                 </div>
 
                 <div className="p-4 bg-gray-50 rounded-xl border border-gray-200">

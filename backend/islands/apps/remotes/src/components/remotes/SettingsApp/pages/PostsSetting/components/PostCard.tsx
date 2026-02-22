@@ -1,5 +1,6 @@
+import { useEffect, useState } from 'react';
 import { Select } from '@blex/ui';
-import { Button, Input, Dropdown, Alert } from '~/components/shared';
+import { Button, Input, Dropdown } from '~/components/shared';
 import { getIconClass } from '~/components/shared';
 import type { Post } from '../hooks';
 import type { Series } from '~/lib/api/settings';
@@ -31,52 +32,59 @@ const PostCard = ({
     onSeriesChange,
     onSeriesSubmit
 }: PostCardProps) => {
+    const [isMetaEditorOpen, setIsMetaEditorOpen] = useState(false);
+    const hasPendingChanges = !!post.hasTagChanged || !!post.hasSeriesChanged;
+
+    const handleViewPost = () => {
+        window.location.assign(`/@${username}/${post.url}`);
+    };
+
+    const handleEditPost = () => {
+        window.location.assign(`/@${username}/${post.url}/edit`);
+    };
+
+    useEffect(() => {
+        if (hasPendingChanges) {
+            setIsMetaEditorOpen(true);
+        }
+    }, [hasPendingChanges]);
+
     return (
-        <div className="bg-white border border-gray-100 rounded-2xl hover:border-gray-200 transition-all duration-200 overflow-hidden">
+        <div className="bg-white border border-gray-100 rounded-2xl hover:border-gray-200 transition-colors duration-200 overflow-hidden">
             {/* 헤더 */}
             <div
-                className="p-5 border-b border-gray-50 cursor-pointer hover:bg-gray-50 transition-colors"
-                onClick={() => window.location.assign(`/@${username}/${post.url}/edit`)}>
-                <div className="flex items-start justify-between gap-4 mb-3">
+                className="p-4 border-b border-gray-100 cursor-pointer hover:bg-gray-50/50 transition-colors"
+                onClick={handleViewPost}>
+                <div className="flex items-start justify-between gap-4">
                     {/* 제목 영역 */}
                     <div className="flex-1 min-w-0">
-                        <h3 className="text-lg font-bold text-gray-900 mb-2 break-words leading-tight">
+                        <h3 className="text-base font-semibold text-gray-900 leading-snug line-clamp-2">
                             {post.title}
                         </h3>
-                        <div className="flex items-center gap-3 text-sm text-gray-500 flex-wrap">
-                            <span className="flex items-center">
-                                <i className="fas fa-calendar mr-1.5" />
+                        <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-gray-500">
+                            <span className="inline-flex items-center gap-1.5">
+                                <i className="fas fa-calendar text-gray-400" />
                                 {formatDate(post.createdDate)}
                             </span>
-                            {post.createdDate !== post.updatedDate && (
-                                <>
-                                    <span className="text-gray-400">•</span>
-                                    <span>수정됨</span>
-                                </>
-                            )}
-                            <span className="text-gray-400">•</span>
-                            <span className="flex items-center gap-3">
-                                <span className="flex items-center">
-                                    <i className="fas fa-heart text-red-400 mr-1" />
-                                    {post.countLikes}
-                                </span>
-                                <span className="flex items-center">
-                                    <i className="fas fa-comment text-gray-400 mr-1" />
-                                    {post.countComments}
-                                </span>
-                                <span className="flex items-center">
-                                    <i className="fas fa-clock text-gray-400 mr-1" />
-                                    {post.readTime}분
-                                </span>
+                            <span className="inline-flex items-center gap-1.5">
+                                <i className="fas fa-clock text-gray-400" />
+                                {post.readTime}분
                             </span>
+                            <span className="inline-flex items-center gap-1.5">
+                                <i className="fas fa-heart text-gray-400" />
+                                {post.countLikes}
+                            </span>
+                            <span className="inline-flex items-center gap-1.5">
+                                <i className="fas fa-comment text-gray-400" />
+                                {post.countComments}
+                            </span>
+                            {post.createdDate !== post.updatedDate && (
+                                <span className="text-gray-400">최근 수정</span>
+                            )}
                             {post.isHide && (
-                                <>
-                                    <span className="text-gray-400">•</span>
-                                    <span className="inline-flex items-center px-2.5 py-1 bg-gray-100 text-gray-700 rounded-full text-xs font-medium">
-                                        <i className="fas fa-lock mr-1.5" />
-                                        비공개
-                                    </span>
-                                </>
+                                <span className="inline-flex items-center px-2 py-0.5 bg-gray-100 text-gray-700 rounded-md font-medium">
+                                    비공개
+                                </span>
                             )}
                         </div>
                     </div>
@@ -86,9 +94,9 @@ const PostCard = ({
                         <Dropdown
                             items={[
                                 {
-                                    label: '포스트 보기',
-                                    icon: 'fas fa-eye',
-                                    onClick: () => location.assign(`/@${username}/${post.url}`)
+                                    label: '포스트 편집',
+                                    icon: 'fas fa-pen',
+                                    onClick: handleEditPost
                                 },
                                 {
                                     label: post.isHide ? '공개로 변경' : '비공개로 변경',
@@ -107,71 +115,94 @@ const PostCard = ({
                 </div>
             </div>
 
-            {/* 편집 영역 */}
-            <div className="p-3 space-y-3 bg-gray-50">
-                {/* 태그 */}
-                <div className="flex items-center gap-3">
-                    <div className={getIconClass('light')}>
-                        <i className="fas fa-tag text-sm" />
-                    </div>
-                    <Input
-                        type="text"
-                        placeholder="태그를 입력하세요..."
-                        value={post.tag}
-                        onChange={(e) => onTagChange(post.url, e.target.value)}
-                        className="flex-1"
-                    />
-                    {post.hasTagChanged && (
-                        <Button
-                            variant="primary"
-                            size="md"
-                            leftIcon={<i className="fas fa-save" />}
-                            onClick={() => onTagSubmit(post.url)}>
-                            저장
-                        </Button>
-                    )}
-                </div>
-
-                {/* 시리즈 */}
-                <div className="flex items-center gap-3">
-                    <div className={getIconClass('light')}>
-                        <i className="fas fa-book text-sm" />
-                    </div>
-                    <div className="flex-1">
-                        <Select
-                            value={post.series || ''}
-                            onValueChange={(value) => onSeriesChange(post.url, value)}
-                            items={[
-                                {
-                                    value: '',
-                                    label: '시리즈 선택 안함'
-                                },
-                                ...(series?.map((item) => ({
-                                    value: item.url,
-                                    label: item.title
-                                })) || [])
-                            ]}
-                            placeholder="시리즈 선택 안함"
-                        />
-                    </div>
-                    {post.hasSeriesChanged && (
-                        <Button
-                            variant="primary"
-                            size="md"
-                            leftIcon={<i className="fas fa-save" />}
-                            onClick={() => onSeriesSubmit(post.url)}>
-                            저장
-                        </Button>
-                    )}
-                </div>
-
-                {post.readTime > 30 && (
-                    <Alert variant="warning" title="긴 글 주의">
-                        이 글은 읽는데 {post.readTime}분이 걸립니다.
-                        내용을 나누어 여러 포스트로 작성하는 것을 고려해보세요.
-                    </Alert>
-                )}
+            <div className="px-4 py-2.5 bg-gray-50/40 border-t border-gray-100 flex justify-end">
+                <button
+                    type="button"
+                    title="태그/시리즈 편집"
+                    aria-label={isMetaEditorOpen ? '태그 및 시리즈 편집 닫기' : '태그 및 시리즈 편집 열기'}
+                    onClick={() => setIsMetaEditorOpen(prev => !prev)}
+                    className="inline-flex items-center gap-2 rounded-lg px-2.5 py-1.5 text-gray-500 hover:text-gray-900 hover:bg-gray-100 transition-colors">
+                    <i className="fas fa-sliders-h text-xs" />
+                    <span className="inline-flex items-center gap-2">
+                        {hasPendingChanges && (
+                            <span className="text-[11px] px-2 py-0.5 rounded bg-gray-900 text-white">
+                                저장 필요
+                            </span>
+                        )}
+                        <i className={`fas ${isMetaEditorOpen ? 'fa-chevron-up' : 'fa-chevron-down'} text-xs`} />
+                    </span>
+                </button>
             </div>
+
+            {isMetaEditorOpen && (
+                <div className="p-4 pt-3 space-y-3 bg-gray-50/40 border-t border-gray-100">
+                    {/* 태그 */}
+                    <div className="flex items-center gap-3">
+                        <div className={getIconClass('light')}>
+                            <i className="fas fa-tag text-sm" />
+                        </div>
+                        <Input
+                            type="text"
+                            placeholder="태그를 입력하세요..."
+                            value={post.tag}
+                            onChange={(e) => onTagChange(post.url, e.target.value)}
+                            className="flex-1"
+                        />
+                        {post.hasTagChanged && (
+                            <Button
+                                variant="primary"
+                                size="md"
+                                leftIcon={<i className="fas fa-save" />}
+                                onClick={() => onTagSubmit(post.url)}>
+                                저장
+                            </Button>
+                        )}
+                    </div>
+
+                    {/* 시리즈 */}
+                    <div className="flex items-center gap-3">
+                        <div className={getIconClass('light')}>
+                            <i className="fas fa-book text-sm" />
+                        </div>
+                        <div className="flex-1">
+                            <Select
+                                value={post.series || ''}
+                                onValueChange={(value) => onSeriesChange(post.url, value)}
+                                items={[
+                                    {
+                                        value: '',
+                                        label: '시리즈 선택 안함'
+                                    },
+                                    ...(series?.map((item) => ({
+                                        value: item.url,
+                                        label: item.title
+                                    })) || [])
+                                ]}
+                                placeholder="시리즈 선택 안함"
+                            />
+                        </div>
+                        {post.hasSeriesChanged && (
+                            <Button
+                                variant="primary"
+                                size="md"
+                                leftIcon={<i className="fas fa-save" />}
+                                onClick={() => onSeriesSubmit(post.url)}>
+                                저장
+                            </Button>
+                        )}
+                    </div>
+
+                    {post.readTime > 30 && (
+                        <Button
+                            variant="secondary"
+                            size="sm"
+                            disabled
+                            className="w-full justify-start text-gray-500 border-dashed">
+                            긴 글 주의: 읽는데 {post.readTime}분이 걸립니다.
+                        </Button>
+                    )}
+                </div>
+            )}
         </div>
     );
 };
