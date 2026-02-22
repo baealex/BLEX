@@ -22,6 +22,20 @@ export interface SearchResponseBody {
 
 export type SearchResponse = Response<SearchResponseBody>;
 
-export const searchPosts = async (query: string, page: number = 1) => {
-    return http.get<SearchResponse>(`/v1/search?q=${encodeURIComponent(query)}&page=${page}`);
+interface SearchPostsOptions {
+    page?: number;
+    username?: string;
+}
+
+export const searchPosts = async (query: string, options: SearchPostsOptions = {}) => {
+    const params = new URLSearchParams({
+        q: query,
+        page: String(options.page ?? 1)
+    });
+
+    if (options.username) {
+        params.set('username', options.username);
+    }
+
+    return http.get<SearchResponse>(`/v1/search?${params.toString()}`);
 };
