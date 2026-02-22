@@ -96,16 +96,6 @@ const IntegrationSettings = () => {
             <SettingsHeader
                 title="텔레그램 연동"
                 description="텔레그램 봇과 연동하여 실시간 알림을 받아보세요."
-                actionPosition="right"
-                action={
-                    <Button
-                        variant="secondary"
-                        size="md"
-                        className="w-full sm:w-auto"
-                        onClick={() => refetch()}>
-                        상태 새로고침
-                    </Button>
-                }
             />
 
             {isConnected ? (
