@@ -1,9 +1,8 @@
 import { useState } from 'react';
-import type { ReactNode } from 'react';
-import type { AxiosResponse } from 'axios';
-import { useMutation, useQueryClient, useSuspenseQuery } from '@tanstack/react-query';
 import { toast } from '~/utils/toast';
+import { useMutation, useQueryClient, useSuspenseQuery } from '@tanstack/react-query';
 import { useConfirm } from '~/hooks/useConfirm';
+import { SettingsEmptyState, SettingsHeader, SettingsListItem } from '../../components';
 import {
     Button,
     Checkbox,
@@ -12,126 +11,96 @@ import {
     Modal,
     TITLE
 } from '~/components/shared';
-import type { Response } from '~/lib/http.module';
-import { SettingsEmptyState, SettingsHeader, SettingsListItem } from '.';
-
-interface NoticeLike {
-    id: number;
-    title: string;
-    url: string;
-    isActive: boolean;
-}
-
-interface ScopedNoticeSettingProps<
-    TNotice extends NoticeLike,
-    TCreateData extends { title: string; url: string; is_active?: boolean },
-    TUpdateData extends Partial<TCreateData>
-> {
-    queryKey: string[];
-    title: string;
-    description: string;
-    emptyTitle: string;
-    emptyDescription: string;
-    activeDescription: string;
-    fetchNotices: () => Promise<AxiosResponse<Response<{ notices: TNotice[] }>>>;
-    createNotice: (data: TCreateData) => Promise<AxiosResponse<Response<unknown>>>;
-    updateNotice: (id: number, data: TUpdateData) => Promise<AxiosResponse<Response<unknown>>>;
-    deleteNotice: (id: number) => Promise<AxiosResponse<Response<unknown>>>;
-    toCreateData: (values: { title: string; url: string; isActive: boolean }) => TCreateData;
-    toUpdateData: (values: { title: string; url: string; isActive: boolean }) => TUpdateData;
-    toggleUpdateData: (notice: TNotice) => TUpdateData;
-    createSuccessMessage: string;
-    createErrorMessage: string;
-    updateSuccessMessage: string;
-    updateErrorMessage: string;
-    deleteSuccessMessage: string;
-    deleteErrorMessage: string;
-    deleteConfirmTitle: string;
-    deleteConfirmMessage: string;
-    actionLabel?: string;
-    itemExtraBadge?: (notice: TNotice) => ReactNode;
-}
-
-const ScopedNoticeSetting = <
-    TNotice extends NoticeLike,
-    TCreateData extends { title: string; url: string; is_active?: boolean },
-    TUpdateData extends Partial<TCreateData>
->({
-    queryKey,
-    title,
-    description,
-    emptyTitle,
-    emptyDescription,
-    activeDescription,
-    fetchNotices,
+import {
+    getNotices,
     createNotice,
     updateNotice,
     deleteNotice,
-    toCreateData,
-    toUpdateData,
-    toggleUpdateData,
-    createSuccessMessage,
-    createErrorMessage,
-    updateSuccessMessage,
-    updateErrorMessage,
-    deleteSuccessMessage,
-    deleteErrorMessage,
-    deleteConfirmTitle,
-    deleteConfirmMessage,
-    actionLabel = '새 공지 추가',
-    itemExtraBadge
-}: ScopedNoticeSettingProps<TNotice, TCreateData, TUpdateData>) => {
+    getGlobalNotices,
+    createGlobalNotice,
+    updateGlobalNotice,
+    deleteGlobalNotice,
+    type NoticeData,
+    type NoticeCreateData,
+    type NoticeUpdateData,
+    type GlobalNoticeData,
+    type GlobalNoticeCreateData,
+    type GlobalNoticeUpdateData
+} from '~/lib/api/settings';
+
+type NoticeScope = 'user' | 'global';
+type NoticeItem = NoticeData | GlobalNoticeData;
+type NoticeCreatePayload = NoticeCreateData | GlobalNoticeCreateData;
+type NoticeUpdatePayload = NoticeUpdateData | GlobalNoticeUpdateData;
+
+interface NoticeSettingBaseProps {
+    scope: NoticeScope;
+}
+
+const NoticeSettingBase = ({ scope }: NoticeSettingBaseProps) => {
     const [isModalOpen, setIsModalOpen] = useState(false);
-    const [editingNotice, setEditingNotice] = useState<TNotice | null>(null);
+    const [editingNotice, setEditingNotice] = useState<NoticeItem | null>(null);
     const [formTitle, setFormTitle] = useState('');
     const [formUrl, setFormUrl] = useState('');
     const [formIsActive, setFormIsActive] = useState(true);
     const { confirm } = useConfirm();
     const queryClient = useQueryClient();
 
+    const isGlobal = scope === 'global';
+    const queryKey = isGlobal ? ['global-notices'] : ['notices'];
+    const noticeLabel = isGlobal ? '글로벌 공지' : '공지';
+
     const { data: noticesData } = useSuspenseQuery({
         queryKey,
         queryFn: async () => {
-            const { data } = await fetchNotices();
+            const { data } = isGlobal ? await getGlobalNotices() : await getNotices();
             if (data.status === 'DONE') {
-                return data.body.notices;
+                return data.body.notices as NoticeItem[];
             }
             throw new Error('공지 목록을 불러오는데 실패했습니다.');
         }
     });
 
     const createMutation = useMutation({
-        mutationFn: (data: TCreateData) => createNotice(data),
+        mutationFn: (data: NoticeCreatePayload) => (
+            isGlobal
+                ? createGlobalNotice(data as GlobalNoticeCreateData)
+                : createNotice(data as NoticeCreateData)
+        ),
         onSuccess: () => {
-            toast.success(createSuccessMessage);
+            toast.success(`${noticeLabel}가 생성되었습니다.`);
             queryClient.invalidateQueries({ queryKey });
             closeModal();
         },
         onError: () => {
-            toast.error(createErrorMessage);
+            toast.error(`${noticeLabel} 생성에 실패했습니다.`);
         }
     });
 
     const updateMutation = useMutation({
-        mutationFn: ({ id, data }: { id: number; data: TUpdateData }) => updateNotice(id, data),
+        mutationFn: ({ id, data }: { id: number; data: NoticeUpdatePayload }) => (
+            isGlobal
+                ? updateGlobalNotice(id, data as GlobalNoticeUpdateData)
+                : updateNotice(id, data as NoticeUpdateData)
+        ),
         onSuccess: () => {
-            toast.success(updateSuccessMessage);
+            toast.success(`${noticeLabel}가 수정되었습니다.`);
             queryClient.invalidateQueries({ queryKey });
             closeModal();
         },
         onError: () => {
-            toast.error(updateErrorMessage);
+            toast.error(`${noticeLabel} 수정에 실패했습니다.`);
         }
     });
 
     const deleteMutation = useMutation({
-        mutationFn: (id: number) => deleteNotice(id),
+        mutationFn: (id: number) => (isGlobal ? deleteGlobalNotice(id) : deleteNotice(id)),
         onSuccess: () => {
-            toast.success(deleteSuccessMessage);
+            toast.success(`${noticeLabel}가 삭제되었습니다.`);
             queryClient.invalidateQueries({ queryKey });
         },
         onError: () => {
-            toast.error(deleteErrorMessage);
+            toast.error(`${noticeLabel} 삭제에 실패했습니다.`);
         }
     });
 
@@ -139,26 +108,26 @@ const ScopedNoticeSetting = <
         e.preventDefault();
         if (!formTitle.trim() || !formUrl.trim()) return;
 
-        const values = {
+        const payload = {
             title: formTitle,
             url: formUrl,
-            isActive: formIsActive
+            is_active: formIsActive
         };
 
         if (editingNotice) {
             updateMutation.mutate({
                 id: editingNotice.id,
-                data: toUpdateData(values)
+                data: payload
             });
         } else {
-            createMutation.mutate(toCreateData(values));
+            createMutation.mutate(payload);
         }
     };
 
     const handleDelete = async (id: number) => {
         const confirmed = await confirm({
-            title: deleteConfirmTitle,
-            message: deleteConfirmMessage,
+            title: `${noticeLabel} 삭제`,
+            message: `정말로 이 ${noticeLabel}를 삭제하시겠습니까?`,
             confirmText: '삭제'
         });
 
@@ -167,7 +136,7 @@ const ScopedNoticeSetting = <
         }
     };
 
-    const handleEdit = (notice: TNotice) => {
+    const handleEdit = (notice: NoticeItem) => {
         setEditingNotice(notice);
         setFormTitle(notice.title);
         setFormUrl(notice.url);
@@ -175,10 +144,10 @@ const ScopedNoticeSetting = <
         setIsModalOpen(true);
     };
 
-    const handleToggleActive = (notice: TNotice) => {
+    const handleToggleActive = (notice: NoticeItem) => {
         updateMutation.mutate({
             id: notice.id,
-            data: toggleUpdateData(notice)
+            data: { is_active: !notice.isActive }
         });
     };
 
@@ -198,8 +167,12 @@ const ScopedNoticeSetting = <
     return (
         <div className="space-y-8">
             <SettingsHeader
-                title={`${title} (${noticesData?.length || 0})`}
-                description={description}
+                title={`공지 관리 (${noticesData?.length || 0})`}
+                description={
+                    isGlobal
+                        ? '사이트 전체에 표시되는 글로벌 공지를 관리합니다.'
+                        : '블로그에 표시되는 공지를 관리합니다.'
+                }
                 actionPosition="right"
                 action={
                     <Button
@@ -207,7 +180,7 @@ const ScopedNoticeSetting = <
                         variant="primary"
                         size="md"
                         className="w-full sm:w-auto">
-                        {actionLabel}
+                        새 공지 추가
                     </Button>
                 }
             />
@@ -246,7 +219,6 @@ const ScopedNoticeSetting = <
                                     <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium border ${notice.isActive ? 'bg-gray-900 text-white border-gray-900' : 'bg-gray-50 text-gray-500 border-gray-100'}`}>
                                         {notice.isActive ? '활성' : '비활성'}
                                     </span>
-                                    {itemExtraBadge?.(notice)}
                                 </div>
                                 <p className="text-sm text-gray-500 truncate max-w-md">{notice.url}</p>
                             </div>
@@ -256,8 +228,8 @@ const ScopedNoticeSetting = <
             ) : (
                 <SettingsEmptyState
                     iconClassName="fas fa-bullhorn"
-                    title={emptyTitle}
-                    description={emptyDescription}
+                    title="등록된 공지가 없습니다"
+                    description="첫 번째 공지를 만들어보세요."
                 />
             )}
 
@@ -298,7 +270,11 @@ const ScopedNoticeSetting = <
                                 checked={formIsActive}
                                 onCheckedChange={(checked) => setFormIsActive(checked)}
                                 label="공지 활성화"
-                                description={activeDescription}
+                                description={
+                                    isGlobal
+                                        ? '활성화된 공지만 사용자에게 표시됩니다.'
+                                        : '활성화된 공지만 블로그에 표시됩니다.'
+                                }
                             />
                         </div>
                     </div>
@@ -326,4 +302,4 @@ const ScopedNoticeSetting = <
     );
 };
 
-export default ScopedNoticeSetting;
+export default NoticeSettingBase;
