@@ -41,8 +41,8 @@ export const PinnedPostItem = ({
 
     const handleRemove = async () => {
         const confirmed = await confirm({
-            title: '고정 해제',
-            message: `"${pinnedPost.post.title}" 글의 고정을 해제하시겠습니까?`,
+            title: '포스트 고정 해제',
+            message: `"${pinnedPost.post.title}" 포스트 고정을 해제하시겠습니까?`,
             confirmText: '해제',
             variant: 'danger'
         });
@@ -79,7 +79,7 @@ export const PinnedPostItem = ({
                     <Dropdown
                         items={[
                             {
-                                label: '글 보기',
+                                label: '포스트 보기',
                                 icon: 'fas fa-eye',
                                 onClick: handleView
                             },

@@ -21,14 +21,14 @@ const DraftsSetting = () => {
             if (data.status === 'DONE') {
                 return data.body.drafts;
             }
-            throw new Error('임시저장 포스트 목록을 불러오는데 실패했습니다.');
+            throw new Error('임시 포스트 목록을 불러오는데 실패했습니다.');
         }
     });
 
     const handleDraftDelete = async (url: string) => {
         const confirmed = await confirm({
-            title: '임시글 삭제',
-            message: '정말 이 임시저장 포스트를 삭제할까요?',
+            title: '임시 포스트 삭제',
+            message: '정말 이 임시 포스트를 삭제할까요?',
             confirmText: '삭제',
             variant: 'danger'
         });
@@ -39,21 +39,21 @@ const DraftsSetting = () => {
             const { data } = await deleteDraft(url);
 
             if (data.status === 'DONE') {
-                toast.success('임시저장 포스트가 삭제되었습니다.');
+                toast.success('임시 포스트가 삭제되었습니다.');
                 refetch();
             } else {
                 throw new Error('Failed to delete draft post');
             }
         } catch {
-            toast.error('임시저장 포스트 삭제에 실패했습니다.');
+            toast.error('임시 포스트 삭제에 실패했습니다.');
         }
     };
 
     return (
         <div>
             <SettingsHeader
-                title="임시저장"
-                description={`총 ${draftPosts?.length || 0}개의 임시저장 포스트가 있습니다.`}
+                title="임시 포스트"
+                description={`총 ${draftPosts?.length || 0}개의 임시 포스트가 있습니다.`}
                 actionPosition="right"
                 action={
                     <Button
@@ -98,7 +98,7 @@ const DraftsSetting = () => {
                                     {draftPost.createdDate}
                                 </span>
                                 <span className="bg-gray-100 text-gray-700 px-2 py-0.5 rounded-md text-xs font-medium">
-                                    임시저장
+                                    임시 포스트
                                 </span>
                             </div>
                         </SettingsListItem>
@@ -107,7 +107,7 @@ const DraftsSetting = () => {
             ) : (
                 <SettingsEmptyState
                     iconClassName="fas fa-file-alt"
-                    title="임시저장 글이 없습니다"
+                    title="임시 포스트가 없습니다"
                     description="새 포스트를 작성해보세요."
                 />
             )}

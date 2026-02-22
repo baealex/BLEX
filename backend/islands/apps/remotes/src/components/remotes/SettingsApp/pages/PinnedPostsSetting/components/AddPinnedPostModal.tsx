@@ -47,18 +47,18 @@ export const AddPinnedPostModal = ({
         <Modal
             isOpen={open}
             onClose={handleClose}
-            title="글 고정하기"
+            title="포스트 고정하기"
             maxWidth="2xl">
             <div className="flex flex-col h-[70vh]">
                 <div className="px-6 py-4 border-b border-gray-100 space-y-3">
                     <p className="text-sm text-gray-500">
-                        프로필에 표시할 글을 선택하세요.
+                        프로필에 표시할 포스트를 선택하세요.
                     </p>
                     <div className="relative">
                         <i className="fas fa-search absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
                         <input
                             type="text"
-                            placeholder="글 제목 검색..."
+                            placeholder="포스트 제목 검색..."
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
                             className="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-black/5 focus:border-black transition-all"
@@ -145,7 +145,7 @@ export const AddPinnedPostModal = ({
                                 추가 중...
                             </span>
                         ) : (
-                            '고정하기'
+                            '포스트 고정'
                         )}
                     </Modal.FooterAction>
                 </Modal.Footer>

@@ -136,7 +136,7 @@ const ProfileSetting = () => {
     return (
         <div>
             <SettingsHeader
-                title="프로필 설정"
+                title="프로필"
                 description="다른 사용자들에게 보여질 프로필 정보를 관리하세요."
             />
 

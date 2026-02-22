@@ -10,8 +10,8 @@ const GlobalWebhookSetting = () => {
     return (
         <WebhookChannelManager
             queryKey={['global-webhook-channels']}
-            title="전역 채널"
-            description="어떤 작성자가 새 글을 발행해도 등록된 채널로 자동 전송합니다."
+            title="전역 웹훅 연동"
+            description="모든 작성자가 발행한 글을 등록된 채널로 자동 전송합니다."
             formTitle="새 전역 채널 추가"
             emptyTitle="등록된 전역 채널이 없습니다"
             emptyDescription="운영 채널을 추가해서 전체 발행 알림을 받아보세요."
