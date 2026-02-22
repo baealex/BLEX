@@ -16,6 +16,16 @@ interface UseFormSubmitOptions {
     onSubmitError?: (error: Error) => void;
 }
 
+const normalizeUrlForSubmit = (value: string) => {
+    return value
+        .toLowerCase()
+        .replace(/[^a-z0-9가-힣\s-]/g, '')
+        .replace(/\s+/g, '-')
+        .replace(/-+/g, '-')
+        .replace(/^-+|-+$/g, '')
+        .substring(0, 50);
+};
+
 export const useFormSubmit = (options: UseFormSubmitOptions) => {
     const [isSubmitting, setIsSubmitting] = useState(false);
     const formRef = useRef<HTMLFormElement>(null);
@@ -32,7 +42,8 @@ export const useFormSubmit = (options: UseFormSubmitOptions) => {
             return false;
         }
 
-        if (!isEdit && !data.url.trim()) {
+        const sanitizedUrl = normalizeUrlForSubmit(data.url);
+        if (!isEdit && !sanitizedUrl) {
             toast.error('URL 주소를 입력해주세요.');
             return false;
         }
@@ -61,6 +72,7 @@ export const useFormSubmit = (options: UseFormSubmitOptions) => {
 
             onBeforeSubmit?.();
 
+            addHiddenField(form, 'url', normalizeUrlForSubmit(data.url));
             addHiddenField(form, 'tag', data.tags.join(','));
             addHiddenField(form, 'series', data.seriesId);
             // Note: text_md is already added by TiptapEditor as a hidden input

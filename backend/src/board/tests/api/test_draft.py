@@ -139,6 +139,47 @@ class DraftTestCase(TestCase):
         self.assertEqual(post.subtitle, 'My subtitle')
         self.assertIsNone(post.published_date)
 
+    def test_update_draft_custom_url_changes_lookup_key(self):
+        """드래프트 URL 변경 시 식별 URL이 갱신되어야 함"""
+        old_url = self._create_draft(title='URL Draft')
+
+        response = self.client.put(
+            f'/v1/drafts/{old_url}',
+            json.dumps({
+                'custom_url': 'renamed-draft',
+            }),
+            content_type='application/json'
+        )
+        self.assertEqual(response.status_code, 200)
+        content = json.loads(response.content)
+        self.assertEqual(content['status'], 'DONE')
+
+        new_url = content['body']['url']
+        self.assertNotEqual(old_url, new_url)
+        self.assertTrue(Post.objects.filter(url=new_url, author=self.user, published_date__isnull=True).exists())
+        self.assertFalse(Post.objects.filter(url=old_url, author=self.user, published_date__isnull=True).exists())
+
+        detail_response = self.client.get(f'/v1/drafts/{new_url}')
+        self.assertEqual(detail_response.status_code, 200)
+
+    def test_update_draft_custom_url_same_value_keeps_url(self):
+        """동일한 custom_url로 재저장해도 URL이 변경되면 안 됨"""
+        url = self._create_draft(title='Stable URL Draft')
+
+        response = self.client.put(
+            f'/v1/drafts/{url}',
+            json.dumps({
+                'custom_url': url,
+            }),
+            content_type='application/json'
+        )
+        self.assertEqual(response.status_code, 200)
+        content = json.loads(response.content)
+        self.assertEqual(content['status'], 'DONE')
+        self.assertEqual(content['body']['url'], url)
+
+        self.assertTrue(Post.objects.filter(url=url, author=self.user, published_date__isnull=True).exists())
+
     def test_delete_draft(self):
         """드래프트 삭제 테스트"""
         url = self._create_draft()

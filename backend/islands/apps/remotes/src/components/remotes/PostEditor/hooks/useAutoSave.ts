@@ -42,7 +42,8 @@ const buildDraftPayload = (data: AutoSaveData, useFormData: boolean) => {
         tags: data.tags,
         subtitle: data.subtitle,
         description: data.description,
-        series_url: data.seriesUrl
+        series_url: data.seriesUrl,
+        custom_url: data.customUrl
     };
 };
 
@@ -61,7 +62,8 @@ export const useAutoSave = (data: AutoSaveData, options: UseAutoSaveOptions) => 
     const prevDataStringRef = useRef<string>(JSON.stringify({
         title: data.title,
         content: data.content,
-        tags: data.tags
+        tags: data.tags,
+        customUrl: data.customUrl
     }));
     const isInitialLoadRef = useRef(true);
 
@@ -81,7 +83,8 @@ export const useAutoSave = (data: AutoSaveData, options: UseAutoSaveOptions) => 
     const currentDataString = JSON.stringify({
         title: data.title,
         content: data.content,
-        tags: data.tags
+        tags: data.tags,
+        customUrl: data.customUrl
     });
 
     // Manual save - returns true on success, false on failure
@@ -130,7 +133,8 @@ export const useAutoSave = (data: AutoSaveData, options: UseAutoSaveOptions) => 
             prevDataStringRef.current = JSON.stringify({
                 title: currentData.title,
                 content: currentData.content,
-                tags: currentData.tags
+                tags: currentData.tags,
+                customUrl: currentData.customUrl
             });
             currentOptions.onSuccess?.();
             return true;
@@ -153,7 +157,7 @@ export const useAutoSave = (data: AutoSaveData, options: UseAutoSaveOptions) => 
         // Skip initial load trigger - when data changes from empty to loaded
         if (isInitialLoadRef.current) {
             const prevData = JSON.parse(prevDataStringRef.current);
-            const wasEmpty = !prevData.title && !prevData.content && !prevData.tags;
+            const wasEmpty = !prevData.title && !prevData.content && !prevData.tags && !prevData.customUrl;
 
             if (wasEmpty) {
                 isInitialLoadRef.current = false;
