@@ -10,7 +10,7 @@ export interface Comment {
     countLikes: number;
     isLiked: boolean;
     isEdited: boolean;
-    isMine: boolean;
+    isMine?: boolean;
     parentId?: number;
     replies?: Comment[];
 }

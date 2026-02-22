@@ -60,6 +60,7 @@ def post_list(request):
 def post_comment_list(request, url):
     if request.method == 'GET':
         user_id = request.user.id if request.user.id else -1
+        is_authenticated = request.user.is_authenticated
 
         # 대댓글용 queryset (미리 annotate 적용)
         replies_queryset = Comment.objects.select_related(
@@ -109,6 +110,7 @@ def post_comment_list(request, url):
                 'id': comment.id,
                 'author': comment.author_username(),
                 'author_image': None if not comment.author else comment.author.profile.get_thumbnail(),
+                'is_mine': is_authenticated and comment.author_id == user_id,
                 'is_edited': comment.edited,
                 'rendered_content': comment.get_text_html(),
                 'created_date': comment.time_since(),
@@ -118,6 +120,7 @@ def post_comment_list(request, url):
                     'id': reply.id,
                     'author': reply.author_username(),
                     'author_image': None if not reply.author else reply.author.profile.get_thumbnail(),
+                    'is_mine': is_authenticated and reply.author_id == user_id,
                     'is_edited': reply.edited,
                     'rendered_content': reply.get_text_html(),
                     'created_date': reply.time_since(),
