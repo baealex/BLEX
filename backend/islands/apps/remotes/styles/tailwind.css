@@ -24,8 +24,12 @@
     --color-dim-soft: rgb(0 0 0 / 0.2);
     --color-dim-default: rgb(0 0 0 / 0.25);
     --color-frosted-surface: rgb(255 255 255 / 0.9);
+    --color-floating-glass-surface: rgb(255 255 255 / 0.78);
+    --color-floating-glass-border: rgb(255 255 255 / 0.58);
     --blur-dim: 0px;
     --blur-frosted: 12px;
+    --blur-floating-glass: 10px;
+    --shadow-floating-glass: 0 6px 20px rgb(15 23 42 / 0.1);
     --motion-interaction: 150ms;
     --motion-entrance: 500ms;
 }
@@ -41,6 +45,14 @@
 @utility frosted-surface {
     background-color: var(--color-frosted-surface);
     backdrop-filter: blur(var(--blur-frosted));
+}
+
+@utility floating-glass-surface {
+    background-color: var(--color-floating-glass-surface);
+    border: 1px solid var(--color-floating-glass-border);
+    box-shadow: var(--shadow-floating-glass);
+    backdrop-filter: saturate(140%) blur(var(--blur-floating-glass));
+    -webkit-backdrop-filter: saturate(140%) blur(var(--blur-floating-glass));
 }
 
 @utility motion-interaction {

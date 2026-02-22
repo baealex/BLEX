@@ -79,7 +79,7 @@ const FloatingMenuBar = ({ editor }: FloatingMenuBarProps) => {
             <Popover.Anchor virtualRef={{ current: virtualElement }} />
             <Popover.Portal>
                 <Popover.Content
-                    className="bg-white border border-gray-200 rounded-lg shadow-lg p-2 transition-all duration-200 z-50 outline-none"
+                    className="floating-glass-surface rounded-lg p-2 transition-all duration-200 z-50 outline-none"
                     side="top"
                     sideOffset={10}
                     onOpenAutoFocus={(e) => e.preventDefault()}

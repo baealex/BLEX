@@ -223,7 +223,7 @@ const ColumnsFloatingMenu = ({ editor }: ColumnsFloatingMenuProps) => {
             <Popover.Anchor virtualRef={{ current: anchorElement }} />
             <Popover.Portal>
                 <Popover.Content
-                    className="z-[1100] bg-white/95 backdrop-blur-xl rounded-xl shadow-lg border border-gray-200/60 p-2 flex items-center gap-2 outline-none"
+                    className="z-[1100] floating-glass-surface rounded-xl p-2 flex items-center gap-2 outline-none"
                     side="top"
                     sideOffset={10}
                     onOpenAutoFocus={(e) => e.preventDefault()}
