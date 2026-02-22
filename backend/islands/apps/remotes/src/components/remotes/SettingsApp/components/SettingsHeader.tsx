@@ -4,46 +4,43 @@ interface SettingsHeaderProps {
     title: string;
     description?: string;
     action?: ReactNode;
-    /** Position of the action element. Default: 'bottom' */
     actionPosition?: 'bottom' | 'right';
 }
 
-/**
- * Common header component for Settings pages.
- * Provides consistent styling for title, description, and optional action button.
- */
 const SettingsHeader = ({
     title,
     description,
     action,
     actionPosition = 'bottom'
 }: SettingsHeaderProps) => {
-    // Right position: title/description on left, action on right (same row)
     if (actionPosition === 'right') {
         return (
-            <div className="flex items-center justify-between mb-6">
-                <div>
-                    <h2 className="text-2xl font-bold text-gray-900 mb-2">{title}</h2>
-                    {description && (
-                        <p className="text-gray-600">{description}</p>
-                    )}
+            <div className="mb-6">
+                <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+                    <div className="space-y-2">
+                        <h2 className="text-2xl font-semibold tracking-tight text-gray-900">{title}</h2>
+                        {description && (
+                            <p className="text-sm text-gray-600 leading-relaxed">{description}</p>
+                        )}
+                    </div>
+                    {action && <div className="flex-shrink-0">{action}</div>}
                 </div>
-                {action && <div>{action}</div>}
             </div>
         );
     }
 
-    // Bottom position (default): action below title/description
     return (
         <div className="mb-6">
-            <div className="mb-6">
-                <h2 className="text-2xl font-bold text-gray-900 mb-2">{title}</h2>
+            <div className="space-y-2">
+                <h2 className="text-2xl font-semibold tracking-tight text-gray-900">{title}</h2>
                 {description && (
-                    <p className="text-gray-600">{description}</p>
+                    <p className="text-sm text-gray-600 leading-relaxed">{description}</p>
                 )}
             </div>
             {action && (
-                <div>{action}</div>
+                <div className="mt-6">
+                    {action}
+                </div>
             )}
         </div>
     );

@@ -18,24 +18,24 @@ const Alert = ({
 }: AlertProps) => {
     const variants = {
         info: {
-            container: 'bg-blue-50 border-blue-200',
-            iconColor: 'text-blue-600',
-            titleColor: 'text-blue-900',
-            textColor: 'text-blue-800',
+            container: 'bg-gray-50 border-gray-200',
+            iconColor: 'text-gray-600',
+            titleColor: 'text-gray-900',
+            textColor: 'text-gray-700',
             defaultIcon: <Info className="w-5 h-5" />
         },
         warning: {
-            container: 'bg-yellow-50 border-yellow-200',
-            iconColor: 'text-yellow-600',
-            titleColor: 'text-yellow-900',
-            textColor: 'text-yellow-800',
+            container: 'bg-amber-50 border-amber-200',
+            iconColor: 'text-amber-700',
+            titleColor: 'text-amber-900',
+            textColor: 'text-amber-800',
             defaultIcon: <AlertTriangle className="w-5 h-5" />
         },
         success: {
-            container: 'bg-green-50 border-green-200',
-            iconColor: 'text-green-600',
-            titleColor: 'text-green-900',
-            textColor: 'text-green-800',
+            container: 'bg-emerald-50 border-emerald-200',
+            iconColor: 'text-emerald-700',
+            titleColor: 'text-emerald-900',
+            textColor: 'text-emerald-800',
             defaultIcon: <CheckCircle className="w-5 h-5" />
         },
         error: {

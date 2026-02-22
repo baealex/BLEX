@@ -22,6 +22,22 @@ from board.services.auth_service import AuthService, AuthValidationError
 from board.services.pinned_post_service import PinnedPostService, PinnedPostError
 
 
+def _get_notify_configs_by_role(user):
+    configs = [
+        CONFIG_TYPE.NOTIFY_COMMENT_LIKE,
+        CONFIG_TYPE.NOTIFY_MENTION,
+    ]
+
+    # 작성자(EDITOR)는 포스트 관련 알림 옵션을 추가로 노출
+    if hasattr(user, 'profile') and user.profile.is_editor():
+        configs = [
+            CONFIG_TYPE.NOTIFY_POSTS_LIKE,
+            CONFIG_TYPE.NOTIFY_POSTS_COMMENT,
+        ] + configs
+
+    return configs
+
+
 def setting(request, parameter):
     if not request.user.is_active:
         return StatusError(ErrorCode.NEED_LOGIN)
@@ -64,21 +80,7 @@ def setting(request, parameter):
             })
 
         if parameter == 'notify-config':
-            # Check if user has written any posts
-            has_posts = Post.objects.filter(author=user).exists()
-
-            # Base configs for all users
-            configs = [
-                CONFIG_TYPE.NOTIFY_COMMENT_LIKE,
-                CONFIG_TYPE.NOTIFY_MENTION,
-            ]
-
-            # Add editor-specific configs if user has posts
-            if has_posts:
-                configs = [
-                    CONFIG_TYPE.NOTIFY_POSTS_LIKE,
-                    CONFIG_TYPE.NOTIFY_POSTS_COMMENT,
-                ] + configs
+            configs = _get_notify_configs_by_role(user)
 
             return StatusDone({
                 'config': list(map(lambda config: {
@@ -388,25 +390,14 @@ def setting(request, parameter):
             return StatusDone()
 
         if parameter == 'notify-config':
-            has_posts = Post.objects.filter(author=user).exists()
-
-            configs = [
-                CONFIG_TYPE.NOTIFY_COMMENT_LIKE,
-                CONFIG_TYPE.NOTIFY_MENTION,
-            ]
-
-            if has_posts:
-                configs = [
-                    CONFIG_TYPE.NOTIFY_POSTS_LIKE,
-                    CONFIG_TYPE.NOTIFY_POSTS_COMMENT,
-                ] + configs
+            configs = _get_notify_configs_by_role(user)
 
             for config in configs:
                 value = put.get(config.value)
+                if value in (None, ''):
+                    continue
                 if isinstance(value, bool):
                     value = 'true' if value else 'false'
-                elif value is None:
-                    value = ''
                 user.config.create_or_update_meta(config, value)
 
             return StatusDone()

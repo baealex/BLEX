@@ -6,7 +6,7 @@
  */
 
 // Card styles - Clean, modern design with subtle shadows
-export const CARD_BASE = 'bg-white border border-gray-100 rounded-2xl hover:border-gray-200 transition-all duration-200';
+export const CARD_BASE = 'bg-white ring-1 ring-gray-900/5 rounded-2xl hover:ring-gray-900/10 transition-all motion-interaction';
 export const CARD_PADDING = 'p-5';
 
 // Icon container styles - Minimal grayscale design
@@ -40,4 +40,4 @@ export const getCardClass = (extraClasses = '') =>
     `${CARD_BASE} ${extraClasses}`;
 
 // Shared Input Styles
-export const baseInputStyles = 'block w-full rounded-lg border border-gray-200 focus:border-black/30 focus:ring-2 focus:ring-black/5 text-sm py-2.5 px-3 transition-all duration-200 bg-white placeholder-gray-400 text-gray-900';
+export const baseInputStyles = 'block w-full rounded-lg border border-gray-200 focus:border-gray-900/30 focus:ring-2 focus:ring-gray-900/5 text-sm py-3 px-3 min-h-12 transition-all motion-interaction bg-white placeholder-gray-400 text-gray-900';

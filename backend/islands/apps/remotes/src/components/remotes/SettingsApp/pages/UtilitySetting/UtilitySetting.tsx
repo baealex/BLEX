@@ -212,12 +212,12 @@ const UtilitySetting = () => {
             <SettingsHeader
                 title="유틸리티"
                 description="데이터베이스 통계 확인 및 시스템 정리 도구입니다."
+                actionPosition="right"
                 action={
                     <Button
                         variant="secondary"
                         size="md"
-                        compact
-                        leftIcon={<i className="fas fa-sync-alt" />}
+                        className="w-full sm:w-auto"
                         onClick={() => queryClient.invalidateQueries({ queryKey: ['utility-stats'] })}>
                         새로고침
                     </Button>
@@ -256,11 +256,10 @@ const UtilitySetting = () => {
                             )}
                         </Alert>
                     )}
-                    <div className="flex gap-2">
+                    <div className="flex flex-wrap gap-2">
                         <Button
                             variant="secondary"
                             size="sm"
-                            compact
                             isLoading={tagMutation.isPending && tagMutation.variables === true}
                             onClick={() => tagMutation.mutate(true)}>
                             미리보기
@@ -268,7 +267,6 @@ const UtilitySetting = () => {
                         <Button
                             variant="primary"
                             size="sm"
-                            compact
                             isLoading={tagMutation.isPending && tagMutation.variables === false}
                             onClick={handleCleanTags}>
                             정리하기
@@ -295,11 +293,10 @@ const UtilitySetting = () => {
                             }
                         </Alert>
                     )}
-                    <div className="flex gap-2">
+                    <div className="flex flex-wrap gap-2">
                         <Button
                             variant="secondary"
                             size="sm"
-                            compact
                             isLoading={sessionMutation.isPending && !sessionMutation.variables?.cleanAll}
                             onClick={handleCleanExpiredSessions}>
                             만료된 세션 정리
@@ -307,7 +304,6 @@ const UtilitySetting = () => {
                         <Button
                             variant="danger"
                             size="sm"
-                            compact
                             isLoading={sessionMutation.isPending && !!sessionMutation.variables?.cleanAll}
                             onClick={handleCleanAllSessions}>
                             모든 세션 정리
@@ -336,7 +332,6 @@ const UtilitySetting = () => {
                     <Button
                         variant="primary"
                         size="sm"
-                        compact
                         isLoading={logMutation.isPending}
                         onClick={handleCleanLogs}>
                         정리하기
@@ -436,7 +431,7 @@ const UtilitySetting = () => {
                                                     <div className="flex-shrink-0 text-gray-400">
                                                         <i className="fas fa-arrow-right" />
                                                     </div>
-                                                    <div className="flex-shrink-0 w-12 h-12 rounded-lg overflow-hidden bg-gray-100 border border-green-200">
+                                                    <div className="flex-shrink-0 w-12 h-12 rounded-lg overflow-hidden bg-gray-100 border border-gray-200">
                                                         <img
                                                             src={dup.originalUrl}
                                                             alt="원본 유지"
@@ -447,7 +442,7 @@ const UtilitySetting = () => {
                                                     <div className="text-[10px] text-gray-500">
                                                         <span className="text-red-500">{dup.duplicateSizeKb} KB</span>
                                                         {' → '}
-                                                        <span className="text-green-600">{dup.originalSizeKb} KB</span>
+                                                        <span className="text-gray-700">{dup.originalSizeKb} KB</span>
                                                         <span className="ml-1 text-gray-400">({dup.hash})</span>
                                                     </div>
                                                 </div>
@@ -458,11 +453,10 @@ const UtilitySetting = () => {
                             </div>
                         </Alert>
                     )}
-                    <div className="flex gap-2">
+                    <div className="flex flex-wrap gap-2">
                         <Button
                             variant="secondary"
                             size="sm"
-                            compact
                             isLoading={imageMutation.isPending && imageMutation.variables?.dryRun === true}
                             onClick={() => imageMutation.mutate({
                                 dryRun: true,
@@ -474,7 +468,6 @@ const UtilitySetting = () => {
                         <Button
                             variant="primary"
                             size="sm"
-                            compact
                             disabled={!hasPreviewed}
                             isLoading={imageMutation.isPending && imageMutation.variables?.dryRun === false}
                             onClick={handleCleanImages}>
@@ -496,7 +489,7 @@ const StatItem = ({
 }) => (
     <div className="bg-gray-50 rounded-xl p-4">
         <div className="text-xs text-gray-500 mb-1">{label}</div>
-        <div className="text-lg font-bold text-gray-900">{typeof value === 'number' ? value.toLocaleString() : value}</div>
+        <div className="text-lg font-semibold text-gray-900">{typeof value === 'number' ? value.toLocaleString() : value}</div>
     </div>
 );
 

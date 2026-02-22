@@ -1,7 +1,7 @@
 {% load static %}
 {% load resource %}
 <header
-    class="sticky top-0 left-0 right-0 z-30 border-b border-transparent bg-white/80 backdrop-blur-sm transition-all duration-200"
+    class="sticky top-0 left-0 right-0 z-30 border-b border-transparent frosted-surface transition-all duration-200"
     x-data="header()"
     :class="{ 'border-gray-100': !isTop, 'border-transparent': isTop }"
 >
@@ -203,7 +203,7 @@
                 x-transition:leave-start="opacity-100"
                 x-transition:leave-end="opacity-0"
                 @click="closeMobileMenu()"
-                class="absolute inset-0 bg-black/20 backdrop-blur-[2px]"
+                class="absolute inset-0 dim-overlay-soft"
             ></div>
 
             <div

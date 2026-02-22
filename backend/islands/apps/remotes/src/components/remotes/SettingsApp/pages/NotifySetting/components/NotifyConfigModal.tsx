@@ -11,6 +11,8 @@ const NOTIFY_CONFIG_LABEL = {
     'NOTIFY_MENTION': '다른 사용자가 댓글에서 나를 언급'
 } as const;
 
+const getNotifyLabel = (name: string) => NOTIFY_CONFIG_LABEL[name as keyof typeof NOTIFY_CONFIG_LABEL] ?? name;
+
 interface NotifyConfigModalProps {
     isOpen: boolean;
     onClose: () => void;
@@ -78,7 +80,7 @@ const NotifyConfigModal = ({
                     notifyConfig?.map((item) => (
                         <div key={item.name} className="flex items-center justify-between py-4 px-2 hover:bg-gray-50 rounded-xl transition-colors group">
                             <span className="text-sm font-semibold text-gray-700 group-hover:text-gray-900 transition-colors">
-                                {NOTIFY_CONFIG_LABEL[item.name as keyof typeof NOTIFY_CONFIG_LABEL]}
+                                {getNotifyLabel(item.name)}
                             </span>
                             <label className="relative inline-flex items-center cursor-pointer">
                                 <input

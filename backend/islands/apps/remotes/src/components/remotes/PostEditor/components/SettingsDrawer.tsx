@@ -10,7 +10,9 @@ import {
     Info,
     EyeOff,
     CircleDollarSign,
-    Trash2
+    Trash2,
+    DIM_OVERLAY_DEFAULT,
+    ENTRANCE_DURATION
 } from '@blex/ui';
 import { Input, Button } from '~/components/shared';
 import { cx } from '~/lib/classnames';
@@ -58,7 +60,7 @@ const SettingsDrawer = ({
         <Dialog.Root open={isOpen} onOpenChange={(open) => !open && onClose()}>
             <Dialog.Portal>
                 {/* Backdrop */}
-                <Dialog.Overlay className="fixed inset-0 bg-black/30 backdrop-blur-sm z-40 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0" />
+                <Dialog.Overlay className={`fixed inset-0 ${DIM_OVERLAY_DEFAULT} z-40 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0`} />
 
                 {/* Drawer Content */}
                 <Dialog.Content
@@ -66,7 +68,7 @@ const SettingsDrawer = ({
                         'fixed inset-y-0 right-0 z-50 w-full sm:w-[480px] bg-white shadow-2xl flex flex-col focus:outline-none',
                         'data-[state=open]:animate-in data-[state=closed]:animate-out',
                         'data-[state=closed]:slide-out-to-right data-[state=open]:slide-in-from-right',
-                        'duration-300 ease-in-out'
+                        `${ENTRANCE_DURATION} ease-in-out`
                     )}>
 
                     {/* Header */}
@@ -119,19 +121,19 @@ const SettingsDrawer = ({
                                         />
                                         <div className="flex items-center justify-between mt-2">
                                             <p className="text-xs text-gray-400">검색 결과에 표시되는 설명입니다</p>
-                                            <p className={`text-xs font-medium ${metaDescription.length > 140 ? 'text-orange-500' : 'text-gray-400'}`}>
+                                            <p className={`text-xs font-medium ${metaDescription.length > 140 ? 'text-red-500' : 'text-gray-400'}`}>
                                                 {metaDescription.length}/150
                                             </p>
                                         </div>
                                     </div>
 
                                     {/* SEO Tips */}
-                                    <div className="bg-blue-50 border border-blue-100 rounded-xl p-4">
-                                        <h4 className="text-sm font-medium text-blue-900 mb-2 flex items-center gap-2">
+                                    <div className="bg-gray-50 border border-gray-200 rounded-xl p-4">
+                                        <h4 className="text-sm font-medium text-gray-900 mb-2 flex items-center gap-2">
                                             <Info className="w-4 h-4" />
                                             SEO 팁
                                         </h4>
-                                        <ul className="text-xs text-blue-700 space-y-1">
+                                        <ul className="text-xs text-gray-700 space-y-1">
                                             <li>• 핵심 키워드를 포함하세요</li>
                                             <li>• 120-150자가 가장 이상적입니다</li>
                                             <li>• 독자의 관심을 끌 수 있는 문구를 사용하세요</li>

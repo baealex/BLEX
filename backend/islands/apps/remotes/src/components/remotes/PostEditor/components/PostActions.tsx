@@ -4,7 +4,8 @@ import {
     Button,
     FileText,
     SlidersHorizontal,
-    Send
+    Send,
+    FROSTED_SURFACE
 } from '@blex/ui';
 
 interface PostActionsProps {
@@ -55,7 +56,7 @@ const PostActions = ({
 
     return (
         <div className="fixed sm:sticky bottom-6 left-0 right-0 z-30 flex justify-center pointer-events-none">
-            <div className="pointer-events-auto bg-white/80 backdrop-blur-xl border border-white/20 shadow-[0_8px_30px_rgb(0,0,0,0.12)] rounded-full px-3 py-3 flex items-center gap-2 transform transition-all duration-300 hover:scale-105 hover:shadow-[0_8px_40px_rgb(0,0,0,0.16)]">
+            <div className={`pointer-events-auto ${FROSTED_SURFACE} border border-white/30 shadow-[0_8px_30px_rgb(0,0,0,0.12)] rounded-full px-3 py-3 flex items-center gap-2 transform transition-all motion-interaction`}>
                 {/* Temp Posts */}
                 {!isEdit && onOpenDrafts && (
                     <IconButton
@@ -87,8 +88,8 @@ const PostActions = ({
                         <div className="flex items-center gap-1.5 px-1 text-xs text-gray-400" aria-live="polite">
                             {isSaving ? (
                                 <>
-                                    <div className="w-1.5 h-1.5 rounded-full bg-blue-500 animate-pulse" />
-                                    <span className="text-blue-500">저장 중...</span>
+                                    <div className="w-1.5 h-1.5 rounded-full bg-gray-500 animate-pulse" />
+                                    <span className="text-gray-500">저장 중...</span>
                                 </>
                             ) : hasSaveError ? (
                                 <>
@@ -97,17 +98,17 @@ const PostActions = ({
                                 </>
                             ) : autoSaveCountdown !== null ? (
                                 <>
-                                    <div className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse" />
-                                    <span className="text-amber-500 tabular-nums">{autoSaveCountdown}초 후 저장</span>
+                                    <div className="w-1.5 h-1.5 rounded-full bg-gray-500 animate-pulse" />
+                                    <span className="text-gray-500 tabular-nums">{autoSaveCountdown}초 후 저장</span>
                                 </>
                             ) : hasPendingChanges ? (
                                 <>
-                                    <div className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse" />
-                                    <span className="text-amber-500">저장 대기 중</span>
+                                    <div className="w-1.5 h-1.5 rounded-full bg-gray-500 animate-pulse" />
+                                    <span className="text-gray-500">저장 대기 중</span>
                                 </>
                             ) : lastSaved ? (
                                 <>
-                                    <div className="w-1.5 h-1.5 rounded-full bg-green-500" />
+                                    <div className="w-1.5 h-1.5 rounded-full bg-gray-700" />
                                     <span>{formatTimeSince(lastSaved)}</span>
                                 </>
                             ) : (
@@ -123,7 +124,7 @@ const PostActions = ({
                             type="button"
                             onClick={onManualSave}
                             disabled={isSubmitting || isSaving}
-                            className="flex items-center gap-1.5 px-2.5 py-1 text-xs font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-full transition-colors disabled:opacity-50"
+                            className="flex items-center gap-1.5 px-2.5 py-1 text-xs font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-100 active:scale-95 rounded-full transition-all motion-interaction disabled:opacity-50"
                             title="임시 저장">
                             <span>임시 저장</span>
                         </button>

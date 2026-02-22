@@ -119,12 +119,12 @@ const PinnedPostsSetting = () => {
             <SettingsHeader
                 title={`고정 글 (${pinnedPosts.length}/${maxCount})`}
                 description="프로필에 표시할 대표 글을 선택하세요. 드래그하여 순서를 조정할 수 있습니다."
+                actionPosition="right"
                 action={
                     <Button
                         variant="primary"
                         size="md"
-                        fullWidth
-                        leftIcon={<i className="fas fa-plus" />}
+                        className="w-full sm:w-auto"
                         onClick={handleOpenModal}
                         disabled={!canAddMore}>
                         {canAddMore ? '글 고정하기' : '최대 개수 도달'}
@@ -137,7 +137,6 @@ const PinnedPostsSetting = () => {
                 username={username}
                 onReorder={handleReorder}
                 onRemove={handleRemovePinnedPost}
-                onAdd={handleOpenModal}
                 maxCount={maxCount}
             />
 

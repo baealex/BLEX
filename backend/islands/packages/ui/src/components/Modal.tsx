@@ -2,6 +2,7 @@ import type { ReactNode } from 'react';
 import { X } from 'lucide-react';
 import { Dialog } from './Dialog';
 import { cx } from '../lib/classnames';
+import { DIM_OVERLAY_DEFAULT, INTERACTION_DURATION } from '../lib/designTokens';
 
 interface ModalProps {
     isOpen: boolean;
@@ -40,14 +41,14 @@ const Modal = ({
                 {/* 블러 백드롭 */}
                 <Dialog.Overlay
                     className={cx(
-                        'fixed inset-0 bg-black/50 backdrop-blur-sm z-[60] data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0'
+                        `fixed inset-0 ${DIM_OVERLAY_DEFAULT} z-[60] data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0`
                     )}
                 />
 
                 <Dialog.Content
                     className={cx(
                         // Base styles
-                        'fixed z-[61] bg-white shadow-2xl duration-200 focus:outline-none flex flex-col',
+                        `fixed z-[61] bg-white shadow-2xl ${INTERACTION_DURATION} focus:outline-none flex flex-col`,
                         'max-h-[85vh] overflow-y-auto',
 
                         // Animations

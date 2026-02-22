@@ -21,12 +21,12 @@ const PostsSetting = () => {
             <SettingsHeader
                 title="포스트"
                 description="포스트를 관리하고 태그, 시리즈를 편집하세요."
+                actionPosition="right"
                 action={
                     <Button
                         variant="primary"
                         size="md"
-                        fullWidth
-                        leftIcon={<i className="fas fa-plus" />}
+                        className="w-full sm:w-auto"
                         onClick={() => window.location.assign('/write')}>
                         새 포스트 작성
                     </Button>

@@ -51,11 +51,11 @@ export const StaticPageList = ({ pages, onDelete }: StaticPageListProps) => {
                             <h3 className={`${TITLE} mb-0`}>
                                 {page.title}
                             </h3>
-                            <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium border ${page.isPublished ? 'bg-green-50 text-green-700 border-green-100' : 'bg-gray-50 text-gray-500 border-gray-100'}`}>
+                            <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium border ${page.isPublished ? 'bg-gray-900 text-white border-gray-900' : 'bg-gray-50 text-gray-500 border-gray-100'}`}>
                                 {page.isPublished ? '공개' : '비공개'}
                             </span>
                             {page.showInFooter && (
-                                <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium border bg-blue-50 text-blue-700 border-blue-100">
+                                <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium border bg-gray-100 text-gray-700 border-gray-200">
                                     푸터
                                 </span>
                             )}

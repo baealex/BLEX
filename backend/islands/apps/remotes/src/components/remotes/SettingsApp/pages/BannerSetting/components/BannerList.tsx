@@ -74,10 +74,10 @@ const SortableBannerItem = ({ banner, onEdit, onDelete, onToggleActive }: Sortab
 
     const getPositionBadgeColor = (position: string) => {
         const colors: Record<string, string> = {
-            top: 'bg-blue-50 text-blue-700 border-blue-100',
-            bottom: 'bg-emerald-50 text-emerald-700 border-emerald-100',
-            left: 'bg-purple-50 text-purple-700 border-purple-100',
-            right: 'bg-pink-50 text-pink-700 border-pink-100'
+            top: 'bg-gray-100 text-gray-700 border-gray-200',
+            bottom: 'bg-gray-100 text-gray-700 border-gray-200',
+            left: 'bg-gray-100 text-gray-700 border-gray-200',
+            right: 'bg-gray-100 text-gray-700 border-gray-200'
         };
         return colors[position] || 'bg-gray-50 text-gray-700 border-gray-100';
     };
@@ -119,7 +119,7 @@ const SortableBannerItem = ({ banner, onEdit, onDelete, onToggleActive }: Sortab
                                 {banner.title}
                             </h3>
                             {/* Mobile Status Badge */}
-                            <span className={`sm:hidden inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-medium border ${banner.isActive ? 'bg-green-50 text-green-700 border-green-100' : 'bg-gray-50 text-gray-500 border-gray-100'}`}>
+                            <span className={`sm:hidden inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-medium border ${banner.isActive ? 'bg-gray-900 text-white border-gray-900' : 'bg-gray-50 text-gray-500 border-gray-100'}`}>
                                 {banner.isActive ? 'ON' : 'OFF'}
                             </span>
                         </div>
@@ -131,7 +131,7 @@ const SortableBannerItem = ({ banner, onEdit, onDelete, onToggleActive }: Sortab
                             <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-50 text-gray-600 border border-gray-100">
                                 {getBannerTypeLabel(banner.bannerType)}
                             </span>
-                            <span className={`hidden sm:inline-flex items-center px-2 py-0.5 rounded text-xs font-medium border ${banner.isActive ? 'bg-green-50 text-green-700 border-green-100' : 'bg-gray-50 text-gray-500 border-gray-100'}`}>
+                            <span className={`hidden sm:inline-flex items-center px-2 py-0.5 rounded text-xs font-medium border ${banner.isActive ? 'bg-gray-900 text-white border-gray-900' : 'bg-gray-50 text-gray-500 border-gray-100'}`}>
                                 {banner.isActive ? '활성' : '비활성'}
                             </span>
                         </div>

@@ -66,6 +66,42 @@ class SettingTestCase(TestCase):
         self.assertEqual(response.status_code, 200)
         content = json.loads(response.content)
         self.assertEqual(type(content['body']['config']), list)
+        self.assertEqual(len(content['body']['config']), 4)
+        self.assertEqual(
+            {item['name'] for item in content['body']['config']},
+            {
+                CONFIG_TYPE.NOTIFY_POSTS_LIKE.value,
+                CONFIG_TYPE.NOTIFY_POSTS_COMMENT.value,
+                CONFIG_TYPE.NOTIFY_COMMENT_LIKE.value,
+                CONFIG_TYPE.NOTIFY_MENTION.value,
+            }
+        )
+
+    def test_get_setting_notify_config_reader(self):
+        """독자(READER)는 기본 알림 설정 2개만 조회 테스트"""
+        reader = User.objects.create_user(
+            username='reader',
+            password='test',
+            email='reader@test.com',
+            first_name='Reader User',
+        )
+        Config.objects.create(user=reader)
+        Profile.objects.create(user=reader, role=Profile.Role.READER)
+
+        self.client.login(username='reader', password='test')
+
+        response = self.client.get('/v1/setting/notify-config')
+        self.assertEqual(response.status_code, 200)
+        content = json.loads(response.content)
+
+        self.assertEqual(len(content['body']['config']), 2)
+        self.assertEqual(
+            {item['name'] for item in content['body']['config']},
+            {
+                CONFIG_TYPE.NOTIFY_COMMENT_LIKE.value,
+                CONFIG_TYPE.NOTIFY_MENTION.value,
+            }
+        )
 
     def test_update_notify_config_without_posts(self):
         """포스트가 없는 사용자의 알림 설정 업데이트 테스트"""

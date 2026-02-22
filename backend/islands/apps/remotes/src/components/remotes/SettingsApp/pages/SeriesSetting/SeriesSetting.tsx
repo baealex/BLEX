@@ -20,7 +20,7 @@ import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { restrictToVerticalAxis, restrictToFirstScrollableAncestor } from '@dnd-kit/modifiers';
 import { useSuspenseQuery } from '@tanstack/react-query';
-import { SettingsHeader, SettingsListItem } from '../../components';
+import { SettingsEmptyState, SettingsHeader, SettingsListItem } from '../../components';
 import { Button, Dropdown } from '~/components/shared';
 import {
  getIconClass,
@@ -206,12 +206,12 @@ const SeriesSetting = () => {
             <SettingsHeader
                 title={`시리즈 (${series.length})`}
                 description="드래그하여 시리즈 순서를 조정하거나 새로운 시리즈를 만들어보세요."
+                actionPosition="right"
                 action={
                     <Button
                         variant="primary"
                         size="md"
-                        fullWidth
-                        leftIcon={<i className="fas fa-plus" />}
+                        className="w-full sm:w-auto"
                         onClick={handleCreateSeries}>
                         새 시리즈 생성
                     </Button>
@@ -241,16 +241,11 @@ const SeriesSetting = () => {
                     </SortableContext>
                 </DndContext>
             ) : (
-                <div className="py-16 text-center border border-dashed border-gray-200 rounded-2xl">
-                    <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gray-50 mb-4">
-                        <i className="fas fa-book text-2xl text-gray-300" />
-                    </div>
-                    <h3 className="text-lg font-semibold text-gray-900 mb-1">시리즈가 없습니다</h3>
-                    <p className="text-gray-500 text-sm mb-6">첫 번째 시리즈를 만들어보세요.</p>
-                    <Button variant="secondary" size="md" onClick={handleCreateSeries}>
-                        시리즈 생성하기
-                    </Button>
-                </div>
+                <SettingsEmptyState
+                    iconClassName="fas fa-book"
+                    title="시리즈가 없습니다"
+                    description="첫 번째 시리즈를 만들어보세요."
+                />
             )}
         </div>
     );

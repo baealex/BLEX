@@ -20,3 +20,4 @@ export * from './components/Popover';
 export * from './components/Tabs';
 
 export * from './lib/toast';
+export * from './lib/designTokens';

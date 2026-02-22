@@ -40,7 +40,7 @@ const PostsFilter = ({
                     <i className="fas fa-filter" />
                     <span>필터 및 검색</span>
                     {hasActiveFilters(filters) && (
-                        <span className="ml-2 px-2 py-0.5 bg-blue-100 text-blue-700 text-xs font-medium rounded-full">
+                        <span className="ml-2 px-2 py-0.5 bg-gray-200 text-gray-800 text-xs font-medium rounded-full">
                             활성
                         </span>
                     )}
@@ -60,45 +60,45 @@ const PostsFilter = ({
             {hasActiveFilters(filters) && (
                 <div className="flex flex-wrap gap-2 mb-4">
                     {filters.search && (
-                        <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-blue-50 text-blue-700 rounded-lg text-sm">
+                        <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-gray-100 text-gray-700 rounded-lg text-sm">
                             <i className="fas fa-search text-xs" />
                             <span>검색: {filters.search}</span>
                             <button
                                 onClick={() => onFilterChange('search', '')}
-                                className="hover:text-blue-900">
+                                className="hover:text-gray-900">
                                 <i className="fas fa-times text-xs" />
                             </button>
                         </div>
                     )}
                     {filters.tag && (
-                        <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-purple-50 text-purple-700 rounded-lg text-sm">
+                        <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-gray-100 text-gray-700 rounded-lg text-sm">
                             <i className="fas fa-tag text-xs" />
                             <span>{filters.tag}</span>
                             <button
                                 onClick={() => onFilterChange('tag', '')}
-                                className="hover:text-purple-900">
+                                className="hover:text-gray-900">
                                 <i className="fas fa-times text-xs" />
                             </button>
                         </div>
                     )}
                     {filters.series && (
-                        <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-green-50 text-green-700 rounded-lg text-sm">
+                        <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-gray-100 text-gray-700 rounded-lg text-sm">
                             <i className="fas fa-book text-xs" />
                             <span>{series?.find((s) => s.url === filters.series)?.title}</span>
                             <button
                                 onClick={() => onFilterChange('series', '')}
-                                className="hover:text-green-900">
+                                className="hover:text-gray-900">
                                 <i className="fas fa-times text-xs" />
                             </button>
                         </div>
                     )}
                     {filters.visibility && (
-                        <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-orange-50 text-orange-700 rounded-lg text-sm">
+                        <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-gray-100 text-gray-700 rounded-lg text-sm">
                             <i className={`fas ${filters.visibility === 'public' ? 'fa-eye' : 'fa-eye-slash'} text-xs`} />
                             <span>{filters.visibility === 'public' ? '공개' : '숨김'}</span>
                             <button
                                 onClick={() => onFilterChange('visibility', '')}
-                                className="hover:text-orange-900">
+                                className="hover:text-gray-900">
                                 <i className="fas fa-times text-xs" />
                             </button>
                         </div>

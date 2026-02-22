@@ -2,8 +2,9 @@ import { forwardRef } from 'react';
 import type { InputHTMLAttributes, ReactNode, ForwardedRef } from 'react';
 import { AlertCircle } from 'lucide-react';
 import { cx } from '../lib/classnames';
+import { INTERACTION_DURATION } from '../lib/designTokens';
 
-const baseInputStyles = 'block w-full rounded-lg border border-gray-200 focus:border-black/30 focus:ring-2 focus:ring-black/5 text-sm py-2.5 px-3 transition-all duration-200 bg-white placeholder-gray-400 text-gray-900';
+const baseInputStyles = `block w-full rounded-lg border border-gray-200 focus:border-gray-900/30 focus:ring-2 focus:ring-gray-900/5 text-sm py-3 px-3 min-h-12 transition-all ${INTERACTION_DURATION} bg-white placeholder-gray-400 text-gray-900`;
 
 interface InputProps extends InputHTMLAttributes<HTMLInputElement | HTMLTextAreaElement> {
     label?: string;
