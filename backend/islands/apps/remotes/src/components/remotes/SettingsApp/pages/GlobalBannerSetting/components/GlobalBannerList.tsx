@@ -27,7 +27,7 @@ import type { GlobalBannerData } from '~/lib/api/settings';
 
 interface GlobalBannerListProps {
     banners: GlobalBannerData[];
-    onEdit: (banner: GlobalBannerData) => void;
+    onEdit: (bannerId: number) => void;
     onDelete: (id: number) => void;
     onToggleActive: (banner: GlobalBannerData) => void;
     onReorder: (banners: GlobalBannerData[]) => void;
@@ -35,7 +35,7 @@ interface GlobalBannerListProps {
 
 interface SortableBannerItemProps {
     banner: GlobalBannerData;
-    onEdit: (banner: GlobalBannerData) => void;
+    onEdit: (bannerId: number) => void;
     onDelete: (id: number) => void;
     onToggleActive: (banner: GlobalBannerData) => void;
 }
@@ -75,6 +75,7 @@ const SortableBannerItem = ({ banner, onEdit, onDelete, onToggleActive }: Sortab
     return (
         <div ref={setNodeRef} style={style} className="mb-3">
             <SettingsListItem
+                onClick={() => onEdit(banner.id)}
                 dragHandleProps={{
                     attributes,
                     listeners
@@ -90,7 +91,7 @@ const SortableBannerItem = ({ banner, onEdit, onDelete, onToggleActive }: Sortab
                             {
                                 label: '수정',
                                 icon: 'fas fa-pen',
-                                onClick: () => onEdit(banner)
+                                onClick: () => onEdit(banner.id)
                             },
                             {
                                 label: '삭제',

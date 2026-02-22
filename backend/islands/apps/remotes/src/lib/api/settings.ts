@@ -553,6 +553,10 @@ export const getGlobalBanners = async () => {
     return http.get<Response<{ banners: GlobalBannerData[] }>>('v1/global-banners');
 };
 
+export const getGlobalBanner = async (id: number) => {
+    return http.get<Response<GlobalBannerData>>(`v1/global-banners/${id}`);
+};
+
 export const createGlobalBanner = async (data: GlobalBannerCreateData) => {
     return http.post<Response<GlobalBannerData>>('v1/global-banners', data, { headers: { 'Content-Type': 'application/json' } });
 };
