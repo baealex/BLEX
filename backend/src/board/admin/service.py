@@ -154,16 +154,6 @@ class AdminDisplayService:
             COLOR_SUCCESS, COLOR_BG
         )
 
-    @staticmethod
-    def notice_badge() -> SafeString:
-        """공지 뱃지 생성"""
-        return format_html(
-            '<span style="background: {}; color: {}; padding: 3px 8px; '
-            'border-radius: 4px; font-size: 11px; font-weight: 600;">공지</span>',
-            COLOR_WARNING, COLOR_TEXT
-        )
-
-    @staticmethod
     def advertise_badge() -> SafeString:
         """광고 뱃지 생성"""
         return format_html(
@@ -268,8 +258,6 @@ class AdminDisplayService:
         badges = []
         if config.hide:
             badges.append(str(AdminDisplayService.visibility_badge(True)))
-        if config.notice:
-            badges.append(str(AdminDisplayService.notice_badge()))
         if config.advertise:
             badges.append(str(AdminDisplayService.advertise_badge()))
 
@@ -316,11 +304,6 @@ class AdminDisplayService:
                 badges.append(format_html(
                     '<span style="background: {}; color: {}; padding: 2px 6px; border-radius: 4px; font-size: 10px; opacity: 0.8;">공개</span>',
                     COLOR_SUCCESS, COLOR_BG
-                ))
-            if config.notice:
-                badges.append(format_html(
-                    '<span style="background: {}; color: {}; padding: 2px 6px; border-radius: 4px; font-size: 10px; opacity: 0.8;">공지</span>',
-                    COLOR_WARNING, COLOR_TEXT
                 ))
             if config.advertise:
                 badges.append(format_html(

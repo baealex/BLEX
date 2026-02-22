@@ -144,7 +144,7 @@ class PostAdmin(admin.ModelAdmin):
         }),
     )
 
-    readonly_fields = ['url', 'image_preview', 'publish_status_display', 'total_likes', 'total_comments', 'created_at', 'updated_at']
+    readonly_fields = ['image_preview', 'publish_status_display', 'total_likes', 'total_comments', 'created_at', 'updated_at']
 
     def get_queryset(self, request):
         return super().get_queryset(request).select_related(
@@ -249,5 +249,4 @@ class PostAdmin(admin.ModelAdmin):
         count = queryset.filter(published_date__isnull=True).update(published_date=timezone.now())
         self.message_user(request, f'{count}개의 임시글을 발행했습니다.')
     publish_drafts.short_description = '선택한 임시글 즉시 발행'
-
 
