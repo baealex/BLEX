@@ -651,19 +651,31 @@ class EditRequest(models.Model):
         return self.title
 
 
+class SiteContentScope(models.TextChoices):
+    USER = 'user', '사용자'
+    GLOBAL = 'global', '전역'
+
+
 class WebhookSubscription(models.Model):
     """
-    Webhook subscription for author-based notifications.
-    When an author publishes a new post, notifications are sent to all
-    webhook URLs subscribed to that author.
+    Webhook channel registration.
+    - author is set: author-specific channel (existing behavior)
+    - author is null: global channel (new behavior)
     """
     MAX_FAILURES = 3  # Auto-deactivate after this many consecutive failures
 
+    scope = models.CharField(
+        max_length=10,
+        choices=SiteContentScope.choices,
+        default=SiteContentScope.USER
+    )
     author = models.ForeignKey(
         'board.Profile',
         on_delete=models.CASCADE,
         related_name='webhook_subscribers',
-        help_text='The author being subscribed to'
+        null=True,
+        blank=True,
+        help_text='Owner profile for author-specific channel (empty for global channel)'
     )
     webhook_url = models.URLField(
         max_length=500,
@@ -687,11 +699,12 @@ class WebhookSubscription(models.Model):
     created_date = models.DateTimeField(default=timezone.now)
 
     class Meta:
-        unique_together = ['author', 'webhook_url']
+        unique_together = ['scope', 'author', 'webhook_url']
         ordering = ['-created_date']
 
     def __str__(self):
-        return f'{self.name or "Webhook"} -> {self.author.user.username}'
+        target = self.author.user.username if self.author else 'GLOBAL'
+        return f'[{self.scope}] {self.name or "Webhook"} -> {target}'
 
     def record_success(self):
         """Record a successful webhook delivery"""
@@ -847,11 +860,6 @@ class BannerPosition(models.TextChoices):
     BOTTOM = 'bottom', '하단'
     LEFT = 'left', '좌측'
     RIGHT = 'right', '우측'
-
-
-class SiteContentScope(models.TextChoices):
-    USER = 'user', '사용자'
-    GLOBAL = 'global', '전역'
 
 
 class SiteContentBase(models.Model):

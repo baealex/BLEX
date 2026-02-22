@@ -1,15 +1,18 @@
 """
 Webhook Service
 
-Handles sending webhook notifications to author's channels when new posts are published.
+Handles sending webhook notifications to author-specific and global channels
+when new posts are published.
 Supports Discord, Slack, and other webhook-compatible services.
 """
 import logging
+import time
 import requests
 
 from django.conf import settings
+from django.db.models import Q
 
-from board.models import Post, PostConfig, WebhookSubscription, Profile
+from board.models import Post, PostConfig, WebhookSubscription, Profile, SiteContentScope
 from modules.sub_task import SubTaskProcessor
 
 
@@ -20,6 +23,7 @@ class WebhookService:
     """Service for managing webhook notification channels."""
 
     WEBHOOK_TIMEOUT = 10  # seconds
+    DEFAULT_NOTIFICATION_DELAY_SECONDS = 2.0
 
     @staticmethod
     def send_webhook(url: str, content: str, post_url: str) -> bool:
@@ -103,7 +107,9 @@ class WebhookService:
     @staticmethod
     def notify_channels(post: Post, post_config: PostConfig) -> int:
         """
-        Send webhook notifications to all active channels of the post author.
+        Send webhook notifications to:
+        - active channels of the post author (existing behavior)
+        - active global channels (author is null)
         Only sends if the post is published and not hidden.
         Tracks success/failure for each channel.
 
@@ -118,13 +124,18 @@ class WebhookService:
             return 0
 
         author_profile = Profile.objects.filter(user=post.author).first()
-        if not author_profile:
-            return 0
+        if author_profile:
+            channel_filter = (
+                Q(scope=SiteContentScope.USER, author=author_profile) |
+                Q(scope=SiteContentScope.GLOBAL)
+            )
+        else:
+            channel_filter = Q(scope=SiteContentScope.GLOBAL)
 
         # Get channel IDs to avoid issues with lazy evaluation
         channel_ids = list(
             WebhookSubscription.objects.filter(
-                author=author_profile,
+                channel_filter,
                 is_active=True
             ).values_list('id', flat=True)
         )
@@ -135,8 +146,11 @@ class WebhookService:
         post_url = settings.SITE_URL + post.get_absolute_url()
         author_name = post.author.first_name or post.author.username
         content = f'[{author_name}] 새 글이 발행되었어요: [{post.title}]({post_url})'
+        delay_seconds = max(0.0, WebhookService.DEFAULT_NOTIFICATION_DELAY_SECONDS)
 
         def send_all_webhooks():
+            if delay_seconds > 0:
+                time.sleep(delay_seconds)
             # Re-fetch channels in the async context
             channels = WebhookSubscription.objects.filter(
                 id__in=channel_ids,
@@ -170,12 +184,42 @@ class WebhookService:
             Created/reactivated WebhookSubscription instance
         """
         channel, created = WebhookSubscription.objects.get_or_create(
+            scope=SiteContentScope.USER,
             author=author,
             webhook_url=webhook_url,
             defaults={'name': name}
         )
         if not created:
             # Reactivate and reset failure count if re-adding
+            channel.is_active = True
+            channel.failure_count = 0
+            if name:
+                channel.name = name
+            channel.save(update_fields=['is_active', 'failure_count', 'name'])
+        return channel
+
+    @staticmethod
+    def create_global_subscription(
+        webhook_url: str,
+        name: str = ''
+    ) -> WebhookSubscription:
+        """
+        Create or reactivate a global webhook channel.
+
+        Args:
+            webhook_url: Webhook URL for global notifications
+            name: Optional name/description for the channel
+
+        Returns:
+            Created/reactivated WebhookSubscription instance
+        """
+        channel, created = WebhookSubscription.objects.get_or_create(
+            scope=SiteContentScope.GLOBAL,
+            author=None,
+            webhook_url=webhook_url,
+            defaults={'name': name}
+        )
+        if not created:
             channel.is_active = True
             channel.failure_count = 0
             if name:

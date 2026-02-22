@@ -8,7 +8,14 @@ from django.test import TestCase, Client
 from django.contrib.auth.models import User
 from django.utils import timezone
 
-from board.models import Profile, Post, PostConfig, PostContent, WebhookSubscription
+from board.models import (
+    Profile,
+    Post,
+    PostConfig,
+    PostContent,
+    WebhookSubscription,
+    SiteContentScope
+)
 from board.services import WebhookService
 
 
@@ -226,6 +233,82 @@ class WebhookAPITestCase(TestCase):
         self.assertFalse(data['body']['success'])
 
 
+class GlobalWebhookAPITestCase(TestCase):
+    """글로벌 웹훅 채널 API 테스트"""
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.staff_user = User.objects.create_user(
+            username='staff',
+            email='staff@example.com',
+            password='testpass123',
+            is_staff=True
+        )
+        Profile.objects.create(user=cls.staff_user)
+
+        cls.normal_user = User.objects.create_user(
+            username='normal',
+            email='normal@example.com',
+            password='testpass123'
+        )
+        cls.normal_profile = Profile.objects.create(user=cls.normal_user)
+
+    def setUp(self):
+        self.client = Client()
+
+    def test_get_global_channels_requires_staff(self):
+        self.client.login(username='normal', password='testpass123')
+        response = self.client.get('/v1/webhook/global-channels')
+        data = response.json()
+        self.assertEqual(data['status'], 'ERROR')
+
+    def test_get_global_channels_staff(self):
+        self.client.login(username='staff', password='testpass123')
+        WebhookSubscription.objects.create(
+            scope=SiteContentScope.GLOBAL,
+            author=None,
+            webhook_url='https://discord.com/api/webhooks/global/one',
+            name='Global One'
+        )
+        WebhookSubscription.objects.create(
+            scope=SiteContentScope.USER,
+            author=self.normal_profile,
+            webhook_url='https://discord.com/api/webhooks/user/private',
+            name='User Private'
+        )
+
+        response = self.client.get('/v1/webhook/global-channels')
+        data = response.json()
+        self.assertEqual(data['status'], 'DONE')
+        self.assertEqual(len(data['body']['channels']), 1)
+        self.assertEqual(data['body']['channels'][0]['name'], 'Global One')
+
+    def test_add_and_delete_global_channel_staff(self):
+        self.client.login(username='staff', password='testpass123')
+
+        response = self.client.post(
+            '/v1/webhook/global-channels',
+            data=json.dumps({
+                'webhook_url': 'https://discord.com/api/webhooks/global/new',
+                'name': 'Ops Channel'
+            }),
+            content_type='application/json'
+        )
+        data = response.json()
+        self.assertEqual(data['status'], 'DONE')
+
+        channel = WebhookSubscription.objects.get(
+            scope=SiteContentScope.GLOBAL,
+            webhook_url='https://discord.com/api/webhooks/global/new'
+        )
+        self.assertIsNone(channel.author)
+
+        response = self.client.delete(f'/v1/webhook/global-channels/{channel.id}')
+        data = response.json()
+        self.assertEqual(data['status'], 'DONE')
+        self.assertFalse(WebhookSubscription.objects.filter(id=channel.id).exists())
+
+
 class WebhookNotificationTestCase(TestCase):
     """포스트 발행 시 웹훅 알림 테스트"""
 
@@ -274,6 +357,70 @@ class WebhookNotificationTestCase(TestCase):
         WebhookService.notify_channels(self.post, post_config)
 
         mock_process.assert_not_called()
+
+    @patch.object(WebhookService, 'DEFAULT_NOTIFICATION_DELAY_SECONDS', 0)
+    @patch('board.services.webhook_service.WebhookService.send_webhook_with_tracking')
+    @patch('board.services.webhook_service.time.sleep')
+    @patch('board.services.webhook_service.SubTaskProcessor.process')
+    def test_notify_channels_sends_to_author_and_global_channels(
+        self,
+        mock_process,
+        mock_sleep,
+        mock_send_webhook_with_tracking
+    ):
+        """작성자 채널 + 글로벌 채널로 발행 알림 전송"""
+        other_user = User.objects.create_user(
+            username='other-author',
+            email='other-author@example.com',
+            password='testpass123'
+        )
+        other_profile = Profile.objects.create(user=other_user)
+
+        WebhookSubscription.objects.create(
+            author=self.profile,
+            webhook_url='https://discord.com/api/webhooks/all/a'
+        )
+        WebhookSubscription.objects.create(
+            scope=SiteContentScope.GLOBAL,
+            author=None,
+            webhook_url='https://discord.com/api/webhooks/global/channel'
+        )
+        WebhookSubscription.objects.create(
+            author=other_profile,
+            webhook_url='https://discord.com/api/webhooks/all/b'
+        )
+
+        post_config = PostConfig.objects.create(post=self.post, hide=False)
+        mock_process.side_effect = lambda func, *args, **kwargs: func(*args, **kwargs)
+
+        WebhookService.notify_channels(self.post, post_config)
+
+        mock_sleep.assert_not_called()
+        self.assertEqual(mock_send_webhook_with_tracking.call_count, 2)
+
+    @patch.object(WebhookService, 'DEFAULT_NOTIFICATION_DELAY_SECONDS', 1.25)
+    @patch('board.services.webhook_service.WebhookService.send_webhook_with_tracking')
+    @patch('board.services.webhook_service.time.sleep')
+    @patch('board.services.webhook_service.SubTaskProcessor.process')
+    def test_notify_channels_applies_delay_before_delivery(
+        self,
+        mock_process,
+        mock_sleep,
+        mock_send_webhook_with_tracking
+    ):
+        """웹훅 전송 전에 지연을 적용"""
+        WebhookSubscription.objects.create(
+            author=self.profile,
+            webhook_url='https://discord.com/api/webhooks/delay/test'
+        )
+        post_config = PostConfig.objects.create(post=self.post, hide=False)
+
+        mock_process.side_effect = lambda func, *args, **kwargs: func(*args, **kwargs)
+
+        WebhookService.notify_channels(self.post, post_config)
+
+        mock_sleep.assert_called_once_with(1.25)
+        mock_send_webhook_with_tracking.assert_called_once()
 
 
 class WebhookFailureTrackingTestCase(TestCase):
