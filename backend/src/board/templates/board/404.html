@@ -21,8 +21,8 @@
 <div class="fixed inset-0 bg-gray-50 overflow-hidden flex items-center justify-center">
     <!-- Background Elements -->
     <div class="absolute inset-0 overflow-hidden pointer-events-none">
-        <div class="absolute -top-[20%] -left-[10%] w-[70%] h-[70%] bg-blue-100/30 rounded-full blur-3xl animate-float"></div>
-        <div class="absolute top-[20%] -right-[10%] w-[60%] h-[60%] bg-purple-100/30 rounded-full blur-3xl animate-float-delayed"></div>
+        <div class="absolute -top-[20%] -left-[10%] w-[70%] h-[70%] bg-gray-200/30 rounded-full blur-3xl animate-float"></div>
+        <div class="absolute top-[20%] -right-[10%] w-[60%] h-[60%] bg-gray-100/30 rounded-full blur-3xl animate-float-delayed"></div>
     </div>
 
     <div class="relative z-10 max-w-2xl mx-auto px-6 text-center" x-data="pageNotFound()">
@@ -56,13 +56,13 @@
                 뒤로 가기
             </button>
 
-            <button
-                @click="window.dispatchEvent(new CustomEvent('openSearchModal'))"
+            <a
+                href="/search"
                 class="px-8 py-3.5 bg-white text-gray-900 font-semibold rounded-full border border-gray-200 hover:border-gray-300 hover:shadow-lg hover:-translate-y-0.5 transition-all duration-150 min-w-[160px]"
             >
                 <i class="fas fa-search mr-2 text-sm"></i>
                 검색
-            </button>
+            </a>
 
             <a href="/" class="px-8 py-3.5 bg-black text-white font-semibold rounded-full hover:bg-gray-800 hover:shadow-lg hover:-translate-y-0.5 transition-all duration-150 min-w-[160px]">
                 홈으로 돌아가기

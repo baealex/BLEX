@@ -1,0 +1,15 @@
+{% extends 'board/base.html' %}
+
+{% block title %}
+{% if request.GET.q %}
+검색: {{ request.GET.q }} - BLEX
+{% else %}
+검색 - BLEX
+{% endif %}
+{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl w-full mx-auto px-4 sm:px-6 py-8 sm:py-12">
+    <island-component name="SearchPage" props="{{ search_page_props }}"></island-component>
+</div>
+{% endblock %}

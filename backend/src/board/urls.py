@@ -12,6 +12,7 @@ from board.views.authors import authors_view
 from board.views.author import author_posts, author_series, author_about, author_about_edit, author_overview
 from board.views.post import post_detail, post_editor
 from board.views.series import series_detail
+from board.views.search import search_page
 from board.views.auth import login_view, signup_view
 from board.views.oauth_callback import oauth_callback
 from board.views.tag import tag_list_view, tag_detail_view
@@ -53,6 +54,7 @@ urlpatterns = [
 
     # Posts write
     path('write', post_editor, name='post_write'),
+    path('search', search_page, name='search'),
 
     # Tags
     path('tags', tag_list_view, name='tag_list'),
