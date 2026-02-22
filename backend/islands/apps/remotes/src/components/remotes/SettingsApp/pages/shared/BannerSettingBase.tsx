@@ -3,7 +3,7 @@ import { toast } from '~/utils/toast';
 import { useMutation, useQueryClient, useSuspenseQuery } from '@tanstack/react-query';
 import { useConfirm } from '~/hooks/useConfirm';
 import { SettingsEmptyState, SettingsHeader } from '../../components';
-import { Button, Modal } from '~/components/shared';
+import { Button } from '~/components/shared';
 import {
     getBanners,
     createBanner,
@@ -37,7 +37,7 @@ interface BannerSettingBaseProps {
 }
 
 const BannerSettingBase = ({ scope }: BannerSettingBaseProps) => {
-    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [showForm, setShowForm] = useState(false);
     const [editingBanner, setEditingBanner] = useState<BannerItem | null>(null);
     const { confirm } = useConfirm();
     const queryClient = useQueryClient();
@@ -66,7 +66,7 @@ const BannerSettingBase = ({ scope }: BannerSettingBaseProps) => {
         onSuccess: () => {
             toast.success(`${bannerLabel}가 생성되었습니다.`);
             queryClient.invalidateQueries({ queryKey });
-            closeModal();
+            closeForm();
         },
         onError: () => {
             toast.error(`${bannerLabel} 생성에 실패했습니다.`);
@@ -82,7 +82,7 @@ const BannerSettingBase = ({ scope }: BannerSettingBaseProps) => {
         onSuccess: () => {
             toast.success(`${bannerLabel}가 수정되었습니다.`);
             queryClient.invalidateQueries({ queryKey });
-            closeModal();
+            closeForm();
         },
         onError: () => {
             toast.error(`${bannerLabel} 수정에 실패했습니다.`);
@@ -140,7 +140,7 @@ const BannerSettingBase = ({ scope }: BannerSettingBaseProps) => {
 
     const handleEdit = (banner: BannerItem) => {
         setEditingBanner(banner);
-        setIsModalOpen(true);
+        setShowForm(true);
     };
 
     const handleToggleActive = (banner: BannerItem) => {
@@ -157,11 +157,11 @@ const BannerSettingBase = ({ scope }: BannerSettingBaseProps) => {
 
     const handleCreateBanner = () => {
         setEditingBanner(null);
-        setIsModalOpen(true);
+        setShowForm(true);
     };
 
-    const closeModal = () => {
-        setIsModalOpen(false);
+    const closeForm = () => {
+        setShowForm(false);
         setEditingBanner(null);
     };
 
@@ -185,6 +185,29 @@ const BannerSettingBase = ({ scope }: BannerSettingBaseProps) => {
                     </Button>
                 }
             />
+
+            {showForm && (
+                <div className="mb-6 bg-gray-50 border border-gray-200 rounded-2xl p-6 animate-in fade-in-0 slide-in-from-top-2 motion-interaction">
+                    <h3 className="text-base font-semibold text-gray-900 mb-4">
+                        {editingBanner ? `${bannerLabel} 수정` : `새 ${bannerLabel} 만들기`}
+                    </h3>
+                    {isGlobal ? (
+                        <GlobalBannerForm
+                            banner={(editingBanner as GlobalBannerData) || undefined}
+                            onSubmit={(data) => (editingBanner ? handleUpdate(data) : handleCreate(data))}
+                            onCancel={closeForm}
+                            isLoading={createMutation.isPending || updateMutation.isPending}
+                        />
+                    ) : (
+                        <BannerForm
+                            banner={(editingBanner as BannerData) || undefined}
+                            onSubmit={(data) => (editingBanner ? handleUpdate(data) : handleCreate(data))}
+                            onCancel={closeForm}
+                            isLoading={createMutation.isPending || updateMutation.isPending}
+                        />
+                    )}
+                </div>
+            )}
 
             {bannersData && bannersData.length > 0 ? (
                 <div>
@@ -213,28 +236,6 @@ const BannerSettingBase = ({ scope }: BannerSettingBaseProps) => {
                     description={isGlobal ? '첫 번째 글로벌 배너를 만들어보세요.' : '첫 번째 배너를 만들어보세요.'}
                 />
             )}
-
-            <Modal
-                isOpen={isModalOpen}
-                onClose={closeModal}
-                title={editingBanner ? `${bannerLabel} 수정` : `새 ${bannerLabel} 만들기`}
-                maxWidth="3xl">
-                {isGlobal ? (
-                    <GlobalBannerForm
-                        banner={(editingBanner as GlobalBannerData) || undefined}
-                        onSubmit={(data) => (editingBanner ? handleUpdate(data) : handleCreate(data))}
-                        onCancel={closeModal}
-                        isLoading={createMutation.isPending || updateMutation.isPending}
-                    />
-                ) : (
-                    <BannerForm
-                        banner={(editingBanner as BannerData) || undefined}
-                        onSubmit={(data) => (editingBanner ? handleUpdate(data) : handleCreate(data))}
-                        onCancel={closeModal}
-                        isLoading={createMutation.isPending || updateMutation.isPending}
-                    />
-                )}
-            </Modal>
         </div>
     );
 };

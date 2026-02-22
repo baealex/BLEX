@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 import { useForm, Controller } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Modal, Input, Checkbox } from '~/components/shared';
+import { Button, Input, Checkbox } from '~/components/shared';
 import { CodeEditor } from '~/components/CodeEditor';
 import type { BannerData, BannerCreateData } from '~/lib/api/settings';
 
@@ -26,8 +26,8 @@ interface BannerFormProps {
 
 export const BannerForm = ({ banner, onSubmit, onCancel, isLoading }: BannerFormProps) => {
     const {
- register, handleSubmit, watch, setValue, control, formState: { errors }
-} = useForm<BannerFormInputs>({
+        register, handleSubmit, watch, setValue, control, formState: { errors }
+    } = useForm<BannerFormInputs>({
         resolver: zodResolver(bannerSchema),
         defaultValues: banner ? {
             title: banner.title,
@@ -76,7 +76,7 @@ export const BannerForm = ({ banner, onSubmit, onCancel, isLoading }: BannerForm
 
     return (
         <form onSubmit={handleSubmit(handleFormSubmit)}>
-            <div className="p-6 space-y-6">
+            <div className="space-y-6">
                 {/* Banner Name */}
                 <div className="space-y-2">
                     <label className="block text-sm font-semibold text-gray-900">
@@ -303,29 +303,32 @@ export const BannerForm = ({ banner, onSubmit, onCancel, isLoading }: BannerForm
                 </div>
             </div>
 
-            {/* Modal Footer */}
-            <Modal.Footer>
-                <Modal.FooterAction
+            <div className="flex items-center justify-between gap-3 pt-2">
+                <Button
                     type="button"
-                    variant="secondary"
+                    variant="ghost"
+                    size="md"
                     onClick={onCancel}
                     disabled={isLoading}>
                     취소
-                </Modal.FooterAction>
-                <Modal.FooterAction
-                    type="submit"
-                    variant="primary"
-                    isLoading={isLoading}
-                    leftIcon={
-                        !isLoading ? (
-                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                            </svg>
-                        ) : undefined
-                    }>
-                    {isLoading ? '저장 중...' : banner ? '배너 수정' : '배너 생성'}
-                </Modal.FooterAction>
-            </Modal.Footer>
+                </Button>
+                <div className="flex items-center gap-3">
+                    <Button
+                        type="submit"
+                        variant="primary"
+                        size="md"
+                        isLoading={isLoading}
+                        leftIcon={
+                            !isLoading ? (
+                                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                                </svg>
+                            ) : undefined
+                        }>
+                        {isLoading ? '저장 중...' : banner ? '배너 수정' : '배너 생성'}
+                    </Button>
+                </div>
+            </div>
         </form>
     );
 };
