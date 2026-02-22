@@ -15,16 +15,15 @@ import {
     arrayMove
 } from '@dnd-kit/sortable';
 import { restrictToVerticalAxis, restrictToFirstScrollableAncestor } from '@dnd-kit/modifiers';
+import { SettingsEmptyState } from '../../../components';
 import { PinnedPostItem } from './PinnedPostItem';
 import type { PinnedPostData } from '~/lib/api/settings';
-import { Button } from '~/components/shared';
 
 interface PinnedPostListProps {
     pinnedPosts: PinnedPostData[];
     username: string;
     onReorder: (newPinnedPosts: PinnedPostData[]) => void;
     onRemove: (postUrl: string) => void;
-    onAdd: () => void;
     maxCount: number;
 }
 
@@ -32,8 +31,7 @@ export const PinnedPostList = ({
     pinnedPosts,
     username,
     onReorder,
-    onRemove,
-    onAdd
+    onRemove
 }: PinnedPostListProps) => {
     const sensors = useSensors(
         useSensor(PointerSensor, { activationConstraint: { distance: 8 } }),
@@ -60,20 +58,11 @@ export const PinnedPostList = ({
 
     if (pinnedPosts.length === 0) {
         return (
-            <div className="text-center py-16 bg-gray-50/50 rounded-2xl border-2 border-dashed border-gray-200">
-                <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-white flex items-center justify-center shadow-sm">
-                    <i className="fas fa-thumbtack text-2xl text-gray-300" />
-                </div>
-                <h3 className="text-lg font-bold text-gray-900 mb-2">고정된 글이 없습니다</h3>
-                <p className="text-gray-500 mb-6 font-medium">프로필에 표시할 대표 글을 선택해보세요.</p>
-                <Button
-                    variant="primary"
-                    size="md"
-                    leftIcon={<i className="fas fa-plus" />}
-                    onClick={onAdd}>
-                    첫 번째 글 고정하기
-                </Button>
-            </div>
+            <SettingsEmptyState
+                iconClassName="fas fa-thumbtack"
+                title="고정된 글이 없습니다"
+                description="프로필에 표시할 대표 글을 선택해보세요."
+            />
         );
     }
 

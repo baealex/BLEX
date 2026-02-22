@@ -4,7 +4,7 @@ import { useSuspenseQuery } from '@tanstack/react-query';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { SettingsHeader, SettingsListItem } from '../../components';
+import { SettingsEmptyState, SettingsHeader, SettingsListItem } from '../../components';
 import { Button, Input, Modal, Dropdown } from '~/components/shared';
 import {
  getIconClass,
@@ -153,12 +153,12 @@ const FormsManagement = () => {
             <SettingsHeader
                 title="서식 관리"
                 description="자주 사용하는 서식을 미리 만들어두면, 글을 더 빠르게 작성할 수 있어요."
+                actionPosition="right"
                 action={
                     <Button
                         variant="primary"
                         size="md"
-                        fullWidth
-                        leftIcon={<i className="fas fa-plus" />}
+                        className="w-full sm:w-auto"
                         onClick={handleCreateForm}>
                         새 서식 추가
                     </Button>
@@ -194,16 +194,11 @@ const FormsManagement = () => {
                     ))}
                 </div>
             ) : (
-                <div className="py-16 text-center border border-dashed border-gray-200 rounded-2xl">
-                    <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gray-50 mb-4">
-                        <i className="fas fa-file-lines text-2xl text-gray-300" />
-                    </div>
-                    <h3 className="text-lg font-semibold text-gray-900 mb-1">등록된 서식이 없습니다</h3>
-                    <p className="text-gray-500 text-sm mb-6">자주 사용하는 서식을 추가해보세요.</p>
-                    <Button variant="secondary" size="md" onClick={handleCreateForm}>
-                        서식 추가하기
-                    </Button>
-                </div>
+                <SettingsEmptyState
+                    iconClassName="fas fa-file-lines"
+                    title="등록된 서식이 없습니다"
+                    description="자주 사용하는 서식을 추가해보세요."
+                />
             )}
 
             {/* Modal */}

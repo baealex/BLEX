@@ -61,7 +61,7 @@ const PostCard = ({
                                     {post.countLikes}
                                 </span>
                                 <span className="flex items-center">
-                                    <i className="fas fa-comment text-blue-400 mr-1" />
+                                    <i className="fas fa-comment text-gray-400 mr-1" />
                                     {post.countComments}
                                 </span>
                                 <span className="flex items-center">

@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { toast } from '~/utils/toast';
 import { useMutation, useQueryClient, useSuspenseQuery } from '@tanstack/react-query';
 import { useConfirm } from '~/hooks/useConfirm';
-import { SettingsHeader, SettingsListItem } from '../../components';
+import { SettingsEmptyState, SettingsHeader, SettingsListItem } from '../../components';
 import {
     Button, Checkbox, Dropdown, Input, Modal, TITLE
 } from '~/components/shared';
@@ -138,13 +138,13 @@ const GlobalNoticeSetting = () => {
             <SettingsHeader
                 title={`공지 관리 (${noticesData?.length || 0})`}
                 description="사이트 전체에 표시되는 글로벌 공지를 관리합니다."
+                actionPosition="right"
                 action={
                     <Button
                         onClick={handleCreate}
                         variant="primary"
                         size="md"
-                        className="shadow-sm"
-                        leftIcon={<i className="fas fa-plus" />}>
+                        className="w-full sm:w-auto">
                         새 공지 추가
                     </Button>
                 }
@@ -181,7 +181,7 @@ const GlobalNoticeSetting = () => {
                             <div className="space-y-1">
                                 <div className="flex items-center gap-2 flex-wrap">
                                     <h3 className={`${TITLE} mb-0`}>{notice.title}</h3>
-                                    <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium border ${notice.isActive ? 'bg-green-50 text-green-700 border-green-100' : 'bg-gray-50 text-gray-500 border-gray-100'}`}>
+                                    <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium border ${notice.isActive ? 'bg-gray-900 text-white border-gray-900' : 'bg-gray-50 text-gray-500 border-gray-100'}`}>
                                         {notice.isActive ? '활성' : '비활성'}
                                     </span>
                                 </div>
@@ -191,16 +191,11 @@ const GlobalNoticeSetting = () => {
                     ))}
                 </div>
             ) : (
-                <div className="py-16 text-center border border-dashed border-gray-200 rounded-2xl">
-                    <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gray-50 mb-4">
-                        <i className="fas fa-bullhorn text-2xl text-gray-300" />
-                    </div>
-                    <h3 className="text-lg font-semibold text-gray-900 mb-1">등록된 공지가 없습니다</h3>
-                    <p className="text-gray-500 text-sm mb-6">첫 번째 공지를 만들어보세요.</p>
-                    <Button variant="secondary" size="md" onClick={handleCreate}>
-                        공지 생성하기
-                    </Button>
-                </div>
+                <SettingsEmptyState
+                    iconClassName="fas fa-bullhorn"
+                    title="등록된 공지가 없습니다"
+                    description="첫 번째 공지를 만들어보세요."
+                />
             )}
 
             <Modal

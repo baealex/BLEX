@@ -11,7 +11,7 @@ export const SettingsLayout = () => {
         <>
             <SettingsMobileNavigation currentPath={currentPath} />
             <div className="max-w-7xl w-full mx-auto px-4 sm:px-6">
-                <div className="flex flex-col xl:flex-row gap-8 xl:gap-12">
+                <div className="flex flex-col xl:flex-row xl:items-start gap-8 xl:gap-12">
                     <SettingsDesktopNavigation currentPath={currentPath} />
                     {/* Main Content */}
                     <main className="flex-1 min-w-0 py-6">

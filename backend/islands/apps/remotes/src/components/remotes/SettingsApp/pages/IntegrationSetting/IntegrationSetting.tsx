@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { toast } from '~/utils/toast';
 import { useSuspenseQuery } from '@tanstack/react-query';
 import { SettingsHeader } from '../../components';
-import { Button } from '~/components/shared';
+import { Button, Card } from '~/components/shared';
 import { useConfirm } from '~/hooks/useConfirm';
 import { getTelegramStatus, generateTelegramToken, disconnectTelegram as disconnectTelegramAPI } from '~/lib/api/telegram';
 
@@ -92,35 +92,35 @@ const IntegrationSettings = () => {
     }, [isConnected, refetch]);
 
     return (
-        <div>
+        <div className="space-y-8">
             <SettingsHeader
                 title="텔레그램 연동"
                 description="텔레그램 봇과 연동하여 실시간 알림을 받아보세요."
+                actionPosition="right"
                 action={
-                    <div className="bg-gray-50 border border-gray-200 rounded-2xl p-5 space-y-3">
-                        <div className="flex items-center text-sm text-gray-700">
-                            <div className="w-6 h-6 bg-black rounded-full flex items-center justify-center mr-3 flex-shrink-0">
-                                <i className="fas fa-check text-white text-xs" />
-                            </div>
-                            실시간으로 댓글, 좋아요 등의 알림을 전달받습니다
-                        </div>
-                    </div>
+                    <Button
+                        variant="secondary"
+                        size="md"
+                        className="w-full sm:w-auto"
+                        onClick={() => refetch()}>
+                        상태 새로고침
+                    </Button>
                 }
             />
 
-            {/* Connection Status */}
             {isConnected ? (
-                <div className="bg-gray-50 border border-gray-200 rounded-2xl p-6">
+                <Card
+                    title="연동 상태"
+                    subtitle="현재 텔레그램 연동 상태입니다."
+                    icon={<i className="fas fa-plug" />}>
                     <div className="flex flex-col sm:flex-row sm:items-center gap-4">
                         <div className="flex items-center gap-4 flex-1">
-                            <div className="flex items-center justify-center w-14 h-14 bg-black rounded-2xl flex-shrink-0 shadow-md">
-                                <i className="fas fa-check text-white text-xl" />
+                            <div className="flex items-center justify-center w-12 h-12 bg-gray-900 rounded-xl flex-shrink-0">
+                                <i className="fas fa-check text-white text-base" />
                             </div>
-                            <div className="flex-1 min-w-0">
-                                <h3 className="text-lg font-bold text-gray-900">연동 완료!</h3>
-                                <p className="text-sm text-gray-600 mt-1">
-                                    텔레그램으로 실시간 알림을 받을 수 있습니다.
-                                </p>
+                            <div>
+                                <h4 className="text-base font-semibold text-gray-900">연동 완료</h4>
+                                <p className="text-sm text-gray-600 mt-1">텔레그램으로 실시간 알림을 받을 수 있습니다.</p>
                             </div>
                         </div>
                         <Button
@@ -133,97 +133,73 @@ const IntegrationSettings = () => {
                             {isDisconnecting ? '해제 중...' : '연동 해제'}
                         </Button>
                     </div>
-                </div>
+                </Card>
             ) : (
-                <div className="space-y-6">
-                    {/* Connection Guide */}
-                    <div className="bg-gray-50 border border-gray-200 rounded-2xl p-6">
-                        <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-4 flex items-center">
-                            <i className="fas fa-link mr-2 text-gray-500" />
-                            연동 방법
-                        </h3>
+                <Card
+                    title="연동 방법"
+                    subtitle="아래 순서대로 진행하면 텔레그램 연동을 완료할 수 있습니다."
+                    icon={<i className="fas fa-link" />}>
+                    <div className="space-y-6">
+                        <div className="flex items-start gap-3">
+                            <span className="inline-flex items-center justify-center w-7 h-7 rounded-full bg-gray-100 text-gray-700 text-sm font-semibold flex-shrink-0">
+                                1
+                            </span>
+                            <p className="text-sm text-gray-700 leading-relaxed">
+                                텔레그램 앱에서{' '}
+                                <a
+                                    href="https://t.me/blex_bot"
+                                    className="inline-flex items-center text-gray-700 hover:text-gray-900 font-medium underline decoration-1 underline-offset-2"
+                                    target="_blank"
+                                    rel="noopener noreferrer">
+                                    @blex_bot
+                                    <i className="fas fa-external-link-alt ml-1 text-xs" />
+                                </a>
+                                을 찾아 대화를 시작하세요.
+                            </p>
+                        </div>
 
-                        <div className="space-y-4 sm:space-y-6">
-                            {/* Step 1 */}
-                            <div className="flex flex-col sm:flex-row sm:items-start gap-3">
-                                <div className="flex items-center sm:items-start gap-3">
-                                    <span className="inline-flex items-center justify-center w-8 h-8 bg-gray-100 text-gray-800 text-sm font-bold rounded-full flex-shrink-0">
-                                        1
-                                    </span>
-                                    <div className="flex-1">
-                                        <p className="text-gray-700 leading-relaxed">
-                                            텔레그램 앱에서{' '}
-                                            <a
-                                                href="https://t.me/blex_bot"
-                                                className="inline-flex items-center text-gray-600 hover:text-gray-800 font-medium underline decoration-1 underline-offset-2"
-                                                target="_blank"
-                                                rel="noopener noreferrer">
-                                                @blex_bot
-                                                <i className="fas fa-external-link-alt ml-1 text-xs" />
-                                            </a>
-                                            을 찾아 대화를 시작하세요.
-                                        </p>
+                        <div className="flex items-start gap-3">
+                            <span className="inline-flex items-center justify-center w-7 h-7 rounded-full bg-gray-100 text-gray-700 text-sm font-semibold flex-shrink-0">
+                                2
+                            </span>
+                            <div className="flex-1 space-y-3">
+                                <p className="text-sm text-gray-700">봇에게 아래 인증 코드를 전송하세요.</p>
+                                {telegramToken ? (
+                                    <div className="rounded-xl border border-gray-200 bg-gray-50 p-4">
+                                        <div className="flex flex-col sm:flex-row sm:items-center gap-3">
+                                            <code className="font-mono text-sm sm:text-base font-semibold tracking-wide text-gray-900 break-all flex-1">
+                                                {telegramToken}
+                                            </code>
+                                            <Button
+                                                type="button"
+                                                variant="secondary"
+                                                size="sm"
+                                                onClick={() => navigator.clipboard?.writeText(telegramToken)}>
+                                                복사
+                                            </Button>
+                                        </div>
                                     </div>
-                                </div>
-                            </div>
-
-                            {/* Step 2 */}
-                            <div className="flex flex-col sm:flex-row sm:items-start gap-3">
-                                <div className="flex items-start gap-3">
-                                    <span className="inline-flex items-center justify-center w-8 h-8 bg-gray-100 text-gray-800 text-sm font-bold rounded-full flex-shrink-0">
-                                        2
-                                    </span>
-                                    <div className="flex-1 space-y-3">
-                                        <p className="text-gray-700 leading-relaxed">
-                                            봇에게 아래 인증 코드를 전송하세요:
-                                        </p>
-
-                                        {telegramToken ? (
-                                            <div className="bg-gray-900 text-white p-3 sm:p-4 rounded-lg">
-                                                <div className="flex flex-col sm:flex-row sm:items-center gap-3">
-                                                    <code className="font-mono text-base sm:text-lg font-bold tracking-wider flex-1 break-all">
-                                                        {telegramToken}
-                                                    </code>
-                                                    <button
-                                                        type="button"
-                                                        className="inline-flex items-center px-3 py-1.5 text-xs font-medium rounded text-gray-900 bg-white hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-900 focus:ring-white transition-colors flex-shrink-0"
-                                                        onClick={() => navigator.clipboard?.writeText(telegramToken)}
-                                                        title="클립보드에 복사">
-                                                        <i className="fas fa-copy mr-1" />
-                                                        복사
-                                                    </button>
-                                                </div>
-                                            </div>
-                                        ) : (
-                                            <div className="bg-gray-100 border-2 border-dashed border-gray-300 rounded-xl p-4 text-center">
-                                                <Button
-                                                    variant="primary"
-                                                    size="md"
-                                                    isLoading={isGeneratingToken}
-                                                    leftIcon={!isGeneratingToken ? <i className="fas fa-key" /> : undefined}
-                                                    onClick={refreshToken}>
-                                                    {isGeneratingToken ? '생성 중...' : '인증 코드 생성'}
-                                                </Button>
-                                            </div>
-                                        )}
+                                ) : (
+                                    <div className="rounded-xl border border-dashed border-gray-300 bg-gray-50 p-4">
+                                        <Button
+                                            variant="primary"
+                                            size="md"
+                                            isLoading={isGeneratingToken}
+                                            onClick={refreshToken}>
+                                            {isGeneratingToken ? '생성 중...' : '인증 코드 생성'}
+                                        </Button>
                                     </div>
-                                </div>
+                                )}
                             </div>
                         </div>
 
                         {telegramToken && (
-                            <div className="mt-4 sm:mt-6 p-3 sm:p-4 bg-gray-50 border border-gray-200 rounded-lg">
-                                <div className="flex items-start gap-2">
-                                    <i className="fas fa-info-circle text-gray-600 mt-0.5 flex-shrink-0" />
-                                    <div className="text-sm text-gray-800 leading-relaxed">
-                                        <p className="font-medium mb-1">인증 코드 안내</p>
-                                        <p>이 코드는 일회용이며 연동 완료 또는 24시간 후 자동으로 만료됩니다. 연동 후 새로고침 해주세요.</p>
-                                    </div>
-                                </div>
+                            <div className="rounded-xl border border-gray-200 bg-gray-50 p-4 text-sm text-gray-700 leading-relaxed">
+                                이 코드는 일회용이며 연동 완료 또는 24시간 후 자동으로 만료됩니다. 연동 후 상태를 새로고침하세요.
                             </div>
                         )}
                     </div>
-                </div>
+                </Card>
             )}
         </div>
     );

@@ -1,7 +1,7 @@
 
 import { toast } from '~/utils/toast';
 import { useSuspenseQuery } from '@tanstack/react-query';
-import { SettingsHeader, SettingsListItem } from '../../components';
+import { SettingsEmptyState, SettingsHeader, SettingsListItem } from '../../components';
 import { Button, Dropdown } from '~/components/shared';
 import {
     getIconClass,
@@ -54,12 +54,12 @@ const DraftsSetting = () => {
             <SettingsHeader
                 title="임시저장"
                 description={`총 ${draftPosts?.length || 0}개의 임시저장 포스트가 있습니다.`}
+                actionPosition="right"
                 action={
                     <Button
                         variant="primary"
                         size="md"
-                        fullWidth
-                        leftIcon={<i className="fas fa-plus" />}
+                        className="w-full sm:w-auto"
                         onClick={() => window.location.assign('/write')}>
                         새 포스트 작성
                     </Button>
@@ -105,19 +105,11 @@ const DraftsSetting = () => {
                     ))}
                 </div>
             ) : (
-                <div className="py-16 text-center border border-dashed border-gray-200 rounded-2xl">
-                    <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gray-50 mb-4">
-                        <i className="fas fa-file-alt text-2xl text-gray-300" />
-                    </div>
-                    <h3 className="text-lg font-semibold text-gray-900 mb-1">임시저장 글이 없습니다</h3>
-                    <p className="text-gray-500 text-sm mb-6">새 포스트를 작성해보세요.</p>
-                    <Button
-                        variant="secondary"
-                        size="md"
-                        onClick={() => window.location.assign('/write')}>
-                        새 포스트 작성
-                    </Button>
-                </div>
+                <SettingsEmptyState
+                    iconClassName="fas fa-file-alt"
+                    title="임시저장 글이 없습니다"
+                    description="새 포스트를 작성해보세요."
+                />
             )}
         </div>
     );

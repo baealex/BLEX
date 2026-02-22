@@ -20,7 +20,7 @@ import { CSS } from '@dnd-kit/utilities';
 import { restrictToVerticalAxis, restrictToFirstScrollableAncestor } from '@dnd-kit/modifiers';
 import { toast } from '~/utils/toast';
 import { useSuspenseQuery } from '@tanstack/react-query';
-import { SettingsHeader } from '../../components';
+import { SettingsEmptyState, SettingsHeader } from '../../components';
 import { Button, Input, Dropdown } from '~/components/shared';
 import { baseInputStyles } from '~/components/shared';
 import { getSocialLinks, updateSocialLinks, type SocialLink as ApiSocialLink } from '~/lib/api/settings';
@@ -348,16 +348,16 @@ const SocialLinks = () => {
             <form onSubmit={handleSubmit}>
                 <div className="mb-6">
                     {socials.length === 0 ? (
-                        <div className="py-16 text-center border border-dashed border-gray-200 rounded-2xl">
-                            <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gray-50 mb-4">
-                                <i className="fas fa-share-alt text-2xl text-gray-300" />
-                            </div>
-                            <h3 className="text-lg font-semibold text-gray-900 mb-1">소셜 링크가 없습니다</h3>
-                            <p className="text-gray-500 text-sm mb-6">첫 번째 소셜 링크를 추가해보세요.</p>
-                            <Button type="button" variant="secondary" size="md" onClick={handleSocialAdd}>
-                                소셜 링크 추가하기
-                            </Button>
-                        </div>
+                        <SettingsEmptyState
+                            iconClassName="fas fa-share-alt"
+                            title="소셜 링크가 없습니다"
+                            description="첫 번째 소셜 링크를 추가해보세요."
+                            action={(
+                                <Button type="button" variant="secondary" size="md" onClick={handleSocialAdd}>
+                                    소셜 링크 추가하기
+                                </Button>
+                            )}
+                        />
                     ) : (
                         <DndContext
                             sensors={sensors}

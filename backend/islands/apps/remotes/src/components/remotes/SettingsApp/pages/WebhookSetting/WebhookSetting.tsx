@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { toast } from '~/utils/toast';
 import { useSuspenseQuery } from '@tanstack/react-query';
-import { SettingsHeader, SettingsListItem } from '../../components';
+import { SettingsEmptyState, SettingsHeader, SettingsListItem } from '../../components';
 import { Button, Dropdown, Input } from '~/components/shared';
 import {
     getIconClass,
@@ -267,16 +267,16 @@ const WebhookSetting = () => {
                     ))}
                 </div>
             ) : (
-                <div className="py-16 text-center border border-dashed border-gray-200 rounded-2xl">
-                    <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gray-50 mb-4">
-                        <i className="fas fa-bolt text-2xl text-gray-300" />
-                    </div>
-                    <h3 className="text-lg font-semibold text-gray-900 mb-1">등록된 웹훅 채널이 없습니다</h3>
-                    <p className="text-gray-500 text-sm mb-6">새 채널을 추가해서 글 발행 알림을 받아보세요.</p>
-                    <Button variant="secondary" size="md" onClick={() => setShowAddForm(true)}>
-                        채널 추가하기
-                    </Button>
-                </div>
+                <SettingsEmptyState
+                    iconClassName="fas fa-bolt"
+                    title="등록된 웹훅 채널이 없습니다"
+                    description="새 채널을 추가해서 글 발행 알림을 받아보세요."
+                    action={(
+                        <Button variant="secondary" size="md" onClick={() => setShowAddForm(true)}>
+                            채널 추가하기
+                        </Button>
+                    )}
+                />
             )}
         </div>
     );
