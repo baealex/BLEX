@@ -17,7 +17,7 @@ def CamelizeJsonResponse(obj, json_dumps_params={
 def StatusDone(body=None):
     return CamelizeJsonResponse({
         'status': 'DONE',
-        'body': body if body else {},
+        'body': body if body is not None else {},
     })
 
 

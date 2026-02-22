@@ -1,6 +1,9 @@
 import { useState } from 'react';
 import type { AxiosResponse } from 'axios';
 import { useSuspenseQuery } from '@tanstack/react-query';
+import { useForm } from 'react-hook-form';
+import { z } from 'zod';
+import { zodResolver } from '@hookform/resolvers/zod';
 import { toast } from '~/utils/toast';
 import { useConfirm } from '~/hooks/useConfirm';
 import { Button, Dropdown, Input } from '~/components/shared';
@@ -38,6 +41,13 @@ interface WebhookChannelManagerProps {
     deleteFailMessage: string;
 }
 
+const webhookSchema = z.object({
+    webhookUrl: z.string().trim().min(1, '웹훅 URL을 입력해주세요.').url('올바른 URL 형식으로 입력해주세요.'),
+    webhookName: z.string().trim().max(100, '채널 이름은 100자 이내여야 합니다.')
+});
+
+type WebhookFormInputs = z.infer<typeof webhookSchema>;
+
 const WebhookChannelManager = ({
     queryKey,
     title,
@@ -60,9 +70,21 @@ const WebhookChannelManager = ({
     const { confirm } = useConfirm();
     const [isAdding, setIsAdding] = useState(false);
     const [isTesting, setIsTesting] = useState(false);
-    const [newWebhookUrl, setNewWebhookUrl] = useState('');
-    const [newWebhookName, setNewWebhookName] = useState('');
     const [showAddForm, setShowAddForm] = useState(false);
+    const {
+        register,
+        handleSubmit,
+        trigger,
+        getValues,
+        reset,
+        formState: { errors }
+    } = useForm<WebhookFormInputs>({
+        resolver: zodResolver(webhookSchema),
+        defaultValues: {
+            webhookUrl: '',
+            webhookName: ''
+        }
+    });
 
     const { data: channels, refetch } = useSuspenseQuery({
         queryKey,
@@ -76,14 +98,16 @@ const WebhookChannelManager = ({
     });
 
     const handleTest = async () => {
-        if (!newWebhookUrl.trim()) {
-            toast.error('웹훅 URL을 입력해주세요.');
+        const isValid = await trigger('webhookUrl');
+        if (!isValid) {
             return;
         }
 
+        const webhookUrl = getValues('webhookUrl');
+
         setIsTesting(true);
         try {
-            const { data } = await testChannel(newWebhookUrl);
+            const { data } = await testChannel(webhookUrl);
             if (data.status === 'DONE' && data.body?.success) {
                 toast.success('테스트 메시지가 전송되었습니다.');
             } else {
@@ -96,23 +120,17 @@ const WebhookChannelManager = ({
         }
     };
 
-    const handleAdd = async () => {
-        if (!newWebhookUrl.trim()) {
-            toast.error('웹훅 URL을 입력해주세요.');
-            return;
-        }
-
+    const onSubmit = async ({ webhookUrl, webhookName }: WebhookFormInputs) => {
         setIsAdding(true);
         try {
             const { data } = await createChannel({
-                webhook_url: newWebhookUrl,
-                name: newWebhookName || undefined
+                webhook_url: webhookUrl,
+                name: webhookName || undefined
             });
 
             if (data.status === 'DONE') {
                 toast.success(addSuccessMessage);
-                setNewWebhookUrl('');
-                setNewWebhookName('');
+                reset();
                 setShowAddForm(false);
                 refetch();
             } else {
@@ -123,6 +141,11 @@ const WebhookChannelManager = ({
         } finally {
             setIsAdding(false);
         }
+    };
+
+    const handleCancel = () => {
+        setShowAddForm(false);
+        reset();
     };
 
     const handleDelete = async (channelId: number) => {
@@ -182,14 +205,19 @@ const WebhookChannelManager = ({
                         variant="primary"
                         size="md"
                         className="w-full sm:w-auto"
-                        onClick={() => setShowAddForm(true)}>
+                        onClick={() => {
+                            reset();
+                            setShowAddForm(true);
+                        }}>
                         {addButtonLabel}
                     </Button>
                 }
             />
 
             {showAddForm && (
-                <div className="mb-6 bg-gray-50 border border-gray-200 rounded-2xl p-6">
+                <form
+                    className="mb-6 bg-gray-50 border border-gray-200 rounded-2xl p-6 animate-in fade-in-0 slide-in-from-top-2 motion-interaction"
+                    onSubmit={handleSubmit(onSubmit)}>
                     <h3 className="text-base font-semibold text-gray-900 mb-4">{formTitle}</h3>
                     <div className="space-y-4">
                         <div>
@@ -200,8 +228,8 @@ const WebhookChannelManager = ({
                                 id="webhookUrl"
                                 type="url"
                                 placeholder="https://discord.com/api/webhooks/..."
-                                value={newWebhookUrl}
-                                onChange={(e) => setNewWebhookUrl(e.target.value)}
+                                error={errors.webhookUrl?.message}
+                                {...register('webhookUrl')}
                             />
                         </div>
                         <div>
@@ -212,38 +240,41 @@ const WebhookChannelManager = ({
                                 id="webhookName"
                                 type="text"
                                 placeholder="예: 운영 디스코드"
-                                value={newWebhookName}
-                                onChange={(e) => setNewWebhookName(e.target.value)}
+                                {...register('webhookName')}
                             />
                         </div>
-                        <div className="flex flex-wrap gap-3">
-                            <Button
-                                variant="secondary"
-                                size="md"
-                                isLoading={isTesting}
-                                onClick={handleTest}>
-                                {isTesting ? '전송 중...' : '테스트'}
-                            </Button>
-                            <Button
-                                variant="primary"
-                                size="md"
-                                isLoading={isAdding}
-                                onClick={handleAdd}>
-                                {isAdding ? '추가 중...' : '추가'}
-                            </Button>
+                        <div className="flex items-center justify-between gap-3">
                             <Button
                                 variant="ghost"
                                 size="md"
-                                onClick={() => {
-                                    setShowAddForm(false);
-                                    setNewWebhookUrl('');
-                                    setNewWebhookName('');
-                                }}>
+                                type="button"
+                                onClick={handleCancel}
+                                disabled={isAdding || isTesting}>
                                 취소
                             </Button>
+
+                            <div className="flex flex-wrap items-center gap-3">
+                                <Button
+                                    variant="secondary"
+                                    size="md"
+                                    type="button"
+                                    isLoading={isTesting}
+                                    disabled={isAdding}
+                                    onClick={handleTest}>
+                                    {isTesting ? '전송 중...' : '테스트'}
+                                </Button>
+                                <Button
+                                    variant="primary"
+                                    size="md"
+                                    type="submit"
+                                    isLoading={isAdding}
+                                    disabled={isTesting}>
+                                    {isAdding ? '추가 중...' : '추가'}
+                                </Button>
+                            </div>
                         </div>
                     </div>
-                </div>
+                </form>
             )}
 
             {channels && channels.length > 0 ? (

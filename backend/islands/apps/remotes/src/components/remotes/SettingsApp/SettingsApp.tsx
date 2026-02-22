@@ -6,9 +6,9 @@ import {
     Outlet,
     Navigate
 } from '@tanstack/react-router';
-import { lazy } from 'react';
+import { lazy, Suspense } from 'react';
 import { SettingsLayout } from './components/SettingsLayout';
-import { StaticPageEditor } from './pages/StaticPagesSetting/components/StaticPageEditor';
+import { LoadingState } from '../../shared';
 
 // Lazy load settings pages
 const NotifySetting = lazy(() => import('./pages/NotifySetting'));
@@ -31,6 +31,10 @@ const SiteSettingSetting = lazy(() => import('./pages/SiteSettingSetting'));
 const StaticPagesSetting = lazy(() => import('./pages/StaticPagesSetting'));
 const UtilitySetting = lazy(() => import('./pages/UtilitySetting'));
 
+// Lazy load fullscreen editors
+const SeriesEditor = lazy(() => import('./pages/SeriesSetting/components/SeriesEditor'));
+const StaticPageEditor = lazy(() => import('./pages/StaticPagesSetting/components/StaticPageEditor'));
+
 export interface SettingsAppProps {
     isEditor: boolean;
     isStaff: boolean;
@@ -38,7 +42,13 @@ export interface SettingsAppProps {
 }
 
 // Root route
-const rootRoute = createRootRoute({ component: () => <Outlet /> });
+const rootRoute = createRootRoute({
+    component: () => (
+        <Suspense fallback={<LoadingState type="form" />}>
+            <Outlet />
+        </Suspense>
+    )
+});
 
 // Settings layout route
 const settingsRoute = createRoute({
@@ -187,8 +197,27 @@ const staticPageEditRoute = createRoute({
     }
 });
 
+const seriesCreateRoute = createRoute({
+    getParentRoute: () => rootRoute,
+    path: '/series/create',
+    component: SeriesEditor
+});
+
+const seriesEditRoute = createRoute({
+    getParentRoute: () => rootRoute,
+    path: '/series/edit/$seriesId',
+    component: () => {
+        const { seriesId } = seriesEditRoute.useParams();
+        return (
+            <SeriesEditor seriesId={Number(seriesId)} />
+        );
+    }
+});
+
 // Route tree
 const routeTree = rootRoute.addChildren([
+    seriesCreateRoute,
+    seriesEditRoute,
     staticPageCreateRoute,
     staticPageEditRoute,
     settingsRoute.addChildren([

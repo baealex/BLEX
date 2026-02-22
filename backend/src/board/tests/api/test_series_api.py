@@ -147,6 +147,30 @@ class SeriesAPITestCase(TestCase):
         content = json.loads(response.content)
         self.assertNotEqual(content['status'], 'DONE')
 
+    def test_create_series_with_post_ids_via_series_endpoint(self):
+        """시리즈 생성 API에서 post_ids를 받아 글을 연결한다"""
+        self.client.login(username='author', password='author')
+        post7 = Post.objects.get(url='test-post-7')
+        post8 = Post.objects.get(url='test-post-8')
+
+        data = {
+            'name': 'Series API with posts',
+            'description': 'Series API description',
+            'post_ids': [post7.id, post8.id]
+        }
+        response = self.client.post(
+            '/v1/series',
+            data=json.dumps(data),
+            content_type='application/json'
+        )
+        self.assertEqual(response.status_code, 200)
+        content = json.loads(response.content)
+        self.assertEqual(content['status'], 'DONE')
+        self.assertEqual(content['body']['postCount'], 2)
+
+        created_series = Series.objects.get(id=content['body']['id'])
+        self.assertEqual(created_series.posts.count(), 2)
+
     # PUT /v1/series/<id> - Update series
     def test_update_series(self):
         """시리즈 수정 테스트"""
@@ -177,6 +201,30 @@ class SeriesAPITestCase(TestCase):
         )
         content = json.loads(response.content)
         self.assertNotEqual(content['status'], 'DONE')
+
+    def test_update_series_with_post_ids(self):
+        """시리즈 상세 수정 API에서 post_ids로 글 연결을 교체한다"""
+        self.client.login(username='author', password='author')
+        series = Series.objects.get(url='test-series')
+        post3 = Post.objects.get(url='test-post-3')
+        post4 = Post.objects.get(url='test-post-4')
+
+        response = self.client.put(
+            f'/v1/series/{series.id}',
+            data=json.dumps({
+                'name': 'Updated Series Name',
+                'description': 'Updated Description',
+                'post_ids': [post3.id, post4.id]
+            }),
+            content_type='application/json'
+        )
+        self.assertEqual(response.status_code, 200)
+        content = json.loads(response.content)
+        self.assertEqual(content['status'], 'DONE')
+
+        series.refresh_from_db()
+        current_post_ids = set(series.posts.values_list('id', flat=True))
+        self.assertEqual(current_post_ids, {post3.id, post4.id})
 
     # DELETE /v1/series/<id> - Delete series
     def test_delete_series(self):
@@ -211,6 +259,39 @@ class SeriesAPITestCase(TestCase):
         self.assertIn('body', content)
         self.assertIsInstance(content['body'], list)
 
+    def test_get_valid_posts_for_series_with_series_id(self):
+        """series_id 지정 시 해당 시리즈 포스트와 미배정 포스트를 함께 반환한다"""
+        self.client.login(username='author', password='author')
+        series = Series.objects.get(url='test-series')
+        response = self.client.get(f'/v1/series/valid-posts?series_id={series.id}')
+        self.assertEqual(response.status_code, 200)
+        content = json.loads(response.content)
+        self.assertEqual(content['status'], 'DONE')
+
+        post_ids = {post['id'] for post in content['body']}
+        assigned_post = Post.objects.get(url='test-post-1')
+        unassigned_post = Post.objects.get(url='test-post-0')
+        self.assertIn(assigned_post.id, post_ids)
+        self.assertIn(unassigned_post.id, post_ids)
+
+    def test_get_valid_posts_with_invalid_series_id(self):
+        """유효하지 않은 series_id는 INVALID_PARAMETER 에러를 반환한다"""
+        self.client.login(username='author', password='author')
+        response = self.client.get('/v1/series/valid-posts?series_id=not-a-number')
+        self.assertEqual(response.status_code, 200)
+        content = json.loads(response.content)
+        self.assertEqual(content['status'], 'ERROR')
+        self.assertEqual(content['errorCode'], 'error:IP')
+
+    def test_get_valid_posts_with_unknown_series_id(self):
+        """존재하지 않는 series_id는 NOT_FOUND 에러를 반환한다"""
+        self.client.login(username='author', password='author')
+        response = self.client.get('/v1/series/valid-posts?series_id=999999')
+        self.assertEqual(response.status_code, 200)
+        content = json.loads(response.content)
+        self.assertEqual(content['status'], 'ERROR')
+        self.assertEqual(content['errorCode'], 'error:NF')
+
     def test_get_valid_posts_requires_login(self):
         """시리즈 추가 가능 포스트 조회는 로그인이 필요함"""
         response = self.client.get('/v1/series/valid-posts')
@@ -218,6 +299,29 @@ class SeriesAPITestCase(TestCase):
         content = json.loads(response.content)
         self.assertEqual(content['status'], 'ERROR')
         self.assertEqual(content['errorCode'], 'error:NL')
+
+    def test_get_series_detail_by_id(self):
+        """시리즈 상세 API에서 메타데이터와 post_ids를 조회한다"""
+        self.client.login(username='author', password='author')
+        series = Series.objects.get(url='test-series')
+        response = self.client.get(f'/v1/series/{series.id}')
+        self.assertEqual(response.status_code, 200)
+        content = json.loads(response.content)
+        self.assertEqual(content['status'], 'DONE')
+        self.assertEqual(content['body']['name'], 'Test Series')
+        self.assertIn('postIds', content['body'])
+        self.assertIn('postCount', content['body'])
+        self.assertGreaterEqual(len(content['body']['postIds']), 2)
+
+    def test_get_series_detail_by_id_requires_ownership(self):
+        """타인의 시리즈는 상세 API로 조회할 수 없다"""
+        self.client.login(username='viewer', password='viewer')
+        series = Series.objects.get(url='test-series')
+        response = self.client.get(f'/v1/series/{series.id}')
+        self.assertEqual(response.status_code, 200)
+        content = json.loads(response.content)
+        self.assertEqual(content['status'], 'ERROR')
+        self.assertEqual(content['errorCode'], 'error:NF')
 
     # PUT /v1/series/order - Update series order
     def test_update_series_order(self):
@@ -381,7 +485,6 @@ class SeriesAPITestCase(TestCase):
         
         series_urls = [s['url'] for s in content['body']['series']]
         self.assertNotIn('hidden-series', series_urls)
-
 
 
 

@@ -1,5 +1,5 @@
 import json
-from django.db.models import F, Count, Case, When
+from django.db.models import F, Count, Case, When, Q
 from django.http import Http404, QueryDict
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
@@ -17,10 +17,35 @@ def posts_can_add_series(request):
         if not request.user.is_authenticated:
             return StatusError(ErrorCode.NEED_LOGIN)
 
-        posts = SeriesService.get_posts_available_for_series(request.user)
+        series_id = request.GET.get('series_id')
+        if series_id is not None:
+            try:
+                parsed_series_id = int(series_id)
+            except (TypeError, ValueError):
+                return StatusError(ErrorCode.INVALID_PARAMETER, '유효한 시리즈 ID가 필요합니다.')
+
+            try:
+                series = Series.objects.get(id=parsed_series_id, owner=request.user)
+            except Series.DoesNotExist:
+                return StatusError(ErrorCode.NOT_FOUND, '시리즈를 찾을 수 없습니다.')
+
+            posts = Post.objects.filter(
+                author=request.user
+            ).filter(
+                Q(series=series) | Q(
+                    series__isnull=True,
+                    config__hide=False,
+                    published_date__isnull=False,
+                    published_date__lte=timezone.now()
+                )
+            ).order_by('-published_date', '-id')
+        else:
+            posts = SeriesService.get_posts_available_for_series(request.user)
+
         return StatusDone(list(map(lambda post: {
             'id': post.id,
             'title': post.title,
+            'publishedDate': convert_to_localtime(post.published_date).strftime('%Y-%m-%d') if post.published_date else None,
         }, posts)))
 
     raise Http404
@@ -270,11 +295,22 @@ def series_create_update(request):
             return StatusError(ErrorCode.INVALID_PARAMETER, '잘못된 요청 데이터입니다.')
 
         try:
+            post_ids = None
+            if 'post_ids' in body:
+                raw_post_ids = body.get('post_ids')
+                if isinstance(raw_post_ids, str):
+                    post_ids = [int(pid) for pid in raw_post_ids.split(',') if pid]
+                elif isinstance(raw_post_ids, list):
+                    post_ids = [int(pid) for pid in raw_post_ids if pid]
+                else:
+                    post_ids = []
+
             series = SeriesService.create_series(
                 user=request.user,
                 name=body.get('name', ''),
                 url=body.get('url', ''),
-                description=body.get('description', '')
+                description=body.get('description', ''),
+                post_ids=post_ids
             )
 
             return StatusDone({
@@ -283,7 +319,7 @@ def series_create_update(request):
                 'url': series.url,
                 'description': series.text_md,
                 'thumbnail': body.get('thumbnail', ''),
-                'postCount': 0
+                'postCount': series.posts.count()
             })
         except SeriesValidationError as e:
             return StatusError(e.code, e.message)
@@ -293,7 +329,7 @@ def series_create_update(request):
 
 def series_detail(request, series_id):
     """
-    Update (PUT) or delete (DELETE) a specific series by ID.
+    Get (GET), update (PUT), or delete (DELETE) a specific series by ID.
     """
     try:
         SeriesService.validate_user_permissions(request.user)
@@ -305,6 +341,23 @@ def series_detail(request, series_id):
     except Series.DoesNotExist:
         return StatusError(ErrorCode.NOT_FOUND, '시리즈를 찾을 수 없습니다.')
 
+    if request.method == 'GET':
+        post_ids = list(
+            Post.objects.filter(
+                author=request.user,
+                series=series
+            ).values_list('id', flat=True)
+        )
+
+        return StatusDone({
+            'id': series.id,
+            'name': series.name,
+            'url': series.url,
+            'description': series.text_md,
+            'post_ids': post_ids,
+            'post_count': len(post_ids)
+        })
+
     if request.method == 'PUT':
         try:
             body = json.loads(request.body)
@@ -312,11 +365,22 @@ def series_detail(request, series_id):
             return StatusError(ErrorCode.INVALID_PARAMETER, '잘못된 요청 데이터입니다.')
 
         try:
+            post_ids = None
+            if 'post_ids' in body:
+                raw_post_ids = body.get('post_ids')
+                if isinstance(raw_post_ids, str):
+                    post_ids = [int(pid) for pid in raw_post_ids.split(',') if pid]
+                elif isinstance(raw_post_ids, list):
+                    post_ids = [int(pid) for pid in raw_post_ids if pid]
+                else:
+                    post_ids = []
+
             SeriesService.update_series(
                 series=series,
                 name=body.get('name'),
                 url=body.get('url'),
-                description=body.get('description')
+                description=body.get('description'),
+                post_ids=post_ids
             )
 
             return StatusDone({
