@@ -20,9 +20,6 @@ import {
     Send,
     X,
     Search,
-    Eye,
-    EyeOff,
-    FileText,
     Settings2
 } from '@blex/ui';
 import { cx } from '~/lib/classnames';
@@ -78,6 +75,7 @@ const StaticPageEditor = ({ pageId }: StaticPageEditorProps) => {
     const [isPublished, setIsPublished] = useState(page?.isPublished ?? true);
     const [showInFooter, setShowInFooter] = useState(page?.showInFooter ?? false);
     const [order, setOrder] = useState(page?.order ?? 0);
+    const pageUrlPath = `/static/${slug || 'slug'}`;
 
     const markDirty = () => {
         isDirtyRef.current = true;
@@ -113,6 +111,16 @@ const StaticPageEditor = ({ pageId }: StaticPageEditorProps) => {
 
     const handleContentChange = (value: string) => {
         setContent(value);
+        markDirty();
+    };
+
+    const handlePublishedChange = (checked: boolean) => {
+        setIsPublished(checked);
+        markDirty();
+    };
+
+    const handleShowInFooterChange = (checked: boolean) => {
+        setShowInFooter(checked);
         markDirty();
     };
 
@@ -242,11 +250,11 @@ const StaticPageEditor = ({ pageId }: StaticPageEditorProps) => {
                     </Link>
                     {isEditMode && slug ? (
                         <a
-                            href={`/static/${slug}`}
+                            href={pageUrlPath}
                             target="_blank"
                             rel="noopener noreferrer"
                             className="flex items-center gap-1.5 text-sm text-gray-500 hover:text-gray-900 transition-colors">
-                            <span>/static/{slug}</span>
+                            <span>{pageUrlPath}</span>
                             <i className="fas fa-external-link-alt text-xs" />
                         </a>
                     ) : (
@@ -255,15 +263,75 @@ const StaticPageEditor = ({ pageId }: StaticPageEditorProps) => {
                 </div>
             </div>
 
-            {/* Title */}
-            <div className="max-w-7xl mx-auto px-4 md:px-6 pt-8 pb-4">
-                <input
-                    type="text"
-                    value={title}
-                    onChange={(e) => handleTitleChange(e.target.value)}
-                    placeholder="페이지 제목"
-                    className="w-full text-3xl font-bold text-gray-900 placeholder-gray-300 border-none outline-none bg-transparent"
-                />
+            {!isEditMode && (
+                <div className="max-w-7xl mx-auto px-4 md:px-6 pt-8 pb-4">
+                    <div className="rounded-2xl border border-amber-300 bg-amber-50 px-4 py-3">
+                        <p className="text-sm font-extrabold text-amber-900 sm:text-base">
+                            페이지 이름과 URL을 정한 뒤, 아래 에디터에서 본문을 바로 작성하세요.
+                        </p>
+                        <p className="mt-1 text-xs font-medium text-amber-700">
+                            이 화면은 정적 페이지를 빠르게 만드는 용도입니다.
+                        </p>
+                    </div>
+                </div>
+            )}
+
+            <div className={`max-w-7xl mx-auto px-4 md:px-6 pb-6 ${isEditMode ? 'pt-8' : ''}`}>
+                <div className="rounded-2xl border border-gray-200 bg-white p-4 md:p-5">
+                    <div className="grid gap-4 md:grid-cols-2">
+                        <div className="space-y-2">
+                            <Input
+                                label="페이지 이름"
+                                value={title}
+                                onChange={(e) => handleTitleChange(e.target.value)}
+                                placeholder="예: 이용약관, 개인정보처리방침"
+                            />
+                            <p className="text-xs text-gray-400">
+                                브라우저 탭 제목과 푸터 링크에 사용됩니다. 본문 제목은 에디터에서 작성하세요.
+                            </p>
+                        </div>
+
+                        <div>
+                            <Input
+                                label="URL 슬러그"
+                                value={slug}
+                                onChange={(e) => handleSlugChange(e.target.value)}
+                                placeholder="page-url-slug"
+                            />
+                            <p className="mt-2 text-xs text-gray-400">{pageUrlPath}</p>
+                        </div>
+                    </div>
+
+                    <div className="mt-4 grid gap-4 md:grid-cols-2">
+                        <div className="rounded-xl border border-gray-200 bg-gray-50 p-3">
+                            <div className="flex items-center justify-between gap-3">
+                                <div>
+                                    <p className="text-sm font-semibold text-gray-900">공개</p>
+                                    <p className="text-xs text-gray-500">페이지를 공개합니다</p>
+                                </div>
+                                <Toggle
+                                    checked={isPublished}
+                                    onCheckedChange={handlePublishedChange}
+                                    aria-label="공개"
+                                />
+                            </div>
+                        </div>
+
+                        <div className="rounded-xl border border-gray-200 bg-gray-50 p-3">
+                            <div className="flex items-center justify-between gap-3">
+                                <div>
+                                    <p className="text-sm font-semibold text-gray-900">푸터에 표시</p>
+                                    <p className="text-xs text-gray-500">사이트 하단 메뉴에 노출</p>
+                                </div>
+                                <Toggle
+                                    checked={showInFooter}
+                                    onCheckedChange={handleShowInFooterChange}
+                                    aria-label="푸터에 표시"
+                                />
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
 
             {/* Editor*/}
@@ -302,20 +370,6 @@ const StaticPageEditor = ({ pageId }: StaticPageEditorProps) => {
                 </IconButton>
 
                 <div className="w-px h-8 bg-gray-200/60 mx-1" />
-
-                <div className="hidden sm:flex items-center gap-1.5 px-1 text-xs text-gray-400">
-                    {isPublished ? (
-                        <>
-                            <div className="w-1.5 h-1.5 rounded-full bg-gray-700" />
-                            <span>공개</span>
-                        </>
-                    ) : (
-                        <>
-                            <div className="w-1.5 h-1.5 rounded-full bg-gray-400" />
-                            <span>비공개</span>
-                        </>
-                    )}
-                </div>
 
                 <Button
                     onClick={handleSubmit}
@@ -359,18 +413,9 @@ const StaticPageEditor = ({ pageId }: StaticPageEditorProps) => {
                                 <div>
                                     <h3 className="text-sm font-semibold text-gray-900 mb-4 flex items-center gap-2">
                                         <Search className="w-4 h-4" />
-                                        SEO
+                                        검색 노출
                                     </h3>
                                     <div className="space-y-4">
-                                        <div>
-                                            <Input
-                                                label="URL 슬러그"
-                                                value={slug}
-                                                onChange={(e) => handleSlugChange(e.target.value)}
-                                                placeholder="page-url-slug"
-                                            />
-                                            <p className="text-xs text-gray-400 mt-2">/static/{slug || 'slug'}</p>
-                                        </div>
                                         <div>
                                             <Input
                                                 label="메타 설명"
@@ -399,48 +444,10 @@ const StaticPageEditor = ({ pageId }: StaticPageEditorProps) => {
                                 {/* Page Settings */}
                                 <div>
                                     <h3 className="text-sm font-semibold text-gray-900 mb-4 flex items-center gap-2">
-                                        <FileText className="w-4 h-4" />
-                                        페이지 설정
+                                        <Settings2 className="w-4 h-4" />
+                                        고급 설정
                                     </h3>
                                     <div className="space-y-1">
-                                        <div className="flex items-center justify-between py-3">
-                                            <div className="flex items-center gap-3">
-                                                {isPublished
-                                                    ? <Eye className="w-4 h-4 text-gray-400" />
-                                                    : <EyeOff className="w-4 h-4 text-gray-400" />}
-                                                <div>
-                                                    <div className="text-sm font-medium text-gray-900">공개</div>
-                                                    <div className="text-xs text-gray-500">페이지를 공개합니다</div>
-                                                </div>
-                                            </div>
-                                            <Toggle
-                                                checked={isPublished}
-                                                onCheckedChange={(checked) => {
-                                                    setIsPublished(checked);
-                                                    markDirty();
-                                                }}
-                                                aria-label="공개"
-                                            />
-                                        </div>
-
-                                        <div className="flex items-center justify-between py-3">
-                                            <div className="flex items-center gap-3">
-                                                <FileText className="w-4 h-4 text-gray-400" />
-                                                <div>
-                                                    <div className="text-sm font-medium text-gray-900">푸터에 표시</div>
-                                                    <div className="text-xs text-gray-500">사이트 하단에 링크를 표시합니다</div>
-                                                </div>
-                                            </div>
-                                            <Toggle
-                                                checked={showInFooter}
-                                                onCheckedChange={(checked) => {
-                                                    setShowInFooter(checked);
-                                                    markDirty();
-                                                }}
-                                                aria-label="푸터에 표시"
-                                            />
-                                        </div>
-
                                         <div className="flex items-center justify-between py-3">
                                             <div className="flex items-center gap-3">
                                                 <Settings2 className="w-4 h-4 text-gray-400" />

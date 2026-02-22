@@ -1,49 +1,41 @@
-import { Link } from '@tanstack/react-router';
 import {
     TITLE,
     SUBTITLE,
-    Button
+    Dropdown
 } from '~/components/shared';
 import { SettingsListItem } from '../../../components';
 import type { StaticPageData } from '~/lib/api/settings';
 
 interface StaticPageListProps {
     pages: StaticPageData[];
+    onView: (page: StaticPageData) => void;
+    onEdit: (id: number) => void;
     onDelete: (id: number) => void;
 }
 
-export const StaticPageList = ({ pages, onDelete }: StaticPageListProps) => {
+export const StaticPageList = ({ pages, onView, onEdit, onDelete }: StaticPageListProps) => {
     return (
         <div className="space-y-3">
             {pages.map((page) => (
                 <SettingsListItem
                     key={page.id}
+                    onClick={() => onView(page)}
                     actions={
-                        <div className="flex items-center gap-1">
-                            <a
-                                href={`/static/${page.slug}`}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                onClick={(e) => e.stopPropagation()}>
-                                <Button variant="ghost" size="sm">
-                                    <i className="fas fa-external-link-alt text-xs" />
-                                    <span className="hidden sm:inline">보기</span>
-                                </Button>
-                            </a>
-                            <Link to={`/static-pages/edit/${page.id}`}>
-                                <Button variant="ghost" size="sm">
-                                    <i className="fas fa-pen text-xs" />
-                                    <span className="hidden sm:inline">편집</span>
-                                </Button>
-                            </Link>
-                            <Button
-                                variant="ghost"
-                                size="sm"
-                                className="text-red-500 hover:text-red-700 hover:bg-red-50"
-                                onClick={() => onDelete(page.id)}>
-                                <i className="fas fa-trash text-xs" />
-                            </Button>
-                        </div>
+                        <Dropdown
+                            items={[
+                                {
+                                    label: '편집',
+                                    icon: 'fas fa-pen',
+                                    onClick: () => onEdit(page.id)
+                                },
+                                {
+                                    label: '삭제',
+                                    icon: 'fas fa-trash',
+                                    onClick: () => onDelete(page.id),
+                                    variant: 'danger'
+                                }
+                            ]}
+                        />
                     }>
                     <div className="space-y-1">
                         <div className="flex items-center gap-2 flex-wrap">
