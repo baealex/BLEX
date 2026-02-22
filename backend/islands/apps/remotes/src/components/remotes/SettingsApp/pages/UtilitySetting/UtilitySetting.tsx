@@ -47,6 +47,7 @@ const UtilitySetting = () => {
     const [imageTarget, setImageTarget] = useState('all');
     const [removeDuplicates, setRemoveDuplicates] = useState(false);
     const [imageResult, setImageResult] = useState<ImageCleanResult | null>(null);
+    const [hasPreviewed, setHasPreviewed] = useState(false);
 
     // Mutations
     const tagMutation = useMutation({
@@ -110,9 +111,12 @@ const UtilitySetting = () => {
         onSuccess: ({ data }) => {
             if (data.status === 'DONE') {
                 setImageResult(data.body);
-                if (!data.body.dryRun) {
+                if (data.body.dryRun) {
+                    setHasPreviewed(true);
+                } else {
                     toast.success(`이미지 정리가 완료되었습니다. (${data.body.totalSavedMb} MB 절약)`);
                     queryClient.invalidateQueries({ queryKey: ['utility-stats'] });
+                    setHasPreviewed(false);
                 }
             }
         },
@@ -351,14 +355,14 @@ const UtilitySetting = () => {
                             <label className="block text-sm font-medium text-gray-700 mb-1.5">대상</label>
                             <Select
                                 value={imageTarget}
-                                onValueChange={setImageTarget}
+                                onValueChange={(v) => { setImageTarget(v); setHasPreviewed(false); }}
                                 items={targetItems}
                             />
                         </div>
                         <div className="flex items-end">
                             <Checkbox
                                 checked={removeDuplicates}
-                                onCheckedChange={setRemoveDuplicates}
+                                onCheckedChange={(v) => { setRemoveDuplicates(v); setHasPreviewed(false); }}
                                 label="중복 파일 제거"
                                 description="동일한 해시의 중복 파일도 함께 정리합니다."
                             />
@@ -413,6 +417,44 @@ const UtilitySetting = () => {
                                         </div>
                                     </details>
                                 )}
+                                {imageResult.dryRun && imageResult.duplicateFiles && imageResult.duplicateFiles.length > 0 && (
+                                    <details className="mt-3">
+                                        <summary className="text-xs font-medium cursor-pointer select-none">
+                                            중복 파일 ({imageResult.duplicateFiles.length}개)
+                                        </summary>
+                                        <div className="mt-3 space-y-2 max-h-80 overflow-y-auto">
+                                            {imageResult.duplicateFiles.map((dup, i) => (
+                                                <div key={i} className="flex items-center gap-3 p-2 rounded-lg bg-gray-50">
+                                                    <div className="flex-shrink-0 w-12 h-12 rounded-lg overflow-hidden bg-gray-100 border border-red-200">
+                                                        <img
+                                                            src={dup.duplicateUrl}
+                                                            alt="삭제 대상"
+                                                            loading="lazy"
+                                                            className="w-full h-full object-cover"
+                                                        />
+                                                    </div>
+                                                    <div className="flex-shrink-0 text-gray-400">
+                                                        <i className="fas fa-arrow-right" />
+                                                    </div>
+                                                    <div className="flex-shrink-0 w-12 h-12 rounded-lg overflow-hidden bg-gray-100 border border-green-200">
+                                                        <img
+                                                            src={dup.originalUrl}
+                                                            alt="원본 유지"
+                                                            loading="lazy"
+                                                            className="w-full h-full object-cover"
+                                                        />
+                                                    </div>
+                                                    <div className="text-[10px] text-gray-500">
+                                                        <span className="text-red-500">{dup.duplicateSizeKb} KB</span>
+                                                        {' → '}
+                                                        <span className="text-green-600">{dup.originalSizeKb} KB</span>
+                                                        <span className="ml-1 text-gray-400">({dup.hash})</span>
+                                                    </div>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </details>
+                                )}
                             </div>
                         </Alert>
                     )}
@@ -433,6 +475,7 @@ const UtilitySetting = () => {
                             variant="primary"
                             size="sm"
                             compact
+                            disabled={!hasPreviewed}
                             isLoading={imageMutation.isPending && imageMutation.variables?.dryRun === false}
                             onClick={handleCleanImages}>
                             정리하기

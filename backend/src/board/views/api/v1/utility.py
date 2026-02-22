@@ -182,6 +182,7 @@ def utility_clean_images(request):
     total_duplicates = 0
     total_duplicate_size = 0
     unused_files = []
+    duplicate_files = []
 
     def to_file_info(file_dict, media_prefix):
         """파일 정보를 미디어 URL 포함 dict로 변환"""
@@ -237,6 +238,17 @@ def utility_clean_images(request):
                     f'중복 타이틀 이미지 {dup_count}개 '
                     f'({round(dup_size / (1024 * 1024), 2)} MB)'
                 )
+            if dry_run:
+                duplicate_files.extend([
+                    {
+                        'duplicateUrl': d['duplicate_url'],
+                        'duplicateSizeKb': d['duplicate_size_kb'],
+                        'originalUrl': d['original_url'],
+                        'originalSizeKb': d['original_size_kb'],
+                        'hash': d['hash'],
+                    }
+                    for d in duplicates
+                ])
 
     # 아바타 이미지
     if target in ('all', 'avatar'):
@@ -287,5 +299,7 @@ def utility_clean_images(request):
 
     if dry_run:
         result['unused_files'] = unused_files[:100]
+        if duplicate_files:
+            result['duplicate_files'] = duplicate_files[:100]
 
     return StatusDone(result)

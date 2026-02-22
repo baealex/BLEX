@@ -320,6 +320,20 @@ class UtilityAPITestCase(TestCase):
         self.assertIn('totalSavedMb', body)
         self.assertIn('messages', body)
 
+    def test_clean_images_dry_run_with_duplicates(self):
+        """중복 제거 dry run 시 duplicateFiles 포함 확인"""
+        response = self.client.post(
+            '/v1/utilities/clean-images',
+            json.dumps({'dry_run': True, 'target': 'title', 'remove_duplicates': True}),
+            content_type='application/json'
+        )
+        content = json.loads(response.content)
+        self.assertEqual(content['status'], 'DONE')
+        body = content['body']
+        self.assertTrue(body['dryRun'])
+        self.assertIn('totalDuplicates', body)
+        self.assertIn('totalDuplicateSizeMb', body)
+
     def test_clean_images_invalid_target(self):
         response = self.client.post(
             '/v1/utilities/clean-images',

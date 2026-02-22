@@ -5,6 +5,7 @@ Business logic for post operations.
 Extracted from views to improve testability and reusability.
 """
 
+import hashlib
 import random
 from typing import Optional, Dict, Any, Tuple, List
 from datetime import datetime
@@ -175,6 +176,63 @@ class PostService:
         WebhookService.notify_channels(post, post_config)
 
     @staticmethod
+    def _compute_image_hash(image_file) -> str:
+        """Compute SHA-256 hash of an uploaded image file."""
+        sha256 = hashlib.sha256()
+        image_file.seek(0)
+        for chunk in image_file.chunks():
+            sha256.update(chunk)
+        image_file.seek(0)
+        return sha256.hexdigest()
+
+    @staticmethod
+    def _is_image_shared(image_name: str, exclude_post_id: int) -> bool:
+        """Check if an image file is used by other posts."""
+        return Post.objects.filter(
+            image=image_name
+        ).exclude(id=exclude_post_id).exists()
+
+    @staticmethod
+    def _set_image_with_dedup(
+        post: 'Post',
+        image: Optional[Any] = None,
+        image_delete: bool = False,
+    ) -> None:
+        """
+        Handle image assignment with deduplication.
+        - image_delete=True: safely delete existing image (check shared first)
+        - image is not None: compute hash, find duplicate, reuse or assign new
+        """
+        if image_delete:
+            if post.image:
+                if not post.pk or not PostService._is_image_shared(post.image.name, post.pk):
+                    post.image.delete(save=False)
+            post.image = None
+            post.image_hash = ''
+            return
+
+        if image is not None:
+            new_hash = PostService._compute_image_hash(image)
+
+            existing = Post.objects.filter(
+                image_hash=new_hash,
+            ).exclude(image='').first()
+
+            if existing and existing.image and existing.image.storage.exists(existing.image.name):
+                if post.image:
+                    if not post.pk or not PostService._is_image_shared(post.image.name, post.pk):
+                        post.image.delete(save=False)
+                post.image.name = existing.image.name
+                post.image_hash = new_hash
+                post._skip_thumbnail = True
+            else:
+                if post.image:
+                    if not post.pk or not PostService._is_image_shared(post.image.name, post.pk):
+                        post.image.delete(save=False)
+                post.image = image
+                post.image_hash = new_hash
+
+    @staticmethod
     @transaction.atomic
     def create_post(
         user: User,
@@ -239,8 +297,7 @@ class PostService:
         if series:
             post.series = series
 
-        if image:
-            post.image = image
+        PostService._set_image_with_dedup(post, image)
 
         url = PostService.create_post_url(title, custom_url)
         post.create_unique_url(url)
@@ -459,18 +516,11 @@ class PostService:
         if tag is not None:
             TagService.set_post_tags(post, tag)
 
-        if image_delete:
-            if post.image:
-                post.image.delete(save=False)
-                post.image = None
-        elif image is not None:
-            if post.image:
-                post.image.delete(save=False)
-            post.image = image
+        PostService._set_image_with_dedup(post, image, image_delete)
 
         if post.is_published():
             post.updated_date = timezone.now()
-        
+
         post.save()
 
         if is_hide is not None or is_advertise is not None:
@@ -580,8 +630,7 @@ class PostService:
         if series:
             post.series = series
 
-        if image:
-            post.image = image
+        PostService._set_image_with_dedup(post, image)
 
         url = PostService.create_post_url(post.title, custom_url)
         post.create_unique_url(url)
@@ -653,14 +702,7 @@ class PostService:
         if tag is not None:
             TagService.set_post_tags(post, tag)
 
-        if image_delete:
-            if post.image:
-                post.image.delete(save=False)
-                post.image = None
-        elif image is not None:
-            if post.image:
-                post.image.delete(save=False)
-            post.image = image
+        PostService._set_image_with_dedup(post, image, image_delete)
 
         if custom_url is not None:
             url = PostService.create_post_url(post.title, custom_url)
@@ -734,10 +776,7 @@ class PostService:
         if tag is not None:
             TagService.set_post_tags(post, tag)
 
-        if image is not None:
-            if post.image:
-                post.image.delete(save=False)
-            post.image = image
+        PostService._set_image_with_dedup(post, image)
 
         reserved_date = PostService.validate_reserved_date(reserved_date_str)
         if reserved_date:
