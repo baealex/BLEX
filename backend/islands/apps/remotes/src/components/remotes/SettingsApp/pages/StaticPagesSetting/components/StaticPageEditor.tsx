@@ -2,17 +2,18 @@ import { useState, useCallback, useRef } from 'react';
 import { Link, useNavigate, useBlocker } from '@tanstack/react-router';
 import { useMutation, useQueryClient, useSuspenseQuery } from '@tanstack/react-query';
 import { toast } from '~/utils/toast';
+import { useConfirm } from '~/hooks/useConfirm';
 import {
     Button,
     Input,
     TiptapEditor,
     api,
     DIM_OVERLAY_DEFAULT,
-    FLOATING_GLASS_SURFACE,
     ENTRANCE_DURATION
 } from '~/components/shared';
 import {
     Dialog,
+    FloatingBottomBar,
     IconButton,
     Toggle,
     SlidersHorizontal,
@@ -22,8 +23,7 @@ import {
     Eye,
     EyeOff,
     FileText,
-    Settings2,
-    Trash2
+    Settings2
 } from '@blex/ui';
 import { cx } from '~/lib/classnames';
 import {
@@ -50,10 +50,11 @@ interface StaticPageEditorProps {
     pageId?: number;
 }
 
-export const StaticPageEditor = ({ pageId }: StaticPageEditorProps) => {
+const StaticPageEditor = ({ pageId }: StaticPageEditorProps) => {
     const isEditMode = pageId !== undefined;
     const navigate = useNavigate();
     const queryClient = useQueryClient();
+    const { confirm } = useConfirm();
     const isDirtyRef = useRef(false);
     const [isSettingsOpen, setIsSettingsOpen] = useState(false);
 
@@ -83,7 +84,16 @@ export const StaticPageEditor = ({ pageId }: StaticPageEditorProps) => {
     };
 
     useBlocker({
-        shouldBlockFn: () => isDirtyRef.current,
+        shouldBlockFn: async () => {
+            if (!isDirtyRef.current) return false;
+            const confirmed = await confirm({
+                title: '저장하지 않은 변경사항',
+                message: '변경사항이 저장되지 않았습니다. 페이지를 나가시겠습니까?',
+                confirmText: '나가기',
+                variant: 'danger'
+            });
+            return !confirmed;
+        },
         enableBeforeUnload: () => isDirtyRef.current
     });
 
@@ -204,14 +214,23 @@ export const StaticPageEditor = ({ pageId }: StaticPageEditorProps) => {
         }
     };
 
-    const handleDelete = () => {
-        if (confirm('정말로 이 정적 페이지를 삭제하시겠습니까?')) {
-            deleteMutation.mutate();
+    const handleDelete = async () => {
+        const confirmed = await confirm({
+            title: '정적 페이지 삭제',
+            message: `"${title}" 페이지를 삭제하시겠습니까?\n\n이 작업은 되돌릴 수 없습니다.`,
+            confirmText: '삭제',
+            variant: 'danger'
+        });
+
+        if (!confirmed) {
+            return;
         }
+
+        deleteMutation.mutate();
     };
 
     return (
-        <div className="min-h-screen bg-white">
+        <div className="min-h-screen bg-white pb-16">
             {/* Top bar */}
             <div className="sticky top-0 z-10 bg-white border-b border-gray-200">
                 <div className="max-w-7xl mx-auto px-4 md:px-6 flex items-center justify-between h-14">
@@ -248,56 +267,66 @@ export const StaticPageEditor = ({ pageId }: StaticPageEditorProps) => {
             </div>
 
             {/* Editor*/}
-            <div className="max-w-7xl mx-auto px-4 md:px-6 pb-32">
+            <div className="max-w-7xl mx-auto px-4 md:px-6 pb-6">
                 <TiptapEditor
                     name="static-page-content"
                     content={content}
                     onChange={handleContentChange}
-                    height="calc(100vh - 300px)"
                     onImageUpload={handleImageUpload}
                 />
             </div>
 
-            {/* Floating bottom bar */}
-            <div className="fixed sm:sticky bottom-6 left-0 right-0 z-30 flex justify-center pointer-events-none">
-                <div className={`pointer-events-auto ${FLOATING_GLASS_SURFACE} rounded-full px-3 py-3 flex items-center gap-2 transform transition-all motion-interaction`}>
-                    {/* Settings */}
-                    <IconButton
-                        onClick={() => setIsSettingsOpen(true)}
-                        rounded="full"
-                        aria-label="페이지 설정"
-                        title="페이지 설정">
-                        <SlidersHorizontal className="w-5 h-5" />
-                    </IconButton>
+            <FloatingBottomBar>
+                {isEditMode && (
+                    <>
+                        <Button
+                            type="button"
+                            variant="ghost"
+                            size="md"
+                            isLoading={deleteMutation.isPending}
+                            disabled={isLoading}
+                            onClick={handleDelete}
+                            className="!rounded-full !text-red-500 hover:!text-red-700 hover:!bg-red-50">
+                            삭제
+                        </Button>
+                        <div className="w-px h-8 bg-gray-200/60 mx-1" />
+                    </>
+                )}
 
-                    <div className="w-px h-8 bg-gray-200/50 mx-1" />
+                <IconButton
+                    onClick={() => setIsSettingsOpen(true)}
+                    rounded="full"
+                    aria-label="페이지 설정"
+                    title="페이지 설정">
+                    <SlidersHorizontal className="w-5 h-5" />
+                </IconButton>
 
-                    {/* Publish status indicator */}
-                    <div className="flex items-center gap-1.5 px-1 text-xs text-gray-400">
-                        {isPublished ? (
-                            <>
-                                <div className="w-1.5 h-1.5 rounded-full bg-gray-700" />
-                                <span>공개</span>
-                            </>
-                        ) : (
-                            <>
-                                <div className="w-1.5 h-1.5 rounded-full bg-gray-400" />
-                                <span>비공개</span>
-                            </>
-                        )}
-                    </div>
+                <div className="w-px h-8 bg-gray-200/60 mx-1" />
 
-                    {/* Submit */}
-                    <Button
-                        onClick={handleSubmit}
-                        disabled={isLoading}
-                        variant="primary"
-                        className="!rounded-full"
-                        leftIcon={<Send className="w-4 h-4" />}>
-                        {isLoading ? '저장 중...' : isEditMode ? '수정' : '생성'}
-                    </Button>
+                <div className="hidden sm:flex items-center gap-1.5 px-1 text-xs text-gray-400">
+                    {isPublished ? (
+                        <>
+                            <div className="w-1.5 h-1.5 rounded-full bg-gray-700" />
+                            <span>공개</span>
+                        </>
+                    ) : (
+                        <>
+                            <div className="w-1.5 h-1.5 rounded-full bg-gray-400" />
+                            <span>비공개</span>
+                        </>
+                    )}
                 </div>
-            </div>
+
+                <Button
+                    onClick={handleSubmit}
+                    disabled={isLoading || deleteMutation.isPending}
+                    variant="primary"
+                    className="!rounded-full"
+                    leftIcon={!isLoading ? <Send className="w-4 h-4" /> : undefined}
+                    isLoading={isLoading}>
+                    {isLoading ? '저장 중...' : isEditMode ? '수정' : '생성'}
+                </Button>
+            </FloatingBottomBar>
 
             {/* Settings Drawer */}
             <Dialog.Root open={isSettingsOpen} onOpenChange={(open) => !open && setIsSettingsOpen(false)}>
@@ -433,23 +462,6 @@ export const StaticPageEditor = ({ pageId }: StaticPageEditorProps) => {
                                     </div>
                                 </div>
 
-                                {/* Delete - Edit mode only */}
-                                {isEditMode && (
-                                    <>
-                                        <div className="border-t border-gray-200" />
-                                        <div>
-                                            <Button
-                                                type="button"
-                                                variant="ghost"
-                                                size="sm"
-                                                onClick={handleDelete}
-                                                className="!text-red-500 hover:!text-red-700 hover:!bg-red-50 !px-0"
-                                                leftIcon={<Trash2 className="w-4 h-4" />}>
-                                                페이지 삭제
-                                            </Button>
-                                        </div>
-                                    </>
-                                )}
                             </div>
                         </div>
 
@@ -470,3 +482,5 @@ export const StaticPageEditor = ({ pageId }: StaticPageEditorProps) => {
         </div>
     );
 };
+
+export default StaticPageEditor;

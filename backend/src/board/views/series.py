@@ -1,20 +1,16 @@
-from django.shortcuts import render, get_object_or_404, redirect
+from django.shortcuts import render, get_object_or_404
 from django.contrib.auth.models import User
-from django.contrib.auth.decorators import login_required
-from django.db.models import Count, F, Exists, OuterRef, Q
+from django.db.models import Count, Exists, OuterRef
 from django.utils import timezone
 from django.http import Http404
 
-from board.models import Post, Series, PostLikes, Profile
-from board.services import SeriesService
+from board.models import Post, Series, PostLikes
 
 
 def series_detail(request, username, series_url):
     """
     View for the series detail page.
     """
-    author = get_object_or_404(User, username=username)
-
     author = get_object_or_404(User, username=username)
 
     sort_order = request.GET.get('sort', 'desc')
@@ -96,62 +92,3 @@ def series_detail(request, username, series_url):
     }
 
     return render(request, 'board/series/series_detail.html', context)
-
-
-@login_required
-def series_create(request, username):
-    """
-    View for the series create page.
-    """
-    author = get_object_or_404(User, username=username)
-
-    author = get_object_or_404(User, username=username)
-
-    if request.user != author and not request.user.is_staff:
-        return render(request, 'board/error/403.html', status=403)
-
-    available_posts = SeriesService.get_posts_available_for_series(author)
-
-    context = {
-        'author': author,
-        'available_posts': available_posts,
-        'is_loading': False,
-    }
-
-    return render(request, 'board/series/series_create.html', context)
-
-
-@login_required
-def series_edit(request, username, series_url):
-    """
-    View for the series edit page.
-    """
-    author = get_object_or_404(User, username=username)
-
-    author = get_object_or_404(User, username=username)
-
-    series = get_object_or_404(Series, owner=author, url=series_url)
-
-    if not SeriesService.can_user_edit_series(request.user, series):
-        return render(request, 'board/error/403.html', status=403)
-
-    available_posts = Post.objects.select_related('config').filter(
-        author=author,
-        published_date__isnull=False,
-        published_date__lte=timezone.now(),
-        config__hide=False,
-    ).filter(
-        Q(series__isnull=True) | Q(series=series)
-    ).order_by('-published_date')
-
-    current_post_ids = list(Post.objects.filter(series=series).values_list('id', flat=True))
-
-    context = {
-        'author': author,
-        'series': series,
-        'available_posts': available_posts,
-        'current_post_ids': current_post_ids,
-        'is_loading': False,
-    }
-
-    return render(request, 'board/series/series_edit.html', context)

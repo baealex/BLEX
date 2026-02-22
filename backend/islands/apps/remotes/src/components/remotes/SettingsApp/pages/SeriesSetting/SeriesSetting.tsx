@@ -20,6 +20,7 @@ import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { restrictToVerticalAxis, restrictToFirstScrollableAncestor } from '@dnd-kit/modifiers';
 import { useSuspenseQuery } from '@tanstack/react-query';
+import { useNavigate } from '@tanstack/react-router';
 import { SettingsEmptyState, SettingsHeader, SettingsListItem } from '../../components';
 import { Button, Dropdown } from '~/components/shared';
 import {
@@ -38,10 +39,11 @@ import {
 interface SortableSeriesItemProps {
     series: Series;
     username: string;
+    onEdit: (seriesId: number) => void;
     onDelete: (seriesId: number) => void;
 }
 
-const SortableSeriesItem = ({ series, username, onDelete }: SortableSeriesItemProps) => {
+const SortableSeriesItem = ({ series, username, onEdit, onDelete }: SortableSeriesItemProps) => {
     const { confirm } = useConfirm();
     const {
         attributes,
@@ -56,10 +58,6 @@ const SortableSeriesItem = ({ series, username, onDelete }: SortableSeriesItemPr
         transform: CSS.Transform.toString(transform),
         transition,
         opacity: isDragging ? 0.5 : 1
-    };
-
-    const handleEdit = () => {
-        window.location.assign(`/@${username}/series/${series.url}/edit`);
     };
 
     const handleView = () => {
@@ -82,7 +80,7 @@ const SortableSeriesItem = ({ series, username, onDelete }: SortableSeriesItemPr
     return (
         <div ref={setNodeRef} style={style} className="mb-3">
             <SettingsListItem
-                onClick={handleEdit}
+                onClick={() => onEdit(series.id)}
                 dragHandleProps={{
                     attributes,
                     listeners
@@ -122,6 +120,7 @@ const SortableSeriesItem = ({ series, username, onDelete }: SortableSeriesItemPr
 const SeriesSetting = () => {
     const [series, setSeries] = useState<Series[]>([]);
     const [username, setUsername] = useState<string>('');
+    const navigate = useNavigate();
 
     const { data: seriesData } = useSuspenseQuery({
         queryKey: ['series-setting'],
@@ -180,7 +179,14 @@ const SeriesSetting = () => {
     };
 
     const handleCreateSeries = () => {
-        window.location.assign(`/@${username}/series/create`);
+        navigate({ to: '/series/create' });
+    };
+
+    const handleEditSeries = (seriesId: number) => {
+        navigate({
+            to: '/series/edit/$seriesId',
+            params: { seriesId: String(seriesId) }
+        });
     };
 
     const handleDeleteSeries = async (seriesId: number) => {
@@ -234,6 +240,7 @@ const SeriesSetting = () => {
                                     key={item.id}
                                     series={item}
                                     username={username}
+                                    onEdit={handleEditSeries}
                                     onDelete={handleDeleteSeries}
                                 />
                             ))}

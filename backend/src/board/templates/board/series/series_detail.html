@@ -45,7 +45,7 @@
         <!-- 편집 버튼 -->
         {% if request.user == author %}
         <div class="mt-8">
-            <a href="/@{{ author.username }}/series/{{ series.url }}/edit"
+            <a href="/settings/series/edit/{{ series.id }}"
             class="inline-flex items-center gap-2 bg-black text-white px-5 py-2.5 rounded-full font-medium transition-all duration-150 hover:bg-gray-800 active:scale-[0.98] text-sm">
                 <i class="fas fa-edit text-xs"></i>
                 <span>시리즈 편집</span>

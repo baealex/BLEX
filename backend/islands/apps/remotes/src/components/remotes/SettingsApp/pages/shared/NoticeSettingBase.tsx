@@ -1,6 +1,9 @@
 import { useState } from 'react';
 import { toast } from '~/utils/toast';
 import { useMutation, useQueryClient, useSuspenseQuery } from '@tanstack/react-query';
+import { useForm } from 'react-hook-form';
+import { z } from 'zod';
+import { zodResolver } from '@hookform/resolvers/zod';
 import { useConfirm } from '~/hooks/useConfirm';
 import { SettingsEmptyState, SettingsHeader, SettingsListItem } from '../../components';
 import {
@@ -37,14 +40,36 @@ interface NoticeSettingBaseProps {
     scope: NoticeScope;
 }
 
+const noticeSchema = z.object({
+    title: z.string().trim().min(1, '공지 제목을 입력해주세요.').max(200, '공지 제목은 200자 이내여야 합니다.'),
+    url: z.string().trim().min(1, 'URL을 입력해주세요.').url('올바른 URL 형식으로 입력해주세요.'),
+    isActive: z.boolean()
+});
+
+type NoticeFormInputs = z.infer<typeof noticeSchema>;
+
+const defaultValues: NoticeFormInputs = {
+    title: '',
+    url: '',
+    isActive: true
+};
+
 const NoticeSettingBase = ({ scope }: NoticeSettingBaseProps) => {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [editingNotice, setEditingNotice] = useState<NoticeItem | null>(null);
-    const [formTitle, setFormTitle] = useState('');
-    const [formUrl, setFormUrl] = useState('');
-    const [formIsActive, setFormIsActive] = useState(true);
     const { confirm } = useConfirm();
     const queryClient = useQueryClient();
+    const {
+        register,
+        handleSubmit,
+        reset,
+        watch,
+        setValue,
+        formState: { errors }
+    } = useForm<NoticeFormInputs>({
+        resolver: zodResolver(noticeSchema),
+        defaultValues
+    });
 
     const isGlobal = scope === 'global';
     const queryKey = isGlobal ? ['global-notices'] : ['notices'];
@@ -104,14 +129,11 @@ const NoticeSettingBase = ({ scope }: NoticeSettingBaseProps) => {
         }
     });
 
-    const handleSubmit = (e: React.FormEvent) => {
-        e.preventDefault();
-        if (!formTitle.trim() || !formUrl.trim()) return;
-
+    const onSubmit = (formData: NoticeFormInputs) => {
         const payload = {
-            title: formTitle,
-            url: formUrl,
-            is_active: formIsActive
+            title: formData.title,
+            url: formData.url,
+            is_active: formData.isActive
         };
 
         if (editingNotice) {
@@ -138,9 +160,11 @@ const NoticeSettingBase = ({ scope }: NoticeSettingBaseProps) => {
 
     const handleEdit = (notice: NoticeItem) => {
         setEditingNotice(notice);
-        setFormTitle(notice.title);
-        setFormUrl(notice.url);
-        setFormIsActive(notice.isActive);
+        reset({
+            title: notice.title,
+            url: notice.url,
+            isActive: notice.isActive
+        });
         setIsModalOpen(true);
     };
 
@@ -153,15 +177,14 @@ const NoticeSettingBase = ({ scope }: NoticeSettingBaseProps) => {
 
     const handleCreate = () => {
         setEditingNotice(null);
-        setFormTitle('');
-        setFormUrl('');
-        setFormIsActive(true);
+        reset(defaultValues);
         setIsModalOpen(true);
     };
 
     const closeModal = () => {
         setIsModalOpen(false);
         setEditingNotice(null);
+        reset(defaultValues);
     };
 
     return (
@@ -238,7 +261,7 @@ const NoticeSettingBase = ({ scope }: NoticeSettingBaseProps) => {
                 onClose={closeModal}
                 title={editingNotice ? '공지 수정' : '새 공지 만들기'}
                 maxWidth="lg">
-                <form onSubmit={handleSubmit}>
+                <form onSubmit={handleSubmit(onSubmit)}>
                     <Modal.Body className="space-y-6">
                         <div className="space-y-2">
                             <label className="block text-sm font-semibold text-gray-900">
@@ -246,9 +269,9 @@ const NoticeSettingBase = ({ scope }: NoticeSettingBaseProps) => {
                             </label>
                             <Input
                                 placeholder="공지 제목을 입력하세요"
-                                value={formTitle}
-                                onChange={(e) => setFormTitle(e.target.value)}
                                 className="text-base"
+                                error={errors.title?.message}
+                                {...register('title')}
                             />
                         </div>
 
@@ -258,17 +281,17 @@ const NoticeSettingBase = ({ scope }: NoticeSettingBaseProps) => {
                             </label>
                             <Input
                                 placeholder="https://example.com/notice"
-                                value={formUrl}
-                                onChange={(e) => setFormUrl(e.target.value)}
                                 className="text-base"
+                                error={errors.url?.message}
+                                {...register('url')}
                             />
                             <p className="text-xs text-gray-500">공지 클릭 시 이동할 URL입니다.</p>
                         </div>
 
                         <div className="p-4 bg-gray-50 rounded-xl border border-gray-200">
                             <Checkbox
-                                checked={formIsActive}
-                                onCheckedChange={(checked) => setFormIsActive(checked)}
+                                checked={watch('isActive')}
+                                onCheckedChange={(checked) => setValue('isActive', checked)}
                                 label="공지 활성화"
                                 description={
                                     isGlobal

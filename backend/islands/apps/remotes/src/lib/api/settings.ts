@@ -155,12 +155,63 @@ export interface SeriesWithId extends Series {
     id: number;
 }
 
+export interface SeriesDetailData {
+    id: number;
+    name: string;
+    url: string;
+    description: string;
+    postIds: number[];
+    postCount: number;
+}
+
+export interface SeriesMutationResult {
+    id: number;
+    name: string;
+    url: string;
+    description: string;
+    postCount: number;
+}
+
+export interface SeriesMutationData {
+    name?: string;
+    url?: string;
+    description?: string;
+    post_ids?: number[];
+}
+
+export interface AvailableSeriesPost {
+    id: number;
+    title: string;
+    publishedDate: string | null;
+}
+
 export const getSeriesWithUsername = async () => {
     return http.get<Response<{ username: string; series: SeriesWithId[] }>>('v1/setting/series');
 };
 
 export const updateSeriesOrder = async (order: [number, number][]) => {
     return http.put<Response<{ success: boolean }>>('v1/series/order', { order }, { headers: { 'Content-Type': 'application/json' } });
+};
+
+export const getSeriesDetail = async (seriesId: number) => {
+    return http.get<Response<SeriesDetailData>>(`v1/series/${seriesId}`);
+};
+
+export const createSeries = async (data: SeriesMutationData) => {
+    return http.post<Response<SeriesMutationResult>>('v1/series', data, { headers: { 'Content-Type': 'application/json' } });
+};
+
+export const updateSeries = async (seriesId: number, data: SeriesMutationData) => {
+    return http.put<Response<SeriesMutationResult>>(`v1/series/${seriesId}`, data, { headers: { 'Content-Type': 'application/json' } });
+};
+
+export const deleteSeriesById = async (seriesId: number) => {
+    return http.delete<Response<{ message: string }>>(`v1/series/${seriesId}`);
+};
+
+export const getAvailablePosts = async (seriesId?: number) => {
+    const query = seriesId !== undefined ? `?series_id=${seriesId}` : '';
+    return http.get<Response<AvailableSeriesPost[]>>(`v1/series/valid-posts${query}`);
 };
 
 export const deleteSeries = async (username: string, seriesUrl: string) => {

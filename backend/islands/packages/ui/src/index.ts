@@ -5,6 +5,7 @@ export { default as Checkbox } from './components/Checkbox';
 export { default as Icon } from './components/Icon';
 export { default as IconButton } from './components/IconButton';
 export { default as Dropdown } from './components/Dropdown';
+export { default as FloatingBottomBar } from './components/FloatingBottomBar';
 export { default as Input } from './components/Input';
 export { default as LoadingState } from './components/LoadingState';
 export { default as Modal } from './components/Modal';

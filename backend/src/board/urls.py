@@ -11,7 +11,7 @@ from board.views.post_actions import like_post
 from board.views.authors import authors_view
 from board.views.author import author_posts, author_series, author_about, author_about_edit, author_overview
 from board.views.post import post_detail, post_editor
-from board.views.series import series_detail, series_create, series_edit
+from board.views.series import series_detail
 from board.views.auth import login_view, signup_view
 from board.views.oauth_callback import oauth_callback
 from board.views.tag import tag_list_view, tag_detail_view
@@ -43,11 +43,9 @@ urlpatterns = [
 
     # Author
     path('@<username>/series', author_series, name='user_series'),
-    path('@<username>/series/create', series_create, name='series_create'),
     path('@<username>/about', author_about, name='user_about'),
     path('@<username>/about/edit', author_about_edit, name='user_about_edit'),
     path('@<username>/series/<series_url>', series_detail, name='series_detail'),
-    path('@<username>/series/<series_url>/edit', series_edit, name='series_edit'),
     path('@<username>/posts', author_posts, name='user_posts'),
     path('@<username>/<post_url>/edit', post_editor, name='post_edit'),
     path('@<username>/<post_url>', post_detail, name='post_detail'),
