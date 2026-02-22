@@ -1,18 +1,20 @@
 import { toast } from '~/utils/toast';
 import { useMutation, useQueryClient, useSuspenseQuery } from '@tanstack/react-query';
-import { Link } from '@tanstack/react-router';
+import { Link, useNavigate } from '@tanstack/react-router';
 import { useConfirm } from '~/hooks/useConfirm';
 import { SettingsEmptyState, SettingsHeader } from '../../components';
 import { Button } from '~/components/shared';
 import {
     getStaticPages,
-    deleteStaticPage
+    deleteStaticPage,
+    type StaticPageData
 } from '~/lib/api/settings';
 import { StaticPageList } from './components/StaticPageList';
 
 const StaticPagesSetting = () => {
     const { confirm } = useConfirm();
     const queryClient = useQueryClient();
+    const navigate = useNavigate();
 
     const { data: pagesData } = useSuspenseQuery({
         queryKey: ['static-pages'],
@@ -37,15 +39,34 @@ const StaticPagesSetting = () => {
     });
 
     const handleDelete = async (id: number) => {
+        const currentPage = pagesData?.find((page) => page.id === id);
         const confirmed = await confirm({
             title: '정적 페이지 삭제',
-            message: '정말로 이 페이지를 삭제하시겠습니까?',
+            message: currentPage
+                ? `"${currentPage.title}" 페이지를 삭제하시겠습니까?\n\n이 작업은 되돌릴 수 없습니다.`
+                : '정말로 이 페이지를 삭제하시겠습니까?\n\n이 작업은 되돌릴 수 없습니다.',
             confirmText: '삭제'
         });
 
         if (confirmed) {
             deleteMutation.mutate(id);
         }
+    };
+
+    const handleEdit = (id: number) => {
+        navigate({
+            to: '/static-pages/edit/$pageId',
+            params: { pageId: String(id) }
+        });
+    };
+
+    const handleView = (page: StaticPageData) => {
+        if (!page.isPublished) {
+            toast.info('비공개 페이지는 View할 수 없습니다. 공개 후 다시 시도해주세요.');
+            return;
+        }
+
+        window.location.assign(`/static/${page.slug}`);
     };
 
     return (
@@ -69,6 +90,8 @@ const StaticPagesSetting = () => {
             {pagesData && pagesData.length > 0 ? (
                 <StaticPageList
                     pages={pagesData}
+                    onView={handleView}
+                    onEdit={handleEdit}
                     onDelete={handleDelete}
                 />
             ) : (
