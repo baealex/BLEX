@@ -5,10 +5,10 @@ import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { SettingsEmptyState, SettingsHeader, SettingsListItem } from '../../components';
-import { Button, Input, Modal, Dropdown } from '~/components/shared';
+import { Button, Input, Dropdown } from '~/components/shared';
 import {
- getIconClass,
- TITLE
+    getIconClass,
+    TITLE
 } from '~/components/shared';
 import { useConfirm } from '~/hooks/useConfirm';
 import {
@@ -34,7 +34,7 @@ type FormInputs = z.infer<typeof formSchema>;
 
 const FormsManagement = () => {
     const { confirm } = useConfirm();
-    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [showForm, setShowForm] = useState(false);
     const [editingForm, setEditingForm] = useState<FormItem | null>(null);
     const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -81,7 +81,7 @@ const FormsManagement = () => {
             title: '',
             content: ''
         });
-        setIsModalOpen(true);
+        setShowForm(true);
     };
 
     const handleEditForm = async (formId: number) => {
@@ -93,7 +93,7 @@ const FormsManagement = () => {
                     title: data.body.title,
                     content: data.body.content || ''
                 });
-                setIsModalOpen(true);
+                setShowForm(true);
             } else {
                 toast.error('서식을 불러오는데 실패했습니다.');
             }
@@ -112,7 +112,7 @@ const FormsManagement = () => {
                 });
                 if (data.status === 'DONE') {
                     toast.success('서식이 수정되었습니다.');
-                    setIsModalOpen(false);
+                    closeForm();
                     refetch();
                 } else {
                     toast.error('서식 수정에 실패했습니다.');
@@ -124,7 +124,7 @@ const FormsManagement = () => {
                 });
                 if (data.status === 'DONE') {
                     toast.success('서식이 생성되었습니다.');
-                    setIsModalOpen(false);
+                    closeForm();
                     refetch();
                 } else {
                     toast.error('서식 생성에 실패했습니다.');
@@ -137,8 +137,8 @@ const FormsManagement = () => {
         }
     };
 
-    const closeModal = () => {
-        setIsModalOpen(false);
+    const closeForm = () => {
+        setShowForm(false);
         setEditingForm(null);
         reset({
             title: '',
@@ -165,7 +165,54 @@ const FormsManagement = () => {
                 }
             />
 
-            {/* Forms List */}
+            {showForm && (
+                <form
+                    className="mb-6 bg-gray-50 border border-gray-200 rounded-2xl p-6 animate-in fade-in-0 slide-in-from-top-2 motion-interaction"
+                    onSubmit={handleSubmit(onSubmit)}>
+                    <h3 className="text-base font-semibold text-gray-900 mb-4">
+                        {editingForm ? '서식 편집' : '서식 추가'}
+                    </h3>
+                    <div className="space-y-4">
+                        <Input
+                            label="제목"
+                            type="text"
+                            placeholder="서식 제목을 입력하세요"
+                            error={errors.title?.message}
+                            {...register('title')}
+                        />
+
+                        <Input
+                            label="내용"
+                            multiline
+                            rows={8}
+                            placeholder="서식 내용을 입력하세요"
+                            error={errors.content?.message}
+                            {...register('content')}
+                        />
+
+                        <div className="flex items-center justify-between gap-3">
+                            <Button
+                                type="button"
+                                variant="ghost"
+                                size="md"
+                                onClick={closeForm}
+                                disabled={isSubmitting}>
+                                취소
+                            </Button>
+                            <div className="flex items-center gap-3">
+                                <Button
+                                    type="submit"
+                                    variant="primary"
+                                    size="md"
+                                    isLoading={isSubmitting}>
+                                    {isSubmitting ? (editingForm ? '수정 중...' : '생성 중...') : (editingForm ? '서식 수정' : '서식 생성')}
+                                </Button>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            )}
+
             {forms.length > 0 ? (
                 <div className="space-y-3">
                     {forms.map((form) => (
@@ -200,50 +247,6 @@ const FormsManagement = () => {
                     description="자주 사용하는 서식을 추가해보세요."
                 />
             )}
-
-            {/* Modal */}
-            <Modal
-                isOpen={isModalOpen}
-                onClose={closeModal}
-                title={editingForm ? '서식 편집' : '서식 추가'}
-                maxWidth="2xl">
-                <form onSubmit={handleSubmit(onSubmit)}>
-                    <Modal.Body className="space-y-6">
-                        <Input
-                            label="제목"
-                            type="text"
-                            placeholder="서식 제목을 입력하세요"
-                            error={errors.title?.message}
-                            {...register('title')}
-                        />
-
-                        <Input
-                            label="내용"
-                            multiline
-                            rows={12}
-                            placeholder="서식 내용을 입력하세요"
-                            error={errors.content?.message}
-                            {...register('content')}
-                        />
-                    </Modal.Body>
-
-                    <Modal.Footer>
-                        <Modal.FooterAction
-                            variant="secondary"
-                            onClick={closeModal}
-                            disabled={isSubmitting}>
-                            취소
-                        </Modal.FooterAction>
-                        <Modal.FooterAction
-                            type="submit"
-                            variant="primary"
-                            isLoading={isSubmitting}
-                            leftIcon={!isSubmitting ? <i className={`fas ${editingForm ? 'fa-save' : 'fa-plus'}`} /> : undefined}>
-                            {isSubmitting ? (editingForm ? '수정 중...' : '생성 중...') : (editingForm ? '수정' : '생성')}
-                        </Modal.FooterAction>
-                    </Modal.Footer>
-                </form>
-            </Modal>
         </div>
     );
 };

@@ -11,7 +11,6 @@ import {
     Checkbox,
     Dropdown,
     Input,
-    Modal,
     TITLE
 } from '~/components/shared';
 import {
@@ -40,9 +39,25 @@ interface NoticeSettingBaseProps {
     scope: NoticeScope;
 }
 
+const isValidNoticeUrl = (value: string) => {
+    if (value.startsWith('/')) {
+        return true;
+    }
+
+    try {
+        const parsed = new URL(value);
+        return parsed.protocol === 'http:' || parsed.protocol === 'https:';
+    } catch {
+        return false;
+    }
+};
+
 const noticeSchema = z.object({
     title: z.string().trim().min(1, '공지 제목을 입력해주세요.').max(200, '공지 제목은 200자 이내여야 합니다.'),
-    url: z.string().trim().min(1, 'URL을 입력해주세요.').url('올바른 URL 형식으로 입력해주세요.'),
+    url: z.string().trim().min(1, 'URL을 입력해주세요.').refine(
+        isValidNoticeUrl,
+        'https://로 시작하는 절대 URL 또는 /로 시작하는 내부 경로를 입력해주세요.'
+    ),
     isActive: z.boolean()
 });
 
@@ -55,7 +70,7 @@ const defaultValues: NoticeFormInputs = {
 };
 
 const NoticeSettingBase = ({ scope }: NoticeSettingBaseProps) => {
-    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [showForm, setShowForm] = useState(false);
     const [editingNotice, setEditingNotice] = useState<NoticeItem | null>(null);
     const { confirm } = useConfirm();
     const queryClient = useQueryClient();
@@ -95,7 +110,7 @@ const NoticeSettingBase = ({ scope }: NoticeSettingBaseProps) => {
         onSuccess: () => {
             toast.success(`${noticeLabel}가 생성되었습니다.`);
             queryClient.invalidateQueries({ queryKey });
-            closeModal();
+            closeForm();
         },
         onError: () => {
             toast.error(`${noticeLabel} 생성에 실패했습니다.`);
@@ -111,7 +126,7 @@ const NoticeSettingBase = ({ scope }: NoticeSettingBaseProps) => {
         onSuccess: () => {
             toast.success(`${noticeLabel}가 수정되었습니다.`);
             queryClient.invalidateQueries({ queryKey });
-            closeModal();
+            closeForm();
         },
         onError: () => {
             toast.error(`${noticeLabel} 수정에 실패했습니다.`);
@@ -165,7 +180,7 @@ const NoticeSettingBase = ({ scope }: NoticeSettingBaseProps) => {
             url: notice.url,
             isActive: notice.isActive
         });
-        setIsModalOpen(true);
+        setShowForm(true);
     };
 
     const handleToggleActive = (notice: NoticeItem) => {
@@ -178,14 +193,16 @@ const NoticeSettingBase = ({ scope }: NoticeSettingBaseProps) => {
     const handleCreate = () => {
         setEditingNotice(null);
         reset(defaultValues);
-        setIsModalOpen(true);
+        setShowForm(true);
     };
 
-    const closeModal = () => {
-        setIsModalOpen(false);
+    const closeForm = () => {
+        setShowForm(false);
         setEditingNotice(null);
         reset(defaultValues);
     };
+
+    const isSubmitting = createMutation.isPending || updateMutation.isPending;
 
     return (
         <div className="space-y-8">
@@ -207,6 +224,75 @@ const NoticeSettingBase = ({ scope }: NoticeSettingBaseProps) => {
                     </Button>
                 }
             />
+
+            {showForm && (
+                <form
+                    className="bg-gray-50 border border-gray-200 rounded-2xl p-6 animate-in fade-in-0 slide-in-from-top-2 motion-interaction"
+                    onSubmit={handleSubmit(onSubmit)}>
+                    <h3 className="text-base font-semibold text-gray-900 mb-4">
+                        {editingNotice ? '공지 수정' : '새 공지 만들기'}
+                    </h3>
+                    <div className="space-y-4">
+                        <div className="space-y-2">
+                            <label className="block text-sm font-medium text-gray-700">
+                                공지 제목
+                            </label>
+                            <Input
+                                placeholder="공지 제목을 입력하세요"
+                                className="text-base"
+                                error={errors.title?.message}
+                                {...register('title')}
+                            />
+                        </div>
+
+                        <div className="space-y-2">
+                            <label className="block text-sm font-medium text-gray-700">
+                                URL
+                            </label>
+                            <Input
+                                placeholder="https://example.com/notice"
+                                className="text-base"
+                                error={errors.url?.message}
+                                {...register('url')}
+                            />
+                            <p className="text-xs text-gray-500">공지 클릭 시 이동할 URL입니다.</p>
+                        </div>
+
+                        <div className="p-4 bg-gray-50 rounded-xl border border-gray-200">
+                            <Checkbox
+                                checked={watch('isActive')}
+                                onCheckedChange={(checked) => setValue('isActive', checked)}
+                                label="공지 활성화"
+                                description={
+                                    isGlobal
+                                        ? '활성화된 공지만 사용자에게 표시됩니다.'
+                                        : '활성화된 공지만 블로그에 표시됩니다.'
+                                }
+                            />
+                        </div>
+
+                        <div className="flex items-center justify-between gap-3">
+                            <Button
+                                type="button"
+                                variant="ghost"
+                                size="md"
+                                onClick={closeForm}
+                                disabled={isSubmitting}>
+                                취소
+                            </Button>
+                            <div className="flex items-center gap-3">
+                                <Button
+                                    type="submit"
+                                    variant="primary"
+                                    size="md"
+                                    isLoading={isSubmitting}>
+                                    {isSubmitting ? '저장 중...' : editingNotice ? '공지 수정' : '공지 생성'}
+                                </Button>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            )}
 
             {noticesData && noticesData.length > 0 ? (
                 <div className="space-y-3">
@@ -255,70 +341,6 @@ const NoticeSettingBase = ({ scope }: NoticeSettingBaseProps) => {
                     description="첫 번째 공지를 만들어보세요."
                 />
             )}
-
-            <Modal
-                isOpen={isModalOpen}
-                onClose={closeModal}
-                title={editingNotice ? '공지 수정' : '새 공지 만들기'}
-                maxWidth="lg">
-                <form onSubmit={handleSubmit(onSubmit)}>
-                    <Modal.Body className="space-y-6">
-                        <div className="space-y-2">
-                            <label className="block text-sm font-semibold text-gray-900">
-                                공지 제목
-                            </label>
-                            <Input
-                                placeholder="공지 제목을 입력하세요"
-                                className="text-base"
-                                error={errors.title?.message}
-                                {...register('title')}
-                            />
-                        </div>
-
-                        <div className="space-y-2">
-                            <label className="block text-sm font-semibold text-gray-900">
-                                URL
-                            </label>
-                            <Input
-                                placeholder="https://example.com/notice"
-                                className="text-base"
-                                error={errors.url?.message}
-                                {...register('url')}
-                            />
-                            <p className="text-xs text-gray-500">공지 클릭 시 이동할 URL입니다.</p>
-                        </div>
-
-                        <div className="p-4 bg-gray-50 rounded-xl border border-gray-200">
-                            <Checkbox
-                                checked={watch('isActive')}
-                                onCheckedChange={(checked) => setValue('isActive', checked)}
-                                label="공지 활성화"
-                                description={
-                                    isGlobal
-                                        ? '활성화된 공지만 사용자에게 표시됩니다.'
-                                        : '활성화된 공지만 블로그에 표시됩니다.'
-                                }
-                            />
-                        </div>
-                    </Modal.Body>
-
-                    <Modal.Footer>
-                        <Modal.FooterAction
-                            type="button"
-                            variant="secondary"
-                            onClick={closeModal}
-                            disabled={createMutation.isPending || updateMutation.isPending}>
-                            취소
-                        </Modal.FooterAction>
-                        <Modal.FooterAction
-                            type="submit"
-                            variant="primary"
-                            isLoading={createMutation.isPending || updateMutation.isPending}>
-                            {createMutation.isPending || updateMutation.isPending ? '저장 중...' : editingNotice ? '공지 수정' : '공지 생성'}
-                        </Modal.FooterAction>
-                    </Modal.Footer>
-                </form>
-            </Modal>
         </div>
     );
 };
