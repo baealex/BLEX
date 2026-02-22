@@ -1,4 +1,4 @@
-import { Reply } from '@blex/ui';
+import { Dropdown, Reply } from '@blex/ui';
 import { CommentHeader } from './CommentHeader';
 import { CommentContent } from './CommentContent';
 import { CommentActions } from './CommentActions';
@@ -50,11 +50,16 @@ export const CommentItem = ({
     const isEditing = editingCommentId === comment.id;
     const isReplying = replyingToCommentId === comment.id;
     const isReply = !!comment.parentId;
+    const canManage = comment.author !== 'Ghost' && (
+        comment.isMine === true ||
+        (typeof comment.isMine !== 'boolean' && !!currentUser && comment.author === currentUser)
+    );
 
     return (
         <div className="group" data-comment-id={comment.id}>
             <article
                 className={`
+                    relative
                     py-6 px-4 sm:px-6
                     bg-white hover:bg-gray-50/50
                     transition-colors duration-200
@@ -64,6 +69,33 @@ export const CommentItem = ({
                     }
                 `}
                 aria-label={`${comment.author}의 ${isReply ? '답글' : '댓글'}`}>
+                {canManage && !isEditing && (
+                    <div className="absolute top-4 right-4 z-10" onClick={(e) => e.stopPropagation()}>
+                        <Dropdown
+                            trigger={(
+                                <button
+                                    type="button"
+                                    className="inline-flex items-center justify-center w-8 h-8 rounded-md text-gray-500 hover:text-gray-900 hover:bg-gray-100 transition-colors duration-150"
+                                    aria-label="댓글 옵션 열기">
+                                    <i className="fas fa-ellipsis-v text-sm" />
+                                </button>
+                            )}
+                            items={[
+                                {
+                                    label: '수정',
+                                    icon: 'fas fa-pen',
+                                    onClick: () => onEdit(comment.id)
+                                },
+                                {
+                                    label: '삭제',
+                                    icon: 'fas fa-trash',
+                                    onClick: () => onDelete(comment.id),
+                                    variant: 'danger'
+                                }
+                            ]}
+                        />
+                    </div>
+                )}
                 <CommentHeader
                     author={comment.author}
                     authorImage={comment.authorImage}
@@ -85,14 +117,10 @@ export const CommentItem = ({
                             <CommentContent renderedContent={comment.renderedContent} />
                             <CommentActions
                                 commentId={comment.id}
-                                commentAuthor={comment.author}
-                                currentUser={currentUser}
                                 isLiked={comment.isLiked}
                                 countLikes={comment.countLikes}
                                 isDeleted={comment.author === 'Ghost'}
                                 onLike={onLike}
-                                onEdit={onEdit}
-                                onDelete={onDelete}
                                 onReply={() => onReply(comment.id, comment.author)}
                             />
                         </>
