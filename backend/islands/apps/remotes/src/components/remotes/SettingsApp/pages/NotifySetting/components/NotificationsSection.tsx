@@ -2,8 +2,7 @@ import {
     Button,
     TITLE
 } from '~/components/shared';
-import { SettingsListItem } from '../../../components';
-import { SettingsHeader } from '../../../components';
+import { SettingsEmptyState, SettingsHeader, SettingsListItem } from '../../../components';
 import { markNotificationAsRead, type NotifyItem } from '~/lib/api/settings';
 
 interface NotificationsSectionProps {
@@ -31,7 +30,7 @@ const NotificationsSection = ({
         <div className="space-y-8">
             <SettingsHeader
                 title="알림"
-                description="주요 알림을 확인할 수 있습니다."
+                description="최신 알림을 확인할 수 있습니다."
                 actionPosition="right"
                 action={
                     <Button
@@ -56,7 +55,7 @@ const NotificationsSection = ({
                         </p>
                     </div>
                     <div className="flex-shrink-0 ml-6">
-                        <span className="inline-flex items-center justify-center w-10 h-10 rounded-lg bg-blue-50 text-blue-500 group-hover:bg-blue-500 group-hover:text-white transition-colors duration-200">
+                        <span className="inline-flex items-center justify-center w-10 h-10 rounded-lg bg-gray-100 text-gray-500 group-hover:bg-gray-900 group-hover:text-white transition-colors motion-interaction">
                             <i className="fab fa-telegram-plane text-lg" />
                         </span>
                     </div>
@@ -66,7 +65,7 @@ const NotificationsSection = ({
             {/* Notification list */}
             <div className="space-y-3">
                 {notifyList.length > 0 ? (
-                    notifyList.slice(0, 10).map((item) => (
+                    notifyList.map((item) => (
                         <SettingsListItem
                             key={item.id}
                             className="items-start"
@@ -76,7 +75,7 @@ const NotificationsSection = ({
                                     <i className="fas fa-chevron-right" />
                                 </div>
                             }>
-                            <div className={`${TITLE} ${!item.isRead ? 'font-semibold' : 'font-medium! text-gray-600!'} mb-1.5 leading-relaxed`}>
+                            <div className={`${TITLE} ${!item.isRead ? 'font-semibold text-gray-900' : 'font-medium text-gray-600'} mb-1.5 leading-relaxed`}>
                                 {item.content}
                             </div>
                             <div className="flex items-center gap-2 text-xs text-gray-400">
@@ -91,13 +90,11 @@ const NotificationsSection = ({
                         </SettingsListItem>
                     ))
                 ) : (
-                    <div className="py-16 text-center border border-dashed border-gray-200 rounded-2xl">
-                        <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gray-50 mb-4">
-                            <i className="fas fa-bell-slash text-2xl text-gray-300" />
-                        </div>
-                        <h3 className="text-lg font-semibold text-gray-900 mb-1">알림이 없습니다</h3>
-                        <p className="text-gray-500 text-sm">새로운 알림이 도착하면 여기에 표시됩니다.</p>
-                    </div>
+                    <SettingsEmptyState
+                        iconClassName="fas fa-bell-slash"
+                        title="알림이 없습니다"
+                        description="새로운 알림이 도착하면 여기에 표시됩니다."
+                    />
                 )}
             </div>
         </div>
