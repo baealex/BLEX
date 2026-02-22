@@ -1,35 +1,28 @@
-import { useState } from 'react';
 import { toast } from '~/utils/toast';
 import { useMutation, useQueryClient, useSuspenseQuery } from '@tanstack/react-query';
+import { useNavigate } from '@tanstack/react-router';
 import { useConfirm } from '~/hooks/useConfirm';
 import { SettingsEmptyState, SettingsHeader } from '../../components';
 import { Button } from '~/components/shared';
 import {
     getBanners,
-    createBanner,
     updateBanner,
     deleteBanner,
     updateBannerOrder,
     getGlobalBanners,
-    createGlobalBanner,
     updateGlobalBanner,
     deleteGlobalBanner,
     updateGlobalBannerOrder,
     type BannerData,
-    type BannerCreateData,
     type BannerUpdateData,
     type GlobalBannerData,
-    type GlobalBannerCreateData,
     type GlobalBannerUpdateData
 } from '~/lib/api/settings';
-import { BannerForm } from '../BannerSetting/components/BannerForm';
 import { BannerList } from '../BannerSetting/components/BannerList';
-import { GlobalBannerForm } from '../GlobalBannerSetting/components/GlobalBannerForm';
 import { GlobalBannerList } from '../GlobalBannerSetting/components/GlobalBannerList';
 
 type BannerScope = 'user' | 'global';
 type BannerItem = BannerData | GlobalBannerData;
-type BannerCreatePayload = BannerCreateData | GlobalBannerCreateData;
 type BannerUpdatePayload = BannerUpdateData | GlobalBannerUpdateData;
 
 interface BannerSettingBaseProps {
@@ -37,10 +30,9 @@ interface BannerSettingBaseProps {
 }
 
 const BannerSettingBase = ({ scope }: BannerSettingBaseProps) => {
-    const [showForm, setShowForm] = useState(false);
-    const [editingBanner, setEditingBanner] = useState<BannerItem | null>(null);
     const { confirm } = useConfirm();
     const queryClient = useQueryClient();
+    const navigate = useNavigate();
 
     const isGlobal = scope === 'global';
     const queryKey = isGlobal ? ['global-banners'] : ['banners'];
@@ -57,22 +49,6 @@ const BannerSettingBase = ({ scope }: BannerSettingBaseProps) => {
         }
     });
 
-    const createMutation = useMutation({
-        mutationFn: (bannerData: BannerCreatePayload) => (
-            isGlobal
-                ? createGlobalBanner(bannerData as GlobalBannerCreateData)
-                : createBanner(bannerData as BannerCreateData)
-        ),
-        onSuccess: () => {
-            toast.success(`${bannerLabel}가 생성되었습니다.`);
-            queryClient.invalidateQueries({ queryKey });
-            closeForm();
-        },
-        onError: () => {
-            toast.error(`${bannerLabel} 생성에 실패했습니다.`);
-        }
-    });
-
     const updateMutation = useMutation({
         mutationFn: ({ id, data }: { id: number; data: BannerUpdatePayload }) => (
             isGlobal
@@ -80,9 +56,7 @@ const BannerSettingBase = ({ scope }: BannerSettingBaseProps) => {
                 : updateBanner(id, data as BannerUpdateData)
         ),
         onSuccess: () => {
-            toast.success(`${bannerLabel}가 수정되었습니다.`);
             queryClient.invalidateQueries({ queryKey });
-            closeForm();
         },
         onError: () => {
             toast.error(`${bannerLabel} 수정에 실패했습니다.`);
@@ -113,19 +87,6 @@ const BannerSettingBase = ({ scope }: BannerSettingBaseProps) => {
         }
     });
 
-    const handleCreate = (data: BannerCreatePayload) => {
-        createMutation.mutate(data);
-    };
-
-    const handleUpdate = (data: BannerUpdatePayload) => {
-        if (editingBanner) {
-            updateMutation.mutate({
-                id: editingBanner.id,
-                data
-            });
-        }
-    };
-
     const handleDelete = async (id: number) => {
         const confirmed = await confirm({
             title: `${bannerLabel} 삭제`,
@@ -138,9 +99,19 @@ const BannerSettingBase = ({ scope }: BannerSettingBaseProps) => {
         }
     };
 
-    const handleEdit = (banner: BannerItem) => {
-        setEditingBanner(banner);
-        setShowForm(true);
+    const handleEdit = (bannerId: number) => {
+        if (isGlobal) {
+            navigate({
+                to: '/global-banners/edit/$bannerId',
+                params: { bannerId: String(bannerId) }
+            });
+            return;
+        }
+
+        navigate({
+            to: '/banners/edit/$bannerId',
+            params: { bannerId: String(bannerId) }
+        });
     };
 
     const handleToggleActive = (banner: BannerItem) => {
@@ -156,13 +127,12 @@ const BannerSettingBase = ({ scope }: BannerSettingBaseProps) => {
     };
 
     const handleCreateBanner = () => {
-        setEditingBanner(null);
-        setShowForm(true);
-    };
+        if (isGlobal) {
+            navigate({ to: '/global-banners/create' });
+            return;
+        }
 
-    const closeForm = () => {
-        setShowForm(false);
-        setEditingBanner(null);
+        navigate({ to: '/banners/create' });
     };
 
     return (
@@ -186,35 +156,12 @@ const BannerSettingBase = ({ scope }: BannerSettingBaseProps) => {
                 }
             />
 
-            {showForm && (
-                <div className="mb-6 bg-gray-50 border border-gray-200 rounded-2xl p-6 animate-in fade-in-0 slide-in-from-top-2 motion-interaction">
-                    <h3 className="text-base font-semibold text-gray-900 mb-4">
-                        {editingBanner ? `${bannerLabel} 수정` : `새 ${bannerLabel} 만들기`}
-                    </h3>
-                    {isGlobal ? (
-                        <GlobalBannerForm
-                            banner={(editingBanner as GlobalBannerData) || undefined}
-                            onSubmit={(data) => (editingBanner ? handleUpdate(data) : handleCreate(data))}
-                            onCancel={closeForm}
-                            isLoading={createMutation.isPending || updateMutation.isPending}
-                        />
-                    ) : (
-                        <BannerForm
-                            banner={(editingBanner as BannerData) || undefined}
-                            onSubmit={(data) => (editingBanner ? handleUpdate(data) : handleCreate(data))}
-                            onCancel={closeForm}
-                            isLoading={createMutation.isPending || updateMutation.isPending}
-                        />
-                    )}
-                </div>
-            )}
-
             {bannersData && bannersData.length > 0 ? (
                 <div>
                     {isGlobal ? (
                         <GlobalBannerList
                             banners={bannersData as GlobalBannerData[]}
-                            onEdit={(banner) => handleEdit(banner)}
+                            onEdit={handleEdit}
                             onDelete={handleDelete}
                             onToggleActive={(banner) => handleToggleActive(banner)}
                             onReorder={(banners) => handleReorder(banners)}
@@ -222,7 +169,7 @@ const BannerSettingBase = ({ scope }: BannerSettingBaseProps) => {
                     ) : (
                         <BannerList
                             banners={bannersData as BannerData[]}
-                            onEdit={(banner) => handleEdit(banner)}
+                            onEdit={handleEdit}
                             onDelete={handleDelete}
                             onToggleActive={(banner) => handleToggleActive(banner)}
                             onReorder={(banners) => handleReorder(banners)}

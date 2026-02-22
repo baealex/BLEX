@@ -34,6 +34,8 @@ const UtilitySetting = lazy(() => import('./pages/UtilitySetting'));
 // Lazy load fullscreen editors
 const SeriesEditor = lazy(() => import('./pages/SeriesSetting/components/SeriesEditor'));
 const StaticPageEditor = lazy(() => import('./pages/StaticPagesSetting/components/StaticPageEditor'));
+const BannerEditor = lazy(() => import('./pages/BannerSetting/components/BannerEditor'));
+const GlobalBannerEditor = lazy(() => import('./pages/GlobalBannerSetting/components/GlobalBannerEditor'));
 
 export interface SettingsAppProps {
     isEditor: boolean;
@@ -214,12 +216,50 @@ const seriesEditRoute = createRoute({
     }
 });
 
+const bannerCreateRoute = createRoute({
+    getParentRoute: () => rootRoute,
+    path: '/banners/create',
+    component: BannerEditor
+});
+
+const bannerEditRoute = createRoute({
+    getParentRoute: () => rootRoute,
+    path: '/banners/edit/$bannerId',
+    component: () => {
+        const { bannerId } = bannerEditRoute.useParams();
+        return (
+            <BannerEditor bannerId={Number(bannerId)} />
+        );
+    }
+});
+
+const globalBannerCreateRoute = createRoute({
+    getParentRoute: () => rootRoute,
+    path: '/global-banners/create',
+    component: GlobalBannerEditor
+});
+
+const globalBannerEditRoute = createRoute({
+    getParentRoute: () => rootRoute,
+    path: '/global-banners/edit/$bannerId',
+    component: () => {
+        const { bannerId } = globalBannerEditRoute.useParams();
+        return (
+            <GlobalBannerEditor bannerId={Number(bannerId)} />
+        );
+    }
+});
+
 // Route tree
 const routeTree = rootRoute.addChildren([
     seriesCreateRoute,
     seriesEditRoute,
     staticPageCreateRoute,
     staticPageEditRoute,
+    bannerCreateRoute,
+    bannerEditRoute,
+    globalBannerCreateRoute,
+    globalBannerEditRoute,
     settingsRoute.addChildren([
         indexRoute,
         notifyRoute,
