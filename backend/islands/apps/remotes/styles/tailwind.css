@@ -2,6 +2,7 @@
 @plugin "tailwindcss-animate";
 
 @source "../../../**/*.{ts,tsx}";
+@source "../../../packages/**/*.{ts,tsx}";
 @source "../../../../src/board/templates/**/*.html";
 
 @theme {
@@ -19,6 +20,35 @@
     --shadow-elevated: 0 4px 6px var(--color-shadow-md);
     --shadow-floating: 0 10px 15px var(--color-shadow-lg);
     --ease-apple: var(--ease-apple);
+
+    --color-dim-soft: rgb(0 0 0 / 0.2);
+    --color-dim-default: rgb(0 0 0 / 0.25);
+    --color-frosted-surface: rgb(255 255 255 / 0.9);
+    --blur-dim: 0px;
+    --blur-frosted: 12px;
+    --motion-interaction: 150ms;
+    --motion-entrance: 500ms;
+}
+
+@utility dim-overlay-soft {
+    background-color: var(--color-dim-soft);
+}
+
+@utility dim-overlay-default {
+    background-color: var(--color-dim-default);
+}
+
+@utility frosted-surface {
+    background-color: var(--color-frosted-surface);
+    backdrop-filter: blur(var(--blur-frosted));
+}
+
+@utility motion-interaction {
+    transition-duration: var(--motion-interaction);
+}
+
+@utility motion-entrance {
+    transition-duration: var(--motion-entrance);
 }
 
 /* Mention 스타일 */

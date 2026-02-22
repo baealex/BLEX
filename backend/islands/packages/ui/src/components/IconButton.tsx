@@ -1,5 +1,6 @@
 import type { ReactNode, ButtonHTMLAttributes } from 'react';
 import { cx } from '../lib/classnames';
+import { INTERACTION_DURATION } from '../lib/designTokens';
 
 interface IconButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
     size?: 'sm' | 'md' | 'lg';
@@ -17,17 +18,17 @@ const IconButton = ({
     className = '',
     ...props
 }: IconButtonProps) => {
-    const baseStyles = 'inline-flex items-center justify-center transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-black/20 focus:ring-offset-1 disabled:opacity-50 disabled:cursor-not-allowed';
+    const baseStyles = `inline-flex items-center justify-center transition-all ${INTERACTION_DURATION} focus:outline-none focus:ring-2 focus:ring-black/20 focus:ring-offset-1 disabled:opacity-50 disabled:cursor-not-allowed active:scale-95`;
 
     const variantStyles = {
-        'ghost': 'text-gray-600 hover:text-gray-900 hover:bg-gray-100',
-        'danger-ghost': 'text-red-500 hover:text-red-700 hover:bg-red-50'
+        'ghost': 'text-gray-600 hover:text-gray-900 hover:bg-gray-100 active:bg-gray-200',
+        'danger-ghost': 'text-red-500 hover:text-red-700 hover:bg-red-50 active:bg-red-100'
     };
 
     const sizeStyles = {
-        sm: 'w-8 h-8',
-        md: 'w-10 h-10',
-        lg: 'w-12 h-12'
+        sm: 'w-11 h-11',
+        md: 'w-12 h-12',
+        lg: 'w-14 h-14'
     };
 
     const roundedStyles = {

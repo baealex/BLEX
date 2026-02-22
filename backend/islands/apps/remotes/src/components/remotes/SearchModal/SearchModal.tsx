@@ -164,7 +164,7 @@ const SearchModal = ({ isOpen: initialIsOpen = false }: SearchModalProps) => {
             maxWidth="3xl"
             showCloseButton={false}>
             {/* 헤더 */}
-            <div className="sticky top-0 bg-white/80 backdrop-blur-xl border-b border-gray-200/50 rounded-t-3xl z-10">
+            <div className="sticky top-0 frosted-surface border-b border-gray-200/50 rounded-t-3xl z-10">
                 <div className="flex items-center justify-between px-6 py-5">
                     <div className="flex items-center gap-3 text-gray-900">
                         <div className="w-8 h-8 bg-black rounded-full flex items-center justify-center">

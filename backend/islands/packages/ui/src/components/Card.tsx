@@ -18,7 +18,7 @@ const Card = ({
  noPadding = false
 }: CardProps) => {
     return (
-        <div className={`bg-white border border-gray-100 rounded-2xl ${noPadding ? '' : 'p-6 md:p-8'} ${className}`}>
+        <div className={`bg-white ring-1 ring-gray-900/5 rounded-2xl ${noPadding ? '' : 'p-6 md:p-8'} ${className}`}>
             {(title || subtitle || icon) && (
                 <div className={`${noPadding ? 'p-6 md:p-8 pb-4' : 'mb-6'}`}>
                     <div className="flex items-start gap-4">
@@ -28,7 +28,7 @@ const Card = ({
                             </div>
                         )}
                         <div className="flex-1 min-w-0 pt-1">
-                            {title && <h3 className="text-lg font-bold text-gray-900 tracking-tight">{title}</h3>}
+                            {title && <h3 className="text-lg font-semibold text-gray-900 tracking-tight">{title}</h3>}
                             {subtitle && <p className="text-sm text-gray-500 mt-1 leading-relaxed">{subtitle}</p>}
                         </div>
                     </div>

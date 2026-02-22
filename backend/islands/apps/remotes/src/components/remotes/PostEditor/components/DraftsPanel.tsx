@@ -6,7 +6,9 @@ import {
     X,
     AlertTriangle,
     FileText,
-    Clock
+    Clock,
+    DIM_OVERLAY_DEFAULT,
+    ENTRANCE_DURATION
 } from '@blex/ui';
 import { getDrafts, type DraftSummary } from '~/lib/api/posts';
 import { cx } from '~/lib/classnames';
@@ -79,7 +81,7 @@ const DraftsPanel = ({
         <Dialog.Root open={isOpen} onOpenChange={(open) => !open && onClose()}>
             <Dialog.Portal>
                 {/* Backdrop */}
-                <Dialog.Overlay className="fixed inset-0 bg-black/30 backdrop-blur-sm z-40 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0" />
+                <Dialog.Overlay className={`fixed inset-0 ${DIM_OVERLAY_DEFAULT} z-40 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0`} />
 
                 {/* Slide-over panel */}
                 <Dialog.Content
@@ -87,7 +89,7 @@ const DraftsPanel = ({
                         'fixed inset-y-0 left-0 z-50 w-full sm:w-[480px] bg-white shadow-2xl flex flex-col focus:outline-none',
                         'data-[state=open]:animate-in data-[state=closed]:animate-out',
                         'data-[state=closed]:slide-out-to-left data-[state=open]:slide-in-from-left',
-                        'duration-300 ease-in-out'
+                        `${ENTRANCE_DURATION} ease-in-out`
                     )}>
 
                     {/* Header */}
@@ -113,7 +115,7 @@ const DraftsPanel = ({
                                 <button
                                     type="button"
                                     onClick={fetchDrafts}
-                                    className="text-sm text-blue-600 hover:text-blue-800 font-medium">
+                                    className="text-sm text-gray-700 hover:text-gray-900 font-medium">
                                     다시 시도
                                 </button>
                             </div>
@@ -130,7 +132,7 @@ const DraftsPanel = ({
                                         onClick={() => onSelectPost(draft.url)}
                                         className={cx(
                                             'w-full text-left p-4 hover:bg-gray-50 transition-colors',
-                                            draft.url === currentDraftUrl && 'bg-blue-50 border-l-4 border-blue-500'
+                                            draft.url === currentDraftUrl && 'bg-gray-100 border-l-4 border-gray-900'
                                         )}>
                                         <div className="flex items-start justify-between gap-3">
                                             <div className="flex-1 min-w-0">
@@ -144,7 +146,7 @@ const DraftsPanel = ({
                                             </div>
                                             {draft.url === currentDraftUrl && (
                                                 <div className="flex-shrink-0">
-                                                    <div className="w-2 h-2 bg-blue-500 rounded-full" />
+                                                    <div className="w-2 h-2 bg-gray-900 rounded-full" />
                                                 </div>
                                             )}
                                         </div>

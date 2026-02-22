@@ -2,7 +2,15 @@ import { useState, useCallback, useRef } from 'react';
 import { Link, useNavigate, useBlocker } from '@tanstack/react-router';
 import { useMutation, useQueryClient, useSuspenseQuery } from '@tanstack/react-query';
 import { toast } from '~/utils/toast';
-import { Button, Input, TiptapEditor, api } from '~/components/shared';
+import {
+    Button,
+    Input,
+    TiptapEditor,
+    api,
+    DIM_OVERLAY_DEFAULT,
+    FROSTED_SURFACE,
+    ENTRANCE_DURATION
+} from '~/components/shared';
 import {
     Dialog,
     IconButton,
@@ -252,7 +260,7 @@ export const StaticPageEditor = ({ pageId }: StaticPageEditorProps) => {
 
             {/* Floating bottom bar */}
             <div className="fixed sm:sticky bottom-6 left-0 right-0 z-30 flex justify-center pointer-events-none">
-                <div className="pointer-events-auto bg-white/80 backdrop-blur-xl border border-white/20 shadow-[0_8px_30px_rgb(0,0,0,0.12)] rounded-full px-3 py-3 flex items-center gap-2 transform transition-all duration-300 hover:scale-105 hover:shadow-[0_8px_40px_rgb(0,0,0,0.16)]">
+                <div className={`pointer-events-auto ${FROSTED_SURFACE} border border-white/30 shadow-[0_8px_30px_rgb(0,0,0,0.12)] rounded-full px-3 py-3 flex items-center gap-2 transform transition-all motion-interaction`}>
                     {/* Settings */}
                     <IconButton
                         onClick={() => setIsSettingsOpen(true)}
@@ -268,7 +276,7 @@ export const StaticPageEditor = ({ pageId }: StaticPageEditorProps) => {
                     <div className="flex items-center gap-1.5 px-1 text-xs text-gray-400">
                         {isPublished ? (
                             <>
-                                <div className="w-1.5 h-1.5 rounded-full bg-green-500" />
+                                <div className="w-1.5 h-1.5 rounded-full bg-gray-700" />
                                 <span>공개</span>
                             </>
                         ) : (
@@ -295,13 +303,13 @@ export const StaticPageEditor = ({ pageId }: StaticPageEditorProps) => {
             {/* Settings Drawer */}
             <Dialog.Root open={isSettingsOpen} onOpenChange={(open) => !open && setIsSettingsOpen(false)}>
                 <Dialog.Portal>
-                    <Dialog.Overlay className="fixed inset-0 bg-black/30 backdrop-blur-sm z-40 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0" />
+                    <Dialog.Overlay className={`fixed inset-0 ${DIM_OVERLAY_DEFAULT} z-40 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0`} />
                     <Dialog.Content
                         className={cx(
                             'fixed inset-y-0 right-0 z-50 w-full sm:w-[480px] bg-white shadow-2xl flex flex-col focus:outline-none',
                             'data-[state=open]:animate-in data-[state=closed]:animate-out',
                             'data-[state=closed]:slide-out-to-right data-[state=open]:slide-in-from-right',
-                            'duration-300 ease-in-out'
+                            `${ENTRANCE_DURATION} ease-in-out`
                         )}>
                         {/* Header */}
                         <div className="flex items-center justify-between px-6 py-5 border-b border-gray-200">
@@ -350,7 +358,7 @@ export const StaticPageEditor = ({ pageId }: StaticPageEditorProps) => {
                                             />
                                             <div className="flex items-center justify-between mt-2">
                                                 <p className="text-xs text-gray-400">검색 결과에 표시되는 설명입니다</p>
-                                                <p className={`text-xs font-medium ${metaDescription.length > 140 ? 'text-orange-500' : 'text-gray-400'}`}>
+                                                <p className={`text-xs font-medium ${metaDescription.length > 140 ? 'text-red-500' : 'text-gray-400'}`}>
                                                     {metaDescription.length}/160
                                                 </p>
                                             </div>

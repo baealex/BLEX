@@ -1,6 +1,7 @@
 import type { ReactNode, ButtonHTMLAttributes } from 'react';
 import { Loader2 } from 'lucide-react';
 import { cx } from '../lib/classnames';
+import { INTERACTION_DURATION } from '../lib/designTokens';
 
 interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
     variant?: 'primary' | 'secondary' | 'danger' | 'ghost';
@@ -26,21 +27,21 @@ const Button = ({
     disabled,
     ...props
 }: ButtonProps) => {
-    const baseStyles = 'inline-flex justify-center items-center gap-2 border border-transparent font-semibold transition-all duration-200 focus:outline-none focus:ring-4 focus:ring-offset-1 disabled:opacity-50 disabled:cursor-not-allowed active:scale-[0.98]';
+    const baseStyles = `inline-flex justify-center items-center gap-2 border border-transparent font-semibold transition-all ${INTERACTION_DURATION} focus:outline-none focus:ring-4 focus:ring-offset-1 disabled:opacity-50 disabled:cursor-not-allowed active:scale-95`;
 
     const variantStyles = {
-        primary: 'text-white bg-black hover:bg-gray-800 hover:shadow-lg shadow-md focus:ring-black/20 border-transparent',
-        secondary: 'text-gray-700 bg-white border-gray-200 hover:bg-gray-50 hover:border-gray-300 focus:ring-gray-200 shadow-sm hover:shadow-md',
-        danger: 'text-white bg-red-600 hover:bg-red-700 hover:shadow-lg shadow-md focus:ring-red-500/30 border-transparent',
-        ghost: 'text-gray-700 hover:text-gray-900 hover:bg-gray-100/50 focus:ring-gray-200 border-transparent'
+        primary: 'text-white bg-gray-900 hover:bg-gray-800 focus:ring-gray-900/20 border-transparent',
+        secondary: 'text-gray-800 bg-white border-gray-300 shadow-sm hover:bg-gray-50 hover:border-gray-400 focus:ring-gray-300 active:bg-gray-100',
+        danger: 'text-white bg-red-600 hover:bg-red-700 focus:ring-red-500/30 border-transparent',
+        ghost: 'text-gray-700 hover:text-gray-900 hover:bg-gray-100 focus:ring-gray-200 border-transparent'
     };
 
     const sizeStyles = compact ? {
-        sm: 'px-2 py-1.5 text-xs rounded-lg',
-        md: 'px-3 py-2 text-sm rounded-lg',
-        lg: 'px-4 py-2.5 text-base rounded-lg'
+        sm: 'px-2.5 py-2 text-xs rounded-lg min-h-[40px]',
+        md: 'px-3.5 py-2.5 text-sm rounded-lg min-h-[44px]',
+        lg: 'px-4.5 py-3 text-base rounded-lg min-h-[48px]'
     } : {
-        sm: 'px-3.5 py-2 text-xs rounded-lg min-h-[36px]',
+        sm: 'px-3.5 py-2.5 text-xs rounded-lg min-h-[44px]',
         md: 'px-5 py-3 text-sm rounded-lg min-h-[48px]',
         lg: 'px-7 py-4 text-base rounded-lg min-h-[56px]'
     };
