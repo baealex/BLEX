@@ -5,8 +5,8 @@ from board.models import WebhookSubscription
 
 @admin.register(WebhookSubscription)
 class WebhookSubscriptionAdmin(admin.ModelAdmin):
-    list_display = ['name', 'author', 'is_active', 'failure_count', 'last_success_date', 'created_date']
-    list_filter = ['is_active', 'failure_count', ('created_date', admin.DateFieldListFilter)]
+    list_display = ['name', 'scope', 'author', 'is_active', 'failure_count', 'last_success_date', 'created_date']
+    list_filter = ['scope', 'is_active', 'failure_count', ('created_date', admin.DateFieldListFilter)]
     search_fields = ['name', 'author__user__username', 'webhook_url']
     readonly_fields = ['created_date', 'failure_count', 'last_success_date']
     list_per_page = 30

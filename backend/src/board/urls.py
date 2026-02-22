@@ -130,5 +130,7 @@ urlpatterns = [
     # Webhook channels (author's notification channels)
     path('v1/webhook/channels', api_v1.my_channels),
     path('v1/webhook/channels/<int:channel_id>', api_v1.delete_channel),
+    path('v1/webhook/global-channels', api_v1.global_channels),
+    path('v1/webhook/global-channels/<int:channel_id>', api_v1.delete_global_channel),
     path('v1/webhook/test', api_v1.test_channel),
 ]

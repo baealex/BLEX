@@ -10,7 +10,6 @@ import random
 from typing import Optional, Dict, Any, Tuple, List
 from datetime import datetime
 
-from django.conf import settings
 from django.contrib.auth.models import User
 from django.db import transaction
 from django.db.models import (
@@ -26,8 +25,6 @@ from board.modules.post_description import create_post_description
 from board.services.tag_service import TagService
 from board.modules.response import ErrorCode
 from board.services.webhook_service import WebhookService
-from modules.discord import Discord
-from modules.sub_task import SubTaskProcessor
 
 
 class PostValidationError(Exception):
@@ -152,8 +149,9 @@ class PostService:
     def send_post_notifications(post: Post, post_config: PostConfig) -> None:
         """
         Send notifications for new post publication.
-        - Sends to site-wide Discord webhook (if configured)
-        - Sends to all webhook subscribers of the author
+        - Sends to the author's active channels
+        - Sends to active global channels
+        - Runs only after DB transaction commit
 
         Args:
             post: Post instance
@@ -162,18 +160,10 @@ class PostService:
         if post_config.hide or not post.is_published():
             return
 
-        # Site-wide Discord notification (optional, via environment variable)
-        if settings.DISCORD_NEW_POSTS_WEBHOOK:
-            def send_site_webhook():
-                post_url = settings.SITE_URL + post.get_absolute_url()
-                Discord.send_webhook(
-                    url=settings.DISCORD_NEW_POSTS_WEBHOOK,
-                    content=f'[새 글이 발행되었어요!]({post_url})'
-                )
-            SubTaskProcessor.process(send_site_webhook)
-
-        # Author's notification channels
-        WebhookService.notify_channels(post, post_config)
+        # Ensure notifications are scheduled only after successful commit.
+        transaction.on_commit(
+            lambda: WebhookService.notify_channels(post, post_config)
+        )
 
     @staticmethod
     def _compute_image_hash(image_file) -> str:

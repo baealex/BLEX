@@ -22,8 +22,6 @@ from board.modules.response import StatusDone, StatusError, ErrorCode
 from board.modules.time import convert_to_localtime, time_since
 from board.services.post_service import PostService, PostValidationError
 from modules import markdown
-from modules.sub_task import SubTaskProcessor
-from modules.discord import Discord
 
 
 def post_list(request):
