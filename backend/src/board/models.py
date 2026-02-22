@@ -290,9 +290,14 @@ class Post(models.Model):
         url = url if url else slugify(self.title, allow_unicode=True)
 
         post = Post.objects.filter(url=url)
+        if self.pk:
+            post = post.exclude(pk=self.pk)
+
         while post.exists():
             url = url + '-' + randstr(8)
             post = Post.objects.filter(url=url)
+            if self.pk:
+                post = post.exclude(pk=self.pk)
 
         self.url = url
 
