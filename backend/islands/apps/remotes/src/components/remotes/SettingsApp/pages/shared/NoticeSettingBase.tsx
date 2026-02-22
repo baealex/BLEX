@@ -239,7 +239,7 @@ const NoticeSettingBase = ({ scope }: NoticeSettingBaseProps) => {
                 title={editingNotice ? '공지 수정' : '새 공지 만들기'}
                 maxWidth="lg">
                 <form onSubmit={handleSubmit}>
-                    <div className="p-6 space-y-6">
+                    <Modal.Body className="space-y-6">
                         <div className="space-y-2">
                             <label className="block text-sm font-semibold text-gray-900">
                                 공지 제목
@@ -277,25 +277,23 @@ const NoticeSettingBase = ({ scope }: NoticeSettingBaseProps) => {
                                 }
                             />
                         </div>
-                    </div>
+                    </Modal.Body>
 
-                    <div className="flex items-center justify-end gap-3 px-6 py-4 border-t border-gray-200 bg-gray-50">
-                        <Button
+                    <Modal.Footer>
+                        <Modal.FooterAction
                             type="button"
                             variant="secondary"
-                            size="md"
                             onClick={closeModal}
                             disabled={createMutation.isPending || updateMutation.isPending}>
                             취소
-                        </Button>
-                        <Button
+                        </Modal.FooterAction>
+                        <Modal.FooterAction
                             type="submit"
                             variant="primary"
-                            size="md"
                             isLoading={createMutation.isPending || updateMutation.isPending}>
                             {createMutation.isPending || updateMutation.isPending ? '저장 중...' : editingNotice ? '공지 수정' : '공지 생성'}
-                        </Button>
-                    </div>
+                        </Modal.FooterAction>
+                    </Modal.Footer>
                 </form>
             </Modal>
         </div>

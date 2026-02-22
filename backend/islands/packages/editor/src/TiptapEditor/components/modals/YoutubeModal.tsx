@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Modal, Button, Input } from '@blex/ui';
+import { Modal, Input } from '@blex/ui';
 
 interface YoutubeModalProps {
     isOpen: boolean;
@@ -20,7 +20,7 @@ const YoutubeModal = ({ isOpen, onClose, onUpload }: YoutubeModalProps) => {
 
     return (
         <Modal isOpen={isOpen} onClose={onClose} title="YouTube 영상 추가" maxWidth="md">
-            <div className="p-6">
+            <Modal.Body>
                 <div className="mb-4">
                     <Input
                         id="youtube-id"
@@ -40,15 +40,15 @@ const YoutubeModal = ({ isOpen, onClose, onUpload }: YoutubeModalProps) => {
                         placeholder="dQw4w9WgXcQ 또는 https://www.youtube.com/watch?v=dQw4w9WgXcQ"
                     />
                 </div>
-                <div className="flex justify-end gap-2">
-                    <Button variant="secondary" onClick={onClose}>
-                        취소
-                    </Button>
-                    <Button variant="primary" onClick={handleUpload} disabled={!youtubeId}>
-                        추가
-                    </Button>
-                </div>
-            </div>
+            </Modal.Body>
+            <Modal.Footer>
+                <Modal.FooterAction variant="secondary" onClick={onClose}>
+                    취소
+                </Modal.FooterAction>
+                <Modal.FooterAction variant="primary" onClick={handleUpload} disabled={!youtubeId}>
+                    추가
+                </Modal.FooterAction>
+            </Modal.Footer>
         </Modal>
     );
 };

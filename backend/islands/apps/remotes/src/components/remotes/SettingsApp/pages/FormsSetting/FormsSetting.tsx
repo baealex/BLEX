@@ -208,7 +208,7 @@ const FormsManagement = () => {
                 title={editingForm ? '서식 편집' : '서식 추가'}
                 maxWidth="2xl">
                 <form onSubmit={handleSubmit(onSubmit)}>
-                    <div className="p-6 space-y-6">
+                    <Modal.Body className="space-y-6">
                         <Input
                             label="제목"
                             type="text"
@@ -225,25 +225,23 @@ const FormsManagement = () => {
                             error={errors.content?.message}
                             {...register('content')}
                         />
-                    </div>
+                    </Modal.Body>
 
-                    <div className="flex items-center justify-end gap-3 px-6 py-4 border-t border-gray-200 bg-gray-50">
-                        <Button
+                    <Modal.Footer>
+                        <Modal.FooterAction
                             variant="secondary"
-                            size="md"
                             onClick={closeModal}
                             disabled={isSubmitting}>
                             취소
-                        </Button>
-                        <Button
+                        </Modal.FooterAction>
+                        <Modal.FooterAction
                             type="submit"
                             variant="primary"
-                            size="md"
                             isLoading={isSubmitting}
                             leftIcon={!isSubmitting ? <i className={`fas ${editingForm ? 'fa-save' : 'fa-plus'}`} /> : undefined}>
                             {isSubmitting ? (editingForm ? '수정 중...' : '생성 중...') : (editingForm ? '수정' : '생성')}
-                        </Button>
-                    </div>
+                        </Modal.FooterAction>
+                    </Modal.Footer>
                 </form>
             </Modal>
         </div>

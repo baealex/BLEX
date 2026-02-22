@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 import { useForm, Controller } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Button, Input, Checkbox } from '~/components/shared';
+import { Modal, Input, Checkbox } from '~/components/shared';
 import { CodeEditor } from '~/components/CodeEditor';
 import type { GlobalBannerData, GlobalBannerCreateData } from '~/lib/api/settings';
 
@@ -297,19 +297,17 @@ export const GlobalBannerForm = ({ banner, onSubmit, onCancel, isLoading }: Glob
                 </div>
             </div>
 
-            <div className="flex items-center justify-end gap-3 px-6 py-4 border-t border-gray-200 bg-gray-50">
-                <Button
+            <Modal.Footer>
+                <Modal.FooterAction
                     type="button"
                     variant="secondary"
-                    size="md"
                     onClick={onCancel}
                     disabled={isLoading}>
                     취소
-                </Button>
-                <Button
+                </Modal.FooterAction>
+                <Modal.FooterAction
                     type="submit"
                     variant="primary"
-                    size="md"
                     isLoading={isLoading}
                     leftIcon={
                         !isLoading ? (
@@ -319,8 +317,8 @@ export const GlobalBannerForm = ({ banner, onSubmit, onCancel, isLoading }: Glob
                         ) : undefined
                     }>
                     {isLoading ? '저장 중...' : banner ? '배너 수정' : '배너 생성'}
-                </Button>
-            </div>
+                </Modal.FooterAction>
+            </Modal.Footer>
         </form>
     );
 };

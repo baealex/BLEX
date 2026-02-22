@@ -76,17 +76,6 @@ export const ConfirmProvider = ({ children }: { children: ReactNode }) => {
         }));
     }, []);
 
-    const getConfirmButtonClass = () => {
-        const baseClass = 'px-4 py-2 text-sm rounded-lg transition-colors';
-
-        switch (dialogState.variant) {
-            case 'danger':
-                return `${baseClass} bg-red-600 text-white hover:bg-red-700`;
-            default:
-                return `${baseClass} bg-black text-white hover:bg-gray-800`;
-        }
-    };
-
     return (
         <ConfirmContext.Provider value={{ confirm }}>
             {children}
@@ -96,24 +85,26 @@ export const ConfirmProvider = ({ children }: { children: ReactNode }) => {
                 onClose={handleClose}
                 maxWidth="md"
                 showCloseButton={false}>
-                <div className="p-6">
+                <Modal.Body>
                     <h3 className="text-lg font-semibold text-gray-900 mb-2">{dialogState.title}</h3>
                     <p className="text-sm text-gray-600 mb-6">
                         {dialogState.message}
                     </p>
-                    <div className="flex gap-3 justify-end">
-                        <button
-                            onClick={handleClose}
-                            className="px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-lg transition-colors">
-                            {dialogState.cancelText}
-                        </button>
-                        <button
-                            onClick={handleConfirm}
-                            className={getConfirmButtonClass()}>
-                            {dialogState.confirmText}
-                        </button>
-                    </div>
-                </div>
+                </Modal.Body>
+                <Modal.Footer>
+                    <Modal.FooterAction
+                        type="button"
+                        variant="secondary"
+                        onClick={handleClose}>
+                        {dialogState.cancelText}
+                    </Modal.FooterAction>
+                    <Modal.FooterAction
+                        type="button"
+                        variant={dialogState.variant === 'danger' ? 'danger' : 'primary'}
+                        onClick={handleConfirm}>
+                        {dialogState.confirmText}
+                    </Modal.FooterAction>
+                </Modal.Footer>
             </Modal>
         </ConfirmContext.Provider>
     );
