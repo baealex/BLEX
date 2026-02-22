@@ -31,7 +31,7 @@ const PinnedPostsSetting = () => {
             if (data.status === 'DONE') {
                 return data.body;
             }
-            throw new Error('고정 글 목록을 불러오는데 실패했습니다.');
+            throw new Error('고정 포스트 목록을 불러오는데 실패했습니다.');
         }
     });
 
@@ -86,12 +86,12 @@ const PinnedPostsSetting = () => {
                 // Refresh the data
                 queryClient.invalidateQueries({ queryKey: ['pinned-posts-setting'] });
                 setIsModalOpen(false);
-                toast.success('글이 고정되었습니다.');
+                toast.success('포스트가 고정되었습니다.');
             } else {
-                throw new Error(data.errorMessage || '글 고정에 실패했습니다.');
+                throw new Error(data.errorMessage || '포스트 고정에 실패했습니다.');
             }
         } catch (error) {
-            toast.error(error instanceof Error ? error.message : '글 고정에 실패했습니다.');
+            toast.error(error instanceof Error ? error.message : '포스트 고정에 실패했습니다.');
         } finally {
             setIsAddingPost(false);
         }
@@ -117,7 +117,7 @@ const PinnedPostsSetting = () => {
     return (
         <div>
             <SettingsHeader
-                title={`고정 글 (${pinnedPosts.length}/${maxCount})`}
+                title={`고정 포스트 (${pinnedPosts.length}/${maxCount})`}
                 description="프로필에 표시할 대표 글을 선택하세요. 드래그하여 순서를 조정할 수 있습니다."
                 actionPosition="right"
                 action={
@@ -127,7 +127,7 @@ const PinnedPostsSetting = () => {
                         className="w-full sm:w-auto"
                         onClick={handleOpenModal}
                         disabled={!canAddMore}>
-                        {canAddMore ? '글 고정하기' : '최대 개수 도달'}
+                        {canAddMore ? '포스트 고정하기' : '최대 개수 도달'}
                     </Button>
                 }
             />

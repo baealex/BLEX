@@ -62,17 +62,17 @@ const SiteSettingSetting = () => {
         <div className="space-y-8">
             <SettingsHeader
                 title="사이트 설정"
-                description="사이트 전체에 적용되는 스크립트 및 알림 설정을 관리합니다."
+                description="사이트 전체에 적용되는 커스텀 코드 및 알림 설정을 관리합니다."
             />
 
             <Card
-                title="분석 스크립트"
-                subtitle="사이트 분석을 위한 스크립트를 설정합니다."
+                title="커스텀 코드"
+                subtitle="스크립트나 메타 태그와 같은 코드를 전역에 삽입할 수 있습니다."
                 icon={<i className="fas fa-code" />}>
                 <div className="space-y-4">
                     <div className="space-y-2">
                         <label className="block text-sm font-semibold text-gray-900">
-                            Header 스크립트
+                            Head 영역 코드
                         </label>
                         <CodeEditor
                             language="html"
@@ -84,7 +84,7 @@ const SiteSettingSetting = () => {
                     </div>
                     <div className="space-y-2">
                         <label className="block text-sm font-semibold text-gray-900">
-                            Footer 스크립트
+                            Body 하단 코드
                         </label>
                         <CodeEditor
                             language="html"
@@ -92,7 +92,7 @@ const SiteSettingSetting = () => {
                             onChange={setFooterScript}
                             height="200px"
                         />
-                        <p className="text-xs text-gray-500">{'</body>'} 태그 전에 삽입됩니다.</p>
+                        <p className="text-xs text-gray-500">{'</body>'} 태그 직전에 삽입됩니다.</p>
                     </div>
                 </div>
             </Card>

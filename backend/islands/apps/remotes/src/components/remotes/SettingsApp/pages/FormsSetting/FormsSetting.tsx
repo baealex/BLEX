@@ -151,7 +151,7 @@ const FormsManagement = () => {
     return (
         <div>
             <SettingsHeader
-                title="서식 관리"
+                title="서식"
                 description="자주 사용하는 서식을 미리 만들어두면, 글을 더 빠르게 작성할 수 있어요."
                 actionPosition="right"
                 action={

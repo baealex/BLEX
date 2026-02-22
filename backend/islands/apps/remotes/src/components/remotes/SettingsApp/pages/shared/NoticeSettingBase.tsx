@@ -88,7 +88,7 @@ const NoticeSettingBase = ({ scope }: NoticeSettingBaseProps) => {
 
     const isGlobal = scope === 'global';
     const queryKey = isGlobal ? ['global-notices'] : ['notices'];
-    const noticeLabel = isGlobal ? '글로벌 공지' : '공지';
+    const noticeLabel = isGlobal ? '전역 공지' : '공지';
 
     const { data: noticesData } = useSuspenseQuery({
         queryKey,
@@ -207,10 +207,10 @@ const NoticeSettingBase = ({ scope }: NoticeSettingBaseProps) => {
     return (
         <div className="space-y-8">
             <SettingsHeader
-                title={`공지 관리 (${noticesData?.length || 0})`}
+                title={`${noticeLabel} (${noticesData?.length || 0})`}
                 description={
                     isGlobal
-                        ? '사이트 전체에 표시되는 글로벌 공지를 관리합니다.'
+                        ? '사이트 전체에 표시되는 전역 공지를 관리합니다.'
                         : '블로그에 표시되는 공지를 관리합니다.'
                 }
                 actionPosition="right"
@@ -230,7 +230,7 @@ const NoticeSettingBase = ({ scope }: NoticeSettingBaseProps) => {
                     className="bg-gray-50 border border-gray-200 rounded-2xl p-6 animate-in fade-in-0 slide-in-from-top-2 motion-interaction"
                     onSubmit={handleSubmit(onSubmit)}>
                     <h3 className="text-base font-semibold text-gray-900 mb-4">
-                        {editingNotice ? '공지 수정' : '새 공지 만들기'}
+                        {editingNotice ? `${noticeLabel} 수정` : `새 ${noticeLabel} 만들기`}
                     </h3>
                     <div className="space-y-4">
                         <div className="space-y-2">
@@ -286,7 +286,7 @@ const NoticeSettingBase = ({ scope }: NoticeSettingBaseProps) => {
                                     variant="primary"
                                     size="md"
                                     isLoading={isSubmitting}>
-                                    {isSubmitting ? '저장 중...' : editingNotice ? '공지 수정' : '공지 생성'}
+                                    {isSubmitting ? '저장 중...' : editingNotice ? `${noticeLabel} 수정` : `${noticeLabel} 생성`}
                                 </Button>
                             </div>
                         </div>

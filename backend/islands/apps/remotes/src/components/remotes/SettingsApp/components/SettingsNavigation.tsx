@@ -73,13 +73,13 @@ const navigationSections: NavigationSection[] = [
                 requiresEditor: true
             },
             {
-                name: '고정 글',
+                name: '고정 포스트',
                 path: '/pinned-posts',
                 icon: 'fa-thumbtack',
                 requiresEditor: true
             },
             {
-                name: '임시글',
+                name: '임시 포스트',
                 path: '/drafts',
                 icon: 'fa-save',
                 requiresEditor: true
@@ -106,15 +106,15 @@ const navigationSections: NavigationSection[] = [
     },
     {
         title: '확장',
-        description: '연동, 채널 설정',
+        description: '텔레그램, 웹훅 연동',
         items: [
             {
-                name: '연동',
+                name: '텔레그램 연동',
                 path: '/integration',
                 icon: 'fa-plug'
             },
             {
-                name: '채널',
+                name: '웹훅 연동',
                 path: '/webhook',
                 icon: 'fa-bolt',
                 requiresEditor: true
@@ -151,9 +151,9 @@ const navigationSections: NavigationSection[] = [
                 requiresStaff: true
             },
             {
-                name: '전역 채널',
+                name: '전역 웹훅 연동',
                 path: '/global-webhook',
-                icon: 'fa-globe',
+                icon: 'fa-bolt',
                 requiresStaff: true
             },
             {

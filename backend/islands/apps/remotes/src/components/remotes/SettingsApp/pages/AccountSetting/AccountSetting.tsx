@@ -197,7 +197,7 @@ const AccountSettings = () => {
     return (
         <div>
             <SettingsHeader
-                title="계정 설정"
+                title="계정"
                 description="아이디, 이름, 비밀번호 등 계정 정보를 관리하세요."
             />
 

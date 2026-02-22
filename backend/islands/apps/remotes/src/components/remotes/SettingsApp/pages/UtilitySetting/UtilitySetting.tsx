@@ -239,243 +239,245 @@ const UtilitySetting = () => {
                 </div>
             </Card>
 
-            {/* 태그 정리 */}
-            <Card
-                title="태그 정리"
-                subtitle="포스트에 사용되지 않는 태그를 찾아 삭제합니다."
-                icon={<i className="fas fa-tags" />}>
-                <div className="space-y-4">
-                    {tagResult && (
-                        <Alert variant={tagResult.dryRun ? 'info' : 'success'}>
-                            <p>전체: {tagResult.totalTags}개 / 사용 중: {tagResult.usedTags}개 / 미사용: {tagResult.unusedTags}개</p>
-                            {tagResult.cleanedCount > 0 && !tagResult.dryRun && (
-                                <p className="mt-1">{tagResult.cleanedCount}개 태그 삭제 완료</p>
-                            )}
-                            {tagResult.dryRun && tagResult.cleanedTags.length > 0 && (
-                                <p className="mt-1 text-xs">미사용: {tagResult.cleanedTags.join(', ')}</p>
-                            )}
-                        </Alert>
-                    )}
-                    <div className="flex flex-wrap gap-2">
-                        <Button
-                            variant="secondary"
-                            size="sm"
-                            isLoading={tagMutation.isPending && tagMutation.variables === true}
-                            onClick={() => tagMutation.mutate(true)}>
-                            미리보기
-                        </Button>
+            <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
+                {/* 태그 정리 */}
+                <Card
+                    title="태그 정리"
+                    subtitle="포스트에 사용되지 않는 태그를 찾아 삭제합니다."
+                    icon={<i className="fas fa-tags" />}>
+                    <div className="space-y-4">
+                        {tagResult && (
+                            <Alert variant={tagResult.dryRun ? 'info' : 'success'}>
+                                <p>전체: {tagResult.totalTags}개 / 사용 중: {tagResult.usedTags}개 / 미사용: {tagResult.unusedTags}개</p>
+                                {tagResult.cleanedCount > 0 && !tagResult.dryRun && (
+                                    <p className="mt-1">{tagResult.cleanedCount}개 태그 삭제 완료</p>
+                                )}
+                                {tagResult.dryRun && tagResult.cleanedTags.length > 0 && (
+                                    <p className="mt-1 text-xs">미사용: {tagResult.cleanedTags.join(', ')}</p>
+                                )}
+                            </Alert>
+                        )}
+                        <div className="flex flex-wrap gap-2">
+                            <Button
+                                variant="secondary"
+                                size="sm"
+                                isLoading={tagMutation.isPending && tagMutation.variables === true}
+                                onClick={() => tagMutation.mutate(true)}>
+                                미리보기
+                            </Button>
+                            <Button
+                                variant="primary"
+                                size="sm"
+                                isLoading={tagMutation.isPending && tagMutation.variables === false}
+                                onClick={handleCleanTags}>
+                                정리하기
+                            </Button>
+                        </div>
+                    </div>
+                </Card>
+
+                {/* 세션 정리 */}
+                <Card
+                    title="세션 정리"
+                    subtitle="만료되었거나 불필요한 세션을 정리합니다."
+                    icon={<i className="fas fa-clock" />}>
+                    <div className="space-y-4">
+                        <div className="flex gap-6 text-sm text-gray-600">
+                            <span>전체 세션: <strong className="text-gray-900">{stats.totalSessions}</strong></span>
+                            <span>만료된 세션: <strong className="text-gray-900">{stats.expiredSessions}</strong></span>
+                        </div>
+                        {sessionResult && (
+                            <Alert variant={sessionResult.dryRun ? 'info' : 'success'}>
+                                {sessionResult.dryRun
+                                    ? `삭제 예정: ${sessionResult.cleanAll ? sessionResult.totalSessions : sessionResult.expiredSessions}개`
+                                    : `${sessionResult.cleanedCount}개 세션 삭제 완료`
+                                }
+                            </Alert>
+                        )}
+                        <div className="flex flex-wrap gap-2">
+                            <Button
+                                variant="secondary"
+                                size="sm"
+                                isLoading={sessionMutation.isPending && !sessionMutation.variables?.cleanAll}
+                                onClick={handleCleanExpiredSessions}>
+                                만료된 세션 정리
+                            </Button>
+                            <Button
+                                variant="danger"
+                                size="sm"
+                                isLoading={sessionMutation.isPending && !!sessionMutation.variables?.cleanAll}
+                                onClick={handleCleanAllSessions}>
+                                모든 세션 정리
+                            </Button>
+                        </div>
+                    </div>
+                </Card>
+
+                {/* 로그 정리 */}
+                <Card
+                    title="로그 정리"
+                    subtitle="관리자 활동 로그를 정리합니다."
+                    icon={<i className="fas fa-scroll" />}>
+                    <div className="space-y-4">
+                        <div className="text-sm text-gray-600">
+                            로그 수: <strong className="text-gray-900">{stats.logCount}</strong>
+                        </div>
+                        {logResult && (
+                            <Alert variant={logResult.dryRun ? 'info' : 'success'}>
+                                {logResult.dryRun
+                                    ? `삭제 예정: ${logResult.logCount}개의 로그`
+                                    : `${logResult.cleanedCount}개 로그 삭제 완료`
+                                }
+                            </Alert>
+                        )}
                         <Button
                             variant="primary"
                             size="sm"
-                            isLoading={tagMutation.isPending && tagMutation.variables === false}
-                            onClick={handleCleanTags}>
+                            isLoading={logMutation.isPending}
+                            onClick={handleCleanLogs}>
                             정리하기
                         </Button>
                     </div>
-                </div>
-            </Card>
+                </Card>
 
-            {/* 세션 정리 */}
-            <Card
-                title="세션 정리"
-                subtitle="만료되었거나 불필요한 세션을 정리합니다."
-                icon={<i className="fas fa-clock" />}>
-                <div className="space-y-4">
-                    <div className="flex gap-6 text-sm text-gray-600">
-                        <span>전체 세션: <strong className="text-gray-900">{stats.totalSessions}</strong></span>
-                        <span>만료된 세션: <strong className="text-gray-900">{stats.expiredSessions}</strong></span>
-                    </div>
-                    {sessionResult && (
-                        <Alert variant={sessionResult.dryRun ? 'info' : 'success'}>
-                            {sessionResult.dryRun
-                                ? `삭제 예정: ${sessionResult.cleanAll ? sessionResult.totalSessions : sessionResult.expiredSessions}개`
-                                : `${sessionResult.cleanedCount}개 세션 삭제 완료`
-                            }
-                        </Alert>
-                    )}
-                    <div className="flex flex-wrap gap-2">
-                        <Button
-                            variant="secondary"
-                            size="sm"
-                            isLoading={sessionMutation.isPending && !sessionMutation.variables?.cleanAll}
-                            onClick={handleCleanExpiredSessions}>
-                            만료된 세션 정리
-                        </Button>
-                        <Button
-                            variant="danger"
-                            size="sm"
-                            isLoading={sessionMutation.isPending && !!sessionMutation.variables?.cleanAll}
-                            onClick={handleCleanAllSessions}>
-                            모든 세션 정리
-                        </Button>
-                    </div>
-                </div>
-            </Card>
-
-            {/* 로그 정리 */}
-            <Card
-                title="로그 정리"
-                subtitle="관리자 활동 로그를 정리합니다."
-                icon={<i className="fas fa-scroll" />}>
-                <div className="space-y-4">
-                    <div className="text-sm text-gray-600">
-                        로그 수: <strong className="text-gray-900">{stats.logCount}</strong>
-                    </div>
-                    {logResult && (
-                        <Alert variant={logResult.dryRun ? 'info' : 'success'}>
-                            {logResult.dryRun
-                                ? `삭제 예정: ${logResult.logCount}개의 로그`
-                                : `${logResult.cleanedCount}개 로그 삭제 완료`
-                            }
-                        </Alert>
-                    )}
-                    <Button
-                        variant="primary"
-                        size="sm"
-                        isLoading={logMutation.isPending}
-                        onClick={handleCleanLogs}>
-                        정리하기
-                    </Button>
-                </div>
-            </Card>
-
-            {/* 이미지 정리 */}
-            <Card
-                title="이미지 정리"
-                subtitle="사용되지 않는 이미지 파일을 찾아 삭제합니다."
-                icon={<i className="fas fa-image" />}>
-                <div className="space-y-4">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1.5">대상</label>
-                            <Select
-                                value={imageTarget}
-                                onValueChange={(v) => { setImageTarget(v); setHasPreviewed(false); }}
-                                items={targetItems}
-                            />
-                        </div>
-                        <div className="flex items-end">
-                            <Checkbox
-                                checked={removeDuplicates}
-                                onCheckedChange={(v) => { setRemoveDuplicates(v); setHasPreviewed(false); }}
-                                label="중복 파일 제거"
-                                description="동일한 해시의 중복 파일도 함께 정리합니다."
-                            />
-                        </div>
-                    </div>
-                    {imageResult && (
-                        <Alert variant={imageResult.dryRun ? 'info' : 'success'}>
-                            <div className="space-y-1">
-                                <p>미사용 파일: {imageResult.totalUnused}개 ({imageResult.totalSizeMb} MB)</p>
-                                {imageResult.totalDuplicates > 0 && (
-                                    <p>중복 파일: {imageResult.totalDuplicates}개 ({imageResult.totalDuplicateSizeMb} MB)</p>
-                                )}
-                                <p>절약 용량: {imageResult.totalSavedMb} MB</p>
-                                {imageResult.messages.length > 0 && (
-                                    <ul className="mt-2 text-xs space-y-0.5">
-                                        {imageResult.messages.map((msg, i) => (
-                                            <li key={i}>{msg}</li>
-                                        ))}
-                                    </ul>
-                                )}
-                                {imageResult.dryRun && imageResult.unusedFiles && imageResult.unusedFiles.length > 0 && (
-                                    <details className="mt-3">
-                                        <summary className="text-xs font-medium cursor-pointer select-none">
-                                            삭제 대상 이미지 ({imageResult.unusedFiles.length}
-                                            {imageResult.totalUnused > imageResult.unusedFiles.length
-                                                ? ` / ${imageResult.totalUnused}`
-                                                : ''}개)
-                                        </summary>
-                                        <div className="mt-3 grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-2 max-h-80 overflow-y-auto">
-                                            {imageResult.unusedFiles.map((file, i) => (
-                                                <div key={i} className="group relative">
-                                                    <div className="aspect-square rounded-lg overflow-hidden bg-gray-100 border border-gray-200">
-                                                        <img
-                                                            src={file.url}
-                                                            alt={file.path}
-                                                            loading="lazy"
-                                                            className="w-full h-full object-cover"
-                                                            onError={(e) => {
-                                                                e.currentTarget.style.display = 'none';
-                                                                e.currentTarget.parentElement!.classList.add(
-                                                                    'flex', 'items-center', 'justify-center'
-                                                                );
-                                                                e.currentTarget.parentElement!.innerHTML = '<i class="fas fa-file-image text-gray-300 text-xl"></i>';
-                                                            }}
-                                                        />
-                                                    </div>
-                                                    <div className="mt-1 text-[10px] text-gray-500 truncate" title={file.path}>
-                                                        {file.sizeKb} KB
-                                                    </div>
-                                                </div>
-                                            ))}
-                                        </div>
-                                    </details>
-                                )}
-                                {imageResult.dryRun && imageResult.duplicateFiles && imageResult.duplicateFiles.length > 0 && (
-                                    <details className="mt-3">
-                                        <summary className="text-xs font-medium cursor-pointer select-none">
-                                            중복 파일 ({imageResult.duplicateFiles.length}개)
-                                        </summary>
-                                        <div className="mt-3 space-y-2 max-h-80 overflow-y-auto">
-                                            {imageResult.duplicateFiles.map((dup, i) => (
-                                                <div key={i} className="flex items-center gap-3 p-2 rounded-lg bg-gray-50">
-                                                    <div className="flex-shrink-0 w-12 h-12 rounded-lg overflow-hidden bg-gray-100 border border-red-200">
-                                                        <img
-                                                            src={dup.duplicateUrl}
-                                                            alt="삭제 대상"
-                                                            loading="lazy"
-                                                            className="w-full h-full object-cover"
-                                                        />
-                                                    </div>
-                                                    <div className="flex-shrink-0 text-gray-400">
-                                                        <i className="fas fa-arrow-right" />
-                                                    </div>
-                                                    <div className="flex-shrink-0 w-12 h-12 rounded-lg overflow-hidden bg-gray-100 border border-gray-200">
-                                                        <img
-                                                            src={dup.originalUrl}
-                                                            alt="원본 유지"
-                                                            loading="lazy"
-                                                            className="w-full h-full object-cover"
-                                                        />
-                                                    </div>
-                                                    <div className="text-[10px] text-gray-500">
-                                                        <span className="text-red-500">{dup.duplicateSizeKb} KB</span>
-                                                        {' → '}
-                                                        <span className="text-gray-700">{dup.originalSizeKb} KB</span>
-                                                        <span className="ml-1 text-gray-400">({dup.hash})</span>
-                                                    </div>
-                                                </div>
-                                            ))}
-                                        </div>
-                                    </details>
-                                )}
+                {/* 이미지 정리 */}
+                <Card
+                    title="이미지 정리"
+                    subtitle="사용되지 않는 이미지 파일을 찾아 삭제합니다."
+                    icon={<i className="fas fa-image" />}>
+                    <div className="space-y-4">
+                        <div className="flex flex-wrap items-start gap-4">
+                            <div className="w-full min-w-[220px] flex-1">
+                                <label className="block text-sm font-medium text-gray-700 mb-1.5">대상</label>
+                                <Select
+                                    value={imageTarget}
+                                    onValueChange={(v) => { setImageTarget(v); setHasPreviewed(false); }}
+                                    items={targetItems}
+                                />
                             </div>
-                        </Alert>
-                    )}
-                    <div className="flex flex-wrap gap-2">
-                        <Button
-                            variant="secondary"
-                            size="sm"
-                            isLoading={imageMutation.isPending && imageMutation.variables?.dryRun === true}
-                            onClick={() => imageMutation.mutate({
-                                dryRun: true,
-                                target: imageTarget,
-                                removeDups: removeDuplicates
-                            })}>
-                            미리보기
-                        </Button>
-                        <Button
-                            variant="primary"
-                            size="sm"
-                            disabled={!hasPreviewed}
-                            isLoading={imageMutation.isPending && imageMutation.variables?.dryRun === false}
-                            onClick={handleCleanImages}>
-                            정리하기
-                        </Button>
+                            <div className="w-full min-w-[220px] flex-1 pt-1">
+                                <Checkbox
+                                    checked={removeDuplicates}
+                                    onCheckedChange={(v) => { setRemoveDuplicates(v); setHasPreviewed(false); }}
+                                    label="중복 파일 제거"
+                                    description="동일한 해시의 중복 파일도 함께 정리합니다."
+                                />
+                            </div>
+                        </div>
+                        {imageResult && (
+                            <Alert variant={imageResult.dryRun ? 'info' : 'success'}>
+                                <div className="space-y-1">
+                                    <p>미사용 파일: {imageResult.totalUnused}개 ({imageResult.totalSizeMb} MB)</p>
+                                    {imageResult.totalDuplicates > 0 && (
+                                        <p>중복 파일: {imageResult.totalDuplicates}개 ({imageResult.totalDuplicateSizeMb} MB)</p>
+                                    )}
+                                    <p>절약 용량: {imageResult.totalSavedMb} MB</p>
+                                    {imageResult.messages.length > 0 && (
+                                        <ul className="mt-2 text-xs space-y-0.5">
+                                            {imageResult.messages.map((msg, i) => (
+                                                <li key={i}>{msg}</li>
+                                            ))}
+                                        </ul>
+                                    )}
+                                    {imageResult.dryRun && imageResult.unusedFiles && imageResult.unusedFiles.length > 0 && (
+                                        <details className="mt-3">
+                                            <summary className="text-xs font-medium cursor-pointer select-none">
+                                                삭제 대상 이미지 ({imageResult.unusedFiles.length}
+                                                {imageResult.totalUnused > imageResult.unusedFiles.length
+                                                    ? ` / ${imageResult.totalUnused}`
+                                                    : ''}개)
+                                            </summary>
+                                            <div className="mt-3 grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-2 max-h-80 overflow-y-auto">
+                                                {imageResult.unusedFiles.map((file, i) => (
+                                                    <div key={i} className="group relative">
+                                                        <div className="aspect-square rounded-lg overflow-hidden bg-gray-100 border border-gray-200">
+                                                            <img
+                                                                src={file.url}
+                                                                alt={file.path}
+                                                                loading="lazy"
+                                                                className="w-full h-full object-cover"
+                                                                onError={(e) => {
+                                                                    e.currentTarget.style.display = 'none';
+                                                                    e.currentTarget.parentElement!.classList.add(
+                                                                        'flex', 'items-center', 'justify-center'
+                                                                    );
+                                                                    e.currentTarget.parentElement!.innerHTML = '<i class="fas fa-file-image text-gray-300 text-xl"></i>';
+                                                                }}
+                                                            />
+                                                        </div>
+                                                        <div className="mt-1 text-[10px] text-gray-500 truncate" title={file.path}>
+                                                            {file.sizeKb} KB
+                                                        </div>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        </details>
+                                    )}
+                                    {imageResult.dryRun && imageResult.duplicateFiles && imageResult.duplicateFiles.length > 0 && (
+                                        <details className="mt-3">
+                                            <summary className="text-xs font-medium cursor-pointer select-none">
+                                                중복 파일 ({imageResult.duplicateFiles.length}개)
+                                            </summary>
+                                            <div className="mt-3 space-y-2 max-h-80 overflow-y-auto">
+                                                {imageResult.duplicateFiles.map((dup, i) => (
+                                                    <div key={i} className="flex items-center gap-3 p-2 rounded-lg bg-gray-50">
+                                                        <div className="flex-shrink-0 w-12 h-12 rounded-lg overflow-hidden bg-gray-100 border border-red-200">
+                                                            <img
+                                                                src={dup.duplicateUrl}
+                                                                alt="삭제 대상"
+                                                                loading="lazy"
+                                                                className="w-full h-full object-cover"
+                                                            />
+                                                        </div>
+                                                        <div className="flex-shrink-0 text-gray-400">
+                                                            <i className="fas fa-arrow-right" />
+                                                        </div>
+                                                        <div className="flex-shrink-0 w-12 h-12 rounded-lg overflow-hidden bg-gray-100 border border-gray-200">
+                                                            <img
+                                                                src={dup.originalUrl}
+                                                                alt="원본 유지"
+                                                                loading="lazy"
+                                                                className="w-full h-full object-cover"
+                                                            />
+                                                        </div>
+                                                        <div className="text-[10px] text-gray-500">
+                                                            <span className="text-red-500">{dup.duplicateSizeKb} KB</span>
+                                                            {' → '}
+                                                            <span className="text-gray-700">{dup.originalSizeKb} KB</span>
+                                                            <span className="ml-1 text-gray-400">({dup.hash})</span>
+                                                        </div>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        </details>
+                                    )}
+                                </div>
+                            </Alert>
+                        )}
+                        <div className="flex flex-wrap gap-2">
+                            <Button
+                                variant="secondary"
+                                size="sm"
+                                isLoading={imageMutation.isPending && imageMutation.variables?.dryRun === true}
+                                onClick={() => imageMutation.mutate({
+                                    dryRun: true,
+                                    target: imageTarget,
+                                    removeDups: removeDuplicates
+                                })}>
+                                미리보기
+                            </Button>
+                            <Button
+                                variant="primary"
+                                size="sm"
+                                disabled={!hasPreviewed}
+                                isLoading={imageMutation.isPending && imageMutation.variables?.dryRun === false}
+                                onClick={handleCleanImages}>
+                                정리하기
+                            </Button>
+                        </div>
                     </div>
-                </div>
-            </Card>
+                </Card>
+            </div>
         </div>
     );
 };
