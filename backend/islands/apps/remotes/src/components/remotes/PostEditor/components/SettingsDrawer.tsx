@@ -229,7 +229,6 @@ const SettingsDrawer = ({
                                             type="button"
                                             variant="ghost"
                                             size="sm"
-                                            compact
                                             onClick={onDelete}
                                             className="!text-red-500 hover:!text-red-700 hover:!bg-red-50 !px-0"
                                             leftIcon={<Trash2 className="w-4 h-4" />}>

@@ -6,7 +6,6 @@ import { INTERACTION_DURATION } from '../lib/designTokens';
 interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
     variant?: 'primary' | 'secondary' | 'danger' | 'ghost';
     size?: 'sm' | 'md' | 'lg';
-    compact?: boolean;
     isLoading?: boolean;
     leftIcon?: ReactNode;
     rightIcon?: ReactNode;
@@ -17,7 +16,6 @@ interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 const Button = ({
     variant = 'primary',
     size = 'md',
-    compact = false,
     isLoading = false,
     leftIcon,
     rightIcon,
@@ -36,14 +34,10 @@ const Button = ({
         ghost: 'text-gray-700 hover:text-gray-900 hover:bg-gray-100 focus:ring-gray-200 border-transparent'
     };
 
-    const sizeStyles = compact ? {
-        sm: 'px-2.5 py-2 text-xs rounded-lg min-h-[40px]',
-        md: 'px-3.5 py-2.5 text-sm rounded-lg min-h-[44px]',
-        lg: 'px-4.5 py-3 text-base rounded-lg min-h-[48px]'
-    } : {
-        sm: 'px-3.5 py-2.5 text-xs rounded-lg min-h-[44px]',
-        md: 'px-5 py-3 text-sm rounded-lg min-h-[48px]',
-        lg: 'px-7 py-4 text-base rounded-lg min-h-[56px]'
+    const sizeStyles = {
+        sm: 'px-3 py-1.5 text-xs rounded-lg min-h-[36px]',
+        md: 'px-4.5 py-2 text-sm rounded-lg min-h-[40px]',
+        lg: 'px-6 py-2.5 text-base rounded-lg min-h-[44px]'
     };
 
     const widthStyle = fullWidth ? 'w-full' : '';

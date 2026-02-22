@@ -5,7 +5,7 @@ import {
     FileText,
     SlidersHorizontal,
     Send,
-    FROSTED_SURFACE
+    FLOATING_GLASS_SURFACE
 } from '@blex/ui';
 
 interface PostActionsProps {
@@ -56,7 +56,7 @@ const PostActions = ({
 
     return (
         <div className="fixed sm:sticky bottom-6 left-0 right-0 z-30 flex justify-center pointer-events-none">
-            <div className={`pointer-events-auto ${FROSTED_SURFACE} border border-white/30 shadow-[0_8px_30px_rgb(0,0,0,0.12)] rounded-full px-3 py-3 flex items-center gap-2 transform transition-all motion-interaction`}>
+            <div className={`pointer-events-auto ${FLOATING_GLASS_SURFACE} rounded-full px-3 py-3 flex items-center gap-2 transform transition-all motion-interaction`}>
                 {/* Temp Posts */}
                 {!isEdit && onOpenDrafts && (
                     <IconButton
@@ -136,7 +136,6 @@ const PostActions = ({
                     onClick={onSubmit}
                     disabled={isSubmitting || isSaving}
                     variant="primary"
-                    compact
                     className="!rounded-full"
                     leftIcon={<Send className="w-4 h-4" />}>
                     {isEdit ? '수정' : '게시'}
