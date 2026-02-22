@@ -11,6 +11,7 @@ import { FloatingBottomBar, Send } from '@blex/ui';
 import {
     getSeriesDetail,
     getAvailablePosts,
+    getAccountSettings,
     createSeries,
     updateSeries,
     deleteSeriesById
@@ -19,6 +20,7 @@ import PostSelector from './PostSelector';
 
 const seriesSchema = z.object({
     name: z.string().trim().min(1, '시리즈 제목을 입력해주세요.').max(50, '시리즈 제목은 50자 이내여야 합니다.'),
+    customUrl: z.string().max(50, 'URL은 50자 이내여야 합니다.').optional(),
     description: z.string().trim().max(500, '시리즈 설명은 500자 이내여야 합니다.'),
     postIds: z.array(z.number())
 });
@@ -27,9 +29,26 @@ type SeriesFormInputs = z.infer<typeof seriesSchema>;
 
 const defaultValues: SeriesFormInputs = {
     name: '',
+    customUrl: '',
     description: '',
     postIds: []
 };
+
+const normalizeSeriesUrlInput = (text: string) => {
+    return text
+        .toLowerCase()
+        .replace(/[^a-z0-9가-힣\s-]/g, '')
+        .replace(/\s+/g, '-')
+        .replace(/-+/g, '-')
+        .substring(0, 50);
+};
+
+const normalizeSeriesUrlForSubmit = (text: string) => {
+    return normalizeSeriesUrlInput(text)
+        .replace(/^-|-$/g, '');
+};
+
+const generateSeriesUrlFromTitle = (title: string) => normalizeSeriesUrlForSubmit(title);
 
 interface SeriesEditorProps {
     seriesId?: number;
@@ -68,6 +87,17 @@ const SeriesEditor = ({ seriesId }: SeriesEditorProps) => {
         }
     });
 
+    const { data: accountSettings } = useSuspenseQuery({
+        queryKey: ['settings-account'],
+        queryFn: async () => {
+            const { data } = await getAccountSettings();
+            if (data.status === 'DONE') {
+                return data.body;
+            }
+            throw new Error(data.errorMessage || '계정 정보를 불러오는데 실패했습니다.');
+        }
+    });
+
     const {
         register,
         handleSubmit,
@@ -88,6 +118,7 @@ const SeriesEditor = ({ seriesId }: SeriesEditorProps) => {
 
         reset({
             name: seriesDetail.name,
+            customUrl: '',
             description: seriesDetail.description ?? '',
             postIds: seriesDetail.postIds ?? []
         });
@@ -116,6 +147,7 @@ const SeriesEditor = ({ seriesId }: SeriesEditorProps) => {
     const createMutation = useMutation({
         mutationFn: (formData: SeriesFormInputs) => createSeries({
             name: formData.name,
+            url: normalizeSeriesUrlForSubmit(formData.customUrl ?? ''),
             description: formData.description,
             post_ids: formData.postIds
         }),
@@ -220,8 +252,22 @@ const SeriesEditor = ({ seriesId }: SeriesEditorProps) => {
     };
 
     const titleValue = watch('name');
+    const customUrlValue = watch('customUrl') ?? '';
     const selectedPostIds = watch('postIds');
     const isSaving = createMutation.isPending || updateMutation.isPending;
+    const customSlug = normalizeSeriesUrlForSubmit(customUrlValue);
+    const previewSlug = customSlug || generateSeriesUrlFromTitle(titleValue || '');
+    const fixedSlug = isEditMode ? (seriesDetail?.url || previewSlug) : previewSlug;
+    const seriesPath = `/@${accountSettings.username}/series/${fixedSlug || 'series-url'}`;
+
+    const handleCopySeriesUrl = async () => {
+        try {
+            await navigator.clipboard.writeText(`${window.location.origin}${seriesPath}`);
+            toast.success('시리즈 URL을 복사했습니다.');
+        } catch {
+            toast.error('시리즈 URL 복사에 실패했습니다.');
+        }
+    };
 
     return (
         <form onSubmit={handleSubmit(onSubmit)} className="min-h-screen bg-white pb-16">
@@ -257,6 +303,63 @@ const SeriesEditor = ({ seriesId }: SeriesEditorProps) => {
                     {errors.name?.message && (
                         <p className="text-sm text-red-600">{errors.name.message}</p>
                     )}
+                </div>
+
+                <div className="rounded-2xl border border-gray-200 bg-gray-50 p-4 md:p-5 space-y-3">
+                    <div className="flex items-start justify-between gap-3">
+                        <div>
+                            <p className="text-sm font-semibold text-gray-900">시리즈 URL</p>
+                            {isEditMode ? (
+                                <p className="mt-1 text-xs text-gray-500">
+                                    URL은 시리즈 생성 후 변경할 수 없습니다.
+                                </p>
+                            ) : (
+                                <p className="mt-1 text-xs text-gray-500">
+                                    URL을 입력하지 않으면 제목 기반으로 자동 생성됩니다.
+                                </p>
+                            )}
+                        </div>
+                        {isEditMode && (
+                            <Button
+                                type="button"
+                                variant="ghost"
+                                size="sm"
+                                className="h-10 shrink-0"
+                                onClick={handleCopySeriesUrl}>
+                                복사
+                            </Button>
+                        )}
+                    </div>
+
+                    {!isEditMode && (
+                        <div className="space-y-2">
+                            <Input
+                                label="URL (선택)"
+                                value={customUrlValue}
+                                onChange={(e) => {
+                                    setValue('customUrl', normalizeSeriesUrlInput(e.target.value), {
+                                        shouldDirty: true,
+                                        shouldValidate: true
+                                    });
+                                }}
+                                placeholder="series-url"
+                            />
+                            {errors.customUrl?.message && (
+                                <p className="text-sm text-red-600">{errors.customUrl.message}</p>
+                            )}
+                            <p className="text-xs text-gray-500">
+                                영문/숫자/한글/하이픈(`-`)만 사용할 수 있습니다.
+                            </p>
+                        </div>
+                    )}
+
+                    <div className="rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm font-mono text-gray-700 break-all">
+                        {seriesPath}
+                    </div>
+
+                    <p className="text-xs text-gray-500">
+                        {isEditMode ? '시리즈 이름을 수정해도 URL은 유지됩니다.' : customSlug ? '직접 입력한 URL로 시리즈가 생성됩니다.' : 'URL을 비워두면 제목 기반 자동 URL로 시리즈가 생성됩니다.'}
+                    </p>
                 </div>
 
                 <Input
