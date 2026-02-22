@@ -235,6 +235,8 @@ class ImageCleanerService:
         total_size = 0
         removed_count = 0
 
+        media_prefix = os.path.relpath(target_dir, settings.MEDIA_ROOT)
+
         # 파일 해시 맵 생성
         for root, dirs, files in os.walk(target_dir):
             for filename in files:
@@ -246,12 +248,20 @@ class ImageCleanerService:
                         # 중복 발견
                         original_path = hashes[file_hash]
                         file_size = os.path.getsize(full_path)
+                        original_size = os.path.getsize(original_path) if os.path.exists(original_path) else 0
 
                         # 파생 파일이 아닌 경우만 중복으로 처리
                         if not (full_path.startswith(original_path) or original_path.startswith(full_path)):
+                            dup_relative = os.path.relpath(full_path, target_dir)
+                            orig_relative = os.path.relpath(original_path, target_dir)
+
                             duplicates.append({
                                 'duplicate_path': full_path,
+                                'duplicate_url': settings.MEDIA_URL + media_prefix + '/' + dup_relative,
+                                'duplicate_size_kb': round(file_size / 1024, 2),
                                 'original_path': original_path,
+                                'original_url': settings.MEDIA_URL + media_prefix + '/' + orig_relative,
+                                'original_size_kb': round(original_size / 1024, 2),
                                 'size': file_size,
                                 'hash': file_hash[:8]
                             })

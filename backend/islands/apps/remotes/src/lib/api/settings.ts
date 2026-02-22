@@ -573,6 +573,14 @@ export interface LogCleanResult {
     dryRun: boolean;
 }
 
+export interface DuplicateFileInfo {
+    duplicateUrl: string;
+    duplicateSizeKb: number;
+    originalUrl: string;
+    originalSizeKb: number;
+    hash: string;
+}
+
 export interface ImageCleanResult {
     totalUnused: number;
     totalSizeMb: number;
@@ -586,6 +594,7 @@ export interface ImageCleanResult {
         url: string;
         sizeKb: number;
     }[];
+    duplicateFiles?: DuplicateFileInfo[];
 }
 
 export const getUtilityStats = async () => {

@@ -279,6 +279,7 @@ class Post(models.Model):
     subtitle = models.CharField(max_length=120, blank=True, default='')
     url = models.SlugField(max_length=65, unique=True, allow_unicode=True)
     image = models.ImageField(blank=True, upload_to=title_image_path)
+    image_hash = models.CharField(max_length=64, blank=True, default='', db_index=True)
     read_time = models.IntegerField(default=0)
     tags = models.ManyToManyField(Tag, related_name='posts', blank=True)
     created_date = models.DateTimeField(default=timezone.now)
@@ -346,14 +347,15 @@ class Post(models.Model):
 
     def save(self, *args, **kwargs):
         will_make_thumbnail = False
-        if not self.pk and self.image:
-            will_make_thumbnail = True
-
-        post = Post.objects.filter(id=self.id)
-        if post.exists():
-            post = post.first()
-            if post.image != self.image:
+        if not getattr(self, '_skip_thumbnail', False):
+            if not self.pk and self.image:
                 will_make_thumbnail = True
+
+            post = Post.objects.filter(id=self.id)
+            if post.exists():
+                post = post.first()
+                if post.image != self.image:
+                    will_make_thumbnail = True
 
         super(Post, self).save(*args, **kwargs)
         if will_make_thumbnail:
