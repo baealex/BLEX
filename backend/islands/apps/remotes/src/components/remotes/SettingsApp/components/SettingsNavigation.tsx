@@ -106,7 +106,7 @@ const navigationSections: NavigationSection[] = [
     },
     {
         title: '확장',
-        description: '연동, 웹훅 설정',
+        description: '연동, 채널 설정',
         items: [
             {
                 name: '연동',
@@ -114,7 +114,7 @@ const navigationSections: NavigationSection[] = [
                 icon: 'fa-plug'
             },
             {
-                name: '웹훅 채널',
+                name: '채널',
                 path: '/webhook',
                 icon: 'fa-bolt',
                 requiresEditor: true
@@ -148,6 +148,12 @@ const navigationSections: NavigationSection[] = [
                 name: '전역 배너',
                 path: '/global-banners',
                 icon: 'fa-rectangle-ad',
+                requiresStaff: true
+            },
+            {
+                name: '전역 채널',
+                path: '/global-webhook',
+                icon: 'fa-globe',
                 requiresStaff: true
             },
             {

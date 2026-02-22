@@ -320,6 +320,18 @@ export const deleteWebhookChannel = async (channelId: number) => {
     return http.delete<Response<{ success: boolean }>>(`v1/webhook/channels/${channelId}`);
 };
 
+export const getGlobalWebhookChannels = async () => {
+    return http.get<Response<{ channels: WebhookChannel[] }>>('v1/webhook/global-channels');
+};
+
+export const addGlobalWebhookChannel = async (data: { webhook_url: string; name?: string }) => {
+    return http.post<Response<{ success: boolean; channelId: number }>>('v1/webhook/global-channels', data, { headers: { 'Content-Type': 'application/json' } });
+};
+
+export const deleteGlobalWebhookChannel = async (channelId: number) => {
+    return http.delete<Response<{ success: boolean }>>(`v1/webhook/global-channels/${channelId}`);
+};
+
 export const testWebhook = async (webhookUrl: string) => {
     return http.post<Response<{ success: boolean }>>('v1/webhook/test', { webhook_url: webhookUrl }, { headers: { 'Content-Type': 'application/json' } });
 };
