@@ -117,7 +117,7 @@ def comment_detail(request, id):
                 return StatusError(ErrorCode.AUTHENTICATION)
 
             text_md = body.get('comment_md')
-            text_html = markdown.parse_to_html(text_md)
+            text_html = markdown.parse_comment_to_html(text_md)
 
             comment.text_md = text_md
             comment.text_html = text_html

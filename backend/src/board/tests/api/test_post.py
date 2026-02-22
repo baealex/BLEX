@@ -272,6 +272,91 @@ class PostTestCase(TestCase):
         content = json.loads(response.content)
         self.assertEqual(content['errorCode'], 'error:VA')
 
+    def test_create_post_markdown_mode(self):
+        """마크다운 모드 포스트 생성 테스트"""
+        self.client.login(username='author', password='author')
+
+        response = self.client.post('/v1/posts', {
+            'title': 'Markdown Post',
+            'text_html': '# Hello World\n\nThis is **markdown**.',
+            'is_hide': False,
+            'is_advertise': False,
+            'content_type': 'markdown',
+        })
+        content = json.loads(response.content)
+        self.assertEqual(response.status_code, 200)
+
+        post = Post.objects.get(url=content['body']['url'])
+        self.assertEqual(post.content.content_type, 'markdown')
+        self.assertEqual(post.content.text_md, '# Hello World\n\nThis is **markdown**.')
+        self.assertIn('<strong>markdown</strong>', post.content.text_html)
+
+    def test_create_post_markdown_mode_does_not_render_mentions(self):
+        """포스트 마크다운에서는 멘션이 링크로 변환되지 않아야 함"""
+        self.client.login(username='author', password='author')
+
+        response = self.client.post('/v1/posts', {
+            'title': 'Markdown Mention Post',
+            'text_html': '`@viewer` in post',
+            'is_hide': False,
+            'is_advertise': False,
+            'content_type': 'markdown',
+        })
+        content = json.loads(response.content)
+        self.assertEqual(response.status_code, 200)
+
+        post = Post.objects.get(url=content['body']['url'])
+        self.assertNotIn('class="mention"', post.content.text_html)
+        self.assertIn('<code>@viewer</code>', post.content.text_html)
+
+    def test_get_post_edit_mode_markdown(self):
+        """마크다운 모드 포스트 편집 모드 조회 시 text_md 반환 테스트"""
+        self.client.login(username='author', password='author')
+
+        # Create a markdown post
+        response = self.client.post('/v1/posts', {
+            'title': 'MD Edit Test',
+            'text_html': '# Edit me',
+            'is_hide': False,
+            'is_advertise': False,
+            'content_type': 'markdown',
+        })
+        post_url = json.loads(response.content)['body']['url']
+
+        # Fetch in edit mode
+        response = self.client.get(f'/v1/users/@author/posts/{post_url}', {'mode': 'edit'})
+        content = json.loads(response.content)
+        self.assertEqual(content['body']['contentType'], 'markdown')
+        self.assertEqual(content['body']['textHtml'], '# Edit me')
+
+    def test_update_post_markdown_mode(self):
+        """마크다운 모드 포스트 수정 테스트"""
+        self.client.login(username='author', password='author')
+
+        # Create a markdown post
+        response = self.client.post('/v1/posts', {
+            'title': 'MD Update Test',
+            'text_html': '# Before',
+            'is_hide': False,
+            'is_advertise': False,
+            'content_type': 'markdown',
+        })
+        post_url = json.loads(response.content)['body']['url']
+
+        # Update the post
+        response = self.client.post(f'/v1/users/@author/posts/{post_url}', {
+            'title': 'MD Update Test',
+            'text_html': '# After\n\nUpdated **content**.',
+            'is_hide': False,
+            'is_advertise': False,
+            'content_type': 'markdown',
+        })
+        self.assertEqual(response.status_code, 200)
+
+        post = Post.objects.get(url=post_url)
+        self.assertEqual(post.content.text_md, '# After\n\nUpdated **content**.')
+        self.assertIn('<strong>content</strong>', post.content.text_html)
+
     def _create_test_image(self, name='test.jpg', size=(100, 100), color='red'):
         """테스트용 이미지 파일 생성 헬퍼 메소드"""
         file = BytesIO()

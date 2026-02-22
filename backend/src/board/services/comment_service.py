@@ -302,7 +302,7 @@ class CommentService:
                 '대댓글에는 답글을 달 수 없습니다.'
             )
 
-        text_html = markdown.parse_to_html(text_md)
+        text_html = markdown.parse_comment_to_html(text_md)
 
         comment = Comment(
             post=post,
@@ -337,7 +337,7 @@ class CommentService:
         Returns:
             Updated Comment instance
         """
-        text_html = markdown.parse_to_html(text_md)
+        text_html = markdown.parse_comment_to_html(text_md)
 
         comment.text_md = text_md
         comment.text_html = text_html

@@ -52,13 +52,45 @@ class LazyImageTreeprocessor(Treeprocessor):
 
 class CustomMarkdownExtension(Extension):
     def extendMarkdown(self, md):
+        md.preprocessors.register(CustomPreprocessor(md), 'custom_preprocessor', 30)
         md.treeprocessors.register(HeaderHashTreeprocessor(md), 'header_hash', 175)
         md.treeprocessors.register(LazyImageTreeprocessor(md), 'lazy_image', 176)
 
 class CustomPreprocessor(Preprocessor):
+    # Escape all raw HTML tags outside fenced code blocks and inline code.
+    # The postprocessor selectively re-enables allowed markup
+    # (<br>, <center>, <grid-image>, <caption>).
+    HTML_TAG = re.compile(r'<(/?[a-zA-Z][a-zA-Z0-9-]*(?:\s[^>]*)?)>')
+    FENCE_PATTERN = re.compile(r'^(`{3,}|~{3,})')
+
+    @staticmethod
+    def _escape_html_outside_backticks(line):
+        """Escape HTML tags in a line, but skip content inside backtick spans."""
+        parts = line.split('`')
+        # Odd-indexed parts are inside backticks
+        for i in range(0, len(parts), 2):
+            parts[i] = CustomPreprocessor.HTML_TAG.sub(r'&lt;\1&gt;', parts[i])
+        return '`'.join(parts)
+
     def run(self, lines):
         new_lines = []
+        in_fence = False
+        fence_char = None
+
         for line in lines:
+            # Track fenced code blocks
+            fence_match = self.FENCE_PATTERN.match(line)
+            if fence_match:
+                if not in_fence:
+                    in_fence = True
+                    fence_char = fence_match.group(1)[0]
+                elif line.strip().startswith(fence_char * 3):
+                    in_fence = False
+                    fence_char = None
+
+            if not in_fence:
+                line = self._escape_html_outside_backticks(line)
+
             # Convert checkbox syntax
             line = re.sub(r'^- \[ \] ', '- [ ] ', line)
             line = re.sub(r'^- \[x\] ', '- [x] ', line)
@@ -67,7 +99,7 @@ class CustomPreprocessor(Preprocessor):
 
 class CustomPostprocessor:
     @staticmethod
-    def process(html_content):
+    def process(html_content, enable_mentions=False):
         # Custom Markdown
         html_content = re.sub(
             r'@gif\[.*(https?://.*\.mp4).*\]',
@@ -89,29 +121,28 @@ class CustomPostprocessor:
         html_content = re.sub(r'<li>\[ \] ', r'<li class="checkbox">', html_content)
         html_content = re.sub(r'<li>\[x\] ', r'<li class="checkbox checked">', html_content)
 
-        # Mention: `@username` -> <a href="/@username" class="mention">@username</a>
-        html_content = re.sub(
-            r'<code>@([a-zA-Z0-9\.]+)</code>',
-            r'<a href="/@\1" class="mention">@\1</a>',
-            html_content
-        )
+        if enable_mentions:
+            # Mention: `@username` -> <a href="/@username" class="mention">@username</a>
+            html_content = re.sub(
+                r'<code>@([a-zA-Z0-9\.]+)</code>',
+                r'<a href="/@\1" class="mention">@\1</a>',
+                html_content
+            )
 
         # Allow Markup
         html_content = re.sub(r'&lt;br\/?&gt;', '<br/>', html_content)
         html_content = re.sub(r'&lt;center&gt;', '<div style="text-align: center;">', html_content)
         html_content = re.sub(r'&lt;\/center&gt;', '</div>', html_content)
 
-        # Grid Image
-        html_content = re.sub(r'&lt;grid-image col=&quot;(1|2|3)&quot;&gt;', r'<figure class="col-\1">', html_content)
-        html_content = re.sub(r'&lt;caption&gt;(.*)&lt;\/caption&gt;', r'<figcaption>\1</figcaption>', html_content)
-        html_content = re.sub(r'&lt;\/grid-image&gt;', '</figure>', html_content)
+        # Grid Image (quotes may appear as &quot; or literal ")
+        html_content = re.sub(r'&lt;grid-image col=(?:&quot;|")(1|2|3)(?:&quot;|")&gt;', r'<figure class="col-\1">', html_content)
+        html_content = re.sub(r'&lt;caption&gt;(.*)&lt;/caption&gt;', r'<figcaption>\1</figcaption>', html_content)
+        html_content = re.sub(r'&lt;/grid-image&gt;', '</figure>', html_content)
 
         return html_content
 
-def parse_to_html(text):
-    """
-    Parse markdown text to HTML using Python implementation of blexer
-    """
+def _parse_to_html(text, enable_mentions=False):
+    """Parse markdown text to HTML with optional mention rendering."""
     # Initialize Markdown with extensions
     md = markdown.Markdown(extensions=[
         'markdown.extensions.fenced_code',
@@ -130,9 +161,31 @@ def parse_to_html(text):
     html_content = md.convert(text)
     
     # Apply post-processing
-    html_content = CustomPostprocessor.process(html_content)
+    html_content = CustomPostprocessor.process(
+        html_content,
+        enable_mentions=enable_mentions
+    )
     
     return html_content
+
+
+def parse_post_to_html(text):
+    """Parse post markdown to HTML (mentions disabled)."""
+    return _parse_to_html(text, enable_mentions=False)
+
+
+def parse_comment_to_html(text):
+    """Parse comment markdown to HTML (mentions enabled)."""
+    return _parse_to_html(text, enable_mentions=True)
+
+
+# For backward compatibility
+def parse_to_html(text):
+    """
+    Backward-compatible alias for post markdown parsing.
+    """
+    return parse_post_to_html(text)
+
 
 # For backward compatibility
 def get_images(markdown_text):

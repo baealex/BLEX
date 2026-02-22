@@ -91,6 +91,7 @@ export interface DraftDetail {
     url: string;
     title: string;
     subtitle: string;
+    contentType: 'html' | 'markdown';
     textMd: string;
     rawContent: string;
     tags: string;
@@ -140,6 +141,7 @@ export interface PostForEdit {
     title: string;
     subtitle: string;
     url: string;
+    contentType: 'html' | 'markdown';
     textHtml: string;
     image: string;
     description: string;

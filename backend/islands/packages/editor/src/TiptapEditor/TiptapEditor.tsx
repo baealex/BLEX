@@ -3,7 +3,6 @@ import { useEditor, EditorContent } from '@tiptap/react';
 import MenuBar from './components/menus/MenuBar';
 import { getEditorExtensions } from './config/editorConfig';
 import { useImageUpload } from './hooks/useImageUpload';
-import { useMarkdownPaste, detectMarkdownPatterns } from './hooks/useMarkdownPaste';
 
 interface TiptapEditorProps {
     name: string;
@@ -17,7 +16,6 @@ interface TiptapEditorProps {
 }
 
 interface HandlersRef {
-    handleMarkdownPaste: (text: string) => Promise<boolean>;
     handleImagePaste: (event: ClipboardEvent) => void;
 }
 
@@ -37,10 +35,7 @@ const TiptapEditor = ({
         }
     };
 
-    const handlersRef = useRef<HandlersRef>({
-        handleMarkdownPaste: async () => false,
-        handleImagePaste: () => {}
-    });
+    const handlersRef = useRef<HandlersRef>({ handleImagePaste: () => {} });
 
     const editor = useEditor({
         extensions: getEditorExtensions(placeholder),
@@ -74,7 +69,6 @@ const TiptapEditor = ({
             handlePaste: (view, event, slice) => {
                 void view;
                 void slice;
-                const text = event.clipboardData?.getData('text/plain');
                 const items = event.clipboardData?.items;
 
                 if (items) {
@@ -84,11 +78,6 @@ const TiptapEditor = ({
                             return true;
                         }
                     }
-                }
-
-                if (text && detectMarkdownPatterns(text)) {
-                    handlersRef.current.handleMarkdownPaste(text);
-                    return true;
                 }
 
                 return false;
@@ -105,20 +94,9 @@ const TiptapEditor = ({
         onImageUploadError
     });
 
-    const {
-        pasteState,
-        handleMarkdownPaste,
-        insertAsHtml,
-        insertAsText,
-        closeModal
-    } = useMarkdownPaste({ editor });
-
     useEffect(() => {
-        handlersRef.current = {
-            handleMarkdownPaste,
-            handleImagePaste
-        };
-    }, [handleMarkdownPaste, handleImagePaste]);
+        handlersRef.current = { handleImagePaste };
+    }, [handleImagePaste]);
 
     useEffect(() => {
         if (editor && content !== undefined) {
@@ -147,10 +125,6 @@ const TiptapEditor = ({
                     editor={editor}
                     onImageUpload={onImageUpload}
                     onImageUploadError={onImageUploadError}
-                    pasteState={pasteState}
-                    onInsertHtml={insertAsHtml}
-                    onInsertText={insertAsText}
-                    onCloseModal={closeModal}
                 />
             )}
 

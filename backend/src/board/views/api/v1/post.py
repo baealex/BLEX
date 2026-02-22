@@ -21,7 +21,6 @@ from board.modules.requests import BooleanType
 from board.modules.response import StatusDone, StatusError, ErrorCode
 from board.modules.time import convert_to_localtime, time_since
 from board.services.post_service import PostService, PostValidationError
-from modules import markdown
 
 
 def post_list(request):
@@ -44,7 +43,8 @@ def post_list(request):
                 tag=request.POST.get('tag', ''),
                 image=image,
                 is_hide=BooleanType(request.POST.get('is_hide', '')),
-                is_advertise=BooleanType(request.POST.get('is_advertise', ''))
+                is_advertise=BooleanType(request.POST.get('is_advertise', '')),
+                content_type=request.POST.get('content_type', 'html'),
             )
 
             return StatusDone({
@@ -141,18 +141,25 @@ def user_posts(request, username, url=None):
                 if not request.user == post.author:
                     raise Http404
 
+                content_type = post.content.content_type if hasattr(post, 'content') else 'html'
+                if content_type == 'markdown':
+                    text_content = post.content.text_md
+                else:
+                    text_content = post.content.text_html
+
                 return StatusDone({
                     'image': post.get_thumbnail(),
                     'title': post.title,
                     'subtitle': post.subtitle,
                     'url': post.url,
                     'description': post.meta_description,
+                    'content_type': content_type,
                     'series': {
                         'id': str(post.series.id),
                         'name': post.series.name,
                         'url': post.series.url,
                     } if post.series else None,
-                    'text_html': post.content.text_html,  # Now sending HTML instead of markdown
+                    'text_html': text_content,
                     'tags': post.tagging(),
                     'is_hide': post.config.hide,
                     'is_advertise': post.config.advertise
@@ -206,7 +213,8 @@ def user_posts(request, username, url=None):
                     image_delete=request.POST.get('image_delete') == 'true',
                     is_hide=BooleanType(request.POST.get('is_hide', '')),
                     is_advertise=BooleanType(request.POST.get('is_advertise', '')),
-                    tag=request.POST.get('tag', '')
+                    tag=request.POST.get('tag', ''),
+                    content_type=request.POST.get('content_type'),
                 )
             except PostValidationError as e:
                 return StatusError(e.code, e.message)

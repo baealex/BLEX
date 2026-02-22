@@ -109,6 +109,7 @@ def post_editor(request, username=None, post_url=None):
         url = request.POST.get('url')
         text_html = request.POST.get('text_md')  # Now receiving HTML directly from editor
         text_md = text_html  # Keep text_md for backward compatibility, but it's now HTML
+        content_type = request.POST.get('content_type', 'html')
         meta_description = request.POST.get('meta_description', '')
         tags_str = request.POST.get('tag', '')
         series_id = request.POST.get('series', '')
@@ -146,6 +147,7 @@ def post_editor(request, username=None, post_url=None):
                 image=image,
                 is_hide=hide,
                 is_advertise=advertise,
+                content_type=content_type,
             )
 
             if request.POST.get('remove_image') == 'true':
@@ -179,6 +181,7 @@ def post_editor(request, username=None, post_url=None):
                         image=image,
                         is_hide=hide,
                         is_advertise=advertise,
+                        content_type=content_type,
                     )
                     messages.success(request, 'Post has been published successfully.')
                 except Post.DoesNotExist:
@@ -202,6 +205,7 @@ def post_editor(request, username=None, post_url=None):
                         image=image,
                         is_hide=hide,
                         is_advertise=advertise,
+                        content_type=content_type,
                     )
                     messages.success(request, 'Post has been created successfully.')
                 except PostValidationError as e:

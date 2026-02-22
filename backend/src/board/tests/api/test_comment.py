@@ -213,6 +213,17 @@ class CommentTestCase(TestCase):
         last_notify = Notify.objects.filter(user=viewer).last()
         self.assertTrue('@author' in last_notify.content)
 
+    def test_comment_markdown_renders_mentions_as_links(self):
+        """댓글 마크다운에서는 멘션이 링크로 변환되어야 함"""
+        self.client.login(username='author', password='test')
+        self.client.post('/v1/comments?url=test-post', {
+            'comment_md': '`@viewer` mention',
+        })
+
+        comment = Comment.objects.last()
+        self.assertIn('class="mention"', comment.text_html)
+        self.assertIn('href="/@viewer"', comment.text_html)
+
     def test_not_notify_user_tag_on_comment_when_user_disagree_notify(self):
         """사용자가 멘션 알림 거부 시 태그 알림 미발송 테스트"""
         viewer = User.objects.get(username='viewer')

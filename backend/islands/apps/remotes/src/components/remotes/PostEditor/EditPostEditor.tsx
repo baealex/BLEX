@@ -9,7 +9,7 @@ import { getSeries } from '~/lib/api/settings';
 import { getPostForEdit } from '~/lib/api/posts';
 import { api } from '~/components/shared';
 import { logger } from '~/utils/logger';
-import type { Series } from './types';
+import type { ContentType, Series } from './types';
 
 interface EditPostEditorProps {
     username: string;
@@ -40,6 +40,7 @@ const EditPostEditor = ({ username, postUrl }: EditPostEditorProps) => {
         name: '',
         url: ''
     });
+    const [contentType, setContentType] = useState<ContentType>('html');
     const [isSubmitting, setIsSubmitting] = useState(false);
 
     const formRef = useRef<HTMLFormElement>(null);
@@ -78,6 +79,7 @@ const EditPostEditor = ({ username, postUrl }: EditPostEditorProps) => {
                         hide: postData.isHide || false,
                         advertise: postData.isAdvertise || false
                     });
+                    setContentType(postData.contentType || 'html');
                     setTags(postData.tags || []);
                     initialDataRef.current = {
                         title: postData.title || '',
@@ -196,6 +198,7 @@ const EditPostEditor = ({ username, postUrl }: EditPostEditorProps) => {
             addHiddenField('tag', tags.join(','));
             addHiddenField('series', selectedSeries.id);
             addHiddenField('text_html', formData.content);
+            addHiddenField('content_type', contentType);
 
             if (isDraft) {
                 addHiddenField('is_draft', 'true');
@@ -263,6 +266,9 @@ const EditPostEditor = ({ username, postUrl }: EditPostEditorProps) => {
                 tags={tags}
                 imagePreview={imagePreview}
                 selectedSeries={selectedSeries}
+                contentType={contentType}
+                onContentTypeChange={setContentType}
+                isContentTypeChangeable={!formData.content.trim()}
                 onTitleChange={handleTitleChange}
                 onSubtitleChange={handleSubtitleChange}
                 onContentChange={(content) => setFormData(prev => ({

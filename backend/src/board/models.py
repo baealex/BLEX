@@ -365,7 +365,16 @@ class Post(models.Model):
 
 
 class PostContent(models.Model):
+    class ContentType(models.TextChoices):
+        HTML = 'html', 'HTML'
+        MARKDOWN = 'markdown', 'Markdown'
+
     post = models.OneToOneField('board.Post', related_name='content', on_delete=models.CASCADE)
+    content_type = models.CharField(
+        max_length=10,
+        choices=ContentType.choices,
+        default=ContentType.HTML,
+    )
     text_md = models.TextField(blank=True)
     text_html = models.TextField(blank=True)
 

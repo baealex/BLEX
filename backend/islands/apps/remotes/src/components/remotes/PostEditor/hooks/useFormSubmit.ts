@@ -7,6 +7,7 @@ interface FormSubmitData {
     content: string;
     tags: string[];
     seriesId: string;
+    contentType?: string;
 }
 
 interface UseFormSubmitOptions {
@@ -75,6 +76,9 @@ export const useFormSubmit = (options: UseFormSubmitOptions) => {
             addHiddenField(form, 'url', normalizeUrlForSubmit(data.url));
             addHiddenField(form, 'tag', data.tags.join(','));
             addHiddenField(form, 'series', data.seriesId);
+            if (data.contentType) {
+                addHiddenField(form, 'content_type', data.contentType);
+            }
             // Note: text_md is already added by TiptapEditor as a hidden input
             // We don't need to add it here to avoid overwriting the editor's value
 

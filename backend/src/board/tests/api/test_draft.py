@@ -210,6 +210,79 @@ class DraftTestCase(TestCase):
         )
         self.assertEqual(published_posts.filter(url=url).count(), 0)
 
+    def test_create_draft_markdown_mode(self):
+        """마크다운 모드 드래프트 생성 테스트"""
+        self.client.login(username='test', password='test')
+
+        response = self.client.post(
+            '/v1/drafts',
+            json.dumps({
+                'title': 'Markdown Draft',
+                'content': '# Hello\n\nThis is **bold**',
+                'tags': 'markdown',
+                'content_type': 'markdown',
+            }),
+            content_type='application/json'
+        )
+        self.assertEqual(response.status_code, 200)
+        content = json.loads(response.content)
+        self.assertEqual(content['status'], 'DONE')
+
+        post = Post.objects.get(url=content['body']['url'])
+        self.assertEqual(post.content.content_type, 'markdown')
+        self.assertEqual(post.content.text_md, '# Hello\n\nThis is **bold**')
+        self.assertIn('<h2', post.content.text_html)
+        self.assertIn('<strong>bold</strong>', post.content.text_html)
+
+    def test_get_draft_detail_markdown_mode(self):
+        """마크다운 모드 드래프트 상세 조회 시 text_md 반환 테스트"""
+        self.client.login(username='test', password='test')
+
+        response = self.client.post(
+            '/v1/drafts',
+            json.dumps({
+                'title': 'MD Detail',
+                'content': '# Heading',
+                'content_type': 'markdown',
+            }),
+            content_type='application/json'
+        )
+        draft_url = json.loads(response.content)['body']['url']
+
+        response = self.client.get(f'/v1/drafts/{draft_url}')
+        content = json.loads(response.content)
+        self.assertEqual(content['body']['contentType'], 'markdown')
+        self.assertEqual(content['body']['textMd'], '# Heading')
+
+    def test_update_draft_markdown_mode(self):
+        """마크다운 모드 드래프트 수정 테스트"""
+        self.client.login(username='test', password='test')
+
+        response = self.client.post(
+            '/v1/drafts',
+            json.dumps({
+                'title': 'MD Update',
+                'content': '# Original',
+                'content_type': 'markdown',
+            }),
+            content_type='application/json'
+        )
+        draft_url = json.loads(response.content)['body']['url']
+
+        response = self.client.put(
+            f'/v1/drafts/{draft_url}',
+            json.dumps({
+                'content': '# Updated\n\nNew content',
+                'content_type': 'markdown',
+            }),
+            content_type='application/json'
+        )
+        self.assertEqual(response.status_code, 200)
+
+        post = Post.objects.get(url=draft_url)
+        self.assertEqual(post.content.text_md, '# Updated\n\nNew content')
+        self.assertIn('<h2', post.content.text_html)
+
     def test_draft_limit(self):
         """드래프트 100개 제한 테스트"""
         self.client.login(username='test', password='test')

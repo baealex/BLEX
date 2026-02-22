@@ -91,7 +91,7 @@
                         <div class="flex items-center gap-4 text-sm border-b border-gray-100 pb-8" itemprop="author" itemscope itemtype="https://schema.org/Person">
                             <a href="/@{{ post.author_username }}" class="group flex-shrink-0">
                                 <img class="w-10 h-10 rounded-full object-cover ring-2 ring-gray-100 group-hover:ring-gray-200 transition-all"
-                                    src="{% media post.author_image %}"
+                                    src="{% if post.author_image %}{% media post.author_image %}{% else %}{% resource 'assets/images/default-avatar.jpg' %}{% endif %}"
                                     alt="{{ post.author_username }}">
                             </a>
                             <div class="flex flex-wrap items-center gap-x-2 gap-y-1">

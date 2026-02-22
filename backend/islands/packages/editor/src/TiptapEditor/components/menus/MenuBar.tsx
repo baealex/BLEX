@@ -1,7 +1,6 @@
 import { useRef, useState } from 'react';
 import type { Editor } from '@tiptap/react';
 import YoutubeModal from '../modals/YoutubeModal';
-import MarkdownPasteModal from '../modals/MarkdownPasteModal';
 import FloatingMenuBar from './FloatingMenuBar';
 import MediaFloatingMenu from './MediaFloatingMenu';
 import ColumnsFloatingMenu from './ColumnsFloatingMenu';
@@ -10,30 +9,16 @@ import EditorHelpText from '../ui/EditorHelpText';
 import { useImageUpload } from '../../hooks/useImageUpload';
 import { useSlashCommand } from '../../hooks/useSlashCommand';
 
-interface MarkdownPasteState {
-    isOpen: boolean;
-    markdown: string;
-    html: string;
-}
-
 interface MenuBarProps {
     editor: Editor | null;
     onImageUpload?: (file: File) => Promise<string | undefined>;
     onImageUploadError?: (errorMessage: string) => void;
-    pasteState: MarkdownPasteState;
-    onInsertHtml: () => void;
-    onInsertText: () => void;
-    onCloseModal: () => void;
 }
 
 const MenuBar = ({
     editor,
     onImageUpload,
-    onImageUploadError,
-    pasteState,
-    onInsertHtml,
-    onInsertText,
-    onCloseModal
+    onImageUploadError
 }: MenuBarProps) => {
     const [isYoutubeModalOpen, setIsYoutubeModalOpen] = useState(false);
     const imageInput = useRef<HTMLInputElement>(null);
@@ -117,14 +102,6 @@ const MenuBar = ({
                 isOpen={isYoutubeModalOpen}
                 onClose={() => setIsYoutubeModalOpen(false)}
                 onUpload={handleYoutubeUpload}
-            />
-
-            <MarkdownPasteModal
-                isOpen={pasteState.isOpen}
-                html={pasteState.html}
-                onInsertHtml={onInsertHtml}
-                onInsertText={onInsertText}
-                onClose={onCloseModal}
             />
         </>
     );
