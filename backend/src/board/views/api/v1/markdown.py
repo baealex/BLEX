@@ -36,7 +36,7 @@ def markdown_to_html(request):
         if not text:
             return StatusError(ErrorCode.INVALID_PARAMETER, '텍스트가 비어있습니다.')
         
-        html = markdown.parse_to_html(text)
+        html = markdown.parse_post_to_html(text)
         
         return StatusDone({
             'html': html

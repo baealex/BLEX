@@ -290,7 +290,7 @@ def author_about_edit(request, username):
     if request.method == 'POST':
         new_about_md = request.POST.get('about_md', '')
         profile.about_md = new_about_md
-        profile.about_html = markdown.parse_to_html(new_about_md)
+        profile.about_html = markdown.parse_post_to_html(new_about_md)
         try:
             profile.save()
             return JsonResponse({'status': 'success', 'message': '소개가 성공적으로 업데이트되었습니다.'})

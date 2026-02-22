@@ -20,7 +20,7 @@ from board.models import (
     Series, Comment, Tag, PostLikes
 )
 from board.modules.response import ErrorCode
-from modules.markdown import parse_to_html
+from modules.markdown import parse_post_to_html
 
 
 class UserValidationError(Exception):
@@ -284,7 +284,7 @@ class UserService:
             user: User instance
             about_md: About page content in markdown
         """
-        about_html = parse_to_html(about_md)
+        about_html = parse_post_to_html(about_md)
 
         if hasattr(user, 'profile'):
             user.profile.about_md = about_md

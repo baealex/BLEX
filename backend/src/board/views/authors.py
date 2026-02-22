@@ -1,11 +1,11 @@
 import time
-import datetime
 
 from django.shortcuts import render
 from django.contrib.auth.models import User
-from django.db.models import Count, Q, F
-from django.utils import timezone
+from django.db.models import Count, Q
 from django.core.paginator import Paginator as DjangoPaginator, EmptyPage, PageNotAnInteger
+
+DEFAULT_AVATAR_URL = '/resources/assets/images/default-avatar.jpg'
 
 
 def authors_view(request):
@@ -21,13 +21,12 @@ def authors_view(request):
     if query:
         start_time = time.time()
 
-        users = User.objects.filter(
+        users = User.objects.select_related('profile').filter(
             Q(username__icontains=query) |
             Q(first_name__icontains=query) |
             Q(profile__bio__icontains=query)
         ).annotate(
-            post_count=Count('post', filter=Q(post__config__hide=False)),
-            avatar=F('profile__avatar')
+            post_count=Count('post', filter=Q(post__config__hide=False))
         ).order_by('-post_count')
         
         paginator = DjangoPaginator(users, 10)
@@ -43,7 +42,7 @@ def authors_view(request):
                 'username': user.username,
                 'name': user.first_name,
                 'bio': user.profile.bio if hasattr(user, 'profile') and user.profile else '',
-                'avatar': user.avatar if hasattr(user, 'avatar') and user.avatar else '/resources/assets/images/default-avatar.png',
+                'avatar': user.profile.get_thumbnail() if hasattr(user, 'profile') and user.profile else DEFAULT_AVATAR_URL,
                 'post_count': user.post_count,
             })
         
@@ -60,9 +59,8 @@ def authors_view(request):
             'page_count': paginator.num_pages,
         }
     else:
-        authors = User.objects.annotate(
-            post_count=Count('post', filter=Q(post__config__hide=False)),
-            avatar=F('profile__avatar')
+        authors = User.objects.select_related('profile').annotate(
+            post_count=Count('post', filter=Q(post__config__hide=False))
         ).filter(
             post_count__gt=0
         ).order_by('-post_count')
@@ -81,7 +79,7 @@ def authors_view(request):
                 'username': author.username,
                 'name': author.first_name,
                 'bio': author.profile.bio if hasattr(author, 'profile') and author.profile else '',
-                'avatar': author.profile.get_thumbnail(),
+                'avatar': author.profile.get_thumbnail() if hasattr(author, 'profile') and author.profile else DEFAULT_AVATAR_URL,
                 'post_count': author.post_count,
             })
         

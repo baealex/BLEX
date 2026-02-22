@@ -17,13 +17,11 @@
 
     <div class="relative flex flex-col items-center text-center {% if author.profile.cover %}-mt-16 sm:-mt-20{% else %}pt-12{% endif %} px-4 sm:px-6 pb-12 sm:pb-16 max-w-4xl mx-auto">
         <div class="relative group mb-6 sm:mb-8">
-            {% if author.profile.avatar %}
-            <img class="relative w-28 h-28 sm:w-32 sm:h-32 md:w-40 md:h-40 rounded-full object-cover ring-4 ring-white shadow-[0_8px_30px_rgba(0,0,0,0.12)] transition-all duration-500 group-hover:scale-105 group-hover:shadow-[0_20px_40px_rgba(0,0,0,0.16)]" src="{{ author.profile.avatar.url }}" alt="{{ author.username }}">
-            {% else %}
-            <div class="relative w-28 h-28 sm:w-32 sm:h-32 md:w-40 md:h-40 rounded-full ring-4 ring-white shadow-[0_8px_30px_rgba(0,0,0,0.12)] transition-all duration-500 group-hover:scale-105 group-hover:shadow-[0_20px_40px_rgba(0,0,0,0.16)] bg-black flex items-center justify-center text-5xl sm:text-6xl font-bold text-white uppercase">
-                {{ author.username|slice:':1' }}
-            </div>
-            {% endif %}
+            <img
+                class="relative w-28 h-28 sm:w-32 sm:h-32 md:w-40 md:h-40 rounded-full object-cover ring-4 ring-white shadow-[0_8px_30px_rgba(0,0,0,0.12)] transition-all duration-500 group-hover:scale-105 group-hover:shadow-[0_20px_40px_rgba(0,0,0,0.16)]"
+                src="{% if author.profile.avatar %}{{ author.profile.avatar.url }}{% else %}{% resource 'assets/images/default-avatar.jpg' %}{% endif %}"
+                alt="{{ author.username }}"
+            >
         </div>
 
         <h1 class="text-2xl font-bold text-gray-900 mb-2 tracking-tight">

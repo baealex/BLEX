@@ -42,6 +42,7 @@ def drafts_list(request):
         description = data.get('description', '')
         series_url = data.get('series_url', '')
         custom_url = data.get('custom_url', '')
+        content_type = data.get('content_type', 'html')
         image = files.get('image') if files else None
 
         try:
@@ -55,6 +56,7 @@ def drafts_list(request):
                 tag=tags,
                 image=image,
                 custom_url=custom_url,
+                content_type=content_type,
             )
 
             return StatusDone({
@@ -78,12 +80,23 @@ def drafts_detail(request, url):
     )
 
     if request.method == 'GET':
+        content_type = 'html'
+        if hasattr(draft, 'content'):
+            content_type = draft.content.content_type
+            if content_type == 'markdown':
+                raw_content = draft.content.text_md
+            else:
+                raw_content = draft.content.text_html
+        else:
+            raw_content = ''
+
         return StatusDone({
             'url': draft.url,
             'title': draft.title,
             'subtitle': draft.subtitle,
-            'text_md': draft.content.text_html if hasattr(draft, 'content') else '',
-            'raw_content': draft.content.text_html if hasattr(draft, 'content') else '',
+            'content_type': content_type,
+            'text_md': raw_content,
+            'raw_content': raw_content,
             'tags': ','.join(draft.tagging()),
             'description': draft.meta_description,
             'image': draft.get_thumbnail(),
@@ -121,6 +134,7 @@ def drafts_detail(request, url):
                 image=image,
                 image_delete=image_delete,
                 custom_url=data.get('custom_url'),
+                content_type=data.get('content_type'),
             )
             return StatusDone({
                 'url': draft.url,

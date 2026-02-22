@@ -3,6 +3,7 @@ import { TiptapEditor } from '~/components/shared';
 import { getCsrfToken } from '~/utils/csrf';
 import ImageUploader from './ImageUploader';
 import TagManager from './TagManager';
+import type { ContentType } from '../types';
 
 interface PostFormData {
     title: string;
@@ -21,6 +22,9 @@ interface PostFormProps {
     tags: string[];
     imagePreview: string | null;
     selectedSeries: { id: string; name: string };
+    contentType: ContentType;
+    onContentTypeChange: (type: ContentType) => void;
+    isContentTypeChangeable: boolean;
 
     // Handlers
     onTitleChange: (title: string) => void;
@@ -39,6 +43,9 @@ const PostForm = ({
     tags,
     imagePreview,
     selectedSeries,
+    contentType,
+    onContentTypeChange,
+    isContentTypeChangeable,
     onTitleChange,
     onSubtitleChange,
     onContentChange,
@@ -53,6 +60,7 @@ const PostForm = ({
     return (
         <form ref={formRef} method="POST" encType="multipart/form-data">
             <input type="hidden" name="csrfmiddlewaretoken" value={getCsrfToken()} />
+            <input type="hidden" name="content_type" value={contentType} />
 
             <article>
                 <div className="mb-8">
@@ -90,14 +98,49 @@ const PostForm = ({
                 />
 
                 <div className="mb-8">
+                    <div className="flex items-center gap-1 mb-3">
+                        <button
+                            type="button"
+                            className={`px-3 py-1 text-xs font-medium rounded-full transition-colors ${
+                                contentType === 'html'
+                                    ? 'bg-gray-900 text-white'
+                                    : 'bg-gray-100 text-gray-500 hover:bg-gray-200'
+                            } ${!isContentTypeChangeable && contentType !== 'html' ? 'opacity-50 cursor-not-allowed' : ''}`}
+                            disabled={!isContentTypeChangeable && contentType !== 'html'}
+                            onClick={() => onContentTypeChange('html')}>
+                            WYSIWYG
+                        </button>
+                        <button
+                            type="button"
+                            className={`px-3 py-1 text-xs font-medium rounded-full transition-colors ${
+                                contentType === 'markdown'
+                                    ? 'bg-gray-900 text-white'
+                                    : 'bg-gray-100 text-gray-500 hover:bg-gray-200'
+                            } ${!isContentTypeChangeable && contentType !== 'markdown' ? 'opacity-50 cursor-not-allowed' : ''}`}
+                            disabled={!isContentTypeChangeable && contentType !== 'markdown'}
+                            onClick={() => onContentTypeChange('markdown')}>
+                            Markdown
+                        </button>
+                    </div>
+
                     <label htmlFor="content" className="sr-only">내용</label>
-                    {!isLoading && (
+                    {!isLoading && contentType === 'html' && (
                         <TiptapEditor
                             name="text_md"
                             content={formData.content}
                             onChange={onContentChange}
                             placeholder="내용을 입력하세요"
                             onImageUpload={onEditorImageUpload}
+                        />
+                    )}
+                    {!isLoading && contentType === 'markdown' && (
+                        <textarea
+                            name="text_md"
+                            value={formData.content}
+                            onChange={(e) => onContentChange(e.target.value)}
+                            placeholder="마크다운으로 작성하세요..."
+                            className="w-full min-h-[500px] px-4 py-3 border border-gray-200 rounded-lg font-mono text-sm leading-relaxed resize-y focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent"
+                            spellCheck={false}
                         />
                     )}
                 </div>

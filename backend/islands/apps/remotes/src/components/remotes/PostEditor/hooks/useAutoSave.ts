@@ -9,6 +9,7 @@ interface AutoSaveData {
     description?: string;
     seriesUrl?: string;
     customUrl?: string;
+    contentType?: string;
     imageFile?: File | null;
     imageDeleted?: boolean;
 }
@@ -31,6 +32,7 @@ const buildDraftPayload = (data: AutoSaveData, useFormData: boolean) => {
         if (data.description) formData.append('description', data.description);
         if (data.seriesUrl) formData.append('series_url', data.seriesUrl);
         if (data.customUrl) formData.append('custom_url', data.customUrl);
+        if (data.contentType) formData.append('content_type', data.contentType);
         if (data.imageFile) formData.append('image', data.imageFile);
         if (data.imageDeleted) formData.append('image_delete', 'true');
         return formData;
@@ -43,7 +45,8 @@ const buildDraftPayload = (data: AutoSaveData, useFormData: boolean) => {
         subtitle: data.subtitle,
         description: data.description,
         series_url: data.seriesUrl,
-        custom_url: data.customUrl
+        custom_url: data.customUrl,
+        content_type: data.contentType
     };
 };
 
