@@ -10,6 +10,7 @@ from typing import List, Dict, Any
 from django.contrib.auth.models import User
 from django.db import transaction
 from django.db.models import F
+from django.utils import timezone
 
 from board.models import Post, PinnedPost
 from board.modules.response import ErrorCode
@@ -29,6 +30,11 @@ class PinnedPostService:
     MAX_PINNED_POSTS = 6
 
     @staticmethod
+    def _is_published_post(post: Post) -> bool:
+        """Return True when the post is published and already visible."""
+        return bool(post.published_date and post.published_date <= timezone.now())
+
+    @staticmethod
     def get_user_pinned_posts(user: User) -> List[Dict[str, Any]]:
         """
         Get all pinned posts for a user.
@@ -42,7 +48,10 @@ class PinnedPostService:
         pinned_posts = PinnedPost.objects.select_related(
             'post', 'post__author'
         ).filter(
-            user=user
+            user=user,
+            post__config__hide=False,
+            post__published_date__isnull=False,
+            post__published_date__lte=timezone.now(),
         ).order_by('order')
 
         return [{
@@ -74,7 +83,9 @@ class PinnedPostService:
 
         posts = Post.objects.filter(
             author=user,
-            config__hide=False
+            config__hide=False,
+            published_date__isnull=False,
+            published_date__lte=timezone.now(),
         ).exclude(
             id__in=pinned_post_ids
         ).order_by('-published_date')
@@ -103,7 +114,12 @@ class PinnedPostService:
             PinnedPostError: If validation fails
         """
         # Check if user has reached the limit
-        current_count = PinnedPost.objects.filter(user=user).count()
+        current_count = PinnedPost.objects.filter(
+            user=user,
+            post__config__hide=False,
+            post__published_date__isnull=False,
+            post__published_date__lte=timezone.now(),
+        ).count()
         if current_count >= PinnedPostService.MAX_PINNED_POSTS:
             raise PinnedPostError(
                 ErrorCode.REJECT,
@@ -127,6 +143,13 @@ class PinnedPostService:
             raise PinnedPostError(
                 ErrorCode.REJECT,
                 '숨김 처리된 글은 고정할 수 없습니다.'
+            )
+
+        # Draft/scheduled posts cannot be pinned
+        if not PinnedPostService._is_published_post(post):
+            raise PinnedPostError(
+                ErrorCode.REJECT,
+                '발행된 포스트만 고정할 수 있습니다.'
             )
 
         # Check if already pinned

@@ -79,11 +79,6 @@ export const PinnedPostItem = ({
                     <Dropdown
                         items={[
                             {
-                                label: '포스트 보기',
-                                icon: 'fas fa-eye',
-                                onClick: handleView
-                            },
-                            {
                                 label: '고정 해제',
                                 icon: 'fas fa-thumbtack',
                                 onClick: handleRemove

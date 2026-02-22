@@ -80,7 +80,7 @@ const SortableSeriesItem = ({ series, username, onEdit, onDelete }: SortableSeri
     return (
         <div ref={setNodeRef} style={style} className="mb-3">
             <SettingsListItem
-                onClick={() => onEdit(series.id)}
+                onClick={handleView}
                 dragHandleProps={{
                     attributes,
                     listeners
@@ -94,9 +94,9 @@ const SortableSeriesItem = ({ series, username, onEdit, onDelete }: SortableSeri
                     <Dropdown
                         items={[
                             {
-                                label: '시리즈 보기',
-                                icon: 'fas fa-eye',
-                                onClick: handleView
+                                label: '시리즈 편집',
+                                icon: 'fas fa-pen',
+                                onClick: () => onEdit(series.id)
                             },
                             {
                                 label: '삭제',

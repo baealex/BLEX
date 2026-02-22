@@ -49,6 +49,10 @@ const DraftsSetting = () => {
         }
     };
 
+    const handleContinueDraft = (url: string) => {
+        window.location.assign(`/write?draft=${url}`);
+    };
+
     return (
         <div>
             <SettingsHeader
@@ -71,7 +75,6 @@ const DraftsSetting = () => {
                     {[...draftPosts].reverse().map((draftPost) => (
                         <SettingsListItem
                             key={draftPost.url}
-                            onClick={() => window.location.assign(`/write?draft=${draftPost.url}`)}
                             left={
                                 <div className={getIconClass('default')}>
                                     <i className="fas fa-file-alt text-sm" />
@@ -80,6 +83,11 @@ const DraftsSetting = () => {
                             actions={
                                 <Dropdown
                                     items={[
+                                        {
+                                            label: '이어서 작성',
+                                            icon: 'fas fa-pen',
+                                            onClick: () => handleContinueDraft(draftPost.url)
+                                        },
                                         {
                                             label: '삭제',
                                             icon: 'fas fa-trash',

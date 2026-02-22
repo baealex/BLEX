@@ -218,7 +218,6 @@ const FormsManagement = () => {
                     {forms.map((form) => (
                         <SettingsListItem
                             key={form.id}
-                            onClick={() => handleEditForm(form.id)}
                             left={
                                 <div className={getIconClass('default')}>
                                     <i className="fas fa-file-lines text-sm" />
@@ -227,6 +226,11 @@ const FormsManagement = () => {
                             actions={
                                 <Dropdown
                                     items={[
+                                        {
+                                            label: '수정',
+                                            icon: 'fas fa-pen',
+                                            onClick: () => handleEditForm(form.id)
+                                        },
                                         {
                                             label: '삭제',
                                             icon: 'fas fa-trash',

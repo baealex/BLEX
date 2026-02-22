@@ -72,20 +72,9 @@ const SortableBannerItem = ({ banner, onEdit, onDelete, onToggleActive }: Sortab
         return labels[position] || position;
     };
 
-    const getPositionBadgeColor = (position: string) => {
-        const colors: Record<string, string> = {
-            top: 'bg-gray-100 text-gray-700 border-gray-200',
-            bottom: 'bg-gray-100 text-gray-700 border-gray-200',
-            left: 'bg-gray-100 text-gray-700 border-gray-200',
-            right: 'bg-gray-100 text-gray-700 border-gray-200'
-        };
-        return colors[position] || 'bg-gray-50 text-gray-700 border-gray-100';
-    };
-
     return (
         <div ref={setNodeRef} style={style} className="mb-3">
             <SettingsListItem
-                onClick={() => onEdit(banner)}
                 dragHandleProps={{
                     attributes,
                     listeners
@@ -113,40 +102,29 @@ const SortableBannerItem = ({ banner, onEdit, onDelete, onToggleActive }: Sortab
                     />
                 }>
                 <div className="space-y-2">
-                    <div className="space-y-1">
-                        <div className="flex items-center gap-2 flex-wrap">
-                            <h3 className={`${TITLE} mb-0`}>
-                                {banner.title}
-                            </h3>
-                            <span className={`sm:hidden inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-medium border ${banner.isActive ? 'bg-gray-900 text-white border-gray-900' : 'bg-gray-50 text-gray-500 border-gray-100'}`}>
-                                {banner.isActive ? 'ON' : 'OFF'}
+                    <div className="flex items-center gap-2 flex-wrap">
+                        <h3 className={`${TITLE} mb-0`}>
+                            {banner.title}
+                        </h3>
+                        <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-700 border border-gray-200">
+                            {getPositionLabel(banner.position)}
+                        </span>
+                        <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-700 border border-gray-200">
+                            {getBannerTypeLabel(banner.bannerType)}
+                        </span>
+                        <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium border ${banner.isActive ? 'bg-gray-900 text-white border-gray-900' : 'bg-gray-50 text-gray-500 border-gray-100'}`}>
+                            {banner.isActive ? '활성' : '비활성'}
+                        </span>
+                        {banner.createdBy && (
+                            <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-700 border border-gray-200">
+                                {banner.createdBy}
                             </span>
-                        </div>
-
-                        <div className="flex items-center gap-2 flex-wrap text-sm">
-                            <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium border ${getPositionBadgeColor(banner.position)}`}>
-                                {getPositionLabel(banner.position)}
-                            </span>
-                            <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-50 text-gray-600 border border-gray-100">
-                                {getBannerTypeLabel(banner.bannerType)}
-                            </span>
-                            <span className={`hidden sm:inline-flex items-center px-2 py-0.5 rounded text-xs font-medium border ${banner.isActive ? 'bg-gray-900 text-white border-gray-900' : 'bg-gray-50 text-gray-500 border-gray-100'}`}>
-                                {banner.isActive ? '활성' : '비활성'}
-                            </span>
-                            {banner.createdBy && (
-                                <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-700 border border-gray-200">
-                                    {banner.createdBy}
-                                </span>
-                            )}
-                        </div>
+                        )}
                     </div>
 
-                    <div className="relative bg-gray-50 rounded-lg border border-gray-100 p-3 font-mono text-xs text-gray-600 overflow-hidden max-w-2xl">
-                        <div className="absolute top-0 bottom-0 left-0 w-1 bg-gray-200" />
-                        <p className="line-clamp-2 pl-2 break-all">
-                            {banner.contentHtml}
-                        </p>
-                    </div>
+                    <p className="text-xs text-gray-500 leading-relaxed line-clamp-2 break-all">
+                        {banner.contentHtml}
+                    </p>
                 </div>
             </SettingsListItem>
         </div>
