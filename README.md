@@ -5,7 +5,6 @@
 </p>
 
 <p align="center">
-  <strong>BLEX</strong><br>
   Blog, Let me Express
 </p>
 
@@ -26,17 +25,27 @@
 
 ## 주요 기능
 
-- **콘텐츠 작성/발행**: Tiptap 기반 게시글 작성/수정, 임시저장, 시리즈/태그 관리
-- **커뮤니티**: 댓글 시스템, GitHub 스타일 활동 히트맵
-- **인증/보안**: 소셜 로그인 (GitHub, Google), TOTP 기반 2단계 인증(2FA)
-- **운영/관리**: 설정 앱 기반 관리자 UX, 알림/배너/공지 관리
+**콘텐츠 작성/발행**
+- Tiptap 기반 게시글 작성/수정
+- 임시저장, 시리즈/태그 관리
+
+**커뮤니티**
+- 댓글 시스템
+- GitHub 스타일 활동 히트맵
+
+**인증/보안**
+- 소셜 로그인 (GitHub, Google)
+- TOTP 기반 2단계 인증(2FA)
+
+**운영/관리**
+- 설정 앱 기반 관리자 UX
+- 알림, 배너, 공지 관리
 
 <br>
 
 ## 빠른 시작
 
-- 요구사항: Python 3.12+, Node.js 22.12+, npm
-- 실행 순서:
+요구사항: Python 3.12+, Node.js 22.12+, npm
 
 ```bash
 npm install
@@ -44,7 +53,7 @@ npm run server:migrate  # 최초 1회
 npm run dev
 ```
 
-- 접속: `http://localhost:8000`
+접속: `http://localhost:8000`
 
 <br>
 
