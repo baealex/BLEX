@@ -69,10 +69,10 @@ npm run dev
 
 ## 관련 문서
 
-- `docs/DEV_CONVENTION.md`
-- `docs/BACKEND_GUIDE.md`
-- `docs/FRONTEND_GUIDE.md`
-- `docs/DESIGN_GUIDE.md`
+- [Development Convention](docs/DEV_CONVENTION.md)
+- [Backend Guide](docs/BACKEND_GUIDE.md)
+- [Frontend Guide](docs/FRONTEND_GUIDE.md)
+- [Design Guide](docs/DESIGN_GUIDE.md)
 
 <br>
 
