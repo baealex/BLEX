@@ -14,18 +14,15 @@
   <img src="https://img.shields.io/badge/react-19-blue?style=flat-square" alt="React">
 </p>
 
+<br>
+
 ## 소개
 
-BLEX는 Django + React 기반 퍼블리싱 플랫폼입니다.
+`BLEX`는 닉네임 `baealex`의 축약형에서 시작했습니다.
+지금은 **Blog, Let me Express** 의미를 함께 사용합니다.
 글쓰기 경험을 우선하고, 실제 운영 피드백으로 계속 개선합니다.
 
-## 왜 BLEX인가
-
-- `BLEX`는 닉네임 `baealex`의 축약형에서 시작했습니다.
-- 지금은 **Blog, Let me Express** 의미를 함께 사용합니다.
-- `blex.me`의 `me`는 운영자 한 명이 아니라, 글을 쓰는 각 사람을 뜻합니다.
-
-자세한 배경: <https://baejino.com/projects/blex/>
+<br>
 
 ## 주요 기능
 
@@ -45,6 +42,8 @@ BLEX는 Django + React 기반 퍼블리싱 플랫폼입니다.
 - 설정 앱 기반 관리자 UX
 - 알림, 배너, 공지 관리
 
+<br>
+
 ## 빠른 시작
 
 요구사항: Python 3.12+, Node.js 22.12+, npm
@@ -57,6 +56,8 @@ npm run dev
 
 접속: `http://localhost:8000`
 
+<br>
+
 ## 자주 쓰는 명령어
 
 - `npm run server:dev`
@@ -65,12 +66,16 @@ npm run dev
 - `npm run islands:lint`
 - `npm run islands:type-check`
 
+<br>
+
 ## 관련 문서
 
 - `docs/DEV_CONVENTION.md`
 - `docs/BACKEND_GUIDE.md`
 - `docs/FRONTEND_GUIDE.md`
 - `docs/DESIGN_GUIDE.md`
+
+<br>
 
 ## 라이선스
 
