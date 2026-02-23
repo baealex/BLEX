@@ -36,11 +36,11 @@ export const CommentEditForm = ({
     }, [editText]);
 
     return (
-        <div className="space-y-3 bg-gray-50 p-4 rounded-xl border border-gray-200">
+        <div className="space-y-3 bg-surface-subtle p-4 rounded-xl border border-line">
             <div className="relative">
                 <textarea
                     ref={textareaRef}
-                    className="w-full p-5 border-2 border-gray-200 focus:border-gray-900 focus:outline-none focus:ring-2 focus:ring-gray-900/10 rounded-xl resize-none bg-white text-sm placeholder-gray-400 leading-relaxed transition-all duration-150"
+                    className="w-full p-5 border-2 border-line focus:border-line-strong focus:outline-none focus:ring-2 focus:ring-line/10 rounded-xl resize-none bg-surface text-sm placeholder-content-hint leading-relaxed transition-all duration-150"
                     value={editText}
                     onChange={(e) => onEditTextChange(e.target.value)}
                     placeholder="댓글을 수정하세요..."
@@ -51,14 +51,14 @@ export const CommentEditForm = ({
             </div>
             <div className="flex gap-2 justify-end">
                 <button
-                    className="px-5 py-2.5 rounded-lg text-sm text-gray-700 hover:text-gray-900 hover:bg-gray-200 font-semibold disabled:opacity-50 transition-all duration-150"
+                    className="px-5 py-2.5 rounded-lg text-sm text-content hover:text-content hover:bg-line font-semibold disabled:opacity-50 transition-all duration-150"
                     onClick={onCancel}
                     disabled={isSubmitting}
                     aria-label="수정 취소">
                     취소
                 </button>
                 <button
-                    className="px-6 py-2.5 rounded-lg bg-gray-900 hover:bg-gray-800 disabled:bg-gray-200 disabled:text-gray-400 text-white text-sm font-semibold disabled:cursor-not-allowed transition-all duration-150 shadow-sm hover:shadow-md"
+                    className="px-6 py-2.5 rounded-lg bg-action hover:bg-action-hover disabled:bg-line disabled:text-content-hint text-content-inverted text-sm font-semibold disabled:cursor-not-allowed transition-all duration-150 shadow-sm hover:shadow-md"
                     onClick={onSave}
                     disabled={isSubmitting || !editText.trim()}
                     aria-label={isSubmitting ? '저장 중' : '댓글 저장'}>

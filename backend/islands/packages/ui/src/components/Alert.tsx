@@ -18,31 +18,31 @@ const Alert = ({
 }: AlertProps) => {
     const variants = {
         info: {
-            container: 'bg-gray-50 border-gray-200',
-            iconColor: 'text-gray-600',
-            titleColor: 'text-gray-900',
-            textColor: 'text-gray-700',
+            container: 'bg-surface-subtle border-line',
+            iconColor: 'text-content-secondary',
+            titleColor: 'text-content',
+            textColor: 'text-content-secondary',
             defaultIcon: <Info className="w-5 h-5" />
         },
         warning: {
-            container: 'bg-amber-50 border-amber-200',
-            iconColor: 'text-amber-700',
-            titleColor: 'text-amber-900',
-            textColor: 'text-amber-800',
+            container: 'bg-warning-surface border-warning-line',
+            iconColor: 'text-warning',
+            titleColor: 'text-content',
+            textColor: 'text-content-secondary',
             defaultIcon: <AlertTriangle className="w-5 h-5" />
         },
         success: {
-            container: 'bg-emerald-50 border-emerald-200',
-            iconColor: 'text-emerald-700',
-            titleColor: 'text-emerald-900',
-            textColor: 'text-emerald-800',
+            container: 'bg-success-surface border-success-line',
+            iconColor: 'text-success',
+            titleColor: 'text-content',
+            textColor: 'text-content-secondary',
             defaultIcon: <CheckCircle className="w-5 h-5" />
         },
         error: {
-            container: 'bg-red-50 border-red-200',
-            iconColor: 'text-red-600',
-            titleColor: 'text-red-900',
-            textColor: 'text-red-800',
+            container: 'bg-danger-surface border-danger-line',
+            iconColor: 'text-danger',
+            titleColor: 'text-content',
+            textColor: 'text-content-secondary',
             defaultIcon: <XCircle className="w-5 h-5" />
         }
     };

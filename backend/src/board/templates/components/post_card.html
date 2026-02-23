@@ -10,7 +10,7 @@ Parameters:
 {% load island %}
 {% load resource %}
 
-<article class="group bg-white rounded-2xl flex flex-col overflow-hidden ring-1 ring-gray-900/5 hover:ring-gray-900/10 active:scale-[0.98] transition-all duration-150">
+<article class="group bg-surface rounded-2xl flex flex-col overflow-hidden ring-1 ring-line/60 hover:ring-line-strong/70 active:scale-[0.98] transition-all duration-150">
     {% if post.image %}
         <div class="aspect-[16/9] overflow-hidden">
             <a href="/@{{ post.author }}/{{ post.url }}" class="block h-full">
@@ -26,43 +26,43 @@ Parameters:
         </div>
     {% endif %}
     <div class="p-5 flex flex-col flex-grow">
-        <h3 class="text-md font-bold text-gray-900 leading-snug mb-3 line-clamp-2">
-            <a href="/@{{ post.author }}/{{ post.url }}" class="hover:text-gray-700 transition-colors duration-150">{{ post.title }}</a>
+        <h3 class="text-md font-bold text-content leading-snug mb-3 line-clamp-2">
+            <a href="/@{{ post.author }}/{{ post.url }}" class="hover:text-content-secondary transition-colors duration-150">{{ post.title }}</a>
         </h3>
 
-        <div class="text-xs text-gray-500 mb-3 flex items-center gap-3">
+        <div class="text-xs text-content-secondary mb-3 flex items-center gap-3">
             <div class="flex items-center gap-1.5">
-                <i class="far fa-calendar-alt text-gray-400"></i>
+                <i class="far fa-calendar-alt text-content-hint"></i>
                 <time datetime="{{ post.published_date|date:'c' }}">{% if post.time_display %}{{ post.time_display }}{% else %}{{ post.published_date|date:"Y년 n월 j일" }}{% endif %}</time>
             </div>
             <div class="flex items-center gap-1.5">
-                <i class="far fa-clock text-gray-400"></i>
+                <i class="far fa-clock text-content-hint"></i>
                 <span>{{ post.read_time }}분</span>
             </div>
         </div>
 
-        <p class="text-sm text-gray-600 leading-relaxed mb-4 {% if post.image %}line-clamp-3{% else %}flex-grow{% endif %}">
+        <p class="text-sm text-content-secondary leading-relaxed mb-4 {% if post.image %}line-clamp-3{% else %}flex-grow{% endif %}">
             <a href="/@{{ post.author }}/{{ post.url }}">{{ post.meta_description }}</a>
         </p>
 
-        <footer class="flex justify-between items-center mt-auto pt-4 border-t border-gray-100">
+        <footer class="flex justify-between items-center mt-auto pt-4 border-t border-line-light">
             {% if show_author != 'false' and show_author != False %}
             <div class="flex items-center gap-2">
                 <a href="/@{{ post.author }}" class="flex-shrink-0">
                     <img
-                        class="w-6 h-6 rounded-full ring-2 ring-gray-100 object-cover"
+                        class="w-6 h-6 rounded-full ring-2 ring-line-light object-cover"
                         src="{% if post.author_image %}{% media post.author_image %}{% else %}{% resource 'assets/images/default-avatar.jpg' %}{% endif %}"
                         alt="{{ post.author }}"
                         loading="lazy"
                     >
                 </a>
                 <div class="flex flex-col min-w-0">
-                    <a href="/@{{ post.author }}" class="font-semibold text-gray-900 hover:text-gray-700 transition-colors text-xs truncate">{{ post.author }}</a>
+                    <a href="/@{{ post.author }}" class="font-semibold text-content hover:text-content-secondary transition-colors text-xs truncate">{{ post.author }}</a>
                 </div>
             </div>
             {% else %}
                 {% if post.series %}
-                <a href="/@{{ post.author }}/series/{{ post.series.url }}" class="inline-flex items-center px-3 py-1.5 max-w-32 bg-gray-100 text-black rounded-full text-xs font-semibold hover:bg-gray-200 transition-all duration-150 truncate">
+                <a href="/@{{ post.author }}/series/{{ post.series.url }}" class="inline-flex items-center px-3 py-1.5 max-w-32 bg-surface-subtle text-content rounded-full text-xs font-semibold hover:bg-line-light transition-all duration-150 truncate">
                     <i class="fas fa-layer-group mr-1.5"></i>
                     <span class="truncate">{{ post.series.name }}</span>
                 </a>
@@ -71,8 +71,8 @@ Parameters:
                 {% endif %}
             {% endif %}
 
-            <div class="flex items-center gap-4 text-gray-500">
-                <div class="flex items-center gap-1.5 text-xs hover:text-gray-700 transition-colors duration-150">
+            <div class="flex items-center gap-4 text-content-secondary">
+                <div class="flex items-center gap-1.5 text-xs hover:text-content transition-colors duration-150">
                     <i class="far fa-comment"></i>
                     <span>{{ post.count_comments }}</span>
                 </div>

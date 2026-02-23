@@ -199,9 +199,9 @@ export const SettingsMobileNavigation = ({ currentPath }: SettingsNavigationProp
         const isActive = currentPath === `/settings${item.path}` || currentPath === item.path;
         const baseClasses = `flex items-center px-4 py-3 rounded-xl transition-all ${INTERACTION_DURATION} active:scale-95 group`;
         const activeClasses = isActive
-            ? 'bg-gray-100 text-gray-900 font-bold'
-            : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900 font-medium';
-        const iconClasses = isActive ? 'text-gray-900' : 'text-gray-400';
+            ? 'bg-surface-subtle text-content font-bold'
+            : 'text-content-secondary hover:bg-surface-subtle hover:text-content font-medium';
+        const iconClasses = isActive ? 'text-content' : 'text-content-hint';
 
         if (item.path === 'admin') {
             return (
@@ -210,7 +210,7 @@ export const SettingsMobileNavigation = ({ currentPath }: SettingsNavigationProp
                         href={adminUrl}
                         className={`${baseClasses} ${activeClasses}`}
                         onClick={() => handleNavClick(item)}>
-                        <i className={`fas ${item.icon} w-6 text-center mr-3 transition-colors ${iconClasses} group-hover:text-gray-600`} />
+                        <i className={`fas ${item.icon} w-6 text-center mr-3 transition-colors ${iconClasses} group-hover:text-content-secondary`} />
                         <span>{item.name}</span>
                     </a>
                 </li>
@@ -223,7 +223,7 @@ export const SettingsMobileNavigation = ({ currentPath }: SettingsNavigationProp
                     to={item.path}
                     className={`${baseClasses} ${activeClasses}`}
                     onClick={() => handleNavClick(item)}>
-                    <i className={`fas ${item.icon} w-6 text-center mr-3 transition-colors ${iconClasses} group-hover:text-gray-600`} />
+                    <i className={`fas ${item.icon} w-6 text-center mr-3 transition-colors ${iconClasses} group-hover:text-content-secondary`} />
                     <span>{item.name}</span>
                 </Link>
             </li>
@@ -236,11 +236,11 @@ export const SettingsMobileNavigation = ({ currentPath }: SettingsNavigationProp
 
         return (
             <div key={section.title}>
-                <h3 className="px-4 mb-1 text-xs font-bold text-gray-400 uppercase tracking-wider">
+                <h3 className="px-4 mb-1 text-xs font-bold text-content-hint uppercase tracking-wider">
                     {section.title}
                 </h3>
                 {section.description && (
-                    <p className="px-4 mb-3 text-xs text-gray-400">
+                    <p className="px-4 mb-3 text-xs text-content-hint">
                         {section.description}
                     </p>
                 )}
@@ -253,25 +253,25 @@ export const SettingsMobileNavigation = ({ currentPath }: SettingsNavigationProp
 
     return (
         <div className="xl:hidden mb-6">
-            <div className={`${FROSTED_SURFACE} border-b border-gray-200/80 px-4 py-3 flex items-center justify-between`}>
+            <div className={`${FROSTED_SURFACE} border-b border-line/80 px-4 py-3 flex items-center justify-between`}>
                 <Dialog.Root open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
                     <Dialog.Trigger asChild>
                         <button
-                            className={`w-11 h-11 flex items-center justify-center rounded-full hover:bg-black/5 active:bg-black/10 active:scale-95 transition-all ${INTERACTION_DURATION}`}>
-                            <i className="fas fa-bars text-gray-900" />
+                            className={`w-11 h-11 flex items-center justify-center rounded-full hover:bg-action/5 active:bg-action/10 active:scale-95 transition-all ${INTERACTION_DURATION}`}>
+                            <i className="fas fa-bars text-content" />
                         </button>
                     </Dialog.Trigger>
                     <Dialog.Portal>
                         <Dialog.Overlay className={`fixed inset-0 ${DIM_OVERLAY_SOFT} z-40 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0`} />
-                        <Dialog.Content className={`fixed z-50 bg-white shadow-2xl transition ease-in-out data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:slide-out-to-left data-[state=open]:slide-in-from-left ${ENTRANCE_DURATION} inset-y-0 left-0 h-full w-[280px] border-r overflow-y-auto outline-none`}>
+                        <Dialog.Content className={`fixed z-50 bg-surface shadow-2xl transition ease-in-out data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:slide-out-to-left data-[state=open]:slide-in-from-left ${ENTRANCE_DURATION} inset-y-0 left-0 h-full w-[280px] border-r overflow-y-auto outline-none`}>
                             <div className="p-6">
                                 <Dialog.Title className="sr-only">Navigation Menu</Dialog.Title>
                                 <div className="flex items-center justify-between mb-8">
-                                    <h2 className="text-2xl font-bold text-gray-900 tracking-tight">설정</h2>
+                                    <h2 className="text-2xl font-bold text-content tracking-tight">설정</h2>
                                     <Dialog.Close asChild>
                                         <button
-                                            className={`w-11 h-11 flex items-center justify-center rounded-full hover:bg-gray-100 active:bg-gray-200 active:scale-95 transition-all ${INTERACTION_DURATION}`}>
-                                            <i className="fas fa-times text-gray-500" />
+                                            className={`w-11 h-11 flex items-center justify-center rounded-full hover:bg-surface-subtle active:bg-line active:scale-95 transition-all ${INTERACTION_DURATION}`}>
+                                            <i className="fas fa-times text-content-secondary" />
                                         </button>
                                     </Dialog.Close>
                                 </div>
@@ -284,7 +284,7 @@ export const SettingsMobileNavigation = ({ currentPath }: SettingsNavigationProp
                     </Dialog.Portal>
                 </Dialog.Root>
 
-                <h1 className="text-lg font-bold text-gray-900">설정</h1>
+                <h1 className="text-lg font-bold text-content">설정</h1>
                 <div className="w-10" />
             </div>
         </div>
@@ -316,9 +316,9 @@ export const SettingsDesktopNavigation = ({ currentPath }: SettingsNavigationPro
         const isActive = currentPath === `/settings${item.path}` || currentPath === item.path;
         const baseClasses = `flex items-center px-5 rounded-xl transition-all ${INTERACTION_DURATION} active:scale-95`;
         const activeClasses = isActive
-            ? 'bg-gray-100 text-gray-900 font-semibold'
-            : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900 font-medium';
-        const iconClasses = isActive ? 'text-gray-900' : 'text-gray-400';
+            ? 'bg-surface-subtle text-content font-semibold'
+            : 'text-content-secondary hover:bg-surface-subtle hover:text-content font-medium';
+        const iconClasses = isActive ? 'text-content' : 'text-content-hint';
         const desktopClasses = 'xl:py-2 group';
 
         if (item.path === 'admin') {
@@ -328,7 +328,7 @@ export const SettingsDesktopNavigation = ({ currentPath }: SettingsNavigationPro
                         href={adminUrl}
                         className={`${baseClasses} ${activeClasses} ${desktopClasses}`}
                         onClick={() => handleNavClick(item)}>
-                        <i className={`fas ${item.icon} w-7 text-center mr-4 transition-colors ${iconClasses} group-hover:text-gray-600`} />
+                        <i className={`fas ${item.icon} w-7 text-center mr-4 transition-colors ${iconClasses} group-hover:text-content-secondary`} />
                         <span>{item.name}</span>
                     </a>
                 </li>
@@ -341,7 +341,7 @@ export const SettingsDesktopNavigation = ({ currentPath }: SettingsNavigationPro
                     to={item.path}
                     className={`${baseClasses} ${activeClasses} ${desktopClasses}`}
                     onClick={() => handleNavClick(item)}>
-                    <i className={`fas ${item.icon} w-7 text-center mr-4 transition-colors ${iconClasses} group-hover:text-gray-600`} />
+                    <i className={`fas ${item.icon} w-7 text-center mr-4 transition-colors ${iconClasses} group-hover:text-content-secondary`} />
                     <span>{item.name}</span>
                 </Link>
             </li>
@@ -354,11 +354,11 @@ export const SettingsDesktopNavigation = ({ currentPath }: SettingsNavigationPro
 
         return (
             <div key={section.title}>
-                <h3 className="px-5 mb-1 text-sm font-semibold text-gray-400 uppercase tracking-wider">
+                <h3 className="px-5 mb-1 text-sm font-semibold text-content-hint uppercase tracking-wider">
                     {section.title}
                 </h3>
                 {section.description && (
-                    <p className="px-5 mb-3 text-xs text-gray-400">
+                    <p className="px-5 mb-3 text-xs text-content-hint">
                         {section.description}
                     </p>
                 )}
@@ -372,7 +372,7 @@ export const SettingsDesktopNavigation = ({ currentPath }: SettingsNavigationPro
     return (
         <aside className="hidden xl:block w-72 flex-shrink-0 mt-8 self-start sticky top-24">
             <div className="px-5 mb-6">
-                <h2 className="text-2xl font-semibold text-gray-900 tracking-tight">설정</h2>
+                <h2 className="text-2xl font-semibold text-content tracking-tight">설정</h2>
             </div>
             <div className="max-h-[calc(100vh-10rem)] overflow-y-auto overscroll-contain pr-2">
                 <nav className="space-y-8 pb-4">

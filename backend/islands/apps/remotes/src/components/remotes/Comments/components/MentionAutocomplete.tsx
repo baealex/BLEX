@@ -65,7 +65,7 @@ export const MentionAutocomplete = ({
                     ref={contentRef}
                     sideOffset={4}
                     align="start"
-                    className="z-50 w-60 bg-white border border-gray-200 rounded-lg shadow-lg overflow-hidden"
+                    className="z-50 w-60 bg-surface border border-line rounded-lg shadow-lg overflow-hidden"
                     onOpenAutoFocus={(e) => e.preventDefault()}
                     onCloseAutoFocus={(e) => e.preventDefault()}>
                     <div className="overflow-y-auto max-h-[200px]">
@@ -77,8 +77,8 @@ export const MentionAutocomplete = ({
                                 onClick={() => onSelect(user)}
                                 onMouseEnter={() => onSelectedIndexChange(index)}
                                 className={`w-full px-4 py-2 text-left text-sm transition-colors ${index === selectedIndex
-                                        ? 'bg-blue-50 text-blue-700'
-                                        : 'text-gray-700 hover:bg-gray-50'
+                                        ? 'bg-mention-surface text-mention-content'
+                                        : 'text-content hover:bg-surface-subtle'
                                     }`}>
                                 <span className="font-medium">@{user}</span>
                             </button>

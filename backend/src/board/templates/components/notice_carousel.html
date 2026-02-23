@@ -1,71 +1,99 @@
-<!-- Notice Banner Carousel Component
+<!-- Notice Carousel Component
     Parameters:
     - notices: 공지사항 리스트
-    - bg_color: 배경 및 텍스트 색상 (예: 'bg-black text-white')
-    - hover_color: 호버 색상 (예: 'hover:bg-gray-900')
-    - url_prefix: URL 접두사 (예: '', '/@' - 공백이면 notice.url만, '/@'이면 /@username/url)
+    - url_prefix: URL 접두사 (예: '', '/@')
     - size: 크기 ('large' 또는 'small', 기본값 'large')
 -->
-<div class="{% if size == 'small' %}mb-4{% else %}mb-6{% endif %} relative"
+<div class="{% if size == 'small' %}mb-4{% else %}mb-6{% endif %}"
      x-data="notice_carousel({ totalBanners: {{ notices|length }} })"
      @mouseenter="stopAutoPlay()"
      @mouseleave="totalBanners > 1 && startAutoPlay()">
-    <div class="relative overflow-hidden group/carousel">
+
+    {% if size == 'large' %}
+    <!-- ==================== Large ==================== -->
+    <div class="relative overflow-hidden">
         {% for notice in notices %}
         <a href="{% if url_prefix %}{{ url_prefix }}{{ notice.author.username }}/{% endif %}{{ notice.url }}"
-           class="block {{ bg_color }} {{ hover_color }} {% if size == 'small' %}px-12 py-4 rounded-lg{% else %}px-16 py-5 rounded-2xl{% endif %} border border-gray-800 hover:border-gray-700 shadow-xl hover:shadow-2xl transition-all duration-300 {% if forloop.first %}relative{% else %}absolute inset-0{% endif %}"
+           class="group block bg-surface-subtle rounded-2xl px-6 py-5 ring-1 ring-line/60 hover:ring-line-strong/70 hover:shadow-sm active:scale-[0.99] transition-all duration-200 {% if forloop.first %}relative{% else %}absolute inset-0{% endif %}"
            :style="{
                opacity: currentIndex === {{ forloop.counter0 }} ? 1 : 0,
                zIndex: currentIndex === {{ forloop.counter0 }} ? 10 : 0,
                pointerEvents: currentIndex === {{ forloop.counter0 }} ? 'auto' : 'none'
            }">
-            <div class="flex items-center gap-{% if size == 'small' %}3{% else %}4{% endif %}">
+            <div class="flex items-center gap-4">
+                <div class="w-10 h-10 rounded-xl bg-action text-content-inverted flex items-center justify-center flex-shrink-0">
+                    <i class="fas fa-bullhorn text-sm"></i>
+                </div>
                 <div class="flex-1 min-w-0">
-                    {% if size == 'large' %}
-                    <div class="flex items-center gap-2 mb-1.5">
-                        <span class="text-[10px] font-bold tracking-wider uppercase text-gray-400">Notice</span>
-                        <span class="w-1 h-1 rounded-full bg-gray-600"></span>
-                        <span class="text-[10px] font-medium text-gray-500">{% if url_prefix %}블로그 공지{% else %}전체 공지{% endif %}</span>
+                    <div class="flex items-center gap-2 mb-1">
+                        <span class="text-[10px] font-bold tracking-wider uppercase text-content-hint">{% if url_prefix %}블로그 공지{% else %}전체 공지{% endif %}</span>
                     </div>
-                    {% endif %}
-                    <h3 class="{% if size == 'small' %}text-sm{% else %}text-base{% endif %} font-semibold leading-tight truncate">
-                        {% if size == 'small' %}
-                            <span class="text-[10px] font-bold tracking-wider uppercase text-gray-400 mr-1">Notice:</span>
-                        {% endif %}
+                    <h3 class="text-base font-semibold text-content leading-snug truncate">
                         {{ notice.title }}
                     </h3>
                 </div>
-                {% if notices|length > 1 and size == 'small' %}
-                <div class="text-[10px] opacity-50">
-                    <span x-text="currentIndex + 1"></span>/<span>{{ notices|length }}</span>
-                </div>
-                {% endif %}
+                <i class="fas fa-arrow-right text-sm text-content-hint group-hover:text-content group-hover:translate-x-0.5 transition-all flex-shrink-0"></i>
             </div>
         </a>
         {% endfor %}
-
-        {% if notices|length > 1 %}
-        <!-- Navigation Buttons -->
-        <button @click.prevent="prev()"
-                class="absolute left-3 top-1/2 -translate-y-1/2 {% if size == 'small' %}w-6 h-6{% else %}w-9 h-9{% endif %} bg-white/10 hover:bg-white/20 rounded-full flex items-center justify-center transition-all duration-200 backdrop-blur-sm z-10"
-                aria-label="이전 배너">
-            <i class="fas fa-chevron-left text-white {% if size == 'small' %}text-[10px]{% else %}text-sm{% endif %}"></i>
-        </button>
-        <button @click.prevent="next()"
-                class="absolute right-3 top-1/2 -translate-y-1/2 {% if size == 'small' %}w-6 h-6{% else %}w-9 h-9{% endif %} bg-white/10 hover:bg-white/20 rounded-full flex items-center justify-center transition-all duration-200 backdrop-blur-sm z-10"
-                aria-label="다음 배너">
-            <i class="fas fa-chevron-right text-white {% if size == 'small' %}text-[10px]{% else %}text-sm{% endif %}"></i>
-        </button>
-        {% endif %}
     </div>
 
-    {% if notices|length > 1 and size == 'large' %}
-    <!-- Carousel Controls -->
+    {% if notices|length > 1 %}
     <div class="flex items-center justify-center gap-3 mt-3">
-        <!-- Counter -->
-        <div class="text-xs text-gray-400 font-medium">
-            <span x-text="currentIndex + 1"></span>/<span x-text="totalBanners"></span>
+        <button @click.prevent="prev()" class="text-content-hint hover:text-content transition-colors" aria-label="이전 배너">
+            <i class="fas fa-chevron-left text-xs"></i>
+        </button>
+        <div class="text-xs text-content-hint font-medium tabular-nums">
+            <span x-text="currentIndex + 1"></span> / <span x-text="totalBanners"></span>
         </div>
+        <button @click.prevent="next()" class="text-content-hint hover:text-content transition-colors" aria-label="다음 배너">
+            <i class="fas fa-chevron-right text-xs"></i>
+        </button>
     </div>
+    {% endif %}
+
+    {% else %}
+    <!-- ==================== Small ==================== -->
+    <div class="relative overflow-hidden">
+        {% for notice in notices %}
+        <a href="{% if url_prefix %}{{ url_prefix }}{{ notice.author.username }}/{% endif %}{{ notice.url }}"
+           class="group block bg-surface-subtle rounded-lg px-4 py-3 ring-1 ring-line/60 hover:ring-line-strong/70 active:scale-[0.99] transition-all duration-200 {% if forloop.first %}relative{% else %}absolute inset-0{% endif %}"
+           :style="{
+               opacity: currentIndex === {{ forloop.counter0 }} ? 1 : 0,
+               zIndex: currentIndex === {{ forloop.counter0 }} ? 10 : 0,
+               pointerEvents: currentIndex === {{ forloop.counter0 }} ? 'auto' : 'none'
+           }">
+            <div class="flex items-center gap-3">
+                <div class="w-7 h-7 rounded-lg bg-action text-content-inverted flex items-center justify-center flex-shrink-0">
+                    <i class="fas fa-bullhorn text-[10px]"></i>
+                </div>
+                <h3 class="flex-1 min-w-0 text-sm font-semibold text-content leading-tight truncate">
+                    {{ notice.title }}
+                </h3>
+                {% if notices|length > 1 %}
+                <span class="text-[10px] text-content-hint tabular-nums flex-shrink-0">
+                    <span x-text="currentIndex + 1"></span>/<span>{{ notices|length }}</span>
+                </span>
+                {% endif %}
+                <i class="fas fa-arrow-right text-xs text-content-hint group-hover:text-content transition-colors flex-shrink-0"></i>
+            </div>
+        </a>
+        {% endfor %}
+    </div>
+
+    {% if notices|length > 1 %}
+    <div class="flex items-center justify-center gap-3 mt-2">
+        <button @click.prevent="prev()" class="text-content-hint hover:text-content transition-colors" aria-label="이전 배너">
+            <i class="fas fa-chevron-left text-xs"></i>
+        </button>
+        <div class="text-xs text-content-hint font-medium tabular-nums">
+            <span x-text="currentIndex + 1"></span> / <span x-text="totalBanners"></span>
+        </div>
+        <button @click.prevent="next()" class="text-content-hint hover:text-content transition-colors" aria-label="다음 배너">
+            <i class="fas fa-chevron-right text-xs"></i>
+        </button>
+    </div>
+    {% endif %}
+
     {% endif %}
 </div>

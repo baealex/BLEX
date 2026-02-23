@@ -86,8 +86,8 @@ export const ConfirmProvider = ({ children }: { children: ReactNode }) => {
                 maxWidth="md"
                 showCloseButton={false}>
                 <Modal.Body>
-                    <h3 className="text-lg font-semibold text-gray-900 mb-2">{dialogState.title}</h3>
-                    <p className="text-sm text-gray-600 mb-6">
+                    <h3 className="text-lg font-semibold text-content mb-2">{dialogState.title}</h3>
+                    <p className="text-sm text-content-secondary mb-6">
                         {dialogState.message}
                     </p>
                 </Modal.Body>

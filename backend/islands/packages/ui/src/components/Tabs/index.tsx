@@ -24,7 +24,7 @@ interface TabsListProps {
 const List = ({ children, className }: TabsListProps) => (
     <RadixTabs.List
         className={cx(
-            'flex border-b border-gray-200',
+            'flex border-b border-line',
             className
         )}>
         {children}
@@ -41,9 +41,9 @@ const Trigger = ({ value, children, className }: TabsTriggerProps) => (
     <RadixTabs.Trigger
         value={value}
         className={cx(
-            'px-4 py-2.5 text-sm font-medium text-gray-500 transition-colors',
-            'hover:text-gray-900',
-            'data-[state=active]:text-gray-900 data-[state=active]:border-b-2 data-[state=active]:border-black data-[state=active]:-mb-px',
+            'px-4 py-2.5 text-sm font-medium text-content-secondary transition-colors',
+            'hover:text-content',
+            'data-[state=active]:text-content data-[state=active]:border-b-2 data-[state=active]:border-action data-[state=active]:-mb-px',
             'focus:outline-none',
             className
         )}>

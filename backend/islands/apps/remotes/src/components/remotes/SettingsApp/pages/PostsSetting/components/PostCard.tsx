@@ -50,39 +50,39 @@ const PostCard = ({
     }, [hasPendingChanges]);
 
     return (
-        <div className="bg-white border border-gray-100 rounded-2xl hover:border-gray-200 transition-colors duration-200 overflow-hidden">
+        <div className="bg-surface border border-line-light rounded-2xl hover:border-line transition-colors duration-200 overflow-hidden">
             {/* 헤더 */}
             <div
-                className="p-4 border-b border-gray-100 cursor-pointer hover:bg-gray-50/50 transition-colors"
+                className="p-4 border-b border-line-light cursor-pointer hover:bg-surface-subtle/50 transition-colors"
                 onClick={handleViewPost}>
                 <div className="flex items-start justify-between gap-4">
                     {/* 제목 영역 */}
                     <div className="flex-1 min-w-0">
-                        <h3 className="text-base font-semibold text-gray-900 leading-snug line-clamp-2">
+                        <h3 className="text-base font-semibold text-content leading-snug line-clamp-2">
                             {post.title}
                         </h3>
-                        <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-gray-500">
+                        <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-content-secondary">
                             <span className="inline-flex items-center gap-1.5">
-                                <i className="fas fa-calendar text-gray-400" />
+                                <i className="fas fa-calendar text-content-hint" />
                                 {formatDate(post.createdDate)}
                             </span>
                             <span className="inline-flex items-center gap-1.5">
-                                <i className="fas fa-clock text-gray-400" />
+                                <i className="fas fa-clock text-content-hint" />
                                 {post.readTime}분
                             </span>
                             <span className="inline-flex items-center gap-1.5">
-                                <i className="fas fa-heart text-gray-400" />
+                                <i className="fas fa-heart text-content-hint" />
                                 {post.countLikes}
                             </span>
                             <span className="inline-flex items-center gap-1.5">
-                                <i className="fas fa-comment text-gray-400" />
+                                <i className="fas fa-comment text-content-hint" />
                                 {post.countComments}
                             </span>
                             {post.createdDate !== post.updatedDate && (
-                                <span className="text-gray-400">최근 수정</span>
+                                <span className="text-content-hint">최근 수정</span>
                             )}
                             {post.isHide && (
-                                <span className="inline-flex items-center px-2 py-0.5 bg-gray-100 text-gray-700 rounded-md font-medium">
+                                <span className="inline-flex items-center px-2 py-0.5 bg-surface-subtle text-content rounded-md font-medium">
                                     비공개
                                 </span>
                             )}
@@ -115,17 +115,17 @@ const PostCard = ({
                 </div>
             </div>
 
-            <div className="px-4 py-2.5 bg-gray-50/40 border-t border-gray-100 flex justify-end">
+            <div className="px-4 py-2.5 bg-surface-subtle/40 border-t border-line-light flex justify-end">
                 <button
                     type="button"
                     title="태그/시리즈 편집"
                     aria-label={isMetaEditorOpen ? '태그 및 시리즈 편집 닫기' : '태그 및 시리즈 편집 열기'}
                     onClick={() => setIsMetaEditorOpen(prev => !prev)}
-                    className="inline-flex items-center gap-2 rounded-lg px-2.5 py-1.5 text-gray-500 hover:text-gray-900 hover:bg-gray-100 transition-colors">
+                    className="inline-flex items-center gap-2 rounded-lg px-2.5 py-1.5 text-content-secondary hover:text-content hover:bg-surface-subtle transition-colors">
                     <i className="fas fa-sliders-h text-xs" />
                     <span className="inline-flex items-center gap-2">
                         {hasPendingChanges && (
-                            <span className="text-[11px] px-2 py-0.5 rounded bg-gray-900 text-white">
+                            <span className="text-[11px] px-2 py-0.5 rounded bg-action text-content-inverted">
                                 저장 필요
                             </span>
                         )}
@@ -135,7 +135,7 @@ const PostCard = ({
             </div>
 
             {isMetaEditorOpen && (
-                <div className="p-4 pt-3 space-y-3 bg-gray-50/40 border-t border-gray-100">
+                <div className="p-4 pt-3 space-y-3 bg-surface-subtle/40 border-t border-line-light">
                     {/* 태그 */}
                     <div className="flex items-center gap-3">
                         <div className={getIconClass('light')}>
@@ -197,7 +197,7 @@ const PostCard = ({
                             variant="secondary"
                             size="sm"
                             disabled
-                            className="w-full justify-start text-gray-500 border-dashed">
+                            className="w-full justify-start text-content-secondary border-dashed">
                             긴 글 주의: 읽는데 {post.readTime}분이 걸립니다.
                         </Button>
                     )}

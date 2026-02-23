@@ -16,10 +16,10 @@ const SecuritySection = ({ has2fa, onToggle2FA, onDeleteAccount }: SecuritySecti
                 </svg>
             }>
             <div className="space-y-3">
-                <div className="flex items-center justify-between p-4 bg-white rounded-lg border border-gray-200">
+                <div className="flex items-center justify-between p-4 bg-surface rounded-lg border border-line">
                     <div>
-                        <p className="font-medium text-gray-900">2차 인증</p>
-                        <p className="text-sm text-gray-500">계정 보안을 강화합니다</p>
+                        <p className="font-medium text-content">2차 인증</p>
+                        <p className="text-sm text-content-secondary">계정 보안을 강화합니다</p>
                     </div>
                     <Button
                         variant="primary"
@@ -28,10 +28,10 @@ const SecuritySection = ({ has2fa, onToggle2FA, onDeleteAccount }: SecuritySecti
                         {has2fa ? '중지' : '활성화'}
                     </Button>
                 </div>
-                <div className="flex items-center justify-between p-4 bg-white rounded-lg border border-gray-200">
+                <div className="flex items-center justify-between p-4 bg-surface rounded-lg border border-line">
                     <div>
-                        <p className="font-medium text-gray-900">계정 삭제</p>
-                        <p className="text-sm text-gray-500">모든 데이터가 영구적으로 삭제됩니다</p>
+                        <p className="font-medium text-content">계정 삭제</p>
+                        <p className="text-sm text-content-secondary">모든 데이터가 영구적으로 삭제됩니다</p>
                     </div>
                     <Button
                         variant="primary"

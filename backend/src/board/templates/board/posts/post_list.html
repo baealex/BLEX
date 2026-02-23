@@ -11,7 +11,7 @@
 {% block content %}
 <div class="max-w-7xl mx-auto mt-6 px-4 md:px-6">
 {% if global_notices %}
-    {% with notices=global_notices bg_color='bg-zinc-900 text-white' hover_color='hover:bg-black' url_prefix='' size='large' %}
+    {% with notices=global_notices url_prefix='' size='large' %}
         {% include 'components/notice_carousel.html' %}
     {% endwith %}
 {% endif %}
@@ -19,14 +19,14 @@
 {% if posts %}
     <!-- Sort Controls -->
     <div class="flex justify-end mb-6">
-        <div class="inline-flex bg-gray-100/80 backdrop-blur-sm p-1 rounded-xl">
-            <a href="?sort=latest" class="px-4 py-1.5 {% if sort_type == 'latest' %}bg-white text-black shadow-sm{% else %}text-gray-500 hover:text-gray-900{% endif %} rounded-lg text-xs font-bold transition-all duration-150">
+        <div class="inline-flex bg-surface-subtle/80 backdrop-blur-sm p-1 rounded-xl ring-1 ring-line/60">
+            <a href="?sort=latest" class="px-4 py-1.5 {% if sort_type == 'latest' %}bg-surface-elevated text-content shadow-sm{% else %}text-content-secondary hover:text-content{% endif %} rounded-lg text-xs font-bold transition-all duration-150">
                 최신순
             </a>
-            <a href="?sort=popular" class="px-4 py-1.5 {% if sort_type == 'popular' %}bg-white text-black shadow-sm{% else %}text-gray-500 hover:text-gray-900{% endif %} rounded-lg text-xs font-bold transition-all duration-150">
+            <a href="?sort=popular" class="px-4 py-1.5 {% if sort_type == 'popular' %}bg-surface-elevated text-content shadow-sm{% else %}text-content-secondary hover:text-content{% endif %} rounded-lg text-xs font-bold transition-all duration-150">
                 인기순
             </a>
-            <a href="?sort=comments" class="px-4 py-1.5 {% if sort_type == 'comments' %}bg-white text-black shadow-sm{% else %}text-gray-500 hover:text-gray-900{% endif %} rounded-lg text-xs font-bold transition-all duration-150">
+            <a href="?sort=comments" class="px-4 py-1.5 {% if sort_type == 'comments' %}bg-surface-elevated text-content shadow-sm{% else %}text-content-secondary hover:text-content{% endif %} rounded-lg text-xs font-bold transition-all duration-150">
                 댓글순
             </a>
         </div>
@@ -45,15 +45,15 @@
     </div>
 {% else %}
     <div class="flex flex-col items-center justify-center min-h-[60vh] text-center py-12">
-        <div class="w-24 h-24 bg-gray-50 rounded-3xl flex items-center justify-center mb-6 shadow-inner">
-            <i class="fas fa-pen-nib text-3xl text-gray-300"></i>
+        <div class="w-24 h-24 bg-surface-subtle rounded-3xl flex items-center justify-center mb-6 shadow-inner">
+            <i class="fas fa-pen-nib text-3xl text-content-hint"></i>
         </div>
-        <h2 class="text-2xl md:text-3xl font-bold text-gray-900 mb-3 tracking-tight">아직 포스트가 없어요</h2>
-        <p class="text-base md:text-lg text-gray-500 mb-8 max-w-md leading-relaxed">
+        <h2 class="text-2xl md:text-3xl font-bold text-content mb-3 tracking-tight">아직 포스트가 없어요</h2>
+        <p class="text-base md:text-lg text-content-secondary mb-8 max-w-md leading-relaxed">
             첫 번째 에디터가 되어 멋진 콘텐츠를 공유해보세요. 당신의 이야기를 기다리고 있습니다.
         </p>
         {% if user.is_authenticated and user.profile.is_editor %}
-        <a href="/write" class="bg-black hover:bg-gray-800 text-white px-8 py-3.5 rounded-full font-medium transition-all duration-300 inline-flex items-center gap-2 shadow-lg shadow-black/20 hover:shadow-xl hover:-translate-y-0.5">
+        <a href="/write" class="bg-action hover:bg-action-hover text-content-inverted px-8 py-3.5 rounded-full font-medium transition-all duration-300 inline-flex items-center gap-2 shadow-floating hover:shadow-floating hover:-translate-y-0.5">
             <i class="fas fa-edit text-sm"></i>
             <span>글 작성하기</span>
         </a>

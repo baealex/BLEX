@@ -1,5 +1,6 @@
 import React, { useEffect, useRef } from 'react';
 import SocialLogin from '~/components/remotes/SocialLogin';
+import { useResolvedTheme } from '~/hooks/useResolvedTheme';
 import { logger } from '~/utils/logger';
 
 interface LoginFormProps {
@@ -47,6 +48,7 @@ const LoginForm = ({
 }: LoginFormProps) => {
     const captchaRef = useRef<HTMLDivElement>(null);
     const widgetIdRef = useRef<string | null>(null);
+    const resolvedTheme = useResolvedTheme();
 
     useEffect(() => {
         if (showCaptcha && captchaRef.current && window.hcaptcha && window.HCAPTCHA_SITE_KEY) {
@@ -63,7 +65,7 @@ const LoginForm = ({
             try {
                 widgetIdRef.current = window.hcaptcha.render(captchaRef.current, {
                     sitekey: window.HCAPTCHA_SITE_KEY,
-                    theme: 'light',
+                    theme: resolvedTheme,
                     size: 'normal',
                     callback: (token: string) => {
                         if (onCaptchaVerify) {
@@ -86,7 +88,7 @@ const LoginForm = ({
                 }
             }
         };
-    }, [showCaptcha, onCaptchaVerify]);
+    }, [showCaptcha, onCaptchaVerify, resolvedTheme]);
 
     return (
         <>
@@ -96,7 +98,7 @@ const LoginForm = ({
 
                 <div className="space-y-4">
                     <div>
-                        <label htmlFor="username" className="block text-xs font-semibold text-gray-500 mb-1.5 uppercase tracking-wide">
+                        <label htmlFor="username" className="block text-xs font-semibold text-content-secondary mb-1.5 uppercase tracking-wide">
                             사용자 이름
                         </label>
                         <input
@@ -107,18 +109,18 @@ const LoginForm = ({
                             required
                             value={username}
                             onChange={(e) => onUsernameChange(e.target.value)}
-                            className="w-full px-4 py-3.5 border border-gray-200 rounded-lg focus:ring-4 focus:ring-black/5 focus:border-black/30 text-gray-900 placeholder-gray-400 transition-all duration-200 bg-white/40 text-sm font-medium"
+                            className="w-full px-4 py-3.5 border border-line rounded-lg focus:ring-4 focus:ring-line/5 focus:border-line-strong/30 text-content placeholder-content-hint transition-all duration-200 bg-surface/40 text-sm font-medium"
                             placeholder="사용자 이름을 입력하세요"
                         />
                         {usernameError && (
-                            <p className="text-red-500 text-xs mt-1.5 font-medium flex items-center gap-1">
+                            <p className="text-danger text-xs mt-1.5 font-medium flex items-center gap-1">
                                 <i className="fas fa-exclamation-circle" /> {usernameError}
                             </p>
                         )}
                     </div>
 
                     <div>
-                        <label htmlFor="password" className="block text-xs font-semibold text-gray-500 mb-1.5 uppercase tracking-wide">
+                        <label htmlFor="password" className="block text-xs font-semibold text-content-secondary mb-1.5 uppercase tracking-wide">
                             비밀번호
                         </label>
                         <input
@@ -129,11 +131,11 @@ const LoginForm = ({
                             required
                             value={password}
                             onChange={(e) => onPasswordChange(e.target.value)}
-                            className="w-full px-4 py-3.5 border border-gray-200 rounded-lg focus:ring-4 focus:ring-black/5 focus:border-black/30 text-gray-900 placeholder-gray-400 transition-all duration-200 bg-white/40 text-sm font-medium"
+                            className="w-full px-4 py-3.5 border border-line rounded-lg focus:ring-4 focus:ring-line/5 focus:border-line-strong/30 text-content placeholder-content-hint transition-all duration-200 bg-surface/40 text-sm font-medium"
                             placeholder="비밀번호를 입력하세요"
                         />
                         {passwordError && (
-                            <p className="text-red-500 text-xs mt-1.5 font-medium flex items-center gap-1">
+                            <p className="text-danger text-xs mt-1.5 font-medium flex items-center gap-1">
                                 <i className="fas fa-exclamation-circle" /> {passwordError}
                             </p>
                         )}
@@ -149,9 +151,9 @@ const LoginForm = ({
 
                 {/* Error Message */}
                 {loginError && (
-                    <div className="bg-red-50 border border-red-100 rounded-xl p-4 flex items-center gap-3">
-                        <i className="fas fa-exclamation-triangle text-red-500" />
-                        <p className="text-red-600 text-sm font-medium">{loginError}</p>
+                    <div className="bg-danger-surface border border-danger-line rounded-xl p-4 flex items-center gap-3">
+                        <i className="fas fa-exclamation-triangle text-danger" />
+                        <p className="text-danger text-sm font-medium">{loginError}</p>
                     </div>
                 )}
 
@@ -159,9 +161,9 @@ const LoginForm = ({
                 <button
                     type="submit"
                     disabled={isLoading}
-                    className="w-full flex items-center justify-center py-3.5 px-6 bg-black hover:bg-gray-800 text-white font-semibold rounded-lg shadow-lg shadow-black/20 hover:shadow-xl hover:-translate-y-0.5 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none text-sm">
+                    className="w-full flex items-center justify-center py-3.5 px-6 bg-action hover:bg-action-hover text-content-inverted font-semibold rounded-lg shadow-floating hover:shadow-floating hover:-translate-y-0.5 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none text-sm">
                     {isLoading && (
-                        <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-content-inverted" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                             <circle
                                 className="opacity-25"
                                 cx="12"
@@ -180,10 +182,10 @@ const LoginForm = ({
             {/* Divider */}
             <div className="relative py-4">
                 <div className="absolute inset-0 flex items-center">
-                    <div className="w-full border-t border-gray-200" />
+                    <div className="w-full border-t border-line" />
                 </div>
                 <div className="relative flex justify-center text-xs uppercase tracking-wider">
-                    <span className="px-4 bg-white/50 backdrop-blur-sm text-gray-400 font-medium">
+                    <span className="px-4 bg-surface/50 backdrop-blur-sm text-content-hint font-medium">
                         또는 간편하게
                     </span>
                 </div>

@@ -94,7 +94,7 @@ const SocialLogin = () => {
                 <button
                     key={provider.key}
                     onClick={() => handleSocialLogin(provider)}
-                    className="relative w-full flex items-center justify-center gap-3 px-4 py-3.5 border border-gray-200 rounded-2xl text-gray-700 bg-white hover:bg-gray-50 hover:border-gray-300 transition-all duration-150 group active:scale-[0.98]">
+                    className="relative w-full flex items-center justify-center gap-3 px-4 py-3.5 border border-line rounded-2xl text-content bg-surface hover:bg-surface-subtle hover:border-line transition-all duration-150 group active:scale-[0.98]">
                     <span className="absolute left-5 flex items-center justify-center transition-transform duration-150 group-hover:scale-110">
                         {provider.key === 'google' && <GoogleIcon />}
                         {provider.key === 'github' && <GitHubIcon />}

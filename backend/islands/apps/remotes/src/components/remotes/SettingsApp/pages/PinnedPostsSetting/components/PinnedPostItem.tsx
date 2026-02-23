@@ -86,10 +86,10 @@ export const PinnedPostItem = ({
                         ]}
                     />
                 }>
-                <h3 className={`${TITLE} mb-1 truncate text-gray-900`}>{pinnedPost.post.title}</h3>
+                <h3 className={`${TITLE} mb-1 truncate text-content`}>{pinnedPost.post.title}</h3>
                 <div className={`${SUBTITLE} text-xs flex items-center gap-2`}>
                     <span className="flex items-center gap-1">
-                        <i className="far fa-calendar text-gray-400" />
+                        <i className="far fa-calendar text-content-hint" />
                         {new Date(pinnedPost.post.createdDate).toLocaleDateString('ko-KR')}
                     </span>
                 </div>

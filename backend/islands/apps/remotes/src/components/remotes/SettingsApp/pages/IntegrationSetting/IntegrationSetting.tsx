@@ -105,12 +105,12 @@ const IntegrationSettings = () => {
                     icon={<i className="fas fa-plug" />}>
                     <div className="flex flex-col sm:flex-row sm:items-center gap-4">
                         <div className="flex items-center gap-4 flex-1">
-                            <div className="flex items-center justify-center w-12 h-12 bg-gray-900 rounded-xl flex-shrink-0">
-                                <i className="fas fa-check text-white text-base" />
+                            <div className="flex items-center justify-center w-12 h-12 bg-action rounded-xl flex-shrink-0">
+                                <i className="fas fa-check text-content-inverted text-base" />
                             </div>
                             <div>
-                                <h4 className="text-base font-semibold text-gray-900">연동 완료</h4>
-                                <p className="text-sm text-gray-600 mt-1">텔레그램으로 실시간 알림을 받을 수 있습니다.</p>
+                                <h4 className="text-base font-semibold text-content">연동 완료</h4>
+                                <p className="text-sm text-content-secondary mt-1">텔레그램으로 실시간 알림을 받을 수 있습니다.</p>
                             </div>
                         </div>
                         <Button
@@ -131,14 +131,14 @@ const IntegrationSettings = () => {
                     icon={<i className="fas fa-link" />}>
                     <div className="space-y-6">
                         <div className="flex items-start gap-3">
-                            <span className="inline-flex items-center justify-center w-7 h-7 rounded-full bg-gray-100 text-gray-700 text-sm font-semibold flex-shrink-0">
+                            <span className="inline-flex items-center justify-center w-7 h-7 rounded-full bg-surface-subtle text-content text-sm font-semibold flex-shrink-0">
                                 1
                             </span>
-                            <p className="text-sm text-gray-700 leading-relaxed">
+                            <p className="text-sm text-content leading-relaxed">
                                 텔레그램 앱에서{' '}
                                 <a
                                     href="https://t.me/blex_bot"
-                                    className="inline-flex items-center text-gray-700 hover:text-gray-900 font-medium underline decoration-1 underline-offset-2"
+                                    className="inline-flex items-center text-content hover:text-content font-medium underline decoration-1 underline-offset-2"
                                     target="_blank"
                                     rel="noopener noreferrer">
                                     @blex_bot
@@ -149,15 +149,15 @@ const IntegrationSettings = () => {
                         </div>
 
                         <div className="flex items-start gap-3">
-                            <span className="inline-flex items-center justify-center w-7 h-7 rounded-full bg-gray-100 text-gray-700 text-sm font-semibold flex-shrink-0">
+                            <span className="inline-flex items-center justify-center w-7 h-7 rounded-full bg-surface-subtle text-content text-sm font-semibold flex-shrink-0">
                                 2
                             </span>
                             <div className="flex-1 space-y-3">
-                                <p className="text-sm text-gray-700">봇에게 아래 인증 코드를 전송하세요.</p>
+                                <p className="text-sm text-content">봇에게 아래 인증 코드를 전송하세요.</p>
                                 {telegramToken ? (
-                                    <div className="rounded-xl border border-gray-200 bg-gray-50 p-4">
+                                    <div className="rounded-xl border border-line bg-surface-subtle p-4">
                                         <div className="flex flex-col sm:flex-row sm:items-center gap-3">
-                                            <code className="font-mono text-sm sm:text-base font-semibold tracking-wide text-gray-900 break-all flex-1">
+                                            <code className="font-mono text-sm sm:text-base font-semibold tracking-wide text-content break-all flex-1">
                                                 {telegramToken}
                                             </code>
                                             <Button
@@ -170,7 +170,7 @@ const IntegrationSettings = () => {
                                         </div>
                                     </div>
                                 ) : (
-                                    <div className="rounded-xl border border-dashed border-gray-300 bg-gray-50 p-4">
+                                    <div className="rounded-xl border border-dashed border-line bg-surface-subtle p-4">
                                         <Button
                                             variant="primary"
                                             size="md"
@@ -184,7 +184,7 @@ const IntegrationSettings = () => {
                         </div>
 
                         {telegramToken && (
-                            <div className="rounded-xl border border-gray-200 bg-gray-50 p-4 text-sm text-gray-700 leading-relaxed">
+                            <div className="rounded-xl border border-line bg-surface-subtle p-4 text-sm text-content leading-relaxed">
                                 이 코드는 일회용이며 연동 완료 또는 24시간 후 자동으로 만료됩니다. 연동 후 상태를 새로고침하세요.
                             </div>
                         )}

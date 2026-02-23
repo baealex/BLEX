@@ -270,16 +270,16 @@ const SeriesEditor = ({ seriesId }: SeriesEditorProps) => {
     };
 
     return (
-        <form onSubmit={handleSubmit(onSubmit)} className="min-h-screen bg-white pb-16">
-            <div className="sticky top-0 z-10 bg-white border-b border-gray-200">
+        <form onSubmit={handleSubmit(onSubmit)} className="min-h-screen bg-surface pb-16">
+            <div className="sticky top-0 z-10 bg-surface border-b border-line">
                 <div className="max-w-7xl mx-auto px-4 md:px-6 h-14 flex items-center justify-between">
                     <Link
                         to="/series"
-                        className="flex items-center gap-2 py-2 text-sm text-gray-600 hover:text-gray-900 active:text-gray-500 transition-colors">
+                        className="flex items-center gap-2 py-2 text-sm text-content-secondary hover:text-content active:text-content-secondary transition-colors">
                         <i className="fas fa-arrow-left" />
                         <span>목록으로</span>
                     </Link>
-                    <span className="text-sm text-gray-500">
+                    <span className="text-sm text-content-secondary">
                         {isEditMode && titleValue ? titleValue : isEditMode ? '시리즈 수정' : '시리즈 생성'}
                     </span>
                 </div>
@@ -293,28 +293,28 @@ const SeriesEditor = ({ seriesId }: SeriesEditorProps) => {
                             type="text"
                             maxLength={50}
                             placeholder="시리즈 제목을 입력해주세요"
-                            className="w-full text-3xl font-bold text-gray-900 placeholder-gray-300 border-none outline-none bg-transparent pr-20"
+                            className="w-full text-3xl font-bold text-content placeholder-content-hint border-none outline-none bg-transparent pr-20"
                             {...register('name')}
                         />
-                        <span className={`absolute right-0 top-1/2 -translate-y-1/2 text-xs font-medium ${titleValue.length > 40 ? 'text-red-500' : 'text-gray-400'}`}>
+                        <span className={`absolute right-0 top-1/2 -translate-y-1/2 text-xs font-medium ${titleValue.length > 40 ? 'text-danger' : 'text-content-hint'}`}>
                             {titleValue.length}/50
                         </span>
                     </div>
                     {errors.name?.message && (
-                        <p className="text-sm text-red-600">{errors.name.message}</p>
+                        <p className="text-sm text-danger">{errors.name.message}</p>
                     )}
                 </div>
 
-                <div className="rounded-2xl border border-gray-200 bg-gray-50 p-4 md:p-5 space-y-3">
+                <div className="rounded-2xl border border-line bg-surface-subtle p-4 md:p-5 space-y-3">
                     <div className="flex items-start justify-between gap-3">
                         <div>
-                            <p className="text-sm font-semibold text-gray-900">시리즈 URL</p>
+                            <p className="text-sm font-semibold text-content">시리즈 URL</p>
                             {isEditMode ? (
-                                <p className="mt-1 text-xs text-gray-500">
+                                <p className="mt-1 text-xs text-content-secondary">
                                     URL은 시리즈 생성 후 변경할 수 없습니다.
                                 </p>
                             ) : (
-                                <p className="mt-1 text-xs text-gray-500">
+                                <p className="mt-1 text-xs text-content-secondary">
                                     URL을 입력하지 않으면 제목 기반으로 자동 생성됩니다.
                                 </p>
                             )}
@@ -345,19 +345,19 @@ const SeriesEditor = ({ seriesId }: SeriesEditorProps) => {
                                 placeholder="series-url"
                             />
                             {errors.customUrl?.message && (
-                                <p className="text-sm text-red-600">{errors.customUrl.message}</p>
+                                <p className="text-sm text-danger">{errors.customUrl.message}</p>
                             )}
-                            <p className="text-xs text-gray-500">
+                            <p className="text-xs text-content-secondary">
                                 영문/숫자/한글/하이픈(`-`)만 사용할 수 있습니다.
                             </p>
                         </div>
                     )}
 
-                    <div className="rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm font-mono text-gray-700 break-all">
+                    <div className="rounded-lg border border-line bg-surface px-3 py-2 text-sm font-mono text-content break-all">
                         {seriesPath}
                     </div>
 
-                    <p className="text-xs text-gray-500">
+                    <p className="text-xs text-content-secondary">
                         {isEditMode ? '시리즈 이름을 수정해도 URL은 유지됩니다.' : customSlug ? '직접 입력한 URL로 시리즈가 생성됩니다.' : 'URL을 비워두면 제목 기반 자동 URL로 시리즈가 생성됩니다.'}
                     </p>
                 </div>
@@ -392,14 +392,14 @@ const SeriesEditor = ({ seriesId }: SeriesEditorProps) => {
                         isLoading={deleteMutation.isPending}
                         disabled={isSaving}
                         onClick={handleDelete}
-                        className="!rounded-full !text-red-500 hover:!text-red-700 hover:!bg-red-50">
+                        className="!rounded-full !text-danger hover:!text-danger hover:!bg-danger-surface">
                         삭제
                     </Button>
-                    <div className="w-px h-8 bg-gray-200/60 mx-1" />
+                    <div className="w-px h-8 bg-line/60 mx-1" />
                 </>
                     )}
 
-                <div className="hidden sm:flex items-center px-1.5 text-xs text-gray-500">
+                <div className="hidden sm:flex items-center px-1.5 text-xs text-content-secondary">
                     {selectedPostIds.length}개의 포스트 선택
                 </div>
 

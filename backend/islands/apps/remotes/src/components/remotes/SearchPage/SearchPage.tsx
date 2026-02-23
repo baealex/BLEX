@@ -112,7 +112,7 @@ const highlightText = (text: string, query: string): ReactNode => {
     return parts.map((part, index) => {
         if (index % 2 === 1) {
             return (
-                <mark key={`${part}-${index}`} className="bg-yellow-100 text-gray-900 rounded px-0.5">
+                <mark key={`${part}-${index}`} className="bg-warning-surface text-content rounded px-0.5">
                     {part}
                 </mark>
             );
@@ -294,21 +294,21 @@ const SearchPage = ({ username }: SearchPageProps) => {
     return (
         <div className="space-y-6">
             <section>
-                <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 tracking-tight mb-4">포스트 검색</h1>
+                <h1 className="text-2xl sm:text-3xl font-bold text-content tracking-tight mb-4">포스트 검색</h1>
 
                 <form onSubmit={handleSubmit}>
-                    <div className="h-12 px-4 rounded-full border border-gray-200 bg-white shadow-sm flex items-center gap-2 transition-all focus-within:ring-2 focus-within:ring-gray-200">
+                    <div className="h-12 px-4 rounded-full border border-line bg-surface shadow-sm flex items-center gap-2 transition-all focus-within:ring-2 focus-within:ring-line">
                         {isLoading ? (
-                            <div className="animate-spin rounded-full h-4 w-4 border-2 border-gray-200 border-t-gray-600" />
+                            <div className="animate-spin rounded-full h-4 w-4 border-2 border-line border-t-content-secondary" />
                         ) : (
-                            <i className="fas fa-search text-sm text-gray-400" />
+                            <i className="fas fa-search text-sm text-content-hint" />
                         )}
                         <input
                             type="text"
                             value={queryInput}
                             onChange={(event) => setQueryInput(event.target.value)}
                             placeholder="검색어를 입력하세요"
-                            className="flex-1 bg-transparent text-sm text-gray-900 placeholder-gray-400 focus:outline-none"
+                            className="flex-1 bg-transparent text-sm text-content placeholder-content-hint focus:outline-none"
                             autoComplete="off"
                             autoFocus={!parseSearchParams().query}
                         />
@@ -316,7 +316,7 @@ const SearchPage = ({ username }: SearchPageProps) => {
                             <button
                                 type="button"
                                 onClick={handleClear}
-                                className="w-10 h-10 rounded-full text-gray-400 hover:text-gray-700 hover:bg-gray-100 transition-colors"
+                                className="w-10 h-10 rounded-full text-content-hint hover:text-content hover:bg-surface-subtle transition-colors"
                                 aria-label="검색어 초기화">
                                 <i className="fas fa-times text-xs" />
                             </button>
@@ -324,30 +324,30 @@ const SearchPage = ({ username }: SearchPageProps) => {
                     </div>
 
                     {usernameFilter && (
-                        <p className="text-xs text-gray-500 mt-2">
-                            작성자 필터 적용 중: <span className="font-semibold text-gray-700">@{usernameFilter}</span>
+                        <p className="text-xs text-content-secondary mt-2">
+                            작성자 필터 적용 중: <span className="font-semibold text-content">@{usernameFilter}</span>
                         </p>
                     )}
                 </form>
 
                 {recentSearches.length > 0 && !hasSearched && (
                     <div className="mt-4">
-                        <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">최근 검색어</p>
+                        <p className="text-xs font-semibold text-content-secondary uppercase tracking-wider mb-2">최근 검색어</p>
                         <div className="flex flex-wrap gap-2">
                             {recentSearches.map((recentSearch) => (
                                 <div
                                     key={recentSearch}
-                                    className="inline-flex items-center gap-1 pl-3 pr-1 h-10 rounded-full bg-gray-100 border border-gray-200">
+                                    className="inline-flex items-center gap-1 pl-3 pr-1 h-10 rounded-full bg-surface-subtle border border-line">
                                     <button
                                         type="button"
                                         onClick={() => handleRecentSearchClick(recentSearch)}
-                                        className="text-sm text-gray-700 hover:text-gray-900 max-w-[180px] truncate">
+                                        className="text-sm text-content hover:text-content max-w-[180px] truncate">
                                         {recentSearch}
                                     </button>
                                     <button
                                         type="button"
                                         onClick={() => handleRecentSearchRemove(recentSearch)}
-                                        className="w-8 h-8 rounded-full text-gray-400 hover:text-gray-700 hover:bg-gray-200 transition-colors"
+                                        className="w-8 h-8 rounded-full text-content-hint hover:text-content hover:bg-line transition-colors"
                                         aria-label={`${recentSearch} 검색어 삭제`}>
                                         <i className="fas fa-times text-[10px]" />
                                     </button>
@@ -359,12 +359,12 @@ const SearchPage = ({ username }: SearchPageProps) => {
             </section>
 
             {!isLoading && errorMessage && (
-                <section className="bg-red-50 border border-red-200 rounded-2xl p-5">
+                <section className="bg-danger-surface border border-danger-line rounded-2xl p-5">
                     <div className="flex items-start gap-3">
-                        <i className="fas fa-circle-exclamation text-red-500 mt-0.5" />
+                        <i className="fas fa-circle-exclamation text-danger mt-0.5" />
                         <div>
-                            <h2 className="text-sm font-semibold text-red-700">검색을 완료하지 못했습니다</h2>
-                            <p className="text-sm text-red-600 mt-1">{errorMessage}</p>
+                            <h2 className="text-sm font-semibold text-danger">검색을 완료하지 못했습니다</h2>
+                            <p className="text-sm text-danger mt-1">{errorMessage}</p>
                         </div>
                     </div>
                 </section>
@@ -372,11 +372,11 @@ const SearchPage = ({ username }: SearchPageProps) => {
 
             {!isLoading && !errorMessage && searchResults && (
                 <section className="space-y-4">
-                    <div className="bg-gray-50 rounded-2xl border border-gray-200 px-4 py-3">
-                        <h2 className="text-lg font-semibold text-gray-900">
-                            <strong className="text-black">{searchResults.totalSize ?? 0}</strong>개의 포스트
+                    <div className="bg-surface-subtle rounded-2xl border border-line px-4 py-3">
+                        <h2 className="text-lg font-semibold text-content">
+                            <strong className="text-content">{searchResults.totalSize ?? 0}</strong>개의 포스트
                         </h2>
-                        <p className="text-sm text-gray-500">
+                        <p className="text-sm text-content-secondary">
                             "{searchResults.query || activeQuery}" 검색 결과
                         </p>
                     </div>
@@ -386,11 +386,11 @@ const SearchPage = ({ username }: SearchPageProps) => {
                             {searchResults.results.map((result) => (
                                 <article
                                     key={`${result.author}-${result.url}`}
-                                    className="bg-white border border-gray-100 rounded-2xl overflow-hidden hover:border-gray-300 hover:shadow-md transition-all">
+                                    className="bg-surface border border-line-light rounded-2xl overflow-hidden hover:border-line hover:shadow-md transition-all">
                                     <a href={`/@${result.author}/${result.url}`} className="block p-4 sm:p-5">
                                         <div className="flex flex-col sm:flex-row gap-4">
                                             <div className="w-full sm:w-44 sm:flex-shrink-0">
-                                                <div className="h-36 sm:h-28 rounded-xl bg-gray-100 border border-gray-200 overflow-hidden">
+                                                <div className="h-36 sm:h-28 rounded-xl bg-surface-subtle border border-line overflow-hidden">
                                                     {hasThumbnail(result.image) ? (
                                                         <img
                                                             src={getMediaPath(result.image)}
@@ -399,7 +399,7 @@ const SearchPage = ({ username }: SearchPageProps) => {
                                                             loading="lazy"
                                                         />
                                                     ) : (
-                                                        <div className="w-full h-full flex items-center justify-center text-gray-300">
+                                                        <div className="w-full h-full flex items-center justify-center text-content-hint">
                                                             <i className="fas fa-image text-xl" />
                                                         </div>
                                                     )}
@@ -407,14 +407,14 @@ const SearchPage = ({ username }: SearchPageProps) => {
                                             </div>
 
                                             <div className="flex-1 min-w-0">
-                                                <div className="flex items-center gap-2 mb-2 text-xs text-gray-500">
+                                                <div className="flex items-center gap-2 mb-2 text-xs text-content-secondary">
                                                     <img
                                                         src={getMediaPath(userResource(result.authorImage))}
                                                         alt={result.author}
-                                                        className="w-6 h-6 rounded-full border border-gray-100"
+                                                        className="w-6 h-6 rounded-full border border-line-light"
                                                         loading="lazy"
                                                     />
-                                                    <span className="font-medium text-gray-700">{result.author}</span>
+                                                    <span className="font-medium text-content">{result.author}</span>
                                                     <span>·</span>
                                                     <span>{result.createdDate}</span>
                                                     {result.readTime && result.readTime > 0 && (
@@ -425,12 +425,12 @@ const SearchPage = ({ username }: SearchPageProps) => {
                                                     )}
                                                 </div>
 
-                                                <h3 className="text-lg sm:text-xl font-bold text-gray-900 leading-snug mb-2">
+                                                <h3 className="text-lg sm:text-xl font-bold text-content leading-snug mb-2">
                                                     {highlightText(result.title, activeQuery)}
                                                 </h3>
 
                                                 {result.description && (
-                                                    <p className="text-sm text-gray-600 leading-relaxed line-clamp-2">
+                                                    <p className="text-sm text-content-secondary leading-relaxed line-clamp-2">
                                                         {highlightText(result.description, activeQuery)}
                                                     </p>
                                                 )}
@@ -440,7 +440,7 @@ const SearchPage = ({ username }: SearchPageProps) => {
                                                         {result.positions.map((position) => (
                                                             <span
                                                                 key={`${result.url}-${position}`}
-                                                                className="inline-flex items-center px-2.5 py-1 rounded-md bg-gray-100 text-gray-600 text-xs font-semibold">
+                                                                className="inline-flex items-center px-2.5 py-1 rounded-md bg-surface-subtle text-content-secondary text-xs font-semibold">
                                                                 {position}
                                                             </span>
                                                         ))}
@@ -453,12 +453,12 @@ const SearchPage = ({ username }: SearchPageProps) => {
                             ))}
                         </div>
                     ) : (
-                        <div className="bg-white border border-gray-100 rounded-2xl p-12 text-center">
-                            <div className="w-16 h-16 bg-gray-50 rounded-2xl flex items-center justify-center mx-auto mb-4">
-                                <i className="fas fa-search text-2xl text-gray-300" />
+                        <div className="bg-surface border border-line-light rounded-2xl p-12 text-center">
+                            <div className="w-16 h-16 bg-surface-subtle rounded-2xl flex items-center justify-center mx-auto mb-4">
+                                <i className="fas fa-search text-2xl text-content-hint" />
                             </div>
-                            <h3 className="text-lg font-semibold text-gray-900 mb-1">검색 결과가 없습니다</h3>
-                            <p className="text-sm text-gray-500">다른 검색어를 시도해보세요.</p>
+                            <h3 className="text-lg font-semibold text-content mb-1">검색 결과가 없습니다</h3>
+                            <p className="text-sm text-content-secondary">다른 검색어를 시도해보세요.</p>
                         </div>
                     )}
 
@@ -468,7 +468,7 @@ const SearchPage = ({ username }: SearchPageProps) => {
                                 type="button"
                                 onClick={() => handlePageChange(page - 1)}
                                 disabled={page === 1}
-                                className="h-10 px-4 rounded-lg border border-gray-200 bg-white text-sm font-medium text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50 transition-colors">
+                                className="h-10 px-4 rounded-lg border border-line bg-surface text-sm font-medium text-content disabled:opacity-50 disabled:cursor-not-allowed hover:bg-surface-subtle transition-colors">
                                 이전
                             </button>
 
@@ -479,8 +479,8 @@ const SearchPage = ({ username }: SearchPageProps) => {
                                         type="button"
                                         onClick={() => handlePageChange(pageNumber)}
                                         className={`w-10 h-10 rounded-lg text-sm font-semibold transition-colors ${pageNumber === page
-                                            ? 'bg-black text-white'
-                                            : 'bg-white border border-gray-200 text-gray-600 hover:bg-gray-50'
+                                            ? 'bg-action text-content-inverted'
+                                            : 'bg-surface border border-line text-content-secondary hover:bg-surface-subtle'
                                             }`}>
                                         {pageNumber}
                                     </button>
@@ -491,7 +491,7 @@ const SearchPage = ({ username }: SearchPageProps) => {
                                 type="button"
                                 onClick={() => handlePageChange(page + 1)}
                                 disabled={page === searchResults.lastPage}
-                                className="h-10 px-4 rounded-lg border border-gray-200 bg-white text-sm font-medium text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50 transition-colors">
+                                className="h-10 px-4 rounded-lg border border-line bg-surface text-sm font-medium text-content disabled:opacity-50 disabled:cursor-not-allowed hover:bg-surface-subtle transition-colors">
                                 다음
                             </button>
                         </div>

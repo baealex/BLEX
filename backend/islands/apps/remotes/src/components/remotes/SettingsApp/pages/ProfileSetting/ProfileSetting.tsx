@@ -148,10 +148,10 @@ const ProfileSetting = () => {
                             <img
                                 src={avatar}
                                 alt="프로필 이미지"
-                                className="w-full h-full rounded-full object-cover border-4 border-white shadow-lg"
+                                className="w-full h-full rounded-full object-cover border-4 border-line-light shadow-lg"
                             />
-                            <div className="absolute bottom-0 right-0 bg-black w-8 h-8 sm:w-10 sm:h-10 rounded-full flex items-center justify-center cursor-pointer shadow-md hover:bg-gray-900 transition-colors">
-                                <label htmlFor="avatar-input" className="text-white cursor-pointer w-full h-full flex items-center justify-center">
+                            <div className="absolute bottom-0 right-0 bg-action w-8 h-8 sm:w-10 sm:h-10 rounded-full flex items-center justify-center cursor-pointer shadow-md hover:bg-action transition-colors">
+                                <label htmlFor="avatar-input" className="text-content-inverted cursor-pointer w-full h-full flex items-center justify-center">
                                     <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="currentColor" viewBox="0 0 20 20">
                                         <path fillRule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clipRule="evenodd" />
                                     </svg>
@@ -166,9 +166,9 @@ const ProfileSetting = () => {
                             </div>
                         </div>
                         <div className="text-center sm:text-left">
-                            <h4 className="text-base sm:text-lg font-semibold text-gray-800 mb-1">이미지 변경</h4>
-                            <p className="text-sm text-gray-500 mb-2">카메라 아이콘을 클릭하여 새로운 프로필 이미지를 업로드하세요.</p>
-                            <p className="text-xs text-gray-400">권장 크기: 400x400px, 최대 5MB</p>
+                            <h4 className="text-base sm:text-lg font-semibold text-content mb-1">이미지 변경</h4>
+                            <p className="text-sm text-content-secondary mb-2">카메라 아이콘을 클릭하여 새로운 프로필 이미지를 업로드하세요.</p>
+                            <p className="text-xs text-content-hint">권장 크기: 400x400px, 최대 5MB</p>
                         </div>
                     </div>
                 </Card>
@@ -178,17 +178,17 @@ const ProfileSetting = () => {
                     <div className="space-y-4">
                         {cover ? (
                             <div className="relative group">
-                                <div className="aspect-[21/9] w-full rounded-2xl overflow-hidden ring-1 ring-gray-900/5">
+                                <div className="aspect-[21/9] w-full rounded-2xl overflow-hidden ring-1 ring-line/5">
                                     <img
                                         src={cover}
                                         alt="커버 이미지"
                                         className="w-full h-full object-cover"
                                     />
                                 </div>
-                                <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-40 transition-all duration-200 rounded-2xl flex items-center justify-center opacity-0 group-hover:opacity-100">
+                                <div className="absolute inset-0 bg-action bg-opacity-0 group-hover:bg-opacity-40 transition-all duration-200 rounded-2xl flex items-center justify-center opacity-0 group-hover:opacity-100">
                                     <label
                                         htmlFor="cover-input"
-                                        className="px-6 py-3 bg-white hover:bg-gray-50 rounded-xl text-sm font-semibold text-gray-900 cursor-pointer transition-colors shadow-lg">
+                                        className="px-6 py-3 bg-surface hover:bg-surface-subtle rounded-xl text-sm font-semibold text-content cursor-pointer transition-colors shadow-lg">
                                         이미지 변경
                                     </label>
                                 </div>
@@ -202,13 +202,13 @@ const ProfileSetting = () => {
                             </div>
                         ) : (
                             <label htmlFor="cover-input-empty" className="block">
-                                <div className="aspect-[21/9] w-full rounded-2xl border-2 border-dashed border-gray-200 hover:border-gray-300 hover:bg-gray-50 transition-all duration-200 cursor-pointer flex flex-col items-center justify-center gap-3 group">
-                                    <svg className="w-12 h-12 text-gray-300 group-hover:text-gray-400 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <div className="aspect-[21/9] w-full rounded-2xl border-2 border-dashed border-line hover:border-line hover:bg-surface-subtle transition-all duration-200 cursor-pointer flex flex-col items-center justify-center gap-3 group">
+                                    <svg className="w-12 h-12 text-content-hint group-hover:text-content-hint transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
                                     </svg>
                                     <div className="text-center">
-                                        <p className="text-sm font-semibold text-gray-600 mb-1">커버 이미지 추가</p>
-                                        <p className="text-xs text-gray-400">클릭하여 이미지를 업로드하세요</p>
+                                        <p className="text-sm font-semibold text-content-secondary mb-1">커버 이미지 추가</p>
+                                        <p className="text-xs text-content-hint">클릭하여 이미지를 업로드하세요</p>
                                     </div>
                                 </div>
                                 <input
@@ -221,8 +221,8 @@ const ProfileSetting = () => {
                             </label>
                         )}
                         <div>
-                            <p className="text-sm text-gray-500 mb-1">프로필 페이지 상단에 표시되는 배너 이미지입니다.</p>
-                            <p className="text-xs text-gray-400">권장 크기: 1200x514px (21:9 비율), 최대 5MB</p>
+                            <p className="text-sm text-content-secondary mb-1">프로필 페이지 상단에 표시되는 배너 이미지입니다.</p>
+                            <p className="text-xs text-content-hint">권장 크기: 1200x514px (21:9 비율), 최대 5MB</p>
                         </div>
                     </div>
                 </Card>

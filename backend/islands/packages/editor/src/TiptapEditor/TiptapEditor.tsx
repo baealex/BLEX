@@ -131,8 +131,8 @@ const TiptapEditor = ({
             <EditorContent editor={editor} />
 
             {isUploading && (
-                <div className="flex items-center gap-2 px-3 py-2 text-sm text-gray-500 bg-gray-50 rounded-lg mt-2 animate-pulse">
-                    <div className="w-4 h-4 border-2 border-gray-300 border-t-gray-600 rounded-full animate-spin" />
+                <div className="flex items-center gap-2 px-3 py-2 text-sm text-content-secondary bg-surface-subtle rounded-lg mt-2 animate-pulse border border-line-light">
+                    <div className="w-4 h-4 border-2 border-line border-t-content-secondary rounded-full animate-spin" />
                     <span>파일 업로드 중...</span>
                 </div>
             )}
@@ -143,14 +143,14 @@ const TiptapEditor = ({
                 .ProseMirror p.is-editor-empty:first-child::before {
                     content: '${placeholder}';
                     float: left;
-                    color: #adb5bd;
+                    color: var(--color-content-hint);
                     pointer-events: none;
                     height: 0;
                 }
                 .ProseMirror figure.ProseMirror-selectednode {
                     position: relative;
                     cursor: grab;
-                    outline: 2px solid #3b82f6;
+                    outline: 2px solid var(--color-mention-content);
                     outline-offset: 2px;
                     transition: opacity 0.2s;
                     &:hover { opacity: 0.9; }
@@ -167,16 +167,16 @@ const TiptapEditor = ({
                     justify-content: center;
                     padding: 4px;
                     background: transparent;
-                    border: 1px solid #d1d5db;
+                    border: 1px solid var(--color-line);
                     border-radius: 4px;
-                    color: #6b7280;
+                    color: var(--color-content-secondary);
                     cursor: pointer;
                     transition: all 0.2s;
                 }
                 .code-copy-button:hover {
-                    background: #e5e7eb;
-                    color: #374151;
-                    border-color: #9ca3af;
+                    background: var(--color-line-light);
+                    color: var(--color-content);
+                    border-color: var(--color-line-strong);
                 }
                 .code-copy-button:active {
                     transform: scale(0.95);
@@ -192,14 +192,14 @@ const TiptapEditor = ({
                 }
                 .ProseMirror div[data-type="columns"] > div[data-type="column"] {
                     padding: 12px;
-                    background: #f9fafb;
+                    background: var(--color-surface-subtle);
                     border-radius: 8px;
-                    border: 1px dashed #e5e7eb;
+                    border: 1px dashed var(--color-line);
                     min-height: 80px;
                 }
                 .ProseMirror div[data-type="columns"] > div[data-type="column"]:focus-within {
-                    border-color: #3b82f6;
-                    background: #f0f7ff;
+                    border-color: var(--color-mention-content);
+                    background: var(--color-mention-surface);
                 }
                 .ProseMirror div[data-type="columns"] > div[data-type="column"] > *:first-child {
                     margin-top: 0;

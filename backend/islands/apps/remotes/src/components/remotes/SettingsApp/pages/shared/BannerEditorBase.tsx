@@ -295,11 +295,11 @@ const BannerEditorBase = ({ scope, bannerId }: BannerEditorBaseProps) => {
     const editorPanel = (
         <div className="space-y-5">
             {!isEditMode && !hasSelectedPosition && (
-                <div className="rounded-2xl border border-amber-300 bg-amber-50 px-4 py-3">
-                    <p className="text-base font-extrabold text-amber-900 sm:text-lg">
+                <div className="rounded-2xl border border-warning-line bg-warning-surface px-4 py-3">
+                    <p className="text-base font-extrabold text-warning sm:text-lg">
                         먼저 배너의 위치를 선택하세요.
                     </p>
-                    <p className="mt-1 text-xs font-medium text-amber-700">
+                    <p className="mt-1 text-xs font-medium text-warning">
                         상단/하단/좌측/우측 중 하나를 누르면 타입과 위치가 자동 설정됩니다.
                     </p>
                 </div>
@@ -315,8 +315,8 @@ const BannerEditorBase = ({ scope, bannerId }: BannerEditorBaseProps) => {
                             onClick={() => handlePositionChange(slot)}
                             className={cx(
                                 'rounded-full border px-3 py-1 text-xs font-semibold transition-colors',
-                                active ? 'border-gray-900 bg-gray-900 text-white' : 'border-gray-300 bg-white text-gray-700 hover:border-gray-400',
-                                !hasSelectedPosition ? 'ring-2 ring-amber-200' : ''
+                                active ? 'border-line-strong bg-action text-content-inverted' : 'border-line bg-surface text-content hover:border-line-strong',
+                                !hasSelectedPosition ? 'ring-2 ring-warning-line' : ''
                             )}>
                             {positionLabels[slot]}
                         </button>
@@ -325,7 +325,7 @@ const BannerEditorBase = ({ scope, bannerId }: BannerEditorBaseProps) => {
                 <span
                     className={cx(
                         'text-xs',
-                        hasSelectedPosition ? 'text-gray-400' : 'font-semibold text-amber-700'
+                        hasSelectedPosition ? 'text-content-hint' : 'font-semibold text-warning'
                     )}>
                     위치 선택 시 타입은 자동으로 맞춰집니다.
                 </span>
@@ -348,10 +348,10 @@ const BannerEditorBase = ({ scope, bannerId }: BannerEditorBaseProps) => {
                 />
 
                 <div className="space-y-1.5">
-                    <label className="ml-1 block text-sm font-medium text-gray-700">
+                    <label className="ml-1 block text-sm font-medium text-content">
                         배너 활성화
                     </label>
-                    <div className="min-h-12 rounded-lg border border-gray-200 bg-white px-3 py-2">
+                    <div className="min-h-12 rounded-lg border border-line bg-surface px-3 py-2">
                         <Checkbox
                             checked={isActive}
                             onCheckedChange={(checked) => setValue('isActive', checked, { shouldDirty: true })}
@@ -363,7 +363,7 @@ const BannerEditorBase = ({ scope, bannerId }: BannerEditorBaseProps) => {
             </div>
 
             <div className="space-y-2">
-                <label className="block text-sm font-semibold text-gray-900">배너 HTML</label>
+                <label className="block text-sm font-semibold text-content">배너 HTML</label>
                 <Controller
                     name="contentHtml"
                     control={control}
@@ -377,7 +377,7 @@ const BannerEditorBase = ({ scope, bannerId }: BannerEditorBaseProps) => {
                         />
                     )}
                 />
-                <p className="text-xs text-gray-500">
+                <p className="text-xs text-content-secondary">
                     {isGlobal
                         ? '전역 배너는 스크립트를 포함할 수 있습니다.'
                         : '사용자 배너는 스크립트 사용이 제한됩니다.'}
@@ -387,18 +387,18 @@ const BannerEditorBase = ({ scope, bannerId }: BannerEditorBaseProps) => {
     );
 
     return (
-        <form onSubmit={handleSubmit(onSubmit)} className="min-h-screen bg-white pb-16">
-            <div className="sticky top-0 z-10 border-b border-gray-200 bg-white">
+        <form onSubmit={handleSubmit(onSubmit)} className="min-h-screen bg-surface pb-16">
+            <div className="sticky top-0 z-10 border-b border-line bg-surface">
                 <div className="mx-auto flex h-14 max-w-7xl items-center justify-between px-4 md:px-6">
                     <button
                         type="button"
-                        className="flex items-center gap-2 py-2 text-sm text-gray-600 transition-colors hover:text-gray-900 active:text-gray-500"
+                        className="flex items-center gap-2 py-2 text-sm text-content-secondary transition-colors hover:text-content active:text-content-secondary"
                         onClick={() => navigateToList()}>
                         <i className="fas fa-arrow-left" />
                         <span>목록으로</span>
                     </button>
 
-                    <span className="text-sm text-gray-500">
+                    <span className="text-sm text-content-secondary">
                         {isEditMode && title ? title : isEditMode ? `${bannerLabel} 수정` : `${bannerLabel} 생성`}
                     </span>
                 </div>
@@ -424,14 +424,14 @@ const BannerEditorBase = ({ scope, bannerId }: BannerEditorBaseProps) => {
                             isLoading={deleteMutation.isPending}
                             disabled={isSaving}
                             onClick={handleDelete}
-                            className="!rounded-full !text-red-500 hover:!bg-red-50 hover:!text-red-700">
+                            className="!rounded-full !text-danger hover:!bg-danger-surface hover:!text-danger">
                             삭제
                         </Button>
-                        <div className="mx-1 h-8 w-px bg-gray-200/60" />
+                        <div className="mx-1 h-8 w-px bg-line/60" />
                     </>
                 )}
 
-                <div className="hidden items-center px-1.5 text-xs text-gray-500 sm:flex">
+                <div className="hidden items-center px-1.5 text-xs text-content-secondary sm:flex">
                     {typeLabels[bannerType]} · {positionLabels[position]}
                 </div>
 

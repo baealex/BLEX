@@ -46,16 +46,16 @@ const NotificationsSection = ({
             {/* Telegram Integration Card */}
             <a
                 href="/settings/integration"
-                className="group relative block overflow-hidden rounded-2xl bg-white border border-gray-100 transition-all duration-200 hover:shadow-sm hover:border-gray-200">
+                className="group relative block overflow-hidden rounded-2xl bg-surface ring-1 ring-line/60 transition-all duration-200 hover:ring-line">
                 <div className="relative p-5 sm:p-6 flex items-center justify-between">
                     <div>
-                        <h3 className="text-base font-semibold text-gray-900 mb-1.5">텔레그램 연동</h3>
-                        <p className="text-gray-500 text-sm max-w-xl leading-relaxed">
+                        <h3 className="text-base font-semibold text-content mb-1.5">텔레그램 연동</h3>
+                        <p className="text-content-secondary text-sm max-w-xl leading-relaxed">
                             텔레그램을 연동하면 새 글 작성, 댓글, 등의 알림을 실시간으로 받아보실 수 있습니다.
                         </p>
                     </div>
                     <div className="flex-shrink-0 ml-6">
-                        <span className="inline-flex items-center justify-center w-10 h-10 rounded-lg bg-gray-100 text-gray-500 group-hover:bg-gray-900 group-hover:text-white transition-colors motion-interaction">
+                        <span className="inline-flex items-center justify-center w-10 h-10 rounded-lg bg-surface-subtle text-content-secondary group-hover:bg-action group-hover:text-content-inverted transition-colors motion-interaction">
                             <i className="fab fa-telegram-plane text-lg" />
                         </span>
                     </div>
@@ -71,18 +71,18 @@ const NotificationsSection = ({
                             className="items-start"
                             onClick={() => handleClickNotify(item)}
                             actions={
-                                <div className="flex-shrink-0 self-center text-gray-300">
+                                <div className="flex-shrink-0 self-center text-content-hint">
                                     <i className="fas fa-chevron-right" />
                                 </div>
                             }>
-                            <div className={`${TITLE} ${!item.isRead ? 'font-semibold text-gray-900' : 'font-medium text-gray-600'} mb-1.5 leading-relaxed`}>
+                            <div className={`${TITLE} ${!item.isRead ? 'font-semibold text-content' : 'font-medium text-content-secondary'} mb-1.5 leading-relaxed`}>
                                 {item.content}
                             </div>
-                            <div className="flex items-center gap-2 text-xs text-gray-400">
+                            <div className="flex items-center gap-2 text-xs text-content-hint">
                                 <i className="far fa-clock" />
                                 <span>{item.createdDate}</span>
                                 {!item.isRead && (
-                                    <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold bg-red-50 text-red-600 border border-red-100">
+                                    <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold bg-danger-surface text-danger border border-danger-line">
                                         NEW
                                     </span>
                                 )}

@@ -28,19 +28,19 @@ const Checkbox = ({
                 className={cx(
                     'w-5 h-5 shrink-0 rounded border-2 transition-all duration-150 mt-0.5',
                     'flex items-center justify-center',
-                    'focus:outline-none focus:ring-2 focus:ring-black/10 focus:ring-offset-1',
+                    'focus:outline-none focus:ring-2 focus:ring-action/20 focus:ring-offset-1',
                     checked
-                        ? 'bg-black border-black'
-                        : 'border-gray-300 bg-white group-hover:border-gray-400'
+                        ? 'bg-action border-action'
+                        : 'border-line-strong bg-surface-elevated group-hover:border-line'
                 )}>
                 <RadixCheckbox.Indicator>
-                    <Check className="w-3.5 h-3.5 text-white" strokeWidth={3} />
+                    <Check className="w-3.5 h-3.5 text-content-inverted" strokeWidth={3} />
                 </RadixCheckbox.Indicator>
             </RadixCheckbox.Root>
             {(label || description) && (
                 <div className="flex-1 min-w-0">
-                    {label && <div className="text-sm font-medium text-gray-900">{label}</div>}
-                    {description && <div className="text-xs text-gray-500">{description}</div>}
+                    {label && <div className="text-sm font-medium text-content">{label}</div>}
+                    {description && <div className="text-xs text-content-secondary">{description}</div>}
                 </div>
             )}
         </label>

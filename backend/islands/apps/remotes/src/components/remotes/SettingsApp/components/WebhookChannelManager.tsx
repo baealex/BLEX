@@ -175,20 +175,20 @@ const WebhookChannelManager = ({
     const getStatusBadge = (channel: { isActive: boolean; failureCount: number }) => {
         if (!channel.isActive) {
             return (
-                <span className="bg-gray-900 text-white px-2 py-0.5 rounded-md text-xs font-medium">
+                <span className="bg-action text-content-inverted px-2 py-0.5 rounded-md text-xs font-medium">
                     비활성화
                 </span>
             );
         }
         if (channel.failureCount > 0) {
             return (
-                <span className="bg-gray-200 text-gray-700 px-2 py-0.5 rounded-md text-xs font-medium">
+                <span className="bg-line text-content px-2 py-0.5 rounded-md text-xs font-medium">
                     실패 {channel.failureCount}회
                 </span>
             );
         }
         return (
-            <span className="bg-gray-100 text-gray-600 px-2 py-0.5 rounded-md text-xs font-medium">
+            <span className="bg-surface-subtle text-content-secondary px-2 py-0.5 rounded-md text-xs font-medium">
                 활성
             </span>
         );
@@ -216,13 +216,13 @@ const WebhookChannelManager = ({
 
             {showAddForm && (
                 <form
-                    className="mb-6 bg-gray-50 border border-gray-200 rounded-2xl p-6 animate-in fade-in-0 slide-in-from-top-2 motion-interaction"
+                    className="mb-6 bg-surface-subtle border border-line rounded-2xl p-6 animate-in fade-in-0 slide-in-from-top-2 motion-interaction"
                     onSubmit={handleSubmit(onSubmit)}>
-                    <h3 className="text-base font-semibold text-gray-900 mb-4">{formTitle}</h3>
+                    <h3 className="text-base font-semibold text-content mb-4">{formTitle}</h3>
                     <div className="space-y-4">
                         <div>
-                            <label htmlFor="webhookUrl" className="block text-sm font-medium text-gray-700 mb-1">
-                                웹훅 URL <span className="text-red-500">*</span>
+                            <label htmlFor="webhookUrl" className="block text-sm font-medium text-content mb-1">
+                                웹훅 URL <span className="text-danger">*</span>
                             </label>
                             <Input
                                 id="webhookUrl"
@@ -233,7 +233,7 @@ const WebhookChannelManager = ({
                             />
                         </div>
                         <div>
-                            <label htmlFor="webhookName" className="block text-sm font-medium text-gray-700 mb-1">
+                            <label htmlFor="webhookName" className="block text-sm font-medium text-content mb-1">
                                 채널 이름 (선택)
                             </label>
                             <Input

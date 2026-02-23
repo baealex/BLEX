@@ -249,8 +249,8 @@ const EditPostEditor = ({ username, postUrl }: EditPostEditorProps) => {
             <PostEditorWrapper>
                 <div className="flex items-center justify-center py-32">
                     <div className="text-center space-y-4">
-                        <div className="inline-block animate-spin rounded-full h-12 w-12 border-4 border-gray-200 border-t-gray-900" />
-                        <p className="text-gray-500 text-sm font-medium">포스트를 불러오는 중...</p>
+                        <div className="inline-block animate-spin rounded-full h-12 w-12 border-4 border-line border-t-action" />
+                        <p className="text-content-secondary text-sm font-medium">포스트를 불러오는 중...</p>
                     </div>
                 </div>
             </PostEditorWrapper>

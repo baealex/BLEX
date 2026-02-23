@@ -8,12 +8,12 @@ const LoadingState = ({ rows = 3, type = 'form' }: LoadingStateProps) => {
         return (
             <div className="space-y-3 animate-pulse" role="status" aria-live="polite" aria-label="로딩 중">
                 {[...Array(rows)].map((_, i) => (
-                    <div key={i} className="flex items-start gap-4 p-5 bg-gray-50 rounded-2xl">
-                        <div className="w-12 h-12 bg-gray-200 rounded-xl flex-shrink-0" />
+                    <div key={i} className="flex items-start gap-4 p-5 bg-surface-subtle rounded-2xl">
+                        <div className="w-12 h-12 bg-line-light rounded-xl flex-shrink-0" />
                         <div className="flex-1 space-y-2">
-                            <div className="h-4 bg-gray-200 rounded w-48" />
-                            <div className="h-4 bg-gray-200 rounded w-32" />
-                            <div className="h-3 bg-gray-200 rounded w-20" />
+                            <div className="h-4 bg-line-light rounded w-48" />
+                            <div className="h-4 bg-line-light rounded w-32" />
+                            <div className="h-3 bg-line-light rounded w-20" />
                         </div>
                     </div>
                 ))}
@@ -25,7 +25,7 @@ const LoadingState = ({ rows = 3, type = 'form' }: LoadingStateProps) => {
         return (
             <div className="flex items-center justify-center p-8" role="status" aria-live="polite" aria-label="로딩 중">
                 <div className="relative w-8 h-8">
-                    <svg className="animate-spin text-gray-900" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <svg className="animate-spin text-action" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                         <circle
                             className="opacity-25"
                             cx="12"
@@ -45,16 +45,16 @@ const LoadingState = ({ rows = 3, type = 'form' }: LoadingStateProps) => {
     return (
         <div role="status" aria-live="polite" aria-label="로딩 중">
             <div className="animate-pulse">
-                <div className="h-8 bg-gray-200 rounded w-32 mb-6" />
+                <div className="h-8 bg-line-light rounded w-32 mb-6" />
                 <div className="space-y-4">
                     {[...Array(rows)].map((_, i) => (
                         <div key={i}>
-                            <div className="h-4 bg-gray-200 rounded w-16 mb-2" />
-                            <div className="h-10 bg-gray-200 rounded" />
+                            <div className="h-4 bg-line-light rounded w-16 mb-2" />
+                            <div className="h-10 bg-line-light rounded" />
                         </div>
                     ))}
                 </div>
-                <div className="h-12 bg-gray-200 rounded w-full mt-6" />
+                <div className="h-12 bg-line-light rounded w-full mt-6" />
             </div>
         </div>
     );

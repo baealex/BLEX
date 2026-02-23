@@ -80,12 +80,12 @@ const PostSelector = ({ posts, selectedPostIds, onChange }: PostSelectorProps) =
         <div className="space-y-5">
             <div className="flex items-center justify-between">
                 <div className="flex items-center space-x-2.5">
-                    <div className="w-8 h-8 bg-gray-100 rounded-lg flex items-center justify-center">
-                        <i className="fas fa-list text-sm text-gray-700" />
+                    <div className="w-8 h-8 bg-surface-subtle rounded-lg flex items-center justify-center">
+                        <i className="fas fa-list text-sm text-content" />
                     </div>
-                    <h2 className="text-base font-semibold text-gray-900">포함할 글 선택</h2>
+                    <h2 className="text-base font-semibold text-content">포함할 글 선택</h2>
                 </div>
-                <div className="text-sm text-gray-500">
+                <div className="text-sm text-content-secondary">
                     {selectedPostIds.length}개 선택
                 </div>
             </div>
@@ -103,7 +103,7 @@ const PostSelector = ({ posts, selectedPostIds, onChange }: PostSelectorProps) =
                     type="button"
                     onClick={() => setQuery('')}
                     disabled={!isSearchActive}
-                    className="inline-flex h-12 items-center justify-center rounded-lg border border-gray-200 bg-white px-3 text-sm font-medium text-gray-700 transition-all duration-150 hover:bg-gray-50 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-40">
+                    className="inline-flex h-12 items-center justify-center rounded-lg border border-line bg-surface px-3 text-sm font-medium text-content transition-all duration-150 hover:bg-surface-subtle active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-40">
                     지우기
                 </button>
             </div>
@@ -116,8 +116,8 @@ const PostSelector = ({ posts, selectedPostIds, onChange }: PostSelectorProps) =
                         disabled={safePosts.length === 0 || isSearchActive}
                         className={`inline-flex h-11 items-center justify-center rounded-lg border px-3 text-sm font-medium transition-all duration-150 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-40 ${
                             isAllSelected
-                                ? 'border-gray-900 bg-gray-900 text-white hover:bg-gray-800'
-                                : 'border-gray-200 bg-white text-gray-700 hover:bg-gray-50'
+                                ? 'border-line-strong bg-action text-content-inverted hover:bg-action-hover'
+                                : 'border-line bg-surface text-content hover:bg-surface-subtle'
                         }`}>
                         {isAllSelected ? '전체 해제' : '전체 선택'}
                     </button>
@@ -127,7 +127,7 @@ const PostSelector = ({ posts, selectedPostIds, onChange }: PostSelectorProps) =
                             type="button"
                             onClick={handleSelectFiltered}
                             disabled={filteredPosts.length === 0}
-                            className="inline-flex h-11 items-center justify-center rounded-lg border border-gray-200 bg-white px-3 text-sm font-medium text-gray-700 transition-all duration-150 hover:bg-gray-50 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-40">
+                            className="inline-flex h-11 items-center justify-center rounded-lg border border-line bg-surface px-3 text-sm font-medium text-content transition-all duration-150 hover:bg-surface-subtle active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-40">
                             검색 결과 전체 선택
                         </button>
                     )}
@@ -136,7 +136,7 @@ const PostSelector = ({ posts, selectedPostIds, onChange }: PostSelectorProps) =
                         <button
                             type="button"
                             onClick={handleUndoSelection}
-                            className="inline-flex h-11 items-center justify-center rounded-lg border border-gray-200 bg-white px-3 text-sm font-medium text-gray-700 transition-all duration-150 hover:bg-gray-50 active:scale-[0.98]">
+                            className="inline-flex h-11 items-center justify-center rounded-lg border border-line bg-surface px-3 text-sm font-medium text-content transition-all duration-150 hover:bg-surface-subtle active:scale-[0.98]">
                             되돌리기
                         </button>
                     )}
@@ -148,8 +148,8 @@ const PostSelector = ({ posts, selectedPostIds, onChange }: PostSelectorProps) =
                         onClick={() => setSortMode((prev) => (prev === 'default' ? 'selectedFirst' : 'default'))}
                         className={`inline-flex h-11 items-center justify-center rounded-lg border px-3 text-sm font-medium transition-all duration-150 active:scale-[0.98] ${
                             sortMode === 'selectedFirst'
-                                ? 'border-gray-900 bg-gray-900 text-white'
-                                : 'border-gray-200 bg-white text-gray-700 hover:bg-gray-50'
+                                ? 'border-line-strong bg-action text-content-inverted'
+                                : 'border-line bg-surface text-content hover:bg-surface-subtle'
                         }`}>
                         선택 우선 정렬
                     </button>
@@ -157,7 +157,7 @@ const PostSelector = ({ posts, selectedPostIds, onChange }: PostSelectorProps) =
             </div>
 
             {isSearchActive && (
-                <p className="text-xs text-gray-500">
+                <p className="text-xs text-content-secondary">
                     검색 중에는 실수 방지를 위해 전체 선택/해제를 비활성화했습니다.
                 </p>
             )}
@@ -184,10 +184,10 @@ const PostSelector = ({ posts, selectedPostIds, onChange }: PostSelectorProps) =
                             <div
                                 key={post.id}
                                 onClick={() => togglePost(post.id)}
-                                className={`flex items-center p-4 border rounded-lg cursor-pointer transition-all motion-interaction active:bg-gray-100 w-full ${
+                                className={`flex items-center p-4 border rounded-lg cursor-pointer transition-all motion-interaction active:bg-surface-subtle w-full ${
                                     isSelected
-                                        ? 'border-gray-300 bg-gray-50'
-                                        : 'bg-white border-gray-200 hover:border-gray-300 hover:bg-gray-50'
+                                        ? 'border-line bg-surface-subtle'
+                                        : 'bg-surface border-line hover:border-line hover:bg-surface-subtle'
                                 }`}>
                                 <div onClick={(e) => e.stopPropagation()}>
                                     <Checkbox
@@ -196,17 +196,17 @@ const PostSelector = ({ posts, selectedPostIds, onChange }: PostSelectorProps) =
                                     />
                                 </div>
                                 <div className="flex-1 min-w-0 ml-3">
-                                    <span className="text-sm font-medium text-gray-900 truncate block">
+                                    <span className="text-sm font-medium text-content truncate block">
                                         {post.title}
                                     </span>
                                     {post.publishedDate && (
-                                        <span className="text-xs text-gray-400 mt-0.5 block">
+                                        <span className="text-xs text-content-hint mt-0.5 block">
                                             {post.publishedDate}
                                         </span>
                                     )}
                                 </div>
                                 {isSelected && (
-                                    <i className="fas fa-check text-xs text-gray-700 ml-2 shrink-0" />
+                                    <i className="fas fa-check text-xs text-content ml-2 shrink-0" />
                                 )}
                             </div>
                         );

@@ -167,9 +167,9 @@ const FormsManagement = () => {
 
             {showForm && (
                 <form
-                    className="mb-6 bg-gray-50 border border-gray-200 rounded-2xl p-6 animate-in fade-in-0 slide-in-from-top-2 motion-interaction"
+                    className="mb-6 bg-surface-subtle border border-line rounded-2xl p-6 animate-in fade-in-0 slide-in-from-top-2 motion-interaction"
                     onSubmit={handleSubmit(onSubmit)}>
-                    <h3 className="text-base font-semibold text-gray-900 mb-4">
+                    <h3 className="text-base font-semibold text-content mb-4">
                         {editingForm ? '서식 편집' : '서식 추가'}
                     </h3>
                     <div className="space-y-4">

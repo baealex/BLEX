@@ -128,7 +128,7 @@ export const CommentForm = ({
         return (
             <div className="relative group cursor-pointer rounded-xl overflow-hidden" onClick={onShowLoginPrompt}>
                 <textarea
-                    className="w-full p-5 border border-gray-200 rounded-xl resize-none bg-gray-50 text-sm placeholder-gray-400 pointer-events-none"
+                    className="w-full p-5 border border-line rounded-xl resize-none bg-surface-subtle text-sm placeholder-content-hint pointer-events-none"
                     placeholder={placeholder}
                     rows={3}
                     disabled
@@ -136,10 +136,10 @@ export const CommentForm = ({
                 />
 
                 {/* Hover 시 나타나는 안내 */}
-                <div className="absolute inset-0 flex items-center justify-center bg-white/0 group-hover:bg-white/90 transition-all duration-200 pointer-events-none">
+                <div className="absolute inset-0 flex items-center justify-center bg-surface/0 group-hover:bg-surface/90 transition-all duration-200 pointer-events-none">
                     <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-center gap-2">
-                        <Lock className="w-5 h-5 text-gray-600" />
-                        <span className="text-sm font-semibold text-gray-900">로그인이 필요합니다</span>
+                        <Lock className="w-5 h-5 text-content-secondary" />
+                        <span className="text-sm font-semibold text-content">로그인이 필요합니다</span>
                     </div>
                 </div>
             </div>
@@ -151,7 +151,7 @@ export const CommentForm = ({
             <div className="relative">
                 <textarea
                     ref={textareaRef}
-                    className="w-full p-5 border-2 border-gray-200 focus:border-gray-900 focus:outline-none focus:ring-2 focus:ring-gray-900/10 rounded-xl resize-none bg-white text-sm placeholder-gray-400 leading-relaxed transition-all duration-150"
+                    className="w-full p-5 border-2 border-line focus:border-line-strong focus:outline-none focus:ring-2 focus:ring-line/10 rounded-xl resize-none bg-surface text-sm placeholder-content-hint leading-relaxed transition-all duration-150"
                     value={commentText}
                     onChange={handleTextChange}
                     onKeyDown={handleKeyDown}
@@ -176,14 +176,14 @@ export const CommentForm = ({
             <div className="flex justify-end gap-2">
                 {onCancel && (
                     <button
-                        className="px-5 py-2.5 rounded-lg text-sm text-gray-700 hover:text-gray-900 hover:bg-gray-100 font-semibold disabled:opacity-50 transition-all duration-150"
+                        className="px-5 py-2.5 rounded-lg text-sm text-content hover:text-content hover:bg-surface-subtle font-semibold disabled:opacity-50 transition-all duration-150"
                         onClick={onCancel}
                         disabled={isSubmitting}>
                         취소
                     </button>
                 )}
                 <button
-                    className="px-6 py-2.5 rounded-lg bg-gray-900 hover:bg-gray-800 disabled:bg-gray-200 disabled:text-gray-400 text-white text-sm font-semibold disabled:cursor-not-allowed transition-all duration-150 shadow-sm hover:shadow-md"
+                    className="px-6 py-2.5 rounded-lg bg-action hover:bg-action-hover disabled:bg-line disabled:text-content-hint text-content-inverted text-sm font-semibold disabled:cursor-not-allowed transition-all duration-150 shadow-sm hover:shadow-md"
                     onClick={onSubmit}
                     disabled={isSubmitting || !commentText.trim()}
                     aria-label={isSubmitting ? '댓글 작성 중' : '댓글 작성하기'}>

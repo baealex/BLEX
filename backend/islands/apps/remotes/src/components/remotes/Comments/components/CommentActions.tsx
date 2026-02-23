@@ -25,15 +25,15 @@ export const CommentActions = ({
                         inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-md
                         text-xs font-semibold transition-colors duration-150
                         ${isLiked
-                            ? 'bg-gray-900 text-white hover:bg-gray-800'
-                            : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
+                            ? 'bg-action text-content-inverted hover:bg-action-hover'
+                            : 'text-content-secondary hover:text-content hover:bg-surface-subtle'
                         }
                     `}
                     onClick={() => onLike(commentId)}
                     aria-label={isLiked ? '좋아요 취소' : '좋아요'}
                     aria-pressed={isLiked}>
                     <ThumbsUp
-                        className={`w-4 h-4 ${isLiked ? 'fill-white' : ''}`}
+                        className={`w-4 h-4 ${isLiked ? 'fill-content-inverted' : ''}`}
                         aria-hidden="true"
                     />
                     {countLikes > 0 && <span>{countLikes}</span>}
@@ -42,7 +42,7 @@ export const CommentActions = ({
 
             {!isDeleted && onReply && (
                 <button
-                    className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-md text-xs font-semibold text-gray-600 hover:text-gray-900 hover:bg-gray-100 transition-colors duration-150"
+                    className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-md text-xs font-semibold text-content-secondary hover:text-content hover:bg-surface-subtle transition-colors duration-150"
                     onClick={onReply}
                     aria-label="답글 작성">
                     <Reply className="w-4 h-4" />

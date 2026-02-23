@@ -1,9 +1,9 @@
 <!-- Introduction Section -->
 <section>
-    <div class="bg-white rounded-2xl ring-1 ring-gray-900/5 p-8">
-        <div class="flex items-baseline gap-3 mb-6 pb-4 border-b border-gray-100">
-            <h2 class="text-2xl font-bold text-gray-900">README</h2>
-            <span class="text-sm font-mono text-gray-400">.md</span>
+    <div class="bg-surface rounded-2xl ring-1 ring-line/60 p-8">
+        <div class="flex items-baseline gap-3 mb-6 pb-4 border-b border-line-light">
+            <h2 class="text-2xl font-bold text-content">README</h2>
+            <span class="text-sm font-mono text-content-hint">.md</span>
         </div>
         {% if about_html %}
             <div class="prose blog-post-content">
@@ -11,16 +11,16 @@
             </div>
         {% else %}
             <div class="text-center py-16">
-                <div class="inline-flex items-center justify-center w-14 h-14 rounded-xl bg-gray-50 mb-3">
-                    <i class="fas fa-file-alt text-gray-300 text-lg"></i>
+                <div class="inline-flex items-center justify-center w-14 h-14 rounded-xl bg-surface-subtle mb-3">
+                    <i class="fas fa-file-alt text-content-hint text-lg"></i>
                 </div>
-                <p class="text-gray-400 font-medium">아직 소개글이 없습니다</p>
+                <p class="text-content-hint font-medium">아직 소개글이 없습니다</p>
             </div>
         {% endif %}
 
         {% if user == author %}
-        <div class="mt-6 pt-6 border-t border-gray-100">
-            <a href="{% url 'user_about_edit' author.username %}" class="flex items-center justify-center w-full px-4 py-2.5 bg-gray-900 hover:bg-gray-800 rounded-xl text-sm font-semibold text-white transition-colors">
+        <div class="mt-6 pt-6 border-t border-line-light">
+            <a href="{% url 'user_about_edit' author.username %}" class="flex items-center justify-center w-full px-4 py-2.5 bg-action hover:bg-action-hover rounded-xl text-sm font-semibold text-content-inverted transition-colors">
                 <i class="fas fa-edit mr-2"></i>
                 소개글 수정
             </a>

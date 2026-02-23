@@ -4,7 +4,7 @@ import { AlertCircle } from 'lucide-react';
 import { cx } from '../lib/classnames';
 import { INTERACTION_DURATION } from '../lib/designTokens';
 
-const baseInputStyles = `block w-full rounded-lg border border-gray-200 focus:border-gray-900/30 focus:ring-2 focus:ring-gray-900/5 text-sm py-3 px-3 min-h-12 transition-all ${INTERACTION_DURATION} bg-white placeholder-gray-400 text-gray-900`;
+const baseInputStyles = `block w-full rounded-lg border border-line focus:border-line-strong focus:ring-2 focus:ring-line/70 text-sm py-3 px-3 min-h-12 transition-all ${INTERACTION_DURATION} bg-surface-elevated placeholder:text-content-hint text-content`;
 
 interface InputProps extends InputHTMLAttributes<HTMLInputElement | HTMLTextAreaElement> {
     label?: string;
@@ -36,15 +36,15 @@ const Input = forwardRef<HTMLInputElement | HTMLTextAreaElement, InputProps>(
     ) => {
         const inputId = id || `input-${Math.random().toString(36).substr(2, 9)}`;
         const errorId = `${inputId}-error`;
-        const errorStyles = error ? 'border-red-300 focus:border-red-500 focus:ring-red-500/10 bg-red-50/30' : '';
-        const readOnlyStyles = readOnly ? '!bg-gray-50 !text-gray-500 cursor-default focus:!ring-0 focus:!border-gray-200' : '';
+        const errorStyles = error ? 'border-danger-line focus:border-danger focus:ring-danger/20 bg-danger-surface/70' : '';
+        const readOnlyStyles = readOnly ? '!bg-surface-subtle !text-content-hint cursor-default focus:!ring-0 focus:!border-line' : '';
 
         // Padding logic
         const leftPadding = leftIcon ? 'pl-11' : '';
         const rightPadding = rightIcon ? 'pr-11' : '';
 
         // Icon position styles
-        const iconBase = 'absolute flex pointer-events-none text-gray-400 pl-4 pr-4';
+        const iconBase = 'absolute flex pointer-events-none text-content-hint pl-4 pr-4';
         const iconPosition = multiline ? 'top-0 pt-3 items-start' : 'inset-y-0 items-center';
 
         const inputClasses = cx(
@@ -59,8 +59,8 @@ const Input = forwardRef<HTMLInputElement | HTMLTextAreaElement, InputProps>(
         return (
             <div className={cx('relative', className)}>
                 {label && (
-                    <label htmlFor={inputId} className="block text-sm font-medium text-gray-700 mb-1.5 ml-1">
-                        {label} {required && <span className="text-red-500">*</span>}
+                    <label htmlFor={inputId} className="block text-sm font-medium text-content-secondary mb-1.5 ml-1">
+                        {label} {required && <span className="text-danger">*</span>}
                     </label>
                 )}
 
@@ -102,14 +102,14 @@ const Input = forwardRef<HTMLInputElement | HTMLTextAreaElement, InputProps>(
                 </div>
 
                 {error && (
-                    <p id={errorId} role="alert" className="mt-1.5 text-sm text-red-500 ml-1 flex items-center gap-1.5">
+                    <p id={errorId} role="alert" className="mt-1.5 text-sm text-danger ml-1 flex items-center gap-1.5">
                         <AlertCircle className="w-3.5 h-3.5 shrink-0" />
                         {error}
                     </p>
                 )}
 
                 {helperText && !error && (
-                    <p className="text-gray-500 text-xs mt-1.5 ml-1">{helperText}</p>
+                    <p className="text-content-secondary text-xs mt-1.5 ml-1">{helperText}</p>
                 )}
             </div>
         );

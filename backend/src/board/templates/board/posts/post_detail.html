@@ -69,39 +69,39 @@
                     <div class="mb-12 sm:mb-16">
                         {% if post.series %}
                         <div class="flex items-center gap-2 mb-6">
-                            <a href="{% url 'series_detail' post.author_username post.series.url %}" class="inline-flex items-center gap-1.5 px-3 py-1 bg-gray-900 text-white rounded-full text-xs font-semibold hover:bg-gray-800 transition-colors">
+                            <a href="{% url 'series_detail' post.author_username post.series.url %}" class="inline-flex items-center gap-1.5 px-3 py-1 bg-action text-content-inverted rounded-full text-xs font-semibold hover:bg-action-hover transition-colors">
                                 <i class="fas fa-layer-group text-[10px] opacity-70"></i>
                                 {{ post.series.name }}
                             </a>
                             {% if post.series_index %}
-                            <span class="text-xs text-gray-400 font-medium">{{ post.series_index }} / {{ post.series_total }}</span>
+                            <span class="text-xs text-content-hint font-medium">{{ post.series_index }} / {{ post.series_total }}</span>
                             {% endif %}
                         </div>
                         {% endif %}
 
-                        <h1 class="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 {% if not post.subtitle %}mb-8{% else %}mb-3{% endif %} leading-tight tracking-tight break-words" itemprop="headline">
+                        <h1 class="text-2xl sm:text-3xl lg:text-4xl font-bold text-content {% if not post.subtitle %}mb-8{% else %}mb-3{% endif %} leading-tight tracking-tight break-words" itemprop="headline">
                             {{ post.title }}
                         </h1>
                         {% if post.subtitle %}
-                        <p class="text-lg sm:text-xl text-gray-500 mb-8 leading-relaxed font-medium">
+                        <p class="text-lg sm:text-xl text-content-secondary mb-8 leading-relaxed font-medium">
                             {{ post.subtitle }}
                         </p>
                         {% endif %}
 
-                        <div class="flex items-center gap-4 text-sm border-b border-gray-100 pb-8" itemprop="author" itemscope itemtype="https://schema.org/Person">
+                        <div class="flex items-center gap-4 text-sm border-b border-line-light pb-8" itemprop="author" itemscope itemtype="https://schema.org/Person">
                             <a href="/@{{ post.author_username }}" class="group flex-shrink-0">
-                                <img class="w-10 h-10 rounded-full object-cover ring-2 ring-gray-100 group-hover:ring-gray-200 transition-all"
+                                <img class="w-10 h-10 rounded-full object-cover ring-2 ring-line-light group-hover:ring-line-strong transition-all"
                                     src="{% if post.author_image %}{% media post.author_image %}{% else %}{% resource 'assets/images/default-avatar.jpg' %}{% endif %}"
                                     alt="{{ post.author_username }}">
                             </a>
                             <div class="flex flex-wrap items-center gap-x-2 gap-y-1">
-                                <a href="/@{{ post.author_username }}" class="font-semibold text-gray-900 hover:text-gray-600 transition-colors" itemprop="name">
+                                <a href="/@{{ post.author_username }}" class="font-semibold text-content hover:text-content-secondary transition-colors" itemprop="name">
                                     {{ post.author_username }}
                                 </a>
-                                <span class="text-gray-300">·</span>
-                                <span class="text-gray-500" itemprop="datePublished" content="{{ post.published_date|date:'c' }}">{{ post.created_date_display }}</span>
-                                <span class="text-gray-300">·</span>
-                                <span class="text-gray-500" aria-label="읽는 시간">{{ post.read_time }}분 소요</span>
+                                <span class="text-line-strong">·</span>
+                                <span class="text-content-secondary" itemprop="datePublished" content="{{ post.published_date|date:'c' }}">{{ post.created_date_display }}</span>
+                                <span class="text-line-strong">·</span>
+                                <span class="text-content-secondary" aria-label="읽는 시간">{{ post.read_time }}분 소요</span>
                             </div>
                         </div>
                     </div>
@@ -109,7 +109,7 @@
                     <!-- Featured Image -->
                     {% if post.image %}
                     <div class="mb-12 sm:mb-16">
-                        <img class="w-full rounded-2xl ring-1 ring-gray-900/5" src="{{ post.image.url }}" alt="{{ post.title }}" itemprop="image">
+                        <img class="w-full rounded-2xl ring-1 ring-line/60" src="{{ post.image.url }}" alt="{{ post.title }}" itemprop="image">
                     </div>
                     {% endif %}
 
@@ -132,8 +132,8 @@
                     <div class="mb-16" itemprop="keywords">
                         <div class="flex flex-wrap gap-2">
                             {% for tag in post.tags.all %}
-                                <a href="{% url 'tag_detail' tag %}" class="inline-flex items-center px-4 py-2 bg-gray-50 hover:bg-gray-100 text-gray-600 hover:text-gray-900 rounded-full text-sm font-medium transition-all duration-150 border border-gray-100 hover:border-gray-200 active:scale-95">
-                                    <span class="mr-1 text-gray-400">#</span>{{ tag }}
+                                <a href="{% url 'tag_detail' tag %}" class="inline-flex items-center px-4 py-2 bg-surface-subtle hover:bg-line-light text-content-secondary hover:text-content rounded-full text-sm font-medium transition-all duration-150 border border-line-light hover:border-line active:scale-95">
+                                    <span class="mr-1 text-content-hint">#</span>{{ tag }}
                                 </a>
                             {% endfor %}
                         </div>
@@ -172,12 +172,12 @@
                             {% include 'components/like_button.html' with post_url=post.url likes_count=post.count_likes has_liked=post.has_liked %}
                         </div>
 
-                        <div class="w-px h-8 bg-gray-200/50 mx-1"></div>
+                        <div class="w-px h-8 bg-line/60 mx-1"></div>
 
                         <!-- TOC Button (Mobile Only) -->
                         {% if table_of_contents %}
                         <button @click="$dispatch('toc-sheet-open')"
-                            class="xl:hidden w-11 h-11 flex items-center justify-center rounded-full text-gray-600 hover:text-black hover:bg-gray-100/50 transition-all duration-200 active:scale-95"
+                            class="xl:hidden w-11 h-11 flex items-center justify-center rounded-full text-content-secondary hover:text-content hover:bg-surface-subtle/80 transition-all duration-200 active:scale-95"
                             aria-label="목차 보기">
                             <i class="fas fa-list-ul"></i>
                         </button>
@@ -201,7 +201,7 @@
                                 copyToClipboard();
                             }
                         "
-                        class="w-11 h-11 flex items-center justify-center rounded-full text-gray-600 hover:text-black hover:bg-gray-100/50 transition-all duration-200 active:scale-95"
+                        class="w-11 h-11 flex items-center justify-center rounded-full text-content-secondary hover:text-content hover:bg-surface-subtle/80 transition-all duration-200 active:scale-95"
                         aria-label="게시물 공유하기">
                             <i class="fas fa-share-alt"></i>
                         </button>
@@ -209,7 +209,7 @@
                         <!-- Edit Button -->
                         {% if user.is_authenticated and user.username == post.author_username %}
                         <a href="{% url 'post_edit' post.author_username post.url %}"
-                            class="w-11 h-11 flex items-center justify-center rounded-full text-gray-600 hover:text-black hover:bg-gray-100/50 transition-all duration-200 active:scale-95"
+                            class="w-11 h-11 flex items-center justify-center rounded-full text-content-secondary hover:text-content hover:bg-surface-subtle/80 transition-all duration-200 active:scale-95"
                             aria-label="포스트 수정">
                             <i class="fas fa-edit"></i>
                         </a>
@@ -219,21 +219,21 @@
 
                 <!-- Series Card -->
                 {% if post.series %}
-                <div class="mt-16 bg-white rounded-2xl p-6 sm:p-8 mb-16 ring-1 ring-gray-900/5">
+                <div class="mt-16 bg-surface-elevated rounded-2xl p-6 sm:p-8 mb-16 ring-1 ring-line/60">
                     {% if not post.visible_series_posts %}
                     <div class="flex flex-col items-center justify-center text-center py-6">
-                        <div class="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center text-gray-500 mb-4">
+                        <div class="w-12 h-12 bg-surface-subtle rounded-full flex items-center justify-center text-content-secondary mb-4">
                             <i class="fas fa-eye-slash"></i>
                         </div>
-                        <h3 class="text-lg font-bold text-gray-900 mb-2">
-                            <a href="{% url 'series_detail' post.author_username post.series.url %}" class="hover:text-gray-600 transition-colors">
+                        <h3 class="text-lg font-bold text-content mb-2">
+                            <a href="{% url 'series_detail' post.author_username post.series.url %}" class="hover:text-content-secondary transition-colors">
                                 {{ post.series.name }}
                             </a>
                         </h3>
-                        <p class="text-sm text-gray-500 mb-6">
+                        <p class="text-sm text-content-secondary mb-6">
                             이 포스트는 숨김 처리되어 시리즈 목록에 표시되지 않습니다.
                         </p>
-                        <a href="{% url 'series_detail' post.author_username post.series.url %}" class="inline-flex items-center px-4 py-2 bg-gray-900 text-white rounded-lg text-sm font-medium hover:bg-gray-800 transition-colors">
+                        <a href="{% url 'series_detail' post.author_username post.series.url %}" class="inline-flex items-center px-4 py-2 bg-action text-content-inverted rounded-lg text-sm font-medium hover:bg-action-hover transition-colors">
                             시리즈 전체 보기
                             <i class="fas fa-arrow-right ml-2 opacity-60"></i>
                         </a>
@@ -242,12 +242,12 @@
                     <div class="flex flex-col lg:flex-row lg:items-start gap-6">
                         <div class="flex-1">
                             <div class="flex items-center gap-2 mb-3">
-                                <span class="px-2.5 py-0.5 bg-black text-white rounded-md text-[10px] font-bold uppercase tracking-widest">시리즈</span>
-                                <span class="text-sm text-gray-500 font-medium">{{ post.series_index }} / {{ post.series_total }}</span>
+                                <span class="px-2.5 py-0.5 bg-action text-content-inverted rounded-md text-[10px] font-bold uppercase tracking-widest">시리즈</span>
+                                <span class="text-sm text-content-secondary font-medium">{{ post.series_index }} / {{ post.series_total }}</span>
                             </div>
 
-                            <h3 class="text-2xl font-bold text-gray-900 mb-2">
-                                <a href="{% url 'series_detail' post.author_username post.series.url %}" class="hover:text-gray-600 transition-colors">
+                            <h3 class="text-2xl font-bold text-content mb-2">
+                                <a href="{% url 'series_detail' post.author_username post.series.url %}" class="hover:text-content-secondary transition-colors">
                                     {{ post.series.name }}
                                 </a>
                             </h3>
@@ -256,15 +256,15 @@
                     
                     <div class="mt-6 space-y-2">
                         {% for series_post in post.visible_series_posts %}
-                        <div class="flex items-center gap-4 p-3 rounded-xl transition-all duration-200 {% if series_post.url == post.url %}bg-gray-50{% else %}hover:bg-gray-50{% endif %}">
-                            <div class="w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold flex-shrink-0 {% if series_post.url == post.url %}bg-black text-white{% else %}bg-gray-100 text-gray-400{% endif %}">
+                        <div class="flex items-center gap-4 p-3 rounded-xl transition-all duration-200 {% if series_post.url == post.url %}bg-surface-subtle{% else %}hover:bg-surface-subtle{% endif %}">
+                            <div class="w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold flex-shrink-0 {% if series_post.url == post.url %}bg-action text-content-inverted{% else %}bg-surface-subtle text-content-hint{% endif %}">
                                 {{ series_post.series_index }}
                             </div>
                             {% if series_post.url == post.url %}
-                            <span class="flex-1 font-semibold text-gray-900">{{ series_post.title }}</span>
-                            <span class="text-xs font-bold text-white px-2.5 py-1 bg-black rounded-md">읽는 중</span>
+                            <span class="flex-1 font-semibold text-content">{{ series_post.title }}</span>
+                            <span class="text-xs font-bold text-content-inverted px-2.5 py-1 bg-action rounded-md">읽는 중</span>
                             {% else %}
-                            <a href="{% url 'post_detail' post.author_username series_post.url %}" class="flex-1 font-medium text-gray-600 hover:text-gray-900 transition-colors">
+                            <a href="{% url 'post_detail' post.author_username series_post.url %}" class="flex-1 font-medium text-content-secondary hover:text-content transition-colors">
                                 {{ series_post.title }}
                             </a>
                             {% endif %}
@@ -273,30 +273,30 @@
                     </div>
 
                     {% if post.series_total > 1 %}
-                    <div class="mt-8 flex items-center justify-between gap-4 pt-6 border-t border-gray-100">
+                    <div class="mt-8 flex items-center justify-between gap-4 pt-6 border-t border-line-light">
                         {% if post.prev_post %}
-                        <a href="{% url 'post_detail' post.author_username post.prev_post.url %}" class="flex items-center gap-2 text-sm font-medium text-gray-600 hover:text-black transition-colors">
+                        <a href="{% url 'post_detail' post.author_username post.prev_post.url %}" class="flex items-center gap-2 text-sm font-medium text-content-secondary hover:text-content transition-colors">
                             <i class="fas fa-arrow-left"></i>
                             <span>이전</span>
                         </a>
                         {% else %}
-                        <span class="flex items-center gap-2 text-sm font-medium text-gray-300 cursor-not-allowed">
+                        <span class="flex items-center gap-2 text-sm font-medium text-line-strong cursor-not-allowed">
                             <i class="fas fa-arrow-left"></i>
                             <span>이전</span>
                         </span>
                         {% endif %}
 
-                        <a href="{% url 'series_detail' post.author_username post.series.url %}" class="text-sm font-medium text-gray-400 hover:text-gray-600 transition-colors">
+                        <a href="{% url 'series_detail' post.author_username post.series.url %}" class="text-sm font-medium text-content-hint hover:text-content-secondary transition-colors">
                             전체 포스트
                         </a>
 
                         {% if post.next_post %}
-                        <a href="{% url 'post_detail' post.author_username post.next_post.url %}" class="flex items-center gap-2 text-sm font-medium text-gray-600 hover:text-black transition-colors">
+                        <a href="{% url 'post_detail' post.author_username post.next_post.url %}" class="flex items-center gap-2 text-sm font-medium text-content-secondary hover:text-content transition-colors">
                             <span>다음</span>
                             <i class="fas fa-arrow-right"></i>
                         </a>
                         {% else %}
-                        <span class="flex items-center gap-2 text-sm font-medium text-gray-300 cursor-not-allowed">
+                        <span class="flex items-center gap-2 text-sm font-medium text-line-strong cursor-not-allowed">
                             <span>다음</span>
                             <i class="fas fa-arrow-right"></i>
                         </span>
@@ -374,16 +374,16 @@ class="xl:hidden">
         x-transition:leave="transition ease-in duration-200"
         x-transition:leave-start="translate-y-0"
         x-transition:leave-end="translate-y-full"
-        class="fixed bottom-0 left-0 right-0 bg-white rounded-t-3xl shadow-2xl z-[101] max-h-[70vh] flex flex-col"
+        class="fixed bottom-0 left-0 right-0 bg-surface-elevated rounded-t-3xl shadow-2xl z-[101] max-h-[70vh] flex flex-col"
         style="display: none;">
         <!-- Handle -->
         <div class="flex justify-center py-3 cursor-grab" @click="open = false">
-            <div class="w-12 h-1.5 bg-gray-300 rounded-full"></div>
+            <div class="w-12 h-1.5 bg-line-strong rounded-full"></div>
         </div>
         <!-- Header -->
-        <div class="flex items-center justify-between px-6 pb-4 border-b border-gray-100">
-            <h3 class="text-lg font-bold text-gray-900">목차</h3>
-            <button @click="open = false" class="w-11 h-11 flex items-center justify-center rounded-full text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-all active:scale-95">
+        <div class="flex items-center justify-between px-6 pb-4 border-b border-line-light">
+            <h3 class="text-lg font-bold text-content">목차</h3>
+            <button @click="open = false" class="w-11 h-11 flex items-center justify-center rounded-full text-content-hint hover:text-content-secondary hover:bg-surface-subtle transition-all active:scale-95">
                 <i class="fas fa-times"></i>
             </button>
         </div>
@@ -394,7 +394,7 @@ class="xl:hidden">
                 <li>
                     <button
                         @click="scrollToHeading('{{ heading.id }}')"
-                        class="w-full text-left py-3 px-4 rounded-xl text-sm text-gray-600 hover:text-gray-900 hover:bg-gray-50 transition-all duration-150 active:scale-[0.98]"
+                        class="w-full text-left py-3 px-4 rounded-xl text-sm text-content-secondary hover:text-content hover:bg-surface-subtle transition-all duration-150 active:scale-[0.98]"
                         style="padding-left: calc({{ heading.level }} * 12px + 16px)">
                         {{ heading.text }}
                     </button>

@@ -33,13 +33,13 @@ const TwoFactorForm = ({
         <>
             {/* 2FA Header */}
             <div className="text-center mb-6">
-                <div className="mx-auto h-14 w-14 bg-black rounded-2xl flex items-center justify-center mb-4 shadow-lg shadow-black/10">
-                    <svg className="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div className="mx-auto h-14 w-14 bg-action rounded-2xl flex items-center justify-center mb-4 shadow-elevated">
+                    <svg className="w-7 h-7 text-content-inverted" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
                     </svg>
                 </div>
-                <h3 className="text-xl font-bold text-gray-900 mb-2 tracking-tight">이중 인증</h3>
-                <p className="text-sm text-gray-500">
+                <h3 className="text-xl font-bold text-content mb-2 tracking-tight">이중 인증</h3>
+                <p className="text-sm text-content-secondary">
                     인증 앱에서 생성된 6자리 코드를 입력하세요
                 </p>
             </div>
@@ -61,24 +61,24 @@ const TwoFactorForm = ({
                     <button
                         type="button"
                         onClick={onGoBack}
-                        className="text-xs font-medium text-gray-400 hover:text-gray-600 transition-colors flex items-center justify-center gap-1 mx-auto">
+                        className="text-xs font-medium text-content-hint hover:text-content-secondary transition-colors flex items-center justify-center gap-1 mx-auto">
                         <i className="fas fa-arrow-left" /> 로그인 화면으로 돌아가기
                     </button>
                 </div>
 
                 {/* Error Message */}
                 {verificationError && (
-                    <div className="bg-red-50 border border-red-100 rounded-xl p-4 flex items-center gap-3">
-                        <i className="fas fa-exclamation-triangle text-red-500" />
-                        <p className="text-red-600 text-sm font-medium">{verificationError}</p>
+                    <div className="bg-danger-surface border border-danger-line rounded-xl p-4 flex items-center gap-3">
+                        <i className="fas fa-exclamation-triangle text-danger" />
+                        <p className="text-danger text-sm font-medium">{verificationError}</p>
                     </div>
                 )}
 
                 {/* Success Message */}
                 {successMessage && (
-                    <div className="bg-green-50 border border-green-100 rounded-xl p-4 flex items-center gap-3">
-                        <i className="fas fa-check-circle text-green-500" />
-                        <p className="text-green-600 text-sm font-medium">{successMessage}</p>
+                    <div className="bg-success-surface border border-success-line rounded-xl p-4 flex items-center gap-3">
+                        <i className="fas fa-check-circle text-success" />
+                        <p className="text-success text-sm font-medium">{successMessage}</p>
                     </div>
                 )}
 
@@ -87,9 +87,9 @@ const TwoFactorForm = ({
                     <button
                         type="submit"
                         disabled={isTwoFactorLoading}
-                        className="w-full flex items-center justify-center py-3.5 px-6 bg-black hover:bg-gray-800 text-white font-semibold rounded-2xl shadow-lg shadow-black/20 hover:shadow-xl hover:-translate-y-0.5 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none text-sm">
+                        className="w-full flex items-center justify-center py-3.5 px-6 bg-action hover:bg-action-hover text-content-inverted font-semibold rounded-2xl shadow-floating hover:shadow-floating hover:-translate-y-0.5 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none text-sm">
                         {isTwoFactorLoading && (
-                            <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                            <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-content-inverted" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                                 <circle
                                     className="opacity-25"
                                     cx="12"

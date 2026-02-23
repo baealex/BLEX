@@ -78,8 +78,8 @@ const NotifyConfigModal = ({
             <div className="p-6 space-y-2">
                 {isLoading ? null : (
                     notifyConfig?.map((item) => (
-                        <div key={item.name} className="flex items-center justify-between py-4 px-2 hover:bg-gray-50 rounded-xl transition-colors group">
-                            <span className="text-sm font-semibold text-gray-700 group-hover:text-gray-900 transition-colors">
+                        <div key={item.name} className="flex items-center justify-between py-4 px-2 hover:bg-surface-subtle rounded-xl transition-colors group">
+                            <span className="text-sm font-semibold text-content group-hover:text-content transition-colors">
                                 {getNotifyLabel(item.name)}
                             </span>
                             <label className="relative inline-flex items-center cursor-pointer">
@@ -89,7 +89,7 @@ const NotifyConfigModal = ({
                                     checked={item.value}
                                     onChange={() => handleToggleConfig(item.name as keyof typeof NOTIFY_CONFIG_LABEL)}
                                 />
-                                <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-black shadow-inner transition-colors duration-200" />
+                                <div className="w-11 h-6 bg-line peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-line-light after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-surface after:border-line after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-action shadow-inner transition-colors duration-200" />
                             </label>
                         </div>
                     ))

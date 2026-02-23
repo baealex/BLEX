@@ -24,9 +24,9 @@ const Tooltip = ({
                     <RadixTooltip.Content
                         side={side}
                         sideOffset={6}
-                        className="z-50 rounded-lg bg-gray-900 px-3 py-1.5 text-xs text-white shadow-lg animate-in fade-in-0 zoom-in-95 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95">
+                        className="z-50 rounded-lg bg-action px-3 py-1.5 text-xs text-content-inverted shadow-lg animate-in fade-in-0 zoom-in-95 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95">
                         {content}
-                        <RadixTooltip.Arrow className="fill-gray-900" />
+                        <RadixTooltip.Arrow className="fill-action" />
                     </RadixTooltip.Content>
                 </RadixTooltip.Portal>
             </RadixTooltip.Root>

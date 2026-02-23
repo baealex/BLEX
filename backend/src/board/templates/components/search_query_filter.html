@@ -19,21 +19,21 @@ Parameters:
                 name="q"
                 x-model="query"
                 placeholder="{{ placeholder|default:'검색어를 입력하세요' }}"
-                class="w-full px-4 py-2.5 pr-10 border border-gray-100 rounded-2xl focus:outline-none focus:ring-2 focus:ring-gray-200 focus:border-gray-300 transition-all"
+                class="w-full px-4 py-2.5 pr-10 border border-line rounded-2xl bg-surface-elevated text-content placeholder:text-content-hint focus:outline-none focus:ring-2 focus:ring-line-strong/70 focus:border-line-strong transition-all"
                 autocomplete="off"
             >
             <button
                 type="button"
                 x-show="query.length > 0"
                 @click="query = ''; $el.closest('form').submit()"
-                class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
+                class="absolute right-3 top-1/2 -translate-y-1/2 text-content-hint hover:text-content-secondary transition-colors"
             >
                 <i class="fas fa-times"></i>
             </button>
             <button
                 type="submit"
                 x-show="query.length === 0"
-                class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400"
+                class="absolute right-3 top-1/2 -translate-y-1/2 text-content-hint"
             >
                 <i class="fas fa-search"></i>
             </button>

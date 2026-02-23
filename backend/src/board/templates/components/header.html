@@ -3,12 +3,17 @@
 <header
     class="sticky top-0 left-0 right-0 z-30 border-b border-transparent frosted-surface transition-all duration-200"
     x-data="header()"
-    :class="{ 'border-gray-100': !isTop, 'border-transparent': isTop }"
+    :class="{ 'border-line-light': !isTop, 'border-transparent': isTop }"
 >
     <div class="max-w-7xl mx-auto px-4 md:px-6">
         <div class="flex items-center h-14 md:h-16">
             <a href="/" class="flex items-center group flex-shrink-0">
-                <img class="h-6 md:h-7 w-auto transition-opacity duration-150 group-hover:opacity-70" src="{% resource 'logob.svg' %}" alt="BLEX">
+                <img
+                    class="h-6 md:h-7 w-auto transition-opacity duration-150 group-hover:opacity-70"
+                    src="{% resource 'logob.svg' %}"
+                    :src="resolvedTheme === 'dark' ? `{% resource 'logow.svg' %}` : `{% resource 'logob.svg' %}`"
+                    alt="BLEX"
+                >
             </a>
 
             <div class="flex-1 {% if not is_search_page %}md:px-6{% endif %}">
@@ -21,8 +26,17 @@
 
             {% if user.is_authenticated %}
                 <nav class="hidden md:flex items-center gap-2 flex-shrink-0">
+                    <button
+                        @click="toggleTheme()"
+                        class="w-10 h-10 inline-flex items-center justify-center rounded-full border border-line-light text-content-secondary hover:text-content hover:bg-surface-subtle transition-all duration-150 active:scale-95"
+                        :aria-label="resolvedTheme === 'dark' ? '라이트 모드로 전환' : '다크 모드로 전환'"
+                        :title="resolvedTheme === 'dark' ? '라이트 모드' : '다크 모드'"
+                    >
+                        <i class="fas text-sm" :class="resolvedTheme === 'dark' ? 'fa-sun' : 'fa-moon'" aria-hidden="true"></i>
+                    </button>
+
                     {% if not is_editor_page and user.profile.is_editor %}
-                    <a href="/write" class="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-gray-900 hover:bg-gray-800 text-white font-medium text-sm transition-all duration-150 active:scale-95">
+                    <a href="/write" class="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-action hover:bg-action-hover text-content-inverted font-medium text-sm transition-all duration-150 active:scale-95">
                         <i class="fas fa-pen text-xs"></i>
                         <span>글쓰기</span>
                     </a>
@@ -40,18 +54,18 @@
                     ">
                         <button
                             @click="open = !open"
-                            class="relative inline-flex items-center gap-1.5 pl-1.5 pr-2 py-1.5 hover:bg-gray-50 rounded-full transition-all duration-150 active:scale-95 focus:outline-none"
+                            class="relative inline-flex items-center gap-1.5 pl-1.5 pr-2 py-1.5 hover:bg-surface-subtle rounded-full transition-all duration-150 active:scale-95 focus:outline-none"
                             aria-label="사용자 메뉴"
                         >
-                            <div class="w-8 h-8 bg-gray-900 rounded-full flex items-center justify-center text-white font-semibold text-xs ring-2 ring-transparent hover:ring-gray-100 transition-all duration-150">
+                            <div class="w-8 h-8 bg-action rounded-full flex items-center justify-center text-content-inverted font-semibold text-xs ring-2 ring-transparent hover:ring-line-light transition-all duration-150">
                                 {{ user.username|first|upper }}
                             </div>
                             <span
                                 x-show="unreadCount > 0"
-                                class="absolute top-0 left-6 min-w-[14px] h-[14px] bg-red-600 rounded-full ring-2 ring-white"
+                                class="absolute top-0 left-6 min-w-[14px] h-[14px] bg-danger rounded-full ring-2 ring-surface"
                                 style="display: none;"
                             ></span>
-                            <i class="fas fa-chevron-down text-[9px] text-gray-400 transition-transform duration-150" :class="{ 'rotate-180': open }"></i>
+                            <i class="fas fa-chevron-down text-[9px] text-content-hint transition-transform duration-150" :class="{ 'rotate-180': open }"></i>
                         </button>
 
                         <div x-show="open"
@@ -63,28 +77,28 @@
                              x-transition:leave-start="opacity-100 scale-100"
                              x-transition:leave-end="opacity-0 scale-95"
                              @click.away="open = false"
-                             class="absolute right-0 mt-2 w-52 bg-white rounded-xl shadow-lg ring-1 ring-gray-900/5 py-1 z-50 origin-top-right">
+                             class="absolute right-0 mt-2 w-52 bg-surface-elevated rounded-xl shadow-lg ring-1 ring-line/50 py-1 z-50 origin-top-right">
 
-                            <div class="px-4 py-3.5 border-b border-gray-100">
-                                <p class="text-xs text-gray-500">Signed in as</p>
-                                <p class="text-sm font-semibold text-gray-900 truncate mt-0.5">{{ user.username }}</p>
+                            <div class="px-4 py-3.5 border-b border-line-light">
+                                <p class="text-xs text-content-secondary">Signed in as</p>
+                                <p class="text-sm font-semibold text-content truncate mt-0.5">{{ user.username }}</p>
                             </div>
 
                             <div class="py-1">
-                                <a href="/@{{ user.username }}" class="flex items-center gap-3 px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 transition-colors duration-150">
-                                    <i class="fas fa-user text-gray-400 text-xs w-4"></i>
+                                <a href="/@{{ user.username }}" class="flex items-center gap-3 px-4 py-3 text-sm text-content-secondary hover:bg-surface-subtle transition-colors duration-150">
+                                    <i class="fas fa-user text-content-hint text-xs w-4"></i>
                                     <span>프로필</span>
                                 </a>
-                                <a href="/settings/notify" class="flex items-center gap-3 px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 transition-colors duration-150">
-                                    <i class="fas fa-cog text-gray-400 text-xs w-4"></i>
+                                <a href="/settings/notify" class="flex items-center gap-3 px-4 py-3 text-sm text-content-secondary hover:bg-surface-subtle transition-colors duration-150">
+                                    <i class="fas fa-cog text-content-hint text-xs w-4"></i>
                                     <span>설정</span>
                                 </a>
                             </div>
 
-                            <div class="border-t border-gray-100 py-1">
+                            <div class="border-t border-line-light py-1">
                                 <form x-ref="logoutForm" action="/logout" method="post">
                                     <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
-                                    <button type="submit" @click.prevent="$refs.logoutForm.submit()" class="flex items-center gap-3 px-4 py-3 text-sm text-red-600 hover:bg-red-50 transition-colors duration-150 w-full text-left">
+                                    <button type="submit" @click.prevent="$refs.logoutForm.submit()" class="flex items-center gap-3 px-4 py-3 text-sm text-danger hover:bg-danger-surface transition-colors duration-150 w-full text-left">
                                         <i class="fas fa-sign-out-alt text-xs w-4"></i>
                                         <span>로그아웃</span>
                                     </button>
@@ -98,7 +112,7 @@
                     {% if not is_search_page %}
                     <a
                         href="/search"
-                        class="w-11 h-11 inline-flex items-center justify-center text-gray-600 hover:text-gray-900 hover:bg-gray-50 rounded-full transition-all duration-150 active:scale-95"
+                        class="w-11 h-11 inline-flex items-center justify-center text-content-secondary hover:text-content hover:bg-surface-subtle rounded-full transition-all duration-150 active:scale-95"
                         aria-label="검색"
                     >
                         <i class="fas fa-search text-base"></i>
@@ -117,22 +131,30 @@
                     ">
                         <a
                             href="/settings/notify"
-                            class="relative w-11 h-11 inline-flex items-center justify-center text-gray-600 hover:text-gray-900 hover:bg-gray-50 rounded-full transition-all duration-150 active:scale-95"
+                            class="relative w-11 h-11 inline-flex items-center justify-center text-content-secondary hover:text-content hover:bg-surface-subtle rounded-full transition-all duration-150 active:scale-95"
                             aria-label="알림"
                         >
                             <i class="fas fa-bell text-base"></i>
                             <span
                                 x-show="unreadCount > 0"
                                 x-text="unreadCount > 99 ? '99+' : unreadCount"
-                                class="absolute top-1 right-1 min-w-[16px] h-[16px] px-1 bg-red-600 text-white text-[9px] font-bold rounded-full flex items-center justify-center"
+                                class="absolute top-1 right-1 min-w-[16px] h-[16px] px-1 bg-danger text-content-inverted text-[9px] font-bold rounded-full flex items-center justify-center"
                                 style="display: none;"
                             ></span>
                         </a>
                     </div>
 
                     <button
+                        @click="toggleTheme()"
+                        class="w-11 h-11 inline-flex items-center justify-center text-content-secondary hover:text-content hover:bg-surface-subtle rounded-full transition-all duration-150 active:scale-95"
+                        :aria-label="resolvedTheme === 'dark' ? '라이트 모드로 전환' : '다크 모드로 전환'"
+                    >
+                        <i class="fas text-base" :class="resolvedTheme === 'dark' ? 'fa-sun' : 'fa-moon'" aria-hidden="true"></i>
+                    </button>
+
+                    <button
                         @click="toggleMobileMenu()"
-                        class="w-11 h-11 inline-flex items-center justify-center text-gray-600 hover:text-gray-900 hover:bg-gray-50 rounded-full transition-all duration-150 active:scale-95"
+                        class="w-11 h-11 inline-flex items-center justify-center text-content-secondary hover:text-content hover:bg-surface-subtle rounded-full transition-all duration-150 active:scale-95"
                         aria-label="메뉴"
                         :aria-expanded="mobileMenuOpen"
                     >
@@ -141,10 +163,19 @@
                 </div>
             {% else %}
                 <nav class="hidden md:flex items-center gap-2 flex-shrink-0">
-                    <a href="/login" class="inline-flex items-center px-4 py-2 text-gray-700 hover:text-gray-900 hover:bg-gray-50 rounded-full font-medium text-sm transition-all duration-150 active:scale-95">
+                    <button
+                        @click="toggleTheme()"
+                        class="w-10 h-10 inline-flex items-center justify-center rounded-full border border-line-light text-content-secondary hover:text-content hover:bg-surface-subtle transition-all duration-150 active:scale-95"
+                        :aria-label="resolvedTheme === 'dark' ? '라이트 모드로 전환' : '다크 모드로 전환'"
+                        :title="resolvedTheme === 'dark' ? '라이트 모드' : '다크 모드'"
+                    >
+                        <i class="fas text-sm" :class="resolvedTheme === 'dark' ? 'fa-sun' : 'fa-moon'" aria-hidden="true"></i>
+                    </button>
+
+                    <a href="/login" class="inline-flex items-center px-4 py-2 text-content-secondary hover:text-content hover:bg-surface-subtle rounded-full font-medium text-sm transition-all duration-150 active:scale-95">
                         로그인
                     </a>
-                    <a href="/sign" class="inline-flex items-center px-4 py-2 rounded-full bg-gray-900 hover:bg-gray-800 text-white font-medium text-sm transition-all duration-150 active:scale-95">
+                    <a href="/sign" class="inline-flex items-center px-4 py-2 rounded-full bg-action hover:bg-action-hover text-content-inverted font-medium text-sm transition-all duration-150 active:scale-95">
                         회원가입
                     </a>
                 </nav>
@@ -153,7 +184,7 @@
                     {% if not is_search_page %}
                     <a
                         href="/search"
-                        class="w-11 h-11 inline-flex items-center justify-center text-gray-600 hover:text-gray-900 hover:bg-gray-50 rounded-full transition-all duration-150 active:scale-95"
+                        class="w-11 h-11 inline-flex items-center justify-center text-content-secondary hover:text-content hover:bg-surface-subtle rounded-full transition-all duration-150 active:scale-95"
                         aria-label="검색"
                     >
                         <i class="fas fa-search text-base"></i>
@@ -161,8 +192,16 @@
                     {% endif %}
 
                     <button
+                        @click="toggleTheme()"
+                        class="w-11 h-11 inline-flex items-center justify-center text-content-secondary hover:text-content hover:bg-surface-subtle rounded-full transition-all duration-150 active:scale-95"
+                        :aria-label="resolvedTheme === 'dark' ? '라이트 모드로 전환' : '다크 모드로 전환'"
+                    >
+                        <i class="fas text-base" :class="resolvedTheme === 'dark' ? 'fa-sun' : 'fa-moon'" aria-hidden="true"></i>
+                    </button>
+
+                    <button
                         @click="toggleMobileMenu()"
-                        class="w-11 h-11 inline-flex items-center justify-center text-gray-600 hover:text-gray-900 hover:bg-gray-50 rounded-full transition-all duration-150 active:scale-95"
+                        class="w-11 h-11 inline-flex items-center justify-center text-content-secondary hover:text-content hover:bg-surface-subtle rounded-full transition-all duration-150 active:scale-95"
                         aria-label="메뉴"
                         :aria-expanded="mobileMenuOpen"
                     >
@@ -199,13 +238,13 @@
                 x-transition:leave="transition ease-in duration-150"
                 x-transition:leave-start="translate-x-0"
                 x-transition:leave-end="translate-x-full"
-                class="absolute top-0 right-0 h-full w-72 bg-white shadow-xl flex flex-col"
+                class="absolute top-0 right-0 h-full w-72 bg-surface-elevated shadow-xl flex flex-col"
             >
-                <div class="flex items-center justify-between px-4 h-14 border-b border-gray-100 flex-shrink-0">
-                    <span class="text-sm font-semibold text-gray-900">메뉴</span>
+                <div class="flex items-center justify-between px-4 h-14 border-b border-line-light flex-shrink-0">
+                    <span class="text-sm font-semibold text-content">메뉴</span>
                     <button
                         @click="closeMobileMenu()"
-                        class="w-11 h-11 inline-flex items-center justify-center text-gray-500 hover:text-gray-900 hover:bg-gray-50 rounded-lg transition-all duration-150 active:scale-95"
+                        class="w-11 h-11 inline-flex items-center justify-center text-content-secondary hover:text-content hover:bg-surface-subtle rounded-lg transition-all duration-150 active:scale-95"
                         aria-label="닫기"
                     >
                         <i class="fas fa-times text-base"></i>
@@ -215,35 +254,35 @@
                 <div class="flex-1 overflow-y-auto py-2 px-3">
                     {% if user.is_authenticated %}
                         <div class="flex items-center gap-3 px-3 py-3 mb-1">
-                            <div class="w-9 h-9 bg-gray-900 rounded-full flex items-center justify-center text-white font-semibold text-xs flex-shrink-0">
+                            <div class="w-9 h-9 bg-action rounded-full flex items-center justify-center text-content-inverted font-semibold text-xs flex-shrink-0">
                                 {{ user.username|first|upper }}
                             </div>
                             <div class="min-w-0">
-                                <p class="text-sm font-semibold text-gray-900 truncate">{{ user.username }}</p>
+                                <p class="text-sm font-semibold text-content truncate">{{ user.username }}</p>
                             </div>
                         </div>
 
-                        <div class="border-t border-gray-100 py-1">
+                        <div class="border-t border-line-light py-1">
                             {% if not is_editor_page and user.profile.is_editor %}
-                            <a href="/write" @click="closeMobileMenu()" class="flex items-center gap-3 px-3 py-3 text-sm font-medium text-gray-900 hover:bg-gray-50 active:bg-gray-100 rounded-lg transition-colors duration-150">
-                                <i class="fas fa-pen text-gray-500 text-xs w-5 text-center"></i>
+                            <a href="/write" @click="closeMobileMenu()" class="flex items-center gap-3 px-3 py-3 text-sm font-medium text-content hover:bg-surface-subtle active:bg-surface-subtle rounded-lg transition-colors duration-150">
+                                <i class="fas fa-pen text-content-secondary text-xs w-5 text-center"></i>
                                 <span>글쓰기</span>
                             </a>
                             {% endif %}
-                            <a href="/@{{ user.username }}" @click="closeMobileMenu()" class="flex items-center gap-3 px-3 py-3 text-sm text-gray-700 hover:bg-gray-50 active:bg-gray-100 rounded-lg transition-colors duration-150">
-                                <i class="fas fa-user text-gray-400 text-xs w-5 text-center"></i>
+                            <a href="/@{{ user.username }}" @click="closeMobileMenu()" class="flex items-center gap-3 px-3 py-3 text-sm text-content-secondary hover:bg-surface-subtle active:bg-surface-subtle rounded-lg transition-colors duration-150">
+                                <i class="fas fa-user text-content-hint text-xs w-5 text-center"></i>
                                 <span>프로필</span>
                             </a>
-                            <a href="/settings/notify" @click="closeMobileMenu()" class="flex items-center gap-3 px-3 py-3 text-sm text-gray-700 hover:bg-gray-50 active:bg-gray-100 rounded-lg transition-colors duration-150">
-                                <i class="fas fa-cog text-gray-400 text-xs w-5 text-center"></i>
+                            <a href="/settings/notify" @click="closeMobileMenu()" class="flex items-center gap-3 px-3 py-3 text-sm text-content-secondary hover:bg-surface-subtle active:bg-surface-subtle rounded-lg transition-colors duration-150">
+                                <i class="fas fa-cog text-content-hint text-xs w-5 text-center"></i>
                                 <span>설정</span>
                             </a>
                         </div>
 
-                        <div class="border-t border-gray-100 py-1">
+                        <div class="border-t border-line-light py-1">
                             <form x-ref="mobileLogoutForm" action="/logout" method="post">
                                 <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
-                                <button type="submit" @click.prevent="$refs.mobileLogoutForm.submit()" class="flex items-center gap-3 px-3 py-3 text-sm text-red-600 hover:bg-red-50 active:bg-red-100 rounded-lg transition-colors duration-150 w-full text-left">
+                                <button type="submit" @click.prevent="$refs.mobileLogoutForm.submit()" class="flex items-center gap-3 px-3 py-3 text-sm text-danger hover:bg-danger-surface active:bg-danger-surface rounded-lg transition-colors duration-150 w-full text-left">
                                     <i class="fas fa-sign-out-alt text-xs w-5 text-center"></i>
                                     <span>로그아웃</span>
                                 </button>
@@ -251,12 +290,12 @@
                         </div>
                     {% else %}
                         <div class="py-1 space-y-1">
-                            <a href="/login" @click="closeMobileMenu()" class="flex items-center gap-3 px-3 py-3 text-sm text-gray-700 hover:bg-gray-50 active:bg-gray-100 rounded-lg transition-colors duration-150">
-                                <i class="fas fa-sign-in-alt text-gray-400 text-xs w-5 text-center"></i>
+                            <a href="/login" @click="closeMobileMenu()" class="flex items-center gap-3 px-3 py-3 text-sm text-content-secondary hover:bg-surface-subtle active:bg-surface-subtle rounded-lg transition-colors duration-150">
+                                <i class="fas fa-sign-in-alt text-content-hint text-xs w-5 text-center"></i>
                                 <span>로그인</span>
                             </a>
-                            <a href="/sign" @click="closeMobileMenu()" class="flex items-center gap-3 px-3 py-3 text-sm font-medium text-gray-900 hover:bg-gray-50 active:bg-gray-100 rounded-lg transition-colors duration-150">
-                                <i class="fas fa-user-plus text-gray-500 text-xs w-5 text-center"></i>
+                            <a href="/sign" @click="closeMobileMenu()" class="flex items-center gap-3 px-3 py-3 text-sm font-medium text-content hover:bg-surface-subtle active:bg-surface-subtle rounded-lg transition-colors duration-150">
+                                <i class="fas fa-user-plus text-content-secondary text-xs w-5 text-center"></i>
                                 <span>회원가입</span>
                             </a>
                         </div>

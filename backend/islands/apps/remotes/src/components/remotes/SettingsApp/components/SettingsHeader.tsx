@@ -18,9 +18,9 @@ const SettingsHeader = ({
             <div className="mb-6">
                 <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
                     <div className="space-y-2">
-                        <h2 className="text-2xl font-semibold tracking-tight text-gray-900">{title}</h2>
+                        <h2 className="text-2xl font-semibold tracking-tight text-content">{title}</h2>
                         {description && (
-                            <p className="text-sm text-gray-600 leading-relaxed">{description}</p>
+                            <p className="text-sm text-content-secondary leading-relaxed">{description}</p>
                         )}
                     </div>
                     {action && <div className="flex-shrink-0">{action}</div>}
@@ -32,9 +32,9 @@ const SettingsHeader = ({
     return (
         <div className="mb-6">
             <div className="space-y-2">
-                <h2 className="text-2xl font-semibold tracking-tight text-gray-900">{title}</h2>
+                <h2 className="text-2xl font-semibold tracking-tight text-content">{title}</h2>
                 {description && (
-                    <p className="text-sm text-gray-600 leading-relaxed">{description}</p>
+                    <p className="text-sm text-content-secondary leading-relaxed">{description}</p>
                 )}
             </div>
             {action && (
