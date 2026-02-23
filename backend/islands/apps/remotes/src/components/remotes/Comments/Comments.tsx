@@ -267,19 +267,19 @@ const Comments = (props: CommentsProps) => {
 
     if (isError) {
         return (
-            <div className="text-center py-12 bg-red-50 border border-red-100 rounded-2xl">
-                <div className="inline-flex items-center justify-center w-16 h-16 bg-red-100 rounded-full mb-4">
-                    <AlertTriangle className="w-8 h-8 text-red-600" />
+            <div className="text-center py-12 bg-danger-surface border border-danger-line rounded-2xl">
+                <div className="inline-flex items-center justify-center w-16 h-16 bg-danger-surface rounded-full mb-4">
+                    <AlertTriangle className="w-8 h-8 text-danger" />
                 </div>
-                <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                <h3 className="text-lg font-semibold text-content mb-2">
                     댓글을 불러올 수 없습니다
                 </h3>
-                <p className="text-gray-600 text-sm mb-4">
+                <p className="text-content-secondary text-sm mb-4">
                     잠시 후 다시 시도해 주세요.
                 </p>
                 <button
                     onClick={() => refetch()}
-                    className="inline-flex items-center gap-2 px-4 py-2 bg-gray-900 text-white rounded-lg text-sm font-medium hover:bg-gray-800 transition-colors active:scale-95">
+                    className="inline-flex items-center gap-2 px-4 py-2 bg-action text-content-inverted rounded-lg text-sm font-medium hover:bg-action-hover transition-colors active:scale-95">
                     <RotateCw className="w-3.5 h-3.5" />
                     다시 시도
                 </button>
@@ -291,8 +291,8 @@ const Comments = (props: CommentsProps) => {
         return (
             <div className="flex items-center justify-center py-16">
                 <div className="text-center space-y-4">
-                    <div className="inline-block animate-spin rounded-full h-12 w-12 border-4 border-gray-200 border-t-gray-900" />
-                    <p className="text-gray-500 text-sm font-medium">댓글을 불러오는 중...</p>
+                    <div className="inline-block animate-spin rounded-full h-12 w-12 border-4 border-line border-t-action" />
+                    <p className="text-content-secondary text-sm font-medium">댓글을 불러오는 중...</p>
                 </div>
             </div>
         );
@@ -323,10 +323,10 @@ const Comments = (props: CommentsProps) => {
                 />
             </div>
 
-            <div className="border-t border-gray-100 pt-8 mt-8">
+            <div className="border-t border-line-light pt-8 mt-8">
                 <div className="flex items-center gap-3 mb-6">
-                    <MessageCircle className="w-5 h-5 text-gray-900" />
-                    <h2 className="text-lg font-bold text-gray-900">
+                    <MessageCircle className="w-5 h-5 text-content" />
+                    <h2 className="text-lg font-bold text-content">
                         댓글 남기기
                     </h2>
                 </div>

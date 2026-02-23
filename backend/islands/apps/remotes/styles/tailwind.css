@@ -5,33 +5,44 @@
 @source "../../../packages/**/*.{ts,tsx}";
 @source "../../../../src/board/templates/**/*.html";
 
-@theme {
-    --color-surface: var(--color-bg-base);
-    --color-surface-page: var(--color-bg-page);
-    --color-surface-subtle: var(--color-bg-subtle);
-    --color-content: var(--color-text-primary);
-    --color-content-secondary: var(--color-text-secondary);
-    --color-content-hint: var(--color-text-subtle);
-    --color-content-inverted: var(--color-text-inverted);
-    --color-line: var(--color-border-default);
-    --color-line-light: var(--color-border-light);
-    --color-action: var(--color-interactive-primary);
+@theme inline {
+    --color-surface: var(--color-surface);
+    --color-surface-page: var(--color-surface-page);
+    --color-surface-subtle: var(--color-surface-subtle);
+    --color-surface-elevated: var(--color-surface-elevated);
+
+    --color-content: var(--color-content);
+    --color-content-secondary: var(--color-content-secondary);
+    --color-content-hint: var(--color-content-hint);
+    --color-content-inverted: var(--color-content-inverted);
+
+    --color-line: var(--color-line);
+    --color-line-light: var(--color-line-light);
+    --color-line-strong: var(--color-line-strong);
+
+    --color-action: var(--color-action);
+    --color-action-hover: var(--color-action-hover);
+    --color-action-pressed: var(--color-action-pressed);
+
+    --color-success: var(--color-success);
+    --color-success-surface: var(--color-success-surface);
+    --color-success-line: var(--color-success-line);
+    --color-warning: var(--color-warning);
+    --color-warning-surface: var(--color-warning-surface);
+    --color-warning-line: var(--color-warning-line);
+    --color-danger: var(--color-danger);
+    --color-danger-surface: var(--color-danger-surface);
+    --color-danger-line: var(--color-danger-line);
+
+    --color-mention-surface: var(--color-mention-surface);
+    --color-mention-surface-hover: var(--color-mention-surface-hover);
+    --color-mention-content: var(--color-mention-content);
+    --color-mention-content-hover: var(--color-mention-content-hover);
+
     --shadow-subtle: 0 1px 2px var(--color-shadow-sm);
     --shadow-elevated: 0 4px 6px var(--color-shadow-md);
     --shadow-floating: 0 10px 15px var(--color-shadow-lg);
     --ease-apple: var(--ease-apple);
-
-    --color-dim-soft: rgb(0 0 0 / 0.2);
-    --color-dim-default: rgb(0 0 0 / 0.25);
-    --color-frosted-surface: rgb(255 255 255 / 0.9);
-    --color-floating-glass-surface: rgb(255 255 255 / 0.78);
-    --color-floating-glass-border: rgb(255 255 255 / 0.58);
-    --blur-dim: 0px;
-    --blur-frosted: 12px;
-    --blur-floating-glass: 10px;
-    --shadow-floating-glass: 0 6px 20px rgb(15 23 42 / 0.1);
-    --motion-interaction: 150ms;
-    --motion-entrance: 500ms;
 }
 
 @utility dim-overlay-soft {
@@ -63,7 +74,18 @@
     transition-duration: var(--motion-entrance);
 }
 
-/* Mention 스타일 */
+@utility theme-logo {
+    filter: var(--logo-filter);
+}
+
+/* Mention style */
 .prose a.mention {
-    @apply inline-flex items-center px-1.5 py-0.5 rounded bg-blue-50 text-blue-700 font-medium no-underline hover:bg-blue-100 hover:text-blue-800 transition-colors;
+    background-color: var(--color-mention-surface);
+    color: var(--color-mention-content);
+    @apply inline-flex items-center px-1.5 py-0.5 rounded font-medium no-underline transition-colors;
+}
+
+.prose a.mention:hover {
+    background-color: var(--color-mention-surface-hover);
+    color: var(--color-mention-content-hover);
 }

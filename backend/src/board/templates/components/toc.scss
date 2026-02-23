@@ -29,16 +29,16 @@
         }
 
         &::-webkit-scrollbar-thumb {
-            background: rgba(0, 0, 0, 0.1);
+            background: var(--color-line);
             border-radius: 2px;
 
             &:hover {
-                background: rgba(0, 0, 0, 0.2);
+                background: var(--color-line-strong);
             }
         }
 
         // Firefox scrollbar styling
         scrollbar-width: thin;
-        scrollbar-color: rgba(0, 0, 0, 0.1) transparent;
+        scrollbar-color: var(--color-line) transparent;
     }
 }

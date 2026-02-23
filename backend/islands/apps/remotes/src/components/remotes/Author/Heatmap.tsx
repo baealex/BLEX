@@ -2,15 +2,16 @@ import { useEffect, useRef } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Heatmap as UIHeatmap } from '@blex/ui';
 import { getAuthorHeatmap } from '~/lib/api/author';
+import { useResolvedTheme } from '~/hooks/useResolvedTheme';
 
 interface HeatmapProps {
     username: string;
 }
 
-const HEATMAP_COLORS = ['#f3f4f6', '#d1d5db', '#9ca3af', '#6b7280', '#1f2937'];
-const READABLE_HEATMAP_SCALE = ['#f9fafb', '#d1d5db', '#9ca3af', '#6b7280', '#1f2937'];
+const LIGHT_HEATMAP_SCALE = ['#f9fafb', '#d1d5db', '#9ca3af', '#6b7280', '#1f2937'];
+const DARK_HEATMAP_SCALE = ['#222222', '#393939', '#555555', '#737373', '#969696'];
 
-const styleHeatmapCells = (root: HTMLElement) => {
+const styleHeatmapCells = (root: HTMLElement, colorScale: string[]) => {
     const dayCells = Array.from(root.querySelectorAll<SVGRectElement>('.author-heatmap-chart rect.day'));
     const legendCells = Array.from(root.querySelectorAll<SVGRectElement>('.author-heatmap-chart rect.heatmap-legend-unit'));
     const legendGroup = root.querySelector<SVGGElement>('.author-heatmap-chart g.chart-legend');
@@ -50,25 +51,27 @@ const styleHeatmapCells = (root: HTMLElement) => {
     dayCells.forEach((cell) => {
         const rawValue = Number(cell.getAttribute('data-value') || '0');
         const value = Number.isFinite(rawValue) ? rawValue : 0;
-        const scaleMaxIndex = READABLE_HEATMAP_SCALE.length - 1;
+        const scaleMaxIndex = colorScale.length - 1;
         const colorIndex = value <= 0 || maxValue <= 0
             ? 0
             : Math.max(1, Math.min(scaleMaxIndex, Math.round(Math.sqrt(value / maxValue) * scaleMaxIndex)));
 
-        cell.setAttribute('fill', READABLE_HEATMAP_SCALE[colorIndex]);
+        cell.setAttribute('fill', colorScale[colorIndex]);
         cell.setAttribute('rx', '3');
     });
 
     legendCells.forEach((cell, index) => {
-        const scaleMaxIndex = READABLE_HEATMAP_SCALE.length - 1;
+        const scaleMaxIndex = colorScale.length - 1;
         const colorIndex = Math.min(scaleMaxIndex, index + 1);
-        cell.setAttribute('fill', READABLE_HEATMAP_SCALE[colorIndex]);
+        cell.setAttribute('fill', colorScale[colorIndex]);
         cell.setAttribute('rx', '3');
     });
 };
 
 const Heatmap = ({ username }: HeatmapProps) => {
     const containerRef = useRef<HTMLDivElement>(null);
+    const resolvedTheme = useResolvedTheme();
+    const colorScale = resolvedTheme === 'dark' ? DARK_HEATMAP_SCALE : LIGHT_HEATMAP_SCALE;
 
     // Fetch heatmap data
     const { data: heatmapData, isLoading } = useQuery<{ [key: string]: number }>({
@@ -106,7 +109,7 @@ const Heatmap = ({ username }: HeatmapProps) => {
                 window.cancelAnimationFrame(rafId);
             }
             rafId = window.requestAnimationFrame(() => {
-                styleHeatmapCells(root);
+                styleHeatmapCells(root, colorScale);
             });
         };
 
@@ -130,12 +133,12 @@ const Heatmap = ({ username }: HeatmapProps) => {
             window.clearTimeout(delayedTimeoutId);
             observer.disconnect();
         };
-    }, [heatmapData]);
+    }, [colorScale, heatmapData]);
 
     if (!heatmapData || isLoading) {
         return (
             <div className="flex items-center justify-center py-12">
-                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900" />
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-line-strong" />
             </div>
         );
     }
@@ -149,11 +152,11 @@ const Heatmap = ({ username }: HeatmapProps) => {
                     .author-heatmap-chart .chart-container {
                         border-radius: 14px;
                         padding: 6px 10px 2px;
-                        background: #ffffff;
+                        background: var(--color-surface);
                     }
 
                     .author-heatmap-chart rect.day {
-                        stroke: rgba(255, 255, 255, 0.88);
+                        stroke: var(--color-surface);
                         stroke-width: 1;
                         transition: transform 120ms ease, filter 120ms ease, stroke 120ms ease;
                         transform-box: fill-box;
@@ -162,47 +165,53 @@ const Heatmap = ({ username }: HeatmapProps) => {
 
                     .author-heatmap-chart rect.day:hover {
                         transform: scale(1.08);
-                        filter: brightness(0.86) saturate(1.08);
-                        stroke: rgba(55, 65, 81, 0.58);
+                        filter: brightness(0.94) saturate(1.08);
+                        stroke: var(--color-line-strong);
+                    }
+
+                    [data-theme="dark"] .author-heatmap-chart rect.day:hover {
+                        filter: brightness(1.12) saturate(1.08);
                     }
 
                     .author-heatmap-chart text.domain-name,
                     .author-heatmap-chart text.subdomain-name {
-                        fill: #9ca3af;
+                        fill: var(--color-content-hint);
                         font-size: 10px;
                         font-weight: 600;
                         letter-spacing: 0.015em;
                     }
 
                     .author-heatmap-chart .graph-svg-tip {
-                        background: rgba(17, 24, 39, 0.92);
-                        border: 1px solid rgba(255, 255, 255, 0.14);
+                        background: var(--color-surface);
+                        color: var(--color-content);
+                        border: 1px solid var(--color-line);
                         border-radius: 10px;
                         backdrop-filter: blur(6px);
                     }
 
                     .author-heatmap-chart .chart-legend text.subdomain-name {
-                        fill: #6b7280;
+                        fill: var(--color-content-secondary);
                     }
                 `}
             </style>
             <div className="mb-4 flex items-end justify-between gap-3">
                 <div>
-                    <p className="text-xs font-medium text-gray-500">지난 1년 활동</p>
-                    <p className="text-lg font-semibold text-gray-900 tabular-nums">
+                    <p className="text-xs font-medium text-content-secondary">지난 1년 활동</p>
+                    <p className="text-lg font-semibold text-content tabular-nums">
                         {activityCount.toLocaleString()}
-                        <span className="ml-1 text-sm font-medium text-gray-500">회</span>
+                        <span className="ml-1 text-sm font-medium text-content-secondary">회</span>
                     </p>
                 </div>
-                <p className="text-xs text-gray-400">단위: 활동</p>
+                <p className="text-xs text-content-hint">단위: 활동</p>
             </div>
             <UIHeatmap
+                key={resolvedTheme}
                 data={{
                     dataPoints: heatmapData,
                     end: new Date()
                 }}
                 countLabel="활동"
-                colors={HEATMAP_COLORS}
+                colors={colorScale}
                 className="author-heatmap-chart mx-auto w-fit"
             />
         </div>

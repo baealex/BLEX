@@ -78,7 +78,7 @@ export const GlobalBannerForm = ({ banner, onSubmit, onCancel, isLoading }: Glob
         <form onSubmit={handleSubmit(handleFormSubmit)}>
             <div className="space-y-6">
                 <div className="space-y-2">
-                    <label className="block text-sm font-semibold text-gray-900">
+                    <label className="block text-sm font-semibold text-content">
                         배너 이름
                     </label>
                     <Input
@@ -87,19 +87,19 @@ export const GlobalBannerForm = ({ banner, onSubmit, onCancel, isLoading }: Glob
                         className="text-base"
                         {...register('title')}
                     />
-                    <p className="text-xs text-gray-500">관리용 이름입니다. 사용자에게는 표시되지 않습니다.</p>
+                    <p className="text-xs text-content-secondary">관리용 이름입니다. 사용자에게는 표시되지 않습니다.</p>
                 </div>
 
                 <div className="space-y-3">
-                    <label className="block text-sm font-semibold text-gray-900">
+                    <label className="block text-sm font-semibold text-content">
                         배너 타입
                     </label>
                     <div className="grid grid-cols-2 gap-3">
                         <label
                             className={`relative flex items-center p-5 cursor-pointer border-2 rounded-2xl transition-all duration-200 ${
                             watch('bannerType') === 'horizontal'
-                                ? 'border-gray-900 bg-gray-50 shadow-sm'
-                                : 'border-gray-200 hover:border-gray-300 bg-white'
+                                ? 'border-line-strong bg-surface-subtle shadow-sm'
+                                : 'border-line hover:border-line bg-surface'
                         }`}>
                             <input
                                 type="radio"
@@ -109,18 +109,18 @@ export const GlobalBannerForm = ({ banner, onSubmit, onCancel, isLoading }: Glob
                             />
                             <div className="flex-1">
                                 <div className="flex items-center gap-2 mb-1">
-                                    <svg className={`w-5 h-5 ${watch('bannerType') === 'horizontal' ? 'text-gray-700' : 'text-gray-400'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <svg className={`w-5 h-5 ${watch('bannerType') === 'horizontal' ? 'text-content' : 'text-content-hint'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
                                     </svg>
-                                    <span className={`text-sm font-semibold ${watch('bannerType') === 'horizontal' ? 'text-gray-900' : 'text-gray-900'}`}>
+                                    <span className={`text-sm font-semibold ${watch('bannerType') === 'horizontal' ? 'text-content' : 'text-content'}`}>
                                         줄배너
                                     </span>
                                 </div>
-                                <p className="text-xs text-gray-500">가로 전체 너비</p>
+                                <p className="text-xs text-content-secondary">가로 전체 너비</p>
                             </div>
                             {watch('bannerType') === 'horizontal' && (
                                 <div className="absolute top-3 right-3">
-                                    <svg className="w-5 h-5 text-gray-700" fill="currentColor" viewBox="0 0 20 20">
+                                    <svg className="w-5 h-5 text-content" fill="currentColor" viewBox="0 0 20 20">
                                         <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
                                     </svg>
                                 </div>
@@ -130,8 +130,8 @@ export const GlobalBannerForm = ({ banner, onSubmit, onCancel, isLoading }: Glob
                         <label
                             className={`relative flex items-center p-5 cursor-pointer border-2 rounded-2xl transition-all duration-200 ${
                             watch('bannerType') === 'sidebar'
-                                ? 'border-gray-900 bg-gray-50 shadow-sm'
-                                : 'border-gray-200 hover:border-gray-300 bg-white'
+                                ? 'border-line-strong bg-surface-subtle shadow-sm'
+                                : 'border-line hover:border-line bg-surface'
                         }`}>
                             <input
                                 type="radio"
@@ -141,18 +141,18 @@ export const GlobalBannerForm = ({ banner, onSubmit, onCancel, isLoading }: Glob
                             />
                             <div className="flex-1">
                                 <div className="flex items-center gap-2 mb-1">
-                                    <svg className={`w-5 h-5 ${watch('bannerType') === 'sidebar' ? 'text-gray-700' : 'text-gray-400'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <svg className={`w-5 h-5 ${watch('bannerType') === 'sidebar' ? 'text-content' : 'text-content-hint'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 4H5a2 2 0 00-2 2v12a2 2 0 002 2h4m0-16v16m0-16h10a2 2 0 012 2v12a2 2 0 01-2 2H9" />
                                     </svg>
-                                    <span className={`text-sm font-semibold ${watch('bannerType') === 'sidebar' ? 'text-gray-900' : 'text-gray-900'}`}>
+                                    <span className={`text-sm font-semibold ${watch('bannerType') === 'sidebar' ? 'text-content' : 'text-content'}`}>
                                         사이드배너
                                     </span>
                                 </div>
-                                <p className="text-xs text-gray-500">좌우 측면</p>
+                                <p className="text-xs text-content-secondary">좌우 측면</p>
                             </div>
                             {watch('bannerType') === 'sidebar' && (
                                 <div className="absolute top-3 right-3">
-                                    <svg className="w-5 h-5 text-gray-700" fill="currentColor" viewBox="0 0 20 20">
+                                    <svg className="w-5 h-5 text-content" fill="currentColor" viewBox="0 0 20 20">
                                         <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
                                     </svg>
                                 </div>
@@ -162,7 +162,7 @@ export const GlobalBannerForm = ({ banner, onSubmit, onCancel, isLoading }: Glob
                 </div>
 
                 <div className="space-y-3">
-                    <label className="block text-sm font-semibold text-gray-900">
+                    <label className="block text-sm font-semibold text-content">
                         배너 위치
                     </label>
                     <div className="grid grid-cols-2 gap-3">
@@ -171,8 +171,8 @@ export const GlobalBannerForm = ({ banner, onSubmit, onCancel, isLoading }: Glob
                                 <label
                                     className={`relative flex items-center p-5 cursor-pointer border-2 rounded-2xl transition-all duration-200 ${
                                     watch('position') === 'top'
-                                        ? 'border-gray-900 bg-gray-50 shadow-sm'
-                                        : 'border-gray-200 hover:border-gray-300 bg-white'
+                                        ? 'border-line-strong bg-surface-subtle shadow-sm'
+                                        : 'border-line hover:border-line bg-surface'
                                 }`}>
                                     <input
                                         type="radio"
@@ -180,12 +180,12 @@ export const GlobalBannerForm = ({ banner, onSubmit, onCancel, isLoading }: Glob
                                         {...register('position')}
                                         className="sr-only"
                                     />
-                                    <span className={`text-sm font-semibold ${watch('position') === 'top' ? 'text-gray-900' : 'text-gray-900'}`}>
+                                    <span className={`text-sm font-semibold ${watch('position') === 'top' ? 'text-content' : 'text-content'}`}>
                                         상단
                                     </span>
                                     {watch('position') === 'top' && (
                                         <div className="absolute top-3 right-3">
-                                            <svg className="w-5 h-5 text-gray-700" fill="currentColor" viewBox="0 0 20 20">
+                                            <svg className="w-5 h-5 text-content" fill="currentColor" viewBox="0 0 20 20">
                                                 <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
                                             </svg>
                                         </div>
@@ -194,8 +194,8 @@ export const GlobalBannerForm = ({ banner, onSubmit, onCancel, isLoading }: Glob
                                 <label
                                     className={`relative flex items-center p-5 cursor-pointer border-2 rounded-2xl transition-all duration-200 ${
                                     watch('position') === 'bottom'
-                                        ? 'border-gray-900 bg-gray-50 shadow-sm'
-                                        : 'border-gray-200 hover:border-gray-300 bg-white'
+                                        ? 'border-line-strong bg-surface-subtle shadow-sm'
+                                        : 'border-line hover:border-line bg-surface'
                                 }`}>
                                     <input
                                         type="radio"
@@ -203,12 +203,12 @@ export const GlobalBannerForm = ({ banner, onSubmit, onCancel, isLoading }: Glob
                                         {...register('position')}
                                         className="sr-only"
                                     />
-                                    <span className={`text-sm font-semibold ${watch('position') === 'bottom' ? 'text-gray-900' : 'text-gray-900'}`}>
+                                    <span className={`text-sm font-semibold ${watch('position') === 'bottom' ? 'text-content' : 'text-content'}`}>
                                         하단
                                     </span>
                                     {watch('position') === 'bottom' && (
                                         <div className="absolute top-3 right-3">
-                                            <svg className="w-5 h-5 text-gray-700" fill="currentColor" viewBox="0 0 20 20">
+                                            <svg className="w-5 h-5 text-content" fill="currentColor" viewBox="0 0 20 20">
                                                 <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
                                             </svg>
                                         </div>
@@ -220,8 +220,8 @@ export const GlobalBannerForm = ({ banner, onSubmit, onCancel, isLoading }: Glob
                                 <label
                                     className={`relative flex items-center p-5 cursor-pointer border-2 rounded-2xl transition-all duration-200 ${
                                     watch('position') === 'left'
-                                        ? 'border-gray-900 bg-gray-50 shadow-sm'
-                                        : 'border-gray-200 hover:border-gray-300 bg-white'
+                                        ? 'border-line-strong bg-surface-subtle shadow-sm'
+                                        : 'border-line hover:border-line bg-surface'
                                 }`}>
                                     <input
                                         type="radio"
@@ -229,12 +229,12 @@ export const GlobalBannerForm = ({ banner, onSubmit, onCancel, isLoading }: Glob
                                         {...register('position')}
                                         className="sr-only"
                                     />
-                                    <span className={`text-sm font-semibold ${watch('position') === 'left' ? 'text-gray-900' : 'text-gray-900'}`}>
+                                    <span className={`text-sm font-semibold ${watch('position') === 'left' ? 'text-content' : 'text-content'}`}>
                                         좌측
                                     </span>
                                     {watch('position') === 'left' && (
                                         <div className="absolute top-3 right-3">
-                                            <svg className="w-5 h-5 text-gray-700" fill="currentColor" viewBox="0 0 20 20">
+                                            <svg className="w-5 h-5 text-content" fill="currentColor" viewBox="0 0 20 20">
                                                 <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
                                             </svg>
                                         </div>
@@ -243,8 +243,8 @@ export const GlobalBannerForm = ({ banner, onSubmit, onCancel, isLoading }: Glob
                                 <label
                                     className={`relative flex items-center p-5 cursor-pointer border-2 rounded-2xl transition-all duration-200 ${
                                     watch('position') === 'right'
-                                        ? 'border-gray-900 bg-gray-50 shadow-sm'
-                                        : 'border-gray-200 hover:border-gray-300 bg-white'
+                                        ? 'border-line-strong bg-surface-subtle shadow-sm'
+                                        : 'border-line hover:border-line bg-surface'
                                 }`}>
                                     <input
                                         type="radio"
@@ -252,12 +252,12 @@ export const GlobalBannerForm = ({ banner, onSubmit, onCancel, isLoading }: Glob
                                         {...register('position')}
                                         className="sr-only"
                                     />
-                                    <span className={`text-sm font-semibold ${watch('position') === 'right' ? 'text-gray-900' : 'text-gray-900'}`}>
+                                    <span className={`text-sm font-semibold ${watch('position') === 'right' ? 'text-content' : 'text-content'}`}>
                                         우측
                                     </span>
                                     {watch('position') === 'right' && (
                                         <div className="absolute top-3 right-3">
-                                            <svg className="w-5 h-5 text-gray-700" fill="currentColor" viewBox="0 0 20 20">
+                                            <svg className="w-5 h-5 text-content" fill="currentColor" viewBox="0 0 20 20">
                                                 <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
                                             </svg>
                                         </div>
@@ -269,7 +269,7 @@ export const GlobalBannerForm = ({ banner, onSubmit, onCancel, isLoading }: Glob
                 </div>
 
                 <div className="space-y-2">
-                    <label className="block text-sm font-semibold text-gray-900">
+                    <label className="block text-sm font-semibold text-content">
                         배너 HTML
                     </label>
                     <Controller
@@ -285,25 +285,25 @@ export const GlobalBannerForm = ({ banner, onSubmit, onCancel, isLoading }: Glob
                             />
                         )}
                     />
-                    <p className="text-xs text-gray-500">HTML 코드를 입력하세요. 관리자 전용이므로 스크립트가 허용됩니다.</p>
+                    <p className="text-xs text-content-secondary">HTML 코드를 입력하세요. 관리자 전용이므로 스크립트가 허용됩니다.</p>
 
-                    <div className="rounded-xl border border-gray-200 bg-white overflow-hidden">
-                        <div className="px-4 py-2 border-b border-gray-200 bg-gray-50 text-xs font-semibold text-gray-700">
+                    <div className="rounded-xl border border-line bg-surface overflow-hidden">
+                        <div className="px-4 py-2 border-b border-line bg-surface-subtle text-xs font-semibold text-content">
                             미리보기
                         </div>
                         {previewHtml ? (
-                            <div className="p-4 text-sm text-gray-900 overflow-x-auto">
+                            <div className="p-4 text-sm text-content overflow-x-auto">
                                 <div dangerouslySetInnerHTML={{ __html: previewHtml }} />
                             </div>
                         ) : (
-                            <p className="p-4 text-sm text-gray-400">
+                            <p className="p-4 text-sm text-content-hint">
                                 HTML을 입력하면 여기에 미리보기가 표시됩니다.
                             </p>
                         )}
                     </div>
                 </div>
 
-                <div className="p-4 bg-gray-50 rounded-xl border border-gray-200">
+                <div className="p-4 bg-surface-subtle rounded-xl border border-line">
                     <Checkbox
                         checked={watch('isActive') ?? true}
                         onCheckedChange={(checked) => setValue('isActive', checked)}

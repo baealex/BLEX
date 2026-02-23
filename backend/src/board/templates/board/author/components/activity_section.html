@@ -1,26 +1,26 @@
 <!-- Activity Section -->
 <section>
     <div class="mb-4">
-        <h2 class="text-2xl font-bold text-gray-900">{% if is_editor_view %}최근 활동{% else %}활동{% endif %}</h2>
-        <p class="mt-1 text-sm text-gray-500">최근 1년 잔디와 최신 활동 기록입니다.</p>
+        <h2 class="text-2xl font-bold text-content">{% if is_editor_view %}최근 활동{% else %}활동{% endif %}</h2>
+        <p class="mt-1 text-sm text-content-secondary">최근 1년 잔디와 최신 활동 기록입니다.</p>
     </div>
 
     <!-- Heatmap -->
-    <div class="bg-white rounded-2xl ring-1 ring-gray-900/5 p-6 md:p-7 mb-6" style="min-height: 280px;">
+    <div class="bg-surface rounded-2xl ring-1 ring-line/60 p-6 md:p-7 mb-6" style="min-height: 280px;">
         <island-component name="Heatmap" props="{{ author_activity_props }}"></island-component>
 
         {% if recent_activities %}
-            <div class="mt-8 border-t border-gray-100 pt-6">
+            <div class="mt-8 border-t border-line-light pt-6">
                 <div class="mb-3 flex items-center justify-between px-1">
-                    <h3 class="text-sm font-semibold text-gray-900">최근 활동 내역</h3>
-                    <span class="inline-flex items-center rounded-md bg-gray-100 px-2 py-0.5 text-[11px] font-medium text-gray-600">
+                    <h3 class="text-sm font-semibold text-content">최근 활동 내역</h3>
+                    <span class="inline-flex items-center rounded-md bg-surface-subtle px-2 py-0.5 text-[11px] font-medium text-content-secondary">
                         {{ recent_activities|length }}개
                     </span>
                 </div>
-                <div class="space-y-1.5 rounded-2xl bg-gray-50/70 p-2 ring-1 ring-gray-900/5">
+                <div class="space-y-3">
                     {% for activity in recent_activities %}
-                    <a href="{{ activity.url }}" class="flex items-center gap-4 px-3 py-3 rounded-xl bg-white ring-1 ring-gray-900/5 hover:ring-gray-900/10 hover:bg-gray-50/40 transition-all duration-150 active:scale-[0.98] group">
-                        <div class="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 bg-gray-100 text-gray-600">
+                    <a href="{{ activity.url }}" class="flex items-center gap-4 px-3 py-3 rounded-xl bg-surface ring-1 ring-line/60 hover:ring-line-strong/70 hover:bg-surface-subtle/80 transition-all duration-150 active:scale-[0.98] group">
+                        <div class="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 bg-surface-subtle text-content-secondary">
                             {% if activity.type == 'post' %}
                                 <i class="fas fa-pen-nib text-sm"></i>
                             {% elif activity.type == 'series' %}
@@ -35,16 +35,16 @@
                         </div>
                         <div class="flex-1 min-w-0">
                             <div class="flex items-center justify-between mb-1">
-                                <span class="text-xs text-gray-500">
+                                <span class="text-xs text-content-secondary">
                                     {% if activity.type == 'post' %}새 글을 작성했어요
                                     {% elif activity.type == 'series' %}시리즈를 만들었어요
                                     {% elif activity.type == 'comment' %}댓글을 남겼어요
                                     {% elif activity.type == 'like' %}좋아요를 눌렀어요
                                     {% else %}활동{% endif %}
                                 </span>
-                                <span class="inline-flex items-center rounded-md bg-gray-100 px-2 py-0.5 text-[11px] text-gray-500 font-medium tabular-nums whitespace-nowrap">{{ activity.date }}</span>
+                                <span class="inline-flex items-center rounded-md bg-surface-subtle px-2 py-0.5 text-[11px] text-content-secondary font-medium tabular-nums whitespace-nowrap">{{ activity.date }}</span>
                             </div>
-                            <h4 class="text-sm font-semibold text-gray-700 line-clamp-1 group-hover:text-gray-900 transition-colors">
+                            <h4 class="text-sm font-semibold text-content-secondary line-clamp-1 group-hover:text-content transition-colors">
                                 {% if activity.type == 'comment' or activity.type == 'like' %}
                                     {{ activity.postTitle }}
                                 {% else %}
@@ -58,8 +58,8 @@
             </div>
         {% else %}
             <div class="py-12 text-center">
-                <i class="fas fa-wind text-gray-300 text-2xl mb-3"></i>
-                <p class="text-sm text-gray-400">기록된 활동이 없습니다</p>
+                <i class="fas fa-wind text-content-hint text-2xl mb-3"></i>
+                <p class="text-sm text-content-hint">기록된 활동이 없습니다</p>
             </div>
         {% endif %}
     </div>

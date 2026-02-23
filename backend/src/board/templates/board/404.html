@@ -18,32 +18,32 @@
 {% endblock %}
 
 {% block content %}
-<div class="fixed inset-0 bg-gray-50 overflow-hidden flex items-center justify-center">
+<div class="fixed inset-0 bg-surface-page overflow-hidden flex items-center justify-center">
     <!-- Background Elements -->
     <div class="absolute inset-0 overflow-hidden pointer-events-none">
-        <div class="absolute -top-[20%] -left-[10%] w-[70%] h-[70%] bg-gray-200/30 rounded-full blur-3xl animate-float"></div>
-        <div class="absolute top-[20%] -right-[10%] w-[60%] h-[60%] bg-gray-100/30 rounded-full blur-3xl animate-float-delayed"></div>
+        <div class="absolute -top-[20%] -left-[10%] w-[70%] h-[70%] bg-line/30 rounded-full blur-3xl animate-float"></div>
+        <div class="absolute top-[20%] -right-[10%] w-[60%] h-[60%] bg-surface-subtle/60 rounded-full blur-3xl animate-float-delayed"></div>
     </div>
 
     <div class="relative z-10 max-w-2xl mx-auto px-6 text-center" x-data="pageNotFound()">
         <!-- 404 Display -->
         <div class="mb-12 relative">
-            <h1 class="text-[10rem] sm:text-[12rem] font-bold text-black/5 leading-none select-none">
+            <h1 class="text-[10rem] sm:text-[12rem] font-bold text-content/10 leading-none select-none">
                 404
             </h1>
             <div class="absolute inset-0 flex items-center justify-center">
-                <div class="w-24 h-24 bg-white rounded-3xl shadow-[0_8px_30px_rgba(0,0,0,0.12)] flex items-center justify-center transform rotate-12 hover:rotate-0 transition-transform duration-500">
-                    <i class="fas fa-exclamation text-4xl text-gray-900"></i>
+                <div class="w-24 h-24 bg-surface-elevated rounded-3xl ring-1 ring-line/60 shadow-floating flex items-center justify-center transform rotate-12 hover:rotate-0 transition-transform duration-500">
+                    <i class="fas fa-exclamation text-4xl text-content"></i>
                 </div>
             </div>
         </div>
 
         <!-- Message -->
-        <h2 class="text-3xl sm:text-4xl font-bold text-gray-900 mb-6 tracking-tight">
+        <h2 class="text-3xl sm:text-4xl font-bold text-content mb-6 tracking-tight">
             페이지를 찾을 수 없습니다
         </h2>
 
-        <p class="text-lg text-gray-500 mb-12 leading-relaxed max-w-md mx-auto">
+        <p class="text-lg text-content-secondary mb-12 leading-relaxed max-w-md mx-auto">
             요청하신 페이지가 삭제되었거나, 주소가 변경되었거나, 일시적으로 사용할 수 없는 상태입니다.
         </p>
 
@@ -51,20 +51,20 @@
         <div class="flex flex-col sm:flex-row gap-4 justify-center items-center">
             <button
                 @click="goBack()"
-                class="px-8 py-3.5 bg-white text-gray-900 font-semibold rounded-full border border-gray-200 hover:border-gray-300 hover:shadow-lg hover:-translate-y-0.5 transition-all duration-150 min-w-[160px]"
+                class="px-8 py-3.5 bg-surface-elevated text-content font-semibold rounded-full border border-line hover:border-line-strong hover:shadow-lg hover:-translate-y-0.5 transition-all duration-150 min-w-[160px]"
             >
                 뒤로 가기
             </button>
 
             <a
                 href="/search"
-                class="px-8 py-3.5 bg-white text-gray-900 font-semibold rounded-full border border-gray-200 hover:border-gray-300 hover:shadow-lg hover:-translate-y-0.5 transition-all duration-150 min-w-[160px]"
+                class="px-8 py-3.5 bg-surface-elevated text-content font-semibold rounded-full border border-line hover:border-line-strong hover:shadow-lg hover:-translate-y-0.5 transition-all duration-150 min-w-[160px]"
             >
                 <i class="fas fa-search mr-2 text-sm"></i>
                 검색
             </a>
 
-            <a href="/" class="px-8 py-3.5 bg-black text-white font-semibold rounded-full hover:bg-gray-800 hover:shadow-lg hover:-translate-y-0.5 transition-all duration-150 min-w-[160px]">
+            <a href="/" class="px-8 py-3.5 bg-action text-content-inverted font-semibold rounded-full hover:bg-action-hover hover:shadow-lg hover:-translate-y-0.5 transition-all duration-150 min-w-[160px]">
                 홈으로 돌아가기
             </a>
         </div>

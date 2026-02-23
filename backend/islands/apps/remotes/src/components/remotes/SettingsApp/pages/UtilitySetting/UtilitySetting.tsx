@@ -282,9 +282,9 @@ const UtilitySetting = () => {
                     subtitle="만료되었거나 불필요한 세션을 정리합니다."
                     icon={<i className="fas fa-clock" />}>
                     <div className="space-y-4">
-                        <div className="flex gap-6 text-sm text-gray-600">
-                            <span>전체 세션: <strong className="text-gray-900">{stats.totalSessions}</strong></span>
-                            <span>만료된 세션: <strong className="text-gray-900">{stats.expiredSessions}</strong></span>
+                        <div className="flex gap-6 text-sm text-content-secondary">
+                            <span>전체 세션: <strong className="text-content">{stats.totalSessions}</strong></span>
+                            <span>만료된 세션: <strong className="text-content">{stats.expiredSessions}</strong></span>
                         </div>
                         {sessionResult && (
                             <Alert variant={sessionResult.dryRun ? 'info' : 'success'}>
@@ -319,8 +319,8 @@ const UtilitySetting = () => {
                     subtitle="관리자 활동 로그를 정리합니다."
                     icon={<i className="fas fa-scroll" />}>
                     <div className="space-y-4">
-                        <div className="text-sm text-gray-600">
-                            로그 수: <strong className="text-gray-900">{stats.logCount}</strong>
+                        <div className="text-sm text-content-secondary">
+                            로그 수: <strong className="text-content">{stats.logCount}</strong>
                         </div>
                         {logResult && (
                             <Alert variant={logResult.dryRun ? 'info' : 'success'}>
@@ -348,7 +348,7 @@ const UtilitySetting = () => {
                     <div className="space-y-4">
                         <div className="flex flex-wrap items-start gap-4">
                             <div className="w-full min-w-[220px] flex-1">
-                                <label className="block text-sm font-medium text-gray-700 mb-1.5">대상</label>
+                                <label className="block text-sm font-medium text-content mb-1.5">대상</label>
                                 <Select
                                     value={imageTarget}
                                     onValueChange={(v) => { setImageTarget(v); setHasPreviewed(false); }}
@@ -390,7 +390,7 @@ const UtilitySetting = () => {
                                             <div className="mt-3 grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-2 max-h-80 overflow-y-auto">
                                                 {imageResult.unusedFiles.map((file, i) => (
                                                     <div key={i} className="group relative">
-                                                        <div className="aspect-square rounded-lg overflow-hidden bg-gray-100 border border-gray-200">
+                                                        <div className="aspect-square rounded-lg overflow-hidden bg-surface-subtle border border-line">
                                                             <img
                                                                 src={file.url}
                                                                 alt={file.path}
@@ -401,11 +401,11 @@ const UtilitySetting = () => {
                                                                     e.currentTarget.parentElement!.classList.add(
                                                                         'flex', 'items-center', 'justify-center'
                                                                     );
-                                                                    e.currentTarget.parentElement!.innerHTML = '<i class="fas fa-file-image text-gray-300 text-xl"></i>';
+                                                                    e.currentTarget.parentElement!.innerHTML = '<i class="fas fa-file-image text-content-hint text-xl"></i>';
                                                                 }}
                                                             />
                                                         </div>
-                                                        <div className="mt-1 text-[10px] text-gray-500 truncate" title={file.path}>
+                                                        <div className="mt-1 text-[10px] text-content-secondary truncate" title={file.path}>
                                                             {file.sizeKb} KB
                                                         </div>
                                                     </div>
@@ -420,8 +420,8 @@ const UtilitySetting = () => {
                                             </summary>
                                             <div className="mt-3 space-y-2 max-h-80 overflow-y-auto">
                                                 {imageResult.duplicateFiles.map((dup, i) => (
-                                                    <div key={i} className="flex items-center gap-3 p-2 rounded-lg bg-gray-50">
-                                                        <div className="flex-shrink-0 w-12 h-12 rounded-lg overflow-hidden bg-gray-100 border border-red-200">
+                                                    <div key={i} className="flex items-center gap-3 p-2 rounded-lg bg-surface-subtle">
+                                                        <div className="flex-shrink-0 w-12 h-12 rounded-lg overflow-hidden bg-surface-subtle border border-danger-line">
                                                             <img
                                                                 src={dup.duplicateUrl}
                                                                 alt="삭제 대상"
@@ -429,10 +429,10 @@ const UtilitySetting = () => {
                                                                 className="w-full h-full object-cover"
                                                             />
                                                         </div>
-                                                        <div className="flex-shrink-0 text-gray-400">
+                                                        <div className="flex-shrink-0 text-content-hint">
                                                             <i className="fas fa-arrow-right" />
                                                         </div>
-                                                        <div className="flex-shrink-0 w-12 h-12 rounded-lg overflow-hidden bg-gray-100 border border-gray-200">
+                                                        <div className="flex-shrink-0 w-12 h-12 rounded-lg overflow-hidden bg-surface-subtle border border-line">
                                                             <img
                                                                 src={dup.originalUrl}
                                                                 alt="원본 유지"
@@ -440,11 +440,11 @@ const UtilitySetting = () => {
                                                                 className="w-full h-full object-cover"
                                                             />
                                                         </div>
-                                                        <div className="text-[10px] text-gray-500">
-                                                            <span className="text-red-500">{dup.duplicateSizeKb} KB</span>
+                                                        <div className="text-[10px] text-content-secondary">
+                                                            <span className="text-danger">{dup.duplicateSizeKb} KB</span>
                                                             {' → '}
-                                                            <span className="text-gray-700">{dup.originalSizeKb} KB</span>
-                                                            <span className="ml-1 text-gray-400">({dup.hash})</span>
+                                                            <span className="text-content">{dup.originalSizeKb} KB</span>
+                                                            <span className="ml-1 text-content-hint">({dup.hash})</span>
                                                         </div>
                                                     </div>
                                                 ))}
@@ -489,9 +489,9 @@ const StatItem = ({
     label: string;
     value: string | number;
 }) => (
-    <div className="bg-gray-50 rounded-xl p-4">
-        <div className="text-xs text-gray-500 mb-1">{label}</div>
-        <div className="text-lg font-semibold text-gray-900">{typeof value === 'number' ? value.toLocaleString() : value}</div>
+    <div className="bg-surface-subtle rounded-xl p-4">
+        <div className="text-xs text-content-secondary mb-1">{label}</div>
+        <div className="text-lg font-semibold text-content">{typeof value === 'number' ? value.toLocaleString() : value}</div>
     </div>
 );
 

@@ -18,7 +18,7 @@
     {% endwith %}
 
     {% if user_notices %}
-        {% with notices=user_notices bg_color='bg-zinc-900 text-white' hover_color='hover:bg-black' url_prefix='' size='small' %}
+        {% with notices=user_notices url_prefix='' size='small' %}
             {% include 'components/notice_carousel.html' %}
         {% endwith %}
     {% endif %}
@@ -37,13 +37,13 @@
             {% if pinned_posts %}
             <section>
                 <div class="flex items-center justify-between mb-4">
-                    <h2 class="text-2xl font-bold text-gray-900">추천 포스트</h2>
+                    <h2 class="text-2xl font-bold text-content">추천 포스트</h2>
                 </div>
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
                     {% for post in pinned_posts %}
                     <a href="/@{{ post.author }}/{{ post.url }}" class="group block h-full">
-                        <article class="flex flex-col h-full bg-white rounded-2xl ring-1 ring-gray-900/5 overflow-hidden hover:ring-gray-900/10 active:scale-[0.98] transition-all duration-150">
-                            <div class="aspect-[16/9] overflow-hidden bg-gray-50">
+                        <article class="flex flex-col h-full bg-surface rounded-2xl ring-1 ring-line/60 overflow-hidden hover:ring-line-strong/70 active:scale-[0.98] transition-all duration-150">
+                            <div class="aspect-[16/9] overflow-hidden bg-surface-subtle">
                                 {% if post.image %}
                                     <img
                                         src="{% resource 'media/'|add:post.image %}"
@@ -57,15 +57,15 @@
                                 {% endif %}
                             </div>
                             <div class="p-5 flex flex-col flex-1">
-                                <h3 class="text-md font-bold text-gray-900 mb-2 leading-snug line-clamp-2 group-hover:text-gray-700 transition-colors">
+                                <h3 class="text-md font-bold text-content mb-2 leading-snug line-clamp-2 group-hover:text-content-secondary transition-colors">
                                     {{ post.title }}
                                 </h3>
-                                <div class="mt-auto pt-4 flex items-center gap-3 text-xs text-gray-400 border-t border-gray-100">
+                                <div class="mt-auto pt-4 flex items-center gap-3 text-xs text-content-hint border-t border-line-light">
                                     <time class="flex items-center gap-1.5">
                                         <i class="far fa-calendar text-xs"></i>
                                         {{ post.published_date|date:"Y년 n월 j일" }}
                                     </time>
-                                    <span class="w-1 h-1 rounded-full bg-gray-300"></span>
+                                    <span class="w-1 h-1 rounded-full bg-content-hint/70"></span>
                                     <span class="flex items-center gap-1.5">
                                         <i class="far fa-clock text-xs"></i>
                                         {{ post.read_time }}분
@@ -85,36 +85,36 @@
         <aside class="lg:col-span-4">
             <div class="lg:sticky lg:top-24 space-y-6">
                 <!-- Stats Card -->
-                <div class="bg-white rounded-2xl ring-1 ring-gray-900/5 p-6">
-                    <h3 class="text-lg font-bold text-gray-900 mb-6">통계</h3>
+                <div class="bg-surface rounded-2xl ring-1 ring-line/60 p-6">
+                    <h3 class="text-lg font-bold text-content mb-6">통계</h3>
                     
                     <dl class="grid grid-cols-2 gap-6">
                         <div>
-                            <dt class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">포스트</dt>
-                            <dd class="text-3xl font-bold text-gray-900">{{ post_count }}</dd>
+                            <dt class="text-xs font-semibold text-content-hint uppercase tracking-wider mb-2">포스트</dt>
+                            <dd class="text-3xl font-bold text-content">{{ post_count }}</dd>
                         </div>
                         <div>
-                            <dt class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">시리즈</dt>
-                            <dd class="text-3xl font-bold text-gray-900">{{ series_count }}</dd>
+                            <dt class="text-xs font-semibold text-content-hint uppercase tracking-wider mb-2">시리즈</dt>
+                            <dd class="text-3xl font-bold text-content">{{ series_count }}</dd>
                         </div>
                     </dl>
                 </div>
 
                 <!-- Quick Links -->
-                <div class="bg-white rounded-2xl ring-1 ring-gray-900/5 p-6">
-                    <h3 class="text-sm font-bold text-gray-900 mb-4">바로 가기</h3>
+                <div class="bg-surface rounded-2xl ring-1 ring-line/60 p-6">
+                    <h3 class="text-sm font-bold text-content mb-4">바로 가기</h3>
                     <div class="space-y-2">
-                        <a href="/@{{ author.username }}/posts" class="flex items-center gap-3 px-4 py-2.5 rounded-xl hover:bg-gray-50 transition-all duration-150 active:scale-[0.98] group">
-                            <div class="w-8 h-8 rounded-lg bg-gray-100 flex items-center justify-center">
-                                <i class="fas fa-file-alt text-gray-700 text-sm"></i>
+                        <a href="/@{{ author.username }}/posts" class="flex items-center gap-3 px-4 py-2.5 rounded-xl hover:bg-surface-subtle transition-all duration-150 active:scale-[0.98] group">
+                            <div class="w-8 h-8 rounded-lg bg-surface-subtle flex items-center justify-center">
+                                <i class="fas fa-file-alt text-content-secondary text-sm"></i>
                             </div>
-                            <span class="text-sm font-medium text-gray-700">모든 포스트</span>
+                            <span class="text-sm font-medium text-content-secondary">모든 포스트</span>
                         </a>
-                        <a href="/@{{ author.username }}/series" class="flex items-center gap-3 px-4 py-2.5 rounded-xl hover:bg-gray-50 transition-all duration-150 active:scale-[0.98] group">
-                            <div class="w-8 h-8 rounded-lg bg-gray-100 flex items-center justify-center">
-                                <i class="fas fa-layer-group text-gray-700 text-sm"></i>
+                        <a href="/@{{ author.username }}/series" class="flex items-center gap-3 px-4 py-2.5 rounded-xl hover:bg-surface-subtle transition-all duration-150 active:scale-[0.98] group">
+                            <div class="w-8 h-8 rounded-lg bg-surface-subtle flex items-center justify-center">
+                                <i class="fas fa-layer-group text-content-secondary text-sm"></i>
                             </div>
-                            <span class="text-sm font-medium text-gray-700">모든 시리즈</span>
+                            <span class="text-sm font-medium text-content-secondary">모든 시리즈</span>
                         </a>
                     </div>
                 </div>

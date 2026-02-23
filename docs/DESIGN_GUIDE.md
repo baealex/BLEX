@@ -8,7 +8,7 @@ BLEX is not just a tool; it is an environment. We do not impress with complexity
 
 ### Sophistication through Subtraction
 - **Less is Premium**: Every element must fight for its existence. If it doesn't serve a clear purpose, delete it.
-- **The "High-End" Detail**: It's about the perfect 8px radius, the subtle border (gray-900/5), and the way a button presses down when clicked.
+- **The "High-End" Detail**: It's about the perfect 8px radius, the subtle border (`color-line`), and the way a button presses down when clicked.
 
 ### It Must Feel "Alive"
 - **Motion is Meaning**: Nothing just "appears". It fades in, slides up, or scales. `duration-150` for interactions, `duration-500` for entrances.
@@ -36,10 +36,11 @@ Our aesthetic is **Minimalism** meets **Boldness**.
 
 We use **Monochrome** because user content must be the star. Our interface is the stage, not the performer.
 
-- **Surface**: Pure White (`bg-white`) for focus, subtle Grays (`bg-gray-50`) for structure.
-- **Action**: Deep Black (`bg-gray-900`) for primary actions. It commands without shouting.
-- **Hierarchy**: Text shades (`gray-900`, `gray-600`, `gray-400`) guide the eye. Never pure black (#000)—it causes eye strain.
-- **Accent**: Red for warnings. That's it.
+- **Token-First**: Always use semantic tokens (`surface/content/line/action/state`), never hardcoded hex or legacy aliases.
+- **Surface**: `bg-surface`, `bg-surface-page`, `bg-surface-subtle` define hierarchy in both light and dark.
+- **Action**: `bg-action` + `text-content-inverted` for primary actions, with `bg-action-hover` on hover.
+- **Hierarchy**: `text-content`, `text-content-secondary`, `text-content-hint` guide the eye consistently across themes.
+- **Accent**: State tokens only (`color-success`, `color-warning`, `color-danger`).
 
 ### Typography
 - **Readability is Luxury**: Use generous line heights (`leading-relaxed`).
@@ -58,7 +59,7 @@ Consistency creates comfort. Use these as your baseline.
 | **Radius** | 6-16px | `rounded-md` to `rounded-2xl` | Scale with information density |
 | **Duration** | 150ms | `duration-150` | Crisp, not sluggish |
 | **Space** | 8px Grid | `p-4`, `gap-2` | Everything aligns |
-| **Shadow** | Subtle | `ring-1 ring-gray-900/5` | Depth without drama |
+| **Shadow** | Subtle | `border border-line` + `shadow-subtle` | Depth without drama |
 
 ### Radius as Intent, Not Size
 
@@ -76,11 +77,11 @@ Radius signals **information density** and **hierarchy**, not just visual weight
 
 **The Button**
 *Does it feel solid?*
-`bg-gray-900` with `hover:bg-gray-800`. It anchors the page.
+`bg-action` with `hover:bg-action-hover` and `text-content-inverted`. It anchors the page.
 
 **The Card**
 *Does it feel real?*
-`ring-1 ring-gray-900/5` with soft hover transition. It frames, never cages.
+`border border-line bg-surface-subtle` with soft hover transition. It frames, never cages.
 
 **The Action**
 *Did I acknowledge the user?*
@@ -88,7 +89,34 @@ Every interactive element needs `:active` state (`active:scale-95`).
 
 ---
 
-## 5. Mobile First (For Real)
+## 5. Theme System (Light/Dark)
+
+Dark mode is not an optional skin. It is a first-class rendering mode.
+
+### Single Source of Truth
+
+- **Token values live only in** `backend/islands/apps/remotes/styles/variables.css`.
+- **Tailwind mapping lives in** `backend/islands/apps/remotes/styles/tailwind.css` and must stay mapping-only (`@theme inline`), not duplicate token values.
+- Legacy aliases (`--color-bg-*`, `--color-text-*`, `--color-border-*`, `--color-interactive-*`, `--glass-*`) are deprecated and must not be reintroduced.
+
+### Theme Activation and Persistence
+
+- Theme is applied via `html[data-theme="light|dark"]`.
+- Default follows system preference when no explicit user choice exists.
+- User override is stored in cookie key `blex_theme`.
+- Server must read cookie and set initial `data-theme` at render time to prevent first-paint mismatch.
+- Client theme changes must update `data-theme` and keep runtime listeners in sync.
+
+### Component Rules for Dark Mode
+
+- No hardcoded color classes (`gray-*`, `black`, `white`) in product UI where semantic tokens exist.
+- Prose styles must use prose tokens (`--color-prose-*`), not hardcoded link/blockquote colors.
+- Syntax highlighting must use code tokens (`--color-code-*`) and support dark values.
+- Third-party UIs (e.g. Monaco, charts) must switch native theme mode on theme change.
+
+---
+
+## 6. Mobile First (For Real)
 
 Mobile is not a "version". It is *the* version.
 
@@ -97,7 +125,7 @@ Mobile is not a "version". It is *the* version.
 ### Touch Demands Substance
 
 - **Touch is Commitment**: Minimum 44×44px touch targets. Tiny targets are betrayals.
-- **Feedback is Respect**: Buttons must press down (`active:scale-95`, `active:bg-gray-100`).
+- **Feedback is Respect**: Buttons must press down (`active:scale-95`, `active:bg-surface-subtle`).
 - **Space is Generosity**: Use `py-3` for menu items, `gap-3` for icons. Let the thumb land safely.
 
 ### Mobile Vibe Checks
@@ -116,11 +144,12 @@ Collapse to essentials: search, notifications, user menu.
 
 ---
 
-## 6. Checklist for Greatness
+## 7. Checklist for Greatness
 
 Before calling it "done":
 1. **Is it minimal?** Can I remove one more element?
 2. **Does it breathe?** Enough whitespace?
 3. **Is it smooth?** Did that modal glide or jerk?
 4. **Does it work on mobile?** Test at 375px width.
-5. **Would I ship this?** If it feels "janky", fix it.
+5. **Does it render correctly in both themes?** Verify light and dark for the same screen.
+6. **Would I ship this?** If it feels "janky", fix it.

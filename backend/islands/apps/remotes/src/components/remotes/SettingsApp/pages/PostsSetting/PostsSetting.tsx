@@ -33,7 +33,7 @@ const PostsSetting = () => {
                 }
             />
 
-            <Suspense fallback={<div className="h-32 bg-gray-50 animate-pulse rounded-lg mb-6" />}>
+            <Suspense fallback={<div className="h-32 bg-surface-subtle animate-pulse rounded-lg mb-6" />}>
                 <PostsFilter
                     filters={filters}
                     isExpanded={isFilterExpanded}
@@ -50,7 +50,7 @@ const PostsSetting = () => {
                 fallback={
                     <div className="space-y-3 mt-6">
                         {[1, 2, 3].map(i => (
-                            <div key={i} className="h-40 bg-gray-50 animate-pulse rounded-lg border border-gray-100" />
+                            <div key={i} className="h-40 bg-surface-subtle animate-pulse rounded-lg border border-line-light" />
                         ))}
                     </div>
                 }>

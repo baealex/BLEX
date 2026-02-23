@@ -227,14 +227,14 @@ const NoticeSettingBase = ({ scope }: NoticeSettingBaseProps) => {
 
             {showForm && (
                 <form
-                    className="bg-gray-50 border border-gray-200 rounded-2xl p-6 animate-in fade-in-0 slide-in-from-top-2 motion-interaction"
+                    className="bg-surface-subtle border border-line rounded-2xl p-6 animate-in fade-in-0 slide-in-from-top-2 motion-interaction"
                     onSubmit={handleSubmit(onSubmit)}>
-                    <h3 className="text-base font-semibold text-gray-900 mb-4">
+                    <h3 className="text-base font-semibold text-content mb-4">
                         {editingNotice ? `${noticeLabel} 수정` : `새 ${noticeLabel} 만들기`}
                     </h3>
                     <div className="space-y-4">
                         <div className="space-y-2">
-                            <label className="block text-sm font-medium text-gray-700">
+                            <label className="block text-sm font-medium text-content">
                                 공지 제목
                             </label>
                             <Input
@@ -246,7 +246,7 @@ const NoticeSettingBase = ({ scope }: NoticeSettingBaseProps) => {
                         </div>
 
                         <div className="space-y-2">
-                            <label className="block text-sm font-medium text-gray-700">
+                            <label className="block text-sm font-medium text-content">
                                 URL
                             </label>
                             <Input
@@ -255,10 +255,10 @@ const NoticeSettingBase = ({ scope }: NoticeSettingBaseProps) => {
                                 error={errors.url?.message}
                                 {...register('url')}
                             />
-                            <p className="text-xs text-gray-500">공지 클릭 시 이동할 URL입니다.</p>
+                            <p className="text-xs text-content-secondary">공지 클릭 시 이동할 URL입니다.</p>
                         </div>
 
-                        <div className="p-4 bg-gray-50 rounded-xl border border-gray-200">
+                        <div className="p-4 bg-surface-subtle rounded-xl border border-line">
                             <Checkbox
                                 checked={watch('isActive')}
                                 onCheckedChange={(checked) => setValue('isActive', checked)}
@@ -324,11 +324,11 @@ const NoticeSettingBase = ({ scope }: NoticeSettingBaseProps) => {
                             <div className="space-y-1">
                                 <div className="flex items-center gap-2 flex-wrap">
                                     <h3 className={`${TITLE} mb-0`}>{notice.title}</h3>
-                                    <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium border ${notice.isActive ? 'bg-gray-900 text-white border-gray-900' : 'bg-gray-50 text-gray-500 border-gray-100'}`}>
+                                    <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium border ${notice.isActive ? 'bg-action text-content-inverted border-line-strong' : 'bg-surface-subtle text-content-secondary border-line-light'}`}>
                                         {notice.isActive ? '활성' : '비활성'}
                                     </span>
                                 </div>
-                                <p className="text-sm text-gray-500 truncate max-w-md">{notice.url}</p>
+                                <p className="text-sm text-content-secondary truncate max-w-md">{notice.url}</p>
                             </div>
                         </SettingsListItem>
                     ))}

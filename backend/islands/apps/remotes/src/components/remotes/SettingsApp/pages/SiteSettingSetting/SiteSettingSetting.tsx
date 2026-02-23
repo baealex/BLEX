@@ -71,7 +71,7 @@ const SiteSettingSetting = () => {
                 icon={<i className="fas fa-code" />}>
                 <div className="space-y-4">
                     <div className="space-y-2">
-                        <label className="block text-sm font-semibold text-gray-900">
+                        <label className="block text-sm font-semibold text-content">
                             Head 영역 코드
                         </label>
                         <CodeEditor
@@ -80,10 +80,10 @@ const SiteSettingSetting = () => {
                             onChange={setHeaderScript}
                             height="200px"
                         />
-                        <p className="text-xs text-gray-500">{'<head>'} 태그 안에 삽입됩니다.</p>
+                        <p className="text-xs text-content-secondary">{'<head>'} 태그 안에 삽입됩니다.</p>
                     </div>
                     <div className="space-y-2">
-                        <label className="block text-sm font-semibold text-gray-900">
+                        <label className="block text-sm font-semibold text-content">
                             Body 하단 코드
                         </label>
                         <CodeEditor
@@ -92,7 +92,7 @@ const SiteSettingSetting = () => {
                             onChange={setFooterScript}
                             height="200px"
                         />
-                        <p className="text-xs text-gray-500">{'</body>'} 태그 직전에 삽입됩니다.</p>
+                        <p className="text-xs text-content-secondary">{'</body>'} 태그 직전에 삽입됩니다.</p>
                     </div>
                 </div>
             </Card>
@@ -103,7 +103,7 @@ const SiteSettingSetting = () => {
                 icon={<i className="fas fa-bell" />}>
                 <div className="space-y-4">
                     <div className="space-y-2">
-                        <label className="block text-sm font-semibold text-gray-900">
+                        <label className="block text-sm font-semibold text-content">
                             환영 메시지
                         </label>
                         <Input
@@ -114,10 +114,10 @@ const SiteSettingSetting = () => {
                             onChange={(e) => setWelcomeMessage(e.target.value)}
                             className="text-sm"
                         />
-                        <p className="text-xs text-gray-500">{'{name}'}을 사용하면 사용자 이름으로 치환됩니다.</p>
+                        <p className="text-xs text-content-secondary">{'{name}'}을 사용하면 사용자 이름으로 치환됩니다.</p>
                     </div>
                     <div className="space-y-2">
-                        <label className="block text-sm font-semibold text-gray-900">
+                        <label className="block text-sm font-semibold text-content">
                             알림 클릭 URL
                         </label>
                         <Input
@@ -126,7 +126,7 @@ const SiteSettingSetting = () => {
                             onChange={(e) => setWelcomeUrl(e.target.value)}
                             className="text-sm"
                         />
-                        <p className="text-xs text-gray-500">환영 알림 클릭 시 이동할 URL입니다.</p>
+                        <p className="text-xs text-content-secondary">환영 알림 클릭 시 이동할 URL입니다.</p>
                     </div>
                 </div>
             </Card>
@@ -136,7 +136,7 @@ const SiteSettingSetting = () => {
                 subtitle="회원 탈퇴 시 리다이렉트 설정입니다."
                 icon={<i className="fas fa-user-minus" />}>
                 <div className="space-y-2">
-                    <label className="block text-sm font-semibold text-gray-900">
+                    <label className="block text-sm font-semibold text-content">
                         탈퇴 후 리다이렉트 URL
                     </label>
                     <Input
@@ -145,7 +145,7 @@ const SiteSettingSetting = () => {
                         onChange={(e) => setDeletionRedirectUrl(e.target.value)}
                         className="text-sm"
                     />
-                    <p className="text-xs text-gray-500">비워두면 메인 페이지로 이동합니다. 설문 링크 등을 설정할 수 있습니다.</p>
+                    <p className="text-xs text-content-secondary">비워두면 메인 페이지로 이동합니다. 설문 링크 등을 설정할 수 있습니다.</p>
                 </div>
             </Card>
 

@@ -7,41 +7,20 @@
     .floating-animation {
         animation: float 6s ease-in-out infinite;
     }
+
     .floating-animation-delayed {
         animation: float 6s ease-in-out infinite 2s;
     }
+
     .floating-animation-slow {
         animation: float 8s ease-in-out infinite 1s;
     }
+
     @keyframes float {
         0%, 100% { transform: translateY(0px); }
         50% { transform: translateY(-20px); }
     }
-    @keyframes text-glow {
-        0%, 100% {
-            text-shadow: 0 0 20px rgba(255, 255, 255, 0.5), 0 0 40px rgba(255, 255, 255, 0.3);
-        }
-        50% {
-            text-shadow: 0 0 30px rgba(255, 255, 255, 0.8), 0 0 60px rgba(255, 255, 255, 0.5);
-        }
-    }
-    @keyframes gradient-shift {
-        0% { background-position: 0% 50%; }
-        50% { background-position: 100% 50%; }
-        100% { background-position: 0% 50%; }
-    }
-    .gradient-bg {
-        background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-    }
-    .glass-effect {
-        backdrop-filter: blur(16px);
-        background: rgba(255, 255, 255, 0.15);
-        border: 1px solid rgba(255, 255, 255, 0.3);
-        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-    }
-    .glow-text {
-        animation: text-glow 3s ease-in-out infinite;
-    }
+
     /* Override main layout for full screen */
     main {
         min-height: 100vh !important;
@@ -57,6 +36,7 @@
         bottom: 0 !important;
         z-index: 1000 !important;
     }
+
     body {
         overflow: hidden;
     }
@@ -64,67 +44,67 @@
 {% endblock %}
 
 {% block content %}
-<div class="gradient-bg absolute inset-0"></div>
-    <div class="max-w-4xl mx-auto text-center" x-data="forbidden()">
-        <!-- Floating Elements -->
-        <div class="absolute inset-0 overflow-hidden pointer-events-none">
-            <div class="floating-animation absolute top-20 left-10 w-16 h-16 bg-white/20 rounded-full"></div>
-            <div class="floating-animation-delayed absolute top-40 right-20 w-12 h-12 bg-white/15 rounded-full"></div>
-            <div class="floating-animation absolute bottom-20 left-20 w-20 h-20 bg-white/10 rounded-full"></div>
-            <div class="floating-animation-delayed absolute bottom-40 right-10 w-14 h-14 bg-white/25 rounded-full"></div>
-        </div>
-
-        <!-- Main Content -->
-        <div class="relative z-10">
-            <!-- 403 Number -->
-            <div class="mb-8">
-                <h1 class="glow-text text-9xl md:text-[12rem] font-bold text-white/95 leading-none tracking-tight transform hover:scale-105 transition-transform duration-500 cursor-default">
-                    403
-                </h1>
-            </div>
-
-            <!-- Error Message -->
-            <div class="glass-effect rounded-2xl p-8 md:p-12 mb-8 mx-auto max-w-2xl">
-                <h2 class="text-3xl md:text-4xl font-bold text-white mb-4">
-                    접근 권한이 없습니다
-                </h2>
-
-                <p class="text-xl text-white/80 leading-relaxed">
-                    이 페이지에 접근할 권한이 없습니다.<br>
-                    로그인 후 다시 시도해주세요.
-                </p>
-            </div>
-
-            <!-- Action Buttons -->
-            <div class="flex flex-col sm:flex-row gap-4 justify-center items-center">
-                <button
-                    @click="goBack()"
-                    class="px-8 py-4 bg-white text-pink-600 font-semibold rounded-full hover:bg-gray-100 transform hover:scale-105 transition-all duration-300 shadow-xl min-w-[160px]"
-                >
-                    <svg class="w-5 h-5 inline-block mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
-                    </svg>
-                    뒤로가기
-                </button>
-
-                <a href="/" class="px-8 py-4 bg-transparent border-2 border-white text-white font-semibold rounded-full hover:bg-white hover:text-pink-600 transform hover:scale-105 transition-all duration-300 min-w-[160px]">
-                    홈으로 이동
-                </a>
-            </div>
-        </div>
+<div class="absolute inset-0 bg-surface-page"></div>
+<div class="max-w-4xl mx-auto text-center" x-data="forbidden()">
+    <!-- Floating Elements -->
+    <div class="absolute inset-0 overflow-hidden pointer-events-none">
+        <div class="floating-animation absolute top-20 left-10 w-16 h-16 bg-line/40 rounded-full"></div>
+        <div class="floating-animation-delayed absolute top-40 right-20 w-12 h-12 bg-line-light/60 rounded-full"></div>
+        <div class="floating-animation absolute bottom-20 left-20 w-20 h-20 bg-surface-subtle/70 rounded-full"></div>
+        <div class="floating-animation-slow absolute bottom-40 right-10 w-14 h-14 bg-line/30 rounded-full"></div>
     </div>
 
-    <script>
-        function forbidden() {
-            return {
-                goBack() {
-                    if (window.history.length > 1) {
-                        window.history.back();
-                    } else {
-                        window.location.href = '/';
-                    }
+    <!-- Main Content -->
+    <div class="relative z-10">
+        <!-- 403 Number -->
+        <div class="mb-8">
+            <h1 class="text-9xl md:text-[12rem] font-bold text-content-hint/60 leading-none tracking-tight transform hover:scale-105 transition-transform duration-500 cursor-default">
+                403
+            </h1>
+        </div>
+
+        <!-- Error Message -->
+        <div class="bg-surface-elevated rounded-2xl p-8 md:p-12 mb-8 mx-auto max-w-2xl ring-1 ring-line/60 shadow-floating">
+            <h2 class="text-3xl md:text-4xl font-bold text-content mb-4">
+                접근 권한이 없습니다
+            </h2>
+
+            <p class="text-xl text-content-secondary leading-relaxed">
+                이 페이지에 접근할 권한이 없습니다.<br>
+                로그인 후 다시 시도해주세요.
+            </p>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="flex flex-col sm:flex-row gap-4 justify-center items-center">
+            <button
+                @click="goBack()"
+                class="px-8 py-4 bg-surface-elevated border border-line text-content font-semibold rounded-full hover:bg-surface-subtle hover:border-line-strong transform hover:scale-105 transition-all duration-300 shadow-elevated min-w-[160px]"
+            >
+                <svg class="w-5 h-5 inline-block mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+                </svg>
+                뒤로가기
+            </button>
+
+            <a href="/" class="px-8 py-4 bg-action text-content-inverted font-semibold rounded-full hover:bg-action-hover transform hover:scale-105 transition-all duration-300 min-w-[160px]">
+                홈으로 이동
+            </a>
+        </div>
+    </div>
+</div>
+
+<script>
+    function forbidden() {
+        return {
+            goBack() {
+                if (window.history.length > 1) {
+                    window.history.back();
+                } else {
+                    window.location.href = '/';
                 }
             }
-        }
-    </script>
+        };
+    }
+</script>
 {% endblock %}

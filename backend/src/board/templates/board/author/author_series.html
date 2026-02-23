@@ -16,13 +16,13 @@
     <!-- 필터 및 액션 영역 -->
     <div class="flex flex-col sm:flex-row justify-between items-end sm:items-center gap-6 mb-12">
         <div class="w-full sm:flex-1 sm:max-w-md">
-            <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2 ml-1">시리즈 검색</label>
+            <label class="block text-xs font-bold text-content-secondary uppercase tracking-wider mb-2 ml-1">시리즈 검색</label>
             {% include 'components/search_query_filter.html' with placeholder='검색어를 입력하세요.' %}
         </div>
 
         <div class="flex flex-row items-center gap-3 w-full sm:w-auto">
             <div class="w-full sm:w-auto">
-                <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2 ml-1">정렬 방식</label>
+                <label class="block text-xs font-bold text-content-secondary uppercase tracking-wider mb-2 ml-1">정렬 방식</label>
                 {% include 'components/dropdown_filter.html' with options=series_sort_options param_name='sort' current_value=request.GET.sort|default:'custom' %}
             </div>
         </div>
@@ -43,16 +43,16 @@
             {% else %}
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                     {% for series in series_list %}
-                    <a href="/@{{ author.username }}/series/{{ series.url }}" class="group block bg-white rounded-2xl overflow-hidden ring-1 ring-gray-900/5 hover:ring-gray-900/10 active:scale-[0.98] transition-all duration-150">
+                    <a href="/@{{ author.username }}/series/{{ series.url }}" class="group block bg-surface rounded-2xl overflow-hidden ring-1 ring-line/60 hover:ring-line-strong/70 active:scale-[0.98] transition-all duration-150">
                         <div class="p-8 flex flex-col h-full">
                             <div class="mb-4">
-                                <span class="inline-block px-2.5 py-1 bg-gray-100 text-gray-700 rounded-lg text-[10px] font-bold uppercase tracking-widest">
+                                <span class="inline-block px-2.5 py-1 bg-surface-subtle text-content-secondary rounded-lg text-[10px] font-bold uppercase tracking-widest">
                                     시리즈
                                 </span>
                             </div>
-                            <h2 class="text-xl font-bold text-gray-900 leading-tight mb-3 group-hover:text-black transition-colors">{{ series.name }}</h2>
-                            <p class="text-gray-500 leading-relaxed mb-6 line-clamp-3">{{ series.text_md }}</p>
-                            <div class="flex justify-between items-center mt-auto pt-6 border-t border-gray-100 text-xs font-medium text-gray-500">
+                            <h2 class="text-xl font-bold text-content leading-tight mb-3 group-hover:text-content transition-colors">{{ series.name }}</h2>
+                            <p class="text-content-secondary leading-relaxed mb-6 line-clamp-3">{{ series.text_md }}</p>
+                            <div class="flex justify-between items-center mt-auto pt-6 border-t border-line-light text-xs font-medium text-content-secondary">
                                 <div class="flex items-center gap-1.5">
                                     <i class="far fa-file-alt"></i>
                                     <span>{{ series.post_count }} 포스트</span>

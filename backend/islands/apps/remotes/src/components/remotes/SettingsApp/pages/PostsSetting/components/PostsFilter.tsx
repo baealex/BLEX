@@ -35,12 +35,12 @@ const PostsFilter = ({
             <div className="flex items-center justify-between mb-4">
                 <button
                     onClick={onExpandToggle}
-                    className="flex items-center gap-2 text-lg font-semibold text-gray-900 hover:text-gray-700 transition-colors">
+                    className="flex items-center gap-2 text-lg font-semibold text-content hover:text-content transition-colors">
                     <i className={`fas fa-chevron-${isExpanded ? 'down' : 'right'} text-sm`} />
                     <i className="fas fa-filter" />
                     <span>필터 및 검색</span>
                     {hasActiveFilters(filters) && (
-                        <span className="ml-2 px-2 py-0.5 bg-gray-200 text-gray-800 text-xs font-medium rounded-full">
+                        <span className="ml-2 px-2 py-0.5 bg-line text-content text-xs font-medium rounded-full">
                             활성
                         </span>
                     )}
@@ -60,45 +60,45 @@ const PostsFilter = ({
             {hasActiveFilters(filters) && (
                 <div className="flex flex-wrap gap-2 mb-4">
                     {filters.search && (
-                        <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-gray-100 text-gray-700 rounded-lg text-sm">
+                        <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-surface-subtle text-content rounded-lg text-sm">
                             <i className="fas fa-search text-xs" />
                             <span>검색: {filters.search}</span>
                             <button
                                 onClick={() => onFilterChange('search', '')}
-                                className="hover:text-gray-900">
+                                className="hover:text-content">
                                 <i className="fas fa-times text-xs" />
                             </button>
                         </div>
                     )}
                     {filters.tag && (
-                        <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-gray-100 text-gray-700 rounded-lg text-sm">
+                        <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-surface-subtle text-content rounded-lg text-sm">
                             <i className="fas fa-tag text-xs" />
                             <span>{filters.tag}</span>
                             <button
                                 onClick={() => onFilterChange('tag', '')}
-                                className="hover:text-gray-900">
+                                className="hover:text-content">
                                 <i className="fas fa-times text-xs" />
                             </button>
                         </div>
                     )}
                     {filters.series && (
-                        <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-gray-100 text-gray-700 rounded-lg text-sm">
+                        <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-surface-subtle text-content rounded-lg text-sm">
                             <i className="fas fa-book text-xs" />
                             <span>{series?.find((s) => s.url === filters.series)?.title}</span>
                             <button
                                 onClick={() => onFilterChange('series', '')}
-                                className="hover:text-gray-900">
+                                className="hover:text-content">
                                 <i className="fas fa-times text-xs" />
                             </button>
                         </div>
                     )}
                     {filters.visibility && (
-                        <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-gray-100 text-gray-700 rounded-lg text-sm">
+                        <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-surface-subtle text-content rounded-lg text-sm">
                             <i className={`fas ${filters.visibility === 'public' ? 'fa-eye' : 'fa-eye-slash'} text-xs`} />
                             <span>{filters.visibility === 'public' ? '공개' : '숨김'}</span>
                             <button
                                 onClick={() => onFilterChange('visibility', '')}
-                                className="hover:text-gray-900">
+                                className="hover:text-content">
                                 <i className="fas fa-times text-xs" />
                             </button>
                         </div>
@@ -108,7 +108,7 @@ const PostsFilter = ({
 
             {/* 필터 컨트롤 */}
             {isExpanded && (
-                <div className="p-6 bg-gray-50 border border-gray-200 rounded-2xl">
+                <div className="p-6 bg-surface-subtle border border-line rounded-2xl">
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">
                         <Input
                             type="text"
@@ -123,10 +123,10 @@ const PostsFilter = ({
                             align="left"
                             trigger={
                                 <button className={`${baseInputStyles} flex items-center justify-between text-left`}>
-                                    <span className="text-gray-900 font-medium">
+                                    <span className="text-content font-medium">
                                         {POSTS_ORDER.find(o => o.order === filters.order)?.name || '정렬 방식'}
                                     </span>
-                                    <i className="fas fa-chevron-down text-gray-400" />
+                                    <i className="fas fa-chevron-down text-content-hint" />
                                 </button>
                             }
                             items={POSTS_ORDER.map((orderOption) => ({
@@ -143,10 +143,10 @@ const PostsFilter = ({
                             align="left"
                             trigger={
                                 <button className={`${baseInputStyles} flex items-center justify-between text-left`}>
-                                    <span className={filters.tag ? 'text-gray-900 font-medium' : 'text-gray-400'}>
+                                    <span className={filters.tag ? 'text-content font-medium' : 'text-content-hint'}>
                                         {filters.tag || '태그'}
                                     </span>
-                                    <i className="fas fa-chevron-down text-gray-400" />
+                                    <i className="fas fa-chevron-down text-content-hint" />
                                 </button>
                             }
                             items={[
@@ -168,10 +168,10 @@ const PostsFilter = ({
                             align="left"
                             trigger={
                                 <button className={`${baseInputStyles} flex items-center justify-between text-left`}>
-                                    <span className={filters.series ? 'text-gray-900 font-medium' : 'text-gray-400'}>
+                                    <span className={filters.series ? 'text-content font-medium' : 'text-content-hint'}>
                                         {series?.find((s) => s.url === filters.series)?.title || '시리즈'}
                                     </span>
-                                    <i className="fas fa-chevron-down text-gray-400" />
+                                    <i className="fas fa-chevron-down text-content-hint" />
                                 </button>
                             }
                             items={[
@@ -193,10 +193,10 @@ const PostsFilter = ({
                             align="left"
                             trigger={
                                 <button className={`${baseInputStyles} flex items-center justify-between text-left`}>
-                                    <span className={filters.visibility ? 'text-gray-900 font-medium' : 'text-gray-400'}>
+                                    <span className={filters.visibility ? 'text-content font-medium' : 'text-content-hint'}>
                                         {filters.visibility === 'public' ? '공개' : filters.visibility === 'hidden' ? '숨김' : '공개 상태'}
                                     </span>
-                                    <i className="fas fa-chevron-down text-gray-400" />
+                                    <i className="fas fa-chevron-down text-content-hint" />
                                 </button>
                             }
                             items={[

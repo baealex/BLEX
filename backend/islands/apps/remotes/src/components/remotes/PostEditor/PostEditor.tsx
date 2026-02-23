@@ -18,10 +18,10 @@ const PostEditor = ({
 }: PostEditorProps) => {
     if (mode === 'edit' && (!username || !postUrl)) {
         return (
-            <div className="bg-gray-50 py-4 sm:py-8">
+            <div className="bg-surface-subtle py-4 sm:py-8">
                 <div className="max-w-7xl w-full mx-auto">
-                    <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-                        <div className="text-center text-gray-600">
+                    <div className="bg-surface rounded-xl shadow-sm border border-line p-6">
+                        <div className="text-center text-content-secondary">
                             편집 모드에는 username과 postUrl이 필요합니다.
                         </div>
                     </div>
@@ -32,10 +32,10 @@ const PostEditor = ({
 
     if (mode === 'draft' && (!draftUrl || !username)) {
         return (
-            <div className="bg-gray-50 py-4 sm:py-8">
+            <div className="bg-surface-subtle py-4 sm:py-8">
                 <div className="max-w-7xl w-full mx-auto">
-                    <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-                        <div className="text-center text-gray-600">
+                    <div className="bg-surface rounded-xl shadow-sm border border-line p-6">
+                        <div className="text-center text-content-secondary">
                             임시저장 모드에는 draftUrl과 username이 필요합니다.
                         </div>
                     </div>
@@ -46,10 +46,10 @@ const PostEditor = ({
 
     if (mode === 'new' && !username) {
         return (
-            <div className="bg-gray-50 py-4 sm:py-8">
+            <div className="bg-surface-subtle py-4 sm:py-8">
                 <div className="max-w-7xl w-full mx-auto">
-                    <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-                        <div className="text-center text-gray-600">
+                    <div className="bg-surface rounded-xl shadow-sm border border-line p-6">
+                        <div className="text-center text-content-secondary">
                             새 글 작성 모드에는 username이 필요합니다.
                         </div>
                     </div>
@@ -68,10 +68,10 @@ const PostEditor = ({
 
         default:
             return (
-                <div className="bg-gray-50 py-4 sm:py-8">
+                <div className="bg-surface-subtle py-4 sm:py-8">
                     <div className="max-w-7xl w-full mx-auto">
-                        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-                            <div className="text-center text-gray-600">
+                        <div className="bg-surface rounded-xl shadow-sm border border-line p-6">
+                            <div className="text-center text-content-secondary">
                                 지원되지 않는 모드입니다: {mode}
                             </div>
                         </div>

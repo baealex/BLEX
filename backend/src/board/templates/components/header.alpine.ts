@@ -1,4 +1,13 @@
 import type Alpine from 'alpinejs';
+import {
+    THEME_CHANGE_EVENT,
+    getStoredThemePreference,
+    resolveTheme,
+    subscribeSystemThemeChange,
+    toggleThemePreference,
+    type ResolvedTheme,
+    type ThemePreference
+} from '~/scripts/theme';
 
 const RECENT_SEARCHES_KEY = 'blex_recent_searches';
 const MAX_RECENT_SEARCHES = 8;
@@ -27,6 +36,8 @@ interface QuickSearchApiResponse {
 interface State {
     isTop: boolean;
     mobileMenuOpen: boolean;
+    themePreference: ThemePreference;
+    resolvedTheme: ResolvedTheme;
     quickSearchQuery: string;
     quickSearchDropdownOpen: boolean;
     quickSearchLoading: boolean;
@@ -38,6 +49,7 @@ interface Actions {
     init(): void;
     toggleMobileMenu(): void;
     closeMobileMenu(): void;
+    toggleTheme(): void;
     focusQuickSearchInput(): void;
     openQuickSearchDropdown(): void;
     closeQuickSearchDropdown(): void;
@@ -81,6 +93,8 @@ const header = (): Alpine.AlpineComponent<State & Actions> => {
     return {
         isTop: true,
         mobileMenuOpen: false,
+        themePreference: 'system',
+        resolvedTheme: 'light',
         quickSearchQuery: '',
         quickSearchDropdownOpen: false,
         quickSearchLoading: false,
@@ -92,6 +106,9 @@ const header = (): Alpine.AlpineComponent<State & Actions> => {
             this.recentSearches = getRecentSearches();
 
             const state = this as HeaderState;
+            state.themePreference = getStoredThemePreference();
+            state.resolvedTheme = resolveTheme(state.themePreference);
+
             const updateHeader = () => {
                 state.isTop = window.scrollY < 10;
             };
@@ -113,6 +130,17 @@ const header = (): Alpine.AlpineComponent<State & Actions> => {
                     state.closeQuickSearchDropdown();
                 }
             });
+
+            window.addEventListener(THEME_CHANGE_EVENT, (event: Event) => {
+                const customEvent = event as CustomEvent<{ theme: ResolvedTheme; preference: ThemePreference }>;
+                state.themePreference = customEvent.detail.preference;
+                state.resolvedTheme = customEvent.detail.theme;
+            });
+
+            subscribeSystemThemeChange((theme) => {
+                state.themePreference = getStoredThemePreference();
+                state.resolvedTheme = theme;
+            });
         },
 
         toggleMobileMenu() {
@@ -131,6 +159,14 @@ const header = (): Alpine.AlpineComponent<State & Actions> => {
 
             state.mobileMenuOpen = false;
             updateBodyOverflow(state);
+        },
+
+        toggleTheme() {
+            const state = this as HeaderState;
+            const nextTheme = toggleThemePreference();
+
+            state.themePreference = nextTheme.preference;
+            state.resolvedTheme = nextTheme.theme;
         },
 
         focusQuickSearchInput() {

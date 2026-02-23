@@ -65,17 +65,17 @@ const SettingsDrawer = ({
                 {/* Drawer Content */}
                 <Dialog.Content
                     className={cx(
-                        'fixed inset-y-0 right-0 z-50 w-full sm:w-[480px] bg-white shadow-2xl flex flex-col focus:outline-none',
+                        'fixed inset-y-0 right-0 z-50 w-full sm:w-[480px] bg-surface shadow-2xl flex flex-col focus:outline-none',
                         'data-[state=open]:animate-in data-[state=closed]:animate-out',
                         'data-[state=closed]:slide-out-to-right data-[state=open]:slide-in-from-right',
                         `${ENTRANCE_DURATION} ease-in-out`
                     )}>
 
                     {/* Header */}
-                    <div className="flex items-center justify-between px-6 py-5 border-b border-gray-200">
+                    <div className="flex items-center justify-between px-6 py-5 border-b border-line">
                         <div className="flex items-center gap-3">
-                            <SlidersHorizontal className="w-5 h-5 text-gray-400" />
-                            <Dialog.Title className="text-lg font-semibold text-gray-900">게시 설정</Dialog.Title>
+                            <SlidersHorizontal className="w-5 h-5 text-content-hint" />
+                            <Dialog.Title className="text-lg font-semibold text-content">게시 설정</Dialog.Title>
                         </div>
                         <Dialog.Close asChild>
                             <IconButton aria-label="닫기">
@@ -89,7 +89,7 @@ const SettingsDrawer = ({
                         <div className="space-y-8">
                             {/* SEO Section */}
                             <div>
-                                <h3 className="text-sm font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                                <h3 className="text-sm font-semibold text-content mb-4 flex items-center gap-2">
                                     <Search className="w-4 h-4" />
                                     SEO
                                 </h3>
@@ -104,7 +104,7 @@ const SettingsDrawer = ({
                                                 onChange={(e) => onUrlChange(e.target.value)}
                                                 placeholder="포스트-url"
                                             />
-                                            <p className="text-xs text-gray-400 mt-2">중복 시 자동으로 번호가 추가됩니다</p>
+                                            <p className="text-xs text-content-hint mt-2">중복 시 자동으로 번호가 추가됩니다</p>
                                         </div>
                                     )}
 
@@ -120,20 +120,20 @@ const SettingsDrawer = ({
                                             maxLength={150}
                                         />
                                         <div className="flex items-center justify-between mt-2">
-                                            <p className="text-xs text-gray-400">검색 결과에 표시되는 설명입니다</p>
-                                            <p className={`text-xs font-medium ${metaDescription.length > 140 ? 'text-red-500' : 'text-gray-400'}`}>
+                                            <p className="text-xs text-content-hint">검색 결과에 표시되는 설명입니다</p>
+                                            <p className={`text-xs font-medium ${metaDescription.length > 140 ? 'text-danger' : 'text-content-hint'}`}>
                                                 {metaDescription.length}/150
                                             </p>
                                         </div>
                                     </div>
 
                                     {/* SEO Tips */}
-                                    <div className="bg-gray-50 border border-gray-200 rounded-xl p-4">
-                                        <h4 className="text-sm font-medium text-gray-900 mb-2 flex items-center gap-2">
+                                    <div className="bg-surface-subtle border border-line rounded-xl p-4">
+                                        <h4 className="text-sm font-medium text-content mb-2 flex items-center gap-2">
                                             <Info className="w-4 h-4" />
                                             SEO 팁
                                         </h4>
-                                        <ul className="text-xs text-gray-700 space-y-1">
+                                        <ul className="text-xs text-content space-y-1">
                                             <li>• 핵심 키워드를 포함하세요</li>
                                             <li>• 120-150자가 가장 이상적입니다</li>
                                             <li>• 독자의 관심을 끌 수 있는 문구를 사용하세요</li>
@@ -143,18 +143,18 @@ const SettingsDrawer = ({
                             </div>
 
                             {/* Divider */}
-                            <div className="border-t border-gray-200" />
+                            <div className="border-t border-line" />
 
                             {/* Post Settings Section */}
                             <div>
-                                <h3 className="text-sm font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                                <h3 className="text-sm font-semibold text-content mb-4 flex items-center gap-2">
                                     <FileText className="w-4 h-4" />
                                     글 설정
                                 </h3>
                                 <div className="space-y-4">
                                     {/* Series */}
                                     <div>
-                                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                                        <label className="block text-sm font-medium text-content mb-2">
                                             시리즈
                                         </label>
                                         <Select
@@ -189,10 +189,10 @@ const SettingsDrawer = ({
                                     <div className="space-y-1">
                                         <div className="flex items-center justify-between py-3">
                                             <div className="flex items-center gap-3">
-                                                <EyeOff className="w-4 h-4 text-gray-400" />
+                                                <EyeOff className="w-4 h-4 text-content-hint" />
                                                 <div>
-                                                    <div className="text-sm font-medium text-gray-900">비공개</div>
-                                                    <div className="text-xs text-gray-500">본인만 볼 수 있습니다</div>
+                                                    <div className="text-sm font-medium text-content">비공개</div>
+                                                    <div className="text-xs text-content-secondary">본인만 볼 수 있습니다</div>
                                                 </div>
                                             </div>
                                             <Toggle
@@ -204,10 +204,10 @@ const SettingsDrawer = ({
 
                                         <div className="flex items-center justify-between py-3">
                                             <div className="flex items-center gap-3">
-                                                <CircleDollarSign className="w-4 h-4 text-gray-400" />
+                                                <CircleDollarSign className="w-4 h-4 text-content-hint" />
                                                 <div>
-                                                    <div className="text-sm font-medium text-gray-900">광고 표시</div>
-                                                    <div className="text-xs text-gray-500">포스트에 광고가 표시됩니다</div>
+                                                    <div className="text-sm font-medium text-content">광고 표시</div>
+                                                    <div className="text-xs text-content-secondary">포스트에 광고가 표시됩니다</div>
                                                 </div>
                                             </div>
                                             <Toggle
@@ -223,14 +223,14 @@ const SettingsDrawer = ({
                             {/* Delete Section - Edit mode only */}
                             {isEdit && onDelete && (
                                 <>
-                                    <div className="border-t border-gray-200" />
+                                    <div className="border-t border-line" />
                                     <div>
                                         <Button
                                             type="button"
                                             variant="ghost"
                                             size="sm"
                                             onClick={onDelete}
-                                            className="!text-red-500 hover:!text-red-700 hover:!bg-red-50 !px-0"
+                                            className="!text-danger hover:!text-danger hover:!bg-danger-surface !px-0"
                                             leftIcon={<Trash2 className="w-4 h-4" />}>
                                             포스트 삭제
                                         </Button>
@@ -241,7 +241,7 @@ const SettingsDrawer = ({
                     </div>
 
                     {/* Footer */}
-                    <div className="px-6 py-4 border-t border-gray-200 bg-gray-50">
+                    <div className="px-6 py-4 border-t border-line bg-surface-subtle">
                         <Button
                             type="button"
                             onClick={onClose}

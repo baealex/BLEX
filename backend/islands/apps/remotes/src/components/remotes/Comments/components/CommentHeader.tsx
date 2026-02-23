@@ -24,10 +24,10 @@ export const CommentHeader = ({
                     <img
                         src={getStaticPath(authorImage)}
                         alt={`${author}의 프로필 이미지`}
-                        className="w-11 h-11 rounded-full object-cover ring-2 ring-gray-100 group-hover/avatar:ring-gray-300 transition-all duration-200"
+                        className="w-11 h-11 rounded-full object-cover ring-2 ring-line-light group-hover/avatar:ring-line transition-all duration-200"
                     />
                 ) : (
-                    <div className="w-11 h-11 rounded-full bg-gray-900 flex items-center justify-center text-white font-semibold text-sm ring-2 ring-gray-100 group-hover/avatar:ring-gray-300 transition-all duration-200">
+                    <div className="w-11 h-11 rounded-full bg-action flex items-center justify-center text-content-inverted font-semibold text-sm ring-2 ring-line-light group-hover/avatar:ring-line transition-all duration-200">
                         {author.charAt(0).toUpperCase()}
                     </div>
                 )}
@@ -36,14 +36,14 @@ export const CommentHeader = ({
                 <div className="flex items-baseline gap-2 flex-wrap">
                     <a
                         href={`/@${author}`}
-                        className="font-semibold text-gray-900 hover:text-gray-700 text-sm transition-colors duration-150">
+                        className="font-semibold text-content hover:text-content text-sm transition-colors duration-150">
                         {author}
                     </a>
-                    <time className="text-gray-500 text-xs font-medium" dateTime={createdDate}>
+                    <time className="text-content-secondary text-xs font-medium" dateTime={createdDate}>
                         {createdDate}
                     </time>
                     {isEdited && (
-                        <span className="inline-flex items-center gap-1 text-xs text-gray-400">
+                        <span className="inline-flex items-center gap-1 text-xs text-content-hint">
                             <Pencil className="w-3 h-3" />
                             수정됨
                         </span>

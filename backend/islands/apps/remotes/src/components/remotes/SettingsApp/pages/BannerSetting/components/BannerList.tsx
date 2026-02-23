@@ -107,18 +107,18 @@ const SortableBannerItem = ({ banner, onEdit, onDelete, onToggleActive }: Sortab
                         <h3 className={`${TITLE} mb-0`}>
                             {banner.title}
                         </h3>
-                        <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-700 border border-gray-200">
+                        <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-surface-subtle text-content border border-line">
                             {getPositionLabel(banner.position)}
                         </span>
-                        <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-700 border border-gray-200">
+                        <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-surface-subtle text-content border border-line">
                             {getBannerTypeLabel(banner.bannerType)}
                         </span>
-                        <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium border ${banner.isActive ? 'bg-gray-900 text-white border-gray-900' : 'bg-gray-50 text-gray-500 border-gray-100'}`}>
+                        <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium border ${banner.isActive ? 'bg-action text-content-inverted border-line-strong' : 'bg-surface-subtle text-content-secondary border-line-light'}`}>
                             {banner.isActive ? '활성' : '비활성'}
                         </span>
                     </div>
 
-                    <p className="text-xs text-gray-500 leading-relaxed line-clamp-2 break-all">
+                    <p className="text-xs text-content-secondary leading-relaxed line-clamp-2 break-all">
                         {banner.contentHtml}
                     </p>
                 </div>

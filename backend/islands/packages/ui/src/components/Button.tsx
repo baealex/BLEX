@@ -28,10 +28,10 @@ const Button = ({
     const baseStyles = `inline-flex justify-center items-center gap-2 border border-transparent font-semibold transition-all ${INTERACTION_DURATION} focus:outline-none focus:ring-4 focus:ring-offset-1 disabled:opacity-50 disabled:cursor-not-allowed active:scale-95`;
 
     const variantStyles = {
-        primary: 'text-white bg-gray-900 hover:bg-gray-800 focus:ring-gray-900/20 border-transparent',
-        secondary: 'text-gray-800 bg-white border-gray-300 shadow-sm hover:bg-gray-50 hover:border-gray-400 focus:ring-gray-300 active:bg-gray-100',
-        danger: 'text-white bg-red-600 hover:bg-red-700 focus:ring-red-500/30 border-transparent',
-        ghost: 'text-gray-700 hover:text-gray-900 hover:bg-gray-100 focus:ring-gray-200 border-transparent'
+        primary: 'text-content-inverted bg-action hover:bg-action-hover focus:ring-action/20 border-transparent',
+        secondary: 'text-content bg-surface-elevated border-line-strong shadow-sm hover:bg-surface-subtle hover:border-line focus:ring-line-strong/70 active:bg-line-light',
+        danger: 'text-content-inverted bg-danger hover:bg-danger focus:ring-danger/30 border-transparent',
+        ghost: 'text-content-secondary hover:text-content hover:bg-surface-subtle focus:ring-line/70 border-transparent'
     };
 
     const sizeStyles = {

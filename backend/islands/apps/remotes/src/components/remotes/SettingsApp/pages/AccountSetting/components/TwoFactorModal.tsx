@@ -52,21 +52,21 @@ const TwoFactorModal = ({
             title="2차 인증 설정">
             <div className="p-6 space-y-4">
                 <div>
-                    <p className="text-sm text-gray-600 mb-3">
+                    <p className="text-sm text-content-secondary mb-3">
                         인증 앱(Google Authenticator, Authy 등)으로 아래 QR 코드를 스캔하세요.
                     </p>
-                    <div className="flex justify-center bg-white p-4 rounded-lg border border-gray-200">
+                    <div className="flex justify-center bg-surface p-4 rounded-lg border border-line">
                         <img src={qrCode} alt="QR Code" className="w-48 h-48" />
                     </div>
                 </div>
 
                 <div>
-                    <p className="text-sm font-medium text-gray-900 mb-2">복구 키</p>
-                    <p className="text-xs text-gray-600 mb-2">
+                    <p className="text-sm font-medium text-content mb-2">복구 키</p>
+                    <p className="text-xs text-content-secondary mb-2">
                         기기를 분실했을 때 이 키로 로그인할 수 있습니다. 안전한 곳에 보관하세요.
                     </p>
-                    <div className="bg-gray-50 p-3 rounded-md border border-gray-200">
-                        <code className="text-sm font-mono text-gray-900 break-all">{recoveryKey}</code>
+                    <div className="bg-surface-subtle p-3 rounded-md border border-line">
+                        <code className="text-sm font-mono text-content break-all">{recoveryKey}</code>
                     </div>
                 </div>
 
@@ -75,7 +75,7 @@ const TwoFactorModal = ({
                 </Alert>
 
                 <div>
-                    <label className="block text-sm font-medium text-gray-900 mb-2">
+                    <label className="block text-sm font-medium text-content mb-2">
                         인증 앱에 표시된 6자리 코드를 입력하세요
                     </label>
                     <Input

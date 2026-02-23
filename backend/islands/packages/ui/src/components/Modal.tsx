@@ -37,7 +37,7 @@ type ModalFooterActionProps = Omit<ComponentProps<typeof Button>, 'size'> & {
 const ModalHeader = ({ children, className = '', ...props }: ModalSectionProps) => (
     <div
         className={cx(
-            'flex items-center justify-between gap-3 px-6 py-5 border-b border-gray-200 sticky top-0 bg-white z-10',
+            'flex items-center justify-between gap-3 px-6 py-5 border-b border-line sticky top-0 bg-surface-elevated z-10',
             className
         )}
         {...props}>
@@ -46,7 +46,7 @@ const ModalHeader = ({ children, className = '', ...props }: ModalSectionProps) 
 );
 
 const ModalTitle = ({ className = '', ...props }: ModalTitleProps) => (
-    <Dialog.Title className={cx('text-xl font-bold text-gray-900', className)} {...props} />
+    <Dialog.Title className={cx('text-xl font-bold text-content', className)} {...props} />
 );
 
 const ModalBody = ({ children, className = '', ...props }: ModalSectionProps) => (
@@ -58,7 +58,7 @@ const ModalBody = ({ children, className = '', ...props }: ModalSectionProps) =>
 const ModalFooter = ({ children, className = '', ...props }: ModalSectionProps) => (
     <div
         className={cx(
-            'flex items-center justify-end gap-3 px-6 py-4 border-t border-gray-200 bg-gray-50',
+            'flex items-center justify-end gap-3 px-6 py-4 border-t border-line bg-surface-subtle',
             className
         )}
         {...props}>
@@ -75,7 +75,7 @@ const ModalCloseButton = ({
     <Dialog.Close asChild>
         <button
             className={cx(
-                'text-gray-400 hover:text-gray-600 transition-colors p-2 hover:bg-gray-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-black/20',
+                'text-content-hint hover:text-content-secondary transition-colors p-2 hover:bg-surface-subtle rounded-lg focus:outline-none focus:ring-2 focus:ring-action/20',
                 className
             )}
             aria-label={ariaLabel}
@@ -132,7 +132,7 @@ const ModalRoot = ({
                 <Dialog.Content
                     className={cx(
                         // Base styles
-                        `fixed z-[61] bg-white shadow-2xl ${INTERACTION_DURATION} focus:outline-none flex flex-col`,
+                        `fixed z-[61] bg-surface-elevated shadow-2xl ${INTERACTION_DURATION} focus:outline-none flex flex-col`,
                         'max-h-[85vh] overflow-y-auto',
 
                         // Animations

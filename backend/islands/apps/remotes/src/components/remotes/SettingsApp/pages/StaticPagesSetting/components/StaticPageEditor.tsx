@@ -238,13 +238,13 @@ const StaticPageEditor = ({ pageId }: StaticPageEditorProps) => {
     };
 
     return (
-        <div className="min-h-screen bg-white pb-16">
+        <div className="min-h-screen bg-surface pb-16">
             {/* Top bar */}
-            <div className="sticky top-0 z-10 bg-white border-b border-gray-200">
+            <div className="sticky top-0 z-10 bg-surface border-b border-line">
                 <div className="max-w-7xl mx-auto px-4 md:px-6 flex items-center justify-between h-14">
                     <Link
                         to="/static-pages"
-                        className="flex items-center gap-2 text-sm text-gray-600 hover:text-gray-900 transition-colors">
+                        className="flex items-center gap-2 text-sm text-content-secondary hover:text-content transition-colors">
                         <i className="fas fa-arrow-left" />
                         <span>목록으로</span>
                     </Link>
@@ -253,7 +253,7 @@ const StaticPageEditor = ({ pageId }: StaticPageEditorProps) => {
                             href={pageUrlPath}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="flex items-center gap-1.5 text-sm text-gray-500 hover:text-gray-900 transition-colors">
+                            className="flex items-center gap-1.5 text-sm text-content-secondary hover:text-content transition-colors">
                             <span>{pageUrlPath}</span>
                             <i className="fas fa-external-link-alt text-xs" />
                         </a>
@@ -265,11 +265,11 @@ const StaticPageEditor = ({ pageId }: StaticPageEditorProps) => {
 
             {!isEditMode && (
                 <div className="max-w-7xl mx-auto px-4 md:px-6 pt-8 pb-4">
-                    <div className="rounded-2xl border border-amber-300 bg-amber-50 px-4 py-3">
-                        <p className="text-sm font-extrabold text-amber-900 sm:text-base">
+                    <div className="rounded-2xl border border-warning-line bg-warning-surface px-4 py-3">
+                        <p className="text-sm font-extrabold text-warning sm:text-base">
                             페이지 이름과 URL을 정한 뒤, 아래 에디터에서 본문을 바로 작성하세요.
                         </p>
-                        <p className="mt-1 text-xs font-medium text-amber-700">
+                        <p className="mt-1 text-xs font-medium text-warning">
                             이 화면은 정적 페이지를 빠르게 만드는 용도입니다.
                         </p>
                     </div>
@@ -277,7 +277,7 @@ const StaticPageEditor = ({ pageId }: StaticPageEditorProps) => {
             )}
 
             <div className={`max-w-7xl mx-auto px-4 md:px-6 pb-6 ${isEditMode ? 'pt-8' : ''}`}>
-                <div className="rounded-2xl border border-gray-200 bg-white p-4 md:p-5">
+                <div className="rounded-2xl border border-line bg-surface p-4 md:p-5">
                     <div className="grid gap-4 md:grid-cols-2">
                         <div className="space-y-2">
                             <Input
@@ -286,7 +286,7 @@ const StaticPageEditor = ({ pageId }: StaticPageEditorProps) => {
                                 onChange={(e) => handleTitleChange(e.target.value)}
                                 placeholder="예: 이용약관, 개인정보처리방침"
                             />
-                            <p className="text-xs text-gray-400">
+                            <p className="text-xs text-content-hint">
                                 브라우저 탭 제목과 푸터 링크에 사용됩니다. 본문 제목은 에디터에서 작성하세요.
                             </p>
                         </div>
@@ -298,16 +298,16 @@ const StaticPageEditor = ({ pageId }: StaticPageEditorProps) => {
                                 onChange={(e) => handleSlugChange(e.target.value)}
                                 placeholder="page-url-slug"
                             />
-                            <p className="mt-2 text-xs text-gray-400">{pageUrlPath}</p>
+                            <p className="mt-2 text-xs text-content-hint">{pageUrlPath}</p>
                         </div>
                     </div>
 
                     <div className="mt-4 grid gap-4 md:grid-cols-2">
-                        <div className="rounded-xl border border-gray-200 bg-gray-50 p-3">
+                        <div className="rounded-xl border border-line bg-surface-subtle p-3">
                             <div className="flex items-center justify-between gap-3">
                                 <div>
-                                    <p className="text-sm font-semibold text-gray-900">공개</p>
-                                    <p className="text-xs text-gray-500">페이지를 공개합니다</p>
+                                    <p className="text-sm font-semibold text-content">공개</p>
+                                    <p className="text-xs text-content-secondary">페이지를 공개합니다</p>
                                 </div>
                                 <Toggle
                                     checked={isPublished}
@@ -317,11 +317,11 @@ const StaticPageEditor = ({ pageId }: StaticPageEditorProps) => {
                             </div>
                         </div>
 
-                        <div className="rounded-xl border border-gray-200 bg-gray-50 p-3">
+                        <div className="rounded-xl border border-line bg-surface-subtle p-3">
                             <div className="flex items-center justify-between gap-3">
                                 <div>
-                                    <p className="text-sm font-semibold text-gray-900">푸터에 표시</p>
-                                    <p className="text-xs text-gray-500">사이트 하단 메뉴에 노출</p>
+                                    <p className="text-sm font-semibold text-content">푸터에 표시</p>
+                                    <p className="text-xs text-content-secondary">사이트 하단 메뉴에 노출</p>
                                 </div>
                                 <Toggle
                                     checked={showInFooter}
@@ -354,10 +354,10 @@ const StaticPageEditor = ({ pageId }: StaticPageEditorProps) => {
                             isLoading={deleteMutation.isPending}
                             disabled={isLoading}
                             onClick={handleDelete}
-                            className="!rounded-full !text-red-500 hover:!text-red-700 hover:!bg-red-50">
+                            className="!rounded-full !text-danger hover:!text-danger hover:!bg-danger-surface">
                             삭제
                         </Button>
-                        <div className="w-px h-8 bg-gray-200/60 mx-1" />
+                        <div className="w-px h-8 bg-line/60 mx-1" />
                     </>
                 )}
 
@@ -369,7 +369,7 @@ const StaticPageEditor = ({ pageId }: StaticPageEditorProps) => {
                     <SlidersHorizontal className="w-5 h-5" />
                 </IconButton>
 
-                <div className="w-px h-8 bg-gray-200/60 mx-1" />
+                <div className="w-px h-8 bg-line/60 mx-1" />
 
                 <Button
                     onClick={handleSubmit}
@@ -388,16 +388,16 @@ const StaticPageEditor = ({ pageId }: StaticPageEditorProps) => {
                     <Dialog.Overlay className={`fixed inset-0 ${DIM_OVERLAY_DEFAULT} z-40 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0`} />
                     <Dialog.Content
                         className={cx(
-                            'fixed inset-y-0 right-0 z-50 w-full sm:w-[480px] bg-white shadow-2xl flex flex-col focus:outline-none',
+                            'fixed inset-y-0 right-0 z-50 w-full sm:w-[480px] bg-surface shadow-2xl flex flex-col focus:outline-none',
                             'data-[state=open]:animate-in data-[state=closed]:animate-out',
                             'data-[state=closed]:slide-out-to-right data-[state=open]:slide-in-from-right',
                             `${ENTRANCE_DURATION} ease-in-out`
                         )}>
                         {/* Header */}
-                        <div className="flex items-center justify-between px-6 py-5 border-b border-gray-200">
+                        <div className="flex items-center justify-between px-6 py-5 border-b border-line">
                             <div className="flex items-center gap-3">
-                                <SlidersHorizontal className="w-5 h-5 text-gray-400" />
-                                <Dialog.Title className="text-lg font-semibold text-gray-900">페이지 설정</Dialog.Title>
+                                <SlidersHorizontal className="w-5 h-5 text-content-hint" />
+                                <Dialog.Title className="text-lg font-semibold text-content">페이지 설정</Dialog.Title>
                             </div>
                             <Dialog.Close asChild>
                                 <IconButton aria-label="닫기">
@@ -411,7 +411,7 @@ const StaticPageEditor = ({ pageId }: StaticPageEditorProps) => {
                             <div className="space-y-8">
                                 {/* SEO Section */}
                                 <div>
-                                    <h3 className="text-sm font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                                    <h3 className="text-sm font-semibold text-content mb-4 flex items-center gap-2">
                                         <Search className="w-4 h-4" />
                                         검색 노출
                                     </h3>
@@ -430,8 +430,8 @@ const StaticPageEditor = ({ pageId }: StaticPageEditorProps) => {
                                                 maxLength={160}
                                             />
                                             <div className="flex items-center justify-between mt-2">
-                                                <p className="text-xs text-gray-400">검색 결과에 표시되는 설명입니다</p>
-                                                <p className={`text-xs font-medium ${metaDescription.length > 140 ? 'text-red-500' : 'text-gray-400'}`}>
+                                                <p className="text-xs text-content-hint">검색 결과에 표시되는 설명입니다</p>
+                                                <p className={`text-xs font-medium ${metaDescription.length > 140 ? 'text-danger' : 'text-content-hint'}`}>
                                                     {metaDescription.length}/160
                                                 </p>
                                             </div>
@@ -439,21 +439,21 @@ const StaticPageEditor = ({ pageId }: StaticPageEditorProps) => {
                                     </div>
                                 </div>
 
-                                <div className="border-t border-gray-200" />
+                                <div className="border-t border-line" />
 
                                 {/* Page Settings */}
                                 <div>
-                                    <h3 className="text-sm font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                                    <h3 className="text-sm font-semibold text-content mb-4 flex items-center gap-2">
                                         <Settings2 className="w-4 h-4" />
                                         고급 설정
                                     </h3>
                                     <div className="space-y-1">
                                         <div className="flex items-center justify-between py-3">
                                             <div className="flex items-center gap-3">
-                                                <Settings2 className="w-4 h-4 text-gray-400" />
+                                                <Settings2 className="w-4 h-4 text-content-hint" />
                                                 <div>
-                                                    <div className="text-sm font-medium text-gray-900">순서</div>
-                                                    <div className="text-xs text-gray-500">푸터 메뉴에서의 표시 순서</div>
+                                                    <div className="text-sm font-medium text-content">순서</div>
+                                                    <div className="text-xs text-content-secondary">푸터 메뉴에서의 표시 순서</div>
                                                 </div>
                                             </div>
                                             <input
@@ -463,7 +463,7 @@ const StaticPageEditor = ({ pageId }: StaticPageEditorProps) => {
                                                     setOrder(parseInt(e.target.value) || 0);
                                                     markDirty();
                                                 }}
-                                                className="w-16 text-right text-sm border border-gray-200 rounded-lg px-2 py-1.5 outline-none focus:border-gray-400"
+                                                className="w-16 text-right text-sm border border-line rounded-lg px-2 py-1.5 outline-none focus:border-line-strong"
                                             />
                                         </div>
                                     </div>
@@ -473,7 +473,7 @@ const StaticPageEditor = ({ pageId }: StaticPageEditorProps) => {
                         </div>
 
                         {/* Footer */}
-                        <div className="px-6 py-4 border-t border-gray-200 bg-gray-50">
+                        <div className="px-6 py-4 border-t border-line bg-surface-subtle">
                             <Button
                                 type="button"
                                 onClick={() => setIsSettingsOpen(false)}

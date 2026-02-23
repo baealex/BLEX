@@ -59,7 +59,7 @@ export const PostListContent = ({
                     ))}
                 </div>
             ) : (
-                <div className="py-12 text-center text-gray-500 bg-gray-50 rounded-lg border border-gray-100 border-dashed">
+                <div className="py-12 text-center text-content-secondary bg-surface-subtle rounded-lg border border-line-light border-dashed">
                     포스트가 없습니다.
                 </div>
             )}

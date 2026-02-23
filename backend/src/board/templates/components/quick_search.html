@@ -5,9 +5,9 @@
 >
     <form
         @submit.prevent="submitQuickSearch()"
-        class="h-11 px-3 rounded-full border border-gray-200 bg-white flex items-center gap-2 transition-all focus-within:ring-2 focus-within:ring-gray-200"
+        class="h-11 px-3 rounded-full border border-line bg-surface-elevated flex items-center gap-2 transition-all focus-within:ring-2 focus-within:ring-line-strong"
     >
-        <i class="fas fa-search text-sm text-gray-400"></i>
+        <i class="fas fa-search text-sm text-content-hint"></i>
         <input
             x-ref="quickSearchInput"
             x-model="quickSearchQuery"
@@ -15,10 +15,10 @@
             @input="onQuickSearchInput()"
             type="text"
             placeholder="검색"
-            class="flex-1 min-w-0 bg-transparent text-sm text-gray-900 placeholder-gray-400 focus:outline-none"
+            class="flex-1 min-w-0 bg-transparent text-sm text-content placeholder:text-content-hint focus:outline-none"
             autocomplete="off"
         >
-        <kbd class="hidden lg:inline-flex h-6 items-center gap-1 px-2 bg-gray-100 text-gray-500 text-[10px] font-mono rounded-md border border-gray-200">
+        <kbd class="hidden lg:inline-flex h-6 items-center gap-1 px-2 bg-surface-subtle text-content-secondary text-[10px] font-mono rounded-md border border-line">
             <span class="text-[8px]">⌘</span>K
         </kbd>
     </form>
@@ -32,11 +32,11 @@
         x-transition:leave="transition ease-in duration-100"
         x-transition:leave-start="opacity-100 translate-y-0"
         x-transition:leave-end="opacity-0 -translate-y-1"
-        class="absolute left-0 right-0 mt-2 bg-white rounded-2xl ring-1 ring-gray-900/10 shadow-xl overflow-hidden z-50"
+        class="absolute left-0 right-0 mt-2 bg-surface-elevated rounded-2xl ring-1 ring-line-strong/60 shadow-xl overflow-hidden z-50"
     >
-        <div class="px-3 py-2 border-b border-gray-100">
+        <div class="px-3 py-2 border-b border-line-light">
             <p
-                class="text-[11px] font-semibold text-gray-500 uppercase tracking-wider"
+                class="text-[11px] font-semibold text-content-secondary uppercase tracking-wider"
                 x-text="quickSearchQuery.trim() ? '빠른 결과' : '최근 검색어'"
             ></p>
         </div>
@@ -45,7 +45,7 @@
             <template x-if="!quickSearchQuery.trim()">
                 <div class="p-2">
                     <template x-if="recentSearches.length === 0">
-                        <p class="px-3 py-8 text-center text-sm text-gray-500">최근 검색어가 없습니다.</p>
+                        <p class="px-3 py-8 text-center text-sm text-content-secondary">최근 검색어가 없습니다.</p>
                     </template>
 
                     <template x-if="recentSearches.length > 0">
@@ -55,13 +55,13 @@
                                     <button
                                         type="button"
                                         @click="applyRecentSearch(search)"
-                                        class="flex-1 h-10 px-3 rounded-lg text-left text-sm text-gray-700 hover:text-gray-900 hover:bg-gray-50 transition-colors"
+                                        class="flex-1 h-10 px-3 rounded-lg text-left text-sm text-content-secondary hover:text-content hover:bg-surface-subtle transition-colors"
                                         x-text="search"
                                     ></button>
                                     <button
                                         type="button"
                                         @click="removeRecentSearch(search, $event)"
-                                        class="w-10 h-10 rounded-lg text-gray-400 hover:text-gray-700 hover:bg-gray-100 transition-colors"
+                                        class="w-10 h-10 rounded-lg text-content-hint hover:text-content-secondary hover:bg-surface-subtle transition-colors"
                                         aria-label="최근 검색어 삭제"
                                     >
                                         <i class="fas fa-times text-xs"></i>
@@ -76,11 +76,11 @@
             <template x-if="quickSearchQuery.trim()">
                 <div>
                     <template x-if="quickSearchLoading">
-                        <p class="px-3 py-8 text-center text-sm text-gray-500">빠르게 찾는 중...</p>
+                        <p class="px-3 py-8 text-center text-sm text-content-secondary">빠르게 찾는 중...</p>
                     </template>
 
                     <template x-if="!quickSearchLoading && quickSearchResults.length === 0">
-                        <p class="px-3 py-8 text-center text-sm text-gray-500">빠른 결과가 없습니다.</p>
+                        <p class="px-3 py-8 text-center text-sm text-content-secondary">빠른 결과가 없습니다.</p>
                     </template>
 
                     <template x-if="!quickSearchLoading && quickSearchResults.length > 0">
@@ -90,10 +90,10 @@
                                     <a
                                         :href="'/@' + result.author + '/' + result.url"
                                         @click="closeQuickSearchDropdown()"
-                                        class="block px-3 py-3 rounded-xl hover:bg-gray-50 transition-colors"
+                                        class="block px-3 py-3 rounded-xl hover:bg-surface-subtle transition-colors"
                                     >
-                                        <p class="text-sm font-semibold text-gray-900 line-clamp-1" x-text="result.title"></p>
-                                        <p class="text-xs text-gray-500 line-clamp-1">
+                                        <p class="text-sm font-semibold text-content line-clamp-1" x-text="result.title"></p>
+                                        <p class="text-xs text-content-secondary line-clamp-1">
                                             <span x-text="'@' + result.author"></span>
                                             <template x-if="result.description">
                                                 <span x-text="' · ' + result.description"></span>
@@ -108,11 +108,11 @@
             </template>
         </div>
 
-        <div class="px-3 py-2 border-t border-gray-100 bg-gray-50/70">
+        <div class="px-3 py-2 border-t border-line-light bg-surface-subtle/70">
             <button
                 type="button"
                 @click="submitQuickSearch()"
-                class="w-full h-10 rounded-lg bg-gray-900 text-white text-sm font-semibold hover:bg-gray-800 transition-all active:scale-95"
+                class="w-full h-10 rounded-lg bg-action text-content-inverted text-sm font-semibold hover:bg-action-hover transition-all active:scale-95"
             >
                 전체 검색 결과 보기
             </button>

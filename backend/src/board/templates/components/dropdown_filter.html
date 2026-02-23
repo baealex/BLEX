@@ -8,7 +8,7 @@ Parameters:
 {% endcomment %}
 
 <div class="relative" x-data="dropdown_filter">
-    <button @click="open = !open" :aria-expanded="open" aria-haspopup="listbox" class="flex items-center justify-between w-full sm:w-48 px-4 py-2 bg-white ring-1 ring-gray-900/5 rounded-2xl text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-900/10">
+    <button @click="open = !open" :aria-expanded="open" aria-haspopup="listbox" class="flex items-center justify-between w-full sm:w-48 px-4 py-2 bg-surface-elevated ring-1 ring-line/60 rounded-2xl text-sm font-medium text-content-secondary hover:bg-surface-subtle focus:outline-none focus:ring-2 focus:ring-line-strong/70">
         <span class="truncate">
             {% for option in options %}
                 {% if option.value == current_value %}{{ option.label }}{% endif %}
@@ -21,7 +21,7 @@ Parameters:
         x-show="open"
         @click.away="open = false"
         role="listbox"
-        class="absolute left-0 sm:right-0 mt-2 w-full sm:w-full bg-white rounded-lg shadow-lg py-1 z-50 ring-1 ring-gray-900/5 max-h-60 overflow-y-auto"
+        class="absolute left-0 sm:right-0 mt-2 w-full sm:w-full bg-surface-elevated rounded-lg shadow-lg py-1 z-50 ring-1 ring-line/60 max-h-60 overflow-y-auto"
         x-transition:enter="transition ease-out duration-150"
         x-transition:enter-start="transform opacity-0 scale-95"
         x-transition:enter-end="transform opacity-100 scale-100"
@@ -31,7 +31,7 @@ Parameters:
         style="display: none;"
     >
         {% for option in options %}
-        <a href="#" role="option" {% if current_value|default:'' == option.value|default:'' %}aria-selected="true"{% endif %} @click.prevent="updateQueryParams('{{ param_name }}', '{{ option.value }}'); open = false" class="block px-4 py-3 text-sm text-gray-700 hover:bg-gray-100 transition-colors duration-150 {% if current_value|default:'' == option.value|default:'' %}bg-gray-100 font-semibold{% endif %}">
+        <a href="#" role="option" {% if current_value|default:'' == option.value|default:'' %}aria-selected="true"{% endif %} @click.prevent="updateQueryParams('{{ param_name }}', '{{ option.value }}'); open = false" class="block px-4 py-3 text-sm text-content-secondary hover:bg-surface-subtle transition-colors duration-150 {% if current_value|default:'' == option.value|default:'' %}bg-surface-subtle text-content font-semibold{% endif %}">
             {{ option.label }}
         </a>
         {% endfor %}

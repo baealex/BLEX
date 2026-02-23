@@ -105,7 +105,7 @@ const DraftsSetting = () => {
                                     <i className="fas fa-clock mr-1.5" />
                                     {draftPost.createdDate}
                                 </span>
-                                <span className="bg-gray-100 text-gray-700 px-2 py-0.5 rounded-md text-xs font-medium">
+                                <span className="bg-surface-subtle text-content px-2 py-0.5 rounded-md text-xs font-medium">
                                     임시 포스트
                                 </span>
                             </div>

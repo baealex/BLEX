@@ -19,14 +19,14 @@ export const CodeEditor = ({ error, ...props }: CodeEditorProps) => {
             <Suspense
                 fallback={
                     <div
-                        className="rounded-lg border border-gray-200 bg-gray-50 animate-pulse"
+                        className="rounded-lg border border-line bg-surface-subtle animate-pulse"
                         style={{ height }}
                     />
                 }>
                 <CodeEditorMonaco {...props} />
             </Suspense>
             {error && (
-                <div className="flex items-center gap-1.5 mt-1.5 text-red-600 text-sm">
+                <div className="flex items-center gap-1.5 mt-1.5 text-danger text-sm">
                     <svg className="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>

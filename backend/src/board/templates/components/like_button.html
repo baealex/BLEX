@@ -16,12 +16,12 @@ Alpine.js 기반 좋아요 버튼 컴포넌트
     })"
     @click="handleLike()"
     :class="{
-        'text-red-500': liked,
+        'text-danger': liked,
         {% if size == 'small' %}
-        'bg-red-50 border-red-100 hover:bg-red-100': liked,
-        'bg-white border-gray-200 text-gray-400 hover:border-gray-300 hover:text-gray-600 hover:bg-gray-50': !liked,
+        'bg-danger-surface border-danger-line hover:bg-danger-surface': liked,
+        'bg-surface-elevated border-line text-content-hint hover:border-line-strong hover:text-content-secondary hover:bg-surface-subtle': !liked,
         {% else %}
-        'text-gray-600 hover:text-black hover:bg-gray-100/50': !liked,
+        'text-content-secondary hover:text-content hover:bg-surface-subtle/80': !liked,
         {% endif %}
         'opacity-70 cursor-not-allowed': loading,
         'active:scale-95': !loading
@@ -31,7 +31,7 @@ Alpine.js 기반 좋아요 버튼 컴포넌트
     :aria-pressed="liked"
     class="group inline-flex items-center justify-center transition-all duration-300 outline-none cursor-pointer select-none
     {% if size == 'small' %}
-        border border-gray-200 gap-1.5 px-2.5 py-1 rounded-lg text-xs font-medium h-7 min-w-[51px]
+        border border-line gap-1.5 px-2.5 py-1 rounded-lg text-xs font-medium h-7 min-w-[51px]
     {% else %}
         gap-2 px-3 py-2 rounded-full font-medium
     {% endif %}">

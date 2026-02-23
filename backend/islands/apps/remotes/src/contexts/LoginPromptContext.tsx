@@ -71,9 +71,9 @@ export const LoginPromptProvider = ({ children }: { children: ReactNode }) => {
                 showCloseButton={false}>
                 <Modal.Body className="p-8 text-center">
                     {/* Icon */}
-                    <div className="mx-auto w-16 h-16 bg-gradient-to-br from-gray-100 to-gray-50 rounded-full flex items-center justify-center mb-6 ring-4 ring-gray-50">
+                    <div className="mx-auto w-16 h-16 bg-gradient-to-br from-surface-subtle to-surface-subtle rounded-full flex items-center justify-center mb-6 ring-4 ring-line-light">
                         <svg
-                            className="w-8 h-8 text-gray-700"
+                            className="w-8 h-8 text-content"
                             fill="none"
                             stroke="currentColor"
                             viewBox="0 0 24 24"
@@ -88,12 +88,12 @@ export const LoginPromptProvider = ({ children }: { children: ReactNode }) => {
                     </div>
 
                     {/* Title */}
-                    <h3 className="text-xl font-semibold text-gray-900 mb-2">
+                    <h3 className="text-xl font-semibold text-content mb-2">
                         로그인이 필요해요
                     </h3>
 
                     {/* Description */}
-                    <p className="text-gray-600 mb-8">
+                    <p className="text-content-secondary mb-8">
                         {dialogState.action}을(를) 하려면 먼저 로그인해주세요.
                     </p>
                 </Modal.Body>

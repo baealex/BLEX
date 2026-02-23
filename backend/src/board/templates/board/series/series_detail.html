@@ -9,33 +9,33 @@
 <div class="max-w-3xl w-full mx-auto px-4 sm:px-6 py-8 sm:py-12">
     <!-- 시리즈 헤더 -->
     <div class="mb-12 text-center">
-        <span class="inline-block px-3 py-1 bg-gray-100 text-gray-700 rounded-full text-xs font-bold uppercase tracking-wider mb-4">
+        <span class="inline-block px-3 py-1 bg-surface-subtle text-content-secondary rounded-full text-xs font-bold uppercase tracking-wider mb-4">
             시리즈
         </span>
-        <h1 class="text-3xl sm:text-4xl font-bold text-gray-900 mb-4 leading-tight tracking-tight">
+        <h1 class="text-3xl sm:text-4xl font-bold text-content mb-4 leading-tight tracking-tight">
             {{ series.name }}
         </h1>
 
         {% if series.text_html %}
-        <div class="text-lg text-gray-600 mb-8 leading-relaxed max-w-2xl mx-auto">
+        <div class="text-lg text-content-secondary mb-8 leading-relaxed max-w-2xl mx-auto">
             {{ series.text_html | safe }}
         </div>
         {% endif %}
 
         <!-- 작성자 및 통계 정보 -->
-        <div class="flex flex-wrap items-center justify-center gap-6 text-sm text-gray-500">
-            <a href="/@{{ author.username }}" class="flex items-center gap-2 hover:text-black transition-colors">
-                <img class="w-6 h-6 rounded-full object-cover ring-2 ring-gray-100"
+        <div class="flex flex-wrap items-center justify-center gap-6 text-sm text-content-secondary">
+            <a href="/@{{ author.username }}" class="flex items-center gap-2 hover:text-content transition-colors">
+                <img class="w-6 h-6 rounded-full object-cover ring-2 ring-line-light"
                     src="{% if author.profile.avatar %}{{ author.profile.avatar.url }}{% else %}{% resource 'assets/images/default-avatar.jpg' %}{% endif %}"
                     alt="{{ author.username }}">
-                <span class="font-semibold text-gray-900">{{ author.username }}</span>
+                <span class="font-semibold text-content">{{ author.username }}</span>
             </a>
-            <div class="w-1 h-1 bg-gray-300 rounded-full"></div>
+            <div class="w-1 h-1 bg-content-hint/70 rounded-full"></div>
             <div class="flex items-center gap-1.5">
                 <i class="far fa-file-alt text-xs"></i>
                 <span>{{ series.post_count }} 포스트</span>
             </div>
-            <div class="w-1 h-1 bg-gray-300 rounded-full"></div>
+            <div class="w-1 h-1 bg-content-hint/70 rounded-full"></div>
             <div class="flex items-center gap-1.5">
                 <i class="far fa-clock text-xs"></i>
                 <span>{{ series.updated_date }} 수정됨</span>
@@ -46,7 +46,7 @@
         {% if request.user == author %}
         <div class="mt-8">
             <a href="/settings/series/edit/{{ series.id }}"
-            class="inline-flex items-center gap-2 bg-black text-white px-5 py-2.5 rounded-full font-medium transition-all duration-150 hover:bg-gray-800 active:scale-[0.98] text-sm">
+            class="inline-flex items-center gap-2 bg-action text-content-inverted px-5 py-2.5 rounded-full font-medium transition-all duration-150 hover:bg-action-hover active:scale-[0.98] text-sm">
                 <i class="fas fa-edit text-xs"></i>
                 <span>시리즈 편집</span>
             </a>
@@ -56,26 +56,26 @@
 
     {% if is_loading %}
     <div class="flex justify-center items-center py-20">
-        <div class="w-10 h-10 border-4 border-gray-100 border-t-black rounded-full animate-spin"></div>
+        <div class="w-10 h-10 border-4 border-line-light border-t-action rounded-full animate-spin"></div>
     </div>
 
     {% elif not posts %}
-    <div class="flex flex-col items-center justify-center py-20 text-center bg-gray-50 rounded-3xl border border-gray-100">
-        <div class="w-16 h-16 bg-white rounded-2xl flex items-center justify-center mb-4 shadow-sm">
-            <i class="fas fa-layer-group text-2xl text-gray-300"></i>
+    <div class="flex flex-col items-center justify-center py-20 text-center bg-surface-subtle rounded-3xl border border-line-light">
+        <div class="w-16 h-16 bg-surface-elevated rounded-2xl flex items-center justify-center mb-4 shadow-sm">
+            <i class="fas fa-layer-group text-2xl text-content-hint"></i>
         </div>
-        <h2 class="text-xl font-bold text-gray-900 mb-2">아직 포스트가 없습니다</h2>
-        <p class="text-gray-500">이 시리즈에는 아직 포스트가 추가되지 않았습니다.</p>
+        <h2 class="text-xl font-bold text-content mb-2">아직 포스트가 없습니다</h2>
+        <p class="text-content-secondary">이 시리즈에는 아직 포스트가 추가되지 않았습니다.</p>
     </div>
 
     {% else %}
     <!-- 정렬 컨트롤 -->
     <div class="flex justify-end mb-6">
-        <div class="inline-flex bg-gray-100/80 backdrop-blur-sm p-1 rounded-xl">
-            <a href="?sort=asc" class="px-4 py-1.5 {% if sort_order == 'asc' %}bg-white text-black shadow-sm{% else %}text-gray-500 hover:text-gray-900{% endif %} rounded-lg text-xs font-bold transition-all duration-150">
+        <div class="inline-flex bg-surface-subtle/80 backdrop-blur-sm p-1 rounded-xl ring-1 ring-line/60">
+            <a href="?sort=asc" class="px-4 py-1.5 {% if sort_order == 'asc' %}bg-surface-elevated text-content shadow-sm{% else %}text-content-secondary hover:text-content{% endif %} rounded-lg text-xs font-bold transition-all duration-150">
                 오래된순
             </a>
-            <a href="?sort=desc" class="px-4 py-1.5 {% if sort_order == 'desc' %}bg-white text-black shadow-sm{% else %}text-gray-500 hover:text-gray-900{% endif %} rounded-lg text-xs font-bold transition-all duration-150">
+            <a href="?sort=desc" class="px-4 py-1.5 {% if sort_order == 'desc' %}bg-surface-elevated text-content shadow-sm{% else %}text-content-secondary hover:text-content{% endif %} rounded-lg text-xs font-bold transition-all duration-150">
                 최신순
             </a>
         </div>
@@ -84,21 +84,21 @@
     <!-- 포스트 목록 -->
     <div class="space-y-4">
         {% for post_number, post in posts %}
-        <article class="group relative bg-white p-6 rounded-2xl border border-gray-100 hover:ring-1 hover:ring-gray-900/5 active:scale-[0.98] transition-all duration-150">
+        <article class="group relative bg-surface-elevated p-6 rounded-2xl border border-line-light hover:ring-1 hover:ring-line/60 active:scale-[0.98] transition-all duration-150">
             <a href="/@{{ author.username }}/{{ post.url }}" class="flex items-start gap-5">
                 <!-- 포스트 번호 -->
-                <div class="flex-shrink-0 w-10 h-10 bg-gray-50 group-hover:bg-black group-hover:text-white transition-colors duration-150 rounded-xl flex items-center justify-center text-gray-400 text-sm font-bold font-mono">
+                <div class="flex-shrink-0 w-10 h-10 bg-surface-subtle group-hover:bg-action group-hover:text-content-inverted transition-colors duration-150 rounded-xl flex items-center justify-center text-content-hint text-sm font-bold font-mono">
                     {{ post_number }}
                 </div>
 
                 <!-- 포스트 내용 -->
                 <div class="flex-1 min-w-0 pt-1">
-                    <h3 class="text-lg font-bold text-gray-900 mb-2 group-hover:text-black transition-colors leading-snug">
+                    <h3 class="text-lg font-bold text-content mb-2 group-hover:text-content transition-colors leading-snug">
                         {{ post.title }}
                     </h3>
 
                     <!-- 메타 정보 -->
-                    <div class="flex flex-wrap items-center gap-4 text-xs font-medium text-gray-400">
+                    <div class="flex flex-wrap items-center gap-4 text-xs font-medium text-content-hint">
                         <div class="flex items-center gap-1.5">
                             <i class="far fa-calendar"></i>
                             <span>{{ post.published_date_display }}</span>
@@ -108,11 +108,11 @@
                             <span>{{ post.read_time }}분 읽기</span>
                         </div>
                         <div class="flex items-center gap-3 ml-auto">
-                            <div class="flex items-center gap-1.5 hover:text-red-500 transition-colors">
+                            <div class="flex items-center gap-1.5 hover:text-danger transition-colors">
                                 <i class="far fa-heart"></i>
                                 <span>{{ post.count_likes }}</span>
                             </div>
-                            <div class="flex items-center gap-1.5 hover:text-gray-700 transition-colors">
+                            <div class="flex items-center gap-1.5 hover:text-content transition-colors">
                                 <i class="far fa-comment"></i>
                                 <span>{{ post.count_comments }}</span>
                             </div>

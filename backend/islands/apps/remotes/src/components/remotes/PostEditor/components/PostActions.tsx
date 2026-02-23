@@ -81,38 +81,38 @@ const PostActions = ({
             {/* Save Section */}
             {!isEdit && (
                 <>
-                    <div className="w-px h-8 bg-gray-200/50 mx-1" />
+                    <div className="w-px h-8 bg-line/50 mx-1" />
 
                     {/* Autosave Status */}
-                    <div className="flex items-center gap-1.5 px-1 text-xs text-gray-400" aria-live="polite">
+                    <div className="flex items-center gap-1.5 px-1 text-xs text-content-hint" aria-live="polite">
                         {isSaving ? (
                             <>
-                                <div className="w-1.5 h-1.5 rounded-full bg-gray-500 animate-pulse" />
-                                <span className="text-gray-500">저장 중...</span>
+                                <div className="w-1.5 h-1.5 rounded-full bg-line-strong animate-pulse" />
+                                <span className="text-content-secondary">저장 중...</span>
                             </>
                         ) : hasSaveError ? (
                             <>
-                                <div className="w-1.5 h-1.5 rounded-full bg-red-500" />
-                                <span className="text-red-500">저장 실패</span>
+                                <div className="w-1.5 h-1.5 rounded-full bg-danger" />
+                                <span className="text-danger">저장 실패</span>
                             </>
                         ) : autoSaveCountdown !== null ? (
                             <>
-                                <div className="w-1.5 h-1.5 rounded-full bg-gray-500 animate-pulse" />
-                                <span className="text-gray-500 tabular-nums">{autoSaveCountdown}초 후 저장</span>
+                                <div className="w-1.5 h-1.5 rounded-full bg-line-strong animate-pulse" />
+                                <span className="text-content-secondary tabular-nums">{autoSaveCountdown}초 후 저장</span>
                             </>
                         ) : hasPendingChanges ? (
                             <>
-                                <div className="w-1.5 h-1.5 rounded-full bg-gray-500 animate-pulse" />
-                                <span className="text-gray-500">저장 대기 중</span>
+                                <div className="w-1.5 h-1.5 rounded-full bg-line-strong animate-pulse" />
+                                <span className="text-content-secondary">저장 대기 중</span>
                             </>
                         ) : lastSaved ? (
                             <>
-                                <div className="w-1.5 h-1.5 rounded-full bg-gray-700" />
+                                <div className="w-1.5 h-1.5 rounded-full bg-action-hover" />
                                 <span>{formatTimeSince(lastSaved)}</span>
                             </>
                         ) : (
                             <>
-                                <div className="w-1.5 h-1.5 rounded-full bg-gray-500" />
+                                <div className="w-1.5 h-1.5 rounded-full bg-line-strong" />
                                 <span>변경 사항 없음</span>
                             </>
                         )}
@@ -123,7 +123,7 @@ const PostActions = ({
                         type="button"
                         onClick={onManualSave}
                         disabled={isSubmitting || isSaving}
-                        className="flex items-center gap-1.5 px-2.5 py-1 text-xs font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-100 active:scale-95 rounded-full transition-all motion-interaction disabled:opacity-50"
+                        className="flex items-center gap-1.5 px-2.5 py-1 text-xs font-medium text-content-secondary hover:text-content hover:bg-surface-subtle active:scale-95 rounded-full transition-all motion-interaction disabled:opacity-50"
                         title="임시 저장">
                         <span>임시 저장</span>
                     </button>

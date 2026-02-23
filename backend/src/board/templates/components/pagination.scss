@@ -10,8 +10,8 @@
         align-items: center;
         justify-content: center;
         padding: 14px 28px;
-        background-color: var(--color-interactive-primary);
-        color: var(--color-text-inverted);
+        background-color: var(--color-action);
+        color: var(--color-content-inverted);
         border-radius: 8px;
         font-weight: 600;
         text-decoration: none;
@@ -23,7 +23,7 @@
     .pagination-container.button .load-more-button:hover {
         transform: translateY(-3px);
         box-shadow: 0 6px 16px var(--color-shadow-lg);
-        background-color: var(--color-interactive-hover);
+        background-color: var(--color-action-hover);
     }
 
     /* Numbered style pagination */
@@ -61,15 +61,15 @@
         cursor: pointer;
         width: 35px;
         height: 35px;
-        color: var(--color-black);
+        color: var(--color-content);
         border-radius: 5px;
         text-decoration: none;
     }
 
     .pagination-active .pagination-link {
         cursor: default;
-        color: var(--color-text-inverted);
-        background: var(--color-interactive-primary);
+        color: var(--color-content-inverted);
+        background: var(--color-action);
         box-shadow: 0 2px 6px var(--color-shadow-md);
         font-weight: 700;
         transform: scale(1.05);
@@ -77,7 +77,7 @@
 
     .pagination-disabled .pagination-link {
         cursor: default;
-        color: var(--color-border-default);
+        color: var(--color-line);
         background: transparent;
     }
 

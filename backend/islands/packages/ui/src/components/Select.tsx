@@ -40,7 +40,7 @@ const Select = ({
     }));
 
     const errorStyles = error
-        ? 'border-red-300 focus:border-red-500 focus:ring-red-500/10 bg-red-50/30'
+        ? 'border-danger-line focus:border-danger focus:ring-danger/20 bg-danger-surface/70'
         : '';
 
     return (
@@ -50,23 +50,23 @@ const Select = ({
                     aria-invalid={!!error}
                     className={`
                         w-full flex items-center justify-between px-4 py-3
-                        bg-white border border-gray-200 rounded-xl
-                        text-sm text-gray-900
-                        hover:border-gray-300 focus:outline-none focus:ring-2 focus:ring-black/5 focus:border-gray-400
+                        bg-surface-elevated border border-line rounded-xl
+                        text-sm text-content
+                        hover:border-line-strong focus:outline-none focus:ring-2 focus:ring-line/70 focus:border-line-strong
                         transition-colors cursor-pointer
-                        data-[placeholder]:text-gray-400
+                        data-[placeholder]:text-content-hint
                         ${errorStyles}
                         ${className}
                     `}>
                     <RadixSelect.Value placeholder={placeholder} />
                     <RadixSelect.Icon>
-                        <ChevronDown className="w-4 h-4 text-gray-400 shrink-0" />
+                        <ChevronDown className="w-4 h-4 text-content-hint shrink-0" />
                     </RadixSelect.Icon>
                 </RadixSelect.Trigger>
 
                 <RadixSelect.Portal>
                     <RadixSelect.Content
-                        className="z-50 bg-white border border-gray-200 rounded-xl shadow-lg overflow-hidden animate-in fade-in-0 zoom-in-95"
+                        className="z-50 bg-surface-elevated border border-line rounded-xl shadow-lg overflow-hidden animate-in fade-in-0 zoom-in-95"
                         position="popper"
                         sideOffset={5}
                         style={{ width: 'var(--radix-select-trigger-width)' }}>
@@ -78,14 +78,14 @@ const Select = ({
                                     className={`
                                         relative flex items-center px-4 py-2.5 text-sm rounded-lg
                                         cursor-pointer select-none outline-none
-                                        text-gray-700
-                                        data-[highlighted]:bg-gray-50 data-[highlighted]:text-gray-900
-                                        data-[state=checked]:bg-gray-100 data-[state=checked]:text-gray-900 data-[state=checked]:font-medium
+                                        text-content-secondary
+                                        data-[highlighted]:bg-surface-subtle data-[highlighted]:text-content
+                                        data-[state=checked]:bg-line-light data-[state=checked]:text-content data-[state=checked]:font-medium
                                         transition-colors
                                     `}>
                                     <RadixSelect.ItemText>{item.label}</RadixSelect.ItemText>
                                     <RadixSelect.ItemIndicator className="absolute right-3">
-                                        <Check className="w-4 h-4 text-gray-600" />
+                                        <Check className="w-4 h-4 text-content-secondary" />
                                     </RadixSelect.ItemIndicator>
                                 </RadixSelect.Item>
                             ))}
@@ -94,7 +94,7 @@ const Select = ({
                 </RadixSelect.Portal>
             </RadixSelect.Root>
             {error && (
-                <p role="alert" className="mt-1.5 text-sm text-red-500 ml-1 flex items-center gap-1.5">
+                <p role="alert" className="mt-1.5 text-sm text-danger ml-1 flex items-center gap-1.5">
                     <AlertCircle className="w-3.5 h-3.5 shrink-0" />
                     {error}
                 </p>

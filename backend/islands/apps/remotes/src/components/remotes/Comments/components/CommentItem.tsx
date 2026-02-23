@@ -61,11 +61,11 @@ export const CommentItem = ({
                 className={`
                     relative
                     py-6 px-4 sm:px-6
-                    bg-white hover:bg-gray-50/50
+                    bg-surface hover:bg-surface-subtle/50
                     transition-colors duration-200
                     ${isReply
-                        ? 'ml-6 sm:ml-14 border-l-2 border-gray-200 pl-6 sm:pl-8'
-                        : 'rounded-xl ring-1 ring-gray-900/5'
+                        ? 'ml-6 sm:ml-14 border-l-2 border-line pl-6 sm:pl-8'
+                        : 'rounded-xl ring-1 ring-line/5'
                     }
                 `}
                 aria-label={`${comment.author}의 ${isReply ? '답글' : '댓글'}`}>
@@ -75,7 +75,7 @@ export const CommentItem = ({
                             trigger={(
                                 <button
                                     type="button"
-                                    className="inline-flex items-center justify-center w-8 h-8 rounded-md text-gray-500 hover:text-gray-900 hover:bg-gray-100 transition-colors duration-150"
+                                    className="inline-flex items-center justify-center w-8 h-8 rounded-md text-content-secondary hover:text-content hover:bg-surface-subtle transition-colors duration-150"
                                     aria-label="댓글 옵션 열기">
                                     <i className="fas fa-ellipsis-v text-sm" />
                                 </button>
@@ -130,11 +130,11 @@ export const CommentItem = ({
 
             {/* 답글 작성 폼 */}
             {isReplying && (
-                <div className="mt-4 ml-6 sm:ml-14 pl-6 sm:pl-8 pt-4 border-l-2 border-gray-300">
+                <div className="mt-4 ml-6 sm:ml-14 pl-6 sm:pl-8 pt-4 border-l-2 border-line">
                     <div className="flex items-center gap-2 mb-3">
-                        <Reply className="w-4 h-4 text-gray-400" />
-                        <p className="text-sm text-gray-600">
-                            <span className="font-semibold text-gray-900">{comment.author}</span>님에게 답글
+                        <Reply className="w-4 h-4 text-content-hint" />
+                        <p className="text-sm text-content-secondary">
+                            <span className="font-semibold text-content">{comment.author}</span>님에게 답글
                         </p>
                     </div>
                     <CommentForm

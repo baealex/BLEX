@@ -72,12 +72,12 @@ const PostForm = ({
                         value={formData.title}
                         onChange={(e) => onTitleChange(e.target.value)}
                         maxLength={65}
-                        className="w-full px-0 py-0 border-0 focus:ring-0 text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 placeholder-gray-300 leading-tight tracking-tight break-words"
+                        className="w-full px-0 py-0 border-0 focus:ring-0 text-2xl sm:text-3xl lg:text-4xl font-bold text-content placeholder-content-hint leading-tight tracking-tight break-words"
                         placeholder="제목을 입력하세요"
                         required
                     />
                     {formData.title.length > 50 && (
-                        <p className={`text-xs mt-1 ${formData.title.length >= 65 ? 'text-red-500' : 'text-gray-400'}`}>
+                        <p className={`text-xs mt-1 ${formData.title.length >= 65 ? 'text-danger' : 'text-content-hint'}`}>
                             {formData.title.length}/65
                         </p>
                     )}
@@ -86,7 +86,7 @@ const PostForm = ({
                         name="subtitle"
                         value={formData.subtitle}
                         onChange={(e) => onSubtitleChange(e.target.value)}
-                        className="w-full px-0 py-0 border-0 focus:ring-0 text-lg sm:text-xl text-gray-500 placeholder-gray-300 leading-tight mt-2"
+                        className="w-full px-0 py-0 border-0 focus:ring-0 text-lg sm:text-xl text-content-secondary placeholder-content-hint leading-tight mt-2"
                         placeholder="부제목 (선택사항)"
                     />
                 </div>
@@ -103,8 +103,8 @@ const PostForm = ({
                             type="button"
                             className={`px-3 py-1 text-xs font-medium rounded-full transition-colors ${
                                 contentType === 'html'
-                                    ? 'bg-gray-900 text-white'
-                                    : 'bg-gray-100 text-gray-500 hover:bg-gray-200'
+                                    ? 'bg-action text-content-inverted'
+                                    : 'bg-surface-subtle text-content-secondary hover:bg-line'
                             } ${!isContentTypeChangeable && contentType !== 'html' ? 'opacity-50 cursor-not-allowed' : ''}`}
                             disabled={!isContentTypeChangeable && contentType !== 'html'}
                             onClick={() => onContentTypeChange('html')}>
@@ -114,8 +114,8 @@ const PostForm = ({
                             type="button"
                             className={`px-3 py-1 text-xs font-medium rounded-full transition-colors ${
                                 contentType === 'markdown'
-                                    ? 'bg-gray-900 text-white'
-                                    : 'bg-gray-100 text-gray-500 hover:bg-gray-200'
+                                    ? 'bg-action text-content-inverted'
+                                    : 'bg-surface-subtle text-content-secondary hover:bg-line'
                             } ${!isContentTypeChangeable && contentType !== 'markdown' ? 'opacity-50 cursor-not-allowed' : ''}`}
                             disabled={!isContentTypeChangeable && contentType !== 'markdown'}
                             onClick={() => onContentTypeChange('markdown')}>
@@ -139,7 +139,7 @@ const PostForm = ({
                             value={formData.content}
                             onChange={(e) => onContentChange(e.target.value)}
                             placeholder="마크다운으로 작성하세요..."
-                            className="w-full min-h-[500px] px-4 py-3 border border-gray-200 rounded-lg font-mono text-sm leading-relaxed resize-y focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent"
+                            className="w-full min-h-[500px] px-4 py-3 border border-line rounded-lg font-mono text-sm leading-relaxed resize-y focus:outline-none focus:ring-2 focus:ring-line-strong focus:border-transparent"
                             spellCheck={false}
                         />
                     )}

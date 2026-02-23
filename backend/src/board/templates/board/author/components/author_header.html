@@ -11,25 +11,25 @@
             alt="{{ author.username }} cover"
             class="w-full h-full object-cover"
         />
-        <div class="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-white"></div>
+        <div class="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-surface-page"></div>
     </div>
     {% endif %}
 
     <div class="relative flex flex-col items-center text-center {% if author.profile.cover %}-mt-16 sm:-mt-20{% else %}pt-12{% endif %} px-4 sm:px-6 pb-12 sm:pb-16 max-w-4xl mx-auto">
         <div class="relative group mb-6 sm:mb-8">
             <img
-                class="relative w-28 h-28 sm:w-32 sm:h-32 md:w-40 md:h-40 rounded-full object-cover ring-4 ring-white shadow-[0_8px_30px_rgba(0,0,0,0.12)] transition-all duration-500 group-hover:scale-105 group-hover:shadow-[0_20px_40px_rgba(0,0,0,0.16)]"
+                class="relative w-28 h-28 sm:w-32 sm:h-32 md:w-40 md:h-40 rounded-full object-cover ring-4 ring-surface-page shadow-floating transition-all duration-500 group-hover:scale-105 group-hover:shadow-floating"
                 src="{% if author.profile.avatar %}{{ author.profile.avatar.url }}{% else %}{% resource 'assets/images/default-avatar.jpg' %}{% endif %}"
                 alt="{{ author.username }}"
             >
         </div>
 
-        <h1 class="text-2xl font-bold text-gray-900 mb-2 tracking-tight">
+        <h1 class="text-2xl font-bold text-content mb-2 tracking-tight">
             {{ author.username }}
         </h1>
 
         {% if author.profile.bio %}
-        <p class="text-md text-gray-500 max-w-2xl mx-auto mb-6 leading-relaxed px-4 font-medium">
+        <p class="text-md text-content-secondary max-w-2xl mx-auto mb-6 leading-relaxed px-4 font-medium">
             {{ author.profile.bio }}
         </p>
         {% endif %}
@@ -37,10 +37,10 @@
         {% if author.profile.homepage %}
         <div class="mb-8">
             <a href="{{ author.profile.homepage }}" target="_blank"
-               class="inline-flex items-center gap-2 px-5 py-2.5 bg-white border border-gray-200 rounded-full
-                      text-gray-600 hover:text-black hover:border-gray-400 hover:shadow-md
+               class="inline-flex items-center gap-2 px-5 py-2.5 bg-surface border border-line rounded-full
+                      text-content-secondary hover:text-content hover:border-line-strong hover:shadow-md
                       transition-all duration-300 text-sm font-semibold group">
-                <i class="fas fa-link text-xs text-gray-400 group-hover:text-black transition-colors"></i>
+                <i class="fas fa-link text-xs text-content-hint group-hover:text-content transition-colors"></i>
                 <span>
                     {% if 'https://' in author.profile.homepage %}
                         {{ author.profile.homepage|slice:"8:"|truncatechars:30 }}
@@ -59,9 +59,9 @@
         <div class="flex gap-3 flex-wrap justify-center max-w-lg mx-auto">
             {% for social in social_links %}
             <a href="{{ social.value }}" target="_blank"
-               class="w-10 h-10 sm:w-11 sm:h-11 rounded-full bg-white border border-gray-200
-                      flex items-center justify-center text-gray-500
-                      hover:bg-black hover:text-white hover:border-black hover:shadow-lg hover:-translate-y-1
+               class="w-10 h-10 sm:w-11 sm:h-11 rounded-full bg-surface border border-line
+                      flex items-center justify-center text-content-secondary
+                      hover:bg-action hover:text-content-inverted hover:border-action hover:shadow-lg hover:-translate-y-1
                       transition-all duration-300"
                title="{{ social.name }}">
                 {% if social.name|lower == 'github' %}
@@ -88,8 +88,8 @@
         </div>
         {% elif request.user == author %}
         <a href="/settings/social-links"
-           class="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-dashed border-gray-300
-                  text-sm text-gray-400 hover:text-gray-600 hover:border-gray-400
+           class="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-dashed border-line-strong
+                  text-sm text-content-hint hover:text-content-secondary hover:border-line
                   transition-all duration-200">
             <i class="fas fa-plus text-xs"></i>
             <span>소셜 링크 추가</span>

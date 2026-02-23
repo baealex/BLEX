@@ -6,7 +6,7 @@
  */
 
 // Card styles - Clean, modern design with subtle shadows
-export const CARD_BASE = 'bg-white ring-1 ring-gray-900/5 rounded-2xl hover:ring-gray-900/10 transition-all motion-interaction';
+export const CARD_BASE = 'bg-surface ring-1 ring-line/60 rounded-2xl hover:ring-line transition-all motion-interaction';
 export const CARD_PADDING = 'p-5';
 
 // Icon container styles - Minimal grayscale design
@@ -15,21 +15,21 @@ export const ICON_SIZE = 'text-sm';
 
 // Icon styles - Clean grayscale variants
 export const ICON_VARIANTS = {
-    default: 'bg-gray-100 text-gray-600',
-    dark: 'bg-gray-800 text-white',
-    light: 'bg-gray-50 text-gray-500 border border-gray-200'
+    default: 'bg-surface-subtle text-content-secondary',
+    dark: 'bg-action-hover text-content-inverted',
+    light: 'bg-surface-subtle text-content-secondary border border-line'
 } as const;
 
 // Typography
-export const TITLE = 'text-base font-semibold text-gray-900';
-export const SUBTITLE = 'text-xs text-gray-500';
+export const TITLE = 'text-base font-semibold text-content';
+export const SUBTITLE = 'text-xs text-content-secondary';
 
 // Layout
 export const FLEX_ROW = 'flex items-center gap-3';
 export const ACTIONS_CONTAINER = 'flex gap-2 flex-shrink-0';
 
 // Drag handle
-export const DRAG_HANDLE = 'cursor-grab active:cursor-grabbing text-gray-400 hover:text-gray-600 p-2 hover:bg-gray-50 rounded-lg transition-colors -ml-2';
+export const DRAG_HANDLE = 'cursor-grab active:cursor-grabbing text-content-hint hover:text-content-secondary p-2 hover:bg-surface-subtle rounded-lg transition-colors -ml-2';
 
 // Helper function to create icon class
 export const getIconClass = (variant: keyof typeof ICON_VARIANTS = 'default') =>
@@ -40,4 +40,4 @@ export const getCardClass = (extraClasses = '') =>
     `${CARD_BASE} ${extraClasses}`;
 
 // Shared Input Styles
-export const baseInputStyles = 'block w-full rounded-lg border border-gray-200 focus:border-gray-900/30 focus:ring-2 focus:ring-gray-900/5 text-sm py-3 px-3 min-h-12 transition-all motion-interaction bg-white placeholder-gray-400 text-gray-900';
+export const baseInputStyles = 'block w-full rounded-lg border border-line focus:border-line-strong/30 focus:ring-2 focus:ring-line/5 text-sm py-3 px-3 min-h-12 transition-all motion-interaction bg-surface placeholder-content-hint text-content';

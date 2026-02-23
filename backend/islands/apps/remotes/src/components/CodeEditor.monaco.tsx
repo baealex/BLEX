@@ -1,4 +1,5 @@
 import Editor from '@monaco-editor/react';
+import { useResolvedTheme } from '~/hooks/useResolvedTheme';
 
 interface CodeEditorMonacoProps {
     language?: 'html' | 'javascript' | 'css';
@@ -15,12 +16,15 @@ const CodeEditorMonaco = ({
     height = '300px',
     readOnly
 }: CodeEditorMonacoProps) => {
+    const resolvedTheme = useResolvedTheme();
+
     return (
-        <div className="rounded-lg border border-gray-200 overflow-hidden focus-within:border-black/30 focus-within:ring-2 focus-within:ring-black/5 transition-all">
+        <div className="rounded-lg border border-line overflow-hidden focus-within:border-line-strong/30 focus-within:ring-2 focus-within:ring-line/5 transition-all">
             <Editor
                 height={height}
                 language={language}
                 value={value}
+                theme={resolvedTheme === 'dark' ? 'vs-dark' : 'vs'}
                 onChange={(v) => onChange(v ?? '')}
                 options={{
                     minimap: { enabled: false },

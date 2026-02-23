@@ -1,13 +1,65 @@
 <!DOCTYPE html>
 {% load resource %}
 {% load island %}
-<html lang="ko">
+<html
+    lang="ko"
+    data-theme="{% if request.COOKIES.blex_theme == 'dark' %}dark{% else %}light{% endif %}"
+    data-theme-preference="{% if request.COOKIES.blex_theme == 'dark' %}dark{% elif request.COOKIES.blex_theme == 'light' %}light{% elif request.COOKIES.blex_theme == 'system' %}system{% else %}system{% endif %}"
+>
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="referrer" content="origin" />
     <meta name="view-transition" content="same-origin" />
+    <meta name="theme-color" content="#ffffff" />
+    <script>
+        (() => {
+            const COOKIE_KEY = 'blex_theme';
+            const DARK_MEDIA_QUERY = '(prefers-color-scheme: dark)';
+            const VALID_PREFERENCES = ['light', 'dark', 'system'];
+
+            const root = document.documentElement;
+            const serverPreference = VALID_PREFERENCES.includes(root.dataset.themePreference)
+                ? root.dataset.themePreference
+                : 'system';
+
+            const readCookiePreference = () => {
+                if (!document.cookie) {
+                    return null;
+                }
+
+                const cookie = document.cookie
+                    .split(';')
+                    .map(part => part.trim())
+                    .find(part => part.startsWith(`${COOKIE_KEY}=`));
+
+                if (!cookie) {
+                    return null;
+                }
+
+                const rawValue = cookie.slice(COOKIE_KEY.length + 1);
+                const decoded = decodeURIComponent(rawValue);
+                return VALID_PREFERENCES.includes(decoded) ? decoded : null;
+            };
+
+            const preference = readCookiePreference() ?? serverPreference;
+
+            const isDarkSystem = window.matchMedia(DARK_MEDIA_QUERY).matches;
+            const resolvedTheme = preference === 'system'
+                ? (isDarkSystem ? 'dark' : 'light')
+                : preference;
+
+            root.dataset.theme = resolvedTheme;
+            root.dataset.themePreference = preference;
+            root.style.colorScheme = resolvedTheme;
+
+            const themeColorMeta = document.querySelector('meta[name="theme-color"]');
+            if (themeColorMeta) {
+                themeColorMeta.setAttribute('content', resolvedTheme === 'dark' ? '#121212' : '#ffffff');
+            }
+        })();
+    </script>
     <title>{% block title %}BLEX{% endblock %}</title>
     <link rel="stylesheet" href="{% island_css 'styles/tailwind.css' %}">
     <link rel="stylesheet" href="{% island_css 'styles/main.scss' %}">
@@ -24,7 +76,6 @@
     <link rel="icon" type="image/png" sizes="96x96" href="{% resource 'logo96.png' %}" />
     <link rel="icon" type="image/png" sizes="192x192" href="{% resource 'logo192.png' %}" />
     <link rel="icon" type="image/png" sizes="512x512" href="{% resource 'logo512.png' %}" />
-    <meta name="theme-color" content="#000" />
     <meta name="application-name" content="BLEX" />
     <meta name="msapplication-TileImage" content="{% resource 'logo144.png' %}" />
     <meta name="msapplication-TileColor" content="#000" />
@@ -32,7 +83,7 @@
     {% include 'custom/custom_head.html' %}
 </head>
 
-<body class="antialiased selection:bg-blue-500 selection:text-white">
+<body class="antialiased bg-surface-page text-content selection:bg-action selection:text-content-inverted">
     {% include 'components/header.html' %}
     <main class="min-h-[calc(100vh-10.5rem)]">
         {% block content %}{% endblock %}
@@ -40,7 +91,7 @@
     {% include 'components/footer.html' %}
 
     {% if debug %}
-        <div class="fixed bottom-3 right-3 z-50 border border-black backdrop-blur-sm text-sm rounded-2xl px-4 py-2">
+        <div class="fixed bottom-3 right-3 z-50 border border-line backdrop-blur-sm text-sm rounded-2xl px-4 py-2 bg-surface-elevated text-content">
             DEV
         </div>
     {% endif %}

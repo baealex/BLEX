@@ -1,13 +1,14 @@
 /**
- * BLEX 색상 시스템
+ * BLEX Semantic Color System
  *
- * 브랜드 통일성을 위한 미니멀한 색상 팔레트
- * - 기본: 흑/백/회색
- * - 액센트: 최소한의 강조 색상만 사용
+ * - Light/Dark tokens are defined with semantic naming.
  */
 
 @layer base {
     :root {
+        color-scheme: light;
+
+        /* Neutral palette */
         --color-white: #ffffff;
         --color-black: #000000;
 
@@ -22,36 +23,201 @@
         --color-gray-800: #1d1d1f;
         --color-gray-900: #121212;
 
-        --color-bg-base: var(--color-white);
-        --color-bg-page: var(--color-gray-50);
-        --color-bg-subtle: var(--color-gray-100);
-        --color-bg-muted: var(--color-gray-200);
-        --color-bg-dark: var(--color-gray-900);
+        /* Surface */
+        --color-surface: #ffffff;
+        --color-surface-page: #ffffff;
+        --color-surface-subtle: #f5f5f7;
+        --color-surface-elevated: #ffffff;
 
-        --color-text-primary: var(--color-gray-800);
-        --color-text-secondary: var(--color-gray-600);
-        --color-text-muted: var(--color-gray-500);
-        --color-text-subtle: var(--color-gray-400);
-        --color-text-inverted: var(--color-white);
+        /* Content */
+        --color-content: #1d1d1f;
+        --color-content-secondary: #6e6e73;
+        --color-content-hint: #86868b;
+        --color-content-inverted: #ffffff;
 
-        --color-border-light: var(--color-gray-100);
-        --color-border-default: var(--color-gray-200);
-        --color-border-medium: var(--color-gray-300);
+        /* Line */
+        --color-line: #e5e5e7;
+        --color-line-light: #f5f5f7;
+        --color-line-strong: #d2d2d7;
 
-        --color-interactive-primary: #000000;
-        --color-interactive-hover: #000000;
-        --color-interactive-active: #000000;
+        /* Action */
+        --color-action: #121212;
+        --color-action-hover: #1d1d1f;
+        --color-action-pressed: #000000;
 
-        --color-shadow-sm: rgba(0, 0, 0, 0.04);
-        --color-shadow-md: rgba(0, 0, 0, 0.08);
-        --color-shadow-lg: rgba(0, 0, 0, 0.12);
-        --color-shadow-xl: rgba(0, 0, 0, 0.16);
+        /* States */
+        --color-success: #16a34a;
+        --color-success-surface: #f0fdf4;
+        --color-success-line: #bbf7d0;
 
-        --glass-bg: rgba(255, 255, 255, 0.72);
-        --glass-border: rgba(255, 255, 255, 0.5);
-        --glass-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.07);
-        --glass-blur: 20px;
+        --color-warning: #d97706;
+        --color-warning-surface: #fffbeb;
+        --color-warning-line: #fed7aa;
 
+        --color-danger: #dc2626;
+        --color-danger-surface: #fef2f2;
+        --color-danger-line: #fecaca;
+
+        --state-success: #16a34a;
+        --state-success-surface: #f0fdf4;
+        --state-success-line: #bbf7d0;
+        --state-warning: #d97706;
+        --state-warning-surface: #fffbeb;
+        --state-warning-line: #fed7aa;
+        --state-danger: #dc2626;
+        --state-danger-surface: #fef2f2;
+        --state-danger-line: #fecaca;
+
+        /* Content accents */
+        --color-mention-surface: #eff6ff;
+        --color-mention-surface-hover: #dbeafe;
+        --color-mention-content: #1d4ed8;
+        --color-mention-content-hover: #1e40af;
+
+        --accent-mention-surface: #eff6ff;
+        --accent-mention-surface-hover: #dbeafe;
+        --accent-mention-content: #1d4ed8;
+        --accent-mention-content-hover: #1e40af;
+
+        /* Prose */
+        --color-prose-link: #2563eb;
+        --color-prose-link-hover: #1d4ed8;
+        --color-prose-quote-surface: #f5f5f7;
+        --color-prose-quote-line: #d2d2d7;
+
+        /* Shadows */
+        --color-shadow-sm: rgb(0 0 0 / 0.04);
+        --color-shadow-md: rgb(0 0 0 / 0.08);
+        --color-shadow-lg: rgb(0 0 0 / 0.12);
+        --color-shadow-xl: rgb(0 0 0 / 0.16);
+
+        /* Overlay / Glass */
+        --color-dim-soft: rgb(0 0 0 / 0.20);
+        --color-dim-default: rgb(0 0 0 / 0.25);
+        --color-frosted-surface: rgb(255 255 255 / 0.90);
+        --color-floating-glass-surface: rgb(255 255 255 / 0.78);
+        --color-floating-glass-border: rgb(255 255 255 / 0.58);
+        --blur-frosted: 12px;
+        --blur-floating-glass: 10px;
+        --shadow-floating-glass: 0 6px 20px rgb(15 23 42 / 0.10);
+
+        /* Branding / Media */
+        --logo-filter: none;
+        --media-filter: none;
+
+        /* Motion */
+        --motion-interaction: 150ms;
+        --motion-entrance: 500ms;
         --ease-apple: cubic-bezier(0.25, 0.1, 0.25, 1);
+
+    }
+
+    [data-theme="dark"] {
+        color-scheme: dark;
+
+        /*
+         * Dark Mode Color System v2
+         *
+         * References:
+         *   - Material Design 3: #121212 base, elevation = lighter, 300-level state colors
+         *   - IBM Carbon: #161616 bg, neutral gray hierarchy
+         *   - WCAG AA: body ≥ 4.5:1, large text ≥ 3:1
+         *   - Weber's Law: optimal reading contrast 10:1–12:1
+         *
+         * Key decisions:
+         *   1. Pure neutral grays (R=G=B) — no blue/purple tints that cause screen fatigue
+         *   2. Text #dcdcdc (~12:1 contrast) — research-optimal reading comfort zone
+         *   3. Backgrounds lifted to L*10–12 range — clearly not black, easy on eyes
+         *   4. Material 300-level state colors — proven for dark theme readability
+         */
+
+        /* Surface — tight elevation steps (Material overlay model)
+         *   page     #171717 (23)  canvas
+         *   base     #1c1c1c (28)  content area   +5
+         *   subtle   #222222 (34)  cards          +6
+         *   elevated #282828 (40)  modals         +6
+         */
+        --color-surface: #1c1c1c;
+        --color-surface-page: #171717;
+        --color-surface-subtle: #222222;
+        --color-surface-elevated: #282828;
+
+        /* Content — 12:1 / 5.6:1 / 3.6:1 contrast ladder */
+        --color-content: #dcdcdc;
+        --color-content-secondary: #969696;
+        --color-content-hint: #757575;
+        --color-content-inverted: #1a1a1a;
+
+        /* Line */
+        --color-line: #3a3a3a;
+        --color-line-light: #2c2c2c;
+        --color-line-strong: #484848;
+
+        /* Action — near-white, same brightness as body text
+         *   Reads as CTA through filled surface area, not brightness difference
+         */
+        --color-action: #dcdcdc;
+        --color-action-hover: #e8e8e8;
+        --color-action-pressed: #c8c8c8;
+
+        /* States — Material Design 300-level, proven for dark themes */
+        --color-success: #81c784;
+        --color-success-surface: #1b2e1d;
+        --color-success-line: #306e34;
+
+        --color-warning: #ffb74d;
+        --color-warning-surface: #2e2310;
+        --color-warning-line: #8a6320;
+
+        --color-danger: #e57373;
+        --color-danger-surface: #2e1b1b;
+        --color-danger-line: #8b3a3a;
+
+        --state-success: #81c784;
+        --state-success-surface: #1b2e1d;
+        --state-success-line: #306e34;
+        --state-warning: #ffb74d;
+        --state-warning-surface: #2e2310;
+        --state-warning-line: #8a6320;
+        --state-danger: #e57373;
+        --state-danger-surface: #2e1b1b;
+        --state-danger-line: #8b3a3a;
+
+        /* Content accents */
+        --color-mention-surface: #1a2540;
+        --color-mention-surface-hover: #233050;
+        --color-mention-content: #90caf9;
+        --color-mention-content-hover: #bbdefb;
+
+        --accent-mention-surface: #1a2540;
+        --accent-mention-surface-hover: #233050;
+        --accent-mention-content: #90caf9;
+        --accent-mention-content-hover: #bbdefb;
+
+        /* Prose */
+        --color-prose-link: #93c5fd;
+        --color-prose-link-hover: #bfdbfe;
+        --color-prose-quote-surface: #242426;
+        --color-prose-quote-line: #484848;
+
+        /* Shadows */
+        --color-shadow-sm: rgb(0 0 0 / 0.28);
+        --color-shadow-md: rgb(0 0 0 / 0.36);
+        --color-shadow-lg: rgb(0 0 0 / 0.48);
+        --color-shadow-xl: rgb(0 0 0 / 0.60);
+
+        /* Overlay / Glass */
+        --color-dim-soft: rgb(0 0 0 / 0.50);
+        --color-dim-default: rgb(0 0 0 / 0.62);
+        --color-frosted-surface: rgb(23 23 23 / 0.88);
+        --color-floating-glass-surface: rgb(30 30 30 / 0.80);
+        --color-floating-glass-border: rgb(66 66 66 / 0.45);
+        --blur-frosted: 14px;
+        --blur-floating-glass: 12px;
+        --shadow-floating-glass: 0 8px 24px rgb(0 0 0 / 0.40);
+
+        --logo-filter: invert(1);
+        --media-filter: brightness(0.85) saturate(0.92);
+
     }
 }

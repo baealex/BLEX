@@ -44,6 +44,8 @@
 @layer base {
     html {
         scroll-behavior: smooth;
+        background-color: var(--color-surface-page);
+        color: var(--color-content);
     }
 
     body {
@@ -51,10 +53,21 @@
         word-break: keep-all;
         overflow-x: hidden;
         overflow-wrap: anywhere;
+        background-color: var(--color-surface-page);
+        color: var(--color-content);
     }
 
     [x-cloak] {
         display: none !important;
+    }
+
+    img:not([data-no-filter]) {
+        filter: var(--media-filter);
+        transition: filter var(--motion-interaction) var(--ease-apple);
+    }
+
+    video:not([data-no-filter]) {
+        filter: var(--media-filter);
     }
 }
 
