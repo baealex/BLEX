@@ -68,11 +68,6 @@ export default defineConfig(({ mode }) => {
                             return 'tanstack-router';
                         }
 
-                        // Drag-and-drop is only used by sortable settings lists.
-                        if (id.includes('@dnd-kit/')) {
-                            return 'dnd-kit';
-                        }
-
                         // Charts should stay out of baseline boot chunks.
                         if (id.includes('frappe-charts')) {
                             return 'charts';
