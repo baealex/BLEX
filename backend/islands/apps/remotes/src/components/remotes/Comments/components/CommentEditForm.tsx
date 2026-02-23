@@ -1,5 +1,5 @@
 import { useRef, useEffect } from 'react';
-import { Loader2 } from '@blex/ui';
+import { Loader2 } from '@blex/ui/icons';
 
 interface CommentEditFormProps {
     editText: string;

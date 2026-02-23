@@ -54,9 +54,28 @@ export default defineConfig(({ mode }) => {
                     assetFileNames: '[name].[hash][extname]',
                     chunkFileNames: 'chunks/[name].[hash].js',
                     manualChunks: (id) => {
-                        // React core - shared across all components
-                        if (id.includes('react-dom') || id.includes('node_modules/react/')) {
-                            return 'react-vendor';
+                        // Keep core React runtime isolated from feature vendors.
+                        if (
+                            id.includes('react-dom') ||
+                            id.includes('node_modules/react/') ||
+                            id.includes('node_modules/scheduler/')
+                        ) {
+                            return 'react-core';
+                        }
+
+                        // Router is primarily used by SettingsApp.
+                        if (id.includes('@tanstack/react-router') || id.includes('@tanstack/router-core')) {
+                            return 'tanstack-router';
+                        }
+
+                        // Drag-and-drop is only used by sortable settings lists.
+                        if (id.includes('@dnd-kit/')) {
+                            return 'dnd-kit';
+                        }
+
+                        // Charts should stay out of baseline boot chunks.
+                        if (id.includes('frappe-charts')) {
+                            return 'charts';
                         }
 
                         // Tiptap editor - only used by PostEditor (doesn't need React at init)
@@ -67,11 +86,6 @@ export default defineConfig(({ mode }) => {
                         // Zod - pure JS, no React dependency
                         if (id.includes('/zod')) {
                             return 'zod';
-                        }
-
-                        // Highlight.js & lowlight - pure JS, no React dependency
-                        if (id.includes('highlight.js') || id.includes('lowlight')) {
-                            return 'highlight';
                         }
                     }
                 }

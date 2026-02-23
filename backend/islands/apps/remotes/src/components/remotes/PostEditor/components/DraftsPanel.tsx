@@ -1,15 +1,9 @@
 import { useState, useEffect } from 'react';
 import { logger } from '~/utils/logger';
-import {
-    Dialog,
-    IconButton,
-    X,
-    AlertTriangle,
-    FileText,
-    Clock,
-    DIM_OVERLAY_DEFAULT,
-    ENTRANCE_DURATION
-} from '@blex/ui';
+import { Dialog } from '@blex/ui/dialog';
+import { IconButton } from '@blex/ui/icon-button';
+import { AlertTriangle, Clock, FileText, X } from '@blex/ui/icons';
+import { DIM_OVERLAY_DEFAULT, ENTRANCE_DURATION } from '@blex/ui/design-tokens';
 import { getDrafts, type DraftSummary } from '~/lib/api/posts';
 import { cx } from '~/lib/classnames';
 

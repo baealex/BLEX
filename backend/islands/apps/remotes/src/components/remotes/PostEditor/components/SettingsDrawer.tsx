@@ -1,19 +1,18 @@
+import { Dialog } from '@blex/ui/dialog';
+import { Select } from '@blex/ui/select';
+import { IconButton } from '@blex/ui/icon-button';
+import { Toggle } from '@blex/ui/toggle';
 import {
-    Dialog,
-    Select,
-    IconButton,
-    Toggle,
-    SlidersHorizontal,
-    X,
-    Search,
+    CircleDollarSign,
+    EyeOff,
     FileText,
     Info,
-    EyeOff,
-    CircleDollarSign,
+    Search,
+    SlidersHorizontal,
     Trash2,
-    DIM_OVERLAY_DEFAULT,
-    ENTRANCE_DURATION
-} from '@blex/ui';
+    X
+} from '@blex/ui/icons';
+import { DIM_OVERLAY_DEFAULT, ENTRANCE_DURATION } from '@blex/ui/design-tokens';
 import { Input, Button } from '~/components/shared';
 import { cx } from '~/lib/classnames';
 import type { Series } from '../types';

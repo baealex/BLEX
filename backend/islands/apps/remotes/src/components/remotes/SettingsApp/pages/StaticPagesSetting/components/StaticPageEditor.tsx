@@ -11,17 +11,17 @@ import {
     DIM_OVERLAY_DEFAULT,
     ENTRANCE_DURATION
 } from '~/components/shared';
+import { Dialog } from '@blex/ui/dialog';
+import { FloatingBottomBar } from '@blex/ui/floating-bottom-bar';
+import { IconButton } from '@blex/ui/icon-button';
+import { Toggle } from '@blex/ui/toggle';
 import {
-    Dialog,
-    FloatingBottomBar,
-    IconButton,
-    Toggle,
-    SlidersHorizontal,
-    Send,
-    X,
     Search,
-    Settings2
-} from '@blex/ui';
+    Send,
+    Settings2,
+    SlidersHorizontal,
+    X
+} from '@blex/ui/icons';
 import { cx } from '~/lib/classnames';
 import {
     getStaticPage,

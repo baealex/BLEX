@@ -1,5 +1,5 @@
 import { useRef, useEffect, useState } from 'react';
-import { Lock, Loader2 } from '@blex/ui';
+import { Loader2, Lock } from '@blex/ui/icons';
 import { MentionAutocomplete } from './MentionAutocomplete';
 
 interface CommentFormProps {

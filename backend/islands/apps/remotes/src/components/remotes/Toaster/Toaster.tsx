@@ -1,4 +1,4 @@
-import { Toaster as SonnerToaster } from '@blex/ui';
+import { Toaster as SonnerToaster } from '@blex/ui/toast';
 
 const Toaster = () => {
     return (

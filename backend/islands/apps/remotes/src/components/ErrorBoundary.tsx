@@ -1,5 +1,6 @@
+/* eslint-disable no-console */
+
 import React from 'react';
-import { logger } from '~/utils/logger';
 
 class ErrorBoundary extends React.Component<{
     fallback: React.ReactNode;
@@ -14,7 +15,7 @@ class ErrorBoundary extends React.Component<{
     }
 
     static getDerivedStateFromError(error: Error) {
-        logger.error('Error in component:', error);
+        console.error('Error in component:', error);
         return { hasError: true };
     }
 

@@ -14,6 +14,19 @@ export default [
                 node: true
             }
         },
-        rules: { 'indent': 'off' }
+        rules: {
+            'indent': 'off',
+            'no-restricted-imports': [
+                'error',
+                {
+                    paths: [
+                        {
+                            name: '@blex/ui',
+                            message: 'Use component subpath imports (e.g. @blex/ui/dropdown).'
+                        }
+                    ]
+                }
+            ]
+        }
     }
 ];

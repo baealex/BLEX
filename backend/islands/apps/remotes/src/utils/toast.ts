@@ -1,4 +1,4 @@
-import { toast as sonnerToast } from '@blex/ui';
+import { toast as sonnerToast } from '@blex/ui/toast';
 
 const DURATION = {
     success: 2000,

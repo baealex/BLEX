@@ -46,4 +46,4 @@ const IconButton = ({
     );
 };
 
-export default IconButton;
+export { IconButton };

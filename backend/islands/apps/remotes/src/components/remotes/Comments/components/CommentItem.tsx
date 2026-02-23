@@ -1,4 +1,5 @@
-import { Dropdown, Reply } from '@blex/ui';
+import { Dropdown } from '@blex/ui/dropdown';
+import { Reply } from '@blex/ui/icons';
 import { CommentHeader } from './CommentHeader';
 import { CommentContent } from './CommentContent';
 import { CommentActions } from './CommentActions';

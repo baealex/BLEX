@@ -7,7 +7,8 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { toast } from '~/utils/toast';
 import { useConfirm } from '~/hooks/useConfirm';
 import { Button, Input } from '~/components/shared';
-import { FloatingBottomBar, Send } from '@blex/ui';
+import { FloatingBottomBar } from '@blex/ui/floating-bottom-bar';
+import { Send } from '@blex/ui/icons';
 import {
     getSeriesDetail,
     getAvailablePosts,

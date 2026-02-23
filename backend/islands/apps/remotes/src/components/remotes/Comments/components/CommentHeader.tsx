@@ -1,5 +1,5 @@
 import { getStaticPath } from '~/modules/static.module';
-import { Pencil } from '@blex/ui';
+import { Pencil } from '@blex/ui/icons';
 
 interface CommentHeaderProps {
     author: string;

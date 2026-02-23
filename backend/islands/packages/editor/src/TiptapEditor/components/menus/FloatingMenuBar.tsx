@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import type { Editor } from '@tiptap/react';
-import { Popover } from '@blex/ui';
+import { Popover } from '@blex/ui/popover';
 import ToolbarButton from '../ui/ToolbarButton';
 
 interface FloatingMenuBarProps {

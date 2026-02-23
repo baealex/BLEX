@@ -13,4 +13,4 @@ const FloatingBottomBar = ({ children }: FloatingBottomBarProps) => (
     </div>
 );
 
-export default FloatingBottomBar;
+export { FloatingBottomBar };

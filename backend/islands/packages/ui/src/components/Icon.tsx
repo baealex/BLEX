@@ -37,5 +37,5 @@ const Icon = ({ icon: LucideIcon, size = 'md', className }: IconProps) => {
     );
 };
 
-export default Icon;
+export { Icon };
 export type { IconProps, IconSize };

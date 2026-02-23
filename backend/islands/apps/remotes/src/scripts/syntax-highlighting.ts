@@ -1,10 +1,11 @@
+/* eslint-disable no-console */
+
 import {
     getLanguageLoader,
     getLanguageLabel,
     registerLanguage,
     highlightElement
-} from '@blex/editor';
-import { logger } from '~/utils/logger';
+} from '@blex/editor/languages';
 
 const loadedLanguages = new Set<string>();
 
@@ -35,7 +36,7 @@ function createCopyButton(codeElement: HTMLElement): HTMLButtonElement {
                 button.title = 'Copy code';
             }, 2000);
         } catch (err) {
-            logger.error('Failed to copy code:', err);
+            console.error('Failed to copy code:', err);
         }
     });
 
@@ -54,7 +55,7 @@ async function loadLanguage(language: string): Promise<void> {
             registerLanguage(language, module.default);
             loadedLanguages.add(language);
         } catch (error) {
-            logger.warn(`Failed to load language: ${language}`, error);
+            console.warn(`Failed to load language: ${language}`, error);
         }
     }
 }

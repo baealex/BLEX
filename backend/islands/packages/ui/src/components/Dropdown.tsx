@@ -75,4 +75,4 @@ const Dropdown = ({ items, trigger, align = 'end' }: DropdownProps) => {
     );
 };
 
-export default Dropdown;
+export { Dropdown };

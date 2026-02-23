@@ -1,5 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { IconButton, Button, X, Image } from '@blex/ui';
+import { Button } from '@blex/ui/button';
+import { IconButton } from '@blex/ui/icon-button';
+import { Image, X } from '@blex/ui/icons';
 
 interface ImageUploaderProps {
     imagePreview: string | null;

@@ -6,7 +6,7 @@ import type {
 } from 'react';
 import { X } from 'lucide-react';
 import { Dialog } from './Dialog';
-import Button from './Button';
+import { Button } from './Button';
 import { cx } from '../lib/classnames';
 import { DIM_OVERLAY_DEFAULT, INTERACTION_DURATION } from '../lib/designTokens';
 
@@ -197,4 +197,4 @@ const Modal = Object.assign(ModalRoot, {
     FooterAction: ModalFooterAction
 }) as ModalCompoundComponent;
 
-export default Modal;
+export { Modal };

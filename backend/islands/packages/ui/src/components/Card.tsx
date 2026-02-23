@@ -39,4 +39,4 @@ const Card = ({
     );
 };
 
-export default Card;
+export { Card };

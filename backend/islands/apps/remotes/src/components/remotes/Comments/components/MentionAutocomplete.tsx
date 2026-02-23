@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react';
-import { Popover } from '@blex/ui';
+import { Popover } from '@blex/ui/popover';
 
 interface MentionAutocompleteProps {
     users: string[];

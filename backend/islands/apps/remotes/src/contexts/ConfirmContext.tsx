@@ -5,7 +5,7 @@ import {
     useCallback,
     type ReactNode
 } from 'react';
-import { Modal } from '@blex/ui';
+import { Modal } from '@blex/ui/modal';
 import { ConfirmContext, type ConfirmOptions } from './internal/ConfirmContextDef';
 
 interface ConfirmDialogState extends ConfirmOptions {
