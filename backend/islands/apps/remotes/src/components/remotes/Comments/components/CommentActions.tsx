@@ -1,4 +1,4 @@
-import { ThumbsUp, Reply } from '@blex/ui';
+import { Reply, ThumbsUp } from '@blex/ui/icons';
 
 interface CommentActionsProps {
     commentId: number;

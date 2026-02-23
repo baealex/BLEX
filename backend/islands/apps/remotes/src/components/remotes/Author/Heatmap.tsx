@@ -1,6 +1,6 @@
 import { useEffect, useRef } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { Heatmap as UIHeatmap } from '@blex/ui';
+import { Heatmap as UIHeatmap } from '@blex/ui/heatmap';
 import { getAuthorHeatmap } from '~/lib/api/author';
 import { useResolvedTheme } from '~/hooks/useResolvedTheme';
 

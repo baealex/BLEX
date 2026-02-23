@@ -1,12 +1,8 @@
 import { useEffect, useState } from 'react';
-import {
-    IconButton,
-    Button,
-    FloatingBottomBar,
-    FileText,
-    SlidersHorizontal,
-    Send
-} from '@blex/ui';
+import { Button } from '@blex/ui/button';
+import { FloatingBottomBar } from '@blex/ui/floating-bottom-bar';
+import { IconButton } from '@blex/ui/icon-button';
+import { FileText, Send, SlidersHorizontal } from '@blex/ui/icons';
 
 interface PostActionsProps {
     mode: 'new' | 'edit' | 'draft';

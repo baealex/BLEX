@@ -71,4 +71,4 @@ const Alert = ({
     );
 };
 
-export default Alert;
+export { Alert };

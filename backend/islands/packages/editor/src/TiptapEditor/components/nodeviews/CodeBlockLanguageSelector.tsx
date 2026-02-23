@@ -1,4 +1,4 @@
-import { Dropdown } from '@blex/ui';
+import { Dropdown } from '@blex/ui/dropdown';
 import type { Editor } from '@tiptap/react';
 import type { NodeViewProps } from '@tiptap/react';
 import { SUPPORTED_LANGUAGES, getLanguageLabel } from '~/utils/languages';

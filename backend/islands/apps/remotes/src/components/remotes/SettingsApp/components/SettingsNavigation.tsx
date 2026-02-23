@@ -1,12 +1,12 @@
 import { useState } from 'react';
 import { Link, useRouter } from '@tanstack/react-router';
+import { Dialog } from '@blex/ui/dialog';
 import {
-    Dialog,
     DIM_OVERLAY_SOFT,
     FROSTED_SURFACE,
     ENTRANCE_DURATION,
     INTERACTION_DURATION
-} from '@blex/ui';
+} from '@blex/ui/design-tokens';
 
 interface NavigationItem {
     name: string;

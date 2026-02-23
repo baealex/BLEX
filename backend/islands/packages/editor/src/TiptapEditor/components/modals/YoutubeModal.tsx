@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { Modal, Input } from '@blex/ui';
+import { Input } from '@blex/ui/input';
+import { Modal } from '@blex/ui/modal';
 
 interface YoutubeModalProps {
     isOpen: boolean;

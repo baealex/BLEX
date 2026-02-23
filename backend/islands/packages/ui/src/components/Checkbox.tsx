@@ -47,4 +47,4 @@ const Checkbox = ({
     );
 };
 
-export default Checkbox;
+export { Checkbox };

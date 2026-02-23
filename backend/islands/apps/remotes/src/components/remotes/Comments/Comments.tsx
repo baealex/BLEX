@@ -1,7 +1,7 @@
 import { useState, useRef, useCallback } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { AxiosError } from 'axios';
-import { AlertTriangle, MessageCircle, RotateCw } from '@blex/ui';
+import { AlertTriangle, MessageCircle, RotateCw } from '@blex/ui/icons';
 import { useConfirm } from '~/hooks/useConfirm';
 import { isLoggedIn as checkIsLoggedIn, showLoginPrompt } from '~/utils/loginPrompt';
 import { toast } from '~/utils/toast';

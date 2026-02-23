@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { XCircle, X } from '@blex/ui';
+import { X, XCircle } from '@blex/ui/icons';
 
 interface ErrorAlertProps {
     message: string;

@@ -29,14 +29,12 @@ import { Underline } from '@tiptap/extension-underline';
 import { Subscript } from '@tiptap/extension-subscript';
 import { Superscript } from '@tiptap/extension-superscript';
 import { TextAlign } from '@tiptap/extension-text-align';
-import { common, createLowlight } from 'lowlight';
 import { IframeNode } from '../extensions/IframeNode';
 import { VideoNode } from '../extensions/VideoNode';
 import { CustomImage } from '../extensions/CustomImage';
 import { CodeBlockWithLanguageSelector } from '../extensions/CodeBlockWithLanguageSelector';
 import { ColumnsNode, ColumnNode } from '../extensions/ColumnsNode';
-
-const customLowlight = createLowlight(common);
+import { editorLowlight } from './lowlightConfig';
 
 export const getEditorExtensions = (placeholder: string) => [
     Document,
@@ -68,7 +66,7 @@ export const getEditorExtensions = (placeholder: string) => [
     Superscript,
     TextAlign.configure({ types: ['heading', 'paragraph'] }),
     CodeBlockWithLanguageSelector.configure({
-        lowlight: customLowlight,
+        lowlight: editorLowlight,
         defaultLanguage: 'plaintext'
     }),
     Table,

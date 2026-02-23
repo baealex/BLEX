@@ -20,7 +20,22 @@ export default [
         },
         rules: {
             'indent': 'off',
-            'react-compiler/react-compiler': 'error'
+            'react-compiler/react-compiler': 'error',
+            'no-restricted-imports': [
+                'error',
+                {
+                    paths: [
+                        {
+                            name: '@blex/ui',
+                            message: 'Use component subpath imports (e.g. @blex/ui/button).'
+                        },
+                        {
+                            name: '@blex/editor',
+                            message: 'Use explicit subpath imports (e.g. @blex/editor/tiptap-editor, @blex/editor/languages).'
+                        }
+                    ]
+                }
+            ]
         }
     }
 ];

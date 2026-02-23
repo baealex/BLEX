@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Select } from '@blex/ui';
-import { Button, Input, Dropdown } from '~/components/shared';
+import { Button, Input, Dropdown, Select } from '~/components/shared';
 import { getIconClass } from '~/components/shared';
 import type { Post } from '../hooks';
 import type { Series } from '~/lib/api/settings';

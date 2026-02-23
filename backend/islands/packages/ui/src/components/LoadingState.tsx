@@ -60,4 +60,4 @@ const LoadingState = ({ rows = 3, type = 'form' }: LoadingStateProps) => {
     );
 };
 
-export default LoadingState;
+export { LoadingState };
