@@ -108,14 +108,16 @@
             </template>
         </div>
 
-        <div class="px-3 py-2 border-t border-line-light bg-surface-subtle/70">
-            <button
-                type="button"
-                @click="submitQuickSearch()"
-                class="w-full h-10 rounded-lg bg-action text-content-inverted text-sm font-semibold hover:bg-action-hover transition-all active:scale-95"
-            >
-                전체 검색 결과 보기
-            </button>
-        </div>
+        <template x-if="quickSearchQuery.trim()">
+            <div class="px-3 py-2 border-t border-line-light bg-surface-subtle/70">
+                <button
+                    type="button"
+                    @click="submitQuickSearch()"
+                    class="w-full h-10 rounded-lg bg-action text-content-inverted text-sm font-semibold hover:bg-action-hover transition-all active:scale-95"
+                >
+                    전체 검색 결과 보기
+                </button>
+            </div>
+        </template>
     </div>
 </div>
