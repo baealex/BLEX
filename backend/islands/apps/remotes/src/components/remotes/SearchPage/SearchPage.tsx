@@ -297,7 +297,7 @@ const SearchPage = ({ username }: SearchPageProps) => {
                 <h1 className="text-2xl sm:text-3xl font-bold text-content tracking-tight mb-4">포스트 검색</h1>
 
                 <form onSubmit={handleSubmit}>
-                    <div className="h-12 px-4 rounded-full border border-line bg-surface shadow-sm flex items-center gap-2 transition-all focus-within:ring-2 focus-within:ring-line">
+                    <div className="h-12 px-4 rounded-full border border-line bg-surface shadow-sm flex items-center gap-2 transition-all duration-150 focus-within:ring-2 focus-within:ring-line">
                         {isLoading ? (
                             <div className="animate-spin rounded-full h-4 w-4 border-2 border-line border-t-content-secondary" />
                         ) : (
@@ -316,7 +316,7 @@ const SearchPage = ({ username }: SearchPageProps) => {
                             <button
                                 type="button"
                                 onClick={handleClear}
-                                className="w-10 h-10 rounded-full text-content-hint hover:text-content hover:bg-surface-subtle transition-colors"
+                                className="w-11 h-11 min-w-11 min-h-11 rounded-full text-content-hint hover:text-content hover:bg-surface-subtle active:bg-surface-subtle active:scale-95 transition-all duration-150"
                                 aria-label="검색어 초기화">
                                 <i className="fas fa-times text-xs" />
                             </button>
@@ -337,17 +337,17 @@ const SearchPage = ({ username }: SearchPageProps) => {
                             {recentSearches.map((recentSearch) => (
                                 <div
                                     key={recentSearch}
-                                    className="inline-flex items-center gap-1 pl-3 pr-1 h-10 rounded-full bg-surface-subtle border border-line">
+                                    className="inline-flex items-center gap-1 pl-3 pr-1 h-11 rounded-full bg-surface-subtle border border-line">
                                     <button
                                         type="button"
                                         onClick={() => handleRecentSearchClick(recentSearch)}
-                                        className="text-sm text-content hover:text-content max-w-[180px] truncate">
+                                        className="h-11 inline-flex items-center text-sm text-content hover:text-content max-w-[180px] truncate active:scale-[0.98] transition-all duration-150">
                                         {recentSearch}
                                     </button>
                                     <button
                                         type="button"
                                         onClick={() => handleRecentSearchRemove(recentSearch)}
-                                        className="w-8 h-8 rounded-full text-content-hint hover:text-content hover:bg-line transition-colors"
+                                        className="w-11 h-11 min-w-11 min-h-11 rounded-full text-content-hint hover:text-content hover:bg-line active:bg-line active:scale-95 transition-all duration-150"
                                         aria-label={`${recentSearch} 검색어 삭제`}>
                                         <i className="fas fa-times text-[10px]" />
                                     </button>
@@ -359,7 +359,7 @@ const SearchPage = ({ username }: SearchPageProps) => {
             </section>
 
             {!isLoading && errorMessage && (
-                <section className="bg-danger-surface border border-danger-line rounded-2xl p-5">
+                <section className="bg-danger-surface border border-danger-line rounded-2xl p-5 animate-in fade-in-0 slide-in-from-top-2 duration-150">
                     <div className="flex items-start gap-3">
                         <i className="fas fa-circle-exclamation text-danger mt-0.5" />
                         <div>
@@ -371,7 +371,7 @@ const SearchPage = ({ username }: SearchPageProps) => {
             )}
 
             {!isLoading && !errorMessage && searchResults && (
-                <section className="space-y-4">
+                <section className="space-y-4 animate-in fade-in-0 slide-in-from-top-2 duration-150">
                     <div className="bg-surface-subtle rounded-2xl border border-line px-4 py-3">
                         <h2 className="text-lg font-semibold text-content">
                             <strong className="text-content">{searchResults.totalSize ?? 0}</strong>개의 포스트
@@ -386,8 +386,10 @@ const SearchPage = ({ username }: SearchPageProps) => {
                             {searchResults.results.map((result) => (
                                 <article
                                     key={`${result.author}-${result.url}`}
-                                    className="bg-surface border border-line-light rounded-2xl overflow-hidden hover:border-line hover:shadow-md transition-all">
-                                    <a href={`/@${result.author}/${result.url}`} className="block p-4 sm:p-5">
+                                    className="bg-surface border border-line-light rounded-2xl overflow-hidden hover:border-line hover:shadow-subtle transition-all duration-150">
+                                    <a
+                                        href={`/@${result.author}/${result.url}`}
+                                        className="block p-4 sm:p-5 transition-all duration-150 active:scale-[0.99]">
                                         <div className="flex flex-col sm:flex-row gap-4">
                                             <div className="w-full sm:w-44 sm:flex-shrink-0">
                                                 <div className="h-36 sm:h-28 rounded-xl bg-surface-subtle border border-line overflow-hidden">
@@ -468,7 +470,7 @@ const SearchPage = ({ username }: SearchPageProps) => {
                                 type="button"
                                 onClick={() => handlePageChange(page - 1)}
                                 disabled={page === 1}
-                                className="h-10 px-4 rounded-lg border border-line bg-surface text-sm font-medium text-content disabled:opacity-50 disabled:cursor-not-allowed hover:bg-surface-subtle transition-colors">
+                                className="h-11 min-h-11 px-4 rounded-lg border border-line bg-surface text-sm font-medium text-content disabled:opacity-50 disabled:cursor-not-allowed hover:bg-surface-subtle active:bg-surface-subtle active:scale-95 transition-all duration-150">
                                 이전
                             </button>
 
@@ -478,9 +480,9 @@ const SearchPage = ({ username }: SearchPageProps) => {
                                         key={pageNumber}
                                         type="button"
                                         onClick={() => handlePageChange(pageNumber)}
-                                        className={`w-10 h-10 rounded-lg text-sm font-semibold transition-colors ${pageNumber === page
-                                            ? 'bg-action text-content-inverted'
-                                            : 'bg-surface border border-line text-content-secondary hover:bg-surface-subtle'
+                                        className={`w-11 h-11 min-w-11 min-h-11 rounded-lg text-sm font-semibold transition-all duration-150 active:scale-95 ${pageNumber === page
+                                            ? 'bg-action text-content-inverted hover:bg-action-hover'
+                                            : 'bg-surface border border-line text-content-secondary hover:bg-surface-subtle active:bg-surface-subtle'
                                             }`}>
                                         {pageNumber}
                                     </button>
@@ -491,7 +493,7 @@ const SearchPage = ({ username }: SearchPageProps) => {
                                 type="button"
                                 onClick={() => handlePageChange(page + 1)}
                                 disabled={page === searchResults.lastPage}
-                                className="h-10 px-4 rounded-lg border border-line bg-surface text-sm font-medium text-content disabled:opacity-50 disabled:cursor-not-allowed hover:bg-surface-subtle transition-colors">
+                                className="h-11 min-h-11 px-4 rounded-lg border border-line bg-surface text-sm font-medium text-content disabled:opacity-50 disabled:cursor-not-allowed hover:bg-surface-subtle active:bg-surface-subtle active:scale-95 transition-all duration-150">
                                 다음
                             </button>
                         </div>
