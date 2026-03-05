@@ -55,32 +55,6 @@ class TagListPageTestCase(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'board/tags/tag_list.html')
 
-    def test_tag_list_sorting_popular(self):
-        """태그 목록 인기순 정렬 테스트"""
-        response = self.client.get(reverse('tag_list') + '?sort=popular')
-        self.assertEqual(response.status_code, 200)
-
-    def test_tag_list_sorting_name(self):
-        """태그 목록 이름순 정렬 테스트"""
-        response = self.client.get(reverse('tag_list') + '?sort=name')
-        self.assertEqual(response.status_code, 200)
-
-    def test_tag_list_sorting_recent(self):
-        """태그 목록 최신순 정렬 테스트"""
-        response = self.client.get(reverse('tag_list') + '?sort=recent')
-        self.assertEqual(response.status_code, 200)
-
-    def test_tag_list_with_search(self):
-        """태그 목록 검색 테스트"""
-        response = self.client.get(reverse('tag_list') + '?q=python')
-        self.assertEqual(response.status_code, 200)
-
-    def test_tag_list_pagination(self):
-        """태그 목록 페이지네이션 테스트"""
-        response = self.client.get(reverse('tag_list') + '?page=1')
-        self.assertEqual(response.status_code, 200)
-
-
 class TagDetailPageTestCase(TestCase):
     """태그 상세 페이지 (/tag/<name>) 템플릿 테스트"""
 

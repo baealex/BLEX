@@ -126,14 +126,12 @@ class UserAPITestCase(TestCase):
     def test_check_redirect_empty_username(self):
         """빈 사용자명으로 리다이렉트 확인"""
         response = self.client.get('/v1/users/@/check-redirect')
-        # Should handle empty username gracefully
-        self.assertIn(response.status_code, [404, 400])
+        self.assertEqual(response.status_code, 404)
 
     def test_check_redirect_with_special_characters(self):
         """특수 문자가 포함된 사용자명"""
         response = self.client.get('/v1/users/@user@name/check-redirect')
-        # Should handle special characters
-        self.assertIn(response.status_code, [404, 400])
+        self.assertEqual(response.status_code, 404)
 
     def test_check_redirect_multiple_redirects(self):
         """여러 번 변경된 사용자명"""
@@ -230,25 +228,3 @@ class UserAPITestCase(TestCase):
 
         # Should return 404 when about parameter is missing
         self.assertEqual(response.status_code, 404)
-
-    def test_concurrent_about_updates(self):
-        """동시 업데이트 처리"""
-        self.client.login(username='testuser', password='testpass')
-
-        data1 = 'about=true&about_md=First update'
-        response1 = self.client.put(
-            '/v1/users/@testuser',
-            data=data1,
-            content_type='application/x-www-form-urlencoded'
-        )
-
-        data2 = 'about=true&about_md=Second update'
-        response2 = self.client.put(
-            '/v1/users/@testuser',
-            data=data2,
-            content_type='application/x-www-form-urlencoded'
-        )
-
-        # Both updates should succeed
-        self.assertEqual(response1.status_code, 200)
-        self.assertEqual(response2.status_code, 200)

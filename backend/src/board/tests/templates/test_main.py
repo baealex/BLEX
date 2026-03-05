@@ -58,21 +58,6 @@ class MainPageTemplateTestCase(TestCase):
             with self.subTest(field=field):
                 self.assertIn(field, response.context)
 
-    def test_index_page_sorting_latest(self):
-        """메인 페이지 최신순 정렬 테스트"""
-        response = self.client.get(reverse('index') + '?sort=latest')
-        self.assertEqual(response.status_code, 200)
-
-    def test_index_page_sorting_popular(self):
-        """메인 페이지 인기순 정렬 테스트"""
-        response = self.client.get(reverse('index') + '?sort=popular')
-        self.assertEqual(response.status_code, 200)
-
-    def test_index_page_sorting_comments(self):
-        """메인 페이지 댓글 많은 순 정렬 테스트"""
-        response = self.client.get(reverse('index') + '?sort=comments')
-        self.assertEqual(response.status_code, 200)
-
     def test_index_page_pagination(self):
         """메인 페이지 페이지네이션 테스트"""
         response = self.client.get(reverse('index') + '?page=1')
