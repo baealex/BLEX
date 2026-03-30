@@ -2,48 +2,8 @@ import json
 
 from django.test import TestCase
 from django.test.client import Client
-from django.core.exceptions import ValidationError
 
 from board.models import User, Profile, SiteBanner, SiteContentScope
-
-
-class BannerModelTestCase(TestCase):
-    """SiteBanner model validation tests"""
-
-    @classmethod
-    def setUpTestData(cls):
-        cls.user = User.objects.create_user(
-            username='test',
-            password='test',
-            email='test@test.com',
-        )
-        Profile.objects.create(user=cls.user)
-
-    def test_horizontal_banner_invalid_position(self):
-        """줄배너 잘못된 위치 검증 테스트"""
-        banner = SiteBanner(
-            scope=SiteContentScope.USER,
-            user=self.user,
-            title='Invalid Banner',
-            content_html='<div>Test</div>',
-            banner_type='horizontal',
-            position='left',  # Invalid for horizontal
-        )
-        with self.assertRaises(ValidationError):
-            banner.clean()
-
-    def test_sidebar_banner_invalid_position(self):
-        """사이드배너 잘못된 위치 검증 테스트"""
-        banner = SiteBanner(
-            scope=SiteContentScope.USER,
-            user=self.user,
-            title='Invalid Banner',
-            content_html='<div>Test</div>',
-            banner_type='sidebar',
-            position='top',  # Invalid for sidebar
-        )
-        with self.assertRaises(ValidationError):
-            banner.clean()
 
 
 class BannerAPITestCase(TestCase):

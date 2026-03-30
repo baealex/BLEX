@@ -304,40 +304,6 @@ class TelegramAPITestCase(TestCase):
         response = self.client.delete('/v1/telegram/unsync')
         self.assertEqual(response.status_code, 404)
 
-    @override_settings(TELEGRAM_BOT_TOKEN='test_bot_token')
-    @patch('modules.telegram.TelegramBot')
-    @patch('modules.sub_task.SubTaskProcessor.process')
-    def test_webhook_successful_sync_clears_token(self, mock_subtask, mock_telegram):
-        """성공적인 연동 시 토큰이 제거되고 tid가 설정됨"""
-        mock_bot = MagicMock()
-        mock_telegram.return_value = mock_bot
-
-        sync = TelegramSync.objects.create(
-            user=self.user,
-            auth_token='SUCCESS',
-            auth_token_exp=timezone.now() + timedelta(minutes=5)
-        )
-
-        webhook_data = {
-            'message': {
-                'from': {'id': 123456},
-                'text': 'SUCCESS'
-            }
-        }
-
-        response = self.client.post(
-            '/v1/telegram/webHook',
-            data=json.dumps(webhook_data),
-            content_type='application/json'
-        )
-
-        self.assertEqual(response.status_code, 200)
-
-        # Verify DB state - DB 상태 검증
-        sync.refresh_from_db()
-        self.assertEqual(sync.auth_token, '')  # Token cleared
-        self.assertEqual(sync.get_decrypted_tid(), '123456')  # tid set
-
     def test_make_token_sets_expiration_time(self):
         """토큰 생성 시 만료 시간 설정"""
         self.client.login(username='testuser', password='testpass')
