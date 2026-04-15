@@ -263,7 +263,7 @@ export const SettingsMobileNavigation = ({ currentPath }: SettingsNavigationProp
                     </Dialog.Trigger>
                     <Dialog.Portal>
                         <Dialog.Overlay className={`fixed inset-0 ${DIM_OVERLAY_SOFT} z-40 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0`} />
-                        <Dialog.Content className={`fixed z-50 bg-surface shadow-2xl transition ease-in-out data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:slide-out-to-left data-[state=open]:slide-in-from-left ${ENTRANCE_DURATION} inset-y-0 left-0 h-full w-[280px] border-r overflow-y-auto outline-none`}>
+                        <Dialog.Content className={`fixed z-50 bg-surface shadow-2xl transition ease-in-out data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:slide-out-to-left data-[state=open]:slide-in-from-left ${ENTRANCE_DURATION} inset-y-0 left-0 h-full w-[280px] overflow-y-auto outline-none`}>
                             <div className="p-6">
                                 <Dialog.Title className="sr-only">Navigation Menu</Dialog.Title>
                                 <div className="flex items-center justify-between mb-8">

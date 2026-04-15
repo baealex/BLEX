@@ -8,7 +8,7 @@ interface RelatedPostsProps {
 }
 
 const SkeletonCard = () => (
-    <div className="flex flex-col h-full bg-surface rounded-2xl overflow-hidden ring-1 ring-line/5 animate-pulse">
+    <div className="flex flex-col h-full bg-surface rounded-2xl overflow-hidden ring-1 ring-line/60 animate-pulse">
         <div className="aspect-[16/9] bg-surface-subtle" />
         <div className="flex flex-col flex-grow p-5">
             <div className="h-5 bg-surface-subtle rounded-lg w-4/5 mb-3" />
@@ -40,7 +40,7 @@ const PostCard = ({ relatedPost }: { relatedPost: RelatedPost }) => {
     }
 
     return (
-        <article className="group flex flex-col h-full bg-surface rounded-2xl overflow-hidden ring-1 ring-line/5 hover:ring-line/10 active:scale-[0.98] transition-all duration-150">
+        <article className="group flex flex-col h-full bg-surface rounded-2xl overflow-hidden ring-1 ring-line/60 hover:ring-line-strong/70 active:scale-[0.98] transition-all duration-150">
             {hasThumbnail && (
                 <div className="aspect-[16/9] overflow-hidden">
                     <a href={postUrl} className="block h-full">
