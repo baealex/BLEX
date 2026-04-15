@@ -11,7 +11,7 @@
                 <span class="relative z-10 flex items-center gap-2">
                     <span class="flex items-center gap-1.5">
                         포스트
-                        <span class="text-[10px] px-1.5 py-0.5 rounded-md {% if active_tab == 'posts' %}bg-action text-content-inverted{% else %}bg-line-light text-content-secondary{% endif %}">{{ post_count }}</span>
+                        <span class="text-[10px] px-1.5 py-0.5 rounded-md {% if active_tab == 'posts' %}bg-action text-content-inverted{% else %}bg-surface-elevated text-content-secondary ring-1 ring-line/80{% endif %}">{{ post_count }}</span>
                     </span>
                 </span>
             </a>
@@ -19,7 +19,7 @@
                 <span class="relative z-10 flex items-center gap-2">
                     <span class="flex items-center gap-1.5">
                         시리즈
-                        <span class="text-[10px] px-1.5 py-0.5 rounded-md {% if active_tab == 'series' %}bg-action text-content-inverted{% else %}bg-line-light text-content-secondary{% endif %}">{{ series_count }}</span>
+                        <span class="text-[10px] px-1.5 py-0.5 rounded-md {% if active_tab == 'series' %}bg-action text-content-inverted{% else %}bg-surface-elevated text-content-secondary ring-1 ring-line/80{% endif %}">{{ series_count }}</span>
                     </span>
                 </span>
             </a>
