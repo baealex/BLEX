@@ -44,6 +44,9 @@ class MainPageTemplateTestCase(TestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'board/posts/post_list.html')
+        self.assertContains(response, 'window.__blexIslandMonitor')
+        self.assertNotContains(response, 'name=LoginPrompt')
+        self.assertNotContains(response, 'name=Toaster')
 
     def test_index_page_has_required_context(self):
         response = self.client.get(reverse('index'))

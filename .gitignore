@@ -7,6 +7,10 @@
 
 /*.log
 
+test-results/
+playwright-report/
+blob-report/
+
 DockerfileDev
 
 deploy.overrides.sh
