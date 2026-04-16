@@ -37,5 +37,45 @@ export default [
                 }
             ]
         }
+    },
+    {
+        files: [
+            'src/island.tsx',
+            'src/components/App.tsx'
+        ],
+        rules: {
+            'no-restricted-imports': [
+                'error',
+                {
+                    paths: [
+                        {
+                            name: '@blex/ui',
+                            message: 'Use component subpath imports (e.g. @blex/ui/button).'
+                        },
+                        {
+                            name: '@blex/editor',
+                            message: 'Use explicit subpath imports only inside lazy-loaded feature modules.'
+                        }
+                    ],
+                    patterns: [
+                        {
+                            group: [
+                                '@blex/editor',
+                                '@blex/editor/*',
+                                '@tanstack/react-router',
+                                '@tanstack/router-core',
+                                '@tiptap/*',
+                                'prosemirror*',
+                                '@monaco-editor/react',
+                                'frappe-charts',
+                                'zod',
+                                'zod/*'
+                            ],
+                            message: 'Bootstrap code must not statically import feature-heavy dependencies. Move this behind a dynamic import boundary.'
+                        }
+                    ]
+                }
+            ]
+        }
     }
 ];

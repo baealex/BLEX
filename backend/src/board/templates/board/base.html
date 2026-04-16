@@ -95,8 +95,6 @@
             DEV
         </div>
     {% endif %}
-    <island-component name="LoginPrompt"></island-component>
-    <island-component name="Toaster"></island-component>
     <script>
         window.configuration = {
             media: "{% resource 'media/' %}",
@@ -110,6 +108,125 @@
             googleClientId: "{{ GOOGLE_OAUTH_CLIENT_ID|default:'' }}",
             githubClientId: "{{ GITHUB_OAUTH_CLIENT_ID|default:'' }}"
         };
+    </script>
+    <script>
+        (() => {
+            const REPORT_URL = '/v1/report/error';
+            const MONITOR_TIMEOUT_MS = 4500;
+            const ALERT_ID = 'blex-island-monitor-alert';
+
+            let bootstrapObserved = false;
+            let hasReported = false;
+
+            const getTrackedIslands = () =>
+                Array.from(document.querySelectorAll('island-component'))
+                    .filter((element) => element.getAttribute('lazy') !== 'true');
+
+            const serializeIslands = (elements) =>
+                elements
+                    .map((element) => {
+                        const name = element.getAttribute('name') || 'unknown';
+                        const status = element.dataset.islandStatus || 'pending';
+                        return `${name}:${status}`;
+                    })
+                    .join(', ');
+
+            const showFailureBanner = () => {
+                if (document.getElementById(ALERT_ID)) {
+                    return;
+                }
+
+                const banner = document.createElement('div');
+                banner.id = ALERT_ID;
+                banner.setAttribute('role', 'alert');
+                banner.textContent = '일부 인터랙션 요소를 불러오지 못했습니다. 잠시 후 다시 시도해주세요.';
+                banner.style.position = 'fixed';
+                banner.style.left = '16px';
+                banner.style.right = '16px';
+                banner.style.bottom = '16px';
+                banner.style.zIndex = '9999';
+                banner.style.padding = '12px 16px';
+                banner.style.borderRadius = '12px';
+                banner.style.background = '#7f1d1d';
+                banner.style.color = '#fff';
+                banner.style.boxShadow = '0 10px 30px rgba(0, 0, 0, 0.2)';
+                banner.style.fontSize = '14px';
+                banner.style.lineHeight = '1.5';
+                document.body.appendChild(banner);
+            };
+
+            const reportFailure = (reason, detail) => {
+                if (hasReported) {
+                    return;
+                }
+
+                hasReported = true;
+
+                const trackedIslands = getTrackedIslands();
+                const payload = new URLSearchParams({
+                    user: window.configuration?.user?.username || '',
+                    path: `${window.location.pathname}${window.location.search}`,
+                    content: [
+                        '[ISLAND MONITOR]',
+                        `Reason: ${reason}`,
+                        `BootstrapObserved: ${bootstrapObserved}`,
+                        `Islands: ${serializeIslands(trackedIslands)}`,
+                        detail ? `Detail: ${detail}` : ''
+                    ].filter(Boolean).join('\n')
+                });
+
+                if (navigator.sendBeacon) {
+                    navigator.sendBeacon(REPORT_URL, payload);
+                } else {
+                    fetch(REPORT_URL, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8'
+                        },
+                        body: payload.toString(),
+                        credentials: 'same-origin',
+                        keepalive: true
+                    }).catch(() => {});
+                }
+
+                console.error('[BLEX islands]', reason, detail);
+                showFailureBanner();
+            };
+
+            const checkPendingIslands = () => {
+                if (!bootstrapObserved) {
+                    reportFailure('island_bootstrap_missing', serializeIslands(getTrackedIslands()));
+                    return;
+                }
+
+                const pendingIslands = getTrackedIslands().filter(
+                    (element) => element.dataset.islandStatus !== 'mounted'
+                );
+
+                if (pendingIslands.length === 0) {
+                    return;
+                }
+
+                reportFailure(
+                    'island_mount_timeout',
+                    serializeIslands(pendingIslands)
+                );
+            };
+
+            window.__blexIslandMonitor = {
+                notifyBootstrap() {
+                    bootstrapObserved = true;
+                },
+                notifyMounted() {},
+                notifyFailed(name, reason) {
+                    reportFailure('island_render_failed', `${name}:${reason}`);
+                }
+            };
+
+            window.addEventListener('load', () => {
+                window.setTimeout(checkPendingIslands, MONITOR_TIMEOUT_MS);
+            }, { once: true });
+        })();
     </script>
     {% vite_hmr_client %}
     {% block extra_scripts %}{% endblock %}

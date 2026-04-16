@@ -13,6 +13,7 @@ SECRET_KEY = os.environ.get('SECRET_KEY')
 CIPHER_KEY = os.environ.get('CIPHER_KEY').encode()
 
 DEBUG = os.environ.get('DEBUG') == 'TRUE'
+USE_VITE_DEV_SERVER = DEBUG and os.environ.get('USE_VITE_DEV_SERVER', 'TRUE') == 'TRUE'
 
 TESTING = sys.argv[1:2] == ['test']
 

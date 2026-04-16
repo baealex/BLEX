@@ -1,4 +1,7 @@
+import type { ReactNode } from 'react';
 import { toast as sonnerToast } from '@blex/ui/toast';
+
+const TOASTER_ROOT_ID = 'blex-toast-root';
 
 const DURATION = {
     success: 2000,
@@ -7,38 +10,72 @@ const DURATION = {
     warning: 4000
 } as const;
 
+type ToastMessage = string | ReactNode;
+
 type ToastOptions = {
     duration?: number;
     [key: string]: unknown;
 };
 
+const ensureToaster = () => {
+    if (typeof document === 'undefined' || document.getElementById(TOASTER_ROOT_ID)) {
+        return;
+    }
+
+    const toaster = document.createElement('island-component');
+    toaster.id = TOASTER_ROOT_ID;
+    toaster.setAttribute('name', 'Toaster');
+    toaster.dataset.islandName = 'Toaster';
+    toaster.dataset.islandStatus = 'pending';
+    document.body.appendChild(toaster);
+};
+
 export const toast = Object.assign(
-    (message: string | React.ReactNode, options?: ToastOptions) =>
-        sonnerToast(message, options),
+    (message: ToastMessage, options?: ToastOptions) => {
+        ensureToaster();
+        return sonnerToast(message, options);
+    },
     {
-        success: (message: string | React.ReactNode, options?: ToastOptions) =>
-            sonnerToast.success(message, {
+        success: (message: ToastMessage, options?: ToastOptions) => {
+            ensureToaster();
+            return sonnerToast.success(message, {
                 duration: DURATION.success,
                 ...options
-            }),
-        error: (message: string | React.ReactNode, options?: ToastOptions) =>
-            sonnerToast.error(message, {
+            });
+        },
+        error: (message: ToastMessage, options?: ToastOptions) => {
+            ensureToaster();
+            return sonnerToast.error(message, {
                 duration: DURATION.error,
                 ...options
-            }),
-        info: (message: string | React.ReactNode, options?: ToastOptions) =>
-            sonnerToast.info(message, {
+            });
+        },
+        info: (message: ToastMessage, options?: ToastOptions) => {
+            ensureToaster();
+            return sonnerToast.info(message, {
                 duration: DURATION.info,
                 ...options
-            }),
-        warning: (message: string | React.ReactNode, options?: ToastOptions) =>
-            sonnerToast.warning(message, {
+            });
+        },
+        warning: (message: ToastMessage, options?: ToastOptions) => {
+            ensureToaster();
+            return sonnerToast.warning(message, {
                 duration: DURATION.warning,
                 ...options
-            }),
-        loading: sonnerToast.loading,
-        promise: sonnerToast.promise,
+            });
+        },
+        loading: (...args: Parameters<typeof sonnerToast.loading>) => {
+            ensureToaster();
+            return sonnerToast.loading(...args);
+        },
+        promise: (...args: Parameters<typeof sonnerToast.promise>) => {
+            ensureToaster();
+            return sonnerToast.promise(...args);
+        },
         dismiss: sonnerToast.dismiss,
-        message: sonnerToast.message
+        message: (...args: Parameters<typeof sonnerToast.message>) => {
+            ensureToaster();
+            return sonnerToast.message(...args);
+        }
     }
 );
