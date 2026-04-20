@@ -52,37 +52,7 @@ export default defineConfig(({ mode }) => {
                 output: {
                     entryFileNames: '[name].[hash].js',
                     assetFileNames: '[name].[hash][extname]',
-                    chunkFileNames: 'chunks/[name].[hash].js',
-                    manualChunks: (id) => {
-                        // Keep core React runtime isolated from feature vendors.
-                        if (
-                            id.includes('react-dom') ||
-                            id.includes('node_modules/react/') ||
-                            id.includes('node_modules/scheduler/')
-                        ) {
-                            return 'react-core';
-                        }
-
-                        // Router is primarily used by SettingsApp.
-                        if (id.includes('@tanstack/react-router') || id.includes('@tanstack/router-core')) {
-                            return 'tanstack-router';
-                        }
-
-                        // Charts should stay out of baseline boot chunks.
-                        if (id.includes('frappe-charts')) {
-                            return 'charts';
-                        }
-
-                        // Tiptap editor - only used by PostEditor (doesn't need React at init)
-                        if (id.includes('@tiptap') || id.includes('prosemirror')) {
-                            return 'tiptap';
-                        }
-
-                        // Zod - pure JS, no React dependency
-                        if (id.includes('/zod')) {
-                            return 'zod';
-                        }
-                    }
+                    chunkFileNames: 'chunks/[name].[hash].js'
                 }
             }
         },

@@ -3,11 +3,15 @@ import { Modal } from '~/components/shared';
 
 interface LoginPromptProps {
     isOpen?: boolean;
+    action?: string;
 }
 
-const LoginPrompt = ({ isOpen: initialIsOpen = false }: LoginPromptProps) => {
+const LoginPrompt = ({
+    isOpen: initialIsOpen = false,
+    action: initialAction = '이 작업'
+}: LoginPromptProps) => {
     const [isOpen, setIsOpen] = useState(initialIsOpen);
-    const [action, setAction] = useState('이 작업');
+    const [action, setAction] = useState(initialAction);
 
     // 전역 이벤트로 모달 열기
     useEffect(() => {
@@ -36,6 +40,7 @@ const LoginPrompt = ({ isOpen: initialIsOpen = false }: LoginPromptProps) => {
         <Modal
             isOpen={isOpen}
             onClose={handleClose}
+            ariaTitle="로그인이 필요해요"
             maxWidth="sm"
             showCloseButton={false}>
             <Modal.Body className="p-8 text-center">

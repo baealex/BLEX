@@ -14,6 +14,7 @@ interface ModalProps {
     isOpen: boolean;
     onClose: () => void;
     title?: string;
+    ariaTitle?: string;
     children: ReactNode;
     maxWidth?: 'sm' | 'md' | 'lg' | 'xl' | '2xl' | '3xl' | '4xl';
     showCloseButton?: boolean;
@@ -101,10 +102,13 @@ const ModalRoot = ({
     isOpen,
     onClose,
     title,
+    ariaTitle,
     children,
     maxWidth = '2xl',
     showCloseButton = true
 }: ModalProps) => {
+    const accessibleTitle = title ?? ariaTitle ?? 'Dialog';
+
     // Use explicit class names for Tailwind to detect at build time
     const getMaxWidthClass = () => {
         switch (maxWidth) {
@@ -155,6 +159,12 @@ const ModalRoot = ({
                         'sm:data-[state=closed]:slide-out-to-bottom-[48%]',
                         'sm:data-[state=open]:slide-in-from-bottom-[48%]'
                     )}>
+
+                    {!title && (
+                        <Dialog.Title className="sr-only">
+                            {accessibleTitle}
+                        </Dialog.Title>
+                    )}
 
                     {/* 헤더 */}
                     {(title || showCloseButton) && (

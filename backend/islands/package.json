@@ -4,6 +4,8 @@
     "scripts": {
         "dev": "turbo run dev --parallel",
         "build": "turbo run build",
+        "check:entry-budgets": "pnpm --filter @blex/remotes run check:entry-budgets",
+        "e2e:smoke": "pnpm --filter @blex/remotes run e2e:smoke",
         "lint": "turbo run lint",
         "type-check": "turbo run type-check"
     },
@@ -12,6 +14,9 @@
         "tsup": "^8.5.1",
         "turbo": "^2.8.10",
         "typescript": "^5.9.3"
+    },
+    "engines": {
+        "node": ">=20.19.0 <21 || >=22.12.0"
     },
     "packageManager": "pnpm@9.0.0",
     "pnpm": {

@@ -53,7 +53,7 @@ def island_entry(entry_name):
     <script type="module" src="{% island_entry 'src/island.tsx' %}"></script>
     """
     # Check if in development mode
-    if settings.DEBUG:
+    if getattr(settings, 'USE_VITE_DEV_SERVER', settings.DEBUG):
         return f"http://localhost:5173/{entry_name}"
     
     manifest = get_manifest()
@@ -77,7 +77,7 @@ def island_css(entry_name):
     <link rel="stylesheet" href="{% island_css 'styles/main.scss' %}">
     """
     # Check if in development mode
-    if settings.DEBUG:
+    if getattr(settings, 'USE_VITE_DEV_SERVER', settings.DEBUG):
         return f"http://localhost:5173/{entry_name}"
     
     manifest = get_manifest()
@@ -109,7 +109,13 @@ def island_component(component_name, lazy=False, **props):
 
     props_json = json.dumps(props)
     lazy_attr = ' lazy="true"' if lazy else ''
-    html_output = f'<island-component name="{component_name}" props="{urllib.parse.quote(props_json)}"{lazy_attr}></island-component>'
+    html_output = (
+        f'<island-component '
+        f'name="{component_name}" '
+        f'data-island-name="{component_name}" '
+        f'data-island-status="pending" '
+        f'props="{urllib.parse.quote(props_json)}"{lazy_attr}></island-component>'
+    )
 
     return mark_safe(html_output)
 
@@ -118,7 +124,7 @@ def vite_hmr_client():
     """
     DEBUG 모드일 때만 Vite HMR 클라이언트를 로드
     """
-    if settings.DEBUG:
+    if getattr(settings, 'USE_VITE_DEV_SERVER', settings.DEBUG):
         preamble = """
         <script type="module">
             import RefreshRuntime from 'http://localhost:5173/@react-refresh'

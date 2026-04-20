@@ -28,6 +28,8 @@ class LoginViewTestCase(TestCase):
         response = self.client.get(reverse('login'))
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'board/auth/login.html')
+        self.assertContains(response, 'window.__blexIslandMonitor')
+        self.assertContains(response, 'data-island-status')
 
     def test_login_page_with_next_parameter(self):
         """로그인 페이지에 next 파라미터가 있을 때 context에 포함되는지 테스트"""
@@ -98,6 +100,8 @@ class SignupViewTestCase(TestCase):
         response = self.client.get(reverse('signup'))
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'board/auth/signup.html')
+        self.assertContains(response, 'window.__blexIslandMonitor')
+        self.assertContains(response, 'data-island-status')
 
     def test_signup_page_with_next_parameter(self):
         """회원가입 페이지에 next 파라미터가 있을 때 context에 포함되는지 테스트"""

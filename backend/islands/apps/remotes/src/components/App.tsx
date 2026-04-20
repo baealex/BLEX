@@ -1,5 +1,4 @@
 import { lazy, Suspense } from 'react';
-import { ConfirmProvider } from '~/contexts/ConfirmContext';
 
 interface AppProps {
     __name: keyof typeof LazyComponents;
@@ -29,12 +28,10 @@ const App = ({ __name, ...props }: AppProps) => {
     const Component = LazyComponents[__name];
 
     return (
-        <ConfirmProvider>
-            <Suspense>
-                {/* @ts-expect-error - 동적 컴포넌트 props 타입 처리를 위한 임시 방법 */}
-                <Component {...props} />
-            </Suspense>
-        </ConfirmProvider>
+        <Suspense>
+            {/* @ts-expect-error - 동적 컴포넌트 props 타입 처리를 위한 임시 방법 */}
+            <Component {...props} />
+        </Suspense>
     );
 };
 

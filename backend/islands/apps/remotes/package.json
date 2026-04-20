@@ -7,6 +7,8 @@
         "dev": "node scripts/watch-assets.js & vite dev",
         "watch:assets": "node scripts/watch-assets.js",
         "build": "vite build",
+        "check:entry-budgets": "node scripts/check-entry-budgets.mjs",
+        "e2e:smoke": "playwright test --config playwright.config.ts",
         "lint": "eslint src",
         "type-check": "tsc --noEmit"
     },
@@ -36,6 +38,7 @@
     "devDependencies": {
         "@baejino/eslint-config": "^0.1.1",
         "@baejino/eslint-config-react": "^0.1.1",
+        "@playwright/test": "^1.59.1",
         "@tailwindcss/postcss": "^4.2.1",
         "@tailwindcss/vite": "^4.2.1",
         "@types/alpinejs": "^3.13.11",
