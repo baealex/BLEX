@@ -33,6 +33,7 @@
 
 <!-- Canonical URL -->
 <link rel="canonical" href="{{ request.build_absolute_uri }}">
+<link rel="alternate" type="text/markdown" href="{{ post_markdown_url }}">
 {% endblock %}
 
 {% block extra_styles %}
@@ -163,6 +164,27 @@
                         } catch (error) {
                             window.toast.error('복사에 실패했습니다');
                         }
+                    },
+                    async copyForAi(markdownUrl) {
+                        try {
+                            const response = await fetch(markdownUrl, {
+                                headers: { 'Accept': 'text/markdown' }
+                            });
+
+                            if (!response.ok) {
+                                throw new Error(`Markdown request failed: ${response.status}`);
+                            }
+
+                            const markdown = await response.text();
+                            await navigator.clipboard.writeText(markdown);
+                            window.toast.success('AI용 Markdown이 복사되었습니다');
+                            if (navigator.vibrate) {
+                                navigator.vibrate(50);
+                            }
+                        } catch (error) {
+                            console.error('Error copying AI markdown:', error);
+                            await this.copyToClipboard();
+                        }
                     }
                 }" class="fixed sm:sticky bottom-6 left-0 right-0 z-30 flex justify-center pointer-events-none">
                     <div class="pointer-events-auto floating-glass-surface rounded-full px-3 py-3 flex items-center gap-2 transform transition-all motion-interaction">
@@ -204,6 +226,15 @@
                         class="w-11 h-11 flex items-center justify-center rounded-full text-content-secondary hover:text-content hover:bg-surface-subtle/80 transition-all duration-200 active:scale-95"
                         aria-label="게시물 공유하기">
                             <i class="fas fa-share-alt"></i>
+                        </button>
+
+                        <!-- Copy for AI Button -->
+                        <button @click="copyForAi($el.dataset.aiMarkdownUrl)"
+                            data-ai-markdown-url="{% url 'post_markdown' post.author_username post.url %}"
+                            class="w-11 h-11 flex items-center justify-center rounded-full text-content-secondary hover:text-content hover:bg-surface-subtle/80 transition-all duration-200 active:scale-95"
+                            aria-label="AI용 Markdown 복사"
+                            title="AI용 Markdown 복사">
+                            <i class="fas fa-code"></i>
                         </button>
 
                         <!-- Edit Button -->

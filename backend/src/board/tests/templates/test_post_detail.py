@@ -51,3 +51,42 @@ class PostDetailViewTestCase(TestCase):
         self.assertEqual(toc[0]['level'], 1)
         self.assertEqual(toc[1]['text'], 'Header 2')
         self.assertEqual(toc[1]['level'], 2)
+
+    def test_post_detail_has_copy_for_ai_action(self):
+        url = reverse('post_detail', kwargs={
+            'username': 'testauthor',
+            'post_url': 'test-post'
+        })
+        response = self.client.get(url)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'aria-label="AI용 Markdown 복사"')
+        self.assertContains(response, 'data-ai-markdown-url=/@testauthor/test-post.md')
+
+    def test_post_detail_advertises_markdown_alternate(self):
+        """포스트 상세는 AI 에이전트가 Markdown export를 발견할 수 있게 힌트를 제공한다."""
+        url = reverse('post_detail', kwargs={
+            'username': 'testauthor',
+            'post_url': 'test-post'
+        })
+        response = self.client.get(url)
+
+        self.assertEqual(response.status_code, 200)
+
+        markdown_url = 'http://testserver/@testauthor/test-post.md'
+        llms_txt_url = 'http://testserver/llms.txt'
+
+        content = response.content.decode()
+
+        self.assertIn(markdown_url, content)
+        self.assertIn('rel=alternate', content)
+        self.assertIn('type=text/markdown', content)
+        self.assertIn(
+            f'<{markdown_url}>; rel="alternate"; type="text/markdown"',
+            response['Link']
+        )
+        self.assertIn(
+            f'<{llms_txt_url}>; rel="llms-txt"',
+            response['Link']
+        )
+        self.assertEqual(response['X-Llms-Txt'], llms_txt_url)
