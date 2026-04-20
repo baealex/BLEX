@@ -108,6 +108,26 @@ class AgentContentService:
         return '\n'.join(lines).strip() + '\n'
 
     @staticmethod
+    def build_llms_txt_url(request: HttpRequest) -> str:
+        return request.build_absolute_uri(reverse('llms_txt'))
+
+    @staticmethod
+    def build_post_markdown_url(post: Post, request: HttpRequest) -> str:
+        return request.build_absolute_uri(
+            reverse('post_markdown', args=[post.author.username, post.url])
+        )
+
+    @staticmethod
+    def build_agent_link_header(post: Post, request: HttpRequest) -> str:
+        markdown_url = AgentContentService.build_post_markdown_url(post, request)
+        llms_txt_url = AgentContentService.build_llms_txt_url(request)
+
+        return (
+            f'<{markdown_url}>; rel="alternate"; type="text/markdown", '
+            f'<{llms_txt_url}>; rel="llms-txt"'
+        )
+
+    @staticmethod
     def build_post_markdown(post: Post, request: HttpRequest) -> str:
         content = AgentContentService.get_post_content_markdown(post)
         source_url = request.build_absolute_uri(post.get_absolute_url())

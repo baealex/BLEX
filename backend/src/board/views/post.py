@@ -9,6 +9,7 @@ from django.utils import timezone
 from board.models import Post, Series, PostLikes, UsernameChangeLog
 from board.services.post_service import PostService, PostValidationError
 from board.services.banner_service import BannerService
+from board.services.agent_content_service import AgentContentService
 from board.html_utils import extract_table_of_contents
 
 def post_detail(request, username, post_url):
@@ -52,9 +53,13 @@ def post_detail(request, username, post_url):
         'banners': banners,
         'content_html': content_html_with_ids,
         'table_of_contents': table_of_contents,
+        'post_markdown_url': AgentContentService.build_post_markdown_url(post, request),
     }
 
-    return render(request, 'board/posts/post_detail.html', context)
+    response = render(request, 'board/posts/post_detail.html', context)
+    response['Link'] = AgentContentService.build_agent_link_header(post, request)
+    response['X-Llms-Txt'] = AgentContentService.build_llms_txt_url(request)
+    return response
 
 
 def post_editor(request, username=None, post_url=None):
