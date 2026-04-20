@@ -51,3 +51,14 @@ class PostDetailViewTestCase(TestCase):
         self.assertEqual(toc[0]['level'], 1)
         self.assertEqual(toc[1]['text'], 'Header 2')
         self.assertEqual(toc[1]['level'], 2)
+
+    def test_post_detail_has_copy_for_ai_action(self):
+        url = reverse('post_detail', kwargs={
+            'username': 'testauthor',
+            'post_url': 'test-post'
+        })
+        response = self.client.get(url)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'aria-label="AI용 Markdown 복사"')
+        self.assertContains(response, 'data-ai-markdown-url=/@testauthor/test-post.md')

@@ -6,6 +6,7 @@ from django.contrib.auth import views as auth_views
 from board.sitemaps import sitemaps, sitemap_section
 from board.feeds import SitePostsFeed, UserPostsFeed
 from board.views.api import v1 as api_v1
+from board.views import agent
 from board.views import main
 from board.views.post_actions import like_post
 from board.views.authors import authors_view
@@ -31,6 +32,7 @@ urlpatterns = [
     path('sign', signup_view, name='signup'),
     path('login/callback/<str:provider>', oauth_callback, name='oauth_callback'),
     path('logout', auth_views.LogoutView.as_view(), name='logout'),
+    path('llms.txt', agent.llms_txt, name='llms_txt'),
 
     # Static pages
     path('static/<path:slug>', static_page_view, name='static_page'),
@@ -48,6 +50,7 @@ urlpatterns = [
     path('@<username>/about/edit', author_about_edit, name='user_about_edit'),
     path('@<username>/series/<series_url>', series_detail, name='series_detail'),
     path('@<username>/posts', author_posts, name='user_posts'),
+    path('@<username>/<post_url>.md', agent.post_markdown, name='post_markdown'),
     path('@<username>/<post_url>/edit', post_editor, name='post_edit'),
     path('@<username>/<post_url>', post_detail, name='post_detail'),
     path('@<username>', author_overview, name='user_profile'),
