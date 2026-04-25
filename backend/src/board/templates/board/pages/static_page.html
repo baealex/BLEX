@@ -6,6 +6,10 @@
 
 {% block meta_description %}{{ meta_description }}{% endblock %}
 
+{% block meta %}
+<link rel="alternate" type="text/markdown" href="{{ static_page_markdown_url }}">
+{% endblock %}
+
 {% block extra_styles %}
 <link rel="stylesheet" href="{% island_css 'styles/post.scss' %}">
 {% endblock %}

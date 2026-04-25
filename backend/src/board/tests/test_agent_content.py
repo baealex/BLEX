@@ -1,3 +1,4 @@
+import re
 from datetime import timedelta
 
 from django.conf import settings
@@ -5,7 +6,7 @@ from django.contrib.auth.models import User
 from django.test import Client, TestCase, override_settings
 from django.utils import timezone
 
-from board.models import Post, PostConfig, PostContent
+from board.models import Post, PostConfig, PostContent, Series, StaticPage
 
 
 BASE_MIDDLEWARE = tuple(
@@ -32,6 +33,15 @@ class AgentContentTestCase(TestCase):
             text_md='## Outcome\nAgents can parse this post.\n',
             published_date=now,
         )
+        cls.public_series = Series.objects.create(
+            owner=cls.author,
+            name='Agent Ready Series',
+            text_md='Series summary for agents.',
+            url='agent-ready-series',
+            hide=False,
+        )
+        cls.public_post.series = cls.public_series
+        cls.public_post.save(update_fields=['series'])
         html_content = (
             '<h2>HTML Outcome</h2>'
             '<p>Agents <strong>parse</strong> links <a href="/source">source</a>.</p>'
@@ -44,6 +54,8 @@ class AgentContentTestCase(TestCase):
             content_type=PostContent.ContentType.HTML,
             published_date=now,
         )
+        cls.html_post.series = cls.public_series
+        cls.html_post.save(update_fields=['series'])
         cls.html_without_markdown_post = cls.create_post(
             title='New Editor Agent Post',
             url='new-editor-agent-post',
@@ -121,6 +133,20 @@ class AgentContentTestCase(TestCase):
             text_md='Future content',
             published_date=now + timedelta(days=1),
         )
+        cls.public_static_page = StaticPage.objects.create(
+            slug='about-ai',
+            title='About AI',
+            content='<h2>About BLEX</h2><p>Static page content for agents.</p>',
+            meta_description='About page for agents',
+            is_published=True,
+        )
+        cls.unpublished_static_page = StaticPage.objects.create(
+            slug='internal-ai',
+            title='Internal AI Page',
+            content='<p>Not public</p>',
+            meta_description='Hidden page',
+            is_published=False,
+        )
 
     @classmethod
     def create_post(
@@ -189,6 +215,53 @@ class AgentContentTestCase(TestCase):
         self.assertIn('/rss', body)
         self.assertIn('/@aeo-author/agent-ready-post.md', body)
 
+    def test_llms_txt_follows_llmstxt_structure_and_lists_series_static_markdown(self):
+        """llms.txt는 요약 blockquote와 H2 링크 목록 구조를 지키고 시리즈/정적 페이지를 노출한다."""
+        response = self.client.get('/llms.txt')
+
+        self.assertEqual(response.status_code, 200)
+
+        body = response.content.decode()
+
+        self.assertRegex(
+            body,
+            r'^# BLEX\n\n> .+\n\n',
+        )
+        self.assertIn('## Entry Points\n', body)
+        self.assertIn('## Series\n', body)
+        self.assertIn('## Static Pages\n', body)
+        self.assertIn('## Optional\n', body)
+        self.assertIn(
+            '[Static pages sitemap](http://testserver/staticpages/sitemap.xml)',
+            body,
+        )
+        self.assertIn(
+            '[Agent Ready Series](http://testserver/@aeo-author/series/agent-ready-series.md)',
+            body,
+        )
+        self.assertIn(
+            '[About AI](http://testserver/static/about-ai.md)',
+            body,
+        )
+        self.assertIn(
+            '[Agent Ready Post](http://testserver/@aeo-author/agent-ready-post.md)',
+            body,
+        )
+
+        in_link_section = False
+        for line in body.splitlines():
+            if line.startswith('## '):
+                in_link_section = True
+                continue
+
+            if not in_link_section or not line.strip():
+                continue
+
+            self.assertRegex(
+                line,
+                r'^- \[[^\]]+\]\([^)]+\)(: .+)?$',
+            )
+
     def test_post_markdown_endpoint_returns_clean_markdown(self):
         """공개 포스트는 Markdown endpoint로 AI용 본문을 제공한다."""
         response = self.client.get('/@aeo-author/agent-ready-post.md')
@@ -202,6 +275,44 @@ class AgentContentTestCase(TestCase):
         self.assertIn('Author: @aeo-author', body)
         self.assertIn('Source: http://testserver/@aeo-author/agent-ready-post', body)
         self.assertIn('## Outcome\nAgents can parse this post.', body)
+
+    def test_series_markdown_endpoint_returns_clean_markdown(self):
+        """공개 시리즈는 Markdown endpoint로 시리즈 설명과 공개 포스트 링크를 제공한다."""
+        response = self.client.get('/@aeo-author/series/agent-ready-series.md')
+
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(response['Content-Type'].startswith('text/markdown'))
+        self.assertTrue(response['X-Estimated-Tokens'].isdigit())
+
+        body = response.content.decode()
+        self.assertIn('# Agent Ready Series', body)
+        self.assertIn('Author: @aeo-author', body)
+        self.assertIn('Source: http://testserver/@aeo-author/series/agent-ready-series', body)
+        self.assertIn('Series summary for agents.', body)
+        self.assertIn(
+            '- [Agent Ready Post](http://testserver/@aeo-author/agent-ready-post.md)',
+            body,
+        )
+
+    def test_static_page_markdown_endpoint_returns_clean_markdown(self):
+        """공개 정적 페이지는 Markdown endpoint로 AI용 본문을 제공한다."""
+        response = self.client.get('/static/about-ai.md')
+
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(response['Content-Type'].startswith('text/markdown'))
+        self.assertTrue(response['X-Estimated-Tokens'].isdigit())
+
+        body = response.content.decode()
+        self.assertIn('# About AI', body)
+        self.assertIn('Source: http://testserver/static/about-ai', body)
+        self.assertIn('## About BLEX', body)
+        self.assertIn('Static page content for agents.', body)
+
+    def test_static_page_markdown_endpoint_hides_unpublished_page(self):
+        """비공개 정적 페이지는 Markdown endpoint로 노출하지 않는다."""
+        response = self.client.get('/static/internal-ai.md')
+
+        self.assertEqual(response.status_code, 404)
 
     def test_post_markdown_endpoint_converts_html_content(self):
         """HTML 기반 포스트도 태그 잡음 없이 Markdown fallback을 제공한다."""

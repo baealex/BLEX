@@ -16,3 +16,19 @@ def post_markdown(request: HttpRequest, username: str, post_url: str) -> HttpRes
     response = HttpResponse(content, content_type='text/markdown; charset=utf-8')
     response['X-Estimated-Tokens'] = str(AgentContentService.estimate_tokens(content))
     return response
+
+
+def series_markdown(request: HttpRequest, username: str, series_url: str) -> HttpResponse:
+    series = AgentContentService.get_public_series_detail(username, series_url)
+    content = AgentContentService.build_series_markdown(series, request)
+    response = HttpResponse(content, content_type='text/markdown; charset=utf-8')
+    response['X-Estimated-Tokens'] = str(AgentContentService.estimate_tokens(content))
+    return response
+
+
+def static_page_markdown(request: HttpRequest, slug: str) -> HttpResponse:
+    page = AgentContentService.get_public_static_page(slug)
+    content = AgentContentService.build_static_page_markdown(page, request)
+    response = HttpResponse(content, content_type='text/markdown; charset=utf-8')
+    response['X-Estimated-Tokens'] = str(AgentContentService.estimate_tokens(content))
+    return response
