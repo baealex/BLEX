@@ -4,12 +4,12 @@ import re
 
 from bs4 import BeautifulSoup
 from bs4.element import NavigableString, Tag as SoupTag
-from django.db.models import QuerySet
+from django.db.models import Count, Q, QuerySet
 from django.http import Http404, HttpRequest
 from django.urls import reverse
 from django.utils import timezone
 
-from board.models import Post, PostContent
+from board.models import Post, PostContent, Series, StaticPage
 
 
 class AgentContentService:
@@ -58,54 +58,167 @@ class AgentContentService:
             raise Http404("Post does not exist") from error
 
     @staticmethod
+    def get_public_series() -> QuerySet[Series]:
+        public_post_filter = Q(
+            posts__published_date__isnull=False,
+            posts__published_date__lte=timezone.now(),
+            posts__config__hide=False,
+        )
+        return Series.objects.select_related('owner').annotate(
+            public_post_count=Count('posts', filter=public_post_filter, distinct=True)
+        ).filter(
+            hide=False,
+            public_post_count__gte=1,
+        ).order_by('order', '-updated_date')
+
+    @staticmethod
+    def get_public_series_detail(username: str, series_url: str) -> Series:
+        try:
+            return AgentContentService.get_public_series().get(
+                owner__username=username,
+                url=series_url,
+            )
+        except Series.DoesNotExist as error:
+            raise Http404("Series does not exist") from error
+
+    @staticmethod
+    def get_public_series_posts(series: Series) -> QuerySet[Post]:
+        return Post.objects.select_related(
+            'author',
+            'config',
+        ).filter(
+            series=series,
+            published_date__isnull=False,
+            published_date__lte=timezone.now(),
+            config__hide=False,
+        ).order_by('-published_date')
+
+    @staticmethod
+    def get_public_static_pages() -> QuerySet[StaticPage]:
+        return StaticPage.objects.filter(
+            is_published=True,
+        ).order_by('order', 'slug')
+
+    @staticmethod
+    def get_public_static_page(slug: str) -> StaticPage:
+        try:
+            return AgentContentService.get_public_static_pages().get(slug=slug)
+        except StaticPage.DoesNotExist as error:
+            raise Http404("Static page does not exist") from error
+
+    @staticmethod
     def build_llms_txt(request: HttpRequest) -> str:
         site_url = request.build_absolute_uri(reverse('index')).rstrip('/')
-        latest_posts = AgentContentService.get_public_posts()
+        latest_posts = list(AgentContentService.get_public_posts())
+        public_series = list(AgentContentService.get_public_series())
+        public_static_pages = list(AgentContentService.get_public_static_pages())
 
         lines = [
             '# BLEX',
             '',
-            'BLEX is a blog platform for long-form posts, series, and author archives.',
-            'This file is optimized for AI agents. Prefer Markdown URLs when you need clean post content.',
+            '> BLEX is a long-form publishing site with public posts, curated series, and published static pages for readers and AI agents.',
             '',
-            '## Entry Points',
-            '',
-            f'- Site: {site_url}',
-            f'- Sitemap: {request.build_absolute_uri(reverse("sitemap"))}',
-            f'- Posts sitemap: {request.build_absolute_uri(reverse("sitemap_section", args=["posts"]))}',
-            f'- Series sitemap: {request.build_absolute_uri(reverse("sitemap_section", args=["series"]))}',
-            f'- Authors sitemap: {request.build_absolute_uri(reverse("sitemap_section", args=["user"]))}',
-            f'- RSS: {request.build_absolute_uri("/rss")}',
-            '',
-            '## URL Conventions',
-            '',
-            '- Post HTML: /@{username}/{post_url}',
-            '- Post Markdown: /@{username}/{post_url}.md',
-            '',
-            '## Latest Public Posts',
+            'Prefer Markdown endpoints when available, because they remove template noise and preserve the cleanest agent-readable content.',
+            'Recent posts are listed under `Optional` so agents with tight context budgets can skip them first.',
             '',
         ]
 
-        if not latest_posts:
-            lines.append('- No public posts are available.')
+        entry_points = [
+            AgentContentService.build_llms_link_line(
+                'Homepage',
+                site_url,
+                'Human-readable homepage for the latest published content.',
+            ),
+            AgentContentService.build_llms_link_line(
+                'Sitemap index',
+                request.build_absolute_uri(reverse('sitemap')),
+                'Top-level sitemap with links to posts, series, authors, and static pages.',
+            ),
+            AgentContentService.build_llms_link_line(
+                'Posts sitemap',
+                request.build_absolute_uri(reverse('sitemap_section', args=['posts'])),
+                'Complete list of public post HTML URLs.',
+            ),
+            AgentContentService.build_llms_link_line(
+                'Series sitemap',
+                request.build_absolute_uri(reverse('sitemap_section', args=['series'])),
+                'Complete list of public series HTML URLs.',
+            ),
+            AgentContentService.build_llms_link_line(
+                'Authors sitemap',
+                request.build_absolute_uri(reverse('sitemap_section', args=['user'])),
+                'Complete list of public author archive URLs.',
+            ),
+            AgentContentService.build_llms_link_line(
+                'Static pages sitemap',
+                request.build_absolute_uri(reverse('sitemap_section', args=['staticpages'])),
+                'Complete list of published static page HTML URLs.',
+            ),
+            AgentContentService.build_llms_link_line(
+                'RSS feed',
+                request.build_absolute_uri('/rss'),
+                'Recent published posts feed.',
+            ),
+        ]
+        AgentContentService.append_llms_section(lines, 'Entry Points', entry_points)
 
+        if public_series:
+            series_lines = [
+                AgentContentService.build_llms_link_line(
+                    series.name,
+                    AgentContentService.build_series_markdown_url(series, request),
+                    f'Series overview and public post list for @{series.owner.username}.',
+                )
+                for series in public_series
+            ]
+            AgentContentService.append_llms_section(lines, 'Series', series_lines)
+
+        if public_static_pages:
+            static_page_lines = [
+                AgentContentService.build_llms_link_line(
+                    page.title,
+                    AgentContentService.build_static_page_markdown_url(page, request),
+                    'Published static page in Markdown for agent use.',
+                )
+                for page in public_static_pages
+            ]
+            AgentContentService.append_llms_section(lines, 'Static Pages', static_page_lines)
+
+        optional_lines = []
         for post in latest_posts:
-            markdown_url = request.build_absolute_uri(
-                reverse('post_markdown', args=[post.author.username, post.url])
-            )
+            markdown_url = AgentContentService.build_post_markdown_url(post, request)
             source_url = request.build_absolute_uri(post.get_absolute_url())
-            markdown = AgentContentService.build_post_markdown(post, request)
-            token_count = AgentContentService.estimate_tokens(markdown)
-            title = AgentContentService.escape_link_text(post.title)
-
-            lines.append(
-                f'- [{title}]({markdown_url}) '
-                f'- author: @{post.author.username}; '
-                f'estimated tokens: {token_count}; '
-                f'source: {source_url}'
+            optional_lines.append(
+                AgentContentService.build_llms_link_line(
+                    post.title,
+                    markdown_url,
+                    f'Recent post by @{post.author.username}. Source HTML: {source_url}',
+                )
             )
+
+        if optional_lines:
+            AgentContentService.append_llms_section(lines, 'Optional', optional_lines)
 
         return '\n'.join(lines).strip() + '\n'
+
+    @staticmethod
+    def append_llms_section(lines: list[str], title: str, items: list[str]) -> None:
+        if not items:
+            return
+
+        lines.extend([
+            f'## {title}',
+            '',
+        ])
+        lines.extend(items)
+        lines.append('')
+
+    @staticmethod
+    def build_llms_link_line(title: str, url: str, description: str | None = None) -> str:
+        escaped_title = AgentContentService.escape_link_text(title)
+        if description:
+            return f'- [{escaped_title}]({url}): {description}'
+        return f'- [{escaped_title}]({url})'
 
     @staticmethod
     def build_llms_txt_url(request: HttpRequest) -> str:
@@ -118,10 +231,25 @@ class AgentContentService:
         )
 
     @staticmethod
+    def build_series_markdown_url(series: Series, request: HttpRequest) -> str:
+        return request.build_absolute_uri(
+            reverse('series_markdown', args=[series.owner.username, series.url])
+        )
+
+    @staticmethod
+    def build_static_page_markdown_url(page: StaticPage, request: HttpRequest) -> str:
+        return request.build_absolute_uri(
+            reverse('static_page_markdown', args=[page.slug])
+        )
+
+    @staticmethod
     def build_agent_link_header(post: Post, request: HttpRequest) -> str:
         markdown_url = AgentContentService.build_post_markdown_url(post, request)
-        llms_txt_url = AgentContentService.build_llms_txt_url(request)
+        return AgentContentService.build_agent_link_header_for_markdown_url(markdown_url, request)
 
+    @staticmethod
+    def build_agent_link_header_for_markdown_url(markdown_url: str, request: HttpRequest) -> str:
+        llms_txt_url = AgentContentService.build_llms_txt_url(request)
         return (
             f'<{markdown_url}>; rel="alternate"; type="text/markdown", '
             f'<{llms_txt_url}>; rel="llms-txt"'
@@ -156,6 +284,62 @@ class AgentContentService:
         return AgentContentService.collapse_blank_lines('\n'.join(lines)).strip() + '\n'
 
     @staticmethod
+    def build_series_markdown(series: Series, request: HttpRequest) -> str:
+        content = AgentContentService.get_series_content_markdown(series)
+        source_url = request.build_absolute_uri(series.get_absolute_url())
+        public_posts = list(AgentContentService.get_public_series_posts(series))
+
+        lines = [
+            f'# {series.name}',
+            '',
+            f'- Author: @{series.owner.username}',
+            f'- Updated: {series.updated_date.date().isoformat()}',
+            f'- Source: {source_url}',
+            '',
+            '---',
+            '',
+        ]
+
+        if content:
+            lines.extend([content, ''])
+
+        if public_posts:
+            lines.extend([
+                '## Posts',
+                '',
+            ])
+            lines.extend(
+                AgentContentService.build_llms_link_line(
+                    post.title,
+                    AgentContentService.build_post_markdown_url(post, request),
+                    f'Published {post.published_date.date().isoformat()}.',
+                )
+                for post in public_posts
+            )
+        else:
+            lines.append('No public posts are available in this series.')
+
+        return AgentContentService.collapse_blank_lines('\n'.join(lines)).strip() + '\n'
+
+    @staticmethod
+    def build_static_page_markdown(page: StaticPage, request: HttpRequest) -> str:
+        content = AgentContentService.html_to_markdown(page.content)
+        source_url = request.build_absolute_uri(reverse('static_page', args=[page.slug]))
+
+        lines = [
+            f'# {page.title}',
+            '',
+            f'- Updated: {page.updated_date.date().isoformat()}',
+            f'- Source: {source_url}',
+            '',
+            '---',
+            '',
+            content,
+        ]
+
+        return AgentContentService.collapse_blank_lines('\n'.join(lines)).strip() + '\n'
+
+    @staticmethod
     def get_post_content_markdown(post: Post) -> str:
         content = post.content
         text_md = content.text_md.strip()
@@ -169,6 +353,15 @@ class AgentContentService:
 
         html = content.text_html or content.text_md
         return AgentContentService.html_to_markdown(html)
+
+    @staticmethod
+    def get_series_content_markdown(series: Series) -> str:
+        text_md = series.text_md.strip()
+
+        if text_md and not AgentContentService.looks_like_html(text_md):
+            return text_md
+
+        return AgentContentService.html_to_markdown(series.text_html or series.text_md)
 
     @staticmethod
     def looks_like_html(text: str) -> bool:

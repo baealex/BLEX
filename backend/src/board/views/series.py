@@ -5,6 +5,7 @@ from django.utils import timezone
 from django.http import Http404
 
 from board.models import Post, Series, PostLikes
+from board.services.agent_content_service import AgentContentService
 
 
 def series_detail(request, username, series_url):
@@ -89,6 +90,13 @@ def series_detail(request, username, series_url):
         'next_page': page + 1 if has_next else None,
         'sort_order': sort_order,
         'request': request,
+        'series_markdown_url': AgentContentService.build_series_markdown_url(series, request),
     }
 
-    return render(request, 'board/series/series_detail.html', context)
+    response = render(request, 'board/series/series_detail.html', context)
+    response['Link'] = AgentContentService.build_agent_link_header_for_markdown_url(
+        context['series_markdown_url'],
+        request,
+    )
+    response['X-Llms-Txt'] = AgentContentService.build_llms_txt_url(request)
+    return response

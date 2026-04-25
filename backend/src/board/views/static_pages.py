@@ -1,6 +1,7 @@
 from django.shortcuts import render, get_object_or_404
 
 from board.models import StaticPage
+from board.services.agent_content_service import AgentContentService
 
 
 def custom_404_view(request, exception=None):
@@ -22,6 +23,13 @@ def static_page_view(request, slug):
         'page': page,
         'title': page.title,
         'meta_description': page.meta_description or page.title,
+        'static_page_markdown_url': AgentContentService.build_static_page_markdown_url(page, request),
     }
 
-    return render(request, 'board/pages/static_page.html', context)
+    response = render(request, 'board/pages/static_page.html', context)
+    response['Link'] = AgentContentService.build_agent_link_header_for_markdown_url(
+        context['static_page_markdown_url'],
+        request,
+    )
+    response['X-Llms-Txt'] = AgentContentService.build_llms_txt_url(request)
+    return response

@@ -35,6 +35,7 @@ urlpatterns = [
     path('llms.txt', agent.llms_txt, name='llms_txt'),
 
     # Static pages
+    path('static/<path:slug>.md', agent.static_page_markdown, name='static_page_markdown'),
     path('static/<path:slug>', static_page_view, name='static_page'),
 
     # Settings - Unified Settings App with client-side routing
@@ -48,6 +49,7 @@ urlpatterns = [
     path('@<username>/series', author_series, name='user_series'),
     path('@<username>/about', author_about, name='user_about'),
     path('@<username>/about/edit', author_about_edit, name='user_about_edit'),
+    path('@<username>/series/<series_url>.md', agent.series_markdown, name='series_markdown'),
     path('@<username>/series/<series_url>', series_detail, name='series_detail'),
     path('@<username>/posts', author_posts, name='user_posts'),
     path('@<username>/<post_url>.md', agent.post_markdown, name='post_markdown'),
