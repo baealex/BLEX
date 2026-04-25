@@ -6,6 +6,16 @@
 {% block title %}{{ series.name }} - {{ author.username }} | BLEX{% endblock %}
 
 {% block meta %}
+<meta name="description" content="{{ meta_description }}">
+<meta property="og:type" content="website">
+<meta property="og:url" content="{{ canonical_url }}">
+<meta property="og:title" content="{{ seo_title }}">
+<meta property="og:description" content="{{ meta_description }}">
+<meta property="twitter:card" content="summary">
+<meta property="twitter:url" content="{{ canonical_url }}">
+<meta property="twitter:title" content="{{ seo_title }}">
+<meta property="twitter:description" content="{{ meta_description }}">
+<link rel="canonical" href="{{ canonical_url }}">
 <link rel="alternate" type="text/markdown" href="{{ series_markdown_url }}">
 {% endblock %}
 
@@ -42,7 +52,7 @@
             <div class="w-1 h-1 bg-content-hint/70 rounded-full"></div>
             <div class="flex items-center gap-1.5">
                 <i class="far fa-clock text-xs"></i>
-                <span>{{ series.updated_date }} 수정됨</span>
+                <span>{{ series_updated_date_display }} 수정됨</span>
             </div>
         </div>
 
@@ -136,4 +146,8 @@
     {% endif %}
     {% endif %}
 </div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script type="application/ld+json">{{ structured_data_json|safe }}</script>
 {% endblock %}
