@@ -234,22 +234,22 @@ const DeveloperApiSetting = () => {
             />
 
             <section className="rounded-2xl border border-line bg-surface-subtle px-5 py-4">
-                <div className="grid gap-4 md:grid-cols-3">
-                    <div>
+                <div className="grid divide-y divide-line md:grid-cols-3 md:divide-x md:divide-y-0">
+                    <div className="pb-4 md:pb-0 md:pr-5">
                         <div className="text-xs font-semibold text-content-hint">용도</div>
                         <p className="mt-1 text-sm font-semibold text-content">외부 도구 연결</p>
                         <p className="mt-1 text-xs leading-relaxed text-content-secondary">
                             자동화 도구나 개인 클라이언트에서 내 글 API를 사용할 때 발급합니다.
                         </p>
                     </div>
-                    <div>
+                    <div className="py-4 md:px-5 md:py-0">
                         <div className="text-xs font-semibold text-content-hint">권한</div>
                         <p className="mt-1 text-sm font-semibold text-content">필요한 작업만 허용</p>
                         <p className="mt-1 text-xs leading-relaxed text-content-secondary">
                             읽기와 작성 권한을 분리해서 토큰마다 접근 범위를 제한합니다.
                         </p>
                     </div>
-                    <div>
+                    <div className="pt-4 md:pl-5 md:pt-0">
                         <div className="text-xs font-semibold text-content-hint">보관</div>
                         <p className="mt-1 text-sm font-semibold text-content">전체 토큰은 한 번만 표시</p>
                         <p className="mt-1 text-xs leading-relaxed text-content-secondary">
@@ -363,53 +363,57 @@ const DeveloperApiSetting = () => {
                             const status = tokenStatus(token);
                             const canRevoke = !token.revokedAt && !isExpired(token);
                             return (
-                                <div key={token.id} className="p-4">
-                                    <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
-                                        <div className="min-w-0 flex-1 space-y-3">
+                                <div key={token.id} className="flex flex-col gap-4 p-4 sm:flex-row sm:items-start sm:justify-between sm:p-5">
+                                    <div className="min-w-0 flex-1 space-y-3">
+                                        <div className="min-w-0">
                                             <div className="flex flex-wrap items-center gap-2">
                                                 <h3 className="text-sm font-semibold text-content">{token.name}</h3>
-                                                <span className={`inline-flex items-center rounded-md border px-2 py-1 text-xs font-semibold ${status.className}`}>
+                                                <span className={`inline-flex items-center rounded-md border px-2 py-0.5 text-xs font-semibold ${status.className}`}>
                                                     {status.label}
                                                 </span>
                                             </div>
-                                            <code className="block break-all rounded-md bg-surface-subtle px-3 py-2 font-mono text-xs text-content-secondary">
+                                            <code className="mt-1 block break-all font-mono text-xs text-content-hint">
                                                 blex_pat_{token.tokenPrefix}_...
                                             </code>
-                                            <div className="flex flex-wrap gap-2">
-                                                {token.scopes.map((scope) => (
-                                                    <span key={scope} className="rounded-md bg-surface-subtle px-2 py-1 text-xs font-medium text-content-secondary">
-                                                        {scopeLabel(scope)}
-                                                    </span>
-                                                ))}
-                                            </div>
                                         </div>
-                                        <div className="grid gap-2 text-xs text-content-secondary sm:grid-cols-3 lg:w-[420px]">
-                                            <div>
-                                                <div className="font-semibold text-content">생성</div>
-                                                <div className="mt-1">{formatDateTime(token.createdAt)}</div>
-                                            </div>
-                                            <div>
-                                                <div className="font-semibold text-content">만료</div>
-                                                <div className="mt-1">{formatDateTime(token.expiresAt)}</div>
-                                            </div>
-                                            <div>
-                                                <div className="font-semibold text-content">마지막 사용</div>
-                                                <div className="mt-1">{formatDateTime(token.lastUsedAt)}</div>
-                                            </div>
+
+                                        <div className="flex flex-wrap gap-1.5">
+                                            {token.scopes.map((scope) => (
+                                                <span key={scope} className="rounded-md bg-surface-subtle px-2 py-1 text-xs font-medium text-content-secondary">
+                                                    {scopeLabel(scope)}
+                                                </span>
+                                            ))}
+                                        </div>
+
+                                        <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-content-secondary">
+                                            <span>
+                                                <span className="font-semibold text-content-hint">생성</span>
+                                                {' '}
+                                                {formatDateTime(token.createdAt)}
+                                            </span>
+                                            <span>
+                                                <span className="font-semibold text-content-hint">만료</span>
+                                                {' '}
+                                                {formatDateTime(token.expiresAt)}
+                                            </span>
+                                            <span>
+                                                <span className="font-semibold text-content-hint">마지막 사용</span>
+                                                {' '}
+                                                {formatDateTime(token.lastUsedAt)}
+                                            </span>
                                         </div>
                                     </div>
+
                                     {canRevoke && (
-                                        <div className="mt-4 flex justify-end">
-                                            <Button
-                                                type="button"
-                                                variant="danger"
-                                                size="sm"
-                                                isLoading={revokeTokenMutation.isPending && revokeTokenMutation.variables === token.id}
-                                                onClick={() => handleRevokeToken(token)}
-                                                leftIcon={!(revokeTokenMutation.isPending && revokeTokenMutation.variables === token.id) ? <i className="fas fa-ban" /> : undefined}>
-                                                폐기
-                                            </Button>
-                                        </div>
+                                        <Button
+                                            type="button"
+                                            variant="danger"
+                                            size="sm"
+                                            isLoading={revokeTokenMutation.isPending && revokeTokenMutation.variables === token.id}
+                                            onClick={() => handleRevokeToken(token)}
+                                            leftIcon={!(revokeTokenMutation.isPending && revokeTokenMutation.variables === token.id) ? <i className="fas fa-ban" /> : undefined}>
+                                            폐기
+                                        </Button>
                                     )}
                                 </div>
                             );
