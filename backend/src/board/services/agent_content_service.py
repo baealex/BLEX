@@ -19,6 +19,10 @@ class AgentContentService:
     INLINE_RAW_TAGS = {'figcaption', 'mark', 'u', 'sub', 'sup'}
 
     @staticmethod
+    def is_seo_enabled() -> bool:
+        return SiteSetting.get_instance().seo_enabled
+
+    @staticmethod
     def is_aeo_enabled() -> bool:
         return SiteSetting.get_instance().aeo_enabled
 
@@ -154,6 +158,9 @@ class AgentContentService:
 
     @staticmethod
     def build_robots_txt(request: HttpRequest) -> str:
+        if not AgentContentService.is_seo_enabled():
+            return 'User-agent: *\nDisallow: /\n'
+
         lines = [
             'User-agent: *',
             'Allow: /',

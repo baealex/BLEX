@@ -9,9 +9,6 @@
 <meta name="description" content="{{ post.meta_description }}">
 <meta name="keywords" content="{% for tag in post.tags.all %}{{ tag }}{% if not forloop.last %}, {% endif %}{% endfor %}">
 <meta name="author" content="{{ post.author_username }}">
-<!-- Robots and Indexing -->
-<meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1">
-<meta name="googlebot" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1">
 
 <!-- Open Graph / Facebook -->
 <meta property="og:type" content="article">
@@ -35,6 +32,17 @@
 <link rel="canonical" href="{{ request.build_absolute_uri }}">
 {% if aeo_enabled %}
 <link rel="alternate" type="text/markdown" href="{{ post_markdown_url }}">
+{% endif %}
+{% endblock %}
+
+{% block robots_meta %}
+{% if site_setting and not site_setting.seo_enabled %}
+<meta name="robots" content="noindex,nofollow">
+<meta name="googlebot" content="noindex,nofollow">
+{% else %}
+<!-- Robots and Indexing -->
+<meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1">
+<meta name="googlebot" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1">
 {% endif %}
 {% endblock %}
 

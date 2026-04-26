@@ -800,6 +800,10 @@ class SiteSetting(models.Model):
     )
 
     # Search and agent exposure settings
+    seo_enabled = models.BooleanField(
+        default=True,
+        help_text='검색엔진용 robots.txt 색인 허용 및 HTML noindex 신호 제어 여부'
+    )
     aeo_enabled = models.BooleanField(
         default=False,
         help_text='AI 에이전트용 llms.txt, Markdown endpoint, discovery header 노출 여부'

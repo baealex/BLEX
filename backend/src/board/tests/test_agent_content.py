@@ -187,8 +187,9 @@ class AgentContentTestCase(TestCase):
     def setUp(self):
         self.client = Client()
         setting = SiteSetting.get_instance()
+        setting.seo_enabled = True
         setting.aeo_enabled = True
-        setting.save(update_fields=['aeo_enabled'])
+        setting.save(update_fields=['seo_enabled', 'aeo_enabled'])
 
     @override_settings(MIDDLEWARE=AEO_MIDDLEWARE)
     def test_sitemap_allows_regular_user_agent(self):
@@ -236,6 +237,18 @@ class AgentContentTestCase(TestCase):
         self.assertIn('Disallow: /*.md', body)
         self.assertIn('Disallow: /admin-settings/', body)
         self.assertNotIn('AI agent entry point', body)
+
+    def test_robots_txt_disallows_all_when_seo_disabled(self):
+        """SEO가 꺼져 있으면 robots.txt가 전체 수집을 막는다."""
+        setting = SiteSetting.get_instance()
+        setting.seo_enabled = False
+        setting.aeo_enabled = True
+        setting.save(update_fields=['seo_enabled', 'aeo_enabled'])
+
+        response = self.client.get('/robots.txt')
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.content.decode(), 'User-agent: *\nDisallow: /\n')
 
     def test_robots_txt_advertises_agent_entrypoint_when_aeo_enabled(self):
         """AEO가 켜져 있으면 robots.txt에 AI 진입점을 표시한다."""
