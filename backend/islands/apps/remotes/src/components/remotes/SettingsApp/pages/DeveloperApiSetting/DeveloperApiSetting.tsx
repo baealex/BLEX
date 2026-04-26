@@ -94,7 +94,7 @@ const DeveloperApiSetting = () => {
     const router = useRouter();
     const { isEditor } = router.options.context as SettingsRouterContext;
 
-    const [tokenName, setTokenName] = useState('MCP Client');
+    const [tokenName, setTokenName] = useState('');
     const [expiresInDays, setExpiresInDays] = useState('90');
     const [selectedScopes, setSelectedScopes] = useState<DeveloperTokenScope[]>(['posts:read']);
     const [createdToken, setCreatedToken] = useState<CreatedDeveloperTokenData | null>(null);
@@ -127,7 +127,7 @@ const DeveloperApiSetting = () => {
             }
 
             setCreatedToken(data.body);
-            setTokenName('MCP Client');
+            setTokenName('');
             setExpiresInDays('90');
             setSelectedScopes(['posts:read']);
             void queryClient.invalidateQueries({ queryKey: ['developer-tokens'] });
@@ -167,6 +167,11 @@ const DeveloperApiSetting = () => {
     };
 
     const validateForm = () => {
+        if (!tokenName.trim()) {
+            toast.error('토큰 이름을 입력해주세요.');
+            return false;
+        }
+
         if (selectedScopes.length === 0) {
             toast.error('최소 하나의 권한을 선택해주세요.');
             return false;
@@ -210,32 +215,54 @@ const DeveloperApiSetting = () => {
     const activeTokenCount = tokens.filter((token) => !token.revokedAt && !isExpired(token)).length;
 
     return (
-        <div className="space-y-8">
+        <div className="space-y-6">
             <SettingsHeader
                 title="개발자 API"
-                description="외부 도구에서 내 블로그 글을 읽거나 작성할 수 있는 개인 API 토큰을 관리합니다."
+                description="외부 도구에서 내 글을 읽거나 작성할 수 있는 개인 API 토큰을 발급하고 관리합니다."
+                actionPosition="right"
+                action={(
+                    <a href="/docs/developer-api">
+                        <Button
+                            type="button"
+                            variant="secondary"
+                            size="sm"
+                            leftIcon={<i className="fas fa-book-open" />}>
+                            API 문서
+                        </Button>
+                    </a>
+                )}
             />
 
-            <div className="grid gap-3 sm:grid-cols-3">
-                <div className="rounded-xl border border-line bg-surface-subtle px-4 py-3">
-                    <div className="text-xs font-semibold text-content-hint">활성 토큰</div>
-                    <div className="mt-1 text-2xl font-semibold text-content">{activeTokenCount}</div>
+            <section className="rounded-2xl border border-line bg-surface-subtle px-5 py-4">
+                <div className="grid gap-4 md:grid-cols-3">
+                    <div>
+                        <div className="text-xs font-semibold text-content-hint">용도</div>
+                        <p className="mt-1 text-sm font-semibold text-content">외부 도구 연결</p>
+                        <p className="mt-1 text-xs leading-relaxed text-content-secondary">
+                            자동화 도구나 개인 클라이언트에서 내 글 API를 사용할 때 발급합니다.
+                        </p>
+                    </div>
+                    <div>
+                        <div className="text-xs font-semibold text-content-hint">권한</div>
+                        <p className="mt-1 text-sm font-semibold text-content">필요한 작업만 허용</p>
+                        <p className="mt-1 text-xs leading-relaxed text-content-secondary">
+                            읽기와 작성 권한을 분리해서 토큰마다 접근 범위를 제한합니다.
+                        </p>
+                    </div>
+                    <div>
+                        <div className="text-xs font-semibold text-content-hint">보관</div>
+                        <p className="mt-1 text-sm font-semibold text-content">전체 토큰은 한 번만 표시</p>
+                        <p className="mt-1 text-xs leading-relaxed text-content-secondary">
+                            발급 직후 복사해두고, 분실하면 새 토큰을 발급한 뒤 기존 토큰을 폐기하세요.
+                        </p>
+                    </div>
                 </div>
-                <div className="rounded-xl border border-line bg-surface-subtle px-4 py-3">
-                    <div className="text-xs font-semibold text-content-hint">전체 토큰</div>
-                    <div className="mt-1 text-2xl font-semibold text-content">{tokens.length}</div>
-                </div>
-                <div className="rounded-xl border border-line bg-surface-subtle px-4 py-3">
-                    <div className="text-xs font-semibold text-content-hint">기본 만료</div>
-                    <div className="mt-1 text-2xl font-semibold text-content">90일</div>
-                </div>
-            </div>
+            </section>
 
             {createdToken && (
                 <Card
-                    title="새 토큰"
-                    subtitle="토큰 원문은 지금 한 번만 표시됩니다."
-                    icon={<i className="fas fa-key" />}>
+                    title="토큰이 발급되었습니다"
+                    subtitle="전체 토큰 값은 지금 한 번만 확인할 수 있습니다.">
                     <div className="space-y-4">
                         <div className="rounded-lg border border-line bg-surface-subtle p-4">
                             <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
@@ -260,15 +287,16 @@ const DeveloperApiSetting = () => {
             )}
 
             <Card
-                title="토큰 발급"
-                subtitle="외부 도구가 사용할 권한과 만료 기간을 정합니다."
-                icon={<i className="fas fa-plus" />}>
+                title="새 토큰 발급"
+                subtitle="외부 도구 하나당 토큰 하나를 발급하면 추적과 폐기가 쉽습니다.">
                 <div className="space-y-5">
                     <Input
                         label="토큰 이름"
                         value={tokenName}
                         onChange={(event) => setTokenName(event.target.value)}
-                        placeholder="MCP Client"
+                        placeholder="예: 개인 자동화, Raycast, 배포 스크립트"
+                        helperText="나중에 구분할 수 있는 이름으로 적어주세요."
+                        required
                     />
 
                     <div className="space-y-3">
@@ -278,11 +306,11 @@ const DeveloperApiSetting = () => {
                                 필요한 작업에 맞는 최소 권한만 선택하세요.
                             </p>
                         </div>
-                        <div className="grid gap-3 sm:grid-cols-2">
+                        <div className="divide-y divide-line rounded-lg border border-line">
                             {scopeOptions.map((scope) => {
                                 const disabled = scope.requiresEditor && !isEditor;
                                 return (
-                                    <div key={scope.value} className="rounded-lg border border-line bg-surface-subtle p-4">
+                                    <div key={scope.value} className="p-4">
                                         <Checkbox
                                             checked={selectedScopes.includes(scope.value)}
                                             onCheckedChange={(checked) => handleScopeChange(scope.value, checked)}
@@ -297,7 +325,7 @@ const DeveloperApiSetting = () => {
                     </div>
 
                     <Input
-                        label="만료 기간"
+                        label="만료 기간(일)"
                         type="number"
                         min={1}
                         max={365}
@@ -320,16 +348,14 @@ const DeveloperApiSetting = () => {
             </Card>
 
             <Card
-                title="등록된 토큰"
-                subtitle="이미 발급한 개발자 API 토큰입니다."
-                icon={<i className="fas fa-list" />}>
+                title="발급된 토큰"
+                subtitle={tokens.length === 0 ? '아직 발급된 토큰이 없습니다.' : `활성 ${activeTokenCount}개 / 전체 ${tokens.length}개`}>
                 {tokens.length === 0 ? (
-                    <div className="rounded-xl border border-dashed border-line bg-surface-subtle p-8 text-center">
-                        <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-surface-elevated text-content-secondary">
-                            <i className="fas fa-key" />
-                        </div>
-                        <h3 className="mt-4 text-sm font-semibold text-content">등록된 토큰이 없습니다</h3>
-                        <p className="mt-2 text-sm text-content-secondary">새 토큰을 발급하면 이곳에서 상태를 확인할 수 있습니다.</p>
+                    <div className="rounded-lg border border-dashed border-line px-4 py-6 text-center">
+                        <h3 className="text-sm font-semibold text-content">발급된 토큰이 없습니다</h3>
+                        <p className="mt-2 text-sm text-content-secondary">
+                            외부 도구를 연결할 때 새 토큰을 발급하세요.
+                        </p>
                     </div>
                 ) : (
                     <div className="divide-y divide-line rounded-xl border border-line">
@@ -390,31 +416,6 @@ const DeveloperApiSetting = () => {
                         })}
                     </div>
                 )}
-            </Card>
-
-            <Card
-                title="API 문서"
-                subtitle="요청 필드와 응답 타입은 문서 페이지에서 확인합니다."
-                icon={<i className="fas fa-book" />}>
-                <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-                    <div className="space-y-2">
-                        <p className="text-sm leading-relaxed text-content-secondary">
-                            외부 도구에서 사용할 API 요청 형식, 필수값, 응답 타입, 에러 코드를 별도 문서에서 확인합니다.
-                        </p>
-                        <code className="block break-all font-mono text-xs text-content-secondary">
-                            Authorization: Bearer blex_pat_...
-                        </code>
-                    </div>
-                    <a href="/docs/developer-api" className="shrink-0">
-                        <Button
-                            type="button"
-                            variant="secondary"
-                            size="sm"
-                            leftIcon={<i className="fas fa-book-open" />}>
-                            문서 열기
-                        </Button>
-                    </a>
-                </div>
             </Card>
         </div>
     );
