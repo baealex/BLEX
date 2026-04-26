@@ -580,6 +580,7 @@ export interface SiteSettingData {
     welcomeNotificationMessage: string;
     welcomeNotificationUrl: string;
     accountDeletionRedirectUrl: string;
+    seoEnabled: boolean;
     aeoEnabled: boolean;
     updatedDate: string;
 }
@@ -590,6 +591,7 @@ export interface SiteSettingUpdateData {
     welcome_notification_message?: string;
     welcome_notification_url?: string;
     account_deletion_redirect_url?: string;
+    seo_enabled?: boolean;
     aeo_enabled?: boolean;
 }
 

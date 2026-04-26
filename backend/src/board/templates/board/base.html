@@ -62,6 +62,12 @@
     </script>
     <title>{% block title %}BLEX{% endblock %}</title>
     {% block meta %}{% endblock %}
+    {% block robots_meta %}
+        {% if site_setting and not site_setting.seo_enabled %}
+        <meta name="robots" content="noindex,nofollow">
+        <meta name="googlebot" content="noindex,nofollow">
+        {% endif %}
+    {% endblock %}
     <link rel="stylesheet" href="{% island_css 'styles/tailwind.css' %}">
     <link rel="stylesheet" href="{% island_css 'styles/main.scss' %}">
     <link rel="icon" href="{% resource 'favicon.ico' %}" />

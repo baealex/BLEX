@@ -62,6 +62,8 @@ class SiteSettingAPITestCase(TestCase):
         self.assertIn('welcomeNotificationMessage', body)
         self.assertIn('welcomeNotificationUrl', body)
         self.assertIn('accountDeletionRedirectUrl', body)
+        self.assertIn('seoEnabled', body)
+        self.assertTrue(body['seoEnabled'])
         self.assertIn('aeoEnabled', body)
         self.assertFalse(body['aeoEnabled'])
         self.assertIn('updatedDate', body)
@@ -93,6 +95,7 @@ class SiteSettingAPITestCase(TestCase):
             'welcome_notification_message': '환영합니다, {name}님!',
             'welcome_notification_url': '/welcome',
             'account_deletion_redirect_url': 'https://forms.example.com/exit',
+            'seo_enabled': False,
             'aeo_enabled': True,
         }
         response = self.client.put(
@@ -108,9 +111,11 @@ class SiteSettingAPITestCase(TestCase):
         self.assertEqual(content['body']['welcomeNotificationMessage'], '환영합니다, {name}님!')
         self.assertEqual(content['body']['welcomeNotificationUrl'], '/welcome')
         self.assertEqual(content['body']['accountDeletionRedirectUrl'], 'https://forms.example.com/exit')
+        self.assertFalse(content['body']['seoEnabled'])
         self.assertTrue(content['body']['aeoEnabled'])
 
         setting = SiteSetting.get_instance()
+        self.assertFalse(setting.seo_enabled)
         self.assertTrue(setting.aeo_enabled)
 
     def test_singleton_behavior(self):

@@ -26,6 +26,7 @@ def site_settings(request):
             'welcome_notification_message': setting.welcome_notification_message,
             'welcome_notification_url': setting.welcome_notification_url,
             'account_deletion_redirect_url': setting.account_deletion_redirect_url,
+            'seo_enabled': setting.seo_enabled,
             'aeo_enabled': setting.aeo_enabled,
             'updated_date': setting.updated_date.isoformat(),
         })
@@ -51,6 +52,9 @@ def site_settings(request):
         if 'account_deletion_redirect_url' in put_data:
             setting.account_deletion_redirect_url = put_data['account_deletion_redirect_url']
 
+        if 'seo_enabled' in put_data:
+            setting.seo_enabled = put_data['seo_enabled'] is True
+
         if 'aeo_enabled' in put_data:
             setting.aeo_enabled = put_data['aeo_enabled'] is True
 
@@ -62,6 +66,7 @@ def site_settings(request):
             'welcome_notification_message': setting.welcome_notification_message,
             'welcome_notification_url': setting.welcome_notification_url,
             'account_deletion_redirect_url': setting.account_deletion_redirect_url,
+            'seo_enabled': setting.seo_enabled,
             'aeo_enabled': setting.aeo_enabled,
             'updated_date': setting.updated_date.isoformat(),
         })
