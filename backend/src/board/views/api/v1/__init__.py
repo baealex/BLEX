@@ -3,6 +3,7 @@ from .auth import *
 from .author import *
 from .banner import *
 from .comment import *
+from .developer_token import *
 from .draft import *
 from .form import *
 from .global_banner import *
