@@ -5,6 +5,7 @@ from django.contrib.auth import views as auth_views
 from board.sitemaps import sitemaps, sitemap_section
 from board.feeds import SitePostsFeed, UserPostsFeed
 from board.views.api import v1 as api_v1
+from board.views.api.developer import v1 as developer_api_v1
 from board.views import agent
 from board.views import main
 from board.views.post_actions import like_post
@@ -18,6 +19,7 @@ from board.views.oauth_callback import oauth_callback
 from board.views.tag import tag_list_view, tag_detail_view
 from board.views.static_pages import static_page_view
 from board.views.settings import settings, admin_settings
+from board.views.developer_api_docs import developer_api_docs
 from board.decorators import staff_member_required
 
 def empty():
@@ -42,6 +44,10 @@ urlpatterns = [
     path('settings/<path:path>', settings, name='settings_path'),
     path('admin-settings/', admin_settings, name='admin_settings'),
     path('admin-settings/<path:path>', admin_settings, name='admin_settings_path'),
+
+    # Authenticated docs
+    path('docs/developer-api', developer_api_docs, name='developer_api_docs'),
+    path('docs/developer-api/<slug:operation_id>', developer_api_docs, name='developer_api_docs_detail'),
 
     # Post actions
     path('like/<url>', like_post, name='like_post'),
@@ -83,6 +89,8 @@ urlpatterns = [
     path('v1/social-providers', api_v1.social_providers),
     path('v1/auth/security', api_v1.security),
     path('v1/auth/security/verify', api_v1.security_verify),
+    path('v1/developer-tokens', api_v1.developer_tokens),
+    path('v1/developer-tokens/<int:token_id>', api_v1.developer_tokens),
     path('v1/setting/<path:parameter>', api_v1.setting),
     path('v1/search', api_v1.search),
     path('v1/posts', api_v1.post_list),
@@ -139,4 +147,10 @@ urlpatterns = [
     path('v1/webhook/global-channels', api_v1.global_channels),
     path('v1/webhook/global-channels/<int:channel_id>', api_v1.delete_global_channel),
     path('v1/webhook/test', api_v1.test_channel),
+
+    # Developer API V1
+    path('api/developer/v1/me', developer_api_v1.me),
+    path('api/developer/v1/posts', developer_api_v1.posts),
+    path('api/developer/v1/posts/<int:post_id>', developer_api_v1.post_detail),
+    path('api/developer/v1/posts/<int:post_id>/publish', developer_api_v1.publish_post),
 ]

@@ -128,6 +128,11 @@ const userNavigationSections: NavigationSection[] = [
                 path: '/webhook',
                 icon: 'fa-bolt',
                 requiresEditor: true
+            },
+            {
+                name: '개발자 API',
+                path: '/developer-api',
+                icon: 'fa-code'
             }
         ]
     }
