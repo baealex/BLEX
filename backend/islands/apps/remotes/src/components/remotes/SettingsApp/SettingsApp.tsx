@@ -25,6 +25,7 @@ const BannerSetting = lazy(() => import('./pages/BannerSetting'));
 const IntegrationSetting = lazy(() => import('./pages/IntegrationSetting'));
 const SocialLinksSetting = lazy(() => import('./pages/SocialLinksSetting'));
 const WebhookSetting = lazy(() => import('./pages/WebhookSetting'));
+const DeveloperApiSetting = lazy(() => import('./pages/DeveloperApiSetting'));
 const GlobalWebhookSetting = lazy(() => import('./pages/GlobalWebhookSetting'));
 const GlobalNoticeSetting = lazy(() => import('./pages/GlobalNoticeSetting'));
 const GlobalBannerSetting = lazy(() => import('./pages/GlobalBannerSetting'));
@@ -166,6 +167,12 @@ const webhookRoute = createRoute({
     component: WebhookSetting
 });
 
+const developerApiRoute = createRoute({
+    getParentRoute: () => settingsRoute,
+    path: '/developer-api',
+    component: DeveloperApiSetting
+});
+
 const globalWebhookRoute = createRoute({
     getParentRoute: () => settingsRoute,
     path: '/global-webhook',
@@ -302,6 +309,7 @@ const routeTree = rootRoute.addChildren([
         socialLinksRoute,
         integrationRoute,
         webhookRoute,
+        developerApiRoute,
         globalWebhookRoute,
         globalNoticesRoute,
         globalBannersRoute,

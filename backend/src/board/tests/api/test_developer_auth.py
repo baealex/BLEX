@@ -69,6 +69,59 @@ class DeveloperAuthAPITestCase(TestCase):
             DeveloperTokenService.hash_token(body['body']['token']),
         )
 
+    def test_list_developer_tokens_returns_current_user_tokens(self):
+        DeveloperTokenService.create_token(
+            self.editor,
+            name='Editor token',
+            scopes=['posts:read'],
+        )
+        DeveloperTokenService.create_token(
+            self.reader,
+            name='Reader token',
+            scopes=['posts:read'],
+        )
+        self.client.login(username='developer', password='developer')
+
+        response = self.client.get('/v1/developer-tokens')
+
+        self.assertEqual(response.status_code, 200)
+        body = response.json()
+        self.assertEqual(body['status'], 'DONE')
+        self.assertEqual(len(body['body']['tokens']), 1)
+        token_body = body['body']['tokens'][0]
+        self.assertEqual(token_body['name'], 'Editor token')
+        self.assertNotIn('token', token_body)
+
+    def test_revoke_developer_token(self):
+        _, token = DeveloperTokenService.create_token(
+            self.editor,
+            name='MCP',
+            scopes=['posts:read'],
+        )
+        self.client.login(username='developer', password='developer')
+
+        response = self.client.delete(f'/v1/developer-tokens/{token.id}')
+
+        self.assertEqual(response.status_code, 200)
+        body = response.json()
+        self.assertEqual(body['status'], 'DONE')
+        self.assertIsNotNone(body['body']['revokedAt'])
+
+        token.refresh_from_db()
+        self.assertIsNotNone(token.revoked_at)
+
+    def test_user_cannot_revoke_other_user_token(self):
+        _, token = DeveloperTokenService.create_token(
+            self.reader,
+            name='Reader token',
+            scopes=['posts:read'],
+        )
+        self.client.login(username='developer', password='developer')
+
+        response = self.client.delete(f'/v1/developer-tokens/{token.id}')
+
+        self.assertEqual(response.status_code, 404)
+
     def test_reader_cannot_create_write_scope_token(self):
         self.client.login(username='reader', password='reader')
 
