@@ -1,8 +1,8 @@
 import type { ReactNode } from 'react';
 import { Button } from '~/components/shared';
 import { toast } from '~/utils/toast';
-import { ApiFieldTable } from '../DeveloperApiFieldTable';
-import { apiOperations, methodClassName } from '../DeveloperApiReference';
+import { ApiFieldTable } from './ApiFieldTable';
+import { apiOperations, methodClassName } from './apiReference';
 
 interface DeveloperApiDocsProps {
     operationId?: string;

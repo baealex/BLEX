@@ -1,4 +1,4 @@
-import type { ApiField, Requirement } from './DeveloperApiReference';
+import type { ApiField, Requirement } from './apiReference';
 
 const requirementClassName = (requirement: Requirement) => {
     if (requirement === '필수') return 'border-line bg-surface text-content';
