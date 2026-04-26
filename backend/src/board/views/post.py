@@ -48,17 +48,21 @@ def post_detail(request, username, post_url):
 
     banners = BannerService.get_all_banners_for_author(author)
 
+    aeo_enabled = AgentContentService.is_aeo_enabled()
     context = {
         'post': post,
         'banners': banners,
         'content_html': content_html_with_ids,
         'table_of_contents': table_of_contents,
-        'post_markdown_url': AgentContentService.build_post_markdown_url(post, request),
+        'aeo_enabled': aeo_enabled,
     }
+    if aeo_enabled:
+        context['post_markdown_url'] = AgentContentService.build_post_markdown_url(post, request)
 
     response = render(request, 'board/posts/post_detail.html', context)
-    response['Link'] = AgentContentService.build_agent_link_header(post, request)
-    response['X-Llms-Txt'] = AgentContentService.build_llms_txt_url(request)
+    if aeo_enabled:
+        response['Link'] = AgentContentService.build_agent_link_header(post, request)
+        response['X-Llms-Txt'] = AgentContentService.build_llms_txt_url(request)
     return response
 
 

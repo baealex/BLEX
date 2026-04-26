@@ -4,7 +4,8 @@ import {
     createRootRoute,
     createRoute,
     Outlet,
-    Navigate
+    Navigate,
+    useRouter
 } from '@tanstack/react-router';
 import { lazy, Suspense } from 'react';
 import { SettingsLayout } from './components/SettingsLayout';
@@ -24,10 +25,12 @@ const BannerSetting = lazy(() => import('./pages/BannerSetting'));
 const IntegrationSetting = lazy(() => import('./pages/IntegrationSetting'));
 const SocialLinksSetting = lazy(() => import('./pages/SocialLinksSetting'));
 const WebhookSetting = lazy(() => import('./pages/WebhookSetting'));
+const DeveloperApiSetting = lazy(() => import('./pages/DeveloperApiSetting'));
 const GlobalWebhookSetting = lazy(() => import('./pages/GlobalWebhookSetting'));
 const GlobalNoticeSetting = lazy(() => import('./pages/GlobalNoticeSetting'));
 const GlobalBannerSetting = lazy(() => import('./pages/GlobalBannerSetting'));
 const SiteSettingSetting = lazy(() => import('./pages/SiteSettingSetting'));
+const SeoAeoSetting = lazy(() => import('./pages/SeoAeoSetting'));
 const StaticPagesSetting = lazy(() => import('./pages/StaticPagesSetting'));
 const UtilitySetting = lazy(() => import('./pages/UtilitySetting'));
 
@@ -41,6 +44,18 @@ export interface SettingsAppProps {
     isEditor: boolean;
     isStaff: boolean;
     adminUrl?: string;
+    settingsMode?: SettingsMode;
+    basePath?: string;
+}
+
+type SettingsMode = 'user' | 'admin';
+
+interface SettingsRouterContext {
+    isEditor: boolean;
+    isStaff: boolean;
+    adminUrl?: string;
+    settingsMode: SettingsMode;
+    basePath: string;
 }
 
 // Root route
@@ -59,11 +74,18 @@ const settingsRoute = createRoute({
     component: SettingsLayout
 });
 
-// Index route - redirect to /notify by default
+const SettingsIndexRedirect = () => {
+    const router = useRouter();
+    const { settingsMode } = router.options.context as SettingsRouterContext;
+
+    return <Navigate to={settingsMode === 'admin' ? '/site-settings' : '/notify'} replace />;
+};
+
+// Index route - redirect to the default page for each settings namespace
 const indexRoute = createRoute({
     getParentRoute: () => settingsRoute,
     path: '/',
-    component: () => <Navigate to="/notify" replace />
+    component: SettingsIndexRedirect
 });
 
 // Individual setting routes
@@ -145,6 +167,12 @@ const webhookRoute = createRoute({
     component: WebhookSetting
 });
 
+const developerApiRoute = createRoute({
+    getParentRoute: () => settingsRoute,
+    path: '/developer-api',
+    component: DeveloperApiSetting
+});
+
 const globalWebhookRoute = createRoute({
     getParentRoute: () => settingsRoute,
     path: '/global-webhook',
@@ -167,6 +195,12 @@ const siteSettingsRoute = createRoute({
     getParentRoute: () => settingsRoute,
     path: '/site-settings',
     component: SiteSettingSetting
+});
+
+const seoAeoRoute = createRoute({
+    getParentRoute: () => settingsRoute,
+    path: '/seo-aeo',
+    component: SeoAeoSetting
 });
 
 const staticPagesRoute = createRoute({
@@ -275,25 +309,38 @@ const routeTree = rootRoute.addChildren([
         socialLinksRoute,
         integrationRoute,
         webhookRoute,
+        developerApiRoute,
         globalWebhookRoute,
         globalNoticesRoute,
         globalBannersRoute,
         siteSettingsRoute,
+        seoAeoRoute,
         staticPagesRoute,
         utilitiesRoute
     ])
 ]);
 
-const SettingsApp = ({ isEditor, isStaff, adminUrl }: SettingsAppProps) => {
+const SettingsApp = ({
+    isEditor,
+    isStaff,
+    adminUrl,
+    settingsMode = 'user',
+    basePath
+}: SettingsAppProps) => {
+    const normalizedSettingsMode = settingsMode === 'admin' ? 'admin' : 'user';
+    const normalizedBasePath = basePath ?? (normalizedSettingsMode === 'admin' ? '/admin-settings' : '/settings');
+
     const router = createRouter({
         routeTree,
         context: {
             isEditor,
             isStaff,
-            adminUrl
+            adminUrl,
+            settingsMode: normalizedSettingsMode,
+            basePath: normalizedBasePath
         },
         defaultPreload: 'intent',
-        basepath: '/settings'
+        basepath: normalizedBasePath
     });
 
     return <RouterProvider router={router} />;

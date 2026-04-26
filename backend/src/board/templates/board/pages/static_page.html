@@ -15,7 +15,9 @@
 <meta property="twitter:title" content="{{ seo_title }}">
 <meta property="twitter:description" content="{{ meta_description }}">
 <link rel="canonical" href="{{ canonical_url }}">
+{% if aeo_enabled %}
 <link rel="alternate" type="text/markdown" href="{{ static_page_markdown_url }}">
+{% endif %}
 {% endblock %}
 
 {% block extra_styles %}

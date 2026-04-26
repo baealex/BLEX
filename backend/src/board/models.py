@@ -637,6 +637,75 @@ class TwoFactorAuth(models.Model):
         return self.user.username
 
 
+class DeveloperToken(models.Model):
+    user = models.ForeignKey(
+        'auth.User',
+        on_delete=models.CASCADE,
+        related_name='developer_tokens',
+    )
+    name = models.CharField(max_length=100)
+    token_prefix = models.CharField(max_length=16, unique=True)
+    token_hash = models.CharField(max_length=64, unique=True)
+    scopes = models.JSONField(default=list)
+    expires_at = models.DateTimeField(null=True, blank=True)
+    revoked_at = models.DateTimeField(null=True, blank=True)
+    last_used_at = models.DateTimeField(null=True, blank=True)
+    last_used_ip = models.GenericIPAddressField(null=True, blank=True)
+    created_date = models.DateTimeField(default=timezone.now)
+    updated_date = models.DateTimeField(default=timezone.now)
+
+    class Meta:
+        ordering = ['-created_date']
+        indexes = [
+            models.Index(fields=['user', 'revoked_at']),
+            models.Index(fields=['token_prefix']),
+        ]
+
+    def is_valid(self):
+        if self.revoked_at is not None:
+            return False
+        if self.expires_at is not None and self.expires_at <= timezone.now():
+            return False
+        return True
+
+    def has_scope(self, scope):
+        return scope in self.scopes
+
+    def __str__(self):
+        return f'{self.user.username} - {self.name}'
+
+
+class DeveloperRequestLog(models.Model):
+    user = models.ForeignKey(
+        'auth.User',
+        on_delete=models.CASCADE,
+        related_name='developer_request_logs',
+    )
+    token = models.ForeignKey(
+        'board.DeveloperToken',
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='request_logs',
+    )
+    method = models.CharField(max_length=10)
+    path = models.CharField(max_length=255)
+    status_code = models.PositiveSmallIntegerField()
+    ip_address = models.GenericIPAddressField(null=True, blank=True)
+    user_agent = models.CharField(max_length=255, blank=True)
+    created_date = models.DateTimeField(default=timezone.now)
+
+    class Meta:
+        ordering = ['-created_date']
+        indexes = [
+            models.Index(fields=['user', 'created_date']),
+            models.Index(fields=['token', 'created_date']),
+        ]
+
+    def __str__(self):
+        return f'{self.method} {self.path} {self.status_code}'
+
+
 class EditHistory(models.Model):
     post = models.ForeignKey('board.Post', on_delete=models.CASCADE)
     title = models.CharField(max_length=50, default='_NO_CHANGED_')
@@ -797,6 +866,21 @@ class SiteSetting(models.Model):
         blank=True,
         default='',
         help_text='회원 탈퇴 시 리다이렉트할 URL (비워두면 메인 페이지로 이동, 설문 링크 등을 설정할 수 있습니다)'
+    )
+
+    # Search and agent exposure settings
+    seo_enabled = models.BooleanField(
+        default=True,
+        help_text='검색엔진용 robots.txt 색인 허용 및 HTML noindex 신호 제어 여부'
+    )
+    robots_txt_extra_rules = models.TextField(
+        blank=True,
+        default='',
+        help_text='블로그가 생성하는 robots.txt 기본 정책 뒤에 추가할 런타임 규칙'
+    )
+    aeo_enabled = models.BooleanField(
+        default=False,
+        help_text='AI 에이전트용 llms.txt, Markdown endpoint, discovery header 노출 여부'
     )
 
     # Metadata

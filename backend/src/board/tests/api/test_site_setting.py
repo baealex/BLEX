@@ -62,6 +62,16 @@ class SiteSettingAPITestCase(TestCase):
         self.assertIn('welcomeNotificationMessage', body)
         self.assertIn('welcomeNotificationUrl', body)
         self.assertIn('accountDeletionRedirectUrl', body)
+        self.assertIn('seoEnabled', body)
+        self.assertTrue(body['seoEnabled'])
+        self.assertIn('robotsTxtExtraRules', body)
+        self.assertEqual(body['robotsTxtExtraRules'], '')
+        self.assertIn('robotsTxtDefault', body)
+        self.assertIn('User-agent: *', body['robotsTxtDefault'])
+        self.assertIn('Disallow: /admin-settings/', body['robotsTxtDefault'])
+        self.assertNotIn('# Custom rules', body['robotsTxtDefault'])
+        self.assertIn('aeoEnabled', body)
+        self.assertFalse(body['aeoEnabled'])
         self.assertIn('updatedDate', body)
 
     def test_update_single_field(self):
@@ -91,6 +101,9 @@ class SiteSettingAPITestCase(TestCase):
             'welcome_notification_message': '환영합니다, {name}님!',
             'welcome_notification_url': '/welcome',
             'account_deletion_redirect_url': 'https://forms.example.com/exit',
+            'seo_enabled': False,
+            'robots_txt_extra_rules': 'User-agent: ExampleBot\nDisallow: /private/',
+            'aeo_enabled': True,
         }
         response = self.client.put(
             '/v1/site-settings',
@@ -105,6 +118,19 @@ class SiteSettingAPITestCase(TestCase):
         self.assertEqual(content['body']['welcomeNotificationMessage'], '환영합니다, {name}님!')
         self.assertEqual(content['body']['welcomeNotificationUrl'], '/welcome')
         self.assertEqual(content['body']['accountDeletionRedirectUrl'], 'https://forms.example.com/exit')
+        self.assertFalse(content['body']['seoEnabled'])
+        self.assertEqual(content['body']['robotsTxtExtraRules'], 'User-agent: ExampleBot\nDisallow: /private/')
+        self.assertIn('robotsTxtDefault', content['body'])
+        self.assertIn('# AI agent entry point: http://testserver/llms.txt', content['body']['robotsTxtDefault'])
+        self.assertIn('Search indexing is disabled at runtime.', content['body']['robotsTxtDefault'])
+        self.assertNotIn('# Custom rules', content['body']['robotsTxtDefault'])
+        self.assertNotIn('User-agent: ExampleBot', content['body']['robotsTxtDefault'])
+        self.assertTrue(content['body']['aeoEnabled'])
+
+        setting = SiteSetting.get_instance()
+        self.assertFalse(setting.seo_enabled)
+        self.assertEqual(setting.robots_txt_extra_rules, 'User-agent: ExampleBot\nDisallow: /private/')
+        self.assertTrue(setting.aeo_enabled)
 
     def test_singleton_behavior(self):
         """싱글톤 동작 확인 - 여러 번 저장해도 하나의 인스턴스"""

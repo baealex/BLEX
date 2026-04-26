@@ -28,7 +28,17 @@ interface SettingsNavigationProps {
     currentPath: string;
 }
 
-const navigationSections: NavigationSection[] = [
+type SettingsMode = 'user' | 'admin';
+
+interface SettingsRouterContext {
+    isEditor: boolean;
+    isStaff: boolean;
+    adminUrl?: string;
+    settingsMode: SettingsMode;
+    basePath: string;
+}
+
+const userNavigationSections: NavigationSection[] = [
     {
         title: '일반',
         description: '알림, 계정, 프로필 관리',
@@ -118,12 +128,20 @@ const navigationSections: NavigationSection[] = [
                 path: '/webhook',
                 icon: 'fa-bolt',
                 requiresEditor: true
+            },
+            {
+                name: '개발자 API',
+                path: '/developer-api',
+                icon: 'fa-code'
             }
         ]
-    },
+    }
+];
+
+const adminNavigationSections: NavigationSection[] = [
     {
-        title: '관리자',
-        description: '사이트 관리',
+        title: '사이트',
+        description: '전역 설정과 검색 노출',
         requiresStaff: true,
         items: [
             {
@@ -133,11 +151,24 @@ const navigationSections: NavigationSection[] = [
                 requiresStaff: true
             },
             {
+                name: 'SEO/AEO',
+                path: '/seo-aeo',
+                icon: 'fa-robot',
+                requiresStaff: true
+            },
+            {
                 name: '정적 페이지',
                 path: '/static-pages',
                 icon: 'fa-file-lines',
                 requiresStaff: true
-            },
+            }
+        ]
+    },
+    {
+        title: '운영',
+        description: '공지, 배너, 웹훅 관리',
+        requiresStaff: true,
+        items: [
             {
                 name: '전역 공지',
                 path: '/global-notices',
@@ -155,7 +186,14 @@ const navigationSections: NavigationSection[] = [
                 path: '/global-webhook',
                 icon: 'fa-bolt',
                 requiresStaff: true
-            },
+            }
+        ]
+    },
+    {
+        title: '관리',
+        description: '정리 도구와 Django 관리자',
+        requiresStaff: true,
+        items: [
             {
                 name: '유틸리티',
                 path: '/utilities',
@@ -172,18 +210,42 @@ const navigationSections: NavigationSection[] = [
     }
 ];
 
+const getNavigationSections = (settingsMode: SettingsMode) => (
+    settingsMode === 'admin' ? adminNavigationSections : userNavigationSections
+);
+
+const SettingsModeLink = ({ settingsMode, isStaff }: { settingsMode: SettingsMode; isStaff: boolean }) => {
+    if (!isStaff) return null;
+
+    const isAdminMode = settingsMode === 'admin';
+    const href = isAdminMode ? '/settings/notify' : '/admin-settings/site-settings';
+    const label = isAdminMode ? '내 설정으로 돌아가기' : '관리자 설정';
+    const icon = isAdminMode ? 'fa-arrow-left' : 'fa-shield-alt';
+
+    return (
+        <a
+            href={href}
+            className={`inline-flex h-9 items-center gap-2 rounded-lg px-2 text-sm font-medium text-content-secondary transition-all ${INTERACTION_DURATION} hover:bg-surface-subtle hover:text-content active:scale-95`}>
+            <i className={`fas ${icon} text-xs text-content-hint`} />
+            <span>{label}</span>
+            {!isAdminMode && (
+                <i className="fas fa-chevron-right text-[10px] text-content-hint" />
+            )}
+        </a>
+    );
+};
+
 export const SettingsMobileNavigation = ({ currentPath }: SettingsNavigationProps) => {
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
     const router = useRouter();
     const {
         isEditor,
         isStaff,
-        adminUrl
-    } = router.options.context as {
-        isEditor: boolean;
-        isStaff: boolean;
-        adminUrl?: string;
-    };
+        adminUrl,
+        settingsMode,
+        basePath
+    } = router.options.context as SettingsRouterContext;
+    const navigationSections = getNavigationSections(settingsMode);
 
     const handleNavClick = (item: NavigationItem) => {
         setMobileMenuOpen(false);
@@ -196,7 +258,7 @@ export const SettingsMobileNavigation = ({ currentPath }: SettingsNavigationProp
         if (item.requiresEditor && !isEditor) return null;
         if (item.requiresStaff && !isStaff) return null;
 
-        const isActive = currentPath === `/settings${item.path}` || currentPath === item.path;
+        const isActive = currentPath === `${basePath}${item.path}` || currentPath === item.path;
         const baseClasses = `flex items-center px-4 py-3 rounded-xl transition-all ${INTERACTION_DURATION} active:scale-95 group`;
         const activeClasses = isActive
             ? 'bg-surface-subtle text-content font-bold'
@@ -267,7 +329,9 @@ export const SettingsMobileNavigation = ({ currentPath }: SettingsNavigationProp
                             <div className="p-6">
                                 <Dialog.Title className="sr-only">Navigation Menu</Dialog.Title>
                                 <div className="flex items-center justify-between mb-8">
-                                    <h2 className="text-2xl font-bold text-content tracking-tight">설정</h2>
+                                    <h2 className="text-2xl font-bold text-content tracking-tight">
+                                        {settingsMode === 'admin' ? '관리자 설정' : '설정'}
+                                    </h2>
                                     <Dialog.Close asChild>
                                         <button
                                             className={`w-11 h-11 flex items-center justify-center rounded-full hover:bg-surface-subtle active:bg-line active:scale-95 transition-all ${INTERACTION_DURATION}`}>
@@ -275,6 +339,12 @@ export const SettingsMobileNavigation = ({ currentPath }: SettingsNavigationProp
                                         </button>
                                     </Dialog.Close>
                                 </div>
+
+                                {isStaff && (
+                                    <div className="-mt-5 mb-8">
+                                        <SettingsModeLink settingsMode={settingsMode} isStaff={isStaff} />
+                                    </div>
+                                )}
 
                                 <div className="space-y-8">
                                     {navigationSections.map(renderSection)}
@@ -284,7 +354,9 @@ export const SettingsMobileNavigation = ({ currentPath }: SettingsNavigationProp
                     </Dialog.Portal>
                 </Dialog.Root>
 
-                <h1 className="text-lg font-bold text-content">설정</h1>
+                <h1 className="text-lg font-bold text-content">
+                    {settingsMode === 'admin' ? '관리자 설정' : '설정'}
+                </h1>
                 <div className="w-10" />
             </div>
         </div>
@@ -296,12 +368,11 @@ export const SettingsDesktopNavigation = ({ currentPath }: SettingsNavigationPro
     const {
         isEditor,
         isStaff,
-        adminUrl
-    } = router.options.context as {
-        isEditor: boolean;
-        isStaff: boolean;
-        adminUrl?: string;
-    };
+        adminUrl,
+        settingsMode,
+        basePath
+    } = router.options.context as SettingsRouterContext;
+    const navigationSections = getNavigationSections(settingsMode);
 
     const handleNavClick = (item: NavigationItem) => {
         if (item.path === 'admin' && adminUrl) {
@@ -313,7 +384,7 @@ export const SettingsDesktopNavigation = ({ currentPath }: SettingsNavigationPro
         if (item.requiresEditor && !isEditor) return null;
         if (item.requiresStaff && !isStaff) return null;
 
-        const isActive = currentPath === `/settings${item.path}` || currentPath === item.path;
+        const isActive = currentPath === `${basePath}${item.path}` || currentPath === item.path;
         const baseClasses = `flex items-center px-5 rounded-xl transition-all ${INTERACTION_DURATION} active:scale-95`;
         const activeClasses = isActive
             ? 'bg-surface-subtle text-content font-semibold'
@@ -372,7 +443,14 @@ export const SettingsDesktopNavigation = ({ currentPath }: SettingsNavigationPro
     return (
         <aside className="hidden xl:block w-72 flex-shrink-0 mt-8 self-start sticky top-24">
             <div className="px-5 mb-6">
-                <h2 className="text-2xl font-semibold text-content tracking-tight">설정</h2>
+                <h2 className="text-2xl font-semibold text-content tracking-tight">
+                    {settingsMode === 'admin' ? '관리자 설정' : '설정'}
+                </h2>
+                {isStaff && (
+                    <div className="mt-3">
+                        <SettingsModeLink settingsMode={settingsMode} isStaff={isStaff} />
+                    </div>
+                )}
             </div>
             <div className="max-h-[calc(100vh-10rem)] overflow-y-auto overscroll-contain pr-2">
                 <nav className="space-y-8 pb-4">

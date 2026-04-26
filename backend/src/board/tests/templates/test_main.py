@@ -7,7 +7,7 @@ from django.test import Client, TestCase
 from django.urls import reverse
 from django.utils import timezone
 
-from board.models import Post, PostConfig, PostContent
+from board.models import Post, PostConfig, PostContent, SiteSetting
 
 
 class MainPageTemplateTestCase(TestCase):
@@ -47,6 +47,29 @@ class MainPageTemplateTestCase(TestCase):
         self.assertContains(response, 'window.__blexIslandMonitor')
         self.assertNotContains(response, 'name=LoginPrompt')
         self.assertNotContains(response, 'name=Toaster')
+
+    def test_index_page_adds_noindex_when_seo_disabled(self):
+        setting = SiteSetting.get_instance()
+        setting.seo_enabled = False
+        setting.save(update_fields=['seo_enabled'])
+
+        response = self.client.get(reverse('index'))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, '<meta name="robots" content="noindex,nofollow">', html=True)
+        self.assertContains(response, '<meta name="googlebot" content="noindex,nofollow">', html=True)
+        self.assertEqual(response['X-Robots-Tag'], 'noindex, nofollow')
+
+    def test_index_page_omits_noindex_when_seo_enabled(self):
+        setting = SiteSetting.get_instance()
+        setting.seo_enabled = True
+        setting.save(update_fields=['seo_enabled'])
+
+        response = self.client.get(reverse('index'))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertNotContains(response, 'content="noindex,nofollow"')
+        self.assertNotIn('X-Robots-Tag', response)
 
     def test_index_page_has_required_context(self):
         response = self.client.get(reverse('index'))

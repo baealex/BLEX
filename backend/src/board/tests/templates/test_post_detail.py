@@ -6,7 +6,7 @@ from django.contrib.auth.models import User
 from django.urls import reverse
 from django.utils import timezone
 
-from board.models import Post, PostContent, PostConfig
+from board.models import Post, PostContent, PostConfig, SiteSetting
 
 class PostDetailViewTestCase(TestCase):
     def setUp(self):
@@ -34,6 +34,11 @@ class PostDetailViewTestCase(TestCase):
             hide=False
         )
 
+    def enable_aeo(self):
+        setting = SiteSetting.get_instance()
+        setting.aeo_enabled = True
+        setting.save(update_fields=['aeo_enabled'])
+
     def test_post_detail_context_has_toc(self):
         url = reverse('post_detail', kwargs={
             'username': 'testauthor',
@@ -52,7 +57,36 @@ class PostDetailViewTestCase(TestCase):
         self.assertEqual(toc[1]['text'], 'Header 2')
         self.assertEqual(toc[1]['level'], 2)
 
-    def test_post_detail_has_copy_for_ai_action(self):
+    def test_post_detail_hides_copy_for_ai_action_when_aeo_disabled(self):
+        url = reverse('post_detail', kwargs={
+            'username': 'testauthor',
+            'post_url': 'test-post'
+        })
+        response = self.client.get(url)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertNotContains(response, 'aria-label="AI용 Markdown 복사"')
+        self.assertNotContains(response, 'data-ai-markdown-url=')
+
+    def test_post_detail_uses_noindex_only_when_seo_disabled(self):
+        setting = SiteSetting.get_instance()
+        setting.seo_enabled = False
+        setting.save(update_fields=['seo_enabled'])
+
+        url = reverse('post_detail', kwargs={
+            'username': 'testauthor',
+            'post_url': 'test-post'
+        })
+        response = self.client.get(url)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, '<meta name="robots" content="noindex,nofollow">', html=True)
+        self.assertContains(response, '<meta name="googlebot" content="noindex,nofollow">', html=True)
+        self.assertNotContains(response, 'max-snippet:-1')
+        self.assertEqual(response['X-Robots-Tag'], 'noindex, nofollow')
+
+    def test_post_detail_has_copy_for_ai_action_when_aeo_enabled(self):
+        self.enable_aeo()
         url = reverse('post_detail', kwargs={
             'username': 'testauthor',
             'post_url': 'test-post'
@@ -63,8 +97,26 @@ class PostDetailViewTestCase(TestCase):
         self.assertContains(response, 'aria-label="AI용 Markdown 복사"')
         self.assertContains(response, 'data-ai-markdown-url=/@testauthor/test-post.md')
 
+    def test_post_detail_hides_markdown_alternate_when_aeo_disabled(self):
+        """AEO가 꺼져 있으면 포스트 상세가 Markdown endpoint를 광고하지 않는다."""
+        url = reverse('post_detail', kwargs={
+            'username': 'testauthor',
+            'post_url': 'test-post'
+        })
+        response = self.client.get(url)
+
+        self.assertEqual(response.status_code, 200)
+
+        content = response.content.decode()
+
+        self.assertNotIn('rel=alternate type=text/markdown', content)
+        self.assertNotIn('http://testserver/@testauthor/test-post.md', content)
+        self.assertNotIn('Link', response)
+        self.assertNotIn('X-Llms-Txt', response)
+
     def test_post_detail_advertises_markdown_alternate(self):
         """포스트 상세는 AI 에이전트가 Markdown export를 발견할 수 있게 힌트를 제공한다."""
+        self.enable_aeo()
         url = reverse('post_detail', kwargs={
             'username': 'testauthor',
             'post_url': 'test-post'
@@ -79,8 +131,7 @@ class PostDetailViewTestCase(TestCase):
         content = response.content.decode()
 
         self.assertIn(markdown_url, content)
-        self.assertIn('rel=alternate', content)
-        self.assertIn('type=text/markdown', content)
+        self.assertIn('rel=alternate type=text/markdown', content)
         self.assertIn(
             f'<{markdown_url}>; rel="alternate"; type="text/markdown"',
             response['Link']

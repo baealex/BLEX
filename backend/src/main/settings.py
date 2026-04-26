@@ -14,6 +14,7 @@ CIPHER_KEY = os.environ.get('CIPHER_KEY').encode()
 
 DEBUG = os.environ.get('DEBUG') == 'TRUE'
 USE_VITE_DEV_SERVER = DEBUG and os.environ.get('USE_VITE_DEV_SERVER', 'TRUE') == 'TRUE'
+VITE_DEV_SERVER_URL = os.environ.get('VITE_DEV_SERVER_URL', 'http://localhost:8100')
 
 TESTING = sys.argv[1:2] == ['test']
 
@@ -51,6 +52,7 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'main.middleware.DisableCSRF',
     'main.middleware.HTMLMinifyMiddleware',
+    'main.middleware.SearchIndexingMiddleware',
 ]
 
 if not DEBUG:
@@ -138,6 +140,10 @@ RESOURCE_URL = os.environ.get('RESOURCE_URL') + '/resources/'
 
 STATIC_URL = RESOURCE_URL + 'staticfiles/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'resources', 'staticfiles')
+VITE_DEV_SERVER_INFO_PATH = os.environ.get(
+    'VITE_DEV_SERVER_INFO_PATH',
+    os.path.join(STATIC_ROOT, 'islands', '.vite', 'dev-server.json'),
+)
 
 MEDIA_URL = RESOURCE_URL + 'media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'resources', 'media')

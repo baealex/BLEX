@@ -387,6 +387,42 @@ export const testWebhook = async (webhookUrl: string) => {
     return http.post<Response<{ success: boolean }>>('v1/webhook/test', { webhook_url: webhookUrl }, { headers: { 'Content-Type': 'application/json' } });
 };
 
+// Developer API Token API
+export type DeveloperTokenScope = 'posts:read' | 'posts:write';
+
+export interface DeveloperTokenData {
+    id: number;
+    name: string;
+    tokenPrefix: string;
+    scopes: DeveloperTokenScope[];
+    expiresAt: string | null;
+    revokedAt: string | null;
+    lastUsedAt: string | null;
+    createdAt: string;
+}
+
+export interface CreatedDeveloperTokenData extends DeveloperTokenData {
+    token: string;
+}
+
+export interface DeveloperTokenCreateData {
+    name?: string;
+    scopes: DeveloperTokenScope[];
+    expires_in_days?: number;
+}
+
+export const getDeveloperTokens = async () => {
+    return http.get<Response<{ tokens: DeveloperTokenData[] }>>('v1/developer-tokens');
+};
+
+export const createDeveloperToken = async (data: DeveloperTokenCreateData) => {
+    return http.post<Response<CreatedDeveloperTokenData>>('v1/developer-tokens', data, { headers: { 'Content-Type': 'application/json' } });
+};
+
+export const revokeDeveloperToken = async (tokenId: number) => {
+    return http.delete<Response<DeveloperTokenData>>(`v1/developer-tokens/${tokenId}`);
+};
+
 // Static Page API
 export interface StaticPageData {
     id: number;
@@ -580,6 +616,10 @@ export interface SiteSettingData {
     welcomeNotificationMessage: string;
     welcomeNotificationUrl: string;
     accountDeletionRedirectUrl: string;
+    seoEnabled: boolean;
+    robotsTxtExtraRules: string;
+    robotsTxtDefault: string;
+    aeoEnabled: boolean;
     updatedDate: string;
 }
 
@@ -589,6 +629,9 @@ export interface SiteSettingUpdateData {
     welcome_notification_message?: string;
     welcome_notification_url?: string;
     account_deletion_redirect_url?: string;
+    seo_enabled?: boolean;
+    robots_txt_extra_rules?: string;
+    aeo_enabled?: boolean;
 }
 
 export const getSiteSettings = async () => {

@@ -1,0 +1,10 @@
+{% extends 'board/base.html' %}
+{% load island %}
+
+{% block title %}개발자 API 문서 | BLEX{% endblock %}
+
+{% block content %}
+<main class="mx-auto max-w-6xl px-4 py-12 md:px-6">
+    {% island_component 'DeveloperApiDocs' %}
+</main>
+{% endblock %}

@@ -2,7 +2,7 @@
 {% load static %}
 {% load island %}
 
-{% block title %}설정 | BLEX{% endblock %}
+{% block title %}{{ settings_title }} | BLEX{% endblock %}
 
 {% block extra_styles %}
 <link rel="stylesheet" href="{% island_css 'styles/post.scss' %}">
@@ -10,6 +10,6 @@
 
 {% block content %}
 <div>
-    {% island_component 'SettingsApp' isEditor=is_editor isStaff=is_staff adminUrl=admin_url %}
+    {% island_component 'SettingsApp' isEditor=is_editor isStaff=is_staff adminUrl=admin_url settingsMode=settings_mode basePath=settings_base_path %}
 </div>
 {% endblock %}
