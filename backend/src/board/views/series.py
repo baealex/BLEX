@@ -6,6 +6,7 @@ from django.http import Http404
 
 from board.models import Post, Series, PostLikes
 from board.services.agent_content_service import AgentContentService
+from board.services.discovery_metadata_service import DiscoveryMetadataService
 
 
 def series_detail(request, username, series_url):
@@ -46,14 +47,12 @@ def series_detail(request, username, series_url):
         ),
     ).order_by(order_by)
 
-    series.post_count = all_posts.count()
-
-    series.updated_date = series.updated_date.strftime('%Y-%m-%d')
-
     page = int(request.GET.get('page', 1))
     posts_per_page = 10  # Show 10 posts per page
     total_posts = all_posts.count()
     total_pages = (total_posts + posts_per_page - 1) // posts_per_page  # Ceiling division
+
+    series.post_count = total_posts
 
     if page < 1 or (total_posts > 0 and page > total_pages):
         raise Http404("Page not found")
@@ -62,6 +61,15 @@ def series_detail(request, username, series_url):
     end_idx = min(start_idx + posts_per_page, total_posts)
 
     paginated_posts = all_posts[start_idx:end_idx]
+    metadata = DiscoveryMetadataService.build_series_metadata(
+        series=series,
+        author=author,
+        request=request,
+        posts=list(paginated_posts),
+        total_posts=total_posts,
+        page=page,
+        sort_order=sort_order,
+    )
 
     posts_with_numbers = []
     for i, post in enumerate(paginated_posts):
@@ -92,6 +100,8 @@ def series_detail(request, username, series_url):
         'sort_order': sort_order,
         'request': request,
         'aeo_enabled': aeo_enabled,
+        'series_updated_date_display': series.updated_date.strftime('%Y-%m-%d'),
+        **metadata,
     }
     if aeo_enabled:
         context['series_markdown_url'] = AgentContentService.build_series_markdown_url(series, request)

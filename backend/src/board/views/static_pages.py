@@ -2,6 +2,7 @@ from django.shortcuts import render, get_object_or_404
 
 from board.models import StaticPage
 from board.services.agent_content_service import AgentContentService
+from board.services.discovery_metadata_service import DiscoveryMetadataService
 
 
 def custom_404_view(request, exception=None):
@@ -18,13 +19,13 @@ def static_page_view(request, slug):
     """
     # Get the page by slug, only if it's published
     page = get_object_or_404(StaticPage, slug=slug, is_published=True)
+    metadata = DiscoveryMetadataService.build_static_page_metadata(page, request)
 
     aeo_enabled = AgentContentService.is_aeo_enabled()
     context = {
         'page': page,
-        'title': page.title,
-        'meta_description': page.meta_description or page.title,
         'aeo_enabled': aeo_enabled,
+        **metadata,
     }
     if aeo_enabled:
         context['static_page_markdown_url'] = AgentContentService.build_static_page_markdown_url(page, request)

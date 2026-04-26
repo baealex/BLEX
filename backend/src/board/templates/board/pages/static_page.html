@@ -4,9 +4,17 @@
 
 {% block title %}{{ page.title }} - BLEX{% endblock %}
 
-{% block meta_description %}{{ meta_description }}{% endblock %}
-
 {% block meta %}
+<meta name="description" content="{{ meta_description }}">
+<meta property="og:type" content="website">
+<meta property="og:url" content="{{ canonical_url }}">
+<meta property="og:title" content="{{ seo_title }}">
+<meta property="og:description" content="{{ meta_description }}">
+<meta property="twitter:card" content="summary">
+<meta property="twitter:url" content="{{ canonical_url }}">
+<meta property="twitter:title" content="{{ seo_title }}">
+<meta property="twitter:description" content="{{ meta_description }}">
+<link rel="canonical" href="{{ canonical_url }}">
 {% if aeo_enabled %}
 <link rel="alternate" type="text/markdown" href="{{ static_page_markdown_url }}">
 {% endif %}
@@ -22,4 +30,8 @@
         {{ page.content|safe }}
     </div>
 </div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script type="application/ld+json">{{ structured_data_json|safe }}</script>
 {% endblock %}
