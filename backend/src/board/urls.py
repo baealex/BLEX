@@ -17,7 +17,7 @@ from board.views.auth import login_view, signup_view
 from board.views.oauth_callback import oauth_callback
 from board.views.tag import tag_list_view, tag_detail_view
 from board.views.static_pages import static_page_view
-from board.views.settings import settings
+from board.views.settings import settings, admin_settings
 from board.decorators import staff_member_required
 
 def empty():
@@ -40,6 +40,8 @@ urlpatterns = [
     # Settings - Unified Settings App with client-side routing
     path('settings/', settings, name='settings'),
     path('settings/<path:path>', settings, name='settings_path'),
+    path('admin-settings/', admin_settings, name='admin_settings'),
+    path('admin-settings/<path:path>', admin_settings, name='admin_settings_path'),
 
     # Post actions
     path('like/<url>', like_post, name='like_post'),

@@ -234,6 +234,7 @@ class AgentContentTestCase(TestCase):
         body = response.content.decode()
         self.assertIn('Disallow: /llms.txt', body)
         self.assertIn('Disallow: /*.md', body)
+        self.assertIn('Disallow: /admin-settings/', body)
         self.assertNotIn('AI agent entry point', body)
 
     def test_robots_txt_advertises_agent_entrypoint_when_aeo_enabled(self):

@@ -3,6 +3,7 @@ Allow: /
 Disallow: /*.preview.jpg
 Disallow: /*.minify.*
 Disallow: /settings/
+Disallow: /admin-settings/
 Disallow: /write
 Disallow: /v1/
 Disallow: /llms.txt
