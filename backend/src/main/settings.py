@@ -52,6 +52,7 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'main.middleware.DisableCSRF',
     'main.middleware.HTMLMinifyMiddleware',
+    'main.middleware.SearchIndexingMiddleware',
 ]
 
 if not DEBUG:

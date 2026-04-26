@@ -804,6 +804,11 @@ class SiteSetting(models.Model):
         default=True,
         help_text='검색엔진용 robots.txt 색인 허용 및 HTML noindex 신호 제어 여부'
     )
+    robots_txt_extra_rules = models.TextField(
+        blank=True,
+        default='',
+        help_text='블로그가 생성하는 robots.txt 기본 정책 뒤에 추가할 런타임 규칙'
+    )
     aeo_enabled = models.BooleanField(
         default=False,
         help_text='AI 에이전트용 llms.txt, Markdown endpoint, discovery header 노출 여부'

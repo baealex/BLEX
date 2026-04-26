@@ -581,6 +581,8 @@ export interface SiteSettingData {
     welcomeNotificationUrl: string;
     accountDeletionRedirectUrl: string;
     seoEnabled: boolean;
+    robotsTxtExtraRules: string;
+    robotsTxtDefault: string;
     aeoEnabled: boolean;
     updatedDate: string;
 }
@@ -592,6 +594,7 @@ export interface SiteSettingUpdateData {
     welcome_notification_url?: string;
     account_deletion_redirect_url?: string;
     seo_enabled?: boolean;
+    robots_txt_extra_rules?: string;
     aeo_enabled?: boolean;
 }
 

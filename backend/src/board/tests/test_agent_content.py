@@ -238,8 +238,8 @@ class AgentContentTestCase(TestCase):
         self.assertIn('Disallow: /admin-settings/', body)
         self.assertNotIn('AI agent entry point', body)
 
-    def test_robots_txt_disallows_all_when_seo_disabled(self):
-        """SEO가 꺼져 있으면 robots.txt가 전체 수집을 막는다."""
+    def test_robots_txt_omits_sitemap_when_seo_disabled(self):
+        """SEO가 꺼져 있으면 sitemap 안내를 숨기고 noindex 런타임 신호를 설명한다."""
         setting = SiteSetting.get_instance()
         setting.seo_enabled = False
         setting.aeo_enabled = True
@@ -248,7 +248,26 @@ class AgentContentTestCase(TestCase):
         response = self.client.get('/robots.txt')
 
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.content.decode(), 'User-agent: *\nDisallow: /\n')
+        body = response.content.decode()
+        self.assertIn('User-agent: *', body)
+        self.assertIn('Search indexing is disabled at runtime.', body)
+        self.assertIn('# AI agent entry point: http://testserver/llms.txt', body)
+        self.assertNotIn('Sitemap:', body)
+        self.assertNotIn('Disallow: /\n', body)
+
+    def test_robots_txt_appends_runtime_extra_rules(self):
+        """robots.txt 추가 규칙은 런타임 설정에서 함께 생성된다."""
+        setting = SiteSetting.get_instance()
+        setting.robots_txt_extra_rules = 'User-agent: ExampleBot\nDisallow: /private/\n'
+        setting.save(update_fields=['robots_txt_extra_rules'])
+
+        response = self.client.get('/robots.txt')
+
+        self.assertEqual(response.status_code, 200)
+        body = response.content.decode()
+        self.assertIn('# Custom rules', body)
+        self.assertIn('User-agent: ExampleBot', body)
+        self.assertIn('Disallow: /private/', body)
 
     def test_robots_txt_advertises_agent_entrypoint_when_aeo_enabled(self):
         """AEO가 켜져 있으면 robots.txt에 AI 진입점을 표시한다."""
@@ -258,6 +277,7 @@ class AgentContentTestCase(TestCase):
         body = response.content.decode()
         self.assertIn('# AI agent entry point: http://testserver/llms.txt', body)
         self.assertNotIn('Disallow: /llms.txt', body)
+        self.assertIn('Sitemap: http://testserver/sitemap.xml', body)
 
     def test_llms_txt_returns_minimal_site_summary(self):
         """/llms.txt는 최소한의 사이트 요약만 제공한다."""

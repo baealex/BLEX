@@ -14,6 +14,14 @@ from board.models import Post, PostContent, Series, SiteSetting, StaticPage
 
 class AgentContentService:
     LATEST_POST_LIMIT = 20
+    DEFAULT_ROBOTS_DISALLOW_RULES = (
+        'Disallow: /*.preview.jpg',
+        'Disallow: /*.minify.*',
+        'Disallow: /settings/',
+        'Disallow: /admin-settings/',
+        'Disallow: /write',
+        'Disallow: /v1/',
+    )
     STRUCTURAL_CONTAINER_TAGS = {'article', 'section', 'main', 'aside', 'div', 'html', 'body'}
     INLINE_PASSTHROUGH_TAGS = {'span'}
     INLINE_RAW_TAGS = {'figcaption', 'mark', 'u', 'sub', 'sup'}
@@ -157,22 +165,13 @@ class AgentContentService:
         return request.build_absolute_uri(reverse('sitemap'))
 
     @staticmethod
-    def build_robots_txt(request: HttpRequest) -> str:
-        if not AgentContentService.is_seo_enabled():
-            return 'User-agent: *\nDisallow: /\n'
-
+    def build_default_robots_txt_lines(request: HttpRequest, setting: SiteSetting) -> list[str]:
         lines = [
             'User-agent: *',
-            'Allow: /',
-            'Disallow: /*.preview.jpg',
-            'Disallow: /*.minify.*',
-            'Disallow: /settings/',
-            'Disallow: /admin-settings/',
-            'Disallow: /write',
-            'Disallow: /v1/',
+            *AgentContentService.DEFAULT_ROBOTS_DISALLOW_RULES,
         ]
 
-        if AgentContentService.is_aeo_enabled():
+        if setting.aeo_enabled:
             lines.extend([
                 '',
                 f'# AI agent entry point: {AgentContentService.build_llms_txt_url(request)}',
@@ -183,11 +182,46 @@ class AgentContentService:
                 'Disallow: /*.md',
             ])
 
-        lines.extend([
-            f'Sitemap: {AgentContentService.build_sitemap_url(request)}',
-        ])
+        if setting.seo_enabled:
+            lines.extend([
+                f'Sitemap: {AgentContentService.build_sitemap_url(request)}',
+            ])
+        else:
+            lines.extend([
+                '',
+                '# Search indexing is disabled at runtime.',
+                '# Page responses include X-Robots-Tag and HTML robots meta noindex signals.',
+            ])
+
+        return lines
+
+    @staticmethod
+    def build_default_robots_txt(request: HttpRequest, setting: SiteSetting | None = None) -> str:
+        resolved_setting = setting or SiteSetting.get_instance()
+        lines = AgentContentService.build_default_robots_txt_lines(request, resolved_setting)
+        return '\n'.join(lines).strip() + '\n'
+
+    @staticmethod
+    def build_robots_txt(request: HttpRequest) -> str:
+        setting = SiteSetting.get_instance()
+        lines = AgentContentService.build_default_robots_txt_lines(request, setting)
+
+        extra_rules = AgentContentService.normalize_robots_txt_extra_rules(
+            setting.robots_txt_extra_rules
+        )
+        if extra_rules:
+            lines.extend(['', '# Custom rules'])
+            lines.extend(extra_rules)
 
         return '\n'.join(lines).strip() + '\n'
+
+    @staticmethod
+    def normalize_robots_txt_extra_rules(value: str) -> list[str]:
+        return [
+            line.rstrip()
+            for line in value.splitlines()
+            if line.strip()
+        ]
 
     @staticmethod
     def build_post_markdown_url(post: Post, request: HttpRequest) -> str:
