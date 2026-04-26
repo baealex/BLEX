@@ -122,6 +122,21 @@ class DeveloperAuthAPITestCase(TestCase):
 
         self.assertEqual(response.status_code, 404)
 
+    def test_developer_api_docs_requires_login(self):
+        response = self.client.get('/docs/developer-api')
+
+        self.assertEqual(response.status_code, 302)
+        self.assertIn('/login', response['Location'])
+        self.assertIn('next=', response['Location'])
+
+    def test_developer_api_docs_renders_for_logged_in_user(self):
+        self.client.login(username='developer', password='developer')
+
+        response = self.client.get('/docs/developer-api/list-posts')
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'DeveloperApiDocs')
+
     def test_reader_cannot_create_write_scope_token(self):
         self.client.login(username='reader', password='reader')
 

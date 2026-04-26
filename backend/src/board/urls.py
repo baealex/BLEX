@@ -19,6 +19,7 @@ from board.views.oauth_callback import oauth_callback
 from board.views.tag import tag_list_view, tag_detail_view
 from board.views.static_pages import static_page_view
 from board.views.settings import settings, admin_settings
+from board.views.developer_api_docs import developer_api_docs
 from board.decorators import staff_member_required
 
 def empty():
@@ -43,6 +44,10 @@ urlpatterns = [
     path('settings/<path:path>', settings, name='settings_path'),
     path('admin-settings/', admin_settings, name='admin_settings'),
     path('admin-settings/<path:path>', admin_settings, name='admin_settings_path'),
+
+    # Authenticated docs
+    path('docs/developer-api', developer_api_docs, name='developer_api_docs'),
+    path('docs/developer-api/<slug:operation_id>', developer_api_docs, name='developer_api_docs_detail'),
 
     # Post actions
     path('like/<url>', like_post, name='like_post'),
