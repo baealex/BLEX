@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useMutation, useQueryClient, useSuspenseQuery } from '@tanstack/react-query';
-import { useRouter } from '@tanstack/react-router';
+import { Link, useRouter } from '@tanstack/react-router';
 import { Button, Card, Checkbox, Input } from '~/components/shared';
 import { useConfirm } from '~/hooks/useConfirm';
 import {
@@ -592,16 +592,16 @@ const scopeLabel = (scope: DeveloperTokenScope) => {
 };
 
 const requirementClassName = (requirement: Requirement) => {
-    if (requirement === '필수') return 'border-danger-line bg-danger-surface text-danger';
-    if (requirement === '조건부') return 'border-warning-line bg-warning-surface text-warning';
-    return 'border-line bg-surface-elevated text-content-secondary';
+    if (requirement === '필수') return 'border-line bg-surface text-content';
+    if (requirement === '조건부') return 'border-line bg-surface text-content-secondary';
+    return 'border-line bg-surface text-content-hint';
 };
 
 const methodClassName = (method: ApiOperation['method']) => {
-    if (method === 'GET') return 'border-success-line bg-success-surface text-success';
-    if (method === 'POST') return 'border-action/20 bg-action/10 text-action';
-    if (method === 'PATCH') return 'border-warning-line bg-warning-surface text-warning';
-    return 'border-danger-line bg-danger-surface text-danger';
+    if (method === 'GET') return 'border-line bg-surface text-content';
+    if (method === 'POST') return 'border-line bg-surface text-content';
+    if (method === 'PATCH') return 'border-line bg-surface text-content';
+    return 'border-line bg-surface text-content';
 };
 
 const ApiFieldTable = ({ fields, emptyText = '필드 없음' }: { fields?: ApiField[]; emptyText?: string }) => {
@@ -949,31 +949,33 @@ const DeveloperApiSetting = () => {
 
             <Card
                 title="API 문서"
-                subtitle="각 API의 요청 필드, 필수 여부, 응답 타입을 확인하세요."
+                subtitle="요청 필드와 응답 타입은 각 API 상세에서 확인합니다."
                 icon={<i className="fas fa-book" />}>
-                <div className="space-y-6">
-                    <div className="rounded-lg border border-line bg-surface-subtle p-4">
-                        <div className="text-sm font-semibold text-content">인증 헤더</div>
-                        <div className="mt-3 flex flex-col gap-3 sm:flex-row sm:items-center">
-                            <code className="min-w-0 flex-1 break-all rounded-md bg-surface-elevated px-3 py-2 font-mono text-xs text-content-secondary">
-                                Authorization: Bearer blex_pat_...
-                            </code>
-                            <Button
-                                type="button"
-                                variant="secondary"
-                                size="sm"
-                                onClick={() => handleCopy('Authorization: Bearer blex_pat_...')}
-                                leftIcon={<i className="fas fa-copy" />}>
-                                복사
-                            </Button>
-                        </div>
+                <div className="space-y-4">
+                    <div className="flex flex-col gap-3 rounded-lg border border-line px-4 py-3 sm:flex-row sm:items-center">
+                        <div className="text-sm font-semibold text-content">공통 인증</div>
+                        <code className="min-w-0 flex-1 break-all font-mono text-xs text-content-secondary">
+                            Authorization: Bearer blex_pat_...
+                        </code>
+                        <Button
+                            type="button"
+                            variant="secondary"
+                            size="sm"
+                            onClick={() => handleCopy('Authorization: Bearer blex_pat_...')}
+                            leftIcon={<i className="fas fa-copy" />}>
+                            복사
+                        </Button>
                     </div>
 
-                    <div className="space-y-4">
+                    <div className="divide-y divide-line rounded-lg border border-line">
                         {apiOperations.map((operation) => (
-                            <section key={operation.id} className="rounded-xl border border-line bg-surface-subtle p-4">
-                                <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
-                                    <div className="min-w-0 space-y-2">
+                            <Link
+                                key={operation.id}
+                                to="/developer-api/reference/$operationId"
+                                params={{ operationId: operation.id }}
+                                className="group block p-4 transition-colors duration-150 hover:bg-surface-subtle active:bg-surface-elevated">
+                                <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+                                    <div className="min-w-0">
                                         <div className="flex flex-wrap items-center gap-2">
                                             <span className={`inline-flex rounded-md border px-2 py-1 font-mono text-xs font-semibold ${methodClassName(operation.method)}`}>
                                                 {operation.method}
@@ -982,76 +984,160 @@ const DeveloperApiSetting = () => {
                                                 {operation.path}
                                             </code>
                                         </div>
-                                        <div>
-                                            <h3 className="text-sm font-semibold text-content">{operation.summary}</h3>
-                                            <p className="mt-1 text-xs leading-relaxed text-content-secondary">{operation.description}</p>
-                                        </div>
+                                        <p className="mt-2 text-sm font-semibold text-content">{operation.summary}</p>
+                                        <p className="mt-1 text-xs leading-relaxed text-content-secondary">{operation.description}</p>
                                     </div>
-                                    <div className="flex flex-wrap gap-2 lg:justify-end">
-                                        <span className="rounded-md border border-line bg-surface-elevated px-2 py-1 font-mono text-xs text-content-secondary">
-                                            scope: {operation.scope}
-                                        </span>
-                                        <span className="rounded-md border border-line bg-surface-elevated px-2 py-1 font-mono text-xs text-content-secondary">
-                                            {operation.successStatus}
-                                        </span>
+                                    <div className="flex flex-wrap items-center gap-2 text-xs text-content-secondary lg:justify-end">
+                                        <span className="rounded-md border border-line px-2 py-1 font-mono">scope: {operation.scope}</span>
+                                        <span className="rounded-md border border-line px-2 py-1 font-mono">{operation.successStatus}</span>
+                                        <i className="fas fa-chevron-right text-content-hint transition-transform duration-150 group-hover:translate-x-0.5" />
                                     </div>
                                 </div>
-
-                                <div className="mt-5 grid gap-4">
-                                    {operation.pathParams && (
-                                        <div>
-                                            <div className="mb-2 text-xs font-semibold text-content">Path Parameters</div>
-                                            <ApiFieldTable fields={operation.pathParams} />
-                                        </div>
-                                    )}
-                                    {operation.queryParams && (
-                                        <div>
-                                            <div className="mb-2 text-xs font-semibold text-content">Query Parameters</div>
-                                            <ApiFieldTable fields={operation.queryParams} />
-                                        </div>
-                                    )}
-                                    {operation.requestBody && (
-                                        <div>
-                                            <div className="mb-2 text-xs font-semibold text-content">Request Body</div>
-                                            <ApiFieldTable fields={operation.requestBody} />
-                                        </div>
-                                    )}
-                                    <div>
-                                        <div className="mb-2 text-xs font-semibold text-content">Response Body</div>
-                                        <ApiFieldTable fields={operation.responseBody} />
-                                    </div>
-                                    <div>
-                                        <div className="mb-2 text-xs font-semibold text-content">Errors</div>
-                                        <div className="space-y-2 rounded-lg border border-line bg-surface-elevated p-3">
-                                            {operation.errors.map((error) => (
-                                                <code key={error} className="block break-all font-mono text-xs text-content-secondary">
-                                                    {error}
-                                                </code>
-                                            ))}
-                                        </div>
-                                    </div>
-                                    {operation.example && (
-                                        <div>
-                                            <div className="mb-2 flex items-center justify-between gap-3">
-                                                <div className="text-xs font-semibold text-content">{operation.example.title}</div>
-                                                <Button
-                                                    type="button"
-                                                    variant="secondary"
-                                                    size="sm"
-                                                    onClick={() => handleCopy(operation.example?.code || '')}
-                                                    leftIcon={<i className="fas fa-copy" />}>
-                                                    복사
-                                                </Button>
-                                            </div>
-                                            <pre className="overflow-x-auto rounded-md bg-surface-elevated p-3 text-xs leading-relaxed text-content-secondary"><code>{operation.example.code}</code></pre>
-                                        </div>
-                                    )}
-                                </div>
-                            </section>
+                            </Link>
                         ))}
                     </div>
                 </div>
             </Card>
+        </div>
+    );
+};
+
+export const DeveloperApiReferenceDetail = ({ operationId }: { operationId: string }) => {
+    const operation = apiOperations.find((item) => item.id === operationId);
+
+    const handleCopy = async (value: string) => {
+        try {
+            await navigator.clipboard.writeText(value);
+            toast.success('복사되었습니다.');
+        } catch {
+            toast.error('복사에 실패했습니다.');
+        }
+    };
+
+    if (!operation) {
+        return (
+            <div className="space-y-6">
+                <SettingsHeader
+                    title="API 문서"
+                    description="요청한 API 문서를 찾을 수 없습니다."
+                    actionPosition="right"
+                    action={(
+                        <Link to="/developer-api">
+                            <Button variant="secondary" size="sm" leftIcon={<i className="fas fa-arrow-left" />}>
+                                돌아가기
+                            </Button>
+                        </Link>
+                    )}
+                />
+            </div>
+        );
+    }
+
+    return (
+        <div className="space-y-8">
+            <SettingsHeader
+                title={operation.summary}
+                description={operation.description}
+                actionPosition="right"
+                action={(
+                    <Link to="/developer-api">
+                        <Button variant="secondary" size="sm" leftIcon={<i className="fas fa-arrow-left" />}>
+                            목록
+                        </Button>
+                    </Link>
+                )}
+            />
+
+            <section className="space-y-4">
+                <div className="flex flex-wrap items-center gap-2">
+                    <span className={`inline-flex rounded-md border px-2 py-1 font-mono text-xs font-semibold ${methodClassName(operation.method)}`}>
+                        {operation.method}
+                    </span>
+                    <code className="break-all font-mono text-base font-semibold text-content">
+                        {operation.path}
+                    </code>
+                </div>
+                <div className="flex flex-wrap gap-2 text-xs text-content-secondary">
+                    <span className="rounded-md border border-line px-2 py-1 font-mono">scope: {operation.scope}</span>
+                    <span className="rounded-md border border-line px-2 py-1 font-mono">success: {operation.successStatus}</span>
+                </div>
+            </section>
+
+            <section className="space-y-3 border-t border-line pt-6">
+                <div>
+                    <h2 className="text-sm font-semibold text-content">인증</h2>
+                    <p className="mt-1 text-xs leading-relaxed text-content-secondary">
+                        모든 개발자 API 요청은 Bearer 토큰을 Authorization 헤더에 담아 보냅니다.
+                    </p>
+                </div>
+                <div className="flex flex-col gap-3 rounded-lg border border-line px-4 py-3 sm:flex-row sm:items-center">
+                    <code className="min-w-0 flex-1 break-all font-mono text-xs text-content-secondary">
+                        Authorization: Bearer blex_pat_...
+                    </code>
+                    <Button
+                        type="button"
+                        variant="secondary"
+                        size="sm"
+                        onClick={() => handleCopy('Authorization: Bearer blex_pat_...')}
+                        leftIcon={<i className="fas fa-copy" />}>
+                        복사
+                    </Button>
+                </div>
+            </section>
+
+            {operation.pathParams && (
+                <section className="space-y-3 border-t border-line pt-6">
+                    <h2 className="text-sm font-semibold text-content">Path Parameters</h2>
+                    <ApiFieldTable fields={operation.pathParams} />
+                </section>
+            )}
+
+            {operation.queryParams && (
+                <section className="space-y-3 border-t border-line pt-6">
+                    <h2 className="text-sm font-semibold text-content">Query Parameters</h2>
+                    <ApiFieldTable fields={operation.queryParams} />
+                </section>
+            )}
+
+            {operation.requestBody && (
+                <section className="space-y-3 border-t border-line pt-6">
+                    <h2 className="text-sm font-semibold text-content">Request Body</h2>
+                    <ApiFieldTable fields={operation.requestBody} />
+                </section>
+            )}
+
+            <section className="space-y-3 border-t border-line pt-6">
+                <h2 className="text-sm font-semibold text-content">Response Body</h2>
+                <ApiFieldTable fields={operation.responseBody} />
+            </section>
+
+            <section className="space-y-3 border-t border-line pt-6">
+                <h2 className="text-sm font-semibold text-content">Errors</h2>
+                <div className="divide-y divide-line rounded-lg border border-line">
+                    {operation.errors.map((error) => (
+                        <code key={error} className="block break-all px-4 py-3 font-mono text-xs text-content-secondary">
+                            {error}
+                        </code>
+                    ))}
+                </div>
+            </section>
+
+            {operation.example && (
+                <section className="space-y-3 border-t border-line pt-6">
+                    <div className="flex items-center justify-between gap-3">
+                        <h2 className="text-sm font-semibold text-content">{operation.example.title}</h2>
+                        <Button
+                            type="button"
+                            variant="secondary"
+                            size="sm"
+                            onClick={() => handleCopy(operation.example?.code || '')}
+                            leftIcon={<i className="fas fa-copy" />}>
+                            복사
+                        </Button>
+                    </div>
+                    <pre className="overflow-x-auto rounded-lg border border-line p-4 text-xs leading-relaxed text-content-secondary"><code>{operation.example.code}</code></pre>
+                </section>
+            )}
         </div>
     );
 };

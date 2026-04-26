@@ -26,6 +26,7 @@ const IntegrationSetting = lazy(() => import('./pages/IntegrationSetting'));
 const SocialLinksSetting = lazy(() => import('./pages/SocialLinksSetting'));
 const WebhookSetting = lazy(() => import('./pages/WebhookSetting'));
 const DeveloperApiSetting = lazy(() => import('./pages/DeveloperApiSetting'));
+const DeveloperApiReferenceDetail = lazy(() => import('./pages/DeveloperApiSetting').then((module) => ({ default: module.DeveloperApiReferenceDetail })));
 const GlobalWebhookSetting = lazy(() => import('./pages/GlobalWebhookSetting'));
 const GlobalNoticeSetting = lazy(() => import('./pages/GlobalNoticeSetting'));
 const GlobalBannerSetting = lazy(() => import('./pages/GlobalBannerSetting'));
@@ -173,6 +174,15 @@ const developerApiRoute = createRoute({
     component: DeveloperApiSetting
 });
 
+const developerApiReferenceRoute = createRoute({
+    getParentRoute: () => settingsRoute,
+    path: '/developer-api/reference/$operationId',
+    component: () => {
+        const { operationId } = developerApiReferenceRoute.useParams();
+        return <DeveloperApiReferenceDetail operationId={operationId} />;
+    }
+});
+
 const globalWebhookRoute = createRoute({
     getParentRoute: () => settingsRoute,
     path: '/global-webhook',
@@ -310,6 +320,7 @@ const routeTree = rootRoute.addChildren([
         integrationRoute,
         webhookRoute,
         developerApiRoute,
+        developerApiReferenceRoute,
         globalWebhookRoute,
         globalNoticesRoute,
         globalBannersRoute,
