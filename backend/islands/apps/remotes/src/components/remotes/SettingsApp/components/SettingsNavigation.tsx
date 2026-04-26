@@ -209,40 +209,24 @@ const getNavigationSections = (settingsMode: SettingsMode) => (
     settingsMode === 'admin' ? adminNavigationSections : userNavigationSections
 );
 
-const SettingsModeSwitch = ({ settingsMode, isStaff }: { settingsMode: SettingsMode; isStaff: boolean }) => {
+const SettingsModeLink = ({ settingsMode, isStaff }: { settingsMode: SettingsMode; isStaff: boolean }) => {
     if (!isStaff) return null;
 
-    const modes = [
-        {
-            label: '내 설정',
-            href: '/settings/notify',
-            icon: 'fa-user',
-            active: settingsMode === 'user'
-        },
-        {
-            label: '관리자 설정',
-            href: '/admin-settings/site-settings',
-            icon: 'fa-shield-alt',
-            active: settingsMode === 'admin'
-        }
-    ];
+    const isAdminMode = settingsMode === 'admin';
+    const href = isAdminMode ? '/settings/notify' : '/admin-settings/site-settings';
+    const label = isAdminMode ? '내 설정으로 돌아가기' : '관리자 설정';
+    const icon = isAdminMode ? 'fa-arrow-left' : 'fa-shield-alt';
 
     return (
-        <div className="grid grid-cols-2 gap-1 rounded-xl border border-line bg-surface-subtle p-1">
-            {modes.map((mode) => (
-                <a
-                    key={mode.href}
-                    href={mode.href}
-                    className={`flex h-10 items-center justify-center gap-2 rounded-lg px-3 text-sm font-semibold transition-all ${INTERACTION_DURATION} active:scale-95 ${
-                        mode.active
-                            ? 'bg-surface text-content shadow-subtle'
-                            : 'text-content-secondary hover:text-content'
-                    }`}>
-                    <i className={`fas ${mode.icon} text-xs`} />
-                    <span>{mode.label}</span>
-                </a>
-            ))}
-        </div>
+        <a
+            href={href}
+            className={`inline-flex h-9 items-center gap-2 rounded-lg px-2 text-sm font-medium text-content-secondary transition-all ${INTERACTION_DURATION} hover:bg-surface-subtle hover:text-content active:scale-95`}>
+            <i className={`fas ${icon} text-xs text-content-hint`} />
+            <span>{label}</span>
+            {!isAdminMode && (
+                <i className="fas fa-chevron-right text-[10px] text-content-hint" />
+            )}
+        </a>
     );
 };
 
@@ -352,8 +336,8 @@ export const SettingsMobileNavigation = ({ currentPath }: SettingsNavigationProp
                                 </div>
 
                                 {isStaff && (
-                                    <div className="mb-8">
-                                        <SettingsModeSwitch settingsMode={settingsMode} isStaff={isStaff} />
+                                    <div className="-mt-5 mb-8">
+                                        <SettingsModeLink settingsMode={settingsMode} isStaff={isStaff} />
                                     </div>
                                 )}
 
@@ -458,8 +442,8 @@ export const SettingsDesktopNavigation = ({ currentPath }: SettingsNavigationPro
                     {settingsMode === 'admin' ? '관리자 설정' : '설정'}
                 </h2>
                 {isStaff && (
-                    <div className="mt-4">
-                        <SettingsModeSwitch settingsMode={settingsMode} isStaff={isStaff} />
+                    <div className="mt-3">
+                        <SettingsModeLink settingsMode={settingsMode} isStaff={isStaff} />
                     </div>
                 )}
             </div>
