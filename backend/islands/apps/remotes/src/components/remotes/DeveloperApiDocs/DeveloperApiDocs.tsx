@@ -1,12 +1,16 @@
 import type { ReactNode } from 'react';
+import {
+    Link,
+    Outlet,
+    RouterProvider,
+    createRootRoute,
+    createRoute,
+    createRouter
+} from '@tanstack/react-router';
 import { Button } from '~/components/shared';
 import { toast } from '~/utils/toast';
 import { ApiFieldTable } from './ApiFieldTable';
 import { apiOperations, methodClassName } from './apiReference';
-
-interface DeveloperApiDocsProps {
-    operationId?: string;
-}
 
 const copyText = async (value: string) => {
     try {
@@ -80,9 +84,10 @@ const OperationList = () => (
             <h2 className="text-sm font-semibold text-content">API 목록</h2>
             <div className="divide-y divide-line rounded-lg border border-line">
                 {apiOperations.map((operation) => (
-                    <a
+                    <Link
                         key={operation.id}
-                        href={`/docs/developer-api/${operation.id}`}
+                        to="/$operationId"
+                        params={{ operationId: operation.id }}
                         className="group block p-4 transition-colors duration-150 hover:bg-surface-subtle active:bg-surface-elevated">
                         <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
                             <div className="min-w-0">
@@ -103,7 +108,7 @@ const OperationList = () => (
                                 <i className="fas fa-chevron-right text-content-hint transition-transform duration-150 group-hover:translate-x-0.5" />
                             </div>
                         </div>
-                    </a>
+                    </Link>
                 ))}
             </div>
         </section>
@@ -120,11 +125,11 @@ const OperationDetail = ({ operationId }: { operationId: string }) => {
                     title="API 문서"
                     description="요청한 API 문서를 찾을 수 없습니다."
                     action={(
-                        <a href="/docs/developer-api">
+                        <Link to="/">
                             <Button variant="secondary" size="sm" leftIcon={<i className="fas fa-arrow-left" />}>
                                 목록
                             </Button>
-                        </a>
+                        </Link>
                     )}
                 />
             </div>
@@ -137,11 +142,11 @@ const OperationDetail = ({ operationId }: { operationId: string }) => {
                 title={operation.summary}
                 description={operation.description}
                 action={(
-                    <a href="/docs/developer-api">
+                    <Link to="/">
                         <Button variant="secondary" size="sm" leftIcon={<i className="fas fa-arrow-left" />}>
                             목록
                         </Button>
-                    </a>
+                    </Link>
                 )}
             />
 
@@ -219,8 +224,36 @@ const OperationDetail = ({ operationId }: { operationId: string }) => {
     );
 };
 
-const DeveloperApiDocs = ({ operationId = '' }: DeveloperApiDocsProps) => (
-    operationId ? <OperationDetail operationId={operationId} /> : <OperationList />
-);
+const rootRoute = createRootRoute({ component: Outlet });
+
+const indexRoute = createRoute({
+    getParentRoute: () => rootRoute,
+    path: '/',
+    component: OperationList
+});
+
+const operationRoute = createRoute({
+    getParentRoute: () => rootRoute,
+    path: '/$operationId',
+    component: () => {
+        const { operationId } = operationRoute.useParams();
+        return <OperationDetail operationId={operationId} />;
+    }
+});
+
+const routeTree = rootRoute.addChildren([
+    indexRoute,
+    operationRoute
+]);
+
+const DeveloperApiDocs = () => {
+    const router = createRouter({
+        routeTree,
+        defaultPreload: 'intent',
+        basepath: '/docs/developer-api'
+    });
+
+    return <RouterProvider router={router} />;
+};
 
 export default DeveloperApiDocs;
