@@ -58,6 +58,7 @@ class MainPageTemplateTestCase(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, '<meta name="robots" content="noindex,nofollow">', html=True)
         self.assertContains(response, '<meta name="googlebot" content="noindex,nofollow">', html=True)
+        self.assertEqual(response['X-Robots-Tag'], 'noindex, nofollow')
 
     def test_index_page_omits_noindex_when_seo_enabled(self):
         setting = SiteSetting.get_instance()
@@ -68,6 +69,7 @@ class MainPageTemplateTestCase(TestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertNotContains(response, 'content="noindex,nofollow"')
+        self.assertNotIn('X-Robots-Tag', response)
 
     def test_index_page_has_required_context(self):
         response = self.client.get(reverse('index'))

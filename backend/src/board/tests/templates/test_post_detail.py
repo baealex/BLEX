@@ -68,6 +68,23 @@ class PostDetailViewTestCase(TestCase):
         self.assertNotContains(response, 'aria-label="AI용 Markdown 복사"')
         self.assertNotContains(response, 'data-ai-markdown-url=')
 
+    def test_post_detail_uses_noindex_only_when_seo_disabled(self):
+        setting = SiteSetting.get_instance()
+        setting.seo_enabled = False
+        setting.save(update_fields=['seo_enabled'])
+
+        url = reverse('post_detail', kwargs={
+            'username': 'testauthor',
+            'post_url': 'test-post'
+        })
+        response = self.client.get(url)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, '<meta name="robots" content="noindex,nofollow">', html=True)
+        self.assertContains(response, '<meta name="googlebot" content="noindex,nofollow">', html=True)
+        self.assertNotContains(response, 'max-snippet:-1')
+        self.assertEqual(response['X-Robots-Tag'], 'noindex, nofollow')
+
     def test_post_detail_has_copy_for_ai_action_when_aeo_enabled(self):
         self.enable_aeo()
         url = reverse('post_detail', kwargs={
