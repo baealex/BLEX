@@ -4,7 +4,8 @@ import {
     createRootRoute,
     createRoute,
     Outlet,
-    Navigate
+    Navigate,
+    useRouter
 } from '@tanstack/react-router';
 import { lazy, Suspense } from 'react';
 import { SettingsLayout } from './components/SettingsLayout';
@@ -42,6 +43,18 @@ export interface SettingsAppProps {
     isEditor: boolean;
     isStaff: boolean;
     adminUrl?: string;
+    settingsMode?: SettingsMode;
+    basePath?: string;
+}
+
+type SettingsMode = 'user' | 'admin';
+
+interface SettingsRouterContext {
+    isEditor: boolean;
+    isStaff: boolean;
+    adminUrl?: string;
+    settingsMode: SettingsMode;
+    basePath: string;
 }
 
 // Root route
@@ -60,11 +73,18 @@ const settingsRoute = createRoute({
     component: SettingsLayout
 });
 
-// Index route - redirect to /notify by default
+const SettingsIndexRedirect = () => {
+    const router = useRouter();
+    const { settingsMode } = router.options.context as SettingsRouterContext;
+
+    return <Navigate to={settingsMode === 'admin' ? '/site-settings' : '/notify'} replace />;
+};
+
+// Index route - redirect to the default page for each settings namespace
 const indexRoute = createRoute({
     getParentRoute: () => settingsRoute,
     path: '/',
-    component: () => <Navigate to="/notify" replace />
+    component: SettingsIndexRedirect
 });
 
 // Individual setting routes
@@ -292,16 +312,27 @@ const routeTree = rootRoute.addChildren([
     ])
 ]);
 
-const SettingsApp = ({ isEditor, isStaff, adminUrl }: SettingsAppProps) => {
+const SettingsApp = ({
+    isEditor,
+    isStaff,
+    adminUrl,
+    settingsMode = 'user',
+    basePath
+}: SettingsAppProps) => {
+    const normalizedSettingsMode = settingsMode === 'admin' ? 'admin' : 'user';
+    const normalizedBasePath = basePath ?? (normalizedSettingsMode === 'admin' ? '/admin-settings' : '/settings');
+
     const router = createRouter({
         routeTree,
         context: {
             isEditor,
             isStaff,
-            adminUrl
+            adminUrl,
+            settingsMode: normalizedSettingsMode,
+            basePath: normalizedBasePath
         },
         defaultPreload: 'intent',
-        basepath: '/settings'
+        basepath: normalizedBasePath
     });
 
     return <RouterProvider router={router} />;

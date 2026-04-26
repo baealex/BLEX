@@ -160,6 +160,7 @@ class AgentContentService:
             'Disallow: /*.preview.jpg',
             'Disallow: /*.minify.*',
             'Disallow: /settings/',
+            'Disallow: /admin-settings/',
             'Disallow: /write',
             'Disallow: /v1/',
         ]
