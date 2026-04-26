@@ -13,6 +13,26 @@ register = template.Library()
 # Module-level cache for the Vite manifest
 _manifest_cache = None
 
+
+def get_vite_dev_server_url():
+    """
+    Resolve the Vite dev server URL from the runtime info file written by Vite.
+    Falls back to settings.VITE_DEV_SERVER_URL before the dev server has started.
+    """
+    info_path = getattr(settings, 'VITE_DEV_SERVER_INFO_PATH', None)
+    if info_path and os.path.exists(info_path):
+        try:
+            with open(info_path, 'r') as f:
+                info = json.load(f)
+            url = info.get('url')
+            if isinstance(url, str) and url:
+                return url.rstrip('/')
+        except (OSError, json.JSONDecodeError):
+            logger.warning("Failed to read Vite dev server info from %s", info_path)
+
+    return getattr(settings, 'VITE_DEV_SERVER_URL', 'http://localhost:8100').rstrip('/')
+
+
 def get_manifest():
     """
     Load the Vite manifest file and cache it in memory.
@@ -54,7 +74,7 @@ def island_entry(entry_name):
     """
     # Check if in development mode
     if getattr(settings, 'USE_VITE_DEV_SERVER', settings.DEBUG):
-        return f"http://localhost:5173/{entry_name}"
+        return f"{get_vite_dev_server_url()}/{entry_name}"
     
     manifest = get_manifest()
     entry_path = f"{entry_name}"
@@ -78,7 +98,7 @@ def island_css(entry_name):
     """
     # Check if in development mode
     if getattr(settings, 'USE_VITE_DEV_SERVER', settings.DEBUG):
-        return f"http://localhost:5173/{entry_name}"
+        return f"{get_vite_dev_server_url()}/{entry_name}"
     
     manifest = get_manifest()
     entry_path = f"{entry_name}"
@@ -125,15 +145,16 @@ def vite_hmr_client():
     DEBUG 모드일 때만 Vite HMR 클라이언트를 로드
     """
     if getattr(settings, 'USE_VITE_DEV_SERVER', settings.DEBUG):
-        preamble = """
+        vite_url = get_vite_dev_server_url()
+        preamble = f"""
         <script type="module">
-            import RefreshRuntime from 'http://localhost:5173/@react-refresh'
+            import RefreshRuntime from '{vite_url}/@react-refresh'
             RefreshRuntime.injectIntoGlobalHook(window)
-            window.$RefreshReg$ = () => {}
+            window.$RefreshReg$ = () => {{}}
             window.$RefreshSig$ = () => (type) => type
             window.__vite_plugin_react_preamble_installed__ = true
         </script>
         """
-        client = '<script type="module" src="http://localhost:5173/@vite/client"></script>'
+        client = f'<script type="module" src="{vite_url}/@vite/client"></script>'
         return mark_safe(preamble + client)
     return ""

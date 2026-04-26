@@ -3,7 +3,7 @@ from django.test import Client, TestCase
 from django.urls import reverse
 from django.utils import timezone
 
-from board.models import Post, PostConfig, PostContent, Series, StaticPage
+from board.models import Post, PostConfig, PostContent, Series, SiteSetting, StaticPage
 
 
 class SeriesAgentDiscoveryTestCase(TestCase):
@@ -39,7 +39,28 @@ class SeriesAgentDiscoveryTestCase(TestCase):
             hide=False,
         )
 
+    def enable_aeo(self):
+        setting = SiteSetting.get_instance()
+        setting.aeo_enabled = True
+        setting.save(update_fields=['aeo_enabled'])
+
+    def test_series_detail_hides_markdown_alternate_when_aeo_disabled(self):
+        response = self.client.get(reverse('series_detail', kwargs={
+            'username': 'seriesauthor',
+            'series_url': 'agent-discovery-series',
+        }))
+
+        self.assertEqual(response.status_code, 200)
+
+        content = response.content.decode()
+
+        self.assertNotIn('rel=alternate type=text/markdown', content)
+        self.assertNotIn('http://testserver/@seriesauthor/series/agent-discovery-series.md', content)
+        self.assertNotIn('Link', response)
+        self.assertNotIn('X-Llms-Txt', response)
+
     def test_series_detail_advertises_markdown_alternate(self):
+        self.enable_aeo()
         response = self.client.get(reverse('series_detail', kwargs={
             'username': 'seriesauthor',
             'series_url': 'agent-discovery-series',
@@ -52,8 +73,7 @@ class SeriesAgentDiscoveryTestCase(TestCase):
         content = response.content.decode()
 
         self.assertIn(markdown_url, content)
-        self.assertIn('rel=alternate', content)
-        self.assertIn('type=text/markdown', content)
+        self.assertIn('rel=alternate type=text/markdown', content)
         self.assertIn(
             f'<{markdown_url}>; rel="alternate"; type="text/markdown"',
             response['Link'],
@@ -76,7 +96,27 @@ class StaticPageAgentDiscoveryTestCase(TestCase):
             is_published=True,
         )
 
+    def enable_aeo(self):
+        setting = SiteSetting.get_instance()
+        setting.aeo_enabled = True
+        setting.save(update_fields=['aeo_enabled'])
+
+    def test_static_page_hides_markdown_alternate_when_aeo_disabled(self):
+        response = self.client.get(reverse('static_page', kwargs={
+            'slug': 'agent-policy',
+        }))
+
+        self.assertEqual(response.status_code, 200)
+
+        content = response.content.decode()
+
+        self.assertNotIn('rel=alternate type=text/markdown', content)
+        self.assertNotIn('http://testserver/static/agent-policy.md', content)
+        self.assertNotIn('Link', response)
+        self.assertNotIn('X-Llms-Txt', response)
+
     def test_static_page_advertises_markdown_alternate(self):
+        self.enable_aeo()
         response = self.client.get(reverse('static_page', kwargs={
             'slug': 'agent-policy',
         }))
@@ -88,8 +128,7 @@ class StaticPageAgentDiscoveryTestCase(TestCase):
         content = response.content.decode()
 
         self.assertIn(markdown_url, content)
-        self.assertIn('rel=alternate', content)
-        self.assertIn('type=text/markdown', content)
+        self.assertIn('rel=alternate type=text/markdown', content)
         self.assertIn(
             f'<{markdown_url}>; rel="alternate"; type="text/markdown"',
             response['Link'],

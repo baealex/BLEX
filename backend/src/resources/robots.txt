@@ -5,6 +5,6 @@ Disallow: /*.minify.*
 Disallow: /settings/
 Disallow: /write
 Disallow: /v1/
-
-# AI agent entry point: https://blex.me/llms.txt
+Disallow: /llms.txt
+Disallow: /*.md
 Sitemap: https://blex.me/sitemap.xml

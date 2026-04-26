@@ -26,6 +26,7 @@ def site_settings(request):
             'welcome_notification_message': setting.welcome_notification_message,
             'welcome_notification_url': setting.welcome_notification_url,
             'account_deletion_redirect_url': setting.account_deletion_redirect_url,
+            'aeo_enabled': setting.aeo_enabled,
             'updated_date': setting.updated_date.isoformat(),
         })
 
@@ -50,6 +51,9 @@ def site_settings(request):
         if 'account_deletion_redirect_url' in put_data:
             setting.account_deletion_redirect_url = put_data['account_deletion_redirect_url']
 
+        if 'aeo_enabled' in put_data:
+            setting.aeo_enabled = put_data['aeo_enabled'] is True
+
         setting.save()
 
         return StatusDone({
@@ -58,6 +62,7 @@ def site_settings(request):
             'welcome_notification_message': setting.welcome_notification_message,
             'welcome_notification_url': setting.welcome_notification_url,
             'account_deletion_redirect_url': setting.account_deletion_redirect_url,
+            'aeo_enabled': setting.aeo_enabled,
             'updated_date': setting.updated_date.isoformat(),
         })
 

@@ -799,6 +799,12 @@ class SiteSetting(models.Model):
         help_text='회원 탈퇴 시 리다이렉트할 URL (비워두면 메인 페이지로 이동, 설문 링크 등을 설정할 수 있습니다)'
     )
 
+    # Search and agent exposure settings
+    aeo_enabled = models.BooleanField(
+        default=False,
+        help_text='AI 에이전트용 llms.txt, Markdown endpoint, discovery header 노출 여부'
+    )
+
     # Metadata
     updated_date = models.DateTimeField(auto_now=True)
 

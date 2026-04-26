@@ -6,7 +6,7 @@ from django.contrib.auth.models import User
 from django.test import Client, TestCase, override_settings
 from django.utils import timezone
 
-from board.models import Post, PostConfig, PostContent, Series, StaticPage
+from board.models import Post, PostConfig, PostContent, Series, SiteSetting, StaticPage
 
 
 BASE_MIDDLEWARE = tuple(
@@ -186,6 +186,9 @@ class AgentContentTestCase(TestCase):
 
     def setUp(self):
         self.client = Client()
+        setting = SiteSetting.get_instance()
+        setting.aeo_enabled = True
+        setting.save(update_fields=['aeo_enabled'])
 
     @override_settings(MIDDLEWARE=AEO_MIDDLEWARE)
     def test_sitemap_allows_regular_user_agent(self):
@@ -201,22 +204,62 @@ class AgentContentTestCase(TestCase):
 
         self.assertEqual(response.status_code, 200)
 
-    def test_llms_txt_returns_agent_entrypoint(self):
-        """/llms.txt는 에이전트용 사이트 진입점을 제공한다."""
+    def test_aeo_disabled_hides_agent_entrypoints(self):
+        """AEO가 꺼져 있으면 llms.txt와 Markdown endpoint에 접근할 수 없다."""
+        setting = SiteSetting.get_instance()
+        setting.aeo_enabled = False
+        setting.save(update_fields=['aeo_enabled'])
+
+        urls = [
+            '/llms.txt',
+            '/@aeo-author/agent-ready-post.md',
+            '/@aeo-author/series/agent-ready-series.md',
+            '/static/about-ai.md',
+        ]
+
+        for url in urls:
+            with self.subTest(url=url):
+                response = self.client.get(url)
+                self.assertEqual(response.status_code, 404)
+
+    def test_robots_txt_hides_agent_entrypoint_when_aeo_disabled(self):
+        """AEO가 꺼져 있으면 robots.txt에서도 AI 진입점을 광고하지 않는다."""
+        setting = SiteSetting.get_instance()
+        setting.aeo_enabled = False
+        setting.save(update_fields=['aeo_enabled'])
+
+        response = self.client.get('/robots.txt')
+
+        self.assertEqual(response.status_code, 200)
+        body = response.content.decode()
+        self.assertIn('Disallow: /llms.txt', body)
+        self.assertIn('Disallow: /*.md', body)
+        self.assertNotIn('AI agent entry point', body)
+
+    def test_robots_txt_advertises_agent_entrypoint_when_aeo_enabled(self):
+        """AEO가 켜져 있으면 robots.txt에 AI 진입점을 표시한다."""
+        response = self.client.get('/robots.txt')
+
+        self.assertEqual(response.status_code, 200)
+        body = response.content.decode()
+        self.assertIn('# AI agent entry point: http://testserver/llms.txt', body)
+        self.assertNotIn('Disallow: /llms.txt', body)
+
+    def test_llms_txt_returns_minimal_site_summary(self):
+        """/llms.txt는 최소한의 사이트 요약만 제공한다."""
         response = self.client.get('/llms.txt')
 
         self.assertEqual(response.status_code, 200)
         self.assertTrue(response['Content-Type'].startswith('text/plain'))
 
         body = response.content.decode()
-        self.assertIn('BLEX', body)
-        self.assertIn('/sitemap.xml', body)
-        self.assertIn('/posts/sitemap.xml', body)
-        self.assertIn('/rss', body)
-        self.assertIn('/@aeo-author/agent-ready-post.md', body)
+        self.assertEqual(
+            body,
+            '# BLEX\n\n> BLEX is a publishing site.\n',
+        )
 
-    def test_llms_txt_follows_llmstxt_structure_and_lists_series_static_markdown(self):
-        """llms.txt는 요약 blockquote와 H2 링크 목록 구조를 지키고 시리즈/정적 페이지를 노출한다."""
+    def test_llms_txt_does_not_expose_content_indexes_or_markdown_links(self):
+        """llms.txt는 sitemap, RSS, Markdown 목록을 노출하지 않는다."""
         response = self.client.get('/llms.txt')
 
         self.assertEqual(response.status_code, 200)
@@ -225,42 +268,12 @@ class AgentContentTestCase(TestCase):
 
         self.assertRegex(
             body,
-            r'^# BLEX\n\n> .+\n\n',
+            r'^# BLEX\n\n> .+\n$',
         )
-        self.assertIn('## Entry Points\n', body)
-        self.assertIn('## Series\n', body)
-        self.assertIn('## Static Pages\n', body)
-        self.assertIn('## Optional\n', body)
-        self.assertIn(
-            '[Static pages sitemap](http://testserver/staticpages/sitemap.xml)',
-            body,
-        )
-        self.assertIn(
-            '[Agent Ready Series](http://testserver/@aeo-author/series/agent-ready-series.md)',
-            body,
-        )
-        self.assertIn(
-            '[About AI](http://testserver/static/about-ai.md)',
-            body,
-        )
-        self.assertIn(
-            '[Agent Ready Post](http://testserver/@aeo-author/agent-ready-post.md)',
-            body,
-        )
-
-        in_link_section = False
-        for line in body.splitlines():
-            if line.startswith('## '):
-                in_link_section = True
-                continue
-
-            if not in_link_section or not line.strip():
-                continue
-
-            self.assertRegex(
-                line,
-                r'^- \[[^\]]+\]\([^)]+\)(: .+)?$',
-            )
+        self.assertNotIn('/sitemap.xml', body)
+        self.assertNotIn('/rss', body)
+        self.assertNotIn('.md', body)
+        self.assertNotIn('## ', body)
 
     def test_post_markdown_endpoint_returns_clean_markdown(self):
         """공개 포스트는 Markdown endpoint로 AI용 본문을 제공한다."""

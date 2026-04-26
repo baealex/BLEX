@@ -9,7 +9,7 @@ from django.http import Http404, HttpRequest
 from django.urls import reverse
 from django.utils import timezone
 
-from board.models import Post, PostContent, Series, StaticPage
+from board.models import Post, PostContent, Series, SiteSetting, StaticPage
 
 
 class AgentContentService:
@@ -17,6 +17,15 @@ class AgentContentService:
     STRUCTURAL_CONTAINER_TAGS = {'article', 'section', 'main', 'aside', 'div', 'html', 'body'}
     INLINE_PASSTHROUGH_TAGS = {'span'}
     INLINE_RAW_TAGS = {'figcaption', 'mark', 'u', 'sub', 'sup'}
+
+    @staticmethod
+    def is_aeo_enabled() -> bool:
+        return SiteSetting.get_instance().aeo_enabled
+
+    @staticmethod
+    def require_aeo_enabled() -> None:
+        if not AgentContentService.is_aeo_enabled():
+            raise Http404("AEO is disabled")
 
     @staticmethod
     def estimate_tokens(text: str) -> int:
@@ -108,96 +117,11 @@ class AgentContentService:
 
     @staticmethod
     def build_llms_txt(request: HttpRequest) -> str:
-        site_url = request.build_absolute_uri(reverse('index')).rstrip('/')
-        latest_posts = list(AgentContentService.get_public_posts())
-        public_series = list(AgentContentService.get_public_series())
-        public_static_pages = list(AgentContentService.get_public_static_pages())
-
         lines = [
             '# BLEX',
             '',
-            '> BLEX is a long-form publishing site with public posts, curated series, and published static pages for readers and AI agents.',
-            '',
-            'Prefer Markdown endpoints when available, because they remove template noise and preserve the cleanest agent-readable content.',
-            'Recent posts are listed under `Optional` so agents with tight context budgets can skip them first.',
-            '',
+            '> BLEX is a publishing site.',
         ]
-
-        entry_points = [
-            AgentContentService.build_llms_link_line(
-                'Homepage',
-                site_url,
-                'Human-readable homepage for the latest published content.',
-            ),
-            AgentContentService.build_llms_link_line(
-                'Sitemap index',
-                request.build_absolute_uri(reverse('sitemap')),
-                'Top-level sitemap with links to posts, series, authors, and static pages.',
-            ),
-            AgentContentService.build_llms_link_line(
-                'Posts sitemap',
-                request.build_absolute_uri(reverse('sitemap_section', args=['posts'])),
-                'Complete list of public post HTML URLs.',
-            ),
-            AgentContentService.build_llms_link_line(
-                'Series sitemap',
-                request.build_absolute_uri(reverse('sitemap_section', args=['series'])),
-                'Complete list of public series HTML URLs.',
-            ),
-            AgentContentService.build_llms_link_line(
-                'Authors sitemap',
-                request.build_absolute_uri(reverse('sitemap_section', args=['user'])),
-                'Complete list of public author archive URLs.',
-            ),
-            AgentContentService.build_llms_link_line(
-                'Static pages sitemap',
-                request.build_absolute_uri(reverse('sitemap_section', args=['staticpages'])),
-                'Complete list of published static page HTML URLs.',
-            ),
-            AgentContentService.build_llms_link_line(
-                'RSS feed',
-                request.build_absolute_uri('/rss'),
-                'Recent published posts feed.',
-            ),
-        ]
-        AgentContentService.append_llms_section(lines, 'Entry Points', entry_points)
-
-        if public_series:
-            series_lines = [
-                AgentContentService.build_llms_link_line(
-                    series.name,
-                    AgentContentService.build_series_markdown_url(series, request),
-                    f'Series overview and public post list for @{series.owner.username}.',
-                )
-                for series in public_series
-            ]
-            AgentContentService.append_llms_section(lines, 'Series', series_lines)
-
-        if public_static_pages:
-            static_page_lines = [
-                AgentContentService.build_llms_link_line(
-                    page.title,
-                    AgentContentService.build_static_page_markdown_url(page, request),
-                    'Published static page in Markdown for agent use.',
-                )
-                for page in public_static_pages
-            ]
-            AgentContentService.append_llms_section(lines, 'Static Pages', static_page_lines)
-
-        optional_lines = []
-        for post in latest_posts:
-            markdown_url = AgentContentService.build_post_markdown_url(post, request)
-            source_url = request.build_absolute_uri(post.get_absolute_url())
-            optional_lines.append(
-                AgentContentService.build_llms_link_line(
-                    post.title,
-                    markdown_url,
-                    f'Recent post by @{post.author.username}. Source HTML: {source_url}',
-                )
-            )
-
-        if optional_lines:
-            AgentContentService.append_llms_section(lines, 'Optional', optional_lines)
 
         return '\n'.join(lines).strip() + '\n'
 
@@ -223,6 +147,39 @@ class AgentContentService:
     @staticmethod
     def build_llms_txt_url(request: HttpRequest) -> str:
         return request.build_absolute_uri(reverse('llms_txt'))
+
+    @staticmethod
+    def build_sitemap_url(request: HttpRequest) -> str:
+        return request.build_absolute_uri(reverse('sitemap'))
+
+    @staticmethod
+    def build_robots_txt(request: HttpRequest) -> str:
+        lines = [
+            'User-agent: *',
+            'Allow: /',
+            'Disallow: /*.preview.jpg',
+            'Disallow: /*.minify.*',
+            'Disallow: /settings/',
+            'Disallow: /write',
+            'Disallow: /v1/',
+        ]
+
+        if AgentContentService.is_aeo_enabled():
+            lines.extend([
+                '',
+                f'# AI agent entry point: {AgentContentService.build_llms_txt_url(request)}',
+            ])
+        else:
+            lines.extend([
+                'Disallow: /llms.txt',
+                'Disallow: /*.md',
+            ])
+
+        lines.extend([
+            f'Sitemap: {AgentContentService.build_sitemap_url(request)}',
+        ])
+
+        return '\n'.join(lines).strip() + '\n'
 
     @staticmethod
     def build_post_markdown_url(post: Post, request: HttpRequest) -> str:
