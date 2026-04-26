@@ -62,6 +62,8 @@ class SiteSettingAPITestCase(TestCase):
         self.assertIn('welcomeNotificationMessage', body)
         self.assertIn('welcomeNotificationUrl', body)
         self.assertIn('accountDeletionRedirectUrl', body)
+        self.assertIn('aeoEnabled', body)
+        self.assertFalse(body['aeoEnabled'])
         self.assertIn('updatedDate', body)
 
     def test_update_single_field(self):
@@ -91,6 +93,7 @@ class SiteSettingAPITestCase(TestCase):
             'welcome_notification_message': '환영합니다, {name}님!',
             'welcome_notification_url': '/welcome',
             'account_deletion_redirect_url': 'https://forms.example.com/exit',
+            'aeo_enabled': True,
         }
         response = self.client.put(
             '/v1/site-settings',
@@ -105,6 +108,10 @@ class SiteSettingAPITestCase(TestCase):
         self.assertEqual(content['body']['welcomeNotificationMessage'], '환영합니다, {name}님!')
         self.assertEqual(content['body']['welcomeNotificationUrl'], '/welcome')
         self.assertEqual(content['body']['accountDeletionRedirectUrl'], 'https://forms.example.com/exit')
+        self.assertTrue(content['body']['aeoEnabled'])
+
+        setting = SiteSetting.get_instance()
+        self.assertTrue(setting.aeo_enabled)
 
     def test_singleton_behavior(self):
         """싱글톤 동작 확인 - 여러 번 저장해도 하나의 인스턴스"""

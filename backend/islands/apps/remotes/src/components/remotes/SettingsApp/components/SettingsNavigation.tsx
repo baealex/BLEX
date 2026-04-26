@@ -133,6 +133,12 @@ const navigationSections: NavigationSection[] = [
                 requiresStaff: true
             },
             {
+                name: 'SEO/AEO',
+                path: '/seo-aeo',
+                icon: 'fa-robot',
+                requiresStaff: true
+            },
+            {
                 name: '정적 페이지',
                 path: '/static-pages',
                 icon: 'fa-file-lines',

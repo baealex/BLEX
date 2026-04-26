@@ -77,6 +77,7 @@ def series_detail(request, username, series_url):
     has_previous = page > 1
     has_next = page < total_pages
 
+    aeo_enabled = AgentContentService.is_aeo_enabled()
     context = {
         'author': author,
         'series': series,
@@ -90,13 +91,16 @@ def series_detail(request, username, series_url):
         'next_page': page + 1 if has_next else None,
         'sort_order': sort_order,
         'request': request,
-        'series_markdown_url': AgentContentService.build_series_markdown_url(series, request),
+        'aeo_enabled': aeo_enabled,
     }
+    if aeo_enabled:
+        context['series_markdown_url'] = AgentContentService.build_series_markdown_url(series, request)
 
     response = render(request, 'board/series/series_detail.html', context)
-    response['Link'] = AgentContentService.build_agent_link_header_for_markdown_url(
-        context['series_markdown_url'],
-        request,
-    )
-    response['X-Llms-Txt'] = AgentContentService.build_llms_txt_url(request)
+    if aeo_enabled:
+        response['Link'] = AgentContentService.build_agent_link_header_for_markdown_url(
+            context['series_markdown_url'],
+            request,
+        )
+        response['X-Llms-Txt'] = AgentContentService.build_llms_txt_url(request)
     return response

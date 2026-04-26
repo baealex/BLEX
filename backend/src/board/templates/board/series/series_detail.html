@@ -6,7 +6,9 @@
 {% block title %}{{ series.name }} - {{ author.username }} | BLEX{% endblock %}
 
 {% block meta %}
+{% if aeo_enabled %}
 <link rel="alternate" type="text/markdown" href="{{ series_markdown_url }}">
+{% endif %}
 {% endblock %}
 
 {% block content %}

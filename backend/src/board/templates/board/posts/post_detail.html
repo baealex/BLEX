@@ -33,7 +33,9 @@
 
 <!-- Canonical URL -->
 <link rel="canonical" href="{{ request.build_absolute_uri }}">
+{% if aeo_enabled %}
 <link rel="alternate" type="text/markdown" href="{{ post_markdown_url }}">
+{% endif %}
 {% endblock %}
 
 {% block extra_styles %}
@@ -229,6 +231,7 @@
                         </button>
 
                         <!-- Copy for AI Button -->
+                        {% if aeo_enabled %}
                         <button @click="copyForAi($el.dataset.aiMarkdownUrl)"
                             data-ai-markdown-url="{% url 'post_markdown' post.author_username post.url %}"
                             class="w-11 h-11 flex items-center justify-center rounded-full text-content-secondary hover:text-content hover:bg-surface-subtle/80 transition-all duration-200 active:scale-95"
@@ -236,6 +239,7 @@
                             title="AI용 Markdown 복사">
                             <i class="fas fa-code"></i>
                         </button>
+                        {% endif %}
 
                         <!-- Edit Button -->
                         {% if user.is_authenticated and user.username == post.author_username %}
