@@ -1,6 +1,6 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
-from django.core.exceptions import PermissionDenied
+from django.http import Http404
 from django.urls import reverse
 
 
@@ -47,7 +47,7 @@ def settings(request, path=''):
     """
     if _is_admin_settings_path(path):
         if not request.user.is_staff:
-            raise PermissionDenied
+            raise Http404
         return redirect(f'/admin-settings/{path}')
 
     context = _build_settings_context(request, 'user', '/settings')
@@ -61,7 +61,7 @@ def admin_settings(request, path=''):
     Staff-only settings view for site-wide administration pages.
     """
     if not request.user.is_staff:
-        raise PermissionDenied
+        raise Http404
 
     context = _build_settings_context(request, 'admin', '/admin-settings')
 

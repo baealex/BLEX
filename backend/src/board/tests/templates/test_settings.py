@@ -51,13 +51,21 @@ class SettingsViewTestCase(TestCase):
         self.assertIn('"basePath": "/admin-settings"', body)
         self.assertContains(response, '관리자 설정 | BLEX')
 
-    def test_reader_cannot_open_admin_settings_namespace(self):
+    def test_reader_gets_404_for_admin_settings_namespace(self):
         client = Client(raise_request_exception=False)
         client.login(username='settings-reader', password='password123')
 
         response = client.get('/admin-settings/site-settings')
 
-        self.assertEqual(response.status_code, 403)
+        self.assertEqual(response.status_code, 404)
+
+    def test_reader_gets_404_for_legacy_admin_settings_url(self):
+        client = Client(raise_request_exception=False)
+        client.login(username='settings-reader', password='password123')
+
+        response = client.get('/settings/seo-aeo')
+
+        self.assertEqual(response.status_code, 404)
 
     def test_legacy_admin_settings_url_redirects_to_admin_namespace(self):
         self.client.login(username='settings-staff', password='password123')
