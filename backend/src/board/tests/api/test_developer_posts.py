@@ -1,8 +1,11 @@
 import json
 
+from django.db import connection
 from django.test import TestCase
+from django.test.utils import CaptureQueriesContext
 
 from board.models import Config, Post, Profile, User
+from board.modules.developer_serializers import DeveloperPostSerializer
 from board.services.developer_token_service import DeveloperTokenService
 
 
@@ -102,6 +105,16 @@ class DeveloperPostsAPITestCase(TestCase):
         self.assertEqual(body['pagination']['total'], 1)
         self.assertEqual(body['posts'][0]['id'], draft['id'])
         self.assertEqual(body['posts'][0]['status'], 'draft')
+
+    def test_serialized_tags_use_prefetch_cache(self):
+        draft = self.create_draft('Cached Tags Draft')
+        post = Post.objects.prefetch_related('tags').get(id=draft['id'])
+
+        with CaptureQueriesContext(connection) as queries:
+            tags = DeveloperPostSerializer.tags(post)
+
+        self.assertEqual(tags, ['api', 'mcp'])
+        self.assertEqual(len(queries), 0)
 
     def test_get_post_detail_returns_raw_and_rendered_content(self):
         draft = self.create_draft('Detail Draft')

@@ -11,7 +11,7 @@ class DeveloperPostSerializer:
 
     @staticmethod
     def tags(post):
-        return sorted(post.tags.values_list('value', flat=True))
+        return sorted(tag.value for tag in post.tags.all())
 
     @staticmethod
     def config(post):

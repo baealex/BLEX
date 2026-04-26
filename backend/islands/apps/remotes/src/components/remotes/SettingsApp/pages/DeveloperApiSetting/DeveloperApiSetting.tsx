@@ -47,17 +47,79 @@ const endpointItems = [
     {
         method: 'GET',
         path: '/api/developer/v1/me',
-        description: '토큰과 계정 확인'
+        description: '토큰과 계정 확인',
+        scope: '토큰 확인'
     },
     {
         method: 'GET/POST',
         path: '/api/developer/v1/posts',
-        description: '글 목록 조회와 새 글 생성'
+        description: '글 목록 조회와 새 글 생성',
+        scope: 'posts:read / posts:write'
     },
     {
         method: 'GET/PATCH/DELETE',
         path: '/api/developer/v1/posts/{id}',
-        description: '글 상세 조회, 수정, 삭제'
+        description: '글 상세 조회, 수정, 삭제',
+        scope: 'posts:read / posts:write'
+    }
+];
+
+const requestExamples = [
+    {
+        title: '글 목록 조회',
+        description: '읽기 권한 토큰으로 내 글을 최신 수정 순서로 가져옵니다.',
+        code: `GET /api/developer/v1/posts?limit=10 HTTP/1.1
+Authorization: Bearer blex_pat_...`
+    },
+    {
+        title: '마크다운 임시 글 생성',
+        description: '쓰기 권한 토큰으로 임시 글을 만듭니다.',
+        code: `POST /api/developer/v1/posts HTTP/1.1
+Authorization: Bearer blex_pat_...
+Content-Type: application/json
+
+{
+  "status": "draft",
+  "title": "새 글",
+  "content": "# Hello",
+  "content_type": "markdown",
+  "tags": ["api", "mcp"]
+}`
+    }
+];
+
+const responseExamples = [
+    {
+        title: '성공 응답',
+        description: '성공한 요청은 data에 결과가 들어갑니다.',
+        code: `{
+  "data": {
+    "posts": [
+      {
+        "id": 25,
+        "title": "새 글",
+        "status": "draft",
+        "content_type": "markdown",
+        "tags": ["api", "mcp"]
+      }
+    ],
+    "pagination": {
+      "page": 1,
+      "limit": 10,
+      "total": 17
+    }
+  }
+}`
+    },
+    {
+        title: '오류 응답',
+        description: '실패한 요청은 error에 코드와 메시지가 들어갑니다.',
+        code: `{
+  "error": {
+    "code": "auth.insufficient_scope",
+    "message": "posts:write scope가 필요합니다."
+  }
+}`
     }
 ];
 
@@ -412,7 +474,7 @@ const DeveloperApiSetting = () => {
 
             <Card
                 title="API 주소"
-                subtitle="토큰은 Authorization 헤더의 Bearer 값으로 사용합니다."
+                subtitle="각 주소에서 필요한 권한을 확인하세요."
                 icon={<i className="fas fa-code" />}>
                 <div className="space-y-3">
                     {endpointItems.map((endpoint) => (
@@ -423,9 +485,68 @@ const DeveloperApiSetting = () => {
                             <code className="min-w-0 flex-1 break-all font-mono text-xs text-content-secondary">
                                 {endpoint.path}
                             </code>
+                            <span className="w-fit rounded-md bg-surface-elevated px-2 py-1 font-mono text-xs text-content-secondary">
+                                {endpoint.scope}
+                            </span>
                             <span className="text-xs text-content-secondary">{endpoint.description}</span>
                         </div>
                     ))}
+                </div>
+            </Card>
+
+            <Card
+                title="요청과 응답"
+                subtitle="토큰은 Authorization 헤더의 Bearer 값으로 보냅니다."
+                icon={<i className="fas fa-terminal" />}>
+                <div className="space-y-6">
+                    <div className="rounded-lg border border-line bg-surface-subtle p-4">
+                        <div className="text-sm font-semibold text-content">인증 헤더</div>
+                        <div className="mt-3 flex flex-col gap-3 sm:flex-row sm:items-center">
+                            <code className="min-w-0 flex-1 break-all rounded-md bg-surface-elevated px-3 py-2 font-mono text-xs text-content-secondary">
+                                Authorization: Bearer blex_pat_...
+                            </code>
+                            <Button
+                                type="button"
+                                variant="secondary"
+                                size="sm"
+                                onClick={() => handleCopy('Authorization: Bearer blex_pat_...')}
+                                leftIcon={<i className="fas fa-copy" />}>
+                                복사
+                            </Button>
+                        </div>
+                    </div>
+
+                    <div className="grid gap-4 lg:grid-cols-2">
+                        {requestExamples.map((example) => (
+                            <div key={example.title} className="rounded-lg border border-line bg-surface-subtle p-4">
+                                <div className="flex items-start justify-between gap-3">
+                                    <div>
+                                        <div className="text-sm font-semibold text-content">{example.title}</div>
+                                        <p className="mt-1 text-xs leading-relaxed text-content-secondary">{example.description}</p>
+                                    </div>
+                                    <Button
+                                        type="button"
+                                        variant="secondary"
+                                        size="sm"
+                                        onClick={() => handleCopy(example.code)}
+                                        leftIcon={<i className="fas fa-copy" />}>
+                                        복사
+                                    </Button>
+                                </div>
+                                <pre className="mt-4 overflow-x-auto rounded-md bg-surface-elevated p-3 text-xs leading-relaxed text-content-secondary"><code>{example.code}</code></pre>
+                            </div>
+                        ))}
+                    </div>
+
+                    <div className="grid gap-4 lg:grid-cols-2">
+                        {responseExamples.map((example) => (
+                            <div key={example.title} className="rounded-lg border border-line bg-surface-subtle p-4">
+                                <div className="text-sm font-semibold text-content">{example.title}</div>
+                                <p className="mt-1 text-xs leading-relaxed text-content-secondary">{example.description}</p>
+                                <pre className="mt-4 overflow-x-auto rounded-md bg-surface-elevated p-3 text-xs leading-relaxed text-content-secondary"><code>{example.code}</code></pre>
+                            </div>
+                        ))}
+                    </div>
                 </div>
             </Card>
         </div>
