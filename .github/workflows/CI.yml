@@ -18,15 +18,33 @@ jobs:
     runs-on: ubuntu-latest
     
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v6
 
     - name: Load .env file
-      uses: xom9ikk/dotenv@v2.2.0
-      with:
-        path: samples
+      run: |
+        python3 - <<'PY'
+        from pathlib import Path
+        import os
+
+        env_file = Path('samples/.env')
+        github_env = Path(os.environ['GITHUB_ENV'])
+
+        with github_env.open('a') as output:
+            for raw_line in env_file.read_text().splitlines():
+                line = raw_line.strip()
+                if not line or line.startswith('#') or '=' not in line:
+                    continue
+
+                key, value = line.split('=', 1)
+                value = value.strip()
+                if len(value) >= 2 and value[0] == value[-1] and value[0] in {'"', "'"}:
+                    value = value[1:-1]
+
+                output.write(f'{key.strip()}={value}\n')
+        PY
 
     - name: Set up Python 3.12
-      uses: actions/setup-python@v5
+      uses: actions/setup-python@v6
       with:
         python-version: '3.12'
 
@@ -45,15 +63,15 @@ jobs:
     runs-on: ubuntu-latest
     
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v6
 
     - name: Set up Node.js with pnpm
-      uses: pnpm/action-setup@v2
+      uses: pnpm/action-setup@v6
       with:
         version: 9.0.0
 
     - name: Set up Node.js
-      uses: actions/setup-node@v4
+      uses: actions/setup-node@v6
       with:
         node-version: '20.19.0'
         cache: 'pnpm'
@@ -80,7 +98,7 @@ jobs:
       working-directory: backend/islands
 
     - name: Set up Python for browser smoke
-      uses: actions/setup-python@v5
+      uses: actions/setup-python@v6
       with:
         python-version: '3.12'
 
@@ -91,7 +109,7 @@ jobs:
       working-directory: backend/src
 
     - name: Cache Playwright browsers
-      uses: actions/cache@v4
+      uses: actions/cache@v5
       with:
         path: ~/.cache/ms-playwright
         key: ${{ runner.os }}-playwright-${{ hashFiles('backend/islands/pnpm-lock.yaml') }}
