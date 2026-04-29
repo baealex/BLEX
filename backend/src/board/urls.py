@@ -151,6 +151,10 @@ urlpatterns = [
     # Developer API V1
     path('api/developer/v1/me', developer_api_v1.me),
     path('api/developer/v1/posts', developer_api_v1.posts),
+    path('api/developer/v1/posts/search', developer_api_v1.search_posts),
     path('api/developer/v1/posts/<int:post_id>', developer_api_v1.post_detail),
     path('api/developer/v1/posts/<int:post_id>/publish', developer_api_v1.publish_post),
+    path('api/developer/v1/tags', developer_api_v1.tags),
+    path('api/developer/v1/series', developer_api_v1.series),
+    path('api/developer/v1/images', developer_api_v1.images),
 ]

@@ -63,7 +63,7 @@ class ImageUploadTestCase(TestCase):
             content_type="image/jpeg"
         )
 
-        with patch('board.views.api.v1.image.make_path') as mock_make_path:
+        with patch('board.services.image_upload_service.make_path') as mock_make_path:
             with patch('builtins.open', create=True) as mock_open:
                 with patch('PIL.Image.open') as mock_pil:
                     mock_make_path.return_value = tempfile.gettempdir()
@@ -96,7 +96,7 @@ class ImageUploadTestCase(TestCase):
             content_type="image/png"
         )
 
-        with patch('board.views.api.v1.image.make_path') as mock_make_path:
+        with patch('board.services.image_upload_service.make_path') as mock_make_path:
             with patch('builtins.open', create=True):
                 with patch('PIL.Image.open') as mock_pil:
                     with patch('os.stat') as mock_stat:
@@ -162,7 +162,7 @@ class ImageUploadTestCase(TestCase):
             content_type="image/bmp"
         )
 
-        with patch('board.views.api.v1.image.make_path') as mock_make_path:
+        with patch('board.services.image_upload_service.make_path') as mock_make_path:
             with patch('builtins.open', create=True):
                 mock_make_path.return_value = tempfile.gettempdir()
                 response = self.client.post('/v1/image', {'image': invalid_file})
@@ -212,7 +212,7 @@ class ImageUploadTestCase(TestCase):
             content_type="image/gif"
         )
 
-        with patch('board.views.api.v1.image.make_path') as mock_make_path:
+        with patch('board.services.image_upload_service.make_path') as mock_make_path:
             with patch('builtins.open', create=True):
                 with patch('PIL.Image.open') as mock_pil:
                     with patch('os.remove'):
@@ -241,7 +241,7 @@ class ImageUploadTestCase(TestCase):
             content_type="image/png"
         )
 
-        with patch('board.views.api.v1.image.make_path') as mock_make_path:
+        with patch('board.services.image_upload_service.make_path') as mock_make_path:
             with patch('builtins.open', create=True):
                 with patch('PIL.Image.open') as mock_pil:
                     with patch('os.stat') as mock_stat:

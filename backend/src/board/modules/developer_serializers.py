@@ -109,3 +109,27 @@ class DeveloperTokenSerializer:
             'last_used_at': DeveloperPostSerializer.isoformat(token.last_used_at),
             'created_at': DeveloperPostSerializer.isoformat(token.created_date),
         }
+
+
+class DeveloperTagSerializer:
+    @staticmethod
+    def serialize(tag):
+        return {
+            'name': tag.value,
+            'post_count': getattr(tag, 'post_count', 0),
+        }
+
+
+class DeveloperSeriesSerializer:
+    @staticmethod
+    def serialize(series):
+        return {
+            'id': series.id,
+            'name': series.name,
+            'url': series.url,
+            'description': series.text_md,
+            'is_hidden': series.hide,
+            'post_count': getattr(series, 'post_count', 0),
+            'created_at': DeveloperPostSerializer.isoformat(series.created_date),
+            'updated_at': DeveloperPostSerializer.isoformat(series.updated_date),
+        }
