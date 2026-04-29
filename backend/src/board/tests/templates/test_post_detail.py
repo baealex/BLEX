@@ -57,7 +57,8 @@ class PostDetailViewTestCase(TestCase):
         self.assertEqual(toc[1]['text'], 'Header 2')
         self.assertEqual(toc[1]['level'], 2)
 
-    def test_post_detail_hides_copy_for_ai_action_when_aeo_disabled(self):
+    def test_post_detail_hides_agent_link_copy_option_when_aeo_disabled(self):
+        """AEO가 꺼져 있으면 에이전트 링크 복사 옵션을 노출하지 않는다."""
         url = reverse('post_detail', kwargs={
             'username': 'testauthor',
             'post_url': 'test-post'
@@ -67,6 +68,8 @@ class PostDetailViewTestCase(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertNotContains(response, 'aria-label="AI용 Markdown 복사"')
         self.assertNotContains(response, 'data-ai-markdown-url=')
+        self.assertNotContains(response, 'data-agent-copy-url=')
+        self.assertNotContains(response, '*.md 참조 주소')
 
     def test_post_detail_uses_noindex_only_when_seo_disabled(self):
         setting = SiteSetting.get_instance()
@@ -85,7 +88,8 @@ class PostDetailViewTestCase(TestCase):
         self.assertNotContains(response, 'max-snippet:-1')
         self.assertEqual(response['X-Robots-Tag'], 'noindex, nofollow')
 
-    def test_post_detail_has_copy_for_ai_action_when_aeo_enabled(self):
+    def test_post_detail_shows_agent_link_copy_option_when_aeo_enabled(self):
+        """AEO가 켜져 있으면 링크 복사 드롭다운에 .md 참조 링크 옵션을 표시한다."""
         self.enable_aeo()
         url = reverse('post_detail', kwargs={
             'username': 'testauthor',
@@ -94,8 +98,13 @@ class PostDetailViewTestCase(TestCase):
         response = self.client.get(url)
 
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, 'aria-label="AI용 Markdown 복사"')
-        self.assertContains(response, 'data-ai-markdown-url=/@testauthor/test-post.md')
+        self.assertNotContains(response, 'aria-label="AI용 Markdown 복사"')
+        self.assertNotContains(response, 'data-ai-markdown-url=')
+        self.assertContains(response, '에이전트용 링크')
+        self.assertContains(response, '*.md 참조 주소')
+
+        content = response.content.decode()
+        self.assertIn('data-agent-copy-url=http://testserver/@testauthor/test-post.md', content)
 
     def test_post_detail_hides_markdown_alternate_when_aeo_disabled(self):
         """AEO가 꺼져 있으면 포스트 상세가 Markdown endpoint를 광고하지 않는다."""
