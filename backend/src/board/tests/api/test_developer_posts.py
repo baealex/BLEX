@@ -1,10 +1,12 @@
 import json
+from unittest.mock import patch
 
+from django.core.files.uploadedfile import SimpleUploadedFile
 from django.db import connection
 from django.test import TestCase
 from django.test.utils import CaptureQueriesContext
 
-from board.models import Config, Post, Profile, User
+from board.models import Config, Post, Profile, Series, User
 from board.modules.developer_serializers import DeveloperPostSerializer
 from board.services.developer_token_service import DeveloperTokenService
 
@@ -69,12 +71,18 @@ class DeveloperPostsAPITestCase(TestCase):
             **self.auth_header(token),
         )
 
-    def create_draft(self, title='API Draft'):
-        response = self.post_json('/api/developer/v1/posts', {
+    def create_draft(self, title='API Draft', content='# Hello\n\nThis is **bold**', tags=None, series_id=None):
+        body = {
             'title': title,
-            'content': '# Hello\n\nThis is **bold**',
+            'content': content,
             'content_type': 'markdown',
-            'tags': ['api', 'mcp'],
+            'tags': tags if tags is not None else ['api', 'mcp'],
+        }
+        if series_id is not None:
+            body['series_id'] = series_id
+
+        response = self.post_json('/api/developer/v1/posts', {
+            **body,
         })
         self.assertEqual(response.status_code, 201)
         return response.json()['data']
@@ -229,3 +237,119 @@ class DeveloperPostsAPITestCase(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json()['data']['deleted'], True)
         self.assertFalse(Post.objects.filter(id=draft['id']).exists())
+
+    def test_search_posts_filters_by_query_tag_and_status(self):
+        """개발자 API 글 검색은 내 글의 본문, 태그, 상태를 함께 필터링한다."""
+        matched = self.create_draft(
+            'MCP Publish Draft',
+            content='AI publishing adapter content',
+            tags=['mcp', 'publish'],
+        )
+        self.create_draft(
+            'Unrelated Draft',
+            content='private wiki content',
+            tags=['wiki'],
+        )
+
+        response = self.client.get(
+            '/api/developer/v1/posts/search?q=publishing&tag=mcp&status=draft',
+            **self.auth_header(),
+        )
+
+        self.assertEqual(response.status_code, 200)
+        data = response.json()['data']
+        self.assertEqual(data['pagination']['total'], 1)
+        self.assertEqual(data['posts'][0]['id'], matched['id'])
+
+    def test_list_tags_returns_author_tags_only(self):
+        """태그 목록은 토큰 소유자의 글에 연결된 태그만 반환한다."""
+        self.create_draft('Tagged Draft', tags=['api', 'mcp'])
+        self.post_json('/api/developer/v1/posts', {
+            'title': 'Other Tagged Draft',
+            'content': 'Other content',
+            'content_type': 'markdown',
+            'tags': ['secret'],
+        }, token=self.other_token)
+
+        response = self.client.get(
+            '/api/developer/v1/tags',
+            **self.auth_header(),
+        )
+
+        self.assertEqual(response.status_code, 200)
+        tags = {
+            tag['name']: tag['post_count']
+            for tag in response.json()['data']['tags']
+        }
+        self.assertEqual(tags, {'api': 1, 'mcp': 1})
+        self.assertNotIn('secret', tags)
+
+    def test_list_series_returns_owned_series_with_post_count(self):
+        """시리즈 목록은 내 시리즈와 연결된 글 수를 반환한다."""
+        series = Series.objects.create(
+            owner=self.author,
+            name='MCP Guide',
+            text_md='Guide description',
+            url='mcp-guide',
+        )
+        Series.objects.create(
+            owner=self.other,
+            name='Other Guide',
+            url='other-guide',
+        )
+        self.create_draft('Series Draft', series_id=series.id)
+
+        response = self.client.get(
+            '/api/developer/v1/series',
+            **self.auth_header(),
+        )
+
+        self.assertEqual(response.status_code, 200)
+        data = response.json()['data']['series']
+        self.assertEqual(len(data), 1)
+        self.assertEqual(data[0]['id'], series.id)
+        self.assertEqual(data[0]['name'], 'MCP Guide')
+        self.assertEqual(data[0]['description'], 'Guide description')
+        self.assertEqual(data[0]['post_count'], 1)
+
+    @patch('board.views.api.developer.v1.publishing.ImageUploadService.upload_content_image')
+    def test_upload_image_uses_developer_token(self, mock_upload):
+        """개발자 API 이미지 업로드는 posts:write 토큰으로 이미지 URL을 반환한다."""
+        mock_upload.return_value = '/media/images/content/test.png'
+        uploaded_file = SimpleUploadedFile(
+            'test.png',
+            b'fake image',
+            content_type='image/png',
+        )
+
+        response = self.client.post(
+            '/api/developer/v1/images',
+            {'image': uploaded_file},
+            **self.auth_header(),
+        )
+
+        self.assertEqual(response.status_code, 201)
+        self.assertEqual(
+            response.json()['data']['url'],
+            '/media/images/content/test.png',
+        )
+        self.assertEqual(mock_upload.call_args.kwargs['user'], self.author)
+
+    @patch('board.views.api.developer.v1.publishing.ImageUploadService.upload_content_image')
+    def test_upload_image_requires_write_scope(self, mock_upload):
+        """읽기 전용 토큰은 이미지 업로드를 할 수 없다."""
+        uploaded_file = SimpleUploadedFile(
+            'test.png',
+            b'fake image',
+            content_type='image/png',
+        )
+
+        response = self.client.post(
+            '/api/developer/v1/images',
+            {'image': uploaded_file},
+            **self.auth_header(self.read_token),
+        )
+
+        self.assertEqual(response.status_code, 403)
+        self.assertEqual(response.json()['error']['code'], 'auth.insufficient_scope')
+        mock_upload.assert_not_called()
