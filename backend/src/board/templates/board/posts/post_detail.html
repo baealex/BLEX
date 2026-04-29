@@ -163,11 +163,45 @@
 
                 <!-- Floating Action Bar -->
                 <div x-data="{
-                    async copyToClipboard() {
+                    linkCopyMenuOpen: false,
+                    linkCopyHideTimer: null,
+                    getPageUrl() {
+                        return decodeURIComponent(window.location.href);
+                    },
+                    getAgentUrl() {
+                        return $el.dataset.agentCopyUrl || '';
+                    },
+                    isCoarsePointer() {
+                        return window.matchMedia('(hover: none), (pointer: coarse)').matches;
+                    },
+                    cancelLinkCopyHide() {
+                        if (this.linkCopyHideTimer) {
+                            clearTimeout(this.linkCopyHideTimer);
+                            this.linkCopyHideTimer = null;
+                        }
+                    },
+                    openLinkCopyMenu() {
+                        if (this.isCoarsePointer() || !this.getAgentUrl()) {
+                            return;
+                        }
+
+                        this.cancelLinkCopyHide();
+                        this.linkCopyMenuOpen = true;
+                    },
+                    closeLinkCopyMenu() {
+                        this.cancelLinkCopyHide();
+                        this.linkCopyMenuOpen = false;
+                    },
+                    scheduleCloseLinkCopyMenu() {
+                        this.cancelLinkCopyHide();
+                        this.linkCopyHideTimer = setTimeout(() => {
+                            this.linkCopyMenuOpen = false;
+                        }, 160);
+                    },
+                    async copyToClipboard(value = null, successMessage = '링크가 복사되었습니다') {
                         try {
-                            const decodedUrl = decodeURIComponent(window.location.href);
-                            await navigator.clipboard.writeText(decodedUrl);
-                            window.toast.success('링크가 복사되었습니다');
+                            await navigator.clipboard.writeText(value || this.getPageUrl());
+                            window.toast.success(successMessage);
                             if (navigator.vibrate) {
                                 navigator.vibrate(50);
                             }
@@ -175,28 +209,47 @@
                             window.toast.error('복사에 실패했습니다');
                         }
                     },
-                    async copyForAi(markdownUrl) {
-                        try {
-                            const response = await fetch(markdownUrl, {
-                                headers: { 'Accept': 'text/markdown' }
-                            });
-
-                            if (!response.ok) {
-                                throw new Error(`Markdown request failed: ${response.status}`);
-                            }
-
-                            const markdown = await response.text();
-                            await navigator.clipboard.writeText(markdown);
-                            window.toast.success('AI용 Markdown이 복사되었습니다');
-                            if (navigator.vibrate) {
-                                navigator.vibrate(50);
-                            }
-                        } catch (error) {
-                            console.error('Error copying AI markdown:', error);
+                    async copyAgentLink() {
+                        const agentUrl = this.getAgentUrl();
+                        if (!agentUrl) {
                             await this.copyToClipboard();
+                            return;
                         }
+
+                        await this.copyToClipboard(agentUrl, '에이전트용 링크가 복사되었습니다');
+                    },
+                    async handleShareClick() {
+                        const decodedUrl = this.getPageUrl();
+                        if (this.isCoarsePointer()) {
+                            if (navigator.share) {
+                                navigator.share({
+                                    title: '{{ post.title|escapejs }}',
+                                    text: '{{ post.meta_description|escapejs }}',
+                                    url: decodedUrl
+                                }).catch(error => {
+                                    if (error.name !== 'AbortError') {
+                                        console.error('Error sharing:', error);
+                                        window.toast.error('공유에 실패했습니다');
+                                    }
+                                });
+                                return;
+                            }
+
+                            await this.copyToClipboard(decodedUrl);
+                            return;
+                        }
+
+                        if (this.getAgentUrl()) {
+                            this.cancelLinkCopyHide();
+                            this.linkCopyMenuOpen = true;
+                            return;
+                        }
+
+                        await this.copyToClipboard(decodedUrl);
                     }
-                }" class="fixed sm:sticky bottom-6 left-0 right-0 z-30 flex justify-center pointer-events-none">
+                }"
+                {% if aeo_enabled %}data-agent-copy-url="{{ post_markdown_url }}"{% endif %}
+                class="fixed sm:sticky bottom-6 left-0 right-0 z-30 flex justify-center pointer-events-none">
                     <div class="pointer-events-auto floating-glass-surface rounded-full px-3 py-3 flex items-center gap-2 transform transition-all motion-interaction">
 
                         <!-- Like Button -->
@@ -215,39 +268,57 @@
                         </button>
                         {% endif %}
 
-                        <!-- Share Button -->
-                        <button @click="
-                            const decodedUrl = decodeURIComponent(window.location.href);
-                            if (navigator.share) {
-                                navigator.share({
-                                    title: '{{ post.title|escapejs }}',
-                                    text: '{{ post.meta_description|escapejs }}',
-                                    url: decodedUrl
-                                }).catch(error => {
-                                    if (error.name !== 'AbortError') {
-                                        console.error('Error sharing:', error);
-                                        window.toast.error('공유에 실패했습니다');
-                                    }
-                                });
-                            } else {
-                                copyToClipboard();
-                            }
-                        "
-                        class="w-11 h-11 flex items-center justify-center rounded-full text-content-secondary hover:text-content hover:bg-surface-subtle/80 transition-all duration-200 active:scale-95"
-                        aria-label="게시물 공유하기">
-                            <i class="fas fa-share-alt"></i>
-                        </button>
+                        <!-- Share / Link Copy Button -->
+                        <div class="relative"
+                            @mouseenter="openLinkCopyMenu()"
+                            @mouseleave="scheduleCloseLinkCopyMenu()"
+                            @click.outside="closeLinkCopyMenu()"
+                            @keydown.escape.window="closeLinkCopyMenu()">
+                            <button @click="handleShareClick()"
+                                class="w-11 h-11 flex items-center justify-center rounded-full text-content-secondary hover:text-content hover:bg-surface-subtle/80 transition-all duration-200 active:scale-95"
+                                aria-label="게시물 공유 또는 링크 복사"
+                                :aria-expanded="linkCopyMenuOpen">
+                                <i class="fas fa-share-alt"></i>
+                            </button>
 
-                        <!-- Copy for AI Button -->
-                        {% if aeo_enabled %}
-                        <button @click="copyForAi($el.dataset.aiMarkdownUrl)"
-                            data-ai-markdown-url="{% url 'post_markdown' post.author_username post.url %}"
-                            class="w-11 h-11 flex items-center justify-center rounded-full text-content-secondary hover:text-content hover:bg-surface-subtle/80 transition-all duration-200 active:scale-95"
-                            aria-label="AI용 Markdown 복사"
-                            title="AI용 Markdown 복사">
-                            <i class="fas fa-code"></i>
-                        </button>
-                        {% endif %}
+                            {% if aeo_enabled %}
+                            <div x-show="linkCopyMenuOpen"
+                                x-transition:enter="transition ease-out duration-150"
+                                x-transition:enter-start="opacity-0 translate-y-1 scale-95"
+                                x-transition:enter-end="opacity-100 translate-y-0 scale-100"
+                                x-transition:leave="transition ease-in duration-100"
+                                x-transition:leave-start="opacity-100 translate-y-0 scale-100"
+                                x-transition:leave-end="opacity-0 translate-y-1 scale-95"
+                                @mouseenter="cancelLinkCopyHide()"
+                                @mouseleave="scheduleCloseLinkCopyMenu()"
+                                class="absolute bottom-full left-1/2 mb-3 w-64 -translate-x-1/2 rounded-xl border border-line bg-surface-elevated p-2 text-left shadow-floating z-40"
+                                style="display: none;">
+                                <div class="px-2 pb-1 text-[11px] font-bold uppercase tracking-wider text-content-hint">
+                                    링크 복사
+                                </div>
+                                <button @click="copyToClipboard(); closeLinkCopyMenu()"
+                                    class="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-left text-sm text-content-secondary transition-colors duration-150 hover:bg-surface-subtle hover:text-content active:scale-[0.98]">
+                                    <span class="flex h-8 w-8 items-center justify-center rounded-lg bg-surface-subtle text-xs">
+                                        <i class="fas fa-link"></i>
+                                    </span>
+                                    <span class="flex flex-col">
+                                        <span class="font-semibold">일반 링크</span>
+                                        <span class="text-xs text-content-hint">브라우저에서 여는 주소</span>
+                                    </span>
+                                </button>
+                                <button @click="copyAgentLink(); closeLinkCopyMenu()"
+                                    class="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-left text-sm text-content-secondary transition-colors duration-150 hover:bg-surface-subtle hover:text-content active:scale-[0.98]">
+                                    <span class="flex h-8 w-8 items-center justify-center rounded-lg bg-surface-subtle text-xs">
+                                        <i class="fas fa-code"></i>
+                                    </span>
+                                    <span class="flex flex-col">
+                                        <span class="font-semibold">에이전트용 링크</span>
+                                        <span class="text-xs text-content-hint">*.md 참조 주소</span>
+                                    </span>
+                                </button>
+                            </div>
+                            {% endif %}
+                        </div>
 
                         <!-- Edit Button -->
                         {% if user.is_authenticated and user.username == post.author_username %}
