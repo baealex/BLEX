@@ -31,7 +31,6 @@ RUN pip install --prefix=/install -r requirements.txt --use-pep517
 FROM python:3.12-slim AS backend-runner
 
 ENV PYTHONUNBUFFERED=1
-ENV CIPHER_KEY=""
 ENV RESOURCE_URL=""
 
 COPY --from=backend-builder /install /usr/local
@@ -39,7 +38,7 @@ COPY ./src /app
 
 WORKDIR /app
 
-RUN python manage.py collectstatic --noinput
+RUN CIPHER_KEY="" python manage.py collectstatic --noinput
 
 #####
 
