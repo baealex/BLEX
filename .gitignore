@@ -16,3 +16,9 @@ DockerfileDev
 deploy.overrides.sh
 
 .DS_Store
+
+# Private planning documents
+docs/private/
+
+# Local worktrees
+.worktrees/
