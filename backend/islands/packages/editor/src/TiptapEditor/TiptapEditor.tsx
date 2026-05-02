@@ -42,7 +42,7 @@ const TiptapEditor = ({
         content,
         editable,
         editorProps: {
-            attributes: { class: 'blog-post-content' },
+            attributes: { class: 'prose prose-lg max-w-none blog-post-content' },
             handleDrop: (view, event, _slice, moved) => {
                 // 외부 파일 드롭은 React onDrop(useImageUpload)에서 처리
                 if (!moved) return false;
