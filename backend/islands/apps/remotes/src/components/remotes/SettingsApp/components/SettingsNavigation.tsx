@@ -12,7 +12,6 @@ interface NavigationItem {
     name: string;
     path: string;
     icon: string;
-    description?: string;
     risk?: 'external' | 'danger';
     requiresEditor?: boolean;
     requiresStaff?: boolean;
@@ -48,27 +47,23 @@ const userNavigationSections: NavigationSection[] = [
             {
                 name: '알림',
                 path: '/notify',
-                icon: 'fa-bell',
-                description: '최근 알림과 읽음 상태'
+                icon: 'fa-bell'
             },
             {
                 name: '계정',
                 path: '/account',
                 icon: 'fa-user-cog',
-                description: '아이디, 비밀번호, 보안 설정',
                 risk: 'danger'
             },
             {
                 name: '프로필',
                 path: '/profile',
-                icon: 'fa-user',
-                description: '공개 프로필과 이미지'
+                icon: 'fa-user'
             },
             {
                 name: '소셜 링크',
                 path: '/social-links',
-                icon: 'fa-share-nodes',
-                description: '프로필 외부 링크'
+                icon: 'fa-share-nodes'
             }
         ]
     },
@@ -81,49 +76,42 @@ const userNavigationSections: NavigationSection[] = [
                 name: '포스트',
                 path: '/posts',
                 icon: 'fa-file-alt',
-                description: '발행 글 목록과 관리',
                 requiresEditor: true
             },
             {
                 name: '시리즈',
                 path: '/series',
                 icon: 'fa-layer-group',
-                description: '시리즈 생성과 순서',
                 requiresEditor: true
             },
             {
                 name: '고정 포스트',
                 path: '/pinned-posts',
                 icon: 'fa-thumbtack',
-                description: '프로필 대표 글',
                 requiresEditor: true
             },
             {
                 name: '임시 포스트',
                 path: '/drafts',
                 icon: 'fa-save',
-                description: '저장 중인 글',
                 requiresEditor: true
             },
             {
                 name: '서식',
                 path: '/forms',
                 icon: 'fa-align-left',
-                description: '반복 작성 템플릿',
                 requiresEditor: true
             },
             {
                 name: '공지',
                 path: '/notices',
                 icon: 'fa-bullhorn',
-                description: '작가 페이지 공지',
                 requiresEditor: true
             },
             {
                 name: '배너',
                 path: '/banners',
                 icon: 'fa-rectangle-ad',
-                description: '작가 페이지 배너',
                 requiresEditor: true
             }
         ]
@@ -135,21 +123,18 @@ const userNavigationSections: NavigationSection[] = [
             {
                 name: '텔레그램 연동',
                 path: '/integration',
-                icon: 'fa-plug',
-                description: '개인 알림 채널'
+                icon: 'fa-plug'
             },
             {
                 name: '웹훅 연동',
                 path: '/webhook',
                 icon: 'fa-bolt',
-                description: '발행 이벤트 전송',
                 requiresEditor: true
             },
             {
                 name: '개발자 API',
                 path: '/developer-api',
                 icon: 'fa-code',
-                description: '외부 도구용 API 토큰',
                 risk: 'danger'
             }
         ]
@@ -166,7 +151,6 @@ const adminNavigationSections: NavigationSection[] = [
                 name: '사이트 설정',
                 path: '/site-settings',
                 icon: 'fa-gear',
-                description: '전역 코드와 가입 정책',
                 risk: 'danger',
                 requiresStaff: true
             },
@@ -174,7 +158,6 @@ const adminNavigationSections: NavigationSection[] = [
                 name: 'SEO/AEO',
                 path: '/seo-aeo',
                 icon: 'fa-robot',
-                description: '검색/AI 노출 정책',
                 risk: 'danger',
                 requiresStaff: true
             },
@@ -182,7 +165,6 @@ const adminNavigationSections: NavigationSection[] = [
                 name: '정적 페이지',
                 path: '/static-pages',
                 icon: 'fa-file-lines',
-                description: '약관, 안내 페이지',
                 requiresStaff: true
             }
         ]
@@ -196,21 +178,18 @@ const adminNavigationSections: NavigationSection[] = [
                 name: '전역 공지',
                 path: '/global-notices',
                 icon: 'fa-bullhorn',
-                description: '사이트 전체 공지',
                 requiresStaff: true
             },
             {
                 name: '전역 배너',
                 path: '/global-banners',
                 icon: 'fa-rectangle-ad',
-                description: '사이트 전체 배너',
                 requiresStaff: true
             },
             {
                 name: '전역 웹훅 연동',
                 path: '/global-webhook',
                 icon: 'fa-bolt',
-                description: '전체 발행 이벤트 전송',
                 risk: 'danger',
                 requiresStaff: true
             }
@@ -225,7 +204,6 @@ const adminNavigationSections: NavigationSection[] = [
                 name: '유틸리티',
                 path: '/utilities',
                 icon: 'fa-toolbox',
-                description: '데이터 정리 도구',
                 risk: 'danger',
                 requiresStaff: true
             },
@@ -233,7 +211,6 @@ const adminNavigationSections: NavigationSection[] = [
                 name: '관리자 패널',
                 path: 'admin',
                 icon: 'fa-shield-alt',
-                description: 'Django 관리자 새 화면',
                 risk: 'external',
                 requiresStaff: true
             }
@@ -257,35 +234,6 @@ const normalizePath = (path: string, basePath: string) => {
     const withoutBase = path.startsWith(basePath) ? path.slice(basePath.length) : path;
     const normalized = withoutBase.replace(/\/+$/, '');
     return normalized || '/';
-};
-
-const findCurrentNavigation = (
-    sections: NavigationSection[],
-    currentPath: string,
-    basePath: string,
-    isEditor: boolean,
-    isStaff: boolean
-) => {
-    const normalizedCurrentPath = normalizePath(currentPath, basePath);
-
-    for (const section of sections) {
-        if (!canShowSection(section, isEditor, isStaff)) continue;
-
-        const item = section.items.find(candidate => (
-            candidate.path !== 'admin' &&
-            canShowItem(candidate, isEditor, isStaff) &&
-            normalizePath(candidate.path, basePath) === normalizedCurrentPath
-        ));
-
-        if (item) {
-            return {
-                section,
-                item
-            };
-        }
-    }
-
-    return null;
 };
 
 const RiskBadge = ({ risk }: { risk?: NavigationItem['risk'] }) => {
@@ -335,8 +283,6 @@ export const SettingsMobileNavigation = ({ currentPath }: SettingsNavigationProp
         basePath
     } = router.options.context as SettingsRouterContext;
     const navigationSections = getNavigationSections(settingsMode);
-    const currentNavigation = findCurrentNavigation(navigationSections, currentPath, basePath, isEditor, isStaff);
-
     const handleNavClick = (item: NavigationItem) => {
         setMobileMenuOpen(false);
         if (item.path === 'admin' && adminUrl) {
@@ -362,16 +308,9 @@ export const SettingsMobileNavigation = ({ currentPath }: SettingsNavigationProp
                         className={`${baseClasses} ${activeClasses}`}
                         onClick={() => handleNavClick(item)}>
                         <i className={`fas ${item.icon} w-6 text-center mr-3 transition-colors ${iconClasses} group-hover:text-content-secondary`} />
-                        <span className="min-w-0 flex-1">
-                            <span className="flex items-center gap-2">
-                                <span>{item.name}</span>
-                                <RiskBadge risk={item.risk} />
-                            </span>
-                            {item.description && (
-                                <span className="mt-0.5 block truncate text-xs font-normal text-content-hint">
-                                    {item.description}
-                                </span>
-                            )}
+                        <span className="flex min-w-0 flex-1 items-center gap-2">
+                            <span>{item.name}</span>
+                            <RiskBadge risk={item.risk} />
                         </span>
                     </a>
                 </li>
@@ -385,16 +324,9 @@ export const SettingsMobileNavigation = ({ currentPath }: SettingsNavigationProp
                     className={`${baseClasses} ${activeClasses}`}
                     onClick={() => handleNavClick(item)}>
                     <i className={`fas ${item.icon} w-6 text-center mr-3 transition-colors ${iconClasses} group-hover:text-content-secondary`} />
-                    <span className="min-w-0 flex-1">
-                        <span className="flex items-center gap-2">
-                            <span>{item.name}</span>
-                            <RiskBadge risk={item.risk} />
-                        </span>
-                        {item.description && (
-                            <span className="mt-0.5 block truncate text-xs font-normal text-content-hint">
-                                {item.description}
-                            </span>
-                        )}
+                    <span className="flex min-w-0 flex-1 items-center gap-2">
+                        <span>{item.name}</span>
+                        <RiskBadge risk={item.risk} />
                     </span>
                 </Link>
             </li>
@@ -465,17 +397,9 @@ export const SettingsMobileNavigation = ({ currentPath }: SettingsNavigationProp
                     </Dialog.Portal>
                 </Dialog.Root>
 
-                <div className="min-w-0 text-center">
-                    <h1 className="truncate text-lg font-bold text-content">
-                        {currentNavigation?.item.name ?? (settingsMode === 'admin' ? '관리자 설정' : '설정')}
-                    </h1>
-                    {currentNavigation && (
-                        <p className="truncate text-xs text-content-hint">
-                            {currentNavigation.section.title}
-                            {currentNavigation.item.description ? ` · ${currentNavigation.item.description}` : ''}
-                        </p>
-                    )}
-                </div>
+                <h1 className="text-lg font-bold text-content">
+                    {settingsMode === 'admin' ? '관리자 설정' : '설정'}
+                </h1>
                 <div className="w-10" />
             </div>
         </div>
@@ -492,8 +416,6 @@ export const SettingsDesktopNavigation = ({ currentPath }: SettingsNavigationPro
         basePath
     } = router.options.context as SettingsRouterContext;
     const navigationSections = getNavigationSections(settingsMode);
-    const currentNavigation = findCurrentNavigation(navigationSections, currentPath, basePath, isEditor, isStaff);
-
     const handleNavClick = (item: NavigationItem) => {
         if (item.path === 'admin' && adminUrl) {
             window.location.assign(adminUrl);
@@ -519,16 +441,9 @@ export const SettingsDesktopNavigation = ({ currentPath }: SettingsNavigationPro
                         className={`${baseClasses} ${activeClasses} ${desktopClasses}`}
                         onClick={() => handleNavClick(item)}>
                         <i className={`fas ${item.icon} w-7 text-center mr-4 transition-colors ${iconClasses} group-hover:text-content-secondary`} />
-                        <span className="min-w-0 flex-1">
-                            <span className="flex items-center gap-2">
-                                <span>{item.name}</span>
-                                <RiskBadge risk={item.risk} />
-                            </span>
-                            {item.description && (
-                                <span className="mt-0.5 block truncate text-xs font-normal text-content-hint">
-                                    {item.description}
-                                </span>
-                            )}
+                        <span className="flex min-w-0 flex-1 items-center gap-2">
+                            <span>{item.name}</span>
+                            <RiskBadge risk={item.risk} />
                         </span>
                     </a>
                 </li>
@@ -542,16 +457,9 @@ export const SettingsDesktopNavigation = ({ currentPath }: SettingsNavigationPro
                     className={`${baseClasses} ${activeClasses} ${desktopClasses}`}
                     onClick={() => handleNavClick(item)}>
                     <i className={`fas ${item.icon} w-7 text-center mr-4 transition-colors ${iconClasses} group-hover:text-content-secondary`} />
-                    <span className="min-w-0 flex-1">
-                        <span className="flex items-center gap-2">
-                            <span>{item.name}</span>
-                            <RiskBadge risk={item.risk} />
-                        </span>
-                        {item.description && (
-                            <span className="mt-0.5 block truncate text-xs font-normal text-content-hint">
-                                {item.description}
-                            </span>
-                        )}
+                    <span className="flex min-w-0 flex-1 items-center gap-2">
+                        <span>{item.name}</span>
+                        <RiskBadge risk={item.risk} />
                     </span>
                 </Link>
             </li>
@@ -582,7 +490,7 @@ export const SettingsDesktopNavigation = ({ currentPath }: SettingsNavigationPro
     };
 
     return (
-        <aside className="hidden xl:block w-72 flex-shrink-0 mt-8 self-start sticky top-24">
+        <aside className="hidden xl:flex w-72 flex-shrink-0 mt-8 max-h-[calc(100vh-8rem)] flex-col self-start sticky top-24">
             <div className="px-5 mb-6">
                 <h2 className="text-2xl font-semibold text-content tracking-tight">
                     {settingsMode === 'admin' ? '관리자 설정' : '설정'}
@@ -592,19 +500,8 @@ export const SettingsDesktopNavigation = ({ currentPath }: SettingsNavigationPro
                         <SettingsModeLink settingsMode={settingsMode} isStaff={isStaff} />
                     </div>
                 )}
-                {currentNavigation && (
-                    <div className="mt-4 rounded-xl border border-line bg-surface-subtle px-4 py-3">
-                        <p className="text-xs font-semibold text-content-hint">{currentNavigation.section.title}</p>
-                        <p className="mt-1 text-sm font-bold text-content">{currentNavigation.item.name}</p>
-                        {currentNavigation.item.description && (
-                            <p className="mt-1 text-xs leading-relaxed text-content-secondary">
-                                {currentNavigation.item.description}
-                            </p>
-                        )}
-                    </div>
-                )}
             </div>
-            <div className="max-h-[calc(100vh-10rem)] overflow-y-auto overscroll-contain pr-2">
+            <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain pr-2">
                 <nav className="space-y-8 pb-4">
                     {navigationSections.map(renderSection)}
                 </nav>
