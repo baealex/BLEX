@@ -50,6 +50,14 @@ class DeveloperPostsAPITestCase(TestCase):
     def setUp(self):
         self.client.defaults['HTTP_USER_AGENT'] = 'BLEX_TEST'
 
+    def assert_developer_error(self, response, status_code, code):
+        self.assertEqual(response.status_code, status_code)
+        body = response.json()
+        self.assertIn('error', body)
+        self.assertEqual(body['error']['code'], code)
+        self.assertIsInstance(body['error']['message'], str)
+        self.assertTrue(body['error']['message'])
+
     def auth_header(self, token=None):
         return {
             'HTTP_AUTHORIZATION': f'Bearer {token or self.raw_token}',
@@ -184,6 +192,58 @@ class DeveloperPostsAPITestCase(TestCase):
 
         post = Post.objects.get(id=draft['id'])
         self.assertEqual(post.title, 'Conflict Draft')
+
+    def test_error_responses_include_code_and_message_for_common_failures(self):
+        """개발자 API 주요 실패 응답은 code와 message를 일관되게 반환한다."""
+        draft = self.create_draft('Error Shape Draft')
+
+        missing_token = self.client.get('/api/developer/v1/posts')
+        self.assert_developer_error(missing_token, 401, 'auth.missing_token')
+
+        insufficient_scope = self.post_json('/api/developer/v1/posts', {
+            'title': 'Forbidden',
+            'content': 'No',
+        }, token=self.read_token)
+        self.assert_developer_error(insufficient_scope, 403, 'auth.insufficient_scope')
+
+        not_found = self.client.get(
+            f"/api/developer/v1/posts/{draft['id']}",
+            **self.auth_header(self.other_token),
+        )
+        self.assert_developer_error(not_found, 404, 'post.not_found')
+
+        invalid_payload = self.client.post(
+            '/api/developer/v1/posts',
+            '{invalid json',
+            content_type='application/json',
+            **self.auth_header(),
+        )
+        self.assert_developer_error(invalid_payload, 400, 'request.invalid_json')
+
+    def test_create_published_post_validation_returns_bad_request(self):
+        """발행 글 검증 실패는 400과 표준 오류 본문을 반환한다."""
+        response = self.post_json('/api/developer/v1/posts', {
+            'status': 'published',
+            'title': '',
+            'content': 'Body without title',
+        })
+
+        self.assert_developer_error(response, 400, 'post.va')
+
+    def test_patch_post_conflict_returns_current_version_fields(self):
+        """expected_updated_at 충돌 응답은 클라이언트가 최신 버전을 다시 판단할 정보를 제공한다."""
+        draft = self.create_draft('Conflict Fields Draft')
+
+        response = self.patch_json(f"/api/developer/v1/posts/{draft['id']}", {
+            'expected_updated_at': '2020-01-01T00:00:00+00:00',
+            'title': 'Should Not Apply',
+        })
+
+        self.assert_developer_error(response, 409, 'post.version_conflict')
+        fields = response.json()['error']['fields']
+        self.assertEqual(fields['expected_updated_at'], '2020-01-01T00:00:00+00:00')
+        self.assertEqual(fields['actual_updated_at'], draft['updated_at'])
+        self.assertEqual(fields['post_id'], draft['id'])
 
     def test_publish_draft(self):
         draft = self.create_draft('Publish Draft')

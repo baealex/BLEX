@@ -238,11 +238,7 @@ class DeveloperPostAPI:
                     400,
                 )
         except PostValidationError as error:
-            return DeveloperResponse.error(
-                f'post.{error.code.value.lower()}',
-                error.message,
-                422,
-            )
+            return DeveloperPostAPI.post_validation_error(error)
 
         post = DeveloperPostAPI.get_owned_post(token.user, post.id)
         response = DeveloperResponse.success(
@@ -251,6 +247,14 @@ class DeveloperPostAPI:
         )
         DeveloperTokenService.record_request(request, token, response.status_code)
         return response
+
+    @staticmethod
+    def post_validation_error(error):
+        return DeveloperResponse.error(
+            f'post.{error.code.value.lower()}',
+            error.message,
+            400,
+        )
 
     @staticmethod
     def validate_expected_updated_at(post, data):
@@ -267,6 +271,7 @@ class DeveloperPostAPI:
                 fields={
                     'expected_updated_at': expected_updated_at,
                     'actual_updated_at': actual_updated_at,
+                    'post_id': post.id,
                 },
             )
         return None
@@ -338,11 +343,7 @@ class DeveloperPostAPI:
                     content_type=content_type,
                 )
         except PostValidationError as error:
-            return DeveloperResponse.error(
-                f'post.{error.code.value.lower()}',
-                error.message,
-                422,
-            )
+            return DeveloperPostAPI.post_validation_error(error)
 
         if post.is_draft():
             DeveloperPostAPI.update_config(post, data)
@@ -409,11 +410,7 @@ class DeveloperPostAPI:
                 content_type=content_type,
             )
         except PostValidationError as error:
-            return DeveloperResponse.error(
-                f'post.{error.code.value.lower()}',
-                error.message,
-                422,
-            )
+            return DeveloperPostAPI.post_validation_error(error)
 
         post = DeveloperPostAPI.get_owned_post(token.user, post.id)
         response = DeveloperResponse.success(DeveloperPostSerializer.detail(post))

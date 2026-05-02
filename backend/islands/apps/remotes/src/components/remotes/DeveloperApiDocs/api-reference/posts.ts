@@ -82,7 +82,7 @@ Authorization: Bearer blex_pat_...`
         errors: [
             '403 auth.insufficient_scope: posts:write 권한이 없습니다.',
             '400 post.missing_published_at: 예약 발행 시각이 없습니다.',
-            '422 post.*: 제목, 본문, URL, 태그 등 글 검증에 실패했습니다.'
+            '400 post.*: 제목, 본문, URL, 태그 등 글 검증에 실패했습니다.'
         ],
         example: {
             title: '마크다운 임시 글 생성',
@@ -133,7 +133,7 @@ Authorization: Bearer blex_pat_...`
                 name: 'expected_updated_at',
                 type: 'ISO datetime',
                 requirement: '선택',
-                description: '현재 updated_at과 다르면 409를 반환합니다.'
+                description: '현재 updated_at과 다르면 409를 반환합니다. 충돌 응답에는 expected_updated_at, actual_updated_at, post_id가 포함됩니다.'
             },
             ...postMutationBodyFields
         ],
@@ -141,8 +141,8 @@ Authorization: Bearer blex_pat_...`
         errors: [
             '403 auth.insufficient_scope: posts:write 권한이 없습니다.',
             '404 post.not_found: 내 글에서 해당 ID를 찾을 수 없습니다.',
-            '409 post.version_conflict: expected_updated_at이 현재 값과 다릅니다.',
-            '422 post.*: 글 검증에 실패했습니다.'
+            '409 post.version_conflict: expected_updated_at이 현재 값과 다릅니다. error.fields로 expected_updated_at, actual_updated_at, post_id를 반환합니다.',
+            '400 post.*: 글 검증에 실패했습니다.'
         ],
         example: {
             title: '글 제목과 본문 수정',
@@ -233,7 +233,7 @@ Authorization: Bearer blex_pat_...`
             '403 auth.insufficient_scope: posts:write 권한이 없습니다.',
             '404 post.not_found: 내 글에서 해당 ID를 찾을 수 없습니다.',
             '409 post.not_draft: 이미 발행되었거나 예약된 글입니다.',
-            '422 post.*: 발행 검증에 실패했습니다.'
+            '400 post.*: 발행 검증에 실패했습니다.'
         ],
         example: {
             title: '임시 글 발행',
