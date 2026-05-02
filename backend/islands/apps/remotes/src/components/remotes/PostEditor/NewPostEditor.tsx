@@ -359,7 +359,6 @@ const NewPostEditor = ({ draftUrl }: NewPostEditorProps) => {
         setShowPublishChecklist(true);
 
         if (!publishChecklist.canPublish) {
-            toast.error('발행에 필요한 항목을 먼저 채워주세요.');
             return;
         }
     };
