@@ -1,0 +1,90 @@
+export type PublishChecklistSeverity = 'required' | 'recommended';
+export type PublishChecklistStatus = 'pass' | 'missing';
+
+export interface PublishChecklistItem {
+    id: 'title' | 'content' | 'description' | 'tags' | 'coverImage';
+    label: string;
+    description: string;
+    severity: PublishChecklistSeverity;
+    status: PublishChecklistStatus;
+}
+
+export interface PublishChecklistInput {
+    title: string;
+    content: string;
+    description: string;
+    tags: string[];
+    hasCoverImage: boolean;
+}
+
+export interface PublishChecklistResult {
+    items: PublishChecklistItem[];
+    missingRequired: PublishChecklistItem[];
+    missingRecommended: PublishChecklistItem[];
+    canPublish: boolean;
+}
+
+const hasText = (value: string) => value.trim().length > 0;
+
+export const hasPublishableContent = (value: string) => {
+    if (/<(img|video|iframe|table|pre)\b/i.test(value)) {
+        return true;
+    }
+
+    const text = value
+        .replace(/<[^>]*>/g, '')
+        .replace(/&nbsp;/g, ' ')
+        .trim();
+
+    return text.length > 0;
+};
+
+export const getPublishChecklist = (input: PublishChecklistInput): PublishChecklistResult => {
+    const items: PublishChecklistItem[] = [
+        {
+            id: 'title',
+            label: '제목',
+            description: '독자가 글을 구분할 수 있는 제목이 필요합니다.',
+            severity: 'required',
+            status: hasText(input.title) ? 'pass' : 'missing'
+        },
+        {
+            id: 'content',
+            label: '본문',
+            description: '발행하려면 본문 내용이 필요합니다.',
+            severity: 'required',
+            status: hasPublishableContent(input.content) ? 'pass' : 'missing'
+        },
+        {
+            id: 'description',
+            label: '설명',
+            description: '검색과 공유 화면에서 글을 설명합니다.',
+            severity: 'recommended',
+            status: hasText(input.description) ? 'pass' : 'missing'
+        },
+        {
+            id: 'tags',
+            label: '태그',
+            description: '관련 글을 찾기 쉽게 만듭니다.',
+            severity: 'recommended',
+            status: input.tags.length > 0 ? 'pass' : 'missing'
+        },
+        {
+            id: 'coverImage',
+            label: '커버 이미지',
+            description: '목록과 공유 카드에서 글의 첫인상을 만듭니다.',
+            severity: 'recommended',
+            status: input.hasCoverImage ? 'pass' : 'missing'
+        }
+    ];
+
+    const missingRequired = items.filter(item => item.severity === 'required' && item.status === 'missing');
+    const missingRecommended = items.filter(item => item.severity === 'recommended' && item.status === 'missing');
+
+    return {
+        items,
+        missingRequired,
+        missingRecommended,
+        canPublish: missingRequired.length === 0
+    };
+};
