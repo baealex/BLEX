@@ -12,6 +12,7 @@ interface NavigationItem {
     name: string;
     path: string;
     icon: string;
+    risk?: 'external' | 'danger';
     requiresEditor?: boolean;
     requiresStaff?: boolean;
 }
@@ -51,7 +52,8 @@ const userNavigationSections: NavigationSection[] = [
             {
                 name: '계정',
                 path: '/account',
-                icon: 'fa-user-cog'
+                icon: 'fa-user-cog',
+                risk: 'danger'
             },
             {
                 name: '프로필',
@@ -132,7 +134,8 @@ const userNavigationSections: NavigationSection[] = [
             {
                 name: '개발자 API',
                 path: '/developer-api',
-                icon: 'fa-code'
+                icon: 'fa-code',
+                risk: 'danger'
             }
         ]
     }
@@ -148,12 +151,14 @@ const adminNavigationSections: NavigationSection[] = [
                 name: '사이트 설정',
                 path: '/site-settings',
                 icon: 'fa-gear',
+                risk: 'danger',
                 requiresStaff: true
             },
             {
                 name: 'SEO/AEO',
                 path: '/seo-aeo',
                 icon: 'fa-robot',
+                risk: 'danger',
                 requiresStaff: true
             },
             {
@@ -185,6 +190,7 @@ const adminNavigationSections: NavigationSection[] = [
                 name: '전역 웹훅 연동',
                 path: '/global-webhook',
                 icon: 'fa-bolt',
+                risk: 'danger',
                 requiresStaff: true
             }
         ]
@@ -198,12 +204,14 @@ const adminNavigationSections: NavigationSection[] = [
                 name: '유틸리티',
                 path: '/utilities',
                 icon: 'fa-toolbox',
+                risk: 'danger',
                 requiresStaff: true
             },
             {
                 name: '관리자 패널',
                 path: 'admin',
                 icon: 'fa-shield-alt',
+                risk: 'external',
                 requiresStaff: true
             }
         ]
@@ -213,6 +221,35 @@ const adminNavigationSections: NavigationSection[] = [
 const getNavigationSections = (settingsMode: SettingsMode) => (
     settingsMode === 'admin' ? adminNavigationSections : userNavigationSections
 );
+
+const canShowItem = (item: NavigationItem, isEditor: boolean, isStaff: boolean) => (
+    (!item.requiresEditor || isEditor) && (!item.requiresStaff || isStaff)
+);
+
+const canShowSection = (section: NavigationSection, isEditor: boolean, isStaff: boolean) => (
+    (!section.requiresEditor || isEditor) && (!section.requiresStaff || isStaff)
+);
+
+const normalizePath = (path: string, basePath: string) => {
+    const withoutBase = path.startsWith(basePath) ? path.slice(basePath.length) : path;
+    const normalized = withoutBase.replace(/\/+$/, '');
+    return normalized || '/';
+};
+
+const RiskBadge = ({ risk }: { risk?: NavigationItem['risk'] }) => {
+    if (!risk) return null;
+
+    const label = risk === 'external' ? '외부' : '주의';
+    const className = risk === 'external'
+        ? 'border-line bg-surface text-content-hint'
+        : 'border-warning-line bg-warning-surface text-warning';
+
+    return (
+        <span className={`rounded-md border px-1.5 py-0.5 text-[10px] font-semibold ${className}`}>
+            {label}
+        </span>
+    );
+};
 
 const SettingsModeLink = ({ settingsMode, isStaff }: { settingsMode: SettingsMode; isStaff: boolean }) => {
     if (!isStaff) return null;
@@ -246,7 +283,6 @@ export const SettingsMobileNavigation = ({ currentPath }: SettingsNavigationProp
         basePath
     } = router.options.context as SettingsRouterContext;
     const navigationSections = getNavigationSections(settingsMode);
-
     const handleNavClick = (item: NavigationItem) => {
         setMobileMenuOpen(false);
         if (item.path === 'admin' && adminUrl) {
@@ -255,10 +291,9 @@ export const SettingsMobileNavigation = ({ currentPath }: SettingsNavigationProp
     };
 
     const renderNavItem = (item: NavigationItem) => {
-        if (item.requiresEditor && !isEditor) return null;
-        if (item.requiresStaff && !isStaff) return null;
+        if (!canShowItem(item, isEditor, isStaff)) return null;
 
-        const isActive = currentPath === `${basePath}${item.path}` || currentPath === item.path;
+        const isActive = item.path !== 'admin' && normalizePath(currentPath, basePath) === normalizePath(item.path, basePath);
         const baseClasses = `flex items-center px-4 py-3 rounded-xl transition-all ${INTERACTION_DURATION} active:scale-95 group`;
         const activeClasses = isActive
             ? 'bg-surface-subtle text-content font-bold'
@@ -273,7 +308,10 @@ export const SettingsMobileNavigation = ({ currentPath }: SettingsNavigationProp
                         className={`${baseClasses} ${activeClasses}`}
                         onClick={() => handleNavClick(item)}>
                         <i className={`fas ${item.icon} w-6 text-center mr-3 transition-colors ${iconClasses} group-hover:text-content-secondary`} />
-                        <span>{item.name}</span>
+                        <span className="flex min-w-0 flex-1 items-center gap-2">
+                            <span>{item.name}</span>
+                            <RiskBadge risk={item.risk} />
+                        </span>
                     </a>
                 </li>
             );
@@ -286,15 +324,20 @@ export const SettingsMobileNavigation = ({ currentPath }: SettingsNavigationProp
                     className={`${baseClasses} ${activeClasses}`}
                     onClick={() => handleNavClick(item)}>
                     <i className={`fas ${item.icon} w-6 text-center mr-3 transition-colors ${iconClasses} group-hover:text-content-secondary`} />
-                    <span>{item.name}</span>
+                    <span className="flex min-w-0 flex-1 items-center gap-2">
+                        <span>{item.name}</span>
+                        <RiskBadge risk={item.risk} />
+                    </span>
                 </Link>
             </li>
         );
     };
 
     const renderSection = (section: NavigationSection) => {
-        if (section.requiresEditor && !isEditor) return null;
-        if (section.requiresStaff && !isStaff) return null;
+        if (!canShowSection(section, isEditor, isStaff)) return null;
+
+        const visibleItems = section.items.filter(item => canShowItem(item, isEditor, isStaff));
+        if (visibleItems.length === 0) return null;
 
         return (
             <div key={section.title}>
@@ -307,7 +350,7 @@ export const SettingsMobileNavigation = ({ currentPath }: SettingsNavigationProp
                     </p>
                 )}
                 <ul className="space-y-1">
-                    {section.items.map(renderNavItem)}
+                    {visibleItems.map(renderNavItem)}
                 </ul>
             </div>
         );
@@ -373,7 +416,6 @@ export const SettingsDesktopNavigation = ({ currentPath }: SettingsNavigationPro
         basePath
     } = router.options.context as SettingsRouterContext;
     const navigationSections = getNavigationSections(settingsMode);
-
     const handleNavClick = (item: NavigationItem) => {
         if (item.path === 'admin' && adminUrl) {
             window.location.assign(adminUrl);
@@ -381,10 +423,9 @@ export const SettingsDesktopNavigation = ({ currentPath }: SettingsNavigationPro
     };
 
     const renderNavItem = (item: NavigationItem) => {
-        if (item.requiresEditor && !isEditor) return null;
-        if (item.requiresStaff && !isStaff) return null;
+        if (!canShowItem(item, isEditor, isStaff)) return null;
 
-        const isActive = currentPath === `${basePath}${item.path}` || currentPath === item.path;
+        const isActive = item.path !== 'admin' && normalizePath(currentPath, basePath) === normalizePath(item.path, basePath);
         const baseClasses = `flex items-center px-5 rounded-xl transition-all ${INTERACTION_DURATION} active:scale-95`;
         const activeClasses = isActive
             ? 'bg-surface-subtle text-content font-semibold'
@@ -400,7 +441,10 @@ export const SettingsDesktopNavigation = ({ currentPath }: SettingsNavigationPro
                         className={`${baseClasses} ${activeClasses} ${desktopClasses}`}
                         onClick={() => handleNavClick(item)}>
                         <i className={`fas ${item.icon} w-7 text-center mr-4 transition-colors ${iconClasses} group-hover:text-content-secondary`} />
-                        <span>{item.name}</span>
+                        <span className="flex min-w-0 flex-1 items-center gap-2">
+                            <span>{item.name}</span>
+                            <RiskBadge risk={item.risk} />
+                        </span>
                     </a>
                 </li>
             );
@@ -413,15 +457,20 @@ export const SettingsDesktopNavigation = ({ currentPath }: SettingsNavigationPro
                     className={`${baseClasses} ${activeClasses} ${desktopClasses}`}
                     onClick={() => handleNavClick(item)}>
                     <i className={`fas ${item.icon} w-7 text-center mr-4 transition-colors ${iconClasses} group-hover:text-content-secondary`} />
-                    <span>{item.name}</span>
+                    <span className="flex min-w-0 flex-1 items-center gap-2">
+                        <span>{item.name}</span>
+                        <RiskBadge risk={item.risk} />
+                    </span>
                 </Link>
             </li>
         );
     };
 
     const renderSection = (section: NavigationSection) => {
-        if (section.requiresEditor && !isEditor) return null;
-        if (section.requiresStaff && !isStaff) return null;
+        if (!canShowSection(section, isEditor, isStaff)) return null;
+
+        const visibleItems = section.items.filter(item => canShowItem(item, isEditor, isStaff));
+        if (visibleItems.length === 0) return null;
 
         return (
             <div key={section.title}>
@@ -434,7 +483,7 @@ export const SettingsDesktopNavigation = ({ currentPath }: SettingsNavigationPro
                     </p>
                 )}
                 <ul className="space-y-2">
-                    {section.items.map(renderNavItem)}
+                    {visibleItems.map(renderNavItem)}
                 </ul>
             </div>
         );
@@ -452,7 +501,7 @@ export const SettingsDesktopNavigation = ({ currentPath }: SettingsNavigationPro
                     </div>
                 )}
             </div>
-            <div className="max-h-[calc(100vh-10rem)] overflow-y-auto overscroll-contain pr-2">
+            <div className="max-h-[calc(100vh-224px)] overflow-y-auto overscroll-contain pr-2">
                 <nav className="space-y-8 pb-4">
                     {navigationSections.map(renderSection)}
                 </nav>
