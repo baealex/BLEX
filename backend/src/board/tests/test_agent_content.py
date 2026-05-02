@@ -6,7 +6,7 @@ from django.contrib.auth.models import User
 from django.test import Client, TestCase, override_settings
 from django.utils import timezone
 
-from board.models import Post, PostConfig, PostContent, Series, SiteSetting, StaticPage
+from board.models import Post, PostConfig, PostContent, Profile, Series, SiteSetting, StaticPage
 
 
 BASE_MIDDLEWARE = tuple(
@@ -25,6 +25,7 @@ class AgentContentTestCase(TestCase):
             email='aeo@example.com',
             password='password123',
         )
+        Profile.objects.create(user=cls.author, role=Profile.Role.EDITOR)
         now = timezone.now()
 
         cls.public_post = cls.create_post(
@@ -204,6 +205,63 @@ class AgentContentTestCase(TestCase):
         response = self.client.get('/posts/sitemap.xml', HTTP_USER_AGENT='curl/8.4.0')
 
         self.assertEqual(response.status_code, 200)
+
+
+    def test_posts_sitemap_hides_non_public_posts(self):
+        """posts sitemap은 숨김, 임시저장, 미래 발행 포스트를 노출하지 않는다."""
+        response = self.client.get('/posts/sitemap.xml')
+
+        self.assertEqual(response.status_code, 200)
+        body = response.content.decode()
+        self.assertIn('/@aeo-author/agent-ready-post', body)
+        self.assertNotIn('/@aeo-author/hidden-agent-post', body)
+        self.assertNotIn('/@aeo-author/draft-agent-post', body)
+        self.assertNotIn('/@aeo-author/future-agent-post', body)
+
+    def test_series_sitemap_hides_series_without_public_posts(self):
+        """series sitemap은 공개 글이 있는 공개 시리즈만 노출한다."""
+        future_series = Series.objects.create(
+            owner=self.author,
+            name='Future Only Series',
+            text_md='Future only',
+            url='future-only-series',
+            hide=False,
+        )
+        self.future_post.series = future_series
+        self.future_post.save(update_fields=['series'])
+
+        hidden_series = Series.objects.create(
+            owner=self.author,
+            name='Hidden Only Series',
+            text_md='Hidden only',
+            url='hidden-only-series',
+            hide=False,
+        )
+        self.hidden_post.series = hidden_series
+        self.hidden_post.save(update_fields=['series'])
+
+        response = self.client.get('/series/sitemap.xml')
+
+        self.assertEqual(response.status_code, 200)
+        body = response.content.decode()
+        self.assertIn('/@aeo-author/series/agent-ready-series', body)
+        self.assertNotIn('/@aeo-author/series/future-only-series', body)
+        self.assertNotIn('/@aeo-author/series/hidden-only-series', body)
+
+    def test_rss_feeds_hide_non_public_posts(self):
+        """RSS 피드는 숨김, 임시저장, 미래 발행 포스트를 노출하지 않는다."""
+        urls = ['/rss', '/rss/@aeo-author']
+
+        for url in urls:
+            with self.subTest(url=url):
+                response = self.client.get(url)
+
+                self.assertEqual(response.status_code, 200)
+                body = response.content.decode()
+                self.assertIn('Agent Ready Post', body)
+                self.assertNotIn('Hidden Agent Post', body)
+                self.assertNotIn('Draft Agent Post', body)
+                self.assertNotIn('Future Agent Post', body)
 
     def test_aeo_disabled_hides_agent_entrypoints(self):
         """AEO가 꺼져 있으면 llms.txt와 Markdown endpoint에 접근할 수 없다."""

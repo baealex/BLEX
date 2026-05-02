@@ -124,18 +124,30 @@ def author_posts(request, username):
     else:  # default to 'recent'
         posts = posts.order_by('-published_date')
     
+    public_series_post_filter = Q(
+        posts__published_date__isnull=False,
+        posts__published_date__lte=timezone.now(),
+        posts__config__hide=False,
+    )
     series = Series.objects.filter(
         owner__username=username,
         hide=False,
     ).annotate(
-        count_posts=Count('posts', filter=Q(posts__config__hide=False)),
+        count_posts=Count('posts', filter=public_series_post_filter, distinct=True),
+    ).filter(
+        count_posts__gte=1,
     ).order_by('-updated_date')
     
-    author_tags = Tag.objects.filter(
+    public_author_tag_filter = Q(
         posts__author=author,
-        posts__config__hide=False
+        posts__published_date__isnull=False,
+        posts__published_date__lte=timezone.now(),
+        posts__config__hide=False,
+    )
+    author_tags = Tag.objects.filter(
+        public_author_tag_filter
     ).annotate(
-        count=Count('posts', distinct=True)
+        count=Count('posts', filter=public_author_tag_filter, distinct=True)
     ).order_by('-count', 'value')
 
     tag_options = [{'value': '', 'label': '전체 태그'}] # Default option
@@ -247,11 +259,16 @@ def author_series(request, username):
     for series_item in paginated_series:
         series_item.updated_date = series_item.updated_date.strftime('%Y-%m-%d')
 
-    author_tags = Tag.objects.filter(
+    public_author_tag_filter = Q(
         posts__author=author,
-        posts__config__hide=False
+        posts__published_date__isnull=False,
+        posts__published_date__lte=timezone.now(),
+        posts__config__hide=False,
+    )
+    author_tags = Tag.objects.filter(
+        public_author_tag_filter
     ).annotate(
-        count=Count('posts', distinct=True)
+        count=Count('posts', filter=public_author_tag_filter, distinct=True)
     ).order_by('-count', 'value')
 
     stats = UserService.get_author_stats(author)
