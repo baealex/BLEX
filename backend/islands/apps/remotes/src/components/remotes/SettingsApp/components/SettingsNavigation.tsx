@@ -490,7 +490,7 @@ export const SettingsDesktopNavigation = ({ currentPath }: SettingsNavigationPro
     };
 
     return (
-        <aside className="hidden xl:flex w-72 flex-shrink-0 mt-8 max-h-[calc(100vh-8rem)] flex-col self-start sticky top-24">
+        <aside className="hidden xl:block w-72 flex-shrink-0 mt-8 self-start sticky top-24">
             <div className="px-5 mb-6">
                 <h2 className="text-2xl font-semibold text-content tracking-tight">
                     {settingsMode === 'admin' ? '관리자 설정' : '설정'}
@@ -501,7 +501,7 @@ export const SettingsDesktopNavigation = ({ currentPath }: SettingsNavigationPro
                     </div>
                 )}
             </div>
-            <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain pr-2">
+            <div className="max-h-[calc(100vh-288px)] overflow-y-auto overscroll-contain pr-2">
                 <nav className="space-y-8 pb-4">
                     {navigationSections.map(renderSection)}
                 </nav>
