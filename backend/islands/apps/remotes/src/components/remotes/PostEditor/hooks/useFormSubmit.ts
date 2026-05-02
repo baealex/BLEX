@@ -1,5 +1,6 @@
 import { useState, useRef } from 'react';
 import { toast } from '~/utils/toast';
+import { hasPublishableContent } from '../utils/publishChecklist';
 
 interface FormSubmitData {
     title: string;
@@ -37,9 +38,14 @@ export const useFormSubmit = (options: UseFormSubmitOptions) => {
         onSubmitError
     } = options;
 
-    const validateForm = (data: FormSubmitData, isEdit = false) => {
+    const validateForm = (data: FormSubmitData, isEdit = false, isDraft = false) => {
         if (!data.title.trim()) {
             toast.error('제목을 입력해주세요.');
+            return false;
+        }
+
+        if (!isDraft && !hasPublishableContent(data.content)) {
+            toast.error('내용을 입력해주세요.');
             return false;
         }
 
@@ -64,7 +70,7 @@ export const useFormSubmit = (options: UseFormSubmitOptions) => {
     };
 
     const submitForm = async (data: FormSubmitData, isDraft = false, isEdit = false) => {
-        if (!validateForm(data, isEdit)) return;
+        if (!validateForm(data, isEdit, isDraft)) return;
 
         setIsSubmitting(true);
         try {

@@ -2,6 +2,7 @@
 import {
     useState,
     useEffect,
+    useMemo,
     useRef
 } from 'react';
 import { toast } from '~/utils/toast';
@@ -11,9 +12,11 @@ import PostActions from './components/PostActions';
 import PostForm from './components/PostForm';
 import DraftsPanel from './components/DraftsPanel';
 import SettingsDrawer from './components/SettingsDrawer';
+import PublishChecklist from './components/PublishChecklist';
 import { useAutoSave } from './hooks/useAutoSave';
 import { useImageUpload } from './hooks/useImageUpload';
 import { useFormSubmit } from './hooks/useFormSubmit';
+import { getPublishChecklist } from './utils/publishChecklist';
 import { getSeries } from '~/lib/api/settings';
 import { getDraft } from '~/lib/api/posts';
 import { api } from '~/components/shared';
@@ -49,6 +52,7 @@ const NewPostEditor = ({ draftUrl }: NewPostEditorProps) => {
     const [isUrlAutoSync, setIsUrlAutoSync] = useState(true);
     const [currentDraftUrl, setCurrentDraftUrl] = useState(draftUrl);
     const [contentType, setContentType] = useState<ContentType>('html');
+    const [showPublishChecklist, setShowPublishChecklist] = useState(false);
 
     const [formData, setFormData] = useState({
         title: '',
@@ -73,6 +77,7 @@ const NewPostEditor = ({ draftUrl }: NewPostEditorProps) => {
         content: '',
         tags: [] as string[]
     });
+    const isIntentionalSubmitRef = useRef(false);
 
     // Custom hooks
     const {
@@ -149,10 +154,21 @@ const NewPostEditor = ({ draftUrl }: NewPostEditorProps) => {
 
     const submitOptions = {
         draftUrl: currentDraftUrl,
+        onBeforeSubmit: () => {
+            isIntentionalSubmitRef.current = true;
+        },
         onSubmitError: handleSubmitError
     };
 
     const { formRef, isSubmitting, submitForm } = useFormSubmit(submitOptions);
+
+    const publishChecklist = useMemo(() => getPublishChecklist({
+        title: formData.title,
+        content: formData.content,
+        description: formData.metaDescription,
+        tags,
+        hasCoverImage: Boolean(imagePreview)
+    }), [formData.title, formData.content, formData.metaDescription, tags, imagePreview]);
 
     // Fetch series list and draft data if draftUrl exists
     useEffect(() => {
@@ -241,6 +257,10 @@ const NewPostEditor = ({ draftUrl }: NewPostEditorProps) => {
     // Warn on page unload if there are unsaved changes
     useEffect(() => {
         const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+            if (isIntentionalSubmitRef.current) {
+                return;
+            }
+
             if (hasUnsavedChanges()) {
                 e.preventDefault();
             }
@@ -315,7 +335,7 @@ const NewPostEditor = ({ draftUrl }: NewPostEditorProps) => {
         }));
     };
 
-    const handleSubmit = async (isDraft = false) => {
+    const submitCurrentPost = async (isDraft = false) => {
         await submitForm(
             {
                 title: formData.title,
@@ -328,6 +348,30 @@ const NewPostEditor = ({ draftUrl }: NewPostEditorProps) => {
             isDraft,
             false // isEdit
         );
+    };
+
+    const handleSubmit = async (isDraft = false) => {
+        if (isDraft) {
+            await submitCurrentPost(true);
+            return;
+        }
+
+        setShowPublishChecklist(true);
+
+        if (!publishChecklist.canPublish) {
+            toast.error('발행에 필요한 항목을 먼저 채워주세요.');
+            return;
+        }
+    };
+
+    const handleConfirmPublish = async () => {
+        if (publishChecklist.missingRecommended.length > 0) {
+            const labels = publishChecklist.missingRecommended.map(item => item.label).join(', ');
+            toast.warning(`권장 항목이 비어 있습니다: ${labels}`);
+        }
+
+        setShowPublishChecklist(false);
+        await submitCurrentPost(false);
     };
 
     return (
@@ -367,6 +411,14 @@ const NewPostEditor = ({ draftUrl }: NewPostEditorProps) => {
                 onSubmit={() => handleSubmit()}
                 onOpenDrafts={() => setIsDraftsPanelOpen(true)}
                 onOpenSettings={() => setIsSettingsDrawerOpen(true)}
+            />
+
+            <PublishChecklist
+                isOpen={showPublishChecklist}
+                result={publishChecklist}
+                isSubmitting={isSubmitting}
+                onClose={() => setShowPublishChecklist(false)}
+                onConfirm={handleConfirmPublish}
             />
 
             {/* Settings Drawer */}
