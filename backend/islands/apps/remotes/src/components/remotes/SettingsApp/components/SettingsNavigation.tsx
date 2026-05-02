@@ -501,7 +501,7 @@ export const SettingsDesktopNavigation = ({ currentPath }: SettingsNavigationPro
                     </div>
                 )}
             </div>
-            <div className="max-h-[calc(100vh-288px)] overflow-y-auto overscroll-contain pr-2">
+            <div className="max-h-[calc(100vh-224px)] overflow-y-auto overscroll-contain pr-2">
                 <nav className="space-y-8 pb-4">
                     {navigationSections.map(renderSection)}
                 </nav>
