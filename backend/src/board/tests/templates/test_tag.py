@@ -45,10 +45,62 @@ class TagListPageTestCase(TestCase):
                 )
                 post.tags.add(tag)
 
+
+    def create_tagged_post(self, title, url, tag, published_date, hide=False):
+        post = Post.objects.create(
+            title=title,
+            url=url,
+            author=self.user,
+            created_date=timezone.now(),
+            published_date=published_date,
+        )
+        PostContent.objects.create(
+            post=post,
+            text_md=f'{title} content',
+            text_html=f'<p>{title} content</p>',
+        )
+        PostConfig.objects.create(
+            post=post,
+            hide=hide,
+            advertise=False,
+        )
+        post.tags.add(tag)
+        return post
+
     def test_tag_list_page_renders(self):
         response = self.client.get(reverse('tag_list'))
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'board/tags/tag_list.html')
+
+
+    def test_tag_list_counts_public_posts_only(self):
+        """태그 목록은 공개 글에 연결된 태그만 집계한다."""
+        private_tag = Tag.objects.create(value='private-only')
+        self.create_tagged_post(
+            'Draft Private Tag Post',
+            'draft-private-tag-post',
+            private_tag,
+            None,
+        )
+        self.create_tagged_post(
+            'Future Private Tag Post',
+            'future-private-tag-post',
+            private_tag,
+            timezone.now() + timezone.timedelta(days=1),
+        )
+        self.create_tagged_post(
+            'Hidden Private Tag Post',
+            'hidden-private-tag-post',
+            private_tag,
+            timezone.now(),
+            hide=True,
+        )
+
+        response = self.client.get(reverse('tag_list'))
+
+        self.assertEqual(response.status_code, 200)
+        tag_names = [tag['name'] for tag in response.context['tags']]
+        self.assertNotIn('private-only', tag_names)
 
     def test_tag_list_supports_sort_options(self):
         for sort_type in ['popular', 'name', 'recent']:
@@ -102,6 +154,28 @@ class TagDetailPageTestCase(TestCase):
             )
             post.tags.add(self.tag)
 
+
+    def create_tagged_post(self, title, url, published_date, hide=False):
+        post = Post.objects.create(
+            title=title,
+            url=url,
+            author=self.user,
+            created_date=timezone.now(),
+            published_date=published_date,
+        )
+        PostContent.objects.create(
+            post=post,
+            text_md=f'{title} content',
+            text_html=f'<p>{title} content</p>',
+        )
+        PostConfig.objects.create(
+            post=post,
+            hide=hide,
+            advertise=False,
+        )
+        post.tags.add(self.tag)
+        return post
+
     def test_tag_detail_page_renders(self):
         response = self.client.get(reverse('tag_detail', kwargs={'name': 'python'}))
         self.assertEqual(response.status_code, 200)
@@ -114,6 +188,25 @@ class TagDetailPageTestCase(TestCase):
         for field in required_fields:
             with self.subTest(field=field):
                 self.assertIn(field, response.context)
+
+
+    def test_tag_detail_shows_public_posts_only(self):
+        """태그 상세는 숨김, 임시저장, 미래 발행 글을 노출하지 않는다."""
+        self.create_tagged_post('Draft Python Post', 'draft-python-post', None)
+        self.create_tagged_post(
+            'Future Python Post',
+            'future-python-post',
+            timezone.now() + timezone.timedelta(days=1),
+        )
+        self.create_tagged_post('Hidden Python Post', 'hidden-python-post', timezone.now(), hide=True)
+
+        response = self.client.get(reverse('tag_detail', kwargs={'name': 'python'}))
+
+        self.assertEqual(response.status_code, 200)
+        post_titles = [post.title for post in response.context['posts']]
+        self.assertNotIn('Draft Python Post', post_titles)
+        self.assertNotIn('Future Python Post', post_titles)
+        self.assertNotIn('Hidden Python Post', post_titles)
 
     def test_tag_detail_page_shows_correct_tag(self):
         response = self.client.get(reverse('tag_detail', kwargs={'name': 'python'}))

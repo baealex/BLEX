@@ -1,6 +1,7 @@
 from django.contrib.sitemaps import Sitemap
 from django.urls import reverse
-from django.conf import settings
+from django.utils import timezone
+from django.db.models import Count, Q
 
 from board.models import Post, Series, Profile, StaticPage
 
@@ -32,6 +33,8 @@ class UserSitemap(Sitemap):
         # Only include users who have posts and are editors (EDITOR or ADMIN role)
         users = Post.objects.filter(
             config__hide=False,
+            published_date__isnull=False,
+            published_date__lte=timezone.now(),
             author__profile__role__in=[Profile.Role.EDITOR, Profile.Role.ADMIN]
         ).values_list('author__username', flat=True).distinct()
         return users
@@ -48,6 +51,7 @@ class PostsSitemap(Sitemap):
         return Post.objects.filter(
             config__hide=False,
             published_date__isnull=False,
+            published_date__lte=timezone.now(),
         ).select_related('author').order_by('-updated_date')
 
     def location(self, element):
@@ -62,7 +66,17 @@ class SeriesSitemap(Sitemap):
     priority = 0.7
 
     def items(self):
-        return Series.objects.filter(hide=False, posts__config__hide=False).select_related('owner').distinct().order_by('-updated_date')
+        public_post_filter = Q(
+            posts__published_date__isnull=False,
+            posts__published_date__lte=timezone.now(),
+            posts__config__hide=False,
+        )
+        return Series.objects.annotate(
+            public_post_count=Count('posts', filter=public_post_filter, distinct=True),
+        ).filter(
+            hide=False,
+            public_post_count__gte=1,
+        ).select_related('owner').order_by('-updated_date')
 
     def location(self, element):
         return reverse('series_detail', args=[element.owner.username, element.url])

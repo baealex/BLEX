@@ -8,7 +8,7 @@ Extracted from views to improve testability and reusability.
 from __future__ import annotations
 
 from typing import Optional, Set, Dict
-from django.db.models import F, Count, Case, When, Exists, OuterRef
+from django.db.models import F, Count, Case, When, Exists, OuterRef, Q
 from django.utils import timezone
 from django.utils.text import slugify
 
@@ -87,16 +87,18 @@ class TagService:
         Returns:
             QuerySet of Tag with count annotation
         """
+        public_post_filter = Q(
+            posts__published_date__isnull=False,
+            posts__published_date__lte=timezone.now(),
+            posts__config__hide=False,
+        )
         return Tag.objects.filter(
-            posts__config__hide=False
+            public_post_filter
         ).annotate(
             count=Count(
-                Case(
-                    When(
-                        posts__config__hide=False,
-                        then='posts'
-                    ),
-                )
+                'posts',
+                filter=public_post_filter,
+                distinct=True,
             ),
         ).order_by('-count', 'value')
 
@@ -166,7 +168,9 @@ class TagService:
         """
         return Tag.objects.filter(
             value=tag_name,
-            posts__config__hide=False
+            posts__published_date__isnull=False,
+            posts__published_date__lte=timezone.now(),
+            posts__config__hide=False,
         ).exists()
 
     @staticmethod
@@ -180,17 +184,18 @@ class TagService:
         Returns:
             QuerySet of Tag with count annotation
         """
-        return Tag.objects.filter(
+        public_post_filter = Q(
             posts__author__username=username,
+            posts__published_date__isnull=False,
+            posts__published_date__lte=timezone.now(),
             posts__config__hide=False,
+        )
+        return Tag.objects.filter(
+            public_post_filter,
         ).annotate(
             count=Count(
-                Case(
-                    When(
-                        posts__author__username=username,
-                        posts__config__hide=False,
-                        then='posts'
-                    ),
-                )
+                'posts',
+                filter=public_post_filter,
+                distinct=True,
             )
         ).order_by('-count')

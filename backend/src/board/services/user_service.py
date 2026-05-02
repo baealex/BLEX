@@ -86,13 +86,20 @@ class UserService:
         Excludes hidden posts to match the post list page.
         Uses distinct=True to prevent inflated counts from joins.
         """
+        public_post_filter = Q(
+            post__published_date__isnull=False,
+            post__published_date__lte=timezone.now(),
+            post__config__hide=False,
+        )
+        public_series_filter = Q(
+            series__posts__published_date__isnull=False,
+            series__posts__published_date__lte=timezone.now(),
+            series__posts__config__hide=False,
+            series__hide=False,
+        )
         return User.objects.filter(id=author.id).annotate(
-            post_count=Count('post', filter=Q(
-                post__published_date__isnull=False,
-                post__published_date__lte=timezone.now(),
-                post__config__hide=False,
-            ), distinct=True),
-            series_count=Count('series', distinct=True)
+            post_count=Count('post', filter=public_post_filter, distinct=True),
+            series_count=Count('series', filter=public_series_filter, distinct=True)
         ).values('post_count', 'series_count').first()
 
     @staticmethod

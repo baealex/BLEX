@@ -51,6 +51,29 @@ class AuthorPostsPageTestCase(TestCase):
         self.tag = Tag.objects.create(value='python')
         self.post.tags.add(self.tag)
 
+
+    def create_author_post(self, title, url, published_date, tag=None, hide=False):
+        post = Post.objects.create(
+            title=title,
+            url=url,
+            author=self.user,
+            created_date=timezone.now(),
+            published_date=published_date,
+        )
+        PostContent.objects.create(
+            post=post,
+            text_md=f'# {title}',
+            text_html=f'<h1>{title}</h1>',
+        )
+        PostConfig.objects.create(
+            post=post,
+            hide=hide,
+            advertise=False,
+        )
+        if tag:
+            post.tags.add(tag)
+        return post
+
     def test_author_posts_page_renders(self):
         """작가 포스트 페이지가 정상적으로 렌더링되는지 테스트"""
         response = self.client.get(
@@ -68,6 +91,49 @@ class AuthorPostsPageTestCase(TestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'board/author/author_overview.html')
+
+
+    def test_author_posts_page_exposes_public_posts_and_tags_only(self):
+        """작가 글 표면은 숨김, 임시저장, 미래 발행 글과 그 태그를 노출하지 않는다."""
+        private_tag = Tag.objects.create(value='private-only')
+        self.create_author_post('Draft Author Post', 'draft-author-post', None, private_tag)
+        self.create_author_post(
+            'Future Author Post',
+            'future-author-post',
+            timezone.now() + timezone.timedelta(days=1),
+            private_tag,
+        )
+        self.create_author_post('Hidden Author Post', 'hidden-author-post', timezone.now(), private_tag, hide=True)
+        future_series = Series.objects.create(
+            owner=self.user,
+            name='Future Only Series',
+            url='future-only-series',
+            text_md='Future only',
+            hide=False,
+        )
+        future_post = self.create_author_post(
+            'Future Series Post',
+            'future-series-post',
+            timezone.now() + timezone.timedelta(days=1),
+        )
+        future_post.series = future_series
+        future_post.save(update_fields=['series'])
+
+        response = self.client.get(
+            reverse('user_posts', kwargs={'username': self.user.username})
+        )
+
+        self.assertEqual(response.status_code, 200)
+        post_titles = [post.title for post in response.context['posts']]
+        self.assertIn('Author Test Post', post_titles)
+        self.assertNotIn('Draft Author Post', post_titles)
+        self.assertNotIn('Future Author Post', post_titles)
+        self.assertNotIn('Hidden Author Post', post_titles)
+
+        author_tag_values = [tag.value for tag in response.context['author_tags']]
+        self.assertIn('python', author_tag_values)
+        self.assertNotIn('private-only', author_tag_values)
+        self.assertEqual(response.context['series_count'], 0)
 
     def test_author_posts_page_has_required_context(self):
         """작가 포스트 페이지 컨텍스트에 필수 필드 확인"""
