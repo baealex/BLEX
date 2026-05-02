@@ -49,6 +49,7 @@ const EditPostEditor = ({ username, postUrl }: EditPostEditorProps) => {
         content: '',
         tags: [] as string[]
     });
+    const isIntentionalSubmitRef = useRef(false);
 
     // Fetch data
     useEffect(() => {
@@ -115,6 +116,10 @@ const EditPostEditor = ({ username, postUrl }: EditPostEditorProps) => {
     // Warn on page unload if there are unsaved changes
     useEffect(() => {
         const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+            if (isIntentionalSubmitRef.current) {
+                return;
+            }
+
             if (hasUnsavedChanges()) {
                 e.preventDefault();
             }
@@ -175,7 +180,7 @@ const EditPostEditor = ({ username, postUrl }: EditPostEditorProps) => {
         return true;
     };
 
-    const handleSubmit = async (isDraft = false) => {
+    const submitCurrentPost = async (isDraft = false) => {
         if (!validateForm()) return;
 
         setIsSubmitting(true);
@@ -209,11 +214,17 @@ const EditPostEditor = ({ username, postUrl }: EditPostEditorProps) => {
                 addHiddenField('image_delete', 'true');
             }
 
+            isIntentionalSubmitRef.current = true;
             form.submit();
         } catch {
+            isIntentionalSubmitRef.current = false;
             toast.error('포스트 수정에 실패했습니다.');
             setIsSubmitting(false);
         }
+    };
+
+    const handleSubmit = async (isDraft = false) => {
+        await submitCurrentPost(isDraft);
     };
 
     const handleDelete = async () => {
