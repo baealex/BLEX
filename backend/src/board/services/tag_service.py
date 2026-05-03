@@ -8,11 +8,11 @@ Extracted from views to improve testability and reusability.
 from __future__ import annotations
 
 from typing import Optional, Set, Dict
-from django.db.models import F, Count, Case, When, Exists, OuterRef, Q
-from django.utils import timezone
+from django.db.models import F, Count, Exists, OuterRef, Q
 from django.utils.text import slugify
 
 from board.models import Tag, PostLikes, Post
+from board.services.public_post_service import PublicPostService
 
 
 class TagService:
@@ -87,11 +87,7 @@ class TagService:
         Returns:
             QuerySet of Tag with count annotation
         """
-        public_post_filter = Q(
-            posts__published_date__isnull=False,
-            posts__published_date__lte=timezone.now(),
-            posts__config__hide=False,
-        )
+        public_post_filter = PublicPostService.build_public_filter('posts')
         return Tag.objects.filter(
             public_post_filter
         ).annotate(
@@ -116,12 +112,11 @@ class TagService:
         Returns:
             QuerySet of Post with annotations
         """
-        return Post.objects.select_related(
-            'config', 'content'
+        return PublicPostService.filter_public_posts(
+            Post.objects.select_related(
+                'config', 'content'
+            )
         ).filter(
-            published_date__isnull=False,
-            published_date__lte=timezone.now(),
-            config__hide=False,
             tags__value=tag_name
         ).annotate(
             author_username=F('author__username'),
@@ -167,10 +162,8 @@ class TagService:
             True if tag exists with visible posts, False otherwise
         """
         return Tag.objects.filter(
+            PublicPostService.build_public_filter('posts'),
             value=tag_name,
-            posts__published_date__isnull=False,
-            posts__published_date__lte=timezone.now(),
-            posts__config__hide=False,
         ).exists()
 
     @staticmethod
@@ -184,11 +177,8 @@ class TagService:
         Returns:
             QuerySet of Tag with count annotation
         """
-        public_post_filter = Q(
+        public_post_filter = PublicPostService.build_public_filter('posts') & Q(
             posts__author__username=username,
-            posts__published_date__isnull=False,
-            posts__published_date__lte=timezone.now(),
-            posts__config__hide=False,
         )
         return Tag.objects.filter(
             public_post_filter,

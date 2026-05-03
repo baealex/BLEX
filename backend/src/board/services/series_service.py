@@ -8,10 +8,10 @@ Extracted from views to improve testability and reusability.
 from typing import Optional, List, Tuple
 from django.contrib.auth.models import User
 from django.db import transaction
-from django.db.models import Count, Case, When, F
-from django.utils import timezone
+from django.db.models import Count, F
 
 from board.models import Series, Post
+from board.services.public_post_service import PublicPostService
 from board.modules.response import ErrorCode
 
 
@@ -293,17 +293,9 @@ class SeriesService:
         query = Series.objects.filter(owner=user)
 
         if include_post_count:
+            public_post_filter = PublicPostService.build_public_filter('posts')
             query = query.annotate(
-                total_posts=Count(
-                    Case(
-                        When(
-                            posts__published_date__isnull=False,
-                            posts__published_date__lte=timezone.now(),
-                            posts__config__hide=False,
-                            then=1
-                        )
-                    )
-                )
+                total_posts=Count('posts', filter=public_post_filter, distinct=True)
             )
 
         return query.order_by('order', '-id')
@@ -319,12 +311,9 @@ class SeriesService:
         Returns:
             QuerySet of Post
         """
-        return Post.objects.filter(
+        return PublicPostService.filter_public_posts(Post.objects).filter(
             author=user,
             series=None,
-            config__hide=False,
-            published_date__isnull=False,
-            published_date__lte=timezone.now()
         ).order_by('-published_date')
 
     @staticmethod
@@ -340,18 +329,10 @@ class SeriesService:
         Returns:
             QuerySet of Series with annotations
         """
+        public_post_filter = PublicPostService.build_public_filter('posts')
         return Series.objects.annotate(
             owner_username=F('owner__username'),
-            total_posts=Count(
-                Case(
-                    When(
-                        posts__published_date__isnull=False,
-                            posts__published_date__lte=timezone.now(),
-                        posts__config__hide=False,
-                        then=1
-                    )
-                )
-            )
+            total_posts=Count('posts', filter=public_post_filter, distinct=True)
         ).filter(
             owner__username=username,
             total_posts__gte=1,

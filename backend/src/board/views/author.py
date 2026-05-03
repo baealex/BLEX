@@ -2,14 +2,14 @@ import json
 
 from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
-from django.db.models import Case, When, Count, Exists, OuterRef, Q, F
+from django.db.models import Count, Exists, OuterRef, Q, F
 from django.shortcuts import render, get_object_or_404, redirect
-from django.utils import timezone
 from django.http import JsonResponse
 
 from board.modules.paginator import Paginator
 from board.modules.time import time_since
 from board.services.user_service import UserService
+from board.services.public_post_service import PublicPostService
 from board.models import Post, Series, PostLikes, Tag, Profile, SiteNotice, SiteContentScope
 from modules import markdown
 
@@ -85,13 +85,12 @@ def author_posts(request, username):
     sort_option = request.GET.get('sort', 'recent')
     tag_filter = request.GET.get('tag', '')
 
-    posts = Post.objects.select_related(
-        'config', 'series', 'author', 'author__profile', 'content'
+    posts = PublicPostService.filter_public_posts(
+        Post.objects.select_related(
+            'config', 'series', 'author', 'author__profile', 'content'
+        )
     ).filter(
         author=author,
-        published_date__isnull=False,
-        published_date__lte=timezone.now(),
-        config__hide=False,
     )
     
     if search_query:
@@ -124,11 +123,7 @@ def author_posts(request, username):
     else:  # default to 'recent'
         posts = posts.order_by('-published_date')
     
-    public_series_post_filter = Q(
-        posts__published_date__isnull=False,
-        posts__published_date__lte=timezone.now(),
-        posts__config__hide=False,
-    )
+    public_series_post_filter = PublicPostService.build_public_filter('posts')
     series = Series.objects.filter(
         owner__username=username,
         hide=False,
@@ -138,11 +133,8 @@ def author_posts(request, username):
         count_posts__gte=1,
     ).order_by('-updated_date')
     
-    public_author_tag_filter = Q(
+    public_author_tag_filter = PublicPostService.build_public_filter('posts') & Q(
         posts__author=author,
-        posts__published_date__isnull=False,
-        posts__published_date__lte=timezone.now(),
-        posts__config__hide=False,
     )
     author_tags = Tag.objects.filter(
         public_author_tag_filter
@@ -220,17 +212,9 @@ def author_series(request, username):
             Q(text_md__icontains=search_query)
         )
     
+    public_series_post_filter = PublicPostService.build_public_filter('posts')
     series_list = series_list.annotate(
-        post_count=Count(
-            Case(
-                When(
-                    posts__published_date__isnull=False,
-                    posts__published_date__lte=timezone.now(),
-                    posts__config__hide=False,
-                    then=1
-                )
-            )
-        )
+        post_count=Count('posts', filter=public_series_post_filter, distinct=True)
     ).filter(post_count__gte=1)
     
     if sort_option == 'newest':
@@ -259,11 +243,8 @@ def author_series(request, username):
     for series_item in paginated_series:
         series_item.updated_date = series_item.updated_date.strftime('%Y-%m-%d')
 
-    public_author_tag_filter = Q(
+    public_author_tag_filter = PublicPostService.build_public_filter('posts') & Q(
         posts__author=author,
-        posts__published_date__isnull=False,
-        posts__published_date__lte=timezone.now(),
-        posts__config__hide=False,
     )
     author_tags = Tag.objects.filter(
         public_author_tag_filter
