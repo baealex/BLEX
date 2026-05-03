@@ -37,8 +37,7 @@ class DeveloperPublishingAPI:
             | Q(url__icontains=query)
             | Q(meta_description__icontains=query)
             | Q(tags__value__icontains=query)
-            | Q(content__text_md__icontains=query)
-            | Q(content__text_html__icontains=query)
+            | Q(content__content_html__icontains=query)
         )
 
     @staticmethod

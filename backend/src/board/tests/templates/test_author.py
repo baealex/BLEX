@@ -37,8 +37,7 @@ class AuthorPostsPageTestCase(TestCase):
         )
         PostContent.objects.create(
             post=self.post,
-            text_md='# Author Content',
-            text_html='<h1>Author Content</h1>'
+            content_html='<h1>Author Content</h1>'
         )
         PostConfig.objects.create(
             post=self.post,
@@ -62,8 +61,7 @@ class AuthorPostsPageTestCase(TestCase):
         )
         PostContent.objects.create(
             post=post,
-            text_md=f'# {title}',
-            text_html=f'<h1>{title}</h1>',
+            content_html=f'<h1>{title}</h1>',
         )
         PostConfig.objects.create(
             post=post,

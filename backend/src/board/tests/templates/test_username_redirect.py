@@ -38,8 +38,7 @@ class UsernameRedirectTestCase(TestCase):
         )
         PostContent.objects.create(
             post=self.post,
-            text_md='Test content',
-            text_html='<p>Test content</p>'
+            content_html='<p>Test content</p>'
         )
         PostConfig.objects.create(
             post=self.post,
@@ -116,8 +115,7 @@ class UsernameRedirectTestCase(TestCase):
         )
         PostContent.objects.create(
             post=reader_post,
-            text_md='Reader content',
-            text_html='<p>Reader content</p>'
+            content_html='<p>Reader content</p>'
         )
         PostConfig.objects.create(
             post=reader_post,

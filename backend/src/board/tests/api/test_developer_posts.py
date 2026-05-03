@@ -99,13 +99,11 @@ class DeveloperPostsAPITestCase(TestCase):
         data = self.create_draft()
 
         self.assertEqual(data['status'], 'draft')
-        self.assertEqual(data['content_type'], 'markdown')
-        self.assertEqual(data['content'], '# Hello\n\nThis is **bold**')
+        self.assertIn('<strong>bold</strong>', data['content_html'])
         self.assertIn('<strong>bold</strong>', data['rendered_html'])
 
         post = Post.objects.get(id=data['id'])
         self.assertIsNone(post.published_date)
-        self.assertEqual(post.content.text_md, '# Hello\n\nThis is **bold**')
         self.assertEqual(sorted(post.tags.values_list('value', flat=True)), ['api', 'mcp'])
 
     def test_list_posts_includes_draft_status(self):
@@ -143,7 +141,7 @@ class DeveloperPostsAPITestCase(TestCase):
         self.assertEqual(response.status_code, 200)
         data = response.json()['data']
         self.assertEqual(data['title'], 'Detail Draft')
-        self.assertEqual(data['content'], '# Hello\n\nThis is **bold**')
+        self.assertIn('<strong>bold</strong>', data['content_html'])
         self.assertIn('This is', data['rendered_html'])
 
     def test_create_published_post(self):

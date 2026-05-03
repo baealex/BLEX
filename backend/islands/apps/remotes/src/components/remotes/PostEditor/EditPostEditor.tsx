@@ -9,7 +9,7 @@ import { getSeries } from '~/lib/api/settings';
 import { getPostForEdit } from '~/lib/api/posts';
 import { api } from '~/components/shared';
 import { logger } from '~/utils/logger';
-import type { ContentType, Series } from './types';
+import type { Series } from './types';
 
 interface EditPostEditorProps {
     username: string;
@@ -40,7 +40,6 @@ const EditPostEditor = ({ username, postUrl }: EditPostEditorProps) => {
         name: '',
         url: ''
     });
-    const [contentType, setContentType] = useState<ContentType>('html');
     const [isSubmitting, setIsSubmitting] = useState(false);
 
     const formRef = useRef<HTMLFormElement>(null);
@@ -75,16 +74,15 @@ const EditPostEditor = ({ username, postUrl }: EditPostEditorProps) => {
                         title: postData.title || '',
                         subtitle: postData.subtitle || '',
                         url: postData.url || '',
-                        content: postData.textHtml || '',
+                        content: postData.contentHtml || '',
                         metaDescription: postData.description || '',
                         hide: postData.isHide || false,
                         advertise: postData.isAdvertise || false
                     });
-                    setContentType(postData.contentType || 'html');
                     setTags(postData.tags || []);
                     initialDataRef.current = {
                         title: postData.title || '',
-                        content: postData.textHtml || '',
+                        content: postData.contentHtml || '',
                         tags: postData.tags || []
                     };
                     setImagePreview(postData.image || null);
@@ -202,8 +200,7 @@ const EditPostEditor = ({ username, postUrl }: EditPostEditorProps) => {
 
             addHiddenField('tag', tags.join(','));
             addHiddenField('series', selectedSeries.id);
-            addHiddenField('text_html', formData.content);
-            addHiddenField('content_type', contentType);
+            addHiddenField('content_html', formData.content);
 
             if (isDraft) {
                 addHiddenField('is_draft', 'true');
@@ -277,9 +274,6 @@ const EditPostEditor = ({ username, postUrl }: EditPostEditorProps) => {
                 tags={tags}
                 imagePreview={imagePreview}
                 selectedSeries={selectedSeries}
-                contentType={contentType}
-                onContentTypeChange={setContentType}
-                isContentTypeChangeable={!formData.content.trim()}
                 onTitleChange={handleTitleChange}
                 onSubtitleChange={handleSubtitleChange}
                 onContentChange={(content) => setFormData(prev => ({

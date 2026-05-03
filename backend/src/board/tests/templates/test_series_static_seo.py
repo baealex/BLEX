@@ -60,8 +60,7 @@ class SeriesSeoMetadataTestCase(StructuredDataAssertionMixin, TestCase):
         ]:
             PostContent.objects.create(
                 post=post,
-                text_md='body',
-                text_html=content,
+                content_html=content,
             )
             PostConfig.objects.create(
                 post=post,

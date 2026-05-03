@@ -26,8 +26,7 @@ class PostDetailViewTestCase(TestCase):
         # Create PostContent with headers
         PostContent.objects.create(
             post=self.post,
-            text_md='# Header 1\n## Header 2',
-            text_html='<h1>Header 1</h1><h2>Header 2</h2>'
+            content_html='<h1>Header 1</h1><h2>Header 2</h2>'
         )
         PostConfig.objects.create(
             post=self.post,

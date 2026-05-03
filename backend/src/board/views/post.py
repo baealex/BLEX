@@ -44,7 +44,7 @@ def post_detail(request, username, post_url):
         post.visible_series_posts = PostService.get_visible_series_posts(post)
 
     # Extract table of contents from post content
-    content_html_with_ids, table_of_contents = extract_table_of_contents(post.content.text_html)
+    content_html_with_ids, table_of_contents = extract_table_of_contents(post.content.content_html)
 
     banners = BannerService.get_all_banners_for_author(author)
 
@@ -116,8 +116,12 @@ def post_editor(request, username=None, post_url=None):
         title = request.POST.get('title')
         subtitle = request.POST.get('subtitle', '')
         url = request.POST.get('url')
-        text_html = request.POST.get('text_md')  # Now receiving HTML directly from editor
-        text_md = text_html  # Keep text_md for backward compatibility, but it's now HTML
+        text_html = (
+            request.POST.get('content_html')
+            or request.POST.get('text_html')
+            or request.POST.get('text_md')
+            or ''
+        )
         content_type = request.POST.get('content_type', 'html')
         meta_description = request.POST.get('meta_description', '')
         tags_str = request.POST.get('tag', '')

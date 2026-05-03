@@ -24,8 +24,8 @@ from board.models import Post, PostContent, PostConfig, Series, PostLikes
 from board.modules.post_description import create_post_description
 from board.services.tag_service import TagService
 from board.modules.response import ErrorCode
+from board.services.post_content_service import PostContentService
 from board.services.webhook_service import WebhookService
-from modules.markdown import parse_post_to_html
 
 
 class PostValidationError(Exception):
@@ -226,21 +226,19 @@ class PostService:
     @staticmethod
     def _resolve_content(
         text_content: str,
-        content_type: str,
-    ) -> Tuple[str, str]:
+        content_type: str | None = None,
+    ) -> str:
         """
-        Resolve text_md and text_html based on content_type.
+        Resolve incoming content to canonical HTML.
 
         Args:
             text_content: Raw content from the editor
-            content_type: 'html' or 'markdown'
+            content_type: Legacy input hint, 'html' or 'markdown'
 
         Returns:
-            Tuple of (text_md, text_html)
+            Canonical HTML
         """
-        if content_type == 'markdown':
-            return text_content, parse_post_to_html(text_content)
-        return text_content, text_content
+        return PostContentService.input_to_content_html(text_content, content_type)
 
     @staticmethod
     @transaction.atomic
@@ -285,7 +283,7 @@ class PostService:
 
         PostService.validate_post_data(title, text_html)
 
-        text_md, resolved_html = PostService._resolve_content(text_html, content_type)
+        resolved_html = PostService._resolve_content(text_html, content_type)
 
         post = Post()
         post.title = title
@@ -320,9 +318,7 @@ class PostService:
 
         post_content = PostContent.objects.create(
             post=post,
-            content_type=content_type,
-            text_md=text_md,
-            text_html=resolved_html,
+            content_html=resolved_html,
         )
 
         post_config = PostConfig.objects.create(
@@ -503,42 +499,18 @@ class PostService:
         if text_html is not None:
             PostService.validate_post_data(title or post.title, text_html)
 
-            effective_type = content_type
             try:
                 post_content = post.content
-                if effective_type is None:
-                    effective_type = post_content.content_type
-                text_md, resolved_html = PostService._resolve_content(text_html, effective_type)
-                if effective_type is not None:
-                    post_content.content_type = effective_type
-                post_content.text_html = resolved_html
-                post_content.text_md = text_md
+                resolved_html = PostService._resolve_content(text_html, content_type)
+                post_content.content_html = resolved_html
                 post_content.save()
             except PostContent.DoesNotExist:
-                if effective_type is None:
-                    effective_type = 'html'
-                text_md, resolved_html = PostService._resolve_content(text_html, effective_type)
+                resolved_html = PostService._resolve_content(text_html, content_type)
                 PostContent.objects.create(
                     post=post,
-                    content_type=effective_type,
-                    text_html=resolved_html,
-                    text_md=text_md,
+                    content_html=resolved_html,
                 )
             resolved_html_for_desc = resolved_html
-        elif content_type is not None:
-            try:
-                post_content = post.content
-                if post_content.content_type != content_type:
-                    post_content.content_type = content_type
-                    text_md, resolved_html = PostService._resolve_content(
-                        post_content.text_md if content_type == 'markdown' else post_content.text_html,
-                        content_type,
-                    )
-                    post_content.text_md = text_md
-                    post_content.text_html = resolved_html
-                    post_content.save()
-            except PostContent.DoesNotExist:
-                pass
 
         if description is not None:
             post.meta_description = description
@@ -656,7 +628,7 @@ class PostService:
                 f'임시 저장 글은 최대 {PostService.MAX_DRAFTS_PER_USER}개까지 가능합니다.'
             )
 
-        text_md, resolved_html = PostService._resolve_content(text_html, content_type)
+        resolved_html = PostService._resolve_content(text_html, content_type)
 
         post = Post()
         post.title = title or '제목 없음'
@@ -686,9 +658,7 @@ class PostService:
 
         PostContent.objects.create(
             post=post,
-            content_type=content_type,
-            text_md=text_md,
-            text_html=resolved_html,
+            content_html=resolved_html,
         )
 
         PostConfig.objects.create(post=post)
@@ -725,36 +695,18 @@ class PostService:
         resolved_html_for_desc = None
 
         if text_html is not None:
-            effective_type = content_type
             try:
                 post_content = post.content
-                if effective_type is None:
-                    effective_type = post_content.content_type
-                text_md, resolved_html = PostService._resolve_content(text_html, effective_type)
-                if effective_type is not None:
-                    post_content.content_type = effective_type
-                post_content.text_html = resolved_html
-                post_content.text_md = text_md
+                resolved_html = PostService._resolve_content(text_html, content_type)
+                post_content.content_html = resolved_html
                 post_content.save()
             except PostContent.DoesNotExist:
-                if effective_type is None:
-                    effective_type = 'html'
-                text_md, resolved_html = PostService._resolve_content(text_html, effective_type)
+                resolved_html = PostService._resolve_content(text_html, content_type)
                 PostContent.objects.create(
                     post=post,
-                    content_type=effective_type,
-                    text_html=resolved_html,
-                    text_md=text_md,
+                    content_html=resolved_html,
                 )
             resolved_html_for_desc = resolved_html
-        elif content_type is not None:
-            try:
-                post_content = post.content
-                if post_content.content_type != content_type:
-                    post_content.content_type = content_type
-                    post_content.save(update_fields=['content_type'])
-            except PostContent.DoesNotExist:
-                pass
 
         if description is not None:
             post.meta_description = description
@@ -812,41 +764,23 @@ class PostService:
         if subtitle is not None:
             post.subtitle = subtitle
 
-        PostService.validate_post_data(post.title, text_html or (post.content.text_html if hasattr(post, 'content') else ''))
+        PostService.validate_post_data(post.title, text_html or (post.content.content_html if hasattr(post, 'content') else ''))
 
         resolved_html_for_desc = None
 
         if text_html is not None:
-            effective_type = content_type
             try:
                 post_content = post.content
-                if effective_type is None:
-                    effective_type = post_content.content_type
-                text_md, resolved_html = PostService._resolve_content(text_html, effective_type)
-                if effective_type is not None:
-                    post_content.content_type = effective_type
-                post_content.text_html = resolved_html
-                post_content.text_md = text_md
+                resolved_html = PostService._resolve_content(text_html, content_type)
+                post_content.content_html = resolved_html
                 post_content.save()
             except PostContent.DoesNotExist:
-                if effective_type is None:
-                    effective_type = 'html'
-                text_md, resolved_html = PostService._resolve_content(text_html, effective_type)
+                resolved_html = PostService._resolve_content(text_html, content_type)
                 PostContent.objects.create(
                     post=post,
-                    content_type=effective_type,
-                    text_html=resolved_html,
-                    text_md=text_md,
+                    content_html=resolved_html,
                 )
             resolved_html_for_desc = resolved_html
-        elif content_type is not None:
-            try:
-                post_content = post.content
-                if post_content.content_type != content_type:
-                    post_content.content_type = content_type
-                    post_content.save(update_fields=['content_type'])
-            except PostContent.DoesNotExist:
-                pass
 
         if description is not None:
             post.meta_description = description

@@ -31,8 +31,7 @@ class SeriesAgentDiscoveryTestCase(TestCase):
         )
         PostContent.objects.create(
             post=self.post,
-            text_md='Series body',
-            text_html='<p>Series body</p>',
+            content_html='<p>Series body</p>',
         )
         PostConfig.objects.create(
             post=self.post,

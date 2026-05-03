@@ -64,11 +64,11 @@ class PinnedPostAdmin(admin.ModelAdmin):
 
 
 class PostContentInline(admin.StackedInline):
-    """Inline editor for post content (markdown and HTML)."""
+    """Inline editor for post content HTML."""
     model = PostContent
     can_delete = False
     classes = ['collapse']
-    fields = ['text_md', 'text_html']
+    fields = ['content_html']
     extra = 0
     max_num = 1
 
@@ -91,7 +91,7 @@ class PostAdmin(admin.ModelAdmin):
     - 대량 작업 시 bulk operation 사용
     """
 
-    search_fields = ['title', 'content__text_md', 'author__username', 'series__name', 'tags__value']
+    search_fields = ['title', 'content__content_html', 'author__username', 'series__name', 'tags__value']
     ordering = ['-created_date']
     inlines = [PostContentInline, PostConfigInline]
     autocomplete_fields = ['author', 'series']
@@ -249,4 +249,3 @@ class PostAdmin(admin.ModelAdmin):
         count = queryset.filter(published_date__isnull=True).update(published_date=timezone.now())
         self.message_user(request, f'{count}개의 임시글을 발행했습니다.')
     publish_drafts.short_description = '선택한 임시글 즉시 발행'
-

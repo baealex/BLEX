@@ -42,8 +42,7 @@ class SeriesAPITestCase(TestCase):
             )
             PostContent.objects.create(
                 post=post,
-                text_md=f'# Test Post {i}',
-                text_html=f'<h1>Test Post {i}</h1>'
+                content_html=f'<h1>Test Post {i}</h1>'
             )
             PostConfig.objects.create(
                 post=post,

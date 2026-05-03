@@ -55,8 +55,8 @@ class ImageCleanerService:
         used_files = set()
 
         posts = Post.objects.all().annotate(
-            text_md=F('content__text_md'),
-            text_html=F('content__text_html')
+            text_md=F('content__content_html'),
+            text_html=F('content__content_html')
         )
         comments = Comment.objects.all()
         profiles = Profile.objects.all().annotate(

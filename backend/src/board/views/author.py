@@ -96,8 +96,8 @@ def author_posts(request, username):
     if search_query:
         posts = posts.filter(
             Q(title__icontains=search_query) | 
-            Q(content__text_md__icontains=search_query) | 
-            Q(content__text_html__icontains=search_query)
+            Q(content__content_html__icontains=search_query) | 
+            Q(content__content_html__icontains=search_query)
         )
     
     if tag_filter:

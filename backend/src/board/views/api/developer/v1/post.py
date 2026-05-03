@@ -59,11 +59,16 @@ class DeveloperPostAPI:
 
     @staticmethod
     def content_value(data):
-        return data.get('content', data.get('text_html', data.get('text_md', '')))
+        return data.get(
+            'markdown',
+            data.get('content_html', data.get('content', data.get('text_html', data.get('text_md', '')))),
+        )
 
     @staticmethod
-    def content_type(data, default='html'):
-        content_type = data.get('content_type', default)
+    def content_type(data):
+        if 'markdown' in data:
+            return 'markdown'
+        content_type = data.get('content_type', 'html')
         if content_type not in ('html', 'markdown'):
             raise DeveloperAuthError(
                 'post.invalid_content_type',
@@ -303,15 +308,9 @@ class DeveloperPostAPI:
             return conflict_response
 
         content = None
-        if 'content' in data or 'text_html' in data or 'text_md' in data:
+        if 'markdown' in data or 'content_html' in data or 'content' in data or 'text_html' in data or 'text_md' in data:
             content = DeveloperPostAPI.content_value(data)
-
-        content_type = None
-        if 'content_type' in data:
-            content_type = DeveloperPostAPI.content_type(
-                data,
-                post.content.content_type if hasattr(post, 'content') else 'html',
-            )
+        content_type = DeveloperPostAPI.content_type(data) if content is not None else None
 
         try:
             if post.is_draft():
@@ -384,15 +383,9 @@ class DeveloperPostAPI:
 
         data = DeveloperPostAPI.json_body(request)
         content = None
-        if 'content' in data or 'text_html' in data or 'text_md' in data:
+        if 'markdown' in data or 'content_html' in data or 'content' in data or 'text_html' in data or 'text_md' in data:
             content = DeveloperPostAPI.content_value(data)
-
-        content_type = None
-        if 'content_type' in data:
-            content_type = DeveloperPostAPI.content_type(
-                data,
-                post.content.content_type if hasattr(post, 'content') else 'html',
-            )
+        content_type = DeveloperPostAPI.content_type(data) if content is not None else None
 
         try:
             PostService.publish_draft(

@@ -20,7 +20,7 @@ import { getPublishChecklist } from './utils/publishChecklist';
 import { getSeries } from '~/lib/api/settings';
 import { getDraft } from '~/lib/api/posts';
 import { api } from '~/components/shared';
-import type { ContentType, Series } from './types';
+import type { Series } from './types';
 
 interface NewPostEditorProps {
     draftUrl?: string;
@@ -51,7 +51,6 @@ const NewPostEditor = ({ draftUrl }: NewPostEditorProps) => {
     const [isSettingsDrawerOpen, setIsSettingsDrawerOpen] = useState(false);
     const [isUrlAutoSync, setIsUrlAutoSync] = useState(true);
     const [currentDraftUrl, setCurrentDraftUrl] = useState(draftUrl);
-    const [contentType, setContentType] = useState<ContentType>('html');
     const [showPublishChecklist, setShowPublishChecklist] = useState(false);
 
     const [formData, setFormData] = useState({
@@ -127,7 +126,6 @@ const NewPostEditor = ({ draftUrl }: NewPostEditorProps) => {
         description: formData.metaDescription,
         seriesUrl: selectedSeries.url || undefined,
         customUrl: sanitizedUrlForSubmit || undefined,
-        contentType,
         imageFile,
         imageDeleted
     };
@@ -193,7 +191,7 @@ const NewPostEditor = ({ draftUrl }: NewPostEditorProps) => {
                     if (draftResponse.status === 'DONE' && draftResponse.body) {
                         const draftData = draftResponse.body;
                         const newTitle = draftData.title || '';
-                        const newContent = draftData.textMd || '';
+                        const newContent = draftData.contentHtml || draftData.rawContent || '';
                         const newTags = draftData.tags ? draftData.tags.split(',').filter(Boolean) : [];
                         const newSubtitle = draftData.subtitle || '';
                         const newDescription = draftData.description || '';
@@ -206,7 +204,6 @@ const NewPostEditor = ({ draftUrl }: NewPostEditorProps) => {
                             content: newContent,
                             metaDescription: newDescription
                         }));
-                        setContentType(draftData.contentType || 'html');
                         setCurrentDraftUrl(draftData.url || draftUrl);
                         setIsUrlAutoSync(
                             !draftData.url || draftData.url === generateUrlFromTitle(newTitle)
@@ -342,8 +339,7 @@ const NewPostEditor = ({ draftUrl }: NewPostEditorProps) => {
                 url: normalizeUrlForSubmit(formData.url),
                 content: formData.content,
                 tags,
-                seriesId: selectedSeries.id,
-                contentType
+                seriesId: selectedSeries.id
             },
             isDraft,
             false // isEdit
@@ -382,9 +378,6 @@ const NewPostEditor = ({ draftUrl }: NewPostEditorProps) => {
                 tags={tags}
                 imagePreview={imagePreview}
                 selectedSeries={selectedSeries}
-                contentType={contentType}
-                onContentTypeChange={setContentType}
-                isContentTypeChangeable={!formData.content.trim()}
                 onTitleChange={handleTitleChange}
                 onSubtitleChange={handleSubtitleChange}
                 onContentChange={(content) => setFormData(prev => ({

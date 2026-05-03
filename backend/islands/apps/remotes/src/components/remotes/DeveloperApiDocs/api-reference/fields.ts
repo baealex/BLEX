@@ -38,12 +38,6 @@ export const postSummaryFields: ApiField[] = [
         description: '현재 글 상태입니다.'
     },
     {
-        name: 'content_type',
-        type: 'html | markdown',
-        requirement: '필수',
-        description: '본문 저장 형식입니다.'
-    },
-    {
         name: 'tags',
         type: 'string[]',
         requirement: '필수',
@@ -99,7 +93,13 @@ export const postDetailFields: ApiField[] = [
         name: 'content',
         type: 'string',
         requirement: '필수',
-        description: '원본 본문입니다. markdown 글은 마크다운 원문이 반환됩니다.'
+        description: 'HTML 본문입니다. BLEX는 게시글 본문을 HTML 단일 원본으로 저장합니다.'
+    },
+    {
+        name: 'content_html',
+        type: 'string',
+        requirement: '필수',
+        description: 'HTML 본문 원본입니다.'
     },
     {
         name: 'rendered_html',
@@ -142,13 +142,13 @@ export const postMutationBodyFields: ApiField[] = [
         name: 'content',
         type: 'string',
         requirement: '조건부',
-        description: 'published/scheduled 생성에는 필요합니다. markdown이면 마크다운 원문을 보냅니다.'
+        description: 'published/scheduled 생성에는 필요합니다. 기본적으로 HTML 본문으로 처리됩니다.'
     },
     {
-        name: 'content_type',
-        type: 'html | markdown',
+        name: 'markdown',
+        type: 'string',
         requirement: '선택',
-        description: '기본값은 html입니다.'
+        description: 'Agent/Developer 작성용 Markdown 입력입니다. 저장 시 HTML로 변환됩니다.'
     },
     {
         name: 'subtitle',

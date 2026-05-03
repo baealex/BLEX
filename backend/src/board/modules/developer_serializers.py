@@ -63,7 +63,6 @@ class DeveloperPostSerializer:
             'url': post.url,
             'public_url': f'/@{post.author.username}/{post.url}',
             'status': DeveloperPostSerializer.status(post),
-            'content_type': content.content_type if content else 'html',
             'tags': DeveloperPostSerializer.tags(post),
             'series': DeveloperPostSerializer.series(post),
             'is_hidden': config.hide if config else False,
@@ -77,20 +76,16 @@ class DeveloperPostSerializer:
     def detail(post):
         data = DeveloperPostSerializer.summary(post)
         content = DeveloperPostSerializer.content(post)
-        raw_content = ''
-        rendered_html = ''
+        content_html = ''
 
         if content:
-            rendered_html = content.text_html
-            if content.content_type == 'markdown':
-                raw_content = content.text_md
-            else:
-                raw_content = content.text_html
+            content_html = content.content_html
 
         data.update({
             'description': post.meta_description,
-            'content': raw_content,
-            'rendered_html': rendered_html,
+            'content': content_html,
+            'content_html': content_html,
+            'rendered_html': content_html,
             'read_time': post.read_time,
         })
         return data

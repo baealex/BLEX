@@ -49,8 +49,7 @@ class CommentTestCase(TestCase):
 
         PostContent.objects.create(
             post=Post.objects.get(url='test-post'),
-            text_md='# Post',
-            text_html='<h1>Post</h1>'
+            content_html='<h1>Post</h1>'
         )
 
         PostConfig.objects.create(

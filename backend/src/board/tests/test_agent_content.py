@@ -52,7 +52,6 @@ class AgentContentTestCase(TestCase):
             url='html-agent-post',
             text_md=html_content,
             text_html=html_content,
-            content_type=PostContent.ContentType.HTML,
             published_date=now,
         )
         cls.html_post.series = cls.public_series
@@ -65,7 +64,6 @@ class AgentContentTestCase(TestCase):
                 '<h2>New Editor Outcome</h2>'
                 '<p>Markdown source is empty, but HTML exists.</p>'
             ),
-            content_type=PostContent.ContentType.HTML,
             published_date=now,
         )
         cls.rich_html_post = cls.create_post(
@@ -92,7 +90,6 @@ class AgentContentTestCase(TestCase):
                 '<figcaption>Embedded reference</figcaption>'
                 '</figure>'
             ),
-            content_type=PostContent.ContentType.HTML,
             published_date=now,
         )
         cls.lossless_html_post = cls.create_post(
@@ -112,7 +109,6 @@ class AgentContentTestCase(TestCase):
                 '<p>Inline <mark data-color="yellow">highlight</mark> '
                 'and <span style="color:red">red text</span>.</p>'
             ),
-            content_type=PostContent.ContentType.HTML,
             published_date=now,
         )
         cls.hidden_post = cls.create_post(
@@ -159,7 +155,6 @@ class AgentContentTestCase(TestCase):
         published_date,
         hide: bool = False,
         text_html: str | None = None,
-        content_type: str = PostContent.ContentType.MARKDOWN,
     ) -> Post:
         post = Post.objects.create(
             title=title,
@@ -170,9 +165,7 @@ class AgentContentTestCase(TestCase):
         )
         PostContent.objects.create(
             post=post,
-            content_type=content_type,
-            text_md=text_md,
-            text_html=(
+            content_html=(
                 text_html
                 if text_html is not None
                 else f'<h2>{title}</h2><p>{text_md}</p>'

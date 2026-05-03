@@ -74,7 +74,7 @@ class ImageDedupTestCase(TestCase):
             published_date=timezone.now(),
             image='images/title/test.jpg',
         )
-        PostContent.objects.create(post=post, text_md='', text_html='')
+        PostContent.objects.create(post=post, content_html='')
         PostConfig.objects.create(post=post)
 
         self.assertFalse(PostService._is_image_shared('images/title/test.jpg', post.pk))
@@ -88,7 +88,7 @@ class ImageDedupTestCase(TestCase):
             published_date=timezone.now(),
             image='images/title/shared.jpg',
         )
-        PostContent.objects.create(post=post1, text_md='', text_html='')
+        PostContent.objects.create(post=post1, content_html='')
         PostConfig.objects.create(post=post1)
 
         post2 = Post.objects.create(
@@ -98,7 +98,7 @@ class ImageDedupTestCase(TestCase):
             published_date=timezone.now(),
             image='images/title/shared.jpg',
         )
-        PostContent.objects.create(post=post2, text_md='', text_html='')
+        PostContent.objects.create(post=post2, content_html='')
         PostConfig.objects.create(post=post2)
 
         self.assertTrue(PostService._is_image_shared('images/title/shared.jpg', post1.pk))
@@ -117,7 +117,7 @@ class ImageDedupTestCase(TestCase):
             image='images/title/existing.jpg',
             image_hash='a' * 64,
         )
-        PostContent.objects.create(post=existing_post, text_md='', text_html='')
+        PostContent.objects.create(post=existing_post, content_html='')
         PostConfig.objects.create(post=existing_post)
 
         new_image = self._create_test_image()
@@ -162,7 +162,7 @@ class ImageDedupTestCase(TestCase):
             published_date=timezone.now(),
             image_hash='c' * 64,
         )
-        PostContent.objects.create(post=post, text_md='', text_html='')
+        PostContent.objects.create(post=post, content_html='')
         PostConfig.objects.create(post=post)
 
         PostService._set_image_with_dedup(post, image=None, image_delete=True)
@@ -184,7 +184,7 @@ class ImageDedupTestCase(TestCase):
             image='images/title/thumb-test.jpg',
             image_hash='d' * 64,
         )
-        PostContent.objects.create(post=existing, text_md='', text_html='')
+        PostContent.objects.create(post=existing, content_html='')
         PostConfig.objects.create(post=existing)
 
         new_image = self._create_test_image()

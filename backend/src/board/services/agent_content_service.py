@@ -8,7 +8,7 @@ from django.db.models import Count, Q, QuerySet
 from django.http import Http404, HttpRequest
 from django.urls import reverse
 
-from board.models import Post, PostContent, Series, SiteSetting, StaticPage
+from board.models import Post, Series, SiteSetting, StaticPage
 from board.services.public_post_service import PublicPostService
 
 
@@ -331,18 +331,7 @@ class AgentContentService:
 
     @staticmethod
     def get_post_content_markdown(post: Post) -> str:
-        content = post.content
-        text_md = content.text_md.strip()
-
-        if (
-            content.content_type == PostContent.ContentType.MARKDOWN
-            and text_md
-            and not AgentContentService.looks_like_html(text_md)
-        ):
-            return text_md
-
-        html = content.text_html or content.text_md
-        return AgentContentService.html_to_markdown(html)
+        return AgentContentService.html_to_markdown(post.content.content_html)
 
     @staticmethod
     def get_series_content_markdown(series: Series) -> str:
