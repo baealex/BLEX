@@ -7,9 +7,9 @@ from bs4.element import NavigableString, Tag as SoupTag
 from django.db.models import Count, Q, QuerySet
 from django.http import Http404, HttpRequest
 from django.urls import reverse
-from django.utils import timezone
 
 from board.models import Post, PostContent, Series, SiteSetting, StaticPage
+from board.services.public_post_service import PublicPostService
 
 
 class AgentContentService:
@@ -47,14 +47,12 @@ class AgentContentService:
 
     @staticmethod
     def get_public_posts(limit: int | None = LATEST_POST_LIMIT) -> QuerySet[Post]:
-        posts = Post.objects.select_related(
-            'author',
-            'content',
-            'config',
-        ).filter(
-            published_date__isnull=False,
-            published_date__lte=timezone.now(),
-            config__hide=False,
+        posts = PublicPostService.filter_public_posts(
+            Post.objects.select_related(
+                'author',
+                'content',
+                'config',
+            )
         ).order_by('-published_date')
 
         if limit is None:
@@ -69,22 +67,16 @@ class AgentContentService:
                 'content',
                 'config',
             ).get(
+                PublicPostService.build_public_filter(),
                 author__username=username,
                 url=post_url,
-                published_date__isnull=False,
-                published_date__lte=timezone.now(),
-                config__hide=False,
             )
         except Post.DoesNotExist as error:
             raise Http404("Post does not exist") from error
 
     @staticmethod
     def get_public_series() -> QuerySet[Series]:
-        public_post_filter = Q(
-            posts__published_date__isnull=False,
-            posts__published_date__lte=timezone.now(),
-            posts__config__hide=False,
-        )
+        public_post_filter = PublicPostService.build_public_filter('posts')
         return Series.objects.select_related('owner').annotate(
             public_post_count=Count('posts', filter=public_post_filter, distinct=True)
         ).filter(
@@ -104,14 +96,13 @@ class AgentContentService:
 
     @staticmethod
     def get_public_series_posts(series: Series) -> QuerySet[Post]:
-        return Post.objects.select_related(
-            'author',
-            'config',
+        return PublicPostService.filter_public_posts(
+            Post.objects.select_related(
+                'author',
+                'config',
+            )
         ).filter(
             series=series,
-            published_date__isnull=False,
-            published_date__lte=timezone.now(),
-            config__hide=False,
         ).order_by('-published_date')
 
     @staticmethod

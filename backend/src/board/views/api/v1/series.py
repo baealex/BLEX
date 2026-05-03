@@ -1,12 +1,12 @@
 import json
-from django.db.models import F, Count, Case, When, Q
+from django.db.models import F, Count, Q
 from django.http import Http404, QueryDict
 from django.shortcuts import get_object_or_404
-from django.utils import timezone
 
 from board.models import User, Post, Series
 from board.services import SeriesService
 from board.services.series_service import SeriesValidationError
+from board.services.public_post_service import PublicPostService
 from board.modules.paginator import Paginator
 from board.modules.response import StatusDone, StatusError, ErrorCode
 from board.modules.time import convert_to_localtime
@@ -32,11 +32,8 @@ def posts_can_add_series(request):
             posts = Post.objects.filter(
                 author=request.user
             ).filter(
-                Q(series=series) | Q(
-                    series__isnull=True,
-                    config__hide=False,
-                    published_date__isnull=False,
-                    published_date__lte=timezone.now()
+                Q(series=series) | (
+                    Q(series__isnull=True) & PublicPostService.build_public_filter()
                 )
             ).order_by('-published_date', '-id')
         else:
@@ -132,27 +129,16 @@ def user_series(request, username, url=None):
 
     if url:
         user = get_object_or_404(User, username=username)
+        public_post_filter = PublicPostService.build_public_filter('posts')
         series = get_object_or_404(Series.objects.annotate(
             owner_username=F('owner__username'),
             owner_avatar=F('owner__profile__avatar'),
-            total_posts=Count(
-                Case(
-                    When(
-                        posts__published_date__isnull=False,
-                        posts__published_date__lte=timezone.now(),
-                        posts__config__hide=False,
-                        then=1
-                    )
-                )
-            )
+            total_posts=Count('posts', filter=public_post_filter, distinct=True)
         ), owner=user, url=url)
 
         if request.method == 'GET':
             if request.GET.get('kind', '') == 'continue':
-                posts = Post.objects.filter(
-                    published_date__isnull=False,
-                    published_date__lte=timezone.now(),
-                    config__hide=False,
+                posts = PublicPostService.filter_public_posts(Post.objects).filter(
                     series=series,
                 ).values_list('title', 'url')
                 return StatusDone({
@@ -170,12 +156,9 @@ def user_series(request, username, url=None):
 
             page = request.GET.get('page', 1)
             order = request.GET.get('order', 'latest')
-            posts = Post.objects.select_related(
-                'content'
+            posts = PublicPostService.filter_public_posts(
+                Post.objects.select_related('content')
             ).filter(
-                published_date__isnull=False,
-                published_date__lte=timezone.now(),
-                config__hide=False,
                 series=series,
             ).order_by('-published_date' if order == 'latest' else 'published_date')
             posts = Paginator(

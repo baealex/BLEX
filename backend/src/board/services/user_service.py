@@ -20,6 +20,7 @@ from board.models import (
     Series, Comment, Tag, PostLikes
 )
 from board.modules.response import ErrorCode
+from board.services.public_post_service import PublicPostService
 from modules.markdown import parse_post_to_html
 
 
@@ -86,15 +87,8 @@ class UserService:
         Excludes hidden posts to match the post list page.
         Uses distinct=True to prevent inflated counts from joins.
         """
-        public_post_filter = Q(
-            post__published_date__isnull=False,
-            post__published_date__lte=timezone.now(),
-            post__config__hide=False,
-        )
-        public_series_filter = Q(
-            series__posts__published_date__isnull=False,
-            series__posts__published_date__lte=timezone.now(),
-            series__posts__config__hide=False,
+        public_post_filter = PublicPostService.build_public_filter('post')
+        public_series_filter = PublicPostService.build_public_filter('series__posts') & Q(
             series__hide=False,
         )
         return User.objects.filter(id=author.id).annotate(

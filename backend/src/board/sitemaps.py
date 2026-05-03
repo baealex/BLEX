@@ -1,9 +1,9 @@
 from django.contrib.sitemaps import Sitemap
 from django.urls import reverse
-from django.utils import timezone
-from django.db.models import Count, Q
+from django.db.models import Count
 
 from board.models import Post, Series, Profile, StaticPage
+from board.services.public_post_service import PublicPostService
 
 
 class SiteSitemap(Sitemap):
@@ -31,10 +31,7 @@ class UserSitemap(Sitemap):
 
     def items(self):
         # Only include users who have posts and are editors (EDITOR or ADMIN role)
-        users = Post.objects.filter(
-            config__hide=False,
-            published_date__isnull=False,
-            published_date__lte=timezone.now(),
+        users = PublicPostService.filter_public_posts(Post.objects).filter(
             author__profile__role__in=[Profile.Role.EDITOR, Profile.Role.ADMIN]
         ).values_list('author__username', flat=True).distinct()
         return users
@@ -48,11 +45,9 @@ class PostsSitemap(Sitemap):
     priority = 0.9
 
     def items(self):
-        return Post.objects.filter(
-            config__hide=False,
-            published_date__isnull=False,
-            published_date__lte=timezone.now(),
-        ).select_related('author').order_by('-updated_date')
+        return PublicPostService.filter_public_posts(Post.objects).select_related(
+            'author'
+        ).order_by('-updated_date')
 
     def location(self, element):
         return reverse('post_detail', args=[element.author.username, element.url])
@@ -66,11 +61,7 @@ class SeriesSitemap(Sitemap):
     priority = 0.7
 
     def items(self):
-        public_post_filter = Q(
-            posts__published_date__isnull=False,
-            posts__published_date__lte=timezone.now(),
-            posts__config__hide=False,
-        )
+        public_post_filter = PublicPostService.build_public_filter('posts')
         return Series.objects.annotate(
             public_post_count=Count('posts', filter=public_post_filter, distinct=True),
         ).filter(
