@@ -45,8 +45,7 @@ class PostTestCase(TestCase):
             )
             PostContent.objects.create(
                 post=post,
-                text_md=f'# Test Post {post_num}',
-                text_html=f'<h1>Test Post {post_num}</h1>'
+                content_html=f'<h1>Test Post {post_num}</h1>'
             )
             PostConfig.objects.create(
                 post=post,
@@ -85,7 +84,7 @@ class PostTestCase(TestCase):
         post = Post.objects.get(url='test-post-1')
         response = self.client.post('/v1/users/@author/posts/test-post-1', {
             'title': f'{post.title} Updated',
-            'text_html': post.content.text_html,
+            'text_html': post.content.content_html,
             'is_hide': post.config.hide,
             'is_advertise': post.config.advertise,
         })
@@ -287,9 +286,7 @@ class PostTestCase(TestCase):
         self.assertEqual(response.status_code, 200)
 
         post = Post.objects.get(url=content['body']['url'])
-        self.assertEqual(post.content.content_type, 'markdown')
-        self.assertEqual(post.content.text_md, '# Hello World\n\nThis is **markdown**.')
-        self.assertIn('<strong>markdown</strong>', post.content.text_html)
+        self.assertIn('<strong>markdown</strong>', post.content.content_html)
 
     def test_create_post_markdown_mode_does_not_render_mentions(self):
         """포스트 마크다운에서는 멘션이 링크로 변환되지 않아야 함"""
@@ -306,8 +303,8 @@ class PostTestCase(TestCase):
         self.assertEqual(response.status_code, 200)
 
         post = Post.objects.get(url=content['body']['url'])
-        self.assertNotIn('class="mention"', post.content.text_html)
-        self.assertIn('<code>@viewer</code>', post.content.text_html)
+        self.assertNotIn('class="mention"', post.content.content_html)
+        self.assertIn('<code>@viewer</code>', post.content.content_html)
 
     def test_get_post_edit_mode_markdown(self):
         """마크다운 모드 포스트 편집 모드 조회 시 text_md 반환 테스트"""
@@ -326,8 +323,7 @@ class PostTestCase(TestCase):
         # Fetch in edit mode
         response = self.client.get(f'/v1/users/@author/posts/{post_url}', {'mode': 'edit'})
         content = json.loads(response.content)
-        self.assertEqual(content['body']['contentType'], 'markdown')
-        self.assertEqual(content['body']['textHtml'], '# Edit me')
+        self.assertIn('Edit me', content['body']['contentHtml'])
 
     def test_update_post_markdown_mode(self):
         """마크다운 모드 포스트 수정 테스트"""
@@ -354,8 +350,7 @@ class PostTestCase(TestCase):
         self.assertEqual(response.status_code, 200)
 
         post = Post.objects.get(url=post_url)
-        self.assertEqual(post.content.text_md, '# After\n\nUpdated **content**.')
-        self.assertIn('<strong>content</strong>', post.content.text_html)
+        self.assertIn('<strong>content</strong>', post.content.content_html)
 
     def _create_test_image(self, name='test.jpg', size=(100, 100), color='red'):
         """테스트용 이미지 파일 생성 헬퍼 메소드"""
@@ -381,7 +376,7 @@ class PostTestCase(TestCase):
         image = self._create_test_image('new_image.jpg')
         response = self.client.post('/v1/users/@author/posts/test-post-1', {
             'title': post.title,
-            'text_html': post.content.text_html,
+            'text_html': post.content.content_html,
             'is_hide': post.config.hide,
             'is_advertise': post.config.advertise,
             'image': image,
@@ -412,7 +407,7 @@ class PostTestCase(TestCase):
         new_image = self._create_test_image('new_image.jpg', color='red')
         response = self.client.post('/v1/users/@author/posts/test-post-2', {
             'title': post.title,
-            'text_html': post.content.text_html,
+            'text_html': post.content.content_html,
             'is_hide': post.config.hide,
             'is_advertise': post.config.advertise,
             'image': new_image,
@@ -445,7 +440,7 @@ class PostTestCase(TestCase):
         # image_delete 플래그와 함께 업데이트
         response = self.client.post('/v1/users/@author/posts/test-post-3', {
             'title': post.title,
-            'text_html': post.content.text_html,
+            'text_html': post.content.content_html,
             'is_hide': post.config.hide,
             'is_advertise': post.config.advertise,
             'image_delete': 'true',
@@ -472,7 +467,7 @@ class PostTestCase(TestCase):
         # 이미지 필드 없이 다른 필드만 업데이트
         response = self.client.post('/v1/users/@author/posts/test-post-4', {
             'title': post.title + ' Updated',
-            'text_html': post.content.text_html,
+            'text_html': post.content.content_html,
             'is_hide': post.config.hide,
             'is_advertise': post.config.advertise,
             # image 필드 없음 - 기존 이미지 유지되어야 함

@@ -30,11 +30,17 @@ def post_list(request):
 
         try:
             image = request.FILES.get('image', None)
+            content_html = (
+                request.POST.get('content_html')
+                or request.POST.get('text_html')
+                or request.POST.get('text_md')
+                or ''
+            )
 
             post, post_content, post_config = PostService.create_post(
                 user=request.user,
                 title=request.POST.get('title', ''),
-                text_html=request.POST.get('text_html', ''),
+                text_html=content_html,
                 subtitle=request.POST.get('subtitle', ''),
                 description=request.POST.get('description', ''),
                 reserved_date_str=request.POST.get('reserved_date', ''),
@@ -144,11 +150,7 @@ def user_posts(request, username, url=None):
                 if not request.user == post.author:
                     raise Http404
 
-                content_type = post.content.content_type if hasattr(post, 'content') else 'html'
-                if content_type == 'markdown':
-                    text_content = post.content.text_md
-                else:
-                    text_content = post.content.text_html
+                content_html = post.content.content_html if hasattr(post, 'content') else ''
 
                 return StatusDone({
                     'image': post.get_thumbnail(),
@@ -156,13 +158,13 @@ def user_posts(request, username, url=None):
                     'subtitle': post.subtitle,
                     'url': post.url,
                     'description': post.meta_description,
-                    'content_type': content_type,
                     'series': {
                         'id': str(post.series.id),
                         'name': post.series.name,
                         'url': post.series.url,
                     } if post.series else None,
-                    'text_html': text_content,
+                    'content_html': content_html,
+                    'text_html': content_html,
                     'tags': post.tagging(),
                     'is_hide': post.config.hide,
                     'is_advertise': post.config.advertise
@@ -189,7 +191,7 @@ def user_posts(request, username, url=None):
                     'updated_date': convert_to_localtime(post.updated_date).strftime('%Y-%m-%d %H:%M'),
                     'author_image': str(post.author_image),
                     'author': post.author_username,
-                    'rendered_content': post.content.text_html,
+                    'rendered_content': post.content.content_html,
                     'count_likes': post.count_likes,
                     'count_comments': post.count_comments,
                     'is_ad': post.config.advertise,
@@ -202,7 +204,12 @@ def user_posts(request, username, url=None):
                 raise Http404
 
             title = request.POST.get('title', '')
-            text_html = request.POST.get('text_html', '')
+            text_html = (
+                request.POST.get('content_html')
+                or request.POST.get('text_html')
+                or request.POST.get('text_md')
+                or ''
+            )
 
             try:
                 PostService.update_post(

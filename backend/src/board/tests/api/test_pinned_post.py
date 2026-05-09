@@ -36,7 +36,7 @@ class PinnedPostAPITestCase(TestCase):
                 url=f'test-post-{i}',
                 published_date=timezone.now(),
             )
-            PostContent.objects.create(post=post, text_md='', text_html='')
+            PostContent.objects.create(post=post, content_html='')
             PostConfig.objects.create(post=post)
             cls.posts.append(post)
 
@@ -47,7 +47,7 @@ class PinnedPostAPITestCase(TestCase):
             url='hidden-post',
             published_date=timezone.now(),
         )
-        PostContent.objects.create(post=cls.hidden_post, text_md='', text_html='')
+        PostContent.objects.create(post=cls.hidden_post, content_html='')
         PostConfig.objects.create(post=cls.hidden_post, hide=True)
 
         # Create a draft post
@@ -57,7 +57,7 @@ class PinnedPostAPITestCase(TestCase):
             url='draft-post',
             published_date=None,
         )
-        PostContent.objects.create(post=cls.draft_post, text_md='', text_html='')
+        PostContent.objects.create(post=cls.draft_post, content_html='')
         PostConfig.objects.create(post=cls.draft_post)
 
     def setUp(self):

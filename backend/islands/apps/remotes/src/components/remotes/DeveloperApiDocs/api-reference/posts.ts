@@ -93,8 +93,7 @@ Content-Type: application/json
 {
   "status": "draft",
   "title": "새 글",
-  "content": "# Hello",
-  "content_type": "markdown",
+  "markdown": "# Hello",
   "tags": ["api", "mcp"]
 }`
         }

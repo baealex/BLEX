@@ -30,8 +30,7 @@ class MainPageTemplateTestCase(TestCase):
         )
         PostContent.objects.create(
             post=self.post,
-            text_md='# Test Content',
-            text_html='<h1>Test Content</h1>',
+            content_html='<h1>Test Content</h1>',
         )
         PostConfig.objects.create(
             post=self.post,
@@ -101,8 +100,7 @@ class MainPageTemplateTestCase(TestCase):
         )
         PostContent.objects.create(
             post=hidden_post,
-            text_md='Hidden content',
-            text_html='<p>Hidden content</p>',
+            content_html='<p>Hidden content</p>',
         )
         PostConfig.objects.create(
             post=hidden_post,
@@ -127,8 +125,7 @@ class MainPageTemplateTestCase(TestCase):
         )
         PostContent.objects.create(
             post=future_post,
-            text_md='Future content',
-            text_html='<p>Future content</p>',
+            content_html='<p>Future content</p>',
         )
         PostConfig.objects.create(
             post=future_post,
@@ -159,8 +156,7 @@ class MainPageTemplateTestCase(TestCase):
             )
             PostContent.objects.create(
                 post=post,
-                text_md=f'Content {i}',
-                text_html=f'<p>Content {i}</p>',
+                content_html=f'<p>Content {i}</p>',
             )
             PostConfig.objects.create(
                 post=post,

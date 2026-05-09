@@ -35,8 +35,7 @@ class TagListPageTestCase(TestCase):
                 )
                 PostContent.objects.create(
                     post=post,
-                    text_md=f'Content about {tag_name}',
-                    text_html=f'<p>Content about {tag_name}</p>',
+                    content_html=f'<p>Content about {tag_name}</p>',
                 )
                 PostConfig.objects.create(
                     post=post,
@@ -56,8 +55,7 @@ class TagListPageTestCase(TestCase):
         )
         PostContent.objects.create(
             post=post,
-            text_md=f'{title} content',
-            text_html=f'<p>{title} content</p>',
+            content_html=f'<p>{title} content</p>',
         )
         PostConfig.objects.create(
             post=post,
@@ -144,8 +142,7 @@ class TagDetailPageTestCase(TestCase):
             )
             PostContent.objects.create(
                 post=post,
-                text_md=f'Python content {i}',
-                text_html=f'<p>Python content {i}</p>',
+                content_html=f'<p>Python content {i}</p>',
             )
             PostConfig.objects.create(
                 post=post,
@@ -165,8 +162,7 @@ class TagDetailPageTestCase(TestCase):
         )
         PostContent.objects.create(
             post=post,
-            text_md=f'{title} content',
-            text_html=f'<p>{title} content</p>',
+            content_html=f'<p>{title} content</p>',
         )
         PostConfig.objects.create(
             post=post,
@@ -244,8 +240,7 @@ class TagDetailPageTestCase(TestCase):
         )
         PostContent.objects.create(
             post=hidden_post,
-            text_md='Hidden content',
-            text_html='<p>Hidden content</p>',
+            content_html='<p>Hidden content</p>',
         )
         PostConfig.objects.create(
             post=hidden_post,
@@ -272,8 +267,7 @@ class TagDetailPageTestCase(TestCase):
         )
         PostContent.objects.create(
             post=post,
-            text_md='Unicode content',
-            text_html='<p>Unicode content</p>',
+            content_html='<p>Unicode content</p>',
         )
         PostConfig.objects.create(
             post=post,

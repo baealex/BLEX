@@ -45,7 +45,7 @@ class SitePostsFeed(Feed):
         return item.title
 
     def item_description(self, item):
-        return re.sub(r'[\x00-\x08\x0B-\x0C\x0E-\x1F]', '', item.content.text_html)
+        return re.sub(r'[\x00-\x08\x0B-\x0C\x0E-\x1F]', '', item.content.content_html)
 
     def item_link(self, item):
         return item.get_absolute_url()
@@ -88,7 +88,7 @@ class UserPostsFeed(Feed):
         return item.title
 
     def item_description(self, item):
-        return re.sub(r'[\x00-\x08\x0B-\x0C\x0E-\x1F]', '', item.content.text_html)
+        return re.sub(r'[\x00-\x08\x0B-\x0C\x0E-\x1F]', '', item.content.content_html)
 
     def item_link(self, item):
         return item.get_absolute_url()

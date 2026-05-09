@@ -4,7 +4,7 @@ from django.http import Http404
 from django.http.multipartparser import MultiPartParser
 from django.shortcuts import get_object_or_404
 
-from board.models import Post, PostContent
+from board.models import Post
 from board.services.post_service import PostService, PostValidationError
 from board.modules.response import StatusDone, StatusError, ErrorCode
 
@@ -36,7 +36,7 @@ def drafts_list(request):
             files = {}
 
         title = data.get('title', '')
-        content = data.get('content', '')
+        content = data.get('content_html') or data.get('content') or data.get('text_html') or data.get('text_md') or ''
         tags = data.get('tags', '')
         subtitle = data.get('subtitle', '')
         description = data.get('description', '')
@@ -80,13 +80,8 @@ def drafts_detail(request, url):
     )
 
     if request.method == 'GET':
-        content_type = 'html'
         if hasattr(draft, 'content'):
-            content_type = draft.content.content_type
-            if content_type == 'markdown':
-                raw_content = draft.content.text_md
-            else:
-                raw_content = draft.content.text_html
+            raw_content = draft.content.content_html
         else:
             raw_content = ''
 
@@ -94,7 +89,7 @@ def drafts_detail(request, url):
             'url': draft.url,
             'title': draft.title,
             'subtitle': draft.subtitle,
-            'content_type': content_type,
+            'content_html': raw_content,
             'text_md': raw_content,
             'raw_content': raw_content,
             'tags': ','.join(draft.tagging()),
@@ -126,7 +121,7 @@ def drafts_detail(request, url):
             PostService.update_draft(
                 post=draft,
                 title=data.get('title'),
-                text_html=data.get('content'),
+                text_html=data.get('content_html') or data.get('content') or data.get('text_html') or data.get('text_md'),
                 subtitle=data.get('subtitle'),
                 description=data.get('description'),
                 series_url=data.get('series_url'),

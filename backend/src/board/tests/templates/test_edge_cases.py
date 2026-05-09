@@ -41,8 +41,7 @@ class TemplateEdgeCaseTestCase(TestCase):
         )
         PostContent.objects.create(
             post=post,
-            text_md='edge case content',
-            text_html='<p>edge case content</p>',
+            content_html='<p>edge case content</p>',
         )
         PostConfig.objects.create(
             post=post,

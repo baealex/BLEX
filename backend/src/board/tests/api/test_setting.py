@@ -135,8 +135,7 @@ class SettingTestCase(TestCase):
         )
         PostContent.objects.create(
             post=post,
-            text_md='# Test',
-            text_html='<h1>Test</h1>'
+            content_html='<h1>Test</h1>'
         )
         PostConfig.objects.create(
             post=post,

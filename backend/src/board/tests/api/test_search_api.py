@@ -133,8 +133,7 @@ class SearchAPITestCase(TestCase):
         )
         PostContent.objects.create(
             post=post,
-            text_md=content,
-            text_html=f'<h1>{title}</h1>',
+            content_html=f'<h1>{title}</h1>',
         )
         PostConfig.objects.create(
             post=post,

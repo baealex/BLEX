@@ -77,7 +77,7 @@ class DeveloperWorkflowAPITestCase(TestCase):
         self.assertEqual(create_response.status_code, 201)
         draft = create_response.json()['data']
         self.assertEqual(draft['status'], 'draft')
-        self.assertEqual(draft['content_type'], 'markdown')
+        self.assertIn('<img', draft['content_html'])
 
         update_response = self.patch_json(f"/api/developer/v1/posts/{draft['id']}", {
             'expected_updated_at': draft['updated_at'],
@@ -102,7 +102,7 @@ class DeveloperWorkflowAPITestCase(TestCase):
         self.assertEqual(detail_response.status_code, 200)
         detail = detail_response.json()['data']
         self.assertEqual(detail['status'], 'published')
-        self.assertEqual(detail['content'], f'# Workflow\n\n![cover]({image_url})')
+        self.assertIn(image_url, detail['content_html'])
         self.assertIn('<img', detail['rendered_html'])
 
         post = Post.objects.get(id=draft['id'])

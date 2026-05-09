@@ -328,8 +328,7 @@ class WebhookNotificationTestCase(TestCase):
         )
         PostContent.objects.create(
             post=cls.post,
-            text_md='Test content',
-            text_html='<p>Test content</p>'
+            content_html='<p>Test content</p>'
         )
 
     @patch('board.services.webhook_service.SubTaskProcessor.process')

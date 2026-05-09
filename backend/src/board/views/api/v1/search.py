@@ -41,7 +41,7 @@ def search(request):
         title_match |= Q(title__icontains=keyword)
         description_match |= Q(meta_description__icontains=keyword)
         tag_match |= Q(tags__value__icontains=keyword)
-        content_match |= Q(content__text_md__icontains=keyword)
+        content_match |= Q(content__content_html__icontains=keyword)
 
     search_filter = title_match | description_match | tag_match | content_match
 

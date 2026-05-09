@@ -229,10 +229,8 @@ class DraftTestCase(TestCase):
         self.assertEqual(content['status'], 'DONE')
 
         post = Post.objects.get(url=content['body']['url'])
-        self.assertEqual(post.content.content_type, 'markdown')
-        self.assertEqual(post.content.text_md, '# Hello\n\nThis is **bold**')
-        self.assertIn('<h2', post.content.text_html)
-        self.assertIn('<strong>bold</strong>', post.content.text_html)
+        self.assertIn('<h2', post.content.content_html)
+        self.assertIn('<strong>bold</strong>', post.content.content_html)
 
     def test_get_draft_detail_markdown_mode(self):
         """마크다운 모드 드래프트 상세 조회 시 text_md 반환 테스트"""
@@ -251,8 +249,7 @@ class DraftTestCase(TestCase):
 
         response = self.client.get(f'/v1/drafts/{draft_url}')
         content = json.loads(response.content)
-        self.assertEqual(content['body']['contentType'], 'markdown')
-        self.assertEqual(content['body']['textMd'], '# Heading')
+        self.assertIn('Heading', content['body']['contentHtml'])
 
     def test_update_draft_markdown_mode(self):
         """마크다운 모드 드래프트 수정 테스트"""
@@ -280,8 +277,7 @@ class DraftTestCase(TestCase):
         self.assertEqual(response.status_code, 200)
 
         post = Post.objects.get(url=draft_url)
-        self.assertEqual(post.content.text_md, '# Updated\n\nNew content')
-        self.assertIn('<h2', post.content.text_html)
+        self.assertIn('<h2', post.content.content_html)
 
     def test_draft_limit(self):
         """드래프트 100개 제한 테스트"""
@@ -297,8 +293,7 @@ class DraftTestCase(TestCase):
             )
             PostContent.objects.create(
                 post=Post.objects.get(url=f'bulk-draft-{i}'),
-                text_html='',
-                text_md=''
+                content_html='',
             )
             PostConfig.objects.create(
                 post=Post.objects.get(url=f'bulk-draft-{i}')
