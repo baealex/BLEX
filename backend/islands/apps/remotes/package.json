@@ -28,7 +28,7 @@
         "@tanstack/react-query-persist-client": "^5.90.22",
         "@tanstack/react-router": "^1.162.4",
         "alpinejs": "^3.15.8",
-        "axios": "^1.15.0",
+        "axios": "^1.16.0",
         "react": "^19.2.4",
         "react-dom": "^19.2.4",
         "react-hook-form": "^7.71.2",
@@ -51,12 +51,13 @@
         "eslint": "^9.39.3",
         "eslint-plugin-react-compiler": "19.1.0-rc.2",
         "glob": "^13.0.6",
-        "postcss": "^8.5.6",
+        "postcss": "^8.5.14",
         "rollup-plugin-visualizer": "^6.0.5",
         "sass": "^1.97.3",
         "tailwindcss": "^4.2.1",
         "tailwindcss-animate": "^1.0.7",
         "typescript": "^5.9.3",
-        "vite": "^7.3.2"
+        "vite": "^7.3.2",
+        "yaml": "^2.8.4"
     }
 }
