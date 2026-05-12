@@ -1,7 +1,9 @@
 import json
+from datetime import timedelta
 
 from django.test import TestCase
 from django.contrib.auth.models import User
+from django.utils import timezone
 
 from board.models import Post, PostContent, PostConfig, Profile
 
@@ -104,6 +106,36 @@ class DraftTestCase(TestCase):
         content = json.loads(response.content)
         self.assertEqual(content['status'], 'DONE')
         self.assertEqual(len(content['body']['drafts']), 2)
+
+    def test_get_draft_list_orders_recently_updated_first(self):
+        """드래프트 목록은 최근 수정한 글부터 조회"""
+        self.client.login(username='test', password='test')
+        older_draft = Post.objects.create(
+            author=self.user,
+            title='Older Draft',
+            url='older-draft',
+            published_date=None,
+            updated_date=timezone.now() - timedelta(days=1),
+        )
+        recent_draft = Post.objects.create(
+            author=self.user,
+            title='Recent Draft',
+            url='recent-draft',
+            published_date=None,
+            updated_date=timezone.now(),
+        )
+        for draft in (older_draft, recent_draft):
+            PostContent.objects.create(post=draft, content_html='')
+            PostConfig.objects.create(post=draft)
+
+        response = self.client.get('/v1/drafts')
+        self.assertEqual(response.status_code, 200)
+        content = json.loads(response.content)
+        self.assertEqual(content['status'], 'DONE')
+        self.assertEqual(
+            [draft['url'] for draft in content['body']['drafts']],
+            ['recent-draft', 'older-draft'],
+        )
 
     def test_get_draft_detail(self):
         """드래프트 상세 조회 테스트"""

@@ -72,9 +72,10 @@ const DraftsSetting = () => {
 
             {draftPosts && draftPosts.length > 0 ? (
                 <div className="space-y-3">
-                    {[...draftPosts].reverse().map((draftPost) => (
+                    {draftPosts.map((draftPost) => (
                         <SettingsListItem
                             key={draftPost.url}
+                            onClick={() => handleContinueDraft(draftPost.url)}
                             left={
                                 <div className={getIconClass('default')}>
                                     <i className="fas fa-file-alt text-sm" />
@@ -83,11 +84,6 @@ const DraftsSetting = () => {
                             actions={
                                 <Dropdown
                                     items={[
-                                        {
-                                            label: '이어서 작성',
-                                            icon: 'fas fa-pen',
-                                            onClick: () => handleContinueDraft(draftPost.url)
-                                        },
                                         {
                                             label: '삭제',
                                             icon: 'fas fa-trash',
@@ -103,7 +99,7 @@ const DraftsSetting = () => {
                             <div className={`${SUBTITLE} flex items-center gap-3`}>
                                 <span className="flex items-center">
                                     <i className="fas fa-clock mr-1.5" />
-                                    {draftPost.createdDate}
+                                    마지막 수정 {draftPost.updatedDate}
                                 </span>
                                 <span className="bg-surface-subtle text-content px-2 py-0.5 rounded-md text-xs font-medium">
                                     임시 포스트
