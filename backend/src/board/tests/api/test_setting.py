@@ -60,6 +60,53 @@ class SettingTestCase(TestCase):
         content = json.loads(response.content)
         self.assertEqual(len(content['body']['notify']), 2)
         self.assertEqual(content['body']['isTelegramSync'], False)
+
+    def test_update_setting_notify_marks_as_read(self):
+        """알림 읽음 처리 테스트"""
+        notify = Notify.objects.filter(user__username='test').first()
+        self.client.login(username='test', password='test')
+
+        response = self.client.put(
+            '/v1/setting/notify',
+            json.dumps({'id': notify.id}),
+            content_type='application/json'
+        )
+
+        self.assertEqual(response.status_code, 200)
+        content = json.loads(response.content)
+        self.assertEqual(content['status'], 'DONE')
+        notify.refresh_from_db()
+        self.assertTrue(notify.has_read)
+
+    def test_update_setting_notify_rejects_other_user_notification(self):
+        """다른 사용자의 알림 읽음 처리를 막는다."""
+        other_user = User.objects.create_user(
+            username='notify-owner',
+            password='test',
+            email='notify-owner@test.com',
+        )
+        Config.objects.create(user=other_user)
+        Profile.objects.create(user=other_user, role=Profile.Role.READER)
+        notify = Notify.objects.create(
+            user=other_user,
+            content='other notify',
+            url='/other-notify',
+            key='other-notify-key',
+        )
+        self.client.login(username='test', password='test')
+
+        response = self.client.put(
+            '/v1/setting/notify',
+            json.dumps({'id': notify.id}),
+            content_type='application/json'
+        )
+
+        self.assertEqual(response.status_code, 200)
+        content = json.loads(response.content)
+        self.assertEqual(content['status'], 'ERROR')
+        self.assertEqual(content['errorCode'], 'error:NF')
+        notify.refresh_from_db()
+        self.assertFalse(notify.has_read)
     
     def test_get_setting_notify_config(self):
         """알림 설정 구성 조회 테스트"""
