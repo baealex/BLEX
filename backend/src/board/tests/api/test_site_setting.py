@@ -132,6 +132,27 @@ class SiteSettingAPITestCase(TestCase):
         self.assertEqual(setting.robots_txt_extra_rules, 'User-agent: ExampleBot\nDisallow: /private/')
         self.assertTrue(setting.aeo_enabled)
 
+
+    def test_update_invalid_json_keeps_existing_fields(self):
+        setting = SiteSetting.get_instance()
+        setting.header_script = 'original header'
+        setting.footer_script = 'original footer'
+        setting.save()
+
+        response = self.client.put(
+            '/v1/site-settings',
+            '{invalid',
+            content_type='application/json'
+        )
+
+        self.assertEqual(response.status_code, 200)
+        content = json.loads(response.content)
+        self.assertEqual(content['status'], 'DONE')
+
+        setting.refresh_from_db()
+        self.assertEqual(setting.header_script, 'original header')
+        self.assertEqual(setting.footer_script, 'original footer')
+
     def test_singleton_behavior(self):
         """싱글톤 동작 확인 - 여러 번 저장해도 하나의 인스턴스"""
         data1 = {'header_script': 'first'}
