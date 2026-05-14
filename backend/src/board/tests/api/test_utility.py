@@ -353,6 +353,44 @@ class UtilityAPITestCase(TestCase):
             content = json.loads(response.content)
             self.assertEqual(content['status'], 'DONE')
 
+    def test_clean_endpoints_empty_body_use_default_dry_run(self):
+        expected_keys = {
+            '/v1/utilities/clean-tags': 'dryRun',
+            '/v1/utilities/clean-sessions': 'dryRun',
+            '/v1/utilities/clean-logs': 'dryRun',
+            '/v1/utilities/clean-images': 'dryRun',
+        }
+
+        for endpoint, dry_run_key in expected_keys.items():
+            with self.subTest(endpoint=endpoint):
+                response = self.client.post(
+                    endpoint,
+                    b'',
+                    content_type='application/json'
+                )
+                content = json.loads(response.content)
+                self.assertEqual(content['status'], 'DONE')
+                self.assertTrue(content['body'][dry_run_key])
+
+    def test_clean_endpoints_invalid_json_return_validate_error(self):
+        endpoints = (
+            '/v1/utilities/clean-tags',
+            '/v1/utilities/clean-sessions',
+            '/v1/utilities/clean-logs',
+            '/v1/utilities/clean-images',
+        )
+
+        for endpoint in endpoints:
+            with self.subTest(endpoint=endpoint):
+                response = self.client.post(
+                    endpoint,
+                    '{invalid',
+                    content_type='application/json'
+                )
+                content = json.loads(response.content)
+                self.assertEqual(content['status'], 'ERROR')
+                self.assertEqual(content['errorCode'], 'error:VA')
+
     # === Method checks ===
 
     def test_stats_rejects_post(self):

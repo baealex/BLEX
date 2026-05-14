@@ -1,4 +1,3 @@
-import json
 import os
 
 from django.conf import settings
@@ -6,6 +5,7 @@ from django.contrib.admin.models import LogEntry
 from django.contrib.sessions.models import Session
 
 from board.modules.response import StatusDone, StatusError, ErrorCode
+from board.services.api_request_body_service import ApiRequestBodyService
 from board.admin.utilities import (
     DatabaseStatsService,
     SessionCleanerService,
@@ -47,10 +47,9 @@ def utility_clean_tags(request):
     if request.method != 'POST':
         return StatusError(ErrorCode.REJECT)
 
-    try:
-        body = json.loads(request.body.decode('utf-8')) if request.body else {}
-    except (json.JSONDecodeError, UnicodeDecodeError):
-        return StatusError(ErrorCode.VALIDATE, '잘못된 요청입니다.')
+    body, body_error = ApiRequestBodyService.parse_json_or_error(request)
+    if body_error:
+        return body_error
 
     dry_run = body.get('dry_run', True)
 
@@ -83,10 +82,9 @@ def utility_clean_sessions(request):
     if request.method != 'POST':
         return StatusError(ErrorCode.REJECT)
 
-    try:
-        body = json.loads(request.body.decode('utf-8')) if request.body else {}
-    except (json.JSONDecodeError, UnicodeDecodeError):
-        return StatusError(ErrorCode.VALIDATE, '잘못된 요청입니다.')
+    body, body_error = ApiRequestBodyService.parse_json_or_error(request)
+    if body_error:
+        return body_error
 
     dry_run = body.get('dry_run', True)
     clean_all = body.get('clean_all', False)
@@ -124,10 +122,9 @@ def utility_clean_logs(request):
     if request.method != 'POST':
         return StatusError(ErrorCode.REJECT)
 
-    try:
-        body = json.loads(request.body.decode('utf-8')) if request.body else {}
-    except (json.JSONDecodeError, UnicodeDecodeError):
-        return StatusError(ErrorCode.VALIDATE, '잘못된 요청입니다.')
+    body, body_error = ApiRequestBodyService.parse_json_or_error(request)
+    if body_error:
+        return body_error
 
     dry_run = body.get('dry_run', True)
     log_count = LogEntry.objects.count()
@@ -158,10 +155,9 @@ def utility_clean_images(request):
     if request.method != 'POST':
         return StatusError(ErrorCode.REJECT)
 
-    try:
-        body = json.loads(request.body.decode('utf-8')) if request.body else {}
-    except (json.JSONDecodeError, UnicodeDecodeError):
-        return StatusError(ErrorCode.VALIDATE, '잘못된 요청입니다.')
+    body, body_error = ApiRequestBodyService.parse_json_or_error(request)
+    if body_error:
+        return body_error
 
     dry_run = body.get('dry_run', True)
     target = body.get('target', 'all')
