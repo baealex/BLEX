@@ -17,7 +17,7 @@ from django.contrib.auth.models import User
 from django.core.cache import cache
 from django.core.files import File
 from django.db import transaction
-from django.db.models import Count, Case, When, Value, Exists, OuterRef, Q
+from django.db.models import Count, Case, When, Value, Exists, OuterRef
 
 from board.constants.config_meta import CONFIG_TYPE
 from board.models import (
@@ -249,7 +249,7 @@ class AuthService:
             ),
             has_editor_role=Case(
                 When(
-                    Q(profile__role='EDITOR') | Q(profile__role='ADMIN'),
+                    profile__role=Profile.Role.EDITOR,
                     then=Value(True)
                 ),
                 default=Value(False)

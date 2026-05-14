@@ -247,7 +247,7 @@ class ProfileAdmin(admin.ModelAdmin):
     list_per_page = LIST_PER_PAGE_DEFAULT
     save_on_top = True
 
-    actions = ['set_role_editor', 'set_role_reader', 'set_role_admin']
+    actions = ['set_role_editor', 'set_role_reader']
 
     fieldsets = (
         ('사용자 정보', {
@@ -255,7 +255,7 @@ class ProfileAdmin(admin.ModelAdmin):
         }),
         ('권한 설정', {
             'fields': ('role',),
-            'description': 'ADMIN: 전체 관리 권한 / EDITOR: 글 작성 및 통계 / READER: 읽기만 가능'
+            'description': 'EDITOR: 글 작성 및 통계 / READER: 읽기만 가능'
         }),
         ('프로필 정보', {
             'fields': ('bio', 'homepage', 'avatar', 'avatar_preview', 'cover', 'cover_preview'),
@@ -328,8 +328,3 @@ class ProfileAdmin(admin.ModelAdmin):
         count = queryset.update(role=Profile.Role.READER)
         self.message_user(request, f'{count}명의 프로필을 독자로 변경했습니다.')
     set_role_reader.short_description = '역할을 독자로 변경'
-
-    def set_role_admin(self, request: HttpRequest, queryset: QuerySet[Profile]) -> None:
-        count = queryset.update(role=Profile.Role.ADMIN)
-        self.message_user(request, f'{count}명의 프로필을 관리자로 변경했습니다.')
-    set_role_admin.short_description = '역할을 관리자로 변경'
