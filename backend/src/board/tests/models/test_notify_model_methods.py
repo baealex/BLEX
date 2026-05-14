@@ -24,8 +24,8 @@ class NotifySendNotifyTestCase(TestCase):
             content='Hello notify',
         )
 
-    @patch('board.models.SubTaskProcessor.process')
-    @patch('board.models.TelegramBot')
+    @patch('board.services.notification_delivery_service.SubTaskProcessor.process')
+    @patch('board.services.notification_delivery_service.TelegramBot')
     def test_send_notify_without_telegram_sync_is_noop(self, mock_bot, mock_process):
         notify = self.create_notify()
 
@@ -34,8 +34,8 @@ class NotifySendNotifyTestCase(TestCase):
         mock_bot.assert_not_called()
         mock_process.assert_not_called()
 
-    @patch('board.models.SubTaskProcessor.process')
-    @patch('board.models.TelegramBot')
+    @patch('board.services.notification_delivery_service.SubTaskProcessor.process')
+    @patch('board.services.notification_delivery_service.TelegramBot')
     def test_send_notify_with_blank_telegram_id_is_noop(self, mock_bot, mock_process):
         TelegramSync.objects.create(user=self.user, tid='')
         notify = self.create_notify()
@@ -46,8 +46,8 @@ class NotifySendNotifyTestCase(TestCase):
         mock_process.assert_not_called()
 
     @override_settings(SITE_URL='https://example.test', TELEGRAM_BOT_TOKEN='token')
-    @patch('board.models.SubTaskProcessor.process')
-    @patch('board.models.TelegramBot')
+    @patch('board.services.notification_delivery_service.SubTaskProcessor.process')
+    @patch('board.services.notification_delivery_service.TelegramBot')
     def test_send_notify_dispatches_telegram_message(self, mock_bot, mock_process):
         TelegramSync.objects.create(user=self.user, tid='123456')
         notify = self.create_notify()
