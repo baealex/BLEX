@@ -80,6 +80,105 @@ class CommentTestCase(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(Comment.objects.last().text_md, '# New Comment')
 
+    def test_create_comment_on_hidden_post_returns_404(self):
+        """숨김 글에는 공개 댓글 API로 댓글을 생성할 수 없다."""
+        post = Post.objects.get(url='test-post')
+        post.config.hide = True
+        post.config.save()
+        initial_count = Comment.objects.count()
+        self.client.login(username='viewer', password='test')
+
+        response = self.client.post('/v1/comments?url=test-post', {
+            'comment_md': '# Hidden Post Comment',
+        })
+
+        self.assertEqual(response.status_code, 404)
+        self.assertEqual(Comment.objects.count(), initial_count)
+
+    def test_create_comment_on_draft_post_returns_404(self):
+        """임시저장 글에는 공개 댓글 API로 댓글을 생성할 수 없다."""
+        post = Post.objects.get(url='test-post')
+        post.published_date = None
+        post.save(update_fields=['published_date'])
+        initial_count = Comment.objects.count()
+        self.client.login(username='viewer', password='test')
+
+        response = self.client.post('/v1/comments?url=test-post', {
+            'comment_md': '# Draft Post Comment',
+        })
+
+        self.assertEqual(response.status_code, 404)
+        self.assertEqual(Comment.objects.count(), initial_count)
+
+    def test_create_comment_on_scheduled_post_returns_404(self):
+        """미래 발행 글에는 공개 댓글 API로 댓글을 생성할 수 없다."""
+        post = Post.objects.get(url='test-post')
+        post.published_date = timezone.now() + timezone.timedelta(days=1)
+        post.save(update_fields=['published_date'])
+        initial_count = Comment.objects.count()
+        self.client.login(username='viewer', password='test')
+
+        response = self.client.post('/v1/comments?url=test-post', {
+            'comment_md': '# Scheduled Post Comment',
+        })
+
+        self.assertEqual(response.status_code, 404)
+        self.assertEqual(Comment.objects.count(), initial_count)
+
+    def test_create_comment_on_blocked_post_returns_error(self):
+        """댓글 차단 글에는 댓글을 생성할 수 없다."""
+        post = Post.objects.get(url='test-post')
+        post.config.block_comment = True
+        post.config.save()
+        initial_count = Comment.objects.count()
+        self.client.login(username='viewer', password='test')
+
+        response = self.client.post('/v1/comments?url=test-post', {
+            'comment_md': '# Blocked Comment',
+        })
+
+        content = json.loads(response.content)
+        self.assertEqual(content['status'], 'ERROR')
+        self.assertIn('댓글이 차단된 글입니다', content['errorMessage'])
+        self.assertEqual(Comment.objects.count(), initial_count)
+
+    def test_create_reply_rejects_parent_from_other_post(self):
+        """대댓글 parent는 같은 글의 댓글이어야 한다."""
+        author = User.objects.get(username='author')
+        other_post = Post.objects.create(
+            url='other-post',
+            title='Other Post',
+            author=author,
+            published_date=timezone.now(),
+        )
+        PostContent.objects.create(
+            post=other_post,
+            content_html='<h1>Other Post</h1>',
+        )
+        PostConfig.objects.create(
+            post=other_post,
+            hide=False,
+            advertise=False,
+        )
+        other_parent = Comment.objects.create(
+            post=other_post,
+            author=User.objects.get(username='viewer'),
+            text_md='Other post comment',
+            text_html='<p>Other post comment</p>',
+        )
+        initial_count = Comment.objects.count()
+        self.client.login(username='author', password='test')
+
+        response = self.client.post('/v1/comments?url=test-post', {
+            'comment_md': 'Cross-post reply',
+            'parent_id': other_parent.id,
+        })
+
+        content = json.loads(response.content)
+        self.assertEqual(content['status'], 'ERROR')
+        self.assertIn('부모 댓글이 대상 글에 속하지 않습니다', content['errorMessage'])
+        self.assertEqual(Comment.objects.count(), initial_count)
+
     def test_create_nested_comment(self):
         """대댓글 생성 테스트"""
         parent_comment = Comment.objects.last()
