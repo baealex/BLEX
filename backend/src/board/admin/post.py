@@ -4,8 +4,8 @@ Post Admin Configuration
 from django.contrib import admin
 from django.db.models import Count, QuerySet
 from django.http import HttpRequest
-from django.utils import timezone
 
+from board.services.post_status_service import PostStatusService
 from board.models import (
     EditHistory, EditRequest, Post, PinnedPost,
     PostConfig, PostContent,
@@ -31,13 +31,12 @@ class PublishStatusFilter(admin.SimpleListFilter):
         ]
 
     def queryset(self, request, queryset):
-        now = timezone.now()
         if self.value() == 'draft':
-            return queryset.filter(published_date__isnull=True)
+            return PostStatusService.filter_drafts(queryset)
         elif self.value() == 'published':
-            return queryset.filter(published_date__isnull=False, published_date__lte=now)
+            return PostStatusService.filter_published(queryset)
         elif self.value() == 'scheduled':
-            return queryset.filter(published_date__isnull=False, published_date__gt=now)
+            return PostStatusService.filter_scheduled(queryset)
 
 
 @admin.register(EditHistory)

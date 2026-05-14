@@ -3,10 +3,11 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 from django.db.models import Q, QuerySet
-from django.utils import timezone
 
 if TYPE_CHECKING:
     from board.models import Post
+
+from board.services.post_status_service import PostStatusService
 
 
 class PublicPostService:
@@ -22,9 +23,7 @@ class PublicPostService:
                 ``series__posts``. Leave empty when filtering Post directly.
         """
         prefix = f'{relation}__' if relation else ''
-        return Q(**{
-            f'{prefix}published_date__isnull': False,
-            f'{prefix}published_date__lte': timezone.now(),
+        return PostStatusService.build_published_filter(relation) & Q(**{
             f'{prefix}config__hide': False,
         })
 
@@ -34,9 +33,7 @@ class PublicPostService:
 
     @staticmethod
     def is_public(post: Post) -> bool:
-        if post.published_date is None:
-            return False
-        if post.published_date > timezone.now():
+        if not PostStatusService.is_published(post):
             return False
         if hasattr(post, 'config') and post.config.hide:
             return False
