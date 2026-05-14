@@ -30,9 +30,9 @@ class UserSitemap(Sitemap):
     priority = 0.6
 
     def items(self):
-        # Only include users who have posts and are editors (EDITOR or ADMIN role)
+        # Only include users who have public posts and can publish content.
         users = PublicPostService.filter_public_posts(Post.objects).filter(
-            author__profile__role__in=[Profile.Role.EDITOR, Profile.Role.ADMIN]
+            author__profile__role=Profile.Role.EDITOR,
         ).values_list('author__username', flat=True).distinct()
         return users
 
