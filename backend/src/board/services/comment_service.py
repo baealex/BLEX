@@ -48,6 +48,41 @@ class CommentService:
             )
 
     @staticmethod
+    def validate_post_allows_public_comment(post: Post) -> None:
+        """
+        Validate if a post can receive comments from the public comment API.
+
+        Args:
+            post: Post instance
+
+        Raises:
+            CommentValidationError: If comments are blocked
+        """
+        if hasattr(post, 'config') and post.config.block_comment:
+            raise CommentValidationError(
+                ErrorCode.REJECT,
+                '댓글이 차단된 글입니다.'
+            )
+
+    @staticmethod
+    def validate_parent_belongs_to_post(parent: Optional[Comment], post: Post) -> None:
+        """
+        Validate if the parent comment belongs to the post being commented on.
+
+        Args:
+            parent: Optional parent comment
+            post: Post instance
+
+        Raises:
+            CommentValidationError: If parent belongs to another post
+        """
+        if parent and parent.post_id != post.id:
+            raise CommentValidationError(
+                ErrorCode.REJECT,
+                '부모 댓글이 대상 글에 속하지 않습니다.'
+            )
+
+    @staticmethod
     def validate_user_can_edit(user: User, comment: Comment) -> None:
         """
         Validate if user can edit the comment.
@@ -294,6 +329,8 @@ class CommentService:
             CommentValidationError: If validation fails
         """
         CommentService.validate_user_can_comment(user)
+        CommentService.validate_post_allows_public_comment(post)
+        CommentService.validate_parent_belongs_to_post(parent, post)
 
         # 1레벨 제한: 대댓글의 대댓글 방지
         if parent and parent.parent:

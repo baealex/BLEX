@@ -12,6 +12,7 @@ from board.modules.notify import create_notify
 from board.modules.response import StatusDone, StatusError, ErrorCode
 from board.modules.paginator import Paginator
 from board.services.comment_service import CommentService, CommentValidationError
+from board.services.public_post_service import PublicPostService
 from modules import markdown
 
 
@@ -19,7 +20,12 @@ def comment_list(request):
     """Create a new comment using CommentService"""
     if request.method == 'POST':
         try:
-            post = get_object_or_404(Post, url=request.GET.get('url'))
+            post = get_object_or_404(
+                PublicPostService.filter_public_posts(
+                    Post.objects.select_related('config')
+                ),
+                url=request.GET.get('url')
+            )
             text_md = request.POST.get('comment_md', '')
             parent_id = request.POST.get('parent_id')
 
