@@ -23,7 +23,7 @@ def author_overview(request, username):
     """
     author = get_object_or_404(User.objects.select_related('profile'), username=username)
 
-    recent_activities = UserService.get_user_dashboard_activities(author)[:10]  # Limit to 10 most recent
+    recent_activities = UserService.get_public_author_activities(author)[:10]
 
     about_html = getattr(author.profile, 'about_html', '') if hasattr(author, 'profile') else ''
 
