@@ -1,8 +1,8 @@
-import json
-from django.http import Http404, QueryDict
+from django.http import Http404
 from django.shortcuts import get_object_or_404
 from board.models import SiteBanner, SiteContentScope
 from board.modules.response import StatusDone, StatusError, ErrorCode
+from board.services.api_request_body_service import ApiRequestBodyService
 from board.services.api_permission_service import ApiPermissionService
 from board.html_utils import sanitize_html
 
@@ -65,10 +65,9 @@ def banner(request, banner_id=None):
 
     # Create new banner
     if request.method == 'POST':
-        try:
-            post_data = json.loads(request.body.decode('utf-8')) if request.body else {}
-        except (json.JSONDecodeError, UnicodeDecodeError):
-            return StatusError(ErrorCode.VALIDATE, '잘못된 요청입니다.')
+        post_data, body_error = ApiRequestBodyService.parse_json_or_error(request)
+        if body_error:
+            return body_error
 
         title = post_data.get('title', '')
         content_html = post_data.get('content_html', '')
@@ -125,10 +124,7 @@ def banner(request, banner_id=None):
             user=user,
         )
 
-        try:
-            put_data = json.loads(request.body.decode('utf-8')) if request.body else {}
-        except (json.JSONDecodeError, UnicodeDecodeError):
-            put_data = {}
+        put_data = ApiRequestBodyService.parse_json_or_default(request)
 
         # Update fields if provided
         if 'title' in put_data:
@@ -198,10 +194,9 @@ def banner_order(request):
     if request.method != 'PUT':
         raise Http404
 
-    try:
-        put_data = json.loads(request.body.decode('utf-8')) if request.body else {}
-    except (json.JSONDecodeError, UnicodeDecodeError):
-        return StatusError(ErrorCode.VALIDATE, '잘못된 요청입니다.')
+    put_data, body_error = ApiRequestBodyService.parse_json_or_error(request)
+    if body_error:
+        return body_error
 
     order_list = put_data.get('order', [])
 
