@@ -21,6 +21,7 @@ _SERVICE_MODULES = {
     'TagService': 'tag_service',
     'UserService': 'user_service',
     'WebhookService': 'webhook_service',
+    'WebhookSubscriptionStateService': 'webhook_subscription_state_service',
 }
 
 __all__ = list(_SERVICE_MODULES)
