@@ -311,12 +311,12 @@ class Post(models.Model):
             return settings.RESOURCE_URL + 'assets/images/default-cover-1.jpg'
 
     def is_published(self):
-        if self.published_date is None:
-            return False
-        return self.published_date <= timezone.now()
+        from board.services.post_status_service import PostStatusService
+        return PostStatusService.is_published(self)
 
     def is_draft(self):
-        return self.published_date is None
+        from board.services.post_status_service import PostStatusService
+        return PostStatusService.is_draft(self)
 
     def time_stamp(self):
         return time_stamp(self.created_date)
