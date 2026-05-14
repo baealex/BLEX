@@ -35,7 +35,7 @@ class UserHeatmapServiceTestCase(TestCase):
             text_html='<p>comment</p>',
         )
         PostLikes.objects.create(post=post, user=self.user)
-        date_key = timezone.now().date().strftime('%Y-%m-%d')
+        date_key = timezone.localdate().strftime('%Y-%m-%d')
 
         heatmap = UserHeatmapService.get_settings_heatmap(self.user)
 
@@ -47,7 +47,7 @@ class UserHeatmapServiceTestCase(TestCase):
 
     def test_settings_heatmap_uses_cache(self):
         post = self.create_post('cached-heatmap-post')
-        date_key = timezone.now().date().strftime('%Y-%m-%d')
+        date_key = timezone.localdate().strftime('%Y-%m-%d')
 
         first_heatmap = UserHeatmapService.get_settings_heatmap(self.user)
         PostLikes.objects.create(post=post, user=self.user)
