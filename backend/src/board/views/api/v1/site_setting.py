@@ -1,7 +1,8 @@
 import json
 from django.http import Http404
 from board.models import SiteSetting
-from board.modules.response import StatusDone, StatusError, ErrorCode
+from board.modules.response import StatusDone
+from board.services.api_permission_service import ApiPermissionService
 from board.services.agent_content_service import AgentContentService
 
 
@@ -27,11 +28,9 @@ def site_settings(request):
     GET /v1/site-settings - Get current site settings
     PUT /v1/site-settings - Update site settings
     """
-    if not request.user.is_active:
-        return StatusError(ErrorCode.NEED_LOGIN)
-
-    if not request.user.is_staff:
-        return StatusError(ErrorCode.REJECT, '관리자 권한이 필요합니다.')
+    permission_error = ApiPermissionService.require_staff(request.user)
+    if permission_error:
+        return permission_error
 
     setting = SiteSetting.get_instance()
 

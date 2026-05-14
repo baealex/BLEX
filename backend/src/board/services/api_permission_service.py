@@ -29,6 +29,16 @@ class ApiPermissionService:
         return None
 
     @staticmethod
+    def require_staff(user: User | AnonymousUser) -> Optional[HttpResponse]:
+        if not user.is_authenticated or not user.is_active:
+            return StatusError(ErrorCode.NEED_LOGIN)
+
+        if not user.is_staff:
+            return StatusError(ErrorCode.REJECT, '관리자 권한이 필요합니다.')
+
+        return None
+
+    @staticmethod
     def require_owner(user: User | AnonymousUser, owner: User) -> Optional[HttpResponse]:
         login_error = ApiPermissionService.require_login(user)
         if login_error:
