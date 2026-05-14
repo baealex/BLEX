@@ -19,6 +19,7 @@ from board.models import (
     UserLinkMeta, UsernameChangeLog, TelegramSync, SocialAuthProvider, SiteSetting)
 from board.modules.notify import create_notify
 from board.modules.response import StatusDone, StatusError, ErrorCode
+from board.services.auth_request_parser import AuthRequestParser
 from board.services.auth_service import AuthService, OAuthService, AuthValidationError
 from modules import oauth
 from modules.challenge import auth_hcaptcha
@@ -67,14 +68,6 @@ def common_auth(request, user, two_factor_code=None, is_oauth=False):
 
     auth.login(request, user)
     return login_response(request.user)
-
-
-def parse_login_request(request):
-    """Parse login request data from JSON or POST"""
-    try:
-        return json.loads(request.body.decode('utf-8')) if request.body else {}
-    except (json.JSONDecodeError, UnicodeDecodeError):
-        return {}
 
 
 def get_client_ip(request):
@@ -160,7 +153,7 @@ def login(request):
         if rate_limit_error:
             return rate_limit_error
 
-        data = parse_login_request(request)
+        data = AuthRequestParser.parse_login_request(request)
 
         oauth_token = data.get('oauth_token', '') or request.POST.get('oauth_token', '')
         if oauth_token:
