@@ -24,7 +24,7 @@ from modules.telegram import TelegramBot
 from modules.thumbnail import make_thumbnail
 from board.constants.config_meta import CONFIG_TYPE, CONFIG_TYPES, CONFIG_MAP
 from board.modules.time import time_since, time_stamp
-from board.modules.read_time import calc_read_time
+from board.services.post_content_service import PostContentService
 from board.services.post_thumbnail_service import PostThumbnailService
 
 
@@ -360,9 +360,8 @@ class PostContent(models.Model):
     content_html = models.TextField(blank=True)
 
     def save(self, *args, **kwargs):
-        if self.post:
-            self.post.read_time = calc_read_time(self.content_html)
-            self.post.save()
+        if self.post and not getattr(self, '_skip_read_time_sync', False):
+            PostContentService.sync_parent_read_time(self.post, self.content_html)
         super().save(*args, **kwargs)
 
     def __str__(self):
