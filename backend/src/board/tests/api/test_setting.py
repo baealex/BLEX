@@ -8,7 +8,7 @@ from django.utils import timezone
 from board.constants.config_meta import CONFIG_TYPE
 from board.models import (
     Comment, Config, Notify, Post, PostConfig, PostContent,
-    PostLikes, Profile, User
+    PostLikes, Profile, User, UserLinkMeta
 )
 
 
@@ -374,6 +374,44 @@ class SettingTestCase(TestCase):
         profile = Profile.objects.get(user=User.objects.get(username='test'))
         self.assertEqual(profile.bio, 'Test bio')
         self.assertEqual(profile.homepage, 'https://example.com')
+
+    def test_update_social_links(self):
+        """소셜 링크 생성/수정/삭제 테스트"""
+        user = User.objects.get(username='test')
+        update_link = UserLinkMeta.objects.create(
+            user=user,
+            name='github',
+            value='https://github.com/old',
+            order=1,
+        )
+        delete_link = UserLinkMeta.objects.create(
+            user=user,
+            name='old',
+            value='https://old.example.com',
+            order=2,
+        )
+        self.client.login(username='test', password='test')
+
+        response = self.client.put(
+            '/v1/setting/social',
+            json.dumps({
+                'update': f'{update_link.id},github,https://github.com/new,3',
+                'create': 'homepage,https://example.com,4',
+                'delete': str(delete_link.id),
+            }),
+            content_type='application/json'
+        )
+
+        self.assertEqual(response.status_code, 200)
+        content = json.loads(response.content)
+        self.assertEqual(content['status'], 'DONE')
+        update_link.refresh_from_db()
+        self.assertEqual(update_link.value, 'https://github.com/new')
+        self.assertFalse(UserLinkMeta.objects.filter(id=delete_link.id).exists())
+        self.assertEqual(
+            [item['name'] for item in content['body']],
+            ['github', 'homepage'],
+        )
 
     def test_update_account_not_logged_in(self):
         """비로그인 상태에서 계정 수정 시도"""
