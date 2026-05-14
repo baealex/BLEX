@@ -317,7 +317,7 @@ class PostService:
 
         TagService.set_post_tags(post, tag)
 
-        post_content = PostContent.objects.create(
+        post_content = PostContentService.create_for_post(
             post=post,
             content_html=resolved_html,
         )
@@ -502,11 +502,10 @@ class PostService:
             try:
                 post_content = post.content
                 resolved_html = PostService._resolve_content(text_html, content_type)
-                post_content.content_html = resolved_html
-                post_content.save()
+                PostContentService.update_content(post_content, resolved_html)
             except PostContent.DoesNotExist:
                 resolved_html = PostService._resolve_content(text_html, content_type)
-                PostContent.objects.create(
+                PostContentService.create_for_post(
                     post=post,
                     content_html=resolved_html,
                 )
@@ -656,7 +655,7 @@ class PostService:
         if tag:
             TagService.set_post_tags(post, tag)
 
-        PostContent.objects.create(
+        PostContentService.create_for_post(
             post=post,
             content_html=resolved_html,
         )
@@ -698,11 +697,10 @@ class PostService:
             try:
                 post_content = post.content
                 resolved_html = PostService._resolve_content(text_html, content_type)
-                post_content.content_html = resolved_html
-                post_content.save()
+                PostContentService.update_content(post_content, resolved_html)
             except PostContent.DoesNotExist:
                 resolved_html = PostService._resolve_content(text_html, content_type)
-                PostContent.objects.create(
+                PostContentService.create_for_post(
                     post=post,
                     content_html=resolved_html,
                 )
@@ -772,11 +770,10 @@ class PostService:
             try:
                 post_content = post.content
                 resolved_html = PostService._resolve_content(text_html, content_type)
-                post_content.content_html = resolved_html
-                post_content.save()
+                PostContentService.update_content(post_content, resolved_html)
             except PostContent.DoesNotExist:
                 resolved_html = PostService._resolve_content(text_html, content_type)
-                PostContent.objects.create(
+                PostContentService.create_for_post(
                     post=post,
                     content_html=resolved_html,
                 )
