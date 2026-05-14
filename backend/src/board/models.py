@@ -21,6 +21,7 @@ from modules.hash import get_sha256
 from modules.randomness import randstr
 from modules.sub_task import SubTaskProcessor
 from modules.telegram import TelegramBot
+from modules.thumbnail import make_thumbnail
 from board.constants.config_meta import CONFIG_TYPE, CONFIG_TYPES, CONFIG_MAP
 from board.modules.time import time_since, time_stamp
 from board.modules.read_time import calc_read_time
