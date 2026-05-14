@@ -19,12 +19,13 @@ from cryptography.fernet import InvalidToken
 from modules.cipher import encrypt_value, decrypt_value
 from modules.hash import get_sha256
 from modules.randomness import randstr
-from board.constants.config_meta import CONFIG_TYPE, CONFIG_TYPES, CONFIG_MAP
+from board.constants.config_meta import CONFIG_TYPE
 from board.modules.time import time_since, time_stamp
 from board.services.post_content_service import PostContentService
 from board.services.post_thumbnail_service import PostThumbnailService
 from board.services.profile_image_service import ProfileImageService
 from board.services.notification_delivery_service import NotificationDeliveryService
+from board.services.user_config_meta_service import UserConfigMetaService
 
 
 def get_user_hex(username):
@@ -140,31 +141,10 @@ class Config(models.Model):
     user = models.OneToOneField('auth.User', on_delete=models.CASCADE)
 
     def create_or_update_meta(self, config: CONFIG_TYPE, value):
-        if not config.value in CONFIG_TYPES:
-            return None
-
-        meta = UserConfigMeta.objects.filter(user=self.user, name=config.value)
-        if meta.exists():
-            meta = meta.first()
-
-            if not meta.value == value:
-                meta.value = value
-                meta.save()
-            return True
-
-        UserConfigMeta(user=self.user, name=config.value, value=str(value)).save()
-        return True
+        return UserConfigMetaService.create_or_update_meta(self, config, value)
 
     def get_meta(self, config: CONFIG_TYPE):
-        if not config.value in CONFIG_TYPES:
-            return None
-
-        meta = UserConfigMeta.objects.filter(user=self.user, name=config.value)
-        if not meta.exists():
-            return None
-
-        meta = meta.first()
-        return CONFIG_MAP[meta.name]['type'](meta.value)
+        return UserConfigMetaService.get_meta(self, config)
 
     def has_telegram_id(self):
         if hasattr(self.user, 'telegramsync'):
