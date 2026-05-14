@@ -5,6 +5,7 @@ from django.shortcuts import get_object_or_404
 
 from board.models import User
 from board.services import PinnedPostService
+from board.services.api_permission_service import ApiPermissionService
 from board.services.pinned_post_service import PinnedPostError
 from board.modules.response import StatusDone, StatusError, ErrorCode
 
@@ -26,12 +27,9 @@ def pinned_posts(request, username):
             'max_count': PinnedPostService.MAX_PINNED_POSTS,
         })
 
-    # POST, DELETE require authentication and ownership
-    if not request.user.is_authenticated:
-        return StatusError(ErrorCode.NEED_LOGIN, '로그인이 필요합니다.')
-
-    if request.user != user:
-        return StatusError(ErrorCode.AUTHENTICATION, '권한이 없습니다.')
+    permission_error = ApiPermissionService.require_owner(request.user, user)
+    if permission_error:
+        return permission_error
 
     if request.method == 'POST':
         post_url = request.POST.get('post_url', '')
@@ -67,11 +65,9 @@ def pinned_posts_order(request, username):
     """
     user = get_object_or_404(User, username=username)
 
-    if not request.user.is_authenticated:
-        return StatusError(ErrorCode.NEED_LOGIN, '로그인이 필요합니다.')
-
-    if request.user != user:
-        return StatusError(ErrorCode.AUTHENTICATION, '권한이 없습니다.')
+    permission_error = ApiPermissionService.require_owner(request.user, user)
+    if permission_error:
+        return permission_error
 
     if request.method == 'PUT':
         put = QueryDict(request.body)
@@ -102,11 +98,9 @@ def pinnable_posts(request, username):
     """
     user = get_object_or_404(User, username=username)
 
-    if not request.user.is_authenticated:
-        return StatusError(ErrorCode.NEED_LOGIN, '로그인이 필요합니다.')
-
-    if request.user != user:
-        return StatusError(ErrorCode.AUTHENTICATION, '권한이 없습니다.')
+    permission_error = ApiPermissionService.require_owner(request.user, user)
+    if permission_error:
+        return permission_error
 
     if request.method == 'GET':
         posts = PinnedPostService.get_pinnable_posts(user)
