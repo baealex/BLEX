@@ -12,6 +12,7 @@ from board.services.developer_token_service import (
     DeveloperTokenService,
 )
 from board.services.post_service import PostService, PostValidationError
+from board.services.public_post_service import PublicPostService
 
 
 class DeveloperPostAPI:
@@ -130,11 +131,7 @@ class DeveloperPostAPI:
         if status == 'draft':
             return queryset.filter(published_date__isnull=True)
         if status == 'published':
-            return queryset.filter(
-                published_date__isnull=False,
-                published_date__lte=now,
-                config__hide=False,
-            )
+            return PublicPostService.filter_public_posts(queryset)
         if status == 'scheduled':
             return queryset.filter(published_date__gt=now)
         if status == 'hidden':

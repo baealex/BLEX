@@ -3,11 +3,11 @@ import re
 from django.contrib.syndication.views import Feed
 from django.utils.feedgenerator import Rss201rev2Feed
 from django.contrib.auth.models import User
-from django.utils import timezone
 from django.urls import reverse
 
 from board.models import Post
 from board.modules.time import convert_to_localtime
+from board.services.public_post_service import PublicPostService
 
 
 class CorrectMimeTypeFeed(Rss201rev2Feed):
@@ -34,11 +34,9 @@ class SitePostsFeed(Feed):
     description = 'BLOG EXPRESS ME'
 
     def items(self):
-        posts = Post.objects.filter(
-            config__hide=False,
-            published_date__isnull=False,
-            published_date__lte=timezone.now(),
-        ).select_related('content').order_by('-published_date')
+        posts = PublicPostService.filter_public_posts(
+            Post.objects.select_related('content')
+        ).order_by('-published_date')
         return posts[:20]
 
     def item_title(self, item):
@@ -58,12 +56,9 @@ class UserPostsFeed(Feed):
     feed_type = ImageRssFeedGenerator
 
     def items(self, item):
-        posts = Post.objects.filter(
-            author=item,
-            config__hide=False,
-            published_date__isnull=False,
-            published_date__lte=timezone.now(),
-        ).select_related('content').order_by('-published_date')
+        posts = PublicPostService.filter_public_posts(
+            Post.objects.select_related('content').filter(author=item)
+        ).order_by('-published_date')
         return posts[:20]
 
     def get_object(self, request, username):

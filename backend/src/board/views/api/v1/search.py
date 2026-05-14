@@ -2,12 +2,12 @@ import time
 
 from django.db.models import Case, F, IntegerField, Max, Q, Value, When
 from django.http import Http404
-from django.utils import timezone
 
 from board.models import Post
 from board.modules.paginator import Paginator
 from board.modules.response import ErrorCode, StatusDone, StatusError
 from board.modules.time import convert_to_localtime
+from board.services.public_post_service import PublicPostService
 
 
 def search(request):
@@ -45,11 +45,8 @@ def search(request):
 
     search_filter = title_match | description_match | tag_match | content_match
 
-    posts = Post.objects.filter(
-        search_filter,
-        config__hide=False,
-        published_date__isnull=False,
-        published_date__lte=timezone.now(),
+    posts = PublicPostService.filter_public_posts(
+        Post.objects.filter(search_filter)
     )
 
     if username:

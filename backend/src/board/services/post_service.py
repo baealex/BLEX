@@ -25,6 +25,7 @@ from board.modules.post_description import create_post_description
 from board.services.tag_service import TagService
 from board.modules.response import ErrorCode
 from board.services.post_content_service import PostContentService
+from board.services.public_post_service import PublicPostService
 from board.services.webhook_service import WebhookService
 
 
@@ -406,13 +407,12 @@ class PostService:
         current_tags = list(post.tags.values_list('value', flat=True))
         current_tag_set = set(current_tags)
 
-        candidates = Post.objects.select_related(
-            'author', 'author__profile', 'config'
-        ).prefetch_related('tags').filter(
-            tags__value__in=current_tags,
-            config__hide=False,
-            published_date__isnull=False,
-            published_date__lte=timezone.now(),
+        candidates = PublicPostService.filter_public_posts(
+            Post.objects.select_related(
+                'author', 'author__profile', 'config'
+            ).prefetch_related('tags').filter(
+                tags__value__in=current_tags,
+            )
         ).exclude(
             id=post.id
         ).annotate(
@@ -846,9 +846,8 @@ class PostService:
         if not post.series:
             return []
 
-        series_posts = list(Post.objects.filter(
-            series=post.series,
-            config__hide=False,
+        series_posts = list(PublicPostService.filter_public_posts(
+            Post.objects.filter(series=post.series)
         ).order_by('published_date'))
         
         post.series_total = len(series_posts)

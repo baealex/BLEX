@@ -46,6 +46,13 @@ class PublicPostServiceTestCase(TestCase):
 
         self.assertEqual(list(posts), [self.public_post])
 
+    def test_is_public_matches_public_post_rules(self):
+        """단일 포스트 공개 여부 검사도 공개 글 필터와 같은 기준을 따른다."""
+        self.assertTrue(PublicPostService.is_public(self.public_post))
+        self.assertFalse(PublicPostService.is_public(Post.objects.get(url='draft-post')))
+        self.assertFalse(PublicPostService.is_public(Post.objects.get(url='future-post')))
+        self.assertFalse(PublicPostService.is_public(Post.objects.get(url='hidden-post')))
+
     def test_build_public_filter_supports_related_post_prefix(self):
         """관계 prefix를 지정하면 공개 글이 있는 부모 객체를 안전하게 필터링한다."""
         series = Series.objects.filter(

@@ -253,6 +253,8 @@ class Tag(models.Model):
     def get_image(self):
         post = self.posts.filter(
             config__hide=False,
+            published_date__isnull=False,
+            published_date__lte=timezone.now(),
             tags__value=self.value,
             image__contains='images'
         ).order_by('-created_date').first()
@@ -531,7 +533,12 @@ class Series(models.Model):
         self.url = url
 
     def thumbnail(self):
-        post = Post.objects.filter(series=self, config__hide=False).first()
+        post = Post.objects.filter(
+            series=self,
+            config__hide=False,
+            published_date__isnull=False,
+            published_date__lte=timezone.now(),
+        ).first()
         return post.get_thumbnail() if post else ''
 
     def get_absolute_url(self):

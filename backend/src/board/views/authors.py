@@ -5,6 +5,8 @@ from django.contrib.auth.models import User
 from django.db.models import Count, Q
 from django.core.paginator import Paginator as DjangoPaginator, EmptyPage, PageNotAnInteger
 
+from board.services.public_post_service import PublicPostService
+
 DEFAULT_AVATAR_URL = '/resources/assets/images/default-avatar.jpg'
 
 
@@ -21,12 +23,13 @@ def authors_view(request):
     if query:
         start_time = time.time()
 
+        public_post_filter = PublicPostService.build_public_filter('post')
         users = User.objects.select_related('profile').filter(
             Q(username__icontains=query) |
             Q(first_name__icontains=query) |
             Q(profile__bio__icontains=query)
         ).annotate(
-            post_count=Count('post', filter=Q(post__config__hide=False))
+            post_count=Count('post', filter=public_post_filter)
         ).order_by('-post_count')
         
         paginator = DjangoPaginator(users, 10)
@@ -59,8 +62,9 @@ def authors_view(request):
             'page_count': paginator.num_pages,
         }
     else:
+        public_post_filter = PublicPostService.build_public_filter('post')
         authors = User.objects.select_related('profile').annotate(
-            post_count=Count('post', filter=Q(post__config__hide=False))
+            post_count=Count('post', filter=public_post_filter)
         ).filter(
             post_count__gt=0
         ).order_by('-post_count')
