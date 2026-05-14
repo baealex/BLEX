@@ -108,7 +108,7 @@ def static_pages(request, page_id=None):
     if request.method == 'PUT' and page_id:
         page = get_object_or_404(StaticPage, id=page_id)
 
-        put_data = ApiRequestBodyService.parse_json_or_default(request)
+        put_data = ApiRequestBodyService.parse_json_or_empty_for_legacy_only(request)
 
         if 'title' in put_data:
             page.title = put_data['title']

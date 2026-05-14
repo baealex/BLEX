@@ -46,12 +46,17 @@ class ApiRequestBodyService:
             )
 
     @staticmethod
-    def parse_json_or_default(request, default=None):
-        """Parse JSON, falling back to default when the body is invalid."""
+    def parse_json_or_empty_for_legacy_only(request):
+        """Parse JSON, swallowing invalid bodies only for legacy update endpoints.
+
+        Prefer parse_json_or_error() for all new mutation endpoints. This helper
+        exists to preserve old partial-update behavior where invalid JSON is
+        treated as an empty payload and existing fields remain unchanged.
+        """
         try:
-            return ApiRequestBodyService.parse_json(request, default=default)
+            return ApiRequestBodyService.parse_json(request)
         except (json.JSONDecodeError, UnicodeDecodeError):
-            return {} if default is None else default
+            return {}
 
     @staticmethod
     def parse_json_or_querydict(request):

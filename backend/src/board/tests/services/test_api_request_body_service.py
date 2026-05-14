@@ -75,7 +75,7 @@ class ApiRequestBodyServiceTestCase(TestCase):
         self.assertEqual(data.get('title'), 'Form Title')
         self.assertEqual(data.get('post_ids'), '1,2')
 
-    def test_parse_json_or_default_returns_default_for_invalid_json(self):
+    def test_parse_json_or_empty_for_legacy_only_returns_default_for_invalid_json(self):
         request = self.factory.put('/v1/example/1', data=b'{invalid', content_type='application/json')
 
-        self.assertEqual(ApiRequestBodyService.parse_json_or_default(request), {})
+        self.assertEqual(ApiRequestBodyService.parse_json_or_empty_for_legacy_only(request), {})

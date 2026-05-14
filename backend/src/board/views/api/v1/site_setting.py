@@ -38,7 +38,7 @@ def site_settings(request):
         return StatusDone(serialize_site_setting(request, setting))
 
     if request.method == 'PUT':
-        put_data = ApiRequestBodyService.parse_json_or_default(request)
+        put_data = ApiRequestBodyService.parse_json_or_empty_for_legacy_only(request)
 
         if 'header_script' in put_data:
             setting.header_script = put_data['header_script']
