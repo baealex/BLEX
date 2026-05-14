@@ -236,7 +236,7 @@ class PostDetailViewTestCase(TestCase):
         self.assertContains(response, '*.md 참조 주소')
 
         content = response.content.decode()
-        self.assertIn('data-agent-copy-url=http://testserver/@testauthor/test-post.md', content)
+        self.assertIn('data-agent-copy-url=http://localhost:8000/@testauthor/test-post.md', content)
 
     def test_post_detail_hides_markdown_alternate_when_aeo_disabled(self):
         """AEO가 꺼져 있으면 포스트 상세가 Markdown endpoint를 광고하지 않는다."""
@@ -251,7 +251,7 @@ class PostDetailViewTestCase(TestCase):
         content = response.content.decode()
 
         self.assertNotIn('rel=alternate type=text/markdown', content)
-        self.assertNotIn('http://testserver/@testauthor/test-post.md', content)
+        self.assertNotIn('http://localhost:8000/@testauthor/test-post.md', content)
         self.assertNotIn('Link', response)
         self.assertNotIn('X-Llms-Txt', response)
 
@@ -266,8 +266,8 @@ class PostDetailViewTestCase(TestCase):
 
         self.assertEqual(response.status_code, 200)
 
-        markdown_url = 'http://testserver/@testauthor/test-post.md'
-        llms_txt_url = 'http://testserver/llms.txt'
+        markdown_url = 'http://localhost:8000/@testauthor/test-post.md'
+        llms_txt_url = 'http://localhost:8000/llms.txt'
 
         content = response.content.decode()
 

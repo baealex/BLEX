@@ -121,7 +121,7 @@ class SiteSettingAPITestCase(TestCase):
         self.assertFalse(content['body']['seoEnabled'])
         self.assertEqual(content['body']['robotsTxtExtraRules'], 'User-agent: ExampleBot\nDisallow: /private/')
         self.assertIn('robotsTxtDefault', content['body'])
-        self.assertIn('# AI agent entry point: http://testserver/llms.txt', content['body']['robotsTxtDefault'])
+        self.assertIn('# AI agent entry point: http://localhost:8000/llms.txt', content['body']['robotsTxtDefault'])
         self.assertIn('Search indexing is disabled at runtime.', content['body']['robotsTxtDefault'])
         self.assertNotIn('# Custom rules', content['body']['robotsTxtDefault'])
         self.assertNotIn('User-agent: ExampleBot', content['body']['robotsTxtDefault'])
