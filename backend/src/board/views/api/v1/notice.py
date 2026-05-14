@@ -3,6 +3,7 @@ from django.http import Http404
 from django.shortcuts import get_object_or_404
 from board.models import SiteNotice, SiteContentScope
 from board.modules.response import StatusDone, StatusError, ErrorCode
+from board.services.api_permission_service import ApiPermissionService
 
 
 def notices(request, notice_id=None):
@@ -15,11 +16,9 @@ def notices(request, notice_id=None):
     PUT /v1/notices/<id> - Update notice
     DELETE /v1/notices/<id> - Delete notice
     """
-    if not request.user.is_active:
-        return StatusError(ErrorCode.NEED_LOGIN)
-
-    if not request.user.profile.is_editor():
-        return StatusError(ErrorCode.REJECT, '에디터 권한이 필요합니다.')
+    permission_error = ApiPermissionService.require_editor(request.user)
+    if permission_error:
+        return permission_error
 
     user = request.user
 
