@@ -39,7 +39,7 @@ class PostSaveThumbnailHookTestCase(TestCase):
     def test_new_post_with_image_generates_thumbnail_set(self):
         with TemporaryDirectory() as media_root:
             with override_settings(MEDIA_ROOT=media_root):
-                with patch('board.models.make_thumbnail') as mock_make_thumbnail:
+                with patch('board.services.post_thumbnail_service.make_thumbnail') as mock_make_thumbnail:
                     post = Post.objects.create(
                         author=self.user,
                         title='New image post',
@@ -52,7 +52,7 @@ class PostSaveThumbnailHookTestCase(TestCase):
     def test_post_image_change_generates_thumbnail_set(self):
         with TemporaryDirectory() as media_root:
             with override_settings(MEDIA_ROOT=media_root):
-                with patch('board.models.make_thumbnail') as mock_make_thumbnail:
+                with patch('board.services.post_thumbnail_service.make_thumbnail') as mock_make_thumbnail:
                     post = Post.objects.create(
                         author=self.user,
                         title='Changed image post',
@@ -69,7 +69,7 @@ class PostSaveThumbnailHookTestCase(TestCase):
     def test_post_save_without_image_change_does_not_generate_thumbnails(self):
         with TemporaryDirectory() as media_root:
             with override_settings(MEDIA_ROOT=media_root):
-                with patch('board.models.make_thumbnail') as mock_make_thumbnail:
+                with patch('board.services.post_thumbnail_service.make_thumbnail') as mock_make_thumbnail:
                     post = Post.objects.create(
                         author=self.user,
                         title='Unchanged image post',
@@ -86,7 +86,7 @@ class PostSaveThumbnailHookTestCase(TestCase):
     def test_skip_thumbnail_flag_disables_thumbnail_generation(self):
         with TemporaryDirectory() as media_root:
             with override_settings(MEDIA_ROOT=media_root):
-                with patch('board.models.make_thumbnail') as mock_make_thumbnail:
+                with patch('board.services.post_thumbnail_service.make_thumbnail') as mock_make_thumbnail:
                     post = Post(
                         author=self.user,
                         title='Skip thumbnail post',
@@ -101,7 +101,7 @@ class PostSaveThumbnailHookTestCase(TestCase):
     def test_skip_thumbnail_flag_disables_changed_image_thumbnail_generation(self):
         with TemporaryDirectory() as media_root:
             with override_settings(MEDIA_ROOT=media_root):
-                with patch('board.models.make_thumbnail') as mock_make_thumbnail:
+                with patch('board.services.post_thumbnail_service.make_thumbnail') as mock_make_thumbnail:
                     post = Post.objects.create(
                         author=self.user,
                         title='Skip changed thumbnail post',

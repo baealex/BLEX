@@ -21,10 +21,10 @@ from modules.hash import get_sha256
 from modules.randomness import randstr
 from modules.sub_task import SubTaskProcessor
 from modules.telegram import TelegramBot
-from modules.thumbnail import make_thumbnail
 from board.constants.config_meta import CONFIG_TYPE, CONFIG_TYPES, CONFIG_MAP
 from board.modules.time import time_since, time_stamp
 from board.modules.read_time import calc_read_time
+from board.services.post_thumbnail_service import PostThumbnailService
 
 
 def get_user_hex(username):
@@ -348,22 +348,10 @@ class Post(models.Model):
         return self.title
 
     def save(self, *args, **kwargs):
-        will_make_thumbnail = False
-        if not getattr(self, '_skip_thumbnail', False):
-            if not self.pk and self.image:
-                will_make_thumbnail = True
-
-            post = Post.objects.filter(id=self.id)
-            if post.exists():
-                post = post.first()
-                if post.image != self.image:
-                    will_make_thumbnail = True
-
+        will_make_thumbnail = PostThumbnailService.should_generate(self)
         super(Post, self).save(*args, **kwargs)
         if will_make_thumbnail:
-            make_thumbnail(self, size=750, quality=50, thumbnail_type='preview')
-            make_thumbnail(self, size=750, quality=85, thumbnail_type='minify')
-            make_thumbnail(self, size=1920, quality=85)
+            PostThumbnailService.generate_thumbnail_set(self)
 
 
 class PostContent(models.Model):
