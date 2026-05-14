@@ -7,7 +7,7 @@ from django.shortcuts import get_object_or_404
 from django.utils import timezone
 from django.utils.dateparse import parse_datetime
 from board.models import (
-    User, Series, Post, UserLinkMeta, SiteSetting,
+    User, Series, Post, SiteSetting,
     Profile, Notify)
 from board.modules.paginator import Paginator
 from board.modules.response import StatusDone, StatusError, ErrorCode
@@ -16,6 +16,7 @@ from board.services.auth_service import AuthService, AuthValidationError
 from board.services.pinned_post_service import PinnedPostService, PinnedPostError
 from board.services.user_heatmap_service import UserHeatmapService
 from board.services.user_notification_service import UserNotificationService
+from board.services.user_social_link_service import UserSocialLinkService
 
 
 def setting(request, parameter):
@@ -355,46 +356,7 @@ def setting(request, parameter):
             return StatusDone()
     
         if parameter == 'social':
-            update_items = put.get('update', '')
-            for update_item in update_items.split('&'):
-                if not update_item:
-                    continue
-
-                [id, name, value, order] = update_item.split(',')
-                UserLinkMeta.objects.update_or_create(
-                    user=user,
-                    id=id,
-                    defaults={
-                        'name': name,
-                        'value': value,
-                        'order': order,
-                    }
-                )                
-            
-            create_items = put.get('create', '')
-            for create_item in create_items.split('&'):
-                if not create_item:
-                    continue
-
-                [name, value, order] = create_item.split(',')
-                UserLinkMeta.objects.create(
-                    user=user,
-                    name=name,
-                    value=value,
-                    order=order,
-                )
-
-            delete_items = put.get('delete', '')
-            for delete_item in delete_items.split('&'):
-                if not delete_item:
-                    continue
-
-                UserLinkMeta.objects.filter(
-                    user=user,
-                    id=delete_item,
-                ).delete()
-            
-            return StatusDone(user.profile.collect_social())
+            return StatusDone(UserSocialLinkService.update_user_social_links(user, put))
 
         if parameter == 'pinned-posts/order':
             post_urls_str = put.get('post_urls', '[]')
