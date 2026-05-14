@@ -92,7 +92,7 @@ def notices(request, notice_id=None):
     if request.method == 'PUT' and notice_id:
         notice = get_object_or_404(qs, id=notice_id)
 
-        put_data = ApiRequestBodyService.parse_json_or_default(request)
+        put_data = ApiRequestBodyService.parse_json_or_empty_for_legacy_only(request)
 
         if 'title' in put_data:
             notice.title = put_data['title']

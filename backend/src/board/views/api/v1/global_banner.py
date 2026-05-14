@@ -96,7 +96,7 @@ def global_banners(request, banner_id=None):
     if request.method == 'PUT' and banner_id:
         banner = get_object_or_404(qs.select_related('user'), id=banner_id)
 
-        put_data = ApiRequestBodyService.parse_json_or_default(request)
+        put_data = ApiRequestBodyService.parse_json_or_empty_for_legacy_only(request)
 
         if 'title' in put_data:
             banner.title = put_data['title']

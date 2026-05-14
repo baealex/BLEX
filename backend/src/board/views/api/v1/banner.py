@@ -124,7 +124,7 @@ def banner(request, banner_id=None):
             user=user,
         )
 
-        put_data = ApiRequestBodyService.parse_json_or_default(request)
+        put_data = ApiRequestBodyService.parse_json_or_empty_for_legacy_only(request)
 
         # Update fields if provided
         if 'title' in put_data:
