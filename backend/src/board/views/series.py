@@ -7,6 +7,7 @@ from board.models import Post, Series, PostLikes
 from board.services.agent_content_service import AgentContentService
 from board.services.discovery_metadata_service import DiscoveryMetadataService
 from board.services.public_post_service import PublicPostService
+from board.services.public_series_service import PublicSeriesService
 
 
 def series_detail(request, username, series_url):
@@ -19,13 +20,11 @@ def series_detail(request, username, series_url):
     if sort_order not in ['asc', 'desc']:
         sort_order = 'desc'
 
-    try:
-        series = Series.objects.get(
-            owner=author,
-            url=series_url,
-        )
-    except Series.DoesNotExist:
-        raise Http404("Series does not exist")
+    series = get_object_or_404(
+        PublicSeriesService.filter_public_series(Series.objects),
+        owner=author,
+        url=series_url,
+    )
 
     order_by = 'published_date' if sort_order == 'asc' else '-published_date'
 

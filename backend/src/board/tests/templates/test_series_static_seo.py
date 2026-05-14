@@ -67,6 +67,130 @@ class SeriesSeoMetadataTestCase(StructuredDataAssertionMixin, TestCase):
                 hide=False,
             )
 
+
+    def test_series_detail_returns_404_for_hidden_series(self):
+        self.series.hide = True
+        self.series.save()
+
+        response = self.client.get(
+            reverse(
+                'series_detail',
+                kwargs={
+                    'username': 'seriesauthor',
+                    'series_url': 'structured-series',
+                },
+            )
+        )
+
+        self.assertEqual(response.status_code, 404)
+
+    def test_series_detail_returns_404_for_empty_series(self):
+        empty_series = Series.objects.create(
+            owner=self.author,
+            name='Empty Series',
+            url='empty-series',
+            hide=False,
+        )
+
+        response = self.client.get(
+            reverse(
+                'series_detail',
+                kwargs={
+                    'username': 'seriesauthor',
+                    'series_url': empty_series.url,
+                },
+            )
+        )
+
+        self.assertEqual(response.status_code, 404)
+
+    def test_series_detail_returns_404_for_hidden_post_only_series(self):
+        hidden_series = Series.objects.create(
+            owner=self.author,
+            name='Hidden Post Only Series',
+            url='hidden-post-only-series',
+            hide=False,
+        )
+        hidden_post = Post.objects.create(
+            title='Hidden Post',
+            url='hidden-series-post',
+            author=self.author,
+            series=hidden_series,
+            published_date=timezone.now(),
+        )
+        PostContent.objects.create(post=hidden_post, content_html='<p>Hidden</p>')
+        PostConfig.objects.create(post=hidden_post, hide=True)
+
+        response = self.client.get(
+            reverse(
+                'series_detail',
+                kwargs={
+                    'username': 'seriesauthor',
+                    'series_url': hidden_series.url,
+                },
+            )
+        )
+
+        self.assertEqual(response.status_code, 404)
+
+    def test_series_detail_returns_404_for_draft_only_series(self):
+        draft_series = Series.objects.create(
+            owner=self.author,
+            name='Draft Only Series',
+            url='draft-only-series',
+            hide=False,
+        )
+        draft_post = Post.objects.create(
+            title='Draft Post',
+            url='draft-series-post',
+            author=self.author,
+            series=draft_series,
+            published_date=None,
+        )
+        PostContent.objects.create(post=draft_post, content_html='<p>Draft</p>')
+        PostConfig.objects.create(post=draft_post, hide=False)
+
+        response = self.client.get(
+            reverse(
+                'series_detail',
+                kwargs={
+                    'username': 'seriesauthor',
+                    'series_url': draft_series.url,
+                },
+            )
+        )
+
+        self.assertEqual(response.status_code, 404)
+
+    def test_series_detail_returns_404_for_scheduled_only_series(self):
+        scheduled_series = Series.objects.create(
+            owner=self.author,
+            name='Scheduled Only Series',
+            url='scheduled-only-series',
+            hide=False,
+        )
+        scheduled_post = Post.objects.create(
+            title='Scheduled Post',
+            url='scheduled-series-post',
+            author=self.author,
+            series=scheduled_series,
+            published_date=timezone.now() + timezone.timedelta(days=1),
+        )
+        PostContent.objects.create(post=scheduled_post, content_html='<p>Scheduled</p>')
+        PostConfig.objects.create(post=scheduled_post, hide=False)
+
+        response = self.client.get(
+            reverse(
+                'series_detail',
+                kwargs={
+                    'username': 'seriesauthor',
+                    'series_url': scheduled_series.url,
+                },
+            )
+        )
+
+        self.assertEqual(response.status_code, 404)
+
     @override_settings(SITE_URL='')
     def test_series_detail_renders_canonical_meta_and_collection_json_ld(self):
         response = self.client.get(

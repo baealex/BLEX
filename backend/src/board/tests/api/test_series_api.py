@@ -404,8 +404,8 @@ class SeriesAPITestCase(TestCase):
         self.assertIn('posts', content['body'])
 
 
-    def test_get_hidden_series_detail_keeps_existing_public_api_behavior(self):
-        """시리즈 상세 API는 기존처럼 숨김 시리즈도 조회하되 공개 글만 반환한다."""
+    def test_get_hidden_series_detail_returns_404(self):
+        """공개 시리즈 상세 API는 숨김 시리즈를 노출하지 않는다."""
         author = User.objects.get(username='author')
         series = Series.objects.create(
             owner=author,
@@ -419,14 +419,10 @@ class SeriesAPITestCase(TestCase):
 
         response = self.client.get('/v1/users/@author/series/hidden-series')
 
-        self.assertEqual(response.status_code, 200)
-        content = json.loads(response.content)
-        self.assertEqual(content['body']['name'], 'Hidden Series')
-        self.assertEqual(content['body']['totalPosts'], 1)
-        self.assertEqual(len(content['body']['posts']), 1)
+        self.assertEqual(response.status_code, 404)
 
-    def test_get_empty_series_detail_keeps_existing_public_api_behavior(self):
-        """시리즈 상세 API는 공개 글이 없어도 기존처럼 조회되고 total_posts만 0이다."""
+    def test_get_empty_series_detail_returns_404(self):
+        """공개 시리즈 상세 API는 공개 글이 없는 시리즈를 노출하지 않는다."""
         author = User.objects.get(username='author')
         Series.objects.create(
             owner=author,
@@ -437,11 +433,71 @@ class SeriesAPITestCase(TestCase):
 
         response = self.client.get('/v1/users/@author/series/empty-series')
 
-        self.assertEqual(response.status_code, 200)
-        content = json.loads(response.content)
-        self.assertEqual(content['body']['name'], 'Empty Series')
-        self.assertEqual(content['body']['totalPosts'], 0)
-        self.assertEqual(content['body']['posts'], [])
+        self.assertEqual(response.status_code, 404)
+
+
+    def test_get_draft_only_series_detail_returns_404(self):
+        """공개 시리즈 상세 API는 draft-only 시리즈를 노출하지 않는다."""
+        author = User.objects.get(username='author')
+        series = Series.objects.create(
+            owner=author,
+            name='Draft Only Series',
+            url='draft-only-series',
+        )
+        draft_post = Post.objects.create(
+            author=author,
+            title='Draft Post',
+            url='draft-post',
+            series=series,
+            published_date=None,
+        )
+        PostConfig.objects.create(post=draft_post, hide=False)
+
+        response = self.client.get('/v1/users/@author/series/draft-only-series')
+
+        self.assertEqual(response.status_code, 404)
+
+    def test_get_scheduled_only_series_detail_returns_404(self):
+        """공개 시리즈 상세 API는 scheduled-only 시리즈를 노출하지 않는다."""
+        author = User.objects.get(username='author')
+        series = Series.objects.create(
+            owner=author,
+            name='Scheduled Only Series',
+            url='scheduled-only-series',
+        )
+        future_post = Post.objects.create(
+            author=author,
+            title='Future Post',
+            url='future-post',
+            series=series,
+            published_date=timezone.now() + timezone.timedelta(days=1),
+        )
+        PostConfig.objects.create(post=future_post, hide=False)
+
+        response = self.client.get('/v1/users/@author/series/scheduled-only-series')
+
+        self.assertEqual(response.status_code, 404)
+
+    def test_get_hidden_post_only_series_detail_returns_404(self):
+        """공개 시리즈 상세 API는 hidden-post-only 시리즈를 노출하지 않는다."""
+        author = User.objects.get(username='author')
+        series = Series.objects.create(
+            owner=author,
+            name='Hidden Post Only Series',
+            url='hidden-post-only-series',
+        )
+        hidden_post = Post.objects.create(
+            author=author,
+            title='Hidden Only Post',
+            url='hidden-only-post',
+            series=series,
+            published_date=timezone.now(),
+        )
+        PostConfig.objects.create(post=hidden_post, hide=True)
+
+        response = self.client.get('/v1/users/@author/series/hidden-post-only-series')
+
+        self.assertEqual(response.status_code, 404)
 
     def test_get_nonexistent_series(self):
         """존재하지 않는 시리즈 조회 시 404 에러"""
@@ -497,6 +553,32 @@ class SeriesAPITestCase(TestCase):
         series = Series.objects.get(url='test-series')
         self.assertEqual(series.name, 'Form Updated')
 
+    def test_update_hidden_series_via_user_endpoint_still_works(self):
+        """공개 조회 필터는 숨김 시리즈의 owner 수정 경로를 막지 않는다."""
+        author = User.objects.get(username='author')
+        Series.objects.create(
+            owner=author,
+            name='Hidden Editable Series',
+            url='hidden-editable-series',
+            hide=True,
+        )
+        self.client.login(username='author', password='author')
+
+        response = self.client.put(
+            '/v1/users/@author/series/hidden-editable-series',
+            data=json.dumps({
+                'title': 'Updated Hidden Editable Series',
+                'description': 'Updated description',
+            }),
+            content_type='application/json'
+        )
+
+        self.assertEqual(response.status_code, 200)
+        content = json.loads(response.content)
+        self.assertEqual(content['status'], 'DONE')
+        series = Series.objects.get(url='hidden-editable-series')
+        self.assertEqual(series.name, 'Updated Hidden Editable Series')
+
     # DELETE /v1/users/@<username>/series/<url> - Delete series via user endpoint
     def test_delete_series_via_user_endpoint(self):
         """사용자 엔드포인트를 통한 시리즈 삭제"""
@@ -512,6 +594,21 @@ class SeriesAPITestCase(TestCase):
         response = self.client.delete(f'/v1/users/@author/series/series-to-delete-2')
         self.assertEqual(response.status_code, 200)
         self.assertFalse(Series.objects.filter(url='series-to-delete-2').exists())
+
+    def test_delete_empty_series_via_user_endpoint_still_works(self):
+        """공개 조회 필터는 공개 글이 없는 시리즈의 owner 삭제 경로를 막지 않는다."""
+        author = User.objects.get(username='author')
+        Series.objects.create(
+            owner=author,
+            name='Empty Deletable Series',
+            url='empty-deletable-series',
+        )
+        self.client.login(username='author', password='author')
+
+        response = self.client.delete('/v1/users/@author/series/empty-deletable-series')
+
+        self.assertEqual(response.status_code, 200)
+        self.assertFalse(Series.objects.filter(url='empty-deletable-series').exists())
 
     # POST /v1/users/@<username>/series - Create series with posts
     def test_create_series_with_posts(self):
@@ -575,6 +672,5 @@ class SeriesAPITestCase(TestCase):
         
         series_urls = [s['url'] for s in content['body']['series']]
         self.assertNotIn('hidden-series', series_urls)
-
 
 

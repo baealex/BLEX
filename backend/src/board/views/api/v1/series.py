@@ -127,15 +127,17 @@ def user_series(request, username, url=None):
 
     if url:
         user = get_object_or_404(User, username=username)
-        series = get_object_or_404(PublicSeriesService.with_public_post_count(
-            Series.objects.annotate(
-                owner_username=F('owner__username'),
-                owner_avatar=F('owner__profile__avatar'),
-            ),
-            'total_posts',
-        ), owner=user, url=url)
+        series_queryset = Series.objects.annotate(
+            owner_username=F('owner__username'),
+            owner_avatar=F('owner__profile__avatar'),
+        )
 
         if request.method == 'GET':
+            series = get_object_or_404(
+                PublicSeriesService.filter_public_series(series_queryset, 'total_posts'),
+                owner=user,
+                url=url,
+            )
             if request.GET.get('kind', '') == 'continue':
                 posts = PublicPostService.filter_public_posts(Post.objects).filter(
                     series=series,
@@ -185,6 +187,12 @@ def user_series(request, username, url=None):
                 }, posts)),
                 'last_page': posts.paginator.num_pages
             })
+
+        series = get_object_or_404(
+            PublicSeriesService.with_public_post_count(series_queryset, 'total_posts'),
+            owner=user,
+            url=url,
+        )
 
         if not SeriesService.can_user_edit_series(request.user, series):
             return StatusError(ErrorCode.AUTHENTICATION)
