@@ -3,6 +3,7 @@ from django.http import Http404
 from django.shortcuts import get_object_or_404
 from board.models import SiteBanner, SiteContentScope
 from board.modules.response import StatusDone, StatusError, ErrorCode
+from board.services.api_permission_service import ApiPermissionService
 
 
 def _serialize_global_banner(banner):
@@ -30,11 +31,9 @@ def global_banners(request, banner_id=None):
     PUT /v1/global-banners/<id> - Update global banner
     DELETE /v1/global-banners/<id> - Delete global banner
     """
-    if not request.user.is_active:
-        return StatusError(ErrorCode.NEED_LOGIN)
-
-    if not request.user.is_staff:
-        return StatusError(ErrorCode.REJECT, '관리자 권한이 필요합니다.')
+    permission_error = ApiPermissionService.require_staff(request.user)
+    if permission_error:
+        return permission_error
 
     qs = SiteBanner.objects.filter(
         scope=SiteContentScope.GLOBAL,
@@ -149,11 +148,9 @@ def global_banner_order(request):
     PUT /v1/global-banners/order
     Body: { order: [[id1, order1], [id2, order2], ...] }
     """
-    if not request.user.is_active:
-        return StatusError(ErrorCode.NEED_LOGIN)
-
-    if not request.user.is_staff:
-        return StatusError(ErrorCode.REJECT, '관리자 권한이 필요합니다.')
+    permission_error = ApiPermissionService.require_staff(request.user)
+    if permission_error:
+        return permission_error
 
     if request.method != 'PUT':
         raise Http404
