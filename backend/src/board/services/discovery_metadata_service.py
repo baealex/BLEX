@@ -1,7 +1,5 @@
 import json
 import re
-from urllib.parse import urlencode
-
 from django.contrib.auth.models import User
 from django.http import HttpRequest
 from django.urls import reverse
@@ -9,6 +7,7 @@ from django.utils.html import strip_tags
 from django.utils.text import Truncator
 
 from board.models import Post, Series, StaticPage
+from board.services.site_url_service import SiteUrlService
 
 
 class DiscoveryMetadataService:
@@ -52,8 +51,9 @@ class DiscoveryMetadataService:
 
     @staticmethod
     def build_static_page_metadata(page: StaticPage, request: HttpRequest) -> dict[str, str]:
-        canonical_url = request.build_absolute_uri(
-            reverse('static_page', kwargs={'slug': page.slug})
+        canonical_url = SiteUrlService.absolute_url(
+            request,
+            reverse('static_page', kwargs={'slug': page.slug}),
         )
         meta_description = DiscoveryMetadataService.build_meta_description(
             raw_text=page.meta_description or page.content,
@@ -86,14 +86,12 @@ class DiscoveryMetadataService:
         page: int,
         sort_order: str,
     ) -> str:
-        base_url = request.build_absolute_uri(
-            reverse(
-                'series_detail',
-                kwargs={
-                    'username': author.username,
-                    'series_url': series.url,
-                },
-            )
+        series_path = reverse(
+            'series_detail',
+            kwargs={
+                'username': author.username,
+                'series_url': series.url,
+            },
         )
 
         query_items: list[tuple[str, str]] = []
@@ -102,10 +100,7 @@ class DiscoveryMetadataService:
         if page > 1:
             query_items.append(('page', str(page)))
 
-        if not query_items:
-            return base_url
-
-        return f'{base_url}?{urlencode(query_items)}'
+        return SiteUrlService.absolute_url_with_query(request, series_path, query_items)
 
     @staticmethod
     def build_series_structured_data(
@@ -118,21 +113,23 @@ class DiscoveryMetadataService:
         canonical_url: str,
         meta_description: str,
     ) -> str:
-        author_url = request.build_absolute_uri(
-            reverse('user_profile', kwargs={'username': author.username})
+        author_url = SiteUrlService.absolute_url(
+            request,
+            reverse('user_profile', kwargs={'username': author.username}),
         )
-        site_url = request.build_absolute_uri(reverse('index'))
+        site_url = SiteUrlService.absolute_url(request, reverse('index'))
 
         item_list_elements = []
         for position, post in enumerate(posts, start=1):
-            post_url = request.build_absolute_uri(
+            post_url = SiteUrlService.absolute_url(
+                request,
                 reverse(
                     'post_detail',
                     kwargs={
                         'username': author.username,
                         'post_url': post.url,
                     },
-                )
+                ),
             )
             item_list_elements.append(
                 {
@@ -204,7 +201,7 @@ class DiscoveryMetadataService:
             'isPartOf': {
                 '@type': 'WebSite',
                 'name': 'BLEX',
-                'url': request.build_absolute_uri(reverse('index')),
+                'url': SiteUrlService.absolute_url(request, reverse('index')),
             },
         }
 
@@ -212,8 +209,9 @@ class DiscoveryMetadataService:
             payload['author'] = {
                 '@type': 'Person',
                 'name': page.author.username,
-                'url': request.build_absolute_uri(
-                    reverse('user_profile', kwargs={'username': page.author.username})
+                'url': SiteUrlService.absolute_url(
+                    request,
+                    reverse('user_profile', kwargs={'username': page.author.username}),
                 ),
             }
 

@@ -2,7 +2,7 @@ import json
 import re
 
 from django.contrib.auth.models import User
-from django.test import Client, TestCase
+from django.test import Client, TestCase, override_settings
 from django.urls import reverse
 from django.utils import timezone
 
@@ -67,6 +67,7 @@ class SeriesSeoMetadataTestCase(StructuredDataAssertionMixin, TestCase):
                 hide=False,
             )
 
+    @override_settings(SITE_URL='')
     def test_series_detail_renders_canonical_meta_and_collection_json_ld(self):
         response = self.client.get(
             reverse(
@@ -130,6 +131,40 @@ class SeriesSeoMetadataTestCase(StructuredDataAssertionMixin, TestCase):
             ],
         )
 
+
+    @override_settings(SITE_URL='https://blex.example')
+    def test_series_detail_uses_configured_site_url_for_canonical_metadata(self):
+        response = self.client.get(
+            reverse(
+                'series_detail',
+                kwargs={
+                    'username': 'seriesauthor',
+                    'series_url': 'structured-series',
+                },
+            ),
+            {'sort': 'asc'},
+        )
+
+        self.assertEqual(response.status_code, 200)
+
+        canonical_url = 'https://blex.example/@seriesauthor/series/structured-series?sort=asc'
+        self.assertContains(
+            response,
+            f'<link rel="canonical" href="{canonical_url}">',
+            html=True,
+        )
+
+        structured_data = self.extract_structured_data(response)
+        self.assertEqual(structured_data['url'], canonical_url)
+        self.assertEqual(structured_data['isPartOf']['url'], 'https://blex.example/')
+        self.assertTrue(
+            all(
+                element['item']['url'].startswith('https://blex.example/')
+                for element in structured_data['mainEntity']['itemListElement']
+            )
+        )
+
+    @override_settings(SITE_URL='')
     def test_series_detail_canonical_normalizes_default_query_parameters(self):
         response = self.client.get(
             reverse(
@@ -170,6 +205,7 @@ class StaticPageSeoMetadataTestCase(StructuredDataAssertionMixin, TestCase):
             author=self.author,
         )
 
+    @override_settings(SITE_URL='')
     def test_static_page_renders_canonical_meta_and_webpage_json_ld(self):
         response = self.client.get(
             reverse('static_page', kwargs={'slug': 'seo-page'})
@@ -209,6 +245,28 @@ class StaticPageSeoMetadataTestCase(StructuredDataAssertionMixin, TestCase):
         self.assertEqual(structured_data['description'], meta_description)
         self.assertEqual(structured_data['author']['name'], 'pageauthor')
 
+
+    @override_settings(SITE_URL='https://blex.example/')
+    def test_static_page_uses_configured_site_url_for_canonical_metadata(self):
+        response = self.client.get(
+            reverse('static_page', kwargs={'slug': 'seo-page'})
+        )
+
+        self.assertEqual(response.status_code, 200)
+
+        canonical_url = 'https://blex.example/static/seo-page'
+        self.assertContains(
+            response,
+            f'<link rel="canonical" href="{canonical_url}">',
+            html=True,
+        )
+
+        structured_data = self.extract_structured_data(response)
+        self.assertEqual(structured_data['url'], canonical_url)
+        self.assertEqual(structured_data['isPartOf']['url'], 'https://blex.example/')
+        self.assertEqual(structured_data['author']['url'], 'https://blex.example/@pageauthor')
+
+    @override_settings(SITE_URL='')
     def test_static_page_uses_content_fallback_for_meta_description(self):
         self.page.meta_description = ''
         self.page.save(update_fields=['meta_description'])
