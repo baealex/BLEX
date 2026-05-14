@@ -32,7 +32,7 @@ class ProfileSaveThumbnailHookTestCase(TestCase):
 
         with TemporaryDirectory() as media_root:
             with override_settings(MEDIA_ROOT=media_root):
-                with patch('board.models.make_thumbnail') as mock_make_thumbnail:
+                with patch('board.services.profile_image_service.make_thumbnail') as mock_make_thumbnail:
                     profile = Profile.objects.create(
                         user=user,
                         avatar=self.create_test_image(),
@@ -45,7 +45,7 @@ class ProfileSaveThumbnailHookTestCase(TestCase):
 
         with TemporaryDirectory() as media_root:
             with override_settings(MEDIA_ROOT=media_root):
-                with patch('board.models.make_thumbnail') as mock_make_thumbnail:
+                with patch('board.services.profile_image_service.make_thumbnail') as mock_make_thumbnail:
                     profile = Profile.objects.create(
                         user=user,
                         avatar=self.create_test_image('old.jpg', color='blue'),
@@ -62,7 +62,7 @@ class ProfileSaveThumbnailHookTestCase(TestCase):
 
         with TemporaryDirectory() as media_root:
             with override_settings(MEDIA_ROOT=media_root):
-                with patch('board.models.make_thumbnail') as mock_make_thumbnail:
+                with patch('board.services.profile_image_service.make_thumbnail') as mock_make_thumbnail:
                     profile = Profile.objects.create(
                         user=user,
                         avatar=self.create_test_image(),

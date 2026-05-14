@@ -21,11 +21,11 @@ from modules.hash import get_sha256
 from modules.randomness import randstr
 from modules.sub_task import SubTaskProcessor
 from modules.telegram import TelegramBot
-from modules.thumbnail import make_thumbnail
 from board.constants.config_meta import CONFIG_TYPE, CONFIG_TYPES, CONFIG_MAP
 from board.modules.time import time_since, time_stamp
 from board.services.post_content_service import PostContentService
 from board.services.post_thumbnail_service import PostThumbnailService
+from board.services.profile_image_service import ProfileImageService
 
 
 def get_user_hex(username):
@@ -477,19 +477,10 @@ class Profile(models.Model):
         return self.webhook_subscribers.filter(is_active=True).count()
 
     def save(self, *args, **kwargs):
-        will_make_thumbnail = False
-        if not self.pk and self.avatar:
-            will_make_thumbnail = True
-
-        profile = Profile.objects.filter(id=self.id)
-        if profile.exists():
-            profile = profile.first()
-            if profile.avatar != self.avatar:
-                will_make_thumbnail = True
-
+        will_make_thumbnail = ProfileImageService.should_generate_avatar_thumbnail(self)
         super(Profile, self).save(*args, **kwargs)
         if will_make_thumbnail:
-            make_thumbnail(self, size=500)
+            ProfileImageService.generate_avatar_thumbnail(self)
 
     def get_absolute_url(self):
         return reverse('user_profile', args=[self.user.username])

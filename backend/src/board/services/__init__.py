@@ -10,6 +10,7 @@ from importlib import import_module
 _SERVICE_MODULES = {
     'PostService': 'post_service',
     'PostThumbnailService': 'post_thumbnail_service',
+    'ProfileImageService': 'profile_image_service',
     'AuthService': 'auth_service',
     'BannerService': 'banner_service',
     'CommentService': 'comment_service',
