@@ -560,3 +560,23 @@ class WebhookFailureTrackingTestCase(TestCase):
         self.channel.refresh_from_db()
         self.assertEqual(self.channel.failure_count, 0)
         self.assertIsNotNone(self.channel.last_success_date)
+
+
+    @patch('board.services.webhook_service.WebhookService.send_webhook')
+    def test_success_does_not_reactivate_inactive_channel(self, mock_send):
+        """성공 기록은 비활성화된 채널을 재활성화하지 않음"""
+        self.channel.failure_count = 3
+        self.channel.is_active = False
+        self.channel.save(update_fields=['failure_count', 'is_active'])
+        mock_send.return_value = True
+
+        WebhookService.send_webhook_with_tracking(
+            channel=self.channel,
+            content='Test',
+            post_url='https://example.com'
+        )
+
+        self.channel.refresh_from_db()
+        self.assertEqual(self.channel.failure_count, 0)
+        self.assertFalse(self.channel.is_active)
+        self.assertIsNotNone(self.channel.last_success_date)
