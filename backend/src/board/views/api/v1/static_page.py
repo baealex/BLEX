@@ -1,8 +1,8 @@
-import json
 from django.http import Http404
 from django.shortcuts import get_object_or_404
 from board.models import StaticPage
 from board.modules.response import StatusDone, StatusError, ErrorCode
+from board.services.api_request_body_service import ApiRequestBodyService
 
 
 def static_pages(request, page_id=None):
@@ -59,10 +59,9 @@ def static_pages(request, page_id=None):
 
     # Create new static page
     if request.method == 'POST':
-        try:
-            post_data = json.loads(request.body.decode('utf-8')) if request.body else {}
-        except (json.JSONDecodeError, UnicodeDecodeError):
-            return StatusError(ErrorCode.VALIDATE, '잘못된 요청입니다.')
+        post_data, body_error = ApiRequestBodyService.parse_json_or_error(request)
+        if body_error:
+            return body_error
 
         title = post_data.get('title', '')
         slug = post_data.get('slug', '')
@@ -109,10 +108,7 @@ def static_pages(request, page_id=None):
     if request.method == 'PUT' and page_id:
         page = get_object_or_404(StaticPage, id=page_id)
 
-        try:
-            put_data = json.loads(request.body.decode('utf-8')) if request.body else {}
-        except (json.JSONDecodeError, UnicodeDecodeError):
-            put_data = {}
+        put_data = ApiRequestBodyService.parse_json_or_default(request)
 
         if 'title' in put_data:
             page.title = put_data['title']

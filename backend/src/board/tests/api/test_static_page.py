@@ -137,6 +137,41 @@ class StaticPageAPITestCase(TestCase):
         self.assertEqual(content['status'], 'ERROR')
         self.assertEqual(content['errorCode'], 'error:AE')
 
+
+    def test_create_static_page_invalid_json_returns_validate_error(self):
+        response = self.client.post(
+            '/v1/static-pages',
+            '{invalid',
+            content_type='application/json'
+        )
+
+        self.assertEqual(response.status_code, 200)
+        content = json.loads(response.content)
+        self.assertEqual(content['status'], 'ERROR')
+        self.assertEqual(content['errorCode'], 'error:VA')
+
+    def test_update_static_page_invalid_json_keeps_existing_fields(self):
+        page = StaticPage.objects.create(
+            title='Original Title',
+            slug='original-slug',
+            content='<p>Original</p>',
+            author=self.staff_user,
+        )
+
+        response = self.client.put(
+            f'/v1/static-pages/{page.id}',
+            '{invalid',
+            content_type='application/json'
+        )
+
+        self.assertEqual(response.status_code, 200)
+        content = json.loads(response.content)
+        self.assertEqual(content['status'], 'DONE')
+        page.refresh_from_db()
+        self.assertEqual(page.title, 'Original Title')
+        self.assertEqual(page.slug, 'original-slug')
+        self.assertEqual(page.content, '<p>Original</p>')
+
     def test_get_static_page(self):
         """정적 페이지 상세 조회 테스트"""
         page = StaticPage.objects.create(
