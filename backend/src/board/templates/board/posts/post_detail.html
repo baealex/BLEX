@@ -12,24 +12,24 @@
 
 <!-- Open Graph / Facebook -->
 <meta property="og:type" content="article">
-<meta property="og:url" content="{{ request.build_absolute_uri }}">
+<meta property="og:url" content="{{ canonical_url }}">
 <meta property="og:title" content="{{ post.title }}">
 <meta property="og:description" content="{{ post.meta_description }}">
-{% if post.image %}<meta property="og:image" content="{{ request.scheme }}://{{ request.get_host }}{{ post.image.url }}">{% endif %}
+{% if post.image %}<meta property="og:image" content="{{ post_image_url }}">{% endif %}
 <meta property="article:published_time" content="{{ post.published_date|date:'c' }}">
 <meta property="article:modified_time" content="{{ post.updated_date|date:'c' }}">
-<meta property="article:author" content="{{ request.scheme }}://{{ request.get_host }}/@{{ post.author_username }}">
+<meta property="article:author" content="{{ author_url }}">
 {% for tag in post.tags.all %}<meta property="article:tag" content="{{ tag }}">{% endfor %}
 
 <!-- Twitter -->
 <meta property="twitter:card" content="{% if post.image %}summary_large_image{% else %}summary{% endif %}">
-<meta property="twitter:url" content="{{ request.build_absolute_uri }}">
+<meta property="twitter:url" content="{{ canonical_url }}">
 <meta property="twitter:title" content="{{ post.title }}">
 <meta property="twitter:description" content="{{ post.meta_description }}">
-{% if post.image %}<meta property="twitter:image" content="{{ request.scheme }}://{{ request.get_host }}{{ post.image.url }}">{% endif %}
+{% if post.image %}<meta property="twitter:image" content="{{ post_image_url }}">{% endif %}
 
 <!-- Canonical URL -->
-<link rel="canonical" href="{{ request.build_absolute_uri }}">
+<link rel="canonical" href="{{ canonical_url }}">
 {% if aeo_enabled %}
 <link rel="alternate" type="text/markdown" href="{{ post_markdown_url }}">
 {% endif %}
@@ -73,7 +73,7 @@
                     <meta itemprop="datePublished" content="{{ post.published_date|date:'c' }}">
                     <meta itemprop="dateModified" content="{{ post.updated_date|date:'c' }}">
                     {% if post.image %}
-                    <meta itemprop="image" content="{{ request.scheme }}://{{ request.get_host }}{{ post.image.url }}">
+                    <meta itemprop="image" content="{{ post_image_url }}">
                     {% endif %}
                     
                     <!-- Article Header -->
@@ -531,15 +531,15 @@ class="xl:hidden">
   "@type": "BlogPosting",
   "mainEntityOfPage": {
     "@type": "WebPage",
-    "@id": "{{ request.build_absolute_uri }}"
+    "@id": "{{ canonical_url }}"
   },
   "headline": "{{ post.title|escapejs }}",
   "description": "{{ post.meta_description|escapejs }}",
-  "image": {% if post.image %}"{{ request.scheme }}://{{ request.get_host }}{{ post.image.url }}"{% else %}null{% endif %},
+  "image": {% if post.image %}"{{ post_image_url }}"{% else %}null{% endif %},
   "author": {
     "@type": "Person",
     "name": "{{ post.author_username }}",
-    "url": "{{ request.scheme }}://{{ request.get_host }}/@{{ post.author_username }}"{% if post.author.profile.homepage or post.author.userlinkmeta_set.all %},
+    "url": "{{ author_url }}"{% if post.author.profile.homepage or post.author.userlinkmeta_set.all %},
     "sameAs": [
       {% if post.author.profile.homepage %}"{{ post.author.profile.homepage }}"{% if post.author.userlinkmeta_set.all %},{% endif %}{% endif %}{% for link in post.author.userlinkmeta_set.all %}
       "{{ link.value }}"{% if not forloop.last %},{% endif %}{% endfor %}
@@ -550,7 +550,7 @@ class="xl:hidden">
     "name": "BLEX",
     "logo": {
       "@type": "ImageObject",
-      "url": "{{ request.scheme }}://{{ request.get_host }}{% resource 'logo.png' %}"
+      "url": "{{ logo_url }}"
     }
   },
   "datePublished": "{{ post.published_date|date:'c' }}",

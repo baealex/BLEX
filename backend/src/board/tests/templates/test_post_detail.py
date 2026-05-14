@@ -3,7 +3,7 @@ Tests for Post Detail View and ToC structure
 """
 import datetime
 
-from django.test import TestCase, Client
+from django.test import TestCase, Client, override_settings
 from django.contrib.auth.models import User
 from django.urls import reverse
 from django.utils import timezone
@@ -169,6 +169,25 @@ class PostDetailViewTestCase(TestCase):
         }))
 
         self.assertEqual(response.status_code, 404)
+
+
+    @override_settings(SITE_URL='https://blex.example')
+    def test_post_detail_uses_configured_site_url_for_metadata(self):
+        url = reverse('post_detail', kwargs={
+            'username': 'testauthor',
+            'post_url': 'test-post'
+        })
+        response = self.client.get(url)
+
+        self.assertEqual(response.status_code, 200)
+
+        canonical_url = 'https://blex.example/@testauthor/test-post'
+        content = response.content.decode()
+        self.assertIn(f'<meta content={canonical_url} property=og:url>', content)
+        self.assertIn(f'<meta content={canonical_url} property=twitter:url>', content)
+        self.assertIn(f'<link href={canonical_url} rel=canonical>', content)
+        self.assertIn(f'"@id": "{canonical_url}"', content)
+        self.assertIn('"url": "https://blex.example/@testauthor"', content)
 
     def test_post_detail_hides_agent_link_copy_option_when_aeo_disabled(self):
         """AEO가 꺼져 있으면 에이전트 링크 복사 옵션을 노출하지 않는다."""

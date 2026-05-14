@@ -1,9 +1,11 @@
 import json
 from django.shortcuts import render, get_object_or_404, redirect
+from django.urls import reverse
 from django.contrib.auth.models import User
 from django.db.models import Count, F, Exists, OuterRef
 from django.http import Http404
 from django.contrib import messages
+from django.conf import settings
 from django.utils import timezone
 
 from board.models import Post, Series, PostLikes, UsernameChangeLog
@@ -11,6 +13,7 @@ from board.services.post_service import PostService, PostValidationError
 from board.services.banner_service import BannerService
 from board.services.agent_content_service import AgentContentService
 from board.services.public_post_service import PublicPostService
+from board.services.site_url_service import SiteUrlService
 from board.html_utils import extract_table_of_contents
 
 def post_detail(request, username, post_url):
@@ -52,6 +55,12 @@ def post_detail(request, username, post_url):
 
     banners = BannerService.get_all_banners_for_author(author)
 
+    post_absolute_url = post.get_absolute_url()
+    canonical_url = SiteUrlService.absolute_url(request, post_absolute_url)
+    author_url = SiteUrlService.absolute_url(request, reverse('user_profile', args=[author.username]))
+    post_image_url = SiteUrlService.absolute_url(request, post.image.url) if post.image else ''
+    logo_url = SiteUrlService.absolute_url(request, f'{settings.RESOURCE_URL}logo.png')
+
     aeo_enabled = AgentContentService.is_aeo_enabled()
     context = {
         'post': post,
@@ -59,6 +68,10 @@ def post_detail(request, username, post_url):
         'content_html': content_html_with_ids,
         'table_of_contents': table_of_contents,
         'aeo_enabled': aeo_enabled,
+        'canonical_url': canonical_url,
+        'author_url': author_url,
+        'post_image_url': post_image_url,
+        'logo_url': logo_url,
     }
     if aeo_enabled:
         context['post_markdown_url'] = AgentContentService.build_post_markdown_url(post, request)
