@@ -342,6 +342,7 @@ class UtilityAPITestCase(TestCase):
         )
         content = json.loads(response.content)
         self.assertEqual(content['status'], 'ERROR')
+        self.assertEqual(content['errorCode'], 'error:VA')
 
     def test_clean_images_specific_target(self):
         for target in ('content', 'title', 'avatar'):
