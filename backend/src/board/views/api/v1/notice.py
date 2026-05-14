@@ -1,8 +1,8 @@
-import json
 from django.http import Http404
 from django.shortcuts import get_object_or_404
 from board.models import SiteNotice, SiteContentScope
 from board.modules.response import StatusDone, StatusError, ErrorCode
+from board.services.api_request_body_service import ApiRequestBodyService
 from board.services.api_permission_service import ApiPermissionService
 
 
@@ -57,10 +57,9 @@ def notices(request, notice_id=None):
 
     # Create new notice
     if request.method == 'POST':
-        try:
-            post_data = json.loads(request.body.decode('utf-8')) if request.body else {}
-        except (json.JSONDecodeError, UnicodeDecodeError):
-            return StatusError(ErrorCode.VALIDATE, '잘못된 요청입니다.')
+        post_data, body_error = ApiRequestBodyService.parse_json_or_error(request)
+        if body_error:
+            return body_error
 
         title = post_data.get('title', '')
         url = post_data.get('url', '')
@@ -93,10 +92,7 @@ def notices(request, notice_id=None):
     if request.method == 'PUT' and notice_id:
         notice = get_object_or_404(qs, id=notice_id)
 
-        try:
-            put_data = json.loads(request.body.decode('utf-8')) if request.body else {}
-        except (json.JSONDecodeError, UnicodeDecodeError):
-            put_data = {}
+        put_data = ApiRequestBodyService.parse_json_or_default(request)
 
         if 'title' in put_data:
             notice.title = put_data['title']

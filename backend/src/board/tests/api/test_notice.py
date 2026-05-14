@@ -113,6 +113,34 @@ class NoticeAPITestCase(TestCase):
         content = json.loads(response.content)
         self.assertEqual(content['status'], 'ERROR')
 
+
+    def test_create_notice_invalid_json_returns_validate_error(self):
+        response = self.client.post(
+            '/v1/notices',
+            '{invalid',
+            content_type='application/json'
+        )
+
+        self.assertEqual(response.status_code, 200)
+        content = json.loads(response.content)
+        self.assertEqual(content['status'], 'ERROR')
+        self.assertEqual(content['errorCode'], 'error:VA')
+
+    def test_update_notice_invalid_json_keeps_existing_fields(self):
+        notice = self._create_user_notice(title='Original Title')
+
+        response = self.client.put(
+            f'/v1/notices/{notice.id}',
+            '{invalid',
+            content_type='application/json'
+        )
+
+        self.assertEqual(response.status_code, 200)
+        content = json.loads(response.content)
+        self.assertEqual(content['status'], 'DONE')
+        notice.refresh_from_db()
+        self.assertEqual(notice.title, 'Original Title')
+
     def test_get_notice_detail(self):
         """공지 상세 조회 테스트"""
         notice = self._create_user_notice(title='Detail Notice', url='https://example.com/detail')
