@@ -1,13 +1,11 @@
-import datetime
 import json
 
 from django.contrib import auth
-from django.db.models import Q, Count
+from django.db.models import Count
 from django.http import Http404, QueryDict
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
 from django.utils.dateparse import parse_datetime
-from board.constants.config_meta import CONFIG_TYPE
 from board.models import (
     User, Series, Post, UserLinkMeta, SiteSetting,
     Profile, Notify)
@@ -17,22 +15,7 @@ from board.modules.time import convert_to_localtime
 from board.services.auth_service import AuthService, AuthValidationError
 from board.services.pinned_post_service import PinnedPostService, PinnedPostError
 from board.services.user_heatmap_service import UserHeatmapService
-
-
-def _get_notify_configs_by_role(user):
-    configs = [
-        CONFIG_TYPE.NOTIFY_COMMENT_LIKE,
-        CONFIG_TYPE.NOTIFY_MENTION,
-    ]
-
-    # 작성자(EDITOR)는 포스트 관련 알림 옵션을 추가로 노출
-    if hasattr(user, 'profile') and user.profile.is_editor():
-        configs = [
-            CONFIG_TYPE.NOTIFY_POSTS_LIKE,
-            CONFIG_TYPE.NOTIFY_POSTS_COMMENT,
-        ] + configs
-
-    return configs
+from board.services.user_notification_service import UserNotificationService
 
 
 def setting(request, parameter):
@@ -49,22 +32,7 @@ def setting(request, parameter):
 
     if request.method == 'GET':
         if parameter == 'notify':
-            six_months_ago = timezone.now() - datetime.timedelta(days=180)
-            notify = Notify.objects.filter(user=user).filter(
-                Q(created_date__gt=six_months_ago) |
-                Q(has_read=False)
-            ).order_by('-created_date')
-
-            return StatusDone({
-                'notify': list(map(lambda item: {
-                    'id': item.id,
-                    'url': item.url,
-                    'is_read': item.has_read,
-                    'content': item.content,
-                    'created_date': item.time_since()
-                }, notify)),
-                'is_telegram_sync': request.user.config.has_telegram_id()
-            })
+            return StatusDone(UserNotificationService.get_settings_notify(user))
 
         if parameter == 'unread-notify':
             unread_count = Notify.objects.filter(
@@ -77,14 +45,7 @@ def setting(request, parameter):
             })
 
         if parameter == 'notify-config':
-            configs = _get_notify_configs_by_role(user)
-
-            return StatusDone({
-                'config': list(map(lambda config: {
-                    'name': config.value,
-                    'value': user.config.get_meta(config)
-                }, configs))
-            })
+            return StatusDone(UserNotificationService.get_settings_notify_config(user))
 
         if parameter == 'account':
             try:
@@ -327,26 +288,13 @@ def setting(request, parameter):
         if parameter == 'notify':
             id = put.get('id')
 
-            notify = Notify.objects.filter(id=id)
-            if not notify.exists():
+            if not UserNotificationService.mark_notification_as_read(user, id):
                 return StatusError(ErrorCode.NOT_FOUND, '알림을 찾을 수 없습니다.')
 
-            notify = notify.first()
-            notify.has_read = True
-            notify.save()
             return StatusDone()
 
         if parameter == 'notify-config':
-            configs = _get_notify_configs_by_role(user)
-
-            for config in configs:
-                value = put.get(config.value)
-                if value in (None, ''):
-                    continue
-                if isinstance(value, bool):
-                    value = 'true' if value else 'false'
-                user.config.create_or_update_meta(config, value)
-
+            UserNotificationService.update_settings_notify_config(user, put)
             return StatusDone()
 
         if parameter == 'account':
