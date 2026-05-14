@@ -8,22 +8,15 @@ When a new post is published, notifications are sent to:
 """
 from django.views.decorators.http import require_http_methods
 
-from board.models import Profile, WebhookSubscription, SiteContentScope
+from board.models import WebhookSubscription, SiteContentScope
 from board.services import WebhookService
 from board.services.api_request_body_service import ApiRequestBodyService
+from board.services.webhook_api_service import WebhookApiService
 from board.modules.response import StatusDone, StatusError, ErrorCode
 
 
 def _get_authenticated_profile(request):
-    """Get the authenticated user's profile or return error response."""
-    if not request.user.is_authenticated:
-        return None, StatusError(ErrorCode.NEED_LOGIN, 'Login required')
-
-    try:
-        profile = Profile.objects.get(user=request.user)
-        return profile, None
-    except Profile.DoesNotExist:
-        return None, StatusError(ErrorCode.NOT_FOUND, 'Profile not found')
+    return WebhookApiService.get_authenticated_profile(request)
 
 
 def _validate_webhook_payload(request):
@@ -52,11 +45,7 @@ def _validate_webhook_payload(request):
 
 
 def _ensure_staff(request):
-    if not request.user.is_authenticated:
-        return StatusError(ErrorCode.NEED_LOGIN, 'Login required')
-    if not request.user.is_staff:
-        return StatusError(ErrorCode.REJECT, '관리자 권한이 필요합니다.')
-    return None
+    return WebhookApiService.ensure_staff(request)
 
 
 @require_http_methods(['GET', 'POST'])
@@ -76,14 +65,11 @@ def my_channels(request):
         return error
 
     if request.method == 'GET':
-        channels = WebhookSubscription.objects.filter(
-            scope=SiteContentScope.USER,
-            author=profile
-        ).values('id', 'name', 'webhook_url', 'is_active', 'failure_count', 'created_date')
-
-        return StatusDone({
-            'channels': list(channels)
-        })
+        return StatusDone(
+            WebhookApiService.serialize_channels(
+                WebhookApiService.get_user_channels(profile)
+            )
+        )
 
     webhook_url, name, error = _validate_webhook_payload(request)
     if error:
@@ -95,10 +81,7 @@ def my_channels(request):
         name=name
     )
 
-    return StatusDone({
-        'success': True,
-        'channel_id': channel.id
-    })
+    return StatusDone(WebhookApiService.mutation_success(channel))
 
 
 @require_http_methods(['DELETE'])
@@ -120,7 +103,7 @@ def delete_channel(request, channel_id):
             author=profile
         )
         channel.delete()
-        return StatusDone({'success': True})
+        return StatusDone(WebhookApiService.delete_success())
     except WebhookSubscription.DoesNotExist:
         return StatusError(ErrorCode.NOT_FOUND, 'Channel not found')
 
@@ -142,13 +125,11 @@ def global_channels(request):
         return staff_error
 
     if request.method == 'GET':
-        channels = WebhookSubscription.objects.filter(
-            scope=SiteContentScope.GLOBAL
-        ).values('id', 'name', 'webhook_url', 'is_active', 'failure_count', 'created_date')
-
-        return StatusDone({
-            'channels': list(channels)
-        })
+        return StatusDone(
+            WebhookApiService.serialize_channels(
+                WebhookApiService.get_global_channels()
+            )
+        )
 
     webhook_url, name, error = _validate_webhook_payload(request)
     if error:
@@ -159,10 +140,7 @@ def global_channels(request):
         name=name
     )
 
-    return StatusDone({
-        'success': True,
-        'channel_id': channel.id
-    })
+    return StatusDone(WebhookApiService.mutation_success(channel))
 
 
 @require_http_methods(['DELETE'])
@@ -183,7 +161,7 @@ def delete_global_channel(request, channel_id):
             scope=SiteContentScope.GLOBAL
         )
         channel.delete()
-        return StatusDone({'success': True})
+        return StatusDone(WebhookApiService.delete_success())
     except WebhookSubscription.DoesNotExist:
         return StatusError(ErrorCode.NOT_FOUND, 'Channel not found')
 
