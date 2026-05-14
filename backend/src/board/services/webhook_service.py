@@ -13,6 +13,7 @@ from django.conf import settings
 from django.db.models import Q
 
 from board.models import Post, PostConfig, WebhookSubscription, Profile, SiteContentScope
+from board.services.webhook_subscription_state_service import WebhookSubscriptionStateService
 from modules.sub_task import SubTaskProcessor
 
 
@@ -93,9 +94,9 @@ class WebhookService:
         )
 
         if success:
-            channel.record_success()
+            WebhookSubscriptionStateService.record_success(channel)
         else:
-            channel.record_failure()
+            WebhookSubscriptionStateService.record_failure(channel)
             if not channel.is_active:
                 logger.info(
                     f'Webhook channel {channel.id} deactivated '

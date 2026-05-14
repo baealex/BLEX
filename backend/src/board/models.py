@@ -25,6 +25,7 @@ from board.services.post_content_service import PostContentService
 from board.services.post_thumbnail_service import PostThumbnailService
 from board.services.profile_image_service import ProfileImageService
 from board.services.notification_delivery_service import NotificationDeliveryService
+from board.services.webhook_subscription_state_service import WebhookSubscriptionStateService
 from board.services.user_config_meta_service import UserConfigMetaService
 
 
@@ -734,19 +735,14 @@ class WebhookSubscription(models.Model):
 
     def record_success(self):
         """Record a successful webhook delivery"""
-        self.failure_count = 0
-        self.last_success_date = timezone.now()
-        self.save(update_fields=['failure_count', 'last_success_date'])
+        WebhookSubscriptionStateService.record_success(self)
 
     def record_failure(self):
         """
         Record a failed webhook delivery.
         Auto-deactivates after MAX_FAILURES consecutive failures.
         """
-        self.failure_count += 1
-        if self.failure_count >= self.MAX_FAILURES:
-            self.is_active = False
-        self.save(update_fields=['failure_count', 'is_active'])
+        WebhookSubscriptionStateService.record_failure(self)
 
 
 class UsernameChangeLog(models.Model):
