@@ -1,12 +1,14 @@
 import json
 
+from django.core.cache import cache
 from django.test import TestCase
 from django.test.client import Client
 from django.utils import timezone
 
 from board.constants.config_meta import CONFIG_TYPE
 from board.models import (
-    User, Config, Profile, Notify, Post, PostContent, PostConfig
+    Comment, Config, Notify, Post, PostConfig, PostContent,
+    PostLikes, Profile, User
 )
 
 
@@ -39,6 +41,7 @@ class SettingTestCase(TestCase):
 
     def setUp(self):
         self.client = Client(HTTP_USER_AGENT='Mozilla/5.0')
+        cache.clear()
 
     def test_get_setting_notify_not_login(self):
         """비로그인 상태에서 알림 설정 조회 시 에러 테스트"""
@@ -102,6 +105,44 @@ class SettingTestCase(TestCase):
                 CONFIG_TYPE.NOTIFY_MENTION.value,
             }
         )
+
+    def test_get_setting_heatmap_counts_private_user_activity_and_uses_cache(self):
+        """설정 heatmap은 기존 private activity 집계와 1시간 캐시 정책을 유지한다."""
+        user = User.objects.get(username='test')
+        post = Post.objects.create(
+            url='heatmap-post',
+            title='Heatmap Post',
+            author=user,
+            published_date=timezone.now(),
+        )
+        PostContent.objects.create(
+            post=post,
+            content_html='<h1>Heatmap</h1>'
+        )
+        PostConfig.objects.create(
+            post=post,
+            hide=True,
+        )
+        Comment.objects.create(
+            post=post,
+            author=user,
+            text_md='Heatmap comment',
+            text_html='<p>Heatmap comment</p>',
+        )
+        PostLikes.objects.create(post=post, user=user)
+        self.client.login(username='test', password='test')
+
+        response = self.client.get('/v1/setting/heatmap')
+
+        self.assertEqual(response.status_code, 200)
+        content = json.loads(response.content)
+        self.assertEqual(sum(content['body'].values()), 3)
+
+        PostLikes.objects.create(post=post, user=user)
+        cached_response = self.client.get('/v1/setting/heatmap')
+        cached_content = json.loads(cached_response.content)
+
+        self.assertEqual(sum(cached_content['body'].values()), 3)
 
     def test_update_notify_config_without_posts(self):
         """포스트가 없는 사용자의 알림 설정 업데이트 테스트"""
