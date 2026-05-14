@@ -1,5 +1,5 @@
 import json
-from django.db.models import F, Count, Q
+from django.db.models import F, Q
 from django.http import Http404, QueryDict
 from django.shortcuts import get_object_or_404
 
@@ -7,6 +7,7 @@ from board.models import User, Post, Series
 from board.services import SeriesService
 from board.services.series_service import SeriesValidationError
 from board.services.public_post_service import PublicPostService
+from board.services.public_series_service import PublicSeriesService
 from board.modules.paginator import Paginator
 from board.modules.response import StatusDone, StatusError, ErrorCode
 from board.modules.time import convert_to_localtime
@@ -129,11 +130,12 @@ def user_series(request, username, url=None):
 
     if url:
         user = get_object_or_404(User, username=username)
-        public_post_filter = PublicPostService.build_public_filter('posts')
-        series = get_object_or_404(Series.objects.annotate(
-            owner_username=F('owner__username'),
-            owner_avatar=F('owner__profile__avatar'),
-            total_posts=Count('posts', filter=public_post_filter, distinct=True)
+        series = get_object_or_404(PublicSeriesService.with_public_post_count(
+            Series.objects.annotate(
+                owner_username=F('owner__username'),
+                owner_avatar=F('owner__profile__avatar'),
+            ),
+            'total_posts',
         ), owner=user, url=url)
 
         if request.method == 'GET':

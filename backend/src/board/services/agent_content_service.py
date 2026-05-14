@@ -4,12 +4,13 @@ import re
 
 from bs4 import BeautifulSoup
 from bs4.element import NavigableString, Tag as SoupTag
-from django.db.models import Count, Q, QuerySet
+from django.db.models import QuerySet
 from django.http import Http404, HttpRequest
 from django.urls import reverse
 
 from board.models import Post, Series, SiteSetting, StaticPage
 from board.services.public_post_service import PublicPostService
+from board.services.public_series_service import PublicSeriesService
 from board.services.site_url_service import SiteUrlService
 
 
@@ -77,12 +78,8 @@ class AgentContentService:
 
     @staticmethod
     def get_public_series() -> QuerySet[Series]:
-        public_post_filter = PublicPostService.build_public_filter('posts')
-        return Series.objects.select_related('owner').annotate(
-            public_post_count=Count('posts', filter=public_post_filter, distinct=True)
-        ).filter(
-            hide=False,
-            public_post_count__gte=1,
+        return PublicSeriesService.filter_public_series(
+            Series.objects.select_related('owner')
         ).order_by('order', '-updated_date')
 
     @staticmethod

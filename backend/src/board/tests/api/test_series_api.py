@@ -382,6 +382,46 @@ class SeriesAPITestCase(TestCase):
         content = json.loads(response.content)
         self.assertIn('posts', content['body'])
 
+
+    def test_get_hidden_series_detail_keeps_existing_public_api_behavior(self):
+        """시리즈 상세 API는 기존처럼 숨김 시리즈도 조회하되 공개 글만 반환한다."""
+        author = User.objects.get(username='author')
+        series = Series.objects.create(
+            owner=author,
+            name='Hidden Series',
+            url='hidden-series',
+            text_md='Hidden series description',
+            hide=True,
+        )
+        post = Post.objects.get(url='test-post-3')
+        series.posts.add(post)
+
+        response = self.client.get('/v1/users/@author/series/hidden-series')
+
+        self.assertEqual(response.status_code, 200)
+        content = json.loads(response.content)
+        self.assertEqual(content['body']['name'], 'Hidden Series')
+        self.assertEqual(content['body']['totalPosts'], 1)
+        self.assertEqual(len(content['body']['posts']), 1)
+
+    def test_get_empty_series_detail_keeps_existing_public_api_behavior(self):
+        """시리즈 상세 API는 공개 글이 없어도 기존처럼 조회되고 total_posts만 0이다."""
+        author = User.objects.get(username='author')
+        Series.objects.create(
+            owner=author,
+            name='Empty Series',
+            url='empty-series',
+            text_md='Empty series description',
+        )
+
+        response = self.client.get('/v1/users/@author/series/empty-series')
+
+        self.assertEqual(response.status_code, 200)
+        content = json.loads(response.content)
+        self.assertEqual(content['body']['name'], 'Empty Series')
+        self.assertEqual(content['body']['totalPosts'], 0)
+        self.assertEqual(content['body']['posts'], [])
+
     def test_get_nonexistent_series(self):
         """존재하지 않는 시리즈 조회 시 404 에러"""
         response = self.client.get('/v1/users/@author/series/nonexistent-series')
