@@ -78,6 +78,11 @@ Extraction candidates:
 
 When extracting serializers, preserve existing `select_related`, `prefetch_related`, and `annotate` behavior. Public visibility serializers must keep using `PublicPostService` and `PublicSeriesService` contracts.
 
+
+### Model save hooks and model-layer side effects
+
+`backend/src/board/models.py` still contains persistence hooks that perform filesystem work, cross-model writes, encryption, and singleton policy. Track these separately in `docs/MODEL_SAVE_HOOK_INVENTORY.md` and refactor them only through characterization-first PRs.
+
 ### Destructive/admin cleanup endpoints
 
 Cleanup and utility endpoints should keep dry-run defaults, staff guards, filesystem/media boundaries, and response shapes fixed by characterization tests before extraction.
@@ -98,6 +103,7 @@ Candidate surfaces:
 7. `post.py` comment-list policy/serializer extraction; keep comment creation policy from PR #380 intact.
 8. `webhook.py` serializer extraction and global/user channel policy naming.
 9. `utility.py` destructive cleanup orchestration/dry-run contract extraction.
+10. `models.py` save hook inventory and characterization plan.
 
 ## Test strategy
 
