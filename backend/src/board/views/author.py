@@ -10,6 +10,7 @@ from board.modules.paginator import Paginator
 from board.modules.time import time_since
 from board.services.user_service import UserService
 from board.services.public_post_service import PublicPostService
+from board.services.public_series_service import PublicSeriesService
 from board.models import Post, Series, PostLikes, Tag, Profile, SiteNotice, SiteContentScope
 from modules import markdown
 
@@ -123,14 +124,9 @@ def author_posts(request, username):
     else:  # default to 'recent'
         posts = posts.order_by('-published_date')
     
-    public_series_post_filter = PublicPostService.build_public_filter('posts')
-    series = Series.objects.filter(
-        owner__username=username,
-        hide=False,
-    ).annotate(
-        count_posts=Count('posts', filter=public_series_post_filter, distinct=True),
-    ).filter(
-        count_posts__gte=1,
+    series = PublicSeriesService.filter_public_series(
+        Series.objects.filter(owner__username=username),
+        'count_posts',
     ).order_by('-updated_date')
     
     public_author_tag_filter = PublicPostService.build_public_filter('posts') & Q(
@@ -212,10 +208,7 @@ def author_series(request, username):
             Q(text_md__icontains=search_query)
         )
     
-    public_series_post_filter = PublicPostService.build_public_filter('posts')
-    series_list = series_list.annotate(
-        post_count=Count('posts', filter=public_series_post_filter, distinct=True)
-    ).filter(post_count__gte=1)
+    series_list = PublicSeriesService.filter_public_series(series_list, 'post_count')
     
     if sort_option == 'newest':
         series_list = series_list.order_by('-created_date')

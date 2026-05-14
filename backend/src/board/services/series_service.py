@@ -8,10 +8,11 @@ Extracted from views to improve testability and reusability.
 from typing import Optional, List, Tuple
 from django.contrib.auth.models import User
 from django.db import transaction
-from django.db.models import Count, F
+from django.db.models import F
 
 from board.models import Series, Post
 from board.services.public_post_service import PublicPostService
+from board.services.public_series_service import PublicSeriesService
 from board.modules.response import ErrorCode
 
 
@@ -293,10 +294,7 @@ class SeriesService:
         query = Series.objects.filter(owner=user)
 
         if include_post_count:
-            public_post_filter = PublicPostService.build_public_filter('posts')
-            query = query.annotate(
-                total_posts=Count('posts', filter=public_post_filter, distinct=True)
-            )
+            query = PublicSeriesService.with_public_post_count(query, 'total_posts')
 
         return query.order_by('order', '-id')
 
@@ -329,12 +327,9 @@ class SeriesService:
         Returns:
             QuerySet of Series with annotations
         """
-        public_post_filter = PublicPostService.build_public_filter('posts')
-        return Series.objects.annotate(
-            owner_username=F('owner__username'),
-            total_posts=Count('posts', filter=public_post_filter, distinct=True)
+        return PublicSeriesService.filter_public_series(
+            Series.objects.annotate(owner_username=F('owner__username')),
+            'total_posts',
         ).filter(
             owner__username=username,
-            total_posts__gte=1,
-            hide=False,
         ).order_by('order', '-id')
