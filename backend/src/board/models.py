@@ -19,13 +19,12 @@ from cryptography.fernet import InvalidToken
 from modules.cipher import encrypt_value, decrypt_value
 from modules.hash import get_sha256
 from modules.randomness import randstr
-from modules.sub_task import SubTaskProcessor
-from modules.telegram import TelegramBot
 from board.constants.config_meta import CONFIG_TYPE, CONFIG_TYPES, CONFIG_MAP
 from board.modules.time import time_since, time_stamp
 from board.services.post_content_service import PostContentService
 from board.services.post_thumbnail_service import PostThumbnailService
 from board.services.profile_image_service import ProfileImageService
+from board.services.notification_delivery_service import NotificationDeliveryService
 
 
 def get_user_hex(username):
@@ -218,14 +217,7 @@ class Notify(models.Model):
         return get_sha256(user.username + url + content + (hidden_key if hidden_key else ''))
 
     def send_notify(self):
-        if hasattr(self.user, 'telegramsync'):
-            tid = self.user.telegramsync.get_decrypted_tid()
-            if not tid == '':
-                bot = TelegramBot(settings.TELEGRAM_BOT_TOKEN)
-                SubTaskProcessor.process(lambda: bot.send_messages(tid, [
-                    settings.SITE_URL + str(self.url),
-                    self.content
-                ]))
+        NotificationDeliveryService.send_telegram_notification(self)
 
     def to_dict(self):
         return {
