@@ -30,7 +30,7 @@ class UserHeatmapService:
 
     @staticmethod
     def build_settings_heatmap(user: User) -> dict[str, int]:
-        end_date = timezone.now().date()
+        end_date = timezone.localdate()
         start_date = end_date - timedelta(days=UserHeatmapService.WINDOW_DAYS)
         heatmap = defaultdict(int)
 
