@@ -302,7 +302,7 @@ class AgentContentTestCase(TestCase):
         body = response.content.decode()
         self.assertIn('User-agent: *', body)
         self.assertIn('Search indexing is disabled at runtime.', body)
-        self.assertIn('# AI agent entry point: http://testserver/llms.txt', body)
+        self.assertIn('# AI agent entry point: http://localhost:8000/llms.txt', body)
         self.assertNotIn('Sitemap:', body)
         self.assertNotIn('Disallow: /\n', body)
 
@@ -326,9 +326,41 @@ class AgentContentTestCase(TestCase):
 
         self.assertEqual(response.status_code, 200)
         body = response.content.decode()
-        self.assertIn('# AI agent entry point: http://testserver/llms.txt', body)
+        self.assertIn('# AI agent entry point: http://localhost:8000/llms.txt', body)
         self.assertNotIn('Disallow: /llms.txt', body)
-        self.assertIn('Sitemap: http://testserver/sitemap.xml', body)
+        self.assertIn('Sitemap: http://localhost:8000/sitemap.xml', body)
+
+
+    @override_settings(SITE_URL='https://blex.example')
+    def test_robots_txt_uses_configured_site_url(self):
+        response = self.client.get('/robots.txt')
+
+        self.assertEqual(response.status_code, 200)
+        body = response.content.decode()
+        self.assertIn('# AI agent entry point: https://blex.example/llms.txt', body)
+        self.assertIn('Sitemap: https://blex.example/sitemap.xml', body)
+
+    @override_settings(SITE_URL='https://blex.example')
+    def test_markdown_endpoints_use_configured_site_url(self):
+        response = self.client.get('/@aeo-author/agent-ready-post.md')
+
+        self.assertEqual(response.status_code, 200)
+        body = response.content.decode()
+        self.assertIn('Source: https://blex.example/@aeo-author/agent-ready-post', body)
+
+        response = self.client.get('/@aeo-author/series/agent-ready-series.md')
+        self.assertEqual(response.status_code, 200)
+        body = response.content.decode()
+        self.assertIn('Source: https://blex.example/@aeo-author/series/agent-ready-series', body)
+        self.assertIn(
+            '- [Agent Ready Post](https://blex.example/@aeo-author/agent-ready-post.md)',
+            body,
+        )
+
+        response = self.client.get('/static/about-ai.md')
+        self.assertEqual(response.status_code, 200)
+        body = response.content.decode()
+        self.assertIn('Source: https://blex.example/static/about-ai', body)
 
     def test_llms_txt_returns_minimal_site_summary(self):
         """/llms.txt는 최소한의 사이트 요약만 제공한다."""
@@ -371,7 +403,7 @@ class AgentContentTestCase(TestCase):
         body = response.content.decode()
         self.assertIn('# Agent Ready Post', body)
         self.assertIn('Author: @aeo-author', body)
-        self.assertIn('Source: http://testserver/@aeo-author/agent-ready-post', body)
+        self.assertIn('Source: http://localhost:8000/@aeo-author/agent-ready-post', body)
         self.assertIn('## Outcome\nAgents can parse this post.', body)
 
     def test_series_markdown_endpoint_returns_clean_markdown(self):
@@ -385,10 +417,10 @@ class AgentContentTestCase(TestCase):
         body = response.content.decode()
         self.assertIn('# Agent Ready Series', body)
         self.assertIn('Author: @aeo-author', body)
-        self.assertIn('Source: http://testserver/@aeo-author/series/agent-ready-series', body)
+        self.assertIn('Source: http://localhost:8000/@aeo-author/series/agent-ready-series', body)
         self.assertIn('Series summary for agents.', body)
         self.assertIn(
-            '- [Agent Ready Post](http://testserver/@aeo-author/agent-ready-post.md)',
+            '- [Agent Ready Post](http://localhost:8000/@aeo-author/agent-ready-post.md)',
             body,
         )
 
@@ -402,7 +434,7 @@ class AgentContentTestCase(TestCase):
 
         body = response.content.decode()
         self.assertIn('# About AI', body)
-        self.assertIn('Source: http://testserver/static/about-ai', body)
+        self.assertIn('Source: http://localhost:8000/static/about-ai', body)
         self.assertIn('## About BLEX', body)
         self.assertIn('Static page content for agents.', body)
 

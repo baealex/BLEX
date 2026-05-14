@@ -10,6 +10,7 @@ from django.urls import reverse
 
 from board.models import Post, Series, SiteSetting, StaticPage
 from board.services.public_post_service import PublicPostService
+from board.services.site_url_service import SiteUrlService
 
 
 class AgentContentService:
@@ -149,11 +150,11 @@ class AgentContentService:
 
     @staticmethod
     def build_llms_txt_url(request: HttpRequest) -> str:
-        return request.build_absolute_uri(reverse('llms_txt'))
+        return SiteUrlService.absolute_url(request, reverse('llms_txt'))
 
     @staticmethod
     def build_sitemap_url(request: HttpRequest) -> str:
-        return request.build_absolute_uri(reverse('sitemap'))
+        return SiteUrlService.absolute_url(request, reverse('sitemap'))
 
     @staticmethod
     def build_default_robots_txt_lines(request: HttpRequest, setting: SiteSetting) -> list[str]:
@@ -216,20 +217,23 @@ class AgentContentService:
 
     @staticmethod
     def build_post_markdown_url(post: Post, request: HttpRequest) -> str:
-        return request.build_absolute_uri(
-            reverse('post_markdown', args=[post.author.username, post.url])
+        return SiteUrlService.absolute_url(
+            request,
+            reverse('post_markdown', args=[post.author.username, post.url]),
         )
 
     @staticmethod
     def build_series_markdown_url(series: Series, request: HttpRequest) -> str:
-        return request.build_absolute_uri(
-            reverse('series_markdown', args=[series.owner.username, series.url])
+        return SiteUrlService.absolute_url(
+            request,
+            reverse('series_markdown', args=[series.owner.username, series.url]),
         )
 
     @staticmethod
     def build_static_page_markdown_url(page: StaticPage, request: HttpRequest) -> str:
-        return request.build_absolute_uri(
-            reverse('static_page_markdown', args=[page.slug])
+        return SiteUrlService.absolute_url(
+            request,
+            reverse('static_page_markdown', args=[page.slug]),
         )
 
     @staticmethod
@@ -248,7 +252,7 @@ class AgentContentService:
     @staticmethod
     def build_post_markdown(post: Post, request: HttpRequest) -> str:
         content = AgentContentService.get_post_content_markdown(post)
-        source_url = request.build_absolute_uri(post.get_absolute_url())
+        source_url = SiteUrlService.absolute_url(request, post.get_absolute_url())
 
         lines = [
             f'# {post.title}',
@@ -276,7 +280,7 @@ class AgentContentService:
     @staticmethod
     def build_series_markdown(series: Series, request: HttpRequest) -> str:
         content = AgentContentService.get_series_content_markdown(series)
-        source_url = request.build_absolute_uri(series.get_absolute_url())
+        source_url = SiteUrlService.absolute_url(request, series.get_absolute_url())
         public_posts = list(AgentContentService.get_public_series_posts(series))
 
         lines = [
@@ -314,7 +318,7 @@ class AgentContentService:
     @staticmethod
     def build_static_page_markdown(page: StaticPage, request: HttpRequest) -> str:
         content = AgentContentService.html_to_markdown(page.content)
-        source_url = request.build_absolute_uri(reverse('static_page', args=[page.slug]))
+        source_url = SiteUrlService.absolute_url(request, reverse('static_page', args=[page.slug]))
 
         lines = [
             f'# {page.title}',

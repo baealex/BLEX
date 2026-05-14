@@ -1,5 +1,5 @@
 from django.contrib.auth.models import User
-from django.test import Client, TestCase
+from django.test import Client, TestCase, override_settings
 from django.urls import reverse
 from django.utils import timezone
 
@@ -54,7 +54,7 @@ class SeriesAgentDiscoveryTestCase(TestCase):
         content = response.content.decode()
 
         self.assertNotIn('rel=alternate type=text/markdown', content)
-        self.assertNotIn('http://testserver/@seriesauthor/series/agent-discovery-series.md', content)
+        self.assertNotIn('http://localhost:8000/@seriesauthor/series/agent-discovery-series.md', content)
         self.assertNotIn('Link', response)
         self.assertNotIn('X-Llms-Txt', response)
 
@@ -67,12 +67,37 @@ class SeriesAgentDiscoveryTestCase(TestCase):
 
         self.assertEqual(response.status_code, 200)
 
-        markdown_url = 'http://testserver/@seriesauthor/series/agent-discovery-series.md'
-        llms_txt_url = 'http://testserver/llms.txt'
+        markdown_url = 'http://localhost:8000/@seriesauthor/series/agent-discovery-series.md'
+        llms_txt_url = 'http://localhost:8000/llms.txt'
         content = response.content.decode()
 
         self.assertIn(markdown_url, content)
         self.assertIn('rel=alternate type=text/markdown', content)
+        self.assertIn(
+            f'<{markdown_url}>; rel="alternate"; type="text/markdown"',
+            response['Link'],
+        )
+        self.assertIn(
+            f'<{llms_txt_url}>; rel="llms-txt"',
+            response['Link'],
+        )
+        self.assertEqual(response['X-Llms-Txt'], llms_txt_url)
+
+    @override_settings(SITE_URL='https://blex.example')
+    def test_series_detail_uses_configured_site_url_for_markdown_alternate(self):
+        self.enable_aeo()
+        response = self.client.get(reverse('series_detail', kwargs={
+            'username': 'seriesauthor',
+            'series_url': 'agent-discovery-series',
+        }))
+
+        self.assertEqual(response.status_code, 200)
+
+        markdown_url = 'https://blex.example/@seriesauthor/series/agent-discovery-series.md'
+        llms_txt_url = 'https://blex.example/llms.txt'
+        content = response.content.decode()
+
+        self.assertIn(markdown_url, content)
         self.assertIn(
             f'<{markdown_url}>; rel="alternate"; type="text/markdown"',
             response['Link'],
@@ -110,7 +135,7 @@ class StaticPageAgentDiscoveryTestCase(TestCase):
         content = response.content.decode()
 
         self.assertNotIn('rel=alternate type=text/markdown', content)
-        self.assertNotIn('http://testserver/static/agent-policy.md', content)
+        self.assertNotIn('http://localhost:8000/static/agent-policy.md', content)
         self.assertNotIn('Link', response)
         self.assertNotIn('X-Llms-Txt', response)
 
@@ -122,12 +147,36 @@ class StaticPageAgentDiscoveryTestCase(TestCase):
 
         self.assertEqual(response.status_code, 200)
 
-        markdown_url = 'http://testserver/static/agent-policy.md'
-        llms_txt_url = 'http://testserver/llms.txt'
+        markdown_url = 'http://localhost:8000/static/agent-policy.md'
+        llms_txt_url = 'http://localhost:8000/llms.txt'
         content = response.content.decode()
 
         self.assertIn(markdown_url, content)
         self.assertIn('rel=alternate type=text/markdown', content)
+        self.assertIn(
+            f'<{markdown_url}>; rel="alternate"; type="text/markdown"',
+            response['Link'],
+        )
+        self.assertIn(
+            f'<{llms_txt_url}>; rel="llms-txt"',
+            response['Link'],
+        )
+        self.assertEqual(response['X-Llms-Txt'], llms_txt_url)
+
+    @override_settings(SITE_URL='https://blex.example')
+    def test_static_page_uses_configured_site_url_for_markdown_alternate(self):
+        self.enable_aeo()
+        response = self.client.get(reverse('static_page', kwargs={
+            'slug': 'agent-policy',
+        }))
+
+        self.assertEqual(response.status_code, 200)
+
+        markdown_url = 'https://blex.example/static/agent-policy.md'
+        llms_txt_url = 'https://blex.example/llms.txt'
+        content = response.content.decode()
+
+        self.assertIn(markdown_url, content)
         self.assertIn(
             f'<{markdown_url}>; rel="alternate"; type="text/markdown"',
             response['Link'],
