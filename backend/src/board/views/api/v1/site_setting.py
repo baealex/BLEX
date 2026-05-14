@@ -1,8 +1,8 @@
-import json
 from django.http import Http404
 from board.models import SiteSetting
 from board.modules.response import StatusDone
 from board.services.api_permission_service import ApiPermissionService
+from board.services.api_request_body_service import ApiRequestBodyService
 from board.services.agent_content_service import AgentContentService
 
 
@@ -38,10 +38,7 @@ def site_settings(request):
         return StatusDone(serialize_site_setting(request, setting))
 
     if request.method == 'PUT':
-        try:
-            put_data = json.loads(request.body.decode('utf-8')) if request.body else {}
-        except (json.JSONDecodeError, UnicodeDecodeError):
-            put_data = {}
+        put_data = ApiRequestBodyService.parse_json_or_default(request)
 
         if 'header_script' in put_data:
             setting.header_script = put_data['header_script']
