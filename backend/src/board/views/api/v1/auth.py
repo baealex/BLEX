@@ -8,7 +8,6 @@ import base64
 
 from django.conf import settings
 from django.contrib import auth
-from django.core.cache import cache
 from django.contrib.auth.models import User
 from django.http import Http404, QueryDict
 from django.shortcuts import get_object_or_404
@@ -19,6 +18,7 @@ from board.models import (
     UserLinkMeta, UsernameChangeLog, TelegramSync, SocialAuthProvider, SiteSetting)
 from board.modules.notify import create_notify
 from board.modules.response import StatusDone, StatusError, ErrorCode
+from board.services.auth_login_service import AuthLoginService
 from board.services.auth_request_parser import AuthRequestParser
 from board.services.auth_service import AuthService, OAuthService, AuthValidationError
 from modules import oauth
@@ -28,128 +28,14 @@ from modules.telegram import TelegramBot
 from modules.randomness import randnum, randstr
 
 
-def login_response(user: User, is_first_login=False):
-    data = AuthService.get_user_login_data(user)
-    data['is_first_login'] = is_first_login
-    return StatusDone(data)
-
-
-def common_auth(request, user, two_factor_code=None, is_oauth=False):
-    """
-    Handle authentication with optional 2FA code.
-
-    Args:
-        request: HTTP request
-        user: Authenticated user
-        two_factor_code: Optional 2FA code from client
-        is_oauth: Whether this is OAuth authentication
-
-    Returns:
-        StatusDone with login data or security requirement
-    """
-    if AuthService.check_two_factor_auth(user):
-        if two_factor_code:
-            client_ip = get_client_ip(request)
-            cache_key = f'login_attempts:{client_ip}'
-
-            if AuthService.verify_totp_token(user, two_factor_code):
-                cache.delete(cache_key)
-                auth.login(request, user)
-                return login_response(request.user)
-            else:
-                cache.set(cache_key, cache.get(cache_key, 0) + 1, 300)
-                return StatusError(ErrorCode.REJECT, '2차 인증 코드가 올바르지 않습니다.')
-        else:
-            return StatusDone({
-                'username': user.username,
-                'security': True,
-                'is_oauth': is_oauth,
-            })
-
-    auth.login(request, user)
-    return login_response(request.user)
-
-
-def get_client_ip(request):
-    """Get client IP address from request"""
-    return request.META.get('HTTP_X_FORWARDED_FOR', request.META.get('REMOTE_ADDR'))
-
-
-def check_login_rate_limit(request):
-    """
-    Check login rate limiting for the client IP.
-    Returns StatusError if blocked, None otherwise.
-    """
-    client_ip = get_client_ip(request)
-    cache_key = f'login_attempts:{client_ip}'
-    attempts = cache.get(cache_key, 0)
-
-    if attempts >= 5:
-        return StatusError(ErrorCode.REJECT, '너무 많은 실패로 인해 잠시 후 다시 시도해주세요.')
-
-    return None
-
-
-def handle_oauth_token_login(request, data):
-    """Handle OAuth token-based login with 2FA"""
-    client_ip = get_client_ip(request)
-    oauth_token = data.get('oauth_token', '') or request.POST.get('oauth_token', '')
-    two_factor_code = data.get('code', '') or request.POST.get('code', '')
-
-    oauth_data = OAuthService.get_2fa_data(oauth_token)
-
-    if not oauth_data:
-        return StatusError(ErrorCode.REJECT, '인증 토큰이 만료되었습니다. 다시 로그인해주세요.')
-
-    try:
-        user = User.objects.get(id=oauth_data['user_id'])
-    except User.DoesNotExist:
-        OAuthService.delete_2fa_token(oauth_token)
-        return StatusError(ErrorCode.REJECT)
-
-    if not two_factor_code:
-        return StatusError(ErrorCode.VALIDATE, '2차 인증 코드가 필요합니다.')
-
-    cache_key = f'login_attempts:{client_ip}'
-
-    if AuthService.verify_totp_token(user, two_factor_code):
-        cache.delete(cache_key)
-        OAuthService.delete_2fa_token(oauth_token)
-        auth.login(request, user)
-        return login_response(request.user)
-    else:
-        cache.set(cache_key, cache.get(cache_key, 0) + 1, 300)
-        return StatusError(ErrorCode.REJECT, '2차 인증 코드가 올바르지 않습니다.')
-
-
-def handle_password_login(request, data):
-    """Handle username/password-based login with optional 2FA"""
-    client_ip = get_client_ip(request)
-    cache_key = f'login_attempts:{client_ip}'
-
-    username = data.get('username', '') or request.POST.get('username', '')
-    password = data.get('password', '') or request.POST.get('password', '')
-    two_factor_code = data.get('code', '') or request.POST.get('code', '')
-
-    user = auth.authenticate(username=username, password=password)
-
-    if user is not None:
-        if user.is_active:
-            cache.delete(cache_key)
-            return common_auth(request, user, two_factor_code=two_factor_code)
-    else:
-        cache.set(cache_key, cache.get(cache_key, 0) + 1, 300)
-        return StatusError(ErrorCode.AUTHENTICATION)
-
-
 def login(request):
     if request.method == 'GET':
         if request.user.is_active:
-            return login_response(request.user)
+            return AuthLoginService.login_response(request.user)
         return StatusError(ErrorCode.NEED_LOGIN)
 
     if request.method == 'POST':
-        rate_limit_error = check_login_rate_limit(request)
+        rate_limit_error = AuthLoginService.check_login_rate_limit(request)
         if rate_limit_error:
             return rate_limit_error
 
@@ -157,9 +43,9 @@ def login(request):
 
         oauth_token = data.get('oauth_token', '') or request.POST.get('oauth_token', '')
         if oauth_token:
-            return handle_oauth_token_login(request, data)
+            return AuthLoginService.handle_oauth_token_login(request, data)
         else:
-            return handle_password_login(request, data)
+            return AuthLoginService.handle_password_login(request, data)
 
     raise Http404
 
@@ -214,7 +100,7 @@ def sign(request):
         )
 
         auth.login(request, new_user)
-        return login_response(request.user, is_first_login=True)
+        return AuthLoginService.login_response(request.user, is_first_login=True)
 
     if request.method == 'PATCH':
         user = request.user
@@ -268,7 +154,7 @@ def sign_social(request, social):
 
                 users = User.objects.filter(last_name=token)
                 if users.exists():
-                    return common_auth(request, users.first(), is_oauth=True)
+                    return AuthLoginService.common_auth(request, users.first(), is_oauth=True)
 
                 user, profile, config = AuthService.create_user(
                     username=user_id,
@@ -285,7 +171,7 @@ def sign_social(request, social):
                 )
 
                 auth.login(request, user)
-                return login_response(request.user, is_first_login=True)
+                return AuthLoginService.login_response(request.user, is_first_login=True)
 
         if social == 'google':
             if request.POST.get('code'):
@@ -302,7 +188,7 @@ def sign_social(request, social):
 
                 users = User.objects.filter(last_name=token)
                 if users.exists():
-                    return common_auth(request, users.first(), is_oauth=True)
+                    return AuthLoginService.common_auth(request, users.first(), is_oauth=True)
 
                 user, profile, config = AuthService.create_user(
                     username=user_id,
@@ -313,7 +199,7 @@ def sign_social(request, social):
                 )
 
                 auth.login(request, user)
-                return login_response(request.user, is_first_login=True)
+                return AuthLoginService.login_response(request.user, is_first_login=True)
 
     raise Http404
 
