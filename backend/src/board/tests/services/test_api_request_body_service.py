@@ -30,6 +30,34 @@ class ApiRequestBodyServiceTestCase(TestCase):
         self.assertIsNotNone(error)
         self.assertEqual(error.status_code, 200)
 
+
+    def test_parse_json_or_error_allows_custom_error_code(self):
+        from board.modules.response import ErrorCode
+
+        request = self.factory.post('/v1/example', data=b'{invalid', content_type='application/json')
+
+        data, error = ApiRequestBodyService.parse_json_or_error(
+            request,
+            error_code=ErrorCode.INVALID_PARAMETER,
+            message='invalid payload',
+        )
+
+        self.assertIsNone(data)
+        self.assertIsNotNone(error)
+        self.assertContains(error, 'error:IP')
+
+    def test_parse_json_or_querydict_falls_back_to_form_body(self):
+        request = self.factory.post(
+            '/v1/example',
+            data='title=Form+Title&post_ids=1%2C2',
+            content_type='application/x-www-form-urlencoded',
+        )
+
+        data = ApiRequestBodyService.parse_json_or_querydict(request)
+
+        self.assertEqual(data.get('title'), 'Form Title')
+        self.assertEqual(data.get('post_ids'), '1,2')
+
     def test_parse_json_or_default_returns_default_for_invalid_json(self):
         request = self.factory.put('/v1/example/1', data=b'{invalid', content_type='application/json')
 

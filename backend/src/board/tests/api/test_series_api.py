@@ -84,6 +84,27 @@ class SeriesAPITestCase(TestCase):
         self.assertEqual(content['status'], 'ERROR')
         self.assertEqual(content['errorCode'], 'error:NL')
 
+
+    def test_series_json_endpoints_invalid_json_return_invalid_parameter(self):
+        self.client.login(username='author', password='author')
+        series = Series.objects.get(url='test-series')
+        endpoints = (
+            ('post', '/v1/series'),
+            ('put', '/v1/series/order'),
+            ('put', f'/v1/series/{series.id}'),
+        )
+
+        for method, endpoint in endpoints:
+            with self.subTest(endpoint=endpoint):
+                response = getattr(self.client, method)(
+                    endpoint,
+                    data='{invalid',
+                    content_type='application/json'
+                )
+                content = json.loads(response.content)
+                self.assertEqual(content['status'], 'ERROR')
+                self.assertEqual(content['errorCode'], 'error:IP')
+
     # POST /v1/series - Create new series
     def test_create_series(self):
         """시리즈 생성 테스트"""
@@ -445,6 +466,36 @@ class SeriesAPITestCase(TestCase):
             content_type='application/json'
         )
         self.assertEqual(response.status_code, 200)
+
+
+    def test_create_series_with_form_encoded_body_via_user_endpoint(self):
+        """사용자 시리즈 생성 API는 기존 form body fallback을 유지한다."""
+        self.client.login(username='author', password='author')
+        response = self.client.post(
+            '/v1/users/@author/series',
+            data='title=Form+Series&description=Form+Description',
+            content_type='application/x-www-form-urlencoded'
+        )
+
+        self.assertEqual(response.status_code, 200)
+        content = json.loads(response.content)
+        self.assertEqual(content['status'], 'DONE')
+        self.assertTrue(Series.objects.filter(name='Form Series').exists())
+
+    def test_update_series_with_form_encoded_body_via_user_endpoint(self):
+        """사용자 시리즈 수정 API는 기존 form body fallback을 유지한다."""
+        self.client.login(username='author', password='author')
+        response = self.client.put(
+            '/v1/users/@author/series/test-series',
+            data='title=Form+Updated&description=Form+Description',
+            content_type='application/x-www-form-urlencoded'
+        )
+
+        self.assertEqual(response.status_code, 200)
+        content = json.loads(response.content)
+        self.assertEqual(content['status'], 'DONE')
+        series = Series.objects.get(url='test-series')
+        self.assertEqual(series.name, 'Form Updated')
 
     # DELETE /v1/users/@<username>/series/<url> - Delete series via user endpoint
     def test_delete_series_via_user_endpoint(self):

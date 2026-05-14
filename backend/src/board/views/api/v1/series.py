@@ -1,4 +1,3 @@
-import json
 from django.db.models import F, Q
 from django.http import Http404, QueryDict
 from django.shortcuts import get_object_or_404
@@ -8,6 +7,7 @@ from board.services import SeriesService
 from board.services.series_service import SeriesValidationError
 from board.services.public_post_service import PublicPostService
 from board.services.public_series_service import PublicSeriesService
+from board.services.api_request_body_service import ApiRequestBodyService
 from board.modules.paginator import Paginator
 from board.modules.response import StatusDone, StatusError, ErrorCode
 from board.modules.time import convert_to_localtime
@@ -101,10 +101,7 @@ def user_series(request, username, url=None):
                     return StatusError(e.code, e.message)
 
         if request.method == 'POST':
-            try:
-                body = json.loads(request.body)
-            except:
-                body = QueryDict(request.body)
+            body = ApiRequestBodyService.parse_json_or_querydict(request)
 
             try:
                 post_ids = []
@@ -193,10 +190,7 @@ def user_series(request, username, url=None):
             return StatusError(ErrorCode.AUTHENTICATION)
 
         if request.method == 'PUT':
-            try:
-                put = json.loads(request.body)
-            except:
-                put = QueryDict(request.body)
+            put = ApiRequestBodyService.parse_json_or_querydict(request)
 
             try:
                 post_ids = None
@@ -232,10 +226,13 @@ def series_order(request):
     Expects JSON data with 'order' field containing array of [id, order] pairs.
     """
     if request.method == 'PUT':
-        try:
-            body = json.loads(request.body)
-        except:
-            return StatusError(ErrorCode.INVALID_PARAMETER, '잘못된 요청 데이터입니다.')
+        body, body_error = ApiRequestBodyService.parse_json_or_error(
+            request,
+            error_code=ErrorCode.INVALID_PARAMETER,
+            message='잘못된 요청 데이터입니다.',
+        )
+        if body_error:
+            return body_error
 
         order_data = body.get('order', [])
         if not order_data:
@@ -274,10 +271,13 @@ def series_create_update(request):
         })
 
     elif request.method == 'POST':
-        try:
-            body = json.loads(request.body)
-        except:
-            return StatusError(ErrorCode.INVALID_PARAMETER, '잘못된 요청 데이터입니다.')
+        body, body_error = ApiRequestBodyService.parse_json_or_error(
+            request,
+            error_code=ErrorCode.INVALID_PARAMETER,
+            message='잘못된 요청 데이터입니다.',
+        )
+        if body_error:
+            return body_error
 
         try:
             post_ids = None
@@ -344,10 +344,13 @@ def series_detail(request, series_id):
         })
 
     if request.method == 'PUT':
-        try:
-            body = json.loads(request.body)
-        except:
-            return StatusError(ErrorCode.INVALID_PARAMETER, '잘못된 요청 데이터입니다.')
+        body, body_error = ApiRequestBodyService.parse_json_or_error(
+            request,
+            error_code=ErrorCode.INVALID_PARAMETER,
+            message='잘못된 요청 데이터입니다.',
+        )
+        if body_error:
+            return body_error
 
         try:
             post_ids = None
