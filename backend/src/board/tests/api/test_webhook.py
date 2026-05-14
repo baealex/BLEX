@@ -87,6 +87,34 @@ class WebhookAPITestCase(TestCase):
             ).exists()
         )
 
+
+
+    def test_add_channel_empty_body_returns_invalid_parameter(self):
+        self.client.login(username='testauthor', password='testpass123')
+
+        response = self.client.post(
+            '/v1/webhook/channels',
+            data=b'',
+            content_type='application/json'
+        )
+
+        data = response.json()
+        self.assertEqual(data['status'], 'ERROR')
+        self.assertEqual(data['errorCode'], 'error:IP')
+
+    def test_add_channel_invalid_json_returns_invalid_parameter(self):
+        self.client.login(username='testauthor', password='testpass123')
+
+        response = self.client.post(
+            '/v1/webhook/channels',
+            data='{invalid',
+            content_type='application/json'
+        )
+
+        data = response.json()
+        self.assertEqual(data['status'], 'ERROR')
+        self.assertEqual(data['errorCode'], 'error:IP')
+
     def test_add_channel_invalid_url(self):
         """잘못된 URL로 채널 추가 시 실패"""
         self.client.login(username='testauthor', password='testpass123')
@@ -200,6 +228,38 @@ class WebhookAPITestCase(TestCase):
         data = response.json()
         self.assertEqual(data['status'], 'ERROR')
 
+
+
+    @patch('board.services.webhook_service.WebhookService.test_webhook')
+    def test_test_webhook_empty_body_returns_invalid_parameter(self, mock_test):
+        self.client.login(username='testauthor', password='testpass123')
+
+        response = self.client.post(
+            '/v1/webhook/test',
+            data=b'',
+            content_type='application/json'
+        )
+
+        data = response.json()
+        self.assertEqual(data['status'], 'ERROR')
+        self.assertEqual(data['errorCode'], 'error:IP')
+        mock_test.assert_not_called()
+
+    @patch('board.services.webhook_service.WebhookService.test_webhook')
+    def test_test_webhook_invalid_json_returns_invalid_parameter(self, mock_test):
+        self.client.login(username='testauthor', password='testpass123')
+
+        response = self.client.post(
+            '/v1/webhook/test',
+            data='{invalid',
+            content_type='application/json'
+        )
+
+        data = response.json()
+        self.assertEqual(data['status'], 'ERROR')
+        self.assertEqual(data['errorCode'], 'error:IP')
+        mock_test.assert_not_called()
+
     @patch('board.services.webhook_service.WebhookService.test_webhook')
     def test_test_webhook(self, mock_test):
         """웹훅 테스트 메시지 전송"""
@@ -282,6 +342,34 @@ class GlobalWebhookAPITestCase(TestCase):
         self.assertEqual(data['status'], 'DONE')
         self.assertEqual(len(data['body']['channels']), 1)
         self.assertEqual(data['body']['channels'][0]['name'], 'Global One')
+
+
+
+    def test_add_global_channel_empty_body_returns_invalid_parameter(self):
+        self.client.login(username='staff', password='testpass123')
+
+        response = self.client.post(
+            '/v1/webhook/global-channels',
+            data=b'',
+            content_type='application/json'
+        )
+
+        data = response.json()
+        self.assertEqual(data['status'], 'ERROR')
+        self.assertEqual(data['errorCode'], 'error:IP')
+
+    def test_add_global_channel_invalid_json_returns_invalid_parameter(self):
+        self.client.login(username='staff', password='testpass123')
+
+        response = self.client.post(
+            '/v1/webhook/global-channels',
+            data='{invalid',
+            content_type='application/json'
+        )
+
+        data = response.json()
+        self.assertEqual(data['status'], 'ERROR')
+        self.assertEqual(data['errorCode'], 'error:IP')
 
     def test_add_and_delete_global_channel_staff(self):
         self.client.login(username='staff', password='testpass123')
