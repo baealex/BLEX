@@ -31,6 +31,23 @@ class ApiRequestBodyServiceTestCase(TestCase):
         self.assertEqual(error.status_code, 200)
 
 
+
+    def test_parse_json_or_error_can_require_body(self):
+        from board.modules.response import ErrorCode
+
+        request = self.factory.post('/v1/example', data=b'', content_type='application/json')
+
+        data, error = ApiRequestBodyService.parse_json_or_error(
+            request,
+            error_code=ErrorCode.INVALID_PARAMETER,
+            message='body required',
+            require_body=True,
+        )
+
+        self.assertIsNone(data)
+        self.assertIsNotNone(error)
+        self.assertContains(error, 'error:IP')
+
     def test_parse_json_or_error_allows_custom_error_code(self):
         from board.modules.response import ErrorCode
 

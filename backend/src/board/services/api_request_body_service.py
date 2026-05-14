@@ -23,8 +23,20 @@ class ApiRequestBodyService:
         return json.loads(request.body.decode('utf-8'))
 
     @staticmethod
-    def parse_json_or_error(request, default=None, message=None, error_code=ErrorCode.VALIDATE):
+    def parse_json_or_error(
+        request,
+        default=None,
+        message=None,
+        error_code=ErrorCode.VALIDATE,
+        require_body=False,
+    ):
         """Parse JSON and return (data, error_response)."""
+        if require_body and not request.body:
+            return None, StatusError(
+                error_code,
+                message or ApiRequestBodyService.DEFAULT_INVALID_JSON_MESSAGE,
+            )
+
         try:
             return ApiRequestBodyService.parse_json(request, default=default), None
         except (json.JSONDecodeError, UnicodeDecodeError):

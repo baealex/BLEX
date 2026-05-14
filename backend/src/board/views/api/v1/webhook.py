@@ -6,12 +6,11 @@ When a new post is published, notifications are sent to:
 - the author's channels
 - global channels (staff-managed)
 """
-import json
-
 from django.views.decorators.http import require_http_methods
 
 from board.models import Profile, WebhookSubscription, SiteContentScope
 from board.services import WebhookService
+from board.services.api_request_body_service import ApiRequestBodyService
 from board.modules.response import StatusDone, StatusError, ErrorCode
 
 
@@ -28,10 +27,14 @@ def _get_authenticated_profile(request):
 
 
 def _validate_webhook_payload(request):
-    try:
-        data = json.loads(request.body)
-    except json.JSONDecodeError:
-        return None, None, StatusError(ErrorCode.INVALID_PARAMETER, 'Invalid JSON body')
+    data, body_error = ApiRequestBodyService.parse_json_or_error(
+        request,
+        error_code=ErrorCode.INVALID_PARAMETER,
+        message='Invalid JSON body',
+        require_body=True,
+    )
+    if body_error:
+        return None, None, body_error
 
     webhook_url = data.get('webhook_url', '').strip()
     name = data.get('name', '').strip()
@@ -198,10 +201,14 @@ def test_channel(request):
     if error:
         return error
 
-    try:
-        data = json.loads(request.body)
-    except json.JSONDecodeError:
-        return StatusError(ErrorCode.INVALID_PARAMETER, 'Invalid JSON body')
+    data, body_error = ApiRequestBodyService.parse_json_or_error(
+        request,
+        error_code=ErrorCode.INVALID_PARAMETER,
+        message='Invalid JSON body',
+        require_body=True,
+    )
+    if body_error:
+        return body_error
 
     webhook_url = data.get('webhook_url', '').strip()
 
