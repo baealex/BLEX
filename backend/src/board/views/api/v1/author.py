@@ -8,6 +8,7 @@ from django.core.cache import cache
 
 from board.models import User, Post, Comment, PostLikes
 from board.services import UserService
+from board.services.public_post_service import PublicPostService
 from board.modules.response import StatusDone, StatusError, ErrorCode
 
 
@@ -35,10 +36,10 @@ def get_author_heatmap(request, username):
 
         # Fetch posts
         posts = Post.objects.filter(
+            PublicPostService.build_public_filter(),
             author=user,
             published_date__date__gte=start_date,
             published_date__date__lte=end_date,
-            config__hide=False
         ).values('published_date__date').annotate(count=Count('id'))
 
         for post in posts:
@@ -47,10 +48,10 @@ def get_author_heatmap(request, username):
 
         # Fetch comments
         comments = Comment.objects.filter(
+            PublicPostService.build_public_filter('post'),
             author=user,
             created_date__date__gte=start_date,
             created_date__date__lte=end_date,
-            post__config__hide=False
         ).values('created_date__date').annotate(count=Count('id'))
 
         for comment in comments:
@@ -59,10 +60,10 @@ def get_author_heatmap(request, username):
 
         # Fetch likes
         likes = PostLikes.objects.filter(
+            PublicPostService.build_public_filter('post'),
             user=user,
             created_date__date__gte=start_date,
             created_date__date__lte=end_date,
-            post__config__hide=False
         ).values('created_date__date').annotate(count=Count('id'))
 
         for like in likes:

@@ -142,9 +142,8 @@ class TagService:
         Returns:
             Post instance or None
         """
-        return Post.objects.filter(
-            url=tag_name,
-            config__hide=False
+        return PublicPostService.filter_public_posts(
+            Post.objects.filter(url=tag_name)
         ).annotate(
             author_username=F('author__username'),
             author_image=F('author__profile__avatar'),

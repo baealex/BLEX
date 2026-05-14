@@ -1,12 +1,12 @@
 from django.shortcuts import render, get_object_or_404
 from django.contrib.auth.models import User
 from django.db.models import Count, Exists, OuterRef
-from django.utils import timezone
 from django.http import Http404
 
 from board.models import Post, Series, PostLikes
 from board.services.agent_content_service import AgentContentService
 from board.services.discovery_metadata_service import DiscoveryMetadataService
+from board.services.public_post_service import PublicPostService
 
 
 def series_detail(request, username, series_url):
@@ -29,13 +29,10 @@ def series_detail(request, username, series_url):
 
     order_by = 'published_date' if sort_order == 'asc' else '-published_date'
 
-    all_posts = Post.objects.select_related(
-        'config', 'author', 'author__profile'
-    ).filter(
-        series=series,
-        published_date__isnull=False,
-        published_date__lte=timezone.now(),
-        config__hide=False,
+    all_posts = PublicPostService.filter_public_posts(
+        Post.objects.select_related(
+            'config', 'author', 'author__profile'
+        ).filter(series=series)
     ).annotate(
         count_likes=Count('likes', distinct=True),
         count_comments=Count('comments', distinct=True),

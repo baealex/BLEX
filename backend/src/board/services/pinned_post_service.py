@@ -10,10 +10,10 @@ from typing import List, Dict, Any
 from django.contrib.auth.models import User
 from django.db import transaction
 from django.db.models import F
-from django.utils import timezone
 
 from board.models import Post, PinnedPost
 from board.modules.response import ErrorCode
+from board.services.public_post_service import PublicPostService
 
 
 class PinnedPostError(Exception):
@@ -32,7 +32,7 @@ class PinnedPostService:
     @staticmethod
     def _is_published_post(post: Post) -> bool:
         """Return True when the post is published and already visible."""
-        return bool(post.published_date and post.published_date <= timezone.now())
+        return PublicPostService.is_public(post)
 
     @staticmethod
     def get_user_pinned_posts(user: User) -> List[Dict[str, Any]]:
@@ -48,10 +48,8 @@ class PinnedPostService:
         pinned_posts = PinnedPost.objects.select_related(
             'post', 'post__author'
         ).filter(
+            PublicPostService.build_public_filter('post'),
             user=user,
-            post__config__hide=False,
-            post__published_date__isnull=False,
-            post__published_date__lte=timezone.now(),
         ).order_by('order')
 
         return [{
@@ -81,11 +79,8 @@ class PinnedPostService:
             user=user
         ).values_list('post_id', flat=True)
 
-        posts = Post.objects.filter(
-            author=user,
-            config__hide=False,
-            published_date__isnull=False,
-            published_date__lte=timezone.now(),
+        posts = PublicPostService.filter_public_posts(
+            Post.objects.filter(author=user)
         ).exclude(
             id__in=pinned_post_ids
         ).order_by('-published_date')
@@ -115,10 +110,8 @@ class PinnedPostService:
         """
         # Check if user has reached the limit
         current_count = PinnedPost.objects.filter(
+            PublicPostService.build_public_filter('post'),
             user=user,
-            post__config__hide=False,
-            post__published_date__isnull=False,
-            post__published_date__lte=timezone.now(),
         ).count()
         if current_count >= PinnedPostService.MAX_PINNED_POSTS:
             raise PinnedPostError(

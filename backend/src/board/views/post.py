@@ -10,6 +10,7 @@ from board.models import Post, Series, PostLikes, UsernameChangeLog
 from board.services.post_service import PostService, PostValidationError
 from board.services.banner_service import BannerService
 from board.services.agent_content_service import AgentContentService
+from board.services.public_post_service import PublicPostService
 from board.html_utils import extract_table_of_contents
 
 def post_detail(request, username, post_url):
@@ -29,7 +30,10 @@ def post_detail(request, username, post_url):
     except Http404:
         raise Http404("Post does not exist")
 
-    if post.config.hide and (not request.user.is_authenticated or request.user != author):
+    is_owner = request.user.is_authenticated and request.user == author
+    if not PublicPostService.is_public(post) and (
+        not is_owner or post.published_date is None
+    ):
         raise Http404("Post does not exist")
 
     post.created_date_display = post.published_date.strftime('%Y-%m-%d')

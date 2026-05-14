@@ -12,7 +12,7 @@ from typing import Optional, Dict, Any, List
 
 from django.contrib.auth.models import User
 from django.db import transaction
-from django.db.models import F, Q, Count, Case, When
+from django.db.models import F, Q, Count
 from django.utils import timezone
 
 from board.models import (
@@ -121,18 +121,16 @@ class UserService:
         Returns:
             List of tag dictionaries
         """
-        tags = Tag.objects.filter(
+        public_post_filter = PublicPostService.build_public_filter('posts') & Q(
             posts__author=user,
-            posts__config__hide=False,
+        )
+        tags = Tag.objects.filter(
+            public_post_filter,
         ).annotate(
             count=Count(
-                Case(
-                    When(
-                        posts__author=user,
-                        posts__config__hide=False,
-                        then='posts'
-                    ),
-                )
+                'posts',
+                filter=public_post_filter,
+                distinct=True,
             )
         ).order_by('-count')
 
@@ -156,7 +154,8 @@ class UserService:
         pinned_posts = list(PinnedPost.objects.select_related(
             'post', 'user', 'user__profile'
         ).filter(
-            user=user
+            PublicPostService.build_public_filter('post'),
+            user=user,
         ).order_by('order')[:6])
 
         if pinned_posts:
@@ -170,13 +169,10 @@ class UserService:
                 'author': pinned_post.user.username,
             } for pinned_post in pinned_posts]
 
-        posts = Post.objects.select_related(
-            'config', 'author', 'author__profile'
-        ).filter(
-            author=user,
-            config__hide=False,
-            published_date__isnull=False,
-            published_date__lte=timezone.now(),
+        posts = PublicPostService.filter_public_posts(
+            Post.objects.select_related(
+                'config', 'author', 'author__profile'
+            ).filter(author=user)
         ).annotate(
             likes_count=Count('likes', distinct=True),
         ).order_by('-likes_count', '-published_date')[:6]
@@ -205,13 +201,10 @@ class UserService:
         """
         cutoff_date = timezone.now() - datetime.timedelta(days=days)
 
-        posts = Post.objects.filter(
+        posts = PublicPostService.filter_public_posts(Post.objects.filter(
             published_date__gte=cutoff_date,
-            published_date__isnull=False,
-            published_date__lte=timezone.now(),
             author=user,
-            config__hide=False
-        ).order_by('-published_date')
+        )).order_by('-published_date')
 
         series = Series.objects.filter(
             created_date__gte=cutoff_date,
@@ -220,10 +213,10 @@ class UserService:
         ).order_by('-created_date')
 
         comments = Comment.objects.filter(
+            PublicPostService.build_public_filter('post'),
             created_date__gte=cutoff_date,
             created_date__lte=timezone.now(),
             author=user,
-            post__config__hide=False
         ).order_by('-created_date')
 
         activity = sorted(
