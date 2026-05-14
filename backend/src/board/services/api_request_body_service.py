@@ -1,5 +1,7 @@
 import json
 
+from django.http import QueryDict
+
 from board.modules.response import ErrorCode, StatusError
 
 
@@ -21,13 +23,13 @@ class ApiRequestBodyService:
         return json.loads(request.body.decode('utf-8'))
 
     @staticmethod
-    def parse_json_or_error(request, default=None, message=None):
+    def parse_json_or_error(request, default=None, message=None, error_code=ErrorCode.VALIDATE):
         """Parse JSON and return (data, error_response)."""
         try:
             return ApiRequestBodyService.parse_json(request, default=default), None
         except (json.JSONDecodeError, UnicodeDecodeError):
             return None, StatusError(
-                ErrorCode.VALIDATE,
+                error_code,
                 message or ApiRequestBodyService.DEFAULT_INVALID_JSON_MESSAGE,
             )
 
@@ -38,3 +40,11 @@ class ApiRequestBodyService:
             return ApiRequestBodyService.parse_json(request, default=default)
         except (json.JSONDecodeError, UnicodeDecodeError):
             return {} if default is None else default
+
+    @staticmethod
+    def parse_json_or_querydict(request):
+        """Parse JSON, falling back to QueryDict for form-encoded bodies."""
+        try:
+            return ApiRequestBodyService.parse_json(request)
+        except (json.JSONDecodeError, UnicodeDecodeError):
+            return QueryDict(request.body)
