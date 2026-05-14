@@ -8,9 +8,9 @@ from board.services.series_service import SeriesValidationError
 from board.services.public_post_service import PublicPostService
 from board.services.public_series_service import PublicSeriesService
 from board.services.api_request_body_service import ApiRequestBodyService
+from board.services.series_serializer import SeriesSerializer
 from board.modules.paginator import Paginator
 from board.modules.response import StatusDone, StatusError, ErrorCode
-from board.modules.time import convert_to_localtime
 
 
 def posts_can_add_series(request):
@@ -40,11 +40,10 @@ def posts_can_add_series(request):
         else:
             posts = SeriesService.get_posts_available_for_series(request.user)
 
-        return StatusDone(list(map(lambda post: {
-            'id': post.id,
-            'title': post.title,
-            'publishedDate': convert_to_localtime(post.published_date).strftime('%Y-%m-%d') if post.published_date else None,
-        }, posts)))
+        return StatusDone([
+            SeriesSerializer.available_post(post)
+            for post in posts
+        ])
 
     raise Http404
 
@@ -59,14 +58,10 @@ def user_series(request, username, url=None):
                 page=request.GET.get('page', 1)
             )
             return StatusDone({
-                'series': list(map(lambda item: {
-                    'url': item.url,
-                    'name': item.name,
-                    'image': item.thumbnail(),
-                    'total_posts': item.total_posts,
-                    'created_date': convert_to_localtime(item.created_date).strftime('%Y년 %m월 %d일'),
-                    'owner': item.owner_username,
-                }, series)),
+                'series': [
+                    SeriesSerializer.public_series_list_item(item)
+                    for item in series
+                ],
                 'last_page': series.paginator.num_pages
             })
 
@@ -91,11 +86,10 @@ def user_series(request, username, url=None):
 
                     series = SeriesService.get_user_series_list(request.user)
                     return StatusDone({
-                        'series': list(map(lambda item: {
-                            'url': item.url,
-                            'title': item.name,
-                            'total_posts': item.total_posts
-                        }, series))
+                        'series': [
+                            SeriesSerializer.owner_series_order_item(item)
+                            for item in series
+                        ]
                     })
                 except SeriesValidationError as e:
                     return StatusError(e.code, e.message)
@@ -142,18 +136,7 @@ def user_series(request, username, url=None):
                 posts = PublicPostService.filter_public_posts(Post.objects).filter(
                     series=series,
                 ).values_list('title', 'url')
-                return StatusDone({
-                    'name': series.name,
-                    'url': series.url,
-                    'owner': series.owner_username,
-                    'owner_image': series.owner_avatar,
-                    'description': series.text_md,
-                    'total_posts': series.total_posts,
-                    'posts': list(map(lambda post: {
-                        'title': post[0],
-                        'url': post[1],
-                    }, posts)),
-                })
+                return StatusDone(SeriesSerializer.public_continue_detail(series, posts))
 
             page = request.GET.get('page', 1)
             order = request.GET.get('order', 'latest')
@@ -167,26 +150,9 @@ def user_series(request, username, url=None):
                 offset=12,
                 page=page
             )
-            start_number = series.total_posts - \
-                (posts.paginator.per_page * (int(page) - 1))
-            return StatusDone({
-                'name': series.name,
-                'url': series.url,
-                'owner': series.owner_username,
-                'owner_image': series.owner_avatar,
-                'description': series.text_md,
-                'total_posts': series.total_posts,
-                'posts': list(map(lambda post: {
-                    'url': post.url,
-                    'number': start_number - posts.index(post) if order == 'latest' else posts.index(post) + 1 + (int(page) - 1) * posts.paginator.per_page,
-                    'title': post.title,
-                    'image': str(post.image),
-                    'read_time': post.read_time,
-                    'description': post.meta_description,
-                    'created_date': convert_to_localtime(post.published_date).strftime('%Y년 %m월 %d일')
-                }, posts)),
-                'last_page': posts.paginator.num_pages
-            })
+            return StatusDone(
+                SeriesSerializer.public_detail(series, posts, int(page), order)
+            )
 
         series = get_object_or_404(
             PublicSeriesService.with_public_post_count(series_queryset, 'total_posts'),
@@ -269,13 +235,10 @@ def series_create_update(request):
         series = SeriesService.get_user_series_list(request.user)
 
         return StatusDone({
-            'series': list(map(lambda item: {
-                'id': str(item.id),
-                'name': item.name,
-                'url': item.url,
-                'total_posts': item.total_posts,
-                'created_date': convert_to_localtime(item.created_date).strftime('%Y년 %m월 %d일'),
-            }, series))
+            'series': [
+                SeriesSerializer.owner_series_list_item(item)
+                for item in series
+            ]
         })
 
     elif request.method == 'POST':
@@ -306,14 +269,12 @@ def series_create_update(request):
                 post_ids=post_ids
             )
 
-            return StatusDone({
-                'id': series.id,
-                'name': series.name,
-                'url': series.url,
-                'description': series.text_md,
-                'thumbnail': body.get('thumbnail', ''),
-                'postCount': series.posts.count()
-            })
+            return StatusDone(
+                SeriesSerializer.mutation_detail(
+                    series,
+                    thumbnail=body.get('thumbnail', ''),
+                )
+            )
         except SeriesValidationError as e:
             return StatusError(e.code, e.message)
 
@@ -342,14 +303,7 @@ def series_detail(request, series_id):
             ).values_list('id', flat=True)
         )
 
-        return StatusDone({
-            'id': series.id,
-            'name': series.name,
-            'url': series.url,
-            'description': series.text_md,
-            'post_ids': post_ids,
-            'post_count': len(post_ids)
-        })
+        return StatusDone(SeriesSerializer.owner_detail(series, post_ids))
 
     if request.method == 'PUT':
         body, body_error = ApiRequestBodyService.parse_json_or_error(
@@ -379,14 +333,12 @@ def series_detail(request, series_id):
                 post_ids=post_ids
             )
 
-            return StatusDone({
-                'id': series.id,
-                'name': series.name,
-                'url': series.url,
-                'description': series.text_md,
-                'thumbnail': body.get('thumbnail', ''),
-                'postCount': series.posts.count()
-            })
+            return StatusDone(
+                SeriesSerializer.mutation_detail(
+                    series,
+                    thumbnail=body.get('thumbnail', ''),
+                )
+            )
         except SeriesValidationError as e:
             return StatusError(e.code, e.message)
 
