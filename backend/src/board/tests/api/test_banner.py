@@ -132,6 +132,34 @@ class BannerAPITestCase(TestCase):
         content = json.loads(response.content)
         self.assertEqual(content['status'], 'ERROR')
 
+
+    def test_create_banner_invalid_json_returns_validate_error(self):
+        response = self.client.post(
+            '/v1/banners',
+            '{invalid',
+            content_type='application/json'
+        )
+
+        self.assertEqual(response.status_code, 200)
+        content = json.loads(response.content)
+        self.assertEqual(content['status'], 'ERROR')
+        self.assertEqual(content['errorCode'], 'error:VA')
+
+    def test_update_banner_invalid_json_keeps_existing_fields(self):
+        banner = self._create_user_banner(title='Original Title')
+
+        response = self.client.put(
+            f'/v1/banners/{banner.id}',
+            '{invalid',
+            content_type='application/json'
+        )
+
+        self.assertEqual(response.status_code, 200)
+        content = json.loads(response.content)
+        self.assertEqual(content['status'], 'DONE')
+        banner.refresh_from_db()
+        self.assertEqual(banner.title, 'Original Title')
+
     def test_get_banner(self):
         """배너 조회 테스트"""
         banner = self._create_user_banner()
@@ -201,6 +229,19 @@ class BannerAPITestCase(TestCase):
         banner2.refresh_from_db()
         self.assertEqual(banner1.order, 1)
         self.assertEqual(banner2.order, 0)
+
+
+    def test_update_banner_order_invalid_json_returns_validate_error(self):
+        response = self.client.put(
+            '/v1/banners/order',
+            '{invalid',
+            content_type='application/json'
+        )
+
+        self.assertEqual(response.status_code, 200)
+        content = json.loads(response.content)
+        self.assertEqual(content['status'], 'ERROR')
+        self.assertEqual(content['errorCode'], 'error:VA')
 
     def test_get_banners_with_multiple_banners(self):
         """여러 배너 목록 조회 테스트"""
