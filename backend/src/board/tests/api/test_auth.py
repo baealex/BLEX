@@ -47,6 +47,35 @@ class AuthTestCase(TestCase):
         self.assertEqual(content['status'], 'DONE')
         self.assertEqual(content['body']['username'], 'test')
 
+    def test_login_with_json_body(self):
+        """JSON body 로그인 테스트"""
+        response = self.client.post(
+            '/v1/login',
+            json.dumps({
+                'username': 'test',
+                'password': 'test',
+            }),
+            content_type='application/json',
+        )
+
+        self.assertEqual(response.status_code, 200)
+        content = json.loads(response.content)
+        self.assertEqual(content['status'], 'DONE')
+        self.assertEqual(content['body']['username'], 'test')
+
+    def test_login_with_invalid_json_body_keeps_legacy_fallback(self):
+        """invalid JSON body는 기존처럼 빈 dict fallback 후 인증 실패한다."""
+        response = self.client.post(
+            '/v1/login',
+            '{"username":',
+            content_type='application/json',
+        )
+
+        self.assertEqual(response.status_code, 200)
+        content = json.loads(response.content)
+        self.assertEqual(content['status'], 'ERROR')
+        self.assertEqual(content['errorCode'], 'error:AT')
+
     def test_logout(self):
         """로그아웃 테스트"""
         self.client.login(username='test', password='test')
