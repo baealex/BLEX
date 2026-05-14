@@ -1,25 +1,12 @@
-import random
-import datetime
-
-from django.conf import settings
-from django.db.models import (
-    Q, F, Case, Exists, When, Subquery,
-    Value, OuterRef, Count, IntegerField, Prefetch)
 from django.http import Http404, QueryDict
 from django.shortcuts import get_object_or_404
-from django.utils import timezone
 from django.utils.dateparse import parse_datetime
-from django.utils.text import slugify
 
-from board.models import (
-    Comment, Series, Post, PostContent,
-    PostConfig, PinnedPost, PostLikes)
-from board.modules.notify import create_notify
-from board.modules.paginator import Paginator
-from board.modules.post_description import create_post_description
+from board.models import Post, PinnedPost
 from board.modules.requests import BooleanType
 from board.modules.response import StatusDone, StatusError, ErrorCode
 from board.modules.time import convert_to_localtime, time_since
+from board.services.comment_list_service import CommentListService
 from board.services.post_service import PostService, PostValidationError
 
 
@@ -65,80 +52,7 @@ def post_list(request):
 
 def post_comment_list(request, url):
     if request.method == 'GET':
-        user_id = request.user.id if request.user.id else -1
-        is_authenticated = request.user.is_authenticated
-
-        # 대댓글용 queryset (미리 annotate 적용)
-        replies_queryset = Comment.objects.select_related(
-            'author',
-            'author__profile'
-        ).annotate(
-            count_likes=Count('likes', distinct=True),
-            has_liked=Case(
-                When(
-                    Exists(
-                        Comment.objects.filter(
-                            id=OuterRef('id'),
-                            likes__id=user_id
-                        )
-                    ),
-                    then=Value(True)
-                ),
-                default=Value(False),
-            )
-        ).order_by('created_date')
-
-        # 부모 댓글만 조회 (parent__isnull=True)
-        parent_comments = Comment.objects.select_related(
-            'author',
-            'author__profile'
-        ).prefetch_related(
-            Prefetch('replies', queryset=replies_queryset)
-        ).annotate(
-            count_likes=Count('likes', distinct=True),
-            has_liked=Case(
-                When(
-                    Exists(
-                        Comment.objects.filter(
-                            id=OuterRef('id'),
-                            likes__id=user_id
-                        )
-                    ),
-                    then=Value(True)
-                ),
-                default=Value(False),
-            )
-        ).filter(post__url=url, parent__isnull=True).order_by('created_date')
-
-        def serialize_comment(comment):
-            # prefetch된 replies 사용 (추가 쿼리 없음)
-            return {
-                'id': comment.id,
-                'author': comment.author_username(),
-                'author_image': None if not comment.author else comment.author.profile.get_thumbnail(),
-                'is_mine': is_authenticated and comment.author_id == user_id,
-                'is_edited': comment.edited,
-                'rendered_content': comment.get_text_html(),
-                'created_date': comment.time_since(),
-                'count_likes': comment.count_likes,
-                'is_liked': comment.has_liked,
-                'replies': list(map(lambda reply: {
-                    'id': reply.id,
-                    'author': reply.author_username(),
-                    'author_image': None if not reply.author else reply.author.profile.get_thumbnail(),
-                    'is_mine': is_authenticated and reply.author_id == user_id,
-                    'is_edited': reply.edited,
-                    'rendered_content': reply.get_text_html(),
-                    'created_date': reply.time_since(),
-                    'count_likes': reply.count_likes,
-                    'is_liked': reply.has_liked,
-                    'parent_id': comment.id,
-                }, comment.replies.all()))
-            }
-
-        return StatusDone({
-            'comments': list(map(serialize_comment, parent_comments))
-        })
+        return StatusDone(CommentListService.serialize_post_comments(url, request.user))
 
 
 def user_posts(request, username, url=None):
