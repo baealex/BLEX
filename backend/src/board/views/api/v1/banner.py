@@ -3,6 +3,7 @@ from django.http import Http404, QueryDict
 from django.shortcuts import get_object_or_404
 from board.models import SiteBanner, SiteContentScope
 from board.modules.response import StatusDone, StatusError, ErrorCode
+from board.services.api_permission_service import ApiPermissionService
 from board.html_utils import sanitize_html
 
 
@@ -16,12 +17,9 @@ def banner(request, banner_id=None):
     PUT /v1/banners/:id - Update banner
     DELETE /v1/banners/:id - Delete banner
     """
-    if not request.user.is_active:
-        return StatusError(ErrorCode.NEED_LOGIN)
-
-    # Check if user is an editor
-    if not request.user.profile.is_editor():
-        return StatusError(ErrorCode.REJECT, '에디터 권한이 필요합니다.')
+    permission_error = ApiPermissionService.require_editor(request.user)
+    if permission_error:
+        return permission_error
 
     user = request.user
 
@@ -193,12 +191,9 @@ def banner_order(request):
     PUT /v1/banners/order
     Body: { order: [[id1, order1], [id2, order2], ...] }
     """
-    if not request.user.is_active:
-        return StatusError(ErrorCode.NEED_LOGIN)
-
-    # Check if user is an editor
-    if not request.user.profile.is_editor():
-        return StatusError(ErrorCode.REJECT, '에디터 권한이 필요합니다.')
+    permission_error = ApiPermissionService.require_editor(request.user)
+    if permission_error:
+        return permission_error
 
     if request.method != 'PUT':
         raise Http404

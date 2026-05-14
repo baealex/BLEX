@@ -13,8 +13,19 @@ class ApiPermissionService:
 
     @staticmethod
     def require_login(user: User | AnonymousUser) -> Optional[HttpResponse]:
-        if not user.is_authenticated:
+        if not user.is_authenticated or not user.is_active:
             return StatusError(ErrorCode.NEED_LOGIN, '로그인이 필요합니다.')
+        return None
+
+    @staticmethod
+    def require_editor(user: User | AnonymousUser) -> Optional[HttpResponse]:
+        login_error = ApiPermissionService.require_login(user)
+        if login_error:
+            return login_error
+
+        if not hasattr(user, 'profile') or not user.profile.is_editor():
+            return StatusError(ErrorCode.REJECT, '에디터 권한이 필요합니다.')
+
         return None
 
     @staticmethod

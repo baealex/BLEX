@@ -21,6 +21,13 @@ class BannerAPITestCase(TestCase):
         profile.role = Profile.Role.EDITOR
         profile.save()
 
+        cls.normal_user = User.objects.create_user(
+            username='normaluser',
+            password='test',
+            email='normal@test.com',
+        )
+        Profile.objects.create(user=cls.normal_user)
+
     def setUp(self):
         self.client = Client(HTTP_USER_AGENT='Mozilla/5.0')
         self.client.login(username='test', password='test')
@@ -45,6 +52,16 @@ class BannerAPITestCase(TestCase):
         content = json.loads(response.content)
         self.assertEqual(content['status'], 'ERROR')
         self.assertEqual(content['errorCode'], 'error:NL')
+
+    def test_get_banners_normal_user(self):
+        """일반 유저(비에디터)가 배너 조회 시 권한 거부 테스트"""
+        client = Client(HTTP_USER_AGENT='Mozilla/5.0')
+        client.login(username='normaluser', password='test')
+        response = client.get('/v1/banners')
+        self.assertEqual(response.status_code, 200)
+        content = json.loads(response.content)
+        self.assertEqual(content['status'], 'ERROR')
+        self.assertEqual(content['errorCode'], 'error:RJ')
 
     def test_get_banners_empty(self):
         """배너 목록 조회 - 빈 목록 테스트"""
