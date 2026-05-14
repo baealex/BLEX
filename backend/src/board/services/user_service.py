@@ -21,6 +21,7 @@ from board.models import (
 )
 from board.modules.response import ErrorCode
 from board.services.public_post_service import PublicPostService
+from board.services.public_series_service import PublicSeriesService
 from modules.markdown import parse_post_to_html
 
 
@@ -199,7 +200,8 @@ class UserService:
         Returns:
             List of activity dictionaries
         """
-        cutoff_date = timezone.now() - datetime.timedelta(days=days)
+        now = timezone.now()
+        cutoff_date = now - datetime.timedelta(days=days)
 
         posts = PublicPostService.filter_public_posts(Post.objects.filter(
             published_date__gte=cutoff_date,
@@ -208,14 +210,14 @@ class UserService:
 
         series = Series.objects.filter(
             created_date__gte=cutoff_date,
-            created_date__lte=timezone.now(),
+            created_date__lte=now,
             owner=user
         ).order_by('-created_date')
 
         comments = Comment.objects.filter(
             PublicPostService.build_public_filter('post'),
             created_date__gte=cutoff_date,
-            created_date__lte=timezone.now(),
+            created_date__lte=now,
             author=user,
         ).order_by('-created_date')
 
@@ -389,13 +391,14 @@ class UserService:
         Returns:
             List of activity dictionaries (max 5 items, sorted by date)
         """
-        cutoff_date = timezone.now() - datetime.timedelta(days=days)
+        now = timezone.now()
+        cutoff_date = now - datetime.timedelta(days=days)
 
         recent_posts = Post.objects.filter(
             author=user,
             published_date__gte=cutoff_date,
             published_date__isnull=False,
-            published_date__lte=timezone.now(),
+            published_date__lte=now,
         ).select_related('author').only(
             'title', 'url', 'published_date', 'author__username'
         ).order_by('-published_date')[:5]
@@ -403,7 +406,7 @@ class UserService:
         recent_series = Series.objects.filter(
             owner=user,
             created_date__gte=cutoff_date,
-            created_date__lte=timezone.now(),
+            created_date__lte=now,
         ).select_related('owner').only(
             'name', 'url', 'created_date', 'owner__username'
         ).order_by('-created_date')[:5]
@@ -462,6 +465,107 @@ class UserService:
 
         recent_activities = sorted(activities, key=lambda x: x['sort_date'], reverse=True)
         
+        for activity in recent_activities:
+            del activity['sort_date']
+
+        return recent_activities
+
+    @staticmethod
+    def get_public_author_activities(user: User, days: int = 30) -> List[Dict[str, Any]]:
+        """
+        Get recent activities safe for public author overview surfaces.
+        Dashboard activities include private ownership context; this method only
+        exposes activity attached to public posts and public series.
+        """
+        now = timezone.now()
+        cutoff_date = now - datetime.timedelta(days=days)
+
+        recent_posts = PublicPostService.filter_public_posts(Post.objects.filter(
+            author=user,
+            published_date__gte=cutoff_date,
+        )).select_related('author', 'config').only(
+            'title',
+            'url',
+            'created_date',
+            'published_date',
+            'author__username',
+            'config__hide',
+        ).order_by('-published_date')[:5]
+
+        recent_series = PublicSeriesService.filter_public_series(Series.objects.filter(
+            owner=user,
+            created_date__gte=cutoff_date,
+            created_date__lte=now,
+        )).select_related('owner').only(
+            'name', 'url', 'created_date', 'owner__username'
+        ).order_by('-created_date')[:5]
+
+        recent_comments = Comment.objects.filter(
+            PublicPostService.build_public_filter('post'),
+            author=user,
+            created_date__gte=cutoff_date,
+        ).select_related('post', 'post__author', 'post__config').only(
+            'created_date',
+            'post__title',
+            'post__url',
+            'post__published_date',
+            'post__author__username',
+            'post__config__hide',
+        ).order_by('-created_date')[:5]
+
+        recent_likes = PostLikes.objects.filter(
+            PublicPostService.build_public_filter('post'),
+            user=user,
+            created_date__gte=cutoff_date,
+        ).select_related('post', 'post__author', 'post__config').only(
+            'created_date',
+            'post__title',
+            'post__url',
+            'post__published_date',
+            'post__author__username',
+            'post__config__hide',
+        ).order_by('-created_date')[:5]
+
+        activities = []
+
+        for post in recent_posts:
+            activities.append({
+                'type': 'post',
+                'title': post.title,
+                'url': post.get_absolute_url(),
+                'date': post.time_since(),
+                'sort_date': post.published_date,
+            })
+
+        for series_item in recent_series:
+            activities.append({
+                'type': 'series',
+                'title': series_item.name,
+                'url': series_item.get_absolute_url(),
+                'date': series_item.time_since(),
+                'sort_date': series_item.created_date,
+            })
+
+        for comment in recent_comments:
+            activities.append({
+                'type': 'comment',
+                'postTitle': comment.post.title,
+                'url': comment.get_absolute_url(),
+                'date': comment.time_since(),
+                'sort_date': comment.created_date,
+            })
+
+        for like in recent_likes:
+            activities.append({
+                'type': 'like',
+                'postTitle': like.post.title,
+                'url': like.post.get_absolute_url(),
+                'date': like.time_since(),
+                'sort_date': like.created_date,
+            })
+
+        recent_activities = sorted(activities, key=lambda x: x['sort_date'], reverse=True)
+
         for activity in recent_activities:
             del activity['sort_date']
 

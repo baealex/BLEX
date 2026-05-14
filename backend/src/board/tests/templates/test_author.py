@@ -7,7 +7,9 @@ from django.contrib.auth.models import User
 from django.urls import reverse
 from django.utils import timezone
 
-from board.models import Post, PostContent, PostConfig, Series, Profile, Tag
+from board.models import (
+    Comment, Post, PostContent, PostConfig, PostLikes, Series, Profile, Tag
+)
 
 
 class AuthorPostsPageTestCase(TestCase):
@@ -90,6 +92,141 @@ class AuthorPostsPageTestCase(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'board/author/author_overview.html')
 
+    def test_author_overview_recent_activities_are_public_only(self):
+        """작가 개요 최근 활동은 공개 가능한 글/시리즈 대상만 노출한다."""
+        public_series = Series.objects.create(
+            owner=self.user,
+            name='Public Activity Series',
+            url='public-activity-series',
+            hide=False,
+        )
+        public_series_post = self.create_author_post(
+            'Public Series Activity Post',
+            'public-series-activity-post',
+            timezone.now(),
+        )
+        public_series_post.series = public_series
+        public_series_post.save(update_fields=['series'])
+
+        hidden_post = self.create_author_post(
+            'Hidden Activity Post',
+            'hidden-activity-post',
+            timezone.now(),
+            hide=True,
+        )
+        draft_post = self.create_author_post(
+            'Draft Activity Post',
+            'draft-activity-post',
+            None,
+        )
+        future_post = self.create_author_post(
+            'Future Activity Post',
+            'future-activity-post',
+            timezone.now() + timezone.timedelta(days=1),
+        )
+
+        hidden_series = Series.objects.create(
+            owner=self.user,
+            name='Hidden Activity Series',
+            url='hidden-activity-series',
+            hide=True,
+        )
+        hidden_series_post = self.create_author_post(
+            'Hidden Series Public Post',
+            'hidden-series-public-post',
+            timezone.now(),
+        )
+        hidden_series_post.series = hidden_series
+        hidden_series_post.save(update_fields=['series'])
+        Series.objects.create(
+            owner=self.user,
+            name='Empty Activity Series',
+            url='empty-activity-series',
+            hide=False,
+        )
+        draft_series = Series.objects.create(
+            owner=self.user,
+            name='Draft Only Activity Series',
+            url='draft-only-activity-series',
+            hide=False,
+        )
+        draft_post.series = draft_series
+        draft_post.save(update_fields=['series'])
+        future_series = Series.objects.create(
+            owner=self.user,
+            name='Future Only Activity Series',
+            url='future-only-activity-series',
+            hide=False,
+        )
+        future_post.series = future_series
+        future_post.save(update_fields=['series'])
+        hidden_post_series = Series.objects.create(
+            owner=self.user,
+            name='Hidden Post Only Activity Series',
+            url='hidden-post-only-activity-series',
+            hide=False,
+        )
+        hidden_post.series = hidden_post_series
+        hidden_post.save(update_fields=['series'])
+
+        Comment.objects.create(
+            author=self.user,
+            post=self.post,
+            text_md='Public comment',
+            text_html='<p>Public comment</p>',
+        )
+        Comment.objects.create(
+            author=self.user,
+            post=hidden_post,
+            text_md='Hidden post comment',
+            text_html='<p>Hidden post comment</p>',
+        )
+        PostLikes.objects.create(user=self.user, post=self.post)
+        PostLikes.objects.create(user=self.user, post=hidden_post)
+
+        response = self.client.get(
+            reverse('user_profile', kwargs={'username': self.user.username})
+        )
+
+        self.assertEqual(response.status_code, 200)
+        activities = response.context['recent_activities']
+        activity_titles = {
+            activity.get('title') or activity.get('postTitle')
+            for activity in activities
+        }
+
+        self.assertIn('Author Test Post', activity_titles)
+        self.assertIn('Public Activity Series', activity_titles)
+        self.assertNotIn('Hidden Activity Post', activity_titles)
+        self.assertNotIn('Draft Activity Post', activity_titles)
+        self.assertNotIn('Future Activity Post', activity_titles)
+        self.assertNotIn('Hidden Activity Series', activity_titles)
+        self.assertNotIn('Empty Activity Series', activity_titles)
+        self.assertNotIn('Draft Only Activity Series', activity_titles)
+        self.assertNotIn('Future Only Activity Series', activity_titles)
+        self.assertNotIn('Hidden Post Only Activity Series', activity_titles)
+
+        self.assertTrue(
+            any(
+                activity['type'] == 'comment'
+                and activity['postTitle'] == 'Author Test Post'
+                for activity in activities
+            )
+        )
+        self.assertTrue(
+            any(
+                activity['type'] == 'like'
+                and activity['postTitle'] == 'Author Test Post'
+                for activity in activities
+            )
+        )
+        self.assertFalse(
+            any(
+                activity['type'] in ['comment', 'like']
+                and activity.get('postTitle') == 'Hidden Activity Post'
+                for activity in activities
+            )
+        )
 
     def test_author_posts_page_exposes_public_posts_and_tags_only(self):
         """작가 글 표면은 숨김, 임시저장, 미래 발행 글과 그 태그를 노출하지 않는다."""
