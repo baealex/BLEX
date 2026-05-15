@@ -19,7 +19,7 @@ This document records model-layer side effects that should be reduced in small, 
 | P2 | `Profile.save()` | Detects changed avatar and generates thumbnail after saving. | Filesystem image work hidden behind profile saves; expensive for unrelated profile updates. | Add tests for new avatar, changed avatar, and unchanged avatar, then extract avatar thumbnail behavior into a profile image service. |
 | P3 | `Series.save()` | Generates URL when empty and refreshes `updated_date` on every save. Compatibility delegate now routes slug/timestamp policy through `SeriesSaveService`. | Save hook remains for backward compatibility; bulk updates still bypass model save as before. | Keep characterization coverage around URL generation/collision and timestamp refresh; avoid adding new slug policy outside `SeriesSaveService`. |
 | P3 | `TelegramSync.save()` | Encrypts `tid` when non-empty and not already encrypted. Compatibility delegate now routes encryption/idempotence through `TelegramSyncEncryptionService`. | Save hook remains for backward compatibility; broad malformed-value behavior is preserved by characterization tests. | Keep encryption/idempotence policy in `TelegramSyncEncryptionService`; avoid adding new encryption logic to model/view code. |
-| P3 | `SiteSetting.save()` | Forces `pk = 1` before every save to maintain singleton behavior. | Singleton policy is hidden in save and can surprise callers trying to create test rows. | Characterize singleton behavior and `get_instance()`; keep hook unless replacing with a manager/service and migration-safe admin path. |
+| P3 | `SiteSetting.save()` | Forces `pk = 1` before every save to maintain singleton behavior; characterization tests now cover normal save, second-row create, and `get_instance()`. | Singleton policy remains in save by design because replacing it safely would require a migration/admin-aware manager path. | Keep the hook covered by tests; route new callers through `SiteSetting.get_instance()` instead of creating additional rows. |
 
 ## Related model-layer write methods
 
@@ -51,7 +51,7 @@ These are not `save()` overrides, but they perform writes or side effects from m
 8. `WebhookSubscription` success/failure transition characterization before optional service extraction.
 9. `Series.save()` slug/timestamp characterization and service extraction completed; keep compatibility delegate covered by tests.
 10. `TelegramSync.save()` encryption idempotence characterization and service extraction completed; keep compatibility delegate covered by tests.
-11. `SiteSetting.save()` singleton characterization; keep the hook unless a safer manager/service replacement is proven.
+11. `SiteSetting.save()` singleton characterization completed; keep the hook unless a safer manager/service replacement is proven.
 
 ## Test strategy
 
