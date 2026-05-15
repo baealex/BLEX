@@ -27,6 +27,7 @@ from board.services.profile_image_service import ProfileImageService
 from board.services.notification_delivery_service import NotificationDeliveryService
 from board.services.webhook_subscription_state_service import WebhookSubscriptionStateService
 from board.services.user_config_meta_service import UserConfigMetaService
+from board.services.series_save_service import SeriesSaveService
 
 
 def get_user_hex(username):
@@ -475,14 +476,7 @@ class Series(models.Model):
     updated_date = models.DateTimeField(default=timezone.now)
 
     def create_unique_url(self, url=None):
-        url = url if url else slugify(self.name, allow_unicode=True)
-
-        series = Series.objects.filter(url=url)
-        while series.exists():
-            url = url + '-' + randstr(8)
-            series = Series.objects.filter(url=url)
-
-        self.url = url
+        SeriesSaveService.create_unique_url(self, url)
 
     def thumbnail(self):
         post = Post.objects.filter(
@@ -500,9 +494,7 @@ class Series(models.Model):
         return time_since(self.created_date)
 
     def save(self, *args, **kwargs):
-        if not self.url:
-            self.create_unique_url()
-        self.updated_date = timezone.now()
+        SeriesSaveService.prepare_for_save(self)
         super(Series, self).save(*args, **kwargs)
 
     def __str__(self):
