@@ -25,7 +25,6 @@ class SeriesSaveHookTestCase(TestCase):
         series.refresh_from_db()
         self.assertEqual(series.url, 'hello-series')
 
-
     def test_existing_series_empty_url_regenerates_with_self_collision_suffix(self):
         series = Series.objects.create(
             owner=self.user,
@@ -34,7 +33,7 @@ class SeriesSaveHookTestCase(TestCase):
         )
         self.assertEqual(series.url, 'hello-series')
 
-        with patch('board.models.randstr', return_value='efgh5678'):
+        with patch('board.services.series_save_service.randstr', return_value='efgh5678'):
             series.url = ''
             series.save()
 
@@ -60,7 +59,7 @@ class SeriesSaveHookTestCase(TestCase):
             url='hello-series',
         )
 
-        with patch('board.models.randstr', return_value='abcd1234'):
+        with patch('board.services.series_save_service.randstr', return_value='abcd1234'):
             series = Series.objects.create(
                 owner=self.user,
                 name='Hello Series',
@@ -74,14 +73,14 @@ class SeriesSaveHookTestCase(TestCase):
     def test_save_refreshes_updated_date_on_regular_save(self):
         initial_time = timezone.now() - timezone.timedelta(days=1)
         next_time = timezone.now()
-        with patch('board.models.timezone.now', return_value=initial_time):
+        with patch('board.services.series_save_service.timezone.now', return_value=initial_time):
             series = Series.objects.create(
                 owner=self.user,
                 name='Timestamp Series',
                 url='timestamp-series',
             )
 
-        with patch('board.models.timezone.now', return_value=next_time):
+        with patch('board.services.series_save_service.timezone.now', return_value=next_time):
             series.name = 'Timestamp Series Updated'
             series.save()
 
@@ -91,14 +90,14 @@ class SeriesSaveHookTestCase(TestCase):
     def test_save_with_update_fields_changes_instance_updated_date_but_not_database_value(self):
         initial_time = timezone.now() - timezone.timedelta(days=1)
         next_time = timezone.now()
-        with patch('board.models.timezone.now', return_value=initial_time):
+        with patch('board.services.series_save_service.timezone.now', return_value=initial_time):
             series = Series.objects.create(
                 owner=self.user,
                 name='Partial Save Series',
                 url='partial-save-series',
             )
 
-        with patch('board.models.timezone.now', return_value=next_time):
+        with patch('board.services.series_save_service.timezone.now', return_value=next_time):
             series.name = 'Partial Save Series Updated'
             series.save(update_fields=['name'])
             self.assertEqual(series.updated_date, next_time)
