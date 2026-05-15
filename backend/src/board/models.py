@@ -14,9 +14,6 @@ from django.utils.text import slugify
 from django.utils.html import strip_tags
 
 from dateutil import parser as dateutil_parser
-from cryptography.fernet import InvalidToken
-
-from modules.cipher import encrypt_value, decrypt_value
 from modules.hash import get_sha256
 from modules.randomness import randstr
 from board.constants.config_meta import CONFIG_TYPE
@@ -28,6 +25,7 @@ from board.services.notification_delivery_service import NotificationDeliverySer
 from board.services.webhook_subscription_state_service import WebhookSubscriptionStateService
 from board.services.user_config_meta_service import UserConfigMetaService
 from board.services.series_save_service import SeriesSaveService
+from board.services.telegram_sync_encryption_service import TelegramSyncEncryptionService
 
 
 def get_user_hex(username):
@@ -517,10 +515,7 @@ class TelegramSync(models.Model):
     created_date = models.DateTimeField(default=timezone.now)
 
     def get_decrypted_tid(self):
-        try:
-            return decrypt_value(self.tid)
-        except (InvalidToken, Exception):
-            return ''
+        return TelegramSyncEncryptionService.get_decrypted_tid(self)
 
     def is_token_expire(self):
         one_day_ago = timezone.now() - datetime.timedelta(days=1)
@@ -532,16 +527,11 @@ class TelegramSync(models.Model):
         return self.user.username
     
     def save(self, *args, **kwargs):
-        if self.tid and not self._is_encrypted(self.tid):
-            self.tid = encrypt_value(self.tid).decode()
+        TelegramSyncEncryptionService.prepare_for_save(self)
         super().save(*args, **kwargs)
     
     def _is_encrypted(self, value):
-        try:
-            decrypt_value(value)
-            return True
-        except:
-            return False
+        return TelegramSyncEncryptionService.is_encrypted(value)
 
 
 
