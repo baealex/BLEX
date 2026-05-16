@@ -8,6 +8,7 @@ interface FormSubmitData {
     content: string;
     tags: string[];
     seriesId: string;
+    imageDeleted?: boolean;
 }
 
 interface UseFormSubmitOptions {
@@ -84,6 +85,11 @@ export const useFormSubmit = (options: UseFormSubmitOptions) => {
 
             if (isDraft) {
                 addHiddenField(form, 'is_draft', 'true');
+            }
+
+            if (data.imageDeleted) {
+                addHiddenField(form, 'image_delete', 'true');
+                addHiddenField(form, 'remove_image', 'true');
             }
 
             // Handle draft URL

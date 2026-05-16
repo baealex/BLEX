@@ -1,11 +1,16 @@
 import json
 from datetime import timedelta
+from io import BytesIO
 
+from PIL import Image
+
+from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import TestCase
 from django.contrib.auth.models import User
 from django.utils import timezone
 
 from board.models import Post, PostContent, PostConfig, Profile
+from board.services.post_service import PostService
 
 
 class DraftTestCase(TestCase):
@@ -34,6 +39,13 @@ class DraftTestCase(TestCase):
 
     def setUp(self):
         self.client.defaults['HTTP_USER_AGENT'] = 'BLEX_TEST'
+
+    def _create_test_image(self, name='test.jpg'):
+        image = Image.new('RGB', (10, 10), color='red')
+        buffer = BytesIO()
+        image.save(buffer, format='JPEG')
+        buffer.seek(0)
+        return SimpleUploadedFile(name, buffer.getvalue(), content_type='image/jpeg')
 
     def _create_draft(self, title='Test Draft', content='<p>Draft content</p>', tags='test'):
         """Helper to create a draft and return its URL."""
@@ -170,6 +182,62 @@ class DraftTestCase(TestCase):
         self.assertEqual(post.title, 'Updated Title')
         self.assertEqual(post.subtitle, 'My subtitle')
         self.assertIsNone(post.published_date)
+
+    def test_create_draft_with_image(self):
+        """이미지를 포함한 임시저장이 타이틀 이미지를 유지한다."""
+        self.client.login(username='test', password='test')
+
+        response = self.client.post('/v1/drafts', {
+            'title': 'Image Draft',
+            'content': '<p>content</p>',
+            'image': self._create_test_image('draft-title.jpg'),
+        })
+        self.assertEqual(response.status_code, 200)
+        content = json.loads(response.content)
+        self.assertEqual(content['status'], 'DONE')
+
+        post = Post.objects.get(url=content['body']['url'])
+        self.assertTrue(post.image)
+        self.assertIn('images/title/', post.image.name)
+
+    def test_update_draft_delete_image(self):
+        """임시글 이미지 삭제 플래그가 타이틀 이미지를 제거한다."""
+        url = self._create_draft(title='Delete Image Draft')
+        post = Post.objects.get(url=url)
+        post.image = self._create_test_image('draft-delete.jpg')
+        post.save()
+        self.assertTrue(post.image)
+
+        response = self.client.put(
+            f'/v1/drafts/{url}',
+            json.dumps({'image_delete': 'true'}),
+            content_type='application/json'
+        )
+        self.assertEqual(response.status_code, 200)
+        content = json.loads(response.content)
+        self.assertEqual(content['status'], 'DONE')
+
+        post.refresh_from_db()
+        self.assertFalse(post.image)
+
+    def test_publish_draft_delete_image(self):
+        """이미지 삭제 상태로 임시글을 발행하면 기존 타이틀 이미지를 제거한다."""
+        url = self._create_draft(title='Publish Delete Image Draft')
+        post = Post.objects.get(url=url)
+        post.image = self._create_test_image('draft-publish-delete.jpg')
+        post.save()
+        self.assertTrue(post.image)
+
+        PostService.publish_draft(
+            post=post,
+            title=post.title,
+            text_html=post.content.content_html,
+            image_delete=True,
+        )
+
+        post.refresh_from_db()
+        self.assertTrue(post.is_published())
+        self.assertFalse(post.image)
 
     def test_update_draft_custom_url_changes_lookup_key(self):
         """드래프트 URL 변경 시 식별 URL이 갱신되어야 함"""
