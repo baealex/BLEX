@@ -151,6 +151,7 @@ def post_editor(request, username=None, post_url=None):
         hide = request.POST.get('hide') in ['on', 'true']
         advertise = request.POST.get('advertise') in ['on', 'true']
         is_draft = request.POST.get('is_draft') == 'true'
+        image_delete = request.POST.get('image_delete') == 'true' or request.POST.get('remove_image') == 'true'
 
         series = None
         if series_id:
@@ -163,8 +164,8 @@ def post_editor(request, username=None, post_url=None):
             image = None
             if 'image' in request.FILES:
                 image = request.FILES['image']
-            elif request.POST.get('remove_image') == 'true':
-                image = None  # This will be handled separately
+            elif image_delete:
+                image = None
 
             PostService.update_post(
                 post=post,
@@ -175,14 +176,11 @@ def post_editor(request, username=None, post_url=None):
                 series_url=series.url if series else None,
                 tag=','.join(tags) if tags else None,
                 image=image,
+                image_delete=image_delete,
                 is_hide=hide,
                 is_advertise=advertise,
                 content_type=content_type,
             )
-
-            if request.POST.get('remove_image') == 'true':
-                post.image = None
-                post.save()
 
             messages.success(request, 'Post has been updated successfully.')
         else:
@@ -209,6 +207,7 @@ def post_editor(request, username=None, post_url=None):
                         custom_url=url,
                         tag=','.join(tags) if tags else '',
                         image=image,
+                        image_delete=image_delete,
                         is_hide=hide,
                         is_advertise=advertise,
                         content_type=content_type,

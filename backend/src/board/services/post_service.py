@@ -743,6 +743,7 @@ class PostService:
         custom_url: Optional[str] = None,
         tag: Optional[str] = None,
         image: Optional[Any] = None,
+        image_delete: bool = False,
         is_hide: bool = False,
         is_advertise: bool = False,
         reserved_date_str: str = '',
@@ -797,7 +798,7 @@ class PostService:
         if tag is not None:
             TagService.set_post_tags(post, tag)
 
-        PostService._set_image_with_dedup(post, image)
+        PostService._set_image_with_dedup(post, image, image_delete)
 
         reserved_date = PostService.validate_reserved_date(reserved_date_str)
         if reserved_date:

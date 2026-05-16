@@ -3,7 +3,8 @@ import {
     useState,
     useEffect,
     useMemo,
-    useRef
+    useRef,
+    useCallback
 } from 'react';
 import { toast } from '~/utils/toast';
 import { useConfirm } from '~/hooks/useConfirm';
@@ -70,12 +71,23 @@ const NewPostEditor = ({ draftUrl }: NewPostEditorProps) => {
         url: ''
     });
 
+    type DirtySnapshot = {
+        title: string;
+        subtitle: string;
+        url: string;
+        content: string;
+        metaDescription: string;
+        hide: boolean;
+        advertise: boolean;
+        tags: string[];
+        seriesUrl: string;
+        imagePreview: string;
+        imageFilePending: boolean;
+        imageDeleted: boolean;
+    };
+
     // Track initial state for dirty check
-    const initialDataRef = useRef({
-        title: '',
-        content: '',
-        tags: [] as string[]
-    });
+    const initialDataRef = useRef<DirtySnapshot | null>(null);
     const isIntentionalSubmitRef = useRef(false);
 
     // Custom hooks
@@ -85,8 +97,24 @@ const NewPostEditor = ({ draftUrl }: NewPostEditorProps) => {
         imageDeleted,
         handleImageUpload,
         handleRemoveImage,
-        setImagePreviewUrl
+        setImagePreviewUrl,
+        markImageSaved
     } = useImageUpload();
+
+    const buildDirtySnapshot = useCallback((): DirtySnapshot => ({
+        title: formData.title,
+        subtitle: formData.subtitle,
+        url: formData.url,
+        content: formData.content,
+        metaDescription: formData.metaDescription,
+        hide: formData.hide,
+        advertise: formData.advertise,
+        tags,
+        seriesUrl: selectedSeries.url || '',
+        imagePreview: imagePreview || '',
+        imageFilePending: Boolean(imageFile),
+        imageDeleted
+    }), [formData, tags, selectedSeries.url, imagePreview, imageFile, imageDeleted]);
 
     const handleEditorImageUpload = async (file: File) => {
         try {
@@ -101,15 +129,22 @@ const NewPostEditor = ({ draftUrl }: NewPostEditorProps) => {
     };
 
     const handleAutoSaveSuccess = (url?: string) => {
-        if (!url) return;
+        if (url) {
+            if (url !== currentDraftUrl) {
+                setCurrentDraftUrl(url);
+            }
 
-        if (url !== currentDraftUrl) {
-            setCurrentDraftUrl(url);
+            const newUrl = new URL(window.location.href);
+            newUrl.searchParams.set('draft', url);
+            window.history.replaceState({}, '', newUrl.toString());
         }
 
-        const newUrl = new URL(window.location.href);
-        newUrl.searchParams.set('draft', url);
-        window.history.replaceState({}, '', newUrl.toString());
+        initialDataRef.current = {
+            ...buildDirtySnapshot(),
+            imageFilePending: false,
+            imageDeleted: false
+        };
+        markImageSaved();
     };
 
     const handleAutoSaveError = () => {
@@ -223,12 +258,7 @@ const NewPostEditor = ({ draftUrl }: NewPostEditorProps) => {
                             setImagePreviewUrl(draftData.image);
                         }
 
-                        // Store initial state
-                        initialDataRef.current = {
-                            title: newTitle,
-                            content: newContent,
-                            tags: newTags
-                        };
+                        // Store initial state after React state updates settle below.
                     }
                 }
             } catch {
@@ -239,16 +269,21 @@ const NewPostEditor = ({ draftUrl }: NewPostEditorProps) => {
         };
 
         fetchData();
-    }, [draftUrl]);
+    }, [draftUrl, setImagePreviewUrl]);
+
+    useEffect(() => {
+        if (!isLoading && !initialDataRef.current) {
+            initialDataRef.current = buildDirtySnapshot();
+        }
+    }, [isLoading, buildDirtySnapshot]);
 
     // Check if form has unsaved changes
     const hasUnsavedChanges = () => {
         const initial = initialDataRef.current;
-        return (
-            formData.title !== initial.title ||
-            formData.content !== initial.content ||
-            JSON.stringify(tags) !== JSON.stringify(initial.tags)
-        );
+        if (!initial) return false;
+
+        const current = buildDirtySnapshot();
+        return JSON.stringify(current) !== JSON.stringify(initial);
     };
 
     // Warn on page unload if there are unsaved changes
@@ -293,11 +328,6 @@ const NewPostEditor = ({ draftUrl }: NewPostEditorProps) => {
     };
 
     const handleManualSave = async () => {
-        if (!formData.title.trim()) {
-            toast.error('제목을 입력해주세요.');
-            return;
-        }
-
         const success = await manualSave();
         if (success) {
             toast.success('임시저장되었습니다.');
@@ -339,7 +369,8 @@ const NewPostEditor = ({ draftUrl }: NewPostEditorProps) => {
                 url: normalizeUrlForSubmit(formData.url),
                 content: formData.content,
                 tags,
-                seriesId: selectedSeries.id
+                seriesId: selectedSeries.id,
+                imageDeleted
             },
             isDraft,
             false // isEdit

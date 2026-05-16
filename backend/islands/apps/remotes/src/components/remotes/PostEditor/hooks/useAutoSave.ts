@@ -59,12 +59,29 @@ export const useAutoSave = (data: AutoSaveData, options: UseAutoSaveOptions) => 
     const dataRef = useRef(data);
     const optionsRef = useRef(options);
     const draftUrlRef = useRef<string | undefined>(options.draftUrl);
-    const prevDataStringRef = useRef<string>(JSON.stringify({
-        title: data.title,
-        content: data.content,
-        tags: data.tags,
-        customUrl: data.customUrl
-    }));
+    const getContentSignature = useCallback((value: AutoSaveData) => JSON.stringify({
+        title: value.title,
+        content: value.content,
+        tags: value.tags,
+        subtitle: value.subtitle,
+        description: value.description,
+        seriesUrl: value.seriesUrl,
+        customUrl: value.customUrl
+    }), []);
+
+    const getDataSignature = useCallback((value: AutoSaveData) => JSON.stringify({
+        content: JSON.parse(getContentSignature(value)),
+        imageDeleted: value.imageDeleted,
+        imageFile: value.imageFile ? {
+            name: value.imageFile.name,
+            size: value.imageFile.size,
+            lastModified: value.imageFile.lastModified
+        } : null
+    }), [getContentSignature]);
+
+    const prevDataStringRef = useRef<string>(getDataSignature(data));
+    const prevContentStringRef = useRef<string>(getContentSignature(data));
+    const skipNextImageResetRef = useRef(false);
     const isInitialLoadRef = useRef(true);
 
     dataRef.current = data;
@@ -79,13 +96,8 @@ export const useAutoSave = (data: AutoSaveData, options: UseAutoSaveOptions) => 
 
     const { intervalMs = 3000 } = options;
 
-    // Serialize only the auto-save relevant data
-    const currentDataString = JSON.stringify({
-        title: data.title,
-        content: data.content,
-        tags: data.tags,
-        customUrl: data.customUrl
-    });
+    const currentDataString = getDataSignature(data);
+    const currentContentString = getContentSignature(data);
 
     // Manual save - returns true on success, false on failure
     const manualSave = useCallback(async (): Promise<boolean> => {
@@ -130,12 +142,9 @@ export const useAutoSave = (data: AutoSaveData, options: UseAutoSaveOptions) => 
             setHasSaveError(false);
             setHasPendingChanges(false);
             // Update previous data to prevent auto-save from triggering immediately
-            prevDataStringRef.current = JSON.stringify({
-                title: currentData.title,
-                content: currentData.content,
-                tags: currentData.tags,
-                customUrl: currentData.customUrl
-            });
+            prevDataStringRef.current = getDataSignature(currentData);
+            prevContentStringRef.current = getContentSignature(currentData);
+            skipNextImageResetRef.current = true;
             currentOptions.onSuccess?.();
             return true;
         } catch (error) {
@@ -145,23 +154,32 @@ export const useAutoSave = (data: AutoSaveData, options: UseAutoSaveOptions) => 
         } finally {
             setIsSaving(false);
         }
-    }, [isSaving]);
+    }, [isSaving, getDataSignature, getContentSignature]);
 
-    // Auto-save effect (JSON only, no image)
+    // Auto-save effect
     useEffect(() => {
         if (!options.enabled) return;
 
         // Check if data has actually changed
         if (prevDataStringRef.current === currentDataString) return;
 
+        if (skipNextImageResetRef.current && prevContentStringRef.current === currentContentString) {
+            skipNextImageResetRef.current = false;
+            prevDataStringRef.current = currentDataString;
+            return;
+        }
+
+        skipNextImageResetRef.current = false;
+
         // Skip initial load trigger - when data changes from empty to loaded
         if (isInitialLoadRef.current) {
-            const prevData = JSON.parse(prevDataStringRef.current);
+            const prevData = JSON.parse(prevContentStringRef.current);
             const wasEmpty = !prevData.title && !prevData.content && !prevData.tags && !prevData.customUrl;
 
             if (wasEmpty) {
                 isInitialLoadRef.current = false;
                 prevDataStringRef.current = currentDataString;
+                prevContentStringRef.current = currentContentString;
                 return;
             }
         }
@@ -169,6 +187,7 @@ export const useAutoSave = (data: AutoSaveData, options: UseAutoSaveOptions) => 
         isInitialLoadRef.current = false;
 
         prevDataStringRef.current = currentDataString;
+        prevContentStringRef.current = currentContentString;
         setHasPendingChanges(true);
 
         if (autoSaveRef.current) clearTimeout(autoSaveRef.current);
@@ -190,21 +209,7 @@ export const useAutoSave = (data: AutoSaveData, options: UseAutoSaveOptions) => 
 
             const currentData = dataRef.current;
             if (currentData.title || currentData.content) {
-                // Auto-save uses JSON (no image), so temporarily clear image fields
-                const savedImageFile = dataRef.current.imageFile;
-                const savedImageDeleted = dataRef.current.imageDeleted;
-                dataRef.current = {
-                    ...dataRef.current,
-                    imageFile: null,
-                    imageDeleted: false
-                };
-                manualSave().finally(() => {
-                    dataRef.current = {
-                        ...dataRef.current,
-                        imageFile: savedImageFile,
-                        imageDeleted: savedImageDeleted
-                    };
-                });
+                manualSave();
             }
         }, intervalMs);
 
@@ -212,7 +217,7 @@ export const useAutoSave = (data: AutoSaveData, options: UseAutoSaveOptions) => 
             if (autoSaveRef.current) clearTimeout(autoSaveRef.current);
             if (countdownRef.current) clearInterval(countdownRef.current);
         };
-    }, [currentDataString, options.enabled, intervalMs, manualSave]);
+    }, [currentDataString, currentContentString, options.enabled, intervalMs, manualSave]);
 
     return {
         lastSaved,

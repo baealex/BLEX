@@ -1,11 +1,11 @@
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
 
 export const useImageUpload = () => {
     const [imagePreview, setImagePreview] = useState<string | null>(null);
     const [imageFile, setImageFile] = useState<File | null>(null);
     const [imageDeleted, setImageDeleted] = useState(false);
 
-    const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const handleImageUpload = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
         const file = event.target.files?.[0];
         if (file) {
             setImageFile(file);
@@ -16,17 +16,24 @@ export const useImageUpload = () => {
             };
             reader.readAsDataURL(file);
         }
-    };
+    }, []);
 
-    const handleRemoveImage = () => {
+    const handleRemoveImage = useCallback(() => {
         setImagePreview(null);
         setImageFile(null);
         setImageDeleted(true);
-    };
+    }, []);
 
-    const setImagePreviewUrl = (url: string | null) => {
+    const setImagePreviewUrl = useCallback((url: string | null) => {
         setImagePreview(url);
-    };
+        setImageFile(null);
+        setImageDeleted(false);
+    }, []);
+
+    const markImageSaved = useCallback(() => {
+        setImageFile(null);
+        setImageDeleted(false);
+    }, []);
 
     return {
         imagePreview,
@@ -34,6 +41,7 @@ export const useImageUpload = () => {
         imageDeleted,
         handleImageUpload,
         handleRemoveImage,
-        setImagePreviewUrl
+        setImagePreviewUrl,
+        markImageSaved
     };
 };
