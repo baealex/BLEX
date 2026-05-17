@@ -338,7 +338,7 @@ const StaticPageEditor = ({ pageId }: StaticPageEditorProps) => {
                                 </div>
                                 {content.trim() ? (
                                     <div
-                                        className="prose prose-lg max-w-none blog-post-content break-words"
+                                        className="break-words"
                                         dangerouslySetInnerHTML={{ __html: content }}
                                     />
                                 ) : (
