@@ -7,7 +7,13 @@ import { useSuspenseQuery } from '@tanstack/react-query';
 import { useConfirm } from '~/hooks/useConfirm';
 import { SettingsHeader } from '../../components';
 import { Button, Input, Card } from '~/components/shared';
-import { getProfileSettings, updateProfileSettings, uploadAvatar, uploadCover } from '~/lib/api/settings';
+import {
+    deleteCover,
+    getProfileSettings,
+    updateProfileSettings,
+    uploadAvatar,
+    uploadCover
+} from '~/lib/api/settings';
 
 // Define Zod schema for profile form
 const profileSchema = z.object({
@@ -133,6 +139,33 @@ const ProfileSetting = () => {
         }
     };
 
+    const handleCoverDelete = async () => {
+        if (!cover) return;
+
+        const confirmed = await confirm({
+            title: '커버 이미지 삭제',
+            message: '현재 커버 이미지를 삭제하시겠습니까?',
+            confirmText: '삭제',
+            variant: 'danger'
+        });
+
+        if (!confirmed) return;
+
+        try {
+            const { data } = await deleteCover();
+
+            if (data.status === 'DONE') {
+                setCover(null);
+                toast.success('커버 이미지가 삭제되었습니다.');
+                refetch();
+            } else {
+                toast.error('커버 이미지 삭제에 실패했습니다.');
+            }
+        } catch {
+            toast.error('커버 이미지 삭제에 실패했습니다.');
+        }
+    };
+
     return (
         <div>
             <SettingsHeader
@@ -219,6 +252,19 @@ const ProfileSetting = () => {
                                     className="hidden"
                                 />
                             </label>
+                        )}
+                        {cover && (
+                            <div className="flex justify-end">
+                                <button
+                                    type="button"
+                                    onClick={handleCoverDelete}
+                                    className="inline-flex items-center gap-2 rounded-xl border border-danger-line px-4 py-2 text-sm font-semibold text-danger transition-colors hover:bg-danger-surface">
+                                    <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6M9 7V4a1 1 0 011-1h4a1 1 0 011 1v3m-9 0h10" />
+                                    </svg>
+                                    커버 이미지 삭제
+                                </button>
+                            </div>
                         )}
                         <div>
                             <p className="text-sm text-content-secondary mb-1">프로필 페이지 상단에 표시되는 배너 이미지입니다.</p>

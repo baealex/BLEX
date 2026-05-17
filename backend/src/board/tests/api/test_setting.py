@@ -345,6 +345,25 @@ class SettingTestCase(TestCase):
         self.assertEqual(content['status'], 'DONE')
         self.assertIn('url', content['body'])
 
+    def test_delete_cover(self):
+        """커버 이미지 삭제 테스트"""
+        user = User.objects.get(username='test')
+        profile = Profile.objects.get(user=user)
+        profile.cover = 'images/avatar/test/cover.png'
+        profile.save(update_fields=['cover'])
+
+        self.client.login(username='test', password='test')
+
+        response = self.client.delete('/v1/setting/cover')
+
+        self.assertEqual(response.status_code, 200)
+        content = json.loads(response.content)
+        self.assertEqual(content['status'], 'DONE')
+        self.assertIsNone(content['body']['url'])
+
+        profile.refresh_from_db()
+        self.assertFalse(profile.cover)
+
     def test_get_setting_profile(self):
         """프로필 설정 조회 테스트"""
         self.client.login(username='test', password='test')

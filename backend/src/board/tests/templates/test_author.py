@@ -8,7 +8,7 @@ from django.urls import reverse
 from django.utils import timezone
 
 from board.models import (
-    Comment, Post, PostContent, PostConfig, PostLikes, Series, Profile, Tag
+    Comment, Post, PostContent, PostConfig, PostLikes, Series, Profile, Tag, PinnedPost, SiteContentScope, SiteNotice
 )
 
 
@@ -82,6 +82,14 @@ class AuthorPostsPageTestCase(TestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'board/author/author_posts.html')
+        self.assertContains(response, '포스트 검색')
+        self.assertContains(response, '태그')
+        self.assertContains(response, 'masonry-grid')
+        self.assertContains(response, 'min-w-0 lg:w-40')
+        self.assertContains(response, 'min-w-0 lg:w-44')
+        self.assertContains(response, 'relative w-full')
+        self.assertContains(response, 'flex w-full items-center justify-between')
+        self.assertNotContains(response, 'sm:w-48')
 
     def test_author_overview_page_renders(self):
         """작가 개요 페이지가 정상적으로 렌더링되는지 테스트"""
@@ -91,6 +99,188 @@ class AuthorPostsPageTestCase(TestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'board/author/author_overview.html')
+
+    def test_author_overview_renders_user_notice_label(self):
+        """작가 공지는 전체 공지가 아니라 블로그 공지로 표시한다."""
+        SiteNotice.objects.create(
+            scope=SiteContentScope.USER,
+            user=self.user,
+            title='Author Notice',
+            url='/notice',
+            is_active=True,
+        )
+
+        response = self.client.get(
+            reverse('user_profile', kwargs={'username': self.user.username})
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'Notice')
+        self.assertContains(response, '공지')
+        self.assertContains(response, 'Author Notice')
+        self.assertNotContains(response, '전체 공지')
+        self.assertNotContains(response, 'notice_carousel({')
+        self.assertNotContains(response, 'fa-bullhorn')
+
+    def test_author_overview_shows_featured_posts_before_activity(self):
+        """작성자 개요는 소개 다음에 포스트를 먼저 보여주고 활동은 그 뒤에 둔다."""
+        response = self.client.get(
+            reverse('user_profile', kwargs={'username': self.user.username})
+        )
+
+        content = response.content.decode()
+        self.assertContains(response, 'About')
+        self.assertContains(response, '소개')
+        self.assertNotContains(response, 'README')
+        self.assertNotContains(response, 'bg-surface rounded-2xl ring-1 ring-line/60 p-8')
+        self.assertLess(content.index('최근 포스트'), content.index('최근 활동'))
+
+    def test_author_overview_featured_posts_have_card_grid_and_posts_link(self):
+        """대표 포스트 영역은 좁은 2열 카드 그리드와 전체 포스트 링크를 제공한다."""
+        response = self.client.get(
+            reverse('user_profile', kwargs={'username': self.user.username})
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'sm:grid-cols-2')
+        self.assertNotContains(response, 'lg:grid-cols-3')
+        self.assertContains(response, f'/@{self.user.username}/posts')
+        self.assertContains(response, '모든 포스트 보기')
+        self.assertNotContains(response, '먼저 읽어볼 글')
+
+    def test_author_overview_featured_posts_limit_keeps_balanced_grid(self):
+        """2열 카드 그리드가 세 줄로 맞도록 최대 6개까지 노출한다."""
+        for index in range(6):
+            self.create_author_post(
+                f'Balanced Grid Post {index}',
+                f'balanced-grid-post-{index}',
+                timezone.now() - timezone.timedelta(minutes=index),
+            )
+
+        response = self.client.get(
+            reverse('user_profile', kwargs={'username': self.user.username})
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(response.context['featured_posts_section']['posts']), 6)
+
+    def test_author_overview_empty_posts_prompt_is_owner_only(self):
+        """공개 포스트가 없을 때 작성자 본인에게만 작성 안내를 보여준다."""
+        empty_author = User.objects.create_user(
+            username='emptyauthor',
+            email='empty@example.com',
+            password='testpass123',
+        )
+        Profile.objects.create(user=empty_author, role=Profile.Role.EDITOR)
+
+        visitor_response = self.client.get(
+            reverse('user_profile', kwargs={'username': empty_author.username})
+        )
+        self.assertEqual(visitor_response.status_code, 200)
+        self.assertNotContains(visitor_response, '아직 보여줄 공개 포스트가 없습니다.')
+
+        self.client.login(username='emptyauthor', password='testpass123')
+        owner_response = self.client.get(
+            reverse('user_profile', kwargs={'username': empty_author.username})
+        )
+        self.assertEqual(owner_response.status_code, 200)
+        self.assertContains(owner_response, '아직 보여줄 공개 포스트가 없습니다.')
+        self.assertContains(owner_response, '글 작성하기')
+
+    def test_author_overview_omits_sidebar_stats_and_quick_links(self):
+        """작성자 개요에서는 중복되는 통계와 바로가기 사이드바를 노출하지 않는다."""
+        response = self.client.get(
+            reverse('user_profile', kwargs={'username': self.user.username})
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertNotContains(response, '<h3 class="text-lg font-bold text-content mb-6">통계</h3>', html=True)
+        self.assertNotContains(response, '<h3 class="text-sm font-bold text-content mb-4">바로 가기</h3>', html=True)
+
+    def test_author_overview_profile_image_edit_entrypoint_is_owner_only(self):
+        """프로필 이미지 편집 진입점은 작성자 본인에게만 노출한다."""
+        visitor_response = self.client.get(
+            reverse('user_profile', kwargs={'username': self.user.username})
+        )
+        self.assertEqual(visitor_response.status_code, 200)
+        self.assertNotContains(visitor_response, '/settings/profile')
+
+        self.client.login(username='testauthor', password='testpass123')
+        owner_response = self.client.get(
+            reverse('user_profile', kwargs={'username': self.user.username})
+        )
+        self.assertEqual(owner_response.status_code, 200)
+        self.assertContains(owner_response, '/settings/profile')
+
+    def test_author_overview_social_link_add_entrypoint_uses_existing_empty_state(self):
+        """소셜 링크가 없을 때는 기존 빈 상태 추가 링크만 노출한다."""
+        self.client.login(username='testauthor', password='testpass123')
+
+        response = self.client.get(
+            reverse('user_profile', kwargs={'username': self.user.username})
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, '소셜 링크 추가')
+        self.assertContains(response, '/settings/social-links')
+        self.assertNotContains(response, '소셜 링크 편집')
+
+    def test_author_overview_recommended_posts_fallback_to_recent_posts(self):
+        """고정 글이 없으면 추천 포스트는 좋아요 수가 아니라 최신 발행순으로 노출한다."""
+        older_popular_post = self.create_author_post(
+            'Older Popular Post',
+            'older-popular-post',
+            timezone.now() - timezone.timedelta(days=2),
+        )
+        newer_post = self.create_author_post(
+            'Newer Post',
+            'newer-post',
+            timezone.now() - timezone.timedelta(days=1),
+        )
+        for index in range(3):
+            liker = User.objects.create_user(username=f'liker{index}')
+            PostLikes.objects.create(user=liker, post=older_popular_post)
+
+        response = self.client.get(
+            reverse('user_profile', kwargs={'username': self.user.username})
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.context['featured_posts_section']['title'], '최근 포스트')
+        recommended_urls = [post['url'] for post in response.context['pinned_posts']]
+        self.assertLess(
+            recommended_urls.index('newer-post'),
+            recommended_urls.index('older-popular-post'),
+        )
+
+    def test_author_overview_recommended_posts_use_pinned_order_first(self):
+        """고정 글이 있으면 최신순 fallback 대신 고정 순서를 우선한다."""
+        older_pinned_post = self.create_author_post(
+            'Older Pinned Post',
+            'older-pinned-post',
+            timezone.now() - timezone.timedelta(days=5),
+        )
+        newer_pinned_post = self.create_author_post(
+            'Newer Pinned Post',
+            'newer-pinned-post',
+            timezone.now(),
+        )
+        self.create_author_post(
+            'Newest Unpinned Post',
+            'newest-unpinned-post',
+            timezone.now() + timezone.timedelta(days=1),
+        )
+        PinnedPost.objects.create(user=self.user, post=newer_pinned_post, order=2)
+        PinnedPost.objects.create(user=self.user, post=older_pinned_post, order=1)
+
+        response = self.client.get(
+            reverse('user_profile', kwargs={'username': self.user.username})
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.context['featured_posts_section']['title'], '추천 포스트')
+        recommended_urls = [post['url'] for post in response.context['pinned_posts']]
+        self.assertEqual(recommended_urls, ['older-pinned-post', 'newer-pinned-post'])
 
     def test_author_overview_recent_activities_are_public_only(self):
         """작가 개요 최근 활동은 공개 가능한 글/시리즈 대상만 노출한다."""
@@ -440,6 +630,11 @@ class AuthorSeriesPageTestCase(TestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'board/author/author_series.html')
+        self.assertContains(response, '시리즈 검색')
+        self.assertContains(response, 'w-full lg:w-44')
+        self.assertContains(response, 'relative w-full')
+        self.assertContains(response, 'flex w-full items-center justify-between')
+        self.assertNotContains(response, 'sm:w-48')
 
     def test_author_series_page_has_required_context(self):
         """작가 시리즈 페이지 컨텍스트에 필수 필드 확인"""
@@ -665,7 +860,10 @@ class AuthorAboutPageTestCase(TestCase):
             follow=True
         )
 
-        required_fields = ['author', 'pinned_posts', 'recent_activities', 'about_html', 'post_count', 'series_count']
+        required_fields = [
+            'author', 'featured_posts_section', 'pinned_posts', 'recent_activities',
+            'about_html', 'post_count', 'series_count'
+        ]
 
         for field in required_fields:
             with self.subTest(field=field):

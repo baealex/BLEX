@@ -239,6 +239,8 @@ class Tag(models.Model):
 
 
 class Post(models.Model):
+    DEFAULT_COVER_COUNT = 6
+
     class Meta:
         indexes = [
             models.Index(fields=['author', 'created_date']),
@@ -277,11 +279,21 @@ class Post(models.Model):
 
         self.url = url
 
+    def get_default_cover_index(self):
+        seed = self.url or str(self.pk or self.title)
+        digest = hashlib.md5(seed.encode()).hexdigest()
+        return int(digest[:8], 16) % self.DEFAULT_COVER_COUNT + 1
+
+    def get_default_cover_path(self):
+        return f'assets/images/default-cover-{self.get_default_cover_index()}.jpg'
+
+    def get_default_cover_url(self):
+        return settings.RESOURCE_URL + self.get_default_cover_path()
+
     def get_image(self):
         if self.image:
             return self.image.url
-        else:
-            return settings.RESOURCE_URL + 'assets/images/default-cover-1.jpg'
+        return self.get_default_cover_url()
 
     def is_published(self):
         from board.services.post_status_service import PostStatusService

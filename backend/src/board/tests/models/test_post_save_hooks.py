@@ -115,3 +115,37 @@ class PostSaveThumbnailHookTestCase(TestCase):
                     post.save()
 
         mock_make_thumbnail.assert_not_called()
+
+
+class PostDefaultCoverTestCase(TestCase):
+    """Default post cover selection tests."""
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.user = User.objects.create_user(
+            username='default-cover-author',
+            password='test',
+            email='default-cover@test.com',
+        )
+
+    def create_post(self, url):
+        return Post.objects.create(
+            author=self.user,
+            title=f'Default cover {url}',
+            url=url,
+        )
+
+    def test_default_cover_path_is_stable_and_within_available_set(self):
+        post = self.create_post('stable-default-cover')
+
+        self.assertEqual(post.get_default_cover_path(), post.get_default_cover_path())
+        self.assertRegex(
+            post.get_default_cover_path(),
+            r'^assets/images/default-cover-[1-6]\.jpg$',
+        )
+
+    def test_get_image_uses_default_cover_when_post_has_no_image(self):
+        post = self.create_post('fallback-default-cover')
+
+        self.assertIn('assets/images/default-cover-', post.get_image())
+        self.assertTrue(post.get_image().endswith('.jpg'))

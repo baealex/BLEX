@@ -264,6 +264,17 @@ def setting(request, parameter):
                 return StatusError(e.code, e.message)
 
     if request.method == 'DELETE':
+        if parameter == 'cover':
+            profile = Profile.objects.get(user=user)
+            if profile.cover:
+                profile.cover.delete(save=False)
+                profile.cover = None
+                profile.save(update_fields=['cover'])
+
+            return StatusDone({
+                'url': None,
+            })
+
         if parameter == 'pinned-posts':
             delete = QueryDict(request.body)
             post_url = delete.get('post_url', '')

@@ -141,17 +141,8 @@ class UserService:
         }, tags))
 
     @staticmethod
-    def get_user_pinned_or_most_liked_posts(user: User) -> List[Dict[str, Any]]:
-        """
-        Get user's pinned posts, or most liked posts if no pinned posts.
-
-        Args:
-            user: User instance
-
-        Returns:
-            List of post dictionaries
-        """
-        # 한 번의 쿼리로 데이터를 가져오고 len()으로 체크 (exists() 별도 쿼리 방지)
+    def get_user_profile_featured_posts(user: User) -> Dict[str, Any]:
+        """Get pinned profile posts, or recent posts when no pinned posts exist."""
         pinned_posts = list(PinnedPost.objects.select_related(
             'post', 'user', 'user__profile'
         ).filter(
@@ -160,33 +151,47 @@ class UserService:
         ).order_by('order')[:6])
 
         if pinned_posts:
-            return [{
-                'url': pinned_post.post.url,
-                'title': pinned_post.post.title,
-                'image': str(pinned_post.post.image),
-                'read_time': pinned_post.post.read_time,
-                'published_date': pinned_post.post.published_date,
-                'author_image': pinned_post.user.profile.avatar if hasattr(pinned_post.user, 'profile') else '',
-                'author': pinned_post.user.username,
-            } for pinned_post in pinned_posts]
+            return {
+                'title': '추천 포스트',
+                'posts': [{
+                    'url': pinned_post.post.url,
+                    'title': pinned_post.post.title,
+                    'image': str(pinned_post.post.image),
+                    'default_cover_path': pinned_post.post.get_default_cover_path(),
+                    'subtitle': pinned_post.post.subtitle,
+                    'description': pinned_post.post.meta_description,
+                    'read_time': pinned_post.post.read_time,
+                    'published_date': pinned_post.post.published_date,
+                    'author_image': pinned_post.user.profile.avatar if hasattr(pinned_post.user, 'profile') else '',
+                    'author': pinned_post.user.username,
+                } for pinned_post in pinned_posts],
+            }
 
         posts = PublicPostService.filter_public_posts(
             Post.objects.select_related(
                 'config', 'author', 'author__profile'
             ).filter(author=user)
-        ).annotate(
-            likes_count=Count('likes', distinct=True),
-        ).order_by('-likes_count', '-published_date')[:6]
+        ).order_by('-published_date')[:6]
 
-        return [{
-            'url': post.url,
-            'title': post.title,
-            'image': str(post.image),
-            'read_time': post.read_time,
-            'published_date': post.published_date,
-            'author_image': post.author.profile.avatar if hasattr(post.author, 'profile') else '',
-            'author': post.author.username,
-        } for post in posts]
+        return {
+            'title': '최근 포스트',
+            'posts': [{
+                'url': post.url,
+                'title': post.title,
+                'image': str(post.image),
+                'default_cover_path': post.get_default_cover_path(),
+                'subtitle': post.subtitle,
+                'description': post.meta_description,
+                'read_time': post.read_time,
+                'published_date': post.published_date,
+                'author_image': post.author.profile.avatar if hasattr(post.author, 'profile') else '',
+                'author': post.author.username,
+            } for post in posts],
+        }
+
+    @staticmethod
+    def get_user_pinned_or_most_liked_posts(user: User) -> List[Dict[str, Any]]:
+        return UserService.get_user_profile_featured_posts(user)['posts']
 
     @staticmethod
     def get_user_recent_activity(user: User, days: int = 7) -> List[Dict[str, Any]]:
@@ -422,7 +427,7 @@ class UserService:
             published_date__lte=now,
         ).select_related('author').only(
             'title', 'url', 'published_date', 'author__username'
-        ).order_by('-published_date')[:5]
+        ).order_by('-published_date')[:6]
 
         recent_series = Series.objects.filter(
             owner=user,
@@ -511,7 +516,7 @@ class UserService:
             'published_date',
             'author__username',
             'config__hide',
-        ).order_by('-published_date')[:5]
+        ).order_by('-published_date')[:6]
 
         recent_series = PublicSeriesService.filter_public_series(Series.objects.filter(
             owner=user,

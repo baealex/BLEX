@@ -11,42 +11,56 @@
 
     {% if size == 'large' %}
     <!-- ==================== Large ==================== -->
-    <div class="relative overflow-hidden">
+    <div class="relative overflow-hidden rounded-2xl">
         {% for notice in notices %}
         <a href="{% if url_prefix %}{{ url_prefix }}{{ notice.author.username }}/{% endif %}{{ notice.url }}"
-           class="group block bg-surface-subtle rounded-2xl px-6 py-5 ring-1 ring-line/60 hover:ring-line-strong/70 hover:shadow-sm active:scale-[0.99] transition-all duration-200 {% if forloop.first %}relative{% else %}absolute inset-0{% endif %}"
+           class="group block rounded-2xl border border-line/50 bg-transparent px-5 py-4 transition-colors duration-150 hover:border-line/70 active:bg-surface-subtle/40 {% if forloop.first %}relative{% else %}absolute inset-0{% endif %}"
            :style="{
                opacity: currentIndex === {{ forloop.counter0 }} ? 1 : 0,
                zIndex: currentIndex === {{ forloop.counter0 }} ? 10 : 0,
                pointerEvents: currentIndex === {{ forloop.counter0 }} ? 'auto' : 'none'
            }">
             <div class="flex items-center gap-4">
-                <div class="w-10 h-10 rounded-xl bg-action text-content-inverted flex items-center justify-center flex-shrink-0">
+                <div class="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl bg-surface-subtle text-content-secondary">
                     <i class="fas fa-bullhorn text-sm"></i>
                 </div>
-                <div class="flex-1 min-w-0">
-                    <div class="flex items-center gap-2 mb-1">
-                        <span class="text-[10px] font-bold tracking-wider uppercase text-content-hint">{% if url_prefix %}블로그 공지{% else %}전체 공지{% endif %}</span>
+                <div class="min-w-0 flex-1">
+                    <div class="mb-1.5 flex items-center gap-2">
+                        <span class="rounded-full px-2 py-0.5 text-[10px] font-bold tracking-wider text-content-hint">
+                            {% if notice.scope == 'user' %}블로그 공지{% else %}전체 공지{% endif %}
+                        </span>
+                        {% if notices|length > 1 %}
+                        <span class="text-[10px] font-medium tabular-nums text-content-hint">
+                            <span x-text="currentIndex + 1"></span>/<span>{{ notices|length }}</span>
+                        </span>
+                        {% endif %}
                     </div>
-                    <h3 class="text-base font-semibold text-content leading-snug truncate">
+                    <h3 class="truncate text-base font-semibold leading-snug text-content">
                         {{ notice.title }}
                     </h3>
                 </div>
-                <i class="fas fa-arrow-right text-sm text-content-hint group-hover:text-content group-hover:translate-x-0.5 transition-all flex-shrink-0"></i>
+                <span class="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full text-content-hint">
+                    <i class="fas fa-arrow-right text-sm"></i>
+                </span>
             </div>
         </a>
         {% endfor %}
     </div>
 
     {% if notices|length > 1 %}
-    <div class="flex items-center justify-center gap-3 mt-3">
-        <button @click.prevent="prev()" class="text-content-hint hover:text-content transition-colors" aria-label="이전 배너">
+    <div class="mt-3 flex items-center justify-center gap-2">
+        <button @click.prevent="prev()" class="flex h-8 w-8 items-center justify-center rounded-full text-content-hint transition-colors hover:text-content-secondary" aria-label="이전 배너">
             <i class="fas fa-chevron-left text-xs"></i>
         </button>
-        <div class="text-xs text-content-hint font-medium tabular-nums">
-            <span x-text="currentIndex + 1"></span> / <span x-text="totalBanners"></span>
+        <div class="flex items-center gap-1.5">
+            {% for notice in notices %}
+            <button @click.prevent="goTo({{ forloop.counter0 }})"
+                    class="h-1.5 rounded-full transition-colors duration-150"
+                    :class="currentIndex === {{ forloop.counter0 }} ? 'w-5 bg-content' : 'w-1.5 bg-line-strong'"
+                    aria-label="{{ forloop.counter }}번째 배너 보기"></button>
+            {% endfor %}
         </div>
-        <button @click.prevent="next()" class="text-content-hint hover:text-content transition-colors" aria-label="다음 배너">
+        <button @click.prevent="next()" class="flex h-8 w-8 items-center justify-center rounded-full text-content-hint transition-colors hover:text-content-secondary" aria-label="다음 배너">
             <i class="fas fa-chevron-right text-xs"></i>
         </button>
     </div>
@@ -54,42 +68,52 @@
 
     {% else %}
     <!-- ==================== Small ==================== -->
-    <div class="relative overflow-hidden">
+    <div class="relative overflow-hidden rounded-xl">
         {% for notice in notices %}
         <a href="{% if url_prefix %}{{ url_prefix }}{{ notice.author.username }}/{% endif %}{{ notice.url }}"
-           class="group block bg-surface-subtle rounded-lg px-4 py-3 ring-1 ring-line/60 hover:ring-line-strong/70 active:scale-[0.99] transition-all duration-200 {% if forloop.first %}relative{% else %}absolute inset-0{% endif %}"
+           class="group block rounded-xl border border-line/50 bg-transparent px-4 py-3 transition-colors duration-150 hover:border-line/70 active:bg-surface-subtle/40 {% if forloop.first %}relative{% else %}absolute inset-0{% endif %}"
            :style="{
                opacity: currentIndex === {{ forloop.counter0 }} ? 1 : 0,
                zIndex: currentIndex === {{ forloop.counter0 }} ? 10 : 0,
                pointerEvents: currentIndex === {{ forloop.counter0 }} ? 'auto' : 'none'
            }">
             <div class="flex items-center gap-3">
-                <div class="w-7 h-7 rounded-lg bg-action text-content-inverted flex items-center justify-center flex-shrink-0">
-                    <i class="fas fa-bullhorn text-[10px]"></i>
+                <div class="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg bg-surface-subtle text-content-secondary">
+                    <i class="fas fa-bullhorn text-[11px]"></i>
                 </div>
-                <h3 class="flex-1 min-w-0 text-sm font-semibold text-content leading-tight truncate">
-                    {{ notice.title }}
-                </h3>
+                <div class="min-w-0 flex-1">
+                    <div class="mb-0.5 text-[10px] font-bold tracking-wider text-content-hint">
+                        {% if notice.scope == 'user' %}블로그 공지{% else %}전체 공지{% endif %}
+                    </div>
+                    <h3 class="truncate text-sm font-semibold leading-tight text-content">
+                        {{ notice.title }}
+                    </h3>
+                </div>
                 {% if notices|length > 1 %}
-                <span class="text-[10px] text-content-hint tabular-nums flex-shrink-0">
+                <span class="text-[10px] font-medium tabular-nums text-content-hint">
                     <span x-text="currentIndex + 1"></span>/<span>{{ notices|length }}</span>
                 </span>
                 {% endif %}
-                <i class="fas fa-arrow-right text-xs text-content-hint group-hover:text-content transition-colors flex-shrink-0"></i>
+                <i class="fas fa-arrow-right flex-shrink-0 text-xs text-content-hint"></i>
             </div>
         </a>
         {% endfor %}
     </div>
 
     {% if notices|length > 1 %}
-    <div class="flex items-center justify-center gap-3 mt-2">
-        <button @click.prevent="prev()" class="text-content-hint hover:text-content transition-colors" aria-label="이전 배너">
+    <div class="mt-2 flex items-center justify-center gap-2">
+        <button @click.prevent="prev()" class="flex h-7 w-7 items-center justify-center rounded-full text-content-hint transition-colors hover:text-content-secondary" aria-label="이전 배너">
             <i class="fas fa-chevron-left text-xs"></i>
         </button>
-        <div class="text-xs text-content-hint font-medium tabular-nums">
-            <span x-text="currentIndex + 1"></span> / <span x-text="totalBanners"></span>
+        <div class="flex items-center gap-1.5">
+            {% for notice in notices %}
+            <button @click.prevent="goTo({{ forloop.counter0 }})"
+                    class="h-1.5 rounded-full transition-colors duration-150"
+                    :class="currentIndex === {{ forloop.counter0 }} ? 'w-4 bg-content' : 'w-1.5 bg-line-strong'"
+                    aria-label="{{ forloop.counter }}번째 배너 보기"></button>
+            {% endfor %}
         </div>
-        <button @click.prevent="next()" class="text-content-hint hover:text-content transition-colors" aria-label="다음 배너">
+        <button @click.prevent="next()" class="flex h-7 w-7 items-center justify-center rounded-full text-content-hint transition-colors hover:text-content-secondary" aria-label="다음 배너">
             <i class="fas fa-chevron-right text-xs"></i>
         </button>
     </div>

@@ -7,7 +7,7 @@ from django.test import Client, TestCase, override_settings
 from django.urls import reverse
 from django.utils import timezone
 
-from board.models import Post, PostConfig, PostContent, SiteSetting
+from board.models import Post, PostConfig, PostContent, SiteContentScope, SiteNotice, SiteSetting
 
 
 class MainPageTemplateTestCase(TestCase):
@@ -46,6 +46,20 @@ class MainPageTemplateTestCase(TestCase):
         self.assertContains(response, 'window.__blexIslandMonitor')
         self.assertNotContains(response, 'name=LoginPrompt')
         self.assertNotContains(response, 'name=Toaster')
+
+    def test_index_page_renders_global_notice_label(self):
+        SiteNotice.objects.create(
+            scope=SiteContentScope.GLOBAL,
+            title='Global Notice',
+            url='/notice',
+            is_active=True,
+        )
+
+        response = self.client.get(reverse('index'))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, '전체 공지')
+        self.assertContains(response, 'Global Notice')
 
     def test_index_page_adds_noindex_when_seo_disabled(self):
         setting = SiteSetting.get_instance()
