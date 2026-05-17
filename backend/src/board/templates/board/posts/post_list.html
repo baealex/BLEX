@@ -11,15 +11,11 @@
 {% block content %}
 <div class="max-w-7xl mx-auto mt-6 px-4 md:px-6">
     {% if user.is_authenticated %}
-    <div class="mb-6">
-        <div class="inline-flex w-fit bg-surface-subtle/80 backdrop-blur-sm p-1 rounded-xl ring-1 ring-line/60">
-            <a href="/" class="px-4 py-1.5 bg-surface-elevated text-content shadow-sm rounded-lg text-xs font-bold transition-all duration-150">
-                전체
-            </a>
-            <a href="/interests" class="px-4 py-1.5 text-content-secondary hover:text-content rounded-lg text-xs font-bold transition-all duration-150">
-                관심
-            </a>
-        </div>
+    <div class="mb-6 flex justify-end">
+        <a href="/interests" class="inline-flex items-center gap-2 rounded-full bg-surface px-4 py-2 text-sm font-semibold text-content-secondary ring-1 ring-line/60 transition-colors duration-150 hover:bg-surface-subtle hover:text-content">
+            <i class="far fa-heart text-xs text-content-hint"></i>
+            <span>관심 포스트</span>
+        </a>
     </div>
     {% endif %}
 

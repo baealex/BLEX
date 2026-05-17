@@ -29,6 +29,13 @@ class InterestedPostsTemplateTestCase(TestCase):
         )
         Profile.objects.create(user=cls.author, role=Profile.Role.EDITOR)
 
+        cls.other_reader = User.objects.create_user(
+            username='other_reader',
+            email='other-reader@example.com',
+            password='testpass123',
+        )
+        Profile.objects.create(user=cls.other_reader, role=Profile.Role.READER)
+
         cls.first_post = cls._create_post('First Interested Post', 'first-interested-post')
         cls.second_post = cls._create_post('Second Interested Post', 'second-interested-post')
         cls.hidden_post = cls._create_post('Hidden Interested Post', 'hidden-interested-post', hide=True)
@@ -42,6 +49,11 @@ class InterestedPostsTemplateTestCase(TestCase):
             post=cls.first_post,
             user=cls.reader,
             created_date=timezone.now() - timezone.timedelta(days=1),
+        )
+        PostLikes.objects.create(
+            post=cls.first_post,
+            user=cls.other_reader,
+            created_date=timezone.now() - timezone.timedelta(hours=12),
         )
         PostLikes.objects.create(
             post=cls.second_post,
@@ -82,9 +94,20 @@ class InterestedPostsTemplateTestCase(TestCase):
         self.assertTemplateUsed(response, 'board/posts/interested_posts.html')
         self.assertContains(response, '관심 포스트')
         self.assertContains(response, 'href=/')
-        self.assertContains(response, 'href=/interests')
+        self.assertContains(response, '전체 포스트')
         self.assertContains(response, 'First Interested Post')
         self.assertContains(response, 'Second Interested Post')
+
+
+    def test_interested_posts_keep_total_like_counts(self):
+        self.client.login(username='reader', password='testpass123')
+
+        response = self.client.get(reverse('interested_posts'))
+        posts = {post.url: post for post in response.context['posts']}
+
+        self.assertEqual(posts['first-interested-post'].count_likes, 2)
+        self.assertTrue(posts['first-interested-post'].has_liked)
+        self.assertEqual(posts['second-interested-post'].count_likes, 1)
 
     def test_interested_posts_filters_non_public_posts(self):
         self.client.login(username='reader', password='testpass123')
