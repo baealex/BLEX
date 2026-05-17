@@ -12,7 +12,7 @@ from typing import Optional, Dict, Any, List
 
 from django.contrib.auth.models import User
 from django.db import transaction
-from django.db.models import F, Q, Count
+from django.db.models import F, Q, Count, Exists, Max, OuterRef, QuerySet
 from django.utils import timezone
 
 from board.models import (
@@ -347,6 +347,27 @@ class UserService:
                 data[include] = UserService.get_user_about(user)['about_html']
 
         return data
+
+    @staticmethod
+    def get_user_interested_posts(user: User) -> QuerySet[Post]:
+        """Return public posts the user marked as interesting, newest mark first."""
+        return PublicPostService.filter_public_posts(
+            Post.objects.select_related(
+                'config', 'series', 'author', 'author__profile'
+            ).filter(likes__user=user)
+        ).annotate(
+            author_username=F('author__username'),
+            author_image=F('author__profile__avatar'),
+            count_likes=Count('likes', distinct=True),
+            count_comments=Count('comments', distinct=True),
+            has_liked=Exists(
+                PostLikes.objects.filter(
+                    post__id=OuterRef('id'),
+                    user=user,
+                )
+            ),
+            interested_date=Max('likes__created_date', filter=Q(likes__user=user)),
+        ).order_by('-interested_date', '-published_date')
 
     @staticmethod
     def get_user_dashboard_stats(user: User) -> Dict[str, int]:

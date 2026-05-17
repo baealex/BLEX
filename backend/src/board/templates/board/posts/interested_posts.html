@@ -1,0 +1,56 @@
+{% extends 'board/base.html' %}
+{% load island %}
+{% load resource %}
+
+{% block title %}
+    BLEX - 관심 포스트
+{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto mt-6 px-4 md:px-6">
+    <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between mb-6">
+        <div class="inline-flex w-fit bg-surface-subtle/80 backdrop-blur-sm p-1 rounded-xl ring-1 ring-line/60">
+            <a href="/" class="px-4 py-1.5 text-content-secondary hover:text-content rounded-lg text-xs font-bold transition-all duration-150">
+                전체
+            </a>
+            <a href="/interests" class="px-4 py-1.5 bg-surface-elevated text-content shadow-sm rounded-lg text-xs font-bold transition-all duration-150">
+                관심
+            </a>
+        </div>
+    </div>
+
+    <div class="mb-8">
+        <p class="text-sm font-semibold text-action mb-2">내가 다시 보고 싶은 글</p>
+        <h1 class="text-3xl md:text-4xl font-bold text-content tracking-tight">관심 포스트</h1>
+        <p class="mt-3 text-content-secondary leading-relaxed max-w-2xl">
+            추천으로 관심 표시한 포스트를 최신 관심순으로 모아볼 수 있어요.
+        </p>
+    </div>
+
+{% if posts %}
+    <div class="masonry-grid gap-6 mb-16">
+        {% for post in posts %}
+            {% include 'components/post_card.html' with post=post show_author=true priority=forloop.first %}
+        {% endfor %}
+    </div>
+
+    <div class="mt-16 mb-12">
+        {% include 'components/pagination.html' with style='numbered' page=page_number last=page_count %}
+    </div>
+{% else %}
+    <div class="flex flex-col items-center justify-center min-h-[52vh] text-center py-12">
+        <div class="w-24 h-24 bg-surface-subtle rounded-3xl flex items-center justify-center mb-6 shadow-inner">
+            <i class="far fa-heart text-3xl text-content-hint"></i>
+        </div>
+        <h2 class="text-2xl md:text-3xl font-bold text-content mb-3 tracking-tight">아직 관심 포스트가 없어요</h2>
+        <p class="text-base md:text-lg text-content-secondary mb-8 max-w-md leading-relaxed">
+            나중에 다시 보고 싶은 글에서 추천 버튼을 눌러두면 여기에 모입니다.
+        </p>
+        <a href="/" class="bg-action hover:bg-action-hover text-content-inverted px-8 py-3.5 rounded-full font-medium transition-all duration-300 inline-flex items-center gap-2 shadow-floating hover:shadow-floating hover:-translate-y-0.5">
+            <i class="fas fa-compass text-sm"></i>
+            <span>포스트 둘러보기</span>
+        </a>
+    </div>
+{% endif %}
+</div>
+{% endblock %}
