@@ -3,7 +3,7 @@ Main page template tests.
 URL: / (index)
 """
 from django.contrib.auth.models import User
-from django.test import Client, TestCase
+from django.test import Client, TestCase, override_settings
 from django.urls import reverse
 from django.utils import timezone
 
@@ -69,6 +69,20 @@ class MainPageTemplateTestCase(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertNotContains(response, 'content="noindex,nofollow"')
         self.assertNotIn('X-Robots-Tag', response)
+
+    @override_settings(DEBUG=True)
+    def test_debug_environment_indicator_is_visible_in_debug(self):
+        response = self.client.get(reverse('index'))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, '개발 환경')
+
+    @override_settings(DEBUG=False)
+    def test_debug_environment_indicator_is_hidden_outside_debug(self):
+        response = self.client.get(reverse('index'))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertNotContains(response, '개발 환경')
 
     def test_index_page_has_required_context(self):
         response = self.client.get(reverse('index'))

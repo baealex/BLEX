@@ -1,3 +1,7 @@
+if (import.meta.env.DEV) {
+    void import('react-grab');
+}
+
 import { StrictMode, useEffect, type ReactNode } from 'react';
 import { createRoot } from 'react-dom/client';
 import { PersistQueryClientProvider } from '@tanstack/react-query-persist-client';
