@@ -7,25 +7,32 @@
 {% block content %}
 {% include 'board/author/components/author_header.html' %}
 
-<div class="max-w-7xl w-full mx-auto px-4 sm:px-6">
+<div class="max-w-6xl w-full mx-auto px-4 sm:px-6">
     {% with active_tab='posts' %}
         {% include 'board/author/components/tabs_nav.html' %}
     {% endwith %}
 
-    <div class="flex flex-col sm:flex-row justify-between items-end sm:items-center gap-6 mb-12">
-        <div class="w-full sm:flex-1 sm:max-w-md">
-            <label class="block text-xs font-bold text-content-secondary uppercase tracking-wider mb-2 ml-1">포스트 검색</label>
-            {% include 'components/search_query_filter.html' with placeholder='검색어를 입력하세요.' %}
-        </div>
+    <div class="mb-8">
+        <p class="text-xs font-bold uppercase tracking-[0.18em] text-content-hint">Posts</p>
+        <h1 class="mt-2 text-3xl font-bold tracking-tight text-content">포스트</h1>
+    </div>
 
-        <div class="flex flex-row items-center gap-3 w-full sm:w-auto">
-            <div class="w-1/2 sm:w-auto">
-                <label class="block text-xs font-bold text-content-secondary uppercase tracking-wider mb-2 ml-1">정렬 방식</label>
-                {% include 'components/dropdown_filter.html' with options=sort_options param_name='sort' current_value=request.GET.sort|default:'recent' %}
+    <div class="mb-12 rounded-2xl bg-surface p-4 ring-1 ring-line/60">
+        <div class="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+            <div class="w-full lg:max-w-md">
+                <label class="mb-2 ml-1 block text-xs font-semibold text-content-secondary">검색</label>
+                {% include 'components/search_query_filter.html' with placeholder='포스트 검색' %}
             </div>
-            <div class="w-1/2 sm:w-auto">
-                <label class="block text-xs font-bold text-content-secondary uppercase tracking-wider mb-2 ml-1">태그 필터</label>
-                {% include 'components/dropdown_filter.html' with options=tag_options param_name='tag' current_value=request.GET.tag|default:'' %}
+
+            <div class="grid w-full grid-cols-2 gap-3 lg:w-auto">
+                <div class="min-w-0 lg:w-40">
+                    <label class="mb-2 ml-1 block text-xs font-semibold text-content-secondary">정렬</label>
+                    {% include 'components/dropdown_filter.html' with options=sort_options param_name='sort' current_value=request.GET.sort|default:'recent' %}
+                </div>
+                <div class="min-w-0 lg:w-44">
+                    <label class="mb-2 ml-1 block text-xs font-semibold text-content-secondary">태그</label>
+                    {% include 'components/dropdown_filter.html' with options=tag_options param_name='tag' current_value=request.GET.tag|default:'' %}
+                </div>
             </div>
         </div>
     </div>

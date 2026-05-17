@@ -96,6 +96,10 @@ export const uploadCover = async (file: File) => {
     return http.post<Response<{ url: string | null }>>('v1/setting/cover', formData, { headers: { 'Content-Type': 'multipart/form-data' } });
 };
 
+export const deleteCover = async () => {
+    return http.delete<Response<{ url: string | null }>>('v1/setting/cover');
+};
+
 export const updateNotifyConfig = async (config: Record<string, boolean>) => {
     return http.put<Response<{ success: boolean }>>('v1/setting/notify-config', config, { headers: { 'Content-Type': 'application/json' } });
 };

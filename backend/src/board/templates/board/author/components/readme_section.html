@@ -1,9 +1,9 @@
 <!-- Introduction Section -->
 <section>
-    <div class="bg-surface rounded-2xl ring-1 ring-line/60 p-8">
-        <div class="flex items-baseline gap-3 mb-6 pb-4 border-b border-line-light">
-            <h2 class="text-2xl font-bold text-content">README</h2>
-            <span class="text-sm font-mono text-content-hint">.md</span>
+    <div>
+        <div class="mb-6">
+            <p class="mb-2 text-xs font-bold uppercase tracking-[0.18em] text-content-hint">About</p>
+            <h2 class="text-2xl font-bold text-content">소개</h2>
         </div>
         {% if about_html %}
             <div class="prose blog-post-content">
@@ -19,8 +19,8 @@
         {% endif %}
 
         {% if user == author %}
-        <div class="mt-6 pt-6 border-t border-line-light">
-            <a href="{% url 'user_about_edit' author.username %}" class="flex items-center justify-center w-full px-4 py-2.5 bg-action hover:bg-action-hover rounded-xl text-sm font-semibold text-content-inverted transition-colors">
+        <div class="mt-6">
+            <a href="{% url 'user_about_edit' author.username %}" class="inline-flex items-center justify-center rounded-lg bg-surface-subtle px-4 py-2 text-sm font-semibold text-content-secondary transition-colors hover:bg-surface-subtle/80 hover:text-content">
                 <i class="fas fa-edit mr-2"></i>
                 소개글 수정
             </a>

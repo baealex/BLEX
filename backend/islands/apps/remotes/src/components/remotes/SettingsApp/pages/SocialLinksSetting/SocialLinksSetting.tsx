@@ -204,6 +204,10 @@ const SocialLinks = () => {
     const [socials, setSocials] = useState<SocialLink[]>([]);
     const [originalSocials, setOriginalSocials] = useState<SocialLink[]>([]);
     const [isLoading, setIsLoading] = useState(false);
+    const hasPendingDeletion = originalSocials.some(
+        (original) => !socials.some((current) => current.id === original.id)
+    );
+    const shouldShowActions = socials.length > 0 || hasPendingDeletion;
 
     const { data: socialData } = useSuspenseQuery({
         queryKey: ['social-links-setting'],
@@ -381,7 +385,7 @@ const SocialLinks = () => {
                     )}
                 </div>
 
-                {socials.length > 0 && (
+                {shouldShowActions && (
                     <div className="flex flex-col sm:flex-row gap-3 sm:justify-between border-t border-line pt-6">
                         <Button
                             type="button"

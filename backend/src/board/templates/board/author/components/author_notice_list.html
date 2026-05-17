@@ -1,0 +1,33 @@
+<section>
+    <div class="mb-4 flex items-end justify-between gap-4">
+        <div>
+            <p class="mb-2 text-xs font-bold uppercase tracking-[0.18em] text-content-hint">Notice</p>
+            <h2 class="text-2xl font-bold tracking-tight text-content">공지</h2>
+        </div>
+        {% if notices|length > 1 %}
+        <span class="pb-1 text-xs font-medium tabular-nums text-content-hint">{{ notices|length }}개</span>
+        {% endif %}
+    </div>
+
+    <div class="divide-y divide-line-light border-y border-line-light">
+        {% for notice in notices %}
+        <a href="{{ notice.url }}" class="group block py-3.5 transition-colors duration-150 hover:bg-surface-subtle/50 active:bg-surface-subtle/70">
+            <div class="flex items-center justify-between gap-4 px-1">
+                <div class="min-w-0 flex-1">
+                    <h3 class="truncate text-base font-semibold leading-snug text-content transition-colors group-hover:text-content-secondary">
+                        {{ notice.title }}
+                    </h3>
+                </div>
+                <div class="flex flex-shrink-0 items-center gap-2 text-content-hint transition-colors group-hover:text-content-secondary">
+                    {% if notices|length > 1 %}
+                    <span class="text-[11px] font-medium tabular-nums">
+                        {{ forloop.counter }}/{{ notices|length }}
+                    </span>
+                    {% endif %}
+                    <i class="fas fa-arrow-right text-xs"></i>
+                </div>
+            </div>
+        </a>
+        {% endfor %}
+    </div>
+</section>

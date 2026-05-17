@@ -92,10 +92,12 @@
 
 <body class="antialiased bg-surface-page text-content selection:bg-action selection:text-content-inverted">
     {% include 'components/header.html' %}
-    <main class="min-h-[calc(100vh-10.5rem)]">
+    <main class="{% block main_class %}min-h-[calc(100vh-10.5rem)]{% endblock %}">
         {% block content %}{% endblock %}
     </main>
-    {% include 'components/footer.html' %}
+    {% block footer %}
+        {% include 'components/footer.html' %}
+    {% endblock %}
 
     {% if debug %}
         <aside

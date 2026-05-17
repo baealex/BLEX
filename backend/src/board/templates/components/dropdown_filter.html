@@ -7,8 +7,8 @@ Parameters:
 - default_label: The label to show when no value is selected.
 {% endcomment %}
 
-<div class="relative" x-data="dropdown_filter">
-    <button @click="open = !open" :aria-expanded="open" aria-haspopup="listbox" class="flex items-center justify-between w-full sm:w-48 px-4 py-2 bg-surface-elevated ring-1 ring-line/60 rounded-2xl text-sm font-medium text-content-secondary hover:bg-surface-subtle focus:outline-none focus:ring-2 focus:ring-line-strong/70">
+<div class="relative w-full" x-data="dropdown_filter">
+    <button @click="open = !open" :aria-expanded="open" aria-haspopup="listbox" class="flex w-full items-center justify-between px-4 py-2.5 bg-surface-elevated ring-1 ring-line/60 rounded-2xl text-sm font-medium text-content-secondary hover:bg-surface-subtle focus:outline-none focus:ring-2 focus:ring-line-strong/70">
         <span class="truncate">
             {% for option in options %}
                 {% if option.value == current_value %}{{ option.label }}{% endif %}

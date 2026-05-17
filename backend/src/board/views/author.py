@@ -41,7 +41,7 @@ def author_overview(request, username):
         return render(request, 'board/author/author_reader_overview.html', context)
     else:
         # Editor template - full view with stats, pinned posts
-        pinned_posts = UserService.get_user_pinned_or_most_liked_posts(author)
+        featured_posts_section = UserService.get_user_profile_featured_posts(author)
 
         stats = UserService.get_author_stats(author)
 
@@ -53,7 +53,8 @@ def author_overview(request, username):
 
         context = {
             'author': author,
-            'pinned_posts': pinned_posts,
+            'featured_posts_section': featured_posts_section,
+            'pinned_posts': featured_posts_section['posts'],
             'recent_activities': recent_activities,
             'about_html': about_html,
             'post_count': stats['post_count'],

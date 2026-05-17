@@ -4,6 +4,8 @@
 
 {% block title %}{% if is_edit %}포스트 수정{% elif draft_post %}임시저장{% else %}새 포스트{% endif %} - BLEX{% endblock %}
 
+{% block footer %}{% endblock %}
+
 {% block extra_styles %}
 <link rel="stylesheet" href="{% island_css 'styles/post.scss' %}">
 {% endblock %}
