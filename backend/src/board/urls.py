@@ -29,6 +29,7 @@ def empty():
 urlpatterns = [
     path('', main.index, name='index'),
     path('authors', authors_view, name='authors'),
+    path('interests', main.interested_posts, name='interested_posts'),
     path('login', login_view, name='login'),
     path('sign', signup_view, name='signup'),
     path('login/callback/<str:provider>', oauth_callback, name='oauth_callback'),

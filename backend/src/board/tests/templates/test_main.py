@@ -92,12 +92,45 @@ class MainPageTemplateTestCase(TestCase):
             with self.subTest(field=field):
                 self.assertIn(field, response.context)
 
-    def test_index_page_supports_sort_options(self):
-        for sort_type in ['latest', 'popular', 'comments']:
-            with self.subTest(sort_type=sort_type):
-                response = self.client.get(reverse('index') + f'?sort={sort_type}')
-                self.assertEqual(response.status_code, 200)
-                self.assertEqual(response.context['sort_type'], sort_type)
+    def test_index_page_uses_latest_order_by_default(self):
+        older_post = Post.objects.create(
+            title='Older Post',
+            url='older-post',
+            author=self.user,
+            created_date=timezone.now() - timezone.timedelta(days=2),
+            published_date=timezone.now() - timezone.timedelta(days=2),
+        )
+        PostContent.objects.create(
+            post=older_post,
+            content_html='<p>Older content</p>',
+        )
+        PostConfig.objects.create(
+            post=older_post,
+            hide=False,
+            advertise=False,
+        )
+
+        response = self.client.get(reverse('index') + '?sort=popular')
+        posts = list(response.context['posts'])
+
+        self.assertEqual(response.status_code, 200)
+        self.assertNotIn('sort_type', response.context)
+        self.assertEqual(posts[0].title, 'Test Post')
+
+    def test_index_page_shows_interested_feed_tab_for_authenticated_user(self):
+        self.client.login(username='testuser', password='testpass123')
+
+        response = self.client.get(reverse('index'))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'href=/interests')
+        self.assertContains(response, '관심')
+
+    def test_index_page_hides_interested_feed_tab_for_anonymous_user(self):
+        response = self.client.get(reverse('index'))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertNotContains(response, 'href=/interests')
 
     def test_index_page_pagination(self):
         response = self.client.get(reverse('index') + '?page=1')
