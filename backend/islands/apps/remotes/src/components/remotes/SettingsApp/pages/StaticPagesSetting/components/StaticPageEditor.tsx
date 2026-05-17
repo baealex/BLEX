@@ -1,4 +1,4 @@
-import { useState, useCallback, useRef } from 'react';
+import { useState, useRef } from 'react';
 import { Link, useNavigate, useBlocker } from '@tanstack/react-router';
 import { useMutation, useQueryClient, useSuspenseQuery } from '@tanstack/react-query';
 import { toast } from '~/utils/toast';
@@ -6,11 +6,10 @@ import { useConfirm } from '~/hooks/useConfirm';
 import {
     Button,
     Input,
-    TiptapEditor,
-    api,
     DIM_OVERLAY_DEFAULT,
     ENTRANCE_DURATION
 } from '~/components/shared';
+import { CodeEditor } from '~/components/CodeEditor';
 import { Dialog } from '@blex/ui/dialog';
 import { FloatingBottomBar } from '@blex/ui/floating-bottom-bar';
 import { IconButton } from '@blex/ui/icon-button';
@@ -75,6 +74,7 @@ const StaticPageEditor = ({ pageId }: StaticPageEditorProps) => {
     const [isPublished, setIsPublished] = useState(page?.isPublished ?? true);
     const [showInFooter, setShowInFooter] = useState(page?.showInFooter ?? false);
     const [order, setOrder] = useState(page?.order ?? 0);
+    const [activePanel, setActivePanel] = useState<'code' | 'preview'>('code');
     const pageUrlPath = `/static/${slug || 'slug'}`;
 
     const markDirty = () => {
@@ -123,18 +123,6 @@ const StaticPageEditor = ({ pageId }: StaticPageEditorProps) => {
         setShowInFooter(checked);
         markDirty();
     };
-
-    const handleImageUpload = useCallback(async (file: File) => {
-        try {
-            const { data } = await api.uploadImage(file);
-            if (data.status === 'DONE') {
-                return data.body.url;
-            }
-        } catch {
-            toast.error('이미지 업로드에 실패했습니다.');
-        }
-        return undefined;
-    }, []);
 
     const createMutation = useMutation({
         mutationFn: (pageData: StaticPageCreateData) => createStaticPage(pageData),
@@ -263,22 +251,9 @@ const StaticPageEditor = ({ pageId }: StaticPageEditorProps) => {
                 </div>
             </div>
 
-            {!isEditMode && (
-                <div className="max-w-7xl mx-auto px-4 md:px-6 pt-8 pb-4">
-                    <div className="rounded-2xl border border-warning-line bg-warning-surface px-4 py-3">
-                        <p className="text-sm font-extrabold text-warning sm:text-base">
-                            페이지 이름과 URL을 정한 뒤, 아래 에디터에서 본문을 바로 작성하세요.
-                        </p>
-                        <p className="mt-1 text-xs font-medium text-warning">
-                            이 화면은 정적 페이지를 빠르게 만드는 용도입니다.
-                        </p>
-                    </div>
-                </div>
-            )}
-
-            <div className={`max-w-7xl mx-auto px-4 md:px-6 pb-6 ${isEditMode ? 'pt-8' : ''}`}>
+            <div className="max-w-7xl mx-auto px-4 md:px-6 pb-6 pt-8">
                 <div className="rounded-2xl border border-line bg-surface p-4 md:p-5">
-                    <div className="grid gap-4 md:grid-cols-2">
+                    <div className="space-y-4">
                         <div className="space-y-2">
                             <Input
                                 label="페이지 이름"
@@ -287,61 +262,94 @@ const StaticPageEditor = ({ pageId }: StaticPageEditorProps) => {
                                 placeholder="예: 이용약관, 개인정보처리방침"
                             />
                             <p className="text-xs text-content-hint">
-                                브라우저 탭 제목과 푸터 링크에 사용됩니다. 본문 제목은 에디터에서 작성하세요.
+                                브라우저 탭과 목록에 표시됩니다.
                             </p>
                         </div>
 
-                        <div>
-                            <Input
-                                label="URL 슬러그"
-                                value={slug}
-                                onChange={(e) => handleSlugChange(e.target.value)}
-                                placeholder="page-url-slug"
-                            />
-                            <p className="mt-2 text-xs text-content-hint">{pageUrlPath}</p>
-                        </div>
-                    </div>
-
-                    <div className="mt-4 grid gap-4 md:grid-cols-2">
-                        <div className="rounded-xl border border-line bg-surface-subtle p-3">
-                            <div className="flex items-center justify-between gap-3">
-                                <div>
-                                    <p className="text-sm font-semibold text-content">공개</p>
-                                    <p className="text-xs text-content-secondary">페이지를 공개합니다</p>
-                                </div>
-                                <Toggle
-                                    checked={isPublished}
-                                    onCheckedChange={handlePublishedChange}
-                                    aria-label="공개"
+                        <details className="group border-t border-line-light pt-4">
+                            <summary className="cursor-pointer list-none text-sm font-medium text-content-secondary transition-colors hover:text-content">
+                                URL 직접 설정
+                                <i className="fas fa-chevron-down ml-2 text-xs transition-transform group-open:rotate-180" />
+                            </summary>
+                            <div className="mt-3">
+                                <Input
+                                    label="URL 슬러그"
+                                    value={slug}
+                                    onChange={(e) => handleSlugChange(e.target.value)}
+                                    placeholder="page-url-slug"
                                 />
                             </div>
-                        </div>
+                        </details>
 
-                        <div className="rounded-xl border border-line bg-surface-subtle p-3">
-                            <div className="flex items-center justify-between gap-3">
-                                <div>
-                                    <p className="text-sm font-semibold text-content">푸터에 표시</p>
-                                    <p className="text-xs text-content-secondary">사이트 하단 메뉴에 노출</p>
-                                </div>
-                                <Toggle
-                                    checked={showInFooter}
-                                    onCheckedChange={handleShowInFooterChange}
-                                    aria-label="푸터에 표시"
-                                />
-                            </div>
-                        </div>
+                        <p className="break-all text-xs text-content-hint">
+                            {pageUrlPath}
+                            {!isEditMode && !slugManuallyEdited && ' · 제목에서 자동 생성됩니다.'}
+                        </p>
                     </div>
                 </div>
             </div>
 
             {/* Editor*/}
             <div className="max-w-7xl mx-auto px-4 md:px-6 pb-6">
-                <TiptapEditor
-                    name="static-page-content"
-                    content={content}
-                    onChange={handleContentChange}
-                    onImageUpload={handleImageUpload}
-                />
+                <div className="space-y-3">
+                    <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+                        <div>
+                            <p className="text-sm font-semibold text-content">본문</p>
+                            <p className="mt-1 text-xs text-content-secondary">
+                                실제 페이지는 기본 컨테이너 안에 이 HTML을 렌더링합니다.
+                            </p>
+                        </div>
+                        <div className="inline-flex rounded-lg border border-line bg-surface p-1">
+                            <button
+                                type="button"
+                                onClick={() => setActivePanel('code')}
+                                className={`rounded-md px-3 py-1.5 text-sm font-medium transition-colors ${
+                                    activePanel === 'code'
+                                        ? 'bg-surface-subtle text-content'
+                                        : 'text-content-secondary hover:text-content'
+                                }`}>
+                                HTML
+                            </button>
+                            <button
+                                type="button"
+                                onClick={() => setActivePanel('preview')}
+                                className={`rounded-md px-3 py-1.5 text-sm font-medium transition-colors ${
+                                    activePanel === 'preview'
+                                        ? 'bg-surface-subtle text-content'
+                                        : 'text-content-secondary hover:text-content'
+                                }`}>
+                                미리보기
+                            </button>
+                        </div>
+                    </div>
+
+                    {activePanel === 'code' ? (
+                        <CodeEditor
+                            language="html"
+                            value={content}
+                            onChange={handleContentChange}
+                            height="560px"
+                        />
+                    ) : (
+                        <div className="h-[560px] overflow-auto rounded-lg border border-line bg-surface-elevated">
+                            <div className="mx-auto max-w-7xl px-4 py-8 md:px-6">
+                                <div className="mb-4 rounded-lg border border-line-light bg-surface-subtle px-3 py-2 text-xs text-content-secondary">
+                                    이 여백과 폭은 실제 정적 페이지의 기본 컨테이너입니다.
+                                </div>
+                                {content.trim() ? (
+                                    <div
+                                        className="break-words"
+                                        dangerouslySetInnerHTML={{ __html: content }}
+                                    />
+                                ) : (
+                                    <div className="flex min-h-[360px] items-center justify-center text-sm text-content-hint">
+                                        HTML을 입력하면 미리보기가 표시됩니다.
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+                    )}
+                </div>
             </div>
 
             <FloatingBottomBar>
@@ -409,6 +417,41 @@ const StaticPageEditor = ({ pageId }: StaticPageEditorProps) => {
                         {/* Content */}
                         <div className="flex-1 overflow-y-auto px-6 py-6">
                             <div className="space-y-8">
+                                {/* Publish Section */}
+                                <div>
+                                    <h3 className="text-sm font-semibold text-content mb-4 flex items-center gap-2">
+                                        <Settings2 className="w-4 h-4" />
+                                        게시 설정
+                                    </h3>
+                                    <div className="space-y-1">
+                                        <div className="flex items-center justify-between py-3">
+                                            <div>
+                                                <div className="text-sm font-medium text-content">공개</div>
+                                                <div className="text-xs text-content-secondary">페이지를 공개합니다</div>
+                                            </div>
+                                            <Toggle
+                                                checked={isPublished}
+                                                onCheckedChange={handlePublishedChange}
+                                                aria-label="공개"
+                                            />
+                                        </div>
+
+                                        <div className="flex items-center justify-between py-3">
+                                            <div>
+                                                <div className="text-sm font-medium text-content">푸터에 표시</div>
+                                                <div className="text-xs text-content-secondary">사이트 하단 메뉴에 노출합니다</div>
+                                            </div>
+                                            <Toggle
+                                                checked={showInFooter}
+                                                onCheckedChange={handleShowInFooterChange}
+                                                aria-label="푸터에 표시"
+                                            />
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div className="border-t border-line" />
+
                                 {/* SEO Section */}
                                 <div>
                                     <h3 className="text-sm font-semibold text-content mb-4 flex items-center gap-2">
