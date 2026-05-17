@@ -85,8 +85,8 @@ class AuthorPostsPageTestCase(TestCase):
         self.assertContains(response, '포스트 검색')
         self.assertContains(response, '태그')
         self.assertContains(response, 'masonry-grid')
-        self.assertContains(response, 'min-w-0 lg:w-40')
-        self.assertContains(response, 'min-w-0 lg:w-44')
+        self.assertNotContains(response, '정렬')
+        self.assertContains(response, 'lg:w-44')
         self.assertContains(response, 'relative w-full')
         self.assertContains(response, 'flex w-full items-center justify-between')
         self.assertNotContains(response, 'sm:w-48')
@@ -469,7 +469,7 @@ class AuthorPostsPageTestCase(TestCase):
         required_fields = [
             'author', 'posts', 'post_count', 'series_count',
             'page_number', 'page_count', 'author_tags',
-            'search_query', 'sort_option', 'tag_filter'
+            'search_query', 'tag_filter'
         ]
 
         for field in required_fields:
@@ -492,29 +492,13 @@ class AuthorPostsPageTestCase(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.context['tag_filter'], 'python')
 
-    def test_author_posts_page_sorting_recent(self):
-        """작가 포스트 페이지 최신순 정렬 테스트"""
-        response = self.client.get(
-            reverse('user_posts', kwargs={'username': self.user.username}) + '?sort=recent'
-        )
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.context['sort_option'], 'recent')
-
-    def test_author_posts_page_sorting_popular(self):
-        """작가 포스트 페이지 인기순 정렬 테스트"""
+    def test_author_posts_page_ignores_legacy_sort_parameter(self):
+        """작가 포스트 페이지는 최신순 고정이며 legacy sort 파라미터를 노출하지 않는다."""
         response = self.client.get(
             reverse('user_posts', kwargs={'username': self.user.username}) + '?sort=popular'
         )
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.context['sort_option'], 'popular')
-
-    def test_author_posts_page_sorting_comments(self):
-        """작가 포스트 페이지 댓글 많은 순 정렬 테스트"""
-        response = self.client.get(
-            reverse('user_posts', kwargs={'username': self.user.username}) + '?sort=comments'
-        )
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.context['sort_option'], 'comments')
+        self.assertNotIn('sort_option', response.context)
 
     def test_nonexistent_author_returns_404(self):
         """존재하지 않는 작가 페이지 접근 시 404 반환"""

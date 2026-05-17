@@ -356,21 +356,22 @@ class UserService:
     @staticmethod
     def get_user_interested_posts(user: User) -> QuerySet[Post]:
         """Return public posts the user marked as interesting, newest mark first."""
+        interested_posts = PostLikes.objects.filter(
+            post__id=OuterRef('id'),
+            user=user,
+        )
         return PublicPostService.filter_public_posts(
             Post.objects.select_related(
                 'config', 'series', 'author', 'author__profile'
-            ).filter(likes__user=user)
+            ).filter(
+                Exists(interested_posts)
+            )
         ).annotate(
             author_username=F('author__username'),
             author_image=F('author__profile__avatar'),
             count_likes=Count('likes', distinct=True),
             count_comments=Count('comments', distinct=True),
-            has_liked=Exists(
-                PostLikes.objects.filter(
-                    post__id=OuterRef('id'),
-                    user=user,
-                )
-            ),
+            has_liked=Exists(interested_posts),
             interested_date=Max('likes__created_date', filter=Q(likes__user=user)),
         ).order_by('-interested_date', '-published_date')
 

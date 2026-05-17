@@ -24,15 +24,9 @@
                 {% include 'components/search_query_filter.html' with placeholder='포스트 검색' %}
             </div>
 
-            <div class="grid w-full grid-cols-2 gap-3 lg:w-auto">
-                <div class="min-w-0 lg:w-40">
-                    <label class="mb-2 ml-1 block text-xs font-semibold text-content-secondary">정렬</label>
-                    {% include 'components/dropdown_filter.html' with options=sort_options param_name='sort' current_value=request.GET.sort|default:'recent' %}
-                </div>
-                <div class="min-w-0 lg:w-44">
-                    <label class="mb-2 ml-1 block text-xs font-semibold text-content-secondary">태그</label>
-                    {% include 'components/dropdown_filter.html' with options=tag_options param_name='tag' current_value=request.GET.tag|default:'' %}
-                </div>
+            <div class="w-full lg:w-44">
+                <label class="mb-2 ml-1 block text-xs font-semibold text-content-secondary">태그</label>
+                {% include 'components/dropdown_filter.html' with options=tag_options param_name='tag' current_value=request.GET.tag|default:'' %}
             </div>
         </div>
     </div>

@@ -2,7 +2,7 @@ import json
 
 from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
-from django.db.models import Count, Exists, OuterRef, Q, F
+from django.db.models import Count, Q
 from django.shortcuts import render, get_object_or_404, redirect
 from django.http import JsonResponse
 
@@ -11,7 +11,7 @@ from board.modules.time import time_since
 from board.services.user_service import UserService
 from board.services.public_post_service import PublicPostService
 from board.services.public_series_service import PublicSeriesService
-from board.models import Post, Series, PostLikes, Tag, Profile, SiteNotice, SiteContentScope
+from board.models import Comment, Post, Series, PostLikes, Tag, Profile, SiteNotice, SiteContentScope
 from modules import markdown
 
 
@@ -84,64 +84,37 @@ def author_posts(request, username):
     
     # Get search query and filters
     search_query = request.GET.get('q', '')
-    sort_option = request.GET.get('sort', 'recent')
     tag_filter = request.GET.get('tag', '')
 
     posts = PublicPostService.filter_public_posts(
         Post.objects.select_related(
-            'config', 'series', 'author', 'author__profile', 'content'
+            'config', 'series', 'author', 'author__profile'
         )
     ).filter(
         author=author,
     )
-    
+
     if search_query:
         posts = posts.filter(
-            Q(title__icontains=search_query) | 
-            Q(content__content_html__icontains=search_query) | 
+            Q(title__icontains=search_query) |
             Q(content__content_html__icontains=search_query)
         )
-    
+
     if tag_filter:
-        posts = posts.filter(tags__value=tag_filter)
-    
-    posts = posts.annotate(
-        author_username=F('author__username'),
-        author_image=F('author__profile__avatar'),
-        count_likes=Count('likes', distinct=True),
-        count_comments=Count('comments', distinct=True),
-        has_liked=Exists(
-            PostLikes.objects.filter(
-                post__id=OuterRef('id'),
-                user__id=request.user.id if request.user.id else -1
-            )
-        ),
-    )
-    
-    if sort_option == 'popular':
-        posts = posts.order_by('-count_likes', '-published_date')
-    elif sort_option == 'comments':
-        posts = posts.order_by('-count_comments', '-published_date')
-    else:  # default to 'recent'
-        posts = posts.order_by('-published_date')
-    
-    series = PublicSeriesService.filter_public_series(
-        Series.objects.filter(owner__username=username),
-        'count_posts',
-    ).order_by('-updated_date')
-    
+        posts = posts.filter(tags__value=tag_filter).distinct()
+
+    posts = posts.order_by('-published_date')
+
     public_author_tag_filter = PublicPostService.build_public_filter('posts') & Q(
         posts__author=author,
     )
     author_tags = Tag.objects.filter(
         public_author_tag_filter
-    ).annotate(
-        count=Count('posts', filter=public_author_tag_filter, distinct=True)
-    ).order_by('-count', 'value')
+    ).distinct().order_by('value')
 
-    tag_options = [{'value': '', 'label': '전체 태그'}] # Default option
+    tag_options = [{'value': '', 'label': '전체 태그'}]
     for tag in author_tags:
-        tag_options.append({'value': tag.value, 'label': f'{tag.value} ({tag.count})'})
+        tag_options.append({'value': tag.value, 'label': tag.value})
 
     page = int(request.GET.get('page', 1))
     paginated_posts = Paginator(
@@ -150,17 +123,37 @@ def author_posts(request, username):
         page=page
     )
 
-    # paginator에서 total count 가져오기 (별도 쿼리 불필요)
     post_count = paginated_posts.paginator.count
-    series_count = series.count()
-    
-    sort_options = [
-        {'value': 'recent', 'label': '최신순'},
-        {'value': 'popular', 'label': '인기순'},
-        {'value': 'comments', 'label': '댓글 많은 순'}
-    ]
+    series_count = PublicSeriesService.filter_public_series(
+        Series.objects.filter(owner=author),
+        'count_posts',
+    ).count()
 
-    for post in paginated_posts:
+    page_posts = list(paginated_posts)
+    post_ids = [post.id for post in page_posts]
+    like_counts = {
+        item['post_id']: item['count']
+        for item in PostLikes.objects.filter(post_id__in=post_ids)
+        .values('post_id')
+        .annotate(count=Count('id'))
+    }
+    comment_counts = {
+        item['post_id']: item['count']
+        for item in Comment.objects.filter(post_id__in=post_ids)
+        .values('post_id')
+        .annotate(count=Count('id'))
+    }
+    liked_post_ids = set()
+    if request.user.is_authenticated:
+        liked_post_ids = set(
+            PostLikes.objects.filter(post_id__in=post_ids, user=request.user)
+            .values_list('post_id', flat=True)
+        )
+
+    for post in page_posts:
+        post.count_likes = like_counts.get(post.id, 0)
+        post.count_comments = comment_counts.get(post.id, 0)
+        post.has_liked = post.id in liked_post_ids
         post.time_display = time_since(post.published_date)
 
     context = {
@@ -172,10 +165,8 @@ def author_posts(request, username):
         'page_count': paginated_posts.paginator.num_pages,
         'author_tags': author_tags,
         'search_query': search_query,
-        'sort_option': sort_option,
         'tag_filter': tag_filter,
         'tag_options': tag_options,
-        'sort_options': sort_options,
         'author_activity_props': json.dumps({'username': author.username}),
     }
     
