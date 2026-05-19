@@ -26,7 +26,7 @@ pillow==12.2.0
 promise==2.3
 pycparser==2.23
 pyhumps==3.8.0
-pymdown-extensions==10.20
+pymdown-extensions==10.21.3
 pyotp==2.9.0
 pypng==0.20220715.0
 pyquery==2.0.1
