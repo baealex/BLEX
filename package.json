@@ -9,6 +9,7 @@
         "server:test": "./scripts/manage.sh test -v 2",
         "server:static": "./scripts/manage.sh collectstatic --noinput",
         "server:makemigrations": "./scripts/manage.sh makemigrations",
+        "server:check-migrations": "./scripts/manage.sh makemigrations --check --dry-run",
         "server:migrate": "./scripts/manage.sh migrate",
         "server:tool": "./scripts/tools.sh",
         "islands:setup": "pnpm install --prefix backend/islands",
@@ -32,6 +33,6 @@
     "homepage": "https://github.com/baealex/BLEX#readme",
     "devDependencies": {
         "concurrently": "^9.2.0",
-        "pnpm": "^10.28.2"
+        "pnpm": "9.0.0"
     }
 }

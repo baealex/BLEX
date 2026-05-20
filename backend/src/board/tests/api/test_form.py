@@ -1,4 +1,4 @@
-from django.test import TestCase
+from django.test import Client, TestCase
 from django.urls import reverse
 from django.contrib.auth.models import User
 from board.models import Form
@@ -73,3 +73,16 @@ class FormTestCase(TestCase):
         self.assertEqual(response.json()['status'], 'DONE')
         self.assertTrue(Form.objects.filter(
             id=response.json()['body']['id']).exists())
+
+    def test_create_form_requires_csrf_token_when_enforced(self):
+        """세션 기반 서식 생성 API는 CSRF 토큰을 요구한다."""
+        csrf_client = Client(enforce_csrf_checks=True)
+        csrf_client.login(username='testuser', password='testpass')
+
+        response = csrf_client.post('/v1/forms', {
+            'title': 'New Title',
+            'content': 'New Content',
+        })
+
+        self.assertEqual(response.status_code, 403)
+        self.assertFalse(Form.objects.filter(title='New Title').exists())

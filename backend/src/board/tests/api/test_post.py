@@ -4,7 +4,7 @@ from io import BytesIO
 
 from PIL import Image
 
-from django.test import TestCase
+from django.test import Client, TestCase
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.utils import timezone
 
@@ -288,6 +288,19 @@ class PostTestCase(TestCase):
         post = Post.objects.get(url=content['body']['url'])
         self.assertIn('<strong>markdown</strong>', post.content.content_html)
 
+    def test_markdown_conversion_requires_csrf_token_when_enforced(self):
+        """세션 기반 마크다운 변환 API는 CSRF 토큰을 요구한다."""
+        csrf_client = Client(enforce_csrf_checks=True)
+        csrf_client.login(username='author', password='author')
+
+        response = csrf_client.post(
+            '/v1/markdown',
+            data=json.dumps({'text': '# Missing CSRF'}),
+            content_type='application/json',
+        )
+
+        self.assertEqual(response.status_code, 403)
+
     def test_create_post_markdown_mode_does_not_render_mentions(self):
         """포스트 마크다운에서는 멘션이 링크로 변환되지 않아야 함"""
         self.client.login(username='author', password='author')
@@ -481,6 +494,36 @@ class PostTestCase(TestCase):
         self.assertTrue(post.image)
         self.assertEqual(post.image.name, original_image_name)
         self.assertEqual(post.title, 'Test Post 4 Updated')
+
+    def test_related_posts_rejects_hidden_post_for_non_owner(self):
+        """관련 글 API는 숨김 글을 비작성자에게 노출하지 않는다."""
+        post = Post.objects.get(url='test-post-1')
+        post.config.hide = True
+        post.config.save()
+
+        response = self.client.get('/v1/users/@author/posts/test-post-1/related')
+
+        self.assertEqual(response.status_code, 404)
+
+    def test_related_posts_rejects_draft_post_for_non_owner(self):
+        """관련 글 API는 임시저장 글을 비작성자에게 노출하지 않는다."""
+        post = Post.objects.get(url='test-post-1')
+        post.published_date = None
+        post.save(update_fields=['published_date'])
+
+        response = self.client.get('/v1/users/@author/posts/test-post-1/related')
+
+        self.assertEqual(response.status_code, 404)
+
+    def test_related_posts_rejects_scheduled_post_for_non_owner(self):
+        """관련 글 API는 미래 발행 글을 비작성자에게 노출하지 않는다."""
+        post = Post.objects.get(url='test-post-1')
+        post.published_date = timezone.now() + timezone.timedelta(days=1)
+        post.save(update_fields=['published_date'])
+
+        response = self.client.get('/v1/users/@author/posts/test-post-1/related')
+
+        self.assertEqual(response.status_code, 404)
 
     def test_post_detail_hidden_in_series(self):
         """시리즈에 포함된 숨김 포스트 조회 시 에러 없이 안내 문구 표시 테스트"""

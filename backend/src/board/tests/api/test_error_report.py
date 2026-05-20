@@ -1,6 +1,6 @@
 from unittest.mock import patch, MagicMock
 
-from django.test import TestCase, override_settings
+from django.test import Client, TestCase, override_settings
 
 from board.models import User, Config, Profile
 
@@ -19,6 +19,35 @@ class ErrorReportAPITestCase(TestCase):
 
     def setUp(self):
         self.client.defaults['HTTP_USER_AGENT'] = 'BLEX_TEST'
+
+    @override_settings(
+        TELEGRAM_ERROR_REPORT_ID=None,
+        TELEGRAM_BOT_TOKEN=None
+    )
+    def test_error_report_requires_csrf_token_when_enforced(self):
+        csrf_client = Client(enforce_csrf_checks=True)
+
+        response = csrf_client.post('/v1/report/error', {
+            'content': 'Missing CSRF token'
+        })
+
+        self.assertEqual(response.status_code, 403)
+
+    @override_settings(
+        TELEGRAM_ERROR_REPORT_ID=None,
+        TELEGRAM_BOT_TOKEN=None
+    )
+    def test_error_report_accepts_form_csrf_token_when_enforced(self):
+        csrf_client = Client(enforce_csrf_checks=True)
+        csrf_client.get('/login')
+        token = csrf_client.cookies['csrftoken'].value
+
+        response = csrf_client.post('/v1/report/error', {
+            'csrfmiddlewaretoken': token,
+            'content': 'Report with CSRF token'
+        })
+
+        self.assertEqual(response.status_code, 200)
 
     @override_settings(
         TELEGRAM_ERROR_REPORT_ID='123456789',

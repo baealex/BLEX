@@ -2,7 +2,7 @@ if (import.meta.env.DEV) {
     void import('react-grab');
 }
 
-import { StrictMode, useEffect, type ReactNode } from 'react';
+import { StrictMode, useEffect } from 'react';
 import { createRoot } from 'react-dom/client';
 import { PersistQueryClientProvider } from '@tanstack/react-query-persist-client';
 import App from './components/App';
@@ -66,22 +66,6 @@ const markIslandFailed = (element: HTMLElement, name: string, reason: string) =>
     element.dataset.islandStatus = 'error';
     element.dataset.islandError = reason;
     window.__blexIslandMonitor?.notifyFailed?.(name, reason);
-};
-
-const IslandMountSignal = ({
-    element,
-    name,
-    children
-}: {
-    element: HTMLElement;
-    name: string;
-    children: ReactNode;
-}) => {
-    useEffect(() => {
-        markIslandMounted(element, name);
-    }, [element, name]);
-
-    return children;
 };
 
 const IslandErrorFallback = ({
@@ -165,6 +149,7 @@ if (!customElements.get('island-component')) {
                 : {};
             const queryClient = createQueryClient();
             const root = createRoot(this);
+            const handleMounted = () => markIslandMounted(this, name);
             root.render(
                 <StrictMode>
                     <ErrorBoundary fallback={<IslandErrorFallback element={this} name={name} />}>
@@ -174,9 +159,7 @@ if (!customElements.get('island-component')) {
                                 persister: sessionStoragePersister,
                                 maxAge: 1000 * 60 * 60 * 24
                             }}>
-                            <IslandMountSignal element={this} name={name}>
-                                <App __name={name} {...props} />
-                            </IslandMountSignal>
+                            <App __name={name} __onMounted={handleMounted} {...props} />
                         </PersistQueryClientProvider>
                     </ErrorBoundary>
                 </StrictMode>

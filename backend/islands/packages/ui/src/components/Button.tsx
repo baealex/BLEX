@@ -23,6 +23,7 @@ const Button = ({
     children,
     className = '',
     disabled,
+    type = 'button',
     ...props
 }: ButtonProps) => {
     const baseStyles = `inline-flex justify-center items-center gap-2 border border-transparent font-semibold transition-all ${INTERACTION_DURATION} focus:outline-none focus:ring-4 focus:ring-offset-1 disabled:opacity-50 disabled:cursor-not-allowed active:scale-95`;
@@ -46,6 +47,7 @@ const Button = ({
         <button
             className={cx(baseStyles, variantStyles[variant], sizeStyles[size], widthStyle, className)}
             disabled={disabled || isLoading}
+            type={type}
             {...props}>
             {isLoading ? (
                 <>

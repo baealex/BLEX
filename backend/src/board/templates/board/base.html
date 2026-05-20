@@ -129,6 +129,7 @@
     <script>
         (() => {
             const REPORT_URL = '/v1/report/error';
+            const CSRF_TOKEN = '{{ csrf_token|escapejs }}';
             const MONITOR_TIMEOUT_MS = 4500;
             const ALERT_ID = 'blex-island-monitor-alert';
 
@@ -181,6 +182,7 @@
 
                 const trackedIslands = getTrackedIslands();
                 const payload = new URLSearchParams({
+                    csrfmiddlewaretoken: CSRF_TOKEN,
                     user: window.configuration?.user?.username || '',
                     path: `${window.location.pathname}${window.location.search}`,
                     content: [
@@ -198,7 +200,8 @@
                     fetch(REPORT_URL, {
                         method: 'POST',
                         headers: {
-                            'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8'
+                            'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8',
+                            'X-CSRFToken': CSRF_TOKEN
                         },
                         body: payload.toString(),
                         credentials: 'same-origin',

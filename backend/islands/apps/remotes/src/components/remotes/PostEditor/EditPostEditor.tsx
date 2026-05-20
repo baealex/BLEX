@@ -16,6 +16,20 @@ interface EditPostEditorProps {
     postUrl: string;
 }
 
+interface DirtySnapshot {
+    title: string;
+    subtitle: string;
+    url: string;
+    content: string;
+    metaDescription: string;
+    hide: boolean;
+    advertise: boolean;
+    tags: string[];
+    seriesUrl: string;
+    imagePreview: string | null;
+    imageDeleted: boolean;
+}
+
 const EditPostEditor = ({ username, postUrl }: EditPostEditorProps) => {
     const { confirm } = useConfirm();
     const [isLoading, setIsLoading] = useState(true);
@@ -43,12 +57,22 @@ const EditPostEditor = ({ username, postUrl }: EditPostEditorProps) => {
     const [isSubmitting, setIsSubmitting] = useState(false);
 
     const formRef = useRef<HTMLFormElement>(null);
-    const initialDataRef = useRef({
-        title: '',
-        content: '',
-        tags: [] as string[]
-    });
+    const initialDataRef = useRef<DirtySnapshot | null>(null);
     const isIntentionalSubmitRef = useRef(false);
+
+    const createDirtySnapshot = (): DirtySnapshot => ({
+        title: formData.title,
+        subtitle: formData.subtitle,
+        url: formData.url,
+        content: formData.content,
+        metaDescription: formData.metaDescription,
+        hide: formData.hide,
+        advertise: formData.advertise,
+        tags,
+        seriesUrl: selectedSeries.url,
+        imagePreview,
+        imageDeleted
+    });
 
     // Fetch data
     useEffect(() => {
@@ -82,8 +106,16 @@ const EditPostEditor = ({ username, postUrl }: EditPostEditorProps) => {
                     setTags(postData.tags || []);
                     initialDataRef.current = {
                         title: postData.title || '',
+                        subtitle: postData.subtitle || '',
+                        url: postData.url || '',
                         content: postData.contentHtml || '',
-                        tags: postData.tags || []
+                        metaDescription: postData.description || '',
+                        hide: postData.isHide || false,
+                        advertise: postData.isAdvertise || false,
+                        tags: postData.tags || [],
+                        seriesUrl: postData.series?.url || '',
+                        imagePreview: postData.image || null,
+                        imageDeleted: false
                     };
                     setImagePreview(postData.image || null);
                     setSelectedSeries({
@@ -103,12 +135,8 @@ const EditPostEditor = ({ username, postUrl }: EditPostEditorProps) => {
     }, [username, postUrl]);
 
     const hasUnsavedChanges = () => {
-        const initial = initialDataRef.current;
-        return (
-            formData.title !== initial.title ||
-            formData.content !== initial.content ||
-            JSON.stringify(tags) !== JSON.stringify(initial.tags)
-        );
+        if (!initialDataRef.current) return false;
+        return JSON.stringify(createDirtySnapshot()) !== JSON.stringify(initialDataRef.current);
     };
 
     // Warn on page unload if there are unsaved changes
@@ -146,6 +174,7 @@ const EditPostEditor = ({ username, postUrl }: EditPostEditorProps) => {
             const reader = new FileReader();
             reader.onload = (e) => {
                 setImagePreview(e.target?.result as string);
+                setImageDeleted(false);
             };
             reader.readAsDataURL(file);
         }

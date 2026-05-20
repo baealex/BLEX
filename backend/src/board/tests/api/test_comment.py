@@ -1,6 +1,6 @@
 import json
 
-from django.test import TestCase
+from django.test import Client, TestCase
 from django.utils import timezone
 
 from board.constants.config_meta import CONFIG_TYPE
@@ -70,6 +70,42 @@ class CommentTestCase(TestCase):
         response = self.client.get('/v1/posts/test-post/comments')
         self.assertEqual(response.status_code, 200)
 
+    def test_post_comment_list_hides_comments_when_post_hidden(self):
+        """숨김 글의 댓글은 공개 댓글 목록에 노출되지 않는다."""
+        post = Post.objects.get(url='test-post')
+        post.config.hide = True
+        post.config.save()
+
+        response = self.client.get('/v1/posts/test-post/comments')
+        content = json.loads(response.content)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(content['body']['comments'], [])
+
+    def test_post_comment_list_hides_comments_when_post_is_draft(self):
+        """임시저장 글의 댓글은 공개 댓글 목록에 노출되지 않는다."""
+        post = Post.objects.get(url='test-post')
+        post.published_date = None
+        post.save(update_fields=['published_date'])
+
+        response = self.client.get('/v1/posts/test-post/comments')
+        content = json.loads(response.content)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(content['body']['comments'], [])
+
+    def test_post_comment_list_hides_comments_when_post_is_scheduled(self):
+        """미래 발행 글의 댓글은 공개 댓글 목록에 노출되지 않는다."""
+        post = Post.objects.get(url='test-post')
+        post.published_date = timezone.now() + timezone.timedelta(days=1)
+        post.save(update_fields=['published_date'])
+
+        response = self.client.get('/v1/posts/test-post/comments')
+        content = json.loads(response.content)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(content['body']['comments'], [])
+
     def test_create_comment(self):
         """댓글 생성 테스트"""
         self.client.login(username='viewer', password='test')
@@ -79,6 +115,19 @@ class CommentTestCase(TestCase):
         response = self.client.post('/v1/comments?url=test-post', data)
         self.assertEqual(response.status_code, 200)
         self.assertEqual(Comment.objects.last().text_md, '# New Comment')
+
+    def test_create_comment_requires_csrf_token_when_enforced(self):
+        """세션 기반 댓글 생성 API는 CSRF 토큰을 요구한다."""
+        csrf_client = Client(enforce_csrf_checks=True)
+        csrf_client.login(username='viewer', password='test')
+        initial_count = Comment.objects.count()
+
+        response = csrf_client.post('/v1/comments?url=test-post', {
+            'comment_md': '# Missing CSRF',
+        })
+
+        self.assertEqual(response.status_code, 403)
+        self.assertEqual(Comment.objects.count(), initial_count)
 
     def test_create_comment_on_hidden_post_returns_404(self):
         """숨김 글에는 공개 댓글 API로 댓글을 생성할 수 없다."""
@@ -296,6 +345,42 @@ class CommentTestCase(TestCase):
         response = self.client.post('/v1/comments?url=test-post', data)
         content = json.loads(response.content)
         self.assertEqual(content['status'], 'ERROR')
+
+    def test_comment_raw_markdown_only_visible_to_comment_author(self):
+        """댓글 원문은 댓글 작성자에게만 노출된다."""
+        comment = Comment.objects.get(text_md='Comment')
+        self.client.login(username='author', password='test')
+
+        response = self.client.get(f'/v1/comments/{comment.id}')
+        content = json.loads(response.content)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(content['status'], 'ERROR')
+        self.assertNotIn('textMd', content.get('body', {}))
+
+    def test_comment_raw_markdown_visible_to_comment_author(self):
+        """댓글 작성자는 수정용 원문을 조회할 수 있다."""
+        comment = Comment.objects.get(text_md='Comment')
+        self.client.login(username='viewer', password='test')
+
+        response = self.client.get(f'/v1/comments/{comment.id}')
+        content = json.loads(response.content)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(content['status'], 'DONE')
+        self.assertEqual(content['body']['textMd'], 'Comment')
+
+    def test_comment_raw_markdown_hidden_when_parent_post_is_not_public(self):
+        """비공개 글의 댓글 원문은 댓글 작성자에게도 공개 API에서 노출하지 않는다."""
+        post = Post.objects.get(url='test-post')
+        post.config.hide = True
+        post.config.save()
+        comment = Comment.objects.get(text_md='Comment')
+        self.client.login(username='viewer', password='test')
+
+        response = self.client.get(f'/v1/comments/{comment.id}')
+
+        self.assertEqual(response.status_code, 404)
 
     def test_notify_user_tag_on_comment_when_user_agree_notify(self):
         """댓글에서 사용자 태그 시 알림 발송 테스트"""

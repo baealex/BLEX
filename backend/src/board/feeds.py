@@ -35,7 +35,7 @@ class SitePostsFeed(Feed):
 
     def items(self):
         posts = PublicPostService.filter_public_posts(
-            Post.objects.select_related('content')
+            Post.objects.select_related('author', 'content')
         ).order_by('-published_date')
         return posts[:20]
 
@@ -57,7 +57,7 @@ class UserPostsFeed(Feed):
 
     def items(self, item):
         posts = PublicPostService.filter_public_posts(
-            Post.objects.select_related('content').filter(author=item)
+            Post.objects.select_related('author', 'content').filter(author=item)
         ).order_by('-published_date')
         return posts[:20]
 
