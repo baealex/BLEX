@@ -1,14 +1,12 @@
 import json
 from django.shortcuts import get_object_or_404
 from django.http import Http404, QueryDict
-from django.views.decorators.csrf import csrf_exempt
 
 from board.models import Form
 from board.modules.time import convert_to_localtime
 from board.modules.response import StatusDone, StatusError, ErrorCode
 
 
-@csrf_exempt
 def forms_list(request):
     if not request.user.is_active:
         return StatusError(ErrorCode.NEED_LOGIN)
@@ -46,7 +44,6 @@ def forms_list(request):
             return StatusError(ErrorCode.INVALID_PARAMETER)
 
 
-@csrf_exempt
 def forms_detail(request, id):
     if not request.user.is_active:
         return StatusError(ErrorCode.NEED_LOGIN)

@@ -50,7 +50,6 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'main.middleware.DisableCSRF',
     'main.middleware.HTMLMinifyMiddleware',
     'main.middleware.SearchIndexingMiddleware',
 ]

@@ -31,7 +31,7 @@ Parameters:
         style="display: none;"
     >
         {% for option in options %}
-        <a href="#" role="option" {% if current_value|default:'' == option.value|default:'' %}aria-selected="true"{% endif %} @click.prevent="updateQueryParams('{{ param_name }}', '{{ option.value }}'); open = false" class="block px-4 py-3 text-sm text-content-secondary hover:bg-surface-subtle transition-colors duration-150 {% if current_value|default:'' == option.value|default:'' %}bg-surface-subtle text-content font-semibold{% endif %}">
+        <a href="#" role="option" {% if current_value|default:'' == option.value|default:'' %}aria-selected="true"{% endif %} @click.prevent="updateQueryParams('{{ param_name|escapejs }}', '{{ option.value|escapejs }}'); open = false" class="block px-4 py-3 text-sm text-content-secondary hover:bg-surface-subtle transition-colors duration-150 {% if current_value|default:'' == option.value|default:'' %}bg-surface-subtle text-content font-semibold{% endif %}">
             {{ option.label }}
         </a>
         {% endfor %}

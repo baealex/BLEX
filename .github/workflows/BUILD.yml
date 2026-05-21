@@ -14,6 +14,51 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v6
 
+      - name: Load .env file
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import os
+
+          env_file = Path('samples/.env')
+          github_env = Path(os.environ['GITHUB_ENV'])
+
+          with github_env.open('a') as output:
+              for raw_line in env_file.read_text().splitlines():
+                  line = raw_line.strip()
+                  if not line or line.startswith('#') or '=' not in line:
+                      continue
+
+                  key, value = line.split('=', 1)
+                  value = value.strip()
+                  if len(value) >= 2 and value[0] == value[-1] and value[0] in {'"', "'"}:
+                      value = value[1:-1]
+
+                  output.write(f'{key.strip()}={value}\n')
+          PY
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: '20.19.0'
+
+      - name: Install Python dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+        working-directory: backend/src
+
+      - name: Check backend migrations
+        run: npm run server:check-migrations
+
+      - name: Test Backend
+        run: npm run server:test
+
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v4
 
@@ -30,7 +75,9 @@ jobs:
           file: ./backend/Dockerfile
           platforms: linux/amd64,linux/arm64/v8
           push: true
-          tags: baealex/blex-backend:latest
+          tags: |
+            baealex/blex-backend:latest
+            baealex/blex-backend:${{ github.sha }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
@@ -42,5 +89,7 @@ jobs:
           target: nginx-stage
           platforms: linux/amd64,linux/arm64/v8
           push: true
-          tags: baealex/blex-nginx:latest
+          tags: |
+            baealex/blex-nginx:latest
+            baealex/blex-nginx:${{ github.sha }}
           cache-from: type=gha

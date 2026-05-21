@@ -8,6 +8,7 @@ from board.modules.response import StatusDone, StatusError, ErrorCode
 from board.modules.time import convert_to_localtime, time_since
 from board.services.comment_list_service import CommentListService
 from board.services.post_service import PostService, PostValidationError
+from board.services.public_post_service import PublicPostService
 
 
 def post_list(request):
@@ -212,7 +213,7 @@ def user_post_related(request, username, url):
         post = get_object_or_404(Post.objects.select_related('config').prefetch_related('tags'),
                                  author__username=username, url=url)
 
-        if post.config.hide and (not request.user.is_authenticated or request.user != post.author):
+        if request.user != post.author and not PublicPostService.is_public(post):
             raise Http404
 
         related_posts = PostService.get_related_posts(post)

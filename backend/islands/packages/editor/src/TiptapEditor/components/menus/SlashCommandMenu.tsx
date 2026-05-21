@@ -28,6 +28,20 @@ interface Form {
     created_date: string;
 }
 
+const getCsrfToken = () => {
+    const tokenElement = document.querySelector('[name=csrfmiddlewaretoken]') as HTMLInputElement | null;
+    if (tokenElement?.value) {
+        return tokenElement.value;
+    }
+
+    const tokenCookie = document.cookie
+        .split(';')
+        .map(cookie => cookie.trim())
+        .find(cookie => cookie.startsWith('csrftoken='));
+
+    return tokenCookie ? decodeURIComponent(tokenCookie.split('=')[1]) : '';
+};
+
 const SlashCommandMenu = ({
     editor,
     isVisible,
@@ -82,7 +96,10 @@ const SlashCommandMenu = ({
             // 마크다운을 HTML로 변환
             const htmlResponse = await fetch('/v1/markdown', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCsrfToken()
+                },
                 body: JSON.stringify({ text: markdown })
             });
 

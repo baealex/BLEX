@@ -1,6 +1,7 @@
 from django.db.models import Case, Count, Exists, OuterRef, Prefetch, Value, When
 
 from board.models import Comment
+from board.services.public_post_service import PublicPostService
 
 
 class CommentListService:
@@ -19,6 +20,7 @@ class CommentListService:
         ).prefetch_related(
             Prefetch('replies', queryset=replies_queryset)
         ).filter(
+            PublicPostService.build_public_filter('post'),
             post__url=post_url,
             parent__isnull=True,
         ).order_by('created_date')

@@ -7,5 +7,9 @@ fi
 
 echo "🔐 Admin path: /$ADMIN_PATH/"
 
+if [ "${RUN_MIGRATIONS_ON_START:-true}" = "true" ]; then
+    python manage.py migrate --noinput
+fi
+
 # Execute gunicorn with all arguments
 exec gunicorn "$@"

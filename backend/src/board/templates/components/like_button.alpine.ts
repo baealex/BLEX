@@ -18,6 +18,18 @@ interface Actions {
     handleLike(): Promise<void>;
 }
 
+const getCsrfToken = () => {
+    const tokenInput = document.querySelector<HTMLInputElement>('[name=csrfmiddlewaretoken]');
+    if (tokenInput?.value) {
+        return tokenInput.value;
+    }
+
+    return document.cookie
+        .split('; ')
+        .find(cookie => cookie.startsWith('csrftoken='))
+        ?.split('=')[1] ?? '';
+};
+
 const likeButton = (options: LikeButtonOptions = {}): Alpine.AlpineComponent<State & Actions> => ({
     count: options.count ?? 0,
     liked: options.liked ?? false,
@@ -34,11 +46,10 @@ const likeButton = (options: LikeButtonOptions = {}): Alpine.AlpineComponent<Sta
         this.loading = true;
 
         try {
-            const csrfTokenInput = document.querySelector('[name=csrfmiddlewaretoken]') as HTMLInputElement;
             const response = await fetch(`/like/${this.postUrl}`, {
                 method: 'POST',
                 headers: {
-                    'X-CSRFToken': csrfTokenInput.value || '',
+                    'X-CSRFToken': getCsrfToken(),
                     'Content-Type': 'application/json'
                 }
             });

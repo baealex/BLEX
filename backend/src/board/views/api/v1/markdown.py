@@ -1,12 +1,10 @@
 import json
 from django.http import Http404
-from django.views.decorators.csrf import csrf_exempt
 
 from modules import markdown
 from board.modules.response import StatusDone, StatusError, ErrorCode
 
 
-@csrf_exempt
 def markdown_to_html(request):
     """
     Convert markdown text to HTML.

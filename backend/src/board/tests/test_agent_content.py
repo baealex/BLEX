@@ -7,6 +7,7 @@ from django.test import Client, TestCase, override_settings
 from django.utils import timezone
 
 from board.models import Post, PostConfig, PostContent, Profile, Series, SiteSetting, StaticPage
+from board.feeds import SitePostsFeed, UserPostsFeed
 
 
 BASE_MIDDLEWARE = tuple(
@@ -255,6 +256,16 @@ class AgentContentTestCase(TestCase):
                 self.assertNotIn('Hidden Agent Post', body)
                 self.assertNotIn('Draft Agent Post', body)
                 self.assertNotIn('Future Agent Post', body)
+
+    def test_rss_feed_items_preload_author_and_content(self):
+        """RSS item 렌더링에 필요한 author/content를 미리 로드한다."""
+        site_item = SitePostsFeed().items()[0]
+        user_item = UserPostsFeed().items(self.author)[0]
+
+        self.assertIn('author', site_item._state.fields_cache)
+        self.assertIn('content', site_item._state.fields_cache)
+        self.assertIn('author', user_item._state.fields_cache)
+        self.assertIn('content', user_item._state.fields_cache)
 
     def test_aeo_disabled_hides_agent_entrypoints(self):
         """AEO가 꺼져 있으면 llms.txt와 Markdown endpoint에 접근할 수 없다."""

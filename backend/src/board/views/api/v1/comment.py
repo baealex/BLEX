@@ -63,7 +63,9 @@ def comment_list(request):
 def comment_detail(request, id):
     comment = get_object_or_404(Comment.objects.select_related(
         'author',
-        'author__config'
+        'author__config',
+        'post',
+        'post__config',
     ).annotate(
         count_likes=Count('likes', distinct=True),
         has_liked=Case(
@@ -81,6 +83,11 @@ def comment_detail(request, id):
     ), id=id)
 
     if request.method == 'GET':
+        if comment.is_deleted() or not PublicPostService.is_public(comment.post):
+            raise Http404
+        if not request.user.is_authenticated or request.user != comment.author:
+            return StatusError(ErrorCode.AUTHENTICATION)
+
         return StatusDone({
             'text_md': comment.text_md,
         })
@@ -91,6 +98,9 @@ def comment_detail(request, id):
         if body.get('like'):
             if not request.user.is_active:
                 return StatusError(ErrorCode.NEED_LOGIN)
+
+            if not PublicPostService.is_public(comment.post):
+                raise Http404
 
             if request.user == comment.author:
                 return StatusError(ErrorCode.AUTHENTICATION)

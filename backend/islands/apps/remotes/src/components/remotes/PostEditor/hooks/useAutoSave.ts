@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { createDraft, updateDraft } from '~/lib/api/posts';
+import type { Response } from '~/lib/http.module';
 
 interface AutoSaveData {
     title: string;
@@ -45,6 +46,14 @@ const buildDraftPayload = (data: AutoSaveData, useFormData: boolean) => {
         series_url: data.seriesUrl,
         custom_url: data.customUrl
     };
+};
+
+const ensureDraftSaved = (response: Response<{ url: string }>) => {
+    if (response.status === 'DONE') {
+        return response.body;
+    }
+
+    throw new Error(response.errorMessage || '임시저장에 실패했습니다.');
 };
 
 export const useAutoSave = (data: AutoSaveData, options: UseAutoSaveOptions) => {
@@ -119,9 +128,10 @@ export const useAutoSave = (data: AutoSaveData, options: UseAutoSaveOptions) => 
 
             if (draftUrlRef.current) {
                 const response = await updateDraft(draftUrlRef.current, payload);
+                const body = ensureDraftSaved(response.data);
                 // Update draftUrlRef if URL changed (e.g. custom_url was applied)
-                if (response.data.status === 'DONE' && response.data.body.url) {
-                    const newUrl = response.data.body.url;
+                if (body.url) {
+                    const newUrl = body.url;
                     if (newUrl !== draftUrlRef.current) {
                         draftUrlRef.current = newUrl;
                         currentOptions.onSuccess?.(newUrl);
@@ -129,13 +139,12 @@ export const useAutoSave = (data: AutoSaveData, options: UseAutoSaveOptions) => 
                 }
             } else {
                 const response = await createDraft(payload);
-                if (response.data.status === 'DONE') {
-                    const url = response.data.body.url;
-                    if (url) {
-                        draftUrlRef.current = url;
-                    }
-                    currentOptions.onSuccess?.(url);
+                const body = ensureDraftSaved(response.data);
+                const url = body.url;
+                if (url) {
+                    draftUrlRef.current = url;
                 }
+                currentOptions.onSuccess?.(url);
             }
 
             setLastSaved(new Date());
