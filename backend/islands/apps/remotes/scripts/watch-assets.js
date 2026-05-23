@@ -12,6 +12,7 @@ const __dirname = path.dirname(__filename);
 const TEMPLATES_DIR = path.resolve(__dirname, '../../../../src/board/templates');
 const SCSS_OUTPUT_FILE = path.resolve(__dirname, '../styles/forwarded.scss');
 const ALPINE_OUTPUT_FILE = path.resolve(__dirname, '../src/scripts/alpine-loader.ts');
+const runOnce = process.argv.includes('--once');
 
 const updateScssParams = {
     pattern: '**/*.scss',
@@ -62,9 +63,9 @@ const updateAssets = async (type) => {
     const params = type === 'scss' ? updateScssParams : updateAlpineParams;
 
     try {
-        const files = await glob(params.pattern, { cwd: TEMPLATES_DIR });
-
-        files.sort();
+        const files = (await glob(params.pattern, { cwd: TEMPLATES_DIR, posix: true }))
+            .map(file => file.replace(/\\/g, '/'))
+            .sort();
 
         const content = params.generateContent(files);
         const fileContent = params.header + content;
@@ -76,7 +77,7 @@ const updateAssets = async (type) => {
     }
 };
 
-const watch = () => {
+const watch = async () => {
     if (!fs.existsSync(TEMPLATES_DIR)) {
         console.warn(`[watch-assets] Templates directory not found: ${TEMPLATES_DIR}`);
         return;
@@ -85,8 +86,14 @@ const watch = () => {
     console.log(`[watch-assets] Watching ${TEMPLATES_DIR}...`);
 
     // Initial sync
-    updateAssets('scss');
-    updateAssets('alpine');
+    await Promise.all([
+        updateAssets('scss'),
+        updateAssets('alpine')
+    ]);
+
+    if (runOnce) {
+        return;
+    }
 
     const watcher = chokidar.watch(TEMPLATES_DIR, {
         ignored: /(^|[/\\])\../, // ignore dotfiles
@@ -106,4 +113,4 @@ const watch = () => {
     watcher.on('error', error => console.error(`[watch-assets] Watcher error: ${error}`));
 };
 
-watch();
+await watch();
