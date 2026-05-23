@@ -2,7 +2,7 @@
     "name": "blex-islands-monorepo",
     "private": true,
     "scripts": {
-        "dev": "turbo run dev --parallel",
+        "dev": "turbo run build --filter=@blex/ui --filter=@blex/editor && turbo run dev --parallel",
         "build": "turbo run build",
         "check:entry-budgets": "pnpm --filter @blex/remotes run check:entry-budgets",
         "e2e:smoke": "pnpm --filter @blex/remotes run e2e:smoke",

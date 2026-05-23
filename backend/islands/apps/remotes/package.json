@@ -4,9 +4,9 @@
     "description": "React islands for BLEX Django project",
     "type": "module",
     "scripts": {
-        "dev": "node scripts/watch-assets.js & vite dev",
+        "dev": "node scripts/dev.mjs",
         "watch:assets": "node scripts/watch-assets.js",
-        "build": "vite build",
+        "build": "node scripts/watch-assets.js --once && vite build",
         "check:entry-budgets": "node scripts/check-entry-budgets.mjs",
         "e2e:smoke": "playwright test --config playwright.config.ts",
         "lint": "eslint src",
