@@ -61,6 +61,13 @@ const PublishChecklist = ({
                     <p className="text-sm leading-relaxed text-content-secondary">{description}</p>
                 </div>
 
+                <div className="rounded-xl border border-line bg-surface-subtle px-4 py-3">
+                    <p className="text-sm font-semibold text-content">{result.visibilityTitle}</p>
+                    <p className="mt-1 text-xs leading-relaxed text-content-secondary">
+                        {result.visibilityDescription}
+                    </p>
+                </div>
+
                 <div className="space-y-2" aria-live="polite">
                     {result.items.map(item => (
                         <div

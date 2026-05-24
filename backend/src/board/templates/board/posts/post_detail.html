@@ -30,7 +30,7 @@
 
 <!-- Canonical URL -->
 <link rel="canonical" href="{{ canonical_url }}">
-{% if aeo_enabled %}
+{% if show_agent_post_markdown %}
 <link rel="alternate" type="text/markdown" href="{{ post_markdown_url }}">
 {% endif %}
 {% endblock %}
@@ -75,7 +75,80 @@
                     {% if post.image %}
                     <meta itemprop="image" content="{{ post_image_url }}">
                     {% endif %}
-                    
+
+                    {% if show_publish_success %}
+                    <section
+                        data-publish-success-guide
+                        data-publish-success-visibility="{{ publish_success_visibility }}"
+                        class="mb-8 rounded-lg border border-line bg-surface-subtle px-4 py-4 sm:px-5 sm:py-5">
+                        <div class="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+                            <div class="min-w-0">
+                                <p class="text-xs font-semibold uppercase text-content-hint">발행 완료</p>
+                                <h2 class="mt-1 text-lg font-semibold text-content">
+                                    {% if publish_success_visibility == 'hidden' %}
+                                    비공개 글로 저장되었습니다
+                                    {% elif publish_success_visibility == 'scheduled' %}
+                                    예약 발행으로 저장되었습니다
+                                    {% else %}
+                                    글이 공개되었습니다
+                                    {% endif %}
+                                </h2>
+                                <p class="mt-1 text-sm leading-relaxed text-content-secondary">
+                                    {% if publish_success_visibility == 'hidden' %}
+                                    비공개 상태라 작성자만 볼 수 있습니다. 공개하려면 글 설정에서 비공개를 해제하세요.
+                                    {% elif publish_success_visibility == 'scheduled' %}
+                                    예약 시각이 되면 공개 URL, RSS, Sitemap, Markdown URL에 반영됩니다.
+                                    {% else %}
+                                    아래 링크로 공개 화면과 피드 노출 상태를 바로 확인할 수 있습니다.
+                                    {% endif %}
+                                </p>
+                            </div>
+                            <a
+                                href="{% url 'post_edit' post.author_username post.url %}"
+                                class="inline-flex min-h-11 items-center justify-center rounded-lg border border-line px-4 py-2 text-sm font-semibold text-content-secondary transition-all duration-150 hover:bg-surface hover:text-content active:scale-95">
+                                수정하기
+                            </a>
+                        </div>
+
+                        <div class="mt-4 grid gap-2 sm:grid-cols-2">
+                            <a
+                                data-publish-success-link="post"
+                                href="{{ publish_success_links.post }}"
+                                class="group rounded-lg border border-line bg-surface px-3 py-3 transition-colors duration-150 hover:bg-surface-elevated">
+                                <span class="block text-sm font-semibold text-content">{% if publish_success_visibility == 'public' %}공개 URL{% else %}작성자 미리보기{% endif %}</span>
+                                <span class="mt-1 block truncate text-xs text-content-hint group-hover:text-content-secondary">{{ publish_success_links.post }}</span>
+                            </a>
+                            {% if publish_success_links.markdown %}
+                            <a
+                                data-publish-success-link="markdown"
+                                href="{{ publish_success_links.markdown }}"
+                                class="group rounded-lg border border-line bg-surface px-3 py-3 transition-colors duration-150 hover:bg-surface-elevated">
+                                <span class="block text-sm font-semibold text-content">Markdown URL</span>
+                                <span class="mt-1 block truncate text-xs text-content-hint group-hover:text-content-secondary">{{ publish_success_links.markdown }}</span>
+                            </a>
+                            {% endif %}
+                            {% if publish_success_links.rss %}
+                            <a
+                                data-publish-success-link="rss"
+                                href="{{ publish_success_links.rss }}"
+                                class="group rounded-lg border border-line bg-surface px-3 py-3 transition-colors duration-150 hover:bg-surface-elevated">
+                                <span class="block text-sm font-semibold text-content">RSS</span>
+                                <span class="mt-1 block truncate text-xs text-content-hint group-hover:text-content-secondary">{{ publish_success_links.rss }}</span>
+                            </a>
+                            {% endif %}
+                            {% if publish_success_links.sitemap %}
+                            <a
+                                data-publish-success-link="sitemap"
+                                href="{{ publish_success_links.sitemap }}"
+                                class="group rounded-lg border border-line bg-surface px-3 py-3 transition-colors duration-150 hover:bg-surface-elevated">
+                                <span class="block text-sm font-semibold text-content">Sitemap</span>
+                                <span class="mt-1 block truncate text-xs text-content-hint group-hover:text-content-secondary">{{ publish_success_links.sitemap }}</span>
+                            </a>
+                            {% endif %}
+                        </div>
+                    </section>
+                    {% endif %}
+
                     <!-- Article Header -->
                     <div class="mb-12 sm:mb-16">
                         {% if post.series %}
@@ -248,7 +321,7 @@
                         await this.copyToClipboard(decodedUrl);
                     }
                 }"
-                {% if aeo_enabled %}data-agent-copy-url="{{ post_markdown_url }}"{% endif %}
+                {% if show_agent_post_markdown %}data-agent-copy-url="{{ post_markdown_url }}"{% endif %}
                 class="fixed sm:sticky bottom-6 left-0 right-0 z-30 flex justify-center pointer-events-none">
                     <div class="pointer-events-auto floating-glass-surface rounded-full px-3 py-3 flex items-center gap-2 transform transition-all motion-interaction">
 

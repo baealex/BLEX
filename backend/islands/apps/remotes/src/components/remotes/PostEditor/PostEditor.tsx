@@ -8,13 +8,15 @@ interface PostEditorProps {
     username?: string;
     postUrl?: string;
     draftUrl?: string;
+    showFirstPublishGuide?: boolean;
 }
 
 const PostEditor = ({
     mode,
     username,
     postUrl,
-    draftUrl
+    draftUrl,
+    showFirstPublishGuide = false
 }: PostEditorProps) => {
     if (mode === 'edit' && (!username || !postUrl)) {
         return (
@@ -61,7 +63,7 @@ const PostEditor = ({
     switch (mode) {
         case 'new':
         case 'draft':
-            return <NewPostEditor draftUrl={draftUrl} />;
+            return <NewPostEditor draftUrl={draftUrl} showFirstPublishGuide={showFirstPublishGuide} />;
 
         case 'edit':
             return <EditPostEditor username={username!} postUrl={postUrl!} />;

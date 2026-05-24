@@ -41,6 +41,7 @@ const PostActions = ({
     onOpenSettings
 }: PostActionsProps) => {
     const isEdit = mode === 'edit';
+    const submitLabel = isEdit ? '수정' : '발행';
     const [, setTick] = useState(0);
 
     // Update time display every 30 seconds
@@ -69,7 +70,8 @@ const PostActions = ({
                     onClick={onOpenSettings}
                     rounded="full"
                     aria-label="게시 설정"
-                    title="게시 설정">
+                    title="게시 설정"
+                    data-tour="post-settings">
                     <SlidersHorizontal className="w-5 h-5" />
                 </IconButton>
             )}
@@ -80,7 +82,10 @@ const PostActions = ({
                     <div className="w-px h-8 bg-line/50 mx-1" />
 
                     {/* Autosave Status */}
-                    <div className="flex items-center gap-1.5 px-1 text-xs text-content-hint" aria-live="polite">
+                    <div
+                        className="flex items-center gap-1.5 px-1 text-xs text-content-hint"
+                        aria-live="polite"
+                        data-tour="post-autosave">
                         {isSaving ? (
                             <>
                                 <div className="w-1.5 h-1.5 rounded-full bg-line-strong animate-pulse" />
@@ -109,7 +114,7 @@ const PostActions = ({
                         ) : (
                             <>
                                 <div className="w-1.5 h-1.5 rounded-full bg-line-strong" />
-                                <span>변경 사항 없음</span>
+                                <span>자동 저장 켜짐</span>
                             </>
                         )}
                     </div>
@@ -132,8 +137,9 @@ const PostActions = ({
                 disabled={isSubmitting || isSaving}
                 variant="primary"
                 className="!rounded-full"
-                leftIcon={<Send className="w-4 h-4" />}>
-                {isEdit ? '수정' : '게시'}
+                leftIcon={<Send className="w-4 h-4" />}
+                data-tour="post-publish">
+                {submitLabel}
             </Button>
         </FloatingBottomBar>
     );
