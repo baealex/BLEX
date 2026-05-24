@@ -15,6 +15,7 @@ from board.views.post import post_detail, post_editor
 from board.views.series import series_detail
 from board.views.search import search_page
 from board.views.auth import login_view, signup_view
+from board.views.initial_setup import initial_setup_view
 from board.views.oauth_callback import oauth_callback
 from board.views.tag import tag_list_view, tag_detail_view
 from board.views.static_pages import static_page_view
@@ -30,6 +31,7 @@ urlpatterns = [
     path('', main.index, name='index'),
     path('authors', authors_view, name='authors'),
     path('interests', main.interested_posts, name='interested_posts'),
+    path('setup', initial_setup_view, name='initial_setup'),
     path('login', login_view, name='login'),
     path('sign', signup_view, name='signup'),
     path('login/callback/<str:provider>', oauth_callback, name='oauth_callback'),

@@ -1,6 +1,7 @@
 import { defineConfig, devices } from '@playwright/test';
 
-const baseURL = process.env.E2E_BASE_URL ?? 'http://127.0.0.1:8000';
+const port = process.env.PORT ?? '8000';
+const baseURL = process.env.E2E_BASE_URL ?? `http://127.0.0.1:${port}`;
 const shouldStartServer = !process.env.E2E_BASE_URL && process.env.E2E_SKIP_WEB_SERVER !== '1';
 const shouldReuseServer = process.env.PLAYWRIGHT_REUSE_SERVER === '1';
 

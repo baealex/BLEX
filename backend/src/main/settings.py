@@ -99,10 +99,15 @@ FILE_UPLOAD_PERMISSIONS = 0o644
 
 DEFAULT_AUTO_FIELD = 'django.db.models.AutoField'
 
+SQLITE_DB_PATH = os.environ.get(
+    'BLEX_SQLITE_DB_PATH',
+    os.path.join(BASE_DIR, 'db.sqlite3'),
+)
+
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+        'NAME': SQLITE_DB_PATH,
     }
 }
 
@@ -166,6 +171,11 @@ GITHUB_OAUTH_CLIENT_SECRET = os.environ.get('GITHUB_OAUTH_CLIENT_SECRET')
 
 HCAPTCHA_SITE_KEY = os.environ.get('HCAPTCHA_SITE_KEY')
 HCAPTCHA_SECRET_KEY = os.environ.get('HCAPTCHA_SECRET_KEY')
+
+
+# Initial setup
+
+INITIAL_SETUP_TOKEN = os.environ.get('INITIAL_SETUP_TOKEN', '')
 
 
 LOGGING = {
