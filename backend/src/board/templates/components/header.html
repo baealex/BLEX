@@ -172,12 +172,14 @@
                         <i class="fas text-sm" :class="resolvedTheme === 'dark' ? 'fa-sun' : 'fa-moon'" aria-hidden="true"></i>
                     </button>
 
+                    {% if not hide_auth_links %}
                     <a href="/login" class="inline-flex items-center px-4 py-2 text-content-secondary hover:text-content hover:bg-surface-subtle rounded-full font-medium text-sm transition-all duration-150 active:scale-95">
                         로그인
                     </a>
                     <a href="/sign" class="inline-flex items-center px-4 py-2 rounded-full bg-action hover:bg-action-hover text-content-inverted font-medium text-sm transition-all duration-150 active:scale-95">
                         회원가입
                     </a>
+                    {% endif %}
                 </nav>
 
                 <div class="flex items-center gap-1 md:hidden">
@@ -288,7 +290,7 @@
                                 </button>
                             </form>
                         </div>
-                    {% else %}
+                    {% elif not hide_auth_links %}
                         <div class="py-1 space-y-1">
                             <a href="/login" @click="closeMobileMenu()" class="flex items-center gap-3 px-3 py-3 text-sm text-content-secondary hover:bg-surface-subtle active:bg-surface-subtle rounded-lg transition-colors duration-150">
                                 <i class="fas fa-sign-in-alt text-content-hint text-xs w-5 text-center"></i>

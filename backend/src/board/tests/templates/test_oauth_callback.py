@@ -18,6 +18,16 @@ from modules import oauth
 class OAuthCallbackTestCase(TestCase):
     """OAuth 콜백 처리 테스트"""
 
+    @classmethod
+    def setUpTestData(cls):
+        admin = User.objects.create_superuser(
+            username='setupadmin',
+            email='setupadmin@example.com',
+            password='testpass123',
+        )
+        Profile.objects.create(user=admin, role=Profile.Role.EDITOR)
+        Config.objects.create(user=admin)
+
     def setUp(self):
         """테스트 데이터 설정"""
         self.client = Client()

@@ -5,6 +5,7 @@ from django.conf import settings
 
 from modules import oauth
 from board.services.auth_service import AuthService, OAuthService
+from board.services.initial_setup_service import InitialSetupService
 from board.models import User, UserLinkMeta
 
 
@@ -34,6 +35,9 @@ def oauth_callback(request, provider):
     """
     if provider not in ['google', 'github']:
         raise Http404('Unsupported provider')
+
+    if InitialSetupService.should_prompt_for_initial_setup():
+        return redirect('/setup')
     
     code = request.GET.get('code')
     if not code:

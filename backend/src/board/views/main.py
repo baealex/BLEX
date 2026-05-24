@@ -1,15 +1,19 @@
 from django.contrib.auth.decorators import login_required
-from django.shortcuts import render
+from django.shortcuts import redirect, render
 from django.db.models import F, Count, Exists, OuterRef
 
 from board.models import Post, PostLikes
 from board.modules.paginator import Paginator
 from board.modules.time import time_since
+from board.services.initial_setup_service import InitialSetupService
 from board.services.public_post_service import PublicPostService
 from board.services.user_service import UserService
 
 
 def index(request):
+    if InitialSetupService.should_prompt_for_initial_setup():
+        return redirect('/setup')
+
     posts = PublicPostService.filter_public_posts(
         Post.objects.select_related(
             'config', 'series', 'author', 'author__profile'

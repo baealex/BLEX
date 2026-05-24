@@ -2,6 +2,8 @@ from django.shortcuts import render, redirect
 from django.conf import settings
 from urllib.parse import urlparse, urljoin
 
+from board.services.initial_setup_service import InitialSetupService
+
 
 def get_safe_redirect_url(request):
     """
@@ -34,6 +36,9 @@ def login_view(request):
     """
     next_url = get_safe_redirect_url(request)
 
+    if InitialSetupService.should_prompt_for_initial_setup():
+        return redirect('/setup')
+
     if request.user.is_authenticated:
         return redirect(next_url or '/')
 
@@ -55,6 +60,9 @@ def signup_view(request):
     If user is already authenticated, redirects to the 'next' URL or home page.
     """
     next_url = get_safe_redirect_url(request)
+
+    if InitialSetupService.should_prompt_for_initial_setup():
+        return redirect('/setup')
 
     if request.user.is_authenticated:
         return redirect(next_url or '/')

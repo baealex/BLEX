@@ -17,6 +17,15 @@ class ErrorReportAPITestCase(TestCase):
         Profile.objects.create(user=cls.user, role=Profile.Role.EDITOR)
         Config.objects.create(user=cls.user)
 
+        cls.admin = User.objects.create_user(
+            username='setupadmin',
+            password='testpass',
+            email='setupadmin@test.com',
+            is_staff=True,
+        )
+        Profile.objects.create(user=cls.admin, role=Profile.Role.EDITOR)
+        Config.objects.create(user=cls.admin)
+
     def setUp(self):
         self.client.defaults['HTTP_USER_AGENT'] = 'BLEX_TEST'
 

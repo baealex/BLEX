@@ -17,6 +17,14 @@ class TemplateEdgeCaseTestCase(TestCase):
         )
         Profile.objects.create(user=self.user, role=Profile.Role.EDITOR)
 
+        self.admin = User.objects.create_user(
+            username='setupadmin',
+            email='setupadmin@example.com',
+            password='testpass123',
+            is_staff=True,
+        )
+        Profile.objects.create(user=self.admin, role=Profile.Role.EDITOR)
+
     def _create_post(
         self,
         *,

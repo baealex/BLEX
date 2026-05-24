@@ -21,6 +21,7 @@ from board.modules.response import StatusDone, StatusError, ErrorCode
 from board.services.auth_login_service import AuthLoginService
 from board.services.auth_request_parser import AuthRequestParser
 from board.services.auth_service import AuthService, OAuthService, AuthValidationError
+from board.services.initial_setup_service import InitialSetupService
 from modules import oauth
 from modules.challenge import auth_hcaptcha
 from modules.sub_task import SubTaskProcessor
@@ -72,6 +73,12 @@ def sign(request):
         })
 
     if request.method == 'POST':
+        if InitialSetupService.should_prompt_for_initial_setup():
+            return StatusError(
+                ErrorCode.REJECT,
+                '첫 관리자 계정을 먼저 만들어주세요.'
+            )
+
         username = request.POST.get('username', '')
         name = request.POST.get('name', '')
         password = request.POST.get('password', '')
@@ -140,6 +147,12 @@ def sign(request):
 
 def sign_social(request, social):
     if request.method == 'POST':
+        if InitialSetupService.should_prompt_for_initial_setup():
+            return StatusError(
+                ErrorCode.REJECT,
+                '첫 관리자 계정을 먼저 만들어주세요.'
+            )
+
         if social == 'github':
             if request.POST.get('code'):
                 state = oauth.auth_github(request.POST.get('code'))

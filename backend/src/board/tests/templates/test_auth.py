@@ -18,10 +18,19 @@ class LoginViewTestCase(TestCase):
         self.user = User.objects.create_user(
             username='testuser',
             email='test@example.com',
-            password='testpass123'
+            password='testpass123',
         )
         Profile.objects.create(user=self.user)
         Config.objects.create(user=self.user)
+
+        self.admin = User.objects.create_user(
+            username='setupadmin',
+            email='setupadmin@example.com',
+            password='testpass123',
+            is_staff=True,
+        )
+        Profile.objects.create(user=self.admin, role=Profile.Role.EDITOR)
+        Config.objects.create(user=self.admin)
 
     def test_login_page_renders(self):
         """로그인 페이지가 정상적으로 렌더링되는지 테스트"""
@@ -91,9 +100,17 @@ class SignupViewTestCase(TestCase):
         self.user = User.objects.create_user(
             username='testuser',
             email='test@example.com',
-            password='testpass123'
+            password='testpass123',
         )
         Profile.objects.create(user=self.user)
+
+        self.admin = User.objects.create_user(
+            username='setupadmin',
+            email='setupadmin@example.com',
+            password='testpass123',
+            is_staff=True,
+        )
+        Profile.objects.create(user=self.admin, role=Profile.Role.EDITOR)
 
     def test_signup_page_renders(self):
         """회원가입 페이지가 정상적으로 렌더링되는지 테스트"""

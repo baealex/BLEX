@@ -168,6 +168,11 @@ HCAPTCHA_SITE_KEY = os.environ.get('HCAPTCHA_SITE_KEY')
 HCAPTCHA_SECRET_KEY = os.environ.get('HCAPTCHA_SECRET_KEY')
 
 
+# Initial setup
+
+INITIAL_SETUP_TOKEN = os.environ.get('INITIAL_SETUP_TOKEN', '')
+
+
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,

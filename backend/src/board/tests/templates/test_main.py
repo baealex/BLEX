@@ -21,6 +21,13 @@ class MainPageTemplateTestCase(TestCase):
             password='testpass123',
         )
 
+        self.admin = User.objects.create_user(
+            username='setupadmin',
+            email='setupadmin@example.com',
+            password='testpass123',
+            is_staff=True,
+        )
+
         self.post = Post.objects.create(
             title='Test Post',
             url='test-post',

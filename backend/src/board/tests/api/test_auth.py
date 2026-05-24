@@ -22,6 +22,15 @@ class AuthTestCase(TestCase):
         Profile.objects.create(user=user, role=Profile.Role.EDITOR)
         Config.objects.create(user=user)
 
+        admin = User.objects.create_user(
+            username='setupadmin',
+            password='test',
+            email='setupadmin@test.com',
+            is_staff=True,
+        )
+        Profile.objects.create(user=admin, role=Profile.Role.EDITOR)
+        Config.objects.create(user=admin)
+
     def test_login_not_logged_in_user(self):
         """로그인하지 않은 사용자 테스트"""
         response = self.client.get('/v1/login')
