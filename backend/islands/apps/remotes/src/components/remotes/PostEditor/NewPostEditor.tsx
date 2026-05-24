@@ -17,6 +17,8 @@ import PublishChecklist from './components/PublishChecklist';
 import { useAutoSave } from './hooks/useAutoSave';
 import { useImageUpload } from './hooks/useImageUpload';
 import { useFormSubmit } from './hooks/useFormSubmit';
+import { Info } from '@blex/ui/icons';
+import { startFirstPublishTour as startFirstPublishTourDriver } from './utils/firstPublishTour';
 import { getPublishChecklist } from './utils/publishChecklist';
 import { getSeries } from '~/lib/api/settings';
 import { getDraft } from '~/lib/api/posts';
@@ -25,6 +27,7 @@ import type { Series } from './types';
 
 interface NewPostEditorProps {
     draftUrl?: string;
+    showFirstPublishGuide?: boolean;
 }
 
 const normalizeUrlInput = (value: string) => {
@@ -44,7 +47,10 @@ const generateUrlFromTitle = (title: string) => {
     return normalizeUrlForSubmit(title);
 };
 
-const NewPostEditor = ({ draftUrl }: NewPostEditorProps) => {
+const NewPostEditor = ({
+    draftUrl,
+    showFirstPublishGuide = false
+}: NewPostEditorProps) => {
     const { confirm } = useConfirm();
     const [isLoading, setIsLoading] = useState(true);
     const [seriesList, setSeriesList] = useState<Series[]>([]);
@@ -89,6 +95,7 @@ const NewPostEditor = ({ draftUrl }: NewPostEditorProps) => {
     // Track initial state for dirty check
     const initialDataRef = useRef<DirtySnapshot | null>(null);
     const isIntentionalSubmitRef = useRef(false);
+    const firstPublishGuideButtonRef = useRef<HTMLButtonElement>(null);
 
     // Custom hooks
     const {
@@ -200,8 +207,11 @@ const NewPostEditor = ({ draftUrl }: NewPostEditorProps) => {
         content: formData.content,
         description: formData.metaDescription,
         tags,
-        hasCoverImage: Boolean(imagePreview)
-    }), [formData.title, formData.content, formData.metaDescription, tags, imagePreview]);
+        hasCoverImage: Boolean(imagePreview),
+        isHidden: formData.hide
+    }), [formData.title, formData.content, formData.metaDescription, formData.hide, tags, imagePreview]);
+
+    const shouldShowFirstPublishGuide = !isLoading && showFirstPublishGuide;
 
     // Fetch series list and draft data if draftUrl exists
     useEffect(() => {
@@ -336,6 +346,14 @@ const NewPostEditor = ({ draftUrl }: NewPostEditorProps) => {
         }
     };
 
+    const handleStartFirstPublishGuide = async () => {
+        try {
+            await startFirstPublishTourDriver({ returnFocusTo: firstPublishGuideButtonRef.current });
+        } catch {
+            toast.error('가이드를 불러오는데 실패했습니다.');
+        }
+    };
+
     const handleTitleChange = (title: string) => {
         setFormData(prev => ({
             ...prev,
@@ -402,6 +420,21 @@ const NewPostEditor = ({ draftUrl }: NewPostEditorProps) => {
 
     return (
         <PostEditorWrapper>
+            {shouldShowFirstPublishGuide && (
+                <div className="mb-4 flex justify-end">
+                    <button
+                        ref={firstPublishGuideButtonRef}
+                        type="button"
+                        onClick={handleStartFirstPublishGuide}
+                        className="inline-flex min-h-11 items-center justify-center gap-2 rounded-full border border-line bg-surface px-3.5 py-2 text-sm font-medium text-content-secondary shadow-subtle transition-all duration-150 hover:bg-surface-elevated hover:text-content active:scale-95"
+                        aria-label="첫 발행 가이드 열기"
+                        title="첫 발행 가이드 열기">
+                        <Info className="h-4 w-4 shrink-0" />
+                        <span>첫 발행 가이드</span>
+                    </button>
+                </div>
+            )}
+
             <PostForm
                 formRef={formRef}
                 isLoading={isLoading}

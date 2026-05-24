@@ -9,6 +9,7 @@ os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'main.settings')
 django.setup()
 
 from django.contrib.auth.models import User
+from board.services.user_role_service import UserRoleService
 
 if __name__ == '__main__':
     username = ''
@@ -22,13 +23,9 @@ if __name__ == '__main__':
     answer = input(f"make a superuser {user.first_name}? (Y/N) ").upper()
     
     if answer == 'Y':
-        user.is_superuser = True
-        user.is_staff = True
-        user.save()
+        UserRoleService.set_superuser_status(user, True)
     if answer == 'N':
-        user.is_superuser = False
-        user.is_staff = False
-        user.save()
+        UserRoleService.set_superuser_status(user, False)
     
     superusers = User.objects.filter(is_superuser=True)
     print(f"Now superuser is {superusers.count()}")

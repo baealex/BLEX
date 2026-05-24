@@ -15,8 +15,8 @@
 {% if is_edit %}
     {% island_component 'PostEditor' mode="edit" username=post.author.username postUrl=post.url %}
 {% elif draft_post %}
-    {% island_component 'PostEditor' mode="draft" username=request.user.username draftUrl=draft_post.url %}
+    {% island_component 'PostEditor' mode="draft" username=request.user.username draftUrl=draft_post.url showFirstPublishGuide=show_first_publish_guide %}
 {% else %}
-    {% island_component 'PostEditor' mode="new" username=request.user.username %}
+    {% island_component 'PostEditor' mode="new" username=request.user.username showFirstPublishGuide=show_first_publish_guide %}
 {% endif %}
 {% endblock %}
