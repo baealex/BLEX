@@ -99,10 +99,15 @@ FILE_UPLOAD_PERMISSIONS = 0o644
 
 DEFAULT_AUTO_FIELD = 'django.db.models.AutoField'
 
+SQLITE_DB_PATH = os.environ.get(
+    'BLEX_SQLITE_DB_PATH',
+    os.path.join(BASE_DIR, 'db.sqlite3'),
+)
+
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+        'NAME': SQLITE_DB_PATH,
     }
 }
 

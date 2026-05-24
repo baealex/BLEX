@@ -1,0 +1,20 @@
+[
+    {
+        "model": "auth.user",
+        "pk": 1,
+        "fields": {
+            "password": "!",
+            "last_login": null,
+            "is_superuser": false,
+            "username": "smoke-admin",
+            "first_name": "Smoke Admin",
+            "last_name": "",
+            "email": "smoke-admin@example.com",
+            "is_staff": true,
+            "is_active": true,
+            "date_joined": "2026-01-01T00:00:00Z",
+            "groups": [],
+            "user_permissions": []
+        }
+    }
+]
