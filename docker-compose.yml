@@ -8,6 +8,16 @@ services:
     volumes:
       - ./backend/src/db.sqlite3:/app/db.sqlite3
       - ./backend/src/resources/media:/app/resources/media
+    command:
+      - --bind
+      - 0.0.0.0:8000
+      - --workers
+      - "1"
+      - --access-logfile
+      - "-"
+      - --log-level
+      - info
+      - main.wsgi:application
     networks:
       - blex-network
 

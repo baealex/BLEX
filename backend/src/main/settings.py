@@ -8,6 +8,35 @@ django.utils.encoding.force_text = force_str
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
+
+def get_env_bool(name: str, default: bool = False) -> bool:
+    value = os.environ.get(name)
+    if value is None or value.strip() == '':
+        return default
+
+    return value.strip().upper() in {'1', 'TRUE', 'YES', 'ON'}
+
+
+def get_env_int(name: str, default: int = 0) -> int:
+    value = os.environ.get(name)
+    if value is None or value.strip() == '':
+        return default
+
+    return int(value.strip())
+
+
+def get_env_list(name: str, default: list[str] | None = None) -> list[str]:
+    value = os.environ.get(name)
+    if value is None or value.strip() == '':
+        return list(default or [])
+
+    return [
+        item.strip()
+        for item in value.split(',')
+        if item.strip()
+    ]
+
+
 SECRET_KEY = os.environ.get('SECRET_KEY')
 
 CIPHER_KEY = os.environ.get('CIPHER_KEY').encode()
@@ -18,7 +47,18 @@ VITE_DEV_SERVER_URL = os.environ.get('VITE_DEV_SERVER_URL', 'http://localhost:81
 
 TESTING = sys.argv[1:2] == ['test']
 
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = get_env_list('ALLOWED_HOSTS', ['*'])
+CSRF_TRUSTED_ORIGINS = get_env_list('CSRF_TRUSTED_ORIGINS')
+
+SESSION_COOKIE_SECURE = get_env_bool('SESSION_COOKIE_SECURE')
+CSRF_COOKIE_SECURE = get_env_bool('CSRF_COOKIE_SECURE')
+SECURE_SSL_REDIRECT = get_env_bool('SECURE_SSL_REDIRECT')
+SECURE_HSTS_SECONDS = get_env_int('SECURE_HSTS_SECONDS')
+SECURE_HSTS_INCLUDE_SUBDOMAINS = get_env_bool('SECURE_HSTS_INCLUDE_SUBDOMAINS')
+SECURE_HSTS_PRELOAD = get_env_bool('SECURE_HSTS_PRELOAD')
+
+if get_env_bool('TRUST_X_FORWARDED_PROTO'):
+    SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 
 INSTALLED_APPS = [
     'django.contrib.admin',
