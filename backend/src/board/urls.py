@@ -1,8 +1,7 @@
-from django.contrib.sitemaps.views import sitemap
 from django.urls import path
 from django.contrib.auth import views as auth_views
 
-from board.sitemaps import sitemaps, sitemap_section
+from board.sitemaps import sitemaps
 from board.feeds import SitePostsFeed, UserPostsFeed
 from board.views.api import v1 as api_v1
 from board.views.api.developer import v1 as developer_api_v1
@@ -17,6 +16,7 @@ from board.views.search import search_page
 from board.views.auth import login_view, signup_view
 from board.views.initial_setup import initial_setup_view
 from board.views.oauth_callback import oauth_callback
+from board.views.sitemap import sitemap_index_view, sitemap_section_view
 from board.views.tag import tag_list_view, tag_detail_view
 from board.views.static_pages import static_page_view
 from board.views.settings import settings, admin_settings
@@ -76,8 +76,13 @@ urlpatterns = [
     path('tag/<str:name>', tag_detail_view, name='tag_detail'),
 
     # Sitemap Generator
-    path('sitemap.xml', sitemap, {'sitemaps': sitemaps}, name='sitemap'),
-    path('<section>/sitemap.xml', sitemap, {'sitemaps': sitemap_section}, name='sitemap_section'),
+    path('sitemap.xml', sitemap_index_view, {'sitemaps': sitemaps}, name='sitemap'),
+    path(
+        '<section>/sitemap.xml',
+        sitemap_section_view,
+        {'sitemaps': sitemaps},
+        name='sitemap_section',
+    ),
 
     # RSS and Etc
     path('rss', SitePostsFeed()),
