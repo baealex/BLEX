@@ -57,6 +57,12 @@ npm run dev
 
 <br>
 
+## 셀프 호스팅
+
+Docker로 직접 운영하려면 [Self-hosting Guide](docs/SELF_HOSTING.md)를 참고하세요. Docker 실행, 운영 설정, 최초 관리자 생성, 첫 글 발행 흐름을 한 문서에서 다룹니다.
+
+<br>
+
 ## 자주 쓰는 명령어
 
 - `npm run server:dev`
@@ -70,6 +76,7 @@ npm run dev
 ## 관련 문서
 
 - [Development Convention](docs/DEV_CONVENTION.md)
+- [Self-hosting Guide](docs/SELF_HOSTING.md)
 - [Backend Guide](docs/BACKEND_GUIDE.md)
 - [Frontend Guide](docs/FRONTEND_GUIDE.md)
 - [Design Guide](docs/DESIGN_GUIDE.md)
