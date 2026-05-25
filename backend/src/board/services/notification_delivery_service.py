@@ -4,6 +4,7 @@ from typing import TYPE_CHECKING
 
 from django.conf import settings
 
+from board.services.site_url_service import SiteUrlService
 from modules.sub_task import SubTaskProcessor
 from modules.telegram import TelegramBot
 
@@ -25,6 +26,6 @@ class NotificationDeliveryService:
 
         bot = TelegramBot(settings.TELEGRAM_BOT_TOKEN)
         SubTaskProcessor.process(lambda: bot.send_messages(telegram_id, [
-            settings.SITE_URL + str(notify.url),
+            SiteUrlService.configured_absolute_url(str(notify.url)),
             notify.content,
         ]))

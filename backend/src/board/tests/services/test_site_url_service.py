@@ -11,6 +11,10 @@ class SiteUrlServiceTestCase(SimpleTestCase):
     def test_public_origin_uses_configured_site_url_without_trailing_slash(self):
         self.assertEqual(SiteUrlService.public_origin(self.request), 'https://blex.example')
 
+    @override_settings(SITE_URL='https://blex.example/')
+    def test_configured_origin_uses_site_url_without_trailing_slash(self):
+        self.assertEqual(SiteUrlService.configured_origin(), 'https://blex.example')
+
     @override_settings(SITE_URL='')
     def test_public_origin_falls_back_to_request_origin(self):
         self.assertEqual(SiteUrlService.public_origin(self.request), 'http://testserver')
@@ -33,9 +37,24 @@ class SiteUrlServiceTestCase(SimpleTestCase):
         self.assertEqual(SiteUrlService.absolute_url(self.request, '/static/page'), 'https://blex.example/static/page')
 
     @override_settings(SITE_URL='https://blex.example')
+    def test_configured_absolute_url_uses_site_url(self):
+        self.assertEqual(
+            SiteUrlService.configured_absolute_url('settings'),
+            'https://blex.example/settings',
+        )
+
+    @override_settings(SITE_URL='')
+    def test_configured_absolute_url_returns_path_without_site_url(self):
+        self.assertEqual(SiteUrlService.configured_absolute_url('settings'), '/settings')
+
+    @override_settings(SITE_URL='https://blex.example')
     def test_absolute_url_keeps_absolute_input(self):
         self.assertEqual(
             SiteUrlService.absolute_url(self.request, 'https://cdn.example/file.png'),
+            'https://cdn.example/file.png',
+        )
+        self.assertEqual(
+            SiteUrlService.configured_absolute_url('https://cdn.example/file.png'),
             'https://cdn.example/file.png',
         )
 

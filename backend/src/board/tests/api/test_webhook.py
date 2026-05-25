@@ -4,7 +4,7 @@
 import json
 from unittest.mock import patch
 
-from django.test import TestCase, Client
+from django.test import TestCase, Client, override_settings
 from django.contrib.auth.models import User
 from django.utils import timezone
 
@@ -445,6 +445,7 @@ class WebhookNotificationTestCase(TestCase):
 
         mock_process.assert_not_called()
 
+    @override_settings(SITE_URL='https://blex.example')
     @patch.object(WebhookService, 'DEFAULT_NOTIFICATION_DELAY_SECONDS', 0)
     @patch('board.services.webhook_service.WebhookService.send_webhook_with_tracking')
     @patch('board.services.webhook_service.time.sleep')
@@ -484,6 +485,11 @@ class WebhookNotificationTestCase(TestCase):
 
         mock_sleep.assert_not_called()
         self.assertEqual(mock_send_webhook_with_tracking.call_count, 2)
+        for call_args in mock_send_webhook_with_tracking.call_args_list:
+            self.assertEqual(
+                call_args.kwargs['post_url'],
+                'https://blex.example/@author/test-post',
+            )
 
     @patch.object(WebhookService, 'DEFAULT_NOTIFICATION_DELAY_SECONDS', 1.25)
     @patch('board.services.webhook_service.WebhookService.send_webhook_with_tracking')

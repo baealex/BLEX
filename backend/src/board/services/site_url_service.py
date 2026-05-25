@@ -14,8 +14,12 @@ class SiteUrlService:
     """Build public absolute URLs from one origin policy."""
 
     @staticmethod
+    def configured_origin() -> str:
+        return (settings.SITE_URL or '').strip().rstrip('/')
+
+    @staticmethod
     def public_origin(request: HttpRequest) -> str:
-        configured_origin = (settings.SITE_URL or '').strip().rstrip('/')
+        configured_origin = SiteUrlService.configured_origin()
         if configured_origin:
             parsed_origin = urlsplit(configured_origin)
             configured_host = (parsed_origin.hostname or '').lower()
@@ -33,12 +37,28 @@ class SiteUrlService:
         return request.build_absolute_uri('/').rstrip('/')
 
     @staticmethod
+    def normalize_path(path: str) -> str:
+        return path if path.startswith('/') else f'/{path}'
+
+    @staticmethod
     def absolute_url(request: HttpRequest, path: str) -> str:
         if path.startswith(('http://', 'https://')):
             return path
 
-        normalized_path = path if path.startswith('/') else f'/{path}'
+        normalized_path = SiteUrlService.normalize_path(path)
         return f'{SiteUrlService.public_origin(request)}{normalized_path}'
+
+    @staticmethod
+    def configured_absolute_url(path: str) -> str:
+        if path.startswith(('http://', 'https://')):
+            return path
+
+        normalized_path = SiteUrlService.normalize_path(path)
+        configured_origin = SiteUrlService.configured_origin()
+        if not configured_origin:
+            return normalized_path
+
+        return f'{configured_origin}{normalized_path}'
 
     @staticmethod
     def absolute_url_with_query(

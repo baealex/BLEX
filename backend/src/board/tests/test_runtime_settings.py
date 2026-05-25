@@ -3,8 +3,9 @@ import subprocess
 import sys
 from unittest.mock import patch
 
-from django.test import SimpleTestCase
+from django.test import SimpleTestCase, override_settings
 
+from board.checks import check_public_site_url
 from main import settings as runtime_settings
 
 
@@ -110,3 +111,27 @@ class RuntimeSettingsTestCase(SimpleTestCase):
                 runtime_settings.get_env_list('BLEX_TEST_ALLOWED_HOSTS', ['*']),
                 ['blog.example.com', 'www.example.com'],
             )
+
+    @override_settings(DEBUG=True, TESTING=False, SITE_URL='http://localhost:8000')
+    def test_public_site_url_check_skips_debug_mode(self):
+        """개발 모드에서는 로컬 SITE_URL을 허용한다."""
+        self.assertEqual(check_public_site_url(None), [])
+
+    @override_settings(DEBUG=False, TESTING=False, SITE_URL='')
+    def test_public_site_url_check_warns_when_missing_in_production(self):
+        """운영 모드에서 SITE_URL이 없으면 공개 URL 정책 경고를 낸다."""
+        warnings = check_public_site_url(None)
+
+        self.assertEqual([warning.id for warning in warnings], ['board.W001'])
+
+    @override_settings(DEBUG=False, TESTING=False, SITE_URL='http://localhost:8000')
+    def test_public_site_url_check_warns_for_local_origin_in_production(self):
+        """운영 모드에서 로컬 SITE_URL은 공개 표면 경고를 낸다."""
+        warnings = check_public_site_url(None)
+
+        self.assertEqual([warning.id for warning in warnings], ['board.W003'])
+
+    @override_settings(DEBUG=False, TESTING=False, SITE_URL='https://blex.example')
+    def test_public_site_url_check_accepts_public_origin(self):
+        """운영 모드의 실제 공개 origin은 경고하지 않는다."""
+        self.assertEqual(check_public_site_url(None), [])

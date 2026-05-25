@@ -2,6 +2,8 @@ import requests
 
 from django.conf import settings
 
+from board.services.site_url_service import SiteUrlService
+
 
 class State:
     def __init__(self, success, user):
@@ -14,7 +16,7 @@ def auth_google(code) -> State:
         'code': code,
         'client_id': settings.GOOGLE_OAUTH_CLIENT_ID,
         'client_secret': settings.GOOGLE_OAUTH_CLIENT_SECRET,
-        'redirect_uri': settings.SITE_URL + '/login/callback/google',
+        'redirect_uri': SiteUrlService.configured_absolute_url('/login/callback/google'),
         'grant_type': 'authorization_code',
     }
     response = requests.post(
