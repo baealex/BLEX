@@ -13,7 +13,6 @@ class SiteSitemap(Sitemap):
         return [
             '',
             '/tags',
-            '/authors',
         ]
 
     def location(self, item):

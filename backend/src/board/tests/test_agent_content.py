@@ -244,7 +244,7 @@ class AgentContentTestCase(TestCase):
         self.assertEqual(root.tag, f'{SITEMAP_NS}urlset')
         self.assertIn('/', paths)
         self.assertIn('/tags', paths)
-        self.assertIn('/authors', paths)
+        self.assertNotIn('/authors', paths)
         self.assertFalse(any(loc.endswith('/posts/sitemap.xml') for loc in locs))
         self.assertFalse(any(loc.endswith('/series/sitemap.xml') for loc in locs))
 

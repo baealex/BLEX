@@ -8,7 +8,6 @@ from board.views.api.developer import v1 as developer_api_v1
 from board.views import agent
 from board.views import main
 from board.views.post_actions import like_post
-from board.views.authors import authors_view
 from board.views.author import author_posts, author_series, author_about, author_about_edit, author_overview
 from board.views.post import post_detail, post_editor
 from board.views.series import series_detail
@@ -29,7 +28,6 @@ def empty():
 
 urlpatterns = [
     path('', main.index, name='index'),
-    path('authors', authors_view, name='authors'),
     path('interests', main.interested_posts, name='interested_posts'),
     path('setup', initial_setup_view, name='initial_setup'),
     path('login', login_view, name='login'),
