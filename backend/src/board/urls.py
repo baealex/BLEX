@@ -4,7 +4,7 @@ from django.contrib.auth import views as auth_views
 from board.sitemaps import sitemaps
 from board.feeds import SitePostsFeed, UserPostsFeed
 from board.views.api import v1 as api_v1
-from board.views.api.developer import v1 as developer_api_v1
+from board.views.api.developer.v1.api import api as developer_api_v1
 from board.views import agent
 from board.views import main
 from board.views.post_actions import like_post
@@ -46,7 +46,7 @@ urlpatterns = [
     path('admin-settings/', admin_settings, name='admin_settings'),
     path('admin-settings/<path:path>', admin_settings, name='admin_settings_path'),
 
-    # Authenticated docs
+    # Developer API docs compatibility redirect
     path('docs/developer-api', developer_api_docs, name='developer_api_docs'),
     path('docs/developer-api/<slug:operation_id>', developer_api_docs, name='developer_api_docs_detail'),
 
@@ -155,12 +155,5 @@ urlpatterns = [
     path('v1/webhook/test', api_v1.test_channel),
 
     # Developer API V1
-    path('api/developer/v1/me', developer_api_v1.me),
-    path('api/developer/v1/posts', developer_api_v1.posts),
-    path('api/developer/v1/posts/search', developer_api_v1.search_posts),
-    path('api/developer/v1/posts/<int:post_id>', developer_api_v1.post_detail),
-    path('api/developer/v1/posts/<int:post_id>/publish', developer_api_v1.publish_post),
-    path('api/developer/v1/tags', developer_api_v1.tags),
-    path('api/developer/v1/series', developer_api_v1.series),
-    path('api/developer/v1/images', developer_api_v1.images),
+    path('api/developer/v1/', developer_api_v1.urls),
 ]

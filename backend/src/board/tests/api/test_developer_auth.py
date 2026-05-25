@@ -122,20 +122,36 @@ class DeveloperAuthAPITestCase(TestCase):
 
         self.assertEqual(response.status_code, 404)
 
-    def test_developer_api_docs_requires_login(self):
+    def test_developer_api_docs_redirects_to_generated_docs(self):
         response = self.client.get('/docs/developer-api')
 
         self.assertEqual(response.status_code, 302)
-        self.assertIn('/login', response['Location'])
-        self.assertIn('next=', response['Location'])
+        self.assertEqual(response['Location'], '/api/developer/v1/docs')
 
-    def test_developer_api_docs_renders_for_logged_in_user(self):
-        self.client.login(username='developer', password='developer')
-
+    def test_developer_api_docs_detail_redirects_to_generated_docs(self):
         response = self.client.get('/docs/developer-api/list-posts')
 
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response['Location'], '/api/developer/v1/docs')
+
+    def test_developer_api_openapi_schema_is_available(self):
+        response = self.client.get('/api/developer/v1/openapi.json')
+
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, 'DeveloperApiDocs')
+        body = response.json()
+        self.assertEqual(body['openapi'], '3.1.0')
+        self.assertIn('/api/developer/v1/posts', body['paths'])
+        security_schemes = body['components']['securitySchemes']
+        self.assertIn('DeveloperBearerAuth', security_schemes)
+        self.assertEqual(security_schemes['DeveloperBearerAuth']['scheme'], 'bearer')
+
+    def test_developer_api_docs_use_local_swagger_assets(self):
+        response = self.client.get('/api/developer/v1/docs')
+
+        self.assertEqual(response.status_code, 200)
+        body = response.content.decode()
+        self.assertIn('ninja/swagger-ui-bundle.js', body)
+        self.assertNotIn('cdn.jsdelivr.net', body)
 
     def test_reader_cannot_create_write_scope_token(self):
         self.client.login(username='reader', password='reader')

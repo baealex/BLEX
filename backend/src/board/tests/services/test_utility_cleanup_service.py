@@ -1,10 +1,10 @@
 from django.contrib.admin.models import LogEntry
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.sessions.models import Session
-from django.test import TestCase
+from django.test import TestCase, override_settings
 from django.utils import timezone
 
-from board.models import Profile, Tag, User
+from board.models import DeveloperRequestLog, Profile, Tag, User
 from board.services.utility_cleanup_service import (
     InvalidImageCleanupTargetError,
     UtilityCleanupService,
@@ -72,6 +72,32 @@ class UtilityCleanupServiceTestCase(TestCase):
         self.assertFalse(payload['dry_run'])
         self.assertGreaterEqual(payload['cleaned_count'], 1)
         self.assertEqual(LogEntry.objects.count(), 0)
+
+    @override_settings(DEVELOPER_API_LOG_RETENTION_DAYS=30)
+    def test_clean_logs_execute_removes_expired_developer_request_logs(self):
+        old_log = DeveloperRequestLog.objects.create(
+            user=self.staff_user,
+            method='GET',
+            path='/api/developer/v1/posts',
+            status_code=200,
+            created_date=timezone.now() - timezone.timedelta(days=31),
+        )
+        recent_log = DeveloperRequestLog.objects.create(
+            user=self.staff_user,
+            method='GET',
+            path='/api/developer/v1/me',
+            status_code=200,
+            created_date=timezone.now() - timezone.timedelta(days=1),
+        )
+
+        payload = UtilityCleanupService.clean_logs({'dry_run': False})
+
+        self.assertFalse(payload['dry_run'])
+        self.assertEqual(payload['developer_api_log_retention_days'], 30)
+        self.assertEqual(payload['expired_developer_request_log_count'], 1)
+        self.assertEqual(payload['cleaned_developer_request_log_count'], 1)
+        self.assertFalse(DeveloperRequestLog.objects.filter(id=old_log.id).exists())
+        self.assertTrue(DeveloperRequestLog.objects.filter(id=recent_log.id).exists())
 
     def test_clean_images_rejects_invalid_target(self):
         with self.assertRaises(InvalidImageCleanupTargetError):

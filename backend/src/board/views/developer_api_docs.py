@@ -1,7 +1,5 @@
-from django.contrib.auth.decorators import login_required
-from django.shortcuts import render
+from django.shortcuts import redirect
 
 
-@login_required
 def developer_api_docs(request, operation_id=''):
-    return render(request, 'board/developer_api_docs.html')
+    return redirect('/api/developer/v1/docs')

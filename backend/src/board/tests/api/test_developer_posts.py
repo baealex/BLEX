@@ -3,7 +3,7 @@ from unittest.mock import patch
 
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.db import connection
-from django.test import TestCase
+from django.test import TestCase, override_settings
 from django.test.utils import CaptureQueriesContext
 
 from board.models import Config, Post, Profile, Series, User
@@ -228,6 +228,16 @@ class DeveloperPostsAPITestCase(TestCase):
 
         self.assert_developer_error(response, 400, 'post.va')
 
+    def test_ninja_validation_returns_standard_error_envelope(self):
+        """Ninja 입력 검증 오류도 개발자 API 오류 envelope로 반환한다."""
+        invalid_status = self.post_json('/api/developer/v1/posts', {
+            'status': 'invalid',
+            'title': 'Invalid Status',
+            'content': 'Body',
+        })
+        self.assert_developer_error(invalid_status, 422, 'request.invalid_payload')
+        self.assertIn('errors', invalid_status.json()['error']['fields'])
+
     def test_patch_post_conflict_returns_current_version_fields(self):
         """expected_updated_at 충돌 응답은 클라이언트가 최신 버전을 다시 판단할 정보를 제공한다."""
         draft = self.create_draft('Conflict Fields Draft')
@@ -254,6 +264,23 @@ class DeveloperPostsAPITestCase(TestCase):
         data = response.json()['data']
         self.assertEqual(data['status'], 'published')
         self.assertEqual(data['title'], 'Published Draft')
+
+        post = Post.objects.get(id=draft['id'])
+        self.assertTrue(post.is_published())
+
+    def test_publish_draft_accepts_empty_body(self):
+        """임시 글 발행은 기존처럼 본문 없이도 동작한다."""
+        draft = self.create_draft('Publish Without Body Draft')
+
+        response = self.client.generic(
+            'POST',
+            f"/api/developer/v1/posts/{draft['id']}/publish",
+            data=b'',
+            **self.auth_header(),
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json()['data']['status'], 'published')
 
         post = Post.objects.get(id=draft['id'])
         self.assertTrue(post.is_published())
@@ -370,7 +397,7 @@ class DeveloperPostsAPITestCase(TestCase):
         self.assertEqual(data[0]['description'], 'Guide description')
         self.assertEqual(data[0]['post_count'], 1)
 
-    @patch('board.views.api.developer.v1.publishing.ImageUploadService.upload_content_image')
+    @patch('board.views.api.developer.v1.api.ImageUploadService.upload_content_image')
     def test_upload_image_uses_developer_token(self, mock_upload):
         """개발자 API 이미지 업로드는 posts:write 토큰으로 이미지 URL을 반환한다."""
         mock_upload.return_value = '/media/images/content/test.png'
@@ -393,7 +420,7 @@ class DeveloperPostsAPITestCase(TestCase):
         )
         self.assertEqual(mock_upload.call_args.kwargs['user'], self.author)
 
-    @patch('board.views.api.developer.v1.publishing.ImageUploadService.upload_content_image')
+    @patch('board.views.api.developer.v1.api.ImageUploadService.upload_content_image')
     def test_upload_image_requires_write_scope(self, mock_upload):
         """읽기 전용 토큰은 이미지 업로드를 할 수 없다."""
         uploaded_file = SimpleUploadedFile(
@@ -410,4 +437,24 @@ class DeveloperPostsAPITestCase(TestCase):
 
         self.assertEqual(response.status_code, 403)
         self.assertEqual(response.json()['error']['code'], 'auth.insufficient_scope')
+        mock_upload.assert_not_called()
+
+    @override_settings(DEVELOPER_API_MAX_UPLOAD_MB=1, DEVELOPER_API_MAX_UPLOAD_BYTES=5)
+    @patch('board.views.api.developer.v1.api.ImageUploadService.upload_content_image')
+    def test_upload_image_rejects_file_above_developer_limit(self, mock_upload):
+        """개발자 API 이미지 업로드는 설정된 파일 크기 제한을 넘기면 처리하지 않는다."""
+        uploaded_file = SimpleUploadedFile(
+            'large.png',
+            b'123456',
+            content_type='image/png',
+        )
+
+        response = self.client.post(
+            '/api/developer/v1/images',
+            {'image': uploaded_file},
+            **self.auth_header(),
+        )
+
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.json()['error']['code'], 'image.too_large')
         mock_upload.assert_not_called()

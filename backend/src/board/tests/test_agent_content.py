@@ -450,6 +450,7 @@ class AgentContentTestCase(TestCase):
         self.assertIn('[Sitemap index](http://localhost:8000/sitemap.xml)', body)
         self.assertIn('[Posts sitemap](http://localhost:8000/posts/sitemap.xml)', body)
         self.assertIn('[RSS feed](http://localhost:8000/rss)', body)
+        self.assertIn('[Developer API OpenAPI schema](http://localhost:8000/api/developer/v1/openapi.json)', body)
         self.assertIn('## Markdown', body)
         self.assertIn('`http://localhost:8000/@{username}/{post_url}.md`', body)
         self.assertIn('`http://localhost:8000/@{username}/series/{series_url}.md`', body)
@@ -466,6 +467,7 @@ class AgentContentTestCase(TestCase):
         self.assertIn('[Sitemap index](https://blex.example/sitemap.xml)', body)
         self.assertIn('[Posts sitemap](https://blex.example/posts/sitemap.xml)', body)
         self.assertIn('[RSS feed](https://blex.example/rss)', body)
+        self.assertIn('[Developer API OpenAPI schema](https://blex.example/api/developer/v1/openapi.json)', body)
         self.assertIn('`https://blex.example/@{username}/{post_url}.md`', body)
 
     def test_llms_txt_does_not_enumerate_public_or_non_public_content(self):

@@ -144,6 +144,11 @@ class AgentContentService:
                 SiteUrlService.absolute_url(request, '/rss'),
                 'Read recent public posts.',
             ),
+            AgentContentService.build_llms_link_line(
+                'Developer API OpenAPI schema',
+                SiteUrlService.absolute_url(request, '/api/developer/v1/openapi.json'),
+                'Inspect the token-based authoring API contract.',
+            ),
             '',
             '## Markdown',
             '',
