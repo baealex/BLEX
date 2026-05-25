@@ -461,8 +461,24 @@ class Profile(models.Model):
         return self.webhook_subscribers.filter(is_active=True).count()
 
     def save(self, *args, **kwargs):
+        previous_role = None
+        if self.pk:
+            previous_role = Profile.objects.filter(pk=self.pk).values_list('role', flat=True).first()
+
+        is_demoting_to_reader = previous_role == self.Role.EDITOR and self.role == self.Role.READER
         will_make_thumbnail = ProfileImageService.should_generate_avatar_thumbnail(self)
+
         super(Profile, self).save(*args, **kwargs)
+
+        if is_demoting_to_reader:
+            Post.objects.filter(
+                author=self.user,
+                published_date__gt=timezone.now(),
+            ).update(
+                published_date=None,
+                updated_date=timezone.now(),
+            )
+
         if will_make_thumbnail:
             ProfileImageService.generate_avatar_thumbnail(self)
 

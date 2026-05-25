@@ -99,11 +99,13 @@
                                     {% endif %}
                                 </p>
                             </div>
+                            {% if can_edit_post %}
                             <a
                                 href="{% url 'post_edit' post.author_username post.url %}"
                                 class="inline-flex min-h-11 items-center justify-center rounded-lg border border-line px-4 py-2 text-sm font-semibold text-content-secondary transition-all duration-150 hover:bg-surface hover:text-content active:scale-95">
                                 수정하기
                             </a>
+                            {% endif %}
                         </div>
                     </section>
                     {% endif %}
@@ -353,7 +355,7 @@
                         </div>
 
                         <!-- Edit Button -->
-                        {% if user.is_authenticated and user.username == post.author_username %}
+                        {% if can_edit_post %}
                         <a href="{% url 'post_edit' post.author_username post.url %}"
                             class="w-11 h-11 flex items-center justify-center rounded-full text-content-secondary hover:text-content hover:bg-surface-subtle/80 transition-all duration-200 active:scale-95"
                             aria-label="포스트 수정">

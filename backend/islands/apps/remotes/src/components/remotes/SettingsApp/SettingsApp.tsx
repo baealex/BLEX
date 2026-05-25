@@ -7,7 +7,7 @@ import {
     Navigate,
     useRouter
 } from '@tanstack/react-router';
-import { lazy, Suspense } from 'react';
+import { lazy, Suspense, type ElementType } from 'react';
 import { SettingsLayout } from './components/SettingsLayout';
 import { LoadingState } from '../../shared';
 
@@ -81,6 +81,24 @@ const SettingsIndexRedirect = () => {
     return <Navigate to={settingsMode === 'admin' ? '/site-settings' : '/notify'} replace />;
 };
 
+const editorOnly = (Component: ElementType) => {
+    const EditorOnlyRoute = (props: Record<string, unknown>) => {
+        const router = useRouter();
+        const { isEditor } = router.options.context as SettingsRouterContext;
+
+        if (!isEditor) {
+            return <Navigate to="/notify" replace />;
+        }
+
+        return <Component {...props} />;
+    };
+
+    return EditorOnlyRoute;
+};
+
+const EditorOnlySeriesEditor = editorOnly(SeriesEditor);
+const EditorOnlyBannerEditor = editorOnly(BannerEditor);
+
 // Index route - redirect to the default page for each settings namespace
 const indexRoute = createRoute({
     getParentRoute: () => settingsRoute,
@@ -110,43 +128,43 @@ const profileRoute = createRoute({
 const seriesRoute = createRoute({
     getParentRoute: () => settingsRoute,
     path: '/series',
-    component: SeriesSetting
+    component: editorOnly(SeriesSetting)
 });
 
 const postsRoute = createRoute({
     getParentRoute: () => settingsRoute,
     path: '/posts',
-    component: PostsSetting
+    component: editorOnly(PostsSetting)
 });
 
 const pinnedPostsRoute = createRoute({
     getParentRoute: () => settingsRoute,
     path: '/pinned-posts',
-    component: PinnedPostsSetting
+    component: editorOnly(PinnedPostsSetting)
 });
 
 const draftsRoute = createRoute({
     getParentRoute: () => settingsRoute,
     path: '/drafts',
-    component: DraftsSetting
+    component: editorOnly(DraftsSetting)
 });
 
 const formsRoute = createRoute({
     getParentRoute: () => settingsRoute,
     path: '/forms',
-    component: FormsSetting
+    component: editorOnly(FormsSetting)
 });
 
 const noticesRoute = createRoute({
     getParentRoute: () => settingsRoute,
     path: '/notices',
-    component: NoticeSetting
+    component: editorOnly(NoticeSetting)
 });
 
 const bannersRoute = createRoute({
     getParentRoute: () => settingsRoute,
     path: '/banners',
-    component: BannerSetting
+    component: editorOnly(BannerSetting)
 });
 
 const integrationRoute = createRoute({
@@ -164,13 +182,13 @@ const socialLinksRoute = createRoute({
 const webhookRoute = createRoute({
     getParentRoute: () => settingsRoute,
     path: '/webhook',
-    component: WebhookSetting
+    component: editorOnly(WebhookSetting)
 });
 
 const developerApiRoute = createRoute({
     getParentRoute: () => settingsRoute,
     path: '/developer-api',
-    component: DeveloperApiSetting
+    component: editorOnly(DeveloperApiSetting)
 });
 
 const globalWebhookRoute = createRoute({
@@ -236,7 +254,7 @@ const staticPageEditRoute = createRoute({
 const seriesCreateRoute = createRoute({
     getParentRoute: () => rootRoute,
     path: '/series/create',
-    component: SeriesEditor
+    component: editorOnly(SeriesEditor)
 });
 
 const seriesEditRoute = createRoute({
@@ -245,7 +263,7 @@ const seriesEditRoute = createRoute({
     component: () => {
         const { seriesId } = seriesEditRoute.useParams();
         return (
-            <SeriesEditor seriesId={Number(seriesId)} />
+            <EditorOnlySeriesEditor seriesId={Number(seriesId)} />
         );
     }
 });
@@ -253,7 +271,7 @@ const seriesEditRoute = createRoute({
 const bannerCreateRoute = createRoute({
     getParentRoute: () => rootRoute,
     path: '/banners/create',
-    component: BannerEditor
+    component: editorOnly(BannerEditor)
 });
 
 const bannerEditRoute = createRoute({
@@ -262,7 +280,7 @@ const bannerEditRoute = createRoute({
     component: () => {
         const { bannerId } = bannerEditRoute.useParams();
         return (
-            <BannerEditor bannerId={Number(bannerId)} />
+            <EditorOnlyBannerEditor bannerId={Number(bannerId)} />
         );
     }
 });

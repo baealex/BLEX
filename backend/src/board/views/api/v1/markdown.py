@@ -2,9 +2,11 @@ import json
 from django.http import Http404
 
 from modules import markdown
+from board.decorators import api_editor_required_methods
 from board.modules.response import StatusDone, StatusError, ErrorCode
 
 
+@api_editor_required_methods(['POST'])
 def markdown_to_html(request):
     """
     Convert markdown text to HTML.
@@ -15,14 +17,6 @@ def markdown_to_html(request):
     """
     if request.method != 'POST':
         raise Http404
-    
-    if not request.user.is_authenticated:
-        return StatusError(ErrorCode.NEED_LOGIN)
-    
-    # Check if user has editor permission
-    if not hasattr(request.user, 'profile') or not request.user.profile.is_editor():
-        return StatusError(ErrorCode.NEED_LOGIN, '편집자 권한이 필요합니다.')
-
     
     try:
         if request.content_type == 'application/json':

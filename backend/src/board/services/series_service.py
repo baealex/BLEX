@@ -11,6 +11,7 @@ from django.db import transaction
 from django.db.models import F
 
 from board.models import Series, Post
+from board.services.authoring_permission_service import AuthoringPermissionService
 from board.services.public_post_service import PublicPostService
 from board.services.public_series_service import PublicSeriesService
 from board.modules.response import ErrorCode
@@ -42,6 +43,12 @@ class SeriesService:
             raise SeriesValidationError(
                 ErrorCode.NEED_LOGIN,
                 '로그인이 필요합니다.'
+            )
+
+        if not AuthoringPermissionService.is_active_editor(user):
+            raise SeriesValidationError(
+                ErrorCode.REJECT,
+                '에디터 권한이 필요합니다.'
             )
 
     @staticmethod
@@ -103,9 +110,7 @@ class SeriesService:
         Returns:
             True if user can edit, False otherwise
         """
-        return user.is_authenticated and (
-            user == series.owner or user.is_staff
-        )
+        return AuthoringPermissionService.can_manage_own_content(user, series.owner)
 
     @staticmethod
     @transaction.atomic

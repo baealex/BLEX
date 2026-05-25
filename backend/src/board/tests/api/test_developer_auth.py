@@ -26,6 +26,14 @@ class DeveloperAuthAPITestCase(TestCase):
         Profile.objects.create(user=cls.reader, role=Profile.Role.READER)
         Config.objects.create(user=cls.reader)
 
+        cls.other_editor = User.objects.create_user(
+            username='other-developer',
+            password='other-developer',
+            email='other-developer@example.com',
+        )
+        Profile.objects.create(user=cls.other_editor, role=Profile.Role.EDITOR)
+        Config.objects.create(user=cls.other_editor)
+
     def setUp(self):
         self.client.defaults['HTTP_USER_AGENT'] = 'BLEX_TEST'
 
@@ -76,8 +84,8 @@ class DeveloperAuthAPITestCase(TestCase):
             scopes=['posts:read'],
         )
         DeveloperTokenService.create_token(
-            self.reader,
-            name='Reader token',
+            self.other_editor,
+            name='Other editor token',
             scopes=['posts:read'],
         )
         self.client.login(username='developer', password='developer')
@@ -112,8 +120,8 @@ class DeveloperAuthAPITestCase(TestCase):
 
     def test_user_cannot_revoke_other_user_token(self):
         _, token = DeveloperTokenService.create_token(
-            self.reader,
-            name='Reader token',
+            self.other_editor,
+            name='Other editor token',
             scopes=['posts:read'],
         )
         self.client.login(username='developer', password='developer')
@@ -153,14 +161,24 @@ class DeveloperAuthAPITestCase(TestCase):
         self.assertIn('ninja/swagger-ui-bundle.js', body)
         self.assertNotIn('cdn.jsdelivr.net', body)
 
-    def test_reader_cannot_create_write_scope_token(self):
+    def test_reader_cannot_create_developer_token(self):
         self.client.login(username='reader', password='reader')
 
         response = self.client.post(
             '/v1/developer-tokens',
-            json.dumps({'name': 'Writer', 'scopes': ['posts:write']}),
+            json.dumps({'name': 'Reader', 'scopes': ['posts:read']}),
             content_type='application/json',
         )
+
+        self.assertEqual(response.status_code, 200)
+        body = response.json()
+        self.assertEqual(body['status'], 'ERROR')
+        self.assertEqual(body['errorCode'], 'error:RJ')
+
+    def test_reader_cannot_list_developer_tokens(self):
+        self.client.login(username='reader', password='reader')
+
+        response = self.client.get('/v1/developer-tokens')
 
         self.assertEqual(response.status_code, 200)
         body = response.json()
@@ -193,6 +211,24 @@ class DeveloperAuthAPITestCase(TestCase):
 
         token.refresh_from_db()
         self.assertIsNotNone(token.last_used_at)
+
+    def test_demoted_editor_token_is_rejected(self):
+        raw_token, _ = DeveloperTokenService.create_token(
+            self.editor,
+            name='MCP',
+            scopes=['posts:read'],
+        )
+        profile = Profile.objects.get(user=self.editor)
+        profile.role = Profile.Role.READER
+        profile.save(update_fields=['role'])
+
+        response = self.client.get(
+            '/api/developer/v1/me',
+            HTTP_AUTHORIZATION=f'Bearer {raw_token}',
+        )
+
+        self.assertEqual(response.status_code, 403)
+        self.assertEqual(response.json()['error']['code'], 'auth.editor_required')
 
     def test_revoked_token_is_rejected(self):
         raw_token, token = DeveloperTokenService.create_token(

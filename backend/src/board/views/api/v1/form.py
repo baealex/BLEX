@@ -3,10 +3,12 @@ from django.shortcuts import get_object_or_404
 from django.http import Http404, QueryDict
 
 from board.models import Form
+from board.decorators import api_editor_required
 from board.modules.time import convert_to_localtime
 from board.modules.response import StatusDone, StatusError, ErrorCode
 
 
+@api_editor_required
 def forms_list(request):
     if not request.user.is_active:
         return StatusError(ErrorCode.NEED_LOGIN)
@@ -44,6 +46,7 @@ def forms_list(request):
             return StatusError(ErrorCode.INVALID_PARAMETER)
 
 
+@api_editor_required
 def forms_detail(request, id):
     if not request.user.is_active:
         return StatusError(ErrorCode.NEED_LOGIN)

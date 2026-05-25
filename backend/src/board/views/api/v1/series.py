@@ -3,6 +3,7 @@ from django.http import Http404, QueryDict
 from django.shortcuts import get_object_or_404
 
 from board.models import User, Post, Series
+from board.decorators import api_editor_required, api_editor_required_methods
 from board.services import SeriesService
 from board.services.series_service import SeriesValidationError
 from board.services.public_post_service import PublicPostService
@@ -13,6 +14,7 @@ from board.modules.paginator import Paginator
 from board.modules.response import StatusDone, StatusError, ErrorCode
 
 
+@api_editor_required
 def posts_can_add_series(request):
     if request.method == 'GET':
         if not request.user.is_authenticated:
@@ -48,6 +50,7 @@ def posts_can_add_series(request):
     raise Http404
 
 
+@api_editor_required_methods(['POST', 'PUT', 'DELETE'])
 def user_series(request, username, url=None):
     if not url:
         if request.method == 'GET':
@@ -194,6 +197,7 @@ def user_series(request, username, url=None):
         raise Http404
 
 
+@api_editor_required
 def series_order(request):
     """
     Update series order for the current user.
@@ -222,6 +226,7 @@ def series_order(request):
     raise Http404
 
 
+@api_editor_required
 def series_create_update(request):
     """
     Get series list (GET) or Create new series (POST) for the current user.
@@ -281,6 +286,7 @@ def series_create_update(request):
     raise Http404
 
 
+@api_editor_required
 def series_detail(request, series_id):
     """
     Get (GET), update (PUT), or delete (DELETE) a specific series by ID.

@@ -86,9 +86,9 @@ class UsernameRedirectTestCase(TestCase):
         # Should return 200 OK (no redirect)
         self.assertEqual(response.status_code, 200)
 
-    def test_redirect_only_for_editors(self):
-        """Test redirect only works for users with editor role"""
-        # Create user without editor role
+    def test_redirect_preserves_public_post_for_reader_owner(self):
+        """Old username redirects are based on public post ownership, not current role."""
+        # A demoted editor can have public posts while their current role is reader.
         reader_user = User.objects.create_user(
             username='currentreader',
             email='reader@example.com',
@@ -132,8 +132,12 @@ class UsernameRedirectTestCase(TestCase):
             })
         )
 
-        # Should return 404 (no redirect for non-editors)
-        self.assertEqual(response.status_code, 404)
+        # Public post URLs should keep redirecting after demotion.
+        expected_url = reverse('post_detail', kwargs={
+            'username': 'currentreader',
+            'post_url': 'reader-post'
+        })
+        self.assertRedirects(response, expected_url)
 
     def test_multiple_username_changes(self):
         """Test with multiple username changes (only latest should work)"""

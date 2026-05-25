@@ -16,6 +16,7 @@ from board.models import (
     EmailChange, Profile
 )
 from board.constants.config_meta import CONFIG_TYPES
+from board.services.user_role_service import UserRoleService
 
 from .service import AdminDisplayService, AdminLinkService
 from .constants import COLOR_MUTED, COLOR_INFO, COLOR_BG, COLOR_TEXT
@@ -96,14 +97,12 @@ class CustomUserAdmin(BaseUserAdmin):
     post_count.admin_order_field = 'post_count'
 
     def make_editor(self, request: HttpRequest, queryset: QuerySet[User]) -> None:
-        user_ids = queryset.values_list('id', flat=True)
-        count = Profile.objects.filter(user_id__in=user_ids).update(role=Profile.Role.EDITOR)
+        count = UserRoleService.set_users_role(queryset, Profile.Role.EDITOR)
         self.message_user(request, f'{count}명의 사용자를 편집자로 변경했습니다.')
     make_editor.short_description = '선택한 사용자를 편집자로 변경'
 
     def make_reader(self, request: HttpRequest, queryset: QuerySet[User]) -> None:
-        user_ids = queryset.values_list('id', flat=True)
-        count = Profile.objects.filter(user_id__in=user_ids).update(role=Profile.Role.READER)
+        count = UserRoleService.set_users_role(queryset, Profile.Role.READER)
         self.message_user(request, f'{count}명의 사용자를 독자로 변경했습니다.')
     make_reader.short_description = '선택한 사용자를 독자로 변경'
 
@@ -320,11 +319,11 @@ class ProfileAdmin(admin.ModelAdmin):
     total_posts.short_description = '총 포스트 수'
 
     def set_role_editor(self, request: HttpRequest, queryset: QuerySet[Profile]) -> None:
-        count = queryset.update(role=Profile.Role.EDITOR)
+        count = UserRoleService.set_profiles_role(queryset, Profile.Role.EDITOR)
         self.message_user(request, f'{count}명의 프로필을 편집자로 변경했습니다.')
     set_role_editor.short_description = '역할을 편집자로 변경'
 
     def set_role_reader(self, request: HttpRequest, queryset: QuerySet[Profile]) -> None:
-        count = queryset.update(role=Profile.Role.READER)
+        count = UserRoleService.set_profiles_role(queryset, Profile.Role.READER)
         self.message_user(request, f'{count}명의 프로필을 독자로 변경했습니다.')
     set_role_reader.short_description = '역할을 독자로 변경'

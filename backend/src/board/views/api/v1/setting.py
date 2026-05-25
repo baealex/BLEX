@@ -13,15 +13,32 @@ from board.modules.paginator import Paginator
 from board.modules.response import StatusDone, StatusError, ErrorCode
 from board.modules.time import convert_to_localtime
 from board.services.auth_service import AuthService, AuthValidationError
+from board.services.api_permission_service import ApiPermissionService
 from board.services.pinned_post_service import PinnedPostService, PinnedPostError
 from board.services.user_heatmap_service import UserHeatmapService
 from board.services.user_notification_service import UserNotificationService
 from board.services.user_social_link_service import UserSocialLinkService
 
 
+EDITOR_SETTING_PARAMETERS = {
+    'posts',
+    'reserved-posts',
+    'tag',
+    'series',
+    'pinned-posts',
+    'pinnable-posts',
+    'pinned-posts/order',
+}
+
+
 def setting(request, parameter):
     if not request.user.is_active:
         return StatusError(ErrorCode.NEED_LOGIN)
+
+    if parameter in EDITOR_SETTING_PARAMETERS:
+        permission_error = ApiPermissionService.require_editor(request.user)
+        if permission_error:
+            return permission_error
 
     user = get_object_or_404(
         User.objects.select_related(
