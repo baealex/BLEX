@@ -437,35 +437,53 @@ class AgentContentTestCase(TestCase):
         body = response.content.decode()
         self.assertIn('Source: https://blex.example/static/about-ai', body)
 
-    def test_llms_txt_returns_minimal_site_summary(self):
-        """/llms.txt는 최소한의 사이트 요약만 제공한다."""
+    def test_llms_txt_returns_discovery_entrypoint(self):
+        """/llms.txt는 공개 콘텐츠 discovery endpoint와 Markdown 규칙을 안내한다."""
         response = self.client.get('/llms.txt')
 
         self.assertEqual(response.status_code, 200)
         self.assertTrue(response['Content-Type'].startswith('text/plain'))
 
         body = response.content.decode()
-        self.assertEqual(
-            body,
-            '# BLEX\n\n> BLEX is a publishing site.\n',
-        )
+        self.assertIn('# BLEX', body)
+        self.assertIn('## Discovery', body)
+        self.assertIn('[Sitemap index](http://localhost:8000/sitemap.xml)', body)
+        self.assertIn('[Posts sitemap](http://localhost:8000/posts/sitemap.xml)', body)
+        self.assertIn('[RSS feed](http://localhost:8000/rss)', body)
+        self.assertIn('## Markdown', body)
+        self.assertIn('`http://localhost:8000/@{username}/{post_url}.md`', body)
+        self.assertIn('`http://localhost:8000/@{username}/series/{series_url}.md`', body)
+        self.assertIn('`http://localhost:8000/static/{slug}.md`', body)
 
-    def test_llms_txt_does_not_expose_content_indexes_or_markdown_links(self):
-        """llms.txt는 sitemap, RSS, Markdown 목록을 노출하지 않는다."""
+    @override_settings(SITE_URL='https://blex.example')
+    def test_llms_txt_uses_configured_site_url(self):
+        """/llms.txt는 configured SITE_URL origin으로 discovery URL을 만든다."""
+        response = self.client.get('/llms.txt')
+
+        self.assertEqual(response.status_code, 200)
+
+        body = response.content.decode()
+        self.assertIn('[Sitemap index](https://blex.example/sitemap.xml)', body)
+        self.assertIn('[Posts sitemap](https://blex.example/posts/sitemap.xml)', body)
+        self.assertIn('[RSS feed](https://blex.example/rss)', body)
+        self.assertIn('`https://blex.example/@{username}/{post_url}.md`', body)
+
+    def test_llms_txt_does_not_enumerate_public_or_non_public_content(self):
+        """llms.txt는 discovery 규칙만 제공하고 개별 콘텐츠를 열거하지 않는다."""
         response = self.client.get('/llms.txt')
 
         self.assertEqual(response.status_code, 200)
 
         body = response.content.decode()
 
-        self.assertRegex(
-            body,
-            r'^# BLEX\n\n> .+\n$',
-        )
-        self.assertNotIn('/sitemap.xml', body)
-        self.assertNotIn('/rss', body)
-        self.assertNotIn('.md', body)
-        self.assertNotIn('## ', body)
+        self.assertNotIn('Agent Ready Post', body)
+        self.assertNotIn('/@aeo-author/agent-ready-post.md', body)
+        self.assertNotIn('Hidden Agent Post', body)
+        self.assertNotIn('/@aeo-author/hidden-agent-post.md', body)
+        self.assertNotIn('Draft Agent Post', body)
+        self.assertNotIn('/@aeo-author/draft-agent-post.md', body)
+        self.assertNotIn('Future Agent Post', body)
+        self.assertNotIn('/@aeo-author/future-agent-post.md', body)
 
     def test_post_markdown_endpoint_returns_clean_markdown(self):
         """공개 포스트는 Markdown endpoint로 AI용 본문을 제공한다."""
