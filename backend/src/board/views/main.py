@@ -1,10 +1,12 @@
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import redirect, render
 from django.db.models import F, Count, Exists, OuterRef
+from django.urls import reverse
 
 from board.models import Post, PostLikes
 from board.modules.paginator import Paginator
 from board.modules.time import time_since
+from board.services.discovery_metadata_service import DiscoveryMetadataService
 from board.services.initial_setup_service import InitialSetupService
 from board.services.public_post_service import PublicPostService
 from board.services.user_service import UserService
@@ -48,6 +50,22 @@ def index(request):
         'page_number': page,
         'page_count': paginated_posts.paginator.num_pages,
     }
+    if DiscoveryMetadataService.has_unexpected_query_parameters(request, {'page'}):
+        context.update(
+            DiscoveryMetadataService.build_noindex_page_metadata(
+                request,
+                reverse('index'),
+            )
+        )
+    else:
+        context.update(
+            DiscoveryMetadataService.build_paginated_page_metadata(
+                request,
+                reverse('index'),
+                page,
+                paginated_posts.paginator.num_pages,
+            )
+        )
 
     return render(request, 'board/posts/post_list.html', context)
 
@@ -71,5 +89,11 @@ def interested_posts(request):
         'page_number': page,
         'page_count': paginated_posts.paginator.num_pages,
     }
+    context.update(
+        DiscoveryMetadataService.build_noindex_page_metadata(
+            request,
+            follow_links=False,
+        )
+    )
 
     return render(request, 'board/posts/interested_posts.html', context)

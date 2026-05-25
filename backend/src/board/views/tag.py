@@ -1,7 +1,10 @@
 from django.http import Http404
 from django.shortcuts import render
+from django.urls import reverse
+
 from board.modules.paginator import Paginator
 
+from board.services.discovery_metadata_service import DiscoveryMetadataService
 from board.services import TagService
 
 
@@ -56,6 +59,27 @@ def tag_list_view(request):
         'last_page': paginated_tags.paginator.num_pages,
         'sort_options': sort_options,
     }
+    tags_path = reverse('tag_list')
+    if (
+        DiscoveryMetadataService.has_unexpected_query_parameters(request, {'page', 'q', 'sort'})
+        or search_query
+        or sort != 'popular'
+    ):
+        context.update(
+            DiscoveryMetadataService.build_noindex_page_metadata(
+                request,
+                tags_path,
+            )
+        )
+    else:
+        context.update(
+            DiscoveryMetadataService.build_paginated_page_metadata(
+                request,
+                tags_path,
+                page,
+                paginated_tags.paginator.num_pages,
+            )
+        )
 
     return render(request, 'board/tags/tag_list.html', context)
 
@@ -86,5 +110,22 @@ def tag_detail_view(request, name):
         'page': page,
         'last_page': paginated_posts.paginator.num_pages,
     }
+    tag_detail_path = reverse('tag_detail', kwargs={'name': name})
+    if DiscoveryMetadataService.has_unexpected_query_parameters(request, {'page'}):
+        context.update(
+            DiscoveryMetadataService.build_noindex_page_metadata(
+                request,
+                tag_detail_path,
+            )
+        )
+    else:
+        context.update(
+            DiscoveryMetadataService.build_paginated_page_metadata(
+                request,
+                tag_detail_path,
+                page,
+                paginated_posts.paginator.num_pages,
+            )
+        )
 
     return render(request, 'board/tags/tag_detail.html', context)
