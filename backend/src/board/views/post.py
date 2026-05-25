@@ -63,30 +63,16 @@ def post_detail(request, username, post_url):
 
     aeo_enabled = AgentContentService.is_aeo_enabled()
     is_public_post = PublicPostService.is_public(post)
-    publish_success_visibility = 'public'
+    post_visibility_status = 'public'
     if post.config.hide:
-        publish_success_visibility = 'hidden'
+        post_visibility_status = 'hidden'
     elif not is_public_post:
-        publish_success_visibility = 'scheduled'
+        post_visibility_status = 'scheduled'
 
-    show_publish_success = (
-        request.GET.get('published') == '1'
-        and is_owner
-        and post.published_date is not None
+    show_post_status_notice = (
+        is_owner
+        and post_visibility_status in {'hidden', 'scheduled'}
     )
-    publish_success_links = {}
-    if show_publish_success:
-        publish_success_links = {
-            'post': canonical_url,
-        }
-        if is_public_post:
-            publish_success_links.update({
-                'rss': SiteUrlService.absolute_url(request, '/rss'),
-                'sitemap': SiteUrlService.absolute_url(
-                    request,
-                    reverse('sitemap_section', kwargs={'section': 'posts'})
-                ),
-            })
 
     show_agent_post_markdown = aeo_enabled and is_public_post
     context = {
@@ -99,15 +85,12 @@ def post_detail(request, username, post_url):
         'author_url': author_url,
         'post_image_url': post_image_url,
         'logo_url': logo_url,
-        'show_publish_success': show_publish_success,
-        'publish_success_visibility': publish_success_visibility,
-        'publish_success_links': publish_success_links,
+        'show_post_status_notice': show_post_status_notice,
+        'post_visibility_status': post_visibility_status,
         'show_agent_post_markdown': show_agent_post_markdown,
     }
     if show_agent_post_markdown:
         context['post_markdown_url'] = AgentContentService.build_post_markdown_url(post, request)
-        if show_publish_success:
-            publish_success_links['markdown'] = context['post_markdown_url']
 
     response = render(request, 'board/posts/post_detail.html', context)
     if show_agent_post_markdown:
@@ -287,8 +270,6 @@ def post_editor(request, username=None, post_url=None):
             'username': request.user.username,
             'post_url': post.url,
         })
-        if not is_edit:
-            post_detail_url = f'{post_detail_url}?published=1'
         return redirect(post_detail_url)
 
     context = {

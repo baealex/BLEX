@@ -1,9 +1,13 @@
 from __future__ import annotations
 
-from urllib.parse import urlencode
+from urllib.parse import urlencode, urlsplit
 
 from django.conf import settings
 from django.http import HttpRequest
+
+
+LOCAL_SITE_HOSTS = {'localhost', '127.0.0.1', '0.0.0.0', '::1'}
+TEST_REQUEST_HOSTS = {'testserver'}
 
 
 class SiteUrlService:
@@ -13,6 +17,17 @@ class SiteUrlService:
     def public_origin(request: HttpRequest) -> str:
         configured_origin = (settings.SITE_URL or '').strip().rstrip('/')
         if configured_origin:
+            parsed_origin = urlsplit(configured_origin)
+            configured_host = (parsed_origin.hostname or '').lower()
+            request_host = (urlsplit(f'//{request.get_host()}').hostname or '').lower()
+            if (
+                configured_host in LOCAL_SITE_HOSTS
+                and request_host
+                and request_host not in LOCAL_SITE_HOSTS
+                and request_host not in TEST_REQUEST_HOSTS
+            ):
+                return request.build_absolute_uri('/').rstrip('/')
+
             return configured_origin
 
         return request.build_absolute_uri('/').rstrip('/')
