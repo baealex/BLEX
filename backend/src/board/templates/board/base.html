@@ -66,6 +66,20 @@
         {% if site_setting and not site_setting.seo_enabled %}
         <meta name="robots" content="noindex,nofollow">
         <meta name="googlebot" content="noindex,nofollow">
+        {% elif page_noindex %}
+        <meta name="robots" content="{{ page_robots_content }}">
+        <meta name="googlebot" content="{{ page_robots_content }}">
+        {% endif %}
+    {% endblock %}
+    {% block page_discovery_meta %}
+        {% if page_canonical_url %}
+        <link rel="canonical" href="{{ page_canonical_url }}">
+        {% endif %}
+        {% if page_previous_url %}
+        <link rel="prev" href="{{ page_previous_url }}">
+        {% endif %}
+        {% if page_next_url %}
+        <link rel="next" href="{{ page_next_url }}">
         {% endif %}
     {% endblock %}
     {% block feed_links %}

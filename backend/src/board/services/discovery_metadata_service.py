@@ -83,6 +83,67 @@ class DiscoveryMetadataService:
         }
 
     @staticmethod
+    def has_unexpected_query_parameters(request: HttpRequest, allowed_keys: set[str]) -> bool:
+        return bool(set(request.GET.keys()) - allowed_keys)
+
+    @staticmethod
+    def build_paginated_page_metadata(
+        request: HttpRequest,
+        path: str,
+        page: int,
+        total_pages: int,
+        query_items: list[tuple[str, str]] | None = None,
+    ) -> dict[str, str]:
+        base_query_items = query_items or []
+        canonical_query_items = [*base_query_items]
+        if page > 1:
+            canonical_query_items.append(('page', str(page)))
+
+        metadata = {
+            'page_canonical_url': SiteUrlService.absolute_url_with_query(
+                request,
+                path,
+                canonical_query_items,
+            ),
+        }
+
+        if page > 1:
+            previous_query_items = [*base_query_items]
+            if page > 2:
+                previous_query_items.append(('page', str(page - 1)))
+            metadata['page_previous_url'] = SiteUrlService.absolute_url_with_query(
+                request,
+                path,
+                previous_query_items,
+            )
+
+        if page < total_pages:
+            next_query_items = [*base_query_items, ('page', str(page + 1))]
+            metadata['page_next_url'] = SiteUrlService.absolute_url_with_query(
+                request,
+                path,
+                next_query_items,
+            )
+
+        return metadata
+
+    @staticmethod
+    def build_noindex_page_metadata(
+        request: HttpRequest,
+        canonical_path: str | None = None,
+        follow_links: bool = True,
+    ) -> dict[str, str | bool]:
+        metadata: dict[str, str | bool] = {
+            'page_noindex': True,
+            'page_robots_content': 'noindex,follow' if follow_links else 'noindex,nofollow',
+        }
+
+        if canonical_path:
+            metadata['page_canonical_url'] = SiteUrlService.absolute_url(request, canonical_path)
+
+        return metadata
+
+    @staticmethod
     def build_meta_description(raw_text: str, fallback: str) -> str:
         clean_text = DiscoveryMetadataService.normalize_text(raw_text)
         source_text = clean_text or fallback

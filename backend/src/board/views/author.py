@@ -5,6 +5,7 @@ from django.contrib.auth.decorators import login_required
 from django.db.models import Count, Q
 from django.shortcuts import render, get_object_or_404, redirect
 from django.http import JsonResponse
+from django.urls import reverse
 
 from board.modules.paginator import Paginator
 from board.modules.time import time_since
@@ -30,6 +31,19 @@ def author_overview(request, username):
 
     # Check if author is a reader (not an editor)
     is_reader = not hasattr(author, 'profile') or author.profile.role == Profile.Role.READER
+    author_profile_path = reverse('user_profile', kwargs={'username': author.username})
+    if DiscoveryMetadataService.has_unexpected_query_parameters(request, set()):
+        page_metadata = DiscoveryMetadataService.build_noindex_page_metadata(
+            request,
+            author_profile_path,
+        )
+    else:
+        page_metadata = DiscoveryMetadataService.build_paginated_page_metadata(
+            request,
+            author_profile_path,
+            1,
+            1,
+        )
 
     if is_reader:
         # Reader template - minimal view with just README and activity
@@ -37,6 +51,7 @@ def author_overview(request, username):
             'author': author,
             'recent_activities': recent_activities,
             'about_html': about_html,
+            **page_metadata,
             'author_activity_props': json.dumps({'username': author.username})
         }
         return render(request, 'board/author/author_reader_overview.html', context)
@@ -62,6 +77,7 @@ def author_overview(request, username):
             'series_count': stats['series_count'],
             'user_notices': user_notices,
             **DiscoveryMetadataService.build_user_rss_feed_metadata(author, request),
+            **page_metadata,
             'author_activity_props': json.dumps({'username': author.username})
         }
         return render(request, 'board/author/author_overview.html', context)
@@ -172,6 +188,27 @@ def author_posts(request, username):
         **DiscoveryMetadataService.build_user_rss_feed_metadata(author, request),
         'author_activity_props': json.dumps({'username': author.username}),
     }
+    author_posts_path = reverse('user_posts', kwargs={'username': author.username})
+    if (
+        DiscoveryMetadataService.has_unexpected_query_parameters(request, {'page', 'q', 'tag'})
+        or search_query
+        or tag_filter
+    ):
+        context.update(
+            DiscoveryMetadataService.build_noindex_page_metadata(
+                request,
+                author_posts_path,
+            )
+        )
+    else:
+        context.update(
+            DiscoveryMetadataService.build_paginated_page_metadata(
+                request,
+                author_posts_path,
+                page,
+                paginated_posts.paginator.num_pages,
+            )
+        )
     
     return render(request, 'board/author/author_posts.html', context)
 
@@ -256,6 +293,27 @@ def author_series(request, username):
         'series_sort_options': series_sort_options,
         **DiscoveryMetadataService.build_user_rss_feed_metadata(author, request),
     }
+    author_series_path = reverse('user_series', kwargs={'username': author.username})
+    if (
+        DiscoveryMetadataService.has_unexpected_query_parameters(request, {'page', 'q', 'sort'})
+        or search_query
+        or sort_option != 'custom'
+    ):
+        context.update(
+            DiscoveryMetadataService.build_noindex_page_metadata(
+                request,
+                author_series_path,
+            )
+        )
+    else:
+        context.update(
+            DiscoveryMetadataService.build_paginated_page_metadata(
+                request,
+                author_series_path,
+                page,
+                paginated_series.paginator.num_pages,
+            )
+        )
     
     return render(request, 'board/author/author_series.html', context)
 
