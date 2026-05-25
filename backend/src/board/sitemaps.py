@@ -13,11 +13,6 @@ class SiteSitemap(Sitemap):
         return [
             '',
             '/tags',
-            '/authors',
-            '/user/sitemap.xml',
-            '/posts/sitemap.xml',
-            '/series/sitemap.xml',
-            '/staticpages/sitemap.xml',
         ]
 
     def location(self, item):
@@ -32,7 +27,7 @@ class UserSitemap(Sitemap):
         # Only include users who have public posts and can publish content.
         users = PublicPostService.filter_public_posts(Post.objects).filter(
             author__profile__role=Profile.Role.EDITOR,
-        ).values_list('author__username', flat=True).distinct()
+        ).values_list('author__username', flat=True).distinct().order_by('author__username')
         return users
 
     def location(self, item):
@@ -86,10 +81,7 @@ class StaticPageSitemap(Sitemap):
 
 
 sitemaps = {
-    'static': SiteSitemap,
-}
-
-sitemap_section = {
+    'site': SiteSitemap,
     'user': UserSitemap,
     'posts': PostsSitemap,
     'series': SeriesSitemap,

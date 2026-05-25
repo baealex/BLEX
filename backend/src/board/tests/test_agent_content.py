@@ -1,5 +1,7 @@
 import re
 from datetime import timedelta
+from urllib.parse import urlsplit
+from xml.etree import ElementTree
 
 from django.conf import settings
 from django.contrib.auth.models import User
@@ -16,6 +18,7 @@ BASE_MIDDLEWARE = tuple(
     if middleware != 'main.middleware.AccessSitemapOnlyBot'
 )
 AEO_MIDDLEWARE = BASE_MIDDLEWARE + ('main.middleware.AccessSitemapOnlyBot',)
+SITEMAP_NS = '{http://www.sitemaps.org/schemas/sitemap/0.9}'
 
 
 class AgentContentTestCase(TestCase):
@@ -186,6 +189,13 @@ class AgentContentTestCase(TestCase):
         setting.aeo_enabled = True
         setting.save(update_fields=['seo_enabled', 'aeo_enabled'])
 
+    def parse_sitemap_locs(self, response, item_name):
+        root = ElementTree.fromstring(response.content)
+        return root, [
+            loc.text
+            for loc in root.findall(f'{SITEMAP_NS}{item_name}/{SITEMAP_NS}loc')
+        ]
+
     @override_settings(MIDDLEWARE=AEO_MIDDLEWARE)
     def test_sitemap_allows_regular_user_agent(self):
         """일반 user-agent도 공개 sitemap을 조회할 수 있다."""
@@ -193,13 +203,59 @@ class AgentContentTestCase(TestCase):
 
         self.assertEqual(response.status_code, 200)
 
+    def test_sitemap_root_returns_standard_sitemap_index(self):
+        """루트 sitemap은 하위 sitemap을 표준 sitemap index로 안내한다."""
+        response = self.client.get('/sitemap.xml')
+
+        self.assertEqual(response.status_code, 200)
+        root, locs = self.parse_sitemap_locs(response, 'sitemap')
+
+        self.assertEqual(root.tag, f'{SITEMAP_NS}sitemapindex')
+        self.assertTrue(any(loc.endswith('/site/sitemap.xml') for loc in locs))
+        self.assertTrue(any(loc.endswith('/user/sitemap.xml') for loc in locs))
+        self.assertTrue(any(loc.endswith('/posts/sitemap.xml') for loc in locs))
+        self.assertTrue(any(loc.endswith('/series/sitemap.xml') for loc in locs))
+        self.assertTrue(any(loc.endswith('/staticpages/sitemap.xml') for loc in locs))
+        self.assertFalse(any(loc.endswith('/@aeo-author/agent-ready-post') for loc in locs))
+
+    @override_settings(SITE_URL='https://blex.example')
+    def test_sitemaps_use_configured_site_url(self):
+        """sitemap URL은 django_site 기본값 대신 공개 SITE_URL을 사용한다."""
+        response = self.client.get('/sitemap.xml')
+
+        self.assertEqual(response.status_code, 200)
+        _, locs = self.parse_sitemap_locs(response, 'sitemap')
+        self.assertTrue(all(loc.startswith('https://blex.example/') for loc in locs))
+
+        response = self.client.get('/posts/sitemap.xml')
+
+        self.assertEqual(response.status_code, 200)
+        _, locs = self.parse_sitemap_locs(response, 'url')
+        self.assertIn('https://blex.example/@aeo-author/agent-ready-post', locs)
+
+    def test_site_sitemap_lists_top_level_pages_only(self):
+        """site sitemap은 실제 공개 상위 페이지만 노출한다."""
+        response = self.client.get('/site/sitemap.xml')
+
+        self.assertEqual(response.status_code, 200)
+        root, locs = self.parse_sitemap_locs(response, 'url')
+        paths = {urlsplit(loc).path or '/' for loc in locs}
+
+        self.assertEqual(root.tag, f'{SITEMAP_NS}urlset')
+        self.assertIn('/', paths)
+        self.assertIn('/tags', paths)
+        for path in paths:
+            with self.subTest(path=path):
+                self.assertLess(self.client.get(path).status_code, 400)
+        self.assertFalse(any(loc.endswith('/posts/sitemap.xml') for loc in locs))
+        self.assertFalse(any(loc.endswith('/series/sitemap.xml') for loc in locs))
+
     @override_settings(MIDDLEWARE=AEO_MIDDLEWARE)
     def test_posts_sitemap_allows_agent_user_agent_without_bot_token(self):
         """bot 문자열이 없는 AI 에이전트 user-agent도 posts sitemap을 조회할 수 있다."""
         response = self.client.get('/posts/sitemap.xml', HTTP_USER_AGENT='curl/8.4.0')
 
         self.assertEqual(response.status_code, 200)
-
 
     def test_posts_sitemap_hides_non_public_posts(self):
         """posts sitemap은 숨김, 임시저장, 미래 발행 포스트를 노출하지 않는다."""
@@ -211,6 +267,15 @@ class AgentContentTestCase(TestCase):
         self.assertNotIn('/@aeo-author/hidden-agent-post', body)
         self.assertNotIn('/@aeo-author/draft-agent-post', body)
         self.assertNotIn('/@aeo-author/future-agent-post', body)
+
+    def test_staticpages_sitemap_hides_unpublished_static_pages(self):
+        """staticpages sitemap은 공개 정적 페이지만 노출한다."""
+        response = self.client.get('/staticpages/sitemap.xml')
+
+        self.assertEqual(response.status_code, 200)
+        body = response.content.decode()
+        self.assertIn('/static/about-ai', body)
+        self.assertNotIn('/static/internal-ai', body)
 
     def test_series_sitemap_hides_series_without_public_posts(self):
         """series sitemap은 공개 글이 있는 공개 시리즈만 노출한다."""
@@ -340,7 +405,6 @@ class AgentContentTestCase(TestCase):
         self.assertIn('# AI agent entry point: http://localhost:8000/llms.txt', body)
         self.assertNotIn('Disallow: /llms.txt', body)
         self.assertIn('Sitemap: http://localhost:8000/sitemap.xml', body)
-
 
     @override_settings(SITE_URL='https://blex.example')
     def test_robots_txt_uses_configured_site_url(self):
