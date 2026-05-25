@@ -49,7 +49,7 @@ class DeveloperWorkflowAPITestCase(TestCase):
             **self.auth_header(),
         )
 
-    @patch('board.views.api.developer.v1.publishing.ImageUploadService.upload_content_image')
+    @patch('board.views.api.developer.v1.api.ImageUploadService.upload_content_image')
     def test_upload_create_update_publish_and_read_markdown_post(self, mock_upload):
         """대표 자동화 워크플로는 이미지 업로드부터 발행 후 상세 조회까지 통과한다."""
         mock_upload.return_value = '/media/images/content/workflow.png'

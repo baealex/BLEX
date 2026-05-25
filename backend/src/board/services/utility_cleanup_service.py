@@ -1,6 +1,7 @@
 from django.conf import settings
 from django.contrib.admin.models import LogEntry
 from django.contrib.sessions.models import Session
+from django.utils import timezone
 
 from board.admin.utilities import (
     DatabaseStatsService,
@@ -8,6 +9,7 @@ from board.admin.utilities import (
     SessionCleanerService,
     TagCleanerService,
 )
+from board.models import DeveloperRequestLog
 from board.modules.response import StatusError, ErrorCode
 
 
@@ -38,6 +40,7 @@ class UtilityCleanupService:
     def get_stats() -> dict:
         stats = DatabaseStatsService.get_statistics()
         stats['log_count'] = LogEntry.objects.count()
+        stats['developer_request_log_count'] = DeveloperRequestLog.objects.count()
         return stats
 
     @staticmethod
@@ -84,18 +87,43 @@ class UtilityCleanupService:
     @staticmethod
     def clean_logs(body: dict) -> dict:
         dry_run = body.get('dry_run', True)
+        retention_days = UtilityCleanupService.developer_api_log_retention_days(body)
+        expired_cutoff = timezone.now() - timezone.timedelta(days=retention_days)
+
         log_count = LogEntry.objects.count()
+        developer_request_log_count = DeveloperRequestLog.objects.count()
+        expired_developer_request_logs = DeveloperRequestLog.objects.filter(
+            created_date__lt=expired_cutoff,
+        )
+        expired_developer_request_log_count = expired_developer_request_logs.count()
         cleaned_count = 0
+        cleaned_developer_request_log_count = 0
 
         if not dry_run:
             LogEntry.objects.all().delete()
             cleaned_count = log_count
+            cleaned_developer_request_log_count, _ = expired_developer_request_logs.delete()
 
         return {
             'log_count': log_count,
             'cleaned_count': cleaned_count,
+            'developer_request_log_count': developer_request_log_count,
+            'developer_api_log_retention_days': retention_days,
+            'expired_developer_request_log_count': expired_developer_request_log_count,
+            'cleaned_developer_request_log_count': cleaned_developer_request_log_count,
             'dry_run': dry_run,
         }
+
+    @staticmethod
+    def developer_api_log_retention_days(body: dict) -> int:
+        value = body.get(
+            'developer_api_log_retention_days',
+            settings.DEVELOPER_API_LOG_RETENTION_DAYS,
+        )
+        try:
+            return max(int(value), 1)
+        except (TypeError, ValueError):
+            return settings.DEVELOPER_API_LOG_RETENTION_DAYS
 
     @staticmethod
     def validate_image_target(target: str) -> None:

@@ -221,7 +221,7 @@ const DeveloperApiSetting = () => {
                 description="외부 도구에서 내 글을 읽거나 작성할 수 있는 개인 API 토큰을 발급하고 관리합니다."
                 actionPosition="right"
                 action={(
-                    <a href="/docs/developer-api">
+                    <a href="/api/developer/v1/docs">
                         <Button
                             type="button"
                             variant="secondary"
