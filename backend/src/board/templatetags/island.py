@@ -12,25 +12,60 @@ register = template.Library()
 
 # Module-level cache for the Vite manifest
 _manifest_cache = None
+LOOPBACK_DEV_SERVER_HOSTS = {'localhost', '127.0.0.1', '0.0.0.0', '::1'}
 
 
-def get_vite_dev_server_url():
+def format_netloc(hostname, port):
+    if ':' in hostname and not hostname.startswith('['):
+        hostname = f'[{hostname}]'
+    return f'{hostname}:{port}' if port else hostname
+
+
+def rewrite_vite_dev_server_host(url, request=None):
+    if request is None:
+        return url.rstrip('/')
+
+    parsed_url = urllib.parse.urlsplit(url)
+    vite_hostname = (parsed_url.hostname or '').lower()
+    if vite_hostname not in LOOPBACK_DEV_SERVER_HOSTS:
+        return url.rstrip('/')
+
+    request_host = request.get_host()
+    parsed_request_host = urllib.parse.urlsplit(f'//{request_host}')
+    request_hostname = parsed_request_host.hostname
+    if not request_hostname:
+        return url.rstrip('/')
+
+    return urllib.parse.urlunsplit((
+        parsed_url.scheme,
+        format_netloc(request_hostname, parsed_url.port),
+        parsed_url.path,
+        parsed_url.query,
+        parsed_url.fragment,
+    )).rstrip('/')
+
+
+def get_vite_dev_server_url(request=None):
     """
     Resolve the Vite dev server URL from the runtime info file written by Vite.
     Falls back to settings.VITE_DEV_SERVER_URL before the dev server has started.
     """
+    url = None
     info_path = getattr(settings, 'VITE_DEV_SERVER_INFO_PATH', None)
     if info_path and os.path.exists(info_path):
         try:
             with open(info_path, 'r') as f:
                 info = json.load(f)
-            url = info.get('url')
-            if isinstance(url, str) and url:
-                return url.rstrip('/')
+            info_url = info.get('url')
+            if isinstance(info_url, str) and info_url:
+                url = info_url
         except (OSError, json.JSONDecodeError):
             logger.warning("Failed to read Vite dev server info from %s", info_path)
 
-    return getattr(settings, 'VITE_DEV_SERVER_URL', 'http://localhost:8100').rstrip('/')
+    if not url:
+        url = getattr(settings, 'VITE_DEV_SERVER_URL', 'http://localhost:8100')
+
+    return rewrite_vite_dev_server_host(url, request)
 
 
 def get_manifest():
@@ -63,8 +98,7 @@ def get_manifest():
 
     return _manifest_cache
 
-@register.simple_tag
-def island_entry(entry_name):
+def island_entry(entry_name, request=None):
     """
     Get the hashed filename for a Vite entry point.
     
@@ -74,7 +108,7 @@ def island_entry(entry_name):
     """
     # Check if in development mode
     if getattr(settings, 'USE_VITE_DEV_SERVER', settings.DEBUG):
-        return f"{get_vite_dev_server_url()}/{entry_name}"
+        return f"{get_vite_dev_server_url(request)}/{entry_name}"
     
     manifest = get_manifest()
     entry_path = f"{entry_name}"
@@ -87,8 +121,12 @@ def island_entry(entry_name):
     # If not found in manifest (e.g., in development), return the default path
     return static(f"islands/{entry_name}")
 
-@register.simple_tag
-def island_css(entry_name):
+@register.simple_tag(takes_context=True, name='island_entry')
+def island_entry_tag(context, entry_name):
+    return island_entry(entry_name, context.get('request'))
+
+
+def island_css(entry_name, request=None):
     """
     Get the hashed filename for a Vite CSS entry point.
     
@@ -98,7 +136,7 @@ def island_css(entry_name):
     """
     # Check if in development mode
     if getattr(settings, 'USE_VITE_DEV_SERVER', settings.DEBUG):
-        return f"{get_vite_dev_server_url()}/{entry_name}"
+        return f"{get_vite_dev_server_url(request)}/{entry_name}"
     
     manifest = get_manifest()
     entry_path = f"{entry_name}"
@@ -109,6 +147,12 @@ def island_css(entry_name):
             return static(f"islands/{value['file']}")
     
     return static(f"islands/{entry_name}")
+
+
+@register.simple_tag(takes_context=True, name='island_css')
+def island_css_tag(context, entry_name):
+    return island_css(entry_name, context.get('request'))
+
 
 @register.simple_tag
 def island_component(component_name, lazy=False, **props):
@@ -139,13 +183,12 @@ def island_component(component_name, lazy=False, **props):
 
     return mark_safe(html_output)
 
-@register.simple_tag
-def vite_hmr_client():
+def vite_hmr_client(request=None):
     """
     DEBUG 모드일 때만 Vite HMR 클라이언트를 로드
     """
     if getattr(settings, 'USE_VITE_DEV_SERVER', settings.DEBUG):
-        vite_url = get_vite_dev_server_url()
+        vite_url = get_vite_dev_server_url(request)
         preamble = f"""
         <script type="module">
             import RefreshRuntime from '{vite_url}/@react-refresh'
@@ -158,3 +201,8 @@ def vite_hmr_client():
         client = f'<script type="module" src="{vite_url}/@vite/client"></script>'
         return mark_safe(preamble + client)
     return ""
+
+
+@register.simple_tag(takes_context=True, name='vite_hmr_client')
+def vite_hmr_client_tag(context):
+    return vite_hmr_client(context.get('request'))
