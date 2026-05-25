@@ -118,10 +118,38 @@ class AgentContentService:
 
     @staticmethod
     def build_llms_txt(request: HttpRequest) -> str:
+        public_origin = SiteUrlService.public_origin(request)
         lines = [
             '# BLEX',
             '',
             '> BLEX is a publishing site.',
+            '',
+            '## Discovery',
+            '',
+            AgentContentService.build_llms_link_line(
+                'Sitemap index',
+                AgentContentService.build_sitemap_url(request),
+                'Find public sitemap sections.',
+            ),
+            AgentContentService.build_llms_link_line(
+                'Posts sitemap',
+                SiteUrlService.absolute_url(
+                    request,
+                    reverse('sitemap_section', kwargs={'section': 'posts'}),
+                ),
+                'Find public posts without listing them here.',
+            ),
+            AgentContentService.build_llms_link_line(
+                'RSS feed',
+                SiteUrlService.absolute_url(request, '/rss'),
+                'Read recent public posts.',
+            ),
+            '',
+            '## Markdown',
+            '',
+            f'- Public post Markdown: `{public_origin}/@{{username}}/{{post_url}}.md`',
+            f'- Public series Markdown: `{public_origin}/@{{username}}/series/{{series_url}}.md`',
+            f'- Static page Markdown: `{public_origin}/static/{{slug}}.md`',
         ]
 
         return '\n'.join(lines).strip() + '\n'
