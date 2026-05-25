@@ -234,7 +234,7 @@ class AgentContentTestCase(TestCase):
         self.assertIn('https://blex.example/@aeo-author/agent-ready-post', locs)
 
     def test_site_sitemap_lists_top_level_pages_only(self):
-        """site sitemap은 홈, 태그, 작성자 같은 상위 공개 페이지만 노출한다."""
+        """site sitemap은 실제 공개 상위 페이지만 노출한다."""
         response = self.client.get('/site/sitemap.xml')
 
         self.assertEqual(response.status_code, 200)
@@ -244,7 +244,9 @@ class AgentContentTestCase(TestCase):
         self.assertEqual(root.tag, f'{SITEMAP_NS}urlset')
         self.assertIn('/', paths)
         self.assertIn('/tags', paths)
-        self.assertNotIn('/authors', paths)
+        for path in paths:
+            with self.subTest(path=path):
+                self.assertLess(self.client.get(path).status_code, 400)
         self.assertFalse(any(loc.endswith('/posts/sitemap.xml') for loc in locs))
         self.assertFalse(any(loc.endswith('/series/sitemap.xml') for loc in locs))
 
