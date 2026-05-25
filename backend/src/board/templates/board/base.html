@@ -68,6 +68,14 @@
         <meta name="googlebot" content="noindex,nofollow">
         {% endif %}
     {% endblock %}
+    {% block feed_links %}
+        {% if site_setting and site_setting.seo_enabled %}
+        <link rel="alternate" type="application/rss+xml" title="BLEX RSS" href="{{ site_rss_feed_url }}">
+        {% if author_rss_feed_url and author_rss_feed_title %}
+        <link rel="alternate" type="application/rss+xml" title="{{ author_rss_feed_title }}" href="{{ author_rss_feed_url }}">
+        {% endif %}
+        {% endif %}
+    {% endblock %}
     <link rel="stylesheet" href="{% island_css 'styles/tailwind.css' %}">
     <link rel="stylesheet" href="{% island_css 'styles/main.scss' %}">
     <link rel="icon" href="{% resource 'favicon.ico' %}" />

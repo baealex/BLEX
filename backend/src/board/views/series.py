@@ -97,6 +97,7 @@ def series_detail(request, username, series_url):
         'request': request,
         'aeo_enabled': aeo_enabled,
         'series_updated_date_display': series.updated_date.strftime('%Y-%m-%d'),
+        **DiscoveryMetadataService.build_user_rss_feed_metadata(author, request),
         **metadata,
     }
     if aeo_enabled:

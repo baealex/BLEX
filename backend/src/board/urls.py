@@ -83,7 +83,7 @@ urlpatterns = [
     ),
 
     # RSS and Etc
-    path('rss', SitePostsFeed()),
+    path('rss', SitePostsFeed(), name='site_rss_feed'),
     path('rss/@<username>', UserPostsFeed(), name='user_rss_feed'),
     path('robots.txt', agent.robots_txt, name='robots_txt'),
 

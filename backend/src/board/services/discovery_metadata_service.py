@@ -73,6 +73,16 @@ class DiscoveryMetadataService:
         }
 
     @staticmethod
+    def build_user_rss_feed_metadata(author: User, request: HttpRequest) -> dict[str, str]:
+        return {
+            'author_rss_feed_title': f'{author.username} RSS',
+            'author_rss_feed_url': SiteUrlService.absolute_url(
+                request,
+                reverse('user_rss_feed', kwargs={'username': author.username}),
+            ),
+        }
+
+    @staticmethod
     def build_meta_description(raw_text: str, fallback: str) -> str:
         clean_text = DiscoveryMetadataService.normalize_text(raw_text)
         source_text = clean_text or fallback
