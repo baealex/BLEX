@@ -29,7 +29,7 @@ class WebhookAPITestCase(TestCase):
             email='test@example.com',
             password='testpass123'
         )
-        cls.profile = Profile.objects.create(user=cls.user)
+        cls.profile = Profile.objects.create(user=cls.user, role=Profile.Role.EDITOR)
 
         cls.other_user = User.objects.create_user(
             username='otheruser',

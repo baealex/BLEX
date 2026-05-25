@@ -135,7 +135,8 @@ const userNavigationSections: NavigationSection[] = [
                 name: '개발자 API',
                 path: '/developer-api',
                 icon: 'fa-code',
-                risk: 'danger'
+                risk: 'danger',
+                requiresEditor: true
             }
         ]
     }

@@ -1,13 +1,13 @@
 from django.test import Client, TestCase
-from django.urls import reverse
 from django.contrib.auth.models import User
-from board.models import Form
+from board.models import Form, Profile
 
 
 class FormTestCase(TestCase):
     def setUp(self):
         self.user = User.objects.create_user(
             username='testuser', password='testpass')
+        Profile.objects.create(user=self.user, role=Profile.Role.EDITOR)
         self.form = Form.objects.create(
             user=self.user, title='Test Form', content='Test Content')
 
@@ -35,6 +35,7 @@ class FormTestCase(TestCase):
         # 다른 유저로 로그인한 경우
         other_user = User.objects.create_user(
             username='otheruser', password='otherpass')
+        Profile.objects.create(user=other_user, role=Profile.Role.EDITOR)
         self.client.login(username='otheruser', password='otherpass')
         response = self.client.get(f'/v1/forms/{self.form.id}')
         self.assertEqual(response.status_code, 404)

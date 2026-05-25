@@ -1,7 +1,10 @@
+from datetime import timedelta
+
 from django.contrib.auth.models import User
 from django.test import TestCase
+from django.utils import timezone
 
-from board.models import Config, Profile
+from board.models import Config, Post, Profile
 from board.services.user_role_service import UserRoleService
 
 
@@ -55,3 +58,22 @@ class UserRoleServiceTestCase(TestCase):
         self.assertFalse(user.is_staff)
         self.assertFalse(user.is_superuser)
         self.assertEqual(user.profile.role, Profile.Role.EDITOR)
+
+    def test_set_users_role_runs_profile_save_policy(self):
+        """역할 일괄 변경도 프로필 저장 정책을 우회하지 않는다."""
+        user = User.objects.create_user(username='scheduled-editor', password='password123')
+        Profile.objects.create(user=user, role=Profile.Role.EDITOR)
+        scheduled = Post.objects.create(
+            author=user,
+            title='Scheduled',
+            url='scheduled',
+            published_date=timezone.now() + timedelta(days=1),
+        )
+
+        count = UserRoleService.set_users_role(User.objects.filter(id=user.id), Profile.Role.READER)
+
+        scheduled.refresh_from_db()
+        user.profile.refresh_from_db()
+        self.assertEqual(count, 1)
+        self.assertEqual(user.profile.role, Profile.Role.READER)
+        self.assertIsNone(scheduled.published_date)

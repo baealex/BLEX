@@ -67,6 +67,14 @@ class SettingsViewTestCase(TestCase):
 
         self.assertEqual(response.status_code, 404)
 
+    def test_reader_gets_404_for_editor_settings_url(self):
+        client = Client(raise_request_exception=False)
+        client.login(username='settings-reader', password='password123')
+
+        response = client.get('/settings/developer-api')
+
+        self.assertEqual(response.status_code, 404)
+
     def test_legacy_admin_settings_url_redirects_to_admin_namespace(self):
         self.client.login(username='settings-staff', password='password123')
 

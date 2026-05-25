@@ -6,7 +6,9 @@ from board.models import Post, PinnedPost
 from board.modules.requests import BooleanType
 from board.modules.response import StatusDone, StatusError, ErrorCode
 from board.modules.time import convert_to_localtime, time_since
+from board.decorators import api_editor_required_methods
 from board.services.comment_list_service import CommentListService
+from board.services.api_permission_service import ApiPermissionService
 from board.services.post_service import PostService, PostValidationError
 from board.services.public_post_service import PublicPostService
 
@@ -15,6 +17,10 @@ def post_list(request):
     if request.method == 'POST':
         if not request.user.is_authenticated:
             raise Http404
+
+        permission_error = ApiPermissionService.require_editor(request.user)
+        if permission_error:
+            return permission_error
 
         try:
             image = request.FILES.get('image', None)
@@ -56,13 +62,14 @@ def post_comment_list(request, url):
         return StatusDone(CommentListService.serialize_post_comments(url, request.user))
 
 
+@api_editor_required_methods(['POST', 'PUT', 'DELETE'])
 def user_posts(request, username, url=None):
     if url:
         post = PostService.get_post_detail(username, url, request.user)
 
         if request.method == 'GET':
             if request.GET.get('mode') == 'edit':
-                if not request.user == post.author:
+                if not PostService.can_user_edit_post(request.user, post):
                     raise Http404
 
                 content_html = post.content.content_html if hasattr(post, 'content') else ''

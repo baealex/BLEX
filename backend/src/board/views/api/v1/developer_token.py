@@ -4,6 +4,7 @@ from django.http import Http404
 from django.shortcuts import get_object_or_404
 
 from board.models import DeveloperToken
+from board.decorators import api_editor_required
 from board.modules.developer_serializers import DeveloperTokenSerializer
 from board.modules.response import ErrorCode, StatusDone, StatusError
 from board.services.developer_token_service import (
@@ -67,10 +68,8 @@ class DeveloperTokenAPI:
         return StatusDone(DeveloperTokenSerializer.serialize(token))
 
 
+@api_editor_required
 def developer_tokens(request, token_id=None):
-    if not request.user.is_authenticated or not request.user.is_active:
-        return StatusError(ErrorCode.NEED_LOGIN)
-
     if token_id is None:
         if request.method == 'GET':
             return DeveloperTokenAPI.list_tokens(request)

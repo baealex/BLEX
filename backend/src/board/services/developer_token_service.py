@@ -6,6 +6,7 @@ from django.contrib.auth.models import User
 from django.utils import timezone
 
 from board.models import DeveloperRequestLog, DeveloperToken
+from board.services.authoring_permission_service import AuthoringPermissionService
 
 
 class DeveloperAuthError(Exception):
@@ -21,7 +22,6 @@ class DeveloperTokenService:
     DEFAULT_EXPIRES_DAYS = 90
     MAX_EXPIRES_DAYS = 365
     VALID_SCOPES = {'posts:read', 'posts:write'}
-    WRITE_SCOPES = {'posts:write'}
 
     @staticmethod
     def hash_token(token):
@@ -64,13 +64,12 @@ class DeveloperTokenService:
         if not user.is_authenticated or not user.is_active:
             raise DeveloperAuthError('auth.need_login', '로그인이 필요합니다.', 401)
 
-        if DeveloperTokenService.WRITE_SCOPES.intersection(scopes):
-            if not hasattr(user, 'profile') or not user.profile.is_editor():
-                raise DeveloperAuthError(
-                    'token.permission_denied',
-                    '글 작성 scope는 편집자 권한이 필요합니다.',
-                    403,
-                )
+        if not AuthoringPermissionService.is_active_editor(user):
+            raise DeveloperAuthError(
+                'token.permission_denied',
+                '개발자 API는 편집자 권한이 필요합니다.',
+                403,
+            )
 
     @staticmethod
     def normalize_expires_at(expires_in_days):
@@ -202,6 +201,13 @@ class DeveloperTokenService:
                 'auth.inactive_user',
                 '비활성 사용자입니다.',
                 401,
+            )
+
+        if not AuthoringPermissionService.is_active_editor(token.user):
+            raise DeveloperAuthError(
+                'auth.editor_required',
+                '개발자 API는 편집자 권한이 필요합니다.',
+                403,
             )
 
         DeveloperToken.objects.filter(id=token.id).update(

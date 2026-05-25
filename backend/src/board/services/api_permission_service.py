@@ -6,6 +6,7 @@ from django.contrib.auth.models import AnonymousUser, User
 from django.http import HttpResponse
 
 from board.modules.response import ErrorCode, StatusError
+from board.services.authoring_permission_service import AuthoringPermissionService
 
 
 class ApiPermissionService:
@@ -23,7 +24,7 @@ class ApiPermissionService:
         if login_error:
             return login_error
 
-        if not hasattr(user, 'profile') or not user.profile.is_editor():
+        if not AuthoringPermissionService.is_active_editor(user):
             return StatusError(ErrorCode.REJECT, '에디터 권한이 필요합니다.')
 
         return None
@@ -46,5 +47,19 @@ class ApiPermissionService:
 
         if user != owner:
             return StatusError(ErrorCode.AUTHENTICATION, '권한이 없습니다.')
+
+        return None
+
+    @staticmethod
+    def require_authoring_owner(user: User | AnonymousUser, owner: User) -> Optional[HttpResponse]:
+        login_error = ApiPermissionService.require_login(user)
+        if login_error:
+            return login_error
+
+        if user != owner:
+            return StatusError(ErrorCode.AUTHENTICATION, '권한이 없습니다.')
+
+        if not AuthoringPermissionService.is_active_editor(user):
+            return StatusError(ErrorCode.REJECT, '에디터 권한이 필요합니다.')
 
         return None

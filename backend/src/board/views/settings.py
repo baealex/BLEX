@@ -3,6 +3,8 @@ from django.contrib.auth.decorators import login_required
 from django.http import Http404
 from django.urls import reverse
 
+from board.services.authoring_permission_service import AuthoringPermissionService
+
 
 ADMIN_SETTINGS_PREFIXES = (
     'site-settings',
@@ -14,6 +16,18 @@ ADMIN_SETTINGS_PREFIXES = (
     'utilities',
 )
 
+EDITOR_SETTINGS_PREFIXES = (
+    'posts',
+    'series',
+    'pinned-posts',
+    'drafts',
+    'forms',
+    'notices',
+    'banners',
+    'webhook',
+    'developer-api',
+)
+
 
 def _is_admin_settings_path(path):
     normalized_path = path.strip('/')
@@ -23,13 +37,21 @@ def _is_admin_settings_path(path):
     )
 
 
+def _is_editor_settings_path(path):
+    normalized_path = path.strip('/')
+    return any(
+        normalized_path == prefix or normalized_path.startswith(f'{prefix}/')
+        for prefix in EDITOR_SETTINGS_PREFIXES
+    )
+
+
 def _build_settings_context(request, settings_mode, base_path):
     admin_url = None
     if request.user.is_staff:
         admin_url = reverse('admin:index')
 
     return {
-        'is_editor': request.user.profile.is_editor(),
+        'is_editor': AuthoringPermissionService.is_active_editor(request.user),
         'is_staff': request.user.is_staff,
         'admin_url': admin_url,
         'settings_mode': settings_mode,
@@ -49,6 +71,9 @@ def settings(request, path=''):
         if not request.user.is_staff:
             raise Http404
         return redirect(f'/admin-settings/{path}')
+
+    if _is_editor_settings_path(path) and not AuthoringPermissionService.is_active_editor(request.user):
+        raise Http404
 
     context = _build_settings_context(request, 'user', '/settings')
 

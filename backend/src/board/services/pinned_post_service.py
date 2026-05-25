@@ -13,6 +13,7 @@ from django.db.models import F
 
 from board.models import Post, PinnedPost
 from board.modules.response import ErrorCode
+from board.services.authoring_permission_service import AuthoringPermissionService
 from board.services.public_post_service import PublicPostService
 
 
@@ -33,6 +34,14 @@ class PinnedPostService:
     def _is_published_post(post: Post) -> bool:
         """Return True when the post is published and already visible."""
         return PublicPostService.is_public(post)
+
+    @staticmethod
+    def validate_user_permissions(user: User) -> None:
+        if not AuthoringPermissionService.is_active_editor(user):
+            raise PinnedPostError(
+                ErrorCode.REJECT,
+                '에디터 권한이 필요합니다.',
+            )
 
     @staticmethod
     def get_user_pinned_posts(user: User) -> List[Dict[str, Any]]:
@@ -75,6 +84,8 @@ class PinnedPostService:
         Returns:
             List of pinnable post dictionaries
         """
+        PinnedPostService.validate_user_permissions(user)
+
         pinned_post_ids = PinnedPost.objects.filter(
             user=user
         ).values_list('post_id', flat=True)
@@ -108,6 +119,8 @@ class PinnedPostService:
         Raises:
             PinnedPostError: If validation fails
         """
+        PinnedPostService.validate_user_permissions(user)
+
         # Check if user has reached the limit
         current_count = PinnedPost.objects.filter(
             PublicPostService.build_public_filter('post'),
@@ -178,6 +191,8 @@ class PinnedPostService:
         Raises:
             PinnedPostError: If post is not found or not pinned
         """
+        PinnedPostService.validate_user_permissions(user)
+
         try:
             pinned_post = PinnedPost.objects.select_related('post').get(
                 user=user,
@@ -211,6 +226,8 @@ class PinnedPostService:
         Raises:
             PinnedPostError: If validation fails
         """
+        PinnedPostService.validate_user_permissions(user)
+
         if len(post_urls) > PinnedPostService.MAX_PINNED_POSTS:
             raise PinnedPostError(
                 ErrorCode.REJECT,

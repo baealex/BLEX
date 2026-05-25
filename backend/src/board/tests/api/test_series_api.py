@@ -32,6 +32,15 @@ class SeriesAPITestCase(TestCase):
         Profile.objects.create(user=viewer, role=Profile.Role.READER)
         Config.objects.create(user=viewer)
 
+        other_editor = User.objects.create_user(
+            username='other-editor',
+            password='other-editor',
+            email='other-editor@test.com',
+            first_name='Other Editor',
+        )
+        Profile.objects.create(user=other_editor, role=Profile.Role.EDITOR)
+        Config.objects.create(user=other_editor)
+
         # Create test posts
         for i in range(10):
             post = Post.objects.create(
@@ -335,7 +344,7 @@ class SeriesAPITestCase(TestCase):
 
     def test_get_series_detail_by_id_requires_ownership(self):
         """타인의 시리즈는 상세 API로 조회할 수 없다"""
-        self.client.login(username='viewer', password='viewer')
+        self.client.login(username='other-editor', password='other-editor')
         series = Series.objects.get(url='test-series')
         response = self.client.get(f'/v1/series/{series.id}')
         self.assertEqual(response.status_code, 200)
@@ -672,5 +681,3 @@ class SeriesAPITestCase(TestCase):
         
         series_urls = [s['url'] for s in content['body']['series']]
         self.assertNotIn('hidden-series', series_urls)
-
-

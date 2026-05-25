@@ -269,7 +269,7 @@ class PostTestCase(TestCase):
             'description': 'Custom Description'
         })
         content = json.loads(response.content)
-        self.assertEqual(content['errorCode'], 'error:VA')
+        self.assertEqual(content['errorCode'], 'error:RJ')
 
     def test_create_post_markdown_mode(self):
         """마크다운 모드 포스트 생성 테스트"""

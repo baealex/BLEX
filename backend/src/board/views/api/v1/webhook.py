@@ -9,6 +9,7 @@ When a new post is published, notifications are sent to:
 from django.views.decorators.http import require_http_methods
 
 from board.models import WebhookSubscription, SiteContentScope
+from board.decorators import api_editor_required
 from board.services import WebhookService
 from board.services.api_request_body_service import ApiRequestBodyService
 from board.services.webhook_api_service import WebhookApiService
@@ -49,6 +50,7 @@ def _ensure_staff(request):
 
 
 @require_http_methods(['GET', 'POST'])
+@api_editor_required
 def my_channels(request):
     """
     Manage my notification channels (webhooks).
@@ -85,6 +87,7 @@ def my_channels(request):
 
 
 @require_http_methods(['DELETE'])
+@api_editor_required
 def delete_channel(request, channel_id):
     """
     Delete a notification channel.
@@ -167,6 +170,7 @@ def delete_global_channel(request, channel_id):
 
 
 @require_http_methods(['POST'])
+@api_editor_required
 def test_channel(request):
     """
     Test a webhook URL by sending a test message.

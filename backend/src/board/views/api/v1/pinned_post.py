@@ -27,7 +27,7 @@ def pinned_posts(request, username):
             'max_count': PinnedPostService.MAX_PINNED_POSTS,
         })
 
-    permission_error = ApiPermissionService.require_owner(request.user, user)
+    permission_error = ApiPermissionService.require_authoring_owner(request.user, user)
     if permission_error:
         return permission_error
 
@@ -65,7 +65,7 @@ def pinned_posts_order(request, username):
     """
     user = get_object_or_404(User, username=username)
 
-    permission_error = ApiPermissionService.require_owner(request.user, user)
+    permission_error = ApiPermissionService.require_authoring_owner(request.user, user)
     if permission_error:
         return permission_error
 
@@ -98,7 +98,7 @@ def pinnable_posts(request, username):
     """
     user = get_object_or_404(User, username=username)
 
-    permission_error = ApiPermissionService.require_owner(request.user, user)
+    permission_error = ApiPermissionService.require_authoring_owner(request.user, user)
     if permission_error:
         return permission_error
 

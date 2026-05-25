@@ -25,6 +25,7 @@ from board.modules.post_description import create_post_description
 from board.services.tag_service import TagService
 from board.modules.response import ErrorCode
 from board.services.post_content_service import PostContentService
+from board.services.authoring_permission_service import AuthoringPermissionService
 from board.services.public_post_service import PublicPostService
 from board.services.webhook_service import WebhookService
 
@@ -51,13 +52,13 @@ class PostService:
         Raises:
             PostValidationError: If user doesn't have permission
         """
-        if not user.is_active:
+        if not user.is_authenticated or not user.is_active:
             raise PostValidationError(
                 ErrorCode.VALIDATE,
                 '활성화되지 않은 사용자입니다.'
             )
 
-        if not user.profile.is_editor():
+        if not AuthoringPermissionService.is_active_editor(user):
             raise PostValidationError(
                 ErrorCode.VALIDATE,
                 '작성 권한이 없습니다.'
@@ -558,9 +559,7 @@ class PostService:
         Returns:
             True if user can edit, False otherwise
         """
-        return user.is_authenticated and (
-            user == post.author or user.is_staff
-        )
+        return AuthoringPermissionService.can_manage_own_content(user, post.author)
 
     @staticmethod
     def can_user_delete_post(user: User, post: Post) -> bool:
@@ -574,9 +573,7 @@ class PostService:
         Returns:
             True if user can delete, False otherwise
         """
-        return user.is_authenticated and (
-            user == post.author or user.is_staff
-        )
+        return AuthoringPermissionService.can_manage_own_content(user, post.author)
 
     @staticmethod
     @transaction.atomic

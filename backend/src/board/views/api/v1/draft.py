@@ -5,10 +5,12 @@ from django.http.multipartparser import MultiPartParser
 from django.shortcuts import get_object_or_404
 
 from board.models import Post
+from board.decorators import api_editor_required
 from board.services.post_service import PostService, PostValidationError
 from board.modules.response import StatusDone, StatusError, ErrorCode
 
 
+@api_editor_required
 def drafts_list(request):
     if not request.user.is_active:
         return StatusError(ErrorCode.NEED_LOGIN)
@@ -68,6 +70,7 @@ def drafts_list(request):
     raise Http404
 
 
+@api_editor_required
 def drafts_detail(request, url):
     if not request.user.is_active:
         return StatusError(ErrorCode.NEED_LOGIN)

@@ -16,15 +16,19 @@ from board.services.discovery_metadata_service import DiscoveryMetadataService
 from board.services.public_post_service import PublicPostService
 from board.services.site_url_service import SiteUrlService
 from board.html_utils import extract_table_of_contents
+from board.decorators import editor_required
 
 def post_detail(request, username, post_url):
     """
     View for the post detail page.
     """
     # Check if this is an old username in the change log
-    username_log = UsernameChangeLog.objects.filter(username=username).select_related('user', 'user__profile').first()
+    username_log = UsernameChangeLog.objects.filter(username=username).select_related('user').first()
     if username_log:
-        if username_log.user.profile.is_editor():
+        if PublicPostService.filter_public_posts(Post.objects).filter(
+            author=username_log.user,
+            url=post_url,
+        ).exists():
             return redirect('post_detail', username=username_log.user.username, post_url=post_url)
 
     author = get_object_or_404(User, username=username)
@@ -74,6 +78,7 @@ def post_detail(request, username, post_url):
         is_owner
         and post_visibility_status in {'hidden', 'scheduled'}
     )
+    can_edit_post = PostService.can_user_edit_post(request.user, post)
 
     show_agent_post_markdown = aeo_enabled and is_public_post
     context = {
@@ -87,6 +92,7 @@ def post_detail(request, username, post_url):
         'post_image_url': post_image_url,
         'logo_url': logo_url,
         'show_post_status_notice': show_post_status_notice,
+        'can_edit_post': can_edit_post,
         'post_visibility_status': post_visibility_status,
         'show_agent_post_markdown': show_agent_post_markdown,
         **DiscoveryMetadataService.build_user_rss_feed_metadata(author, request),
@@ -101,18 +107,12 @@ def post_detail(request, username, post_url):
     return response
 
 
+@editor_required
 def post_editor(request, username=None, post_url=None):
     """
     View for the post editor page.
     Used for both creating new posts and editing existing posts.
     """
-    if not request.user.is_authenticated:
-        return redirect('login')
-
-    if not request.user.profile.is_editor():
-        messages.error(request, '편집자 권한이 필요합니다. 관리자에게 문의하세요.')
-        return redirect('index')
-
     is_edit = username is not None and post_url is not None
     post = None
     draft_post = None

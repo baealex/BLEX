@@ -1,5 +1,6 @@
 from board.models import Profile, WebhookSubscription, SiteContentScope
 from board.modules.response import StatusError, ErrorCode
+from board.services.authoring_permission_service import AuthoringPermissionService
 
 
 class WebhookApiService:
@@ -12,6 +13,8 @@ class WebhookApiService:
 
         try:
             profile = Profile.objects.get(user=request.user)
+            if not AuthoringPermissionService.is_active_editor(request.user):
+                return None, StatusError(ErrorCode.REJECT, '에디터 권한이 필요합니다.')
             return profile, None
         except Profile.DoesNotExist:
             return None, StatusError(ErrorCode.NOT_FOUND, 'Profile not found')
