@@ -12,6 +12,7 @@ from board.models import Post, Series, PostLikes, UsernameChangeLog
 from board.services.post_service import PostService, PostValidationError
 from board.services.banner_service import BannerService
 from board.services.agent_content_service import AgentContentService
+from board.services.discovery_metadata_service import DiscoveryMetadataService
 from board.services.public_post_service import PublicPostService
 from board.services.site_url_service import SiteUrlService
 from board.html_utils import extract_table_of_contents
@@ -88,6 +89,7 @@ def post_detail(request, username, post_url):
         'show_post_status_notice': show_post_status_notice,
         'post_visibility_status': post_visibility_status,
         'show_agent_post_markdown': show_agent_post_markdown,
+        **DiscoveryMetadataService.build_user_rss_feed_metadata(author, request),
     }
     if show_agent_post_markdown:
         context['post_markdown_url'] = AgentContentService.build_post_markdown_url(post, request)

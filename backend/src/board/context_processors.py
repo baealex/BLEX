@@ -1,5 +1,8 @@
 from django.conf import settings
+from django.urls import reverse
+
 from board.models import SiteSetting, SiteNotice, SiteContentScope, StaticPage
+from board.services.site_url_service import SiteUrlService
 
 
 def oauth_settings(request):
@@ -18,6 +21,7 @@ def site_settings(request):
     """
     return {
         'site_setting': SiteSetting.get_instance(),
+        'site_rss_feed_url': SiteUrlService.absolute_url(request, reverse('site_rss_feed')),
     }
 
 

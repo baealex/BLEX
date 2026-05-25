@@ -9,6 +9,7 @@ from django.http import JsonResponse
 from board.modules.paginator import Paginator
 from board.modules.time import time_since
 from board.services.user_service import UserService
+from board.services.discovery_metadata_service import DiscoveryMetadataService
 from board.services.public_post_service import PublicPostService
 from board.services.public_series_service import PublicSeriesService
 from board.models import Comment, Post, Series, PostLikes, Tag, Profile, SiteNotice, SiteContentScope
@@ -60,6 +61,7 @@ def author_overview(request, username):
             'post_count': stats['post_count'],
             'series_count': stats['series_count'],
             'user_notices': user_notices,
+            **DiscoveryMetadataService.build_user_rss_feed_metadata(author, request),
             'author_activity_props': json.dumps({'username': author.username})
         }
         return render(request, 'board/author/author_overview.html', context)
@@ -167,6 +169,7 @@ def author_posts(request, username):
         'search_query': search_query,
         'tag_filter': tag_filter,
         'tag_options': tag_options,
+        **DiscoveryMetadataService.build_user_rss_feed_metadata(author, request),
         'author_activity_props': json.dumps({'username': author.username}),
     }
     
@@ -251,6 +254,7 @@ def author_series(request, username):
         'page_number': page,
         'page_count': paginated_series.paginator.num_pages,
         'series_sort_options': series_sort_options,
+        **DiscoveryMetadataService.build_user_rss_feed_metadata(author, request),
     }
     
     return render(request, 'board/author/author_series.html', context)
