@@ -76,9 +76,9 @@ Initial setup URL: https://blog.example.com/setup?token=...
 
 ## 5. 첫 글 발행
 
-`/write`에서 제목과 본문을 입력하고 발행합니다. 공개 글은 발행 완료 안내에서 공개 URL, Markdown URL, RSS, sitemap 노출을 확인할 수 있습니다.
+`/write`에서 제목과 본문을 입력하고 발행합니다. 공개 글은 공개 URL, Markdown URL, RSS, sitemap에 노출됩니다.
 
-비공개 또는 예약 글은 공개 URL, RSS, sitemap, Markdown 공개 표면에 노출되지 않습니다.
+비공개 또는 예약 글은 공개 URL, RSS, sitemap, Markdown 공개 표면에 노출되지 않으며, 작성자에게는 글 상세 상단에 상태 안내가 표시됩니다.
 
 ## 6. 백업 확인
 

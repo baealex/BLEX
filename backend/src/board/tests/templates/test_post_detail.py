@@ -288,47 +288,8 @@ class PostDetailViewTestCase(TestCase):
         )
         self.assertEqual(response['X-Llms-Txt'], llms_txt_url)
 
-    @override_settings(SITE_URL='https://blex.example')
-    def test_post_detail_shows_publish_success_guide_for_author(self):
-        """작성자가 발행 직후 접근하면 공개 링크 확인 가이드를 보여준다."""
-        self.enable_aeo()
-        self.client.login(username='testauthor', password='password123')
-        url = reverse('post_detail', kwargs={
-            'username': 'testauthor',
-            'post_url': 'test-post'
-        })
-        response = self.client.get(f'{url}?published=1')
-
-        self.assertEqual(response.status_code, 200)
-        self.assertTrue(response.context['show_publish_success'])
-
-        content = response.content.decode()
-        self.assertIn('data-publish-success-guide', content)
-        self.assertIn('data-publish-success-visibility=public', content)
-        self.assertIn('data-publish-success-link=post', content)
-        self.assertIn('data-publish-success-link=markdown', content)
-        self.assertIn('data-publish-success-link=rss', content)
-        self.assertIn('data-publish-success-link=sitemap', content)
-        self.assertIn('https://blex.example/@testauthor/test-post', content)
-        self.assertIn('https://blex.example/@testauthor/test-post.md', content)
-        self.assertIn('https://blex.example/rss', content)
-        self.assertIn('https://blex.example/posts/sitemap.xml', content)
-
-    def test_post_detail_hides_publish_success_guide_for_anonymous_user(self):
-        """published 쿼리가 있어도 작성자가 아니면 발행 완료 가이드를 숨긴다."""
-        url = reverse('post_detail', kwargs={
-            'username': 'testauthor',
-            'post_url': 'test-post'
-        })
-        response = self.client.get(f'{url}?published=1')
-
-        self.assertEqual(response.status_code, 200)
-        self.assertFalse(response.context['show_publish_success'])
-        self.assertNotContains(response, 'data-publish-success-guide')
-
-    def test_post_detail_publish_success_guide_marks_hidden_posts(self):
-        """비공개 발행 글은 공개 링크 대신 작성자 미리보기 상태로 안내한다."""
-        self.enable_aeo()
+    def test_post_detail_shows_hidden_status_notice_for_author(self):
+        """비공개 글은 작성자에게 항상 상단 상태 안내를 보여준다."""
         self.post.config.hide = True
         self.post.config.save(update_fields=['hide'])
         self.client.login(username='testauthor', password='password123')
@@ -336,21 +297,17 @@ class PostDetailViewTestCase(TestCase):
             'username': 'testauthor',
             'post_url': 'test-post'
         })
-        response = self.client.get(f'{url}?published=1')
+        response = self.client.get(url)
 
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, 'data-publish-success-visibility=hidden')
-        self.assertNotContains(response, 'data-publish-success-link=markdown')
-        self.assertNotContains(response, 'data-publish-success-link=rss')
-        self.assertNotContains(response, 'data-publish-success-link=sitemap')
-        self.assertNotContains(response, 'rel="alternate" type="text/markdown"')
-        self.assertNotContains(response, 'data-agent-copy-url=')
-        self.assertNotIn('Link', response)
-        self.assertNotIn('X-Llms-Txt', response)
+        self.assertTrue(response.context['show_post_status_notice'])
+        self.assertEqual(response.context['post_visibility_status'], 'hidden')
+        self.assertContains(response, 'data-post-status-notice')
+        self.assertContains(response, 'data-post-status-visibility=hidden')
+        self.assertNotContains(response, 'data-publish-success-guide')
 
-    def test_post_detail_publish_success_guide_marks_scheduled_posts(self):
-        """예약 발행 글은 아직 공개 피드 링크를 확인 링크로 보여주지 않는다."""
-        self.enable_aeo()
+    def test_post_detail_shows_scheduled_status_notice_for_author(self):
+        """예약 발행 글은 작성자에게 항상 상단 상태 안내를 보여준다."""
         self.post.published_date = timezone.now() + datetime.timedelta(days=1)
         self.post.save(update_fields=['published_date'])
         self.client.login(username='testauthor', password='password123')
@@ -358,17 +315,14 @@ class PostDetailViewTestCase(TestCase):
             'username': 'testauthor',
             'post_url': 'test-post'
         })
-        response = self.client.get(f'{url}?published=1')
+        response = self.client.get(url)
 
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, 'data-publish-success-visibility=scheduled')
-        self.assertNotContains(response, 'data-publish-success-link=markdown')
-        self.assertNotContains(response, 'data-publish-success-link=rss')
-        self.assertNotContains(response, 'data-publish-success-link=sitemap')
-        self.assertNotContains(response, 'rel="alternate" type="text/markdown"')
-        self.assertNotContains(response, 'data-agent-copy-url=')
-        self.assertNotIn('Link', response)
-        self.assertNotIn('X-Llms-Txt', response)
+        self.assertTrue(response.context['show_post_status_notice'])
+        self.assertEqual(response.context['post_visibility_status'], 'scheduled')
+        self.assertContains(response, 'data-post-status-notice')
+        self.assertContains(response, 'data-post-status-visibility=scheduled')
+        self.assertNotContains(response, 'data-publish-success-guide')
 
 
 class PostEditorPublishRedirectTestCase(TestCase):
@@ -436,8 +390,8 @@ class PostEditorPublishRedirectTestCase(TestCase):
         props = self.get_post_editor_props(response)
         self.assertFalse(props['showFirstPublishGuide'])
 
-    def test_post_editor_redirects_new_publish_to_success_guide(self):
-        """새 글 발행 후 공개 상세 화면의 발행 완료 가이드로 이동한다."""
+    def test_post_editor_redirects_new_publish_to_post_detail(self):
+        """새 글 발행 후 공개 상세 화면으로 이동한다."""
         self.client.login(username='editor', password='password123')
 
         response = self.client.post('/write', {
@@ -447,15 +401,15 @@ class PostEditorPublishRedirectTestCase(TestCase):
         })
 
         self.assertEqual(response.status_code, 302)
-        self.assertEqual(response['Location'], '/@editor/first-published-post?published=1')
+        self.assertEqual(response['Location'], '/@editor/first-published-post')
         self.assertTrue(Post.objects.filter(
             author=self.user,
             url='first-published-post',
             published_date__isnull=False,
         ).exists())
 
-    def test_post_editor_redirects_draft_publish_to_success_guide(self):
-        """초안 발행은 기존 초안을 공개 글로 바꾸고 발행 완료 가이드로 이동한다."""
+    def test_post_editor_redirects_draft_publish_to_post_detail(self):
+        """초안 발행은 기존 초안을 공개 글로 바꾸고 상세 화면으로 이동한다."""
         draft = PostService.create_draft(
             user=self.user,
             title='Draft Title',
@@ -472,7 +426,7 @@ class PostEditorPublishRedirectTestCase(TestCase):
         })
 
         self.assertEqual(response.status_code, 302)
-        self.assertEqual(response['Location'], '/@editor/published-draft-title?published=1')
+        self.assertEqual(response['Location'], '/@editor/published-draft-title')
 
         draft.refresh_from_db()
         self.assertEqual(draft.url, 'published-draft-title')

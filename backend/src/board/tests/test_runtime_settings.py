@@ -23,6 +23,58 @@ class RuntimeSettingsTestCase(SimpleTestCase):
             with patch.dict(os.environ, {'BLEX_TEST_BOOL': value}):
                 self.assertTrue(runtime_settings.get_env_bool('BLEX_TEST_BOOL'))
 
+    def test_get_env_optional_returns_none_for_empty_values(self):
+        """빈 문자열 환경변수는 미설정처럼 처리한다."""
+        for value in ['', '   ']:
+            with patch.dict(os.environ, {'BLEX_TEST_OPTIONAL': value}):
+                self.assertIsNone(
+                    runtime_settings.get_env_optional('BLEX_TEST_OPTIONAL'),
+                )
+
+    def test_session_cookie_domain_ignores_loopback_hosts(self):
+        """로컬 개발 호스트는 host-only 세션 쿠키를 사용한다."""
+        for value in ['localhost', '.localhost', '127.0.0.1', '0.0.0.0', '::1']:
+            with patch.dict(os.environ, {'BLEX_TEST_COOKIE_DOMAIN': value}):
+                self.assertIsNone(
+                    runtime_settings.get_session_cookie_domain('BLEX_TEST_COOKIE_DOMAIN'),
+                )
+
+    def test_session_cookie_domain_keeps_real_domain(self):
+        """실제 도메인은 세션 쿠키 도메인으로 유지한다."""
+        with patch.dict(os.environ, {'BLEX_TEST_COOKIE_DOMAIN': '.example.com'}):
+            self.assertEqual(
+                runtime_settings.get_session_cookie_domain('BLEX_TEST_COOKIE_DOMAIN'),
+                '.example.com',
+            )
+
+    def test_runtime_session_cookie_domain_ignores_localhost_env(self):
+        """SESSION_COOKIE_DOMAIN=localhost도 실제 설정에서는 host-only 쿠키로 처리한다."""
+        env = {
+            **os.environ,
+            'SECRET_KEY': 'test-secret',
+            'CIPHER_KEY': 'BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB',
+            'DEBUG': 'TRUE',
+            'RESOURCE_URL': '',
+            'SITE_URL': 'http://localhost:8000',
+            'SESSION_COOKIE_DOMAIN': 'localhost',
+            'TZ': 'Asia/Seoul',
+        }
+
+        result = subprocess.run(
+            [
+                sys.executable,
+                '-c',
+                'from main import settings; print(repr(settings.SESSION_COOKIE_DOMAIN))',
+            ],
+            cwd=runtime_settings.BASE_DIR,
+            env=env,
+            capture_output=True,
+            text=True,
+            check=True,
+        )
+
+        self.assertEqual(result.stdout.strip(), 'None')
+
     def test_allowed_hosts_default_keeps_existing_wildcard(self):
         """ALLOWED_HOSTS 미설정 배포는 기존처럼 와일드카드 호스트를 유지한다."""
         env = {

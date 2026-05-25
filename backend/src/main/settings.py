@@ -37,6 +37,25 @@ def get_env_list(name: str, default: list[str] | None = None) -> list[str]:
     ]
 
 
+def get_env_optional(name: str) -> str | None:
+    value = os.environ.get(name)
+    if value is None or value.strip() == '':
+        return None
+
+    return value.strip()
+
+
+def get_session_cookie_domain(name: str = 'SESSION_COOKIE_DOMAIN') -> str | None:
+    domain = get_env_optional(name)
+    if not domain:
+        return None
+
+    if domain.lstrip('.').lower() in {'localhost', '127.0.0.1', '0.0.0.0', '::1'}:
+        return None
+
+    return domain
+
+
 SECRET_KEY = os.environ.get('SECRET_KEY')
 
 CIPHER_KEY = os.environ.get('CIPHER_KEY').encode()
@@ -107,7 +126,7 @@ CORS_ALLOWED_ORIGINS = [
 
 CORS_ALLOW_CREDENTIALS = True
 
-SESSION_COOKIE_DOMAIN = os.environ.get('SESSION_COOKIE_DOMAIN')
+SESSION_COOKIE_DOMAIN = get_session_cookie_domain()
 
 ROOT_URLCONF = 'main.urls'
 

@@ -15,6 +15,18 @@ class SiteUrlServiceTestCase(SimpleTestCase):
     def test_public_origin_falls_back_to_request_origin(self):
         self.assertEqual(SiteUrlService.public_origin(self.request), 'http://testserver')
 
+    @override_settings(SITE_URL='http://localhost:8000', ALLOWED_HOSTS=['*'])
+    def test_public_origin_uses_request_origin_for_lan_request(self):
+        request = RequestFactory().get('/', HTTP_HOST='192.168.219.106:8000')
+
+        self.assertEqual(SiteUrlService.public_origin(request), 'http://192.168.219.106:8000')
+
+    @override_settings(SITE_URL='http://localhost:8000', ALLOWED_HOSTS=['*'])
+    def test_public_origin_keeps_localhost_for_local_request(self):
+        request = RequestFactory().get('/', HTTP_HOST='localhost:8000')
+
+        self.assertEqual(SiteUrlService.public_origin(request), 'http://localhost:8000')
+
     @override_settings(SITE_URL='https://blex.example')
     def test_absolute_url_normalizes_relative_paths(self):
         self.assertEqual(SiteUrlService.absolute_url(self.request, 'static/page'), 'https://blex.example/static/page')
