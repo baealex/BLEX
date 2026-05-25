@@ -9,10 +9,10 @@ import logging
 import time
 import requests
 
-from django.conf import settings
 from django.db.models import Q
 
 from board.models import Post, PostConfig, WebhookSubscription, Profile, SiteContentScope
+from board.services.site_url_service import SiteUrlService
 from board.services.webhook_subscription_state_service import WebhookSubscriptionStateService
 from modules.sub_task import SubTaskProcessor
 
@@ -144,7 +144,7 @@ class WebhookService:
         if not channel_ids:
             return 0
 
-        post_url = settings.SITE_URL + post.get_absolute_url()
+        post_url = SiteUrlService.configured_absolute_url(post.get_absolute_url())
         author_name = post.author.first_name or post.author.username
         content = f'[{author_name}] 새 글이 발행되었어요: [{post.title}]({post_url})'
         delay_seconds = max(0.0, WebhookService.DEFAULT_NOTIFICATION_DELAY_SECONDS)
@@ -243,5 +243,5 @@ class WebhookService:
         return WebhookService.send_webhook(
             url=webhook_url,
             content=test_content,
-            post_url=settings.SITE_URL
+            post_url=SiteUrlService.configured_origin()
         )

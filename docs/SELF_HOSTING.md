@@ -25,6 +25,8 @@ touch backend/src/db.sqlite3
 
 로컬 Docker 확인만 할 때는 `SITE_URL=http://localhost:20002`, `ALLOWED_HOSTS=localhost,127.0.0.1`, `CSRF_TRUSTED_ORIGINS=http://localhost:20002`처럼 맞춥니다.
 
+`ALLOWED_HOSTS`를 비워 두면 기존처럼 `*`로 동작합니다. 운영 배포에서는 명시적인 호스트 목록을 설정하세요.
+
 임의 문자열은 아래처럼 만들 수 있습니다.
 
 ```bash

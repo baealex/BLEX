@@ -6,6 +6,7 @@ from django.utils import timezone
 
 from board.models import TelegramSync
 from board.modules.response import StatusDone, StatusError, ErrorCode
+from board.services.site_url_service import SiteUrlService
 from modules.sub_task import SubTaskProcessor
 from modules.telegram import TelegramBot
 from modules.randomness import randstr
@@ -38,7 +39,7 @@ def telegram(request, parameter):
 
             except:
                 if req_userid:
-                    message = '블렉스 다양한 정보를 살펴보세요!\n\n' + settings.SITE_URL + '/notion'
+                    message = '블렉스 다양한 정보를 살펴보세요!\n\n' + SiteUrlService.configured_absolute_url('/notion')
                     SubTaskProcessor.process(
                         lambda: bot.send_message(req_userid, message))
             return StatusDone()
