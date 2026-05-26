@@ -2,6 +2,8 @@
 
 이 문서는 Docker로 BLEX를 띄우고, 운영에 필요한 최소 설정을 확인한 뒤, 최초 관리자 생성과 첫 글 발행까지 끝내는 한 흐름의 가이드입니다.
 
+BLEX의 기본 compose는 **HTTP로 접근 가능한 nginx 포트**를 제공합니다. 공개 운영에서는 이 포트를 서버의 앞단 nginx, Caddy, Cloudflare Tunnel, Traefik 같은 HTTPS 프록시에 연결하세요. 인증서, HTTP→HTTPS 리다이렉트, HSTS는 BLEX 내부가 아니라 앞단 프록시에서 처리하는 것을 권장합니다.
+
 ## 1. 환경 파일 준비
 
 ```bash
@@ -17,7 +19,8 @@ touch backend/src/db.sqlite3
 | `DEBUG` | 운영에서는 `FALSE` |
 | `SECRET_KEY` | 샘플 값이 아닌 긴 임의 문자열 |
 | `CIPHER_KEY` | 샘플 값이 아닌 32글자 문자열 |
-| `SITE_URL` | 실제 접속 주소. 예: `https://blog.example.com` |
+| `SITE_URL` | 실제 접속 주소. 예: `https://blog.example.com`. origin만 입력하고, 끝의 `/`, path, query를 붙이지 않음 |
+| `RESOURCE_URL` | 기본값은 빈 값. 정적 파일과 업로드 파일을 다른 origin에서 서빙할 때만 설정 |
 | `SESSION_COOKIE_DOMAIN` | 단일 도메인이면 빈 값. 운영에서 `localhost`로 두지 않음 |
 | `INITIAL_SETUP_TOKEN` | 최초 관리자 생성 화면 보호 토큰. 비워 두면 Docker 실행 시 자동 생성 |
 | `ALLOWED_HOSTS` | 허용할 호스트 목록. 예: `blog.example.com` |
@@ -37,25 +40,54 @@ python -c "import secrets; print(secrets.token_urlsafe(24))"
 첫 번째 값은 `SECRET_KEY`, 두 번째 값은 32글자라 `CIPHER_KEY`에 사용할 수 있습니다. `INITIAL_SETUP_TOKEN`은 직접 고정해도 되고, Docker 로그에 출력되는 자동 생성 값을 사용해도 됩니다.
 
 `ADMIN_PATH`는 비워 두면 Docker 실행 시 자동 생성되고 backend 로그에 출력됩니다. 재시작 후에도 같은 관리자 경로를 유지하고 싶을 때만 직접 설정하세요.
+운영에서는 북마크, 모니터링, 여러 worker 구성을 고려해 고정된 `ADMIN_PATH`를 쓰는 편이 안전합니다.
 
-## 2. HTTPS 프록시 설정
+## 2. 앞단 HTTPS 프록시 연결
 
-외부 nginx, Caddy, Cloudflare Tunnel 같은 프록시 뒤에서 HTTPS를 종료한다면 아래 값을 켭니다.
+BLEX는 기본적으로 `docker-compose.yml`의 nginx를 통해 HTTP 포트 하나를 엽니다.
 
-```env
-SESSION_COOKIE_SECURE=TRUE
-CSRF_COOKIE_SECURE=TRUE
-TRUST_X_FORWARDED_PROTO=TRUE
+```text
+인터넷
+→ 앞단 HTTPS 프록시
+→ BLEX nginx HTTP 포트
+→ Django backend
 ```
 
-BLEX 컨테이너가 직접 HTTPS를 받지 않는 구성에서는 `SECURE_SSL_REDIRECT=TRUE`를 켜기 전에 프록시가 `X-Forwarded-Proto: https`를 전달하는지 먼저 확인하세요.
+운영 서버에서는 앞단 HTTPS 프록시에서 아래를 처리하세요.
 
-HSTS는 HTTPS가 안정적으로 동작한 뒤에만 켭니다.
+* TLS 인증서 발급과 갱신
+* HTTP에서 HTTPS로 리다이렉트
+* HSTS 적용 여부
+* 공개 도메인에서 BLEX HTTP 포트로 프록시
 
-```env
-SECURE_HSTS_SECONDS=31536000
-SECURE_HSTS_INCLUDE_SUBDOMAINS=TRUE
+BLEX 내부 Django는 `SITE_URL`을 기준으로 sitemap, RSS, canonical URL, `/llms.txt`, Markdown URL 같은 공개 URL을 만듭니다. 따라서 앞단 프록시에서 실제로 공개하는 주소와 `SITE_URL`을 맞춰야 합니다.
+
+### nginx 앞단 프록시 예시
+
+```nginx
+server {
+    listen 80;
+    server_name blog.example.com;
+    return 301 https://$host$request_uri;
+}
+
+server {
+    listen 443 ssl http2;
+    server_name blog.example.com;
+
+    ssl_certificate /etc/letsencrypt/live/blog.example.com/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/blog.example.com/privkey.pem;
+
+    location / {
+        proxy_pass http://127.0.0.1:20002;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    }
+}
 ```
+
+Caddy, Cloudflare Tunnel, Traefik을 쓰는 경우에도 원칙은 같습니다. 앞단 도구가 HTTPS를 처리하고, BLEX에는 HTTP로 넘깁니다.
 
 ## 3. 실행
 
@@ -64,7 +96,15 @@ docker compose up -d
 docker compose logs -f backend
 ```
 
-기본 `docker-compose.yml`은 작은 서버를 고려해 Gunicorn worker를 1개로 실행합니다. 512MB급 서버에서는 이 설정으로 시작하고, 메모리 여유를 확인한 뒤 worker 수를 늘리세요.
+기본 Docker 이미지는 작은 서버를 고려해 Gunicorn worker를 1개로 실행합니다. `docker-compose.yml`은 이 기본 실행값을 그대로 사용합니다. 512MB급 서버에서는 이 설정으로 시작하고, 메모리 여유가 확인된 경우에만 compose의 `command`로 worker 수를 직접 덮어쓰세요.
+
+운영 환경값을 바꾼 뒤에는 Django system check를 실행합니다.
+
+```bash
+docker compose exec backend python manage.py check
+```
+
+`SITE_URL`이 비어 있거나 로컬 주소면 BLEX 공개 URL 경고가 표시됩니다. 운영 공개 전에는 `SITE_URL`, `ALLOWED_HOSTS`, `CSRF_TRUSTED_ORIGINS`를 실제 도메인 기준으로 맞춥니다.
 
 ## 4. 최초 관리자 생성
 
@@ -92,3 +132,47 @@ Initial setup URL: https://blog.example.com/setup?token=...
 | 업로드 파일 | `backend/src/resources/media` |
 
 운영 전에 이 두 위치가 백업 대상에 포함되는지 확인하세요.
+SQLite를 사용하는 동안에는 실행 중인 DB 파일을 단순 복사하는 대신 SQLite 백업 명령이나 서비스 중지 후 복사를 사용하세요.
+백업은 만드는 것에서 끝내지 말고, 별도 위치에서 복원 리허설을 해 실제로 부팅되는지 확인합니다.
+DB와 media는 같은 시점의 짝으로 보관해야 글 본문과 이미지 참조가 어긋나지 않습니다.
+
+## 7. 운영 전 점검표
+
+공개 도메인으로 열기 전에 아래 항목을 확인합니다.
+
+### 환경값
+
+* [ ] `DEBUG=FALSE`
+* [ ] `SITE_URL`이 실제 HTTPS origin이며 끝의 `/`, path, query가 없음
+* [ ] `ALLOWED_HOSTS`에 실제 도메인이 있음
+* [ ] `CSRF_TRUSTED_ORIGINS`에 실제 HTTPS origin이 있음
+* [ ] `SECRET_KEY`, `CIPHER_KEY`, `INITIAL_SETUP_TOKEN`이 샘플 값이 아님
+* [ ] 운영에서 같은 관리자 경로가 필요하면 `ADMIN_PATH`를 고정함
+
+### 앞단 HTTPS 프록시와 공개 URL
+
+* [ ] `docker compose exec backend python manage.py check` 결과를 확인함
+* [ ] 앞단 HTTPS 프록시에서 인증서 발급과 갱신을 처리함
+* [ ] 앞단 HTTPS 프록시에서 HTTP→HTTPS 리다이렉트를 처리함
+* [ ] BLEX HTTP 포트가 필요한 범위에서만 접근 가능함
+* [ ] 로그인 응답의 `Set-Cookie`에 `Secure`가 붙음
+* [ ] 실제 도메인 `Origin`의 POST 요청은 통과하고, 다른 origin은 CSRF에서 막힘
+* [ ] 글 상세의 canonical, Open Graph URL, RSS, sitemap, `/llms.txt`, Markdown URL이 `SITE_URL` 기준 HTTPS 주소로 나옴
+
+### 정적 파일, 업로드, 로그
+
+* [ ] `/resources/staticfiles/`가 200 또는 404로 정상 응답하고 Django로 프록시되지 않음
+* [ ] `/resources/media/` 업로드 파일이 필요한 범위에서 응답함
+* [ ] 업로드 media URL은 비밀 저장소가 아니며, URL을 아는 사람은 접근할 수 있음을 운영자가 알고 있음
+* [ ] Docker 로그 회전 또는 외부 로그 수집을 설정함
+* [ ] 디스크 사용량 경고를 볼 수 있음
+
+예시 Docker 로그 회전 설정:
+
+```yaml
+logging:
+  driver: json-file
+  options:
+    max-size: "10m"
+    max-file: "5"
+```

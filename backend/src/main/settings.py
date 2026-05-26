@@ -2,19 +2,13 @@ import os
 import sys
 import django
 
+from urllib.parse import urlsplit
+
 from django.utils.encoding import force_str
 
 django.utils.encoding.force_text = force_str
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-
-
-def get_env_bool(name: str, default: bool = False) -> bool:
-    value = os.environ.get(name)
-    if value is None or value.strip() == '':
-        return default
-
-    return value.strip().upper() in {'1', 'TRUE', 'YES', 'ON'}
 
 
 def get_env_int(name: str, default: int = 0) -> int:
@@ -56,6 +50,25 @@ def get_session_cookie_domain(name: str = 'SESSION_COOKIE_DOMAIN') -> str | None
     return domain
 
 
+def get_env_http_origin(name: str) -> str | None:
+    origin = get_env_optional(name)
+    if not origin:
+        return None
+
+    origin = origin.rstrip('/')
+    parsed_origin = urlsplit(origin)
+    if parsed_origin.scheme not in {'http', 'https'} or not parsed_origin.netloc:
+        return None
+
+    if parsed_origin.path not in {'', '/'} or parsed_origin.query or parsed_origin.fragment:
+        return None
+
+    if parsed_origin.username or parsed_origin.password:
+        return None
+
+    return origin
+
+
 SECRET_KEY = os.environ.get('SECRET_KEY')
 
 CIPHER_KEY = os.environ.get('CIPHER_KEY').encode()
@@ -69,15 +82,8 @@ TESTING = sys.argv[1:2] == ['test']
 ALLOWED_HOSTS = get_env_list('ALLOWED_HOSTS', ['*'])
 CSRF_TRUSTED_ORIGINS = get_env_list('CSRF_TRUSTED_ORIGINS')
 
-SESSION_COOKIE_SECURE = get_env_bool('SESSION_COOKIE_SECURE')
-CSRF_COOKIE_SECURE = get_env_bool('CSRF_COOKIE_SECURE')
-SECURE_SSL_REDIRECT = get_env_bool('SECURE_SSL_REDIRECT')
-SECURE_HSTS_SECONDS = get_env_int('SECURE_HSTS_SECONDS')
-SECURE_HSTS_INCLUDE_SUBDOMAINS = get_env_bool('SECURE_HSTS_INCLUDE_SUBDOMAINS')
-SECURE_HSTS_PRELOAD = get_env_bool('SECURE_HSTS_PRELOAD')
-
-if get_env_bool('TRUST_X_FORWARDED_PROTO'):
-    SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+SESSION_COOKIE_SECURE = not DEBUG
+CSRF_COOKIE_SECURE = not DEBUG
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -121,9 +127,8 @@ if not DEBUG:
 if DEBUG and not TESTING:
     MIDDLEWARE.append('main.middleware.QueryDebugger')
 
-CORS_ALLOWED_ORIGINS = [
-    os.environ.get('SITE_URL'),
-]
+SITE_URL_CORS_ORIGIN = get_env_http_origin('SITE_URL')
+CORS_ALLOWED_ORIGINS = [SITE_URL_CORS_ORIGIN] if SITE_URL_CORS_ORIGIN else []
 
 CORS_ALLOW_CREDENTIALS = True
 
@@ -203,7 +208,7 @@ USE_TZ = True
 
 
 SITE_URL = os.environ.get('SITE_URL')
-RESOURCE_URL = os.environ.get('RESOURCE_URL') + '/resources/'
+RESOURCE_URL = os.environ.get('RESOURCE_URL', '').rstrip('/') + '/resources/'
 
 STATIC_URL = RESOURCE_URL + 'staticfiles/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'resources', 'staticfiles')

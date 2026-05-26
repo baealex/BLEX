@@ -61,4 +61,4 @@ COPY entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
 
 ENTRYPOINT ["/entrypoint.sh"]
-CMD ["--bind", "0.0.0.0:8000", "--workers", "4", "--access-logfile", "-", "--log-level", "info", "main.wsgi:application"]
+CMD ["--bind", "0.0.0.0:8000", "--workers", "1", "--access-logfile", "-", "--log-level", "info", "main.wsgi:application"]

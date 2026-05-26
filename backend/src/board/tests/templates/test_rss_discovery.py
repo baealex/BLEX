@@ -9,6 +9,7 @@ from django.utils import timezone
 from board.models import Post, PostConfig, PostContent, Profile, SiteSetting
 
 
+@override_settings(SITE_URL='http://localhost:8000')
 class RSSDiscoveryTemplateTestCase(TestCase):
     @classmethod
     def setUpTestData(cls):
