@@ -15,6 +15,7 @@ from django.utils import timezone
 from board.models import Config, Post, PostContent, PostConfig, Profile, Series, SiteSetting
 from board.services.post_service import PostService
 
+@override_settings(SITE_URL='http://localhost:8000')
 class PostDetailViewTestCase(TestCase):
     def setUp(self):
         self.client = Client()

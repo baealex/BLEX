@@ -1,11 +1,12 @@
 import json
 
-from django.test import TestCase
+from django.test import TestCase, override_settings
 from django.test.client import Client
 
 from board.models import User, Profile, SiteSetting
 
 
+@override_settings(SITE_URL='http://localhost:8000')
 class SiteSettingAPITestCase(TestCase):
     """SiteSetting API endpoint tests"""
 

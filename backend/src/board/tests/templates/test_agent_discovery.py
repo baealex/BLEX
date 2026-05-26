@@ -6,6 +6,7 @@ from django.utils import timezone
 from board.models import Post, PostConfig, PostContent, Series, SiteSetting, StaticPage
 
 
+@override_settings(SITE_URL='http://localhost:8000')
 class SeriesAgentDiscoveryTestCase(TestCase):
     def setUp(self):
         self.client = Client()
@@ -109,6 +110,7 @@ class SeriesAgentDiscoveryTestCase(TestCase):
         self.assertEqual(response['X-Llms-Txt'], llms_txt_url)
 
 
+@override_settings(SITE_URL='http://localhost:8000')
 class StaticPageAgentDiscoveryTestCase(TestCase):
     def setUp(self):
         self.client = Client()

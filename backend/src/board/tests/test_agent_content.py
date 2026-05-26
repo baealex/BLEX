@@ -21,6 +21,7 @@ AEO_MIDDLEWARE = BASE_MIDDLEWARE + ('main.middleware.AccessSitemapOnlyBot',)
 SITEMAP_NS = '{http://www.sitemaps.org/schemas/sitemap/0.9}'
 
 
+@override_settings(SITE_URL='http://localhost:8000')
 class AgentContentTestCase(TestCase):
     @classmethod
     def setUpTestData(cls):

@@ -26,7 +26,15 @@ def check_public_site_url(app_configs, **kwargs):
         ]
 
     parsed_origin = urlsplit(configured_origin)
-    if parsed_origin.scheme not in {'http', 'https'} or not parsed_origin.netloc:
+    if (
+        parsed_origin.scheme not in {'http', 'https'}
+        or not parsed_origin.netloc
+        or parsed_origin.path
+        or parsed_origin.query
+        or parsed_origin.fragment
+        or parsed_origin.username
+        or parsed_origin.password
+    ):
         return [
             Warning(
                 'SITE_URL is not an absolute HTTP(S) origin.',
@@ -47,6 +55,18 @@ def check_public_site_url(app_configs, **kwargs):
                     'this deployment.'
                 ),
                 id='board.W003',
+            )
+        ]
+
+    if parsed_origin.scheme != 'https':
+        return [
+            Warning(
+                'SITE_URL should use HTTPS in production mode.',
+                hint=(
+                    'Set SITE_URL to the public HTTPS origin before exposing '
+                    'this deployment.'
+                ),
+                id='board.W004',
             )
         ]
 

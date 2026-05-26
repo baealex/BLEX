@@ -2,13 +2,14 @@
 List page canonical and noindex policy tests.
 """
 from django.contrib.auth.models import User
-from django.test import TestCase
+from django.test import TestCase, override_settings
 from django.urls import reverse
 from django.utils import timezone
 
 from board.models import Post, PostConfig, PostContent, PostLikes, Profile, Series, SiteSetting, Tag
 
 
+@override_settings(SITE_URL='http://localhost:8000')
 class ListPageSEOPolicyTestCase(TestCase):
     @classmethod
     def setUpTestData(cls):
