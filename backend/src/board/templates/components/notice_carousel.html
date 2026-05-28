@@ -14,7 +14,7 @@
     <div class="relative overflow-hidden rounded-2xl">
         {% for notice in notices %}
         <a href="{% if url_prefix %}{{ url_prefix }}{{ notice.author.username }}/{% endif %}{{ notice.url }}"
-           class="group block rounded-2xl border border-line/50 bg-transparent px-5 py-4 transition-colors duration-150 hover:border-line/70 active:bg-surface-subtle/40 {% if forloop.first %}relative{% else %}absolute inset-0{% endif %}"
+           class="group block rounded-2xl border border-line/50 bg-transparent px-5 py-4 transition-colors duration-150 hover:border-line/70 active:bg-surface-subtle/40 {% if forloop.first %}relative z-10 opacity-100{% else %}pointer-events-none absolute inset-0 z-0 opacity-0{% endif %}"
            :style="{
                opacity: currentIndex === {{ forloop.counter0 }} ? 1 : 0,
                zIndex: currentIndex === {{ forloop.counter0 }} ? 10 : 0,
@@ -71,7 +71,7 @@
     <div class="relative overflow-hidden rounded-xl">
         {% for notice in notices %}
         <a href="{% if url_prefix %}{{ url_prefix }}{{ notice.author.username }}/{% endif %}{{ notice.url }}"
-           class="group block rounded-xl border border-line/50 bg-transparent px-4 py-3 transition-colors duration-150 hover:border-line/70 active:bg-surface-subtle/40 {% if forloop.first %}relative{% else %}absolute inset-0{% endif %}"
+           class="group block rounded-xl border border-line/50 bg-transparent px-4 py-3 transition-colors duration-150 hover:border-line/70 active:bg-surface-subtle/40 {% if forloop.first %}relative z-10 opacity-100{% else %}pointer-events-none absolute inset-0 z-0 opacity-0{% endif %}"
            :style="{
                opacity: currentIndex === {{ forloop.counter0 }} ? 1 : 0,
                zIndex: currentIndex === {{ forloop.counter0 }} ? 10 : 0,

@@ -1,30 +1,109 @@
 <!-- Introduction Section -->
-<section>
+{% if about_html or user == author %}
+<section
+    {% if user == author %}
+    x-data="{
+        editing: false,
+        saving: false,
+        message: '',
+        initialContent: '{{ about_md|default:''|escapejs }}',
+        content: '{{ about_md|default:''|escapejs }}',
+        startEditing() {
+            this.content = this.initialContent;
+            this.message = '';
+            this.editing = true;
+            this.$nextTick(() => this.$refs.aboutEditor?.focus());
+        },
+        cancelEditing() {
+            this.content = this.initialContent;
+            this.message = '';
+            this.editing = false;
+        },
+        async saveAbout() {
+            if (this.saving) return;
+
+            this.saving = true;
+            this.message = '';
+
+            try {
+                const formData = new FormData();
+                formData.append('about_md', this.content);
+                formData.append('csrfmiddlewaretoken', '{{ csrf_token|escapejs }}');
+
+                const response = await fetch('{% url 'user_about_edit' author.username %}', {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'X-CSRFToken': '{{ csrf_token|escapejs }}'
+                    }
+                });
+                const data = await response.json().catch(() => ({}));
+
+                if (!response.ok || data.status !== 'success') {
+                    this.message = data.message || '소개글을 저장하지 못했습니다.';
+                    return;
+                }
+
+                window.location.reload();
+            } catch (error) {
+                this.message = '네트워크 오류로 저장하지 못했습니다.';
+            } finally {
+                this.saving = false;
+            }
+        }
+    }"
+    {% endif %}>
     <div>
         <div class="mb-6">
             <p class="mb-2 text-xs font-bold uppercase tracking-[0.18em] text-content-hint">About</p>
             <h2 class="text-2xl font-bold text-content">소개</h2>
         </div>
         {% if about_html %}
-            <div class="prose blog-post-content">
+            <div class="prose blog-post-content" x-show="!editing">
                 {{ about_html|safe }}
             </div>
         {% else %}
-            <div class="text-center py-16">
-                <div class="inline-flex items-center justify-center w-14 h-14 rounded-xl bg-surface-subtle mb-3">
-                    <i class="fas fa-file-alt text-content-hint text-lg"></i>
+            <div class="rounded-2xl border border-dashed border-line bg-surface px-5 py-4" x-show="!editing">
+                <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                    <p class="text-sm text-content-secondary">소개글을 작성하면 프로필에 표시됩니다.</p>
+                    <button type="button" @click="startEditing()" class="inline-flex items-center justify-center rounded-lg bg-surface-subtle px-4 py-2 text-sm font-semibold text-content-secondary transition-colors hover:bg-surface-subtle/80 hover:text-content">
+                        <i class="fas fa-edit mr-2"></i>
+                        소개글 작성
+                    </button>
                 </div>
-                <p class="text-content-hint font-medium">아직 소개글이 없습니다</p>
             </div>
         {% endif %}
 
-        {% if user == author %}
-        <div class="mt-6">
-            <a href="{% url 'user_about_edit' author.username %}" class="inline-flex items-center justify-center rounded-lg bg-surface-subtle px-4 py-2 text-sm font-semibold text-content-secondary transition-colors hover:bg-surface-subtle/80 hover:text-content">
+        {% if user == author and about_html %}
+        <div class="mt-6" x-show="!editing">
+            <button type="button" @click="startEditing()" class="inline-flex items-center justify-center rounded-lg bg-surface-subtle px-4 py-2 text-sm font-semibold text-content-secondary transition-colors hover:bg-surface-subtle/80 hover:text-content">
                 <i class="fas fa-edit mr-2"></i>
                 소개글 수정
-            </a>
+            </button>
+        </div>
+        {% endif %}
+
+        {% if user == author %}
+        <div x-show="editing" x-cloak class="rounded-2xl border border-line bg-surface p-4">
+            <textarea
+                x-ref="aboutEditor"
+                x-model="content"
+                class="min-h-64 w-full resize-y rounded-xl border border-line bg-surface-subtle p-4 text-sm leading-relaxed text-content placeholder-content-hint focus:border-line-strong focus:outline-none focus:ring-2 focus:ring-line/10"
+                placeholder="소개글을 작성하세요"></textarea>
+            <div class="mt-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                <p x-show="message" x-text="message" class="text-sm text-danger"></p>
+                <div class="flex justify-end gap-2 sm:ml-auto">
+                    <button type="button" @click="cancelEditing()" :disabled="saving" class="inline-flex items-center justify-center rounded-lg px-4 py-2 text-sm font-semibold text-content-secondary transition-colors hover:bg-surface-subtle hover:text-content disabled:opacity-50">
+                        취소
+                    </button>
+                    <button type="button" @click="saveAbout()" :disabled="saving" class="inline-flex items-center justify-center rounded-lg bg-action px-4 py-2 text-sm font-semibold text-content-inverted transition-colors hover:bg-action-hover disabled:opacity-50">
+                        <span x-show="!saving">저장</span>
+                        <span x-show="saving">저장 중...</span>
+                    </button>
+                </div>
+            </div>
         </div>
         {% endif %}
     </div>
 </section>
+{% endif %}
