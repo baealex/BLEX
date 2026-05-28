@@ -181,12 +181,28 @@ const Heatmap = ({ username }: HeatmapProps) => {
                         letter-spacing: 0.015em;
                     }
 
-                    .author-heatmap-chart .graph-svg-tip {
-                        background: var(--color-surface);
-                        color: var(--color-content);
-                        border: 1px solid var(--color-line);
-                        border-radius: 10px;
+                    .author-heatmap-chart .graph-svg-tip,
+                    .author-heatmap-chart .graph-svg-tip.comparison {
+                        background: var(--color-surface-elevated) !important;
+                        color: var(--color-content-secondary) !important;
+                        border: 1px solid var(--color-line) !important;
+                        border-radius: 10px !important;
+                        box-shadow: 0 10px 28px rgba(0, 0, 0, 0.14);
                         backdrop-filter: blur(6px);
+                    }
+
+                    .author-heatmap-chart .graph-svg-tip .title {
+                        color: var(--color-content-secondary) !important;
+                        line-height: 1.25 !important;
+                    }
+
+                    .author-heatmap-chart .graph-svg-tip strong {
+                        color: var(--color-content) !important;
+                        font-weight: 700 !important;
+                    }
+
+                    .author-heatmap-chart .graph-svg-tip .svg-pointer {
+                        border-top-color: var(--color-surface-elevated) !important;
                     }
 
                     .author-heatmap-chart .chart-legend text.subdomain-name {

@@ -31,11 +31,15 @@
             <!-- Featured Posts Section -->
             {% if featured_posts_section.posts or request.user == author %}
             <section>
-                <div class="mb-4 flex items-center justify-between gap-4">
-                    <h2 class="text-2xl font-bold text-content">{{ featured_posts_section.title }}</h2>
-                    {% if featured_posts_section.posts %}
-                    <a href="/@{{ author.username }}/posts" class="text-sm font-semibold text-content-secondary transition-colors hover:text-content">
-                        모든 포스트 보기
+                <div class="mb-4 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+                    <div>
+                        <p class="mb-2 text-xs font-bold uppercase tracking-[0.18em] text-content-hint">Posts</p>
+                        <h2 class="text-2xl font-bold text-content">{{ featured_posts_section.title }}</h2>
+                    </div>
+                    {% if request.user == author %}
+                    <a href="/settings/pinned-posts" class="inline-flex w-fit items-center justify-center rounded-lg bg-surface-subtle px-4 py-2 text-sm font-semibold text-content-secondary transition-colors hover:bg-surface-subtle/80 hover:text-content">
+                        <i class="fas fa-thumbtack mr-2 text-xs"></i>
+                        고정 포스트 설정
                     </a>
                     {% endif %}
                 </div>
@@ -80,8 +84,8 @@
                 </div>
                 {% elif request.user == author %}
                 <div class="rounded-2xl border border-dashed border-line bg-surface px-6 py-8 text-center">
-                    <p class="text-sm font-semibold text-content">아직 보여줄 공개 포스트가 없습니다.</p>
-                    <p class="mt-1 text-sm text-content-secondary">첫 글을 발행하면 이 영역에 최근 포스트가 표시됩니다.</p>
+                    <p class="text-sm font-semibold text-content">아직 공개된 포스트가 없습니다.</p>
+                    <p class="mt-1 text-sm text-content-secondary">첫 글을 발행하면 이 영역에 표시됩니다.</p>
                     <a href="/write" class="mt-4 inline-flex items-center justify-center rounded-lg bg-action px-4 py-2 text-sm font-semibold text-content-inverted transition-colors hover:bg-action-hover">
                         글 작성하기
                     </a>

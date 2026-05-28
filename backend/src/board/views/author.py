@@ -10,6 +10,7 @@ from django.urls import reverse
 from board.modules.paginator import Paginator
 from board.modules.time import time_since
 from board.services.user_service import UserService
+from board.services.authoring_permission_service import AuthoringPermissionService
 from board.services.discovery_metadata_service import DiscoveryMetadataService
 from board.services.public_post_service import PublicPostService
 from board.services.public_series_service import PublicSeriesService
@@ -24,13 +25,15 @@ def author_overview(request, username):
     Readers and editors see different templates.
     """
     author = get_object_or_404(User.objects.select_related('profile'), username=username)
+    profile = getattr(author, 'profile', None)
 
     recent_activities = UserService.get_public_author_activities(author)[:10]
 
-    about_html = getattr(author.profile, 'about_html', '') if hasattr(author, 'profile') else ''
+    about_md = profile.about_md if profile else ''
+    about_html = profile.about_html if profile else ''
 
     # Check if author is a reader (not an editor)
-    is_reader = not hasattr(author, 'profile') or author.profile.role == Profile.Role.READER
+    is_reader = not AuthoringPermissionService.is_active_editor(author)
     author_profile_path = reverse('user_profile', kwargs={'username': author.username})
     if DiscoveryMetadataService.has_unexpected_query_parameters(request, set()):
         page_metadata = DiscoveryMetadataService.build_noindex_page_metadata(
@@ -50,6 +53,7 @@ def author_overview(request, username):
         context = {
             'author': author,
             'recent_activities': recent_activities,
+            'about_md': about_md,
             'about_html': about_html,
             **page_metadata,
             'author_activity_props': json.dumps({'username': author.username})
@@ -72,6 +76,7 @@ def author_overview(request, username):
             'featured_posts_section': featured_posts_section,
             'pinned_posts': featured_posts_section['posts'],
             'recent_activities': recent_activities,
+            'about_md': about_md,
             'about_html': about_html,
             'post_count': stats['post_count'],
             'series_count': stats['series_count'],
@@ -97,7 +102,7 @@ def author_posts(request, username):
     """
     author = get_object_or_404(User.objects.select_related('profile'), username=username)
 
-    if not hasattr(author, 'profile') or not author.profile.is_editor():
+    if not AuthoringPermissionService.is_active_editor(author):
         return redirect('user_about', username=username)
     
     # Get search query and filters
@@ -220,9 +225,7 @@ def author_series(request, username):
     """
     author = get_object_or_404(User.objects.select_related('profile'), username=username)
 
-    # If author is a reader (not an editor), redirect to about page
-    # If profile doesn't exist, treat as reader
-    if not hasattr(author, 'profile') or not author.profile.is_editor():
+    if not AuthoringPermissionService.is_active_editor(author):
         return redirect('user_about', username=username)
     
     # Get search query and filters
