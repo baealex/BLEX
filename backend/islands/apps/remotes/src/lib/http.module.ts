@@ -17,15 +17,18 @@ export type Response<T> = DoneResponse<T> | ErrorResponse;
 // CSRF token retrieval with fallback
 const getCsrfToken = () => {
     if (typeof document !== 'undefined') {
-        return handyCookie.get('csrftoken') || '';
+        const inputToken = document.querySelector<HTMLInputElement>('[name=csrfmiddlewaretoken]')?.value;
+        return inputToken || handyCookie.get('csrftoken') || '';
     }
     return '';
 };
 
 export const http = axios.create({
     baseURL: '/',
-    headers: {
-        'Content-Type': 'application/json',
-        'X-CSRFToken': getCsrfToken()
-    }
+    headers: { 'Content-Type': 'application/json' }
+});
+
+http.interceptors.request.use((config) => {
+    config.headers.set('X-CSRFToken', getCsrfToken());
+    return config;
 });

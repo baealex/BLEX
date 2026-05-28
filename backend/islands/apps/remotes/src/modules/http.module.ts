@@ -14,10 +14,20 @@ export interface ErrorResponse {
 
 export type Response<T> = DoneResponse<T> | ErrorResponse;
 
+const getCsrfToken = () => {
+    if (typeof document !== 'undefined') {
+        const inputToken = document.querySelector<HTMLInputElement>('[name=csrfmiddlewaretoken]')?.value;
+        return inputToken || handyCookie.get('csrftoken') || '';
+    }
+    return '';
+};
+
 export const http = axios.create({
     baseURL: '/',
-    headers: {
-        'Content-Type': 'application/json',
-        'X-CSRFToken': handyCookie.get('csrftoken') || ''
-    }
+    headers: { 'Content-Type': 'application/json' }
+});
+
+http.interceptors.request.use((config) => {
+    config.headers.set('X-CSRFToken', getCsrfToken());
+    return config;
 });
