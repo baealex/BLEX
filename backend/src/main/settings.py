@@ -80,10 +80,15 @@ VITE_DEV_SERVER_URL = os.environ.get('VITE_DEV_SERVER_URL', 'http://localhost:81
 TESTING = sys.argv[1:2] == ['test']
 
 ALLOWED_HOSTS = get_env_list('ALLOWED_HOSTS', ['*'])
-CSRF_TRUSTED_ORIGINS = get_env_list('CSRF_TRUSTED_ORIGINS')
+SITE_URL_ORIGIN = get_env_http_origin('SITE_URL')
+CSRF_TRUSTED_ORIGINS = get_env_list(
+    'CSRF_TRUSTED_ORIGINS',
+    [SITE_URL_ORIGIN] if SITE_URL_ORIGIN else [],
+)
 
 SESSION_COOKIE_SECURE = not DEBUG
 CSRF_COOKIE_SECURE = not DEBUG
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -127,8 +132,7 @@ if not DEBUG:
 if DEBUG and not TESTING:
     MIDDLEWARE.append('main.middleware.QueryDebugger')
 
-SITE_URL_CORS_ORIGIN = get_env_http_origin('SITE_URL')
-CORS_ALLOWED_ORIGINS = [SITE_URL_CORS_ORIGIN] if SITE_URL_CORS_ORIGIN else []
+CORS_ALLOWED_ORIGINS = [SITE_URL_ORIGIN] if SITE_URL_ORIGIN else []
 
 CORS_ALLOW_CREDENTIALS = True
 

@@ -93,6 +93,62 @@ class RuntimeSettingsTestCase(SimpleTestCase):
 
         self.assertEqual(result.stdout.strip(), '[]')
 
+
+    def test_runtime_csrf_trusted_origins_default_to_site_url(self):
+        """운영 CSRF origin 검사는 공개 SITE_URL을 기본 신뢰 origin으로 사용한다."""
+        env = {
+            **os.environ,
+            'SECRET_KEY': 'test-secret',
+            'CIPHER_KEY': 'BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB',
+            'DEBUG': 'FALSE',
+            'RESOURCE_URL': '',
+            'SITE_URL': 'https://blex.example/',
+            'TZ': 'Asia/Seoul',
+        }
+        env.pop('CSRF_TRUSTED_ORIGINS', None)
+
+        result = subprocess.run(
+            [
+                sys.executable,
+                '-c',
+                'from main import settings; print(settings.CSRF_TRUSTED_ORIGINS)',
+            ],
+            cwd=runtime_settings.BASE_DIR,
+            env=env,
+            capture_output=True,
+            text=True,
+            check=True,
+        )
+
+        self.assertEqual(result.stdout.strip(), "['https://blex.example']")
+
+    def test_runtime_secure_proxy_ssl_header_is_enabled(self):
+        """HTTPS 프록시 뒤에서도 Django가 원 요청을 HTTPS로 판단하게 한다."""
+        env = {
+            **os.environ,
+            'SECRET_KEY': 'test-secret',
+            'CIPHER_KEY': 'BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB',
+            'DEBUG': 'FALSE',
+            'RESOURCE_URL': '',
+            'SITE_URL': 'https://blex.example',
+            'TZ': 'Asia/Seoul',
+        }
+
+        result = subprocess.run(
+            [
+                sys.executable,
+                '-c',
+                'from main import settings; print(settings.SECURE_PROXY_SSL_HEADER)',
+            ],
+            cwd=runtime_settings.BASE_DIR,
+            env=env,
+            capture_output=True,
+            text=True,
+            check=True,
+        )
+
+        self.assertEqual(result.stdout.strip(), "('HTTP_X_FORWARDED_PROTO', 'https')")
+
     def test_runtime_resource_url_defaults_to_local_resources_path(self):
         """RESOURCE_URL 미설정 배포도 기본 /resources/ 경로로 설정을 로드한다."""
         env = {
