@@ -1,18 +1,18 @@
 <!-- Activity Section -->
 <section>
     <div class="mb-4">
-        <h2 class="text-2xl font-bold text-content">{% if is_editor_view %}최근 활동{% else %}활동{% endif %}</h2>
-        <p class="mt-1 text-sm text-content-secondary">최근 1년 잔디와 최신 활동 기록입니다.</p>
+        <p class="mb-2 text-xs font-bold uppercase tracking-[0.18em] text-content-hint">Activity</p>
+        <h2 class="text-2xl font-bold text-content">연간 활동</h2>
     </div>
 
     <!-- Heatmap -->
-    <div class="bg-surface rounded-2xl ring-1 ring-line/60 p-6 md:p-7 mb-6" style="min-height: 280px;">
-        <island-component name="Heatmap" props="{{ author_activity_props }}"></island-component>
+    <div class="bg-surface rounded-2xl ring-1 ring-line/60 p-6 md:p-7 mb-6">
+        <island-component name="Heatmap" props="{{ author_activity_props }}" style="display: block; min-height: 218px;"></island-component>
 
         {% if recent_activities %}
             <div class="mt-8 border-t border-line-light pt-6">
                 <div class="mb-3 flex items-center justify-between px-1">
-                    <h3 class="text-sm font-semibold text-content">최근 활동 내역</h3>
+                    <h3 class="text-sm font-semibold text-content">활동 내역</h3>
                     <span class="inline-flex items-center rounded-md bg-surface-subtle px-2 py-0.5 text-[11px] font-medium text-content-secondary">
                         {{ recent_activities|length }}개
                     </span>
@@ -59,7 +59,7 @@
         {% else %}
             <div class="py-12 text-center">
                 <i class="fas fa-wind text-content-hint text-2xl mb-3"></i>
-                <p class="text-sm text-content-hint">기록된 활동이 없습니다</p>
+                <p class="text-sm text-content-hint">표시할 활동이 없습니다</p>
             </div>
         {% endif %}
     </div>

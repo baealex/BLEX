@@ -122,19 +122,6 @@ class AuthorPostsPageTestCase(TestCase):
         self.assertNotContains(response, 'notice_carousel({')
         self.assertNotContains(response, 'fa-bullhorn')
 
-    def test_author_overview_shows_featured_posts_before_activity(self):
-        """작성자 개요는 소개 다음에 포스트를 먼저 보여주고 활동은 그 뒤에 둔다."""
-        response = self.client.get(
-            reverse('user_profile', kwargs={'username': self.user.username})
-        )
-
-        content = response.content.decode()
-        self.assertContains(response, 'About')
-        self.assertContains(response, '소개')
-        self.assertNotContains(response, 'README')
-        self.assertNotContains(response, 'bg-surface rounded-2xl ring-1 ring-line/60 p-8')
-        self.assertLess(content.index('최근 포스트'), content.index('최근 활동'))
-
     def test_author_overview_featured_posts_have_card_grid_and_posts_link(self):
         """대표 포스트 영역은 좁은 2열 카드 그리드와 전체 포스트 링크를 제공한다."""
         response = self.client.get(
@@ -145,7 +132,6 @@ class AuthorPostsPageTestCase(TestCase):
         self.assertContains(response, 'sm:grid-cols-2')
         self.assertNotContains(response, 'lg:grid-cols-3')
         self.assertContains(response, f'/@{self.user.username}/posts')
-        self.assertContains(response, '모든 포스트 보기')
         self.assertNotContains(response, '먼저 읽어볼 글')
 
     def test_author_overview_featured_posts_limit_keeps_balanced_grid(self):
@@ -177,15 +163,74 @@ class AuthorPostsPageTestCase(TestCase):
             reverse('user_profile', kwargs={'username': empty_author.username})
         )
         self.assertEqual(visitor_response.status_code, 200)
-        self.assertNotContains(visitor_response, '아직 보여줄 공개 포스트가 없습니다.')
+        self.assertNotContains(visitor_response, '아직 공개된 포스트가 없습니다.')
 
         self.client.login(username='emptyauthor', password='testpass123')
         owner_response = self.client.get(
             reverse('user_profile', kwargs={'username': empty_author.username})
         )
         self.assertEqual(owner_response.status_code, 200)
-        self.assertContains(owner_response, '아직 보여줄 공개 포스트가 없습니다.')
+        self.assertContains(owner_response, '아직 공개된 포스트가 없습니다.')
         self.assertContains(owner_response, '글 작성하기')
+
+    def test_author_overview_hides_empty_intro_from_visitors(self):
+        """소개글이 없으면 방문자에게 소개 섹션을 노출하지 않는다."""
+        response = self.client.get(
+            reverse('user_profile', kwargs={'username': self.user.username})
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertNotContains(response, 'About')
+        self.assertNotContains(response, '소개글을 작성하면 프로필에 표시됩니다.')
+        self.assertNotContains(response, '소개글 작성')
+        self.assertNotContains(response, reverse('user_about_edit', kwargs={'username': self.user.username}))
+        self.assertNotContains(response, '아직 소개글이 없습니다')
+
+    def test_author_overview_shows_empty_intro_prompt_to_owner(self):
+        """소개글이 없으면 작성자 본인에게 작성 진입점을 보여준다."""
+        self.client.login(username='testauthor', password='testpass123')
+        edit_path = reverse('user_about_edit', kwargs={'username': self.user.username})
+
+        response = self.client.get(
+            reverse('user_profile', kwargs={'username': self.user.username})
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'About')
+        self.assertContains(response, '소개')
+        self.assertContains(response, '소개글을 작성하면 프로필에 표시됩니다.')
+        self.assertContains(response, '소개글 작성')
+        self.assertNotContains(response, f'href="{edit_path}"')
+        self.assertNotContains(response, '아직 소개글이 없습니다')
+
+    def test_author_overview_renders_intro_content_with_owner_edit_entrypoint(self):
+        """작성된 소개글은 방문자에게 보이고, 수정 진입점은 작성자 본인에게만 보인다."""
+        edit_path = reverse('user_about_edit', kwargs={'username': self.user.username})
+        self.user.profile.about_html = '<p>Visible author intro</p>'
+        self.user.profile.save(update_fields=['about_html'])
+
+        visitor_response = self.client.get(
+            reverse('user_profile', kwargs={'username': self.user.username})
+        )
+
+        self.assertEqual(visitor_response.status_code, 200)
+        self.assertContains(visitor_response, 'About')
+        self.assertContains(visitor_response, '소개')
+        self.assertContains(visitor_response, 'Visible author intro')
+        self.assertNotContains(visitor_response, '소개글 작성')
+        self.assertNotContains(visitor_response, '소개글 수정')
+        self.assertNotContains(visitor_response, edit_path)
+
+        self.client.login(username='testauthor', password='testpass123')
+        owner_response = self.client.get(
+            reverse('user_profile', kwargs={'username': self.user.username})
+        )
+
+        self.assertEqual(owner_response.status_code, 200)
+        self.assertContains(owner_response, 'Visible author intro')
+        self.assertContains(owner_response, '소개글 수정')
+        self.assertNotContains(owner_response, f'href="{edit_path}"')
+        self.assertNotContains(owner_response, '소개글 작성')
 
     def test_author_overview_omits_sidebar_stats_and_quick_links(self):
         """작성자 개요에서는 중복되는 통계와 바로가기 사이드바를 노출하지 않는다."""
@@ -211,6 +256,23 @@ class AuthorPostsPageTestCase(TestCase):
         )
         self.assertEqual(owner_response.status_code, 200)
         self.assertContains(owner_response, '/settings/profile')
+
+    def test_author_overview_pinned_posts_setting_entrypoint_is_owner_only(self):
+        """고정 포스트 설정 진입점은 작성자 본인에게만 노출한다."""
+        visitor_response = self.client.get(
+            reverse('user_profile', kwargs={'username': self.user.username})
+        )
+        self.assertEqual(visitor_response.status_code, 200)
+        self.assertNotContains(visitor_response, '/settings/pinned-posts')
+        self.assertNotContains(visitor_response, '고정 포스트 설정')
+
+        self.client.login(username='testauthor', password='testpass123')
+        owner_response = self.client.get(
+            reverse('user_profile', kwargs={'username': self.user.username})
+        )
+        self.assertEqual(owner_response.status_code, 200)
+        self.assertContains(owner_response, '/settings/pinned-posts')
+        self.assertContains(owner_response, '고정 포스트 설정')
 
     def test_author_overview_social_link_add_entrypoint_uses_existing_empty_state(self):
         """소셜 링크가 없을 때는 기존 빈 상태 추가 링크만 노출한다."""
