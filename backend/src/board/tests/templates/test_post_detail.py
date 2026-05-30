@@ -46,6 +46,11 @@ class PostDetailViewTestCase(TestCase):
         setting.aeo_enabled = True
         setting.save(update_fields=['aeo_enabled'])
 
+    def set_post_dates(self, published_date, updated_date):
+        self.post.published_date = published_date
+        self.post.updated_date = updated_date
+        self.post.save(update_fields=['published_date', 'updated_date'])
+
     def test_post_detail_context_has_toc(self):
         url = reverse('post_detail', kwargs={
             'username': 'testauthor',
@@ -207,6 +212,11 @@ class PostDetailViewTestCase(TestCase):
         self.assertNotContains(response, 'aria-label="AI용 Markdown 복사"')
         self.assertNotContains(response, 'data-ai-markdown-url=')
         self.assertNotContains(response, 'data-agent-copy-url=')
+        self.assertContains(response, '일반 링크')
+        self.assertContains(response, 'X에 공유')
+        self.assertContains(response, 'fa-x-twitter')
+        self.assertContains(response, 'LinkedIn에 공유')
+        self.assertContains(response, 'Facebook에 공유')
         self.assertNotContains(response, '*.md 참조 주소')
 
     def test_post_detail_uses_noindex_only_when_seo_disabled(self):
@@ -226,6 +236,55 @@ class PostDetailViewTestCase(TestCase):
         self.assertNotContains(response, 'max-snippet:-1')
         self.assertEqual(response['X-Robots-Tag'], 'noindex, nofollow')
 
+    def test_post_detail_hides_updated_date_when_display_date_matches(self):
+        """표시 날짜가 같으면 초 단위 updated_date 차이를 수정 표시로 보여주지 않는다."""
+        self.set_post_dates(
+            timezone.make_aware(datetime.datetime(2026, 5, 30, 10, 0, 0)),
+            timezone.make_aware(datetime.datetime(2026, 5, 30, 18, 0, 0)),
+        )
+
+        response = self.client.get(reverse('post_detail', kwargs={
+            'username': 'testauthor',
+            'post_url': 'test-post'
+        }))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertFalse(response.context['show_post_updated_date'])
+        self.assertContains(response, '2026-05-30 발행')
+        self.assertNotContains(response, '2026-05-30 수정')
+        self.assertNotContains(response, '수정일')
+
+    def test_post_detail_shows_updated_date_when_display_date_differs(self):
+        """표시 날짜가 다르면 상단 메타와 글 정보에 수정일을 보여준다."""
+        self.set_post_dates(
+            timezone.make_aware(datetime.datetime(2026, 5, 30, 10, 0, 0)),
+            timezone.make_aware(datetime.datetime(2026, 5, 31, 10, 0, 0)),
+        )
+
+        response = self.client.get(reverse('post_detail', kwargs={
+            'username': 'testauthor',
+            'post_url': 'test-post'
+        }))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(response.context['show_post_updated_date'])
+        self.assertContains(response, '2026-05-30 발행')
+        self.assertContains(response, '2026-05-31 수정')
+        self.assertContains(response, '수정일')
+
+    def test_post_detail_shows_post_info_section(self):
+        """포스트 상세 하단에 사람이 확인할 수 있는 글 정보를 보여준다."""
+        response = self.client.get(reverse('post_detail', kwargs={
+            'username': 'testauthor',
+            'post_url': 'test-post'
+        }))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, '글 정보')
+        self.assertContains(response, '작성자')
+        self.assertContains(response, '최초 발행')
+        self.assertContains(response, '/@testauthor')
+
     def test_post_detail_shows_agent_link_copy_option_when_aeo_enabled(self):
         """AEO가 켜져 있으면 링크 복사 드롭다운에 .md 참조 링크 옵션을 표시한다."""
         self.enable_aeo()
@@ -238,6 +297,8 @@ class PostDetailViewTestCase(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertNotContains(response, 'aria-label="AI용 Markdown 복사"')
         self.assertNotContains(response, 'data-ai-markdown-url=')
+        self.assertContains(response, 'X에 공유')
+        self.assertContains(response, 'LinkedIn에 공유')
         self.assertContains(response, '에이전트용 링크')
         self.assertContains(response, '*.md 참조 주소')
 
@@ -288,6 +349,25 @@ class PostDetailViewTestCase(TestCase):
             response['Link']
         )
         self.assertEqual(response['X-Llms-Txt'], llms_txt_url)
+
+    def test_post_detail_hides_markdown_source_for_hidden_post_when_aeo_enabled(self):
+        """AEO가 켜져 있어도 공개 글이 아니면 Markdown 원문을 노출하지 않는다."""
+        self.enable_aeo()
+        self.post.config.hide = True
+        self.post.config.save(update_fields=['hide'])
+        self.client.login(username='testauthor', password='password123')
+
+        response = self.client.get(reverse('post_detail', kwargs={
+            'username': 'testauthor',
+            'post_url': 'test-post'
+        }))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertFalse(response.context['show_agent_post_markdown'])
+        self.assertNotContains(response, 'data-agent-copy-url=')
+        self.assertNotContains(response, '*.md 참조 주소')
+        self.assertNotIn('Link', response)
+        self.assertNotIn('X-Llms-Txt', response)
 
     def test_post_detail_shows_hidden_status_notice_for_author(self):
         """비공개 글은 작성자에게 항상 상단 상태 안내를 보여준다."""
