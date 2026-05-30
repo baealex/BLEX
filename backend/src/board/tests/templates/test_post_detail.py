@@ -214,6 +214,7 @@ class PostDetailViewTestCase(TestCase):
         self.assertNotContains(response, 'data-agent-copy-url=')
         self.assertContains(response, '일반 링크')
         self.assertContains(response, 'X에 공유')
+        self.assertContains(response, 'fa-x-twitter')
         self.assertContains(response, 'LinkedIn에 공유')
         self.assertContains(response, 'Facebook에 공유')
         self.assertNotContains(response, '*.md 참조 주소')
