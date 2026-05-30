@@ -1,6 +1,7 @@
 import { Node, ReactNodeViewRenderer } from '@tiptap/react';
 import { VideoNodeView } from '../components/nodeviews/VideoNodeView';
 import { buildFigureAttrsForHTML } from '../utils/mediaStyles';
+import { normalizeMediaUrlForStorage } from '../utils/mediaUrls';
 
 export const VideoNode = Node.create({
     name: 'video',
@@ -78,7 +79,7 @@ export const VideoNode = Node.create({
                     const source = video.querySelector('source');
 
                     // data-src가 있으면 즉시 src로 사용 (lazy 로딩 제거)
-                    let finalSrc = video.src || source?.src || null;
+                    let finalSrc = video.getAttribute('src') || source?.getAttribute('src') || video.src || source?.src || null;
                     const dataSrc = source?.getAttribute('data-src') || video.getAttribute('data-src') || null;
                     if (dataSrc) {
                         finalSrc = dataSrc;
@@ -89,8 +90,8 @@ export const VideoNode = Node.create({
                     const playMode = hasControls ? 'video' : 'gif';
 
                     return {
-                        src: finalSrc,
-                        poster: video.poster || null,
+                        src: normalizeMediaUrlForStorage(finalSrc),
+                        poster: normalizeMediaUrlForStorage(video.getAttribute('poster') || video.poster || null),
                         width: video.width || null,
                         height: video.height || null,
                         align: figure.style.textAlign || figure.getAttribute('data-align') || 'center',
@@ -117,7 +118,7 @@ export const VideoNode = Node.create({
                     const source = video.querySelector('source');
 
                     // data-src가 있으면 즉시 src로 사용 (lazy 로딩 제거)
-                    let finalSrc = video.src || source?.src || null;
+                    let finalSrc = video.getAttribute('src') || source?.getAttribute('src') || video.src || source?.src || null;
                     const dataSrc = source?.getAttribute('data-src') || video.getAttribute('data-src') || null;
                     if (dataSrc) {
                         finalSrc = dataSrc;
@@ -128,8 +129,8 @@ export const VideoNode = Node.create({
                     const playMode = hasControls ? 'video' : 'gif';
 
                     return {
-                        src: finalSrc,
-                        poster: video.poster || null,
+                        src: normalizeMediaUrlForStorage(finalSrc),
+                        poster: normalizeMediaUrlForStorage(video.getAttribute('poster') || video.poster || null),
                         width: video.width || null,
                         height: video.height || null,
                         align: 'center',
@@ -182,7 +183,7 @@ export const VideoNode = Node.create({
             videoAttrs.controls = '';
         }
 
-        if (poster) videoAttrs.poster = poster;
+        if (poster) videoAttrs.poster = normalizeMediaUrlForStorage(poster);
         if (width) videoAttrs.width = width;
         if (height) videoAttrs.height = height;
 
@@ -203,7 +204,7 @@ export const VideoNode = Node.create({
         }
 
         const sourceAttrs: Record<string, string> = { type: 'video/mp4' };
-        if (src) sourceAttrs.src = src;
+        if (src) sourceAttrs.src = normalizeMediaUrlForStorage(src);
 
         // figure 스타일 (공유 유틸 사용)
         const { attrs: figureAttrs } = buildFigureAttrsForHTML({

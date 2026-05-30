@@ -1,9 +1,10 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useEditor, EditorContent } from '@tiptap/react';
 import MenuBar from './components/menus/MenuBar';
 import { getEditorExtensions } from './config/editorConfig';
 import { hasProseMirrorSliceData } from './config/mediaUpload';
 import { useImageUpload } from './hooks/useImageUpload';
+import { normalizeMediaUrlsInHtml } from './utils/mediaUrls';
 
 interface TiptapEditorProps {
     name: string;
@@ -14,6 +15,7 @@ interface TiptapEditorProps {
     placeholder?: string;
     onImageUpload?: (file: File) => Promise<string | undefined>;
     onImageUploadError?: (errorMessage: string) => void;
+    onUploadStateChange?: (isUploading: boolean) => void;
 }
 
 interface HandlersRef {
@@ -44,11 +46,12 @@ const TiptapEditor = ({
     height = 'auto',
     placeholder = '내용을 입력하세요…',
     onImageUpload,
-    onImageUploadError
+    onImageUploadError,
+    onUploadStateChange
 }: TiptapEditorProps) => {
     const handleChange = (html: string) => {
         if (onChange) {
-            onChange(html);
+            onChange(normalizeMediaUrlsInHtml(html));
         }
     };
 
@@ -56,6 +59,7 @@ const TiptapEditor = ({
         handleImagePaste: () => {},
         handleMediaDrop: () => false
     });
+    const [isMenuUploading, setIsMenuUploading] = useState(false);
 
     const editor = useEditor({
         extensions: getEditorExtensions(placeholder),
@@ -164,6 +168,12 @@ const TiptapEditor = ({
         onImageUpload,
         onImageUploadError
     });
+    const isEditorUploading = isUploading || isMenuUploading;
+
+    useEffect(() => {
+        onUploadStateChange?.(isEditorUploading);
+        return () => onUploadStateChange?.(false);
+    }, [isEditorUploading, onUploadStateChange]);
 
     useEffect(() => {
         handlersRef.current = {
@@ -206,7 +216,7 @@ const TiptapEditor = ({
         if (editor && content !== undefined) {
             const currentContent = removeUploadPlaceholders(editor.getHTML());
             if (content !== currentContent && !editor.isFocused) {
-                const cleanedContent = content
+                const cleanedContent = normalizeMediaUrlsInHtml(content)
                     .replace(/\.preview\.jpg/g, '')
                     .replace(/data-src="([^"]+)"/g, 'src="$1"')
                     .replace(/class="[^"]*lazy[^"]*"/g, '')
@@ -219,19 +229,24 @@ const TiptapEditor = ({
 
     return (
         <div style={{ minHeight: height }}>
-            <input type="hidden" name={name} value={editor ? removeUploadPlaceholders(editor.getHTML()) : content} />
+            <input
+                type="hidden"
+                name={name}
+                value={normalizeMediaUrlsInHtml(editor ? removeUploadPlaceholders(editor.getHTML()) : content)}
+            />
 
             {editable && (
                 <MenuBar
                     editor={editor}
                     onImageUpload={onImageUpload}
                     onImageUploadError={onImageUploadError}
+                    onUploadStateChange={setIsMenuUploading}
                 />
             )}
 
             <EditorContent editor={editor} />
 
-            {isUploading && (
+            {isEditorUploading && (
                 <div
                     role="status"
                     aria-live="polite"

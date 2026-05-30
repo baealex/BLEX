@@ -11,6 +11,7 @@ import {
     ACCEPTED_VIDEO_TYPES,
     hasProseMirrorSliceData
 } from '../config/mediaUpload';
+import { normalizeMediaUrlForStorage } from '../utils/mediaUrls';
 
 interface UseImageUploadProps {
     editor: Editor | null;
@@ -316,7 +317,8 @@ export const useImageUpload = ({ editor, onImageUpload, onImageUploadError }: Us
                 return slot.positionTracker.getPosition();
             }
 
-            const url = await onImageUpload(slot.file);
+            const uploadedUrl = await onImageUpload(slot.file);
+            const url = normalizeMediaUrlForStorage(uploadedUrl);
 
             if (url) {
                 const activePlaceholder = getActivePlaceholder(slot);

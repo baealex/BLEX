@@ -207,9 +207,21 @@ class PostService:
         if image is not None:
             new_hash = PostService._compute_image_hash(image)
 
-            existing = Post.objects.filter(
+            if (
+                post.pk
+                and post.image
+                and post.image_hash == new_hash
+                and post.image.storage.exists(post.image.name)
+            ):
+                return
+
+            existing_images = Post.objects.filter(
                 image_hash=new_hash,
-            ).exclude(image='').first()
+            ).exclude(image='')
+            if post.pk:
+                existing_images = existing_images.exclude(pk=post.pk)
+
+            existing = existing_images.first()
 
             if existing and existing.image and existing.image.storage.exists(existing.image.name):
                 if post.image:

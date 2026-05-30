@@ -55,6 +55,7 @@ const EditPostEditor = ({ username, postUrl }: EditPostEditorProps) => {
         url: ''
     });
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [isEditorMediaUploading, setIsEditorMediaUploading] = useState(false);
 
     const formRef = useRef<HTMLFormElement>(null);
     const initialDataRef = useRef<DirtySnapshot | null>(null);
@@ -210,6 +211,11 @@ const EditPostEditor = ({ username, postUrl }: EditPostEditorProps) => {
     const submitCurrentPost = async (isDraft = false) => {
         if (!validateForm()) return;
 
+        if (isEditorMediaUploading) {
+            toast.warning('파일 업로드가 끝난 뒤 수정해주세요.');
+            return;
+        }
+
         setIsSubmitting(true);
         try {
             const form = formRef.current;
@@ -313,6 +319,7 @@ const EditPostEditor = ({ username, postUrl }: EditPostEditorProps) => {
                 onImageUpload={handleImageUpload}
                 onEditorImageUpload={handleEditorImageUpload}
                 onEditorImageUploadError={(errorMessage) => toast.error(errorMessage)}
+                onEditorUploadStateChange={setIsEditorMediaUploading}
                 onRemoveImage={handleRemoveImage}
             />
 
@@ -321,6 +328,7 @@ const EditPostEditor = ({ username, postUrl }: EditPostEditorProps) => {
                 mode="edit"
                 isSaving={false}
                 isSubmitting={isSubmitting}
+                isMediaUploading={isEditorMediaUploading}
                 lastSaved={null}
                 onManualSave={() => { }}
                 onSubmit={() => handleSubmit()}

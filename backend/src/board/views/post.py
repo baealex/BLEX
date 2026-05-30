@@ -44,7 +44,13 @@ def post_detail(request, username, post_url):
     ):
         raise Http404("Post does not exist")
 
-    post.created_date_display = post.published_date.strftime('%Y-%m-%d')
+    post.created_date_display = timezone.localtime(post.published_date).strftime('%Y-%m-%d')
+    post.updated_date_display = timezone.localtime(post.updated_date).strftime('%Y-%m-%d')
+    show_post_updated_date = post.created_date_display != post.updated_date_display
+
+    author_profile = getattr(author, 'profile', None)
+    author_bio = author_profile.bio.strip() if author_profile and author_profile.bio else ''
+    author_homepage = author_profile.homepage.strip() if author_profile and author_profile.homepage else ''
 
     # Initialize series attributes to avoid AttributeError
     post.series_total = 0
@@ -95,6 +101,9 @@ def post_detail(request, username, post_url):
         'can_edit_post': can_edit_post,
         'post_visibility_status': post_visibility_status,
         'show_agent_post_markdown': show_agent_post_markdown,
+        'show_post_updated_date': show_post_updated_date,
+        'author_bio': author_bio,
+        'author_homepage': author_homepage,
         **DiscoveryMetadataService.build_user_rss_feed_metadata(author, request),
     }
     if show_agent_post_markdown:

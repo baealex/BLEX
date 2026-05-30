@@ -1,6 +1,7 @@
 import { Node, ReactNodeViewRenderer } from '@tiptap/react';
 import { ImageNodeView } from '../components/nodeviews/ImageNodeView';
 import { buildFigureAttrsForHTML } from '../utils/mediaStyles';
+import { normalizeMediaUrlForStorage } from '../utils/mediaUrls';
 
 export const CustomImage = Node.create({
     name: 'image',
@@ -45,7 +46,7 @@ export const CustomImage = Node.create({
 
                     if (!img) return false;
 
-                    let src = img.src || img.getAttribute('src') || '';
+                    let src = img.getAttribute('src') || img.src || '';
 
                     if (img.dataset.src) {
                         src = img.dataset.src;
@@ -55,7 +56,7 @@ export const CustomImage = Node.create({
                     }
 
                     return {
-                        src,
+                        src: normalizeMediaUrlForStorage(src),
                         alt: img.alt || null,
                         title: img.title || null,
                         width: img.width || null,
@@ -76,7 +77,7 @@ export const CustomImage = Node.create({
                 tag: 'img',
                 getAttrs: (element) => {
                     const img = element as HTMLImageElement;
-                    let src = img.src || img.getAttribute('src') || '';
+                    let src = img.getAttribute('src') || img.src || '';
 
                     if (img.dataset.src) {
                         src = img.dataset.src;
@@ -86,7 +87,7 @@ export const CustomImage = Node.create({
                     }
 
                     return {
-                        src,
+                        src: normalizeMediaUrlForStorage(src),
                         alt: img.alt || null,
                         title: img.title || null,
                         width: img.width || null,
@@ -112,7 +113,7 @@ export const CustomImage = Node.create({
         } = HTMLAttributes;
 
         const imgAttrs: Record<string, string> = {
-            src: src || '',
+            src: normalizeMediaUrlForStorage(src) || '',
             alt: alt || ''
         };
 
