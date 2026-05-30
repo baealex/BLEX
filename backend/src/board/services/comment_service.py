@@ -10,11 +10,14 @@ from typing import Optional, Set, Tuple
 
 from django.contrib.auth.models import User
 from django.db import transaction
+from django.db.models import Case, Count, Exists, OuterRef, Value, When
+from django.http import Http404
 
 from board.constants.config_meta import CONFIG_TYPE
 from board.models import Comment, Post
 from board.modules.notify import create_notify
 from board.modules.response import ErrorCode
+from board.services.public_post_service import PublicPostService
 from modules import markdown
 
 
@@ -29,6 +32,37 @@ class CommentValidationError(Exception):
 class CommentService:
     """Service class for handling comment-related business logic"""
     MENTION_PATTERN = re.compile(r'`@([a-zA-Z0-9\.\_\-\+]*)`\s?')
+
+    @staticmethod
+    def get_comment_queryset(user: User):
+        user_id = user.id if user.id else -1
+
+        return Comment.objects.select_related(
+            'author',
+            'author__config',
+            'author__profile',
+            'post',
+            'post__config',
+        ).annotate(
+            count_likes=Count('likes', distinct=True),
+            has_liked=Case(
+                When(
+                    Exists(
+                        Comment.objects.filter(
+                            id=OuterRef('id'),
+                            likes__id=user_id,
+                        )
+                    ),
+                    then=Value(True),
+                ),
+                default=Value(False),
+            ),
+        )
+
+    @staticmethod
+    def validate_comment_belongs_to_public_post(comment: Comment) -> None:
+        if not PublicPostService.is_public(comment.post):
+            raise Http404
 
     @staticmethod
     def validate_user_can_comment(user: User) -> None:
@@ -94,7 +128,7 @@ class CommentService:
         Raises:
             CommentValidationError: If user cannot edit
         """
-        if user != comment.author:
+        if not CommentService.can_user_edit_comment(user, comment):
             raise CommentValidationError(
                 ErrorCode.AUTHENTICATION,
                 '댓글 수정 권한이 없습니다.'
@@ -112,7 +146,7 @@ class CommentService:
         Raises:
             CommentValidationError: If user cannot delete
         """
-        if user != comment.author:
+        if not CommentService.can_user_delete_comment(user, comment):
             raise CommentValidationError(
                 ErrorCode.AUTHENTICATION,
                 '댓글 삭제 권한이 없습니다.'
@@ -147,6 +181,16 @@ class CommentService:
                 ErrorCode.REJECT,
                 '삭제된 댓글입니다.'
             )
+
+    @staticmethod
+    def get_edit_markdown(user: User, comment: Comment) -> str:
+        CommentService.validate_comment_belongs_to_public_post(comment)
+
+        if comment.is_deleted():
+            raise Http404
+
+        CommentService.validate_user_can_edit(user, comment)
+        return comment.text_md
 
     @staticmethod
     def extract_mentioned_users(text_md: str) -> Set[str]:
@@ -385,6 +429,13 @@ class CommentService:
 
     @staticmethod
     @transaction.atomic
+    def update_public_comment(user: User, comment: Comment, text_md: str) -> Comment:
+        CommentService.validate_comment_belongs_to_public_post(comment)
+        CommentService.validate_user_can_edit(user, comment)
+        return CommentService.update_comment(comment, text_md)
+
+    @staticmethod
+    @transaction.atomic
     def delete_comment(comment: Comment) -> Comment:
         """
         Soft delete comment by removing author.
@@ -398,6 +449,13 @@ class CommentService:
         comment.author = None
         comment.save()
         return comment
+
+    @staticmethod
+    @transaction.atomic
+    def delete_public_comment(user: User, comment: Comment) -> Comment:
+        CommentService.validate_comment_belongs_to_public_post(comment)
+        CommentService.validate_user_can_delete(user, comment)
+        return CommentService.delete_comment(comment)
 
     @staticmethod
     @transaction.atomic
@@ -430,6 +488,12 @@ class CommentService:
             return True, comment.likes.count()
 
     @staticmethod
+    @transaction.atomic
+    def toggle_public_comment_like(user: User, comment: Comment) -> Tuple[bool, int]:
+        CommentService.validate_comment_belongs_to_public_post(comment)
+        return CommentService.toggle_like(user, comment)
+
+    @staticmethod
     def can_user_edit_comment(user: User, comment: Comment) -> bool:
         """
         Check if user can edit comment.
@@ -455,6 +519,4 @@ class CommentService:
         Returns:
             True if user can delete, False otherwise
         """
-        return user.is_authenticated and (
-            user == comment.author or user.is_staff
-        )
+        return user.is_authenticated and user == comment.author
