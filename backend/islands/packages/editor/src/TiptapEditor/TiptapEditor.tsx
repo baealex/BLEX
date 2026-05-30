@@ -2,6 +2,7 @@ import { useEffect, useRef } from 'react';
 import { useEditor, EditorContent } from '@tiptap/react';
 import MenuBar from './components/menus/MenuBar';
 import { getEditorExtensions } from './config/editorConfig';
+import { hasProseMirrorSliceData } from './config/mediaUpload';
 import { useImageUpload } from './hooks/useImageUpload';
 
 interface TiptapEditorProps {
@@ -69,6 +70,7 @@ const TiptapEditor = ({
                         !dataTransfer
                         || dataTransfer.files.length > 0
                         || view.dragging
+                        || hasProseMirrorSliceData(dataTransfer)
                         || !mayContainExternalMediaReference(dataTransfer)
                     ) {
                         return false;
@@ -179,6 +181,7 @@ const TiptapEditor = ({
                 !dataTransfer
                 || dataTransfer.files.length > 0
                 || editor.view.dragging
+                || hasProseMirrorSliceData(dataTransfer)
                 || !mayContainExternalMediaReference(dataTransfer)
             ) {
                 return;

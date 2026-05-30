@@ -227,4 +227,59 @@ test.describe('PostEditor media drag and drop', () => {
         expect(html).not.toContain('remote-image.png');
         expectNoRuntimeErrors(errors);
     });
+
+    test('does not treat ProseMirror media node moves as external media drops', async ({ page }) => {
+        const errors = collectRuntimeSignals(page);
+        await mountPostEditor(page);
+
+        const editor = page.locator('.ProseMirror');
+        const dropPoint = await getVisibleDropPoint(editor);
+
+        await dispatchHtmlDrop(
+            page,
+            dropPoint,
+            '<div data-pm-slice="0 0 []"><figure><img src="https://example.com/internal-image.png" alt="Internal"></figure></div>'
+        );
+
+        await expect(page.locator('text=이미지나 비디오는 파일로 내려놓아 주세요.')).toHaveCount(0);
+        expectNoRuntimeErrors(errors);
+    });
+
+    test('drags an inserted image node without showing the external media warning', async ({ page }) => {
+        const errors = collectRuntimeSignals(page);
+        await page.route('**/v1/image', async (route) => {
+            await route.fulfill({
+                contentType: 'application/json',
+                body: JSON.stringify({
+                    status: 'DONE',
+                    body: { url: uploadedImageUrl }
+                })
+            });
+        });
+
+        await mountPostEditor(page);
+
+        const editor = page.locator('.ProseMirror');
+        await editor.click();
+        await page.keyboard.type('Alpha');
+        await page.keyboard.press('Enter');
+        await page.keyboard.type('Beta');
+        await page.keyboard.press('Enter');
+
+        await dispatchFileDrop(page, await getVisibleDropPoint(editor.locator('p').last()), {
+            name: 'move.png',
+            type: 'image/png'
+        });
+
+        await expect(editor.locator('figure img[src^="data:image/png"]')).toBeVisible();
+
+        const warning = page.locator('text=이미지나 비디오는 파일로 내려놓아 주세요.');
+        const dragHandle = editor.locator('figure [data-drag-handle]');
+        await expect(dragHandle).toBeVisible();
+
+        await dragHandle.dragTo(editor.locator('p').first(), { force: true });
+
+        await expect(warning).toHaveCount(0);
+        expectNoRuntimeErrors(errors);
+    });
 });

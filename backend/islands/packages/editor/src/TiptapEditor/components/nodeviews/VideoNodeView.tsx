@@ -1,9 +1,10 @@
 import { useRef, useEffect } from 'react';
 import { NodeViewWrapper } from '@tiptap/react';
 import type { NodeViewProps } from '@tiptap/react';
+import { NodeSelection } from '@tiptap/pm/state';
 import { getFigureStyle, getMediaStyle } from '../../utils/mediaStyles';
 
-export const VideoNodeView = ({ node, selected }: NodeViewProps) => {
+export const VideoNodeView = ({ node, selected, editor, getPos }: NodeViewProps) => {
     const videoRef = useRef<HTMLVideoElement>(null);
     const {
         src,
@@ -23,6 +24,15 @@ export const VideoNodeView = ({ node, selected }: NodeViewProps) => {
         muted,
         loop
     } = node.attrs;
+
+    const selectNode = () => {
+        const pos = typeof getPos === 'function' ? getPos() : null;
+        if (typeof pos !== 'number') return;
+
+        const { view } = editor;
+        view.dispatch(view.state.tr.setSelection(NodeSelection.create(view.state.doc, pos)));
+        view.focus();
+    };
 
     // 프로그래밍적으로 video 속성 제어 (HTML 어트리뷰트만으로는 muted가 안 먹힘)
     useEffect(() => {
@@ -88,6 +98,17 @@ export const VideoNodeView = ({ node, selected }: NodeViewProps) => {
                     </video>
                     {/* 투명 오버레이: 클릭 시 노드 선택 (네이티브 재생 차단) */}
                     <div
+                        data-drag-handle=""
+                        onMouseDown={(event) => {
+                            if (event.button === 0) {
+                                selectNode();
+                            }
+                        }}
+                        onClick={(event) => {
+                            event.preventDefault();
+                            event.stopPropagation();
+                            selectNode();
+                        }}
                         style={{
                             position: 'absolute',
                             top: 0,

@@ -8,7 +8,8 @@ import {
     ACCEPTED_IMAGE_EXTENSIONS,
     ACCEPTED_IMAGE_TYPES,
     ACCEPTED_VIDEO_EXTENSIONS,
-    ACCEPTED_VIDEO_TYPES
+    ACCEPTED_VIDEO_TYPES,
+    hasProseMirrorSliceData
 } from '../config/mediaUpload';
 
 interface UseImageUploadProps {
@@ -190,7 +191,7 @@ export const useImageUpload = ({ editor, onImageUpload, onImageUploadError }: Us
                 src: url,
                 align: 'center',
                 playMode: 'gif',
-                aspectRatio: null,
+                aspectRatio: '16:9',
                 objectFit: 'cover'
             };
 
@@ -433,6 +434,7 @@ export const useImageUpload = ({ editor, onImageUpload, onImageUploadError }: Us
 
         const dataTransfer = event.dataTransfer;
         if (!dataTransfer) return false;
+        if (hasProseMirrorSliceData(dataTransfer)) return false;
 
         const { mediaFiles, rejectedFiles } = getMediaFiles(dataTransfer.files);
         const hasExternalMedia = hasExternalMediaContent(dataTransfer);

@@ -10,6 +10,9 @@ export const SIZE_PRESETS: Record<string, number> = {
     large: 640
 };
 
+const MEDIA_BORDER_STYLE = '1px solid var(--color-line-strong, #d2d2d7)';
+const MEDIA_SHADOW_STYLE = '8px 8px 40px 2px var(--color-shadow-lg, rgba(0, 0, 0, 0.15))';
+
 /**
  * figure 컨테이너 스타일 (이미지/비디오 공용)
  */
@@ -55,11 +58,11 @@ export function getFigureStyle(attrs: {
 
     // 장식 속성 (기존 콘텐츠 호환용)
     if (attrs.border) {
-        style.border = '1px solid #e5e7eb';
+        style.border = MEDIA_BORDER_STYLE;
         style.overflow = 'hidden';
     }
     if (attrs.shadow) {
-        style.boxShadow = '8px 8px 40px 2px rgba(0, 0, 0, 0.15)';
+        style.boxShadow = MEDIA_SHADOW_STYLE;
     }
     if (attrs.borderRadius) {
         style.borderRadius = `${attrs.borderRadius}px`;
@@ -134,11 +137,11 @@ export function buildFigureAttrsForHTML(attrs: {
     }
 
     if (attrs.border) {
-        styles.push('border: 1px solid #e5e7eb', 'overflow: hidden');
+        styles.push(`border: ${MEDIA_BORDER_STYLE}`, 'overflow: hidden');
         result['data-border'] = 'true';
     }
     if (attrs.shadow) {
-        styles.push('box-shadow: 8px 8px 40px 2px rgba(0, 0, 0, 0.15)');
+        styles.push(`box-shadow: ${MEDIA_SHADOW_STYLE}`);
         result['data-shadow'] = 'true';
     }
     if (attrs.borderRadius) {

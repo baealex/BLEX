@@ -12,3 +12,8 @@ export const ACCEPTED_VIDEO_INPUT_TYPES = [
     ...ACCEPTED_VIDEO_TYPES,
     ...ACCEPTED_VIDEO_EXTENSIONS.map(extension => `.${extension}`)
 ].join(',');
+
+export const hasProseMirrorSliceData = (dataTransfer: DataTransfer) => {
+    return Array.from(dataTransfer.types).includes('application/x-prosemirror-slice')
+        || dataTransfer.getData('text/html').includes('data-pm-slice');
+};
