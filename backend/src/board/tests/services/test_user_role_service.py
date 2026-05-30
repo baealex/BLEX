@@ -10,7 +10,7 @@ from board.services.user_role_service import UserRoleService
 
 class UserRoleServiceTestCase(TestCase):
     def test_set_superuser_status_grants_editor_role(self):
-        """관리자 승격 시 첫 글을 쓸 수 있도록 편집자 권한도 부여한다."""
+        """관리자 승격 시 첫 글을 쓸 수 있도록 작가 권한도 부여한다."""
         user = User.objects.create_user(username='first-admin', password='password123')
         Profile.objects.create(user=user, role=Profile.Role.READER)
 
@@ -23,7 +23,7 @@ class UserRoleServiceTestCase(TestCase):
         self.assertEqual(user.profile.role, Profile.Role.EDITOR)
 
     def test_set_superuser_status_creates_missing_profile(self):
-        """Django 기본 관리자 생성 계정도 편집자 프로필을 갖게 한다."""
+        """Django 기본 관리자 생성 계정도 작가 프로필을 갖게 한다."""
         user = User.objects.create_user(username='django-admin', password='password123')
 
         UserRoleService.set_superuser_status(user, True)

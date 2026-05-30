@@ -98,8 +98,8 @@ class CustomUserAdmin(BaseUserAdmin):
 
     def make_editor(self, request: HttpRequest, queryset: QuerySet[User]) -> None:
         count = UserRoleService.set_users_role(queryset, Profile.Role.EDITOR)
-        self.message_user(request, f'{count}명의 사용자를 편집자로 변경했습니다.')
-    make_editor.short_description = '선택한 사용자를 편집자로 변경'
+        self.message_user(request, f'{count}명의 사용자를 작가로 변경했습니다.')
+    make_editor.short_description = '선택한 사용자를 작가로 변경'
 
     def make_reader(self, request: HttpRequest, queryset: QuerySet[User]) -> None:
         count = UserRoleService.set_users_role(queryset, Profile.Role.READER)
@@ -320,8 +320,8 @@ class ProfileAdmin(admin.ModelAdmin):
 
     def set_role_editor(self, request: HttpRequest, queryset: QuerySet[Profile]) -> None:
         count = UserRoleService.set_profiles_role(queryset, Profile.Role.EDITOR)
-        self.message_user(request, f'{count}명의 프로필을 편집자로 변경했습니다.')
-    set_role_editor.short_description = '역할을 편집자로 변경'
+        self.message_user(request, f'{count}명의 프로필을 작가로 변경했습니다.')
+    set_role_editor.short_description = '역할을 작가로 변경'
 
     def set_role_reader(self, request: HttpRequest, queryset: QuerySet[Profile]) -> None:
         count = UserRoleService.set_profiles_role(queryset, Profile.Role.READER)

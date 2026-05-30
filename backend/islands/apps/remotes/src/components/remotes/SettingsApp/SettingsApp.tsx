@@ -33,6 +33,7 @@ const SiteSettingSetting = lazy(() => import('./pages/SiteSettingSetting'));
 const SeoAeoSetting = lazy(() => import('./pages/SeoAeoSetting'));
 const StaticPagesSetting = lazy(() => import('./pages/StaticPagesSetting'));
 const UtilitySetting = lazy(() => import('./pages/UtilitySetting'));
+const UserManagementSetting = lazy(() => import('./pages/UserManagementSetting'));
 
 // Lazy load fullscreen editors
 const SeriesEditor = lazy(() => import('./pages/SeriesSetting/components/SeriesEditor'));
@@ -233,6 +234,12 @@ const utilitiesRoute = createRoute({
     component: UtilitySetting
 });
 
+const userManagementRoute = createRoute({
+    getParentRoute: () => settingsRoute,
+    path: '/users',
+    component: UserManagementSetting
+});
+
 // Layout-less routes for fullscreen editors
 const staticPageCreateRoute = createRoute({
     getParentRoute: () => rootRoute,
@@ -334,7 +341,8 @@ const routeTree = rootRoute.addChildren([
         siteSettingsRoute,
         seoAeoRoute,
         staticPagesRoute,
-        utilitiesRoute
+        utilitiesRoute,
+        userManagementRoute
     ])
 ]);
 

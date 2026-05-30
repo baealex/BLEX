@@ -552,7 +552,7 @@ class AgentContentTestCase(TestCase):
         self.assertNotIn('<h2>', body)
 
     def test_post_markdown_endpoint_converts_html_when_text_md_is_empty(self):
-        """신규 에디터처럼 Markdown 원본이 없어도 HTML에서 AI용 Markdown을 만든다."""
+        """신규 작가처럼 Markdown 원본이 없어도 HTML에서 AI용 Markdown을 만든다."""
         response = self.client.get('/@aeo-author/new-editor-agent-post.md')
 
         self.assertEqual(response.status_code, 200)
@@ -563,7 +563,7 @@ class AgentContentTestCase(TestCase):
         self.assertNotIn('<p>', body)
 
     def test_post_markdown_endpoint_exports_rich_editor_html_losslessly(self):
-        """신규 에디터의 rich HTML은 안전한 변환과 원본 HTML 보존을 함께 사용한다."""
+        """신규 작가의 rich HTML은 안전한 변환과 원본 HTML 보존을 함께 사용한다."""
         response = self.client.get('/@aeo-author/rich-editor-agent-post.md')
 
         self.assertEqual(response.status_code, 200)

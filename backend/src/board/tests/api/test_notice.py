@@ -51,7 +51,7 @@ class NoticeAPITestCase(TestCase):
         self.assertEqual(content['errorCode'], 'error:NL')
 
     def test_get_notices_normal_user(self):
-        """일반 유저(비에디터)가 공지 조회 시 권한 거부 테스트"""
+        """일반 유저(비작가)가 공지 조회 시 권한 거부 테스트"""
         client = Client(HTTP_USER_AGENT='Mozilla/5.0')
         client.login(username='normaluser', password='test')
         response = client.get('/v1/notices')

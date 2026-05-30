@@ -82,3 +82,19 @@ class SettingsViewTestCase(TestCase):
 
         self.assertEqual(response.status_code, 302)
         self.assertEqual(response['Location'], '/admin-settings/seo-aeo')
+
+    def test_reader_gets_404_for_legacy_admin_users_url(self):
+        client = Client(raise_request_exception=False)
+        client.login(username='settings-reader', password='password123')
+
+        response = client.get('/settings/users')
+
+        self.assertEqual(response.status_code, 404)
+
+    def test_legacy_admin_users_url_redirects_to_admin_namespace(self):
+        self.client.login(username='settings-staff', password='password123')
+
+        response = self.client.get('/settings/users')
+
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response['Location'], '/admin-settings/users')

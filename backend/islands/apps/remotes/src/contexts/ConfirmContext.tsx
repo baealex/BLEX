@@ -100,7 +100,7 @@ export const ConfirmProvider = ({ children }: { children: ReactNode }) => {
                     </Modal.FooterAction>
                     <Modal.FooterAction
                         type="button"
-                        variant={dialogState.variant === 'danger' ? 'danger' : 'primary'}
+                        variant={dialogState.variant === 'danger' ? 'danger-solid' : 'primary'}
                         onClick={handleConfirm}>
                         {dialogState.confirmText}
                     </Modal.FooterAction>

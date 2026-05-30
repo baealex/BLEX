@@ -53,7 +53,7 @@ def editor_required(view_func):
             return redirect('login')
 
         if not AuthoringPermissionService.is_active_editor(request.user):
-            messages.error(request, '편집자 권한이 필요합니다. 관리자에게 문의하세요.')
+            messages.error(request, '작가 권한이 필요합니다. 관리자에게 문의하세요.')
             return redirect('index')
 
         return view_func(request, *args, **kwargs)

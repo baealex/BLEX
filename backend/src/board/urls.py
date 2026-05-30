@@ -139,6 +139,10 @@ urlpatterns = [
     path('v1/static-pages', api_v1.static_pages),
     path('v1/static-pages/<int:page_id>', api_v1.static_pages),
     path('v1/markdown', api_v1.markdown_to_html),
+    path('v1/admin/users', api_v1.managed_users),
+    path('v1/admin/users/<int:user_id>/role', api_v1.managed_user_role),
+    path('v1/admin/author-invites', api_v1.author_invites),
+    path('v1/admin/author-invites/<int:invite_id>', api_v1.author_invite_detail),
 
     # Utility endpoints
     path('v1/utilities/stats', api_v1.utility_stats),

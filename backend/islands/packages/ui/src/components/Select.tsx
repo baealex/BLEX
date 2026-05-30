@@ -15,6 +15,7 @@ interface SelectProps {
     placeholder?: string;
     error?: string;
     className?: string;
+    disabled?: boolean;
 }
 
 const Select = ({
@@ -23,7 +24,8 @@ const Select = ({
     items,
     placeholder = '선택하세요',
     error,
-    className = ''
+    className = '',
+    disabled = false
 }: SelectProps) => {
     // Convert empty string to internal placeholder value
     const internalValue = value === '' ? EMPTY_VALUE : value;
@@ -45,7 +47,7 @@ const Select = ({
 
     return (
         <div>
-            <RadixSelect.Root value={internalValue} onValueChange={handleValueChange}>
+            <RadixSelect.Root value={internalValue} onValueChange={handleValueChange} disabled={disabled}>
                 <RadixSelect.Trigger
                     aria-invalid={!!error}
                     className={`
@@ -54,6 +56,7 @@ const Select = ({
                         text-sm text-content
                         hover:border-line-strong focus:outline-none focus:ring-2 focus:ring-line/70 focus:border-line-strong
                         transition-colors cursor-pointer
+                        disabled:cursor-not-allowed disabled:opacity-50
                         data-[placeholder]:text-content-hint
                         ${errorStyles}
                         ${className}

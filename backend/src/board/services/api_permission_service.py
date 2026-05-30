@@ -25,7 +25,7 @@ class ApiPermissionService:
             return login_error
 
         if not AuthoringPermissionService.is_active_editor(user):
-            return StatusError(ErrorCode.REJECT, '에디터 권한이 필요합니다.')
+            return StatusError(ErrorCode.REJECT, '작가 권한이 필요합니다.')
 
         return None
 
@@ -60,6 +60,6 @@ class ApiPermissionService:
             return StatusError(ErrorCode.AUTHENTICATION, '권한이 없습니다.')
 
         if not AuthoringPermissionService.is_active_editor(user):
-            return StatusError(ErrorCode.REJECT, '에디터 권한이 필요합니다.')
+            return StatusError(ErrorCode.REJECT, '작가 권한이 필요합니다.')
 
         return None
