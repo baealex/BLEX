@@ -200,35 +200,35 @@
 
                     <section class="border-t border-line-light pt-6" aria-labelledby="post-info-heading">
                         <h2 id="post-info-heading" class="text-base font-semibold text-content">글 정보</h2>
-                        <dl class="mt-4 grid gap-5 text-sm sm:grid-cols-2">
-                            <div>
-                                <dt class="text-xs font-medium text-content-hint">작성자</dt>
-                                <dd class="mt-1">
+                        <dl class="mt-4 divide-y divide-line-light text-sm">
+                            <div class="py-3 first:pt-0 sm:flex sm:items-start sm:gap-6">
+                                <dt class="text-xs font-medium text-content-hint sm:w-24 sm:flex-shrink-0">작성자</dt>
+                                <dd class="mt-1 min-w-0 sm:mt-0">
                                     <a href="/@{{ post.author_username }}" class="font-semibold text-content hover:text-content-secondary transition-colors">{{ post.author_username }}</a>
                                     {% if author_bio %}
                                     <p class="mt-1 leading-relaxed text-content-secondary">{{ author_bio }}</p>
                                     {% endif %}
                                 </dd>
                             </div>
-                            <div>
-                                <dt class="text-xs font-medium text-content-hint">최초 발행</dt>
-                                <dd class="mt-1 text-content-secondary">
+                            <div class="py-3 sm:flex sm:items-start sm:gap-6">
+                                <dt class="text-xs font-medium text-content-hint sm:w-24 sm:flex-shrink-0">최초 발행</dt>
+                                <dd class="mt-1 text-content-secondary sm:mt-0">
                                     <time datetime="{{ post.published_date|date:'c' }}">{{ post.created_date_display }}</time>
                                 </dd>
                             </div>
                             {% if show_post_updated_date %}
-                            <div>
-                                <dt class="text-xs font-medium text-content-hint">수정일</dt>
-                                <dd class="mt-1 text-content-secondary">
+                            <div class="py-3 sm:flex sm:items-start sm:gap-6">
+                                <dt class="text-xs font-medium text-content-hint sm:w-24 sm:flex-shrink-0">수정일</dt>
+                                <dd class="mt-1 text-content-secondary sm:mt-0">
                                     <time datetime="{{ post.updated_date|date:'c' }}">{{ post.updated_date_display }}</time>
                                 </dd>
                             </div>
                             {% endif %}
                             {% if author_homepage %}
-                            <div>
-                                <dt class="text-xs font-medium text-content-hint">저자 홈페이지</dt>
-                                <dd class="mt-1">
-                                    <a href="{{ author_homepage }}" target="_blank" rel="noopener noreferrer" class="text-content-secondary hover:text-content transition-colors">{{ author_homepage }}</a>
+                            <div class="py-3 sm:flex sm:items-start sm:gap-6">
+                                <dt class="text-xs font-medium text-content-hint sm:w-24 sm:flex-shrink-0">저자 홈페이지</dt>
+                                <dd class="mt-1 min-w-0 sm:mt-0">
+                                    <a href="{{ author_homepage }}" target="_blank" rel="noopener noreferrer" class="break-words text-content-secondary hover:text-content transition-colors">{{ author_homepage }}</a>
                                 </dd>
                             </div>
                             {% endif %}
