@@ -144,7 +144,11 @@
                                     {{ post.author_username }}
                                 </a>
                                 <span class="text-line-strong">·</span>
-                                <span class="text-content-secondary" itemprop="datePublished" content="{{ post.published_date|date:'c' }}">{{ post.created_date_display }}</span>
+                                <span class="text-content-secondary" itemprop="datePublished" content="{{ post.published_date|date:'c' }}">{{ post.created_date_display }} 발행</span>
+                                {% if show_post_updated_date %}
+                                <span class="text-line-strong">·</span>
+                                <span class="text-content-secondary" itemprop="dateModified" content="{{ post.updated_date|date:'c' }}">{{ post.updated_date_display }} 수정</span>
+                                {% endif %}
                                 <span class="text-line-strong">·</span>
                                 <span class="text-content-secondary" aria-label="읽는 시간">{{ post.read_time }}분 소요</span>
                             </div>
@@ -193,6 +197,43 @@
                         {% endfor %}
                     </div>
                     {% endif %}
+
+                    <section class="border-t border-line-light pt-6" aria-labelledby="post-info-heading">
+                        <h2 id="post-info-heading" class="text-base font-semibold text-content">글 정보</h2>
+                        <dl class="mt-4 grid gap-5 text-sm sm:grid-cols-2">
+                            <div>
+                                <dt class="text-xs font-medium text-content-hint">작성자</dt>
+                                <dd class="mt-1">
+                                    <a href="/@{{ post.author_username }}" class="font-semibold text-content hover:text-content-secondary transition-colors">{{ post.author_username }}</a>
+                                    {% if author_bio %}
+                                    <p class="mt-1 leading-relaxed text-content-secondary">{{ author_bio }}</p>
+                                    {% endif %}
+                                </dd>
+                            </div>
+                            <div>
+                                <dt class="text-xs font-medium text-content-hint">최초 발행</dt>
+                                <dd class="mt-1 text-content-secondary">
+                                    <time datetime="{{ post.published_date|date:'c' }}">{{ post.created_date_display }}</time>
+                                </dd>
+                            </div>
+                            {% if show_post_updated_date %}
+                            <div>
+                                <dt class="text-xs font-medium text-content-hint">수정일</dt>
+                                <dd class="mt-1 text-content-secondary">
+                                    <time datetime="{{ post.updated_date|date:'c' }}">{{ post.updated_date_display }}</time>
+                                </dd>
+                            </div>
+                            {% endif %}
+                            {% if author_homepage %}
+                            <div>
+                                <dt class="text-xs font-medium text-content-hint">저자 홈페이지</dt>
+                                <dd class="mt-1">
+                                    <a href="{{ author_homepage }}" target="_blank" rel="noopener noreferrer" class="text-content-secondary hover:text-content transition-colors">{{ author_homepage }}</a>
+                                </dd>
+                            </div>
+                            {% endif %}
+                        </dl>
+                    </section>
                 </article>
 
                 <!-- Floating Action Bar -->
@@ -215,7 +256,7 @@
                         }
                     },
                     openLinkCopyMenu() {
-                        if (this.isCoarsePointer() || !this.getAgentUrl()) {
+                        if (this.isCoarsePointer()) {
                             return;
                         }
 
@@ -252,6 +293,25 @@
 
                         await this.copyToClipboard(agentUrl, '에이전트용 링크가 복사되었습니다');
                     },
+                    openSharePopup(url) {
+                        const popup = window.open(url, '_blank', 'noopener,noreferrer,width=720,height=640');
+                        if (popup) {
+                            popup.opener = null;
+                        }
+                    },
+                    shareToX() {
+                        const url = encodeURIComponent(this.getPageUrl());
+                        const text = encodeURIComponent('{{ post.title|escapejs }}');
+                        this.openSharePopup(`https://twitter.com/intent/tweet?text=${text}&url=${url}`);
+                    },
+                    shareToLinkedIn() {
+                        const url = encodeURIComponent(this.getPageUrl());
+                        this.openSharePopup(`https://www.linkedin.com/sharing/share-offsite/?url=${url}`);
+                    },
+                    shareToFacebook() {
+                        const url = encodeURIComponent(this.getPageUrl());
+                        this.openSharePopup(`https://www.facebook.com/sharer/sharer.php?u=${url}`);
+                    },
                     async handleShareClick() {
                         const decodedUrl = this.getPageUrl();
                         if (this.isCoarsePointer()) {
@@ -273,13 +333,8 @@
                             return;
                         }
 
-                        if (this.getAgentUrl()) {
-                            this.cancelLinkCopyHide();
-                            this.linkCopyMenuOpen = true;
-                            return;
-                        }
-
-                        await this.copyToClipboard(decodedUrl);
+                        this.cancelLinkCopyHide();
+                        this.linkCopyMenuOpen = true;
                     }
                 }"
                 {% if show_agent_post_markdown %}data-agent-copy-url="{{ post_markdown_url }}"{% endif %}
@@ -315,7 +370,6 @@
                                 <i class="fas fa-share-alt"></i>
                             </button>
 
-                            {% if aeo_enabled %}
                             <div x-show="linkCopyMenuOpen"
                                 x-transition:enter="transition ease-out duration-150"
                                 x-transition:enter-start="opacity-0 translate-y-1 scale-95"
@@ -325,10 +379,10 @@
                                 x-transition:leave-end="opacity-0 translate-y-1 scale-95"
                                 @mouseenter="cancelLinkCopyHide()"
                                 @mouseleave="scheduleCloseLinkCopyMenu()"
-                                class="absolute bottom-full left-1/2 mb-3 w-64 -translate-x-1/2 rounded-xl border border-line bg-surface-elevated p-2 text-left shadow-floating z-40"
+                                class="absolute bottom-full left-1/2 mb-3 w-72 -translate-x-1/2 rounded-xl border border-line bg-surface-elevated p-2 text-left shadow-floating z-40"
                                 style="display: none;">
                                 <div class="px-2 pb-1 text-[11px] font-bold uppercase tracking-wider text-content-hint">
-                                    링크 복사
+                                    공유
                                 </div>
                                 <button @click="copyToClipboard(); closeLinkCopyMenu()"
                                     class="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-left text-sm text-content-secondary transition-colors duration-150 hover:bg-surface-subtle hover:text-content active:scale-[0.98]">
@@ -340,6 +394,38 @@
                                         <span class="text-xs text-content-hint">브라우저에서 여는 주소</span>
                                     </span>
                                 </button>
+                                <button @click="shareToX(); closeLinkCopyMenu()"
+                                    class="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-left text-sm text-content-secondary transition-colors duration-150 hover:bg-surface-subtle hover:text-content active:scale-[0.98]">
+                                    <span class="flex h-8 w-8 items-center justify-center rounded-lg bg-surface-subtle text-xs">
+                                        <i class="fab fa-twitter"></i>
+                                    </span>
+                                    <span class="flex flex-col">
+                                        <span class="font-semibold">X에 공유</span>
+                                        <span class="text-xs text-content-hint">새 창에서 공유 글 작성</span>
+                                    </span>
+                                </button>
+                                <button @click="shareToLinkedIn(); closeLinkCopyMenu()"
+                                    class="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-left text-sm text-content-secondary transition-colors duration-150 hover:bg-surface-subtle hover:text-content active:scale-[0.98]">
+                                    <span class="flex h-8 w-8 items-center justify-center rounded-lg bg-surface-subtle text-xs">
+                                        <i class="fab fa-linkedin-in"></i>
+                                    </span>
+                                    <span class="flex flex-col">
+                                        <span class="font-semibold">LinkedIn에 공유</span>
+                                        <span class="text-xs text-content-hint">전문 네트워크에 공유</span>
+                                    </span>
+                                </button>
+                                <button @click="shareToFacebook(); closeLinkCopyMenu()"
+                                    class="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-left text-sm text-content-secondary transition-colors duration-150 hover:bg-surface-subtle hover:text-content active:scale-[0.98]">
+                                    <span class="flex h-8 w-8 items-center justify-center rounded-lg bg-surface-subtle text-xs">
+                                        <i class="fab fa-facebook-f"></i>
+                                    </span>
+                                    <span class="flex flex-col">
+                                        <span class="font-semibold">Facebook에 공유</span>
+                                        <span class="text-xs text-content-hint">피드 또는 메시지로 공유</span>
+                                    </span>
+                                </button>
+                                {% if show_agent_post_markdown %}
+                                <div class="my-1 h-px bg-line-light"></div>
                                 <button @click="copyAgentLink(); closeLinkCopyMenu()"
                                     class="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-left text-sm text-content-secondary transition-colors duration-150 hover:bg-surface-subtle hover:text-content active:scale-[0.98]">
                                     <span class="flex h-8 w-8 items-center justify-center rounded-lg bg-surface-subtle text-xs">
@@ -350,8 +436,8 @@
                                         <span class="text-xs text-content-hint">*.md 참조 주소</span>
                                     </span>
                                 </button>
+                                {% endif %}
                             </div>
-                            {% endif %}
                         </div>
 
                         <!-- Edit Button -->
