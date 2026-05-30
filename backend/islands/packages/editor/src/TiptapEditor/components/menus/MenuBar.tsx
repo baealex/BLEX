@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import type { Editor } from '@tiptap/react';
 import YoutubeModal from '../modals/YoutubeModal';
 import FloatingMenuBar from './FloatingMenuBar';
@@ -13,22 +13,29 @@ interface MenuBarProps {
     editor: Editor | null;
     onImageUpload?: (file: File) => Promise<string | undefined>;
     onImageUploadError?: (errorMessage: string) => void;
+    onUploadStateChange?: (isUploading: boolean) => void;
 }
 
 const MenuBar = ({
     editor,
     onImageUpload,
-    onImageUploadError
+    onImageUploadError,
+    onUploadStateChange
 }: MenuBarProps) => {
     const [isYoutubeModalOpen, setIsYoutubeModalOpen] = useState(false);
     const imageInput = useRef<HTMLInputElement>(null);
     const videoInput = useRef<HTMLInputElement>(null);
-    const { handleImageUpload, handleVideoUpload } = useImageUpload({
+    const { handleImageUpload, handleVideoUpload, isUploading } = useImageUpload({
         editor,
         onImageUpload,
         onImageUploadError
     });
     const { isVisible: isSlashMenuVisible, slashPos, closeMenu } = useSlashCommand(editor);
+
+    useEffect(() => {
+        onUploadStateChange?.(isUploading);
+        return () => onUploadStateChange?.(false);
+    }, [isUploading, onUploadStateChange]);
 
     if (!editor) return null;
 

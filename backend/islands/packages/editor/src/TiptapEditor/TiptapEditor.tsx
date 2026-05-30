@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useEditor, EditorContent } from '@tiptap/react';
 import MenuBar from './components/menus/MenuBar';
 import { getEditorExtensions } from './config/editorConfig';
@@ -13,6 +13,7 @@ interface TiptapEditorProps {
     placeholder?: string;
     onImageUpload?: (file: File) => Promise<string | undefined>;
     onImageUploadError?: (errorMessage: string) => void;
+    onUploadStateChange?: (isUploading: boolean) => void;
 }
 
 interface HandlersRef {
@@ -27,7 +28,8 @@ const TiptapEditor = ({
     height = 'auto',
     placeholder = '내용을 입력하세요…',
     onImageUpload,
-    onImageUploadError
+    onImageUploadError,
+    onUploadStateChange
 }: TiptapEditorProps) => {
     const handleChange = (html: string) => {
         if (onChange) {
@@ -36,6 +38,7 @@ const TiptapEditor = ({
     };
 
     const handlersRef = useRef<HandlersRef>({ handleImagePaste: () => {} });
+    const [isMenuUploading, setIsMenuUploading] = useState(false);
 
     const editor = useEditor({
         extensions: getEditorExtensions(placeholder),
@@ -88,11 +91,21 @@ const TiptapEditor = ({
         }
     });
 
-    const { handleDrop, handlePaste: handleImagePaste, isUploading } = useImageUpload({
+    const {
+        handleDrop,
+        handlePaste: handleImagePaste,
+        isUploading: isDropPasteUploading
+    } = useImageUpload({
         editor,
         onImageUpload,
         onImageUploadError
     });
+    const isUploading = isDropPasteUploading || isMenuUploading;
+
+    useEffect(() => {
+        onUploadStateChange?.(isUploading);
+        return () => onUploadStateChange?.(false);
+    }, [isUploading, onUploadStateChange]);
 
     useEffect(() => {
         handlersRef.current = { handleImagePaste };
@@ -125,6 +138,7 @@ const TiptapEditor = ({
                     editor={editor}
                     onImageUpload={onImageUpload}
                     onImageUploadError={onImageUploadError}
+                    onUploadStateChange={setIsMenuUploading}
                 />
             )}
 

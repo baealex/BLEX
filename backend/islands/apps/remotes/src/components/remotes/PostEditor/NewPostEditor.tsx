@@ -59,6 +59,7 @@ const NewPostEditor = ({
     const [isUrlAutoSync, setIsUrlAutoSync] = useState(true);
     const [currentDraftUrl, setCurrentDraftUrl] = useState(draftUrl);
     const [showPublishChecklist, setShowPublishChecklist] = useState(false);
+    const [isEditorMediaUploading, setIsEditorMediaUploading] = useState(false);
 
     const [formData, setFormData] = useState({
         title: '',
@@ -173,7 +174,7 @@ const NewPostEditor = ({
     };
 
     const autoSaveOptions = {
-        enabled: !isLoading,
+        enabled: !isLoading && !isEditorMediaUploading,
         draftUrl: currentDraftUrl,
         onSuccess: handleAutoSaveSuccess,
         onError: handleAutoSaveError
@@ -338,6 +339,11 @@ const NewPostEditor = ({
     };
 
     const handleManualSave = async () => {
+        if (isEditorMediaUploading) {
+            toast.warning('파일 업로드가 끝난 뒤 저장해주세요.');
+            return;
+        }
+
         const success = await manualSave();
         if (success) {
             toast.success('임시저장되었습니다.');
@@ -396,6 +402,11 @@ const NewPostEditor = ({
     };
 
     const handleSubmit = async (isDraft = false) => {
+        if (isEditorMediaUploading) {
+            toast.warning('파일 업로드가 끝난 뒤 발행해주세요.');
+            return;
+        }
+
         if (isDraft) {
             await submitCurrentPost(true);
             return;
@@ -409,6 +420,11 @@ const NewPostEditor = ({
     };
 
     const handleConfirmPublish = async () => {
+        if (isEditorMediaUploading) {
+            toast.warning('파일 업로드가 끝난 뒤 발행해주세요.');
+            return;
+        }
+
         if (publishChecklist.missingRecommended.length > 0) {
             const labels = publishChecklist.missingRecommended.map(item => item.label).join(', ');
             toast.warning(`권장 항목이 비어 있습니다: ${labels}`);
@@ -451,6 +467,7 @@ const NewPostEditor = ({
                 onTagsChange={setTags}
                 onImageUpload={handleImageUpload}
                 onEditorImageUpload={handleEditorImageUpload}
+                onEditorUploadStateChange={setIsEditorMediaUploading}
                 onRemoveImage={handleRemoveImage}
             />
 
@@ -459,6 +476,7 @@ const NewPostEditor = ({
                 mode={draftUrl ? 'draft' : 'new'}
                 isSaving={isSaving}
                 isSubmitting={isSubmitting}
+                isMediaUploading={isEditorMediaUploading}
                 lastSaved={lastSaved}
                 hasSaveError={hasSaveError}
                 hasPendingChanges={hasPendingChanges}

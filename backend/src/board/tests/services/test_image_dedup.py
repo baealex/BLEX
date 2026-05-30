@@ -199,3 +199,32 @@ class ImageDedupTestCase(TestCase):
 
         self.assertEqual(post.image.name, 'images/title/thumb-test.jpg')
         self.assertTrue(getattr(post, '_skip_thumbnail', False))
+
+    @patch('board.services.post_service.PostService._compute_image_hash')
+    def test_set_image_with_dedup_does_not_reuse_self(self, mock_hash):
+        """같은 포스트의 기존 이미지는 중복 이미지 후보에서 제외"""
+        mock_hash.return_value = 'e' * 64
+
+        post = Post.objects.create(
+            url='self-dedup-current',
+            title='Self Dedup Current',
+            author=self.user,
+            published_date=timezone.now(),
+        )
+        Post.objects.filter(pk=post.pk).update(
+            image='images/title/current.jpg',
+            image_hash='e' * 64,
+        )
+        post.refresh_from_db()
+        PostContent.objects.create(post=post, content_html='')
+        PostConfig.objects.create(post=post)
+
+        new_image = self._create_test_image('same-content.jpg')
+
+        with patch.object(default_storage, 'exists', return_value=True):
+            with patch.object(post.image, 'delete') as mock_delete:
+                PostService._set_image_with_dedup(post, image=new_image)
+
+        self.assertEqual(post.image.name, 'images/title/current.jpg')
+        self.assertFalse(mock_delete.called)
+        self.assertFalse(getattr(post, '_skip_thumbnail', False))
