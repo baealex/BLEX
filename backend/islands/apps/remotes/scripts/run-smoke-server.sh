@@ -40,7 +40,9 @@ fi
 if [ -n "${BLEX_E2E_DB_PATH:-}" ]; then
     export BLEX_SQLITE_DB_PATH="$BLEX_E2E_DB_PATH"
 else
-    TEMP_DB_FILE="$(mktemp "${TMPDIR:-/tmp}/blex-smoke-db.XXXXXX.sqlite3")"
+    TEMP_DB_BASE="$(mktemp "${TMPDIR:-/tmp}/blex-smoke-db.XXXXXX")"
+    TEMP_DB_FILE="$TEMP_DB_BASE.sqlite3"
+    rm -f "$TEMP_DB_BASE"
     export BLEX_SQLITE_DB_PATH="$TEMP_DB_FILE"
 fi
 

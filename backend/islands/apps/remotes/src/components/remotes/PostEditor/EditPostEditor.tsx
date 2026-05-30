@@ -187,16 +187,16 @@ const EditPostEditor = ({ username, postUrl }: EditPostEditorProps) => {
     };
 
     const handleEditorImageUpload = async (file: File) => {
-        try {
-            const { data } = await api.uploadImage(file);
-            if (data.status === 'DONE') {
-                return data.body.url;
-            }
-        } catch (error) {
+        const { data } = await api.uploadImage(file).catch((error) => {
             logger.error('Image upload failed', error);
-            toast.error('이미지 업로드에 실패했습니다.');
+            throw new Error('파일 업로드에 실패했습니다.');
+        });
+
+        if (data.status === 'DONE') {
+            return data.body.url;
         }
-        return undefined;
+
+        throw new Error(data.errorMessage || '파일 업로드에 실패했습니다.');
     };
 
     const validateForm = () => {
@@ -318,6 +318,7 @@ const EditPostEditor = ({ username, postUrl }: EditPostEditorProps) => {
                 onTagsChange={setTags}
                 onImageUpload={handleImageUpload}
                 onEditorImageUpload={handleEditorImageUpload}
+                onEditorImageUploadError={(errorMessage) => toast.error(errorMessage)}
                 onEditorUploadStateChange={setIsEditorMediaUploading}
                 onRemoveImage={handleRemoveImage}
             />

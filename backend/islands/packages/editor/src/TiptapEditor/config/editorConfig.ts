@@ -34,6 +34,7 @@ import { VideoNode } from '../extensions/VideoNode';
 import { CustomImage } from '../extensions/CustomImage';
 import { CodeBlockWithLanguageSelector } from '../extensions/CodeBlockWithLanguageSelector';
 import { ColumnsNode, ColumnNode } from '../extensions/ColumnsNode';
+import { UploadPlaceholderNode } from '../extensions/UploadPlaceholderNode';
 import { editorLowlight } from './lowlightConfig';
 
 export const getEditorExtensions = (placeholder: string) => [
@@ -54,6 +55,7 @@ export const getEditorExtensions = (placeholder: string) => [
     History,
     Dropcursor,
     Gapcursor,
+    UploadPlaceholderNode,
     CustomImage,
     Link.configure({ openOnClick: false }),
     Placeholder.configure({ placeholder }),

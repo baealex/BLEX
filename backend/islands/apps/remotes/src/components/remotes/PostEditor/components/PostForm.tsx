@@ -29,6 +29,7 @@ interface PostFormProps {
     onTagsChange: (tags: string[]) => void;
     onImageUpload: (event: React.ChangeEvent<HTMLInputElement>) => void;
     onEditorImageUpload?: (file: File) => Promise<string | undefined>;
+    onEditorImageUploadError?: (errorMessage: string) => void;
     onEditorUploadStateChange?: (isUploading: boolean) => void;
     onRemoveImage: () => void;
 }
@@ -46,6 +47,7 @@ const PostForm = ({
     onTagsChange,
     onImageUpload,
     onEditorImageUpload,
+    onEditorImageUploadError,
     onEditorUploadStateChange,
     onRemoveImage
 }: PostFormProps) => {
@@ -100,6 +102,7 @@ const PostForm = ({
                             onChange={onContentChange}
                             placeholder="내용을 입력하세요"
                             onImageUpload={onEditorImageUpload}
+                            onImageUploadError={onEditorImageUploadError}
                             onUploadStateChange={onEditorUploadStateChange}
                         />
                     )}

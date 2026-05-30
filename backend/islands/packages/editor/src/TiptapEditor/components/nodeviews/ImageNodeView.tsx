@@ -1,8 +1,9 @@
 import { NodeViewWrapper } from '@tiptap/react';
 import type { NodeViewProps } from '@tiptap/react';
+import { NodeSelection } from '@tiptap/pm/state';
 import { getFigureStyle, getMediaStyle } from '../../utils/mediaStyles';
 
-export const ImageNodeView = ({ node, selected }: NodeViewProps) => {
+export const ImageNodeView = ({ node, selected, editor, getPos }: NodeViewProps) => {
     const {
         src,
         alt,
@@ -18,6 +19,15 @@ export const ImageNodeView = ({ node, selected }: NodeViewProps) => {
         borderRadius,
         sizePreset
     } = node.attrs;
+
+    const selectNode = () => {
+        const pos = typeof getPos === 'function' ? getPos() : null;
+        if (typeof pos !== 'number') return;
+
+        const { view } = editor;
+        view.dispatch(view.state.tr.setSelection(NodeSelection.create(view.state.doc, pos)));
+        view.focus();
+    };
 
     return (
         <NodeViewWrapper>
@@ -50,6 +60,17 @@ export const ImageNodeView = ({ node, selected }: NodeViewProps) => {
                     />
                     {/* 투명 오버레이: 클릭 시 노드 선택 */}
                     <div
+                        data-drag-handle=""
+                        onMouseDown={(event) => {
+                            if (event.button === 0) {
+                                selectNode();
+                            }
+                        }}
+                        onClick={(event) => {
+                            event.preventDefault();
+                            event.stopPropagation();
+                            selectNode();
+                        }}
                         style={{
                             position: 'absolute',
                             top: 0,
