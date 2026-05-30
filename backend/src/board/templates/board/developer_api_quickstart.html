@@ -1,0 +1,118 @@
+{% extends 'board/base.html' %}
+
+{% block title %}개발자 API 빠른 시작 | BLEX{% endblock %}
+
+{% block content %}
+<div class="mx-auto max-w-4xl px-4 py-10 md:px-6">
+    <header class="mb-8 rounded-2xl border border-line bg-surface p-6 shadow-subtle">
+        <p class="text-sm font-semibold text-content-hint">BLEX Developer API</p>
+        <h1 class="mt-2 text-3xl font-semibold text-content">개발자 API 빠른 시작</h1>
+        <p class="mt-3 leading-relaxed text-content-secondary">
+            자동 API 문서는 전체 엔드포인트를 보여줍니다. 이 문서는 처음 쓰는 사람이 토큰을 만들고 Markdown 초안을 발행하는 최소 흐름만 설명합니다.
+        </p>
+        <div class="mt-5 flex flex-wrap gap-2">
+            <a class="inline-flex min-h-10 items-center rounded-lg bg-action px-4 py-2 text-sm font-medium text-content-inverted transition-colors duration-150 hover:bg-action-hover active:scale-95" href="/api/developer/v1/docs">
+                자동 API 문서 열기
+            </a>
+            <a class="inline-flex min-h-10 items-center rounded-lg border border-line bg-surface px-4 py-2 text-sm font-medium text-content-secondary transition-colors duration-150 hover:border-line-strong hover:text-content active:scale-95" href="/settings/developer-api">
+                토큰 관리로 이동
+            </a>
+        </div>
+    </header>
+
+    <article class="space-y-8 text-content">
+        <section class="rounded-2xl border border-line bg-surface p-6">
+            <h2 class="text-xl font-semibold">1. 토큰 만들기</h2>
+            <ol class="mt-4 list-decimal space-y-2 pl-5 text-content-secondary">
+                <li>BLEX에 작가 계정으로 로그인합니다.</li>
+                <li><code class="rounded bg-surface-subtle px-1.5 py-0.5 text-content">/settings/developer-api</code>로 이동합니다.</li>
+                <li>글을 만들고 발행하려면 <strong class="text-content">글 읽기</strong>와 <strong class="text-content">글 작성</strong> 권한을 모두 선택합니다.</li>
+                <li>발급 직후 표시되는 전체 토큰을 복사합니다. 이 값은 다시 볼 수 없습니다.</li>
+            </ol>
+            <pre class="mt-4 overflow-x-auto rounded-xl bg-surface-subtle p-4 text-sm"><code>export BLEX_ORIGIN="{{ site_origin }}"
+export BLEX_TOKEN="blex_pat_..."</code></pre>
+        </section>
+
+        <section class="rounded-2xl border border-line bg-surface p-6">
+            <h2 class="text-xl font-semibold">2. 토큰 확인</h2>
+            <pre class="mt-4 overflow-x-auto rounded-xl bg-surface-subtle p-4 text-sm"><code>curl "$BLEX_ORIGIN/api/developer/v1/me" \
+  -H "Authorization: Bearer $BLEX_TOKEN"</code></pre>
+        </section>
+
+        <section class="rounded-2xl border border-line bg-surface p-6">
+            <h2 class="text-xl font-semibold">3. Markdown 초안 만들기</h2>
+            <pre class="mt-4 overflow-x-auto rounded-xl bg-surface-subtle p-4 text-sm"><code>curl -X POST "$BLEX_ORIGIN/api/developer/v1/posts" \
+  -H "Authorization: Bearer $BLEX_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "status": "draft",
+    "title": "API로 만든 첫 글",
+    "markdown": "# Hello BLEX\n\n외부 도구에서 만든 초안입니다.",
+    "tags": ["api", "automation"],
+    "slug": "api-first-draft"
+  }'</code></pre>
+            <p class="mt-4 text-sm leading-relaxed text-content-secondary">
+                응답의 <code class="rounded bg-surface-subtle px-1.5 py-0.5 text-content">data.id</code>와 <code class="rounded bg-surface-subtle px-1.5 py-0.5 text-content">data.updated_at</code>을 기억하세요. 다음 예시의 <code class="rounded bg-surface-subtle px-1.5 py-0.5 text-content">123</code>은 생성 응답의 <code class="rounded bg-surface-subtle px-1.5 py-0.5 text-content">data.id</code>로 바꿔 넣으면 됩니다.
+            </p>
+            <pre class="mt-4 overflow-x-auto rounded-xl bg-surface-subtle p-4 text-sm"><code>{
+  "data": {
+    "id": 123,
+    "updated_at": "2026-05-30T00:00:00+00:00"
+  }
+}</code></pre>
+        </section>
+
+        <section class="rounded-2xl border border-line bg-surface p-6">
+            <h2 class="text-xl font-semibold">4. 이미지 업로드</h2>
+            <pre class="mt-4 overflow-x-auto rounded-xl bg-surface-subtle p-4 text-sm"><code>curl -X POST "$BLEX_ORIGIN/api/developer/v1/images" \
+  -H "Authorization: Bearer $BLEX_TOKEN" \
+  -F "image=@./cover.png"</code></pre>
+            <p class="mt-4 text-sm leading-relaxed text-content-secondary">응답의 <code class="rounded bg-surface-subtle px-1.5 py-0.5 text-content">data.url</code>을 Markdown 이미지 주소로 사용할 수 있습니다.</p>
+        </section>
+
+        <section class="rounded-2xl border border-line bg-surface p-6">
+            <h2 class="text-xl font-semibold">5. 초안 수정하기</h2>
+            <p class="mt-3 text-sm leading-relaxed text-content-secondary">동시 수정 충돌을 줄이려면 상세 조회나 생성 응답의 <code class="rounded bg-surface-subtle px-1.5 py-0.5 text-content">updated_at</code>을 <code class="rounded bg-surface-subtle px-1.5 py-0.5 text-content">expected_updated_at</code>으로 보냅니다.</p>
+            <pre class="mt-4 overflow-x-auto rounded-xl bg-surface-subtle p-4 text-sm"><code>curl -X PATCH "$BLEX_ORIGIN/api/developer/v1/posts/123" \
+  -H "Authorization: Bearer $BLEX_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "expected_updated_at": "2026-05-30T00:00:00+00:00",
+    "description": "외부 도구에서 작성한 BLEX 글입니다.",
+    "tags": ["api", "automation", "blex"]
+  }'</code></pre>
+        </section>
+
+        <section class="rounded-2xl border border-line bg-surface p-6">
+            <h2 class="text-xl font-semibold">6. 초안 발행하기</h2>
+            <pre class="mt-4 overflow-x-auto rounded-xl bg-surface-subtle p-4 text-sm"><code>curl -X POST "$BLEX_ORIGIN/api/developer/v1/posts/123/publish" \
+  -H "Authorization: Bearer $BLEX_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{}'</code></pre>
+        </section>
+
+        <section class="rounded-2xl border border-line bg-surface p-6">
+            <h2 class="text-xl font-semibold">자주 보는 오류</h2>
+            <div class="mt-4 overflow-x-auto">
+                <table class="w-full min-w-[620px] text-left text-sm">
+                    <thead class="border-b border-line text-content-secondary">
+                        <tr><th class="py-2 pr-4">상태</th><th class="py-2 pr-4">코드</th><th class="py-2">의미</th></tr>
+                    </thead>
+                    <tbody class="divide-y divide-line text-content-secondary">
+                        <tr><td class="py-2 pr-4">401</td><td class="py-2 pr-4"><code>auth.missing_token</code></td><td class="py-2">Authorization 헤더가 없습니다.</td></tr>
+                        <tr><td class="py-2 pr-4">401</td><td class="py-2 pr-4"><code>auth.invalid_token</code></td><td class="py-2">토큰이 틀렸거나 폐기되었습니다.</td></tr>
+                        <tr><td class="py-2 pr-4">403</td><td class="py-2 pr-4"><code>auth.insufficient_scope</code></td><td class="py-2">필요한 권한이 없습니다.</td></tr>
+                        <tr><td class="py-2 pr-4">403</td><td class="py-2 pr-4"><code>auth.editor_required</code></td><td class="py-2">글 작성에는 작가 권한이 필요합니다.</td></tr>
+                        <tr><td class="py-2 pr-4">400</td><td class="py-2 pr-4"><code>post.invalid_status</code></td><td class="py-2">지원하지 않는 글 상태입니다.</td></tr>
+                        <tr><td class="py-2 pr-4">400</td><td class="py-2 pr-4"><code>post.missing_published_at</code></td><td class="py-2">예약 발행 시간 없이 예약 글을 만들었습니다.</td></tr>
+                        <tr><td class="py-2 pr-4">400</td><td class="py-2 pr-4"><code>image.too_large</code></td><td class="py-2">이미지 파일이 업로드 제한보다 큽니다.</td></tr>
+                        <tr><td class="py-2 pr-4">409</td><td class="py-2 pr-4"><code>post.version_conflict</code></td><td class="py-2">글이 이미 다른 요청으로 수정되었습니다.</td></tr>
+                        <tr><td class="py-2 pr-4">409</td><td class="py-2 pr-4"><code>post.not_draft</code></td><td class="py-2">이미 발행되었거나 예약된 글을 다시 발행하려고 했습니다.</td></tr>
+                        <tr><td class="py-2 pr-4">422</td><td class="py-2 pr-4"><code>request.invalid_payload</code></td><td class="py-2">필드 타입이나 허용 값이 맞지 않습니다.</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </article>
+</div>
+{% endblock %}

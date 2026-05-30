@@ -4,6 +4,7 @@ from ninja import Body, File, NinjaAPI, Query, Status, UploadedFile
 from ninja.errors import HttpError, ValidationError
 from ninja.security import HttpBearer
 
+from board.decorators import editor_required
 from board.models import Series, Tag
 from board.modules.developer_serializers import (
     DeveloperPostSerializer,
@@ -58,6 +59,7 @@ api = NinjaAPI(
     description='Personal token API for managing BLEX posts from external tools.',
     auth=DeveloperBearerAuth(),
     urls_namespace='developer_api_v1',
+    docs_decorator=editor_required,
 )
 
 

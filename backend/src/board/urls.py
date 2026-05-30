@@ -19,7 +19,7 @@ from board.views.sitemap import sitemap_index_view, sitemap_section_view
 from board.views.tag import tag_list_view, tag_detail_view
 from board.views.static_pages import static_page_view
 from board.views.settings import settings, admin_settings
-from board.views.developer_api_docs import developer_api_docs
+from board.views.developer_api_docs import developer_api_docs, developer_api_quickstart
 from board.decorators import staff_member_required
 
 def empty():
@@ -48,6 +48,7 @@ urlpatterns = [
 
     # Developer API docs compatibility redirect
     path('docs/developer-api', developer_api_docs, name='developer_api_docs'),
+    path('docs/developer-api/quickstart', developer_api_quickstart, name='developer_api_quickstart'),
     path('docs/developer-api/<slug:operation_id>', developer_api_docs, name='developer_api_docs_detail'),
 
     # Post actions

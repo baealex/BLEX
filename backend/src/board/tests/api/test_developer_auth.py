@@ -1,6 +1,6 @@
 import json
 
-from django.test import TestCase
+from django.test import TestCase, override_settings
 
 from board.models import Config, DeveloperToken, Profile, User
 from board.services.developer_token_service import DeveloperTokenService
@@ -131,18 +131,37 @@ class DeveloperAuthAPITestCase(TestCase):
         self.assertEqual(response.status_code, 404)
 
     def test_developer_api_docs_redirects_to_generated_docs(self):
+        self.client.login(username='developer', password='developer')
+
         response = self.client.get('/docs/developer-api')
 
         self.assertEqual(response.status_code, 302)
         self.assertEqual(response['Location'], '/api/developer/v1/docs')
 
     def test_developer_api_docs_detail_redirects_to_generated_docs(self):
+        self.client.login(username='developer', password='developer')
+
         response = self.client.get('/docs/developer-api/list-posts')
 
         self.assertEqual(response.status_code, 302)
         self.assertEqual(response['Location'], '/api/developer/v1/docs')
 
+    @override_settings(SITE_URL='https://blex.example')
+    def test_developer_api_quickstart_renders(self):
+        self.client.login(username='developer', password='developer')
+
+        response = self.client.get('/docs/developer-api/quickstart')
+
+        self.assertEqual(response.status_code, 200)
+        body = response.content.decode()
+        self.assertIn('개발자 API 빠른 시작', body)
+        self.assertIn('export BLEX_ORIGIN="https://blex.example"', body)
+        self.assertIn('/api/developer/v1/posts', body)
+        self.assertIn('expected_updated_at', body)
+
     def test_developer_api_openapi_schema_is_available(self):
+        self.client.login(username='developer', password='developer')
+
         response = self.client.get('/api/developer/v1/openapi.json')
 
         self.assertEqual(response.status_code, 200)
@@ -154,12 +173,41 @@ class DeveloperAuthAPITestCase(TestCase):
         self.assertEqual(security_schemes['DeveloperBearerAuth']['scheme'], 'bearer')
 
     def test_developer_api_docs_use_local_swagger_assets(self):
+        self.client.login(username='developer', password='developer')
+
         response = self.client.get('/api/developer/v1/docs')
 
         self.assertEqual(response.status_code, 200)
         body = response.content.decode()
         self.assertIn('ninja/swagger-ui-bundle.js', body)
         self.assertNotIn('cdn.jsdelivr.net', body)
+
+    def test_developer_api_docs_require_login(self):
+        paths = (
+            '/docs/developer-api/quickstart',
+            '/api/developer/v1/docs',
+            '/api/developer/v1/openapi.json',
+        )
+
+        for path in paths:
+            with self.subTest(path=path):
+                response = self.client.get(path)
+                self.assertEqual(response.status_code, 302)
+                self.assertIn('/login', response['Location'])
+
+    def test_developer_api_docs_require_editor_role(self):
+        self.client.login(username='reader', password='reader')
+        paths = (
+            '/docs/developer-api/quickstart',
+            '/api/developer/v1/docs',
+            '/api/developer/v1/openapi.json',
+        )
+
+        for path in paths:
+            with self.subTest(path=path):
+                response = self.client.get(path)
+                self.assertEqual(response.status_code, 302)
+                self.assertEqual(response['Location'], '/')
 
     def test_reader_cannot_create_developer_token(self):
         self.client.login(username='reader', password='reader')
