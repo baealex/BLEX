@@ -10,6 +10,7 @@
 test-results/
 playwright-report/
 blob-report/
+/.turbo/
 
 DockerfileDev
 

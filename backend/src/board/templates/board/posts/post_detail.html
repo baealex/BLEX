@@ -52,9 +52,9 @@
 
 {% block content %}
 <div class="relative w-full px-4 md:px-6">
-    <div class="flex justify-center gap-6">
+    <div class="post-detail-layout">
         <!-- Left Sidebar Space (Always present on desktop) -->
-        <aside class="hidden xl:block w-64 flex-shrink-0">
+        <aside class="post-detail-sidebar">
             <div class="sticky top-28 space-y-4">
                 {% if banners.left %}
                     {% for banner in banners.left %}
@@ -65,7 +65,7 @@
         </aside>
 
         <!-- Main Content Area (Original Width) -->
-        <div class="max-w-4xl w-full">
+        <div class="post-detail-main">
             <div class="mt-6" role="main">
                 <article itemscope itemtype="https://schema.org/BlogPosting" lang="{{ LANGUAGE_CODE|default:'ko' }}">
                     <meta itemprop="headline" content="{{ post.title }}">
@@ -462,7 +462,7 @@
         </div>
 
         <!-- Right Sidebar Space (Always present on desktop) -->
-        <aside class="hidden xl:block w-64 flex-shrink-0">
+        <aside class="post-detail-sidebar">
             <div class="sticky top-28 space-y-4">
                 <!-- Table of Contents -->
                 {% if table_of_contents %}
