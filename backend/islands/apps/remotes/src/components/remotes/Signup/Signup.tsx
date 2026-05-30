@@ -11,6 +11,7 @@ declare global {
         };
         HCAPTCHA_SITE_KEY?: string;
         NEXT_URL: string;
+        INVITE_CODE?: string;
     }
 }
 
@@ -185,6 +186,10 @@ const Signup = () => {
                 'password': password
             });
 
+            if (window.INVITE_CODE) {
+                formData.append('invite_code', window.INVITE_CODE);
+            }
+
             if (captchaToken) {
                 formData.append('h-captcha-response', captchaToken);
             }
@@ -212,6 +217,7 @@ const Signup = () => {
     };
 
     const nextUrl = window.NEXT_URL || '';
+    const isInviteSignup = Boolean(window.INVITE_CODE);
 
     return (
         <div className={`w-[420px] max-w-[90vw] transition-all duration-700 ease-out transform ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
@@ -223,10 +229,10 @@ const Signup = () => {
                     </svg>
                 </div>
                 <h1 className="text-3xl font-bold text-content mb-3 tracking-tight">
-                    독자로 가입하기
+                    {isInviteSignup ? '작가로 가입하기' : '독자로 가입하기'}
                 </h1>
                 <p className="text-content-secondary text-sm font-medium">
-                    에디터들의 이야기를 읽어보세요
+                    {isInviteSignup ? '초대받은 작가 계정을 만듭니다' : '작가들의 이야기를 읽어보세요'}
                 </p>
             </div>
 
@@ -386,7 +392,7 @@ const Signup = () => {
                                     <span>처리 중...</span>
                                 </>
                             ) : (
-                                '독자로 가입하기'
+                                isInviteSignup ? '작가로 가입하기' : '독자로 가입하기'
                             )}
                         </button>
                     </form>

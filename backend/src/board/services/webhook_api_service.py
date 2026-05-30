@@ -14,7 +14,7 @@ class WebhookApiService:
         try:
             profile = Profile.objects.get(user=request.user)
             if not AuthoringPermissionService.is_active_editor(request.user):
-                return None, StatusError(ErrorCode.REJECT, '에디터 권한이 필요합니다.')
+                return None, StatusError(ErrorCode.REJECT, '작가 권한이 필요합니다.')
             return profile, None
         except Profile.DoesNotExist:
             return None, StatusError(ErrorCode.NOT_FOUND, 'Profile not found')

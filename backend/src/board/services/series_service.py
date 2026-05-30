@@ -48,7 +48,7 @@ class SeriesService:
         if not AuthoringPermissionService.is_active_editor(user):
             raise SeriesValidationError(
                 ErrorCode.REJECT,
-                '에디터 권한이 필요합니다.'
+                '작가 권한이 필요합니다.'
             )
 
     @staticmethod

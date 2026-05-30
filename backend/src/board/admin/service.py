@@ -82,9 +82,9 @@ class AdminDisplayService:
 
     @staticmethod
     def role_badge(role: str, profile_model: Optional[Any] = None) -> SafeString:
-        """역할 뱃지 생성 (관리자/편집자/독자)"""
+        """역할 뱃지 생성 (관리자/작가/독자)"""
         badge_configs = {
-            Profile.Role.EDITOR: (COLOR_SUCCESS, '편집자'),
+            Profile.Role.EDITOR: (COLOR_SUCCESS, '작가'),
             Profile.Role.READER: (COLOR_MUTED, '독자'),
         }
 

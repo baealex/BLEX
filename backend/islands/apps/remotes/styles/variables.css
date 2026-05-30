@@ -160,28 +160,28 @@
         --color-action-hover: #e8e8e8;
         --color-action-pressed: #c8c8c8;
 
-        /* States — Material Design 300-level, proven for dark themes */
-        --color-success: #81c784;
-        --color-success-surface: #1b2e1d;
-        --color-success-line: #306e34;
+        /* States — subdued for dark surfaces */
+        --color-success: #78a982;
+        --color-success-surface: #1b241d;
+        --color-success-line: #3b5940;
 
-        --color-warning: #ffb74d;
-        --color-warning-surface: #2e2310;
-        --color-warning-line: #8a6320;
+        --color-warning: #c99a58;
+        --color-warning-surface: #282217;
+        --color-warning-line: #5f4b2d;
 
-        --color-danger: #e57373;
-        --color-danger-surface: #2e1b1b;
-        --color-danger-line: #8b3a3a;
+        --color-danger: #e05252;
+        --color-danger-surface: #281d1d;
+        --color-danger-line: #5f3838;
 
-        --state-success: #81c784;
-        --state-success-surface: #1b2e1d;
-        --state-success-line: #306e34;
-        --state-warning: #ffb74d;
-        --state-warning-surface: #2e2310;
-        --state-warning-line: #8a6320;
-        --state-danger: #e57373;
-        --state-danger-surface: #2e1b1b;
-        --state-danger-line: #8b3a3a;
+        --state-success: #78a982;
+        --state-success-surface: #1b241d;
+        --state-success-line: #3b5940;
+        --state-warning: #c99a58;
+        --state-warning-surface: #282217;
+        --state-warning-line: #5f4b2d;
+        --state-danger: #e05252;
+        --state-danger-surface: #281d1d;
+        --state-danger-line: #5f3838;
 
         /* Content accents */
         --color-mention-surface: #1a2540;

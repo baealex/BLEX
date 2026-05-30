@@ -70,8 +70,8 @@ def signup_view(request):
     context = {
         'HCAPTCHA_SITE_KEY': getattr(settings, 'HCAPTCHA_SITE_KEY', ''),
         'next_url': next_url or '',
+        'invite_code': request.GET.get('invite', '').strip(),
     }
 
     return render(request, 'board/auth/signup.html', context)
-
 

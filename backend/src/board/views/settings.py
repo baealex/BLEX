@@ -14,6 +14,7 @@ ADMIN_SETTINGS_PREFIXES = (
     'global-banners',
     'global-webhook',
     'utilities',
+    'users',
 )
 
 EDITOR_SETTINGS_PREFIXES = (

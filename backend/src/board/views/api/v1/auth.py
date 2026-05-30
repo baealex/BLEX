@@ -9,6 +9,7 @@ import base64
 from django.conf import settings
 from django.contrib import auth
 from django.contrib.auth.models import User
+from django.db import transaction
 from django.http import Http404, QueryDict
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
@@ -20,6 +21,7 @@ from board.modules.notify import create_notify
 from board.modules.response import StatusDone, StatusError, ErrorCode
 from board.services.auth_login_service import AuthLoginService
 from board.services.auth_request_parser import AuthRequestParser
+from board.services.author_invite_service import AuthorInviteError, AuthorInviteService
 from board.services.auth_service import AuthService, OAuthService, AuthValidationError
 from board.services.initial_setup_service import InitialSetupService
 from modules import oauth
@@ -83,6 +85,7 @@ def sign(request):
         name = request.POST.get('name', '')
         password = request.POST.get('password', '')
         email = request.POST.get('email', '')
+        invite_code = request.POST.get('invite_code', '')
         hcaptcha_response = request.POST.get('h-captcha-response', '')
 
         try:
@@ -91,6 +94,11 @@ def sign(request):
         except AuthValidationError as e:
             return StatusError(e.code, e.message)
 
+        try:
+            author_invite = AuthorInviteService.validate_invite_code(invite_code)
+        except AuthorInviteError as e:
+            return StatusError(ErrorCode.REJECT, e.message)
+
         # Verify HCaptcha if HCAPTCHA_SECRET_KEY is set
         if settings.HCAPTCHA_SECRET_KEY:
             if not hcaptcha_response:
@@ -98,13 +106,17 @@ def sign(request):
             if not auth_hcaptcha(hcaptcha_response):
                 return StatusError(ErrorCode.REJECT, '보안 검증에 실패했습니다.')
 
-        # Create user using AuthService
-        new_user, profile, config = AuthService.create_user(
-            username=username,
-            name=name,
-            email=email,
-            password=password
-        )
+        try:
+            with transaction.atomic():
+                new_user, _, _ = AuthService.create_user(
+                    username=username,
+                    name=name,
+                    email=email,
+                    password=password
+                )
+                AuthorInviteService.redeem_invite(author_invite, new_user)
+        except AuthorInviteError as e:
+            return StatusError(ErrorCode.REJECT, e.message)
 
         auth.login(request, new_user)
         return AuthLoginService.login_response(request.user, is_first_login=True)

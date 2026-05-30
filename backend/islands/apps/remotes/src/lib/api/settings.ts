@@ -737,3 +737,100 @@ export const cleanImages = async (dryRun: boolean, target: string, removeDuplica
         remove_duplicates: removeDuplicates
     }, { headers: { 'Content-Type': 'application/json' } });
 };
+
+// Admin User Management API
+export type ManagedUserRole = 'READER' | 'EDITOR';
+export type ManagedUserRoleFilter = 'all' | 'reader' | 'editor' | 'admin';
+export type ManagedUserOrdering = 'username' | '-username' | 'post_count' | '-post_count' | 'date_joined' | '-date_joined';
+
+export interface ManagedUser {
+    id: number;
+    username: string;
+    name: string;
+    email: string;
+    role: ManagedUserRole;
+    isActive: boolean;
+    isStaff: boolean;
+    isSuperuser: boolean;
+    canChangeRole: boolean;
+    postCount: number;
+    dateJoined: string | null;
+    lastLogin: string | null;
+}
+
+export interface ManagedUsersPagination {
+    page: number;
+    pageSize: number;
+    total: number;
+    totalPages: number;
+    hasNext: boolean;
+    hasPrevious: boolean;
+}
+
+export interface ManagedUsersStats {
+    total: number;
+    editors: number;
+    readers: number;
+    admins: number;
+}
+
+export interface ManagedUsersResult {
+    users: ManagedUser[];
+    pagination: ManagedUsersPagination;
+    stats: ManagedUsersStats;
+}
+
+export const getManagedUsers = async (
+    query = '',
+    page = 1,
+    pageSize = 20,
+    role: ManagedUserRoleFilter = 'all',
+    ordering: ManagedUserOrdering = 'username'
+) => {
+    const search = query.trim();
+    const params = new URLSearchParams();
+    if (search) params.set('q', search);
+    if (role !== 'all') params.set('role', role);
+    params.set('ordering', ordering);
+    params.set('page', String(page));
+    params.set('page_size', String(pageSize));
+
+    return http.get<Response<ManagedUsersResult>>(`v1/admin/users?${params.toString()}`);
+};
+
+export const updateManagedUserRole = async (userId: number, role: ManagedUserRole) => {
+    return http.patch<Response<{ user: ManagedUser }>>(
+        `v1/admin/users/${userId}/role`,
+        { role },
+        { headers: { 'Content-Type': 'application/json' } }
+    );
+};
+
+export interface AuthorInvite {
+    id: number;
+    code: string;
+    note: string;
+    signupUrl: string;
+    isActive: boolean;
+    isClaimed: boolean;
+    createdBy: string;
+    claimedBy: string;
+    createdDate: string | null;
+    claimedDate: string | null;
+}
+
+export const getAuthorInvites = async () => {
+    return http.get<Response<{ invites: AuthorInvite[] }>>('v1/admin/author-invites');
+};
+
+export const createAuthorInvite = async (note = '') => {
+    return http.post<Response<{ invite: AuthorInvite }>>(
+        'v1/admin/author-invites',
+        { note },
+        { headers: { 'Content-Type': 'application/json' } }
+    );
+};
+
+export const deleteAuthorInvite = async (inviteId: number) => {
+    return http.delete<Response<{ success?: boolean }>>(`v1/admin/author-invites/${inviteId}`);
+};

@@ -316,7 +316,7 @@ const DeveloperApiSetting = () => {
                                             onCheckedChange={(checked) => handleScopeChange(scope.value, checked)}
                                             disabled={disabled}
                                             label={scope.label}
-                                            description={disabled ? '편집자 권한이 필요합니다.' : scope.description}
+                                            description={disabled ? '작가 권한이 필요합니다.' : scope.description}
                                         />
                                     </div>
                                 );

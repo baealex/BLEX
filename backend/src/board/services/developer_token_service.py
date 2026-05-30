@@ -67,7 +67,7 @@ class DeveloperTokenService:
         if not AuthoringPermissionService.is_active_editor(user):
             raise DeveloperAuthError(
                 'token.permission_denied',
-                '개발자 API는 편집자 권한이 필요합니다.',
+                '개발자 API는 작가 권한이 필요합니다.',
                 403,
             )
 
@@ -206,7 +206,7 @@ class DeveloperTokenService:
         if not AuthoringPermissionService.is_active_editor(token.user):
             raise DeveloperAuthError(
                 'auth.editor_required',
-                '개발자 API는 편집자 권한이 필요합니다.',
+                '개발자 API는 작가 권한이 필요합니다.',
                 403,
             )
 

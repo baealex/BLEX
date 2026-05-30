@@ -198,9 +198,16 @@ const adminNavigationSections: NavigationSection[] = [
     },
     {
         title: '관리',
-        description: '정리 도구와 Django 관리자',
+        description: '사용자 권한과 정리 도구',
         requiresStaff: true,
         items: [
+            {
+                name: '사용자 권한',
+                path: '/users',
+                icon: 'fa-users',
+                risk: 'danger',
+                requiresStaff: true
+            },
             {
                 name: '유틸리티',
                 path: '/utilities',

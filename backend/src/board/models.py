@@ -427,13 +427,13 @@ class Profile(models.Model):
     # User role for permission control
     class Role(models.TextChoices):
         READER = 'READER', '독자'
-        EDITOR = 'EDITOR', '편집자'
+        EDITOR = 'EDITOR', '작가'
 
     role = models.CharField(
         max_length=10,
         choices=Role.choices,
         default=Role.READER,
-        help_text='사용자 역할 (독자: 읽기만, 편집자: 글 작성 및 통계)'
+        help_text='사용자 역할 (독자: 읽기만, 작가: 글 작성 및 통계)'
     )
 
     def is_editor(self):
@@ -960,3 +960,34 @@ class SiteBanner(SiteContentBase):
                 raise ValidationError({
                     'position': '사이드배너는 좌측 또는 우측에만 배치할 수 있습니다.'
                 })
+
+
+class AuthorInvite(models.Model):
+    code = models.CharField(max_length=64, unique=True)
+    note = models.CharField(max_length=120, blank=True, default='')
+    created_by = models.ForeignKey(
+        'auth.User',
+        on_delete=models.SET_NULL,
+        null=True,
+        related_name='author_invites_created',
+    )
+    claimed_by = models.ForeignKey(
+        'auth.User',
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='author_invites_claimed',
+    )
+    is_active = models.BooleanField(default=True)
+    created_date = models.DateTimeField(default=timezone.now)
+    claimed_date = models.DateTimeField(null=True, blank=True)
+
+    class Meta:
+        ordering = ['-created_date']
+        indexes = [
+            models.Index(fields=['code', 'is_active']),
+            models.Index(fields=['claimed_by']),
+        ]
+
+    def __str__(self):
+        return self.code

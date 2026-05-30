@@ -40,7 +40,7 @@ class PinnedPostService:
         if not AuthoringPermissionService.is_active_editor(user):
             raise PinnedPostError(
                 ErrorCode.REJECT,
-                '에디터 권한이 필요합니다.',
+                '작가 권한이 필요합니다.',
             )
 
     @staticmethod
