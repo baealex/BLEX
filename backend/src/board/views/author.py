@@ -15,7 +15,6 @@ from board.services.discovery_metadata_service import DiscoveryMetadataService
 from board.services.public_post_service import PublicPostService
 from board.services.public_series_service import PublicSeriesService
 from board.models import Comment, Post, Series, PostLikes, Tag, Profile, SiteNotice, SiteContentScope
-from modules import markdown
 
 
 def author_overview(request, username):
@@ -337,11 +336,14 @@ def author_about_edit(request, username):
 
     if request.method == 'POST':
         new_about_md = request.POST.get('about_md', '')
-        profile.about_md = new_about_md
-        profile.about_html = markdown.parse_post_to_html(new_about_md)
         try:
-            profile.save()
-            return JsonResponse({'status': 'success', 'message': '소개가 성공적으로 업데이트되었습니다.'})
+            about = UserService.update_user_about(author, new_about_md)
+            return JsonResponse({
+                'status': 'success',
+                'message': '소개글을 저장했습니다.',
+                'about_md': about['about_md'],
+                'about_html': about['about_html'],
+            })
         except Exception as e:
             return JsonResponse({'status': 'error', 'message': str(e)}, status=500)
 

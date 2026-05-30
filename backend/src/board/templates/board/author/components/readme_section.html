@@ -6,8 +6,11 @@
         editing: false,
         saving: false,
         message: '',
+        messageType: 'success',
         initialContent: '{{ about_md|default:''|escapejs }}',
         content: '{{ about_md|default:''|escapejs }}',
+        renderedContent: '{{ about_html|default:''|escapejs }}',
+        hasRenderedContent: {% if about_html %}true{% else %}false{% endif %},
         startEditing() {
             this.content = this.initialContent;
             this.message = '';
@@ -41,12 +44,20 @@
 
                 if (!response.ok || data.status !== 'success') {
                     this.message = data.message || '소개글을 저장하지 못했습니다.';
+                    this.messageType = 'error';
                     return;
                 }
 
-                window.location.reload();
+                this.initialContent = data.about_md || '';
+                this.content = data.about_md || '';
+                this.renderedContent = data.about_html || '';
+                this.hasRenderedContent = Boolean(this.renderedContent);
+                this.message = data.message || '소개글을 저장했습니다.';
+                this.messageType = 'success';
+                this.editing = false;
             } catch (error) {
                 this.message = '네트워크 오류로 저장하지 못했습니다.';
+                this.messageType = 'error';
             } finally {
                 this.saving = false;
             }
@@ -58,12 +69,14 @@
             <p class="mb-2 text-xs font-bold uppercase tracking-[0.18em] text-content-hint">About</p>
             <h2 class="text-2xl font-bold text-content">소개</h2>
         </div>
-        {% if about_html %}
-            <div class="prose blog-post-content" x-show="!editing">
-                {{ about_html|safe }}
+        {% if user == author %}
+        <p x-show="message" x-cloak x-text="message" :class="messageType === 'error' ? 'text-danger' : 'text-success'" class="mb-4 text-sm"></p>
+        {% endif %}
+        {% if user == author %}
+            <div class="prose blog-post-content" x-show="!editing && hasRenderedContent" x-html="renderedContent">
+                {% if about_html %}{{ about_html|safe }}{% endif %}
             </div>
-        {% else %}
-            <div class="rounded-2xl border border-dashed border-line bg-surface px-5 py-4" x-show="!editing">
+            <div class="rounded-2xl border border-dashed border-line bg-surface px-5 py-4" x-show="!editing && !hasRenderedContent" x-cloak>
                 <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                     <p class="text-sm text-content-secondary">소개글을 작성하면 프로필에 표시됩니다.</p>
                     <button type="button" @click="startEditing()" class="inline-flex items-center justify-center rounded-lg bg-surface-subtle px-4 py-2 text-sm font-semibold text-content-secondary transition-colors hover:bg-surface-subtle/80 hover:text-content">
@@ -72,11 +85,15 @@
                     </button>
                 </div>
             </div>
+        {% elif about_html %}
+            <div class="prose blog-post-content">
+                {{ about_html|safe }}
+            </div>
         {% endif %}
 
-        {% if user == author and about_html %}
+        {% if user == author %}
         <div class="mt-6" x-show="!editing">
-            <button type="button" @click="startEditing()" class="inline-flex items-center justify-center rounded-lg bg-surface-subtle px-4 py-2 text-sm font-semibold text-content-secondary transition-colors hover:bg-surface-subtle/80 hover:text-content">
+            <button type="button" x-show="hasRenderedContent" @click="startEditing()" class="inline-flex items-center justify-center rounded-lg bg-surface-subtle px-4 py-2 text-sm font-semibold text-content-secondary transition-colors hover:bg-surface-subtle/80 hover:text-content">
                 <i class="fas fa-edit mr-2"></i>
                 소개글 수정
             </button>
@@ -91,7 +108,6 @@
                 class="min-h-64 w-full resize-y rounded-xl border border-line bg-surface-subtle p-4 text-sm leading-relaxed text-content placeholder-content-hint focus:border-line-strong focus:outline-none focus:ring-2 focus:ring-line/10"
                 placeholder="소개글을 작성하세요"></textarea>
             <div class="mt-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                <p x-show="message" x-text="message" class="text-sm text-danger"></p>
                 <div class="flex justify-end gap-2 sm:ml-auto">
                     <button type="button" @click="cancelEditing()" :disabled="saving" class="inline-flex items-center justify-center rounded-lg px-4 py-2 text-sm font-semibold text-content-secondary transition-colors hover:bg-surface-subtle hover:text-content disabled:opacity-50">
                         취소

@@ -230,7 +230,20 @@ class AuthorPostsPageTestCase(TestCase):
         self.assertContains(owner_response, 'Visible author intro')
         self.assertContains(owner_response, '소개글 수정')
         self.assertNotContains(owner_response, f'href="{edit_path}"')
-        self.assertNotContains(owner_response, '소개글 작성')
+        self.assertContains(owner_response, 'x-show=hasRenderedContent')
+
+    def test_author_overview_inline_intro_editor_updates_without_reload(self):
+        """소개글 인라인 편집은 저장 후 페이지 새로고침 없이 렌더 HTML을 갱신한다."""
+        self.client.login(username='testauthor', password='testpass123')
+
+        response = self.client.get(
+            reverse('user_profile', kwargs={'username': self.user.username})
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'x-html=renderedContent')
+        self.assertContains(response, 'data.about_html')
+        self.assertNotContains(response, 'window.location.reload()')
 
     def test_author_overview_omits_sidebar_stats_and_quick_links(self):
         """작성자 개요에서는 중복되는 통계와 바로가기 사이드바를 노출하지 않는다."""
@@ -951,3 +964,25 @@ class AuthorAboutPageTestCase(TestCase):
         )
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'board/author/author_about_edit.html')
+        self.assertContains(response, 'x-ref=formData')
+
+    def test_author_about_edit_post_returns_rendered_content(self):
+        """소개글 저장 응답은 새로고침 없이 반영할 수 있는 렌더 HTML을 반환한다."""
+        self.client.login(username='testauthor', password='testpass123')
+        about_md = '# Updated Intro\n\nThis is **bold**.'
+
+        response = self.client.post(
+            reverse('user_about_edit', kwargs={'username': self.user.username}),
+            {'about_md': about_md},
+        )
+
+        self.assertEqual(response.status_code, 200)
+        data = response.json()
+        self.assertEqual(data['status'], 'success')
+        self.assertEqual(data['about_md'], about_md)
+        self.assertIn('Updated Intro', data['about_html'])
+        self.assertIn('<strong>bold</strong>', data['about_html'])
+
+        self.profile.refresh_from_db()
+        self.assertEqual(self.profile.about_md, about_md)
+        self.assertEqual(self.profile.about_html, data['about_html'])
