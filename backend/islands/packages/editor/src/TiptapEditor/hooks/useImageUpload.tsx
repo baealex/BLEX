@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import type { Editor } from '@tiptap/react';
+import { normalizeMediaUrlForStorage } from '../utils/mediaUrls';
 
 interface UseImageUploadProps {
     editor: Editor | null;
@@ -30,7 +31,8 @@ export const useImageUpload = ({ editor, onImageUpload, onImageUploadError }: Us
 
         setUploadingCount(prev => prev + 1);
         try {
-            const url = await onImageUpload(file);
+            const uploadedUrl = await onImageUpload(file);
+            const url = normalizeMediaUrlForStorage(uploadedUrl);
 
             if (url) {
                 // position이 지정되지 않았으면 현재 selection 사용
