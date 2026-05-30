@@ -17,7 +17,23 @@ interface TiptapEditorProps {
 
 interface HandlersRef {
     handleImagePaste: (event: ClipboardEvent) => void;
+    handleMediaDrop: (
+        event: DragEvent,
+        position?: number,
+        options?: { invalidPositionMessage?: string }
+    ) => boolean;
 }
+
+const removeUploadPlaceholders = (html: string) => {
+    return html.replace(/<div[^>]*data-upload-placeholder="true"[^>]*>[\s\S]*?<\/div>/g, '');
+};
+
+const mayContainExternalMediaReference = (dataTransfer: DataTransfer) => {
+    const types = Array.from(dataTransfer.types ?? []);
+    return types.includes('text/html')
+        || types.includes('text/uri-list')
+        || types.includes('text/plain');
+};
 
 const TiptapEditor = ({
     name,
@@ -35,7 +51,10 @@ const TiptapEditor = ({
         }
     };
 
-    const handlersRef = useRef<HandlersRef>({ handleImagePaste: () => {} });
+    const handlersRef = useRef<HandlersRef>({
+        handleImagePaste: () => {},
+        handleMediaDrop: () => false
+    });
 
     const editor = useEditor({
         extensions: getEditorExtensions(placeholder),
@@ -43,25 +62,70 @@ const TiptapEditor = ({
         editable,
         editorProps: {
             attributes: { class: 'prose prose-lg max-w-none blog-post-content' },
-            handleDrop: (view, event, _slice, moved) => {
-                // 외부 파일 드롭은 React onDrop(useImageUpload)에서 처리
-                if (!moved) return false;
+            handleDOMEvents: {
+                drop: (view, event) => {
+                    const dataTransfer = event.dataTransfer;
+                    if (
+                        !dataTransfer
+                        || dataTransfer.files.length > 0
+                        || view.dragging
+                        || !mayContainExternalMediaReference(dataTransfer)
+                    ) {
+                        return false;
+                    }
 
+                    const posInfo = view.posAtCoords({
+                        left: event.clientX,
+                        top: event.clientY
+                    });
+
+                    return handlersRef.current.handleMediaDrop(event, posInfo?.pos);
+                }
+            },
+            handleDrop: (view, event, _slice, moved) => {
                 const coords = {
                     left: event.clientX,
                     top: event.clientY
                 };
                 const posInfo = view.posAtCoords(coords);
-                if (!posInfo) return false;
+                const isInternalDrag = Boolean(view.dragging);
+                let isColumnsContainerDrop = false;
 
-                const $pos = view.state.doc.resolve(posInfo.pos);
+                if (posInfo) {
+                    const $pos = view.state.doc.resolve(posInfo.pos);
+                    let isInsideColumn = false;
+                    let isInsideColumns = false;
 
-                // columns 구조 내에서 드롭 위치 확인
-                for (let d = $pos.depth; d >= 0; d--) {
-                    // column 안이면 ProseMirror가 정상 처리
-                    if ($pos.node(d).type.name === 'column') return false;
-                    // columns 컨테이너 레벨이면 차단 (새 column 생성 방지)
-                    if ($pos.node(d).type.name === 'columns') return true;
+                    // columns 구조 내에서 드롭 위치 확인
+                    for (let d = $pos.depth; d >= 0; d--) {
+                        // column 안이면 ProseMirror가 정상 처리
+                        if ($pos.node(d).type.name === 'column') {
+                            isInsideColumn = true;
+                            break;
+                        }
+                        // columns 컨테이너 레벨이면 차단 (새 column 생성 방지)
+                        if ($pos.node(d).type.name === 'columns') {
+                            isInsideColumns = true;
+                            break;
+                        }
+                    }
+
+                    isColumnsContainerDrop = isInsideColumns && !isInsideColumn;
+                }
+
+                if (isColumnsContainerDrop) {
+                    if (isInternalDrag || moved) return true;
+                    return handlersRef.current.handleMediaDrop(
+                        event,
+                        posInfo?.pos,
+                        { invalidPositionMessage: '컬럼 안쪽에 파일을 내려놓아 주세요.' }
+                    );
+                }
+
+                if (isInternalDrag || moved) return false;
+
+                if (handlersRef.current.handleMediaDrop(event, posInfo?.pos)) {
+                    return true;
                 }
 
                 return false;
@@ -73,7 +137,7 @@ const TiptapEditor = ({
 
                 if (items) {
                     for (let i = 0; i < items.length; i++) {
-                        if (items[i].type.startsWith('image/')) {
+                        if (items[i].type.startsWith('image/') || items[i].type.startsWith('video/')) {
                             handlersRef.current.handleImagePaste(event);
                             return true;
                         }
@@ -84,23 +148,60 @@ const TiptapEditor = ({
             }
         },
         onUpdate: ({ editor }) => {
-            handleChange(editor.getHTML());
+            handleChange(removeUploadPlaceholders(editor.getHTML()));
         }
     });
 
-    const { handleDrop, handlePaste: handleImagePaste, isUploading } = useImageUpload({
+    const {
+        handleDrop: handleMediaDrop,
+        handlePaste: handleImagePaste,
+        isUploading,
+        uploadingCount
+    } = useImageUpload({
         editor,
         onImageUpload,
         onImageUploadError
     });
 
     useEffect(() => {
-        handlersRef.current = { handleImagePaste };
-    }, [handleImagePaste]);
+        handlersRef.current = {
+            handleImagePaste,
+            handleMediaDrop
+        };
+    }, [handleImagePaste, handleMediaDrop]);
+
+    useEffect(() => {
+        if (!editor) return;
+
+        const handleExternalMediaDrop = (event: DragEvent) => {
+            const dataTransfer = event.dataTransfer;
+            if (
+                !dataTransfer
+                || dataTransfer.files.length > 0
+                || editor.view.dragging
+                || !mayContainExternalMediaReference(dataTransfer)
+            ) {
+                return;
+            }
+
+            const posInfo = editor.view.posAtCoords({
+                left: event.clientX,
+                top: event.clientY
+            });
+
+            handlersRef.current.handleMediaDrop(event, posInfo?.pos);
+        };
+
+        editor.view.dom.addEventListener('drop', handleExternalMediaDrop, { capture: true });
+
+        return () => {
+            editor.view.dom.removeEventListener('drop', handleExternalMediaDrop, { capture: true });
+        };
+    }, [editor]);
 
     useEffect(() => {
         if (editor && content !== undefined) {
-            const currentContent = editor.getHTML();
+            const currentContent = removeUploadPlaceholders(editor.getHTML());
             if (content !== currentContent && !editor.isFocused) {
                 const cleanedContent = content
                     .replace(/\.preview\.jpg/g, '')
@@ -114,11 +215,8 @@ const TiptapEditor = ({
     }, [editor, content]);
 
     return (
-        <div
-            onDragOver={(e) => e.preventDefault()}
-            onDrop={handleDrop}
-            style={{ minHeight: height }}>
-            <input type="hidden" name={name} value={editor?.getHTML() || content} />
+        <div style={{ minHeight: height }}>
+            <input type="hidden" name={name} value={editor ? removeUploadPlaceholders(editor.getHTML()) : content} />
 
             {editable && (
                 <MenuBar
@@ -131,9 +229,12 @@ const TiptapEditor = ({
             <EditorContent editor={editor} />
 
             {isUploading && (
-                <div className="flex items-center gap-2 px-3 py-2 text-sm text-content-secondary bg-surface-subtle rounded-lg mt-2 animate-pulse border border-line-light">
+                <div
+                    role="status"
+                    aria-live="polite"
+                    className="flex items-center gap-2 px-3 py-2 text-sm text-content-secondary bg-surface-subtle rounded-lg mt-2 animate-pulse border border-line-light">
                     <div className="w-4 h-4 border-2 border-line border-t-content-secondary rounded-full animate-spin" />
-                    <span>파일 업로드 중...</span>
+                    <span>{uploadingCount > 1 ? `파일 ${uploadingCount}개 업로드 중...` : '파일 업로드 중...'}</span>
                 </div>
             )}
 
@@ -155,6 +256,36 @@ const TiptapEditor = ({
                     transition: opacity 0.2s;
                     &:hover { opacity: 0.9; }
                     &:active { cursor: grabbing; }
+                }
+                .ProseMirror .media-upload-placeholder {
+                    display: flex;
+                    align-items: center;
+                    gap: 8px;
+                    margin: 16px 0;
+                    padding: 14px 16px;
+                    border: 1px dashed var(--color-line);
+                    border-radius: 8px;
+                    color: var(--color-content-secondary);
+                    background: var(--color-surface-subtle);
+                    font-size: 14px;
+                    line-height: 1.4;
+                }
+                .ProseMirror .media-upload-placeholder__spinner {
+                    width: 16px;
+                    height: 16px;
+                    flex: 0 0 auto;
+                    border: 2px solid var(--color-line);
+                    border-top-color: var(--color-content-secondary);
+                    border-radius: 9999px;
+                    animation: media-upload-spin 0.8s linear infinite;
+                }
+                .ProseMirror .media-upload-placeholder__text {
+                    overflow: hidden;
+                    text-overflow: ellipsis;
+                    white-space: nowrap;
+                }
+                @keyframes media-upload-spin {
+                    to { transform: rotate(360deg); }
                 }
                 .code-block-wrapper .code-block-header {
                     display: flex;

@@ -124,15 +124,15 @@ const NewPostEditor = ({
     }), [formData, tags, selectedSeries.url, imagePreview, imageFile, imageDeleted]);
 
     const handleEditorImageUpload = async (file: File) => {
-        try {
-            const { data } = await api.uploadImage(file);
-            if (data.status === 'DONE') {
-                return data.body.url;
-            }
-        } catch {
-            toast.error('이미지 업로드에 실패했습니다.');
+        const { data } = await api.uploadImage(file).catch(() => {
+            throw new Error('파일 업로드에 실패했습니다.');
+        });
+
+        if (data.status === 'DONE') {
+            return data.body.url;
         }
-        return undefined;
+
+        throw new Error(data.errorMessage || '파일 업로드에 실패했습니다.');
     };
 
     const handleAutoSaveSuccess = (url?: string) => {
@@ -451,6 +451,7 @@ const NewPostEditor = ({
                 onTagsChange={setTags}
                 onImageUpload={handleImageUpload}
                 onEditorImageUpload={handleEditorImageUpload}
+                onEditorImageUploadError={(errorMessage) => toast.error(errorMessage)}
                 onRemoveImage={handleRemoveImage}
             />
 

@@ -8,6 +8,10 @@ import SlashCommandMenu from './SlashCommandMenu';
 import EditorHelpText from '../ui/EditorHelpText';
 import { useImageUpload } from '../../hooks/useImageUpload';
 import { useSlashCommand } from '../../hooks/useSlashCommand';
+import {
+    ACCEPTED_IMAGE_INPUT_TYPES,
+    ACCEPTED_VIDEO_INPUT_TYPES
+} from '../../config/mediaUpload';
 
 interface MenuBarProps {
     editor: Editor | null;
@@ -57,7 +61,7 @@ const MenuBar = ({
             <input
                 ref={imageInput}
                 type="file"
-                accept="image/*"
+                accept={ACCEPTED_IMAGE_INPUT_TYPES}
                 multiple
                 className="hidden"
                 onChange={handleImageUpload}
@@ -65,7 +69,7 @@ const MenuBar = ({
             <input
                 ref={videoInput}
                 type="file"
-                accept="video/mp4,video/webm"
+                accept={ACCEPTED_VIDEO_INPUT_TYPES}
                 multiple
                 className="hidden"
                 onChange={handleVideoUpload}
