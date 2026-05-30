@@ -3,6 +3,7 @@ import { useEditor, EditorContent } from '@tiptap/react';
 import MenuBar from './components/menus/MenuBar';
 import { getEditorExtensions } from './config/editorConfig';
 import { useImageUpload } from './hooks/useImageUpload';
+import { normalizeMediaUrlsInHtml } from './utils/mediaUrls';
 
 interface TiptapEditorProps {
     name: string;
@@ -31,7 +32,7 @@ const TiptapEditor = ({
 }: TiptapEditorProps) => {
     const handleChange = (html: string) => {
         if (onChange) {
-            onChange(html);
+            onChange(normalizeMediaUrlsInHtml(html));
         }
     };
 
@@ -102,7 +103,7 @@ const TiptapEditor = ({
         if (editor && content !== undefined) {
             const currentContent = editor.getHTML();
             if (content !== currentContent && !editor.isFocused) {
-                const cleanedContent = content
+                const cleanedContent = normalizeMediaUrlsInHtml(content)
                     .replace(/\.preview\.jpg/g, '')
                     .replace(/data-src="([^"]+)"/g, 'src="$1"')
                     .replace(/class="[^"]*lazy[^"]*"/g, '')
@@ -118,7 +119,7 @@ const TiptapEditor = ({
             onDragOver={(e) => e.preventDefault()}
             onDrop={handleDrop}
             style={{ minHeight: height }}>
-            <input type="hidden" name={name} value={editor?.getHTML() || content} />
+            <input type="hidden" name={name} value={normalizeMediaUrlsInHtml(editor?.getHTML() || content)} />
 
             {editable && (
                 <MenuBar
