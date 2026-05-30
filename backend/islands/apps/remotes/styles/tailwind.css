@@ -45,6 +45,39 @@
     --ease-apple: var(--ease-apple);
 }
 
+@layer components {
+    /* Shared by post detail, post editor, and banner preview. Keep post layout widths here. */
+    .post-detail-layout {
+        display: grid;
+        width: 100%;
+        max-width: 91rem;
+        margin-inline: auto;
+        gap: 1.5rem;
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .post-detail-main {
+        width: 100%;
+        min-width: 0;
+    }
+
+    .post-detail-sidebar {
+        display: none;
+        width: 16rem;
+        flex-shrink: 0;
+    }
+
+    @media (min-width: 80rem) {
+        .post-detail-layout {
+            grid-template-columns: 16rem minmax(0, 56rem) 16rem;
+        }
+
+        .post-detail-sidebar {
+            display: block;
+        }
+    }
+}
+
 @utility dim-overlay-soft {
     background-color: var(--color-dim-soft);
 }

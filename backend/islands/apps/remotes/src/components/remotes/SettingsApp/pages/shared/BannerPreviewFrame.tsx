@@ -88,14 +88,14 @@ const BannerPreviewFrame = ({
 
     return (
         <div className="relative w-full px-4 md:px-6">
-            <div className="flex justify-center gap-6">
-                <aside className="hidden w-64 flex-shrink-0 xl:block">
+            <div className="post-detail-layout">
+                <aside className="post-detail-sidebar">
                     <div className="sticky top-28 space-y-4">
                         {renderSidebarSlot('left')}
                     </div>
                 </aside>
 
-                <div className="max-w-4xl w-full">
+                <div className="post-detail-main">
                     <div className="mt-6" role="main">
                         <article lang="ko">
                             <div className={cx('mb-12 transition-opacity sm:mb-16', mutedPostClass)}>
@@ -153,7 +153,7 @@ const BannerPreviewFrame = ({
                     </div>
                 </div>
 
-                <aside className="hidden w-64 flex-shrink-0 xl:block">
+                <aside className="post-detail-sidebar">
                     <div className="sticky top-28 space-y-4">
                         <div className="text-xs text-content-hint">
                             TOC / 우측 사이드바
