@@ -291,7 +291,7 @@ class PostDetailViewTestCase(TestCase):
         self.assertContains(response, '/@testauthor')
 
     def test_post_detail_uses_split_cover_outside_content_grid(self):
-        """분할 커버는 본문 그리드 바깥 커버 템플릿으로 렌더링한다."""
+        """분할 커버는 본문 그리드 바깥에서 상세 공통 프레임으로 렌더링한다."""
         self.set_post_image_path()
         self.post.config.cover_layout = 'split'
         self.post.config.cover_image_position = 'left'
@@ -308,6 +308,14 @@ class PostDetailViewTestCase(TestCase):
         self.assertTrue(response.context['post_cover_is_full_bleed'])
         self.assertContains(response, 'post-cover-split')
         self.assertNotContains(response, 'post-cover-default')
+
+        content = response.content.decode()
+        split_start = content.index('post-cover-split')
+        split_end = content.index('</section>', split_start)
+        split_markup = content[split_start:split_end]
+
+        self.assertIn('post-detail-frame', split_markup)
+        self.assertIn('post-detail-body--after-cover', content)
 
     def test_post_detail_overlay_cover_uses_theme_independent_light_text(self):
         """이미지 배경 커버 텍스트는 테마 토큰 반전 없이 흰색 계열로 렌더링한다."""
@@ -336,6 +344,7 @@ class PostDetailViewTestCase(TestCase):
         overlay_end = content.index('</section>', overlay_start)
         overlay_markup = content[overlay_start:overlay_end]
 
+        self.assertIn('post-detail-frame', overlay_markup)
         self.assertIn('text-white ', overlay_markup)
         self.assertIn('text-white/85', overlay_markup)
         self.assertIn('text-white/80', overlay_markup)
@@ -359,6 +368,7 @@ class PostDetailViewTestCase(TestCase):
         self.assertFalse(response.context['post_cover_is_full_bleed'])
         self.assertContains(response, 'post-cover-default')
         self.assertNotContains(response, 'post-cover-overlay')
+        self.assertNotContains(response, 'post-detail-body--after-cover')
 
     def test_post_detail_cover_hidden_keeps_share_image_metadata(self):
         """커버 숨김은 상세 상단 이미지만 숨기고 공유용 대표 이미지는 유지한다."""
