@@ -47,13 +47,21 @@
 
 @layer components {
     /* Shared by post detail, post editor, and banner preview. Keep post layout widths here. */
+    .post-detail-frame,
     .post-detail-layout {
-        display: grid;
         width: 100%;
         max-width: 91rem;
         margin-inline: auto;
+    }
+
+    .post-detail-layout {
+        display: grid;
         gap: 1.5rem;
         grid-template-columns: minmax(0, 1fr);
+    }
+
+    .post-detail-body--after-cover {
+        padding-top: 2rem;
     }
 
     .post-detail-main {
@@ -74,6 +82,12 @@
 
         .post-detail-sidebar {
             display: block;
+        }
+    }
+
+    @media (min-width: 40rem) {
+        .post-detail-body--after-cover {
+            padding-top: 2.5rem;
         }
     }
 }
