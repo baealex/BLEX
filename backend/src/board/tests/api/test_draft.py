@@ -82,6 +82,36 @@ class DraftTestCase(TestCase):
         self.assertTrue(post.is_draft())
         self.assertFalse(post.is_published())
 
+    def test_create_draft_with_cover_options(self):
+        """드래프트 생성 시 커버 설정을 저장하고 상세 응답에 반환한다."""
+        self.client.login(username='test', password='test')
+
+        response = self.client.post(
+            '/v1/drafts',
+            json.dumps({
+                'title': 'Cover Draft',
+                'content': '<p>Hello world</p>',
+                'tags': 'python,django',
+                'cover_layout': 'overlay',
+                'cover_image_position': 'left',
+                'cover_image_ratio': '1:1',
+            }),
+            content_type='application/json'
+        )
+        self.assertEqual(response.status_code, 200)
+        body = json.loads(response.content)['body']
+
+        post = Post.objects.get(url=body['url'])
+        self.assertEqual(post.config.cover_layout, 'overlay')
+        self.assertEqual(post.config.cover_image_position, 'left')
+        self.assertEqual(post.config.cover_image_ratio, '1:1')
+
+        detail_response = self.client.get(f"/v1/drafts/{body['url']}")
+        detail = json.loads(detail_response.content)['body']
+        self.assertEqual(detail['coverLayout'], 'overlay')
+        self.assertEqual(detail['coverImagePosition'], 'left')
+        self.assertEqual(detail['coverImageRatio'], '1:1')
+
     def test_create_draft_empty_title(self):
         """빈 제목으로 드래프트 생성 시 기본 제목"""
         self.client.login(username='test', password='test')
@@ -182,6 +212,26 @@ class DraftTestCase(TestCase):
         self.assertEqual(post.title, 'Updated Title')
         self.assertEqual(post.subtitle, 'My subtitle')
         self.assertIsNone(post.published_date)
+
+    def test_update_draft_cover_options(self):
+        """드래프트 수정 시 커버 설정을 갱신한다."""
+        url = self._create_draft()
+
+        response = self.client.put(
+            f'/v1/drafts/{url}',
+            json.dumps({
+                'cover_layout': 'none',
+                'cover_image_position': 'right',
+                'cover_image_ratio': 'auto',
+            }),
+            content_type='application/json'
+        )
+        self.assertEqual(response.status_code, 200)
+
+        post = Post.objects.get(url=url)
+        self.assertEqual(post.config.cover_layout, 'none')
+        self.assertEqual(post.config.cover_image_position, 'right')
+        self.assertEqual(post.config.cover_image_ratio, 'auto')
 
     def test_create_draft_with_image(self):
         """이미지를 포함한 임시저장이 타이틀 이미지를 유지한다."""

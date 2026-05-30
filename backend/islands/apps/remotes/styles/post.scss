@@ -1,5 +1,14 @@
 @forward '@blex/editor/styles/highlight-theme';
 
+.post-cover-overlay-shade {
+    background: linear-gradient(
+        180deg,
+        rgb(0 0 0 / 0.18) 0%,
+        rgb(0 0 0 / 0.42) 48%,
+        rgb(0 0 0 / 0.74) 100%
+    );
+}
+
 .blog-post-content {
     max-width: 100%;
     font-size: 1.1em;
@@ -393,4 +402,3 @@
         background: transparent !important;
     }
 }
-

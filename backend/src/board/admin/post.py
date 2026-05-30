@@ -76,7 +76,7 @@ class PostConfigInline(admin.TabularInline):
     """Inline editor for post configuration (visibility, etc)."""
     model = PostConfig
     can_delete = False
-    fields = ['hide', 'advertise', 'block_comment']
+    fields = ['hide', 'advertise', 'block_comment', 'cover_layout', 'cover_image_position', 'cover_image_ratio']
     extra = 0
     max_num = 1
 
@@ -102,6 +102,7 @@ class PostAdmin(admin.ModelAdmin):
         'config__hide',
         'config__advertise',
         'config__block_comment',
+        'config__cover_layout',
     ]
 
     list_display = [

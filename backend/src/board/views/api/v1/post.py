@@ -45,6 +45,9 @@ def post_list(request):
                 is_hide=BooleanType(request.POST.get('is_hide', '')),
                 is_advertise=BooleanType(request.POST.get('is_advertise', '')),
                 content_type=request.POST.get('content_type', 'html'),
+                cover_layout=request.POST.get('cover_layout'),
+                cover_image_position=request.POST.get('cover_image_position'),
+                cover_image_ratio=request.POST.get('cover_image_ratio'),
             )
 
             return StatusDone({
@@ -89,7 +92,10 @@ def user_posts(request, username, url=None):
                     'text_html': content_html,
                     'tags': post.tagging(),
                     'is_hide': post.config.hide,
-                    'is_advertise': post.config.advertise
+                    'is_advertise': post.config.advertise,
+                    'cover_layout': post.config.cover_layout,
+                    'cover_image_position': post.config.cover_image_position,
+                    'cover_image_ratio': post.config.cover_image_ratio,
                 })
 
             if request.GET.get('mode') == 'view':
@@ -117,6 +123,9 @@ def user_posts(request, username, url=None):
                     'count_likes': post.count_likes,
                     'count_comments': post.count_comments,
                     'is_ad': post.config.advertise,
+                    'cover_layout': post.config.cover_layout,
+                    'cover_image_position': post.config.cover_image_position,
+                    'cover_image_ratio': post.config.cover_image_ratio,
                     'tags': post.tagging(),
                     'is_liked': post.has_liked,
                 })
@@ -147,6 +156,9 @@ def user_posts(request, username, url=None):
                     is_advertise=BooleanType(request.POST.get('is_advertise', '')),
                     tag=request.POST.get('tag', ''),
                     content_type=request.POST.get('content_type'),
+                    cover_layout=request.POST.get('cover_layout'),
+                    cover_image_position=request.POST.get('cover_image_position'),
+                    cover_image_ratio=request.POST.get('cover_image_ratio'),
                 )
             except PostValidationError as e:
                 return StatusError(e.code, e.message)

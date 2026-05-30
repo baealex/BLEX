@@ -259,6 +259,9 @@ def create_post(request, payload: PostMutationPayload):
                 tag=DeveloperPostAPI.tags_value(data),
                 custom_url=data.get('slug', data.get('url', '')),
                 content_type=content_type,
+                cover_layout=data.get('cover_layout'),
+                cover_image_position=data.get('cover_image_position'),
+                cover_image_ratio=data.get('cover_image_ratio'),
             )
         elif status in ('published', 'scheduled'):
             if status == 'scheduled' and not data.get('published_at'):
@@ -281,6 +284,9 @@ def create_post(request, payload: PostMutationPayload):
                 is_hide=DeveloperPostAPI.parse_bool(data.get('is_hidden', data.get('is_hide')), False),
                 is_advertise=DeveloperPostAPI.parse_bool(data.get('is_advertise'), False),
                 content_type=content_type,
+                cover_layout=data.get('cover_layout'),
+                cover_image_position=data.get('cover_image_position'),
+                cover_image_ratio=data.get('cover_image_ratio'),
             )
         else:
             return error_response(
@@ -420,6 +426,9 @@ def update_post(request, post_id: int, payload: PostUpdatePayload):
                 tag=DeveloperPostAPI.tags_value(data) if 'tags' in data or 'tag' in data else None,
                 custom_url=data.get('slug', data.get('url')) if 'slug' in data or 'url' in data else None,
                 content_type=content_type,
+                cover_layout=data.get('cover_layout'),
+                cover_image_position=data.get('cover_image_position'),
+                cover_image_ratio=data.get('cover_image_ratio'),
             )
         else:
             PostService.update_post(
@@ -436,6 +445,9 @@ def update_post(request, post_id: int, payload: PostUpdatePayload):
                 is_advertise=DeveloperPostAPI.parse_bool(data.get('is_advertise'), post.config.advertise)
                 if 'is_advertise' in data else None,
                 content_type=content_type,
+                cover_layout=data.get('cover_layout'),
+                cover_image_position=data.get('cover_image_position'),
+                cover_image_ratio=data.get('cover_image_ratio'),
             )
     except DeveloperAuthError as error:
         return auth_error_response(error)
@@ -527,6 +539,9 @@ def publish_post(request, post_id: int, payload: PostPublishPayload | None = Bod
             is_advertise=DeveloperPostAPI.parse_bool(data.get('is_advertise'), False),
             reserved_date_str=data.get('published_at', ''),
             content_type=content_type,
+            cover_layout=data.get('cover_layout'),
+            cover_image_position=data.get('cover_image_position'),
+            cover_image_ratio=data.get('cover_image_ratio'),
         )
     except DeveloperAuthError as error:
         return auth_error_response(error)

@@ -1,0 +1,11 @@
+{% if post.series %}
+<div class="flex items-center gap-2 mb-6">
+    <a href="{% url 'series_detail' post.author_username post.series.url %}" class="inline-flex items-center gap-1.5 px-3 py-1 {% if cover_inverted %}bg-white/90 text-neutral-950 hover:bg-white{% else %}bg-action text-content-inverted hover:bg-action-hover{% endif %} rounded-full text-xs font-semibold transition-colors">
+        <i class="fas fa-layer-group text-[10px] opacity-70"></i>
+        {{ post.series.name }}
+    </a>
+    {% if post.series_index %}
+    <span class="text-xs {% if cover_inverted %}text-white/80{% else %}text-content-hint{% endif %} font-medium">{{ post.series_index }} / {{ post.series_total }}</span>
+    {% endif %}
+</div>
+{% endif %}

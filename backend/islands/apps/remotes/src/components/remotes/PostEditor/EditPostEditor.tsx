@@ -24,6 +24,9 @@ interface DirtySnapshot {
     metaDescription: string;
     hide: boolean;
     advertise: boolean;
+    coverLayout: string;
+    coverImagePosition: string;
+    coverImageRatio: string;
     tags: string[];
     seriesUrl: string;
     imagePreview: string | null;
@@ -43,7 +46,10 @@ const EditPostEditor = ({ username, postUrl }: EditPostEditorProps) => {
         content: '',
         metaDescription: '',
         hide: false,
-        advertise: false
+        advertise: false,
+        coverLayout: 'default',
+        coverImagePosition: 'right',
+        coverImageRatio: 'auto'
     });
 
     const [tags, setTags] = useState<string[]>([]);
@@ -69,6 +75,9 @@ const EditPostEditor = ({ username, postUrl }: EditPostEditorProps) => {
         metaDescription: formData.metaDescription,
         hide: formData.hide,
         advertise: formData.advertise,
+        coverLayout: formData.coverLayout,
+        coverImagePosition: formData.coverImagePosition,
+        coverImageRatio: formData.coverImageRatio,
         tags,
         seriesUrl: selectedSeries.url,
         imagePreview,
@@ -102,7 +111,10 @@ const EditPostEditor = ({ username, postUrl }: EditPostEditorProps) => {
                         content: postData.contentHtml || '',
                         metaDescription: postData.description || '',
                         hide: postData.isHide || false,
-                        advertise: postData.isAdvertise || false
+                        advertise: postData.isAdvertise || false,
+                        coverLayout: postData.coverLayout || 'default',
+                        coverImagePosition: postData.coverImagePosition || 'right',
+                        coverImageRatio: postData.coverImageRatio || 'auto'
                     });
                     setTags(postData.tags || []);
                     initialDataRef.current = {
@@ -113,6 +125,9 @@ const EditPostEditor = ({ username, postUrl }: EditPostEditorProps) => {
                         metaDescription: postData.description || '',
                         hide: postData.isHide || false,
                         advertise: postData.isAdvertise || false,
+                        coverLayout: postData.coverLayout || 'default',
+                        coverImagePosition: postData.coverImagePosition || 'right',
+                        coverImageRatio: postData.coverImageRatio || 'auto',
                         tags: postData.tags || [],
                         seriesUrl: postData.series?.url || '',
                         imagePreview: postData.image || null,
@@ -236,6 +251,9 @@ const EditPostEditor = ({ username, postUrl }: EditPostEditorProps) => {
             addHiddenField('tag', tags.join(','));
             addHiddenField('series', selectedSeries.id);
             addHiddenField('content_html', formData.content);
+            addHiddenField('cover_layout', formData.coverLayout);
+            addHiddenField('cover_image_position', formData.coverImagePosition);
+            addHiddenField('cover_image_ratio', formData.coverImageRatio);
 
             if (isDraft) {
                 addHiddenField('is_draft', 'true');
@@ -345,6 +363,7 @@ const EditPostEditor = ({ username, postUrl }: EditPostEditorProps) => {
                 selectedSeries={selectedSeries}
                 seriesList={seriesList}
                 formData={formData}
+                imagePreview={imagePreview}
                 onUrlChange={() => { }} // URL is not editable in edit mode
                 onMetaDescriptionChange={(metaDescription) => setFormData(prev => ({
                     ...prev,

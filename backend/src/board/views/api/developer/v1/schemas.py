@@ -2,6 +2,10 @@ from typing import Any, Literal
 
 from ninja import Field, Schema
 
+CoverLayout = Literal['default', 'split', 'overlay', 'none']
+CoverImagePosition = Literal['left', 'right']
+CoverImageRatio = Literal['auto', '16:9', '4:3', '1:1', '3:4']
+
 
 class DeveloperError(Schema):
     code: str
@@ -54,6 +58,9 @@ class PostSummary(Schema):
     series: SeriesReference | None
     is_hidden: bool
     is_advertise: bool
+    cover_layout: CoverLayout
+    cover_image_position: CoverImagePosition
+    cover_image_ratio: CoverImageRatio
     created_at: str
     updated_at: str
     published_at: str | None
@@ -108,6 +115,9 @@ class PostBodyPayload(Schema):
     is_hidden: bool | None = Field(None, description='발행 글을 비공개 처리할지 여부입니다.')
     is_hide: bool | None = Field(None, description='기존 클라이언트를 위한 비공개 호환 필드입니다.')
     is_advertise: bool | None = Field(None, description='홍보/광고성 글 여부입니다.')
+    cover_layout: CoverLayout | None = Field(None, description='상세 화면 커버 배치입니다.')
+    cover_image_position: CoverImagePosition | None = Field(None, description='분할 커버에서 대표 이미지 위치입니다.')
+    cover_image_ratio: CoverImageRatio | None = Field(None, description='기본/분할 커버에서 대표 이미지 비율입니다.')
     published_at: str | None = Field(None, description='예약 발행 시각입니다. ISO datetime 문자열을 사용합니다.')
 
 

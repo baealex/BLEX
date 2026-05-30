@@ -87,11 +87,22 @@ def post_detail(request, username, post_url):
     can_edit_post = PostService.can_user_edit_post(request.user, post)
 
     show_agent_post_markdown = aeo_enabled and is_public_post
+    post_cover_layout = post.config.cover_layout
+    if post_cover_layout not in {'default', 'split', 'overlay', 'none'}:
+        post_cover_layout = 'default'
+    if not post.image and post_cover_layout in {'split', 'overlay'}:
+        post_cover_layout = 'default'
+    post_cover_is_full_bleed = post_cover_layout in {'split', 'overlay'}
+    post_cover_template = f'board/posts/covers/{post_cover_layout}.html'
+
     context = {
         'post': post,
         'banners': banners,
         'content_html': content_html_with_ids,
         'table_of_contents': table_of_contents,
+        'post_cover_layout': post_cover_layout,
+        'post_cover_is_full_bleed': post_cover_is_full_bleed,
+        'post_cover_template': post_cover_template,
         'aeo_enabled': aeo_enabled,
         'canonical_url': canonical_url,
         'author_url': author_url,
@@ -184,6 +195,9 @@ def post_editor(request, username=None, post_url=None):
         advertise = request.POST.get('advertise') in ['on', 'true']
         is_draft = request.POST.get('is_draft') == 'true'
         image_delete = request.POST.get('image_delete') == 'true' or request.POST.get('remove_image') == 'true'
+        cover_layout = request.POST.get('cover_layout')
+        cover_image_position = request.POST.get('cover_image_position')
+        cover_image_ratio = request.POST.get('cover_image_ratio')
 
         series = None
         if series_id:
@@ -212,6 +226,9 @@ def post_editor(request, username=None, post_url=None):
                 is_hide=hide,
                 is_advertise=advertise,
                 content_type=content_type,
+                cover_layout=cover_layout,
+                cover_image_position=cover_image_position,
+                cover_image_ratio=cover_image_ratio,
             )
 
             messages.success(request, 'Post has been updated successfully.')
@@ -243,6 +260,9 @@ def post_editor(request, username=None, post_url=None):
                         is_hide=hide,
                         is_advertise=advertise,
                         content_type=content_type,
+                        cover_layout=cover_layout,
+                        cover_image_position=cover_image_position,
+                        cover_image_ratio=cover_image_ratio,
                     )
                     messages.success(request, 'Post has been published successfully.')
                 except Post.DoesNotExist:
@@ -267,6 +287,9 @@ def post_editor(request, username=None, post_url=None):
                         is_hide=hide,
                         is_advertise=advertise,
                         content_type=content_type,
+                        cover_layout=cover_layout,
+                        cover_image_position=cover_image_position,
+                        cover_image_ratio=cover_image_ratio,
                     )
                     messages.success(request, 'Post has been created successfully.')
                 except PostValidationError as e:

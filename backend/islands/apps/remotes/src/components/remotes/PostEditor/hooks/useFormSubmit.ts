@@ -8,6 +8,9 @@ interface FormSubmitData {
     content: string;
     tags: string[];
     seriesId: string;
+    coverLayout: string;
+    coverImagePosition: string;
+    coverImageRatio: string;
     imageDeleted?: boolean;
 }
 
@@ -83,6 +86,9 @@ export const useFormSubmit = (options: UseFormSubmitOptions) => {
             addHiddenField(form, 'tag', data.tags.join(','));
             addHiddenField(form, 'series', data.seriesId);
             addHiddenField(form, 'content_html', data.content);
+            addHiddenField(form, 'cover_layout', data.coverLayout);
+            addHiddenField(form, 'cover_image_position', data.coverImagePosition);
+            addHiddenField(form, 'cover_image_ratio', data.coverImageRatio);
 
             if (isDraft) {
                 addHiddenField(form, 'is_draft', 'true');

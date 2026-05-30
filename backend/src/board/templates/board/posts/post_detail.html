@@ -51,8 +51,13 @@
 {% endblock %}
 
 {% block content %}
-<div class="relative w-full px-4 md:px-6">
-    <div class="post-detail-layout">
+<div class="relative w-full">
+    {% if post_cover_is_full_bleed %}
+        {% include post_cover_template %}
+    {% endif %}
+
+    <div class="px-4 md:px-6">
+        <div class="post-detail-layout">
         <!-- Left Sidebar Space (Always present on desktop) -->
         <aside class="post-detail-sidebar">
             <div class="sticky top-28 space-y-4">
@@ -110,56 +115,8 @@
                     </section>
                     {% endif %}
 
-                    <!-- Article Header -->
-                    <div class="mb-12 sm:mb-16">
-                        {% if post.series %}
-                        <div class="flex items-center gap-2 mb-6">
-                            <a href="{% url 'series_detail' post.author_username post.series.url %}" class="inline-flex items-center gap-1.5 px-3 py-1 bg-action text-content-inverted rounded-full text-xs font-semibold hover:bg-action-hover transition-colors">
-                                <i class="fas fa-layer-group text-[10px] opacity-70"></i>
-                                {{ post.series.name }}
-                            </a>
-                            {% if post.series_index %}
-                            <span class="text-xs text-content-hint font-medium">{{ post.series_index }} / {{ post.series_total }}</span>
-                            {% endif %}
-                        </div>
-                        {% endif %}
-
-                        <h1 class="text-2xl sm:text-3xl lg:text-4xl font-bold text-content {% if not post.subtitle %}mb-8{% else %}mb-3{% endif %} leading-tight tracking-tight break-words" itemprop="headline">
-                            {{ post.title }}
-                        </h1>
-                        {% if post.subtitle %}
-                        <p class="text-lg sm:text-xl text-content-secondary mb-8 leading-relaxed font-medium">
-                            {{ post.subtitle }}
-                        </p>
-                        {% endif %}
-
-                        <div class="flex items-center gap-4 text-sm border-b border-line-light pb-8" itemprop="author" itemscope itemtype="https://schema.org/Person">
-                            <a href="/@{{ post.author_username }}" class="group flex-shrink-0">
-                                <img class="w-10 h-10 rounded-full object-cover ring-2 ring-line-light group-hover:ring-line-strong transition-all"
-                                    src="{% if post.author_image %}{% media post.author_image %}{% else %}{% resource 'assets/images/default-avatar.jpg' %}{% endif %}"
-                                    alt="{{ post.author_username }}">
-                            </a>
-                            <div class="flex flex-wrap items-center gap-x-2 gap-y-1">
-                                <a href="/@{{ post.author_username }}" class="font-semibold text-content hover:text-content-secondary transition-colors" itemprop="name">
-                                    {{ post.author_username }}
-                                </a>
-                                <span class="text-line-strong">·</span>
-                                <span class="text-content-secondary" itemprop="datePublished" content="{{ post.published_date|date:'c' }}">{{ post.created_date_display }} 발행</span>
-                                {% if show_post_updated_date %}
-                                <span class="text-line-strong">·</span>
-                                <span class="text-content-secondary" itemprop="dateModified" content="{{ post.updated_date|date:'c' }}">{{ post.updated_date_display }} 수정</span>
-                                {% endif %}
-                                <span class="text-line-strong">·</span>
-                                <span class="text-content-secondary" aria-label="읽는 시간">{{ post.read_time }}분 소요</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Featured Image -->
-                    {% if post.image %}
-                    <div class="mb-12 sm:mb-16">
-                        <img class="w-full rounded-2xl ring-1 ring-line/60" src="{{ post.image.url }}" alt="{{ post.title }}" itemprop="image">
-                    </div>
+                    {% if not post_cover_is_full_bleed %}
+                        {% include post_cover_template %}
                     {% endif %}
 
                     <!-- Top Banners (After Featured Image) -->
@@ -563,11 +520,12 @@
                 {% endif %}
             </div>
         </aside>
-    </div>
+        </div>
 
-    <div class="max-w-7xl mx-auto">
-        <div class="my-16">
-            {% island_component 'RelatedPosts' lazy=True postUrl=post.url username=post.author_username %}
+        <div class="max-w-7xl mx-auto">
+            <div class="my-16">
+                {% island_component 'RelatedPosts' lazy=True postUrl=post.url username=post.author_username %}
+            </div>
         </div>
     </div>
 </div>

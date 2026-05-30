@@ -1,0 +1,22 @@
+{% load resource %}
+
+<div class="flex items-center gap-4 text-sm {% if cover_meta_border %}border-b border-line-light pb-8{% endif %}" itemprop="author" itemscope itemtype="https://schema.org/Person">
+    <a href="/@{{ post.author_username }}" class="group flex-shrink-0">
+        <img class="w-10 h-10 rounded-full object-cover ring-2 {% if cover_inverted %}ring-white/60 group-hover:ring-white{% else %}ring-line-light group-hover:ring-line-strong{% endif %} transition-all"
+            src="{% if post.author_image %}{% media post.author_image %}{% else %}{% resource 'assets/images/default-avatar.jpg' %}{% endif %}"
+            alt="{{ post.author_username }}">
+    </a>
+    <div class="flex flex-wrap items-center gap-x-2 gap-y-1">
+        <a href="/@{{ post.author_username }}" class="font-semibold {% if cover_inverted %}text-white hover:text-white/80{% else %}text-content hover:text-content-secondary{% endif %} transition-colors" itemprop="name">
+            {{ post.author_username }}
+        </a>
+        <span class="{% if cover_inverted %}text-white/55{% else %}text-line-strong{% endif %}">·</span>
+        <span class="{% if cover_inverted %}text-white/80{% else %}text-content-secondary{% endif %}" itemprop="datePublished" content="{{ post.published_date|date:'c' }}">{{ post.created_date_display }} 발행</span>
+        {% if show_post_updated_date %}
+        <span class="{% if cover_inverted %}text-white/55{% else %}text-line-strong{% endif %}">·</span>
+        <span class="{% if cover_inverted %}text-white/80{% else %}text-content-secondary{% endif %}" itemprop="dateModified" content="{{ post.updated_date|date:'c' }}">{{ post.updated_date_display }} 수정</span>
+        {% endif %}
+        <span class="{% if cover_inverted %}text-white/55{% else %}text-line-strong{% endif %}">·</span>
+        <span class="{% if cover_inverted %}text-white/80{% else %}text-content-secondary{% endif %}" aria-label="읽는 시간">{{ post.read_time }}분 소요</span>
+    </div>
+</div>

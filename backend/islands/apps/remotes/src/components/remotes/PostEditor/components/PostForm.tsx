@@ -1,8 +1,8 @@
 import React, { useRef } from 'react';
 import { TiptapEditor } from '~/components/shared';
 import { getCsrfToken } from '~/utils/csrf';
-import ImageUploader from './ImageUploader';
 import TagManager from './TagManager';
+import PostCoverEditor from './PostCoverEditor';
 
 interface PostFormData {
     title: string;
@@ -12,6 +12,9 @@ interface PostFormData {
     metaDescription: string;
     hide: boolean;
     advertise: boolean;
+    coverLayout: string;
+    coverImagePosition: string;
+    coverImageRatio: string;
 }
 
 interface PostFormProps {
@@ -59,36 +62,11 @@ const PostForm = ({
             <input type="hidden" name="csrfmiddlewaretoken" value={getCsrfToken()} />
 
             <article>
-                <div className="mb-8">
-                    <label htmlFor="title" className="sr-only">제목</label>
-                    <input
-                        type="text"
-                        id="title"
-                        name="title"
-                        value={formData.title}
-                        onChange={(e) => onTitleChange(e.target.value)}
-                        maxLength={65}
-                        className="w-full px-0 py-0 border-0 focus:ring-0 text-2xl sm:text-3xl lg:text-4xl font-bold text-content placeholder-content-hint leading-tight tracking-tight break-words"
-                        placeholder="제목을 입력하세요"
-                        required
-                    />
-                    {formData.title.length > 50 && (
-                        <p className={`text-xs mt-1 ${formData.title.length >= 65 ? 'text-danger' : 'text-content-hint'}`}>
-                            {formData.title.length}/65
-                        </p>
-                    )}
-                    <input
-                        type="text"
-                        name="subtitle"
-                        value={formData.subtitle}
-                        onChange={(e) => onSubtitleChange(e.target.value)}
-                        className="w-full px-0 py-0 border-0 focus:ring-0 text-lg sm:text-xl text-content-secondary placeholder-content-hint leading-tight mt-2"
-                        placeholder="부제목 (선택사항)"
-                    />
-                </div>
-
-                <ImageUploader
+                <PostCoverEditor
+                    formData={formData}
                     imagePreview={imagePreview}
+                    onTitleChange={onTitleChange}
+                    onSubtitleChange={onSubtitleChange}
                     onImageUpload={onImageUpload}
                     onRemoveImage={onRemoveImage}
                 />
