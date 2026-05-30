@@ -82,6 +82,7 @@ export const useFormSubmit = (options: UseFormSubmitOptions) => {
             addHiddenField(form, 'url', normalizeUrlForSubmit(data.url));
             addHiddenField(form, 'tag', data.tags.join(','));
             addHiddenField(form, 'series', data.seriesId);
+            addHiddenField(form, 'content_html', data.content);
 
             if (isDraft) {
                 addHiddenField(form, 'is_draft', 'true');

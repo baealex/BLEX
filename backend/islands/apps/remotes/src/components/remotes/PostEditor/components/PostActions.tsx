@@ -8,6 +8,7 @@ interface PostActionsProps {
     mode: 'new' | 'edit' | 'draft';
     isSaving: boolean;
     isSubmitting: boolean;
+    isMediaUploading?: boolean;
     lastSaved: Date | null;
     hasSaveError?: boolean;
     hasPendingChanges?: boolean;
@@ -31,6 +32,7 @@ const PostActions = ({
     mode,
     isSaving,
     isSubmitting,
+    isMediaUploading = false,
     lastSaved,
     hasSaveError = false,
     hasPendingChanges = false,
@@ -42,6 +44,7 @@ const PostActions = ({
 }: PostActionsProps) => {
     const isEdit = mode === 'edit';
     const submitLabel = isEdit ? '수정' : '발행';
+    const isBusy = isSubmitting || isSaving || isMediaUploading;
     const [, setTick] = useState(0);
 
     // Update time display every 30 seconds
@@ -123,7 +126,7 @@ const PostActions = ({
                     <button
                         type="button"
                         onClick={onManualSave}
-                        disabled={isSubmitting || isSaving}
+                        disabled={isBusy}
                         className="flex items-center gap-1.5 px-2.5 py-1 text-xs font-medium text-content-secondary hover:text-content hover:bg-surface-subtle active:scale-95 rounded-full transition-all motion-interaction disabled:opacity-50"
                         title="임시 저장">
                         <span>임시 저장</span>
@@ -134,7 +137,7 @@ const PostActions = ({
             {/* Publish/Update Button */}
             <Button
                 onClick={onSubmit}
-                disabled={isSubmitting || isSaving}
+                disabled={isBusy}
                 variant="primary"
                 className="!rounded-full"
                 leftIcon={<Send className="w-4 h-4" />}
