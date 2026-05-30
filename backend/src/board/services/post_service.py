@@ -42,6 +42,68 @@ class PostService:
     """Service class for handling post-related business logic"""
 
     @staticmethod
+    def normalize_cover_options(
+        cover_layout: Optional[str] = None,
+        cover_image_position: Optional[str] = None,
+        cover_image_ratio: Optional[str] = None,
+        current_config: Optional[PostConfig] = None,
+    ) -> Dict[str, str]:
+        if cover_layout == '':
+            cover_layout = None
+        if cover_image_position == '':
+            cover_image_position = None
+        if cover_image_ratio == '':
+            cover_image_ratio = None
+
+        defaults = {
+            'cover_layout': current_config.cover_layout if current_config else PostConfig.CoverLayout.DEFAULT,
+            'cover_image_position': current_config.cover_image_position if current_config else PostConfig.CoverImagePosition.RIGHT,
+            'cover_image_ratio': current_config.cover_image_ratio if current_config else PostConfig.CoverImageRatio.AUTO,
+        }
+
+        if cover_layout is not None and cover_layout not in PostConfig.CoverLayout.values:
+            raise PostValidationError(
+                ErrorCode.VALIDATE,
+                '지원하지 않는 커버 스타일입니다.'
+            )
+        if cover_image_position is not None and cover_image_position not in PostConfig.CoverImagePosition.values:
+            raise PostValidationError(
+                ErrorCode.VALIDATE,
+                '지원하지 않는 커버 이미지 위치입니다.'
+            )
+        if cover_image_ratio is not None and cover_image_ratio not in PostConfig.CoverImageRatio.values:
+            raise PostValidationError(
+                ErrorCode.VALIDATE,
+                '지원하지 않는 커버 이미지 비율입니다.'
+            )
+
+        if cover_layout is not None:
+            defaults['cover_layout'] = cover_layout
+        if cover_image_position is not None:
+            defaults['cover_image_position'] = cover_image_position
+        if cover_image_ratio is not None:
+            defaults['cover_image_ratio'] = cover_image_ratio
+
+        return defaults
+
+    @staticmethod
+    def apply_cover_options(
+        post_config: PostConfig,
+        cover_layout: Optional[str] = None,
+        cover_image_position: Optional[str] = None,
+        cover_image_ratio: Optional[str] = None,
+    ) -> None:
+        options = PostService.normalize_cover_options(
+            cover_layout=cover_layout,
+            cover_image_position=cover_image_position,
+            cover_image_ratio=cover_image_ratio,
+            current_config=post_config,
+        )
+        post_config.cover_layout = options['cover_layout']
+        post_config.cover_image_position = options['cover_image_position']
+        post_config.cover_image_ratio = options['cover_image_ratio']
+
+    @staticmethod
     def validate_user_permissions(user: User) -> None:
         """
         Validate if user has permission to create posts.
@@ -270,6 +332,9 @@ class PostService:
         is_hide: bool = False,
         is_advertise: bool = False,
         content_type: str = 'html',
+        cover_layout: Optional[str] = None,
+        cover_image_position: Optional[str] = None,
+        cover_image_ratio: Optional[str] = None,
     ) -> Tuple[Post, PostContent, PostConfig]:
         """
         Create a new post with all related objects.
@@ -338,7 +403,12 @@ class PostService:
         post_config = PostConfig.objects.create(
             post=post,
             hide=is_hide,
-            advertise=is_advertise
+            advertise=is_advertise,
+            **PostService.normalize_cover_options(
+                cover_layout=cover_layout,
+                cover_image_position=cover_image_position,
+                cover_image_ratio=cover_image_ratio,
+            ),
         )
 
         PostService.send_post_notifications(post, post_config)
@@ -482,6 +552,9 @@ class PostService:
         is_hide: Optional[bool] = None,
         is_advertise: Optional[bool] = None,
         content_type: Optional[str] = None,
+        cover_layout: Optional[str] = None,
+        cover_image_position: Optional[str] = None,
+        cover_image_ratio: Optional[str] = None,
     ) -> Post:
         """
         Update existing post.
@@ -549,12 +622,26 @@ class PostService:
 
         post.save()
 
-        if is_hide is not None or is_advertise is not None:
+        should_update_config = (
+            is_hide is not None
+            or is_advertise is not None
+            or cover_layout is not None
+            or cover_image_position is not None
+            or cover_image_ratio is not None
+        )
+
+        if should_update_config:
             post_config = post.config
             if is_hide is not None:
                 post_config.hide = is_hide
             if is_advertise is not None:
                 post_config.advertise = is_advertise
+            PostService.apply_cover_options(
+                post_config,
+                cover_layout=cover_layout,
+                cover_image_position=cover_image_position,
+                cover_image_ratio=cover_image_ratio,
+            )
             post_config.save()
 
         return post
@@ -613,6 +700,9 @@ class PostService:
         image: Optional[Any] = None,
         custom_url: str = '',
         content_type: str = 'html',
+        cover_layout: Optional[str] = None,
+        cover_image_position: Optional[str] = None,
+        cover_image_ratio: Optional[str] = None,
     ) -> Post:
         """
         Create a draft post (published_date=null).
@@ -669,7 +759,14 @@ class PostService:
             content_html=resolved_html,
         )
 
-        PostConfig.objects.create(post=post)
+        PostConfig.objects.create(
+            post=post,
+            **PostService.normalize_cover_options(
+                cover_layout=cover_layout,
+                cover_image_position=cover_image_position,
+                cover_image_ratio=cover_image_ratio,
+            ),
+        )
 
         return post
 
@@ -687,6 +784,9 @@ class PostService:
         image_delete: bool = False,
         custom_url: Optional[str] = None,
         content_type: Optional[str] = None,
+        cover_layout: Optional[str] = None,
+        cover_image_position: Optional[str] = None,
+        cover_image_ratio: Optional[str] = None,
     ) -> Post:
         """
         Update a draft post. No notifications sent.
@@ -738,6 +838,16 @@ class PostService:
         post.updated_date = timezone.now()
         post.save()
 
+        if cover_layout is not None or cover_image_position is not None or cover_image_ratio is not None:
+            post_config = post.config
+            PostService.apply_cover_options(
+                post_config,
+                cover_layout=cover_layout,
+                cover_image_position=cover_image_position,
+                cover_image_ratio=cover_image_ratio,
+            )
+            post_config.save()
+
         return post
 
     @staticmethod
@@ -757,6 +867,9 @@ class PostService:
         is_advertise: bool = False,
         reserved_date_str: str = '',
         content_type: Optional[str] = None,
+        cover_layout: Optional[str] = None,
+        cover_image_position: Optional[str] = None,
+        cover_image_ratio: Optional[str] = None,
     ) -> Post:
         """
         Publish a draft by setting published_date and sending notifications.
@@ -821,6 +934,12 @@ class PostService:
         post_config = post.config
         post_config.hide = is_hide
         post_config.advertise = is_advertise
+        PostService.apply_cover_options(
+            post_config,
+            cover_layout=cover_layout,
+            cover_image_position=cover_image_position,
+            cover_image_ratio=cover_image_ratio,
+        )
         post_config.save()
 
         PostService.send_post_notifications(post, post_config)

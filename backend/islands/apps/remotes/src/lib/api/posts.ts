@@ -97,6 +97,9 @@ export interface DraftDetail {
     tags: string;
     description: string;
     image: string | null;
+    coverLayout: 'default' | 'split' | 'overlay' | 'none';
+    coverImagePosition: 'left' | 'right';
+    coverImageRatio: 'auto' | '16:9' | '4:3' | '1:1' | '3:4';
     series: {
         url: string;
         name: string;
@@ -111,14 +114,14 @@ export interface DraftSummary {
     updatedDate: string;
 }
 
-export const createDraft = async (data: { title: string; content: string; tags: string; subtitle?: string; description?: string; series_url?: string } | FormData) => {
+export const createDraft = async (data: { title: string; content: string; tags: string; subtitle?: string; description?: string; series_url?: string; cover_layout?: string; cover_image_position?: string; cover_image_ratio?: string } | FormData) => {
     if (data instanceof FormData) {
         return http.post<Response<{ url: string }>>('v1/drafts', data, { headers: { 'Content-Type': 'multipart/form-data' } });
     }
     return http.post<Response<{ url: string }>>('v1/drafts', data, { headers: { 'Content-Type': 'application/json' } });
 };
 
-export const updateDraft = async (url: string, data: { title?: string; content?: string; tags?: string; subtitle?: string; description?: string; series_url?: string } | FormData) => {
+export const updateDraft = async (url: string, data: { title?: string; content?: string; tags?: string; subtitle?: string; description?: string; series_url?: string; cover_layout?: string; cover_image_position?: string; cover_image_ratio?: string } | FormData) => {
     if (data instanceof FormData) {
         return http.put<Response<{ url: string }>>(`v1/drafts/${url}`, data, { headers: { 'Content-Type': 'multipart/form-data' } });
     }
@@ -144,6 +147,9 @@ export interface PostForEdit {
     contentHtml: string;
     textHtml: string;
     image: string;
+    coverLayout: 'default' | 'split' | 'overlay' | 'none';
+    coverImagePosition: 'left' | 'right';
+    coverImageRatio: 'auto' | '16:9' | '4:3' | '1:1' | '3:4';
     description: string;
     tags: string[];
     series: {

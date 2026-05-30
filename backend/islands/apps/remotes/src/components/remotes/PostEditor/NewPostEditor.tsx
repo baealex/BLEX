@@ -68,7 +68,10 @@ const NewPostEditor = ({
         content: '',
         metaDescription: '',
         hide: false,
-        advertise: false
+        advertise: false,
+        coverLayout: 'default',
+        coverImagePosition: 'right',
+        coverImageRatio: 'auto'
     });
 
     const [tags, setTags] = useState<string[]>([]);
@@ -86,6 +89,9 @@ const NewPostEditor = ({
         metaDescription: string;
         hide: boolean;
         advertise: boolean;
+        coverLayout: string;
+        coverImagePosition: string;
+        coverImageRatio: string;
         tags: string[];
         seriesUrl: string;
         imagePreview: string;
@@ -117,6 +123,9 @@ const NewPostEditor = ({
         metaDescription: formData.metaDescription,
         hide: formData.hide,
         advertise: formData.advertise,
+        coverLayout: formData.coverLayout,
+        coverImagePosition: formData.coverImagePosition,
+        coverImageRatio: formData.coverImageRatio,
         tags,
         seriesUrl: selectedSeries.url || '',
         imagePreview: imagePreview || '',
@@ -169,6 +178,9 @@ const NewPostEditor = ({
         description: formData.metaDescription,
         seriesUrl: selectedSeries.url || undefined,
         customUrl: sanitizedUrlForSubmit || undefined,
+        coverLayout: formData.coverLayout,
+        coverImagePosition: formData.coverImagePosition,
+        coverImageRatio: formData.coverImageRatio,
         imageFile,
         imageDeleted
     };
@@ -248,7 +260,10 @@ const NewPostEditor = ({
                             subtitle: newSubtitle,
                             url: draftData.url || '',
                             content: newContent,
-                            metaDescription: newDescription
+                            metaDescription: newDescription,
+                            coverLayout: draftData.coverLayout || 'default',
+                            coverImagePosition: draftData.coverImagePosition || 'right',
+                            coverImageRatio: draftData.coverImageRatio || 'auto'
                         }));
                         setCurrentDraftUrl(draftData.url || draftUrl);
                         setIsUrlAutoSync(
@@ -394,6 +409,9 @@ const NewPostEditor = ({
                 content: formData.content,
                 tags,
                 seriesId: selectedSeries.id,
+                coverLayout: formData.coverLayout,
+                coverImagePosition: formData.coverImagePosition,
+                coverImageRatio: formData.coverImageRatio,
                 imageDeleted
             },
             isDraft,
@@ -505,6 +523,7 @@ const NewPostEditor = ({
                 selectedSeries={selectedSeries}
                 seriesList={seriesList}
                 formData={formData}
+                imagePreview={imagePreview}
                 onUrlChange={handleUrlChange}
                 onMetaDescriptionChange={(metaDescription) => setFormData(prev => ({
                     ...prev,

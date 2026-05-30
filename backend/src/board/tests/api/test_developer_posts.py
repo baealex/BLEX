@@ -106,6 +106,39 @@ class DeveloperPostsAPITestCase(TestCase):
         self.assertIsNone(post.published_date)
         self.assertEqual(sorted(post.tags.values_list('value', flat=True)), ['api', 'mcp'])
 
+    def test_developer_api_persists_cover_options(self):
+        response = self.post_json('/api/developer/v1/posts', {
+            'title': 'Cover API Draft',
+            'content': '# Hello',
+            'content_type': 'markdown',
+            'cover_layout': 'none',
+            'cover_image_position': 'left',
+            'cover_image_ratio': '3:4',
+        })
+
+        self.assertEqual(response.status_code, 201)
+        data = response.json()['data']
+        self.assertEqual(data['cover_layout'], 'none')
+        self.assertEqual(data['cover_image_position'], 'left')
+        self.assertEqual(data['cover_image_ratio'], '3:4')
+
+        post = Post.objects.get(id=data['id'])
+        self.assertEqual(post.config.cover_layout, 'none')
+        self.assertEqual(post.config.cover_image_position, 'left')
+        self.assertEqual(post.config.cover_image_ratio, '3:4')
+
+        patch_response = self.patch_json(f"/api/developer/v1/posts/{data['id']}", {
+            'cover_layout': 'split',
+            'cover_image_position': 'right',
+            'cover_image_ratio': '16:9',
+        })
+
+        self.assertEqual(patch_response.status_code, 200)
+        patched = patch_response.json()['data']
+        self.assertEqual(patched['cover_layout'], 'split')
+        self.assertEqual(patched['cover_image_position'], 'right')
+        self.assertEqual(patched['cover_image_ratio'], '16:9')
+
     def test_list_posts_includes_draft_status(self):
         draft = self.create_draft('List Draft')
 

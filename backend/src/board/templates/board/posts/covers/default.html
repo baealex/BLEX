@@ -1,0 +1,28 @@
+<!-- Article Header -->
+<div class="post-cover-default mb-12 sm:mb-16">
+    {% include 'board/posts/covers/_series_badge.html' with cover_inverted=False %}
+
+    <h1 class="text-2xl sm:text-3xl lg:text-4xl font-bold text-content {% if not post.subtitle %}mb-8{% else %}mb-3{% endif %} leading-tight break-words" itemprop="headline">
+        {{ post.title }}
+    </h1>
+    {% if post.subtitle %}
+    <p class="text-lg sm:text-xl text-content-secondary mb-8 leading-relaxed font-medium">
+        {{ post.subtitle }}
+    </p>
+    {% endif %}
+
+    {% include 'board/posts/covers/_post_meta.html' with cover_inverted=False cover_meta_border=True %}
+</div>
+
+<!-- Featured Image -->
+{% if post.image %}
+<div class="mb-12 sm:mb-16">
+    {% if post.config.cover_image_ratio == 'auto' %}
+    <img class="w-full rounded-2xl ring-1 ring-line/60" src="{{ post.image.url }}" alt="{{ post.title }}" itemprop="image">
+    {% else %}
+    <div class="overflow-hidden rounded-2xl ring-1 ring-line/60 {% if post.config.cover_image_ratio == '1:1' %}aspect-square{% elif post.config.cover_image_ratio == '4:3' %}aspect-[4/3]{% elif post.config.cover_image_ratio == '3:4' %}aspect-[3/4]{% else %}aspect-[16/9]{% endif %}">
+        <img class="h-full w-full object-cover" src="{{ post.image.url }}" alt="{{ post.title }}" itemprop="image">
+    </div>
+    {% endif %}
+</div>
+{% endif %}

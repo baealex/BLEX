@@ -353,10 +353,42 @@ class PostContent(models.Model):
 
 
 class PostConfig(models.Model):
+    class CoverLayout(models.TextChoices):
+        DEFAULT = 'default', '기본'
+        SPLIT = 'split', '분할'
+        OVERLAY = 'overlay', '이미지 배경'
+        NONE = 'none', '커버 숨김'
+
+    class CoverImagePosition(models.TextChoices):
+        RIGHT = 'right', '오른쪽'
+        LEFT = 'left', '왼쪽'
+
+    class CoverImageRatio(models.TextChoices):
+        AUTO = 'auto', '원본'
+        WIDE = '16:9', '16:9'
+        STANDARD = '4:3', '4:3'
+        SQUARE = '1:1', '1:1'
+        PORTRAIT = '3:4', '3:4'
+
     post = models.OneToOneField('board.Post', related_name='config', on_delete=models.CASCADE)
     hide = models.BooleanField(default=False)
     advertise = models.BooleanField(default=False)
     block_comment = models.BooleanField(default=False)
+    cover_layout = models.CharField(
+        max_length=16,
+        choices=CoverLayout.choices,
+        default=CoverLayout.DEFAULT,
+    )
+    cover_image_position = models.CharField(
+        max_length=8,
+        choices=CoverImagePosition.choices,
+        default=CoverImagePosition.RIGHT,
+    )
+    cover_image_ratio = models.CharField(
+        max_length=8,
+        choices=CoverImageRatio.choices,
+        default=CoverImageRatio.AUTO,
+    )
 
     def __str__(self):
         return self.post.title

@@ -166,6 +166,44 @@ class PostTestCase(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(content['body']['url'], 'test-post-1000')
 
+    def test_create_post_with_cover_options(self):
+        """포스트 생성 시 커버 설정을 저장한다."""
+        self.client.login(username='author', password='author')
+
+        response = self.client.post('/v1/posts', {
+            'title': 'Cover Options Post',
+            'text_html': '# Test Post',
+            'is_hide': False,
+            'is_advertise': False,
+            'cover_layout': 'split',
+            'cover_image_position': 'left',
+            'cover_image_ratio': '4:3',
+        })
+        content = json.loads(response.content)
+
+        self.assertEqual(response.status_code, 200)
+        post = Post.objects.get(url=content['body']['url'])
+        self.assertEqual(post.config.cover_layout, 'split')
+        self.assertEqual(post.config.cover_image_position, 'left')
+        self.assertEqual(post.config.cover_image_ratio, '4:3')
+
+    def test_create_post_rejects_invalid_cover_layout(self):
+        """지원하지 않는 커버 설정은 저장하지 않는다."""
+        self.client.login(username='author', password='author')
+
+        response = self.client.post('/v1/posts', {
+            'title': 'Invalid Cover Post',
+            'text_html': '# Test Post',
+            'is_hide': False,
+            'is_advertise': False,
+            'cover_layout': 'invalid',
+        })
+
+        self.assertEqual(response.status_code, 200)
+        content = json.loads(response.content)
+        self.assertEqual(content['status'], 'ERROR')
+        self.assertFalse(Post.objects.filter(title='Invalid Cover Post').exists())
+
     def test_create_post_with_not_logged_in_user(self):
         """비로그인 사용자의 포스트 생성 차단 테스트"""
         response = self.client.post('/v1/posts', {
@@ -494,6 +532,27 @@ class PostTestCase(TestCase):
         self.assertTrue(post.image)
         self.assertEqual(post.image.name, original_image_name)
         self.assertEqual(post.title, 'Test Post 4 Updated')
+
+    def test_update_post_cover_options(self):
+        """포스트 수정 시 커버 설정을 갱신한다."""
+        self.client.login(username='author', password='author')
+
+        post = Post.objects.get(url='test-post-5')
+        response = self.client.post('/v1/users/@author/posts/test-post-5', {
+            'title': post.title,
+            'text_html': post.content.content_html,
+            'is_hide': post.config.hide,
+            'is_advertise': post.config.advertise,
+            'cover_layout': 'none',
+            'cover_image_position': 'right',
+            'cover_image_ratio': 'auto',
+        })
+
+        self.assertEqual(response.status_code, 200)
+        post.config.refresh_from_db()
+        self.assertEqual(post.config.cover_layout, 'none')
+        self.assertEqual(post.config.cover_image_position, 'right')
+        self.assertEqual(post.config.cover_image_ratio, 'auto')
 
     def test_related_posts_rejects_hidden_post_for_non_owner(self):
         """관련 글 API는 숨김 글을 비작성자에게 노출하지 않는다."""

@@ -45,6 +45,9 @@ def drafts_list(request):
         series_url = data.get('series_url', '')
         custom_url = data.get('custom_url', '')
         content_type = data.get('content_type', 'html')
+        cover_layout = data.get('cover_layout')
+        cover_image_position = data.get('cover_image_position')
+        cover_image_ratio = data.get('cover_image_ratio')
         image = files.get('image') if files else None
 
         try:
@@ -59,6 +62,9 @@ def drafts_list(request):
                 image=image,
                 custom_url=custom_url,
                 content_type=content_type,
+                cover_layout=cover_layout,
+                cover_image_position=cover_image_position,
+                cover_image_ratio=cover_image_ratio,
             )
 
             return StatusDone({
@@ -98,6 +104,9 @@ def drafts_detail(request, url):
             'tags': ','.join(draft.tagging()),
             'description': draft.meta_description,
             'image': draft.get_thumbnail(),
+            'cover_layout': draft.config.cover_layout,
+            'cover_image_position': draft.config.cover_image_position,
+            'cover_image_ratio': draft.config.cover_image_ratio,
             'series': {
                 'url': draft.series.url,
                 'name': draft.series.name,
@@ -133,6 +142,9 @@ def drafts_detail(request, url):
                 image_delete=image_delete,
                 custom_url=data.get('custom_url'),
                 content_type=data.get('content_type'),
+                cover_layout=data.get('cover_layout'),
+                cover_image_position=data.get('cover_image_position'),
+                cover_image_ratio=data.get('cover_image_ratio'),
             )
             return StatusDone({
                 'url': draft.url,

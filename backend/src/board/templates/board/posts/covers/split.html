@@ -1,0 +1,28 @@
+<section class="post-cover-split px-4 md:px-6">
+    <div class="mx-auto grid max-w-7xl gap-8 py-10 sm:py-14 lg:grid-cols-2 lg:items-center">
+        <div class="{% if post.config.cover_image_position == 'left' %}lg:order-2{% endif %}">
+            {% include 'board/posts/covers/_series_badge.html' with cover_inverted=False %}
+
+            <h1 class="text-3xl sm:text-4xl lg:text-4xl font-bold text-content {% if not post.subtitle %}mb-8{% else %}mb-4{% endif %} leading-tight break-words">
+                {{ post.title }}
+            </h1>
+            {% if post.subtitle %}
+            <p class="text-lg sm:text-xl text-content-secondary mb-8 leading-relaxed font-medium">
+                {{ post.subtitle }}
+            </p>
+            {% endif %}
+
+            {% include 'board/posts/covers/_post_meta.html' with cover_inverted=False cover_meta_border=False %}
+        </div>
+
+        <div class="{% if post.config.cover_image_position == 'left' %}lg:order-1{% endif %}">
+            {% if post.config.cover_image_ratio == 'auto' %}
+            <img class="w-full rounded-2xl ring-1 ring-line/60" src="{{ post.image.url }}" alt="{{ post.title }}">
+            {% else %}
+            <div class="overflow-hidden rounded-2xl ring-1 ring-line/60 {% if post.config.cover_image_ratio == '1:1' %}aspect-square{% elif post.config.cover_image_ratio == '4:3' %}aspect-[4/3]{% elif post.config.cover_image_ratio == '3:4' %}aspect-[3/4]{% else %}aspect-[16/9]{% endif %}">
+                <img class="h-full w-full object-cover" src="{{ post.image.url }}" alt="{{ post.title }}">
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</section>

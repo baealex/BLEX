@@ -6,6 +6,7 @@ import {
     CircleDollarSign,
     EyeOff,
     FileText,
+    Image,
     Info,
     Search,
     SlidersHorizontal,
@@ -16,6 +17,14 @@ import { DIM_OVERLAY_DEFAULT, ENTRANCE_DURATION } from '@blex/ui/design-tokens';
 import { Input, Button } from '~/components/shared';
 import { cx } from '~/lib/classnames';
 import type { Series } from '../types';
+import {
+    COVER_LAYOUT_OPTIONS,
+    COVER_POSITION_ITEMS,
+    COVER_RATIO_ITEMS,
+    getCoverRatioClass,
+    supportsCoverImagePosition,
+    supportsCoverImageRatio
+} from '../utils/coverSettings';
 
 interface SettingsDrawerProps {
     isOpen: boolean;
@@ -30,15 +39,134 @@ interface SettingsDrawerProps {
     formData: {
         hide: boolean;
         advertise: boolean;
+        coverLayout: string;
+        coverImagePosition: string;
+        coverImageRatio: string;
     };
+    imagePreview: string | null;
 
     // Handlers
     onUrlChange: (url: string) => void;
     onMetaDescriptionChange: (description: string) => void;
     onSeriesChange: (series: Series) => void;
-    onFormDataChange: (field: string, value: boolean) => void;
+    onFormDataChange: (field: string, value: boolean | string) => void;
     onDelete?: () => void;
 }
+
+interface CoverPreviewProps {
+    imagePreview: string | null;
+    layout: string;
+    imagePosition: string;
+    imageRatio: string;
+}
+
+const CoverImagePreview = ({
+    imagePreview,
+    imageRatio,
+    className
+}: {
+    imagePreview: string | null;
+    imageRatio: string;
+    className?: string;
+}) => (
+    <div className={cx('overflow-hidden rounded-lg border border-line bg-surface-subtle', getCoverRatioClass(imageRatio), className)}>
+        {imagePreview ? (
+            <img src={imagePreview} alt="" className="h-full w-full object-cover" />
+        ) : (
+            <div className="flex h-full w-full items-center justify-center text-content-hint">
+                <Image className="h-5 w-5" />
+            </div>
+        )}
+    </div>
+);
+
+const CoverTextPreview = ({ inverted = false }: { inverted?: boolean }) => (
+    <div className="space-y-2">
+        <div className={cx('h-2 w-16 rounded-full', inverted ? 'bg-white/65' : 'bg-line-strong')} />
+        <div className={cx('h-3 w-4/5 rounded-full', inverted ? 'bg-white' : 'bg-content')} />
+        <div className={cx('h-3 w-2/3 rounded-full', inverted ? 'bg-white/80' : 'bg-content-secondary')} />
+        <div className={cx('mt-3 h-2 w-28 rounded-full', inverted ? 'bg-white/55' : 'bg-line-strong')} />
+    </div>
+);
+
+const CoverStylePreview = ({
+    imagePreview,
+    layout,
+    imagePosition,
+    imageRatio
+}: CoverPreviewProps) => {
+    if (layout === 'overlay') {
+        return (
+            <div className="relative min-h-36 overflow-hidden rounded-lg border border-line bg-surface-subtle">
+                {imagePreview ? (
+                    <img src={imagePreview} alt="" className="absolute inset-0 h-full w-full object-cover" />
+                ) : (
+                    <div className="absolute inset-0 flex items-center justify-center text-content-hint">
+                        <Image className="h-6 w-6" />
+                    </div>
+                )}
+                <div className="absolute inset-0 bg-black/45" />
+                <div className="absolute inset-x-0 bottom-0 p-4">
+                    <CoverTextPreview inverted />
+                </div>
+            </div>
+        );
+    }
+
+    if (layout === 'split') {
+        const image = (
+            <CoverImagePreview
+                imagePreview={imagePreview}
+                imageRatio={imageRatio}
+                className="h-full min-h-28"
+            />
+        );
+        const text = (
+            <div className="flex min-h-28 items-center rounded-lg border border-line bg-surface-subtle p-4">
+                <CoverTextPreview />
+            </div>
+        );
+
+        return (
+            <div className="grid grid-cols-2 gap-3">
+                {imagePosition === 'left' ? image : text}
+                {imagePosition === 'left' ? text : image}
+            </div>
+        );
+    }
+
+    if (layout === 'none') {
+        return (
+            <div className="space-y-3">
+                <div className="rounded-lg border border-line bg-surface-subtle p-4">
+                    <CoverTextPreview />
+                </div>
+                <div className="flex items-center gap-3 rounded-lg border border-dashed border-line bg-surface-subtle p-3">
+                    <div className="flex h-10 w-14 shrink-0 items-center justify-center overflow-hidden rounded-md bg-surface-elevated text-content-hint">
+                        {imagePreview ? (
+                            <img src={imagePreview} alt="" className="h-full w-full object-cover" />
+                        ) : (
+                            <Image className="h-4 w-4" />
+                        )}
+                    </div>
+                    <div className="min-w-0">
+                        <div className="h-2 w-20 rounded-full bg-line-strong" />
+                        <div className="mt-2 h-2 w-32 rounded-full bg-line" />
+                    </div>
+                </div>
+            </div>
+        );
+    }
+
+    return (
+        <div className="space-y-3">
+            <div className="rounded-lg border border-line bg-surface-subtle p-4">
+                <CoverTextPreview />
+            </div>
+            <CoverImagePreview imagePreview={imagePreview} imageRatio={imageRatio} />
+        </div>
+    );
+};
 
 const SettingsDrawer = ({
     isOpen,
@@ -49,6 +177,7 @@ const SettingsDrawer = ({
     selectedSeries,
     seriesList,
     formData,
+    imagePreview,
     onUrlChange,
     onMetaDescriptionChange,
     onSeriesChange,
@@ -138,6 +267,74 @@ const SettingsDrawer = ({
                                             <li>• 독자의 관심을 끌 수 있는 문구를 사용하세요</li>
                                         </ul>
                                     </div>
+                                </div>
+                            </div>
+
+                            {/* Divider */}
+                            <div className="border-t border-line" />
+
+                            {/* Cover Section */}
+                            <div>
+                                <h3 className="text-sm font-semibold text-content mb-4 flex items-center gap-2">
+                                    <Image className="w-4 h-4" />
+                                    커버 스타일
+                                </h3>
+                                <div className="space-y-4">
+                                    <div className="grid grid-cols-1 gap-2">
+                                        {COVER_LAYOUT_OPTIONS.map((option) => {
+                                            const isActive = formData.coverLayout === option.value;
+                                            return (
+                                                <button
+                                                    key={option.value}
+                                                    type="button"
+                                                    onClick={() => onFormDataChange('coverLayout', option.value)}
+                                                    className={cx(
+                                                        'rounded-xl border p-4 text-left transition-all duration-150 active:scale-[0.99]',
+                                                        isActive
+                                                            ? 'border-action bg-action/10 text-content'
+                                                            : 'border-line bg-surface-elevated text-content-secondary hover:border-line-strong hover:bg-surface-subtle'
+                                                    )}>
+                                                    <span className="block text-sm font-semibold text-content">{option.label}</span>
+                                                    <span className="mt-1 block text-xs leading-relaxed text-content-secondary">{option.description}</span>
+                                                </button>
+                                            );
+                                        })}
+                                    </div>
+
+                                    <div className="rounded-xl border border-line bg-surface-elevated p-3">
+                                        <CoverStylePreview
+                                            imagePreview={imagePreview}
+                                            layout={formData.coverLayout}
+                                            imagePosition={formData.coverImagePosition}
+                                            imageRatio={formData.coverImageRatio}
+                                        />
+                                    </div>
+
+                                    {supportsCoverImagePosition(formData.coverLayout) && (
+                                        <div>
+                                            <label className="block text-sm font-medium text-content mb-2">
+                                                이미지 위치
+                                            </label>
+                                            <Select
+                                                value={formData.coverImagePosition}
+                                                onValueChange={(value) => onFormDataChange('coverImagePosition', value)}
+                                                items={COVER_POSITION_ITEMS}
+                                            />
+                                        </div>
+                                    )}
+
+                                    {supportsCoverImageRatio(formData.coverLayout) && (
+                                        <div>
+                                            <label className="block text-sm font-medium text-content mb-2">
+                                                이미지 비율
+                                            </label>
+                                            <Select
+                                                value={formData.coverImageRatio}
+                                                onValueChange={(value) => onFormDataChange('coverImageRatio', value)}
+                                                items={COVER_RATIO_ITEMS}
+                                            />
+                                        </div>
+                                    )}
                                 </div>
                             </div>
 

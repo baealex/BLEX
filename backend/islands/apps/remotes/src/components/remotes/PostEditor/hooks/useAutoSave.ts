@@ -10,6 +10,9 @@ interface AutoSaveData {
     description?: string;
     seriesUrl?: string;
     customUrl?: string;
+    coverLayout?: string;
+    coverImagePosition?: string;
+    coverImageRatio?: string;
     imageFile?: File | null;
     imageDeleted?: boolean;
 }
@@ -32,6 +35,9 @@ const buildDraftPayload = (data: AutoSaveData, useFormData: boolean) => {
         if (data.description) formData.append('description', data.description);
         if (data.seriesUrl) formData.append('series_url', data.seriesUrl);
         if (data.customUrl) formData.append('custom_url', data.customUrl);
+        if (data.coverLayout) formData.append('cover_layout', data.coverLayout);
+        if (data.coverImagePosition) formData.append('cover_image_position', data.coverImagePosition);
+        if (data.coverImageRatio) formData.append('cover_image_ratio', data.coverImageRatio);
         if (data.imageFile) formData.append('image', data.imageFile);
         if (data.imageDeleted) formData.append('image_delete', 'true');
         return formData;
@@ -44,7 +50,10 @@ const buildDraftPayload = (data: AutoSaveData, useFormData: boolean) => {
         subtitle: data.subtitle,
         description: data.description,
         series_url: data.seriesUrl,
-        custom_url: data.customUrl
+        custom_url: data.customUrl,
+        cover_layout: data.coverLayout,
+        cover_image_position: data.coverImagePosition,
+        cover_image_ratio: data.coverImageRatio
     };
 };
 
@@ -75,7 +84,10 @@ export const useAutoSave = (data: AutoSaveData, options: UseAutoSaveOptions) => 
         subtitle: value.subtitle,
         description: value.description,
         seriesUrl: value.seriesUrl,
-        customUrl: value.customUrl
+        customUrl: value.customUrl,
+        coverLayout: value.coverLayout,
+        coverImagePosition: value.coverImagePosition,
+        coverImageRatio: value.coverImageRatio
     }), []);
 
     const getDataSignature = useCallback((value: AutoSaveData) => JSON.stringify({

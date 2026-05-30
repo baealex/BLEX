@@ -51,6 +51,11 @@ class PostDetailViewTestCase(TestCase):
         self.post.updated_date = updated_date
         self.post.save(update_fields=['published_date', 'updated_date'])
 
+    def set_post_image_path(self, path='images/title/testauthor/cover.jpg'):
+        self.post.image = path
+        self.post._skip_thumbnail = True
+        self.post.save(update_fields=['image'])
+
     def test_post_detail_context_has_toc(self):
         url = reverse('post_detail', kwargs={
             'username': 'testauthor',
@@ -284,6 +289,97 @@ class PostDetailViewTestCase(TestCase):
         self.assertContains(response, '작성자')
         self.assertContains(response, '최초 발행')
         self.assertContains(response, '/@testauthor')
+
+    def test_post_detail_uses_split_cover_outside_content_grid(self):
+        """분할 커버는 본문 그리드 바깥 커버 템플릿으로 렌더링한다."""
+        self.set_post_image_path()
+        self.post.config.cover_layout = 'split'
+        self.post.config.cover_image_position = 'left'
+        self.post.config.cover_image_ratio = '4:3'
+        self.post.config.save(update_fields=['cover_layout', 'cover_image_position', 'cover_image_ratio'])
+
+        response = self.client.get(reverse('post_detail', kwargs={
+            'username': 'testauthor',
+            'post_url': 'test-post'
+        }))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.context['post_cover_layout'], 'split')
+        self.assertTrue(response.context['post_cover_is_full_bleed'])
+        self.assertContains(response, 'post-cover-split')
+        self.assertNotContains(response, 'post-cover-default')
+
+    def test_post_detail_overlay_cover_uses_theme_independent_light_text(self):
+        """이미지 배경 커버 텍스트는 테마 토큰 반전 없이 흰색 계열로 렌더링한다."""
+        series = Series.objects.create(
+            owner=self.user,
+            name='Overlay Series',
+            url='overlay-series',
+        )
+        self.set_post_image_path()
+        self.post.subtitle = 'Overlay Subtitle'
+        self.post.series = series
+        self.post.save(update_fields=['subtitle', 'series'])
+        self.post.config.cover_layout = 'overlay'
+        self.post.config.save(update_fields=['cover_layout'])
+
+        response = self.client.get(reverse('post_detail', kwargs={
+            'username': 'testauthor',
+            'post_url': 'test-post'
+        }))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.context['post_cover_layout'], 'overlay')
+
+        content = response.content.decode()
+        overlay_start = content.index('post-cover-overlay')
+        overlay_end = content.index('</section>', overlay_start)
+        overlay_markup = content[overlay_start:overlay_end]
+
+        self.assertIn('text-white ', overlay_markup)
+        self.assertIn('text-white/85', overlay_markup)
+        self.assertIn('text-white/80', overlay_markup)
+        self.assertIn('ring-white/60', overlay_markup)
+        self.assertIn('bg-white/90 text-neutral-950', overlay_markup)
+        self.assertNotIn('text-content-inverted', overlay_markup)
+        self.assertNotIn('ring-surface/60', overlay_markup)
+
+    def test_post_detail_falls_back_to_default_cover_without_image(self):
+        """이미지가 없는 split/overlay 설정은 기본 헤더로 안전하게 렌더링한다."""
+        self.post.config.cover_layout = 'overlay'
+        self.post.config.save(update_fields=['cover_layout'])
+
+        response = self.client.get(reverse('post_detail', kwargs={
+            'username': 'testauthor',
+            'post_url': 'test-post'
+        }))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.context['post_cover_layout'], 'default')
+        self.assertFalse(response.context['post_cover_is_full_bleed'])
+        self.assertContains(response, 'post-cover-default')
+        self.assertNotContains(response, 'post-cover-overlay')
+
+    def test_post_detail_cover_hidden_keeps_share_image_metadata(self):
+        """커버 숨김은 상세 상단 이미지만 숨기고 공유용 대표 이미지는 유지한다."""
+        self.set_post_image_path()
+        self.post.config.cover_layout = 'none'
+        self.post.config.save(update_fields=['cover_layout'])
+
+        response = self.client.get(reverse('post_detail', kwargs={
+            'username': 'testauthor',
+            'post_url': 'test-post'
+        }))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.context['post_cover_layout'], 'none')
+        self.assertFalse(response.context['post_cover_is_full_bleed'])
+        self.assertContains(response, 'post-cover-none')
+        self.assertNotContains(response, 'post-cover-default')
+
+        content = response.content.decode()
+        self.assertIn(response.context['post_image_url'], content)
+        self.assertNotIn(f'src={self.post.image.url}', content)
 
     def test_post_detail_shows_agent_link_copy_option_when_aeo_enabled(self):
         """AEO가 켜져 있으면 링크 복사 드롭다운에 .md 참조 링크 옵션을 표시한다."""
