@@ -277,13 +277,16 @@ class UserService:
 
     @staticmethod
     @transaction.atomic
-    def update_user_about(user: User, about_md: str) -> None:
+    def update_user_about(user: User, about_md: str) -> Dict[str, str]:
         """
         Update user's about page.
 
         Args:
             user: User instance
             about_md: About page content in markdown
+
+        Returns:
+            Dictionary with about_md and about_html
         """
         about_html = parse_post_to_html(about_md)
 
@@ -296,6 +299,11 @@ class UserService:
             profile.about_md = about_md
             profile.about_html = about_html
             profile.save()
+
+        return {
+            'about_md': about_md,
+            'about_html': about_html,
+        }
 
     @staticmethod
     def check_username_redirect(old_username: str) -> Optional[Dict[str, str]]:
