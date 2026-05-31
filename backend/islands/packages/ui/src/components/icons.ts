@@ -12,6 +12,7 @@ export {
     EyeOff,
     FileText,
     Hash,
+    Heart,
     Image,
     ImagePlus,
     Info,

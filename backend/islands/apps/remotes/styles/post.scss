@@ -9,6 +9,35 @@
     );
 }
 
+.post-action-dock {
+    bottom: calc(1.5rem + env(safe-area-inset-bottom));
+}
+
+.post-action-bar {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem;
+    border: 1px solid var(--color-line-light);
+    border-radius: 999px;
+    background: var(--color-floating-glass-surface);
+    box-shadow: var(--shadow-floating-glass);
+    backdrop-filter: saturate(140%) blur(var(--blur-floating-glass));
+    -webkit-backdrop-filter: saturate(140%) blur(var(--blur-floating-glass));
+}
+
+.post-action-divider {
+    width: 1px;
+    height: 2rem;
+    margin: 0 0.25rem;
+    background: var(--color-line-light);
+}
+
+.post-detail-footer-action-space {
+    background: var(--color-surface);
+    padding-bottom: calc(7rem + env(safe-area-inset-bottom));
+}
+
 .blog-post-content {
     max-width: 100%;
     font-size: 1.1em;
