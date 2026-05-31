@@ -10,12 +10,22 @@ class CommentListService:
     @staticmethod
     def get_post_parent_comments(post_url: str, user_id: int):
         replies_queryset = CommentListService.annotate_comment_queryset(
-            Comment.objects.select_related('author', 'author__profile'),
+            Comment.objects.select_related(
+                'author',
+                'author__profile',
+                'post',
+                'post__config',
+            ),
             user_id,
         ).order_by('created_date')
 
         return CommentListService.annotate_comment_queryset(
-            Comment.objects.select_related('author', 'author__profile'),
+            Comment.objects.select_related(
+                'author',
+                'author__profile',
+                'post',
+                'post__config',
+            ),
             user_id,
         ).prefetch_related(
             Prefetch('replies', queryset=replies_queryset)
@@ -134,12 +144,13 @@ class CommentListService:
     def serialize_permissions(comment, user_id: int, is_authenticated: bool) -> dict:
         is_mine = is_authenticated and comment.author_id == user_id
         is_deleted = comment.is_deleted()
+        can_post_accept_replies = not comment.post.config.block_comment
 
         return {
             'can_edit': is_mine and not is_deleted,
             'can_delete': is_mine and not is_deleted,
             'can_like': is_authenticated and not is_mine and not is_deleted,
-            'can_reply': is_authenticated and not is_deleted,
+            'can_reply': is_authenticated and not is_deleted and can_post_accept_replies,
         }
 
     @staticmethod
