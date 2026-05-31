@@ -68,7 +68,34 @@ class CommentTestCase(TestCase):
     def test_get_post_comment_list(self):
         """포스트 댓글 목록 조회 테스트"""
         response = self.client.get('/v1/posts/test-post/comments')
+        content = json.loads(response.content)
+
         self.assertEqual(response.status_code, 200)
+        comment = content['body']['comments'][0]
+        self.assertFalse(comment['isDeleted'])
+        self.assertEqual(comment['permissions'], {
+            'canEdit': False,
+            'canDelete': False,
+            'canLike': False,
+            'canReply': False,
+        })
+
+    def test_get_post_comment_list_includes_viewer_permissions(self):
+        """로그인 사용자의 댓글 권한 정보를 목록 응답에 포함한다."""
+        self.client.login(username='viewer', password='test')
+
+        response = self.client.get('/v1/posts/test-post/comments')
+        content = json.loads(response.content)
+
+        self.assertEqual(response.status_code, 200)
+        comment = content['body']['comments'][0]
+        self.assertTrue(comment['isMine'])
+        self.assertEqual(comment['permissions'], {
+            'canEdit': True,
+            'canDelete': True,
+            'canLike': False,
+            'canReply': True,
+        })
 
     def test_post_comment_list_hides_comments_when_post_hidden(self):
         """숨김 글의 댓글은 공개 댓글 목록에 노출되지 않는다."""
@@ -113,8 +140,17 @@ class CommentTestCase(TestCase):
             'comment_md': '# New Comment',
         }
         response = self.client.post('/v1/comments?url=test-post', data)
+        content = json.loads(response.content)
+
         self.assertEqual(response.status_code, 200)
         self.assertEqual(Comment.objects.last().text_md, '# New Comment')
+        self.assertFalse(content['body']['isDeleted'])
+        self.assertEqual(content['body']['permissions'], {
+            'canEdit': True,
+            'canDelete': True,
+            'canLike': False,
+            'canReply': True,
+        })
 
     def test_create_comment_requires_csrf_token_when_enforced(self):
         """세션 기반 댓글 생성 API는 CSRF 토큰을 요구한다."""
@@ -431,8 +467,12 @@ class CommentTestCase(TestCase):
         self.client.login(username='author', password='test')
         response = self.client.put(
             f'/v1/comments/{last_comment.id}', "like=like")
+        content = json.loads(response.content)
+
         self.assertEqual(response.status_code, 200)
         self.assertEqual(Comment.objects.last().likes.count(), 1)
+        self.assertTrue(content['body']['isLiked'])
+        self.assertEqual(content['body']['countLikes'], 1)
 
     def test_notify_user_comment_like_when_user_agree_notify(self):
         """댓글 좋아요 시 알림 발송 테스트"""
@@ -476,8 +516,12 @@ class CommentTestCase(TestCase):
 
         response = self.client.put(
             f'/v1/comments/{last_comment.id}', "like=like")
+        content = json.loads(response.content)
+
         self.assertEqual(response.status_code, 200)
         self.assertEqual(Comment.objects.last().likes.count(), 0)
+        self.assertFalse(content['body']['isLiked'])
+        self.assertEqual(content['body']['countLikes'], 0)
 
     def test_user_comment_self_like(self):
         """자신의 댓글에 좋아요 시도 시 실패 테스트"""
@@ -514,6 +558,23 @@ class CommentTestCase(TestCase):
         self.assertEqual(comment.text_md, 'Edited comment')
         self.assertTrue(comment.edited)
 
+    def test_edit_comment_on_hidden_post_returns_404(self):
+        """비공개 글의 댓글은 공개 댓글 수정 API에서 수정할 수 없다."""
+        post = Post.objects.get(url='test-post')
+        post.config.hide = True
+        post.config.save()
+        comment = Comment.objects.last()
+        self.client.login(username='viewer', password='test')
+
+        response = self.client.put(
+            f'/v1/comments/{comment.id}',
+            'comment=comment&comment_md=Edited comment'
+        )
+
+        self.assertEqual(response.status_code, 404)
+        comment.refresh_from_db()
+        self.assertEqual(comment.text_md, 'Comment')
+
     def test_edit_comment_not_author(self):
         """본인이 아닌 댓글 수정 시도 시 실패"""
         comment = Comment.objects.last()
@@ -548,10 +609,33 @@ class CommentTestCase(TestCase):
         self.client.login(username='viewer', password='test')
 
         response = self.client.delete(f'/v1/comments/{comment_id}')
+        content = json.loads(response.content)
+
         self.assertEqual(response.status_code, 200)
 
         comment.refresh_from_db()
         self.assertIsNone(comment.author)  # Soft delete removes author
+        self.assertTrue(content['body']['isDeleted'])
+        self.assertEqual(content['body']['permissions'], {
+            'canEdit': False,
+            'canDelete': False,
+            'canLike': False,
+            'canReply': False,
+        })
+
+    def test_delete_comment_on_hidden_post_returns_404(self):
+        """비공개 글의 댓글은 공개 댓글 삭제 API에서 삭제할 수 없다."""
+        post = Post.objects.get(url='test-post')
+        post.config.hide = True
+        post.config.save()
+        comment = Comment.objects.last()
+        self.client.login(username='viewer', password='test')
+
+        response = self.client.delete(f'/v1/comments/{comment.id}')
+
+        self.assertEqual(response.status_code, 404)
+        comment.refresh_from_db()
+        self.assertIsNotNone(comment.author)
 
     def test_delete_comment_not_author(self):
         """본인이 아닌 댓글 삭제 시도 시 실패"""

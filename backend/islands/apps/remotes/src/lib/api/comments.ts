@@ -10,14 +10,23 @@ export interface Comment {
     countLikes: number;
     isLiked: boolean;
     isEdited: boolean;
+    isDeleted?: boolean;
     isMine?: boolean;
     parentId?: number;
+    permissions?: CommentPermissions;
     replies?: Comment[];
+}
+
+export interface CommentPermissions {
+    canEdit: boolean;
+    canDelete: boolean;
+    canLike: boolean;
+    canReply: boolean;
 }
 
 export type CommentsResponse = Response<{ comments: Comment[] }>;
 export type CommentResponse = Response<{ textMd: string }>;
-export type CommentActionResponse = Response<{ success: boolean }>;
+export type CommentActionResponse = Response<Partial<Comment> & { success?: boolean }>;
 
 export const getComments = async (postUrl: string) => {
     return http.get<CommentsResponse>(`v1/posts/${postUrl}/comments`);
