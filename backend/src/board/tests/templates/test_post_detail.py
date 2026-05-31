@@ -344,7 +344,9 @@ class PostDetailViewTestCase(TestCase):
         overlay_end = content.index('</section>', overlay_start)
         overlay_markup = content[overlay_start:overlay_end]
 
-        self.assertIn('post-detail-frame', overlay_markup)
+        self.assertIn('min-h-[clamp(20rem,44vh,32rem)]', overlay_markup)
+        self.assertIn('post-detail-layout', overlay_markup)
+        self.assertIn('post-cover-overlay-copy', overlay_markup)
         self.assertIn('text-white ', overlay_markup)
         self.assertIn('text-white/85', overlay_markup)
         self.assertIn('text-white/80', overlay_markup)

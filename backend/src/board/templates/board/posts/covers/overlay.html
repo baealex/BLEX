@@ -1,18 +1,22 @@
-<section class="post-cover-overlay relative isolate flex min-h-[52vh] items-end overflow-hidden">
+<section class="post-cover-overlay relative isolate flex min-h-[clamp(20rem,44vh,32rem)] items-end overflow-hidden">
     <img class="absolute inset-0 -z-10 h-full w-full object-cover" src="{{ post.image.url }}" alt="{{ post.title }}">
     <div class="post-cover-overlay-shade absolute inset-0 -z-10"></div>
-    <div class="post-detail-frame px-4 pb-10 pt-28 md:px-6 sm:pb-14">
-        {% include 'board/posts/covers/_series_badge.html' with cover_inverted=True %}
+    <div class="w-full px-4 pb-10 pt-28 md:px-6 sm:pb-14">
+        <div class="post-detail-layout">
+            <div class="post-cover-overlay-copy">
+                {% include 'board/posts/covers/_series_badge.html' with cover_inverted=True %}
 
-        <h1 class="max-w-4xl text-3xl sm:text-4xl lg:text-4xl font-bold text-white {% if not post.subtitle %}mb-6{% else %}mb-4{% endif %} leading-tight break-words">
-            {{ post.title }}
-        </h1>
-        {% if post.subtitle %}
-        <p class="max-w-3xl text-lg sm:text-xl text-white/85 mb-6 leading-relaxed font-medium">
-            {{ post.subtitle }}
-        </p>
-        {% endif %}
+                <h1 class="text-3xl sm:text-4xl lg:text-4xl font-bold text-white {% if not post.subtitle %}mb-6{% else %}mb-4{% endif %} leading-tight break-words">
+                    {{ post.title }}
+                </h1>
+                {% if post.subtitle %}
+                <p class="text-lg sm:text-xl text-white/85 mb-6 leading-relaxed font-medium">
+                    {{ post.subtitle }}
+                </p>
+                {% endif %}
 
-        {% include 'board/posts/covers/_post_meta.html' with cover_inverted=True cover_meta_border=False %}
+                {% include 'board/posts/covers/_post_meta.html' with cover_inverted=True cover_meta_border=False %}
+            </div>
+        </div>
     </div>
 </section>

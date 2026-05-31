@@ -69,6 +69,11 @@
         min-width: 0;
     }
 
+    .post-cover-overlay-copy {
+        width: 100%;
+        min-width: 0;
+    }
+
     .post-detail-sidebar {
         display: none;
         width: 16rem;
@@ -82,6 +87,10 @@
 
         .post-detail-sidebar {
             display: block;
+        }
+
+        .post-cover-overlay-copy {
+            grid-column: 2;
         }
     }
 

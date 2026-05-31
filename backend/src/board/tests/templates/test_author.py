@@ -270,6 +270,22 @@ class AuthorPostsPageTestCase(TestCase):
         self.assertEqual(owner_response.status_code, 200)
         self.assertContains(owner_response, '/settings/profile')
 
+    def test_author_overview_cover_uses_cropped_card_ratio(self):
+        """프로필 커버는 크롭 결과와 같은 3:1 카드 비율로 노출한다."""
+        profile = Profile.objects.get(user=self.user)
+        profile.cover = 'images/avatar/test/cover.png'
+        profile.save(update_fields=['cover'])
+
+        response = self.client.get(
+            reverse('user_profile', kwargs={'username': self.user.username})
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'mx-auto max-w-4xl px-4 pt-6 sm:px-6 sm:pt-8')
+        self.assertContains(response, 'relative aspect-[3/1] w-full overflow-hidden rounded-2xl ring-1 ring-line/60')
+        self.assertContains(response, f'alt="{self.user.username} cover"')
+        self.assertNotContains(response, 'h-44 w-full overflow-hidden sm:h-56 md:h-64')
+
     def test_author_overview_pinned_posts_setting_entrypoint_is_owner_only(self):
         """고정 포스트 설정 진입점은 작성자 본인에게만 노출한다."""
         visitor_response = self.client.get(
