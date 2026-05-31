@@ -83,3 +83,20 @@ class CommentListServiceTestCase(TestCase):
             'can_like': False,
             'can_reply': False,
         })
+
+    def test_serialize_blocked_post_comment_marks_reply_permission_false(self):
+        self.post.config.block_comment = True
+        self.post.config.save(update_fields=['block_comment'])
+
+        payload = CommentListService.serialize_post_comments(
+            self.post.url,
+            self.viewer,
+        )
+
+        comment = payload['comments'][0]
+        self.assertEqual(comment['permissions'], {
+            'can_edit': True,
+            'can_delete': True,
+            'can_like': False,
+            'can_reply': False,
+        })

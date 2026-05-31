@@ -280,6 +280,24 @@ class CommentTestCase(TestCase):
         self.assertEqual(reply.parent_id, parent_comment.id)
         self.assertEqual(reply.text_md, 'Reply to comment')
 
+    def test_create_reply_to_deleted_comment_returns_error(self):
+        """삭제된 댓글에는 대댓글을 생성할 수 없다."""
+        parent_comment = Comment.objects.last()
+        parent_comment.author = None
+        parent_comment.save(update_fields=['author'])
+        initial_count = Comment.objects.count()
+
+        self.client.login(username='author', password='test')
+        response = self.client.post('/v1/comments?url=test-post', {
+            'comment_md': 'Reply to deleted comment',
+            'parent_id': parent_comment.id,
+        })
+
+        content = json.loads(response.content)
+        self.assertEqual(content['status'], 'ERROR')
+        self.assertIn('삭제된 댓글에는 답글을 달 수 없습니다', content['errorMessage'])
+        self.assertEqual(Comment.objects.count(), initial_count)
+
     def test_prevent_deeply_nested_comments(self):
         """대댓글의 대댓글 방지 테스트"""
         parent_comment = Comment.objects.last()

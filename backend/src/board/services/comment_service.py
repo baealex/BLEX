@@ -117,6 +117,14 @@ class CommentService:
             )
 
     @staticmethod
+    def validate_parent_allows_reply(parent: Optional[Comment]) -> None:
+        if parent and parent.is_deleted():
+            raise CommentValidationError(
+                ErrorCode.REJECT,
+                '삭제된 댓글에는 답글을 달 수 없습니다.'
+            )
+
+    @staticmethod
     def validate_user_can_edit(user: User, comment: Comment) -> None:
         """
         Validate if user can edit the comment.
@@ -375,6 +383,7 @@ class CommentService:
         CommentService.validate_user_can_comment(user)
         CommentService.validate_post_allows_public_comment(post)
         CommentService.validate_parent_belongs_to_post(parent, post)
+        CommentService.validate_parent_allows_reply(parent)
 
         # 1레벨 제한: 대댓글의 대댓글 방지
         if parent and parent.parent:

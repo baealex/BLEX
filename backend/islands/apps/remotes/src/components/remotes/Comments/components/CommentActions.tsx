@@ -22,16 +22,17 @@ export const CommentActions = ({
     onLike,
     onReply
 }: CommentActionsProps) => {
-    const showLike = !isDeleted && (permissions.canLike || !isLoggedIn);
+    const showLikeAction = !isDeleted && (permissions.canLike || !isLoggedIn);
+    const showLikeCount = !isDeleted && !showLikeAction && countLikes > 0;
     const showReply = !isDeleted && !!onReply && (permissions.canReply || !isLoggedIn);
 
-    if (!showLike && !showReply) {
+    if (!showLikeAction && !showLikeCount && !showReply) {
         return null;
     }
 
     return (
         <div className="flex items-center gap-1 mt-4 flex-wrap">
-            {showLike && (
+            {showLikeAction && (
                 <button
                     className={`
                         inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-md
@@ -50,6 +51,15 @@ export const CommentActions = ({
                     />
                     {countLikes > 0 && <span>{countLikes}</span>}
                 </button>
+            )}
+
+            {showLikeCount && (
+                <span
+                    className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-md text-xs font-semibold text-content-secondary"
+                    aria-label={`좋아요 ${countLikes}개`}>
+                    <ThumbsUp className="w-4 h-4" aria-hidden="true" />
+                    <span>{countLikes}</span>
+                </span>
             )}
 
             {showReply && (
