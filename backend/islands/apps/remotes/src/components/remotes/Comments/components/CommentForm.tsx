@@ -151,7 +151,7 @@ export const CommentForm = ({
             <div className="relative">
                 <textarea
                     ref={textareaRef}
-                    className="w-full p-5 border-2 border-line focus:border-line-strong focus:outline-none focus:ring-2 focus:ring-line/10 rounded-xl resize-none bg-surface text-sm placeholder-content-hint leading-relaxed transition-all duration-150"
+                    className="w-full p-5 border border-line focus:border-line-strong focus:outline-none focus:ring-2 focus:ring-line/10 rounded-xl resize-none bg-surface text-sm placeholder-content-hint leading-relaxed transition-all duration-150"
                     value={commentText}
                     onChange={handleTextChange}
                     onKeyDown={handleKeyDown}

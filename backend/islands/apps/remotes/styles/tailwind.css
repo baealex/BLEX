@@ -136,3 +136,57 @@
     background-color: var(--color-mention-surface-hover);
     color: var(--color-mention-content-hover);
 }
+
+.comment-content {
+    @apply max-w-none break-words text-sm leading-relaxed text-content sm:text-base;
+}
+
+.comment-content p {
+    @apply my-0;
+}
+
+.comment-content p + p {
+    @apply mt-3;
+}
+
+.comment-content a {
+    @apply text-content underline-offset-2 no-underline transition-colors hover:underline;
+}
+
+.comment-content a.mention {
+    color: var(--color-content-secondary);
+    @apply inline-flex items-center rounded-md border border-line-light bg-surface-subtle px-1.5 py-0.5 font-medium no-underline transition-colors;
+}
+
+.comment-content a.mention:hover {
+    color: var(--color-content);
+    @apply border-line bg-surface no-underline;
+}
+
+.comment-content strong {
+    @apply font-semibold text-content;
+}
+
+.comment-content code {
+    @apply rounded bg-surface-subtle px-1.5 py-0.5 text-content;
+}
+
+.comment-content pre {
+    @apply overflow-x-auto rounded-lg border border-line bg-surface-subtle p-3;
+}
+
+.comment-content pre code {
+    @apply rounded-none bg-transparent p-0;
+}
+
+.comment-content ul {
+    @apply my-2 list-disc pl-5;
+}
+
+.comment-content ol {
+    @apply my-2 list-decimal pl-5;
+}
+
+.comment-content blockquote {
+    @apply my-2 border-l border-line-light pl-3 text-content-secondary;
+}

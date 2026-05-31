@@ -56,6 +56,7 @@ export const useCommentsController = ({
     const [replyingToCommentId, setReplyingToCommentId] = useState<number | null>(null);
     const [replyText, setReplyText] = useState('');
     const [replyParentId, setReplyParentId] = useState<number | null>(null);
+    const [replyTargetAuthor, setReplyTargetAuthor] = useState<string | null>(null);
 
     const queryKey = getCommentsQueryKey(postUrl);
     const commentsQuery = useQuery({
@@ -251,13 +252,30 @@ export const useCommentsController = ({
 
         setReplyingToCommentId(commentId);
         setReplyParentId(findRootParentId(commentId, comments));
-        setReplyText(`\`@${authorUsername}\` `);
+        setReplyTargetAuthor(authorUsername);
+        setReplyText('');
     };
 
     const cancelReplying = () => {
         setReplyingToCommentId(null);
         setReplyText('');
         setReplyParentId(null);
+        setReplyTargetAuthor(null);
+    };
+
+    const getReplySubmissionText = () => {
+        const content = replyText.trim();
+
+        if (!replyTargetAuthor) {
+            return content;
+        }
+
+        const mentionPrefix = `\`@${replyTargetAuthor}\``;
+        if (content.startsWith(mentionPrefix)) {
+            return content;
+        }
+
+        return `${mentionPrefix} ${content}`;
     };
 
     const handleReply = async () => {
@@ -279,13 +297,14 @@ export const useCommentsController = ({
         setIsSubmitting(true);
 
         try {
-            const response = await createComment(postUrl, replyText, replyParentId);
+            const response = await createComment(postUrl, getReplySubmissionText(), replyParentId);
 
             if (response.data.status === 'DONE') {
                 const createdReply = response.data.body;
                 setReplyText('');
                 setReplyingToCommentId(null);
                 setReplyParentId(null);
+                setReplyTargetAuthor(null);
                 updateComments((currentComments) => appendCommentToTree(
                     currentComments,
                     createdReply

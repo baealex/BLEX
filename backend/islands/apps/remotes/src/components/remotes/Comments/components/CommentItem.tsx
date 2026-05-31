@@ -76,12 +76,11 @@ export const CommentItem = ({
             <article
                 className={`
                     relative
-                    py-6 px-4 sm:px-6
-                    bg-surface hover:bg-surface-subtle/50
+                    py-6
                     transition-colors duration-200
                     ${isReply
-                        ? 'ml-6 sm:ml-14 border-l-2 border-line pl-6 sm:pl-8'
-                        : 'rounded-xl ring-1 ring-line/5'
+                        ? 'ml-6 sm:ml-14 border-l border-line-light pl-6 sm:pl-8'
+                        : ''
                     }
                 `}
                 aria-label={`${comment.author}의 ${isReply ? '답글' : '댓글'}`}>
@@ -108,7 +107,7 @@ export const CommentItem = ({
                     isDeleted={isDeleted}
                 />
 
-                <div className="mt-4 ml-0 sm:ml-14">
+                <div className="mt-2 ml-0 sm:ml-14">
                     {isEditing ? (
                         <CommentEditForm
                             editText={editText}
@@ -137,7 +136,7 @@ export const CommentItem = ({
 
             {/* 답글 작성 폼 */}
             {isReplying && (
-                <div className="mt-4 ml-6 sm:ml-14 pl-6 sm:pl-8 pt-4 border-l-2 border-line">
+                <div className="mt-4 ml-6 sm:ml-14 pl-6 sm:pl-8 pt-4 border-l border-line-light">
                     <div className="flex items-center gap-2 mb-3">
                         <Reply className="w-4 h-4 text-content-hint" />
                         <p className="text-sm text-content-secondary">

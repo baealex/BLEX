@@ -1,5 +1,4 @@
 import { getStaticPath } from '~/modules/static.module';
-import { Pencil } from '@blex/ui/icons';
 
 interface CommentHeaderProps {
     author: string;
@@ -29,7 +28,7 @@ export const CommentHeader = ({
     );
 
     return (
-        <div className="flex items-start gap-4">
+        <div className="flex items-center gap-3">
             {isDeleted ? (
                 <div className="flex-shrink-0 group/avatar">
                     {avatar}
@@ -42,27 +41,27 @@ export const CommentHeader = ({
                     {avatar}
                 </a>
             )}
-            <div className="flex-1 min-w-0 pt-1">
-                <div className="flex items-baseline gap-2 flex-wrap">
-                    {isDeleted ? (
-                        <span className="font-semibold text-content text-sm">
-                            {author}
-                        </span>
-                    ) : (
-                        <a
-                            href={`/@${author}`}
-                            className="font-semibold text-content hover:text-content text-sm transition-colors duration-150">
-                            {author}
-                        </a>
-                    )}
-                    <time className="text-content-secondary text-xs font-medium" dateTime={createdDate}>
+            <div className="flex min-h-11 min-w-0 flex-1 flex-col justify-center">
+                {isDeleted ? (
+                    <span className="truncate text-sm font-semibold leading-5 text-content">
+                        {author}
+                    </span>
+                ) : (
+                    <a
+                        href={`/@${author}`}
+                        className="truncate text-sm font-semibold leading-5 text-content hover:text-content transition-colors duration-150">
+                        {author}
+                    </a>
+                )}
+                <div className="mt-0.5 flex items-center gap-1.5 text-xs font-medium leading-4 text-content-secondary">
+                    <time dateTime={createdDate}>
                         {createdDate}
                     </time>
                     {isEdited && (
-                        <span className="inline-flex items-center gap-1 text-xs text-content-hint">
-                            <Pencil className="w-3 h-3" />
-                            수정됨
-                        </span>
+                        <>
+                            <span aria-hidden="true">·</span>
+                            <span>수정됨</span>
+                        </>
                     )}
                 </div>
             </div>

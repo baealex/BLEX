@@ -155,10 +155,12 @@
                     </div>
                     {% endif %}
 
-                    <section class="mb-16 pt-8" aria-labelledby="post-info-heading">
-                        <h2 id="post-info-heading" class="text-sm font-semibold text-content-secondary">글 정보</h2>
-                        <dl class="mt-4 divide-y divide-line-light text-sm">
-                            <div class="py-3 first:pt-0 sm:flex sm:items-start sm:gap-6">
+                    <section class="mt-16 mb-16 bg-surface rounded-2xl p-6 sm:p-8 ring-1 ring-line/60" aria-labelledby="post-info-heading">
+                        <div class="mb-6 flex items-start justify-between gap-4 border-b border-line-light pb-4">
+                            <h2 id="post-info-heading" class="text-lg font-bold leading-snug text-content">글 정보</h2>
+                        </div>
+                        <dl class="grid gap-4 text-sm">
+                            <div class="sm:flex sm:items-start sm:gap-6">
                                 <dt class="text-xs font-medium text-content-hint sm:w-24 sm:flex-shrink-0">작성자</dt>
                                 <dd class="mt-1 min-w-0 sm:mt-0">
                                     <a href="/@{{ post.author_username }}" class="font-semibold text-content hover:text-content-secondary transition-colors">{{ post.author_username }}</a>
@@ -167,14 +169,14 @@
                                     {% endif %}
                                 </dd>
                             </div>
-                            <div class="py-3 sm:flex sm:items-start sm:gap-6">
+                            <div class="sm:flex sm:items-start sm:gap-6">
                                 <dt class="text-xs font-medium text-content-hint sm:w-24 sm:flex-shrink-0">최초 발행</dt>
                                 <dd class="mt-1 text-content-secondary sm:mt-0">
                                     <time datetime="{{ post.published_date|date:'c' }}">{{ post.created_date_display }}</time>
                                 </dd>
                             </div>
                             {% if show_post_updated_date %}
-                            <div class="py-3 sm:flex sm:items-start sm:gap-6">
+                            <div class="sm:flex sm:items-start sm:gap-6">
                                 <dt class="text-xs font-medium text-content-hint sm:w-24 sm:flex-shrink-0">수정일</dt>
                                 <dd class="mt-1 text-content-secondary sm:mt-0">
                                     <time datetime="{{ post.updated_date|date:'c' }}">{{ post.updated_date_display }}</time>
@@ -182,7 +184,7 @@
                             </div>
                             {% endif %}
                             {% if author_homepage %}
-                            <div class="py-3 sm:flex sm:items-start sm:gap-6">
+                            <div class="sm:flex sm:items-start sm:gap-6">
                                 <dt class="text-xs font-medium text-content-hint sm:w-24 sm:flex-shrink-0">저자 홈페이지</dt>
                                 <dd class="mt-1 min-w-0 sm:mt-0">
                                     <a href="{{ author_homepage }}" target="_blank" rel="noopener noreferrer" class="break-words text-content-secondary hover:text-content transition-colors">{{ author_homepage }}</a>
@@ -295,15 +297,15 @@
                     }
                 }"
                 {% if show_agent_post_markdown %}data-agent-copy-url="{{ post_markdown_url }}"{% endif %}
-                class="fixed sm:sticky bottom-6 left-0 right-0 z-30 flex justify-center pointer-events-none">
-                    <div class="pointer-events-auto floating-glass-surface rounded-full px-3 py-3 flex items-center gap-2 transform transition-all motion-interaction">
+                class="post-action-dock fixed left-0 right-0 z-30 flex justify-center pointer-events-none">
+                    <div class="pointer-events-auto post-action-bar transform transition-all motion-interaction">
 
                         <!-- Like Button -->
                         <div class="flex items-center">
                             {% include 'components/like_button.html' with post_url=post.url likes_count=post.count_likes has_liked=post.has_liked %}
                         </div>
 
-                        <div class="w-px h-8 bg-line/60 mx-1"></div>
+                        <div class="post-action-divider"></div>
 
                         <!-- TOC Button (Mobile Only) -->
                         {% if table_of_contents %}
@@ -410,17 +412,17 @@
 
                 <!-- Series Card -->
                 {% if post.series %}
-                <div class="mt-16 bg-surface-elevated rounded-2xl p-6 sm:p-8 mb-16 ring-1 ring-line/60">
+                <section class="mt-16 bg-surface rounded-2xl p-6 sm:p-8 mb-16 ring-1 ring-line/60" aria-labelledby="post-series-heading">
                     {% if not post.visible_series_posts %}
                     <div class="flex flex-col items-center justify-center text-center py-6">
                         <div class="w-12 h-12 bg-surface-subtle rounded-full flex items-center justify-center text-content-secondary mb-4">
                             <i class="fas fa-eye-slash"></i>
                         </div>
-                        <h3 class="text-lg font-bold text-content mb-2">
+                        <h2 id="post-series-heading" class="text-lg font-bold text-content mb-2">
                             <a href="{% url 'series_detail' post.author_username post.series.url %}" class="hover:text-content-secondary transition-colors">
                                 {{ post.series.name }}
                             </a>
-                        </h3>
+                        </h2>
                         <p class="text-sm text-content-secondary mb-6">
                             이 포스트는 숨김 처리되어 시리즈 목록에 표시되지 않습니다.
                         </p>
@@ -437,11 +439,11 @@
                                 <span class="text-sm text-content-secondary font-medium">{{ post.series_index }} / {{ post.series_total }}</span>
                             </div>
 
-                            <h3 class="text-2xl font-bold text-content mb-2">
+                            <h2 id="post-series-heading" class="text-2xl font-bold text-content mb-2">
                                 <a href="{% url 'series_detail' post.author_username post.series.url %}" class="hover:text-content-secondary transition-colors">
                                     {{ post.series.name }}
                                 </a>
-                            </h3>
+                            </h2>
                         </div>
                     </div>
                     
@@ -495,10 +497,10 @@
                     </div>
                     {% endif %}
                     {% endif %}
-                </div>
+                </section>
                 {% endif %}
 
-                <div class="mt-16">
+                <div>
                     {% island_component 'Comments' lazy=True postUrl=post.url %}
                 </div>
             </div>
@@ -599,6 +601,12 @@ class="xl:hidden">
     </div>
 </div>
 {% endif %}
+{% endblock %}
+
+{% block footer %}
+<div class="post-detail-footer-action-space">
+    {% include 'components/footer.html' %}
+</div>
 {% endblock %}
 
 {% block extra_scripts %}

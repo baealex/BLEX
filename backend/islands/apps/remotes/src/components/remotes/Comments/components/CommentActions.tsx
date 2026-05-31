@@ -1,4 +1,4 @@
-import { Reply, ThumbsUp } from '@blex/ui/icons';
+import { Heart, Reply } from '@blex/ui/icons';
 import type { CommentPermissions } from '~/lib/api/comments';
 
 interface CommentActionsProps {
@@ -38,15 +38,15 @@ export const CommentActions = ({
                         inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-md
                         text-xs font-semibold transition-colors duration-150
                         ${isLiked
-                            ? 'bg-action text-content-inverted hover:bg-action-hover'
+                            ? 'bg-danger-surface text-danger ring-1 ring-danger-line hover:bg-danger-surface'
                             : 'text-content-secondary hover:text-content hover:bg-surface-subtle'
                         }
                     `}
                     onClick={() => onLike(commentId)}
                     aria-label={isLiked ? '좋아요 취소' : '좋아요'}
                     aria-pressed={isLiked}>
-                    <ThumbsUp
-                        className={`w-4 h-4 ${isLiked ? 'fill-content-inverted' : ''}`}
+                    <Heart
+                        className={`w-4 h-4 ${isLiked ? 'fill-danger' : ''}`}
                         aria-hidden="true"
                     />
                     {countLikes > 0 && <span>{countLikes}</span>}
@@ -57,7 +57,7 @@ export const CommentActions = ({
                 <span
                     className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-md text-xs font-semibold text-content-secondary"
                     aria-label={`좋아요 ${countLikes}개`}>
-                    <ThumbsUp className="w-4 h-4" aria-hidden="true" />
+                    <Heart className="w-4 h-4" aria-hidden="true" />
                     <span>{countLikes}</span>
                 </span>
             )}
