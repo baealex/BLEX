@@ -5,11 +5,15 @@ import { CommentContent } from './CommentContent';
 import { CommentActions } from './CommentActions';
 import { CommentEditForm } from './CommentEditForm';
 import { CommentForm } from './CommentForm';
-import type { Comment } from '~/lib/api/comments';
+import {
+    isCommentDeleted,
+    resolveCommentPermissions,
+    type Comment
+} from '~/lib/api/comments';
 
 interface CommentItemProps {
     comment: Comment;
-    currentUser: string | undefined;
+    isLoggedIn: boolean;
     editingCommentId: number | null;
     editText: string;
     isSubmitting: boolean;
@@ -30,7 +34,7 @@ interface CommentItemProps {
 
 export const CommentItem = ({
     comment,
-    currentUser,
+    isLoggedIn,
     editingCommentId,
     editText,
     isSubmitting,
@@ -51,13 +55,24 @@ export const CommentItem = ({
     const isEditing = editingCommentId === comment.id;
     const isReplying = replyingToCommentId === comment.id;
     const isReply = !!comment.parentId;
-    const canManage = comment.author !== 'Ghost' && (
-        comment.isMine === true ||
-        (typeof comment.isMine !== 'boolean' && !!currentUser && comment.author === currentUser)
-    );
+    const isDeleted = isCommentDeleted(comment);
+    const permissions = resolveCommentPermissions(comment);
+    const menuItems = [
+        ...(permissions.canEdit ? [{
+            label: '수정',
+            icon: 'fas fa-pen',
+            onClick: () => onEdit(comment.id)
+        }] : []),
+        ...(permissions.canDelete ? [{
+            label: '삭제',
+            icon: 'fas fa-trash',
+            onClick: () => onDelete(comment.id),
+            variant: 'danger' as const
+        }] : [])
+    ];
 
     return (
-        <div className="group" data-comment-id={comment.id}>
+        <div className="group" data-comment-id={comment.id} role={isReply ? undefined : 'listitem'}>
             <article
                 className={`
                     relative
@@ -70,7 +85,7 @@ export const CommentItem = ({
                     }
                 `}
                 aria-label={`${comment.author}의 ${isReply ? '답글' : '댓글'}`}>
-                {canManage && !isEditing && (
+                {menuItems.length > 0 && !isEditing && (
                     <div className="absolute top-4 right-4 z-10" onClick={(e) => e.stopPropagation()}>
                         <Dropdown
                             trigger={(
@@ -81,19 +96,7 @@ export const CommentItem = ({
                                     <i className="fas fa-ellipsis-v text-sm" />
                                 </button>
                             )}
-                            items={[
-                                {
-                                    label: '수정',
-                                    icon: 'fas fa-pen',
-                                    onClick: () => onEdit(comment.id)
-                                },
-                                {
-                                    label: '삭제',
-                                    icon: 'fas fa-trash',
-                                    onClick: () => onDelete(comment.id),
-                                    variant: 'danger'
-                                }
-                            ]}
+                            items={menuItems}
                         />
                     </div>
                 )}
@@ -102,6 +105,7 @@ export const CommentItem = ({
                     authorImage={comment.authorImage}
                     createdDate={comment.createdDate}
                     isEdited={comment.isEdited}
+                    isDeleted={isDeleted}
                 />
 
                 <div className="mt-4 ml-0 sm:ml-14">
@@ -120,7 +124,9 @@ export const CommentItem = ({
                                 commentId={comment.id}
                                 isLiked={comment.isLiked}
                                 countLikes={comment.countLikes}
-                                isDeleted={comment.author === 'Ghost'}
+                                isDeleted={isDeleted}
+                                isLoggedIn={isLoggedIn}
+                                permissions={permissions}
                                 onLike={onLike}
                                 onReply={() => onReply(comment.id, comment.author)}
                             />
@@ -160,7 +166,7 @@ export const CommentItem = ({
                         <CommentItem
                             key={reply.id}
                             comment={reply}
-                            currentUser={currentUser}
+                            isLoggedIn={isLoggedIn}
                             editingCommentId={editingCommentId}
                             editText={editText}
                             isSubmitting={isSubmitting}
