@@ -7,6 +7,7 @@ export { Input } from '@blex/ui/input';
 export { LoadingState } from '@blex/ui/loading-state';
 export { Modal } from '@blex/ui/modal';
 export { Select } from '@blex/ui/select';
+export { ImageCropDialog } from './ImageCropDialog';
 
 export {
     DIM_OVERLAY_DEFAULT,

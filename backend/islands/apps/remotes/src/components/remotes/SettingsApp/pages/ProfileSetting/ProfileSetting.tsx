@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import type { ChangeEvent } from 'react';
 import { toast } from '~/utils/toast';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
@@ -6,7 +7,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useSuspenseQuery } from '@tanstack/react-query';
 import { useConfirm } from '~/hooks/useConfirm';
 import { SettingsHeader } from '../../components';
-import { Button, Input, Card } from '~/components/shared';
+import { Button, Input, Card, ImageCropDialog } from '~/components/shared';
 import {
     deleteCover,
     getProfileSettings,
@@ -22,11 +23,33 @@ const profileSchema = z.object({
 });
 
 type ProfileFormInputs = z.infer<typeof profileSchema>;
+type ImageCropTarget = 'avatar' | 'cover';
+
+interface ImageCropState {
+    target: ImageCropTarget;
+    file: File;
+}
+
+const IMAGE_CROP_CONFIG = {
+    avatar: {
+        title: '프로필 이미지 자르기',
+        aspectRatio: 1,
+        outputWidth: 400,
+        outputHeight: 400
+    },
+    cover: {
+        title: '커버 이미지 자르기',
+        aspectRatio: 3,
+        outputWidth: 1500,
+        outputHeight: 500
+    }
+} as const;
 
 const ProfileSetting = () => {
     const [avatar, setAvatar] = useState('/resources/staticfiles/images/default-avatar.jpg');
     const [cover, setCover] = useState<string | null>(null);
     const [isLoading, setIsLoading] = useState(false);
+    const [imageCropState, setImageCropState] = useState<ImageCropState | null>(null);
     const { confirm } = useConfirm();
 
     const { register, handleSubmit, reset, formState: { errors } } = useForm<ProfileFormInputs>({ resolver: zodResolver(profileSchema) });
@@ -75,67 +98,68 @@ const ProfileSetting = () => {
         }
     };
 
-    const handleAvatarChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-        const file = e.target.files?.[0];
+    const handleAvatarChange = (event: ChangeEvent<HTMLInputElement>) => {
+        const file = event.target.files?.[0];
         if (!file) return;
 
-        const confirmed = await confirm({
-            title: '프로필 이미지 변경',
-            message: '프로필 이미지를 변경하시겠습니까?',
-            confirmText: '변경'
+        setImageCropState({
+            target: 'avatar',
+            file
         });
-
-        if (!confirmed) {
-            e.target.value = '';
-            return;
-        }
-
-        try {
-            const { data } = await uploadAvatar(file);
-
-            if (data.status === 'DONE') {
-                setAvatar(data.body.url);
-                toast.success('프로필 이미지가 업데이트 되었습니다.');
-                refetch();
-            } else {
-                toast.error('프로필 이미지 업데이트에 실패했습니다.');
-            }
-        } catch {
-            toast.error('프로필 이미지 업데이트에 실패했습니다.');
-        } finally {
-            e.target.value = '';
-        }
+        event.target.value = '';
     };
 
-    const handleCoverChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-        const file = e.target.files?.[0];
+    const handleCoverChange = (event: ChangeEvent<HTMLInputElement>) => {
+        const file = event.target.files?.[0];
         if (!file) return;
 
-        const confirmed = await confirm({
-            title: '커버 이미지 변경',
-            message: '커버 이미지를 변경하시겠습니까?',
-            confirmText: '변경'
+        setImageCropState({
+            target: 'cover',
+            file
         });
+        event.target.value = '';
+    };
 
-        if (!confirmed) {
-            e.target.value = '';
-            return;
+    const handleImageCropComplete = async (croppedFile: File) => {
+        const target = imageCropState?.target;
+        if (!target) {
+            throw new Error('Image crop target is not set.');
         }
 
-        try {
-            const { data } = await uploadCover(file);
+        const isAvatarTarget = target === 'avatar';
+        const successMessage = isAvatarTarget
+            ? '프로필 이미지가 업데이트 되었습니다.'
+            : '커버 이미지가 업데이트 되었습니다.';
+        const errorMessage = isAvatarTarget
+            ? '프로필 이미지 업데이트에 실패했습니다.'
+            : '커버 이미지 업데이트에 실패했습니다.';
 
-            if (data.status === 'DONE') {
-                setCover(data.body.url);
-                toast.success('커버 이미지가 업데이트 되었습니다.');
-                refetch();
+        try {
+            if (isAvatarTarget) {
+                const { data } = await uploadAvatar(croppedFile);
+                if (data.status === 'DONE') {
+                    setAvatar(data.body.url);
+                    toast.success(successMessage);
+                    refetch();
+                    return;
+                }
             } else {
-                toast.error('커버 이미지 업데이트에 실패했습니다.');
+                const { data } = await uploadCover(croppedFile);
+                if (data.status === 'DONE') {
+                    setCover(data.body.url);
+                    toast.success(successMessage);
+                    refetch();
+                    return;
+                }
             }
-        } catch {
-            toast.error('커버 이미지 업데이트에 실패했습니다.');
-        } finally {
-            e.target.value = '';
+
+            toast.error(errorMessage);
+            throw new Error(errorMessage);
+        } catch (error) {
+            if (!(error instanceof Error && error.message === errorMessage)) {
+                toast.error(errorMessage);
+            }
+            throw error;
         }
     };
 
@@ -165,6 +189,10 @@ const ProfileSetting = () => {
             toast.error('커버 이미지 삭제에 실패했습니다.');
         }
     };
+
+    const imageCropConfig = imageCropState
+        ? IMAGE_CROP_CONFIG[imageCropState.target]
+        : null;
 
     return (
         <div>
@@ -211,7 +239,7 @@ const ProfileSetting = () => {
                     <div className="space-y-4">
                         {cover ? (
                             <div className="relative group">
-                                <div className="aspect-[21/9] w-full rounded-2xl overflow-hidden ring-1 ring-line/5">
+                                <div className="aspect-[3/1] w-full rounded-2xl overflow-hidden ring-1 ring-line/5">
                                     <img
                                         src={cover}
                                         alt="커버 이미지"
@@ -235,7 +263,7 @@ const ProfileSetting = () => {
                             </div>
                         ) : (
                             <label htmlFor="cover-input-empty" className="block">
-                                <div className="aspect-[21/9] w-full rounded-2xl border-2 border-dashed border-line hover:border-line hover:bg-surface-subtle transition-all duration-200 cursor-pointer flex flex-col items-center justify-center gap-3 group">
+                                <div className="aspect-[3/1] w-full rounded-2xl border-2 border-dashed border-line hover:border-line hover:bg-surface-subtle transition-all duration-200 cursor-pointer flex flex-col items-center justify-center gap-3 group">
                                     <svg className="w-12 h-12 text-content-hint group-hover:text-content-hint transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
                                     </svg>
@@ -268,7 +296,7 @@ const ProfileSetting = () => {
                         )}
                         <div>
                             <p className="text-sm text-content-secondary mb-1">프로필 페이지 상단에 표시되는 배너 이미지입니다.</p>
-                            <p className="text-xs text-content-hint">권장 크기: 1200x514px (21:9 비율), 최대 5MB</p>
+                            <p className="text-xs text-content-hint">권장 크기: 1500x500px (3:1 비율), 최대 5MB</p>
                         </div>
                     </div>
                 </Card>
@@ -321,6 +349,19 @@ const ProfileSetting = () => {
                     {isLoading ? '저장 중...' : '프로필 저장'}
                 </Button>
             </form>
+
+            {imageCropConfig && (
+                <ImageCropDialog
+                    isOpen={Boolean(imageCropState)}
+                    file={imageCropState?.file ?? null}
+                    title={imageCropConfig.title}
+                    aspectRatio={imageCropConfig.aspectRatio}
+                    outputWidth={imageCropConfig.outputWidth}
+                    outputHeight={imageCropConfig.outputHeight}
+                    onClose={() => setImageCropState(null)}
+                    onComplete={handleImageCropComplete}
+                />
+            )}
         </div>
     );
 };
