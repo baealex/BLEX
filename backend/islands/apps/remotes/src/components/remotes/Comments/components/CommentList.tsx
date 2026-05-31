@@ -4,7 +4,7 @@ import type { Comment } from '~/lib/api/comments';
 
 interface CommentListProps {
     comments: Comment[];
-    currentUser: string | undefined;
+    isLoggedIn: boolean;
     editingCommentId: number | null;
     editText: string;
     isSubmitting: boolean;
@@ -25,7 +25,7 @@ interface CommentListProps {
 
 export const CommentList = ({
     comments,
-    currentUser,
+    isLoggedIn,
     editingCommentId,
     editText,
     isSubmitting,
@@ -53,7 +53,7 @@ export const CommentList = ({
                 <CommentItem
                     key={comment.id}
                     comment={comment}
-                    currentUser={currentUser}
+                    isLoggedIn={isLoggedIn}
                     editingCommentId={editingCommentId}
                     editText={editText}
                     isSubmitting={isSubmitting}

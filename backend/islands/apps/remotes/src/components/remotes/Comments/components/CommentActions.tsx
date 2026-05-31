@@ -1,10 +1,13 @@
 import { Reply, ThumbsUp } from '@blex/ui/icons';
+import type { CommentPermissions } from '~/lib/api/comments';
 
 interface CommentActionsProps {
     commentId: number;
     isLiked: boolean;
     countLikes: number;
     isDeleted: boolean;
+    isLoggedIn: boolean;
+    permissions: CommentPermissions;
     onLike: (commentId: number) => void;
     onReply?: () => void;
 }
@@ -14,12 +17,21 @@ export const CommentActions = ({
     isLiked,
     countLikes,
     isDeleted,
+    isLoggedIn,
+    permissions,
     onLike,
     onReply
 }: CommentActionsProps) => {
+    const showLike = !isDeleted && (permissions.canLike || !isLoggedIn);
+    const showReply = !isDeleted && !!onReply && (permissions.canReply || !isLoggedIn);
+
+    if (!showLike && !showReply) {
+        return null;
+    }
+
     return (
         <div className="flex items-center gap-1 mt-4 flex-wrap">
-            {!isDeleted && (
+            {showLike && (
                 <button
                     className={`
                         inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-md
@@ -40,7 +52,7 @@ export const CommentActions = ({
                 </button>
             )}
 
-            {!isDeleted && onReply && (
+            {showReply && (
                 <button
                     className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-md text-xs font-semibold text-content-secondary hover:text-content hover:bg-surface-subtle transition-colors duration-150"
                     onClick={onReply}
