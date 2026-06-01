@@ -1,8 +1,10 @@
 import type { CSSProperties } from 'react';
 
+export const FULL_WIDTH_SIZE_PRESET = 'full';
+
 /**
  * 사이즈 프리셋 → px 매핑
- * px 기반이라 모바일에서는 컨테이너 폭을 초과하지 않아 자연스럽게 꽉 참
+ * px 기반이라 모바일에서는 컨테이너 폭을 초과하지 않음
  */
 export const SIZE_PRESETS: Record<string, number> = {
     small: 320,
@@ -56,6 +58,11 @@ export function getFigureStyle(attrs: {
         }
     }
 
+    if (attrs.sizePreset === FULL_WIDTH_SIZE_PRESET) {
+        style.width = '100%';
+        style.maxWidth = '100%';
+    }
+
     // 장식 속성 (기존 콘텐츠 호환용)
     if (attrs.border) {
         style.border = MEDIA_BORDER_STYLE;
@@ -80,6 +87,7 @@ export function getMediaStyle(attrs: {
     aspectRatio?: string | null;
     width?: number | null;
     height?: number | null;
+    sizePreset?: string | null;
 }): CSSProperties {
     const style: CSSProperties = {
         display: 'block',
@@ -97,6 +105,12 @@ export function getMediaStyle(attrs: {
     }
     if (attrs.width) style.width = `${attrs.width}px`;
     if (attrs.height) style.height = `${attrs.height}px`;
+    if (attrs.sizePreset === FULL_WIDTH_SIZE_PRESET) {
+        style.width = '100%';
+        if (!attrs.height) {
+            style.height = 'auto';
+        }
+    }
 
     return style;
 }
@@ -134,6 +148,11 @@ export function buildFigureAttrsForHTML(attrs: {
         } else if (attrs.align === 'right') {
             styles.push('margin-left: auto', 'margin-right: 0');
         }
+    }
+
+    if (attrs.sizePreset === FULL_WIDTH_SIZE_PRESET) {
+        styles.push('width: 100%', 'max-width: 100%');
+        result['data-size'] = FULL_WIDTH_SIZE_PRESET;
     }
 
     if (attrs.border) {

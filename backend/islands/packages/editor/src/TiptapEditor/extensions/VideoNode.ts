@@ -30,7 +30,7 @@ export const VideoNode = Node.create({
             border: { default: false },
             shadow: { default: false },
             borderRadius: { default: null }, // 0, 4, 8, 16, 9999 (px)
-            sizePreset: { default: null }, // 'small', 'medium', 'large', null(=full)
+            sizePreset: { default: null }, // 'small', 'medium', 'large', 'full', null(=natural)
             // 재생 모드: 'gif'(움짤) 또는 'video'(일반 영상)
             playMode: { default: 'gif' },
             autoplay: {
@@ -184,7 +184,7 @@ export const VideoNode = Node.create({
         }
 
         if (poster) videoAttrs.poster = normalizeMediaUrlForStorage(poster);
-        if (width) videoAttrs.width = width;
+        if (width && sizePreset !== 'full') videoAttrs.width = width;
         if (height) videoAttrs.height = height;
 
         // 비디오 스타일
@@ -198,6 +198,12 @@ export const VideoNode = Node.create({
         }
         if (objectFit) {
             videoStyles.push(`object-fit: ${objectFit}`);
+        }
+        if (sizePreset === 'full') {
+            videoStyles.push('width: 100%');
+            if (!height) {
+                videoStyles.push('height: auto');
+            }
         }
         if (videoStyles.length > 0) {
             videoAttrs.style = videoStyles.join('; ');

@@ -80,7 +80,11 @@ export const VideoNodeView = ({ node, selected, editor, getPos }: NodeViewProps)
                 data-shadow={shadow ? 'true' : undefined}
                 data-border-radius={borderRadius || undefined}
                 data-size={sizePreset || undefined}>
-                <div style={{ position: 'relative' }}>
+                <div
+                    style={{
+                        position: 'relative',
+                        width: sizePreset === 'full' ? '100%' : undefined
+                    }}>
                     <video
                         ref={videoRef}
                         draggable={false}
@@ -88,7 +92,8 @@ export const VideoNodeView = ({ node, selected, editor, getPos }: NodeViewProps)
                             objectFit,
                             aspectRatio,
                             width,
-                            height
+                            height,
+                            sizePreset
                         })}
                         poster={poster || undefined}
                         width={width || undefined}

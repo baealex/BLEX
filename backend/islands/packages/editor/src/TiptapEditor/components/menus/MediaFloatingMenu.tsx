@@ -219,6 +219,7 @@ const MediaFloatingMenu = ({ editor }: MediaFloatingMenuProps) => {
                                         }}
                                         className={fieldClassName}>
                                         <option value="">원본</option>
+                                        <option value="full">본문 폭</option>
                                         <option value="large">크게</option>
                                         <option value="medium">보통</option>
                                         <option value="small">작게</option>

@@ -30,7 +30,7 @@ export const CustomImage = Node.create({
             shadow: { default: false },
             aspectRatio: { default: null },
             borderRadius: { default: null },
-            sizePreset: { default: null } // 'small', 'medium', 'large', null(=full)
+            sizePreset: { default: null } // 'small', 'medium', 'large', 'full', null(=natural)
         };
     },
 
@@ -118,7 +118,7 @@ export const CustomImage = Node.create({
         };
 
         if (title) imgAttrs.title = title;
-        if (width) imgAttrs.width = width;
+        if (width && sizePreset !== 'full') imgAttrs.width = width;
         if (height) imgAttrs.height = height;
 
         const imgStyles: string[] = [];
@@ -131,6 +131,12 @@ export const CustomImage = Node.create({
         }
         if (objectFit) {
             imgStyles.push(`object-fit: ${objectFit}`);
+        }
+        if (sizePreset === 'full') {
+            imgStyles.push('width: 100%');
+            if (!height) {
+                imgStyles.push('height: auto');
+            }
         }
         if (imgStyles.length > 0) {
             imgAttrs.style = imgStyles.join('; ');
