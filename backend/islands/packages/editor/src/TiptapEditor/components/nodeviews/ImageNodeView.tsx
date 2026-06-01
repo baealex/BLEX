@@ -43,7 +43,11 @@ export const ImageNodeView = ({ node, selected, editor, getPos }: NodeViewProps)
                 data-shadow={shadow ? 'true' : undefined}
                 data-border-radius={borderRadius || undefined}
                 data-size={sizePreset || undefined}>
-                <div style={{ position: 'relative' }}>
+                <div
+                    style={{
+                        position: 'relative',
+                        width: sizePreset === 'full' ? '100%' : undefined
+                    }}>
                     <img
                         src={src}
                         alt={alt || ''}
@@ -53,7 +57,8 @@ export const ImageNodeView = ({ node, selected, editor, getPos }: NodeViewProps)
                             objectFit,
                             aspectRatio,
                             width,
-                            height
+                            height,
+                            sizePreset
                         })}
                         width={width || undefined}
                         height={height || undefined}
