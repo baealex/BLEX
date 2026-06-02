@@ -11,10 +11,10 @@ const WebhookSetting = () => {
         <WebhookChannelManager
             queryKey={['webhook-channels']}
             title="웹훅 연동"
-            description="내가 발행한 새 글을 등록된 채널로 자동 전송합니다."
+            description="내가 발행한 새 포스트를 등록된 채널로 자동 전송합니다."
             formTitle="새 웹훅 채널 추가"
             emptyTitle="등록된 웹훅 채널이 없습니다"
-            emptyDescription="새 채널을 추가해서 내 글 발행 알림을 받아보세요."
+            emptyDescription="새 채널을 추가해서 내 포스트 발행 알림을 받아보세요."
             fetchChannels={getWebhookChannels}
             createChannel={addWebhookChannel}
             deleteChannel={deleteWebhookChannel}

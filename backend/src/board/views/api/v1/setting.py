@@ -5,7 +5,6 @@ from django.db.models import Count
 from django.http import Http404, QueryDict
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
-from django.utils.dateparse import parse_datetime
 from board.models import (
     User, Series, Post, SiteSetting,
     Profile, Notify)
@@ -29,6 +28,133 @@ EDITOR_SETTING_PARAMETERS = {
     'pinnable-posts',
     'pinned-posts/order',
 }
+
+
+POST_MANAGEMENT_ORDERS = {
+    'title',
+    'read_time',
+    'published_date',
+    'updated_date',
+    'count_likes',
+    'count_comments',
+}
+
+
+def get_post_management_queryset(user, *, scheduled=False):
+    now = timezone.now()
+    published_date_filter = {
+        'published_date__isnull': False,
+        'published_date__gt' if scheduled else 'published_date__lte': now,
+    }
+
+    return Post.objects.select_related(
+        'config', 'series',
+    ).prefetch_related(
+        'tags'
+    ).annotate(
+        count_likes=Count('likes', distinct=True),
+        count_comments=Count('comments', distinct=True),
+    ).filter(
+        author=user,
+        **published_date_filter,
+    ).order_by('-published_date')
+
+
+def apply_post_management_filters(posts, request):
+    tag = request.GET.get('tag', '')
+    if tag:
+        posts = posts.filter(tags__value=tag)
+
+    series = request.GET.get('series', '')
+    if series:
+        posts = posts.filter(series__url=series)
+
+    search = request.GET.get('search', '')
+    if search:
+        posts = posts.filter(title__icontains=search)
+
+    visibility = request.GET.get('visibility', '')
+    if visibility == 'public':
+        posts = posts.filter(config__hide=False)
+    elif visibility == 'hidden':
+        posts = posts.filter(config__hide=True)
+
+    return posts
+
+
+def apply_post_management_order(posts, request):
+    order = request.GET.get('order', '')
+    if not order:
+        return posts
+
+    normalized_order = order[1:] if order.startswith('-') else order
+    if normalized_order not in POST_MANAGEMENT_ORDERS:
+        raise Http404
+
+    return posts.order_by(order)
+
+
+def paginate_post_management_posts(posts, request):
+    try:
+        page = int(request.GET.get('page', 1))
+    except (TypeError, ValueError):
+        raise Http404
+
+    if page < 1:
+        raise Http404
+
+    if not posts.exists():
+        if page > 1:
+            raise Http404
+        return [], 1
+
+    page_posts = Paginator(
+        objects=posts,
+        offset=10,
+        page=page
+    )
+    return page_posts, page_posts.paginator.num_pages
+
+
+def serialize_post_management_post(post, *, date_format):
+    count_likes = getattr(post, 'count_likes', None)
+    if count_likes is None:
+        count_likes = post.likes.count()
+
+    count_comments = getattr(post, 'count_comments', None)
+    if count_comments is None:
+        count_comments = post.comments.count()
+
+    return {
+        'url': post.url,
+        'title': post.title,
+        'image': str(post.image) if post.image else None,
+        'created_date': convert_to_localtime(post.published_date).strftime(date_format),
+        'updated_date': convert_to_localtime(post.updated_date).strftime('%Y-%m-%d'),
+        'is_hide': post.config.hide,
+        'count_likes': count_likes,
+        'count_comments': count_comments,
+        'read_time': post.read_time,
+        'tag': ','.join(post.tagging()),
+        'series': post.series.url if post.series else '',
+    }
+
+
+def get_post_management_response(request, user, *, scheduled=False):
+    posts = get_post_management_queryset(user, scheduled=scheduled)
+    posts = apply_post_management_filters(posts, request)
+    posts = apply_post_management_order(posts, request)
+    page_posts, last_page = paginate_post_management_posts(posts, request)
+    date_format = '%Y-%m-%d %H:%M' if scheduled else '%Y-%m-%d'
+
+    return StatusDone({
+        'username': request.user.username,
+        'posts': [
+            serialize_post_management_post(post, date_format=date_format)
+            for post in page_posts
+        ],
+        'last_page': last_page,
+    })
 
 
 def setting(request, parameter):
@@ -94,107 +220,10 @@ def setting(request, parameter):
             })
 
         if parameter == 'posts':
-            posts = Post.objects.select_related(
-                'config', 'series',
-            ).prefetch_related(
-                'tags', 'likes', 'comments'
-            ).filter(
-                author=user,
-                published_date__isnull=False,
-                published_date__lte=timezone.now(),
-            ).order_by('-published_date')
-
-            tag = request.GET.get('tag', '')
-            if tag:
-                posts = posts.filter(tags__value=tag)
-            
-            series = request.GET.get('series', '')
-            if series:
-                posts = posts.filter(series__url=series)
-
-            search = request.GET.get('search', '')
-            if search:
-                posts = posts.filter(title__icontains=search)
-
-            visibility = request.GET.get('visibility', '')
-            if visibility == 'public':
-                posts = posts.filter(config__hide=False)
-            elif visibility == 'hidden':
-                posts = posts.filter(config__hide=True)
-
-            valid_orders = [
-                'title',
-                'read_time',
-                'published_date',
-                'updated_date',
-                'count_likes',
-                'count_comments',
-            ]
-            order = request.GET.get('order', '')
-            if order:
-                is_valid = False
-                for valid_order in valid_orders:
-                    if order == valid_order or order == '-' + valid_order:
-                        is_valid = True
-                if not is_valid:
-                    raise Http404
-
-                if order == 'count_likes':
-                    order = 'likes__count'
-                elif order == '-count_likes':
-                    order = '-likes__count'
-                elif order == 'count_comments':
-                    order = 'comments__count'
-                elif order == '-count_comments':
-                    order = '-comments__count'
-
-                posts = posts.order_by(order)
-
-            posts = Paginator(
-                objects=posts,
-                offset=10,
-                page=request.GET.get('page', 1)
-            )
-            return StatusDone({
-                'username': request.user.username,
-                'posts': list(map(lambda post: {
-                    'url': post.url,
-                    'title': post.title,
-                    'created_date': convert_to_localtime(post.published_date).strftime('%Y-%m-%d'),
-                    'updated_date': convert_to_localtime(post.updated_date).strftime('%Y-%m-%d'),
-                    'is_hide': post.config.hide,
-                    'count_likes': post.likes.count(),
-                    'count_comments': post.comments.count(),
-                    'read_time': post.read_time,
-                    'tag': ','.join(post.tagging()),
-                    'series': post.series.url if post.series else '',
-                }, posts)),
-                'last_page': posts.paginator.num_pages,
-            })
+            return get_post_management_response(request, user)
 
         if parameter == 'reserved-posts':
-            posts = Post.objects.select_related(
-                'config'
-            ).filter(
-                author=user,
-                published_date__isnull=False,
-                published_date__gt=timezone.now(),
-            ).order_by('-published_date')
-
-            posts = Paginator(
-                objects=posts,
-                offset=10,
-                page=request.GET.get('page', 1)
-            )
-            return StatusDone({
-                'username': request.user.username,
-                'posts': list(map(lambda post: {
-                    'url': post.url,
-                    'title': post.title,
-                    'created_date': convert_to_localtime(post.published_date).strftime('%Y-%m-%d %H:%M'),
-                }, posts)),
-                'last_page': posts.paginator.num_pages,
-            })
+            return get_post_management_response(request, user, scheduled=True)
 
         if parameter == 'tag':
             tags = Post.objects.filter(
@@ -272,7 +301,7 @@ def setting(request, parameter):
         if parameter == 'pinned-posts':
             post_url = request.POST.get('post_url', '')
             if not post_url:
-                return StatusError(ErrorCode.INVALID_PARAMETER, '글 URL이 필요합니다.')
+                return StatusError(ErrorCode.INVALID_PARAMETER, '포스트 URL이 필요합니다.')
 
             try:
                 PinnedPostService.add_pinned_post(user, post_url)
@@ -296,7 +325,7 @@ def setting(request, parameter):
             delete = QueryDict(request.body)
             post_url = delete.get('post_url', '')
             if not post_url:
-                return StatusError(ErrorCode.INVALID_PARAMETER, '글 URL이 필요합니다.')
+                return StatusError(ErrorCode.INVALID_PARAMETER, '포스트 URL이 필요합니다.')
 
             try:
                 PinnedPostService.remove_pinned_post(user, post_url)

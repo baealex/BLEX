@@ -1,6 +1,6 @@
 from django.http import Http404, QueryDict
 from django.shortcuts import get_object_or_404
-from django.utils.dateparse import parse_datetime
+from django.utils import timezone
 
 from board.models import Post, PinnedPost
 from board.modules.requests import BooleanType
@@ -83,6 +83,8 @@ def user_posts(request, username, url=None):
                     'subtitle': post.subtitle,
                     'url': post.url,
                     'description': post.meta_description,
+                    'published_date': post.published_date.isoformat() if post.published_date else None,
+                    'is_scheduled': bool(post.published_date and post.published_date > timezone.now()),
                     'series': {
                         'id': str(post.series.id),
                         'name': post.series.name,
@@ -159,6 +161,7 @@ def user_posts(request, username, url=None):
                     cover_layout=request.POST.get('cover_layout'),
                     cover_image_position=request.POST.get('cover_image_position'),
                     cover_image_ratio=request.POST.get('cover_image_ratio'),
+                    reserved_date_str=request.POST.get('reserved_date'),
                 )
             except PostValidationError as e:
                 return StatusError(e.code, e.message)
@@ -204,14 +207,18 @@ def user_posts(request, username, url=None):
             if request.GET.get('reserved_date', ''):
                 if not PostService.can_user_edit_post(request.user, post):
                     raise Http404
-                
-                reserved_date_str = put.get('reserved_date')
-                if reserved_date_str and not post.is_published():
-                    reserved_date = parse_datetime(reserved_date_str)
-                    if reserved_date:
-                        post.published_date = reserved_date
-                        post.updated_date = reserved_date
-                        post.save()
+
+                try:
+                    reserved_date_str = put.get('reserved_date')
+                    if not reserved_date_str:
+                        return StatusError(ErrorCode.VALIDATE, '예약 시간을 확인해주세요.')
+
+                    PostService.update_post(
+                        post=post,
+                        reserved_date_str=reserved_date_str,
+                    )
+                except PostValidationError as e:
+                    return StatusError(e.code, e.message)
                 return StatusDone()
 
         if request.method == 'DELETE':

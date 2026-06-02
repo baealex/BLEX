@@ -171,7 +171,7 @@ class AuthorPostsPageTestCase(TestCase):
         )
         self.assertEqual(owner_response.status_code, 200)
         self.assertContains(owner_response, '아직 공개된 포스트가 없습니다.')
-        self.assertContains(owner_response, '글 작성하기')
+        self.assertContains(owner_response, '포스트 작성하기')
 
     def test_author_overview_hides_empty_intro_from_visitors(self):
         """소개글이 없으면 방문자에게 소개 섹션을 노출하지 않는다."""
@@ -292,16 +292,16 @@ class AuthorPostsPageTestCase(TestCase):
             reverse('user_profile', kwargs={'username': self.user.username})
         )
         self.assertEqual(visitor_response.status_code, 200)
-        self.assertNotContains(visitor_response, '/settings/pinned-posts')
-        self.assertNotContains(visitor_response, '고정 포스트 설정')
+        self.assertNotContains(visitor_response, 'PinnedPostQuickAction')
+        self.assertNotContains(visitor_response, '/settings/posts?section=pinned')
 
         self.client.login(username='testauthor', password='testpass123')
         owner_response = self.client.get(
             reverse('user_profile', kwargs={'username': self.user.username})
         )
         self.assertEqual(owner_response.status_code, 200)
-        self.assertContains(owner_response, '/settings/pinned-posts')
-        self.assertContains(owner_response, '고정 포스트 설정')
+        self.assertContains(owner_response, 'PinnedPostQuickAction')
+        self.assertNotContains(owner_response, '/settings/posts?section=pinned')
 
     def test_author_overview_social_link_add_entrypoint_uses_existing_empty_state(self):
         """소셜 링크가 없을 때는 기존 빈 상태 추가 링크만 노출한다."""

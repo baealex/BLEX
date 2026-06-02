@@ -50,6 +50,7 @@ export interface Series {
 export interface DraftPost {
     url: string;
     title: string;
+    image: string | null;
     createdDate: string;
     updatedDate: string;
     tag: string;

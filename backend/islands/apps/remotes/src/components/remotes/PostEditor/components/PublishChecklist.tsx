@@ -115,7 +115,7 @@ const PublishChecklist = ({
                     variant="primary"
                     disabled={!result.canPublish || isSubmitting}
                     onClick={onConfirm}>
-                    {isSubmitting ? '발행 중...' : '확인 후 발행'}
+                    {isSubmitting ? result.submittingLabel : result.confirmLabel}
                 </Modal.FooterAction>
             </Modal.Footer>
         </Modal>

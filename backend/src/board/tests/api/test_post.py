@@ -77,6 +77,27 @@ class PostTestCase(TestCase):
         response = self.client.get('/v1/users/@author/posts/test-post-1', params)
         self.assertEqual(response.status_code, 200)
 
+    def test_get_user_post_detail_edit_mode_includes_schedule_fields(self):
+        """예약 포스트 편집 데이터는 예약 여부와 발행 예정 시각을 포함한다."""
+        post = Post.objects.create(
+            url='scheduled-edit-fields',
+            title='Scheduled Edit Fields',
+            author=User.objects.get(username='author'),
+            published_date=timezone.now() + timezone.timedelta(days=1),
+        )
+        PostContent.objects.create(post=post, content_html='<p>Scheduled</p>')
+        PostConfig.objects.create(post=post, hide=False, advertise=False)
+        self.client.login(username='author', password='author')
+
+        response = self.client.get('/v1/users/@author/posts/scheduled-edit-fields', {
+            'mode': 'edit',
+        })
+
+        self.assertEqual(response.status_code, 200)
+        content = json.loads(response.content)
+        self.assertTrue(content['body']['isScheduled'])
+        self.assertIsNotNone(content['body']['publishedDate'])
+
     def test_update_user_post(self):
         """포스트 수정 테스트"""
         self.client.login(username='author', password='author')
@@ -92,6 +113,60 @@ class PostTestCase(TestCase):
         post.refresh_from_db()
         self.assertEqual(response.status_code, 200)
         self.assertEqual(post.title, 'Test Post 1 Updated')
+
+    def test_update_scheduled_post_reserved_date(self):
+        """예약 포스트 수정 API는 예약 시간을 변경할 수 있다."""
+        author = User.objects.get(username='author')
+        scheduled_post = Post.objects.create(
+            url='scheduled-update-post',
+            title='Scheduled Update Post',
+            author=author,
+            published_date=timezone.now() + timezone.timedelta(days=1),
+        )
+        PostContent.objects.create(post=scheduled_post, content_html='<p>Scheduled</p>')
+        PostConfig.objects.create(post=scheduled_post, hide=False, advertise=False)
+        next_reserved_date = timezone.now() + timezone.timedelta(days=3)
+        self.client.login(username='author', password='author')
+
+        response = self.client.post('/v1/users/@author/posts/scheduled-update-post', {
+            'title': 'Scheduled Update Post',
+            'text_html': '<p>Scheduled</p>',
+            'is_hide': False,
+            'is_advertise': False,
+            'reserved_date': next_reserved_date.isoformat(),
+        })
+
+        self.assertEqual(response.status_code, 200)
+        scheduled_post.refresh_from_db()
+        self.assertAlmostEqual(
+            scheduled_post.published_date.timestamp(),
+            next_reserved_date.timestamp(),
+            delta=1,
+        )
+
+    def test_update_scheduled_post_reserved_date_rejects_empty_value(self):
+        """예약 시간 수정 API는 빈 예약 시간을 성공 처리하지 않는다."""
+        author = User.objects.get(username='author')
+        scheduled_post = Post.objects.create(
+            url='scheduled-empty-reserved-date',
+            title='Scheduled Empty Reserved Date',
+            author=author,
+            published_date=timezone.now() + timezone.timedelta(days=1),
+        )
+        PostContent.objects.create(post=scheduled_post, content_html='<p>Scheduled</p>')
+        PostConfig.objects.create(post=scheduled_post, hide=False, advertise=False)
+        self.client.login(username='author', password='author')
+
+        response = self.client.put(
+            '/v1/users/@author/posts/scheduled-empty-reserved-date?reserved_date=1',
+            data='',
+            content_type='application/x-www-form-urlencoded',
+        )
+
+        self.assertEqual(response.status_code, 200)
+        content = json.loads(response.content)
+        self.assertEqual(content['status'], 'ERROR')
+        self.assertEqual(content['errorCode'], 'error:VA')
 
     def test_get_user_post_detail_edit_mode_with_not_exist_post(self):
         """존재하지 않는 포스트 편집 모드 접근 시 404 에러 테스트"""

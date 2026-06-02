@@ -1,6 +1,7 @@
 import { useState, useRef } from 'react';
 import { toast } from '~/utils/toast';
 import { hasPublishableContent } from '../utils/publishChecklist';
+import { isFutureDateTimeLocal, parseDateTimeLocal, toReservedDateValue } from '../utils/scheduleDate';
 
 interface FormSubmitData {
     title: string;
@@ -12,6 +13,7 @@ interface FormSubmitData {
     coverImagePosition: string;
     coverImageRatio: string;
     imageDeleted?: boolean;
+    reservedDate?: string;
 }
 
 interface UseFormSubmitOptions {
@@ -58,6 +60,18 @@ export const useFormSubmit = (options: UseFormSubmitOptions) => {
             return false;
         }
 
+        if (!isDraft && data.reservedDate) {
+            if (!parseDateTimeLocal(data.reservedDate)) {
+                toast.error('예약 시간을 확인해주세요.');
+                return false;
+            }
+
+            if (!isFutureDateTimeLocal(data.reservedDate)) {
+                toast.error('예약 시간은 현재 시간 이후로 선택해주세요.');
+                return false;
+            }
+        }
+
         return true;
     };
 
@@ -92,6 +106,11 @@ export const useFormSubmit = (options: UseFormSubmitOptions) => {
 
             if (isDraft) {
                 addHiddenField(form, 'is_draft', 'true');
+                if (data.reservedDate !== undefined) {
+                    addHiddenField(form, 'reserved_date', data.reservedDate);
+                }
+            } else if (data.reservedDate) {
+                addHiddenField(form, 'reserved_date', toReservedDateValue(data.reservedDate));
             }
 
             if (data.imageDeleted) {

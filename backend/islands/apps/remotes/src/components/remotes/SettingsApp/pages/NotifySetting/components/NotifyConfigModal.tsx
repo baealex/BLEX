@@ -5,8 +5,8 @@ import { updateNotifyConfig } from '~/lib/api/settings';
 
 // Notify config labels
 const NOTIFY_CONFIG_LABEL = {
-    'NOTIFY_POSTS_LIKE': '다른 사용자가 내 글 추천',
-    'NOTIFY_POSTS_COMMENT': '다른 사용자가 내 글에 댓글 작성',
+    'NOTIFY_POSTS_LIKE': '다른 사용자가 내 포스트 추천',
+    'NOTIFY_POSTS_COMMENT': '다른 사용자가 내 포스트에 댓글 작성',
     'NOTIFY_COMMENT_LIKE': '다른 사용자가 내 댓글 추천',
     'NOTIFY_MENTION': '다른 사용자가 댓글에서 나를 언급'
 } as const;

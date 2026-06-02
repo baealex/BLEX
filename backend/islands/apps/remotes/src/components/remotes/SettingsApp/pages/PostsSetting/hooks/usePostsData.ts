@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { useSuspenseQuery } from '@tanstack/react-query';
 
-import { getPosts, type Post as ApiPost } from '~/lib/api/posts';
+import { getPosts, getReservedPosts, type Post as ApiPost } from '~/lib/api/posts';
 import { getTags, getSeries } from '~/lib/api/settings';
 
 export interface Post extends ApiPost {
@@ -18,6 +18,8 @@ export interface FilterOptions {
     page: string;
     visibility: string;
 }
+
+export type PostsSource = 'published' | 'scheduled';
 
 export const POSTS_ORDER = [
     {
@@ -63,6 +65,8 @@ const DEFAULT_FILTERS: FilterOptions = {
     visibility: ''
 };
 
+const FILTER_KEYS = Object.keys(DEFAULT_FILTERS) as (keyof FilterOptions)[];
+
 // URL에서 필터 초기값 읽기
 const getFiltersFromURL = (): FilterOptions => {
     if (typeof window === 'undefined') return DEFAULT_FILTERS;
@@ -82,7 +86,9 @@ const getFiltersFromURL = (): FilterOptions => {
 const syncFiltersToURL = (filters: FilterOptions) => {
     if (typeof window === 'undefined') return;
 
-    const params = new URLSearchParams();
+    const params = new URLSearchParams(window.location.search);
+    FILTER_KEYS.forEach((key) => params.delete(key));
+
     Object.entries(filters).forEach(([key, value]) => {
         // 기본값이 아닌 경우만 URL에 추가
         if (value && value !== DEFAULT_FILTERS[key as keyof FilterOptions]) {
@@ -172,11 +178,11 @@ export const usePostsFilterState = () => {
     };
 };
 
-export const usePostsQuery = (filters: FilterOptions) => {
+export const usePostsQuery = (filters: FilterOptions, source: PostsSource = 'published') => {
     const [posts, setPosts] = useState<Post[]>([]);
 
     const { data: postsData, refetch } = useSuspenseQuery({
-        queryKey: ['posts-setting', JSON.stringify(filters)],
+        queryKey: ['posts-setting', source, JSON.stringify(filters)],
         queryFn: async () => {
             const apiFilters: Record<string, string | number> = {};
             Object.entries(filters).forEach(([key, value]) => {
@@ -185,7 +191,9 @@ export const usePostsQuery = (filters: FilterOptions) => {
                 }
             });
 
-            const { data } = await getPosts(apiFilters);
+            const { data } = source === 'scheduled'
+                ? await getReservedPosts(apiFilters)
+                : await getPosts(apiFilters);
 
             if (data.status === 'DONE') {
                 return data.body;

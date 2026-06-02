@@ -51,7 +51,7 @@ const NotificationsSection = ({
                     <div>
                         <h3 className="text-base font-semibold text-content mb-1.5">텔레그램 연동</h3>
                         <p className="text-content-secondary text-sm max-w-xl leading-relaxed">
-                            텔레그램을 연동하면 새 글 작성, 댓글, 등의 알림을 실시간으로 받아보실 수 있습니다.
+                            텔레그램을 연동하면 새 포스트 작성, 댓글, 등의 알림을 실시간으로 받아보실 수 있습니다.
                         </p>
                     </div>
                     <div className="flex-shrink-0 ml-6">

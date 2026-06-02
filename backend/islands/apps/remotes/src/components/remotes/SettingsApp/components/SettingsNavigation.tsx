@@ -85,18 +85,6 @@ const userNavigationSections: NavigationSection[] = [
                 requiresEditor: true
             },
             {
-                name: '고정 포스트',
-                path: '/pinned-posts',
-                icon: 'fa-thumbtack',
-                requiresEditor: true
-            },
-            {
-                name: '임시 포스트',
-                path: '/drafts',
-                icon: 'fa-save',
-                requiresEditor: true
-            },
-            {
                 name: '서식',
                 path: '/forms',
                 icon: 'fa-align-left',

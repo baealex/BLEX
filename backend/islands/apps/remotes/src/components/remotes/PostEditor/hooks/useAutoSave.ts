@@ -13,6 +13,7 @@ interface AutoSaveData {
     coverLayout?: string;
     coverImagePosition?: string;
     coverImageRatio?: string;
+    reservedDate?: string;
     imageFile?: File | null;
     imageDeleted?: boolean;
 }
@@ -38,6 +39,7 @@ const buildDraftPayload = (data: AutoSaveData, useFormData: boolean) => {
         if (data.coverLayout) formData.append('cover_layout', data.coverLayout);
         if (data.coverImagePosition) formData.append('cover_image_position', data.coverImagePosition);
         if (data.coverImageRatio) formData.append('cover_image_ratio', data.coverImageRatio);
+        if (data.reservedDate !== undefined) formData.append('reserved_date', data.reservedDate);
         if (data.imageFile) formData.append('image', data.imageFile);
         if (data.imageDeleted) formData.append('image_delete', 'true');
         return formData;
@@ -53,7 +55,8 @@ const buildDraftPayload = (data: AutoSaveData, useFormData: boolean) => {
         custom_url: data.customUrl,
         cover_layout: data.coverLayout,
         cover_image_position: data.coverImagePosition,
-        cover_image_ratio: data.coverImageRatio
+        cover_image_ratio: data.coverImageRatio,
+        reserved_date: data.reservedDate
     };
 };
 
@@ -87,7 +90,8 @@ export const useAutoSave = (data: AutoSaveData, options: UseAutoSaveOptions) => 
         customUrl: value.customUrl,
         coverLayout: value.coverLayout,
         coverImagePosition: value.coverImagePosition,
-        coverImageRatio: value.coverImageRatio
+        coverImageRatio: value.coverImageRatio,
+        reservedDate: value.reservedDate
     }), []);
 
     const getDataSignature = useCallback((value: AutoSaveData) => JSON.stringify({

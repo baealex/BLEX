@@ -112,6 +112,33 @@ class DraftTestCase(TestCase):
         self.assertEqual(detail['coverImagePosition'], 'left')
         self.assertEqual(detail['coverImageRatio'], '1:1')
 
+    def test_create_draft_with_reserved_date(self):
+        """드래프트 예약 시간은 임시저장 상태로 보관하고 상세 응답에 반환한다."""
+        self.client.login(username='test', password='test')
+        scheduled_at = timezone.now() + timedelta(days=1)
+
+        response = self.client.post(
+            '/v1/drafts',
+            json.dumps({
+                'title': 'Reserved Draft',
+                'content': '<p>Hello reserved draft</p>',
+                'reserved_date': scheduled_at.isoformat(),
+            }),
+            content_type='application/json'
+        )
+
+        self.assertEqual(response.status_code, 200)
+        content = json.loads(response.content)
+        self.assertEqual(content['status'], 'DONE')
+
+        post = Post.objects.get(url=content['body']['url'])
+        self.assertIsNone(post.published_date)
+        self.assertTrue(PostService.get_draft_reserved_date(post))
+
+        detail_response = self.client.get(f"/v1/drafts/{post.url}")
+        detail = json.loads(detail_response.content)['body']
+        self.assertTrue(detail['reservedDate'])
+
     def test_create_draft_empty_title(self):
         """빈 제목으로 드래프트 생성 시 기본 제목"""
         self.client.login(username='test', password='test')
@@ -233,6 +260,39 @@ class DraftTestCase(TestCase):
         self.assertEqual(post.config.cover_image_position, 'right')
         self.assertEqual(post.config.cover_image_ratio, 'auto')
 
+    def test_update_draft_reserved_date_and_clear(self):
+        """드래프트 예약 시간은 수정하거나 비울 수 있다."""
+        url = self._create_draft()
+        scheduled_at = timezone.now() + timedelta(days=2)
+
+        response = self.client.put(
+            f'/v1/drafts/{url}',
+            json.dumps({
+                'reserved_date': scheduled_at.isoformat(),
+            }),
+            content_type='application/json'
+        )
+        self.assertEqual(response.status_code, 200)
+
+        post = Post.objects.get(url=url)
+        self.assertTrue(PostService.get_draft_reserved_date(post))
+
+        response = self.client.put(
+            f'/v1/drafts/{url}',
+            json.dumps({
+                'reserved_date': '',
+            }),
+            content_type='application/json'
+        )
+        self.assertEqual(response.status_code, 200)
+
+        post.refresh_from_db()
+        self.assertEqual(PostService.get_draft_reserved_date(post), '')
+
+        detail_response = self.client.get(f'/v1/drafts/{url}')
+        detail = json.loads(detail_response.content)['body']
+        self.assertEqual(detail['reservedDate'], '')
+
     def test_create_draft_with_image(self):
         """이미지를 포함한 임시저장이 타이틀 이미지를 유지한다."""
         self.client.login(username='test', password='test')
@@ -288,6 +348,31 @@ class DraftTestCase(TestCase):
         post.refresh_from_db()
         self.assertTrue(post.is_published())
         self.assertFalse(post.image)
+
+    def test_publish_draft_uses_saved_reserved_date(self):
+        """발행 요청에 예약 시간이 없어도 임시저장된 예약 시간으로 예약 발행한다."""
+        scheduled_at = timezone.now() + timedelta(days=3)
+        post = PostService.create_draft(
+            user=self.user,
+            title='Saved Reserved Draft',
+            text_html='<p>Draft body</p>',
+            custom_url='saved-reserved-draft',
+            reserved_date_str=scheduled_at.isoformat(),
+        )
+
+        PostService.publish_draft(
+            post=post,
+            title=post.title,
+            text_html=post.content.content_html,
+        )
+
+        post.refresh_from_db()
+        self.assertAlmostEqual(
+            post.published_date.timestamp(),
+            scheduled_at.timestamp(),
+            delta=1,
+        )
+        self.assertEqual(PostService.get_draft_reserved_date(post), '')
 
     def test_update_draft_custom_url_changes_lookup_key(self):
         """드래프트 URL 변경 시 식별 URL이 갱신되어야 함"""

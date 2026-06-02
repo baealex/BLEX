@@ -21,6 +21,7 @@ def drafts_list(request):
             'drafts': list(map(lambda draft: {
                 'url': draft.url,
                 'title': draft.title,
+                'image': str(draft.image) if draft.image else None,
                 'created_date': draft.time_since(),
                 'updated_date': draft.updated_date.strftime('%Y-%m-%d'),
             }, drafts)),
@@ -48,6 +49,7 @@ def drafts_list(request):
         cover_layout = data.get('cover_layout')
         cover_image_position = data.get('cover_image_position')
         cover_image_ratio = data.get('cover_image_ratio')
+        reserved_date = data.get('reserved_date')
         image = files.get('image') if files else None
 
         try:
@@ -65,6 +67,7 @@ def drafts_list(request):
                 cover_layout=cover_layout,
                 cover_image_position=cover_image_position,
                 cover_image_ratio=cover_image_ratio,
+                reserved_date_str=reserved_date,
             )
 
             return StatusDone({
@@ -107,6 +110,7 @@ def drafts_detail(request, url):
             'cover_layout': draft.config.cover_layout,
             'cover_image_position': draft.config.cover_image_position,
             'cover_image_ratio': draft.config.cover_image_ratio,
+            'reserved_date': PostService.get_draft_reserved_date(draft),
             'series': {
                 'url': draft.series.url,
                 'name': draft.series.name,
@@ -128,6 +132,7 @@ def drafts_detail(request, url):
 
         image = files.get('image') if files else None
         image_delete = data.get('image_delete') == 'true'
+        reserved_date = data.get('reserved_date') if 'reserved_date' in data else None
 
         try:
             PostService.update_draft(
@@ -145,6 +150,7 @@ def drafts_detail(request, url):
                 cover_layout=data.get('cover_layout'),
                 cover_image_position=data.get('cover_image_position'),
                 cover_image_ratio=data.get('cover_image_ratio'),
+                reserved_date_str=reserved_date,
             )
             return StatusDone({
                 'url': draft.url,

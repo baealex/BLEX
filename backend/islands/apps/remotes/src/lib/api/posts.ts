@@ -3,7 +3,7 @@ import { http, type Response } from '../http.module';
 export interface Post {
     url: string;
     title: string;
-    image: string;
+    image: string | null;
     description: string;
     createdDate: string;
     updatedDate: string;
@@ -46,6 +46,18 @@ export const getPosts = async (filters: PostsFilters = {}) => {
 
     const queryString = params.toString();
     return http.get<PostsResponse>(`v1/setting/posts${queryString ? `?${queryString}` : ''}`);
+};
+
+export const getReservedPosts = async (filters: PostsFilters = {}) => {
+    const params = new URLSearchParams();
+    Object.entries(filters).forEach(([key, value]) => {
+        if (value !== undefined && value !== null) {
+            params.append(key, value.toString());
+        }
+    });
+
+    const queryString = params.toString();
+    return http.get<PostsResponse>(`v1/setting/reserved-posts${queryString ? `?${queryString}` : ''}`);
 };
 
 export const togglePostVisibility = async (username: string, postUrl: string) => {
@@ -100,6 +112,7 @@ export interface DraftDetail {
     coverLayout: 'default' | 'split' | 'overlay' | 'none';
     coverImagePosition: 'left' | 'right';
     coverImageRatio: 'auto' | '16:9' | '4:3' | '1:1' | '3:4';
+    reservedDate: string;
     series: {
         url: string;
         name: string;
@@ -114,14 +127,14 @@ export interface DraftSummary {
     updatedDate: string;
 }
 
-export const createDraft = async (data: { title: string; content: string; tags: string; subtitle?: string; description?: string; series_url?: string; cover_layout?: string; cover_image_position?: string; cover_image_ratio?: string } | FormData) => {
+export const createDraft = async (data: { title: string; content: string; tags: string; subtitle?: string; description?: string; series_url?: string; cover_layout?: string; cover_image_position?: string; cover_image_ratio?: string; reserved_date?: string } | FormData) => {
     if (data instanceof FormData) {
         return http.post<Response<{ url: string }>>('v1/drafts', data, { headers: { 'Content-Type': 'multipart/form-data' } });
     }
     return http.post<Response<{ url: string }>>('v1/drafts', data, { headers: { 'Content-Type': 'application/json' } });
 };
 
-export const updateDraft = async (url: string, data: { title?: string; content?: string; tags?: string; subtitle?: string; description?: string; series_url?: string; cover_layout?: string; cover_image_position?: string; cover_image_ratio?: string } | FormData) => {
+export const updateDraft = async (url: string, data: { title?: string; content?: string; tags?: string; subtitle?: string; description?: string; series_url?: string; cover_layout?: string; cover_image_position?: string; cover_image_ratio?: string; reserved_date?: string } | FormData) => {
     if (data instanceof FormData) {
         return http.put<Response<{ url: string }>>(`v1/drafts/${url}`, data, { headers: { 'Content-Type': 'multipart/form-data' } });
     }
@@ -151,6 +164,8 @@ export interface PostForEdit {
     coverImagePosition: 'left' | 'right';
     coverImageRatio: 'auto' | '16:9' | '4:3' | '1:1' | '3:4';
     description: string;
+    publishedDate: string | null;
+    isScheduled: boolean;
     tags: string[];
     series: {
         id: string;

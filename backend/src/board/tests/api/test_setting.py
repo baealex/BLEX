@@ -191,6 +191,120 @@ class SettingTestCase(TestCase):
 
         self.assertEqual(sum(cached_content['body'].values()), 3)
 
+    def test_get_setting_reserved_posts_returns_management_fields(self):
+        """예약 포스트 설정 목록은 포스트 관리 카드에 필요한 필드를 내려준다."""
+        user = User.objects.get(username='test')
+        scheduled_post = Post.objects.create(
+            url='scheduled-post',
+            title='Scheduled Post',
+            author=user,
+            image='images/title/test/scheduled-post.png',
+            published_date=timezone.now() + timezone.timedelta(days=1),
+        )
+        PostContent.objects.create(
+            post=scheduled_post,
+            content_html='<h1>Scheduled Post</h1>'
+        )
+        PostConfig.objects.create(
+            post=scheduled_post,
+            hide=False,
+        )
+        published_post = Post.objects.create(
+            url='published-post',
+            title='Published Post',
+            author=user,
+            published_date=timezone.now() - timezone.timedelta(days=1),
+        )
+        PostContent.objects.create(
+            post=published_post,
+            content_html='<h1>Published Post</h1>'
+        )
+        PostConfig.objects.create(
+            post=published_post,
+            hide=False,
+        )
+        self.client.login(username='test', password='test')
+
+        response = self.client.get('/v1/setting/reserved-posts')
+
+        self.assertEqual(response.status_code, 200)
+        content = json.loads(response.content)
+        self.assertEqual(content['status'], 'DONE')
+        post_urls = [item['url'] for item in content['body']['posts']]
+        self.assertEqual(post_urls, ['scheduled-post'])
+        scheduled_data = content['body']['posts'][0]
+        self.assertEqual(scheduled_data['image'], 'images/title/test/scheduled-post.png')
+        self.assertEqual(scheduled_data['isHide'], False)
+        self.assertIn('updatedDate', scheduled_data)
+        self.assertIn('readTime', scheduled_data)
+        self.assertIn('countLikes', scheduled_data)
+        self.assertIn('countComments', scheduled_data)
+        self.assertIn('tag', scheduled_data)
+        self.assertIn('series', scheduled_data)
+
+    def test_get_setting_reserved_posts_returns_empty_page(self):
+        """예약 포스트가 없어도 첫 페이지는 빈 목록으로 응답한다."""
+        self.client.login(username='test', password='test')
+
+        response = self.client.get('/v1/setting/reserved-posts')
+
+        self.assertEqual(response.status_code, 200)
+        content = json.loads(response.content)
+        self.assertEqual(content['status'], 'DONE')
+        self.assertEqual(content['body']['posts'], [])
+        self.assertEqual(content['body']['lastPage'], 1)
+
+    def test_get_setting_reserved_posts_orders_by_count_fields(self):
+        """예약 포스트 설정 목록은 좋아요/댓글 수 정렬을 지원한다."""
+        user = User.objects.get(username='test')
+        liker = User.objects.create_user(
+            username='setting-liker',
+            password='test',
+            email='setting-liker@test.com',
+        )
+        Config.objects.create(user=liker)
+        Profile.objects.create(user=liker, role=Profile.Role.READER)
+
+        quiet_post = Post.objects.create(
+            url='quiet-scheduled-post',
+            title='Quiet Scheduled Post',
+            author=user,
+            published_date=timezone.now() + timezone.timedelta(days=1),
+        )
+        PostContent.objects.create(post=quiet_post, content_html='<p>Quiet</p>')
+        PostConfig.objects.create(post=quiet_post, hide=False)
+
+        active_post = Post.objects.create(
+            url='active-scheduled-post',
+            title='Active Scheduled Post',
+            author=user,
+            published_date=timezone.now() + timezone.timedelta(days=2),
+        )
+        PostContent.objects.create(post=active_post, content_html='<p>Active</p>')
+        PostConfig.objects.create(post=active_post, hide=False)
+        PostLikes.objects.create(post=active_post, user=liker)
+        Comment.objects.create(
+            post=active_post,
+            author=liker,
+            text_md='Scheduled comment',
+            text_html='<p>Scheduled comment</p>',
+        )
+        self.client.login(username='test', password='test')
+
+        likes_response = self.client.get('/v1/setting/reserved-posts', {
+            'order': '-count_likes',
+        })
+        comments_response = self.client.get('/v1/setting/reserved-posts', {
+            'order': '-count_comments',
+        })
+
+        self.assertEqual(likes_response.status_code, 200)
+        self.assertEqual(comments_response.status_code, 200)
+        likes_content = json.loads(likes_response.content)
+        comments_content = json.loads(comments_response.content)
+        self.assertEqual(likes_content['body']['posts'][0]['url'], 'active-scheduled-post')
+        self.assertEqual(comments_content['body']['posts'][0]['url'], 'active-scheduled-post')
+
     def test_update_notify_config_without_posts(self):
         """포스트가 없는 사용자의 알림 설정 업데이트 테스트"""
         self.client.login(username='test', password='test')

@@ -4,6 +4,7 @@ import { IconButton } from '@blex/ui/icon-button';
 import { Toggle } from '@blex/ui/toggle';
 import {
     CircleDollarSign,
+    Clock,
     EyeOff,
     FileText,
     Image,
@@ -17,6 +18,7 @@ import { DIM_OVERLAY_DEFAULT, ENTRANCE_DURATION } from '@blex/ui/design-tokens';
 import { Input, Button } from '~/components/shared';
 import { cx } from '~/lib/classnames';
 import type { Series } from '../types';
+import SchedulePicker from './SchedulePicker';
 import {
     COVER_LAYOUT_OPTIONS,
     COVER_POSITION_ITEMS,
@@ -32,6 +34,7 @@ interface SettingsDrawerProps {
 
     // Form data
     isEdit: boolean;
+    isScheduled?: boolean;
     url: string;
     metaDescription: string;
     selectedSeries: Series;
@@ -42,6 +45,7 @@ interface SettingsDrawerProps {
         coverLayout: string;
         coverImagePosition: string;
         coverImageRatio: string;
+        reservedDate?: string;
     };
     imagePreview: string | null;
 
@@ -172,6 +176,7 @@ const SettingsDrawer = ({
     isOpen,
     onClose,
     isEdit,
+    isScheduled = false,
     url,
     metaDescription,
     selectedSeries,
@@ -184,6 +189,8 @@ const SettingsDrawer = ({
     onFormDataChange,
     onDelete
 }: SettingsDrawerProps) => {
+    const canEditSchedule = !isEdit || isScheduled;
+
     return (
         <Dialog.Root open={isOpen} onOpenChange={(open) => !open && onClose()}>
             <Dialog.Portal>
@@ -345,9 +352,30 @@ const SettingsDrawer = ({
                             <div>
                                 <h3 className="text-sm font-semibold text-content mb-4 flex items-center gap-2">
                                     <FileText className="w-4 h-4" />
-                                    글 설정
+                                    포스트 설정
                                 </h3>
                                 <div className="space-y-4">
+                                    {canEditSchedule && (
+                                        <div className="rounded-xl border border-line bg-surface-subtle p-4">
+                                            <div className="mb-3 flex items-start gap-3">
+                                                <Clock className="mt-0.5 h-4 w-4 text-content-hint" />
+                                                <div>
+                                                    <div className="text-sm font-medium text-content">
+                                                        {isScheduled ? '예약 시간' : '예약 발행'}
+                                                    </div>
+                                                    <div className="text-xs text-content-secondary">
+                                                        {isScheduled ? '예약 포스트의 발행 시각을 변경합니다' : '비워두면 즉시 발행됩니다'}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <SchedulePicker
+                                                value={formData.reservedDate || ''}
+                                                onChange={(nextValue) => onFormDataChange('reservedDate', nextValue)}
+                                                allowClear={!isScheduled}
+                                            />
+                                        </div>
+                                    )}
+
                                     {/* Series */}
                                     <div>
                                         <label className="block text-sm font-medium text-content mb-2">

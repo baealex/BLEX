@@ -26,7 +26,7 @@
             <ol class="mt-4 list-decimal space-y-2 pl-5 text-content-secondary">
                 <li>BLEX에 작가 계정으로 로그인합니다.</li>
                 <li><code class="rounded bg-surface-subtle px-1.5 py-0.5 text-content">/settings/developer-api</code>로 이동합니다.</li>
-                <li>글을 만들고 발행하려면 <strong class="text-content">글 읽기</strong>와 <strong class="text-content">글 작성</strong> 권한을 모두 선택합니다.</li>
+                <li>포스트를 만들고 발행하려면 <strong class="text-content">포스트 읽기</strong>와 <strong class="text-content">포스트 작성</strong> 권한을 모두 선택합니다.</li>
                 <li>발급 직후 표시되는 전체 토큰을 복사합니다. 이 값은 다시 볼 수 없습니다.</li>
             </ol>
             <pre class="mt-4 overflow-x-auto rounded-xl bg-surface-subtle p-4 text-sm"><code>export BLEX_ORIGIN="{{ site_origin }}"
@@ -46,7 +46,7 @@ export BLEX_TOKEN="blex_pat_..."</code></pre>
   -H "Content-Type: application/json" \
   -d '{
     "status": "draft",
-    "title": "API로 만든 첫 글",
+    "title": "API로 만든 첫 포스트",
     "markdown": "# Hello BLEX\n\n외부 도구에서 만든 초안입니다.",
     "tags": ["api", "automation"],
     "slug": "api-first-draft"
@@ -78,7 +78,7 @@ export BLEX_TOKEN="blex_pat_..."</code></pre>
   -H "Content-Type: application/json" \
   -d '{
     "expected_updated_at": "2026-05-30T00:00:00+00:00",
-    "description": "외부 도구에서 작성한 BLEX 글입니다.",
+    "description": "외부 도구에서 작성한 BLEX 포스트입니다.",
     "tags": ["api", "automation", "blex"]
   }'</code></pre>
         </section>
@@ -102,12 +102,12 @@ export BLEX_TOKEN="blex_pat_..."</code></pre>
                         <tr><td class="py-2 pr-4">401</td><td class="py-2 pr-4"><code>auth.missing_token</code></td><td class="py-2">Authorization 헤더가 없습니다.</td></tr>
                         <tr><td class="py-2 pr-4">401</td><td class="py-2 pr-4"><code>auth.invalid_token</code></td><td class="py-2">토큰이 틀렸거나 폐기되었습니다.</td></tr>
                         <tr><td class="py-2 pr-4">403</td><td class="py-2 pr-4"><code>auth.insufficient_scope</code></td><td class="py-2">필요한 권한이 없습니다.</td></tr>
-                        <tr><td class="py-2 pr-4">403</td><td class="py-2 pr-4"><code>auth.editor_required</code></td><td class="py-2">글 작성에는 작가 권한이 필요합니다.</td></tr>
-                        <tr><td class="py-2 pr-4">400</td><td class="py-2 pr-4"><code>post.invalid_status</code></td><td class="py-2">지원하지 않는 글 상태입니다.</td></tr>
-                        <tr><td class="py-2 pr-4">400</td><td class="py-2 pr-4"><code>post.missing_published_at</code></td><td class="py-2">예약 발행 시간 없이 예약 글을 만들었습니다.</td></tr>
+                        <tr><td class="py-2 pr-4">403</td><td class="py-2 pr-4"><code>auth.editor_required</code></td><td class="py-2">포스트 작성에는 작가 권한이 필요합니다.</td></tr>
+                        <tr><td class="py-2 pr-4">400</td><td class="py-2 pr-4"><code>post.invalid_status</code></td><td class="py-2">지원하지 않는 포스트 상태입니다.</td></tr>
+                        <tr><td class="py-2 pr-4">400</td><td class="py-2 pr-4"><code>post.missing_published_at</code></td><td class="py-2">예약 발행 시간 없이 예약 포스트를 만들었습니다.</td></tr>
                         <tr><td class="py-2 pr-4">400</td><td class="py-2 pr-4"><code>image.too_large</code></td><td class="py-2">이미지 파일이 업로드 제한보다 큽니다.</td></tr>
-                        <tr><td class="py-2 pr-4">409</td><td class="py-2 pr-4"><code>post.version_conflict</code></td><td class="py-2">글이 이미 다른 요청으로 수정되었습니다.</td></tr>
-                        <tr><td class="py-2 pr-4">409</td><td class="py-2 pr-4"><code>post.not_draft</code></td><td class="py-2">이미 발행되었거나 예약된 글을 다시 발행하려고 했습니다.</td></tr>
+                        <tr><td class="py-2 pr-4">409</td><td class="py-2 pr-4"><code>post.version_conflict</code></td><td class="py-2">포스트가 이미 다른 요청으로 수정되었습니다.</td></tr>
+                        <tr><td class="py-2 pr-4">409</td><td class="py-2 pr-4"><code>post.not_draft</code></td><td class="py-2">이미 발행되었거나 예약된 포스트를 다시 발행하려고 했습니다.</td></tr>
                         <tr><td class="py-2 pr-4">422</td><td class="py-2 pr-4"><code>request.invalid_payload</code></td><td class="py-2">필드 타입이나 허용 값이 맞지 않습니다.</td></tr>
                     </tbody>
                 </table>

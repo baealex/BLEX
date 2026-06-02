@@ -32,13 +32,13 @@ const scopeOptions: Array<{
 }> = [
     {
         value: 'posts:read',
-        label: '글 읽기',
-        description: '내 글 목록과 상세 내용을 조회합니다.'
+        label: '포스트 읽기',
+        description: '내 포스트 목록과 상세 내용을 조회합니다.'
     },
     {
         value: 'posts:write',
-        label: '글 작성',
-        description: '내 글을 만들고 수정하고 발행합니다.',
+        label: '포스트 작성',
+        description: '내 포스트를 만들고 수정하고 발행합니다.',
         requiresEditor: true
     }
 ];
@@ -83,8 +83,8 @@ const tokenStatus = (token: DeveloperTokenData) => {
 };
 
 const scopeLabel = (scope: DeveloperTokenScope) => {
-    if (scope === 'posts:read') return '글 읽기';
-    if (scope === 'posts:write') return '글 작성';
+    if (scope === 'posts:read') return '포스트 읽기';
+    if (scope === 'posts:write') return '포스트 작성';
     return scope;
 };
 
@@ -218,7 +218,7 @@ const DeveloperApiSetting = () => {
         <div className="space-y-6">
             <SettingsHeader
                 title="개발자 API"
-                description="외부 도구에서 내 글을 읽거나 작성할 수 있는 개인 API 토큰을 발급하고 관리합니다."
+                description="외부 도구에서 내 포스트를 읽거나 작성할 수 있는 개인 API 토큰을 발급하고 관리합니다."
                 actionPosition="right"
                 action={(
                     <div className="flex flex-wrap gap-2">
@@ -250,7 +250,7 @@ const DeveloperApiSetting = () => {
                         <div className="text-xs font-semibold text-content-hint">용도</div>
                         <p className="mt-1 text-sm font-semibold text-content">외부 도구 연결</p>
                         <p className="mt-1 text-xs leading-relaxed text-content-secondary">
-                            자동화 도구나 개인 클라이언트에서 내 글 API를 사용할 때 발급합니다.
+                            자동화 도구나 개인 클라이언트에서 내 포스트 API를 사용할 때 발급합니다.
                         </p>
                     </div>
                     <div className="py-4 md:px-5 md:py-0">
