@@ -1,6 +1,6 @@
 {% extends 'board/base.html' %}
 
-{% block title %}초기 설정 - BLEX{% endblock %}
+{% block title %}초기 설정 - {{ site_brand.site_name }}{% endblock %}
 
 {% block main_class %}min-h-[calc(100vh-10.5rem)]{% endblock %}
 
@@ -15,7 +15,7 @@
                 </svg>
             </div>
             <h1 class="text-3xl font-bold text-content mb-3 tracking-tight">초기 설정</h1>
-            <p class="text-content-secondary text-sm font-medium">첫 관리자 계정을 만들어 BLEX를 시작하세요.</p>
+            <p class="text-content-secondary text-sm font-medium">첫 관리자 계정을 만들어 {{ site_brand.site_name }}를 시작하세요.</p>
         </div>
 
         <div class="bg-surface/60 backdrop-blur-2xl rounded-[2rem] shadow-elevated border border-line/40 p-8 md:p-10 relative overflow-hidden">

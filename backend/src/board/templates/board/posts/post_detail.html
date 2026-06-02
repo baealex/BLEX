@@ -2,7 +2,7 @@
 {% load resource %}
 {% load island %}
 
-{% block title %}{{ post.title }} - {{ post.author_username }} | BLEX{% endblock %}
+{% block title %}{{ post.title }} - {{ post.author_username }} | {{ site_brand.site_name }}{% endblock %}
 
 {% block meta %}
 <!-- Primary Meta Tags -->
@@ -633,7 +633,7 @@ class="xl:hidden">
   },
   "publisher": {
     "@type": "Organization",
-    "name": "BLEX",
+    "name": "{{ site_brand.site_name|escapejs }}",
     "logo": {
       "@type": "ImageObject",
       "url": "{{ logo_url }}"

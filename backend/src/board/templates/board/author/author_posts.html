@@ -2,7 +2,7 @@
 {% load static %}
 {% load island %}
 
-{% block title %}{{ author.username }} - BLEX{% endblock %}
+{% block title %}{{ author.username }} - {{ site_brand.site_name }}{% endblock %}
 
 {% block content %}
 {% include 'board/author/components/author_header.html' %}

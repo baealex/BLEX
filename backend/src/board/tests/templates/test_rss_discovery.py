@@ -56,6 +56,41 @@ class RSSDiscoveryTemplateTestCase(TestCase):
         self.assert_rss_alternate(response, 'BLEX RSS', 'http://localhost:8000/rss')
         self.assertEqual(response.content.decode().count('application/rss+xml'), 1)
 
+    def test_base_exposes_app_icon_sizes(self):
+        """base 템플릿은 앱 호환 아이콘 크기를 노출한다."""
+        response = self.client.get(reverse('index'))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(
+            response,
+            '<link rel="icon" type="image/png" sizes="128x128" href="/resources/logo128.png">',
+            html=True,
+        )
+        self.assertContains(
+            response,
+            '<link rel="icon" type="image/png" sizes="256x256" href="/resources/logo256.png">',
+            html=True,
+        )
+        self.assertContains(
+            response,
+            '<link rel="icon" type="image/png" sizes="512x512" href="/resources/logo512.png">',
+            html=True,
+        )
+
+    def test_site_rss_uses_configured_site_name(self):
+        """사이트 RSS와 자동 발견 title은 설정된 사이트명을 사용한다."""
+        setting = SiteSetting.get_instance()
+        setting.site_name = 'Custom Blog'
+        setting.save(update_fields=['site_name'])
+
+        response = self.client.get(reverse('index'))
+        self.assertEqual(response.status_code, 200)
+        self.assert_rss_alternate(response, 'Custom Blog RSS', 'http://localhost:8000/rss')
+
+        response = self.client.get(reverse('site_rss_feed'))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, '<title>Custom Blog</title>')
+
     def test_public_author_pages_advertise_author_rss_alternate(self):
         """공개 작성자 페이지는 사이트 RSS와 작성자 RSS를 함께 노출한다."""
         urls = [

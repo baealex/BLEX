@@ -2,9 +2,9 @@
 
 {% block title %}
 {% if request.GET.q %}
-검색: {{ request.GET.q }} - BLEX
+검색: {{ request.GET.q }} - {{ site_brand.site_name }}
 {% else %}
-검색 - BLEX
+검색 - {{ site_brand.site_name }}
 {% endif %}
 {% endblock %}
 

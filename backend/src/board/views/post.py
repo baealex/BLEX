@@ -5,13 +5,13 @@ from django.contrib.auth.models import User
 from django.db.models import Count, F, Exists, OuterRef
 from django.http import Http404
 from django.contrib import messages
-from django.conf import settings
 from django.utils import timezone
 
 from board.models import Post, Series, PostLikes, UsernameChangeLog
 from board.services.post_service import PostService, PostValidationError
 from board.services.banner_service import BannerService
 from board.services.agent_content_service import AgentContentService
+from board.services.brand_asset_service import BrandAssetService
 from board.services.discovery_metadata_service import DiscoveryMetadataService
 from board.services.public_post_service import PublicPostService
 from board.services.site_url_service import SiteUrlService
@@ -70,7 +70,7 @@ def post_detail(request, username, post_url):
     canonical_url = SiteUrlService.absolute_url(request, post_absolute_url)
     author_url = SiteUrlService.absolute_url(request, reverse('user_profile', args=[author.username]))
     post_image_url = SiteUrlService.absolute_url(request, post.image.url) if post.image else ''
-    logo_url = SiteUrlService.absolute_url(request, f'{settings.RESOURCE_URL}logo.png')
+    logo_url = BrandAssetService.absolute_icon_png_url(request, None, 512)
 
     aeo_enabled = AgentContentService.is_aeo_enabled()
     is_public_post = PublicPostService.is_public(post)

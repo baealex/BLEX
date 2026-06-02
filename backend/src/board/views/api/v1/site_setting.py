@@ -1,9 +1,10 @@
 from django.http import Http404
 from board.models import SiteSetting
-from board.modules.response import StatusDone
+from board.modules.response import ErrorCode, StatusDone, StatusError
 from board.services.api_permission_service import ApiPermissionService
 from board.services.api_request_body_service import ApiRequestBodyService
 from board.services.agent_content_service import AgentContentService
+from board.services.brand_asset_service import BrandAssetError, BrandAssetService
 
 
 def serialize_site_setting(request, setting):
@@ -18,6 +19,7 @@ def serialize_site_setting(request, setting):
         'robots_txt_default': AgentContentService.build_default_robots_txt(request, setting),
         'aeo_enabled': setting.aeo_enabled,
         'updated_date': setting.updated_date.isoformat(),
+        **BrandAssetService.serialize_setting(setting),
     }
 
 
@@ -46,6 +48,13 @@ def site_settings(request):
         if 'footer_script' in put_data:
             setting.footer_script = put_data['footer_script']
 
+        if 'site_name' in put_data:
+            site_name = put_data['site_name']
+            normalized_site_name = site_name.strip() if isinstance(site_name, str) else ''
+            if len(normalized_site_name) > 80:
+                return StatusError(ErrorCode.VALIDATE, '사이트 이름은 80자 이하여야 합니다.')
+            setting.site_name = normalized_site_name or BrandAssetService.DEFAULT_SITE_NAME
+
         if 'welcome_notification_message' in put_data:
             setting.welcome_notification_message = put_data['welcome_notification_message']
 
@@ -66,6 +75,44 @@ def site_settings(request):
             setting.aeo_enabled = put_data['aeo_enabled'] is True
 
         setting.save()
+
+        return StatusDone(serialize_site_setting(request, setting))
+
+    raise Http404
+
+
+def site_setting_brand_assets(request):
+    permission_error = ApiPermissionService.require_staff(request.user)
+    if permission_error:
+        return permission_error
+
+    setting = SiteSetting.get_instance()
+
+    if request.method == 'POST':
+        try:
+            BrandAssetService.upload_asset(
+                setting,
+                asset_type=request.POST.get('asset_type', ''),
+                theme=request.POST.get('theme', ''),
+                svg_file=request.FILES.get('svg'),
+                files=request.FILES,
+                manifest_raw=request.POST.get('manifest', ''),
+            )
+        except BrandAssetError as error:
+            return StatusError(ErrorCode.VALIDATE, error.message)
+
+        return StatusDone(serialize_site_setting(request, setting))
+
+    if request.method == 'DELETE':
+        data = ApiRequestBodyService.parse_json_or_empty_for_legacy_only(request)
+        try:
+            BrandAssetService.delete_asset(
+                setting,
+                asset_type=data.get('asset_type', request.GET.get('asset_type', '')),
+                theme=data.get('theme', request.GET.get('theme', '')),
+            )
+        except BrandAssetError as error:
+            return StatusError(ErrorCode.VALIDATE, error.message)
 
         return StatusDone(serialize_site_setting(request, setting))
 

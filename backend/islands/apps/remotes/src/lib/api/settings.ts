@@ -616,6 +616,18 @@ export const updateGlobalBannerOrder = async (order: [number, number][]) => {
 
 // Site Setting API
 export interface SiteSettingData {
+    siteName: string;
+    siteDescription: string;
+    logoSvgUrl: string;
+    logoSvgDarkUrl: string;
+    iconSvgUrl: string;
+    iconSvgDarkUrl: string;
+    faviconUrl: string;
+    iconPngUrls: Record<string, string>;
+    hasCustomLogo: boolean;
+    hasCustomLogoDark: boolean;
+    hasCustomIcon: boolean;
+    hasCustomIconDark: boolean;
     headerScript: string;
     footerScript: string;
     welcomeNotificationMessage: string;
@@ -629,6 +641,7 @@ export interface SiteSettingData {
 }
 
 export interface SiteSettingUpdateData {
+    site_name?: string;
     header_script?: string;
     footer_script?: string;
     welcome_notification_message?: string;
@@ -645,6 +658,23 @@ export const getSiteSettings = async () => {
 
 export const updateSiteSettings = async (data: SiteSettingUpdateData) => {
     return http.put<Response<SiteSettingData>>('v1/site-settings', data, { headers: { 'Content-Type': 'application/json' } });
+};
+
+export type BrandAssetType = 'logo' | 'icon';
+export type BrandAssetTheme = 'default' | 'dark';
+
+export const uploadBrandAsset = async (data: FormData) => {
+    return http.post<Response<SiteSettingData>>('v1/site-settings/brand-assets', data, { headers: { 'Content-Type': 'multipart/form-data' } });
+};
+
+export const deleteBrandAsset = async (assetType: BrandAssetType, theme: BrandAssetTheme) => {
+    return http.delete<Response<SiteSettingData>>('v1/site-settings/brand-assets', {
+        data: {
+            asset_type: assetType,
+            theme
+        },
+        headers: { 'Content-Type': 'application/json' }
+    });
 };
 
 // Utility API

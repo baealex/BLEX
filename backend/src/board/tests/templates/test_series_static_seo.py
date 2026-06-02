@@ -6,7 +6,7 @@ from django.test import Client, TestCase, override_settings
 from django.urls import reverse
 from django.utils import timezone
 
-from board.models import Post, PostConfig, PostContent, Series, StaticPage
+from board.models import Post, PostConfig, PostContent, Series, SiteSetting, StaticPage
 
 
 class StructuredDataAssertionMixin:
@@ -289,6 +289,32 @@ class SeriesSeoMetadataTestCase(StructuredDataAssertionMixin, TestCase):
         )
 
     @override_settings(SITE_URL='')
+    def test_series_detail_uses_configured_site_name_for_metadata(self):
+        setting = SiteSetting.get_instance()
+        setting.site_name = 'Custom Blog'
+        setting.save(update_fields=['site_name'])
+
+        response = self.client.get(
+            reverse(
+                'series_detail',
+                kwargs={
+                    'username': 'seriesauthor',
+                    'series_url': 'structured-series',
+                },
+            )
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(
+            response,
+            '<meta property="og:title" content="Structured Series - seriesauthor | Custom Blog">',
+            html=True,
+        )
+
+        structured_data = self.extract_structured_data(response)
+        self.assertEqual(structured_data['isPartOf']['name'], 'Custom Blog')
+
+    @override_settings(SITE_URL='')
     def test_series_detail_canonical_normalizes_default_query_parameters(self):
         response = self.client.get(
             reverse(
@@ -389,6 +415,26 @@ class StaticPageSeoMetadataTestCase(StructuredDataAssertionMixin, TestCase):
         self.assertEqual(structured_data['url'], canonical_url)
         self.assertEqual(structured_data['isPartOf']['url'], 'https://blex.example/')
         self.assertEqual(structured_data['author']['url'], 'https://blex.example/@pageauthor')
+
+    @override_settings(SITE_URL='')
+    def test_static_page_uses_configured_site_name_for_metadata(self):
+        setting = SiteSetting.get_instance()
+        setting.site_name = 'Custom Blog'
+        setting.save(update_fields=['site_name'])
+
+        response = self.client.get(
+            reverse('static_page', kwargs={'slug': 'seo-page'})
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(
+            response,
+            '<meta property="og:title" content="SEO Page - Custom Blog">',
+            html=True,
+        )
+
+        structured_data = self.extract_structured_data(response)
+        self.assertEqual(structured_data['isPartOf']['name'], 'Custom Blog')
 
     @override_settings(SITE_URL='')
     def test_static_page_uses_content_fallback_for_meta_description(self):
