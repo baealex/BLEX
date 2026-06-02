@@ -14,12 +14,14 @@ import PostForm from './components/PostForm';
 import DraftsPanel from './components/DraftsPanel';
 import SettingsDrawer from './components/SettingsDrawer';
 import PublishChecklist from './components/PublishChecklist';
+import ScheduleStatusNotice from './components/ScheduleStatusNotice';
 import { useAutoSave } from './hooks/useAutoSave';
 import { useImageUpload } from './hooks/useImageUpload';
 import { useFormSubmit } from './hooks/useFormSubmit';
 import { Info } from '@blex/ui/icons';
 import { startFirstPublishTour as startFirstPublishTourDriver } from './utils/firstPublishTour';
 import { getPublishChecklist } from './utils/publishChecklist';
+import { toDateTimeLocalValue } from './utils/scheduleDate';
 import { getSeries } from '~/lib/api/settings';
 import { getDraft } from '~/lib/api/posts';
 import { api } from '~/components/shared';
@@ -71,7 +73,8 @@ const NewPostEditor = ({
         advertise: false,
         coverLayout: 'default',
         coverImagePosition: 'right',
-        coverImageRatio: 'auto'
+        coverImageRatio: 'auto',
+        reservedDate: ''
     });
 
     const [tags, setTags] = useState<string[]>([]);
@@ -92,6 +95,7 @@ const NewPostEditor = ({
         coverLayout: string;
         coverImagePosition: string;
         coverImageRatio: string;
+        reservedDate: string;
         tags: string[];
         seriesUrl: string;
         imagePreview: string;
@@ -126,6 +130,7 @@ const NewPostEditor = ({
         coverLayout: formData.coverLayout,
         coverImagePosition: formData.coverImagePosition,
         coverImageRatio: formData.coverImageRatio,
+        reservedDate: formData.reservedDate,
         tags,
         seriesUrl: selectedSeries.url || '',
         imagePreview: imagePreview || '',
@@ -181,6 +186,7 @@ const NewPostEditor = ({
         coverLayout: formData.coverLayout,
         coverImagePosition: formData.coverImagePosition,
         coverImageRatio: formData.coverImageRatio,
+        reservedDate: formData.reservedDate,
         imageFile,
         imageDeleted
     };
@@ -221,8 +227,9 @@ const NewPostEditor = ({
         description: formData.metaDescription,
         tags,
         hasCoverImage: Boolean(imagePreview),
-        isHidden: formData.hide
-    }), [formData.title, formData.content, formData.metaDescription, formData.hide, tags, imagePreview]);
+        isHidden: formData.hide,
+        scheduledAt: formData.reservedDate || undefined
+    }), [formData.title, formData.content, formData.metaDescription, formData.hide, formData.reservedDate, tags, imagePreview]);
 
     const shouldShowFirstPublishGuide = !isLoading && showFirstPublishGuide;
 
@@ -253,6 +260,7 @@ const NewPostEditor = ({
                         const newTags = draftData.tags ? draftData.tags.split(',').filter(Boolean) : [];
                         const newSubtitle = draftData.subtitle || '';
                         const newDescription = draftData.description || '';
+                        const newReservedDate = toDateTimeLocalValue(draftData.reservedDate);
 
                         setFormData(prev => ({
                             ...prev,
@@ -263,7 +271,8 @@ const NewPostEditor = ({
                             metaDescription: newDescription,
                             coverLayout: draftData.coverLayout || 'default',
                             coverImagePosition: draftData.coverImagePosition || 'right',
-                            coverImageRatio: draftData.coverImageRatio || 'auto'
+                            coverImageRatio: draftData.coverImageRatio || 'auto',
+                            reservedDate: newReservedDate
                         }));
                         setCurrentDraftUrl(draftData.url || draftUrl);
                         setIsUrlAutoSync(
@@ -339,7 +348,7 @@ const NewPostEditor = ({
             // Show confirmation
             const confirmed = await confirm({
                 title: '저장되지 않은 변경사항',
-                message: '현재 작성 중인 내용이 저장되지 않았습니다. 다른 임시 글로 이동하시겠습니까?',
+                message: '현재 작성 중인 내용이 저장되지 않았습니다. 다른 임시 포스트로 이동하시겠습니까?',
                 confirmText: '이동',
                 cancelText: '취소'
             });
@@ -412,7 +421,8 @@ const NewPostEditor = ({
                 coverLayout: formData.coverLayout,
                 coverImagePosition: formData.coverImagePosition,
                 coverImageRatio: formData.coverImageRatio,
-                imageDeleted
+                imageDeleted,
+                reservedDate: formData.reservedDate
             },
             isDraft,
             false // isEdit
@@ -421,7 +431,7 @@ const NewPostEditor = ({
 
     const handleSubmit = async (isDraft = false) => {
         if (isEditorMediaUploading) {
-            toast.warning('파일 업로드가 끝난 뒤 발행해주세요.');
+            toast.warning(`파일 업로드가 끝난 뒤 ${formData.reservedDate ? '예약' : '발행'}해주세요.`);
             return;
         }
 
@@ -439,7 +449,7 @@ const NewPostEditor = ({
 
     const handleConfirmPublish = async () => {
         if (isEditorMediaUploading) {
-            toast.warning('파일 업로드가 끝난 뒤 발행해주세요.');
+            toast.warning(`파일 업로드가 끝난 뒤 ${formData.reservedDate ? '예약' : '발행'}해주세요.`);
             return;
         }
 
@@ -470,6 +480,7 @@ const NewPostEditor = ({
             )}
 
             <PostForm
+                beforeContent={<ScheduleStatusNotice value={formData.reservedDate} />}
                 formRef={formRef}
                 isLoading={isLoading}
                 formData={formData}
@@ -504,6 +515,7 @@ const NewPostEditor = ({
                 onSubmit={() => handleSubmit()}
                 onOpenDrafts={() => setIsDraftsPanelOpen(true)}
                 onOpenSettings={() => setIsSettingsDrawerOpen(true)}
+                submitLabel={formData.reservedDate ? '예약' : undefined}
             />
 
             <PublishChecklist

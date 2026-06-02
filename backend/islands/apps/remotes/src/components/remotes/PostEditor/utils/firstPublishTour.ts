@@ -26,7 +26,7 @@ const getSteps = (): DriveStep[] => {
             element: tourTargets.autosave,
             popover: {
                 title: '작성 내용은 자동으로 저장됩니다',
-                description: '잠시 멈춰도 임시 글로 남습니다. 바로 저장하고 싶을 때만 임시 저장을 누르세요.',
+                description: '잠시 멈춰도 임시 포스트로 남습니다. 바로 저장하고 싶을 때만 임시 저장을 누르세요.',
                 side: 'top',
                 align: 'center'
             }

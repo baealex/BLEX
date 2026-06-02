@@ -16,6 +16,7 @@ const LazyComponents = {
     LoginPrompt: lazy(() => import('./remotes/LoginPrompt')),
     Toaster: lazy(() => import('./remotes/Toaster')),
     Heatmap: lazy(() => import('./remotes/Author/Heatmap')),
+    PinnedPostQuickAction: lazy(() => import('./remotes/Author/PinnedPostQuickAction')),
 
     // Pages
     Login: lazy(() => import('./remotes/Login')),

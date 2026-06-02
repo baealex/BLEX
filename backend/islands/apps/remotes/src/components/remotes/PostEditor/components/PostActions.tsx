@@ -17,6 +17,7 @@ interface PostActionsProps {
     onSubmit: () => void;
     onOpenDrafts?: () => void;
     onOpenSettings?: () => void;
+    submitLabel?: string;
 }
 
 const formatTimeSince = (date: Date): string => {
@@ -40,10 +41,11 @@ const PostActions = ({
     onManualSave,
     onSubmit,
     onOpenDrafts,
-    onOpenSettings
+    onOpenSettings,
+    submitLabel
 }: PostActionsProps) => {
     const isEdit = mode === 'edit';
-    const submitLabel = isEdit ? '수정' : '발행';
+    const actionLabel = submitLabel || (isEdit ? '수정' : '발행');
     const isBusy = isSubmitting || isSaving || isMediaUploading;
     const [, setTick] = useState(0);
 
@@ -142,7 +144,7 @@ const PostActions = ({
                 className="!rounded-full"
                 leftIcon={<Send className="w-4 h-4" />}
                 data-tour="post-publish">
-                {submitLabel}
+                {actionLabel}
             </Button>
         </FloatingBottomBar>
     );

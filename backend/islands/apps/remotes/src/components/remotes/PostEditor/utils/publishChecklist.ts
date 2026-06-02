@@ -16,6 +16,7 @@ export interface PublishChecklistInput {
     tags: string[];
     hasCoverImage: boolean;
     isHidden: boolean;
+    scheduledAt?: string;
 }
 
 export interface PublishChecklistResult {
@@ -25,6 +26,8 @@ export interface PublishChecklistResult {
     canPublish: boolean;
     visibilityTitle: string;
     visibilityDescription: string;
+    confirmLabel: string;
+    submittingLabel: string;
 }
 
 const hasText = (value: string) => value.trim().length > 0;
@@ -40,6 +43,16 @@ export const hasPublishableContent = (value: string) => {
         .trim();
 
     return text.length > 0;
+};
+
+const formatScheduledAt = (value: string) => {
+    const date = new Date(value);
+    if (Number.isNaN(date.getTime())) return value;
+
+    return date.toLocaleString('ko-KR', {
+        dateStyle: 'medium',
+        timeStyle: 'short'
+    });
 };
 
 export const getPublishChecklist = (input: PublishChecklistInput): PublishChecklistResult => {
@@ -83,10 +96,15 @@ export const getPublishChecklist = (input: PublishChecklistInput): PublishCheckl
 
     const missingRequired = items.filter(item => item.severity === 'required' && item.status === 'missing');
     const missingRecommended = items.filter(item => item.severity === 'recommended' && item.status === 'missing');
-    const visibilityTitle = input.isHidden ? '비공개로 발행됩니다' : '공개로 발행됩니다';
-    const visibilityDescription = input.isHidden
-        ? '작성자만 볼 수 있으며 공개 URL, RSS, Sitemap, Markdown 노출에서 제외됩니다.'
-        : '발행 후 공개 URL에서 바로 확인할 수 있고 RSS와 Sitemap에 반영됩니다.';
+    const scheduledLabel = input.scheduledAt ? formatScheduledAt(input.scheduledAt) : '';
+    const visibilityTitle = input.scheduledAt
+        ? (input.isHidden ? '비공개 예약 포스트입니다' : '예약 발행됩니다')
+        : (input.isHidden ? '비공개로 발행됩니다' : '공개로 발행됩니다');
+    const visibilityDescription = input.scheduledAt
+        ? `${scheduledLabel}에 발행됩니다. 예약 시각 전에는 작성자만 볼 수 있습니다.`
+        : input.isHidden
+            ? '작성자만 볼 수 있으며 공개 URL, RSS, Sitemap, Markdown 노출에서 제외됩니다.'
+            : '발행 후 공개 URL에서 바로 확인할 수 있고 RSS와 Sitemap에 반영됩니다.';
 
     return {
         items,
@@ -94,6 +112,8 @@ export const getPublishChecklist = (input: PublishChecklistInput): PublishCheckl
         missingRecommended,
         canPublish: missingRequired.length === 0,
         visibilityTitle,
-        visibilityDescription
+        visibilityDescription,
+        confirmLabel: input.scheduledAt ? '확인 후 예약' : '확인 후 발행',
+        submittingLabel: input.scheduledAt ? '예약 중...' : '발행 중...'
     };
 };

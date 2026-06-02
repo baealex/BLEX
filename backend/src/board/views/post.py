@@ -198,6 +198,7 @@ def post_editor(request, username=None, post_url=None):
         cover_layout = request.POST.get('cover_layout')
         cover_image_position = request.POST.get('cover_image_position')
         cover_image_ratio = request.POST.get('cover_image_ratio')
+        reserved_date = request.POST.get('reserved_date', '')
 
         series = None
         if series_id:
@@ -213,23 +214,28 @@ def post_editor(request, username=None, post_url=None):
             elif image_delete:
                 image = None
 
-            PostService.update_post(
-                post=post,
-                title=title,
-                subtitle=subtitle,
-                text_html=text_html,
-                description=meta_description,
-                series_url=series.url if series else None,
-                tag=','.join(tags) if tags else None,
-                image=image,
-                image_delete=image_delete,
-                is_hide=hide,
-                is_advertise=advertise,
-                content_type=content_type,
-                cover_layout=cover_layout,
-                cover_image_position=cover_image_position,
-                cover_image_ratio=cover_image_ratio,
-            )
+            try:
+                PostService.update_post(
+                    post=post,
+                    title=title,
+                    subtitle=subtitle,
+                    text_html=text_html,
+                    description=meta_description,
+                    series_url=series.url if series else None,
+                    tag=','.join(tags) if tags else None,
+                    image=image,
+                    image_delete=image_delete,
+                    is_hide=hide,
+                    is_advertise=advertise,
+                    content_type=content_type,
+                    cover_layout=cover_layout,
+                    cover_image_position=cover_image_position,
+                    cover_image_ratio=cover_image_ratio,
+                    reserved_date_str=request.POST.get('reserved_date'),
+                )
+            except PostValidationError as e:
+                messages.error(request, e.message)
+                return redirect('post_edit', username=request.user.username, post_url=post.url)
 
             messages.success(request, 'Post has been updated successfully.')
         else:
@@ -263,6 +269,7 @@ def post_editor(request, username=None, post_url=None):
                         cover_layout=cover_layout,
                         cover_image_position=cover_image_position,
                         cover_image_ratio=cover_image_ratio,
+                        reserved_date_str=reserved_date,
                     )
                     messages.success(request, 'Post has been published successfully.')
                 except Post.DoesNotExist:
@@ -290,6 +297,7 @@ def post_editor(request, username=None, post_url=None):
                         cover_layout=cover_layout,
                         cover_image_position=cover_image_position,
                         cover_image_ratio=cover_image_ratio,
+                        reserved_date_str=reserved_date,
                     )
                     messages.success(request, 'Post has been created successfully.')
                 except PostValidationError as e:

@@ -18,6 +18,7 @@ interface PostFormData {
 }
 
 interface PostFormProps {
+    beforeContent?: React.ReactNode;
     formRef?: React.RefObject<HTMLFormElement | null>;
     isLoading: boolean;
     formData: PostFormData;
@@ -38,6 +39,7 @@ interface PostFormProps {
 }
 
 const PostForm = ({
+    beforeContent,
     formRef: externalFormRef,
     isLoading,
     formData,
@@ -70,6 +72,8 @@ const PostForm = ({
                     onImageUpload={onImageUpload}
                     onRemoveImage={onRemoveImage}
                 />
+
+                {beforeContent}
 
                 <div className="mb-8">
                     <label htmlFor="content" className="sr-only">내용</label>

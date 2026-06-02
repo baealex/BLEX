@@ -34,7 +34,7 @@ def pinned_posts(request, username):
     if request.method == 'POST':
         post_url = request.POST.get('post_url', '')
         if not post_url:
-            return StatusError(ErrorCode.INVALID_PARAMETER, '글 URL이 필요합니다.')
+            return StatusError(ErrorCode.INVALID_PARAMETER, '포스트 URL이 필요합니다.')
 
         try:
             PinnedPostService.add_pinned_post(user, post_url)
@@ -46,7 +46,7 @@ def pinned_posts(request, username):
         delete = QueryDict(request.body)
         post_url = delete.get('post_url', '')
         if not post_url:
-            return StatusError(ErrorCode.INVALID_PARAMETER, '글 URL이 필요합니다.')
+            return StatusError(ErrorCode.INVALID_PARAMETER, '포스트 URL이 필요합니다.')
 
         try:
             PinnedPostService.remove_pinned_post(user, post_url)

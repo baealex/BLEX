@@ -198,7 +198,7 @@ def get_me(request):
     '/posts',
     response={200: PostListEnvelope, **ERROR_RESPONSES},
     operation_id='listPosts',
-    summary='글 목록 조회',
+    summary='포스트 목록 조회',
     tags=['Posts'],
 )
 def list_posts(request, status: str = '', page: int = 1, limit: int = 20):
@@ -235,7 +235,7 @@ def list_posts(request, status: str = '', page: int = 1, limit: int = 20):
     '/posts',
     response={201: PostDetailEnvelope, **ERROR_RESPONSES},
     operation_id='createPost',
-    summary='글 생성',
+    summary='포스트 생성',
     tags=['Posts'],
 )
 def create_post(request, payload: PostMutationPayload):
@@ -309,7 +309,7 @@ def create_post(request, payload: PostMutationPayload):
     '/posts/search',
     response={200: PostListEnvelope, **ERROR_RESPONSES},
     operation_id='searchPosts',
-    summary='내 글 검색',
+    summary='내 포스트 검색',
     tags=['Posts'],
 )
 def search_posts(
@@ -361,7 +361,7 @@ def search_posts(
     '/posts/{post_id}',
     response={200: PostDetailEnvelope, **ERROR_RESPONSES},
     operation_id='getPost',
-    summary='글 상세 조회',
+    summary='포스트 상세 조회',
     tags=['Posts'],
 )
 def get_post(request, post_id: int):
@@ -381,7 +381,7 @@ def get_post(request, post_id: int):
     '/posts/{post_id}',
     response={200: PostDetailEnvelope, **ERROR_RESPONSES},
     operation_id='updatePost',
-    summary='글 수정',
+    summary='포스트 수정',
     tags=['Posts'],
 )
 def update_post(request, post_id: int, payload: PostUpdatePayload):
@@ -398,7 +398,7 @@ def update_post(request, post_id: int, payload: PostUpdatePayload):
     if expected_updated_at and expected_updated_at != actual_updated_at:
         response = error_response(
             'post.version_conflict',
-            '글이 이미 다른 요청으로 수정되었습니다.',
+            '포스트가 이미 다른 요청으로 수정되었습니다.',
             409,
             fields={
                 'expected_updated_at': expected_updated_at,
@@ -467,7 +467,7 @@ def update_post(request, post_id: int, payload: PostUpdatePayload):
     '/posts/{post_id}',
     response={200: DeletePostEnvelope, **ERROR_RESPONSES},
     operation_id='deletePost',
-    summary='글 삭제',
+    summary='포스트 삭제',
     tags=['Posts'],
 )
 def delete_post(request, post_id: int, dry_run: bool = False):
@@ -499,7 +499,7 @@ def delete_post(request, post_id: int, dry_run: bool = False):
     '/posts/{post_id}/publish',
     response={200: PostDetailEnvelope, **ERROR_RESPONSES},
     operation_id='publishPost',
-    summary='임시 글 발행',
+    summary='임시 포스트 발행',
     tags=['Posts'],
 )
 def publish_post(request, post_id: int, payload: PostPublishPayload | None = Body(None)):
@@ -514,7 +514,7 @@ def publish_post(request, post_id: int, payload: PostPublishPayload | None = Bod
     if not post.is_draft():
         response = error_response(
             'post.not_draft',
-            '이미 발행되었거나 예약된 글입니다.',
+            '이미 발행되었거나 예약된 포스트입니다.',
             409,
         )
         DeveloperTokenService.record_request(request, request.auth, response.status_code)
@@ -558,7 +558,7 @@ def publish_post(request, post_id: int, payload: PostPublishPayload | None = Bod
     '/tags',
     response={200: TagListEnvelope, **ERROR_RESPONSES},
     operation_id='listTags',
-    summary='내 글 태그 목록',
+    summary='내 포스트 태그 목록',
     tags=['Publishing Metadata'],
 )
 def list_tags(request):

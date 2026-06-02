@@ -1,4 +1,4 @@
-import { usePostsQuery, type FilterOptions } from '../hooks/usePostsData';
+import { usePostsQuery, type FilterOptions, type PostsSource } from '../hooks/usePostsData';
 import { usePostsActions } from '../hooks';
 import PostCard from './PostCard';
 import Pagination from './Pagination';
@@ -8,19 +8,23 @@ interface PostListContentProps {
     filters: FilterOptions;
     series: Series[] | undefined;
     onPageChange: (page: string) => void;
+    source?: PostsSource;
+    emptyMessage?: string;
 }
 
 export const PostListContent = ({
     filters,
     series,
-    onPageChange
+    onPageChange,
+    source = 'published',
+    emptyMessage = '포스트가 없습니다.'
 }: PostListContentProps) => {
     const {
         posts,
         setPosts,
         postsData,
         refetch
-    } = usePostsQuery(filters);
+    } = usePostsQuery(filters, source);
 
     const {
         handleVisibilityToggle,
@@ -37,6 +41,8 @@ export const PostListContent = ({
     });
 
     if (!postsData) return null;
+
+    const isScheduled = source === 'scheduled';
 
     return (
         <>
@@ -55,12 +61,16 @@ export const PostListContent = ({
                             onTagSubmit={handleTagSubmit}
                             onSeriesChange={handleSeriesChange}
                             onSeriesSubmit={handleSeriesSubmit}
+                            dateDisplay={isScheduled ? `예약 ${post.createdDate}` : undefined}
+                            dateIconClass={isScheduled ? 'fas fa-calendar-day' : undefined}
+                            statusLabel={isScheduled ? '예약 발행' : undefined}
+                            showUpdatedBadge={!isScheduled}
                         />
                     ))}
                 </div>
             ) : (
                 <div className="py-12 text-center text-content-secondary bg-surface-subtle rounded-lg border border-line-light border-dashed">
-                    포스트가 없습니다.
+                    {emptyMessage}
                 </div>
             )}
 

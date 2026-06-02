@@ -2,6 +2,7 @@ export {
     AlertCircle,
     AlertTriangle,
     Bookmark,
+    Calendar,
     Check,
     ChevronDown,
     CircleDollarSign,

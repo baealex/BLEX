@@ -38,7 +38,7 @@
                     {% if not is_editor_page and user.profile.is_editor %}
                     <a href="/write" class="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-action hover:bg-action-hover text-content-inverted font-medium text-sm transition-all duration-150 active:scale-95">
                         <i class="fas fa-pen text-xs"></i>
-                        <span>글쓰기</span>
+                        <span>새 포스트</span>
                     </a>
                     {% endif %}
 
@@ -268,7 +268,7 @@
                             {% if not is_editor_page and user.profile.is_editor %}
                             <a href="/write" @click="closeMobileMenu()" class="flex items-center gap-3 px-3 py-3 text-sm font-medium text-content hover:bg-surface-subtle active:bg-surface-subtle rounded-lg transition-colors duration-150">
                                 <i class="fas fa-pen text-content-secondary text-xs w-5 text-center"></i>
-                                <span>글쓰기</span>
+                                <span>새 포스트</span>
                             </a>
                             {% endif %}
                             <a href="/@{{ user.username }}" @click="closeMobileMenu()" class="flex items-center gap-3 px-3 py-3 text-sm text-content-secondary hover:bg-surface-subtle active:bg-surface-subtle rounded-lg transition-colors duration-150">

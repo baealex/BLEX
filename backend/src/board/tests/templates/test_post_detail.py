@@ -597,6 +597,27 @@ class PostEditorPublishRedirectTestCase(TestCase):
             published_date__isnull=False,
         ).exists())
 
+    def test_post_editor_redirects_new_scheduled_publish_to_post_detail(self):
+        """새 포스트 예약 발행 후 상세 화면으로 이동한다."""
+        scheduled_at = timezone.now() + datetime.timedelta(days=1)
+        self.client.login(username='editor', password='password123')
+
+        response = self.client.post('/write', {
+            'title': 'Scheduled New Post',
+            'url': 'scheduled-new-post',
+            'content_html': '<p>Hello scheduled BLEX</p>',
+            'reserved_date': scheduled_at.isoformat(),
+        })
+
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response['Location'], '/@editor/scheduled-new-post')
+        post = Post.objects.get(author=self.user, url='scheduled-new-post')
+        self.assertAlmostEqual(
+            post.published_date.timestamp(),
+            scheduled_at.timestamp(),
+            delta=1,
+        )
+
     def test_post_editor_redirects_draft_publish_to_post_detail(self):
         """초안 발행은 기존 초안을 공개 글로 바꾸고 상세 화면으로 이동한다."""
         draft = PostService.create_draft(
@@ -621,6 +642,98 @@ class PostEditorPublishRedirectTestCase(TestCase):
         self.assertEqual(draft.url, 'published-draft-title')
         self.assertIsNotNone(draft.published_date)
         self.assertEqual(Post.objects.filter(author=self.user).count(), 1)
+
+    def test_post_editor_redirects_draft_scheduled_publish_to_post_detail(self):
+        """초안 예약 발행은 기존 초안을 예약 포스트로 바꾸고 상세 화면으로 이동한다."""
+        scheduled_at = timezone.now() + datetime.timedelta(days=1)
+        draft = PostService.create_draft(
+            user=self.user,
+            title='Scheduled Draft Title',
+            text_html='<p>Draft body</p>',
+            custom_url='scheduled-draft-title',
+        )
+        self.client.login(username='editor', password='password123')
+
+        response = self.client.post('/write', {
+            'draft_url': draft.url,
+            'title': 'Scheduled Draft Title',
+            'url': 'scheduled-draft-title',
+            'content_html': '<p>Scheduled draft body</p>',
+            'reserved_date': scheduled_at.isoformat(),
+        })
+
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response['Location'], '/@editor/scheduled-draft-title')
+        draft.refresh_from_db()
+        self.assertAlmostEqual(
+            draft.published_date.timestamp(),
+            scheduled_at.timestamp(),
+            delta=1,
+        )
+        self.assertEqual(Post.objects.filter(author=self.user).count(), 1)
+
+    def test_post_editor_updates_scheduled_post_reserved_date(self):
+        """예약 포스트 수정 화면은 예약 시간을 변경한다."""
+        scheduled_at = timezone.now() + datetime.timedelta(days=1)
+        next_scheduled_at = timezone.now() + datetime.timedelta(days=3)
+        post = Post.objects.create(
+            title='Scheduled Editable Post',
+            url='scheduled-editable-post',
+            author=self.user,
+            published_date=scheduled_at,
+        )
+        PostContent.objects.create(post=post, content_html='<p>Scheduled body</p>')
+        PostConfig.objects.create(post=post, hide=False)
+        self.client.login(username='editor', password='password123')
+
+        response = self.client.post('/@editor/scheduled-editable-post/edit', {
+            'title': 'Scheduled Editable Post',
+            'subtitle': '',
+            'content_html': '<p>Scheduled body updated</p>',
+            'reserved_date': next_scheduled_at.isoformat(),
+            'hide': 'false',
+            'advertise': 'false',
+        })
+
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response['Location'], '/@editor/scheduled-editable-post')
+        post.refresh_from_db()
+        self.assertAlmostEqual(
+            post.published_date.timestamp(),
+            next_scheduled_at.timestamp(),
+            delta=1,
+        )
+
+    def test_post_editor_rejects_invalid_scheduled_reserved_date(self):
+        """예약 포스트 수정 화면은 잘못된 예약 시간을 500 없이 편집 화면으로 되돌린다."""
+        scheduled_at = timezone.now() + datetime.timedelta(days=1)
+        post = Post.objects.create(
+            title='Invalid Scheduled Editable Post',
+            url='invalid-scheduled-editable-post',
+            author=self.user,
+            published_date=scheduled_at,
+        )
+        PostContent.objects.create(post=post, content_html='<p>Scheduled body</p>')
+        PostConfig.objects.create(post=post, hide=False)
+        self.client.login(username='editor', password='password123')
+
+        response = self.client.post('/@editor/invalid-scheduled-editable-post/edit', {
+            'title': 'Invalid Scheduled Editable Post',
+            'subtitle': '',
+            'content_html': '<p>Scheduled body updated</p>',
+            'reserved_date': '',
+            'hide': 'false',
+            'advertise': 'false',
+        })
+
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response['Location'], '/@editor/invalid-scheduled-editable-post/edit')
+        post.refresh_from_db()
+        self.assertAlmostEqual(
+            post.published_date.timestamp(),
+            scheduled_at.timestamp(),
+            delta=1,
+        )
 
     def test_post_editor_returns_to_draft_when_draft_publish_fails(self):
         """초안 발행 검증 실패 시 작성 맥락을 잃지 않고 기존 초안으로 돌아간다."""

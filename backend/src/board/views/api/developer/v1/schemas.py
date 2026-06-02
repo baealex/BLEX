@@ -94,7 +94,7 @@ class PostDetailEnvelope(Schema):
 
 
 class PostBodyPayload(Schema):
-    title: str | None = Field(None, description='글 제목입니다.')
+    title: str | None = Field(None, description='포스트 제목입니다.')
     content: str | None = Field(None, description='본문입니다. markdown 필드를 우선 사용하세요.')
     content_html: str | None = Field(None, description='HTML 본문입니다.')
     markdown: str | None = Field(None, description='Markdown 본문입니다. 새 클라이언트의 권장 본문 필드입니다.')
@@ -104,17 +104,17 @@ class PostBodyPayload(Schema):
         None,
         description='본문 형식입니다. markdown 필드를 보내면 markdown으로 처리됩니다.',
     )
-    subtitle: str | None = Field(None, description='글 부제목입니다.')
+    subtitle: str | None = Field(None, description='포스트 부제목입니다.')
     description: str | None = Field(None, description='SEO/공유용 설명입니다.')
     tags: list[str] | str | None = Field(None, description='태그 목록입니다. 문자열 또는 문자열 배열을 사용할 수 있습니다.')
     tag: list[str] | str | None = Field(None, description='기존 클라이언트를 위한 태그 호환 필드입니다.')
     series_id: int | None = Field(None, description='내 시리즈 ID입니다.')
     series_url: str | None = Field(None, description='내 시리즈 URL입니다. series_id보다 직접 URL을 지정할 때 사용합니다.')
-    slug: str | None = Field(None, description='사용자 지정 글 URL입니다.')
-    url: str | None = Field(None, description='기존 클라이언트를 위한 글 URL 호환 필드입니다.')
-    is_hidden: bool | None = Field(None, description='발행 글을 비공개 처리할지 여부입니다.')
+    slug: str | None = Field(None, description='사용자 지정 포스트 URL입니다.')
+    url: str | None = Field(None, description='기존 클라이언트를 위한 포스트 URL 호환 필드입니다.')
+    is_hidden: bool | None = Field(None, description='발행 포스트를 비공개 처리할지 여부입니다.')
     is_hide: bool | None = Field(None, description='기존 클라이언트를 위한 비공개 호환 필드입니다.')
-    is_advertise: bool | None = Field(None, description='홍보/광고성 글 여부입니다.')
+    is_advertise: bool | None = Field(None, description='홍보/광고성 포스트 여부입니다.')
     cover_layout: CoverLayout | None = Field(None, description='상세 화면 커버 배치입니다.')
     cover_image_position: CoverImagePosition | None = Field(None, description='분할 커버에서 대표 이미지 위치입니다.')
     cover_image_ratio: CoverImageRatio | None = Field(None, description='기본/분할 커버에서 대표 이미지 비율입니다.')

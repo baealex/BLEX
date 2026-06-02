@@ -20,7 +20,7 @@ from django.utils import timezone
 from django.utils.dateparse import parse_datetime
 from django.utils.text import slugify
 
-from board.models import Post, PostContent, PostConfig, Series, PostLikes
+from board.models import Post, PostContent, PostConfig, PostConfigMeta, Series, PostLikes
 from board.modules.post_description import create_post_description
 from board.services.tag_service import TagService
 from board.modules.response import ErrorCode
@@ -40,6 +40,7 @@ class PostValidationError(Exception):
 
 class PostService:
     """Service class for handling post-related business logic"""
+    DRAFT_RESERVED_DATE_META = 'draft_reserved_date'
 
     @staticmethod
     def normalize_cover_options(
@@ -167,12 +168,51 @@ class PostService:
             return None
 
         reserved_date = parse_datetime(reserved_date_str)
+        if not reserved_date:
+            raise PostValidationError(
+                ErrorCode.VALIDATE,
+                '예약 시간을 확인해주세요.'
+            )
+
+        if timezone.is_naive(reserved_date):
+            reserved_date = timezone.make_aware(
+                reserved_date,
+                timezone.get_current_timezone(),
+            )
+
         if reserved_date and reserved_date < timezone.now():
             raise PostValidationError(
                 ErrorCode.VALIDATE,
                 '예약시간이 현재시간보다 이전입니다.'
             )
         return reserved_date
+
+    @staticmethod
+    def get_draft_reserved_date(post: Post) -> str:
+        meta = PostConfigMeta.objects.filter(
+            post=post,
+            name=PostService.DRAFT_RESERVED_DATE_META,
+        ).first()
+        return meta.value if meta else ''
+
+    @staticmethod
+    def set_draft_reserved_date(post: Post, reserved_date_str: Optional[str]) -> None:
+        if reserved_date_str is None:
+            return
+
+        if reserved_date_str == '':
+            PostConfigMeta.objects.filter(
+                post=post,
+                name=PostService.DRAFT_RESERVED_DATE_META,
+            ).delete()
+            return
+
+        reserved_date = PostService.validate_reserved_date(reserved_date_str)
+        PostConfigMeta.objects.update_or_create(
+            post=post,
+            name=PostService.DRAFT_RESERVED_DATE_META,
+            defaults={'value': reserved_date.isoformat()},
+        )
 
     @staticmethod
     def get_or_none_series(user: User, series_url: str) -> Optional[Series]:
@@ -555,6 +595,7 @@ class PostService:
         cover_layout: Optional[str] = None,
         cover_image_position: Optional[str] = None,
         cover_image_ratio: Optional[str] = None,
+        reserved_date_str: Optional[str] = None,
     ) -> Post:
         """
         Update existing post.
@@ -570,6 +611,7 @@ class PostService:
             image: New image (optional)
             is_hide: New hide flag (optional)
             is_advertise: New advertise flag (optional)
+            reserved_date_str: New reserved publication date for scheduled posts (optional)
 
         Returns:
             Updated Post instance
@@ -617,7 +659,28 @@ class PostService:
 
         PostService._set_image_with_dedup(post, image, image_delete)
 
-        if post.is_published():
+        if reserved_date_str is not None:
+            if not reserved_date_str:
+                raise PostValidationError(
+                    ErrorCode.VALIDATE,
+                    '예약 시간을 확인해주세요.'
+                )
+
+            if post.published_date is None or post.is_published():
+                raise PostValidationError(
+                    ErrorCode.REJECT,
+                    '예약 포스트만 예약 시간을 변경할 수 있습니다.'
+                )
+
+            reserved_date = PostService.validate_reserved_date(reserved_date_str)
+            if not reserved_date:
+                raise PostValidationError(
+                    ErrorCode.VALIDATE,
+                    '예약 시간을 확인해주세요.'
+                )
+            post.published_date = reserved_date
+
+        if post.published_date is not None:
             post.updated_date = timezone.now()
 
         post.save()
@@ -703,6 +766,7 @@ class PostService:
         cover_layout: Optional[str] = None,
         cover_image_position: Optional[str] = None,
         cover_image_ratio: Optional[str] = None,
+        reserved_date_str: Optional[str] = None,
     ) -> Post:
         """
         Create a draft post (published_date=null).
@@ -767,6 +831,7 @@ class PostService:
                 cover_image_ratio=cover_image_ratio,
             ),
         )
+        PostService.set_draft_reserved_date(post, reserved_date_str)
 
         return post
 
@@ -787,6 +852,7 @@ class PostService:
         cover_layout: Optional[str] = None,
         cover_image_position: Optional[str] = None,
         cover_image_ratio: Optional[str] = None,
+        reserved_date_str: Optional[str] = None,
     ) -> Post:
         """
         Update a draft post. No notifications sent.
@@ -847,6 +913,8 @@ class PostService:
                 cover_image_ratio=cover_image_ratio,
             )
             post_config.save()
+
+        PostService.set_draft_reserved_date(post, reserved_date_str)
 
         return post
 
@@ -922,6 +990,9 @@ class PostService:
 
         PostService._set_image_with_dedup(post, image, image_delete)
 
+        if not reserved_date_str:
+            reserved_date_str = PostService.get_draft_reserved_date(post)
+
         reserved_date = PostService.validate_reserved_date(reserved_date_str)
         if reserved_date:
             post.published_date = reserved_date
@@ -941,6 +1012,10 @@ class PostService:
             cover_image_ratio=cover_image_ratio,
         )
         post_config.save()
+        PostConfigMeta.objects.filter(
+            post=post,
+            name=PostService.DRAFT_RESERVED_DATE_META,
+        ).delete()
 
         PostService.send_post_notifications(post, post_config)
 

@@ -105,7 +105,7 @@ const DraftsPanel = ({
                         ) : hasError ? (
                             <div className="flex flex-col items-center justify-center flex-1 min-h-[200px] text-content-secondary px-6">
                                 <AlertTriangle className="w-12 h-12 mb-3 text-content-hint" />
-                                <p className="text-sm mb-3">임시 글 목록을 불러오지 못했습니다</p>
+                                <p className="text-sm mb-3">임시 포스트 목록을 불러오지 못했습니다</p>
                                 <button
                                     type="button"
                                     onClick={fetchDrafts}

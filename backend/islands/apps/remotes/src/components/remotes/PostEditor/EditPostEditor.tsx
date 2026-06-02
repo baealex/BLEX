@@ -5,11 +5,18 @@ import PostEditorWrapper from './PostEditorWrapper';
 import PostActions from './components/PostActions';
 import PostForm from './components/PostForm';
 import SettingsDrawer from './components/SettingsDrawer';
+import ScheduleStatusNotice from './components/ScheduleStatusNotice';
 import { getSeries } from '~/lib/api/settings';
 import { getPostForEdit } from '~/lib/api/posts';
 import { api } from '~/components/shared';
 import { logger } from '~/utils/logger';
 import type { Series } from './types';
+import {
+    isFutureDateTimeLocal,
+    parseDateTimeLocal,
+    toDateTimeLocalValue,
+    toReservedDateValue
+} from './utils/scheduleDate';
 
 interface EditPostEditorProps {
     username: string;
@@ -27,6 +34,7 @@ interface DirtySnapshot {
     coverLayout: string;
     coverImagePosition: string;
     coverImageRatio: string;
+    reservedDate: string;
     tags: string[];
     seriesUrl: string;
     imagePreview: string | null;
@@ -49,7 +57,8 @@ const EditPostEditor = ({ username, postUrl }: EditPostEditorProps) => {
         advertise: false,
         coverLayout: 'default',
         coverImagePosition: 'right',
-        coverImageRatio: 'auto'
+        coverImageRatio: 'auto',
+        reservedDate: ''
     });
 
     const [tags, setTags] = useState<string[]>([]);
@@ -60,6 +69,7 @@ const EditPostEditor = ({ username, postUrl }: EditPostEditorProps) => {
         name: '',
         url: ''
     });
+    const [isScheduledPost, setIsScheduledPost] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [isEditorMediaUploading, setIsEditorMediaUploading] = useState(false);
 
@@ -78,6 +88,7 @@ const EditPostEditor = ({ username, postUrl }: EditPostEditorProps) => {
         coverLayout: formData.coverLayout,
         coverImagePosition: formData.coverImagePosition,
         coverImageRatio: formData.coverImageRatio,
+        reservedDate: formData.reservedDate,
         tags,
         seriesUrl: selectedSeries.url,
         imagePreview,
@@ -104,6 +115,7 @@ const EditPostEditor = ({ username, postUrl }: EditPostEditorProps) => {
                 const { data: postResponse } = await getPostForEdit(username, postUrl);
                 if (postResponse.status === 'DONE') {
                     const postData = postResponse.body;
+                    const reservedDate = postData.isScheduled ? toDateTimeLocalValue(postData.publishedDate) : '';
                     setFormData({
                         title: postData.title || '',
                         subtitle: postData.subtitle || '',
@@ -114,8 +126,10 @@ const EditPostEditor = ({ username, postUrl }: EditPostEditorProps) => {
                         advertise: postData.isAdvertise || false,
                         coverLayout: postData.coverLayout || 'default',
                         coverImagePosition: postData.coverImagePosition || 'right',
-                        coverImageRatio: postData.coverImageRatio || 'auto'
+                        coverImageRatio: postData.coverImageRatio || 'auto',
+                        reservedDate
                     });
+                    setIsScheduledPost(Boolean(postData.isScheduled));
                     setTags(postData.tags || []);
                     initialDataRef.current = {
                         title: postData.title || '',
@@ -128,6 +142,7 @@ const EditPostEditor = ({ username, postUrl }: EditPostEditorProps) => {
                         coverLayout: postData.coverLayout || 'default',
                         coverImagePosition: postData.coverImagePosition || 'right',
                         coverImageRatio: postData.coverImageRatio || 'auto',
+                        reservedDate,
                         tags: postData.tags || [],
                         seriesUrl: postData.series?.url || '',
                         imagePreview: postData.image || null,
@@ -153,6 +168,10 @@ const EditPostEditor = ({ username, postUrl }: EditPostEditorProps) => {
     const hasUnsavedChanges = () => {
         if (!initialDataRef.current) return false;
         return JSON.stringify(createDirtySnapshot()) !== JSON.stringify(initialDataRef.current);
+    };
+
+    const hasReservedDateChanged = () => {
+        return formData.reservedDate !== (initialDataRef.current?.reservedDate || '');
     };
 
     // Warn on page unload if there are unsaved changes
@@ -220,6 +239,18 @@ const EditPostEditor = ({ username, postUrl }: EditPostEditorProps) => {
             return false;
         }
 
+        if (isScheduledPost && hasReservedDateChanged()) {
+            if (!parseDateTimeLocal(formData.reservedDate)) {
+                toast.error('예약 시간을 확인해주세요.');
+                return false;
+            }
+
+            if (!isFutureDateTimeLocal(formData.reservedDate)) {
+                toast.error('예약 시간은 현재 시간 이후로 선택해주세요.');
+                return false;
+            }
+        }
+
         return true;
     };
 
@@ -254,6 +285,10 @@ const EditPostEditor = ({ username, postUrl }: EditPostEditorProps) => {
             addHiddenField('cover_layout', formData.coverLayout);
             addHiddenField('cover_image_position', formData.coverImagePosition);
             addHiddenField('cover_image_ratio', formData.coverImageRatio);
+
+            if (isScheduledPost && hasReservedDateChanged()) {
+                addHiddenField('reserved_date', toReservedDateValue(formData.reservedDate));
+            }
 
             if (isDraft) {
                 addHiddenField('is_draft', 'true');
@@ -321,6 +356,7 @@ const EditPostEditor = ({ username, postUrl }: EditPostEditorProps) => {
     return (
         <PostEditorWrapper>
             <PostForm
+                beforeContent={<ScheduleStatusNotice value={isScheduledPost ? formData.reservedDate : ''} />}
                 formRef={formRef}
                 isLoading={false}
                 formData={formData}
@@ -358,6 +394,7 @@ const EditPostEditor = ({ username, postUrl }: EditPostEditorProps) => {
                 isOpen={isSettingsDrawerOpen}
                 onClose={() => setIsSettingsDrawerOpen(false)}
                 isEdit={true}
+                isScheduled={isScheduledPost}
                 url={formData.url}
                 metaDescription={formData.metaDescription}
                 selectedSeries={selectedSeries}
