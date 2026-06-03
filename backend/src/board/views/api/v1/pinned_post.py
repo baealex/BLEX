@@ -1,11 +1,12 @@
 import json
 
-from django.http import Http404, QueryDict
+from django.http import Http404
 from django.shortcuts import get_object_or_404
 
 from board.models import User
 from board.services import PinnedPostService
 from board.services.api_permission_service import ApiPermissionService
+from board.services.api_request_body_service import ApiRequestBodyService
 from board.services.pinned_post_service import PinnedPostError
 from board.modules.response import StatusDone, StatusError, ErrorCode
 
@@ -43,7 +44,7 @@ def pinned_posts(request, username):
             return StatusError(e.code, e.message)
 
     if request.method == 'DELETE':
-        delete = QueryDict(request.body)
+        delete = ApiRequestBodyService.parse_json_or_querydict(request)
         post_url = delete.get('post_url', '')
         if not post_url:
             return StatusError(ErrorCode.INVALID_PARAMETER, '포스트 URL이 필요합니다.')
@@ -70,12 +71,12 @@ def pinned_posts_order(request, username):
         return permission_error
 
     if request.method == 'PUT':
-        put = QueryDict(request.body)
-        post_urls_str = put.get('post_urls', '[]')
+        put = ApiRequestBodyService.parse_json_or_querydict(request)
+        post_urls_data = put.get('post_urls', '[]')
 
         try:
-            post_urls = json.loads(post_urls_str)
-        except json.JSONDecodeError:
+            post_urls = json.loads(post_urls_data) if isinstance(post_urls_data, str) else post_urls_data
+        except (TypeError, json.JSONDecodeError):
             return StatusError(ErrorCode.INVALID_PARAMETER, '잘못된 형식입니다.')
 
         if not isinstance(post_urls, list):

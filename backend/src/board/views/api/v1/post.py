@@ -1,4 +1,4 @@
-from django.http import Http404, QueryDict
+from django.http import Http404
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
 
@@ -9,6 +9,7 @@ from board.modules.time import convert_to_localtime, time_since
 from board.decorators import api_editor_required_methods
 from board.services.comment_list_service import CommentListService
 from board.services.api_permission_service import ApiPermissionService
+from board.services.api_request_body_service import ApiRequestBodyService
 from board.services.post_service import PostService, PostValidationError
 from board.services.public_post_service import PublicPostService
 
@@ -101,10 +102,7 @@ def user_posts(request, username, url=None):
                 })
 
             if request.GET.get('mode') == 'view':
-                if post.config.hide and request.user != post.author:
-                    raise Http404
-
-                if not post.is_published() and request.user != post.author:
+                if request.user != post.author and not PublicPostService.is_public(post):
                     raise Http404
 
                 return StatusDone({
@@ -169,7 +167,7 @@ def user_posts(request, username, url=None):
             return StatusDone()
 
         if request.method == 'PUT':
-            put = QueryDict(request.body)
+            put = ApiRequestBodyService.parse_json_or_querydict(request)
 
             if request.GET.get('hide', ''):
                 if not PostService.can_user_edit_post(request.user, post):

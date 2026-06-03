@@ -30,8 +30,6 @@ class ApiRequestBodyServiceTestCase(TestCase):
         self.assertIsNotNone(error)
         self.assertEqual(error.status_code, 200)
 
-
-
     def test_parse_json_or_error_can_require_body(self):
         from board.modules.response import ErrorCode
 
@@ -63,6 +61,15 @@ class ApiRequestBodyServiceTestCase(TestCase):
         self.assertIsNotNone(error)
         self.assertContains(error, 'error:IP')
 
+    def test_parse_json_or_error_rejects_non_object_json(self):
+        request = self.factory.post('/v1/example', data=b'[]', content_type='application/json')
+
+        data, error = ApiRequestBodyService.parse_json_or_error(request)
+
+        self.assertIsNone(data)
+        self.assertIsNotNone(error)
+        self.assertContains(error, 'error:VA')
+
     def test_parse_json_or_querydict_falls_back_to_form_body(self):
         request = self.factory.post(
             '/v1/example',
@@ -75,7 +82,29 @@ class ApiRequestBodyServiceTestCase(TestCase):
         self.assertEqual(data.get('title'), 'Form Title')
         self.assertEqual(data.get('post_ids'), '1,2')
 
+    def test_parse_json_or_querydict_falls_back_for_non_object_json(self):
+        request = self.factory.put('/v1/example/1', data=b'[]', content_type='application/json')
+
+        data = ApiRequestBodyService.parse_json_or_querydict(request)
+
+        self.assertIsNone(data.get('like'))
+
+    def test_parse_json_or_post_falls_back_to_request_post(self):
+        request = self.factory.post(
+            '/v1/example',
+            data={'title': 'Form Title'},
+        )
+
+        data = ApiRequestBodyService.parse_json_or_post(request)
+
+        self.assertEqual(data.get('title'), 'Form Title')
+
     def test_parse_json_or_empty_for_legacy_only_returns_default_for_invalid_json(self):
         request = self.factory.put('/v1/example/1', data=b'{invalid', content_type='application/json')
+
+        self.assertEqual(ApiRequestBodyService.parse_json_or_empty_for_legacy_only(request), {})
+
+    def test_parse_json_or_empty_for_legacy_only_returns_default_for_non_object_json(self):
+        request = self.factory.put('/v1/example/1', data=b'[]', content_type='application/json')
 
         self.assertEqual(ApiRequestBodyService.parse_json_or_empty_for_legacy_only(request), {})

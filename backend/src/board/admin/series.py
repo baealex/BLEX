@@ -4,6 +4,7 @@ from django.urls import reverse
 from django.utils.html import format_html
 
 from board.models import Series, Post
+from board.services.public_post_service import PublicPostService
 
 from .service import AdminDisplayService, AdminLinkService
 from .constants import (
@@ -144,19 +145,20 @@ class SeriesAdmin(admin.ModelAdmin):
         if not posts:
             return format_html('<p style="color: {};">포스트 없음</p>', COLOR_MUTED)
 
-        visible_posts = obj.posts.filter(config__hide=False).count()
-        hidden_posts = obj.posts.filter(config__hide=True).count()
+        total_posts = posts.count()
+        public_posts = PublicPostService.filter_public_posts(posts).count()
+        non_public_posts = total_posts - public_posts
 
         return format_html(
             '<div style="background: {}; padding: 12px; border-radius: 6px; border: 1px solid {};">'
             '<p style="margin: 4px 0; color: {};"><strong>총 포스트:</strong> {}</p>'
-            '<p style="margin: 4px 0; color: {};"><strong>공개:</strong> <span style="color: {};">{}</span></p>'
-            '<p style="margin: 4px 0; color: {};"><strong>숨김:</strong> <span style="color: {};">{}</span></p>'
+            '<p style="margin: 4px 0; color: {};"><strong>공개 노출:</strong> <span style="color: {};">{}</span></p>'
+            '<p style="margin: 4px 0; color: {};"><strong>비공개 상태:</strong> <span style="color: {};">{}</span></p>'
             '</div>',
             COLOR_DARKENED_BG, COLOR_BORDER,
-            COLOR_TEXT, posts.count(),
-            COLOR_TEXT, COLOR_SUCCESS, visible_posts,
-            COLOR_TEXT, COLOR_DANGER, hidden_posts
+            COLOR_TEXT, total_posts,
+            COLOR_TEXT, COLOR_SUCCESS, public_posts,
+            COLOR_TEXT, COLOR_DANGER, non_public_posts
         )
     posts_summary.short_description = '포스트 요약'
 

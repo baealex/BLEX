@@ -232,6 +232,7 @@ class SettingTestCase(TestCase):
         self.assertEqual(content['status'], 'DONE')
         post_urls = [item['url'] for item in content['body']['posts']]
         self.assertEqual(post_urls, ['scheduled-post'])
+        self.assertEqual(content['body']['totalCount'], 1)
         scheduled_data = content['body']['posts'][0]
         self.assertEqual(scheduled_data['image'], 'images/title/test/scheduled-post.png')
         self.assertEqual(scheduled_data['isHide'], False)
@@ -253,6 +254,39 @@ class SettingTestCase(TestCase):
         self.assertEqual(content['status'], 'DONE')
         self.assertEqual(content['body']['posts'], [])
         self.assertEqual(content['body']['lastPage'], 1)
+        self.assertEqual(content['body']['totalCount'], 0)
+
+    def test_get_setting_posts_returns_filtered_total_count(self):
+        """포스트 설정 목록은 현재 필터 결과의 전체 개수를 내려준다."""
+        user = User.objects.get(username='test')
+        public_post = Post.objects.create(
+            url='public-post',
+            title='Public Post',
+            author=user,
+            published_date=timezone.now(),
+        )
+        PostContent.objects.create(post=public_post, content_html='<p>Public</p>')
+        PostConfig.objects.create(post=public_post, hide=False)
+
+        hidden_post = Post.objects.create(
+            url='hidden-post',
+            title='Hidden Post',
+            author=user,
+            published_date=timezone.now(),
+        )
+        PostContent.objects.create(post=hidden_post, content_html='<p>Hidden</p>')
+        PostConfig.objects.create(post=hidden_post, hide=True)
+        self.client.login(username='test', password='test')
+
+        response = self.client.get('/v1/setting/posts', {
+            'visibility': 'public',
+        })
+
+        self.assertEqual(response.status_code, 200)
+        content = json.loads(response.content)
+        self.assertEqual(content['status'], 'DONE')
+        self.assertEqual(content['body']['totalCount'], 1)
+        self.assertEqual(content['body']['posts'][0]['url'], 'public-post')
 
     def test_get_setting_reserved_posts_orders_by_count_fields(self):
         """예약 포스트 설정 목록은 좋아요/댓글 수 정렬을 지원한다."""

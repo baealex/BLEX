@@ -1,9 +1,9 @@
-import json
 from django.http import Http404
 
 from modules import markdown
 from board.decorators import api_editor_required_methods
 from board.modules.response import StatusDone, StatusError, ErrorCode
+from board.services.api_request_body_service import ApiRequestBodyService
 
 
 @api_editor_required_methods(['POST'])
@@ -17,21 +17,23 @@ def markdown_to_html(request):
     """
     if request.method != 'POST':
         raise Http404
-    
-    try:
-        if request.content_type == 'application/json':
-            data = json.loads(request.body)
-            text = data.get('text', '')
-        else:
-            text = request.POST.get('text', '')
-        
-        if not text:
-            return StatusError(ErrorCode.INVALID_PARAMETER, '텍스트가 비어있습니다.')
-        
-        html = markdown.parse_post_to_html(text)
-        
-        return StatusDone({
-            'html': html
-        })
-    except json.JSONDecodeError:
-        return StatusError(ErrorCode.INVALID_PARAMETER)
+
+    if request.content_type == 'application/json':
+        data, body_error = ApiRequestBodyService.parse_json_or_error(
+            request,
+            error_code=ErrorCode.INVALID_PARAMETER,
+        )
+        if body_error:
+            return body_error
+        text = data.get('text', '')
+    else:
+        text = request.POST.get('text', '')
+
+    if not text:
+        return StatusError(ErrorCode.INVALID_PARAMETER, '텍스트가 비어있습니다.')
+
+    html = markdown.parse_post_to_html(text)
+
+    return StatusDone({
+        'html': html
+    })

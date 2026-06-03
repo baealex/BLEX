@@ -1,9 +1,10 @@
-from django.http import Http404, QueryDict
+from django.http import Http404
 from django.shortcuts import get_object_or_404
 
 from board.models import User
 from board.services import UserService
 from board.services.user_service import UserValidationError
+from board.services.api_request_body_service import ApiRequestBodyService
 from board.modules.response import StatusDone, StatusError, ErrorCode
 from board.modules.time import convert_to_localtime, time_since
 
@@ -12,7 +13,7 @@ def users(request, username):
     user = get_object_or_404(User, username=username)
 
     if request.method == 'PUT':
-        put = QueryDict(request.body)
+        put = ApiRequestBodyService.parse_json_or_querydict(request)
         if put.get('about'):
             try:
                 UserService.validate_user_permissions(request.user, user)

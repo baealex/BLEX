@@ -1,4 +1,4 @@
-import json
+from board.services.api_request_body_service import ApiRequestBodyService
 
 
 class AuthRequestParser:
@@ -6,7 +6,4 @@ class AuthRequestParser:
 
     @staticmethod
     def parse_login_request(request) -> dict:
-        try:
-            return json.loads(request.body.decode('utf-8')) if request.body else {}
-        except (json.JSONDecodeError, UnicodeDecodeError):
-            return {}
+        return ApiRequestBodyService.parse_json_or_empty_for_legacy_only(request)

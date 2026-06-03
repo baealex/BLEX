@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { useSuspenseQuery } from '@tanstack/react-query';
 import { SettingsEmptyState, SettingsListItem } from '../../../components';
 import { Dropdown, getIconClass, SUBTITLE, TITLE } from '~/components/shared';
@@ -7,7 +8,11 @@ import { deleteDraft } from '~/lib/api/posts';
 import { getMediaPath } from '~/modules/static.module';
 import { toast } from '~/utils/toast';
 
-export const DraftPostListContent = () => {
+interface DraftPostListContentProps {
+    onCountChange?: (count: number) => void;
+}
+
+export const DraftPostListContent = ({ onCountChange }: DraftPostListContentProps) => {
     const { confirm } = useConfirm();
     const { data: draftPosts, refetch } = useSuspenseQuery({
         queryKey: ['draft-posts'],
@@ -19,6 +24,10 @@ export const DraftPostListContent = () => {
             throw new Error('임시 포스트 목록을 불러오는데 실패했습니다.');
         }
     });
+
+    useEffect(() => {
+        onCountChange?.(draftPosts?.length ?? 0);
+    }, [draftPosts?.length, onCountChange]);
 
     const handleDraftDelete = async (url: string) => {
         const confirmed = await confirm({

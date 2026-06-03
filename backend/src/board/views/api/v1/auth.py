@@ -1,6 +1,5 @@
 import datetime
 import traceback
-import json
 import io
 import pyotp
 import qrcode
@@ -10,7 +9,7 @@ from django.conf import settings
 from django.contrib import auth
 from django.contrib.auth.models import User
 from django.db import transaction
-from django.http import Http404, QueryDict
+from django.http import Http404
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
 
@@ -24,6 +23,7 @@ from board.services.auth_request_parser import AuthRequestParser
 from board.services.author_invite_service import AuthorInviteError, AuthorInviteService
 from board.services.auth_service import AuthService, OAuthService, AuthValidationError
 from board.services.initial_setup_service import InitialSetupService
+from board.services.api_request_body_service import ApiRequestBodyService
 from modules import oauth
 from modules.challenge import auth_hcaptcha
 from modules.sub_task import SubTaskProcessor
@@ -123,7 +123,7 @@ def sign(request):
 
     if request.method == 'PATCH':
         user = request.user
-        body = QueryDict(request.body)
+        body = ApiRequestBodyService.parse_json_or_querydict(request)
 
         if body.get('username', ''):
             six_months_ago = timezone.now() - datetime.timedelta(days=180)
@@ -280,7 +280,7 @@ def security(request):
             })
         except Exception as e:
             traceback.print_exc()
-            return StatusError(ErrorCode.ERROR, f'2FA 설정 초기화에 실패했습니다: {str(e)}')
+            return StatusError(ErrorCode.REJECT, f'2FA 설정 초기화에 실패했습니다: {str(e)}')
 
     if request.method == 'DELETE':
         if not hasattr(request.user, 'twofactorauth'):
@@ -304,20 +304,20 @@ def security_verify(request):
         try:
             setup_data = request.session.get('totp_setup')
             if not setup_data:
-                return StatusError(ErrorCode.ERROR, '2FA 설정 세션이 만료되었습니다. 다시 시도해주세요.')
+                return StatusError(ErrorCode.EXPIRED, '2FA 설정 세션이 만료되었습니다. 다시 시도해주세요.')
 
             if setup_data['user_id'] != request.user.id:
-                return StatusError(ErrorCode.ERROR, '잘못된 세션입니다.')
+                return StatusError(ErrorCode.AUTHENTICATION, '잘못된 세션입니다.')
 
             if hasattr(request.user, 'twofactorauth'):
                 del request.session['totp_setup']
                 return StatusError(ErrorCode.ALREADY_CONNECTED)
 
-            data = json.loads(request.body.decode('utf-8')) if request.body else {}
+            data = ApiRequestBodyService.parse_json_or_empty_for_legacy_only(request)
             code = data.get('code', '').strip()
 
             if not code:
-                return StatusError(ErrorCode.ERROR, '인증 코드를 입력해주세요.')
+                return StatusError(ErrorCode.INVALID_PARAMETER, '인증 코드를 입력해주세요.')
 
             totp = pyotp.TOTP(setup_data['secret'])
             if not totp.verify(code, valid_window=1):
@@ -334,7 +334,7 @@ def security_verify(request):
 
         except Exception as e:
             traceback.print_exc()
-            return StatusError(ErrorCode.ERROR, f'2FA 활성화에 실패했습니다: {str(e)}')
+            return StatusError(ErrorCode.REJECT, f'2FA 활성화에 실패했습니다: {str(e)}')
 
     raise Http404
 

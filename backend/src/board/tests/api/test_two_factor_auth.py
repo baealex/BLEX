@@ -97,6 +97,38 @@ class TwoFactorAuthTestCase(TestCase):
         user = User.objects.get(username='test2fa')
         self.assertFalse(hasattr(user, 'twofactorauth'))
 
+    def test_enable_2fa_empty_verification_body_returns_invalid_parameter(self):
+        """2FA 설정 완료 요청에서 인증 코드가 없으면 500 대신 API 에러를 반환"""
+        self.client.login(username='test2fa', password='test2fa')
+        self.client.post('/v1/auth/security')
+
+        response = self.client.post(
+            '/v1/auth/security/verify',
+            data='',
+            content_type='application/json',
+        )
+
+        self.assertEqual(response.status_code, 200)
+        content = json.loads(response.content)
+        self.assertEqual(content['status'], 'ERROR')
+        self.assertEqual(content['errorCode'], 'error:IP')
+
+    def test_enable_2fa_non_object_json_body_returns_invalid_parameter(self):
+        """2FA 설정 완료 요청에서 JSON 객체가 아니어도 500이 나지 않는다."""
+        self.client.login(username='test2fa', password='test2fa')
+        self.client.post('/v1/auth/security')
+
+        response = self.client.post(
+            '/v1/auth/security/verify',
+            data='[]',
+            content_type='application/json',
+        )
+
+        self.assertEqual(response.status_code, 200)
+        content = json.loads(response.content)
+        self.assertEqual(content['status'], 'ERROR')
+        self.assertEqual(content['errorCode'], 'error:IP')
+
     def test_enable_2fa_already_enabled(self):
         """이미 2FA가 활성화된 상태에서 재활성화 시도 테스트"""
         user = User.objects.get(username='test2fa')

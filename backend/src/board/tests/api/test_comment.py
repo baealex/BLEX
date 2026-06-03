@@ -576,6 +576,19 @@ class CommentTestCase(TestCase):
         self.assertEqual(comment.text_md, 'Edited comment')
         self.assertTrue(comment.edited)
 
+    def test_edit_comment_non_object_json_returns_not_found_instead_of_server_error(self):
+        """댓글 수정 API는 JSON 객체가 아닌 body에서도 500을 내지 않는다."""
+        comment = Comment.objects.last()
+        self.client.login(username='viewer', password='test')
+
+        response = self.client.put(
+            f'/v1/comments/{comment.id}',
+            data='[]',
+            content_type='application/json',
+        )
+
+        self.assertEqual(response.status_code, 404)
+
     def test_edit_comment_on_hidden_post_returns_404(self):
         """비공개 글의 댓글은 공개 댓글 수정 API에서 수정할 수 없다."""
         post = Post.objects.get(url='test-post')

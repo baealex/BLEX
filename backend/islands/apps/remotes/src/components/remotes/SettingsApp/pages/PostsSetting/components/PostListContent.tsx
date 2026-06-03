@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { usePostsQuery, type FilterOptions, type PostsSource } from '../hooks/usePostsData';
 import { usePostsActions } from '../hooks';
 import PostCard from './PostCard';
@@ -8,6 +9,7 @@ interface PostListContentProps {
     filters: FilterOptions;
     series: Series[] | undefined;
     onPageChange: (page: string) => void;
+    onCountChange?: (count: number) => void;
     source?: PostsSource;
     emptyMessage?: string;
 }
@@ -16,6 +18,7 @@ export const PostListContent = ({
     filters,
     series,
     onPageChange,
+    onCountChange,
     source = 'published',
     emptyMessage = '포스트가 없습니다.'
 }: PostListContentProps) => {
@@ -39,6 +42,12 @@ export const PostListContent = ({
         setPosts,
         refetch
     });
+
+    const totalCount = postsData?.totalCount ?? posts.length;
+
+    useEffect(() => {
+        onCountChange?.(totalCount);
+    }, [onCountChange, totalCount]);
 
     if (!postsData) return null;
 

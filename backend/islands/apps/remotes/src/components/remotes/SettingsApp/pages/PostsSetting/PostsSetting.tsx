@@ -57,6 +57,7 @@ const syncTabToURL = (tab: PostStatusTab) => {
 
 const PostsSetting = () => {
     const [activeTab, setActiveTab] = useState<PostStatusTab>(getInitialTab);
+    const [postCounts, setPostCounts] = useState<Partial<Record<PostStatusTab, number>>>({});
     const {
         filters,
         tags,
@@ -74,10 +75,23 @@ const PostsSetting = () => {
         syncTabToURL(tab);
     };
 
+    const handleCountChange = (tab: PostStatusTab, count: number) => {
+        setPostCounts(prev => {
+            if (prev[tab] === count) return prev;
+            return {
+                ...prev,
+                [tab]: count
+            };
+        });
+    };
+
+    const activeCount = postCounts[activeTab];
+    const title = activeCount === undefined ? '포스트' : `포스트 (${activeCount})`;
+
     return (
         <div>
             <SettingsHeader
-                title="포스트"
+                title={title}
                 description="발행, 예약, 임시 포스트를 관리하세요."
                 actionPosition="right"
                 action={
@@ -144,6 +158,7 @@ const PostsSetting = () => {
                             filters={filters}
                             series={series}
                             onPageChange={(page) => handleFilterChange('page', page)}
+                            onCountChange={(count) => handleCountChange('published', count)}
                             emptyMessage="발행 포스트가 없습니다."
                         />
                     )}
@@ -152,12 +167,15 @@ const PostsSetting = () => {
                             filters={filters}
                             series={series}
                             onPageChange={(page) => handleFilterChange('page', page)}
+                            onCountChange={(count) => handleCountChange('scheduled', count)}
                             source="scheduled"
                             emptyMessage="예약 포스트가 없습니다."
                         />
                     )}
                     {activeTab === 'drafts' && (
-                        <DraftPostListContent />
+                        <DraftPostListContent
+                            onCountChange={(count) => handleCountChange('drafts', count)}
+                        />
                     )}
                 </div>
             </Suspense>

@@ -38,7 +38,13 @@ class ApiRequestBodyService:
             )
 
         try:
-            return ApiRequestBodyService.parse_json(request, default=default), None
+            data = ApiRequestBodyService.parse_json(request, default=default)
+            if not isinstance(data, dict):
+                return None, StatusError(
+                    error_code,
+                    message or ApiRequestBodyService.DEFAULT_INVALID_JSON_MESSAGE,
+                )
+            return data, None
         except (json.JSONDecodeError, UnicodeDecodeError):
             return None, StatusError(
                 error_code,
@@ -54,7 +60,8 @@ class ApiRequestBodyService:
         treated as an empty payload and existing fields remain unchanged.
         """
         try:
-            return ApiRequestBodyService.parse_json(request)
+            data = ApiRequestBodyService.parse_json(request)
+            return data if isinstance(data, dict) else {}
         except (json.JSONDecodeError, UnicodeDecodeError):
             return {}
 
@@ -62,6 +69,16 @@ class ApiRequestBodyService:
     def parse_json_or_querydict(request):
         """Parse JSON, falling back to QueryDict for form-encoded bodies."""
         try:
-            return ApiRequestBodyService.parse_json(request)
+            data = ApiRequestBodyService.parse_json(request)
+            return data if isinstance(data, dict) else QueryDict(request.body)
         except (json.JSONDecodeError, UnicodeDecodeError):
             return QueryDict(request.body)
+
+    @staticmethod
+    def parse_json_or_post(request):
+        """Parse JSON, falling back to request.POST for legacy form endpoints."""
+        try:
+            data = ApiRequestBodyService.parse_json(request)
+            return data if isinstance(data, dict) else request.POST
+        except (json.JSONDecodeError, UnicodeDecodeError):
+            return request.POST
