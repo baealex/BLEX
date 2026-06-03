@@ -1,18 +1,15 @@
-import json
 from django.shortcuts import get_object_or_404
-from django.http import Http404, QueryDict
+from django.http import Http404
 
 from board.models import Form
 from board.decorators import api_editor_required
 from board.modules.time import convert_to_localtime
 from board.modules.response import StatusDone, StatusError, ErrorCode
+from board.services.api_request_body_service import ApiRequestBodyService
 
 
 @api_editor_required
 def forms_list(request):
-    if not request.user.is_active:
-        return StatusError(ErrorCode.NEED_LOGIN)
-
     if request.method == 'GET':
         forms = Form.objects.filter(user=request.user)
         return StatusDone({
@@ -24,33 +21,29 @@ def forms_list(request):
         })
 
     if request.method == 'POST':
-        try:
-            if request.content_type == 'application/json':
-                data = json.loads(request.body)
-                title = data.get('title', '')
-                content = data.get('content', '')
-            else:
-                title = request.POST.get('title', '')
-                content = request.POST.get('content', '')
-            
-            form = Form(
-                user=request.user,
-                title=title,
-                content=content
+        if request.content_type == 'application/json':
+            data, body_error = ApiRequestBodyService.parse_json_or_error(
+                request,
+                error_code=ErrorCode.INVALID_PARAMETER,
             )
-            form.save()
-            return StatusDone({
-                'id': form.id
-            })
-        except json.JSONDecodeError:
-            return StatusError(ErrorCode.INVALID_PARAMETER)
+            if body_error:
+                return body_error
+        else:
+            data = request.POST
+
+        form = Form(
+            user=request.user,
+            title=data.get('title', ''),
+            content=data.get('content', ''),
+        )
+        form.save()
+        return StatusDone({
+            'id': form.id
+        })
 
 
 @api_editor_required
 def forms_detail(request, id):
-    if not request.user.is_active:
-        return StatusError(ErrorCode.NEED_LOGIN)
-
     if request.method == 'GET':
         form = get_object_or_404(Form, id=id, user=request.user)
         return StatusDone({
@@ -60,23 +53,21 @@ def forms_detail(request, id):
         })
 
     if request.method == 'PUT':
-        try:
-            if request.content_type == 'application/json':
-                data = json.loads(request.body)
-                title = data.get('title', '')
-                content = data.get('content', '')
-            else:
-                body = QueryDict(request.body)
-                title = body.get('title', '')
-                content = body.get('content', '')
-            
-            form = get_object_or_404(Form, id=id, user=request.user)
-            form.title = title
-            form.content = content
-            form.save()
-            return StatusDone()
-        except json.JSONDecodeError:
-            return StatusError(ErrorCode.INVALID_PARAMETER)
+        if request.content_type == 'application/json':
+            data, body_error = ApiRequestBodyService.parse_json_or_error(
+                request,
+                error_code=ErrorCode.INVALID_PARAMETER,
+            )
+            if body_error:
+                return body_error
+        else:
+            data = ApiRequestBodyService.parse_json_or_querydict(request)
+
+        form = get_object_or_404(Form, id=id, user=request.user)
+        form.title = data.get('title', '')
+        form.content = data.get('content', '')
+        form.save()
+        return StatusDone()
 
     if request.method == 'DELETE':
         form = get_object_or_404(Form, id=id, user=request.user)

@@ -1,10 +1,11 @@
 from django.db.models import F
-from django.http import Http404, QueryDict
+from django.http import Http404
 from django.shortcuts import get_object_or_404
 
 from board.models import Comment, Post
 from board.modules.response import StatusDone, StatusError
 from board.modules.paginator import Paginator
+from board.services.api_request_body_service import ApiRequestBodyService
 from board.services.comment_list_service import CommentListService
 from board.services.comment_service import CommentService, CommentValidationError
 from board.services.public_post_service import PublicPostService
@@ -59,7 +60,7 @@ def comment_detail(request, id):
             return StatusError(e.code, e.message)
 
     if request.method == 'PUT':
-        body = QueryDict(request.body)
+        body = ApiRequestBodyService.parse_json_or_querydict(request)
 
         if body.get('like'):
             try:

@@ -1,20 +1,16 @@
-import json
-
 from django.http import Http404
 from django.http.multipartparser import MultiPartParser
 from django.shortcuts import get_object_or_404
 
 from board.models import Post
 from board.decorators import api_editor_required
+from board.services.api_request_body_service import ApiRequestBodyService
 from board.services.post_service import PostService, PostValidationError
-from board.modules.response import StatusDone, StatusError, ErrorCode
+from board.modules.response import StatusDone, StatusError
 
 
 @api_editor_required
 def drafts_list(request):
-    if not request.user.is_active:
-        return StatusError(ErrorCode.NEED_LOGIN)
-
     if request.method == 'GET':
         drafts = PostService.get_user_drafts(request.user)
         return StatusDone({
@@ -32,10 +28,7 @@ def drafts_list(request):
             data = request.POST
             files = request.FILES
         else:
-            try:
-                data = json.loads(request.body)
-            except (ValueError, json.JSONDecodeError):
-                data = request.POST
+            data = ApiRequestBodyService.parse_json_or_post(request)
             files = {}
 
         title = data.get('title', '')
@@ -81,9 +74,6 @@ def drafts_list(request):
 
 @api_editor_required
 def drafts_detail(request, url):
-    if not request.user.is_active:
-        return StatusError(ErrorCode.NEED_LOGIN)
-
     draft = get_object_or_404(
         Post.objects.select_related('content', 'config', 'series').prefetch_related('tags'),
         url=url,
@@ -123,11 +113,7 @@ def drafts_detail(request, url):
             parser = MultiPartParser(request.META, request, request.upload_handlers)
             data, files = parser.parse()
         else:
-            try:
-                data = json.loads(request.body)
-            except (ValueError, json.JSONDecodeError):
-                from django.http import QueryDict
-                data = QueryDict(request.body)
+            data = ApiRequestBodyService.parse_json_or_querydict(request)
             files = {}
 
         image = files.get('image') if files else None

@@ -23,6 +23,7 @@ interface PostsResponseBody {
     posts: Post[];
     username: string;
     lastPage: number;
+    totalCount: number;
 }
 
 export type PostsResponse = Response<PostsResponseBody>;
@@ -32,8 +33,10 @@ export interface PostsFilters {
     tag?: string;
     series?: string;
     hide?: string;
+    visibility?: string;
     sort?: string;
-    page?: number;
+    order?: string;
+    page?: string | number;
 }
 
 export const getPosts = async (filters: PostsFilters = {}) => {

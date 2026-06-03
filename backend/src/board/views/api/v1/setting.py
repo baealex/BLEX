@@ -2,9 +2,8 @@ import json
 
 from django.contrib import auth
 from django.db.models import Count
-from django.http import Http404, QueryDict
+from django.http import Http404
 from django.shortcuts import get_object_or_404
-from django.utils import timezone
 from board.models import (
     User, Series, Post, SiteSetting,
     Profile, Notify)
@@ -13,7 +12,9 @@ from board.modules.response import StatusDone, StatusError, ErrorCode
 from board.modules.time import convert_to_localtime
 from board.services.auth_service import AuthService, AuthValidationError
 from board.services.api_permission_service import ApiPermissionService
+from board.services.api_request_body_service import ApiRequestBodyService
 from board.services.pinned_post_service import PinnedPostService, PinnedPostError
+from board.services.post_status_service import PostStatusService
 from board.services.user_heatmap_service import UserHeatmapService
 from board.services.user_notification_service import UserNotificationService
 from board.services.user_social_link_service import UserSocialLinkService
@@ -41,13 +42,7 @@ POST_MANAGEMENT_ORDERS = {
 
 
 def get_post_management_queryset(user, *, scheduled=False):
-    now = timezone.now()
-    published_date_filter = {
-        'published_date__isnull': False,
-        'published_date__gt' if scheduled else 'published_date__lte': now,
-    }
-
-    return Post.objects.select_related(
+    posts = Post.objects.select_related(
         'config', 'series',
     ).prefetch_related(
         'tags'
@@ -56,8 +51,10 @@ def get_post_management_queryset(user, *, scheduled=False):
         count_comments=Count('comments', distinct=True),
     ).filter(
         author=user,
-        **published_date_filter,
     ).order_by('-published_date')
+    if scheduled:
+        return PostStatusService.filter_scheduled(posts)
+    return PostStatusService.filter_published(posts)
 
 
 def apply_post_management_filters(posts, request):
@@ -94,7 +91,7 @@ def apply_post_management_order(posts, request):
     return posts.order_by(order)
 
 
-def paginate_post_management_posts(posts, request):
+def paginate_post_management_posts(posts, request, total_count):
     try:
         page = int(request.GET.get('page', 1))
     except (TypeError, ValueError):
@@ -103,7 +100,7 @@ def paginate_post_management_posts(posts, request):
     if page < 1:
         raise Http404
 
-    if not posts.exists():
+    if total_count == 0:
         if page > 1:
             raise Http404
         return [], 1
@@ -144,7 +141,8 @@ def get_post_management_response(request, user, *, scheduled=False):
     posts = get_post_management_queryset(user, scheduled=scheduled)
     posts = apply_post_management_filters(posts, request)
     posts = apply_post_management_order(posts, request)
-    page_posts, last_page = paginate_post_management_posts(posts, request)
+    total_count = posts.count()
+    page_posts, last_page = paginate_post_management_posts(posts, request, total_count)
     date_format = '%Y-%m-%d %H:%M' if scheduled else '%Y-%m-%d'
 
     return StatusDone({
@@ -154,6 +152,7 @@ def get_post_management_response(request, user, *, scheduled=False):
             for post in page_posts
         ],
         'last_page': last_page,
+        'total_count': total_count,
     })
 
 
@@ -322,7 +321,7 @@ def setting(request, parameter):
             })
 
         if parameter == 'pinned-posts':
-            delete = QueryDict(request.body)
+            delete = ApiRequestBodyService.parse_json_or_querydict(request)
             post_url = delete.get('post_url', '')
             if not post_url:
                 return StatusError(ErrorCode.INVALID_PARAMETER, '포스트 URL이 필요합니다.')
@@ -334,14 +333,7 @@ def setting(request, parameter):
                 return StatusError(e.code, e.message)
 
     if request.method == 'PUT':
-        # Try to parse JSON first, fallback to QueryDict
-        try:
-            put_data = json.loads(request.body.decode('utf-8')) if request.body else {}
-            put = type('QueryDict', (), {
-                'get': lambda self, key, default='': put_data.get(key, default)
-            })()
-        except (json.JSONDecodeError, UnicodeDecodeError):
-            put = QueryDict(request.body)
+        put = ApiRequestBodyService.parse_json_or_querydict(request)
 
         if parameter == 'notify':
             id = put.get('id')

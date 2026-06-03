@@ -1,11 +1,10 @@
-import json
-
 from django.conf import settings
 from django.http import Http404
 from django.utils import timezone
 
 from board.models import TelegramSync
 from board.modules.response import StatusDone, StatusError, ErrorCode
+from board.services.api_request_body_service import ApiRequestBodyService
 from board.services.site_url_service import SiteUrlService
 from modules.sub_task import SubTaskProcessor
 from modules.telegram import TelegramBot
@@ -15,11 +14,10 @@ from modules.randomness import randstr
 def telegram(request, parameter):
     if parameter == 'webHook':
         if request.method == 'POST':
-            print(request.body.decode("utf-8"))
             bot = TelegramBot(settings.TELEGRAM_BOT_TOKEN)
             req_userid = None
             try:
-                req = json.loads(request.body.decode("utf-8"))
+                req = ApiRequestBodyService.parse_json_or_empty_for_legacy_only(request)
                 req_userid = req['message']['from']['id']
                 req_token = req['message']['text']
 

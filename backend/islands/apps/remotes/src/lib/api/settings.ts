@@ -680,7 +680,9 @@ export const deleteBrandAsset = async (assetType: BrandAssetType, theme: BrandAs
 // Utility API
 export interface UtilityStats {
     totalPosts: number;
+    publicPosts: number;
     publishedPosts: number;
+    scheduledPosts: number;
     hiddenPosts: number;
     draftPosts: number;
     totalComments: number;

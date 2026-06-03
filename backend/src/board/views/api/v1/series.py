@@ -1,5 +1,5 @@
 from django.db.models import F, Q
-from django.http import Http404, QueryDict
+from django.http import Http404
 from django.shortcuts import get_object_or_404
 
 from board.models import User, Post, Series
@@ -17,9 +17,6 @@ from board.modules.response import StatusDone, StatusError, ErrorCode
 @api_editor_required
 def posts_can_add_series(request):
     if request.method == 'GET':
-        if not request.user.is_authenticated:
-            return StatusError(ErrorCode.NEED_LOGIN)
-
         series_id = request.GET.get('series_id')
         if series_id is not None:
             try:
@@ -69,7 +66,7 @@ def user_series(request, username, url=None):
             })
 
         if request.method == 'PUT':
-            body = QueryDict(request.body)
+            body = ApiRequestBodyService.parse_json_or_querydict(request)
             if request.GET.get('kind', '') == 'order':
                 try:
                     items = body.get('series').split(',')

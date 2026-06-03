@@ -1,5 +1,3 @@
-import json
-
 from django.http import Http404
 from django.shortcuts import get_object_or_404
 
@@ -11,15 +9,13 @@ from board.services.developer_token_service import (
     DeveloperAuthError,
     DeveloperTokenService,
 )
+from board.services.api_request_body_service import ApiRequestBodyService
 
 
 class DeveloperTokenAPI:
     @staticmethod
     def json_body(request):
-        try:
-            return json.loads(request.body.decode('utf-8')) if request.body else {}
-        except (json.JSONDecodeError, UnicodeDecodeError):
-            return {}
+        return ApiRequestBodyService.parse_json_or_empty_for_legacy_only(request)
 
     @staticmethod
     def auth_error(error):
