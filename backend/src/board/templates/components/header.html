@@ -10,9 +10,9 @@
             <a href="/" class="flex items-center group flex-shrink-0">
                 <img
                     class="h-6 md:h-7 w-auto transition-opacity duration-150 group-hover:opacity-70"
-                    src="{% resource 'logob.svg' %}"
-                    :src="resolvedTheme === 'dark' ? `{% resource 'logow.svg' %}` : `{% resource 'logob.svg' %}`"
-                    alt="BLEX"
+                    src="{{ site_brand.logo_url }}"
+                    :src="resolvedTheme === 'dark' ? `{{ site_brand.logo_dark_url }}` : `{{ site_brand.logo_url }}`"
+                    alt="{{ site_brand.site_name }}"
                 >
             </a>
 

@@ -7,6 +7,7 @@ from django.utils.html import strip_tags
 from django.utils.text import Truncator
 
 from board.models import Post, Series, StaticPage
+from board.services.brand_asset_service import BrandAssetService
 from board.services.site_url_service import SiteUrlService
 
 
@@ -30,13 +31,13 @@ class DiscoveryMetadataService:
         )
         meta_description = DiscoveryMetadataService.build_meta_description(
             raw_text=series.text_html or series.text_md,
-            fallback=f'{author.username}의 BLEX 시리즈 {series.name}',
+            fallback=f'{author.username}의 {BrandAssetService.site_name()} 시리즈 {series.name}',
         )
 
         return {
             'canonical_url': canonical_url,
             'meta_description': meta_description,
-            'seo_title': f'{series.name} - {author.username} | BLEX',
+            'seo_title': f'{series.name} - {author.username} | {BrandAssetService.site_name()}',
             'structured_data_json': DiscoveryMetadataService.build_series_structured_data(
                 series=series,
                 author=author,
@@ -63,7 +64,7 @@ class DiscoveryMetadataService:
         return {
             'canonical_url': canonical_url,
             'meta_description': meta_description,
-            'seo_title': f'{page.title} - BLEX',
+            'seo_title': f'{page.title} - {BrandAssetService.site_name()}',
             'structured_data_json': DiscoveryMetadataService.build_static_page_structured_data(
                 page=page,
                 request=request,
@@ -235,7 +236,7 @@ class DiscoveryMetadataService:
             },
             'isPartOf': {
                 '@type': 'WebSite',
-                'name': 'BLEX',
+                'name': BrandAssetService.site_name(),
                 'url': site_url,
             },
             'mainEntity': {
@@ -271,7 +272,7 @@ class DiscoveryMetadataService:
             'dateModified': page.updated_date.isoformat(),
             'isPartOf': {
                 '@type': 'WebSite',
-                'name': 'BLEX',
+                'name': BrandAssetService.site_name(),
                 'url': SiteUrlService.absolute_url(request, reverse('index')),
             },
         }

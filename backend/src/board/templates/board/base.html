@@ -60,7 +60,7 @@
             }
         })();
     </script>
-    <title>{% block title %}BLEX{% endblock %}</title>
+    <title>{% block title %}{{ site_brand.site_name }}{% endblock %}</title>
     {% block meta %}{% endblock %}
     {% block robots_meta %}
         {% if site_setting and not site_setting.seo_enabled %}
@@ -84,7 +84,7 @@
     {% endblock %}
     {% block feed_links %}
         {% if site_setting and site_setting.seo_enabled %}
-        <link rel="alternate" type="application/rss+xml" title="BLEX RSS" href="{{ site_rss_feed_url }}">
+        <link rel="alternate" type="application/rss+xml" title="{{ site_brand.site_name }} RSS" href="{{ site_rss_feed_url }}">
         {% if author_rss_feed_url and author_rss_feed_title %}
         <link rel="alternate" type="application/rss+xml" title="{{ author_rss_feed_title }}" href="{{ author_rss_feed_url }}">
         {% endif %}
@@ -92,21 +92,23 @@
     {% endblock %}
     <link rel="stylesheet" href="{% island_css 'styles/tailwind.css' %}">
     <link rel="stylesheet" href="{% island_css 'styles/main.scss' %}">
-    <link rel="icon" href="{% resource 'favicon.ico' %}" />
-    <link rel="apple-touch-icon" sizes="57x57" href="{% resource 'logo57.png' %}" />
-    <link rel="apple-touch-icon" sizes="72x72" href="{% resource 'logo72.png' %}" />
-    <link rel="apple-touch-icon" sizes="76x76" href="{% resource 'logo76.png' %}" />
-    <link rel="apple-touch-icon" sizes="114x114" href="{% resource 'logo114.png' %}" />
-    <link rel="apple-touch-icon" sizes="120x120" href="{% resource 'logo120.png' %}" />
-    <link rel="apple-touch-icon" sizes="144x144" href="{% resource 'logo144.png' %}" />
-    <link rel="apple-touch-icon" sizes="152x152" href="{% resource 'logo152.png' %}" />
-    <link rel="icon" type="image/png" sizes="16x16" href="{% resource 'logo16.png' %}" />
-    <link rel="icon" type="image/png" sizes="32x32" href="{% resource 'logo32.png' %}" />
-    <link rel="icon" type="image/png" sizes="96x96" href="{% resource 'logo96.png' %}" />
-    <link rel="icon" type="image/png" sizes="192x192" href="{% resource 'logo192.png' %}" />
-    <link rel="icon" type="image/png" sizes="512x512" href="{% resource 'logo512.png' %}" />
-    <meta name="application-name" content="BLEX" />
-    <meta name="msapplication-TileImage" content="{% resource 'logo144.png' %}" />
+    <link rel="icon" href="{{ site_brand.favicon_url }}" />
+    <link rel="apple-touch-icon" sizes="57x57" href="{{ site_brand.icon_png_57_url }}" />
+    <link rel="apple-touch-icon" sizes="72x72" href="{{ site_brand.icon_png_72_url }}" />
+    <link rel="apple-touch-icon" sizes="76x76" href="{{ site_brand.icon_png_76_url }}" />
+    <link rel="apple-touch-icon" sizes="114x114" href="{{ site_brand.icon_png_114_url }}" />
+    <link rel="apple-touch-icon" sizes="120x120" href="{{ site_brand.icon_png_120_url }}" />
+    <link rel="apple-touch-icon" sizes="144x144" href="{{ site_brand.icon_png_144_url }}" />
+    <link rel="apple-touch-icon" sizes="152x152" href="{{ site_brand.icon_png_152_url }}" />
+    <link rel="icon" type="image/png" sizes="16x16" href="{{ site_brand.icon_png_16_url }}" />
+    <link rel="icon" type="image/png" sizes="32x32" href="{{ site_brand.icon_png_32_url }}" />
+    <link rel="icon" type="image/png" sizes="96x96" href="{{ site_brand.icon_png_96_url }}" />
+    <link rel="icon" type="image/png" sizes="128x128" href="{{ site_brand.icon_png_128_url }}" />
+    <link rel="icon" type="image/png" sizes="192x192" href="{{ site_brand.icon_png_192_url }}" />
+    <link rel="icon" type="image/png" sizes="256x256" href="{{ site_brand.icon_png_256_url }}" />
+    <link rel="icon" type="image/png" sizes="512x512" href="{{ site_brand.icon_png_512_url }}" />
+    <meta name="application-name" content="{{ site_brand.site_name }}" />
+    <meta name="msapplication-TileImage" content="{{ site_brand.icon_png_144_url }}" />
     <meta name="msapplication-TileColor" content="#000" />
     {% block extra_styles %}{% endblock %}
     {% include 'custom/custom_head.html' %}

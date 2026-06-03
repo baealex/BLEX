@@ -2,6 +2,7 @@ from django.conf import settings
 from django.urls import reverse
 
 from board.models import SiteSetting, SiteNotice, SiteContentScope, StaticPage
+from board.services.brand_asset_service import BrandAssetService
 from board.services.site_url_service import SiteUrlService
 
 
@@ -19,8 +20,10 @@ def site_settings(request):
     """
     Add site-wide settings to template context
     """
+    setting = SiteSetting.get_instance()
     return {
-        'site_setting': SiteSetting.get_instance(),
+        'site_setting': setting,
+        'site_brand': BrandAssetService.public_context(setting),
         'site_rss_feed_url': SiteUrlService.absolute_url(request, reverse('site_rss_feed')),
     }
 

@@ -7,6 +7,7 @@ from django.urls import reverse
 
 from board.models import Post
 from board.modules.time import convert_to_localtime
+from board.services.brand_asset_service import BrandAssetService
 from board.services.public_post_service import PublicPostService
 
 
@@ -29,9 +30,13 @@ class ImageRssFeedGenerator(Rss201rev2Feed):
 class SitePostsFeed(Feed):
     feed_type = CorrectMimeTypeFeed
 
-    title = 'BLEX'
     link = '/'
-    description = 'BLOG EXPRESS ME'
+
+    def title(self, obj=None):
+        return BrandAssetService.site_name()
+
+    def description(self, obj=None):
+        return BrandAssetService.site_description()
 
     def items(self):
         posts = PublicPostService.filter_public_posts(

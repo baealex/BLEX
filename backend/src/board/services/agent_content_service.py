@@ -9,6 +9,7 @@ from django.http import Http404, HttpRequest
 from django.urls import reverse
 
 from board.models import Post, Series, SiteSetting, StaticPage
+from board.services.brand_asset_service import BrandAssetService
 from board.services.public_post_service import PublicPostService
 from board.services.public_series_service import PublicSeriesService
 from board.services.site_url_service import SiteUrlService
@@ -119,10 +120,12 @@ class AgentContentService:
     @staticmethod
     def build_llms_txt(request: HttpRequest) -> str:
         public_origin = SiteUrlService.public_origin(request)
+        site_name = BrandAssetService.site_name()
+        site_description = BrandAssetService.site_description()
         lines = [
-            '# BLEX',
+            f'# {site_name}',
             '',
-            '> BLEX is a publishing site.',
+            f'> {site_description}.',
             '',
             '## Discovery',
             '',

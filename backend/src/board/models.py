@@ -833,6 +833,19 @@ class SiteSetting(models.Model):
     footer_script = models.TextField(blank=True,
                                       help_text='</body> 태그 전에 삽입될 스크립트')
 
+    # Brand identity settings
+    site_name = models.CharField(
+        max_length=80,
+        blank=True,
+        default='BLEX',
+        help_text='사이트 공식 이름'
+    )
+    logo_svg = models.FileField(upload_to='brand/logo/default/', blank=True)
+    logo_svg_dark = models.FileField(upload_to='brand/logo/dark/', blank=True)
+    icon_svg = models.FileField(upload_to='brand/icon/default/', blank=True)
+    icon_svg_dark = models.FileField(upload_to='brand/icon/dark/', blank=True)
+    icon_manifest = models.JSONField(blank=True, default=dict)
+
     # Welcome notification settings
     welcome_notification_message = models.TextField(
         blank=True,

@@ -457,6 +457,18 @@ class AgentContentTestCase(TestCase):
         self.assertIn('`http://localhost:8000/@{username}/series/{series_url}.md`', body)
         self.assertIn('`http://localhost:8000/static/{slug}.md`', body)
 
+    def test_llms_txt_uses_configured_site_name(self):
+        setting = SiteSetting.get_instance()
+        setting.site_name = 'Custom Blog'
+        setting.save(update_fields=['site_name'])
+
+        response = self.client.get('/llms.txt')
+
+        self.assertEqual(response.status_code, 200)
+        body = response.content.decode()
+        self.assertIn('# Custom Blog', body)
+        self.assertIn('> Custom Blog recent public posts.', body)
+
     @override_settings(SITE_URL='https://blex.example')
     def test_llms_txt_uses_configured_site_url(self):
         """/llms.txt는 configured SITE_URL origin으로 discovery URL을 만든다."""
