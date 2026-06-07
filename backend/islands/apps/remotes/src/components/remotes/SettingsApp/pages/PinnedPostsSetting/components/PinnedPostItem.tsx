@@ -1,13 +1,13 @@
 import { useSortable } from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
 import {
+    Button,
     TITLE,
     SUBTITLE,
-    Dropdown,
     getIconClass
 } from '~/components/shared';
 import { SettingsListItem } from '../../../components';
 import { getMediaPath } from '~/modules/static.module';
-import { useConfirm } from '~/hooks/useConfirm';
 import type { PinnedPostData } from '~/lib/api/settings';
 
 interface PinnedPostItemProps {
@@ -21,35 +21,29 @@ export const PinnedPostItem = ({
     username,
     onRemove
 }: PinnedPostItemProps) => {
-    const { confirm } = useConfirm();
     const {
         attributes,
         listeners,
         setNodeRef,
+        transform,
         transition,
         isDragging
     } = useSortable({ id: pinnedPost.post.url });
 
     const style = {
+        transform: CSS.Transform.toString(transform),
         transition,
-        opacity: isDragging ? 0.5 : 1
+        opacity: isDragging ? 0.5 : 1,
+        position: 'relative' as const,
+        zIndex: isDragging ? 999 : 1
     };
 
     const handleView = () => {
         window.location.assign(`/@${username}/${pinnedPost.post.url}`);
     };
 
-    const handleRemove = async () => {
-        const confirmed = await confirm({
-            title: '포스트 고정 해제',
-            message: `"${pinnedPost.post.title}" 포스트 고정을 해제하시겠습니까?`,
-            confirmText: '해제',
-            variant: 'danger'
-        });
-
-        if (confirmed) {
-            onRemove(pinnedPost.post.url);
-        }
+    const handleRemove = () => {
+        onRemove(pinnedPost.post.url);
     };
 
     return (
@@ -76,15 +70,12 @@ export const PinnedPostItem = ({
                     )
                 }
                 actions={
-                    <Dropdown
-                        items={[
-                            {
-                                label: '고정 해제',
-                                icon: 'fas fa-thumbtack',
-                                onClick: handleRemove
-                            }
-                        ]}
-                    />
+                    <Button
+                        variant="secondary"
+                        size="sm"
+                        onClick={handleRemove}>
+                        해제
+                    </Button>
                 }>
                 <h3 className={`${TITLE} mb-1 truncate text-content`}>{pinnedPost.post.title}</h3>
                 <div className={`${SUBTITLE} text-xs flex items-center gap-2`}>

@@ -8,7 +8,14 @@ from board.views.api.developer.v1.api import api as developer_api_v1
 from board.views import agent
 from board.views import main
 from board.views.post_actions import like_post
-from board.views.author import author_posts, author_series, author_about, author_about_edit, author_overview
+from board.views.author import (
+    author_about,
+    author_about_edit,
+    author_featured_posts_partial,
+    author_overview,
+    author_posts,
+    author_series,
+)
 from board.views.post import post_detail, post_editor
 from board.views.series import series_detail
 from board.views.search import search_page
@@ -58,6 +65,11 @@ urlpatterns = [
     path('@<username>/series', author_series, name='user_series'),
     path('@<username>/about', author_about, name='user_about'),
     path('@<username>/about/edit', author_about_edit, name='user_about_edit'),
+    path(
+        '@<username>/partials/featured-posts',
+        author_featured_posts_partial,
+        name='user_featured_posts_partial',
+    ),
     path('@<username>/series/<series_url>.md', agent.series_markdown, name='series_markdown'),
     path('@<username>/series/<series_url>', series_detail, name='series_detail'),
     path('@<username>/posts', author_posts, name='user_posts'),

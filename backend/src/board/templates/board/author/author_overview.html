@@ -29,67 +29,7 @@
             {% include 'board/author/components/readme_section.html' %}
 
             <!-- Featured Posts Section -->
-            {% if featured_posts_section.posts or request.user == author %}
-            <section>
-                <div class="mb-4 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
-                    <div>
-                        <p class="mb-2 text-xs font-bold uppercase tracking-[0.18em] text-content-hint">Posts</p>
-                        <h2 class="text-2xl font-bold text-content">{{ featured_posts_section.title }}</h2>
-                    </div>
-                    {% if request.user == author %}
-                    {% island_component 'PinnedPostQuickAction' %}
-                    {% endif %}
-                </div>
-
-                {% if featured_posts_section.posts %}
-                <div class="grid grid-cols-1 gap-5 sm:grid-cols-2">
-                    {% for post in featured_posts_section.posts %}
-                    <a href="/@{{ post.author }}/{{ post.url }}" class="group block h-full">
-                        <article class="flex h-full flex-col overflow-hidden rounded-2xl bg-surface ring-1 ring-line/60 transition-all duration-150 hover:ring-line-strong/70 active:scale-[0.99]">
-                            <div class="overflow-hidden bg-surface-subtle aspect-[16/9]">
-                                {% if post.image %}
-                                    <img
-                                        src="{% resource 'media/'|add:post.image %}"
-                                        alt="{{ post.title }}"
-                                        class="h-full w-full object-cover motion-safe:transition-transform motion-safe:duration-500 motion-safe:group-hover:scale-[1.03]">
-                                {% else %}
-                                    <img
-                                        src="{% resource post.default_cover_path %}"
-                                        alt="{{ post.title }}"
-                                        class="h-full w-full object-cover motion-safe:transition-transform motion-safe:duration-500 motion-safe:group-hover:scale-[1.03]">
-                                {% endif %}
-                            </div>
-                            <div class="flex flex-1 flex-col p-5">
-                                <h3 class="line-clamp-2 text-md font-bold leading-snug text-content transition-colors group-hover:text-content-secondary">
-                                    {{ post.title }}
-                                </h3>
-                                <div class="mt-auto flex items-center gap-3 pt-4 text-xs text-content-hint">
-                                    <time class="flex items-center gap-1.5">
-                                        <i class="far fa-calendar text-xs"></i>
-                                        {{ post.published_date|date:"Y년 n월 j일" }}
-                                    </time>
-                                    <span class="h-1 w-1 rounded-full bg-content-hint/70"></span>
-                                    <span class="flex items-center gap-1.5">
-                                        <i class="far fa-clock text-xs"></i>
-                                        {{ post.read_time }}분
-                                    </span>
-                                </div>
-                            </div>
-                        </article>
-                    </a>
-                    {% endfor %}
-                </div>
-                {% elif request.user == author %}
-                <div class="rounded-2xl border border-dashed border-line bg-surface px-6 py-8 text-center">
-                    <p class="text-sm font-semibold text-content">아직 공개된 포스트가 없습니다.</p>
-                    <p class="mt-1 text-sm text-content-secondary">첫 포스트를 발행하면 이 영역에 표시됩니다.</p>
-                    <a href="/write" class="mt-4 inline-flex items-center justify-center rounded-lg bg-action px-4 py-2 text-sm font-semibold text-content-inverted transition-colors hover:bg-action-hover">
-                        포스트 작성하기
-                    </a>
-                </div>
-                {% endif %}
-            </section>
-            {% endif %}
+            {% include 'board/author/components/featured_posts_section.html' %}
 
             {% with is_editor_view=True %}
                 {% include 'board/author/components/activity_section.html' %}

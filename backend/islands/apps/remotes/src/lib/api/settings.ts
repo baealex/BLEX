@@ -322,12 +322,29 @@ export interface PinnablePostData {
     createdDate: string;
 }
 
+export interface PinnablePostsPaginationData {
+    page: number;
+    limit: number;
+    lastPage: number;
+    totalCount: number;
+    hasNext: boolean;
+    hasPrevious: boolean;
+}
+
 export const getPinnedPosts = async () => {
     return http.get<Response<{ pinnedPosts: PinnedPostData[]; username: string; maxCount: number }>>('v1/setting/pinned-posts');
 };
 
-export const getPinnablePosts = async () => {
-    return http.get<Response<{ posts: PinnablePostData[] }>>('v1/setting/pinnable-posts');
+export const getPinnablePosts = async (
+    options: { query?: string; limit?: number; page?: number } = {}
+) => {
+    return http.get<Response<{ posts: PinnablePostData[] } & PinnablePostsPaginationData>>('v1/setting/pinnable-posts', {
+        params: {
+            q: options.query || undefined,
+            limit: options.limit,
+            page: options.page
+        }
+    });
 };
 
 export const addPinnedPost = async (postUrl: string) => {

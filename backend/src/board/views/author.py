@@ -4,8 +4,9 @@ from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
 from django.db.models import Count, Q
 from django.shortcuts import render, get_object_or_404, redirect
-from django.http import JsonResponse
+from django.http import HttpResponse, JsonResponse
 from django.urls import reverse
+from django.views.decorators.http import require_GET
 
 from board.modules.paginator import Paginator
 from board.modules.time import time_since
@@ -15,6 +16,12 @@ from board.services.discovery_metadata_service import DiscoveryMetadataService
 from board.services.public_post_service import PublicPostService
 from board.services.public_series_service import PublicSeriesService
 from board.models import Comment, Post, Series, PostLikes, Tag, Profile, SiteNotice, SiteContentScope
+
+
+def apply_partial_response_headers(response):
+    response['Cache-Control'] = 'no-store'
+    response['X-Robots-Tag'] = 'noindex'
+    return response
 
 
 def author_overview(request, username):
@@ -85,6 +92,30 @@ def author_overview(request, username):
             'author_activity_props': json.dumps({'username': author.username})
         }
         return render(request, 'board/author/author_overview.html', context)
+
+
+@require_GET
+def author_featured_posts_partial(request, username):
+    """
+    Render only the author's featured posts section for server-side partial refresh.
+    """
+    author = get_object_or_404(User.objects.select_related('profile'), username=username)
+
+    if not AuthoringPermissionService.is_active_editor(author):
+        return apply_partial_response_headers(HttpResponse('', status=204))
+
+    featured_posts_section = UserService.get_user_profile_featured_posts(author)
+
+    response = render(
+        request,
+        'board/author/components/featured_posts_section.html',
+        {
+            'author': author,
+            'featured_posts_section': featured_posts_section,
+            'pinned_posts': featured_posts_section['posts'],
+        },
+    )
+    return apply_partial_response_headers(response)
 
 
 def author_about(request, username):

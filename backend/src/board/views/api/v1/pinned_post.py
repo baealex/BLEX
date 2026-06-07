@@ -95,7 +95,7 @@ def pinnable_posts(request, username):
     """
     Get posts that can be pinned by the user.
 
-    GET: Get all pinnable posts (non-hidden, not already pinned)
+    GET: Get recent/searchable pinnable posts (non-hidden, not already pinned)
     """
     user = get_object_or_404(User, username=username)
 
@@ -104,9 +104,15 @@ def pinnable_posts(request, username):
         return permission_error
 
     if request.method == 'GET':
-        posts = PinnedPostService.get_pinnable_posts(user)
-        return StatusDone({
-            'posts': posts,
-        })
+        try:
+            pinnable_posts = PinnedPostService.get_pinnable_posts(
+                user,
+                query=request.GET.get('q', ''),
+                limit=request.GET.get('limit'),
+                page=request.GET.get('page'),
+            )
+            return StatusDone(pinnable_posts)
+        except PinnedPostError as e:
+            return StatusError(e.code, e.message)
 
     raise Http404

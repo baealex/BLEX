@@ -75,7 +75,7 @@ export const PinnedPostList = ({
             <SortableContext
                 items={pinnedPosts.map((item) => item.post.url)}
                 strategy={verticalListSortingStrategy}>
-                <div className="space-y-3">
+                <div>
                     {pinnedPosts.map((item) => (
                         <PinnedPostItem
                             key={item.post.url}
