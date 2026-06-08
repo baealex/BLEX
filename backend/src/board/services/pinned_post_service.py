@@ -5,7 +5,9 @@ Business logic for managing user's pinned posts on their profile.
 Users can pin up to 6 posts to showcase on their profile page.
 """
 
-from typing import List, Dict, Any
+import math
+
+from typing import List, Dict, Any, Optional, Tuple, Union
 
 from django.contrib.auth.models import User
 from django.db import transaction
@@ -29,6 +31,9 @@ class PinnedPostService:
     """Service class for handling pinned post operations"""
 
     MAX_PINNED_POSTS = 6
+    DEFAULT_PINNABLE_POSTS_LIMIT = 30
+    MAX_PINNABLE_POSTS_LIMIT = 100
+    MAX_PINNABLE_SEARCH_QUERY_LENGTH = 100
 
     @staticmethod
     def _is_published_post(post: Post) -> bool:
@@ -42,6 +47,44 @@ class PinnedPostService:
                 ErrorCode.REJECT,
                 '작가 권한이 필요합니다.',
             )
+
+    @staticmethod
+    def normalize_pinnable_post_filters(
+        query: Optional[str] = '',
+        limit: Optional[Union[int, str]] = None,
+        page: Optional[Union[int, str]] = None,
+    ) -> Tuple[str, Optional[int], int, bool]:
+        normalized_query = (query or '').strip()[:PinnedPostService.MAX_PINNABLE_SEARCH_QUERY_LENGTH]
+        has_pagination = limit is not None or page is not None
+
+        if has_pagination:
+            try:
+                normalized_limit = int(limit) if limit is not None else PinnedPostService.DEFAULT_PINNABLE_POSTS_LIMIT
+            except (TypeError, ValueError):
+                normalized_limit = PinnedPostService.DEFAULT_PINNABLE_POSTS_LIMIT
+
+            normalized_limit = max(
+                1,
+                min(normalized_limit, PinnedPostService.MAX_PINNABLE_POSTS_LIMIT),
+            )
+        else:
+            normalized_limit = None
+
+        try:
+            normalized_page = int(page) if page is not None else 1
+        except (TypeError, ValueError):
+            raise PinnedPostError(
+                ErrorCode.INVALID_PARAMETER,
+                '잘못된 페이지입니다.',
+            )
+
+        if normalized_page < 1:
+            raise PinnedPostError(
+                ErrorCode.INVALID_PARAMETER,
+                '잘못된 페이지입니다.',
+            )
+
+        return normalized_query, normalized_limit, normalized_page, has_pagination
 
     @staticmethod
     def get_user_pinned_posts(user: User) -> List[Dict[str, Any]]:
@@ -73,18 +116,31 @@ class PinnedPostService:
         } for pinned in pinned_posts]
 
     @staticmethod
-    def get_pinnable_posts(user: User) -> List[Dict[str, Any]]:
+    def get_pinnable_posts(
+        user: User,
+        query: Optional[str] = '',
+        limit: Optional[Union[int, str]] = None,
+        page: Optional[Union[int, str]] = None,
+    ) -> Dict[str, Any]:
         """
         Get all posts that can be pinned by the user.
         Excludes hidden posts and already pinned posts.
 
         Args:
             user: User instance
+            query: Optional post title search query
+            limit: Maximum number of posts to return
+            page: Page number to return
 
         Returns:
-            List of pinnable post dictionaries
+            Paginated pinnable post dictionaries
         """
         PinnedPostService.validate_user_permissions(user)
+        query, limit, page, has_pagination = PinnedPostService.normalize_pinnable_post_filters(
+            query,
+            limit,
+            page,
+        )
 
         pinned_post_ids = PinnedPost.objects.filter(
             user=user
@@ -94,14 +150,47 @@ class PinnedPostService:
             Post.objects.filter(author=user)
         ).exclude(
             id__in=pinned_post_ids
-        ).order_by('-published_date')
+        ).order_by('-published_date', '-id')
 
-        return [{
-            'url': post.url,
-            'title': post.title,
-            'image': str(post.image) if post.image else None,
-            'created_date': post.published_date.strftime('%Y-%m-%d') if post.published_date else '',
-        } for post in posts]
+        if query:
+            posts = posts.filter(title__icontains=query)
+
+        total_count = posts.count()
+        if not has_pagination:
+            return {
+                'posts': [{
+                    'url': post.url,
+                    'title': post.title,
+                    'image': str(post.image) if post.image else None,
+                    'created_date': post.published_date.strftime('%Y-%m-%d') if post.published_date else '',
+                } for post in posts],
+                'page': 1,
+                'limit': total_count,
+                'last_page': 1,
+                'total_count': total_count,
+                'has_next': False,
+                'has_previous': False,
+            }
+
+        last_page = max(1, math.ceil(total_count / limit))
+        page = min(page, last_page)
+        offset = (page - 1) * limit
+        page_posts = posts[offset:offset + limit]
+
+        return {
+            'posts': [{
+                'url': post.url,
+                'title': post.title,
+                'image': str(post.image) if post.image else None,
+                'created_date': post.published_date.strftime('%Y-%m-%d') if post.published_date else '',
+            } for post in page_posts],
+            'page': page,
+            'limit': limit,
+            'last_page': last_page,
+            'total_count': total_count,
+            'has_next': page < last_page,
+            'has_previous': page > 1,
+        }
 
     @staticmethod
     @transaction.atomic

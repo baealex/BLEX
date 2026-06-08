@@ -381,6 +381,87 @@ class PinnedPostAPITestCase(TestCase):
         self.assertNotIn('draft-post', urls)  # Draft
         self.assertIn('test-post-1', urls)
 
+    def test_get_pinnable_posts_supports_limit(self):
+        """고정 가능한 글 목록은 limit 개수만 반환"""
+        self.client.login(username='testuser', password='testpass')
+
+        response = self.client.get('/v1/users/@testuser/pinnable-posts?limit=3')
+        self.assertEqual(response.status_code, 200)
+        content = json.loads(response.content)
+        self.assertEqual(content['status'], 'DONE')
+        self.assertEqual(len(content['body']['posts']), 3)
+        self.assertEqual(content['body']['limit'], 3)
+        self.assertEqual(content['body']['totalCount'], 8)
+        self.assertEqual(content['body']['lastPage'], 3)
+
+    def test_get_pinnable_posts_without_limit_returns_all_posts(self):
+        """limit 없는 고정 가능 글 목록은 기존처럼 전체 글을 반환"""
+        for index in range(31):
+            post = Post.objects.create(
+                author=self.user,
+                title=f'Compatibility Post {index}',
+                url=f'compatibility-post-{index}',
+                published_date=timezone.now(),
+            )
+            PostContent.objects.create(post=post, content_html='')
+            PostConfig.objects.create(post=post)
+
+        self.client.login(username='testuser', password='testpass')
+
+        response = self.client.get('/v1/users/@testuser/pinnable-posts')
+        self.assertEqual(response.status_code, 200)
+        content = json.loads(response.content)
+        self.assertEqual(content['status'], 'DONE')
+
+        self.assertEqual(len(content['body']['posts']), 39)
+        self.assertEqual(content['body']['totalCount'], 39)
+        self.assertFalse(content['body']['hasNext'])
+
+    def test_get_pinnable_posts_supports_title_search(self):
+        """고정 가능한 글 목록은 제목 검색을 지원"""
+        self.client.login(username='testuser', password='testpass')
+
+        response = self.client.get('/v1/users/@testuser/pinnable-posts?q=Post%201')
+        self.assertEqual(response.status_code, 200)
+        content = json.loads(response.content)
+        self.assertEqual(content['status'], 'DONE')
+
+        urls = [p['url'] for p in content['body']['posts']]
+        self.assertEqual(urls, ['test-post-1'])
+
+    def test_get_pinnable_posts_supports_page(self):
+        """고정 가능한 글 목록은 페이지 이동을 지원"""
+        self.client.login(username='testuser', password='testpass')
+
+        first_response = self.client.get('/v1/users/@testuser/pinnable-posts?limit=3&page=1')
+        second_response = self.client.get('/v1/users/@testuser/pinnable-posts?limit=3&page=2')
+
+        self.assertEqual(first_response.status_code, 200)
+        self.assertEqual(second_response.status_code, 200)
+        first_content = json.loads(first_response.content)
+        second_content = json.loads(second_response.content)
+        first_urls = [post['url'] for post in first_content['body']['posts']]
+        second_urls = [post['url'] for post in second_content['body']['posts']]
+
+        self.assertEqual(second_content['body']['page'], 2)
+        self.assertEqual(second_content['body']['limit'], 3)
+        self.assertEqual(second_content['body']['lastPage'], 3)
+        self.assertTrue(second_content['body']['hasPrevious'])
+        self.assertTrue(second_content['body']['hasNext'])
+        self.assertEqual(len(second_urls), 3)
+        self.assertTrue(set(first_urls).isdisjoint(second_urls))
+
+    def test_get_pinnable_posts_rejects_invalid_page(self):
+        """고정 가능한 글 목록은 잘못된 page를 거부"""
+        self.client.login(username='testuser', password='testpass')
+
+        response = self.client.get('/v1/users/@testuser/pinnable-posts?limit=3&page=abc')
+
+        self.assertEqual(response.status_code, 200)
+        content = json.loads(response.content)
+        self.assertEqual(content['status'], 'ERROR')
+        self.assertEqual(content['errorCode'], 'error:IP')
+
     def test_get_pinnable_posts_requires_login(self):
         """고정 가능한 글 목록은 로그인 필요"""
         response = self.client.get('/v1/users/@testuser/pinnable-posts')

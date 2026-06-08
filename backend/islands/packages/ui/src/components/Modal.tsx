@@ -136,28 +136,23 @@ const ModalRoot = ({
                 <Dialog.Content
                     className={cx(
                         // Base styles
-                        `fixed z-[61] bg-surface-elevated shadow-2xl ${INTERACTION_DURATION} focus:outline-none flex flex-col`,
-                        'max-h-[85vh] overflow-y-auto',
+                        `fixed z-[61] flex max-h-[85vh] flex-col overflow-y-auto bg-surface-elevated shadow-2xl ${INTERACTION_DURATION} focus:outline-none`,
+
+                        // Mobile: Bottom Sheet
+                        'bottom-0 left-0 w-full translate-x-0 translate-y-0 rounded-t-2xl rounded-b-none',
+
+                        // Desktop: Centered Modal
+                        'sm:bottom-auto sm:left-[50%] sm:top-[50%] sm:w-full',
+                        'sm:translate-x-[-50%] sm:translate-y-[-50%] sm:rounded-2xl',
+                        getMaxWidthClass(),
 
                         // Animations
                         'data-[state=open]:animate-in data-[state=closed]:animate-out',
                         'data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0',
-
-                        // Mobile: Bottom Sheet
-                        'bottom-0 left-0 w-full',
-                        'translate-x-0 translate-y-0',
-                        'rounded-t-2xl rounded-b-none',
-                        'data-[state=closed]:slide-out-to-bottom hover:data-[state=closed]:slide-out-to-bottom',
-                        'data-[state=open]:slide-in-from-bottom',
-
-                        // Desktop: Centered Modal
-                        'sm:top-[50%] sm:left-[50%] sm:bottom-auto',
-                        'sm:w-full',
-                        getMaxWidthClass(),
-                        'sm:translate-x-[-50%] sm:translate-y-[-50%]',
-                        'sm:rounded-2xl',
-                        'sm:data-[state=closed]:slide-out-to-bottom-[48%]',
-                        'sm:data-[state=open]:slide-in-from-bottom-[48%]'
+                        'motion-safe:max-sm:data-[state=closed]:slide-out-to-bottom motion-safe:max-sm:data-[state=open]:slide-in-from-bottom',
+                        'motion-safe:sm:data-[state=closed]:zoom-out-95 motion-safe:sm:data-[state=open]:zoom-in-95',
+                        'motion-reduce:data-[state=open]:animate-none motion-reduce:data-[state=closed]:animate-none motion-reduce:transition-none',
+                        'duration-150 motion-reduce:duration-0'
                     )}>
 
                     {!title && (

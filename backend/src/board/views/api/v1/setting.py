@@ -275,10 +275,16 @@ def setting(request, parameter):
             })
 
         if parameter == 'pinnable-posts':
-            posts = PinnedPostService.get_pinnable_posts(user)
-            return StatusDone({
-                'posts': posts,
-            })
+            try:
+                pinnable_posts = PinnedPostService.get_pinnable_posts(
+                    user,
+                    query=request.GET.get('q', ''),
+                    limit=request.GET.get('limit'),
+                    page=request.GET.get('page'),
+                )
+                return StatusDone(pinnable_posts)
+            except PinnedPostError as e:
+                return StatusError(e.code, e.message)
 
     if request.method == 'POST':
         if parameter == 'avatar':
@@ -408,11 +414,11 @@ def setting(request, parameter):
             return StatusDone(UserSocialLinkService.update_user_social_links(user, put))
 
         if parameter == 'pinned-posts/order':
-            post_urls_str = put.get('post_urls', '[]')
+            post_urls_data = put.get('post_urls', '[]')
 
             try:
-                post_urls = json.loads(post_urls_str)
-            except json.JSONDecodeError:
+                post_urls = json.loads(post_urls_data) if isinstance(post_urls_data, str) else post_urls_data
+            except (TypeError, json.JSONDecodeError):
                 return StatusError(ErrorCode.INVALID_PARAMETER, '잘못된 형식입니다.')
 
             if not isinstance(post_urls, list):

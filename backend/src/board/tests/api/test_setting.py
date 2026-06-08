@@ -8,7 +8,7 @@ from django.utils import timezone
 from board.constants.config_meta import CONFIG_TYPE
 from board.models import (
     Comment, Config, Notify, Post, PostConfig, PostContent,
-    PostLikes, Profile, User, UserLinkMeta
+    PinnedPost, PostLikes, Profile, User, UserLinkMeta
 )
 
 
@@ -60,6 +60,93 @@ class SettingTestCase(TestCase):
         content = json.loads(response.content)
         self.assertEqual(len(content['body']['notify']), 2)
         self.assertEqual(content['body']['isTelegramSync'], False)
+
+    def test_get_setting_pinnable_posts_supports_limit(self):
+        """설정 고정 가능 포스트 목록은 limit 개수만 반환"""
+        user = User.objects.get(username='test')
+        posts = []
+        for index in range(4):
+            post = Post.objects.create(
+                author=user,
+                title=f'Setting Pinnable Post {index}',
+                url=f'setting-pinnable-post-{index}',
+                published_date=timezone.now(),
+            )
+            PostContent.objects.create(post=post, content_html='')
+            PostConfig.objects.create(post=post)
+            posts.append(post)
+        PinnedPost.objects.create(user=user, post=posts[0], order=0)
+
+        self.client.login(username='test', password='test')
+        response = self.client.get('/v1/setting/pinnable-posts?limit=2')
+
+        self.assertEqual(response.status_code, 200)
+        content = json.loads(response.content)
+        self.assertEqual(content['status'], 'DONE')
+        urls = [post['url'] for post in content['body']['posts']]
+        self.assertEqual(len(urls), 2)
+        self.assertNotIn('setting-pinnable-post-0', urls)
+        self.assertEqual(content['body']['limit'], 2)
+        self.assertEqual(content['body']['totalCount'], 3)
+        self.assertEqual(content['body']['lastPage'], 2)
+
+    def test_get_setting_pinnable_posts_supports_title_search(self):
+        """설정 고정 가능 포스트 목록은 제목 검색을 지원"""
+        user = User.objects.get(username='test')
+        for title, url in [
+            ('Needle Setting Post', 'needle-setting-post'),
+            ('Regular Setting Post', 'regular-setting-post'),
+        ]:
+            post = Post.objects.create(
+                author=user,
+                title=title,
+                url=url,
+                published_date=timezone.now(),
+            )
+            PostContent.objects.create(post=post, content_html='')
+            PostConfig.objects.create(post=post)
+
+        self.client.login(username='test', password='test')
+        response = self.client.get('/v1/setting/pinnable-posts?q=Needle')
+
+        self.assertEqual(response.status_code, 200)
+        content = json.loads(response.content)
+        self.assertEqual(content['status'], 'DONE')
+        urls = [post['url'] for post in content['body']['posts']]
+        self.assertEqual(urls, ['needle-setting-post'])
+
+    def test_get_setting_pinnable_posts_supports_page(self):
+        """설정 고정 가능 포스트 목록은 페이지 이동을 지원"""
+        user = User.objects.get(username='test')
+        for index in range(5):
+            post = Post.objects.create(
+                author=user,
+                title=f'Setting Page Post {index}',
+                url=f'setting-page-post-{index}',
+                published_date=timezone.now(),
+            )
+            PostContent.objects.create(post=post, content_html='')
+            PostConfig.objects.create(post=post)
+
+        self.client.login(username='test', password='test')
+        first_response = self.client.get('/v1/setting/pinnable-posts?limit=2&page=1')
+        second_response = self.client.get('/v1/setting/pinnable-posts?limit=2&page=2')
+
+        self.assertEqual(first_response.status_code, 200)
+        self.assertEqual(second_response.status_code, 200)
+        first_content = json.loads(first_response.content)
+        second_content = json.loads(second_response.content)
+        first_urls = [post['url'] for post in first_content['body']['posts']]
+        second_urls = [post['url'] for post in second_content['body']['posts']]
+
+        self.assertEqual(second_content['body']['page'], 2)
+        self.assertEqual(second_content['body']['limit'], 2)
+        self.assertEqual(second_content['body']['lastPage'], 3)
+        self.assertEqual(second_content['body']['totalCount'], 5)
+        self.assertTrue(second_content['body']['hasPrevious'])
+        self.assertTrue(second_content['body']['hasNext'])
+        self.assertEqual(len(second_urls), 2)
+        self.assertTrue(set(first_urls).isdisjoint(second_urls))
 
     def test_update_setting_notify_marks_as_read(self):
         """알림 읽음 처리 테스트"""

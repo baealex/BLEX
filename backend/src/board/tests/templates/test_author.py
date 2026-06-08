@@ -303,6 +303,85 @@ class AuthorPostsPageTestCase(TestCase):
         self.assertContains(owner_response, 'PinnedPostQuickAction')
         self.assertNotContains(owner_response, '/settings/posts?section=pinned')
 
+    def test_author_featured_posts_partial_renders_section_only(self):
+        """대표 포스트 partial은 전체 페이지가 아니라 해당 섹션만 렌더링한다."""
+        partial_url = reverse(
+            'user_featured_posts_partial',
+            kwargs={'username': self.user.username},
+        )
+
+        response = self.client.get(partial_url)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(
+            response,
+            'board/author/components/featured_posts_section.html',
+        )
+        self.assertEqual(response['Cache-Control'], 'no-store')
+        self.assertEqual(response['X-Robots-Tag'], 'noindex')
+        self.assertContains(response, 'data-featured-posts-section')
+        self.assertContains(response, 'Author Test Post')
+        self.assertNotContains(response, '<html')
+
+    def test_author_featured_posts_partial_action_is_owner_only(self):
+        """대표 포스트 partial의 고정 설정 액션은 작성자 본인에게만 노출한다."""
+        partial_url = reverse(
+            'user_featured_posts_partial',
+            kwargs={'username': self.user.username},
+        )
+
+        visitor_response = self.client.get(partial_url)
+        self.assertEqual(visitor_response.status_code, 200)
+        self.assertNotContains(visitor_response, 'PinnedPostQuickAction')
+
+        self.client.login(username='testauthor', password='testpass123')
+        owner_response = self.client.get(partial_url)
+
+        self.assertEqual(owner_response.status_code, 200)
+        self.assertContains(owner_response, 'PinnedPostQuickAction')
+        self.assertContains(owner_response, partial_url)
+
+    def test_author_featured_posts_partial_hides_empty_section_from_visitors(self):
+        """공개 포스트가 없는 대표 포스트 partial은 방문자에게 빈 응답을 준다."""
+        empty_author = User.objects.create_user(
+            username='emptyfeaturedauthor',
+            email='empty-featured@example.com',
+            password='testpass123',
+        )
+        Profile.objects.create(user=empty_author, role=Profile.Role.EDITOR)
+
+        response = self.client.get(
+            reverse(
+                'user_featured_posts_partial',
+                kwargs={'username': empty_author.username},
+            )
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertNotContains(response, 'data-featured-posts-section')
+        self.assertNotContains(response, '포스트 작성하기')
+
+    def test_author_featured_posts_partial_returns_empty_for_reader(self):
+        """독자 권한 사용자의 대표 포스트 partial은 빈 응답을 반환한다."""
+        reader = User.objects.create_user(
+            username='readerfeatured',
+            email='reader-featured@example.com',
+            password='testpass123',
+        )
+        Profile.objects.create(user=reader, role=Profile.Role.READER)
+
+        response = self.client.get(
+            reverse(
+                'user_featured_posts_partial',
+                kwargs={'username': reader.username},
+            )
+        )
+
+        self.assertEqual(response.status_code, 204)
+        self.assertEqual(response.content, b'')
+        self.assertEqual(response['Cache-Control'], 'no-store')
+        self.assertEqual(response['X-Robots-Tag'], 'noindex')
+
     def test_author_overview_social_link_add_entrypoint_uses_existing_empty_state(self):
         """소셜 링크가 없을 때는 기존 빈 상태 추가 링크만 노출한다."""
         self.client.login(username='testauthor', password='testpass123')

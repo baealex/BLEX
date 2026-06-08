@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useQueryClient, useSuspenseQuery } from '@tanstack/react-query';
 import { SettingsHeader } from '../../../components';
 import { Button } from '~/components/shared';
@@ -10,9 +10,11 @@ import {
     removePinnedPost,
     updatePinnedPostsOrder,
     type PinnablePostData,
+    type PinnablePostsPaginationData,
     type PinnedPostData
 } from '~/lib/api/settings';
 import { AddPinnedPostModal } from './AddPinnedPostModal';
+import { PinnablePostInlineList } from './PinnablePostInlineList';
 import { PinnedPostList } from './PinnedPostList';
 
 interface PinnedPostsPanelProps {
@@ -20,18 +22,22 @@ interface PinnedPostsPanelProps {
     onPinnedPostsChange?: () => void;
 }
 
+const PINNABLE_POSTS_PAGE_SIZE = 30;
+
+const DEFAULT_PINNABLE_POSTS_PAGINATION: PinnablePostsPaginationData = {
+    page: 1,
+    limit: PINNABLE_POSTS_PAGE_SIZE,
+    lastPage: 1,
+    totalCount: 0,
+    hasNext: false,
+    hasPrevious: false
+};
+
 export const PinnedPostsPanel = ({
     embedded = false,
     onPinnedPostsChange
 }: PinnedPostsPanelProps) => {
     const queryClient = useQueryClient();
-    const [pinnedPosts, setPinnedPosts] = useState<PinnedPostData[]>([]);
-    const [pinnablePosts, setPinnablePosts] = useState<PinnablePostData[]>([]);
-    const [username, setUsername] = useState<string>('');
-    const [maxCount, setMaxCount] = useState<number>(6);
-    const [isModalOpen, setIsModalOpen] = useState(false);
-    const [isAddingPost, setIsAddingPost] = useState(false);
-
     const { data: pinnedPostsData } = useSuspenseQuery({
         queryKey: ['pinned-posts-setting'],
         queryFn: async () => {
@@ -43,6 +49,22 @@ export const PinnedPostsPanel = ({
         }
     });
 
+    const [pinnedPosts, setPinnedPosts] = useState<PinnedPostData[]>(
+        pinnedPostsData.pinnedPosts
+    );
+    const [pinnablePosts, setPinnablePosts] = useState<PinnablePostData[]>([]);
+    const [username, setUsername] = useState<string>(pinnedPostsData.username);
+    const [maxCount, setMaxCount] = useState<number>(pinnedPostsData.maxCount);
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [isAddingPost, setIsAddingPost] = useState(false);
+    const [addingPostUrl, setAddingPostUrl] = useState<string | null>(null);
+    const [pinnableSearchQuery, setPinnableSearchQuery] = useState('');
+    const [pinnablePage, setPinnablePage] = useState(1);
+    const [pinnablePagination, setPinnablePagination] =
+        useState<PinnablePostsPaginationData>(DEFAULT_PINNABLE_POSTS_PAGINATION);
+    const [isPinnableLoading, setIsPinnableLoading] = useState(embedded);
+    const pinnableRequestSeq = useRef(0);
+
     useEffect(() => {
         if (pinnedPostsData) {
             setPinnedPosts(pinnedPostsData.pinnedPosts);
@@ -51,23 +73,79 @@ export const PinnedPostsPanel = ({
         }
     }, [pinnedPostsData]);
 
-    const fetchPinnablePosts = async () => {
+    const fetchPinnablePosts = useCallback(async (query = '', page = 1) => {
+        const requestSeq = pinnableRequestSeq.current + 1;
+        pinnableRequestSeq.current = requestSeq;
+        setIsPinnableLoading(true);
         try {
-            const { data } = await getPinnablePosts();
+            const { data } = await getPinnablePosts({
+                query,
+                limit: PINNABLE_POSTS_PAGE_SIZE,
+                page
+            });
+
+            if (requestSeq !== pinnableRequestSeq.current) {
+                return;
+            }
+
             if (data.status === 'DONE') {
                 setPinnablePosts(data.body.posts);
+                setPinnablePagination({
+                    page: data.body.page,
+                    limit: data.body.limit,
+                    lastPage: data.body.lastPage,
+                    totalCount: data.body.totalCount,
+                    hasNext: data.body.hasNext,
+                    hasPrevious: data.body.hasPrevious
+                });
+                setPinnablePage(data.body.page);
             }
         } catch {
-            toast.error('포스트 목록을 불러오는데 실패했습니다.');
+            if (requestSeq === pinnableRequestSeq.current) {
+                toast.error('포스트 목록을 불러오는데 실패했습니다.');
+            }
+        } finally {
+            if (requestSeq === pinnableRequestSeq.current) {
+                setIsPinnableLoading(false);
+            }
         }
+    }, []);
+
+    useEffect(() => {
+        if (!embedded && !isModalOpen) return;
+
+        const timeoutId = window.setTimeout(
+            () => {
+                fetchPinnablePosts(pinnableSearchQuery, pinnablePage);
+            },
+            pinnableSearchQuery ? 250 : 0
+        );
+
+        return () => window.clearTimeout(timeoutId);
+    }, [embedded, fetchPinnablePosts, isModalOpen, pinnablePage, pinnableSearchQuery]);
+
+    const handlePinnableSearchQueryChange = (query: string) => {
+        setPinnableSearchQuery(query);
+        setPinnablePage(1);
+        setIsPinnableLoading(true);
     };
 
-    const handleOpenModal = async () => {
-        await fetchPinnablePosts();
+    const handlePinnablePageChange = (page: number) => {
+        setPinnablePage(page);
+        setIsPinnableLoading(true);
+    };
+
+    const handleOpenModal = () => {
+        setPinnableSearchQuery('');
+        setPinnablePage(1);
+        setPinnablePagination(DEFAULT_PINNABLE_POSTS_PAGINATION);
+        setPinnablePosts([]);
+        setIsPinnableLoading(true);
         setIsModalOpen(true);
     };
 
     const handleReorder = async (newPinnedPosts: PinnedPostData[]) => {
+        const previousPinnedPosts = pinnedPosts;
         setPinnedPosts(newPinnedPosts);
 
         try {
@@ -79,21 +157,26 @@ export const PinnedPostsPanel = ({
             }
 
             toast.success('순서가 변경되었습니다.');
+            await queryClient.invalidateQueries({ queryKey: ['pinned-posts-setting'] });
             onPinnedPostsChange?.();
         } catch {
-            setPinnedPosts(pinnedPosts);
+            setPinnedPosts(previousPinnedPosts);
             toast.error('순서 변경에 실패했습니다.');
         }
     };
 
     const handleAddPinnedPost = async (postUrl: string) => {
         setIsAddingPost(true);
+        setAddingPostUrl(postUrl);
         try {
             const { data } = await addPinnedPost(postUrl);
 
             if (data.status === 'DONE') {
-                queryClient.invalidateQueries({ queryKey: ['pinned-posts-setting'] });
+                await queryClient.invalidateQueries({ queryKey: ['pinned-posts-setting'] });
+                pinnableRequestSeq.current += 1;
                 setIsModalOpen(false);
+                setPinnablePosts((posts) => posts.filter((post) => post.url !== postUrl));
+                fetchPinnablePosts(pinnableSearchQuery, pinnablePage);
                 toast.success('포스트가 고정되었습니다.');
                 onPinnedPostsChange?.();
             } else {
@@ -103,6 +186,7 @@ export const PinnedPostsPanel = ({
             toast.error(error instanceof Error ? error.message : '포스트 고정에 실패했습니다.');
         } finally {
             setIsAddingPost(false);
+            setAddingPostUrl(null);
         }
     };
 
@@ -111,7 +195,9 @@ export const PinnedPostsPanel = ({
             const { data } = await removePinnedPost(postUrl);
 
             if (data.status === 'DONE') {
-                setPinnedPosts(pinnedPosts.filter(p => p.post.url !== postUrl));
+                setPinnedPosts((posts) => posts.filter(p => p.post.url !== postUrl));
+                await queryClient.invalidateQueries({ queryKey: ['pinned-posts-setting'] });
+                fetchPinnablePosts(pinnableSearchQuery, pinnablePage);
                 toast.success('고정이 해제되었습니다.');
                 onPinnedPostsChange?.();
             } else {
@@ -143,13 +229,20 @@ export const PinnedPostsPanel = ({
                 maxCount={maxCount}
             />
 
-            <AddPinnedPostModal
-                open={isModalOpen}
-                onOpenChange={setIsModalOpen}
-                pinnablePosts={pinnablePosts}
-                onAdd={handleAddPinnedPost}
-                isLoading={isAddingPost}
-            />
+            {!embedded && (
+                <AddPinnedPostModal
+                    open={isModalOpen}
+                    onOpenChange={setIsModalOpen}
+                    pinnablePosts={pinnablePosts}
+                    searchQuery={pinnableSearchQuery}
+                    onSearchQueryChange={handlePinnableSearchQueryChange}
+                    pagination={pinnablePagination}
+                    onPageChange={handlePinnablePageChange}
+                    onAdd={handleAddPinnedPost}
+                    isLoading={isAddingPost}
+                    isFetchingPosts={isPinnableLoading}
+                />
+            )}
         </>
     );
 
@@ -182,10 +275,24 @@ export const PinnedPostsPanel = ({
                     </p>
                 </div>
                 <div className="flex-shrink-0">
-                    {action}
+                    {!embedded && action}
                 </div>
             </div>
             {list}
+            <div className="border-t border-line pt-4">
+                <PinnablePostInlineList
+                    posts={pinnablePosts}
+                    searchQuery={pinnableSearchQuery}
+                    onSearchQueryChange={handlePinnableSearchQueryChange}
+                    pagination={pinnablePagination}
+                    onPageChange={handlePinnablePageChange}
+                    onAdd={handleAddPinnedPost}
+                    canAddMore={canAddMore}
+                    isLoading={isPinnableLoading}
+                    isAdding={isAddingPost}
+                    loadingPostUrl={addingPostUrl}
+                />
+            </div>
         </section>
     );
 };
