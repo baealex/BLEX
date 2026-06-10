@@ -4,18 +4,13 @@ import { toast } from '~/utils/toast';
 interface SocialProvider {
     key: string;
     name: string;
-    color: string;
+    clientId?: string;
 }
 
 const SocialLogin = () => {
     const { providers, loading } = useSocialProviders();
 
     const handleSocialLogin = (provider: SocialProvider) => {
-        const clientIds: Record<string, string | undefined> = {
-            google: window.configuration?.googleClientId,
-            github: window.configuration?.githubClientId
-        };
-
         const nextUrl = window.NEXT_URL || '';
 
         const redirectUris: Record<string, string> = {
@@ -30,7 +25,7 @@ const SocialLogin = () => {
                 `https://github.com/login/oauth/authorize?client_id=${clientId}&redirect_uri=${encodeURIComponent(redirectUri)}&scope=user:email`
         };
 
-        const clientId = clientIds[provider.key];
+        const clientId = provider.clientId;
         const redirectUri = redirectUris[provider.key];
         const authUrlBuilder = authUrls[provider.key];
 
@@ -84,28 +79,41 @@ const SocialLogin = () => {
         </svg>
     );
 
-    if (loading) {
+    if (loading || !Array.isArray(providers) || providers.length === 0) {
         return null;
     }
 
     return (
-        <div className="grid grid-cols-1 gap-3">
-            {Array.isArray(providers) && providers.map((provider) => (
-                <button
-                    key={provider.key}
-                    onClick={() => handleSocialLogin(provider)}
-                    className="relative w-full flex items-center justify-center gap-3 px-4 py-3.5 border border-line rounded-2xl text-content bg-surface hover:bg-surface-subtle hover:border-line transition-all duration-150 group active:scale-[0.98]">
-                    <span className="absolute left-5 flex items-center justify-center transition-transform duration-150 group-hover:scale-110">
-                        {provider.key === 'google' && <GoogleIcon />}
-                        {provider.key === 'github' && <GitHubIcon />}
-                        {provider.key !== 'google' && provider.key !== 'github' && (
+        <>
+            <div className="relative py-4">
+                <div className="absolute inset-0 flex items-center">
+                    <div className="w-full border-t border-line" />
+                </div>
+                <div className="relative flex justify-center text-xs uppercase tracking-wider">
+                    <span className="px-4 bg-surface/50 backdrop-blur-sm text-content-hint font-medium">
+                        또는 간편하게
+                    </span>
+                </div>
+            </div>
+
+            <div className="grid grid-cols-1 gap-3">
+                {providers.map((provider) => (
+                    <button
+                        key={provider.key}
+                        onClick={() => handleSocialLogin(provider)}
+                        className="relative w-full flex items-center justify-center gap-3 px-4 py-3.5 border border-line rounded-2xl text-content bg-surface hover:bg-surface-subtle hover:border-line transition-all duration-150 group active:scale-[0.98]">
+                        <span className="absolute left-5 flex items-center justify-center transition-transform duration-150 group-hover:scale-110">
+                            {provider.key === 'google' && <GoogleIcon />}
+                            {provider.key === 'github' && <GitHubIcon />}
+                            {provider.key !== 'google' && provider.key !== 'github' && (
                             <DefaultIcon />
                         )}
-                    </span>
-                    <span className="font-semibold text-sm">{provider.name}으로 계속하기</span>
-                </button>
-            ))}
-        </div>
+                        </span>
+                        <span className="font-semibold text-sm">{provider.name}으로 계속하기</span>
+                    </button>
+                ))}
+            </div>
+        </>
     );
 };
 

@@ -179,21 +179,7 @@ const LoginForm = ({
                 </button>
             </form>
 
-            {/* Divider */}
-            <div className="relative py-4">
-                <div className="absolute inset-0 flex items-center">
-                    <div className="w-full border-t border-line" />
-                </div>
-                <div className="relative flex justify-center text-xs uppercase tracking-wider">
-                    <span className="px-4 bg-surface/50 backdrop-blur-sm text-content-hint font-medium">
-                        또는 간편하게
-                    </span>
-                </div>
-            </div>
-
-            <div className="space-y-3">
-                <SocialLogin />
-            </div>
+            <SocialLogin />
         </>
     );
 };

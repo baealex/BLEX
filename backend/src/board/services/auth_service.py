@@ -167,8 +167,7 @@ class AuthService:
         name: str,
         email: str,
         password: Optional[str] = None,
-        avatar_url: Optional[str] = None,
-        token: Optional[str] = None
+        avatar_url: Optional[str] = None
     ) -> Tuple[User, Profile, Config]:
         """
         Create new user with profile and config.
@@ -179,7 +178,6 @@ class AuthService:
             email: User's email
             password: Password for the user (optional, for regular signup)
             avatar_url: URL to download avatar from (optional)
-            token: Token to store in last_name field (optional)
 
         Returns:
             Tuple of (User, Profile, Config)
@@ -193,9 +191,6 @@ class AuthService:
             first_name=name,
         )
 
-        if token:
-            user.last_name = token
-            user.save()
 
         user_profile = Profile.objects.create(user=user)
 

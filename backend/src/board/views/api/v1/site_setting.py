@@ -5,6 +5,7 @@ from board.services.api_permission_service import ApiPermissionService
 from board.services.api_request_body_service import ApiRequestBodyService
 from board.services.agent_content_service import AgentContentService
 from board.services.brand_asset_service import BrandAssetError, BrandAssetService
+from board.services.social_auth_provider_service import SocialAuthProviderService
 
 
 def serialize_site_setting(request, setting):
@@ -19,6 +20,7 @@ def serialize_site_setting(request, setting):
         'robots_txt_default': AgentContentService.build_default_robots_txt(request, setting),
         'aeo_enabled': setting.aeo_enabled,
         'updated_date': setting.updated_date.isoformat(),
+        'social_auth_providers': SocialAuthProviderService.serialize_admin_providers(),
         **BrandAssetService.serialize_setting(setting),
     }
 
@@ -73,6 +75,9 @@ def site_settings(request):
 
         if 'aeo_enabled' in put_data:
             setting.aeo_enabled = put_data['aeo_enabled'] is True
+
+        if 'social_auth_providers' in put_data:
+            SocialAuthProviderService.update_admin_providers(put_data['social_auth_providers'])
 
         setting.save()
 

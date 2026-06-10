@@ -12,7 +12,6 @@ interface NavigationItem {
     name: string;
     path: string;
     icon: string;
-    risk?: 'external' | 'danger';
     requiresEditor?: boolean;
     requiresStaff?: boolean;
 }
@@ -52,8 +51,7 @@ const userNavigationSections: NavigationSection[] = [
             {
                 name: '계정',
                 path: '/account',
-                icon: 'fa-user-cog',
-                risk: 'danger'
+                icon: 'fa-user-cog'
             },
             {
                 name: '프로필',
@@ -123,7 +121,6 @@ const userNavigationSections: NavigationSection[] = [
                 name: '개발자 API',
                 path: '/developer-api',
                 icon: 'fa-code',
-                risk: 'danger',
                 requiresEditor: true
             }
         ]
@@ -137,17 +134,21 @@ const adminNavigationSections: NavigationSection[] = [
         requiresStaff: true,
         items: [
             {
-                name: '사이트 설정',
+                name: '블로그 커스텀',
                 path: '/site-settings',
-                icon: 'fa-gear',
-                risk: 'danger',
+                icon: 'fa-palette',
+                requiresStaff: true
+            },
+            {
+                name: '소셜 로그인',
+                path: '/social-login',
+                icon: 'fa-right-to-bracket',
                 requiresStaff: true
             },
             {
                 name: 'SEO/AEO',
                 path: '/seo-aeo',
                 icon: 'fa-robot',
-                risk: 'danger',
                 requiresStaff: true
             },
             {
@@ -179,7 +180,6 @@ const adminNavigationSections: NavigationSection[] = [
                 name: '전역 웹훅 연동',
                 path: '/global-webhook',
                 icon: 'fa-bolt',
-                risk: 'danger',
                 requiresStaff: true
             }
         ]
@@ -193,21 +193,18 @@ const adminNavigationSections: NavigationSection[] = [
                 name: '사용자 권한',
                 path: '/users',
                 icon: 'fa-users',
-                risk: 'danger',
                 requiresStaff: true
             },
             {
                 name: '유틸리티',
                 path: '/utilities',
                 icon: 'fa-toolbox',
-                risk: 'danger',
                 requiresStaff: true
             },
             {
                 name: '관리자 패널',
                 path: 'admin',
                 icon: 'fa-shield-alt',
-                risk: 'external',
                 requiresStaff: true
             }
         ]
@@ -230,21 +227,6 @@ const normalizePath = (path: string, basePath: string) => {
     const withoutBase = path.startsWith(basePath) ? path.slice(basePath.length) : path;
     const normalized = withoutBase.replace(/\/+$/, '');
     return normalized || '/';
-};
-
-const RiskBadge = ({ risk }: { risk?: NavigationItem['risk'] }) => {
-    if (!risk) return null;
-
-    const label = risk === 'external' ? '외부' : '주의';
-    const className = risk === 'external'
-        ? 'border-line bg-surface text-content-hint'
-        : 'border-warning-line bg-warning-surface text-warning';
-
-    return (
-        <span className={`rounded-md border px-1.5 py-0.5 text-[10px] font-semibold ${className}`}>
-            {label}
-        </span>
-    );
 };
 
 const SettingsModeLink = ({ settingsMode, isStaff }: { settingsMode: SettingsMode; isStaff: boolean }) => {
@@ -304,10 +286,7 @@ export const SettingsMobileNavigation = ({ currentPath }: SettingsNavigationProp
                         className={`${baseClasses} ${activeClasses}`}
                         onClick={() => handleNavClick(item)}>
                         <i className={`fas ${item.icon} w-6 text-center mr-3 transition-colors ${iconClasses} group-hover:text-content-secondary`} />
-                        <span className="flex min-w-0 flex-1 items-center gap-2">
-                            <span>{item.name}</span>
-                            <RiskBadge risk={item.risk} />
-                        </span>
+                        <span className="min-w-0 flex-1">{item.name}</span>
                     </a>
                 </li>
             );
@@ -320,10 +299,7 @@ export const SettingsMobileNavigation = ({ currentPath }: SettingsNavigationProp
                     className={`${baseClasses} ${activeClasses}`}
                     onClick={() => handleNavClick(item)}>
                     <i className={`fas ${item.icon} w-6 text-center mr-3 transition-colors ${iconClasses} group-hover:text-content-secondary`} />
-                    <span className="flex min-w-0 flex-1 items-center gap-2">
-                        <span>{item.name}</span>
-                        <RiskBadge risk={item.risk} />
-                    </span>
+                    <span className="min-w-0 flex-1">{item.name}</span>
                 </Link>
             </li>
         );
@@ -437,10 +413,7 @@ export const SettingsDesktopNavigation = ({ currentPath }: SettingsNavigationPro
                         className={`${baseClasses} ${activeClasses} ${desktopClasses}`}
                         onClick={() => handleNavClick(item)}>
                         <i className={`fas ${item.icon} w-7 text-center mr-4 transition-colors ${iconClasses} group-hover:text-content-secondary`} />
-                        <span className="flex min-w-0 flex-1 items-center gap-2">
-                            <span>{item.name}</span>
-                            <RiskBadge risk={item.risk} />
-                        </span>
+                        <span className="min-w-0 flex-1">{item.name}</span>
                     </a>
                 </li>
             );
@@ -453,10 +426,7 @@ export const SettingsDesktopNavigation = ({ currentPath }: SettingsNavigationPro
                     className={`${baseClasses} ${activeClasses} ${desktopClasses}`}
                     onClick={() => handleNavClick(item)}>
                     <i className={`fas ${item.icon} w-7 text-center mr-4 transition-colors ${iconClasses} group-hover:text-content-secondary`} />
-                    <span className="flex min-w-0 flex-1 items-center gap-2">
-                        <span>{item.name}</span>
-                        <RiskBadge risk={item.risk} />
-                    </span>
+                    <span className="min-w-0 flex-1">{item.name}</span>
                 </Link>
             </li>
         );

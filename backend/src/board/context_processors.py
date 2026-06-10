@@ -4,6 +4,7 @@ from django.urls import reverse
 from board.models import SiteSetting, SiteNotice, SiteContentScope, StaticPage
 from board.services.brand_asset_service import BrandAssetService
 from board.services.site_url_service import SiteUrlService
+from board.services.social_auth_provider_service import SocialAuthProviderService
 
 
 def oauth_settings(request):
@@ -11,8 +12,8 @@ def oauth_settings(request):
     Add OAuth client IDs to template context
     """
     return {
-        'GOOGLE_OAUTH_CLIENT_ID': getattr(settings, 'GOOGLE_OAUTH_CLIENT_ID', ''),
-        'GITHUB_OAUTH_CLIENT_ID': getattr(settings, 'GITHUB_OAUTH_CLIENT_ID', ''),
+        'GOOGLE_OAUTH_CLIENT_ID': SocialAuthProviderService.get_client_id('google'),
+        'GITHUB_OAUTH_CLIENT_ID': SocialAuthProviderService.get_client_id('github'),
     }
 
 

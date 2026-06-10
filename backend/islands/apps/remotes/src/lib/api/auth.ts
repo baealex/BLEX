@@ -23,7 +23,7 @@ export interface SecurityCodeRequest {
 export interface SocialProvider {
     key: string;
     name: string;
-    color: string;
+    clientId: string;
 }
 
 export type SocialProvidersResponse = Response<SocialProvider[]>;

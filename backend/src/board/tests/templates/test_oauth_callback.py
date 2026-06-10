@@ -11,7 +11,7 @@ from django.test import TestCase, Client, override_settings
 from django.contrib.auth.models import User
 from django.urls import reverse
 
-from board.models import Profile, Config, TwoFactorAuth, UserLinkMeta
+from board.models import Profile, Config, TwoFactorAuth, UserLinkMeta, SocialAuth, SocialAuthProvider
 from modules import oauth
 
 
@@ -27,6 +27,16 @@ class OAuthCallbackTestCase(TestCase):
         )
         Profile.objects.create(user=admin, role=Profile.Role.EDITOR)
         Config.objects.create(user=admin)
+
+        for key in ['google', 'github']:
+            SocialAuthProvider.objects.update_or_create(
+                key=key,
+                defaults={
+                    'is_enabled': True,
+                    'client_id': f'{key}-client-id',
+                    'client_secret': f'{key}-secret',
+                }
+            )
 
     def setUp(self):
         """테스트 데이터 설정"""
@@ -50,7 +60,8 @@ class OAuthCallbackTestCase(TestCase):
         self.assertTrue(User.objects.filter(username='githubuser').exists())
         user = User.objects.get(username='githubuser')
         self.assertEqual(user.first_name, 'GitHub User')
-        self.assertEqual(user.last_name, 'github:GITHUB_NODE_ID_123')
+        self.assertEqual(user.last_name, '')
+        self.assertTrue(SocialAuth.objects.filter(user=user, provider__key='github', uid='GITHUB_NODE_ID_123').exists())
 
         # Verify profile and config were created
         self.assertTrue(hasattr(user, 'profile'))
@@ -78,11 +89,16 @@ class OAuthCallbackTestCase(TestCase):
             username='existinguser',
             email='existing@example.com',
             password='testpass123',
-            first_name='Existing User',
-            last_name='github:GITHUB_NODE_ID_456'
+            first_name='Existing User'
         )
         Profile.objects.create(user=user)
         Config.objects.create(user=user)
+        SocialAuth.objects.create(
+            user=user,
+            provider=SocialAuthProvider.objects.get(key='github'),
+            uid='GITHUB_NODE_ID_456',
+            extra_data='{}',
+        )
 
         response = self.client.get('/login/callback/github?code=test_code')
 
@@ -93,6 +109,24 @@ class OAuthCallbackTestCase(TestCase):
         # Verify user is logged in
         user_from_session = self.client.session.get('_auth_user_id')
         self.assertEqual(int(user_from_session), user.id)
+
+
+    def test_disabled_google_provider_blocks_direct_callback(self):
+        """관리자가 제공자를 끄면 콜백 URL 직접 호출도 로그인되지 않는다."""
+        SocialAuthProvider.objects.update_or_create(
+            key='google',
+            defaults={
+                'is_enabled': False,
+                'client_id': '',
+                'client_secret': '',
+            }
+        )
+
+        response = self.client.get('/login/callback/google?code=test_code')
+
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.url, reverse('login'))
+        self.assertFalse(User.objects.filter(username='googleuser').exists())
 
     @patch('modules.oauth.auth_google', return_value=oauth.State(success=True, user={
         'id': 'GOOGLE_ID_789',
@@ -113,7 +147,8 @@ class OAuthCallbackTestCase(TestCase):
         user = User.objects.get(username='googleuser')
         self.assertEqual(user.first_name, 'Google User')
         self.assertEqual(user.email, 'googleuser@gmail.com')
-        self.assertEqual(user.last_name, 'google:GOOGLE_ID_789')
+        self.assertEqual(user.last_name, '')
+        self.assertTrue(SocialAuth.objects.filter(user=user, provider__key='google', uid='GOOGLE_ID_789').exists())
 
         # Verify user is logged in
         user_from_session = self.client.session.get('_auth_user_id')
@@ -133,11 +168,16 @@ class OAuthCallbackTestCase(TestCase):
             username='user2fa',
             email='user2fa@example.com',
             password='testpass123',
-            first_name='User with 2FA',
-            last_name='github:GITHUB_NODE_ID_2FA'
+            first_name='User with 2FA'
         )
         Profile.objects.create(user=user)
         Config.objects.create(user=user)
+        SocialAuth.objects.create(
+            user=user,
+            provider=SocialAuthProvider.objects.get(key='github'),
+            uid='GITHUB_NODE_ID_2FA',
+            extra_data='{}',
+        )
 
         # Enable 2FA
         totp_secret = pyotp.random_base32()
@@ -190,11 +230,16 @@ class OAuthCallbackTestCase(TestCase):
             username='user2fanext',
             email='user2fanext@example.com',
             password='testpass123',
-            first_name='User with 2FA and Next',
-            last_name='github:GITHUB_NODE_ID_2FA_NEXT'
+            first_name='User with 2FA and Next'
         )
         Profile.objects.create(user=user)
         Config.objects.create(user=user)
+        SocialAuth.objects.create(
+            user=user,
+            provider=SocialAuthProvider.objects.get(key='github'),
+            uid='GITHUB_NODE_ID_2FA_NEXT',
+            extra_data='{}',
+        )
 
         # Enable 2FA
         totp_secret = pyotp.random_base32()

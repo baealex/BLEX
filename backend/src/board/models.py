@@ -26,6 +26,10 @@ from board.services.webhook_subscription_state_service import WebhookSubscriptio
 from board.services.user_config_meta_service import UserConfigMetaService
 from board.services.series_save_service import SeriesSaveService
 from board.services.telegram_sync_encryption_service import TelegramSyncEncryptionService
+from board.constants.social_auth import (
+    SUPPORTED_SOCIAL_AUTH_PROVIDERS,
+    SUPPORTED_SOCIAL_AUTH_PROVIDER_CHOICES,
+)
 
 
 def get_user_hex(username):
@@ -802,16 +806,36 @@ class UsernameChangeLog(models.Model):
 
 
 class SocialAuthProvider(models.Model):
-    key = models.CharField(max_length=20, unique=True)
-    name = models.CharField(max_length=20)
-    icon = models.CharField(max_length=20)
-    color = models.CharField(max_length=20)
+    key = models.CharField(max_length=20, unique=True, choices=SUPPORTED_SOCIAL_AUTH_PROVIDER_CHOICES)
+    client_id = models.CharField(max_length=255, blank=True)
+    client_secret = models.TextField(blank=True)
+    is_enabled = models.BooleanField(default=False)
+
+    def clean(self):
+        super().clean()
+        if self.key not in SUPPORTED_SOCIAL_AUTH_PROVIDERS:
+            raise ValidationError({'key': '지원하지 않는 소셜 로그인 제공자입니다.'})
+
+    def save(self, *args, **kwargs):
+        if self.client_secret:
+            from board.services.social_auth_provider_secret_service import SocialAuthProviderSecretService
+            self.client_secret = SocialAuthProviderSecretService.encrypt_secret(self.client_secret)
+        self.full_clean()
+        return super().save(*args, **kwargs)
 
     def __str__(self):
-        return self.name
+        return self.key
 
 
 class SocialAuth(models.Model):
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=['provider', 'uid'],
+                name='unique_social_auth_provider_uid',
+            ),
+        ]
+
     user = models.ForeignKey('auth.User', on_delete=models.CASCADE)
     provider = models.ForeignKey('board.SocialAuthProvider', on_delete=models.CASCADE)
     uid = models.CharField(max_length=50)
@@ -819,7 +843,7 @@ class SocialAuth(models.Model):
     created_date = models.DateTimeField(default=timezone.now)
 
     def __str__(self):
-        return f'{self.provider.name} - {self.user.username}'
+        return f'{self.provider.key} - {self.user.username}'
 
 
 class SiteSetting(models.Model):

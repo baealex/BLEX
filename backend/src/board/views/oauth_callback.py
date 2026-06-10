@@ -1,3 +1,5 @@
+import json
+
 from django.shortcuts import render, redirect
 from django.http import Http404
 from django.contrib import messages, auth
@@ -6,7 +8,8 @@ from django.conf import settings
 from modules import oauth
 from board.services.auth_service import AuthService, OAuthService
 from board.services.initial_setup_service import InitialSetupService
-from board.models import User, UserLinkMeta
+from board.services.social_auth_provider_service import SocialAuthProviderService
+from board.models import SocialAuth, UserLinkMeta
 
 
 def handle_oauth_auth(request, user):
@@ -38,6 +41,10 @@ def oauth_callback(request, provider):
 
     if InitialSetupService.should_prompt_for_initial_setup():
         return redirect('/setup')
+
+    if not SocialAuthProviderService.is_enabled(provider):
+        messages.error(request, '소셜 로그인이 설정되지 않았습니다. 관리자에게 문의해주세요.')
+        return redirect('login')
     
     code = request.GET.get('code')
     if not code:
@@ -55,18 +62,22 @@ def oauth_callback(request, provider):
             node_id = state.user.get('node_id')
             user_id = state.user.get('login')
             name = state.user.get('name')
-            token = f'{provider}:{node_id}'
-
-            users = User.objects.filter(last_name=token)
-            if users.exists():
-                return handle_oauth_auth(request, users.first())
+            social_provider = SocialAuthProviderService.get_provider(provider)
+            social_auth = SocialAuth.objects.filter(provider=social_provider, uid=node_id).select_related('user').first()
+            if social_auth:
+                return handle_oauth_auth(request, social_auth.user)
 
             user, _, _ = AuthService.create_user(
                 username=user_id,
                 name=name,
                 email='',
                 avatar_url=avatar_url,
-                token=token,
+            )
+            SocialAuth.objects.create(
+                user=user,
+                provider=social_provider,
+                uid=node_id,
+                extra_data=json.dumps(state.user, ensure_ascii=False),
             )
 
             UserLinkMeta.objects.create(
@@ -88,18 +99,22 @@ def oauth_callback(request, provider):
             user_id = state.user.get('email').split('@')[0]
             email = state.user.get('email')
             name = state.user.get('name')
-            token = f'{provider}:{node_id}'
-
-            users = User.objects.filter(last_name=token)
-            if users.exists():
-                return handle_oauth_auth(request, users.first())
+            social_provider = SocialAuthProviderService.get_provider(provider)
+            social_auth = SocialAuth.objects.filter(provider=social_provider, uid=node_id).select_related('user').first()
+            if social_auth:
+                return handle_oauth_auth(request, social_auth.user)
 
             user, _, _ = AuthService.create_user(
                 username=user_id,
                 name=name,
                 email=email,
                 avatar_url=avatar_url,
-                token=token,
+            )
+            SocialAuth.objects.create(
+                user=user,
+                provider=social_provider,
+                uid=node_id,
+                extra_data=json.dumps(state.user, ensure_ascii=False),
             )
 
             return handle_oauth_auth(request, user)

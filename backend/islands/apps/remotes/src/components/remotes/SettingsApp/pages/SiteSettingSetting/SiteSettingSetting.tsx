@@ -1,4 +1,10 @@
-import { type ChangeEvent, useEffect, useRef, useState } from 'react';
+import {
+    type ChangeEvent,
+    type FormEvent,
+    useEffect,
+    useRef,
+    useState
+} from 'react';
 import { toast } from '~/utils/toast';
 import { useMutation, useQueryClient, useSuspenseQuery } from '@tanstack/react-query';
 import { SettingsHeader } from '../../components';
@@ -29,6 +35,15 @@ interface BrandAssetUploadPayload {
 interface BrandAssetDeletePayload {
     assetType: BrandAssetType;
     theme: BrandAssetTheme;
+}
+
+interface EditableSiteSettings {
+    siteName: string;
+    headerScript: string;
+    footerScript: string;
+    welcomeMessage: string;
+    welcomeUrl: string;
+    deletionRedirectUrl: string;
 }
 
 interface AssetUploadButtonProps {
@@ -83,6 +98,23 @@ const syncSettingsDocumentTitle = (siteName: string) => {
     document.title = `${titlePrefix?.trim() || '설정'} | ${siteName}`;
 };
 
+const getEditableSiteSettings = (data: SiteSettingData): EditableSiteSettings => ({
+    siteName: data.siteName,
+    headerScript: data.headerScript,
+    footerScript: data.footerScript,
+    welcomeMessage: data.welcomeNotificationMessage,
+    welcomeUrl: data.welcomeNotificationUrl,
+    deletionRedirectUrl: data.accountDeletionRedirectUrl
+});
+
+const hasSiteSettingsChanged = (current: EditableSiteSettings, saved: EditableSiteSettings | null) => {
+    if (!saved) return false;
+
+    return Object.keys(current).some((key) => (
+        current[key as keyof EditableSiteSettings] !== saved[key as keyof EditableSiteSettings]
+    ));
+};
+
 const AssetUploadButton = ({ label, disabled, onUpload }: AssetUploadButtonProps) => {
     const inputRef = useRef<HTMLInputElement>(null);
 
@@ -118,7 +150,7 @@ const BrandAssetSlot = ({
     onUpload,
     onDelete
 }: BrandAssetSlotProps) => (
-    <div className="space-y-3 rounded-lg border border-line bg-surface p-3">
+    <div className="space-y-3 rounded-xl bg-surface-subtle p-4">
         <div className="flex items-center justify-between gap-3">
             <div className="text-xs font-semibold text-content-secondary">{label}</div>
             <div className="text-[11px] font-medium text-content-hint">
@@ -127,7 +159,7 @@ const BrandAssetSlot = ({
         </div>
         <div
             data-theme={dark ? 'dark' : 'light'}
-            className="flex h-24 items-center justify-center rounded-xl border border-line bg-surface-subtle p-4">
+            className="flex h-24 items-center justify-center rounded-xl bg-surface p-4">
             <img
                 src={url}
                 alt=""
@@ -168,12 +200,10 @@ const BrandAssetPanel = ({
     onUpload,
     onDelete
 }: BrandAssetPanelProps) => (
-    <section className="space-y-4 rounded-xl border border-line bg-surface-subtle p-4">
-        <div className="space-y-1">
-            <h4 className="text-sm font-semibold text-content">{title}</h4>
-            <p className="text-xs leading-relaxed text-content-secondary">{description}</p>
-        </div>
-
+    <Card
+        title={title}
+        subtitle={description}
+        icon={<i className={`fas ${assetType === 'logo' ? 'fa-signature' : 'fa-icons'}`} />}>
         <div className="grid gap-3 sm:grid-cols-2">
             <BrandAssetSlot
                 label="기본"
@@ -197,13 +227,14 @@ const BrandAssetPanel = ({
                 onDelete={() => onDelete(assetType, 'dark')}
             />
         </div>
-    </section>
+    </Card>
 );
 
 const SiteSettingSetting = () => {
     const queryClient = useQueryClient();
     const { confirm } = useConfirm();
     const hasHydratedFormRef = useRef(false);
+    const savedSettingsRef = useRef<EditableSiteSettings | null>(null);
     const { data: settingData } = useSuspenseQuery({
         queryKey: ['site-settings'],
         queryFn: async () => {
@@ -224,12 +255,14 @@ const SiteSettingSetting = () => {
 
     useEffect(() => {
         if (!hasHydratedFormRef.current) {
-            setSiteName(settingData.siteName);
-            setHeaderScript(settingData.headerScript);
-            setFooterScript(settingData.footerScript);
-            setWelcomeMessage(settingData.welcomeNotificationMessage);
-            setWelcomeUrl(settingData.welcomeNotificationUrl);
-            setDeletionRedirectUrl(settingData.accountDeletionRedirectUrl);
+            const editableSettings = getEditableSiteSettings(settingData);
+            setSiteName(editableSettings.siteName);
+            setHeaderScript(editableSettings.headerScript);
+            setFooterScript(editableSettings.footerScript);
+            setWelcomeMessage(editableSettings.welcomeMessage);
+            setWelcomeUrl(editableSettings.welcomeUrl);
+            setDeletionRedirectUrl(editableSettings.deletionRedirectUrl);
+            savedSettingsRef.current = editableSettings;
             hasHydratedFormRef.current = true;
         }
         syncSettingsDocumentTitle(settingData.siteName);
@@ -241,12 +274,14 @@ const SiteSettingSetting = () => {
             return assertDone(response, '사이트 설정 저장에 실패했습니다.');
         },
         onSuccess: (body: SiteSettingData) => {
-            setSiteName(body.siteName);
-            setHeaderScript(body.headerScript);
-            setFooterScript(body.footerScript);
-            setWelcomeMessage(body.welcomeNotificationMessage);
-            setWelcomeUrl(body.welcomeNotificationUrl);
-            setDeletionRedirectUrl(body.accountDeletionRedirectUrl);
+            const editableSettings = getEditableSiteSettings(body);
+            setSiteName(editableSettings.siteName);
+            setHeaderScript(editableSettings.headerScript);
+            setFooterScript(editableSettings.footerScript);
+            setWelcomeMessage(editableSettings.welcomeMessage);
+            setWelcomeUrl(editableSettings.welcomeUrl);
+            setDeletionRedirectUrl(editableSettings.deletionRedirectUrl);
+            savedSettingsRef.current = editableSettings;
             syncSettingsDocumentTitle(body.siteName);
             void queryClient.invalidateQueries({ queryKey: ['site-settings'] });
             toast.success('사이트 설정이 저장되었습니다.');
@@ -287,7 +322,8 @@ const SiteSettingSetting = () => {
         }
     });
 
-    const handleSave = () => {
+    const handleSave = (event?: FormEvent<HTMLFormElement>) => {
+        event?.preventDefault();
         updateMutation.mutate({
             site_name: siteName,
             header_script: headerScript,
@@ -345,159 +381,152 @@ const SiteSettingSetting = () => {
     };
 
     const assetMutationPending = uploadMutation.isPending || deleteMutation.isPending;
+    const currentSettings: EditableSiteSettings = {
+        siteName,
+        headerScript,
+        footerScript,
+        welcomeMessage,
+        welcomeUrl,
+        deletionRedirectUrl
+    };
+    const isDirty = hasSiteSettingsChanged(currentSettings, savedSettingsRef.current);
+    const saveDisabled = !isDirty || assetMutationPending || updateMutation.isPending;
 
     return (
-        <div className="space-y-8">
+        <form className="space-y-8" onSubmit={handleSave}>
             <SettingsHeader
-                title="사이트 설정"
-                description="사이트 이름, 브랜드 자산, 전역 코드 및 알림 설정을 관리합니다."
+                title="블로그 커스텀"
+                description="사이트 이름, 브랜드 자산, 회원 안내, 전역 코드를 관리합니다."
             />
 
-            <Card
-                title="브랜드"
-                subtitle="공개 화면, RSS, llms.txt, favicon에 쓰이는 사이트 이름과 브랜드 자산입니다."
-                icon={<i className="fas fa-building" />}>
-                <div className="space-y-6">
-                    <div>
-                        <Input
-                            label="사이트 이름"
-                            maxLength={80}
-                            placeholder="BLEX"
-                            value={siteName}
-                            onChange={(event) => setSiteName(event.target.value)}
-                            helperText="브라우저 제목, RSS, 검색 결과, 공개 문서에 표시됩니다."
-                        />
-                    </div>
+            <section className="space-y-4">
+                <Card
+                    title="사이트 이름"
+                    subtitle="공개 화면, RSS, llms.txt에 표시되는 블로그 이름입니다."
+                    icon={<i className="fas fa-building" />}>
+                    <Input
+                        label="사이트 이름"
+                        maxLength={80}
+                        placeholder="BLEX"
+                        value={siteName}
+                        onChange={(event) => setSiteName(event.target.value)}
+                        helperText="브라우저 제목, RSS, 검색 결과, 공개 문서에 표시됩니다."
+                    />
+                </Card>
 
-                    <div className="grid gap-4 xl:grid-cols-2">
-                        <BrandAssetPanel
-                            title="로고"
-                            description="헤더와 푸터에 쓰입니다. 다크 모드 SVG는 기본 로고를 올린 뒤 선택적으로 지정합니다."
-                            assetType="logo"
-                            defaultUrl={settingData.logoSvgUrl}
-                            darkUrl={settingData.logoSvgDarkUrl}
-                            hasDefaultAsset={settingData.hasCustomLogo}
-                            hasDarkAsset={settingData.hasCustomLogoDark}
-                            darkUploadDisabled={!settingData.hasCustomLogo}
-                            isPending={assetMutationPending}
-                            previewShape="logo"
-                            onUpload={handleBrandAssetUpload}
-                            onDelete={handleBrandAssetDelete}
-                        />
-                        <BrandAssetPanel
-                            title="아이콘"
-                            description="기본 아이콘 SVG를 올리면 브라우저에서 favicon과 PNG 아이콘을 함께 생성합니다."
-                            assetType="icon"
-                            defaultUrl={settingData.iconSvgUrl}
-                            darkUrl={settingData.iconSvgDarkUrl}
-                            hasDefaultAsset={settingData.hasCustomIcon}
-                            hasDarkAsset={settingData.hasCustomIconDark}
-                            darkUploadDisabled={!settingData.hasCustomIcon}
-                            isPending={assetMutationPending}
-                            previewShape="icon"
-                            onUpload={handleBrandAssetUpload}
-                            onDelete={handleBrandAssetDelete}
-                        />
-                    </div>
+                <div className="grid gap-4 xl:grid-cols-2">
+                    <BrandAssetPanel
+                        title="로고"
+                        description="헤더와 푸터에 쓰입니다. 다크 모드 SVG는 기본 로고를 올린 뒤 선택적으로 지정합니다."
+                        assetType="logo"
+                        defaultUrl={settingData.logoSvgUrl}
+                        darkUrl={settingData.logoSvgDarkUrl}
+                        hasDefaultAsset={settingData.hasCustomLogo}
+                        hasDarkAsset={settingData.hasCustomLogoDark}
+                        darkUploadDisabled={!settingData.hasCustomLogo}
+                        isPending={assetMutationPending}
+                        previewShape="logo"
+                        onUpload={handleBrandAssetUpload}
+                        onDelete={handleBrandAssetDelete}
+                    />
+                    <BrandAssetPanel
+                        title="아이콘"
+                        description="기본 아이콘 SVG를 올리면 브라우저에서 favicon과 PNG 아이콘을 함께 생성합니다."
+                        assetType="icon"
+                        defaultUrl={settingData.iconSvgUrl}
+                        darkUrl={settingData.iconSvgDarkUrl}
+                        hasDefaultAsset={settingData.hasCustomIcon}
+                        hasDarkAsset={settingData.hasCustomIconDark}
+                        darkUploadDisabled={!settingData.hasCustomIcon}
+                        isPending={assetMutationPending}
+                        previewShape="icon"
+                        onUpload={handleBrandAssetUpload}
+                        onDelete={handleBrandAssetDelete}
+                    />
                 </div>
-            </Card>
 
-            <Card
-                title="커스텀 코드"
-                subtitle="스크립트나 메타 태그와 같은 코드를 전역에 삽입할 수 있습니다."
-                icon={<i className="fas fa-code" />}>
-                <div className="space-y-4">
-                    <div className="space-y-2">
-                        <label className="block text-sm font-semibold text-content">
-                            Head 영역 코드
-                        </label>
-                        <CodeEditor
-                            language="html"
-                            value={headerScript}
-                            onChange={setHeaderScript}
-                            height="200px"
-                        />
-                        <p className="text-xs text-content-secondary">{'<head>'} 태그 안에 삽입됩니다.</p>
-                    </div>
-                    <div className="space-y-2">
-                        <label className="block text-sm font-semibold text-content">
-                            Body 하단 코드
-                        </label>
-                        <CodeEditor
-                            language="html"
-                            value={footerScript}
-                            onChange={setFooterScript}
-                            height="200px"
-                        />
-                        <p className="text-xs text-content-secondary">{'</body>'} 태그 직전에 삽입됩니다.</p>
-                    </div>
-                </div>
-            </Card>
-
-            <Card
-                title="회원가입 알림"
-                subtitle="새로운 회원 가입 시 발송되는 환영 알림을 설정합니다."
-                icon={<i className="fas fa-bell" />}>
-                <div className="space-y-4">
-                    <div className="space-y-2">
-                        <label className="block text-sm font-semibold text-content">
-                            환영 메시지
-                        </label>
+                <Card
+                    title="회원 안내"
+                    subtitle="회원 가입과 탈퇴 흐름에서 보여줄 안내를 설정합니다."
+                    icon={<i className="fas fa-user-gear" />}>
+                    <div className="space-y-4">
                         <Input
+                            label="가입 환영 메시지"
                             multiline
                             rows={3}
                             placeholder="환영합니다, {name}님! BLEX에 오신 것을 환영합니다."
                             value={welcomeMessage}
                             onChange={(e) => setWelcomeMessage(e.target.value)}
                             className="text-sm"
+                            helperText="{name}을 사용하면 사용자 이름으로 치환됩니다."
                         />
-                        <p className="text-xs text-content-secondary">{'{name}'}을 사용하면 사용자 이름으로 치환됩니다.</p>
-                    </div>
-                    <div className="space-y-2">
-                        <label className="block text-sm font-semibold text-content">
-                            알림 클릭 URL
-                        </label>
                         <Input
+                            label="환영 알림 클릭 URL"
                             placeholder="/"
                             value={welcomeUrl}
                             onChange={(e) => setWelcomeUrl(e.target.value)}
                             className="text-sm"
+                            helperText="환영 알림 클릭 시 이동할 URL입니다."
                         />
-                        <p className="text-xs text-content-secondary">환영 알림 클릭 시 이동할 URL입니다.</p>
+                        <Input
+                            label="탈퇴 후 리다이렉트 URL"
+                            placeholder="https://forms.example.com/exit-survey"
+                            value={deletionRedirectUrl}
+                            onChange={(e) => setDeletionRedirectUrl(e.target.value)}
+                            className="text-sm"
+                            helperText="비워두면 메인 페이지로 이동합니다. 설문 링크 등을 설정할 수 있습니다."
+                        />
                     </div>
-                </div>
-            </Card>
+                </Card>
 
-            <Card
-                title="회원 탈퇴 설정"
-                subtitle="회원 탈퇴 시 리다이렉트 설정입니다."
-                icon={<i className="fas fa-user-minus" />}>
-                <div className="space-y-2">
-                    <label className="block text-sm font-semibold text-content">
-                        탈퇴 후 리다이렉트 URL
-                    </label>
-                    <Input
-                        placeholder="https://forms.example.com/exit-survey"
-                        value={deletionRedirectUrl}
-                        onChange={(e) => setDeletionRedirectUrl(e.target.value)}
-                        className="text-sm"
-                    />
-                    <p className="text-xs text-content-secondary">비워두면 메인 페이지로 이동합니다. 설문 링크 등을 설정할 수 있습니다.</p>
-                </div>
-            </Card>
+                <Card
+                    title="커스텀 코드"
+                    subtitle="스크립트나 메타 태그와 같은 코드를 전역에 삽입할 수 있습니다."
+                    icon={<i className="fas fa-code" />}>
+                    <div className="space-y-4">
+                        <p className="text-xs leading-relaxed text-content-secondary">
+                            모든 공개 페이지에 영향을 줍니다. 분석 스크립트나 검증 메타 태그처럼 꼭 필요한 코드만 넣어주세요.
+                        </p>
+                        <div className="space-y-2">
+                            <label className="block text-sm font-semibold text-content">
+                                Head 영역 코드
+                            </label>
+                            <CodeEditor
+                                language="html"
+                                value={headerScript}
+                                onChange={setHeaderScript}
+                                height="220px"
+                            />
+                            <p className="text-xs text-content-secondary">{'<head>'} 태그 안에 삽입됩니다.</p>
+                        </div>
+                        <div className="space-y-2">
+                            <label className="block text-sm font-semibold text-content">
+                                Body 하단 코드
+                            </label>
+                            <CodeEditor
+                                language="html"
+                                value={footerScript}
+                                onChange={setFooterScript}
+                                height="220px"
+                            />
+                            <p className="text-xs text-content-secondary">{'</body>'} 태그 직전에 삽입됩니다.</p>
+                        </div>
+                    </div>
+                </Card>
+            </section>
 
-            <div className="flex justify-end">
+            <div className="sticky bottom-0 z-10 -mx-4 flex justify-end bg-surface-page/95 px-4 py-3 backdrop-blur md:mx-0 md:px-0">
                 <Button
+                    type="submit"
                     variant="primary"
                     size="md"
                     isLoading={updateMutation.isPending}
-                    disabled={assetMutationPending}
-                    onClick={handleSave}
+                    disabled={saveDisabled}
                     leftIcon={!updateMutation.isPending ? <i className="fas fa-check" /> : undefined}>
-                    {updateMutation.isPending ? '저장 중...' : '저장'}
+                    {updateMutation.isPending ? '저장 중...' : '사이트 설정 저장'}
                 </Button>
             </div>
-        </div>
+        </form>
     );
 };
 

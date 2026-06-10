@@ -1,6 +1,7 @@
 import datetime
 import traceback
 import io
+import json
 import pyotp
 import qrcode
 import base64
@@ -15,7 +16,7 @@ from django.utils import timezone
 
 from board.models import (
     TwoFactorAuth, Config, Profile, Post,
-    UserLinkMeta, UsernameChangeLog, TelegramSync, SocialAuthProvider, SiteSetting)
+    SocialAuth, UserLinkMeta, UsernameChangeLog, TelegramSync)
 from board.modules.notify import create_notify
 from board.modules.response import StatusDone, StatusError, ErrorCode
 from board.services.auth_login_service import AuthLoginService
@@ -25,6 +26,7 @@ from board.services.auth_service import AuthService, OAuthService, AuthValidatio
 from board.services.initial_setup_service import InitialSetupService
 from board.services.api_request_body_service import ApiRequestBodyService
 from modules import oauth
+from board.services.social_auth_provider_service import SocialAuthProviderService
 from modules.challenge import auth_hcaptcha
 from modules.sub_task import SubTaskProcessor
 from modules.telegram import TelegramBot
@@ -165,6 +167,12 @@ def sign_social(request, social):
                 '첫 관리자 계정을 먼저 만들어주세요.'
             )
 
+        if social not in SocialAuthProviderService.supported_keys():
+            raise Http404
+
+        if not SocialAuthProviderService.is_enabled(social):
+            return StatusError(ErrorCode.REJECT, '소셜 로그인이 설정되지 않았습니다.')
+
         if social == 'github':
             if request.POST.get('code'):
                 state = oauth.auth_github(request.POST.get('code'))
@@ -175,18 +183,22 @@ def sign_social(request, social):
                 node_id = state.user.get('node_id')
                 user_id = state.user.get('login')
                 name = state.user.get('name')
-                token = f'{social}:{node_id}'
-
-                users = User.objects.filter(last_name=token)
-                if users.exists():
-                    return AuthLoginService.common_auth(request, users.first(), is_oauth=True)
+                provider = SocialAuthProviderService.get_provider(social)
+                social_auth = SocialAuth.objects.filter(provider=provider, uid=node_id).select_related('user').first()
+                if social_auth:
+                    return AuthLoginService.common_auth(request, social_auth.user, is_oauth=True)
 
                 user, profile, config = AuthService.create_user(
                     username=user_id,
                     name=name,
                     email='',
                     avatar_url=avatar_url,
-                    token=token,
+                )
+                SocialAuth.objects.create(
+                    user=user,
+                    provider=provider,
+                    uid=node_id,
+                    extra_data=json.dumps(state.user, ensure_ascii=False),
                 )
 
                 UserLinkMeta.objects.create(
@@ -209,18 +221,22 @@ def sign_social(request, social):
                 user_id = state.user.get('email').split('@')[0]
                 email = state.user.get('email')
                 name = state.user.get('name')
-                token = f'{social}:{node_id}'
-
-                users = User.objects.filter(last_name=token)
-                if users.exists():
-                    return AuthLoginService.common_auth(request, users.first(), is_oauth=True)
+                provider = SocialAuthProviderService.get_provider(social)
+                social_auth = SocialAuth.objects.filter(provider=provider, uid=node_id).select_related('user').first()
+                if social_auth:
+                    return AuthLoginService.common_auth(request, social_auth.user, is_oauth=True)
 
                 user, profile, config = AuthService.create_user(
                     username=user_id,
                     name=name,
                     email=email,
                     avatar_url=avatar_url,
-                    token=token,
+                )
+                SocialAuth.objects.create(
+                    user=user,
+                    provider=provider,
+                    uid=node_id,
+                    extra_data=json.dumps(state.user, ensure_ascii=False),
                 )
 
                 auth.login(request, user)
@@ -344,6 +360,5 @@ def social_providers(request):
     Get available social authentication providers
     """
     if request.method == 'GET':
-        providers = SocialAuthProvider.objects.all().values('key', 'name', 'icon', 'color')
-        return StatusDone(list(providers))
+        return StatusDone(SocialAuthProviderService.serialize_public_providers())
     raise Http404

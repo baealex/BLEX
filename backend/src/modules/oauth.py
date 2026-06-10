@@ -1,24 +1,26 @@
 import requests
 
-from django.conf import settings
-
 from board.services.site_url_service import SiteUrlService
+from board.services.social_auth_provider_service import SocialAuthProviderService
 
 
 class State:
-    def __init__(self, success, user):
+    def __init__(self, success, user=None):
         self.success = success
-        self.user = user
+        self.user = user or {}
 
 
 def auth_google(code) -> State:
     data = {
         'code': code,
-        'client_id': settings.GOOGLE_OAUTH_CLIENT_ID,
-        'client_secret': settings.GOOGLE_OAUTH_CLIENT_SECRET,
+        'client_id': SocialAuthProviderService.get_client_id('google'),
+        'client_secret': SocialAuthProviderService.get_client_secret('google'),
         'redirect_uri': SiteUrlService.configured_absolute_url('/login/callback/google'),
         'grant_type': 'authorization_code',
     }
+    if not data['client_id'] or not data['client_secret']:
+        return State(success=False, user={})
+
     response = requests.post(
         'https://accounts.google.com/o/oauth2/token',
         data=data
@@ -39,9 +41,12 @@ def auth_google(code) -> State:
 def auth_github(code) -> State:
     data = {
         'code': code,
-        'client_id': settings.GITHUB_OAUTH_CLIENT_ID,
-        'client_secret': settings.GITHUB_OAUTH_CLIENT_SECRET
+        'client_id': SocialAuthProviderService.get_client_id('github'),
+        'client_secret': SocialAuthProviderService.get_client_secret('github')
     }
+    if not data['client_id'] or not data['client_secret']:
+        return State(success=False, user={})
+
     headers = {
         'Accept': 'application/json'
     }
