@@ -6,7 +6,7 @@ from datetime import timedelta
 from django.test import TestCase, override_settings
 from django.utils import timezone
 
-from board.models import User, UsernameChangeLog, Profile, Config
+from board.models import User, UsernameChangeLog, Profile, Config, SocialAuth, SocialAuthProvider
 from modules import oauth
 
 
@@ -30,6 +30,16 @@ class AuthTestCase(TestCase):
         )
         Profile.objects.create(user=admin, role=Profile.Role.EDITOR)
         Config.objects.create(user=admin)
+
+        for key in ['google', 'github']:
+            SocialAuthProvider.objects.update_or_create(
+                key=key,
+                defaults={
+                    'is_enabled': True,
+                    'client_id': f'{key}-client-id',
+                    'client_secret': f'{key}-secret',
+                }
+            )
 
     def test_login_not_logged_in_user(self):
         """로그인하지 않은 사용자 테스트"""
@@ -141,6 +151,20 @@ class AuthTestCase(TestCase):
         content = json.loads(response.content)
         self.assertEqual(content['status'], 'ERROR')
 
+
+    def test_disabled_social_provider_blocks_direct_signup_api(self):
+        """관리자가 제공자를 끄면 v1/sign 직접 호출도 막는다."""
+        SocialAuthProvider.objects.filter(key='github').update(is_enabled=False)
+
+        response = self.client.post('/v1/sign/github', {
+            'code': 'SECRET_TOKEN_VALUE',
+        })
+
+        self.assertEqual(response.status_code, 200)
+        content = json.loads(response.content)
+        self.assertEqual(content['status'], 'ERROR')
+        self.assertEqual(content['errorCode'], 'error:RJ')
+
     @patch('modules.oauth.auth_github', return_value=oauth.State(success=True, user={
         'node_id': 'SECRET_TOKEN_VALUE',
         'login': 'test3',
@@ -156,6 +180,9 @@ class AuthTestCase(TestCase):
         self.assertEqual(content['status'], 'DONE')
         self.assertEqual(content['body']['username'], 'test3')
         self.assertEqual(content['body']['isFirstLogin'], True)
+        user = User.objects.get(username='test3')
+        self.assertEqual(user.last_name, '')
+        self.assertTrue(SocialAuth.objects.filter(user=user, provider__key='github', uid='SECRET_TOKEN_VALUE').exists())
 
         self.client.logout()
 
@@ -183,6 +210,9 @@ class AuthTestCase(TestCase):
         self.assertEqual(content['status'], 'DONE')
         self.assertEqual(content['body']['username'], 'test3')
         self.assertEqual(content['body']['isFirstLogin'], True)
+        user = User.objects.get(username='test3')
+        self.assertEqual(user.last_name, '')
+        self.assertTrue(SocialAuth.objects.filter(user=user, provider__key='google', uid='SECRET_TOKEN_VALUE').exists())
 
         self.client.logout()
 

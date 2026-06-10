@@ -13,7 +13,8 @@ import {
     type BrandAssetTheme,
     type BrandAssetType,
     type SiteSettingData,
-    type SiteSettingUpdateData
+    type SiteSettingUpdateData,
+    type SocialAuthProviderSetting
 } from '~/lib/api/settings';
 import {
     createIconBrandAssetFormData,
@@ -29,6 +30,11 @@ interface BrandAssetUploadPayload {
 interface BrandAssetDeletePayload {
     assetType: BrandAssetType;
     theme: BrandAssetTheme;
+}
+
+interface SocialAuthProviderForm extends SocialAuthProviderSetting {
+    clientSecret: string;
+    clearClientSecret: boolean;
 }
 
 interface AssetUploadButtonProps {
@@ -221,6 +227,7 @@ const SiteSettingSetting = () => {
     const [welcomeMessage, setWelcomeMessage] = useState('');
     const [welcomeUrl, setWelcomeUrl] = useState('');
     const [deletionRedirectUrl, setDeletionRedirectUrl] = useState('');
+    const [socialAuthProviders, setSocialAuthProviders] = useState<SocialAuthProviderForm[]>([]);
 
     useEffect(() => {
         if (!hasHydratedFormRef.current) {
@@ -230,6 +237,11 @@ const SiteSettingSetting = () => {
             setWelcomeMessage(settingData.welcomeNotificationMessage);
             setWelcomeUrl(settingData.welcomeNotificationUrl);
             setDeletionRedirectUrl(settingData.accountDeletionRedirectUrl);
+            setSocialAuthProviders(settingData.socialAuthProviders.map((provider) => ({
+                ...provider,
+                clientSecret: '',
+                clearClientSecret: false
+            })));
             hasHydratedFormRef.current = true;
         }
         syncSettingsDocumentTitle(settingData.siteName);
@@ -247,6 +259,11 @@ const SiteSettingSetting = () => {
             setWelcomeMessage(body.welcomeNotificationMessage);
             setWelcomeUrl(body.welcomeNotificationUrl);
             setDeletionRedirectUrl(body.accountDeletionRedirectUrl);
+            setSocialAuthProviders(body.socialAuthProviders.map((provider) => ({
+                ...provider,
+                clientSecret: '',
+                clearClientSecret: false
+            })));
             syncSettingsDocumentTitle(body.siteName);
             void queryClient.invalidateQueries({ queryKey: ['site-settings'] });
             toast.success('사이트 설정이 저장되었습니다.');
@@ -294,8 +311,26 @@ const SiteSettingSetting = () => {
             footer_script: footerScript,
             welcome_notification_message: welcomeMessage,
             welcome_notification_url: welcomeUrl,
-            account_deletion_redirect_url: deletionRedirectUrl
+            account_deletion_redirect_url: deletionRedirectUrl,
+            social_auth_providers: socialAuthProviders.map((provider) => ({
+                key: provider.key,
+                is_enabled: provider.isEnabled,
+                client_id: provider.clientId,
+                ...(provider.clientSecret ? { client_secret: provider.clientSecret } : {}),
+                ...(provider.clearClientSecret ? { clear_client_secret: true } : {})
+            }))
         });
+    };
+
+    const updateSocialProvider = (key: string, patch: Partial<SocialAuthProviderForm>) => {
+        setSocialAuthProviders((providers) => providers.map((provider) => (
+            provider.key === key
+                ? {
+                    ...provider,
+                    ...patch
+                }
+                : provider
+        )));
     };
 
     const handleBrandAssetUpload = (assetType: BrandAssetType, theme: BrandAssetTheme) => (
@@ -431,6 +466,68 @@ const SiteSettingSetting = () => {
                         />
                         <p className="text-xs text-content-secondary">{'</body>'} 태그 직전에 삽입됩니다.</p>
                     </div>
+                </div>
+            </Card>
+
+            <Card
+                title="소셜 로그인"
+                subtitle="설치형 블로그에서 사용할 OAuth 제공자를 설정합니다. 현재 Google과 GitHub를 지원합니다."
+                icon={<i className="fas fa-right-to-bracket" />}>
+                <div className="space-y-4">
+                    {socialAuthProviders.map((provider) => (
+                        <div
+                            key={provider.key}
+                            className="rounded-2xl border border-line bg-surface-subtle p-4 space-y-4">
+                            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                                <div>
+                                    <h3 className="font-semibold text-content">{provider.name}</h3>
+                                    <p className="text-xs text-content-secondary">
+                                        콜백 URL: /login/callback/{provider.key}
+                                    </p>
+                                </div>
+                                <label className="inline-flex items-center gap-2 text-sm font-semibold text-content">
+                                    <input
+                                        type="checkbox"
+                                        checked={provider.isEnabled}
+                                        onChange={(event) => updateSocialProvider(provider.key, { isEnabled: event.target.checked })}
+                                    />
+                                    사용
+                                </label>
+                            </div>
+                            <div className="grid gap-4 lg:grid-cols-2">
+                                <Input
+                                    label="Client ID"
+                                    placeholder={`${provider.name} OAuth Client ID`}
+                                    value={provider.clientId}
+                                    onChange={(event) => updateSocialProvider(provider.key, { clientId: event.target.value })}
+                                />
+                                <Input
+                                    label="Client Secret"
+                                    type="password"
+                                    placeholder={provider.hasClientSecret ? '저장된 값 유지' : `${provider.name} OAuth Client Secret`}
+                                    value={provider.clientSecret}
+                                    onChange={(event) => updateSocialProvider(provider.key, {
+                                        clientSecret: event.target.value,
+                                        clearClientSecret: false
+                                    })}
+                                    helperText={provider.hasClientSecret ? '새 값을 입력하지 않으면 기존 secret을 유지합니다.' : undefined}
+                                />
+                            </div>
+                            {provider.hasClientSecret && (
+                                <label className="inline-flex items-center gap-2 text-xs text-content-secondary">
+                                    <input
+                                        type="checkbox"
+                                        checked={provider.clearClientSecret}
+                                        onChange={(event) => updateSocialProvider(provider.key, {
+                                            clearClientSecret: event.target.checked,
+                                            clientSecret: event.target.checked ? '' : provider.clientSecret
+                                        })}
+                                    />
+                                    저장된 Client Secret 삭제
+                                </label>
+                            )}
+                        </div>
+                    ))}
                 </div>
             </Card>
 

@@ -632,6 +632,14 @@ export const updateGlobalBannerOrder = async (order: [number, number][]) => {
 };
 
 // Site Setting API
+export interface SocialAuthProviderSetting {
+    key: string;
+    name: string;
+    isEnabled: boolean;
+    clientId: string;
+    hasClientSecret: boolean;
+}
+
 export interface SiteSettingData {
     siteName: string;
     siteDescription: string;
@@ -655,6 +663,15 @@ export interface SiteSettingData {
     robotsTxtDefault: string;
     aeoEnabled: boolean;
     updatedDate: string;
+    socialAuthProviders: SocialAuthProviderSetting[];
+}
+
+export interface SocialAuthProviderUpdateData {
+    key: string;
+    is_enabled?: boolean;
+    client_id?: string;
+    client_secret?: string;
+    clear_client_secret?: boolean;
 }
 
 export interface SiteSettingUpdateData {
@@ -667,6 +684,7 @@ export interface SiteSettingUpdateData {
     seo_enabled?: boolean;
     robots_txt_extra_rules?: string;
     aeo_enabled?: boolean;
+    social_auth_providers?: SocialAuthProviderUpdateData[];
 }
 
 export const getSiteSettings = async () => {

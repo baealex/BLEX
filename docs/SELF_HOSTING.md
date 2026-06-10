@@ -119,6 +119,8 @@ Initial setup URL: https://blog.example.com/setup?token=...
 
 첫 관리자 계정을 만들면 `/admin-settings/site-settings`로 이동합니다. 이 계정은 Django 관리자 권한과 BLEX 작가 권한을 함께 받습니다.
 
+소셜 로그인을 사용할 경우 Google/GitHub 개발자 콘솔에서 OAuth 앱을 만든 뒤 BLEX 어드민의 사이트 설정에 Client ID와 Client Secret을 저장합니다. 자세한 절차는 [`SOCIAL_LOGIN.md`](./SOCIAL_LOGIN.md)를 참고하세요.
+
 ## 5. 첫 글 발행
 
 `/write`에서 제목과 본문을 입력하고 발행합니다. 공개 글은 공개 URL, Markdown URL, RSS, sitemap에 노출됩니다.
