@@ -40,21 +40,11 @@
         {% include 'components/pagination.html' with style='numbered' page=page_number last=page_count %}
     </div>
 {% else %}
-    <div class="flex flex-col items-center justify-center min-h-[60vh] text-center py-12">
-        <div class="w-24 h-24 bg-surface-subtle rounded-3xl flex items-center justify-center mb-6 shadow-inner">
-            <i class="fas fa-pen-nib text-3xl text-content-hint"></i>
-        </div>
-        <h2 class="text-2xl md:text-3xl font-bold text-content mb-3 tracking-tight">아직 포스트가 없어요</h2>
-        <p class="text-base md:text-lg text-content-secondary mb-8 max-w-md leading-relaxed">
-            첫 번째 작가가 되어 멋진 콘텐츠를 공유해보세요. 당신의 이야기를 기다리고 있습니다.
-        </p>
-        {% if user.is_authenticated and user.profile.is_editor %}
-        <a href="/write" class="bg-action hover:bg-action-hover text-content-inverted px-8 py-3.5 rounded-full font-medium transition-all duration-300 inline-flex items-center gap-2 shadow-floating hover:shadow-floating hover:-translate-y-0.5">
-            <i class="fas fa-edit text-sm"></i>
-            <span>포스트 작성하기</span>
-        </a>
-        {% endif %}
-    </div>
+    {% if user.is_authenticated and user.profile.is_editor %}
+        {% include 'components/empty_state.html' with empty_icon_class='fas fa-pen-nib' empty_title='아직 포스트가 없어요' empty_message='공개된 포스트가 발행되면 이곳에 표시됩니다.' empty_action_url='/write' empty_action_label='포스트 작성하기' empty_action_icon='fas fa-edit' only %}
+    {% else %}
+        {% include 'components/empty_state.html' with empty_icon_class='fas fa-pen-nib' empty_title='아직 포스트가 없어요' empty_message='공개된 포스트가 발행되면 이곳에 표시됩니다.' only %}
+    {% endif %}
 {% endif %}
 </div>
 {% endblock %}

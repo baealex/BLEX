@@ -32,21 +32,10 @@
             {% include 'components/pagination.html' with style='numbered' page=page last=last_page %}
         </div>
     {% else %}
-        <!-- Empty State -->
-        <div class="text-center py-24 bg-surface-subtle rounded-3xl border border-line-light">
-            <div class="max-w-md mx-auto px-6">
-                <div class="inline-flex items-center justify-center w-20 h-20 bg-surface-elevated shadow-sm rounded-2xl mb-8">
-                    <i class="fas fa-hashtag text-3xl text-content-hint"></i>
-                </div>
-                <h3 class="text-2xl font-bold text-content mb-3">포스트가 없습니다</h3>
-                <p class="text-content-secondary mb-10 text-lg leading-relaxed">#{{ tag }} 태그로 작성된 포스트가 아직 없습니다.</p>
-                <a href="{% url 'post_write' %}" class="inline-flex items-center gap-2 bg-action text-content-inverted px-8 py-3.5 rounded-full font-medium transition-all duration-150 hover:bg-action-hover active:scale-[0.98]">
-                    <i class="fas fa-pen text-sm"></i>
-                    <span>포스트 작성하기</span>
-                </a>
-            </div>
-        </div>
+        {% url 'post_write' as post_write_url %}
+        {% with empty_message='#'|add:tag|add:' 태그로 작성된 포스트가 아직 없습니다.' %}
+            {% include 'components/empty_state.html' with empty_framed=True empty_icon_class='fas fa-hashtag' empty_title='포스트가 없습니다' empty_message=empty_message empty_action_url=post_write_url empty_action_label='포스트 작성하기' empty_action_icon='fas fa-pen' only %}
+        {% endwith %}
     {% endif %}
 </div>
 {% endblock %}
-

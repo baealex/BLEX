@@ -76,14 +76,8 @@
             <div class="prose blog-post-content" x-show="!editing && hasRenderedContent" x-html="renderedContent">
                 {% if about_html %}{{ about_html|safe }}{% endif %}
             </div>
-            <div class="rounded-2xl border border-dashed border-line bg-surface px-5 py-4" x-show="!editing && !hasRenderedContent" x-cloak>
-                <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                    <p class="text-sm text-content-secondary">소개글을 작성하면 프로필에 표시됩니다.</p>
-                    <button type="button" @click="startEditing()" class="inline-flex items-center justify-center rounded-lg bg-surface-subtle px-4 py-2 text-sm font-semibold text-content-secondary transition-colors hover:bg-surface-subtle/80 hover:text-content">
-                        <i class="fas fa-edit mr-2"></i>
-                        소개글 작성
-                    </button>
-                </div>
+            <div x-show="!editing && !hasRenderedContent" x-cloak>
+                {% include 'board/author/components/section_empty_state.html' with section_empty_title='아직 소개가 없습니다' section_empty_action_label='소개글 작성' section_empty_action_icon='fas fa-edit' section_empty_action_click='startEditing()' only %}
             </div>
         {% elif about_html %}
             <div class="prose blog-post-content">

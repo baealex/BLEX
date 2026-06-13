@@ -57,10 +57,7 @@
                 </div>
             </div>
         {% else %}
-            <div class="py-12 text-center">
-                <i class="fas fa-wind text-content-hint text-2xl mb-3"></i>
-                <p class="text-sm text-content-hint">표시할 활동이 없습니다</p>
-            </div>
+            {% include 'board/author/components/section_empty_state.html' with section_empty_embedded=True section_empty_title='표시할 활동이 없습니다' only %}
         {% endif %}
     </div>
 </section>

@@ -455,11 +455,11 @@ const SearchPage = ({ username }: SearchPageProps) => {
                             ))}
                         </div>
                     ) : (
-                        <div className="bg-surface border border-line-light rounded-2xl p-12 text-center">
-                            <div className="w-16 h-16 bg-surface-subtle rounded-2xl flex items-center justify-center mx-auto mb-4">
-                                <i className="fas fa-search text-2xl text-content-hint" />
+                        <div className="bg-surface border border-line-light rounded-2xl p-8 text-center">
+                            <div className="w-12 h-12 bg-surface-subtle rounded-xl flex items-center justify-center mx-auto mb-3">
+                                <i className="fas fa-search text-lg text-content-hint" />
                             </div>
-                            <h3 className="text-lg font-semibold text-content mb-1">검색 결과가 없습니다</h3>
+                            <h3 className="text-base font-semibold text-content mb-1">검색 결과가 없습니다</h3>
                             <p className="text-sm text-content-secondary">다른 검색어를 시도해보세요.</p>
                         </div>
                     )}

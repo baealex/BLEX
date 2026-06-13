@@ -1,4 +1,1 @@
-<div class="text-center py-16">
-    <h2 class="text-2xl font-bold mb-2 text-content">{{ empty_title }}</h2>
-    <p class="text-base text-content-secondary">{{ empty_message }}</p>
-</div>
+{% include 'components/empty_state.html' with empty_icon_class=empty_icon_class empty_title=empty_title empty_message=empty_message empty_action_url=empty_action_url empty_action_label=empty_action_label empty_action_icon=empty_action_icon empty_framed=empty_framed only %}

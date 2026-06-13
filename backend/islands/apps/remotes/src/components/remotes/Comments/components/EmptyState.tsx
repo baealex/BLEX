@@ -1,8 +1,8 @@
 export const EmptyState = () => {
     return (
-        <div className="py-12 text-center">
+        <div className="py-8 text-center">
             <svg
-                className="w-10 h-10 text-content-hint mx-auto mb-3"
+                className="w-8 h-8 text-content-hint mx-auto mb-2"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"

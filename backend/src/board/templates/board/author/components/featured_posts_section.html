@@ -53,13 +53,7 @@
         {% endfor %}
     </div>
     {% elif request.user == author %}
-    <div class="rounded-2xl border border-dashed border-line bg-surface px-6 py-8 text-center">
-        <p class="text-sm font-semibold text-content">아직 공개된 포스트가 없습니다.</p>
-        <p class="mt-1 text-sm text-content-secondary">첫 포스트를 발행하면 이 영역에 표시됩니다.</p>
-        <a href="/write" class="mt-4 inline-flex items-center justify-center rounded-lg bg-action px-4 py-2 text-sm font-semibold text-content-inverted transition-colors hover:bg-action-hover">
-            포스트 작성하기
-        </a>
-    </div>
+    {% include 'board/author/components/section_empty_state.html' with section_empty_title='아직 공개된 포스트가 없습니다.' section_empty_action_url='/write' section_empty_action_label='포스트 작성하기' section_empty_action_icon='fas fa-edit' only %}
     {% endif %}
 </section>
 {% endif %}
