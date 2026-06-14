@@ -76,13 +76,7 @@
     </div>
 
     {% elif not posts %}
-    <div class="flex flex-col items-center justify-center py-20 text-center bg-surface-subtle rounded-3xl border border-line-light">
-        <div class="w-16 h-16 bg-surface-elevated rounded-2xl flex items-center justify-center mb-4 shadow-sm">
-            <i class="fas fa-layer-group text-2xl text-content-hint"></i>
-        </div>
-        <h2 class="text-xl font-bold text-content mb-2">아직 포스트가 없습니다</h2>
-        <p class="text-content-secondary">이 시리즈에는 아직 포스트가 추가되지 않았습니다.</p>
-    </div>
+    {% include 'components/empty_state.html' with empty_framed=True empty_icon_class='fas fa-layer-group' empty_title='아직 포스트가 없습니다' empty_message='이 시리즈에는 아직 포스트가 추가되지 않았습니다.' only %}
 
     {% else %}
     <!-- 정렬 컨트롤 -->

@@ -473,11 +473,11 @@ const UserManagementSetting = () => {
                         ))}
 
                         {isUsersError ? (
-                            <div className="px-4 py-12 text-center text-sm text-danger">
+                            <div className="px-4 py-8 text-center text-sm text-danger">
                                 사용자 목록을 불러오지 못했습니다. 잠시 후 다시 시도해주세요.
                             </div>
                         ) : users.length === 0 && (
-                            <div className="px-4 py-12 text-center text-sm text-content-secondary">
+                            <div className="px-4 py-8 text-center text-sm text-content-secondary">
                                 검색 결과가 없습니다.
                             </div>
                         )}

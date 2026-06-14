@@ -34,19 +34,7 @@
         {% include 'components/pagination.html' with style='numbered' page=page_number last=page_count %}
     </div>
 {% else %}
-    <div class="flex flex-col items-center justify-center min-h-[52vh] text-center py-12">
-        <div class="w-24 h-24 bg-surface-subtle rounded-3xl flex items-center justify-center mb-6 shadow-inner">
-            <i class="far fa-heart text-3xl text-content-hint"></i>
-        </div>
-        <h2 class="text-2xl md:text-3xl font-bold text-content mb-3 tracking-tight">아직 관심 포스트가 없어요</h2>
-        <p class="text-base md:text-lg text-content-secondary mb-8 max-w-md leading-relaxed">
-            나중에 다시 보고 싶은 글에서 추천 버튼을 눌러두면 여기에 모입니다.
-        </p>
-        <a href="/" class="bg-action hover:bg-action-hover text-content-inverted px-8 py-3.5 rounded-full font-medium transition-all duration-300 inline-flex items-center gap-2 shadow-floating hover:shadow-floating hover:-translate-y-0.5">
-            <i class="fas fa-compass text-sm"></i>
-            <span>포스트 둘러보기</span>
-        </a>
-    </div>
+    {% include 'components/empty_state.html' with empty_icon_class='far fa-heart' empty_title='아직 관심 포스트가 없어요' empty_message='추천 버튼을 눌러둔 포스트가 여기에 모입니다.' empty_action_url='/' empty_action_label='포스트 둘러보기' empty_action_icon='fas fa-compass' only %}
 {% endif %}
 </div>
 {% endblock %}

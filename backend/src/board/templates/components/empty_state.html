@@ -1,0 +1,26 @@
+<div class="{% if empty_framed %}text-center py-10 bg-surface-subtle rounded-2xl border border-line-light{% else %}text-center py-10{% endif %}">
+    <div class="{% if empty_framed %}max-w-sm mx-auto px-5{% else %}max-w-sm mx-auto{% endif %}">
+        {% if empty_icon_class %}
+        <div class="inline-flex items-center justify-center w-12 h-12 {% if empty_framed %}bg-surface-elevated{% else %}bg-surface-subtle{% endif %} rounded-xl mb-4">
+            <i class="{{ empty_icon_class }} text-lg text-content-hint" aria-hidden="true"></i>
+        </div>
+        {% endif %}
+
+        <h2 class="text-lg font-semibold text-content mb-2">{{ empty_title }}</h2>
+
+        {% if empty_message %}
+        <p class="text-sm text-content-secondary {% if empty_action_url and empty_action_label %}mb-6{% endif %} leading-relaxed">
+            {{ empty_message }}
+        </p>
+        {% endif %}
+
+        {% if empty_action_url and empty_action_label %}
+        <a href="{{ empty_action_url }}" class="inline-flex items-center gap-2 bg-action text-content-inverted px-5 py-2.5 rounded-full text-sm font-medium transition-colors duration-150 hover:bg-action-hover active:scale-[0.98]">
+            {% if empty_action_icon %}
+            <i class="{{ empty_action_icon }} text-sm" aria-hidden="true"></i>
+            {% endif %}
+            <span>{{ empty_action_label }}</span>
+        </a>
+        {% endif %}
+    </div>
+</div>

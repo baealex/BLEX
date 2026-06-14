@@ -1,0 +1,25 @@
+<div class="{% if section_empty_embedded %}py-8 text-center{% else %}rounded-2xl border border-dashed border-line bg-surface px-5 py-6{% endif %}">
+    <div class="{% if section_empty_embedded %}mx-auto max-w-sm{% else %}flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between{% endif %}">
+        <div class="min-w-0">
+            <p class="text-sm font-semibold text-content">{{ section_empty_title }}</p>
+        </div>
+
+        {% if section_empty_action_label %}
+            {% if section_empty_action_url %}
+            <a href="{{ section_empty_action_url }}" class="{% if section_empty_embedded %}mt-4 {% endif %}inline-flex items-center justify-center rounded-lg bg-action px-4 py-2 text-sm font-semibold text-content-inverted transition-colors hover:bg-action-hover active:scale-[0.98]">
+                {% if section_empty_action_icon %}
+                <i class="{{ section_empty_action_icon }} mr-2" aria-hidden="true"></i>
+                {% endif %}
+                {{ section_empty_action_label }}
+            </a>
+            {% else %}
+            <button type="button" @click="{{ section_empty_action_click }}" class="{% if section_empty_embedded %}mt-4 {% endif %}inline-flex items-center justify-center rounded-lg bg-surface-subtle px-4 py-2 text-sm font-semibold text-content-secondary transition-colors hover:bg-surface-subtle/80 hover:text-content active:scale-[0.98]">
+                {% if section_empty_action_icon %}
+                <i class="{{ section_empty_action_icon }} mr-2" aria-hidden="true"></i>
+                {% endif %}
+                {{ section_empty_action_label }}
+            </button>
+            {% endif %}
+        {% endif %}
+    </div>
+</div>

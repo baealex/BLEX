@@ -116,12 +116,12 @@ export const AddPinnedPostModal = ({
                         ))}
                     </div>
                 ) : pinnablePosts.length === 0 ? (
-                    <div className="flex h-full flex-col items-center justify-center py-20 text-center">
-                        <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-surface-subtle">
-                            <i className="fas fa-search text-2xl text-content-hint" />
+                    <div className="flex h-full flex-col items-center justify-center py-12 text-center">
+                        <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-surface-subtle">
+                            <i className="fas fa-search text-lg text-content-hint" />
                         </div>
-                        <p className="mb-1 text-lg font-medium text-content">검색 결과가 없습니다</p>
-                        <p className="text-content-secondary">다른 검색어로 다시 시도해보세요.</p>
+                        <p className="mb-1 text-base font-medium text-content">검색 결과가 없습니다</p>
+                        <p className="text-sm text-content-secondary">다른 검색어로 다시 시도해보세요.</p>
                     </div>
                 ) : (
                     <div

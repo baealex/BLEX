@@ -181,10 +181,9 @@ class AuthorPostsPageTestCase(TestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertNotContains(response, 'About')
-        self.assertNotContains(response, '소개글을 작성하면 프로필에 표시됩니다.')
+        self.assertNotContains(response, '아직 소개가 없습니다')
         self.assertNotContains(response, '소개글 작성')
         self.assertNotContains(response, reverse('user_about_edit', kwargs={'username': self.user.username}))
-        self.assertNotContains(response, '아직 소개글이 없습니다')
 
     def test_author_overview_shows_empty_intro_prompt_to_owner(self):
         """소개글이 없으면 작성자 본인에게 작성 진입점을 보여준다."""
@@ -198,10 +197,9 @@ class AuthorPostsPageTestCase(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, 'About')
         self.assertContains(response, '소개')
-        self.assertContains(response, '소개글을 작성하면 프로필에 표시됩니다.')
+        self.assertContains(response, '아직 소개가 없습니다')
         self.assertContains(response, '소개글 작성')
         self.assertNotContains(response, f'href="{edit_path}"')
-        self.assertNotContains(response, '아직 소개글이 없습니다')
 
     def test_author_overview_renders_intro_content_with_owner_edit_entrypoint(self):
         """작성된 소개글은 방문자에게 보이고, 수정 진입점은 작성자 본인에게만 보인다."""

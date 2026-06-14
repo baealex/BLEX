@@ -78,7 +78,7 @@ export const PostListContent = ({
                     ))}
                 </div>
             ) : (
-                <div className="py-12 text-center text-content-secondary bg-surface-subtle rounded-lg border border-line-light border-dashed">
+                <div className="py-8 text-center text-sm text-content-secondary bg-surface-subtle rounded-lg border border-line-light border-dashed">
                     {emptyMessage}
                 </div>
             )}
