@@ -231,7 +231,7 @@ const SeriesEditor = ({ seriesId }: SeriesEditorProps) => {
     const handleDelete = async () => {
         const confirmed = await confirm({
             title: '시리즈 삭제',
-            message: `"${titleValue}" 시리즈를 삭제하면 연결된 글은 유지되고 시리즈 연결만 해제됩니다.\n\n이 작업은 되돌릴 수 없습니다. 계속할까요?`,
+            message: `"${titleValue}" 시리즈를 삭제하면 연결된 포스트는 유지되고 시리즈 연결만 해제됩니다.\n\n이 작업은 되돌릴 수 없습니다. 계속할까요?`,
             confirmText: '삭제',
             variant: 'danger'
         });

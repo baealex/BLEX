@@ -278,14 +278,14 @@ class PostDetailViewTestCase(TestCase):
         self.assertContains(response, '수정일')
 
     def test_post_detail_shows_post_info_section(self):
-        """포스트 상세 하단에 사람이 확인할 수 있는 글 정보를 보여준다."""
+        """포스트 상세 하단에 사람이 확인할 수 있는 포스트 정보를 보여준다."""
         response = self.client.get(reverse('post_detail', kwargs={
             'username': 'testauthor',
             'post_url': 'test-post'
         }))
 
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, '글 정보')
+        self.assertContains(response, '포스트 정보')
         self.assertContains(response, '작성자')
         self.assertContains(response, '최초 발행')
         self.assertContains(response, '/@testauthor')

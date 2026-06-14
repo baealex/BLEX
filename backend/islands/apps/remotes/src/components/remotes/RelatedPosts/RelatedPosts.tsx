@@ -147,10 +147,10 @@ const RelatedPosts = ({ postUrl, username }: RelatedPostsProps) => {
                     <i className="fas fa-compass text-2xl text-content-hint" />
                 </div>
                 <h3 className="text-lg font-semibold text-content mb-2">
-                    {username}의 다른 글 둘러보기
+                    {username}의 다른 포스트 둘러보기
                 </h3>
                 <p className="text-content-secondary text-sm mb-6">
-                    프로필에서 더 많은 글을 확인할 수 있습니다.
+                    프로필에서 더 많은 포스트를 확인할 수 있습니다.
                 </p>
                 <a
                     href={`/@${username}`}

@@ -46,7 +46,7 @@ const PostSelector = ({ posts, selectedPostIds, onChange }: PostSelectorProps) =
     return (
         <section className="space-y-4">
             <div className="flex items-end justify-between gap-4">
-                <h2 className="text-base font-semibold text-content">포함할 글 선택</h2>
+                <h2 className="text-base font-semibold text-content">포함할 포스트 선택</h2>
                 <div className="rounded-full bg-surface-subtle px-3 py-1 text-xs font-medium text-content-secondary">
                     {selectedPostIds.length}개 선택
                 </div>

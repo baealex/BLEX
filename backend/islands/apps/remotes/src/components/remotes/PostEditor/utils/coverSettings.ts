@@ -23,7 +23,7 @@ export const COVER_LAYOUT_OPTIONS: Array<{
     {
         value: 'none',
         label: '커버 숨김',
-        description: '대표 이미지는 공유와 목록에만 사용하고 글 상단에는 보이지 않습니다.'
+        description: '대표 이미지는 공유와 목록에만 사용하고 포스트 상단에는 보이지 않습니다.'
     }
 ];
 
