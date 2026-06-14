@@ -102,7 +102,7 @@ const CoverImageSlot = ({
                     <span className="min-w-0">
                         <span className="block text-sm font-medium text-content">대표 이미지</span>
                         <span className="block truncate text-xs text-content-secondary">
-                            {imagePreview ? '글 상단에는 표시하지 않고 공유와 목록에 사용합니다' : '공유와 목록에 사용할 이미지를 추가하세요'}
+                            {imagePreview ? '포스트 상단에는 표시하지 않고 공유와 목록에 사용합니다' : '공유와 목록에 사용할 이미지를 추가하세요'}
                         </span>
                     </span>
                 </button>

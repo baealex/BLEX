@@ -88,7 +88,7 @@ const DraftsPanel = ({
 
                     {/* Header */}
                     <div className="flex items-center justify-between p-5 border-b border-line">
-                        <Dialog.Title className="text-lg font-semibold text-content">임시 저장 글</Dialog.Title>
+                        <Dialog.Title className="text-lg font-semibold text-content">임시 포스트</Dialog.Title>
                         <Dialog.Close asChild>
                             <IconButton aria-label="닫기">
                                 <X className="w-5 h-5" />
@@ -116,7 +116,7 @@ const DraftsPanel = ({
                         ) : drafts.length === 0 ? (
                             <div className="flex flex-col items-center justify-center flex-1 min-h-[200px] text-content-secondary">
                                 <FileText className="w-12 h-12 mb-3 text-content-hint" />
-                                <p className="text-sm">임시 저장된 글이 없습니다</p>
+                                <p className="text-sm">임시 저장된 포스트가 없습니다</p>
                             </div>
                         ) : (
                             <div className="divide-y divide-line-light">
@@ -153,7 +153,7 @@ const DraftsPanel = ({
                     {/* Footer */}
                     <div className="p-4 border-t border-line bg-surface-subtle">
                         <p className="text-xs text-content-secondary text-center">
-                            총 {drafts.length}개의 임시 저장 글
+                            총 {drafts.length}개의 임시 포스트
                         </p>
                     </div>
                 </Dialog.Content>

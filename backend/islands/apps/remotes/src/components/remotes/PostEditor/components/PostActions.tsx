@@ -63,8 +63,8 @@ const PostActions = ({
                 <IconButton
                     onClick={onOpenDrafts}
                     rounded="full"
-                    aria-label="임시 저장 글"
-                    title="임시 저장 글">
+                    aria-label="임시 포스트"
+                    title="임시 포스트">
                     <FileText className="w-5 h-5" />
                 </IconButton>
             )}

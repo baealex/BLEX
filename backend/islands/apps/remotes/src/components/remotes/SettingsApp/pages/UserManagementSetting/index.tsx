@@ -61,11 +61,11 @@ const orderingItems: { value: ManagedUserOrdering; label: string }[] = [
     },
     {
         value: '-post_count',
-        label: '글 많은 순'
+        label: '포스트 많은 순'
     },
     {
         value: 'post_count',
-        label: '글 적은 순'
+        label: '포스트 적은 순'
     },
     {
         value: '-date_joined',
@@ -387,7 +387,7 @@ const UserManagementSetting = () => {
 
             <Card
                 title="사용자 목록"
-                subtitle="사용자명, 이름, 이메일로 검색하고 권한과 글 수 기준으로 좁혀볼 수 있습니다."
+                subtitle="사용자명, 이름, 이메일로 검색하고 권한과 포스트 수 기준으로 좁혀볼 수 있습니다."
                 icon={<i className="fas fa-users" />}>
                 <div className="mb-6 grid gap-3 lg:grid-cols-[minmax(0,1fr)_180px_180px_auto]">
                     <Input
@@ -426,7 +426,7 @@ const UserManagementSetting = () => {
                     <div className="hidden grid-cols-[minmax(0,1.5fr)_110px_90px_100px_130px] gap-4 bg-surface-subtle px-4 py-3 text-xs font-semibold text-content-secondary md:grid">
                         <span>사용자</span>
                         <span>권한</span>
-                        <span>글</span>
+                        <span>포스트</span>
                         <span>상태</span>
                         <span>가입일</span>
                     </div>
@@ -458,7 +458,7 @@ const UserManagementSetting = () => {
                                 </div>
 
                                 <div className="flex items-center justify-between gap-3 text-sm text-content-secondary md:block md:text-content">
-                                    <span className="text-xs font-medium md:hidden">글</span>
+                                    <span className="text-xs font-medium md:hidden">포스트</span>
                                     <span>{user.postCount}</span>
                                 </div>
                                 <div className="flex items-center justify-between gap-3 md:block">

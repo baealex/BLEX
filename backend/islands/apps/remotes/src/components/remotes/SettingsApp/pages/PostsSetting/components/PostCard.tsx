@@ -228,7 +228,7 @@ const PostCard = ({
                             size="sm"
                             disabled
                             className="w-full justify-start text-content-secondary border-dashed">
-                            긴 글 주의: 읽는데 {post.readTime}분이 걸립니다.
+                            긴 포스트 주의: 읽는데 {post.readTime}분이 걸립니다.
                         </Button>
                     )}
                 </div>
