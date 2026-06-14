@@ -135,7 +135,7 @@ const adminNavigationSections: NavigationSection[] = [
                 requiresStaff: true
             },
             {
-                name: '로그인',
+                name: '로그인 관리',
                 path: '/login',
                 icon: 'fa-right-to-bracket',
                 requiresStaff: true

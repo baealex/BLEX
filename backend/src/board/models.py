@@ -886,8 +886,8 @@ class LoginSetting(models.Model):
     updated_date = models.DateTimeField(auto_now=True)
 
     class Meta:
-        verbose_name = '🏢 [사이트 운영] 로그인 설정'
-        verbose_name_plural = '🏢 [사이트 운영] 로그인 설정'
+        verbose_name = '🏢 [사이트 운영] 로그인 관리'
+        verbose_name_plural = '🏢 [사이트 운영] 로그인 관리'
 
     def __str__(self):
         return 'Login Settings'

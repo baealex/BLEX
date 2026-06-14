@@ -151,7 +151,7 @@ const LoginSetting = () => {
             if (data.status === 'DONE') {
                 return data.body;
             }
-            throw new Error('로그인 설정을 불러오는데 실패했습니다.');
+            throw new Error('로그인 관리 설정을 불러오는데 실패했습니다.');
         }
     });
 
@@ -173,7 +173,7 @@ const LoginSetting = () => {
     const updateMutation = useMutation({
         mutationFn: async (data: LoginSettingUpdateData) => {
             const response = await updateLoginSettings(data);
-            return assertDone(response, '로그인 설정 저장에 실패했습니다.');
+            return assertDone(response, '로그인 관리 설정 저장에 실패했습니다.');
         },
         onSuccess: (body: LoginSettingData) => {
             const loginSettingsForm = toLoginSettingsForm(body);
@@ -183,10 +183,10 @@ const LoginSetting = () => {
             savedLoginSettingsRef.current = toSavedLoginSettingsForm(loginSettingsForm);
             savedSocialAuthProvidersRef.current = toSavedSocialAuthProviderForms(providerForms);
             void queryClient.invalidateQueries({ queryKey: ['login-settings'] });
-            toast.success('로그인 설정이 저장되었습니다.');
+            toast.success('로그인 관리 설정이 저장되었습니다.');
         },
         onError: (error) => {
-            toast.error(getErrorMessage(error, '로그인 설정 저장에 실패했습니다.'));
+            toast.error(getErrorMessage(error, '로그인 관리 설정 저장에 실패했습니다.'));
         }
     });
 
@@ -238,7 +238,7 @@ const LoginSetting = () => {
     return (
         <form className="space-y-8" onSubmit={handleSave}>
             <SettingsHeader
-                title="로그인"
+                title="로그인 관리"
                 description="회원 안내, 소셜 로그인, 회원가입 인증을 관리합니다."
             />
 
@@ -407,7 +407,7 @@ const LoginSetting = () => {
                     isLoading={updateMutation.isPending}
                     disabled={!isDirty || updateMutation.isPending}
                     leftIcon={!updateMutation.isPending ? <i className="fas fa-check" /> : undefined}>
-                    {updateMutation.isPending ? '저장 중...' : '로그인 설정 저장'}
+                    {updateMutation.isPending ? '저장 중...' : '로그인 관리 저장'}
                 </Button>
             </div>
         </form>
