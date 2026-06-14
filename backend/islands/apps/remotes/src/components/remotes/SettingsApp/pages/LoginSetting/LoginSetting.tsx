@@ -236,7 +236,7 @@ const LoginSetting = () => {
     const isDirty = loginSettingsDirty || socialAuthProvidersDirty;
 
     return (
-        <form className="space-y-8" onSubmit={handleSave}>
+        <form className="space-y-8" onSubmit={handleSave} autoComplete="off">
             <SettingsHeader
                 title="로그인 관리"
                 description="회원 안내, 소셜 로그인, 회원가입 인증을 관리합니다."
@@ -300,6 +300,13 @@ const LoginSetting = () => {
                     <div className="grid gap-4 md:grid-cols-2">
                         <Input
                             label="Site Key"
+                            name="blex_hcaptcha_public_value"
+                            autoComplete="off"
+                            autoCorrect="off"
+                            spellCheck={false}
+                            data-1p-ignore="true"
+                            data-bwignore="true"
+                            data-lpignore="true"
                             value={loginSettings.hcaptchaSiteKey}
                             onChange={(event) => updateLoginSettingsForm({ hcaptchaSiteKey: event.target.value })}
                             placeholder="hCaptcha Site Key"
@@ -307,6 +314,13 @@ const LoginSetting = () => {
                         <Input
                             label="Secret Key"
                             type="password"
+                            name="blex_hcaptcha_private_value"
+                            autoComplete="new-password"
+                            autoCorrect="off"
+                            spellCheck={false}
+                            data-1p-ignore="true"
+                            data-bwignore="true"
+                            data-lpignore="true"
                             value={loginSettings.hcaptchaSecretKey}
                             onChange={(event) => updateLoginSettingsForm({
                                 hcaptchaSecretKey: event.target.value,
@@ -366,6 +380,13 @@ const LoginSetting = () => {
                             <div className="grid gap-4 md:grid-cols-2">
                                 <Input
                                     label="Client ID"
+                                    name={`blex_${provider.key}_oauth_public_value`}
+                                    autoComplete="off"
+                                    autoCorrect="off"
+                                    spellCheck={false}
+                                    data-1p-ignore="true"
+                                    data-bwignore="true"
+                                    data-lpignore="true"
                                     placeholder={`${provider.name} OAuth Client ID`}
                                     value={provider.clientId}
                                     onChange={(event) => updateSocialProvider(provider.key, { clientId: event.target.value })}
@@ -373,6 +394,13 @@ const LoginSetting = () => {
                                 <Input
                                     label="Client Secret"
                                     type="password"
+                                    name={`blex_${provider.key}_oauth_private_value`}
+                                    autoComplete="new-password"
+                                    autoCorrect="off"
+                                    spellCheck={false}
+                                    data-1p-ignore="true"
+                                    data-bwignore="true"
+                                    data-lpignore="true"
                                     placeholder={provider.hasClientSecret ? '저장된 값 유지' : `${provider.name} OAuth Client Secret`}
                                     value={provider.clientSecret}
                                     onChange={(event) => updateSocialProvider(provider.key, {
