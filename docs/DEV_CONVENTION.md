@@ -75,3 +75,4 @@
 
 ## Design Guidelines
 - **Always read `docs/DESIGN_GUIDE.md` first.**
+- For UI implementation style and scope control, read `docs/UI_CHANGE_STYLE_GUIDE.md`. This is separate from the design system.
