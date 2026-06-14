@@ -1,5 +1,11 @@
 # BLEX Design Philosophy
 
+> **Do not casually edit this document.**
+>
+> This is the design system source of truth, not a scratchpad for a single UI fix.
+> Do not change these rules while implementing a feature just to justify local code.
+> Update this document only when the existing product already proves a better pattern and the change is intentionally accepted as a new baseline.
+
 > "Good design is actually a lot harder to notice than poor design, in part because good designs fit our needs so well that the design is invisible." — Donald Norman
 
 ## 1. The Soul of the Product
