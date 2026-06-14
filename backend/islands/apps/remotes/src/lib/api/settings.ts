@@ -655,15 +655,11 @@ export interface SiteSettingData {
     hasCustomIconDark: boolean;
     headerScript: string;
     footerScript: string;
-    welcomeNotificationMessage: string;
-    welcomeNotificationUrl: string;
-    accountDeletionRedirectUrl: string;
     seoEnabled: boolean;
     robotsTxtExtraRules: string;
     robotsTxtDefault: string;
     aeoEnabled: boolean;
     updatedDate: string;
-    socialAuthProviders: SocialAuthProviderSetting[];
 }
 
 export interface SocialAuthProviderUpdateData {
@@ -678,12 +674,30 @@ export interface SiteSettingUpdateData {
     site_name?: string;
     header_script?: string;
     footer_script?: string;
-    welcome_notification_message?: string;
-    welcome_notification_url?: string;
-    account_deletion_redirect_url?: string;
     seo_enabled?: boolean;
     robots_txt_extra_rules?: string;
     aeo_enabled?: boolean;
+}
+
+export interface LoginSettingData {
+    welcomeNotificationMessage: string;
+    welcomeNotificationUrl: string;
+    accountDeletionRedirectUrl: string;
+    hcaptchaEnabled: boolean;
+    hcaptchaSiteKey: string;
+    hcaptchaHasSecretKey: boolean;
+    updatedDate: string;
+    socialAuthProviders: SocialAuthProviderSetting[];
+}
+
+export interface LoginSettingUpdateData {
+    welcome_notification_message?: string;
+    welcome_notification_url?: string;
+    account_deletion_redirect_url?: string;
+    hcaptcha_enabled?: boolean;
+    hcaptcha_site_key?: string;
+    hcaptcha_secret_key?: string;
+    clear_hcaptcha_secret_key?: boolean;
     social_auth_providers?: SocialAuthProviderUpdateData[];
 }
 
@@ -693,6 +707,14 @@ export const getSiteSettings = async () => {
 
 export const updateSiteSettings = async (data: SiteSettingUpdateData) => {
     return http.put<Response<SiteSettingData>>('v1/site-settings', data, { headers: { 'Content-Type': 'application/json' } });
+};
+
+export const getLoginSettings = async () => {
+    return http.get<Response<LoginSettingData>>('v1/login-settings');
+};
+
+export const updateLoginSettings = async (data: LoginSettingUpdateData) => {
+    return http.put<Response<LoginSettingData>>('v1/login-settings', data, { headers: { 'Content-Type': 'application/json' } });
 };
 
 export type BrandAssetType = 'logo' | 'icon';

@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect
-from django.conf import settings
 from urllib.parse import urlparse, urljoin
 
+from board.services.hcaptcha_service import HCaptchaService
 from board.services.initial_setup_service import InitialSetupService
 
 
@@ -45,7 +45,7 @@ def login_view(request):
     display_next_url = next_url or request.session.get('auth_next_url', '')
 
     context = {
-        'HCAPTCHA_SITE_KEY': getattr(settings, 'HCAPTCHA_SITE_KEY', ''),
+        'HCAPTCHA_SITE_KEY': HCaptchaService.get_site_key(),
         'show_2fa': 'pending_2fa_user_id' in request.session,
         'username': request.session.get('pending_2fa_username', ''),
         'next_url': display_next_url,
@@ -68,10 +68,9 @@ def signup_view(request):
         return redirect(next_url or '/')
 
     context = {
-        'HCAPTCHA_SITE_KEY': getattr(settings, 'HCAPTCHA_SITE_KEY', ''),
+        'HCAPTCHA_SITE_KEY': HCaptchaService.get_site_key(),
         'next_url': next_url or '',
         'invite_code': request.GET.get('invite', '').strip(),
     }
 
     return render(request, 'board/auth/signup.html', context)
-

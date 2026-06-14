@@ -30,7 +30,7 @@ const GlobalWebhookSetting = lazy(() => import('./pages/GlobalWebhookSetting'));
 const GlobalNoticeSetting = lazy(() => import('./pages/GlobalNoticeSetting'));
 const GlobalBannerSetting = lazy(() => import('./pages/GlobalBannerSetting'));
 const SiteSettingSetting = lazy(() => import('./pages/SiteSettingSetting'));
-const SocialLoginSetting = lazy(() => import('./pages/SocialLoginSetting'));
+const LoginSetting = lazy(() => import('./pages/LoginSetting'));
 const SeoAeoSetting = lazy(() => import('./pages/SeoAeoSetting'));
 const StaticPagesSetting = lazy(() => import('./pages/StaticPagesSetting'));
 const UtilitySetting = lazy(() => import('./pages/UtilitySetting'));
@@ -217,10 +217,10 @@ const siteSettingsRoute = createRoute({
     component: SiteSettingSetting
 });
 
-const socialLoginRoute = createRoute({
+const loginRoute = createRoute({
     getParentRoute: () => settingsRoute,
-    path: '/social-login',
-    component: SocialLoginSetting
+    path: '/login',
+    component: LoginSetting
 });
 
 const seoAeoRoute = createRoute({
@@ -346,7 +346,7 @@ const routeTree = rootRoute.addChildren([
         globalNoticesRoute,
         globalBannersRoute,
         siteSettingsRoute,
-        socialLoginRoute,
+        loginRoute,
         seoAeoRoute,
         staticPagesRoute,
         utilitiesRoute,

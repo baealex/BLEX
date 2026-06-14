@@ -846,6 +846,62 @@ class SocialAuth(models.Model):
         return f'{self.provider.key} - {self.user.username}'
 
 
+class LoginSetting(models.Model):
+    """
+    Site-wide login and signup settings.
+    Only one instance should exist (singleton pattern).
+    """
+    welcome_notification_message = models.TextField(
+        blank=True,
+        default='',
+        help_text='회원가입 시 발송될 환영 알림 메시지 ({name}을 사용하여 사용자 이름 삽입 가능)'
+    )
+    welcome_notification_url = models.CharField(
+        max_length=255,
+        blank=True,
+        default='/',
+        help_text='회원가입 알림 클릭 시 이동할 URL'
+    )
+    account_deletion_redirect_url = models.CharField(
+        max_length=500,
+        blank=True,
+        default='',
+        help_text='회원 탈퇴 시 리다이렉트할 URL (비워두면 메인 페이지로 이동, 설문 링크 등을 설정할 수 있습니다)'
+    )
+    hcaptcha_enabled = models.BooleanField(
+        default=False,
+        help_text='회원가입 hCaptcha 검증 사용 여부'
+    )
+    hcaptcha_site_key = models.CharField(
+        max_length=255,
+        blank=True,
+        default='',
+        help_text='hCaptcha Site Key'
+    )
+    hcaptcha_secret_key = models.TextField(
+        blank=True,
+        default='',
+        help_text='암호화 저장되는 hCaptcha Secret Key'
+    )
+    updated_date = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name = '🏢 [사이트 운영] 로그인 설정'
+        verbose_name_plural = '🏢 [사이트 운영] 로그인 설정'
+
+    def __str__(self):
+        return 'Login Settings'
+
+    def save(self, *args, **kwargs):
+        self.pk = 1
+        super().save(*args, **kwargs)
+
+    @classmethod
+    def get_instance(cls):
+        obj, created = cls.objects.get_or_create(pk=1)
+        return obj
+
+
 class SiteSetting(models.Model):
     """
     Site-wide settings for custom scripts and analytics.
@@ -869,27 +925,6 @@ class SiteSetting(models.Model):
     icon_svg = models.FileField(upload_to='brand/icon/default/', blank=True)
     icon_svg_dark = models.FileField(upload_to='brand/icon/dark/', blank=True)
     icon_manifest = models.JSONField(blank=True, default=dict)
-
-    # Welcome notification settings
-    welcome_notification_message = models.TextField(
-        blank=True,
-        default='',
-        help_text='회원가입 시 발송될 환영 알림 메시지 ({name}을 사용하여 사용자 이름 삽입 가능)'
-    )
-    welcome_notification_url = models.CharField(
-        max_length=255,
-        blank=True,
-        default='/',
-        help_text='회원가입 알림 클릭 시 이동할 URL'
-    )
-
-    # Account deletion settings
-    account_deletion_redirect_url = models.CharField(
-        max_length=500,
-        blank=True,
-        default='',
-        help_text='회원 탈퇴 시 리다이렉트할 URL (비워두면 메인 페이지로 이동, 설문 링크 등을 설정할 수 있습니다)'
-    )
 
     # Search and agent exposure settings
     seo_enabled = models.BooleanField(

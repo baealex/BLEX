@@ -5,7 +5,7 @@ from django.db.models import Count
 from django.http import Http404
 from django.shortcuts import get_object_or_404
 from board.models import (
-    User, Series, Post, SiteSetting,
+    User, Series, Post, LoginSetting,
     Profile, Notify)
 from board.modules.paginator import Paginator
 from board.modules.response import StatusDone, StatusError, ErrorCode
@@ -192,8 +192,8 @@ def setting(request, parameter):
 
         if parameter == 'account':
             try:
-                site_setting = SiteSetting.get_instance()
-                deletion_redirect_url = site_setting.account_deletion_redirect_url or ''
+                login_setting = LoginSetting.get_instance()
+                deletion_redirect_url = login_setting.account_deletion_redirect_url or ''
             except Exception:
                 deletion_redirect_url = ''
 

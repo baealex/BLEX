@@ -1,14 +1,13 @@
 import json
 from unittest.mock import patch
 
-from django.test import TestCase, override_settings
+from django.test import TestCase
 from django.test.client import Client
 
 from board.models import AuthorInvite, Config, Post, Profile, User
 from board.services.author_invite_service import AuthorInviteError
 
 
-@override_settings(HCAPTCHA_SECRET_KEY='')
 class UserManagementAPITestCase(TestCase):
     @classmethod
     def setUpTestData(cls):

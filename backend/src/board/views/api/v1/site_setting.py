@@ -5,22 +5,17 @@ from board.services.api_permission_service import ApiPermissionService
 from board.services.api_request_body_service import ApiRequestBodyService
 from board.services.agent_content_service import AgentContentService
 from board.services.brand_asset_service import BrandAssetError, BrandAssetService
-from board.services.social_auth_provider_service import SocialAuthProviderService
 
 
 def serialize_site_setting(request, setting):
     return {
         'header_script': setting.header_script,
         'footer_script': setting.footer_script,
-        'welcome_notification_message': setting.welcome_notification_message,
-        'welcome_notification_url': setting.welcome_notification_url,
-        'account_deletion_redirect_url': setting.account_deletion_redirect_url,
         'seo_enabled': setting.seo_enabled,
         'robots_txt_extra_rules': setting.robots_txt_extra_rules,
         'robots_txt_default': AgentContentService.build_default_robots_txt(request, setting),
         'aeo_enabled': setting.aeo_enabled,
         'updated_date': setting.updated_date.isoformat(),
-        'social_auth_providers': SocialAuthProviderService.serialize_admin_providers(),
         **BrandAssetService.serialize_setting(setting),
     }
 
@@ -57,15 +52,6 @@ def site_settings(request):
                 return StatusError(ErrorCode.VALIDATE, '사이트 이름은 80자 이하여야 합니다.')
             setting.site_name = normalized_site_name or BrandAssetService.DEFAULT_SITE_NAME
 
-        if 'welcome_notification_message' in put_data:
-            setting.welcome_notification_message = put_data['welcome_notification_message']
-
-        if 'welcome_notification_url' in put_data:
-            setting.welcome_notification_url = put_data['welcome_notification_url']
-
-        if 'account_deletion_redirect_url' in put_data:
-            setting.account_deletion_redirect_url = put_data['account_deletion_redirect_url']
-
         if 'seo_enabled' in put_data:
             setting.seo_enabled = put_data['seo_enabled'] is True
 
@@ -75,9 +61,6 @@ def site_settings(request):
 
         if 'aeo_enabled' in put_data:
             setting.aeo_enabled = put_data['aeo_enabled'] is True
-
-        if 'social_auth_providers' in put_data:
-            SocialAuthProviderService.update_admin_providers(put_data['social_auth_providers'])
 
         setting.save()
 
