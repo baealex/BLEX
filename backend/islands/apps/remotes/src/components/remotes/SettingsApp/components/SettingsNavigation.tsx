@@ -18,7 +18,6 @@ interface NavigationItem {
 
 interface NavigationSection {
     title: string;
-    description?: string;
     requiresEditor?: boolean;
     requiresStaff?: boolean;
     items: NavigationItem[];
@@ -41,7 +40,6 @@ interface SettingsRouterContext {
 const userNavigationSections: NavigationSection[] = [
     {
         title: '일반',
-        description: '알림, 계정, 프로필 관리',
         items: [
             {
                 name: '알림',
@@ -67,7 +65,6 @@ const userNavigationSections: NavigationSection[] = [
     },
     {
         title: '블로그',
-        description: '포스트, 시리즈, 서식 관리',
         requiresEditor: true,
         items: [
             {
@@ -104,7 +101,6 @@ const userNavigationSections: NavigationSection[] = [
     },
     {
         title: '확장',
-        description: '텔레그램, 웹훅 연동',
         items: [
             {
                 name: '텔레그램 연동',
@@ -130,7 +126,6 @@ const userNavigationSections: NavigationSection[] = [
 const adminNavigationSections: NavigationSection[] = [
     {
         title: '사이트',
-        description: '전역 설정과 검색 노출',
         requiresStaff: true,
         items: [
             {
@@ -161,7 +156,6 @@ const adminNavigationSections: NavigationSection[] = [
     },
     {
         title: '운영',
-        description: '공지, 배너, 웹훅 관리',
         requiresStaff: true,
         items: [
             {
@@ -186,7 +180,6 @@ const adminNavigationSections: NavigationSection[] = [
     },
     {
         title: '관리',
-        description: '사용자 권한과 정리 도구',
         requiresStaff: true,
         items: [
             {
@@ -240,7 +233,7 @@ const SettingsModeLink = ({ settingsMode, isStaff }: { settingsMode: SettingsMod
     return (
         <a
             href={href}
-            className={`inline-flex h-9 items-center gap-2 rounded-lg px-2 text-sm font-medium text-content-secondary transition-all ${INTERACTION_DURATION} hover:bg-surface-subtle hover:text-content active:scale-95`}>
+            className={`inline-flex w-fit items-center gap-1.5 text-xs font-medium text-content-hint transition-colors ${INTERACTION_DURATION} hover:text-content-secondary`}>
             <i className={`fas ${icon} text-xs text-content-hint`} />
             <span>{label}</span>
             {!isAdminMode && (
@@ -316,11 +309,6 @@ export const SettingsMobileNavigation = ({ currentPath }: SettingsNavigationProp
                 <h3 className="px-4 mb-1 text-xs font-bold text-content-hint uppercase tracking-wider">
                     {section.title}
                 </h3>
-                {section.description && (
-                    <p className="px-4 mb-3 text-xs text-content-hint">
-                        {section.description}
-                    </p>
-                )}
                 <ul className="space-y-1">
                     {visibleItems.map(renderNavItem)}
                 </ul>
@@ -443,11 +431,6 @@ export const SettingsDesktopNavigation = ({ currentPath }: SettingsNavigationPro
                 <h3 className="px-5 mb-1 text-sm font-semibold text-content-hint uppercase tracking-wider">
                     {section.title}
                 </h3>
-                {section.description && (
-                    <p className="px-5 mb-3 text-xs text-content-hint">
-                        {section.description}
-                    </p>
-                )}
                 <ul className="space-y-2">
                     {visibleItems.map(renderNavItem)}
                 </ul>
