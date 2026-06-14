@@ -59,7 +59,7 @@ class SocialAuthProviderService:
             is_enabled=True,
         ).order_by('id'):
             client_id = cls.get_client_id(provider.key)
-            if not client_id:
+            if not client_id or not cls.get_client_secret(provider.key):
                 continue
             providers.append({
                 'key': provider.key,

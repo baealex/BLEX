@@ -3,10 +3,11 @@ import json
 from unittest.mock import patch, MagicMock
 from datetime import timedelta
 
-from django.test import TestCase, override_settings
+from django.test import TestCase
 from django.utils import timezone
 
-from board.models import User, UsernameChangeLog, Profile, Config, SocialAuth, SocialAuthProvider
+from board.models import User, UsernameChangeLog, Profile, Config, SocialAuth, SocialAuthProvider, LoginSetting
+from board.services.hcaptcha_service import HCaptchaService
 from modules import oauth
 
 
@@ -112,7 +113,6 @@ class AuthTestCase(TestCase):
         content = json.loads(response.content)
         self.assertEqual(content['status'], 'ERROR')
 
-    @override_settings(HCAPTCHA_SECRET_KEY=None)
     def test_create_account(self):
         """계정 생성 테스트"""
         response = self.client.post('/v1/sign', {
@@ -133,6 +133,81 @@ class AuthTestCase(TestCase):
         content = json.loads(response.content)
         self.assertEqual(content['status'], 'DONE')
         self.assertEqual(content['body']['username'], 'test2')
+
+    def test_create_account_requires_hcaptcha_when_enabled(self):
+        """hCaptcha가 켜져 있으면 회원가입에 검증 토큰이 필요하다."""
+        setting = LoginSetting.get_instance()
+        setting.hcaptcha_enabled = True
+        setting.hcaptcha_site_key = 'site-key'
+        setting.hcaptcha_secret_key = HCaptchaService.encrypt_secret('hcaptcha-secret')
+        setting.save()
+
+        response = self.client.post('/v1/sign', {
+            'username': 'test2',
+            'password': 'test2',
+            'name': 'Test User 2',
+            'email': 'test2@test.com',
+        })
+
+        self.assertEqual(response.status_code, 200)
+        content = json.loads(response.content)
+        self.assertEqual(content['status'], 'ERROR')
+        self.assertEqual(content['errorCode'], 'error:VA')
+        self.assertFalse(User.objects.filter(username='test2').exists())
+
+    @patch('board.services.hcaptcha_service.requests.post')
+    def test_create_account_accepts_valid_hcaptcha_response(self, mock_post):
+        """hCaptcha 검증 성공 시 회원가입을 허용한다."""
+        setting = LoginSetting.get_instance()
+        setting.hcaptcha_enabled = True
+        setting.hcaptcha_site_key = 'site-key'
+        setting.hcaptcha_secret_key = HCaptchaService.encrypt_secret('hcaptcha-secret')
+        setting.save()
+        mock_response = MagicMock()
+        mock_response.json.return_value = {'success': True}
+        mock_post.return_value = mock_response
+
+        response = self.client.post('/v1/sign', {
+            'username': 'test2',
+            'password': 'test2',
+            'name': 'Test User 2',
+            'email': 'test2@test.com',
+            'h-captcha-response': 'valid-token',
+        })
+
+        self.assertEqual(response.status_code, 200)
+        content = json.loads(response.content)
+        self.assertEqual(content['status'], 'DONE')
+        self.assertEqual(content['body']['username'], 'test2')
+        mock_post.assert_called_once()
+        self.assertEqual(mock_post.call_args.kwargs['data']['secret'], 'hcaptcha-secret')
+        self.assertEqual(mock_post.call_args.kwargs['data']['response'], 'valid-token')
+
+    @patch('board.services.hcaptcha_service.requests.post')
+    def test_create_account_rejects_invalid_hcaptcha_response(self, mock_post):
+        """hCaptcha 검증 실패 시 회원가입을 거부한다."""
+        setting = LoginSetting.get_instance()
+        setting.hcaptcha_enabled = True
+        setting.hcaptcha_site_key = 'site-key'
+        setting.hcaptcha_secret_key = HCaptchaService.encrypt_secret('hcaptcha-secret')
+        setting.save()
+        mock_response = MagicMock()
+        mock_response.json.return_value = {'success': False}
+        mock_post.return_value = mock_response
+
+        response = self.client.post('/v1/sign', {
+            'username': 'test2',
+            'password': 'test2',
+            'name': 'Test User 2',
+            'email': 'test2@test.com',
+            'h-captcha-response': 'invalid-token',
+        })
+
+        self.assertEqual(response.status_code, 200)
+        content = json.loads(response.content)
+        self.assertEqual(content['status'], 'ERROR')
+        self.assertEqual(content['errorCode'], 'error:RJ')
+        self.assertFalse(User.objects.filter(username='test2').exists())
 
     def test_delete_account(self):
         """계정 삭제 테스트"""

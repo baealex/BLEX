@@ -6,7 +6,6 @@ import pyotp
 import qrcode
 import base64
 
-from django.conf import settings
 from django.contrib import auth
 from django.contrib.auth.models import User
 from django.db import transaction
@@ -25,6 +24,7 @@ from board.services.author_invite_service import AuthorInviteError, AuthorInvite
 from board.services.auth_service import AuthService, OAuthService, AuthValidationError
 from board.services.initial_setup_service import InitialSetupService
 from board.services.api_request_body_service import ApiRequestBodyService
+from board.services.hcaptcha_service import HCaptchaService
 from modules import oauth
 from board.services.social_auth_provider_service import SocialAuthProviderService
 from modules.challenge import auth_hcaptcha
@@ -101,8 +101,7 @@ def sign(request):
         except AuthorInviteError as e:
             return StatusError(ErrorCode.REJECT, e.message)
 
-        # Verify HCaptcha if HCAPTCHA_SECRET_KEY is set
-        if settings.HCAPTCHA_SECRET_KEY:
+        if HCaptchaService.is_enabled():
             if not hcaptcha_response:
                 return StatusError(ErrorCode.VALIDATE, '보안 검증이 필요합니다.')
             if not auth_hcaptcha(hcaptcha_response):

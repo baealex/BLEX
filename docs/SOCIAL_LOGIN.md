@@ -14,7 +14,7 @@ BLEX의 소셜 로그인은 설치형 운영을 기준으로 **어드민 설정(
 2. Redirect URI 또는 callback URL에 아래 주소를 등록합니다.
    - Google: `https://YOUR_DOMAIN/login/callback/google`
    - GitHub: `https://YOUR_DOMAIN/login/callback/github`
-3. BLEX 어드민의 `/admin-settings/site-settings`로 이동합니다.
+3. BLEX 어드민의 `/admin-settings/login` 로그인 관리 화면으로 이동합니다.
 4. **소셜 로그인** 섹션에서 사용할 제공자를 켭니다.
 5. 발급받은 **Client ID** 와 **Client Secret** 을 입력하고 저장합니다.
 6. 로그아웃 상태에서 로그인/회원가입 화면에 소셜 로그인 버튼이 보이는지 확인합니다.
@@ -44,7 +44,7 @@ GitHub Developer settings에서 OAuth App을 만듭니다.
 ## 동작 기준
 
 - 제공자가 꺼져 있으면 로그인/회원가입 화면에 버튼이 나오지 않습니다.
-- 제공자가 켜져 있어도 Client ID가 비어 있으면 버튼이 나오지 않습니다.
+- 제공자가 켜져 있어도 Client ID 또는 Client Secret이 비어 있으면 버튼이 나오지 않습니다.
 - 직접 callback URL을 호출해도 제공자가 꺼져 있으면 로그인이 차단됩니다.
 - Client Secret 입력칸을 비워 저장하면 기존 Secret이 유지됩니다.
 - 저장된 Secret을 삭제하려면 **저장된 Client Secret 삭제** 를 체크하고 저장합니다.

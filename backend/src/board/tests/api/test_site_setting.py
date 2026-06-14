@@ -10,7 +10,6 @@ from django.core.files.storage import default_storage
 from PIL import Image
 
 from board.models import User, Profile, SiteSetting, SocialAuthProvider
-from board.services.social_auth_provider_service import SocialAuthProviderService
 from board.services.brand_asset_service import BrandAssetService
 
 
@@ -115,9 +114,6 @@ class SiteSettingAPITestCase(TestCase):
         body = content['body']
         self.assertIn('headerScript', body)
         self.assertIn('footerScript', body)
-        self.assertIn('welcomeNotificationMessage', body)
-        self.assertIn('welcomeNotificationUrl', body)
-        self.assertIn('accountDeletionRedirectUrl', body)
         self.assertIn('seoEnabled', body)
         self.assertTrue(body['seoEnabled'])
         self.assertIn('robotsTxtExtraRules', body)
@@ -138,9 +134,6 @@ class SiteSettingAPITestCase(TestCase):
         self.assertIn('256', body['iconPngUrls'])
         self.assertIn('512', body['iconPngUrls'])
         self.assertIn('updatedDate', body)
-        self.assertIn('socialAuthProviders', body)
-        provider_keys = {provider['key'] for provider in body['socialAuthProviders']}
-        self.assertEqual(provider_keys, {'google', 'github'})
 
     def test_update_single_field(self):
         """사이트 설정 개별 필드 업데이트 테스트"""
@@ -167,9 +160,6 @@ class SiteSettingAPITestCase(TestCase):
             'header_script': '<script>header</script>',
             'footer_script': '<script>footer</script>',
             'site_name': 'Custom Blog',
-            'welcome_notification_message': '환영합니다, {name}님!',
-            'welcome_notification_url': '/welcome',
-            'account_deletion_redirect_url': 'https://forms.example.com/exit',
             'seo_enabled': False,
             'robots_txt_extra_rules': 'User-agent: ExampleBot\nDisallow: /private/',
             'aeo_enabled': True,
@@ -185,9 +175,6 @@ class SiteSettingAPITestCase(TestCase):
         self.assertEqual(content['body']['headerScript'], '<script>header</script>')
         self.assertEqual(content['body']['footerScript'], '<script>footer</script>')
         self.assertEqual(content['body']['siteName'], 'Custom Blog')
-        self.assertEqual(content['body']['welcomeNotificationMessage'], '환영합니다, {name}님!')
-        self.assertEqual(content['body']['welcomeNotificationUrl'], '/welcome')
-        self.assertEqual(content['body']['accountDeletionRedirectUrl'], 'https://forms.example.com/exit')
         self.assertFalse(content['body']['seoEnabled'])
         self.assertEqual(content['body']['robotsTxtExtraRules'], 'User-agent: ExampleBot\nDisallow: /private/')
         self.assertIn('robotsTxtDefault', content['body'])
@@ -202,85 +189,8 @@ class SiteSettingAPITestCase(TestCase):
         self.assertFalse(setting.seo_enabled)
         self.assertEqual(setting.robots_txt_extra_rules, 'User-agent: ExampleBot\nDisallow: /private/')
         self.assertTrue(setting.aeo_enabled)
-
-
-
-    def test_update_social_auth_provider_settings(self):
-        """관리자 사이트 설정에서 소셜 로그인 제공자 값을 저장한다."""
-        data = {
-            'social_auth_providers': [
-                {
-                    'key': 'google',
-                    'is_enabled': True,
-                    'client_id': 'google-client-id',
-                    'client_secret': 'google-secret',
-                },
-                {
-                    'key': 'github',
-                    'is_enabled': False,
-                    'client_id': 'github-client-id',
-                },
-            ]
-        }
-
-        response = self.client.put(
-            '/v1/site-settings',
-            json.dumps(data),
-            content_type='application/json'
-        )
-
-        self.assertEqual(response.status_code, 200)
-        content = json.loads(response.content)
-        self.assertEqual(content['status'], 'DONE')
-
-        google = SocialAuthProvider.objects.get(key='google')
-        self.assertTrue(google.is_enabled)
-        self.assertEqual(google.client_id, 'google-client-id')
-        self.assertNotEqual(google.client_secret, 'google-secret')
-        self.assertEqual(SocialAuthProviderService.get_client_secret('google'), 'google-secret')
-
-        body_google = next(
-            provider for provider in content['body']['socialAuthProviders']
-            if provider['key'] == 'google'
-        )
-        self.assertEqual(body_google['clientId'], 'google-client-id')
-        self.assertTrue(body_google['hasClientSecret'])
-        self.assertNotIn('clientSecret', body_google)
-
-    def test_update_social_auth_provider_keeps_existing_secret_when_blank(self):
-        """Client Secret 입력값이 비어 있으면 기존 secret을 유지한다."""
-        SocialAuthProvider.objects.update_or_create(
-            key='github',
-            defaults={
-                'is_enabled': True,
-                'client_id': 'old-client-id',
-                'client_secret': 'old-secret',
-            }
-        )
-
-        response = self.client.put(
-            '/v1/site-settings',
-            json.dumps({
-                'social_auth_providers': [{
-                    'key': 'github',
-                    'is_enabled': True,
-                    'client_id': 'new-client-id',
-                }]
-            }),
-            content_type='application/json'
-        )
-
-        self.assertEqual(response.status_code, 200)
-        content = json.loads(response.content)
-        self.assertEqual(content['status'], 'DONE')
-
-        github = SocialAuthProvider.objects.get(key='github')
-        self.assertEqual(github.client_id, 'new-client-id')
-        self.assertNotEqual(github.client_secret, 'old-secret')
-        self.assertEqual(SocialAuthProviderService.get_client_secret('github'), 'old-secret')
-
     def test_public_social_providers_only_returns_enabled_configured_providers(self):
-        """로그인 화면에는 사용 가능하고 Client ID가 있는 제공자만 내려준다."""
+        """로그인 화면에는 사용 가능하고 Client ID/Secret이 있는 제공자만 내려준다."""
         SocialAuthProvider.objects.update_or_create(
             key='google',
             defaults={
@@ -292,9 +202,9 @@ class SiteSettingAPITestCase(TestCase):
         SocialAuthProvider.objects.update_or_create(
             key='github',
             defaults={
-                'is_enabled': False,
+                'is_enabled': True,
                 'client_id': 'github-client-id',
-                'client_secret': 'github-secret',
+                'client_secret': '',
             }
         )
 

@@ -22,7 +22,7 @@ from django.db.models import Count, Case, When, Value, Exists, OuterRef
 from board.constants.config_meta import CONFIG_TYPE
 from board.models import (
     Config, Profile, TelegramSync,
-    TwoFactorAuth, UsernameChangeLog, SiteSetting, Post
+    TwoFactorAuth, UsernameChangeLog, LoginSetting, Post
 )
 from board.modules.notify import create_notify
 from board.modules.response import ErrorCode
@@ -460,16 +460,16 @@ class AuthService:
     @staticmethod
     def send_welcome_notification(user: User) -> None:
         """
-        Send welcome notification to user based on site settings.
+        Send welcome notification to user based on login settings.
 
         Args:
             user: User instance to send notification to
         """
         try:
-            site_setting = SiteSetting.get_instance()
-            if site_setting.welcome_notification_message:
-                content = site_setting.welcome_notification_message.replace('{name}', user.first_name)
-                url = site_setting.welcome_notification_url or '/'
+            login_setting = LoginSetting.get_instance()
+            if login_setting.welcome_notification_message:
+                content = login_setting.welcome_notification_message.replace('{name}', user.first_name)
+                url = login_setting.welcome_notification_url or '/'
                 create_notify(user=user, url=url, content=content)
         except Exception:
             # If anything goes wrong, don't fail the operation

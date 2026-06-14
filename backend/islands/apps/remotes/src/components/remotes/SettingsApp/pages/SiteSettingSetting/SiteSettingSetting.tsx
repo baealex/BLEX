@@ -41,9 +41,6 @@ interface EditableSiteSettings {
     siteName: string;
     headerScript: string;
     footerScript: string;
-    welcomeMessage: string;
-    welcomeUrl: string;
-    deletionRedirectUrl: string;
 }
 
 interface AssetUploadButtonProps {
@@ -101,10 +98,7 @@ const syncSettingsDocumentTitle = (siteName: string) => {
 const getEditableSiteSettings = (data: SiteSettingData): EditableSiteSettings => ({
     siteName: data.siteName,
     headerScript: data.headerScript,
-    footerScript: data.footerScript,
-    welcomeMessage: data.welcomeNotificationMessage,
-    welcomeUrl: data.welcomeNotificationUrl,
-    deletionRedirectUrl: data.accountDeletionRedirectUrl
+    footerScript: data.footerScript
 });
 
 const hasSiteSettingsChanged = (current: EditableSiteSettings, saved: EditableSiteSettings | null) => {
@@ -249,9 +243,6 @@ const SiteSettingSetting = () => {
     const [siteName, setSiteName] = useState('');
     const [headerScript, setHeaderScript] = useState('');
     const [footerScript, setFooterScript] = useState('');
-    const [welcomeMessage, setWelcomeMessage] = useState('');
-    const [welcomeUrl, setWelcomeUrl] = useState('');
-    const [deletionRedirectUrl, setDeletionRedirectUrl] = useState('');
 
     useEffect(() => {
         if (!hasHydratedFormRef.current) {
@@ -259,9 +250,6 @@ const SiteSettingSetting = () => {
             setSiteName(editableSettings.siteName);
             setHeaderScript(editableSettings.headerScript);
             setFooterScript(editableSettings.footerScript);
-            setWelcomeMessage(editableSettings.welcomeMessage);
-            setWelcomeUrl(editableSettings.welcomeUrl);
-            setDeletionRedirectUrl(editableSettings.deletionRedirectUrl);
             savedSettingsRef.current = editableSettings;
             hasHydratedFormRef.current = true;
         }
@@ -278,9 +266,6 @@ const SiteSettingSetting = () => {
             setSiteName(editableSettings.siteName);
             setHeaderScript(editableSettings.headerScript);
             setFooterScript(editableSettings.footerScript);
-            setWelcomeMessage(editableSettings.welcomeMessage);
-            setWelcomeUrl(editableSettings.welcomeUrl);
-            setDeletionRedirectUrl(editableSettings.deletionRedirectUrl);
             savedSettingsRef.current = editableSettings;
             syncSettingsDocumentTitle(body.siteName);
             void queryClient.invalidateQueries({ queryKey: ['site-settings'] });
@@ -327,10 +312,7 @@ const SiteSettingSetting = () => {
         updateMutation.mutate({
             site_name: siteName,
             header_script: headerScript,
-            footer_script: footerScript,
-            welcome_notification_message: welcomeMessage,
-            welcome_notification_url: welcomeUrl,
-            account_deletion_redirect_url: deletionRedirectUrl
+            footer_script: footerScript
         });
     };
 
@@ -384,10 +366,7 @@ const SiteSettingSetting = () => {
     const currentSettings: EditableSiteSettings = {
         siteName,
         headerScript,
-        footerScript,
-        welcomeMessage,
-        welcomeUrl,
-        deletionRedirectUrl
+        footerScript
     };
     const isDirty = hasSiteSettingsChanged(currentSettings, savedSettingsRef.current);
     const saveDisabled = !isDirty || assetMutationPending || updateMutation.isPending;
@@ -396,7 +375,7 @@ const SiteSettingSetting = () => {
         <form className="space-y-8" onSubmit={handleSave}>
             <SettingsHeader
                 title="블로그 커스텀"
-                description="사이트 이름, 브랜드 자산, 회원 안내, 전역 코드를 관리합니다."
+                description="사이트 이름, 브랜드 자산, 전역 코드를 관리합니다."
             />
 
             <section className="space-y-4">
@@ -444,40 +423,6 @@ const SiteSettingSetting = () => {
                         onDelete={handleBrandAssetDelete}
                     />
                 </div>
-
-                <Card
-                    title="회원 안내"
-                    subtitle="회원 가입과 탈퇴 흐름에서 보여줄 안내를 설정합니다."
-                    icon={<i className="fas fa-user-gear" />}>
-                    <div className="space-y-4">
-                        <Input
-                            label="가입 환영 메시지"
-                            multiline
-                            rows={3}
-                            placeholder="환영합니다, {name}님! BLEX에 오신 것을 환영합니다."
-                            value={welcomeMessage}
-                            onChange={(e) => setWelcomeMessage(e.target.value)}
-                            className="text-sm"
-                            helperText="{name}을 사용하면 사용자 이름으로 치환됩니다."
-                        />
-                        <Input
-                            label="환영 알림 클릭 URL"
-                            placeholder="/"
-                            value={welcomeUrl}
-                            onChange={(e) => setWelcomeUrl(e.target.value)}
-                            className="text-sm"
-                            helperText="환영 알림 클릭 시 이동할 URL입니다."
-                        />
-                        <Input
-                            label="탈퇴 후 리다이렉트 URL"
-                            placeholder="https://forms.example.com/exit-survey"
-                            value={deletionRedirectUrl}
-                            onChange={(e) => setDeletionRedirectUrl(e.target.value)}
-                            className="text-sm"
-                            helperText="비워두면 메인 페이지로 이동합니다. 설문 링크 등을 설정할 수 있습니다."
-                        />
-                    </div>
-                </Card>
 
                 <Card
                     title="커스텀 코드"
