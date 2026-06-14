@@ -13,6 +13,7 @@ from board.modules.time import convert_to_localtime
 from board.services.auth_service import AuthService, AuthValidationError
 from board.services.api_permission_service import ApiPermissionService
 from board.services.api_request_body_service import ApiRequestBodyService
+from board.services.integration_setting_service import IntegrationSettingService
 from board.services.pinned_post_service import PinnedPostService, PinnedPostError
 from board.services.post_status_service import PostStatusService
 from board.services.user_heatmap_service import UserHeatmapService
@@ -258,13 +259,7 @@ def setting(request, parameter):
             })
 
         if parameter == 'integration-telegram':
-            if request.user.config.has_telegram_id():
-                return StatusDone({
-                    'is_connected': True,
-                })
-            return StatusDone({
-                'is_connected': False,
-            })
+            return StatusDone(IntegrationSettingService.serialize_user_telegram_status(request.user))
 
         if parameter == 'pinned-posts':
             pinned_posts = PinnedPostService.get_user_pinned_posts(user)

@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useQuery, useSuspenseQuery } from '@tanstack/react-query';
+import { useRouter } from '@tanstack/react-router';
 import NotificationsSection from './components/NotificationsSection';
 import NotifyConfigModal from './components/NotifyConfigModal';
 import {
@@ -10,8 +11,14 @@ import {
 
 export type { Activity };
 
+interface SettingsRouterContext {
+    canUseTelegramIntegration: boolean;
+}
+
 const NotifySetting = () => {
     const [isOpenConfig, setIsOpenConfig] = useState(false);
+    const router = useRouter();
+    const { canUseTelegramIntegration } = router.options.context as SettingsRouterContext;
 
     const { data: notifyData } = useSuspenseQuery({
         queryKey: ['notify-list'],
@@ -43,6 +50,7 @@ const NotifySetting = () => {
             {/* 알림 */}
             <NotificationsSection
                 notifyList={notifyList}
+                showTelegramIntegration={canUseTelegramIntegration}
                 onOpenConfig={() => setIsOpenConfig(true)}
             />
 

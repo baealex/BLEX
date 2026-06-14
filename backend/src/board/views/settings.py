@@ -3,6 +3,7 @@ from django.contrib.auth.decorators import login_required
 from django.http import Http404
 from django.urls import reverse
 
+from board.services.integration_setting_service import IntegrationSettingService
 from board.services.authoring_permission_service import AuthoringPermissionService
 
 
@@ -13,6 +14,7 @@ ADMIN_SETTINGS_PREFIXES = (
     'global-notices',
     'global-banners',
     'global-webhook',
+    'integrations',
     'utilities',
     'users',
 )
@@ -51,12 +53,19 @@ def _build_settings_context(request, settings_mode, base_path):
     if request.user.is_staff:
         admin_url = reverse('admin:index')
 
+    has_telegram_connection = IntegrationSettingService.has_user_telegram_connection(request.user)
+    can_use_telegram_integration = (
+        IntegrationSettingService.is_telegram_configured()
+        or has_telegram_connection
+    )
+
     return {
         'is_editor': AuthoringPermissionService.is_active_editor(request.user),
         'is_staff': request.user.is_staff,
         'admin_url': admin_url,
         'settings_mode': settings_mode,
         'settings_base_path': base_path,
+        'can_use_telegram_integration': can_use_telegram_integration,
         'settings_title': '관리자 설정' if settings_mode == 'admin' else '설정',
     }
 

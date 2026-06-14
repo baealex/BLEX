@@ -5,7 +5,8 @@ from datetime import timedelta
 from django.test import TestCase, override_settings
 from django.utils import timezone
 
-from board.models import User, Config, Profile, TelegramSync
+from board.models import Config, IntegrationSetting, Profile, TelegramSync, User
+from board.services.integration_setting_service import IntegrationSettingService
 
 
 class TelegramAPITestCase(TestCase):
@@ -22,6 +23,14 @@ class TelegramAPITestCase(TestCase):
 
     def setUp(self):
         self.client.defaults['HTTP_USER_AGENT'] = 'BLEX_TEST'
+        self.configure_telegram_bot()
+
+    def configure_telegram_bot(self):
+        setting = IntegrationSetting.get_instance()
+        setting.telegram_enabled = True
+        setting.telegram_bot_username = 'test_bot'
+        setting.telegram_bot_token = IntegrationSettingService.encrypt_secret('test_bot_token')
+        setting.save()
 
     # POST /v1/telegram/makeToken - Generate telegram sync token
     def test_make_token_creates_new_sync(self):
@@ -91,12 +100,38 @@ class TelegramAPITestCase(TestCase):
         self.assertEqual(content['status'], 'ERROR')
         self.assertEqual(content['errorCode'], 'error:NL')
 
+    def test_integration_status_includes_bot_configuration(self):
+        """사용자 텔레그램 화면에 필요한 봇 설정 상태 반환"""
+        self.client.login(username='testuser', password='testpass')
+
+        response = self.client.get('/v1/setting/integration-telegram')
+
+        self.assertEqual(response.status_code, 200)
+        content = json.loads(response.content)
+        self.assertEqual(content['status'], 'DONE')
+        self.assertFalse(content['body']['isConnected'])
+        self.assertTrue(content['body']['isConfigured'])
+        self.assertEqual(content['body']['botUsername'], 'test_bot')
+
+    def test_make_token_requires_telegram_bot_configuration(self):
+        """텔레그램 봇 설정이 없으면 토큰을 만들지 않음"""
+        setting = IntegrationSetting.get_instance()
+        setting.telegram_enabled = False
+        setting.telegram_bot_username = ''
+        setting.telegram_bot_token = ''
+        setting.save()
+        self.client.login(username='testuser', password='testpass')
+
+        response = self.client.post('/v1/telegram/makeToken')
+
+        self.assertEqual(response.status_code, 200)
+        content = json.loads(response.content)
+        self.assertEqual(content['status'], 'ERROR')
+        self.assertEqual(content['errorCode'], 'error:NT')
+
     # POST /v1/telegram/webHook - Telegram webhook handler
-    @override_settings(
-        TELEGRAM_BOT_TOKEN='test_bot_token',
-        SITE_URL='https://test.com'
-    )
-    @patch('modules.telegram.TelegramBot')
+    @override_settings(SITE_URL='https://test.com')
+    @patch('board.views.api.v1.telegram.TelegramBot')
     @patch('modules.sub_task.SubTaskProcessor.process')
     def test_webhook_successful_sync(self, mock_subtask, mock_telegram):
         """웹훅을 통한 텔레그램 연동 성공"""
@@ -132,11 +167,8 @@ class TelegramAPITestCase(TestCase):
         self.assertEqual(sync.get_decrypted_tid(), '987654321')
         self.assertEqual(sync.auth_token, '')  # Token should be cleared
 
-    @override_settings(
-        TELEGRAM_BOT_TOKEN='test_bot_token',
-        SITE_URL='https://test.com'
-    )
-    @patch('modules.telegram.TelegramBot')
+    @override_settings(SITE_URL='https://test.com')
+    @patch('board.views.api.v1.telegram.TelegramBot')
     @patch('modules.sub_task.SubTaskProcessor.process')
     def test_webhook_expired_token(self, mock_subtask, mock_telegram):
         """만료된 토큰으로 연동 시도"""
@@ -174,11 +206,8 @@ class TelegramAPITestCase(TestCase):
         self.assertEqual(sync.auth_token, '')
         self.assertEqual(sync.tid, '')  # tid should remain empty when expired
 
-    @override_settings(
-        TELEGRAM_BOT_TOKEN='test_bot_token',
-        SITE_URL='https://test.com'
-    )
-    @patch('modules.telegram.TelegramBot')
+    @override_settings(SITE_URL='https://test.com')
+    @patch('board.views.api.v1.telegram.TelegramBot')
     @patch('modules.sub_task.SubTaskProcessor.process')
     def test_webhook_invalid_token(self, mock_subtask, mock_telegram):
         """잘못된 토큰으로 연동 시도"""
@@ -206,8 +235,7 @@ class TelegramAPITestCase(TestCase):
         # No TelegramSync should be created
         self.assertFalse(TelegramSync.objects.filter(tid='987654321').exists())
 
-    @override_settings(TELEGRAM_BOT_TOKEN='test_bot_token')
-    @patch('modules.telegram.TelegramBot')
+    @patch('board.views.api.v1.telegram.TelegramBot')
     def test_webhook_malformed_request(self, mock_telegram):
         """잘못된 형식의 웹훅 요청"""
         mock_bot = MagicMock()
@@ -319,11 +347,8 @@ class TelegramAPITestCase(TestCase):
         self.assertGreaterEqual(sync.auth_token_exp, before_time)
         self.assertLessEqual(sync.auth_token_exp, after_time)
 
-    @override_settings(
-        TELEGRAM_BOT_TOKEN='test_bot_token',
-        SITE_URL='https://example.com'
-    )
-    @patch('modules.telegram.TelegramBot')
+    @override_settings(SITE_URL='https://example.com')
+    @patch('board.views.api.v1.telegram.TelegramBot')
     @patch('modules.sub_task.SubTaskProcessor.process')
     def test_webhook_with_no_matching_token(self, mock_subtask, mock_telegram):
         """매칭되는 토큰이 없는 경우"""

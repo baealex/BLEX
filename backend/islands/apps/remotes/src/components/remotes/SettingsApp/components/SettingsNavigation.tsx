@@ -14,6 +14,7 @@ interface NavigationItem {
     icon: string;
     requiresEditor?: boolean;
     requiresStaff?: boolean;
+    requiresTelegramIntegration?: boolean;
 }
 
 interface NavigationSection {
@@ -35,6 +36,7 @@ interface SettingsRouterContext {
     adminUrl?: string;
     settingsMode: SettingsMode;
     basePath: string;
+    canUseTelegramIntegration: boolean;
 }
 
 const userNavigationSections: NavigationSection[] = [
@@ -105,7 +107,8 @@ const userNavigationSections: NavigationSection[] = [
             {
                 name: '텔레그램 연동',
                 path: '/integration',
-                icon: 'fa-plug'
+                icon: 'fa-plug',
+                requiresTelegramIntegration: true
             },
             {
                 name: '웹훅 연동',
@@ -179,6 +182,18 @@ const adminNavigationSections: NavigationSection[] = [
         ]
     },
     {
+        title: '확장',
+        requiresStaff: true,
+        items: [
+            {
+                name: '텔레그램',
+                path: '/integrations',
+                icon: 'fa-paper-plane',
+                requiresStaff: true
+            }
+        ]
+    },
+    {
         title: '관리',
         requiresStaff: true,
         items: [
@@ -208,8 +223,15 @@ const getNavigationSections = (settingsMode: SettingsMode) => (
     settingsMode === 'admin' ? adminNavigationSections : userNavigationSections
 );
 
-const canShowItem = (item: NavigationItem, isEditor: boolean, isStaff: boolean) => (
-    (!item.requiresEditor || isEditor) && (!item.requiresStaff || isStaff)
+const canShowItem = (
+    item: NavigationItem,
+    isEditor: boolean,
+    isStaff: boolean,
+    canUseTelegramIntegration: boolean
+) => (
+    (!item.requiresEditor || isEditor)
+    && (!item.requiresStaff || isStaff)
+    && (!item.requiresTelegramIntegration || canUseTelegramIntegration)
 );
 
 const canShowSection = (section: NavigationSection, isEditor: boolean, isStaff: boolean) => (
@@ -251,7 +273,8 @@ export const SettingsMobileNavigation = ({ currentPath }: SettingsNavigationProp
         isStaff,
         adminUrl,
         settingsMode,
-        basePath
+        basePath,
+        canUseTelegramIntegration
     } = router.options.context as SettingsRouterContext;
     const navigationSections = getNavigationSections(settingsMode);
     const handleNavClick = (item: NavigationItem) => {
@@ -262,7 +285,7 @@ export const SettingsMobileNavigation = ({ currentPath }: SettingsNavigationProp
     };
 
     const renderNavItem = (item: NavigationItem) => {
-        if (!canShowItem(item, isEditor, isStaff)) return null;
+        if (!canShowItem(item, isEditor, isStaff, canUseTelegramIntegration)) return null;
 
         const isActive = item.path !== 'admin' && normalizePath(currentPath, basePath) === normalizePath(item.path, basePath);
         const baseClasses = `flex items-center px-4 py-3 rounded-xl transition-all ${INTERACTION_DURATION} active:scale-95 group`;
@@ -301,7 +324,7 @@ export const SettingsMobileNavigation = ({ currentPath }: SettingsNavigationProp
     const renderSection = (section: NavigationSection) => {
         if (!canShowSection(section, isEditor, isStaff)) return null;
 
-        const visibleItems = section.items.filter(item => canShowItem(item, isEditor, isStaff));
+        const visibleItems = section.items.filter(item => canShowItem(item, isEditor, isStaff, canUseTelegramIntegration));
         if (visibleItems.length === 0) return null;
 
         return (
@@ -373,7 +396,8 @@ export const SettingsDesktopNavigation = ({ currentPath }: SettingsNavigationPro
         isStaff,
         adminUrl,
         settingsMode,
-        basePath
+        basePath,
+        canUseTelegramIntegration
     } = router.options.context as SettingsRouterContext;
     const navigationSections = getNavigationSections(settingsMode);
     const handleNavClick = (item: NavigationItem) => {
@@ -383,7 +407,7 @@ export const SettingsDesktopNavigation = ({ currentPath }: SettingsNavigationPro
     };
 
     const renderNavItem = (item: NavigationItem) => {
-        if (!canShowItem(item, isEditor, isStaff)) return null;
+        if (!canShowItem(item, isEditor, isStaff, canUseTelegramIntegration)) return null;
 
         const isActive = item.path !== 'admin' && normalizePath(currentPath, basePath) === normalizePath(item.path, basePath);
         const baseClasses = `flex items-center px-5 rounded-xl transition-all ${INTERACTION_DURATION} active:scale-95`;
@@ -423,7 +447,7 @@ export const SettingsDesktopNavigation = ({ currentPath }: SettingsNavigationPro
     const renderSection = (section: NavigationSection) => {
         if (!canShowSection(section, isEditor, isStaff)) return null;
 
-        const visibleItems = section.items.filter(item => canShowItem(item, isEditor, isStaff));
+        const visibleItems = section.items.filter(item => canShowItem(item, isEditor, isStaff, canUseTelegramIntegration));
         if (visibleItems.length === 0) return null;
 
         return (

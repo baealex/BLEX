@@ -3,7 +3,8 @@ from urllib.parse import unquote
 from django.test import TestCase
 from django.test.client import Client
 
-from board.models import Profile, User
+from board.models import IntegrationSetting, Profile, TelegramSync, User
+from board.services.integration_setting_service import IntegrationSettingService
 
 
 class SettingsViewTestCase(TestCase):
@@ -39,6 +40,32 @@ class SettingsViewTestCase(TestCase):
         body = self.decode_body(response)
         self.assertIn('"settingsMode": "user"', body)
         self.assertIn('"basePath": "/settings"', body)
+        self.assertIn('"canUseTelegramIntegration": false', body)
+
+    def test_user_settings_enable_telegram_integration_when_bot_configured(self):
+        setting = IntegrationSetting.get_instance()
+        setting.telegram_enabled = True
+        setting.telegram_bot_username = 'blex_bot'
+        setting.telegram_bot_token = IntegrationSettingService.encrypt_secret('telegram-token')
+        setting.save()
+
+        self.client.login(username='settings-reader', password='password123')
+
+        response = self.client.get('/settings/notify')
+
+        self.assertEqual(response.status_code, 200)
+        body = self.decode_body(response)
+        self.assertIn('"canUseTelegramIntegration": true', body)
+
+    def test_user_settings_keep_telegram_integration_for_connected_user(self):
+        TelegramSync.objects.create(user=self.reader, tid='123456789')
+        self.client.login(username='settings-reader', password='password123')
+
+        response = self.client.get('/settings/notify')
+
+        self.assertEqual(response.status_code, 200)
+        body = self.decode_body(response)
+        self.assertIn('"canUseTelegramIntegration": true', body)
 
     def test_staff_admin_settings_render_admin_namespace(self):
         self.client.login(username='settings-staff', password='password123')
@@ -91,6 +118,14 @@ class SettingsViewTestCase(TestCase):
 
         self.assertEqual(response.status_code, 404)
 
+    def test_reader_gets_404_for_legacy_admin_integrations_url(self):
+        client = Client(raise_request_exception=False)
+        client.login(username='settings-reader', password='password123')
+
+        response = client.get('/settings/integrations')
+
+        self.assertEqual(response.status_code, 404)
+
     def test_legacy_admin_users_url_redirects_to_admin_namespace(self):
         self.client.login(username='settings-staff', password='password123')
 
@@ -98,3 +133,11 @@ class SettingsViewTestCase(TestCase):
 
         self.assertEqual(response.status_code, 302)
         self.assertEqual(response['Location'], '/admin-settings/users')
+
+    def test_legacy_admin_integrations_url_redirects_to_admin_namespace(self):
+        self.client.login(username='settings-staff', password='password123')
+
+        response = self.client.get('/settings/integrations')
+
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response['Location'], '/admin-settings/integrations')

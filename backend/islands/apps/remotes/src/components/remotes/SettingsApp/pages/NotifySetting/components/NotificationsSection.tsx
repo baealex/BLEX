@@ -7,11 +7,13 @@ import { markNotificationAsRead, type NotifyItem } from '~/lib/api/settings';
 
 interface NotificationsSectionProps {
     notifyList: NotifyItem[];
+    showTelegramIntegration: boolean;
     onOpenConfig: () => void;
 }
 
 const NotificationsSection = ({
     notifyList,
+    showTelegramIntegration,
     onOpenConfig
 }: NotificationsSectionProps) => {
 
@@ -43,24 +45,25 @@ const NotificationsSection = ({
                 }
             />
 
-            {/* Telegram Integration Card */}
-            <a
-                href="/settings/integration"
-                className="group relative block overflow-hidden rounded-2xl bg-surface ring-1 ring-line/60 transition-all duration-200 hover:ring-line">
-                <div className="relative p-5 sm:p-6 flex items-center justify-between">
-                    <div>
-                        <h3 className="text-base font-semibold text-content mb-1.5">텔레그램 연동</h3>
-                        <p className="text-content-secondary text-sm max-w-xl leading-relaxed">
-                            텔레그램을 연동하면 새 포스트 작성, 댓글, 등의 알림을 실시간으로 받아보실 수 있습니다.
-                        </p>
+            {showTelegramIntegration && (
+                <a
+                    href="/settings/integration"
+                    className="group relative block overflow-hidden rounded-2xl bg-surface ring-1 ring-line/60 transition-all duration-200 hover:ring-line">
+                    <div className="relative p-5 sm:p-6 flex items-center justify-between">
+                        <div>
+                            <h3 className="text-base font-semibold text-content mb-1.5">텔레그램 연동</h3>
+                            <p className="text-content-secondary text-sm max-w-xl leading-relaxed">
+                                텔레그램을 연결하면 새 포스트, 댓글, 팔로우 알림을 받을 수 있습니다.
+                            </p>
+                        </div>
+                        <div className="flex-shrink-0 ml-6">
+                            <span className="inline-flex items-center justify-center w-10 h-10 rounded-lg bg-surface-subtle text-content-secondary group-hover:bg-action group-hover:text-content-inverted transition-colors motion-interaction">
+                                <i className="fab fa-telegram-plane text-lg" />
+                            </span>
+                        </div>
                     </div>
-                    <div className="flex-shrink-0 ml-6">
-                        <span className="inline-flex items-center justify-center w-10 h-10 rounded-lg bg-surface-subtle text-content-secondary group-hover:bg-action group-hover:text-content-inverted transition-colors motion-interaction">
-                            <i className="fab fa-telegram-plane text-lg" />
-                        </span>
-                    </div>
-                </div>
-            </a>
+                </a>
+            )}
 
             {/* Notification list */}
             <div className="space-y-3">

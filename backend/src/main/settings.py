@@ -224,12 +224,6 @@ VITE_DEV_SERVER_INFO_PATH = os.environ.get(
 MEDIA_URL = RESOURCE_URL + 'media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'resources', 'media')
 
-# Extension (Telegram)
-
-TELEGRAM_BOT_TOKEN = os.environ.get('TELEGRAM_BOT_TOKEN')
-TELEGRAM_CHANNEL_ID = os.environ.get('TELEGRAM_CHANNEL_ID')
-TELEGRAM_ERROR_REPORT_ID = os.environ.get('TELEGRAM_ERROR_REPORT_ID')
-
 
 # Initial setup
 

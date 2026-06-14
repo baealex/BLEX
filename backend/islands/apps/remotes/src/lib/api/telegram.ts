@@ -2,6 +2,8 @@ import { http, type Response } from '../http.module';
 
 export interface TelegramStatus {
     isConnected: boolean;
+    isConfigured: boolean;
+    botUsername: string;
     username?: string;
 }
 

@@ -12,6 +12,6 @@
 
 {% block content %}
 <div>
-    {% island_component 'SettingsApp' isEditor=is_editor isStaff=is_staff adminUrl=admin_url settingsMode=settings_mode basePath=settings_base_path %}
+    {% island_component 'SettingsApp' isEditor=is_editor isStaff=is_staff adminUrl=admin_url settingsMode=settings_mode basePath=settings_base_path canUseTelegramIntegration=can_use_telegram_integration %}
 </div>
 {% endblock %}

@@ -1,10 +1,10 @@
-from django.conf import settings
 from django.http import Http404
 from django.utils import timezone
 
 from board.models import TelegramSync
 from board.modules.response import StatusDone, StatusError, ErrorCode
 from board.services.api_request_body_service import ApiRequestBodyService
+from board.services.integration_setting_service import IntegrationSettingService
 from board.services.site_url_service import SiteUrlService
 from modules.sub_task import SubTaskProcessor
 from modules.telegram import TelegramBot
@@ -14,7 +14,11 @@ from modules.randomness import randstr
 def telegram(request, parameter):
     if parameter == 'webHook':
         if request.method == 'POST':
-            bot = TelegramBot(settings.TELEGRAM_BOT_TOKEN)
+            bot_token = IntegrationSettingService.get_telegram_bot_token()
+            if not bot_token:
+                return StatusDone()
+
+            bot = TelegramBot(bot_token)
             req_userid = None
             try:
                 req = ApiRequestBodyService.parse_json_or_empty_for_legacy_only(request)
@@ -46,6 +50,9 @@ def telegram(request, parameter):
         if request.method == 'POST':
             if not request.user.is_authenticated:
                 return StatusError(ErrorCode.NEED_LOGIN)
+
+            if not IntegrationSettingService.is_telegram_configured():
+                return StatusError(ErrorCode.NEED_TELEGRAM, '텔레그램 봇이 설정되지 않았습니다.')
 
             token = randstr(6)
             has_token = TelegramSync.objects.filter(auth_token=token)

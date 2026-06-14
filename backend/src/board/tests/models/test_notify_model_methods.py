@@ -2,7 +2,8 @@ from unittest.mock import patch
 
 from django.test import TestCase, override_settings
 
-from board.models import Notify, TelegramSync, User
+from board.models import IntegrationSetting, Notify, TelegramSync, User
+from board.services.integration_setting_service import IntegrationSettingService
 
 
 class NotifySendNotifyTestCase(TestCase):
@@ -23,6 +24,13 @@ class NotifySendNotifyTestCase(TestCase):
             url='/settings',
             content='Hello notify',
         )
+
+    def configure_telegram_bot(self):
+        setting = IntegrationSetting.get_instance()
+        setting.telegram_enabled = True
+        setting.telegram_bot_username = 'test_bot'
+        setting.telegram_bot_token = IntegrationSettingService.encrypt_secret('token')
+        setting.save()
 
     @patch('board.services.notification_delivery_service.SubTaskProcessor.process')
     @patch('board.services.notification_delivery_service.TelegramBot')
@@ -45,10 +53,22 @@ class NotifySendNotifyTestCase(TestCase):
         mock_bot.assert_not_called()
         mock_process.assert_not_called()
 
-    @override_settings(SITE_URL='https://example.test', TELEGRAM_BOT_TOKEN='token')
+    @patch('board.services.notification_delivery_service.SubTaskProcessor.process')
+    @patch('board.services.notification_delivery_service.TelegramBot')
+    def test_send_notify_without_bot_configuration_is_noop(self, mock_bot, mock_process):
+        TelegramSync.objects.create(user=self.user, tid='123456')
+        notify = self.create_notify()
+
+        notify.send_notify()
+
+        mock_bot.assert_not_called()
+        mock_process.assert_not_called()
+
+    @override_settings(SITE_URL='https://example.test')
     @patch('board.services.notification_delivery_service.SubTaskProcessor.process')
     @patch('board.services.notification_delivery_service.TelegramBot')
     def test_send_notify_dispatches_telegram_message(self, mock_bot, mock_process):
+        self.configure_telegram_bot()
         TelegramSync.objects.create(user=self.user, tid='123456')
         notify = self.create_notify()
 
