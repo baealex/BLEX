@@ -2,8 +2,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from django.conf import settings
-
+from board.services.integration_setting_service import IntegrationSettingService
 from board.services.site_url_service import SiteUrlService
 from modules.sub_task import SubTaskProcessor
 from modules.telegram import TelegramBot
@@ -24,7 +23,11 @@ class NotificationDeliveryService:
         if telegram_id == '':
             return
 
-        bot = TelegramBot(settings.TELEGRAM_BOT_TOKEN)
+        bot_token = IntegrationSettingService.get_telegram_bot_token()
+        if not bot_token:
+            return
+
+        bot = TelegramBot(bot_token)
         SubTaskProcessor.process(lambda: bot.send_messages(telegram_id, [
             SiteUrlService.configured_absolute_url(str(notify.url)),
             notify.content,

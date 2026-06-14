@@ -31,6 +31,7 @@ const GlobalNoticeSetting = lazy(() => import('./pages/GlobalNoticeSetting'));
 const GlobalBannerSetting = lazy(() => import('./pages/GlobalBannerSetting'));
 const SiteSettingSetting = lazy(() => import('./pages/SiteSettingSetting'));
 const LoginSetting = lazy(() => import('./pages/LoginSetting'));
+const AdminIntegrationSetting = lazy(() => import('./pages/AdminIntegrationSetting'));
 const SeoAeoSetting = lazy(() => import('./pages/SeoAeoSetting'));
 const StaticPagesSetting = lazy(() => import('./pages/StaticPagesSetting'));
 const UtilitySetting = lazy(() => import('./pages/UtilitySetting'));
@@ -48,6 +49,7 @@ export interface SettingsAppProps {
     adminUrl?: string;
     settingsMode?: SettingsMode;
     basePath?: string;
+    canUseTelegramIntegration?: boolean;
 }
 
 type SettingsMode = 'user' | 'admin';
@@ -58,6 +60,7 @@ interface SettingsRouterContext {
     adminUrl?: string;
     settingsMode: SettingsMode;
     basePath: string;
+    canUseTelegramIntegration: boolean;
 }
 
 // Root route
@@ -96,6 +99,36 @@ const editorOnly = (Component: ElementType) => {
     };
 
     return EditorOnlyRoute;
+};
+
+const staffOnly = (Component: ElementType) => {
+    const StaffOnlyRoute = (props: Record<string, unknown>) => {
+        const router = useRouter();
+        const { isStaff, settingsMode } = router.options.context as SettingsRouterContext;
+
+        if (!isStaff) {
+            return <Navigate to={settingsMode === 'admin' ? '/site-settings' : '/notify'} replace />;
+        }
+
+        return <Component {...props} />;
+    };
+
+    return StaffOnlyRoute;
+};
+
+const telegramIntegrationOnly = (Component: ElementType) => {
+    const TelegramIntegrationOnlyRoute = (props: Record<string, unknown>) => {
+        const router = useRouter();
+        const { canUseTelegramIntegration } = router.options.context as SettingsRouterContext;
+
+        if (!canUseTelegramIntegration) {
+            return <Navigate to="/notify" replace />;
+        }
+
+        return <Component {...props} />;
+    };
+
+    return TelegramIntegrationOnlyRoute;
 };
 
 const EditorOnlySeriesEditor = editorOnly(SeriesEditor);
@@ -172,7 +205,7 @@ const bannersRoute = createRoute({
 const integrationRoute = createRoute({
     getParentRoute: () => settingsRoute,
     path: '/integration',
-    component: IntegrationSetting
+    component: telegramIntegrationOnly(IntegrationSetting)
 });
 
 const socialLinksRoute = createRoute({
@@ -221,6 +254,12 @@ const loginRoute = createRoute({
     getParentRoute: () => settingsRoute,
     path: '/login',
     component: LoginSetting
+});
+
+const adminIntegrationRoute = createRoute({
+    getParentRoute: () => settingsRoute,
+    path: '/integrations',
+    component: staffOnly(AdminIntegrationSetting)
 });
 
 const seoAeoRoute = createRoute({
@@ -347,6 +386,7 @@ const routeTree = rootRoute.addChildren([
         globalBannersRoute,
         siteSettingsRoute,
         loginRoute,
+        adminIntegrationRoute,
         seoAeoRoute,
         staticPagesRoute,
         utilitiesRoute,
@@ -359,7 +399,8 @@ const SettingsApp = ({
     isStaff,
     adminUrl,
     settingsMode = 'user',
-    basePath
+    basePath,
+    canUseTelegramIntegration = false
 }: SettingsAppProps) => {
     const normalizedSettingsMode = settingsMode === 'admin' ? 'admin' : 'user';
     const normalizedBasePath = basePath ?? (normalizedSettingsMode === 'admin' ? '/admin-settings' : '/settings');
@@ -371,7 +412,8 @@ const SettingsApp = ({
             isStaff,
             adminUrl,
             settingsMode: normalizedSettingsMode,
-            basePath: normalizedBasePath
+            basePath: normalizedBasePath,
+            canUseTelegramIntegration
         },
         defaultPreload: 'intent',
         basepath: normalizedBasePath

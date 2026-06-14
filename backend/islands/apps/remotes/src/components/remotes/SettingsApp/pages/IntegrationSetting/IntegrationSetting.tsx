@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { toast } from '~/utils/toast';
 import { useSuspenseQuery } from '@tanstack/react-query';
+import { Navigate } from '@tanstack/react-router';
 import { SettingsHeader } from '../../components';
 import { Button, Card } from '~/components/shared';
 import { useConfirm } from '~/hooks/useConfirm';
@@ -24,6 +25,8 @@ const IntegrationSettings = () => {
     });
 
     const isConnected = telegramData?.isConnected === true;
+    const isConfigured = telegramData?.isConfigured === true;
+    const botUsername = telegramData?.botUsername ?? '';
 
     const refreshToken = async () => {
         if (isGeneratingToken) return;
@@ -34,7 +37,7 @@ const IntegrationSettings = () => {
             if (data.status === 'DONE' && data.body.token) {
                 setTelegramToken(data.body.token);
             } else {
-                toast.error('토큰 생성에 실패했습니다.');
+                toast.error(data.status === 'ERROR' ? data.errorMessage : '토큰 생성에 실패했습니다.');
             }
         } catch {
             toast.error('토큰 생성 중 오류가 발생했습니다.');
@@ -101,16 +104,20 @@ const IntegrationSettings = () => {
             {isConnected ? (
                 <Card
                     title="연동 상태"
-                    subtitle="현재 텔레그램 연동 상태입니다."
+                    subtitle={isConfigured ? '현재 텔레그램 연동 상태입니다.' : '텔레그램 연결은 유지되어 있습니다.'}
                     icon={<i className="fas fa-plug" />}>
                     <div className="flex flex-col sm:flex-row sm:items-center gap-4">
                         <div className="flex items-center gap-4 flex-1">
-                            <div className="flex items-center justify-center w-12 h-12 bg-action rounded-xl flex-shrink-0">
-                                <i className="fas fa-check text-content-inverted text-base" />
+                            <div className={`flex items-center justify-center w-12 h-12 rounded-xl flex-shrink-0 ${isConfigured ? 'bg-action' : 'bg-warning-surface'}`}>
+                                <i className={`fas ${isConfigured ? 'fa-check text-content-inverted' : 'fa-pause text-warning'} text-base`} />
                             </div>
                             <div>
-                                <h4 className="text-base font-semibold text-content">연동 완료</h4>
-                                <p className="text-sm text-content-secondary mt-1">텔레그램으로 실시간 알림을 받을 수 있습니다.</p>
+                                <h4 className="text-base font-semibold text-content">
+                                    {isConfigured ? '연동 완료' : '알림 전송 일시 중지'}
+                                </h4>
+                                <p className="text-sm text-content-secondary mt-1">
+                                    {isConfigured ? '텔레그램으로 실시간 알림을 받을 수 있습니다.' : '텔레그램 알림 전송이 현재 중지되어 있습니다.'}
+                                </p>
                             </div>
                         </div>
                         <Button
@@ -124,6 +131,8 @@ const IntegrationSettings = () => {
                         </Button>
                     </div>
                 </Card>
+            ) : !isConfigured ? (
+                <Navigate to="/notify" replace />
             ) : (
                 <Card
                     title="연동 방법"
@@ -137,11 +146,11 @@ const IntegrationSettings = () => {
                             <p className="text-sm text-content leading-relaxed">
                                 텔레그램 앱에서{' '}
                                 <a
-                                    href="https://t.me/blex_bot"
+                                    href={`https://t.me/${botUsername}`}
                                     className="inline-flex items-center text-content hover:text-content font-medium underline decoration-1 underline-offset-2"
                                     target="_blank"
                                     rel="noopener noreferrer">
-                                    @blex_bot
+                                    @{botUsername}
                                     <i className="fas fa-external-link-alt ml-1 text-xs" />
                                 </a>
                                 을 찾아 대화를 시작하세요.

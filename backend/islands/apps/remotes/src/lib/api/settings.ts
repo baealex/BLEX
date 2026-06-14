@@ -701,6 +701,20 @@ export interface LoginSettingUpdateData {
     social_auth_providers?: SocialAuthProviderUpdateData[];
 }
 
+export interface IntegrationSettingData {
+    telegramEnabled: boolean;
+    telegramBotUsername: string;
+    telegramHasBotToken: boolean;
+    updatedDate: string;
+}
+
+export interface IntegrationSettingUpdateData {
+    telegram_enabled?: boolean;
+    telegram_bot_username?: string;
+    telegram_bot_token?: string;
+    clear_telegram_bot_token?: boolean;
+}
+
 export const getSiteSettings = async () => {
     return http.get<Response<SiteSettingData>>('v1/site-settings');
 };
@@ -715,6 +729,14 @@ export const getLoginSettings = async () => {
 
 export const updateLoginSettings = async (data: LoginSettingUpdateData) => {
     return http.put<Response<LoginSettingData>>('v1/login-settings', data, { headers: { 'Content-Type': 'application/json' } });
+};
+
+export const getIntegrationSettings = async () => {
+    return http.get<Response<IntegrationSettingData>>('v1/integration-settings');
+};
+
+export const updateIntegrationSettings = async (data: IntegrationSettingUpdateData) => {
+    return http.put<Response<IntegrationSettingData>>('v1/integration-settings', data, { headers: { 'Content-Type': 'application/json' } });
 };
 
 export type BrandAssetType = 'logo' | 'icon';

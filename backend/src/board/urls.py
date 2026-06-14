@@ -151,6 +151,7 @@ urlpatterns = [
     path('v1/site-settings', api_v1.site_settings),
     path('v1/site-settings/brand-assets', api_v1.site_setting_brand_assets),
     path('v1/login-settings', api_v1.login_settings),
+    path('v1/integration-settings', api_v1.integration_settings),
     path('v1/static-pages', api_v1.static_pages),
     path('v1/static-pages/<int:page_id>', api_v1.static_pages),
     path('v1/markdown', api_v1.markdown_to_html),

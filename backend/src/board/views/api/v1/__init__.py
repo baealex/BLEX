@@ -10,6 +10,7 @@ from .form import *
 from .global_banner import *
 from .global_notice import *
 from .image import *
+from .integration_setting import *
 from .login_setting import *
 from .notice import *
 from .markdown import *

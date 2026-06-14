@@ -26,6 +26,7 @@ from board.services.webhook_subscription_state_service import WebhookSubscriptio
 from board.services.user_config_meta_service import UserConfigMetaService
 from board.services.series_save_service import SeriesSaveService
 from board.services.telegram_sync_encryption_service import TelegramSyncEncryptionService
+from board.services.integration_setting_service import IntegrationSettingService
 from board.constants.social_auth import (
     SUPPORTED_SOCIAL_AUTH_PROVIDERS,
     SUPPORTED_SOCIAL_AUTH_PROVIDER_CHOICES,
@@ -894,6 +895,47 @@ class LoginSetting(models.Model):
 
     def save(self, *args, **kwargs):
         self.pk = 1
+        super().save(*args, **kwargs)
+
+    @classmethod
+    def get_instance(cls):
+        obj, created = cls.objects.get_or_create(pk=1)
+        return obj
+
+
+class IntegrationSetting(models.Model):
+    """
+    Site-wide external integration settings.
+    Only one instance should exist (singleton pattern).
+    """
+    telegram_enabled = models.BooleanField(
+        default=False,
+        help_text='텔레그램 봇 연동 사용 여부'
+    )
+    telegram_bot_username = models.CharField(
+        max_length=64,
+        blank=True,
+        default='',
+        help_text='사용자에게 안내할 텔레그램 봇 사용자명'
+    )
+    telegram_bot_token = models.TextField(
+        blank=True,
+        default='',
+        help_text='암호화 저장되는 텔레그램 봇 토큰'
+    )
+    updated_date = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name = '🏢 [사이트 운영] 텔레그램'
+        verbose_name_plural = '🏢 [사이트 운영] 텔레그램'
+
+    def __str__(self):
+        return 'Integration Settings'
+
+    def save(self, *args, **kwargs):
+        self.pk = 1
+        if self.telegram_bot_token:
+            self.telegram_bot_token = IntegrationSettingService.encrypt_secret(self.telegram_bot_token)
         super().save(*args, **kwargs)
 
     @classmethod

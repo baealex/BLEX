@@ -121,6 +121,8 @@ Initial setup URL: https://blog.example.com/setup?token=...
 
 소셜 로그인을 사용할 경우 Google/GitHub 개발자 콘솔에서 OAuth 앱을 만든 뒤 BLEX 어드민의 로그인 관리 화면에 Client ID와 Client Secret을 저장합니다. 자세한 절차는 [`SOCIAL_LOGIN.md`](./SOCIAL_LOGIN.md)를 참고하세요.
 
+텔레그램 알림을 사용할 경우 `/admin-settings/integrations`의 텔레그램 화면에서 봇 사용자명과 봇 토큰을 저장합니다.
+
 ## 5. 첫 글 발행
 
 `/write`에서 제목과 본문을 입력하고 발행합니다. 공개 글은 공개 URL, Markdown URL, RSS, sitemap에 노출됩니다.
