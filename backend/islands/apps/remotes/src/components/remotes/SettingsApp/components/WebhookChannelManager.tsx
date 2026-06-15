@@ -21,6 +21,15 @@ type CreateResponse = Response<{ success: boolean; channelId: number }>;
 type DeleteResponse = Response<{ success: boolean }>;
 type TestResponse = Response<{ success: boolean }>;
 
+interface WebhookProviderInfo {
+    title: string;
+    badge: string;
+    description: string;
+    payload: string;
+    iconClassName: string;
+    statusClassName: string;
+}
+
 interface WebhookChannelManagerProps {
     queryKey: string[];
     title: string;
@@ -43,10 +52,70 @@ interface WebhookChannelManagerProps {
 
 const webhookSchema = z.object({
     webhookUrl: z.string().trim().min(1, '웹훅 URL을 입력해주세요.').url('올바른 URL 형식으로 입력해주세요.'),
-    webhookName: z.string().trim().max(100, '채널 이름은 100자 이내여야 합니다.')
+    webhookName: z.string().trim().max(100, '표시 이름은 100자 이내여야 합니다.')
 });
 
 type WebhookFormInputs = z.infer<typeof webhookSchema>;
+
+const WEBHOOK_MESSAGE_PREVIEW =
+    '[baealex] 새 포스트가 발행되었어요: [BLEX 업데이트](https://blex.me/@baealex/blex-update)';
+
+const getWebhookProviderInfo = (webhookUrl: string): WebhookProviderInfo => {
+    const normalizedUrl = webhookUrl.trim().toLowerCase();
+
+    if (!normalizedUrl) {
+        return {
+            title: '지원 방식 확인',
+            badge: 'URL 입력 전',
+            description: 'Discord, Slack은 공식 웹훅 형식으로 전송하고 그 외 주소는 일반 JSON으로 전송합니다.',
+            payload: 'URL을 입력하면 전송 형식이 표시됩니다.',
+            iconClassName: 'fa-circle-info',
+            statusClassName: 'text-content-secondary'
+        };
+    }
+
+    if (
+        normalizedUrl.includes('discord.com/api/webhooks') ||
+        normalizedUrl.includes('discordapp.com/api/webhooks')
+    ) {
+        return {
+            title: 'Discord Webhook',
+            badge: '공식 지원',
+            description: 'Discord 채널 웹훅 URL로 인식했습니다.',
+            payload: JSON.stringify({ content: WEBHOOK_MESSAGE_PREVIEW }, null, 2),
+            iconClassName: 'fa-circle-check',
+            statusClassName: 'text-success'
+        };
+    }
+
+    if (normalizedUrl.includes('hooks.slack.com/services')) {
+        return {
+            title: 'Slack Incoming Webhook',
+            badge: '공식 지원',
+            description: 'Slack Incoming Webhook URL로 인식했습니다.',
+            payload: JSON.stringify({
+                text: WEBHOOK_MESSAGE_PREVIEW,
+                unfurl_links: true
+            }, null, 2),
+            iconClassName: 'fa-circle-check',
+            statusClassName: 'text-success'
+        };
+    }
+
+    return {
+        title: '일반 웹훅 URL',
+        badge: '일반 JSON',
+        description: '등록한 주소로 JSON을 POST합니다. 받는 쪽에서 아래 필드를 처리해야 합니다.',
+        payload: JSON.stringify({
+            content: WEBHOOK_MESSAGE_PREVIEW,
+            text: WEBHOOK_MESSAGE_PREVIEW,
+            message: WEBHOOK_MESSAGE_PREVIEW,
+            url: 'https://blex.me/@baealex/blex-update'
+        }, null, 2),
+        iconClassName: 'fa-code',
+        statusClassName: 'text-content-secondary'
+    };
+};
 
 const WebhookChannelManager = ({
     queryKey,
@@ -55,7 +124,7 @@ const WebhookChannelManager = ({
     formTitle,
     emptyTitle,
     emptyDescription,
-    addButtonLabel = '채널 추가',
+    addButtonLabel = '전송 대상 추가',
     fetchChannels,
     createChannel,
     deleteChannel,
@@ -76,6 +145,7 @@ const WebhookChannelManager = ({
         handleSubmit,
         trigger,
         getValues,
+        watch,
         reset,
         formState: { errors }
     } = useForm<WebhookFormInputs>({
@@ -96,6 +166,7 @@ const WebhookChannelManager = ({
             throw new Error('웹훅 채널 목록을 불러오는데 실패했습니다.');
         }
     });
+    const webhookProvider = getWebhookProviderInfo(watch('webhookUrl'));
 
     const handleTest = async () => {
         const isValid = await trigger('webhookUrl');
@@ -227,19 +298,49 @@ const WebhookChannelManager = ({
                             <Input
                                 id="webhookUrl"
                                 type="url"
-                                placeholder="https://discord.com/api/webhooks/..."
+                                placeholder="https://example.com/webhook"
                                 error={errors.webhookUrl?.message}
                                 {...register('webhookUrl')}
                             />
+                            <div className="mt-3 border-l border-line pl-3">
+                                <div className="flex items-start gap-3">
+                                    <i
+                                        className={`fas ${webhookProvider.iconClassName} mt-0.5 ${webhookProvider.statusClassName}`}
+                                    />
+                                    <div className="min-w-0 flex-1">
+                                        <div className="flex flex-wrap items-center gap-2">
+                                            <p className="text-sm font-semibold text-content">{webhookProvider.title}</p>
+                                            <span className={`text-xs font-semibold ${webhookProvider.statusClassName}`}>
+                                                {webhookProvider.badge}
+                                            </span>
+                                        </div>
+                                        <p className="mt-1 text-xs leading-relaxed text-content-secondary">
+                                            {webhookProvider.description}
+                                        </p>
+                                        <div className="mt-3 space-y-2">
+                                            <div>
+                                                <p className="text-[11px] font-semibold text-content-secondary">전송 문구</p>
+                                                <p className="mt-1 rounded-md bg-surface px-3 py-2 text-xs leading-relaxed text-content">
+                                                    {WEBHOOK_MESSAGE_PREVIEW}
+                                                </p>
+                                            </div>
+                                            <div>
+                                                <p className="text-[11px] font-semibold text-content-secondary">JSON 형식</p>
+                                                <pre className="mt-1 overflow-x-auto rounded-md bg-surface px-3 py-2 text-xs leading-relaxed text-content-secondary"><code>{webhookProvider.payload}</code></pre>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                         <div>
                             <label htmlFor="webhookName" className="block text-sm font-medium text-content mb-1">
-                                채널 이름 (선택)
+                                표시 이름 (선택)
                             </label>
                             <Input
                                 id="webhookName"
                                 type="text"
-                                placeholder="예: 운영 디스코드"
+                                placeholder="예: 새 포스트 알림"
                                 {...register('webhookName')}
                             />
                         </div>

@@ -146,7 +146,7 @@ class WebhookService:
 
         post_url = SiteUrlService.configured_absolute_url(post.get_absolute_url())
         author_name = post.author.first_name or post.author.username
-        content = f'[{author_name}] 새 글이 발행되었어요: [{post.title}]({post_url})'
+        content = f'[{author_name}] 새 포스트가 발행되었어요: [{post.title}]({post_url})'
         delay_seconds = max(0.0, WebhookService.DEFAULT_NOTIFICATION_DELAY_SECONDS)
 
         def send_all_webhooks():

@@ -490,6 +490,10 @@ class WebhookNotificationTestCase(TestCase):
                 call_args.kwargs['post_url'],
                 'https://blex.example/@author/test-post',
             )
+            self.assertEqual(
+                call_args.kwargs['content'],
+                '[author] 새 포스트가 발행되었어요: [Test Post](https://blex.example/@author/test-post)',
+            )
 
     @patch.object(WebhookService, 'DEFAULT_NOTIFICATION_DELAY_SECONDS', 1.25)
     @patch('board.services.webhook_service.WebhookService.send_webhook_with_tracking')
