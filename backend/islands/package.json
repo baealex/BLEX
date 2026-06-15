@@ -25,7 +25,8 @@
     "packageManager": "pnpm@10.28.2",
     "pnpm": {
         "overrides": {
-            "dompurify": "3.4.2"
+            "dompurify": "3.4.2",
+            "esbuild": "0.28.1"
         }
     }
 }
