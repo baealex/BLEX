@@ -27,6 +27,7 @@ from board.services.user_config_meta_service import UserConfigMetaService
 from board.services.series_save_service import SeriesSaveService
 from board.services.telegram_sync_encryption_service import TelegramSyncEncryptionService
 from board.services.integration_setting_service import IntegrationSettingService
+from board.services.two_factor_auth_secret_service import TwoFactorAuthSecretService
 from board.constants.social_auth import (
     SUPPORTED_SOCIAL_AUTH_PROVIDERS,
     SUPPORTED_SOCIAL_AUTH_PROVIDER_CHOICES,
@@ -602,8 +603,8 @@ class TelegramSync(models.Model):
 
 class TwoFactorAuth(models.Model):
     user = models.OneToOneField('auth.User', on_delete=models.CASCADE)
-    recovery_key = models.CharField(max_length=45, blank=True)
-    totp_secret = models.CharField(max_length=32, blank=True)  # TOTP secret key
+    recovery_key = models.CharField(max_length=64, blank=True)
+    totp_secret = models.TextField(blank=True)
     created_date = models.DateTimeField(default=timezone.now)
 
     def has_been_a_day(self):
@@ -612,22 +613,37 @@ class TwoFactorAuth(models.Model):
             return True
         return False
 
+    def get_totp_secret(self):
+        return TwoFactorAuthSecretService.decrypt_totp_secret(self.totp_secret)
+
+    def verify_recovery_key(self, token):
+        return TwoFactorAuthSecretService.verify_recovery_key(self.recovery_key, token)
+
     def verify_totp(self, token):
         """Verify TOTP token"""
-        if not self.totp_secret:
+        totp_secret = self.get_totp_secret()
+        if not totp_secret:
             return False
-        totp = pyotp.TOTP(self.totp_secret)
-        return totp.verify(token, valid_window=1)  # Allow 30s window on each side
+        try:
+            totp = pyotp.TOTP(totp_secret)
+            return totp.verify(token, valid_window=1)  # Allow 30s window on each side
+        except Exception:
+            return False
 
     def get_provisioning_uri(self):
         """Get provisioning URI for QR code"""
-        if not self.totp_secret:
+        totp_secret = self.get_totp_secret()
+        if not totp_secret:
             return None
-        totp = pyotp.TOTP(self.totp_secret)
+        totp = pyotp.TOTP(totp_secret)
         return totp.provisioning_uri(
             name=self.user.email,
             issuer_name='BLEX'
         )
+
+    def save(self, *args, **kwargs):
+        TwoFactorAuthSecretService.prepare_for_save(self)
+        super().save(*args, **kwargs)
 
     def __str__(self):
         return self.user.username

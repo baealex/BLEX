@@ -9,6 +9,7 @@ from django.test import TestCase, override_settings
 from django.utils import timezone
 
 from board.models import User, Profile, Config, TwoFactorAuth
+from board.services.two_factor_auth_secret_service import TwoFactorAuthSecretService
 
 
 class TwoFactorAuthTestCase(TestCase):
@@ -46,6 +47,7 @@ class TwoFactorAuthTestCase(TestCase):
         self.assertIn('recoveryKey', content['body'])
         self.assertTrue(content['body']['qrCode'].startswith('data:image/png;base64,'))
         self.assertEqual(len(content['body']['recoveryKey']), 45)
+        recovery_key = content['body']['recoveryKey']
 
         # At this point, 2FA should NOT be saved to database yet
         user = User.objects.get(username='test2fa')
@@ -70,9 +72,14 @@ class TwoFactorAuthTestCase(TestCase):
         # NOW the TwoFactorAuth record should be created
         user = User.objects.get(username='test2fa')
         self.assertTrue(hasattr(user, 'twofactorauth'))
-        self.assertEqual(len(user.twofactorauth.recovery_key), 45)
-        self.assertIsNotNone(user.twofactorauth.totp_secret)
-        self.assertGreater(len(user.twofactorauth.totp_secret), 0)
+        self.assertEqual(len(user.twofactorauth.recovery_key), 64)
+        self.assertNotEqual(user.twofactorauth.recovery_key, recovery_key)
+        self.assertTrue(user.twofactorauth.verify_recovery_key(recovery_key))
+        self.assertNotEqual(user.twofactorauth.totp_secret, totp_secret)
+        self.assertEqual(
+            TwoFactorAuthSecretService.decrypt_totp_secret(user.twofactorauth.totp_secret),
+            totp_secret,
+        )
 
     def test_enable_2fa_invalid_verification_code(self):
         """잘못된 TOTP 코드로 2FA 설정 완료 시도 테스트"""
@@ -145,6 +152,25 @@ class TwoFactorAuthTestCase(TestCase):
         content = json.loads(response.content)
         self.assertEqual(content['status'], 'ERROR')
         self.assertEqual(content['errorCode'], 'error:AC')
+
+    def test_get_2fa_security_does_not_return_stored_recovery_key(self):
+        """2FA 조회 시 저장된 복구 키 원문이나 해시를 반환하지 않는다."""
+        user = User.objects.get(username='test2fa')
+        TwoFactorAuth.objects.create(
+            user=user,
+            recovery_key='x' * 45,
+            totp_secret=pyotp.random_base32()
+        )
+
+        self.client.login(username='test2fa', password='test2fa')
+
+        response = self.client.get('/v1/auth/security')
+        self.assertEqual(response.status_code, 200)
+        content = json.loads(response.content)
+        self.assertEqual(content['status'], 'DONE')
+        self.assertIn('qrCode', content['body'])
+        self.assertNotIn('recoveryKey', content['body'])
+        self.assertTrue(content['body']['hasRecoveryKey'])
 
     @override_settings(DEBUG=False)
     def test_login_with_2fa_enabled(self):
@@ -250,6 +276,70 @@ class TwoFactorAuthTestCase(TestCase):
         content = json.loads(response.content)
         self.assertEqual(content['status'], 'ERROR')
         self.assertEqual(content['errorCode'], 'error:AU')
+
+    @override_settings(DEBUG=False)
+    def test_login_with_recovery_key(self):
+        """2FA가 활성화된 사용자가 복구 키로 로그인 성공 테스트"""
+        user = User.objects.get(username='test2fa')
+        recovery_key = 'r' * 45
+        TwoFactorAuth.objects.create(
+            user=user,
+            recovery_key=recovery_key,
+            totp_secret=pyotp.random_base32()
+        )
+
+        response = self.client.post('/v1/login', {
+            'username': 'test2fa',
+            'password': 'test2fa',
+            'code': recovery_key,
+        })
+
+        self.assertEqual(response.status_code, 200)
+        content = json.loads(response.content)
+        self.assertEqual(content['status'], 'DONE')
+        self.assertEqual(content['body']['username'], 'test2fa')
+
+        two_factor_auth = TwoFactorAuth.objects.get(user=user)
+        self.assertEqual(len(two_factor_auth.recovery_key), 64)
+        self.assertNotEqual(two_factor_auth.recovery_key, recovery_key)
+
+    @override_settings(DEBUG=False)
+    def test_login_with_legacy_plaintext_two_factor_values(self):
+        """기존 평문 2FA secret과 복구 키도 계속 검증된다."""
+        user = User.objects.get(username='test2fa')
+        totp_secret = pyotp.random_base32()
+        recovery_key = 'legacy-recovery-key-value-over-six-chars'
+        two_factor_auth = TwoFactorAuth.objects.create(
+            user=user,
+            recovery_key='temporary-recovery-key',
+            totp_secret=pyotp.random_base32()
+        )
+        TwoFactorAuth.objects.filter(id=two_factor_auth.id).update(
+            recovery_key=recovery_key,
+            totp_secret=totp_secret,
+        )
+
+        response = self.client.post('/v1/login', {
+            'username': 'test2fa',
+            'password': 'test2fa',
+            'code': pyotp.TOTP(totp_secret).now(),
+        })
+
+        self.assertEqual(response.status_code, 200)
+        content = json.loads(response.content)
+        self.assertEqual(content['status'], 'DONE')
+
+        self.client.logout()
+
+        response = self.client.post('/v1/login', {
+            'username': 'test2fa',
+            'password': 'test2fa',
+            'code': recovery_key,
+        })
+
+        self.assertEqual(response.status_code, 200)
+        content = json.loads(response.content)
+        self.assertEqual(content['status'], 'DONE')
 
     @override_settings(DEBUG=False)
     def test_login_with_valid_2fa_code(self):

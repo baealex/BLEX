@@ -39,6 +39,8 @@ python -c "import secrets; print(secrets.token_urlsafe(24))"
 
 첫 번째 값은 `SECRET_KEY`, 두 번째 값은 32글자라 `CIPHER_KEY`에 사용할 수 있습니다. `INITIAL_SETUP_TOKEN`은 직접 고정해도 되고, Docker 로그에 출력되는 자동 생성 값을 사용해도 됩니다.
 
+`CIPHER_KEY`는 DB에 저장되는 OAuth Client Secret, 2FA TOTP secret, 텔레그램/hCaptcha secret 복호화에 필요합니다. 운영을 시작한 뒤 이 값을 잃어버리거나 바꾸면 기존 암호화 값은 복호화할 수 없으므로 백업 대상에 포함하세요.
+
 `ADMIN_PATH`는 비워 두면 Docker 실행 시 자동 생성되고 backend 로그에 출력됩니다. 재시작 후에도 같은 관리자 경로를 유지하고 싶을 때만 직접 설정하세요.
 운영에서는 북마크, 모니터링, 여러 worker 구성을 고려해 고정된 `ADMIN_PATH`를 쓰는 편이 안전합니다.
 

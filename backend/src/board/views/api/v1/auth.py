@@ -30,7 +30,6 @@ from board.services.social_auth_provider_service import SocialAuthProviderServic
 from modules.challenge import auth_hcaptcha
 from modules.sub_task import SubTaskProcessor
 from modules.telegram import TelegramBot
-from modules.randomness import randnum, randstr
 
 
 def login(request):
@@ -255,7 +254,7 @@ def security(request):
             if qr_code:
                 return StatusDone({
                     'qr_code': qr_code,
-                    'recovery_key': two_factor_auth.recovery_key
+                    'has_recovery_key': bool(two_factor_auth.recovery_key),
                 })
         return StatusError(ErrorCode.NOT_FOUND)
 
@@ -265,7 +264,7 @@ def security(request):
                 return StatusError(ErrorCode.ALREADY_CONNECTED)
 
             totp_secret = AuthService.create_totp_secret()
-            recovery_key = randstr(45)
+            recovery_key = AuthService.create_recovery_key()
 
             request.session['totp_setup'] = {
                 'secret': totp_secret,
