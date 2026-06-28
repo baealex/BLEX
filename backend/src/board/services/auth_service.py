@@ -7,6 +7,7 @@ Extracted from views to improve testability and reusability.
 
 import re
 import io
+import secrets
 import pyotp
 import qrcode
 import base64
@@ -97,6 +98,7 @@ class AuthService:
     """Service class for handling authentication-related business logic"""
     USERNAME_PATTERN = re.compile(r'[a-z0-9]{4,15}')
     EMAIL_PATTERN = re.compile(r'[A-Z0-9a-z._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,64}')
+    RECOVERY_KEY_ALPHABET = '0123456789abcdefghijklnmopqrstuvwxyzABCDEFGHIJKLNMOPQRSTUVWXYZ'
 
     @staticmethod
     def validate_username(username: str) -> None:
@@ -293,6 +295,13 @@ class AuthService:
         return pyotp.random_base32()
 
     @staticmethod
+    def create_recovery_key() -> str:
+        return ''.join(
+            secrets.choice(AuthService.RECOVERY_KEY_ALPHABET)
+            for _ in range(45)
+        )
+
+    @staticmethod
     def verify_totp_token(user: User, token: str) -> bool:
         """
         Verify TOTP token or recovery key.
@@ -309,7 +318,7 @@ class AuthService:
 
             # Check if it's a recovery key (longer than 6 chars)
             if len(token) > 6:
-                return two_factor_auth.recovery_key == token
+                return two_factor_auth.verify_recovery_key(token)
 
             # Otherwise verify TOTP
             return two_factor_auth.verify_totp(token)
