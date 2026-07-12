@@ -71,17 +71,13 @@ jobs:
     steps:
     - uses: actions/checkout@v6
 
-    - name: Set up Node.js with pnpm
-      uses: pnpm/action-setup@v6
-      with:
-        version: 11.12.0
-
     - name: Set up Node.js
       uses: actions/setup-node@v6
       with:
         node-version: '22.22.2'
-        cache: 'pnpm'
-        cache-dependency-path: backend/islands/pnpm-lock.yaml
+
+    - name: Install pnpm
+      run: npm install --global pnpm@11.12.0
 
     - name: Install Islands dependencies
       run: pnpm install
