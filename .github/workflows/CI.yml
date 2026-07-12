@@ -125,3 +125,95 @@ jobs:
       working-directory: backend/islands
       env:
         BLEX_E2E_ENV_FILE: ${{ github.workspace }}/samples/.env
+
+  container_ci:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v6
+
+    - name: Build unified BLEX image
+      run: docker build --tag blex:ci ./backend
+
+    - name: Audit unified runtime contents
+      run: |
+        docker run --rm --entrypoint sh blex:ci -c '
+          leftovers=$(find /app -xdev \
+            \( -name node_modules \
+              -o -name .turbo \
+              -o -name .cache \
+              -o -name __pycache__ \
+              -o -name "*.pyc" \
+              -o -name "*.pyo" \
+              -o -name "*.map" \
+              -o -name "*.ts" \
+              -o -name "*.tsx" \
+              -o -name "*.scss" \
+              -o -name package.json \
+              -o -name pnpm-lock.yaml \
+            \) -print)
+
+          test -z "$leftovers"
+          test -z "$(find /var/lib/apt/lists /var/cache/apt /var/cache/debconf \
+            -mindepth 1 -print 2>/dev/null)"
+        '
+
+    - name: Verify child process failure is detected
+      run: |
+        docker run \
+          --detach \
+          --name blex-ci-fault \
+          --env-file samples/.env \
+          --env RUN_MIGRATIONS_ON_START=false \
+          blex:ci
+
+        cleanup() {
+          docker logs blex-ci-fault || true
+          docker rm --force blex-ci-fault || true
+        }
+        trap cleanup EXIT
+
+        for attempt in $(seq 1 30); do
+          docker exec blex-ci-fault test -s /run/nginx.pid && break
+          sleep 1
+        done
+
+        docker exec blex-ci-fault nginx -s quit
+        test "$(docker wait blex-ci-fault)" = 1
+
+    - name: Run unified container smoke
+      run: |
+        docker run \
+          --detach \
+          --name blex-ci \
+          --env-file samples/.env \
+          --env SITE_URL=http://127.0.0.1:18080 \
+          --publish 127.0.0.1:18080:80 \
+          blex:ci
+
+        cleanup() {
+          docker logs blex-ci || true
+          docker rm --force blex-ci || true
+        }
+        trap cleanup EXIT
+
+        for attempt in $(seq 1 60); do
+          curl --fail --silent --show-error http://127.0.0.1:18080/ > /dev/null && break
+          sleep 1
+        done
+
+        curl --fail --silent --show-error \
+          http://127.0.0.1:18080/resources/staticfiles/islands/.vite/manifest.json \
+          > /dev/null
+        docker exec blex-ci python manage.py migrate --check
+        docker exec blex-ci python manage.py check
+        docker exec blex-ci nginx -t
+
+        docker restart blex-ci
+        for attempt in $(seq 1 60); do
+          curl --fail --silent --show-error http://127.0.0.1:18080/ > /dev/null && break
+          sleep 1
+        done
+
+        docker stop --time 10 blex-ci
+        test "$(docker inspect blex-ci --format '{{.State.ExitCode}}')" = 0

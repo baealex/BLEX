@@ -1,4 +1,4 @@
-FROM node:22-alpine AS islands-builder
+FROM --platform=$BUILDPLATFORM node:22-alpine AS islands-builder
 
 COPY ./islands/package.json /app/islands/package.json
 COPY ./islands/pnpm-lock.yaml /app/islands/pnpm-lock.yaml
@@ -25,40 +25,48 @@ FROM python:3.12-slim AS backend-builder
 COPY ./src/requirements.txt /app/
 
 WORKDIR /app
-RUN pip install --prefix=/install -r requirements.txt --use-pep517
+RUN pip install \
+    --prefix=/install \
+    --no-compile \
+    --no-cache-dir \
+    --use-pep517 \
+    -r requirements.txt
+
+COPY ./src /runtime-src
+RUN rm -f /runtime-src/README.md /runtime-src/requirements.txt \
+    && find /runtime-src/board/templates -type f \
+        \( -name '*.alpine.ts' -o -name '*.scss' -o -name 'tsconfig.json' \) \
+        -delete
 
 #####
 
-FROM python:3.12-slim AS backend-runner
+FROM python:3.12-slim
 
-ENV PYTHONUNBUFFERED=1
-ENV RESOURCE_URL=""
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    RESOURCE_URL=""
+
+RUN apt-get update \
+    && DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends nginx \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/* /var/cache/apt/* /var/cache/debconf/*
 
 COPY --from=backend-builder /install /usr/local
-COPY ./src /app
+COPY --from=backend-builder /runtime-src /app
+COPY nginx.conf /etc/nginx/nginx.conf
 
 WORKDIR /app
 
-RUN CIPHER_KEY="" python manage.py collectstatic --noinput
-
-#####
-
-FROM nginx:alpine AS nginx-stage
-
-COPY nginx.conf /etc/nginx/nginx.conf
-COPY --from=backend-runner /app/resources/ /resources/
-COPY --from=islands-builder /app/src/resources/staticfiles/islands/ /resources/staticfiles/islands/
-
-#####
-
-FROM backend-runner
-
-# Copy islands static files to the final backend image as well if needed for serving or just consistency
+RUN CIPHER_KEY="" python manage.py collectstatic --noinput \
+    && find /app/resources/staticfiles -type f -name '*.map' -delete
 COPY --from=islands-builder /app/src/resources/staticfiles/islands/ /app/resources/staticfiles/islands/
+RUN nginx -t
 
-# Copy and set up entrypoint script
 COPY entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
 
+EXPOSE 80
+STOPSIGNAL SIGTERM
+
 ENTRYPOINT ["/entrypoint.sh"]
-CMD ["--bind", "0.0.0.0:8000", "--workers", "1", "--access-logfile", "-", "--log-level", "info", "main.wsgi:application"]
+CMD ["--bind", "127.0.0.1:8000", "--workers", "1", "--access-logfile", "-", "--log-level", "info", "main.wsgi:application"]

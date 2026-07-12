@@ -41,18 +41,18 @@ python -c "import secrets; print(secrets.token_urlsafe(24))"
 
 `CIPHER_KEY`는 DB에 저장되는 OAuth Client Secret, 2FA TOTP secret, 텔레그램/hCaptcha secret 복호화에 필요합니다. 운영을 시작한 뒤 이 값을 잃어버리거나 바꾸면 기존 암호화 값은 복호화할 수 없으므로 백업 대상에 포함하세요.
 
-`ADMIN_PATH`는 비워 두면 Docker 실행 시 자동 생성되고 backend 로그에 출력됩니다. 재시작 후에도 같은 관리자 경로를 유지하고 싶을 때만 직접 설정하세요.
+`ADMIN_PATH`는 비워 두면 Docker 실행 시 자동 생성되고 BLEX 로그에 출력됩니다. 재시작 후에도 같은 관리자 경로를 유지하고 싶을 때만 직접 설정하세요.
 운영에서는 북마크, 모니터링, 여러 worker 구성을 고려해 고정된 `ADMIN_PATH`를 쓰는 편이 안전합니다.
 
 ## 2. 앞단 HTTPS 프록시 연결
 
-BLEX는 기본적으로 `docker-compose.yml`의 nginx를 통해 HTTP 포트 하나를 엽니다.
+BLEX는 기본적으로 `docker-compose.yml`의 단일 `baealex/blex` 이미지에서 nginx와 Django backend를 함께 실행하고 HTTP 포트 하나를 엽니다.
 
 ```text
 인터넷
 → 앞단 HTTPS 프록시
-→ BLEX nginx HTTP 포트
-→ Django backend
+→ BLEX 컨테이너의 nginx HTTP 포트
+→ 같은 컨테이너의 Django backend
 ```
 
 운영 서버에서는 앞단 HTTPS 프록시에서 아래를 처리하세요.
@@ -98,22 +98,29 @@ Caddy, Cloudflare Tunnel, Traefik을 쓰는 경우에도 원칙은 같습니다.
 
 ```bash
 docker compose up -d
-docker compose logs -f backend
+docker compose logs -f blex
 ```
 
-기본 Docker 이미지는 작은 서버를 고려해 Gunicorn worker를 1개로 실행합니다. `docker-compose.yml`은 이 기본 실행값을 그대로 사용합니다. 512MB급 서버에서는 이 설정으로 시작하고, 메모리 여유가 확인된 경우에만 compose의 `command`로 worker 수를 직접 덮어쓰세요.
+기본 Docker 이미지는 nginx와 Gunicorn을 한 컨테이너에서 실행합니다. 작은 서버를 고려해 Gunicorn worker는 1개이며, `docker-compose.yml`은 이 기본 실행값을 그대로 사용합니다. 512MB급 서버에서는 이 설정으로 시작하고, 메모리 여유가 확인된 경우에만 compose의 `command`로 worker 수를 직접 덮어쓰세요.
+
+기존 `blex-backend`, `blex-nginx` 두 이미지 compose에서 업그레이드할 때는 새 compose를 받은 뒤 orphan 컨테이너까지 정리합니다. DB와 media는 기존 호스트 경로를 그대로 사용합니다.
+
+```bash
+docker compose pull
+docker compose up -d --remove-orphans
+```
 
 운영 환경값을 바꾼 뒤에는 Django system check를 실행합니다.
 
 ```bash
-docker compose exec backend python manage.py check
+docker compose exec blex python manage.py check
 ```
 
 `SITE_URL`이 비어 있거나 로컬 주소면 BLEX 공개 URL 경고가 표시됩니다. 운영 공개 전에는 `SITE_URL`, `ALLOWED_HOSTS`, `CSRF_TRUSTED_ORIGINS`를 실제 도메인 기준으로 맞춥니다.
 
 ## 4. 최초 관리자 생성
 
-backend 로그에 출력되는 `Initial setup URL`을 브라우저에서 엽니다.
+BLEX 로그에 출력되는 `Initial setup URL`을 브라우저에서 엽니다.
 
 ```text
 Initial setup URL: https://blog.example.com/setup?token=...
@@ -162,7 +169,7 @@ DB와 media는 같은 시점의 짝으로 보관해야 글 본문과 이미지 �
 
 ### 앞단 HTTPS 프록시와 공개 URL
 
-* [ ] `docker compose exec backend python manage.py check` 결과를 확인함
+* [ ] `docker compose exec blex python manage.py check` 결과를 확인함
 * [ ] 앞단 HTTPS 프록시가 인증서 발급, 갱신, HTTP→HTTPS 리다이렉트를 책임지는 구조임
 * [ ] BLEX HTTP 포트가 필요한 범위에서만 접근 가능함
 * [ ] 글 상세의 canonical, Open Graph URL, RSS, sitemap, `/llms.txt`, Markdown URL이 `SITE_URL` 기준 HTTPS 주소로 나옴
