@@ -1,18 +1,51 @@
 name: BUILD
 
 on:
+  push:
+    tags:
+      - 'v*.*'
   workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  IMAGE: baealex/blex
 
 concurrency:
   group: build-${{ github.ref_name }}
   cancel-in-progress: true
 
 jobs:
-  backend_image_build:
+  image_build:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Validate release tag
+        if: github.ref_type == 'tag'
+        shell: bash
+        run: |
+          if [[ ! "$GITHUB_REF_NAME" =~ ^v[0-9]+\.[0-9]+$ ]]; then
+            echo "Release tag must match vMAJOR.MINOR: $GITHUB_REF_NAME" >&2
+            exit 1
+          fi
+
+          git fetch --no-tags origin main
+          tagged_commit=$(git rev-parse "${GITHUB_REF}^{commit}")
+          if ! git merge-base --is-ancestor "$tagged_commit" origin/main; then
+            echo "Release tag must point to a commit contained in main." >&2
+            exit 1
+          fi
+
+      - name: Resolve release version
+        id: release
+        if: github.ref_type == 'tag'
+        shell: bash
+        run: echo "version=${GITHUB_REF_NAME#v}" >> "$GITHUB_OUTPUT"
 
       - name: Load .env file
         run: |
@@ -68,28 +101,33 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      - name: Build and push backend
+      - name: Generate Docker metadata
+        id: meta
+        uses: docker/metadata-action@v6
+        with:
+          images: ${{ env.IMAGE }}
+          flavor: latest=false
+          tags: |
+            type=raw,value=${{ steps.release.outputs.version }},enable=${{ github.ref_type == 'tag' }}
+            type=raw,value=latest,enable=${{ github.ref_type == 'tag' }}
+            type=raw,value=${{ github.sha }}
+
+      - name: Build and push BLEX
         uses: docker/build-push-action@v7
         with:
           context: ./backend
           file: ./backend/Dockerfile
           platforms: linux/amd64,linux/arm64/v8
           push: true
-          tags: |
-            baealex/blex-backend:latest
-            baealex/blex-backend:${{ github.sha }}
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
-      - name: Build and push nginx
-        uses: docker/build-push-action@v7
-        with:
-          context: ./backend
-          file: ./backend/Dockerfile
-          target: nginx-stage
-          platforms: linux/amd64,linux/arm64/v8
-          push: true
-          tags: |
-            baealex/blex-nginx:latest
-            baealex/blex-nginx:${{ github.sha }}
-          cache-from: type=gha
+      - name: Verify multi-platform release image
+        if: github.ref_type == 'tag'
+        shell: bash
+        run: |
+          manifest=$(docker buildx imagetools inspect "${IMAGE}:${{ steps.release.outputs.version }}")
+          grep -q 'linux/amd64' <<< "$manifest"
+          grep -q 'linux/arm64' <<< "$manifest"

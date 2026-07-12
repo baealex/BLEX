@@ -1,8 +1,8 @@
 # Self-hosting Guide
 
-이 문서는 Docker로 BLEX를 띄우고, 운영에 필요한 최소 설정을 확인한 뒤, 최초 관리자 생성과 첫 글 발행까지 끝내는 한 흐름의 가이드입니다.
+이 문서는 Docker로 BLEX를 실행하고, 운영 설정부터 최초 관리자 생성과 첫 글 발행까지 안내합니다.
 
-BLEX의 기본 compose는 **HTTP로 접근 가능한 nginx 포트**를 제공합니다. 공개 운영에서는 이 포트를 서버의 앞단 nginx, Caddy, Cloudflare Tunnel, Traefik 같은 HTTPS 프록시에 연결하세요. 인증서, HTTP→HTTPS 리다이렉트, HSTS는 BLEX 내부가 아니라 앞단 프록시에서 처리하는 것을 권장합니다.
+BLEX Docker 이미지는 HTTP 포트만 제공합니다. 공개 운영에서는 nginx, Caddy, Cloudflare Tunnel, Traefik 등에서 HTTPS를 설정하세요.
 
 ## 1. 환경 파일 준비
 
@@ -41,18 +41,18 @@ python -c "import secrets; print(secrets.token_urlsafe(24))"
 
 `CIPHER_KEY`는 DB에 저장되는 OAuth Client Secret, 2FA TOTP secret, 텔레그램/hCaptcha secret 복호화에 필요합니다. 운영을 시작한 뒤 이 값을 잃어버리거나 바꾸면 기존 암호화 값은 복호화할 수 없으므로 백업 대상에 포함하세요.
 
-`ADMIN_PATH`는 비워 두면 Docker 실행 시 자동 생성되고 backend 로그에 출력됩니다. 재시작 후에도 같은 관리자 경로를 유지하고 싶을 때만 직접 설정하세요.
+`ADMIN_PATH`는 비워 두면 Docker 실행 시 자동 생성되고 BLEX 로그에 출력됩니다. 재시작 후에도 같은 관리자 경로를 유지하고 싶을 때만 직접 설정하세요.
 운영에서는 북마크, 모니터링, 여러 worker 구성을 고려해 고정된 `ADMIN_PATH`를 쓰는 편이 안전합니다.
 
-## 2. 앞단 HTTPS 프록시 연결
+## 2. HTTPS 프록시 연결
 
-BLEX는 기본적으로 `docker-compose.yml`의 nginx를 통해 HTTP 포트 하나를 엽니다.
+BLEX 컨테이너는 nginx와 Django를 함께 실행합니다. nginx는 컨테이너의 80 포트에서 HTTP 요청을 받고, 기본 compose는 이를 호스트의 20002 포트로 연결합니다.
 
 ```text
 인터넷
-→ 앞단 HTTPS 프록시
-→ BLEX nginx HTTP 포트
-→ Django backend
+→ HTTPS 프록시
+→ BLEX nginx (HTTP 80)
+→ Django
 ```
 
 운영 서버에서는 앞단 HTTPS 프록시에서 아래를 처리하세요.
@@ -62,9 +62,7 @@ BLEX는 기본적으로 `docker-compose.yml`의 nginx를 통해 HTTP 포트 하�
 * HSTS 적용 여부
 * 공개 도메인에서 BLEX HTTP 포트로 프록시
 
-BLEX 내부 Django는 `SITE_URL`을 기준으로 sitemap, RSS, canonical URL, `/llms.txt`, Markdown URL 같은 공개 URL을 만듭니다. 따라서 앞단 프록시에서 실제로 공개하는 origin과 `SITE_URL`을 맞춰야 합니다.
-
-`SITE_URL`의 `https://`는 BLEX가 HTTPS 인증서나 리다이렉트를 직접 처리한다는 뜻이 아닙니다. 외부 도구에 광고할 정식 URL을 만들기 위한 기준값입니다. HTTP→HTTPS 리다이렉트, 인증서, HSTS, 프록시 보안 검증은 BLEX CI나 앱 내부 E2E 테스트 대상이 아니라 운영자가 사용하는 앞단 프록시의 책임입니다.
+BLEX는 `SITE_URL`을 기준으로 sitemap, RSS, canonical URL, `/llms.txt`, Markdown URL을 만듭니다. 앞단 프록시에서 공개하는 주소와 같은 값을 사용하세요. `SITE_URL`에 `https://`를 적어도 BLEX가 인증서나 리다이렉트를 설정하지는 않습니다.
 
 ### nginx 앞단 프록시 예시
 
@@ -98,22 +96,29 @@ Caddy, Cloudflare Tunnel, Traefik을 쓰는 경우에도 원칙은 같습니다.
 
 ```bash
 docker compose up -d
-docker compose logs -f backend
+docker compose logs -f blex
 ```
 
-기본 Docker 이미지는 작은 서버를 고려해 Gunicorn worker를 1개로 실행합니다. `docker-compose.yml`은 이 기본 실행값을 그대로 사용합니다. 512MB급 서버에서는 이 설정으로 시작하고, 메모리 여유가 확인된 경우에만 compose의 `command`로 worker 수를 직접 덮어쓰세요.
+기본 Docker 이미지는 nginx와 Gunicorn을 한 컨테이너에서 실행합니다. 작은 서버를 고려해 Gunicorn worker는 1개이며, `docker-compose.yml`은 이 기본 실행값을 그대로 사용합니다. 512MB급 서버에서는 이 설정으로 시작하고, 메모리 여유가 확인된 경우에만 compose의 `command`로 worker 수를 직접 덮어쓰세요.
+
+기존 `blex-backend`, `blex-nginx` 두 이미지 compose에서 업그레이드할 때는 새 compose를 받은 뒤 orphan 컨테이너까지 정리합니다. DB와 media는 기존 호스트 경로를 그대로 사용합니다.
+
+```bash
+docker compose pull
+docker compose up -d --remove-orphans
+```
 
 운영 환경값을 바꾼 뒤에는 Django system check를 실행합니다.
 
 ```bash
-docker compose exec backend python manage.py check
+docker compose exec blex python manage.py check
 ```
 
 `SITE_URL`이 비어 있거나 로컬 주소면 BLEX 공개 URL 경고가 표시됩니다. 운영 공개 전에는 `SITE_URL`, `ALLOWED_HOSTS`, `CSRF_TRUSTED_ORIGINS`를 실제 도메인 기준으로 맞춥니다.
 
 ## 4. 최초 관리자 생성
 
-backend 로그에 출력되는 `Initial setup URL`을 브라우저에서 엽니다.
+BLEX 로그에 출력되는 `Initial setup URL`을 브라우저에서 엽니다.
 
 ```text
 Initial setup URL: https://blog.example.com/setup?token=...
@@ -162,7 +167,7 @@ DB와 media는 같은 시점의 짝으로 보관해야 글 본문과 이미지 �
 
 ### 앞단 HTTPS 프록시와 공개 URL
 
-* [ ] `docker compose exec backend python manage.py check` 결과를 확인함
+* [ ] `docker compose exec blex python manage.py check` 결과를 확인함
 * [ ] 앞단 HTTPS 프록시가 인증서 발급, 갱신, HTTP→HTTPS 리다이렉트를 책임지는 구조임
 * [ ] BLEX HTTP 포트가 필요한 범위에서만 접근 가능함
 * [ ] 글 상세의 canonical, Open Graph URL, RSS, sitemap, `/llms.txt`, Markdown URL이 `SITE_URL` 기준 HTTPS 주소로 나옴
