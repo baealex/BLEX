@@ -1,11 +1,8 @@
 # Self-hosting Guide
 
-이 문서는 Docker로 BLEX를 띄우고, 운영에 필요한 최소 설정을 확인한 뒤, 최초 관리자 생성과 첫 글 발행까지 끝내는 한 흐름의 가이드입니다.
+이 문서는 Docker로 BLEX를 실행하고, 운영 설정부터 최초 관리자 생성과 첫 글 발행까지 안내합니다.
 
-> [!IMPORTANT]
-> `baealex/blex` 이미지 자체는 HTTPS를 제공하지 않습니다. 이미지 안의 nginx는 정적 파일을 서빙하고 Django로 요청을 전달하는 **HTTP origin 서버**입니다. 공개 운영에서는 반드시 별도의 nginx, Caddy, Cloudflare Tunnel, Traefik 같은 앞단 HTTPS 프록시로 한 번 더 감싸야 합니다.
-
-기본 compose만 실행하면 HTTP 서비스까지 준비됩니다. TLS 인증서, 443 포트, HTTP→HTTPS 리다이렉트, HSTS는 BLEX 이미지나 내부 nginx가 설정하지 않으며 앞단 HTTPS 프록시가 담당합니다.
+BLEX Docker 이미지는 HTTP 포트만 제공합니다. 공개 운영에서는 nginx, Caddy, Cloudflare Tunnel, Traefik 등에서 HTTPS를 설정하세요.
 
 ## 1. 환경 파일 준비
 
@@ -47,15 +44,15 @@ python -c "import secrets; print(secrets.token_urlsafe(24))"
 `ADMIN_PATH`는 비워 두면 Docker 실행 시 자동 생성되고 BLEX 로그에 출력됩니다. 재시작 후에도 같은 관리자 경로를 유지하고 싶을 때만 직접 설정하세요.
 운영에서는 북마크, 모니터링, 여러 worker 구성을 고려해 고정된 `ADMIN_PATH`를 쓰는 편이 안전합니다.
 
-## 2. 공개 운영 필수: 앞단 HTTPS 프록시 연결
+## 2. HTTPS 프록시 연결
 
-BLEX는 기본적으로 `docker-compose.yml`의 단일 `baealex/blex` 이미지에서 내부 nginx와 Django backend를 함께 실행하고, 암호화되지 않은 HTTP 포트 하나를 엽니다. 이 nginx는 BLEX 컨테이너 내부의 애플리케이션 서버이며 TLS 종료 지점이 아닙니다.
+BLEX 컨테이너는 nginx와 Django를 함께 실행합니다. nginx는 컨테이너의 80 포트에서 HTTP 요청을 받고, 기본 compose는 이를 호스트의 20002 포트로 연결합니다.
 
 ```text
 인터넷
-→ 앞단 HTTPS 프록시: 공개 443, 인증서와 TLS 처리
-→ BLEX 컨테이너의 내부 nginx: HTTP 80, 기본 compose에서는 호스트 20002
-→ 같은 컨테이너의 Django backend
+→ HTTPS 프록시
+→ BLEX nginx (HTTP 80)
+→ Django
 ```
 
 운영 서버에서는 앞단 HTTPS 프록시에서 아래를 처리하세요.
@@ -65,9 +62,7 @@ BLEX는 기본적으로 `docker-compose.yml`의 단일 `baealex/blex` 이미지�
 * HSTS 적용 여부
 * 공개 도메인에서 BLEX HTTP 포트로 프록시
 
-BLEX 내부 Django는 `SITE_URL`을 기준으로 sitemap, RSS, canonical URL, `/llms.txt`, Markdown URL 같은 공개 URL을 만듭니다. 따라서 앞단 프록시에서 실제로 공개하는 origin과 `SITE_URL`을 맞춰야 합니다.
-
-`SITE_URL`의 `https://`는 BLEX가 HTTPS 인증서나 리다이렉트를 직접 처리한다는 뜻이 아닙니다. 외부 도구에 광고할 정식 URL을 만들기 위한 기준값입니다. HTTP→HTTPS 리다이렉트, 인증서, HSTS, 프록시 보안 검증은 BLEX CI나 앱 내부 E2E 테스트 대상이 아니라 운영자가 사용하는 앞단 프록시의 책임입니다.
+BLEX는 `SITE_URL`을 기준으로 sitemap, RSS, canonical URL, `/llms.txt`, Markdown URL을 만듭니다. 앞단 프록시에서 공개하는 주소와 같은 값을 사용하세요. `SITE_URL`에 `https://`를 적어도 BLEX가 인증서나 리다이렉트를 설정하지는 않습니다.
 
 ### nginx 앞단 프록시 예시
 
@@ -103,8 +98,6 @@ Caddy, Cloudflare Tunnel, Traefik을 쓰는 경우에도 원칙은 같습니다.
 docker compose up -d
 docker compose logs -f blex
 ```
-
-여기까지 실행한 상태는 `http://서버주소:20002`로 접근 가능한 HTTP origin입니다. 공개 HTTPS 배포가 완료된 상태가 아니므로, 운영에서는 2절의 앞단 프록시 연결과 방화벽·접근 제어까지 마친 뒤 도메인을 공개하세요.
 
 기본 Docker 이미지는 nginx와 Gunicorn을 한 컨테이너에서 실행합니다. 작은 서버를 고려해 Gunicorn worker는 1개이며, `docker-compose.yml`은 이 기본 실행값을 그대로 사용합니다. 512MB급 서버에서는 이 설정으로 시작하고, 메모리 여유가 확인된 경우에만 compose의 `command`로 worker 수를 직접 덮어쓰세요.
 
