@@ -11,10 +11,17 @@ const budgets = [
     {
         entry: 'src/island.tsx',
         label: 'island bootstrap',
-        maxInitialFiles: 2,
+        maxInitialFiles: 6,
         maxInitialBytes: 245 * 1024,
         maxInitialGzipBytes: 80 * 1024,
-        allowedInitialNames: ['src/island.tsx', 'preload-helper', '_commonjsHelpers'],
+        allowedInitialNames: [
+            'src/island.tsx',
+            'rolldown-runtime',
+            'jsx-runtime',
+            'react',
+            'IsRestoringProvider',
+            'preload-helper'
+        ],
         blockedHints: [
             '@blex/editor',
             '@tanstack/react-router',

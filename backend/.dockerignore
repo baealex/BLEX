@@ -1,6 +1,9 @@
 src/mvenv
 src/db.sqlite3
 src/resources/media
+**/node_modules
+**/.turbo
+islands/**/dist
 **/__pycache__
 **/*.pyc
 .git

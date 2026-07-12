@@ -1,3 +1,16 @@
 packages:
   - 'packages/*'
   - 'apps/*'
+
+allowBuilds:
+  '@parcel/watcher': true
+  esbuild: true
+
+overrides:
+  '@babel/core': 7.29.6
+  dompurify: 3.4.11
+  esbuild: 0.28.1
+  form-data: 4.0.6
+  js-yaml: 4.2.0
+  linkify-it: 5.0.1
+  markdown-it: 14.2.0
