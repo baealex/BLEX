@@ -88,7 +88,7 @@ npm run dev
 
 Docker로 운영하려면 [Self-hosting Guide](docs/SELF_HOSTING.md)를 확인하세요.
 
-Docker 이미지는 nginx와 Django backend를 함께 실행하며, 기본 Gunicorn worker는 1개입니다. 512MB RAM급 서버에서도 쓰는 것을 염두에 둔 설정입니다.
+Docker 이미지는 내부 HTTP nginx와 Django backend를 함께 실행하며, 공개 HTTPS는 별도의 앞단 프록시가 필요합니다. 기본 Gunicorn worker는 1개이며, 512MB RAM급 서버에서도 쓰는 것을 염두에 둔 설정입니다.
 
 가이드에서 다루는 내용:
 
