@@ -2,7 +2,10 @@
     "name": "blex",
     "version": "1.0.0",
     "description": "BLOG EXPRESS ME",
-    "packageManager": "npm@11.12.1",
+    "packageManager": "npm@12.0.1",
+    "engines": {
+        "node": "^22.22.2 || ^24.15.0 || >=26.0.0"
+    },
     "scripts": {
         "install": "npm run server:setup && npm run islands:setup",
         "server:setup": "node ./scripts/setup.mjs",
@@ -33,7 +36,7 @@
     },
     "homepage": "https://github.com/baealex/BLEX#readme",
     "devDependencies": {
-        "concurrently": "^9.2.0",
-        "pnpm": "10.34.4"
+        "concurrently": "^10.0.3",
+        "pnpm": "11.12.0"
     }
 }

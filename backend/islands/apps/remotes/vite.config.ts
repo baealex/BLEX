@@ -81,7 +81,7 @@ export default defineConfig(({ mode }) => {
             emptyOutDir: true,
             manifest: true,
             modulePreload: { polyfill: true },
-            rollupOptions: {
+            rolldownOptions: {
                 input: {
                     island: resolve(__dirname, 'src/island.tsx'),
                     mainStyle: resolve(__dirname, 'styles/main.scss'),

@@ -9,6 +9,12 @@
                 "dist/**"
             ]
         },
+        "@blex/remotes#build": {
+            "dependsOn": [
+                "^build"
+            ],
+            "cache": false
+        },
         "lint": {},
         "type-check": {
             "dependsOn": [

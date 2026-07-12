@@ -51,7 +51,7 @@ jobs:
     - name: Set up Node.js
       uses: actions/setup-node@v6
       with:
-        node-version: '20.19.0'
+        node-version: '22.22.2'
 
     - name: Install Python dependencies
       run: |
@@ -71,17 +71,13 @@ jobs:
     steps:
     - uses: actions/checkout@v6
 
-    - name: Set up Node.js with pnpm
-      uses: pnpm/action-setup@v6
-      with:
-        version: 10.28.2
-
     - name: Set up Node.js
       uses: actions/setup-node@v6
       with:
-        node-version: '20.19.0'
-        cache: 'pnpm'
-        cache-dependency-path: backend/islands/pnpm-lock.yaml
+        node-version: '22.22.2'
+
+    - name: Install pnpm
+      run: npm install --global pnpm@11.12.0
 
     - name: Install Islands dependencies
       run: pnpm install
