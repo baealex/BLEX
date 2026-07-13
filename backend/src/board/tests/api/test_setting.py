@@ -1,7 +1,9 @@
 import json
 from datetime import datetime
+from unittest.mock import patch
 
 from django.core.cache import cache
+from django.core.files.uploadedfile import SimpleUploadedFile
 from django.db import connection
 from django.test import TestCase
 from django.test.client import Client
@@ -11,7 +13,8 @@ from django.utils import timezone
 from board.constants.config_meta import CONFIG_TYPE
 from board.models import (
     Comment, Config, Notify, Post, PostConfig, PostContent,
-    PinnedPost, PostLikes, Profile, Series, Tag, User, UserLinkMeta
+    PinnedPost, PostLikes, Profile, Series, Tag, User, UserLinkMeta,
+    UsernameChangeLog,
 )
 
 
@@ -777,6 +780,12 @@ class SettingTestCase(TestCase):
 
         user = User.objects.get(id=User.objects.get(username='newtest').id)
         self.assertEqual(user.username, 'newtest')
+        self.assertTrue(
+            UsernameChangeLog.objects.filter(
+                user=user,
+                username='test',
+            ).exists()
+        )
 
     def test_update_username_duplicate(self):
         """중복된 사용자 필명 변경 테스트"""
@@ -798,6 +807,99 @@ class SettingTestCase(TestCase):
         content = json.loads(response.content)
         self.assertEqual(content['status'], 'ERROR')
         self.assertEqual(content['errorMessage'], '이미 사용중인 아이디입니다.')
+
+    def test_update_username_preserves_six_month_restriction(self):
+        """게시글 작성자의 6개월 username 변경 제한과 오류 계약을 유지한다."""
+        user = User.objects.get(username='test')
+        Post.objects.create(author=user, title='Restriction Post', url='restriction-post')
+        UsernameChangeLog.objects.create(user=user, username='previous-test')
+        self.client.login(username='test', password='test')
+
+        response = self.client.put(
+            '/v1/setting/account',
+            'username=restricted',
+            content_type='application/x-www-form-urlencoded',
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json(), {
+            'status': 'ERROR',
+            'errorCode': 'error:VA',
+            'errorMessage': (
+                '작성한 포스트가 존재하는 경우 6개월에 한번만 변경할 수 있습니다.'
+            ),
+        })
+        user.refresh_from_db()
+        self.assertEqual(user.username, 'test')
+
+    def test_update_account_preserves_password_validation_priority(self):
+        """비밀번호 검증 순서와 한국어 오류 메시지를 그대로 유지한다."""
+        self.client.login(username='test', password='test')
+        cases = (
+            ('Aa1!aaa', '비밀번호는 8자 이상이어야 합니다.'),
+            ('Abcdefg!', '비밀번호는 숫자를 포함해야 합니다.'),
+            ('ABCDEFG1!', '비밀번호는 소문자를 포함해야 합니다.'),
+            ('abcdefg1!', '비밀번호는 대문자를 포함해야 합니다.'),
+            ('Abcdefg1', '비밀번호는 특수문자를 포함해야 합니다.'),
+        )
+
+        for password, message in cases:
+            with self.subTest(password=password):
+                response = self.client.put(
+                    '/v1/setting/account',
+                    json.dumps({'password': password}),
+                    content_type='application/json',
+                )
+                self.assertEqual(response.status_code, 200)
+                self.assertEqual(response.json(), {
+                    'status': 'ERROR',
+                    'errorCode': 'error:VA',
+                    'errorMessage': message,
+                })
+
+    def test_update_password_keeps_authenticated_session(self):
+        """비밀번호 변경 성공 후 새 hash를 저장하고 현재 세션 로그인을 유지한다."""
+        self.client.login(username='test', password='test')
+
+        response = self.client.put(
+            '/v1/setting/account',
+            json.dumps({'password': 'Strong123!'}),
+            content_type='application/json',
+        )
+        authenticated_response = self.client.get('/v1/setting/account')
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json(), {'status': 'DONE', 'body': {}})
+        self.assertEqual(authenticated_response.status_code, 200)
+        self.assertEqual(authenticated_response.json()['status'], 'DONE')
+        user = User.objects.get(username='test')
+        self.assertTrue(user.check_password('Strong123!'))
+
+    def test_update_account_preserves_existing_partial_save_characteristic(self):
+        """username 선행 저장 뒤 비밀번호 오류 시 기존 부분 저장 특성을 바꾸지 않는다."""
+        self.client.login(username='test', password='test')
+
+        response = self.client.put(
+            '/v1/setting/account',
+            json.dumps({
+                'username': 'partialsave',
+                'name': 'Unsaved Name',
+                'password': 'short',
+            }),
+            content_type='application/json',
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json(), {
+            'status': 'ERROR',
+            'errorCode': 'error:VA',
+            'errorMessage': '비밀번호는 8자 이상이어야 합니다.',
+        })
+        user = User.objects.get(username='partialsave')
+        self.assertEqual(user.first_name, 'Test User')
+        self.assertTrue(
+            UsernameChangeLog.objects.filter(user=user, username='test').exists()
+        )
 
     def test_upload_avatar(self):
         """프로필 이미지 업로드 테스트"""
@@ -821,6 +923,25 @@ class SettingTestCase(TestCase):
         content = json.loads(response.content)
         self.assertEqual(content['status'], 'DONE')
         self.assertIn('url', content['body'])
+
+    def test_upload_avatar_save_failure_keeps_existing_database_value(self):
+        """avatar 저장 실패는 기존 DB 경로를 바꾸거나 성공 응답으로 숨기지 않는다."""
+        user = User.objects.get(username='test')
+        profile = Profile.objects.get(user=user)
+        Profile.objects.filter(pk=profile.pk).update(avatar='images/avatar/test/old.png')
+        self.client.login(username='test', password='test')
+        uploaded = SimpleUploadedFile('new.png', b'new-avatar', content_type='image/png')
+
+        with self.settings(DEBUG_PROPAGATE_EXCEPTIONS=True), patch.object(
+            Profile,
+            'save',
+            side_effect=OSError('avatar save failed'),
+        ):
+            with self.assertRaisesMessage(OSError, 'avatar save failed'):
+                self.client.post('/v1/setting/avatar', {'avatar': uploaded})
+
+        profile.refresh_from_db()
+        self.assertEqual(profile.avatar.name, 'images/avatar/test/old.png')
 
     def test_upload_cover(self):
         """커버 이미지 업로드 테스트"""
@@ -864,6 +985,25 @@ class SettingTestCase(TestCase):
         profile.refresh_from_db()
         self.assertFalse(profile.cover)
 
+    def test_delete_cover_storage_failure_keeps_existing_database_value(self):
+        """cover storage 삭제 실패 시 DB 경로 저장을 진행하지 않는다."""
+        user = User.objects.get(username='test')
+        profile = Profile.objects.get(user=user)
+        Profile.objects.filter(pk=profile.pk).update(cover='images/avatar/test/cover.png')
+        storage = Profile._meta.get_field('cover').storage
+        self.client.login(username='test', password='test')
+
+        with self.settings(DEBUG_PROPAGATE_EXCEPTIONS=True), patch.object(
+            storage,
+            'delete',
+            side_effect=OSError('cover delete failed'),
+        ):
+            with self.assertRaisesMessage(OSError, 'cover delete failed'):
+                self.client.delete('/v1/setting/cover')
+
+        profile.refresh_from_db()
+        self.assertEqual(profile.cover.name, 'images/avatar/test/cover.png')
+
     def test_get_setting_profile(self):
         """프로필 설정 조회 테스트"""
         self.client.login(username='test', password='test')
@@ -893,6 +1033,27 @@ class SettingTestCase(TestCase):
         profile = Profile.objects.get(user=User.objects.get(username='test'))
         self.assertEqual(profile.bio, 'Test bio')
         self.assertEqual(profile.homepage, 'https://example.com')
+
+    def test_update_profile_preserves_json_fallback_and_missing_field_reset(self):
+        """JSON profile 변경과 누락 필드를 빈 문자열로 초기화하는 기존 동작을 유지한다."""
+        user = User.objects.get(username='test')
+        Profile.objects.filter(user=user).update(
+            bio='Old bio',
+            homepage='https://old.example.com',
+        )
+        self.client.login(username='test', password='test')
+
+        response = self.client.put(
+            '/v1/setting/profile',
+            json.dumps({'bio': 'JSON bio'}),
+            content_type='application/json',
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json(), {'status': 'DONE', 'body': {}})
+        profile = Profile.objects.get(user=user)
+        self.assertEqual(profile.bio, 'JSON bio')
+        self.assertEqual(profile.homepage, '')
 
     def test_update_social_links(self):
         """소셜 링크 생성/수정/삭제 테스트"""

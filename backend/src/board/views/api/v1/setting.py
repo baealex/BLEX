@@ -5,14 +5,17 @@ from django.http import Http404, HttpRequest
 from django.shortcuts import get_object_or_404
 from board.models import (
     User, LoginSetting,
-    Profile, Notify)
+    Notify)
 from board.modules.response import StatusDone, StatusError, ErrorCode
 from board.modules.time import convert_to_localtime
-from board.services.auth_service import AuthService, AuthValidationError
 from board.services.api_permission_service import ApiPermissionService
 from board.services.api_request_body_service import ApiRequestBodyService
 from board.services.integration_setting_service import IntegrationSettingService
 from board.services.pinned_post_service import PinnedPostService, PinnedPostError
+from board.services.setting_account_profile_service import (
+    SettingAccountProfileError,
+    SettingAccountProfileService,
+)
 from board.services.setting_post_management_service import (
     PostManagementQuery,
     PostManagementQueryError,
@@ -20,7 +23,6 @@ from board.services.setting_post_management_service import (
 )
 from board.services.user_heatmap_service import UserHeatmapService
 from board.services.user_notification_service import UserNotificationService
-from board.services.user_social_link_service import UserSocialLinkService
 
 
 EDITOR_SETTING_PARAMETERS = {
@@ -222,19 +224,19 @@ def setting(request, parameter):
 
     if request.method == 'POST':
         if parameter == 'avatar':
-            profile = Profile.objects.get(user=user)
-            profile.avatar = request.FILES['avatar']
-            profile.save()
             return StatusDone({
-                'url': profile.get_thumbnail(),
+                'url': SettingAccountProfileService.save_avatar(
+                    user,
+                    request.FILES['avatar'],
+                ),
             })
 
         if parameter == 'cover':
-            profile = Profile.objects.get(user=user)
-            profile.cover = request.FILES['cover']
-            profile.save()
             return StatusDone({
-                'url': profile.cover.url if profile.cover else None,
+                'url': SettingAccountProfileService.save_cover(
+                    user,
+                    request.FILES['cover'],
+                ),
             })
 
         if parameter == 'pinned-posts':
@@ -250,11 +252,7 @@ def setting(request, parameter):
 
     if request.method == 'DELETE':
         if parameter == 'cover':
-            profile = Profile.objects.get(user=user)
-            if profile.cover:
-                profile.cover.delete(save=False)
-                profile.cover = None
-                profile.save(update_fields=['cover'])
+            SettingAccountProfileService.delete_cover(user)
 
             return StatusDone({
                 'url': None,
@@ -288,64 +286,39 @@ def setting(request, parameter):
             return StatusDone()
 
         if parameter == 'account':
-            should_update = False
-
             username = put.get('username', '')
             name = put.get('name', '')
             password = put.get('password', '')
 
-            if username and user.username != username:
-                try:
-                    AuthService.validate_username_change_restriction(user)
-                    AuthService.change_username(user, username, create_log=True)
-                    should_update = False
-                except AuthValidationError as e:
-                    return StatusError(e.code, e.message)
+            try:
+                result = SettingAccountProfileService.prepare_account_update(
+                    user,
+                    username=username,
+                    name=name,
+                    password=password,
+                )
+            except SettingAccountProfileError as error:
+                return StatusError(error.code, error.message)
 
-            if name and user.first_name != name:
-                user.first_name = name
-                should_update = True
-
-            if password:
-                if len(password) < 8:
-                    return StatusError(ErrorCode.VALIDATE, '비밀번호는 8자 이상이어야 합니다.')
-
-                if not any(x.isdigit() for x in password):
-                    return StatusError(ErrorCode.VALIDATE, '비밀번호는 숫자를 포함해야 합니다.')
-
-                if not any(x.islower() for x in password):
-                    return StatusError(ErrorCode.VALIDATE, '비밀번호는 소문자를 포함해야 합니다.')
-
-                if not any(x.isupper() for x in password):
-                    return StatusError(ErrorCode.VALIDATE, '비밀번호는 대문자를 포함해야 합니다.')
-
-                if not any(not x.isupper() and not x.islower() and not x.isdigit() for x in password):
-                    return StatusError(ErrorCode.VALIDATE, '비밀번호는 특수문자를 포함해야 합니다.')
-
-                user.set_password(password)
+            if result.should_refresh_session:
                 auth.login(request, user)
-                should_update = True
 
-            if should_update:
-                user.save()
+            SettingAccountProfileService.persist_account_update(user, result)
 
             return StatusDone()
 
         if parameter == 'profile':
-            profile = Profile.objects.get(user=user)
-
-            attrs = [
-                'bio',
-                'homepage',
-            ]
-            for attr in attrs:
-                setattr(profile, attr, put.get(attr, ''))
-
-            profile.save()
+            SettingAccountProfileService.update_profile(
+                user,
+                bio=put.get('bio', ''),
+                homepage=put.get('homepage', ''),
+            )
             return StatusDone()
     
         if parameter == 'social':
-            return StatusDone(UserSocialLinkService.update_user_social_links(user, put))
+            return StatusDone(
+                SettingAccountProfileService.update_social_links(user, put)
+            )
 
         if parameter == 'pinned-posts/order':
             post_urls_data = put.get('post_urls', '[]')
