@@ -11,6 +11,7 @@ _SERVICE_MODULES = {
     'PostService': 'post_service',
     'PostLikeService': 'post_like_service',
     'PostThumbnailService': 'post_thumbnail_service',
+    'PostImageService': 'post_image_service',
     'ProfileImageService': 'profile_image_service',
     'NotificationDeliveryService': 'notification_delivery_service',
     'UserConfigMetaService': 'user_config_meta_service',
