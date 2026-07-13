@@ -203,6 +203,30 @@ class PinnedPostAPITestCase(TestCase):
         self.assertEqual(content['status'], 'ERROR')
         self.assertIn('발행된 포스트', content['errorMessage'])
 
+    def test_add_pinned_post_scheduled_post(self):
+        """예약 포스트는 고정 불가"""
+        scheduled_post = Post.objects.create(
+            author=self.user,
+            title='Scheduled Post',
+            url='scheduled-post',
+            published_date=timezone.now() + timezone.timedelta(days=1),
+        )
+        PostContent.objects.create(post=scheduled_post, content_html='')
+        PostConfig.objects.create(post=scheduled_post)
+        self.client.login(username='testuser', password='testpass')
+
+        response = self.client.post(
+            '/v1/users/@testuser/pinned-posts',
+            {'post_url': 'scheduled-post'},
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(json.loads(response.content), {
+            'status': 'ERROR',
+            'errorCode': 'error:RJ',
+            'errorMessage': '발행된 포스트만 고정할 수 있습니다.',
+        })
+
     def test_add_pinned_post_nonexistent_post(self):
         """존재하지 않는 글 고정 시도"""
         self.client.login(username='testuser', password='testpass')

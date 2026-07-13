@@ -10,7 +10,7 @@ import math
 from typing import List, Dict, Any, Optional, Tuple, Union
 
 from django.contrib.auth.models import User
-from django.db import transaction
+from django.db import IntegrityError, transaction
 from django.db.models import F
 
 from board.models import Post, PinnedPost
@@ -34,6 +34,31 @@ class PinnedPostService:
     DEFAULT_PINNABLE_POSTS_LIMIT = 30
     MAX_PINNABLE_POSTS_LIMIT = 100
     MAX_PINNABLE_SEARCH_QUERY_LENGTH = 100
+
+    @staticmethod
+    def _lock_user(user: User) -> User:
+        return User.objects.select_for_update().get(pk=user.pk)
+
+    @staticmethod
+    def _create_pinned_post(
+        user: User,
+        post: Post,
+        order: int,
+    ) -> PinnedPost:
+        try:
+            with transaction.atomic():
+                return PinnedPost.objects.create(
+                    user=user,
+                    post=post,
+                    order=order,
+                )
+        except IntegrityError:
+            if PinnedPost.objects.filter(user=user, post=post).exists():
+                raise PinnedPostError(
+                    ErrorCode.REJECT,
+                    '이미 고정된 글입니다.',
+                )
+            raise
 
     @staticmethod
     def _is_published_post(post: Post) -> bool:
@@ -208,6 +233,7 @@ class PinnedPostService:
         Raises:
             PinnedPostError: If validation fails
         """
+        user = PinnedPostService._lock_user(user)
         PinnedPostService.validate_user_permissions(user)
 
         # Check if user has reached the limit
@@ -258,11 +284,10 @@ class PinnedPostService:
         max_order = PinnedPost.objects.filter(user=user).order_by('-order').first()
         next_order = (max_order.order + 1) if max_order else 0
 
-        # Create pinned post
-        pinned_post = PinnedPost.objects.create(
-            user=user,
-            post=post,
-            order=next_order
+        pinned_post = PinnedPostService._create_pinned_post(
+            user,
+            post,
+            next_order,
         )
 
         return pinned_post
@@ -280,6 +305,7 @@ class PinnedPostService:
         Raises:
             PinnedPostError: If post is not found or not pinned
         """
+        user = PinnedPostService._lock_user(user)
         PinnedPostService.validate_user_permissions(user)
 
         try:
@@ -315,6 +341,7 @@ class PinnedPostService:
         Raises:
             PinnedPostError: If validation fails
         """
+        user = PinnedPostService._lock_user(user)
         PinnedPostService.validate_user_permissions(user)
 
         if len(post_urls) > PinnedPostService.MAX_PINNED_POSTS:

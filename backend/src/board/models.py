@@ -409,9 +409,17 @@ class PostConfigMeta(models.Model):
 
 
 class PinnedPost(models.Model):
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=['user', 'post'],
+                name='board_pinned_user_post_uniq',
+            ),
+        ]
+
     post = models.ForeignKey('board.Post', related_name='pinned', on_delete=models.CASCADE)
     user = models.ForeignKey('auth.User', on_delete=models.CASCADE)
-    order = models.IntegerField(default=0) 
+    order = models.IntegerField(default=0)
     created_date = models.DateTimeField(default=timezone.now)
 
     def __str__(self):
