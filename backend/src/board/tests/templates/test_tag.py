@@ -99,6 +99,8 @@ class TagListPageTestCase(TestCase):
         self.assertEqual(response.status_code, 200)
         tag_names = [tag['name'] for tag in response.context['tags']]
         self.assertNotIn('private-only', tag_names)
+        python_tag = next(tag for tag in response.context['tags'] if tag['name'] == 'python')
+        self.assertEqual(python_tag['count'], 3)
 
     def test_tag_list_supports_sort_options(self):
         for sort_type in ['popular', 'name', 'recent']:

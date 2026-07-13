@@ -223,8 +223,11 @@ class Notify(models.Model):
 
 class Tag(models.Model):
     class Meta:
-        indexes = [
-            models.Index(fields=['value']),
+        constraints = [
+            models.UniqueConstraint(
+                fields=['value'],
+                name='board_tag_value_uniq',
+            ),
         ]
 
     value = models.CharField(max_length=50)
