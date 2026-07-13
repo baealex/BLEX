@@ -20,6 +20,11 @@ class PostLikesUniqueMigrationTestCase(TransactionTestCase):
         executor.migrate(self.migrate_to)
         return executor.loader.project_state(self.migrate_to).apps
 
+    def tearDown(self):
+        executor = MigrationExecutor(connection)
+        executor.migrate(executor.loader.graph.leaf_nodes())
+        super().tearDown()
+
     def test_migration_preserves_database_without_duplicates(self):
         old_apps = self.migrate_to_old_state()
         User = old_apps.get_model('auth', 'User')
