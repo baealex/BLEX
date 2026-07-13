@@ -77,8 +77,8 @@ class NotifySendNotifyTestCase(TestCase):
         mock_bot.assert_called_once_with('token')
         mock_process.assert_called_once()
 
-        callback = mock_process.call_args.args[0]
-        callback()
+        callback, *args = mock_process.call_args.args
+        callback(*args, **mock_process.call_args.kwargs)
 
         mock_bot.return_value.send_messages.assert_called_once_with(
             '123456',

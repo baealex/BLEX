@@ -28,7 +28,11 @@ class NotificationDeliveryService:
             return
 
         bot = TelegramBot(bot_token)
-        SubTaskProcessor.process(lambda: bot.send_messages(telegram_id, [
-            SiteUrlService.configured_absolute_url(str(notify.url)),
-            notify.content,
-        ]))
+        SubTaskProcessor.process(
+            bot.send_messages,
+            telegram_id,
+            [
+                SiteUrlService.configured_absolute_url(str(notify.url)),
+                notify.content,
+            ],
+        )

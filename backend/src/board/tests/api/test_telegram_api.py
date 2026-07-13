@@ -166,6 +166,12 @@ class TelegramAPITestCase(TestCase):
         sync.refresh_from_db()
         self.assertEqual(sync.get_decrypted_tid(), '987654321')
         self.assertEqual(sync.auth_token, '')  # Token should be cleared
+        mock_subtask.assert_called_once_with(
+            mock_bot.send_message,
+            987654321,
+            '정상적으로 연동되었습니다.',
+        )
+        mock_bot.send_message.assert_not_called()
 
     @override_settings(SITE_URL='https://test.com')
     @patch('board.views.api.v1.telegram.TelegramBot')
