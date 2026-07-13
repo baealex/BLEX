@@ -5,7 +5,6 @@ Business logic for post operations.
 Extracted from views to improve testability and reusability.
 """
 
-import hashlib
 import random
 from typing import Optional, Dict, Any, Tuple, List
 from datetime import datetime
@@ -28,6 +27,7 @@ from board.services.post_content_service import PostContentService
 from board.services.authoring_permission_service import AuthoringPermissionService
 from board.services.public_post_service import PublicPostService
 from board.services.related_post_service import RelatedPostService
+from board.services.post_image_service import PostImageService
 from board.services.webhook_service import WebhookService
 
 
@@ -273,20 +273,13 @@ class PostService:
 
     @staticmethod
     def _compute_image_hash(image_file) -> str:
-        """Compute SHA-256 hash of an uploaded image file."""
-        sha256 = hashlib.sha256()
-        image_file.seek(0)
-        for chunk in image_file.chunks():
-            sha256.update(chunk)
-        image_file.seek(0)
-        return sha256.hexdigest()
+        """Compatibility facade for post image hashing."""
+        return PostImageService.compute_image_hash(image_file)
 
     @staticmethod
     def _is_image_shared(image_name: str, exclude_post_id: int) -> bool:
-        """Check if an image file is used by other posts."""
-        return Post.objects.filter(
-            image=image_name
-        ).exclude(id=exclude_post_id).exists()
+        """Compatibility facade for shared image detection."""
+        return PostImageService.is_image_shared(image_name, exclude_post_id)
 
     @staticmethod
     def _set_image_with_dedup(
@@ -294,51 +287,14 @@ class PostService:
         image: Optional[Any] = None,
         image_delete: bool = False,
     ) -> None:
-        """
-        Handle image assignment with deduplication.
-        - image_delete=True: safely delete existing image (check shared first)
-        - image is not None: compute hash, find duplicate, reuse or assign new
-        """
-        if image_delete:
-            if post.image:
-                if not post.pk or not PostService._is_image_shared(post.image.name, post.pk):
-                    post.image.delete(save=False)
-            post.image = None
-            post.image_hash = ''
-            return
-
-        if image is not None:
-            new_hash = PostService._compute_image_hash(image)
-
-            if (
-                post.pk
-                and post.image
-                and post.image_hash == new_hash
-                and post.image.storage.exists(post.image.name)
-            ):
-                return
-
-            existing_images = Post.objects.filter(
-                image_hash=new_hash,
-            ).exclude(image='')
-            if post.pk:
-                existing_images = existing_images.exclude(pk=post.pk)
-
-            existing = existing_images.first()
-
-            if existing and existing.image and existing.image.storage.exists(existing.image.name):
-                if post.image:
-                    if not post.pk or not PostService._is_image_shared(post.image.name, post.pk):
-                        post.image.delete(save=False)
-                post.image.name = existing.image.name
-                post.image_hash = new_hash
-                post._skip_thumbnail = True
-            else:
-                if post.image:
-                    if not post.pk or not PostService._is_image_shared(post.image.name, post.pk):
-                        post.image.delete(save=False)
-                post.image = image
-                post.image_hash = new_hash
+        """Compatibility facade for the post image lifecycle service."""
+        PostImageService.set_image_with_dedup(
+            post,
+            image,
+            image_delete,
+            compute_image_hash=PostService._compute_image_hash,
+            is_image_shared=PostService._is_image_shared,
+        )
 
     @staticmethod
     def _resolve_content(
