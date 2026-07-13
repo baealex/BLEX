@@ -5,11 +5,13 @@ from importlib import import_module
 
 from django.apps import apps
 from django.test import SimpleTestCase, TestCase
-from django.urls import URLPattern, resolve, reverse
+from django.urls import URLPattern, URLResolver, resolve, reverse
 from django.utils import timezone
 
 import board.models as board_models
 from board import urls as board_urls
+from board.sitemaps import sitemaps
+from board.urlconfs import developer_api, internal_api, pages
 from board.models import (
     Config,
     Post,
@@ -219,6 +221,12 @@ EXPECTED_ROUTE_CONTRACT = (
     ('api/developer/v1/series', 'list_series', None),
     ('api/developer/v1/images', 'upload_image', None),
     ('api/developer/v1/', 'api-root', None),
+)
+
+
+EXPECTED_ROUTE_DEFAULT_ARGS = (
+    ('sitemap.xml', {'sitemaps': sitemaps}),
+    ('<section>/sitemap.xml', {'sitemaps': sitemaps}),
 )
 
 
@@ -496,9 +504,57 @@ def flatten_url_patterns(patterns, prefix=''):
     return tuple(contract)
 
 
+def flatten_url_default_args(patterns, prefix=''):
+    contract = []
+    for pattern in patterns:
+        route = prefix + str(pattern.pattern)
+        if isinstance(pattern, URLPattern):
+            if pattern.default_args:
+                contract.append((route, pattern.default_args))
+        else:
+            contract.extend(flatten_url_default_args(pattern.url_patterns, route))
+    return tuple(contract)
+
+
+def flatten_url_callbacks(patterns, prefix=''):
+    callbacks = []
+    for pattern in patterns:
+        route = prefix + str(pattern.pattern)
+        if isinstance(pattern, URLPattern):
+            callbacks.append((route, pattern.callback))
+        else:
+            callbacks.extend(flatten_url_callbacks(pattern.url_patterns, route))
+    return tuple(callbacks)
+
+
 class URLCompatibilityContractTests(SimpleTestCase):
     def test_board_url_route_order_names_and_callbacks_are_stable(self):
         self.assertEqual(flatten_url_patterns(board_urls.urlpatterns), EXPECTED_ROUTE_CONTRACT)
+
+    def test_board_url_route_default_kwargs_are_stable(self):
+        self.assertEqual(
+            flatten_url_default_args(board_urls.urlpatterns),
+            EXPECTED_ROUTE_DEFAULT_ARGS,
+        )
+
+    def test_board_urlconf_facade_preserves_area_order_without_namespaces(self):
+        self.assertEqual(len(board_urls.urlpatterns), 3)
+        self.assertTrue(all(
+            isinstance(pattern, URLResolver)
+            for pattern in board_urls.urlpatterns
+        ))
+        self.assertEqual(
+            tuple(pattern.urlconf_module for pattern in board_urls.urlpatterns),
+            (pages, internal_api, developer_api),
+        )
+        self.assertEqual(
+            tuple(str(pattern.pattern) for pattern in board_urls.urlpatterns),
+            ('', '', ''),
+        )
+        self.assertTrue(all(
+            pattern.namespace is None
+            for pattern in board_urls.urlpatterns
+        ))
 
     def test_ambiguous_public_routes_resolve_and_reverse_with_legacy_priority(self):
         cases = (
@@ -552,13 +608,14 @@ class PythonImportCompatibilityContractTests(SimpleTestCase):
                 self.assertIs(getattr(api_v1, export_name), implementation)
 
     def test_v1_package_declares_only_registered_url_endpoints(self):
+        v1_callbacks = tuple(
+            callback
+            for route, callback in flatten_url_callbacks(board_urls.urlpatterns)
+            if route.startswith('v1/')
+        )
         registered_exports = tuple(dict.fromkeys(
-            pattern.callback.__name__
-            for pattern in board_urls.urlpatterns
-            if (
-                isinstance(pattern, URLPattern)
-                and str(pattern.pattern).startswith('v1/')
-            )
+            callback.__name__
+            for callback in v1_callbacks
         ))
 
         self.assertEqual(api_v1.__all__, EXPECTED_V1_API_EXPORTS)
@@ -570,13 +627,9 @@ class PythonImportCompatibilityContractTests(SimpleTestCase):
                 self.assertIs(
                     getattr(api_v1, export_name),
                     next(
-                        pattern.callback
-                        for pattern in board_urls.urlpatterns
-                        if (
-                            isinstance(pattern, URLPattern)
-                            and str(pattern.pattern).startswith('v1/')
-                            and pattern.callback.__name__ == export_name
-                        )
+                        callback
+                        for callback in v1_callbacks
+                        if callback.__name__ == export_name
                     ),
                 )
 
