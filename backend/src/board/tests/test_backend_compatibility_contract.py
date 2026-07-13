@@ -11,6 +11,7 @@ import board.models as board_models
 from board import urls as board_urls
 from board.models import Config, Post, PostConfig, PostContent, PostLikes, Profile, User
 from board.modules.response import ErrorCode, StatusDone, StatusError
+from board.services.auth_service import AuthService
 from board.services.post_service import PostService
 from board.views.api import v1 as api_v1
 
@@ -501,6 +502,27 @@ class PythonImportCompatibilityContractTests(SimpleTestCase):
         ))
         self.assertIs(response_parameters[2].kind, inspect.Parameter.KEYWORD_ONLY)
         self.assertIs(response_parameters[2].default, False)
+
+    def test_auth_service_create_user_signature_is_stable(self):
+        parameters = tuple(inspect.signature(AuthService.create_user).parameters.values())
+        actual = tuple(
+            (
+                parameter.name,
+                REQUIRED if parameter.default is inspect.Parameter.empty else parameter.default,
+            )
+            for parameter in parameters
+        )
+        self.assertEqual(actual, (
+            ('username', REQUIRED),
+            ('name', REQUIRED),
+            ('email', REQUIRED),
+            ('password', None),
+            ('avatar_url', None),
+        ))
+        self.assertTrue(all(
+            parameter.kind is inspect.Parameter.POSITIONAL_OR_KEYWORD
+            for parameter in parameters
+        ))
 
     def test_post_service_facade_parameter_names_order_and_defaults_are_stable(self):
         for method_name, expected_parameters in EXPECTED_POST_SERVICE_SIGNATURES.items():

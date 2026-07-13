@@ -1,7 +1,6 @@
 import datetime
 import traceback
 import io
-import json
 import pyotp
 import qrcode
 import base64
@@ -15,7 +14,7 @@ from django.utils import timezone
 
 from board.models import (
     TwoFactorAuth, Config, Profile, Post,
-    SocialAuth, UserLinkMeta, UsernameChangeLog, TelegramSync)
+    UsernameChangeLog, TelegramSync)
 from board.modules.notify import create_notify
 from board.modules.response import StatusDone, StatusError, ErrorCode
 from board.services.auth_login_service import AuthLoginService
@@ -25,8 +24,12 @@ from board.services.auth_service import AuthService, OAuthService, AuthValidatio
 from board.services.initial_setup_service import InitialSetupService
 from board.services.api_request_body_service import ApiRequestBodyService
 from board.services.hcaptcha_service import HCaptchaService
-from modules import oauth
 from board.services.social_auth_provider_service import SocialAuthProviderService
+from board.services.social_signup_service import (
+    SocialSignupError,
+    SocialSignupErrorKind,
+    SocialSignupService,
+)
 from modules.challenge import auth_hcaptcha
 from modules.sub_task import SubTaskProcessor
 from modules.telegram import TelegramBot
@@ -159,86 +162,33 @@ def sign(request):
 
 def sign_social(request, social):
     if request.method == 'POST':
-        if InitialSetupService.should_prompt_for_initial_setup():
+        try:
+            result = SocialSignupService.sign_up(
+                provider_key=social,
+                code=request.POST.get('code'),
+            )
+        except SocialSignupError as error:
+            if error.kind == SocialSignupErrorKind.INITIAL_SETUP_REQUIRED:
+                return StatusError(
+                    ErrorCode.REJECT,
+                    '첫 관리자 계정을 먼저 만들어주세요.'
+                )
+            if error.kind in {
+                SocialSignupErrorKind.UNSUPPORTED_PROVIDER,
+                SocialSignupErrorKind.MISSING_CODE,
+            }:
+                raise Http404
+            if error.kind == SocialSignupErrorKind.PROVIDER_DISABLED:
+                return StatusError(ErrorCode.REJECT, '소셜 로그인이 설정되지 않았습니다.')
             return StatusError(
                 ErrorCode.REJECT,
-                '첫 관리자 계정을 먼저 만들어주세요.'
             )
 
-        if social not in SocialAuthProviderService.supported_keys():
-            raise Http404
+        if not result.is_first_login:
+            return AuthLoginService.common_auth(request, result.user, is_oauth=True)
 
-        if not SocialAuthProviderService.is_enabled(social):
-            return StatusError(ErrorCode.REJECT, '소셜 로그인이 설정되지 않았습니다.')
-
-        if social == 'github':
-            if request.POST.get('code'):
-                state = oauth.auth_github(request.POST.get('code'))
-                if not state.success:
-                    return StatusError(ErrorCode.REJECT)
-
-                avatar_url = state.user.get('avatar_url')
-                node_id = state.user.get('node_id')
-                user_id = state.user.get('login')
-                name = state.user.get('name')
-                provider = SocialAuthProviderService.get_provider(social)
-                social_auth = SocialAuth.objects.filter(provider=provider, uid=node_id).select_related('user').first()
-                if social_auth:
-                    return AuthLoginService.common_auth(request, social_auth.user, is_oauth=True)
-
-                user, profile, config = AuthService.create_user(
-                    username=user_id,
-                    name=name,
-                    email='',
-                    avatar_url=avatar_url,
-                )
-                SocialAuth.objects.create(
-                    user=user,
-                    provider=provider,
-                    uid=node_id,
-                    extra_data=json.dumps(state.user, ensure_ascii=False),
-                )
-
-                UserLinkMeta.objects.create(
-                    user=user,
-                    name='github',
-                    value=f'https://github.com/{user_id}'
-                )
-
-                auth.login(request, user)
-                return AuthLoginService.login_response(request.user, is_first_login=True)
-
-        if social == 'google':
-            if request.POST.get('code'):
-                state = oauth.auth_google(request.POST.get('code'))
-                if not state.success:
-                    return StatusError(ErrorCode.REJECT)
-
-                avatar_url = state.user.get('picture')
-                node_id = state.user.get('id')
-                user_id = state.user.get('email').split('@')[0]
-                email = state.user.get('email')
-                name = state.user.get('name')
-                provider = SocialAuthProviderService.get_provider(social)
-                social_auth = SocialAuth.objects.filter(provider=provider, uid=node_id).select_related('user').first()
-                if social_auth:
-                    return AuthLoginService.common_auth(request, social_auth.user, is_oauth=True)
-
-                user, profile, config = AuthService.create_user(
-                    username=user_id,
-                    name=name,
-                    email=email,
-                    avatar_url=avatar_url,
-                )
-                SocialAuth.objects.create(
-                    user=user,
-                    provider=provider,
-                    uid=node_id,
-                    extra_data=json.dumps(state.user, ensure_ascii=False),
-                )
-
-                auth.login(request, user)
-                return AuthLoginService.login_response(request.user, is_first_login=True)
+        auth.login(request, result.user)
+        return AuthLoginService.login_response(request.user, is_first_login=True)
 
     raise Http404
 
