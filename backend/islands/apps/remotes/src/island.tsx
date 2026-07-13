@@ -9,52 +9,6 @@ import App from './components/App';
 import ErrorBoundary from './components/ErrorBoundary';
 import { createQueryClient, sessionStoragePersister } from './lib/query-client';
 
-type ToastCall = (message: unknown, options?: Record<string, unknown>) => unknown;
-
-type LazyToast = ToastCall & {
-    success: ToastCall;
-    error: ToastCall;
-    info: ToastCall;
-    warning: ToastCall;
-    loading: ToastCall;
-    promise: (...args: unknown[]) => unknown;
-    dismiss: (...args: unknown[]) => unknown;
-    message: ToastCall;
-};
-
-declare global {
-    interface Window {
-        toast: LazyToast;
-        __blexIslandMonitor?: {
-            notifyBootstrap?: () => void;
-            notifyMounted?: (name: string) => void;
-            notifyFailed?: (name: string, reason: string) => void;
-        };
-    }
-}
-
-const loadToast = () => import('./utils/toast').then((module) => module.toast);
-
-const createLazyToastCall = (method?: keyof LazyToast) =>
-    (...args: unknown[]) => loadToast().then((toast) => {
-        if (method) {
-            return (toast[method] as (...toastArgs: unknown[]) => unknown)(...args);
-        }
-
-        return (toast as (...toastArgs: unknown[]) => unknown)(...args);
-    });
-
-window.toast = Object.assign(createLazyToastCall(), {
-    success: createLazyToastCall('success'),
-    error: createLazyToastCall('error'),
-    info: createLazyToastCall('info'),
-    warning: createLazyToastCall('warning'),
-    loading: createLazyToastCall('loading'),
-    promise: createLazyToastCall('promise'),
-    dismiss: createLazyToastCall('dismiss'),
-    message: createLazyToastCall('message')
-});
-
 const markIslandMounted = (element: HTMLElement, name: string) => {
     element.dataset.islandName = name;
     element.dataset.islandStatus = 'mounted';

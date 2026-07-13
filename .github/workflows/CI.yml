@@ -132,6 +132,28 @@ jobs:
     steps:
     - uses: actions/checkout@v6
 
+    - name: Set up Node.js
+      uses: actions/setup-node@v6
+      with:
+        node-version: '22.22.2'
+
+    - name: Install pnpm
+      run: npm install --global pnpm@11.12.0
+
+    - name: Install Islands dependencies
+      run: pnpm install --frozen-lockfile
+      working-directory: backend/islands
+
+    - name: Cache Playwright browsers
+      uses: actions/cache@v5
+      with:
+        path: ~/.cache/ms-playwright
+        key: ${{ runner.os }}-playwright-${{ hashFiles('backend/islands/pnpm-lock.yaml') }}
+
+    - name: Install Playwright Chromium
+      run: pnpm --filter @blex/remotes exec playwright install --with-deps chromium
+      working-directory: backend/islands
+
     - name: Build unified BLEX image
       run: docker build --tag blex:ci ./backend
 
@@ -187,6 +209,7 @@ jobs:
           --detach \
           --name blex-ci \
           --env-file samples/.env \
+          --env DEBUG=FALSE \
           --env SITE_URL=http://127.0.0.1:18080 \
           --publish 127.0.0.1:18080:80 \
           blex:ci
@@ -205,9 +228,21 @@ jobs:
         curl --fail --silent --show-error \
           http://127.0.0.1:18080/resources/staticfiles/islands/.vite/manifest.json \
           > /dev/null
+        docker cp \
+          backend/islands/apps/remotes/e2e/fixtures/installed-site.json \
+          blex-ci:/tmp/installed-site.json
+        docker exec blex-ci python manage.py loaddata /tmp/installed-site.json
+        docker exec blex-ci python manage.py shell -c \
+          'from django.conf import settings; assert settings.DEBUG is False'
         docker exec blex-ci python manage.py migrate --check
         docker exec blex-ci python manage.py check
         docker exec blex-ci nginx -t
+
+        E2E_BASE_URL=http://127.0.0.1:18080 \
+          E2E_SKIP_WEB_SERVER=1 \
+          E2E_EXPECT_PRODUCTION=1 \
+          pnpm --dir backend/islands/apps/remotes exec \
+          playwright test --config playwright.config.ts
 
         docker restart blex-ci
         for attempt in $(seq 1 60); do

@@ -1,7 +1,6 @@
 @use "./variables.css";
 @use "./forwarded.scss";
 @use "./fonts/fontawesome.scss";
-@use "./fonts/pretendard.scss";
 
 @view-transition {
     navigation: auto;
@@ -49,7 +48,9 @@
     }
 
     body {
-        font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, sans-serif;
+        font-family: 'Pretendard Variable', Pretendard, -apple-system, BlinkMacSystemFont,
+            system-ui, 'Segoe UI', 'Noto Sans KR', 'Apple SD Gothic Neo', 'Malgun Gothic',
+            sans-serif;
         word-break: keep-all;
         overflow-x: hidden;
         overflow-wrap: anywhere;

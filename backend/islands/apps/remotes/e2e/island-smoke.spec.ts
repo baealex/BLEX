@@ -4,6 +4,7 @@ const interactivePages = [
     { path: '/login', islandName: 'Login' },
     { path: '/sign', islandName: 'Signup' }
 ] as const;
+const expectProductionMode = process.env.E2E_EXPECT_PRODUCTION === '1';
 
 const collectRuntimeSignals = (page: Page) => {
     const errors: string[] = [];
@@ -38,13 +39,37 @@ const expectNoRuntimeErrors = (errors: string[]) => {
     expect(errors, errors.join('\n')).toEqual([]);
 };
 
+const isIslandRuntimeUrl = (url: string) =>
+    /\/island\.[A-Za-z0-9_-]+\.js$/.test(new URL(url).pathname);
+
 test.describe('island production smoke', () => {
-    test('home loads the production island bootstrap without runtime errors', async ({ page }) => {
+    test('home defers the React island runtime when no island is present', async ({ page }) => {
         const errors = collectRuntimeSignals(page);
+        const runtimeResponses: string[] = [];
+        const pretendardResponses: string[] = [];
+
+        page.on('response', (response) => {
+            if (isIslandRuntimeUrl(response.url())) {
+                runtimeResponses.push(response.url());
+            }
+
+            if (response.url().includes('/Pretendard-')) {
+                pretendardResponses.push(response.url());
+            }
+        });
 
         await page.goto('/');
-        await expectIslandBootstrap(page);
-        await expect(page.locator('script[src*="/resources/staticfiles/islands/island."]')).toHaveCount(1);
+        await page.waitForLoadState('networkidle');
+
+        expect(await page.evaluate(() => Boolean(customElements.get('island-component')))).toBe(false);
+        expect(await page.evaluate(() => typeof window.toast)).toBe('function');
+        if (expectProductionMode) {
+            await expect(page.locator('[aria-label="개발 환경 표시"]')).toHaveCount(0);
+        }
+        await expect(page.locator('link[rel="modulepreload"][href*="islandLoader."]')).toHaveCount(1);
+        await expect(page.locator('script[src*="islandLoader."]')).toHaveCount(1);
+        expect(runtimeResponses).toEqual([]);
+        expect(pretendardResponses).toEqual([]);
 
         expectNoRuntimeErrors(errors);
     });
@@ -67,11 +92,11 @@ test.describe('island production smoke', () => {
         const errors = collectRuntimeSignals(page);
 
         await page.goto('/');
-        await expectIslandBootstrap(page);
         await page.evaluate(() => window.toast.success('Smoke toast'));
 
         const toaster = page.locator('island-component[name="Toaster"]');
         await expect(toaster).toHaveAttribute('data-island-status', 'mounted');
+        await expectIslandBootstrap(page);
 
         expectNoRuntimeErrors(errors);
     });
@@ -80,7 +105,6 @@ test.describe('island production smoke', () => {
         const errors = collectRuntimeSignals(page);
 
         await page.goto('/');
-        await expectIslandBootstrap(page);
         await page.evaluate(() => {
             const loginPrompt = document.createElement('island-component');
             loginPrompt.setAttribute('name', 'LoginPrompt');
@@ -94,6 +118,7 @@ test.describe('island production smoke', () => {
         const loginPrompt = page.locator('island-component[name="LoginPrompt"]');
         await expect(loginPrompt).toHaveAttribute('data-island-status', 'mounted');
         await expect(page.locator('h3', { hasText: '로그인이 필요해요' })).toBeVisible();
+        await expectIslandBootstrap(page);
 
         expectNoRuntimeErrors(errors);
     });

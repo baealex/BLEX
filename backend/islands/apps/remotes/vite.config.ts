@@ -87,6 +87,7 @@ export default defineConfig(({ mode }) => {
                     mainStyle: resolve(__dirname, 'styles/main.scss'),
                     tailwindStyle: resolve(__dirname, 'styles/tailwind.css'),
                     postStyle: resolve(__dirname, 'styles/post.scss'),
+                    islandLoader: resolve(__dirname, 'src/scripts/island-loader.ts'),
                     lazyLoading: resolve(__dirname, 'src/scripts/lazy-loading.ts'),
                     alpineLoader: resolve(__dirname, 'src/scripts/alpine-loader.ts'),
                     syntaxHighlighting: resolve(__dirname, 'src/scripts/syntax-highlighting.ts')
