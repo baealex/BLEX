@@ -1,3 +1,4 @@
+import ast
 import inspect
 import json
 from importlib import import_module
@@ -218,6 +219,71 @@ EXPECTED_ROUTE_CONTRACT = (
     ('api/developer/v1/series', 'list_series', None),
     ('api/developer/v1/images', 'upload_image', None),
     ('api/developer/v1/', 'api-root', None),
+)
+
+
+EXPECTED_V1_API_EXPORTS = (
+    'login',
+    'logout',
+    'sign',
+    'sign_social',
+    'social_providers',
+    'security',
+    'security_verify',
+    'developer_tokens',
+    'setting',
+    'search',
+    'post_list',
+    'post_comment_list',
+    'drafts_list',
+    'drafts_detail',
+    'comment_list',
+    'user_comment',
+    'comment_detail',
+    'get_author_heatmap',
+    'users',
+    'user_posts',
+    'user_post_related',
+    'user_series',
+    'check_redirect',
+    'pinned_posts',
+    'pinned_posts_order',
+    'pinnable_posts',
+    'series_create_update',
+    'series_detail',
+    'posts_can_add_series',
+    'series_order',
+    'error_report',
+    'image',
+    'forms_list',
+    'forms_detail',
+    'telegram',
+    'banner',
+    'banner_order',
+    'notices',
+    'global_notices',
+    'global_banners',
+    'global_banner_order',
+    'site_settings',
+    'site_setting_brand_assets',
+    'login_settings',
+    'integration_settings',
+    'static_pages',
+    'markdown_to_html',
+    'managed_users',
+    'managed_user_role',
+    'author_invites',
+    'author_invite_detail',
+    'utility_stats',
+    'utility_clean_tags',
+    'utility_clean_sessions',
+    'utility_clean_logs',
+    'utility_clean_images',
+    'my_channels',
+    'delete_channel',
+    'global_channels',
+    'delete_global_channel',
+    'test_channel',
 )
 
 
@@ -484,6 +550,48 @@ class PythonImportCompatibilityContractTests(SimpleTestCase):
             with self.subTest(export_name=export_name):
                 implementation = getattr(import_module(module_path), export_name)
                 self.assertIs(getattr(api_v1, export_name), implementation)
+
+    def test_v1_package_declares_only_registered_url_endpoints(self):
+        registered_exports = tuple(dict.fromkeys(
+            pattern.callback.__name__
+            for pattern in board_urls.urlpatterns
+            if (
+                isinstance(pattern, URLPattern)
+                and str(pattern.pattern).startswith('v1/')
+            )
+        ))
+
+        self.assertEqual(api_v1.__all__, EXPECTED_V1_API_EXPORTS)
+        self.assertEqual(registered_exports, EXPECTED_V1_API_EXPORTS)
+        self.assertEqual(len(api_v1.__all__), len(set(api_v1.__all__)))
+
+        for export_name in api_v1.__all__:
+            with self.subTest(export_name=export_name):
+                self.assertIs(
+                    getattr(api_v1, export_name),
+                    next(
+                        pattern.callback
+                        for pattern in board_urls.urlpatterns
+                        if (
+                            isinstance(pattern, URLPattern)
+                            and str(pattern.pattern).startswith('v1/')
+                            and pattern.callback.__name__ == export_name
+                        )
+                    ),
+                )
+
+    def test_v1_package_initializer_has_no_wildcard_imports(self):
+        module_tree = ast.parse(inspect.getsource(api_v1))
+        wildcard_imports = [
+            node
+            for node in ast.walk(module_tree)
+            if (
+                isinstance(node, ast.ImportFrom)
+                and any(alias.name == '*' for alias in node.names)
+            )
+        ]
+
+        self.assertEqual(wildcard_imports, [])
 
     def test_setting_post_management_facade_signatures_are_stable(self):
         setting_module = import_module('board.views.api.v1.setting')
