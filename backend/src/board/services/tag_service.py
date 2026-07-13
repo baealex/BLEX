@@ -54,10 +54,12 @@ class TagService:
         if new_tag_values:
             Tag.objects.bulk_create(
                 [Tag(value=tag) for tag in new_tag_values],
-                ignore_conflicts=True
+                ignore_conflicts=True,
             )
-            new_tags = Tag.objects.filter(value__in=new_tag_values)
-            existing_tags.update({t.value: t for t in new_tags})
+            existing_tags.update({
+                tag.value: tag
+                for tag in Tag.objects.filter(value__in=new_tag_values)
+            })
 
         return existing_tags
 
