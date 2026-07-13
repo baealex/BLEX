@@ -1,14 +1,17 @@
 import json
+from datetime import datetime
 
 from django.core.cache import cache
+from django.db import connection
 from django.test import TestCase
 from django.test.client import Client
+from django.test.utils import CaptureQueriesContext
 from django.utils import timezone
 
 from board.constants.config_meta import CONFIG_TYPE
 from board.models import (
     Comment, Config, Notify, Post, PostConfig, PostContent,
-    PinnedPost, PostLikes, Profile, User, UserLinkMeta
+    PinnedPost, PostLikes, Profile, Series, Tag, User, UserLinkMeta
 )
 
 
@@ -42,6 +45,33 @@ class SettingTestCase(TestCase):
     def setUp(self):
         self.client = Client(HTTP_USER_AGENT='Mozilla/5.0')
         cache.clear()
+
+    @staticmethod
+    def create_management_post(
+        user,
+        *,
+        title,
+        url,
+        published_date,
+        hide=False,
+        series=None,
+        tags=(),
+        read_time=0,
+        updated_date=None,
+    ):
+        post = Post.objects.create(
+            author=user,
+            title=title,
+            url=url,
+            published_date=published_date,
+            updated_date=updated_date or timezone.now(),
+            series=series,
+            read_time=read_time,
+        )
+        PostContent.objects.create(post=post, content_html=f'<p>{title}</p>')
+        PostConfig.objects.create(post=post, hide=hide)
+        post.tags.add(*tags)
+        return post
 
     def test_get_setting_notify_not_login(self):
         """비로그인 상태에서 알림 설정 조회 시 에러 테스트"""
@@ -381,6 +411,234 @@ class SettingTestCase(TestCase):
         self.assertEqual(content['status'], 'DONE')
         self.assertEqual(content['body']['totalCount'], 1)
         self.assertEqual(content['body']['posts'][0]['url'], 'public-post')
+
+    def test_get_setting_posts_preserves_combined_filters_and_response_body(self):
+        """포스트 관리 서비스 분리 후에도 필터 조합과 응답 본문을 그대로 유지한다."""
+        user = User.objects.get(username='test')
+        python = Tag.objects.create(value='python')
+        django = Tag.objects.create(value='django')
+        series = Series.objects.create(owner=user, name='Service Series', url='service-series')
+        other_series = Series.objects.create(owner=user, name='Other Series', url='other-series')
+        fixed_date = timezone.make_aware(datetime(2025, 1, 2, 3, 4))
+        expected = self.create_management_post(
+            user,
+            title='Needle Hidden Post',
+            url='needle-hidden-post',
+            published_date=fixed_date,
+            updated_date=fixed_date,
+            hide=True,
+            series=series,
+            tags=(python,),
+            read_time=1,
+        )
+        self.create_management_post(
+            user,
+            title='Needle Public Post',
+            url='needle-public-post',
+            published_date=fixed_date,
+            series=series,
+            tags=(python,),
+        )
+        self.create_management_post(
+            user,
+            title='Needle Other Tag',
+            url='needle-other-tag',
+            published_date=fixed_date,
+            hide=True,
+            series=series,
+            tags=(django,),
+        )
+        self.create_management_post(
+            user,
+            title='Needle Other Series',
+            url='needle-other-series',
+            published_date=fixed_date,
+            hide=True,
+            series=other_series,
+            tags=(python,),
+        )
+        self.create_management_post(
+            user,
+            title='Haystack Hidden Post',
+            url='haystack-hidden-post',
+            published_date=fixed_date,
+            hide=True,
+            series=series,
+            tags=(python,),
+        )
+        self.client.login(username='test', password='test')
+
+        response = self.client.get('/v1/setting/posts', {
+            'tag': 'python',
+            'series': 'service-series',
+            'search': 'Needle',
+            'visibility': 'hidden',
+            'order': 'title',
+            'page': '1',
+        })
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json(), {
+            'status': 'DONE',
+            'body': {
+                'username': 'test',
+                'posts': [{
+                    'url': expected.url,
+                    'title': expected.title,
+                    'image': None,
+                    'createdDate': '2025-01-02',
+                    'updatedDate': '2025-01-02',
+                    'isHide': True,
+                    'countLikes': 0,
+                    'countComments': 0,
+                    'readTime': 1,
+                    'tag': 'python',
+                    'series': 'service-series',
+                }],
+                'lastPage': 1,
+                'totalCount': 1,
+            },
+        })
+
+    def test_get_setting_post_management_rejects_legacy_invalid_queries(self):
+        """포스트 관리의 잘못된 page와 order는 기존처럼 404를 반환한다."""
+        self.client.login(username='test', password='test')
+
+        for parameter in ('posts', 'reserved-posts'):
+            for query in (
+                {'page': 'invalid'},
+                {'page': '0'},
+                {'page': '2'},
+                {'order': 'unknown'},
+            ):
+                with self.subTest(parameter=parameter, query=query):
+                    response = self.client.get(f'/v1/setting/{parameter}', query)
+                    self.assertEqual(response.status_code, 404)
+
+    def test_get_setting_posts_preserves_allowed_orders(self):
+        """기존 포스트 관리 정렬 필드와 내림차순 표기를 모두 허용한다."""
+        user = User.objects.get(username='test')
+        self.create_management_post(
+            user,
+            title='Allowed Order Post',
+            url='allowed-order-post',
+            published_date=timezone.now(),
+        )
+        self.client.login(username='test', password='test')
+
+        for field in (
+            'title',
+            'read_time',
+            'published_date',
+            'updated_date',
+            'count_likes',
+            'count_comments',
+        ):
+            for order in (field, f'-{field}'):
+                with self.subTest(order=order):
+                    response = self.client.get('/v1/setting/posts', {'order': order})
+                    self.assertEqual(response.status_code, 200)
+                    self.assertEqual(response.json()['status'], 'DONE')
+
+    def test_get_setting_tag_preserves_aggregate_response(self):
+        """태그 관리 조회의 이름, count, 정렬과 응답 필드를 유지한다."""
+        user = User.objects.get(username='test')
+        python = Tag.objects.create(value='python')
+        django = Tag.objects.create(value='django')
+        first = Post.objects.create(author=user, title='Python One', url='python-one')
+        second = Post.objects.create(author=user, title='Python Two', url='python-two')
+        third = Post.objects.create(author=user, title='Django One', url='django-one')
+        first.tags.add(python)
+        second.tags.add(python)
+        third.tags.add(django)
+        self.client.login(username='test', password='test')
+
+        response = self.client.get('/v1/setting/tag')
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json(), {
+            'status': 'DONE',
+            'body': {
+                'username': 'test',
+                'tags': [
+                    {'name': 'python', 'count': 2},
+                    {'name': 'django', 'count': 1},
+                ],
+            },
+        })
+
+    def test_get_setting_series_preserves_aggregate_response(self):
+        """시리즈 관리 조회의 순서, 게시글 수와 응답 필드를 유지한다."""
+        user = User.objects.get(username='test')
+        later = Series.objects.create(
+            owner=user,
+            name='Later Series',
+            url='later-series',
+            order=1,
+        )
+        first = Series.objects.create(
+            owner=user,
+            name='First Series',
+            url='first-series',
+            order=0,
+        )
+        Post.objects.create(author=user, title='First One', url='first-one', series=first)
+        Post.objects.create(author=user, title='First Two', url='first-two', series=first)
+        Post.objects.create(author=user, title='Later One', url='later-one', series=later)
+        self.client.login(username='test', password='test')
+
+        response = self.client.get('/v1/setting/series')
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json(), {
+            'status': 'DONE',
+            'body': {
+                'username': 'test',
+                'series': [
+                    {
+                        'id': first.id,
+                        'url': 'first-series',
+                        'title': 'First Series',
+                        'totalPosts': 2,
+                    },
+                    {
+                        'id': later.id,
+                        'url': 'later-series',
+                        'title': 'Later Series',
+                        'totalPosts': 1,
+                    },
+                ],
+            },
+        })
+
+    def test_get_setting_post_management_query_budget(self):
+        """서비스 분리 후 posts/tag/series 관리 조회의 쿼리 수가 증가하지 않는다."""
+        user = User.objects.get(username='test')
+        tag = Tag.objects.create(value='query-budget')
+        series = Series.objects.create(owner=user, name='Query Budget', url='query-budget')
+        self.create_management_post(
+            user,
+            title='Query Budget Post',
+            url='query-budget-post',
+            published_date=timezone.now(),
+            series=series,
+            tags=(tag,),
+        )
+        self.client.login(username='test', password='test')
+
+        with CaptureQueriesContext(connection) as post_queries:
+            posts_response = self.client.get('/v1/setting/posts')
+        with CaptureQueriesContext(connection) as tag_queries:
+            tag_response = self.client.get('/v1/setting/tag')
+        with CaptureQueriesContext(connection) as series_queries:
+            series_response = self.client.get('/v1/setting/series')
+
+        self.assertEqual(posts_response.status_code, 200)
+        self.assertEqual(tag_response.status_code, 200)
+        self.assertEqual(series_response.status_code, 200)
+        self.assertLessEqual(len(post_queries), 9)
+        self.assertLessEqual(len(tag_queries), 6)
+        self.assertLessEqual(len(series_queries), 6)
 
     def test_get_setting_reserved_posts_orders_by_count_fields(self):
         """예약 포스트 설정 목록은 좋아요/댓글 수 정렬을 지원한다."""
