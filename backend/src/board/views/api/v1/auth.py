@@ -1,9 +1,4 @@
 import datetime
-import traceback
-import io
-import pyotp
-import qrcode
-import base64
 
 from django.contrib import auth
 from django.contrib.auth.models import User
@@ -13,7 +8,7 @@ from django.shortcuts import get_object_or_404
 from django.utils import timezone
 
 from board.models import (
-    TwoFactorAuth, Config, Profile, Post,
+    Config, Profile, Post,
     UsernameChangeLog, TelegramSync)
 from board.modules.notify import create_notify
 from board.modules.response import StatusDone, StatusError, ErrorCode
@@ -29,6 +24,10 @@ from board.services.social_signup_service import (
     SocialSignupError,
     SocialSignupErrorKind,
     SocialSignupService,
+)
+from board.services.two_factor_setup_service import (
+    TwoFactorSetupError,
+    TwoFactorSetupService,
 )
 from modules.challenge import auth_hcaptcha
 from modules.sub_task import SubTaskProcessor
@@ -198,62 +197,33 @@ def security(request):
         return StatusError(ErrorCode.NEED_LOGIN)
 
     if request.method == 'GET':
-        if hasattr(request.user, 'twofactorauth'):
-            two_factor_auth = request.user.twofactorauth
-            qr_code = AuthService.get_totp_qr_code(request.user)
-            if qr_code:
-                return StatusDone({
-                    'qr_code': qr_code,
-                    'has_recovery_key': bool(two_factor_auth.recovery_key),
-                })
-        return StatusError(ErrorCode.NOT_FOUND)
+        try:
+            result = TwoFactorSetupService.get_security(request.user)
+        except TwoFactorSetupError as error:
+            return StatusError(error.code, error.message)
+        return StatusDone({
+            'qr_code': result.qr_code,
+            'has_recovery_key': result.has_recovery_key,
+        })
 
     if request.method == 'POST':
         try:
-            if hasattr(request.user, 'twofactorauth'):
-                return StatusError(ErrorCode.ALREADY_CONNECTED)
-
-            totp_secret = AuthService.create_totp_secret()
-            recovery_key = AuthService.create_recovery_key()
-
-            request.session['totp_setup'] = {
-                'secret': totp_secret,
-                'recovery_key': recovery_key,
-                'user_id': request.user.id
-            }
-
-            totp = pyotp.TOTP(totp_secret)
-            provisioning_uri = totp.provisioning_uri(
-                name=request.user.email,
-                issuer_name='BLEX'
+            result = TwoFactorSetupService.initialize(
+                request.user,
+                request.session,
             )
-
-            qr = qrcode.QRCode(version=1, box_size=10, border=5)
-            qr.add_data(provisioning_uri)
-            qr.make(fit=True)
-
-            img = qr.make_image(fill_color="black", back_color="white")
-            buffer = io.BytesIO()
-            img.save(buffer, format='PNG')
-            img_str = base64.b64encode(buffer.getvalue()).decode()
-            qr_code = f"data:image/png;base64,{img_str}"
-
-            return StatusDone({
-                'qr_code': qr_code,
-                'recovery_key': recovery_key
-            })
-        except Exception as e:
-            traceback.print_exc()
-            return StatusError(ErrorCode.REJECT, f'2FA 설정 초기화에 실패했습니다: {str(e)}')
+        except TwoFactorSetupError as error:
+            return StatusError(error.code, error.message)
+        return StatusDone({
+            'qr_code': result.qr_code,
+            'recovery_key': result.recovery_key,
+        })
 
     if request.method == 'DELETE':
-        if not hasattr(request.user, 'twofactorauth'):
-            return StatusError(ErrorCode.ALREADY_DISCONNECTED)
-
-        if not request.user.twofactorauth.has_been_a_day():
-            return StatusError(ErrorCode.REJECT, '24시간 동안 해제할 수 없습니다.')
-
-        request.user.twofactorauth.delete()
+        try:
+            TwoFactorSetupService.disable(request.user)
+        except TwoFactorSetupError as error:
+            return StatusError(error.code, error.message)
         return StatusDone()
 
     raise Http404
@@ -265,40 +235,16 @@ def security_verify(request):
         return StatusError(ErrorCode.NEED_LOGIN)
 
     if request.method == 'POST':
+        data = ApiRequestBodyService.parse_json_or_empty_for_legacy_only(request)
         try:
-            setup_data = request.session.get('totp_setup')
-            if not setup_data:
-                return StatusError(ErrorCode.EXPIRED, '2FA 설정 세션이 만료되었습니다. 다시 시도해주세요.')
-
-            if setup_data['user_id'] != request.user.id:
-                return StatusError(ErrorCode.AUTHENTICATION, '잘못된 세션입니다.')
-
-            if hasattr(request.user, 'twofactorauth'):
-                del request.session['totp_setup']
-                return StatusError(ErrorCode.ALREADY_CONNECTED)
-
-            data = ApiRequestBodyService.parse_json_or_empty_for_legacy_only(request)
-            code = data.get('code', '').strip()
-
-            if not code:
-                return StatusError(ErrorCode.INVALID_PARAMETER, '인증 코드를 입력해주세요.')
-
-            totp = pyotp.TOTP(setup_data['secret'])
-            if not totp.verify(code, valid_window=1):
-                return StatusError(ErrorCode.REJECT, '잘못된 인증 코드입니다.')
-
-            two_factor_auth = TwoFactorAuth(user=request.user)
-            two_factor_auth.totp_secret = setup_data['secret']
-            two_factor_auth.recovery_key = setup_data['recovery_key']
-            two_factor_auth.save()
-
-            del request.session['totp_setup']
-
-            return StatusDone({'message': '2차 인증이 활성화되었습니다.'})
-
-        except Exception as e:
-            traceback.print_exc()
-            return StatusError(ErrorCode.REJECT, f'2FA 활성화에 실패했습니다: {str(e)}')
+            TwoFactorSetupService.activate(
+                request.user,
+                request.session,
+                data.get('code', ''),
+            )
+        except TwoFactorSetupError as error:
+            return StatusError(error.code, error.message)
+        return StatusDone({'message': '2차 인증이 활성화되었습니다.'})
 
     raise Http404
 

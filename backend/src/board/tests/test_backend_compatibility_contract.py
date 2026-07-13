@@ -9,7 +9,16 @@ from django.utils import timezone
 
 import board.models as board_models
 from board import urls as board_urls
-from board.models import Config, Post, PostConfig, PostContent, PostLikes, Profile, User
+from board.models import (
+    Config,
+    Post,
+    PostConfig,
+    PostContent,
+    PostLikes,
+    Profile,
+    TwoFactorAuth,
+    User,
+)
 from board.modules.response import ErrorCode, StatusDone, StatusError
 from board.services.auth_service import AuthService
 from board.services.post_service import PostService
@@ -523,6 +532,31 @@ class PythonImportCompatibilityContractTests(SimpleTestCase):
             parameter.kind is inspect.Parameter.POSITIONAL_OR_KEYWORD
             for parameter in parameters
         ))
+
+    def test_two_factor_facade_and_model_method_signatures_are_stable(self):
+        expected_signatures = (
+            (AuthService.create_totp_secret, ()),
+            (AuthService.create_recovery_key, ()),
+            (AuthService.verify_totp_token, ('user', 'token')),
+            (AuthService.get_totp_qr_code, ('user',)),
+            (TwoFactorAuth.has_been_a_day, ('self',)),
+            (TwoFactorAuth.get_totp_secret, ('self',)),
+            (TwoFactorAuth.verify_recovery_key, ('self', 'token')),
+            (TwoFactorAuth.verify_totp, ('self', 'token')),
+            (TwoFactorAuth.get_provisioning_uri, ('self',)),
+        )
+
+        for method, expected_names in expected_signatures:
+            with self.subTest(method=method.__qualname__):
+                parameters = tuple(inspect.signature(method).parameters.values())
+                self.assertEqual(
+                    tuple(parameter.name for parameter in parameters),
+                    expected_names,
+                )
+                self.assertTrue(all(
+                    parameter.kind is inspect.Parameter.POSITIONAL_OR_KEYWORD
+                    for parameter in parameters
+                ))
 
     def test_post_service_facade_parameter_names_order_and_defaults_are_stable(self):
         for method_name, expected_parameters in EXPECTED_POST_SERVICE_SIGNATURES.items():
