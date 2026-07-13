@@ -1,9 +1,11 @@
 import ast
 import inspect
 import json
+import pickle
 from importlib import import_module
 
 from django.apps import apps
+from django.db.migrations.writer import MigrationWriter
 from django.test import SimpleTestCase, TestCase
 from django.urls import URLPattern, URLResolver, resolve, reverse
 from django.utils import timezone
@@ -334,6 +336,45 @@ EXPECTED_MODEL_TABLES = (
 )
 
 
+EXPECTED_MODEL_REGISTRY_ORDER = (
+    'Comment',
+    'Form',
+    'ImageCache',
+    'Tag',
+    'Post',
+    'PostContent',
+    'PostConfig',
+    'PostConfigMeta',
+    'PinnedPost',
+    'PostLikes',
+    'Series',
+    'SeriesConfigMeta',
+    'EditHistory',
+    'EditRequest',
+    'EmailChange',
+    'UserConfigMeta',
+    'Config',
+    'UserLinkMeta',
+    'Profile',
+    'TwoFactorAuth',
+    'UsernameChangeLog',
+    'SocialAuthProvider',
+    'SocialAuth',
+    'LoginSetting',
+    'AuthorInvite',
+    'Notify',
+    'TelegramSync',
+    'DeveloperToken',
+    'DeveloperRequestLog',
+    'WebhookSubscription',
+    'IntegrationSetting',
+    'SiteSetting',
+    'StaticPage',
+    'SiteNotice',
+    'SiteBanner',
+)
+
+
 EXPECTED_MODEL_EXPORTS = (
     'AuthorInvite',
     'BannerPosition',
@@ -370,10 +411,21 @@ EXPECTED_MODEL_EXPORTS = (
     'Tag',
     'TelegramSync',
     'TwoFactorAuth',
+    'User',
     'UserConfigMeta',
     'UserLinkMeta',
     'UsernameChangeLog',
     'WebhookSubscription',
+    'avatar_path',
+    'cover_path',
+    'create_description',
+    'get_user_hex',
+    'timezone',
+    'title_image_path',
+)
+
+
+EXPECTED_MODEL_HELPERS = (
     'avatar_path',
     'cover_path',
     'create_description',
@@ -583,16 +635,61 @@ class PythonImportCompatibilityContractTests(SimpleTestCase):
             with self.subTest(export_name=export_name):
                 self.assertTrue(hasattr(board_models, export_name))
 
-        model_tables = tuple(
-            (model.__name__, model._meta.db_table)
-            for model in apps.get_app_config('board').get_models()
+        registered_models = tuple(
+            apps.get_app_config('board').get_models()
         )
-        self.assertEqual(model_tables, EXPECTED_MODEL_TABLES)
+        registered_models_by_name = {
+            model.__name__: model
+            for model in registered_models
+        }
 
-        for model_name, _ in EXPECTED_MODEL_TABLES:
+        self.assertEqual(len(registered_models), len(EXPECTED_MODEL_TABLES))
+        self.assertEqual(
+            tuple(model.__name__ for model in registered_models),
+            EXPECTED_MODEL_REGISTRY_ORDER,
+        )
+
+        for model_name, db_table in EXPECTED_MODEL_TABLES:
             with self.subTest(model_name=model_name):
                 exported_model = getattr(board_models, model_name)
+                registered_model = registered_models_by_name[model_name]
+                self.assertIs(registered_model, exported_model)
                 self.assertIs(apps.get_model('board', model_name), exported_model)
+                self.assertEqual(exported_model._meta.app_label, 'board')
+                self.assertEqual(exported_model._meta.db_table, db_table)
+                self.assertEqual(exported_model.__module__, 'board.models')
+                self.assertIs(pickle.loads(pickle.dumps(exported_model)), exported_model)
+
+    def test_board_models_package_preserves_legacy_import_and_serialization_paths(self):
+        self.assertTrue(hasattr(board_models, '__path__'))
+        self.assertIs(import_module('board.models.posts').Post, Post)
+        self.assertIs(import_module('board.models.accounts').Profile, Profile)
+        self.assertIs(
+            import_module('board.models.integrations').DeveloperToken,
+            board_models.DeveloperToken,
+        )
+        self.assertIs(import_module('board.models.site').SiteSetting, board_models.SiteSetting)
+
+        for helper_name in EXPECTED_MODEL_HELPERS:
+            with self.subTest(helper_name=helper_name):
+                helper = getattr(board_models, helper_name)
+                serialized_path, imports = MigrationWriter.serialize(helper)
+                self.assertEqual(helper.__module__, 'board.models')
+                self.assertEqual(serialized_path, f'board.models.{helper_name}')
+                self.assertEqual(imports, {'import board.models'})
+
+        self.assertIs(Post._meta.get_field('image').upload_to, board_models.title_image_path)
+        self.assertIs(Profile._meta.get_field('cover').upload_to, board_models.cover_path)
+        self.assertIs(Profile._meta.get_field('avatar').upload_to, board_models.avatar_path)
+
+        for method in (
+            Post.save,
+            Profile.save,
+            board_models.TelegramSync.save,
+            board_models.SiteSetting.save,
+        ):
+            with self.subTest(method=method.__qualname__):
+                self.assertEqual(method.__module__, 'board.models')
 
     def test_v1_url_endpoints_remain_available_from_package_facade(self):
         legacy_callbacks = {
