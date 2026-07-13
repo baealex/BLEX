@@ -27,6 +27,7 @@ from board.modules.response import ErrorCode
 from board.services.post_content_service import PostContentService
 from board.services.authoring_permission_service import AuthoringPermissionService
 from board.services.public_post_service import PublicPostService
+from board.services.related_post_service import RelatedPostService
 from board.services.webhook_service import WebhookService
 
 
@@ -490,91 +491,32 @@ class PostService:
         ), author__username=username, url=url)
 
     @staticmethod
-    def _calculate_tag_score(candidate_tags: set, current_tag_set: set) -> int:
-        """Calculate score based on tag overlap (max 10)."""
-        tag_overlap = len(current_tag_set & candidate_tags)
-        return min(tag_overlap * 3, 10), tag_overlap
+    def _calculate_tag_score(
+        candidate_tags: set[str],
+        current_tag_set: set[str],
+    ) -> tuple[int, int]:
+        return RelatedPostService.calculate_tag_score(
+            candidate_tags,
+            current_tag_set,
+        )
 
     @staticmethod
     def _calculate_popularity_score(likes_count: int, comments_count: int) -> int:
-        """Calculate score based on engagement (max 10)."""
-        popularity = (likes_count * 2) + comments_count
-        return min(popularity, 10)
+        return RelatedPostService.calculate_popularity_score(
+            likes_count,
+            comments_count,
+        )
 
     @staticmethod
-    def _calculate_recency_score(created_date, now) -> int:
-        """Calculate score based on post age."""
-        days_old = (now - created_date).days
-        if days_old < 7:
-            return 5
-        elif days_old < 30:
-            return 3
-        elif days_old < 90:
-            return 1
-        return 0
+    def _calculate_recency_score(created_date: datetime, now: datetime) -> int:
+        return RelatedPostService.calculate_recency_score(created_date, now)
 
     @staticmethod
     def get_related_posts(post: Post) -> List[Post]:
-        """
-        Get related posts based on tags and popularity.
-
-        Args:
-            post: Reference post
-
-        Returns:
-            List of related posts
-        """
-        if not post.tags.exists():
-            return []
-
-        current_tags = list(post.tags.values_list('value', flat=True))
-        current_tag_set = set(current_tags)
-
-        candidates = PublicPostService.filter_public_posts(
-            Post.objects.select_related(
-                'author', 'author__profile', 'config'
-            ).prefetch_related('tags').filter(
-                tags__value__in=current_tags,
-            )
-        ).exclude(
-            id=post.id
-        ).annotate(
-            author_username=F('author__username'),
-            author_name=F('author__first_name'),
-            author_image=F('author__profile__avatar'),
-            likes_count=Count('likes', distinct=True),
-            comments_count=Count('comments', distinct=True),
-        ).distinct()
-
-        scored_posts = []
-        now = timezone.now()
-
-        for candidate in candidates:
-            candidate_tags = set(tag.value for tag in candidate.tags.all())
-            tag_score, tag_overlap = PostService._calculate_tag_score(
-                candidate_tags, current_tag_set
-            )
-            popularity_score = PostService._calculate_popularity_score(
-                candidate.likes_count, candidate.comments_count
-            )
-            recency_score = PostService._calculate_recency_score(
-                candidate.published_date, now
-            )
-
-            score = tag_score + popularity_score + recency_score
-            if candidate.author.id == post.author.id:
-                score -= 5
-            score += random.uniform(-3, 3)
-
-            scored_posts.append({
-                'post': candidate,
-                'score': score,
-                'tag_overlap': tag_overlap,
-            })
-
-        scored_posts.sort(key=lambda x: (x['score'], x['tag_overlap']), reverse=True)
-
-        return [x['post'] for x in scored_posts[:8]]
+        return RelatedPostService.get_related_posts(
+            post,
+            jitter=random.uniform,
+        )
 
     @staticmethod
     @transaction.atomic
