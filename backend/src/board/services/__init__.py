@@ -9,6 +9,7 @@ from importlib import import_module
 
 _SERVICE_MODULES = {
     'PostService': 'post_service',
+    'PostLikeService': 'post_like_service',
     'PostThumbnailService': 'post_thumbnail_service',
     'ProfileImageService': 'profile_image_service',
     'NotificationDeliveryService': 'notification_delivery_service',

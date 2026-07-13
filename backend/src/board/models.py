@@ -421,6 +421,12 @@ class PinnedPost(models.Model):
 class PostLikes(models.Model):
     class Meta:
         db_table = 'board_post_likes'
+        constraints = [
+            models.UniqueConstraint(
+                fields=['post', 'user'],
+                name='board_postlike_post_user_uniq',
+            ),
+        ]
         indexes = [
             models.Index(fields=['post', 'user']),
             models.Index(fields=['user', 'created_date']),

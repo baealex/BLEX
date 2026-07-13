@@ -272,7 +272,14 @@ class SettingTestCase(TestCase):
         content = json.loads(response.content)
         self.assertEqual(sum(content['body'].values()), 3)
 
-        PostLikes.objects.create(post=post, user=user)
+        other_author = User.objects.create_user(username='heatmap-other-author')
+        other_post = Post.objects.create(
+            url='heatmap-other-post',
+            title='Heatmap Other Post',
+            author=other_author,
+            published_date=timezone.now(),
+        )
+        PostLikes.objects.create(post=other_post, user=user)
         cached_response = self.client.get('/v1/setting/heatmap')
         cached_content = json.loads(cached_response.content)
 
