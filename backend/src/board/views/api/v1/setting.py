@@ -1,13 +1,11 @@
 import json
 
 from django.contrib import auth
-from django.db.models import Count
-from django.http import Http404
+from django.http import Http404, HttpRequest
 from django.shortcuts import get_object_or_404
 from board.models import (
-    User, Series, Post, LoginSetting,
+    User, LoginSetting,
     Profile, Notify)
-from board.modules.paginator import Paginator
 from board.modules.response import StatusDone, StatusError, ErrorCode
 from board.modules.time import convert_to_localtime
 from board.services.auth_service import AuthService, AuthValidationError
@@ -15,7 +13,11 @@ from board.services.api_permission_service import ApiPermissionService
 from board.services.api_request_body_service import ApiRequestBodyService
 from board.services.integration_setting_service import IntegrationSettingService
 from board.services.pinned_post_service import PinnedPostService, PinnedPostError
-from board.services.post_status_service import PostStatusService
+from board.services.setting_post_management_service import (
+    PostManagementQuery,
+    PostManagementQueryError,
+    SettingPostManagementService,
+)
 from board.services.user_heatmap_service import UserHeatmapService
 from board.services.user_notification_service import UserNotificationService
 from board.services.user_social_link_service import UserSocialLinkService
@@ -32,129 +34,89 @@ EDITOR_SETTING_PARAMETERS = {
 }
 
 
-POST_MANAGEMENT_ORDERS = {
-    'title',
-    'read_time',
-    'published_date',
-    'updated_date',
-    'count_likes',
-    'count_comments',
-}
+POST_MANAGEMENT_ORDERS = SettingPostManagementService.POST_MANAGEMENT_ORDERS
 
 
 def get_post_management_queryset(user, *, scheduled=False):
-    posts = Post.objects.select_related(
-        'config', 'series',
-    ).prefetch_related(
-        'tags'
-    ).annotate(
-        count_likes=Count('likes', distinct=True),
-        count_comments=Count('comments', distinct=True),
-    ).filter(
-        author=user,
-    ).order_by('-published_date')
-    if scheduled:
-        return PostStatusService.filter_scheduled(posts)
-    return PostStatusService.filter_published(posts)
+    return SettingPostManagementService.get_post_management_queryset(
+        user,
+        scheduled=scheduled,
+    )
+
+
+def _parse_post_management_query(request: HttpRequest) -> PostManagementQuery:
+    try:
+        page = int(request.GET.get('page', 1))
+    except (TypeError, ValueError):
+        raise Http404 from None
+
+    if page < 1:
+        raise Http404
+
+    return PostManagementQuery(
+        tag=request.GET.get('tag', ''),
+        series=request.GET.get('series', ''),
+        search=request.GET.get('search', ''),
+        visibility=request.GET.get('visibility', ''),
+        order=request.GET.get('order', ''),
+        page=page,
+    )
 
 
 def apply_post_management_filters(posts, request):
-    tag = request.GET.get('tag', '')
-    if tag:
-        posts = posts.filter(tags__value=tag)
-
-    series = request.GET.get('series', '')
-    if series:
-        posts = posts.filter(series__url=series)
-
-    search = request.GET.get('search', '')
-    if search:
-        posts = posts.filter(title__icontains=search)
-
-    visibility = request.GET.get('visibility', '')
-    if visibility == 'public':
-        posts = posts.filter(config__hide=False)
-    elif visibility == 'hidden':
-        posts = posts.filter(config__hide=True)
-
-    return posts
+    query = PostManagementQuery(
+        tag=request.GET.get('tag', ''),
+        series=request.GET.get('series', ''),
+        search=request.GET.get('search', ''),
+        visibility=request.GET.get('visibility', ''),
+    )
+    return SettingPostManagementService.apply_post_management_filters(posts, query)
 
 
 def apply_post_management_order(posts, request):
-    order = request.GET.get('order', '')
-    if not order:
-        return posts
-
-    normalized_order = order[1:] if order.startswith('-') else order
-    if normalized_order not in POST_MANAGEMENT_ORDERS:
-        raise Http404
-
-    return posts.order_by(order)
+    query = PostManagementQuery(order=request.GET.get('order', ''))
+    try:
+        return SettingPostManagementService.apply_post_management_order(posts, query)
+    except PostManagementQueryError:
+        raise Http404 from None
 
 
 def paginate_post_management_posts(posts, request, total_count):
     try:
         page = int(request.GET.get('page', 1))
     except (TypeError, ValueError):
-        raise Http404
+        raise Http404 from None
 
-    if page < 1:
-        raise Http404
-
-    if total_count == 0:
-        if page > 1:
-            raise Http404
-        return [], 1
-
-    page_posts = Paginator(
-        objects=posts,
-        offset=10,
-        page=page
-    )
-    return page_posts, page_posts.paginator.num_pages
+    try:
+        return SettingPostManagementService.paginate_post_management_posts(
+            posts,
+            page,
+            total_count,
+        )
+    except PostManagementQueryError:
+        raise Http404 from None
 
 
 def serialize_post_management_post(post, *, date_format):
-    count_likes = getattr(post, 'count_likes', None)
-    if count_likes is None:
-        count_likes = post.likes.count()
-
-    count_comments = getattr(post, 'count_comments', None)
-    if count_comments is None:
-        count_comments = post.comments.count()
-
-    return {
-        'url': post.url,
-        'title': post.title,
-        'image': str(post.image) if post.image else None,
-        'created_date': convert_to_localtime(post.published_date).strftime(date_format),
-        'updated_date': convert_to_localtime(post.updated_date).strftime('%Y-%m-%d'),
-        'is_hide': post.config.hide,
-        'count_likes': count_likes,
-        'count_comments': count_comments,
-        'read_time': post.read_time,
-        'tag': ','.join(post.tagging()),
-        'series': post.series.url if post.series else '',
-    }
+    return SettingPostManagementService.serialize_post_management_post(
+        post,
+        date_format=date_format,
+    )
 
 
 def get_post_management_response(request, user, *, scheduled=False):
-    posts = get_post_management_queryset(user, scheduled=scheduled)
-    posts = apply_post_management_filters(posts, request)
-    posts = apply_post_management_order(posts, request)
-    total_count = posts.count()
-    page_posts, last_page = paginate_post_management_posts(posts, request, total_count)
-    date_format = '%Y-%m-%d %H:%M' if scheduled else '%Y-%m-%d'
+    query = _parse_post_management_query(request)
+    try:
+        data = SettingPostManagementService.get_post_management_data(
+            user,
+            query,
+            username=request.user.username,
+            scheduled=scheduled,
+        )
+    except PostManagementQueryError:
+        raise Http404 from None
 
-    return StatusDone({
-        'username': request.user.username,
-        'posts': [
-            serialize_post_management_post(post, date_format=date_format)
-            for post in page_posts
-        ],
-        'last_page': last_page,
-        'total_count': total_count,
-    })
+    return StatusDone(data)
 
 
 def setting(request, parameter):
@@ -226,37 +188,14 @@ def setting(request, parameter):
             return get_post_management_response(request, user, scheduled=True)
 
         if parameter == 'tag':
-            tags = Post.objects.filter(
-                author=user
-            ).values(
-                'tags__value'
-            ).annotate(
-                count=Count('tags__value')
-            ).order_by('-count')
-
-            return StatusDone({
-                'username': user.username,
-                'tags': list(map(lambda tag: {
-                    'name': tag['tags__value'],
-                    'count': tag['count']
-                }, tags))
-            })
+            return StatusDone(
+                SettingPostManagementService.get_tag_management_data(user)
+            )
 
         if parameter == 'series':
-            series_items = Series.objects.filter(
-                owner=user
-            ).annotate(
-                total_posts=Count('posts')
-            ).order_by('order', '-id')
-            return StatusDone({
-                'username': user.username,
-                'series': list(map(lambda series_item: {
-                    'id': series_item.id,
-                    'url': series_item.url,
-                    'title': series_item.name,
-                    'total_posts': series_item.total_posts
-                }, series_items))
-            })
+            return StatusDone(
+                SettingPostManagementService.get_series_management_data(user)
+            )
 
         if parameter == 'integration-telegram':
             return StatusDone(IntegrationSettingService.serialize_user_telegram_status(request.user))

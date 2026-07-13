@@ -475,6 +475,33 @@ class PythonImportCompatibilityContractTests(SimpleTestCase):
                 implementation = getattr(import_module(module_path), export_name)
                 self.assertIs(getattr(api_v1, export_name), implementation)
 
+    def test_setting_post_management_facade_signatures_are_stable(self):
+        setting_module = import_module('board.views.api.v1.setting')
+
+        setting_parameters = tuple(inspect.signature(setting_module.setting).parameters.values())
+        self.assertEqual(
+            tuple(parameter.name for parameter in setting_parameters),
+            ('request', 'parameter'),
+        )
+        self.assertTrue(all(
+            parameter.kind is inspect.Parameter.POSITIONAL_OR_KEYWORD
+            for parameter in setting_parameters
+        ))
+
+        response_parameters = tuple(
+            inspect.signature(setting_module.get_post_management_response).parameters.values()
+        )
+        self.assertEqual(
+            tuple(parameter.name for parameter in response_parameters),
+            ('request', 'user', 'scheduled'),
+        )
+        self.assertTrue(all(
+            parameter.kind is inspect.Parameter.POSITIONAL_OR_KEYWORD
+            for parameter in response_parameters[:2]
+        ))
+        self.assertIs(response_parameters[2].kind, inspect.Parameter.KEYWORD_ONLY)
+        self.assertIs(response_parameters[2].default, False)
+
     def test_post_service_facade_parameter_names_order_and_defaults_are_stable(self):
         for method_name, expected_parameters in EXPECTED_POST_SERVICE_SIGNATURES.items():
             with self.subTest(method_name=method_name):
