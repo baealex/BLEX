@@ -65,8 +65,13 @@ class WebhookService:
             )
             response.raise_for_status()
             return True
-        except requests.RequestException as e:
-            logger.warning(f'Failed to send webhook to {url}: {e}')
+        except requests.RequestException as error:
+            exception_type = type(error).__name__
+            logger.warning(
+                'Webhook delivery failed exception_type=%s',
+                exception_type,
+                extra={'webhook_exception_type': exception_type},
+            )
             return False
 
     @staticmethod
