@@ -6,11 +6,6 @@ Extracted from views to improve testability and reusability.
 """
 
 import re
-import io
-import secrets
-import pyotp
-import qrcode
-import base64
 from typing import Optional, Tuple, Dict, Any
 
 from django.conf import settings
@@ -292,13 +287,14 @@ class AuthService:
         Returns:
             Base32 encoded secret string
         """
-        return pyotp.random_base32()
+        from board.services.two_factor_setup_service import TwoFactorSetupService
+        return TwoFactorSetupService.create_totp_secret()
 
     @staticmethod
     def create_recovery_key() -> str:
-        return ''.join(
-            secrets.choice(AuthService.RECOVERY_KEY_ALPHABET)
-            for _ in range(45)
+        from board.services.two_factor_setup_service import TwoFactorSetupService
+        return TwoFactorSetupService.create_recovery_key(
+            AuthService.RECOVERY_KEY_ALPHABET,
         )
 
     @staticmethod
@@ -336,28 +332,8 @@ class AuthService:
         Returns:
             Base64 encoded QR code image data URL, or None if 2FA not set up
         """
-        try:
-            two_factor_auth = TwoFactorAuth.objects.get(user=user)
-            provisioning_uri = two_factor_auth.get_provisioning_uri()
-
-            if not provisioning_uri:
-                return None
-
-            # Generate QR code
-            qr = qrcode.QRCode(version=1, box_size=10, border=5)
-            qr.add_data(provisioning_uri)
-            qr.make(fit=True)
-
-            img = qr.make_image(fill_color="black", back_color="white")
-
-            # Convert to base64
-            buffer = io.BytesIO()
-            img.save(buffer, format='PNG')
-            img_str = base64.b64encode(buffer.getvalue()).decode()
-
-            return f"data:image/png;base64,{img_str}"
-        except TwoFactorAuth.DoesNotExist:
-            return None
+        from board.services.two_factor_setup_service import TwoFactorSetupService
+        return TwoFactorSetupService.get_totp_qr_code(user)
 
     @staticmethod
     def validate_username_change_restriction(user: User) -> None:

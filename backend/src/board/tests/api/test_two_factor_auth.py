@@ -1,5 +1,7 @@
+import base64
 import json
 import pyotp
+import time
 
 from unittest.mock import patch
 from datetime import timedelta
@@ -9,6 +11,7 @@ from django.test import TestCase, override_settings
 from django.utils import timezone
 
 from board.models import User, Profile, Config, TwoFactorAuth
+from board.services.auth_service import AuthService
 from board.services.two_factor_auth_secret_service import TwoFactorAuthSecretService
 
 
@@ -32,6 +35,11 @@ class TwoFactorAuthTestCase(TestCase):
         cache.clear()
         super().tearDown()
 
+    @patch.object(AuthService, 'RECOVERY_KEY_ALPHABET', 'x')
+    def test_auth_service_recovery_key_facade_keeps_configurable_alphabet(self):
+        """기존 AuthService 상수를 바꾸는 호출자도 같은 결과를 얻는다."""
+        self.assertEqual(AuthService.create_recovery_key(), 'x' * 45)
+
     def test_enable_2fa_success(self):
         """2FA 활성화 성공 테스트"""
         self.client.login(username='test2fa', password='test2fa')
@@ -46,6 +54,8 @@ class TwoFactorAuthTestCase(TestCase):
         self.assertIn('qrCode', content['body'])
         self.assertIn('recoveryKey', content['body'])
         self.assertTrue(content['body']['qrCode'].startswith('data:image/png;base64,'))
+        qr_png = base64.b64decode(content['body']['qrCode'].split(',', 1)[1])
+        self.assertTrue(qr_png.startswith(b'\x89PNG\r\n\x1a\n'))
         self.assertEqual(len(content['body']['recoveryKey']), 45)
         recovery_key = content['body']['recoveryKey']
 
@@ -56,7 +66,11 @@ class TwoFactorAuthTestCase(TestCase):
         # Step 2: Verify with TOTP code
         # Get the secret from session and generate valid code
         session = self.client.session
-        totp_secret = session['totp_setup']['secret']
+        setup_session = session['totp_setup']
+        self.assertEqual(set(setup_session), {'secret', 'recovery_key', 'user_id'})
+        self.assertEqual(setup_session['user_id'], user.id)
+        self.assertEqual(setup_session['recovery_key'], recovery_key)
+        totp_secret = setup_session['secret']
         totp = pyotp.TOTP(totp_secret)
         valid_code = totp.now()
 
@@ -67,7 +81,11 @@ class TwoFactorAuthTestCase(TestCase):
         )
         self.assertEqual(response.status_code, 200)
         content = json.loads(response.content)
-        self.assertEqual(content['status'], 'DONE')
+        self.assertEqual(content, {
+            'status': 'DONE',
+            'body': {'message': '2차 인증이 활성화되었습니다.'},
+        })
+        self.assertNotIn('totp_setup', self.client.session)
 
         # NOW the TwoFactorAuth record should be created
         user = User.objects.get(username='test2fa')
@@ -80,6 +98,133 @@ class TwoFactorAuthTestCase(TestCase):
             TwoFactorAuthSecretService.decrypt_totp_secret(user.twofactorauth.totp_secret),
             totp_secret,
         )
+
+    def test_enable_2fa_accepts_previous_totp_window(self):
+        """setup 검증은 기존처럼 앞선 한 TOTP window를 허용한다."""
+        self.client.login(username='test2fa', password='test2fa')
+        self.client.post('/v1/auth/security')
+        secret = self.client.session['totp_setup']['secret']
+        previous_window_code = pyotp.TOTP(secret).at(time.time() - 30)
+
+        response = self.client.post(
+            '/v1/auth/security/verify',
+            data=json.dumps({'code': previous_window_code}),
+            content_type='application/json',
+        )
+
+        self.assertEqual(json.loads(response.content)['status'], 'DONE')
+        self.assertTrue(TwoFactorAuth.objects.filter(user__username='test2fa').exists())
+
+    def test_enable_2fa_expired_setup_session_keeps_error_contract(self):
+        """setup session이 없으면 기존 만료 코드와 메시지를 반환한다."""
+        self.client.login(username='test2fa', password='test2fa')
+
+        response = self.client.post(
+            '/v1/auth/security/verify',
+            data=json.dumps({'code': '123456'}),
+            content_type='application/json',
+        )
+
+        self.assertEqual(json.loads(response.content), {
+            'status': 'ERROR',
+            'errorCode': 'error:EP',
+            'errorMessage': '2FA 설정 세션이 만료되었습니다. 다시 시도해주세요.',
+        })
+
+    def test_enable_2fa_rejects_setup_session_owned_by_another_user(self):
+        """다른 user_id의 setup session은 기존 인증 오류로 거부한다."""
+        self.client.login(username='test2fa', password='test2fa')
+        session = self.client.session
+        session['totp_setup'] = {
+            'secret': pyotp.random_base32(),
+            'recovery_key': 'r' * 45,
+            'user_id': User.objects.get(username='test2fa').id + 1,
+        }
+        session.save()
+
+        response = self.client.post(
+            '/v1/auth/security/verify',
+            data=json.dumps({'code': '123456'}),
+            content_type='application/json',
+        )
+
+        self.assertEqual(json.loads(response.content), {
+            'status': 'ERROR',
+            'errorCode': 'error:AT',
+            'errorMessage': '잘못된 세션입니다.',
+        })
+        self.assertIn('totp_setup', self.client.session)
+
+    def test_enable_2fa_already_connected_verify_clears_setup_session(self):
+        """verify 전에 이미 활성화됐다면 setup session을 지우고 기존 오류를 반환한다."""
+        self.client.login(username='test2fa', password='test2fa')
+        self.client.post('/v1/auth/security')
+        user = User.objects.get(username='test2fa')
+        TwoFactorAuth.objects.create(
+            user=user,
+            recovery_key='x' * 45,
+            totp_secret=pyotp.random_base32(),
+        )
+
+        response = self.client.post(
+            '/v1/auth/security/verify',
+            data=json.dumps({'code': '123456'}),
+            content_type='application/json',
+        )
+
+        self.assertEqual(json.loads(response.content), {
+            'status': 'ERROR',
+            'errorCode': 'error:AC',
+            'errorMessage': '',
+        })
+        self.assertNotIn('totp_setup', self.client.session)
+
+    @patch(
+        'board.services.two_factor_setup_service.TwoFactorSetupService.generate_qr_code',
+        side_effect=ValueError('QR unavailable'),
+    )
+    def test_enable_2fa_qr_failure_keeps_legacy_error_and_setup_session(self, mock_qr):
+        """QR 생성 실패 응답과 QR 전 session 저장 순서를 보존한다."""
+        self.client.login(username='test2fa', password='test2fa')
+
+        response = self.client.post('/v1/auth/security')
+
+        self.assertEqual(json.loads(response.content), {
+            'status': 'ERROR',
+            'errorCode': 'error:RJ',
+            'errorMessage': '2FA 설정 초기화에 실패했습니다: QR unavailable',
+        })
+        self.assertIn('totp_setup', self.client.session)
+
+    def test_enable_2fa_save_failure_rolls_back_partial_activation(self):
+        """모델 저장 후 실패해도 2FA row가 남지 않고 setup session을 유지한다."""
+        self.client.login(username='test2fa', password='test2fa')
+        self.client.post('/v1/auth/security')
+        setup_session = self.client.session['totp_setup']
+        valid_code = pyotp.TOTP(setup_session['secret']).now()
+        original_save = TwoFactorAuth.save
+
+        def fail_after_save(instance, *args, **kwargs):
+            original_save(instance, *args, **kwargs)
+            raise RuntimeError('persistence failed')
+
+        with patch(
+            'board.services.two_factor_setup_service.TwoFactorAuth.save',
+            new=fail_after_save,
+        ):
+            response = self.client.post(
+                '/v1/auth/security/verify',
+                data=json.dumps({'code': valid_code}),
+                content_type='application/json',
+            )
+
+        self.assertEqual(json.loads(response.content), {
+            'status': 'ERROR',
+            'errorCode': 'error:RJ',
+            'errorMessage': '2FA 활성화에 실패했습니다: persistence failed',
+        })
+        self.assertFalse(TwoFactorAuth.objects.filter(user__username='test2fa').exists())
+        self.assertIn('totp_setup', self.client.session)
 
     def test_enable_2fa_invalid_verification_code(self):
         """잘못된 TOTP 코드로 2FA 설정 완료 시도 테스트"""
@@ -97,8 +242,12 @@ class TwoFactorAuthTestCase(TestCase):
         )
         self.assertEqual(response.status_code, 200)
         content = json.loads(response.content)
-        self.assertEqual(content['status'], 'ERROR')
-        self.assertEqual(content['errorCode'], 'error:RJ')
+        self.assertEqual(content, {
+            'status': 'ERROR',
+            'errorCode': 'error:RJ',
+            'errorMessage': '잘못된 인증 코드입니다.',
+        })
+        self.assertIn('totp_setup', self.client.session)
 
         # 2FA should not be saved
         user = User.objects.get(username='test2fa')
@@ -241,8 +390,11 @@ class TwoFactorAuthTestCase(TestCase):
         response = self.client.delete('/v1/auth/security')
         self.assertEqual(response.status_code, 200)
         content = json.loads(response.content)
-        self.assertEqual(content['status'], 'ERROR')
-        self.assertEqual(content['errorCode'], 'error:RJ')
+        self.assertEqual(content, {
+            'status': 'ERROR',
+            'errorCode': 'error:RJ',
+            'errorMessage': '24시간 동안 해제할 수 없습니다.',
+        })
 
     def test_disable_2fa_after_24_hours(self):
         """2FA 활성화 후 24시간 이후 비활성화 테스트"""
@@ -274,8 +426,11 @@ class TwoFactorAuthTestCase(TestCase):
         response = self.client.delete('/v1/auth/security')
         self.assertEqual(response.status_code, 200)
         content = json.loads(response.content)
-        self.assertEqual(content['status'], 'ERROR')
-        self.assertEqual(content['errorCode'], 'error:AU')
+        self.assertEqual(content, {
+            'status': 'ERROR',
+            'errorCode': 'error:AU',
+            'errorMessage': '',
+        })
 
     @override_settings(DEBUG=False)
     def test_login_with_recovery_key(self):
