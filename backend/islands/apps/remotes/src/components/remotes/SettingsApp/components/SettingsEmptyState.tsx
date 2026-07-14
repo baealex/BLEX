@@ -1,14 +1,18 @@
 import type { ReactNode } from 'react';
 
-interface SettingsEmptyStateProps {
-    iconClassName: string;
+type SettingsEmptyStateIconProps =
+    | { icon: ReactNode; iconClassName?: string }
+    | { icon?: never; iconClassName: string };
+
+type SettingsEmptyStateProps = SettingsEmptyStateIconProps & {
     title: string;
     description?: string;
     action?: ReactNode;
     className?: string;
-}
+};
 
 const SettingsEmptyState = ({
+    icon,
     iconClassName,
     title,
     description,
@@ -21,8 +25,10 @@ const SettingsEmptyState = ({
 
     return (
         <div className={containerClasses}>
-            <div className="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-surface-subtle mb-3">
-                <i className={`${iconClassName} text-lg text-content-hint`} />
+            <div
+                aria-hidden="true"
+                className="mb-3 inline-flex h-12 w-12 items-center justify-center rounded-xl bg-surface-subtle text-content-hint [&>svg]:h-5 [&>svg]:w-5">
+                {icon ?? <i className={`${iconClassName} text-lg`} />}
             </div>
             <h3 className={`text-base font-semibold text-content ${action && !description ? 'mb-5' : description ? 'mb-1' : ''}`}>
                 {title}

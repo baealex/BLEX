@@ -1,7 +1,33 @@
 import { useRef, useState } from 'react';
 import { Link, useRouter } from '@tanstack/react-router';
 import { Dialog } from '@blex/ui/dialog';
-import { ChevronDown, Settings2, X } from '@blex/ui/icons';
+import {
+    Ad,
+    AlignLeft,
+    ArrowLeft,
+    Bell,
+    Bot,
+    ChevronDown,
+    ChevronRight,
+    Code,
+    FileText,
+    Layers3,
+    LogIn,
+    Megaphone,
+    Palette,
+    Plug,
+    Send,
+    Settings2,
+    Share2,
+    Shield,
+    UserCog,
+    UserRound,
+    Users,
+    Wrench,
+    X,
+    Zap,
+    type LucideIcon
+} from '@blex/ui/icons';
 import {
     DIM_OVERLAY_SOFT,
     ENTRANCE_DURATION,
@@ -11,7 +37,7 @@ import {
 interface NavigationItem {
     name: string;
     path: string;
-    icon: string;
+    icon: LucideIcon;
     requiresEditor?: boolean;
     requiresStaff?: boolean;
     requiresTelegramIntegration?: boolean;
@@ -46,22 +72,22 @@ const userNavigationSections: NavigationSection[] = [
             {
                 name: '알림',
                 path: '/notify',
-                icon: 'fa-bell'
+                icon: Bell
             },
             {
                 name: '계정',
                 path: '/account',
-                icon: 'fa-user-cog'
+                icon: UserCog
             },
             {
                 name: '프로필',
                 path: '/profile',
-                icon: 'fa-user'
+                icon: UserRound
             },
             {
                 name: '소셜 링크',
                 path: '/social-links',
-                icon: 'fa-share-nodes'
+                icon: Share2
             }
         ]
     },
@@ -72,31 +98,31 @@ const userNavigationSections: NavigationSection[] = [
             {
                 name: '포스트',
                 path: '/posts',
-                icon: 'fa-file-alt',
+                icon: FileText,
                 requiresEditor: true
             },
             {
                 name: '시리즈',
                 path: '/series',
-                icon: 'fa-layer-group',
+                icon: Layers3,
                 requiresEditor: true
             },
             {
                 name: '서식',
                 path: '/forms',
-                icon: 'fa-align-left',
+                icon: AlignLeft,
                 requiresEditor: true
             },
             {
                 name: '공지',
                 path: '/notices',
-                icon: 'fa-bullhorn',
+                icon: Megaphone,
                 requiresEditor: true
             },
             {
                 name: '배너',
                 path: '/banners',
-                icon: 'fa-rectangle-ad',
+                icon: Ad,
                 requiresEditor: true
             }
         ]
@@ -107,19 +133,19 @@ const userNavigationSections: NavigationSection[] = [
             {
                 name: '텔레그램 연동',
                 path: '/integration',
-                icon: 'fa-plug',
+                icon: Plug,
                 requiresTelegramIntegration: true
             },
             {
                 name: '웹훅 연동',
                 path: '/webhook',
-                icon: 'fa-bolt',
+                icon: Zap,
                 requiresEditor: true
             },
             {
                 name: '개발자 API',
                 path: '/developer-api',
-                icon: 'fa-code',
+                icon: Code,
                 requiresEditor: true
             }
         ]
@@ -134,25 +160,25 @@ const adminNavigationSections: NavigationSection[] = [
             {
                 name: '블로그 커스텀',
                 path: '/site-settings',
-                icon: 'fa-palette',
+                icon: Palette,
                 requiresStaff: true
             },
             {
                 name: '로그인 관리',
                 path: '/login',
-                icon: 'fa-right-to-bracket',
+                icon: LogIn,
                 requiresStaff: true
             },
             {
                 name: 'SEO/AEO',
                 path: '/seo-aeo',
-                icon: 'fa-robot',
+                icon: Bot,
                 requiresStaff: true
             },
             {
                 name: '정적 페이지',
                 path: '/static-pages',
-                icon: 'fa-file-lines',
+                icon: FileText,
                 requiresStaff: true
             }
         ]
@@ -164,19 +190,19 @@ const adminNavigationSections: NavigationSection[] = [
             {
                 name: '전역 공지',
                 path: '/global-notices',
-                icon: 'fa-bullhorn',
+                icon: Megaphone,
                 requiresStaff: true
             },
             {
                 name: '전역 배너',
                 path: '/global-banners',
-                icon: 'fa-rectangle-ad',
+                icon: Ad,
                 requiresStaff: true
             },
             {
                 name: '전역 웹훅 연동',
                 path: '/global-webhook',
-                icon: 'fa-bolt',
+                icon: Zap,
                 requiresStaff: true
             }
         ]
@@ -188,7 +214,7 @@ const adminNavigationSections: NavigationSection[] = [
             {
                 name: '텔레그램',
                 path: '/integrations',
-                icon: 'fa-paper-plane',
+                icon: Send,
                 requiresStaff: true
             }
         ]
@@ -200,19 +226,19 @@ const adminNavigationSections: NavigationSection[] = [
             {
                 name: '사용자 권한',
                 path: '/users',
-                icon: 'fa-users',
+                icon: Users,
                 requiresStaff: true
             },
             {
                 name: '유틸리티',
                 path: '/utilities',
-                icon: 'fa-toolbox',
+                icon: Wrench,
                 requiresStaff: true
             },
             {
                 name: '관리자 패널',
                 path: 'admin',
-                icon: 'fa-shield-alt',
+                icon: Shield,
                 requiresStaff: true
             }
         ]
@@ -258,16 +284,16 @@ const SettingsModeLink = ({
     const isAdminMode = settingsMode === 'admin';
     const href = isAdminMode ? '/settings/notify' : '/admin-settings/site-settings';
     const label = isAdminMode ? '내 설정으로 돌아가기' : '관리자 설정';
-    const icon = isAdminMode ? 'fa-arrow-left' : 'fa-shield-alt';
+    const ModeIcon = isAdminMode ? ArrowLeft : Shield;
 
     return (
         <a
             href={href}
             className={`inline-flex items-center gap-1.5 font-medium text-content-hint transition-colors ${INTERACTION_DURATION} hover:text-content-secondary ${mobile ? 'min-h-11 rounded-xl px-3 text-sm hover:bg-surface-subtle' : 'w-fit text-xs'}`}>
-            <i className={`fas ${icon} text-xs text-content-hint`} />
+            <ModeIcon aria-hidden="true" className="h-3.5 w-3.5 shrink-0 text-content-hint" />
             <span>{label}</span>
             {!isAdminMode && (
-                <i className="fas fa-chevron-right text-[10px] text-content-hint" />
+                <ChevronRight aria-hidden="true" className="h-3 w-3 shrink-0 text-content-hint" />
             )}
         </a>
     );
@@ -317,6 +343,7 @@ export const SettingsMobileNavigation = ({ currentPath }: SettingsNavigationProp
             ? 'bg-surface-subtle text-content font-bold'
             : 'text-content-secondary hover:bg-surface-subtle hover:text-content font-medium';
         const iconClasses = isActive ? 'text-content' : 'text-content-hint';
+        const ItemIcon = item.icon;
 
         if (item.path === 'admin') {
             return (
@@ -325,7 +352,11 @@ export const SettingsMobileNavigation = ({ currentPath }: SettingsNavigationProp
                         href={adminUrl}
                         className={`${baseClasses} ${activeClasses}`}
                         onClick={() => handleNavClick(item)}>
-                        <i className={`fas ${item.icon} w-6 text-center mr-3 transition-colors ${iconClasses} group-hover:text-content-secondary`} />
+                        <span
+                            aria-hidden="true"
+                            className={`mr-3 inline-flex w-6 shrink-0 justify-center transition-colors ${iconClasses} group-hover:text-content-secondary`}>
+                            <ItemIcon className="h-4 w-4" />
+                        </span>
                         <span className="min-w-0 flex-1">{item.name}</span>
                     </a>
                 </li>
@@ -339,7 +370,11 @@ export const SettingsMobileNavigation = ({ currentPath }: SettingsNavigationProp
                     aria-current={isActive ? 'page' : undefined}
                     className={`${baseClasses} ${activeClasses}`}
                     onClick={() => handleNavClick(item)}>
-                    <i className={`fas ${item.icon} w-6 text-center mr-3 transition-colors ${iconClasses} group-hover:text-content-secondary`} />
+                    <span
+                        aria-hidden="true"
+                        className={`mr-3 inline-flex w-6 shrink-0 justify-center transition-colors ${iconClasses} group-hover:text-content-secondary`}>
+                        <ItemIcon className="h-4 w-4" />
+                    </span>
                     <span className="min-w-0 flex-1">{item.name}</span>
                 </Link>
             </li>
@@ -450,6 +485,7 @@ export const SettingsDesktopNavigation = ({ currentPath }: SettingsNavigationPro
             : 'text-content-secondary hover:bg-surface-subtle hover:text-content font-medium';
         const iconClasses = isActive ? 'text-content' : 'text-content-hint';
         const desktopClasses = 'xl:py-2 group';
+        const ItemIcon = item.icon;
 
         if (item.path === 'admin') {
             return (
@@ -458,7 +494,11 @@ export const SettingsDesktopNavigation = ({ currentPath }: SettingsNavigationPro
                         href={adminUrl}
                         className={`${baseClasses} ${activeClasses} ${desktopClasses}`}
                         onClick={() => handleNavClick(item)}>
-                        <i className={`fas ${item.icon} w-7 text-center mr-4 transition-colors ${iconClasses} group-hover:text-content-secondary`} />
+                        <span
+                            aria-hidden="true"
+                            className={`mr-4 inline-flex w-7 shrink-0 justify-center transition-colors ${iconClasses} group-hover:text-content-secondary`}>
+                            <ItemIcon className="h-4 w-4" />
+                        </span>
                         <span className="min-w-0 flex-1">{item.name}</span>
                     </a>
                 </li>
@@ -472,7 +512,11 @@ export const SettingsDesktopNavigation = ({ currentPath }: SettingsNavigationPro
                     aria-current={isActive ? 'page' : undefined}
                     className={`${baseClasses} ${activeClasses} ${desktopClasses}`}
                     onClick={() => handleNavClick(item)}>
-                    <i className={`fas ${item.icon} w-7 text-center mr-4 transition-colors ${iconClasses} group-hover:text-content-secondary`} />
+                    <span
+                        aria-hidden="true"
+                        className={`mr-4 inline-flex w-7 shrink-0 justify-center transition-colors ${iconClasses} group-hover:text-content-secondary`}>
+                        <ItemIcon className="h-4 w-4" />
+                    </span>
                     <span className="min-w-0 flex-1">{item.name}</span>
                 </Link>
             </li>
