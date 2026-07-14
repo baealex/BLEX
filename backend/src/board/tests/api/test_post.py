@@ -468,6 +468,42 @@ class PostTestCase(TestCase):
         post = Post.objects.get(url='test-post-1000')
         self.assertTrue(post.config.block_comment)
 
+    def test_published_post_enforces_subtitle_model_boundary(self):
+        """발행 생성은 120자를 허용하고 초과 수정은 기존 부제목을 보존한다."""
+        self.client.login(username='author', password='author')
+        subtitle_limit = Post._meta.get_field('subtitle').max_length
+        accepted_subtitle = '가' * subtitle_limit
+
+        create_response = self.client.post('/v1/posts', {
+            'title': 'Published Subtitle Boundary',
+            'subtitle': accepted_subtitle,
+            'text_html': '<p>content</p>',
+            'is_hide': False,
+            'is_advertise': False,
+        })
+        create_content = json.loads(create_response.content)
+
+        self.assertEqual(create_content['status'], 'DONE')
+        post = Post.objects.get(url=create_content['body']['url'])
+        self.assertEqual(post.subtitle, accepted_subtitle)
+
+        update_response = self.client.post(
+            f'/v1/users/@author/posts/{post.url}',
+            {
+                'title': post.title,
+                'subtitle': accepted_subtitle + '나',
+                'text_html': post.content.content_html,
+                'is_hide': post.config.hide,
+                'is_advertise': post.config.advertise,
+            },
+        )
+        update_content = json.loads(update_response.content)
+
+        self.assertEqual(update_content['status'], 'ERROR')
+        self.assertEqual(update_content['errorCode'], 'error:OF')
+        post.refresh_from_db()
+        self.assertEqual(post.subtitle, accepted_subtitle)
+
     def test_create_post_with_cover_options(self):
         """포스트 생성 시 커버 설정을 저장한다."""
         self.client.login(username='author', password='author')

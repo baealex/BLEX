@@ -44,6 +44,7 @@ class PostValidationError(Exception):
 class PostService:
     """Service class for handling post-related business logic"""
     DRAFT_RESERVED_DATE_META = 'draft_reserved_date'
+    SUBTITLE_MAX_LENGTH = Post._meta.get_field('subtitle').max_length or 120
 
     @staticmethod
     def normalize_cover_options(
@@ -151,6 +152,15 @@ class PostService:
             raise PostValidationError(
                 ErrorCode.VALIDATE,
                 '내용을 입력해주세요.'
+            )
+
+    @staticmethod
+    def validate_subtitle(subtitle: Optional[str]) -> None:
+        """Keep every post mutation within the model subtitle contract."""
+        if subtitle is not None and len(subtitle) > PostService.SUBTITLE_MAX_LENGTH:
+            raise PostValidationError(
+                ErrorCode.SIZE_OVERFLOW,
+                f'부제목은 최대 {PostService.SUBTITLE_MAX_LENGTH}자까지 입력할 수 있습니다.'
             )
 
     @staticmethod
@@ -400,6 +410,7 @@ class PostService:
         PostService.validate_user_permissions(user)
 
         PostService.validate_post_data(title, text_html)
+        PostService.validate_subtitle(subtitle)
 
         resolved_html = PostService._resolve_content(text_html, content_type)
 
@@ -559,6 +570,8 @@ class PostService:
         Returns:
             Updated Post instance
         """
+        PostService.validate_subtitle(subtitle)
+
         resolved_html = None
         if text_html is not None:
             next_title = title if title is not None else post.title
@@ -796,6 +809,7 @@ class PostService:
             PostValidationError: If validation fails
         """
         PostService.validate_user_permissions(user)
+        PostService.validate_subtitle(subtitle)
 
         draft_count = Post.objects.filter(
             author=user,
@@ -883,6 +897,8 @@ class PostService:
         Returns:
             Updated Post instance
         """
+        PostService.validate_subtitle(subtitle)
+
         if title is not None:
             post.title = title or '제목 없음'
 
@@ -987,6 +1003,8 @@ class PostService:
         Raises:
             PostValidationError: If validation fails
         """
+        PostService.validate_subtitle(subtitle)
+
         if title is not None:
             post.title = title
         if subtitle is not None:

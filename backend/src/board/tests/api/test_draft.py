@@ -86,6 +86,43 @@ class DraftTestCase(TestCase):
         self.assertFalse(post.config.advertise)
         self.assertFalse(post.config.block_comment)
 
+    def test_create_draft_enforces_subtitle_model_boundary(self):
+        """부제목은 모델 제한인 120자까지 허용하고 초과 입력은 거절한다."""
+        self.client.login(username='test', password='test')
+        accepted_subtitle = '가' * PostService.SUBTITLE_MAX_LENGTH
+
+        accepted_response = self.client.post(
+            '/v1/drafts',
+            json.dumps({
+                'title': 'Subtitle Boundary Draft',
+                'content': '<p>content</p>',
+                'subtitle': accepted_subtitle,
+            }),
+            content_type='application/json',
+        )
+        accepted_content = json.loads(accepted_response.content)
+
+        self.assertEqual(accepted_content['status'], 'DONE')
+        self.assertEqual(
+            Post.objects.get(url=accepted_content['body']['url']).subtitle,
+            accepted_subtitle,
+        )
+
+        rejected_response = self.client.post(
+            '/v1/drafts',
+            json.dumps({
+                'title': 'Subtitle Overflow Draft',
+                'content': '<p>content</p>',
+                'subtitle': accepted_subtitle + '나',
+            }),
+            content_type='application/json',
+        )
+        rejected_content = json.loads(rejected_response.content)
+
+        self.assertEqual(rejected_content['status'], 'ERROR')
+        self.assertEqual(rejected_content['errorCode'], 'error:OF')
+        self.assertFalse(Post.objects.filter(title='Subtitle Overflow Draft').exists())
+
     def test_create_draft_persists_publishing_settings(self):
         """발행 설정을 생성하고 상세 응답에서 복원한다."""
         self.client.login(username='test', password='test')
@@ -272,6 +309,27 @@ class DraftTestCase(TestCase):
         self.assertEqual(post.title, 'Updated Title')
         self.assertEqual(post.subtitle, 'My subtitle')
         self.assertIsNone(post.published_date)
+
+    def test_update_draft_rejects_overlong_subtitle_without_mutation(self):
+        """부제목 초과 수정이 기존 드래프트 값을 바꾸지 않는다."""
+        url = self._create_draft()
+        post = Post.objects.get(url=url)
+        post.subtitle = '기존 부제목'
+        post.save(update_fields=['subtitle'])
+
+        response = self.client.put(
+            f'/v1/drafts/{url}',
+            json.dumps({
+                'subtitle': '가' * (PostService.SUBTITLE_MAX_LENGTH + 1),
+            }),
+            content_type='application/json',
+        )
+        content = json.loads(response.content)
+
+        self.assertEqual(content['status'], 'ERROR')
+        self.assertEqual(content['errorCode'], 'error:OF')
+        post.refresh_from_db()
+        self.assertEqual(post.subtitle, '기존 부제목')
 
     def test_update_draft_cover_options(self):
         """드래프트 수정 시 커버 설정을 갱신한다."""

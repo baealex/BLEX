@@ -64,17 +64,34 @@ const TitleInputs = ({
                 {title.length}/65
             </p>
         )}
+        <label htmlFor="subtitle" className="sr-only">부제목</label>
         <input
             type="text"
+            id="subtitle"
             name="subtitle"
             value={subtitle}
             onChange={(event) => onSubtitleChange(event.target.value)}
+            maxLength={120}
+            aria-describedby={subtitle.length > 100 ? 'subtitle-character-count' : undefined}
             className={cx(
                 'mt-2 w-full border-0 px-0 py-0 text-lg leading-tight text-content-secondary placeholder-content-hint focus:ring-0 sm:text-xl',
                 inverted && 'bg-transparent text-white/85 placeholder:text-white/55'
             )}
             placeholder="부제목 (선택사항)"
         />
+        {subtitle.length > 100 && (
+            <p
+                id="subtitle-character-count"
+                aria-live="polite"
+                className={cx(
+                    'mt-1 text-xs',
+                    subtitle.length >= 120
+                        ? 'text-danger'
+                        : inverted ? 'text-white/70' : 'text-content-hint'
+                )}>
+                {subtitle.length}/120
+            </p>
+        )}
     </div>
 );
 
