@@ -33,10 +33,14 @@ def get_env_list(name: str, default: list[str] | None = None) -> list[str]:
 
 def get_env_optional(name: str) -> str | None:
     value = os.environ.get(name)
-    if value is None or value.strip() == '':
+    if value is None:
         return None
 
-    return value.strip()
+    value = value.strip()
+    if len(value) >= 2 and value[0] == value[-1] and value[0] in {'"', "'"}:
+        value = value[1:-1].strip()
+
+    return value or None
 
 
 def get_session_cookie_domain(name: str = 'SESSION_COOKIE_DOMAIN') -> str | None:
@@ -212,7 +216,7 @@ USE_TZ = True
 
 
 SITE_URL = os.environ.get('SITE_URL')
-RESOURCE_URL = os.environ.get('RESOURCE_URL', '').rstrip('/') + '/resources/'
+RESOURCE_URL = (get_env_optional('RESOURCE_URL') or '').rstrip('/') + '/resources/'
 
 STATIC_URL = RESOURCE_URL + 'staticfiles/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'resources', 'staticfiles')

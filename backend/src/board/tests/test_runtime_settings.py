@@ -20,10 +20,19 @@ class RuntimeSettingsTestCase(SimpleTestCase):
 
     def test_get_env_optional_returns_none_for_empty_values(self):
         """빈 문자열 환경변수는 미설정처럼 처리한다."""
-        for value in ['', '   ']:
+        for value in ['', '   ', '""', "''", '"  "']:
             with patch.dict(os.environ, {'BLEX_TEST_OPTIONAL': value}):
                 self.assertIsNone(
                     runtime_settings.get_env_optional('BLEX_TEST_OPTIONAL'),
+                )
+
+    def test_get_env_optional_unquotes_env_file_values(self):
+        """Docker env-file의 따옴표 값은 실제 설정값으로 정규화한다."""
+        for value in ['"https://cdn.example.com/"', "'https://cdn.example.com/'"]:
+            with patch.dict(os.environ, {'BLEX_TEST_OPTIONAL': value}):
+                self.assertEqual(
+                    runtime_settings.get_env_optional('BLEX_TEST_OPTIONAL'),
+                    'https://cdn.example.com/',
                 )
 
     def test_session_cookie_domain_ignores_loopback_hosts(self):
@@ -175,6 +184,39 @@ class RuntimeSettingsTestCase(SimpleTestCase):
         )
 
         self.assertEqual(result.stdout.strip(), '/resources/')
+
+    def test_runtime_resource_url_accepts_legacy_quoted_empty_value(self):
+        """기존 샘플의 RESOURCE_URL=""도 로컬 리소스 경로로 호환한다."""
+        env = {
+            **os.environ,
+            'SECRET_KEY': 'test-secret',
+            'CIPHER_KEY': 'BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB',
+            'DEBUG': 'FALSE',
+            'RESOURCE_URL': '""',
+            'SITE_URL': 'https://blex.example',
+            'TZ': 'Asia/Seoul',
+        }
+
+        result = subprocess.run(
+            [
+                sys.executable,
+                '-c',
+                (
+                    'from main import settings; '
+                    'print(settings.RESOURCE_URL, settings.STATIC_URL, settings.MEDIA_URL)'
+                ),
+            ],
+            cwd=runtime_settings.BASE_DIR,
+            env=env,
+            capture_output=True,
+            text=True,
+            check=True,
+        )
+
+        self.assertEqual(
+            result.stdout.strip(),
+            '/resources/ /resources/staticfiles/ /resources/media/',
+        )
 
     def test_runtime_secure_cookies_default_to_enabled_outside_debug(self):
         """운영 모드에서는 외부 HTTPS 프록시 뒤에서 쓸 Secure 쿠키를 기본으로 발급한다."""
