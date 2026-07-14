@@ -7,6 +7,7 @@ import PostForm from './components/PostForm';
 import SettingsDrawer from './components/SettingsDrawer';
 import ScheduleStatusNotice from './components/ScheduleStatusNotice';
 import EditRecoveryNotice from './components/EditRecoveryNotice';
+import PostRevisionDialog from './components/PostRevisionDialog';
 import { getSeries } from '~/lib/api/settings';
 import {
     cancelPostSchedule,
@@ -91,6 +92,7 @@ const EditPostEditor = ({ username, postUrl }: EditPostEditorProps) => {
     const [isEditorMediaUploading, setIsEditorMediaUploading] = useState(false);
     const [availableRecovery, setAvailableRecovery] = useState<PostEditRecovery | null>(null);
     const [recoveryEditorRevision, setRecoveryEditorRevision] = useState(0);
+    const [isRevisionDialogOpen, setIsRevisionDialogOpen] = useState(false);
 
     const formRef = useRef<HTMLFormElement>(null);
     const initialDataRef = useRef<DirtySnapshot | null>(null);
@@ -104,6 +106,7 @@ const EditPostEditor = ({ username, postUrl }: EditPostEditorProps) => {
     });
     const isIntentionalSubmitRef = useRef(false);
     const isSubmitLockedRef = useRef(false);
+    const revisionTriggerRef = useRef<HTMLButtonElement | null>(null);
 
     const createDirtySnapshot = useCallback((): DirtySnapshot => ({
         title: formData.title,
@@ -546,6 +549,34 @@ const EditPostEditor = ({ username, postUrl }: EditPostEditorProps) => {
         }
     };
 
+    const handleOpenRevisionHistory = (event: React.MouseEvent<HTMLButtonElement>) => {
+        if (availableRecovery) {
+            toast.warning('수정 백업을 먼저 복구하거나 삭제해주세요.');
+            return;
+        }
+        if (hasUnsavedChanges()) {
+            toast.warning('변경 사항을 먼저 수정한 뒤 수정 이력을 확인해주세요.');
+            return;
+        }
+        if (isEditorMediaUploading) {
+            toast.warning('파일 업로드가 끝난 뒤 수정 이력을 확인해주세요.');
+            return;
+        }
+
+        revisionTriggerRef.current = event.currentTarget;
+        setIsSettingsDrawerOpen(false);
+        setIsRevisionDialogOpen(true);
+    };
+
+    const handleRevisionRestored = () => {
+        clearPostEditRecovery({
+            username,
+            postUrl
+        });
+        isIntentionalSubmitRef.current = true;
+        window.location.reload();
+    };
+
     const canRunScheduleAction = () => {
         if (availableRecovery) {
             toast.warning('수정 백업을 먼저 복구하거나 삭제해주세요.');
@@ -689,6 +720,7 @@ const EditPostEditor = ({ username, postUrl }: EditPostEditorProps) => {
                 lastSaved={null}
                 onManualSave={() => { }}
                 onSubmit={() => handleSubmit()}
+                onOpenHistory={handleOpenRevisionHistory}
                 onOpenSettings={() => setIsSettingsDrawerOpen(true)}
             />
 
@@ -718,6 +750,16 @@ const EditPostEditor = ({ username, postUrl }: EditPostEditorProps) => {
                 onCancelSchedule={handleCancelSchedule}
                 onPublishNow={handlePublishNow}
                 pendingScheduleAction={pendingScheduleAction}
+            />
+
+            <PostRevisionDialog
+                isOpen={isRevisionDialogOpen}
+                username={username}
+                postUrl={postUrl}
+                expectedUpdatedDate={baseRevisionRef.current}
+                returnFocusTo={revisionTriggerRef.current}
+                onClose={() => setIsRevisionDialogOpen(false)}
+                onRestored={handleRevisionRestored}
             />
         </PostEditorWrapper>
     );

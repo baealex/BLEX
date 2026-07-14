@@ -375,13 +375,46 @@ class SeriesConfigMeta(models.Model):
 
 
 class EditHistory(models.Model):
+    class ChangeType(models.TextChoices):
+        EDIT = 'edit', '수정 전'
+        RESTORE = 'restore', '복원 전'
+        LEGACY = 'legacy', '레거시'
+
     post = models.ForeignKey('board.Post', on_delete=models.CASCADE)
-    title = models.CharField(max_length=50, default='_NO_CHANGED_')
+    actor = models.ForeignKey(
+        'auth.User',
+        related_name='post_edit_histories',
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+    )
+    restored_from = models.ForeignKey(
+        'self',
+        related_name='restore_events',
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+    )
+    title = models.CharField(max_length=65, default='_NO_CHANGED_')
+    subtitle = models.CharField(max_length=120, blank=True, default='')
     content = models.TextField(blank=True, default='_NO_CHANGED_')
+    description = models.CharField(max_length=250, blank=True, default='')
+    tags = models.JSONField(default=list, blank=True)
+    source_updated_date = models.DateTimeField(null=True, blank=True)
+    change_type = models.CharField(
+        max_length=16,
+        choices=ChangeType.choices,
+        default=ChangeType.LEGACY,
+    )
     created_date = models.DateTimeField(default=timezone.now)
 
+    class Meta:
+        indexes = [
+            models.Index(fields=['post', 'created_date']),
+        ]
+
     def __str__(self):
-        return self.posts
+        return f'{self.post} · {self.created_date:%Y-%m-%d %H:%M}'
 
 
 class EditRequest(models.Model):

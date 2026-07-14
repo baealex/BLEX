@@ -219,6 +219,78 @@ export const publishScheduledPostNow = async (username: string, postUrl: string)
     );
 };
 
+export type PostRevisionChangeType = 'edit' | 'restore' | 'legacy';
+
+export interface PostRevisionSummary {
+    id: number;
+    title: string;
+    subtitle: string;
+    contentExcerpt: string;
+    tags: string[];
+    changeType: PostRevisionChangeType;
+    canRestore: boolean;
+    actor: string | null;
+    restoredFromId: number | null;
+    sourceUpdatedDate: string | null;
+    createdDate: string;
+}
+
+export interface PostRevisionDetail extends PostRevisionSummary {
+    contentHtml: string;
+    contentText: string;
+    description: string;
+}
+
+interface PostRevisionListBody {
+    revisions: PostRevisionSummary[];
+    pagination: {
+        page: number;
+        limit: number;
+        totalCount: number;
+        lastPage: number;
+    };
+    currentUpdatedDate: string;
+    retention: {
+        mode: 'unlimited';
+    };
+}
+
+export const getPostRevisions = async (
+    username: string,
+    postUrl: string,
+    page = 1
+) => {
+    return http.get<Response<PostRevisionListBody>>(
+        `v1/users/@${username}/posts/${postUrl}/revisions?page=${page}`
+    );
+};
+
+export const getPostRevision = async (
+    username: string,
+    postUrl: string,
+    revisionId: number
+) => {
+    return http.get<Response<{ revision: PostRevisionDetail }>>(
+        `v1/users/@${username}/posts/${postUrl}/revisions/${revisionId}`
+    );
+};
+
+export const restorePostRevision = async (
+    username: string,
+    postUrl: string,
+    revisionId: number,
+    expectedUpdatedDate: string
+) => {
+    return http.post<Response<{
+        url: string;
+        updatedDate: string;
+        restored: boolean;
+    }>>(
+        `v1/users/@${username}/posts/${postUrl}/revisions/${revisionId}/restore`,
+        { expectedUpdatedDate }
+    );
+};
+
 export const uploadImage = async (file: File) => {
     const formData = new FormData();
     formData.append('image', file);
