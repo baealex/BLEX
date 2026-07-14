@@ -3,17 +3,17 @@ import { Select } from '@blex/ui/select';
 import { IconButton } from '@blex/ui/icon-button';
 import { Toggle } from '@blex/ui/toggle';
 import {
-    CircleDollarSign,
     CirclePause,
     Clock,
     EyeOff,
     FileText,
     Image,
-    Info,
+    Megaphone,
     MessageCircle,
     Search,
     Send,
     SlidersHorizontal,
+    Tags,
     Trash2,
     X
 } from '@blex/ui/icons';
@@ -232,62 +232,154 @@ const SettingsDrawer = ({
                     {/* Content */}
                     <div className="flex-1 overflow-y-auto px-6 py-6">
                         <div className="space-y-8">
-                            {/* SEO Section */}
+                            {/* Publishing Section */}
                             <div>
                                 <h3 className="text-sm font-semibold text-content mb-4 flex items-center gap-2">
-                                    <Search className="w-4 h-4" />
-                                    SEO
+                                    <FileText className="w-4 h-4" />
+                                    발행 설정
                                 </h3>
                                 <div className="space-y-4">
-                                    {/* URL - Only for new posts */}
-                                    {!isEdit && (
-                                        <div>
-                                            <Input
-                                                id="drawer-url"
-                                                label="URL"
-                                                value={url}
-                                                onChange={(e) => onUrlChange(e.target.value)}
-                                                placeholder="포스트-url"
+                                    {canEditSchedule && (
+                                        <div className="rounded-xl border border-line bg-surface-subtle p-4">
+                                            <div className="mb-3 flex items-start gap-3">
+                                                <Clock className="mt-0.5 h-4 w-4 text-content-hint" />
+                                                <div>
+                                                    <div className="text-sm font-medium text-content">
+                                                        {isScheduled ? '예약 시간' : '예약 발행'}
+                                                    </div>
+                                                    <div className="text-xs text-content-secondary">
+                                                        {isScheduled ? '예약 포스트의 발행 시각을 변경합니다' : '비워두면 즉시 발행됩니다'}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <SchedulePicker
+                                                value={formData.reservedDate || ''}
+                                                onChange={(nextValue) => onFormDataChange('reservedDate', nextValue)}
+                                                allowClear={!isScheduled}
                                             />
-                                            <p className="text-xs text-content-hint mt-2">중복 시 자동으로 번호가 추가됩니다</p>
+                                            {isScheduled && onCancelSchedule && onPublishNow && (
+                                                <div className="mt-4 grid grid-cols-2 gap-2 border-t border-line pt-4">
+                                                    <Button
+                                                        type="button"
+                                                        variant="secondary"
+                                                        size="md"
+                                                        onClick={onCancelSchedule}
+                                                        disabled={pendingScheduleAction !== null}
+                                                        isLoading={pendingScheduleAction === 'cancel'}
+                                                        leftIcon={<CirclePause className="h-4 w-4" />}>
+                                                        예약 취소
+                                                    </Button>
+                                                    <Button
+                                                        type="button"
+                                                        variant="primary"
+                                                        size="md"
+                                                        onClick={onPublishNow}
+                                                        disabled={pendingScheduleAction !== null}
+                                                        isLoading={pendingScheduleAction === 'publish-now'}
+                                                        leftIcon={<Send className="h-4 w-4" />}>
+                                                        지금 발행
+                                                    </Button>
+                                                </div>
+                                            )}
                                         </div>
                                     )}
 
-                                    <div>
-                                        <Input
-                                            id="drawer-meta"
-                                            label="메타 설명"
-                                            multiline
-                                            rows={4}
-                                            value={metaDescription}
-                                            onChange={(e) => onMetaDescriptionChange(e.target.value)}
-                                            placeholder="검색 엔진을 위한 설명을 입력하세요..."
-                                            maxLength={150}
-                                        />
-                                        <div className="flex items-center justify-between mt-2">
-                                            <p className="text-xs text-content-hint">검색 결과에 표시되는 설명입니다</p>
-                                            <p className={`text-xs font-medium ${metaDescription.length > 140 ? 'text-danger' : 'text-content-hint'}`}>
-                                                {metaDescription.length}/150
-                                            </p>
+                                    <div className="space-y-1">
+                                        <div className="flex items-center justify-between gap-4 py-3">
+                                            <div className="flex min-w-0 flex-1 items-center gap-3">
+                                                <EyeOff className="w-4 h-4 text-content-hint" />
+                                                <div className="min-w-0">
+                                                    <div className="text-sm font-medium text-content">비공개</div>
+                                                    <div className="text-xs text-content-secondary">
+                                                        {formData.hide ? '본인만 볼 수 있습니다' : '누구나 볼 수 있습니다'}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <Toggle
+                                                checked={formData.hide}
+                                                onCheckedChange={(checked) => onFormDataChange('hide', checked)}
+                                                aria-label="비공개"
+                                            />
                                         </div>
-                                    </div>
 
-                                    {/* SEO Tips */}
-                                    <div className="bg-surface-subtle border border-line rounded-xl p-4">
-                                        <h4 className="text-sm font-medium text-content mb-2 flex items-center gap-2">
-                                            <Info className="w-4 h-4" />
-                                            SEO 팁
-                                        </h4>
-                                        <ul className="text-xs text-content space-y-1">
-                                            <li>• 핵심 키워드를 포함하세요</li>
-                                            <li>• 120-150자가 가장 이상적입니다</li>
-                                            <li>• 독자의 관심을 끌 수 있는 문구를 사용하세요</li>
-                                        </ul>
+                                        <div className="flex items-center justify-between gap-4 py-3">
+                                            <div className="flex min-w-0 flex-1 items-center gap-3">
+                                                <MessageCircle className="w-4 h-4 text-content-hint" />
+                                                <div className="min-w-0">
+                                                    <div className="text-sm font-medium text-content">댓글 허용</div>
+                                                    <div className="text-xs text-content-secondary">
+                                                        {formData.allowComments
+                                                            ? '독자가 새 댓글과 답글을 작성할 수 있습니다'
+                                                            : '기존 댓글은 유지하고 새 댓글과 답글을 막습니다'}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <Toggle
+                                                checked={formData.allowComments}
+                                                onCheckedChange={(checked) => onFormDataChange('allowComments', checked)}
+                                                aria-label="댓글 허용"
+                                            />
+                                        </div>
+
+                                        <div className="flex items-center justify-between gap-4 py-3">
+                                            <div className="flex min-w-0 flex-1 items-center gap-3">
+                                                <Megaphone className="w-4 h-4 text-content-hint" />
+                                                <div className="min-w-0">
+                                                    <div className="text-sm font-medium text-content">홍보·광고성 포스트</div>
+                                                    <div className="text-xs text-content-secondary">홍보나 광고가 포함된 글임을 표시합니다</div>
+                                                </div>
+                                            </div>
+                                            <Toggle
+                                                checked={formData.advertise}
+                                                onCheckedChange={(checked) => onFormDataChange('advertise', checked)}
+                                                aria-label="홍보·광고성 포스트"
+                                            />
+                                        </div>
                                     </div>
                                 </div>
                             </div>
 
-                            {/* Divider */}
+                            <div className="border-t border-line" />
+
+                            {/* Classification Section */}
+                            <div>
+                                <h3 className="text-sm font-semibold text-content mb-4 flex items-center gap-2">
+                                    <Tags className="w-4 h-4" />
+                                    분류
+                                </h3>
+                                <div>
+                                    <label className="block text-sm font-medium text-content mb-2">
+                                        시리즈
+                                    </label>
+                                    <Select
+                                        value={selectedSeries.id}
+                                        onValueChange={(value) => {
+                                            if (value === '') {
+                                                onSeriesChange({
+                                                    id: '',
+                                                    name: '',
+                                                    url: ''
+                                                });
+                                            } else {
+                                                const series = seriesList.find(s => s.id === value);
+                                                if (series) onSeriesChange(series);
+                                            }
+                                        }}
+                                        items={[
+                                            {
+                                                value: '',
+                                                label: '선택 안 함'
+                                            },
+                                            ...seriesList.map((series) => ({
+                                                value: series.id,
+                                                label: series.name
+                                            }))
+                                        ]}
+                                        placeholder="선택 안 함"
+                                    />
+                                </div>
+                            </div>
+
                             <div className="border-t border-line" />
 
                             {/* Cover Section */}
@@ -304,9 +396,10 @@ const SettingsDrawer = ({
                                                 <button
                                                     key={option.value}
                                                     type="button"
+                                                    aria-pressed={isActive}
                                                     onClick={() => onFormDataChange('coverLayout', option.value)}
                                                     className={cx(
-                                                        'rounded-xl border p-4 text-left transition-all duration-150 active:scale-[0.99]',
+                                                        'rounded-xl border p-4 text-left transition-all duration-150 active:scale-[0.99] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-action/30',
                                                         isActive
                                                             ? 'border-action bg-action/10 text-content'
                                                             : 'border-line bg-surface-elevated text-content-secondary hover:border-line-strong hover:bg-surface-subtle'
@@ -355,143 +448,46 @@ const SettingsDrawer = ({
                                 </div>
                             </div>
 
-                            {/* Divider */}
                             <div className="border-t border-line" />
 
-                            {/* Post Settings Section */}
+                            {/* Search Metadata Section */}
                             <div>
                                 <h3 className="text-sm font-semibold text-content mb-4 flex items-center gap-2">
-                                    <FileText className="w-4 h-4" />
-                                    포스트 설정
+                                    <Search className="w-4 h-4" />
+                                    검색 및 공유
                                 </h3>
                                 <div className="space-y-4">
-                                    {canEditSchedule && (
-                                        <div className="rounded-xl border border-line bg-surface-subtle p-4">
-                                            <div className="mb-3 flex items-start gap-3">
-                                                <Clock className="mt-0.5 h-4 w-4 text-content-hint" />
-                                                <div>
-                                                    <div className="text-sm font-medium text-content">
-                                                        {isScheduled ? '예약 시간' : '예약 발행'}
-                                                    </div>
-                                                    <div className="text-xs text-content-secondary">
-                                                        {isScheduled ? '예약 포스트의 발행 시각을 변경합니다' : '비워두면 즉시 발행됩니다'}
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <SchedulePicker
-                                                value={formData.reservedDate || ''}
-                                                onChange={(nextValue) => onFormDataChange('reservedDate', nextValue)}
-                                                allowClear={!isScheduled}
+                                    {!isEdit && (
+                                        <div>
+                                            <Input
+                                                id="drawer-url"
+                                                label="URL"
+                                                value={url}
+                                                onChange={(e) => onUrlChange(e.target.value)}
+                                                placeholder="포스트-url"
                                             />
-                                            {isScheduled && onCancelSchedule && onPublishNow && (
-                                                <div className="mt-4 grid grid-cols-2 gap-2 border-t border-line pt-4">
-                                                    <Button
-                                                        type="button"
-                                                        variant="secondary"
-                                                        size="md"
-                                                        onClick={onCancelSchedule}
-                                                        disabled={pendingScheduleAction !== null}
-                                                        isLoading={pendingScheduleAction === 'cancel'}
-                                                        leftIcon={<CirclePause className="h-4 w-4" />}>
-                                                        예약 취소
-                                                    </Button>
-                                                    <Button
-                                                        type="button"
-                                                        variant="primary"
-                                                        size="md"
-                                                        onClick={onPublishNow}
-                                                        disabled={pendingScheduleAction !== null}
-                                                        isLoading={pendingScheduleAction === 'publish-now'}
-                                                        leftIcon={<Send className="h-4 w-4" />}>
-                                                        지금 발행
-                                                    </Button>
-                                                </div>
-                                            )}
+                                            <p className="text-xs text-content-hint mt-2">
+                                                이미 사용 중인 주소는 충돌하지 않도록 자동 조정됩니다
+                                            </p>
                                         </div>
                                     )}
 
-                                    {/* Series */}
                                     <div>
-                                        <label className="block text-sm font-medium text-content mb-2">
-                                            시리즈
-                                        </label>
-                                        <Select
-                                            value={selectedSeries.id}
-                                            onValueChange={(value) => {
-                                                if (value === '') {
-                                                    onSeriesChange({
-                                                        id: '',
-                                                        name: '',
-                                                        url: ''
-                                                    });
-                                                } else {
-                                                    const series = seriesList.find(s => s.id === value);
-                                                    if (series) onSeriesChange(series);
-                                                }
-                                            }}
-                                            items={[
-                                                {
-                                                    value: '',
-                                                    label: '선택 안 함'
-                                                },
-                                                ...seriesList.map((series) => ({
-                                                    value: series.id,
-                                                    label: series.name
-                                                }))
-                                            ]}
-                                            placeholder="선택 안 함"
+                                        <Input
+                                            id="drawer-meta"
+                                            label="검색·공유 설명"
+                                            multiline
+                                            rows={4}
+                                            value={metaDescription}
+                                            onChange={(e) => onMetaDescriptionChange(e.target.value)}
+                                            placeholder="포스트를 소개하는 설명을 입력하세요"
+                                            maxLength={150}
                                         />
-                                    </div>
-
-                                    {/* Privacy & Display Options */}
-                                    <div className="space-y-1">
-                                        <div className="flex items-center justify-between gap-4 py-3">
-                                            <div className="flex min-w-0 flex-1 items-center gap-3">
-                                                <MessageCircle className="w-4 h-4 text-content-hint" />
-                                                <div className="min-w-0">
-                                                    <div className="text-sm font-medium text-content">댓글 허용</div>
-                                                    <div className="text-xs text-content-secondary">
-                                                        {formData.allowComments
-                                                            ? '독자가 새 댓글과 답글을 작성할 수 있습니다'
-                                                            : '기존 댓글은 유지하고 새 댓글과 답글을 막습니다'}
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <Toggle
-                                                checked={formData.allowComments}
-                                                onCheckedChange={(checked) => onFormDataChange('allowComments', checked)}
-                                                aria-label="댓글 허용"
-                                            />
-                                        </div>
-
-                                        <div className="flex items-center justify-between gap-4 py-3">
-                                            <div className="flex min-w-0 flex-1 items-center gap-3">
-                                                <EyeOff className="w-4 h-4 text-content-hint" />
-                                                <div className="min-w-0">
-                                                    <div className="text-sm font-medium text-content">비공개</div>
-                                                    <div className="text-xs text-content-secondary">본인만 볼 수 있습니다</div>
-                                                </div>
-                                            </div>
-                                            <Toggle
-                                                checked={formData.hide}
-                                                onCheckedChange={(checked) => onFormDataChange('hide', checked)}
-                                                aria-label="비공개"
-                                            />
-                                        </div>
-
-                                        <div className="flex items-center justify-between gap-4 py-3">
-                                            <div className="flex min-w-0 flex-1 items-center gap-3">
-                                                <CircleDollarSign className="w-4 h-4 text-content-hint" />
-                                                <div className="min-w-0">
-                                                    <div className="text-sm font-medium text-content">광고 표시</div>
-                                                    <div className="text-xs text-content-secondary">포스트에 광고가 표시됩니다</div>
-                                                </div>
-                                            </div>
-                                            <Toggle
-                                                checked={formData.advertise}
-                                                onCheckedChange={(checked) => onFormDataChange('advertise', checked)}
-                                                aria-label="광고 표시"
-                                            />
+                                        <div className="flex items-center justify-between mt-2">
+                                            <p className="text-xs text-content-hint">검색 결과와 공유 미리보기에 사용됩니다</p>
+                                            <p className={`text-xs font-medium ${metaDescription.length > 140 ? 'text-danger' : 'text-content-hint'}`}>
+                                                {metaDescription.length}/150
+                                            </p>
                                         </div>
                                     </div>
                                 </div>

@@ -72,18 +72,18 @@ const dayPickerClassNames = {
     root: 'w-full',
     months: 'flex w-full',
     month: 'w-full',
-    month_caption: 'relative flex h-9 items-center justify-center',
+    month_caption: 'relative flex h-11 items-center justify-center',
     caption_label: 'text-sm font-semibold text-content',
     nav: 'absolute right-0 top-0 flex items-center gap-1',
-    button_previous: 'inline-flex h-8 w-8 items-center justify-center rounded-lg text-content-secondary hover:bg-surface-subtle hover:text-content',
-    button_next: 'inline-flex h-8 w-8 items-center justify-center rounded-lg text-content-secondary hover:bg-surface-subtle hover:text-content',
+    button_previous: 'inline-flex h-11 w-11 items-center justify-center rounded-lg text-content-secondary hover:bg-surface-subtle hover:text-content active:scale-95',
+    button_next: 'inline-flex h-11 w-11 items-center justify-center rounded-lg text-content-secondary hover:bg-surface-subtle hover:text-content active:scale-95',
     chevron: 'h-4 w-4',
     month_grid: 'mt-3 w-full border-collapse',
     weekdays: 'border-b border-line-light',
     weekday: 'h-8 text-center text-[11px] font-semibold text-content-hint',
     week: '',
     day: 'p-0 text-center align-middle',
-    day_button: 'mx-auto my-0.5 flex h-9 w-9 items-center justify-center rounded-lg text-sm font-medium text-content-secondary transition-colors hover:bg-surface-subtle hover:text-content focus:outline-none focus:ring-2 focus:ring-line-strong/50',
+    day_button: 'mx-auto my-0.5 flex h-11 w-11 items-center justify-center rounded-lg text-sm font-medium text-content-secondary transition-all hover:bg-surface-subtle hover:text-content active:scale-95 focus:outline-none focus:ring-2 focus:ring-line-strong/50',
     outside: '[&>button]:text-content-hint/40',
     today: '[&>button]:ring-1 [&>button]:ring-line-strong',
     selected: '[&>button]:bg-content [&>button]:text-surface [&>button]:hover:bg-content',
@@ -116,7 +116,7 @@ const SchedulePicker = ({ value, onChange, allowClear = true }: SchedulePickerPr
                         <button
                             type="button"
                             className={cx(
-                                'flex min-h-12 w-full items-center justify-between rounded-lg border border-line bg-surface-elevated px-3 py-2 pr-10 text-left text-sm transition-colors',
+                                'flex min-h-12 w-full items-center justify-between rounded-lg border border-line bg-surface-elevated px-3 py-2 pr-12 text-left text-sm transition-colors',
                                 'hover:border-line-strong hover:bg-surface-subtle focus:outline-none focus:ring-2 focus:ring-line/70'
                             )}>
                             <span className="flex min-w-0 items-center gap-2">
@@ -134,7 +134,7 @@ const SchedulePicker = ({ value, onChange, allowClear = true }: SchedulePickerPr
                                 event.stopPropagation();
                                 onChange('');
                             }}
-                            className="absolute right-2 top-1/2 inline-flex h-7 w-7 -translate-y-1/2 items-center justify-center rounded-lg text-content-hint hover:bg-surface hover:text-content"
+                            className="absolute right-0 top-1/2 inline-flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-lg text-content-hint hover:bg-surface hover:text-content active:scale-95"
                             aria-label="예약 해제">
                             <X className="h-4 w-4" />
                         </button>
@@ -173,7 +173,7 @@ const SchedulePicker = ({ value, onChange, allowClear = true }: SchedulePickerPr
                                         if (nextHour === null) return;
                                         handleTimeChange(nextHour, minute);
                                     }}
-                                    className="h-10 rounded-lg border border-line bg-surface px-3 text-center text-sm font-medium text-content focus:border-line-strong focus:outline-none focus:ring-2 focus:ring-line/70"
+                                    className="h-11 rounded-lg border border-line bg-surface px-3 text-center text-sm font-medium text-content focus:border-line-strong focus:outline-none focus:ring-2 focus:ring-line/70"
                                     aria-label="예약 시"
                                 />
                                 <span className="text-content-hint">:</span>
@@ -189,7 +189,7 @@ const SchedulePicker = ({ value, onChange, allowClear = true }: SchedulePickerPr
                                         if (nextMinute === null) return;
                                         handleTimeChange(hour, nextMinute);
                                     }}
-                                    className="h-10 rounded-lg border border-line bg-surface px-3 text-center text-sm font-medium text-content focus:border-line-strong focus:outline-none focus:ring-2 focus:ring-line/70"
+                                    className="h-11 rounded-lg border border-line bg-surface px-3 text-center text-sm font-medium text-content focus:border-line-strong focus:outline-none focus:ring-2 focus:ring-line/70"
                                     aria-label="예약 분"
                                 />
                             </div>
@@ -199,7 +199,7 @@ const SchedulePicker = ({ value, onChange, allowClear = true }: SchedulePickerPr
                                         key={option.label}
                                         type="button"
                                         onClick={() => onChange(formatDateTimeLocal(option.getDate()))}
-                                        className="rounded-lg border border-line bg-surface px-2.5 py-1.5 text-xs font-medium text-content-secondary hover:border-line-strong hover:bg-surface-subtle hover:text-content">
+                                        className="min-h-11 rounded-lg border border-line bg-surface px-3 py-2 text-xs font-medium text-content-secondary hover:border-line-strong hover:bg-surface-subtle hover:text-content active:scale-95">
                                         {option.label}
                                     </button>
                                 ))}
