@@ -2,7 +2,7 @@ import Editor from '@monaco-editor/react';
 import { useResolvedTheme } from '~/hooks/useResolvedTheme';
 
 interface CodeEditorMonacoProps {
-    language?: 'html' | 'javascript' | 'css';
+    language?: 'html' | 'javascript' | 'css' | 'plaintext';
     value: string;
     onChange: (value: string) => void;
     height?: string;
