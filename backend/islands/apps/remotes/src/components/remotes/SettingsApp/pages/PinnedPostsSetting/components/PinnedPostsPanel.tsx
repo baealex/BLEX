@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useQueryClient, useSuspenseQuery } from '@tanstack/react-query';
+import { Trash2 } from '@blex/ui/icons';
 import { SettingsHeader } from '../../../components';
 import { Button } from '~/components/shared';
 import { toast } from '~/utils/toast';
@@ -55,6 +56,9 @@ export const PinnedPostsPanel = ({
     const [pinnablePosts, setPinnablePosts] = useState<PinnablePostData[]>([]);
     const [username, setUsername] = useState<string>(pinnedPostsData.username);
     const [maxCount, setMaxCount] = useState<number>(pinnedPostsData.maxCount);
+    const [reservedCount, setReservedCount] = useState<number>(
+        pinnedPostsData.reservedCount ?? 0
+    );
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isAddingPost, setIsAddingPost] = useState(false);
     const [addingPostUrl, setAddingPostUrl] = useState<string | null>(null);
@@ -70,6 +74,7 @@ export const PinnedPostsPanel = ({
             setPinnedPosts(pinnedPostsData.pinnedPosts);
             setUsername(pinnedPostsData.username);
             setMaxCount(pinnedPostsData.maxCount);
+            setReservedCount(pinnedPostsData.reservedCount ?? 0);
         }
     }, [pinnedPostsData]);
 
@@ -208,7 +213,8 @@ export const PinnedPostsPanel = ({
         }
     };
 
-    const canAddMore = pinnedPosts.length < maxCount;
+    const occupiedCount = pinnedPosts.length + reservedCount;
+    const canAddMore = occupiedCount < maxCount;
     const action = (
         <Button
             variant="primary"
@@ -221,6 +227,20 @@ export const PinnedPostsPanel = ({
     );
     const list = (
         <>
+            {reservedCount > 0 && (
+                <div className="mb-4 flex items-start gap-2 rounded-xl border border-line bg-surface-subtle px-4 py-3 text-sm text-content-secondary">
+                    <Trash2 aria-hidden className="mt-0.5 h-4 w-4 shrink-0" />
+                    <p>
+                        휴지통의 고정 포스트 {reservedCount}개가 고정 한도를 유지합니다.
+                        복원하면 다시 표시됩니다.{' '}
+                        <a
+                            href="/settings/posts?tab=trash"
+                            className="font-medium text-content underline underline-offset-2">
+                            휴지통 보기
+                        </a>
+                    </p>
+                </div>
+            )}
             <PinnedPostList
                 pinnedPosts={pinnedPosts}
                 username={username}
@@ -251,10 +271,10 @@ export const PinnedPostsPanel = ({
         return (
             <div>
                 <SettingsHeader
-                    title={`고정 포스트 (${pinnedPosts.length}/${maxCount})`}
+                    title={`고정 포스트 (${occupiedCount}/${maxCount})`}
                     description="드래그하여 프로필에 표시되는 순서를 조정할 수 있습니다."
                     actionPosition="right"
-                    action={pinnedPosts.length > 0 ? action : undefined}
+                    action={occupiedCount > 0 ? action : undefined}
                 />
                 {list}
             </div>
@@ -268,7 +288,7 @@ export const PinnedPostsPanel = ({
                     <h3 className="text-lg font-semibold tracking-tight text-content">
                         고정 포스트
                         <span className="ml-2 text-sm font-medium text-content-secondary">
-                            {pinnedPosts.length}/{maxCount}
+                            {occupiedCount}/{maxCount}
                         </span>
                     </h3>
                     <p className="text-sm leading-relaxed text-content-secondary">

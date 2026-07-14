@@ -15,6 +15,12 @@ urlpatterns = [
     path('v1/auth/security/verify', api_v1.security_verify),
     path('v1/developer-tokens', api_v1.developer_tokens),
     path('v1/developer-tokens/<int:token_id>', api_v1.developer_tokens),
+    path('v1/setting/trash-posts', api_v1.trashed_posts),
+    path('v1/setting/trash-posts/<url>', api_v1.trashed_posts),
+    path(
+        'v1/setting/trash-posts/<url>/restore',
+        api_v1.restore_trashed_post,
+    ),
     path('v1/setting/<path:parameter>', api_v1.setting),
     path('v1/search', api_v1.search),
     path('v1/posts', api_v1.post_list),

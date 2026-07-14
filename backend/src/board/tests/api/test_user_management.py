@@ -3,6 +3,7 @@ from unittest.mock import patch
 
 from django.test import TestCase
 from django.test.client import Client
+from django.utils import timezone
 
 from board.models import AuthorInvite, Config, Post, Profile, User
 from board.services.author_invite_service import AuthorInviteError
@@ -122,6 +123,12 @@ class UserManagementAPITestCase(TestCase):
 
     def test_staff_can_order_users_by_post_count(self):
         Post.objects.create(author=self.editor, title='Second editor post', url='second-editor-post')
+        trashed = Post.objects.create(
+            author=self.editor,
+            title='Trashed editor post',
+            url='trashed-editor-post',
+        )
+        Post.objects.filter(pk=trashed.pk).update(deleted_date=timezone.now())
 
         response = self.client.get('/v1/admin/users?ordering=-post_count')
 

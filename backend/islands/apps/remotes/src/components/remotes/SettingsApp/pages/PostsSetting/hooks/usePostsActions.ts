@@ -56,9 +56,9 @@ export const usePostsActions = ({
 
     const handleDelete = async (postUrl: string) => {
         const confirmed = await confirm({
-            title: '포스트 삭제',
-            message: '정말 이 포스트를 삭제할까요?',
-            confirmText: '삭제',
+            title: '휴지통으로 이동',
+            message: '이 포스트를 휴지통으로 옮길까요? 나중에 복원할 수 있습니다.',
+            confirmText: '휴지통으로 이동',
             variant: 'danger'
         });
 
@@ -68,13 +68,13 @@ export const usePostsActions = ({
             const { data } = await deletePost(username, postUrl);
 
             if (data.status === 'DONE') {
-                toast.success('포스트가 삭제되었습니다.');
+                toast.success('포스트를 휴지통으로 옮겼습니다.');
                 refetch();
             } else {
                 throw new Error('Failed to delete post');
             }
         } catch {
-            toast.error('포스트 삭제에 실패했습니다.');
+            toast.error('포스트를 휴지통으로 옮기지 못했습니다.');
         }
     };
 

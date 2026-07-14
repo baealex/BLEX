@@ -42,9 +42,9 @@ export const DraftPostListContent = ({
 
     const handleDraftDelete = async (url: string) => {
         const confirmed = await confirm({
-            title: '임시 포스트 삭제',
-            message: '정말 이 임시 포스트를 삭제할까요?',
-            confirmText: '삭제',
+            title: '임시 포스트를 휴지통으로 이동',
+            message: '이 임시 포스트를 휴지통으로 옮길까요? 나중에 복원할 수 있습니다.',
+            confirmText: '휴지통으로 이동',
             variant: 'danger'
         });
 
@@ -54,13 +54,13 @@ export const DraftPostListContent = ({
             const { data } = await deleteDraft(url);
 
             if (data.status === 'DONE') {
-                toast.success('임시 포스트가 삭제되었습니다.');
+                toast.success('임시 포스트를 휴지통으로 옮겼습니다.');
                 refetch();
             } else {
                 throw new Error('Failed to delete draft post');
             }
         } catch {
-            toast.error('임시 포스트 삭제에 실패했습니다.');
+            toast.error('임시 포스트를 휴지통으로 옮기지 못했습니다.');
         }
     };
 
@@ -106,7 +106,7 @@ export const DraftPostListContent = ({
                             triggerClassName="min-h-11 min-w-11"
                             items={[
                                 {
-                                    label: '삭제',
+                                    label: '휴지통으로 이동',
                                     icon: <Trash2 aria-hidden className="h-4 w-4" />,
                                     onClick: () => handleDraftDelete(draftPost.url),
                                     variant: 'danger'

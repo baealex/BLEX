@@ -5,6 +5,7 @@ from django.core.files.uploadedfile import SimpleUploadedFile
 from django.db import connection
 from django.test import TestCase, override_settings
 from django.test.utils import CaptureQueriesContext
+from django.utils import timezone
 
 from board.models import Config, Post, Profile, Series, User
 from board.modules.developer_serializers import DeveloperPostSerializer
@@ -415,6 +416,11 @@ class DeveloperPostsAPITestCase(TestCase):
     def test_list_tags_returns_author_tags_only(self):
         """태그 목록은 토큰 소유자의 글에 연결된 태그만 반환한다."""
         self.create_draft('Tagged Draft', tags=['api', 'mcp'])
+        trashed = self.create_draft(
+            'Trashed Tagged Draft',
+            tags=['trashed-only'],
+        )
+        Post.objects.filter(id=trashed['id']).update(deleted_date=timezone.now())
         self.post_json('/api/developer/v1/posts', {
             'title': 'Other Tagged Draft',
             'content': 'Other content',
@@ -434,6 +440,7 @@ class DeveloperPostsAPITestCase(TestCase):
         }
         self.assertEqual(tags, {'api': 1, 'mcp': 1})
         self.assertNotIn('secret', tags)
+        self.assertNotIn('trashed-only', tags)
 
     def test_list_series_returns_owned_series_with_post_count(self):
         """시리즈 목록은 내 시리즈와 연결된 글 수를 반환한다."""
@@ -449,6 +456,13 @@ class DeveloperPostsAPITestCase(TestCase):
             url='other-guide',
         )
         self.create_draft('Series Draft', series_id=series.id)
+        trashed_draft = self.create_draft(
+            'Trashed Series Draft',
+            series_id=series.id,
+        )
+        Post.objects.filter(id=trashed_draft['id']).update(
+            deleted_date=timezone.now(),
+        )
 
         response = self.client.get(
             '/api/developer/v1/series',

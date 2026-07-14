@@ -573,10 +573,14 @@ def list_tags(request):
     require_scope(request.auth, 'posts:read')
     tags = Tag.objects.filter(
         posts__author=request.auth.user,
+        posts__deleted_date__isnull=True,
     ).annotate(
         post_count=Count(
             'posts',
-            filter=Q(posts__author=request.auth.user),
+            filter=Q(
+                posts__author=request.auth.user,
+                posts__deleted_date__isnull=True,
+            ),
             distinct=True,
         ),
     ).order_by(
@@ -605,7 +609,11 @@ def list_series(request):
     series = Series.objects.filter(
         owner=request.auth.user,
     ).annotate(
-        post_count=Count('posts', distinct=True),
+        post_count=Count(
+            'posts',
+            filter=Q(posts__deleted_date__isnull=True),
+            distinct=True,
+        ),
     ).order_by(
         'order',
         'name',

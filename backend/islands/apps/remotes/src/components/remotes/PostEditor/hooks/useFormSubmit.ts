@@ -144,7 +144,7 @@ export const useFormSubmit = (options: UseFormSubmitOptions) => {
     };
 
     const deletePost = async () => {
-        if (!confirm('정말로 이 포스트를 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.')) {
+        if (!confirm('이 포스트를 휴지통으로 옮길까요? 포스트 설정에서 다시 복원할 수 있습니다.')) {
             return;
         }
 
@@ -161,7 +161,7 @@ export const useFormSubmit = (options: UseFormSubmitOptions) => {
 
             form.submit();
         } catch (error) {
-            toast.error('포스트 삭제에 실패했습니다.');
+            toast.error('포스트를 휴지통으로 옮기지 못했습니다.');
             onSubmitError?.(error as Error);
             setIsSubmitting(false);
         }

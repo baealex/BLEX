@@ -80,7 +80,10 @@ class UserManagementService:
     @staticmethod
     def get_user_queryset(query: str = '', role: str = 'all', ordering: str = 'username'):
         users = User.objects.select_related('profile').annotate(
-            post_count=Count('post')
+            post_count=Count(
+                'post',
+                filter=Q(post__deleted_date__isnull=True),
+            )
         )
 
         if query:

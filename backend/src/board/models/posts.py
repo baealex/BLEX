@@ -121,8 +121,18 @@ class Tag(models.Model):
         return str(self.value)
 
 
+class ActivePostManager(models.Manager):
+    """Keep recoverable deletions out of existing post query surfaces."""
+
+    def get_queryset(self) -> models.QuerySet:
+        return super().get_queryset().filter(deleted_date__isnull=True)
+
+
 class Post(models.Model):
     DEFAULT_COVER_COUNT = 6
+
+    objects = ActivePostManager()
+    all_objects = models.Manager()
 
     class Meta:
         indexes = [
@@ -145,18 +155,19 @@ class Post(models.Model):
     created_date = models.DateTimeField(default=timezone.now)
     updated_date = models.DateTimeField(default=timezone.now)
     published_date = models.DateTimeField(null=True, blank=True)
+    deleted_date = models.DateTimeField(null=True, blank=True, db_index=True)
     meta_description = models.CharField(max_length=250, blank=True)
 
     def create_unique_url(self, url=None):
         url = url if url else slugify(self.title, allow_unicode=True)
 
-        post = Post.objects.filter(url=url)
+        post = Post.all_objects.filter(url=url)
         if self.pk:
             post = post.exclude(pk=self.pk)
 
         while post.exists():
             url = url + '-' + randstr(8)
-            post = Post.objects.filter(url=url)
+            post = Post.all_objects.filter(url=url)
             if self.pk:
                 post = post.exclude(pk=self.pk)
 

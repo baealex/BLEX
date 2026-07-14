@@ -46,7 +46,7 @@ class PostImageService:
     @staticmethod
     def is_image_shared(image_name: str, exclude_post_id: int) -> bool:
         """Return whether another post references the same storage path."""
-        return Post.objects.filter(
+        return Post.all_objects.filter(
             image=image_name,
         ).exclude(id=exclude_post_id).exists()
 
@@ -110,7 +110,7 @@ class PostImageService:
                 storage_file_deleted=False,
             )
 
-        existing_images = Post.objects.filter(
+        existing_images = Post.all_objects.filter(
             image_hash=new_hash,
         ).exclude(image='')
         if post.pk:

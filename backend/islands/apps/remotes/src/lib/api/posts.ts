@@ -68,7 +68,9 @@ export const togglePostVisibility = async (username: string, postUrl: string) =>
 };
 
 export const deletePost = async (username: string, postUrl: string) => {
-    return http.delete<Response<unknown>>(`v1/users/@${username}/posts/${postUrl}`);
+    return http.delete<Response<{ trashed: boolean; deletedDate: string }>>(
+        `v1/users/@${username}/posts/${postUrl}`
+    );
 };
 
 export const updatePostTags = async (username: string, postUrl: string, tags: string) => {
@@ -156,7 +158,63 @@ export const getDrafts = async () => {
 };
 
 export const deleteDraft = async (url: string) => {
-    return http.delete<Response<unknown>>(`v1/drafts/${url}`);
+    return http.delete<Response<{ trashed: boolean; deletedDate: string }>>(`v1/drafts/${url}`);
+};
+
+export type TrashedPostSourceStatus = 'draft' | 'scheduled' | 'published';
+
+export interface TrashedPost {
+    url: string;
+    title: string;
+    image: string | null;
+    sourceStatus: TrashedPostSourceStatus;
+    publishedDate: string | null;
+    updatedDate: string;
+    deletedDate: string;
+    scheduleElapsed: boolean;
+    isHide: boolean;
+}
+
+interface TrashedPostsBody {
+    posts: TrashedPost[];
+    pagination: {
+        page: number;
+        totalCount: number;
+        lastPage: number;
+    };
+    retention: {
+        mode: 'manual';
+    };
+}
+
+export const getTrashedPosts = async (page = 1) => {
+    return http.get<Response<TrashedPostsBody>>(
+        `v1/setting/trash-posts?page=${page}`
+    );
+};
+
+export const restoreTrashedPost = async (
+    postUrl: string,
+    expectedDeletedDate: string
+) => {
+    return http.post<Response<{
+        url: string;
+        status: TrashedPostSourceStatus;
+        restored: boolean;
+    }>>(
+        `v1/setting/trash-posts/${postUrl}/restore`,
+        { expectedDeletedDate }
+    );
+};
+
+export const permanentlyDeleteTrashedPost = async (
+    postUrl: string,
+    expectedDeletedDate: string
+) => {
+    const params = new URLSearchParams({ expectedDeletedDate });
+    return http.delete<Response<{ deleted: boolean; id: number }>>(
+        `v1/setting/trash-posts/${postUrl}?${params.toString()}`
+    );
 };
 
 export interface PostForEdit {

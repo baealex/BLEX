@@ -449,6 +449,7 @@ class UserService:
         recent_comments = Comment.objects.filter(
             author=user,
             created_date__gte=cutoff_date,
+            post__deleted_date__isnull=True,
         ).select_related('post', 'post__author').only(
             'created_date', 'post__title', 'post__url', 'post__author__username'
         ).order_by('-created_date')[:5]
@@ -456,6 +457,7 @@ class UserService:
         recent_likes = PostLikes.objects.filter(
             user=user,
             created_date__gte=cutoff_date,
+            post__deleted_date__isnull=True,
         ).select_related('post', 'post__author').only(
             'created_date', 'post__title', 'post__url', 'post__author__username'
         ).order_by('-created_date')[:5]

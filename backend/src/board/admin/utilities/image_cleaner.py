@@ -54,7 +54,7 @@ class ImageCleanerService:
 
         used_files = set()
 
-        posts = Post.objects.all().annotate(
+        posts = Post.all_objects.all().annotate(
             text_md=F('content__content_html'),
             text_html=F('content__content_html')
         )
@@ -94,7 +94,7 @@ class ImageCleanerService:
     def scan_title_images(self) -> set:
         """타이틀 이미지 스캔"""
         used_files = set()
-        posts = Post.objects.all()
+        posts = Post.all_objects.all()
 
         for post in posts:
             if post.image:

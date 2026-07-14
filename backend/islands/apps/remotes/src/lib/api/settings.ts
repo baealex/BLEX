@@ -332,7 +332,12 @@ export interface PinnablePostsPaginationData {
 }
 
 export const getPinnedPosts = async () => {
-    return http.get<Response<{ pinnedPosts: PinnedPostData[]; username: string; maxCount: number }>>('v1/setting/pinned-posts');
+    return http.get<Response<{
+        pinnedPosts: PinnedPostData[];
+        username: string;
+        maxCount: number;
+        reservedCount?: number;
+    }>>('v1/setting/pinned-posts');
 };
 
 export const getPinnablePosts = async (

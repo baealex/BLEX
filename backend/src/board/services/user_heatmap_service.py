@@ -49,6 +49,7 @@ class UserHeatmapService:
                 author=user,
                 created_date__date__gte=start_date,
                 created_date__date__lte=end_date,
+                post__deleted_date__isnull=True,
             ).values('created_date__date').annotate(count=Count('id')),
             'created_date__date',
         )
@@ -58,6 +59,7 @@ class UserHeatmapService:
                 user=user,
                 created_date__date__gte=start_date,
                 created_date__date__lte=end_date,
+                post__deleted_date__isnull=True,
             ).values('created_date__date').annotate(count=Count('id')),
             'created_date__date',
         )

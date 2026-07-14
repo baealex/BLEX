@@ -27,6 +27,7 @@ from .pinned_post import pinnable_posts, pinned_posts, pinned_posts_order
 from .post import post_comment_list, post_list, user_post_related, user_posts
 from .post_revision import post_revisions, restore_post_revision
 from .post_schedule import cancel_post_schedule, publish_scheduled_post_now
+from .post_trash import restore_trashed_post, trashed_posts
 from .report import error_report
 from .search import search
 from .series import (
@@ -67,6 +68,8 @@ __all__ = (
     'security',
     'security_verify',
     'developer_tokens',
+    'trashed_posts',
+    'restore_trashed_post',
     'setting',
     'search',
     'post_list',

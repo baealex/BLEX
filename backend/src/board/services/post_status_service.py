@@ -15,12 +15,16 @@ class PostStatusService:
     @staticmethod
     def build_draft_filter(relation: str = '') -> Q:
         prefix = f'{relation}__' if relation else ''
-        return Q(**{f'{prefix}published_date__isnull': True})
+        return Q(**{
+            f'{prefix}deleted_date__isnull': True,
+            f'{prefix}published_date__isnull': True,
+        })
 
     @staticmethod
     def build_published_filter(relation: str = '') -> Q:
         prefix = f'{relation}__' if relation else ''
         return Q(**{
+            f'{prefix}deleted_date__isnull': True,
             f'{prefix}published_date__isnull': False,
             f'{prefix}published_date__lte': timezone.now(),
         })
@@ -29,6 +33,7 @@ class PostStatusService:
     def build_scheduled_filter(relation: str = '') -> Q:
         prefix = f'{relation}__' if relation else ''
         return Q(**{
+            f'{prefix}deleted_date__isnull': True,
             f'{prefix}published_date__isnull': False,
             f'{prefix}published_date__gt': timezone.now(),
         })
@@ -47,16 +52,16 @@ class PostStatusService:
 
     @staticmethod
     def is_draft(post: Post) -> bool:
-        return post.published_date is None
+        return post.deleted_date is None and post.published_date is None
 
     @staticmethod
     def is_published(post: Post) -> bool:
-        if post.published_date is None:
+        if post.deleted_date is not None or post.published_date is None:
             return False
         return post.published_date <= timezone.now()
 
     @staticmethod
     def is_scheduled(post: Post) -> bool:
-        if post.published_date is None:
+        if post.deleted_date is not None or post.published_date is None:
             return False
         return post.published_date > timezone.now()
