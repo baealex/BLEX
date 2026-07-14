@@ -1,6 +1,7 @@
 import json
 import datetime
 from io import BytesIO
+from unittest.mock import patch
 
 from PIL import Image
 
@@ -55,6 +56,30 @@ class PostTestCase(TestCase):
     
     def setUp(self):
         self.client.defaults['HTTP_USER_AGENT'] = 'BLEX_TEST'
+
+    def _create_scheduled_post(
+        self,
+        url: str,
+        *,
+        hide: bool = False,
+        advertise: bool = False,
+    ) -> Post:
+        post = Post.objects.create(
+            url=url,
+            title='Scheduled Lifecycle Post',
+            author=User.objects.get(username='author'),
+            published_date=timezone.now() + timezone.timedelta(days=1),
+        )
+        PostContent.objects.create(
+            post=post,
+            content_html='<p>Scheduled lifecycle body</p>',
+        )
+        PostConfig.objects.create(
+            post=post,
+            hide=hide,
+            advertise=advertise,
+        )
+        return post
 
 
     def test_get_user_post_detail(self):
@@ -167,6 +192,120 @@ class PostTestCase(TestCase):
         content = json.loads(response.content)
         self.assertEqual(content['status'], 'ERROR')
         self.assertEqual(content['errorCode'], 'error:VA')
+
+    def test_cancel_post_schedule_returns_post_to_draft(self):
+        """예약 취소는 내용과 설정을 보존한 채 포스트를 임시글로 되돌린다."""
+        scheduled_post = self._create_scheduled_post(
+            'scheduled-cancel-post',
+            hide=True,
+            advertise=True,
+        )
+        previous_updated_date = scheduled_post.updated_date
+        self.client.login(username='author', password='author')
+
+        response = self.client.post(
+            '/v1/users/@author/posts/scheduled-cancel-post/schedule/cancel'
+        )
+
+        self.assertEqual(response.status_code, 200)
+        content = json.loads(response.content)
+        self.assertEqual(content['status'], 'DONE')
+        self.assertEqual(content['body'], {
+            'url': 'scheduled-cancel-post',
+            'status': 'draft',
+        })
+        scheduled_post.refresh_from_db()
+        self.assertIsNone(scheduled_post.published_date)
+        self.assertGreater(scheduled_post.updated_date, previous_updated_date)
+        self.assertEqual(
+            scheduled_post.content.content_html,
+            '<p>Scheduled lifecycle body</p>',
+        )
+        self.assertTrue(scheduled_post.config.hide)
+        self.assertTrue(scheduled_post.config.advertise)
+
+        repeated_response = self.client.post(
+            '/v1/users/@author/posts/scheduled-cancel-post/schedule/cancel'
+        )
+        repeated_content = json.loads(repeated_response.content)
+        self.assertEqual(repeated_content['status'], 'ERROR')
+        self.assertEqual(repeated_content['errorCode'], 'error:RJ')
+
+    @patch('board.services.post_service.WebhookService.notify_channels')
+    def test_publish_scheduled_post_now_notifies_once(self, mock_notify):
+        """즉시 발행은 예약 포스트를 공개 상태로 바꾸고 알림을 한 번만 보낸다."""
+        scheduled_post = self._create_scheduled_post('scheduled-publish-now-post')
+        self.client.login(username='author', password='author')
+
+        with self.captureOnCommitCallbacks(execute=True):
+            response = self.client.post(
+                '/v1/users/@author/posts/scheduled-publish-now-post/schedule/publish-now'
+            )
+
+        self.assertEqual(response.status_code, 200)
+        content = json.loads(response.content)
+        self.assertEqual(content['status'], 'DONE')
+        self.assertEqual(content['body']['status'], 'published')
+        self.assertEqual(content['body']['url'], 'scheduled-publish-now-post')
+        self.assertIn('publishedDate', content['body'])
+        scheduled_post.refresh_from_db()
+        self.assertLessEqual(scheduled_post.published_date, timezone.now())
+        mock_notify.assert_called_once()
+
+        with self.captureOnCommitCallbacks(execute=True):
+            repeated_response = self.client.post(
+                '/v1/users/@author/posts/scheduled-publish-now-post/schedule/publish-now'
+            )
+        repeated_content = json.loads(repeated_response.content)
+        self.assertEqual(repeated_content['status'], 'ERROR')
+        self.assertEqual(repeated_content['errorCode'], 'error:RJ')
+        mock_notify.assert_called_once()
+
+    def test_schedule_actions_reject_non_scheduled_posts(self):
+        """임시글과 이미 발행된 글에는 예약 상태 액션을 적용하지 않는다."""
+        draft = self._create_scheduled_post('schedule-action-draft')
+        draft.published_date = None
+        draft.save(update_fields=['published_date'])
+        published = Post.objects.get(url='test-post-2')
+        original_published_date = published.published_date
+        self.client.login(username='author', password='author')
+
+        for post in (draft, published):
+            for action in ('cancel', 'publish-now'):
+                with self.subTest(post=post.url, action=action):
+                    response = self.client.post(
+                        f'/v1/users/@author/posts/{post.url}/schedule/{action}'
+                    )
+                    content = json.loads(response.content)
+                    self.assertEqual(content['status'], 'ERROR')
+                    self.assertEqual(content['errorCode'], 'error:RJ')
+
+        draft.refresh_from_db()
+        published.refresh_from_db()
+        self.assertIsNone(draft.published_date)
+        self.assertEqual(published.published_date, original_published_date)
+
+    def test_schedule_actions_reject_another_editor(self):
+        """다른 작가는 예약 포스트의 상태를 전환할 수 없다."""
+        scheduled_post = self._create_scheduled_post('other-editor-scheduled-post')
+        other_editor = User.objects.create_user(
+            username='other-editor',
+            password='other-editor',
+            email='other-editor@example.com',
+        )
+        Profile.objects.create(user=other_editor, role=Profile.Role.EDITOR)
+        Config.objects.create(user=other_editor)
+        self.client.login(username='other-editor', password='other-editor')
+
+        for action in ('cancel', 'publish-now'):
+            with self.subTest(action=action):
+                response = self.client.post(
+                    f'/v1/users/@author/posts/{scheduled_post.url}/schedule/{action}'
+                )
+                self.assertEqual(response.status_code, 404)
+
+        scheduled_post.refresh_from_db()
+        self.assertGreater(scheduled_post.published_date, timezone.now())
 
     def test_get_user_post_detail_edit_mode_with_not_exist_post(self):
         """존재하지 않는 포스트 편집 모드 접근 시 404 에러 테스트"""

@@ -107,6 +107,16 @@ EXPECTED_ROUTE_CONTRACT = (
     ('v1/users/@<username>', None, 'board.views.api.v1.user.users'),
     ('v1/users/@<username>/posts/<url>', None, 'board.views.api.v1.post.user_posts'),
     (
+        'v1/users/@<username>/posts/<url>/schedule/cancel',
+        None,
+        'board.views.api.v1.post_schedule.cancel_post_schedule',
+    ),
+    (
+        'v1/users/@<username>/posts/<url>/schedule/publish-now',
+        None,
+        'board.views.api.v1.post_schedule.publish_scheduled_post_now',
+    ),
+    (
         'v1/users/@<username>/posts/<url>/related',
         None,
         'board.views.api.v1.post.user_post_related',
@@ -253,6 +263,8 @@ EXPECTED_V1_API_EXPORTS = (
     'get_author_heatmap',
     'users',
     'user_posts',
+    'cancel_post_schedule',
+    'publish_scheduled_post_now',
     'user_post_related',
     'user_series',
     'check_redirect',
@@ -538,6 +550,8 @@ EXPECTED_POST_SERVICE_SIGNATURES = {
     'can_user_delete_post': (('user', REQUIRED), ('post', REQUIRED)),
     'delete_post': (('post', REQUIRED),),
     'send_post_notifications': (('post', REQUIRED), ('post_config', REQUIRED)),
+    'cancel_scheduled_post': (('post', REQUIRED),),
+    'publish_scheduled_post_now': (('post', REQUIRED),),
     '_compute_image_hash': (('image_file', REQUIRED),),
     '_is_image_shared': (('image_name', REQUIRED), ('exclude_post_id', REQUIRED)),
     '_set_image_with_dedup': (

@@ -4,12 +4,14 @@ import { IconButton } from '@blex/ui/icon-button';
 import { Toggle } from '@blex/ui/toggle';
 import {
     CircleDollarSign,
+    CirclePause,
     Clock,
     EyeOff,
     FileText,
     Image,
     Info,
     Search,
+    Send,
     SlidersHorizontal,
     Trash2,
     X
@@ -55,6 +57,9 @@ interface SettingsDrawerProps {
     onSeriesChange: (series: Series) => void;
     onFormDataChange: (field: string, value: boolean | string) => void;
     onDelete?: () => void;
+    onCancelSchedule?: () => void;
+    onPublishNow?: () => void;
+    pendingScheduleAction?: 'cancel' | 'publish-now' | null;
 }
 
 interface CoverPreviewProps {
@@ -187,7 +192,10 @@ const SettingsDrawer = ({
     onMetaDescriptionChange,
     onSeriesChange,
     onFormDataChange,
-    onDelete
+    onDelete,
+    onCancelSchedule,
+    onPublishNow,
+    pendingScheduleAction = null
 }: SettingsDrawerProps) => {
     const canEditSchedule = !isEdit || isScheduled;
 
@@ -373,6 +381,30 @@ const SettingsDrawer = ({
                                                 onChange={(nextValue) => onFormDataChange('reservedDate', nextValue)}
                                                 allowClear={!isScheduled}
                                             />
+                                            {isScheduled && onCancelSchedule && onPublishNow && (
+                                                <div className="mt-4 grid grid-cols-2 gap-2 border-t border-line pt-4">
+                                                    <Button
+                                                        type="button"
+                                                        variant="secondary"
+                                                        size="md"
+                                                        onClick={onCancelSchedule}
+                                                        disabled={pendingScheduleAction !== null}
+                                                        isLoading={pendingScheduleAction === 'cancel'}
+                                                        leftIcon={<CirclePause className="h-4 w-4" />}>
+                                                        예약 취소
+                                                    </Button>
+                                                    <Button
+                                                        type="button"
+                                                        variant="primary"
+                                                        size="md"
+                                                        onClick={onPublishNow}
+                                                        disabled={pendingScheduleAction !== null}
+                                                        isLoading={pendingScheduleAction === 'publish-now'}
+                                                        leftIcon={<Send className="h-4 w-4" />}>
+                                                        지금 발행
+                                                    </Button>
+                                                </div>
+                                            )}
                                         </div>
                                     )}
 

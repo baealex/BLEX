@@ -7,7 +7,11 @@ import PostForm from './components/PostForm';
 import SettingsDrawer from './components/SettingsDrawer';
 import ScheduleStatusNotice from './components/ScheduleStatusNotice';
 import { getSeries } from '~/lib/api/settings';
-import { getPostForEdit } from '~/lib/api/posts';
+import {
+    cancelPostSchedule,
+    getPostForEdit,
+    publishScheduledPostNow
+} from '~/lib/api/posts';
 import { api } from '~/components/shared';
 import { logger } from '~/utils/logger';
 import type { Series } from './types';
@@ -70,6 +74,7 @@ const EditPostEditor = ({ username, postUrl }: EditPostEditorProps) => {
         url: ''
     });
     const [isScheduledPost, setIsScheduledPost] = useState(false);
+    const [pendingScheduleAction, setPendingScheduleAction] = useState<'cancel' | 'publish-now' | null>(null);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [isEditorMediaUploading, setIsEditorMediaUploading] = useState(false);
 
@@ -340,6 +345,80 @@ const EditPostEditor = ({ username, postUrl }: EditPostEditorProps) => {
         }
     };
 
+    const canRunScheduleAction = () => {
+        if (hasUnsavedChanges()) {
+            toast.warning('변경 사항을 먼저 수정한 뒤 예약 상태를 변경해주세요.');
+            return false;
+        }
+
+        if (isEditorMediaUploading) {
+            toast.warning('파일 업로드가 끝난 뒤 예약 상태를 변경해주세요.');
+            return false;
+        }
+
+        return true;
+    };
+
+    const handleCancelSchedule = async () => {
+        if (!canRunScheduleAction()) return;
+
+        const confirmed = await confirm({
+            title: '예약 취소',
+            message: '예약을 취소하고 임시글로 되돌립니다. 내용과 설정은 유지되며 공개 화면에는 노출되지 않습니다.',
+            confirmText: '예약 취소'
+        });
+        if (!confirmed) return;
+
+        setPendingScheduleAction('cancel');
+        setIsSubmitting(true);
+        try {
+            const { data } = await cancelPostSchedule(username, postUrl);
+            if (data.status === 'ERROR') {
+                toast.error(data.errorMessage || '예약 취소에 실패했습니다.');
+                return;
+            }
+
+            isIntentionalSubmitRef.current = true;
+            window.location.assign(`/write?draft=${encodeURIComponent(data.body.url)}`);
+        } catch {
+            toast.error('예약 취소에 실패했습니다.');
+        } finally {
+            setPendingScheduleAction(null);
+            setIsSubmitting(false);
+        }
+    };
+
+    const handlePublishNow = async () => {
+        if (!canRunScheduleAction()) return;
+
+        const confirmed = await confirm({
+            title: '지금 발행',
+            message: formData.hide
+                ? '예약 시간을 기다리지 않고 비공개 상태로 발행합니다. 작성자 외에는 볼 수 없습니다.'
+                : '예약 시간을 기다리지 않고 지금 공개합니다. 연결된 알림 채널에도 발행 소식이 전송됩니다.',
+            confirmText: '지금 발행'
+        });
+        if (!confirmed) return;
+
+        setPendingScheduleAction('publish-now');
+        setIsSubmitting(true);
+        try {
+            const { data } = await publishScheduledPostNow(username, postUrl);
+            if (data.status === 'ERROR') {
+                toast.error(data.errorMessage || '즉시 발행에 실패했습니다.');
+                return;
+            }
+
+            isIntentionalSubmitRef.current = true;
+            window.location.assign(`/@${encodeURIComponent(username)}/${encodeURIComponent(data.body.url)}`);
+        } catch {
+            toast.error('즉시 발행에 실패했습니다.');
+        } finally {
+            setPendingScheduleAction(null);
+            setIsSubmitting(false);
+        }
+    };
+
     if (isLoading) {
         return (
             <PostEditorWrapper>
@@ -412,6 +491,9 @@ const EditPostEditor = ({ username, postUrl }: EditPostEditorProps) => {
                     [field]: value
                 }))}
                 onDelete={handleDelete}
+                onCancelSchedule={handleCancelSchedule}
+                onPublishNow={handlePublishNow}
+                pendingScheduleAction={pendingScheduleAction}
             />
         </PostEditorWrapper>
     );

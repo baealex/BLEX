@@ -28,6 +28,7 @@ from board.services.authoring_permission_service import AuthoringPermissionServi
 from board.services.public_post_service import PublicPostService
 from board.services.related_post_service import RelatedPostService
 from board.services.post_image_service import PostImageService
+from board.services.post_status_service import PostStatusService
 from board.services.webhook_service import WebhookService
 
 
@@ -270,6 +271,44 @@ class PostService:
         transaction.on_commit(
             lambda: WebhookService.notify_channels(post, post_config)
         )
+
+    @staticmethod
+    def _lock_scheduled_post(post: Post) -> Post:
+        try:
+            scheduled_post = Post.objects.select_for_update().get(pk=post.pk)
+        except Post.DoesNotExist as error:
+            raise PostValidationError(
+                ErrorCode.NOT_FOUND,
+                '포스트를 찾을 수 없습니다.'
+            ) from error
+        if not PostStatusService.is_scheduled(scheduled_post):
+            raise PostValidationError(
+                ErrorCode.REJECT,
+                '예약 포스트에서만 사용할 수 있습니다.'
+            )
+        return scheduled_post
+
+    @staticmethod
+    @transaction.atomic
+    def cancel_scheduled_post(post: Post) -> Post:
+        """Cancel a scheduled publication and return the post to draft state."""
+        scheduled_post = PostService._lock_scheduled_post(post)
+        scheduled_post.published_date = None
+        scheduled_post.updated_date = timezone.now()
+        scheduled_post.save(update_fields=['published_date', 'updated_date'])
+        return scheduled_post
+
+    @staticmethod
+    @transaction.atomic
+    def publish_scheduled_post_now(post: Post) -> Post:
+        """Publish a scheduled post immediately and notify configured channels."""
+        scheduled_post = PostService._lock_scheduled_post(post)
+        published_at = timezone.now()
+        scheduled_post.published_date = published_at
+        scheduled_post.updated_date = published_at
+        scheduled_post.save(update_fields=['published_date', 'updated_date'])
+        PostService.send_post_notifications(scheduled_post, scheduled_post.config)
+        return scheduled_post
 
     @staticmethod
     def _compute_image_hash(image_file) -> str:
