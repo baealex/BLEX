@@ -71,6 +71,7 @@ const NewPostEditor = ({
         metaDescription: '',
         hide: false,
         advertise: false,
+        allowComments: true,
         coverLayout: 'default',
         coverImagePosition: 'right',
         coverImageRatio: 'auto',
@@ -92,6 +93,7 @@ const NewPostEditor = ({
         metaDescription: string;
         hide: boolean;
         advertise: boolean;
+        allowComments: boolean;
         coverLayout: string;
         coverImagePosition: string;
         coverImageRatio: string;
@@ -127,6 +129,7 @@ const NewPostEditor = ({
         metaDescription: formData.metaDescription,
         hide: formData.hide,
         advertise: formData.advertise,
+        allowComments: formData.allowComments,
         coverLayout: formData.coverLayout,
         coverImagePosition: formData.coverImagePosition,
         coverImageRatio: formData.coverImageRatio,
@@ -188,6 +191,7 @@ const NewPostEditor = ({
         coverImageRatio: formData.coverImageRatio,
         hide: formData.hide,
         advertise: formData.advertise,
+        blockComment: !formData.allowComments,
         reservedDate: formData.reservedDate,
         imageFile,
         imageDeleted
@@ -276,6 +280,7 @@ const NewPostEditor = ({
                             coverImageRatio: draftData.coverImageRatio || 'auto',
                             hide: draftData.isHide ?? false,
                             advertise: draftData.isAdvertise ?? false,
+                            allowComments: !(draftData.blockComment ?? false),
                             reservedDate: newReservedDate
                         }));
                         setCurrentDraftUrl(draftData.url || draftUrl);

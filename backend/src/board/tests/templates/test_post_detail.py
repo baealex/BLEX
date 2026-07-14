@@ -625,6 +625,7 @@ class PostEditorPublishRedirectTestCase(TestCase):
             title='Draft Title',
             text_html='<p>Draft body</p>',
             custom_url='draft-title',
+            block_comment=True,
         )
         self.client.login(username='editor', password='password123')
 
@@ -639,8 +640,10 @@ class PostEditorPublishRedirectTestCase(TestCase):
         self.assertEqual(response['Location'], '/@editor/published-draft-title')
 
         draft.refresh_from_db()
+        draft.config.refresh_from_db()
         self.assertEqual(draft.url, 'published-draft-title')
         self.assertIsNotNone(draft.published_date)
+        self.assertTrue(draft.config.block_comment)
         self.assertEqual(Post.objects.filter(author=self.user).count(), 1)
 
     def test_post_editor_redirects_draft_scheduled_publish_to_post_detail(self):

@@ -371,6 +371,7 @@ class PostService:
         cover_layout: Optional[str] = None,
         cover_image_position: Optional[str] = None,
         cover_image_ratio: Optional[str] = None,
+        block_comment: bool = False,
     ) -> Tuple[Post, PostContent, PostConfig]:
         """
         Create a new post with all related objects.
@@ -387,6 +388,7 @@ class PostService:
             image: Post cover image (optional)
             is_hide: Hide post flag
             is_advertise: Advertisement flag
+            block_comment: Block new comments and replies
 
         Returns:
             Tuple of (Post, PostContent, PostConfig)
@@ -440,6 +442,7 @@ class PostService:
             post=post,
             hide=is_hide,
             advertise=is_advertise,
+            block_comment=block_comment,
             **PostService.normalize_cover_options(
                 cover_layout=cover_layout,
                 cover_image_position=cover_image_position,
@@ -533,6 +536,7 @@ class PostService:
         cover_image_position: Optional[str] = None,
         cover_image_ratio: Optional[str] = None,
         reserved_date_str: Optional[str] = None,
+        block_comment: Optional[bool] = None,
     ) -> Post:
         """
         Update existing post.
@@ -548,6 +552,7 @@ class PostService:
             image: New image (optional)
             is_hide: New hide flag (optional)
             is_advertise: New advertise flag (optional)
+            block_comment: New comment blocking flag (optional)
             reserved_date_str: New reserved publication date for scheduled posts (optional)
 
         Returns:
@@ -625,6 +630,7 @@ class PostService:
         should_update_config = (
             is_hide is not None
             or is_advertise is not None
+            or block_comment is not None
             or cover_layout is not None
             or cover_image_position is not None
             or cover_image_ratio is not None
@@ -636,6 +642,8 @@ class PostService:
                 post_config.hide = is_hide
             if is_advertise is not None:
                 post_config.advertise = is_advertise
+            if block_comment is not None:
+                post_config.block_comment = block_comment
             PostService.apply_cover_options(
                 post_config,
                 cover_layout=cover_layout,
@@ -706,6 +714,7 @@ class PostService:
         reserved_date_str: Optional[str] = None,
         is_hide: bool = False,
         is_advertise: bool = False,
+        block_comment: bool = False,
     ) -> Post:
         """
         Create a draft post (published_date=null).
@@ -766,6 +775,7 @@ class PostService:
             post=post,
             hide=is_hide,
             advertise=is_advertise,
+            block_comment=block_comment,
             **PostService.normalize_cover_options(
                 cover_layout=cover_layout,
                 cover_image_position=cover_image_position,
@@ -796,6 +806,7 @@ class PostService:
         reserved_date_str: Optional[str] = None,
         is_hide: Optional[bool] = None,
         is_advertise: Optional[bool] = None,
+        block_comment: Optional[bool] = None,
     ) -> Post:
         """
         Update a draft post. No notifications sent.
@@ -850,6 +861,7 @@ class PostService:
         should_update_config = (
             is_hide is not None
             or is_advertise is not None
+            or block_comment is not None
             or cover_layout is not None
             or cover_image_position is not None
             or cover_image_ratio is not None
@@ -861,6 +873,8 @@ class PostService:
                 post_config.hide = is_hide
             if is_advertise is not None:
                 post_config.advertise = is_advertise
+            if block_comment is not None:
+                post_config.block_comment = block_comment
             PostService.apply_cover_options(
                 post_config,
                 cover_layout=cover_layout,
@@ -893,6 +907,7 @@ class PostService:
         cover_layout: Optional[str] = None,
         cover_image_position: Optional[str] = None,
         cover_image_ratio: Optional[str] = None,
+        block_comment: Optional[bool] = None,
     ) -> Post:
         """
         Publish a draft by setting published_date and sending notifications.
@@ -960,6 +975,8 @@ class PostService:
         post_config = post.config
         post_config.hide = is_hide
         post_config.advertise = is_advertise
+        if block_comment is not None:
+            post_config.block_comment = block_comment
         PostService.apply_cover_options(
             post_config,
             cover_layout=cover_layout,

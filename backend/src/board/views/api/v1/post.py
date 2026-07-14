@@ -45,6 +45,7 @@ def post_list(request):
                 image=image,
                 is_hide=BooleanType(request.POST.get('is_hide', '')),
                 is_advertise=BooleanType(request.POST.get('is_advertise', '')),
+                block_comment=BooleanType(request.POST.get('block_comment', '')),
                 content_type=request.POST.get('content_type', 'html'),
                 cover_layout=request.POST.get('cover_layout'),
                 cover_image_position=request.POST.get('cover_image_position'),
@@ -96,6 +97,7 @@ def user_posts(request, username, url=None):
                     'tags': post.tagging(),
                     'is_hide': post.config.hide,
                     'is_advertise': post.config.advertise,
+                    'block_comment': post.config.block_comment,
                     'cover_layout': post.config.cover_layout,
                     'cover_image_position': post.config.cover_image_position,
                     'cover_image_ratio': post.config.cover_image_ratio,
@@ -154,6 +156,11 @@ def user_posts(request, username, url=None):
                     image_delete=request.POST.get('image_delete') == 'true',
                     is_hide=BooleanType(request.POST.get('is_hide', '')),
                     is_advertise=BooleanType(request.POST.get('is_advertise', '')),
+                    block_comment=(
+                        BooleanType(request.POST.get('block_comment', ''))
+                        if 'block_comment' in request.POST
+                        else None
+                    ),
                     tag=request.POST.get('tag', ''),
                     content_type=request.POST.get('content_type'),
                     cover_layout=request.POST.get('cover_layout'),

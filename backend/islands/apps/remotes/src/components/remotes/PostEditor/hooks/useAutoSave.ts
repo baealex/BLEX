@@ -15,6 +15,7 @@ interface AutoSaveData {
     coverImageRatio?: string;
     hide: boolean;
     advertise: boolean;
+    blockComment: boolean;
     reservedDate?: string;
     imageFile?: File | null;
     imageDeleted?: boolean;
@@ -43,6 +44,7 @@ const buildDraftPayload = (data: AutoSaveData, useFormData: boolean) => {
         if (data.coverImageRatio) formData.append('cover_image_ratio', data.coverImageRatio);
         formData.append('is_hide', String(data.hide));
         formData.append('is_advertise', String(data.advertise));
+        formData.append('block_comment', String(data.blockComment));
         if (data.reservedDate !== undefined) formData.append('reserved_date', data.reservedDate);
         if (data.imageFile) formData.append('image', data.imageFile);
         if (data.imageDeleted) formData.append('image_delete', 'true');
@@ -62,6 +64,7 @@ const buildDraftPayload = (data: AutoSaveData, useFormData: boolean) => {
         cover_image_ratio: data.coverImageRatio,
         is_hide: data.hide,
         is_advertise: data.advertise,
+        block_comment: data.blockComment,
         reserved_date: data.reservedDate
     };
 };
@@ -99,6 +102,7 @@ export const useAutoSave = (data: AutoSaveData, options: UseAutoSaveOptions) => 
         coverImageRatio: value.coverImageRatio,
         hide: value.hide,
         advertise: value.advertise,
+        blockComment: value.blockComment,
         reservedDate: value.reservedDate
     }), []);
 

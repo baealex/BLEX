@@ -466,6 +466,7 @@ EXPECTED_POST_SERVICE_SIGNATURES = {
         ('cover_layout', None),
         ('cover_image_position', None),
         ('cover_image_ratio', None),
+        ('block_comment', False),
     ),
     'update_post': (
         ('post', REQUIRED),
@@ -485,6 +486,7 @@ EXPECTED_POST_SERVICE_SIGNATURES = {
         ('cover_image_position', None),
         ('cover_image_ratio', None),
         ('reserved_date_str', None),
+        ('block_comment', None),
     ),
     'create_draft': (
         ('user', REQUIRED),
@@ -503,6 +505,7 @@ EXPECTED_POST_SERVICE_SIGNATURES = {
         ('reserved_date_str', None),
         ('is_hide', False),
         ('is_advertise', False),
+        ('block_comment', False),
     ),
     'update_draft': (
         ('post', REQUIRED),
@@ -522,6 +525,7 @@ EXPECTED_POST_SERVICE_SIGNATURES = {
         ('reserved_date_str', None),
         ('is_hide', None),
         ('is_advertise', None),
+        ('block_comment', None),
     ),
     'publish_draft': (
         ('post', REQUIRED),
@@ -541,6 +545,7 @@ EXPECTED_POST_SERVICE_SIGNATURES = {
         ('cover_layout', None),
         ('cover_image_position', None),
         ('cover_image_ratio', None),
+        ('block_comment', None),
     ),
     'get_post_detail': (('username', REQUIRED), ('url', REQUIRED), ('user', None)),
     'get_related_posts': (('post', REQUIRED),),

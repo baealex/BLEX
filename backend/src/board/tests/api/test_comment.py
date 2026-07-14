@@ -71,6 +71,7 @@ class CommentTestCase(TestCase):
         content = json.loads(response.content)
 
         self.assertEqual(response.status_code, 200)
+        self.assertTrue(content['body']['canComment'])
         comment = content['body']['comments'][0]
         self.assertFalse(comment['isDeleted'])
         self.assertEqual(comment['permissions'], {
@@ -217,6 +218,11 @@ class CommentTestCase(TestCase):
         post.config.save()
         initial_count = Comment.objects.count()
         self.client.login(username='viewer', password='test')
+
+        list_response = self.client.get('/v1/posts/test-post/comments')
+        list_body = json.loads(list_response.content)['body']
+        self.assertFalse(list_body['canComment'])
+        self.assertEqual(len(list_body['comments']), initial_count)
 
         response = self.client.post('/v1/comments?url=test-post', {
             'comment_md': '# Blocked Comment',
