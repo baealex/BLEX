@@ -6,6 +6,7 @@ import {
     useRef,
     useCallback
 } from 'react';
+import type { MouseEvent } from 'react';
 import { toast } from '~/utils/toast';
 import { useConfirm } from '~/hooks/useConfirm';
 import PostEditorWrapper from './PostEditorWrapper';
@@ -13,6 +14,7 @@ import PostActions from './components/PostActions';
 import PostForm from './components/PostForm';
 import DraftsPanel from './components/DraftsPanel';
 import SettingsDrawer from './components/SettingsDrawer';
+import PostPreviewDialog from './components/PostPreviewDialog';
 import PublishChecklist from './components/PublishChecklist';
 import ScheduleStatusNotice from './components/ScheduleStatusNotice';
 import { useAutoSave } from './hooks/useAutoSave';
@@ -58,10 +60,14 @@ const NewPostEditor = ({
     const [seriesList, setSeriesList] = useState<Series[]>([]);
     const [isDraftsPanelOpen, setIsDraftsPanelOpen] = useState(false);
     const [isSettingsDrawerOpen, setIsSettingsDrawerOpen] = useState(false);
+    const [isPreviewOpen, setIsPreviewOpen] = useState(false);
+    const [isPreparingPreview, setIsPreparingPreview] = useState(false);
+    const [previewUrl, setPreviewUrl] = useState<string | null>(null);
     const [isUrlAutoSync, setIsUrlAutoSync] = useState(true);
     const [currentDraftUrl, setCurrentDraftUrl] = useState(draftUrl);
     const [showPublishChecklist, setShowPublishChecklist] = useState(false);
     const [isEditorMediaUploading, setIsEditorMediaUploading] = useState(false);
+    const previewTriggerRef = useRef<HTMLButtonElement | null>(null);
 
     const [formData, setFormData] = useState({
         title: '',
@@ -377,11 +383,34 @@ const NewPostEditor = ({
             return;
         }
 
-        const success = await manualSave();
-        if (success) {
+        const savedDraftUrl = await manualSave();
+        if (savedDraftUrl) {
             toast.success('임시저장되었습니다.');
         } else {
             toast.error('임시저장에 실패했습니다.');
+        }
+    };
+
+    const handleOpenPreview = async (event: MouseEvent<HTMLButtonElement>) => {
+        previewTriggerRef.current = event.currentTarget;
+
+        if (isEditorMediaUploading) {
+            toast.warning('파일 업로드가 끝난 뒤 미리보기를 열어주세요.');
+            return;
+        }
+
+        setIsPreparingPreview(true);
+        try {
+            const savedDraftUrl = await manualSave();
+            if (!savedDraftUrl) {
+                toast.error('미리보기를 위한 임시저장에 실패했습니다.');
+                return;
+            }
+
+            setPreviewUrl(`/write/preview/${encodeURIComponent(savedDraftUrl)}`);
+            setIsPreviewOpen(true);
+        } finally {
+            setIsPreparingPreview(false);
         }
     };
 
@@ -523,6 +552,8 @@ const NewPostEditor = ({
                 onManualSave={handleManualSave}
                 onSubmit={() => handleSubmit()}
                 onOpenDrafts={() => setIsDraftsPanelOpen(true)}
+                onPreview={handleOpenPreview}
+                isPreviewing={isPreparingPreview}
                 onOpenSettings={() => setIsSettingsDrawerOpen(true)}
                 submitLabel={formData.reservedDate ? '예약' : undefined}
             />
@@ -533,6 +564,13 @@ const NewPostEditor = ({
                 isSubmitting={isSubmitting}
                 onClose={() => setShowPublishChecklist(false)}
                 onConfirm={handleConfirmPublish}
+            />
+
+            <PostPreviewDialog
+                isOpen={isPreviewOpen}
+                previewUrl={previewUrl}
+                returnFocusTo={previewTriggerRef.current}
+                onClose={() => setIsPreviewOpen(false)}
             />
 
             {/* Settings Drawer */}

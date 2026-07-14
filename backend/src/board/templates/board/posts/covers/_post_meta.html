@@ -11,7 +11,7 @@
             {{ post.author_username }}
         </a>
         <span class="{% if cover_inverted %}text-white/55{% else %}text-line-strong{% endif %}">·</span>
-        <span class="{% if cover_inverted %}text-white/80{% else %}text-content-secondary{% endif %}" itemprop="datePublished" content="{{ post.published_date|date:'c' }}">{{ post.created_date_display }} 발행</span>
+        <span class="{% if cover_inverted %}text-white/80{% else %}text-content-secondary{% endif %}" itemprop="datePublished" content="{{ post.preview_date|date:'c' }}">{{ post.created_date_display }} {% if is_post_preview %}미리보기{% else %}발행{% endif %}</span>
         {% if show_post_updated_date %}
         <span class="{% if cover_inverted %}text-white/55{% else %}text-line-strong{% endif %}">·</span>
         <span class="{% if cover_inverted %}text-white/80{% else %}text-content-secondary{% endif %}" itemprop="dateModified" content="{{ post.updated_date|date:'c' }}">{{ post.updated_date_display }} 수정</span>
