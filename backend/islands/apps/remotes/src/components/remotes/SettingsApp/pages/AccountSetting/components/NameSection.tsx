@@ -56,7 +56,6 @@ const NameSection = ({ initialName, isLoading, onSubmit }: NameSectionProps) => 
                 label="사용자 이름"
                 placeholder="사용자 이름"
                 maxLength={30}
-                helperText="프로필과 화면에 표시되는 이름입니다."
                 error={errors.name?.message}
                 {...register('name')}
             />

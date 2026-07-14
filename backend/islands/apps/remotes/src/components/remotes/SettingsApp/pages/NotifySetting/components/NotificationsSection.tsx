@@ -30,7 +30,6 @@ const NotificationsSection = ({
         <div className="space-y-8">
             <SettingsHeader
                 title="알림"
-                description="최신 알림을 확인할 수 있습니다."
                 actionPosition="right"
                 action={
                     <Button
@@ -94,7 +93,6 @@ const NotificationsSection = ({
                     <SettingsEmptyState
                         iconClassName="fas fa-bell-slash"
                         title="알림이 없습니다"
-                        description="새로운 알림이 도착하면 여기에 표시됩니다."
                     />
                 )}
             </div>

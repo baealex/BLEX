@@ -7,7 +7,6 @@ const DraftsSetting = () => {
         <div>
             <SettingsHeader
                 title="임시 포스트"
-                description="작성 중인 임시 포스트를 이어서 작성하거나 삭제할 수 있습니다."
                 actionPosition="right"
                 action={
                     <Button

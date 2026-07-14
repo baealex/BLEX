@@ -152,7 +152,7 @@ const FormsManagement = () => {
         <div>
             <SettingsHeader
                 title={`서식 (${forms.length})`}
-                description="자주 사용하는 서식을 미리 만들어두면, 포스트를 더 빠르게 작성할 수 있어요."
+                description="새 포스트에 불러올 문구를 미리 저장합니다."
                 actionPosition="right"
                 action={
                     <Button
@@ -248,7 +248,6 @@ const FormsManagement = () => {
                 <SettingsEmptyState
                     iconClassName="fas fa-file-lines"
                     title="등록된 서식이 없습니다"
-                    description="자주 사용하는 서식을 추가해보세요."
                 />
             )}
         </div>

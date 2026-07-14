@@ -36,7 +36,7 @@ interface WebhookChannelManagerProps {
     description: string;
     formTitle: string;
     emptyTitle: string;
-    emptyDescription: string;
+    emptyDescription?: string;
     addButtonLabel?: string;
     fetchChannels: () => Promise<AxiosResponse<ChannelsResponse>>;
     createChannel: (data: { webhook_url: string; name?: string }) => Promise<AxiosResponse<CreateResponse>>;

@@ -251,7 +251,7 @@ export const PinnedPostsPanel = ({
             <div>
                 <SettingsHeader
                     title={`고정 포스트 (${pinnedPosts.length}/${maxCount})`}
-                    description="프로필에 표시할 고정 포스트를 선택하세요. 드래그하여 순서를 조정할 수 있습니다."
+                    description="드래그하여 프로필에 표시되는 순서를 조정할 수 있습니다."
                     actionPosition="right"
                     action={action}
                 />
@@ -271,7 +271,7 @@ export const PinnedPostsPanel = ({
                         </span>
                     </h3>
                     <p className="text-sm leading-relaxed text-content-secondary">
-                        프로필에 표시할 포스트를 선택하고 순서를 조정하세요.
+                        드래그하여 프로필에 표시되는 순서를 조정할 수 있습니다.
                     </p>
                 </div>
                 <div className="flex-shrink-0">

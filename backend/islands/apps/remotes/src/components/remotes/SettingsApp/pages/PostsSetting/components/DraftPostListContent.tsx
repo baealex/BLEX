@@ -67,7 +67,6 @@ export const DraftPostListContent = ({ onCountChange }: DraftPostListContentProp
             <SettingsEmptyState
                 iconClassName="fas fa-file-alt"
                 title="임시 포스트가 없습니다"
-                description="새 포스트를 작성해보세요."
             />
         );
     }
