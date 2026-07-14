@@ -10,6 +10,7 @@ from django.utils import timezone
 
 from board.models import Post, PostConfig, PostContent, Profile, Series, SiteSetting, StaticPage
 from board.feeds import SitePostsFeed, UserPostsFeed
+from board.services.post_trash_service import PostTrashService
 
 
 BASE_MIDDLEWARE = tuple(
@@ -363,6 +364,50 @@ class AgentContentTestCase(TestCase):
         self.assertEqual(
             self.client.get('/@aeo-author/cancelled-schedule-post.md').status_code,
             404,
+        )
+
+    def test_trash_and_restore_keep_agent_readable_surfaces_in_sync(self):
+        """휴지통 이동과 복원은 공개 HTML·sitemap·RSS·Markdown 노출을 함께 전환한다."""
+        trashed = PostTrashService.trash_post(self.public_post)
+
+        self.assertEqual(
+            self.client.get('/@aeo-author/agent-ready-post').status_code,
+            404,
+        )
+        self.assertNotIn(
+            '/@aeo-author/agent-ready-post',
+            self.client.get('/posts/sitemap.xml').content.decode(),
+        )
+        self.assertNotIn(
+            'Agent Ready Post',
+            self.client.get('/rss').content.decode(),
+        )
+        self.assertEqual(
+            self.client.get('/@aeo-author/agent-ready-post.md').status_code,
+            404,
+        )
+        self.assertEqual(self.client.get('/llms.txt').status_code, 200)
+
+        PostTrashService.restore_post(
+            trashed,
+            expected_deleted_date=trashed.deleted_date.isoformat(),
+        )
+
+        self.assertEqual(
+            self.client.get('/@aeo-author/agent-ready-post').status_code,
+            200,
+        )
+        self.assertIn(
+            '/@aeo-author/agent-ready-post',
+            self.client.get('/posts/sitemap.xml').content.decode(),
+        )
+        self.assertIn(
+            'Agent Ready Post',
+            self.client.get('/rss').content.decode(),
+        )
+        self.assertEqual(
+            self.client.get('/@aeo-author/agent-ready-post.md').status_code,
+            200,
         )
 
     def test_rss_feed_items_preload_author_and_content(self):

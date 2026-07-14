@@ -141,6 +141,14 @@ class PinnedPostService:
         } for pinned in pinned_posts]
 
     @staticmethod
+    def get_reserved_pinned_post_count(user: User) -> int:
+        """Count pinned slots retained by posts in the user's trash."""
+        return PinnedPost.objects.filter(
+            user=user,
+            post__deleted_date__isnull=False,
+        ).count()
+
+    @staticmethod
     def get_pinnable_posts(
         user: User,
         query: Optional[str] = '',
@@ -237,10 +245,7 @@ class PinnedPostService:
         PinnedPostService.validate_user_permissions(user)
 
         # Check if user has reached the limit
-        current_count = PinnedPost.objects.filter(
-            PublicPostService.build_public_filter('post'),
-            user=user,
-        ).count()
+        current_count = PinnedPost.objects.filter(user=user).count()
         if current_count >= PinnedPostService.MAX_PINNED_POSTS:
             raise PinnedPostError(
                 ErrorCode.REJECT,
@@ -351,9 +356,14 @@ class PinnedPostService:
             )
 
         # Get all current pinned posts for the user
+        current_pinned_list = list(
+            PinnedPost.objects.select_related('post')
+            .filter(user=user)
+            .order_by('order', 'id')
+        )
         current_pinned = {
-            p.post.url: p
-            for p in PinnedPost.objects.select_related('post').filter(user=user)
+            pinned.post.url: pinned
+            for pinned in current_pinned_list
         }
 
         # Validate all URLs are currently pinned
@@ -364,9 +374,16 @@ class PinnedPostService:
                     f'고정되지 않은 글이 포함되어 있습니다: {url}'
                 )
 
-        # Update order
-        for index, url in enumerate(post_urls):
-            pinned = current_pinned[url]
+        requested_urls = set(post_urls)
+        ordered_pins = [current_pinned[url] for url in post_urls]
+        ordered_pins.extend(
+            pinned
+            for pinned in current_pinned_list
+            if pinned.post.url not in requested_urls
+        )
+
+        # Keep omitted non-public pins after the explicitly ordered visible pins.
+        for index, pinned in enumerate(ordered_pins):
             if pinned.order != index:
                 pinned.order = index
                 pinned.save(update_fields=['order'])

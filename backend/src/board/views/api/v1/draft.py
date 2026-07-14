@@ -6,6 +6,7 @@ from board.models import Post
 from board.decorators import api_editor_required
 from board.services.api_request_body_service import ApiRequestBodyService
 from board.services.post_service import PostService, PostValidationError
+from board.services.post_trash_service import PostTrashService
 from board.modules.response import StatusDone, StatusError
 
 
@@ -172,7 +173,10 @@ def drafts_detail(request, url):
             return StatusError(e.code, e.message)
 
     if request.method == 'DELETE':
-        PostService.delete_post(draft)
-        return StatusDone()
+        draft = PostTrashService.trash_post(draft)
+        return StatusDone({
+            'trashed': True,
+            'deleted_date': draft.deleted_date.isoformat(),
+        })
 
     raise Http404

@@ -11,6 +11,7 @@ from board.services.comment_list_service import CommentListService
 from board.services.api_permission_service import ApiPermissionService
 from board.services.api_request_body_service import ApiRequestBodyService
 from board.services.post_service import PostService, PostValidationError
+from board.services.post_trash_service import PostTrashService
 from board.services.public_post_service import PublicPostService
 
 
@@ -230,8 +231,11 @@ def user_posts(request, username, url=None):
         if request.method == 'DELETE':
             if not PostService.can_user_delete_post(request.user, post):
                 raise Http404
-            PostService.delete_post(post)
-            return StatusDone()
+            post = PostTrashService.trash_post(post)
+            return StatusDone({
+                'trashed': True,
+                'deleted_date': post.deleted_date.isoformat(),
+            })
 
     raise Http404
 

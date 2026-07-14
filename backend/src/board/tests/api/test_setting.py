@@ -588,6 +588,13 @@ class SettingTestCase(TestCase):
         Post.objects.create(author=user, title='First One', url='first-one', series=first)
         Post.objects.create(author=user, title='First Two', url='first-two', series=first)
         Post.objects.create(author=user, title='Later One', url='later-one', series=later)
+        trashed = Post.objects.create(
+            author=user,
+            title='Trashed First',
+            url='trashed-first',
+            series=first,
+        )
+        Post.objects.filter(pk=trashed.pk).update(deleted_date=timezone.now())
         self.client.login(username='test', password='test')
 
         response = self.client.get('/v1/setting/series')

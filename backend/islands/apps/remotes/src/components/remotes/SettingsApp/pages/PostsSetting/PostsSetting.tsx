@@ -1,11 +1,22 @@
 import { Suspense, useState } from 'react';
-import { CalendarDays, FileText, Save, type LucideIcon } from '@blex/ui/icons';
+import {
+    CalendarDays,
+    FileText,
+    Save,
+    Trash2,
+    type LucideIcon
+} from '@blex/ui/icons';
 import { Button } from '~/components/shared';
 import { SettingsHeader } from '../../components';
 import { usePostsFilterState } from './hooks/usePostsData';
-import { DraftPostListContent, PostsFilter, PostListContent } from './components';
+import {
+    DraftPostListContent,
+    PostsFilter,
+    PostListContent,
+    TrashPostListContent
+} from './components';
 
-type PostStatusTab = 'published' | 'scheduled' | 'drafts';
+type PostStatusTab = 'published' | 'scheduled' | 'drafts' | 'trash';
 
 const POST_STATUS_TABS: {
     value: PostStatusTab;
@@ -26,11 +37,19 @@ const POST_STATUS_TABS: {
         value: 'drafts',
         label: '임시 포스트',
         icon: Save
+    },
+    {
+        value: 'trash',
+        label: '휴지통',
+        icon: Trash2
     }
 ];
 
 const isPostStatusTab = (value: string | null): value is PostStatusTab => {
-    return value === 'published' || value === 'scheduled' || value === 'drafts';
+    return value === 'published'
+        || value === 'scheduled'
+        || value === 'drafts'
+        || value === 'trash';
 };
 
 const getInitialTab = (): PostStatusTab => {
@@ -115,7 +134,11 @@ const PostsSetting = () => {
             <SettingsHeader
                 title={title}
                 actionPosition="right"
-                action={activeCount !== undefined && activeCount > 0 ? createPostAction : undefined}
+                action={
+                    activeTab !== 'trash' && activeCount !== undefined && activeCount > 0
+                        ? createPostAction
+                        : undefined
+                }
             />
 
             <div className="mb-6 border-b border-line-light">
@@ -143,7 +166,7 @@ const PostsSetting = () => {
                 </div>
             </div>
 
-            {activeTab !== 'drafts' && (
+            {(activeTab === 'published' || activeTab === 'scheduled') && (
                 <Suspense fallback={<div className="h-32 bg-surface-subtle animate-pulse rounded-lg mb-6" />}>
                     <PostsFilter
                         filters={filters}
@@ -193,6 +216,13 @@ const PostsSetting = () => {
                         <DraftPostListContent
                             onCountChange={(count) => handleCountChange('drafts', count)}
                             emptyAction={createPostAction}
+                        />
+                    )}
+                    {activeTab === 'trash' && (
+                        <TrashPostListContent
+                            page={filters.page}
+                            onPageChange={(page) => handleFilterChange('page', page)}
+                            onCountChange={(count) => handleCountChange('trash', count)}
                         />
                     )}
                 </div>

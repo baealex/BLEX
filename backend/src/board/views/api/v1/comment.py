@@ -103,6 +103,7 @@ def user_comment(request):
     if request.method == 'GET':
         comments = Comment.objects.filter(
             author=request.user,
+            post__deleted_date__isnull=True,
         ).annotate(
             post_author=F('post__author__username'),
             post_title=F('post__title'),

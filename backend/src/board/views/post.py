@@ -11,6 +11,7 @@ from django.views.decorators.http import require_GET
 from board.models import Post, Series, PostLikes, UsernameChangeLog
 from board.modules.response import StatusDone, StatusError
 from board.services.post_service import PostService, PostValidationError
+from board.services.post_trash_service import PostTrashService
 from board.services.post_detail_render_service import PostDetailRenderService
 from board.services.public_post_service import PublicPostService
 from board.decorators import editor_required
@@ -117,8 +118,8 @@ def post_editor(request, username=None, post_url=None):
 
     if request.method == 'POST':
         if is_edit and request.POST.get('delete') == 'true':
-            PostService.delete_post(post)
-            messages.success(request, 'Post has been deleted successfully.')
+            PostTrashService.trash_post(post)
+            messages.success(request, '포스트를 휴지통으로 옮겼습니다.')
             return redirect('user_profile', username=request.user.username)
 
         title = request.POST.get('title')

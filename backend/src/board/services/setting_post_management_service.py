@@ -6,7 +6,7 @@ from dataclasses import dataclass
 from typing import ClassVar, Iterable, TypedDict
 
 from django.contrib.auth.models import User
-from django.db.models import Count, QuerySet
+from django.db.models import Count, Q, QuerySet
 from django.http import Http404
 
 from board.models import Post, Series
@@ -254,7 +254,10 @@ class SettingPostManagementService:
         series_items = Series.objects.filter(
             owner=user,
         ).annotate(
-            total_posts=Count('posts'),
+            total_posts=Count(
+                'posts',
+                filter=Q(posts__deleted_date__isnull=True),
+            ),
         ).order_by('order', '-id')
 
         return {

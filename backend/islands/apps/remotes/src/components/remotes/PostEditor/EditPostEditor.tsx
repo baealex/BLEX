@@ -523,9 +523,9 @@ const EditPostEditor = ({ username, postUrl }: EditPostEditorProps) => {
 
     const handleDelete = async () => {
         const confirmed = await confirm({
-            title: '포스트 삭제',
-            message: '정말로 이 포스트를 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.',
-            confirmText: '삭제',
+            title: '휴지통으로 이동',
+            message: '이 포스트를 휴지통으로 옮길까요? 포스트 설정에서 다시 복원할 수 있습니다.',
+            confirmText: '휴지통으로 이동',
             variant: 'danger'
         });
 
@@ -544,7 +544,7 @@ const EditPostEditor = ({ username, postUrl }: EditPostEditorProps) => {
 
             form.submit();
         } catch {
-            toast.error('포스트 삭제에 실패했습니다.');
+            toast.error('포스트를 휴지통으로 옮기지 못했습니다.');
             setIsSubmitting(false);
         }
     };

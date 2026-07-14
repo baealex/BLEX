@@ -161,7 +161,7 @@ const PostCard = ({
                                     onClick: () => onVisibilityToggle(post.url)
                                 },
                                 {
-                                    label: '삭제',
+                                    label: '휴지통으로 이동',
                                     icon: <Trash2 aria-hidden className="h-4 w-4" />,
                                     onClick: () => onDelete(post.url),
                                     variant: 'danger'

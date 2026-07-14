@@ -208,6 +208,7 @@ def setting(request, parameter):
                 'pinned_posts': pinned_posts,
                 'username': user.username,
                 'max_count': PinnedPostService.MAX_PINNED_POSTS,
+                'reserved_count': PinnedPostService.get_reserved_pinned_post_count(user),
             })
 
         if parameter == 'pinnable-posts':
