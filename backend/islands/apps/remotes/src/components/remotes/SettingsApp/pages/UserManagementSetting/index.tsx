@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react';
 import { useMutation, useQuery, useQueryClient, useSuspenseQuery } from '@tanstack/react-query';
+import { ChevronDown } from '@blex/ui/icons';
 import { toast } from '~/utils/toast';
 import { useConfirm } from '~/hooks/useConfirm';
 import { SettingsHeader } from '../../components';
@@ -106,20 +107,115 @@ const formatDate = (value: string | null) => {
     }).format(new Date(value));
 };
 
+const getUserStatusLabel = (user: ManagedUser) => {
+    if (!user.isActive) return '비활성';
+    if (user.isSuperuser) return '최고 관리자';
+    if (user.isStaff) return '관리자';
+    return '활성';
+};
+
 const UserStatusBadge = ({ user }: { user: ManagedUser }) => {
-    if (!user.isActive) {
-        return <span className="rounded-full bg-danger-surface px-2 py-1 text-xs font-semibold text-danger">비활성</span>;
-    }
+    const label = getUserStatusLabel(user);
+    const classes = !user.isActive
+        ? 'bg-danger-surface text-danger'
+        : user.isSuperuser
+            ? 'bg-warning-surface text-warning'
+            : user.isStaff
+                ? 'bg-surface-subtle text-content-secondary'
+                : 'bg-success-surface text-success';
 
-    if (user.isSuperuser) {
-        return <span className="rounded-full bg-warning-surface px-2 py-1 text-xs font-semibold text-warning">최고 관리자</span>;
-    }
+    return <span className={`shrink-0 rounded-full px-2 py-1 text-xs font-semibold ${classes}`}>{label}</span>;
+};
 
-    if (user.isStaff) {
-        return <span className="rounded-full bg-surface-subtle px-2 py-1 text-xs font-semibold text-content-secondary">관리자</span>;
-    }
+interface MobileUserRowProps {
+    user: ManagedUser;
+    isExpanded: boolean;
+    isRoleUpdating: boolean;
+    onToggle: () => void;
+    onRoleChange: (role: ManagedUserRole) => void;
+}
 
-    return <span className="rounded-full bg-success-surface px-2 py-1 text-xs font-semibold text-success">활성</span>;
+const MobileUserRow = ({
+    user,
+    isExpanded,
+    isRoleUpdating,
+    onToggle,
+    onRoleChange
+}: MobileUserRowProps) => {
+    const detailsId = `managed-user-details-${user.id}`;
+    const toggleId = `managed-user-toggle-${user.id}`;
+
+    return (
+        <div className="md:hidden">
+            <button
+                id={toggleId}
+                type="button"
+                aria-expanded={isExpanded}
+                aria-controls={detailsId}
+                aria-label={`${user.username}, ${getUserStatusLabel(user)}, ${getRoleLabel(user.role)}, 상세 ${isExpanded ? '접기' : '펼치기'}`}
+                onClick={onToggle}
+                className="flex min-h-16 w-full items-center gap-3 px-4 py-3 text-left transition-colors hover:bg-surface-subtle active:bg-surface-subtle motion-reduce:transition-none">
+                <span className="min-w-0 flex-1">
+                    <span className="block truncate text-sm font-semibold text-content">{user.username}</span>
+                    <span className="mt-1 flex min-w-0 items-center gap-2">
+                        {user.name && (
+                            <span className="min-w-0 truncate text-xs text-content-secondary">{user.name}</span>
+                        )}
+                        <UserStatusBadge user={user} />
+                    </span>
+                </span>
+                <span className="flex shrink-0 items-center gap-2">
+                    <span className="rounded-full bg-surface-subtle px-2.5 py-1 text-xs font-semibold text-content-secondary">
+                        {getRoleLabel(user.role)}
+                    </span>
+                    <ChevronDown
+                        aria-hidden="true"
+                        className={`h-4 w-4 text-content-hint transition-transform motion-reduce:transition-none ${isExpanded ? 'rotate-180' : ''}`}
+                    />
+                </span>
+            </button>
+
+            {isExpanded && (
+                <div
+                    id={detailsId}
+                    role="region"
+                    aria-labelledby={toggleId}
+                    className="border-t border-line bg-surface-subtle/40 px-4 py-4">
+                    <dl className="grid grid-cols-2 gap-x-4 gap-y-3">
+                        <div className="col-span-2 min-w-0">
+                            <dt className="text-xs font-medium text-content-hint">이메일</dt>
+                            <dd className="mt-1 truncate text-sm text-content-secondary">{user.email || '이메일 없음'}</dd>
+                        </div>
+                        <div>
+                            <dt className="text-xs font-medium text-content-hint">포스트</dt>
+                            <dd className="mt-1 text-sm font-medium text-content">{user.postCount}</dd>
+                        </div>
+                        <div>
+                            <dt className="text-xs font-medium text-content-hint">가입일</dt>
+                            <dd className="mt-1 text-sm font-medium text-content">{formatDate(user.dateJoined)}</dd>
+                        </div>
+                    </dl>
+
+                    <div className="mt-4 border-t border-line pt-4">
+                        <p className="mb-2 text-xs font-medium text-content-hint">권한</p>
+                        {user.canChangeRole ? (
+                            <Select
+                                value={user.role}
+                                onValueChange={(value) => onRoleChange(value as ManagedUserRole)}
+                                items={roleItems}
+                                className="min-h-11 py-2"
+                                disabled={isRoleUpdating}
+                            />
+                        ) : (
+                            <p className="flex min-h-11 items-center text-sm font-medium text-content">
+                                {getRoleLabel(user.role)}
+                            </p>
+                        )}
+                    </div>
+                </div>
+            )}
+        </div>
+    );
 };
 
 const UserManagementSetting = () => {
@@ -130,6 +226,7 @@ const UserManagementSetting = () => {
     const [roleFilter, setRoleFilter] = useState<ManagedUserRoleFilter>('all');
     const [ordering, setOrdering] = useState<ManagedUserOrdering>('username');
     const [page, setPage] = useState(1);
+    const [expandedUserId, setExpandedUserId] = useState<number | null>(null);
 
     const {
         data: fetchedUsersData,
@@ -245,6 +342,7 @@ const UserManagementSetting = () => {
 
     const handleSearch = () => {
         setPage(1);
+        setExpandedUserId(null);
         setAppliedQuery(query.trim());
     };
 
@@ -254,21 +352,29 @@ const UserManagementSetting = () => {
         setRoleFilter('all');
         setOrdering('username');
         setPage(1);
+        setExpandedUserId(null);
     };
 
     const handleRoleFilterChange = (value: string) => {
         setRoleFilter(value as ManagedUserRoleFilter);
         setPage(1);
+        setExpandedUserId(null);
     };
 
     const handleOrderingChange = (value: string) => {
         setOrdering(value as ManagedUserOrdering);
         setPage(1);
+        setExpandedUserId(null);
     };
 
     const handlePageMove = (nextPage: number) => {
         if (nextPage < 1 || nextPage > pagination.totalPages || nextPage === currentPage) return;
         setPage(nextPage);
+        setExpandedUserId(null);
+    };
+
+    const handleUserToggle = (userId: number) => {
+        setExpandedUserId(currentId => currentId === userId ? null : userId);
     };
 
     const handleCopyInvite = async (invite: AuthorInvite) => {
@@ -300,24 +406,26 @@ const UserManagementSetting = () => {
                 description="운영자가 독자와 작가 권한을 한 화면에서 확인하고 변경합니다. 관리자 계정 권한은 안전을 위해 Django 관리자에서만 다룹니다."
             />
 
-            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-                <div className="rounded-2xl bg-surface p-5 ring-1 ring-line/60">
-                    <p className="text-xs text-content-secondary">전체</p>
-                    <p className="mt-1 text-2xl font-semibold text-content">{stats.total}</p>
+            <dl
+                aria-label="사용자 통계"
+                className="grid grid-cols-4 divide-x divide-line overflow-hidden rounded-xl border border-line bg-surface">
+                <div className="min-w-0 px-2 py-3 text-center sm:px-4">
+                    <dt className="text-xs text-content-secondary">전체</dt>
+                    <dd className="mt-1 text-xl font-semibold text-content">{stats.total}</dd>
                 </div>
-                <div className="rounded-2xl bg-surface p-5 ring-1 ring-line/60">
-                    <p className="text-xs text-content-secondary">작가</p>
-                    <p className="mt-1 text-2xl font-semibold text-content">{stats.editors}</p>
+                <div className="min-w-0 px-2 py-3 text-center sm:px-4">
+                    <dt className="text-xs text-content-secondary">작가</dt>
+                    <dd className="mt-1 text-xl font-semibold text-content">{stats.editors}</dd>
                 </div>
-                <div className="rounded-2xl bg-surface p-5 ring-1 ring-line/60">
-                    <p className="text-xs text-content-secondary">독자</p>
-                    <p className="mt-1 text-2xl font-semibold text-content">{stats.readers}</p>
+                <div className="min-w-0 px-2 py-3 text-center sm:px-4">
+                    <dt className="text-xs text-content-secondary">독자</dt>
+                    <dd className="mt-1 text-xl font-semibold text-content">{stats.readers}</dd>
                 </div>
-                <div className="rounded-2xl bg-surface p-5 ring-1 ring-line/60">
-                    <p className="text-xs text-content-secondary">관리자</p>
-                    <p className="mt-1 text-2xl font-semibold text-content">{stats.admins}</p>
+                <div className="min-w-0 px-2 py-3 text-center sm:px-4">
+                    <dt className="text-xs text-content-secondary">관리자</dt>
+                    <dd className="mt-1 text-xl font-semibold text-content">{stats.admins}</dd>
                 </div>
-            </div>
+            </dl>
 
             <Card
                 title="작가 초대"
@@ -434,41 +542,47 @@ const UserManagementSetting = () => {
 
                     <div className="divide-y divide-line">
                         {users.map(user => (
-                            <div key={user.id} className="grid gap-4 px-4 py-4 md:grid-cols-[minmax(0,1.5fr)_110px_90px_100px_130px] md:items-center">
-                                <div className="min-w-0">
-                                    <div className="flex items-center gap-2">
-                                        <p className="truncate text-sm font-semibold text-content">{user.username}</p>
-                                        {user.name && <span className="text-xs text-content-secondary">{user.name}</span>}
+                            <div key={user.id}>
+                                <MobileUserRow
+                                    user={user}
+                                    isExpanded={expandedUserId === user.id}
+                                    isRoleUpdating={roleMutation.isPending && roleMutation.variables?.user.id === user.id}
+                                    onToggle={() => handleUserToggle(user.id)}
+                                    onRoleChange={role => void handleRoleChange(user, role)}
+                                />
+
+                                <div className="hidden gap-4 px-4 py-4 md:grid md:grid-cols-[minmax(0,1.5fr)_110px_90px_100px_130px] md:items-center">
+                                    <div className="min-w-0">
+                                        <div className="flex items-center gap-2">
+                                            <p className="truncate text-sm font-semibold text-content">{user.username}</p>
+                                            {user.name && <span className="text-xs text-content-secondary">{user.name}</span>}
+                                        </div>
+                                        <p className="truncate text-xs text-content-secondary">{user.email || '이메일 없음'}</p>
                                     </div>
-                                    <p className="truncate text-xs text-content-secondary">{user.email || '이메일 없음'}</p>
-                                </div>
 
-                                <div className="space-y-1">
-                                    <span className="text-xs font-medium text-content-secondary md:hidden">권한</span>
-                                    {user.canChangeRole ? (
-                                        <Select
-                                            value={user.role}
-                                            onValueChange={(value) => void handleRoleChange(user, value as ManagedUserRole)}
-                                            items={roleItems}
-                                            className="min-h-10 py-2"
-                                            disabled={roleMutation.isPending && roleMutation.variables?.user.id === user.id}
-                                        />
-                                    ) : (
-                                        <span className="text-sm font-medium text-content">{getRoleLabel(user.role)}</span>
-                                    )}
-                                </div>
+                                    <div className="space-y-1">
+                                        {user.canChangeRole ? (
+                                            <Select
+                                                value={user.role}
+                                                onValueChange={(value) => void handleRoleChange(user, value as ManagedUserRole)}
+                                                items={roleItems}
+                                                className="min-h-10 py-2"
+                                                disabled={roleMutation.isPending && roleMutation.variables?.user.id === user.id}
+                                            />
+                                        ) : (
+                                            <span className="text-sm font-medium text-content">{getRoleLabel(user.role)}</span>
+                                        )}
+                                    </div>
 
-                                <div className="flex items-center justify-between gap-3 text-sm text-content-secondary md:block md:text-content">
-                                    <span className="text-xs font-medium md:hidden">포스트</span>
-                                    <span>{user.postCount}</span>
-                                </div>
-                                <div className="flex items-center justify-between gap-3 md:block">
-                                    <span className="text-xs font-medium text-content-secondary md:hidden">상태</span>
-                                    <UserStatusBadge user={user} />
-                                </div>
-                                <div className="flex items-center justify-between gap-3 text-sm text-content-secondary md:block">
-                                    <span className="text-xs font-medium md:hidden">가입일</span>
-                                    <span>{formatDate(user.dateJoined)}</span>
+                                    <div className="text-sm text-content">
+                                        <span>{user.postCount}</span>
+                                    </div>
+                                    <div>
+                                        <UserStatusBadge user={user} />
+                                    </div>
+                                    <div className="text-sm text-content-secondary">
+                                        <span>{formatDate(user.dateJoined)}</span>
+                                    </div>
                                 </div>
                             </div>
                         ))}
