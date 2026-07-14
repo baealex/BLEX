@@ -5,6 +5,8 @@ import { getPosts, getReservedPosts, type Post as ApiPost } from '~/lib/api/post
 import { getTags, getSeries } from '~/lib/api/settings';
 
 export interface Post extends ApiPost {
+    persistedTag: string;
+    persistedSeries: string;
     hasTagChanged?: boolean;
     hasSeriesChanged?: boolean;
     isPinned?: boolean;
@@ -105,6 +107,7 @@ const syncFiltersToURL = (filters: FilterOptions) => {
 
 export const usePostsFilterState = () => {
     const [filters, setFilters] = useState<FilterOptions>(getFiltersFromURL());
+    const [searchValue, setSearchValue] = useState(filters.search);
     const [isFilterExpanded, setIsFilterExpanded] = useState(true);
     const searchDebounce = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -135,7 +138,23 @@ export const usePostsFilterState = () => {
         syncFiltersToURL(filters);
     }, [filters]);
 
+    useEffect(() => {
+        return () => {
+            if (searchDebounce.current) {
+                clearTimeout(searchDebounce.current);
+            }
+        };
+    }, []);
+
     const handleFilterChange = (key: keyof FilterOptions, value: string) => {
+        if (key === 'search') {
+            if (searchDebounce.current) {
+                clearTimeout(searchDebounce.current);
+                searchDebounce.current = null;
+            }
+            setSearchValue(value);
+        }
+
         setFilters(prev => ({
             ...prev,
             [key]: value,
@@ -145,17 +164,28 @@ export const usePostsFilterState = () => {
 
     const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const value = e.target.value;
+        setSearchValue(value);
 
         if (searchDebounce.current) {
             clearTimeout(searchDebounce.current);
         }
 
         searchDebounce.current = setTimeout(() => {
-            handleFilterChange('search', value);
+            setFilters(prev => ({
+                ...prev,
+                search: value,
+                page: '1'
+            }));
+            searchDebounce.current = null;
         }, 300);
     };
 
     const clearFilters = () => {
+        if (searchDebounce.current) {
+            clearTimeout(searchDebounce.current);
+            searchDebounce.current = null;
+        }
+        setSearchValue('');
         setFilters({
             search: '',
             tag: '',
@@ -168,6 +198,7 @@ export const usePostsFilterState = () => {
 
     return {
         filters,
+        searchValue,
         isFilterExpanded,
         setIsFilterExpanded,
         handleFilterChange,
@@ -204,7 +235,11 @@ export const usePostsQuery = (filters: FilterOptions, source: PostsSource = 'pub
 
     useEffect(() => {
         if (postsData?.posts) {
-            setPosts(postsData.posts);
+            setPosts(postsData.posts.map(post => ({
+                ...post,
+                persistedTag: post.tag,
+                persistedSeries: post.series || ''
+            })));
         }
     }, [postsData]);
 

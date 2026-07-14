@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { toast } from '~/utils/toast';
 import { useConfirm } from '~/hooks/useConfirm';
 import {
@@ -22,6 +23,8 @@ interface UsePostsActionsReturn {
     handleTagSubmit: (postUrl: string) => Promise<void>;
     handleSeriesChange: (postUrl: string, value: string) => void;
     handleSeriesSubmit: (postUrl: string) => Promise<void>;
+    savingTagPostUrls: ReadonlySet<string>;
+    savingSeriesPostUrls: ReadonlySet<string>;
 }
 
 export const usePostsActions = ({
@@ -31,6 +34,8 @@ export const usePostsActions = ({
     refetch
 }: UsePostsActionsProps): UsePostsActionsReturn => {
     const { confirm } = useConfirm();
+    const [savingTagPostUrls, setSavingTagPostUrls] = useState<Set<string>>(new Set());
+    const [savingSeriesPostUrls, setSavingSeriesPostUrls] = useState<Set<string>>(new Set());
 
     const handleVisibilityToggle = async (postUrl: string) => {
         try {
@@ -84,7 +89,7 @@ export const usePostsActions = ({
                 ? {
                     ...post,
                     tag: value,
-                    hasTagChanged: post.tag !== value
+                    hasTagChanged: post.persistedTag !== value
                 }
                 : post
         ));
@@ -92,27 +97,42 @@ export const usePostsActions = ({
 
     const handleTagSubmit = async (postUrl: string) => {
         const post = posts.find(p => p.url === postUrl);
-        if (!post) return;
+        if (!post || savingTagPostUrls.has(postUrl)) return;
+
+        const submittedTag = post.tag;
+        setSavingTagPostUrls(prev => new Set(prev).add(postUrl));
 
         try {
-            const { data } = await updatePostTags(username, postUrl, post.tag);
+            const { data } = await updatePostTags(username, postUrl, submittedTag);
 
             if (data.status === 'DONE') {
-                setPosts(prev => prev.map(p =>
-                    p.url === postUrl
-                        ? {
-                            ...p,
-                            tag: data.body.tag || '',
-                            hasTagChanged: false
-                        }
-                        : p
-                ));
+                const persistedTag = data.body.tag || '';
+                setPosts(prev => prev.map(currentPost => {
+                    if (currentPost.url !== postUrl) return currentPost;
+
+                    const tag = currentPost.tag === submittedTag
+                        ? persistedTag
+                        : currentPost.tag;
+
+                    return {
+                        ...currentPost,
+                        tag,
+                        persistedTag,
+                        hasTagChanged: tag !== persistedTag
+                    };
+                }));
                 toast.success('태그가 수정되었습니다.');
             } else {
                 throw new Error('Failed to update tag');
             }
         } catch {
             toast.error('태그 수정에 실패했습니다.');
+        } finally {
+            setSavingTagPostUrls(prev => {
+                const next = new Set(prev);
+                next.delete(postUrl);
+                return next;
+            });
         }
     };
 
@@ -122,7 +142,7 @@ export const usePostsActions = ({
                 ? {
                     ...post,
                     series: value,
-                    hasSeriesChanged: post.series !== value
+                    hasSeriesChanged: post.persistedSeries !== value
                 }
                 : post
         ));
@@ -130,27 +150,42 @@ export const usePostsActions = ({
 
     const handleSeriesSubmit = async (postUrl: string) => {
         const post = posts.find(p => p.url === postUrl);
-        if (!post) return;
+        if (!post || savingSeriesPostUrls.has(postUrl)) return;
+
+        const submittedSeries = post.series || '';
+        setSavingSeriesPostUrls(prev => new Set(prev).add(postUrl));
 
         try {
-            const { data } = await updatePostSeries(username, postUrl, post.series || '');
+            const { data } = await updatePostSeries(username, postUrl, submittedSeries);
 
             if (data.status === 'DONE') {
-                setPosts(prev => prev.map(p =>
-                    p.url === postUrl
-                        ? {
-                            ...p,
-                            series: data.body.series || '',
-                            hasSeriesChanged: false
-                        }
-                        : p
-                ));
+                const persistedSeries = data.body.series || '';
+                setPosts(prev => prev.map(currentPost => {
+                    if (currentPost.url !== postUrl) return currentPost;
+
+                    const series = (currentPost.series || '') === submittedSeries
+                        ? persistedSeries
+                        : currentPost.series || '';
+
+                    return {
+                        ...currentPost,
+                        series,
+                        persistedSeries,
+                        hasSeriesChanged: series !== persistedSeries
+                    };
+                }));
                 toast.success('시리즈가 수정되었습니다.');
             } else {
                 throw new Error('Failed to update series');
             }
         } catch {
             toast.error('시리즈 수정에 실패했습니다.');
+        } finally {
+            setSavingSeriesPostUrls(prev => {
+                const next = new Set(prev);
+                next.delete(postUrl);
+                return next;
+            });
         }
     };
 
@@ -160,6 +195,8 @@ export const usePostsActions = ({
         handleTagChange,
         handleTagSubmit,
         handleSeriesChange,
-        handleSeriesSubmit
+        handleSeriesSubmit,
+        savingTagPostUrls,
+        savingSeriesPostUrls
     };
 };

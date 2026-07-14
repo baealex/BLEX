@@ -40,7 +40,9 @@ export const PostListContent = ({
         handleTagChange,
         handleTagSubmit,
         handleSeriesChange,
-        handleSeriesSubmit
+        handleSeriesSubmit,
+        savingTagPostUrls,
+        savingSeriesPostUrls
     } = usePostsActions({
         username: postsData?.username || '',
         posts,
@@ -73,8 +75,10 @@ export const PostListContent = ({
                             onDelete={handleDelete}
                             onTagChange={handleTagChange}
                             onTagSubmit={handleTagSubmit}
+                            isTagSaving={savingTagPostUrls.has(post.url)}
                             onSeriesChange={handleSeriesChange}
                             onSeriesSubmit={handleSeriesSubmit}
+                            isSeriesSaving={savingSeriesPostUrls.has(post.url)}
                             dateDisplay={isScheduled ? `예약 ${post.createdDate}` : undefined}
                             dateIcon={isScheduled
                                 ? <CalendarDays aria-hidden className="h-3.5 w-3.5 text-content-hint" />

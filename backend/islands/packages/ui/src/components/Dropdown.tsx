@@ -44,6 +44,7 @@ const Dropdown = ({
                     trigger
                 ) : (
                     <button
+                        type="button"
                         className={`p-2 text-content-secondary hover:text-content hover:bg-surface-subtle rounded-lg transition-colors outline-none ${triggerClassName}`}
                         aria-label={triggerAriaLabel}>
                         <EllipsisVertical aria-hidden="true" className="h-4 w-4" />
