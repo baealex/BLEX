@@ -108,6 +108,21 @@ EXPECTED_ROUTE_CONTRACT = (
     ('v1/users/@<username>', None, 'board.views.api.v1.user.users'),
     ('v1/users/@<username>/posts/<url>', None, 'board.views.api.v1.post.user_posts'),
     (
+        'v1/users/@<username>/posts/<url>/revisions',
+        None,
+        'board.views.api.v1.post_revision.post_revisions',
+    ),
+    (
+        'v1/users/@<username>/posts/<url>/revisions/<int:revision_id>',
+        None,
+        'board.views.api.v1.post_revision.post_revisions',
+    ),
+    (
+        'v1/users/@<username>/posts/<url>/revisions/<int:revision_id>/restore',
+        None,
+        'board.views.api.v1.post_revision.restore_post_revision',
+    ),
+    (
         'v1/users/@<username>/posts/<url>/schedule/cancel',
         None,
         'board.views.api.v1.post_schedule.cancel_post_schedule',
@@ -264,6 +279,8 @@ EXPECTED_V1_API_EXPORTS = (
     'get_author_heatmap',
     'users',
     'user_posts',
+    'post_revisions',
+    'restore_post_revision',
     'cancel_post_schedule',
     'publish_scheduled_post_now',
     'user_post_related',

@@ -28,6 +28,18 @@ urlpatterns = [
     path('v1/users/@<username>', api_v1.users),
     path('v1/users/@<username>/posts/<url>', api_v1.user_posts),
     path(
+        'v1/users/@<username>/posts/<url>/revisions',
+        api_v1.post_revisions,
+    ),
+    path(
+        'v1/users/@<username>/posts/<url>/revisions/<int:revision_id>',
+        api_v1.post_revisions,
+    ),
+    path(
+        'v1/users/@<username>/posts/<url>/revisions/<int:revision_id>/restore',
+        api_v1.restore_post_revision,
+    ),
+    path(
         'v1/users/@<username>/posts/<url>/schedule/cancel',
         api_v1.cancel_post_schedule,
     ),

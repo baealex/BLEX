@@ -6,6 +6,7 @@ import { IconButton } from '@blex/ui/icon-button';
 import {
     Eye,
     FileText,
+    History,
     Loader2,
     Save,
     Send,
@@ -27,6 +28,7 @@ interface PostActionsProps {
     onOpenDrafts?: () => void;
     onPreview?: (event: MouseEvent<HTMLButtonElement>) => void;
     isPreviewing?: boolean;
+    onOpenHistory?: (event: MouseEvent<HTMLButtonElement>) => void;
     onOpenSettings?: () => void;
     submitLabel?: string;
 }
@@ -55,6 +57,7 @@ const PostActions = ({
     onOpenDrafts,
     onPreview,
     isPreviewing = false,
+    onOpenHistory,
     onOpenSettings,
     submitLabel
 }: PostActionsProps) => {
@@ -99,6 +102,19 @@ const PostActions = ({
                     ) : (
                         <Eye className="h-5 w-5" />
                     )}
+                </IconButton>
+            )}
+
+            {/* Revision History */}
+            {onOpenHistory && (
+                <IconButton
+                    onClick={onOpenHistory}
+                    disabled={isBusy}
+                    rounded="full"
+                    className="shrink-0"
+                    aria-label="수정 이력"
+                    title="수정 이력">
+                    <History className="h-5 w-5" />
                 </IconButton>
             )}
 

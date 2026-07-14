@@ -28,6 +28,7 @@ from board.services.authoring_permission_service import AuthoringPermissionServi
 from board.services.public_post_service import PublicPostService
 from board.services.related_post_service import RelatedPostService
 from board.services.post_image_service import PostImageService
+from board.services.post_revision_service import PostRevisionService
 from board.services.post_status_service import PostStatusService
 from board.services.webhook_service import WebhookService
 
@@ -604,6 +605,17 @@ class PostService:
                 current_config=post_config,
             )
 
+        should_capture_revision = (
+            post.published_date is not None
+            and not getattr(post, '_skip_revision_capture', False)
+        )
+        previous_revision_snapshot = (
+            PostRevisionService.capture_snapshot(post)
+            if should_capture_revision
+            else None
+        )
+        previous_revision_updated_date = post.updated_date
+
         changed = False
 
         if title is not None and post.title != title:
@@ -701,6 +713,13 @@ class PostService:
 
         if config_changed:
             post_config.save()
+
+        if changed and previous_revision_snapshot is not None:
+            PostRevisionService.record_previous_snapshot_if_changed(
+                post,
+                previous_revision_snapshot,
+                source_updated_date=previous_revision_updated_date,
+            )
 
         return post
 
