@@ -15,6 +15,9 @@ import { FloatingBottomBar } from '@blex/ui/floating-bottom-bar';
 import { IconButton } from '@blex/ui/icon-button';
 import { Toggle } from '@blex/ui/toggle';
 import {
+    ArrowLeft,
+    ChevronDown,
+    ExternalLink,
     Search,
     Send,
     Settings2,
@@ -233,7 +236,7 @@ const StaticPageEditor = ({ pageId }: StaticPageEditorProps) => {
                     <Link
                         to="/static-pages"
                         className="flex items-center gap-2 text-sm text-content-secondary hover:text-content transition-colors">
-                        <i className="fas fa-arrow-left" />
+                        <ArrowLeft aria-hidden="true" className="h-4 w-4" />
                         <span>목록으로</span>
                     </Link>
                     {isEditMode && slug ? (
@@ -243,7 +246,7 @@ const StaticPageEditor = ({ pageId }: StaticPageEditorProps) => {
                             rel="noopener noreferrer"
                             className="flex items-center gap-1.5 text-sm text-content-secondary hover:text-content transition-colors">
                             <span>{pageUrlPath}</span>
-                            <i className="fas fa-external-link-alt text-xs" />
+                            <ExternalLink aria-hidden="true" className="h-3.5 w-3.5" />
                         </a>
                     ) : (
                         <div />
@@ -269,7 +272,10 @@ const StaticPageEditor = ({ pageId }: StaticPageEditorProps) => {
                         <details className="group border-t border-line-light pt-4">
                             <summary className="cursor-pointer list-none text-sm font-medium text-content-secondary transition-colors hover:text-content">
                                 URL 직접 설정
-                                <i className="fas fa-chevron-down ml-2 text-xs transition-transform group-open:rotate-180" />
+                                <ChevronDown
+                                    aria-hidden="true"
+                                    className="ml-2 inline h-3.5 w-3.5 transition-transform group-open:rotate-180"
+                                />
                             </summary>
                             <div className="mt-3">
                                 <Input

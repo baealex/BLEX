@@ -1,6 +1,14 @@
 import { useMemo, useState } from 'react';
 import { useMutation, useQuery, useQueryClient, useSuspenseQuery } from '@tanstack/react-query';
-import { ChevronDown } from '@blex/ui/icons';
+import {
+    ChevronDown,
+    ChevronLeft,
+    ChevronRight,
+    ChevronsLeft,
+    ChevronsRight,
+    Ticket,
+    Users
+} from '@blex/ui/icons';
 import { toast } from '~/utils/toast';
 import { useConfirm } from '~/hooks/useConfirm';
 import { SettingsHeader } from '../../components';
@@ -430,7 +438,7 @@ const UserManagementSetting = () => {
             <Card
                 title="작가 초대"
                 subtitle="초대 링크를 만들어 새 작가를 초대합니다. 이 링크로 가입한 사용자는 바로 작가 권한을 받습니다."
-                icon={<i className="fas fa-ticket" />}>
+                icon={<Ticket aria-hidden="true" className="h-4 w-4" />}>
                 <div className="space-y-4">
                     <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                         <p className="text-sm text-content-secondary">
@@ -496,7 +504,7 @@ const UserManagementSetting = () => {
             <Card
                 title="사용자 목록"
                 subtitle="사용자명, 이름, 이메일로 검색하고 권한과 포스트 수 기준으로 좁혀볼 수 있습니다."
-                icon={<i className="fas fa-users" />}>
+                icon={<Users aria-hidden="true" className="h-4 w-4" />}>
                 <div className="mb-6 grid gap-3 lg:grid-cols-[minmax(0,1fr)_180px_180px_auto]">
                     <Input
                         aria-label="사용자 검색"
@@ -612,7 +620,7 @@ const UserManagementSetting = () => {
                                 disabled={!pagination.hasPrevious}
                                 onClick={() => handlePageMove(1)}
                                 aria-label="첫 페이지">
-                                <i className="fas fa-angle-double-left" />
+                                <ChevronsLeft aria-hidden="true" className="h-4 w-4" />
                             </Button>
                             <Button
                                 variant="secondary"
@@ -620,7 +628,7 @@ const UserManagementSetting = () => {
                                 disabled={!pagination.hasPrevious}
                                 onClick={() => handlePageMove(currentPage - 1)}
                                 aria-label="이전 페이지">
-                                <i className="fas fa-angle-left" />
+                                <ChevronLeft aria-hidden="true" className="h-4 w-4" />
                             </Button>
                             {visiblePages.map(pageNumber => (
                                 <Button
@@ -638,7 +646,7 @@ const UserManagementSetting = () => {
                                 disabled={!pagination.hasNext}
                                 onClick={() => handlePageMove(currentPage + 1)}
                                 aria-label="다음 페이지">
-                                <i className="fas fa-angle-right" />
+                                <ChevronRight aria-hidden="true" className="h-4 w-4" />
                             </Button>
                             <Button
                                 variant="secondary"
@@ -646,7 +654,7 @@ const UserManagementSetting = () => {
                                 disabled={!pagination.hasNext}
                                 onClick={() => handlePageMove(pagination.totalPages)}
                                 aria-label="마지막 페이지">
-                                <i className="fas fa-angle-double-right" />
+                                <ChevronsRight aria-hidden="true" className="h-4 w-4" />
                             </Button>
                         </div>
                     </div>

@@ -1,6 +1,7 @@
 import { toast } from '~/utils/toast';
 import { useMutation, useQueryClient, useSuspenseQuery } from '@tanstack/react-query';
 import { Link, useNavigate } from '@tanstack/react-router';
+import { FileText } from '@blex/ui/icons';
 import { useConfirm } from '~/hooks/useConfirm';
 import { SettingsEmptyState, SettingsHeader } from '../../components';
 import { Button } from '~/components/shared';
@@ -98,7 +99,7 @@ const StaticPagesSetting = () => {
                 />
             ) : (
                 <SettingsEmptyState
-                    iconClassName="fas fa-file-lines"
+                    icon={<FileText aria-hidden="true" className="h-4 w-4" />}
                     title="등록된 정적 페이지가 없습니다"
                     action={createAction}
                 />

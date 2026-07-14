@@ -7,6 +7,14 @@ import {
 } from 'react';
 import { toast } from '~/utils/toast';
 import { useMutation, useQueryClient, useSuspenseQuery } from '@tanstack/react-query';
+import {
+    Building2,
+    Check,
+    Code2,
+    Image,
+    Palette,
+    Upload
+} from '@blex/ui/icons';
 import { SettingsHeader } from '../../components';
 import { Button, Card, Input } from '~/components/shared';
 import { CodeEditor } from '~/components/CodeEditor';
@@ -125,7 +133,7 @@ const AssetUploadButton = ({ label, disabled, onUpload }: AssetUploadButtonProps
                 variant="secondary"
                 size="sm"
                 disabled={disabled}
-                leftIcon={<i className="fas fa-upload text-xs" />}
+                leftIcon={<Upload aria-hidden="true" className="h-3.5 w-3.5" />}
                 onClick={() => inputRef.current?.click()}>
                 {label}
             </Button>
@@ -197,7 +205,9 @@ const BrandAssetPanel = ({
     <Card
         title={title}
         subtitle={description}
-        icon={<i className={`fas ${assetType === 'logo' ? 'fa-signature' : 'fa-icons'}`} />}>
+        icon={assetType === 'logo'
+            ? <Image aria-hidden="true" className="h-4 w-4" />
+            : <Palette aria-hidden="true" className="h-4 w-4" />}>
         <div className="grid gap-3 sm:grid-cols-2">
             <BrandAssetSlot
                 label="기본"
@@ -382,7 +392,7 @@ const SiteSettingSetting = () => {
                 <Card
                     title="사이트 이름"
                     subtitle="공개 화면, RSS, llms.txt에 표시되는 블로그 이름입니다."
-                    icon={<i className="fas fa-building" />}>
+                    icon={<Building2 aria-hidden="true" className="h-4 w-4" />}>
                     <Input
                         label="사이트 이름"
                         maxLength={80}
@@ -427,7 +437,7 @@ const SiteSettingSetting = () => {
                 <Card
                     title="커스텀 코드"
                     subtitle="스크립트나 메타 태그와 같은 코드를 전역에 삽입할 수 있습니다."
-                    icon={<i className="fas fa-code" />}>
+                    icon={<Code2 aria-hidden="true" className="h-4 w-4" />}>
                     <div className="space-y-4">
                         <p className="text-xs leading-relaxed text-content-secondary">
                             모든 공개 페이지에 영향을 줍니다. 분석 스크립트나 검증 메타 태그처럼 꼭 필요한 코드만 넣어주세요.
@@ -469,7 +479,9 @@ const SiteSettingSetting = () => {
                     size="md"
                     isLoading={updateMutation.isPending}
                     disabled={saveDisabled}
-                    leftIcon={!updateMutation.isPending ? <i className="fas fa-check" /> : undefined}>
+                    leftIcon={!updateMutation.isPending
+                        ? <Check aria-hidden="true" className="h-4 w-4" />
+                        : undefined}>
                     {updateMutation.isPending ? '저장 중...' : '사이트 설정 저장'}
                 </Button>
             </div>

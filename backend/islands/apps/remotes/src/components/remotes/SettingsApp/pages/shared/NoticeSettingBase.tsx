@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { toast } from '~/utils/toast';
 import { useMutation, useQueryClient, useSuspenseQuery } from '@tanstack/react-query';
+import { Megaphone, Pencil, Power, Trash2 } from '@blex/ui/icons';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -315,17 +316,17 @@ const NoticeSettingBase = ({ scope }: NoticeSettingBaseProps) => {
                                     items={[
                                         {
                                             label: notice.isActive ? '비활성화' : '활성화',
-                                            icon: 'fas fa-power-off',
+                                            icon: <Power aria-hidden="true" className="h-4 w-4" />,
                                             onClick: () => handleToggleActive(notice)
                                         },
                                         {
                                             label: '수정',
-                                            icon: 'fas fa-pen',
+                                            icon: <Pencil aria-hidden="true" className="h-4 w-4" />,
                                             onClick: () => handleEdit(notice)
                                         },
                                         {
                                             label: '삭제',
-                                            icon: 'fas fa-trash',
+                                            icon: <Trash2 aria-hidden="true" className="h-4 w-4" />,
                                             onClick: () => handleDelete(notice.id),
                                             variant: 'danger'
                                         }
@@ -346,7 +347,7 @@ const NoticeSettingBase = ({ scope }: NoticeSettingBaseProps) => {
                 </div>
             ) : !showForm ? (
                 <SettingsEmptyState
-                    iconClassName="fas fa-bullhorn"
+                    icon={<Megaphone aria-hidden="true" className="h-4 w-4" />}
                     title="등록된 공지가 없습니다"
                     action={createAction}
                 />

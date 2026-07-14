@@ -1,5 +1,6 @@
 import { type FormEvent, useEffect, useRef, useState } from 'react';
 import { useMutation, useQueryClient, useSuspenseQuery } from '@tanstack/react-query';
+import { Check, LogIn, ShieldCheck, UserCog } from '@blex/ui/icons';
 import { SettingsHeader } from '../../components';
 import { Toggle } from '@blex/ui/toggle';
 import { Button, Card, Checkbox, Input } from '~/components/shared';
@@ -245,7 +246,7 @@ const LoginSetting = () => {
             <Card
                 title="회원 안내"
                 subtitle="회원 가입과 탈퇴 흐름에서 사용할 안내를 설정합니다."
-                icon={<i className="fas fa-user-gear" />}>
+                icon={<UserCog aria-hidden="true" className="h-4 w-4" />}>
                 <div className="space-y-4">
                     <Input
                         label="가입 환영 메시지"
@@ -275,7 +276,7 @@ const LoginSetting = () => {
             <Card
                 title="로그인 인증"
                 subtitle="회원가입 시 hCaptcha 검증을 사용합니다."
-                icon={<i className="fas fa-shield-halved" />}>
+                icon={<ShieldCheck aria-hidden="true" className="h-4 w-4" />}>
                 <div className="space-y-5">
                     <div className="flex items-start justify-between gap-4 border-b border-line pb-5">
                         <div className="min-w-0 flex-1">
@@ -344,7 +345,7 @@ const LoginSetting = () => {
             <Card
                 title="소셜 로그인"
                 subtitle="OAuth 앱의 사용 여부와 앱 키를 관리합니다."
-                icon={<i className="fas fa-right-to-bracket" />}>
+                icon={<LogIn aria-hidden="true" className="h-4 w-4" />}>
                 <div className="space-y-6">
                     <div className="rounded-lg bg-surface-subtle p-4 text-sm leading-relaxed text-content-secondary">
                         콜백 URL은 <code className="rounded-md bg-surface px-2 py-1 text-xs">/login/callback/provider</code> 형식으로 등록합니다.
@@ -424,7 +425,9 @@ const LoginSetting = () => {
                     size="md"
                     isLoading={updateMutation.isPending}
                     disabled={!isDirty || updateMutation.isPending}
-                    leftIcon={!updateMutation.isPending ? <i className="fas fa-check" /> : undefined}>
+                    leftIcon={!updateMutation.isPending
+                        ? <Check aria-hidden="true" className="h-4 w-4" />
+                        : undefined}>
                     {updateMutation.isPending ? '저장 중...' : '로그인 관리 저장'}
                 </Button>
             </div>
