@@ -17,6 +17,7 @@ import type { Tag, Series } from '~/lib/api/settings';
 
 interface PostsFilterProps {
     filters: FilterOptions;
+    searchValue: string;
     isExpanded: boolean;
     showClearAction?: boolean;
     onExpandToggle: () => void;
@@ -33,6 +34,7 @@ const hasActiveFilters = (filters: FilterOptions) => {
 
 const PostsFilter = ({
     filters,
+    searchValue,
     isExpanded,
     showClearAction = true,
     onExpandToggle,
@@ -142,7 +144,7 @@ const PostsFilter = ({
                             type="text"
                             aria-label="포스트 제목 검색"
                             placeholder="포스트 제목 검색..."
-                            defaultValue={filters.search}
+                            value={searchValue}
                             onChange={onSearchChange}
                             leftIcon={<Search aria-hidden className="h-4 w-4" />}
                         />

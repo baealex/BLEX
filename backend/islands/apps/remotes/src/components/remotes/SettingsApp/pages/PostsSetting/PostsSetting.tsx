@@ -80,6 +80,7 @@ const PostsSetting = () => {
     const [postCounts, setPostCounts] = useState<Partial<Record<PostStatusTab, number>>>({});
     const {
         filters,
+        searchValue,
         tags,
         series,
         isFilterExpanded,
@@ -170,6 +171,7 @@ const PostsSetting = () => {
                 <Suspense fallback={<div className="h-32 bg-surface-subtle animate-pulse rounded-lg mb-6" />}>
                     <PostsFilter
                         filters={filters}
+                        searchValue={searchValue}
                         isExpanded={isFilterExpanded}
                         showClearAction={activeCount !== undefined && activeCount > 0}
                         onExpandToggle={() => setIsFilterExpanded(!isFilterExpanded)}

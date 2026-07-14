@@ -12,6 +12,7 @@ interface SelectProps {
     value: string;
     onValueChange: (value: string) => void;
     items: SelectItem[];
+    ariaLabel?: string;
     placeholder?: string;
     error?: string;
     className?: string;
@@ -22,6 +23,7 @@ const Select = ({
     value,
     onValueChange,
     items,
+    ariaLabel,
     placeholder = '선택하세요',
     error,
     className = '',
@@ -49,6 +51,7 @@ const Select = ({
         <div>
             <RadixSelect.Root value={internalValue} onValueChange={handleValueChange} disabled={disabled}>
                 <RadixSelect.Trigger
+                    aria-label={ariaLabel}
                     aria-invalid={!!error}
                     className={`
                         w-full flex items-center justify-between px-4 py-3
