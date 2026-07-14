@@ -1,4 +1,21 @@
-import { useEffect, useState } from 'react';
+import { type ReactNode, useEffect, useState } from 'react';
+import {
+    BookOpen,
+    Calendar,
+    ChevronDown,
+    ChevronUp,
+    Clock,
+    Eye,
+    EyeOff,
+    FileText,
+    Heart,
+    MessageCircle,
+    Pencil,
+    Save,
+    SlidersHorizontal,
+    Tag,
+    Trash2
+} from '@blex/ui/icons';
 import { Button, Input, Dropdown, Select } from '~/components/shared';
 import { getSettingsIconClass } from '~/styles/settingsStyles';
 import { getMediaPath } from '~/modules/static.module';
@@ -16,6 +33,7 @@ interface PostCardProps {
     onSeriesChange: (postUrl: string, value: string) => void;
     onSeriesSubmit: (postUrl: string) => void;
     dateDisplay?: string;
+    dateIcon?: ReactNode;
     dateIconClass?: string;
     statusLabel?: string;
     showUpdatedBadge?: boolean;
@@ -36,7 +54,8 @@ const PostCard = ({
     onSeriesChange,
     onSeriesSubmit,
     dateDisplay,
-    dateIconClass = 'fas fa-calendar',
+    dateIcon,
+    dateIconClass,
     statusLabel,
     showUpdatedBadge = true
 }: PostCardProps) => {
@@ -75,7 +94,7 @@ const PostCard = ({
                                 />
                             ) : (
                                 <div className="flex h-full w-full items-center justify-center text-content-hint">
-                                    <i className="fas fa-file-alt text-base" />
+                                    <FileText aria-hidden className="h-4 w-4" />
                                 </div>
                             )}
                         </div>
@@ -87,19 +106,23 @@ const PostCard = ({
                             </h3>
                             <div className="mt-1.5 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-content-secondary">
                                 <span className="inline-flex items-center gap-1.5">
-                                    <i className={`${dateIconClass} text-content-hint`} />
+                                    {dateIcon ?? (
+                                        dateIconClass
+                                            ? <i aria-hidden className={`${dateIconClass} text-content-hint`} />
+                                            : <Calendar aria-hidden className="h-3.5 w-3.5 text-content-hint" />
+                                    )}
                                     {dateDisplay || formatDate(post.createdDate)}
                                 </span>
                                 <span className="inline-flex items-center gap-1.5">
-                                    <i className="fas fa-clock text-content-hint" />
+                                    <Clock aria-hidden className="h-3.5 w-3.5 text-content-hint" />
                                     {post.readTime}분
                                 </span>
                                 <span className="inline-flex items-center gap-1.5">
-                                    <i className="fas fa-heart text-content-hint" />
+                                    <Heart aria-hidden className="h-3.5 w-3.5 text-content-hint" />
                                     {post.countLikes}
                                 </span>
                                 <span className="inline-flex items-center gap-1.5">
-                                    <i className="fas fa-comment text-content-hint" />
+                                    <MessageCircle aria-hidden className="h-3.5 w-3.5 text-content-hint" />
                                     {post.countComments}
                                 </span>
                                 {showUpdatedBadge && post.createdDate !== post.updatedDate && (
@@ -127,17 +150,19 @@ const PostCard = ({
                             items={[
                                 {
                                     label: '포스트 편집',
-                                    icon: 'fas fa-pen',
+                                    icon: <Pencil aria-hidden className="h-4 w-4" />,
                                     onClick: handleEditPost
                                 },
                                 {
                                     label: post.isHide ? '공개로 변경' : '비공개로 변경',
-                                    icon: `fas ${post.isHide ? 'fa-eye' : 'fa-eye-slash'}`,
+                                    icon: post.isHide
+                                        ? <Eye aria-hidden className="h-4 w-4" />
+                                        : <EyeOff aria-hidden className="h-4 w-4" />,
                                     onClick: () => onVisibilityToggle(post.url)
                                 },
                                 {
                                     label: '삭제',
-                                    icon: 'fas fa-trash',
+                                    icon: <Trash2 aria-hidden className="h-4 w-4" />,
                                     onClick: () => onDelete(post.url),
                                     variant: 'danger'
                                 }
@@ -154,14 +179,16 @@ const PostCard = ({
                     aria-label={isMetaEditorOpen ? '태그 및 시리즈 편집 닫기' : '태그 및 시리즈 편집 열기'}
                     onClick={() => setIsMetaEditorOpen(prev => !prev)}
                     className="inline-flex min-h-11 items-center gap-2 rounded-lg px-2.5 py-1.5 text-content-secondary hover:text-content hover:bg-surface-subtle transition-colors">
-                    <i className="fas fa-sliders-h text-xs" />
+                    <SlidersHorizontal aria-hidden className="h-3.5 w-3.5" />
                     <span className="inline-flex items-center gap-2">
                         {hasPendingChanges && (
                             <span className="text-[11px] px-2 py-0.5 rounded bg-action text-content-inverted">
                                 저장 필요
                             </span>
                         )}
-                        <i className={`fas ${isMetaEditorOpen ? 'fa-chevron-up' : 'fa-chevron-down'} text-xs`} />
+                        {isMetaEditorOpen
+                            ? <ChevronUp aria-hidden className="h-3.5 w-3.5" />
+                            : <ChevronDown aria-hidden className="h-3.5 w-3.5" />}
                     </span>
                 </button>
             </div>
@@ -171,7 +198,7 @@ const PostCard = ({
                     {/* 태그 */}
                     <div className="flex items-center gap-3">
                         <div className={getSettingsIconClass('light')}>
-                            <i className="fas fa-tag text-sm" />
+                            <Tag aria-hidden className="h-4 w-4" />
                         </div>
                         <Input
                             type="text"
@@ -186,7 +213,7 @@ const PostCard = ({
                                 variant="primary"
                                 size="md"
                                 className="min-h-11!"
-                                leftIcon={<i className="fas fa-save" />}
+                                leftIcon={<Save aria-hidden className="h-4 w-4" />}
                                 onClick={() => onTagSubmit(post.url)}>
                                 저장
                             </Button>
@@ -196,7 +223,7 @@ const PostCard = ({
                     {/* 시리즈 */}
                     <div className="flex items-center gap-3">
                         <div className={getSettingsIconClass('light')}>
-                            <i className="fas fa-book text-sm" />
+                            <BookOpen aria-hidden className="h-4 w-4" />
                         </div>
                         <div className="flex-1">
                             <Select
@@ -220,7 +247,7 @@ const PostCard = ({
                                 variant="primary"
                                 size="md"
                                 className="min-h-11!"
-                                leftIcon={<i className="fas fa-save" />}
+                                leftIcon={<Save aria-hidden className="h-4 w-4" />}
                                 onClick={() => onSeriesSubmit(post.url)}>
                                 저장
                             </Button>

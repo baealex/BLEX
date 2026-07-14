@@ -1,6 +1,7 @@
 import type { KeyboardEvent, ReactNode } from 'react';
 import type { DraggableAttributes } from '@dnd-kit/core';
 import type { SyntheticListenerMap } from '@dnd-kit/core/dist/hooks/utilities';
+import { GripVertical } from '@blex/ui/icons';
 
 const LIST_ITEM_SHELL = 'bg-surface ring-1 ring-line/60 rounded-2xl transition-all motion-interaction';
 const LIST_ITEM_CONTENT = 'p-5';
@@ -59,7 +60,7 @@ const SettingsListItem = ({
                             {...dragHandleProps.attributes}
                             {...dragHandleProps.listeners}
                             aria-label={dragHandleProps.ariaLabel || '순서 변경'}>
-                            <i className="fas fa-grip-vertical" />
+                            <GripVertical aria-hidden="true" className="h-4 w-4" />
                         </div>
                     )}
 

@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react';
 import { useEffect } from 'react';
+import { CalendarDays, FileText } from '@blex/ui/icons';
 import { usePostsQuery, type FilterOptions, type PostsSource } from '../hooks/usePostsData';
 import { usePostsActions } from '../hooks';
 import PostCard from './PostCard';
@@ -75,7 +76,9 @@ export const PostListContent = ({
                             onSeriesChange={handleSeriesChange}
                             onSeriesSubmit={handleSeriesSubmit}
                             dateDisplay={isScheduled ? `예약 ${post.createdDate}` : undefined}
-                            dateIconClass={isScheduled ? 'fas fa-calendar-day' : undefined}
+                            dateIcon={isScheduled
+                                ? <CalendarDays aria-hidden className="h-3.5 w-3.5 text-content-hint" />
+                                : undefined}
                             statusLabel={isScheduled ? '예약 발행' : undefined}
                             showUpdatedBadge={!isScheduled}
                         />
@@ -83,7 +86,9 @@ export const PostListContent = ({
                 </div>
             ) : (
                 <SettingsEmptyState
-                    iconClassName={isScheduled ? 'fas fa-calendar-day' : 'fas fa-file-alt'}
+                    icon={isScheduled
+                        ? <CalendarDays aria-hidden className="h-5 w-5" />
+                        : <FileText aria-hidden className="h-5 w-5" />}
                     title={emptyMessage}
                     action={emptyAction}
                 />

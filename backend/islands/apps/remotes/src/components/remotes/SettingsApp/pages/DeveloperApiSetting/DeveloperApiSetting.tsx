@@ -1,6 +1,13 @@
 import { useState } from 'react';
 import { useMutation, useQueryClient, useSuspenseQuery } from '@tanstack/react-query';
 import { useRouter } from '@tanstack/react-router';
+import {
+    Ban,
+    BookOpen,
+    Copy,
+    KeyRound,
+    Route
+} from '@blex/ui/icons';
 import { Button, Card, Checkbox, Input } from '~/components/shared';
 import { useConfirm } from '~/hooks/useConfirm';
 import {
@@ -227,7 +234,7 @@ const DeveloperApiSetting = () => {
                                 type="button"
                                 variant="secondary"
                                 size="sm"
-                                leftIcon={<i className="fas fa-route" />}>
+                                leftIcon={<Route aria-hidden className="h-4 w-4" />}>
                                 빠른 시작
                             </Button>
                         </a>
@@ -236,7 +243,7 @@ const DeveloperApiSetting = () => {
                                 type="button"
                                 variant="secondary"
                                 size="sm"
-                                leftIcon={<i className="fas fa-book-open" />}>
+                                leftIcon={<BookOpen aria-hidden className="h-4 w-4" />}>
                                 API 문서
                             </Button>
                         </a>
@@ -285,7 +292,7 @@ const DeveloperApiSetting = () => {
                                     variant="secondary"
                                     size="sm"
                                     onClick={() => handleCopy(createdToken.token)}
-                                    leftIcon={<i className="fas fa-copy" />}>
+                                    leftIcon={<Copy aria-hidden className="h-4 w-4" />}>
                                     복사
                                 </Button>
                             </div>
@@ -351,7 +358,7 @@ const DeveloperApiSetting = () => {
                             variant="primary"
                             isLoading={createTokenMutation.isPending}
                             onClick={handleCreateToken}
-                            leftIcon={!createTokenMutation.isPending ? <i className="fas fa-key" /> : undefined}>
+                            leftIcon={!createTokenMutation.isPending ? <KeyRound aria-hidden className="h-4 w-4" /> : undefined}>
                             {createTokenMutation.isPending ? '발급 중...' : '토큰 발급'}
                         </Button>
                     </div>
@@ -422,7 +429,7 @@ const DeveloperApiSetting = () => {
                                             size="sm"
                                             isLoading={revokeTokenMutation.isPending && revokeTokenMutation.variables === token.id}
                                             onClick={() => handleRevokeToken(token)}
-                                            leftIcon={!(revokeTokenMutation.isPending && revokeTokenMutation.variables === token.id) ? <i className="fas fa-ban" /> : undefined}>
+                                            leftIcon={!(revokeTokenMutation.isPending && revokeTokenMutation.variables === token.id) ? <Ban aria-hidden className="h-4 w-4" /> : undefined}>
                                             폐기
                                         </Button>
                                     )}

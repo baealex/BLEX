@@ -1,10 +1,11 @@
 import type { ReactNode } from 'react';
 import { useState } from 'react';
 import * as DropdownMenu from '@radix-ui/react-dropdown-menu';
+import { Check, EllipsisVertical } from 'lucide-react';
 
 interface DropdownItem {
     label: string;
-    icon?: string;
+    icon?: ReactNode;
     onClick: () => void;
     variant?: 'default' | 'danger';
     checked?: boolean; // Added for selection support
@@ -45,7 +46,7 @@ const Dropdown = ({
                     <button
                         className={`p-2 text-content-secondary hover:text-content hover:bg-surface-subtle rounded-lg transition-colors outline-none ${triggerClassName}`}
                         aria-label={triggerAriaLabel}>
-                        <i className="fas fa-ellipsis-v" />
+                        <EllipsisVertical aria-hidden="true" className="h-4 w-4" />
                     </button>
                 )}
             </DropdownMenu.Trigger>
@@ -70,10 +71,18 @@ const Dropdown = ({
                                 ${item.checked ? 'bg-surface-subtle text-content font-medium' : ''}
                                 ${item.className || ''}
                             `}>
-                            {item.icon && <i className={`${item.icon} w-4 text-center`} />}
+                            {typeof item.icon === 'string' ? (
+                                <i className={`${item.icon} w-4 text-center`} />
+                            ) : item.icon ? (
+                                <span
+                                    aria-hidden="true"
+                                    className="inline-flex w-4 shrink-0 items-center justify-center [&>svg]:h-4 [&>svg]:w-4">
+                                    {item.icon}
+                                </span>
+                            ) : null}
                             <span className="flex-1">{item.label}</span>
                             {item.checked && (
-                                <i className="fas fa-check text-content-secondary text-xs ml-2" />
+                                <Check aria-hidden="true" className="ml-2 h-3.5 w-3.5 text-content-secondary" />
                             )}
                         </DropdownMenu.Item>
                     ))}

@@ -1,3 +1,14 @@
+import {
+    BookOpen,
+    ChevronDown,
+    ChevronRight,
+    Eye,
+    EyeOff,
+    Search,
+    SlidersHorizontal,
+    Tag as TagIcon,
+    X
+} from '@blex/ui/icons';
 import { Button, Input, Dropdown } from '~/components/shared';
 import { settingsSelectTriggerStyles } from '~/styles/settingsStyles';
 import type { FilterOptions } from '../hooks';
@@ -31,6 +42,9 @@ const PostsFilter = ({
     tags,
     series
 }: PostsFilterProps) => {
+    const ExpandIcon = isExpanded ? ChevronDown : ChevronRight;
+    const VisibilityIcon = filters.visibility === 'public' ? Eye : EyeOff;
+
     return (
         <div className="mb-6">
             {/* 필터 헤더 */}
@@ -41,8 +55,8 @@ const PostsFilter = ({
                     aria-expanded={isExpanded}
                     aria-controls="posts-filter-controls"
                     className="flex min-h-11 items-center gap-2 text-lg font-semibold text-content hover:text-content transition-colors">
-                    <i className={`fas fa-chevron-${isExpanded ? 'down' : 'right'} text-sm`} />
-                    <i className="fas fa-filter" />
+                    <ExpandIcon aria-hidden className="h-4 w-4" />
+                    <SlidersHorizontal aria-hidden className="h-4 w-4" />
                     <span>필터 및 검색</span>
                     {hasActiveFilters(filters) && (
                         <span className="ml-2 px-2 py-0.5 bg-line text-content text-xs font-medium rounded-full">
@@ -55,7 +69,7 @@ const PostsFilter = ({
                         variant="secondary"
                         size="sm"
                         className="min-h-11! flex-shrink-0"
-                        leftIcon={<i className="fas fa-times" />}
+                        leftIcon={<X aria-hidden className="h-4 w-4" />}
                         onClick={onClearFilters}>
                         필터 초기화
                     </Button>
@@ -67,53 +81,53 @@ const PostsFilter = ({
                 <div className="flex flex-wrap gap-2 mb-4">
                     {filters.search && (
                         <div className="inline-flex min-h-11 items-center gap-2 rounded-lg bg-surface-subtle pl-3 text-sm text-content">
-                            <i className="fas fa-search text-xs" />
+                            <Search aria-hidden className="h-3.5 w-3.5" />
                             <span>검색: {filters.search}</span>
                             <button
                                 type="button"
                                 aria-label="검색 필터 제거"
                                 onClick={() => onFilterChange('search', '')}
                                 className="inline-flex min-h-11 min-w-11 items-center justify-center rounded-lg text-content-secondary hover:bg-surface hover:text-content">
-                                <i className="fas fa-times text-xs" />
+                                <X aria-hidden className="h-3.5 w-3.5" />
                             </button>
                         </div>
                     )}
                     {filters.tag && (
                         <div className="inline-flex min-h-11 items-center gap-2 rounded-lg bg-surface-subtle pl-3 text-sm text-content">
-                            <i className="fas fa-tag text-xs" />
+                            <TagIcon aria-hidden className="h-3.5 w-3.5" />
                             <span>{filters.tag}</span>
                             <button
                                 type="button"
                                 aria-label={`${filters.tag} 태그 필터 제거`}
                                 onClick={() => onFilterChange('tag', '')}
                                 className="inline-flex min-h-11 min-w-11 items-center justify-center rounded-lg text-content-secondary hover:bg-surface hover:text-content">
-                                <i className="fas fa-times text-xs" />
+                                <X aria-hidden className="h-3.5 w-3.5" />
                             </button>
                         </div>
                     )}
                     {filters.series && (
                         <div className="inline-flex min-h-11 items-center gap-2 rounded-lg bg-surface-subtle pl-3 text-sm text-content">
-                            <i className="fas fa-book text-xs" />
+                            <BookOpen aria-hidden className="h-3.5 w-3.5" />
                             <span>{series?.find((s) => s.url === filters.series)?.title}</span>
                             <button
                                 type="button"
                                 aria-label="시리즈 필터 제거"
                                 onClick={() => onFilterChange('series', '')}
                                 className="inline-flex min-h-11 min-w-11 items-center justify-center rounded-lg text-content-secondary hover:bg-surface hover:text-content">
-                                <i className="fas fa-times text-xs" />
+                                <X aria-hidden className="h-3.5 w-3.5" />
                             </button>
                         </div>
                     )}
                     {filters.visibility && (
                         <div className="inline-flex min-h-11 items-center gap-2 rounded-lg bg-surface-subtle pl-3 text-sm text-content">
-                            <i className={`fas ${filters.visibility === 'public' ? 'fa-eye' : 'fa-eye-slash'} text-xs`} />
+                            <VisibilityIcon aria-hidden className="h-3.5 w-3.5" />
                             <span>{filters.visibility === 'public' ? '공개' : '숨김'}</span>
                             <button
                                 type="button"
                                 aria-label="공개 상태 필터 제거"
                                 onClick={() => onFilterChange('visibility', '')}
                                 className="inline-flex min-h-11 min-w-11 items-center justify-center rounded-lg text-content-secondary hover:bg-surface hover:text-content">
-                                <i className="fas fa-times text-xs" />
+                                <X aria-hidden className="h-3.5 w-3.5" />
                             </button>
                         </div>
                     )}
@@ -130,7 +144,7 @@ const PostsFilter = ({
                             placeholder="포스트 제목 검색..."
                             defaultValue={filters.search}
                             onChange={onSearchChange}
-                            leftIcon={<i className="fas fa-search" />}
+                            leftIcon={<Search aria-hidden className="h-4 w-4" />}
                         />
 
                         {/* 정렬 */}
@@ -144,7 +158,7 @@ const PostsFilter = ({
                                     <span className="text-content font-medium">
                                         {POSTS_ORDER.find(o => o.order === filters.order)?.name || '정렬 방식'}
                                     </span>
-                                    <i className="fas fa-chevron-down text-content-hint" />
+                                    <ChevronDown aria-hidden className="h-4 w-4 text-content-hint" />
                                 </button>
                             }
                             items={POSTS_ORDER.map((orderOption) => ({
@@ -167,7 +181,7 @@ const PostsFilter = ({
                                     <span className={filters.tag ? 'text-content font-medium' : 'text-content-hint'}>
                                         {filters.tag || '태그'}
                                     </span>
-                                    <i className="fas fa-chevron-down text-content-hint" />
+                                    <ChevronDown aria-hidden className="h-4 w-4 text-content-hint" />
                                 </button>
                             }
                             items={[
@@ -195,7 +209,7 @@ const PostsFilter = ({
                                     <span className={filters.series ? 'text-content font-medium' : 'text-content-hint'}>
                                         {series?.find((s) => s.url === filters.series)?.title || '시리즈'}
                                     </span>
-                                    <i className="fas fa-chevron-down text-content-hint" />
+                                    <ChevronDown aria-hidden className="h-4 w-4 text-content-hint" />
                                 </button>
                             }
                             items={[
@@ -223,7 +237,7 @@ const PostsFilter = ({
                                     <span className={filters.visibility ? 'text-content font-medium' : 'text-content-hint'}>
                                         {filters.visibility === 'public' ? '공개' : filters.visibility === 'hidden' ? '숨김' : '공개 상태'}
                                     </span>
-                                    <i className="fas fa-chevron-down text-content-hint" />
+                                    <ChevronDown aria-hidden className="h-4 w-4 text-content-hint" />
                                 </button>
                             }
                             items={[

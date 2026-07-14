@@ -1,4 +1,11 @@
 import { useEffect, useState } from 'react';
+import {
+    Calendar,
+    Check,
+    FileText,
+    Loader2,
+    Search
+} from '@blex/ui/icons';
 import { Modal } from '~/components/shared';
 import { getMediaPath } from '~/modules/static.module';
 import type { PinnablePostData, PinnablePostsPaginationData } from '~/lib/api/settings';
@@ -86,7 +93,7 @@ export const AddPinnedPostModal = ({
                     </p>
                 )}
                 <div className="relative">
-                    <i className="fas fa-search absolute left-4 top-1/2 -translate-y-1/2 text-content-hint" />
+                    <Search aria-hidden className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-content-hint" />
                     <input
                         type="text"
                         aria-label="고정할 포스트 검색"
@@ -118,7 +125,7 @@ export const AddPinnedPostModal = ({
                 ) : pinnablePosts.length === 0 ? (
                     <div className="flex h-full flex-col items-center justify-center py-12 text-center">
                         <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-surface-subtle">
-                            <i className="fas fa-search text-lg text-content-hint" />
+                            <Search aria-hidden className="h-5 w-5 text-content-hint" />
                         </div>
                         <p className="mb-1 text-base font-medium text-content">검색 결과가 없습니다</p>
                         <p className="text-sm text-content-secondary">다른 검색어로 다시 시도해보세요.</p>
@@ -154,7 +161,7 @@ export const AddPinnedPostModal = ({
                                         </div>
                                     ) : (
                                         <div className="flex h-16 w-16 flex-shrink-0 items-center justify-center rounded-lg border border-line bg-surface-subtle text-content-hint">
-                                            <i className="fas fa-file-alt text-xl" />
+                                            <FileText aria-hidden className="h-5 w-5" />
                                         </div>
                                     )}
 
@@ -163,7 +170,7 @@ export const AddPinnedPostModal = ({
                                             {post.title}
                                         </h4>
                                         <p className="flex items-center gap-2 text-sm text-content-secondary">
-                                            <i className="far fa-calendar" />
+                                            <Calendar aria-hidden className="h-4 w-4" />
                                             {new Date(post.createdDate).toLocaleDateString('ko-KR')}
                                         </p>
                                     </div>
@@ -174,7 +181,7 @@ export const AddPinnedPostModal = ({
                                             ? 'scale-100 border-line-strong bg-action text-content-inverted opacity-100'
                                             : 'border-line bg-surface text-transparent group-hover:border-line-strong'
                                     }`}>
-                                        <i className="fas fa-check text-xs" />
+                                        <Check aria-hidden className="h-3.5 w-3.5" />
                                     </div>
                                 </button>
                             );
@@ -198,7 +205,7 @@ export const AddPinnedPostModal = ({
                     disabled={!selectedPost || isLoading}>
                     {isLoading ? (
                         <span className="flex items-center gap-2">
-                            <i className="fas fa-spinner fa-spin" />
+                            <Loader2 aria-hidden className="h-4 w-4 animate-spin" />
                             추가 중...
                         </span>
                     ) : (

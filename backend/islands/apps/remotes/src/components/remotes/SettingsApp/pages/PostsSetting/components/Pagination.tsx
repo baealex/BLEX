@@ -1,3 +1,5 @@
+import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from '@blex/ui/icons';
+
 interface PaginationProps {
     page: string;
     lastPage: number;
@@ -45,7 +47,7 @@ const Pagination = ({ page, lastPage, onPageChange }: PaginationProps) => {
                                 className="pagination-link"
                                 onClick={() => handlePageMove(1)}
                                 aria-label="첫 페이지">
-                                <i className="fas fa-angle-double-left" />
+                                <ChevronsLeft aria-hidden className="h-4 w-4" />
                             </button>
                         </div>
                         <div className="pagination-item">
@@ -54,7 +56,7 @@ const Pagination = ({ page, lastPage, onPageChange }: PaginationProps) => {
                                 className="pagination-link"
                                 onClick={() => handlePageMove(currentPage - 1)}
                                 aria-label="이전 페이지">
-                                <i className="fas fa-angle-left" />
+                                <ChevronLeft aria-hidden className="h-4 w-4" />
                             </button>
                         </div>
                     </>
@@ -62,12 +64,12 @@ const Pagination = ({ page, lastPage, onPageChange }: PaginationProps) => {
                     <>
                         <div className="pagination-item pagination-disabled">
                             <span className="pagination-link">
-                                <i className="fas fa-angle-double-left" />
+                                <ChevronsLeft aria-hidden className="h-4 w-4" />
                             </span>
                         </div>
                         <div className="pagination-item pagination-disabled">
                             <span className="pagination-link">
-                                <i className="fas fa-angle-left" />
+                                <ChevronLeft aria-hidden className="h-4 w-4" />
                             </span>
                         </div>
                     </>
@@ -102,7 +104,7 @@ const Pagination = ({ page, lastPage, onPageChange }: PaginationProps) => {
                                 className="pagination-link"
                                 onClick={() => handlePageMove(currentPage + 1)}
                                 aria-label="다음 페이지">
-                                <i className="fas fa-angle-right" />
+                                <ChevronRight aria-hidden className="h-4 w-4" />
                             </button>
                         </div>
                         <div className="pagination-item">
@@ -111,7 +113,7 @@ const Pagination = ({ page, lastPage, onPageChange }: PaginationProps) => {
                                 className="pagination-link"
                                 onClick={() => handlePageMove(lastPage)}
                                 aria-label="마지막 페이지">
-                                <i className="fas fa-angle-double-right" />
+                                <ChevronsRight aria-hidden className="h-4 w-4" />
                             </button>
                         </div>
                     </>
@@ -119,12 +121,12 @@ const Pagination = ({ page, lastPage, onPageChange }: PaginationProps) => {
                     <>
                         <div className="pagination-item pagination-disabled">
                             <span className="pagination-link">
-                                <i className="fas fa-angle-right" />
+                                <ChevronRight aria-hidden className="h-4 w-4" />
                             </span>
                         </div>
                         <div className="pagination-item pagination-disabled">
                             <span className="pagination-link">
-                                <i className="fas fa-angle-double-right" />
+                                <ChevronsRight aria-hidden className="h-4 w-4" />
                             </span>
                         </div>
                     </>

@@ -1,4 +1,5 @@
 import { Button } from '~/components/shared';
+import { Calendar, FileText, Search } from '@blex/ui/icons';
 import {
     getSettingsIconClass,
     SETTINGS_LIST_META,
@@ -46,7 +47,7 @@ export const PinnablePostInlineList = ({
                     </p>
                 </div>
                 <div className="relative w-full sm:w-72">
-                    <i className="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-xs text-content-hint" />
+                    <Search aria-hidden className="absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-content-hint" />
                     <input
                         type="text"
                         aria-label="고정 가능한 포스트 검색"
@@ -104,7 +105,7 @@ export const PinnablePostInlineList = ({
                                         </div>
                                     ) : (
                                         <div className={getSettingsIconClass('default')}>
-                                            <i className="fas fa-file-alt text-sm" />
+                                            <FileText aria-hidden className="h-4 w-4" />
                                         </div>
                                     )
                                 }
@@ -122,7 +123,7 @@ export const PinnablePostInlineList = ({
                                 <h3 className={`${SETTINGS_LIST_TITLE} mb-1 truncate text-content`}>{post.title}</h3>
                                 <div className={`${SETTINGS_LIST_META} flex items-center gap-2 text-xs`}>
                                     <span className="flex items-center gap-1">
-                                        <i className="far fa-calendar text-content-hint" />
+                                        <Calendar aria-hidden className="h-3.5 w-3.5 text-content-hint" />
                                         {new Date(post.createdDate).toLocaleDateString('ko-KR')}
                                     </span>
                                 </div>
