@@ -411,7 +411,7 @@ const UserManagementSetting = () => {
         <div className="space-y-8">
             <SettingsHeader
                 title="사용자 권한"
-                description="운영자가 독자와 작가 권한을 한 화면에서 확인하고 변경합니다. 관리자 계정 권한은 안전을 위해 Django 관리자에서만 다룹니다."
+                description="관리자 권한은 Django 관리자에서만 변경할 수 있습니다."
             />
 
             <dl
@@ -437,12 +437,12 @@ const UserManagementSetting = () => {
 
             <Card
                 title="작가 초대"
-                subtitle="초대 링크를 만들어 새 작가를 초대합니다. 이 링크로 가입한 사용자는 바로 작가 권한을 받습니다."
+                subtitle="링크로 가입하면 즉시 작가 권한이 부여됩니다."
                 icon={<Ticket aria-hidden="true" className="h-4 w-4" />}>
                 <div className="space-y-4">
                     <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                         <p className="text-sm text-content-secondary">
-                            초대 링크는 1회용입니다. 사용되면 자동으로 비활성화되고, 필요하면 사용 전에 삭제할 수 있습니다.
+                            초대 링크는 한 번만 사용할 수 있으며, 사용 전에는 삭제할 수 있습니다.
                         </p>
                         <Button
                             variant="primary"
@@ -494,7 +494,7 @@ const UserManagementSetting = () => {
 
                         {invites.length === 0 && (
                             <div className="px-4 py-8 text-center text-sm text-content-secondary">
-                                아직 만든 초대 링크가 없습니다.
+                                초대 링크가 없습니다.
                             </div>
                         )}
                     </div>
@@ -503,12 +503,11 @@ const UserManagementSetting = () => {
 
             <Card
                 title="사용자 목록"
-                subtitle="사용자명, 이름, 이메일로 검색하고 권한과 포스트 수 기준으로 좁혀볼 수 있습니다."
                 icon={<Users aria-hidden="true" className="h-4 w-4" />}>
                 <div className="mb-6 grid gap-3 lg:grid-cols-[minmax(0,1fr)_180px_180px_auto]">
                     <Input
                         aria-label="사용자 검색"
-                        placeholder="사용자 검색"
+                        placeholder="아이디·이름·이메일 검색"
                         value={query}
                         onChange={(event) => setQuery(event.target.value)}
                         onKeyDown={(event) => {

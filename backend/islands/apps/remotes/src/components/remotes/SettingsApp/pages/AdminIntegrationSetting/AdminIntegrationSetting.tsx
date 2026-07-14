@@ -143,14 +143,10 @@ const AdminIntegrationSetting = () => {
 
     return (
         <form className="space-y-8" onSubmit={handleSave} autoComplete="off">
-            <SettingsHeader
-                title="텔레그램"
-                description="사이트 알림을 텔레그램으로 확장합니다."
-            />
+            <SettingsHeader title="텔레그램" />
 
             <Card
                 title="봇 설정"
-                subtitle="사용자 알림을 텔레그램으로 보낼 봇을 설정합니다."
                 icon={<Send aria-hidden="true" className="h-4 w-4" />}>
                 <div className="space-y-5">
                     <div className="flex items-start justify-between gap-4 border-b border-line pb-5">

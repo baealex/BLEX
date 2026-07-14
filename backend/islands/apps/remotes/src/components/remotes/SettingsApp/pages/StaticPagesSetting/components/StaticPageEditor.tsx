@@ -299,12 +299,7 @@ const StaticPageEditor = ({ pageId }: StaticPageEditorProps) => {
             <div className="max-w-7xl mx-auto px-4 md:px-6 pb-6">
                 <div className="space-y-3">
                     <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
-                        <div>
-                            <p className="text-sm font-semibold text-content">본문</p>
-                            <p className="mt-1 text-xs text-content-secondary">
-                                실제 페이지는 기본 컨테이너 안에 이 HTML을 렌더링합니다.
-                            </p>
-                        </div>
+                        <p className="text-sm font-semibold text-content">본문</p>
                         <div className="inline-flex rounded-lg border border-line bg-surface p-1">
                             <button
                                 type="button"
@@ -432,10 +427,7 @@ const StaticPageEditor = ({ pageId }: StaticPageEditorProps) => {
                                     </h3>
                                     <div className="space-y-1">
                                         <div className="flex items-center justify-between gap-4 py-3">
-                                            <div className="min-w-0 flex-1">
-                                                <div className="text-sm font-medium text-content">공개</div>
-                                                <div className="text-xs text-content-secondary">페이지를 공개합니다</div>
-                                            </div>
+                                            <div className="min-w-0 flex-1 text-sm font-medium text-content">공개</div>
                                             <Toggle
                                                 checked={isPublished}
                                                 onCheckedChange={handlePublishedChange}
@@ -444,10 +436,7 @@ const StaticPageEditor = ({ pageId }: StaticPageEditorProps) => {
                                         </div>
 
                                         <div className="flex items-center justify-between gap-4 py-3">
-                                            <div className="min-w-0 flex-1">
-                                                <div className="text-sm font-medium text-content">푸터에 표시</div>
-                                                <div className="text-xs text-content-secondary">사이트 하단 메뉴에 노출합니다</div>
-                                            </div>
+                                            <div className="min-w-0 flex-1 text-sm font-medium text-content">푸터에 표시</div>
                                             <Toggle
                                                 checked={showInFooter}
                                                 onCheckedChange={handleShowInFooterChange}
@@ -476,11 +465,11 @@ const StaticPageEditor = ({ pageId }: StaticPageEditorProps) => {
                                                     setMetaDescription(e.target.value);
                                                     markDirty();
                                                 }}
-                                                placeholder="검색 엔진에 표시될 설명 (160자 이내)"
+                                                placeholder="페이지 내용을 요약하세요"
                                                 maxLength={160}
                                             />
                                             <div className="flex items-center justify-between mt-2">
-                                                <p className="text-xs text-content-hint">검색 결과에 표시되는 설명입니다</p>
+                                                <p className="text-xs text-content-hint">검색 결과에 표시됩니다.</p>
                                                 <p className={`text-xs font-medium ${metaDescription.length > 140 ? 'text-danger' : 'text-content-hint'}`}>
                                                     {metaDescription.length}/160
                                                 </p>
