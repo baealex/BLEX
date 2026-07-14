@@ -55,7 +55,15 @@ const ProfileSetting = () => {
     const [imageCropState, setImageCropState] = useState<ImageCropState | null>(null);
     const { confirm } = useConfirm();
 
-    const { register, handleSubmit, reset, formState: { errors } } = useForm<ProfileFormInputs>({ resolver: zodResolver(profileSchema) });
+    const {
+        register,
+        handleSubmit,
+        reset,
+        formState: { errors, isDirty, isValid }
+    } = useForm<ProfileFormInputs>({
+        resolver: zodResolver(profileSchema),
+        mode: 'onChange'
+    });
 
     const { data: profileData, refetch } = useSuspenseQuery({
         queryKey: ['profile-setting'],
@@ -72,10 +80,13 @@ const ProfileSetting = () => {
         if (profileData) {
             setAvatar(profileData.avatar || getDefaultAvatarPath());
             setCover(profileData.cover || null);
-            reset({
-                bio: profileData.bio || '',
-                homepage: profileData.homepage || ''
-            });
+            reset(
+                {
+                    bio: profileData.bio || '',
+                    homepage: profileData.homepage || ''
+                },
+                { keepDirtyValues: true }
+            );
         }
     }, [profileData, reset]);
 
@@ -83,14 +94,16 @@ const ProfileSetting = () => {
         setIsLoading(true);
 
         try {
-            const { data } = await updateProfileSettings({
+            const savedProfile = {
                 bio: formData.bio || '',
                 homepage: formData.homepage || ''
-            });
+            };
+            const { data } = await updateProfileSettings(savedProfile);
 
             if (data.status === 'DONE') {
+                reset(savedProfile);
                 toast.success('프로필이 업데이트 되었습니다.');
-                refetch();
+                void refetch();
             } else {
                 toast.error('프로필 업데이트에 실패했습니다.');
             }
@@ -131,8 +144,8 @@ const ProfileSetting = () => {
 
         const isAvatarTarget = target === 'avatar';
         const successMessage = isAvatarTarget
-            ? '프로필 이미지가 업데이트 되었습니다.'
-            : '커버 이미지가 업데이트 되었습니다.';
+            ? '프로필 이미지가 저장되었습니다.'
+            : '커버 이미지가 저장되었습니다.';
         const errorMessage = isAvatarTarget
             ? '프로필 이미지 업데이트에 실패했습니다.'
             : '커버 이미지 업데이트에 실패했습니다.';
@@ -199,14 +212,13 @@ const ProfileSetting = () => {
 
     return (
         <div>
-            <SettingsHeader
-                title="프로필"
-                description="다른 사용자들에게 보여질 프로필 정보를 관리하세요."
-            />
+            <SettingsHeader title="프로필" />
 
-            <form onSubmit={handleSubmit(onSubmit)}>
-                {/* Profile Image Section */}
-                <Card title="프로필 이미지" className="mb-6">
+            {/* Profile Image Section */}
+            <Card
+                title="프로필 이미지"
+                subtitle="자르기 완료 즉시 저장됩니다."
+                className="mb-6">
                     <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4">
                         <div className="relative w-24 h-24 sm:w-28 sm:h-28">
                             <img
@@ -235,15 +247,17 @@ const ProfileSetting = () => {
                             </div>
                         </div>
                         <div className="text-center sm:text-left">
-                            <h4 className="text-base sm:text-lg font-semibold text-content mb-1">이미지 변경</h4>
-                            <p className="text-sm text-content-secondary mb-2">카메라 아이콘을 클릭하여 새로운 프로필 이미지를 업로드하세요.</p>
+                            <p className="text-sm text-content-secondary mb-2">카메라 버튼에서 이미지를 선택할 수 있습니다.</p>
                             <p className="text-xs text-content-hint">권장 크기: 400x400px, 최대 5MB</p>
                         </div>
                     </div>
-                </Card>
+            </Card>
 
-                {/* Cover Image Section */}
-                <Card title="커버 이미지" className="mb-6">
+            {/* Cover Image Section */}
+            <Card
+                title="커버 이미지"
+                subtitle="프로필 상단에 표시되며 자르기 완료 즉시 저장됩니다."
+                className="mb-6">
                     <div className="space-y-4">
                         {cover ? (
                             <div className="relative group">
@@ -303,14 +317,17 @@ const ProfileSetting = () => {
                             </div>
                         )}
                         <div>
-                            <p className="text-sm text-content-secondary mb-1">프로필 페이지 상단에 표시되는 배너 이미지입니다.</p>
                             <p className="text-xs text-content-hint">권장 크기: 1500x500px (3:1 비율), 최대 5MB</p>
                         </div>
                     </div>
-                </Card>
+            </Card>
 
+            <form onSubmit={handleSubmit(onSubmit)}>
                 {/* Profile Information Section */}
-                <Card title="기본 정보" className="mb-6">
+                <Card
+                    title="기본 정보"
+                    subtitle="소개와 홈페이지는 저장 버튼을 눌러 반영합니다."
+                    className="mb-6">
                     <div className="mb-6">
                         <Input
                             label="소개"
@@ -341,21 +358,24 @@ const ProfileSetting = () => {
                     />
                 </Card>
 
-                <Button
-                    type="submit"
-                    variant="primary"
-                    size="md"
-                    fullWidth
-                    isLoading={isLoading}
-                    leftIcon={
-                        !isLoading ? (
-                            <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                                <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                            </svg>
-                        ) : undefined
-                    }>
-                    {isLoading ? '저장 중...' : '프로필 저장'}
-                </Button>
+                <div className="flex justify-end">
+                    <Button
+                        type="submit"
+                        variant="primary"
+                        size="lg"
+                        className="w-full sm:w-auto"
+                        disabled={!isDirty || !isValid || isLoading}
+                        isLoading={isLoading}
+                        leftIcon={
+                            !isLoading ? (
+                                <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                                </svg>
+                            ) : undefined
+                        }>
+                        {isLoading ? '저장 중...' : '기본 정보 저장'}
+                    </Button>
+                </div>
             </form>
 
             {imageCropConfig && (
