@@ -6,7 +6,7 @@
  */
 
 // Card styles - Clean, modern design with subtle shadows
-export const CARD_BASE = 'bg-surface ring-1 ring-line/60 rounded-2xl hover:ring-line transition-all motion-interaction';
+export const CARD_BASE = 'bg-surface ring-1 ring-line/60 rounded-2xl transition-all motion-interaction';
 export const CARD_PADDING = 'p-5';
 
 // Icon container styles - Minimal grayscale design

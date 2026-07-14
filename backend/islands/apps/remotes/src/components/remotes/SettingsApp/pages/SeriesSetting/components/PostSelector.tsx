@@ -58,6 +58,7 @@ const PostSelector = ({ posts, selectedPostIds, onChange }: PostSelectorProps) =
                         <div className="min-w-0 flex-1">
                             <Input
                                 type="text"
+                                aria-label="포함할 포스트 검색"
                                 value={query}
                                 onChange={(event) => setQuery(event.target.value)}
                                 placeholder="포스트 제목 검색"

@@ -325,6 +325,7 @@ const StaticPageEditor = ({ pageId }: StaticPageEditorProps) => {
 
                     {activePanel === 'code' ? (
                         <CodeEditor
+                            ariaLabel="정적 페이지 HTML"
                             language="html"
                             value={content}
                             onChange={handleContentChange}
@@ -501,6 +502,7 @@ const StaticPageEditor = ({ pageId }: StaticPageEditorProps) => {
                                             </div>
                                             <input
                                                 type="number"
+                                                aria-label="푸터 메뉴 표시 순서"
                                                 value={order}
                                                 onChange={(e) => {
                                                     setOrder(parseInt(e.target.value) || 0);

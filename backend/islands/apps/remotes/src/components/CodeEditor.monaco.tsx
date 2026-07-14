@@ -7,6 +7,7 @@ interface CodeEditorMonacoProps {
     onChange: (value: string) => void;
     height?: string;
     readOnly?: boolean;
+    ariaLabel?: string;
 }
 
 const CodeEditorMonaco = ({
@@ -14,7 +15,8 @@ const CodeEditorMonaco = ({
     value,
     onChange,
     height = '300px',
-    readOnly
+    readOnly,
+    ariaLabel
 }: CodeEditorMonacoProps) => {
     const resolvedTheme = useResolvedTheme();
 
@@ -35,6 +37,7 @@ const CodeEditorMonaco = ({
                     scrollBeyondLastLine: false,
                     automaticLayout: true,
                     readOnly,
+                    ariaLabel,
                     padding: {
                         top: 8,
                         bottom: 8

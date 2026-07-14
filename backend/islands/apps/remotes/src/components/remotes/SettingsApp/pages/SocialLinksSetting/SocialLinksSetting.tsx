@@ -104,6 +104,8 @@ const SocialLinkItem = ({ social, index, onRemove, onChange }: SocialLinkItemPro
     ];
 
     const currentPlatform = platformOptions.find(opt => opt.value === social.name);
+    const platformInputId = `social-platform-${social.id}`;
+    const linkInputId = `social-link-${social.id}`;
 
     return (
         <div ref={setNodeRef} style={style} className="mb-4">
@@ -127,6 +129,7 @@ const SocialLinkItem = ({ social, index, onRemove, onChange }: SocialLinkItemPro
                     </div>
                     <button
                         type="button"
+                        aria-label="소셜 링크 삭제"
                         className="w-8 h-8 flex items-center justify-center rounded-lg text-content-hint hover:text-content-secondary hover:bg-surface-subtle transition-all duration-200"
                         onClick={() => onRemove(social.id)}>
                         <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
@@ -155,10 +158,10 @@ const SocialLinkItem = ({ social, index, onRemove, onChange }: SocialLinkItemPro
 
                     {/* 플랫폼 선택 */}
                     <div className="w-full sm:w-44 flex-shrink-0">
-                        <label className="block text-xs font-medium text-content-secondary mb-2 sm:hidden">플랫폼 선택</label>
+                        <label htmlFor={platformInputId} className="block text-xs font-medium text-content-secondary mb-2 sm:hidden">플랫폼 선택</label>
                         <Dropdown
                             trigger={
-                                <button type="button" className={`${baseInputStyles} flex items-center justify-between`}>
+                                <button id={platformInputId} type="button" className={`${baseInputStyles} flex items-center justify-between`}>
                                     <span className={!social.name ? 'text-content-hint' : 'text-content'}>
                                         {currentPlatform?.label || '아이콘 선택'}
                                     </span>
@@ -176,8 +179,9 @@ const SocialLinkItem = ({ social, index, onRemove, onChange }: SocialLinkItemPro
 
                     {/* 링크 주소 */}
                     <div className="flex-1">
-                        <label className="block text-xs font-medium text-content-secondary mb-2 sm:hidden">링크 주소</label>
+                        <label htmlFor={linkInputId} className="block text-xs font-medium text-content-secondary mb-2 sm:hidden">링크 주소</label>
                         <Input
+                            id={linkInputId}
                             type="url"
                             placeholder="https://example.com"
                             value={social.value}
@@ -188,6 +192,7 @@ const SocialLinkItem = ({ social, index, onRemove, onChange }: SocialLinkItemPro
                     {/* 삭제 버튼 - 데스크톱에서만 표시 */}
                     <button
                         type="button"
+                        aria-label="소셜 링크 삭제"
                         className="hidden sm:flex w-10 h-10 items-center justify-center rounded-lg text-content-hint hover:text-content-secondary hover:bg-surface-subtle transition-all duration-200 group/btn flex-shrink-0"
                         onClick={() => onRemove(social.id)}>
                         <svg className="w-4 h-4 group-hover/btn:scale-110 transition-transform" fill="currentColor" viewBox="0 0 20 20">

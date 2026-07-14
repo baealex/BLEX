@@ -75,10 +75,11 @@ const TwoFactorModal = ({
                 </Alert>
 
                 <div>
-                    <label className="block text-sm font-medium text-content mb-2">
+                    <label htmlFor="two-factor-verification-code" className="block text-sm font-medium text-content mb-2">
                         인증 앱에 표시된 6자리 코드를 입력하세요
                     </label>
                     <Input
+                        id="two-factor-verification-code"
                         type="text"
                         placeholder="000000"
                         maxLength={6}

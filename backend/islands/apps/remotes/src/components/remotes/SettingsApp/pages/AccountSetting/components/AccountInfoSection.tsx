@@ -18,6 +18,7 @@ const AccountInfoSection = ({ createdDate, email }: AccountInfoSectionProps) => 
                 }
                 className="mb-6">
                 <Input
+                    aria-label="가입일"
                     value={createdDate}
                     readOnly
                 />
@@ -34,6 +35,7 @@ const AccountInfoSection = ({ createdDate, email }: AccountInfoSectionProps) => 
                 }
                 className="mb-6">
                 <Input
+                    aria-label="이메일"
                     value={email}
                     readOnly
                 />

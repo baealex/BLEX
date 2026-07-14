@@ -39,6 +39,7 @@ const UsernameSection = ({ initialUsername, isLoading, onSubmit }: UsernameSecti
                 <div className="mb-4">
                     <Input
                         type="text"
+                        aria-label="사용자 필명"
                         placeholder="사용자 필명"
                         maxLength={30}
                         error={errors.username?.message}

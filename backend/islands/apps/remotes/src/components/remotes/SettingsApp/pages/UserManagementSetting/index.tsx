@@ -391,6 +391,7 @@ const UserManagementSetting = () => {
                 icon={<i className="fas fa-users" />}>
                 <div className="mb-6 grid gap-3 lg:grid-cols-[minmax(0,1fr)_180px_180px_auto]">
                     <Input
+                        aria-label="사용자 검색"
                         placeholder="사용자 검색"
                         value={query}
                         onChange={(event) => setQuery(event.target.value)}

@@ -9,6 +9,7 @@ interface CodeEditorProps {
     height?: string;
     error?: string;
     readOnly?: boolean;
+    ariaLabel?: string;
 }
 
 export const CodeEditor = ({ error, ...props }: CodeEditorProps) => {
@@ -19,6 +20,8 @@ export const CodeEditor = ({ error, ...props }: CodeEditorProps) => {
             <Suspense
                 fallback={
                     <div
+                        role="status"
+                        aria-label={props.ariaLabel ? `${props.ariaLabel} 불러오는 중` : '코드 편집기 불러오는 중'}
                         className="rounded-lg border border-line bg-surface-subtle animate-pulse"
                         style={{ height }}
                     />

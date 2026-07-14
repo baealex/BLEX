@@ -36,6 +36,7 @@ const NameSection = ({ initialName, isLoading, onSubmit }: NameSectionProps) => 
                 <div className="mb-4">
                     <Input
                         type="text"
+                        aria-label="사용자 이름"
                         placeholder="사용자 실명"
                         maxLength={30}
                         error={errors.name?.message}
