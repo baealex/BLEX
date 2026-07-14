@@ -10,7 +10,8 @@ import { getSeries } from '~/lib/api/settings';
 import {
     cancelPostSchedule,
     getPostForEdit,
-    publishScheduledPostNow
+    publishScheduledPostNow,
+    submitPostEdit
 } from '~/lib/api/posts';
 import { api } from '~/components/shared';
 import { logger } from '~/utils/logger';
@@ -83,6 +84,7 @@ const EditPostEditor = ({ username, postUrl }: EditPostEditorProps) => {
     const formRef = useRef<HTMLFormElement>(null);
     const initialDataRef = useRef<DirtySnapshot | null>(null);
     const isIntentionalSubmitRef = useRef(false);
+    const isSubmitLockedRef = useRef(false);
 
     const createDirtySnapshot = (): DirtySnapshot => ({
         title: formData.title,
@@ -264,7 +266,8 @@ const EditPostEditor = ({ username, postUrl }: EditPostEditorProps) => {
         return true;
     };
 
-    const submitCurrentPost = async (isDraft = false) => {
+    const submitCurrentPost = async () => {
+        if (!hasUnsavedChanges() || isSubmitLockedRef.current) return;
         if (!validateForm()) return;
 
         if (isEditorMediaUploading) {
@@ -272,54 +275,64 @@ const EditPostEditor = ({ username, postUrl }: EditPostEditorProps) => {
             return;
         }
 
+        const form = formRef.current;
+        if (!form) return;
+
+        isSubmitLockedRef.current = true;
         setIsSubmitting(true);
         try {
-            const form = formRef.current;
-            if (!form) return;
+            const payload = new FormData(form);
+            payload.set('title', formData.title);
+            payload.set('subtitle', formData.subtitle);
+            payload.set('url', formData.url);
+            payload.set('content_html', formData.content);
+            payload.set('meta_description', formData.metaDescription);
+            payload.set('hide', formData.hide ? 'true' : 'false');
+            payload.set('advertise', formData.advertise ? 'true' : 'false');
+            payload.set('block_comment', formData.allowComments ? 'false' : 'true');
+            payload.set('tag', tags.join(','));
+            payload.set('cover_layout', formData.coverLayout);
+            payload.set('cover_image_position', formData.coverImagePosition);
+            payload.set('cover_image_ratio', formData.coverImageRatio);
 
-            // Add hidden fields for React data
-            const addHiddenField = (name: string, value: string) => {
-                let field = form.querySelector(`input[name="${name}"]`) as HTMLInputElement;
-                if (!field) {
-                    field = document.createElement('input');
-                    field.type = 'hidden';
-                    field.name = name;
-                    form.appendChild(field);
-                }
-                field.value = value;
-            };
-
-            addHiddenField('tag', tags.join(','));
-            addHiddenField('series', selectedSeries.id);
-            addHiddenField('content_html', formData.content);
-            addHiddenField('cover_layout', formData.coverLayout);
-            addHiddenField('cover_image_position', formData.coverImagePosition);
-            addHiddenField('cover_image_ratio', formData.coverImageRatio);
+            if (selectedSeries.id) {
+                payload.set('series', selectedSeries.id);
+            } else {
+                payload.delete('series');
+            }
 
             if (isScheduledPost && hasReservedDateChanged()) {
-                addHiddenField('reserved_date', toReservedDateValue(formData.reservedDate));
+                payload.set('reserved_date', toReservedDateValue(formData.reservedDate));
+            } else {
+                payload.delete('reserved_date');
             }
 
-            if (isDraft) {
-                addHiddenField('is_draft', 'true');
-            }
-
-            // Handle image deletion
             if (imageDeleted) {
-                addHiddenField('image_delete', 'true');
+                payload.set('image_delete', 'true');
+            } else {
+                payload.delete('image_delete');
+            }
+
+            const { data } = await submitPostEdit(username, postUrl, payload);
+            if (data.status === 'ERROR') {
+                isSubmitLockedRef.current = false;
+                setIsSubmitting(false);
+                toast.error(data.errorMessage || '포스트 수정에 실패했습니다.');
+                return;
             }
 
             isIntentionalSubmitRef.current = true;
-            form.submit();
+            window.location.assign(data.body.url);
         } catch {
+            isSubmitLockedRef.current = false;
             isIntentionalSubmitRef.current = false;
             toast.error('포스트 수정에 실패했습니다.');
             setIsSubmitting(false);
         }
     };
 
-    const handleSubmit = async (isDraft = false) => {
-        await submitCurrentPost(isDraft);
+    const handleSubmit = async () => {
+        await submitCurrentPost();
     };
 
     const handleDelete = async () => {
@@ -467,6 +480,7 @@ const EditPostEditor = ({ username, postUrl }: EditPostEditorProps) => {
                 isSaving={false}
                 isSubmitting={isSubmitting}
                 isMediaUploading={isEditorMediaUploading}
+                isSubmitDisabled={!hasUnsavedChanges()}
                 lastSaved={null}
                 onManualSave={() => { }}
                 onSubmit={() => handleSubmit()}

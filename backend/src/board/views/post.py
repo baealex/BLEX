@@ -8,6 +8,7 @@ from django.contrib import messages
 from django.utils import timezone
 
 from board.models import Post, Series, PostLikes, UsernameChangeLog
+from board.modules.response import StatusDone, StatusError
 from board.services.post_service import PostService, PostValidationError
 from board.services.banner_service import BannerService
 from board.services.agent_content_service import AgentContentService
@@ -134,6 +135,10 @@ def post_editor(request, username=None, post_url=None):
     Used for both creating new posts and editing existing posts.
     """
     is_edit = username is not None and post_url is not None
+    is_async_edit_submit = (
+        is_edit
+        and request.headers.get('X-BLEX-Editor-Submit') == 'async'
+    )
     post = None
     draft_post = None
     series_list = []
@@ -241,6 +246,8 @@ def post_editor(request, username=None, post_url=None):
                     reserved_date_str=request.POST.get('reserved_date'),
                 )
             except PostValidationError as e:
+                if is_async_edit_submit:
+                    return StatusError(e.code, e.message)
                 messages.error(request, e.message)
                 return redirect('post_edit', username=request.user.username, post_url=post.url)
 
@@ -321,6 +328,8 @@ def post_editor(request, username=None, post_url=None):
             'username': request.user.username,
             'post_url': post.url,
         })
+        if is_async_edit_submit:
+            return StatusDone({'url': post_detail_url})
         return redirect(post_detail_url)
 
     context = {

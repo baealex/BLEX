@@ -738,6 +738,65 @@ class PostEditorPublishRedirectTestCase(TestCase):
             delta=1,
         )
 
+    def test_post_editor_async_edit_returns_post_detail_url(self):
+        """React 편집 제출은 기존 수정 URL에서 구조화된 성공 응답을 받는다."""
+        post, _, _ = PostService.create_post(
+            user=self.user,
+            title='Async Editable Post',
+            text_html='<p>Original body</p>',
+            custom_url='async-editable-post',
+        )
+        self.client.login(username='editor', password='password123')
+
+        response = self.client.post('/@editor/async-editable-post/edit', {
+            'title': 'Async Editable Post',
+            'subtitle': '',
+            'content_html': '<p>Updated body</p>',
+            'meta_description': post.meta_description,
+            'hide': 'false',
+            'advertise': 'false',
+            'block_comment': 'false',
+        }, HTTP_X_BLEX_EDITOR_SUBMIT='async')
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(json.loads(response.content), {
+            'status': 'DONE',
+            'body': {'url': '/@editor/async-editable-post'},
+        })
+        post.refresh_from_db()
+        self.assertEqual(post.content.content_html, '<p>Updated body</p>')
+
+    def test_post_editor_async_validation_failure_preserves_post(self):
+        """비동기 검증 실패는 redirect 없이 오류를 반환하고 저장본을 건드리지 않는다."""
+        post, _, _ = PostService.create_post(
+            user=self.user,
+            title='Recoverable Edit',
+            text_html='<p>Stored body</p>',
+            custom_url='recoverable-edit',
+        )
+        previous_updated_date = post.updated_date
+        self.client.login(username='editor', password='password123')
+
+        response = self.client.post('/@editor/recoverable-edit/edit', {
+            'title': 'Unsaved Changed Title',
+            'subtitle': '',
+            'content_html': '',
+            'meta_description': post.meta_description,
+            'hide': 'false',
+            'advertise': 'false',
+            'block_comment': 'false',
+        }, HTTP_X_BLEX_EDITOR_SUBMIT='async')
+
+        self.assertEqual(response.status_code, 200)
+        body = json.loads(response.content)
+        self.assertEqual(body['status'], 'ERROR')
+        self.assertEqual(body['errorCode'], 'error:VA')
+        self.assertEqual(body['errorMessage'], '내용을 입력해주세요.')
+        post.refresh_from_db()
+        self.assertEqual(post.title, 'Recoverable Edit')
+        self.assertEqual(post.content.content_html, '<p>Stored body</p>')
+        self.assertEqual(post.updated_date, previous_updated_date)
+
     def test_post_editor_returns_to_draft_when_draft_publish_fails(self):
         """초안 발행 검증 실패 시 작성 맥락을 잃지 않고 기존 초안으로 돌아간다."""
         draft = PostService.create_draft(
