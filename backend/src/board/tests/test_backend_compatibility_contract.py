@@ -489,6 +489,8 @@ EXPECTED_POST_SERVICE_SIGNATURES = {
         ('cover_image_position', None),
         ('cover_image_ratio', None),
         ('reserved_date_str', None),
+        ('is_hide', False),
+        ('is_advertise', False),
     ),
     'update_draft': (
         ('post', REQUIRED),
@@ -506,6 +508,8 @@ EXPECTED_POST_SERVICE_SIGNATURES = {
         ('cover_image_position', None),
         ('cover_image_ratio', None),
         ('reserved_date_str', None),
+        ('is_hide', None),
+        ('is_advertise', None),
     ),
     'publish_draft': (
         ('post', REQUIRED),

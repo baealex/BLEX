@@ -186,6 +186,8 @@ const NewPostEditor = ({
         coverLayout: formData.coverLayout,
         coverImagePosition: formData.coverImagePosition,
         coverImageRatio: formData.coverImageRatio,
+        hide: formData.hide,
+        advertise: formData.advertise,
         reservedDate: formData.reservedDate,
         imageFile,
         imageDeleted
@@ -272,6 +274,8 @@ const NewPostEditor = ({
                             coverLayout: draftData.coverLayout || 'default',
                             coverImagePosition: draftData.coverImagePosition || 'right',
                             coverImageRatio: draftData.coverImageRatio || 'auto',
+                            hide: draftData.isHide ?? false,
+                            advertise: draftData.isAdvertise ?? false,
                             reservedDate: newReservedDate
                         }));
                         setCurrentDraftUrl(draftData.url || draftUrl);

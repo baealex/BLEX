@@ -665,6 +665,8 @@ class PostService:
         cover_image_position: Optional[str] = None,
         cover_image_ratio: Optional[str] = None,
         reserved_date_str: Optional[str] = None,
+        is_hide: bool = False,
+        is_advertise: bool = False,
     ) -> Post:
         """
         Create a draft post (published_date=null).
@@ -723,6 +725,8 @@ class PostService:
 
         PostConfig.objects.create(
             post=post,
+            hide=is_hide,
+            advertise=is_advertise,
             **PostService.normalize_cover_options(
                 cover_layout=cover_layout,
                 cover_image_position=cover_image_position,
@@ -751,6 +755,8 @@ class PostService:
         cover_image_position: Optional[str] = None,
         cover_image_ratio: Optional[str] = None,
         reserved_date_str: Optional[str] = None,
+        is_hide: Optional[bool] = None,
+        is_advertise: Optional[bool] = None,
     ) -> Post:
         """
         Update a draft post. No notifications sent.
@@ -802,8 +808,20 @@ class PostService:
         post.updated_date = timezone.now()
         post.save()
 
-        if cover_layout is not None or cover_image_position is not None or cover_image_ratio is not None:
+        should_update_config = (
+            is_hide is not None
+            or is_advertise is not None
+            or cover_layout is not None
+            or cover_image_position is not None
+            or cover_image_ratio is not None
+        )
+
+        if should_update_config:
             post_config = post.config
+            if is_hide is not None:
+                post_config.hide = is_hide
+            if is_advertise is not None:
+                post_config.advertise = is_advertise
             PostService.apply_cover_options(
                 post_config,
                 cover_layout=cover_layout,
