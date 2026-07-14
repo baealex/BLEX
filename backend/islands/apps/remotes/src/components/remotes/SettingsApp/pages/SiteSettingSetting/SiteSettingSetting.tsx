@@ -8,8 +8,9 @@ import {
 import { toast } from '~/utils/toast';
 import { useMutation, useQueryClient, useSuspenseQuery } from '@tanstack/react-query';
 import {
-    Building2,
+    AlertTriangle,
     Check,
+    ChevronDown,
     Code2,
     Image,
     Palette,
@@ -132,6 +133,7 @@ const AssetUploadButton = ({ label, disabled, onUpload }: AssetUploadButtonProps
             <Button
                 variant="secondary"
                 size="sm"
+                className="h-11 flex-1 sm:flex-none"
                 disabled={disabled}
                 leftIcon={<Upload aria-hidden="true" className="h-3.5 w-3.5" />}
                 onClick={() => inputRef.current?.click()}>
@@ -168,7 +170,7 @@ const BrandAssetSlot = ({
                 className={shape === 'icon' ? 'h-14 w-14 object-contain' : 'max-h-12 max-w-full object-contain'}
             />
         </div>
-        <div className="flex flex-wrap items-center gap-2">
+        <div className="flex items-center gap-2">
             <AssetUploadButton
                 label="업로드"
                 disabled={uploadDisabled}
@@ -176,10 +178,10 @@ const BrandAssetSlot = ({
             />
             {hasAsset && (
                 <Button
-                    variant="ghost"
+                    variant="danger"
                     size="sm"
                     disabled={deleteDisabled}
-                    className="text-danger hover:text-danger"
+                    className="h-11 flex-1 sm:flex-none"
                     onClick={onDelete}>
                     삭제
                 </Button>
@@ -253,6 +255,9 @@ const SiteSettingSetting = () => {
     const [siteName, setSiteName] = useState('');
     const [headerScript, setHeaderScript] = useState('');
     const [footerScript, setFooterScript] = useState('');
+    const [isGlobalCodeOpen, setIsGlobalCodeOpen] = useState(
+        Boolean(settingData.headerScript || settingData.footerScript)
+    );
 
     useEffect(() => {
         if (!hasHydratedFormRef.current) {
@@ -379,29 +384,41 @@ const SiteSettingSetting = () => {
         footerScript
     };
     const isDirty = hasSiteSettingsChanged(currentSettings, savedSettingsRef.current);
+    const isGlobalCodeDirty = savedSettingsRef.current !== null && (
+        headerScript !== savedSettingsRef.current.headerScript
+        || footerScript !== savedSettingsRef.current.footerScript
+    );
+    const hasGlobalCode = Boolean(headerScript.trim() || footerScript.trim());
+    const globalCodeStatus = isGlobalCodeDirty
+        ? '저장하지 않은 변경이 있습니다.'
+        : hasGlobalCode
+            ? '현재 모든 공개 페이지에 적용 중입니다.'
+            : '현재 설정된 코드가 없습니다.';
     const saveDisabled = !isDirty || assetMutationPending || updateMutation.isPending;
 
     return (
         <form className="space-y-8" onSubmit={handleSave}>
-            <SettingsHeader
-                title="블로그 커스텀"
-                description="사이트 이름, 브랜드 자산, 전역 코드를 관리합니다."
-            />
+            <SettingsHeader title="블로그 커스텀" />
 
-            <section className="space-y-4">
-                <Card
-                    title="사이트 이름"
-                    subtitle="공개 화면, RSS, llms.txt에 표시되는 블로그 이름입니다."
-                    icon={<Building2 aria-hidden="true" className="h-4 w-4" />}>
+            <section className="space-y-4" aria-labelledby="basic-site-settings-title">
+                <h2 id="basic-site-settings-title" className="text-base font-semibold text-content">
+                    기본 설정
+                </h2>
+                <Card>
                     <Input
                         label="사이트 이름"
                         maxLength={80}
                         placeholder="BLEX"
                         value={siteName}
                         onChange={(event) => setSiteName(event.target.value)}
-                        helperText="브라우저 제목, RSS, 검색 결과, 공개 문서에 표시됩니다."
+                        helperText="브라우저 제목, 검색 결과, RSS와 공개 문서에 표시됩니다."
                     />
                 </Card>
+
+                <div className="flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between">
+                    <h3 className="text-sm font-semibold text-content">브랜드 자산</h3>
+                    <p className="text-xs text-content-secondary">업로드와 삭제는 별도 저장 없이 즉시 반영됩니다.</p>
+                </div>
 
                 <div className="grid gap-4 xl:grid-cols-2">
                     <BrandAssetPanel
@@ -433,43 +450,70 @@ const SiteSettingSetting = () => {
                         onDelete={handleBrandAssetDelete}
                     />
                 </div>
+            </section>
 
-                <Card
-                    title="커스텀 코드"
-                    subtitle="스크립트나 메타 태그와 같은 코드를 전역에 삽입할 수 있습니다."
-                    icon={<Code2 aria-hidden="true" className="h-4 w-4" />}>
-                    <div className="space-y-4">
-                        <p className="text-xs leading-relaxed text-content-secondary">
-                            모든 공개 페이지에 영향을 줍니다. 분석 스크립트나 검증 메타 태그처럼 꼭 필요한 코드만 넣어주세요.
-                        </p>
-                        <div className="space-y-2">
-                            <div className="block text-sm font-semibold text-content">
-                                Head 영역 코드
+            <section className="space-y-4" aria-labelledby="advanced-site-settings-title">
+                <h2 id="advanced-site-settings-title" className="text-base font-semibold text-content">
+                    고급 설정
+                </h2>
+                <details
+                    className="group overflow-hidden rounded-2xl bg-surface ring-1 ring-line/60"
+                    open={isGlobalCodeOpen}
+                    onToggle={(event) => setIsGlobalCodeOpen(event.currentTarget.open)}>
+                    <summary className="flex min-h-20 cursor-pointer list-none items-center gap-4 px-6 py-5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-line-strong md:px-8 [&::-webkit-details-marker]:hidden">
+                        <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-warning-surface text-warning">
+                            <Code2 aria-hidden="true" className="h-5 w-5" />
+                        </span>
+                        <span className="min-w-0 flex-1">
+                            <span className="block text-base font-semibold text-content">전역 코드</span>
+                            <span
+                                aria-live="polite"
+                                className={`mt-1 block text-sm ${isGlobalCodeDirty ? 'text-warning' : 'text-content-secondary'}`}>
+                                {globalCodeStatus}
+                            </span>
+                        </span>
+                        <ChevronDown
+                            aria-hidden="true"
+                            className="h-5 w-5 shrink-0 text-content-hint transition-transform group-open:rotate-180 motion-reduce:transition-none"
+                        />
+                    </summary>
+
+                    {isGlobalCodeOpen && (
+                        <div className="space-y-6 border-t border-line px-6 py-6 md:px-8 md:py-8">
+                            <div className="flex gap-3 rounded-xl border border-warning-line bg-warning-surface p-4 text-warning">
+                                <AlertTriangle aria-hidden="true" className="mt-0.5 h-4 w-4 shrink-0" />
+                                <p className="text-xs leading-relaxed">
+                                    저장 즉시 모든 공개 페이지에 적용됩니다. 메타 태그와 먼저 불러올 코드는 {'<head>'} 안에,
+                                    나중에 불러올 스크립트는 {'</body>'} 직전에 삽입되므로 검증된 코드만 사용하세요.
+                                </p>
                             </div>
-                            <CodeEditor
-                                ariaLabel="Head 영역 코드"
-                                language="html"
-                                value={headerScript}
-                                onChange={setHeaderScript}
-                                height="220px"
-                            />
-                            <p className="text-xs text-content-secondary">{'<head>'} 태그 안에 삽입됩니다.</p>
-                        </div>
-                        <div className="space-y-2">
-                            <div className="block text-sm font-semibold text-content">
-                                Body 하단 코드
+                            <div className="space-y-2">
+                                <div className="block text-sm font-semibold text-content">
+                                    Head 영역 코드
+                                </div>
+                                <CodeEditor
+                                    ariaLabel="Head 영역 코드"
+                                    language="html"
+                                    value={headerScript}
+                                    onChange={setHeaderScript}
+                                    height="220px"
+                                />
                             </div>
-                            <CodeEditor
-                                ariaLabel="Body 하단 코드"
-                                language="html"
-                                value={footerScript}
-                                onChange={setFooterScript}
-                                height="220px"
-                            />
-                            <p className="text-xs text-content-secondary">{'</body>'} 태그 직전에 삽입됩니다.</p>
+                            <div className="space-y-2">
+                                <div className="block text-sm font-semibold text-content">
+                                    Body 하단 코드
+                                </div>
+                                <CodeEditor
+                                    ariaLabel="Body 하단 코드"
+                                    language="html"
+                                    value={footerScript}
+                                    onChange={setFooterScript}
+                                    height="220px"
+                                />
+                            </div>
                         </div>
-                    </div>
-                </Card>
+                    )}
+                </details>
             </section>
 
             <div className="sticky bottom-0 z-10 -mx-4 flex justify-end bg-surface-page/95 px-4 py-3 backdrop-blur md:mx-0 md:px-0">
@@ -477,6 +521,7 @@ const SiteSettingSetting = () => {
                     type="submit"
                     variant="primary"
                     size="md"
+                    className="h-11 w-full sm:w-auto"
                     isLoading={updateMutation.isPending}
                     disabled={saveDisabled}
                     leftIcon={!updateMutation.isPending
