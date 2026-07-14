@@ -6,6 +6,7 @@ import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useSuspenseQuery } from '@tanstack/react-query';
 import { useConfirm } from '~/hooks/useConfirm';
+import { getStaticPath } from '~/modules/static.module';
 import { SettingsHeader } from '../../components';
 import { Button, Input, Card, ImageCropDialog } from '~/components/shared';
 import {
@@ -45,8 +46,10 @@ const IMAGE_CROP_CONFIG = {
     }
 } as const;
 
+const getDefaultAvatarPath = () => getStaticPath('assets/images/default-avatar.jpg');
+
 const ProfileSetting = () => {
-    const [avatar, setAvatar] = useState('/resources/staticfiles/images/default-avatar.jpg');
+    const [avatar, setAvatar] = useState(getDefaultAvatarPath);
     const [cover, setCover] = useState<string | null>(null);
     const [isLoading, setIsLoading] = useState(false);
     const [imageCropState, setImageCropState] = useState<ImageCropState | null>(null);
@@ -67,7 +70,7 @@ const ProfileSetting = () => {
 
     useEffect(() => {
         if (profileData) {
-            setAvatar(profileData.avatar || '/resources/staticfiles/images/default-avatar.jpg');
+            setAvatar(profileData.avatar || getDefaultAvatarPath());
             setCover(profileData.cover || null);
             reset({
                 bio: profileData.bio || '',
@@ -211,19 +214,24 @@ const ProfileSetting = () => {
                                 alt="프로필 이미지"
                                 className="w-full h-full rounded-full object-cover border-4 border-line-light shadow-lg"
                             />
-                            <div className="absolute bottom-0 right-0 bg-action w-8 h-8 sm:w-10 sm:h-10 rounded-full flex items-center justify-center cursor-pointer shadow-md hover:bg-action transition-colors">
-                                <label htmlFor="avatar-input" className="text-content-inverted cursor-pointer w-full h-full flex items-center justify-center">
-                                    <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="currentColor" viewBox="0 0 20 20">
-                                        <path fillRule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clipRule="evenodd" />
-                                    </svg>
+                            <div className="absolute -bottom-1 -right-1">
+                                <label
+                                    htmlFor="avatar-input"
+                                    className="group flex h-11 w-11 cursor-pointer items-center justify-center rounded-full">
+                                    <span className="sr-only">프로필 이미지 변경</span>
+                                    <span className="flex h-8 w-8 items-center justify-center rounded-full bg-action text-content-inverted shadow-md transition-colors group-hover:bg-action-hover group-focus-within:ring-2 group-focus-within:ring-line-strong group-focus-within:ring-offset-2 group-focus-within:ring-offset-surface sm:h-10 sm:w-10">
+                                        <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="currentColor" viewBox="0 0 20 20">
+                                            <path fillRule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clipRule="evenodd" />
+                                        </svg>
+                                    </span>
+                                    <input
+                                        id="avatar-input"
+                                        type="file"
+                                        accept="image/*"
+                                        onChange={handleAvatarChange}
+                                        className="sr-only"
+                                    />
                                 </label>
-                                <input
-                                    id="avatar-input"
-                                    type="file"
-                                    accept="image/*"
-                                    onChange={handleAvatarChange}
-                                    className="hidden"
-                                />
                             </div>
                         </div>
                         <div className="text-center sm:text-left">
@@ -246,23 +254,23 @@ const ProfileSetting = () => {
                                         className="w-full h-full object-cover"
                                     />
                                 </div>
-                                <div className="absolute inset-0 bg-action bg-opacity-0 group-hover:bg-opacity-40 transition-all duration-200 rounded-2xl flex items-center justify-center opacity-0 group-hover:opacity-100">
+                                <div className="absolute inset-0 bg-action bg-opacity-0 group-hover:bg-opacity-40 group-focus-within:bg-opacity-40 transition-all duration-200 rounded-2xl flex items-center justify-center opacity-0 group-hover:opacity-100 group-focus-within:opacity-100">
                                     <label
                                         htmlFor="cover-input"
-                                        className="px-6 py-3 bg-surface hover:bg-surface-subtle rounded-xl text-sm font-semibold text-content cursor-pointer transition-colors shadow-lg">
+                                        className="px-6 py-3 bg-surface hover:bg-surface-subtle rounded-xl text-sm font-semibold text-content cursor-pointer transition-colors shadow-lg focus-within:ring-2 focus-within:ring-line-strong">
                                         이미지 변경
+                                        <input
+                                            id="cover-input"
+                                            type="file"
+                                            accept="image/*"
+                                            onChange={handleCoverChange}
+                                            className="sr-only"
+                                        />
                                     </label>
                                 </div>
-                                <input
-                                    id="cover-input"
-                                    type="file"
-                                    accept="image/*"
-                                    onChange={handleCoverChange}
-                                    className="hidden"
-                                />
                             </div>
                         ) : (
-                            <label htmlFor="cover-input-empty" className="block">
+                            <label htmlFor="cover-input-empty" className="block rounded-2xl focus-within:ring-2 focus-within:ring-line-strong">
                                 <div className="aspect-[3/1] w-full rounded-2xl border-2 border-dashed border-line hover:border-line hover:bg-surface-subtle transition-all duration-200 cursor-pointer flex flex-col items-center justify-center gap-3 group">
                                     <svg className="w-12 h-12 text-content-hint group-hover:text-content-hint transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
@@ -277,7 +285,7 @@ const ProfileSetting = () => {
                                     type="file"
                                     accept="image/*"
                                     onChange={handleCoverChange}
-                                    className="hidden"
+                                    className="sr-only"
                                 />
                             </label>
                         )}
@@ -286,7 +294,7 @@ const ProfileSetting = () => {
                                 <button
                                     type="button"
                                     onClick={handleCoverDelete}
-                                    className="inline-flex items-center gap-2 rounded-xl border border-danger-line px-4 py-2 text-sm font-semibold text-danger transition-colors hover:bg-danger-surface">
+                                    className="inline-flex min-h-11 items-center gap-2 rounded-xl border border-danger-line px-4 py-2 text-sm font-semibold text-danger transition-colors hover:bg-danger-surface">
                                     <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6M9 7V4a1 1 0 011-1h4a1 1 0 011 1v3m-9 0h10" />
                                     </svg>

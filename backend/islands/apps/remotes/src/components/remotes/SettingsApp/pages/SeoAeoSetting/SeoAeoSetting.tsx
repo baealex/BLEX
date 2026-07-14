@@ -314,7 +314,7 @@ const SeoAeoSetting = () => {
 
                     <div className="space-y-2">
                         <div>
-                            <label className="block text-sm font-semibold text-content">
+                            <label htmlFor="robots-extra-rules" className="block text-sm font-semibold text-content">
                                 추가 규칙
                             </label>
                             <p className="mt-1 text-xs leading-relaxed text-content-secondary">
@@ -322,6 +322,7 @@ const SeoAeoSetting = () => {
                             </p>
                         </div>
                         <Input
+                            id="robots-extra-rules"
                             multiline
                             rows={7}
                             value={robotsTxtExtraRules}

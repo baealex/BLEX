@@ -276,6 +276,7 @@ export const SettingsMobileNavigation = ({ currentPath }: SettingsNavigationProp
         basePath,
         canUseTelegramIntegration
     } = router.options.context as SettingsRouterContext;
+    const settingsLabel = settingsMode === 'admin' ? '관리자 설정' : '설정';
     const navigationSections = getNavigationSections(settingsMode);
     const handleNavClick = (item: NavigationItem) => {
         setMobileMenuOpen(false);
@@ -345,6 +346,8 @@ export const SettingsMobileNavigation = ({ currentPath }: SettingsNavigationProp
                 <Dialog.Root open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
                     <Dialog.Trigger asChild>
                         <button
+                            type="button"
+                            aria-label={`${settingsLabel} 메뉴 열기`}
                             className={`w-11 h-11 flex items-center justify-center rounded-full hover:bg-action/5 active:bg-action/10 active:scale-95 transition-all ${INTERACTION_DURATION}`}>
                             <i className="fas fa-bars text-content" />
                         </button>
@@ -353,13 +356,15 @@ export const SettingsMobileNavigation = ({ currentPath }: SettingsNavigationProp
                         <Dialog.Overlay className={`fixed inset-0 ${DIM_OVERLAY_SOFT} z-40 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0`} />
                         <Dialog.Content className={`fixed z-50 bg-surface shadow-2xl transition ease-in-out data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:slide-out-to-left data-[state=open]:slide-in-from-left ${ENTRANCE_DURATION} inset-y-0 left-0 h-full w-[280px] overflow-y-auto outline-none`}>
                             <div className="p-6">
-                                <Dialog.Title className="sr-only">Navigation Menu</Dialog.Title>
+                                <Dialog.Title className="sr-only">{settingsLabel} 메뉴</Dialog.Title>
                                 <div className="flex items-center justify-between mb-8">
                                     <h2 className="text-2xl font-bold text-content tracking-tight">
                                         {settingsMode === 'admin' ? '관리자 설정' : '설정'}
                                     </h2>
                                     <Dialog.Close asChild>
                                         <button
+                                            type="button"
+                                            aria-label={`${settingsLabel} 메뉴 닫기`}
                                             className={`w-11 h-11 flex items-center justify-center rounded-full hover:bg-surface-subtle active:bg-line active:scale-95 transition-all ${INTERACTION_DURATION}`}>
                                             <i className="fas fa-times text-content-secondary" />
                                         </button>
@@ -381,7 +386,7 @@ export const SettingsMobileNavigation = ({ currentPath }: SettingsNavigationProp
                 </Dialog.Root>
 
                 <h1 className="text-lg font-bold text-content">
-                    {settingsMode === 'admin' ? '관리자 설정' : '설정'}
+                    {settingsLabel}
                 </h1>
                 <div className="w-10" />
             </div>
@@ -399,6 +404,7 @@ export const SettingsDesktopNavigation = ({ currentPath }: SettingsNavigationPro
         basePath,
         canUseTelegramIntegration
     } = router.options.context as SettingsRouterContext;
+    const settingsLabel = settingsMode === 'admin' ? '관리자 설정' : '설정';
     const navigationSections = getNavigationSections(settingsMode);
     const handleNavClick = (item: NavigationItem) => {
         if (item.path === 'admin' && adminUrl) {
@@ -466,7 +472,7 @@ export const SettingsDesktopNavigation = ({ currentPath }: SettingsNavigationPro
         <aside className="hidden xl:block w-72 flex-shrink-0 mt-8 self-start sticky top-24">
             <div className="px-5 mb-6">
                 <h2 className="text-2xl font-semibold text-content tracking-tight">
-                    {settingsMode === 'admin' ? '관리자 설정' : '설정'}
+                    {settingsLabel}
                 </h2>
                 {isStaff && (
                     <div className="mt-3">

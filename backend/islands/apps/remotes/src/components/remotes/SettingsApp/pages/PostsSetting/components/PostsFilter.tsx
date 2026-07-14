@@ -112,6 +112,7 @@ const PostsFilter = ({
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">
                         <Input
                             type="text"
+                            aria-label="포스트 제목 검색"
                             placeholder="포스트 제목 검색..."
                             defaultValue={filters.search}
                             onChange={onSearchChange}

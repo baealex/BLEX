@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react';
+import type { KeyboardEvent, ReactNode } from 'react';
 import type { DraggableAttributes } from '@dnd-kit/core';
 import type { SyntheticListenerMap } from '@dnd-kit/core/dist/hooks/utilities';
 import {
@@ -31,10 +31,24 @@ const SettingsListItem = ({
     actions,
     children
 }: SettingsListItemProps) => {
+    const handleKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
+        if (!onClick || event.target !== event.currentTarget) return;
+
+        if (event.key === 'Enter' || event.key === ' ') {
+            event.preventDefault();
+            onClick();
+        }
+    };
+
     return (
         <div
-            className={getCardClass(onClick ? 'cursor-pointer' : '')}
-            onClick={onClick}>
+            className={getCardClass(onClick
+                ? 'cursor-pointer hover:ring-line focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-line-strong'
+                : '')}
+            onClick={onClick}
+            onKeyDown={handleKeyDown}
+            role={onClick ? 'button' : undefined}
+            tabIndex={onClick ? 0 : undefined}>
             <div className={CARD_PADDING}>
                 <div className={`${FLEX_ROW}${className ? ` ${className}` : ''}`}>
                     {dragHandleProps && (

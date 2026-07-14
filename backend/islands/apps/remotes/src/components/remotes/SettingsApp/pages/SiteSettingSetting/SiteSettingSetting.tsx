@@ -433,10 +433,11 @@ const SiteSettingSetting = () => {
                             모든 공개 페이지에 영향을 줍니다. 분석 스크립트나 검증 메타 태그처럼 꼭 필요한 코드만 넣어주세요.
                         </p>
                         <div className="space-y-2">
-                            <label className="block text-sm font-semibold text-content">
+                            <div className="block text-sm font-semibold text-content">
                                 Head 영역 코드
-                            </label>
+                            </div>
                             <CodeEditor
+                                ariaLabel="Head 영역 코드"
                                 language="html"
                                 value={headerScript}
                                 onChange={setHeaderScript}
@@ -445,10 +446,11 @@ const SiteSettingSetting = () => {
                             <p className="text-xs text-content-secondary">{'<head>'} 태그 안에 삽입됩니다.</p>
                         </div>
                         <div className="space-y-2">
-                            <label className="block text-sm font-semibold text-content">
+                            <div className="block text-sm font-semibold text-content">
                                 Body 하단 코드
-                            </label>
+                            </div>
                             <CodeEditor
+                                ariaLabel="Body 하단 코드"
                                 language="html"
                                 value={footerScript}
                                 onChange={setFooterScript}

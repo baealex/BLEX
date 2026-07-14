@@ -85,6 +85,7 @@ const NotifyConfigModal = ({
                             <label className="relative inline-flex items-center cursor-pointer">
                                 <input
                                     type="checkbox"
+                                    aria-label={getNotifyLabel(item.name)}
                                     className="sr-only peer"
                                     checked={item.value}
                                     onChange={() => handleToggleConfig(item.name as keyof typeof NOTIFY_CONFIG_LABEL)}

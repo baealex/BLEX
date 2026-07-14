@@ -173,6 +173,7 @@ const PostCard = ({
                         </div>
                         <Input
                             type="text"
+                            aria-label={`${post.title} 태그`}
                             placeholder="태그를 입력하세요..."
                             value={post.tag}
                             onChange={(e) => onTagChange(post.url, e.target.value)}

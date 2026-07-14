@@ -1,4 +1,4 @@
-import { forwardRef } from 'react';
+import { forwardRef, useId } from 'react';
 import type { InputHTMLAttributes, ReactNode, ForwardedRef } from 'react';
 import { AlertCircle } from 'lucide-react';
 import { cx } from '../lib/classnames';
@@ -30,12 +30,19 @@ const Input = forwardRef<HTMLInputElement | HTMLTextAreaElement, InputProps>(
             id,
             required,
             readOnly,
+            'aria-describedby': ariaDescribedBy,
             ...props
         },
         ref
     ) => {
-        const inputId = id || `input-${Math.random().toString(36).substr(2, 9)}`;
+        const generatedId = useId();
+        const inputId = id ?? `input-${generatedId}`;
         const errorId = `${inputId}-error`;
+        const helperId = `${inputId}-helper`;
+        const describedBy = [
+            ariaDescribedBy,
+            error ? errorId : helperText ? helperId : undefined
+        ].filter(Boolean).join(' ') || undefined;
         const errorStyles = error ? 'border-danger-line focus:border-danger focus:ring-danger/20 bg-danger-surface/70' : '';
         const readOnlyStyles = readOnly ? '!bg-surface-subtle !text-content-hint cursor-default focus:!ring-0 focus:!border-line' : '';
 
@@ -79,7 +86,7 @@ const Input = forwardRef<HTMLInputElement | HTMLTextAreaElement, InputProps>(
                             readOnly={readOnly}
                             className={inputClasses}
                             aria-invalid={!!error}
-                            aria-describedby={error ? errorId : undefined}
+                            aria-describedby={describedBy}
                             {...(props as InputHTMLAttributes<HTMLTextAreaElement>)}
                         />
                     ) : (
@@ -89,7 +96,7 @@ const Input = forwardRef<HTMLInputElement | HTMLTextAreaElement, InputProps>(
                             readOnly={readOnly}
                             className={inputClasses}
                             aria-invalid={!!error}
-                            aria-describedby={error ? errorId : undefined}
+                            aria-describedby={describedBy}
                             {...(props as InputHTMLAttributes<HTMLInputElement>)}
                         />
                     )}
@@ -109,7 +116,7 @@ const Input = forwardRef<HTMLInputElement | HTMLTextAreaElement, InputProps>(
                 )}
 
                 {helperText && !error && (
-                    <p className="text-content-secondary text-xs mt-1.5 ml-1">{helperText}</p>
+                    <p id={helperId} className="text-content-secondary text-xs mt-1.5 ml-1">{helperText}</p>
                 )}
             </div>
         );

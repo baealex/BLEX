@@ -234,10 +234,13 @@ const NoticeSettingBase = ({ scope }: NoticeSettingBaseProps) => {
                     </h3>
                     <div className="space-y-4">
                         <div className="space-y-2">
-                            <label className="block text-sm font-medium text-content">
+                            <label
+                                htmlFor={isGlobal ? 'global-notice-title' : 'notice-title'}
+                                className="block text-sm font-medium text-content">
                                 공지 제목
                             </label>
                             <Input
+                                id={isGlobal ? 'global-notice-title' : 'notice-title'}
                                 placeholder="공지 제목을 입력하세요"
                                 className="text-base"
                                 error={errors.title?.message}
@@ -246,10 +249,13 @@ const NoticeSettingBase = ({ scope }: NoticeSettingBaseProps) => {
                         </div>
 
                         <div className="space-y-2">
-                            <label className="block text-sm font-medium text-content">
+                            <label
+                                htmlFor={isGlobal ? 'global-notice-url' : 'notice-url'}
+                                className="block text-sm font-medium text-content">
                                 URL
                             </label>
                             <Input
+                                id={isGlobal ? 'global-notice-url' : 'notice-url'}
                                 placeholder="https://example.com/notice"
                                 className="text-base"
                                 error={errors.url?.message}

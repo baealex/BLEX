@@ -364,12 +364,13 @@ const BannerEditorBase = ({ scope, bannerId }: BannerEditorBaseProps) => {
             </div>
 
             <div className="space-y-2">
-                <label className="block text-sm font-semibold text-content">배너 HTML</label>
+                <div className="block text-sm font-semibold text-content">배너 HTML</div>
                 <Controller
                     name="contentHtml"
                     control={control}
                     render={({ field }) => (
                         <CodeEditor
+                            ariaLabel="배너 HTML"
                             language="html"
                             value={field.value}
                             onChange={field.onChange}
