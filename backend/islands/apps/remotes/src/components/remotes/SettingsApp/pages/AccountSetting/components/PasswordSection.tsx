@@ -1,7 +1,9 @@
 import { useForm } from 'react-hook-form';
+import { KeyRound, Save } from '@blex/ui/icons';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Button, Input, Card, Alert } from '~/components/shared';
+import { Button, Card, Input } from '~/components/shared';
+import type { AccountFormSubmitResult } from '../types';
 
 const passwordSchema = z.object({
     newPassword: z.string()
@@ -20,39 +22,53 @@ type PasswordFormInputs = z.infer<typeof passwordSchema>;
 
 interface PasswordSectionProps {
     isLoading: boolean;
-    onSubmit: (password: string) => Promise<void>;
+    onSubmit: (password: string) => Promise<AccountFormSubmitResult>;
 }
 
 const PasswordSection = ({ isLoading, onSubmit }: PasswordSectionProps) => {
-    const { register, handleSubmit, reset, formState: { errors } } = useForm<PasswordFormInputs>({ resolver: zodResolver(passwordSchema) });
+    const {
+        register,
+        handleSubmit,
+        reset,
+        setError,
+        formState: { errors, isDirty, isValid }
+    } = useForm<PasswordFormInputs>({
+        resolver: zodResolver(passwordSchema),
+        defaultValues: {
+            newPassword: '',
+            confirmPassword: ''
+        },
+        mode: 'onChange'
+    });
 
     const handleFormSubmit = async (formData: PasswordFormInputs) => {
-        await onSubmit(formData.newPassword);
-        reset({
- newPassword: '',
-confirmPassword: ''
-});
+        const result = await onSubmit(formData.newPassword);
+
+        if (result.success) {
+            reset();
+        } else if (result.error) {
+            setError('newPassword', {
+                type: 'server',
+                message: result.error
+            });
+        }
     };
 
     return (
-        <form onSubmit={handleSubmit(handleFormSubmit)}>
+        <form
+            aria-label="비밀번호 변경"
+            onSubmit={handleSubmit(handleFormSubmit)}>
             <Card
                 title="비밀번호 변경"
-                icon={
-                    <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                        <path fillRule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clipRule="evenodd" />
-                    </svg>
-                }
+                icon={<KeyRound className="h-5 w-5" />}
                 className="mb-6">
-                <Alert variant="warning" className="mb-4">
-                    비밀번호는 8자 이상, 소문자, 대문자, 숫자, 특수문자를 포함해야 합니다.
-                </Alert>
                 <div className="mb-4">
                     <Input
                         label="새 비밀번호"
                         type="password"
                         placeholder="새 비밀번호"
                         maxLength={200}
+                        helperText="8자 이상이며 소문자, 대문자, 숫자, 특수문자를 각각 포함해야 합니다."
                         error={errors.newPassword?.message}
                         {...register('newPassword')}
                     />
@@ -67,21 +83,18 @@ confirmPassword: ''
                         {...register('confirmPassword')}
                     />
                 </div>
-                <Button
-                    type="submit"
-                    variant="primary"
-                    size="md"
-                    fullWidth
-                    isLoading={isLoading}
-                    leftIcon={
-                        !isLoading ? (
-                            <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                                <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                            </svg>
-                        ) : undefined
-                    }>
-                    {isLoading ? '변경 중...' : '비밀번호 변경'}
-                </Button>
+                <div className="flex justify-end">
+                    <Button
+                        type="submit"
+                        variant="primary"
+                        size="lg"
+                        className="w-full sm:w-auto"
+                        disabled={!isDirty || !isValid}
+                        isLoading={isLoading}
+                        leftIcon={!isLoading ? <Save className="h-4 w-4" /> : undefined}>
+                        {isLoading ? '변경 중...' : '비밀번호 변경'}
+                    </Button>
+                </div>
             </Card>
         </form>
     );

@@ -1,7 +1,10 @@
+import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
+import { Save } from '@blex/ui/icons';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Button, Input, Card } from '~/components/shared';
+import { Button, Input } from '~/components/shared';
+import type { AccountFormSubmitResult } from '../types';
 
 const nameSchema = z.object({ name: z.string().max(30, '이름은 30자 이내여야 합니다.').optional() });
 
@@ -10,55 +13,65 @@ type NameFormInputs = z.infer<typeof nameSchema>;
 interface NameSectionProps {
     initialName: string;
     isLoading: boolean;
-    onSubmit: (name: string) => Promise<void>;
+    onSubmit: (name: string) => Promise<AccountFormSubmitResult>;
 }
 
 const NameSection = ({ initialName, isLoading, onSubmit }: NameSectionProps) => {
-    const { register, handleSubmit, formState: { errors } } = useForm<NameFormInputs>({
+    const {
+        register,
+        handleSubmit,
+        reset,
+        setError,
+        formState: { errors, isDirty, isValid }
+    } = useForm<NameFormInputs>({
         resolver: zodResolver(nameSchema),
-        defaultValues: { name: initialName }
+        defaultValues: { name: initialName },
+        mode: 'onChange'
     });
 
+    useEffect(() => {
+        reset({ name: initialName });
+    }, [initialName, reset]);
+
     const handleFormSubmit = async (formData: NameFormInputs) => {
-        await onSubmit(formData.name || '');
+        const result = await onSubmit(formData.name || '');
+
+        if (result.success) {
+            reset(formData);
+        } else if (result.error) {
+            setError('name', {
+                type: 'server',
+                message: result.error
+            });
+        }
     };
 
     return (
-        <form onSubmit={handleSubmit(handleFormSubmit)}>
-            <Card
-                title="사용자 이름"
-                icon={
-                    <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                        <path fillRule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clipRule="evenodd" />
-                    </svg>
-                }
-                className="mb-6">
-                <div className="mb-4">
-                    <Input
-                        type="text"
-                        aria-label="사용자 이름"
-                        placeholder="사용자 실명"
-                        maxLength={30}
-                        error={errors.name?.message}
-                        {...register('name')}
-                    />
-                </div>
+        <form
+            aria-label="사용자 이름 변경"
+            className="pt-6"
+            onSubmit={handleSubmit(handleFormSubmit)}>
+            <Input
+                type="text"
+                label="사용자 이름"
+                placeholder="사용자 이름"
+                maxLength={30}
+                helperText="프로필과 화면에 표시되는 이름입니다."
+                error={errors.name?.message}
+                {...register('name')}
+            />
+            <div className="mt-4 flex justify-end">
                 <Button
                     type="submit"
                     variant="primary"
-                    size="md"
-                    fullWidth
+                    size="lg"
+                    className="w-full sm:w-auto"
+                    disabled={!isDirty || !isValid}
                     isLoading={isLoading}
-                    leftIcon={
-                        !isLoading ? (
-                            <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                                <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                            </svg>
-                        ) : undefined
-                    }>
+                    leftIcon={!isLoading ? <Save className="h-4 w-4" /> : undefined}>
                     {isLoading ? '업데이트 중...' : '이름 업데이트'}
                 </Button>
-            </Card>
+            </div>
         </form>
     );
 };

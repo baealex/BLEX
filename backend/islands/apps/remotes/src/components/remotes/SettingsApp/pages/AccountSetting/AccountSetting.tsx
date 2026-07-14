@@ -1,8 +1,10 @@
 import { useState } from 'react';
+import { UserRound } from '@blex/ui/icons';
 import { toast } from '~/utils/toast';
 import { useSuspenseQuery } from '@tanstack/react-query';
 import { useConfirm } from '~/hooks/useConfirm';
 import { SettingsHeader } from '../../components';
+import { Card } from '~/components/shared';
 import { getAccountSettings, updateAccountSettings, deleteAccount } from '~/lib/api/settings';
 import { enable2FA, disable2FA, verify2FASetup } from '~/lib/api/auth';
 import AccountInfoSection from './components/AccountInfoSection';
@@ -11,6 +13,7 @@ import NameSection from './components/NameSection';
 import PasswordSection from './components/PasswordSection';
 import SecuritySection from './components/SecuritySection';
 import TwoFactorModal from './components/TwoFactorModal';
+import type { AccountFormSubmitResult } from './types';
 
 const AccountSettings = () => {
     const [isUsernameLoading, setIsUsernameLoading] = useState(false);
@@ -32,10 +35,14 @@ const AccountSettings = () => {
         }
     });
 
-    const handleUsernameSubmit = async (username: string) => {
+    const handleUsernameSubmit = async (username: string): Promise<AccountFormSubmitResult> => {
         if (username === accountData?.username) {
-            toast.error('변경할 아이디를 입력해주세요.');
-            return;
+            const error = '변경할 아이디를 입력해주세요.';
+            toast.error(error);
+            return {
+                success: false,
+                error
+            };
         }
 
         const confirmed = await confirm({
@@ -44,7 +51,7 @@ const AccountSettings = () => {
             confirmText: '변경'
         });
 
-        if (!confirmed) return;
+        if (!confirmed) return { success: false };
 
         setIsUsernameLoading(true);
         try {
@@ -52,48 +59,81 @@ const AccountSettings = () => {
 
             if (data.status === 'DONE') {
                 toast.success('아이디가 변경되었습니다.');
-                refetch();
+                void refetch();
+                return { success: true };
             } else {
-                toast.error(data.errorMessage || '아이디 변경에 실패했습니다.');
+                const error = data.errorMessage || '아이디 변경에 실패했습니다.';
+                toast.error(error);
+                return {
+                    success: false,
+                    error
+                };
             }
         } catch {
-            toast.error('네트워크 오류가 발생했습니다.');
+            const error = '네트워크 오류가 발생했습니다.';
+            toast.error(error);
+            return {
+                success: false,
+                error
+            };
         } finally {
             setIsUsernameLoading(false);
         }
     };
 
-    const handleNameSubmit = async (name: string) => {
+    const handleNameSubmit = async (name: string): Promise<AccountFormSubmitResult> => {
         setIsNameLoading(true);
         try {
             const { data } = await updateAccountSettings({ name });
 
             if (data.status === 'DONE') {
                 toast.success('이름이 업데이트되었습니다.');
-                refetch();
+                void refetch();
+                return { success: true };
             } else {
-                toast.error(data.errorMessage || '이름 업데이트에 실패했습니다.');
+                const error = data.errorMessage || '이름 업데이트에 실패했습니다.';
+                toast.error(error);
+                return {
+                    success: false,
+                    error
+                };
             }
         } catch {
-            toast.error('네트워크 오류가 발생했습니다.');
+            const error = '네트워크 오류가 발생했습니다.';
+            toast.error(error);
+            return {
+                success: false,
+                error
+            };
         } finally {
             setIsNameLoading(false);
         }
     };
 
-    const handlePasswordSubmit = async (password: string) => {
+    const handlePasswordSubmit = async (password: string): Promise<AccountFormSubmitResult> => {
         setIsPasswordLoading(true);
         try {
             const { data } = await updateAccountSettings({ new_password: password });
 
             if (data.status === 'DONE') {
                 toast.success('비밀번호가 변경되었습니다.');
-                refetch();
+                void refetch();
+                return { success: true };
             } else {
-                toast.error(data.errorMessage || '비밀번호 변경에 실패했습니다.');
+                const error = data.errorMessage || '비밀번호 변경에 실패했습니다.';
+                toast.error(error);
+                return {
+                    success: false,
+                    error
+                };
             }
         } catch {
-            toast.error('네트워크 오류가 발생했습니다.');
+            const error = '네트워크 오류가 발생했습니다.';
+            toast.error(error);
+            return {
+                success: false,
+                error
+            };
         } finally {
             setIsPasswordLoading(false);
         }
@@ -196,10 +236,7 @@ const AccountSettings = () => {
 
     return (
         <div>
-            <SettingsHeader
-                title="계정"
-                description="아이디, 이름, 비밀번호 등 계정 정보를 관리하세요."
-            />
+            <SettingsHeader title="계정" />
 
             {/* Account Info */}
             <AccountInfoSection
@@ -207,19 +244,24 @@ const AccountSettings = () => {
                 email={accountData?.email || ''}
             />
 
-            {/* Username */}
-            <UsernameSection
-                initialUsername={accountData?.username || ''}
-                isLoading={isUsernameLoading}
-                onSubmit={handleUsernameSubmit}
-            />
-
-            {/* Name */}
-            <NameSection
-                initialName={accountData?.name || ''}
-                isLoading={isNameLoading}
-                onSubmit={handleNameSubmit}
-            />
+            {/* Basic Info */}
+            <Card
+                title="기본 정보"
+                icon={<UserRound className="h-5 w-5" />}
+                className="mb-6">
+                <div className="divide-y divide-line">
+                    <UsernameSection
+                        initialUsername={accountData?.username || ''}
+                        isLoading={isUsernameLoading}
+                        onSubmit={handleUsernameSubmit}
+                    />
+                    <NameSection
+                        initialName={accountData?.name || ''}
+                        isLoading={isNameLoading}
+                        onSubmit={handleNameSubmit}
+                    />
+                </div>
+            </Card>
 
             {/* Password */}
             <PasswordSection

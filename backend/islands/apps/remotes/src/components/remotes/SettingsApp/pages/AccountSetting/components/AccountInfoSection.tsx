@@ -1,4 +1,5 @@
-import { Card, Input } from '~/components/shared';
+import { BadgeInfo } from '@blex/ui/icons';
+import { Card } from '~/components/shared';
 
 interface AccountInfoSectionProps {
     createdDate: string;
@@ -7,40 +8,21 @@ interface AccountInfoSectionProps {
 
 const AccountInfoSection = ({ createdDate, email }: AccountInfoSectionProps) => {
     return (
-        <>
-            {/* 가입일 */}
-            <Card
-                title="가입일"
-                icon={
-                    <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                        <path fillRule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clipRule="evenodd" />
-                    </svg>
-                }
-                className="mb-6">
-                <Input
-                    aria-label="가입일"
-                    value={createdDate}
-                    readOnly
-                />
-            </Card>
-
-            {/* 이메일 */}
-            <Card
-                title="이메일"
-                icon={
-                    <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                        <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z" />
-                        <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z" />
-                    </svg>
-                }
-                className="mb-6">
-                <Input
-                    aria-label="이메일"
-                    value={email}
-                    readOnly
-                />
-            </Card>
-        </>
+        <Card
+            title="계정 정보"
+            icon={<BadgeInfo className="h-5 w-5" />}
+            className="mb-6">
+            <dl className="divide-y divide-line">
+                <div className="grid gap-1 pb-4 sm:grid-cols-[8rem_minmax(0,1fr)] sm:items-center sm:gap-4">
+                    <dt className="text-sm font-medium text-content-secondary">가입일</dt>
+                    <dd className="text-sm text-content sm:text-right">{createdDate}</dd>
+                </div>
+                <div className="grid gap-1 pt-4 sm:grid-cols-[8rem_minmax(0,1fr)] sm:items-center sm:gap-4">
+                    <dt className="text-sm font-medium text-content-secondary">이메일</dt>
+                    <dd className="break-all text-sm text-content sm:text-right">{email}</dd>
+                </div>
+            </dl>
+        </Card>
     );
 };
 
