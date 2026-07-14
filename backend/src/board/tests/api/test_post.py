@@ -106,6 +106,10 @@ class PostTestCase(TestCase):
         self.assertEqual(response.status_code, 200)
         content = json.loads(response.content)
         self.assertTrue(content['body']['blockComment'])
+        self.assertEqual(
+            content['body']['updatedDate'],
+            post.updated_date.isoformat(),
+        )
 
     def test_get_user_post_detail_edit_mode_includes_schedule_fields(self):
         """예약 포스트 편집 데이터는 예약 여부와 발행 예정 시각을 포함한다."""

@@ -165,12 +165,13 @@ export interface PostForEdit {
     url: string;
     contentHtml: string;
     textHtml: string;
-    image: string;
+    image: string | null;
     coverLayout: 'default' | 'split' | 'overlay' | 'none';
     coverImagePosition: 'left' | 'right';
     coverImageRatio: 'auto' | '16:9' | '4:3' | '1:1' | '3:4';
     description: string;
     publishedDate: string | null;
+    updatedDate?: string;
     isScheduled: boolean;
     tags: string[];
     series: {
