@@ -773,6 +773,7 @@ export interface UtilityStats {
     expiredSessions: number;
     dbSize?: string;
     logCount: number;
+    developerRequestLogCount: number;
 }
 
 export interface TagCleanResult {
@@ -796,6 +797,10 @@ export interface SessionCleanResult {
 export interface LogCleanResult {
     logCount: number;
     cleanedCount: number;
+    developerRequestLogCount: number;
+    developerApiLogRetentionDays: number;
+    expiredDeveloperRequestLogCount: number;
+    cleanedDeveloperRequestLogCount: number;
     dryRun: boolean;
 }
 
