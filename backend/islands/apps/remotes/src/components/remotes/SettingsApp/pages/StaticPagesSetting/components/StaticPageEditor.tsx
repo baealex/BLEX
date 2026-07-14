@@ -425,8 +425,8 @@ const StaticPageEditor = ({ pageId }: StaticPageEditorProps) => {
                                         게시 설정
                                     </h3>
                                     <div className="space-y-1">
-                                        <div className="flex items-center justify-between py-3">
-                                            <div>
+                                        <div className="flex items-center justify-between gap-4 py-3">
+                                            <div className="min-w-0 flex-1">
                                                 <div className="text-sm font-medium text-content">공개</div>
                                                 <div className="text-xs text-content-secondary">페이지를 공개합니다</div>
                                             </div>
@@ -437,8 +437,8 @@ const StaticPageEditor = ({ pageId }: StaticPageEditorProps) => {
                                             />
                                         </div>
 
-                                        <div className="flex items-center justify-between py-3">
-                                            <div>
+                                        <div className="flex items-center justify-between gap-4 py-3">
+                                            <div className="min-w-0 flex-1">
                                                 <div className="text-sm font-medium text-content">푸터에 표시</div>
                                                 <div className="text-xs text-content-secondary">사이트 하단 메뉴에 노출합니다</div>
                                             </div>

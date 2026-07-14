@@ -411,10 +411,10 @@ const SettingsDrawer = ({
 
                                     {/* Privacy & Display Options */}
                                     <div className="space-y-1">
-                                        <div className="flex items-center justify-between py-3">
-                                            <div className="flex items-center gap-3">
+                                        <div className="flex items-center justify-between gap-4 py-3">
+                                            <div className="flex min-w-0 flex-1 items-center gap-3">
                                                 <EyeOff className="w-4 h-4 text-content-hint" />
-                                                <div>
+                                                <div className="min-w-0">
                                                     <div className="text-sm font-medium text-content">비공개</div>
                                                     <div className="text-xs text-content-secondary">본인만 볼 수 있습니다</div>
                                                 </div>
@@ -426,10 +426,10 @@ const SettingsDrawer = ({
                                             />
                                         </div>
 
-                                        <div className="flex items-center justify-between py-3">
-                                            <div className="flex items-center gap-3">
+                                        <div className="flex items-center justify-between gap-4 py-3">
+                                            <div className="flex min-w-0 flex-1 items-center gap-3">
                                                 <CircleDollarSign className="w-4 h-4 text-content-hint" />
-                                                <div>
+                                                <div className="min-w-0">
                                                     <div className="text-sm font-medium text-content">광고 표시</div>
                                                     <div className="text-xs text-content-secondary">포스트에 광고가 표시됩니다</div>
                                                 </div>

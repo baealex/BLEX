@@ -20,12 +20,14 @@ const Toggle = ({
 }: ToggleProps) => {
     const sizes = {
         sm: {
-            root: 'w-8 h-5',
-            thumb: 'w-4 h-4 data-[state=checked]:translate-x-[14px]'
+            root: 'h-11 w-11 -mx-1.5 -my-3',
+            track: 'before:h-5 before:w-8',
+            thumb: 'left-1.5 w-4 h-4 data-[state=checked]:translate-x-[14px]'
         },
         md: {
-            root: 'w-11 h-6',
-            thumb: 'w-5 h-5 data-[state=checked]:translate-x-[22px]'
+            root: 'h-11 w-11 -my-2.5',
+            track: 'before:h-6 before:w-11',
+            thumb: 'left-0 w-5 h-5 data-[state=checked]:translate-x-[22px]'
         }
     };
 
@@ -38,18 +40,22 @@ const Toggle = ({
             disabled={disabled}
             className={cx(
                 s.root,
-                'relative inline-flex shrink-0 items-center rounded-full p-0 transition-colors duration-150',
-                'focus:outline-none focus:ring-2 focus:ring-action/20 focus:ring-offset-1',
-                'disabled:opacity-50 disabled:cursor-not-allowed',
-                checked ? 'bg-action' : 'bg-line-strong',
+                s.track,
+                'relative inline-flex shrink-0 cursor-pointer items-center rounded-full bg-transparent p-0',
+                'before:absolute before:left-1/2 before:top-1/2 before:-translate-x-1/2 before:-translate-y-1/2 before:rounded-full before:content-[\'\']',
+                'transition-transform duration-150 before:transition-colors before:duration-150 active:scale-95',
+                'motion-reduce:transition-none motion-reduce:before:transition-none',
+                'focus:outline-none focus-visible:before:ring-2 focus-visible:before:ring-action/20',
+                'focus-visible:before:ring-offset-1 disabled:opacity-50 disabled:cursor-not-allowed',
+                checked ? 'before:bg-action' : 'before:bg-line-strong',
                 className
             )}
             {...props}>
             <RadixSwitch.Thumb
                 className={cx(
                     s.thumb,
-                    'block rounded-full bg-surface-elevated shadow-sm transition-transform duration-150',
-                    'translate-x-0.5'
+                    'absolute top-1/2 block -translate-y-1/2 translate-x-0.5 rounded-full',
+                    'bg-surface-elevated shadow-sm transition-transform duration-150 motion-reduce:transition-none'
                 )}
             />
         </RadixSwitch.Root>

@@ -277,24 +277,19 @@ const LoginSetting = () => {
                 subtitle="회원가입 시 hCaptcha 검증을 사용합니다."
                 icon={<i className="fas fa-shield-halved" />}>
                 <div className="space-y-5">
-                    <div className="flex flex-col gap-3 border-b border-line pb-5 sm:flex-row sm:items-center sm:justify-between">
-                        <div>
+                    <div className="flex items-start justify-between gap-4 border-b border-line pb-5">
+                        <div className="min-w-0 flex-1">
                             <div className="text-sm font-semibold text-content">hCaptcha 사용</div>
                             <p className="mt-1 text-xs leading-relaxed text-content-secondary">
                                 켜면 회원가입 요청에 hCaptcha 토큰 검증이 필요합니다.
                             </p>
                         </div>
-                        <div className="flex items-center gap-3">
-                            <span className="text-xs font-medium text-content-secondary">
-                                {loginSettings.hcaptchaEnabled ? 'ON' : 'OFF'}
-                            </span>
-                            <Toggle
-                                checked={loginSettings.hcaptchaEnabled}
-                                disabled={updateMutation.isPending}
-                                onCheckedChange={(checked) => updateLoginSettingsForm({ hcaptchaEnabled: checked })}
-                                aria-label="hCaptcha 사용"
-                            />
-                        </div>
+                        <Toggle
+                            checked={loginSettings.hcaptchaEnabled}
+                            disabled={updateMutation.isPending}
+                            onCheckedChange={(checked) => updateLoginSettingsForm({ hcaptchaEnabled: checked })}
+                            aria-label="hCaptcha 사용"
+                        />
                     </div>
 
                     <div className="grid gap-4 md:grid-cols-2">
@@ -357,24 +352,19 @@ const LoginSetting = () => {
 
                     {socialAuthProviders.map((provider) => (
                         <div key={provider.key} className="space-y-5 rounded-xl border border-line p-4">
-                            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                                <div>
+                            <div className="flex items-start justify-between gap-4">
+                                <div className="min-w-0 flex-1">
                                     <div className="text-sm font-semibold text-content">{provider.name}</div>
                                     <p className="mt-1 text-xs text-content-secondary">
                                         콜백 URL: /login/callback/{provider.key}
                                     </p>
                                 </div>
-                                <div className="flex items-center gap-3">
-                                    <span className="text-xs font-medium text-content-secondary">
-                                        {provider.isEnabled ? 'ON' : 'OFF'}
-                                    </span>
-                                    <Toggle
-                                        checked={provider.isEnabled}
-                                        disabled={updateMutation.isPending}
-                                        onCheckedChange={(checked) => updateSocialProvider(provider.key, { isEnabled: checked })}
-                                        aria-label={`${provider.name} 소셜 로그인 사용`}
-                                    />
-                                </div>
+                                <Toggle
+                                    checked={provider.isEnabled}
+                                    disabled={updateMutation.isPending}
+                                    onCheckedChange={(checked) => updateSocialProvider(provider.key, { isEnabled: checked })}
+                                    aria-label={`${provider.name} 소셜 로그인 사용`}
+                                />
                             </div>
 
                             <div className="grid gap-4 md:grid-cols-2">

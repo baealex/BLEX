@@ -152,24 +152,19 @@ const AdminIntegrationSetting = () => {
                 subtitle="사용자 알림을 텔레그램으로 보낼 봇을 설정합니다."
                 icon={<i className="fab fa-telegram-plane" />}>
                 <div className="space-y-5">
-                    <div className="flex flex-col gap-3 border-b border-line pb-5 sm:flex-row sm:items-center sm:justify-between">
-                        <div>
+                    <div className="flex items-start justify-between gap-4 border-b border-line pb-5">
+                        <div className="min-w-0 flex-1">
                             <div className="text-sm font-semibold text-content">텔레그램 사용</div>
                             <p className="mt-1 text-xs leading-relaxed text-content-secondary">
                                 켜면 사용자가 텔레그램을 연결하고 주요 알림을 받을 수 있습니다.
                             </p>
                         </div>
-                        <div className="flex items-center gap-3">
-                            <span className="text-xs font-medium text-content-secondary">
-                                {integrationSettings.telegramEnabled ? 'ON' : 'OFF'}
-                            </span>
-                            <Toggle
-                                checked={integrationSettings.telegramEnabled}
-                                disabled={updateMutation.isPending}
-                                onCheckedChange={(checked) => updateIntegrationSettingsForm({ telegramEnabled: checked })}
-                                aria-label="텔레그램 사용"
-                            />
-                        </div>
+                        <Toggle
+                            checked={integrationSettings.telegramEnabled}
+                            disabled={updateMutation.isPending}
+                            onCheckedChange={(checked) => updateIntegrationSettingsForm({ telegramEnabled: checked })}
+                            aria-label="텔레그램 사용"
+                        />
                     </div>
 
                     <div className="grid gap-4 md:grid-cols-2">
