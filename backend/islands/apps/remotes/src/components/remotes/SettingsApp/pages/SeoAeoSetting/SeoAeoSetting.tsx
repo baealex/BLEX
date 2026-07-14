@@ -275,14 +275,9 @@ const SeoAeoSetting = () => {
                         className="rounded-xl border border-line bg-surface-elevated p-4 sm:p-5">
                         <div className="flex items-start justify-between gap-4">
                             <div className="min-w-0">
-                                <div className="flex flex-wrap items-center gap-2">
-                                    <h3 id="seo-exposure-title" className="text-sm font-semibold text-content">
-                                        SEO · 검색엔진
-                                    </h3>
-                                    <span className={`rounded-full px-2 py-1 text-xs font-semibold ${seoEnabled ? 'bg-success-surface text-success' : 'bg-surface-subtle text-content-secondary'}`}>
-                                        {seoEnabled ? '켜짐' : '꺼짐'}
-                                    </span>
-                                </div>
+                                <h3 id="seo-exposure-title" className="text-sm font-semibold text-content">
+                                    SEO · 검색엔진
+                                </h3>
                                 <p className="mt-2 text-sm leading-relaxed text-content-secondary">
                                     {seoEnabled
                                         ? '페이지 색인을 허용하고 robots.txt에서 sitemap 위치를 안내합니다.'
@@ -304,14 +299,9 @@ const SeoAeoSetting = () => {
                         className="rounded-xl border border-line bg-surface-elevated p-4 sm:p-5">
                         <div className="flex items-start justify-between gap-4">
                             <div className="min-w-0">
-                                <div className="flex flex-wrap items-center gap-2">
-                                    <h3 id="aeo-exposure-title" className="text-sm font-semibold text-content">
-                                        AEO · AI 에이전트
-                                    </h3>
-                                    <span className={`rounded-full px-2 py-1 text-xs font-semibold ${aeoEnabled ? 'bg-success-surface text-success' : 'bg-surface-subtle text-content-secondary'}`}>
-                                        {aeoEnabled ? '켜짐' : '꺼짐'}
-                                    </span>
-                                </div>
+                                <h3 id="aeo-exposure-title" className="text-sm font-semibold text-content">
+                                    AEO · AI 에이전트
+                                </h3>
                                 <p className="mt-2 text-sm leading-relaxed text-content-secondary">
                                     {aeoEnabled
                                         ? 'llms.txt와 Markdown 주소를 공개하고 발견 신호를 제공합니다.'
