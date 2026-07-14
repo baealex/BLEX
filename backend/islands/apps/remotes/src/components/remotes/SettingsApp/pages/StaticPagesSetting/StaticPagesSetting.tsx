@@ -63,7 +63,7 @@ const StaticPagesSetting = () => {
 
     const handleView = (page: StaticPageData) => {
         if (!page.isPublished) {
-            toast.info('비공개 페이지는 View할 수 없습니다. 공개 후 다시 시도해주세요.');
+            toast.info('비공개 페이지는 열 수 없습니다. 공개한 뒤 다시 시도해주세요.');
             return;
         }
 
@@ -85,7 +85,7 @@ const StaticPagesSetting = () => {
         <div className="space-y-8">
             <SettingsHeader
                 title={`정적 페이지 (${pagesData?.length || 0})`}
-                description="사이트의 정적 페이지를 관리합니다. 이용약관, 개인정보처리방침 등을 만들 수 있습니다."
+                description="공개한 페이지는 /static/{slug} 주소로 제공됩니다."
                 actionPosition="right"
                 action={pagesData && pagesData.length > 0 ? createAction : undefined}
             />
@@ -100,7 +100,7 @@ const StaticPagesSetting = () => {
             ) : (
                 <SettingsEmptyState
                     icon={<FileText aria-hidden="true" className="h-4 w-4" />}
-                    title="등록된 정적 페이지가 없습니다"
+                    title="정적 페이지가 없습니다"
                     action={createAction}
                 />
             )}

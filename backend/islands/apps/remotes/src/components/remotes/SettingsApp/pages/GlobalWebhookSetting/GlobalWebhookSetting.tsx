@@ -13,8 +13,7 @@ const GlobalWebhookSetting = () => {
             title="전역 웹훅 연동"
             description="모든 작성자가 발행한 포스트를 Discord, Slack 또는 일반 웹훅 URL로 전송합니다."
             formTitle="새 전역 웹훅 추가"
-            emptyTitle="등록된 전역 웹훅이 없습니다"
-            emptyDescription="전송 대상을 추가해서 전체 발행 알림을 받아보세요."
+            emptyTitle="전역 웹훅이 없습니다"
             fetchChannels={getGlobalWebhookChannels}
             createChannel={addGlobalWebhookChannel}
             deleteChannel={deleteGlobalWebhookChannel}

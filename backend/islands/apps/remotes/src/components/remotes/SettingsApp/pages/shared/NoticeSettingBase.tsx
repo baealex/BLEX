@@ -220,7 +220,7 @@ const NoticeSettingBase = ({ scope }: NoticeSettingBaseProps) => {
                 title={`${noticeLabel} (${noticesData?.length || 0})`}
                 description={
                     isGlobal
-                        ? '사이트 전체에 표시되는 전역 공지를 관리합니다.'
+                        ? '활성 공지는 사이트 전체에 표시됩니다.'
                         : undefined
                 }
                 actionPosition="right"
@@ -263,7 +263,9 @@ const NoticeSettingBase = ({ scope }: NoticeSettingBaseProps) => {
                                 error={errors.url?.message}
                                 {...register('url')}
                             />
-                            <p className="text-xs text-content-secondary">공지 클릭 시 이동할 URL입니다.</p>
+                            {!isGlobal && (
+                                <p className="text-xs text-content-secondary">공지 클릭 시 이동할 URL입니다.</p>
+                            )}
                         </div>
 
                         <div className="p-4 bg-surface-subtle rounded-xl border border-line">
@@ -273,7 +275,7 @@ const NoticeSettingBase = ({ scope }: NoticeSettingBaseProps) => {
                                 label="공지 활성화"
                                 description={
                                     isGlobal
-                                        ? '활성화된 공지만 사용자에게 표시됩니다.'
+                                        ? undefined
                                         : '활성화된 공지만 블로그에 표시됩니다.'
                                 }
                             />
@@ -348,7 +350,7 @@ const NoticeSettingBase = ({ scope }: NoticeSettingBaseProps) => {
             ) : !showForm ? (
                 <SettingsEmptyState
                     icon={<Megaphone aria-hidden="true" className="h-4 w-4" />}
-                    title="등록된 공지가 없습니다"
+                    title={isGlobal ? '전역 공지가 없습니다' : '등록된 공지가 없습니다'}
                     action={createAction}
                 />
             ) : null}

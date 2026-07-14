@@ -36,25 +36,25 @@ const seoExposureItems: ExposureItem[] = [
         icon: Route,
         name: 'robots.txt',
         path: '/robots.txt',
-        description: '현재 설정과 기본 정책을 합쳐 생성하는 공개 크롤러 정책입니다.'
+        description: '기본 정책과 저장한 추가 규칙을 합쳐 제공합니다.'
     },
     {
         icon: Code2,
         name: 'Robots meta',
         path: 'noindex, nofollow',
-        description: 'SEO가 꺼지면 HTML 페이지에 색인하지 말라는 신호를 함께 붙입니다.'
+        description: 'SEO가 꺼지면 HTML 페이지에 noindex,nofollow를 적용합니다.'
     },
     {
         icon: Layers3,
         name: 'Sitemap 안내',
         path: '/sitemap.xml',
-        description: 'SEO가 켜져 있을 때만 robots.txt에서 sitemap 위치를 알려 공개 페이지 발견을 돕습니다.'
+        description: 'SEO가 켜지면 robots.txt에 sitemap 위치를 표시합니다.'
     },
     {
         icon: Pencil,
         name: '추가 robots 규칙',
         path: 'runtime setting',
-        description: '관리자가 저장한 Allow, Disallow, User-agent, Sitemap 규칙을 배포 없이 즉시 반영합니다.'
+        description: '저장한 규칙을 배포 없이 즉시 반영합니다.'
     }
 ];
 
@@ -63,25 +63,25 @@ const aeoExposureItems: ExposureItem[] = [
         icon: FileText,
         name: 'llms.txt',
         path: '/llms.txt',
-        description: 'AI 에이전트가 사이트의 기본 정보를 먼저 확인할 수 있는 공개 안내 파일입니다.'
+        description: 'AI 에이전트에 사이트 정보를 제공하는 공개 안내 파일입니다.'
     },
     {
         icon: Code2,
         name: 'Markdown endpoint',
         path: '/@user/post.md, /static/page.md',
-        description: '포스트, 시리즈, 정적 페이지를 HTML 대신 읽기 쉬운 Markdown 형식으로 제공하는 주소입니다.'
+        description: '포스트·시리즈·정적 페이지를 Markdown으로 제공합니다.'
     },
     {
         icon: Signpost,
         name: 'Discovery header',
         path: 'Link, X-Llms-Txt, rel=alternate',
-        description: '브라우저 화면에는 보이지 않지만, 에이전트와 크롤러가 AI용 Markdown 주소를 발견하도록 알려주는 신호입니다.'
+        description: '응답 헤더와 alternate 링크로 Markdown 주소를 알립니다.'
     },
     {
         icon: Route,
         name: 'robots.txt',
         path: '/robots.txt',
-        description: 'AEO가 켜지면 llms.txt 위치를 안내하고, 꺼지면 llms.txt와 .md 주소 접근을 막도록 안내합니다.'
+        description: 'AEO 상태에 따라 llms.txt와 .md 경로의 허용·차단 규칙을 제공합니다.'
     }
 ];
 
@@ -273,14 +273,10 @@ const SeoAeoSetting = () => {
 
     return (
         <div className="space-y-8">
-            <SettingsHeader
-                title="SEO/AEO"
-                description="검색엔진과 인공지능 에이전트 노출 정책을 관리합니다."
-            />
+            <SettingsHeader title="SEO/AEO" />
 
             <Card
                 title="현재 노출 상태"
-                subtitle="켜짐 여부와 실제 공개 결과를 먼저 확인합니다."
                 icon={<Eye aria-hidden="true" className="h-5 w-5" />}>
                 <div className="grid gap-4 lg:grid-cols-2">
                     <section
@@ -386,12 +382,6 @@ const SeoAeoSetting = () => {
                                 onChange={handleRobotsRulesChange}
                                 height="260px"
                             />
-                            <p
-                                role={robotsMutation.isError ? 'alert' : 'status'}
-                                aria-live="polite"
-                                className={`text-xs font-medium ${robotsMutation.isError ? 'text-danger' : hasUnsavedRobotsChanges ? 'text-warning' : 'text-content-secondary'}`}>
-                                {robotsStatus}
-                            </p>
                         </section>
 
                         <details className="group/preview rounded-xl border border-line bg-surface-elevated">
@@ -448,10 +438,6 @@ const SeoAeoSetting = () => {
                 </summary>
 
                 <div className="space-y-6 border-t border-line px-6 py-6 md:px-8 md:py-8">
-                    <p className="text-sm leading-relaxed text-content-secondary">
-                        AEO는 일반 검색엔진용 SEO와 별개이며, AI 에이전트가 공개 콘텐츠를 찾고 읽는 주소와 발견 신호만 제어합니다.
-                    </p>
-
                     <section className="space-y-3">
                         <h3 className="text-sm font-semibold text-content">SEO</h3>
                         <div className="divide-y divide-line rounded-xl border border-line">
