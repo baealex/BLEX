@@ -18,10 +18,8 @@ import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { restrictToVerticalAxis, restrictToFirstScrollableAncestor } from '@dnd-kit/modifiers';
 
-import {
-    TITLE,
-    Dropdown
-} from '~/components/shared';
+import { Dropdown } from '~/components/shared';
+import { SETTINGS_LIST_TITLE } from '~/styles/settingsStyles';
 import { SettingsListItem } from '../../../components';
 import type { GlobalBannerData } from '~/lib/api/settings';
 
@@ -104,7 +102,7 @@ const SortableBannerItem = ({ banner, onEdit, onDelete, onToggleActive }: Sortab
                 }>
                 <div className="space-y-2">
                     <div className="flex items-center gap-2 flex-wrap">
-                        <h3 className={`${TITLE} mb-0`}>
+                        <h3 className={`${SETTINGS_LIST_TITLE} mb-0`}>
                             {banner.title}
                         </h3>
                         <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-surface-subtle text-content border border-line">

@@ -10,9 +10,9 @@ import {
     Button,
     Checkbox,
     Dropdown,
-    Input,
-    TITLE
+    Input
 } from '~/components/shared';
+import { SETTINGS_LIST_TITLE } from '~/styles/settingsStyles';
 import {
     getNotices,
     createNotice,
@@ -329,7 +329,7 @@ const NoticeSettingBase = ({ scope }: NoticeSettingBaseProps) => {
                             }>
                             <div className="space-y-1">
                                 <div className="flex items-center gap-2 flex-wrap">
-                                    <h3 className={`${TITLE} mb-0`}>{notice.title}</h3>
+                                    <h3 className={`${SETTINGS_LIST_TITLE} mb-0`}>{notice.title}</h3>
                                     <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium border ${notice.isActive ? 'bg-action text-content-inverted border-line-strong' : 'bg-surface-subtle text-content-secondary border-line-light'}`}>
                                         {notice.isActive ? '활성' : '비활성'}
                                     </span>

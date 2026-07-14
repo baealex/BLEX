@@ -1,13 +1,12 @@
 import type { KeyboardEvent, ReactNode } from 'react';
 import type { DraggableAttributes } from '@dnd-kit/core';
 import type { SyntheticListenerMap } from '@dnd-kit/core/dist/hooks/utilities';
-import {
-    getCardClass,
-    CARD_PADDING,
-    FLEX_ROW,
-    ACTIONS_CONTAINER,
-    DRAG_HANDLE
-} from '~/components/shared';
+
+const LIST_ITEM_SHELL = 'bg-surface ring-1 ring-line/60 rounded-2xl transition-all motion-interaction';
+const LIST_ITEM_CONTENT = 'p-5';
+const LIST_ITEM_ROW = 'flex items-center gap-3';
+const LIST_ITEM_ACTIONS = 'flex gap-2 flex-shrink-0';
+const LIST_ITEM_DRAG_HANDLE = 'cursor-grab active:cursor-grabbing text-content-hint hover:text-content-secondary p-2 hover:bg-surface-subtle rounded-lg transition-colors -ml-2';
 
 interface DragHandleProps {
     attributes: DraggableAttributes;
@@ -42,18 +41,18 @@ const SettingsListItem = ({
 
     return (
         <div
-            className={getCardClass(onClick
-                ? 'cursor-pointer hover:ring-line focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-line-strong'
-                : '')}
+            className={`${LIST_ITEM_SHELL}${onClick
+                ? ' cursor-pointer hover:ring-line focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-line-strong'
+                : ''}`}
             onClick={onClick}
             onKeyDown={handleKeyDown}
             role={onClick ? 'button' : undefined}
             tabIndex={onClick ? 0 : undefined}>
-            <div className={CARD_PADDING}>
-                <div className={`${FLEX_ROW}${className ? ` ${className}` : ''}`}>
+            <div className={LIST_ITEM_CONTENT}>
+                <div className={`${LIST_ITEM_ROW}${className ? ` ${className}` : ''}`}>
                     {dragHandleProps && (
                         <div
-                            className={DRAG_HANDLE}
+                            className={LIST_ITEM_DRAG_HANDLE}
                             style={{ touchAction: 'none' }}
                             onClick={(e) => e.stopPropagation()}
                             {...dragHandleProps.attributes}
@@ -69,7 +68,7 @@ const SettingsListItem = ({
                     </div>
 
                     {actions && (
-                        <div className={ACTIONS_CONTAINER} onClick={(e) => e.stopPropagation()}>
+                        <div className={LIST_ITEM_ACTIONS} onClick={(e) => e.stopPropagation()}>
                             {actions}
                         </div>
                     )}

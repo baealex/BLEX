@@ -7,9 +7,9 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { SettingsEmptyState, SettingsHeader, SettingsListItem } from '../../components';
 import { Button, Input, Dropdown } from '~/components/shared';
 import {
-    getIconClass,
-    TITLE
-} from '~/components/shared';
+    getSettingsIconClass,
+    SETTINGS_LIST_TITLE
+} from '~/styles/settingsStyles';
 import { useConfirm } from '~/hooks/useConfirm';
 import {
     getForms,
@@ -219,7 +219,7 @@ const FormsManagement = () => {
                         <SettingsListItem
                             key={form.id}
                             left={
-                                <div className={getIconClass('default')}>
+                                <div className={getSettingsIconClass('default')}>
                                     <i className="fas fa-file-lines text-sm" />
                                 </div>
                             }
@@ -240,7 +240,7 @@ const FormsManagement = () => {
                                     ]}
                                 />
                             }>
-                            <h3 className={TITLE}>{form.title}</h3>
+                            <h3 className={SETTINGS_LIST_TITLE}>{form.title}</h3>
                         </SettingsListItem>
                     ))}
                 </div>

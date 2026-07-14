@@ -8,10 +8,10 @@ import { toast } from '~/utils/toast';
 import { useConfirm } from '~/hooks/useConfirm';
 import { Button, Dropdown, Input } from '~/components/shared';
 import {
-    getIconClass,
-    TITLE,
-    SUBTITLE
-} from '~/components/shared';
+    getSettingsIconClass,
+    SETTINGS_LIST_META,
+    SETTINGS_LIST_TITLE
+} from '~/styles/settingsStyles';
 import { SettingsEmptyState, SettingsHeader, SettingsListItem } from '.';
 import type { WebhookChannel } from '~/lib/api/settings';
 import type { Response } from '~/lib/http.module';
@@ -384,7 +384,7 @@ const WebhookChannelManager = ({
                         <SettingsListItem
                             key={channel.id}
                             left={
-                                <div className={getIconClass('default')}>
+                                <div className={getSettingsIconClass('default')}>
                                     <i className={`fas ${channel.isActive ? 'fa-bolt' : 'fa-exclamation-triangle'} text-sm`} />
                                 </div>
                             }
@@ -400,10 +400,10 @@ const WebhookChannelManager = ({
                                     ]}
                                 />
                             }>
-                            <h3 className={`${TITLE} mb-0.5`}>
+                            <h3 className={`${SETTINGS_LIST_TITLE} mb-0.5`}>
                                 {channel.name || '이름 없는 채널'}
                             </h3>
-                            <div className={`${SUBTITLE} flex flex-wrap items-center gap-3`}>
+                            <div className={`${SETTINGS_LIST_META} flex flex-wrap items-center gap-3`}>
                                 <span className="flex items-center truncate max-w-[200px]" title={channel.webhookUrl}>
                                     <i className="fas fa-link mr-1.5" />
                                     {channel.webhookUrl.replace(/^https?:\/\//, '').slice(0, 30)}...
