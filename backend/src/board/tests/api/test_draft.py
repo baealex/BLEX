@@ -6,6 +6,7 @@ from PIL import Image
 
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import TestCase
+from django.test.client import BOUNDARY, MULTIPART_CONTENT, encode_multipart
 from django.contrib.auth.models import User
 from django.utils import timezone
 
@@ -81,6 +82,34 @@ class DraftTestCase(TestCase):
         self.assertIsNone(post.published_date)
         self.assertTrue(post.is_draft())
         self.assertFalse(post.is_published())
+        self.assertFalse(post.config.hide)
+        self.assertFalse(post.config.advertise)
+
+    def test_create_draft_persists_publishing_settings(self):
+        """비공개·광고성 설정을 생성하고 상세 응답에서 복원한다."""
+        self.client.login(username='test', password='test')
+
+        response = self.client.post(
+            '/v1/drafts',
+            json.dumps({
+                'title': 'Private Advertise Draft',
+                'content': '<p>Hello world</p>',
+                'is_hide': True,
+                'is_advertise': True,
+            }),
+            content_type='application/json',
+        )
+
+        self.assertEqual(response.status_code, 200)
+        body = json.loads(response.content)['body']
+        post = Post.objects.get(url=body['url'])
+        self.assertTrue(post.config.hide)
+        self.assertTrue(post.config.advertise)
+
+        detail_response = self.client.get(f"/v1/drafts/{post.url}")
+        detail = json.loads(detail_response.content)['body']
+        self.assertTrue(detail['isHide'])
+        self.assertTrue(detail['isAdvertise'])
 
     def test_create_draft_with_cover_options(self):
         """드래프트 생성 시 커버 설정을 저장하고 상세 응답에 반환한다."""
@@ -259,6 +288,83 @@ class DraftTestCase(TestCase):
         self.assertEqual(post.config.cover_layout, 'none')
         self.assertEqual(post.config.cover_image_position, 'right')
         self.assertEqual(post.config.cover_image_ratio, 'auto')
+
+    def test_update_draft_publishing_settings_preserves_omitted_values(self):
+        """설정 필드는 명시할 때만 바뀌며 false도 정상 저장한다."""
+        url = self._create_draft()
+
+        response = self.client.put(
+            f'/v1/drafts/{url}',
+            json.dumps({
+                'is_hide': True,
+                'is_advertise': True,
+            }),
+            content_type='application/json',
+        )
+        self.assertEqual(response.status_code, 200)
+
+        post = Post.objects.get(url=url)
+        self.assertTrue(post.config.hide)
+        self.assertTrue(post.config.advertise)
+
+        response = self.client.put(
+            f'/v1/drafts/{url}',
+            json.dumps({'title': 'Settings stay unchanged'}),
+            content_type='application/json',
+        )
+        self.assertEqual(response.status_code, 200)
+
+        post.refresh_from_db()
+        post.config.refresh_from_db()
+        self.assertTrue(post.config.hide)
+        self.assertTrue(post.config.advertise)
+
+        response = self.client.put(
+            f'/v1/drafts/{url}',
+            json.dumps({
+                'is_hide': False,
+                'is_advertise': False,
+            }),
+            content_type='application/json',
+        )
+        self.assertEqual(response.status_code, 200)
+
+        post.config.refresh_from_db()
+        self.assertFalse(post.config.hide)
+        self.assertFalse(post.config.advertise)
+
+    def test_draft_publishing_settings_support_multipart_payloads(self):
+        """이미지 자동저장이 사용하는 multipart 경로에서도 설정을 보존한다."""
+        self.client.login(username='test', password='test')
+
+        response = self.client.post('/v1/drafts', {
+            'title': 'Multipart Settings Draft',
+            'content': '<p>content</p>',
+            'is_hide': 'true',
+            'is_advertise': 'true',
+        })
+        self.assertEqual(response.status_code, 200)
+        url = json.loads(response.content)['body']['url']
+
+        post = Post.objects.get(url=url)
+        self.assertTrue(post.config.hide)
+        self.assertTrue(post.config.advertise)
+
+        payload = encode_multipart(BOUNDARY, {
+            'is_hide': 'false',
+            'is_advertise': 'false',
+        })
+        response = self.client.generic(
+            'PUT',
+            f'/v1/drafts/{url}',
+            payload,
+            content_type=MULTIPART_CONTENT,
+        )
+        self.assertEqual(response.status_code, 200)
+
+        post.config.refresh_from_db()
+        self.assertFalse(post.config.hide)
+        self.assertFalse(post.config.advertise)
 
     def test_update_draft_reserved_date_and_clear(self):
         """드래프트 예약 시간은 수정하거나 비울 수 있다."""

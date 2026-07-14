@@ -105,6 +105,39 @@ class DeveloperPostsAPITestCase(TestCase):
         post = Post.objects.get(id=data['id'])
         self.assertIsNone(post.published_date)
         self.assertEqual(sorted(post.tags.values_list('value', flat=True)), ['api', 'mcp'])
+        self.assertFalse(post.config.hide)
+        self.assertFalse(post.config.advertise)
+
+    def test_draft_publishing_settings_survive_publish_without_overrides(self):
+        """Developer API의 초안 설정은 빈 발행 요청에도 그대로 유지된다."""
+        response = self.post_json('/api/developer/v1/posts', {
+            'title': 'Configured Draft',
+            'content': '# Hello',
+            'content_type': 'markdown',
+            'is_hidden': True,
+            'is_advertise': True,
+        })
+
+        self.assertEqual(response.status_code, 201)
+        draft = response.json()['data']
+        self.assertTrue(draft['is_hidden'])
+        self.assertTrue(draft['is_advertise'])
+
+        publish_response = self.client.generic(
+            'POST',
+            f"/api/developer/v1/posts/{draft['id']}/publish",
+            data=b'',
+            **self.auth_header(),
+        )
+
+        self.assertEqual(publish_response.status_code, 200)
+        published = publish_response.json()['data']
+        self.assertTrue(published['is_hidden'])
+        self.assertTrue(published['is_advertise'])
+
+        post = Post.objects.get(id=draft['id'])
+        self.assertTrue(post.config.hide)
+        self.assertTrue(post.config.advertise)
 
     def test_developer_api_persists_cover_options(self):
         response = self.post_json('/api/developer/v1/posts', {

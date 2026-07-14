@@ -115,6 +115,8 @@ export interface DraftDetail {
     coverLayout: 'default' | 'split' | 'overlay' | 'none';
     coverImagePosition: 'left' | 'right';
     coverImageRatio: 'auto' | '16:9' | '4:3' | '1:1' | '3:4';
+    isHide: boolean;
+    isAdvertise: boolean;
     reservedDate: string;
     series: {
         url: string;
@@ -130,14 +132,14 @@ export interface DraftSummary {
     updatedDate: string;
 }
 
-export const createDraft = async (data: { title: string; content: string; tags: string; subtitle?: string; description?: string; series_url?: string; cover_layout?: string; cover_image_position?: string; cover_image_ratio?: string; reserved_date?: string } | FormData) => {
+export const createDraft = async (data: { title: string; content: string; tags: string; subtitle?: string; description?: string; series_url?: string; cover_layout?: string; cover_image_position?: string; cover_image_ratio?: string; is_hide?: boolean; is_advertise?: boolean; reserved_date?: string } | FormData) => {
     if (data instanceof FormData) {
         return http.post<Response<{ url: string }>>('v1/drafts', data, { headers: { 'Content-Type': 'multipart/form-data' } });
     }
     return http.post<Response<{ url: string }>>('v1/drafts', data, { headers: { 'Content-Type': 'application/json' } });
 };
 
-export const updateDraft = async (url: string, data: { title?: string; content?: string; tags?: string; subtitle?: string; description?: string; series_url?: string; cover_layout?: string; cover_image_position?: string; cover_image_ratio?: string; reserved_date?: string } | FormData) => {
+export const updateDraft = async (url: string, data: { title?: string; content?: string; tags?: string; subtitle?: string; description?: string; series_url?: string; cover_layout?: string; cover_image_position?: string; cover_image_ratio?: string; is_hide?: boolean; is_advertise?: boolean; reserved_date?: string } | FormData) => {
     if (data instanceof FormData) {
         return http.put<Response<{ url: string }>>(`v1/drafts/${url}`, data, { headers: { 'Content-Type': 'multipart/form-data' } });
     }

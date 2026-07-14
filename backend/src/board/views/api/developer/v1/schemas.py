@@ -112,7 +112,7 @@ class PostBodyPayload(Schema):
     series_url: str | None = Field(None, description='내 시리즈 URL입니다. series_id보다 직접 URL을 지정할 때 사용합니다.')
     slug: str | None = Field(None, description='사용자 지정 포스트 URL입니다.')
     url: str | None = Field(None, description='기존 클라이언트를 위한 포스트 URL 호환 필드입니다.')
-    is_hidden: bool | None = Field(None, description='발행 포스트를 비공개 처리할지 여부입니다.')
+    is_hidden: bool | None = Field(None, description='포스트를 비공개 처리할지 여부입니다.')
     is_hide: bool | None = Field(None, description='기존 클라이언트를 위한 비공개 호환 필드입니다.')
     is_advertise: bool | None = Field(None, description='홍보/광고성 포스트 여부입니다.')
     cover_layout: CoverLayout | None = Field(None, description='상세 화면 커버 배치입니다.')

@@ -262,6 +262,8 @@ def create_post(request, payload: PostMutationPayload):
                 cover_layout=data.get('cover_layout'),
                 cover_image_position=data.get('cover_image_position'),
                 cover_image_ratio=data.get('cover_image_ratio'),
+                is_hide=DeveloperPostAPI.parse_bool(data.get('is_hidden', data.get('is_hide')), False),
+                is_advertise=DeveloperPostAPI.parse_bool(data.get('is_advertise'), False),
             )
         elif status in ('published', 'scheduled'):
             if status == 'scheduled' and not data.get('published_at'):
@@ -535,8 +537,14 @@ def publish_post(request, post_id: int, payload: PostPublishPayload | None = Bod
             series_url=DeveloperPostAPI.series_url(data, request.auth.user),
             custom_url=data.get('slug', data.get('url')) if 'slug' in data or 'url' in data else None,
             tag=DeveloperPostAPI.tags_value(data) if 'tags' in data or 'tag' in data else None,
-            is_hide=DeveloperPostAPI.parse_bool(data.get('is_hidden', data.get('is_hide')), False),
-            is_advertise=DeveloperPostAPI.parse_bool(data.get('is_advertise'), False),
+            is_hide=DeveloperPostAPI.parse_bool(
+                data.get('is_hidden', data.get('is_hide')),
+                post.config.hide,
+            ),
+            is_advertise=DeveloperPostAPI.parse_bool(
+                data.get('is_advertise'),
+                post.config.advertise,
+            ),
             reserved_date_str=data.get('published_at', ''),
             content_type=content_type,
             cover_layout=data.get('cover_layout'),

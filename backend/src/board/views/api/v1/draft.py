@@ -9,6 +9,18 @@ from board.services.post_service import PostService, PostValidationError
 from board.modules.response import StatusDone, StatusError
 
 
+def _optional_boolean(data, key):
+    if key not in data:
+        return None
+
+    value = data.get(key)
+    if isinstance(value, bool):
+        return value
+    if isinstance(value, str):
+        return value.lower() in ('1', 'true', 'yes', 'on')
+    return bool(value)
+
+
 @api_editor_required
 def drafts_list(request):
     if request.method == 'GET':
@@ -43,6 +55,8 @@ def drafts_list(request):
         cover_image_position = data.get('cover_image_position')
         cover_image_ratio = data.get('cover_image_ratio')
         reserved_date = data.get('reserved_date')
+        is_hide = _optional_boolean(data, 'is_hide')
+        is_advertise = _optional_boolean(data, 'is_advertise')
         image = files.get('image') if files else None
 
         try:
@@ -61,6 +75,8 @@ def drafts_list(request):
                 cover_image_position=cover_image_position,
                 cover_image_ratio=cover_image_ratio,
                 reserved_date_str=reserved_date,
+                is_hide=is_hide if is_hide is not None else False,
+                is_advertise=is_advertise if is_advertise is not None else False,
             )
 
             return StatusDone({
@@ -100,6 +116,8 @@ def drafts_detail(request, url):
             'cover_layout': draft.config.cover_layout,
             'cover_image_position': draft.config.cover_image_position,
             'cover_image_ratio': draft.config.cover_image_ratio,
+            'is_hide': draft.config.hide,
+            'is_advertise': draft.config.advertise,
             'reserved_date': PostService.get_draft_reserved_date(draft),
             'series': {
                 'url': draft.series.url,
@@ -119,6 +137,8 @@ def drafts_detail(request, url):
         image = files.get('image') if files else None
         image_delete = data.get('image_delete') == 'true'
         reserved_date = data.get('reserved_date') if 'reserved_date' in data else None
+        is_hide = _optional_boolean(data, 'is_hide')
+        is_advertise = _optional_boolean(data, 'is_advertise')
 
         try:
             PostService.update_draft(
@@ -137,6 +157,8 @@ def drafts_detail(request, url):
                 cover_image_position=data.get('cover_image_position'),
                 cover_image_ratio=data.get('cover_image_ratio'),
                 reserved_date_str=reserved_date,
+                is_hide=is_hide,
+                is_advertise=is_advertise,
             )
             return StatusDone({
                 'url': draft.url,

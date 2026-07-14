@@ -13,6 +13,8 @@ interface AutoSaveData {
     coverLayout?: string;
     coverImagePosition?: string;
     coverImageRatio?: string;
+    hide: boolean;
+    advertise: boolean;
     reservedDate?: string;
     imageFile?: File | null;
     imageDeleted?: boolean;
@@ -39,6 +41,8 @@ const buildDraftPayload = (data: AutoSaveData, useFormData: boolean) => {
         if (data.coverLayout) formData.append('cover_layout', data.coverLayout);
         if (data.coverImagePosition) formData.append('cover_image_position', data.coverImagePosition);
         if (data.coverImageRatio) formData.append('cover_image_ratio', data.coverImageRatio);
+        formData.append('is_hide', String(data.hide));
+        formData.append('is_advertise', String(data.advertise));
         if (data.reservedDate !== undefined) formData.append('reserved_date', data.reservedDate);
         if (data.imageFile) formData.append('image', data.imageFile);
         if (data.imageDeleted) formData.append('image_delete', 'true');
@@ -56,6 +60,8 @@ const buildDraftPayload = (data: AutoSaveData, useFormData: boolean) => {
         cover_layout: data.coverLayout,
         cover_image_position: data.coverImagePosition,
         cover_image_ratio: data.coverImageRatio,
+        is_hide: data.hide,
+        is_advertise: data.advertise,
         reserved_date: data.reservedDate
     };
 };
@@ -91,6 +97,8 @@ export const useAutoSave = (data: AutoSaveData, options: UseAutoSaveOptions) => 
         coverLayout: value.coverLayout,
         coverImagePosition: value.coverImagePosition,
         coverImageRatio: value.coverImageRatio,
+        hide: value.hide,
+        advertise: value.advertise,
         reservedDate: value.reservedDate
     }), []);
 
