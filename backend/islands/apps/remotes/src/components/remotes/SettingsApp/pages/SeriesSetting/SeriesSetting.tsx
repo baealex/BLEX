@@ -21,6 +21,7 @@ import { CSS } from '@dnd-kit/utilities';
 import { restrictToVerticalAxis, restrictToFirstScrollableAncestor } from '@dnd-kit/modifiers';
 import { useSuspenseQuery } from '@tanstack/react-query';
 import { useNavigate } from '@tanstack/react-router';
+import { BookOpen, FileText, Pencil, Trash2 } from '@blex/ui/icons';
 import { SettingsEmptyState, SettingsHeader, SettingsListItem } from '../../components';
 import { Button, Dropdown } from '~/components/shared';
 import {
@@ -88,7 +89,7 @@ const SortableSeriesItem = ({ series, username, onEdit, onDelete }: SortableSeri
                 }}
                 left={
                     <div className={getSettingsIconClass('default')}>
-                        <i className="fas fa-book text-sm" />
+                        <BookOpen aria-hidden className="h-4 w-4" />
                     </div>
                 }
                 actions={
@@ -98,12 +99,12 @@ const SortableSeriesItem = ({ series, username, onEdit, onDelete }: SortableSeri
                         items={[
                             {
                                 label: '시리즈 편집',
-                                icon: 'fas fa-pen',
+                                icon: <Pencil aria-hidden className="h-4 w-4" />,
                                 onClick: () => onEdit(series.id)
                             },
                             {
                                 label: '삭제',
-                                icon: 'fas fa-trash',
+                                icon: <Trash2 aria-hidden className="h-4 w-4" />,
                                 onClick: handleDelete,
                                 variant: 'danger'
                             }
@@ -112,7 +113,7 @@ const SortableSeriesItem = ({ series, username, onEdit, onDelete }: SortableSeri
                 }>
                 <h3 className={`${SETTINGS_LIST_TITLE} mb-0.5`}>{series.title}</h3>
                 <div className={SETTINGS_LIST_META}>
-                    <i className="fas fa-file-alt mr-1.5" />
+                    <FileText aria-hidden className="mr-1.5 inline h-3.5 w-3.5" />
                     {series.totalPosts}개의 포스트
                 </div>
             </SettingsListItem>
@@ -254,7 +255,7 @@ const SeriesSetting = () => {
                 </DndContext>
             ) : (
                 <SettingsEmptyState
-                    iconClassName="fas fa-book"
+                    icon={<BookOpen aria-hidden className="h-5 w-5" />}
                     title="시리즈가 없습니다"
                     action={createAction}
                 />

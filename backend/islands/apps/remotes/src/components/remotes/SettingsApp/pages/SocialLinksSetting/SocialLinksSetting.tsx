@@ -18,6 +18,23 @@ import {
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { restrictToVerticalAxis, restrictToFirstScrollableAncestor } from '@dnd-kit/modifiers';
+import {
+    BriefcaseBusiness,
+    Camera,
+    ChevronDown,
+    Code2,
+    GripVertical,
+    Link,
+    MessageCircle,
+    Play,
+    Plus,
+    Save,
+    Send,
+    Share2,
+    Users,
+    X,
+    type LucideIcon
+} from '@blex/ui/icons';
 import { toast } from '~/utils/toast';
 import { useSuspenseQuery } from '@tanstack/react-query';
 import { SettingsEmptyState, SettingsHeader } from '../../components';
@@ -36,18 +53,18 @@ interface SocialLinkItemProps {
     onChange: (index: number, field: 'name' | 'value', value: string) => void;
 }
 
-const getIconClassName = (name: string) => {
-    const iconMap: Record<string, string> = {
-        github: 'fab fa-github',
-        twitter: 'fab fa-twitter',
-        facebook: 'fab fa-facebook-f',
-        telegram: 'fab fa-telegram',
-        instagram: 'fab fa-instagram',
-        linkedin: 'fab fa-linkedin-in',
-        youtube: 'fab fa-youtube',
-        other: 'fas fa-link'
+const getPlatformIcon = (name: string): LucideIcon => {
+    const iconMap: Record<string, LucideIcon> = {
+        github: Code2,
+        twitter: MessageCircle,
+        facebook: Users,
+        telegram: Send,
+        instagram: Camera,
+        linkedin: BriefcaseBusiness,
+        youtube: Play,
+        other: Link
     };
-    return iconMap[name] || 'fas fa-link';
+    return iconMap[name] || Link;
 };
 
 const SocialLinkItem = ({ social, index, onRemove, onChange }: SocialLinkItemProps) => {
@@ -104,6 +121,7 @@ const SocialLinkItem = ({ social, index, onRemove, onChange }: SocialLinkItemPro
     ];
 
     const currentPlatform = platformOptions.find(opt => opt.value === social.name);
+    const PlatformIcon = getPlatformIcon(social.name);
     const platformInputId = `social-platform-${social.id}`;
     const linkInputId = `social-link-${social.id}`;
 
@@ -119,12 +137,10 @@ const SocialLinkItem = ({ social, index, onRemove, onChange }: SocialLinkItemPro
                             {...attributes}
                             {...listeners}
                             aria-label={`소셜 링크 ${index + 1} 순서 변경`}>
-                            <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                                <path d="M3 5h14a1 1 0 010 2H3a1 1 0 010-2zm0 4h14a1 1 0 010 2H3a1 1 0 010-2zm0 4h14a1 1 0 010 2H3a1 1 0 010-2z" />
-                            </svg>
+                            <GripVertical aria-hidden="true" className="h-4 w-4" />
                         </div>
                         <div className="w-8 h-8 flex items-center justify-center bg-surface rounded-lg shadow-sm">
-                            <i className={`${getIconClassName(social.name)} text-content-secondary text-sm`} />
+                            <PlatformIcon aria-hidden="true" className="h-4 w-4 text-content-secondary" />
                         </div>
                         <span className="text-sm font-medium text-content">소셜 링크</span>
                     </div>
@@ -133,9 +149,7 @@ const SocialLinkItem = ({ social, index, onRemove, onChange }: SocialLinkItemPro
                         aria-label={`${currentPlatform?.label || '소셜 링크'} 삭제`}
                         className="flex min-h-11 min-w-11 items-center justify-center rounded-lg text-content-hint transition-all duration-200 hover:bg-surface-subtle hover:text-content-secondary"
                         onClick={() => onRemove(social.id)}>
-                        <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                            <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
-                        </svg>
+                        <X aria-hidden="true" className="h-4 w-4" />
                     </button>
                 </div>
 
@@ -148,14 +162,15 @@ const SocialLinkItem = ({ social, index, onRemove, onChange }: SocialLinkItemPro
                         {...attributes}
                         {...listeners}
                         aria-label={`소셜 링크 ${index + 1} 순서 변경`}>
-                        <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                            <path d="M3 5h14a1 1 0 010 2H3a1 1 0 010-2zm0 4h14a1 1 0 010 2H3a1 1 0 010-2zm0 4h14a1 1 0 010 2H3a1 1 0 010-2z" />
-                        </svg>
+                        <GripVertical aria-hidden="true" className="h-4 w-4" />
                     </div>
 
                     {/* 아이콘 - 데스크톱에서만 표시 */}
                     <div className="hidden sm:flex w-10 h-10 items-center justify-center bg-gradient-to-br from-surface-subtle to-surface-subtle rounded-lg shadow-sm group-hover:from-surface-subtle group-hover:to-surface-subtle transition-all duration-200 flex-shrink-0">
-                        <i className={`${getIconClassName(social.name)} text-content-secondary text-lg group-hover:text-content-secondary`} />
+                        <PlatformIcon
+                            aria-hidden="true"
+                            className="h-5 w-5 text-content-secondary transition-colors group-hover:text-content-secondary"
+                        />
                     </div>
 
                     {/* 플랫폼 선택 */}
@@ -167,7 +182,7 @@ const SocialLinkItem = ({ social, index, onRemove, onChange }: SocialLinkItemPro
                                     <span className={!social.name ? 'text-content-hint' : 'text-content'}>
                                         {currentPlatform?.label || '아이콘 선택'}
                                     </span>
-                                    <i className="fas fa-chevron-down text-content-hint text-xs" />
+                                    <ChevronDown aria-hidden="true" className="h-4 w-4 text-content-hint" />
                                 </button>
                             }
                             items={platformOptions.map(opt => ({
@@ -197,9 +212,10 @@ const SocialLinkItem = ({ social, index, onRemove, onChange }: SocialLinkItemPro
                         aria-label={`${currentPlatform?.label || '소셜 링크'} 삭제`}
                         className="hidden min-h-11 min-w-11 flex-shrink-0 items-center justify-center rounded-lg text-content-hint transition-all duration-200 hover:bg-surface-subtle hover:text-content-secondary group/btn sm:flex"
                         onClick={() => onRemove(social.id)}>
-                        <svg className="w-4 h-4 group-hover/btn:scale-110 transition-transform" fill="currentColor" viewBox="0 0 20 20">
-                            <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
-                        </svg>
+                        <X
+                            aria-hidden="true"
+                            className="h-4 w-4 transition-transform group-hover/btn:scale-110"
+                        />
                     </button>
                 </div>
             </div>
@@ -360,7 +376,7 @@ const SocialLinks = () => {
                 <div className="mb-6">
                     {socials.length === 0 ? (
                         <SettingsEmptyState
-                            iconClassName="fas fa-share-alt"
+                            icon={<Share2 aria-hidden="true" className="h-5 w-5" />}
                             title="소셜 링크가 없습니다"
                             action={(
                                 <Button
@@ -402,7 +418,7 @@ const SocialLinks = () => {
                             type="button"
                             variant="secondary"
                             size="md"
-                            leftIcon={<i className="fas fa-plus" />}
+                            leftIcon={<Plus aria-hidden="true" className="h-4 w-4" />}
                             onClick={handleSocialAdd}
                             className="min-h-11! sm:w-auto">
                             링크 추가
@@ -412,7 +428,7 @@ const SocialLinks = () => {
                             variant="primary"
                             size="md"
                             isLoading={isLoading}
-                            leftIcon={!isLoading ? <i className="fas fa-save" /> : undefined}
+                            leftIcon={!isLoading ? <Save aria-hidden="true" className="h-4 w-4" /> : undefined}
                             className="min-h-11! sm:w-auto">
                             {isLoading ? '저장 중...' : '변경사항 저장'}
                         </Button>

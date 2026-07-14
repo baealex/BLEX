@@ -8,7 +8,7 @@ import { toast } from '~/utils/toast';
 import { useConfirm } from '~/hooks/useConfirm';
 import { Button, Input } from '~/components/shared';
 import { FloatingBottomBar } from '@blex/ui/floating-bottom-bar';
-import { Send } from '@blex/ui/icons';
+import { ArrowLeft, ChevronDown, Send } from '@blex/ui/icons';
 import {
     getSeriesDetail,
     getAvailablePosts,
@@ -277,7 +277,7 @@ const SeriesEditor = ({ seriesId }: SeriesEditorProps) => {
                     <Link
                         to="/series"
                         className="flex items-center gap-2 py-2 text-sm text-content-secondary hover:text-content active:text-content-secondary transition-colors">
-                        <i className="fas fa-arrow-left" />
+                        <ArrowLeft aria-hidden className="h-4 w-4" />
                         <span>목록으로</span>
                     </Link>
                 </div>
@@ -354,7 +354,7 @@ const SeriesEditor = ({ seriesId }: SeriesEditorProps) => {
                         <details className="group">
                             <summary className="cursor-pointer list-none text-sm text-content-secondary transition-colors hover:text-content">
                                 URL 직접 설정
-                                <i className="fas fa-chevron-down ml-2 text-xs transition-transform group-open:rotate-180" />
+                                <ChevronDown aria-hidden className="ml-2 inline h-3.5 w-3.5 transition-transform group-open:rotate-180" />
                             </summary>
                             <div className="mt-3 space-y-2">
                                 <Input

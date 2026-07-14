@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Checkbox, Input } from '~/components/shared';
-import { Search } from '@blex/ui/icons';
+import { FileText, Search } from '@blex/ui/icons';
 import { SettingsEmptyState } from '../../../components';
 import type { AvailableSeriesPost } from '~/lib/api/settings';
 
@@ -62,7 +62,7 @@ const PostSelector = ({ posts, selectedPostIds, onChange }: PostSelectorProps) =
                                 value={query}
                                 onChange={(event) => setQuery(event.target.value)}
                                 placeholder="포스트 제목 검색"
-                                leftIcon={<Search className="h-4 w-4" />}
+                                leftIcon={<Search aria-hidden className="h-4 w-4" />}
                             />
                         </div>
                         <div className="flex min-h-11 items-center justify-between gap-2 sm:justify-end">
@@ -93,14 +93,14 @@ const PostSelector = ({ posts, selectedPostIds, onChange }: PostSelectorProps) =
 
                 {safePosts.length === 0 ? (
                     <SettingsEmptyState
-                        iconClassName="fas fa-file-alt"
+                        icon={<FileText aria-hidden className="h-5 w-5" />}
                         title="선택 가능한 포스트가 없습니다"
                         description="아직 게시되지 않았거나 이미 다른 시리즈에 포함된 포스트는 제외됩니다."
                         className="py-12"
                     />
                 ) : filteredPosts.length === 0 ? (
                     <SettingsEmptyState
-                        iconClassName="fas fa-search"
+                        icon={<Search aria-hidden className="h-5 w-5" />}
                         title="검색 결과가 없습니다"
                         description="다른 검색어로 다시 시도해주세요."
                         className="py-12"

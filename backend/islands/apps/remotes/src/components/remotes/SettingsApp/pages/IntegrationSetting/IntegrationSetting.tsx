@@ -2,6 +2,14 @@ import { useState, useEffect } from 'react';
 import { toast } from '~/utils/toast';
 import { useSuspenseQuery } from '@tanstack/react-query';
 import { Navigate } from '@tanstack/react-router';
+import {
+    Check,
+    CirclePause,
+    ExternalLink,
+    Link,
+    Plug,
+    Unlink
+} from '@blex/ui/icons';
 import { SettingsHeader } from '../../components';
 import { Button, Card } from '~/components/shared';
 import { useConfirm } from '~/hooks/useConfirm';
@@ -104,11 +112,13 @@ const IntegrationSettings = () => {
             {isConnected ? (
                 <Card
                     title="연동 상태"
-                    icon={<i className="fas fa-plug" />}>
+                    icon={<Plug aria-hidden className="h-4 w-4" />}>
                     <div className="flex flex-col sm:flex-row sm:items-center gap-4">
                         <div className="flex items-center gap-4 flex-1">
                             <div className={`flex items-center justify-center w-12 h-12 rounded-xl flex-shrink-0 ${isConfigured ? 'bg-action' : 'bg-warning-surface'}`}>
-                                <i className={`fas ${isConfigured ? 'fa-check text-content-inverted' : 'fa-pause text-warning'} text-base`} />
+                                {isConfigured
+                                    ? <Check aria-hidden className="h-4 w-4 text-content-inverted" />
+                                    : <CirclePause aria-hidden className="h-4 w-4 text-warning" />}
                             </div>
                             <div>
                                 <h4 className="text-base font-semibold text-content">
@@ -123,7 +133,7 @@ const IntegrationSettings = () => {
                             variant="danger"
                             size="md"
                             isLoading={isDisconnecting}
-                            leftIcon={!isDisconnecting ? <i className="fas fa-unlink" /> : undefined}
+                            leftIcon={!isDisconnecting ? <Unlink aria-hidden className="h-4 w-4" /> : undefined}
                             onClick={disconnectTelegram}
                             className="flex-shrink-0">
                             {isDisconnecting ? '해제 중...' : '연동 해제'}
@@ -135,7 +145,7 @@ const IntegrationSettings = () => {
             ) : (
                 <Card
                     title="연동 방법"
-                    icon={<i className="fas fa-link" />}>
+                    icon={<Link aria-hidden className="h-4 w-4" />}>
                     <div className="space-y-6">
                         <div className="flex items-start gap-3">
                             <span className="inline-flex items-center justify-center w-7 h-7 rounded-full bg-surface-subtle text-content text-sm font-semibold flex-shrink-0">
@@ -149,7 +159,7 @@ const IntegrationSettings = () => {
                                     target="_blank"
                                     rel="noopener noreferrer">
                                     @{botUsername}
-                                    <i className="fas fa-external-link-alt ml-1 text-xs" />
+                                    <ExternalLink aria-hidden className="ml-1 h-3.5 w-3.5" />
                                 </a>
                                 을 찾아 대화를 시작하세요.
                             </p>

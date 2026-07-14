@@ -1,4 +1,5 @@
 import { Button } from '~/components/shared';
+import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from '@blex/ui/icons';
 import type { PinnablePostsPaginationData } from '~/lib/api/settings';
 
 interface PinnablePostsPagerProps {
@@ -58,7 +59,7 @@ export const PinnablePostsPager = ({
                         disabled={!pagination.hasPrevious || isLoading}
                         onClick={() => handlePageMove(1)}
                         aria-label="첫 페이지">
-                        <i className="fas fa-angle-double-left" />
+                        <ChevronsLeft aria-hidden className="h-4 w-4" />
                     </Button>
                     <Button
                         variant="secondary"
@@ -67,7 +68,7 @@ export const PinnablePostsPager = ({
                         disabled={!pagination.hasPrevious || isLoading}
                         onClick={() => handlePageMove(currentPage - 1)}
                         aria-label="이전 페이지">
-                        <i className="fas fa-angle-left" />
+                        <ChevronLeft aria-hidden className="h-4 w-4" />
                     </Button>
                     {visiblePages.map(page => (
                         <Button
@@ -88,7 +89,7 @@ export const PinnablePostsPager = ({
                         disabled={!pagination.hasNext || isLoading}
                         onClick={() => handlePageMove(currentPage + 1)}
                         aria-label="다음 페이지">
-                        <i className="fas fa-angle-right" />
+                        <ChevronRight aria-hidden className="h-4 w-4" />
                     </Button>
                     <Button
                         variant="secondary"
@@ -97,7 +98,7 @@ export const PinnablePostsPager = ({
                         disabled={!pagination.hasNext || isLoading}
                         onClick={() => handlePageMove(pagination.lastPage)}
                         aria-label="마지막 페이지">
-                        <i className="fas fa-angle-double-right" />
+                        <ChevronsRight aria-hidden className="h-4 w-4" />
                     </Button>
                 </div>
             )}

@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react';
 import { useEffect } from 'react';
 import { useSuspenseQuery } from '@tanstack/react-query';
+import { Clock, FileText, Trash2 } from '@blex/ui/icons';
 import { SettingsEmptyState, SettingsListItem } from '../../../components';
 import { Dropdown } from '~/components/shared';
 import {
@@ -70,7 +71,7 @@ export const DraftPostListContent = ({
     if (!draftPosts || draftPosts.length === 0) {
         return (
             <SettingsEmptyState
-                iconClassName="fas fa-file-alt"
+                icon={<FileText aria-hidden className="h-5 w-5" />}
                 title="임시 포스트가 없습니다"
                 action={emptyAction}
             />
@@ -95,7 +96,7 @@ export const DraftPostListContent = ({
                             </div>
                         ) : (
                             <div className={getSettingsIconClass('default')}>
-                                <i className="fas fa-file-alt text-sm" />
+                                <FileText aria-hidden className="h-4 w-4" />
                             </div>
                         )
                     }
@@ -106,7 +107,7 @@ export const DraftPostListContent = ({
                             items={[
                                 {
                                     label: '삭제',
-                                    icon: 'fas fa-trash',
+                                    icon: <Trash2 aria-hidden className="h-4 w-4" />,
                                     onClick: () => handleDraftDelete(draftPost.url),
                                     variant: 'danger'
                                 }
@@ -118,7 +119,7 @@ export const DraftPostListContent = ({
                     </h3>
                     <div className={`${SETTINGS_LIST_META} flex flex-wrap items-center gap-3`}>
                         <span className="flex items-center">
-                            <i className="fas fa-clock mr-1.5" />
+                            <Clock aria-hidden className="mr-1.5 h-3.5 w-3.5" />
                             마지막 수정 {draftPost.updatedDate}
                         </span>
                         <span className="bg-surface-subtle text-content px-2 py-0.5 rounded-md text-xs font-medium">

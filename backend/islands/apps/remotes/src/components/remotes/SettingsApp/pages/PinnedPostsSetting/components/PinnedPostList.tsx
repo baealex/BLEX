@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react';
+import { Pin } from '@blex/ui/icons';
 import {
     DndContext,
     closestCenter,
@@ -62,7 +63,7 @@ export const PinnedPostList = ({
     if (pinnedPosts.length === 0) {
         return (
             <SettingsEmptyState
-                iconClassName="fas fa-thumbtack"
+                icon={<Pin aria-hidden className="h-5 w-5" />}
                 title="고정된 포스트가 없습니다"
                 action={emptyAction}
             />

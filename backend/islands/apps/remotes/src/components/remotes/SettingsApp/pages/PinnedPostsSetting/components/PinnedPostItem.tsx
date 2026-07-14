@@ -1,5 +1,6 @@
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
+import { Calendar, Pin } from '@blex/ui/icons';
 import { Button } from '~/components/shared';
 import {
     getSettingsIconClass,
@@ -66,7 +67,7 @@ export const PinnedPostItem = ({
                         </div>
                     ) : (
                         <div className={getSettingsIconClass('default')}>
-                            <i className="fas fa-thumbtack text-sm" />
+                            <Pin aria-hidden className="h-4 w-4" />
                         </div>
                     )
                 }
@@ -82,7 +83,7 @@ export const PinnedPostItem = ({
                 <h3 className={`${SETTINGS_LIST_TITLE} mb-1 truncate text-content`}>{pinnedPost.post.title}</h3>
                 <div className={`${SETTINGS_LIST_META} text-xs flex items-center gap-2`}>
                     <span className="flex items-center gap-1">
-                        <i className="far fa-calendar text-content-hint" />
+                        <Calendar aria-hidden className="h-3.5 w-3.5 text-content-hint" />
                         {new Date(pinnedPost.post.createdDate).toLocaleDateString('ko-KR')}
                     </span>
                 </div>

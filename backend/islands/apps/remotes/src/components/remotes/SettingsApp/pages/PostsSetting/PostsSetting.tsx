@@ -1,4 +1,5 @@
 import { Suspense, useState } from 'react';
+import { CalendarDays, FileText, Save, type LucideIcon } from '@blex/ui/icons';
 import { Button } from '~/components/shared';
 import { SettingsHeader } from '../../components';
 import { usePostsFilterState } from './hooks/usePostsData';
@@ -9,22 +10,22 @@ type PostStatusTab = 'published' | 'scheduled' | 'drafts';
 const POST_STATUS_TABS: {
     value: PostStatusTab;
     label: string;
-    icon: string;
+    icon: LucideIcon;
 }[] = [
     {
         value: 'published',
         label: '발행 포스트',
-        icon: 'fa-file-alt'
+        icon: FileText
     },
     {
         value: 'scheduled',
         label: '예약 포스트',
-        icon: 'fa-calendar-day'
+        icon: CalendarDays
     },
     {
         value: 'drafts',
         label: '임시 포스트',
-        icon: 'fa-save'
+        icon: Save
     }
 ];
 
@@ -121,6 +122,7 @@ const PostsSetting = () => {
                 <div className="flex gap-1 overflow-x-auto" role="tablist" aria-label="포스트 상태">
                     {POST_STATUS_TABS.map((tab) => {
                         const isActive = activeTab === tab.value;
+                        const TabIcon = tab.icon;
                         return (
                             <button
                                 key={tab.value}
@@ -133,7 +135,7 @@ const PostsSetting = () => {
                                         ? 'border-b-2 border-action text-content'
                                         : 'border-b-2 border-transparent text-content-secondary hover:text-content'
                                 }`}>
-                                <i className={`fas ${tab.icon} text-xs`} />
+                                <TabIcon aria-hidden className="h-3.5 w-3.5" />
                                 {tab.label}
                             </button>
                         );

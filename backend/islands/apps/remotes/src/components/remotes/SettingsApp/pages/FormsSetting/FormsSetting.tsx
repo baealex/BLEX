@@ -4,6 +4,7 @@ import { useSuspenseQuery } from '@tanstack/react-query';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { FileText, Pencil, Trash2 } from '@blex/ui/icons';
 import { SettingsEmptyState, SettingsHeader, SettingsListItem } from '../../components';
 import { Button, Input, Dropdown } from '~/components/shared';
 import {
@@ -223,7 +224,7 @@ const FormsManagement = () => {
                             key={form.id}
                             left={
                                 <div className={getSettingsIconClass('default')}>
-                                    <i className="fas fa-file-lines text-sm" />
+                                    <FileText aria-hidden className="h-4 w-4" />
                                 </div>
                             }
                             actions={
@@ -233,12 +234,12 @@ const FormsManagement = () => {
                                     items={[
                                         {
                                             label: '수정',
-                                            icon: 'fas fa-pen',
+                                            icon: <Pencil aria-hidden className="h-4 w-4" />,
                                             onClick: () => handleEditForm(form.id)
                                         },
                                         {
                                             label: '삭제',
-                                            icon: 'fas fa-trash',
+                                            icon: <Trash2 aria-hidden className="h-4 w-4" />,
                                             onClick: () => handleDeleteForm(form.id),
                                             variant: 'danger'
                                         }
@@ -251,7 +252,7 @@ const FormsManagement = () => {
                 </div>
             ) : !showForm ? (
                 <SettingsEmptyState
-                    iconClassName="fas fa-file-lines"
+                    icon={<FileText aria-hidden className="h-5 w-5" />}
                     title="등록된 서식이 없습니다"
                     action={createAction}
                 />

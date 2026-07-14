@@ -1,4 +1,11 @@
 import { Button } from '~/components/shared';
+import {
+    BellOff,
+    ChevronRight,
+    Clock,
+    Send,
+    Settings2
+} from '@blex/ui/icons';
 import { SETTINGS_LIST_TITLE } from '~/styles/settingsStyles';
 import { SettingsEmptyState, SettingsHeader, SettingsListItem } from '../../../components';
 import { markNotificationAsRead, type NotifyItem } from '~/lib/api/settings';
@@ -35,7 +42,7 @@ const NotificationsSection = ({
                     <Button
                         variant="secondary"
                         size="md"
-                        leftIcon={<i className="fas fa-cog" />}
+                        leftIcon={<Settings2 aria-hidden="true" className="h-4 w-4" />}
                         onClick={onOpenConfig}>
                         설정
                     </Button>
@@ -55,7 +62,7 @@ const NotificationsSection = ({
                         </div>
                         <div className="flex-shrink-0 ml-6">
                             <span className="inline-flex items-center justify-center w-10 h-10 rounded-lg bg-surface-subtle text-content-secondary group-hover:bg-action group-hover:text-content-inverted transition-colors motion-interaction">
-                                <i className="fab fa-telegram-plane text-lg" />
+                                <Send aria-hidden="true" className="h-5 w-5" />
                             </span>
                         </div>
                     </div>
@@ -72,14 +79,14 @@ const NotificationsSection = ({
                             onClick={() => handleClickNotify(item)}
                             actions={
                                 <div className="flex-shrink-0 self-center text-content-hint">
-                                    <i className="fas fa-chevron-right" />
+                                    <ChevronRight aria-hidden="true" className="h-4 w-4" />
                                 </div>
                             }>
                             <div className={`${SETTINGS_LIST_TITLE} ${!item.isRead ? 'font-semibold text-content' : 'font-medium text-content-secondary'} mb-1.5 leading-relaxed`}>
                                 {item.content}
                             </div>
                             <div className="flex items-center gap-2 text-xs text-content-hint">
-                                <i className="far fa-clock" />
+                                <Clock aria-hidden="true" className="h-3.5 w-3.5" />
                                 <span>{item.createdDate}</span>
                                 {!item.isRead && (
                                     <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold bg-danger-surface text-danger border border-danger-line">
@@ -91,7 +98,7 @@ const NotificationsSection = ({
                     ))
                 ) : (
                     <SettingsEmptyState
-                        iconClassName="fas fa-bell-slash"
+                        icon={<BellOff aria-hidden="true" className="h-5 w-5" />}
                         title="알림이 없습니다"
                     />
                 )}
