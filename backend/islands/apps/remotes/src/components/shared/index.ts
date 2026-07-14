@@ -20,16 +20,4 @@ export {
 
 export { TiptapEditor } from '@blex/editor/tiptap-editor';
 
-export {
-    ACTIONS_CONTAINER,
-    CARD_PADDING,
-    DRAG_HANDLE,
-    FLEX_ROW,
-    SUBTITLE,
-    TITLE,
-    baseInputStyles,
-    getCardClass,
-    getIconClass
-} from '../../styles/settingsStyles';
-
 export * as api from '../../lib/api';

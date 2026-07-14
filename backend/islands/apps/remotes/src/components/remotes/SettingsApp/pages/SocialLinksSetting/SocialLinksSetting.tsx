@@ -22,7 +22,7 @@ import { toast } from '~/utils/toast';
 import { useSuspenseQuery } from '@tanstack/react-query';
 import { SettingsEmptyState, SettingsHeader } from '../../components';
 import { Button, Input, Dropdown } from '~/components/shared';
-import { baseInputStyles } from '~/components/shared';
+import { settingsSelectTriggerStyles } from '~/styles/settingsStyles';
 import { getSocialLinks, updateSocialLinks, type SocialLink as ApiSocialLink } from '~/lib/api/settings';
 
 interface SocialLink extends ApiSocialLink {
@@ -161,7 +161,7 @@ const SocialLinkItem = ({ social, index, onRemove, onChange }: SocialLinkItemPro
                         <label htmlFor={platformInputId} className="block text-xs font-medium text-content-secondary mb-2 sm:hidden">플랫폼 선택</label>
                         <Dropdown
                             trigger={
-                                <button id={platformInputId} type="button" className={`${baseInputStyles} flex items-center justify-between`}>
+                                <button id={platformInputId} type="button" className={`${settingsSelectTriggerStyles} flex items-center justify-between`}>
                                     <span className={!social.name ? 'text-content-hint' : 'text-content'}>
                                         {currentPlatform?.label || '아이콘 선택'}
                                     </span>

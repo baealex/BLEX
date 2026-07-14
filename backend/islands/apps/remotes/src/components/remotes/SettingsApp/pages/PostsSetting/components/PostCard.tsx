@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Button, Input, Dropdown, Select } from '~/components/shared';
-import { getIconClass } from '~/components/shared';
+import { getSettingsIconClass } from '~/styles/settingsStyles';
 import { getMediaPath } from '~/modules/static.module';
 import type { Post } from '../hooks';
 import type { Series } from '~/lib/api/settings';
@@ -168,7 +168,7 @@ const PostCard = ({
                 <div className="p-4 pt-3 space-y-3 bg-surface-subtle/40 border-t border-line-light">
                     {/* 태그 */}
                     <div className="flex items-center gap-3">
-                        <div className={getIconClass('light')}>
+                        <div className={getSettingsIconClass('light')}>
                             <i className="fas fa-tag text-sm" />
                         </div>
                         <Input
@@ -192,7 +192,7 @@ const PostCard = ({
 
                     {/* 시리즈 */}
                     <div className="flex items-center gap-3">
-                        <div className={getIconClass('light')}>
+                        <div className={getSettingsIconClass('light')}>
                             <i className="fas fa-book text-sm" />
                         </div>
                         <div className="flex-1">

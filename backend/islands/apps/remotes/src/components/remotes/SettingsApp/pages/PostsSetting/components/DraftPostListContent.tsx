@@ -1,7 +1,12 @@
 import { useEffect } from 'react';
 import { useSuspenseQuery } from '@tanstack/react-query';
 import { SettingsEmptyState, SettingsListItem } from '../../../components';
-import { Dropdown, getIconClass, SUBTITLE, TITLE } from '~/components/shared';
+import { Dropdown } from '~/components/shared';
+import {
+    getSettingsIconClass,
+    SETTINGS_LIST_META,
+    SETTINGS_LIST_TITLE
+} from '~/styles/settingsStyles';
 import { useConfirm } from '~/hooks/useConfirm';
 import { getDraftPosts } from '~/lib/api/settings';
 import { deleteDraft } from '~/lib/api/posts';
@@ -75,7 +80,7 @@ export const DraftPostListContent = ({ onCountChange }: DraftPostListContentProp
                     onClick={() => handleContinueDraft(draftPost.url)}
                     left={
                         draftPost.image ? (
-                            <div className={`${getIconClass('default')} overflow-hidden`}>
+                            <div className={`${getSettingsIconClass('default')} overflow-hidden`}>
                                 <img
                                     src={getMediaPath(draftPost.image)}
                                     alt={draftPost.title || '제목 없음'}
@@ -84,7 +89,7 @@ export const DraftPostListContent = ({ onCountChange }: DraftPostListContentProp
                                 />
                             </div>
                         ) : (
-                            <div className={getIconClass('default')}>
+                            <div className={getSettingsIconClass('default')}>
                                 <i className="fas fa-file-alt text-sm" />
                             </div>
                         )
@@ -101,10 +106,10 @@ export const DraftPostListContent = ({ onCountChange }: DraftPostListContentProp
                             ]}
                         />
                     }>
-                    <h3 className={`${TITLE} mb-0.5`}>
+                    <h3 className={`${SETTINGS_LIST_TITLE} mb-0.5`}>
                         {draftPost.title || '제목 없음'}
                     </h3>
-                    <div className={`${SUBTITLE} flex flex-wrap items-center gap-3`}>
+                    <div className={`${SETTINGS_LIST_META} flex flex-wrap items-center gap-3`}>
                         <span className="flex items-center">
                             <i className="fas fa-clock mr-1.5" />
                             마지막 수정 {draftPost.updatedDate}

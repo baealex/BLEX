@@ -1,8 +1,5 @@
-import {
-    TITLE,
-    SUBTITLE,
-    Dropdown
-} from '~/components/shared';
+import { Dropdown } from '~/components/shared';
+import { SETTINGS_LIST_META, SETTINGS_LIST_TITLE } from '~/styles/settingsStyles';
 import { SettingsListItem } from '../../../components';
 import type { StaticPageData } from '~/lib/api/settings';
 
@@ -39,7 +36,7 @@ export const StaticPageList = ({ pages, onView, onEdit, onDelete }: StaticPageLi
                     }>
                     <div className="space-y-1">
                         <div className="flex items-center gap-2 flex-wrap">
-                            <h3 className={`${TITLE} mb-0`}>
+                            <h3 className={`${SETTINGS_LIST_TITLE} mb-0`}>
                                 {page.title}
                             </h3>
                             <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium border ${page.isPublished ? 'bg-action text-content-inverted border-line-strong' : 'bg-surface-subtle text-content-secondary border-line-light'}`}>
@@ -51,7 +48,7 @@ export const StaticPageList = ({ pages, onView, onEdit, onDelete }: StaticPageLi
                                 </span>
                             )}
                         </div>
-                        <p className={SUBTITLE}>/static/{page.slug}</p>
+                        <p className={SETTINGS_LIST_META}>/static/{page.slug}</p>
                     </div>
                 </SettingsListItem>
             ))}

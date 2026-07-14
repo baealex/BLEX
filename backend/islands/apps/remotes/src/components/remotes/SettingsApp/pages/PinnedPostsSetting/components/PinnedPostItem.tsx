@@ -1,11 +1,11 @@
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
+import { Button } from '~/components/shared';
 import {
-    Button,
-    TITLE,
-    SUBTITLE,
-    getIconClass
-} from '~/components/shared';
+    getSettingsIconClass,
+    SETTINGS_LIST_META,
+    SETTINGS_LIST_TITLE
+} from '~/styles/settingsStyles';
 import { SettingsListItem } from '../../../components';
 import { getMediaPath } from '~/modules/static.module';
 import type { PinnedPostData } from '~/lib/api/settings';
@@ -56,7 +56,7 @@ export const PinnedPostItem = ({
                 }}
                 left={
                     pinnedPost.post.image ? (
-                        <div className={`${getIconClass('default')} overflow-hidden`}>
+                        <div className={`${getSettingsIconClass('default')} overflow-hidden`}>
                             <img
                                 src={getMediaPath(pinnedPost.post.image)}
                                 alt={pinnedPost.post.title}
@@ -64,7 +64,7 @@ export const PinnedPostItem = ({
                             />
                         </div>
                     ) : (
-                        <div className={getIconClass('default')}>
+                        <div className={getSettingsIconClass('default')}>
                             <i className="fas fa-thumbtack text-sm" />
                         </div>
                     )
@@ -77,8 +77,8 @@ export const PinnedPostItem = ({
                         해제
                     </Button>
                 }>
-                <h3 className={`${TITLE} mb-1 truncate text-content`}>{pinnedPost.post.title}</h3>
-                <div className={`${SUBTITLE} text-xs flex items-center gap-2`}>
+                <h3 className={`${SETTINGS_LIST_TITLE} mb-1 truncate text-content`}>{pinnedPost.post.title}</h3>
+                <div className={`${SETTINGS_LIST_META} text-xs flex items-center gap-2`}>
                     <span className="flex items-center gap-1">
                         <i className="far fa-calendar text-content-hint" />
                         {new Date(pinnedPost.post.createdDate).toLocaleDateString('ko-KR')}

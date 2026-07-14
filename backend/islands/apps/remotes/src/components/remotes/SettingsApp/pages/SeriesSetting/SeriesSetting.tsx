@@ -24,10 +24,10 @@ import { useNavigate } from '@tanstack/react-router';
 import { SettingsEmptyState, SettingsHeader, SettingsListItem } from '../../components';
 import { Button, Dropdown } from '~/components/shared';
 import {
- getIconClass,
- TITLE,
- SUBTITLE
-} from '~/components/shared';
+    getSettingsIconClass,
+    SETTINGS_LIST_META,
+    SETTINGS_LIST_TITLE
+} from '~/styles/settingsStyles';
 import { useConfirm } from '~/hooks/useConfirm';
 import {
     getSeriesWithUsername,
@@ -86,7 +86,7 @@ const SortableSeriesItem = ({ series, username, onEdit, onDelete }: SortableSeri
                     listeners
                 }}
                 left={
-                    <div className={getIconClass('default')}>
+                    <div className={getSettingsIconClass('default')}>
                         <i className="fas fa-book text-sm" />
                     </div>
                 }
@@ -107,8 +107,8 @@ const SortableSeriesItem = ({ series, username, onEdit, onDelete }: SortableSeri
                         ]}
                     />
                 }>
-                <h3 className={`${TITLE} mb-0.5`}>{series.title}</h3>
-                <div className={SUBTITLE}>
+                <h3 className={`${SETTINGS_LIST_TITLE} mb-0.5`}>{series.title}</h3>
+                <div className={SETTINGS_LIST_META}>
                     <i className="fas fa-file-alt mr-1.5" />
                     {series.totalPosts}개의 포스트
                 </div>

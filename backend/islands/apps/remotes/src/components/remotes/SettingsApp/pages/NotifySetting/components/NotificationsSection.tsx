@@ -1,7 +1,5 @@
-import {
-    Button,
-    TITLE
-} from '~/components/shared';
+import { Button } from '~/components/shared';
+import { SETTINGS_LIST_TITLE } from '~/styles/settingsStyles';
 import { SettingsEmptyState, SettingsHeader, SettingsListItem } from '../../../components';
 import { markNotificationAsRead, type NotifyItem } from '~/lib/api/settings';
 
@@ -78,7 +76,7 @@ const NotificationsSection = ({
                                     <i className="fas fa-chevron-right" />
                                 </div>
                             }>
-                            <div className={`${TITLE} ${!item.isRead ? 'font-semibold text-content' : 'font-medium text-content-secondary'} mb-1.5 leading-relaxed`}>
+                            <div className={`${SETTINGS_LIST_TITLE} ${!item.isRead ? 'font-semibold text-content' : 'font-medium text-content-secondary'} mb-1.5 leading-relaxed`}>
                                 {item.content}
                             </div>
                             <div className="flex items-center gap-2 text-xs text-content-hint">

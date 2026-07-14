@@ -1,9 +1,9 @@
+import { Button } from '~/components/shared';
 import {
-    Button,
-    SUBTITLE,
-    TITLE,
-    getIconClass
-} from '~/components/shared';
+    getSettingsIconClass,
+    SETTINGS_LIST_META,
+    SETTINGS_LIST_TITLE
+} from '~/styles/settingsStyles';
 import SettingsListItem from '../../../components/SettingsListItem';
 import { getMediaPath } from '~/modules/static.module';
 import type { PinnablePostData, PinnablePostsPaginationData } from '~/lib/api/settings';
@@ -95,7 +95,7 @@ export const PinnablePostInlineList = ({
                                 key={post.url}
                                 left={
                                     post.image ? (
-                                        <div className={`${getIconClass('default')} overflow-hidden`}>
+                                        <div className={`${getSettingsIconClass('default')} overflow-hidden`}>
                                             <img
                                                 src={getMediaPath(post.image)}
                                                 alt={post.title}
@@ -103,7 +103,7 @@ export const PinnablePostInlineList = ({
                                             />
                                         </div>
                                     ) : (
-                                        <div className={getIconClass('default')}>
+                                        <div className={getSettingsIconClass('default')}>
                                             <i className="fas fa-file-alt text-sm" />
                                         </div>
                                     )
@@ -118,8 +118,8 @@ export const PinnablePostInlineList = ({
                                         고정
                                     </Button>
                                 }>
-                                <h3 className={`${TITLE} mb-1 truncate text-content`}>{post.title}</h3>
-                                <div className={`${SUBTITLE} flex items-center gap-2 text-xs`}>
+                                <h3 className={`${SETTINGS_LIST_TITLE} mb-1 truncate text-content`}>{post.title}</h3>
+                                <div className={`${SETTINGS_LIST_META} flex items-center gap-2 text-xs`}>
                                     <span className="flex items-center gap-1">
                                         <i className="far fa-calendar text-content-hint" />
                                         {new Date(post.createdDate).toLocaleDateString('ko-KR')}

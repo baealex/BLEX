@@ -1,5 +1,5 @@
 import { Button, Input, Dropdown } from '~/components/shared';
-import { baseInputStyles } from '~/components/shared';
+import { settingsSelectTriggerStyles } from '~/styles/settingsStyles';
 import type { FilterOptions } from '../hooks';
 import { POSTS_ORDER } from '../hooks';
 import type { Tag, Series } from '~/lib/api/settings';
@@ -123,7 +123,7 @@ const PostsFilter = ({
                         <Dropdown
                             align="left"
                             trigger={
-                                <button className={`${baseInputStyles} flex items-center justify-between text-left`}>
+                                <button className={`${settingsSelectTriggerStyles} flex items-center justify-between text-left`}>
                                     <span className="text-content font-medium">
                                         {POSTS_ORDER.find(o => o.order === filters.order)?.name || '정렬 방식'}
                                     </span>
@@ -143,7 +143,7 @@ const PostsFilter = ({
                         <Dropdown
                             align="left"
                             trigger={
-                                <button className={`${baseInputStyles} flex items-center justify-between text-left`}>
+                                <button className={`${settingsSelectTriggerStyles} flex items-center justify-between text-left`}>
                                     <span className={filters.tag ? 'text-content font-medium' : 'text-content-hint'}>
                                         {filters.tag || '태그'}
                                     </span>
@@ -168,7 +168,7 @@ const PostsFilter = ({
                         <Dropdown
                             align="left"
                             trigger={
-                                <button className={`${baseInputStyles} flex items-center justify-between text-left`}>
+                                <button className={`${settingsSelectTriggerStyles} flex items-center justify-between text-left`}>
                                     <span className={filters.series ? 'text-content font-medium' : 'text-content-hint'}>
                                         {series?.find((s) => s.url === filters.series)?.title || '시리즈'}
                                     </span>
@@ -193,7 +193,7 @@ const PostsFilter = ({
                         <Dropdown
                             align="left"
                             trigger={
-                                <button className={`${baseInputStyles} flex items-center justify-between text-left`}>
+                                <button className={`${settingsSelectTriggerStyles} flex items-center justify-between text-left`}>
                                     <span className={filters.visibility ? 'text-content font-medium' : 'text-content-hint'}>
                                         {filters.visibility === 'public' ? '공개' : filters.visibility === 'hidden' ? '숨김' : '공개 상태'}
                                     </span>
