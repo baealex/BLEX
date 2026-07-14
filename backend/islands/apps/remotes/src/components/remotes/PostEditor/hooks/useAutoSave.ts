@@ -136,12 +136,12 @@ export const useAutoSave = (data: AutoSaveData, options: UseAutoSaveOptions) => 
     const currentDataString = getDataSignature(data);
     const currentContentString = getContentSignature(data);
 
-    // Manual save - returns true on success, false on failure
-    const manualSave = useCallback(async (): Promise<boolean> => {
+    // Manual save - returns the persisted draft URL on success
+    const manualSave = useCallback(async (): Promise<string | null> => {
         const currentData = dataRef.current;
         const currentOptions = optionsRef.current;
 
-        if (isSaving || !currentOptions.enabled) return false;
+        if (isSaving || !currentOptions.enabled) return null;
 
         // Clear existing timer and countdown when manually saving
         if (autoSaveRef.current) clearTimeout(autoSaveRef.current);
@@ -183,11 +183,11 @@ export const useAutoSave = (data: AutoSaveData, options: UseAutoSaveOptions) => 
             prevContentStringRef.current = getContentSignature(currentData);
             skipNextImageResetRef.current = true;
             currentOptions.onSuccess?.();
-            return true;
+            return draftUrlRef.current || null;
         } catch (error) {
             setHasSaveError(true);
             currentOptions.onError?.(error as Error);
-            return false;
+            return null;
         } finally {
             setIsSaving(false);
         }

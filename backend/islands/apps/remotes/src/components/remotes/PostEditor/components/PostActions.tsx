@@ -1,8 +1,16 @@
 import { useEffect, useState } from 'react';
+import type { MouseEvent } from 'react';
 import { Button } from '@blex/ui/button';
 import { FloatingBottomBar } from '@blex/ui/floating-bottom-bar';
 import { IconButton } from '@blex/ui/icon-button';
-import { FileText, Send, SlidersHorizontal } from '@blex/ui/icons';
+import {
+    Eye,
+    FileText,
+    Loader2,
+    Save,
+    Send,
+    SlidersHorizontal
+} from '@blex/ui/icons';
 
 interface PostActionsProps {
     mode: 'new' | 'edit' | 'draft';
@@ -17,6 +25,8 @@ interface PostActionsProps {
     onManualSave: () => void;
     onSubmit: () => void;
     onOpenDrafts?: () => void;
+    onPreview?: (event: MouseEvent<HTMLButtonElement>) => void;
+    isPreviewing?: boolean;
     onOpenSettings?: () => void;
     submitLabel?: string;
 }
@@ -43,6 +53,8 @@ const PostActions = ({
     onManualSave,
     onSubmit,
     onOpenDrafts,
+    onPreview,
+    isPreviewing = false,
     onOpenSettings,
     submitLabel
 }: PostActionsProps) => {
@@ -65,9 +77,28 @@ const PostActions = ({
                 <IconButton
                     onClick={onOpenDrafts}
                     rounded="full"
+                    className="shrink-0"
                     aria-label="임시 포스트"
                     title="임시 포스트">
                     <FileText className="w-5 h-5" />
+                </IconButton>
+            )}
+
+            {/* Rendered Preview */}
+            {onPreview && (
+                <IconButton
+                    onClick={onPreview}
+                    disabled={isBusy || isPreviewing}
+                    rounded="full"
+                    className="shrink-0"
+                    aria-label="포스트 미리보기"
+                    aria-busy={isPreviewing}
+                    title="포스트 미리보기">
+                    {isPreviewing ? (
+                        <Loader2 className="h-5 w-5 animate-spin" />
+                    ) : (
+                        <Eye className="h-5 w-5" />
+                    )}
                 </IconButton>
             )}
 
@@ -76,6 +107,7 @@ const PostActions = ({
                 <IconButton
                     onClick={onOpenSettings}
                     rounded="full"
+                    className="shrink-0"
                     aria-label="게시 설정"
                     title="게시 설정"
                     data-tour="post-settings">
@@ -86,11 +118,11 @@ const PostActions = ({
             {/* Save Section */}
             {!isEdit && (
                 <>
-                    <div className="w-px h-8 bg-line/50 mx-1" />
+                    <div className="mx-1 h-8 w-px shrink-0 bg-line/50" />
 
                     {/* Autosave Status */}
                     <div
-                        className="flex items-center gap-1.5 px-1 text-xs text-content-hint"
+                        className="hidden shrink-0 items-center gap-1.5 px-1 text-xs text-content-hint sm:flex"
                         aria-live="polite"
                         data-tour="post-autosave">
                         {isSaving ? (
@@ -127,11 +159,21 @@ const PostActions = ({
                     </div>
 
                     {/* Manual Save Button */}
+                    <IconButton
+                        size="sm"
+                        rounded="full"
+                        onClick={onManualSave}
+                        disabled={isBusy}
+                        className="shrink-0 sm:hidden"
+                        aria-label="임시 저장"
+                        title="임시 저장">
+                        <Save className="h-4 w-4" />
+                    </IconButton>
                     <button
                         type="button"
                         onClick={onManualSave}
                         disabled={isBusy}
-                        className="flex items-center gap-1.5 px-2.5 py-1 text-xs font-medium text-content-secondary hover:text-content hover:bg-surface-subtle active:scale-95 rounded-full transition-all motion-interaction disabled:opacity-50"
+                        className="hidden shrink-0 items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium text-content-secondary transition-all hover:bg-surface-subtle hover:text-content active:scale-95 disabled:opacity-50 sm:flex motion-interaction"
                         title="임시 저장">
                         <span>임시 저장</span>
                     </button>
@@ -143,7 +185,7 @@ const PostActions = ({
                 onClick={onSubmit}
                 disabled={isBusy || isSubmitDisabled}
                 variant="primary"
-                className="!rounded-full"
+                className="min-h-11! shrink-0 !rounded-full"
                 leftIcon={<Send className="w-4 h-4" />}
                 data-tour="post-publish">
                 {actionLabel}

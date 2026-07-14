@@ -2,9 +2,12 @@
 {% load resource %}
 {% load island %}
 
-{% block title %}{{ post.title }} - {{ post.author_username }} | {{ site_brand.site_name }}{% endblock %}
+{% block title %}{% if is_post_preview %}미리보기 · {% endif %}{{ post.title }} - {{ post.author_username }} | {{ site_brand.site_name }}{% endblock %}
 
 {% block meta %}
+{% if is_post_preview %}
+<meta name="description" content="저장된 임시 포스트 미리보기">
+{% else %}
 <!-- Primary Meta Tags -->
 <meta name="description" content="{{ post.meta_description }}">
 <meta name="keywords" content="{% for tag in post.tags.all %}{{ tag }}{% if not forloop.last %}, {% endif %}{% endfor %}">
@@ -33,10 +36,14 @@
 {% if show_agent_post_markdown %}
 <link rel="alternate" type="text/markdown" href="{{ post_markdown_url }}">
 {% endif %}
+{% endif %}
 {% endblock %}
 
 {% block robots_meta %}
-{% if site_setting and not site_setting.seo_enabled %}
+{% if is_post_preview %}
+<meta name="robots" content="noindex,nofollow,noarchive">
+<meta name="googlebot" content="noindex,nofollow,noarchive">
+{% elif site_setting and not site_setting.seo_enabled %}
 <meta name="robots" content="noindex,nofollow">
 <meta name="googlebot" content="noindex,nofollow">
 {% else %}
@@ -44,6 +51,10 @@
 <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1">
 <meta name="googlebot" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1">
 {% endif %}
+{% endblock %}
+
+{% block feed_links %}
+{% if not is_post_preview %}{{ block.super }}{% endif %}
 {% endblock %}
 
 {% block extra_styles %}
@@ -75,7 +86,7 @@
                 <article itemscope itemtype="https://schema.org/BlogPosting" lang="{{ LANGUAGE_CODE|default:'ko' }}">
                     <meta itemprop="headline" content="{{ post.title }}">
                     <meta itemprop="description" content="{{ post.meta_description }}">
-                    <meta itemprop="datePublished" content="{{ post.published_date|date:'c' }}">
+                    <meta itemprop="datePublished" content="{{ post.preview_date|date:'c' }}">
                     <meta itemprop="dateModified" content="{{ post.updated_date|date:'c' }}">
                     {% if post.image %}
                     <meta itemprop="image" content="{{ post_image_url }}">
@@ -90,14 +101,18 @@
                             <div class="min-w-0">
                                 <p class="text-xs font-semibold uppercase text-content-hint">포스트 상태</p>
                                 <h2 class="mt-1 text-lg font-semibold text-content">
-                                    {% if post_visibility_status == 'hidden' %}
+                                    {% if post_visibility_status == 'draft' %}
+                                    임시 포스트 미리보기입니다
+                                    {% elif post_visibility_status == 'hidden' %}
                                     비공개 포스트입니다
                                     {% else %}
                                     예약 발행 포스트입니다
                                     {% endif %}
                                 </h2>
                                 <p class="mt-1 text-sm leading-relaxed text-content-secondary">
-                                    {% if post_visibility_status == 'hidden' %}
+                                    {% if post_visibility_status == 'draft' %}
+                                    마지막으로 저장된 내용을 실제 포스트 화면으로 표시합니다. 이 페이지는 작성자에게만 보이며 공개 목록과 검색에 노출되지 않습니다.
+                                    {% elif post_visibility_status == 'hidden' %}
                                     이 포스트는 작성자만 볼 수 있습니다. 공개하려면 포스트 설정에서 비공개를 해제하세요.
                                     {% else %}
                                     예약 시각 전에는 작성자만 볼 수 있습니다. 예약 시각이 되면 공개 URL, RSS, Sitemap, Markdown URL에 반영됩니다.
@@ -170,9 +185,9 @@
                                 </dd>
                             </div>
                             <div class="sm:flex sm:items-start sm:gap-6">
-                                <dt class="text-xs font-medium text-content-hint sm:w-24 sm:flex-shrink-0">최초 발행</dt>
+                                <dt class="text-xs font-medium text-content-hint sm:w-24 sm:flex-shrink-0">{% if is_post_preview %}미리보기 기준{% else %}최초 발행{% endif %}</dt>
                                 <dd class="mt-1 text-content-secondary sm:mt-0">
-                                    <time datetime="{{ post.published_date|date:'c' }}">{{ post.created_date_display }}</time>
+                                    <time datetime="{{ post.preview_date|date:'c' }}">{{ post.created_date_display }}</time>
                                 </dd>
                             </div>
                             {% if show_post_updated_date %}
@@ -196,6 +211,7 @@
                 </article>
 
                 <!-- Floating Action Bar -->
+                {% if not is_post_preview or table_of_contents %}
                 <div x-data="{
                     linkCopyMenuOpen: false,
                     linkCopyHideTimer: null,
@@ -301,11 +317,13 @@
                     <div class="pointer-events-auto post-action-bar transform transition-all motion-interaction">
 
                         <!-- Like Button -->
+                        {% if not is_post_preview %}
                         <div class="flex items-center">
                             {% include 'components/like_button.html' with post_url=post.url likes_count=post.count_likes has_liked=post.has_liked %}
                         </div>
 
                         <div class="post-action-divider"></div>
+                        {% endif %}
 
                         <!-- TOC Button (Mobile Only) -->
                         {% if table_of_contents %}
@@ -317,6 +335,7 @@
                         {% endif %}
 
                         <!-- Share / Link Copy Button -->
+                        {% if not is_post_preview %}
                         <div class="relative"
                             @mouseenter="openLinkCopyMenu()"
                             @mouseleave="scheduleCloseLinkCopyMenu()"
@@ -398,6 +417,7 @@
                                 {% endif %}
                             </div>
                         </div>
+                        {% endif %}
 
                         <!-- Edit Button -->
                         {% if can_edit_post %}
@@ -409,9 +429,10 @@
                         {% endif %}
                     </div>
                 </div>
+                {% endif %}
 
                 <!-- Series Card -->
-                {% if post.series %}
+                {% if post.series and not is_post_preview %}
                 <section class="mt-16 bg-surface rounded-2xl p-6 sm:p-8 mb-16 ring-1 ring-line/60" aria-labelledby="post-series-heading">
                     {% if not post.visible_series_posts %}
                     <div class="flex flex-col items-center justify-center text-center py-6">
@@ -500,9 +521,11 @@
                 </section>
                 {% endif %}
 
+                {% if not is_post_preview %}
                 <div>
                     {% island_component 'Comments' lazy=True postUrl=post.url %}
                 </div>
+                {% endif %}
             </div>
         </div>
 
@@ -524,11 +547,13 @@
         </aside>
         </div>
 
+        {% if not is_post_preview %}
         <div class="max-w-7xl mx-auto">
             <div class="my-16">
                 {% island_component 'RelatedPosts' lazy=True postUrl=post.url username=post.author_username %}
             </div>
         </div>
+        {% endif %}
     </div>
 </div>
 
@@ -610,6 +635,7 @@ class="xl:hidden">
 {% endblock %}
 
 {% block extra_scripts %}
+{% if not is_post_preview %}
 <!-- Structured Data for Articles (JSON-LD) -->
 <script type="application/ld+json">
 {
@@ -645,6 +671,7 @@ class="xl:hidden">
   "articleSection": {% if post.series %}"{{ post.series.name }}"{% else %}"Blog"{% endif %}
 }
 </script>
+{% endif %}
 <script type="module" src="{% island_entry 'src/scripts/syntax-highlighting.ts' %}"></script>
 
 {% endblock %}

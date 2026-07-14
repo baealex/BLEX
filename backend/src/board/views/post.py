@@ -5,19 +5,16 @@ from django.contrib.auth.models import User
 from django.db.models import Count, F, Exists, OuterRef
 from django.http import Http404
 from django.contrib import messages
-from django.utils import timezone
+from django.views.decorators.clickjacking import xframe_options_sameorigin
+from django.views.decorators.http import require_GET
 
 from board.models import Post, Series, PostLikes, UsernameChangeLog
 from board.modules.response import StatusDone, StatusError
 from board.services.post_service import PostService, PostValidationError
-from board.services.banner_service import BannerService
-from board.services.agent_content_service import AgentContentService
-from board.services.brand_asset_service import BrandAssetService
-from board.services.discovery_metadata_service import DiscoveryMetadataService
+from board.services.post_detail_render_service import PostDetailRenderService
 from board.services.public_post_service import PublicPostService
-from board.services.site_url_service import SiteUrlService
-from board.html_utils import extract_table_of_contents
 from board.decorators import editor_required
+
 
 def post_detail(request, username, post_url):
     """
@@ -45,87 +42,33 @@ def post_detail(request, username, post_url):
     ):
         raise Http404("Post does not exist")
 
-    post.created_date_display = timezone.localtime(post.published_date).strftime('%Y-%m-%d')
-    post.updated_date_display = timezone.localtime(post.updated_date).strftime('%Y-%m-%d')
-    show_post_updated_date = post.created_date_display != post.updated_date_display
+    return PostDetailRenderService.render(request, post, author)
 
-    author_profile = getattr(author, 'profile', None)
-    author_bio = author_profile.bio.strip() if author_profile and author_profile.bio else ''
-    author_homepage = author_profile.homepage.strip() if author_profile and author_profile.homepage else ''
 
-    # Initialize series attributes to avoid AttributeError
-    post.series_total = 0
-    post.visible_series_posts = []
-    post.prev_post = None
-    post.next_post = None
+@require_GET
+@xframe_options_sameorigin
+def post_preview(request, post_url):
+    if not request.user.is_authenticated:
+        raise Http404("Post does not exist")
 
-    if post.series:
-        post.visible_series_posts = PostService.get_visible_series_posts(post)
+    try:
+        post = PostService.get_post_detail(
+            request.user.username,
+            post_url,
+            request.user,
+        )
+    except Http404:
+        raise Http404("Post does not exist")
 
-    # Extract table of contents from post content
-    content_html_with_ids, table_of_contents = extract_table_of_contents(post.content.content_html)
+    if not post.is_draft():
+        raise Http404("Post does not exist")
 
-    banners = BannerService.get_all_banners_for_author(author)
-
-    post_absolute_url = post.get_absolute_url()
-    canonical_url = SiteUrlService.absolute_url(request, post_absolute_url)
-    author_url = SiteUrlService.absolute_url(request, reverse('user_profile', args=[author.username]))
-    post_image_url = SiteUrlService.absolute_url(request, post.image.url) if post.image else ''
-    logo_url = BrandAssetService.absolute_icon_png_url(request, None, 512)
-
-    aeo_enabled = AgentContentService.is_aeo_enabled()
-    is_public_post = PublicPostService.is_public(post)
-    post_visibility_status = 'public'
-    if post.config.hide:
-        post_visibility_status = 'hidden'
-    elif not is_public_post:
-        post_visibility_status = 'scheduled'
-
-    show_post_status_notice = (
-        is_owner
-        and post_visibility_status in {'hidden', 'scheduled'}
+    return PostDetailRenderService.render(
+        request,
+        post,
+        post.author,
+        is_post_preview=True,
     )
-    can_edit_post = PostService.can_user_edit_post(request.user, post)
-
-    show_agent_post_markdown = aeo_enabled and is_public_post
-    post_cover_layout = post.config.cover_layout
-    if post_cover_layout not in {'default', 'split', 'overlay', 'none'}:
-        post_cover_layout = 'default'
-    if not post.image and post_cover_layout in {'split', 'overlay'}:
-        post_cover_layout = 'default'
-    post_cover_is_full_bleed = post_cover_layout in {'split', 'overlay'}
-    post_cover_template = f'board/posts/covers/{post_cover_layout}.html'
-
-    context = {
-        'post': post,
-        'banners': banners,
-        'content_html': content_html_with_ids,
-        'table_of_contents': table_of_contents,
-        'post_cover_layout': post_cover_layout,
-        'post_cover_is_full_bleed': post_cover_is_full_bleed,
-        'post_cover_template': post_cover_template,
-        'aeo_enabled': aeo_enabled,
-        'canonical_url': canonical_url,
-        'author_url': author_url,
-        'post_image_url': post_image_url,
-        'logo_url': logo_url,
-        'show_post_status_notice': show_post_status_notice,
-        'can_edit_post': can_edit_post,
-        'post_visibility_status': post_visibility_status,
-        'show_agent_post_markdown': show_agent_post_markdown,
-        'show_post_updated_date': show_post_updated_date,
-        'author_bio': author_bio,
-        'author_homepage': author_homepage,
-        **DiscoveryMetadataService.build_user_rss_feed_metadata(author, request),
-    }
-    if show_agent_post_markdown:
-        context['post_markdown_url'] = AgentContentService.build_post_markdown_url(post, request)
-
-    response = render(request, 'board/posts/post_detail.html', context)
-    if show_agent_post_markdown:
-        response['Link'] = AgentContentService.build_agent_link_header(post, request)
-        response['X-Llms-Txt'] = AgentContentService.build_llms_txt_url(request)
-    return response
 
 
 @editor_required

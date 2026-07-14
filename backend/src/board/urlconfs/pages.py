@@ -18,7 +18,7 @@ from board.views.author import (
 from board.views.developer_api_docs import developer_api_docs, developer_api_quickstart
 from board.views.initial_setup import initial_setup_view
 from board.views.oauth_callback import oauth_callback
-from board.views.post import post_detail, post_editor
+from board.views.post import post_detail, post_editor, post_preview
 from board.views.post_actions import like_post
 from board.views.search import search_page
 from board.views.series import series_detail
@@ -74,6 +74,7 @@ urlpatterns = [
     path('@<username>', author_overview, name='user_profile'),
 
     # Posts write
+    path('write/preview/<str:post_url>', post_preview, name='post_preview'),
     path('write', post_editor, name='post_write'),
     path('search', search_page, name='search'),
 

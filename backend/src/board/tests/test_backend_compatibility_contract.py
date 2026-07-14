@@ -72,6 +72,7 @@ EXPECTED_ROUTE_CONTRACT = (
     ('@<username>/<post_url>/edit', 'post_edit', 'board.views.post.post_editor'),
     ('@<username>/<post_url>', 'post_detail', 'board.views.post.post_detail'),
     ('@<username>', 'user_profile', 'board.views.author.author_overview'),
+    ('write/preview/<str:post_url>', 'post_preview', 'board.views.post.post_preview'),
     ('write', 'post_write', 'board.views.post.post_editor'),
     ('search', 'search', 'board.views.search.search_page'),
     ('tags', 'tag_list', 'board.views.tag.tag_list_view'),
