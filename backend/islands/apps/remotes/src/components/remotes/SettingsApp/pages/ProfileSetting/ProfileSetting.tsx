@@ -214,11 +214,12 @@ const ProfileSetting = () => {
         <div>
             <SettingsHeader title="프로필" />
 
-            {/* Profile Image Section */}
-            <Card
-                title="프로필 이미지"
-                subtitle="자르기 완료 즉시 저장됩니다."
-                className="mb-6">
+            <div>
+                {/* Profile Image Section */}
+                <Card
+                    title="프로필 이미지"
+                    subtitle="자르기 완료 즉시 저장됩니다."
+                    className="mb-6">
                     <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4">
                         <div className="relative w-24 h-24 sm:w-28 sm:h-28">
                             <img
@@ -251,13 +252,13 @@ const ProfileSetting = () => {
                             <p className="text-xs text-content-hint">권장 크기: 400x400px, 최대 5MB</p>
                         </div>
                     </div>
-            </Card>
+                </Card>
 
-            {/* Cover Image Section */}
-            <Card
-                title="커버 이미지"
-                subtitle="프로필 상단에 표시되며 자르기 완료 즉시 저장됩니다."
-                className="mb-6">
+                {/* Cover Image Section */}
+                <Card
+                    title="커버 이미지"
+                    subtitle="프로필 상단에 표시되며 자르기 완료 즉시 저장됩니다."
+                    className="mb-6">
                     <div className="space-y-4">
                         {cover ? (
                             <div className="relative group">
@@ -320,7 +321,8 @@ const ProfileSetting = () => {
                             <p className="text-xs text-content-hint">권장 크기: 1500x500px (3:1 비율), 최대 5MB</p>
                         </div>
                     </div>
-            </Card>
+                </Card>
+            </div>
 
             <form onSubmit={handleSubmit(onSubmit)}>
                 {/* Profile Information Section */}
