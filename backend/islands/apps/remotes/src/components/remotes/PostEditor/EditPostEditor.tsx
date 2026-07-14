@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { toast } from '~/utils/toast';
 import { useConfirm } from '~/hooks/useConfirm';
 import PostEditorWrapper from './PostEditorWrapper';
@@ -6,6 +6,7 @@ import PostActions from './components/PostActions';
 import PostForm from './components/PostForm';
 import SettingsDrawer from './components/SettingsDrawer';
 import ScheduleStatusNotice from './components/ScheduleStatusNotice';
+import EditRecoveryNotice from './components/EditRecoveryNotice';
 import { getSeries } from '~/lib/api/settings';
 import {
     cancelPostSchedule,
@@ -22,6 +23,14 @@ import {
     toDateTimeLocalValue,
     toReservedDateValue
 } from './utils/scheduleDate';
+import {
+    clearPostEditRecovery,
+    postEditRecoverySnapshotsMatch,
+    readPostEditRecovery,
+    writePostEditRecovery,
+    type PostEditRecovery,
+    type PostEditRecoverySnapshot
+} from './utils/postEditRecovery';
 
 interface EditPostEditorProps {
     username: string;
@@ -80,13 +89,23 @@ const EditPostEditor = ({ username, postUrl }: EditPostEditorProps) => {
     const [pendingScheduleAction, setPendingScheduleAction] = useState<'cancel' | 'publish-now' | null>(null);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [isEditorMediaUploading, setIsEditorMediaUploading] = useState(false);
+    const [availableRecovery, setAvailableRecovery] = useState<PostEditRecovery | null>(null);
+    const [recoveryEditorRevision, setRecoveryEditorRevision] = useState(0);
 
     const formRef = useRef<HTMLFormElement>(null);
     const initialDataRef = useRef<DirtySnapshot | null>(null);
+    const initialRecoverySnapshotRef = useRef<PostEditRecoverySnapshot | null>(null);
+    const baseRevisionRef = useRef('');
+    const initialImagePreviewRef = useRef<string | null>(null);
+    const initialSeriesRef = useRef<Series>({
+        id: '',
+        name: '',
+        url: ''
+    });
     const isIntentionalSubmitRef = useRef(false);
     const isSubmitLockedRef = useRef(false);
 
-    const createDirtySnapshot = (): DirtySnapshot => ({
+    const createDirtySnapshot = useCallback((): DirtySnapshot => ({
         title: formData.title,
         subtitle: formData.subtitle,
         url: formData.url,
@@ -103,7 +122,24 @@ const EditPostEditor = ({ username, postUrl }: EditPostEditorProps) => {
         seriesUrl: selectedSeries.url,
         imagePreview,
         imageDeleted
-    });
+    }), [formData, tags, selectedSeries.url, imagePreview, imageDeleted]);
+
+    const createRecoverySnapshot = useCallback((): PostEditRecoverySnapshot => ({
+        title: formData.title,
+        subtitle: formData.subtitle,
+        content: formData.content,
+        metaDescription: formData.metaDescription,
+        hide: formData.hide,
+        advertise: formData.advertise,
+        allowComments: formData.allowComments,
+        coverLayout: formData.coverLayout,
+        coverImagePosition: formData.coverImagePosition,
+        coverImageRatio: formData.coverImageRatio,
+        reservedDate: formData.reservedDate,
+        tags,
+        seriesUrl: selectedSeries.url,
+        imageDeleted
+    }), [formData, tags, selectedSeries.url, imageDeleted]);
 
     // Fetch data
     useEffect(() => {
@@ -126,7 +162,7 @@ const EditPostEditor = ({ username, postUrl }: EditPostEditorProps) => {
                 if (postResponse.status === 'DONE') {
                     const postData = postResponse.body;
                     const reservedDate = postData.isScheduled ? toDateTimeLocalValue(postData.publishedDate) : '';
-                    setFormData({
+                    const initialFormData = {
                         title: postData.title || '',
                         subtitle: postData.subtitle || '',
                         url: postData.url || '',
@@ -139,33 +175,56 @@ const EditPostEditor = ({ username, postUrl }: EditPostEditorProps) => {
                         coverImagePosition: postData.coverImagePosition || 'right',
                         coverImageRatio: postData.coverImageRatio || 'auto',
                         reservedDate
-                    });
-                    setIsScheduledPost(Boolean(postData.isScheduled));
-                    setTags(postData.tags || []);
-                    initialDataRef.current = {
-                        title: postData.title || '',
-                        subtitle: postData.subtitle || '',
-                        url: postData.url || '',
-                        content: postData.contentHtml || '',
-                        metaDescription: postData.description || '',
-                        hide: postData.isHide || false,
-                        advertise: postData.isAdvertise || false,
-                        allowComments: !(postData.blockComment ?? false),
-                        coverLayout: postData.coverLayout || 'default',
-                        coverImagePosition: postData.coverImagePosition || 'right',
-                        coverImageRatio: postData.coverImageRatio || 'auto',
-                        reservedDate,
-                        tags: postData.tags || [],
-                        seriesUrl: postData.series?.url || '',
-                        imagePreview: postData.image || null,
-                        imageDeleted: false
                     };
-                    setImagePreview(postData.image || null);
-                    setSelectedSeries({
+                    const initialTags = postData.tags || [];
+                    const initialSeries = {
                         id: postData.series?.id || '',
                         name: postData.series?.name || '',
                         url: postData.series?.url || ''
-                    });
+                    };
+                    const initialImagePreview = postData.image || null;
+                    const initialRecoverySnapshot: PostEditRecoverySnapshot = {
+                        title: initialFormData.title,
+                        subtitle: initialFormData.subtitle,
+                        content: initialFormData.content,
+                        metaDescription: initialFormData.metaDescription,
+                        hide: initialFormData.hide,
+                        advertise: initialFormData.advertise,
+                        allowComments: initialFormData.allowComments,
+                        coverLayout: initialFormData.coverLayout,
+                        coverImagePosition: initialFormData.coverImagePosition,
+                        coverImageRatio: initialFormData.coverImageRatio,
+                        reservedDate,
+                        tags: initialTags,
+                        seriesUrl: initialSeries.url,
+                        imageDeleted: false
+                    };
+                    const baseRevision = postData.updatedDate
+                        || JSON.stringify(initialRecoverySnapshot);
+
+                    setFormData(initialFormData);
+                    setIsScheduledPost(Boolean(postData.isScheduled));
+                    setTags(initialTags);
+                    initialDataRef.current = {
+                        ...initialFormData,
+                        tags: initialTags,
+                        seriesUrl: initialSeries.url,
+                        imagePreview: initialImagePreview,
+                        imageDeleted: false
+                    };
+                    initialRecoverySnapshotRef.current = initialRecoverySnapshot;
+                    baseRevisionRef.current = baseRevision;
+                    initialImagePreviewRef.current = initialImagePreview;
+                    initialSeriesRef.current = initialSeries;
+                    setImagePreview(initialImagePreview);
+                    setSelectedSeries(initialSeries);
+                    setAvailableRecovery(readPostEditRecovery({
+                        username,
+                        postUrl,
+                        baseRevision,
+                        baseline: initialRecoverySnapshot
+                    }));
+                    setImageDeleted(false);
                 }
             } catch {
                 toast.error('데이터를 불러오는데 실패했습니다.');
@@ -177,14 +236,60 @@ const EditPostEditor = ({ username, postUrl }: EditPostEditorProps) => {
         fetchData();
     }, [username, postUrl]);
 
-    const hasUnsavedChanges = () => {
+    const hasUnsavedChanges = useCallback(() => {
         if (!initialDataRef.current) return false;
         return JSON.stringify(createDirtySnapshot()) !== JSON.stringify(initialDataRef.current);
-    };
+    }, [createDirtySnapshot]);
 
     const hasReservedDateChanged = () => {
         return formData.reservedDate !== (initialDataRef.current?.reservedDate || '');
     };
+
+    const persistRecovery = useCallback(() => {
+        const baseline = initialRecoverySnapshotRef.current;
+        const baseRevision = baseRevisionRef.current;
+        if (isLoading || availableRecovery || !baseline || !baseRevision) return;
+
+        const snapshot = createRecoverySnapshot();
+        if (postEditRecoverySnapshotsMatch(snapshot, baseline)) {
+            clearPostEditRecovery({
+                username,
+                postUrl
+            });
+            return;
+        }
+
+        writePostEditRecovery({
+            username,
+            postUrl,
+            baseRevision,
+            snapshot
+        });
+    }, [isLoading, availableRecovery, createRecoverySnapshot, username, postUrl]);
+
+    useEffect(() => {
+        const baseline = initialRecoverySnapshotRef.current;
+        if (isLoading || availableRecovery || !baseline || !baseRevisionRef.current) return;
+
+        const snapshot = createRecoverySnapshot();
+        if (postEditRecoverySnapshotsMatch(snapshot, baseline)) {
+            clearPostEditRecovery({
+                username,
+                postUrl
+            });
+            return;
+        }
+
+        const timeoutId = window.setTimeout(persistRecovery, 1000);
+        return () => window.clearTimeout(timeoutId);
+    }, [
+        isLoading,
+        availableRecovery,
+        createRecoverySnapshot,
+        persistRecovery,
+        username,
+        postUrl
+    ]);
 
     // Warn on page unload if there are unsaved changes
     useEffect(() => {
@@ -193,13 +298,83 @@ const EditPostEditor = ({ username, postUrl }: EditPostEditorProps) => {
                 return;
             }
 
+            persistRecovery();
             if (hasUnsavedChanges()) {
                 e.preventDefault();
             }
         };
+        const handlePageHide = () => {
+            if (!isIntentionalSubmitRef.current) {
+                persistRecovery();
+            }
+        };
         window.addEventListener('beforeunload', handleBeforeUnload);
-        return () => window.removeEventListener('beforeunload', handleBeforeUnload);
-    });
+        window.addEventListener('pagehide', handlePageHide);
+        return () => {
+            window.removeEventListener('beforeunload', handleBeforeUnload);
+            window.removeEventListener('pagehide', handlePageHide);
+        };
+    }, [hasUnsavedChanges, persistRecovery]);
+
+    const handleRecoverEdit = () => {
+        if (!availableRecovery) return;
+
+        const recovery = availableRecovery.snapshot;
+        setFormData(prev => ({
+            ...prev,
+            title: recovery.title,
+            subtitle: recovery.subtitle,
+            content: recovery.content,
+            metaDescription: recovery.metaDescription,
+            hide: recovery.hide,
+            advertise: recovery.advertise,
+            allowComments: recovery.allowComments,
+            coverLayout: recovery.coverLayout,
+            coverImagePosition: recovery.coverImagePosition,
+            coverImageRatio: recovery.coverImageRatio,
+            reservedDate: recovery.reservedDate
+        }));
+        setTags([...recovery.tags]);
+
+        const recoveredSeries = seriesList.find(series => series.url === recovery.seriesUrl);
+        const initialSeries = initialSeriesRef.current;
+        setSelectedSeries(
+            recoveredSeries
+            || (initialSeries.url === recovery.seriesUrl ? initialSeries : {
+                id: '',
+                name: '',
+                url: ''
+            })
+        );
+
+        const imageInput = formRef.current?.querySelector<HTMLInputElement>('input[name="image"]');
+        if (imageInput) imageInput.value = '';
+        setImagePreview(recovery.imageDeleted ? null : initialImagePreviewRef.current);
+        setImageDeleted(recovery.imageDeleted);
+        setAvailableRecovery(null);
+        setRecoveryEditorRevision(revision => revision + 1);
+        toast.success('백업 내용을 복구했습니다. 수정 버튼을 눌러 저장해주세요.');
+    };
+
+    const handleDiscardRecovery = async () => {
+        if (!availableRecovery) return;
+
+        const confirmed = await confirm({
+            title: '수정 백업 삭제',
+            message: '복구하지 않은 수정 내용이 이 브라우저에서 삭제됩니다.',
+            confirmText: '백업 삭제',
+            cancelText: '취소',
+            variant: 'danger'
+        });
+        if (!confirmed) return;
+
+        clearPostEditRecovery({
+            username,
+            postUrl
+        });
+        setAvailableRecovery(null);
+        toast.info('수정 백업을 삭제했습니다.');
+    };
 
     const handleTitleChange = (title: string) => {
         setFormData(prev => ({
@@ -267,6 +442,10 @@ const EditPostEditor = ({ username, postUrl }: EditPostEditorProps) => {
     };
 
     const submitCurrentPost = async () => {
+        if (availableRecovery) {
+            toast.warning('수정 백업을 먼저 복구하거나 삭제해주세요.');
+            return;
+        }
         if (!hasUnsavedChanges() || isSubmitLockedRef.current) return;
         if (!validateForm()) return;
 
@@ -321,6 +500,10 @@ const EditPostEditor = ({ username, postUrl }: EditPostEditorProps) => {
                 return;
             }
 
+            clearPostEditRecovery({
+                username,
+                postUrl
+            });
             isIntentionalSubmitRef.current = true;
             window.location.assign(data.body.url);
         } catch {
@@ -364,6 +547,11 @@ const EditPostEditor = ({ username, postUrl }: EditPostEditorProps) => {
     };
 
     const canRunScheduleAction = () => {
+        if (availableRecovery) {
+            toast.warning('수정 백업을 먼저 복구하거나 삭제해주세요.');
+            return false;
+        }
+
         if (hasUnsavedChanges()) {
             toast.warning('변경 사항을 먼저 수정한 뒤 예약 상태를 변경해주세요.');
             return false;
@@ -396,6 +584,10 @@ const EditPostEditor = ({ username, postUrl }: EditPostEditorProps) => {
                 return;
             }
 
+            clearPostEditRecovery({
+                username,
+                postUrl
+            });
             isIntentionalSubmitRef.current = true;
             window.location.assign(`/write?draft=${encodeURIComponent(data.body.url)}`);
         } catch {
@@ -427,6 +619,10 @@ const EditPostEditor = ({ username, postUrl }: EditPostEditorProps) => {
                 return;
             }
 
+            clearPostEditRecovery({
+                username,
+                postUrl
+            });
             isIntentionalSubmitRef.current = true;
             window.location.assign(`/@${encodeURIComponent(username)}/${encodeURIComponent(data.body.url)}`);
         } catch {
@@ -452,7 +648,16 @@ const EditPostEditor = ({ username, postUrl }: EditPostEditorProps) => {
 
     return (
         <PostEditorWrapper>
+            {availableRecovery && (
+                <EditRecoveryNotice
+                    recovery={availableRecovery}
+                    onRecover={handleRecoverEdit}
+                    onDiscard={handleDiscardRecovery}
+                />
+            )}
+
             <PostForm
+                key={recoveryEditorRevision}
                 beforeContent={<ScheduleStatusNotice value={isScheduledPost ? formData.reservedDate : ''} />}
                 formRef={formRef}
                 isLoading={false}
@@ -480,7 +685,7 @@ const EditPostEditor = ({ username, postUrl }: EditPostEditorProps) => {
                 isSaving={false}
                 isSubmitting={isSubmitting}
                 isMediaUploading={isEditorMediaUploading}
-                isSubmitDisabled={!hasUnsavedChanges()}
+                isSubmitDisabled={Boolean(availableRecovery) || !hasUnsavedChanges()}
                 lastSaved={null}
                 onManualSave={() => { }}
                 onSubmit={() => handleSubmit()}

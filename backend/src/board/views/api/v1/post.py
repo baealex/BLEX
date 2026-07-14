@@ -86,6 +86,7 @@ def user_posts(request, username, url=None):
                     'url': post.url,
                     'description': post.meta_description,
                     'published_date': post.published_date.isoformat() if post.published_date else None,
+                    'updated_date': post.updated_date.isoformat(),
                     'is_scheduled': bool(post.published_date and post.published_date > timezone.now()),
                     'series': {
                         'id': str(post.series.id),
