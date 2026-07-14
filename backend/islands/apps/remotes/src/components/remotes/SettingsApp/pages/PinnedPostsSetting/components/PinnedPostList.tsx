@@ -61,7 +61,6 @@ export const PinnedPostList = ({
             <SettingsEmptyState
                 iconClassName="fas fa-thumbtack"
                 title="고정된 포스트가 없습니다"
-                description="프로필에 표시할 대표 포스트를 선택해보세요."
             />
         );
     }

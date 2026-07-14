@@ -142,7 +142,7 @@ const BannerSettingBase = ({ scope }: BannerSettingBaseProps) => {
                 description={
                     isGlobal
                         ? '사이트 전체에 표시되는 전역 배너를 관리합니다. 드래그하여 순서를 변경할 수 있습니다.'
-                        : '블로그의 상단, 하단, 사이드바에 표시될 배너를 관리합니다. 드래그하여 순서를 변경할 수 있습니다.'
+                        : '상단·하단·사이드바에 표시되며 드래그하여 순서를 조정할 수 있습니다.'
                 }
                 actionPosition="right"
                 action={
@@ -180,7 +180,7 @@ const BannerSettingBase = ({ scope }: BannerSettingBaseProps) => {
                 <SettingsEmptyState
                     iconClassName={isGlobal ? 'fas fa-rectangle-ad' : 'fas fa-shapes'}
                     title={isGlobal ? '등록된 전역 배너가 없습니다' : '등록된 배너가 없습니다'}
-                    description={isGlobal ? '첫 번째 전역 배너를 만들어보세요.' : '첫 번째 배너를 만들어보세요.'}
+                    description={isGlobal ? '첫 번째 전역 배너를 만들어보세요.' : undefined}
                 />
             )}
         </div>

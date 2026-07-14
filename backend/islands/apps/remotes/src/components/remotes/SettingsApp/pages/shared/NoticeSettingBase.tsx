@@ -211,7 +211,7 @@ const NoticeSettingBase = ({ scope }: NoticeSettingBaseProps) => {
                 description={
                     isGlobal
                         ? '사이트 전체에 표시되는 전역 공지를 관리합니다.'
-                        : '블로그에 표시되는 공지를 관리합니다.'
+                        : undefined
                 }
                 actionPosition="right"
                 action={
@@ -343,7 +343,7 @@ const NoticeSettingBase = ({ scope }: NoticeSettingBaseProps) => {
                 <SettingsEmptyState
                     iconClassName="fas fa-bullhorn"
                     title="등록된 공지가 없습니다"
-                    description="첫 번째 공지를 만들어보세요."
+                    description={isGlobal ? '첫 번째 전역 공지를 만들어보세요.' : undefined}
                 />
             )}
         </div>

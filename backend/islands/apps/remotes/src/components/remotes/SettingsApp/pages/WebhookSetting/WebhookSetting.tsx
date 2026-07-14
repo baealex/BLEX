@@ -14,7 +14,6 @@ const WebhookSetting = () => {
             description="내가 발행한 새 포스트를 Discord, Slack 또는 일반 웹훅 URL로 전송합니다."
             formTitle="새 웹훅 추가"
             emptyTitle="등록된 웹훅이 없습니다"
-            emptyDescription="전송 대상을 추가해서 내 포스트 발행 알림을 받아보세요."
             fetchChannels={getWebhookChannels}
             createChannel={addWebhookChannel}
             deleteChannel={deleteWebhookChannel}

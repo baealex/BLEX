@@ -92,7 +92,6 @@ const PostsSetting = () => {
         <div>
             <SettingsHeader
                 title={title}
-                description="발행, 예약, 임시 포스트를 관리하세요."
                 actionPosition="right"
                 action={
                     <Button

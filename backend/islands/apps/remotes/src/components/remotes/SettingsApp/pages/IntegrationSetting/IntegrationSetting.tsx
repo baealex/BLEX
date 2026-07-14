@@ -104,7 +104,6 @@ const IntegrationSettings = () => {
             {isConnected ? (
                 <Card
                     title="연동 상태"
-                    subtitle={isConfigured ? '현재 텔레그램 연동 상태입니다.' : '텔레그램 연결은 유지되어 있습니다.'}
                     icon={<i className="fas fa-plug" />}>
                     <div className="flex flex-col sm:flex-row sm:items-center gap-4">
                         <div className="flex items-center gap-4 flex-1">
@@ -136,7 +135,6 @@ const IntegrationSettings = () => {
             ) : (
                 <Card
                     title="연동 방법"
-                    subtitle="아래 순서대로 진행하면 텔레그램 연동을 완료할 수 있습니다."
                     icon={<i className="fas fa-link" />}>
                     <div className="space-y-6">
                         <div className="flex items-start gap-3">

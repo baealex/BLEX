@@ -351,7 +351,7 @@ const SocialLinks = () => {
         <div>
             <SettingsHeader
                 title="소셜 링크"
-                description="프로필에 표시될 소셜 미디어 링크를 추가하고 순서를 조정하세요."
+                description="프로필에 표시되며 드래그하여 순서를 조정할 수 있습니다."
             />
 
             <form onSubmit={handleSubmit}>
@@ -360,7 +360,6 @@ const SocialLinks = () => {
                         <SettingsEmptyState
                             iconClassName="fas fa-share-alt"
                             title="소셜 링크가 없습니다"
-                            description="첫 번째 소셜 링크를 추가해보세요."
                             action={(
                                 <Button type="button" variant="secondary" size="md" onClick={handleSocialAdd}>
                                     소셜 링크 추가하기

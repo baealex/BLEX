@@ -211,7 +211,7 @@ const SeriesSetting = () => {
         <div>
             <SettingsHeader
                 title={`시리즈 (${series.length})`}
-                description="드래그하여 시리즈 순서를 조정하거나 새로운 시리즈를 만들어보세요."
+                description="드래그하여 표시 순서를 조정할 수 있습니다."
                 actionPosition="right"
                 action={
                     <Button
@@ -251,7 +251,6 @@ const SeriesSetting = () => {
                 <SettingsEmptyState
                     iconClassName="fas fa-book"
                     title="시리즈가 없습니다"
-                    description="첫 번째 시리즈를 만들어보세요."
                 />
             )}
         </div>
