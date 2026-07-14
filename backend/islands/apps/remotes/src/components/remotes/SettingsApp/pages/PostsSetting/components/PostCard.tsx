@@ -122,6 +122,8 @@ const PostCard = ({
                     {/* 액션 */}
                     <div className="flex-shrink-0 self-center" onClick={(e) => e.stopPropagation()}>
                         <Dropdown
+                            triggerAriaLabel={`${post.title} 포스트 메뉴 열기`}
+                            triggerClassName="min-h-11 min-w-11"
                             items={[
                                 {
                                     label: '포스트 편집',
@@ -151,7 +153,7 @@ const PostCard = ({
                     title="태그/시리즈 편집"
                     aria-label={isMetaEditorOpen ? '태그 및 시리즈 편집 닫기' : '태그 및 시리즈 편집 열기'}
                     onClick={() => setIsMetaEditorOpen(prev => !prev)}
-                    className="inline-flex items-center gap-2 rounded-lg px-2.5 py-1.5 text-content-secondary hover:text-content hover:bg-surface-subtle transition-colors">
+                    className="inline-flex min-h-11 items-center gap-2 rounded-lg px-2.5 py-1.5 text-content-secondary hover:text-content hover:bg-surface-subtle transition-colors">
                     <i className="fas fa-sliders-h text-xs" />
                     <span className="inline-flex items-center gap-2">
                         {hasPendingChanges && (
@@ -183,6 +185,7 @@ const PostCard = ({
                             <Button
                                 variant="primary"
                                 size="md"
+                                className="min-h-11!"
                                 leftIcon={<i className="fas fa-save" />}
                                 onClick={() => onTagSubmit(post.url)}>
                                 저장
@@ -216,6 +219,7 @@ const PostCard = ({
                             <Button
                                 variant="primary"
                                 size="md"
+                                className="min-h-11!"
                                 leftIcon={<i className="fas fa-save" />}
                                 onClick={() => onSeriesSubmit(post.url)}>
                                 저장

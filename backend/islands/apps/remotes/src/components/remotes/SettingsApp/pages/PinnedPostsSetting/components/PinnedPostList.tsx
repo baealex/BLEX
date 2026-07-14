@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react';
 import {
     DndContext,
     closestCenter,
@@ -25,13 +26,15 @@ interface PinnedPostListProps {
     onReorder: (newPinnedPosts: PinnedPostData[]) => void;
     onRemove: (postUrl: string) => void;
     maxCount: number;
+    emptyAction?: ReactNode;
 }
 
 export const PinnedPostList = ({
     pinnedPosts,
     username,
     onReorder,
-    onRemove
+    onRemove,
+    emptyAction
 }: PinnedPostListProps) => {
     const sensors = useSensors(
         useSensor(PointerSensor, { activationConstraint: { distance: 8 } }),
@@ -61,6 +64,7 @@ export const PinnedPostList = ({
             <SettingsEmptyState
                 iconClassName="fas fa-thumbtack"
                 title="고정된 포스트가 없습니다"
+                action={emptyAction}
             />
         );
     }

@@ -52,7 +52,8 @@ export const PinnedPostItem = ({
                 onClick={handleView}
                 dragHandleProps={{
                     attributes,
-                    listeners
+                    listeners,
+                    ariaLabel: `${pinnedPost.post.title} 고정 포스트 순서 변경`
                 }}
                 left={
                     pinnedPost.post.image ? (
@@ -73,6 +74,7 @@ export const PinnedPostItem = ({
                     <Button
                         variant="secondary"
                         size="sm"
+                        className="min-h-11!"
                         onClick={handleRemove}>
                         해제
                     </Button>

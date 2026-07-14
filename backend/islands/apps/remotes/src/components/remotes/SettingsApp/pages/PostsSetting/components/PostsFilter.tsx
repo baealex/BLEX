@@ -7,6 +7,7 @@ import type { Tag, Series } from '~/lib/api/settings';
 interface PostsFilterProps {
     filters: FilterOptions;
     isExpanded: boolean;
+    showClearAction?: boolean;
     onExpandToggle: () => void;
     onFilterChange: (key: keyof FilterOptions, value: string) => void;
     onSearchChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
@@ -22,6 +23,7 @@ const hasActiveFilters = (filters: FilterOptions) => {
 const PostsFilter = ({
     filters,
     isExpanded,
+    showClearAction = true,
     onExpandToggle,
     onFilterChange,
     onSearchChange,
@@ -32,10 +34,13 @@ const PostsFilter = ({
     return (
         <div className="mb-6">
             {/* 필터 헤더 */}
-            <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center justify-between gap-3 mb-4">
                 <button
+                    type="button"
                     onClick={onExpandToggle}
-                    className="flex items-center gap-2 text-lg font-semibold text-content hover:text-content transition-colors">
+                    aria-expanded={isExpanded}
+                    aria-controls="posts-filter-controls"
+                    className="flex min-h-11 items-center gap-2 text-lg font-semibold text-content hover:text-content transition-colors">
                     <i className={`fas fa-chevron-${isExpanded ? 'down' : 'right'} text-sm`} />
                     <i className="fas fa-filter" />
                     <span>필터 및 검색</span>
@@ -45,10 +50,11 @@ const PostsFilter = ({
                         </span>
                     )}
                 </button>
-                {hasActiveFilters(filters) && (
+                {showClearAction && hasActiveFilters(filters) && (
                     <Button
                         variant="secondary"
                         size="sm"
+                        className="min-h-11! flex-shrink-0"
                         leftIcon={<i className="fas fa-times" />}
                         onClick={onClearFilters}>
                         필터 초기화
@@ -60,45 +66,53 @@ const PostsFilter = ({
             {hasActiveFilters(filters) && (
                 <div className="flex flex-wrap gap-2 mb-4">
                     {filters.search && (
-                        <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-surface-subtle text-content rounded-lg text-sm">
+                        <div className="inline-flex min-h-11 items-center gap-2 rounded-lg bg-surface-subtle pl-3 text-sm text-content">
                             <i className="fas fa-search text-xs" />
                             <span>검색: {filters.search}</span>
                             <button
+                                type="button"
+                                aria-label="검색 필터 제거"
                                 onClick={() => onFilterChange('search', '')}
-                                className="hover:text-content">
+                                className="inline-flex min-h-11 min-w-11 items-center justify-center rounded-lg text-content-secondary hover:bg-surface hover:text-content">
                                 <i className="fas fa-times text-xs" />
                             </button>
                         </div>
                     )}
                     {filters.tag && (
-                        <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-surface-subtle text-content rounded-lg text-sm">
+                        <div className="inline-flex min-h-11 items-center gap-2 rounded-lg bg-surface-subtle pl-3 text-sm text-content">
                             <i className="fas fa-tag text-xs" />
                             <span>{filters.tag}</span>
                             <button
+                                type="button"
+                                aria-label={`${filters.tag} 태그 필터 제거`}
                                 onClick={() => onFilterChange('tag', '')}
-                                className="hover:text-content">
+                                className="inline-flex min-h-11 min-w-11 items-center justify-center rounded-lg text-content-secondary hover:bg-surface hover:text-content">
                                 <i className="fas fa-times text-xs" />
                             </button>
                         </div>
                     )}
                     {filters.series && (
-                        <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-surface-subtle text-content rounded-lg text-sm">
+                        <div className="inline-flex min-h-11 items-center gap-2 rounded-lg bg-surface-subtle pl-3 text-sm text-content">
                             <i className="fas fa-book text-xs" />
                             <span>{series?.find((s) => s.url === filters.series)?.title}</span>
                             <button
+                                type="button"
+                                aria-label="시리즈 필터 제거"
                                 onClick={() => onFilterChange('series', '')}
-                                className="hover:text-content">
+                                className="inline-flex min-h-11 min-w-11 items-center justify-center rounded-lg text-content-secondary hover:bg-surface hover:text-content">
                                 <i className="fas fa-times text-xs" />
                             </button>
                         </div>
                     )}
                     {filters.visibility && (
-                        <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-surface-subtle text-content rounded-lg text-sm">
+                        <div className="inline-flex min-h-11 items-center gap-2 rounded-lg bg-surface-subtle pl-3 text-sm text-content">
                             <i className={`fas ${filters.visibility === 'public' ? 'fa-eye' : 'fa-eye-slash'} text-xs`} />
                             <span>{filters.visibility === 'public' ? '공개' : '숨김'}</span>
                             <button
+                                type="button"
+                                aria-label="공개 상태 필터 제거"
                                 onClick={() => onFilterChange('visibility', '')}
-                                className="hover:text-content">
+                                className="inline-flex min-h-11 min-w-11 items-center justify-center rounded-lg text-content-secondary hover:bg-surface hover:text-content">
                                 <i className="fas fa-times text-xs" />
                             </button>
                         </div>
@@ -108,7 +122,7 @@ const PostsFilter = ({
 
             {/* 필터 컨트롤 */}
             {isExpanded && (
-                <div className="p-6 bg-surface-subtle border border-line rounded-2xl">
+                <div id="posts-filter-controls" className="p-6 bg-surface-subtle border border-line rounded-2xl">
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">
                         <Input
                             type="text"
@@ -123,7 +137,10 @@ const PostsFilter = ({
                         <Dropdown
                             align="left"
                             trigger={
-                                <button className={`${settingsSelectTriggerStyles} flex items-center justify-between text-left`}>
+                                <button
+                                    type="button"
+                                    aria-label="포스트 정렬 방식 선택"
+                                    className={`${settingsSelectTriggerStyles} flex items-center justify-between text-left`}>
                                     <span className="text-content font-medium">
                                         {POSTS_ORDER.find(o => o.order === filters.order)?.name || '정렬 방식'}
                                     </span>
@@ -143,7 +160,10 @@ const PostsFilter = ({
                         <Dropdown
                             align="left"
                             trigger={
-                                <button className={`${settingsSelectTriggerStyles} flex items-center justify-between text-left`}>
+                                <button
+                                    type="button"
+                                    aria-label="태그 필터 선택"
+                                    className={`${settingsSelectTriggerStyles} flex items-center justify-between text-left`}>
                                     <span className={filters.tag ? 'text-content font-medium' : 'text-content-hint'}>
                                         {filters.tag || '태그'}
                                     </span>
@@ -168,7 +188,10 @@ const PostsFilter = ({
                         <Dropdown
                             align="left"
                             trigger={
-                                <button className={`${settingsSelectTriggerStyles} flex items-center justify-between text-left`}>
+                                <button
+                                    type="button"
+                                    aria-label="시리즈 필터 선택"
+                                    className={`${settingsSelectTriggerStyles} flex items-center justify-between text-left`}>
                                     <span className={filters.series ? 'text-content font-medium' : 'text-content-hint'}>
                                         {series?.find((s) => s.url === filters.series)?.title || '시리즈'}
                                     </span>
@@ -193,7 +216,10 @@ const PostsFilter = ({
                         <Dropdown
                             align="left"
                             trigger={
-                                <button className={`${settingsSelectTriggerStyles} flex items-center justify-between text-left`}>
+                                <button
+                                    type="button"
+                                    aria-label="공개 상태 필터 선택"
+                                    className={`${settingsSelectTriggerStyles} flex items-center justify-between text-left`}>
                                     <span className={filters.visibility ? 'text-content font-medium' : 'text-content-hint'}>
                                         {filters.visibility === 'public' ? '공개' : filters.visibility === 'hidden' ? '숨김' : '공개 상태'}
                                     </span>

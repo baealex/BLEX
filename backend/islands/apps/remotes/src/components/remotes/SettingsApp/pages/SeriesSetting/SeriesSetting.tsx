@@ -83,7 +83,8 @@ const SortableSeriesItem = ({ series, username, onEdit, onDelete }: SortableSeri
                 onClick={handleView}
                 dragHandleProps={{
                     attributes,
-                    listeners
+                    listeners,
+                    ariaLabel: `${series.title} 시리즈 순서 변경`
                 }}
                 left={
                     <div className={getSettingsIconClass('default')}>
@@ -92,6 +93,8 @@ const SortableSeriesItem = ({ series, username, onEdit, onDelete }: SortableSeri
                 }
                 actions={
                     <Dropdown
+                        triggerAriaLabel={`${series.title} 시리즈 메뉴 열기`}
+                        triggerClassName="min-h-11 min-w-11"
                         items={[
                             {
                                 label: '시리즈 편집',
@@ -207,21 +210,23 @@ const SeriesSetting = () => {
         }
     };
 
+    const createAction = (
+        <Button
+            variant="primary"
+            size="md"
+            className="min-h-11! w-full sm:w-auto"
+            onClick={handleCreateSeries}>
+            새 시리즈 생성
+        </Button>
+    );
+
     return (
         <div>
             <SettingsHeader
                 title={`시리즈 (${series.length})`}
                 description="드래그하여 표시 순서를 조정할 수 있습니다."
                 actionPosition="right"
-                action={
-                    <Button
-                        variant="primary"
-                        size="md"
-                        className="w-full sm:w-auto"
-                        onClick={handleCreateSeries}>
-                        새 시리즈 생성
-                    </Button>
-                }
+                action={series.length > 0 ? createAction : undefined}
             />
 
             {/* Series list */}
@@ -251,6 +256,7 @@ const SeriesSetting = () => {
                 <SettingsEmptyState
                     iconClassName="fas fa-book"
                     title="시리즈가 없습니다"
+                    action={createAction}
                 />
             )}
         </div>

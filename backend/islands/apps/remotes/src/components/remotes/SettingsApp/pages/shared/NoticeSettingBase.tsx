@@ -203,6 +203,15 @@ const NoticeSettingBase = ({ scope }: NoticeSettingBaseProps) => {
     };
 
     const isSubmitting = createMutation.isPending || updateMutation.isPending;
+    const createAction = (
+        <Button
+            onClick={handleCreate}
+            variant="primary"
+            size="md"
+            className="min-h-11! w-full sm:w-auto">
+            새 공지 추가
+        </Button>
+    );
 
     return (
         <div className="space-y-8">
@@ -214,15 +223,7 @@ const NoticeSettingBase = ({ scope }: NoticeSettingBaseProps) => {
                         : undefined
                 }
                 actionPosition="right"
-                action={
-                    <Button
-                        onClick={handleCreate}
-                        variant="primary"
-                        size="md"
-                        className="w-full sm:w-auto">
-                        새 공지 추가
-                    </Button>
-                }
+                action={noticesData && noticesData.length > 0 ? createAction : undefined}
             />
 
             {showForm && (
@@ -282,6 +283,7 @@ const NoticeSettingBase = ({ scope }: NoticeSettingBaseProps) => {
                                 type="button"
                                 variant="ghost"
                                 size="md"
+                                className="min-h-11!"
                                 onClick={closeForm}
                                 disabled={isSubmitting}>
                                 취소
@@ -291,6 +293,7 @@ const NoticeSettingBase = ({ scope }: NoticeSettingBaseProps) => {
                                     type="submit"
                                     variant="primary"
                                     size="md"
+                                    className="min-h-11!"
                                     isLoading={isSubmitting}>
                                     {isSubmitting ? '저장 중...' : editingNotice ? `${noticeLabel} 수정` : `${noticeLabel} 생성`}
                                 </Button>
@@ -307,6 +310,8 @@ const NoticeSettingBase = ({ scope }: NoticeSettingBaseProps) => {
                             key={notice.id}
                             actions={
                                 <Dropdown
+                                    triggerAriaLabel={`${notice.title} ${noticeLabel} 메뉴 열기`}
+                                    triggerClassName="min-h-11 min-w-11"
                                     items={[
                                         {
                                             label: notice.isActive ? '비활성화' : '활성화',
@@ -339,13 +344,13 @@ const NoticeSettingBase = ({ scope }: NoticeSettingBaseProps) => {
                         </SettingsListItem>
                     ))}
                 </div>
-            ) : (
+            ) : !showForm ? (
                 <SettingsEmptyState
                     iconClassName="fas fa-bullhorn"
                     title="등록된 공지가 없습니다"
-                    description={isGlobal ? '첫 번째 전역 공지를 만들어보세요.' : undefined}
+                    action={createAction}
                 />
-            )}
+            ) : null}
         </div>
     );
 };

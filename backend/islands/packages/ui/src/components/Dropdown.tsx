@@ -14,10 +14,18 @@ interface DropdownItem {
 interface DropdownProps {
     items: DropdownItem[];
     trigger?: ReactNode;
+    triggerAriaLabel?: string;
+    triggerClassName?: string;
     align?: 'start' | 'end' | 'center' | 'left' | 'right';
 }
 
-const Dropdown = ({ items, trigger, align = 'end' }: DropdownProps) => {
+const Dropdown = ({
+    items,
+    trigger,
+    triggerAriaLabel = '메뉴 열기',
+    triggerClassName = '',
+    align = 'end'
+}: DropdownProps) => {
     const [open, setOpen] = useState(false);
 
     const alignProp: 'start' | 'end' | 'center' =
@@ -35,8 +43,8 @@ const Dropdown = ({ items, trigger, align = 'end' }: DropdownProps) => {
                     trigger
                 ) : (
                     <button
-                        className="p-2 text-content-secondary hover:text-content hover:bg-surface-subtle rounded-lg transition-colors outline-none"
-                        aria-label="메뉴 열기">
+                        className={`p-2 text-content-secondary hover:text-content hover:bg-surface-subtle rounded-lg transition-colors outline-none ${triggerClassName}`}
+                        aria-label={triggerAriaLabel}>
                         <i className="fas fa-ellipsis-v" />
                     </button>
                 )}

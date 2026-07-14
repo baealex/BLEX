@@ -69,22 +69,24 @@ const StaticPagesSetting = () => {
         window.location.assign(`/static/${page.slug}`);
     };
 
+    const createAction = (
+        <Link to="/static-pages/create" className="block w-full sm:w-auto">
+            <Button
+                variant="primary"
+                size="md"
+                className="min-h-11! w-full sm:w-auto">
+                새 페이지 추가
+            </Button>
+        </Link>
+    );
+
     return (
         <div className="space-y-8">
             <SettingsHeader
                 title={`정적 페이지 (${pagesData?.length || 0})`}
                 description="사이트의 정적 페이지를 관리합니다. 이용약관, 개인정보처리방침 등을 만들 수 있습니다."
                 actionPosition="right"
-                action={
-                    <Link to="/static-pages/create">
-                        <Button
-                            variant="primary"
-                            size="md"
-                            className="w-full sm:w-auto">
-                            새 페이지 추가
-                        </Button>
-                    </Link>
-                }
+                action={pagesData && pagesData.length > 0 ? createAction : undefined}
             />
 
             {pagesData && pagesData.length > 0 ? (
@@ -98,7 +100,7 @@ const StaticPagesSetting = () => {
                 <SettingsEmptyState
                     iconClassName="fas fa-file-lines"
                     title="등록된 정적 페이지가 없습니다"
-                    description="첫 번째 정적 페이지를 만들어보세요."
+                    action={createAction}
                 />
             )}
         </div>

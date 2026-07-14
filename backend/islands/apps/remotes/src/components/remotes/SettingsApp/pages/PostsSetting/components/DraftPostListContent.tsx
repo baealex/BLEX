@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react';
 import { useEffect } from 'react';
 import { useSuspenseQuery } from '@tanstack/react-query';
 import { SettingsEmptyState, SettingsListItem } from '../../../components';
@@ -15,9 +16,13 @@ import { toast } from '~/utils/toast';
 
 interface DraftPostListContentProps {
     onCountChange?: (count: number) => void;
+    emptyAction?: ReactNode;
 }
 
-export const DraftPostListContent = ({ onCountChange }: DraftPostListContentProps) => {
+export const DraftPostListContent = ({
+    onCountChange,
+    emptyAction
+}: DraftPostListContentProps) => {
     const { confirm } = useConfirm();
     const { data: draftPosts, refetch } = useSuspenseQuery({
         queryKey: ['draft-posts'],
@@ -67,6 +72,7 @@ export const DraftPostListContent = ({ onCountChange }: DraftPostListContentProp
             <SettingsEmptyState
                 iconClassName="fas fa-file-alt"
                 title="임시 포스트가 없습니다"
+                action={emptyAction}
             />
         );
     }
@@ -95,6 +101,8 @@ export const DraftPostListContent = ({ onCountChange }: DraftPostListContentProp
                     }
                     actions={
                         <Dropdown
+                            triggerAriaLabel={`${draftPost.title || '제목 없음'} 임시 포스트 메뉴 열기`}
+                            triggerClassName="min-h-11 min-w-11"
                             items={[
                                 {
                                     label: '삭제',

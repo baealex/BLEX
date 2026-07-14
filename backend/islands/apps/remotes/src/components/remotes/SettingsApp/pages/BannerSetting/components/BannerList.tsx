@@ -76,10 +76,13 @@ const SortableBannerItem = ({ banner, onEdit, onDelete, onToggleActive }: Sortab
                 onClick={() => onEdit(banner.id)}
                 dragHandleProps={{
                     attributes,
-                    listeners
+                    listeners,
+                    ariaLabel: `${banner.title} 배너 순서 변경`
                 }}
                 actions={
                     <Dropdown
+                        triggerAriaLabel={`${banner.title} 배너 메뉴 열기`}
+                        triggerClassName="min-h-11 min-w-11"
                         items={[
                             {
                                 label: banner.isActive ? '비활성화' : '활성화',
