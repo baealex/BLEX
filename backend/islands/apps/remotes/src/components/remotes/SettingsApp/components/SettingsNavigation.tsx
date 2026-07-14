@@ -1,9 +1,9 @@
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { Link, useRouter } from '@tanstack/react-router';
 import { Dialog } from '@blex/ui/dialog';
+import { ChevronDown, Settings2, X } from '@blex/ui/icons';
 import {
     DIM_OVERLAY_SOFT,
-    FROSTED_SURFACE,
     ENTRANCE_DURATION,
     INTERACTION_DURATION
 } from '@blex/ui/design-tokens';
@@ -244,7 +244,15 @@ const normalizePath = (path: string, basePath: string) => {
     return normalized || '/';
 };
 
-const SettingsModeLink = ({ settingsMode, isStaff }: { settingsMode: SettingsMode; isStaff: boolean }) => {
+const SettingsModeLink = ({
+    settingsMode,
+    isStaff,
+    mobile = false
+}: {
+    settingsMode: SettingsMode;
+    isStaff: boolean;
+    mobile?: boolean;
+}) => {
     if (!isStaff) return null;
 
     const isAdminMode = settingsMode === 'admin';
@@ -255,7 +263,7 @@ const SettingsModeLink = ({ settingsMode, isStaff }: { settingsMode: SettingsMod
     return (
         <a
             href={href}
-            className={`inline-flex w-fit items-center gap-1.5 text-xs font-medium text-content-hint transition-colors ${INTERACTION_DURATION} hover:text-content-secondary`}>
+            className={`inline-flex items-center gap-1.5 font-medium text-content-hint transition-colors ${INTERACTION_DURATION} hover:text-content-secondary ${mobile ? 'min-h-11 rounded-xl px-3 text-sm hover:bg-surface-subtle' : 'w-fit text-xs'}`}>
             <i className={`fas ${icon} text-xs text-content-hint`} />
             <span>{label}</span>
             {!isAdminMode && (
@@ -267,6 +275,7 @@ const SettingsModeLink = ({ settingsMode, isStaff }: { settingsMode: SettingsMod
 
 export const SettingsMobileNavigation = ({ currentPath }: SettingsNavigationProps) => {
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+    const mobileMenuTriggerRef = useRef<HTMLButtonElement>(null);
     const router = useRouter();
     const {
         isEditor,
@@ -278,8 +287,22 @@ export const SettingsMobileNavigation = ({ currentPath }: SettingsNavigationProp
     } = router.options.context as SettingsRouterContext;
     const settingsLabel = settingsMode === 'admin' ? '관리자 설정' : '설정';
     const navigationSections = getNavigationSections(settingsMode);
+    const activeItem = navigationSections
+        .flatMap(section => section.items)
+        .filter(item => canShowItem(item, isEditor, isStaff, canUseTelegramIntegration))
+        .find(item => (
+            item.path !== 'admin'
+            && normalizePath(currentPath, basePath) === normalizePath(item.path, basePath)
+        ));
+    const activeItemName = activeItem?.name ?? settingsLabel;
+    const handleMobileMenuOpenChange = (open: boolean) => {
+        setMobileMenuOpen(open);
+        if (!open) {
+            window.requestAnimationFrame(() => mobileMenuTriggerRef.current?.focus());
+        }
+    };
     const handleNavClick = (item: NavigationItem) => {
-        setMobileMenuOpen(false);
+        handleMobileMenuOpenChange(false);
         if (item.path === 'admin' && adminUrl) {
             window.location.assign(adminUrl);
         }
@@ -289,7 +312,7 @@ export const SettingsMobileNavigation = ({ currentPath }: SettingsNavigationProp
         if (!canShowItem(item, isEditor, isStaff, canUseTelegramIntegration)) return null;
 
         const isActive = item.path !== 'admin' && normalizePath(currentPath, basePath) === normalizePath(item.path, basePath);
-        const baseClasses = `flex items-center px-4 py-3 rounded-xl transition-all ${INTERACTION_DURATION} active:scale-95 group`;
+        const baseClasses = `flex items-center px-4 py-3 rounded-xl transition-all ${INTERACTION_DURATION} active:scale-95 motion-reduce:transform-none motion-reduce:transition-none group`;
         const activeClasses = isActive
             ? 'bg-surface-subtle text-content font-bold'
             : 'text-content-secondary hover:bg-surface-subtle hover:text-content font-medium';
@@ -313,6 +336,7 @@ export const SettingsMobileNavigation = ({ currentPath }: SettingsNavigationProp
             <li key={item.path}>
                 <Link
                     to={item.path}
+                    aria-current={isActive ? 'page' : undefined}
                     className={`${baseClasses} ${activeClasses}`}
                     onClick={() => handleNavClick(item)}>
                     <i className={`fas ${item.icon} w-6 text-center mr-3 transition-colors ${iconClasses} group-hover:text-content-secondary`} />
@@ -341,56 +365,60 @@ export const SettingsMobileNavigation = ({ currentPath }: SettingsNavigationProp
     };
 
     return (
-        <div className="xl:hidden mb-6">
-            <div className={`${FROSTED_SURFACE} border-b border-line/80 px-4 py-3 flex items-center justify-between`}>
-                <Dialog.Root open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
-                    <Dialog.Trigger asChild>
-                        <button
-                            type="button"
-                            aria-label={`${settingsLabel} 메뉴 열기`}
-                            className={`w-11 h-11 flex items-center justify-center rounded-full hover:bg-action/5 active:bg-action/10 active:scale-95 transition-all ${INTERACTION_DURATION}`}>
-                            <i className="fas fa-bars text-content" />
-                        </button>
-                    </Dialog.Trigger>
-                    <Dialog.Portal>
-                        <Dialog.Overlay className={`fixed inset-0 ${DIM_OVERLAY_SOFT} z-40 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0`} />
-                        <Dialog.Content className={`fixed z-50 bg-surface shadow-2xl transition ease-in-out data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:slide-out-to-left data-[state=open]:slide-in-from-left ${ENTRANCE_DURATION} inset-y-0 left-0 h-full w-[280px] overflow-y-auto outline-none`}>
-                            <div className="p-6">
-                                <Dialog.Title className="sr-only">{settingsLabel} 메뉴</Dialog.Title>
-                                <div className="flex items-center justify-between mb-8">
-                                    <h2 className="text-2xl font-bold text-content tracking-tight">
-                                        {settingsMode === 'admin' ? '관리자 설정' : '설정'}
-                                    </h2>
-                                    <Dialog.Close asChild>
-                                        <button
-                                            type="button"
-                                            aria-label={`${settingsLabel} 메뉴 닫기`}
-                                            className={`w-11 h-11 flex items-center justify-center rounded-full hover:bg-surface-subtle active:bg-line active:scale-95 transition-all ${INTERACTION_DURATION}`}>
-                                            <i className="fas fa-times text-content-secondary" />
-                                        </button>
-                                    </Dialog.Close>
-                                </div>
-
-                                {isStaff && (
-                                    <div className="-mt-5 mb-8">
-                                        <SettingsModeLink settingsMode={settingsMode} isStaff={isStaff} />
-                                    </div>
-                                )}
-
-                                <div className="space-y-8">
-                                    {navigationSections.map(renderSection)}
-                                </div>
+        <nav aria-label={`${settingsLabel} 탐색`} className="xl:hidden pt-4">
+            <Dialog.Root open={mobileMenuOpen} onOpenChange={handleMobileMenuOpenChange}>
+                <Dialog.Trigger asChild>
+                    <button
+                        ref={mobileMenuTriggerRef}
+                        type="button"
+                        aria-label={`${settingsLabel} 메뉴 열기, 현재 ${activeItemName}`}
+                        className={`flex min-h-11 w-full items-center justify-between gap-3 rounded-xl border border-line bg-surface px-3 text-left shadow-subtle transition-all ${INTERACTION_DURATION} hover:bg-surface-subtle active:scale-[0.99] motion-reduce:transform-none motion-reduce:transition-none`}>
+                        <span className="flex min-w-0 items-center gap-2 text-sm font-semibold text-content">
+                            <Settings2 aria-hidden="true" className="h-4 w-4 shrink-0" />
+                            <span>{settingsLabel}</span>
+                        </span>
+                        <span className="flex min-w-0 items-center gap-2 text-sm font-medium text-content-secondary">
+                            <span className="truncate">{activeItemName}</span>
+                            <ChevronDown
+                                aria-hidden="true"
+                                className={`h-4 w-4 shrink-0 transition-transform ${INTERACTION_DURATION} motion-reduce:transition-none ${mobileMenuOpen ? 'rotate-180' : ''}`}
+                            />
+                        </span>
+                    </button>
+                </Dialog.Trigger>
+                <Dialog.Portal>
+                    <Dialog.Overlay className={`fixed inset-0 ${DIM_OVERLAY_SOFT} z-40 data-[state=open]:animate-in data-[state=open]:fade-in-0 motion-reduce:animate-none`} />
+                    <Dialog.Content className={`fixed z-50 bg-surface shadow-2xl transition ease-in-out data-[state=open]:animate-in data-[state=open]:slide-in-from-left ${ENTRANCE_DURATION} motion-reduce:animate-none motion-reduce:transition-none inset-y-0 left-0 h-full w-[280px] overflow-y-auto outline-none`}>
+                        <div className="p-6">
+                            <Dialog.Title className="sr-only">{settingsLabel} 메뉴</Dialog.Title>
+                            <div className="flex items-center justify-between mb-8">
+                                <h2 className="text-2xl font-bold text-content tracking-tight">
+                                    {settingsLabel}
+                                </h2>
+                                <Dialog.Close asChild>
+                                    <button
+                                        type="button"
+                                        aria-label={`${settingsLabel} 메뉴 닫기`}
+                                        className={`w-11 h-11 flex items-center justify-center rounded-full hover:bg-surface-subtle active:bg-line active:scale-95 transition-all ${INTERACTION_DURATION} motion-reduce:transform-none motion-reduce:transition-none`}>
+                                        <X aria-hidden="true" className="h-5 w-5 text-content-secondary" />
+                                    </button>
+                                </Dialog.Close>
                             </div>
-                        </Dialog.Content>
-                    </Dialog.Portal>
-                </Dialog.Root>
 
-                <h1 className="text-lg font-bold text-content">
-                    {settingsLabel}
-                </h1>
-                <div className="w-10" />
-            </div>
-        </div>
+                            {isStaff && (
+                                <div className="-mt-5 mb-8">
+                                    <SettingsModeLink settingsMode={settingsMode} isStaff={isStaff} mobile />
+                                </div>
+                            )}
+
+                            <div className="space-y-8">
+                                {navigationSections.map(renderSection)}
+                            </div>
+                        </div>
+                    </Dialog.Content>
+                </Dialog.Portal>
+            </Dialog.Root>
+        </nav>
     );
 };
 
@@ -441,6 +469,7 @@ export const SettingsDesktopNavigation = ({ currentPath }: SettingsNavigationPro
             <li key={item.path}>
                 <Link
                     to={item.path}
+                    aria-current={isActive ? 'page' : undefined}
                     className={`${baseClasses} ${activeClasses} ${desktopClasses}`}
                     onClick={() => handleNavClick(item)}>
                     <i className={`fas ${item.icon} w-7 text-center mr-4 transition-colors ${iconClasses} group-hover:text-content-secondary`} />
