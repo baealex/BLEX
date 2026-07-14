@@ -1,7 +1,19 @@
 import { useEffect, useState } from 'react';
 import { useMutation, useQueryClient, useSuspenseQuery } from '@tanstack/react-query';
 import { Toggle } from '@blex/ui/toggle';
-import { Button, Card, Input } from '~/components/shared';
+import {
+    AlertCircle,
+    CheckCircle,
+    ChevronDown,
+    Eye,
+    FileText,
+    Loader2,
+    RotateCw,
+    Save,
+    SlidersHorizontal
+} from '@blex/ui/icons';
+import { Button, Card } from '~/components/shared';
+import { CodeEditor } from '~/components/CodeEditor';
 import { toast } from '~/utils/toast';
 import { getSiteSettings, updateSiteSettings } from '~/lib/api/settings';
 import { SettingsHeader } from '../../components';
@@ -62,30 +74,54 @@ const aeoExposureItems = [
 
 const robotsRuleTemplates = [
     {
-        icon: 'fa-folder-minus',
         title: '경로 차단',
-        description: '검색엔진이 보지 않았으면 하는 경로를 막습니다.',
         snippet: 'Disallow: /private/'
     },
     {
-        icon: 'fa-folder-open',
         title: '경로 허용',
-        description: '상위 규칙으로 막힌 경로 안에서 일부만 열어둡니다.',
         snippet: 'Allow: /public/'
     },
     {
-        icon: 'fa-ban',
         title: '크롤러별 차단',
-        description: '특정 크롤러에만 별도 정책을 적용합니다.',
         snippet: 'User-agent: ExampleBot\nDisallow: /'
     },
     {
-        icon: 'fa-sitemap',
         title: 'sitemap 추가',
-        description: '별도로 관리하는 sitemap 주소를 함께 알립니다.',
         snippet: 'Sitemap: https://example.com/custom-sitemap.xml'
     }
 ];
+
+interface SaveStatusProps {
+    isPending: boolean;
+    isError: boolean;
+}
+
+const SaveStatus = ({ isPending, isError }: SaveStatusProps) => {
+    if (isPending) {
+        return (
+            <p role="status" className="mt-3 flex items-center gap-1.5 text-xs font-medium text-content-secondary">
+                <Loader2 aria-hidden="true" className="h-3.5 w-3.5 animate-spin motion-reduce:animate-none" />
+                설정 저장 중
+            </p>
+        );
+    }
+
+    if (isError) {
+        return (
+            <p role="alert" className="mt-3 flex items-center gap-1.5 text-xs font-medium text-danger">
+                <AlertCircle aria-hidden="true" className="h-3.5 w-3.5" />
+                저장 실패 · 다시 시도해주세요
+            </p>
+        );
+    }
+
+    return (
+        <p role="status" className="mt-3 flex items-center gap-1.5 text-xs font-medium text-success">
+            <CheckCircle aria-hidden="true" className="h-3.5 w-3.5" />
+            현재 설정 적용됨
+        </p>
+    );
+};
 
 const SeoAeoSetting = () => {
     const queryClient = useQueryClient();
@@ -100,17 +136,29 @@ const SeoAeoSetting = () => {
         }
     });
 
-    const [seoEnabled, setSeoEnabled] = useState(true);
-    const [aeoEnabled, setAeoEnabled] = useState(false);
-    const [robotsTxtExtraRules, setRobotsTxtExtraRules] = useState('');
-    const [robotsTxtDefault, setRobotsTxtDefault] = useState('');
+    const [seoEnabled, setSeoEnabled] = useState(settingData.seoEnabled);
+    const [aeoEnabled, setAeoEnabled] = useState(settingData.aeoEnabled);
+    const [robotsTxtExtraRules, setRobotsTxtExtraRules] = useState(settingData.robotsTxtExtraRules);
+    const [savedRobotsTxtExtraRules, setSavedRobotsTxtExtraRules] = useState(settingData.robotsTxtExtraRules);
+    const [robotsTxtDefault, setRobotsTxtDefault] = useState(settingData.robotsTxtDefault);
+    const [isRobotsAdvancedOpen, setIsRobotsAdvancedOpen] = useState(false);
 
     useEffect(() => {
         setSeoEnabled(settingData.seoEnabled);
+    }, [settingData.seoEnabled]);
+
+    useEffect(() => {
         setAeoEnabled(settingData.aeoEnabled);
+    }, [settingData.aeoEnabled]);
+
+    useEffect(() => {
         setRobotsTxtExtraRules(settingData.robotsTxtExtraRules);
+        setSavedRobotsTxtExtraRules(settingData.robotsTxtExtraRules);
+    }, [settingData.robotsTxtExtraRules]);
+
+    useEffect(() => {
         setRobotsTxtDefault(settingData.robotsTxtDefault);
-    }, [settingData]);
+    }, [settingData.robotsTxtDefault]);
 
     const seoMutation = useMutation({
         mutationFn: (enabled: boolean) => updateSiteSettings({ seo_enabled: enabled }),
@@ -147,17 +195,17 @@ const SeoAeoSetting = () => {
     const robotsMutation = useMutation({
         mutationFn: (rules: string) => updateSiteSettings({ robots_txt_extra_rules: rules }),
         onSuccess: ({ data }, rules) => {
+            const savedRules = data.status === 'DONE' ? data.body.robotsTxtExtraRules : rules;
             if (data.status === 'DONE') {
-                setRobotsTxtExtraRules(data.body.robotsTxtExtraRules);
                 setRobotsTxtDefault(data.body.robotsTxtDefault);
-            } else {
-                setRobotsTxtExtraRules(rules);
             }
+            setRobotsTxtExtraRules(savedRules);
+            setSavedRobotsTxtExtraRules(savedRules);
             void queryClient.invalidateQueries({ queryKey: ['site-settings'] });
             toast.success('robots.txt 설정이 저장되었습니다.');
         },
         onError: () => {
-            setRobotsTxtExtraRules(settingData.robotsTxtExtraRules);
+            setRobotsTxtExtraRules(savedRobotsTxtExtraRules);
             toast.error('robots.txt 설정 저장에 실패했습니다.');
         }
     });
@@ -177,14 +225,34 @@ const SeoAeoSetting = () => {
     };
 
     const handleAppendRobotsSnippet = (snippet: string) => {
+        if (robotsMutation.isError) robotsMutation.reset();
         setRobotsTxtExtraRules((current) => {
             const trimmedCurrent = current.trimEnd();
             return trimmedCurrent ? `${trimmedCurrent}\n\n${snippet}` : snippet;
         });
     };
 
+    const handleRobotsRulesChange = (value: string) => {
+        if (robotsMutation.isError) robotsMutation.reset();
+        setRobotsTxtExtraRules(value);
+    };
+
     const normalizedRobotsTxtDefault = robotsTxtDefault.trim();
     const normalizedRobotsTxtExtraRules = robotsTxtExtraRules.trim();
+    const normalizedSavedRobotsTxtExtraRules = savedRobotsTxtExtraRules.trim();
+    const hasUnsavedRobotsChanges = robotsTxtExtraRules !== savedRobotsTxtExtraRules;
+    const savedRobotsRuleLineCount = normalizedSavedRobotsTxtExtraRules
+        ? normalizedSavedRobotsTxtExtraRules.split(/\r?\n/).filter(line => line.trim()).length
+        : 0;
+    const robotsStatus = robotsMutation.isPending
+        ? '추가 규칙 저장 중'
+        : robotsMutation.isError
+            ? '저장 실패 · 기존 규칙 유지됨'
+            : hasUnsavedRobotsChanges
+                ? '저장되지 않은 변경 있음'
+                : savedRobotsRuleLineCount > 0
+                    ? `추가 규칙 ${savedRobotsRuleLineCount}줄 적용 중`
+                    : '기본 정책만 적용 중';
     const robotsTxtPreview = [
         normalizedRobotsTxtDefault,
         normalizedRobotsTxtExtraRules ? `# Custom rules\n${normalizedRobotsTxtExtraRules}` : ''
@@ -198,26 +266,29 @@ const SeoAeoSetting = () => {
             />
 
             <Card
-                title="SEO 노출"
-                subtitle="검색엔진이 공개 페이지를 수집하고 색인할 수 있게 할지 결정합니다."
-                icon={<i className="fas fa-magnifying-glass" />}>
-                <div className="space-y-6">
-                    <p className="text-sm leading-relaxed text-content-secondary">
-                        이 스위치는 검색엔진에 보내는 색인 허용 신호를 제어합니다.
-                        꺼두면 sitemap 안내를 멈추고, 페이지 응답과 HTML에는 noindex 신호를 붙입니다.
-                    </p>
-
-                    <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-                        <div className="space-y-1">
-                            <div className="text-sm font-semibold text-content">SEO 활성화</div>
-                            <p className="text-xs leading-relaxed text-content-secondary">
-                                켜면 검색엔진에 공개 페이지 수집과 sitemap 위치를 안내합니다.
-                            </p>
-                        </div>
-                        <div className="flex items-center gap-3">
-                            <span className="text-xs font-medium text-content-secondary">
-                                {seoEnabled ? 'ON' : 'OFF'}
-                            </span>
+                title="현재 노출 상태"
+                subtitle="켜짐 여부와 실제 공개 결과를 먼저 확인합니다."
+                icon={<Eye aria-hidden="true" className="h-5 w-5" />}>
+                <div className="grid gap-4 lg:grid-cols-2">
+                    <section
+                        aria-labelledby="seo-exposure-title"
+                        className="rounded-xl border border-line bg-surface-elevated p-4 sm:p-5">
+                        <div className="flex items-start justify-between gap-4">
+                            <div className="min-w-0">
+                                <div className="flex flex-wrap items-center gap-2">
+                                    <h3 id="seo-exposure-title" className="text-sm font-semibold text-content">
+                                        SEO · 검색엔진
+                                    </h3>
+                                    <span className={`rounded-full px-2 py-1 text-xs font-semibold ${seoEnabled ? 'bg-success-surface text-success' : 'bg-surface-subtle text-content-secondary'}`}>
+                                        {seoEnabled ? '켜짐' : '꺼짐'}
+                                    </span>
+                                </div>
+                                <p className="mt-2 text-sm leading-relaxed text-content-secondary">
+                                    {seoEnabled
+                                        ? '페이지 색인을 허용하고 robots.txt에서 sitemap 위치를 안내합니다.'
+                                        : 'sitemap 안내를 숨기고 페이지에 noindex,nofollow를 적용합니다.'}
+                                </p>
+                            </div>
                             <Toggle
                                 checked={seoEnabled}
                                 disabled={seoMutation.isPending}
@@ -225,170 +296,28 @@ const SeoAeoSetting = () => {
                                 aria-label="SEO 검색엔진 노출 활성화"
                             />
                         </div>
-                    </div>
+                        <SaveStatus isPending={seoMutation.isPending} isError={seoMutation.isError} />
+                    </section>
 
-                    <div className="grid gap-3 border-t border-line pt-5 sm:grid-cols-2">
-                        <div className="rounded-xl bg-surface-subtle px-4 py-3">
-                            <div className="text-xs font-semibold uppercase text-content-hint">ON</div>
-                            <p className="mt-1 text-sm leading-relaxed text-content-secondary">
-                                robots.txt가 sitemap 위치를 안내하고 페이지는 index 신호를 유지합니다.
-                            </p>
-                        </div>
-                        <div className="rounded-xl bg-surface-subtle px-4 py-3">
-                            <div className="text-xs font-semibold uppercase text-content-hint">OFF</div>
-                            <p className="mt-1 text-sm leading-relaxed text-content-secondary">
-                                robots.txt에서 sitemap을 숨기고 페이지 응답에는 noindex,nofollow를 붙입니다.
-                            </p>
-                        </div>
-                    </div>
-                </div>
-            </Card>
-
-            <Card
-                title="robots.txt 런타임 규칙"
-                subtitle="기본 정책 뒤에 붙일 robots.txt 규칙을 배포 없이 관리합니다."
-                icon={<i className="fas fa-route" />}>
-                <div className="space-y-6">
-                    <div className="rounded-xl border border-line bg-surface-subtle p-4">
-                        <div className="grid gap-3 text-sm text-content-secondary sm:grid-cols-3">
-                            <div>
-                                <div className="font-semibold text-content">기본 차단</div>
-                                <p className="mt-1 leading-relaxed">관리자, 설정, 작성, API 경로</p>
-                            </div>
-                            <div>
-                                <div className="font-semibold text-content">SEO ON</div>
-                                <p className="mt-1 leading-relaxed">sitemap 위치 안내</p>
-                            </div>
-                            <div>
-                                <div className="font-semibold text-content">SEO OFF</div>
-                                <p className="mt-1 leading-relaxed">sitemap 숨김, noindex 헤더 적용</p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div className="space-y-3">
-                        <div className="flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between">
-                            <div>
-                                <h3 className="text-sm font-semibold text-content">기본 생성 내용</h3>
-                                <p className="mt-1 text-xs leading-relaxed text-content-secondary">
-                                    SEO/AEO 스위치와 기본 차단 정책으로 자동 생성되는 내용입니다.
+                    <section
+                        aria-labelledby="aeo-exposure-title"
+                        className="rounded-xl border border-line bg-surface-elevated p-4 sm:p-5">
+                        <div className="flex items-start justify-between gap-4">
+                            <div className="min-w-0">
+                                <div className="flex flex-wrap items-center gap-2">
+                                    <h3 id="aeo-exposure-title" className="text-sm font-semibold text-content">
+                                        AEO · AI 에이전트
+                                    </h3>
+                                    <span className={`rounded-full px-2 py-1 text-xs font-semibold ${aeoEnabled ? 'bg-success-surface text-success' : 'bg-surface-subtle text-content-secondary'}`}>
+                                        {aeoEnabled ? '켜짐' : '꺼짐'}
+                                    </span>
+                                </div>
+                                <p className="mt-2 text-sm leading-relaxed text-content-secondary">
+                                    {aeoEnabled
+                                        ? 'llms.txt와 Markdown 주소를 공개하고 발견 신호를 제공합니다.'
+                                        : 'AI 전용 주소를 404로 숨기고 발견 신호를 제거합니다.'}
                                 </p>
                             </div>
-                            <code className="w-fit rounded-md bg-surface-subtle px-2 py-1 text-xs text-content-secondary">
-                                /robots.txt
-                            </code>
-                        </div>
-                        <pre className="max-h-64 overflow-auto whitespace-pre-wrap break-all rounded-lg border border-line bg-surface-elevated p-4 font-mono text-xs leading-relaxed text-content-secondary">{normalizedRobotsTxtDefault || '기본 생성 내용을 불러오는 중입니다.'}</pre>
-                    </div>
-
-                    <div className="space-y-3">
-                        <div>
-                            <h3 className="text-sm font-semibold text-content">규칙 빠른 추가</h3>
-                            <p className="mt-1 text-xs leading-relaxed text-content-secondary">
-                                필요한 조각을 추가한 뒤 경로나 크롤러 이름만 바꿔 저장합니다.
-                            </p>
-                        </div>
-                        <div className="grid gap-3 sm:grid-cols-2">
-                            {robotsRuleTemplates.map((template) => (
-                                <button
-                                    key={template.title}
-                                    type="button"
-                                    onClick={() => handleAppendRobotsSnippet(template.snippet)}
-                                    className="group rounded-lg border border-line bg-surface-elevated p-4 text-left transition-colors hover:border-line-strong hover:bg-surface-subtle focus:outline-none focus:ring-2 focus:ring-line/70">
-                                    <div className="flex items-start gap-3">
-                                        <span className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-lg bg-surface-subtle text-content-secondary transition-colors group-hover:text-content">
-                                            <i className={`fas ${template.icon}`} />
-                                        </span>
-                                        <span className="min-w-0 flex-1">
-                                            <span className="block text-sm font-semibold text-content">{template.title}</span>
-                                            <span className="mt-1 block text-xs leading-relaxed text-content-secondary">
-                                                {template.description}
-                                            </span>
-                                            <code className="mt-3 block whitespace-pre-wrap break-all rounded-md bg-surface-subtle px-3 py-2 font-mono text-xs leading-relaxed text-content-secondary">{template.snippet}</code>
-                                        </span>
-                                    </div>
-                                </button>
-                            ))}
-                        </div>
-                    </div>
-
-                    <div className="space-y-2">
-                        <div>
-                            <label htmlFor="robots-extra-rules" className="block text-sm font-semibold text-content">
-                                추가 규칙
-                            </label>
-                            <p className="mt-1 text-xs leading-relaxed text-content-secondary">
-                                아래 내용은 기본 생성 내용 뒤에 붙습니다. 비워두면 기본 정책만 사용합니다.
-                            </p>
-                        </div>
-                        <Input
-                            id="robots-extra-rules"
-                            multiline
-                            rows={7}
-                            value={robotsTxtExtraRules}
-                            onChange={(event) => setRobotsTxtExtraRules(event.target.value)}
-                            placeholder={'User-agent: ExampleBot\nDisallow: /private/'}
-                            className="font-mono text-sm"
-                        />
-                    </div>
-
-                    <div className="space-y-3">
-                        <div className="flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between">
-                            <div>
-                                <h3 className="text-sm font-semibold text-content">저장 후 미리보기</h3>
-                                <p className="mt-1 text-xs leading-relaxed text-content-secondary">
-                                    지금 입력한 추가 규칙까지 포함해 공개될 전체 내용입니다.
-                                </p>
-                            </div>
-                            <span className="w-fit rounded-md bg-surface-subtle px-2 py-1 text-xs font-medium text-content-secondary">
-                                {normalizedRobotsTxtExtraRules ? '추가 규칙 포함' : '기본 정책만'}
-                            </span>
-                        </div>
-                        <pre className="max-h-72 overflow-auto whitespace-pre-wrap break-all rounded-lg border border-line bg-surface-elevated p-4 font-mono text-xs leading-relaxed text-content-secondary">{robotsTxtPreview || '미리보기 내용을 불러오는 중입니다.'}</pre>
-                    </div>
-
-                    <div className="flex flex-col gap-2 sm:flex-row sm:justify-end">
-                        <Button
-                            variant="secondary"
-                            size="md"
-                            disabled={!normalizedRobotsTxtExtraRules || robotsMutation.isPending}
-                            onClick={() => setRobotsTxtExtraRules('')}
-                            leftIcon={<i className="fas fa-rotate-left" />}>
-                            추가 규칙 비우기
-                        </Button>
-                        <Button
-                            variant="primary"
-                            size="md"
-                            isLoading={robotsMutation.isPending}
-                            onClick={handleRobotsSave}
-                            leftIcon={!robotsMutation.isPending ? <i className="fas fa-save" /> : undefined}>
-                            {robotsMutation.isPending ? '저장 중...' : 'robots.txt 저장'}
-                        </Button>
-                    </div>
-                </div>
-            </Card>
-
-            <Card
-                title="AEO 노출"
-                subtitle="AI 에이전트가 사이트와 공개 콘텐츠를 읽기 쉽게 찾을 수 있도록 별도 진입점을 열지 결정합니다."
-                icon={<i className="fas fa-robot" />}>
-                <div className="space-y-6">
-                    <p className="text-sm leading-relaxed text-content-secondary">
-                        이 스위치는 일반 검색엔진용 SEO가 아니라 AI 에이전트용 노출 표면만 제어합니다.
-                        꺼두면 AI용 주소는 404로 숨기고, 페이지와 응답 헤더에서도 발견 신호를 제거합니다.
-                    </p>
-
-                    <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-                        <div className="space-y-1">
-                            <div className="text-sm font-semibold text-content">AEO 활성화</div>
-                            <p className="text-xs leading-relaxed text-content-secondary">
-                                켜면 아래의 AI용 진입점, Markdown 주소, 발견 헤더가 함께 공개됩니다.
-                            </p>
-                        </div>
-                        <div className="flex items-center gap-3">
-                            <span className="text-xs font-medium text-content-secondary">
-                                {aeoEnabled ? 'ON' : 'OFF'}
-                            </span>
                             <Toggle
                                 checked={aeoEnabled}
                                 disabled={aeoMutation.isPending}
@@ -396,36 +325,136 @@ const SeoAeoSetting = () => {
                                 aria-label="AEO 인공지능 노출 활성화"
                             />
                         </div>
-                    </div>
-
-                    <div className="grid gap-3 border-t border-line pt-5 sm:grid-cols-2">
-                        <div className="rounded-xl bg-surface-subtle px-4 py-3">
-                            <div className="text-xs font-semibold uppercase text-content-hint">ON</div>
-                            <p className="mt-1 text-sm leading-relaxed text-content-secondary">
-                                AI용 주소가 열리고 페이지와 응답 헤더가 Markdown 위치를 안내합니다.
-                            </p>
-                        </div>
-                        <div className="rounded-xl bg-surface-subtle px-4 py-3">
-                            <div className="text-xs font-semibold uppercase text-content-hint">OFF</div>
-                            <p className="mt-1 text-sm leading-relaxed text-content-secondary">
-                                AI용 주소는 404로 숨겨지고 robots.txt는 해당 경로를 허용하지 않도록 안내합니다.
-                            </p>
-                        </div>
-                    </div>
+                        <SaveStatus isPending={aeoMutation.isPending} isError={aeoMutation.isError} />
+                    </section>
                 </div>
             </Card>
 
-            <Card
-                title="제어되는 노출면"
-                subtitle="각 스위치가 실제로 바꾸는 공개 표면입니다."
-                icon={<i className="fas fa-diagram-project" />}>
-                <div className="space-y-6">
+            <details
+                className="group overflow-hidden rounded-2xl bg-surface ring-1 ring-line/60"
+                onToggle={(event) => setIsRobotsAdvancedOpen(event.currentTarget.open)}>
+                <summary className="flex min-h-20 cursor-pointer list-none items-center gap-4 px-6 py-5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-line-strong md:px-8 [&::-webkit-details-marker]:hidden">
+                    <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-surface-subtle text-content-secondary">
+                        <SlidersHorizontal aria-hidden="true" className="h-5 w-5" />
+                    </span>
+                    <span className="min-w-0 flex-1">
+                        <span className="block text-base font-semibold text-content">robots.txt 고급 설정</span>
+                        <span
+                            aria-live="polite"
+                            className={`mt-1 block text-sm ${robotsMutation.isError ? 'text-danger' : hasUnsavedRobotsChanges ? 'text-warning' : 'text-content-secondary'}`}>
+                            {robotsStatus}
+                        </span>
+                    </span>
+                    <ChevronDown
+                        aria-hidden="true"
+                        className="h-5 w-5 shrink-0 text-content-hint transition-transform group-open:rotate-180 motion-reduce:transition-none"
+                    />
+                </summary>
+
+                {isRobotsAdvancedOpen && (
+                    <div className="space-y-6 border-t border-line px-6 py-6 md:px-8 md:py-8">
+                        <section className="space-y-3" aria-labelledby="robots-template-title">
+                            <h3 id="robots-template-title" className="text-sm font-semibold text-content">규칙 빠른 추가</h3>
+                            <div className="grid gap-2 sm:grid-cols-2">
+                                {robotsRuleTemplates.map((template) => (
+                                    <button
+                                        key={template.title}
+                                        type="button"
+                                        onClick={() => handleAppendRobotsSnippet(template.snippet)}
+                                        className="min-h-11 rounded-lg border border-line bg-surface-elevated px-3 py-2 text-left transition-colors hover:border-line-strong hover:bg-surface-subtle focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-line-strong motion-reduce:transition-none">
+                                        <span className="block text-xs font-semibold text-content">{template.title}</span>
+                                        <code className="mt-1 block whitespace-pre-wrap break-all font-mono text-xs text-content-secondary">
+                                            {template.snippet}
+                                        </code>
+                                    </button>
+                                ))}
+                            </div>
+                        </section>
+
+                        <section className="space-y-2" aria-labelledby="robots-editor-title">
+                            <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
+                                <h3 id="robots-editor-title" className="text-sm font-semibold text-content">추가 규칙 편집</h3>
+                                <span className="text-xs text-content-secondary">기본 생성 내용 뒤에 그대로 추가됩니다.</span>
+                            </div>
+                            <CodeEditor
+                                ariaLabel="robots.txt 추가 규칙"
+                                language="plaintext"
+                                value={robotsTxtExtraRules}
+                                onChange={handleRobotsRulesChange}
+                                height="260px"
+                            />
+                            <p
+                                role={robotsMutation.isError ? 'alert' : 'status'}
+                                aria-live="polite"
+                                className={`text-xs font-medium ${robotsMutation.isError ? 'text-danger' : hasUnsavedRobotsChanges ? 'text-warning' : 'text-content-secondary'}`}>
+                                {robotsStatus}
+                            </p>
+                        </section>
+
+                        <details className="group/preview rounded-xl border border-line bg-surface-elevated">
+                            <summary className="flex min-h-11 cursor-pointer list-none items-center gap-3 px-4 py-3 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-line-strong [&::-webkit-details-marker]:hidden">
+                                <span className="min-w-0 flex-1 text-sm font-semibold text-content">robots.txt 전체 미리보기</span>
+                                <span className="text-xs text-content-secondary">
+                                    {normalizedRobotsTxtExtraRules ? '추가 규칙 포함' : '기본 정책만'}
+                                </span>
+                                <ChevronDown
+                                    aria-hidden="true"
+                                    className="h-4 w-4 shrink-0 text-content-hint transition-transform group-open/preview:rotate-180 motion-reduce:transition-none"
+                                />
+                            </summary>
+                            <div className="border-t border-line p-4">
+                                <pre className="max-h-72 overflow-auto whitespace-pre-wrap break-all rounded-lg bg-surface-subtle p-4 font-mono text-xs leading-relaxed text-content-secondary">{robotsTxtPreview || '미리보기 내용을 불러오는 중입니다.'}</pre>
+                            </div>
+                        </details>
+
+                        <div className="flex flex-col gap-2 sm:flex-row sm:justify-end">
+                            <Button
+                                variant="secondary"
+                                size="md"
+                                disabled={!normalizedRobotsTxtExtraRules || robotsMutation.isPending}
+                                onClick={() => handleRobotsRulesChange('')}
+                                leftIcon={<RotateCw aria-hidden="true" className="h-4 w-4" />}>
+                                추가 규칙 비우기
+                            </Button>
+                            <Button
+                                variant="primary"
+                                size="md"
+                                isLoading={robotsMutation.isPending}
+                                onClick={handleRobotsSave}
+                                leftIcon={!robotsMutation.isPending ? <Save aria-hidden="true" className="h-4 w-4" /> : undefined}>
+                                {robotsMutation.isPending ? '저장 중...' : 'robots.txt 저장'}
+                            </Button>
+                        </div>
+                    </div>
+                )}
+            </details>
+
+            <details className="group overflow-hidden rounded-2xl bg-surface ring-1 ring-line/60">
+                <summary className="flex min-h-20 cursor-pointer list-none items-center gap-4 px-6 py-5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-line-strong md:px-8 [&::-webkit-details-marker]:hidden">
+                    <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-surface-subtle text-content-secondary">
+                        <FileText aria-hidden="true" className="h-5 w-5" />
+                    </span>
+                    <span className="min-w-0 flex-1">
+                        <span className="block text-base font-semibold text-content">SEO·AEO가 제어하는 공개 노출면</span>
+                        <span className="mt-1 block text-sm text-content-secondary">SEO 4개 · AEO 4개 주소와 신호</span>
+                    </span>
+                    <ChevronDown
+                        aria-hidden="true"
+                        className="h-5 w-5 shrink-0 text-content-hint transition-transform group-open:rotate-180 motion-reduce:transition-none"
+                    />
+                </summary>
+
+                <div className="space-y-6 border-t border-line px-6 py-6 md:px-8 md:py-8">
+                    <p className="text-sm leading-relaxed text-content-secondary">
+                        AEO는 일반 검색엔진용 SEO와 별개이며, AI 에이전트가 공개 콘텐츠를 찾고 읽는 주소와 발견 신호만 제어합니다.
+                    </p>
+
                     <section className="space-y-3">
                         <h3 className="text-sm font-semibold text-content">SEO</h3>
                         <div className="divide-y divide-line rounded-xl border border-line">
                             {seoExposureItems.map((item) => (
                                 <div key={item.name} className="flex gap-4 p-4">
-                                    <div className="mt-1 flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-lg bg-surface-subtle text-content-secondary">
+                                    <div className="mt-1 flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-surface-subtle text-content-secondary">
                                         <i className={`fas ${item.icon}`} />
                                     </div>
                                     <div className="min-w-0 flex-1">
@@ -449,7 +478,7 @@ const SeoAeoSetting = () => {
                         <div className="divide-y divide-line rounded-xl border border-line">
                             {aeoExposureItems.map((item) => (
                                 <div key={item.name} className="flex gap-4 p-4">
-                                    <div className="mt-1 flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-lg bg-surface-subtle text-content-secondary">
+                                    <div className="mt-1 flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-surface-subtle text-content-secondary">
                                         <i className={`fas ${item.icon}`} />
                                     </div>
                                     <div className="min-w-0 flex-1">
@@ -468,7 +497,7 @@ const SeoAeoSetting = () => {
                         </div>
                     </section>
                 </div>
-            </Card>
+            </details>
         </div>
     );
 };
