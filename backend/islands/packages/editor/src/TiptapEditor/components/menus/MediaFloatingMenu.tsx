@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useId, useRef } from 'react';
 import type { Editor } from '@tiptap/react';
 import * as Popover from '@radix-ui/react-popover';
 
@@ -15,6 +15,8 @@ const MediaFloatingMenu = ({ editor }: MediaFloatingMenuProps) => {
     const [selectedNode, setSelectedNode] = useState<{ type: string; attrs: Record<string, unknown>; pos: number } | null>(null);
     const [isOpen, setIsOpen] = useState(false);
     const [anchorElement, setAnchorElement] = useState<HTMLElement | null>(null);
+    const altInputId = useId();
+    const captionInputId = useId();
 
     const selectedPosRef = useRef<number | null>(null);
 
@@ -73,6 +75,10 @@ const MediaFloatingMenu = ({ editor }: MediaFloatingMenuProps) => {
 
     const handleCaptionChange = (caption: string) => {
         updateAttribute('caption', caption.trim() === '' ? null : caption);
+    };
+
+    const handleAltChange = (alt: string) => {
+        updateAttribute('alt', alt.trim() === '' ? null : alt);
     };
 
     const handleToggle = (e: React.MouseEvent, attr: string) => {
@@ -146,8 +152,9 @@ const MediaFloatingMenu = ({ editor }: MediaFloatingMenuProps) => {
                     : 'text-content-secondary hover:text-content hover:bg-surface-subtle active:scale-95'
                 }
             `}
-            title={title}>
-            <i className={`${icon} text-sm`} />
+            title={title}
+            aria-label={title}>
+            <i aria-hidden className={`${icon} text-sm`} />
         </button>
     );
 
@@ -267,56 +274,80 @@ const MediaFloatingMenu = ({ editor }: MediaFloatingMenuProps) => {
                             )}
                         </div>
 
-                        <div className="flex items-center gap-2">
-                            {/* 스타일 (image, video) */}
-                            {mediaTypesWithStyle.includes(selectedNode.type) && (
-                                <>
-                                    <select
-                                        value={selectedNode.attrs.objectFit as string || 'cover'}
-                                        onChange={handleObjectFitChange}
-                                        className={fieldClassName}>
-                                        <option value="cover">맞춤</option>
-                                        <option value="contain">포함</option>
-                                        <option value="fill">채움</option>
-                                        <option value="none">원본</option>
-                                    </select>
+                        {/* 스타일 (image, video) */}
+                        {mediaTypesWithStyle.includes(selectedNode.type) && (
+                            <div className="flex items-center gap-2">
+                                <select
+                                    value={selectedNode.attrs.objectFit as string || 'cover'}
+                                    onChange={handleObjectFitChange}
+                                    className={fieldClassName}>
+                                    <option value="cover">맞춤</option>
+                                    <option value="contain">포함</option>
+                                    <option value="fill">채움</option>
+                                    <option value="none">원본</option>
+                                </select>
 
-                                    <div className={dividerClassName} />
-                                    <div className="flex gap-0.5 bg-surface-subtle rounded-lg p-0.5">
-                                        <IconButton icon="fas fa-border-all" active={!!selectedNode.attrs.border} onClick={(e) => handleToggle(e, 'border')} title="테두리" />
-                                        <IconButton icon="fas fa-clone" active={!!selectedNode.attrs.shadow} onClick={(e) => handleToggle(e, 'shadow')} title="그림자" />
-                                    </div>
+                                <div className={dividerClassName} />
+                                <div className="flex gap-0.5 bg-surface-subtle rounded-lg p-0.5">
+                                    <IconButton icon="fas fa-border-all" active={!!selectedNode.attrs.border} onClick={(e) => handleToggle(e, 'border')} title="테두리" />
+                                    <IconButton icon="fas fa-clone" active={!!selectedNode.attrs.shadow} onClick={(e) => handleToggle(e, 'shadow')} title="그림자" />
+                                </div>
 
-                                    <div className={dividerClassName} />
-                                    <select
-                                        value={selectedNode.attrs.borderRadius as string || ''}
-                                        onChange={handleBorderRadiusChange}
-                                        className={fieldClassName}>
-                                        <option value="">둥글기</option>
-                                        <option value="0">각짐</option>
-                                        <option value="4">약간</option>
-                                        <option value="8">보통</option>
-                                        <option value="16">많이</option>
-                                        <option value="9999">원형</option>
-                                    </select>
+                                <div className={dividerClassName} />
+                                <select
+                                    value={selectedNode.attrs.borderRadius as string || ''}
+                                    onChange={handleBorderRadiusChange}
+                                    className={fieldClassName}>
+                                    <option value="">둥글기</option>
+                                    <option value="0">각짐</option>
+                                    <option value="4">약간</option>
+                                    <option value="8">보통</option>
+                                    <option value="16">많이</option>
+                                    <option value="9999">원형</option>
+                                </select>
+                            </div>
+                        )}
 
-                                    <div className={dividerClassName} />
-                                </>
+                        <div className="grid gap-2">
+                            {selectedNode.type === 'image' && (
+                                <label htmlFor={altInputId} className="flex items-center gap-2">
+                                    <span className="w-20 shrink-0 text-xs font-medium text-content-secondary">
+                                        대체 텍스트
+                                    </span>
+                                    <input
+                                        id={altInputId}
+                                        type="text"
+                                        placeholder="이미지를 설명하세요"
+                                        value={selectedNode.attrs.alt as string || ''}
+                                        onChange={(e) => handleAltChange(e.target.value)}
+                                        onKeyDown={(e) => {
+                                            if (e.key === 'Enter') {
+                                                e.currentTarget.blur();
+                                            }
+                                        }}
+                                        className={`min-w-0 flex-1 ${fieldClassName}`}
+                                    />
+                                </label>
                             )}
 
-                            {/* 캡션 */}
-                            <input
-                                type="text"
-                                placeholder="캡션..."
-                                value={selectedNode.attrs.caption as string || ''}
-                                onChange={(e) => handleCaptionChange(e.target.value)}
-                                onKeyDown={(e) => {
-                                    if (e.key === 'Enter') {
-                                        e.currentTarget.blur();
-                                    }
-                                }}
-                                className={`w-36 ${fieldClassName}`}
-                            />
+                            <label htmlFor={captionInputId} className="flex items-center gap-2">
+                                <span className="w-20 shrink-0 text-xs font-medium text-content-secondary">
+                                    캡션
+                                </span>
+                                <input
+                                    id={captionInputId}
+                                    type="text"
+                                    placeholder="화면에 표시할 설명"
+                                    value={selectedNode.attrs.caption as string || ''}
+                                    onChange={(e) => handleCaptionChange(e.target.value)}
+                                    onKeyDown={(e) => {
+                                        if (e.key === 'Enter') {
+                                            e.currentTarget.blur();
+                                        }
+                                    }}
+                                    className={`min-w-0 flex-1 ${fieldClassName}`}
+                                />
+                            </label>
                         </div>
                     </Popover.Content>
                 </Popover.Portal>

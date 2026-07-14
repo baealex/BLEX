@@ -77,6 +77,30 @@ class PostContentServiceTest(SimpleTestCase):
         SITE_URL='https://blex.example',
         MEDIA_URL='/resources/media/',
     )
+    def test_normalize_content_html_preserves_image_alt_and_caption_independently(self):
+        html = (
+            '<figure>'
+            '<img src="https://blex.example/resources/media/images/content/a.png" '
+            'alt="스크린리더용 이미지 설명">'
+            '<figcaption>화면에 표시되는 캡션</figcaption>'
+            '</figure>'
+        )
+
+        normalized = PostContentService.normalize_content_html(html)
+
+        self.assertEqual(
+            normalized,
+            '<figure>'
+            '<img src="/resources/media/images/content/a.png" '
+            'alt="스크린리더용 이미지 설명">'
+            '<figcaption>화면에 표시되는 캡션</figcaption>'
+            '</figure>',
+        )
+
+    @override_settings(
+        SITE_URL='https://blex.example',
+        MEDIA_URL='/resources/media/',
+    )
     def test_normalize_content_html_ignores_comments_and_script_text(self):
         html = (
             '<!-- <img src="https://blex.example/resources/media/images/content/comment.png"> -->'

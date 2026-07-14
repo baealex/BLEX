@@ -1,4 +1,5 @@
 import { useState, useRef } from 'react';
+import { Hash, Plus, X } from '@blex/ui/icons';
 import { Button } from '~/components/shared';
 
 interface TagManagerProps {
@@ -47,28 +48,27 @@ const TagManager = ({ tags, onTagsChange }: TagManagerProps) => {
             {tags.map((tag, index) => (
                 <span
                     key={tag}
-                    className="inline-flex items-center px-4 py-2 bg-surface-subtle hover:bg-action hover:text-content-inverted text-content-secondary rounded-full text-sm font-medium transition-all duration-300 border border-line-light hover:border-line-strong group">
+                    className="group inline-flex min-h-11 items-center rounded-full border border-line-light bg-surface-subtle pl-4 pr-1 text-sm font-medium text-content-secondary transition-all duration-300 hover:border-line-strong hover:bg-action hover:text-content-inverted">
                     <span className="mr-1 opacity-50">#</span>
                     <span className="break-all">{tag}</span>
                     <button
                         type="button"
                         onClick={() => handleRemoveTag(index)}
-                        className="ml-2 w-4 h-4 text-content-hint group-hover:text-content-inverted/80 transition-colors flex items-center justify-center"
+                        className="ml-1 inline-flex min-h-11 min-w-11 items-center justify-center rounded-full text-content-hint transition-colors group-hover:text-content-inverted/80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-action focus-visible:ring-offset-1"
                         aria-label={`${tag} 태그 제거`}>
-                        <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
-                        </svg>
+                        <X aria-hidden className="h-3.5 w-3.5" />
                     </button>
                 </span>
             ))}
 
             {/* Inline tag input */}
             {isAdding ? (
-                <div className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-surface-subtle border border-line rounded-full">
-                    <i className="fas fa-hashtag text-xs text-content-hint" />
+                <div className="inline-flex min-h-11 items-center gap-1.5 rounded-full border border-line bg-surface-subtle px-3 py-1.5">
+                    <Hash aria-hidden className="h-3.5 w-3.5 text-content-hint" />
                     <input
                         ref={inputRef}
                         type="text"
+                        aria-label="새 태그 이름"
                         value={newTag}
                         onChange={(e) => setNewTag(e.target.value)}
                         onKeyDown={handleKeyDown}
@@ -91,11 +91,9 @@ const TagManager = ({ tags, onTagsChange }: TagManagerProps) => {
                     }}
                     variant="ghost"
                     size="sm"
-                    className="rounded-full">
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4" />
-                    </svg>
-                    <span>태그 추가</span>
+                    leftIcon={<Plus aria-hidden className="h-4 w-4" />}
+                    className="min-h-11! rounded-full">
+                    태그 추가
                 </Button>
             )}
         </div>
