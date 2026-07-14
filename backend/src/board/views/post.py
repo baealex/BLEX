@@ -193,6 +193,12 @@ def post_editor(request, username=None, post_url=None):
 
         hide = request.POST.get('hide') in ['on', 'true']
         advertise = request.POST.get('advertise') in ['on', 'true']
+        block_comment_value = request.POST.get('block_comment')
+        block_comment = (
+            block_comment_value in ['on', 'true']
+            if block_comment_value is not None
+            else None
+        )
         is_draft = request.POST.get('is_draft') == 'true'
         image_delete = request.POST.get('image_delete') == 'true' or request.POST.get('remove_image') == 'true'
         cover_layout = request.POST.get('cover_layout')
@@ -227,6 +233,7 @@ def post_editor(request, username=None, post_url=None):
                     image_delete=image_delete,
                     is_hide=hide,
                     is_advertise=advertise,
+                    block_comment=block_comment,
                     content_type=content_type,
                     cover_layout=cover_layout,
                     cover_image_position=cover_image_position,
@@ -265,6 +272,7 @@ def post_editor(request, username=None, post_url=None):
                         image_delete=image_delete,
                         is_hide=hide,
                         is_advertise=advertise,
+                        block_comment=block_comment,
                         content_type=content_type,
                         cover_layout=cover_layout,
                         cover_image_position=cover_image_position,
@@ -293,6 +301,7 @@ def post_editor(request, username=None, post_url=None):
                         image=image,
                         is_hide=hide,
                         is_advertise=advertise,
+                        block_comment=block_comment if block_comment is not None else False,
                         content_type=content_type,
                         cover_layout=cover_layout,
                         cover_image_position=cover_image_position,

@@ -57,6 +57,7 @@ def drafts_list(request):
         reserved_date = data.get('reserved_date')
         is_hide = _optional_boolean(data, 'is_hide')
         is_advertise = _optional_boolean(data, 'is_advertise')
+        block_comment = _optional_boolean(data, 'block_comment')
         image = files.get('image') if files else None
 
         try:
@@ -77,6 +78,7 @@ def drafts_list(request):
                 reserved_date_str=reserved_date,
                 is_hide=is_hide if is_hide is not None else False,
                 is_advertise=is_advertise if is_advertise is not None else False,
+                block_comment=block_comment if block_comment is not None else False,
             )
 
             return StatusDone({
@@ -118,6 +120,7 @@ def drafts_detail(request, url):
             'cover_image_ratio': draft.config.cover_image_ratio,
             'is_hide': draft.config.hide,
             'is_advertise': draft.config.advertise,
+            'block_comment': draft.config.block_comment,
             'reserved_date': PostService.get_draft_reserved_date(draft),
             'series': {
                 'url': draft.series.url,
@@ -139,6 +142,7 @@ def drafts_detail(request, url):
         reserved_date = data.get('reserved_date') if 'reserved_date' in data else None
         is_hide = _optional_boolean(data, 'is_hide')
         is_advertise = _optional_boolean(data, 'is_advertise')
+        block_comment = _optional_boolean(data, 'block_comment')
 
         try:
             PostService.update_draft(
@@ -159,6 +163,7 @@ def drafts_detail(request, url):
                 reserved_date_str=reserved_date,
                 is_hide=is_hide,
                 is_advertise=is_advertise,
+                block_comment=block_comment,
             )
             return StatusDone({
                 'url': draft.url,

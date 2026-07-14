@@ -97,10 +97,15 @@ class PostTestCase(TestCase):
     def test_get_user_post_detail_edit_mode(self):
         """포스트 편집 모드 조회 테스트"""
         self.client.login(username='author', password='author')
+        post = Post.objects.get(url='test-post-1')
+        post.config.block_comment = True
+        post.config.save(update_fields=['block_comment'])
 
         params = {'mode': 'edit'}
         response = self.client.get('/v1/users/@author/posts/test-post-1', params)
         self.assertEqual(response.status_code, 200)
+        content = json.loads(response.content)
+        self.assertTrue(content['body']['blockComment'])
 
     def test_get_user_post_detail_edit_mode_includes_schedule_fields(self):
         """예약 포스트 편집 데이터는 예약 여부와 발행 예정 시각을 포함한다."""
@@ -128,6 +133,8 @@ class PostTestCase(TestCase):
         self.client.login(username='author', password='author')
 
         post = Post.objects.get(url='test-post-1')
+        post.config.block_comment = True
+        post.config.save(update_fields=['block_comment'])
         response = self.client.post('/v1/users/@author/posts/test-post-1', {
             'title': f'{post.title} Updated',
             'text_html': post.content.content_html,
@@ -138,6 +145,19 @@ class PostTestCase(TestCase):
         post.refresh_from_db()
         self.assertEqual(response.status_code, 200)
         self.assertEqual(post.title, 'Test Post 1 Updated')
+        post.config.refresh_from_db()
+        self.assertTrue(post.config.block_comment)
+
+        response = self.client.post('/v1/users/@author/posts/test-post-1', {
+            'title': post.title,
+            'text_html': post.content.content_html,
+            'is_hide': post.config.hide,
+            'is_advertise': post.config.advertise,
+            'block_comment': 'false',
+        })
+        self.assertEqual(response.status_code, 200)
+        post.config.refresh_from_db()
+        self.assertFalse(post.config.block_comment)
 
     def test_update_scheduled_post_reserved_date(self):
         """예약 포스트 수정 API는 예약 시간을 변경할 수 있다."""
@@ -374,11 +394,14 @@ class PostTestCase(TestCase):
             'text_html': '# Test Post',
             'is_hide': False,
             'is_advertise': False,
+            'block_comment': 'true',
         })
         content = json.loads(response.content)
 
         self.assertEqual(response.status_code, 200)
         self.assertEqual(content['body']['url'], 'test-post-1000')
+        post = Post.objects.get(url='test-post-1000')
+        self.assertTrue(post.config.block_comment)
 
     def test_create_post_with_cover_options(self):
         """포스트 생성 시 커버 설정을 저장한다."""

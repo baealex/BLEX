@@ -40,6 +40,7 @@ class CommentListServiceTestCase(TestCase):
             self.viewer,
         )
 
+        self.assertTrue(payload['can_comment'])
         self.assertEqual(len(payload['comments']), 1)
         comment = payload['comments'][0]
         self.assertEqual(comment['id'], self.parent.id)
@@ -93,6 +94,7 @@ class CommentListServiceTestCase(TestCase):
             self.viewer,
         )
 
+        self.assertFalse(payload['can_comment'])
         comment = payload['comments'][0]
         self.assertEqual(comment['permissions'], {
             'can_edit': True,

@@ -84,9 +84,10 @@ class DraftTestCase(TestCase):
         self.assertFalse(post.is_published())
         self.assertFalse(post.config.hide)
         self.assertFalse(post.config.advertise)
+        self.assertFalse(post.config.block_comment)
 
     def test_create_draft_persists_publishing_settings(self):
-        """비공개·광고성 설정을 생성하고 상세 응답에서 복원한다."""
+        """발행 설정을 생성하고 상세 응답에서 복원한다."""
         self.client.login(username='test', password='test')
 
         response = self.client.post(
@@ -96,6 +97,7 @@ class DraftTestCase(TestCase):
                 'content': '<p>Hello world</p>',
                 'is_hide': True,
                 'is_advertise': True,
+                'block_comment': True,
             }),
             content_type='application/json',
         )
@@ -105,11 +107,13 @@ class DraftTestCase(TestCase):
         post = Post.objects.get(url=body['url'])
         self.assertTrue(post.config.hide)
         self.assertTrue(post.config.advertise)
+        self.assertTrue(post.config.block_comment)
 
         detail_response = self.client.get(f"/v1/drafts/{post.url}")
         detail = json.loads(detail_response.content)['body']
         self.assertTrue(detail['isHide'])
         self.assertTrue(detail['isAdvertise'])
+        self.assertTrue(detail['blockComment'])
 
     def test_create_draft_with_cover_options(self):
         """드래프트 생성 시 커버 설정을 저장하고 상세 응답에 반환한다."""
@@ -298,6 +302,7 @@ class DraftTestCase(TestCase):
             json.dumps({
                 'is_hide': True,
                 'is_advertise': True,
+                'block_comment': True,
             }),
             content_type='application/json',
         )
@@ -306,6 +311,7 @@ class DraftTestCase(TestCase):
         post = Post.objects.get(url=url)
         self.assertTrue(post.config.hide)
         self.assertTrue(post.config.advertise)
+        self.assertTrue(post.config.block_comment)
 
         response = self.client.put(
             f'/v1/drafts/{url}',
@@ -318,12 +324,14 @@ class DraftTestCase(TestCase):
         post.config.refresh_from_db()
         self.assertTrue(post.config.hide)
         self.assertTrue(post.config.advertise)
+        self.assertTrue(post.config.block_comment)
 
         response = self.client.put(
             f'/v1/drafts/{url}',
             json.dumps({
                 'is_hide': False,
                 'is_advertise': False,
+                'block_comment': False,
             }),
             content_type='application/json',
         )
@@ -332,6 +340,7 @@ class DraftTestCase(TestCase):
         post.config.refresh_from_db()
         self.assertFalse(post.config.hide)
         self.assertFalse(post.config.advertise)
+        self.assertFalse(post.config.block_comment)
 
     def test_draft_publishing_settings_support_multipart_payloads(self):
         """이미지 자동저장이 사용하는 multipart 경로에서도 설정을 보존한다."""
@@ -342,6 +351,7 @@ class DraftTestCase(TestCase):
             'content': '<p>content</p>',
             'is_hide': 'true',
             'is_advertise': 'true',
+            'block_comment': 'true',
         })
         self.assertEqual(response.status_code, 200)
         url = json.loads(response.content)['body']['url']
@@ -349,10 +359,12 @@ class DraftTestCase(TestCase):
         post = Post.objects.get(url=url)
         self.assertTrue(post.config.hide)
         self.assertTrue(post.config.advertise)
+        self.assertTrue(post.config.block_comment)
 
         payload = encode_multipart(BOUNDARY, {
             'is_hide': 'false',
             'is_advertise': 'false',
+            'block_comment': 'false',
         })
         response = self.client.generic(
             'PUT',
@@ -365,6 +377,7 @@ class DraftTestCase(TestCase):
         post.config.refresh_from_db()
         self.assertFalse(post.config.hide)
         self.assertFalse(post.config.advertise)
+        self.assertFalse(post.config.block_comment)
 
     def test_update_draft_reserved_date_and_clear(self):
         """드래프트 예약 시간은 수정하거나 비울 수 있다."""
@@ -479,6 +492,40 @@ class DraftTestCase(TestCase):
             delta=1,
         )
         self.assertEqual(PostService.get_draft_reserved_date(post), '')
+
+    def test_publish_draft_preserves_or_applies_comment_setting(self):
+        """발행은 댓글 설정을 보존하고 명시된 허용 값도 적용한다."""
+        post = PostService.create_draft(
+            user=self.user,
+            title='Blocked Comments Draft',
+            text_html='<p>Draft body</p>',
+            block_comment=True,
+        )
+
+        PostService.publish_draft(
+            post=post,
+            title=post.title,
+            text_html=post.content.content_html,
+        )
+
+        post.config.refresh_from_db()
+        self.assertTrue(post.config.block_comment)
+
+        allowed_post = PostService.create_draft(
+            user=self.user,
+            title='Allowed Comments Draft',
+            text_html='<p>Draft body</p>',
+            block_comment=True,
+        )
+        PostService.publish_draft(
+            post=allowed_post,
+            title=allowed_post.title,
+            text_html=allowed_post.content.content_html,
+            block_comment=False,
+        )
+
+        allowed_post.config.refresh_from_db()
+        self.assertFalse(allowed_post.config.block_comment)
 
     def test_update_draft_custom_url_changes_lookup_key(self):
         """드래프트 URL 변경 시 식별 URL이 갱신되어야 함"""

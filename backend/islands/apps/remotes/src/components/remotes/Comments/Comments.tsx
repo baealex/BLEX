@@ -1,4 +1,4 @@
-import { AlertTriangle, RotateCw } from '@blex/ui/icons';
+import { AlertTriangle, MessageCircle, RotateCw } from '@blex/ui/icons';
 import { isLoggedIn as checkIsLoggedIn, showLoginPrompt } from '~/utils/loginPrompt';
 import { CommentList } from './components/CommentList';
 import { CommentForm } from './components/CommentForm';
@@ -33,6 +33,7 @@ const Comments = (props: CommentsProps) => {
     const isLoggedIn = checkIsLoggedIn();
     const {
         comments,
+        canComment,
         mentionableUsers,
         commentListRef,
         isError,
@@ -129,23 +130,30 @@ const Comments = (props: CommentsProps) => {
                 />
             </div>
 
-            <div className="border-t border-line-light pt-8 mt-8">
-                <div className="mb-6">
-                    <h3 className="text-sm font-medium text-content-secondary">
-                        댓글 남기기
-                    </h3>
-                </div>
+            {canComment ? (
+                <div className="border-t border-line-light pt-8 mt-8">
+                    <div className="mb-6">
+                        <h3 className="text-sm font-medium text-content-secondary">
+                            댓글 남기기
+                        </h3>
+                    </div>
 
-                <CommentForm
-                    isLoggedIn={isLoggedIn}
-                    commentText={commentText}
-                    onCommentTextChange={setCommentText}
-                    onSubmit={handleWrite}
-                    isSubmitting={isSubmitting}
-                    onShowLoginPrompt={() => showLoginPrompt('댓글 작성')}
-                    mentionableUsers={mentionableUsers}
-                />
-            </div>
+                    <CommentForm
+                        isLoggedIn={isLoggedIn}
+                        commentText={commentText}
+                        onCommentTextChange={setCommentText}
+                        onSubmit={handleWrite}
+                        isSubmitting={isSubmitting}
+                        onShowLoginPrompt={() => showLoginPrompt('댓글 작성')}
+                        mentionableUsers={mentionableUsers}
+                    />
+                </div>
+            ) : (
+                <div className="mt-8 flex items-center gap-3 rounded-xl border border-line bg-surface-subtle px-4 py-3 text-content-secondary">
+                    <MessageCircle className="h-4 w-4 shrink-0 text-content-hint" />
+                    <p className="text-sm">작성자가 새 댓글과 답글을 받지 않는 글입니다.</p>
+                </div>
+            )}
         </section>
     );
 };

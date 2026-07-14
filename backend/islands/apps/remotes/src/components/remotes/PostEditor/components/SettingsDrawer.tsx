@@ -10,6 +10,7 @@ import {
     FileText,
     Image,
     Info,
+    MessageCircle,
     Search,
     Send,
     SlidersHorizontal,
@@ -44,6 +45,7 @@ interface SettingsDrawerProps {
     formData: {
         hide: boolean;
         advertise: boolean;
+        allowComments: boolean;
         coverLayout: string;
         coverImagePosition: string;
         coverImageRatio: string;
@@ -443,6 +445,25 @@ const SettingsDrawer = ({
 
                                     {/* Privacy & Display Options */}
                                     <div className="space-y-1">
+                                        <div className="flex items-center justify-between gap-4 py-3">
+                                            <div className="flex min-w-0 flex-1 items-center gap-3">
+                                                <MessageCircle className="w-4 h-4 text-content-hint" />
+                                                <div className="min-w-0">
+                                                    <div className="text-sm font-medium text-content">댓글 허용</div>
+                                                    <div className="text-xs text-content-secondary">
+                                                        {formData.allowComments
+                                                            ? '독자가 새 댓글과 답글을 작성할 수 있습니다'
+                                                            : '기존 댓글은 유지하고 새 댓글과 답글을 막습니다'}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <Toggle
+                                                checked={formData.allowComments}
+                                                onCheckedChange={(checked) => onFormDataChange('allowComments', checked)}
+                                                aria-label="댓글 허용"
+                                            />
+                                        </div>
+
                                         <div className="flex items-center justify-between gap-4 py-3">
                                             <div className="flex min-w-0 flex-1 items-center gap-3">
                                                 <EyeOff className="w-4 h-4 text-content-hint" />

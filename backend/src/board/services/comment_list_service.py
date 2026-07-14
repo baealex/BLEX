@@ -1,6 +1,6 @@
 from django.db.models import Case, Count, Exists, OuterRef, Prefetch, Value, When
 
-from board.models import Comment
+from board.models import Comment, Post
 from board.services.public_post_service import PublicPostService
 
 
@@ -58,8 +58,12 @@ class CommentListService:
         user_id = user.id if user.id else -1
         is_authenticated = user.is_authenticated
         parent_comments = CommentListService.get_post_parent_comments(post_url, user_id)
+        post = PublicPostService.filter_public_posts(
+            Post.objects.select_related('config')
+        ).filter(url=post_url).first()
 
         return {
+            'can_comment': bool(post and not post.config.block_comment),
             'comments': [
                 CommentListService.serialize_comment(
                     comment,

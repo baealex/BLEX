@@ -12,6 +12,7 @@ interface PostFormData {
     metaDescription: string;
     hide: boolean;
     advertise: boolean;
+    allowComments: boolean;
     coverLayout: string;
     coverImagePosition: string;
     coverImageRatio: string;
@@ -100,6 +101,7 @@ const PostForm = ({
                 <input type="hidden" name="meta_description" value={formData.metaDescription} />
                 <input type="hidden" name="hide" value={formData.hide ? 'true' : 'false'} />
                 <input type="hidden" name="advertise" value={formData.advertise ? 'true' : 'false'} />
+                <input type="hidden" name="block_comment" value={formData.allowComments ? 'false' : 'true'} />
                 <input type="hidden" name="tag" value={tags.join(',')} />
                 {selectedSeries.id && <input type="hidden" name="series" value={selectedSeries.id} />}
             </div>

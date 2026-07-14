@@ -44,7 +44,7 @@ export const resolveCommentPermissions = (comment: Comment): CommentPermissions 
     };
 };
 
-export type CommentsResponse = Response<{ comments: Comment[] }>;
+export type CommentsResponse = Response<{ comments: Comment[]; canComment: boolean }>;
 export type CommentResponse = Response<{ textMd: string }>;
 export type CreateCommentResponse = Response<Comment>;
 export type UpdateCommentResponse = Response<Record<string, never>>;

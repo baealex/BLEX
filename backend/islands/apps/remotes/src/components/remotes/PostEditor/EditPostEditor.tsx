@@ -35,6 +35,7 @@ interface DirtySnapshot {
     metaDescription: string;
     hide: boolean;
     advertise: boolean;
+    allowComments: boolean;
     coverLayout: string;
     coverImagePosition: string;
     coverImageRatio: string;
@@ -59,6 +60,7 @@ const EditPostEditor = ({ username, postUrl }: EditPostEditorProps) => {
         metaDescription: '',
         hide: false,
         advertise: false,
+        allowComments: true,
         coverLayout: 'default',
         coverImagePosition: 'right',
         coverImageRatio: 'auto',
@@ -90,6 +92,7 @@ const EditPostEditor = ({ username, postUrl }: EditPostEditorProps) => {
         metaDescription: formData.metaDescription,
         hide: formData.hide,
         advertise: formData.advertise,
+        allowComments: formData.allowComments,
         coverLayout: formData.coverLayout,
         coverImagePosition: formData.coverImagePosition,
         coverImageRatio: formData.coverImageRatio,
@@ -129,6 +132,7 @@ const EditPostEditor = ({ username, postUrl }: EditPostEditorProps) => {
                         metaDescription: postData.description || '',
                         hide: postData.isHide || false,
                         advertise: postData.isAdvertise || false,
+                        allowComments: !(postData.blockComment ?? false),
                         coverLayout: postData.coverLayout || 'default',
                         coverImagePosition: postData.coverImagePosition || 'right',
                         coverImageRatio: postData.coverImageRatio || 'auto',
@@ -144,6 +148,7 @@ const EditPostEditor = ({ username, postUrl }: EditPostEditorProps) => {
                         metaDescription: postData.description || '',
                         hide: postData.isHide || false,
                         advertise: postData.isAdvertise || false,
+                        allowComments: !(postData.blockComment ?? false),
                         coverLayout: postData.coverLayout || 'default',
                         coverImagePosition: postData.coverImagePosition || 'right',
                         coverImageRatio: postData.coverImageRatio || 'auto',

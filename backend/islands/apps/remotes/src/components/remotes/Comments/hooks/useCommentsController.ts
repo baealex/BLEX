@@ -23,6 +23,7 @@ import {
 
 interface CommentsData {
     comments: Comment[];
+    canComment: boolean;
 }
 
 interface UseCommentsControllerOptions {
@@ -72,6 +73,7 @@ export const useCommentsController = ({
     });
 
     const comments = commentsQuery.data?.comments ?? [];
+    const canComment = commentsQuery.data?.canComment ?? true;
     const mentionableUsers = getCommentAuthors(comments);
 
     const updateComments = (updater: (comments: Comment[]) => Comment[]) => {
@@ -324,6 +326,7 @@ export const useCommentsController = ({
 
     return {
         comments,
+        canComment,
         mentionableUsers,
         commentListRef,
         isError: commentsQuery.isError,
