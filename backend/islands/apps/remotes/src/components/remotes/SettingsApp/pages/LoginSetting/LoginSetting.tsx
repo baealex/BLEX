@@ -1,6 +1,13 @@
 import { type FormEvent, useEffect, useRef, useState } from 'react';
 import { useMutation, useQueryClient, useSuspenseQuery } from '@tanstack/react-query';
-import { Check, LogIn, ShieldCheck, UserCog } from '@blex/ui/icons';
+import {
+    Check,
+    ChevronDown,
+    KeyRound,
+    LogIn,
+    ShieldCheck,
+    UserCog
+} from '@blex/ui/icons';
 import { SettingsHeader } from '../../components';
 import { Toggle } from '@blex/ui/toggle';
 import { Button, Card, Checkbox, Input } from '~/components/shared';
@@ -140,6 +147,251 @@ const hasSocialAuthProvidersChanged = (
     });
 };
 
+const getProviderCredentialState = (provider: SocialAuthProviderForm) => {
+    const hasClientId = provider.clientId.trim().length > 0;
+    const hasClientSecret = !provider.clearClientSecret && (
+        provider.hasClientSecret || provider.clientSecret.trim().length > 0
+    );
+
+    return {
+        hasClientId,
+        hasClientSecret,
+        isComplete: hasClientId && hasClientSecret
+    };
+};
+
+const getProviderCredentialStatus = (provider: SocialAuthProviderForm) => {
+    const { hasClientId, hasClientSecret, isComplete } = getProviderCredentialState(provider);
+    if (isComplete) return 'Client ID · Secret 설정됨';
+    if (hasClientId || hasClientSecret) return '일부 앱 키만 설정됨';
+    return '앱 키 미설정';
+};
+
+interface ProviderAvailabilityStatus {
+    label: string;
+    className: string;
+}
+
+interface GetProviderAvailabilityStatusOptions {
+    hasDraftChanges: boolean;
+    isEnabled: boolean;
+    wasAvailable: boolean;
+    willBeAvailable: boolean;
+}
+
+const getProviderAvailabilityStatus = ({
+    hasDraftChanges,
+    isEnabled,
+    wasAvailable,
+    willBeAvailable
+}: GetProviderAvailabilityStatusOptions): ProviderAvailabilityStatus => {
+    if (hasDraftChanges) {
+        if (!willBeAvailable && isEnabled) {
+            return {
+                label: '앱 키 설정 필요',
+                className: 'bg-warning-surface text-warning'
+            };
+        }
+        if (willBeAvailable && !wasAvailable) {
+            return {
+                label: '저장 후 표시',
+                className: 'bg-warning-surface text-warning'
+            };
+        }
+        if (!willBeAvailable && wasAvailable) {
+            return {
+                label: '저장 후 숨김',
+                className: 'bg-warning-surface text-warning'
+            };
+        }
+        return {
+            label: '변경사항 미저장',
+            className: 'bg-warning-surface text-warning'
+        };
+    }
+
+    if (wasAvailable) {
+        return {
+            label: '로그인 화면에 표시됨',
+            className: 'bg-success-surface text-success'
+        };
+    }
+    if (isEnabled) {
+        return {
+            label: '앱 키 설정 필요',
+            className: 'bg-warning-surface text-warning'
+        };
+    }
+    return {
+        label: '사용 안 함',
+        className: 'bg-surface-subtle text-content-secondary'
+    };
+};
+
+interface ProviderCredentialFieldsProps {
+    provider: SocialAuthProviderForm;
+    isPending: boolean;
+    onUpdate: (key: string, patch: Partial<SocialAuthProviderForm>) => void;
+}
+
+const ProviderCredentialFields = ({
+    provider,
+    isPending,
+    onUpdate
+}: ProviderCredentialFieldsProps) => (
+    <div className="space-y-4">
+        <div className="grid gap-4 md:grid-cols-2">
+            <Input
+                label="Client ID"
+                name={`blex_${provider.key}_oauth_public_value`}
+                autoComplete="off"
+                autoCorrect="off"
+                spellCheck={false}
+                data-1p-ignore="true"
+                data-bwignore="true"
+                data-lpignore="true"
+                placeholder={`${provider.name} OAuth Client ID`}
+                value={provider.clientId}
+                onChange={(event) => onUpdate(provider.key, { clientId: event.target.value })}
+            />
+            <Input
+                label="Client Secret"
+                type="password"
+                name={`blex_${provider.key}_oauth_private_value`}
+                autoComplete="new-password"
+                autoCorrect="off"
+                spellCheck={false}
+                data-1p-ignore="true"
+                data-bwignore="true"
+                data-lpignore="true"
+                placeholder={provider.hasClientSecret ? '저장된 값 유지' : `${provider.name} OAuth Client Secret`}
+                value={provider.clientSecret}
+                onChange={(event) => onUpdate(provider.key, {
+                    clientSecret: event.target.value,
+                    clearClientSecret: false
+                })}
+                helperText={provider.hasClientSecret ? '새 값을 입력하지 않으면 기존 secret을 유지합니다.' : undefined}
+            />
+        </div>
+
+        {provider.hasClientSecret && (
+            <Checkbox
+                checked={provider.clearClientSecret}
+                disabled={isPending}
+                className="min-h-11 py-2"
+                onCheckedChange={(checked) => onUpdate(provider.key, {
+                    clearClientSecret: checked,
+                    clientSecret: checked ? '' : provider.clientSecret
+                })}
+                label="저장된 Client Secret 삭제"
+            />
+        )}
+    </div>
+);
+
+interface SocialAuthProviderPanelProps {
+    provider: SocialAuthProviderForm;
+    savedProvider: SavedSocialAuthProviderForm | null;
+    isPending: boolean;
+    onUpdate: (key: string, patch: Partial<SocialAuthProviderForm>) => void;
+}
+
+const SocialAuthProviderPanel = ({
+    provider,
+    savedProvider,
+    isPending,
+    onUpdate
+}: SocialAuthProviderPanelProps) => {
+    const { isComplete } = getProviderCredentialState(provider);
+    const wasAvailable = Boolean(
+        savedProvider?.isEnabled
+        && savedProvider.clientId.trim()
+        && savedProvider.hasClientSecret
+    );
+    const willBeAvailable = provider.isEnabled && isComplete;
+    const hasDraftChanges = Boolean(savedProvider) && (
+        provider.isEnabled !== savedProvider?.isEnabled
+        || provider.clientId !== savedProvider?.clientId
+        || provider.hasClientSecret !== savedProvider?.hasClientSecret
+        || provider.clientSecret.trim().length > 0
+        || provider.clearClientSecret
+    );
+    const status = getProviderAvailabilityStatus({
+        hasDraftChanges,
+        isEnabled: provider.isEnabled,
+        wasAvailable,
+        willBeAvailable
+    });
+
+    return (
+        <section
+            aria-labelledby={`provider-${provider.key}-title`}
+            className="overflow-hidden rounded-xl border border-line">
+            <div className="flex items-start justify-between gap-4 p-4 sm:p-5">
+                <div className="min-w-0 flex-1">
+                    <div className="flex flex-wrap items-center gap-2">
+                        <h4
+                            id={`provider-${provider.key}-title`}
+                            className="text-sm font-semibold text-content">
+                            {provider.name}
+                        </h4>
+                        <span
+                            aria-live="polite"
+                            className={`rounded-full px-2 py-1 text-[11px] font-semibold ${status.className}`}>
+                            {status.label}
+                        </span>
+                    </div>
+                    <p className="mt-2 text-xs text-content-secondary">
+                        Callback URL: <code className="break-all font-mono">/login/callback/{provider.key}</code>
+                    </p>
+                </div>
+                <Toggle
+                    checked={provider.isEnabled}
+                    disabled={isPending}
+                    onCheckedChange={(checked) => onUpdate(provider.key, { isEnabled: checked })}
+                    aria-label={`${provider.name} 소셜 로그인 사용`}
+                />
+            </div>
+
+            {provider.isEnabled ? (
+                <div className="space-y-4 border-t border-line p-4 sm:p-5">
+                    {!isComplete && (
+                        <p className="rounded-lg bg-warning-surface px-3 py-2 text-xs leading-relaxed text-warning">
+                            Client ID와 Secret을 모두 저장해야 로그인 화면에 표시됩니다.
+                        </p>
+                    )}
+                    <ProviderCredentialFields
+                        provider={provider}
+                        isPending={isPending}
+                        onUpdate={onUpdate}
+                    />
+                </div>
+            ) : (
+                <details className="group border-t border-line">
+                    <summary className="flex min-h-11 cursor-pointer list-none items-center gap-3 px-4 py-3 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-line-strong sm:px-5 [&::-webkit-details-marker]:hidden">
+                        <KeyRound aria-hidden="true" className="h-4 w-4 shrink-0 text-content-secondary" />
+                        <span className="min-w-0 flex-1 font-semibold text-content">앱 키 관리</span>
+                        <span className="text-right text-xs text-content-secondary">
+                            {getProviderCredentialStatus(provider)}
+                        </span>
+                        <ChevronDown
+                            aria-hidden="true"
+                            className="h-4 w-4 shrink-0 text-content-hint transition-transform group-open:rotate-180 motion-reduce:transition-none"
+                        />
+                    </summary>
+                    <div className="border-t border-line bg-surface-subtle/40 p-4 sm:p-5">
+                        <ProviderCredentialFields
+                            provider={provider}
+                            isPending={isPending}
+                            onUpdate={onUpdate}
+                        />
+                    </div>
+                </details>
+            )}
+        </section>
+    );
+};
+
 const LoginSetting = () => {
     const queryClient = useQueryClient();
     const hasHydratedFormRef = useRef(false);
@@ -235,17 +487,48 @@ const LoginSetting = () => {
         savedSocialAuthProvidersRef.current
     );
     const isDirty = loginSettingsDirty || socialAuthProvidersDirty;
+    const prioritizedSocialAuthProviders = socialAuthProviders
+        .map((provider, index) => {
+            const savedProvider = savedSocialAuthProvidersRef.current?.find((item) => item.key === provider.key);
+            const wasEnabled = savedProvider?.isEnabled ?? provider.isEnabled;
+            const hadCompleteCredentials = Boolean(
+                (savedProvider?.clientId ?? provider.clientId).trim()
+                && (savedProvider?.hasClientSecret ?? provider.hasClientSecret)
+            );
+            const priority = wasEnabled && hadCompleteCredentials
+                ? 0
+                : wasEnabled
+                    ? 1
+                    : 2;
+            return {
+                provider,
+                index,
+                priority
+            };
+        })
+        .sort((left, right) => left.priority - right.priority || left.index - right.index)
+        .map(({ provider }) => provider);
+    const availableSocialProviders = socialAuthProviders.filter((provider) => {
+        const savedProvider = savedSocialAuthProvidersRef.current?.find((item) => item.key === provider.key);
+        return Boolean(
+            savedProvider?.isEnabled
+            && savedProvider.clientId.trim()
+            && savedProvider.hasClientSecret
+        );
+    });
+    const hasEnabledSocialProvider = savedSocialAuthProvidersRef.current?.some((provider) => provider.isEnabled);
+    const socialLoginSummary = availableSocialProviders.length > 0
+        ? `${availableSocialProviders.map((provider) => provider.name).join(', ')} 로그인이 화면에 표시됩니다.`
+        : hasEnabledSocialProvider
+            ? '사용을 켠 공급자의 앱 키를 모두 설정해야 로그인 화면에 표시됩니다.'
+            : '현재 로그인 화면에 표시되는 소셜 로그인이 없습니다.';
 
     return (
         <form className="space-y-8" onSubmit={handleSave} autoComplete="off">
-            <SettingsHeader
-                title="로그인 관리"
-                description="회원 안내, 소셜 로그인, 회원가입 인증을 관리합니다."
-            />
+            <SettingsHeader title="로그인 관리" />
 
             <Card
                 title="회원 안내"
-                subtitle="회원 가입과 탈퇴 흐름에서 사용할 안내를 설정합니다."
                 icon={<UserCog aria-hidden="true" className="h-4 w-4" />}>
                 <div className="space-y-4">
                     <Input
@@ -274,8 +557,24 @@ const LoginSetting = () => {
             </Card>
 
             <Card
-                title="로그인 인증"
-                subtitle="회원가입 시 hCaptcha 검증을 사용합니다."
+                title="소셜 로그인"
+                subtitle={socialLoginSummary}
+                icon={<LogIn aria-hidden="true" className="h-4 w-4" />}>
+                <div className="space-y-4">
+                    {prioritizedSocialAuthProviders.map((provider) => (
+                        <SocialAuthProviderPanel
+                            key={provider.key}
+                            provider={provider}
+                            savedProvider={savedSocialAuthProvidersRef.current?.find((item) => item.key === provider.key) ?? null}
+                            isPending={updateMutation.isPending}
+                            onUpdate={updateSocialProvider}
+                        />
+                    ))}
+                </div>
+            </Card>
+
+            <Card
+                title="회원가입 보호"
                 icon={<ShieldCheck aria-hidden="true" className="h-4 w-4" />}>
                 <div className="space-y-5">
                     <div className="flex items-start justify-between gap-4 border-b border-line pb-5">
@@ -331,6 +630,7 @@ const LoginSetting = () => {
                         <Checkbox
                             checked={loginSettings.clearHcaptchaSecretKey}
                             disabled={updateMutation.isPending}
+                            className="min-h-11 py-2"
                             onCheckedChange={(checked) => updateLoginSettingsForm({
                                 clearHcaptchaSecretKey: checked,
                                 hcaptchaSecretKey: checked ? '' : loginSettings.hcaptchaSecretKey
@@ -342,87 +642,12 @@ const LoginSetting = () => {
                 </div>
             </Card>
 
-            <Card
-                title="소셜 로그인"
-                subtitle="OAuth 앱의 사용 여부와 앱 키를 관리합니다."
-                icon={<LogIn aria-hidden="true" className="h-4 w-4" />}>
-                <div className="space-y-6">
-                    <div className="rounded-lg bg-surface-subtle p-4 text-sm leading-relaxed text-content-secondary">
-                        콜백 URL은 <code className="rounded-md bg-surface px-2 py-1 text-xs">/login/callback/provider</code> 형식으로 등록합니다.
-                    </div>
-
-                    {socialAuthProviders.map((provider) => (
-                        <div key={provider.key} className="space-y-5 rounded-xl border border-line p-4">
-                            <div className="flex items-start justify-between gap-4">
-                                <div className="min-w-0 flex-1">
-                                    <div className="text-sm font-semibold text-content">{provider.name}</div>
-                                    <p className="mt-1 text-xs text-content-secondary">
-                                        콜백 URL: /login/callback/{provider.key}
-                                    </p>
-                                </div>
-                                <Toggle
-                                    checked={provider.isEnabled}
-                                    disabled={updateMutation.isPending}
-                                    onCheckedChange={(checked) => updateSocialProvider(provider.key, { isEnabled: checked })}
-                                    aria-label={`${provider.name} 소셜 로그인 사용`}
-                                />
-                            </div>
-
-                            <div className="grid gap-4 md:grid-cols-2">
-                                <Input
-                                    label="Client ID"
-                                    name={`blex_${provider.key}_oauth_public_value`}
-                                    autoComplete="off"
-                                    autoCorrect="off"
-                                    spellCheck={false}
-                                    data-1p-ignore="true"
-                                    data-bwignore="true"
-                                    data-lpignore="true"
-                                    placeholder={`${provider.name} OAuth Client ID`}
-                                    value={provider.clientId}
-                                    onChange={(event) => updateSocialProvider(provider.key, { clientId: event.target.value })}
-                                />
-                                <Input
-                                    label="Client Secret"
-                                    type="password"
-                                    name={`blex_${provider.key}_oauth_private_value`}
-                                    autoComplete="new-password"
-                                    autoCorrect="off"
-                                    spellCheck={false}
-                                    data-1p-ignore="true"
-                                    data-bwignore="true"
-                                    data-lpignore="true"
-                                    placeholder={provider.hasClientSecret ? '저장된 값 유지' : `${provider.name} OAuth Client Secret`}
-                                    value={provider.clientSecret}
-                                    onChange={(event) => updateSocialProvider(provider.key, {
-                                        clientSecret: event.target.value,
-                                        clearClientSecret: false
-                                    })}
-                                    helperText={provider.hasClientSecret ? '새 값을 입력하지 않으면 기존 secret을 유지합니다.' : undefined}
-                                />
-                            </div>
-
-                            {provider.hasClientSecret && (
-                                <Checkbox
-                                    checked={provider.clearClientSecret}
-                                    disabled={updateMutation.isPending}
-                                    onCheckedChange={(checked) => updateSocialProvider(provider.key, {
-                                        clearClientSecret: checked,
-                                        clientSecret: checked ? '' : provider.clientSecret
-                                    })}
-                                    label="저장된 Client Secret 삭제"
-                                />
-                            )}
-                        </div>
-                    ))}
-                </div>
-            </Card>
-
             <div className="sticky bottom-0 z-10 -mx-4 flex justify-end bg-surface-page/95 px-4 py-3 backdrop-blur md:mx-0 md:px-0">
                 <Button
                     type="submit"
                     variant="primary"
                     size="md"
+                    className="h-11 w-full sm:w-auto"
                     isLoading={updateMutation.isPending}
                     disabled={!isDirty || updateMutation.isPending}
                     leftIcon={!updateMutation.isPending
