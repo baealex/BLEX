@@ -187,6 +187,19 @@ export const getPostForEdit = async (username: string, postUrl: string) => {
     return http.get<Response<PostForEdit>>(`v1/users/@${username}/posts/${postUrl}?mode=edit`);
 };
 
+export const submitPostEdit = async (username: string, postUrl: string, data: FormData) => {
+    return http.post<Response<{ url: string }>>(
+        `@${username}/${postUrl}/edit`,
+        data,
+        {
+            headers: {
+                'Content-Type': 'multipart/form-data',
+                'X-BLEX-Editor-Submit': 'async'
+            }
+        }
+    );
+};
+
 interface ScheduledPostActionResult {
     url: string;
     status: 'draft' | 'published';

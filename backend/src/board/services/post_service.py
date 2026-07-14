@@ -558,49 +558,13 @@ class PostService:
         Returns:
             Updated Post instance
         """
-        if title is not None:
-            post.title = title
-
-        if subtitle is not None:
-            post.subtitle = subtitle
-
-        resolved_html_for_desc = None
-
+        resolved_html = None
         if text_html is not None:
-            PostService.validate_post_data(title or post.title, text_html)
+            next_title = title if title is not None else post.title
+            PostService.validate_post_data(next_title, text_html)
+            resolved_html = PostService._resolve_content(text_html, content_type)
 
-            try:
-                post_content = post.content
-                resolved_html = PostService._resolve_content(text_html, content_type)
-                PostContentService.update_content(post_content, resolved_html)
-            except PostContent.DoesNotExist:
-                resolved_html = PostService._resolve_content(text_html, content_type)
-                PostContentService.create_for_post(
-                    post=post,
-                    content_html=resolved_html,
-                )
-            resolved_html_for_desc = resolved_html
-
-        if description is not None:
-            post.meta_description = description
-        elif resolved_html_for_desc is not None:
-            post.meta_description = create_post_description(
-                post_content_html=resolved_html_for_desc
-            )
-
-        if series_url is not None:
-            series = PostService.get_or_none_series(post.author, series_url)
-            post.series = series
-
-        if custom_url is not None:
-            url = PostService.create_post_url(post.title, custom_url)
-            post.create_unique_url(url)
-
-        if tag is not None:
-            TagService.set_post_tags(post, tag)
-
-        PostService._set_image_with_dedup(post, image, image_delete)
-
+        reserved_date = None
         if reserved_date_str is not None:
             if not reserved_date_str:
                 raise PostValidationError(
@@ -620,12 +584,6 @@ class PostService:
                     ErrorCode.VALIDATE,
                     '예약 시간을 확인해주세요.'
                 )
-            post.published_date = reserved_date
-
-        if post.published_date is not None:
-            post.updated_date = timezone.now()
-
-        post.save()
 
         should_update_config = (
             is_hide is not None
@@ -636,20 +594,112 @@ class PostService:
             or cover_image_ratio is not None
         )
 
+        post_config = post.config if should_update_config else None
+        cover_options = None
         if should_update_config:
-            post_config = post.config
-            if is_hide is not None:
-                post_config.hide = is_hide
-            if is_advertise is not None:
-                post_config.advertise = is_advertise
-            if block_comment is not None:
-                post_config.block_comment = block_comment
-            PostService.apply_cover_options(
-                post_config,
+            cover_options = PostService.normalize_cover_options(
                 cover_layout=cover_layout,
                 cover_image_position=cover_image_position,
                 cover_image_ratio=cover_image_ratio,
+                current_config=post_config,
             )
+
+        changed = False
+
+        if title is not None and post.title != title:
+            post.title = title
+            changed = True
+
+        if subtitle is not None and post.subtitle != subtitle:
+            post.subtitle = subtitle
+            changed = True
+
+        if resolved_html is not None:
+            try:
+                post_content = post.content
+                if post_content.content_html != resolved_html:
+                    PostContentService.update_content(post_content, resolved_html)
+                    changed = True
+            except PostContent.DoesNotExist:
+                PostContentService.create_for_post(
+                    post=post,
+                    content_html=resolved_html,
+                )
+                changed = True
+
+        next_description = description
+        if next_description is None and resolved_html is not None:
+            next_description = create_post_description(
+                post_content_html=resolved_html
+            )
+        if next_description is not None and post.meta_description != next_description:
+            post.meta_description = next_description
+            changed = True
+
+        if series_url is not None:
+            series = PostService.get_or_none_series(post.author, series_url)
+            if post.series_id != (series.id if series else None):
+                post.series = series
+                changed = True
+
+        if custom_url is not None:
+            url = PostService.create_post_url(post.title, custom_url)
+            if post.url != url:
+                previous_url = post.url
+                post.create_unique_url(url)
+                changed = changed or post.url != previous_url
+
+        if tag is not None:
+            current_tags = set(post.tags.values_list('value', flat=True))
+            next_tags = TagService.parse_tags(tag)
+            if current_tags != next_tags:
+                TagService.set_post_tags(post, tag)
+                changed = True
+
+        previous_image = (
+            post.image.name if post.image else '',
+            post.image_hash,
+        )
+        PostService._set_image_with_dedup(post, image, image_delete)
+        current_image = (
+            post.image.name if post.image else '',
+            post.image_hash,
+        )
+        changed = changed or previous_image != current_image
+
+        if reserved_date is not None and post.published_date != reserved_date:
+            post.published_date = reserved_date
+            changed = True
+
+        config_changed = False
+        if post_config is not None and cover_options is not None:
+            if is_hide is not None and post_config.hide != is_hide:
+                post_config.hide = is_hide
+                config_changed = True
+            if is_advertise is not None and post_config.advertise != is_advertise:
+                post_config.advertise = is_advertise
+                config_changed = True
+            if block_comment is not None and post_config.block_comment != block_comment:
+                post_config.block_comment = block_comment
+                config_changed = True
+
+            for field_name in (
+                'cover_layout',
+                'cover_image_position',
+                'cover_image_ratio',
+            ):
+                next_value = cover_options[field_name]
+                if getattr(post_config, field_name) != next_value:
+                    setattr(post_config, field_name, next_value)
+                    config_changed = True
+
+        changed = changed or config_changed
+        if changed:
+            if post.published_date is not None:
+                post.updated_date = timezone.now()
+            post.save()
+
+        if config_changed:
             post_config.save()
 
         return post

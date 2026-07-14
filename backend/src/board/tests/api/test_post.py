@@ -10,7 +10,7 @@ from django.core.files.uploadedfile import SimpleUploadedFile
 from django.utils import timezone
 
 from board.models import (
-    User, Config, Post, PostContent, PostConfig, Profile, Series
+    User, Config, Post, PostContent, PostConfig, Profile, Series, Tag
 )
 
 
@@ -158,6 +158,67 @@ class PostTestCase(TestCase):
         self.assertEqual(response.status_code, 200)
         post.config.refresh_from_db()
         self.assertFalse(post.config.block_comment)
+
+    def test_update_user_post_noop_preserves_updated_date(self):
+        """동일한 수정 요청은 발행 글의 수정 시각을 바꾸지 않는다."""
+        self.client.login(username='author', password='author')
+        post = Post.objects.get(url='test-post-1')
+        tag = Tag.objects.create(value='unchanged')
+        post.tags.add(tag)
+        previous_updated_date = post.updated_date
+
+        response = self.client.post('/v1/users/@author/posts/test-post-1', {
+            'title': post.title,
+            'subtitle': post.subtitle,
+            'text_html': post.content.content_html,
+            'description': post.meta_description,
+            'series': '',
+            'tag': tag.value,
+            'is_hide': post.config.hide,
+            'is_advertise': post.config.advertise,
+            'block_comment': str(post.config.block_comment).lower(),
+            'cover_layout': post.config.cover_layout,
+            'cover_image_position': post.config.cover_image_position,
+            'cover_image_ratio': post.config.cover_image_ratio,
+        })
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(json.loads(response.content)['status'], 'DONE')
+        post.refresh_from_db()
+        self.assertEqual(post.updated_date, previous_updated_date)
+        self.assertEqual(post.tagging(), ['unchanged'])
+
+    def test_update_user_post_change_advances_updated_date(self):
+        """실제 변경이 있는 수정 요청만 발행 글의 수정 시각을 갱신한다."""
+        self.client.login(username='author', password='author')
+        post = Post.objects.get(url='test-post-1')
+        tag = Tag.objects.create(value='changed-contract')
+        post.tags.add(tag)
+        next_updated_date = post.updated_date + timezone.timedelta(hours=1)
+
+        with patch(
+            'board.services.post_service.timezone.now',
+            return_value=next_updated_date,
+        ):
+            response = self.client.post('/v1/users/@author/posts/test-post-1', {
+                'title': 'Actually Updated Title',
+                'subtitle': post.subtitle,
+                'text_html': post.content.content_html,
+                'description': post.meta_description,
+                'series': '',
+                'tag': tag.value,
+                'is_hide': post.config.hide,
+                'is_advertise': post.config.advertise,
+                'block_comment': str(post.config.block_comment).lower(),
+                'cover_layout': post.config.cover_layout,
+                'cover_image_position': post.config.cover_image_position,
+                'cover_image_ratio': post.config.cover_image_ratio,
+            })
+
+        self.assertEqual(response.status_code, 200)
+        post.refresh_from_db()
+        self.assertEqual(post.title, 'Actually Updated Title')
+        self.assertEqual(post.updated_date, next_updated_date)
 
     def test_update_scheduled_post_reserved_date(self):
         """예약 포스트 수정 API는 예약 시간을 변경할 수 있다."""

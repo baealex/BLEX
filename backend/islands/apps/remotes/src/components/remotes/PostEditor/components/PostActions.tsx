@@ -9,6 +9,7 @@ interface PostActionsProps {
     isSaving: boolean;
     isSubmitting: boolean;
     isMediaUploading?: boolean;
+    isSubmitDisabled?: boolean;
     lastSaved: Date | null;
     hasSaveError?: boolean;
     hasPendingChanges?: boolean;
@@ -34,6 +35,7 @@ const PostActions = ({
     isSaving,
     isSubmitting,
     isMediaUploading = false,
+    isSubmitDisabled = false,
     lastSaved,
     hasSaveError = false,
     hasPendingChanges = false,
@@ -139,7 +141,7 @@ const PostActions = ({
             {/* Publish/Update Button */}
             <Button
                 onClick={onSubmit}
-                disabled={isBusy}
+                disabled={isBusy || isSubmitDisabled}
                 variant="primary"
                 className="!rounded-full"
                 leftIcon={<Send className="w-4 h-4" />}
