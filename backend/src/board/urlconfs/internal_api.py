@@ -27,6 +27,14 @@ urlpatterns = [
     path('v1/users/@<username>/heatmap', api_v1.get_author_heatmap),
     path('v1/users/@<username>', api_v1.users),
     path('v1/users/@<username>/posts/<url>', api_v1.user_posts),
+    path(
+        'v1/users/@<username>/posts/<url>/schedule/cancel',
+        api_v1.cancel_post_schedule,
+    ),
+    path(
+        'v1/users/@<username>/posts/<url>/schedule/publish-now',
+        api_v1.publish_scheduled_post_now,
+    ),
     path('v1/users/@<username>/posts/<url>/related', api_v1.user_post_related),
     path('v1/users/@<username>/series', api_v1.user_series),
     path('v1/users/@<username>/series/<url>', api_v1.user_series),

@@ -25,6 +25,7 @@ from .notice import notices
 from .markdown import markdown_to_html
 from .pinned_post import pinnable_posts, pinned_posts, pinned_posts_order
 from .post import post_comment_list, post_list, user_post_related, user_posts
+from .post_schedule import cancel_post_schedule, publish_scheduled_post_now
 from .report import error_report
 from .search import search
 from .series import (
@@ -77,6 +78,8 @@ __all__ = (
     'get_author_heatmap',
     'users',
     'user_posts',
+    'cancel_post_schedule',
+    'publish_scheduled_post_now',
     'user_post_related',
     'user_series',
     'check_redirect',

@@ -185,6 +185,24 @@ export const getPostForEdit = async (username: string, postUrl: string) => {
     return http.get<Response<PostForEdit>>(`v1/users/@${username}/posts/${postUrl}?mode=edit`);
 };
 
+interface ScheduledPostActionResult {
+    url: string;
+    status: 'draft' | 'published';
+    publishedDate?: string;
+}
+
+export const cancelPostSchedule = async (username: string, postUrl: string) => {
+    return http.post<Response<ScheduledPostActionResult>>(
+        `v1/users/@${username}/posts/${postUrl}/schedule/cancel`
+    );
+};
+
+export const publishScheduledPostNow = async (username: string, postUrl: string) => {
+    return http.post<Response<ScheduledPostActionResult>>(
+        `v1/users/@${username}/posts/${postUrl}/schedule/publish-now`
+    );
+};
+
 export const uploadImage = async (file: File) => {
     const formData = new FormData();
     formData.append('image', file);

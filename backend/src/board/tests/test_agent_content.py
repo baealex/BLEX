@@ -323,6 +323,48 @@ class AgentContentTestCase(TestCase):
                 self.assertNotIn('Draft Agent Post', body)
                 self.assertNotIn('Future Agent Post', body)
 
+    def test_schedule_actions_keep_agent_readable_surfaces_in_sync(self):
+        """예약 상태 전환은 sitemap, RSS, Markdown의 공개 상태에 즉시 반영된다."""
+        cancelled_post = self.create_post(
+            title='Cancelled Schedule Post',
+            url='cancelled-schedule-post',
+            text_md='Cancelled schedule content',
+            published_date=timezone.now() + timedelta(days=2),
+        )
+        self.client.login(username='aeo-author', password='password123')
+
+        publish_response = self.client.post(
+            '/v1/users/@aeo-author/posts/future-agent-post/schedule/publish-now'
+        )
+        cancel_response = self.client.post(
+            '/v1/users/@aeo-author/posts/cancelled-schedule-post/schedule/cancel'
+        )
+
+        self.assertEqual(publish_response.status_code, 200)
+        self.assertEqual(cancel_response.status_code, 200)
+        self.future_post.refresh_from_db()
+        cancelled_post.refresh_from_db()
+        self.assertLessEqual(self.future_post.published_date, timezone.now())
+        self.assertIsNone(cancelled_post.published_date)
+
+        sitemap_body = self.client.get('/posts/sitemap.xml').content.decode()
+        self.assertIn('/@aeo-author/future-agent-post', sitemap_body)
+        self.assertNotIn('/@aeo-author/cancelled-schedule-post', sitemap_body)
+
+        rss_body = self.client.get('/rss').content.decode()
+        self.assertIn('Future Agent Post', rss_body)
+        self.assertNotIn('Cancelled Schedule Post', rss_body)
+
+        self.assertEqual(self.client.get('/llms.txt').status_code, 200)
+        self.assertEqual(
+            self.client.get('/@aeo-author/future-agent-post.md').status_code,
+            200,
+        )
+        self.assertEqual(
+            self.client.get('/@aeo-author/cancelled-schedule-post.md').status_code,
+            404,
+        )
+
     def test_rss_feed_items_preload_author_and_content(self):
         """RSS item 렌더링에 필요한 author/content를 미리 로드한다."""
         site_item = SitePostsFeed().items()[0]
