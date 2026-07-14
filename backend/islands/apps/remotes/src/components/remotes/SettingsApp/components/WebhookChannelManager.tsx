@@ -2,6 +2,17 @@ import { useState } from 'react';
 import type { AxiosResponse } from 'axios';
 import { useSuspenseQuery } from '@tanstack/react-query';
 import { useForm } from 'react-hook-form';
+import {
+    AlertTriangle,
+    CheckCircle,
+    Clock,
+    Code2,
+    Info,
+    Link as LinkIcon,
+    Trash2,
+    Zap
+} from '@blex/ui/icons';
+import type { LucideIcon } from '@blex/ui/icons';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { toast } from '~/utils/toast';
@@ -26,7 +37,7 @@ interface WebhookProviderInfo {
     badge: string;
     description: string;
     payload: string;
-    iconClassName: string;
+    icon: LucideIcon;
     statusClassName: string;
 }
 
@@ -69,7 +80,7 @@ const getWebhookProviderInfo = (webhookUrl: string): WebhookProviderInfo => {
             badge: 'URL 입력 전',
             description: 'Discord, Slack은 공식 웹훅 형식으로 전송하고 그 외 주소는 일반 JSON으로 전송합니다.',
             payload: 'URL을 입력하면 전송 형식이 표시됩니다.',
-            iconClassName: 'fa-circle-info',
+            icon: Info,
             statusClassName: 'text-content-secondary'
         };
     }
@@ -83,7 +94,7 @@ const getWebhookProviderInfo = (webhookUrl: string): WebhookProviderInfo => {
             badge: '공식 지원',
             description: 'Discord 채널 웹훅 URL로 인식했습니다.',
             payload: JSON.stringify({ content: WEBHOOK_MESSAGE_PREVIEW }, null, 2),
-            iconClassName: 'fa-circle-check',
+            icon: CheckCircle,
             statusClassName: 'text-success'
         };
     }
@@ -97,7 +108,7 @@ const getWebhookProviderInfo = (webhookUrl: string): WebhookProviderInfo => {
                 text: WEBHOOK_MESSAGE_PREVIEW,
                 unfurl_links: true
             }, null, 2),
-            iconClassName: 'fa-circle-check',
+            icon: CheckCircle,
             statusClassName: 'text-success'
         };
     }
@@ -112,7 +123,7 @@ const getWebhookProviderInfo = (webhookUrl: string): WebhookProviderInfo => {
             message: WEBHOOK_MESSAGE_PREVIEW,
             url: 'https://blex.me/@baealex/blex-update'
         }, null, 2),
-        iconClassName: 'fa-code',
+        icon: Code2,
         statusClassName: 'text-content-secondary'
     };
 };
@@ -167,6 +178,7 @@ const WebhookChannelManager = ({
         }
     });
     const webhookProvider = getWebhookProviderInfo(watch('webhookUrl'));
+    const WebhookProviderIcon = webhookProvider.icon;
 
     const handleTest = async () => {
         const isValid = await trigger('webhookUrl');
@@ -306,8 +318,9 @@ const WebhookChannelManager = ({
                             />
                             <div className="mt-3 border-l border-line pl-3">
                                 <div className="flex items-start gap-3">
-                                    <i
-                                        className={`fas ${webhookProvider.iconClassName} mt-0.5 ${webhookProvider.statusClassName}`}
+                                    <WebhookProviderIcon
+                                        aria-hidden="true"
+                                        className={`mt-0.5 h-4 w-4 shrink-0 ${webhookProvider.statusClassName}`}
                                     />
                                     <div className="min-w-0 flex-1">
                                         <div className="flex flex-wrap items-center gap-2">
@@ -390,7 +403,9 @@ const WebhookChannelManager = ({
                             key={channel.id}
                             left={
                                 <div className={getSettingsIconClass('default')}>
-                                    <i className={`fas ${channel.isActive ? 'fa-bolt' : 'fa-exclamation-triangle'} text-sm`} />
+                                    {channel.isActive
+                                        ? <Zap aria-hidden="true" className="h-4 w-4" />
+                                        : <AlertTriangle aria-hidden="true" className="h-4 w-4" />}
                                 </div>
                             }
                             actions={
@@ -400,7 +415,7 @@ const WebhookChannelManager = ({
                                     items={[
                                         {
                                             label: '삭제',
-                                            icon: 'fas fa-trash',
+                                            icon: <Trash2 aria-hidden="true" className="h-4 w-4" />,
                                             onClick: () => handleDelete(channel.id),
                                             variant: 'danger'
                                         }
@@ -412,11 +427,11 @@ const WebhookChannelManager = ({
                             </h3>
                             <div className={`${SETTINGS_LIST_META} flex flex-wrap items-center gap-3`}>
                                 <span className="flex items-center truncate max-w-[200px]" title={channel.webhookUrl}>
-                                    <i className="fas fa-link mr-1.5" />
+                                    <LinkIcon aria-hidden="true" className="mr-1.5 h-3.5 w-3.5 shrink-0" />
                                     {channel.webhookUrl.replace(/^https?:\/\//, '').slice(0, 30)}...
                                 </span>
                                 <span className="flex items-center">
-                                    <i className="fas fa-clock mr-1.5" />
+                                    <Clock aria-hidden="true" className="mr-1.5 h-3.5 w-3.5 shrink-0" />
                                     {channel.createdDate}
                                 </span>
                                 {getStatusBadge(channel)}
@@ -426,7 +441,7 @@ const WebhookChannelManager = ({
                 </div>
             ) : !showAddForm ? (
                 <SettingsEmptyState
-                    iconClassName="fas fa-bolt"
+                    icon={<Zap aria-hidden="true" className="h-4 w-4" />}
                     title={emptyTitle}
                     description={emptyDescription}
                     action={createAction}

@@ -1,6 +1,15 @@
 import { useState } from 'react';
 import { toast } from '~/utils/toast';
 import { useMutation, useQueryClient, useSuspenseQuery } from '@tanstack/react-query';
+import {
+    ArrowRight,
+    Clock,
+    Database,
+    FileImage,
+    Image,
+    ScrollText,
+    Tags
+} from '@blex/ui/icons';
 import { useConfirm } from '~/hooks/useConfirm';
 import { SettingsHeader } from '../../components';
 import {
@@ -17,6 +26,31 @@ import {
     type LogCleanResult,
     type ImageCleanResult
 } from '~/lib/api/settings';
+
+interface ImageThumbnailProps {
+    src: string;
+    alt: string;
+}
+
+const ImageThumbnail = ({ src, alt }: ImageThumbnailProps) => {
+    const [hasError, setHasError] = useState(false);
+
+    return (
+        <div className="flex aspect-square items-center justify-center overflow-hidden rounded-lg border border-line bg-surface-subtle">
+            {hasError ? (
+                <FileImage aria-hidden="true" className="h-5 w-5 text-content-hint" />
+            ) : (
+                <img
+                    src={src}
+                    alt={alt}
+                    loading="lazy"
+                    className="h-full w-full object-cover"
+                    onError={() => setHasError(true)}
+                />
+            )}
+        </div>
+    );
+};
 
 const UtilitySetting = () => {
     const { confirm } = useConfirm();
@@ -228,7 +262,7 @@ const UtilitySetting = () => {
             <Card
                 title="데이터베이스 통계"
                 subtitle="현재 데이터베이스의 주요 통계입니다."
-                icon={<i className="fas fa-database" />}>
+                icon={<Database aria-hidden="true" className="h-4 w-4" />}>
                 <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                     <StatItem label="포스트" value={stats.totalPosts} />
                     <StatItem label="사용자" value={stats.totalUsers} />
@@ -244,7 +278,7 @@ const UtilitySetting = () => {
                 <Card
                     title="태그 정리"
                     subtitle="포스트에 사용되지 않는 태그를 찾아 삭제합니다."
-                    icon={<i className="fas fa-tags" />}>
+                    icon={<Tags aria-hidden="true" className="h-4 w-4" />}>
                     <div className="space-y-4">
                         {tagResult && (
                             <Alert variant={tagResult.dryRun ? 'info' : 'success'}>
@@ -280,7 +314,7 @@ const UtilitySetting = () => {
                 <Card
                     title="세션 정리"
                     subtitle="만료되었거나 불필요한 세션을 정리합니다."
-                    icon={<i className="fas fa-clock" />}>
+                    icon={<Clock aria-hidden="true" className="h-4 w-4" />}>
                     <div className="space-y-4">
                         <div className="flex gap-6 text-sm text-content-secondary">
                             <span>전체 세션: <strong className="text-content">{stats.totalSessions}</strong></span>
@@ -317,7 +351,7 @@ const UtilitySetting = () => {
                 <Card
                     title="로그 정리"
                     subtitle="관리자 활동 로그를 정리합니다."
-                    icon={<i className="fas fa-scroll" />}>
+                    icon={<ScrollText aria-hidden="true" className="h-4 w-4" />}>
                     <div className="space-y-4">
                         <div className="text-sm text-content-secondary">
                             로그 수: <strong className="text-content">{stats.logCount}</strong>
@@ -344,7 +378,7 @@ const UtilitySetting = () => {
                 <Card
                     title="이미지 정리"
                     subtitle="사용되지 않는 이미지 파일을 찾아 삭제합니다."
-                    icon={<i className="fas fa-image" />}>
+                    icon={<Image aria-hidden="true" className="h-4 w-4" />}>
                     <div className="space-y-4">
                         <div className="flex flex-wrap items-start gap-4">
                             <div className="w-full min-w-[220px] flex-1">
@@ -390,21 +424,7 @@ const UtilitySetting = () => {
                                             <div className="mt-3 grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-2 max-h-80 overflow-y-auto">
                                                 {imageResult.unusedFiles.map((file, i) => (
                                                     <div key={i} className="group relative">
-                                                        <div className="aspect-square rounded-lg overflow-hidden bg-surface-subtle border border-line">
-                                                            <img
-                                                                src={file.url}
-                                                                alt={file.path}
-                                                                loading="lazy"
-                                                                className="w-full h-full object-cover"
-                                                                onError={(e) => {
-                                                                    e.currentTarget.style.display = 'none';
-                                                                    e.currentTarget.parentElement!.classList.add(
-                                                                        'flex', 'items-center', 'justify-center'
-                                                                    );
-                                                                    e.currentTarget.parentElement!.innerHTML = '<i class="fas fa-file-image text-content-hint text-xl"></i>';
-                                                                }}
-                                                            />
-                                                        </div>
+                                                        <ImageThumbnail src={file.url} alt={file.path} />
                                                         <div className="mt-1 text-[10px] text-content-secondary truncate" title={file.path}>
                                                             {file.sizeKb} KB
                                                         </div>
@@ -430,7 +450,7 @@ const UtilitySetting = () => {
                                                             />
                                                         </div>
                                                         <div className="flex-shrink-0 text-content-hint">
-                                                            <i className="fas fa-arrow-right" />
+                                                            <ArrowRight aria-hidden="true" className="h-4 w-4" />
                                                         </div>
                                                         <div className="flex-shrink-0 w-12 h-12 rounded-lg overflow-hidden bg-surface-subtle border border-line">
                                                             <img

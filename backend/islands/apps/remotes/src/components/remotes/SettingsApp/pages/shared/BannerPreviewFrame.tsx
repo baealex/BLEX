@@ -1,5 +1,6 @@
 import { cx } from '~/lib/classnames';
 import type { ReactNode } from 'react';
+import { Layers3 } from '@blex/ui/icons';
 
 type BannerPosition = 'top' | 'bottom' | 'left' | 'right';
 
@@ -101,7 +102,7 @@ const BannerPreviewFrame = ({
                             <div className={cx('mb-12 transition-opacity sm:mb-16', mutedPostClass)}>
                                 <div className="mb-6 flex items-center gap-2">
                                     <span className="inline-flex items-center gap-1.5 rounded-full bg-action px-3 py-1 text-xs font-semibold text-content-inverted">
-                                        <i className="fas fa-layer-group text-[10px] opacity-70" />
+                                        <Layers3 aria-hidden="true" className="h-3 w-3 opacity-70" />
                                         Series
                                     </span>
                                     <span className="text-xs font-medium text-content-hint">1 / 5</span>

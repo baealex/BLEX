@@ -1,4 +1,5 @@
 import { Dropdown } from '~/components/shared';
+import { Pencil, Trash2 } from '@blex/ui/icons';
 import { SETTINGS_LIST_META, SETTINGS_LIST_TITLE } from '~/styles/settingsStyles';
 import { SettingsListItem } from '../../../components';
 import type { StaticPageData } from '~/lib/api/settings';
@@ -24,12 +25,12 @@ export const StaticPageList = ({ pages, onView, onEdit, onDelete }: StaticPageLi
                             items={[
                                 {
                                     label: '편집',
-                                    icon: 'fas fa-pen',
+                                    icon: <Pencil aria-hidden="true" className="h-4 w-4" />,
                                     onClick: () => onEdit(page.id)
                                 },
                                 {
                                     label: '삭제',
-                                    icon: 'fas fa-trash',
+                                    icon: <Trash2 aria-hidden="true" className="h-4 w-4" />,
                                     onClick: () => onDelete(page.id),
                                     variant: 'danger'
                                 }

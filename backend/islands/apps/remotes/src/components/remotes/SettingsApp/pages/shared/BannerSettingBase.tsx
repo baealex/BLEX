@@ -1,6 +1,7 @@
 import { toast } from '~/utils/toast';
 import { useMutation, useQueryClient, useSuspenseQuery } from '@tanstack/react-query';
 import { useNavigate } from '@tanstack/react-router';
+import { Ad, Layers3 } from '@blex/ui/icons';
 import { useConfirm } from '~/hooks/useConfirm';
 import { SettingsEmptyState, SettingsHeader } from '../../components';
 import { Button } from '~/components/shared';
@@ -180,7 +181,9 @@ const BannerSettingBase = ({ scope }: BannerSettingBaseProps) => {
                 </div>
             ) : (
                 <SettingsEmptyState
-                    iconClassName={isGlobal ? 'fas fa-rectangle-ad' : 'fas fa-shapes'}
+                    icon={isGlobal
+                        ? <Ad aria-hidden="true" className="h-4 w-4" />
+                        : <Layers3 aria-hidden="true" className="h-4 w-4" />}
                     title={isGlobal ? '등록된 전역 배너가 없습니다' : '등록된 배너가 없습니다'}
                     action={createAction}
                 />

@@ -5,7 +5,7 @@ import { useForm, Controller } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { FloatingBottomBar } from '@blex/ui/floating-bottom-bar';
-import { Send } from '@blex/ui/icons';
+import { ArrowLeft, Send } from '@blex/ui/icons';
 import { CodeEditor } from '~/components/CodeEditor';
 import { Button, Checkbox, Input } from '~/components/shared';
 import { useConfirm } from '~/hooks/useConfirm';
@@ -396,7 +396,7 @@ const BannerEditorBase = ({ scope, bannerId }: BannerEditorBaseProps) => {
                         type="button"
                         className="flex items-center gap-2 py-2 text-sm text-content-secondary transition-colors hover:text-content active:text-content-secondary"
                         onClick={() => navigateToList()}>
-                        <i className="fas fa-arrow-left" />
+                        <ArrowLeft aria-hidden="true" className="h-4 w-4" />
                         <span>목록으로</span>
                     </button>
 

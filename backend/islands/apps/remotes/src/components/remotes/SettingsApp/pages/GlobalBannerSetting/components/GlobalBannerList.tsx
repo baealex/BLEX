@@ -17,6 +17,7 @@ import {
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { restrictToVerticalAxis, restrictToFirstScrollableAncestor } from '@dnd-kit/modifiers';
+import { Pencil, Power, Trash2 } from '@blex/ui/icons';
 
 import { Dropdown } from '~/components/shared';
 import { SETTINGS_LIST_TITLE } from '~/styles/settingsStyles';
@@ -86,17 +87,17 @@ const SortableBannerItem = ({ banner, onEdit, onDelete, onToggleActive }: Sortab
                         items={[
                             {
                                 label: banner.isActive ? '비활성화' : '활성화',
-                                icon: 'fas fa-power-off',
+                                icon: <Power aria-hidden="true" className="h-4 w-4" />,
                                 onClick: () => onToggleActive(banner)
                             },
                             {
                                 label: '수정',
-                                icon: 'fas fa-pen',
+                                icon: <Pencil aria-hidden="true" className="h-4 w-4" />,
                                 onClick: () => onEdit(banner.id)
                             },
                             {
                                 label: '삭제',
-                                icon: 'fas fa-trash',
+                                icon: <Trash2 aria-hidden="true" className="h-4 w-4" />,
                                 onClick: () => onDelete(banner.id),
                                 variant: 'danger'
                             }

@@ -5,67 +5,80 @@ import {
     AlertCircle,
     CheckCircle,
     ChevronDown,
+    Code2,
     Eye,
     FileText,
+    Layers3,
     Loader2,
+    Pencil,
+    Route,
     RotateCw,
     Save,
+    Signpost,
     SlidersHorizontal
 } from '@blex/ui/icons';
+import type { LucideIcon } from '@blex/ui/icons';
 import { Button, Card } from '~/components/shared';
 import { CodeEditor } from '~/components/CodeEditor';
 import { toast } from '~/utils/toast';
 import { getSiteSettings, updateSiteSettings } from '~/lib/api/settings';
 import { SettingsHeader } from '../../components';
 
-const seoExposureItems = [
+interface ExposureItem {
+    icon: LucideIcon;
+    name: string;
+    path: string;
+    description: string;
+}
+
+const seoExposureItems: ExposureItem[] = [
     {
-        icon: 'fa-route',
+        icon: Route,
         name: 'robots.txt',
         path: '/robots.txt',
         description: '현재 설정과 기본 정책을 합쳐 생성하는 공개 크롤러 정책입니다.'
     },
     {
-        icon: 'fa-code',
+        icon: Code2,
         name: 'Robots meta',
         path: 'noindex, nofollow',
         description: 'SEO가 꺼지면 HTML 페이지에 색인하지 말라는 신호를 함께 붙입니다.'
     },
     {
-        icon: 'fa-sitemap',
+        icon: Layers3,
         name: 'Sitemap 안내',
         path: '/sitemap.xml',
         description: 'SEO가 켜져 있을 때만 robots.txt에서 sitemap 위치를 알려 공개 페이지 발견을 돕습니다.'
     },
     {
-        icon: 'fa-pen-to-square',
+        icon: Pencil,
         name: '추가 robots 규칙',
         path: 'runtime setting',
         description: '관리자가 저장한 Allow, Disallow, User-agent, Sitemap 규칙을 배포 없이 즉시 반영합니다.'
     }
 ];
 
-const aeoExposureItems = [
+const aeoExposureItems: ExposureItem[] = [
     {
-        icon: 'fa-file-lines',
+        icon: FileText,
         name: 'llms.txt',
         path: '/llms.txt',
         description: 'AI 에이전트가 사이트의 기본 정보를 먼저 확인할 수 있는 공개 안내 파일입니다.'
     },
     {
-        icon: 'fa-markdown',
+        icon: Code2,
         name: 'Markdown endpoint',
         path: '/@user/post.md, /static/page.md',
         description: '포스트, 시리즈, 정적 페이지를 HTML 대신 읽기 쉬운 Markdown 형식으로 제공하는 주소입니다.'
     },
     {
-        icon: 'fa-signs-post',
+        icon: Signpost,
         name: 'Discovery header',
         path: 'Link, X-Llms-Txt, rel=alternate',
         description: '브라우저 화면에는 보이지 않지만, 에이전트와 크롤러가 AI용 Markdown 주소를 발견하도록 알려주는 신호입니다.'
     },
     {
-        icon: 'fa-route',
+        icon: Route,
         name: 'robots.txt',
         path: '/robots.txt',
         description: 'AEO가 켜지면 llms.txt 위치를 안내하고, 꺼지면 llms.txt와 .md 주소 접근을 막도록 안내합니다.'
@@ -442,48 +455,54 @@ const SeoAeoSetting = () => {
                     <section className="space-y-3">
                         <h3 className="text-sm font-semibold text-content">SEO</h3>
                         <div className="divide-y divide-line rounded-xl border border-line">
-                            {seoExposureItems.map((item) => (
-                                <div key={item.name} className="flex gap-4 p-4">
-                                    <div className="mt-1 flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-surface-subtle text-content-secondary">
-                                        <i className={`fas ${item.icon}`} />
-                                    </div>
-                                    <div className="min-w-0 flex-1">
-                                        <div className="flex flex-col gap-1 sm:flex-row sm:items-baseline sm:justify-between">
-                                            <h4 className="text-sm font-semibold text-content">{item.name}</h4>
-                                            <code className="break-all rounded-md bg-surface-subtle px-2 py-1 text-xs text-content-secondary">
-                                                {item.path}
-                                            </code>
+                            {seoExposureItems.map((item) => {
+                                const ItemIcon = item.icon;
+                                return (
+                                    <div key={item.name} className="flex gap-4 p-4">
+                                        <div className="mt-1 flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-surface-subtle text-content-secondary">
+                                            <ItemIcon aria-hidden="true" className="h-4 w-4" />
                                         </div>
-                                        <p className="mt-2 text-sm leading-relaxed text-content-secondary">
-                                            {item.description}
-                                        </p>
+                                        <div className="min-w-0 flex-1">
+                                            <div className="flex flex-col gap-1 sm:flex-row sm:items-baseline sm:justify-between">
+                                                <h4 className="text-sm font-semibold text-content">{item.name}</h4>
+                                                <code className="break-all rounded-md bg-surface-subtle px-2 py-1 text-xs text-content-secondary">
+                                                    {item.path}
+                                                </code>
+                                            </div>
+                                            <p className="mt-2 text-sm leading-relaxed text-content-secondary">
+                                                {item.description}
+                                            </p>
+                                        </div>
                                     </div>
-                                </div>
-                            ))}
+                                );
+                            })}
                         </div>
                     </section>
 
                     <section className="space-y-3">
                         <h3 className="text-sm font-semibold text-content">AEO</h3>
                         <div className="divide-y divide-line rounded-xl border border-line">
-                            {aeoExposureItems.map((item) => (
-                                <div key={item.name} className="flex gap-4 p-4">
-                                    <div className="mt-1 flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-surface-subtle text-content-secondary">
-                                        <i className={`fas ${item.icon}`} />
-                                    </div>
-                                    <div className="min-w-0 flex-1">
-                                        <div className="flex flex-col gap-1 sm:flex-row sm:items-baseline sm:justify-between">
-                                            <h4 className="text-sm font-semibold text-content">{item.name}</h4>
-                                            <code className="break-all rounded-md bg-surface-subtle px-2 py-1 text-xs text-content-secondary">
-                                                {item.path}
-                                            </code>
+                            {aeoExposureItems.map((item) => {
+                                const ItemIcon = item.icon;
+                                return (
+                                    <div key={item.name} className="flex gap-4 p-4">
+                                        <div className="mt-1 flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-surface-subtle text-content-secondary">
+                                            <ItemIcon aria-hidden="true" className="h-4 w-4" />
                                         </div>
-                                        <p className="mt-2 text-sm leading-relaxed text-content-secondary">
-                                            {item.description}
-                                        </p>
+                                        <div className="min-w-0 flex-1">
+                                            <div className="flex flex-col gap-1 sm:flex-row sm:items-baseline sm:justify-between">
+                                                <h4 className="text-sm font-semibold text-content">{item.name}</h4>
+                                                <code className="break-all rounded-md bg-surface-subtle px-2 py-1 text-xs text-content-secondary">
+                                                    {item.path}
+                                                </code>
+                                            </div>
+                                            <p className="mt-2 text-sm leading-relaxed text-content-secondary">
+                                                {item.description}
+                                            </p>
+                                        </div>
                                     </div>
-                                </div>
-                            ))}
+                                );
+                            })}
                         </div>
                     </section>
                 </div>

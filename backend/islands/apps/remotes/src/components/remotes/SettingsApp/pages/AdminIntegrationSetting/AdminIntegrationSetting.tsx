@@ -1,5 +1,6 @@
 import { type FormEvent, useEffect, useRef, useState } from 'react';
 import { useMutation, useQueryClient, useSuspenseQuery } from '@tanstack/react-query';
+import { Check, Send } from '@blex/ui/icons';
 import { Toggle } from '@blex/ui/toggle';
 import { SettingsHeader } from '../../components';
 import { Button, Card, Checkbox, Input } from '~/components/shared';
@@ -150,7 +151,7 @@ const AdminIntegrationSetting = () => {
             <Card
                 title="봇 설정"
                 subtitle="사용자 알림을 텔레그램으로 보낼 봇을 설정합니다."
-                icon={<i className="fab fa-telegram-plane" />}>
+                icon={<Send aria-hidden="true" className="h-4 w-4" />}>
                 <div className="space-y-5">
                     <div className="flex items-start justify-between gap-4 border-b border-line pb-5">
                         <div className="min-w-0 flex-1">
@@ -224,7 +225,9 @@ const AdminIntegrationSetting = () => {
                     size="md"
                     isLoading={updateMutation.isPending}
                     disabled={!isDirty || updateMutation.isPending}
-                    leftIcon={!updateMutation.isPending ? <i className="fas fa-check" /> : undefined}>
+                    leftIcon={!updateMutation.isPending
+                        ? <Check aria-hidden="true" className="h-4 w-4" />
+                        : undefined}>
                     {updateMutation.isPending ? '저장 중...' : '텔레그램 설정 저장'}
                 </Button>
             </div>
