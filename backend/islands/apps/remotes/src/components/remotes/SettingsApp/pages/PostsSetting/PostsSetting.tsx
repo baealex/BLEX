@@ -87,21 +87,34 @@ const PostsSetting = () => {
 
     const activeCount = postCounts[activeTab];
     const title = activeCount === undefined ? '포스트' : `포스트 (${activeCount})`;
+    const hasContentFilters = Boolean(
+        filters.tag || filters.series || filters.visibility || filters.search
+    );
+    const createPostAction = (
+        <Button
+            variant="primary"
+            size="md"
+            className="min-h-11! w-full sm:w-auto"
+            onClick={() => window.location.assign('/write')}>
+            새 포스트 작성
+        </Button>
+    );
+    const emptyPostAction = hasContentFilters ? (
+        <Button
+            variant="secondary"
+            size="md"
+            className="min-h-11!"
+            onClick={clearFilters}>
+            필터 초기화
+        </Button>
+    ) : createPostAction;
 
     return (
         <div>
             <SettingsHeader
                 title={title}
                 actionPosition="right"
-                action={
-                    <Button
-                        variant="primary"
-                        size="md"
-                        className="w-full sm:w-auto"
-                        onClick={() => window.location.assign('/write')}>
-                        새 포스트 작성
-                    </Button>
-                }
+                action={activeCount !== undefined && activeCount > 0 ? createPostAction : undefined}
             />
 
             <div className="mb-6 border-b border-line-light">
@@ -115,7 +128,7 @@ const PostsSetting = () => {
                                 role="tab"
                                 aria-selected={isActive}
                                 onClick={() => handleTabChange(tab.value)}
-                                className={`inline-flex flex-shrink-0 items-center gap-2 px-3 py-2.5 text-sm font-medium transition-colors ${
+                                className={`inline-flex min-h-11 flex-shrink-0 items-center gap-2 px-3 py-2.5 text-sm font-medium transition-colors ${
                                     isActive
                                         ? 'border-b-2 border-action text-content'
                                         : 'border-b-2 border-transparent text-content-secondary hover:text-content'
@@ -133,6 +146,7 @@ const PostsSetting = () => {
                     <PostsFilter
                         filters={filters}
                         isExpanded={isFilterExpanded}
+                        showClearAction={activeCount !== undefined && activeCount > 0}
                         onExpandToggle={() => setIsFilterExpanded(!isFilterExpanded)}
                         onFilterChange={handleFilterChange}
                         onSearchChange={handleSearchChange}
@@ -159,6 +173,7 @@ const PostsSetting = () => {
                             onPageChange={(page) => handleFilterChange('page', page)}
                             onCountChange={(count) => handleCountChange('published', count)}
                             emptyMessage="발행 포스트가 없습니다."
+                            emptyAction={emptyPostAction}
                         />
                     )}
                     {activeTab === 'scheduled' && (
@@ -169,11 +184,13 @@ const PostsSetting = () => {
                             onCountChange={(count) => handleCountChange('scheduled', count)}
                             source="scheduled"
                             emptyMessage="예약 포스트가 없습니다."
+                            emptyAction={emptyPostAction}
                         />
                     )}
                     {activeTab === 'drafts' && (
                         <DraftPostListContent
                             onCountChange={(count) => handleCountChange('drafts', count)}
+                            emptyAction={createPostAction}
                         />
                     )}
                 </div>

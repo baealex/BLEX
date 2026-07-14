@@ -147,6 +147,15 @@ const FormsManagement = () => {
     };
 
     const forms = formsData?.forms || [];
+    const createAction = (
+        <Button
+            variant="primary"
+            size="md"
+            className="min-h-11! w-full sm:w-auto"
+            onClick={handleCreateForm}>
+            새 서식 추가
+        </Button>
+    );
 
     return (
         <div>
@@ -154,15 +163,7 @@ const FormsManagement = () => {
                 title={`서식 (${forms.length})`}
                 description="새 포스트에 불러올 문구를 미리 저장합니다."
                 actionPosition="right"
-                action={
-                    <Button
-                        variant="primary"
-                        size="md"
-                        className="w-full sm:w-auto"
-                        onClick={handleCreateForm}>
-                        새 서식 추가
-                    </Button>
-                }
+                action={forms.length > 0 ? createAction : undefined}
             />
 
             {showForm && (
@@ -195,6 +196,7 @@ const FormsManagement = () => {
                                 type="button"
                                 variant="ghost"
                                 size="md"
+                                className="min-h-11!"
                                 onClick={closeForm}
                                 disabled={isSubmitting}>
                                 취소
@@ -204,6 +206,7 @@ const FormsManagement = () => {
                                     type="submit"
                                     variant="primary"
                                     size="md"
+                                    className="min-h-11!"
                                     isLoading={isSubmitting}>
                                     {isSubmitting ? (editingForm ? '수정 중...' : '생성 중...') : (editingForm ? '서식 수정' : '서식 생성')}
                                 </Button>
@@ -225,6 +228,8 @@ const FormsManagement = () => {
                             }
                             actions={
                                 <Dropdown
+                                    triggerAriaLabel={`${form.title} 서식 메뉴 열기`}
+                                    triggerClassName="min-h-11 min-w-11"
                                     items={[
                                         {
                                             label: '수정',
@@ -244,12 +249,13 @@ const FormsManagement = () => {
                         </SettingsListItem>
                     ))}
                 </div>
-            ) : (
+            ) : !showForm ? (
                 <SettingsEmptyState
                     iconClassName="fas fa-file-lines"
                     title="등록된 서식이 없습니다"
+                    action={createAction}
                 />
-            )}
+            ) : null}
         </div>
     );
 };

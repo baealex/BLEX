@@ -6,11 +6,12 @@ const LIST_ITEM_SHELL = 'bg-surface ring-1 ring-line/60 rounded-2xl transition-a
 const LIST_ITEM_CONTENT = 'p-5';
 const LIST_ITEM_ROW = 'flex items-center gap-3';
 const LIST_ITEM_ACTIONS = 'flex gap-2 flex-shrink-0';
-const LIST_ITEM_DRAG_HANDLE = 'cursor-grab active:cursor-grabbing text-content-hint hover:text-content-secondary p-2 hover:bg-surface-subtle rounded-lg transition-colors -ml-2';
+const LIST_ITEM_DRAG_HANDLE = 'inline-flex min-h-11 min-w-11 cursor-grab items-center justify-center active:cursor-grabbing text-content-hint hover:text-content-secondary hover:bg-surface-subtle rounded-lg transition-colors -ml-2';
 
 interface DragHandleProps {
     attributes: DraggableAttributes;
     listeners: SyntheticListenerMap | undefined;
+    ariaLabel?: string;
 }
 
 interface SettingsListItemProps {
@@ -56,7 +57,8 @@ const SettingsListItem = ({
                             style={{ touchAction: 'none' }}
                             onClick={(e) => e.stopPropagation()}
                             {...dragHandleProps.attributes}
-                            {...dragHandleProps.listeners}>
+                            {...dragHandleProps.listeners}
+                            aria-label={dragHandleProps.ariaLabel || '순서 변경'}>
                             <i className="fas fa-grip-vertical" />
                         </div>
                     )}

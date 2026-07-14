@@ -1,9 +1,11 @@
+import type { ReactNode } from 'react';
 import { useEffect } from 'react';
 import { usePostsQuery, type FilterOptions, type PostsSource } from '../hooks/usePostsData';
 import { usePostsActions } from '../hooks';
 import PostCard from './PostCard';
 import Pagination from './Pagination';
 import type { Series } from '~/lib/api/settings';
+import { SettingsEmptyState } from '../../../components';
 
 interface PostListContentProps {
     filters: FilterOptions;
@@ -12,6 +14,7 @@ interface PostListContentProps {
     onCountChange?: (count: number) => void;
     source?: PostsSource;
     emptyMessage?: string;
+    emptyAction?: ReactNode;
 }
 
 export const PostListContent = ({
@@ -20,7 +23,8 @@ export const PostListContent = ({
     onPageChange,
     onCountChange,
     source = 'published',
-    emptyMessage = '포스트가 없습니다.'
+    emptyMessage = '포스트가 없습니다.',
+    emptyAction
 }: PostListContentProps) => {
     const {
         posts,
@@ -78,9 +82,11 @@ export const PostListContent = ({
                     ))}
                 </div>
             ) : (
-                <div className="py-8 text-center text-sm text-content-secondary bg-surface-subtle rounded-lg border border-line-light border-dashed">
-                    {emptyMessage}
-                </div>
+                <SettingsEmptyState
+                    iconClassName={isScheduled ? 'fas fa-calendar-day' : 'fas fa-file-alt'}
+                    title={emptyMessage}
+                    action={emptyAction}
+                />
             )}
 
             <Pagination

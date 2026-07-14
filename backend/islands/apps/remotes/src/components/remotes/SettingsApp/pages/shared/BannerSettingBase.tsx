@@ -135,6 +135,16 @@ const BannerSettingBase = ({ scope }: BannerSettingBaseProps) => {
         navigate({ to: '/banners/create' });
     };
 
+    const createAction = (
+        <Button
+            onClick={handleCreateBanner}
+            variant="primary"
+            size="md"
+            className="min-h-11! w-full sm:w-auto">
+            새 배너 추가
+        </Button>
+    );
+
     return (
         <div className="space-y-8">
             <SettingsHeader
@@ -145,15 +155,7 @@ const BannerSettingBase = ({ scope }: BannerSettingBaseProps) => {
                         : '상단·하단·사이드바에 표시되며 드래그하여 순서를 조정할 수 있습니다.'
                 }
                 actionPosition="right"
-                action={
-                    <Button
-                        onClick={handleCreateBanner}
-                        variant="primary"
-                        size="md"
-                        className="w-full sm:w-auto">
-                        새 배너 추가
-                    </Button>
-                }
+                action={bannersData && bannersData.length > 0 ? createAction : undefined}
             />
 
             {bannersData && bannersData.length > 0 ? (
@@ -180,7 +182,7 @@ const BannerSettingBase = ({ scope }: BannerSettingBaseProps) => {
                 <SettingsEmptyState
                     iconClassName={isGlobal ? 'fas fa-rectangle-ad' : 'fas fa-shapes'}
                     title={isGlobal ? '등록된 전역 배너가 없습니다' : '등록된 배너가 없습니다'}
-                    description={isGlobal ? '첫 번째 전역 배너를 만들어보세요.' : undefined}
+                    action={createAction}
                 />
             )}
         </div>

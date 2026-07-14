@@ -54,6 +54,7 @@ export const PinnablePostsPager = ({
                     <Button
                         variant="secondary"
                         size="sm"
+                        className="min-h-11! min-w-11"
                         disabled={!pagination.hasPrevious || isLoading}
                         onClick={() => handlePageMove(1)}
                         aria-label="첫 페이지">
@@ -62,6 +63,7 @@ export const PinnablePostsPager = ({
                     <Button
                         variant="secondary"
                         size="sm"
+                        className="min-h-11! min-w-11"
                         disabled={!pagination.hasPrevious || isLoading}
                         onClick={() => handlePageMove(currentPage - 1)}
                         aria-label="이전 페이지">
@@ -72,6 +74,7 @@ export const PinnablePostsPager = ({
                             key={page}
                             variant={page === currentPage ? 'primary' : 'secondary'}
                             size="sm"
+                            className="min-h-11! min-w-11"
                             disabled={isLoading}
                             onClick={() => handlePageMove(page)}
                             aria-current={page === currentPage ? 'page' : undefined}>
@@ -81,6 +84,7 @@ export const PinnablePostsPager = ({
                     <Button
                         variant="secondary"
                         size="sm"
+                        className="min-h-11! min-w-11"
                         disabled={!pagination.hasNext || isLoading}
                         onClick={() => handlePageMove(currentPage + 1)}
                         aria-label="다음 페이지">
@@ -89,6 +93,7 @@ export const PinnablePostsPager = ({
                     <Button
                         variant="secondary"
                         size="sm"
+                        className="min-h-11! min-w-11"
                         disabled={!pagination.hasNext || isLoading}
                         onClick={() => handlePageMove(pagination.lastPage)}
                         aria-label="마지막 페이지">

@@ -265,24 +265,26 @@ const WebhookChannelManager = ({
         );
     };
 
+    const createAction = (
+        <Button
+            variant="primary"
+            size="md"
+            className="min-h-11! w-full sm:w-auto"
+            onClick={() => {
+                reset();
+                setShowAddForm(true);
+            }}>
+            {addButtonLabel}
+        </Button>
+    );
+
     return (
         <div>
             <SettingsHeader
                 title={title}
                 description={description}
                 actionPosition="right"
-                action={
-                    <Button
-                        variant="primary"
-                        size="md"
-                        className="w-full sm:w-auto"
-                        onClick={() => {
-                            reset();
-                            setShowAddForm(true);
-                        }}>
-                        {addButtonLabel}
-                    </Button>
-                }
+                action={channels && channels.length > 0 ? createAction : undefined}
             />
 
             {showAddForm && (
@@ -349,6 +351,7 @@ const WebhookChannelManager = ({
                                 variant="ghost"
                                 size="md"
                                 type="button"
+                                className="min-h-11!"
                                 onClick={handleCancel}
                                 disabled={isAdding || isTesting}>
                                 취소
@@ -359,6 +362,7 @@ const WebhookChannelManager = ({
                                     variant="secondary"
                                     size="md"
                                     type="button"
+                                    className="min-h-11!"
                                     isLoading={isTesting}
                                     disabled={isAdding}
                                     onClick={handleTest}>
@@ -368,6 +372,7 @@ const WebhookChannelManager = ({
                                     variant="primary"
                                     size="md"
                                     type="submit"
+                                    className="min-h-11!"
                                     isLoading={isAdding}
                                     disabled={isTesting}>
                                     {isAdding ? '추가 중...' : '추가'}
@@ -390,6 +395,8 @@ const WebhookChannelManager = ({
                             }
                             actions={
                                 <Dropdown
+                                    triggerAriaLabel={`${channel.name || '이름 없는 채널'} 웹훅 메뉴 열기`}
+                                    triggerClassName="min-h-11 min-w-11"
                                     items={[
                                         {
                                             label: '삭제',
@@ -417,13 +424,14 @@ const WebhookChannelManager = ({
                         </SettingsListItem>
                     ))}
                 </div>
-            ) : (
+            ) : !showAddForm ? (
                 <SettingsEmptyState
                     iconClassName="fas fa-bolt"
                     title={emptyTitle}
                     description={emptyDescription}
+                    action={createAction}
                 />
-            )}
+            ) : null}
         </div>
     );
 };

@@ -33,7 +33,9 @@ const Pagination = ({ page, lastPage, onPageChange }: PaginationProps) => {
     };
 
     return (
-        <nav className="pagination-nav" aria-label="Page navigation">
+        <nav
+            className="pagination-nav [&_.pagination-link]:min-h-11 [&_.pagination-link]:min-w-11"
+            aria-label="포스트 페이지">
             <div className="pagination-action prev">
                 {currentPage > 1 ? (
                     <>
@@ -42,7 +44,7 @@ const Pagination = ({ page, lastPage, onPageChange }: PaginationProps) => {
                                 type="button"
                                 className="pagination-link"
                                 onClick={() => handlePageMove(1)}
-                                aria-label="First page">
+                                aria-label="첫 페이지">
                                 <i className="fas fa-angle-double-left" />
                             </button>
                         </div>
@@ -51,7 +53,7 @@ const Pagination = ({ page, lastPage, onPageChange }: PaginationProps) => {
                                 type="button"
                                 className="pagination-link"
                                 onClick={() => handlePageMove(currentPage - 1)}
-                                aria-label="Previous page">
+                                aria-label="이전 페이지">
                                 <i className="fas fa-angle-left" />
                             </button>
                         </div>
@@ -99,7 +101,7 @@ const Pagination = ({ page, lastPage, onPageChange }: PaginationProps) => {
                                 type="button"
                                 className="pagination-link"
                                 onClick={() => handlePageMove(currentPage + 1)}
-                                aria-label="Next page">
+                                aria-label="다음 페이지">
                                 <i className="fas fa-angle-right" />
                             </button>
                         </div>
@@ -108,7 +110,7 @@ const Pagination = ({ page, lastPage, onPageChange }: PaginationProps) => {
                                 type="button"
                                 className="pagination-link"
                                 onClick={() => handlePageMove(lastPage)}
-                                aria-label="Last page">
+                                aria-label="마지막 페이지">
                                 <i className="fas fa-angle-double-right" />
                             </button>
                         </div>

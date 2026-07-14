@@ -213,7 +213,7 @@ export const PinnedPostsPanel = ({
         <Button
             variant="primary"
             size="md"
-            className="w-full sm:w-auto"
+            className="min-h-11! w-full sm:w-auto"
             onClick={handleOpenModal}
             disabled={!canAddMore}>
             {canAddMore ? '포스트 고정하기' : '최대 개수 도달'}
@@ -227,6 +227,7 @@ export const PinnedPostsPanel = ({
                 onReorder={handleReorder}
                 onRemove={handleRemovePinnedPost}
                 maxCount={maxCount}
+                emptyAction={!embedded ? action : undefined}
             />
 
             {!embedded && (
@@ -253,7 +254,7 @@ export const PinnedPostsPanel = ({
                     title={`고정 포스트 (${pinnedPosts.length}/${maxCount})`}
                     description="드래그하여 프로필에 표시되는 순서를 조정할 수 있습니다."
                     actionPosition="right"
-                    action={action}
+                    action={pinnedPosts.length > 0 ? action : undefined}
                 />
                 {list}
             </div>

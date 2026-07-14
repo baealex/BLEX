@@ -72,7 +72,7 @@ export const AddPinnedPostModal = ({
                         <button
                             type="button"
                             onClick={handleClose}
-                            className="inline-flex min-h-10 items-center justify-center rounded-lg px-3 text-sm font-semibold text-content-secondary transition-colors duration-150 hover:bg-surface-subtle hover:text-content active:scale-95">
+                            className="inline-flex min-h-11 items-center justify-center rounded-lg px-3 text-sm font-semibold text-content-secondary transition-colors duration-150 hover:bg-surface-subtle hover:text-content active:scale-95">
                             선택 취소
                         </button>
                     </div>

@@ -114,10 +114,11 @@ const SocialLinkItem = ({ social, index, onRemove, onChange }: SocialLinkItemPro
                 <div className="flex items-center justify-between p-4 sm:hidden bg-surface-subtle border-b border-line/60">
                     <div className="flex items-center gap-3">
                         <div
-                            className="cursor-grab active:cursor-grabbing text-content-hint hover:text-content-secondary w-8 h-8 flex items-center justify-center transition-colors touch-none hover:bg-surface-subtle rounded-lg"
+                            className="flex min-h-11 min-w-11 cursor-grab touch-none items-center justify-center rounded-lg text-content-hint transition-colors hover:bg-surface-subtle hover:text-content-secondary active:cursor-grabbing"
                             style={{ touchAction: 'none' }}
                             {...attributes}
-                            {...listeners}>
+                            {...listeners}
+                            aria-label={`소셜 링크 ${index + 1} 순서 변경`}>
                             <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
                                 <path d="M3 5h14a1 1 0 010 2H3a1 1 0 010-2zm0 4h14a1 1 0 010 2H3a1 1 0 010-2zm0 4h14a1 1 0 010 2H3a1 1 0 010-2z" />
                             </svg>
@@ -129,8 +130,8 @@ const SocialLinkItem = ({ social, index, onRemove, onChange }: SocialLinkItemPro
                     </div>
                     <button
                         type="button"
-                        aria-label="소셜 링크 삭제"
-                        className="w-8 h-8 flex items-center justify-center rounded-lg text-content-hint hover:text-content-secondary hover:bg-surface-subtle transition-all duration-200"
+                        aria-label={`${currentPlatform?.label || '소셜 링크'} 삭제`}
+                        className="flex min-h-11 min-w-11 items-center justify-center rounded-lg text-content-hint transition-all duration-200 hover:bg-surface-subtle hover:text-content-secondary"
                         onClick={() => onRemove(social.id)}>
                         <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
                             <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
@@ -142,10 +143,11 @@ const SocialLinkItem = ({ social, index, onRemove, onChange }: SocialLinkItemPro
                 <div className="p-4 flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-3">
                     {/* 드래그 핸들 - 데스크톱에서만 표시 */}
                     <div
-                        className="hidden sm:flex cursor-grab active:cursor-grabbing text-content-hint hover:text-content-secondary w-8 h-8 items-center justify-center transition-colors group-hover:text-content-secondary hover:bg-surface-subtle rounded-lg flex-shrink-0"
+                        className="hidden min-h-11 min-w-11 flex-shrink-0 cursor-grab items-center justify-center rounded-lg text-content-hint transition-colors hover:bg-surface-subtle hover:text-content-secondary group-hover:text-content-secondary active:cursor-grabbing sm:flex"
                         style={{ touchAction: 'none' }}
                         {...attributes}
-                        {...listeners}>
+                        {...listeners}
+                        aria-label={`소셜 링크 ${index + 1} 순서 변경`}>
                         <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
                             <path d="M3 5h14a1 1 0 010 2H3a1 1 0 010-2zm0 4h14a1 1 0 010 2H3a1 1 0 010-2zm0 4h14a1 1 0 010 2H3a1 1 0 010-2z" />
                         </svg>
@@ -192,8 +194,8 @@ const SocialLinkItem = ({ social, index, onRemove, onChange }: SocialLinkItemPro
                     {/* 삭제 버튼 - 데스크톱에서만 표시 */}
                     <button
                         type="button"
-                        aria-label="소셜 링크 삭제"
-                        className="hidden sm:flex w-10 h-10 items-center justify-center rounded-lg text-content-hint hover:text-content-secondary hover:bg-surface-subtle transition-all duration-200 group/btn flex-shrink-0"
+                        aria-label={`${currentPlatform?.label || '소셜 링크'} 삭제`}
+                        className="hidden min-h-11 min-w-11 flex-shrink-0 items-center justify-center rounded-lg text-content-hint transition-all duration-200 hover:bg-surface-subtle hover:text-content-secondary group/btn sm:flex"
                         onClick={() => onRemove(social.id)}>
                         <svg className="w-4 h-4 group-hover/btn:scale-110 transition-transform" fill="currentColor" viewBox="0 0 20 20">
                             <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
@@ -361,7 +363,12 @@ const SocialLinks = () => {
                             iconClassName="fas fa-share-alt"
                             title="소셜 링크가 없습니다"
                             action={(
-                                <Button type="button" variant="secondary" size="md" onClick={handleSocialAdd}>
+                                <Button
+                                    type="button"
+                                    variant="secondary"
+                                    size="md"
+                                    className="min-h-11!"
+                                    onClick={handleSocialAdd}>
                                     소셜 링크 추가하기
                                 </Button>
                             )}
@@ -397,7 +404,7 @@ const SocialLinks = () => {
                             size="md"
                             leftIcon={<i className="fas fa-plus" />}
                             onClick={handleSocialAdd}
-                            className="sm:w-auto">
+                            className="min-h-11! sm:w-auto">
                             링크 추가
                         </Button>
                         <Button
@@ -406,7 +413,7 @@ const SocialLinks = () => {
                             size="md"
                             isLoading={isLoading}
                             leftIcon={!isLoading ? <i className="fas fa-save" /> : undefined}
-                            className="sm:w-auto">
+                            className="min-h-11! sm:w-auto">
                             {isLoading ? '저장 중...' : '변경사항 저장'}
                         </Button>
                     </div>
