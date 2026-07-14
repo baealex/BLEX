@@ -1,6 +1,19 @@
 import type Alpine from 'alpinejs';
 import 'react';
 
+type ToastCall = (message: unknown, options?: Record<string, unknown>) => unknown;
+
+type LazyToast = ToastCall & {
+    success: ToastCall;
+    error: ToastCall;
+    info: ToastCall;
+    warning: ToastCall;
+    loading: ToastCall;
+    promise: (...args: unknown[]) => unknown;
+    dismiss: (...args: unknown[]) => unknown;
+    message: ToastCall;
+};
+
 declare module 'react' {
     interface StyleHTMLAttributes<T> extends React.HTMLAttributes<T> {
         jsx?: boolean;
@@ -27,5 +40,11 @@ declare global {
             githubClientId?: string;
         };
         NEXT_URL: string;
+        toast: LazyToast;
+        __blexIslandMonitor?: {
+            notifyBootstrap?: () => void;
+            notifyMounted?: (name: string) => void;
+            notifyFailed?: (name: string, reason: string) => void;
+        };
     }
 }

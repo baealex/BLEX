@@ -9,17 +9,43 @@ const manifestPath = resolve(outDir, '.vite/manifest.json');
 
 const budgets = [
     {
-        entry: 'src/island.tsx',
-        label: 'island bootstrap',
+        entries: [
+            'src/scripts/island-loader.ts',
+            'src/scripts/lazy-loading.ts',
+            'src/scripts/alpine-loader.ts'
+        ],
+        label: 'base page scripts',
         maxInitialFiles: 6,
-        maxInitialBytes: 245 * 1024,
-        maxInitialGzipBytes: 80 * 1024,
+        maxInitialBytes: 65 * 1024,
+        maxInitialGzipBytes: 23 * 1024,
+        allowedInitialNames: [
+            'src/scripts/island-loader.ts',
+            'preload-helper',
+            'src/scripts/lazy-loading.ts',
+            'src/scripts/alpine-loader.ts',
+            'theme',
+            'loginPrompt'
+        ],
+        requiredDynamicNames: [
+            'src/island.tsx',
+            'toast'
+        ]
+    },
+    {
+        entries: ['src/island.tsx'],
+        label: 'on-demand island runtime',
+        maxInitialFiles: 9,
+        maxInitialBytes: 235 * 1024,
+        maxInitialGzipBytes: 75 * 1024,
         allowedInitialNames: [
             'src/island.tsx',
             'rolldown-runtime',
             'jsx-runtime',
             'react',
+            'react-dom',
             'IsRestoringProvider',
+            'mutation',
+            'QueryClientProvider',
             'preload-helper'
         ],
         blockedHints: [
@@ -37,6 +63,74 @@ const budgets = [
             'charts',
             'zod'
         ]
+    },
+    {
+        entries: ['src/island.tsx', 'src/components/remotes/Login/index.ts'],
+        label: 'login island experience',
+        maxInitialBytes: 350 * 1024,
+        maxInitialGzipBytes: 115 * 1024
+    },
+    {
+        entries: ['src/island.tsx', 'src/components/remotes/Signup/index.ts'],
+        label: 'signup island experience',
+        maxInitialBytes: 350 * 1024,
+        maxInitialGzipBytes: 115 * 1024
+    },
+    {
+        entries: ['src/island.tsx', 'src/components/remotes/SearchPage/index.tsx'],
+        label: 'search island experience',
+        maxInitialBytes: 310 * 1024,
+        maxInitialGzipBytes: 100 * 1024
+    },
+    {
+        entries: ['src/island.tsx', 'src/components/remotes/SettingsApp/index.tsx'],
+        label: 'settings island experience',
+        maxInitialBytes: 475 * 1024,
+        maxInitialGzipBytes: 155 * 1024
+    },
+    {
+        entries: ['src/island.tsx', 'src/components/remotes/PostEditor/index.ts'],
+        label: 'post editor island experience',
+        maxInitialBytes: 1320 * 1024,
+        maxInitialGzipBytes: 420 * 1024
+    },
+    {
+        entries: ['src/island.tsx', 'src/components/remotes/Comments/index.ts'],
+        label: 'comments island experience',
+        maxInitialBytes: 465 * 1024,
+        maxInitialGzipBytes: 155 * 1024
+    },
+    {
+        entries: ['styles/main.scss', 'styles/tailwind.css'],
+        label: 'base page styles',
+        maxInitialFiles: 2,
+        maxInitialBytes: 200 * 1024,
+        maxInitialGzipBytes: 43 * 1024,
+        allowedInitialNames: [
+            'styles/main.scss',
+            'styles/tailwind.css'
+        ]
+    },
+    {
+        entries: ['styles/main.scss', 'styles/tailwind.css', 'styles/post.scss'],
+        label: 'post page styles',
+        maxInitialFiles: 3,
+        maxInitialBytes: 212 * 1024,
+        maxInitialGzipBytes: 46 * 1024,
+        allowedInitialNames: [
+            'styles/main.scss',
+            'styles/tailwind.css',
+            'styles/post.scss'
+        ]
+    }
+];
+
+const assetBudgets = [
+    {
+        entry: 'styles/main.scss',
+        label: 'base page font assets',
+        maxAssets: 4,
+        maxBytes: 275 * 1024
     }
 ];
 
@@ -47,7 +141,7 @@ const formatKiB = (bytes) => `${(bytes / 1024).toFixed(1)} KiB`;
 const getSearchValue = (item, key) =>
     [key, item.name, item.src, item.file].filter(Boolean).join(' ');
 
-const collectInitialGraph = (entryKey) => {
+const collectInitialGraph = (entryKeys) => {
     const visited = new Set();
     const visit = (key) => {
         if (visited.has(key)) {
@@ -67,10 +161,21 @@ const collectInitialGraph = (entryKey) => {
         }
     };
 
-    visit(entryKey);
+    entryKeys.forEach(visit);
 
     return [...visited];
 };
+
+const getItemName = (key) => {
+    const item = manifest[key];
+    return item?.src ?? item?.name ?? key;
+};
+
+const collectDynamicNames = (entryKeys) => new Set(
+    entryKeys.flatMap((entryKey) =>
+        (manifest[entryKey]?.dynamicImports ?? []).map(getItemName)
+    )
+);
 
 const getFileStats = (key) => {
     const item = manifest[key];
@@ -92,34 +197,41 @@ const getFileStats = (key) => {
 let hasFailure = false;
 
 for (const budget of budgets) {
-    const stats = collectInitialGraph(budget.entry).map(getFileStats);
+    const stats = collectInitialGraph(budget.entries).map(getFileStats);
     const totalRawBytes = stats.reduce((sum, item) => sum + item.rawBytes, 0);
     const totalGzipBytes = stats.reduce((sum, item) => sum + item.gzipBytes, 0);
-    const unexpectedStats = stats.filter(
-        (item) => !budget.allowedInitialNames.includes(item.name)
-    );
-    const blockedStats = stats
-        .map((item) => {
-            const haystack = `${item.value}\n${item.source}`.toLowerCase();
-            const hits = budget.blockedHints.filter((hint) => haystack.includes(hint));
-            return { ...item, hits };
-        })
-        .filter((item) => item.hits.length > 0);
+    const unexpectedStats = budget.allowedInitialNames
+        ? stats.filter((item) => !budget.allowedInitialNames.includes(item.name))
+        : [];
+    const blockedStats = budget.blockedHints
+        ? stats
+            .map((item) => {
+                const haystack = `${item.value}\n${item.source}`.toLowerCase();
+                const hits = budget.blockedHints.filter((hint) => haystack.includes(hint));
+                return { ...item, hits };
+            })
+            .filter((item) => item.hits.length > 0)
+        : [];
+    const dynamicNames = collectDynamicNames(budget.entries);
+    const missingDynamicNames = (budget.requiredDynamicNames ?? [])
+        .filter((name) => !dynamicNames.has(name));
 
     console.log(`Entry budget report: ${budget.label}`);
     console.log(`- Files: ${stats.length}`);
     console.log(`- Raw size: ${formatKiB(totalRawBytes)}`);
     console.log(`- Gzip size: ${formatKiB(totalGzipBytes)}`);
 
-    for (const item of stats) {
-        console.log(
-            `  - ${item.label} -> ${item.file} (${formatKiB(item.rawBytes)} raw / ${formatKiB(item.gzipBytes)} gzip)`
-        );
+    if (budget.allowedInitialNames || budget.blockedHints) {
+        for (const item of stats) {
+            console.log(
+                `  - ${item.label} -> ${item.file} (${formatKiB(item.rawBytes)} raw / ${formatKiB(item.gzipBytes)} gzip)`
+            );
+        }
     }
 
     const violations = [];
 
-    if (stats.length > budget.maxInitialFiles) {
+    if (budget.maxInitialFiles && stats.length > budget.maxInitialFiles) {
         violations.push(
             `${budget.label} imports ${stats.length} files, limit is ${budget.maxInitialFiles}`
         );
@@ -146,6 +258,50 @@ for (const budget of budgets) {
     if (blockedStats.length > 0) {
         violations.push(
             `${budget.label} includes blocked feature code: ${blockedStats.map((item) => `${item.label} (${item.hits.join(', ')})`).join(', ')}`
+        );
+    }
+
+    if (missingDynamicNames.length > 0) {
+        violations.push(
+            `${budget.label} no longer defers required modules: ${missingDynamicNames.join(', ')}`
+        );
+    }
+
+    if (violations.length > 0) {
+        hasFailure = true;
+        console.error('Budget violations detected:');
+        for (const violation of violations) {
+            console.error(`- ${violation}`);
+        }
+    }
+}
+
+for (const budget of assetBudgets) {
+    const item = manifest[budget.entry];
+    if (!item) {
+        throw new Error(`Missing manifest entry: ${budget.entry}`);
+    }
+
+    const assets = item.assets ?? [];
+    const totalBytes = assets.reduce(
+        (sum, file) => sum + statSync(resolve(outDir, file)).size,
+        0
+    );
+    const violations = [];
+
+    console.log(`Asset budget report: ${budget.label}`);
+    console.log(`- Files: ${assets.length}`);
+    console.log(`- Raw size: ${formatKiB(totalBytes)}`);
+
+    if (assets.length > budget.maxAssets) {
+        violations.push(
+            `${budget.label} includes ${assets.length} assets, limit is ${budget.maxAssets}`
+        );
+    }
+
+    if (totalBytes > budget.maxBytes) {
+        violations.push(
+            `${budget.label} raw size is ${formatKiB(totalBytes)}, limit is ${formatKiB(budget.maxBytes)}`
         );
     }
 

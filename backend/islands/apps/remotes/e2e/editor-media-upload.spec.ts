@@ -35,7 +35,6 @@ const mountPostEditor = async (page: Page) => {
     });
 
     await page.goto('/');
-    await page.waitForFunction(() => Boolean(customElements.get('island-component')));
     await page.evaluate(() => {
         const island = document.createElement('island-component');
         island.setAttribute('name', 'PostEditor');

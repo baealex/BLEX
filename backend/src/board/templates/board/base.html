@@ -92,6 +92,7 @@
     {% endblock %}
     <link rel="stylesheet" href="{% island_css 'styles/tailwind.css' %}">
     <link rel="stylesheet" href="{% island_css 'styles/main.scss' %}">
+    <link rel="modulepreload" href="{% island_entry 'src/scripts/island-loader.ts' %}">
     <link rel="icon" href="{{ site_brand.favicon_url }}" />
     <link rel="apple-touch-icon" sizes="57x57" href="{{ site_brand.icon_png_57_url }}" />
     <link rel="apple-touch-icon" sizes="72x72" href="{{ site_brand.icon_png_72_url }}" />
@@ -238,12 +239,17 @@
             };
 
             const checkPendingIslands = () => {
-                if (!bootstrapObserved) {
-                    reportFailure('island_bootstrap_missing', serializeIslands(getTrackedIslands()));
+                const trackedIslands = getTrackedIslands();
+                if (trackedIslands.length === 0) {
                     return;
                 }
 
-                const pendingIslands = getTrackedIslands().filter(
+                if (!bootstrapObserved) {
+                    reportFailure('island_bootstrap_missing', serializeIslands(trackedIslands));
+                    return;
+                }
+
+                const pendingIslands = trackedIslands.filter(
                     (element) => element.dataset.islandStatus !== 'mounted'
                 );
 
@@ -274,7 +280,7 @@
     </script>
     {% vite_hmr_client %}
     {% block extra_scripts %}{% endblock %}
-    <script type="module" src="{% island_entry 'src/island.tsx' %}"></script>
+    <script type="module" src="{% island_entry 'src/scripts/island-loader.ts' %}"></script>
     <script type="module" src="{% island_entry 'src/scripts/lazy-loading.ts' %}"></script>
     <script type="module" src="{% island_entry 'src/scripts/alpine-loader.ts' %}"></script>
     {% include 'custom/custom_body.html' %}
