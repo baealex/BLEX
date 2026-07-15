@@ -7,7 +7,10 @@ import {
     updatePostTags,
     updatePostSeries
 } from '~/lib/api/posts';
-import type { Post } from './usePostsData';
+import {
+    clearPostClassificationDraft,
+    type Post
+} from './usePostsData';
 
 interface UsePostsActionsProps {
     username: string;
@@ -73,6 +76,7 @@ export const usePostsActions = ({
             const { data } = await deletePost(username, postUrl);
 
             if (data.status === 'DONE') {
+                clearPostClassificationDraft(username, postUrl);
                 toast.success('포스트를 휴지통으로 옮겼습니다.');
                 refetch();
             } else {
@@ -84,15 +88,14 @@ export const usePostsActions = ({
     };
 
     const handleTagChange = (postUrl: string, value: string) => {
-        setPosts(prev => prev.map(post =>
-            post.url === postUrl
-                ? {
-                    ...post,
-                    tag: value,
-                    hasTagChanged: post.persistedTag !== value
-                }
-                : post
-        ));
+        setPosts(prev => prev.map(post => {
+            if (post.url !== postUrl) return post;
+            return {
+                ...post,
+                tag: value,
+                hasTagChanged: post.persistedTag !== value
+            };
+        }));
     };
 
     const handleTagSubmit = async (postUrl: string) => {
@@ -137,15 +140,14 @@ export const usePostsActions = ({
     };
 
     const handleSeriesChange = (postUrl: string, value: string) => {
-        setPosts(prev => prev.map(post =>
-            post.url === postUrl
-                ? {
-                    ...post,
-                    series: value,
-                    hasSeriesChanged: post.persistedSeries !== value
-                }
-                : post
-        ));
+        setPosts(prev => prev.map(post => {
+            if (post.url !== postUrl) return post;
+            return {
+                ...post,
+                series: value,
+                hasSeriesChanged: post.persistedSeries !== value
+            };
+        }));
     };
 
     const handleSeriesSubmit = async (postUrl: string) => {

@@ -1,8 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useQueryClient, useSuspenseQuery } from '@tanstack/react-query';
 import { Trash2 } from '@blex/ui/icons';
-import { SettingsHeader } from '../../../components';
-import { Button } from '~/components/shared';
+import { SettingsHeader, SettingsHeaderAction } from '../../../components';
 import { toast } from '~/utils/toast';
 import {
     addPinnedPost,
@@ -216,14 +215,12 @@ export const PinnedPostsPanel = ({
     const occupiedCount = pinnedPosts.length + reservedCount;
     const canAddMore = occupiedCount < maxCount;
     const action = (
-        <Button
+        <SettingsHeaderAction
             variant="primary"
-            size="md"
-            className="min-h-11! w-full sm:w-auto"
             onClick={handleOpenModal}
             disabled={!canAddMore}>
             {canAddMore ? '포스트 고정하기' : '최대 개수 도달'}
-        </Button>
+        </SettingsHeaderAction>
     );
     const list = (
         <>
@@ -285,7 +282,7 @@ export const PinnedPostsPanel = ({
         <section id="pinned-posts" className="space-y-4">
             <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                 <div className="space-y-1.5">
-                    <h3 className="text-lg font-semibold tracking-tight text-content">
+                    <h3 className="text-base font-semibold text-content">
                         고정 포스트
                         <span className="ml-2 text-sm font-medium text-content-secondary">
                             {occupiedCount}/{maxCount}

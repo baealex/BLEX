@@ -22,8 +22,13 @@ import { restrictToVerticalAxis, restrictToFirstScrollableAncestor } from '@dnd-
 import { useSuspenseQuery } from '@tanstack/react-query';
 import { useNavigate } from '@tanstack/react-router';
 import { BookOpen, FileText, Pencil, Trash2 } from '@blex/ui/icons';
-import { SettingsEmptyState, SettingsHeader, SettingsListItem } from '../../components';
-import { Button, Dropdown } from '~/components/shared';
+import {
+    SettingsEmptyState,
+    SettingsHeader,
+    SettingsHeaderAction,
+    SettingsListItem
+} from '../../components';
+import { Dropdown } from '~/components/shared';
 import {
     getSettingsIconClass,
     SETTINGS_LIST_META,
@@ -94,8 +99,9 @@ const SortableSeriesItem = ({ series, username, onEdit, onDelete }: SortableSeri
                 }
                 actions={
                     <Dropdown
+                        density="compact"
                         triggerAriaLabel={`${series.title} 시리즈 메뉴 열기`}
-                        triggerClassName="min-h-11 min-w-11"
+                        triggerClassName="min-h-11 min-w-11 [@media(pointer:fine)]:min-h-9 [@media(pointer:fine)]:min-w-9"
                         items={[
                             {
                                 label: '시리즈 편집',
@@ -212,13 +218,11 @@ const SeriesSetting = () => {
     };
 
     const createAction = (
-        <Button
+        <SettingsHeaderAction
             variant="primary"
-            size="md"
-            className="min-h-11! w-full sm:w-auto"
             onClick={handleCreateSeries}>
             새 시리즈 생성
-        </Button>
+        </SettingsHeaderAction>
     );
 
     return (

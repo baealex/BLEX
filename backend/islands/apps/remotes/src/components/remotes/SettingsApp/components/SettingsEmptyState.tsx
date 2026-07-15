@@ -19,7 +19,7 @@ const SettingsEmptyState = ({
     action,
     className = ''
 }: SettingsEmptyStateProps) => {
-    const containerClasses = ['py-10 text-center border border-dashed border-line rounded-2xl', className]
+    const containerClasses = ['rounded-2xl border border-dashed border-line py-10 text-center', className]
         .filter(Boolean)
         .join(' ');
 
@@ -27,14 +27,14 @@ const SettingsEmptyState = ({
         <div className={containerClasses}>
             <div
                 aria-hidden="true"
-                className="mb-3 inline-flex h-12 w-12 items-center justify-center rounded-xl bg-surface-subtle text-content-hint [&>svg]:h-5 [&>svg]:w-5">
+                className="mb-2.5 inline-flex h-10 w-10 items-center justify-center rounded-lg bg-surface-subtle text-content-hint [&>svg]:h-4 [&>svg]:w-4">
                 {icon ?? <i className={`${iconClassName} text-lg`} />}
             </div>
             <h3 className={`text-base font-semibold text-content ${action && !description ? 'mb-5' : description ? 'mb-1' : ''}`}>
                 {title}
             </h3>
             {description && (
-                <p className={`text-content-secondary text-sm ${action ? 'mb-5' : ''}`}>{description}</p>
+                <p className={`text-sm text-content-secondary ${action ? 'mb-5' : ''}`}>{description}</p>
             )}
             {action}
         </div>

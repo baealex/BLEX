@@ -8,6 +8,17 @@ interface SelectItem {
     label: string;
 }
 
+const selectDensityStyles = {
+    default: {
+        trigger: 'px-4 py-3 rounded-xl',
+        item: 'px-4 py-2.5'
+    },
+    compact: {
+        trigger: 'min-h-11 px-3 py-2.5 rounded-lg [@media(pointer:fine)]:min-h-10 [@media(pointer:fine)]:py-2',
+        item: 'min-h-11 px-3 py-2 [@media(pointer:fine)]:min-h-10'
+    }
+} as const;
+
 interface SelectProps {
     value: string;
     onValueChange: (value: string) => void;
@@ -17,6 +28,7 @@ interface SelectProps {
     error?: string;
     className?: string;
     disabled?: boolean;
+    density?: keyof typeof selectDensityStyles;
 }
 
 const Select = ({
@@ -27,7 +39,8 @@ const Select = ({
     placeholder = '선택하세요',
     error,
     className = '',
-    disabled = false
+    disabled = false,
+    density = 'default'
 }: SelectProps) => {
     // Convert empty string to internal placeholder value
     const internalValue = value === '' ? EMPTY_VALUE : value;
@@ -54,13 +67,14 @@ const Select = ({
                     aria-label={ariaLabel}
                     aria-invalid={!!error}
                     className={`
-                        w-full flex items-center justify-between px-4 py-3
-                        bg-surface-elevated border border-line rounded-xl
+                        flex w-full items-center justify-between
+                        bg-surface-elevated border border-line
                         text-sm text-content
                         hover:border-line-strong focus:outline-none focus:ring-2 focus:ring-line/70 focus:border-line-strong
                         transition-colors cursor-pointer
                         disabled:cursor-not-allowed disabled:opacity-50
                         data-[placeholder]:text-content-hint
+                        ${selectDensityStyles[density].trigger}
                         ${errorStyles}
                         ${className}
                     `}>
@@ -82,12 +96,13 @@ const Select = ({
                                     key={item.value}
                                     value={item.value}
                                     className={`
-                                        relative flex items-center px-4 py-2.5 text-sm rounded-lg
+                                        relative flex items-center text-sm rounded-lg
                                         cursor-pointer select-none outline-none
                                         text-content-secondary
                                         data-[highlighted]:bg-surface-subtle data-[highlighted]:text-content
                                         data-[state=checked]:bg-line-light data-[state=checked]:text-content data-[state=checked]:font-medium
                                         transition-colors
+                                        ${selectDensityStyles[density].item}
                                     `}>
                                     <RadixSelect.ItemText>{item.label}</RadixSelect.ItemText>
                                     <RadixSelect.ItemIndicator className="absolute right-3">

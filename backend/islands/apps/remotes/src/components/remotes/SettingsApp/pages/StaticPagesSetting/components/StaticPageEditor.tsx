@@ -230,12 +230,15 @@ const StaticPageEditor = ({ pageId }: StaticPageEditorProps) => {
 
     return (
         <div className="min-h-screen bg-surface pb-16">
+            <h1 className="sr-only">
+                {isEditMode ? '정적 페이지 수정' : '정적 페이지 생성'}
+            </h1>
             {/* Top bar */}
             <div className="sticky top-0 z-10 bg-surface border-b border-line">
                 <div className="max-w-7xl mx-auto px-4 md:px-6 flex items-center justify-between h-14">
                     <Link
                         to="/static-pages"
-                        className="flex items-center gap-2 text-sm text-content-secondary hover:text-content transition-colors">
+                        className="flex min-h-11 items-center gap-2 text-sm text-content-secondary transition-colors hover:text-content [@media(pointer:fine)]:min-h-9">
                         <ArrowLeft aria-hidden="true" className="h-4 w-4" />
                         <span>목록으로</span>
                     </Link>
@@ -244,7 +247,7 @@ const StaticPageEditor = ({ pageId }: StaticPageEditorProps) => {
                             href={pageUrlPath}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="flex items-center gap-1.5 text-sm text-content-secondary hover:text-content transition-colors">
+                            className="flex min-h-11 items-center gap-1.5 text-sm text-content-secondary transition-colors hover:text-content [@media(pointer:fine)]:min-h-9">
                             <span>{pageUrlPath}</span>
                             <ExternalLink aria-hidden="true" className="h-3.5 w-3.5" />
                         </a>
@@ -259,6 +262,7 @@ const StaticPageEditor = ({ pageId }: StaticPageEditorProps) => {
                     <div className="space-y-4">
                         <div className="space-y-2">
                             <Input
+                                density="compact"
                                 label="페이지 이름"
                                 value={title}
                                 onChange={(e) => handleTitleChange(e.target.value)}
@@ -270,7 +274,7 @@ const StaticPageEditor = ({ pageId }: StaticPageEditorProps) => {
                         </div>
 
                         <details className="group border-t border-line-light pt-4">
-                            <summary className="cursor-pointer list-none text-sm font-medium text-content-secondary transition-colors hover:text-content">
+                            <summary className="flex min-h-11 cursor-pointer list-none items-center text-sm font-medium text-content-secondary transition-colors hover:text-content [@media(pointer:fine)]:min-h-9">
                                 URL 직접 설정
                                 <ChevronDown
                                     aria-hidden="true"
@@ -279,6 +283,7 @@ const StaticPageEditor = ({ pageId }: StaticPageEditorProps) => {
                             </summary>
                             <div className="mt-3">
                                 <Input
+                                    density="compact"
                                     label="URL 슬러그"
                                     value={slug}
                                     onChange={(e) => handleSlugChange(e.target.value)}
@@ -303,8 +308,9 @@ const StaticPageEditor = ({ pageId }: StaticPageEditorProps) => {
                         <div className="inline-flex rounded-lg border border-line bg-surface p-1">
                             <button
                                 type="button"
+                                aria-pressed={activePanel === 'code'}
                                 onClick={() => setActivePanel('code')}
-                                className={`rounded-md px-3 py-1.5 text-sm font-medium transition-colors ${
+                                className={`inline-flex min-h-11 items-center rounded-md px-3 py-1.5 text-sm font-medium transition-colors [@media(pointer:fine)]:min-h-8 ${
                                     activePanel === 'code'
                                         ? 'bg-surface-subtle text-content'
                                         : 'text-content-secondary hover:text-content'
@@ -313,8 +319,9 @@ const StaticPageEditor = ({ pageId }: StaticPageEditorProps) => {
                             </button>
                             <button
                                 type="button"
+                                aria-pressed={activePanel === 'preview'}
                                 onClick={() => setActivePanel('preview')}
-                                className={`rounded-md px-3 py-1.5 text-sm font-medium transition-colors ${
+                                className={`inline-flex min-h-11 items-center rounded-md px-3 py-1.5 text-sm font-medium transition-colors [@media(pointer:fine)]:min-h-8 ${
                                     activePanel === 'preview'
                                         ? 'bg-surface-subtle text-content'
                                         : 'text-content-secondary hover:text-content'
@@ -358,6 +365,7 @@ const StaticPageEditor = ({ pageId }: StaticPageEditorProps) => {
                 {isEditMode && (
                     <>
                         <Button
+                            density="compact"
                             type="button"
                             variant="ghost"
                             size="md"
@@ -373,7 +381,9 @@ const StaticPageEditor = ({ pageId }: StaticPageEditorProps) => {
 
                 <IconButton
                     onClick={() => setIsSettingsOpen(true)}
+                    size="sm"
                     rounded="full"
+                    className="[@media(pointer:fine)]:h-9! [@media(pointer:fine)]:w-9!"
                     aria-label="페이지 설정"
                     title="페이지 설정">
                     <SlidersHorizontal className="w-5 h-5" />
@@ -382,6 +392,7 @@ const StaticPageEditor = ({ pageId }: StaticPageEditorProps) => {
                 <div className="w-px h-8 bg-line/60 mx-1" />
 
                 <Button
+                    density="compact"
                     onClick={handleSubmit}
                     disabled={isLoading || deleteMutation.isPending}
                     variant="primary"
@@ -410,7 +421,10 @@ const StaticPageEditor = ({ pageId }: StaticPageEditorProps) => {
                                 <Dialog.Title className="text-lg font-semibold text-content">페이지 설정</Dialog.Title>
                             </div>
                             <Dialog.Close asChild>
-                                <IconButton aria-label="닫기">
+                                <IconButton
+                                    size="sm"
+                                    className="[@media(pointer:fine)]:h-9! [@media(pointer:fine)]:w-9!"
+                                    aria-label="닫기">
                                     <X className="w-5 h-5" />
                                 </IconButton>
                             </Dialog.Close>
@@ -457,6 +471,7 @@ const StaticPageEditor = ({ pageId }: StaticPageEditorProps) => {
                                     <div className="space-y-4">
                                         <div>
                                             <Input
+                                                density="compact"
                                                 label="메타 설명"
                                                 multiline
                                                 rows={3}
@@ -515,6 +530,7 @@ const StaticPageEditor = ({ pageId }: StaticPageEditorProps) => {
                         {/* Footer */}
                         <div className="px-6 py-4 border-t border-line bg-surface-subtle">
                             <Button
+                                density="compact"
                                 type="button"
                                 onClick={() => setIsSettingsOpen(false)}
                                 variant="primary"

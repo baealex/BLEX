@@ -4,7 +4,12 @@ import { AlertCircle } from 'lucide-react';
 import { cx } from '../lib/classnames';
 import { INTERACTION_DURATION } from '../lib/designTokens';
 
-const baseInputStyles = `block w-full rounded-lg border border-line focus:border-line-strong focus:ring-2 focus:ring-line/70 text-sm py-3 px-3 min-h-12 transition-all ${INTERACTION_DURATION} bg-surface-elevated placeholder:text-content-hint text-content`;
+const baseInputStyles = `block w-full rounded-lg border border-line focus:border-line-strong focus:ring-2 focus:ring-line/70 text-sm transition-all ${INTERACTION_DURATION} bg-surface-elevated placeholder:text-content-hint text-content`;
+
+const inputDensityStyles = {
+    default: 'min-h-12 px-3 py-3',
+    compact: 'min-h-11 px-3 py-2 [@media(pointer:fine)]:min-h-10'
+} as const;
 
 interface InputProps extends InputHTMLAttributes<HTMLInputElement | HTMLTextAreaElement> {
     label?: string;
@@ -14,6 +19,7 @@ interface InputProps extends InputHTMLAttributes<HTMLInputElement | HTMLTextArea
     rightIcon?: ReactNode;
     multiline?: boolean;
     rows?: number;
+    density?: keyof typeof inputDensityStyles;
 }
 
 const Input = forwardRef<HTMLInputElement | HTMLTextAreaElement, InputProps>(
@@ -26,6 +32,7 @@ const Input = forwardRef<HTMLInputElement | HTMLTextAreaElement, InputProps>(
             rightIcon,
             multiline = false,
             rows = 4,
+            density = 'default',
             className = '',
             id,
             required,
@@ -56,6 +63,7 @@ const Input = forwardRef<HTMLInputElement | HTMLTextAreaElement, InputProps>(
 
         const inputClasses = cx(
             baseInputStyles,
+            inputDensityStyles[density],
             readOnlyStyles,
             errorStyles,
             leftPadding,

@@ -14,7 +14,7 @@ import {
     Trash2
 } from '@blex/ui/icons';
 import { useConfirm } from '~/hooks/useConfirm';
-import { SettingsHeader } from '../../components';
+import { SettingsHeader, SettingsHeaderAction } from '../../components';
 import {
     Alert, Button, Card, Checkbox, Select
 } from '~/components/shared';
@@ -60,9 +60,10 @@ const UtilityActionButtons = ({
 }: UtilityActionButtonsProps) => (
     <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap">
         <Button
+            density="compact"
             variant="secondary"
             size="md"
-            className="h-11 w-full sm:w-auto"
+            className="h-11 w-full [@media(pointer:fine)]:h-10 sm:w-auto"
             disabled={isPending}
             isLoading={isPreviewLoading}
             leftIcon={<Eye aria-hidden="true" className="h-4 w-4" />}
@@ -70,9 +71,10 @@ const UtilityActionButtons = ({
             1. {previewLabel}
         </Button>
         <Button
+            density="compact"
             variant={executeVariant}
             size="md"
-            className="h-11 w-full sm:w-auto"
+            className="h-11 w-full [@media(pointer:fine)]:h-10 sm:w-auto"
             disabled={!canExecute || isPending}
             isLoading={isExecuteLoading}
             leftIcon={<Trash2 aria-hidden="true" className="h-4 w-4" />}
@@ -537,15 +539,13 @@ const UtilitySetting = () => {
                 description="삭제 작업은 먼저 대상을 확인한 뒤 실행하세요."
                 actionPosition="right"
                 action={
-                    <Button
+                    <SettingsHeaderAction
                         variant="secondary"
-                        size="md"
-                        className="h-11 w-full sm:w-auto"
                         isLoading={isStatsFetching}
                         leftIcon={<RotateCw aria-hidden="true" className="h-4 w-4" />}
                         onClick={handleRefreshStats}>
                         통계 새로고침
-                    </Button>
+                    </SettingsHeaderAction>
                 }
             />
 
@@ -715,6 +715,7 @@ const UtilitySetting = () => {
                                 <div className="w-full min-w-[220px] flex-1">
                                     <label className="mb-1.5 block text-sm font-medium text-content">정리 대상</label>
                                     <Select
+                                        density="compact"
                                         value={imageTarget}
                                         onValueChange={(value) => {
                                             setImageTarget(value);

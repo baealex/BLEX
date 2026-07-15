@@ -297,7 +297,7 @@ const BannerEditorBase = ({ scope, bannerId }: BannerEditorBaseProps) => {
         <div className="space-y-5">
             {!isEditMode && !hasSelectedPosition && (
                 <div className="rounded-2xl border border-warning-line bg-warning-surface px-4 py-3">
-                    <p className="text-base font-extrabold text-warning sm:text-lg">
+                    <p className="text-base font-semibold text-warning">
                         먼저 배너의 위치를 선택하세요.
                     </p>
                     <p className="mt-1 text-xs font-medium text-warning">
@@ -313,9 +313,10 @@ const BannerEditorBase = ({ scope, bannerId }: BannerEditorBaseProps) => {
                         <button
                             key={slot}
                             type="button"
+                            aria-pressed={active}
                             onClick={() => handlePositionChange(slot)}
                             className={cx(
-                                'rounded-full border px-3 py-1 text-xs font-semibold transition-colors',
+                                'min-h-11 rounded-full border px-3 py-1 text-xs font-semibold transition-colors [@media(pointer:fine)]:min-h-9',
                                 active ? 'border-line-strong bg-action text-content-inverted' : 'border-line bg-surface text-content hover:border-line-strong',
                                 !hasSelectedPosition ? 'ring-2 ring-warning-line' : ''
                             )}>
@@ -333,6 +334,7 @@ const BannerEditorBase = ({ scope, bannerId }: BannerEditorBaseProps) => {
             </div>
 
             <Input
+                density="compact"
                 label="배너 이름"
                 placeholder="예: 메인 공지 배너"
                 error={errors.title?.message}
@@ -341,6 +343,7 @@ const BannerEditorBase = ({ scope, bannerId }: BannerEditorBaseProps) => {
 
             <div className="grid gap-3 sm:grid-cols-2">
                 <Input
+                    density="compact"
                     type="number"
                     min={0}
                     label="노출 순서"
@@ -389,37 +392,39 @@ const BannerEditorBase = ({ scope, bannerId }: BannerEditorBaseProps) => {
     );
 
     return (
-        <form onSubmit={handleSubmit(onSubmit)} className="min-h-screen bg-surface pb-16">
-            <div className="sticky top-0 z-10 border-b border-line bg-surface">
-                <div className="mx-auto flex h-14 max-w-7xl items-center justify-between px-4 md:px-6">
-                    <button
-                        type="button"
-                        className="flex items-center gap-2 py-2 text-sm text-content-secondary transition-colors hover:text-content active:text-content-secondary"
-                        onClick={() => navigateToList()}>
-                        <ArrowLeft aria-hidden="true" className="h-4 w-4" />
-                        <span>목록으로</span>
-                    </button>
+        <div className="min-h-screen bg-surface pb-16">
+            <form onSubmit={handleSubmit(onSubmit)}>
+                <div className="sticky top-0 z-10 border-b border-line bg-surface">
+                    <div className="mx-auto flex h-14 max-w-7xl items-center justify-between px-4 md:px-6">
+                        <button
+                            type="button"
+                            className="flex min-h-11 items-center gap-2 py-2 text-sm text-content-secondary transition-colors hover:text-content active:text-content-secondary [@media(pointer:fine)]:min-h-9"
+                            onClick={() => navigateToList()}>
+                            <ArrowLeft aria-hidden="true" className="h-4 w-4" />
+                            <span>목록으로</span>
+                        </button>
 
-                    <span className="text-sm text-content-secondary">
-                        {isEditMode && title ? title : isEditMode ? `${bannerLabel} 수정` : `${bannerLabel} 생성`}
-                    </span>
+                        <h1 className="text-sm font-medium text-content-secondary">
+                            {isEditMode && title ? title : isEditMode ? `${bannerLabel} 수정` : `${bannerLabel} 생성`}
+                        </h1>
+                    </div>
                 </div>
-            </div>
 
-            <div className="mx-auto max-w-[1720px] space-y-6 px-4 pb-8 pt-6 md:px-6">
-                <BannerPreviewFrame
-                    contentHtml={contentHtml}
-                    position={position}
-                    hasSelectedPosition={hasSelectedPosition}
-                    onPositionChange={handlePositionChange}
-                    editorPanel={editorPanel}
-                />
-            </div>
+                <div className="mx-auto max-w-[1720px] space-y-6 px-4 pb-8 pt-6 md:px-6">
+                    <BannerPreviewFrame
+                        contentHtml={contentHtml}
+                        position={position}
+                        hasSelectedPosition={hasSelectedPosition}
+                        onPositionChange={handlePositionChange}
+                        editorPanel={editorPanel}
+                    />
+                </div>
 
-            <FloatingBottomBar>
-                {isEditMode && (
+                <FloatingBottomBar>
+                    {isEditMode && (
                     <>
                         <Button
+                            density="compact"
                             type="button"
                             variant="ghost"
                             size="md"
@@ -433,21 +438,23 @@ const BannerEditorBase = ({ scope, bannerId }: BannerEditorBaseProps) => {
                     </>
                 )}
 
-                <div className="hidden items-center px-1.5 text-xs text-content-secondary sm:flex">
-                    {typeLabels[bannerType]} · {positionLabels[position]}
-                </div>
+                    <div className="hidden items-center px-1.5 text-xs text-content-secondary sm:flex">
+                        {typeLabels[bannerType]} · {positionLabels[position]}
+                    </div>
 
-                <Button
-                    type="submit"
-                    variant="primary"
-                    className="!rounded-full"
-                    leftIcon={!isSaving ? <Send className="h-4 w-4" /> : undefined}
-                    isLoading={isSaving}
-                    disabled={deleteMutation.isPending}>
-                    {isSaving ? '저장 중...' : isEditMode ? '수정' : '생성'}
-                </Button>
-            </FloatingBottomBar>
-        </form>
+                    <Button
+                        density="compact"
+                        type="submit"
+                        variant="primary"
+                        className="!rounded-full"
+                        leftIcon={!isSaving ? <Send className="h-4 w-4" /> : undefined}
+                        isLoading={isSaving}
+                        disabled={deleteMutation.isPending}>
+                        {isSaving ? '저장 중...' : isEditMode ? '수정' : '생성'}
+                    </Button>
+                </FloatingBottomBar>
+            </form>
+        </div>
     );
 };
 

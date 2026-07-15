@@ -6,7 +6,12 @@ import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useConfirm } from '~/hooks/useConfirm';
-import { SettingsEmptyState, SettingsHeader, SettingsListItem } from '../../components';
+import {
+    SettingsEmptyState,
+    SettingsHeader,
+    SettingsHeaderAction,
+    SettingsListItem
+} from '../../components';
 import {
     Button,
     Checkbox,
@@ -205,13 +210,11 @@ const NoticeSettingBase = ({ scope }: NoticeSettingBaseProps) => {
 
     const isSubmitting = createMutation.isPending || updateMutation.isPending;
     const createAction = (
-        <Button
+        <SettingsHeaderAction
             onClick={handleCreate}
-            variant="primary"
-            size="md"
-            className="min-h-11! w-full sm:w-auto">
+            variant="primary">
             새 공지 추가
-        </Button>
+        </SettingsHeaderAction>
     );
 
     return (
@@ -242,9 +245,9 @@ const NoticeSettingBase = ({ scope }: NoticeSettingBaseProps) => {
                                 공지 제목
                             </label>
                             <Input
+                                density="compact"
                                 id={isGlobal ? 'global-notice-title' : 'notice-title'}
                                 placeholder="공지 제목을 입력하세요"
-                                className="text-base"
                                 error={errors.title?.message}
                                 {...register('title')}
                             />
@@ -257,9 +260,9 @@ const NoticeSettingBase = ({ scope }: NoticeSettingBaseProps) => {
                                 URL
                             </label>
                             <Input
+                                density="compact"
                                 id={isGlobal ? 'global-notice-url' : 'notice-url'}
                                 placeholder="https://example.com/notice"
-                                className="text-base"
                                 error={errors.url?.message}
                                 {...register('url')}
                             />
@@ -283,20 +286,22 @@ const NoticeSettingBase = ({ scope }: NoticeSettingBaseProps) => {
 
                         <div className="flex items-center justify-between gap-3">
                             <Button
+                                density="compact"
                                 type="button"
                                 variant="ghost"
                                 size="md"
-                                className="min-h-11!"
+                                className="min-h-11! [@media(pointer:fine)]:min-h-10!"
                                 onClick={closeForm}
                                 disabled={isSubmitting}>
                                 취소
                             </Button>
                             <div className="flex items-center gap-3">
                                 <Button
+                                    density="compact"
                                     type="submit"
                                     variant="primary"
                                     size="md"
-                                    className="min-h-11!"
+                                    className="min-h-11! [@media(pointer:fine)]:min-h-10!"
                                     isLoading={isSubmitting}>
                                     {isSubmitting ? '저장 중...' : editingNotice ? `${noticeLabel} 수정` : `${noticeLabel} 생성`}
                                 </Button>
@@ -313,8 +318,9 @@ const NoticeSettingBase = ({ scope }: NoticeSettingBaseProps) => {
                             key={notice.id}
                             actions={
                                 <Dropdown
+                                    density="compact"
                                     triggerAriaLabel={`${notice.title} ${noticeLabel} 메뉴 열기`}
-                                    triggerClassName="min-h-11 min-w-11"
+                                    triggerClassName="min-h-11 min-w-11 [@media(pointer:fine)]:min-h-9 [@media(pointer:fine)]:min-w-9"
                                     items={[
                                         {
                                             label: notice.isActive ? '비활성화' : '활성화',

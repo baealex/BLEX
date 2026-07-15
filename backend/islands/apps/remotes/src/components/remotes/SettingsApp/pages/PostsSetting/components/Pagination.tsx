@@ -36,7 +36,7 @@ const Pagination = ({ page, lastPage, onPageChange }: PaginationProps) => {
 
     return (
         <nav
-            className="pagination-nav [&_.pagination-link]:min-h-11 [&_.pagination-link]:min-w-11"
+            className="pagination-nav [&_.pagination-link]:min-h-11 [&_.pagination-link]:min-w-11 [@media(pointer:fine)]:[&_.pagination-link]:min-h-9 [@media(pointer:fine)]:[&_.pagination-link]:min-w-9"
             aria-label="포스트 페이지">
             <div className="pagination-action prev">
                 {currentPage > 1 ? (

@@ -402,6 +402,7 @@ const SeoAeoSetting = () => {
 
                         <div className="flex flex-col gap-2 sm:flex-row sm:justify-end">
                             <Button
+                                density="compact"
                                 variant="secondary"
                                 size="md"
                                 disabled={!normalizedRobotsTxtExtraRules || robotsMutation.isPending}
@@ -410,6 +411,7 @@ const SeoAeoSetting = () => {
                                 추가 규칙 비우기
                             </Button>
                             <Button
+                                density="compact"
                                 variant="primary"
                                 size="md"
                                 isLoading={robotsMutation.isPending}

@@ -3,8 +3,10 @@ import { useMutation, useQueryClient, useSuspenseQuery } from '@tanstack/react-q
 import { Link, useNavigate } from '@tanstack/react-router';
 import { FileText } from '@blex/ui/icons';
 import { useConfirm } from '~/hooks/useConfirm';
-import { SettingsEmptyState, SettingsHeader } from '../../components';
-import { Button } from '~/components/shared';
+import {
+    SettingsEmptyState,
+    SettingsHeader
+} from '../../components';
 import {
     getStaticPages,
     deleteStaticPage,
@@ -71,13 +73,10 @@ const StaticPagesSetting = () => {
     };
 
     const createAction = (
-        <Link to="/static-pages/create" className="block w-full sm:w-auto">
-            <Button
-                variant="primary"
-                size="md"
-                className="min-h-11! w-full sm:w-auto">
-                새 페이지 추가
-            </Button>
+        <Link
+            to="/static-pages/create"
+            className="inline-flex min-h-11 items-center justify-center rounded-lg border border-transparent bg-action px-3 py-1.5 text-xs font-semibold text-content-inverted transition-all duration-150 hover:bg-action-hover focus:outline-none focus:ring-4 focus:ring-action/20 focus:ring-offset-1 active:scale-95 [@media(pointer:fine)]:min-h-9">
+            새 페이지 추가
         </Link>
     );
 

@@ -28,7 +28,7 @@ const Card = ({
                             </div>
                         )}
                         <div className="flex-1 min-w-0 pt-1">
-                            {title && <h3 className="text-lg font-semibold text-content tracking-tight">{title}</h3>}
+                            {title && <h2 className="text-base font-semibold text-content">{title}</h2>}
                             {subtitle && <p className="text-sm text-content-secondary mt-1 leading-relaxed">{subtitle}</p>}
                         </div>
                     </div>

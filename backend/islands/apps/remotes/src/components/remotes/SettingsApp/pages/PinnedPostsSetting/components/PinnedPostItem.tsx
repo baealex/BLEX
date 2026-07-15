@@ -73,9 +73,10 @@ export const PinnedPostItem = ({
                 }
                 actions={
                     <Button
+                        density="compact"
                         variant="secondary"
                         size="sm"
-                        className="min-h-11!"
+                        className="min-h-11! [@media(pointer:fine)]:min-h-9!"
                         onClick={handleRemove}>
                         해제
                     </Button>

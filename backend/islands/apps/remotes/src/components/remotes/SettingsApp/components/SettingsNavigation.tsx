@@ -289,7 +289,7 @@ const SettingsModeLink = ({
     return (
         <a
             href={href}
-            className={`inline-flex items-center gap-1.5 font-medium text-content-hint transition-colors ${INTERACTION_DURATION} hover:text-content-secondary ${mobile ? 'min-h-11 rounded-xl px-3 text-sm hover:bg-surface-subtle' : 'w-fit text-xs'}`}>
+            className={`inline-flex min-h-11 items-center gap-1.5 font-medium text-content-hint transition-colors ${INTERACTION_DURATION} hover:text-content-secondary ${mobile ? 'rounded-xl px-3 text-sm hover:bg-surface-subtle' : 'w-fit rounded-lg text-xs [@media(pointer:fine)]:min-h-9'}`}>
             <ModeIcon aria-hidden="true" className="h-3.5 w-3.5 shrink-0 text-content-hint" />
             <span>{label}</span>
             {!isAdminMode && (
@@ -338,9 +338,9 @@ export const SettingsMobileNavigation = ({ currentPath }: SettingsNavigationProp
         if (!canShowItem(item, isEditor, isStaff, canUseTelegramIntegration)) return null;
 
         const isActive = item.path !== 'admin' && normalizePath(currentPath, basePath) === normalizePath(item.path, basePath);
-        const baseClasses = `flex items-center px-4 py-3 rounded-xl transition-all ${INTERACTION_DURATION} active:scale-95 motion-reduce:transform-none motion-reduce:transition-none group`;
+        const baseClasses = `group flex min-h-11 items-center rounded-lg px-3 py-2.5 text-sm transition-all ${INTERACTION_DURATION} active:scale-95 motion-reduce:transform-none motion-reduce:transition-none`;
         const activeClasses = isActive
-            ? 'bg-surface-subtle text-content font-bold'
+            ? 'bg-surface-subtle text-content font-semibold'
             : 'text-content-secondary hover:bg-surface-subtle hover:text-content font-medium';
         const iconClasses = isActive ? 'text-content' : 'text-content-hint';
         const ItemIcon = item.icon;
@@ -389,9 +389,9 @@ export const SettingsMobileNavigation = ({ currentPath }: SettingsNavigationProp
 
         return (
             <div key={section.title}>
-                <h3 className="px-4 mb-1 text-xs font-bold text-content-hint uppercase tracking-wider">
+                <p className="px-4 mb-1 text-xs font-bold text-content-hint uppercase tracking-wider">
                     {section.title}
-                </h3>
+                </p>
                 <ul className="space-y-1">
                     {visibleItems.map(renderNavItem)}
                 </ul>
@@ -426,10 +426,10 @@ export const SettingsMobileNavigation = ({ currentPath }: SettingsNavigationProp
                     <Dialog.Content className={`fixed z-50 bg-surface shadow-2xl transition ease-in-out data-[state=open]:animate-in data-[state=open]:slide-in-from-left ${ENTRANCE_DURATION} motion-reduce:animate-none motion-reduce:transition-none inset-y-0 left-0 h-full w-[280px] overflow-y-auto outline-none`}>
                         <div className="p-6">
                             <Dialog.Title className="sr-only">{settingsLabel} 메뉴</Dialog.Title>
-                            <div className="flex items-center justify-between mb-8">
-                                <h2 className="text-2xl font-bold text-content tracking-tight">
+                            <div className="mb-6 flex items-center justify-between">
+                                <p className="text-xl font-semibold tracking-tight text-content">
                                     {settingsLabel}
-                                </h2>
+                                </p>
                                 <Dialog.Close asChild>
                                     <button
                                         type="button"
@@ -446,7 +446,7 @@ export const SettingsMobileNavigation = ({ currentPath }: SettingsNavigationProp
                                 </div>
                             )}
 
-                            <div className="space-y-8">
+                            <div className="space-y-6">
                                 {navigationSections.map(renderSection)}
                             </div>
                         </div>
@@ -479,12 +479,12 @@ export const SettingsDesktopNavigation = ({ currentPath }: SettingsNavigationPro
         if (!canShowItem(item, isEditor, isStaff, canUseTelegramIntegration)) return null;
 
         const isActive = item.path !== 'admin' && normalizePath(currentPath, basePath) === normalizePath(item.path, basePath);
-        const baseClasses = `flex items-center px-5 rounded-xl transition-all ${INTERACTION_DURATION} active:scale-95`;
+        const baseClasses = `flex min-h-11 items-center rounded-lg px-3 text-sm transition-all ${INTERACTION_DURATION} active:scale-95 [@media(pointer:fine)]:min-h-9`;
         const activeClasses = isActive
             ? 'bg-surface-subtle text-content font-semibold'
             : 'text-content-secondary hover:bg-surface-subtle hover:text-content font-medium';
         const iconClasses = isActive ? 'text-content' : 'text-content-hint';
-        const desktopClasses = 'xl:py-2 group';
+        const desktopClasses = 'group py-2';
         const ItemIcon = item.icon;
 
         if (item.path === 'admin') {
@@ -496,7 +496,7 @@ export const SettingsDesktopNavigation = ({ currentPath }: SettingsNavigationPro
                         onClick={() => handleNavClick(item)}>
                         <span
                             aria-hidden="true"
-                            className={`mr-4 inline-flex w-7 shrink-0 justify-center transition-colors ${iconClasses} group-hover:text-content-secondary`}>
+                            className={`mr-3 inline-flex w-5 shrink-0 justify-center transition-colors ${iconClasses} group-hover:text-content-secondary`}>
                             <ItemIcon className="h-4 w-4" />
                         </span>
                         <span className="min-w-0 flex-1">{item.name}</span>
@@ -514,7 +514,7 @@ export const SettingsDesktopNavigation = ({ currentPath }: SettingsNavigationPro
                     onClick={() => handleNavClick(item)}>
                     <span
                         aria-hidden="true"
-                        className={`mr-4 inline-flex w-7 shrink-0 justify-center transition-colors ${iconClasses} group-hover:text-content-secondary`}>
+                        className={`mr-3 inline-flex w-5 shrink-0 justify-center transition-colors ${iconClasses} group-hover:text-content-secondary`}>
                         <ItemIcon className="h-4 w-4" />
                     </span>
                     <span className="min-w-0 flex-1">{item.name}</span>
@@ -531,10 +531,10 @@ export const SettingsDesktopNavigation = ({ currentPath }: SettingsNavigationPro
 
         return (
             <div key={section.title}>
-                <h3 className="px-5 mb-1 text-sm font-semibold text-content-hint uppercase tracking-wider">
+                <p className="mb-1 px-3 text-xs font-semibold uppercase tracking-wider text-content-hint">
                     {section.title}
-                </h3>
-                <ul className="space-y-2">
+                </p>
+                <ul className="space-y-1">
                     {visibleItems.map(renderNavItem)}
                 </ul>
             </div>
@@ -542,11 +542,11 @@ export const SettingsDesktopNavigation = ({ currentPath }: SettingsNavigationPro
     };
 
     return (
-        <aside className="hidden xl:block w-72 flex-shrink-0 mt-8 self-start sticky top-24">
-            <div className="px-5 mb-6">
-                <h2 className="text-2xl font-semibold text-content tracking-tight">
+        <aside className="sticky top-24 mt-8 hidden w-64 flex-shrink-0 self-start xl:block">
+            <div className="mb-5 px-3">
+                <p className="text-lg font-semibold tracking-tight text-content">
                     {settingsLabel}
-                </h2>
+                </p>
                 {isStaff && (
                     <div className="mt-3">
                         <SettingsModeLink settingsMode={settingsMode} isStaff={isStaff} />
@@ -554,7 +554,7 @@ export const SettingsDesktopNavigation = ({ currentPath }: SettingsNavigationPro
                 )}
             </div>
             <div className="max-h-[calc(100vh-224px)] overflow-y-auto overscroll-contain pr-2">
-                <nav className="space-y-8 pb-4">
+                <nav className="space-y-6 pb-4">
                     {navigationSections.map(renderSection)}
                 </nav>
             </div>

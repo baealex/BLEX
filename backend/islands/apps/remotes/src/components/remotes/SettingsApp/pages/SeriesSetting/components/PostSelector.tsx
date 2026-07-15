@@ -57,6 +57,7 @@ const PostSelector = ({ posts, selectedPostIds, onChange }: PostSelectorProps) =
                     <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
                         <div className="min-w-0 flex-1">
                             <Input
+                                density="compact"
                                 type="text"
                                 aria-label="포함할 포스트 검색"
                                 value={query}
@@ -70,14 +71,14 @@ const PostSelector = ({ posts, selectedPostIds, onChange }: PostSelectorProps) =
                                 type="button"
                                 onClick={handleToggleAll}
                                 disabled={safePosts.length === 0}
-                                className="inline-flex min-h-11 items-center rounded-md px-2 text-sm font-medium text-content-secondary transition-colors duration-150 hover:text-content active:text-content disabled:cursor-not-allowed disabled:opacity-40">
+                                className="inline-flex min-h-11 items-center rounded-md px-2 text-sm font-medium text-content-secondary transition-colors duration-150 hover:text-content active:text-content disabled:cursor-not-allowed disabled:opacity-40 [@media(pointer:fine)]:min-h-9">
                                 {isAllSelected ? '전체 해제' : '전체 선택'}
                             </button>
                             {isSearchActive && (
                                 <button
                                     type="button"
                                     onClick={() => setQuery('')}
-                                    className="inline-flex min-h-11 items-center rounded-md px-2 text-sm font-medium text-content-secondary transition-colors duration-150 hover:text-content active:text-content">
+                                    className="inline-flex min-h-11 items-center rounded-md px-2 text-sm font-medium text-content-secondary transition-colors duration-150 hover:text-content active:text-content [@media(pointer:fine)]:min-h-9">
                                     검색 지우기
                                 </button>
                             )}

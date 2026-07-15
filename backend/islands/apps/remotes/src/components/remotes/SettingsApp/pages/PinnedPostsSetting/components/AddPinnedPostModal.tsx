@@ -6,7 +6,7 @@ import {
     Loader2,
     Search
 } from '@blex/ui/icons';
-import { Modal } from '~/components/shared';
+import { Input, Modal } from '~/components/shared';
 import { getMediaPath } from '~/modules/static.module';
 import type { PinnablePostData, PinnablePostsPaginationData } from '~/lib/api/settings';
 import { PinnablePostsPager } from './PinnablePostsPager';
@@ -68,7 +68,7 @@ export const AddPinnedPostModal = ({
             {presentation === 'inline' && (
                 <div className="flex items-start justify-between gap-3 border-b border-line px-5 py-4">
                     <div className="space-y-1">
-                        <h3 className="text-lg font-semibold tracking-tight text-content">
+                        <h3 className="text-base font-semibold text-content">
                             고정할 포스트 선택
                         </h3>
                         <p className="text-sm text-content-secondary">
@@ -79,7 +79,7 @@ export const AddPinnedPostModal = ({
                         <button
                             type="button"
                             onClick={handleClose}
-                            className="inline-flex min-h-11 items-center justify-center rounded-lg px-3 text-sm font-semibold text-content-secondary transition-colors duration-150 hover:bg-surface-subtle hover:text-content active:scale-95">
+                            className="inline-flex min-h-11 items-center justify-center rounded-lg px-3 text-sm font-semibold text-content-secondary transition-colors duration-150 hover:bg-surface-subtle hover:text-content active:scale-95 [@media(pointer:fine)]:min-h-9">
                             선택 취소
                         </button>
                     </div>
@@ -92,17 +92,15 @@ export const AddPinnedPostModal = ({
                         프로필에 표시할 포스트를 선택하세요.
                     </p>
                 )}
-                <div className="relative">
-                    <Search aria-hidden className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-content-hint" />
-                    <input
-                        type="text"
-                        aria-label="고정할 포스트 검색"
-                        placeholder="포스트 제목 검색..."
-                        value={searchQuery}
-                        onChange={(e) => onSearchQueryChange?.(e.target.value)}
-                        className="w-full rounded-xl border border-line bg-surface-subtle py-3 pl-10 pr-4 transition-all focus:border-line-strong focus:outline-none focus:ring-2 focus:ring-line/5"
-                    />
-                </div>
+                <Input
+                    type="search"
+                    density="compact"
+                    aria-label="고정할 포스트 검색"
+                    placeholder="포스트 제목 검색..."
+                    value={searchQuery}
+                    onChange={(e) => onSearchQueryChange?.(e.target.value)}
+                    leftIcon={<Search aria-hidden className="h-4 w-4" />}
+                />
             </div>
 
             <div className={`flex-1 overflow-y-auto bg-surface-subtle/30 ${presentation === 'inline' ? 'min-h-0 px-4 py-4' : 'p-4'}`}>
@@ -166,7 +164,7 @@ export const AddPinnedPostModal = ({
                                     )}
 
                                     <div className="min-w-0 flex-1">
-                                        <h4 className="mb-1 truncate text-lg font-bold text-content">
+                                        <h4 className="mb-1 truncate text-base font-semibold text-content">
                                             {post.title}
                                         </h4>
                                         <p className="flex items-center gap-2 text-sm text-content-secondary">

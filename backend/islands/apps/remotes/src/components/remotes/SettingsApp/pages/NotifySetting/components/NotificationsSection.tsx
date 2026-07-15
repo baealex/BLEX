@@ -1,4 +1,3 @@
-import { Button } from '~/components/shared';
 import {
     BellOff,
     ChevronRight,
@@ -7,7 +6,12 @@ import {
     Settings2
 } from '@blex/ui/icons';
 import { SETTINGS_LIST_TITLE } from '~/styles/settingsStyles';
-import { SettingsEmptyState, SettingsHeader, SettingsListItem } from '../../../components';
+import {
+    SettingsEmptyState,
+    SettingsHeader,
+    SettingsHeaderAction,
+    SettingsListItem
+} from '../../../components';
 import { markNotificationAsRead, type NotifyItem } from '~/lib/api/settings';
 
 interface NotificationsSectionProps {
@@ -39,13 +43,12 @@ const NotificationsSection = ({
                 title="알림"
                 actionPosition="right"
                 action={
-                    <Button
+                    <SettingsHeaderAction
                         variant="secondary"
-                        size="md"
                         leftIcon={<Settings2 aria-hidden="true" className="h-4 w-4" />}
                         onClick={onOpenConfig}>
                         설정
-                    </Button>
+                    </SettingsHeaderAction>
                 }
             />
 

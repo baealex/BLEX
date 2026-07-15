@@ -20,8 +20,9 @@ export const StaticPageList = ({ pages, onView, onEdit, onDelete }: StaticPageLi
                     onClick={() => onView(page)}
                     actions={
                         <Dropdown
+                            density="compact"
                             triggerAriaLabel={`${page.title} 페이지 메뉴 열기`}
-                            triggerClassName="min-h-11 min-w-11"
+                            triggerClassName="min-h-11 min-w-11 [@media(pointer:fine)]:min-h-9 [@media(pointer:fine)]:min-w-9"
                             items={[
                                 {
                                     label: '편집',

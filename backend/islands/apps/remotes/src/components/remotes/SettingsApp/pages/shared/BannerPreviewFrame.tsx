@@ -33,56 +33,74 @@ const BannerPreviewFrame = ({
 
     const renderInlineSlot = (slot: BannerPosition) => {
         const selected = hasSelectedPosition && slot === position;
-        return (
-            <button
-                type="button"
-                onClick={() => onPositionChange(slot)}
-                className="block w-full text-left">
-                {selected ? (
-                    hasHtml ? (
+
+        if (selected) {
+            return (
+                <div
+                    role="group"
+                    className="min-h-11"
+                    aria-label={`${positionLabels[slot]} 위치 선택됨`}>
+                    {hasHtml ? (
                         <div dangerouslySetInnerHTML={{ __html: contentHtml }} />
                     ) : (
                         <div className="py-2 text-xs text-content-hint">HTML을 입력하면 {positionLabels[slot]}에 배너가 표시됩니다.</div>
-                    )
-                ) : (
-                    <div
-                        className={cx(
+                    )}
+                </div>
+            );
+        }
+
+        return (
+            <button
+                type="button"
+                aria-pressed="false"
+                onClick={() => onPositionChange(slot)}
+                className="block min-h-11 w-full text-left">
+                <div
+                    className={cx(
                         'rounded-xl border border-dashed px-3 py-4 text-center text-xs font-semibold transition-colors',
                         hasSelectedPosition
                             ? 'border-line text-content-hint hover:border-line hover:text-content-hint'
                             : 'border-warning-line bg-warning-surface text-warning hover:bg-warning-surface'
                     )}>
-                        {positionLabels[slot]} 위치 선택
-                    </div>
-                )}
+                    {positionLabels[slot]} 위치 선택
+                </div>
             </button>
         );
     };
 
     const renderSidebarSlot = (slot: BannerPosition) => {
         const selected = hasSelectedPosition && slot === position;
-        return (
-            <button
-                type="button"
-                onClick={() => onPositionChange(slot)}
-                className={cx('block w-full text-left', !selected ? 'hover:opacity-80' : '')}>
-                {selected ? (
-                    hasHtml ? (
+
+        if (selected) {
+            return (
+                <div
+                    role="group"
+                    className="min-h-11"
+                    aria-label={`${positionLabels[slot]} 위치 선택됨`}>
+                    {hasHtml ? (
                         <div dangerouslySetInnerHTML={{ __html: contentHtml }} />
                     ) : (
                         <div className="py-2 text-xs text-content-hint">{positionLabels[slot]}에 배너가 표시됩니다.</div>
-                    )
-                ) : (
-                    <div
-                        className={cx(
+                    )}
+                </div>
+            );
+        }
+
+        return (
+            <button
+                type="button"
+                aria-pressed="false"
+                onClick={() => onPositionChange(slot)}
+                className="block min-h-11 w-full text-left hover:opacity-80">
+                <div
+                    className={cx(
                         'rounded-xl border border-dashed px-3 py-4 text-center text-xs font-semibold',
                         hasSelectedPosition
                             ? 'border-line text-content-hint'
                             : 'border-warning-line bg-warning-surface text-warning'
                     )}>
-                        {positionLabels[slot]} 위치 선택
-                    </div>
-                )}
+                    {positionLabels[slot]} 위치 선택
+                </div>
             </button>
         );
     };
@@ -97,8 +115,8 @@ const BannerPreviewFrame = ({
                 </aside>
 
                 <div className="post-detail-main">
-                    <div className="mt-6" role="main">
-                        <article lang="ko">
+                    <section className="mt-6" aria-label="배너 배치 미리보기">
+                        <article lang="ko" aria-label="예시 포스트">
                             <div className={cx('mb-12 transition-opacity sm:mb-16', mutedPostClass)}>
                                 <div className="mb-6 flex items-center gap-2">
                                     <span className="inline-flex items-center gap-1.5 rounded-full bg-action px-3 py-1 text-xs font-semibold text-content-inverted">
@@ -108,9 +126,9 @@ const BannerPreviewFrame = ({
                                     <span className="text-xs font-medium text-content-hint">1 / 5</span>
                                 </div>
 
-                                <h1 className="mb-3 break-words text-2xl font-bold leading-tight tracking-tight text-content sm:text-3xl lg:text-4xl">
+                                <h2 className="mb-3 break-words text-2xl font-bold leading-tight tracking-tight text-content sm:text-3xl lg:text-4xl">
                                     포스트 제목이 이 위치에 표시됩니다
-                                </h1>
+                                </h2>
                                 <p className="mb-8 text-lg font-medium leading-relaxed text-content-secondary sm:text-xl">
                                     포스트 서브타이틀 영역
                                 </p>
@@ -135,7 +153,7 @@ const BannerPreviewFrame = ({
                                 {renderInlineSlot('top')}
                             </div>
 
-                            <div className="blog-post-content mb-16 break-words">
+                            <div className="mb-16 break-words">
                                 {editorPanel}
                             </div>
 
@@ -151,7 +169,7 @@ const BannerPreviewFrame = ({
                                 {renderInlineSlot('bottom')}
                             </div>
                         </article>
-                    </div>
+                    </section>
                 </div>
 
                 <aside className="post-detail-sidebar">

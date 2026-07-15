@@ -85,6 +85,7 @@ export const PostListContent = ({
                                 : undefined}
                             statusLabel={isScheduled ? '예약 발행' : undefined}
                             showUpdatedBadge={!isScheduled}
+                            isScheduled={isScheduled}
                         />
                     ))}
                 </div>

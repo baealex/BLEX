@@ -53,18 +53,20 @@ export const PinnablePostsPager = ({
             {pagination.lastPage > 1 && (
                 <div className="flex flex-wrap items-center gap-1.5">
                     <Button
+                        density="compact"
                         variant="secondary"
                         size="sm"
-                        className="min-h-11! min-w-11"
+                        className="min-h-11! min-w-11 [@media(pointer:fine)]:min-h-9! [@media(pointer:fine)]:min-w-9"
                         disabled={!pagination.hasPrevious || isLoading}
                         onClick={() => handlePageMove(1)}
                         aria-label="첫 페이지">
                         <ChevronsLeft aria-hidden className="h-4 w-4" />
                     </Button>
                     <Button
+                        density="compact"
                         variant="secondary"
                         size="sm"
-                        className="min-h-11! min-w-11"
+                        className="min-h-11! min-w-11 [@media(pointer:fine)]:min-h-9! [@media(pointer:fine)]:min-w-9"
                         disabled={!pagination.hasPrevious || isLoading}
                         onClick={() => handlePageMove(currentPage - 1)}
                         aria-label="이전 페이지">
@@ -72,10 +74,11 @@ export const PinnablePostsPager = ({
                     </Button>
                     {visiblePages.map(page => (
                         <Button
+                            density="compact"
                             key={page}
                             variant={page === currentPage ? 'primary' : 'secondary'}
                             size="sm"
-                            className="min-h-11! min-w-11"
+                            className="min-h-11! min-w-11 [@media(pointer:fine)]:min-h-9! [@media(pointer:fine)]:min-w-9"
                             disabled={isLoading}
                             onClick={() => handlePageMove(page)}
                             aria-current={page === currentPage ? 'page' : undefined}>
@@ -83,18 +86,20 @@ export const PinnablePostsPager = ({
                         </Button>
                     ))}
                     <Button
+                        density="compact"
                         variant="secondary"
                         size="sm"
-                        className="min-h-11! min-w-11"
+                        className="min-h-11! min-w-11 [@media(pointer:fine)]:min-h-9! [@media(pointer:fine)]:min-w-9"
                         disabled={!pagination.hasNext || isLoading}
                         onClick={() => handlePageMove(currentPage + 1)}
                         aria-label="다음 페이지">
                         <ChevronRight aria-hidden className="h-4 w-4" />
                     </Button>
                     <Button
+                        density="compact"
                         variant="secondary"
                         size="sm"
-                        className="min-h-11! min-w-11"
+                        className="min-h-11! min-w-11 [@media(pointer:fine)]:min-h-9! [@media(pointer:fine)]:min-w-9"
                         disabled={!pagination.hasNext || isLoading}
                         onClick={() => handlePageMove(pagination.lastPage)}
                         aria-label="마지막 페이지">

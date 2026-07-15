@@ -271,152 +271,159 @@ const SeriesEditor = ({ seriesId }: SeriesEditorProps) => {
     };
 
     return (
-        <form onSubmit={handleSubmit(onSubmit)} className="min-h-screen bg-surface pb-20">
-            <div className="sticky top-0 z-10 bg-surface border-b border-line">
-                <div className="max-w-4xl mx-auto px-4 md:px-6 h-14 flex items-center justify-between">
-                    <Link
-                        to="/series"
-                        className="flex items-center gap-2 py-2 text-sm text-content-secondary hover:text-content active:text-content-secondary transition-colors">
-                        <ArrowLeft aria-hidden className="h-4 w-4" />
-                        <span>목록으로</span>
-                    </Link>
-                </div>
-            </div>
-
-            <div className="max-w-4xl mx-auto px-4 md:px-6 pt-10 pb-10 space-y-10">
-                <section className="space-y-4">
-                    <h1 className="sr-only">
-                        {isEditMode ? '시리즈 수정' : '시리즈 생성'}
-                    </h1>
-
-                    <div className="space-y-2">
-                        <label
-                            htmlFor="series-name"
-                            className="ml-1 block text-sm font-medium text-content-secondary">
-                            시리즈 제목
-                        </label>
-                        <div className="relative rounded-lg border border-line bg-surface-elevated px-3 py-3 transition-all duration-150 focus-within:border-line-strong focus-within:ring-2 focus-within:ring-line/70">
-                            <input
-                                id="series-name"
-                                type="text"
-                                maxLength={50}
-                                placeholder="시리즈 제목을 입력해주세요"
-                                className="w-full border-none bg-transparent pr-20 text-2xl font-bold text-content outline-none placeholder-content-hint"
-                                {...register('name')}
-                            />
-                            <span className={`absolute right-3 top-1/2 -translate-y-1/2 text-xs font-medium ${titleValue.length > 40 ? 'text-danger' : 'text-content-hint'}`}>
-                                {titleValue.length}/50
-                            </span>
-                        </div>
+        <div className="min-h-screen bg-surface pb-20">
+            <form onSubmit={handleSubmit(onSubmit)}>
+                <div className="sticky top-0 z-10 bg-surface border-b border-line">
+                    <div className="max-w-4xl mx-auto px-4 md:px-6 h-14 flex items-center justify-between">
+                        <Link
+                            to="/series"
+                            className="flex min-h-11 items-center gap-2 py-2 text-sm text-content-secondary transition-colors hover:text-content active:text-content-secondary [@media(pointer:fine)]:min-h-9">
+                            <ArrowLeft aria-hidden className="h-4 w-4" />
+                            <span>목록으로</span>
+                        </Link>
                     </div>
-                    {errors.name?.message && (
-                        <p className="text-sm text-danger">{errors.name.message}</p>
-                    )}
-                </section>
+                </div>
 
-                <PostSelector
-                    posts={availablePosts}
-                    selectedPostIds={selectedPostIds}
-                    onChange={(postIds) => {
-                        setValue('postIds', postIds, { shouldDirty: true });
-                    }}
-                />
+                <div className="max-w-4xl mx-auto px-4 md:px-6 pt-10 pb-10 space-y-10">
+                    <section className="space-y-4">
+                        <h1 className="sr-only">
+                            {isEditMode ? '시리즈 수정' : '시리즈 생성'}
+                        </h1>
 
-                <section>
-                    <Input
-                        label="시리즈 설명"
-                        multiline
-                        rows={5}
-                        placeholder="이 시리즈에서 다루는 내용을 입력해주세요."
-                        maxLength={500}
-                        error={errors.description?.message}
-                        helperText="시리즈 상단에 표시됩니다. 선택 입력입니다."
-                        {...register('description')}
+                        <div className="space-y-2">
+                            <label
+                                htmlFor="series-name"
+                                className="ml-1 block text-sm font-medium text-content-secondary">
+                                시리즈 제목
+                            </label>
+                            <div className="relative rounded-lg border border-line bg-surface-elevated px-3 py-3 transition-all duration-150 focus-within:border-line-strong focus-within:ring-2 focus-within:ring-line/70">
+                                <input
+                                    id="series-name"
+                                    type="text"
+                                    maxLength={50}
+                                    placeholder="시리즈 제목을 입력해주세요"
+                                    className="w-full border-none bg-transparent pr-20 text-2xl font-bold text-content outline-none placeholder-content-hint"
+                                    {...register('name')}
+                                />
+                                <span className={`absolute right-3 top-1/2 -translate-y-1/2 text-xs font-medium ${titleValue.length > 40 ? 'text-danger' : 'text-content-hint'}`}>
+                                    {titleValue.length}/50
+                                </span>
+                            </div>
+                        </div>
+                        {errors.name?.message && (
+                            <p className="text-sm text-danger">{errors.name.message}</p>
+                        )}
+                    </section>
+
+                    <PostSelector
+                        posts={availablePosts}
+                        selectedPostIds={selectedPostIds}
+                        onChange={(postIds) => {
+                            setValue('postIds', postIds, { shouldDirty: true });
+                        }}
                     />
-                </section>
 
-                <section className="space-y-3 border-t border-line-light pt-5">
-                    <div className="flex items-center justify-between gap-3">
-                        <h2 className="text-sm font-semibold text-content-secondary">시리즈 URL</h2>
-                        {isEditMode && (
+                    <section>
+                        <Input
+                            density="compact"
+                            label="시리즈 설명"
+                            multiline
+                            rows={5}
+                            placeholder="이 시리즈에서 다루는 내용을 입력해주세요."
+                            maxLength={500}
+                            error={errors.description?.message}
+                            helperText="시리즈 상단에 표시됩니다. 선택 입력입니다."
+                            {...register('description')}
+                        />
+                    </section>
+
+                    <section className="space-y-3 border-t border-line-light pt-5">
+                        <div className="flex items-center justify-between gap-3">
+                            <h2 className="text-sm font-semibold text-content-secondary">시리즈 URL</h2>
+                            {isEditMode && (
+                                <Button
+                                    density="compact"
+                                    type="button"
+                                    variant="ghost"
+                                    size="sm"
+                                    className="h-10 shrink-0"
+                                    onClick={handleCopySeriesUrl}>
+                                    복사
+                                </Button>
+                            )}
+                        </div>
+
+                        {!isEditMode && (
+                            <details className="group">
+                                <summary className="flex min-h-11 cursor-pointer list-none items-center text-sm text-content-secondary transition-colors hover:text-content [@media(pointer:fine)]:min-h-9">
+                                    URL 직접 설정
+                                    <ChevronDown aria-hidden className="ml-2 inline h-3.5 w-3.5 transition-transform group-open:rotate-180" />
+                                </summary>
+                                <div className="mt-3 space-y-2">
+                                    <Input
+                                        density="compact"
+                                        label="URL (선택)"
+                                        value={customUrlValue}
+                                        onChange={(e) => {
+                                            setValue('customUrl', normalizeSeriesUrlInput(e.target.value), {
+                                                shouldDirty: true,
+                                                shouldValidate: true
+                                            });
+                                        }}
+                                        placeholder="series-url"
+                                    />
+                                    {errors.customUrl?.message && (
+                                        <p className="text-sm text-danger">{errors.customUrl.message}</p>
+                                    )}
+                                    <p className="text-xs text-content-secondary">
+                                        영문/숫자/한글/하이픈(`-`)만 사용할 수 있습니다.
+                                    </p>
+                                </div>
+                            </details>
+                        )}
+
+                        <div className="break-all text-xs font-mono text-content-hint">
+                            {seriesPath}
+                        </div>
+
+                        <p className="text-xs text-content-secondary">
+                            {isEditMode ? '시리즈 이름을 수정해도 URL은 유지됩니다.' : customSlug ? '직접 입력한 URL로 시리즈가 생성됩니다.' : 'URL을 비워두면 제목 기반 자동 URL로 시리즈가 생성됩니다.'}
+                        </p>
+                    </section>
+
+                </div>
+
+                <FloatingBottomBar>
+                    {isEditMode && (
+                        <>
                             <Button
+                                density="compact"
                                 type="button"
                                 variant="ghost"
-                                size="sm"
-                                className="h-10 shrink-0"
-                                onClick={handleCopySeriesUrl}>
-                                복사
+                                size="md"
+                                isLoading={deleteMutation.isPending}
+                                disabled={isSaving}
+                                onClick={handleDelete}
+                                className="!rounded-full !text-danger hover:!text-danger hover:!bg-danger-surface">
+                                삭제
                             </Button>
-                        )}
-                    </div>
-
-                    {!isEditMode && (
-                        <details className="group">
-                            <summary className="cursor-pointer list-none text-sm text-content-secondary transition-colors hover:text-content">
-                                URL 직접 설정
-                                <ChevronDown aria-hidden className="ml-2 inline h-3.5 w-3.5 transition-transform group-open:rotate-180" />
-                            </summary>
-                            <div className="mt-3 space-y-2">
-                                <Input
-                                    label="URL (선택)"
-                                    value={customUrlValue}
-                                    onChange={(e) => {
-                                        setValue('customUrl', normalizeSeriesUrlInput(e.target.value), {
-                                            shouldDirty: true,
-                                            shouldValidate: true
-                                        });
-                                    }}
-                                    placeholder="series-url"
-                                />
-                                {errors.customUrl?.message && (
-                                    <p className="text-sm text-danger">{errors.customUrl.message}</p>
-                                )}
-                                <p className="text-xs text-content-secondary">
-                                    영문/숫자/한글/하이픈(`-`)만 사용할 수 있습니다.
-                                </p>
-                            </div>
-                        </details>
+                            <div className="w-px h-8 bg-line/60 mx-1" />
+                        </>
                     )}
 
-                    <div className="break-all text-xs font-mono text-content-hint">
-                        {seriesPath}
-                    </div>
-
-                    <p className="text-xs text-content-secondary">
-                        {isEditMode ? '시리즈 이름을 수정해도 URL은 유지됩니다.' : customSlug ? '직접 입력한 URL로 시리즈가 생성됩니다.' : 'URL을 비워두면 제목 기반 자동 URL로 시리즈가 생성됩니다.'}
-                    </p>
-                </section>
-
-            </div>
-
-            <FloatingBottomBar>
-                {isEditMode && (
-                    <>
-                        <Button
-                            type="button"
-                            variant="ghost"
-                            size="md"
-                            isLoading={deleteMutation.isPending}
-                            disabled={isSaving}
-                            onClick={handleDelete}
-                            className="!rounded-full !text-danger hover:!text-danger hover:!bg-danger-surface">
-                            삭제
-                        </Button>
-                        <div className="w-px h-8 bg-line/60 mx-1" />
-                    </>
-                )}
-
-                <Button
-                    type="submit"
-                    variant="primary"
-                    className="!rounded-full"
-                    leftIcon={!isSaving ? <Send className="w-4 h-4" /> : undefined}
-                    isLoading={isSaving}
-                    disabled={deleteMutation.isPending}>
-                    {isSaving ? '저장 중...' : isEditMode ? '수정' : '생성'}
-                </Button>
-            </FloatingBottomBar>
-        </form>
+                    <Button
+                        density="compact"
+                        type="submit"
+                        variant="primary"
+                        className="!rounded-full"
+                        leftIcon={!isSaving ? <Send className="w-4 h-4" /> : undefined}
+                        isLoading={isSaving}
+                        disabled={deleteMutation.isPending}>
+                        {isSaving ? '저장 중...' : isEditMode ? '수정' : '생성'}
+                    </Button>
+                </FloatingBottomBar>
+            </form>
+        </div>
     );
 };
 

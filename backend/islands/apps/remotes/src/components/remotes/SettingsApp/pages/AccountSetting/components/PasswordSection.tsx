@@ -64,6 +64,7 @@ const PasswordSection = ({ isLoading, onSubmit }: PasswordSectionProps) => {
                 className="mb-6">
                 <div className="mb-4">
                     <Input
+                        density="compact"
                         label="새 비밀번호"
                         type="password"
                         placeholder="새 비밀번호"
@@ -75,6 +76,7 @@ const PasswordSection = ({ isLoading, onSubmit }: PasswordSectionProps) => {
                 </div>
                 <div className="mb-6">
                     <Input
+                        density="compact"
                         label="비밀번호 확인"
                         type="password"
                         placeholder="비밀번호 확인"
@@ -85,10 +87,11 @@ const PasswordSection = ({ isLoading, onSubmit }: PasswordSectionProps) => {
                 </div>
                 <div className="flex justify-end">
                     <Button
+                        density="compact"
                         type="submit"
                         variant="primary"
-                        size="lg"
-                        className="w-full sm:w-auto"
+                        size="md"
+                        className="min-h-11! [@media(pointer:fine)]:min-h-10!"
                         disabled={!isDirty || !isValid}
                         isLoading={isLoading}
                         leftIcon={!isLoading ? <Save className="h-4 w-4" /> : undefined}>

@@ -102,8 +102,9 @@ export const DraftPostListContent = ({
                     }
                     actions={
                         <Dropdown
+                            density="compact"
                             triggerAriaLabel={`${draftPost.title || '제목 없음'} 임시 포스트 메뉴 열기`}
-                            triggerClassName="min-h-11 min-w-11"
+                            triggerClassName="min-h-11 min-w-11 [@media(pointer:fine)]:min-h-9 [@media(pointer:fine)]:min-w-9"
                             items={[
                                 {
                                     label: '휴지통으로 이동',

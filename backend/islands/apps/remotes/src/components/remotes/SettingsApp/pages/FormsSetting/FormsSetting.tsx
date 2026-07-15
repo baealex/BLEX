@@ -5,7 +5,12 @@ import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { FileText, Pencil, Trash2 } from '@blex/ui/icons';
-import { SettingsEmptyState, SettingsHeader, SettingsListItem } from '../../components';
+import {
+    SettingsEmptyState,
+    SettingsHeader,
+    SettingsHeaderAction,
+    SettingsListItem
+} from '../../components';
 import { Button, Input, Dropdown } from '~/components/shared';
 import {
     getSettingsIconClass,
@@ -149,13 +154,11 @@ const FormsManagement = () => {
 
     const forms = formsData?.forms || [];
     const createAction = (
-        <Button
+        <SettingsHeaderAction
             variant="primary"
-            size="md"
-            className="min-h-11! w-full sm:w-auto"
             onClick={handleCreateForm}>
             새 서식 추가
-        </Button>
+        </SettingsHeaderAction>
     );
 
     return (
@@ -176,6 +179,7 @@ const FormsManagement = () => {
                     </h3>
                     <div className="space-y-4">
                         <Input
+                            density="compact"
                             label="제목"
                             type="text"
                             placeholder="서식 제목을 입력하세요"
@@ -184,6 +188,7 @@ const FormsManagement = () => {
                         />
 
                         <Input
+                            density="compact"
                             label="내용"
                             multiline
                             rows={8}
@@ -194,20 +199,22 @@ const FormsManagement = () => {
 
                         <div className="flex items-center justify-between gap-3">
                             <Button
+                                density="compact"
                                 type="button"
                                 variant="ghost"
                                 size="md"
-                                className="min-h-11!"
+                                className="min-h-11! [@media(pointer:fine)]:min-h-10!"
                                 onClick={closeForm}
                                 disabled={isSubmitting}>
                                 취소
                             </Button>
                             <div className="flex items-center gap-3">
                                 <Button
+                                    density="compact"
                                     type="submit"
                                     variant="primary"
                                     size="md"
-                                    className="min-h-11!"
+                                    className="min-h-11! [@media(pointer:fine)]:min-h-10!"
                                     isLoading={isSubmitting}>
                                     {isSubmitting ? (editingForm ? '수정 중...' : '생성 중...') : (editingForm ? '서식 수정' : '서식 생성')}
                                 </Button>
@@ -229,8 +236,9 @@ const FormsManagement = () => {
                             }
                             actions={
                                 <Dropdown
+                                    density="compact"
                                     triggerAriaLabel={`${form.title} 서식 메뉴 열기`}
-                                    triggerClassName="min-h-11 min-w-11"
+                                    triggerClassName="min-h-11 min-w-11 [@media(pointer:fine)]:min-h-9 [@media(pointer:fine)]:min-w-9"
                                     items={[
                                         {
                                             label: '수정',

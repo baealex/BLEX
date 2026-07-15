@@ -315,7 +315,7 @@ const ProfileSetting = () => {
                                 <button
                                     type="button"
                                     onClick={handleCoverDelete}
-                                    className="inline-flex min-h-11 items-center gap-2 rounded-xl border border-danger-line px-4 py-2 text-sm font-semibold text-danger transition-colors hover:bg-danger-surface">
+                                    className="inline-flex min-h-11 items-center gap-2 rounded-xl border border-danger-line px-4 py-2 text-sm font-semibold text-danger transition-colors hover:bg-danger-surface [@media(pointer:fine)]:min-h-9">
                                     <Trash2 aria-hidden="true" className="h-4 w-4" />
                                     커버 이미지 삭제
                                 </button>
@@ -336,6 +336,7 @@ const ProfileSetting = () => {
                     className="mb-6">
                     <div className="mb-6">
                         <Input
+                            density="compact"
                             label="소개"
                             leftIcon={<UserRound aria-hidden="true" className="h-4 w-4" />}
                             multiline
@@ -347,6 +348,7 @@ const ProfileSetting = () => {
                     </div>
 
                     <Input
+                        density="compact"
                         label="홈페이지"
                         leftIcon={<Link aria-hidden="true" className="h-4 w-4" />}
                         type="url"
@@ -358,10 +360,11 @@ const ProfileSetting = () => {
 
                 <div className="flex justify-end">
                     <Button
+                        density="compact"
                         type="submit"
                         variant="primary"
-                        size="lg"
-                        className="w-full sm:w-auto"
+                        size="md"
+                        className="min-h-11! [@media(pointer:fine)]:min-h-10!"
                         disabled={!isDirty || !isValid || isLoading}
                         isLoading={isLoading}
                         leftIcon={
