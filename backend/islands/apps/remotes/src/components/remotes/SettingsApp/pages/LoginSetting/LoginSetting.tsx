@@ -242,6 +242,7 @@ const ProviderCredentialFields = ({
     <div className="space-y-4">
         <div className="grid gap-4 md:grid-cols-2">
             <Input
+                density="compact"
                 label="Client ID"
                 name={`blex_${provider.key}_oauth_public_value`}
                 autoComplete="off"
@@ -255,6 +256,7 @@ const ProviderCredentialFields = ({
                 onChange={(event) => onUpdate(provider.key, { clientId: event.target.value })}
             />
             <Input
+                density="compact"
                 label="Client Secret"
                 type="password"
                 name={`blex_${provider.key}_oauth_private_value`}
@@ -532,6 +534,7 @@ const LoginSetting = () => {
                 icon={<UserCog aria-hidden="true" className="h-4 w-4" />}>
                 <div className="space-y-4">
                     <Input
+                        density="compact"
                         label="가입 환영 메시지"
                         multiline
                         rows={3}
@@ -541,12 +544,14 @@ const LoginSetting = () => {
                         helperText="{name}을 사용하면 사용자 이름으로 치환됩니다."
                     />
                     <Input
+                        density="compact"
                         label="환영 알림 클릭 URL"
                         placeholder="/"
                         value={loginSettings.welcomeUrl}
                         onChange={(event) => updateLoginSettingsForm({ welcomeUrl: event.target.value })}
                     />
                     <Input
+                        density="compact"
                         label="탈퇴 후 리다이렉트 URL"
                         placeholder="https://forms.example.com/exit-survey"
                         value={loginSettings.deletionRedirectUrl}
@@ -594,6 +599,7 @@ const LoginSetting = () => {
 
                     <div className="grid gap-4 md:grid-cols-2">
                         <Input
+                            density="compact"
                             label="Site Key"
                             name="blex_hcaptcha_public_value"
                             autoComplete="off"
@@ -607,6 +613,7 @@ const LoginSetting = () => {
                             placeholder="hCaptcha Site Key"
                         />
                         <Input
+                            density="compact"
                             label="Secret Key"
                             type="password"
                             name="blex_hcaptcha_private_value"
@@ -644,10 +651,11 @@ const LoginSetting = () => {
 
             <div className="sticky bottom-0 z-10 -mx-4 flex justify-end bg-surface-page/95 px-4 py-3 backdrop-blur md:mx-0 md:px-0">
                 <Button
+                    density="compact"
                     type="submit"
                     variant="primary"
                     size="md"
-                    className="h-11 w-full sm:w-auto"
+                    className="h-11 w-full [@media(pointer:fine)]:h-10 sm:w-auto"
                     isLoading={updateMutation.isPending}
                     disabled={!isDirty || updateMutation.isPending}
                     leftIcon={!updateMutation.isPending

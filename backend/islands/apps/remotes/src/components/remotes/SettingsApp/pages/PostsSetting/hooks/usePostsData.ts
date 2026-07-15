@@ -23,14 +23,120 @@ export interface FilterOptions {
 
 export type PostsSource = 'published' | 'scheduled';
 
+interface PostClassificationDraft {
+    tag: string;
+    series: string;
+    hasTagChanged: boolean;
+    hasSeriesChanged: boolean;
+}
+
+const POST_CLASSIFICATION_DRAFTS_KEY = 'blex:settings-post-classification-drafts';
+
+const getPostClassificationDraftKey = (
+    username: string,
+    postUrl: string
+) => `${username}:${postUrl}`;
+
+const isPostClassificationDraft = (value: unknown): value is PostClassificationDraft => {
+    if (typeof value !== 'object' || value === null || Array.isArray(value)) return false;
+
+    const draft = value as Record<string, unknown>;
+    return typeof draft.tag === 'string'
+        && typeof draft.series === 'string'
+        && typeof draft.hasTagChanged === 'boolean'
+        && typeof draft.hasSeriesChanged === 'boolean';
+};
+
+const readPostClassificationDrafts = (): Record<string, PostClassificationDraft> => {
+    if (typeof window === 'undefined') return {};
+
+    try {
+        const storedDrafts = window.sessionStorage.getItem(POST_CLASSIFICATION_DRAFTS_KEY);
+        if (!storedDrafts) return {};
+
+        const parsedDrafts: unknown = JSON.parse(storedDrafts);
+        if (typeof parsedDrafts !== 'object' || parsedDrafts === null || Array.isArray(parsedDrafts)) {
+            return {};
+        }
+
+        return Object.entries(parsedDrafts).reduce<Record<string, PostClassificationDraft>>(
+            (drafts, [key, draft]) => {
+                if (isPostClassificationDraft(draft)) drafts[key] = draft;
+                return drafts;
+            },
+            {}
+        );
+    } catch {
+        return {};
+    }
+};
+
+const writePostClassificationDrafts = (drafts: Record<string, PostClassificationDraft>) => {
+    if (typeof window === 'undefined') return;
+
+    try {
+        if (Object.keys(drafts).length === 0) {
+            window.sessionStorage.removeItem(POST_CLASSIFICATION_DRAFTS_KEY);
+            return;
+        }
+        window.sessionStorage.setItem(POST_CLASSIFICATION_DRAFTS_KEY, JSON.stringify(drafts));
+    } catch {
+        // Storage can be unavailable in restricted browser contexts. In-memory editing still works.
+    }
+};
+
+export const getPostClassificationDraft = (
+    username: string,
+    postUrl: string
+) => readPostClassificationDrafts()[getPostClassificationDraftKey(username, postUrl)];
+
+export const syncPostClassificationDraft = (
+    username: string,
+    post: Post
+) => {
+    const drafts = readPostClassificationDrafts();
+    const draftKey = getPostClassificationDraftKey(username, post.url);
+
+    if (!post.hasTagChanged && !post.hasSeriesChanged) {
+        delete drafts[draftKey];
+        writePostClassificationDrafts(drafts);
+        return;
+    }
+
+    drafts[draftKey] = {
+        tag: post.tag,
+        series: post.series || '',
+        hasTagChanged: Boolean(post.hasTagChanged),
+        hasSeriesChanged: Boolean(post.hasSeriesChanged)
+    };
+    writePostClassificationDrafts(drafts);
+};
+
+export const clearPostClassificationDraft = (
+    username: string,
+    postUrl: string
+) => {
+    const drafts = readPostClassificationDrafts();
+    delete drafts[getPostClassificationDraftKey(username, postUrl)];
+    writePostClassificationDrafts(drafts);
+};
+
 export const POSTS_ORDER = [
     {
-        name: '최신순',
+        name: '최근 발행순',
         order: '-published_date'
     },
     {
-        name: '오래된순',
+        name: '오래된 발행순',
         order: 'published_date'
+    },
+    {
+        name: '최근 수정순',
+        order: '-updated_date'
+    },
+    {
+        name: '오래된 수정순',
+        order: 'updated_date'
     },
     {
         name: '제목순',
@@ -47,6 +153,14 @@ export const POSTS_ORDER = [
     {
         name: '좋아요 적은순',
         order: 'count_likes'
+    },
+    {
+        name: '댓글 많은순',
+        order: '-count_comments'
+    },
+    {
+        name: '댓글 적은순',
+        order: 'count_comments'
     },
     {
         name: '분량 적은순',
@@ -68,19 +182,25 @@ const DEFAULT_FILTERS: FilterOptions = {
 };
 
 const FILTER_KEYS = Object.keys(DEFAULT_FILTERS) as (keyof FilterOptions)[];
+const VALID_ORDERS = new Set(POSTS_ORDER.map(({ order }) => order));
+const VALID_VISIBILITY = new Set(['public', 'hidden']);
 
 // URL에서 필터 초기값 읽기
 const getFiltersFromURL = (): FilterOptions => {
     if (typeof window === 'undefined') return DEFAULT_FILTERS;
 
     const params = new URLSearchParams(window.location.search);
+    const order = params.get('order') || DEFAULT_FILTERS.order;
+    const page = params.get('page') || DEFAULT_FILTERS.page;
+    const visibility = params.get('visibility') || DEFAULT_FILTERS.visibility;
+
     return {
         search: params.get('search') || '',
         tag: params.get('tag') || '',
         series: params.get('series') || '',
-        order: params.get('order') || '-published_date',
-        page: params.get('page') || '1',
-        visibility: params.get('visibility') || ''
+        order: VALID_ORDERS.has(order) ? order : DEFAULT_FILTERS.order,
+        page: /^[1-9]\d*$/.test(page) ? page : DEFAULT_FILTERS.page,
+        visibility: VALID_VISIBILITY.has(visibility) ? visibility : DEFAULT_FILTERS.visibility
     };
 };
 
@@ -108,7 +228,9 @@ const syncFiltersToURL = (filters: FilterOptions) => {
 export const usePostsFilterState = () => {
     const [filters, setFilters] = useState<FilterOptions>(getFiltersFromURL());
     const [searchValue, setSearchValue] = useState(filters.search);
-    const [isFilterExpanded, setIsFilterExpanded] = useState(true);
+    const [isFilterExpanded, setIsFilterExpanded] = useState(
+        () => Boolean(filters.tag || filters.series || filters.visibility)
+    );
     const searchDebounce = useRef<ReturnType<typeof setTimeout> | null>(null);
 
     const { data: tags } = useSuspenseQuery({
@@ -235,13 +357,31 @@ export const usePostsQuery = (filters: FilterOptions, source: PostsSource = 'pub
 
     useEffect(() => {
         if (postsData?.posts) {
-            setPosts(postsData.posts.map(post => ({
-                ...post,
-                persistedTag: post.tag,
-                persistedSeries: post.series || ''
-            })));
+            setPosts(postsData.posts.map(post => {
+                const persistedTag = post.tag;
+                const persistedSeries = post.series || '';
+                const draft = getPostClassificationDraft(postsData.username, post.url);
+                const tag = draft?.hasTagChanged ? draft.tag : persistedTag;
+                const series = draft?.hasSeriesChanged ? draft.series : persistedSeries;
+                const nextPost: Post = {
+                    ...post,
+                    tag,
+                    series,
+                    persistedTag,
+                    persistedSeries,
+                    hasTagChanged: tag !== persistedTag,
+                    hasSeriesChanged: series !== persistedSeries
+                };
+
+                return nextPost;
+            }));
         }
-    }, [postsData]);
+    }, [postsData, source]);
+
+    useEffect(() => {
+        if (!postsData?.username) return;
+        posts.forEach(post => syncPostClassificationDraft(postsData.username, post));
+    }, [posts, postsData?.username]);
 
     return {
         posts,

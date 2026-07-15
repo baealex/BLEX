@@ -6,6 +6,7 @@ import { INTERACTION_DURATION } from '../lib/designTokens';
 interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
     variant?: 'primary' | 'secondary' | 'danger' | 'danger-solid' | 'ghost';
     size?: 'sm' | 'md' | 'lg';
+    density?: 'default' | 'compact';
     isLoading?: boolean;
     leftIcon?: ReactNode;
     rightIcon?: ReactNode;
@@ -16,6 +17,7 @@ interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 const Button = ({
     variant = 'primary',
     size = 'md',
+    density = 'default',
     isLoading = false,
     leftIcon,
     rightIcon,
@@ -37,16 +39,35 @@ const Button = ({
     };
 
     const sizeStyles = {
-        sm: 'px-3 py-1.5 text-xs rounded-lg min-h-[36px]',
-        md: 'px-4.5 py-2 text-sm rounded-lg min-h-[40px]',
-        lg: 'px-6 py-2.5 text-base rounded-lg min-h-[44px]'
+        sm: 'px-3 py-1.5 text-xs rounded-lg',
+        md: 'px-4.5 py-2 text-sm rounded-lg',
+        lg: 'px-6 py-2.5 text-base rounded-lg'
+    };
+    const heightStyles = {
+        default: {
+            sm: 'min-h-[36px]',
+            md: 'min-h-[40px]',
+            lg: 'min-h-[44px]'
+        },
+        compact: {
+            sm: 'min-h-11 [@media(pointer:fine)]:min-h-[36px]',
+            md: 'min-h-11 [@media(pointer:fine)]:min-h-[40px]',
+            lg: 'min-h-11'
+        }
     };
 
     const widthStyle = fullWidth ? 'w-full' : '';
 
     return (
         <button
-            className={cx(baseStyles, variantStyles[variant], sizeStyles[size], widthStyle, className)}
+            className={cx(
+                baseStyles,
+                variantStyles[variant],
+                sizeStyles[size],
+                heightStyles[density][size],
+                widthStyle,
+                className
+            )}
             disabled={disabled || isLoading}
             type={type}
             {...props}>

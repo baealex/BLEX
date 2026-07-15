@@ -3,8 +3,11 @@ import { useMutation, useQueryClient, useSuspenseQuery } from '@tanstack/react-q
 import { useNavigate } from '@tanstack/react-router';
 import { Ad, Layers3 } from '@blex/ui/icons';
 import { useConfirm } from '~/hooks/useConfirm';
-import { SettingsEmptyState, SettingsHeader } from '../../components';
-import { Button } from '~/components/shared';
+import {
+    SettingsEmptyState,
+    SettingsHeader,
+    SettingsHeaderAction
+} from '../../components';
 import {
     getBanners,
     updateBanner,
@@ -137,13 +140,11 @@ const BannerSettingBase = ({ scope }: BannerSettingBaseProps) => {
     };
 
     const createAction = (
-        <Button
+        <SettingsHeaderAction
             onClick={handleCreateBanner}
-            variant="primary"
-            size="md"
-            className="min-h-11! w-full sm:w-auto">
+            variant="primary">
             새 배너 추가
-        </Button>
+        </SettingsHeaderAction>
     );
 
     return (

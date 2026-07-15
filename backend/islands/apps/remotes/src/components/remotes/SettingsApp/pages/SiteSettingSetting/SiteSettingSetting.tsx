@@ -131,9 +131,10 @@ const AssetUploadButton = ({ label, disabled, onUpload }: AssetUploadButtonProps
                 onChange={onUpload}
             />
             <Button
+                density="compact"
                 variant="secondary"
                 size="sm"
-                className="h-11 flex-1 sm:flex-none"
+                className="h-11 flex-1 [@media(pointer:fine)]:h-9 sm:flex-none"
                 disabled={disabled}
                 leftIcon={<Upload aria-hidden="true" className="h-3.5 w-3.5" />}
                 onClick={() => inputRef.current?.click()}>
@@ -178,10 +179,11 @@ const BrandAssetSlot = ({
             />
             {hasAsset && (
                 <Button
+                    density="compact"
                     variant="danger"
                     size="sm"
                     disabled={deleteDisabled}
-                    className="h-11 flex-1 sm:flex-none"
+                    className="h-11 flex-1 [@media(pointer:fine)]:h-9 sm:flex-none"
                     onClick={onDelete}>
                     삭제
                 </Button>
@@ -406,6 +408,7 @@ const SiteSettingSetting = () => {
                 </h2>
                 <Card>
                     <Input
+                        density="compact"
                         label="사이트 이름"
                         maxLength={80}
                         placeholder="BLEX"
@@ -518,10 +521,11 @@ const SiteSettingSetting = () => {
 
             <div className="sticky bottom-0 z-10 -mx-4 flex justify-end bg-surface-page/95 px-4 py-3 backdrop-blur md:mx-0 md:px-0">
                 <Button
+                    density="compact"
                     type="submit"
                     variant="primary"
                     size="md"
-                    className="h-11 w-full sm:w-auto"
+                    className="h-11 w-full [@media(pointer:fine)]:h-10 sm:w-auto"
                     isLoading={updateMutation.isPending}
                     disabled={saveDisabled}
                     leftIcon={!updateMutation.isPending

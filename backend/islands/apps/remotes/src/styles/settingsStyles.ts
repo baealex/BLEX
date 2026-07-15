@@ -15,4 +15,7 @@ export const getSettingsIconClass = (
 ) => `${SETTINGS_ICON_BASE} ${SETTINGS_ICON_VARIANTS[variant]}`;
 
 // These are button-based select triggers, not text inputs.
-export const settingsSelectTriggerStyles = 'block w-full rounded-lg border border-line focus:border-line-strong/30 focus:ring-2 focus:ring-line/5 text-sm py-3 px-3 min-h-12 transition-all motion-interaction bg-surface placeholder-content-hint text-content';
+const SETTINGS_SELECT_TRIGGER_BASE = 'block w-full rounded-lg border border-line focus:border-line-strong/30 focus:ring-2 focus:ring-line/5 text-sm px-3 transition-all motion-interaction bg-surface placeholder-content-hint text-content';
+
+export const settingsSelectTriggerStyles = `${SETTINGS_SELECT_TRIGGER_BASE} min-h-11 py-2.5`;
+export const settingsCompactSelectTriggerStyles = `${SETTINGS_SELECT_TRIGGER_BASE} min-h-11 py-2 [@media(pointer:fine)]:min-h-10`;

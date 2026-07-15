@@ -23,7 +23,12 @@ import {
     SETTINGS_LIST_META,
     SETTINGS_LIST_TITLE
 } from '~/styles/settingsStyles';
-import { SettingsEmptyState, SettingsHeader, SettingsListItem } from '.';
+import {
+    SettingsEmptyState,
+    SettingsHeader,
+    SettingsHeaderAction,
+    SettingsListItem
+} from '.';
 import type { WebhookChannel } from '~/lib/api/settings';
 import type { Response } from '~/lib/http.module';
 
@@ -278,16 +283,14 @@ const WebhookChannelManager = ({
     };
 
     const createAction = (
-        <Button
+        <SettingsHeaderAction
             variant="primary"
-            size="md"
-            className="min-h-11! w-full sm:w-auto"
             onClick={() => {
                 reset();
                 setShowAddForm(true);
             }}>
             {addButtonLabel}
-        </Button>
+        </SettingsHeaderAction>
     );
 
     return (
@@ -310,6 +313,7 @@ const WebhookChannelManager = ({
                                 웹훅 URL <span className="text-danger">*</span>
                             </label>
                             <Input
+                                density="compact"
                                 id="webhookUrl"
                                 type="url"
                                 placeholder="https://example.com/webhook"
@@ -353,6 +357,7 @@ const WebhookChannelManager = ({
                                 표시 이름 (선택)
                             </label>
                             <Input
+                                density="compact"
                                 id="webhookName"
                                 type="text"
                                 placeholder="예: 새 포스트 알림"
@@ -361,10 +366,11 @@ const WebhookChannelManager = ({
                         </div>
                         <div className="flex items-center justify-between gap-3">
                             <Button
+                                density="compact"
                                 variant="ghost"
                                 size="md"
                                 type="button"
-                                className="min-h-11!"
+                                className="min-h-11! [@media(pointer:fine)]:min-h-10!"
                                 onClick={handleCancel}
                                 disabled={isAdding || isTesting}>
                                 취소
@@ -372,20 +378,22 @@ const WebhookChannelManager = ({
 
                             <div className="flex flex-wrap items-center gap-3">
                                 <Button
+                                    density="compact"
                                     variant="secondary"
                                     size="md"
                                     type="button"
-                                    className="min-h-11!"
+                                    className="min-h-11! [@media(pointer:fine)]:min-h-10!"
                                     isLoading={isTesting}
                                     disabled={isAdding}
                                     onClick={handleTest}>
                                     {isTesting ? '전송 중...' : '테스트'}
                                 </Button>
                                 <Button
+                                    density="compact"
                                     variant="primary"
                                     size="md"
                                     type="submit"
-                                    className="min-h-11!"
+                                    className="min-h-11! [@media(pointer:fine)]:min-h-10!"
                                     isLoading={isAdding}
                                     disabled={isTesting}>
                                     {isAdding ? '추가 중...' : '추가'}
@@ -410,8 +418,9 @@ const WebhookChannelManager = ({
                             }
                             actions={
                                 <Dropdown
+                                    density="compact"
                                     triggerAriaLabel={`${channel.name || '이름 없는 채널'} 웹훅 메뉴 열기`}
-                                    triggerClassName="min-h-11 min-w-11"
+                                    triggerClassName="min-h-11 min-w-11 [@media(pointer:fine)]:min-h-9 [@media(pointer:fine)]:min-w-9"
                                     items={[
                                         {
                                             label: '삭제',

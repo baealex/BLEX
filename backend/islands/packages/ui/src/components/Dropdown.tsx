@@ -18,14 +18,21 @@ interface DropdownProps {
     triggerAriaLabel?: string;
     triggerClassName?: string;
     align?: 'start' | 'end' | 'center' | 'left' | 'right';
+    density?: 'default' | 'compact';
 }
+
+const dropdownItemDensityStyles = {
+    default: 'px-4 py-2.5',
+    compact: 'min-h-11 px-4 py-2 [@media(pointer:fine)]:min-h-10'
+} as const;
 
 const Dropdown = ({
     items,
     trigger,
     triggerAriaLabel = '메뉴 열기',
     triggerClassName = '',
-    align = 'end'
+    align = 'end',
+    density = 'default'
 }: DropdownProps) => {
     const [open, setOpen] = useState(false);
 
@@ -33,6 +40,38 @@ const Dropdown = ({
         align === 'right' ? 'end' :
         align === 'left' ? 'start' :
         align;
+    const hasSelectionItems = items.some(item => item.checked !== undefined);
+    const selectedItemValue = String(items.findIndex(item => item.checked));
+
+    const getItemClassName = (item: DropdownItem) => `
+        relative flex items-center text-sm gap-3 cursor-pointer select-none outline-none
+        transition-colors
+        ${dropdownItemDensityStyles[density]}
+        ${item.variant === 'danger'
+            ? 'text-danger focus:bg-danger-surface hover:bg-danger-surface'
+            : 'text-content-secondary focus:bg-surface-subtle hover:bg-surface-subtle'
+        }
+        ${item.checked ? 'bg-surface-subtle text-content font-medium' : ''}
+        ${item.className || ''}
+    `;
+
+    const renderItemContent = (item: DropdownItem) => (
+        <>
+            {typeof item.icon === 'string' ? (
+                <i className={`${item.icon} w-4 text-center`} />
+            ) : item.icon ? (
+                <span
+                    aria-hidden="true"
+                    className="inline-flex w-4 shrink-0 items-center justify-center [&>svg]:h-4 [&>svg]:w-4">
+                    {item.icon}
+                </span>
+            ) : null}
+            <span className="flex-1">{item.label}</span>
+            {item.checked && (
+                <Check aria-hidden="true" className="ml-2 h-3.5 w-3.5 text-content-secondary" />
+            )}
+        </>
+    );
 
     return (
         <DropdownMenu.Root open={open} modal={false} onOpenChange={setOpen}>
@@ -45,7 +84,7 @@ const Dropdown = ({
                 ) : (
                     <button
                         type="button"
-                        className={`p-2 text-content-secondary hover:text-content hover:bg-surface-subtle rounded-lg transition-colors outline-none ${triggerClassName}`}
+                        className={`inline-flex items-center justify-center rounded-lg p-2 text-content-secondary outline-none transition-colors hover:bg-surface-subtle hover:text-content focus-visible:ring-2 focus-visible:ring-line-strong focus-visible:ring-offset-2 ${triggerClassName}`}
                         aria-label={triggerAriaLabel}>
                         <EllipsisVertical aria-hidden="true" className="h-4 w-4" />
                     </button>
@@ -58,33 +97,24 @@ const Dropdown = ({
                     align={alignProp}
                     sideOffset={5}
                     onClick={(e) => e.stopPropagation()}>
-                    {items.map((item, index) => (
+                    {hasSelectionItems ? (
+                        <DropdownMenu.RadioGroup value={selectedItemValue}>
+                            {items.map((item, index) => (
+                                <DropdownMenu.RadioItem
+                                    key={index}
+                                    value={String(index)}
+                                    onSelect={item.onClick}
+                                    className={getItemClassName(item)}>
+                                    {renderItemContent(item)}
+                                </DropdownMenu.RadioItem>
+                            ))}
+                        </DropdownMenu.RadioGroup>
+                    ) : items.map((item, index) => (
                         <DropdownMenu.Item
                             key={index}
-                            onClick={item.onClick}
-                            className={`
-                                relative flex items-center px-4 py-2.5 text-sm gap-3 cursor-pointer select-none outline-none
-                                transition-colors
-                                ${item.variant === 'danger'
-                                    ? 'text-danger focus:bg-danger-surface hover:bg-danger-surface'
-                                    : 'text-content-secondary focus:bg-surface-subtle hover:bg-surface-subtle'
-                                }
-                                ${item.checked ? 'bg-surface-subtle text-content font-medium' : ''}
-                                ${item.className || ''}
-                            `}>
-                            {typeof item.icon === 'string' ? (
-                                <i className={`${item.icon} w-4 text-center`} />
-                            ) : item.icon ? (
-                                <span
-                                    aria-hidden="true"
-                                    className="inline-flex w-4 shrink-0 items-center justify-center [&>svg]:h-4 [&>svg]:w-4">
-                                    {item.icon}
-                                </span>
-                            ) : null}
-                            <span className="flex-1">{item.label}</span>
-                            {item.checked && (
-                                <Check aria-hidden="true" className="ml-2 h-3.5 w-3.5 text-content-secondary" />
-                            )}
+                            onSelect={item.onClick}
+                            className={getItemClassName(item)}>
+                            {renderItemContent(item)}
                         </DropdownMenu.Item>
                     ))}
                 </DropdownMenu.Content>

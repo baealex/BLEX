@@ -52,6 +52,7 @@ const NameSection = ({ initialName, isLoading, onSubmit }: NameSectionProps) => 
             className="pt-6"
             onSubmit={handleSubmit(handleFormSubmit)}>
             <Input
+                density="compact"
                 type="text"
                 label="사용자 이름"
                 placeholder="사용자 이름"
@@ -61,10 +62,11 @@ const NameSection = ({ initialName, isLoading, onSubmit }: NameSectionProps) => 
             />
             <div className="mt-4 flex justify-end">
                 <Button
+                    density="compact"
                     type="submit"
                     variant="primary"
-                    size="lg"
-                    className="w-full sm:w-auto"
+                    size="md"
+                    className="min-h-11! [@media(pointer:fine)]:min-h-10!"
                     disabled={!isDirty || !isValid}
                     isLoading={isLoading}
                     leftIcon={!isLoading ? <Save className="h-4 w-4" /> : undefined}>

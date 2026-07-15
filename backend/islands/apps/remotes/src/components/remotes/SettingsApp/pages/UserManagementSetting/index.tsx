@@ -208,6 +208,7 @@ const MobileUserRow = ({
                         <p className="mb-2 text-xs font-medium text-content-hint">권한</p>
                         {user.canChangeRole ? (
                             <Select
+                                density="compact"
                                 value={user.role}
                                 onValueChange={(value) => onRoleChange(value as ManagedUserRole)}
                                 items={roleItems}
@@ -445,6 +446,7 @@ const UserManagementSetting = () => {
                             초대 링크는 한 번만 사용할 수 있으며, 사용 전에는 삭제할 수 있습니다.
                         </p>
                         <Button
+                            density="compact"
                             variant="primary"
                             isLoading={inviteMutation.isPending}
                             onClick={() => inviteMutation.mutate()}>
@@ -474,6 +476,7 @@ const UserManagementSetting = () => {
                                 </div>
                                 <div className="flex flex-wrap gap-2 lg:flex-shrink-0">
                                     <Button
+                                        density="compact"
                                         variant="secondary"
                                         size="sm"
                                         disabled={invite.isClaimed || !invite.isActive}
@@ -481,6 +484,7 @@ const UserManagementSetting = () => {
                                         링크 복사
                                     </Button>
                                     <Button
+                                        density="compact"
                                         variant="danger"
                                         size="sm"
                                         isLoading={deleteInviteMutation.isPending && deleteInviteMutation.variables?.id === invite.id}
@@ -506,6 +510,7 @@ const UserManagementSetting = () => {
                 icon={<Users aria-hidden="true" className="h-4 w-4" />}>
                 <div className="mb-6 grid gap-3 lg:grid-cols-[minmax(0,1fr)_180px_180px_auto]">
                     <Input
+                        density="compact"
                         aria-label="사용자 검색"
                         placeholder="아이디·이름·이메일 검색"
                         value={query}
@@ -515,21 +520,21 @@ const UserManagementSetting = () => {
                         }}
                     />
                     <Select
+                        density="compact"
                         value={roleFilter}
                         onValueChange={handleRoleFilterChange}
                         items={roleFilterItems}
-                        className="min-h-10 py-2"
                     />
                     <Select
+                        density="compact"
                         value={ordering}
                         onValueChange={handleOrderingChange}
                         items={orderingItems}
-                        className="min-h-10 py-2"
                     />
                     <div className="flex gap-2">
-                        <Button variant="secondary" onClick={handleSearch}>검색</Button>
+                        <Button density="compact" variant="secondary" onClick={handleSearch}>검색</Button>
                         {(appliedQuery || roleFilter !== 'all' || ordering !== 'username') && (
-                            <Button variant="ghost" onClick={handleReset}>초기화</Button>
+                            <Button density="compact" variant="ghost" onClick={handleReset}>초기화</Button>
                         )}
                     </div>
                 </div>
@@ -570,10 +575,10 @@ const UserManagementSetting = () => {
                                     <div className="space-y-1">
                                         {user.canChangeRole ? (
                                             <Select
+                                                density="compact"
                                                 value={user.role}
                                                 onValueChange={(value) => void handleRoleChange(user, value as ManagedUserRole)}
                                                 items={roleItems}
-                                                className="min-h-10 py-2"
                                                 disabled={roleMutation.isPending && roleMutation.variables?.user.id === user.id}
                                             />
                                         ) : (
@@ -614,6 +619,7 @@ const UserManagementSetting = () => {
                         </p>
                         <div className="flex flex-wrap items-center gap-2">
                             <Button
+                                density="compact"
                                 variant="secondary"
                                 size="sm"
                                 disabled={!pagination.hasPrevious}
@@ -622,6 +628,7 @@ const UserManagementSetting = () => {
                                 <ChevronsLeft aria-hidden="true" className="h-4 w-4" />
                             </Button>
                             <Button
+                                density="compact"
                                 variant="secondary"
                                 size="sm"
                                 disabled={!pagination.hasPrevious}
@@ -631,6 +638,7 @@ const UserManagementSetting = () => {
                             </Button>
                             {visiblePages.map(pageNumber => (
                                 <Button
+                                    density="compact"
                                     key={pageNumber}
                                     variant={pageNumber === currentPage ? 'primary' : 'secondary'}
                                     size="sm"
@@ -640,6 +648,7 @@ const UserManagementSetting = () => {
                                 </Button>
                             ))}
                             <Button
+                                density="compact"
                                 variant="secondary"
                                 size="sm"
                                 disabled={!pagination.hasNext}
@@ -648,6 +657,7 @@ const UserManagementSetting = () => {
                                 <ChevronRight aria-hidden="true" className="h-4 w-4" />
                             </Button>
                             <Button
+                                density="compact"
                                 variant="secondary"
                                 size="sm"
                                 disabled={!pagination.hasNext}

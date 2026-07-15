@@ -111,9 +111,10 @@ export const PinnablePostInlineList = ({
                                 }
                                 actions={
                                     <Button
+                                        density="compact"
                                         variant="secondary"
                                         size="sm"
-                                        className="min-h-11!"
+                                        className="min-h-11! [@media(pointer:fine)]:min-h-9!"
                                         onClick={() => onAdd(post.url)}
                                         disabled={isActionDisabled || isLoading}
                                         isLoading={isLoading}>

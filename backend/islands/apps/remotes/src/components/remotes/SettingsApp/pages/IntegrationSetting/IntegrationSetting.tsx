@@ -130,6 +130,7 @@ const IntegrationSettings = () => {
                             </div>
                         </div>
                         <Button
+                            density="compact"
                             variant="danger"
                             size="md"
                             isLoading={isDisconnecting}
@@ -178,6 +179,7 @@ const IntegrationSettings = () => {
                                                 {telegramToken}
                                             </code>
                                             <Button
+                                                density="compact"
                                                 type="button"
                                                 variant="secondary"
                                                 size="sm"
@@ -189,6 +191,7 @@ const IntegrationSettings = () => {
                                 ) : (
                                     <div className="rounded-xl border border-dashed border-line bg-surface-subtle p-4">
                                         <Button
+                                            density="compact"
                                             variant="primary"
                                             size="md"
                                             isLoading={isGeneratingToken}

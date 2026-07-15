@@ -166,6 +166,7 @@ const AdminIntegrationSetting = () => {
 
                     <div className="grid gap-4 md:grid-cols-2">
                         <Input
+                            density="compact"
                             label="봇 사용자명"
                             name="blex_telegram_bot_public_value"
                             autoComplete="off"
@@ -180,6 +181,7 @@ const AdminIntegrationSetting = () => {
                             helperText="@ 없이 입력해도 됩니다."
                         />
                         <Input
+                            density="compact"
                             label="봇 토큰"
                             type="password"
                             name="blex_telegram_bot_private_value"
@@ -216,6 +218,7 @@ const AdminIntegrationSetting = () => {
 
             <div className="sticky bottom-0 z-10 -mx-4 flex justify-end bg-surface-page/95 px-4 py-3 backdrop-blur md:mx-0 md:px-0">
                 <Button
+                    density="compact"
                     type="submit"
                     variant="primary"
                     size="md"

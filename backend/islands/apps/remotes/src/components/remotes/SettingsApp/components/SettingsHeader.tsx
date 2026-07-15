@@ -15,30 +15,34 @@ const SettingsHeader = ({
 }: SettingsHeaderProps) => {
     if (actionPosition === 'right') {
         return (
-            <div className="mb-6">
-                <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-                    <div className="space-y-2">
-                        <h2 className="text-2xl font-semibold tracking-tight text-content">{title}</h2>
+            <div className="mb-5">
+                <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                    <div className="space-y-1">
+                        <h1 className="text-xl font-semibold tracking-tight text-content">{title}</h1>
                         {description && (
                             <p className="text-sm text-content-secondary leading-relaxed">{description}</p>
                         )}
                     </div>
-                    {action && <div className="flex-shrink-0">{action}</div>}
+                    {action && (
+                        <div className="flex flex-shrink-0 justify-end">
+                            {action}
+                        </div>
+                    )}
                 </div>
             </div>
         );
     }
 
     return (
-        <div className="mb-6">
-            <div className="space-y-2">
-                <h2 className="text-2xl font-semibold tracking-tight text-content">{title}</h2>
+        <div className="mb-5">
+            <div className="space-y-1">
+                <h1 className="text-xl font-semibold tracking-tight text-content">{title}</h1>
                 {description && (
                     <p className="text-sm text-content-secondary leading-relaxed">{description}</p>
                 )}
             </div>
             {action && (
-                <div className="mt-6">
+                <div className="mt-4">
                     {action}
                 </div>
             )}

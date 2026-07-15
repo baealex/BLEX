@@ -1,5 +1,4 @@
-import { SettingsHeader } from '../../components';
-import { Button } from '~/components/shared';
+import { SettingsHeader, SettingsHeaderAction } from '../../components';
 import { DraftPostListContent } from '../PostsSetting/components';
 
 const DraftsSetting = () => {
@@ -9,13 +8,11 @@ const DraftsSetting = () => {
                 title="임시 포스트"
                 actionPosition="right"
                 action={
-                    <Button
+                    <SettingsHeaderAction
                         variant="primary"
-                        size="md"
-                        className="w-full sm:w-auto"
                         onClick={() => window.location.assign('/write')}>
                         새 포스트 작성
-                    </Button>
+                    </SettingsHeaderAction>
                 }
             />
 

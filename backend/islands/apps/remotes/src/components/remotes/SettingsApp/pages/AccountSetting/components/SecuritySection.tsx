@@ -19,9 +19,10 @@ const SecuritySection = ({ has2fa, onToggle2FA, onDeleteAccount }: SecuritySecti
                         <p className="font-medium text-content">2차 인증</p>
                     </div>
                     <Button
+                        density="compact"
                         variant="primary"
-                        size="lg"
-                        className="w-full sm:w-auto"
+                        size="sm"
+                        className="min-h-11! self-end [@media(pointer:fine)]:min-h-9! sm:self-auto"
                         onClick={() => onToggle2FA(!has2fa)}>
                         {has2fa ? '중지' : '활성화'}
                     </Button>
@@ -33,7 +34,7 @@ const SecuritySection = ({ has2fa, onToggle2FA, onDeleteAccount }: SecuritySecti
                 className="rounded-2xl border border-danger-line bg-danger-surface/40 p-6 md:p-8">
                 <div className="flex items-center gap-3 text-danger">
                     <AlertTriangle className="h-5 w-5" />
-                    <h3 id="danger-zone-title" className="text-lg font-semibold tracking-tight">
+                    <h3 id="danger-zone-title" className="text-base font-semibold">
                         위험 영역
                     </h3>
                 </div>
@@ -43,9 +44,10 @@ const SecuritySection = ({ has2fa, onToggle2FA, onDeleteAccount }: SecuritySecti
                         <p className="text-sm text-content-secondary">모든 데이터가 영구적으로 삭제되며 복구할 수 없습니다.</p>
                     </div>
                     <Button
+                        density="compact"
                         variant="danger"
-                        size="lg"
-                        className="w-full shrink-0 sm:w-auto"
+                        size="sm"
+                        className="min-h-11! shrink-0 self-end [@media(pointer:fine)]:min-h-9! sm:self-auto"
                         leftIcon={<Trash2 className="h-4 w-4" />}
                         onClick={onDeleteAccount}>
                         삭제

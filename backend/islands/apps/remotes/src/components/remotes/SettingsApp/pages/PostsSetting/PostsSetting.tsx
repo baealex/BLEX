@@ -6,7 +6,7 @@ import {
     Trash2,
     type LucideIcon
 } from '@blex/ui/icons';
-import { Button } from '~/components/shared';
+import { Button, Tabs } from '~/components/shared';
 import { SettingsHeader } from '../../components';
 import { usePostsFilterState } from './hooks/usePostsData';
 import {
@@ -113,18 +113,20 @@ const PostsSetting = () => {
     );
     const createPostAction = (
         <Button
+            density="compact"
             variant="primary"
             size="md"
-            className="min-h-11! w-full sm:w-auto"
+            className="min-h-11! w-full [@media(pointer:fine)]:min-h-10! sm:w-auto"
             onClick={() => window.location.assign('/write')}>
             새 포스트 작성
         </Button>
     );
     const emptyPostAction = hasContentFilters ? (
         <Button
+            density="compact"
             variant="secondary"
             size="md"
-            className="min-h-11!"
+            className="min-h-11! [@media(pointer:fine)]:min-h-10!"
             onClick={clearFilters}>
             필터 초기화
         </Button>
@@ -134,101 +136,95 @@ const PostsSetting = () => {
         <div>
             <SettingsHeader
                 title={title}
-                actionPosition="right"
-                action={
-                    activeTab !== 'trash' && activeCount !== undefined && activeCount > 0
-                        ? createPostAction
-                        : undefined
-                }
             />
 
-            <div className="mb-6 border-b border-line-light">
-                <div className="flex gap-1 overflow-x-auto" role="tablist" aria-label="포스트 상태">
+            <Tabs.Root
+                value={activeTab}
+                onValueChange={(value) => {
+                    if (isPostStatusTab(value)) handleTabChange(value);
+                }}>
+                <Tabs.List
+                    ariaLabel="포스트 상태"
+                    className="mb-6 gap-1 overflow-x-auto border-line-light">
                     {POST_STATUS_TABS.map((tab) => {
-                        const isActive = activeTab === tab.value;
                         const TabIcon = tab.icon;
                         return (
-                            <button
+                            <Tabs.Trigger
                                 key={tab.value}
-                                type="button"
-                                role="tab"
-                                aria-selected={isActive}
-                                onClick={() => handleTabChange(tab.value)}
-                                className={`inline-flex min-h-11 flex-shrink-0 items-center gap-2 px-3 py-2.5 text-sm font-medium transition-colors ${
-                                    isActive
-                                        ? 'border-b-2 border-action text-content'
-                                        : 'border-b-2 border-transparent text-content-secondary hover:text-content'
-                                }`}>
+                                value={tab.value}
+                                className="inline-flex min-h-11 flex-shrink-0 items-center gap-2 px-3 py-2.5 [@media(pointer:fine)]:min-h-10">
                                 <TabIcon aria-hidden className="h-3.5 w-3.5" />
                                 {tab.label}
-                            </button>
+                            </Tabs.Trigger>
                         );
                     })}
-                </div>
-            </div>
+                </Tabs.List>
 
-            {(activeTab === 'published' || activeTab === 'scheduled') && (
-                <Suspense fallback={<div className="h-32 bg-surface-subtle animate-pulse rounded-lg mb-6" />}>
-                    <PostsFilter
-                        filters={filters}
-                        searchValue={searchValue}
-                        isExpanded={isFilterExpanded}
-                        showClearAction={activeCount !== undefined && activeCount > 0}
-                        onExpandToggle={() => setIsFilterExpanded(!isFilterExpanded)}
-                        onFilterChange={handleFilterChange}
-                        onSearchChange={handleSearchChange}
-                        onClearFilters={clearFilters}
-                        tags={tags}
-                        series={series}
-                    />
-                </Suspense>
-            )}
+                <Tabs.Content value={activeTab}>
+                    {(activeTab === 'published' || activeTab === 'scheduled') && (
+                        <Suspense fallback={<div className="mb-6 h-32 animate-pulse rounded-lg bg-surface-subtle" />}>
+                            <PostsFilter
+                                filters={filters}
+                                searchValue={searchValue}
+                                isExpanded={isFilterExpanded}
+                                source={activeTab}
+                                onExpandToggle={() => setIsFilterExpanded(!isFilterExpanded)}
+                                onFilterChange={handleFilterChange}
+                                onSearchChange={handleSearchChange}
+                                onClearFilters={clearFilters}
+                                tags={tags}
+                                series={series}
+                            />
+                        </Suspense>
+                    )}
 
-            <Suspense
-                fallback={
-                    <div className="space-y-3 mt-6">
-                        {[1, 2, 3].map(i => (
-                            <div key={i} className="h-40 bg-surface-subtle animate-pulse rounded-lg border border-line-light" />
-                        ))}
-                    </div>
-                }>
-                <div className="mt-6">
-                    {activeTab === 'published' && (
-                        <PostListContent
-                            filters={filters}
-                            series={series}
-                            onPageChange={(page) => handleFilterChange('page', page)}
-                            onCountChange={(count) => handleCountChange('published', count)}
-                            emptyMessage="발행 포스트가 없습니다."
-                            emptyAction={emptyPostAction}
-                        />
-                    )}
-                    {activeTab === 'scheduled' && (
-                        <PostListContent
-                            filters={filters}
-                            series={series}
-                            onPageChange={(page) => handleFilterChange('page', page)}
-                            onCountChange={(count) => handleCountChange('scheduled', count)}
-                            source="scheduled"
-                            emptyMessage="예약 포스트가 없습니다."
-                            emptyAction={emptyPostAction}
-                        />
-                    )}
-                    {activeTab === 'drafts' && (
-                        <DraftPostListContent
-                            onCountChange={(count) => handleCountChange('drafts', count)}
-                            emptyAction={createPostAction}
-                        />
-                    )}
-                    {activeTab === 'trash' && (
-                        <TrashPostListContent
-                            page={filters.page}
-                            onPageChange={(page) => handleFilterChange('page', page)}
-                            onCountChange={(count) => handleCountChange('trash', count)}
-                        />
-                    )}
-                </div>
-            </Suspense>
+                    <Suspense
+                        fallback={
+                            <div className="mt-6 space-y-3">
+                                {[1, 2, 3].map(i => (
+                                    <div key={i} className="h-40 animate-pulse rounded-lg border border-line-light bg-surface-subtle" />
+                                ))}
+                            </div>
+                        }>
+                        <div className="mt-6">
+                            {activeTab === 'published' && (
+                                <PostListContent
+                                    filters={filters}
+                                    series={series}
+                                    onPageChange={(page) => handleFilterChange('page', page)}
+                                    onCountChange={(count) => handleCountChange('published', count)}
+                                    emptyMessage="발행 포스트가 없습니다."
+                                    emptyAction={emptyPostAction}
+                                />
+                            )}
+                            {activeTab === 'scheduled' && (
+                                <PostListContent
+                                    filters={filters}
+                                    series={series}
+                                    onPageChange={(page) => handleFilterChange('page', page)}
+                                    onCountChange={(count) => handleCountChange('scheduled', count)}
+                                    source="scheduled"
+                                    emptyMessage="예약 포스트가 없습니다."
+                                    emptyAction={emptyPostAction}
+                                />
+                            )}
+                            {activeTab === 'drafts' && (
+                                <DraftPostListContent
+                                    onCountChange={(count) => handleCountChange('drafts', count)}
+                                    emptyAction={createPostAction}
+                                />
+                            )}
+                            {activeTab === 'trash' && (
+                                <TrashPostListContent
+                                    page={filters.page}
+                                    onPageChange={(page) => handleFilterChange('page', page)}
+                                    onCountChange={(count) => handleCountChange('trash', count)}
+                                />
+                            )}
+                        </div>
+                    </Suspense>
+                </Tabs.Content>
+            </Tabs.Root>
         </div>
     );
 };

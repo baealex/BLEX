@@ -82,8 +82,9 @@ const SortableBannerItem = ({ banner, onEdit, onDelete, onToggleActive }: Sortab
                 }}
                 actions={
                     <Dropdown
+                        density="compact"
                         triggerAriaLabel={`${banner.title} 전역 배너 메뉴 열기`}
-                        triggerClassName="min-h-11 min-w-11"
+                        triggerClassName="min-h-11 min-w-11 [@media(pointer:fine)]:min-h-9 [@media(pointer:fine)]:min-w-9"
                         items={[
                             {
                                 label: banner.isActive ? '비활성화' : '활성화',

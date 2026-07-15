@@ -17,7 +17,6 @@ import {
     Trash2
 } from '@blex/ui/icons';
 import {
-    Alert,
     Button,
     Input,
     Dropdown,
@@ -45,6 +44,7 @@ interface PostCardProps {
     dateIconClass?: string;
     statusLabel?: string;
     showUpdatedBadge?: boolean;
+    isScheduled?: boolean;
 }
 
 const formatDate = (dateString: string) => {
@@ -67,7 +67,8 @@ const PostCard = ({
     dateIcon,
     dateIconClass,
     statusLabel,
-    showUpdatedBadge = true
+    showUpdatedBadge = true,
+    isScheduled = false
 }: PostCardProps) => {
     const [isMetaEditorOpen, setIsMetaEditorOpen] = useState(false);
     const hasPendingChanges = !!post.hasTagChanged || !!post.hasSeriesChanged;
@@ -75,6 +76,17 @@ const PostCard = ({
         post.hasTagChanged ? '태그' : '',
         post.hasSeriesChanged ? '시리즈' : ''
     ].filter(Boolean).join('·');
+    const tagCount = post.tag
+        .split(',')
+        .map(tag => tag.trim())
+        .filter(Boolean).length;
+    const seriesTitle = series?.find(item => item.url === post.series)?.title;
+    const classificationSummary = [
+        tagCount > 0 ? `태그 ${tagCount}개` : '',
+        seriesTitle || ''
+    ].filter(Boolean).join(' · ');
+    const visibilityTarget = post.isHide ? '공개' : '비공개';
+    const visibilityActionLabel = `${isScheduled ? '발행 시 ' : ''}${visibilityTarget}로 변경`;
 
     const handleEditPost = () => {
         window.location.assign(`/@${username}/${post.url}/edit`);
@@ -145,7 +157,7 @@ const PostCard = ({
                             )}
                             {post.isHide && (
                                 <span className="inline-flex items-center px-2 py-0.5 bg-surface-subtle text-content rounded-md font-medium">
-                                    비공개
+                                    {isScheduled ? '발행 후 비공개' : '비공개'}
                                 </span>
                             )}
                         </div>
@@ -155,8 +167,9 @@ const PostCard = ({
                 {/* 액션 */}
                 <div className="flex flex-shrink-0 items-center pr-3 sm:pr-4">
                     <Dropdown
+                        density="compact"
                         triggerAriaLabel={`${post.title} 포스트 메뉴 열기`}
-                        triggerClassName="min-h-11 min-w-11 focus-visible:ring-2 focus-visible:ring-action focus-visible:ring-offset-1"
+                        triggerClassName="min-h-11 min-w-11 focus-visible:ring-2 focus-visible:ring-action focus-visible:ring-offset-1 [@media(pointer:fine)]:min-h-9 [@media(pointer:fine)]:min-w-9"
                         items={[
                             {
                                 label: '포스트 편집',
@@ -164,7 +177,7 @@ const PostCard = ({
                                 onClick: handleEditPost
                             },
                             {
-                                label: post.isHide ? '공개로 변경' : '비공개로 변경',
+                                label: visibilityActionLabel,
                                 icon: post.isHide
                                     ? <Eye aria-hidden className="h-4 w-4" />
                                     : <EyeOff aria-hidden className="h-4 w-4" />,
@@ -181,12 +194,17 @@ const PostCard = ({
                 </div>
             </div>
 
-            <div className="flex justify-end bg-surface-subtle/40 px-4 py-2.5">
+            <div className="flex items-center gap-3 bg-surface-subtle/40 px-4 py-2.5">
+                {!isMetaEditorOpen && classificationSummary && (
+                    <span className="min-w-0 truncate text-xs text-content-hint">
+                        {classificationSummary}
+                    </span>
+                )}
                 <button
                     type="button"
                     aria-label={isMetaEditorOpen ? '태그 및 시리즈 편집 닫기' : '태그 및 시리즈 편집 열기'}
                     onClick={() => setIsMetaEditorOpen(prev => !prev)}
-                    className="inline-flex min-h-11 items-center gap-2 rounded-lg px-2.5 py-1.5 text-content-secondary hover:text-content hover:bg-surface-subtle transition-colors">
+                    className="ml-auto inline-flex min-h-11 flex-shrink-0 items-center gap-2 rounded-lg px-2.5 py-1.5 text-content-secondary transition-colors hover:bg-surface-subtle hover:text-content [@media(pointer:fine)]:min-h-9">
                     <SlidersHorizontal aria-hidden className="h-3.5 w-3.5" />
                     <span className="text-xs font-medium">태그·시리즈</span>
                     <span className="inline-flex items-center gap-2">
@@ -212,6 +230,7 @@ const PostCard = ({
                             <Tag aria-hidden className="h-4 w-4" />
                         </div>
                         <Input
+                            density="compact"
                             type="text"
                             aria-label={`${post.title} 태그`}
                             placeholder="태그를 입력하세요..."
@@ -221,10 +240,11 @@ const PostCard = ({
                         />
                         {(post.hasTagChanged || isTagSaving) && (
                             <Button
+                                density="compact"
                                 variant="primary"
                                 size="md"
                                 isLoading={isTagSaving}
-                                className="col-start-2 min-h-11! w-full sm:col-start-auto sm:w-auto"
+                                className="col-start-2 min-h-11! w-full sm:col-start-auto [@media(pointer:fine)]:min-h-10! sm:w-auto"
                                 leftIcon={<Save aria-hidden className="h-4 w-4" />}
                                 onClick={() => onTagSubmit(post.url)}>
                                 태그 저장
@@ -239,6 +259,7 @@ const PostCard = ({
                         </div>
                         <div className="flex-1">
                             <Select
+                                density="compact"
                                 value={post.series || ''}
                                 onValueChange={(value) => onSeriesChange(post.url, value)}
                                 ariaLabel={`${post.title} 시리즈 선택`}
@@ -257,10 +278,11 @@ const PostCard = ({
                         </div>
                         {(post.hasSeriesChanged || isSeriesSaving) && (
                             <Button
+                                density="compact"
                                 variant="primary"
                                 size="md"
                                 isLoading={isSeriesSaving}
-                                className="col-start-2 min-h-11! w-full sm:col-start-auto sm:w-auto"
+                                className="col-start-2 min-h-11! w-full sm:col-start-auto [@media(pointer:fine)]:min-h-10! sm:w-auto"
                                 leftIcon={<Save aria-hidden className="h-4 w-4" />}
                                 onClick={() => onSeriesSubmit(post.url)}>
                                 시리즈 저장
@@ -268,13 +290,6 @@ const PostCard = ({
                         )}
                     </div>
 
-                    {post.readTime > 30 && (
-                        <div role="note" aria-label="긴 포스트 안내">
-                            <Alert variant="warning" title="긴 포스트">
-                                예상 읽기 시간은 {post.readTime}분입니다.
-                            </Alert>
-                        </div>
-                    )}
                 </div>
             )}
         </div>

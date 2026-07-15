@@ -79,6 +79,7 @@ const TwoFactorModal = ({
                         인증 앱에 표시된 6자리 코드를 입력하세요
                     </label>
                     <Input
+                        density="compact"
                         id="two-factor-verification-code"
                         type="text"
                         placeholder="000000"
@@ -95,15 +96,19 @@ const TwoFactorModal = ({
 
                 <div className="flex gap-3">
                     <Button
+                        density="compact"
                         variant="secondary"
                         size="md"
+                        className="min-h-11! [@media(pointer:fine)]:min-h-10!"
                         fullWidth
                         onClick={handleClose}>
                         취소
                     </Button>
                     <Button
+                        density="compact"
                         variant="primary"
                         size="md"
+                        className="min-h-11! [@media(pointer:fine)]:min-h-10!"
                         fullWidth
                         isLoading={isVerifying}
                         onClick={handleVerify}>

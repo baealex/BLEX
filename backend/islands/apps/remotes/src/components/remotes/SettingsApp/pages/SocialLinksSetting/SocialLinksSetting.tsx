@@ -39,7 +39,7 @@ import { toast } from '~/utils/toast';
 import { useSuspenseQuery } from '@tanstack/react-query';
 import { SettingsEmptyState, SettingsHeader } from '../../components';
 import { Button, Input, Dropdown } from '~/components/shared';
-import { settingsSelectTriggerStyles } from '~/styles/settingsStyles';
+import { settingsCompactSelectTriggerStyles } from '~/styles/settingsStyles';
 import { getSocialLinks, updateSocialLinks, type SocialLink as ApiSocialLink } from '~/lib/api/settings';
 
 interface SocialLink extends ApiSocialLink {
@@ -157,7 +157,7 @@ const SocialLinkItem = ({ social, index, onRemove, onChange }: SocialLinkItemPro
                 <div className="p-4 flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-3">
                     {/* 드래그 핸들 - 데스크톱에서만 표시 */}
                     <div
-                        className="hidden min-h-11 min-w-11 flex-shrink-0 cursor-grab items-center justify-center rounded-lg text-content-hint transition-colors hover:bg-surface-subtle hover:text-content-secondary group-hover:text-content-secondary active:cursor-grabbing sm:flex"
+                        className="hidden min-h-11 min-w-11 flex-shrink-0 cursor-grab items-center justify-center rounded-lg text-content-hint transition-colors hover:bg-surface-subtle hover:text-content-secondary group-hover:text-content-secondary active:cursor-grabbing sm:flex [@media(pointer:fine)]:min-h-9 [@media(pointer:fine)]:min-w-9"
                         style={{ touchAction: 'none' }}
                         {...attributes}
                         {...listeners}
@@ -177,8 +177,9 @@ const SocialLinkItem = ({ social, index, onRemove, onChange }: SocialLinkItemPro
                     <div className="w-full sm:w-44 flex-shrink-0">
                         <label htmlFor={platformInputId} className="block text-xs font-medium text-content-secondary mb-2 sm:hidden">플랫폼 선택</label>
                         <Dropdown
+                            density="compact"
                             trigger={
-                                <button id={platformInputId} type="button" className={`${settingsSelectTriggerStyles} flex items-center justify-between`}>
+                                <button id={platformInputId} type="button" className={`${settingsCompactSelectTriggerStyles} flex items-center justify-between`}>
                                     <span className={!social.name ? 'text-content-hint' : 'text-content'}>
                                         {currentPlatform?.label || '아이콘 선택'}
                                     </span>
@@ -200,6 +201,7 @@ const SocialLinkItem = ({ social, index, onRemove, onChange }: SocialLinkItemPro
                         <Input
                             id={linkInputId}
                             type="url"
+                            density="compact"
                             placeholder="https://example.com"
                             value={social.value}
                             onChange={(e) => onChange(index, 'value', e.target.value)}
@@ -210,7 +212,7 @@ const SocialLinkItem = ({ social, index, onRemove, onChange }: SocialLinkItemPro
                     <button
                         type="button"
                         aria-label={`${currentPlatform?.label || '소셜 링크'} 삭제`}
-                        className="hidden min-h-11 min-w-11 flex-shrink-0 items-center justify-center rounded-lg text-content-hint transition-all duration-200 hover:bg-surface-subtle hover:text-content-secondary group/btn sm:flex"
+                        className="hidden min-h-11 min-w-11 flex-shrink-0 items-center justify-center rounded-lg text-content-hint transition-all duration-200 hover:bg-surface-subtle hover:text-content-secondary group/btn sm:flex [@media(pointer:fine)]:min-h-9 [@media(pointer:fine)]:min-w-9"
                         onClick={() => onRemove(social.id)}>
                         <X
                             aria-hidden="true"
@@ -380,10 +382,11 @@ const SocialLinks = () => {
                             title="소셜 링크가 없습니다"
                             action={(
                                 <Button
+                                    density="compact"
                                     type="button"
                                     variant="secondary"
                                     size="md"
-                                    className="min-h-11!"
+                                    className="min-h-11! [@media(pointer:fine)]:min-h-10!"
                                     onClick={handleSocialAdd}>
                                     소셜 링크 추가하기
                                 </Button>
@@ -415,21 +418,23 @@ const SocialLinks = () => {
                 {shouldShowActions && (
                     <div className="flex flex-col sm:flex-row gap-3 sm:justify-between border-t border-line pt-6">
                         <Button
+                            density="compact"
                             type="button"
                             variant="secondary"
                             size="md"
                             leftIcon={<Plus aria-hidden="true" className="h-4 w-4" />}
                             onClick={handleSocialAdd}
-                            className="min-h-11! sm:w-auto">
+                            className="min-h-11! [@media(pointer:fine)]:min-h-10! sm:w-auto">
                             링크 추가
                         </Button>
                         <Button
+                            density="compact"
                             type="submit"
                             variant="primary"
                             size="md"
                             isLoading={isLoading}
                             leftIcon={!isLoading ? <Save aria-hidden="true" className="h-4 w-4" /> : undefined}
-                            className="min-h-11! sm:w-auto">
+                            className="min-h-11! [@media(pointer:fine)]:min-h-10! sm:w-auto">
                             {isLoading ? '저장 중...' : '변경사항 저장'}
                         </Button>
                     </div>

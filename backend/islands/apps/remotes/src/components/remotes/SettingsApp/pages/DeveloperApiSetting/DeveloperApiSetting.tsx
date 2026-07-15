@@ -52,7 +52,7 @@ const scopeOptions: Array<{
     }
 ];
 
-const headerLinkClassName = 'inline-flex min-h-11 w-full items-center justify-center gap-2 whitespace-nowrap rounded-lg border border-line-strong bg-surface-elevated px-3 py-2 text-xs font-semibold text-content shadow-sm transition-colors hover:border-line hover:bg-surface-subtle focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-line-strong/70';
+const headerLinkClassName = 'inline-flex min-h-11 w-full items-center justify-center gap-2 whitespace-nowrap rounded-lg border border-line-strong bg-surface-elevated px-3 py-1.5 text-xs font-semibold text-content shadow-sm transition-colors hover:border-line hover:bg-surface-subtle focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-line-strong/70 [@media(pointer:fine)]:min-h-9 sm:w-auto';
 
 const formatDateTime = (value: string | null) => {
     if (!value) return '없음';
@@ -156,10 +156,11 @@ const TokenList = ({ tokens, revokingTokenId, onRevoke }: TokenListProps) => (
 
                     {canRevoke && (
                         <Button
+                            density="compact"
                             type="button"
                             variant="danger"
                             size="sm"
-                            className="min-h-11! w-full sm:w-auto"
+                            className="min-h-11! w-full [@media(pointer:fine)]:min-h-9! sm:w-auto"
                             isLoading={isRevoking}
                             onClick={() => onRevoke(token)}
                             leftIcon={!isRevoking ? <Ban aria-hidden className="h-4 w-4" /> : undefined}>
@@ -328,6 +329,7 @@ const DeveloperApiSetting = () => {
                 icon={<KeyRound aria-hidden className="h-4 w-4" />}>
                 <div className="space-y-5">
                     <Input
+                        density="compact"
                         label="토큰 이름"
                         value={tokenName}
                         onChange={(event) => setTokenName(event.target.value)}
@@ -362,6 +364,7 @@ const DeveloperApiSetting = () => {
                     </div>
 
                     <Input
+                        density="compact"
                         label="만료 기간(일)"
                         type="number"
                         min={1}
@@ -383,9 +386,10 @@ const DeveloperApiSetting = () => {
 
                     <div className="flex justify-end">
                         <Button
+                            density="compact"
                             type="button"
                             variant="primary"
-                            className="min-h-11! w-full sm:w-auto"
+                            className="min-h-11! w-full [@media(pointer:fine)]:min-h-10! sm:w-auto"
                             isLoading={createTokenMutation.isPending}
                             onClick={handleCreateToken}
                             leftIcon={!createTokenMutation.isPending ? <KeyRound aria-hidden className="h-4 w-4" /> : undefined}>
@@ -408,10 +412,11 @@ const DeveloperApiSetting = () => {
                                         {createdToken.token}
                                     </code>
                                     <Button
+                                        density="compact"
                                         type="button"
                                         variant="secondary"
                                         size="sm"
-                                        className="min-h-11! w-full sm:w-auto"
+                                        className="min-h-11! w-full [@media(pointer:fine)]:min-h-9! sm:w-auto"
                                         onClick={() => handleCopy(createdToken.token)}
                                         leftIcon={<Copy aria-hidden className="h-4 w-4" />}>
                                         복사
