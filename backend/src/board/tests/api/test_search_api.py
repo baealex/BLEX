@@ -1,7 +1,9 @@
 import json
 from datetime import timedelta
 
+from django.db import connection
 from django.test import TestCase
+from django.test.utils import CaptureQueriesContext
 from django.utils import timezone
 
 from board.models import Config, Post, PostConfig, PostContent, Profile, Tag, User
@@ -294,6 +296,50 @@ class SearchAPITestCase(TestCase):
             self.assertIn('author', result)
             self.assertIn('authorImage', result)
             self.assertIn('positions', result)
+
+    def test_search_large_result_set_uses_bounded_queries_and_lean_sql(self):
+        posts = Post.objects.bulk_create([
+            Post(
+                author=self.author,
+                url=f'scalable-search-{index}',
+                title=f'Scalable search article {index}',
+                meta_description='Performance regression fixture',
+                published_date=timezone.now() - timedelta(minutes=index),
+            )
+            for index in range(75)
+        ])
+        PostConfig.objects.bulk_create([
+            PostConfig(post=post, hide=False, advertise=False)
+            for post in posts
+        ])
+        PostContent.objects.bulk_create([
+            PostContent(post=post, content_html='<p>Large body fixture</p>')
+            for post in posts
+        ])
+
+        with CaptureQueriesContext(connection) as queries:
+            response = self.client.get('/v1/search', {'q': 'scalable'})
+
+        content = json.loads(response.content)
+        self.assertEqual(content['status'], 'DONE')
+        self.assertEqual(content['body']['totalSize'], 75)
+        self.assertEqual(len(content['body']['results']), 30)
+        search_queries = [
+            query['sql'] for query in queries
+            if '"board_post"' in query['sql']
+        ]
+        self.assertEqual(len(search_queries), 2)
+
+        result_query = next(
+            query for query in search_queries
+            if 'ORDER BY' in query and 'LIMIT' in query
+        )
+        count_query = next(query for query in search_queries if 'COUNT(*)' in query)
+        self.assertNotIn('SELECT DISTINCT', result_query.upper())
+        self.assertNotIn('GROUP BY', result_query.upper())
+        self.assertNotIn('"CONTENT_HTML"', result_query.upper().split(' FROM ')[0])
+        self.assertNotIn('AUTH_USER', count_query.upper())
+        self.assertNotIn('BOARD_PROFILE', count_query.upper())
 
     def test_invalid_method(self):
         response = self.client.post('/v1/search', {'q': 'test'})

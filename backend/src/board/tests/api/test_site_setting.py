@@ -11,6 +11,7 @@ from PIL import Image
 
 from board.models import User, Profile, SiteSetting, SocialAuthProvider
 from board.services.brand_asset_service import BrandAssetService
+from board.services.social_auth_provider_service import SocialAuthProviderService
 
 
 @override_settings(SITE_URL='http://localhost:8000')
@@ -217,6 +218,43 @@ class SiteSettingAPITestCase(TestCase):
         self.assertEqual(content['body'][0]['key'], 'google')
         self.assertEqual(content['body'][0]['clientId'], 'google-client-id')
         self.assertNotIn('clientSecret', content['body'][0])
+
+    def test_public_social_providers_uses_one_query(self):
+        """공개 제공자 직렬화는 제공자 수와 무관하게 한 번만 조회한다."""
+        SocialAuthProvider.objects.update_or_create(
+            key='google',
+            defaults={
+                'is_enabled': True,
+                'client_id': 'google-client-id',
+                'client_secret': 'google-secret',
+            },
+        )
+        SocialAuthProvider.objects.update_or_create(
+            key='github',
+            defaults={
+                'is_enabled': True,
+                'client_id': 'github-client-id',
+                'client_secret': 'github-secret',
+            },
+        )
+
+        with self.assertNumQueries(1):
+            providers = SocialAuthProviderService.serialize_public_providers()
+
+        self.assertEqual([provider['key'] for provider in providers], ['google', 'github'])
+
+    def test_admin_social_providers_uses_one_query(self):
+        """관리자 제공자 목록도 초기화용 쓰기 쿼리 없이 한 번만 조회한다."""
+        SocialAuthProvider.objects.filter(key='github').delete()
+
+        with self.assertNumQueries(1):
+            providers = SocialAuthProviderService.serialize_admin_providers()
+
+        self.assertEqual([provider['key'] for provider in providers], ['google', 'github'])
+        github = next(provider for provider in providers if provider['key'] == 'github')
+        self.assertFalse(github['is_enabled'])
+        self.assertEqual(github['client_id'], '')
+        self.assertFalse(SocialAuthProvider.objects.filter(key='github').exists())
 
     def test_update_invalid_json_keeps_existing_fields(self):
         setting = SiteSetting.get_instance()

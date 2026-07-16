@@ -317,7 +317,7 @@ class SeriesService:
         return PublicPostService.filter_public_posts(Post.objects).filter(
             author=user,
             series=None,
-        ).order_by('-published_date')
+        ).only('id', 'title', 'published_date').order_by('-published_date')
 
     @staticmethod
     def get_public_series_list(username: str, page: int = 1, offset: int = 10):
@@ -332,9 +332,10 @@ class SeriesService:
         Returns:
             QuerySet of Series with annotations
         """
-        return PublicSeriesService.filter_public_series(
+        series = PublicSeriesService.filter_public_series(
             Series.objects.annotate(owner_username=F('owner__username')),
             'total_posts',
-        ).filter(
+        )
+        return PublicSeriesService.with_public_thumbnail(series).filter(
             owner__username=username,
         ).order_by('order', '-id')

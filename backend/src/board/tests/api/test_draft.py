@@ -86,6 +86,21 @@ class DraftTestCase(TestCase):
         self.assertFalse(post.config.advertise)
         self.assertFalse(post.config.block_comment)
 
+    def test_draft_list_uses_one_query_without_unused_relations(self):
+        Post.objects.create(
+            author=self.user,
+            title='Query Efficient Draft',
+            url='query-efficient-draft',
+        )
+
+        with self.assertNumQueries(1):
+            drafts = list(PostService.get_user_drafts(self.user))
+
+        self.assertEqual(
+            [draft.url for draft in drafts],
+            ['query-efficient-draft'],
+        )
+
     def test_create_draft_enforces_subtitle_model_boundary(self):
         """부제목은 모델 제한인 120자까지 허용하고 초과 입력은 거절한다."""
         self.client.login(username='test', password='test')

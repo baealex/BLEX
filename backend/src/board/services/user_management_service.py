@@ -5,11 +5,11 @@ Staff-facing user management service.
 from __future__ import annotations
 
 from django.contrib.auth.models import User
-from django.core.paginator import EmptyPage, Paginator
 from django.db import transaction
-from django.db.models import Count, Q
+from django.db.models import Count, IntegerField, OuterRef, Q, Subquery, Value
+from django.db.models.functions import Coalesce
 
-from board.models import Config, Profile
+from board.models import Config, Post, Profile
 from board.services.user_role_service import UserRoleService
 
 
@@ -45,46 +45,40 @@ class UserManagementService:
         page: int = 1,
         page_size: int = DEFAULT_PAGE_SIZE,
     ) -> dict:
-        users = UserManagementService.get_user_queryset(
+        users = UserManagementService.get_filtered_users(
             query=query,
             role=role,
-            ordering=ordering,
         )
         stats = UserManagementService.get_stats(users)
         page_size = UserManagementService.normalize_page_size(page_size)
-        paginator = Paginator(users, page_size)
-        page_number = UserManagementService.normalize_page(page, paginator.num_pages)
-
-        try:
-            user_page = paginator.page(page_number)
-        except EmptyPage:
-            page_number = paginator.num_pages or 1
-            user_page = paginator.page(page_number)
+        total = users.count()
+        total_pages = max(1, (total + page_size - 1) // page_size)
+        page_number = UserManagementService.normalize_page(page, total_pages)
+        offset = (page_number - 1) * page_size
+        user_page = UserManagementService.with_management_fields(
+            users,
+            ordering=ordering,
+        )[offset:offset + page_size]
 
         return {
             'users': [
                 UserManagementService.serialize_user(user)
-                for user in user_page.object_list
+                for user in user_page
             ],
             'pagination': {
-                'page': user_page.number,
+                'page': page_number,
                 'page_size': page_size,
-                'total': paginator.count,
-                'total_pages': paginator.num_pages,
-                'has_next': user_page.has_next(),
-                'has_previous': user_page.has_previous(),
+                'total': total,
+                'total_pages': total_pages,
+                'has_next': page_number < total_pages,
+                'has_previous': page_number > 1,
             },
             'stats': stats,
         }
 
     @staticmethod
-    def get_user_queryset(query: str = '', role: str = 'all', ordering: str = 'username'):
-        users = User.objects.select_related('profile').annotate(
-            post_count=Count(
-                'post',
-                filter=Q(post__deleted_date__isnull=True),
-            )
-        )
+    def get_filtered_users(query: str = '', role: str = 'all'):
+        users = User.objects.all()
 
         if query:
             users = users.filter(
@@ -101,7 +95,34 @@ class UserManagementService:
         elif role == 'admin':
             users = users.filter(Q(is_staff=True) | Q(is_superuser=True))
 
-        return users.order_by(
+        return users
+
+    @staticmethod
+    def with_management_fields(users, ordering: str = 'username'):
+        post_counts = Post.objects.filter(
+            author_id=OuterRef('pk'),
+            deleted_date__isnull=True,
+        ).order_by().values('author_id').annotate(
+            total=Count('id'),
+        ).values('total')
+
+        return users.select_related('profile').only(
+            'id',
+            'username',
+            'first_name',
+            'email',
+            'is_active',
+            'is_staff',
+            'is_superuser',
+            'date_joined',
+            'last_login',
+            'profile__role',
+        ).annotate(
+            post_count=Coalesce(
+                Subquery(post_counts, output_field=IntegerField()),
+                Value(0),
+            )
+        ).order_by(
             UserManagementService.normalize_ordering(ordering),
             'username',
         )
@@ -121,21 +142,18 @@ class UserManagementService:
     @staticmethod
     def get_stats(users) -> dict:
         return users.aggregate(
-            total=Count('id', distinct=True),
+            total=Count('id'),
             editors=Count(
                 'id',
                 filter=Q(profile__role=Profile.Role.EDITOR),
-                distinct=True,
             ),
             readers=Count(
                 'id',
                 filter=Q(profile__role=Profile.Role.READER),
-                distinct=True,
             ),
             admins=Count(
                 'id',
                 filter=Q(is_staff=True) | Q(is_superuser=True),
-                distinct=True,
             ),
         )
 

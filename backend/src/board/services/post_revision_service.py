@@ -34,6 +34,11 @@ class PostRevisionService:
     MAX_PAGE_SIZE = 50
 
     @staticmethod
+    def build_content_excerpt(content_html: str) -> str:
+        content_text = unescape(strip_tags(content_html)).strip()
+        return truncatechars(content_text, 160)
+
+    @staticmethod
     def capture_snapshot(post: Post) -> PostRevisionSnapshot:
         content_html = (
             PostContent.objects.filter(post_id=post.id)
@@ -79,6 +84,9 @@ class PostRevisionService:
             title=snapshot.title,
             subtitle=snapshot.subtitle,
             content=snapshot.content_html,
+            content_excerpt=PostRevisionService.build_content_excerpt(
+                snapshot.content_html,
+            ),
             description=snapshot.description,
             tags=list(snapshot.tags),
             source_updated_date=source_updated_date,
@@ -105,12 +113,11 @@ class PostRevisionService:
 
     @staticmethod
     def serialize_summary(history: EditHistory) -> dict[str, object]:
-        content_text = unescape(strip_tags(history.content)).strip()
         return {
             'id': history.id,
             'title': history.title,
             'subtitle': history.subtitle,
-            'content_excerpt': truncatechars(content_text, 160),
+            'content_excerpt': history.content_excerpt or '',
             'tags': history.tags,
             'change_type': history.change_type,
             'can_restore': history.change_type != EditHistory.ChangeType.LEGACY,

@@ -77,9 +77,84 @@ class DeveloperPostAPI:
         )
 
     @staticmethod
+    def post_summary_queryset(user):
+        """Load only relations serialized by post list and search responses."""
+        return Post.objects.select_related(
+            'author',
+            'config',
+            'series',
+        ).prefetch_related(
+            'tags',
+        ).filter(
+            author=user,
+        ).only(
+            'id',
+            'author_id',
+            'author__username',
+            'series_id',
+            'series__id',
+            'series__name',
+            'series__url',
+            'config__hide',
+            'config__advertise',
+            'config__cover_layout',
+            'config__cover_image_position',
+            'config__cover_image_ratio',
+            'title',
+            'subtitle',
+            'url',
+            'created_date',
+            'updated_date',
+            'published_date',
+        )
+
+    @staticmethod
+    def post_detail_queryset(user):
+        """Load only fields exposed by the read-only detail response."""
+        return Post.objects.select_related(
+            'author',
+            'config',
+            'content',
+            'series',
+        ).prefetch_related('tags').filter(author=user).only(
+            'id',
+            'author_id',
+            'author__username',
+            'series_id',
+            'series__id',
+            'series__name',
+            'series__url',
+            'config__hide',
+            'config__advertise',
+            'config__cover_layout',
+            'config__cover_image_position',
+            'config__cover_image_ratio',
+            'content__content_html',
+            'title',
+            'subtitle',
+            'url',
+            'meta_description',
+            'read_time',
+            'created_date',
+            'updated_date',
+            'published_date',
+        )
+
+    @staticmethod
     def get_owned_post(user, post_id):
         try:
             return DeveloperPostAPI.post_queryset(user).get(id=post_id)
+        except Post.DoesNotExist:
+            raise DeveloperAuthError(
+                'post.not_found',
+                '글을 찾을 수 없습니다.',
+                404,
+            )
+
+    @staticmethod
+    def get_owned_post_detail(user, post_id):
+        try:
+            return DeveloperPostAPI.post_detail_queryset(user).get(id=post_id)
         except Post.DoesNotExist:
             raise DeveloperAuthError(
                 'post.not_found',

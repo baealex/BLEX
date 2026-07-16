@@ -6,10 +6,13 @@ from dataclasses import dataclass
 from typing import ClassVar, Iterable, TypedDict
 
 from django.contrib.auth.models import User
-from django.db.models import Count, Q, QuerySet
+from django.db.models import (
+    Count, IntegerField, OuterRef, Q, QuerySet, Subquery, Value,
+)
+from django.db.models.functions import Coalesce
 from django.http import Http404
 
-from board.models import Post, Series
+from board.models import Comment, Post, PostLikes, Series
 from board.modules.paginator import Paginator
 from board.modules.time import convert_to_localtime
 from board.services.post_status_service import PostStatusService
@@ -90,14 +93,30 @@ class SettingPostManagementService:
         *,
         scheduled: bool = False,
     ) -> QuerySet[Post]:
+        like_counts = PostLikes.objects.filter(
+            post_id=OuterRef('id'),
+        ).values('post_id').annotate(
+            total=Count('id'),
+        ).values('total')
+        comment_counts = Comment.objects.filter(
+            post_id=OuterRef('id'),
+        ).values('post_id').annotate(
+            total=Count('id'),
+        ).values('total')
         posts = Post.objects.select_related(
             'config',
             'series',
         ).prefetch_related(
             'tags',
         ).annotate(
-            count_likes=Count('likes', distinct=True),
-            count_comments=Count('comments', distinct=True),
+            count_likes=Coalesce(
+                Subquery(like_counts, output_field=IntegerField()),
+                Value(0),
+            ),
+            count_comments=Coalesce(
+                Subquery(comment_counts, output_field=IntegerField()),
+                Value(0),
+            ),
         ).filter(
             author=user,
         ).order_by('-published_date')

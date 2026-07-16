@@ -27,7 +27,10 @@ class DeveloperTokenAPI:
 
     @staticmethod
     def list_tokens(request):
-        tokens = DeveloperToken.objects.filter(user=request.user)
+        tokens = DeveloperToken.objects.filter(user=request.user).only(
+            'id', 'name', 'token_prefix', 'scopes', 'expires_at',
+            'revoked_at', 'last_used_at', 'created_date',
+        )
         return StatusDone({
             'tokens': [
                 DeveloperTokenSerializer.serialize(token)

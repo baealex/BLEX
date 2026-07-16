@@ -6,7 +6,7 @@ from django.urls import reverse
 from django.utils.html import strip_tags
 from django.utils.text import Truncator
 
-from board.models import Post, Series, StaticPage
+from board.models import Post, Series, SiteSetting, StaticPage
 from board.services.brand_asset_service import BrandAssetService
 from board.services.site_url_service import SiteUrlService
 
@@ -51,7 +51,11 @@ class DiscoveryMetadataService:
         }
 
     @staticmethod
-    def build_static_page_metadata(page: StaticPage, request: HttpRequest) -> dict[str, str]:
+    def build_static_page_metadata(
+        page: StaticPage,
+        request: HttpRequest,
+        setting: SiteSetting | None = None,
+    ) -> dict[str, str]:
         canonical_url = SiteUrlService.absolute_url(
             request,
             reverse('static_page', kwargs={'slug': page.slug}),
@@ -64,12 +68,13 @@ class DiscoveryMetadataService:
         return {
             'canonical_url': canonical_url,
             'meta_description': meta_description,
-            'seo_title': f'{page.title} - {BrandAssetService.site_name()}',
+            'seo_title': f'{page.title} - {BrandAssetService.site_name(setting)}',
             'structured_data_json': DiscoveryMetadataService.build_static_page_structured_data(
                 page=page,
                 request=request,
                 canonical_url=canonical_url,
                 meta_description=meta_description,
+                setting=setting,
             ),
         }
 
@@ -260,6 +265,7 @@ class DiscoveryMetadataService:
         request: HttpRequest,
         canonical_url: str,
         meta_description: str,
+        setting: SiteSetting | None = None,
     ) -> str:
         payload = {
             '@context': 'https://schema.org',
@@ -272,7 +278,7 @@ class DiscoveryMetadataService:
             'dateModified': page.updated_date.isoformat(),
             'isPartOf': {
                 '@type': 'WebSite',
-                'name': BrandAssetService.site_name(),
+                'name': BrandAssetService.site_name(setting),
                 'url': SiteUrlService.absolute_url(request, reverse('index')),
             },
         }

@@ -67,6 +67,22 @@ class SeriesSeoMetadataTestCase(StructuredDataAssertionMixin, TestCase):
                 hide=False,
             )
 
+    def test_series_detail_uses_constant_query_count(self):
+        """포스트 카드 수가 늘어도 시리즈 상세 쿼리 수가 증가하지 않는다."""
+        with self.assertNumQueries(9):
+            response = self.client.get(
+                reverse(
+                    'series_detail',
+                    kwargs={
+                        'username': self.author.username,
+                        'series_url': self.series.url,
+                    },
+                )
+            )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(response.context['posts']), 2)
+
 
     def test_series_detail_returns_404_for_hidden_series(self):
         self.series.hide = True
@@ -357,9 +373,10 @@ class StaticPageSeoMetadataTestCase(StructuredDataAssertionMixin, TestCase):
 
     @override_settings(SITE_URL='')
     def test_static_page_renders_canonical_meta_and_webpage_json_ld(self):
-        response = self.client.get(
-            reverse('static_page', kwargs={'slug': 'seo-page'})
-        )
+        with self.assertNumQueries(4):
+            response = self.client.get(
+                reverse('static_page', kwargs={'slug': 'seo-page'})
+            )
 
         self.assertEqual(response.status_code, 200)
 

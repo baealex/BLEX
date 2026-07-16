@@ -34,6 +34,10 @@ class PostTrashService:
     def get_user_trash(user: User) -> QuerySet[Post]:
         return (
             Post.all_objects.select_related('config')
+            .only(
+                'id', 'url', 'title', 'image', 'published_date',
+                'updated_date', 'deleted_date', 'config__hide',
+            )
             .filter(
                 author=user,
                 deleted_date__isnull=False,

@@ -4,6 +4,7 @@ from django.test import TestCase, override_settings
 
 from board.models import Config, DeveloperToken, Profile, User
 from board.services.developer_token_service import DeveloperTokenService
+from board.views.api.v1.developer_token import DeveloperTokenAPI
 
 
 class DeveloperAuthAPITestCase(TestCase):
@@ -99,6 +100,20 @@ class DeveloperAuthAPITestCase(TestCase):
         token_body = body['body']['tokens'][0]
         self.assertEqual(token_body['name'], 'Editor token')
         self.assertNotIn('token', token_body)
+
+    def test_list_developer_tokens_uses_one_content_query(self):
+        DeveloperTokenService.create_token(
+            self.editor,
+            name='Editor token',
+            scopes=['posts:read'],
+        )
+
+        with self.assertNumQueries(1):
+            response = DeveloperTokenAPI.list_tokens(
+                type('Request', (), {'user': self.editor})(),
+            )
+
+        self.assertEqual(response.status_code, 200)
 
     def test_revoke_developer_token(self):
         _, token = DeveloperTokenService.create_token(

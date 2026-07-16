@@ -8,7 +8,7 @@ from dataclasses import dataclass
 from datetime import datetime
 from typing import Callable, ClassVar, cast
 
-from django.db.models import Count, F, QuerySet
+from django.db.models import Count, F, Q, QuerySet
 from django.utils import timezone
 
 from board.models import Post
@@ -65,18 +65,23 @@ class RelatedPostService:
         return PublicPostService.filter_public_posts(
             Post.objects.select_related(
                 'author', 'author__profile', 'config'
-            ).prefetch_related('tags').filter(
-                tags__value__in=current_tags,
-            )
+            ).prefetch_related('tags')
         ).exclude(
             id=post.id
         ).annotate(
             author_username=F('author__username'),
             author_name=F('author__first_name'),
             author_image=F('author__profile__avatar'),
+            candidate_tag_overlap=Count(
+                'tags',
+                filter=Q(tags__value__in=current_tags),
+                distinct=True,
+            ),
             likes_count=Count('likes', distinct=True),
             comments_count=Count('comments', distinct=True),
-        ).distinct()
+        ).filter(
+            candidate_tag_overlap__gt=0,
+        )
 
     @classmethod
     def get_related_posts(
@@ -85,10 +90,10 @@ class RelatedPostService:
         *,
         jitter: RelatedPostJitter | None = None,
     ) -> list[Post]:
-        if not post.tags.exists():
+        current_tags = [tag.value for tag in post.tags.all()]
+        if not current_tags:
             return []
 
-        current_tags = list(post.tags.values_list('value', flat=True))
         current_tag_set = set(current_tags)
         candidates = cls.get_candidates(post, current_tags)
         scored_posts: list[ScoredRelatedPost] = []

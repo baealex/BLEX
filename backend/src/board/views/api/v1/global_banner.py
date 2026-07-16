@@ -19,16 +19,22 @@ def global_banners(request, banner_id=None):
     queryset = SiteContentApiService.scoped_banner_queryset(SiteContentScope.GLOBAL)
 
     if request.method == 'GET' and banner_id is None:
-        banners = queryset.select_related('user').order_by('order', '-created_date')
+        banners = queryset.order_by('order', '-created_date')
         return StatusDone({
-            'banners': [
-                SiteContentApiService.serialize_banner(item, include_created_by=True)
-                for item in banners
-            ]
+            'banners': SiteContentApiService.serialize_banner_list(
+                banners,
+                include_created_by=True,
+            ),
         })
 
     if request.method == 'GET' and banner_id:
-        banner = get_object_or_404(queryset.select_related('user'), id=banner_id)
+        banner = get_object_or_404(
+            queryset.select_related('user').only(
+                *SiteContentApiService.BANNER_LIST_FIELDS,
+                'user__username',
+            ),
+            id=banner_id,
+        )
         return StatusDone(SiteContentApiService.serialize_banner(banner, include_created_by=True))
 
     if request.method == 'POST':

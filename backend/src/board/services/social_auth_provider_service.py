@@ -26,8 +26,14 @@ class SocialAuthProviderService:
 
     @classmethod
     def is_enabled(cls, key: str) -> bool:
-        provider = cls.get_provider(key)
-        return bool(provider and provider.is_enabled)
+        return cls.get_enabled_provider(key) is not None
+
+    @classmethod
+    def get_enabled_provider(cls, key: str) -> SocialAuthProvider | None:
+        """Return an enabled provider without mutating configuration on reads."""
+        if key not in cls.SUPPORTED_PROVIDERS:
+            return None
+        return SocialAuthProvider.objects.filter(key=key, is_enabled=True).first()
 
     @classmethod
     def get_client_id(cls, key: str) -> str:
@@ -44,6 +50,17 @@ class SocialAuthProviderService:
         return SocialAuthProviderSecretService.decrypt_secret(provider.client_secret)
 
     @classmethod
+    def get_credentials(cls, key: str) -> tuple[str, str]:
+        """Load an enabled provider's OAuth credentials with one read query."""
+        provider = cls.get_enabled_provider(key)
+        if provider is None:
+            return '', ''
+        return (
+            provider.client_id,
+            SocialAuthProviderSecretService.decrypt_secret(provider.client_secret),
+        )
+
+    @classmethod
     def get_provider(cls, key: str) -> SocialAuthProvider | None:
         if key not in cls.SUPPORTED_PROVIDERS:
             return None
@@ -52,33 +69,37 @@ class SocialAuthProviderService:
 
     @classmethod
     def serialize_public_providers(cls) -> list[dict[str, str]]:
-        cls.ensure_supported_providers()
         providers = []
         for provider in SocialAuthProvider.objects.filter(
             key__in=cls.supported_keys(),
             is_enabled=True,
         ).order_by('id'):
-            client_id = cls.get_client_id(provider.key)
-            if not client_id or not cls.get_client_secret(provider.key):
+            if not provider.client_id or not provider.client_secret:
+                continue
+            if not SocialAuthProviderSecretService.decrypt_secret(provider.client_secret):
                 continue
             providers.append({
                 'key': provider.key,
                 'name': cls.SUPPORTED_PROVIDERS[provider.key]['name'],
-                'client_id': client_id,
+                'client_id': provider.client_id,
             })
         return providers
 
     @classmethod
     def serialize_admin_providers(cls) -> list[dict[str, object]]:
-        cls.ensure_supported_providers()
+        provider_map = {
+            provider.key: provider
+            for provider in SocialAuthProvider.objects.filter(key__in=cls.supported_keys())
+        }
         providers = []
-        for provider in SocialAuthProvider.objects.filter(key__in=cls.supported_keys()).order_by('id'):
+        for key, metadata in cls.SUPPORTED_PROVIDERS.items():
+            provider = provider_map.get(key)
             providers.append({
-                'key': provider.key,
-                'name': cls.SUPPORTED_PROVIDERS[provider.key]['name'],
-                'is_enabled': provider.is_enabled,
-                'client_id': provider.client_id,
-                'has_client_secret': bool(provider.client_secret),
+                'key': key,
+                'name': metadata['name'],
+                'is_enabled': provider.is_enabled if provider else False,
+                'client_id': provider.client_id if provider else '',
+                'has_client_secret': bool(provider and provider.client_secret),
             })
         return providers
 

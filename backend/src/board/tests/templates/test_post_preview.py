@@ -1,5 +1,7 @@
 from django.contrib.auth.models import User
+from django.db import connection
 from django.test import TestCase, override_settings
+from django.test.utils import CaptureQueriesContext
 from django.urls import reverse
 from django.utils import timezone
 
@@ -74,7 +76,10 @@ class PostPreviewViewTestCase(TestCase):
     def test_owner_can_render_latest_saved_draft_with_private_headers(self):
         self.client.force_login(self.owner)
 
-        response = self.client.get(self.preview_url)
+        with CaptureQueriesContext(connection) as captured:
+            response = self.client.get(self.preview_url)
+
+        self.assertEqual(len(captured), 9)
 
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'board/posts/post_detail.html')
@@ -101,6 +106,9 @@ class PostPreviewViewTestCase(TestCase):
         self.assertIn('Cookie', response['Vary'])
         self.assertNotIn('Link', response)
         self.assertNotIn('X-Llms-Txt', response)
+
+        post_sql = ' '.join(query['sql'] for query in captured.captured_queries)
+        self.assertNotIn('board_postlikes', post_sql.lower())
 
         self.draft.content.content_html = '<p>Newest saved preview body</p>'
         self.draft.content.save(update_fields=['content_html'])

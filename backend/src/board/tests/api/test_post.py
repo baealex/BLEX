@@ -8,6 +8,8 @@ from PIL import Image
 from django.test import Client, TestCase
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.utils import timezone
+from django.db import connection
+from django.test.utils import CaptureQueriesContext
 
 from board.models import (
     User, Config, Post, PostContent, PostConfig, Profile, Series, Tag
@@ -110,6 +112,20 @@ class PostTestCase(TestCase):
             content['body']['updatedDate'],
             post.updated_date.isoformat(),
         )
+
+    def test_get_user_post_edit_mode_skips_engagement_aggregations(self):
+        self.client.login(username='author', password='author')
+
+        with CaptureQueriesContext(connection) as captured:
+            response = self.client.get(
+                '/v1/users/@author/posts/test-post-1',
+                {'mode': 'edit'},
+            )
+
+        sql = '\n'.join(query['sql'] for query in captured.captured_queries)
+        self.assertEqual(response.status_code, 200)
+        self.assertNotIn('JOIN "board_post_likes"', sql)
+        self.assertNotIn('JOIN "board_comment"', sql)
 
     def test_get_user_post_detail_edit_mode_includes_schedule_fields(self):
         """예약 포스트 편집 데이터는 예약 여부와 발행 예정 시각을 포함한다."""

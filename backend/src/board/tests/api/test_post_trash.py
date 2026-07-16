@@ -188,6 +188,14 @@ class PostTrashAPITestCase(TestCase):
         )
 
         self.client.logout()
+
+    def test_trash_page_loads_serialized_fields_in_two_queries(self):
+        PostTrashService.trash_post(self.post)
+
+        with self.assertNumQueries(2):
+            page = PostTrashService.get_page(self.author, 1)
+
+        self.assertEqual(page.posts[0]['url'], self.post.url)
         self.assertEqual(
             self.client.get('/v1/setting/trash-posts').json()['errorCode'],
             'error:NL',

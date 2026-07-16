@@ -21,14 +21,14 @@ def global_notices(request, notice_id=None):
     if request.method == 'GET' and notice_id is None:
         notices = queryset.order_by('-created_date')
         return StatusDone({
-            'notices': [
-                SiteContentApiService.serialize_notice(item)
-                for item in notices
-            ]
+            'notices': SiteContentApiService.serialize_notice_list(notices),
         })
 
     if request.method == 'GET' and notice_id:
-        notice = get_object_or_404(queryset, id=notice_id)
+        notice = get_object_or_404(
+            queryset.only(*SiteContentApiService.NOTICE_LIST_FIELDS),
+            id=notice_id,
+        )
         return StatusDone(SiteContentApiService.serialize_notice(notice))
 
     if request.method == 'POST':

@@ -1,5 +1,7 @@
 from django.contrib.sitemaps import Sitemap
+from django.db.models import Count, Max
 from django.urls import reverse
+
 from board.models import Post, Series, Profile, StaticPage
 from board.services.public_post_service import PublicPostService
 from board.services.public_series_service import PublicSeriesService
@@ -18,6 +20,9 @@ class SiteSitemap(Sitemap):
     def location(self, item):
         return str(item)
 
+    def get_index_metadata(self):
+        return len(self.items()), None
+
 
 class UserSitemap(Sitemap):
     changefreq = 'monthly'
@@ -32,6 +37,14 @@ class UserSitemap(Sitemap):
 
     def location(self, item):
         return reverse('user_profile', args=[item])
+
+    def get_index_metadata(self):
+        item_count = PublicPostService.filter_public_posts(Post.objects).filter(
+            author__profile__role=Profile.Role.EDITOR,
+        ).aggregate(
+            item_count=Count('author__username', distinct=True),
+        )['item_count']
+        return item_count, None
 
 
 class PostsSitemap(Sitemap):
@@ -49,6 +62,13 @@ class PostsSitemap(Sitemap):
     def lastmod(self, element):
         return element.updated_date
 
+    def get_index_metadata(self):
+        metadata = PublicPostService.filter_public_posts(Post.objects).aggregate(
+            item_count=Count('pk'),
+            latest_lastmod=Max('updated_date'),
+        )
+        return metadata['item_count'], metadata['latest_lastmod']
+
 
 class SeriesSitemap(Sitemap):
     changefreq = 'weekly'
@@ -65,6 +85,15 @@ class SeriesSitemap(Sitemap):
     def lastmod(self, element):
         return element.updated_date
 
+    def get_index_metadata(self):
+        metadata = PublicSeriesService.filter_public_series(
+            Series.objects,
+        ).order_by().aggregate(
+            item_count=Count('pk'),
+            latest_lastmod=Max('updated_date'),
+        )
+        return metadata['item_count'], metadata['latest_lastmod']
+
 
 class StaticPageSitemap(Sitemap):
     changefreq = 'monthly'
@@ -78,6 +107,13 @@ class StaticPageSitemap(Sitemap):
 
     def lastmod(self, element):
         return element.updated_date
+
+    def get_index_metadata(self):
+        metadata = StaticPage.objects.filter(is_published=True).aggregate(
+            item_count=Count('pk'),
+            latest_lastmod=Max('updated_date'),
+        )
+        return metadata['item_count'], metadata['latest_lastmod']
 
 
 sitemaps = {

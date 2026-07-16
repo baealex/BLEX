@@ -1,8 +1,14 @@
 from django.conf import settings
 from django.urls import reverse
 
-from board.models import SiteSetting, SiteNotice, SiteContentScope, StaticPage
+from board.models import (
+    SiteNotice,
+    SiteContentScope,
+    SocialAuthProvider,
+    StaticPage,
+)
 from board.services.brand_asset_service import BrandAssetService
+from board.services.agent_content_service import AgentContentService
 from board.services.site_url_service import SiteUrlService
 from board.services.social_auth_provider_service import SocialAuthProviderService
 
@@ -11,9 +17,18 @@ def oauth_settings(request):
     """
     Add OAuth client IDs to template context
     """
+    providers = {
+        provider.key: provider
+        for provider in SocialAuthProvider.objects.filter(
+            key__in=SocialAuthProviderService.supported_keys(),
+            is_enabled=True,
+        )
+    }
     return {
-        'GOOGLE_OAUTH_CLIENT_ID': SocialAuthProviderService.get_client_id('google'),
-        'GITHUB_OAUTH_CLIENT_ID': SocialAuthProviderService.get_client_id('github'),
+        'GOOGLE_OAUTH_CLIENT_ID': providers.get('google').client_id
+        if providers.get('google') else '',
+        'GITHUB_OAUTH_CLIENT_ID': providers.get('github').client_id
+        if providers.get('github') else '',
     }
 
 
@@ -21,7 +36,7 @@ def site_settings(request):
     """
     Add site-wide settings to template context
     """
-    setting = SiteSetting.get_instance()
+    setting = AgentContentService.get_site_setting(request)
     return {
         'site_setting': setting,
         'site_brand': BrandAssetService.public_context(setting),

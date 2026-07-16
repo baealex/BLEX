@@ -165,7 +165,7 @@ class RelatedPostServiceTestCase(TestCase):
 
     @patch('board.services.post_service.random.uniform', return_value=0)
     def test_facade_query_count_does_not_regress(self, mock_uniform):
-        with self.assertNumQueries(4):
+        with self.assertNumQueries(3):
             posts = PostService.get_related_posts(self.reference)
 
         self.assertEqual(len(posts), 3)
@@ -197,6 +197,30 @@ class RelatedPostServiceTestCase(TestCase):
 
         self.assertEqual(len(posts), 8)
         self.assertNotIn(self.reference, posts)
+
+    @patch('board.services.related_post_service.random.uniform', return_value=0)
+    def test_popular_tag_evaluates_all_candidates_with_constant_queries(self, mock_uniform):
+        candidate_count = 144
+        for index in range(candidate_count):
+            self.create_post(
+                f'Popular Tag Candidate {index}',
+                self.other_author,
+                timezone.now(),
+                (self.alpha,),
+            )
+        total_candidates = RelatedPostService.get_candidates(
+            self.reference,
+            [self.alpha.value],
+        ).count()
+
+        with self.assertNumQueries(3):
+            posts = RelatedPostService.get_related_posts(self.reference)
+
+        self.assertEqual(len(posts), RelatedPostService.MAX_RELATED_POSTS)
+        self.assertEqual(
+            mock_uniform.call_count,
+            total_candidates,
+        )
 
     def test_score_helper_boundaries_remain_stable(self):
         self.assertEqual(

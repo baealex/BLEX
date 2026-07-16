@@ -284,7 +284,8 @@ class OAuthCallbackTestCase(TestCase):
 
     def test_oauth_callback_missing_code(self):
         """OAuth 콜백에 code 파라미터가 없을 때 테스트"""
-        response = self.client.get('/login/callback/github')
+        with self.assertNumQueries(2):
+            response = self.client.get('/login/callback/github')
 
         # Should redirect to login page with error
         self.assertEqual(response.status_code, 302)

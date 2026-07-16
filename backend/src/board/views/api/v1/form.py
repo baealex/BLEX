@@ -11,7 +11,11 @@ from board.services.api_request_body_service import ApiRequestBodyService
 @api_editor_required
 def forms_list(request):
     if request.method == 'GET':
-        forms = Form.objects.filter(user=request.user)
+        forms = Form.objects.filter(user=request.user).only(
+            'id',
+            'title',
+            'created_date',
+        )
         return StatusDone({
             'forms': list(map(lambda form: {
                 'id': form.id,
@@ -45,7 +49,11 @@ def forms_list(request):
 @api_editor_required
 def forms_detail(request, id):
     if request.method == 'GET':
-        form = get_object_or_404(Form, id=id, user=request.user)
+        form = get_object_or_404(
+            Form.objects.only('id', 'title', 'content'),
+            id=id,
+            user=request.user,
+        )
         return StatusDone({
             'id': form.id,
             'title': form.title,

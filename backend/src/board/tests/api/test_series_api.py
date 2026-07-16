@@ -391,6 +391,26 @@ class SeriesAPITestCase(TestCase):
         content = json.loads(response.content)
         self.assertIn('lastPage', content['body'])
 
+    def test_get_user_public_series_list_has_constant_query_count(self):
+        """시리즈 수가 늘어도 썸네일 조회 쿼리가 증가하지 않는다."""
+        author = User.objects.get(username='author')
+        for index in range(3):
+            series = Series.objects.create(
+                owner=author,
+                name=f'Query Series {index}',
+                url=f'query-series-{index}',
+            )
+            post = Post.objects.get(url=f'test-post-{index + 3}')
+            post.series = series
+            post.save(update_fields=['series'])
+
+        with self.assertNumQueries(3):
+            response = self.client.get('/v1/users/@author/series')
+
+        self.assertEqual(response.status_code, 200)
+        content = json.loads(response.content)
+        self.assertEqual(len(content['body']['series']), 4)
+
     # GET /v1/users/@<username>/series/<url> - Get series detail
     def test_get_series_detail(self):
         """시리즈 상세 조회 테스트"""
@@ -399,6 +419,13 @@ class SeriesAPITestCase(TestCase):
         content = json.loads(response.content)
         self.assertEqual(content['body']['name'], 'Test Series')
         self.assertIn('posts', content['body'])
+
+    def test_get_series_detail_uses_bounded_query_count(self):
+        """시리즈 상세 API는 포스트 수와 무관하게 고정 쿼리로 조회한다."""
+        with self.assertNumQueries(4):
+            response = self.client.get('/v1/users/@author/series/test-series')
+
+        self.assertEqual(response.status_code, 200)
 
     def test_get_series_detail_with_order_param(self):
         """정렬 옵션을 포함한 시리즈 상세 조회"""

@@ -68,7 +68,8 @@ class PinnedPostAPITestCase(TestCase):
     # GET /v1/users/@<username>/pinned-posts
     def test_get_pinned_posts_empty(self):
         """빈 고정 글 목록 조회"""
-        response = self.client.get('/v1/users/@testuser/pinned-posts')
+        with self.assertNumQueries(3):
+            response = self.client.get('/v1/users/@testuser/pinned-posts')
         self.assertEqual(response.status_code, 200)
         content = json.loads(response.content)
         self.assertEqual(content['status'], 'DONE')
@@ -409,7 +410,8 @@ class PinnedPostAPITestCase(TestCase):
         """고정 가능한 글 목록은 limit 개수만 반환"""
         self.client.login(username='testuser', password='testpass')
 
-        response = self.client.get('/v1/users/@testuser/pinnable-posts?limit=3')
+        with self.assertNumQueries(5):
+            response = self.client.get('/v1/users/@testuser/pinnable-posts?limit=3')
         self.assertEqual(response.status_code, 200)
         content = json.loads(response.content)
         self.assertEqual(content['status'], 'DONE')
@@ -432,7 +434,8 @@ class PinnedPostAPITestCase(TestCase):
 
         self.client.login(username='testuser', password='testpass')
 
-        response = self.client.get('/v1/users/@testuser/pinnable-posts')
+        with self.assertNumQueries(5):
+            response = self.client.get('/v1/users/@testuser/pinnable-posts')
         self.assertEqual(response.status_code, 200)
         content = json.loads(response.content)
         self.assertEqual(content['status'], 'DONE')
@@ -485,6 +488,19 @@ class PinnedPostAPITestCase(TestCase):
         content = json.loads(response.content)
         self.assertEqual(content['status'], 'ERROR')
         self.assertEqual(content['errorCode'], 'error:IP')
+
+    def test_get_pinnable_posts_clamps_out_of_range_page(self):
+        """범위를 벗어난 page는 마지막 페이지로 보정"""
+        self.client.login(username='testuser', password='testpass')
+
+        response = self.client.get('/v1/users/@testuser/pinnable-posts?limit=3&page=999')
+
+        self.assertEqual(response.status_code, 200)
+        content = json.loads(response.content)
+        self.assertEqual(content['status'], 'DONE')
+        self.assertEqual(content['body']['page'], 3)
+        self.assertEqual(content['body']['lastPage'], 3)
+        self.assertEqual(len(content['body']['posts']), 2)
 
     def test_get_pinnable_posts_requires_login(self):
         """고정 가능한 글 목록은 로그인 필요"""

@@ -11,7 +11,7 @@ from typing import List, Dict, Any, Optional, Tuple, Union
 
 from django.contrib.auth.models import User
 from django.db import IntegrityError, transaction
-from django.db.models import F
+from django.db.models import Count, F, Window
 
 from board.models import Post, PinnedPost
 from board.modules.response import ErrorCode
@@ -122,11 +122,16 @@ class PinnedPostService:
         Returns:
             List of pinned post dictionaries with order
         """
-        pinned_posts = PinnedPost.objects.select_related(
-            'post', 'post__author'
-        ).filter(
+        pinned_posts = PinnedPost.objects.select_related('post').filter(
             PublicPostService.build_public_filter('post'),
             user=user,
+        ).only(
+            'id',
+            'order',
+            'post__url',
+            'post__title',
+            'post__image',
+            'post__published_date',
         ).order_by('order')
 
         return [{
@@ -188,8 +193,10 @@ class PinnedPostService:
         if query:
             posts = posts.filter(title__icontains=query)
 
-        total_count = posts.count()
+        posts = posts.only('url', 'title', 'image', 'published_date')
         if not has_pagination:
+            posts = list(posts)
+            total_count = len(posts)
             return {
                 'posts': [{
                     'url': post.url,
@@ -205,10 +212,27 @@ class PinnedPostService:
                 'has_previous': False,
             }
 
+        requested_page = page
+        offset = (requested_page - 1) * limit
+        page_posts = list(
+            posts.annotate(
+                pinnable_total_count=Window(expression=Count('id')),
+            )[offset:offset + limit]
+        )
+
+        if page_posts:
+            total_count = page_posts[0].pinnable_total_count
+        else:
+            # Preserve the historical behavior of clamping an out-of-range
+            # page to the final page. The common, non-empty page path gets its
+            # total from the same SQL query as the rows.
+            total_count = posts.count()
+
         last_page = max(1, math.ceil(total_count / limit))
-        page = min(page, last_page)
-        offset = (page - 1) * limit
-        page_posts = posts[offset:offset + limit]
+        page = min(requested_page, last_page)
+        if page != requested_page:
+            offset = (page - 1) * limit
+            page_posts = list(posts[offset:offset + limit])
 
         return {
             'posts': [{

@@ -35,7 +35,7 @@ def posts_can_add_series(request):
                 Q(series=series) | (
                     Q(series__isnull=True) & PublicPostService.build_public_filter()
                 )
-            ).order_by('-published_date', '-id')
+            ).only('id', 'title', 'published_date').order_by('-published_date', '-id')
         else:
             posts = SeriesService.get_posts_available_for_series(request.user)
 
@@ -120,7 +120,6 @@ def user_series(request, username, url=None):
                 return StatusError(e.code, e.message)
 
     if url:
-        user = get_object_or_404(User, username=username)
         series_queryset = Series.objects.annotate(
             owner_username=F('owner__username'),
             owner_avatar=F('owner__profile__avatar'),
@@ -128,32 +127,38 @@ def user_series(request, username, url=None):
 
         if request.method == 'GET':
             series = get_object_or_404(
-                PublicSeriesService.filter_public_series(series_queryset, 'total_posts'),
-                owner=user,
+                PublicSeriesService.filter_public_series_exists(series_queryset),
+                owner__username=username,
                 url=url,
             )
             if request.GET.get('kind', '') == 'continue':
-                posts = PublicPostService.filter_public_posts(Post.objects).filter(
-                    series=series,
-                ).values_list('title', 'url')
+                posts = list(
+                    PublicPostService.filter_public_posts(Post.objects).filter(
+                        series=series,
+                    ).values_list('title', 'url')
+                )
+                series.total_posts = len(posts)
                 return StatusDone(SeriesSerializer.public_continue_detail(series, posts))
 
             page = request.GET.get('page', 1)
             order = request.GET.get('order', 'latest')
-            posts = PublicPostService.filter_public_posts(
-                Post.objects.select_related('content')
-            ).filter(
+            posts = PublicPostService.filter_public_posts(Post.objects).filter(
                 series=series,
+            ).only(
+                'id', 'url', 'title', 'image', 'read_time',
+                'meta_description', 'published_date',
             ).order_by('-published_date' if order == 'latest' else 'published_date')
             posts = Paginator(
                 objects=posts,
                 offset=12,
                 page=page
             )
+            series.total_posts = posts.paginator.count
             return StatusDone(
                 SeriesSerializer.public_detail(series, posts, int(page), order)
             )
 
+        user = get_object_or_404(User, username=username)
         series = get_object_or_404(
             PublicSeriesService.with_public_post_count(series_queryset, 'total_posts'),
             owner=user,

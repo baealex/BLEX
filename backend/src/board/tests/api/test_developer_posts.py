@@ -187,6 +187,98 @@ class DeveloperPostsAPITestCase(TestCase):
         self.assertEqual(body['posts'][0]['id'], draft['id'])
         self.assertEqual(body['posts'][0]['status'], 'draft')
 
+    def test_list_posts_does_not_load_content_or_author_profile(self):
+        """목록 응답은 사용하지 않는 본문과 작가 프로필을 조회하지 않는다."""
+        self.create_draft('Lean List Draft')
+
+        with CaptureQueriesContext(connection) as queries:
+            response = self.client.get(
+                '/api/developer/v1/posts?status=draft',
+                **self.auth_header(),
+            )
+
+        self.assertEqual(response.status_code, 200)
+        post_queries = [
+            query['sql']
+            for query in queries.captured_queries
+            if 'FROM "board_post"' in query['sql']
+        ]
+        self.assertEqual(len(post_queries), 1)
+        selected_columns = post_queries[0].split(' FROM ')[0]
+        self.assertNotIn('board_postcontent', selected_columns)
+        self.assertNotIn('board_profile', selected_columns)
+        self.assertNotIn('board_series"."text_html', selected_columns)
+
+    def test_list_posts_reuses_page_query_for_total(self):
+        """데이터가 있는 페이지는 별도 COUNT 없이 전체 개수를 반환한다."""
+        for index in range(25):
+            self.create_draft(f'Paginated Draft {index}', tags=['bulk'])
+
+        with CaptureQueriesContext(connection) as queries:
+            response = self.client.get(
+                '/api/developer/v1/posts?status=draft&page=2&limit=10',
+                **self.auth_header(),
+            )
+
+        self.assertEqual(response.status_code, 200)
+        data = response.json()['data']
+        self.assertEqual(data['pagination']['total'], 25)
+        self.assertEqual(len(data['posts']), 10)
+        post_queries = [
+            query['sql'] for query in queries.captured_queries
+            if 'FROM "board_post"' in query['sql']
+        ]
+        self.assertEqual(len(post_queries), 1)
+        self.assertIn('OVER ()', post_queries[0])
+
+    def test_search_posts_does_not_load_content_or_author_profile(self):
+        """검색 목록도 사용하지 않는 본문과 작가 프로필을 조회하지 않는다."""
+        self.create_draft('Lean Search Draft')
+
+        with CaptureQueriesContext(connection) as queries:
+            response = self.client.get(
+                '/api/developer/v1/posts/search?q=Lean',
+                **self.auth_header(),
+            )
+
+        self.assertEqual(response.status_code, 200)
+        post_queries = [
+            query['sql']
+            for query in queries.captured_queries
+            if 'FROM "board_post"' in query['sql']
+        ]
+        self.assertEqual(len(post_queries), 1)
+        selected_columns = post_queries[0].split(' FROM ')[0]
+        self.assertNotIn('board_postcontent', selected_columns)
+        self.assertNotIn('board_profile', selected_columns)
+        self.assertNotIn('board_series"."text_html', selected_columns)
+
+    def test_search_posts_uses_exists_for_tags_and_one_post_query(self):
+        for index in range(25):
+            self.create_draft(
+                f'Bulk Search {index}',
+                content='needle body',
+                tags=['bulk', 'needle'],
+            )
+
+        with CaptureQueriesContext(connection) as queries:
+            response = self.client.get(
+                '/api/developer/v1/posts/search?q=needle&tag=bulk&page=2&limit=10',
+                **self.auth_header(),
+            )
+
+        self.assertEqual(response.status_code, 200)
+        data = response.json()['data']
+        self.assertEqual(data['pagination']['total'], 25)
+        self.assertEqual(len(data['posts']), 10)
+        post_queries = [
+            query['sql'] for query in queries.captured_queries
+            if 'FROM "board_post"' in query['sql']
+        ]
+        self.assertEqual(len(post_queries), 1)
+        self.assertIn('EXISTS', post_queries[0].upper())
+        self.assertNotIn('SELECT DISTINCT', post_queries[0].upper())
+
     def test_serialized_tags_use_prefetch_cache(self):
         draft = self.create_draft('Cached Tags Draft')
         post = Post.objects.prefetch_related('tags').get(id=draft['id'])
@@ -210,6 +302,26 @@ class DeveloperPostsAPITestCase(TestCase):
         self.assertEqual(data['title'], 'Detail Draft')
         self.assertIn('<strong>bold</strong>', data['content_html'])
         self.assertIn('This is', data['rendered_html'])
+
+    def test_get_post_detail_avoids_unused_large_columns(self):
+        draft = self.create_draft('Lean Detail Draft')
+
+        with CaptureQueriesContext(connection) as queries:
+            response = self.client.get(
+                f"/api/developer/v1/posts/{draft['id']}",
+                **self.auth_header(),
+            )
+
+        self.assertEqual(response.status_code, 200)
+        post_queries = [
+            query['sql'] for query in queries.captured_queries
+            if 'FROM "board_post"' in query['sql']
+        ]
+        self.assertEqual(len(post_queries), 1)
+        selected_columns = post_queries[0].split(' FROM ')[0]
+        self.assertNotIn('board_postcontent"."text_md', selected_columns)
+        self.assertNotIn('board_series"."text_html', selected_columns)
+        self.assertNotIn('board_profile', selected_columns)
 
     def test_create_published_post(self):
         response = self.post_json('/api/developer/v1/posts', {

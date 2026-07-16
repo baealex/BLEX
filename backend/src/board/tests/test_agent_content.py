@@ -5,11 +5,13 @@ from xml.etree import ElementTree
 
 from django.conf import settings
 from django.contrib.auth.models import User
+from django.contrib.sites.models import Site
 from django.test import Client, TestCase, override_settings
 from django.utils import timezone
 
 from board.models import Post, PostConfig, PostContent, Profile, Series, SiteSetting, StaticPage
 from board.feeds import SitePostsFeed, UserPostsFeed
+from board.services.agent_content_service import AgentContentService
 from board.services.post_trash_service import PostTrashService
 
 
@@ -420,6 +422,48 @@ class AgentContentTestCase(TestCase):
         self.assertIn('author', user_item._state.fields_cache)
         self.assertIn('content', user_item._state.fields_cache)
 
+    def test_rss_endpoints_use_constant_query_counts(self):
+        """RSS metadata and item relations are rendered without repeated queries."""
+        # The site-wide feed also resolves django.contrib.sites once.
+        Site.objects.clear_cache()
+        with self.assertNumQueries(3):
+            site_response = self.client.get('/rss')
+        with self.assertNumQueries(3):
+            user_response = self.client.get('/rss/@aeo-author')
+
+        self.assertEqual(site_response.status_code, 200)
+        self.assertEqual(user_response.status_code, 200)
+
+    def test_static_page_markdown_uses_two_queries(self):
+        """Markdown static pages only load the AEO setting and requested page."""
+        with self.assertNumQueries(2):
+            response = self.client.get('/static/about-ai.md')
+
+        self.assertEqual(response.status_code, 200)
+
+    def test_post_and_series_markdown_use_constant_query_counts(self):
+        """Markdown exports load their object graph in a bounded query count."""
+        with self.assertNumQueries(3):
+            post_response = self.client.get('/@aeo-author/agent-ready-post.md')
+        with self.assertNumQueries(3):
+            series_response = self.client.get(
+                '/@aeo-author/series/agent-ready-series.md'
+            )
+
+        self.assertEqual(post_response.status_code, 200)
+        self.assertEqual(series_response.status_code, 200)
+
+    def test_series_markdown_detail_uses_exists_instead_of_count_grouping(self):
+        """Series detail visibility should stop after finding a public post."""
+        queryset = AgentContentService.get_public_series_detail
+        with self.assertNumQueries(1) as captured:
+            series = queryset('aeo-author', 'agent-ready-series')
+
+        sql = captured.captured_queries[0]['sql'].upper()
+        self.assertEqual(series, self.public_series)
+        self.assertIn('EXISTS', sql)
+        self.assertNotIn('GROUP BY', sql)
+
     def test_aeo_disabled_hides_agent_entrypoints(self):
         """AEO가 꺼져 있으면 llms.txt와 Markdown endpoint에 접근할 수 없다."""
         setting = SiteSetting.get_instance()
@@ -486,7 +530,8 @@ class AgentContentTestCase(TestCase):
 
     def test_robots_txt_advertises_agent_entrypoint_when_aeo_enabled(self):
         """AEO가 켜져 있으면 robots.txt에 AI 진입점을 표시한다."""
-        response = self.client.get('/robots.txt')
+        with self.assertNumQueries(1):
+            response = self.client.get('/robots.txt')
 
         self.assertEqual(response.status_code, 200)
         body = response.content.decode()

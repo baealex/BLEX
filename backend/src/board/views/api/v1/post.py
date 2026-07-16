@@ -71,10 +71,17 @@ def post_comment_list(request, url):
 @api_editor_required_methods(['POST', 'PUT', 'DELETE'])
 def user_posts(request, username, url=None):
     if url:
-        post = PostService.get_post_detail(username, url, request.user)
+        is_edit_mode = (
+            request.method == 'GET'
+            and request.GET.get('mode') == 'edit'
+        )
+        if is_edit_mode:
+            post = PostService.get_post_editor_detail(username, url)
+        else:
+            post = PostService.get_post_detail(username, url, request.user)
 
         if request.method == 'GET':
-            if request.GET.get('mode') == 'edit':
+            if is_edit_mode:
                 if not PostService.can_user_edit_post(request.user, post):
                     raise Http404
 
@@ -246,7 +253,7 @@ def user_post_related(request, username, url):
     Uses a scoring system to rank relevance.
     """
     if request.method == 'GET':
-        post = get_object_or_404(Post.objects.select_related('config').prefetch_related('tags'),
+        post = get_object_or_404(Post.objects.select_related('config', 'author').prefetch_related('tags'),
                                  author__username=username, url=url)
 
         if request.user != post.author and not PublicPostService.is_public(post):

@@ -1,12 +1,9 @@
 from django.shortcuts import render, get_object_or_404
-from django.contrib.auth.models import User
-from django.db.models import Count, Exists, OuterRef
 from django.http import Http404
 
-from board.models import Post, Series, PostLikes
+from board.models import Series
 from board.services.agent_content_service import AgentContentService
 from board.services.discovery_metadata_service import DiscoveryMetadataService
-from board.services.public_post_service import PublicPostService
 from board.services.public_series_service import PublicSeriesService
 
 
@@ -14,33 +11,24 @@ def series_detail(request, username, series_url):
     """
     View for the series detail page.
     """
-    author = get_object_or_404(User, username=username)
-
     sort_order = request.GET.get('sort', 'desc')
     if sort_order not in ['asc', 'desc']:
         sort_order = 'desc'
 
     series = get_object_or_404(
-        PublicSeriesService.filter_public_series(Series.objects),
-        owner=author,
+        PublicSeriesService.filter_public_series_exists(
+            Series.objects.select_related('owner', 'owner__profile')
+        ),
+        owner__username=username,
         url=series_url,
     )
+    author = series.owner
 
     order_by = 'published_date' if sort_order == 'asc' else '-published_date'
 
-    all_posts = PublicPostService.filter_public_posts(
-        Post.objects.select_related(
-            'config', 'author', 'author__profile'
-        ).filter(series=series)
-    ).annotate(
-        count_likes=Count('likes', distinct=True),
-        count_comments=Count('comments', distinct=True),
-        has_liked=Exists(
-            PostLikes.objects.filter(
-                post__id=OuterRef('id'),
-                user__id=request.user.id if request.user.id else -1
-            )
-        ),
+    all_posts = PublicSeriesService.get_public_posts_with_metrics(
+        series,
+        request.user.id,
     ).order_by(order_by)
 
     page = int(request.GET.get('page', 1))
@@ -81,7 +69,7 @@ def series_detail(request, username, series_url):
     has_previous = page > 1
     has_next = page < total_pages
 
-    aeo_enabled = AgentContentService.is_aeo_enabled()
+    aeo_enabled = AgentContentService.is_aeo_enabled(request)
     context = {
         'author': author,
         'series': series,

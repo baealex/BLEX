@@ -16,6 +16,7 @@ from board.services.site_url_service import SiteUrlService
 
 
 class AgentContentService:
+    REQUEST_SITE_SETTING_ATTRIBUTE = '_blex_site_setting'
     LATEST_POST_LIMIT = 20
     DEFAULT_ROBOTS_DISALLOW_RULES = (
         'Disallow: /*.preview.jpg',
@@ -30,16 +31,36 @@ class AgentContentService:
     INLINE_RAW_TAGS = {'figcaption', 'mark', 'u', 'sub', 'sup'}
 
     @staticmethod
-    def is_seo_enabled() -> bool:
-        return SiteSetting.get_instance().seo_enabled
+    def get_site_setting(request: HttpRequest | None = None) -> SiteSetting:
+        if request is not None:
+            cached = getattr(
+                request,
+                AgentContentService.REQUEST_SITE_SETTING_ATTRIBUTE,
+                None,
+            )
+            if cached is not None:
+                return cached
+
+        setting = SiteSetting.get_instance()
+        if request is not None:
+            setattr(
+                request,
+                AgentContentService.REQUEST_SITE_SETTING_ATTRIBUTE,
+                setting,
+            )
+        return setting
 
     @staticmethod
-    def is_aeo_enabled() -> bool:
-        return SiteSetting.get_instance().aeo_enabled
+    def is_seo_enabled(request: HttpRequest | None = None) -> bool:
+        return AgentContentService.get_site_setting(request).seo_enabled
 
     @staticmethod
-    def require_aeo_enabled() -> None:
-        if not AgentContentService.is_aeo_enabled():
+    def is_aeo_enabled(request: HttpRequest | None = None) -> bool:
+        return AgentContentService.get_site_setting(request).aeo_enabled
+
+    @staticmethod
+    def require_aeo_enabled(request: HttpRequest | None = None) -> None:
+        if not AgentContentService.is_aeo_enabled(request):
             raise Http404("AEO is disabled")
 
     @staticmethod
@@ -68,7 +89,17 @@ class AgentContentService:
             return Post.objects.select_related(
                 'author',
                 'content',
-                'config',
+            ).prefetch_related(
+                'tags',
+            ).only(
+                'id',
+                'title',
+                'subtitle',
+                'url',
+                'published_date',
+                'updated_date',
+                'author__username',
+                'content__content_html',
             ).get(
                 PublicPostService.build_public_filter(),
                 author__username=username,
@@ -86,7 +117,17 @@ class AgentContentService:
     @staticmethod
     def get_public_series_detail(username: str, series_url: str) -> Series:
         try:
-            return AgentContentService.get_public_series().get(
+            return PublicSeriesService.filter_public_series_exists(
+                Series.objects.select_related('owner').only(
+                    'id',
+                    'name',
+                    'url',
+                    'text_md',
+                    'text_html',
+                    'updated_date',
+                    'owner__username',
+                )
+            ).get(
                 owner__username=username,
                 url=series_url,
             )
@@ -98,7 +139,13 @@ class AgentContentService:
         return PublicPostService.filter_public_posts(
             Post.objects.select_related(
                 'author',
-                'config',
+            ).only(
+                'id',
+                'title',
+                'url',
+                'published_date',
+                'series_id',
+                'author__username',
             )
         ).filter(
             series=series,
@@ -228,7 +275,7 @@ class AgentContentService:
 
     @staticmethod
     def build_robots_txt(request: HttpRequest) -> str:
-        setting = SiteSetting.get_instance()
+        setting = AgentContentService.get_site_setting(request)
         lines = AgentContentService.build_default_robots_txt_lines(request, setting)
 
         extra_rules = AgentContentService.normalize_robots_txt_extra_rules(

@@ -6,6 +6,7 @@ from django.contrib.auth.models import User
 from django.urls import reverse
 
 from board.models import Post
+from board.services.agent_content_service import AgentContentService
 from board.modules.time import convert_to_localtime
 from board.services.brand_asset_service import BrandAssetService
 from board.services.public_post_service import PublicPostService
@@ -32,11 +33,16 @@ class SitePostsFeed(Feed):
 
     link = '/'
 
+    def get_object(self, request):
+        # The syndication framework passes this object to every feed metadata
+        # callback, so load the singleton only once per request.
+        return AgentContentService.get_site_setting(request)
+
     def title(self, obj=None):
-        return BrandAssetService.site_name()
+        return BrandAssetService.site_name(obj)
 
     def description(self, obj=None):
-        return BrandAssetService.site_description()
+        return BrandAssetService.site_description(obj)
 
     def items(self):
         posts = PublicPostService.filter_public_posts(

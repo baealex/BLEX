@@ -8,12 +8,13 @@ from django.contrib import messages
 from django.views.decorators.clickjacking import xframe_options_sameorigin
 from django.views.decorators.http import require_GET
 
-from board.models import Post, Series, PostLikes, UsernameChangeLog
+from board.models import Post, Series, PostLikes
 from board.modules.response import StatusDone, StatusError
 from board.services.post_service import PostService, PostValidationError
 from board.services.post_trash_service import PostTrashService
 from board.services.post_detail_render_service import PostDetailRenderService
 from board.services.public_post_service import PublicPostService
+from board.services.user_service import UserService
 from board.decorators import editor_required
 
 
@@ -21,22 +22,22 @@ def post_detail(request, username, post_url):
     """
     View for the post detail page.
     """
-    # Check if this is an old username in the change log
-    username_log = UsernameChangeLog.objects.filter(username=username).select_related('user').first()
-    if username_log:
-        if PublicPostService.filter_public_posts(Post.objects).filter(
-            author=username_log.user,
-            url=post_url,
-        ).exists():
-            return redirect('post_detail', username=username_log.user.username, post_url=post_url)
-
-    author = get_object_or_404(User, username=username)
-
     try:
         post = PostService.get_post_detail(username, post_url, request.user)
     except Http404:
+        redirect_username = UserService.get_public_post_redirect_username(
+            username,
+            post_url,
+        )
+        if redirect_username:
+            return redirect(
+                'post_detail',
+                username=redirect_username,
+                post_url=post_url,
+            )
         raise Http404("Post does not exist")
 
+    author = post.author
     is_owner = request.user.is_authenticated and request.user == author
     if not PublicPostService.is_public(post) and (
         not is_owner or post.published_date is None
@@ -53,10 +54,9 @@ def post_preview(request, post_url):
         raise Http404("Post does not exist")
 
     try:
-        post = PostService.get_post_detail(
+        post = PostService.get_post_preview_detail(
             request.user.username,
             post_url,
-            request.user,
         )
     except Http404:
         raise Http404("Post does not exist")
@@ -110,7 +110,7 @@ def post_editor(request, username=None, post_url=None):
             raise Http404("You don't have permission to edit this post")
 
         try:
-            post = PostService.get_post_detail(username, post_url, request.user)
+            post = PostService.get_post_editor_page_detail(username, post_url)
         except Http404:
              raise Http404("Post does not exist")
 

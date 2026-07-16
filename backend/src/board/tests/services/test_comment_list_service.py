@@ -102,3 +102,36 @@ class CommentListServiceTestCase(TestCase):
             'can_like': False,
             'can_reply': False,
         })
+
+    def test_serialize_large_comment_list_uses_constant_query_count(self):
+        parents = Comment.objects.bulk_create([
+            Comment(
+                post=self.post,
+                author=self.viewer,
+                text_md=f'Parent {index}',
+                text_html=f'<p>Parent {index}</p>',
+            )
+            for index in range(100)
+        ])
+        Comment.objects.bulk_create([
+            Comment(
+                post=self.post,
+                author=self.author,
+                parent=parent,
+                text_md=f'Reply {index}',
+                text_html=f'<p>Reply {index}</p>',
+            )
+            for index, parent in enumerate(parents)
+        ])
+
+        with self.assertNumQueries(3):
+            payload = CommentListService.serialize_post_comments(
+                self.post.url,
+                self.viewer,
+            )
+
+        self.assertEqual(len(payload['comments']), 101)
+        self.assertEqual(
+            sum(len(comment['replies']) for comment in payload['comments']),
+            101,
+        )

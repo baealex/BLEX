@@ -1,11 +1,14 @@
 from django.test import TestCase
 from django.core.exceptions import ValidationError
 from django.contrib.auth.models import User
+from django.db import connection
+from django.test.utils import CaptureQueriesContext
 
 from board.models import (
     SiteNotice, SiteBanner, SiteContentScope,
     BannerType, BannerPosition,
 )
+from board.services.site_content_api_service import SiteContentApiService
 
 
 class SiteNoticeModelTestCase(TestCase):
@@ -181,3 +184,61 @@ class SiteBannerModelTestCase(TestCase):
         items = list(SiteBanner.objects.all())
         self.assertEqual(items[0].title, 'Order 0')
         self.assertEqual(items[1].title, 'Order 1')
+
+
+class SiteContentListSerializationPerformanceTestCase(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        cls.user = User.objects.create_user(
+            username='content-owner',
+            password='secret-password',
+        )
+        SiteNotice.objects.bulk_create([
+            SiteNotice(
+                scope=SiteContentScope.USER,
+                user=cls.user,
+                title=f'Notice {index}',
+                url=f'https://example.com/{index}',
+            )
+            for index in range(20)
+        ])
+        SiteBanner.objects.bulk_create([
+            SiteBanner(
+                scope=SiteContentScope.GLOBAL,
+                user=cls.user,
+                title=f'Banner {index}',
+                content_html=f'<p>{index}</p>',
+            )
+            for index in range(20)
+        ])
+
+    def test_notice_list_serialization_uses_one_lean_query(self):
+        queryset = SiteNotice.objects.filter(user=self.user).order_by('-created_date')
+
+        with CaptureQueriesContext(connection) as queries:
+            result = SiteContentApiService.serialize_notice_list(queryset)
+
+        self.assertEqual(len(queries), 1)
+        self.assertEqual(len(result), 20)
+        selected_columns = queries[0]['sql'].lower().split(' from ')[0]
+        self.assertNotIn('user_id', selected_columns)
+        self.assertNotIn('scope', selected_columns)
+
+    def test_global_banner_list_serialization_uses_one_lean_query(self):
+        queryset = SiteBanner.objects.filter(scope=SiteContentScope.GLOBAL).order_by(
+            'order',
+            '-created_date',
+        )
+
+        with CaptureQueriesContext(connection) as queries:
+            result = SiteContentApiService.serialize_banner_list(
+                queryset,
+                include_created_by=True,
+            )
+
+        self.assertEqual(len(queries), 1)
+        self.assertEqual(len(result), 20)
+        self.assertEqual(result[0]['created_by'], self.user.username)
+        sql = queries[0]['sql'].lower()
+        self.assertNotIn('password', sql)
+        self.assertNotIn('last_login', sql)
