@@ -20,10 +20,11 @@
         }
     },
     "scripts": {
+        "test": "node --test test/*.test.mjs",
         "type-check": "tsc --noEmit",
         "build": "tsup",
         "dev": "tsup --watch",
-        "lint": "eslint src"
+        "lint": "eslint src test"
     },
     "dependencies": {
         "@blex/ui": "workspace:^",

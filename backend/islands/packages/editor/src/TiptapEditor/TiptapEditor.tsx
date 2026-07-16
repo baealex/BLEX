@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { useEditor, EditorContent } from '@tiptap/react';
 import MenuBar from './components/menus/MenuBar';
 import { getEditorExtensions } from './config/editorConfig';
-import { hasProseMirrorSliceData } from './config/mediaUpload';
+import { classifyTextMediaDrop } from './config/mediaUpload';
 import { useImageUpload } from './hooks/useImageUpload';
 import { normalizeMediaUrlsInHtml } from './utils/mediaUrls';
 
@@ -29,13 +29,6 @@ interface HandlersRef {
 
 const removeUploadPlaceholders = (html: string) => {
     return html.replace(/<div[^>]*data-upload-placeholder="true"[^>]*>[\s\S]*?<\/div>/g, '');
-};
-
-const mayContainExternalMediaReference = (dataTransfer: DataTransfer) => {
-    const types = Array.from(dataTransfer.types ?? []);
-    return types.includes('text/html')
-        || types.includes('text/uri-list')
-        || types.includes('text/plain');
 };
 
 const TiptapEditor = ({
@@ -74,8 +67,7 @@ const TiptapEditor = ({
                         !dataTransfer
                         || dataTransfer.files.length > 0
                         || view.dragging
-                        || hasProseMirrorSliceData(dataTransfer)
-                        || !mayContainExternalMediaReference(dataTransfer)
+                        || classifyTextMediaDrop(dataTransfer) !== 'external-media'
                     ) {
                         return false;
                     }
@@ -191,8 +183,7 @@ const TiptapEditor = ({
                 !dataTransfer
                 || dataTransfer.files.length > 0
                 || editor.view.dragging
-                || hasProseMirrorSliceData(dataTransfer)
-                || !mayContainExternalMediaReference(dataTransfer)
+                || classifyTextMediaDrop(dataTransfer) !== 'external-media'
             ) {
                 return;
             }

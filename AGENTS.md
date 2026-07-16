@@ -15,6 +15,7 @@ AI Agents must read `docs/DEV_CONVENTION.md` before starting any development.
 - Install dependencies: `npm i`
 - Start local development: `npm run dev`
 - Run backend tests: `npm run server:test`
+- Run island unit tests: `npm run islands:test`
 - Run island lint: `npm run islands:lint`
 - Run island type checks: `npm run islands:type-check`
 
