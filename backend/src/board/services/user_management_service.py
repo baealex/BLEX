@@ -52,7 +52,7 @@ class UserManagementService:
         stats = UserManagementService.get_stats(users)
         page_size = UserManagementService.normalize_page_size(page_size)
         total = users.count()
-        total_pages = (total + page_size - 1) // page_size
+        total_pages = max(1, (total + page_size - 1) // page_size)
         page_number = UserManagementService.normalize_page(page, total_pages)
         offset = (page_number - 1) * page_size
         user_page = UserManagementService.with_management_fields(

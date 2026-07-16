@@ -87,14 +87,19 @@ class SocialAuthProviderService:
 
     @classmethod
     def serialize_admin_providers(cls) -> list[dict[str, object]]:
+        provider_map = {
+            provider.key: provider
+            for provider in SocialAuthProvider.objects.filter(key__in=cls.supported_keys())
+        }
         providers = []
-        for provider in SocialAuthProvider.objects.filter(key__in=cls.supported_keys()).order_by('id'):
+        for key, metadata in cls.SUPPORTED_PROVIDERS.items():
+            provider = provider_map.get(key)
             providers.append({
-                'key': provider.key,
-                'name': cls.SUPPORTED_PROVIDERS[provider.key]['name'],
-                'is_enabled': provider.is_enabled,
-                'client_id': provider.client_id,
-                'has_client_secret': bool(provider.client_secret),
+                'key': key,
+                'name': metadata['name'],
+                'is_enabled': provider.is_enabled if provider else False,
+                'client_id': provider.client_id if provider else '',
+                'has_client_secret': bool(provider and provider.client_secret),
             })
         return providers
 

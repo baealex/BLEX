@@ -199,14 +199,19 @@ class RelatedPostServiceTestCase(TestCase):
         self.assertNotIn(self.reference, posts)
 
     @patch('board.services.related_post_service.random.uniform', return_value=0)
-    def test_popular_tag_bounds_candidate_materialization(self, mock_uniform):
-        for index in range(RelatedPostService.CANDIDATE_LIMIT + 16):
+    def test_popular_tag_evaluates_all_candidates_with_constant_queries(self, mock_uniform):
+        candidate_count = 144
+        for index in range(candidate_count):
             self.create_post(
                 f'Popular Tag Candidate {index}',
                 self.other_author,
                 timezone.now(),
                 (self.alpha,),
             )
+        total_candidates = RelatedPostService.get_candidates(
+            self.reference,
+            [self.alpha.value],
+        ).count()
 
         with self.assertNumQueries(3):
             posts = RelatedPostService.get_related_posts(self.reference)
@@ -214,7 +219,7 @@ class RelatedPostServiceTestCase(TestCase):
         self.assertEqual(len(posts), RelatedPostService.MAX_RELATED_POSTS)
         self.assertEqual(
             mock_uniform.call_count,
-            RelatedPostService.CANDIDATE_LIMIT,
+            total_candidates,
         )
 
     def test_score_helper_boundaries_remain_stable(self):

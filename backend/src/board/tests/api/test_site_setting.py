@@ -245,10 +245,16 @@ class SiteSettingAPITestCase(TestCase):
 
     def test_admin_social_providers_uses_one_query(self):
         """관리자 제공자 목록도 초기화용 쓰기 쿼리 없이 한 번만 조회한다."""
+        SocialAuthProvider.objects.filter(key='github').delete()
+
         with self.assertNumQueries(1):
             providers = SocialAuthProviderService.serialize_admin_providers()
 
-        self.assertIsInstance(providers, list)
+        self.assertEqual([provider['key'] for provider in providers], ['google', 'github'])
+        github = next(provider for provider in providers if provider['key'] == 'github')
+        self.assertFalse(github['is_enabled'])
+        self.assertEqual(github['client_id'], '')
+        self.assertFalse(SocialAuthProvider.objects.filter(key='github').exists())
 
     def test_update_invalid_json_keeps_existing_fields(self):
         setting = SiteSetting.get_instance()

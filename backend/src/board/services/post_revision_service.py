@@ -117,7 +117,7 @@ class PostRevisionService:
             'id': history.id,
             'title': history.title,
             'subtitle': history.subtitle,
-            'content_excerpt': history.content_excerpt,
+            'content_excerpt': history.content_excerpt or '',
             'tags': history.tags,
             'change_type': history.change_type,
             'can_restore': history.change_type != EditHistory.ChangeType.LEGACY,

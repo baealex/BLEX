@@ -409,7 +409,12 @@ class EditHistory(models.Model):
     title = models.CharField(max_length=65, default='_NO_CHANGED_')
     subtitle = models.CharField(max_length=120, blank=True, default='')
     content = models.TextField(blank=True, default='_NO_CHANGED_')
-    content_excerpt = models.CharField(max_length=160, blank=True, default='')
+    content_excerpt = models.CharField(
+        max_length=160,
+        blank=True,
+        null=True,
+        default='',
+    )
     description = models.CharField(max_length=250, blank=True, default='')
     tags = models.JSONField(default=list, blank=True)
     source_updated_date = models.DateTimeField(null=True, blank=True)

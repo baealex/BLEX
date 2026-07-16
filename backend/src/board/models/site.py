@@ -139,14 +139,6 @@ class SiteNotice(SiteContentBase):
         indexes = [
             models.Index(fields=['scope', 'is_active']),
             models.Index(fields=['user', 'is_active']),
-            models.Index(
-                fields=['scope', '-created_date'],
-                name='board_siten_scope_c_7e9e28_idx',
-            ),
-            models.Index(
-                fields=['user', '-created_date'],
-                name='board_siten_user_id_f9a0e5_idx',
-            ),
         ]
 
 
@@ -161,14 +153,6 @@ class SiteBanner(SiteContentBase):
         indexes = [
             models.Index(fields=['scope', 'is_active', 'banner_type', 'position']),
             models.Index(fields=['user', 'is_active']),
-            models.Index(
-                fields=['scope', 'order', '-created_date'],
-                name='board_siteb_scope_o_c9485c_idx',
-            ),
-            models.Index(
-                fields=['user', 'order', '-created_date'],
-                name='board_siteb_user_id_973b24_idx',
-            ),
         ]
 
     def clean(self):

@@ -205,6 +205,19 @@ class UserManagementAPITestCase(TestCase):
         self.assertEqual(content['status'], 'DONE')
         self.assertEqual(content['body']['pagination']['page'], 2)
 
+    def test_empty_user_search_preserves_single_empty_page(self):
+        response = self.client.get(
+            '/v1/admin/users?q=definitely-no-match&page=999&page_size=2'
+        )
+
+        self.assertEqual(response.status_code, 200)
+        pagination = json.loads(response.content)['body']['pagination']
+        self.assertEqual(pagination['page'], 1)
+        self.assertEqual(pagination['total'], 0)
+        self.assertEqual(pagination['totalPages'], 1)
+        self.assertFalse(pagination['hasNext'])
+        self.assertFalse(pagination['hasPrevious'])
+
     def test_staff_can_create_author_invite(self):
         response = self.client.post(
             '/v1/admin/author-invites',

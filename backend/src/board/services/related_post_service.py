@@ -29,7 +29,6 @@ class RelatedPostService:
     """Return public related posts using the existing scoring algorithm."""
 
     MAX_RELATED_POSTS: ClassVar[int] = 8
-    CANDIDATE_LIMIT: ClassVar[int] = 128
 
     @staticmethod
     def calculate_tag_score(
@@ -82,13 +81,7 @@ class RelatedPostService:
             comments_count=Count('comments', distinct=True),
         ).filter(
             candidate_tag_overlap__gt=0,
-        ).order_by(
-            '-candidate_tag_overlap',
-            '-likes_count',
-            '-comments_count',
-            '-published_date',
-            '-id',
-        )[:RelatedPostService.CANDIDATE_LIMIT]
+        )
 
     @classmethod
     def get_related_posts(
