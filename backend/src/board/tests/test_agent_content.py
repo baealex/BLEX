@@ -506,7 +506,8 @@ class AgentContentTestCase(TestCase):
 
     def test_robots_txt_advertises_agent_entrypoint_when_aeo_enabled(self):
         """AEO가 켜져 있으면 robots.txt에 AI 진입점을 표시한다."""
-        response = self.client.get('/robots.txt')
+        with self.assertNumQueries(1):
+            response = self.client.get('/robots.txt')
 
         self.assertEqual(response.status_code, 200)
         body = response.content.decode()

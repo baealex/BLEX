@@ -3,6 +3,9 @@ Tag page template tests.
 URL: /tags, /tag/<name>
 """
 from django.contrib.auth.models import User
+from django.conf import settings
+from django.db import connection
+from django.test.utils import CaptureQueriesContext
 from django.test import Client, TestCase
 from django.urls import reverse
 from django.utils import timezone
@@ -69,6 +72,18 @@ class TagListPageTestCase(TestCase):
         response = self.client.get(reverse('tag_list'))
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'board/tags/tag_list.html')
+
+    def test_tag_list_loads_representative_images_without_per_tag_queries(self):
+        """태그 대표 이미지는 태그별 추가 쿼리 없이 조회한다."""
+        Post.objects.filter(url='python-post-0').update(image='images/python.jpg')
+
+        with CaptureQueriesContext(connection) as queries:
+            response = self.client.get(reverse('tag_list'))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertLessEqual(len(queries), 6)
+        python_tag = next(tag for tag in response.context['tags'] if tag['name'] == 'python')
+        self.assertEqual(python_tag['image'], f'{settings.MEDIA_URL}images/python.jpg')
 
 
     def test_tag_list_counts_public_posts_only(self):

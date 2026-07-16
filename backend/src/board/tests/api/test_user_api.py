@@ -1,8 +1,19 @@
 import json
 
 from django.test import TestCase
+from django.core.cache import cache
+from django.utils import timezone
 
-from board.models import User, Config, Profile, UsernameChangeLog
+from board.models import (
+    Comment,
+    Config,
+    Post,
+    PostConfig,
+    PostLikes,
+    Profile,
+    User,
+    UsernameChangeLog,
+)
 
 
 class UserAPITestCase(TestCase):
@@ -27,6 +38,33 @@ class UserAPITestCase(TestCase):
 
     def setUp(self):
         self.client.defaults['HTTP_USER_AGENT'] = 'BLEX_TEST'
+        cache.clear()
+
+    def test_public_heatmap_uses_one_activity_query(self):
+        """공개 활동 세 종류는 UNION ALL 한 번으로 함께 조회한다."""
+        post = Post.objects.create(
+            url='heatmap-post',
+            title='Heatmap Post',
+            author=self.user,
+            published_date=timezone.now(),
+        )
+        PostConfig.objects.create(post=post, hide=False)
+        Comment.objects.create(
+            post=post,
+            author=self.user,
+            text_md='comment',
+            text_html='<p>comment</p>',
+        )
+        PostLikes.objects.create(post=post, user=self.user)
+
+        # User lookup + combined activity query + request-scoped site setting.
+        with self.assertNumQueries(3):
+            response = self.client.get('/v1/users/@testuser/heatmap')
+
+        self.assertEqual(response.status_code, 200)
+        today = timezone.localdate().strftime('%Y%m%d')
+        body = json.loads(response.content)['body']
+        self.assertEqual(body, {today: 3})
 
     # PUT /v1/users/@<username> - Update user about
     def test_update_user_about(self):

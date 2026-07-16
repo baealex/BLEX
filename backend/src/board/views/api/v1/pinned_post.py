@@ -97,7 +97,13 @@ def pinnable_posts(request, username):
 
     GET: Get recent/searchable pinnable posts (non-hidden, not already pinned)
     """
-    user = get_object_or_404(User, username=username)
+    # Reuse AuthenticationMiddleware's user for the overwhelmingly common
+    # owner request.  Looking the same user up again also caused its profile to
+    # be fetched twice by the permission and service checks below.
+    if request.user.is_authenticated and request.user.username == username:
+        user = request.user
+    else:
+        user = get_object_or_404(User, username=username)
 
     permission_error = ApiPermissionService.require_authoring_owner(request.user, user)
     if permission_error:

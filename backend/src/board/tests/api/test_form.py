@@ -1,5 +1,7 @@
 from django.test import Client, TestCase
 from django.contrib.auth.models import User
+from django.db import connection
+from django.test.utils import CaptureQueriesContext
 from board.models import Form, Profile
 
 
@@ -24,6 +26,23 @@ class FormTestCase(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json()['status'], 'DONE')
         self.assertEqual(len(response.json()['body']['forms']), 1)
+
+    def test_forms_list_does_not_load_form_content(self):
+        """폼 목록은 본문 필드를 데이터베이스에서 읽지 않는다."""
+        self.client.login(username='testuser', password='testpass')
+
+        with CaptureQueriesContext(connection) as queries:
+            response = self.client.get('/v1/forms')
+
+        self.assertEqual(response.status_code, 200)
+        form_queries = [
+            query['sql']
+            for query in queries.captured_queries
+            if 'FROM "board_form"' in query['sql']
+        ]
+        self.assertEqual(len(form_queries), 1)
+        selected_columns = form_queries[0].split(' FROM ')[0]
+        self.assertNotIn('"board_form"."content"', selected_columns)
 
     def test_forms_detail(self):
         """폼 상세 조회, 수정, 삭제 테스트"""

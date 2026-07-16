@@ -8,6 +8,7 @@ from django.contrib.sessions.models import Session
 from django.utils import timezone
 
 from board.models import User, Profile, Post, PostContent, Tag
+from board.services.utility_cleanup_service import UtilityCleanupService
 
 
 class UtilityAPITestCase(TestCase):
@@ -61,6 +62,14 @@ class UtilityAPITestCase(TestCase):
         self.assertIn('totalUsers', body)
         self.assertIn('totalSessions', body)
         self.assertIn('logCount', body)
+
+    def test_stats_combines_related_counts_into_nine_queries(self):
+        """포스트·세션의 상태별 통계는 각각 한 번의 집계로 계산한다."""
+        with self.assertNumQueries(9):
+            stats = UtilityCleanupService.get_stats()
+
+        self.assertIn('public_posts', stats)
+        self.assertIn('expired_sessions', stats)
 
     # === Clean tags endpoint ===
 

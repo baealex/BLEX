@@ -409,7 +409,8 @@ class PinnedPostAPITestCase(TestCase):
         """고정 가능한 글 목록은 limit 개수만 반환"""
         self.client.login(username='testuser', password='testpass')
 
-        response = self.client.get('/v1/users/@testuser/pinnable-posts?limit=3')
+        with self.assertNumQueries(6):
+            response = self.client.get('/v1/users/@testuser/pinnable-posts?limit=3')
         self.assertEqual(response.status_code, 200)
         content = json.loads(response.content)
         self.assertEqual(content['status'], 'DONE')

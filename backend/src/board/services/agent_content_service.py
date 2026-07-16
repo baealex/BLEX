@@ -249,7 +249,7 @@ class AgentContentService:
 
     @staticmethod
     def build_robots_txt(request: HttpRequest) -> str:
-        setting = SiteSetting.get_instance()
+        setting = AgentContentService.get_site_setting(request)
         lines = AgentContentService.build_default_robots_txt_lines(request, setting)
 
         extra_rules = AgentContentService.normalize_robots_txt_extra_rules(

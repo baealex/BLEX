@@ -16,6 +16,7 @@ from board.models import (
     PinnedPost, PostLikes, Profile, Series, Tag, User, UserLinkMeta,
     UsernameChangeLog,
 )
+from board.services.setting_post_management_service import SettingPostManagementService
 
 
 class SettingTestCase(TestCase):
@@ -649,6 +650,13 @@ class SettingTestCase(TestCase):
         self.assertLessEqual(len(post_queries), 9)
         self.assertLessEqual(len(tag_queries), 6)
         self.assertLessEqual(len(series_queries), 6)
+
+        with CaptureQueriesContext(connection) as service_queries:
+            list(SettingPostManagementService.get_post_management_queryset(user))
+        self.assertEqual(len(service_queries), 2)
+        post_sql = service_queries[0]['sql'].lower()
+        self.assertNotIn('left outer join "board_postlikes"', post_sql)
+        self.assertNotIn('left outer join "board_comment"', post_sql)
 
     def test_get_setting_reserved_posts_orders_by_count_fields(self):
         """예약 포스트 설정 목록은 좋아요/댓글 수 정렬을 지원한다."""

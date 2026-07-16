@@ -70,7 +70,6 @@ class SocialAuthProviderService:
 
     @classmethod
     def serialize_admin_providers(cls) -> list[dict[str, object]]:
-        cls.ensure_supported_providers()
         providers = []
         for provider in SocialAuthProvider.objects.filter(key__in=cls.supported_keys()).order_by('id'):
             providers.append({

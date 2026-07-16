@@ -317,7 +317,7 @@ class SeriesService:
         return PublicPostService.filter_public_posts(Post.objects).filter(
             author=user,
             series=None,
-        ).order_by('-published_date')
+        ).only('id', 'title', 'published_date').order_by('-published_date')
 
     @staticmethod
     def get_public_series_list(username: str, page: int = 1, offset: int = 10):

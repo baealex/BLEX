@@ -3,6 +3,7 @@
 """
 from typing import Dict, Any
 from django.db import connection
+from django.db.models import Count, Q
 from django.contrib.sessions.models import Session
 from django.utils import timezone
 
@@ -19,13 +20,16 @@ class DatabaseStatsService:
         """전체 데이터베이스 통계 수집"""
         stats = {}
 
-        # 포스트 통계
-        stats['total_posts'] = Post.objects.count()
-        stats['public_posts'] = PublicPostService.filter_public_posts(Post.objects).count()
-        stats['published_posts'] = PostStatusService.filter_published(Post.objects).count()
-        stats['scheduled_posts'] = PostStatusService.filter_scheduled(Post.objects).count()
-        stats['hidden_posts'] = Post.objects.filter(config__hide=True).count()
-        stats['draft_posts'] = PostStatusService.filter_drafts(Post.objects).count()
+        # 서로 다른 상태별 COUNT를 한 번의 조건부 집계로 계산한다.
+        post_counts = Post.objects.aggregate(
+            total_posts=Count('id'),
+            public_posts=Count('id', filter=PublicPostService.build_public_filter()),
+            published_posts=Count('id', filter=PostStatusService.build_published_filter()),
+            scheduled_posts=Count('id', filter=PostStatusService.build_scheduled_filter()),
+            hidden_posts=Count('id', filter=Q(config__hide=True)),
+            draft_posts=Count('id', filter=PostStatusService.build_draft_filter()),
+        )
+        stats.update(post_counts)
 
         # 댓글 통계
         stats['total_comments'] = Comment.objects.count()
@@ -42,8 +46,13 @@ class DatabaseStatsService:
         stats['image_cache_count'] = ImageCache.objects.count()
 
         # 세션 통계
-        stats['total_sessions'] = Session.objects.count()
-        stats['expired_sessions'] = Session.objects.filter(expire_date__lt=timezone.now()).count()
+        stats.update(Session.objects.aggregate(
+            total_sessions=Count('session_key'),
+            expired_sessions=Count(
+                'session_key',
+                filter=Q(expire_date__lt=timezone.now()),
+            ),
+        ))
 
         # 데이터베이스 크기 (PostgreSQL/SQLite)
         if connection.vendor == 'postgresql':

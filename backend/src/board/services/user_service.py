@@ -426,6 +426,19 @@ class UserService:
             post__id=OuterRef('id'),
             user=user,
         )
+        like_counts = PostLikes.objects.filter(
+            post_id=OuterRef('id'),
+        ).values('post_id').annotate(
+            total=Count('id'),
+        ).values('total')
+        comment_counts = Comment.objects.filter(
+            post_id=OuterRef('id'),
+        ).values('post_id').annotate(
+            total=Count('id'),
+        ).values('total')
+        interested_dates = interested_posts.values('post_id').annotate(
+            latest=Max('created_date'),
+        ).values('latest')
         return PublicPostService.filter_public_posts(
             Post.objects.select_related(
                 'config', 'series', 'author', 'author__profile'
@@ -435,10 +448,16 @@ class UserService:
         ).annotate(
             author_username=F('author__username'),
             author_image=F('author__profile__avatar'),
-            count_likes=Count('likes', distinct=True),
-            count_comments=Count('comments', distinct=True),
+            count_likes=Coalesce(
+                Subquery(like_counts, output_field=IntegerField()),
+                Value(0),
+            ),
+            count_comments=Coalesce(
+                Subquery(comment_counts, output_field=IntegerField()),
+                Value(0),
+            ),
             has_liked=Exists(interested_posts),
-            interested_date=Max('likes__created_date', filter=Q(likes__user=user)),
+            interested_date=Subquery(interested_dates),
         ).order_by('-interested_date', '-published_date')
 
     @staticmethod

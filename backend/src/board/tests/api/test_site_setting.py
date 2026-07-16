@@ -243,6 +243,13 @@ class SiteSettingAPITestCase(TestCase):
 
         self.assertEqual([provider['key'] for provider in providers], ['google', 'github'])
 
+    def test_admin_social_providers_uses_one_query(self):
+        """관리자 제공자 목록도 초기화용 쓰기 쿼리 없이 한 번만 조회한다."""
+        with self.assertNumQueries(1):
+            providers = SocialAuthProviderService.serialize_admin_providers()
+
+        self.assertIsInstance(providers, list)
+
     def test_update_invalid_json_keeps_existing_fields(self):
         setting = SiteSetting.get_instance()
         setting.header_script = 'original header'

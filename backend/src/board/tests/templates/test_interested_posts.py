@@ -4,10 +4,13 @@ URL: /interests
 """
 from django.contrib.auth.models import User
 from django.test import Client, TestCase
+from django.db import connection
+from django.test.utils import CaptureQueriesContext
 from django.urls import reverse
 from django.utils import timezone
 
 from board.models import Post, PostConfig, PostContent, PostLikes, Profile
+from board.services.user_service import UserService
 
 
 class InterestedPostsTemplateTestCase(TestCase):
@@ -125,3 +128,14 @@ class InterestedPostsTemplateTestCase(TestCase):
 
         self.assertEqual(posts[0].title, 'Second Interested Post')
         self.assertEqual(posts[1].title, 'First Interested Post')
+
+    def test_interested_posts_avoid_metric_join_multiplication(self):
+        """Card metrics use correlated aggregates instead of a likes/comments join."""
+        with CaptureQueriesContext(connection) as queries:
+            posts = list(UserService.get_user_interested_posts(self.reader))
+
+        self.assertEqual(len(queries), 1)
+        self.assertEqual(len(posts), 2)
+        sql = queries[0]['sql'].lower()
+        self.assertNotIn('left outer join "board_postlikes"', sql)
+        self.assertNotIn('left outer join "board_comment"', sql)

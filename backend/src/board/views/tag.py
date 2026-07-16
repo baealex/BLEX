@@ -44,7 +44,7 @@ def tag_list_view(request):
         tag_list.append({
             'name': tag.value,
             'count': tag.count,
-            'image': tag.get_image(),
+            'image': TagService.get_annotated_image_url(tag),
         })
 
     sort_options = [

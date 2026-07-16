@@ -8,7 +8,8 @@ Extracted from views to improve testability and reusability.
 from __future__ import annotations
 
 from typing import Optional, Set, Dict
-from django.db.models import F, Count, Exists, OuterRef, Q
+from django.core.files.storage import default_storage
+from django.db.models import F, Count, Exists, OuterRef, Q, Subquery
 from django.utils.text import slugify
 
 from board.models import Tag, PostLikes, Post
@@ -90,6 +91,12 @@ class TagService:
             QuerySet of Tag with count annotation
         """
         public_post_filter = PublicPostService.build_public_filter('posts')
+        image_path = PublicPostService.filter_public_posts(
+            Post.objects.filter(
+                tags=OuterRef('pk'),
+                image__contains='images',
+            )
+        ).order_by('-created_date').values('image')[:1]
         return Tag.objects.filter(
             public_post_filter
         ).annotate(
@@ -98,7 +105,13 @@ class TagService:
                 filter=public_post_filter,
                 distinct=True,
             ),
+            image_path=Subquery(image_path),
         ).order_by('-count', 'value')
+
+    @staticmethod
+    def get_annotated_image_url(tag: Tag) -> str:
+        image_path = getattr(tag, 'image_path', '')
+        return default_storage.url(image_path) if image_path else ''
 
     @staticmethod
     def get_posts_by_tag(tag_name: str, user_id: Optional[int] = None, page: int = 1, offset: int = 24):

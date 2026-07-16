@@ -35,7 +35,7 @@ def posts_can_add_series(request):
                 Q(series=series) | (
                     Q(series__isnull=True) & PublicPostService.build_public_filter()
                 )
-            ).order_by('-published_date', '-id')
+            ).only('id', 'title', 'published_date').order_by('-published_date', '-id')
         else:
             posts = SeriesService.get_posts_available_for_series(request.user)
 
