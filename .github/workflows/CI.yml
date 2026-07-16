@@ -91,6 +91,10 @@ jobs:
       run: pnpm type-check
       working-directory: backend/islands
 
+    - name: Unit test Islands
+      run: pnpm test
+      working-directory: backend/islands
+
     - name: Build Islands
       run: pnpm run build
       working-directory: backend/islands
@@ -120,8 +124,11 @@ jobs:
       run: pnpm --filter @blex/remotes exec playwright install --with-deps chromium
       working-directory: backend/islands
 
-    - name: Run island browser smoke
-      run: pnpm run e2e:smoke
+    - name: Run editor browser regression tests
+      run: >-
+        pnpm --filter @blex/remotes exec playwright test
+        --config playwright.config.ts
+        e2e/editor-media-upload.spec.ts
       working-directory: backend/islands
       env:
         BLEX_E2E_ENV_FILE: ${{ github.workspace }}/samples/.env
@@ -242,7 +249,9 @@ jobs:
           E2E_SKIP_WEB_SERVER=1 \
           E2E_EXPECT_PRODUCTION=1 \
           pnpm --dir backend/islands/apps/remotes exec \
-          playwright test --config playwright.config.ts
+          playwright test \
+          --config playwright.config.ts \
+          e2e/island-smoke.spec.ts
 
         docker restart blex-ci
         for attempt in $(seq 1 60); do

@@ -60,6 +60,7 @@
 
 ## Frontend Guidelines
 - **Always read `docs/FRONTEND_GUIDE.md` first.**
+- Prefer `npm run islands:test` for pure logic. Reserve Playwright E2E tests for behavior that requires browser APIs, built assets, or production runtime integration.
 - **IMPORTANT**: Lint and type checks are **ONLY** for Islands (React) work, **NOT** for template work.
   - After development, run lint and type checks:
     - `npm run islands:lint` for linting

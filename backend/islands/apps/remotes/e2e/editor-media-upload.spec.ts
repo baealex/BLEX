@@ -93,32 +93,6 @@ const dispatchFileDrop = async (
     }, { point, file });
 };
 
-const dispatchHtmlDrop = async (
-    page: Page,
-    point: { x: number; y: number },
-    html: string
-) => {
-    await page.evaluate(({ point, html }) => {
-        const target = document.elementFromPoint(point.x, point.y);
-        if (!target) {
-            throw new Error('No element at drop point');
-        }
-
-        const dataTransfer = new DataTransfer();
-        dataTransfer.setData('text/html', html);
-
-        for (const eventName of ['dragenter', 'dragover', 'drop']) {
-            target.dispatchEvent(new DragEvent(eventName, {
-                bubbles: true,
-                cancelable: true,
-                clientX: point.x,
-                clientY: point.y,
-                dataTransfer
-            }));
-        }
-    }, { point, html });
-};
-
 test.describe('PostEditor media drag and drop', () => {
     test('drops an image at the visual drop position instead of the stale cursor', async ({ page }) => {
         const errors = collectRuntimeSignals(page);
@@ -203,44 +177,6 @@ test.describe('PostEditor media drag and drop', () => {
         const html = await page.locator('input[name="content_html"]').inputValue();
         expect(html).toContain(uploadedVideoUrl);
         expect(html).not.toContain('media-upload-placeholder');
-        expectNoRuntimeErrors(errors);
-    });
-
-    test('blocks dragged remote media html instead of silently copying it into the document', async ({ page }) => {
-        const errors = collectRuntimeSignals(page);
-        await mountPostEditor(page);
-
-        const editor = page.locator('.ProseMirror');
-        const dropPoint = await getVisibleDropPoint(editor);
-
-        await dispatchHtmlDrop(
-            page,
-            dropPoint,
-            '<img src="https://example.com/remote-image.png" alt="Remote">'
-        );
-
-        await expect(page.locator('text=이미지나 비디오는 파일로 내려놓아 주세요.')).toBeVisible();
-        await expect(editor.locator('figure')).toHaveCount(0);
-
-        const html = await page.locator('input[name="content_html"]').inputValue();
-        expect(html).not.toContain('remote-image.png');
-        expectNoRuntimeErrors(errors);
-    });
-
-    test('does not treat ProseMirror media node moves as external media drops', async ({ page }) => {
-        const errors = collectRuntimeSignals(page);
-        await mountPostEditor(page);
-
-        const editor = page.locator('.ProseMirror');
-        const dropPoint = await getVisibleDropPoint(editor);
-
-        await dispatchHtmlDrop(
-            page,
-            dropPoint,
-            '<div data-pm-slice="0 0 []"><figure><img src="https://example.com/internal-image.png" alt="Internal"></figure></div>'
-        );
-
-        await expect(page.locator('text=이미지나 비디오는 파일로 내려놓아 주세요.')).toHaveCount(0);
         expectNoRuntimeErrors(errors);
     });
 

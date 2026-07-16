@@ -9,7 +9,7 @@ import {
     ACCEPTED_IMAGE_TYPES,
     ACCEPTED_VIDEO_EXTENSIONS,
     ACCEPTED_VIDEO_TYPES,
-    hasProseMirrorSliceData
+    classifyTextMediaDrop
 } from '../config/mediaUpload';
 import { normalizeMediaUrlForStorage } from '../utils/mediaUrls';
 
@@ -374,14 +374,6 @@ export const useImageUpload = ({ editor, onImageUpload, onImageUploadError }: Us
         };
     };
 
-    const hasExternalMediaContent = (dataTransfer: DataTransfer) => {
-        const html = dataTransfer.getData('text/html');
-        if (/<(?:img|video|source)\b/i.test(html)) return true;
-
-        const uri = dataTransfer.getData('text/uri-list') || dataTransfer.getData('text/plain');
-        return /\.(?:jpe?g|png|gif|webp|avif|mp4|webm)(?:[?#].*)?$/i.test(uri.trim());
-    };
-
     const handlePaste = async (event: ClipboardEvent) => {
         if (!editor) return;
 
@@ -436,10 +428,11 @@ export const useImageUpload = ({ editor, onImageUpload, onImageUploadError }: Us
 
         const dataTransfer = event.dataTransfer;
         if (!dataTransfer) return false;
-        if (hasProseMirrorSliceData(dataTransfer)) return false;
+        const textMediaDropKind = classifyTextMediaDrop(dataTransfer);
+        if (textMediaDropKind === 'prosemirror') return false;
 
         const { mediaFiles, rejectedFiles } = getMediaFiles(dataTransfer.files);
-        const hasExternalMedia = hasExternalMediaContent(dataTransfer);
+        const hasExternalMedia = textMediaDropKind === 'external-media';
         const hasHandledMediaPayload = mediaFiles.length > 0 || rejectedFiles.length > 0 || hasExternalMedia;
 
         if (options?.invalidPositionMessage && hasHandledMediaPayload) {
