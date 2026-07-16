@@ -23,6 +23,26 @@ class SiteContentApiError(Exception):
 
 
 class SiteContentApiService:
+    NOTICE_LIST_FIELDS = (
+        'id',
+        'title',
+        'url',
+        'is_active',
+        'created_date',
+        'updated_date',
+    )
+    BANNER_LIST_FIELDS = (
+        'id',
+        'title',
+        'content_html',
+        'banner_type',
+        'position',
+        'is_active',
+        'order',
+        'created_date',
+        'updated_date',
+    )
+
     @staticmethod
     def scoped_notice_queryset(scope: str, user: User | None = None) -> QuerySet[SiteNotice]:
         queryset = SiteNotice.objects.filter(scope=scope)
@@ -49,6 +69,18 @@ class SiteContentApiService:
         }
 
     @staticmethod
+    def serialize_notice_list(queryset: QuerySet[SiteNotice]) -> list[dict]:
+        """Serialize a notice list without loading unused ownership and scope fields."""
+        return [
+            {
+                **notice,
+                'created_date': notice['created_date'].isoformat(),
+                'updated_date': notice['updated_date'].isoformat(),
+            }
+            for notice in queryset.values(*SiteContentApiService.NOTICE_LIST_FIELDS)
+        ]
+
+    @staticmethod
     def serialize_banner(banner: SiteBanner, *, include_created_by: bool = False) -> dict:
         data = {
             'id': banner.id,
@@ -64,6 +96,26 @@ class SiteContentApiService:
         if include_created_by:
             data['created_by'] = banner.user.username if banner.user else None
         return data
+
+    @staticmethod
+    def serialize_banner_list(
+        queryset: QuerySet[SiteBanner],
+        *,
+        include_created_by: bool = False,
+    ) -> list[dict]:
+        """Serialize banners with one lean values query, including only creator username."""
+        fields = SiteContentApiService.BANNER_LIST_FIELDS
+        if include_created_by:
+            fields = (*fields, 'user__username')
+
+        result = []
+        for banner in queryset.values(*fields):
+            banner['created_date'] = banner['created_date'].isoformat()
+            banner['updated_date'] = banner['updated_date'].isoformat()
+            if include_created_by:
+                banner['created_by'] = banner.pop('user__username')
+            result.append(banner)
+        return result
 
     @staticmethod
     def serialize_static_page(page: StaticPage) -> dict:

@@ -30,10 +30,7 @@ def banner(request, banner_id=None):
     if request.method == 'GET' and banner_id is None:
         banners = queryset.order_by('order', '-created_date')
         return StatusDone({
-            'banners': [
-                SiteContentApiService.serialize_banner(item)
-                for item in banners
-            ]
+            'banners': SiteContentApiService.serialize_banner_list(banners),
         })
 
     if request.method == 'GET' and banner_id:

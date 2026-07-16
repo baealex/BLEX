@@ -21,10 +21,7 @@ def global_notices(request, notice_id=None):
     if request.method == 'GET' and notice_id is None:
         notices = queryset.order_by('-created_date')
         return StatusDone({
-            'notices': [
-                SiteContentApiService.serialize_notice(item)
-                for item in notices
-            ]
+            'notices': SiteContentApiService.serialize_notice_list(notices),
         })
 
     if request.method == 'GET' and notice_id:

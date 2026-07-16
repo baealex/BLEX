@@ -7,7 +7,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.contrib.sessions.models import Session
 from django.utils import timezone
 
-from board.models import User, Profile, Post, PostContent, Tag
+from board.models import User, Profile, Post, PostConfig, PostContent, Tag
 from board.services.utility_cleanup_service import UtilityCleanupService
 
 
@@ -63,13 +63,57 @@ class UtilityAPITestCase(TestCase):
         self.assertIn('totalSessions', body)
         self.assertIn('logCount', body)
 
-    def test_stats_combines_related_counts_into_nine_queries(self):
-        """포스트·세션의 상태별 통계는 각각 한 번의 집계로 계산한다."""
-        with self.assertNumQueries(9):
+    def test_stats_combines_related_counts_into_three_queries(self):
+        """DB 통계 전체와 두 로그 통계를 총 세 번의 조회로 계산한다."""
+        with self.assertNumQueries(3):
             stats = UtilityCleanupService.get_stats()
 
         self.assertIn('public_posts', stats)
         self.assertIn('expired_sessions', stats)
+
+    def test_stats_preserves_post_status_count_semantics(self):
+        now = timezone.now()
+        posts = [
+            Post.objects.create(
+                author=self.staff_user,
+                url='public-stat',
+                title='Public',
+                published_date=now - timezone.timedelta(days=1),
+            ),
+            Post.objects.create(
+                author=self.staff_user,
+                url='hidden-stat',
+                title='Hidden',
+                published_date=now - timezone.timedelta(days=1),
+            ),
+            Post.objects.create(
+                author=self.staff_user,
+                url='scheduled-stat',
+                title='Scheduled',
+                published_date=now + timezone.timedelta(days=1),
+            ),
+            Post.objects.create(author=self.staff_user, url='draft-stat', title='Draft'),
+            Post.objects.create(
+                author=self.staff_user,
+                url='deleted-stat',
+                title='Deleted',
+                published_date=now - timezone.timedelta(days=1),
+                deleted_date=now,
+            ),
+        ]
+        PostConfig.objects.bulk_create([
+            PostConfig(post=post, hide=index == 1)
+            for index, post in enumerate(posts)
+        ])
+
+        stats = UtilityCleanupService.get_stats()
+
+        self.assertEqual(stats['total_posts'], 5)
+        self.assertEqual(stats['public_posts'], 1)
+        self.assertEqual(stats['published_posts'], 2)
+        self.assertEqual(stats['scheduled_posts'], 1)
+        self.assertEqual(stats['hidden_posts'], 1)
+        self.assertEqual(stats['draft_posts'], 1)
 
     # === Clean tags endpoint ===
 

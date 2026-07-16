@@ -24,10 +24,7 @@ def notices(request, notice_id=None):
     if request.method == 'GET' and notice_id is None:
         notice_list = queryset.order_by('-created_date')
         return StatusDone({
-            'notices': [
-                SiteContentApiService.serialize_notice(item)
-                for item in notice_list
-            ]
+            'notices': SiteContentApiService.serialize_notice_list(notice_list),
         })
 
     if request.method == 'GET' and notice_id:

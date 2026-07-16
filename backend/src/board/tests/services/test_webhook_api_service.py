@@ -20,6 +20,19 @@ class WebhookApiServiceTestCase(TestCase):
         self.assertIsNone(profile)
         self.assertIsNotNone(error)
 
+    def test_get_authenticated_profile_reuses_cached_permission_profile(self):
+        self.profile.role = Profile.Role.EDITOR
+        self.profile.save(update_fields=['role'])
+        request = self.factory.get('/v1/webhook/channels')
+        request.user = User.objects.get(pk=self.user.pk)
+        request.user.profile  # Populate the cache used by the permission check.
+
+        with self.assertNumQueries(0):
+            profile, error = WebhookApiService.get_authenticated_profile(request)
+
+        self.assertEqual(profile, self.profile)
+        self.assertIsNone(error)
+
     def test_ensure_staff_rejects_non_staff_user(self):
         request = self.factory.get('/v1/webhook/global-channels')
         request.user = self.user
@@ -46,6 +59,26 @@ class WebhookApiServiceTestCase(TestCase):
         self.assertIn('failure_count', channel)
         self.assertIn('created_date', channel)
 
+    def test_serialize_user_channels_uses_one_query_for_many_channels(self):
+        WebhookSubscription.objects.bulk_create(
+            [
+                WebhookSubscription(
+                    scope=SiteContentScope.USER,
+                    author=self.profile,
+                    webhook_url=f'https://example.com/hooks/{index}',
+                    name=f'Channel {index}',
+                )
+                for index in range(100)
+            ]
+        )
+
+        with self.assertNumQueries(1):
+            payload = WebhookApiService.serialize_channels(
+                WebhookApiService.get_user_channels(self.profile)
+            )
+
+        self.assertEqual(len(payload['channels']), 100)
+
     def test_get_global_channels_excludes_user_channels(self):
         WebhookSubscription.objects.create(
             scope=SiteContentScope.USER,
@@ -62,3 +95,22 @@ class WebhookApiServiceTestCase(TestCase):
             list(WebhookApiService.get_global_channels()),
             [global_channel],
         )
+
+    def test_serialize_global_channels_uses_one_query_for_many_channels(self):
+        WebhookSubscription.objects.bulk_create(
+            [
+                WebhookSubscription(
+                    scope=SiteContentScope.GLOBAL,
+                    webhook_url=f'https://example.com/global-hooks/{index}',
+                    name=f'Global {index}',
+                )
+                for index in range(100)
+            ]
+        )
+
+        with self.assertNumQueries(1):
+            payload = WebhookApiService.serialize_channels(
+                WebhookApiService.get_global_channels()
+            )
+
+        self.assertEqual(len(payload['channels']), 100)

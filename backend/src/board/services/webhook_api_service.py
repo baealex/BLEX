@@ -1,6 +1,5 @@
 from board.models import Profile, WebhookSubscription, SiteContentScope
 from board.modules.response import StatusError, ErrorCode
-from board.services.authoring_permission_service import AuthoringPermissionService
 
 
 class WebhookApiService:
@@ -12,8 +11,10 @@ class WebhookApiService:
             return None, StatusError(ErrorCode.NEED_LOGIN, 'Login required')
 
         try:
-            profile = Profile.objects.get(user=request.user)
-            if not AuthoringPermissionService.is_active_editor(request.user):
+            # Use the reverse one-to-one relation so the profile loaded by the
+            # editor permission decorator is reused instead of queried again.
+            profile = request.user.profile
+            if not profile.is_editor():
                 return None, StatusError(ErrorCode.REJECT, '작가 권한이 필요합니다.')
             return profile, None
         except Profile.DoesNotExist:
