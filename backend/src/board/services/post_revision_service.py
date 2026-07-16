@@ -142,6 +142,17 @@ class PostRevisionService:
 
     @staticmethod
     @transaction.atomic
+    def delete_revision(post: Post, history: EditHistory) -> int:
+        history = EditHistory.objects.select_for_update().get(
+            pk=history.pk,
+            post=post,
+        )
+        revision_id = history.pk
+        history.delete()
+        return revision_id
+
+    @staticmethod
+    @transaction.atomic
     def restore_revision(
         post: Post,
         history: EditHistory,

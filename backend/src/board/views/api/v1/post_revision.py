@@ -41,14 +41,14 @@ def _positive_integer(value: str | None, default: int) -> int | None:
     return parsed if parsed > 0 else None
 
 
-@api_editor_required_methods(['GET'])
+@api_editor_required_methods(['GET', 'DELETE'])
 def post_revisions(
     request: HttpRequest,
     username: str,
     url: str,
     revision_id: int | None = None,
 ) -> HttpResponse:
-    if request.method != 'GET':
+    if request.method not in {'GET', 'DELETE'}:
         raise Http404
 
     post = _get_editable_revision_post(request, username, url)
@@ -71,6 +71,24 @@ def post_revisions(
     )
 
     if revision_id is not None:
+        if request.method == 'DELETE':
+            revision = get_object_or_404(
+                EditHistory.objects.only('id'),
+                post=post,
+                pk=revision_id,
+            )
+            try:
+                deleted_revision_id = PostRevisionService.delete_revision(
+                    post,
+                    revision,
+                )
+            except EditHistory.DoesNotExist as error:
+                raise Http404 from error
+            return StatusDone({
+                'revision_id': deleted_revision_id,
+                'deleted': True,
+            })
+
         revision = get_object_or_404(
             EditHistory.objects.filter(post=post)
             .select_related('actor')
@@ -93,6 +111,9 @@ def post_revisions(
         return StatusDone({
             'revision': PostRevisionService.serialize_detail(revision),
         })
+
+    if request.method == 'DELETE':
+        raise Http404
 
     page = _positive_integer(request.GET.get('page'), 1)
     limit = _positive_integer(

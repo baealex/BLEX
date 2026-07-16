@@ -231,11 +231,47 @@ class PostRevisionTestCase(TestCase):
         self.assertEqual(len(revision_queries), 1)
         self.assertNotIn('"content"', revision_queries[0].lower())
 
+    def test_owner_can_delete_one_revision_without_changing_post(self):
+        deleted_revision = self.create_revision(title='Delete revision')
+        retained_revision = self.create_revision(title='Keep revision')
+        original_updated_date = self.post.updated_date
+        self.client.force_login(self.author)
+
+        response = self.client.delete(
+            self.revision_url(f'/{deleted_revision.id}'),
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json()['body'], {
+            'revisionId': deleted_revision.id,
+            'deleted': True,
+        })
+        self.assertFalse(
+            EditHistory.objects.filter(pk=deleted_revision.id).exists(),
+        )
+        self.assertTrue(
+            EditHistory.objects.filter(pk=retained_revision.id).exists(),
+        )
+        self.post.refresh_from_db()
+        self.assertEqual(self.post.updated_date, original_updated_date)
+
+    def test_delete_revision_requires_detail_url(self):
+        self.create_revision()
+        self.client.force_login(self.author)
+
+        response = self.client.delete(self.revision_url())
+
+        self.assertEqual(response.status_code, 404)
+
     def test_revision_access_is_limited_to_current_owner_editor(self):
         revision = self.create_revision()
 
         anonymous = self.client.get(self.revision_url())
         self.assertEqual(anonymous.json()['errorCode'], 'error:NL')
+        anonymous_delete = self.client.delete(
+            self.revision_url(f'/{revision.id}'),
+        )
+        self.assertEqual(anonymous_delete.json()['errorCode'], 'error:NL')
 
         self.client.force_login(self.other_editor)
         self.assertEqual(self.client.get(self.revision_url()).status_code, 404)
@@ -248,6 +284,12 @@ class PostRevisionTestCase(TestCase):
                 self.revision_url(f'/{revision.id}/restore'),
                 json.dumps({'expectedUpdatedDate': self.post.updated_date.isoformat()}),
                 content_type='application/json',
+            ).status_code,
+            404,
+        )
+        self.assertEqual(
+            self.client.delete(
+                self.revision_url(f'/{revision.id}'),
             ).status_code,
             404,
         )
