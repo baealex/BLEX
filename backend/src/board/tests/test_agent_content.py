@@ -5,6 +5,7 @@ from xml.etree import ElementTree
 
 from django.conf import settings
 from django.contrib.auth.models import User
+from django.contrib.sites.models import Site
 from django.test import Client, TestCase, override_settings
 from django.utils import timezone
 
@@ -419,6 +420,25 @@ class AgentContentTestCase(TestCase):
         self.assertIn('content', site_item._state.fields_cache)
         self.assertIn('author', user_item._state.fields_cache)
         self.assertIn('content', user_item._state.fields_cache)
+
+    def test_rss_endpoints_use_constant_query_counts(self):
+        """RSS metadata and item relations are rendered without repeated queries."""
+        # The site-wide feed also resolves django.contrib.sites once.
+        Site.objects.clear_cache()
+        with self.assertNumQueries(3):
+            site_response = self.client.get('/rss')
+        with self.assertNumQueries(3):
+            user_response = self.client.get('/rss/@aeo-author')
+
+        self.assertEqual(site_response.status_code, 200)
+        self.assertEqual(user_response.status_code, 200)
+
+    def test_static_page_markdown_uses_two_queries(self):
+        """Markdown static pages only load the AEO setting and requested page."""
+        with self.assertNumQueries(2):
+            response = self.client.get('/static/about-ai.md')
+
+        self.assertEqual(response.status_code, 200)
 
     def test_aeo_disabled_hides_agent_entrypoints(self):
         """AEO가 꺼져 있으면 llms.txt와 Markdown endpoint에 접근할 수 없다."""

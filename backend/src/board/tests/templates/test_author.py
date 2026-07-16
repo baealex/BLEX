@@ -854,6 +854,31 @@ class AuthorSeriesPageTestCase(TestCase):
         self.assertContains(response, 'flex w-full items-center justify-between')
         self.assertNotContains(response, 'sm:w-48')
 
+    def test_author_series_page_uses_constant_query_count(self):
+        """시리즈 수가 늘어도 목록 페이지 쿼리 수가 증가하지 않는다."""
+        for index in range(3):
+            series = Series.objects.create(
+                owner=self.user,
+                name=f'Query Series {index}',
+                url=f'author-query-series-{index}',
+            )
+            post = Post.objects.create(
+                title=f'Query Post {index}',
+                url=f'author-query-post-{index}',
+                author=self.user,
+                series=series,
+                published_date=timezone.now(),
+            )
+            PostConfig.objects.create(post=post, hide=False)
+
+        with self.assertNumQueries(7):
+            response = self.client.get(
+                reverse('user_series', kwargs={'username': self.user.username})
+            )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(response.context['series_list']), 3)
+
     def test_author_series_page_has_required_context(self):
         """작가 시리즈 페이지 컨텍스트에 필수 필드 확인"""
         response = self.client.get(

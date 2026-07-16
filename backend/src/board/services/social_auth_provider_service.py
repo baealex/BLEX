@@ -52,19 +52,19 @@ class SocialAuthProviderService:
 
     @classmethod
     def serialize_public_providers(cls) -> list[dict[str, str]]:
-        cls.ensure_supported_providers()
         providers = []
         for provider in SocialAuthProvider.objects.filter(
             key__in=cls.supported_keys(),
             is_enabled=True,
         ).order_by('id'):
-            client_id = cls.get_client_id(provider.key)
-            if not client_id or not cls.get_client_secret(provider.key):
+            if not provider.client_id or not provider.client_secret:
+                continue
+            if not SocialAuthProviderSecretService.decrypt_secret(provider.client_secret):
                 continue
             providers.append({
                 'key': provider.key,
                 'name': cls.SUPPORTED_PROVIDERS[provider.key]['name'],
-                'client_id': client_id,
+                'client_id': provider.client_id,
             })
         return providers
 

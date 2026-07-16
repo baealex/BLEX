@@ -332,9 +332,10 @@ class SeriesService:
         Returns:
             QuerySet of Series with annotations
         """
-        return PublicSeriesService.filter_public_series(
+        series = PublicSeriesService.filter_public_series(
             Series.objects.annotate(owner_username=F('owner__username')),
             'total_posts',
-        ).filter(
+        )
+        return PublicSeriesService.with_public_thumbnail(series).filter(
             owner__username=username,
         ).order_by('order', '-id')

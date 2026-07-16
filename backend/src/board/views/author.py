@@ -230,7 +230,12 @@ def author_series(request, username):
     View for the author's series page.
     Only accessible for editors. Readers are redirected to about page.
     """
-    author = get_object_or_404(User.objects.select_related('profile'), username=username)
+    author = get_object_or_404(
+        UserService.with_public_author_stats(
+            User.objects.select_related('profile')
+        ),
+        username=username,
+    )
 
     if not AuthoringPermissionService.is_active_editor(author):
         return redirect('user_about', username=username)
@@ -287,13 +292,11 @@ def author_series(request, username):
         count=Count('posts', filter=public_author_tag_filter, distinct=True)
     ).order_by('-count', 'value')
 
-    stats = UserService.get_author_stats(author)
-
     context = {
         'author': author,
         'series_list': paginated_series,
-        'post_count': stats['post_count'],
-        'series_count': stats['series_count'],
+        'post_count': author.public_post_count,
+        'series_count': author.public_series_count,
         'is_loading': False,
         'author_tags': author_tags,
         'search_query': search_query,

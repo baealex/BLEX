@@ -45,6 +45,17 @@ class AuthorInviteService:
         invites = AuthorInvite.objects.select_related(
             'created_by',
             'claimed_by',
+        ).only(
+            'id',
+            'code',
+            'note',
+            'is_active',
+            'created_by_id',
+            'created_by__username',
+            'claimed_by_id',
+            'claimed_by__username',
+            'created_date',
+            'claimed_date',
         ).order_by('-created_date')[:AuthorInviteService.LIST_LIMIT]
         return [AuthorInviteService.serialize_invite(invite) for invite in invites]
 

@@ -87,6 +87,48 @@ class UserManagementAPITestCase(TestCase):
         self.assertFalse(users['staffuser']['canChangeRole'])
         self.assertFalse(users['superuser']['canChangeRole'])
 
+    def test_list_users_query_count_is_constant_with_many_users_and_posts(self):
+        users = User.objects.bulk_create([
+            User(username=f'bulk-user-{index}', email=f'bulk-{index}@test.com')
+            for index in range(120)
+        ])
+        Profile.objects.bulk_create([
+            Profile(user=user, role=Profile.Role.EDITOR)
+            for user in users
+        ])
+        Post.objects.bulk_create([
+            Post(author=user, title=f'Post {index}', url=f'bulk-post-{index}')
+            for index, user in enumerate(users)
+        ])
+
+        with self.assertNumQueries(6):
+            response = self.client.get('/v1/admin/users?page_size=100')
+
+        self.assertEqual(response.status_code, 200)
+        content = response.json()
+        self.assertEqual(content['status'], 'DONE')
+        self.assertEqual(len(content['body']['users']), 100)
+        self.assertEqual(content['body']['pagination']['total'], 124)
+
+    def test_list_author_invites_query_count_is_constant_with_related_users(self):
+        AuthorInvite.objects.bulk_create([
+            AuthorInvite(
+                code=f'bulk-invite-{index}',
+                created_by=self.staff_user,
+                claimed_by=self.reader if index % 2 else None,
+                is_active=index % 2 == 0,
+            )
+            for index in range(40)
+        ])
+
+        with self.assertNumQueries(4):
+            response = self.client.get('/v1/admin/author-invites')
+
+        self.assertEqual(response.status_code, 200)
+        content = response.json()
+        self.assertEqual(content['status'], 'DONE')
+        self.assertEqual(len(content['body']['invites']), 20)
+
     def test_list_users_does_not_create_missing_profile(self):
         legacy_user = User.objects.create_user(
             username='legacyuser',

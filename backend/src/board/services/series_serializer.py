@@ -1,3 +1,5 @@
+from django.core.files.storage import default_storage
+
 from board.modules.time import convert_to_localtime
 
 
@@ -17,10 +19,11 @@ class SeriesSerializer:
 
     @staticmethod
     def public_series_list_item(series) -> dict:
+        thumbnail = getattr(series, 'public_thumbnail', None)
         return {
             'url': series.url,
             'name': series.name,
-            'image': series.thumbnail(),
+            'image': default_storage.url(thumbnail) if thumbnail else '',
             'total_posts': series.total_posts,
             'created_date': convert_to_localtime(series.created_date).strftime('%Y년 %m월 %d일'),
             'owner': series.owner_username,

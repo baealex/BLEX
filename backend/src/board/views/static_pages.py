@@ -18,10 +18,19 @@ def static_page_view(request, slug):
     Accessible via /static/<slug>/ URLs.
     """
     # Get the page by slug, only if it's published
-    page = get_object_or_404(StaticPage, slug=slug, is_published=True)
-    metadata = DiscoveryMetadataService.build_static_page_metadata(page, request)
+    page = get_object_or_404(
+        StaticPage.objects.select_related('author'),
+        slug=slug,
+        is_published=True,
+    )
+    setting = AgentContentService.get_site_setting(request)
+    metadata = DiscoveryMetadataService.build_static_page_metadata(
+        page,
+        request,
+        setting=setting,
+    )
 
-    aeo_enabled = AgentContentService.is_aeo_enabled(request)
+    aeo_enabled = setting.aeo_enabled
     context = {
         'page': page,
         'aeo_enabled': aeo_enabled,
