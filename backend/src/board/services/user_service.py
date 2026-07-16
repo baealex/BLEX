@@ -12,7 +12,10 @@ from typing import Optional, Dict, Any, List
 
 from django.contrib.auth.models import User
 from django.db import transaction
-from django.db.models import F, Q, Count, Exists, Max, OuterRef, QuerySet
+from django.db.models import (
+    F, Q, Count, Exists, IntegerField, Max, OuterRef, QuerySet, Subquery, Value,
+)
+from django.db.models.functions import Coalesce
 from django.utils import timezone
 
 from board.models import (
@@ -98,6 +101,63 @@ class UserService:
         ).values('post_count', 'series_count').first()
 
     @staticmethod
+    def with_public_author_stats(queryset: QuerySet[User]) -> QuerySet[User]:
+        """Annotate public post and series totals without multiplying joins."""
+        public_posts = PublicPostService.filter_public_posts(
+            Post.objects.filter(author_id=OuterRef('id'))
+        ).values('author_id').annotate(total=Count('id')).values('total')
+        public_series_filter = PublicPostService.build_public_filter('posts')
+        public_series = Series.objects.filter(
+            public_series_filter,
+            owner_id=OuterRef('id'),
+            hide=False,
+        ).values('owner_id').annotate(
+            total=Count('id', distinct=True),
+        ).values('total')
+        return queryset.annotate(
+            public_post_count=Coalesce(
+                Subquery(public_posts, output_field=IntegerField()),
+                Value(0),
+            ),
+            public_series_count=Coalesce(
+                Subquery(public_series, output_field=IntegerField()),
+                Value(0),
+            ),
+        )
+
+    @staticmethod
+    def get_public_author_posts(
+        author: User,
+        viewer_id: Optional[int] = None,
+    ) -> QuerySet[Post]:
+        """Return public author posts with card metrics loaded by one query."""
+        like_counts = PostLikes.objects.filter(post_id=OuterRef('id')).values(
+            'post_id'
+        ).annotate(total=Count('id')).values('total')
+        comment_counts = Comment.objects.filter(post_id=OuterRef('id')).values(
+            'post_id'
+        ).annotate(total=Count('id')).values('total')
+        viewer_likes = PostLikes.objects.filter(
+            post_id=OuterRef('id'),
+            user_id=viewer_id if viewer_id is not None else -1,
+        )
+        return PublicPostService.filter_public_posts(
+            Post.objects.select_related(
+                'config', 'series', 'author', 'author__profile'
+            ).filter(author=author)
+        ).annotate(
+            count_likes=Coalesce(
+                Subquery(like_counts, output_field=IntegerField()),
+                Value(0),
+            ),
+            count_comments=Coalesce(
+                Subquery(comment_counts, output_field=IntegerField()),
+                Value(0),
+            ),
+            has_liked=Exists(viewer_likes),
+        )
+
+    @staticmethod
     def get_user_social_data(user: User) -> Dict[str, Any]:
         """
         Get user social links.
@@ -143,9 +203,9 @@ class UserService:
     @staticmethod
     def get_user_profile_featured_posts(user: User) -> Dict[str, Any]:
         """Get pinned profile posts, or recent posts when no pinned posts exist."""
-        pinned_posts = list(PinnedPost.objects.select_related(
-            'post', 'user', 'user__profile'
-        ).filter(
+        profile = getattr(user, 'profile', None)
+        author_image = profile.avatar if profile else ''
+        pinned_posts = list(PinnedPost.objects.select_related('post').filter(
             PublicPostService.build_public_filter('post'),
             user=user,
         ).order_by('order')[:6])
@@ -162,15 +222,13 @@ class UserService:
                     'description': pinned_post.post.meta_description,
                     'read_time': pinned_post.post.read_time,
                     'published_date': pinned_post.post.published_date,
-                    'author_image': pinned_post.user.profile.avatar if hasattr(pinned_post.user, 'profile') else '',
-                    'author': pinned_post.user.username,
+                    'author_image': author_image,
+                    'author': user.username,
                 } for pinned_post in pinned_posts],
             }
 
         posts = PublicPostService.filter_public_posts(
-            Post.objects.select_related(
-                'config', 'author', 'author__profile'
-            ).filter(author=user)
+            Post.objects.select_related('config').filter(author=user)
         ).order_by('-published_date')[:6]
 
         return {
@@ -184,8 +242,8 @@ class UserService:
                 'description': post.meta_description,
                 'read_time': post.read_time,
                 'published_date': post.published_date,
-                'author_image': post.author.profile.avatar if hasattr(post.author, 'profile') else '',
-                'author': post.author.username,
+                'author_image': author_image,
+                'author': user.username,
             } for post in posts],
         }
 

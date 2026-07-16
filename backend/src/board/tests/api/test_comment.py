@@ -98,6 +98,41 @@ class CommentTestCase(TestCase):
             'canReply': True,
         })
 
+    def test_get_post_comment_list_query_count_does_not_grow_with_comments(self):
+        """댓글과 답글이 많아도 목록 조회 쿼리 수가 일정하다."""
+        post = Post.objects.get(url='test-post')
+        viewer = User.objects.get(username='viewer')
+        parents = Comment.objects.bulk_create([
+            Comment(
+                post=post,
+                author=viewer,
+                text_md=f'Popular comment {index}',
+                text_html=f'<p>Popular comment {index}</p>',
+            )
+            for index in range(100)
+        ])
+        Comment.objects.bulk_create([
+            Comment(
+                post=post,
+                author=viewer,
+                parent=parent,
+                text_md=f'Popular reply {index}',
+                text_html=f'<p>Popular reply {index}</p>',
+            )
+            for index, parent in enumerate(parents)
+        ])
+
+        with self.assertNumQueries(4):
+            response = self.client.get('/v1/posts/test-post/comments')
+
+        self.assertEqual(response.status_code, 200)
+        body = response.json()['body']
+        self.assertEqual(len(body['comments']), 101)
+        self.assertEqual(
+            sum(len(comment['replies']) for comment in body['comments']),
+            100,
+        )
+
     def test_post_comment_list_hides_comments_when_post_hidden(self):
         """숨김 글의 댓글은 공개 댓글 목록에 노출되지 않는다."""
         post = Post.objects.get(url='test-post')

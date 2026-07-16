@@ -91,9 +91,6 @@ def tag_detail_view(request, name):
     user_id = request.user.id if request.user.is_authenticated else None
     posts = TagService.get_posts_by_tag(name, user_id)
 
-    if len(posts) == 0:
-        raise Http404()
-
     # Pagination
     page = int(request.GET.get('page', 1))
     paginated_posts = Paginator(
@@ -101,6 +98,8 @@ def tag_detail_view(request, name):
         offset=24,
         page=page
     )
+    if not paginated_posts.object_list:
+        raise Http404()
 
     posts_page = paginated_posts
 

@@ -1,9 +1,9 @@
 import time
 
-from django.db.models import Case, F, IntegerField, Max, Q, Value, When
+from django.db.models import Case, Exists, F, IntegerField, OuterRef, Q, Subquery, Value, When
 from django.http import Http404
 
-from board.models import Post
+from board.models import Post, PostContent, Profile, Tag, User
 from board.modules.paginator import Paginator
 from board.modules.response import ErrorCode, StatusDone, StatusError
 from board.modules.time import convert_to_localtime
@@ -34,58 +34,74 @@ def search(request):
 
     title_match = Q()
     description_match = Q()
-    tag_match = Q()
-    content_match = Q()
+    tag_value_match = Q()
+    content_value_match = Q()
 
     for keyword in keywords:
         title_match |= Q(title__icontains=keyword)
         description_match |= Q(meta_description__icontains=keyword)
-        tag_match |= Q(tags__value__icontains=keyword)
-        content_match |= Q(content__content_html__icontains=keyword)
+        tag_value_match |= Q(value__icontains=keyword)
+        content_value_match |= Q(content_html__icontains=keyword)
 
-    search_filter = title_match | description_match | tag_match | content_match
+    matching_tag = Tag.objects.filter(
+        posts=OuterRef('pk'),
+    ).filter(tag_value_match)
+    matching_content = PostContent.objects.filter(
+        post_id=OuterRef('pk'),
+    ).filter(content_value_match)
 
     posts = PublicPostService.filter_public_posts(
-        Post.objects.filter(search_filter)
+        Post.objects.alias(
+            has_tag_match=Exists(matching_tag),
+            has_content_match=Exists(matching_content),
+        ).filter(
+            title_match
+            | description_match
+            | Q(has_tag_match=True)
+            | Q(has_content_match=True)
+        )
     )
 
     if username:
         posts = posts.filter(author__username=username)
 
     posts = posts.annotate(
-        author_username=F('author__username'),
-        author_image=F('author__profile__avatar'),
-        title_score=Max(
-            Case(
-                When(title_match, then=Value(100)),
-                default=Value(0),
-                output_field=IntegerField(),
-            )
+        author_username=Subquery(
+            User.objects.filter(pk=OuterRef('author_id')).values('username')[:1]
         ),
-        description_score=Max(
-            Case(
-                When(description_match, then=Value(40)),
-                default=Value(0),
-                output_field=IntegerField(),
-            )
+        author_image=Subquery(
+            Profile.objects.filter(user_id=OuterRef('author_id')).values('avatar')[:1]
         ),
-        tag_score=Max(
-            Case(
-                When(tag_match, then=Value(30)),
-                default=Value(0),
-                output_field=IntegerField(),
-            )
+        title_score=Case(
+            When(title_match, then=Value(100)),
+            default=Value(0),
+            output_field=IntegerField(),
         ),
-        content_score=Max(
-            Case(
-                When(content_match, then=Value(10)),
-                default=Value(0),
-                output_field=IntegerField(),
-            )
+        description_score=Case(
+            When(description_match, then=Value(40)),
+            default=Value(0),
+            output_field=IntegerField(),
+        ),
+        tag_score=Case(
+            When(has_tag_match=True, then=Value(30)),
+            default=Value(0),
+            output_field=IntegerField(),
+        ),
+        content_score=Case(
+            When(has_content_match=True, then=Value(10)),
+            default=Value(0),
+            output_field=IntegerField(),
         ),
     ).annotate(
         relevance=F('title_score') + F('description_score') + F('tag_score') + F('content_score'),
-    ).distinct().order_by('-relevance', '-published_date')
+    ).only(
+        'url',
+        'title',
+        'image',
+        'meta_description',
+        'read_time',
+        'published_date',
+    ).order_by('-relevance', '-published_date')
 
     try:
         paginated = Paginator(

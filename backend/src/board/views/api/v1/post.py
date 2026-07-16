@@ -71,10 +71,17 @@ def post_comment_list(request, url):
 @api_editor_required_methods(['POST', 'PUT', 'DELETE'])
 def user_posts(request, username, url=None):
     if url:
-        post = PostService.get_post_detail(username, url, request.user)
+        is_edit_mode = (
+            request.method == 'GET'
+            and request.GET.get('mode') == 'edit'
+        )
+        if is_edit_mode:
+            post = PostService.get_post_editor_detail(username, url)
+        else:
+            post = PostService.get_post_detail(username, url, request.user)
 
         if request.method == 'GET':
-            if request.GET.get('mode') == 'edit':
+            if is_edit_mode:
                 if not PostService.can_user_edit_post(request.user, post):
                     raise Http404
 

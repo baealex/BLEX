@@ -91,6 +91,54 @@ class AuthorPostsPageTestCase(TestCase):
         self.assertContains(response, 'flex w-full items-center justify-between')
         self.assertNotContains(response, 'sm:w-48')
 
+    def test_author_posts_page_loads_cards_with_constant_query_count(self):
+        """포스트 카드 수가 늘어도 카드 통계 조회 쿼리는 증가하지 않는다."""
+        for index in range(3):
+            self.create_author_post(
+                f'Additional Post {index}',
+                f'additional-post-{index}',
+                timezone.now(),
+            )
+
+        with self.assertNumQueries(9):
+            response = self.client.get(
+                reverse('user_posts', kwargs={'username': self.user.username})
+            )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(response.context['posts']), 4)
+
+    def test_author_posts_page_card_metrics_are_annotated(self):
+        """카드의 좋아요, 댓글, 현재 사용자 좋아요 상태를 함께 조회한다."""
+        liker = User.objects.create_user(
+            username='author-post-liker',
+            password='testpass123',
+        )
+        PostLikes.objects.create(user=liker, post=self.post)
+        PostLikes.objects.create(user=self.user, post=self.post)
+        Comment.objects.create(
+            author=liker,
+            post=self.post,
+            text_md='First comment',
+            text_html='<p>First comment</p>',
+        )
+        Comment.objects.create(
+            author=self.user,
+            post=self.post,
+            text_md='Second comment',
+            text_html='<p>Second comment</p>',
+        )
+        self.client.login(username='testauthor', password='testpass123')
+
+        response = self.client.get(
+            reverse('user_posts', kwargs={'username': self.user.username})
+        )
+
+        post = response.context['posts'][0]
+        self.assertEqual(post.count_likes, 2)
+        self.assertEqual(post.count_comments, 2)
+        self.assertTrue(post.has_liked)
+
     def test_author_overview_page_renders(self):
         """작가 개요 페이지가 정상적으로 렌더링되는지 테스트"""
         response = self.client.get(
@@ -99,6 +147,24 @@ class AuthorPostsPageTestCase(TestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'board/author/author_overview.html')
+
+    def test_author_overview_loads_public_stats_without_extra_query(self):
+        """작가 공개 통계는 작가 조회에 포함되어 별도 집계 쿼리를 만들지 않는다."""
+        series = Series.objects.create(
+            owner=self.user,
+            name='Overview Query Series',
+            url='overview-query-series',
+        )
+        self.post.series = series
+        self.post.save(update_fields=['series'])
+
+        with self.assertNumQueries(12):
+            response = self.client.get(
+                reverse('user_profile', kwargs={'username': self.user.username})
+            )
+
+        self.assertEqual(response.context['post_count'], 1)
+        self.assertEqual(response.context['series_count'], 1)
 
     def test_author_overview_renders_user_notice_label(self):
         """작가 공지는 전체 공지가 아니라 블로그 공지로 표시한다."""

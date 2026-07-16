@@ -81,7 +81,7 @@ def series_detail(request, username, series_url):
     has_previous = page > 1
     has_next = page < total_pages
 
-    aeo_enabled = AgentContentService.is_aeo_enabled()
+    aeo_enabled = AgentContentService.is_aeo_enabled(request)
     context = {
         'author': author,
         'series': series,

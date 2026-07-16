@@ -21,7 +21,7 @@ def static_page_view(request, slug):
     page = get_object_or_404(StaticPage, slug=slug, is_published=True)
     metadata = DiscoveryMetadataService.build_static_page_metadata(page, request)
 
-    aeo_enabled = AgentContentService.is_aeo_enabled()
+    aeo_enabled = AgentContentService.is_aeo_enabled(request)
     context = {
         'page': page,
         'aeo_enabled': aeo_enabled,

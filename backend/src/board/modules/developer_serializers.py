@@ -54,7 +54,6 @@ class DeveloperPostSerializer:
     @staticmethod
     def summary(post):
         config = DeveloperPostSerializer.config(post)
-        content = DeveloperPostSerializer.content(post)
 
         return {
             'id': post.id,

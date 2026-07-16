@@ -16,6 +16,7 @@ from board.services.site_url_service import SiteUrlService
 
 
 class AgentContentService:
+    REQUEST_SITE_SETTING_ATTRIBUTE = '_blex_site_setting'
     LATEST_POST_LIMIT = 20
     DEFAULT_ROBOTS_DISALLOW_RULES = (
         'Disallow: /*.preview.jpg',
@@ -30,16 +31,36 @@ class AgentContentService:
     INLINE_RAW_TAGS = {'figcaption', 'mark', 'u', 'sub', 'sup'}
 
     @staticmethod
-    def is_seo_enabled() -> bool:
-        return SiteSetting.get_instance().seo_enabled
+    def get_site_setting(request: HttpRequest | None = None) -> SiteSetting:
+        if request is not None:
+            cached = getattr(
+                request,
+                AgentContentService.REQUEST_SITE_SETTING_ATTRIBUTE,
+                None,
+            )
+            if cached is not None:
+                return cached
+
+        setting = SiteSetting.get_instance()
+        if request is not None:
+            setattr(
+                request,
+                AgentContentService.REQUEST_SITE_SETTING_ATTRIBUTE,
+                setting,
+            )
+        return setting
 
     @staticmethod
-    def is_aeo_enabled() -> bool:
-        return SiteSetting.get_instance().aeo_enabled
+    def is_seo_enabled(request: HttpRequest | None = None) -> bool:
+        return AgentContentService.get_site_setting(request).seo_enabled
 
     @staticmethod
-    def require_aeo_enabled() -> None:
-        if not AgentContentService.is_aeo_enabled():
+    def is_aeo_enabled(request: HttpRequest | None = None) -> bool:
+        return AgentContentService.get_site_setting(request).aeo_enabled
+
+    @staticmethod
+    def require_aeo_enabled(request: HttpRequest | None = None) -> None:
+        if not AgentContentService.is_aeo_enabled(request):
             raise Http404("AEO is disabled")
 
     @staticmethod

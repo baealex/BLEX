@@ -77,6 +77,38 @@ class DeveloperPostAPI:
         )
 
     @staticmethod
+    def post_summary_queryset(user):
+        """Load only relations serialized by post list and search responses."""
+        return Post.objects.select_related(
+            'author',
+            'config',
+            'series',
+        ).prefetch_related(
+            'tags',
+        ).filter(
+            author=user,
+        ).only(
+            'id',
+            'author_id',
+            'author__username',
+            'series_id',
+            'series__id',
+            'series__name',
+            'series__url',
+            'config__hide',
+            'config__advertise',
+            'config__cover_layout',
+            'config__cover_image_position',
+            'config__cover_image_ratio',
+            'title',
+            'subtitle',
+            'url',
+            'created_date',
+            'updated_date',
+            'published_date',
+        )
+
+    @staticmethod
     def get_owned_post(user, post_id):
         try:
             return DeveloperPostAPI.post_queryset(user).get(id=post_id)

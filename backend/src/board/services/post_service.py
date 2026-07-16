@@ -501,6 +501,21 @@ class PostService:
         ), author__username=username, url=url)
 
     @staticmethod
+    def get_post_editor_detail(username: str, url: str) -> Post:
+        """Load editor fields without public engagement aggregations."""
+        return get_object_or_404(
+            Post.objects.select_related(
+                'config',
+                'content',
+                'series',
+                'author',
+                'author__profile',
+            ).prefetch_related('tags'),
+            author__username=username,
+            url=url,
+        )
+
+    @staticmethod
     def _calculate_tag_score(
         candidate_tags: set[str],
         current_tag_set: set[str],
@@ -1083,13 +1098,15 @@ class PostService:
     @staticmethod
     def get_user_drafts(user: User):
         """Get all draft posts for a user."""
-        return Post.objects.select_related(
-            'config',
-        ).prefetch_related(
-            'tags',
-        ).filter(
+        return Post.objects.filter(
             author=user,
             published_date__isnull=True,
+        ).only(
+            'url',
+            'title',
+            'image',
+            'created_date',
+            'updated_date',
         ).order_by('-updated_date')
 
     @staticmethod

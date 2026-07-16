@@ -205,7 +205,7 @@ def list_posts(request, status: str = '', page: int = 1, limit: int = 20):
     require_scope(request.auth, 'posts:read')
 
     try:
-        queryset = DeveloperPostAPI.post_queryset(request.auth.user)
+        queryset = DeveloperPostAPI.post_summary_queryset(request.auth.user)
         queryset = DeveloperPostAPI.status_filter(queryset, status).order_by('-updated_date')
     except DeveloperAuthError as error:
         return auth_error_response(error)
@@ -324,7 +324,7 @@ def search_posts(
     limit: int = 20,
 ):
     require_scope(request.auth, 'posts:read')
-    queryset = DeveloperPostAPI.post_queryset(request.auth.user)
+    queryset = DeveloperPostAPI.post_summary_queryset(request.auth.user)
     queryset = DeveloperPublishingAPI.filter_by_search_query(queryset, q)
 
     try:

@@ -187,6 +187,52 @@ class DeveloperPostsAPITestCase(TestCase):
         self.assertEqual(body['posts'][0]['id'], draft['id'])
         self.assertEqual(body['posts'][0]['status'], 'draft')
 
+    def test_list_posts_does_not_load_content_or_author_profile(self):
+        """목록 응답은 사용하지 않는 본문과 작가 프로필을 조회하지 않는다."""
+        self.create_draft('Lean List Draft')
+
+        with CaptureQueriesContext(connection) as queries:
+            response = self.client.get(
+                '/api/developer/v1/posts?status=draft',
+                **self.auth_header(),
+            )
+
+        self.assertEqual(response.status_code, 200)
+        post_queries = [
+            query['sql']
+            for query in queries.captured_queries
+            if 'FROM "board_post"' in query['sql']
+            and 'COUNT(' not in query['sql'].upper()
+        ]
+        self.assertEqual(len(post_queries), 1)
+        selected_columns = post_queries[0].split(' FROM ')[0]
+        self.assertNotIn('board_postcontent', selected_columns)
+        self.assertNotIn('board_profile', selected_columns)
+        self.assertNotIn('board_series"."text_html', selected_columns)
+
+    def test_search_posts_does_not_load_content_or_author_profile(self):
+        """검색 목록도 사용하지 않는 본문과 작가 프로필을 조회하지 않는다."""
+        self.create_draft('Lean Search Draft')
+
+        with CaptureQueriesContext(connection) as queries:
+            response = self.client.get(
+                '/api/developer/v1/posts/search?q=Lean',
+                **self.auth_header(),
+            )
+
+        self.assertEqual(response.status_code, 200)
+        post_queries = [
+            query['sql']
+            for query in queries.captured_queries
+            if 'FROM "board_post"' in query['sql']
+            and 'COUNT(' not in query['sql'].upper()
+        ]
+        self.assertEqual(len(post_queries), 1)
+        selected_columns = post_queries[0].split(' FROM ')[0]
+        self.assertNotIn('board_postcontent', selected_columns)
+        self.assertNotIn('board_profile', selected_columns)
+        self.assertNotIn('board_series"."text_html', selected_columns)
+
     def test_serialized_tags_use_prefetch_cache(self):
         draft = self.create_draft('Cached Tags Draft')
         post = Post.objects.prefetch_related('tags').get(id=draft['id'])

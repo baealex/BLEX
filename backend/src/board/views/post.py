@@ -21,22 +21,26 @@ def post_detail(request, username, post_url):
     """
     View for the post detail page.
     """
-    # Check if this is an old username in the change log
-    username_log = UsernameChangeLog.objects.filter(username=username).select_related('user').first()
-    if username_log:
-        if PublicPostService.filter_public_posts(Post.objects).filter(
-            author=username_log.user,
-            url=post_url,
-        ).exists():
-            return redirect('post_detail', username=username_log.user.username, post_url=post_url)
-
-    author = get_object_or_404(User, username=username)
-
     try:
         post = PostService.get_post_detail(username, post_url, request.user)
     except Http404:
+        username_log = UsernameChangeLog.objects.filter(
+            username=username,
+        ).select_related('user').first()
+        if username_log and PublicPostService.filter_public_posts(
+            Post.objects,
+        ).filter(
+            author=username_log.user,
+            url=post_url,
+        ).exists():
+            return redirect(
+                'post_detail',
+                username=username_log.user.username,
+                post_url=post_url,
+            )
         raise Http404("Post does not exist")
 
+    author = post.author
     is_owner = request.user.is_authenticated and request.user == author
     if not PublicPostService.is_public(post) and (
         not is_owner or post.published_date is None

@@ -65,7 +65,7 @@ class PostDetailRenderService:
         )
         logo_url = BrandAssetService.absolute_icon_png_url(request, None, 512)
 
-        aeo_enabled = AgentContentService.is_aeo_enabled()
+        aeo_enabled = AgentContentService.is_aeo_enabled(request)
         is_public_post = PublicPostService.is_public(post)
         post_visibility_status = 'draft' if is_post_preview else 'public'
         if not is_post_preview and post.config.hide:

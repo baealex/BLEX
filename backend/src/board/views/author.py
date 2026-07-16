@@ -15,7 +15,7 @@ from board.services.authoring_permission_service import AuthoringPermissionServi
 from board.services.discovery_metadata_service import DiscoveryMetadataService
 from board.services.public_post_service import PublicPostService
 from board.services.public_series_service import PublicSeriesService
-from board.models import Comment, Post, Series, PostLikes, Tag, Profile, SiteNotice, SiteContentScope
+from board.models import Series, Tag, Profile, SiteNotice, SiteContentScope
 
 
 def apply_partial_response_headers(response):
@@ -30,7 +30,12 @@ def author_overview(request, username):
     Includes contribution graph, pinned posts, and simplified profile info.
     Readers and editors see different templates.
     """
-    author = get_object_or_404(User.objects.select_related('profile'), username=username)
+    author = get_object_or_404(
+        UserService.with_public_author_stats(
+            User.objects.select_related('profile')
+        ),
+        username=username,
+    )
     profile = getattr(author, 'profile', None)
 
     recent_activities = UserService.get_public_author_activities(author)[:10]
@@ -69,8 +74,6 @@ def author_overview(request, username):
         # Editor template - full view with stats, pinned posts
         featured_posts_section = UserService.get_user_profile_featured_posts(author)
 
-        stats = UserService.get_author_stats(author)
-
         user_notices = SiteNotice.objects.filter(
             scope=SiteContentScope.USER,
             user=author,
@@ -84,8 +87,8 @@ def author_overview(request, username):
             'recent_activities': recent_activities,
             'about_md': about_md,
             'about_html': about_html,
-            'post_count': stats['post_count'],
-            'series_count': stats['series_count'],
+            'post_count': author.public_post_count,
+            'series_count': author.public_series_count,
             'user_notices': user_notices,
             **DiscoveryMetadataService.build_user_rss_feed_metadata(author, request),
             **page_metadata,
@@ -139,12 +142,9 @@ def author_posts(request, username):
     search_query = request.GET.get('q', '')
     tag_filter = request.GET.get('tag', '')
 
-    posts = PublicPostService.filter_public_posts(
-        Post.objects.select_related(
-            'config', 'series', 'author', 'author__profile'
-        )
-    ).filter(
-        author=author,
+    posts = UserService.get_public_author_posts(
+        author,
+        request.user.id if request.user.is_authenticated else None,
     )
 
     if search_query:
@@ -183,30 +183,7 @@ def author_posts(request, username):
     ).count()
 
     page_posts = list(paginated_posts)
-    post_ids = [post.id for post in page_posts]
-    like_counts = {
-        item['post_id']: item['count']
-        for item in PostLikes.objects.filter(post_id__in=post_ids)
-        .values('post_id')
-        .annotate(count=Count('id'))
-    }
-    comment_counts = {
-        item['post_id']: item['count']
-        for item in Comment.objects.filter(post_id__in=post_ids)
-        .values('post_id')
-        .annotate(count=Count('id'))
-    }
-    liked_post_ids = set()
-    if request.user.is_authenticated:
-        liked_post_ids = set(
-            PostLikes.objects.filter(post_id__in=post_ids, user=request.user)
-            .values_list('post_id', flat=True)
-        )
-
     for post in page_posts:
-        post.count_likes = like_counts.get(post.id, 0)
-        post.count_comments = comment_counts.get(post.id, 0)
-        post.has_liked = post.id in liked_post_ids
         post.time_display = time_since(post.published_date)
 
     context = {

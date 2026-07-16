@@ -26,6 +26,16 @@ def get_latest_lastmod(current, candidate):
     return current
 
 
+def get_sitemap_index_metadata(site):
+    metadata_getter = getattr(site, 'get_index_metadata', None)
+    if callable(metadata_getter):
+        item_count, latest_lastmod = metadata_getter()
+        num_pages = max(1, (item_count + site.limit - 1) // site.limit)
+        return num_pages, latest_lastmod
+
+    return site.paginator.num_pages, site.get_latest_lastmod()
+
+
 @x_robots_tag
 def sitemap_index_view(
     request: HttpRequest,
@@ -45,7 +55,7 @@ def sitemap_index_view(
 
         sitemap_path = reverse(sitemap_url_name, kwargs={'section': section})
         absolute_url = f'{protocol}://{domain}{sitemap_path}'
-        site_lastmod = site.get_latest_lastmod()
+        num_pages, site_lastmod = get_sitemap_index_metadata(site)
         if all_indexes_lastmod:
             if site_lastmod is not None:
                 latest_lastmod = get_latest_lastmod(latest_lastmod, site_lastmod)
@@ -53,7 +63,7 @@ def sitemap_index_view(
                 all_indexes_lastmod = False
 
         sites.append(SitemapIndexItem(absolute_url, site_lastmod))
-        for page in range(2, site.paginator.num_pages + 1):
+        for page in range(2, num_pages + 1):
             sites.append(SitemapIndexItem(f'{absolute_url}?p={page}', site_lastmod))
 
     headers = None
@@ -61,7 +71,7 @@ def sitemap_index_view(
         headers = {'Last-Modified': http_date(latest_lastmod.timestamp())}
 
     return TemplateResponse(
-        request,
+        None,
         template_name,
         {'sitemaps': sites},
         content_type=content_type,
@@ -112,7 +122,7 @@ def sitemap_section_view(
         headers = {'Last-Modified': http_date(lastmod.timestamp())}
 
     return TemplateResponse(
-        request,
+        None,
         template_name,
         {'urlset': urls},
         content_type=content_type,
