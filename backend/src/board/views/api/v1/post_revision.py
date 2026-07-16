@@ -1,5 +1,6 @@
 from math import ceil
 
+from django.db.models import Count, Window
 from django.http import Http404, HttpRequest, HttpResponse
 from django.shortcuts import get_object_or_404
 
@@ -21,13 +22,12 @@ def _get_editable_revision_post(
     url: str,
 ) -> Post:
     post = get_object_or_404(
-        Post.objects.select_related('author'),
+        Post.objects.only('id', 'updated_date'),
         author__username=username,
+        author=request.user,
         url=url,
         published_date__isnull=False,
     )
-    if not PostService.can_user_edit_post(request.user, post):
-        raise Http404
     return post
 
 
@@ -55,11 +55,41 @@ def post_revisions(
     revisions = (
         EditHistory.objects.filter(post=post)
         .select_related('actor')
+        .only(
+            'id',
+            'actor__username',
+            'title',
+            'subtitle',
+            'content_excerpt',
+            'tags',
+            'change_type',
+            'restored_from_id',
+            'source_updated_date',
+            'created_date',
+        )
         .order_by('-created_date', '-id')
     )
 
     if revision_id is not None:
-        revision = get_object_or_404(revisions, pk=revision_id)
+        revision = get_object_or_404(
+            EditHistory.objects.filter(post=post)
+            .select_related('actor')
+            .only(
+                'id',
+                'actor__username',
+                'title',
+                'subtitle',
+                'content',
+                'content_excerpt',
+                'description',
+                'tags',
+                'change_type',
+                'restored_from_id',
+                'source_updated_date',
+                'created_date',
+            ),
+            pk=revision_id,
+        )
         return StatusDone({
             'revision': PostRevisionService.serialize_detail(revision),
         })
@@ -75,16 +105,22 @@ def post_revisions(
             '수정 이력 페이지 정보를 확인해주세요.',
         )
 
-    total_count = revisions.count()
+    start = (page - 1) * limit
+    page_revisions = list(
+        revisions.annotate(
+            revision_total_count=Window(expression=Count('id')),
+        )[start:start + limit]
+    )
+    if page_revisions:
+        total_count = page_revisions[0].revision_total_count
+    else:
+        total_count = revisions.count()
     last_page = max(1, ceil(total_count / limit))
     if page > last_page:
         return StatusError(
             ErrorCode.VALIDATE,
             '수정 이력 페이지 정보를 확인해주세요.',
         )
-
-    start = (page - 1) * limit
-    page_revisions = revisions[start:start + limit]
     return StatusDone({
         'revisions': [
             PostRevisionService.serialize_summary(revision)

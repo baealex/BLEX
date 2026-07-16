@@ -4,6 +4,7 @@ from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
 from django.db.models import Count, Q
 from django.shortcuts import render, get_object_or_404, redirect
+from django.template.loader import render_to_string
 from django.http import HttpResponse, JsonResponse
 from django.urls import reverse
 from django.views.decorators.http import require_GET
@@ -82,6 +83,7 @@ def author_overview(request, username):
 
         context = {
             'author': author,
+            'is_owner': request.user.is_authenticated and request.user == author,
             'featured_posts_section': featured_posts_section,
             'pinned_posts': featured_posts_section['posts'],
             'recent_activities': recent_activities,
@@ -102,23 +104,29 @@ def author_featured_posts_partial(request, username):
     """
     Render only the author's featured posts section for server-side partial refresh.
     """
-    author = get_object_or_404(User.objects.select_related('profile'), username=username)
+    if request.user.is_authenticated and request.user.username == username:
+        author = request.user
+    else:
+        author = get_object_or_404(
+            User.objects.select_related('profile'),
+            username=username,
+        )
 
     if not AuthoringPermissionService.is_active_editor(author):
         return apply_partial_response_headers(HttpResponse('', status=204))
 
     featured_posts_section = UserService.get_user_profile_featured_posts(author)
 
-    response = render(
-        request,
+    content = render_to_string(
         'board/author/components/featured_posts_section.html',
         {
             'author': author,
             'featured_posts_section': featured_posts_section,
             'pinned_posts': featured_posts_section['posts'],
+            'is_owner': request.user.is_authenticated and request.user == author,
         },
     )
-    return apply_partial_response_headers(response)
+    return apply_partial_response_headers(HttpResponse(content))
 
 
 def author_about(request, username):

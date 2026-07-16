@@ -579,6 +579,27 @@ class PostEditorPublishRedirectTestCase(TestCase):
         props = self.get_post_editor_props(response)
         self.assertFalse(props['showFirstPublishGuide'])
 
+    def test_post_editor_edit_get_avoids_public_engagement_queries(self):
+        """The editor shell does not load tags, likes, or comments before its API call."""
+        post = PostService.create_post(
+            user=self.user,
+            title='Lean editor page',
+            text_html='<p>Published body</p>',
+            custom_url='lean-editor-page',
+        )[0]
+        self.client.login(username='editor', password='password123')
+
+        with self.assertNumQueries(8):
+            response = self.client.get(
+                reverse(
+                    'post_edit',
+                    kwargs={'username': self.user.username, 'post_url': post.url},
+                )
+            )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(response.context['is_edit'])
+
     def test_post_editor_redirects_new_publish_to_post_detail(self):
         """새 글 발행 후 공개 상세 화면으로 이동한다."""
         self.client.login(username='editor', password='password123')

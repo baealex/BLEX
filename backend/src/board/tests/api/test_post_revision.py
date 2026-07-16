@@ -1,7 +1,9 @@
 import json
 from datetime import timedelta
 
+from django.db import connection
 from django.test import TestCase
+from django.test.utils import CaptureQueriesContext
 from django.utils import timezone
 
 from board.models import (
@@ -192,6 +194,42 @@ class PostRevisionTestCase(TestCase):
         self.assertEqual(detail['contentHtml'], '<p>Previous body</p>')
         self.assertEqual(detail['contentText'], 'Previous body')
         self.assertEqual(detail['tags'], ['old-a', 'old-b'])
+
+    def test_revision_list_query_count_is_constant_for_many_large_revisions(self):
+        revisions = [
+            EditHistory(
+                post=self.post,
+                actor=self.author,
+                title=f'Revision {index}',
+                subtitle='',
+                content=f'<p>{"body " * 2000}</p>',
+                content_excerpt=f'Revision excerpt {index}',
+                description='',
+                tags=[],
+                change_type=EditHistory.ChangeType.EDIT,
+                source_updated_date=self.post.updated_date,
+            )
+            for index in range(100)
+        ]
+        EditHistory.objects.bulk_create(revisions)
+        self.client.force_login(self.author)
+
+        with CaptureQueriesContext(connection) as queries:
+            response = self.client.get(
+                self.revision_url(),
+                {'page': 1, 'limit': 50},
+            )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(response.json()['body']['revisions']), 50)
+        self.assertEqual(response.json()['body']['pagination']['totalCount'], 100)
+        self.assertEqual(len(queries), 6)
+        revision_queries = [
+            query['sql'] for query in queries
+            if 'board_edithistory' in query['sql'].lower()
+        ]
+        self.assertEqual(len(revision_queries), 1)
+        self.assertNotIn('"content"', revision_queries[0].lower())
 
     def test_revision_access_is_limited_to_current_owner_editor(self):
         revision = self.create_revision()

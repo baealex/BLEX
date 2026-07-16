@@ -8,6 +8,7 @@ from django.urls import reverse
 from django.utils import timezone
 
 from board.models import Post, PostContent, PostConfig, Profile, UsernameChangeLog
+from board.services.user_service import UserService
 
 
 class UsernameRedirectTestCase(TestCase):
@@ -72,6 +73,16 @@ class UsernameRedirectTestCase(TestCase):
             'post_url': 'test-post'
         })
         self.assertRedirects(response, expected_url)
+
+    def test_legacy_public_post_redirect_resolution_uses_one_query(self):
+        """Legacy post ownership and public visibility should resolve together."""
+        with self.assertNumQueries(1):
+            username = UserService.get_public_post_redirect_username(
+                'oldusername',
+                'test-post',
+            )
+
+        self.assertEqual(username, 'currentusername')
 
     def test_no_redirect_with_current_username(self):
         """Test no redirect when accessing with current username"""

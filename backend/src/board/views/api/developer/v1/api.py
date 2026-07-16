@@ -1,5 +1,5 @@
 from django.conf import settings
-from django.db.models import Count, Q
+from django.db.models import Count, Q, Window
 from ninja import Body, File, NinjaAPI, Query, Status, UploadedFile
 from ninja.errors import HttpError, ValidationError
 from ninja.security import HttpBearer
@@ -136,6 +136,16 @@ def developer_me_data(token):
     }
 
 
+def paginated_posts(queryset, page, limit):
+    """Return a page and its total without a separate count on populated pages."""
+    offset = (page - 1) * limit
+    posts = list(
+        queryset.annotate(developer_total=Window(Count('pk')))[offset:offset + limit]
+    )
+    total = posts[0].developer_total if posts else queryset.count()
+    return posts, total
+
+
 @api.exception_handler(DeveloperApiException)
 def handle_developer_api_exception(request, exc):
     return api.create_response(
@@ -212,9 +222,7 @@ def list_posts(request, status: str = '', page: int = 1, limit: int = 20):
 
     page = max(page, 1)
     limit = min(max(limit, 1), 100)
-    offset = (page - 1) * limit
-    total = queryset.count()
-    posts = queryset[offset:offset + limit]
+    posts, total = paginated_posts(queryset, page, limit)
 
     response = success({
         'posts': [
@@ -334,15 +342,12 @@ def search_posts(
         return auth_error_response(error)
 
     tags = DeveloperPublishingAPI.tags_param(request)
-    if tags:
-        queryset = queryset.filter(tags__value__in=tags)
+    queryset = DeveloperPublishingAPI.filter_by_tags(queryset, tags)
 
-    queryset = queryset.distinct().order_by('-updated_date')
+    queryset = queryset.order_by('-updated_date')
     page = max(page, 1)
     limit = min(max(limit, 1), 100)
-    offset = (page - 1) * limit
-    total = queryset.count()
-    posts = queryset[offset:offset + limit]
+    posts, total = paginated_posts(queryset, page, limit)
 
     response = success({
         'posts': [
@@ -370,7 +375,7 @@ def get_post(request, post_id: int):
     require_scope(request.auth, 'posts:read')
 
     try:
-        post = DeveloperPostAPI.get_owned_post(request.auth.user, post_id)
+        post = DeveloperPostAPI.get_owned_post_detail(request.auth.user, post_id)
     except DeveloperAuthError as error:
         return auth_error_response(error)
 

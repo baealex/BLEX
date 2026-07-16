@@ -253,7 +253,7 @@ def user_post_related(request, username, url):
     Uses a scoring system to rank relevance.
     """
     if request.method == 'GET':
-        post = get_object_or_404(Post.objects.select_related('config').prefetch_related('tags'),
+        post = get_object_or_404(Post.objects.select_related('config', 'author').prefetch_related('tags'),
                                  author__username=username, url=url)
 
         if request.user != post.author and not PublicPostService.is_public(post):

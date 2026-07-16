@@ -387,6 +387,33 @@ class AuthorPostsPageTestCase(TestCase):
         self.assertContains(response, 'Author Test Post')
         self.assertNotContains(response, '<html')
 
+    def test_author_featured_posts_partial_avoids_page_context_queries(self):
+        """The partial loads only its author and featured post data."""
+        partial_url = reverse(
+            'user_featured_posts_partial',
+            kwargs={'username': self.user.username},
+        )
+
+        with self.assertNumQueries(4):
+            response = self.client.get(partial_url)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'Author Test Post')
+
+    def test_author_featured_posts_partial_reuses_authenticated_owner(self):
+        """An owner refresh does not reload the same user as the target author."""
+        self.client.login(username='testauthor', password='testpass123')
+        partial_url = reverse(
+            'user_featured_posts_partial',
+            kwargs={'username': self.user.username},
+        )
+
+        with self.assertNumQueries(6):
+            response = self.client.get(partial_url)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'PinnedPostQuickAction')
+
     def test_author_featured_posts_partial_action_is_owner_only(self):
         """대표 포스트 partial의 고정 설정 액션은 작성자 본인에게만 노출한다."""
         partial_url = reverse(

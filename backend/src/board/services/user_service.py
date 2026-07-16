@@ -390,6 +390,19 @@ class UserService:
         return None
 
     @staticmethod
+    def get_public_post_redirect_username(
+        old_username: str,
+        post_url: str,
+    ) -> Optional[str]:
+        """Resolve a legacy author URL only when its post remains public."""
+        return PublicPostService.filter_public_posts(
+            Post.objects.filter(
+                author__usernamechangelog__username=old_username,
+                url=post_url,
+            )
+        ).values_list('author__username', flat=True).first()
+
+    @staticmethod
     def get_user_data_by_includes(user: User, includes: List[str]) -> Dict[str, Any]:
         """
         Get user data based on specified includes.
