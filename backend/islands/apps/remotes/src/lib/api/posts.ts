@@ -333,6 +333,19 @@ export const getPostRevision = async (
     );
 };
 
+export const deletePostRevision = async (
+    username: string,
+    postUrl: string,
+    revisionId: number
+) => {
+    return http.delete<Response<{
+        revisionId: number;
+        deleted: boolean;
+    }>>(
+        `v1/users/@${username}/posts/${postUrl}/revisions/${revisionId}`
+    );
+};
+
 export const restorePostRevision = async (
     username: string,
     postUrl: string,
