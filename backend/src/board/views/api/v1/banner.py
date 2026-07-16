@@ -34,7 +34,10 @@ def banner(request, banner_id=None):
         })
 
     if request.method == 'GET' and banner_id:
-        banner_item = get_object_or_404(queryset, id=banner_id)
+        banner_item = get_object_or_404(
+            queryset.only(*SiteContentApiService.BANNER_LIST_FIELDS),
+            id=banner_id,
+        )
         return StatusDone(SiteContentApiService.serialize_banner(banner_item))
 
     if request.method == 'POST':

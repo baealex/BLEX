@@ -54,10 +54,9 @@ def post_preview(request, post_url):
         raise Http404("Post does not exist")
 
     try:
-        post = PostService.get_post_detail(
+        post = PostService.get_post_preview_detail(
             request.user.username,
             post_url,
-            request.user,
         )
     except Http404:
         raise Http404("Post does not exist")

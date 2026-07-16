@@ -126,7 +126,8 @@ class SocialSignupService:
         if adapter is None or provider_key not in SocialAuthProviderService.supported_keys():
             raise SocialSignupError(SocialSignupErrorKind.UNSUPPORTED_PROVIDER)
 
-        if not SocialAuthProviderService.is_enabled(provider_key):
+        provider = SocialAuthProviderService.get_enabled_provider(provider_key)
+        if provider is None:
             raise SocialSignupError(SocialSignupErrorKind.PROVIDER_DISABLED)
 
         if not code:
@@ -137,10 +138,6 @@ class SocialSignupService:
             raise SocialSignupError(SocialSignupErrorKind.EXTERNAL_AUTH_FAILED)
 
         identity = adapter.map_identity(cast(Mapping[str, object], state.user))
-        provider = cast(
-            SocialAuthProvider,
-            SocialAuthProviderService.get_provider(provider_key),
-        )
         social_auth = SocialAuth.objects.filter(
             provider=provider,
             uid=identity.uid,

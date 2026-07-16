@@ -11,6 +11,7 @@ from django.utils import timezone
 
 from board.models import Post, PostConfig, PostContent, Profile, Series, SiteSetting, StaticPage
 from board.feeds import SitePostsFeed, UserPostsFeed
+from board.services.agent_content_service import AgentContentService
 from board.services.post_trash_service import PostTrashService
 
 
@@ -439,6 +440,29 @@ class AgentContentTestCase(TestCase):
             response = self.client.get('/static/about-ai.md')
 
         self.assertEqual(response.status_code, 200)
+
+    def test_post_and_series_markdown_use_constant_query_counts(self):
+        """Markdown exports load their object graph in a bounded query count."""
+        with self.assertNumQueries(3):
+            post_response = self.client.get('/@aeo-author/agent-ready-post.md')
+        with self.assertNumQueries(3):
+            series_response = self.client.get(
+                '/@aeo-author/series/agent-ready-series.md'
+            )
+
+        self.assertEqual(post_response.status_code, 200)
+        self.assertEqual(series_response.status_code, 200)
+
+    def test_series_markdown_detail_uses_exists_instead_of_count_grouping(self):
+        """Series detail visibility should stop after finding a public post."""
+        queryset = AgentContentService.get_public_series_detail
+        with self.assertNumQueries(1) as captured:
+            series = queryset('aeo-author', 'agent-ready-series')
+
+        sql = captured.captured_queries[0]['sql'].upper()
+        self.assertEqual(series, self.public_series)
+        self.assertIn('EXISTS', sql)
+        self.assertNotIn('GROUP BY', sql)
 
     def test_aeo_disabled_hides_agent_entrypoints(self):
         """AEO가 꺼져 있으면 llms.txt와 Markdown endpoint에 접근할 수 없다."""

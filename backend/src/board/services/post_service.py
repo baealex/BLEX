@@ -516,6 +516,21 @@ class PostService:
         )
 
     @staticmethod
+    def get_post_preview_detail(username: str, url: str) -> Post:
+        """Load a draft preview without unused public engagement aggregates."""
+        return get_object_or_404(
+            Post.objects.select_related(
+                'config',
+                'content',
+                'series',
+                'author',
+                'author__profile',
+            ).prefetch_related('tags'),
+            author__username=username,
+            url=url,
+        )
+
+    @staticmethod
     def get_post_editor_page_detail(username: str, url: str) -> Post:
         """Load editor page fields without unused tags or engagement metrics."""
         return get_object_or_404(

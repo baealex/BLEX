@@ -42,6 +42,18 @@ class SiteContentApiService:
         'created_date',
         'updated_date',
     )
+    STATIC_PAGE_FIELDS = (
+        'id',
+        'title',
+        'slug',
+        'content',
+        'meta_description',
+        'is_published',
+        'show_in_footer',
+        'order',
+        'created_date',
+        'updated_date',
+    )
 
     @staticmethod
     def scoped_notice_queryset(scope: str, user: User | None = None) -> QuerySet[SiteNotice]:

@@ -30,6 +30,21 @@ class LoginSettingAPITestCase(TestCase):
         self.client = Client(HTTP_USER_AGENT='Mozilla/5.0')
         self.client.login(username='staffuser', password='test')
 
+    def test_oauth_credentials_use_one_provider_query(self):
+        SocialAuthProvider.objects.update_or_create(
+            key='github',
+            defaults={
+                'is_enabled': True,
+                'client_id': 'github-client-id',
+                'client_secret': 'github-secret',
+            },
+        )
+
+        with self.assertNumQueries(1):
+            credentials = SocialAuthProviderService.get_credentials('github')
+
+        self.assertEqual(credentials, ('github-client-id', 'github-secret'))
+
     def test_get_login_settings_not_login(self):
         client = Client(HTTP_USER_AGENT='Mozilla/5.0')
 

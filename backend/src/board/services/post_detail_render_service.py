@@ -63,9 +63,10 @@ class PostDetailRenderService:
             if post.image
             else ''
         )
-        logo_url = BrandAssetService.absolute_icon_png_url(request, None, 512)
+        site_setting = AgentContentService.get_site_setting(request)
+        logo_url = BrandAssetService.absolute_icon_png_url(request, site_setting, 512)
 
-        aeo_enabled = AgentContentService.is_aeo_enabled(request)
+        aeo_enabled = site_setting.aeo_enabled
         is_public_post = PublicPostService.is_public(post)
         post_visibility_status = 'draft' if is_post_preview else 'public'
         if not is_post_preview and post.config.hide:

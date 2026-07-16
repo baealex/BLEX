@@ -11,10 +11,11 @@ class State:
 
 
 def auth_google(code) -> State:
+    client_id, client_secret = SocialAuthProviderService.get_credentials('google')
     data = {
         'code': code,
-        'client_id': SocialAuthProviderService.get_client_id('google'),
-        'client_secret': SocialAuthProviderService.get_client_secret('google'),
+        'client_id': client_id,
+        'client_secret': client_secret,
         'redirect_uri': SiteUrlService.configured_absolute_url('/login/callback/google'),
         'grant_type': 'authorization_code',
     }
@@ -39,10 +40,11 @@ def auth_google(code) -> State:
 
 
 def auth_github(code) -> State:
+    client_id, client_secret = SocialAuthProviderService.get_credentials('github')
     data = {
         'code': code,
-        'client_id': SocialAuthProviderService.get_client_id('github'),
-        'client_secret': SocialAuthProviderService.get_client_secret('github')
+        'client_id': client_id,
+        'client_secret': client_secret,
     }
     if not data['client_id'] or not data['client_secret']:
         return State(success=False, user={})

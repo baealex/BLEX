@@ -26,8 +26,14 @@ class SocialAuthProviderService:
 
     @classmethod
     def is_enabled(cls, key: str) -> bool:
-        provider = cls.get_provider(key)
-        return bool(provider and provider.is_enabled)
+        return cls.get_enabled_provider(key) is not None
+
+    @classmethod
+    def get_enabled_provider(cls, key: str) -> SocialAuthProvider | None:
+        """Return an enabled provider without mutating configuration on reads."""
+        if key not in cls.SUPPORTED_PROVIDERS:
+            return None
+        return SocialAuthProvider.objects.filter(key=key, is_enabled=True).first()
 
     @classmethod
     def get_client_id(cls, key: str) -> str:
@@ -42,6 +48,17 @@ class SocialAuthProviderService:
         if not provider or not provider.is_enabled:
             return ''
         return SocialAuthProviderSecretService.decrypt_secret(provider.client_secret)
+
+    @classmethod
+    def get_credentials(cls, key: str) -> tuple[str, str]:
+        """Load an enabled provider's OAuth credentials with one read query."""
+        provider = cls.get_enabled_provider(key)
+        if provider is None:
+            return '', ''
+        return (
+            provider.client_id,
+            SocialAuthProviderSecretService.decrypt_secret(provider.client_secret),
+        )
 
     @classmethod
     def get_provider(cls, key: str) -> SocialAuthProvider | None:

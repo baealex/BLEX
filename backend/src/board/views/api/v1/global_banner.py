@@ -28,7 +28,13 @@ def global_banners(request, banner_id=None):
         })
 
     if request.method == 'GET' and banner_id:
-        banner = get_object_or_404(queryset.select_related('user'), id=banner_id)
+        banner = get_object_or_404(
+            queryset.select_related('user').only(
+                *SiteContentApiService.BANNER_LIST_FIELDS,
+                'user__username',
+            ),
+            id=banner_id,
+        )
         return StatusDone(SiteContentApiService.serialize_banner(banner, include_created_by=True))
 
     if request.method == 'POST':

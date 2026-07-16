@@ -42,7 +42,8 @@ def oauth_callback(request, provider):
     if InitialSetupService.should_prompt_for_initial_setup():
         return redirect('/setup')
 
-    if not SocialAuthProviderService.is_enabled(provider):
+    social_provider = SocialAuthProviderService.get_enabled_provider(provider)
+    if social_provider is None:
         messages.error(request, '소셜 로그인이 설정되지 않았습니다. 관리자에게 문의해주세요.')
         return redirect('login')
     
@@ -62,7 +63,6 @@ def oauth_callback(request, provider):
             node_id = state.user.get('node_id')
             user_id = state.user.get('login')
             name = state.user.get('name')
-            social_provider = SocialAuthProviderService.get_provider(provider)
             social_auth = SocialAuth.objects.filter(provider=social_provider, uid=node_id).select_related('user').first()
             if social_auth:
                 return handle_oauth_auth(request, social_auth.user)
@@ -99,7 +99,6 @@ def oauth_callback(request, provider):
             user_id = state.user.get('email').split('@')[0]
             email = state.user.get('email')
             name = state.user.get('name')
-            social_provider = SocialAuthProviderService.get_provider(provider)
             social_auth = SocialAuth.objects.filter(provider=social_provider, uid=node_id).select_related('user').first()
             if social_auth:
                 return handle_oauth_auth(request, social_auth.user)

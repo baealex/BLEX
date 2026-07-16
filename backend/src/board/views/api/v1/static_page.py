@@ -17,7 +17,9 @@ def static_pages(request, page_id=None):
         return permission_error
 
     if request.method == 'GET' and page_id is None:
-        pages = StaticPage.objects.all().order_by('order', '-created_date')
+        pages = StaticPage.objects.only(
+            *SiteContentApiService.STATIC_PAGE_FIELDS,
+        ).order_by('order', '-created_date')
         return StatusDone({
             'pages': [
                 SiteContentApiService.serialize_static_page(page)
@@ -26,7 +28,10 @@ def static_pages(request, page_id=None):
         })
 
     if request.method == 'GET' and page_id:
-        page = get_object_or_404(StaticPage, id=page_id)
+        page = get_object_or_404(
+            StaticPage.objects.only(*SiteContentApiService.STATIC_PAGE_FIELDS),
+            id=page_id,
+        )
         return StatusDone(SiteContentApiService.serialize_static_page(page))
 
     if request.method == 'POST':

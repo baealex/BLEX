@@ -89,7 +89,17 @@ class AgentContentService:
             return Post.objects.select_related(
                 'author',
                 'content',
-                'config',
+            ).prefetch_related(
+                'tags',
+            ).only(
+                'id',
+                'title',
+                'subtitle',
+                'url',
+                'published_date',
+                'updated_date',
+                'author__username',
+                'content__content_html',
             ).get(
                 PublicPostService.build_public_filter(),
                 author__username=username,
@@ -107,7 +117,17 @@ class AgentContentService:
     @staticmethod
     def get_public_series_detail(username: str, series_url: str) -> Series:
         try:
-            return AgentContentService.get_public_series().get(
+            return PublicSeriesService.filter_public_series_exists(
+                Series.objects.select_related('owner').only(
+                    'id',
+                    'name',
+                    'url',
+                    'text_md',
+                    'text_html',
+                    'updated_date',
+                    'owner__username',
+                )
+            ).get(
                 owner__username=username,
                 url=series_url,
             )
@@ -119,7 +139,13 @@ class AgentContentService:
         return PublicPostService.filter_public_posts(
             Post.objects.select_related(
                 'author',
-                'config',
+            ).only(
+                'id',
+                'title',
+                'url',
+                'published_date',
+                'series_id',
+                'author__username',
             )
         ).filter(
             series=series,

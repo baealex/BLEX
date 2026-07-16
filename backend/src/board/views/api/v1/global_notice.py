@@ -25,7 +25,10 @@ def global_notices(request, notice_id=None):
         })
 
     if request.method == 'GET' and notice_id:
-        notice = get_object_or_404(queryset, id=notice_id)
+        notice = get_object_or_404(
+            queryset.only(*SiteContentApiService.NOTICE_LIST_FIELDS),
+            id=notice_id,
+        )
         return StatusDone(SiteContentApiService.serialize_notice(notice))
 
     if request.method == 'POST':
