@@ -2,13 +2,24 @@
 
 from __future__ import annotations
 
-import random
+from datetime import datetime, timedelta
+from typing import Callable, ClassVar
 
-from dataclasses import dataclass
-from datetime import datetime
-from typing import Callable, ClassVar, cast
-
-from django.db.models import Count, F, Q, QuerySet
+from django.db.models import (
+    Case,
+    Count,
+    Exists,
+    ExpressionWrapper,
+    F,
+    FloatField,
+    IntegerField,
+    OuterRef,
+    Q,
+    QuerySet,
+    Value,
+    When,
+)
+from django.db.models.functions import Cast, Least
 from django.utils import timezone
 
 from board.models import Post
@@ -18,17 +29,14 @@ from board.services.public_post_service import PublicPostService
 RelatedPostJitter = Callable[[float, float], float]
 
 
-@dataclass(frozen=True)
-class ScoredRelatedPost:
-    post: Post
-    score: float
-    tag_overlap: int
-
-
 class RelatedPostService:
-    """Return public related posts using the existing scoring algorithm."""
+    """Return deterministic public recommendations led by tag relevance."""
 
     MAX_RELATED_POSTS: ClassVar[int] = 8
+    TAG_OVERLAP_WEIGHT: ClassVar[int] = 3
+    MAX_TAG_SCORE: ClassVar[int] = 10
+    LIKE_WEIGHT: ClassVar[int] = 2
+    MAX_POPULARITY_SCORE: ClassVar[int] = 10
 
     @staticmethod
     def calculate_tag_score(
@@ -36,15 +44,20 @@ class RelatedPostService:
         current_tag_set: set[str],
     ) -> tuple[int, int]:
         tag_overlap = len(current_tag_set & candidate_tags)
-        return min(tag_overlap * 3, 10), tag_overlap
+        return min(
+            tag_overlap * RelatedPostService.TAG_OVERLAP_WEIGHT,
+            RelatedPostService.MAX_TAG_SCORE,
+        ), tag_overlap
 
     @staticmethod
     def calculate_popularity_score(
         likes_count: int,
         comments_count: int,
     ) -> int:
-        popularity = (likes_count * 2) + comments_count
-        return min(popularity, 10)
+        popularity = (
+            likes_count * RelatedPostService.LIKE_WEIGHT
+        ) + comments_count
+        return min(popularity, RelatedPostService.MAX_POPULARITY_SCORE)
 
     @staticmethod
     def calculate_recency_score(
@@ -60,14 +73,35 @@ class RelatedPostService:
             return 1
         return 0
 
-    @staticmethod
-    def get_candidates(post: Post, current_tags: list[str]) -> QuerySet[Post]:
-        return PublicPostService.filter_public_posts(
+    @classmethod
+    def get_candidates(
+        cls,
+        post: Post,
+        current_tags: list[str],
+        *,
+        now: datetime | None = None,
+    ) -> QuerySet[Post]:
+        ranking_time = now or timezone.now()
+        shared_tag_match = Post.tags.through.objects.filter(
+            post_id=OuterRef('pk'),
+            tag__value__in=current_tags,
+        )
+        tag_union_count = (
+            Value(len(current_tags))
+            + F('candidate_tag_count')
+            - F('candidate_tag_overlap')
+        )
+
+        candidates = PublicPostService.filter_public_posts(
             Post.objects.select_related(
                 'author', 'author__profile', 'config'
-            ).prefetch_related('tags')
+            )
         ).exclude(
             id=post.id
+        ).alias(
+            has_shared_tag=Exists(shared_tag_match),
+        ).filter(
+            has_shared_tag=True,
         ).annotate(
             author_username=F('author__username'),
             author_name=F('author__first_name'),
@@ -77,10 +111,63 @@ class RelatedPostService:
                 filter=Q(tags__value__in=current_tags),
                 distinct=True,
             ),
+            candidate_tag_count=Count('tags', distinct=True),
             likes_count=Count('likes', distinct=True),
             comments_count=Count('comments', distinct=True),
-        ).filter(
-            candidate_tag_overlap__gt=0,
+        )
+
+        candidates = candidates.annotate(
+            tag_score=Least(
+                F('candidate_tag_overlap') * Value(cls.TAG_OVERLAP_WEIGHT),
+                Value(cls.MAX_TAG_SCORE),
+                output_field=IntegerField(),
+            ),
+            tag_similarity=ExpressionWrapper(
+                Cast(F('candidate_tag_overlap'), FloatField())
+                / Cast(tag_union_count, FloatField()),
+                output_field=FloatField(),
+            ),
+            popularity_score=Least(
+                (
+                    F('likes_count') * Value(cls.LIKE_WEIGHT)
+                    + F('comments_count')
+                ),
+                Value(cls.MAX_POPULARITY_SCORE),
+                output_field=IntegerField(),
+            ),
+            recency_score=Case(
+                When(
+                    published_date__gt=ranking_time - timedelta(days=7),
+                    then=Value(5),
+                ),
+                When(
+                    published_date__gt=ranking_time - timedelta(days=30),
+                    then=Value(3),
+                ),
+                When(
+                    published_date__gt=ranking_time - timedelta(days=90),
+                    then=Value(1),
+                ),
+                default=Value(0),
+                output_field=IntegerField(),
+            ),
+            same_author_rank=Case(
+                When(author_id=post.author_id, then=Value(1)),
+                default=Value(0),
+                output_field=IntegerField(),
+            ),
+        ).annotate(
+            quality_score=F('popularity_score') + F('recency_score'),
+        )
+
+        return candidates.order_by(
+            '-tag_score',
+            '-candidate_tag_overlap',
+            '-tag_similarity',
+            'same_author_rank',
+            '-quality_score',
+            '-published_date',
+            '-pk',
         )
 
     @classmethod
@@ -90,50 +177,10 @@ class RelatedPostService:
         *,
         jitter: RelatedPostJitter | None = None,
     ) -> list[Post]:
+        """Return the top matches; ``jitter`` remains accepted for compatibility."""
         current_tags = [tag.value for tag in post.tags.all()]
         if not current_tags:
             return []
 
-        current_tag_set = set(current_tags)
         candidates = cls.get_candidates(post, current_tags)
-        scored_posts: list[ScoredRelatedPost] = []
-        now = timezone.now()
-        jitter_score = jitter if jitter is not None else random.uniform
-
-        for candidate in candidates:
-            candidate_tags = {
-                tag.value
-                for tag in candidate.tags.all()
-            }
-            tag_score, tag_overlap = cls.calculate_tag_score(
-                candidate_tags,
-                current_tag_set,
-            )
-            popularity_score = cls.calculate_popularity_score(
-                cast(int, candidate.likes_count),
-                cast(int, candidate.comments_count),
-            )
-            recency_score = cls.calculate_recency_score(
-                cast(datetime, candidate.published_date),
-                now,
-            )
-
-            score = tag_score + popularity_score + recency_score
-            if candidate.author.id == post.author.id:
-                score -= 5
-            score += jitter_score(-3, 3)
-
-            scored_posts.append(ScoredRelatedPost(
-                post=candidate,
-                score=score,
-                tag_overlap=tag_overlap,
-            ))
-
-        scored_posts.sort(
-            key=lambda item: (item.score, item.tag_overlap),
-            reverse=True,
-        )
-        return [
-            item.post
-            for item in scored_posts[:cls.MAX_RELATED_POSTS]
-        ]
+        return list(candidates[:cls.MAX_RELATED_POSTS])

@@ -96,6 +96,7 @@ export interface RelatedPost {
     metaDescription: string;
     image?: string;
     publishedDate: string;
+    publishedAt?: string;
     readTime: number;
 }
 

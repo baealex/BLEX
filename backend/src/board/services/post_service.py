@@ -5,7 +5,6 @@ Business logic for post operations.
 Extracted from views to improve testability and reusability.
 """
 
-import random
 from typing import Optional, Dict, Any, Tuple, List
 from datetime import datetime
 
@@ -568,10 +567,7 @@ class PostService:
 
     @staticmethod
     def get_related_posts(post: Post) -> List[Post]:
-        return RelatedPostService.get_related_posts(
-            post,
-            jitter=random.uniform,
-        )
+        return RelatedPostService.get_related_posts(post)
 
     @staticmethod
     @transaction.atomic
