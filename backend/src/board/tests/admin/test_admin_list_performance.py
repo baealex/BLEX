@@ -1,15 +1,18 @@
 from datetime import timedelta
 
 from django.contrib import admin
+from django.contrib.admin import helpers
 from django.contrib.admin.models import CHANGE, LogEntry
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
 from django.db import connection
+from django.http import QueryDict
 from django.test import RequestFactory, TestCase
 from django.test.utils import CaptureQueriesContext
 from django.urls import resolve, reverse
 from django.utils import timezone
 
+from board.admin.auth import SocialAuthProviderFilter
 from board.admin.comment import CommentAdmin
 from board.admin.image import ImageCacheAdmin
 from board.admin.post import EditRequestAdmin, PinnedPostAdmin, PostAdmin
@@ -35,12 +38,14 @@ from board.models import (
     SiteBanner,
     SiteNotice,
     SocialAuth,
+    SocialAuthProvider,
     Tag,
     TelegramSync,
     TwoFactorAuth,
     UserConfigMeta,
     UserLinkMeta,
     UsernameChangeLog,
+    WebhookSubscription,
 )
 
 
@@ -158,6 +163,32 @@ class AdminListPerformanceTestCase(TestCase):
             bio='large profile bio ' * 100,
             about_md='large profile markdown ' * 500,
             about_html='<p>' + ('large profile html ' * 500) + '</p>',
+        )
+        cls.webhook = WebhookSubscription.objects.create(
+            scope='user',
+            author=cls.profile,
+            webhook_url='https://hooks.example.com/list-performance',
+            name='List performance webhook',
+        )
+        cls.social_provider, _ = SocialAuthProvider.objects.get_or_create(
+            key='github',
+            defaults={'client_id': 'list-performance-client-id'},
+        )
+        cls.social_auth = SocialAuth.objects.create(
+            user=cls.authors[0],
+            provider=cls.social_provider,
+            uid='list-performance-social-auth',
+            extra_data='{}',
+        )
+        cls.other_social_provider, _ = SocialAuthProvider.objects.get_or_create(
+            key='google',
+            defaults={'client_id': 'list-performance-google-client-id'},
+        )
+        cls.other_social_auth = SocialAuth.objects.create(
+            user=cls.authors[1],
+            provider=cls.other_social_provider,
+            uid='list-performance-other-social-auth',
+            extra_data='{}',
         )
         cls.form = Form.objects.create(
             user=cls.authors[0],
@@ -488,6 +519,143 @@ class AdminListPerformanceTestCase(TestCase):
                 response = self.client.get(reverse(url_name), {'q': 'list'})
                 self.assertEqual(response.status_code, 200)
                 self.assertIsNone(response.context['cl'].full_result_count)
+
+    def test_related_changelists_defer_large_relation_fields(self):
+        cases = (
+            (
+                Post,
+                self.public_posts[0].pk,
+                'series',
+                {'text_md', 'text_html'},
+            ),
+            (
+                User,
+                self.authors[0].pk,
+                'profile',
+                {'bio', 'about_md', 'about_html'},
+            ),
+            (
+                WebhookSubscription,
+                self.webhook.pk,
+                'author',
+                {'bio', 'about_md', 'about_html'},
+            ),
+        )
+
+        for model, object_id, relation_name, expected_fields in cases:
+            with self.subTest(model=model):
+                model_admin = admin.site._registry[model]
+                row = model_admin.get_queryset(
+                    self.changelist_request(model),
+                ).get(pk=object_id)
+                related = getattr(row, relation_name)
+
+                self.assertIsNotNone(related)
+                self.assertTrue(
+                    expected_fields.issubset(related.get_deferred_fields()),
+                )
+
+    def test_social_auth_provider_filter_avoids_credential_columns(self):
+        self.client.force_login(self.admin_user)
+        url = reverse(self.admin_url_name(SocialAuth, 'changelist'))
+
+        provider_field = SocialAuth._meta.get_field('provider')
+        with CaptureQueriesContext(connection) as provider_queries:
+            provider_filter = SocialAuthProviderFilter(
+                provider_field,
+                self.changelist_request(SocialAuth),
+                {},
+                SocialAuth,
+                admin.site._registry[SocialAuth],
+                field_path='provider',
+            )
+
+        self.assertEqual(len(provider_queries), 1)
+        self.assertEqual(provider_filter.lookup_kwarg, 'provider__id__exact')
+        provider_filter_query = provider_queries.captured_queries[0]['sql'].lower()
+        self.assertNotIn('client_id', provider_filter_query)
+        self.assertNotIn('client_secret', provider_filter_query)
+
+        filtered_response = self.client.get(
+            url,
+            {'provider__id__exact': self.social_provider.pk},
+        )
+        self.assertEqual(filtered_response.status_code, 200)
+        self.assertEqual(
+            list(
+                filtered_response.context['cl'].queryset.values_list(
+                    'pk',
+                    flat=True,
+                ),
+            ),
+            [self.social_auth.pk],
+        )
+
+        multi_value_params = QueryDict('', mutable=True)
+        multi_value_params.appendlist(
+            'provider__id__exact',
+            str(self.social_provider.pk),
+        )
+        multi_value_params.appendlist(
+            'provider__id__exact',
+            str(self.other_social_provider.pk),
+        )
+        multi_value_response = self.client.get(url, multi_value_params)
+        self.assertEqual(multi_value_response.status_code, 200)
+        self.assertCountEqual(
+            multi_value_response.context['cl'].queryset.values_list(
+                'pk',
+                flat=True,
+            ),
+            [self.social_auth.pk, self.other_social_auth.pk],
+        )
+
+    def test_comment_pagination_count_avoids_like_join(self):
+        with CaptureQueriesContext(connection) as queries:
+            self.comment_admin.get_queryset(
+                self.changelist_request(Comment),
+            ).count()
+
+        self.assertEqual(len(queries), 1)
+        self.assertNotIn(
+            'board_comment_likes',
+            queries.captured_queries[0]['sql'].lower(),
+        )
+
+    def test_comment_delete_confirmation_does_not_load_each_deferred_body(self):
+        comments = [
+            Comment.objects.create(
+                author=self.authors[0],
+                post=self.public_posts[0],
+                text_md=f'Confirmation comment {index}',
+                text_html=f'<p>Confirmation comment {index}</p>',
+            )
+            for index in range(5)
+        ]
+        request = self.changelist_request(Comment)
+        request.method = 'POST'
+        request.POST = QueryDict('', mutable=True)
+        request.POST['action'] = 'soft_delete_comments'
+        for comment in comments:
+            request.POST.appendlist(
+                helpers.ACTION_CHECKBOX_NAME,
+                str(comment.pk),
+            )
+        queryset = self.comment_admin.get_queryset(request).filter(
+            pk__in=[comment.pk for comment in comments],
+        )
+
+        with CaptureQueriesContext(connection) as queries:
+            response = self.comment_admin.soft_delete_comments(request, queryset)
+            response.render()
+
+        self.assertEqual(response.status_code, 200)
+        comment_queries = [
+            query['sql'].lower()
+            for query in queries.captured_queries
+            if 'from "board_comment"' in query['sql'].lower()
+        ]
+        self.assertEqual(len(comment_queries), 3)
 
     def test_changelists_defer_unused_large_fields(self):
         for model, object_id, expected_fields in self.large_field_cases():

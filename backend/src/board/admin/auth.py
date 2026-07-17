@@ -163,6 +163,25 @@ class TwoFactorAuthAdmin(
         return None
 
 
+class SocialAuthProviderFilter(admin.RelatedFieldListFilter):
+    """List providers without reading their client credentials."""
+
+    def field_choices(self, field, request, model_admin):
+        """Keep Django relation-filter semantics with a narrow select list."""
+        ordering = self.field_admin_ordering(field, request, model_admin)
+        queryset = field.remote_field.model._default_manager.complex_filter(
+            field.get_limit_choices_to(),
+        )
+        if ordering:
+            queryset = queryset.order_by(*ordering)
+        return list(
+            queryset.values_list(
+                field.remote_field.get_related_field().attname,
+                'key',
+            )
+        )
+
+
 @admin.register(SocialAuth)
 class SocialAuthAdmin(
     ConfirmedActionDeleteAdminMixin,
@@ -176,7 +195,10 @@ class SocialAuthAdmin(
         'created_date',
     ]
     search_fields = ['user__username', 'provider__key']
-    list_filter = ['provider', ('created_date', admin.DateFieldListFilter)]
+    list_filter = [
+        ('provider', SocialAuthProviderFilter),
+        ('created_date', admin.DateFieldListFilter),
+    ]
     fields = [
         'user_link',
         'provider',
