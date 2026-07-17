@@ -4,8 +4,9 @@ from django.contrib import admin, messages
 from django.db import transaction
 from django.db.models import QuerySet
 from django.http import HttpRequest
+from django.shortcuts import redirect
 
-from board.models import TwoFactorAuth, SocialAuth
+from board.models import SocialAuth, SocialAuthProvider, TwoFactorAuth
 from board.services.social_auth_connection_service import (
     SocialAuthConnectionService,
     SocialAuthDisconnectError,
@@ -21,6 +22,52 @@ from .mixins import (
     ReadOnlyRecordAdminMixin,
 )
 from .service import AdminDisplayService, AdminLinkService
+
+
+@admin.register(SocialAuthProvider)
+class SocialAuthProviderCompatibilityAdmin(admin.ModelAdmin):
+    """Preserve legacy Admin URLs without exposing provider secrets."""
+
+    canonical_settings_url = '/admin-settings/login'
+
+    def has_module_permission(self, request):
+        return False
+
+    def has_view_permission(self, request, obj=None):
+        return False
+
+    def has_add_permission(self, request):
+        return False
+
+    def has_change_permission(self, request, obj=None):
+        return False
+
+    def has_delete_permission(self, request, obj=None):
+        return False
+
+    def _redirect_to_canonical_settings(self):
+        return redirect(self.canonical_settings_url)
+
+    def changelist_view(self, request, extra_context=None):
+        return self._redirect_to_canonical_settings()
+
+    def add_view(self, request, form_url='', extra_context=None):
+        return self._redirect_to_canonical_settings()
+
+    def change_view(
+        self,
+        request,
+        object_id,
+        form_url='',
+        extra_context=None,
+    ):
+        return self._redirect_to_canonical_settings()
+
+    def delete_view(self, request, object_id, extra_context=None):
+        return self._redirect_to_canonical_settings()
+
+    def history_view(self, request, object_id, extra_context=None):
+        return self._redirect_to_canonical_settings()
 
 
 @admin.register(TwoFactorAuth)
