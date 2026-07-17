@@ -94,7 +94,10 @@ class CommentAdmin(
     date_hierarchy = 'created_date'
 
     def get_queryset(self, request):
-        return super().get_queryset(request).select_related('author', 'post').prefetch_related('likes').annotate(
+        return super().get_queryset(request).select_related(
+            'author',
+            'post',
+        ).defer('author__password').annotate(
             likes_count_annotated=Count('likes', distinct=True)
         )
 
@@ -158,6 +161,8 @@ class CommentAdmin(
     author_info.short_description = '작성자 정보'
 
     def likes_count(self, obj):
+        if hasattr(obj, 'likes_count_annotated'):
+            return obj.likes_count_annotated
         return obj.likes.count()
     likes_count.short_description = '총 좋아요 수'
 

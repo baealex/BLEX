@@ -402,7 +402,7 @@ class AdminDisplayService:
     def video(video_url: str, max_width: str = '400px') -> SafeString:
         """비디오 표시 (최대 너비 지정)"""
         return format_html(
-            '<video controls style="max-width: {}; border-radius: 8px;"><source src="{}" type="video/mp4"></video>',
+            '<video controls preload="none" style="max-width: {}; border-radius: 8px;"><source src="{}" type="video/mp4"></video>',
             max_width, video_url
         )
 

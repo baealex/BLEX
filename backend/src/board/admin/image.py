@@ -30,7 +30,7 @@ class ImageCacheAdmin(admin.ModelAdmin):
     search_fields = ['path']
 
     list_display = ['id', 'file_size', 'image', 'open_image']
-    list_per_page = 50
+    list_per_page = 30
 
     def get_list_filter(self, request):
         return [ImageFilter]
@@ -46,7 +46,7 @@ class ImageCacheAdmin(admin.ModelAdmin):
     file_size.admin_order_field = 'size'
 
     def image(self, obj):
-        image_size = '480px'
+        image_size = '120px'
         media_path = settings.MEDIA_URL + obj.path
 
         if obj.path.endswith('.mp4'):

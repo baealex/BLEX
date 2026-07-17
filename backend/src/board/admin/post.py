@@ -6,17 +6,31 @@ from typing import Any
 from django.contrib import admin, messages
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import transaction
-from django.db.models import Count, QuerySet
+from django.db.models import (
+    Count,
+    IntegerField,
+    OuterRef,
+    QuerySet,
+    Subquery,
+    Value,
+)
+from django.db.models.functions import Coalesce
 from django.http import HttpRequest
 from django.utils import timezone
+from django.utils.html import format_html
 
 from board.services.post_revision_service import PostRevisionService
 from board.services.post_service import PostService, PostValidationError
 from board.services.post_status_service import PostStatusService
 from board.services.post_trash_service import PostTrashService
 from board.models import (
-    EditRequest, Post, PinnedPost,
-    PostConfig, PostContent,
+    Comment,
+    EditRequest,
+    PinnedPost,
+    Post,
+    PostConfig,
+    PostContent,
+    PostLikes,
 )
 
 from .action_confirmation import render_action_confirmation
@@ -60,6 +74,9 @@ class EditRequestAdmin(admin.ModelAdmin):
     list_per_page = LIST_PER_PAGE_DEFAULT
     search_fields = ['post__title']
 
+    def get_queryset(self, request):
+        return super().get_queryset(request).select_related('post')
+
 
 @admin.register(PinnedPost)
 class PinnedPostAdmin(admin.ModelAdmin):
@@ -67,6 +84,12 @@ class PinnedPostAdmin(admin.ModelAdmin):
     list_per_page = LIST_PER_PAGE_DEFAULT
     search_fields = ['post__title', 'user__username']
     autocomplete_fields = ['post', 'user']
+
+    def get_queryset(self, request):
+        return super().get_queryset(request).select_related(
+            'post',
+            'user',
+        ).defer('user__password')
 
 
 class PostContentInline(admin.StackedInline):
@@ -184,11 +207,41 @@ class PostAdmin(admin.ModelAdmin):
         ):
             queryset = queryset.filter(deleted_date__isnull=True)
 
+        likes_count = PostLikes.objects.filter(
+            post_id=OuterRef('pk'),
+        ).order_by().values('post_id').annotate(
+            total=Count('pk'),
+        ).values('total')
+        comments = Comment.objects.filter(
+            post_id=OuterRef('pk'),
+        ).order_by().values('post_id')
+        comments_count = comments.annotate(
+            total=Count('pk'),
+        ).values('total')
+        active_comments_count = comments.filter(
+            author__isnull=False,
+        ).annotate(
+            total=Count('pk'),
+        ).values('total')
+
         return queryset.select_related(
-            'author', 'content', 'config', 'series'
-        ).prefetch_related('tags', 'likes', 'comments').annotate(
-            likes_count=Count('likes', distinct=True),
-            comments_count=Count('comments', distinct=True)
+            'author', 'config', 'series'
+        ).defer('author__password').prefetch_related('tags').annotate(
+            likes_count=Coalesce(
+                Subquery(likes_count, output_field=IntegerField()),
+                Value(0),
+            ),
+            comments_count=Coalesce(
+                Subquery(comments_count, output_field=IntegerField()),
+                Value(0),
+            ),
+            active_comments_count=Coalesce(
+                Subquery(
+                    active_comments_count,
+                    output_field=IntegerField(),
+                ),
+                Value(0),
+            ),
         )
 
     def get_actions(self, request):
@@ -292,9 +345,24 @@ class PostAdmin(admin.ModelAdmin):
     likes_count.admin_order_field = 'likes_count'
 
     def comments_count(self, obj: Post) -> str:
-        count = obj.comments_count if hasattr(obj, 'comments_count') else obj.comments.count()
-        return AdminDisplayService.comment_count_badge(count)
-    comments_count.short_description = '댓글'
+        total_count = (
+            obj.comments_count
+            if hasattr(obj, 'comments_count')
+            else obj.comments.count()
+        )
+        active_count = (
+            obj.active_comments_count
+            if hasattr(obj, 'active_comments_count')
+            else obj.comments.filter(author__isnull=False).count()
+        )
+        deleted_count = total_count - active_count
+        return format_html(
+            '💬 {} <span style="color: var(--body-quiet-color, #666);">'
+            '(삭제 {})</span>',
+            active_count,
+            deleted_count,
+        )
+    comments_count.short_description = '댓글 (활성/삭제)'
     comments_count.admin_order_field = 'comments_count'
 
     def publish_status(self, obj: Post) -> str:
@@ -324,10 +392,14 @@ class PostAdmin(admin.ModelAdmin):
     image_preview.short_description = '이미지 미리보기'
 
     def total_likes(self, obj: Post) -> int:
+        if hasattr(obj, 'likes_count'):
+            return obj.likes_count
         return obj.likes.count()
     total_likes.short_description = '총 좋아요 수'
 
     def total_comments(self, obj: Post) -> int:
+        if hasattr(obj, 'comments_count'):
+            return obj.comments_count
         return obj.comments.count()
     total_comments.short_description = '총 댓글 수'
 
