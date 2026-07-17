@@ -29,6 +29,7 @@ class UserActiveStatusResult:
     changed_users: tuple[User, ...]
     skipped_self_count: int
     skipped_last_superuser_count: int
+    skipped_protected_admin_count: int
 
 
 class UserManagementService:
@@ -268,6 +269,7 @@ class UserManagementService:
         changed_users = []
         skipped_self_count = 0
         skipped_last_superuser_count = 0
+        skipped_protected_admin_count = 0
 
         for target in targets:
             if target.is_active == is_active:
@@ -275,6 +277,13 @@ class UserManagementService:
 
             if not is_active and target.pk == actor.pk:
                 skipped_self_count += 1
+                continue
+
+            if (
+                not actor.is_superuser
+                and (target.is_staff or target.is_superuser)
+            ):
+                skipped_protected_admin_count += 1
                 continue
 
             if not is_active and target.pk in active_superuser_ids:
@@ -291,4 +300,5 @@ class UserManagementService:
             changed_users=tuple(changed_users),
             skipped_self_count=skipped_self_count,
             skipped_last_superuser_count=skipped_last_superuser_count,
+            skipped_protected_admin_count=skipped_protected_admin_count,
         )
