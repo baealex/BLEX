@@ -4,6 +4,9 @@ Staff-facing user management service.
 
 from __future__ import annotations
 
+from collections.abc import Iterable
+from dataclasses import dataclass
+
 from django.contrib.auth.models import User
 from django.db import transaction
 from django.db.models import Count, IntegerField, OuterRef, Q, Subquery, Value
@@ -19,6 +22,13 @@ class UserManagementError(Exception):
     def __init__(self, message: str):
         super().__init__(message)
         self.message = message
+
+
+@dataclass(frozen=True)
+class UserActiveStatusResult:
+    changed_users: tuple[User, ...]
+    skipped_self_count: int
+    skipped_last_superuser_count: int
 
 
 class UserManagementService:
@@ -232,3 +242,53 @@ class UserManagementService:
 
         target.post_count = target.post_set.count()
         return UserManagementService.serialize_user(target)
+
+    @staticmethod
+    @transaction.atomic
+    def set_active_status(
+        actor: User,
+        user_ids: Iterable[int],
+        *,
+        is_active: bool,
+    ) -> UserActiveStatusResult:
+        target_ids = set(user_ids)
+        locked_users = list(
+            User.objects.select_for_update().filter(
+                Q(pk__in=target_ids)
+                | Q(is_active=True, is_superuser=True),
+            ).order_by('pk'),
+        )
+        targets = [user for user in locked_users if user.pk in target_ids]
+        active_superuser_ids = {
+            user.pk
+            for user in locked_users
+            if user.is_active and user.is_superuser
+        }
+        remaining_active_superusers = len(active_superuser_ids)
+        changed_users = []
+        skipped_self_count = 0
+        skipped_last_superuser_count = 0
+
+        for target in targets:
+            if target.is_active == is_active:
+                continue
+
+            if not is_active and target.pk == actor.pk:
+                skipped_self_count += 1
+                continue
+
+            if not is_active and target.pk in active_superuser_ids:
+                if remaining_active_superusers <= 1:
+                    skipped_last_superuser_count += 1
+                    continue
+                remaining_active_superusers -= 1
+
+            target.is_active = is_active
+            target.save(update_fields=['is_active'])
+            changed_users.append(target)
+
+        return UserActiveStatusResult(
+            changed_users=tuple(changed_users),
+            skipped_self_count=skipped_self_count,
+            skipped_last_superuser_count=skipped_last_superuser_count,
+        )

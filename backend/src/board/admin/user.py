@@ -22,6 +22,7 @@ from board.services.email_change_service import (
     EmailChangeService,
 )
 from board.services.user_role_service import UserRoleService
+from board.services.user_management_service import UserManagementService
 
 from .action_confirmation import render_action_confirmation
 from .mixins import (
@@ -178,7 +179,7 @@ class ProfileInline(admin.StackedInline):
 admin.site.unregister(User)
 
 @admin.register(User)
-class CustomUserAdmin(BaseUserAdmin):
+class CustomUserAdmin(ConfirmedActionDeleteAdminMixin, BaseUserAdmin):
     inlines = [ProfileInline, UserLinkMetaInline]
 
     list_display = ['username', 'email', 'role_badge', 'post_count', 'is_staff', 'is_active', 'date_joined']
@@ -195,6 +196,28 @@ class CustomUserAdmin(BaseUserAdmin):
             post_count=Count('post', distinct=True)
         )
 
+    def get_readonly_fields(self, request, obj=None):
+        readonly_fields = list(super().get_readonly_fields(request, obj))
+        if obj is None:
+            return readonly_fields
+
+        is_current_user = obj.pk == request.user.pk
+        is_last_active_superuser = (
+            obj.is_active
+            and obj.is_superuser
+            and not User.objects.filter(
+                is_active=True,
+                is_superuser=True,
+            ).exclude(pk=obj.pk).exists()
+        )
+        if is_current_user or is_last_active_superuser:
+            readonly_fields.extend([
+                'is_active',
+                'is_staff',
+                'is_superuser',
+            ])
+        return list(dict.fromkeys(readonly_fields))
+
     def role_badge(self, obj):
         if hasattr(obj, 'profile'):
             return AdminDisplayService.role_badge(obj.profile.role)
@@ -207,25 +230,155 @@ class CustomUserAdmin(BaseUserAdmin):
     post_count.short_description = '포스트 수'
     post_count.admin_order_field = 'post_count'
 
-    def make_editor(self, request: HttpRequest, queryset: QuerySet[User]) -> None:
-        count = UserRoleService.set_users_role(queryset, Profile.Role.EDITOR)
+    def set_users_role(
+        self,
+        request: HttpRequest,
+        queryset: QuerySet[User],
+        *,
+        role: str,
+    ) -> int:
+        with transaction.atomic():
+            users = list(queryset.select_for_update().select_related('profile'))
+            count = UserRoleService.set_users_role(queryset, role)
+            role_label = '작가' if role == Profile.Role.EDITOR else '독자'
+            for user in users:
+                if hasattr(user, 'profile'):
+                    self.log_change(
+                        request,
+                        user,
+                        f'Admin에서 {role_label} 역할로 변경',
+                    )
+        return count
+
+    @admin.action(
+        description='선택한 사용자를 작가로 변경',
+        permissions=['change'],
+    )
+    def make_editor(
+        self,
+        request: HttpRequest,
+        queryset: QuerySet[User],
+    ) -> None:
+        count = self.set_users_role(
+            request,
+            queryset,
+            role=Profile.Role.EDITOR,
+        )
         self.message_user(request, f'{count}명의 사용자를 작가로 변경했습니다.')
-    make_editor.short_description = '선택한 사용자를 작가로 변경'
 
-    def make_reader(self, request: HttpRequest, queryset: QuerySet[User]) -> None:
-        count = UserRoleService.set_users_role(queryset, Profile.Role.READER)
+    @admin.action(
+        description='선택한 사용자를 독자로 변경',
+        permissions=['change'],
+    )
+    def make_reader(
+        self,
+        request: HttpRequest,
+        queryset: QuerySet[User],
+    ) -> None:
+        count = self.set_users_role(
+            request,
+            queryset,
+            role=Profile.Role.READER,
+        )
         self.message_user(request, f'{count}명의 사용자를 독자로 변경했습니다.')
-    make_reader.short_description = '선택한 사용자를 독자로 변경'
 
-    def activate_users(self, request: HttpRequest, queryset: QuerySet[User]) -> None:
-        count = queryset.update(is_active=True)
-        self.message_user(request, f'{count}명의 사용자를 활성화했습니다.')
-    activate_users.short_description = '선택한 사용자 활성화'
+    def set_users_active_status(
+        self,
+        request: HttpRequest,
+        queryset: QuerySet[User],
+        *,
+        is_active: bool,
+    ) -> Any:
+        candidates = queryset.filter(is_active=not is_active)
+        action_name = 'activate_users' if is_active else 'deactivate_users'
+        status_label = '활성화' if is_active else '비활성화'
+        if request.POST.get('confirm') != 'yes':
+            if not candidates.exists():
+                self.message_user(
+                    request,
+                    f'{status_label}할 사용자가 없습니다.',
+                    level=messages.WARNING,
+                )
+                return None
+            warning = (
+                '선택한 계정의 로그인과 API 접근을 다시 허용합니다.'
+                if is_active
+                else (
+                    '선택한 계정은 즉시 로그인과 API 접근이 차단됩니다. '
+                    '현재 관리자와 마지막 활성 슈퍼유저는 건너뜁니다.'
+                )
+            )
+            return render_action_confirmation(
+                request,
+                self,
+                candidates,
+                action_name=action_name,
+                title=f'사용자 {status_label} 확인',
+                warning=warning,
+                confirm_label=f'사용자 {status_label}',
+            )
 
-    def deactivate_users(self, request: HttpRequest, queryset: QuerySet[User]) -> None:
-        count = queryset.update(is_active=False)
-        self.message_user(request, f'{count}명의 사용자를 비활성화했습니다.')
-    deactivate_users.short_description = '선택한 사용자 비활성화'
+        with transaction.atomic():
+            result = UserManagementService.set_active_status(
+                request.user,
+                candidates.values_list('pk', flat=True),
+                is_active=is_active,
+            )
+            for user in result.changed_users:
+                self.log_change(
+                    request,
+                    user,
+                    f'Admin에서 계정 {status_label}',
+                )
+
+        self.message_user(
+            request,
+            f'{len(result.changed_users)}명의 사용자를 {status_label}했습니다.',
+            level=messages.SUCCESS,
+        )
+        if result.skipped_self_count:
+            self.message_user(
+                request,
+                '현재 로그인한 관리자 계정은 비활성화하지 않았습니다.',
+                level=messages.WARNING,
+            )
+        if result.skipped_last_superuser_count:
+            self.message_user(
+                request,
+                '마지막 활성 슈퍼유저 계정은 비활성화하지 않았습니다.',
+                level=messages.WARNING,
+            )
+        return None
+
+    @admin.action(
+        description='선택한 사용자 활성화',
+        permissions=['change'],
+    )
+    def activate_users(
+        self,
+        request: HttpRequest,
+        queryset: QuerySet[User],
+    ) -> Any:
+        return self.set_users_active_status(
+            request,
+            queryset,
+            is_active=True,
+        )
+
+    @admin.action(
+        description='선택한 사용자 비활성화',
+        permissions=['change'],
+    )
+    def deactivate_users(
+        self,
+        request: HttpRequest,
+        queryset: QuerySet[User],
+    ) -> Any:
+        return self.set_users_active_status(
+            request,
+            queryset,
+            is_active=False,
+        )
 
 
 @admin.register(UserConfigMeta)
@@ -445,12 +598,53 @@ class ProfileAdmin(admin.ModelAdmin):
         return obj.user.post_set.count()
     total_posts.short_description = '총 포스트 수'
 
-    def set_role_editor(self, request: HttpRequest, queryset: QuerySet[Profile]) -> None:
-        count = UserRoleService.set_profiles_role(queryset, Profile.Role.EDITOR)
-        self.message_user(request, f'{count}명의 프로필을 작가로 변경했습니다.')
-    set_role_editor.short_description = '역할을 작가로 변경'
+    def set_profiles_role(
+        self,
+        request: HttpRequest,
+        queryset: QuerySet[Profile],
+        *,
+        role: str,
+    ) -> int:
+        with transaction.atomic():
+            profiles = list(queryset.select_for_update())
+            count = UserRoleService.set_profiles_role(queryset, role)
+            role_label = '작가' if role == Profile.Role.EDITOR else '독자'
+            for profile in profiles:
+                self.log_change(
+                    request,
+                    profile,
+                    f'Admin에서 {role_label} 역할로 변경',
+                )
+        return count
 
-    def set_role_reader(self, request: HttpRequest, queryset: QuerySet[Profile]) -> None:
-        count = UserRoleService.set_profiles_role(queryset, Profile.Role.READER)
+    @admin.action(
+        description='역할을 작가로 변경',
+        permissions=['change'],
+    )
+    def set_role_editor(
+        self,
+        request: HttpRequest,
+        queryset: QuerySet[Profile],
+    ) -> None:
+        count = self.set_profiles_role(
+            request,
+            queryset,
+            role=Profile.Role.EDITOR,
+        )
+        self.message_user(request, f'{count}명의 프로필을 작가로 변경했습니다.')
+
+    @admin.action(
+        description='역할을 독자로 변경',
+        permissions=['change'],
+    )
+    def set_role_reader(
+        self,
+        request: HttpRequest,
+        queryset: QuerySet[Profile],
+    ) -> None:
+        count = self.set_profiles_role(
+            request,
+            queryset,
+            role=Profile.Role.READER,
+        )
         self.message_user(request, f'{count}명의 프로필을 독자로 변경했습니다.')
-    set_role_reader.short_description = '역할을 독자로 변경'

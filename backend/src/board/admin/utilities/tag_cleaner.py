@@ -1,22 +1,29 @@
 """
 태그 정리 서비스 - 미사용 태그 찾기 및 삭제
 """
-from typing import List, Dict, Any, Tuple
-from django.db.models import Count
+from typing import Any, Dict, List, Tuple
 
-from board.models import Post, Tag
+from django.db.models import Count, QuerySet
+
+from board.models import Tag
 
 
 class TagCleanerService:
     """태그 정리 서비스"""
 
     @staticmethod
+    def filter_unused(tags: QuerySet[Tag]) -> QuerySet[Tag]:
+        return tags.annotate(
+            cleanup_post_count=Count('posts', distinct=True),
+        ).filter(cleanup_post_count=0)
+
+    @staticmethod
     def get_unused_tags() -> List[Dict[str, Any]]:
         """미사용 태그 목록 조회"""
         # 포스트가 없는 태그 찾기
-        tags = Tag.objects.annotate(
-            post_count=Count('posts')
-        ).filter(post_count=0).order_by('value')
+        tags = TagCleanerService.filter_unused(
+            Tag.objects.all(),
+        ).order_by('value')
 
         unused_tags = []
         for tag in tags:
@@ -60,14 +67,23 @@ class TagCleanerService:
     @staticmethod
     def clean_unused_tags(execute: bool = False) -> Tuple[int, List[str]]:
         """미사용 태그 삭제"""
-        tags = Tag.objects.annotate(
-            post_count=Count('posts')
-        ).filter(post_count=0)
+        return TagCleanerService.clean_selected_unused_tags(
+            Tag.objects.all(),
+            execute=execute,
+        )
 
-        tag_names = [tag.value for tag in tags]
-        count = tags.count()
+    @staticmethod
+    def clean_selected_unused_tags(
+        tags: QuerySet[Tag],
+        *,
+        execute: bool = False,
+    ) -> Tuple[int, List[str]]:
+        unused_tags = TagCleanerService.filter_unused(tags)
+
+        tag_names = list(unused_tags.values_list('value', flat=True))
+        count = len(tag_names)
 
         if execute:
-            tags.delete()
+            unused_tags.delete()
 
         return count, tag_names
