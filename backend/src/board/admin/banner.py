@@ -20,6 +20,8 @@ from .service import AdminDisplayService
 class SiteContentActionAdminMixin:
     """Keep site-content state changes timestamped and auditable."""
 
+    show_full_result_count = False
+
     def _set_active_state(
         self,
         request: HttpRequest,

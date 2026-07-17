@@ -52,6 +52,7 @@ class SeriesAdmin(admin.ModelAdmin):
     inlines = [SeriesPostInline]
     autocomplete_fields = ['owner']
     search_fields = ['name', 'owner__username', 'text_md']
+    show_full_result_count = False
 
     # autocomplete 지원
     ordering = ['name']

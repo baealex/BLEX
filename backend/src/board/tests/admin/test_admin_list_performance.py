@@ -7,7 +7,7 @@ from django.contrib.admin.widgets import (
     AutocompleteSelectMultiple,
 )
 from django.contrib.admin.models import CHANGE, LogEntry
-from django.contrib.auth.models import User
+from django.contrib.auth.models import Group, User
 from django.contrib.contenttypes.models import ContentType
 from django.db import connection
 from django.http import QueryDict
@@ -647,7 +647,22 @@ class AdminListPerformanceTestCase(TestCase):
             with self.subTest(model=model):
                 response = self.client.get(reverse(url_name), {'q': 'list'})
                 self.assertEqual(response.status_code, 200)
+                self.assertIsInstance(response.context['cl'].result_count, int)
                 self.assertIsNone(response.context['cl'].full_result_count)
+
+    def test_project_model_admins_disable_redundant_full_result_counts(self):
+        models = [
+            model
+            for model in admin.site._registry
+            if model._meta.app_label == 'board'
+        ]
+        models.extend([User, Group, LogEntry])
+
+        for model in models:
+            with self.subTest(model=model):
+                self.assertFalse(
+                    admin.site._registry[model].show_full_result_count,
+                )
 
     def test_related_changelists_defer_large_relation_fields(self):
         cases = (
