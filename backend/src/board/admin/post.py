@@ -34,6 +34,7 @@ from board.models import (
 )
 
 from .action_confirmation import render_action_confirmation
+from .mixins import ServiceOwnedRecordAdminMixin
 from .service import AdminDisplayService, AdminLinkService
 from .constants import (
     LIST_PER_PAGE_DEFAULT,
@@ -69,27 +70,75 @@ class PublishStatusFilter(admin.SimpleListFilter):
 
 
 @admin.register(EditRequest)
-class EditRequestAdmin(admin.ModelAdmin):
-    list_display = ['id', 'post', 'created_date']
+class EditRequestAdmin(ServiceOwnedRecordAdminMixin, admin.ModelAdmin):
+    list_display = [
+        'id',
+        'post_link',
+        'user_link',
+        'title',
+        'is_merged',
+        'created_date',
+    ]
     list_per_page = LIST_PER_PAGE_DEFAULT
-    search_fields = ['post__title']
+    search_fields = ['post__title', 'user__username', 'title']
+    list_filter = ['is_merged', ('created_date', admin.DateFieldListFilter)]
+    fields = [
+        'post_link',
+        'user_link',
+        'title',
+        'content',
+        'is_merged',
+        'created_date',
+        'updated_date',
+    ]
+    readonly_fields = fields
 
     def get_queryset(self, request):
-        return super().get_queryset(request).select_related('post')
+        queryset = super().get_queryset(request).select_related(
+            'post',
+            'user',
+        ).defer('user__password')
+        if (
+            getattr(request, 'resolver_match', None)
+            and request.resolver_match.url_name == 'board_editrequest_changelist'
+        ):
+            return queryset.defer('content')
+        return queryset
+
+    def post_link(self, obj: EditRequest):
+        return AdminLinkService.create_post_link(obj.post)
+    post_link.short_description = '포스트'
+    post_link.admin_order_field = 'post__title'
+
+    def user_link(self, obj: EditRequest):
+        return AdminLinkService.create_user_link(obj.user)
+    user_link.short_description = '요청자'
+    user_link.admin_order_field = 'user__username'
 
 
 @admin.register(PinnedPost)
-class PinnedPostAdmin(admin.ModelAdmin):
-    list_display = ['id', 'post', 'user', 'order']
+class PinnedPostAdmin(ServiceOwnedRecordAdminMixin, admin.ModelAdmin):
+    list_display = ['id', 'post_link', 'user_link', 'order', 'created_date']
     list_per_page = LIST_PER_PAGE_DEFAULT
     search_fields = ['post__title', 'user__username']
-    autocomplete_fields = ['post', 'user']
+    fields = ['post_link', 'user_link', 'order', 'created_date']
+    readonly_fields = fields
 
     def get_queryset(self, request):
         return super().get_queryset(request).select_related(
             'post',
             'user',
         ).defer('user__password')
+
+    def post_link(self, obj: PinnedPost):
+        return AdminLinkService.create_post_link(obj.post)
+    post_link.short_description = '포스트'
+    post_link.admin_order_field = 'post__title'
+
+    def user_link(self, obj: PinnedPost):
+        return AdminLinkService.create_user_link(obj.user)
+    user_link.short_description = '사용자'
+    user_link.admin_order_field = 'user__username'
 
 
 class PostContentInline(admin.StackedInline):
@@ -274,6 +323,10 @@ class PostAdmin(admin.ModelAdmin):
     def save_related(self, request, form, formsets, change):
         super().save_related(request, form, formsets, change)
         post = form.instance
+        if not change:
+            PostContent.objects.get_or_create(post=post)
+            PostConfig.objects.get_or_create(post=post)
+
         previous_snapshot = getattr(
             post,
             '_admin_previous_snapshot',

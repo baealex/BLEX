@@ -3,7 +3,8 @@ from django.conf import settings
 
 from board.models import ImageCache
 
-from .service import AdminDisplayService
+from .mixins import ServiceOwnedRecordAdminMixin
+from .service import AdminDisplayService, AdminLinkService
 
 
 class ImageFilter(admin.SimpleListFilter):
@@ -26,14 +27,27 @@ class ImageFilter(admin.SimpleListFilter):
 
 
 @admin.register(ImageCache)
-class ImageCacheAdmin(admin.ModelAdmin):
+class ImageCacheAdmin(ServiceOwnedRecordAdminMixin, admin.ModelAdmin):
     search_fields = ['path']
 
-    list_display = ['id', 'file_size', 'image', 'open_image']
+    list_display = ['id', 'user_link', 'file_size', 'image', 'open_image']
+    fields = ['user_link', 'path', 'file_size', 'image', 'open_image']
+    readonly_fields = fields
     list_per_page = 30
+
+    def get_queryset(self, request):
+        return super().get_queryset(request).select_related('user').defer(
+            'key',
+            'user__password',
+        )
 
     def get_list_filter(self, request):
         return [ImageFilter]
+
+    def user_link(self, obj):
+        return AdminLinkService.create_user_link(obj.user)
+    user_link.short_description = '업로더'
+    user_link.admin_order_field = 'user__username'
 
     def file_size(self, obj):
         size = obj.size
