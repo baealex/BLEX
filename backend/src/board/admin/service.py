@@ -268,9 +268,15 @@ class AdminDisplayService:
 
     @staticmethod
     def publish_status_badge(post: Any) -> SafeString:
-        """발행 상태 뱃지 생성 (임시글/발행됨/예약됨)"""
+        """발행 상태 뱃지 생성 (휴지통/임시글/발행됨/예약됨)"""
         from django.utils import timezone
 
+        if getattr(post, 'deleted_date', None) is not None:
+            return format_html(
+                '<span style="background: {}; color: {}; padding: 3px 8px; '
+                'border-radius: 4px; font-size: 11px; font-weight: 600;">휴지통</span>',
+                COLOR_DANGER, COLOR_BG
+            )
         if post.published_date is None:
             return format_html(
                 '<span style="background: {}; color: {}; padding: 3px 8px; '
