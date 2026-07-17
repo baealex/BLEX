@@ -1,6 +1,7 @@
 from unittest.mock import patch
 
 from django.contrib.auth.models import User
+from django.core.exceptions import ValidationError
 from django.test import TestCase
 
 from board.models import Notify
@@ -11,6 +12,7 @@ from board.services.bulk_notification_delivery_service import (
 from board.services.notification_creation_service import (
     NotificationCreationService,
 )
+from board.services.notification_url_service import NotificationUrlService
 
 
 class NotificationCreationServiceTestCase(TestCase):
@@ -62,6 +64,47 @@ class NotificationCreationServiceTestCase(TestCase):
                 content='Persist before delivery',
             ).exists(),
         )
+
+    def test_create_rejects_executable_notification_url(self):
+        with self.assertRaises(ValidationError):
+            NotificationCreationService.create(
+                self.user,
+                'javascript:unsafe',
+                'Unsafe destination',
+            )
+
+        self.assertFalse(
+            Notify.objects.filter(content='Unsafe destination').exists(),
+        )
+
+    def test_create_rejects_incomplete_http_notification_urls(self):
+        for url in (
+            'http://',
+            'https://',
+            '//',
+            r'\\javascript:unsafe',
+            r'\\[invalid',
+        ):
+            with self.subTest(url=url):
+                with self.assertRaises(ValidationError):
+                    NotificationCreationService.create(
+                        self.user,
+                        url,
+                        'Incomplete destination',
+                    )
+
+        self.assertFalse(
+            Notify.objects.filter(content='Incomplete destination').exists(),
+        )
+
+    def test_url_validator_keeps_single_label_http_hosts(self):
+        for url in (
+            'http://blex/welcome',
+            'https://intranet/path',
+            '//internal-service/notice',
+        ):
+            with self.subTest(url=url):
+                self.assertEqual(NotificationUrlService.validate(url), url)
 
     def test_bulk_delivery_isolates_duplicate_missing_and_failed_users(self):
         duplicate_user = User.objects.create_user(

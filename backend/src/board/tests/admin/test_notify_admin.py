@@ -4,15 +4,16 @@ from unittest.mock import patch
 from django.contrib import admin
 from django.contrib.admin import helpers
 from django.contrib.admin.models import ADDITION, CHANGE, LogEntry
-from django.contrib.auth.models import User
+from django.contrib.auth.models import Permission, User
 from django.contrib.messages.storage.fallback import FallbackStorage
 from django.core.exceptions import PermissionDenied
 from django.db import transaction
 from django.template.response import TemplateResponse
 from django.test import RequestFactory, TestCase
+from django.urls import reverse
 from django.utils import timezone
 
-from board.admin.notify import NotifyAdmin, NotifyAdminForm
+from board.admin.notify import BulkNotificationForm, NotifyAdmin, NotifyAdminForm
 from board.models import Notify
 from board.services.bulk_notification_delivery_service import (
     BulkNotificationDeliveryService,
@@ -112,6 +113,62 @@ class NotifyAdminTestCase(TestCase):
             '이미 동일한 알림이 존재합니다.',
             duplicate_form.non_field_errors(),
         )
+
+    def test_notification_forms_reject_executable_url_schemes(self):
+        admin_form = NotifyAdminForm(data={
+            'user': self.user.pk,
+            'url': 'javascript:unsafe',
+            'content': 'Unsafe destination',
+            'has_read': '',
+        })
+        bulk_form = BulkNotificationForm(data={
+            'url': 'data:text/html,unsafe',
+            'content': 'Unsafe bulk destination',
+        })
+        malformed_form = BulkNotificationForm(data={
+            'url': 'http://[invalid',
+            'content': 'Malformed destination',
+        })
+
+        self.assertFalse(admin_form.is_valid())
+        self.assertFalse(bulk_form.is_valid())
+        self.assertFalse(malformed_form.is_valid())
+        self.assertTrue(
+            any(
+                '상대 경로 또는 HTTP(S) URL' in error
+                for error in admin_form.errors['url']
+            ),
+        )
+        self.assertIn('올바른 알림 URL을 입력해주세요.', malformed_form.errors['url'])
+        self.assertTrue(
+            any(
+                '상대 경로 또는 HTTP(S) URL' in error
+                for error in bulk_form.errors['url']
+            ),
+        )
+
+    def test_url_link_does_not_render_unsafe_legacy_destination(self):
+        notification = self.create_notification(url='javascript:unsafe')
+
+        rendered_link = str(self.admin_instance.url_link(notification))
+
+        self.assertIn('안전하지 않은 URL', rendered_link)
+        self.assertNotIn('href=', rendered_link)
+        self.assertNotIn('javascript:unsafe', rendered_link)
+
+    def test_notification_forms_reject_incomplete_http_urls(self):
+        for url in ('http://', 'https://', '//'):
+            with self.subTest(url=url):
+                form = BulkNotificationForm(data={
+                    'url': url,
+                    'content': 'Incomplete destination',
+                })
+
+                self.assertFalse(form.is_valid())
+                self.assertIn(
+                    '올바른 알림 URL을 입력해주세요.',
+                    form.errors['url'],
+                )
 
     def test_admin_save_dispatches_committed_add_but_never_resends_edit(self):
         request = self.admin_request('post')
@@ -375,6 +432,59 @@ class NotifyAdminTestCase(TestCase):
 
         with self.assertRaises(PermissionDenied):
             self.admin_instance.bulk_send_view(request)
+
+    def test_bulk_send_requires_superuser_even_with_add_permission(self):
+        delegated_staff = User.objects.create_user(
+            username='delegated-notification-admin',
+            password='test',
+            is_staff=True,
+        )
+        delegated_staff.user_permissions.add(
+            Permission.objects.get(codename='add_notify'),
+            Permission.objects.get(codename='view_notify'),
+        )
+        request = self.admin_request(user=delegated_staff)
+
+        self.assertFalse(self.admin_instance.has_bulk_send_permission(request))
+        with self.assertRaises(PermissionDenied):
+            self.admin_instance.bulk_send_view(request)
+
+        self.client.force_login(delegated_staff)
+        changelist = self.client.get(reverse('admin:board_notify_changelist'))
+
+        self.assertEqual(changelist.status_code, 200)
+        self.assertNotContains(changelist, '전체 활성 사용자에게 알림 발송')
+
+    def test_superuser_can_open_bulk_send_from_the_changelist(self):
+        self.client.force_login(self.admin_user)
+
+        changelist = self.client.get(reverse('admin:board_notify_changelist'))
+        bulk_send = self.client.get(reverse('admin:board_notify_bulk_send'))
+
+        self.assertEqual(changelist.status_code, 200)
+        self.assertContains(changelist, '전체 활성 사용자에게 알림 발송')
+        self.assertEqual(bulk_send.status_code, 200)
+
+    def test_bulk_send_rejects_unsafe_url_before_confirmation(self):
+        request = self.admin_request(
+            'post',
+            {
+                'url': 'javascript:unsafe',
+                'content': 'Unsafe bulk destination',
+                'confirm': 'yes',
+            },
+        )
+
+        with patch.object(
+            BulkNotificationDeliveryService,
+            'enqueue',
+        ) as enqueue:
+            response = self.admin_instance.bulk_send_view(request)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, '상대 경로 또는 HTTP(S) URL')
+        enqueue.assert_not_called()
+        self.assertFalse(LogEntry.objects.filter(action_flag=ADDITION).exists())
 
     def test_bulk_send_does_not_enqueue_when_audit_log_fails(self):
         request = self.admin_request(

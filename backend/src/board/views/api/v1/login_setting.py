@@ -1,4 +1,5 @@
 from django.db import transaction
+from django.core.exceptions import ValidationError
 from django.http import Http404
 
 from board.models import LoginSetting
@@ -6,6 +7,7 @@ from board.modules.response import ErrorCode, StatusDone, StatusError
 from board.services.admin_settings_audit_service import AdminSettingsAuditService
 from board.services.api_request_body_service import ApiRequestBodyService
 from board.services.hcaptcha_service import HCaptchaConfigurationError, HCaptchaService
+from board.services.notification_url_service import NotificationUrlService
 from board.services.product_settings_permission_service import ProductSettingsPermissionService
 from board.services.social_auth_provider_service import SocialAuthProviderService
 
@@ -48,7 +50,9 @@ def login_settings(request):
                     setting.welcome_notification_message = put_data['welcome_notification_message']
 
                 if 'welcome_notification_url' in put_data:
-                    setting.welcome_notification_url = put_data['welcome_notification_url']
+                    setting.welcome_notification_url = NotificationUrlService.validate(
+                        put_data['welcome_notification_url'],
+                    )
 
                 if 'account_deletion_redirect_url' in put_data:
                     setting.account_deletion_redirect_url = put_data['account_deletion_redirect_url']
@@ -66,6 +70,8 @@ def login_settings(request):
                     target=setting,
                     change_message='Updated login and security settings',
                 )
+        except ValidationError as error:
+            return StatusError(ErrorCode.VALIDATE, error.messages[0])
         except HCaptchaConfigurationError as error:
             return StatusError(ErrorCode.VALIDATE, error.message)
 

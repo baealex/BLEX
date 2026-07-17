@@ -311,3 +311,47 @@ class LoginSettingAPITestCase(TestCase):
             user=self.superuser,
             change_message='Updated login and security settings',
         ).exists())
+
+    def test_update_rejects_unsafe_welcome_notification_url(self):
+        setting = LoginSetting.get_instance()
+        setting.welcome_notification_message = 'Existing message'
+        setting.welcome_notification_url = '/existing'
+        setting.save()
+
+        response = self.client.put(
+            '/v1/login-settings',
+            json.dumps({
+                'welcome_notification_message': 'Should not persist',
+                'welcome_notification_url': 'javascript:unsafe',
+            }),
+            content_type='application/json',
+        )
+
+        self.assertEqual(response.status_code, 200)
+        content = json.loads(response.content)
+        self.assertEqual(content['status'], 'ERROR')
+        self.assertEqual(content['errorCode'], 'error:VA')
+        setting.refresh_from_db()
+        self.assertEqual(setting.welcome_notification_message, 'Existing message')
+        self.assertEqual(setting.welcome_notification_url, '/existing')
+        self.assertFalse(LogEntry.objects.filter(
+            user=self.superuser,
+            change_message='Updated login and security settings',
+        ).exists())
+
+    def test_update_keeps_single_label_welcome_notification_hosts(self):
+        response = self.client.put(
+            '/v1/login-settings',
+            json.dumps({
+                'welcome_notification_url': 'https://intranet/welcome',
+            }),
+            content_type='application/json',
+        )
+
+        self.assertEqual(response.status_code, 200)
+        content = json.loads(response.content)
+        self.assertEqual(content['status'], 'DONE')
+        self.assertEqual(
+            content['body']['welcomeNotificationUrl'],
+            'https://intranet/welcome',
+        )
