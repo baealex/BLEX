@@ -1,24 +1,25 @@
 from django.contrib.admin import AdminSite
 from django.urls import reverse
+from django.utils.translation import gettext_lazy as _
 
 
 class BlexAdminSite(AdminSite):
-    site_header = 'BLEX 관리자'
+    site_header = _('BLEX administration')
     site_title = 'BLEX Admin'
-    index_title = '대시보드'
+    index_title = _('Dashboard')
     empty_value_display = '-'
 
     model_name_overrides = {
-        ('auth', 'User'): '사용자',
-        ('auth', 'Group'): '그룹',
-        ('admin', 'LogEntry'): 'Admin 감사 로그',
-        ('sites', 'Site'): '사이트 도메인',
+        ('auth', 'User'): _('Users'),
+        ('auth', 'Group'): _('Groups'),
+        ('admin', 'LogEntry'): _('Admin audit log'),
+        ('sites', 'Site'): _('Site domains'),
     }
 
     navigation_groups = (
         (
             'content',
-            '콘텐츠',
+            _('Content'),
             (
                 ('board', 'Post'),
                 ('board', 'Series'),
@@ -32,7 +33,7 @@ class BlexAdminSite(AdminSite):
         ),
         (
             'users',
-            '사용자·권한',
+            _('Users and permissions'),
             (
                 ('auth', 'User'),
                 ('auth', 'Group'),
@@ -44,7 +45,7 @@ class BlexAdminSite(AdminSite):
         ),
         (
             'integrations',
-            '알림·연동',
+            _('Notifications and integrations'),
             (
                 ('board', 'Notify'),
                 ('board', 'TelegramSync'),
@@ -55,7 +56,7 @@ class BlexAdminSite(AdminSite):
         ),
         (
             'operations',
-            '감사·운영',
+            _('Audit and operations'),
             (
                 ('board', 'EditHistory'),
                 ('admin', 'LogEntry'),
@@ -69,10 +70,14 @@ class BlexAdminSite(AdminSite):
     )
 
     product_settings = (
-        ('ProductSiteSettings', '사이트 기본 설정', '/admin-settings/site-settings'),
-        ('ProductLoginSettings', '로그인·보안 설정', '/admin-settings/login'),
-        ('ProductIntegrationSettings', '알림 연동 설정', '/admin-settings/integrations'),
-        ('ProductSeoSettings', 'SEO·AEO 설정', '/admin-settings/seo-aeo'),
+        ('ProductSiteSettings', _('Site settings'), '/admin-settings/site-settings'),
+        ('ProductLoginSettings', _('Login and security settings'), '/admin-settings/login'),
+        (
+            'ProductIntegrationSettings',
+            _('Notification integration settings'),
+            '/admin-settings/integrations',
+        ),
+        ('ProductSeoSettings', _('SEO and AEO settings'), '/admin-settings/seo-aeo'),
     )
 
     @staticmethod
@@ -107,7 +112,7 @@ class BlexAdminSite(AdminSite):
         ]
         return self._build_group(
             'product-settings',
-            '제품 설정',
+            _('Product settings'),
             models,
         )
 
@@ -145,7 +150,7 @@ class BlexAdminSite(AdminSite):
             grouped_apps.append(
                 self._build_group(
                     'other',
-                    '기타',
+                    _('Other'),
                     remaining_models,
                 ),
             )

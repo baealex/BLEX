@@ -12,6 +12,7 @@
         "server:dev": "node ./scripts/manage.mjs runserver 0.0.0.0:8000",
         "server:test": "node ./scripts/manage.mjs test -v 2",
         "server:static": "node ./scripts/manage.mjs collectstatic --noinput",
+        "server:compilemessages": "node ./scripts/manage.mjs compilemessages --ignore=mvenv",
         "server:makemigrations": "node ./scripts/manage.mjs makemigrations",
         "server:check-migrations": "node ./scripts/manage.mjs makemigrations --check --dry-run",
         "server:migrate": "node ./scripts/manage.mjs migrate",

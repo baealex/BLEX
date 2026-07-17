@@ -1,5 +1,6 @@
 from django.core.exceptions import ValidationError
 from django.db import models
+from django.utils.translation import gettext_lazy as _
 
 from .integrations import SiteContentScope
 
@@ -136,8 +137,8 @@ class SiteNotice(SiteContentBase):
     url = models.CharField(max_length=255, blank=True, default='')
 
     class Meta(SiteContentBase.Meta):
-        verbose_name = '사이트 공지'
-        verbose_name_plural = '사이트 공지'
+        verbose_name = _('Site notice')
+        verbose_name_plural = _('Site notices')
         indexes = [
             models.Index(fields=['scope', 'is_active']),
             models.Index(fields=['user', 'is_active']),
@@ -152,8 +153,8 @@ class SiteBanner(SiteContentBase):
                                 default=BannerPosition.TOP)
 
     class Meta(SiteContentBase.Meta):
-        verbose_name = '사이트 배너'
-        verbose_name_plural = '사이트 배너'
+        verbose_name = _('Site banner')
+        verbose_name_plural = _('Site banners')
         indexes = [
             models.Index(fields=['scope', 'is_active', 'banner_type', 'position']),
             models.Index(fields=['user', 'is_active']),

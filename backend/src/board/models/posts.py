@@ -4,6 +4,7 @@ from django.conf import settings
 from django.db import models
 from django.urls import reverse
 from django.utils import timezone
+from django.utils.translation import gettext_lazy as _
 from django.utils.text import slugify
 
 from modules.randomness import randstr
@@ -18,8 +19,8 @@ from .helpers import title_image_path
 
 class Comment(models.Model):
     class Meta:
-        verbose_name = '댓글'
-        verbose_name_plural = '댓글'
+        verbose_name = _('Comment')
+        verbose_name_plural = _('Comments')
         indexes = [
             models.Index(fields=['post', 'parent', 'created_date']),
             models.Index(fields=['author', 'created_date']),
@@ -84,8 +85,8 @@ class Form(models.Model):
     updated_date = models.DateTimeField(default=timezone.now)
 
     class Meta:
-        verbose_name = '사용자 폼'
-        verbose_name_plural = '사용자 폼'
+        verbose_name = _('User form')
+        verbose_name_plural = _('User forms')
 
     def __str__(self):
         return self.title
@@ -98,8 +99,8 @@ class ImageCache(models.Model):
     size = models.IntegerField(default=0)
 
     class Meta:
-        verbose_name = '이미지 캐시'
-        verbose_name_plural = '이미지 캐시'
+        verbose_name = _('Image cache')
+        verbose_name_plural = _('Image caches')
 
     def __str__(self):
         return self.path
@@ -107,8 +108,8 @@ class ImageCache(models.Model):
 
 class Tag(models.Model):
     class Meta:
-        verbose_name = '태그'
-        verbose_name_plural = '태그'
+        verbose_name = _('Tag')
+        verbose_name_plural = _('Tags')
         constraints = [
             models.UniqueConstraint(
                 fields=['value'],
@@ -147,8 +148,8 @@ class Post(models.Model):
     all_objects = models.Manager()
 
     class Meta:
-        verbose_name = '포스트'
-        verbose_name_plural = '포스트'
+        verbose_name = _('Post')
+        verbose_name_plural = _('Posts')
         indexes = [
             models.Index(fields=['author', 'created_date']),
             models.Index(fields=['created_date']),
@@ -312,8 +313,8 @@ class PostConfigMeta(models.Model):
 
 class PinnedPost(models.Model):
     class Meta:
-        verbose_name = '고정 포스트'
-        verbose_name_plural = '고정 포스트'
+        verbose_name = _('Pinned post')
+        verbose_name_plural = _('Pinned posts')
         constraints = [
             models.UniqueConstraint(
                 fields=['user', 'post'],
@@ -368,8 +369,8 @@ class Series(models.Model):
     updated_date = models.DateTimeField(default=timezone.now)
 
     class Meta:
-        verbose_name = '시리즈'
-        verbose_name_plural = '시리즈'
+        verbose_name = _('Series')
+        verbose_name_plural = _('Series')
 
     def create_unique_url(self, url=None):
         SeriesSaveService.create_unique_url(self, url)
@@ -446,8 +447,8 @@ class EditHistory(models.Model):
     created_date = models.DateTimeField(default=timezone.now)
 
     class Meta:
-        verbose_name = '포스트 수정 이력'
-        verbose_name_plural = '포스트 수정 이력'
+        verbose_name = _('Post revision')
+        verbose_name_plural = _('Post revisions')
         indexes = [
             models.Index(fields=['post', 'created_date']),
         ]
@@ -466,8 +467,8 @@ class EditRequest(models.Model):
     updated_date = models.DateTimeField(default=timezone.now)
 
     class Meta:
-        verbose_name = '포스트 수정 요청'
-        verbose_name_plural = '포스트 수정 요청'
+        verbose_name = _('Post edit request')
+        verbose_name_plural = _('Post edit requests')
 
     def __str__(self):
         return self.title
