@@ -1,19 +1,101 @@
 """
 SiteNotice & SiteBanner Admin Configuration
 """
-from django.contrib import admin
-from django.http import HttpRequest
+from typing import Any
+
+from django.contrib import admin, messages
+from django.db import transaction
 from django.db.models import QuerySet
+from django.http import HttpRequest
 from django.utils.html import format_html
 
 from board.models import SiteNotice, SiteBanner
 
-from .service import AdminDisplayService
+from .action_confirmation import render_action_confirmation
 from .constants import LIST_PER_PAGE_DEFAULT, DATETIME_FORMAT_FULL
+from .service import AdminDisplayService
+
+
+class SiteContentActionAdminMixin:
+    """Keep site-content state changes timestamped and auditable."""
+
+    def _set_active_state(
+        self,
+        request: HttpRequest,
+        queryset: QuerySet,
+        *,
+        is_active: bool,
+        change_message: str,
+    ) -> int:
+        count = 0
+        with transaction.atomic():
+            selected_items = self.model.objects.select_for_update().filter(
+                pk__in=queryset.values('pk'),
+            )
+            for item in selected_items:
+                if item.is_active == is_active:
+                    continue
+                item.is_active = is_active
+                item.save(update_fields=['is_active', 'updated_date'])
+                self.log_change(request, item, change_message)
+                count += 1
+        return count
+
+    @admin.action(description='선택한 항목 활성화')
+    def activate_items(
+        self,
+        request: HttpRequest,
+        queryset: QuerySet,
+    ) -> Any:
+        inactive_items = queryset.filter(is_active=False)
+        if request.POST.get('confirm') != 'yes':
+            if not inactive_items.exists():
+                self.message_user(
+                    request,
+                    '활성화할 비활성 항목이 없습니다.',
+                    level=messages.WARNING,
+                )
+                return None
+            verbose_name = self.model._meta.verbose_name_plural
+            return render_action_confirmation(
+                request,
+                self,
+                inactive_items,
+                action_name='activate_items',
+                title=f'{verbose_name} 활성화 확인',
+                warning=(
+                    f'선택한 {verbose_name}는 활성화 즉시 서비스 화면에 '
+                    '노출될 수 있습니다.'
+                ),
+                confirm_label='활성화',
+                is_destructive=False,
+            )
+
+        count = self._set_active_state(
+            request,
+            inactive_items,
+            is_active=True,
+            change_message='Admin에서 활성화',
+        )
+        self.message_user(request, f'{count}개의 항목을 활성화했습니다.')
+
+    @admin.action(description='선택한 항목 비활성화')
+    def deactivate_items(
+        self,
+        request: HttpRequest,
+        queryset: QuerySet,
+    ) -> None:
+        count = self._set_active_state(
+            request,
+            queryset.filter(is_active=True),
+            is_active=False,
+            change_message='Admin에서 비활성화',
+        )
+        self.message_user(request, f'{count}개의 항목을 비활성화했습니다.')
 
 
 @admin.register(SiteNotice)
-class SiteNoticeAdmin(admin.ModelAdmin):
+class SiteNoticeAdmin(SiteContentActionAdminMixin, admin.ModelAdmin):
     """사이트 공지 관리 페이지"""
     search_fields = ['title', 'user__username', 'url']
 
@@ -73,19 +155,8 @@ class SiteNoticeAdmin(admin.ModelAdmin):
         return AdminDisplayService.date_display(obj.updated_date, DATETIME_FORMAT_FULL)
     updated_at.short_description = '수정일시'
 
-    def activate_items(self, request: HttpRequest, queryset: QuerySet[SiteNotice]) -> None:
-        count = queryset.update(is_active=True)
-        self.message_user(request, f'{count}개의 항목을 활성화했습니다.')
-    activate_items.short_description = '선택한 항목 활성화'
-
-    def deactivate_items(self, request: HttpRequest, queryset: QuerySet[SiteNotice]) -> None:
-        count = queryset.update(is_active=False)
-        self.message_user(request, f'{count}개의 항목을 비활성화했습니다.')
-    deactivate_items.short_description = '선택한 항목 비활성화'
-
-
 @admin.register(SiteBanner)
-class SiteBannerAdmin(admin.ModelAdmin):
+class SiteBannerAdmin(SiteContentActionAdminMixin, admin.ModelAdmin):
     """사이트 배너 관리 페이지"""
     search_fields = ['title', 'user__username', 'content_html']
 
@@ -149,13 +220,3 @@ class SiteBannerAdmin(admin.ModelAdmin):
     def updated_at(self, obj: SiteBanner) -> str:
         return AdminDisplayService.date_display(obj.updated_date, DATETIME_FORMAT_FULL)
     updated_at.short_description = '수정일시'
-
-    def activate_items(self, request: HttpRequest, queryset: QuerySet[SiteBanner]) -> None:
-        count = queryset.update(is_active=True)
-        self.message_user(request, f'{count}개의 항목을 활성화했습니다.')
-    activate_items.short_description = '선택한 항목 활성화'
-
-    def deactivate_items(self, request: HttpRequest, queryset: QuerySet[SiteBanner]) -> None:
-        count = queryset.update(is_active=False)
-        self.message_user(request, f'{count}개의 항목을 비활성화했습니다.')
-    deactivate_items.short_description = '선택한 항목 비활성화'

@@ -1,11 +1,16 @@
-from django.contrib import admin
-from django.db.models import Count, OuterRef, Q, Subquery
+from typing import Any
+
+from django.contrib import admin, messages
+from django.db import transaction
+from django.db.models import Count, OuterRef, Q, QuerySet, Subquery
+from django.http import HttpRequest
 from django.urls import reverse
 from django.utils.html import format_html
 
 from board.models import Series, Post
 from board.services.public_post_service import PublicPostService
 
+from .action_confirmation import render_action_confirmation
 from .service import AdminDisplayService, AdminLinkService
 from .constants import (
     COLOR_DANGER, COLOR_SUCCESS, COLOR_PRIMARY, COLOR_MUTED,
@@ -239,23 +244,112 @@ class SeriesAdmin(admin.ModelAdmin):
         return obj.updated_date.strftime('%Y-%m-%d %H:%M:%S')
     updated_at.short_description = '수정일시'
 
-    # Custom Actions
-    def make_hidden(self, request, queryset):
-        count = queryset.update(hide=True)
+    def _update_series_fields(
+        self,
+        request: HttpRequest,
+        queryset: QuerySet[Series],
+        *,
+        change_message: str,
+        **updates: object,
+    ) -> int:
+        count = 0
+        with transaction.atomic():
+            selected_series = Series.objects.select_for_update().filter(
+                pk__in=queryset.values('pk'),
+            )
+            for series in selected_series:
+                changed_fields = []
+                for field_name, value in updates.items():
+                    if getattr(series, field_name) == value:
+                        continue
+                    setattr(series, field_name, value)
+                    changed_fields.append(field_name)
+
+                if not changed_fields:
+                    continue
+
+                series.save(
+                    update_fields=[*changed_fields, 'updated_date'],
+                )
+                self.log_change(request, series, change_message)
+                count += 1
+        return count
+
+    @admin.action(description='선택한 시리즈 숨김 처리')
+    def make_hidden(
+        self,
+        request: HttpRequest,
+        queryset: QuerySet[Series],
+    ) -> None:
+        count = self._update_series_fields(
+            request,
+            queryset.filter(hide=False),
+            hide=True,
+            change_message='Admin에서 숨김 처리',
+        )
         self.message_user(request, f'{count}개의 시리즈를 숨김 처리했습니다.')
-    make_hidden.short_description = '선택한 시리즈 숨김 처리'
 
-    def make_visible(self, request, queryset):
-        count = queryset.update(hide=False)
+    @admin.action(description='선택한 시리즈 공개 처리')
+    def make_visible(
+        self,
+        request: HttpRequest,
+        queryset: QuerySet[Series],
+    ) -> Any:
+        hidden_series = queryset.filter(hide=True)
+        if request.POST.get('confirm') != 'yes':
+            if not hidden_series.exists():
+                self.message_user(
+                    request,
+                    '공개 처리할 숨김 시리즈가 없습니다.',
+                    level=messages.WARNING,
+                )
+                return None
+            return render_action_confirmation(
+                request,
+                self,
+                hidden_series,
+                action_name='make_visible',
+                title='시리즈 공개 확인',
+                warning=(
+                    '공개 포스트가 포함된 시리즈는 즉시 외부에 노출될 수 '
+                    '있습니다.'
+                ),
+                confirm_label='공개 처리',
+                is_destructive=False,
+            )
+
+        count = self._update_series_fields(
+            request,
+            hidden_series,
+            hide=False,
+            change_message='Admin에서 공개 처리',
+        )
         self.message_user(request, f'{count}개의 시리즈를 공개 처리했습니다.')
-    make_visible.short_description = '선택한 시리즈 공개 처리'
 
-    def set_layout_list(self, request, queryset):
-        count = queryset.update(layout='list')
+    @admin.action(description='레이아웃을 리스트로 변경')
+    def set_layout_list(
+        self,
+        request: HttpRequest,
+        queryset: QuerySet[Series],
+    ) -> None:
+        count = self._update_series_fields(
+            request,
+            queryset.exclude(layout='list'),
+            layout='list',
+            change_message='Admin에서 리스트 레이아웃으로 변경',
+        )
         self.message_user(request, f'{count}개의 시리즈를 리스트 레이아웃으로 변경했습니다.')
-    set_layout_list.short_description = '레이아웃을 리스트로 변경'
 
-    def set_layout_card(self, request, queryset):
-        count = queryset.update(layout='card')
+    @admin.action(description='레이아웃을 카드로 변경')
+    def set_layout_card(
+        self,
+        request: HttpRequest,
+        queryset: QuerySet[Series],
+    ) -> None:
+        count = self._update_series_fields(
+            request,
+            queryset.exclude(layout='card'),
+            layout='card',
+            change_message='Admin에서 카드 레이아웃으로 변경',
+        )
         self.message_user(request, f'{count}개의 시리즈를 카드 레이아웃으로 변경했습니다.')
-    set_layout_card.short_description = '레이아웃을 카드로 변경'

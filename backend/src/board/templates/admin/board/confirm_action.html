@@ -32,7 +32,7 @@
     <input type="hidden" name="select_across" value="{{ select_across }}">
     <input type="hidden" name="confirm" value="yes">
     <div class="submit-row">
-      <input type="submit" value="{{ confirm_label }}" class="deletelink">
+      <input type="submit" value="{{ confirm_label }}" class="{{ confirm_button_class }}">
       <a href="{% url opts|admin_urlname:'changelist' %}" class="button cancel-link">취소</a>
     </div>
   </form>
