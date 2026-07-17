@@ -33,6 +33,7 @@ from .mixins import (
     ReadOnlyRecordAdminMixin,
     is_admin_changelist_request,
 )
+from .permission_display import configure_permission_choice_field
 from .service import AdminDisplayService, AdminLinkService
 from .constants import COLOR_MUTED, COLOR_INFO, COLOR_BG, COLOR_TEXT
 from .constants import LIST_PER_PAGE_DEFAULT
@@ -191,6 +192,16 @@ admin.site.unregister(User)
 class CustomGroupAdmin(BaseGroupAdmin):
     """Keep delegated staff from changing permission bundles."""
 
+    def formfield_for_manytomany(self, db_field, request=None, **kwargs):
+        form_field = super().formfield_for_manytomany(
+            db_field,
+            request=request,
+            **kwargs,
+        )
+        if db_field.name == 'permissions':
+            return configure_permission_choice_field(form_field)
+        return form_field
+
     def has_add_permission(self, request):
         return request.user.is_superuser
 
@@ -220,6 +231,16 @@ class CustomUserAdmin(ConfirmedActionDeleteAdminMixin, BaseUserAdmin):
     ordering = ['username']
 
     actions = ['make_editor', 'make_reader', 'activate_users', 'deactivate_users']
+
+    def formfield_for_manytomany(self, db_field, request=None, **kwargs):
+        form_field = super().formfield_for_manytomany(
+            db_field,
+            request=request,
+            **kwargs,
+        )
+        if db_field.name == 'user_permissions':
+            return configure_permission_choice_field(form_field)
+        return form_field
 
     def get_queryset(self, request):
         queryset = super().get_queryset(request).select_related(

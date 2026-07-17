@@ -180,3 +180,24 @@ msgstr "웹훅 구독"
 
 msgid "Webhook subscriptions"
 msgstr "웹훅 구독"
+
+#, python-format
+msgctxt "Admin permission label"
+msgid "%(action)s %(model)s"
+msgstr "%(model)s %(action)s"
+
+msgctxt "Admin permission action"
+msgid "Add"
+msgstr "추가"
+
+msgctxt "Admin permission action"
+msgid "Change"
+msgstr "수정"
+
+msgctxt "Admin permission action"
+msgid "Delete"
+msgstr "삭제"
+
+msgctxt "Admin permission action"
+msgid "View"
+msgstr "보기"
