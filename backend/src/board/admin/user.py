@@ -172,6 +172,14 @@ class ProfileInline(admin.StackedInline):
     model = Profile
     can_delete = False
     classes = ['collapse']
+    protected_readonly_fields = (
+        'role',
+        'bio',
+        'homepage',
+        'avatar',
+        'cover',
+        'analytics_share_url',
+    )
     fieldsets = (
         ('권한 설정', {
             'fields': ('role',),
@@ -183,6 +191,28 @@ class ProfileInline(admin.StackedInline):
             'fields': ('analytics_share_url',),
         }),
     )
+
+    @staticmethod
+    def can_manage_profile(request: HttpRequest, obj: User | None) -> bool:
+        if obj is None or request.user.is_superuser:
+            return True
+        return not (obj.is_staff or obj.is_superuser)
+
+    def get_readonly_fields(self, request, obj=None):
+        readonly_fields = list(super().get_readonly_fields(request, obj))
+        if not self.can_manage_profile(request, obj):
+            readonly_fields.extend(self.protected_readonly_fields)
+        return list(dict.fromkeys(readonly_fields))
+
+    def has_add_permission(self, request, obj):
+        if not self.can_manage_profile(request, obj):
+            return False
+        return super().has_add_permission(request, obj)
+
+    def has_change_permission(self, request, obj=None):
+        if not self.can_manage_profile(request, obj):
+            return False
+        return super().has_change_permission(request, obj)
 
 
 # Django User Admin 커스터마이징
@@ -697,6 +727,22 @@ class ProfileAdmin(admin.ModelAdmin):
 
     readonly_fields = ['user_info', 'avatar_preview', 'cover_preview', 'total_posts']
 
+    def formfield_for_foreignkey(self, db_field, request=None, **kwargs):
+        if (
+            db_field.name == 'user'
+            and request is not None
+            and not request.user.is_superuser
+        ):
+            kwargs['queryset'] = User.objects.filter(
+                is_staff=False,
+                is_superuser=False,
+            )
+        return super().formfield_for_foreignkey(
+            db_field,
+            request=request,
+            **kwargs,
+        )
+
     def get_queryset(self, request):
         queryset = super().get_queryset(request).select_related(
             'user',
@@ -706,6 +752,34 @@ class ProfileAdmin(admin.ModelAdmin):
         if is_admin_changelist_request(request, self.model):
             return queryset.defer('bio', 'about_md', 'about_html')
         return queryset
+
+    def has_change_permission(self, request, obj=None):
+        if not self.can_manage_profile(request, obj):
+            return False
+        return super().has_change_permission(request, obj)
+
+    def has_delete_permission(self, request, obj=None):
+        if not self.can_manage_profile(request, obj):
+            return False
+        return super().has_delete_permission(request, obj)
+
+    @staticmethod
+    def can_manage_profile(request: HttpRequest, obj: Profile | None) -> bool:
+        if obj is None or request.user.is_superuser:
+            return True
+        return not (obj.user.is_staff or obj.user.is_superuser)
+
+    @staticmethod
+    def mutable_profiles(
+        request: HttpRequest,
+        queryset: QuerySet[Profile],
+    ) -> QuerySet[Profile]:
+        if request.user.is_superuser:
+            return queryset
+        return queryset.filter(
+            user__is_staff=False,
+            user__is_superuser=False,
+        )
 
     def user_link(self, obj):
         return AdminLinkService.create_user_link(obj.user)
@@ -752,6 +826,7 @@ class ProfileAdmin(admin.ModelAdmin):
         *,
         role: str,
     ) -> int:
+        queryset = self.mutable_profiles(request, queryset)
         with transaction.atomic():
             profiles = list(queryset.select_for_update())
             count = UserRoleService.set_profiles_role(queryset, role)
