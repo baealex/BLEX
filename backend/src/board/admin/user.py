@@ -3,10 +3,11 @@ User & Profile Admin Configuration
 """
 from typing import Any, Optional
 from django import forms
-from django.contrib import admin
+from django.contrib import admin, messages
 from django.contrib.auth.models import User
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from django.http import HttpRequest
+from django.db import transaction
 from django.db.models import Count, QuerySet
 from django.urls import reverse
 from django.utils.html import format_html, format_html_join
@@ -16,27 +17,137 @@ from board.models import (
     EmailChange, Profile
 )
 from board.constants.config_meta import CONFIG_TYPES
+from board.services.email_change_service import (
+    EmailChangeCancellationError,
+    EmailChangeService,
+)
 from board.services.user_role_service import UserRoleService
 
+from .action_confirmation import render_action_confirmation
+from .mixins import (
+    ConfirmedActionDeleteAdminMixin,
+    ReadOnlyRecordAdminMixin,
+)
 from .service import AdminDisplayService, AdminLinkService
 from .constants import COLOR_MUTED, COLOR_INFO, COLOR_BG, COLOR_TEXT
 from .constants import LIST_PER_PAGE_DEFAULT
 
 
 @admin.register(EmailChange)
-class EmailChangeAdmin(admin.ModelAdmin):
-    list_display = ['id', 'user', 'email', 'created_date']
+class EmailChangeAdmin(
+    ConfirmedActionDeleteAdminMixin,
+    ReadOnlyRecordAdminMixin,
+    admin.ModelAdmin,
+):
+    list_display = [
+        'id',
+        'user_link',
+        'email',
+        'token_status',
+        'created_date',
+    ]
     list_per_page = LIST_PER_PAGE_DEFAULT
     search_fields = ['user__username', 'email']
-    readonly_fields = ['user', 'email', 'created_date']
+    fields = ['user_link', 'email', 'token_status', 'created_date']
+    readonly_fields = [
+        'user_link',
+        'email',
+        'token_status',
+        'created_date',
+    ]
+    actions = ['cancel_email_changes']
+
+    def get_queryset(self, request):
+        return super().get_queryset(request).select_related('user').defer(
+            'auth_token',
+        )
+
+    def user_link(self, obj: EmailChange):
+        return AdminLinkService.create_user_link(obj.user)
+    user_link.short_description = '사용자'
+    user_link.admin_order_field = 'user__username'
+
+    def token_status(self, obj: EmailChange):
+        return AdminDisplayService.boolean_badge(
+            True,
+            true_text='비공개',
+        )
+    token_status.short_description = '인증 토큰'
+
+    @admin.action(
+        description='선택한 이메일 변경 요청 취소',
+        permissions=['delete'],
+    )
+    def cancel_email_changes(
+        self,
+        request: HttpRequest,
+        queryset: QuerySet[EmailChange],
+    ) -> Any:
+        if request.POST.get('confirm') != 'yes':
+            if not queryset.exists():
+                self.message_user(
+                    request,
+                    '취소할 이메일 변경 요청이 없습니다.',
+                    level=messages.WARNING,
+                )
+                return None
+            return render_action_confirmation(
+                request,
+                self,
+                queryset,
+                action_name='cancel_email_changes',
+                title='이메일 변경 요청 취소 확인',
+                warning=(
+                    '선택한 대기 요청과 인증 토큰만 삭제됩니다. 사용자의 '
+                    '현재 이메일은 바뀌지 않습니다.'
+                ),
+                confirm_label='변경 요청 취소',
+            )
+
+        cancelled = 0
+        failed = 0
+        for email_change in queryset.select_related('user'):
+            try:
+                with transaction.atomic():
+                    self.log_deletions(request, [email_change])
+                    EmailChangeService.cancel_pending_change(email_change)
+            except EmailChangeCancellationError:
+                failed += 1
+                continue
+            cancelled += 1
+
+        self.message_user(
+            request,
+            f'{cancelled}개의 이메일 변경 요청을 취소했습니다.',
+            level=messages.SUCCESS,
+        )
+        if failed:
+            self.message_user(
+                request,
+                f'{failed}개는 이미 처리되어 취소하지 못했습니다.',
+                level=messages.WARNING,
+            )
+        return None
 
 
 @admin.register(UsernameChangeLog)
-class UsernameChangeLogAdmin(admin.ModelAdmin):
-    list_display = ['id', 'user', 'username', 'created_date']
+class UsernameChangeLogAdmin(ReadOnlyRecordAdminMixin, admin.ModelAdmin):
+    list_display = ['id', 'user_link', 'username', 'created_date']
     list_per_page = LIST_PER_PAGE_DEFAULT
     search_fields = ['user__username', 'username']
-    readonly_fields = ['user', 'username', 'created_date']
+    fields = ['user_link', 'username', 'created_date']
+    readonly_fields = fields
+
+    def get_queryset(self, request):
+        return super().get_queryset(request).select_related('user')
+
+    def has_delete_permission(self, request, obj=None):
+        return False
+
+    def user_link(self, obj: UsernameChangeLog):
+        return AdminLinkService.create_user_link(obj.user)
+    user_link.short_description = '현재 사용자'
+    user_link.admin_order_field = 'user__username'
 
 
 class UserLinkMetaInline(admin.TabularInline):
