@@ -15,7 +15,7 @@ from board.services.post_service import PostService, PostValidationError
 from board.services.post_status_service import PostStatusService
 from board.services.post_trash_service import PostTrashService
 from board.models import (
-    EditHistory, EditRequest, Post, PinnedPost,
+    EditRequest, Post, PinnedPost,
     PostConfig, PostContent,
 )
 
@@ -52,14 +52,6 @@ class PublishStatusFilter(admin.SimpleListFilter):
         elif self.value() == 'trashed':
             return queryset.filter(deleted_date__isnull=False)
         return queryset.filter(deleted_date__isnull=True)
-
-
-@admin.register(EditHistory)
-class EditHistoryAdmin(admin.ModelAdmin):
-    list_display = ['id', 'post', 'created_date']
-    list_per_page = LIST_PER_PAGE_DEFAULT
-    search_fields = ['post__title']
-    readonly_fields = ['post', 'created_date']
 
 
 @admin.register(EditRequest)

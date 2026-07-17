@@ -6,6 +6,7 @@ from .webhook import *
 from .form import *
 from .image import *
 from .notify import *
+from .revision import *
 from .series import *
 from .post import *
 from .tag import *
