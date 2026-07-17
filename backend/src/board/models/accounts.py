@@ -26,6 +26,10 @@ class EmailChange(models.Model):
     auth_token = models.CharField(max_length=8, blank=True)
     created_date = models.DateTimeField(default=timezone.now)
 
+    class Meta:
+        verbose_name = '이메일 변경 요청'
+        verbose_name_plural = '이메일 변경 요청'
+
     def is_token_expire(self):
         seven_day_ago = timezone.now() - datetime.timedelta(days=7)
         if self.created_date < seven_day_ago:
@@ -43,12 +47,20 @@ class UserConfigMeta(models.Model):
     created_date = models.DateTimeField(default=timezone.now)
     updated_date = models.DateTimeField(default=timezone.now)
 
+    class Meta:
+        verbose_name = '사용자 기능 설정'
+        verbose_name_plural = '사용자 기능 설정'
+
     def __str__(self):
         return self.user.username
 
 
 class Config(models.Model):
     user = models.OneToOneField('auth.User', on_delete=models.CASCADE)
+
+    class Meta:
+        verbose_name = '사용자 설정'
+        verbose_name_plural = '사용자 설정'
 
     def create_or_update_meta(self, config: CONFIG_TYPE, value):
         return UserConfigMetaService.create_or_update_meta(self, config, value)
@@ -79,6 +91,10 @@ class UserLinkMeta(models.Model):
     created_date = models.DateTimeField(default=timezone.now)
     updated_date = models.DateTimeField(default=timezone.now)
 
+    class Meta:
+        verbose_name = '사용자 링크'
+        verbose_name_plural = '사용자 링크'
+
     def __str__(self):
         return self.user.username
 
@@ -107,6 +123,10 @@ class Profile(models.Model):
         default=Role.READER,
         help_text='사용자 역할 (독자: 읽기만, 작가: 글 작성 및 통계)'
     )
+
+    class Meta:
+        verbose_name = '프로필'
+        verbose_name_plural = '프로필'
 
     def is_editor(self):
         """Check if user has editor role"""
@@ -167,6 +187,10 @@ class TwoFactorAuth(models.Model):
     totp_secret = models.TextField(blank=True)
     created_date = models.DateTimeField(default=timezone.now)
 
+    class Meta:
+        verbose_name = '2단계 인증'
+        verbose_name_plural = '2단계 인증'
+
     def has_been_a_day(self):
         one_day_ago = timezone.now() - datetime.timedelta(days=1)
         if self.created_date < one_day_ago:
@@ -211,6 +235,8 @@ class TwoFactorAuth(models.Model):
 
 class UsernameChangeLog(models.Model):
     class Meta:
+        verbose_name = '사용자명 변경 이력'
+        verbose_name_plural = '사용자명 변경 이력'
         indexes = [
             models.Index(fields=['username']),
         ]
@@ -247,6 +273,8 @@ class SocialAuthProvider(models.Model):
 
 class SocialAuth(models.Model):
     class Meta:
+        verbose_name = '소셜 로그인 연동'
+        verbose_name_plural = '소셜 로그인 연동'
         constraints = [
             models.UniqueConstraint(
                 fields=['provider', 'uid'],

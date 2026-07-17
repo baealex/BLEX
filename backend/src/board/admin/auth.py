@@ -5,13 +5,11 @@ from django.db import transaction
 from django.db.models import QuerySet
 from django.http import HttpRequest
 
-from board.constants.social_auth import SUPPORTED_SOCIAL_AUTH_PROVIDERS
-from board.models import TwoFactorAuth, SocialAuth, SocialAuthProvider
+from board.models import TwoFactorAuth, SocialAuth
 from board.services.social_auth_connection_service import (
     SocialAuthConnectionService,
     SocialAuthDisconnectError,
 )
-from board.services.social_auth_provider_service import SocialAuthProviderService
 from board.services.two_factor_setup_service import (
     TwoFactorSetupError,
     TwoFactorSetupService,
@@ -230,31 +228,3 @@ class SocialAuthAdmin(
                 level=messages.WARNING,
             )
         return None
-
-
-@admin.register(SocialAuthProvider)
-class SocialAuthProviderAdmin(admin.ModelAdmin):
-    list_display = ['key', 'is_enabled', 'has_client_id', 'has_client_secret']
-    list_editable = ['is_enabled']
-    readonly_fields = ['key']
-    fields = ['key', 'is_enabled', 'client_id', 'client_secret']
-
-    def has_add_permission(self, request):
-        return False
-
-    def has_delete_permission(self, request, obj=None):
-        return False
-
-    def get_queryset(self, request):
-        SocialAuthProviderService.ensure_supported_providers()
-        return super().get_queryset(request).filter(
-            key__in=SUPPORTED_SOCIAL_AUTH_PROVIDERS.keys()
-        )
-
-    @admin.display(boolean=True, description='Client ID')
-    def has_client_id(self, obj):
-        return bool(obj.client_id)
-
-    @admin.display(boolean=True, description='Client Secret')
-    def has_client_secret(self, obj):
-        return bool(obj.client_secret)

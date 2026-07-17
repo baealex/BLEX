@@ -22,6 +22,10 @@ class Notify(models.Model):
     created_date = models.DateTimeField(default=timezone.now)
     updated_date = models.DateTimeField(default=timezone.now)
 
+    class Meta:
+        verbose_name = '알림'
+        verbose_name_plural = '알림'
+
     @staticmethod
     def create_hash_key(user: User, url: str, content: str, hidden_key: str = None):
         return get_sha256(user.username + url + content + (hidden_key if hidden_key else ''))
@@ -50,6 +54,10 @@ class TelegramSync(models.Model):
     auth_token = models.CharField(max_length=8, blank=True)
     auth_token_exp = models.DateTimeField(default=timezone.now)
     created_date = models.DateTimeField(default=timezone.now)
+
+    class Meta:
+        verbose_name = '텔레그램 연동'
+        verbose_name_plural = '텔레그램 연동'
 
     def get_decrypted_tid(self):
         return TelegramSyncEncryptionService.get_decrypted_tid(self)
@@ -188,6 +196,8 @@ class WebhookSubscription(models.Model):
     created_date = models.DateTimeField(default=timezone.now)
 
     class Meta:
+        verbose_name = '웹훅 구독'
+        verbose_name_plural = '웹훅 구독'
         unique_together = ['scope', 'author', 'webhook_url']
         ordering = ['-created_date']
 
