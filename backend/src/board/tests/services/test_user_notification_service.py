@@ -96,6 +96,23 @@ class UserNotificationServiceTestCase(TestCase):
         self.assertEqual(self.user.config.get_meta(CONFIG_TYPE.NOTIFY_POSTS_LIKE), True)
         self.assertIsNone(self.user.config.get_meta(CONFIG_TYPE.NOTIFY_POSTS_COMMENT))
 
+    def test_update_settings_notify_config_normalizes_non_boolean_value(self):
+        UserNotificationService.update_settings_notify_config(
+            self.user,
+            {
+                CONFIG_TYPE.NOTIFY_MENTION.value:
+                    '<img src=x onerror=alert(1)>',
+            },
+        )
+
+        meta = self.user.conf_meta.get(
+            name=CONFIG_TYPE.NOTIFY_MENTION.value,
+        )
+        self.assertEqual(meta.value, 'false')
+        self.assertFalse(
+            self.user.config.get_meta(CONFIG_TYPE.NOTIFY_MENTION),
+        )
+
     def test_mark_notification_as_read_returns_false_when_missing(self):
         self.assertFalse(
             UserNotificationService.mark_notification_as_read(self.user, '999999')

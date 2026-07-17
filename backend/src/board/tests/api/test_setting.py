@@ -14,7 +14,7 @@ from board.constants.config_meta import CONFIG_TYPE
 from board.models import (
     Comment, Config, Notify, Post, PostConfig, PostContent,
     PinnedPost, PostLikes, Profile, Series, Tag, User, UserLinkMeta,
-    UsernameChangeLog,
+    UserConfigMeta, UsernameChangeLog,
 )
 from board.services.setting_post_management_service import SettingPostManagementService
 
@@ -728,6 +728,27 @@ class SettingTestCase(TestCase):
         user = User.objects.get(username='test')
         self.assertEqual(user.config.get_meta(CONFIG_TYPE.NOTIFY_COMMENT_LIKE), True)
         self.assertEqual(user.config.get_meta(CONFIG_TYPE.NOTIFY_MENTION), False)
+
+    def test_update_notify_config_normalizes_invalid_legacy_value(self):
+        self.client.login(username='test', password='test')
+
+        response = self.client.put(
+            '/v1/setting/notify-config',
+            json.dumps({
+                CONFIG_TYPE.NOTIFY_MENTION.value:
+                    '<img src=x onerror=alert(1)>',
+            }),
+            content_type='application/json',
+        )
+
+        self.assertEqual(response.status_code, 200)
+        content = json.loads(response.content)
+        self.assertEqual(content['status'], 'DONE')
+        meta = UserConfigMeta.objects.get(
+            user__username='test',
+            name=CONFIG_TYPE.NOTIFY_MENTION.value,
+        )
+        self.assertEqual(meta.value, 'false')
 
     def test_update_notify_config_with_posts(self):
         """포스트가 있는 사용자의 알림 설정 업데이트 테스트"""

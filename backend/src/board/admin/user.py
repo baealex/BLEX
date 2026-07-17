@@ -9,7 +9,7 @@ from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from django.http import HttpRequest
 from django.db.models import Count, QuerySet
 from django.urls import reverse
-from django.utils.html import format_html
+from django.utils.html import format_html, format_html_join
 
 from board.models import (
     UserConfigMeta, UserLinkMeta, Config, UsernameChangeLog,
@@ -120,16 +120,21 @@ class CustomUserAdmin(BaseUserAdmin):
 @admin.register(UserConfigMeta)
 class UserConfigMetaAdmin(admin.ModelAdmin):
     class UserConfigMetaForm(forms.ModelForm):
+        name = forms.ChoiceField(
+            choices=[
+                (config_type, config_type) for config_type in CONFIG_TYPES
+            ],
+        )
+        value = forms.ChoiceField(
+            choices=[
+                ('true', '활성'),
+                ('false', '비활성'),
+            ],
+        )
+
         class Meta:
             model = UserConfigMeta
             fields = '__all__'
-            widgets = {
-                'name': forms.Select(
-                    choices=[
-                        (config_type, config_type) for config_type in CONFIG_TYPES
-                    ],
-                ),
-            }
     form = UserConfigMetaForm
 
     autocomplete_fields = ['user']
@@ -192,18 +197,29 @@ class ConfigAdmin(admin.ModelAdmin):
         if not configs:
             return format_html('<p style="color: {};">설정 없음</p>', COLOR_MUTED)
 
-        config_items = "".join([
-            f'<li style="padding: 4px 0;"><a href="{reverse("admin:board_userconfigmeta_change", args=[config.id])}" style="text-decoration: none;">'
-            f'<span style="background: {COLOR_INFO}; color: {COLOR_BG}; padding: 2px 8px; border-radius: 4px; font-size: 12px; opacity: 0.8;">{config.name}</span> '
-            f'<span style="color: {COLOR_TEXT};">{config.value}</span></a></li>'
-            for config in configs
-        ])
-
-        return AdminDisplayService.html(f"""
-                <ul style="list-style: none; padding: 0;">
-                    {config_items}
-                </ul>
-            """
+        config_items = format_html_join(
+            '',
+            '<li style="padding: 4px 0;"><a href="{}" style="text-decoration: none;">'
+            '<span style="background: {}; color: {}; padding: 2px 8px; border-radius: 4px; font-size: 12px; opacity: 0.8;">{}</span> '
+            '<span style="color: {};">{}</span></a></li>',
+            (
+                (
+                    reverse(
+                        'admin:board_userconfigmeta_change',
+                        args=[config.id],
+                    ),
+                    COLOR_INFO,
+                    COLOR_BG,
+                    config.name,
+                    COLOR_TEXT,
+                    config.value,
+                )
+                for config in configs
+            ),
+        )
+        return format_html(
+            '<ul style="list-style: none; padding: 0;">{}</ul>',
+            config_items,
         )
 
     list_display = ['user_link', 'telegram_status', 'two_factor_status']
