@@ -36,6 +36,7 @@ from board.models import (
 from .action_confirmation import render_action_confirmation
 from .mixins import (
     ServiceOwnedRecordAdminMixin,
+    is_admin_autocomplete_request,
     is_admin_changelist_request,
 )
 from .service import AdminDisplayService, AdminLinkService
@@ -172,7 +173,7 @@ class PostAdmin(admin.ModelAdmin):
     search_fields = ['title', 'content__content_html', 'author__username', 'series__name', 'tags__value']
     ordering = ['-created_date']
     inlines = [PostContentInline, PostConfigInline]
-    autocomplete_fields = ['author', 'series']
+    autocomplete_fields = ['author', 'series', 'tags']
 
     list_filter = [
         PublishStatusFilter,
@@ -251,11 +252,11 @@ class PostAdmin(admin.ModelAdmin):
         if ordering:
             queryset = queryset.order_by(*ordering)
 
-        if (
-            getattr(request, 'resolver_match', None)
-            and request.resolver_match.url_name == 'autocomplete'
-        ):
-            queryset = queryset.filter(deleted_date__isnull=True)
+        if is_admin_autocomplete_request(request):
+            return queryset.filter(deleted_date__isnull=True).only(
+                'id',
+                'title',
+            )
 
         likes_count = PostLikes.objects.filter(
             post_id=OuterRef('pk'),

@@ -9,6 +9,15 @@ def is_admin_changelist_request(request, model) -> bool:
     )
 
 
+def is_admin_autocomplete_request(request) -> bool:
+    """Return whether Django is resolving an Admin autocomplete request."""
+    resolver_match = getattr(request, 'resolver_match', None)
+    return (
+        resolver_match is not None
+        and resolver_match.url_name == 'autocomplete'
+    )
+
+
 class ReadOnlyRecordAdminMixin:
     """Inspect externally owned or system-managed rows without editing them."""
 

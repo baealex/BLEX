@@ -2,6 +2,10 @@ from datetime import timedelta
 
 from django.contrib import admin
 from django.contrib.admin import helpers
+from django.contrib.admin.widgets import (
+    AutocompleteSelect,
+    AutocompleteSelectMultiple,
+)
 from django.contrib.admin.models import CHANGE, LogEntry
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
@@ -332,6 +336,13 @@ class AdminListPerformanceTestCase(TestCase):
         request.resolver_match = resolve(path)
         return request
 
+    def autocomplete_request(self):
+        path = reverse('admin:autocomplete')
+        request = RequestFactory().get(path)
+        request.user = self.admin_user
+        request.resolver_match = resolve(path)
+        return request
+
     def large_field_cases(self):
         return (
             (Comment, self.active_comment.pk, {'text_md'}),
@@ -509,6 +520,124 @@ class AdminListPerformanceTestCase(TestCase):
         self.assertNotIn('auth_token', config_query)
         self.assertTrue(configs[0].telegram_linked)
         self.assertTrue(configs[0].two_factor_enabled)
+
+    def test_mutable_relation_forms_use_autocomplete_widgets(self):
+        cases = (
+            (
+                Post,
+                self.public_posts[0],
+                'author',
+                AutocompleteSelect,
+                self.authors[0].pk,
+            ),
+            (
+                Post,
+                self.public_posts[0],
+                'series',
+                AutocompleteSelect,
+                self.series[0].pk,
+            ),
+            (
+                Post,
+                self.public_posts[0],
+                'tags',
+                AutocompleteSelectMultiple,
+                self.tags[0].pk,
+            ),
+            (
+                SiteNotice,
+                self.site_notices[1],
+                'user',
+                AutocompleteSelect,
+                self.authors[0].pk,
+            ),
+            (
+                SiteBanner,
+                self.site_banners[1],
+                'user',
+                AutocompleteSelect,
+                self.authors[0].pk,
+            ),
+            (
+                WebhookSubscription,
+                self.webhook,
+                'author',
+                AutocompleteSelect,
+                self.profile.pk,
+            ),
+        )
+
+        for model, obj, field_name, widget_class, expected_value in cases:
+            with self.subTest(model=model, field_name=field_name):
+                model_admin = admin.site._registry[model]
+                form = model_admin.get_form(self.request, obj)(instance=obj)
+                widget = getattr(
+                    form.fields[field_name].widget,
+                    'widget',
+                    form.fields[field_name].widget,
+                )
+                self.assertIsInstance(widget, widget_class)
+                value = form[field_name].value()
+                if not isinstance(value, (list, tuple)):
+                    value = [value]
+                self.assertIn(
+                    str(expected_value),
+                    [str(item) for item in value],
+                )
+
+    def test_autocomplete_sources_skip_changelist_work(self):
+        cases = (
+            (User, self.authors[0].pk),
+            (Profile, self.profile.pk),
+            (Series, self.series[0].pk),
+            (Tag, self.tags[0].pk),
+            (Post, self.public_posts[0].pk),
+        )
+        request = self.autocomplete_request()
+
+        for model, object_id in cases:
+            with self.subTest(model=model):
+                model_admin = admin.site._registry[model]
+                queryset = model_admin.get_queryset(request).filter(
+                    pk=object_id,
+                )
+
+                self.assertFalse(queryset.query.annotations)
+                self.assertFalse(queryset._prefetch_related_lookups)
+                self.assertTrue(queryset.ordered)
+                with CaptureQueriesContext(connection) as queries:
+                    self.assertTrue(str(queryset.get()))
+
+                self.assertEqual(len(queries), 1)
+
+    def test_relation_autocomplete_searches_remain_available(self):
+        self.client.force_login(self.admin_user)
+        cases = (
+            (Post, 'author', self.authors[0].username),
+            (Post, 'series', self.series[0].name),
+            (Post, 'tags', self.tags[0].value),
+            (SiteNotice, 'user', self.authors[0].username),
+            (SiteBanner, 'user', self.authors[0].username),
+            (WebhookSubscription, 'author', self.authors[0].username),
+        )
+
+        for model, field_name, term in cases:
+            with self.subTest(model=model, field_name=field_name):
+                response = self.client.get(
+                    reverse('admin:autocomplete'),
+                    {
+                        'app_label': model._meta.app_label,
+                        'model_name': model._meta.model_name,
+                        'field_name': field_name,
+                        'term': term,
+                    },
+                )
+
+                self.assertEqual(response.status_code, 200)
+                result_texts = [
+                    result['text'] for result in response.json()['results']
+                ]
+                self.assertIn(term, result_texts)
 
     def test_high_growth_changelists_do_not_run_unfiltered_counts(self):
         self.client.force_login(self.admin_user)
