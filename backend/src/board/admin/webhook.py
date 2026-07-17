@@ -60,6 +60,7 @@ class WebhookSubscriptionAdminForm(forms.ModelForm):
 @admin.register(WebhookSubscription)
 class WebhookSubscriptionAdmin(admin.ModelAdmin):
     form = WebhookSubscriptionAdminForm
+    autocomplete_fields = ['author']
     list_display = [
         'name',
         'scope',

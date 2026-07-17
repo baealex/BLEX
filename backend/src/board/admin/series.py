@@ -11,7 +11,10 @@ from board.models import Series, Post
 from board.services.public_post_service import PublicPostService
 
 from .action_confirmation import render_action_confirmation
-from .mixins import is_admin_changelist_request
+from .mixins import (
+    is_admin_autocomplete_request,
+    is_admin_changelist_request,
+)
 from .service import AdminDisplayService, AdminLinkService
 from .constants import (
     COLOR_DANGER, COLOR_SUCCESS, COLOR_PRIMARY, COLOR_MUTED,
@@ -63,6 +66,9 @@ class SeriesAdmin(admin.ModelAdmin):
     actions = ['make_hidden', 'make_visible', 'set_layout_list', 'set_layout_card']
 
     def get_queryset(self, request):
+        if is_admin_autocomplete_request(request):
+            return super().get_queryset(request).only('id', 'name')
+
         public_posts = PublicPostService.filter_public_posts(
             Post.objects,
         ).filter(series=OuterRef('pk')).order_by('pk')

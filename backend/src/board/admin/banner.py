@@ -98,6 +98,7 @@ class SiteContentActionAdminMixin:
 @admin.register(SiteNotice)
 class SiteNoticeAdmin(SiteContentActionAdminMixin, admin.ModelAdmin):
     """사이트 공지 관리 페이지"""
+    autocomplete_fields = ['user']
     search_fields = ['title', 'user__username', 'url']
 
     list_filter = [
@@ -164,6 +165,7 @@ class SiteNoticeAdmin(SiteContentActionAdminMixin, admin.ModelAdmin):
 @admin.register(SiteBanner)
 class SiteBannerAdmin(SiteContentActionAdminMixin, admin.ModelAdmin):
     """사이트 배너 관리 페이지"""
+    autocomplete_fields = ['user']
     search_fields = ['title', 'user__username', 'content_html']
 
     list_filter = [

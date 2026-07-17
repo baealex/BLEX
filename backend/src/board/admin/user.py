@@ -33,6 +33,7 @@ from .action_confirmation import render_action_confirmation
 from .mixins import (
     ConfirmedActionDeleteAdminMixin,
     ReadOnlyRecordAdminMixin,
+    is_admin_autocomplete_request,
     is_admin_changelist_request,
 )
 from .permission_display import configure_permission_choice_field
@@ -275,6 +276,9 @@ class CustomUserAdmin(ConfirmedActionDeleteAdminMixin, BaseUserAdmin):
         return form_field
 
     def get_queryset(self, request):
+        if is_admin_autocomplete_request(request):
+            return super().get_queryset(request).only('id', 'username')
+
         queryset = super().get_queryset(request).select_related(
             'profile',
         ).annotate(
@@ -744,6 +748,16 @@ class ProfileAdmin(admin.ModelAdmin):
         )
 
     def get_queryset(self, request):
+        if is_admin_autocomplete_request(request):
+            return super().get_queryset(request).select_related(
+                'user',
+            ).only(
+                'id',
+                'user_id',
+                'user__id',
+                'user__username',
+            ).order_by('user__username', 'pk')
+
         queryset = super().get_queryset(request).select_related(
             'user',
         ).defer('user__password').annotate(

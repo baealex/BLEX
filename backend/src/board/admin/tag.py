@@ -14,7 +14,10 @@ from .constants import (
     COLOR_INFO, COLOR_BG, COLOR_DANGER, COLOR_WARNING,
     COLOR_SUCCESS, COLOR_MUTED, COLOR_TEXT
 )
-from .mixins import ConfirmedActionDeleteAdminMixin
+from .mixins import (
+    ConfirmedActionDeleteAdminMixin,
+    is_admin_autocomplete_request,
+)
 from .utilities import TagCleanerService
 
 
@@ -39,6 +42,12 @@ class TagAdmin(ConfirmedActionDeleteAdminMixin, admin.ModelAdmin):
     ]
 
     def get_queryset(self, request):
+        if is_admin_autocomplete_request(request):
+            return super().get_queryset(request).only(
+                'id',
+                'value',
+            ).order_by('value', 'pk')
+
         public_image_posts = PublicPostService.filter_public_posts(
             Post.objects,
         ).filter(
