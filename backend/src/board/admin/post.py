@@ -34,7 +34,10 @@ from board.models import (
 )
 
 from .action_confirmation import render_action_confirmation
-from .mixins import ServiceOwnedRecordAdminMixin
+from .mixins import (
+    ServiceOwnedRecordAdminMixin,
+    is_admin_changelist_request,
+)
 from .service import AdminDisplayService, AdminLinkService
 from .constants import (
     LIST_PER_PAGE_DEFAULT,
@@ -98,10 +101,7 @@ class EditRequestAdmin(ServiceOwnedRecordAdminMixin, admin.ModelAdmin):
             'post',
             'user',
         ).defer('user__password')
-        if (
-            getattr(request, 'resolver_match', None)
-            and request.resolver_match.url_name == 'board_editrequest_changelist'
-        ):
+        if is_admin_changelist_request(request, self.model):
             return queryset.defer('content')
         return queryset
 
@@ -199,6 +199,7 @@ class PostAdmin(admin.ModelAdmin):
     ]
     list_display_links = ['title']
     list_per_page = LIST_PER_PAGE_DEFAULT
+    show_full_result_count = False
     save_on_top = True
     date_hierarchy = 'created_date'
     actions = [

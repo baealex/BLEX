@@ -13,6 +13,7 @@ from board.services.post_revision_service import PostRevisionService
 
 from .action_confirmation import render_action_confirmation
 from .constants import LIST_PER_PAGE_DEFAULT
+from .mixins import is_admin_changelist_request
 from .service import AdminDisplayService, AdminLinkService
 
 
@@ -109,19 +110,24 @@ class EditHistoryAdmin(admin.ModelAdmin):
     ordering = ['-created_date', '-id']
     date_hierarchy = 'created_date'
     list_per_page = LIST_PER_PAGE_DEFAULT
+    show_full_result_count = False
 
     def get_queryset(self, request):
-        queryset = super().get_queryset(request).select_related(
+        is_changelist = is_admin_changelist_request(request, self.model)
+        relations = [
             'post',
             'post__author',
             'actor',
-            'restored_from',
+        ]
+        if not is_changelist:
+            relations.append('restored_from')
+        queryset = super().get_queryset(request).select_related(
+            *relations,
+        ).defer(
+            'post__author__password',
+            'actor__password',
         )
-        if (
-            getattr(request, 'resolver_match', None)
-            and request.resolver_match.url_name
-            == 'board_edithistory_changelist'
-        ):
+        if is_changelist:
             return queryset.defer(
                 'content',
                 'description',

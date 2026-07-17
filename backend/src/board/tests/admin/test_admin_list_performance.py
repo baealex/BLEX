@@ -1,11 +1,13 @@
 from datetime import timedelta
 
 from django.contrib import admin
+from django.contrib.admin.models import CHANGE, LogEntry
 from django.contrib.auth.models import User
+from django.contrib.contenttypes.models import ContentType
 from django.db import connection
 from django.test import RequestFactory, TestCase
 from django.test.utils import CaptureQueriesContext
-from django.urls import reverse
+from django.urls import resolve, reverse
 from django.utils import timezone
 
 from board.admin.comment import CommentAdmin
@@ -17,17 +19,28 @@ from board.admin.user import ConfigAdmin
 from board.models import (
     Comment,
     Config,
+    EditHistory,
     EditRequest,
+    EmailChange,
+    Form,
     ImageCache,
+    Notify,
     Post,
     PostConfig,
     PostContent,
     PostLikes,
     PinnedPost,
+    Profile,
     Series,
+    SiteBanner,
+    SiteNotice,
+    SocialAuth,
     Tag,
     TelegramSync,
     TwoFactorAuth,
+    UserConfigMeta,
+    UserLinkMeta,
+    UsernameChangeLog,
 )
 
 
@@ -140,6 +153,85 @@ class AdminListPerformanceTestCase(TestCase):
             path='cache/list-preview.jpg',
             size=1024,
         )
+        cls.profile = Profile.objects.create(
+            user=cls.authors[0],
+            bio='large profile bio ' * 100,
+            about_md='large profile markdown ' * 500,
+            about_html='<p>' + ('large profile html ' * 500) + '</p>',
+        )
+        cls.form = Form.objects.create(
+            user=cls.authors[0],
+            title='List form',
+            content='large form content ' * 500,
+        )
+        cls.notification = Notify.objects.create(
+            user=cls.authors[0],
+            key='n' * 44,
+            url='/list-notification',
+            content='List notification content',
+        )
+        cls.revision = EditHistory.objects.create(
+            post=cls.public_posts[0],
+            actor=cls.authors[0],
+            title='List revision',
+            subtitle='List revision subtitle',
+            content='large revision content ' * 500,
+            content_excerpt='List revision excerpt',
+            description='List revision description',
+            tags=['list-tag'],
+        )
+        cls.site_notices = [
+            SiteNotice.objects.create(
+                scope='global',
+                user=None,
+                title='Global list notice',
+            ),
+            SiteNotice.objects.create(
+                scope='user',
+                user=cls.authors[0],
+                title='User list notice',
+            ),
+        ]
+        cls.site_banners = [
+            SiteBanner.objects.create(
+                scope='global',
+                user=None,
+                title='Global list banner',
+                content_html='<p>' + ('large banner html ' * 500) + '</p>',
+            ),
+            SiteBanner.objects.create(
+                scope='user',
+                user=cls.authors[0],
+                title='User list banner',
+                content_html='<p>User banner</p>',
+            ),
+        ]
+        UserConfigMeta.objects.create(
+            user=cls.authors[0],
+            name='list-setting',
+            value='true',
+        )
+        UserLinkMeta.objects.create(
+            user=cls.authors[0],
+            name='homepage',
+            value='https://example.com',
+        )
+        UsernameChangeLog.objects.create(
+            user=cls.authors[0],
+            username='previous-list-author',
+        )
+        cls.log_entry = LogEntry.objects.create(
+            user=cls.admin_user,
+            content_type=ContentType.objects.get_for_model(Post),
+            object_id=str(cls.public_posts[0].pk),
+            object_repr=str(cls.public_posts[0]),
+            action_flag=CHANGE,
+            change_message='large Admin change message ' * 100,
+        )
+        Series.objects.filter(pk=cls.series[0].pk).update(
+            text_md='large series markdown ' * 500,
+            text_html='<p>' + ('large series html ' * 500) + '</p>',
+        )
 
     @classmethod
     def create_post(
@@ -184,6 +276,51 @@ class AdminListPerformanceTestCase(TestCase):
         self.tag_admin = TagAdmin(Tag, admin.site)
         self.series_admin = SeriesAdmin(Series, admin.site)
         self.config_admin = ConfigAdmin(Config, admin.site)
+
+    @staticmethod
+    def admin_url_name(model, view_name: str) -> str:
+        opts = model._meta
+        return (
+            f'admin:{opts.app_label}_{opts.model_name}_{view_name}'
+        )
+
+    def changelist_request(self, model):
+        path = reverse(self.admin_url_name(model, 'changelist'))
+        request = RequestFactory().get(path)
+        request.user = self.admin_user
+        request.resolver_match = resolve(path)
+        return request
+
+    def change_request(self, model, object_id: int):
+        path = reverse(
+            self.admin_url_name(model, 'change'),
+            args=[object_id],
+        )
+        request = RequestFactory().get(path)
+        request.user = self.admin_user
+        request.resolver_match = resolve(path)
+        return request
+
+    def large_field_cases(self):
+        return (
+            (Comment, self.active_comment.pk, {'text_md'}),
+            (Notify, self.notification.pk, {'key'}),
+            (
+                EditHistory,
+                self.revision.pk,
+                {'content', 'description', 'tags', 'subtitle'},
+            ),
+            (Form, self.form.pk, {'content'}),
+            (Series, self.series[0].pk, {'text_md', 'text_html'}),
+            (SiteBanner, self.site_banners[0].pk, {'content_html'}),
+            (
+                Profile,
+                self.profile.pk,
+                {'bio', 'about_md', 'about_html'},
+            ),
+            (User, self.authors[0].pk, {'password'}),
+            (LogEntry, self.log_entry.pk, {'change_message'}),
+        )
 
     def test_post_list_loads_only_display_relations_in_two_queries(self):
         with CaptureQueriesContext(connection) as queries:
@@ -341,6 +478,80 @@ class AdminListPerformanceTestCase(TestCase):
         self.assertNotIn('auth_token', config_query)
         self.assertTrue(configs[0].telegram_linked)
         self.assertTrue(configs[0].two_factor_enabled)
+
+    def test_high_growth_changelists_do_not_run_unfiltered_counts(self):
+        self.client.force_login(self.admin_user)
+
+        for model in (Post, Comment, Notify, EditHistory, LogEntry):
+            url_name = self.admin_url_name(model, 'changelist')
+            with self.subTest(model=model):
+                response = self.client.get(reverse(url_name), {'q': 'list'})
+                self.assertEqual(response.status_code, 200)
+                self.assertIsNone(response.context['cl'].full_result_count)
+
+    def test_changelists_defer_unused_large_fields(self):
+        for model, object_id, expected_fields in self.large_field_cases():
+            with self.subTest(model=model):
+                model_admin = admin.site._registry[model]
+                row = model_admin.get_queryset(
+                    self.changelist_request(model),
+                ).get(pk=object_id)
+                self.assertTrue(
+                    expected_fields.issubset(row.get_deferred_fields()),
+                )
+
+    def test_change_views_keep_fields_needed_for_inspection_and_editing(self):
+        for model, object_id, expected_fields in self.large_field_cases():
+            with self.subTest(model=model):
+                model_admin = admin.site._registry[model]
+                row = model_admin.get_queryset(
+                    self.change_request(model, object_id),
+                ).get(pk=object_id)
+                self.assertTrue(
+                    expected_fields.isdisjoint(row.get_deferred_fields()),
+                )
+
+    def test_user_related_changelists_do_not_select_password_hashes(self):
+        models = (
+            EmailChange, UsernameChangeLog, User, UserConfigMeta,
+            UserLinkMeta, Profile, Comment, Notify, Form, Series,
+            SiteNotice, SiteBanner, TwoFactorAuth, SocialAuth, LogEntry,
+        )
+
+        for model in models:
+            with self.subTest(model=model):
+                model_admin = admin.site._registry[model]
+                queryset = model_admin.get_queryset(
+                    self.changelist_request(model),
+                )
+                self.assertNotIn('password', str(queryset.query).lower())
+
+        social_auth_query = admin.site._registry[SocialAuth].get_queryset(
+            self.changelist_request(SocialAuth),
+        )
+        social_auth_sql = str(social_auth_query.query).lower()
+        self.assertNotIn('client_id', social_auth_sql)
+        self.assertNotIn('client_secret', social_auth_sql)
+
+    def test_nullable_user_lists_select_displayed_users_once(self):
+        for model in (SiteNotice, SiteBanner):
+            with self.subTest(model=model):
+                model_admin = admin.site._registry[model]
+                with CaptureQueriesContext(connection) as queries:
+                    rows = list(
+                        model_admin.get_queryset(
+                            self.changelist_request(model),
+                        ),
+                    )
+                    for row in rows:
+                        if row.user is not None:
+                            str(row.user)
+
+                self.assertEqual(len(queries), 1)
+                self.assertNotIn(
+                    'password',
+                    queries.captured_queries[0]['sql'].lower(),
+                )
 
     def test_image_cache_list_uses_compact_lazy_previews(self):
         model_admin = ImageCacheAdmin(ImageCache, admin.site)

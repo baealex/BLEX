@@ -29,6 +29,7 @@ from .constants import (
     DATETIME_FORMAT_FULL,
     LIST_PER_PAGE_DEFAULT,
 )
+from .mixins import is_admin_changelist_request
 from .service import AdminDisplayService, AdminLinkService
 
 logger = logging.getLogger('board.notification')
@@ -106,6 +107,7 @@ class NotifyAdmin(admin.ModelAdmin):
     ]
     list_display_links = ['content_preview']
     list_per_page = LIST_PER_PAGE_DEFAULT
+    show_full_result_count = False
     date_hierarchy = 'created_date'
 
     fieldsets = (
@@ -124,7 +126,12 @@ class NotifyAdmin(admin.ModelAdmin):
     readonly_fields = ['key', 'created_at', 'updated_at']
 
     def get_queryset(self, request):
-        return super().get_queryset(request).select_related('user')
+        queryset = super().get_queryset(request).select_related(
+            'user',
+        ).defer('user__password')
+        if is_admin_changelist_request(request, self.model):
+            return queryset.defer('key')
+        return queryset
 
     def user_link(self, obj):
         return AdminLinkService.create_user_link(obj.user)

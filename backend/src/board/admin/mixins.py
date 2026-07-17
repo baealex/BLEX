@@ -1,3 +1,14 @@
+def is_admin_changelist_request(request, model) -> bool:
+    """Return whether a request resolves to the model's Admin list."""
+    resolver_match = getattr(request, 'resolver_match', None)
+    if resolver_match is None:
+        return False
+    opts = model._meta
+    return resolver_match.url_name == (
+        f'{opts.app_label}_{opts.model_name}_changelist'
+    )
+
+
 class ReadOnlyRecordAdminMixin:
     """Inspect externally owned or system-managed rows without editing them."""
 

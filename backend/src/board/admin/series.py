@@ -11,6 +11,7 @@ from board.models import Series, Post
 from board.services.public_post_service import PublicPostService
 
 from .action_confirmation import render_action_confirmation
+from .mixins import is_admin_changelist_request
 from .service import AdminDisplayService, AdminLinkService
 from .constants import (
     COLOR_DANGER, COLOR_SUCCESS, COLOR_PRIMARY, COLOR_MUTED,
@@ -65,7 +66,7 @@ class SeriesAdmin(admin.ModelAdmin):
         public_posts = PublicPostService.filter_public_posts(
             Post.objects,
         ).filter(series=OuterRef('pk')).order_by('pk')
-        return super().get_queryset(request).select_related(
+        queryset = super().get_queryset(request).select_related(
             'owner'
         ).defer('owner__password').annotate(
             count_posts=Count(
@@ -87,6 +88,9 @@ class SeriesAdmin(admin.ModelAdmin):
                 public_posts.values('image')[:1],
             ),
         )
+        if is_admin_changelist_request(request, self.model):
+            return queryset.defer('text_md', 'text_html')
+        return queryset
 
     fieldsets = (
         ('기본 정보', {
