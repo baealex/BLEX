@@ -1,4 +1,6 @@
 import json
+from datetime import datetime, timezone as datetime_timezone
+from unittest.mock import patch
 
 from django.test import TestCase
 from django.core.cache import cache
@@ -42,11 +44,19 @@ class UserAPITestCase(TestCase):
 
     def test_public_heatmap_uses_one_activity_query(self):
         """공개 활동 세 종류는 UNION ALL 한 번으로 함께 조회한다."""
+        utc_midnight_boundary = datetime(
+            2026,
+            7,
+            17,
+            15,
+            30,
+            tzinfo=datetime_timezone.utc,
+        )
         post = Post.objects.create(
             url='heatmap-post',
             title='Heatmap Post',
             author=self.user,
-            published_date=timezone.now(),
+            published_date=utc_midnight_boundary,
         )
         PostConfig.objects.create(post=post, hide=False)
         Comment.objects.create(
@@ -54,15 +64,24 @@ class UserAPITestCase(TestCase):
             author=self.user,
             text_md='comment',
             text_html='<p>comment</p>',
+            created_date=utc_midnight_boundary,
         )
-        PostLikes.objects.create(post=post, user=self.user)
+        PostLikes.objects.create(
+            post=post,
+            user=self.user,
+            created_date=utc_midnight_boundary,
+        )
 
         # User lookup + combined activity query + request-scoped site setting.
-        with self.assertNumQueries(3):
-            response = self.client.get('/v1/users/@testuser/heatmap')
+        with patch(
+            'board.views.api.v1.author.timezone.now',
+            return_value=utc_midnight_boundary,
+        ):
+            with self.assertNumQueries(3):
+                response = self.client.get('/v1/users/@testuser/heatmap')
 
         self.assertEqual(response.status_code, 200)
-        today = timezone.localdate().strftime('%Y%m%d')
+        today = timezone.localtime(utc_midnight_boundary).strftime('%Y%m%d')
         body = json.loads(response.content)['body']
         self.assertEqual(body, {today: 3})
 

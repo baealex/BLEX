@@ -28,7 +28,7 @@ def get_author_heatmap(request, username):
 
     if heatmap is None:
         # Generate heatmap data for the last year
-        end_date = timezone.now().date()
+        end_date = timezone.localdate()
         start_date = end_date - timedelta(days=365)
 
         # Aggregate each activity type in the database, then fetch the three
