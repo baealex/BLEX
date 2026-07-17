@@ -21,6 +21,8 @@ def is_admin_autocomplete_request(request) -> bool:
 class ReadOnlyRecordAdminMixin:
     """Inspect externally owned or system-managed rows without editing them."""
 
+    show_full_result_count = False
+
     def has_add_permission(self, request):
         return False
 

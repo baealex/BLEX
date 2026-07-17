@@ -225,6 +225,8 @@ admin.site.unregister(User)
 class CustomGroupAdmin(BaseGroupAdmin):
     """Keep delegated staff from changing permission bundles."""
 
+    show_full_result_count = False
+
     def formfield_for_manytomany(self, db_field, request=None, **kwargs):
         form_field = super().formfield_for_manytomany(
             db_field,
@@ -247,6 +249,7 @@ class CustomGroupAdmin(BaseGroupAdmin):
 
 @admin.register(User)
 class CustomUserAdmin(ConfirmedActionDeleteAdminMixin, BaseUserAdmin):
+    show_full_result_count = False
     delegated_readonly_fields = (
         'is_staff',
         'is_superuser',
@@ -552,6 +555,7 @@ class UserConfigMetaAdmin(admin.ModelAdmin):
     form = UserConfigMetaForm
 
     autocomplete_fields = ['user']
+    show_full_result_count = False
 
     def get_form(self, request, obj=None, **kwargs):
         if obj:
@@ -580,6 +584,7 @@ class UserLinkMetaAdmin(admin.ModelAdmin):
     list_filter = ['name']
     search_fields = ['user__username', 'name', 'value']
     autocomplete_fields = ['user']
+    show_full_result_count = False
 
     def get_queryset(self, request):
         return super().get_queryset(request).select_related('user').defer(
@@ -599,6 +604,7 @@ class UserLinkMetaAdmin(admin.ModelAdmin):
 @admin.register(Config)
 class ConfigAdmin(admin.ModelAdmin):
     autocomplete_fields = ['user']
+    show_full_result_count = False
 
     fieldsets = (
         ('사용자 정보', {
@@ -694,6 +700,7 @@ class ConfigAdmin(admin.ModelAdmin):
 class ProfileAdmin(admin.ModelAdmin):
     """프로필 관리 페이지"""
     autocomplete_fields = ['user']
+    show_full_result_count = False
 
     list_display = ['id', 'user_link', 'role_badge', 'avatar_preview', 'analytics_status', 'post_count']
     list_display_links = ['id']

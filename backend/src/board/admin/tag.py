@@ -25,6 +25,7 @@ from .utilities import TagCleanerService
 class TagAdmin(ConfirmedActionDeleteAdminMixin, admin.ModelAdmin):
     search_fields = ['value']
     actions = ['clear_unused_tags']
+    show_full_result_count = False
 
     list_display = [
         'tag_badge',

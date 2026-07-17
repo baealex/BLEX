@@ -29,6 +29,7 @@ class SocialAuthProviderCompatibilityAdmin(admin.ModelAdmin):
     """Preserve legacy Admin URLs without exposing provider secrets."""
 
     canonical_settings_url = '/admin-settings/login'
+    show_full_result_count = False
 
     def has_module_permission(self, request):
         return False

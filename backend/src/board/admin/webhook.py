@@ -61,6 +61,7 @@ class WebhookSubscriptionAdminForm(forms.ModelForm):
 class WebhookSubscriptionAdmin(admin.ModelAdmin):
     form = WebhookSubscriptionAdminForm
     autocomplete_fields = ['author']
+    show_full_result_count = False
     list_display = [
         'name',
         'scope',
