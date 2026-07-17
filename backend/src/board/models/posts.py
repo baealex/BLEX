@@ -18,6 +18,8 @@ from .helpers import title_image_path
 
 class Comment(models.Model):
     class Meta:
+        verbose_name = '댓글'
+        verbose_name_plural = '댓글'
         indexes = [
             models.Index(fields=['post', 'parent', 'created_date']),
             models.Index(fields=['author', 'created_date']),
@@ -81,6 +83,10 @@ class Form(models.Model):
     created_date = models.DateTimeField(default=timezone.now)
     updated_date = models.DateTimeField(default=timezone.now)
 
+    class Meta:
+        verbose_name = '사용자 폼'
+        verbose_name_plural = '사용자 폼'
+
     def __str__(self):
         return self.title
 
@@ -91,12 +97,18 @@ class ImageCache(models.Model):
     path = models.CharField(max_length=128, unique=True)
     size = models.IntegerField(default=0)
 
+    class Meta:
+        verbose_name = '이미지 캐시'
+        verbose_name_plural = '이미지 캐시'
+
     def __str__(self):
         return self.path
 
 
 class Tag(models.Model):
     class Meta:
+        verbose_name = '태그'
+        verbose_name_plural = '태그'
         constraints = [
             models.UniqueConstraint(
                 fields=['value'],
@@ -135,6 +147,8 @@ class Post(models.Model):
     all_objects = models.Manager()
 
     class Meta:
+        verbose_name = '포스트'
+        verbose_name_plural = '포스트'
         indexes = [
             models.Index(fields=['author', 'created_date']),
             models.Index(fields=['created_date']),
@@ -298,6 +312,8 @@ class PostConfigMeta(models.Model):
 
 class PinnedPost(models.Model):
     class Meta:
+        verbose_name = '고정 포스트'
+        verbose_name_plural = '고정 포스트'
         constraints = [
             models.UniqueConstraint(
                 fields=['user', 'post'],
@@ -350,6 +366,10 @@ class Series(models.Model):
     layout = models.CharField(max_length=5, default='list')
     created_date = models.DateTimeField(default=timezone.now)
     updated_date = models.DateTimeField(default=timezone.now)
+
+    class Meta:
+        verbose_name = '시리즈'
+        verbose_name_plural = '시리즈'
 
     def create_unique_url(self, url=None):
         SeriesSaveService.create_unique_url(self, url)
@@ -426,6 +446,8 @@ class EditHistory(models.Model):
     created_date = models.DateTimeField(default=timezone.now)
 
     class Meta:
+        verbose_name = '포스트 수정 이력'
+        verbose_name_plural = '포스트 수정 이력'
         indexes = [
             models.Index(fields=['post', 'created_date']),
         ]
@@ -442,6 +464,10 @@ class EditRequest(models.Model):
     is_merged = models.BooleanField(default=False)
     created_date = models.DateTimeField(default=timezone.now)
     updated_date = models.DateTimeField(default=timezone.now)
+
+    class Meta:
+        verbose_name = '포스트 수정 요청'
+        verbose_name_plural = '포스트 수정 요청'
 
     def __str__(self):
         return self.title
