@@ -8,7 +8,7 @@ from django.test.utils import CaptureQueriesContext
 from django.urls import reverse
 from django.utils import translation
 
-from board.admin.user import CustomGroupAdmin, CustomUserAdmin
+from board.admin.user import CustomGroupAdmin, CustomUserAdmin, ProfileAdmin
 from board.models import (
     IntegrationSetting,
     LoginSetting,
@@ -34,6 +34,10 @@ class AdminPermissionBoundaryTestCase(TestCase):
             password='test',
             is_staff=True,
         )
+        cls.staff_profile = Profile.objects.create(
+            user=cls.staff,
+            role=Profile.Role.READER,
+        )
         cls.target = User.objects.create_user(
             username='permission-target',
             email='permission-target@example.com',
@@ -43,6 +47,16 @@ class AdminPermissionBoundaryTestCase(TestCase):
             username='privileged-staff',
             email='privileged-staff@example.com',
             password='original-password',
+            is_staff=True,
+        )
+        cls.privileged_staff_profile = Profile.objects.create(
+            user=cls.privileged_staff,
+            role=Profile.Role.READER,
+        )
+        cls.privileged_user_without_profile = User.objects.create_user(
+            username='privileged-without-profile',
+            email='privileged-without-profile@example.com',
+            password='test',
             is_staff=True,
         )
         cls.target_profile, _ = Profile.objects.get_or_create(
@@ -59,6 +73,7 @@ class AdminPermissionBoundaryTestCase(TestCase):
         self.staff = User.objects.get(pk=self.staff.pk)
         self.user_admin = CustomUserAdmin(User, admin.site)
         self.group_admin = CustomGroupAdmin(Group, admin.site)
+        self.profile_admin = ProfileAdmin(Profile, admin.site)
 
     def admin_request(self):
         request = RequestFactory().get('/admin/')
@@ -239,6 +254,296 @@ class AdminPermissionBoundaryTestCase(TestCase):
         actions = self.user_admin.get_actions(self.admin_request())
         self.assertIn('make_editor', actions)
         self.assertIn('make_reader', actions)
+
+    def test_delegated_staff_cannot_change_or_delete_privileged_profiles(self):
+        self.staff.user_permissions.add(
+            Permission.objects.get(codename='change_profile'),
+            Permission.objects.get(codename='delete_profile'),
+        )
+        self.staff = User.objects.get(pk=self.staff.pk)
+        request = self.admin_request()
+
+        self.assertFalse(
+            self.profile_admin.has_change_permission(
+                request,
+                self.privileged_staff_profile,
+            ),
+        )
+        self.assertFalse(
+            self.profile_admin.has_delete_permission(
+                request,
+                self.privileged_staff_profile,
+            ),
+        )
+
+        self.client.force_login(self.staff)
+        change_response = self.client.post(
+            reverse(
+                'admin:board_profile_change',
+                args=[self.privileged_staff_profile.pk],
+            ),
+            {'role': Profile.Role.EDITOR},
+        )
+        delete_response = self.client.post(
+            reverse(
+                'admin:board_profile_delete',
+                args=[self.privileged_staff_profile.pk],
+            ),
+        )
+
+        self.assertEqual(change_response.status_code, 403)
+        self.assertEqual(delete_response.status_code, 403)
+        self.privileged_staff_profile.refresh_from_db()
+        self.assertEqual(self.privileged_staff_profile.role, Profile.Role.READER)
+
+    def test_delegated_bulk_delete_keeps_mixed_privileged_profiles(self):
+        self.staff.user_permissions.add(
+            Permission.objects.get(codename='delete_profile'),
+            Permission.objects.get(codename='view_profile'),
+        )
+        self.staff = User.objects.get(pk=self.staff.pk)
+        self.client.force_login(self.staff)
+        selection = {
+            helpers.ACTION_CHECKBOX_NAME: [
+                str(self.target_profile.pk),
+                str(self.privileged_staff_profile.pk),
+            ],
+            'action': 'delete_selected',
+            'select_across': '0',
+        }
+
+        confirmation_response = self.client.post(
+            reverse('admin:board_profile_changelist'),
+            selection,
+        )
+        confirmed_response = self.client.post(
+            reverse('admin:board_profile_changelist'),
+            {**selection, 'post': 'yes'},
+        )
+
+        self.assertEqual(confirmation_response.status_code, 200)
+        self.assertEqual(confirmed_response.status_code, 403)
+        self.assertTrue(
+            Profile.objects.filter(pk=self.target_profile.pk).exists(),
+        )
+        self.assertTrue(
+            Profile.objects.filter(
+                pk=self.privileged_staff_profile.pk,
+            ).exists(),
+        )
+
+    def test_delegated_profile_role_action_skips_privileged_profiles(self):
+        self.staff.user_permissions.add(
+            Permission.objects.get(codename='change_profile'),
+        )
+        self.staff = User.objects.get(pk=self.staff.pk)
+        self.client.force_login(self.staff)
+
+        response = self.client.post(
+            reverse('admin:board_profile_changelist'),
+            {
+                helpers.ACTION_CHECKBOX_NAME: [
+                    str(self.target_profile.pk),
+                    str(self.privileged_staff_profile.pk),
+                ],
+                'action': 'set_role_editor',
+                'select_across': '0',
+            },
+        )
+
+        self.assertEqual(response.status_code, 302)
+        self.target_profile.refresh_from_db()
+        self.privileged_staff_profile.refresh_from_db()
+        self.assertEqual(self.target_profile.role, Profile.Role.EDITOR)
+        self.assertEqual(
+            self.privileged_staff_profile.role,
+            Profile.Role.READER,
+        )
+
+    def test_delegated_staff_cannot_create_profile_for_privileged_user(self):
+        self.staff.user_permissions.add(
+            Permission.objects.get(codename='add_profile'),
+        )
+        self.staff = User.objects.get(pk=self.staff.pk)
+        self.client.force_login(self.staff)
+
+        response = self.client.post(
+            reverse('admin:board_profile_add'),
+            {
+                'user': str(self.privileged_user_without_profile.pk),
+                'role': Profile.Role.EDITOR,
+                '_save': 'Save',
+            },
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertFalse(
+            Profile.objects.filter(
+                user=self.privileged_user_without_profile,
+            ).exists(),
+        )
+
+    def test_delegated_staff_cannot_change_own_profile_role_through_user_inline(self):
+        self.staff.user_permissions.add(
+            Permission.objects.get(codename='change_profile'),
+        )
+        self.staff = User.objects.get(pk=self.staff.pk)
+        self.client.force_login(self.staff)
+
+        response = self.client.post(
+            reverse('admin:auth_user_change', args=[self.staff.pk]),
+            {
+                'username': self.staff.username,
+                'first_name': '',
+                'last_name': '',
+                'email': self.staff.email,
+                'is_active': 'on',
+                'date_joined_0': self.staff.date_joined.strftime('%Y-%m-%d'),
+                'date_joined_1': self.staff.date_joined.strftime('%H:%M:%S'),
+                'profile-TOTAL_FORMS': '1',
+                'profile-INITIAL_FORMS': '1',
+                'profile-MIN_NUM_FORMS': '0',
+                'profile-MAX_NUM_FORMS': '1',
+                'profile-0-id': str(self.staff_profile.pk),
+                'profile-0-role': Profile.Role.EDITOR,
+                '_save': 'Save',
+            },
+        )
+
+        self.assertEqual(response.status_code, 302)
+        self.staff_profile.refresh_from_db()
+        self.assertEqual(self.staff_profile.role, Profile.Role.READER)
+
+    def test_delegated_staff_cannot_add_own_profile_through_user_inline(self):
+        self.staff_profile.delete()
+        self.staff.user_permissions.add(
+            Permission.objects.get(codename='add_profile'),
+        )
+        self.staff = User.objects.get(pk=self.staff.pk)
+        self.client.force_login(self.staff)
+
+        response = self.client.post(
+            reverse('admin:auth_user_change', args=[self.staff.pk]),
+            {
+                'username': self.staff.username,
+                'first_name': '',
+                'last_name': '',
+                'email': self.staff.email,
+                'is_active': 'on',
+                'date_joined_0': self.staff.date_joined.strftime('%Y-%m-%d'),
+                'date_joined_1': self.staff.date_joined.strftime('%H:%M:%S'),
+                'profile-TOTAL_FORMS': '1',
+                'profile-INITIAL_FORMS': '0',
+                'profile-MIN_NUM_FORMS': '0',
+                'profile-MAX_NUM_FORMS': '1',
+                'profile-0-role': Profile.Role.EDITOR,
+                '_save': 'Save',
+            },
+        )
+
+        self.assertEqual(response.status_code, 302)
+        self.assertFalse(Profile.objects.filter(user=self.staff).exists())
+
+    def test_superuser_can_manage_privileged_profiles_through_user_inline(self):
+        self.client.force_login(self.superuser)
+
+        change_response = self.client.post(
+            reverse('admin:auth_user_change', args=[self.privileged_staff.pk]),
+            {
+                'username': self.privileged_staff.username,
+                'first_name': '',
+                'last_name': '',
+                'email': self.privileged_staff.email,
+                'is_active': 'on',
+                'date_joined_0': self.privileged_staff.date_joined.strftime(
+                    '%Y-%m-%d',
+                ),
+                'date_joined_1': self.privileged_staff.date_joined.strftime(
+                    '%H:%M:%S',
+                ),
+                'profile-TOTAL_FORMS': '1',
+                'profile-INITIAL_FORMS': '1',
+                'profile-MIN_NUM_FORMS': '0',
+                'profile-MAX_NUM_FORMS': '1',
+                'profile-0-id': str(self.privileged_staff_profile.pk),
+                'profile-0-role': Profile.Role.EDITOR,
+                'userlinkmeta_set-TOTAL_FORMS': '0',
+                'userlinkmeta_set-INITIAL_FORMS': '0',
+                'userlinkmeta_set-MIN_NUM_FORMS': '0',
+                'userlinkmeta_set-MAX_NUM_FORMS': '1000',
+                '_save': 'Save',
+            },
+        )
+        add_response = self.client.post(
+            reverse(
+                'admin:auth_user_change',
+                args=[self.privileged_user_without_profile.pk],
+            ),
+            {
+                'username': self.privileged_user_without_profile.username,
+                'first_name': '',
+                'last_name': '',
+                'email': self.privileged_user_without_profile.email,
+                'is_active': 'on',
+                'date_joined_0': (
+                    self.privileged_user_without_profile.date_joined.strftime(
+                        '%Y-%m-%d',
+                    )
+                ),
+                'date_joined_1': (
+                    self.privileged_user_without_profile.date_joined.strftime(
+                        '%H:%M:%S',
+                    )
+                ),
+                'profile-TOTAL_FORMS': '1',
+                'profile-INITIAL_FORMS': '0',
+                'profile-MIN_NUM_FORMS': '0',
+                'profile-MAX_NUM_FORMS': '1',
+                'profile-0-role': Profile.Role.EDITOR,
+                'userlinkmeta_set-TOTAL_FORMS': '0',
+                'userlinkmeta_set-INITIAL_FORMS': '0',
+                'userlinkmeta_set-MIN_NUM_FORMS': '0',
+                'userlinkmeta_set-MAX_NUM_FORMS': '1000',
+                '_save': 'Save',
+            },
+        )
+
+        self.assertEqual(change_response.status_code, 302)
+        self.assertEqual(add_response.status_code, 302)
+        self.privileged_staff_profile.refresh_from_db()
+        self.assertEqual(self.privileged_staff_profile.role, Profile.Role.EDITOR)
+        self.assertEqual(
+            Profile.objects.get(
+                user=self.privileged_user_without_profile,
+            ).role,
+            Profile.Role.EDITOR,
+        )
+
+    def test_superuser_keeps_privileged_profile_management(self):
+        request = self.superuser_request()
+
+        self.assertTrue(
+            self.profile_admin.has_change_permission(
+                request,
+                self.privileged_staff_profile,
+            ),
+        )
+        self.assertTrue(
+            self.profile_admin.has_delete_permission(
+                request,
+                self.privileged_staff_profile,
+            ),
+        )
+
+        count = self.profile_admin.set_profiles_role(
+            request,
+            Profile.objects.filter(pk=self.privileged_staff_profile.pk),
+            role=Profile.Role.EDITOR,
+        )
+
+        self.assertEqual(count, 1)
+        self.privileged_staff_profile.refresh_from_db()
+        self.assertEqual(self.privileged_staff_profile.role, Profile.Role.EDITOR)
 
     def test_group_permission_bundles_are_superuser_only(self):
         request = self.admin_request()
