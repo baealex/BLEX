@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.contrib.auth.models import User
 from django.test import RequestFactory, TestCase
-from django.urls import NoReverseMatch, reverse
+from django.urls import reverse
 
 from board.models import (
     Comment,
@@ -110,9 +110,14 @@ class AdminNavigationTestCase(TestCase):
             if group_name != '제품 설정'
             for object_name in object_names
         }
+        visible_registered_models = {
+            model.__name__
+            for model, model_admin in admin.site._registry.items()
+            if model_admin.has_module_permission(self.admin_request())
+        }
         self.assertSetEqual(
             grouped_registered_models,
-            {model.__name__ for model in admin.site._registry},
+            visible_registered_models,
         )
 
     def test_admin_index_links_to_canonical_product_settings(self):
@@ -142,10 +147,45 @@ class AdminNavigationTestCase(TestCase):
         )
         self.assertEqual(board_index.status_code, 200)
 
-    def test_secret_provider_editor_is_not_registered(self):
-        self.assertNotIn(SocialAuthProvider, admin.site._registry)
-        with self.assertRaises(NoReverseMatch):
-            reverse('admin:board_socialauthprovider_changelist')
+    def test_secret_provider_legacy_urls_redirect_to_canonical_settings(self):
+        provider, _ = SocialAuthProvider.objects.get_or_create(key='github')
+        provider_admin = admin.site._registry[SocialAuthProvider]
+        request = self.admin_request()
+
+        self.assertFalse(provider_admin.has_module_permission(request))
+        self.assertFalse(provider_admin.has_view_permission(request, provider))
+        self.assertFalse(provider_admin.has_add_permission(request))
+        self.assertFalse(provider_admin.has_change_permission(request, provider))
+        self.assertFalse(provider_admin.has_delete_permission(request, provider))
+
+        self.client.force_login(self.admin_user)
+        legacy_urls = [
+            reverse('admin:board_socialauthprovider_changelist'),
+            reverse('admin:board_socialauthprovider_add'),
+            reverse(
+                'admin:board_socialauthprovider_change',
+                args=[provider.pk],
+            ),
+            reverse(
+                'admin:board_socialauthprovider_delete',
+                args=[provider.pk],
+            ),
+            reverse(
+                'admin:board_socialauthprovider_history',
+                args=[provider.pk],
+            ),
+        ]
+        for legacy_url in legacy_urls:
+            with self.subTest(legacy_url=legacy_url):
+                response = self.client.get(legacy_url)
+                self.assertRedirects(
+                    response,
+                    '/admin-settings/login',
+                    fetch_redirect_response=False,
+                )
+
+        index_response = self.client.get(reverse('admin:index'))
+        self.assertNotContains(index_response, 'Social auth provider')
 
     def test_registered_board_models_have_korean_admin_names(self):
         expected_names = {
