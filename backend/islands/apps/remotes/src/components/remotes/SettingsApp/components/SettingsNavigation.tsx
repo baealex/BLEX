@@ -240,7 +240,8 @@ const adminNavigationSections: NavigationSection[] = [
                 name: '유틸리티',
                 path: '/utilities',
                 icon: Wrench,
-                requiresStaff: true
+                requiresStaff: true,
+                requiresAdminCapability: 'canManageUtilities'
             },
             {
                 name: '관리자 패널',

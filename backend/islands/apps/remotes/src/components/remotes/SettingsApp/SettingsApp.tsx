@@ -60,6 +60,7 @@ export interface AdminCapabilities {
     canManageSiteSettings: boolean;
     canManageLoginSettings: boolean;
     canManageIntegrationSettings: boolean;
+    canManageUtilities: boolean;
 }
 
 interface SettingsRouterContext {
@@ -304,7 +305,7 @@ const staticPagesRoute = createRoute({
 const utilitiesRoute = createRoute({
     getParentRoute: () => settingsRoute,
     path: '/utilities',
-    component: UtilitySetting
+    component: adminCapabilityOnly('canManageUtilities', UtilitySetting)
 });
 
 const userManagementRoute = createRoute({
@@ -443,6 +444,9 @@ const SettingsApp = ({
             || legacyStaffCapabilities,
         canManageIntegrationSettings: isSuperuser
             || adminCapabilities?.canManageIntegrationSettings === true
+            || legacyStaffCapabilities,
+        canManageUtilities: isSuperuser
+            || adminCapabilities?.canManageUtilities === true
             || legacyStaffCapabilities
     };
 

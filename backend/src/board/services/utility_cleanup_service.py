@@ -10,7 +10,7 @@ from board.admin.utilities import (
     TagCleanerService,
 )
 from board.models import DeveloperRequestLog
-from board.modules.response import StatusError, ErrorCode
+from board.services.api_permission_service import ApiPermissionService
 
 
 class InvalidImageCleanupTargetError(Exception):
@@ -18,23 +18,51 @@ class InvalidImageCleanupTargetError(Exception):
 
 
 class UtilityPermissionService:
-    """Permission policy for staff-only utility endpoints."""
+    """Permission policy for destructive utility endpoints."""
+
+    @staticmethod
+    def require_superuser(user):
+        return ApiPermissionService.require_superuser(user)
 
     @staticmethod
     def require_staff(user):
-        if not user.is_active:
-            return StatusError(ErrorCode.NEED_LOGIN)
-
-        if not user.is_staff:
-            return StatusError(ErrorCode.REJECT, '관리자 권한이 필요합니다.')
-
-        return None
+        """Deprecated compatibility alias for the tightened utility policy."""
+        return UtilityPermissionService.require_superuser(user)
 
 
 class UtilityCleanupService:
     """Build utility stats and cleanup dry-run/execute response contracts."""
 
+    ACTION_CLEAN_TAGS = 'clean_tags'
+    ACTION_CLEAN_SESSIONS = 'clean_sessions'
+    ACTION_CLEAN_LOGS = 'clean_logs'
+    ACTION_CLEAN_IMAGES = 'clean_images'
+
     VALID_IMAGE_TARGETS = ('all', 'content', 'title', 'avatar')
+
+    @staticmethod
+    def is_dry_run(body: dict) -> bool:
+        """Treat only an explicit JSON false as a destructive execution request."""
+        return body.get('dry_run') is not False
+
+    @classmethod
+    def confirmation_parameters(cls, action: str, body: dict) -> dict:
+        """Normalize the user-controlled parameters that a preview confirms."""
+        if action in (cls.ACTION_CLEAN_TAGS, cls.ACTION_CLEAN_LOGS):
+            return {}
+
+        if action == cls.ACTION_CLEAN_SESSIONS:
+            return {'clean_all': body.get('clean_all') is True}
+
+        if action == cls.ACTION_CLEAN_IMAGES:
+            target = body.get('target', 'all')
+            cls.validate_image_target(target)
+            return {
+                'target': target,
+                'remove_duplicates': body.get('remove_duplicates') is True,
+            }
+
+        raise ValueError(f'Unsupported utility cleanup action: {action}')
 
     @staticmethod
     def get_stats() -> dict:
@@ -45,7 +73,7 @@ class UtilityCleanupService:
 
     @staticmethod
     def clean_tags(body: dict) -> dict:
-        dry_run = body.get('dry_run', True)
+        dry_run = UtilityCleanupService.is_dry_run(body)
 
         service = TagCleanerService()
         tag_stats = service.get_tag_statistics()
@@ -63,8 +91,11 @@ class UtilityCleanupService:
 
     @staticmethod
     def clean_sessions(body: dict) -> dict:
-        dry_run = body.get('dry_run', True)
-        clean_all = body.get('clean_all', False)
+        dry_run = UtilityCleanupService.is_dry_run(body)
+        clean_all = UtilityCleanupService.confirmation_parameters(
+            UtilityCleanupService.ACTION_CLEAN_SESSIONS,
+            body,
+        )['clean_all']
 
         total_sessions = Session.objects.count()
         expired_sessions = SessionCleanerService.count_expired_sessions()
@@ -86,44 +117,47 @@ class UtilityCleanupService:
 
     @staticmethod
     def clean_logs(body: dict) -> dict:
-        dry_run = body.get('dry_run', True)
-        retention_days = UtilityCleanupService.developer_api_log_retention_days(body)
-        expired_cutoff = timezone.now() - timezone.timedelta(days=retention_days)
+        dry_run = UtilityCleanupService.is_dry_run(body)
+        admin_audit_retention_days = UtilityCleanupService.admin_audit_log_retention_days()
+        developer_api_retention_days = UtilityCleanupService.developer_api_log_retention_days()
+        now = timezone.now()
+        admin_audit_cutoff = now - timezone.timedelta(days=admin_audit_retention_days)
+        developer_api_cutoff = now - timezone.timedelta(days=developer_api_retention_days)
 
         log_count = LogEntry.objects.count()
         developer_request_log_count = DeveloperRequestLog.objects.count()
+        expired_logs = LogEntry.objects.filter(action_time__lt=admin_audit_cutoff)
+        expired_log_count = expired_logs.count()
         expired_developer_request_logs = DeveloperRequestLog.objects.filter(
-            created_date__lt=expired_cutoff,
+            created_date__lt=developer_api_cutoff,
         )
         expired_developer_request_log_count = expired_developer_request_logs.count()
         cleaned_count = 0
         cleaned_developer_request_log_count = 0
 
         if not dry_run:
-            LogEntry.objects.all().delete()
-            cleaned_count = log_count
+            cleaned_count, _ = expired_logs.delete()
             cleaned_developer_request_log_count, _ = expired_developer_request_logs.delete()
 
         return {
             'log_count': log_count,
+            'admin_audit_log_retention_days': admin_audit_retention_days,
+            'expired_log_count': expired_log_count,
             'cleaned_count': cleaned_count,
             'developer_request_log_count': developer_request_log_count,
-            'developer_api_log_retention_days': retention_days,
+            'developer_api_log_retention_days': developer_api_retention_days,
             'expired_developer_request_log_count': expired_developer_request_log_count,
             'cleaned_developer_request_log_count': cleaned_developer_request_log_count,
             'dry_run': dry_run,
         }
 
     @staticmethod
-    def developer_api_log_retention_days(body: dict) -> int:
-        value = body.get(
-            'developer_api_log_retention_days',
-            settings.DEVELOPER_API_LOG_RETENTION_DAYS,
-        )
-        try:
-            return max(int(value), 1)
-        except (TypeError, ValueError):
-            return settings.DEVELOPER_API_LOG_RETENTION_DAYS
+    def admin_audit_log_retention_days() -> int:
+        return settings.ADMIN_AUDIT_LOG_RETENTION_DAYS
+
+    @staticmethod
+    def developer_api_log_retention_days() -> int:
+        return settings.DEVELOPER_API_LOG_RETENTION_DAYS
 
     @staticmethod
     def validate_image_target(target: str) -> None:
@@ -132,11 +166,13 @@ class UtilityCleanupService:
 
     @staticmethod
     def clean_images(body: dict) -> dict:
-        dry_run = body.get('dry_run', True)
-        target = body.get('target', 'all')
-        remove_duplicates = body.get('remove_duplicates', False)
-
-        UtilityCleanupService.validate_image_target(target)
+        dry_run = UtilityCleanupService.is_dry_run(body)
+        parameters = UtilityCleanupService.confirmation_parameters(
+            UtilityCleanupService.ACTION_CLEAN_IMAGES,
+            body,
+        )
+        target = parameters['target']
+        remove_duplicates = parameters['remove_duplicates']
 
         service = ImageCleanerService()
         messages = []

@@ -1,6 +1,8 @@
 import json
+import tempfile
+from unittest.mock import patch
 
-from django.test import TestCase
+from django.test import TestCase, override_settings
 from django.test.client import Client
 from django.contrib.admin.models import LogEntry
 from django.contrib.contenttypes.models import ContentType
@@ -24,6 +26,20 @@ class UtilityAPITestCase(TestCase):
         )
         Profile.objects.create(user=cls.staff_user)
 
+        cls.superuser = User.objects.create_superuser(
+            username='utility-superuser',
+            password='test',
+            email='utility-superuser@example.com',
+        )
+        Profile.objects.create(user=cls.superuser)
+
+        cls.other_superuser = User.objects.create_superuser(
+            username='other-utility-superuser',
+            password='test',
+            email='other-utility-superuser@example.com',
+        )
+        Profile.objects.create(user=cls.other_superuser)
+
         cls.normal_user = User.objects.create_user(
             username='normaluser',
             password='test',
@@ -33,7 +49,18 @@ class UtilityAPITestCase(TestCase):
 
     def setUp(self):
         self.client = Client(HTTP_USER_AGENT='Mozilla/5.0')
-        self.client.login(username='staffuser', password='test')
+        self.client.login(username='utility-superuser', password='test')
+
+    def preview_cleanup(self, endpoint: str, payload: dict | None = None) -> dict:
+        response = self.client.post(
+            endpoint,
+            json.dumps({'dry_run': True, **(payload or {})}),
+            content_type='application/json',
+        )
+        content = json.loads(response.content)
+        self.assertEqual(content['status'], 'DONE')
+        self.assertIn('confirmationToken', content['body'])
+        return content['body']
 
     # === Stats endpoint ===
 
@@ -51,6 +78,28 @@ class UtilityAPITestCase(TestCase):
         content = json.loads(response.content)
         self.assertEqual(content['status'], 'ERROR')
         self.assertEqual(content['errorCode'], 'error:RJ')
+
+    def test_delegated_staff_cannot_access_utility_endpoints(self):
+        client = Client(HTTP_USER_AGENT='Mozilla/5.0')
+        client.login(username='staffuser', password='test')
+        requests = (
+            ('get', '/v1/utilities/stats', None),
+            ('post', '/v1/utilities/clean-tags', {'dry_run': True}),
+            ('post', '/v1/utilities/clean-sessions', {'dry_run': True}),
+            ('post', '/v1/utilities/clean-logs', {'dry_run': True}),
+            ('post', '/v1/utilities/clean-images', {'dry_run': True}),
+        )
+
+        for method, endpoint, payload in requests:
+            with self.subTest(endpoint=endpoint):
+                response = getattr(client, method)(
+                    endpoint,
+                    json.dumps(payload) if payload else None,
+                    content_type='application/json' if payload else None,
+                )
+                content = json.loads(response.content)
+                self.assertEqual(content['status'], 'ERROR')
+                self.assertEqual(content['errorCode'], 'error:RJ')
 
     def test_stats_success(self):
         response = self.client.get('/v1/utilities/stats')
@@ -160,10 +209,14 @@ class UtilityAPITestCase(TestCase):
 
     def test_clean_tags_execute(self):
         Tag.objects.create(value='to-delete-tag')
+        preview = self.preview_cleanup('/v1/utilities/clean-tags')
 
         response = self.client.post(
             '/v1/utilities/clean-tags',
-            json.dumps({'dry_run': False}),
+            json.dumps({
+                'dry_run': False,
+                'confirmation_token': preview['confirmationToken'],
+            }),
             content_type='application/json'
         )
         content = json.loads(response.content)
@@ -173,6 +226,106 @@ class UtilityAPITestCase(TestCase):
         self.assertGreaterEqual(body['cleanedCount'], 1)
         # 실행 후 태그가 삭제되어야 함
         self.assertFalse(Tag.objects.filter(value='to-delete-tag').exists())
+        self.assertTrue(LogEntry.objects.filter(
+            user=self.superuser,
+            change_message='Executed unused tag cleanup',
+        ).exists())
+
+    def test_clean_tags_execute_requires_matching_preview(self):
+        tag = Tag.objects.create(value='preview-required-tag')
+
+        response = self.client.post(
+            '/v1/utilities/clean-tags',
+            json.dumps({'dry_run': False}),
+            content_type='application/json',
+        )
+
+        content = json.loads(response.content)
+        self.assertEqual(content['status'], 'ERROR')
+        self.assertEqual(content['errorCode'], 'error:RJ')
+        self.assertTrue(Tag.objects.filter(pk=tag.pk).exists())
+
+    def test_cleanup_endpoints_require_csrf_token_when_enforced(self):
+        csrf_client = Client(
+            enforce_csrf_checks=True,
+            HTTP_USER_AGENT='Mozilla/5.0',
+        )
+        csrf_client.login(username='utility-superuser', password='test')
+
+        response = csrf_client.post(
+            '/v1/utilities/clean-tags',
+            data=json.dumps({'dry_run': True}),
+            content_type='application/json',
+        )
+
+        self.assertEqual(response.status_code, 403)
+
+    def test_clean_tags_confirmation_is_bound_to_issuer_session(self):
+        tag = Tag.objects.create(value='session-bound-preview-tag')
+        preview = self.preview_cleanup('/v1/utilities/clean-tags')
+        other_client = Client(HTTP_USER_AGENT='Mozilla/5.0')
+        other_client.login(username='other-utility-superuser', password='test')
+
+        response = other_client.post(
+            '/v1/utilities/clean-tags',
+            json.dumps({
+                'dry_run': False,
+                'confirmation_token': preview['confirmationToken'],
+            }),
+            content_type='application/json',
+        )
+
+        content = json.loads(response.content)
+        self.assertEqual(content['status'], 'ERROR')
+        self.assertEqual(content['errorCode'], 'error:RJ')
+        self.assertTrue(Tag.objects.filter(pk=tag.pk).exists())
+
+    def test_clean_tags_confirmation_is_single_use(self):
+        Tag.objects.create(value='first-single-use-tag')
+        preview = self.preview_cleanup('/v1/utilities/clean-tags')
+        execute_payload = {
+            'dry_run': False,
+            'confirmation_token': preview['confirmationToken'],
+        }
+
+        first_response = self.client.post(
+            '/v1/utilities/clean-tags',
+            json.dumps(execute_payload),
+            content_type='application/json',
+        )
+        self.assertEqual(json.loads(first_response.content)['status'], 'DONE')
+
+        second_tag = Tag.objects.create(value='second-single-use-tag')
+        second_response = self.client.post(
+            '/v1/utilities/clean-tags',
+            json.dumps(execute_payload),
+            content_type='application/json',
+        )
+
+        content = json.loads(second_response.content)
+        self.assertEqual(content['status'], 'ERROR')
+        self.assertEqual(content['errorCode'], 'error:RJ')
+        self.assertTrue(Tag.objects.filter(pk=second_tag.pk).exists())
+
+    def test_clean_tags_rolls_back_when_audit_record_fails(self):
+        tag = Tag.objects.create(value='audit-rollback-tag')
+        preview = self.preview_cleanup('/v1/utilities/clean-tags')
+
+        with patch(
+            'board.views.api.v1.utility.UtilityCleanupAuditService.record_execution',
+            side_effect=RuntimeError('audit unavailable'),
+        ):
+            with self.assertRaisesRegex(RuntimeError, 'audit unavailable'):
+                self.client.post(
+                    '/v1/utilities/clean-tags',
+                    json.dumps({
+                        'dry_run': False,
+                        'confirmation_token': preview['confirmationToken'],
+                    }),
+                    content_type='application/json',
+                )
+
+        self.assertTrue(Tag.objects.filter(pk=tag.pk).exists())
 
     # === Clean sessions endpoint ===
 
@@ -227,10 +380,18 @@ class UtilityAPITestCase(TestCase):
             session_data='data',
             expire_date=timezone.now() - timezone.timedelta(days=1)
         )
+        preview = self.preview_cleanup(
+            '/v1/utilities/clean-sessions',
+            {'clean_all': False},
+        )
 
         response = self.client.post(
             '/v1/utilities/clean-sessions',
-            json.dumps({'dry_run': False, 'clean_all': False}),
+            json.dumps({
+                'dry_run': False,
+                'clean_all': False,
+                'confirmation_token': preview['confirmationToken'],
+            }),
             content_type='application/json'
         )
         content = json.loads(response.content)
@@ -248,10 +409,18 @@ class UtilityAPITestCase(TestCase):
             session_data='data',
             expire_date=timezone.now() + timezone.timedelta(days=1)
         )
+        preview = self.preview_cleanup(
+            '/v1/utilities/clean-sessions',
+            {'clean_all': True},
+        )
 
         response = self.client.post(
             '/v1/utilities/clean-sessions',
-            json.dumps({'dry_run': False, 'clean_all': True}),
+            json.dumps({
+                'dry_run': False,
+                'clean_all': True,
+                'confirmation_token': preview['confirmationToken'],
+            }),
             content_type='application/json'
         )
         content = json.loads(response.content)
@@ -261,6 +430,26 @@ class UtilityAPITestCase(TestCase):
         self.assertTrue(body['cleanAll'])
         self.assertGreaterEqual(body['cleanedCount'], initial_count + 1)
         self.assertEqual(Session.objects.count(), 0)
+
+    def test_clean_sessions_rejects_confirmation_for_different_scope(self):
+        preview = self.preview_cleanup(
+            '/v1/utilities/clean-sessions',
+            {'clean_all': False},
+        )
+
+        response = self.client.post(
+            '/v1/utilities/clean-sessions',
+            json.dumps({
+                'dry_run': False,
+                'clean_all': True,
+                'confirmation_token': preview['confirmationToken'],
+            }),
+            content_type='application/json',
+        )
+
+        content = json.loads(response.content)
+        self.assertEqual(content['status'], 'ERROR')
+        self.assertEqual(content['errorCode'], 'error:RJ')
 
     # === Clean logs endpoint ===
 
@@ -311,27 +500,47 @@ class UtilityAPITestCase(TestCase):
         # dry_run이므로 로그가 남아있어야 함
         self.assertGreaterEqual(LogEntry.objects.count(), 1)
 
-    def test_clean_logs_execute(self):
+    @override_settings(ADMIN_AUDIT_LOG_RETENTION_DAYS=365)
+    def test_clean_logs_execute_preserves_recent_audit_logs_and_records_execution(self):
         ct = ContentType.objects.get_for_model(User)
-        LogEntry.objects.create(
+        expired_log = LogEntry.objects.create(
             user=self.staff_user,
             content_type=ct,
             object_id='1',
-            object_repr='test',
+            object_repr='expired',
             action_flag=1,
         )
+        LogEntry.objects.filter(pk=expired_log.pk).update(
+            action_time=timezone.now() - timezone.timedelta(days=366),
+        )
+        recent_log = LogEntry.objects.create(
+            user=self.staff_user,
+            content_type=ct,
+            object_id='2',
+            object_repr='recent',
+            action_flag=1,
+        )
+        preview = self.preview_cleanup('/v1/utilities/clean-logs')
 
         response = self.client.post(
             '/v1/utilities/clean-logs',
-            json.dumps({'dry_run': False}),
+            json.dumps({
+                'dry_run': False,
+                'confirmation_token': preview['confirmationToken'],
+            }),
             content_type='application/json'
         )
         content = json.loads(response.content)
         self.assertEqual(content['status'], 'DONE')
         body = content['body']
         self.assertFalse(body['dryRun'])
-        self.assertGreaterEqual(body['cleanedCount'], 1)
-        self.assertEqual(LogEntry.objects.count(), 0)
+        self.assertEqual(body['cleanedCount'], 1)
+        self.assertFalse(LogEntry.objects.filter(pk=expired_log.pk).exists())
+        self.assertTrue(LogEntry.objects.filter(pk=recent_log.pk).exists())
+        self.assertTrue(LogEntry.objects.filter(
+            user=self.superuser,
+            change_message='Executed expired log cleanup',
+        ).exists())
 
     # === Clean images endpoint ===
 
@@ -386,6 +595,57 @@ class UtilityAPITestCase(TestCase):
         self.assertTrue(body['dryRun'])
         self.assertIn('totalDuplicates', body)
         self.assertIn('totalDuplicateSizeMb', body)
+
+    def test_clean_images_execute_records_completed_audit_entry(self):
+        with tempfile.TemporaryDirectory() as media_root, override_settings(
+            MEDIA_ROOT=media_root,
+        ):
+            preview = self.preview_cleanup(
+                '/v1/utilities/clean-images',
+                {'target': 'all', 'remove_duplicates': False},
+            )
+
+            response = self.client.post(
+                '/v1/utilities/clean-images',
+                json.dumps({
+                    'dry_run': False,
+                    'target': 'all',
+                    'remove_duplicates': False,
+                    'confirmation_token': preview['confirmationToken'],
+                }),
+                content_type='application/json',
+            )
+
+        content = json.loads(response.content)
+        self.assertEqual(content['status'], 'DONE')
+        self.assertTrue(LogEntry.objects.filter(
+            user=self.superuser,
+            change_message='Executed unused image cleanup',
+        ).exists())
+
+    def test_clean_images_does_not_run_when_audit_intent_fails(self):
+        with tempfile.TemporaryDirectory() as media_root, override_settings(
+            MEDIA_ROOT=media_root,
+        ):
+            preview = self.preview_cleanup('/v1/utilities/clean-images')
+
+            with patch(
+                'board.views.api.v1.utility.UtilityCleanupAuditService.record_intent',
+                side_effect=RuntimeError('audit unavailable'),
+            ), patch(
+                'board.views.api.v1.utility.UtilityCleanupService.clean_images',
+            ) as clean_images:
+                with self.assertRaisesRegex(RuntimeError, 'audit unavailable'):
+                    self.client.post(
+                        '/v1/utilities/clean-images',
+                        json.dumps({
+                            'dry_run': False,
+                            'confirmation_token': preview['confirmationToken'],
+                        }),
+                        content_type='application/json',
+                    )
+
+        clean_images.assert_not_called()
 
     def test_clean_images_invalid_target(self):
         response = self.client.post(

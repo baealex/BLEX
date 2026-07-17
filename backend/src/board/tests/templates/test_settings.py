@@ -26,6 +26,13 @@ class SettingsViewTestCase(TestCase):
         )
         Profile.objects.create(user=cls.staff, role=Profile.Role.EDITOR)
 
+        cls.superuser = User.objects.create_superuser(
+            username='settings-superuser',
+            password='password123',
+            email='settings-superuser@example.com',
+        )
+        Profile.objects.create(user=cls.superuser, role=Profile.Role.EDITOR)
+
     def setUp(self):
         self.client = Client()
 
@@ -81,6 +88,7 @@ class SettingsViewTestCase(TestCase):
         self.assertIn('"canManageSiteSettings": false', body)
         self.assertIn('"canManageLoginSettings": false', body)
         self.assertIn('"canManageIntegrationSettings": false', body)
+        self.assertIn('"canManageUtilities": false', body)
         self.assertContains(response, '관리자 설정 | BLEX')
 
     def test_staff_with_site_setting_permission_receives_site_capability(self):
@@ -99,6 +107,16 @@ class SettingsViewTestCase(TestCase):
         self.assertIn('"canManageSiteSettings": true', body)
         self.assertIn('"canManageLoginSettings": false', body)
         self.assertIn('"canManageIntegrationSettings": false', body)
+        self.assertIn('"canManageUtilities": false', body)
+
+    def test_superuser_receives_utility_capability(self):
+        self.client.login(username='settings-superuser', password='password123')
+
+        response = self.client.get('/admin-settings/utilities')
+
+        self.assertEqual(response.status_code, 200)
+        body = self.decode_body(response)
+        self.assertIn('"canManageUtilities": true', body)
 
     def test_reader_gets_404_for_admin_settings_namespace(self):
         client = Client(raise_request_exception=False)
