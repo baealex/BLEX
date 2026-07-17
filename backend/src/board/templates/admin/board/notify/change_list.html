@@ -1,10 +1,12 @@
 {% extends "admin/change_list.html" %}
 
 {% block object-tools-items %}
+    {% if has_add_permission %}
     <li>
         <a href="bulk-send/" class="addlink">
-            전체 사용자에게 알림 발송
+            전체 활성 사용자에게 알림 발송
         </a>
     </li>
+    {% endif %}
     {{ block.super }}
 {% endblock %}
