@@ -31,6 +31,7 @@ def render_action_confirmation(
         'action_checkbox_name': helpers.ACTION_CHECKBOX_NAME,
         'action_name': action_name,
         'select_across': request.POST.get('select_across', '0'),
+        'cancel_url': request.get_full_path(),
         'opts': model_admin.model._meta,
     }
     return TemplateResponse(
