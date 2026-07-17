@@ -217,3 +217,7 @@ msgstr "사이트 설정"
 msgctxt "Admin permission model"
 msgid "Static page"
 msgstr "정적 페이지"
+
+msgctxt "Admin permission model"
+msgid "Utility cleanup confirmation"
+msgstr "유틸리티 정리 확인"

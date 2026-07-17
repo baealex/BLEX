@@ -15,6 +15,7 @@ PRODUCT_PERMISSION_MODEL_LABELS = {
     'board.loginsetting': 'Login and security settings',
     'board.sitesetting': 'Site settings',
     'board.staticpage': 'Static page',
+    'board.utilitycleanupconfirmation': 'Utility cleanup confirmation',
 }
 
 
