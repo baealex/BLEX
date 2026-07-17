@@ -25,10 +25,14 @@ touch backend/src/db.sqlite3
 | `INITIAL_SETUP_TOKEN` | 최초 관리자 생성 화면 보호 토큰. 비워 두면 Docker 실행 시 자동 생성 |
 | `ALLOWED_HOSTS` | 허용할 호스트 목록. 예: `blog.example.com` |
 | `CSRF_TRUSTED_ORIGINS` | HTTPS 원본. 예: `https://blog.example.com` |
+| `ADMIN_AUDIT_LOG_RETENTION_DAYS` | 유틸리티의 로그 정리에서 삭제할 관리자 활동 로그 보존 기간. 기본값 365일 |
+| `DEVELOPER_API_LOG_RETENTION_DAYS` | 유틸리티의 로그 정리에서 삭제할 개발자 API 요청 로그 보존 기간. 기본값 30일 |
 
 로컬 Docker 확인만 할 때는 `SITE_URL=http://localhost:20002`, `ALLOWED_HOSTS=localhost,127.0.0.1`, `CSRF_TRUSTED_ORIGINS=http://localhost:20002`처럼 맞춥니다.
 
 `ALLOWED_HOSTS`를 비워 두면 기존처럼 `*`로 동작합니다. 운영 배포에서는 명시적인 호스트 목록을 설정하세요.
+
+로그 정리는 유틸리티 화면에서 최고 관리자만 실행할 수 있습니다. 최신 관리자 활동 로그는 삭제 대상이 아니며, 위 보존 기간을 넘긴 기록만 정리됩니다.
 
 임의 문자열은 아래처럼 만들 수 있습니다.
 

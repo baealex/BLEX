@@ -149,6 +149,30 @@ class DeveloperRequestLog(models.Model):
         return f'{self.method} {self.path} {self.status_code}'
 
 
+class UtilityCleanupConfirmation(models.Model):
+    """Short-lived, one-time state for destructive utility confirmations."""
+
+    user = models.ForeignKey(
+        'auth.User',
+        on_delete=models.CASCADE,
+        related_name='utility_cleanup_confirmations',
+    )
+    token_hash = models.CharField(max_length=64, unique=True)
+    action = models.CharField(max_length=32)
+    session_fingerprint = models.CharField(max_length=64)
+    expires_at = models.DateTimeField()
+    consumed_at = models.DateTimeField(null=True, blank=True)
+    created_date = models.DateTimeField(default=timezone.now)
+
+    class Meta:
+        indexes = [
+            models.Index(fields=['expires_at'], name='board_utilconfirm_exp_idx'),
+        ]
+
+    def __str__(self):
+        return f'Utility cleanup confirmation ({self.action})'
+
+
 class SiteContentScope(models.TextChoices):
     USER = 'user', '사용자'
     GLOBAL = 'global', '전역'

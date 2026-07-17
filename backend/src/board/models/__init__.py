@@ -48,6 +48,7 @@ from .integrations import (
     Notify,
     SiteContentScope,
     TelegramSync,
+    UtilityCleanupConfirmation,
     WebhookSubscription,
 )
 from .site import (
@@ -97,6 +98,7 @@ __all__ = (
     'Tag',
     'TelegramSync',
     'TwoFactorAuth',
+    'UtilityCleanupConfirmation',
     'User',
     'UserConfigMeta',
     'UserLinkMeta',
@@ -151,6 +153,7 @@ _COMPAT_MODULE_EXPORTS = (
     Tag,
     TelegramSync,
     TwoFactorAuth,
+    UtilityCleanupConfirmation,
     UserConfigMeta,
     UserLinkMeta,
     UsernameChangeLog,

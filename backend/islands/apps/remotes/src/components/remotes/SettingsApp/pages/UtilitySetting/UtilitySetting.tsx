@@ -219,7 +219,9 @@ const LogCleanupResult = ({ result }: { result: LogCleanResult }) => (
             variant={result.dryRun ? 'info' : 'success'}
             title={result.dryRun ? '삭제 대상 확인 결과' : '로그 삭제 완료'}>
             <p>
-                관리자 활동 로그 {result.dryRun ? result.logCount : result.cleanedCount}개
+                {result.adminAuditLogRetentionDays}일이 지난 관리자 활동 로그 {result.dryRun
+                    ? result.expiredLogCount
+                    : result.cleanedCount}개
             </p>
             <p className="mt-1">
                 {result.developerApiLogRetentionDays}일이 지난 개발자 API 요청 로그 {result.dryRun
@@ -350,10 +352,17 @@ const UtilitySetting = () => {
 
     // Mutations
     const tagMutation = useMutation({
-        mutationFn: (dryRun: boolean) => cleanTags(dryRun),
-        onSuccess: ({ data }) => {
+        mutationFn: ({
+            dryRun,
+            confirmationToken
+        }: {
+            dryRun: boolean;
+            confirmationToken?: string;
+        }) => cleanTags(dryRun, confirmationToken),
+        onSuccess: ({ data }, variables) => {
             if (data.status !== 'DONE') {
-                toast.error('태그 정리에 실패했습니다.');
+                if (!variables.dryRun) setTagResult(null);
+                toast.error(data.errorMessage || '태그 정리에 실패했습니다.');
                 return;
             }
             setTagResult(data.body);
@@ -368,14 +377,17 @@ const UtilitySetting = () => {
     const sessionMutation = useMutation({
         mutationFn: ({
             dryRun,
-            cleanAll
+            cleanAll,
+            confirmationToken
         }: {
             dryRun: boolean;
             cleanAll: boolean;
-        }) => cleanSessions(dryRun, cleanAll),
-        onSuccess: ({ data }) => {
+            confirmationToken?: string;
+        }) => cleanSessions(dryRun, cleanAll, confirmationToken),
+        onSuccess: ({ data }, variables) => {
             if (data.status !== 'DONE') {
-                toast.error('세션 정리에 실패했습니다.');
+                if (!variables.dryRun) setSessionResult(null);
+                toast.error(data.errorMessage || '세션 정리에 실패했습니다.');
                 return;
             }
             setSessionResult(data.body);
@@ -388,16 +400,23 @@ const UtilitySetting = () => {
     });
 
     const logMutation = useMutation({
-        mutationFn: (dryRun: boolean) => cleanLogs(dryRun),
-        onSuccess: ({ data }) => {
+        mutationFn: ({
+            dryRun,
+            confirmationToken
+        }: {
+            dryRun: boolean;
+            confirmationToken?: string;
+        }) => cleanLogs(dryRun, confirmationToken),
+        onSuccess: ({ data }, variables) => {
             if (data.status !== 'DONE') {
-                toast.error('로그 정리에 실패했습니다.');
+                if (!variables.dryRun) setLogResult(null);
+                toast.error(data.errorMessage || '로그 정리에 실패했습니다.');
                 return;
             }
             setLogResult(data.body);
             if (!data.body.dryRun) {
                 toast.success(
-                    `관리자 로그 ${data.body.cleanedCount}개와 만료된 개발자 API 요청 로그 ${data.body.cleanedDeveloperRequestLogCount}개를 삭제했습니다.`
+                    `보존 기간이 지난 관리자 활동 로그 ${data.body.cleanedCount}개와 개발자 API 요청 로그 ${data.body.cleanedDeveloperRequestLogCount}개를 삭제했습니다.`
                 );
                 queryClient.invalidateQueries({ queryKey: ['utility-stats'] });
             }
@@ -409,15 +428,21 @@ const UtilitySetting = () => {
         mutationFn: ({
             dryRun,
             target,
-            removeDups
+            removeDups,
+            confirmationToken
         }: {
             dryRun: boolean;
             target: string;
             removeDups: boolean;
-        }) => cleanImages(dryRun, target, removeDups),
-        onSuccess: ({ data }) => {
+            confirmationToken?: string;
+        }) => cleanImages(dryRun, target, removeDups, confirmationToken),
+        onSuccess: ({ data }, variables) => {
             if (data.status !== 'DONE') {
-                toast.error('이미지 정리에 실패했습니다.');
+                if (!variables.dryRun) {
+                    setImageResult(null);
+                    setHasPreviewed(false);
+                }
+                toast.error(data.errorMessage || '이미지 정리에 실패했습니다.');
                 return;
             }
             setImageResult(data.body);
@@ -437,12 +462,12 @@ const UtilitySetting = () => {
         onError: () => toast.error('이미지 정리에 실패했습니다.')
     });
 
-    const tagPreview = tagResult?.dryRun ? tagResult : null;
-    const sessionPreview = sessionResult?.dryRun ? sessionResult : null;
-    const logPreview = logResult?.dryRun ? logResult : null;
-    const imagePreview = imageResult?.dryRun && hasPreviewed ? imageResult : null;
+    const tagPreview = tagResult?.dryRun && tagResult.confirmationToken ? tagResult : null;
+    const sessionPreview = sessionResult?.dryRun && sessionResult.confirmationToken ? sessionResult : null;
+    const logPreview = logResult?.dryRun && logResult.confirmationToken ? logResult : null;
+    const imagePreview = imageResult?.dryRun && imageResult.confirmationToken && hasPreviewed ? imageResult : null;
     const logPreviewDeleteCount = logPreview
-        ? logPreview.logCount + logPreview.expiredDeveloperRequestLogCount
+        ? logPreview.expiredLogCount + logPreview.expiredDeveloperRequestLogCount
         : 0;
 
     const handleRefreshStats = () => {
@@ -455,7 +480,7 @@ const UtilitySetting = () => {
     };
 
     const handleCleanTags = async () => {
-        if (!tagPreview) return;
+        if (!tagPreview?.confirmationToken) return;
         const confirmed = await confirm({
             title: '미사용 태그 삭제',
             message: `미리보기에서 확인한 미사용 태그 ${tagPreview.unusedTags}개를 영구 삭제합니다. 실행 시점의 상태에 따라 실제 수량은 달라질 수 있습니다.`,
@@ -463,12 +488,15 @@ const UtilitySetting = () => {
             variant: 'danger'
         });
         if (confirmed) {
-            tagMutation.mutate(false);
+            tagMutation.mutate({
+                dryRun: false,
+                confirmationToken: tagPreview.confirmationToken
+            });
         }
     };
 
     const handleCleanExpiredSessions = async () => {
-        if (!sessionPreview || sessionPreview.cleanAll) return;
+        if (!sessionPreview?.confirmationToken || sessionPreview.cleanAll) return;
         const confirmed = await confirm({
             title: '만료된 세션 삭제',
             message: `미리보기에서 확인한 만료 세션 ${sessionPreview.expiredSessions}개를 삭제합니다. 아직 유효한 사용자 세션은 유지됩니다.`,
@@ -478,13 +506,14 @@ const UtilitySetting = () => {
         if (confirmed) {
             sessionMutation.mutate({
                 dryRun: false,
-                cleanAll: false
+                cleanAll: false,
+                confirmationToken: sessionPreview.confirmationToken
             });
         }
     };
 
     const handleCleanAllSessions = async () => {
-        if (!sessionPreview?.cleanAll) return;
+        if (!sessionPreview?.cleanAll || !sessionPreview.confirmationToken) return;
         const confirmed = await confirm({
             title: '모든 사용자 세션 삭제',
             message: `현재 관리자 세션을 포함한 모든 세션 ${sessionPreview.totalSessions}개를 삭제합니다. 실행 직후 모든 사용자가 로그아웃됩니다.`,
@@ -494,26 +523,30 @@ const UtilitySetting = () => {
         if (confirmed) {
             sessionMutation.mutate({
                 dryRun: false,
-                cleanAll: true
+                cleanAll: true,
+                confirmationToken: sessionPreview.confirmationToken
             });
         }
     };
 
     const handleCleanLogs = async () => {
-        if (!logPreview) return;
+        if (!logPreview?.confirmationToken) return;
         const confirmed = await confirm({
             title: '시스템 로그 삭제',
-            message: `관리자 활동 로그 ${logPreview.logCount}개와 ${logPreview.developerApiLogRetentionDays}일이 지난 개발자 API 요청 로그 ${logPreview.expiredDeveloperRequestLogCount}개를 영구 삭제합니다.`,
+            message: `${logPreview.adminAuditLogRetentionDays}일이 지난 관리자 활동 로그 ${logPreview.expiredLogCount}개와 ${logPreview.developerApiLogRetentionDays}일이 지난 개발자 API 요청 로그 ${logPreview.expiredDeveloperRequestLogCount}개를 영구 삭제합니다.`,
             confirmText: `대상 로그 ${logPreviewDeleteCount}개 삭제`,
             variant: 'danger'
         });
         if (confirmed) {
-            logMutation.mutate(false);
+            logMutation.mutate({
+                dryRun: false,
+                confirmationToken: logPreview.confirmationToken
+            });
         }
     };
 
     const handleCleanImages = async () => {
-        if (!imagePreview) return;
+        if (!imagePreview?.confirmationToken) return;
         const duplicateMessage = imagePreview.totalDuplicates > 0
             ? `, 중복 타이틀 이미지 ${imagePreview.totalDuplicates}개`
             : '';
@@ -527,7 +560,8 @@ const UtilitySetting = () => {
             imageMutation.mutate({
                 dryRun: false,
                 target: imageTarget,
-                removeDups: removeDuplicates
+                removeDups: removeDuplicates,
+                confirmationToken: imagePreview.confirmationToken
             });
         }
     };
@@ -536,7 +570,7 @@ const UtilitySetting = () => {
         <div className="space-y-8">
             <SettingsHeader
                 title="유틸리티"
-                description="삭제 작업은 먼저 대상을 확인한 뒤 실행하세요."
+                description="삭제 대상 확인 후 5분 안에 실행하세요."
                 actionPosition="right"
                 action={
                     <SettingsHeaderAction
@@ -577,11 +611,17 @@ const UtilitySetting = () => {
                                 executeLabel="미사용 태그 삭제"
                                 canExecute={Boolean(tagPreview?.unusedTags)}
                                 isPending={tagMutation.isPending}
-                                isPreviewLoading={tagMutation.isPending && tagMutation.variables === true}
-                                isExecuteLoading={tagMutation.isPending && tagMutation.variables === false}
+                                isPreviewLoading={Boolean(
+                                    tagMutation.isPending
+                                    && tagMutation.variables?.dryRun
+                                )}
+                                isExecuteLoading={Boolean(
+                                    tagMutation.isPending
+                                    && tagMutation.variables?.dryRun === false
+                                )}
                                 onPreview={() => {
                                     setTagResult(null);
-                                    tagMutation.mutate(true);
+                                    tagMutation.mutate({ dryRun: true });
                                 }}
                                 onExecute={handleCleanTags}
                             />
@@ -677,7 +717,7 @@ const UtilitySetting = () => {
                     {/* 로그 정리 */}
                     <Card
                         title="로그 정리"
-                        subtitle="관리자 활동 로그 전체와 보존 기간이 지난 개발자 API 요청 로그를 삭제합니다."
+                        subtitle="보존 기간이 지난 관리자 활동 로그와 개발자 API 요청 로그만 삭제합니다."
                         icon={<ScrollText aria-hidden="true" className="h-4 w-4" />}>
                         <div className="space-y-4">
                             <div className="grid grid-cols-2 gap-3 text-sm text-content-secondary">
@@ -694,11 +734,17 @@ const UtilitySetting = () => {
                                 executeLabel="대상 로그 삭제"
                                 canExecute={logPreviewDeleteCount > 0}
                                 isPending={logMutation.isPending}
-                                isPreviewLoading={logMutation.isPending && logMutation.variables === true}
-                                isExecuteLoading={logMutation.isPending && logMutation.variables === false}
+                                isPreviewLoading={Boolean(
+                                    logMutation.isPending
+                                    && logMutation.variables?.dryRun
+                                )}
+                                isExecuteLoading={Boolean(
+                                    logMutation.isPending
+                                    && logMutation.variables?.dryRun === false
+                                )}
                                 onPreview={() => {
                                     setLogResult(null);
-                                    logMutation.mutate(true);
+                                    logMutation.mutate({ dryRun: true });
                                 }}
                                 onExecute={handleCleanLogs}
                             />

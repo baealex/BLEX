@@ -42,6 +42,10 @@ class ProductSettingsPermissionService:
         return cls.is_active_staff(user) and user.is_superuser
 
     @classmethod
+    def can_manage_utilities(cls, user: User | AnonymousUser) -> bool:
+        return cls.is_active_staff(user) and user.is_superuser
+
+    @classmethod
     def require_site_settings(
         cls,
         user: User | AnonymousUser,
@@ -73,4 +77,5 @@ class ProductSettingsPermissionService:
             'canManageSiteSettings': cls.can_manage_site_settings(user),
             'canManageLoginSettings': cls.can_manage_login_settings(user),
             'canManageIntegrationSettings': cls.can_manage_integration_settings(user),
+            'canManageUtilities': cls.can_manage_utilities(user),
         }

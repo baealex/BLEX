@@ -171,6 +171,8 @@ WSGI_APPLICATION = 'main.wsgi.application'
 FILE_UPLOAD_PERMISSIONS = 0o644
 DEVELOPER_API_MAX_UPLOAD_MB = max(get_env_int('DEVELOPER_API_MAX_UPLOAD_MB', 20), 1)
 DEVELOPER_API_MAX_UPLOAD_BYTES = DEVELOPER_API_MAX_UPLOAD_MB * 1024 * 1024
+# Keep administrator audit history substantially longer than developer request logs.
+ADMIN_AUDIT_LOG_RETENTION_DAYS = max(get_env_int('ADMIN_AUDIT_LOG_RETENTION_DAYS', 365), 1)
 DEVELOPER_API_LOG_RETENTION_DAYS = max(get_env_int('DEVELOPER_API_LOG_RETENTION_DAYS', 30), 1)
 
 DEFAULT_AUTO_FIELD = 'django.db.models.AutoField'

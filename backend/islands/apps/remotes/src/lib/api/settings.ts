@@ -782,7 +782,11 @@ export interface UtilityStats {
     developerRequestLogCount: number;
 }
 
-export interface TagCleanResult {
+interface CleanupConfirmation {
+    confirmationToken?: string;
+}
+
+export interface TagCleanResult extends CleanupConfirmation {
     totalTags: number;
     usedTags: number;
     unusedTags: number;
@@ -792,7 +796,7 @@ export interface TagCleanResult {
     dryRun: boolean;
 }
 
-export interface SessionCleanResult {
+export interface SessionCleanResult extends CleanupConfirmation {
     totalSessions: number;
     expiredSessions: number;
     cleanedCount: number;
@@ -800,8 +804,10 @@ export interface SessionCleanResult {
     dryRun: boolean;
 }
 
-export interface LogCleanResult {
+export interface LogCleanResult extends CleanupConfirmation {
     logCount: number;
+    adminAuditLogRetentionDays: number;
+    expiredLogCount: number;
     cleanedCount: number;
     developerRequestLogCount: number;
     developerApiLogRetentionDays: number;
@@ -818,7 +824,7 @@ export interface DuplicateFileInfo {
     hash: string;
 }
 
-export interface ImageCleanResult {
+export interface ImageCleanResult extends CleanupConfirmation {
     totalUnused: number;
     totalSizeMb: number;
     totalDuplicates: number;
@@ -838,24 +844,46 @@ export const getUtilityStats = async () => {
     return http.get<Response<UtilityStats>>('v1/utilities/stats');
 };
 
-export const cleanTags = async (dryRun: boolean) => {
-    return http.post<Response<TagCleanResult>>('v1/utilities/clean-tags', { dry_run: dryRun }, { headers: { 'Content-Type': 'application/json' } });
+const cleanupConfirmationBody = (dryRun: boolean, confirmationToken?: string) => ({
+    dry_run: dryRun,
+    ...(confirmationToken ? { confirmation_token: confirmationToken } : {})
+});
+
+export const cleanTags = async (dryRun: boolean, confirmationToken?: string) => {
+    return http.post<Response<TagCleanResult>>(
+        'v1/utilities/clean-tags',
+        cleanupConfirmationBody(dryRun, confirmationToken),
+        { headers: { 'Content-Type': 'application/json' } }
+    );
 };
 
-export const cleanSessions = async (dryRun: boolean, cleanAll: boolean) => {
+export const cleanSessions = async (
+    dryRun: boolean,
+    cleanAll: boolean,
+    confirmationToken?: string
+) => {
     return http.post<Response<SessionCleanResult>>('v1/utilities/clean-sessions', {
-        dry_run: dryRun,
+        ...cleanupConfirmationBody(dryRun, confirmationToken),
         clean_all: cleanAll
     }, { headers: { 'Content-Type': 'application/json' } });
 };
 
-export const cleanLogs = async (dryRun: boolean) => {
-    return http.post<Response<LogCleanResult>>('v1/utilities/clean-logs', { dry_run: dryRun }, { headers: { 'Content-Type': 'application/json' } });
+export const cleanLogs = async (dryRun: boolean, confirmationToken?: string) => {
+    return http.post<Response<LogCleanResult>>(
+        'v1/utilities/clean-logs',
+        cleanupConfirmationBody(dryRun, confirmationToken),
+        { headers: { 'Content-Type': 'application/json' } }
+    );
 };
 
-export const cleanImages = async (dryRun: boolean, target: string, removeDuplicates: boolean) => {
+export const cleanImages = async (
+    dryRun: boolean,
+    target: string,
+    removeDuplicates: boolean,
+    confirmationToken?: string
+) => {
     return http.post<Response<ImageCleanResult>>('v1/utilities/clean-images', {
-        dry_run: dryRun,
+        ...cleanupConfirmationBody(dryRun, confirmationToken),
         target,
         remove_duplicates: removeDuplicates
     }, { headers: { 'Content-Type': 'application/json' } });
