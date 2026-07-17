@@ -7,6 +7,7 @@ from django.contrib.auth.models import User
 from django.contrib.messages.storage.fallback import FallbackStorage
 from django.template.response import TemplateResponse
 from django.test import RequestFactory, TestCase
+from django.urls import reverse
 from django.utils import timezone
 
 from board.admin.comment import CommentAdmin
@@ -148,6 +149,32 @@ class DestructiveActionAdminTestCase(TestCase):
                 ),
             ),
         )
+
+    def test_confirmation_cancel_preserves_changelist_context(self):
+        comment = self.create_comment(content='Preserved action context')
+        changelist_url = reverse('admin:board_comment_changelist')
+        context_url = f'{changelist_url}?q=Preserved&edited__exact=0'
+        self.client.force_login(self.admin_user)
+
+        response = self.client.post(
+            context_url,
+            {
+                **self.action_selection(
+                    'soft_delete_comments',
+                    [comment.pk],
+                ),
+                'index': '0',
+            },
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.context['cancel_url'], context_url)
+        self.assertContains(response, 'admin/js/cancel.js')
+        self.assertContains(
+            response,
+            f'href="{context_url}"',
+        )
+        self.assertContains(response, 'class="button cancel-link"')
 
     def test_user_deactivation_confirms_skips_self_and_writes_audit(self):
         selection = self.action_selection(
