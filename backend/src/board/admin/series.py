@@ -1,5 +1,5 @@
 from django.contrib import admin
-from django.db.models import Count
+from django.db.models import Count, OuterRef, Q, Subquery
 from django.urls import reverse
 from django.utils.html import format_html
 
@@ -9,7 +9,8 @@ from board.services.public_post_service import PublicPostService
 from .service import AdminDisplayService, AdminLinkService
 from .constants import (
     COLOR_DANGER, COLOR_SUCCESS, COLOR_PRIMARY, COLOR_MUTED,
-    COLOR_INFO, COLOR_DARKENED_BG, COLOR_TEXT, COLOR_BG, COLOR_BORDER
+    COLOR_INFO, COLOR_DARKENED_BG, COLOR_TEXT, COLOR_BG, COLOR_BORDER,
+    THUMBNAIL_SIZE,
 )
 
 
@@ -21,6 +22,9 @@ class SeriesPostInline(admin.TabularInline):
     extra = 0
     max_num = 0
     show_change_link = True
+
+    def get_queryset(self, request):
+        return super().get_queryset(request).select_related('config')
 
     def config_hide(self, obj):
         if hasattr(obj, 'config') and obj.config.hide:
@@ -53,10 +57,30 @@ class SeriesAdmin(admin.ModelAdmin):
     actions = ['make_hidden', 'make_visible', 'set_layout_list', 'set_layout_card']
 
     def get_queryset(self, request):
+        public_posts = PublicPostService.filter_public_posts(
+            Post.objects,
+        ).filter(series=OuterRef('pk')).order_by('pk')
         return super().get_queryset(request).select_related(
             'owner'
-        ).annotate(
-            count_posts=Count('posts', distinct=True)
+        ).defer('owner__password').annotate(
+            count_posts=Count(
+                'posts',
+                filter=Q(posts__deleted_date__isnull=True),
+                distinct=True,
+            ),
+            public_post_count=Count(
+                'posts',
+                filter=PublicPostService.build_public_filter('posts'),
+                distinct=True,
+            ),
+            trashed_post_count=Count(
+                'posts',
+                filter=Q(posts__deleted_date__isnull=False),
+                distinct=True,
+            ),
+            admin_thumbnail_name=Subquery(
+                public_posts.values('image')[:1],
+            ),
         )
 
     fieldsets = (
@@ -84,6 +108,8 @@ class SeriesAdmin(admin.ModelAdmin):
         'name',
         'owner_link',
         'count_posts',
+        'public_posts',
+        'trashed_posts',
         'layout_badge',
         'visibility_badge',
         'thumbnail_preview',
@@ -100,8 +126,29 @@ class SeriesAdmin(admin.ModelAdmin):
     def count_posts(self, obj):
         count = obj.count_posts if hasattr(obj, 'count_posts') else obj.posts.count()
         return format_html('📚 {}', count)
-    count_posts.short_description = '포스트 수'
+    count_posts.short_description = '활성 포스트'
     count_posts.admin_order_field = 'count_posts'
+
+    def public_posts(self, obj):
+        count = getattr(obj, 'public_post_count', None)
+        if count is None:
+            count = PublicPostService.filter_public_posts(
+                Post.all_objects.filter(series=obj),
+            ).count()
+        return count
+    public_posts.short_description = '공개 포스트'
+    public_posts.admin_order_field = 'public_post_count'
+
+    def trashed_posts(self, obj):
+        count = getattr(obj, 'trashed_post_count', None)
+        if count is None:
+            count = Post.all_objects.filter(
+                series=obj,
+                deleted_date__isnull=False,
+            ).count()
+        return count
+    trashed_posts.short_description = '휴지통'
+    trashed_posts.admin_order_field = 'trashed_post_count'
 
     def layout_badge(self, obj):
         if obj.layout == 'card':
@@ -128,11 +175,21 @@ class SeriesAdmin(admin.ModelAdmin):
     visibility_badge.short_description = '상태'
 
     def thumbnail_preview(self, obj):
-        thumbnail_url = obj.thumbnail()
+        thumbnail_name = getattr(obj, 'admin_thumbnail_name', None)
+        if hasattr(obj, 'admin_thumbnail_name'):
+            thumbnail_url = (
+                Post._meta.get_field('image').storage.url(thumbnail_name)
+                if thumbnail_name
+                else ''
+            )
+        else:
+            thumbnail_url = obj.thumbnail()
         if thumbnail_url:
-            return format_html(
-                '<img src="{}" style="width: 60px; height: 60px; object-fit: cover; border-radius: 6px;" />',
-                thumbnail_url
+            width, height = THUMBNAIL_SIZE
+            return AdminDisplayService.image_preview(
+                thumbnail_url,
+                width=width,
+                height=height,
             )
         return format_html(
             '<div style="width: 60px; height: 60px; background: {}; border-radius: 6px;"></div>',
@@ -141,24 +198,36 @@ class SeriesAdmin(admin.ModelAdmin):
     thumbnail_preview.short_description = ''
 
     def posts_summary(self, obj):
-        posts = obj.posts.all()
-        if not posts:
-            return format_html('<p style="color: {};">포스트 없음</p>', COLOR_MUTED)
+        if hasattr(obj, 'count_posts'):
+            active_posts = obj.count_posts
+            public_posts = obj.public_post_count
+            trashed_posts = obj.trashed_post_count
+        else:
+            active_posts = Post.all_objects.filter(
+                series=obj,
+                deleted_date__isnull=True,
+            ).count()
+            public_posts = PublicPostService.filter_public_posts(
+                Post.all_objects.filter(series=obj),
+            ).count()
+            trashed_posts = Post.all_objects.filter(
+                series=obj,
+                deleted_date__isnull=False,
+            ).count()
 
-        total_posts = posts.count()
-        public_posts = PublicPostService.filter_public_posts(posts).count()
-        non_public_posts = total_posts - public_posts
+        if active_posts == 0 and trashed_posts == 0:
+            return format_html('<p style="color: {};">포스트 없음</p>', COLOR_MUTED)
 
         return format_html(
             '<div style="background: {}; padding: 12px; border-radius: 6px; border: 1px solid {};">'
-            '<p style="margin: 4px 0; color: {};"><strong>총 포스트:</strong> {}</p>'
+            '<p style="margin: 4px 0; color: {};"><strong>활성 포스트:</strong> {}</p>'
             '<p style="margin: 4px 0; color: {};"><strong>공개 노출:</strong> <span style="color: {};">{}</span></p>'
-            '<p style="margin: 4px 0; color: {};"><strong>비공개 상태:</strong> <span style="color: {};">{}</span></p>'
+            '<p style="margin: 4px 0; color: {};"><strong>휴지통:</strong> <span style="color: {};">{}</span></p>'
             '</div>',
             COLOR_DARKENED_BG, COLOR_BORDER,
-            COLOR_TEXT, total_posts,
+            COLOR_TEXT, active_posts,
             COLOR_TEXT, COLOR_SUCCESS, public_posts,
-            COLOR_TEXT, COLOR_DANGER, non_public_posts
+            COLOR_TEXT, COLOR_DANGER, trashed_posts,
         )
     posts_summary.short_description = '포스트 요약'
 

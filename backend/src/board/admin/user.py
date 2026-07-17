@@ -8,13 +8,13 @@ from django.contrib.auth.models import User
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from django.http import HttpRequest
 from django.db import transaction
-from django.db.models import Count, QuerySet
+from django.db.models import Count, Exists, OuterRef, QuerySet
 from django.urls import reverse
 from django.utils.html import format_html, format_html_join
 
 from board.models import (
     UserConfigMeta, UserLinkMeta, Config, UsernameChangeLog,
-    EmailChange, Profile
+    EmailChange, Profile, TelegramSync, TwoFactorAuth
 )
 from board.constants.config_meta import CONFIG_TYPES
 from board.services.email_change_service import (
@@ -491,23 +491,45 @@ class ConfigAdmin(admin.ModelAdmin):
     search_fields = ['user__username']
 
     def get_queryset(self, request):
-        return super().get_queryset(request).select_related('user')
+        return super().get_queryset(request).select_related('user').only(
+            'id',
+            'user_id',
+            'user__id',
+            'user__username',
+        ).annotate(
+            telegram_linked=Exists(
+                TelegramSync.objects.filter(
+                    user_id=OuterRef('user_id'),
+                ).exclude(tid=''),
+            ),
+            two_factor_enabled=Exists(
+                TwoFactorAuth.objects.filter(
+                    user_id=OuterRef('user_id'),
+                ),
+            ),
+        )
 
     def user_link(self, obj):
         return AdminLinkService.create_user_link(obj.user)
     user_link.short_description = '사용자'
 
     def telegram_status(self, obj):
+        linked = getattr(obj, 'telegram_linked', None)
+        if linked is None:
+            linked = obj.has_telegram_id()
         return AdminDisplayService.boolean_badge(
-            obj.has_telegram_id(),
+            linked,
             true_text='연동됨',
             false_text='미연동'
         )
     telegram_status.short_description = '텔레그램'
 
     def two_factor_status(self, obj):
+        enabled = getattr(obj, 'two_factor_enabled', None)
+        if enabled is None:
+            enabled = obj.has_two_factor_auth()
         return AdminDisplayService.boolean_badge(
-            obj.has_two_factor_auth(),
+            enabled,
             true_text='활성화',
             false_text='비활성화'
         )
