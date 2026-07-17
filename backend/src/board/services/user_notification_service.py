@@ -1,4 +1,5 @@
 import datetime
+from collections.abc import Mapping
 
 from django.contrib.auth.models import User
 from django.db.models import Q, QuerySet
@@ -82,11 +83,18 @@ class UserNotificationService:
         return True
 
     @staticmethod
-    def update_settings_notify_config(user: User, put) -> None:
+    def update_settings_notify_config(
+        user: User,
+        put: Mapping[str, object],
+    ) -> None:
         for config in UserNotificationService.get_notify_configs_by_role(user):
             value = put.get(config.value)
             if value in (None, ''):
                 continue
-            if isinstance(value, bool):
-                value = 'true' if value else 'false'
-            user.config.create_or_update_meta(config, value)
+
+            normalized_value = (
+                'true'
+                if value is True or value == 'true'
+                else 'false'
+            )
+            user.config.create_or_update_meta(config, normalized_value)
