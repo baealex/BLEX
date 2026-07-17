@@ -135,12 +135,15 @@ class ParseToHtmlTest(TestCase):
         self.assertNotIn('class="mention"', result)
         self.assertIn('<code>@author</code>', result)
 
-    def test_comment_markdown_renders_mentions(self):
-        """Comment markdown should convert mention syntax to links."""
-        md = '`@author`'
-        result = parse_comment_to_html(md)
-        self.assertIn('class="mention"', result)
-        self.assertIn('href="/@author"', result)
+    def test_comment_text_is_escaped_and_preserves_line_breaks(self):
+        """Comment content should be plain text with HTML line breaks."""
+        text = '# Title\n**bold**\n\n<script>alert(1)</script>'
+        result = parse_comment_to_html(text)
+        self.assertEqual(
+            result,
+            '<p># Title<br>**bold**</p>\n\n'
+            '<p>&lt;script&gt;alert(1)&lt;/script&gt;</p>',
+        )
 
     def test_markdown_removes_unsafe_link_protocols(self):
         result = parse_post_to_html('[unsafe](javascript:alert(1))')
@@ -151,9 +154,10 @@ class ParseToHtmlTest(TestCase):
     def test_markdown_removes_unsafe_image_protocols(self):
         result = parse_comment_to_html('![unsafe](javascript:alert(1))')
 
-        self.assertNotIn('javascript:', result)
         self.assertNotIn('src=', result)
         self.assertNotIn('data-src=', result)
+        self.assertNotIn('<img', result)
+        self.assertIn('javascript:alert(1)', result)
 
     def test_youtube_markup_rejects_attribute_injection(self):
         result = parse_post_to_html('@youtube[abc" onload=alert(1)]')

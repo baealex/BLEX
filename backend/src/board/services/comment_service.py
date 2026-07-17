@@ -31,7 +31,9 @@ class CommentValidationError(Exception):
 
 class CommentService:
     """Service class for handling comment-related business logic"""
-    MENTION_PATTERN = re.compile(r'`@([a-zA-Z0-9\.\_\-\+]*)`\s?')
+    MENTION_PATTERN = re.compile(
+        r'(?<![a-zA-Z0-9])@([a-z0-9]{4,15})(?![a-zA-Z0-9])'
+    )
 
     @staticmethod
     def get_comment_queryset(user: User):
@@ -206,7 +208,7 @@ class CommentService:
         Extract mentioned usernames from comment text.
 
         Args:
-            text_md: Comment text in markdown
+            text_md: Plain comment text stored in the legacy text_md field
 
         Returns:
             Set of mentioned usernames
@@ -371,7 +373,7 @@ class CommentService:
         Args:
             user: Comment author
             post: Post to comment on
-            text_md: Comment text in markdown
+            text_md: Plain comment text stored in the legacy text_md field
             parent: Parent comment for nested replies (optional)
 
         Returns:
@@ -422,7 +424,7 @@ class CommentService:
 
         Args:
             comment: Comment instance
-            text_md: New comment text in markdown
+            text_md: New plain comment text stored in the legacy text_md field
 
         Returns:
             Updated Comment instance

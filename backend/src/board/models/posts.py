@@ -9,6 +9,7 @@ from django.utils.text import slugify
 
 from modules.randomness import randstr
 
+from board.html_utils import sanitize_comment_html
 from board.modules.time import time_since, time_stamp
 from board.services.post_content_service import PostContentService
 from board.services.post_thumbnail_service import PostThumbnailService
@@ -44,7 +45,7 @@ class Comment(models.Model):
     def get_text_html(self):
         if not self.author:
             return '<p>삭제된 댓글입니다.</p>'
-        return self.text_html
+        return sanitize_comment_html(self.text_html)
 
     def get_thumbnail(self):
         if self.image:

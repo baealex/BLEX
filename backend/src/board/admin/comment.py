@@ -133,7 +133,7 @@ class CommentAdmin(
     post_link.short_description = '포스트'
 
     def content_preview(self, obj):
-        content = truncatewords(strip_tags(obj.text_html), 8)
+        content = truncatewords(strip_tags(obj.get_text_html()), 8)
         if not obj.author:
             return format_html('<span style="color: {}; font-style: italic;">[삭제됨] {}</span>', COLOR_MUTED, content)
         return content

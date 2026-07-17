@@ -3,7 +3,6 @@ from django.http import Http404
 from django.shortcuts import get_object_or_404
 
 from board.models import Comment, Post
-from board.html_utils import sanitize_content_html
 from board.modules.response import StatusDone, StatusError
 from board.modules.paginator import Paginator
 from board.services.api_request_body_service import ApiRequestBodyService
@@ -123,7 +122,7 @@ def user_comment(request):
                     'title': comment.post_title,
                     'url': comment.post_url,
                 },
-                'content': sanitize_content_html(comment.text_html),
+                'content': comment.get_text_html(),
                 'created_date': comment.time_since(),
             }, comments)),
             'last_page': comments.paginator.num_pages,

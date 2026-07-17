@@ -49,7 +49,6 @@ export const CommentForm = ({
         : mentionableUsers;
 
     // 텍스트 변경 감지 및 멘션 자동완성 트리거
-    // 텍스트 변경 감지 및 멘션 자동완성 트리거
     const handleTextChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
         const newText = e.target.value;
         const cursorPos = e.target.selectionStart;
@@ -80,20 +79,19 @@ export const CommentForm = ({
     const selectUser = (username: string) => {
         const before = commentText.substring(0, mentionStartPos);
         const after = commentText.substring(textareaRef.current?.selectionStart || commentText.length);
-        const newText = `${before}\`@${username}\` ${after}`;
+        const newText = `${before}@${username} ${after}`;
 
         onCommentTextChange(newText);
         setShowMentionAutocomplete(false);
 
         // 커서 위치 조정
         setTimeout(() => {
-            const newCursorPos = before.length + username.length + 4; // ` + @ + username + ` + space
+            const newCursorPos = before.length + username.length + 2; // @ + username + space
             textareaRef.current?.setSelectionRange(newCursorPos, newCursorPos);
             textareaRef.current?.focus();
         }, 0);
     };
 
-    // 키보드 이벤트 처리
     // 키보드 이벤트 처리
     const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
         if (!showMentionAutocomplete || filteredUsers.length === 0) return;

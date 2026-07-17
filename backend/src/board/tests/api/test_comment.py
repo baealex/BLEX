@@ -173,13 +173,19 @@ class CommentTestCase(TestCase):
         """댓글 생성 테스트"""
         self.client.login(username='viewer', password='test')
         data = {
-            'comment_md': '# New Comment',
+            'comment_md': 'New Comment\nnext line',
         }
         response = self.client.post('/v1/comments?url=test-post', data)
         content = json.loads(response.content)
 
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(Comment.objects.last().text_md, '# New Comment')
+        comment = Comment.objects.last()
+        self.assertEqual(comment.text_md, 'New Comment\nnext line')
+        self.assertEqual(comment.text_html, '<p>New Comment<br>next line</p>')
+        self.assertEqual(
+            content['body']['renderedContent'],
+            '<p>New Comment<br/>next line</p>',
+        )
         self.assertFalse(content['body']['isDeleted'])
         self.assertEqual(content['body']['permissions'], {
             'canEdit': True,
@@ -387,7 +393,7 @@ class CommentTestCase(TestCase):
 
         self.client.login(username='author', password='test')
         self.client.post('/v1/comments?url=test-post', {
-            'comment_md': '`@viewer` mentioned in reply',
+            'comment_md': '@viewer mentioned in reply',
             'parent_id': parent_comment.id,
         })
 
@@ -441,7 +447,7 @@ class CommentTestCase(TestCase):
         content = json.loads(response.content)
         self.assertEqual(content['status'], 'ERROR')
 
-    def test_comment_raw_markdown_only_visible_to_comment_author(self):
+    def test_comment_raw_text_only_visible_to_comment_author(self):
         """댓글 원문은 댓글 작성자에게만 노출된다."""
         comment = Comment.objects.get(text_md='Comment')
         self.client.login(username='author', password='test')
@@ -453,7 +459,7 @@ class CommentTestCase(TestCase):
         self.assertEqual(content['status'], 'ERROR')
         self.assertNotIn('textMd', content.get('body', {}))
 
-    def test_comment_raw_markdown_visible_to_comment_author(self):
+    def test_comment_raw_text_visible_to_comment_author(self):
         """댓글 작성자는 수정용 원문을 조회할 수 있다."""
         comment = Comment.objects.get(text_md='Comment')
         self.client.login(username='viewer', password='test')
@@ -465,7 +471,7 @@ class CommentTestCase(TestCase):
         self.assertEqual(content['status'], 'DONE')
         self.assertEqual(content['body']['textMd'], 'Comment')
 
-    def test_comment_raw_markdown_hidden_when_parent_post_is_not_public(self):
+    def test_comment_raw_text_hidden_when_parent_post_is_not_public(self):
         """비공개 글의 댓글 원문은 댓글 작성자에게도 공개 API에서 노출하지 않는다."""
         post = Post.objects.get(url='test-post')
         post.config.hide = True
@@ -484,23 +490,71 @@ class CommentTestCase(TestCase):
 
         self.client.login(username='author', password='test')
         data = {
-            'comment_md': '`@viewer` reply comment',
+            'comment_md': '@viewer reply comment',
         }
         self.client.post('/v1/comments?url=test-post', data)
 
         last_notify = Notify.objects.filter(user=viewer).last()
         self.assertTrue('@author' in last_notify.content)
 
-    def test_comment_markdown_renders_mentions_as_links(self):
-        """댓글 마크다운에서는 멘션이 링크로 변환되어야 함"""
+    def test_comment_treats_markdown_and_html_as_plain_text(self):
+        """댓글의 Markdown 및 HTML 문법은 실행하지 않고 텍스트로 표시한다."""
         self.client.login(username='author', password='test')
         self.client.post('/v1/comments?url=test-post', {
-            'comment_md': '`@viewer` mention',
+            'comment_md': '# title\n**bold** <img src=x onerror=alert(1)>',
         })
 
         comment = Comment.objects.last()
-        self.assertIn('class="mention"', comment.text_html)
-        self.assertIn('href="/@viewer"', comment.text_html)
+        self.assertEqual(
+            comment.text_html,
+            '<p># title<br>**bold** '
+            '&lt;img src=x onerror=alert(1)&gt;</p>',
+        )
+        self.assertNotIn('<h1', comment.text_html)
+        self.assertNotIn('<strong', comment.text_html)
+        self.assertNotIn('<img', comment.text_html)
+
+    def test_comment_list_sanitizes_legacy_html(self):
+        """기존 댓글 HTML은 안전한 서식을 보존하며 위험 요소를 제거한다."""
+        comment = Comment.objects.get(text_md='Comment')
+        comment.text_html = (
+            '<p onclick="alert(1)">Legacy <strong>bold</strong> '
+            '<a class="mention evil" href="javascript:alert(1)" '
+            'target="_blank">@viewer</a></p>'
+            '<script>alert(2)</script>'
+            '<iframe src="https://www.youtube.com/embed/abc123" '
+            'onload="alert(3)"></iframe>'
+            '<iframe src="https://attacker.example/embed/abc123"></iframe>'
+            '<iframe src="https://www.youtube.com:invalid/embed/abc123"></iframe>'
+        )
+        comment.save(update_fields=['text_html'])
+
+        response = self.client.get('/v1/posts/test-post/comments')
+
+        rendered_content = (
+            response.json()['body']['comments'][0]['renderedContent']
+        )
+        self.assertIn('<strong>bold</strong>', rendered_content)
+        self.assertIn('class="mention"', rendered_content)
+        self.assertIn('https://www.youtube.com/embed/abc123', rendered_content)
+        self.assertNotIn('attacker.example', rendered_content)
+        self.assertNotIn('javascript:', rendered_content)
+        self.assertNotIn('onclick', rendered_content)
+        self.assertNotIn('onload', rendered_content)
+        self.assertNotIn('<script', rendered_content)
+
+    def test_user_comment_list_sanitizes_legacy_html(self):
+        """내 댓글 목록도 저장된 기존 HTML을 정제해서 응답한다."""
+        comment = Comment.objects.get(text_md='Comment')
+        comment.text_html = '<img src="x" onerror="alert(1)"><p>Comment</p>'
+        comment.save(update_fields=['text_html'])
+        self.client.login(username='viewer', password='test')
+
+        response = self.client.get('/v1/comments/user')
+
+        rendered_content = response.json()['body']['comments'][0]['content']
+        self.assertIn('<p>Comment</p>', rendered_content)
+        self.assertNotIn('onerror', rendered_content)
 
     def test_not_notify_user_tag_on_comment_when_user_disagree_notify(self):
         """사용자가 멘션 알림 거부 시 태그 알림 미발송 테스트"""
@@ -514,7 +568,7 @@ class CommentTestCase(TestCase):
 
         self.client.login(username='author', password='test')
         self.client.post('/v1/comments?url=test-post', {
-            'comment_md': '`@viewer` reply comment',
+            'comment_md': '@viewer reply comment',
         })
 
         last_notify = Notify.objects.filter(user=viewer).last()
@@ -616,6 +670,23 @@ class CommentTestCase(TestCase):
         comment.refresh_from_db()
         self.assertEqual(comment.text_md, 'Edited comment')
         self.assertTrue(comment.edited)
+
+    def test_edit_comment_treats_content_as_plain_text(self):
+        """수정한 댓글도 일반 텍스트로 이스케이프하고 줄바꿈만 반영한다."""
+        comment = Comment.objects.last()
+        self.client.login(username='viewer', password='test')
+
+        response = self.client.put(
+            f'/v1/comments/{comment.id}',
+            'comment=comment&comment_md=first%0A%3Cscript%3Ealert(1)%3C%2Fscript%3E'
+        )
+
+        self.assertEqual(response.status_code, 200)
+        comment.refresh_from_db()
+        self.assertEqual(
+            comment.text_html,
+            '<p>first<br>&lt;script&gt;alert(1)&lt;/script&gt;</p>',
+        )
 
     def test_edit_comment_non_object_json_returns_not_found_instead_of_server_error(self):
         """댓글 수정 API는 JSON 객체가 아닌 body에서도 500을 내지 않는다."""
