@@ -1,21 +1,33 @@
 import re
 from html import unescape
+from typing import Any
 
-from django.contrib import admin
+from django.contrib import admin, messages
+from django.db import transaction
+from django.db.models import Count, QuerySet
+from django.http import HttpRequest
+from django.template.defaultfilters import truncatewords
 from django.utils.html import strip_tags, format_html
 from django.utils.safestring import mark_safe
-from django.template.defaultfilters import truncatewords
-from django.db.models import Count
 
 from board.models import Comment
+from board.services.comment_service import CommentService
 
-from .mixins import ReadOnlyRecordAdminMixin
+from .action_confirmation import render_action_confirmation
+from .mixins import (
+    ConfirmedActionDeleteAdminMixin,
+    ReadOnlyRecordAdminMixin,
+)
 from .service import AdminDisplayService, AdminLinkService
 from .constants import COLOR_MUTED, COLOR_DARKENED_BG, COLOR_WARNING, COLOR_DANGER, COLOR_TEXT, COLOR_BG, COLOR_BORDER
 
 
 @admin.register(Comment)
-class CommentAdmin(ReadOnlyRecordAdminMixin, admin.ModelAdmin):
+class CommentAdmin(
+    ConfirmedActionDeleteAdminMixin,
+    ReadOnlyRecordAdminMixin,
+    admin.ModelAdmin,
+):
     autocomplete_fields = ['post']
     search_fields = ['text_md', 'author__username', 'post__title']
 
@@ -25,7 +37,7 @@ class CommentAdmin(ReadOnlyRecordAdminMixin, admin.ModelAdmin):
         ('created_date', admin.DateFieldListFilter),
     ]
 
-    actions = ['mark_as_heart', 'unmark_as_heart', 'delete_selected_comments']
+    actions = ['mark_as_heart', 'unmark_as_heart', 'soft_delete_comments']
 
     fieldsets = (
         ('기본 정보', {
@@ -153,19 +165,117 @@ class CommentAdmin(ReadOnlyRecordAdminMixin, admin.ModelAdmin):
         return obj.created_date.strftime('%Y-%m-%d %H:%M:%S')
     created_at.short_description = '작성일시'
 
-    # Custom Actions
-    def mark_as_heart(self, request, queryset):
-        count = queryset.update(heart=True)
-        self.message_user(request, f'{count}개의 댓글을 하트로 표시했습니다.')
-    mark_as_heart.short_description = '선택한 댓글을 하트로 표시'
+    def set_heart_status(
+        self,
+        request: HttpRequest,
+        queryset: QuerySet[Comment],
+        *,
+        heart: bool,
+    ) -> int:
+        with transaction.atomic():
+            comments = list(
+                queryset.select_for_update().exclude(heart=heart),
+            )
+            status_label = '하트 표시' if heart else '하트 해제'
+            for comment in comments:
+                comment.heart = heart
+                comment.save(update_fields=['heart'])
+                self.log_change(
+                    request,
+                    comment,
+                    f'Admin에서 {status_label}',
+                )
+        return len(comments)
 
-    def unmark_as_heart(self, request, queryset):
-        count = queryset.update(heart=False)
-        self.message_user(request, f'{count}개의 댓글의 하트를 해제했습니다.')
-    unmark_as_heart.short_description = '선택한 댓글의 하트 해제'
+    @admin.action(
+        description='선택한 댓글을 하트로 표시',
+        permissions=['change'],
+    )
+    def mark_as_heart(
+        self,
+        request: HttpRequest,
+        queryset: QuerySet[Comment],
+    ) -> None:
+        count = self.set_heart_status(
+            request,
+            queryset,
+            heart=True,
+        )
+        self.message_user(
+            request,
+            f'{count}개의 댓글을 하트로 표시했습니다.',
+            level=messages.SUCCESS,
+        )
 
-    def delete_selected_comments(self, request, queryset):
-        count = queryset.count()
-        queryset.delete()
-        self.message_user(request, f'{count}개의 댓글을 삭제했습니다.')
-    delete_selected_comments.short_description = '선택한 댓글 삭제'
+    @admin.action(
+        description='선택한 댓글의 하트 해제',
+        permissions=['change'],
+    )
+    def unmark_as_heart(
+        self,
+        request: HttpRequest,
+        queryset: QuerySet[Comment],
+    ) -> None:
+        count = self.set_heart_status(
+            request,
+            queryset,
+            heart=False,
+        )
+        self.message_user(
+            request,
+            f'{count}개의 댓글의 하트를 해제했습니다.',
+            level=messages.SUCCESS,
+        )
+
+    @admin.action(
+        description='선택한 댓글을 삭제 상태로 전환',
+        permissions=['delete'],
+    )
+    def soft_delete_comments(
+        self,
+        request: HttpRequest,
+        queryset: QuerySet[Comment],
+    ) -> Any:
+        active_comments = queryset.filter(author__isnull=False)
+        if request.POST.get('confirm') != 'yes':
+            if not active_comments.exists():
+                self.message_user(
+                    request,
+                    '삭제 상태로 전환할 댓글이 없습니다.',
+                    level=messages.WARNING,
+                )
+                return None
+            return render_action_confirmation(
+                request,
+                self,
+                active_comments,
+                action_name='soft_delete_comments',
+                title='댓글 삭제 상태 전환 확인',
+                warning=(
+                    '댓글 행과 답글 관계는 유지되며 공개 화면에는 삭제된 '
+                    '댓글로 표시됩니다. 작성자 연결은 복구할 수 없습니다.'
+                ),
+                confirm_label='댓글 삭제 상태로 전환',
+            )
+
+        with transaction.atomic():
+            comments = list(
+                active_comments.select_for_update().select_related(
+                    'author',
+                    'post',
+                ),
+            )
+            for comment in comments:
+                CommentService.delete_comment(comment)
+                self.log_change(
+                    request,
+                    comment,
+                    'Admin에서 댓글 삭제 상태로 전환',
+                )
+
+        self.message_user(
+            request,
+            f'{len(comments)}개의 댓글을 삭제 상태로 전환했습니다.',
+            level=messages.SUCCESS,
+        )
+        return None

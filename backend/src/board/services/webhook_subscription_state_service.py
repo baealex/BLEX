@@ -23,3 +23,17 @@ class WebhookSubscriptionStateService:
         if channel.failure_count >= channel.MAX_FAILURES:
             channel.is_active = False
         channel.save(update_fields=['failure_count', 'is_active'])
+
+    @staticmethod
+    def set_active(
+        channel: 'WebhookSubscription',
+        *,
+        is_active: bool,
+        reset_failure_count: bool = False,
+    ) -> None:
+        channel.is_active = is_active
+        update_fields = ['is_active']
+        if reset_failure_count:
+            channel.failure_count = 0
+            update_fields.append('failure_count')
+        channel.save(update_fields=update_fields)

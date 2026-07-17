@@ -1,18 +1,26 @@
-from django.contrib import admin
-from django.db.models import Count
+from typing import Any
+
+from django.contrib import admin, messages
+from django.db import transaction
+from django.db.models import Count, QuerySet
+from django.http import HttpRequest
 from django.utils.html import format_html
 
 from board.models import Tag
+
+from .action_confirmation import render_action_confirmation
 from .constants import (
     COLOR_INFO, COLOR_BG, COLOR_DANGER, COLOR_WARNING,
     COLOR_SUCCESS, COLOR_MUTED, COLOR_TEXT
 )
+from .mixins import ConfirmedActionDeleteAdminMixin
+from .utilities import TagCleanerService
 
 
 @admin.register(Tag)
-class TagAdmin(admin.ModelAdmin):
+class TagAdmin(ConfirmedActionDeleteAdminMixin, admin.ModelAdmin):
     search_fields = ['value']
-    actions = ['clear_unused_tags', 'merge_tags']
+    actions = ['clear_unused_tags']
 
     list_display = ['tag_badge', 'count', 'has_image', 'usage_status']
     list_display_links = ['tag_badge']
@@ -72,15 +80,68 @@ class TagAdmin(admin.ModelAdmin):
             )
     usage_status.short_description = '사용 상태'
 
-    # Custom Actions
-    def clear_unused_tags(self, request, queryset):
-        count = 0
-        total = 0
-        for tag in queryset:
-            total += 1
-            tag_count = tag.post_count if hasattr(tag, 'post_count') else tag.posts.count()
-            if tag_count == 0:
-                count += 1
-                tag.delete()
-        self.message_user(request, f'{total}개의 태그 중 참조가 없는 {count}개의 태그를 삭제했습니다.')
-    clear_unused_tags.short_description = '선택한 태그 중 미사용 태그 삭제'
+    @admin.action(
+        description='선택한 태그 중 미사용 태그 삭제',
+        permissions=['delete'],
+    )
+    def clear_unused_tags(
+        self,
+        request: HttpRequest,
+        queryset: QuerySet[Tag],
+    ) -> Any:
+        unused_tags = TagCleanerService.filter_unused(queryset)
+        if request.POST.get('confirm') != 'yes':
+            if not unused_tags.exists():
+                self.message_user(
+                    request,
+                    '선택한 항목에 미사용 태그가 없습니다.',
+                    level=messages.WARNING,
+                )
+                return None
+            return render_action_confirmation(
+                request,
+                self,
+                unused_tags,
+                action_name='clear_unused_tags',
+                title='미사용 태그 삭제 확인',
+                warning=(
+                    '현재 어떤 포스트에서도 참조하지 않는 태그만 삭제합니다. '
+                    '삭제한 태그는 복구할 수 없습니다.'
+                ),
+                confirm_label='미사용 태그 삭제',
+            )
+
+        selected_ids = list(queryset.values_list('pk', flat=True))
+        with transaction.atomic():
+            unused_ids = list(
+                TagCleanerService.filter_unused(
+                    Tag.objects.filter(pk__in=selected_ids),
+                ).values_list('pk', flat=True),
+            )
+            locked_tags = list(
+                Tag.objects.select_for_update().filter(pk__in=unused_ids),
+            )
+            locked_ids = [tag.pk for tag in locked_tags]
+            confirmed_unused_ids = set(
+                TagCleanerService.filter_unused(
+                    Tag.objects.filter(pk__in=locked_ids),
+                ).values_list('pk', flat=True),
+            )
+            deletable_tags = [
+                tag for tag in locked_tags
+                if tag.pk in confirmed_unused_ids
+            ]
+            self.log_deletions(request, deletable_tags)
+            count, _ = TagCleanerService.clean_selected_unused_tags(
+                Tag.objects.filter(
+                    pk__in=[tag.pk for tag in deletable_tags],
+                ),
+                execute=True,
+            )
+
+        self.message_user(
+            request,
+            f'{count}개의 미사용 태그를 삭제했습니다.',
+            level=messages.SUCCESS,
+        )
+        return None
