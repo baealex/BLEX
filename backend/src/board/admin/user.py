@@ -8,10 +8,12 @@ from django.contrib.auth.admin import (
     GroupAdmin as BaseGroupAdmin,
     UserAdmin as BaseUserAdmin,
 )
+from django.contrib.admin.utils import unquote
 from django.contrib.auth.models import Group, User
+from django.core.exceptions import PermissionDenied
 from django.http import HttpRequest
 from django.db import transaction
-from django.db.models import Count, Exists, OuterRef, QuerySet
+from django.db.models import Count, Exists, OuterRef, Q, QuerySet
 from django.urls import reverse
 from django.utils.html import format_html, format_html_join
 
@@ -277,13 +279,25 @@ class CustomUserAdmin(ConfirmedActionDeleteAdminMixin, BaseUserAdmin):
         return list(dict.fromkeys(readonly_fields))
 
     def has_change_permission(self, request, obj=None):
-        if (
-            obj is not None
-            and obj.is_superuser
-            and not request.user.is_superuser
-        ):
+        if not self.can_manage_user(request, obj):
             return False
         return super().has_change_permission(request, obj)
+
+    @staticmethod
+    def can_manage_user(request: HttpRequest, obj: User | None) -> bool:
+        if (
+            obj is None
+            or request.user.is_superuser
+            or obj.pk == request.user.pk
+        ):
+            return True
+        return not (obj.is_staff or obj.is_superuser)
+
+    def user_change_password(self, request, id, form_url=''):
+        user = self.get_object(request, unquote(id))
+        if user is not None and not self.can_manage_user(request, user):
+            raise PermissionDenied
+        return super().user_change_password(request, id, form_url)
 
     def has_change_profile_permission(self, request):
         return (
@@ -298,7 +312,7 @@ class CustomUserAdmin(ConfirmedActionDeleteAdminMixin, BaseUserAdmin):
     ) -> QuerySet[User]:
         if request.user.is_superuser:
             return queryset
-        return queryset.filter(is_superuser=False)
+        return queryset.filter(is_staff=False, is_superuser=False)
 
     def role_badge(self, obj):
         if hasattr(obj, 'profile'):
@@ -373,12 +387,12 @@ class CustomUserAdmin(ConfirmedActionDeleteAdminMixin, BaseUserAdmin):
         is_active: bool,
     ) -> Any:
         candidates = queryset.filter(is_active=not is_active)
-        protected_superuser_count = 0
+        protected_admin_count = 0
         if not request.user.is_superuser:
-            protected_superuser_count = candidates.filter(
-                is_superuser=True,
+            protected_admin_count = candidates.filter(
+                Q(is_staff=True) | Q(is_superuser=True),
             ).count()
-            candidates = candidates.filter(is_superuser=False)
+            candidates = self.mutable_users(request, candidates)
         action_name = 'activate_users' if is_active else 'deactivate_users'
         status_label = '활성화' if is_active else '비활성화'
         if request.POST.get('confirm') != 'yes':
@@ -420,6 +434,8 @@ class CustomUserAdmin(ConfirmedActionDeleteAdminMixin, BaseUserAdmin):
                     f'Admin에서 계정 {status_label}',
                 )
 
+        protected_admin_count += result.skipped_protected_admin_count
+
         self.message_user(
             request,
             f'{len(result.changed_users)}명의 사용자를 {status_label}했습니다.',
@@ -437,10 +453,10 @@ class CustomUserAdmin(ConfirmedActionDeleteAdminMixin, BaseUserAdmin):
                 '마지막 활성 슈퍼유저 계정은 비활성화하지 않았습니다.',
                 level=messages.WARNING,
             )
-        if protected_superuser_count:
+        if protected_admin_count:
             self.message_user(
                 request,
-                f'슈퍼유저 {protected_superuser_count}명은 변경하지 않았습니다.',
+                f'관리자 계정 {protected_admin_count}명은 변경하지 않았습니다.',
                 level=messages.WARNING,
             )
         return None

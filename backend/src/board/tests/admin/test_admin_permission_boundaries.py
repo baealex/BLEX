@@ -1,4 +1,5 @@
 from django.contrib import admin
+from django.contrib.admin import helpers
 from django.contrib.auth.models import Group, Permission, User
 from django.contrib.contenttypes.models import ContentType
 from django.db import connection
@@ -9,6 +10,7 @@ from django.utils import translation
 
 from board.admin.user import CustomGroupAdmin, CustomUserAdmin
 from board.models import Post, Profile
+from board.services.user_management_service import UserManagementService
 
 
 class AdminPermissionBoundaryTestCase(TestCase):
@@ -29,6 +31,12 @@ class AdminPermissionBoundaryTestCase(TestCase):
             username='permission-target',
             email='permission-target@example.com',
             password='test',
+        )
+        cls.privileged_staff = User.objects.create_user(
+            username='privileged-staff',
+            email='privileged-staff@example.com',
+            password='original-password',
+            is_staff=True,
         )
         cls.target_profile, _ = Profile.objects.get_or_create(
             user=cls.target,
@@ -91,6 +99,84 @@ class AdminPermissionBoundaryTestCase(TestCase):
 
         self.assertEqual(change_response.status_code, 403)
         self.assertEqual(password_response.status_code, 403)
+
+    def test_delegated_staff_cannot_change_privileged_staff_or_password(self):
+        request = self.admin_request()
+
+        self.assertTrue(
+            self.user_admin.has_change_permission(request, self.staff),
+        )
+        self.assertFalse(
+            self.user_admin.has_change_permission(
+                request,
+                self.privileged_staff,
+            ),
+        )
+
+        self.client.force_login(self.staff)
+        change_response = self.client.post(
+            reverse(
+                'admin:auth_user_change',
+                args=[self.privileged_staff.pk],
+            ),
+            {'username': self.privileged_staff.username},
+        )
+        password_response = self.client.post(
+            reverse(
+                'admin:auth_user_password_change',
+                args=[self.privileged_staff.pk],
+            ),
+            {
+                'password1': 'replacement-password',
+                'password2': 'replacement-password',
+            },
+        )
+
+        self.assertEqual(change_response.status_code, 403)
+        self.assertEqual(password_response.status_code, 403)
+        self.privileged_staff.refresh_from_db()
+        self.assertTrue(self.privileged_staff.check_password('original-password'))
+
+    def test_delegated_staff_cannot_change_privileged_staff_active_state(self):
+        self.client.force_login(self.staff)
+
+        response = self.client.post(
+            reverse('admin:auth_user_changelist'),
+            {
+                helpers.ACTION_CHECKBOX_NAME: [str(self.privileged_staff.pk)],
+                'action': 'deactivate_users',
+                'select_across': '0',
+                'confirm': 'yes',
+            },
+        )
+
+        self.assertEqual(response.status_code, 302)
+        self.privileged_staff.refresh_from_db()
+        self.assertTrue(self.privileged_staff.is_active)
+
+    def test_user_active_status_service_protects_staff_for_delegated_actor(self):
+        result = UserManagementService.set_active_status(
+            self.staff,
+            [self.privileged_staff.pk],
+            is_active=False,
+        )
+
+        self.assertEqual(result.changed_users, ())
+        self.assertEqual(result.skipped_protected_admin_count, 1)
+        self.privileged_staff.refresh_from_db()
+        self.assertTrue(self.privileged_staff.is_active)
+
+    def test_superuser_keeps_staff_account_active_state_management(self):
+        result = UserManagementService.set_active_status(
+            self.superuser,
+            [self.privileged_staff.pk],
+            is_active=False,
+        )
+
+        self.assertEqual(result.changed_users, (self.privileged_staff,))
+        self.assertEqual(result.skipped_protected_admin_count, 0)
+        self.privileged_staff.refresh_from_db()
+        self.assertFalse(self.privileged_staff.is_active)
 
     def test_crafted_user_post_cannot_grant_privileged_fields(self):
         request = self.admin_request()
@@ -192,6 +278,12 @@ class AdminPermissionBoundaryTestCase(TestCase):
         self.assertTrue(
             set(self.user_admin.delegated_readonly_fields).isdisjoint(
                 readonly_fields,
+            ),
+        )
+        self.assertTrue(
+            self.user_admin.has_change_permission(
+                request,
+                self.privileged_staff,
             ),
         )
 
