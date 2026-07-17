@@ -274,7 +274,7 @@ class PostAdmin(admin.ModelAdmin):
             total=Count('pk'),
         ).values('total')
 
-        return queryset.select_related(
+        queryset = queryset.select_related(
             'author', 'config', 'series'
         ).defer('author__password').prefetch_related('tags').annotate(
             likes_count=Coalesce(
@@ -293,6 +293,9 @@ class PostAdmin(admin.ModelAdmin):
                 Value(0),
             ),
         )
+        if is_admin_changelist_request(request, self.model):
+            return queryset.defer('series__text_md', 'series__text_html')
+        return queryset
 
     def get_actions(self, request):
         actions = super().get_actions(request)

@@ -251,7 +251,12 @@ class CustomUserAdmin(ConfirmedActionDeleteAdminMixin, BaseUserAdmin):
             post_count=Count('post', distinct=True)
         )
         if is_admin_changelist_request(request, self.model):
-            return queryset.defer('password')
+            return queryset.defer(
+                'password',
+                'profile__bio',
+                'profile__about_md',
+                'profile__about_html',
+            )
         return queryset
 
     def get_readonly_fields(self, request, obj=None):

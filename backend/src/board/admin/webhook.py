@@ -12,6 +12,7 @@ from board.services.webhook_subscription_state_service import (
 )
 
 from .action_confirmation import render_action_confirmation
+from .mixins import is_admin_changelist_request
 from .service import AdminDisplayService, AdminLinkService
 
 
@@ -83,12 +84,19 @@ class WebhookSubscriptionAdmin(admin.ModelAdmin):
     ]
 
     def get_queryset(self, request):
-        return super().get_queryset(request).select_related(
+        queryset = super().get_queryset(request).select_related(
             'author__user',
         ).defer(
             'webhook_url',
             'author__user__password',
         )
+        if is_admin_changelist_request(request, self.model):
+            return queryset.defer(
+                'author__bio',
+                'author__about_md',
+                'author__about_html',
+            )
+        return queryset
 
     def author_link(self, obj: WebhookSubscription):
         if obj.author is None:

@@ -4,7 +4,15 @@ from typing import Any
 
 from django.contrib import admin, messages
 from django.db import transaction
-from django.db.models import Count, QuerySet
+from django.db.models import (
+    Count,
+    IntegerField,
+    OuterRef,
+    QuerySet,
+    Subquery,
+    Value,
+)
+from django.db.models.functions import Coalesce
 from django.http import HttpRequest
 from django.template.defaultfilters import truncatewords
 from django.utils.html import strip_tags, format_html
@@ -96,11 +104,19 @@ class CommentAdmin(
     date_hierarchy = 'created_date'
 
     def get_queryset(self, request):
+        like_counts = Comment.likes.through.objects.filter(
+            comment_id=OuterRef('pk'),
+        ).order_by().values('comment_id').annotate(
+            total=Count('pk'),
+        ).values('total')
         queryset = super().get_queryset(request).select_related(
             'author',
             'post',
         ).defer('author__password').annotate(
-            likes_count_annotated=Count('likes', distinct=True)
+            likes_count_annotated=Coalesce(
+                Subquery(like_counts, output_field=IntegerField()),
+                Value(0),
+            )
         )
         if is_admin_changelist_request(request, self.model):
             return queryset.defer('text_md')
@@ -255,10 +271,15 @@ class CommentAdmin(
                     level=messages.WARNING,
                 )
                 return None
+            preview_comments = (
+                active_comments.select_related(None)
+                .defer(None)
+                .only('pk', 'text_md')
+            )
             return render_action_confirmation(
                 request,
                 self,
-                active_comments,
+                preview_comments,
                 action_name='soft_delete_comments',
                 title='댓글 삭제 상태 전환 확인',
                 warning=(

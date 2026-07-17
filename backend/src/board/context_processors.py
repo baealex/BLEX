@@ -17,12 +17,16 @@ def oauth_settings(request):
     """
     Add OAuth client IDs to template context
     """
+    resolver_match = getattr(request, 'resolver_match', None)
+    if resolver_match is not None and resolver_match.namespace == 'admin':
+        return {}
+
     providers = {
         provider.key: provider
         for provider in SocialAuthProvider.objects.filter(
             key__in=SocialAuthProviderService.supported_keys(),
             is_enabled=True,
-        )
+        ).only('key', 'client_id')
     }
     return {
         'GOOGLE_OAUTH_CLIENT_ID': providers.get('google').client_id
