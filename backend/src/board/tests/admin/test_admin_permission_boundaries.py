@@ -16,6 +16,7 @@ from board.models import (
     Profile,
     SiteSetting,
     StaticPage,
+    UtilityCleanupConfirmation,
 )
 from board.services.user_management_service import UserManagementService
 
@@ -641,19 +642,21 @@ class AdminPermissionBoundaryTestCase(TestCase):
                 stored_values[permission.pk],
             )
 
-    def test_product_setting_permission_labels_follow_active_language(self):
+    def test_localized_permission_labels_follow_active_language(self):
         expected_model_labels = {
             'en': {
                 IntegrationSetting: 'Telegram integration settings',
                 LoginSetting: 'Login and security settings',
                 SiteSetting: 'Site settings',
                 StaticPage: 'Static page',
+                UtilityCleanupConfirmation: 'Utility cleanup confirmation',
             },
             'ko': {
                 IntegrationSetting: '텔레그램 연동 설정',
                 LoginSetting: '로그인·보안 설정',
                 SiteSetting: '사이트 설정',
                 StaticPage: '정적 페이지',
+                UtilityCleanupConfirmation: '유틸리티 정리 확인',
             },
         }
         actions_by_language = {
