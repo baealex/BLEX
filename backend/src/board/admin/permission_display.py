@@ -1,4 +1,5 @@
 from django.contrib.auth.models import Permission
+from django.db.models import Model
 from django.utils.translation import pgettext
 
 
@@ -8,6 +9,23 @@ DEFAULT_PERMISSION_ACTIONS = {
     'delete': 'Delete',
     'view': 'View',
 }
+
+PRODUCT_PERMISSION_MODEL_LABELS = {
+    'board.integrationsetting': 'Telegram integration settings',
+    'board.loginsetting': 'Login and security settings',
+    'board.sitesetting': 'Site settings',
+    'board.staticpage': 'Static page',
+}
+
+
+def permission_model_label(model: type[Model]) -> str:
+    """Return a localizable display label without changing model metadata."""
+    source_label = PRODUCT_PERMISSION_MODEL_LABELS.get(
+        model._meta.label_lower,
+    )
+    if source_label is None:
+        return str(model._meta.verbose_name)
+    return pgettext('Admin permission model', source_label)
 
 
 def permission_choice_label(permission: Permission) -> str:
@@ -28,7 +46,7 @@ def permission_choice_label(permission: Permission) -> str:
                 'Admin permission action',
                 DEFAULT_PERMISSION_ACTIONS[action],
             ),
-            'model': str(model._meta.verbose_name),
+            'model': permission_model_label(model),
         }
     return str(permission)
 

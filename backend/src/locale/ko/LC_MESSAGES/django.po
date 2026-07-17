@@ -201,3 +201,19 @@ msgstr "삭제"
 msgctxt "Admin permission action"
 msgid "View"
 msgstr "보기"
+
+msgctxt "Admin permission model"
+msgid "Telegram integration settings"
+msgstr "텔레그램 연동 설정"
+
+msgctxt "Admin permission model"
+msgid "Login and security settings"
+msgstr "로그인·보안 설정"
+
+msgctxt "Admin permission model"
+msgid "Site settings"
+msgstr "사이트 설정"
+
+msgctxt "Admin permission model"
+msgid "Static page"
+msgstr "정적 페이지"
