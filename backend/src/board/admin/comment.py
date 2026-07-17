@@ -1,3 +1,6 @@
+import re
+from html import unescape
+
 from django.contrib import admin
 from django.utils.html import strip_tags, format_html
 from django.utils.safestring import mark_safe
@@ -6,12 +9,13 @@ from django.db.models import Count
 
 from board.models import Comment
 
+from .mixins import ReadOnlyRecordAdminMixin
 from .service import AdminDisplayService, AdminLinkService
 from .constants import COLOR_MUTED, COLOR_DARKENED_BG, COLOR_WARNING, COLOR_DANGER, COLOR_TEXT, COLOR_BG, COLOR_BORDER
 
 
 @admin.register(Comment)
-class CommentAdmin(admin.ModelAdmin):
+class CommentAdmin(ReadOnlyRecordAdminMixin, admin.ModelAdmin):
     autocomplete_fields = ['post']
     search_fields = ['text_md', 'author__username', 'post__title']
 
@@ -25,7 +29,7 @@ class CommentAdmin(admin.ModelAdmin):
 
     fieldsets = (
         ('기본 정보', {
-            'fields': ('author', 'post', 'author_info')
+            'fields': ('author', 'post', 'parent', 'author_info')
         }),
         ('내용', {
             'fields': ('text_md', 'text_html', 'edited', 'heart')
@@ -38,15 +42,38 @@ class CommentAdmin(admin.ModelAdmin):
             'classes': ('collapse',),
         }),
     )
-    readonly_fields = ['author', 'post', 'author_info', 'text_html_preview', 'likes_count', 'created_at']
+    readonly_fields = [
+        'author',
+        'post',
+        'parent',
+        'author_info',
+        'text_md',
+        'text_html',
+        'edited',
+        'heart',
+        'text_html_preview',
+        'likes_count',
+        'created_at',
+    ]
 
     def text_html_preview(self, obj):
-        return AdminDisplayService.html(
+        content_with_breaks = re.sub(
+            r'<\s*br\s*/?\s*>',
+            '\n',
             obj.text_html,
-            use_folding=True,
-            remove_lazy_load=True,
+            flags=re.IGNORECASE,
         )
-    text_html_preview.short_description = 'HTML 미리보기'
+        content_with_breaks = re.sub(
+            r'</\s*(?:p|div|li)\s*>',
+            '\n',
+            content_with_breaks,
+            flags=re.IGNORECASE,
+        )
+        return format_html(
+            '<div style="white-space: pre-wrap;">{}</div>',
+            unescape(strip_tags(content_with_breaks)).strip(),
+        )
+    text_html_preview.short_description = '텍스트 미리보기'
 
     list_display = ['id', 'content_preview', 'post_link', 'author_link', 'likes_display', 'status_badges', 'created_date']
     list_display_links = ['content_preview']

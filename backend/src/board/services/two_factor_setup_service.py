@@ -142,16 +142,22 @@ class TwoFactorSetupService:
 
     @staticmethod
     def disable(user: User) -> None:
-        if not hasattr(user, 'twofactorauth'):
+        try:
+            two_factor_auth = TwoFactorAuth.objects.only(
+                'id',
+                'user_id',
+                'created_date',
+            ).get(user=user)
+        except TwoFactorAuth.DoesNotExist:
             raise TwoFactorSetupError(ErrorCode.ALREADY_DISCONNECTED)
 
-        if not user.twofactorauth.has_been_a_day():
+        if not two_factor_auth.has_been_a_day():
             raise TwoFactorSetupError(
                 ErrorCode.REJECT,
                 '24시간 동안 해제할 수 없습니다.',
             )
 
-        user.twofactorauth.delete()
+        two_factor_auth.delete()
 
     @classmethod
     @transaction.atomic
