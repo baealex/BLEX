@@ -14,6 +14,8 @@ from .user import *
 from django.contrib import admin
 from django.contrib.admin.models import LogEntry
 
+from .mixins import is_admin_changelist_request
+
 
 @admin.register(LogEntry)
 class LogEntryAdmin(admin.ModelAdmin):
@@ -22,7 +24,17 @@ class LogEntryAdmin(admin.ModelAdmin):
     search_fields = ['object_repr', 'user__username']
     readonly_fields = ['action_time', 'user', 'content_type', 'object_id', 'object_repr', 'action_flag', 'change_message']
     list_per_page = 50
+    show_full_result_count = False
     date_hierarchy = 'action_time'
+
+    def get_queryset(self, request):
+        queryset = super().get_queryset(request).select_related(
+            'user',
+            'content_type',
+        ).defer('user__password')
+        if is_admin_changelist_request(request, self.model):
+            return queryset.defer('change_message')
+        return queryset
 
     def has_add_permission(self, request):
         return False

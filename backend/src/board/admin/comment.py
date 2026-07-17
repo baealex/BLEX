@@ -17,6 +17,7 @@ from .action_confirmation import render_action_confirmation
 from .mixins import (
     ConfirmedActionDeleteAdminMixin,
     ReadOnlyRecordAdminMixin,
+    is_admin_changelist_request,
 )
 from .service import AdminDisplayService, AdminLinkService
 from .constants import COLOR_MUTED, COLOR_DARKENED_BG, COLOR_WARNING, COLOR_DANGER, COLOR_TEXT, COLOR_BG, COLOR_BORDER
@@ -90,16 +91,20 @@ class CommentAdmin(
     list_display = ['id', 'content_preview', 'post_link', 'author_link', 'likes_display', 'status_badges', 'created_date']
     list_display_links = ['content_preview']
     list_per_page = 30
+    show_full_result_count = False
     save_on_top = True
     date_hierarchy = 'created_date'
 
     def get_queryset(self, request):
-        return super().get_queryset(request).select_related(
+        queryset = super().get_queryset(request).select_related(
             'author',
             'post',
         ).defer('author__password').annotate(
             likes_count_annotated=Count('likes', distinct=True)
         )
+        if is_admin_changelist_request(request, self.model):
+            return queryset.defer('text_md')
+        return queryset
 
     def author_link(self, obj):
         if obj.author:

@@ -92,6 +92,7 @@ class TwoFactorAuthAdmin(
         return super().get_queryset(request).select_related('user').defer(
             'recovery_key',
             'totp_secret',
+            'user__password',
         )
 
     def user_link(self, obj: TwoFactorAuth):
@@ -200,6 +201,9 @@ class SocialAuthAdmin(
         ).defer(
             'uid',
             'extra_data',
+            'user__password',
+            'provider__client_id',
+            'provider__client_secret',
         )
 
     def user_link(self, obj: SocialAuth):

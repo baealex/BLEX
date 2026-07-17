@@ -2,7 +2,7 @@ from django.contrib import admin
 
 from board.models import Form
 
-from .mixins import ReadOnlyRecordAdminMixin
+from .mixins import ReadOnlyRecordAdminMixin, is_admin_changelist_request
 from .service import AdminLinkService
 
 
@@ -30,11 +30,10 @@ class FormAdmin(ReadOnlyRecordAdminMixin, admin.ModelAdmin):
     readonly_fields = fields
 
     def get_queryset(self, request):
-        queryset = super().get_queryset(request).select_related('user')
-        if (
-            getattr(request, 'resolver_match', None)
-            and request.resolver_match.url_name == 'board_form_changelist'
-        ):
+        queryset = super().get_queryset(request).select_related(
+            'user',
+        ).defer('user__password')
+        if is_admin_changelist_request(request, self.model):
             return queryset.defer('content')
         return queryset
 

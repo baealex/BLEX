@@ -13,6 +13,7 @@ from board.models import SiteNotice, SiteBanner
 
 from .action_confirmation import render_action_confirmation
 from .constants import LIST_PER_PAGE_DEFAULT, DATETIME_FORMAT_FULL
+from .mixins import is_admin_changelist_request
 from .service import AdminDisplayService
 
 
@@ -135,6 +136,11 @@ class SiteNoticeAdmin(SiteContentActionAdminMixin, admin.ModelAdmin):
 
     readonly_fields = ['created_at', 'updated_at']
 
+    def get_queryset(self, request):
+        return super().get_queryset(request).select_related(
+            'user',
+        ).defer('user__password')
+
     def scope_display(self, obj: SiteNotice) -> str:
         color = '#3b82f6' if obj.scope == 'global' else '#8b5cf6'
         return format_html(
@@ -200,6 +206,14 @@ class SiteBannerAdmin(SiteContentActionAdminMixin, admin.ModelAdmin):
     )
 
     readonly_fields = ['created_at', 'updated_at']
+
+    def get_queryset(self, request):
+        queryset = super().get_queryset(request).select_related(
+            'user',
+        ).defer('user__password')
+        if is_admin_changelist_request(request, self.model):
+            return queryset.defer('content_html')
+        return queryset
 
     def scope_display(self, obj: SiteBanner) -> str:
         color = '#3b82f6' if obj.scope == 'global' else '#8b5cf6'

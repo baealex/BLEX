@@ -31,6 +31,7 @@ from .action_confirmation import render_action_confirmation
 from .mixins import (
     ConfirmedActionDeleteAdminMixin,
     ReadOnlyRecordAdminMixin,
+    is_admin_changelist_request,
 )
 from .service import AdminDisplayService, AdminLinkService
 from .constants import COLOR_MUTED, COLOR_INFO, COLOR_BG, COLOR_TEXT
@@ -64,6 +65,7 @@ class EmailChangeAdmin(
     def get_queryset(self, request):
         return super().get_queryset(request).select_related('user').defer(
             'auth_token',
+            'user__password',
         )
 
     def user_link(self, obj: EmailChange):
@@ -143,7 +145,9 @@ class UsernameChangeLogAdmin(ReadOnlyRecordAdminMixin, admin.ModelAdmin):
     readonly_fields = fields
 
     def get_queryset(self, request):
-        return super().get_queryset(request).select_related('user')
+        return super().get_queryset(request).select_related('user').defer(
+            'user__password',
+        )
 
     def has_delete_permission(self, request, obj=None):
         return False
@@ -218,9 +222,14 @@ class CustomUserAdmin(ConfirmedActionDeleteAdminMixin, BaseUserAdmin):
     actions = ['make_editor', 'make_reader', 'activate_users', 'deactivate_users']
 
     def get_queryset(self, request):
-        return super().get_queryset(request).select_related('profile').annotate(
+        queryset = super().get_queryset(request).select_related(
+            'profile',
+        ).annotate(
             post_count=Count('post', distinct=True)
         )
+        if is_admin_changelist_request(request, self.model):
+            return queryset.defer('password')
+        return queryset
 
     def get_readonly_fields(self, request, obj=None):
         readonly_fields = list(super().get_readonly_fields(request, obj))
@@ -479,7 +488,9 @@ class UserConfigMetaAdmin(admin.ModelAdmin):
     search_fields = ['user__username', 'name', 'value']
 
     def get_queryset(self, request):
-        return super().get_queryset(request).select_related('user')
+        return super().get_queryset(request).select_related('user').defer(
+            'user__password',
+        )
 
     def user_link(self, obj):
         return AdminLinkService.create_user_link(obj.user)
@@ -495,7 +506,9 @@ class UserLinkMetaAdmin(admin.ModelAdmin):
     autocomplete_fields = ['user']
 
     def get_queryset(self, request):
-        return super().get_queryset(request).select_related('user')
+        return super().get_queryset(request).select_related('user').defer(
+            'user__password',
+        )
 
     def user_link(self, obj):
         return AdminLinkService.create_user_link(obj.user)
@@ -643,9 +656,14 @@ class ProfileAdmin(admin.ModelAdmin):
     readonly_fields = ['user_info', 'avatar_preview', 'cover_preview', 'total_posts']
 
     def get_queryset(self, request):
-        return super().get_queryset(request).select_related('user').annotate(
+        queryset = super().get_queryset(request).select_related(
+            'user',
+        ).defer('user__password').annotate(
             post_count=Count('user__post', distinct=True)
         )
+        if is_admin_changelist_request(request, self.model):
+            return queryset.defer('bio', 'about_md', 'about_html')
+        return queryset
 
     def user_link(self, obj):
         return AdminLinkService.create_user_link(obj.user)
