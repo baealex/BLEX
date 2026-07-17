@@ -14,6 +14,7 @@ from django.test.utils import CaptureQueriesContext
 from board.models import (
     User, Config, Post, PostContent, PostConfig, Profile, Series, Tag
 )
+from board.modules.time import time_since
 
 
 class PostTestCase(TestCase):
@@ -917,6 +918,28 @@ class PostTestCase(TestCase):
         response = self.client.get('/v1/users/@author/posts/test-post-1/related')
 
         self.assertEqual(response.status_code, 404)
+
+    def test_related_posts_adds_iso_timestamp_without_replacing_display_date(self):
+        """관련 글 날짜 계약은 기존 표시값을 유지하고 ISO 시각을 추가한다."""
+        reference = Post.objects.get(url='test-post-1')
+        candidate = Post.objects.get(url='test-post-2')
+        tag = Tag.objects.create(value='related-api-contract')
+        reference.tags.add(tag)
+        candidate.tags.add(tag)
+
+        response = self.client.get('/v1/users/@author/posts/test-post-1/related')
+
+        self.assertEqual(response.status_code, 200)
+        content = json.loads(response.content)
+        related_post = content['body']['posts'][0]
+        self.assertEqual(
+            related_post['publishedDate'],
+            time_since(candidate.published_date),
+        )
+        self.assertEqual(
+            related_post['publishedAt'],
+            candidate.published_date.isoformat(),
+        )
 
     def test_related_posts_rejects_draft_post_for_non_owner(self):
         """관련 글 API는 임시저장 글을 비작성자에게 노출하지 않는다."""

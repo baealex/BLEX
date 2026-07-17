@@ -1,8 +1,9 @@
 from datetime import timedelta
-from unittest.mock import call, patch
 
 from django.contrib.auth.models import User
+from django.db import connection
 from django.test import TestCase
+from django.test.utils import CaptureQueriesContext
 from django.utils import timezone
 
 from board.models import Post, PostConfig, PostLikes, Profile, Tag
@@ -101,54 +102,71 @@ class RelatedPostServiceTestCase(TestCase):
         post.tags.add(*tags)
         return post
 
-    @patch('board.services.post_service.random.uniform', side_effect=[0, 0, 0])
-    def test_facade_preserves_ranking_and_random_call_order(self, mock_uniform):
-        posts = PostService.get_related_posts(self.reference)
-
-        self.assertEqual(posts, [self.popular, self.overlap, self.same_author])
-        self.assertEqual(
-            mock_uniform.call_args_list,
-            [call(-3, 3), call(-3, 3), call(-3, 3)],
+    def test_facade_prioritizes_tag_relevance_deterministically(self):
+        first_result = PostService.get_related_posts(self.reference)
+        second_result = PostService.get_related_posts(self.reference)
+        legacy_keyword_result = RelatedPostService.get_related_posts(
+            self.reference,
+            jitter=lambda lower, upper: upper,
         )
 
-    @patch('board.services.related_post_service.random.uniform', side_effect=[0, 0, 0])
-    def test_typed_service_preserves_direct_ranking(self, mock_uniform):
-        posts = RelatedPostService.get_related_posts(self.reference)
+        expected = [self.overlap, self.same_author, self.popular]
+        self.assertEqual(first_result, expected)
+        self.assertEqual(second_result, expected)
+        self.assertEqual(legacy_keyword_result, expected)
 
-        self.assertEqual(posts, [self.popular, self.overlap, self.same_author])
-        self.assertEqual(
-            mock_uniform.call_args_list,
-            [call(-3, 3), call(-3, 3), call(-3, 3)],
-        )
-
-    @patch('board.services.post_service.random.uniform', return_value=0)
-    def test_facade_preserves_same_author_penalty(self, mock_uniform):
-        penalty_tag = Tag.objects.create(value='penalty-tag')
+    def test_equal_relevance_prefers_another_author(self):
+        diversity_tag = Tag.objects.create(value='diversity-tag')
+        published_date = timezone.now()
         reference = self.create_post(
-            'Penalty Reference',
+            'Diversity Reference',
             self.author,
-            timezone.now(),
-            (penalty_tag,),
+            published_date,
+            (diversity_tag,),
         )
         same_author = self.create_post(
-            'Penalty Same Author',
+            'Diversity Same Author',
             self.author,
-            timezone.now(),
-            (penalty_tag,),
+            published_date,
+            (diversity_tag,),
         )
         other_author = self.create_post(
-            'Penalty Other Author',
+            'Diversity Other Author',
             self.other_author,
-            timezone.now(),
-            (penalty_tag,),
+            published_date,
+            (diversity_tag,),
         )
 
         posts = PostService.get_related_posts(reference)
 
         self.assertEqual(posts, [other_author, same_author])
 
-    @patch('board.services.post_service.random.uniform', return_value=0)
-    def test_candidates_preserve_public_policy_and_api_annotations(self, mock_uniform):
+    def test_focused_tag_match_wins_when_overlap_is_equal(self):
+        published_date = timezone.now()
+        reference = self.create_post(
+            'Focused Reference',
+            self.author,
+            published_date,
+            (self.alpha, self.beta),
+        )
+        focused = self.create_post(
+            'Focused Candidate',
+            self.other_author,
+            published_date,
+            (self.alpha, self.beta),
+        )
+        broad = self.create_post(
+            'Broad Candidate',
+            self.other_author,
+            published_date,
+            (self.alpha, self.beta, self.gamma, self.delta),
+        )
+
+        posts = PostService.get_related_posts(reference)
+
+        self.assertLess(posts.index(focused), posts.index(broad))
+
+    def test_candidates_preserve_public_policy_and_api_annotations(self):
         posts = PostService.get_related_posts(self.reference)
 
         self.assertEqual({post.url for post in posts}, {
@@ -162,10 +180,11 @@ class RelatedPostServiceTestCase(TestCase):
         self.assertEqual(str(popular.author_image), '')
         self.assertEqual(popular.likes_count, 5)
         self.assertEqual(popular.comments_count, 0)
+        self.assertEqual(popular.candidate_tag_overlap, 1)
+        self.assertEqual(popular.tag_score, 3)
 
-    @patch('board.services.post_service.random.uniform', return_value=0)
-    def test_facade_query_count_does_not_regress(self, mock_uniform):
-        with self.assertNumQueries(3):
+    def test_facade_query_count_does_not_regress(self):
+        with self.assertNumQueries(2):
             posts = PostService.get_related_posts(self.reference)
 
         self.assertEqual(len(posts), 3)
@@ -183,8 +202,7 @@ class RelatedPostServiceTestCase(TestCase):
 
         self.assertEqual(posts, [])
 
-    @patch('board.services.post_service.random.uniform', return_value=0)
-    def test_related_posts_keep_maximum_of_eight(self, mock_uniform):
+    def test_related_posts_keep_maximum_of_eight(self):
         for index in range(8):
             self.create_post(
                 f'Additional {index}',
@@ -198,42 +216,60 @@ class RelatedPostServiceTestCase(TestCase):
         self.assertEqual(len(posts), 8)
         self.assertNotIn(self.reference, posts)
 
-    @patch('board.services.related_post_service.random.uniform', return_value=0)
-    def test_popular_tag_evaluates_all_candidates_with_constant_queries(self, mock_uniform):
-        candidate_count = 144
-        for index in range(candidate_count):
+    def test_popular_tag_limits_rows_in_the_database(self):
+        for index in range(144):
             self.create_post(
                 f'Popular Tag Candidate {index}',
                 self.other_author,
                 timezone.now(),
                 (self.alpha,),
             )
-        total_candidates = RelatedPostService.get_candidates(
-            self.reference,
-            [self.alpha.value],
-        ).count()
 
-        with self.assertNumQueries(3):
+        with CaptureQueriesContext(connection) as captured:
             posts = RelatedPostService.get_related_posts(self.reference)
 
+        self.assertEqual(len(captured), 2)
         self.assertEqual(len(posts), RelatedPostService.MAX_RELATED_POSTS)
-        self.assertEqual(
-            mock_uniform.call_count,
-            total_candidates,
+        self.assertIn(
+            f'LIMIT {RelatedPostService.MAX_RELATED_POSTS}',
+            captured[-1]['sql'].upper(),
         )
 
     def test_score_helper_boundaries_remain_stable(self):
         self.assertEqual(
-            PostService._calculate_tag_score({'a', 'b', 'c', 'd'}, {'a', 'b', 'c', 'd'}),
+            RelatedPostService.calculate_tag_score(
+                {'a', 'b', 'c', 'd'},
+                {'a', 'b', 'c', 'd'},
+            ),
             (10, 4),
         )
-        self.assertEqual(PostService._calculate_popularity_score(6, 3), 10)
+        self.assertEqual(RelatedPostService.calculate_popularity_score(6, 3), 10)
         now = timezone.now()
-        self.assertEqual(PostService._calculate_recency_score(now - timedelta(days=6), now), 5)
-        self.assertEqual(PostService._calculate_recency_score(now - timedelta(days=7), now), 3)
-        self.assertEqual(PostService._calculate_recency_score(now - timedelta(days=30), now), 1)
-        self.assertEqual(PostService._calculate_recency_score(now - timedelta(days=90), now), 0)
         self.assertEqual(
-            RelatedPostService.calculate_tag_score({'a', 'b'}, {'a', 'b'}),
-            (6, 2),
+            RelatedPostService.calculate_recency_score(
+                now - timedelta(days=6),
+                now,
+            ),
+            5,
+        )
+        self.assertEqual(
+            RelatedPostService.calculate_recency_score(
+                now - timedelta(days=7),
+                now,
+            ),
+            3,
+        )
+        self.assertEqual(
+            RelatedPostService.calculate_recency_score(
+                now - timedelta(days=30),
+                now,
+            ),
+            1,
+        )
+        self.assertEqual(
+            RelatedPostService.calculate_recency_score(
+                now - timedelta(days=90),
+                now,
+            ),
+            0,
         )

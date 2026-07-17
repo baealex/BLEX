@@ -249,8 +249,7 @@ def user_posts(request, username, url=None):
 
 def user_post_related(request, username, url):
     """
-    Get related posts for a specific post based on shared tags and popularity.
-    Uses a scoring system to rank relevance.
+    Get deterministic related posts led by shared-tag relevance.
     """
     if request.method == 'GET':
         post = get_object_or_404(Post.objects.select_related('config', 'author').prefetch_related('tags'),
@@ -269,6 +268,7 @@ def user_post_related(request, username, url):
                 'meta_description': related_post.meta_description,
                 'read_time': related_post.read_time,
                 'published_date': time_since(related_post.published_date),
+                'published_at': related_post.published_date.isoformat(),
                 'author_username': related_post.author_username,
                 'author_name': related_post.author_name,
                 'author_image': str(related_post.author_image) if related_post.author_image else None,

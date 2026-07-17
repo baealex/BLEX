@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react';
-import { logger } from '~/utils/logger';
+import { useQuery } from '@tanstack/react-query';
+import { selectVisibleRelatedPosts } from './selection';
 import { getRelatedPosts, type RelatedPost } from '~/lib/api/posts';
 
 interface RelatedPostsProps {
@@ -64,7 +64,7 @@ const PostCard = ({ relatedPost }: { relatedPost: RelatedPost }) => {
                 </h3>
 
                 <div className="text-xs text-content-secondary mb-3 flex items-center gap-3">
-                    <time dateTime={relatedPost.publishedDate}>
+                    <time dateTime={relatedPost.publishedAt}>
                         {relatedPost.publishedDate}
                     </time>
                     <span>{relatedPost.readTime}분</span>
@@ -101,27 +101,24 @@ const PostCard = ({ relatedPost }: { relatedPost: RelatedPost }) => {
 };
 
 const RelatedPosts = ({ postUrl, username }: RelatedPostsProps) => {
-    const [relatedPosts, setRelatedPosts] = useState<RelatedPost[]>([]);
-    const [isLoading, setIsLoading] = useState(true);
-
-    useEffect(() => {
-        const fetchRelatedPosts = async () => {
-            try {
-                const { data } = await getRelatedPosts(username, postUrl);
-                if (data.status === 'DONE') {
-                    const posts = data.body.posts || [];
-                    const count = posts.length >= 8 ? 8 : posts.length >= 4 ? 4 : posts.length;
-                    setRelatedPosts(posts.slice(0, count));
-                }
-            } catch (error) {
-                logger.error('Failed to fetch related posts:', error);
-            } finally {
-                setIsLoading(false);
+    const {
+        data: relatedPosts = [],
+        isLoading,
+        isError
+    } = useQuery({
+        queryKey: ['related-posts', username, postUrl],
+        queryFn: async () => {
+            const { data } = await getRelatedPosts(username, postUrl);
+            if (data.status === 'ERROR') {
+                throw new Error(data.errorMessage);
             }
-        };
 
-        fetchRelatedPosts();
-    }, [postUrl, username]);
+            return selectVisibleRelatedPosts(data.body.posts ?? []);
+        },
+        enabled: Boolean(username && postUrl),
+        staleTime: 5 * 60 * 1000,
+        retry: 1
+    });
 
     if (isLoading) {
         return (
@@ -138,6 +135,10 @@ const RelatedPosts = ({ postUrl, username }: RelatedPostsProps) => {
                 </div>
             </div>
         );
+    }
+
+    if (isError) {
+        return null;
     }
 
     if (relatedPosts.length === 0) {
