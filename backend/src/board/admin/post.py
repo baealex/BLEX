@@ -1,16 +1,25 @@
 """
 Post Admin Configuration
 """
-from django.contrib import admin
+from typing import Any
+
+from django.contrib import admin, messages
+from django.core.exceptions import ObjectDoesNotExist
+from django.db import transaction
 from django.db.models import Count, QuerySet
 from django.http import HttpRequest
+from django.utils import timezone
 
+from board.services.post_revision_service import PostRevisionService
+from board.services.post_service import PostService, PostValidationError
 from board.services.post_status_service import PostStatusService
+from board.services.post_trash_service import PostTrashService
 from board.models import (
     EditHistory, EditRequest, Post, PinnedPost,
     PostConfig, PostContent,
 )
 
+from .action_confirmation import render_action_confirmation
 from .service import AdminDisplayService, AdminLinkService
 from .constants import (
     LIST_PER_PAGE_DEFAULT,
@@ -28,15 +37,21 @@ class PublishStatusFilter(admin.SimpleListFilter):
             ('draft', '임시글'),
             ('published', '발행됨'),
             ('scheduled', '예약됨'),
+            ('trashed', '휴지통'),
         ]
 
     def queryset(self, request, queryset):
+        if self.value() is None:
+            return queryset.filter(deleted_date__isnull=True)
         if self.value() == 'draft':
             return PostStatusService.filter_drafts(queryset)
         elif self.value() == 'published':
             return PostStatusService.filter_published(queryset)
         elif self.value() == 'scheduled':
             return PostStatusService.filter_scheduled(queryset)
+        elif self.value() == 'trashed':
+            return queryset.filter(deleted_date__isnull=False)
+        return queryset.filter(deleted_date__isnull=True)
 
 
 @admin.register(EditHistory)
@@ -87,7 +102,7 @@ class PostAdmin(admin.ModelAdmin):
     Post 관리 페이지
 
     - select_related/prefetch_related로 쿼리 최적화
-    - 대량 작업 시 bulk operation 사용
+    - 상태 변경은 포스트 도메인 서비스와 감사 로그를 사용
     """
 
     search_fields = ['title', 'content__content_html', 'author__username', 'series__name', 'tags__value']
@@ -122,14 +137,25 @@ class PostAdmin(admin.ModelAdmin):
     list_per_page = LIST_PER_PAGE_DEFAULT
     save_on_top = True
     date_hierarchy = 'created_date'
-    actions = ['make_hidden', 'make_visible', 'publish_drafts']
+    actions = [
+        'make_hidden',
+        'make_visible',
+        'publish_drafts',
+        'move_to_trash',
+        'restore_from_trash',
+        'permanently_delete_trashed',
+    ]
 
     fieldsets = (
         ('기본 정보', {
             'fields': ('author', 'title', 'url', 'series')
         }),
         ('발행', {
-            'fields': ('published_date', 'publish_status_display'),
+            'fields': (
+                'published_date',
+                'publish_status_display',
+                'deleted_at',
+            ),
         }),
         ('이미지', {
             'fields': ('image', 'image_preview'),
@@ -144,15 +170,107 @@ class PostAdmin(admin.ModelAdmin):
         }),
     )
 
-    readonly_fields = ['image_preview', 'publish_status_display', 'total_likes', 'total_comments', 'created_at', 'updated_at']
+    readonly_fields = [
+        'image_preview',
+        'publish_status_display',
+        'deleted_at',
+        'total_likes',
+        'total_comments',
+        'created_at',
+        'updated_at',
+    ]
 
     def get_queryset(self, request):
-        return super().get_queryset(request).select_related(
+        queryset = Post.all_objects.all()
+        ordering = self.get_ordering(request)
+        if ordering:
+            queryset = queryset.order_by(*ordering)
+
+        if (
+            getattr(request, 'resolver_match', None)
+            and request.resolver_match.url_name == 'autocomplete'
+        ):
+            queryset = queryset.filter(deleted_date__isnull=True)
+
+        return queryset.select_related(
             'author', 'content', 'config', 'series'
         ).prefetch_related('tags', 'likes', 'comments').annotate(
             likes_count=Count('likes', distinct=True),
             comments_count=Count('comments', distinct=True)
         )
+
+    def get_actions(self, request):
+        actions = super().get_actions(request)
+        actions.pop('delete_selected', None)
+        return actions
+
+    def has_change_permission(self, request, obj=None):
+        if obj is not None and obj.deleted_date is not None:
+            return False
+        return super().has_change_permission(request, obj)
+
+    def has_delete_permission(self, request, obj=None):
+        if obj is not None:
+            return False
+        return super().has_delete_permission(request, obj)
+
+    def save_model(self, request, obj, form, change):
+        if change and obj.pk:
+            persisted = Post.all_objects.select_for_update().get(pk=obj.pk)
+            obj._admin_previous_snapshot = (
+                PostRevisionService.capture_snapshot(persisted)
+            )
+            obj._admin_previous_updated_date = persisted.updated_date
+            obj._admin_was_published = persisted.published_date is not None
+            obj._admin_model_changed = form.has_changed()
+
+        super().save_model(request, obj, form, change)
+
+    def save_related(self, request, form, formsets, change):
+        super().save_related(request, form, formsets, change)
+        post = form.instance
+        previous_snapshot = getattr(
+            post,
+            '_admin_previous_snapshot',
+            None,
+        )
+        if previous_snapshot is None:
+            return
+
+        related_changed = any(
+            formset.has_changed() for formset in formsets
+        )
+        should_update_date = (
+            getattr(post, '_admin_model_changed', False)
+            or related_changed
+        )
+
+        if should_update_date:
+            post.updated_date = timezone.now()
+            Post.all_objects.filter(pk=post.pk).update(
+                updated_date=post.updated_date,
+            )
+
+        if getattr(post, '_admin_was_published', False):
+            PostRevisionService.record_previous_snapshot_if_changed(
+                post,
+                previous_snapshot,
+                source_updated_date=getattr(
+                    post,
+                    '_admin_previous_updated_date',
+                    None,
+                ),
+                actor=request.user,
+            )
+
+        for attribute_name in (
+            '_admin_previous_snapshot',
+            '_admin_previous_updated_date',
+            '_admin_was_published',
+            '_admin_model_changed',
+        ):
+            if hasattr(post, attribute_name):
+                delattr(post, attribute_name)
 
     def thumbnail_preview(self, obj: Post) -> str:
         width, height = THUMBNAIL_SIZE
@@ -229,23 +347,201 @@ class PostAdmin(admin.ModelAdmin):
         return AdminDisplayService.date_display(obj.updated_date, DATETIME_FORMAT_FULL)
     updated_at.short_description = '수정일시'
 
-    # Bulk operations for better performance
+    def deleted_at(self, obj: Post) -> str:
+        return AdminDisplayService.date_display(
+            obj.deleted_date,
+            DATETIME_FORMAT_FULL,
+        )
+    deleted_at.short_description = '휴지통 이동일시'
+
+    @staticmethod
+    def _active_posts(queryset: QuerySet[Post]) -> QuerySet[Post]:
+        return queryset.filter(deleted_date__isnull=True)
+
+    @admin.action(description='선택한 포스트 숨김 처리')
     def make_hidden(self, request: HttpRequest, queryset: QuerySet[Post]) -> None:
-        """선택한 포스트 숨김 처리 (bulk update)"""
-        post_ids = list(queryset.values_list('id', flat=True))
-        count = PostConfig.objects.filter(post_id__in=post_ids).update(hide=True)
+        """Route visibility changes through the post domain service."""
+        count = 0
+        failed = 0
+        for post in self._active_posts(queryset).select_related('config'):
+            try:
+                with transaction.atomic():
+                    updated_post = PostService.update_post(post, is_hide=True)
+                    self.log_change(
+                        request,
+                        updated_post,
+                        'Admin에서 숨김 처리',
+                    )
+            except (PostValidationError, ObjectDoesNotExist):
+                failed += 1
+                continue
+            count += 1
         self.message_user(request, f'{count}개의 포스트를 숨김 처리했습니다.')
-    make_hidden.short_description = '선택한 포스트 숨김 처리'
+        if failed:
+            self.message_user(
+                request,
+                f'{failed}개는 필수 설정이 없어 처리하지 못했습니다.',
+                level=messages.WARNING,
+            )
 
+    @admin.action(description='선택한 포스트 공개 처리')
     def make_visible(self, request: HttpRequest, queryset: QuerySet[Post]) -> None:
-        """선택한 포스트 공개 처리 (bulk update)"""
-        post_ids = list(queryset.values_list('id', flat=True))
-        count = PostConfig.objects.filter(post_id__in=post_ids).update(hide=False)
+        """Route visibility changes through the post domain service."""
+        count = 0
+        failed = 0
+        for post in self._active_posts(queryset).select_related('config'):
+            try:
+                with transaction.atomic():
+                    updated_post = PostService.update_post(post, is_hide=False)
+                    self.log_change(
+                        request,
+                        updated_post,
+                        'Admin에서 공개 처리',
+                    )
+            except (PostValidationError, ObjectDoesNotExist):
+                failed += 1
+                continue
+            count += 1
         self.message_user(request, f'{count}개의 포스트를 공개 처리했습니다.')
-    make_visible.short_description = '선택한 포스트 공개 처리'
+        if failed:
+            self.message_user(
+                request,
+                f'{failed}개는 필수 설정이 없어 처리하지 못했습니다.',
+                level=messages.WARNING,
+            )
 
+    @admin.action(description='선택한 임시글 즉시 발행')
     def publish_drafts(self, request: HttpRequest, queryset: QuerySet[Post]) -> None:
-        """선택한 임시글을 즉시 발행 (bulk update)"""
-        count = queryset.filter(published_date__isnull=True).update(published_date=timezone.now())
+        """Publish drafts with validation, timestamps, and notifications."""
+        drafts = PostStatusService.filter_drafts(queryset).select_related(
+            'content',
+            'config',
+        )
+        count = 0
+        failed = 0
+        for post in drafts:
+            try:
+                with transaction.atomic():
+                    published_post = PostService.publish_draft_now(post)
+                    self.log_change(
+                        request,
+                        published_post,
+                        'Admin에서 즉시 발행',
+                    )
+            except (PostValidationError, ObjectDoesNotExist):
+                failed += 1
+                continue
+            count += 1
         self.message_user(request, f'{count}개의 임시글을 발행했습니다.')
-    publish_drafts.short_description = '선택한 임시글 즉시 발행'
+        if failed:
+            self.message_user(
+                request,
+                f'{failed}개는 발행 조건을 충족하지 못해 건너뛰었습니다.',
+                level=messages.WARNING,
+            )
+
+    @admin.action(description='선택한 포스트를 휴지통으로 이동')
+    def move_to_trash(
+        self,
+        request: HttpRequest,
+        queryset: QuerySet[Post],
+    ) -> None:
+        posts = list(self._active_posts(queryset))
+        with transaction.atomic():
+            for post in posts:
+                trashed_post = PostTrashService.trash_post(post)
+                self.log_change(
+                    request,
+                    trashed_post,
+                    'Admin에서 휴지통으로 이동',
+                )
+
+        self.message_user(
+            request,
+            f'{len(posts)}개의 포스트를 휴지통으로 이동했습니다.',
+            level=messages.SUCCESS,
+        )
+
+    @admin.action(description='선택한 휴지통 포스트 복원')
+    def restore_from_trash(
+        self,
+        request: HttpRequest,
+        queryset: QuerySet[Post],
+    ) -> None:
+        posts = list(queryset.filter(deleted_date__isnull=False))
+        with transaction.atomic():
+            for post in posts:
+                restored_post = PostTrashService.restore_post(
+                    post,
+                    expected_deleted_date=post.deleted_date.isoformat(),
+                )
+                self.log_change(
+                    request,
+                    restored_post,
+                    'Admin에서 휴지통 복원',
+                )
+
+        self.message_user(
+            request,
+            f'{len(posts)}개의 포스트를 복원했습니다.',
+            level=messages.SUCCESS,
+        )
+
+    @admin.action(
+        description='선택한 휴지통 포스트 영구 삭제',
+        permissions=['delete'],
+    )
+    def permanently_delete_trashed(
+        self,
+        request: HttpRequest,
+        queryset: QuerySet[Post],
+    ) -> Any:
+        trashed_queryset = queryset.filter(deleted_date__isnull=False)
+        if request.POST.get('confirm') != 'yes':
+            if not trashed_queryset.exists():
+                self.message_user(
+                    request,
+                    '영구 삭제할 휴지통 포스트가 없습니다.',
+                    level=messages.WARNING,
+                )
+                return None
+            return render_action_confirmation(
+                request,
+                self,
+                trashed_queryset,
+                action_name='permanently_delete_trashed',
+                title='휴지통 포스트 영구 삭제 확인',
+                warning=(
+                    '포스트와 연결된 댓글, 수정 이력 및 설정이 함께 삭제되며 '
+                    '이 작업은 되돌릴 수 없습니다.'
+                ),
+                confirm_label='영구 삭제',
+            )
+
+        posts = list(trashed_queryset)
+        if not posts:
+            self.message_user(
+                request,
+                '영구 삭제할 휴지통 포스트가 없습니다.',
+                level=messages.WARNING,
+            )
+            return None
+
+        post_ids = [post.pk for post in posts]
+        with transaction.atomic():
+            self.log_deletions(
+                request,
+                Post.all_objects.filter(pk__in=post_ids),
+            )
+            for post in posts:
+                PostTrashService.purge_post(
+                    post,
+                    expected_deleted_date=post.deleted_date.isoformat(),
+                )
+
+        self.message_user(
+            request,
+            f'{len(posts)}개의 휴지통 포스트를 영구 삭제했습니다.',
+            level=messages.SUCCESS,
+        )
+        return None

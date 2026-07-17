@@ -1122,6 +1122,13 @@ class PostService:
         return post
 
     @staticmethod
+    @transaction.atomic
+    def publish_draft_now(post: Post) -> Post:
+        """Publish immediately without applying a saved draft reservation."""
+        PostService.set_draft_reserved_date(post, '')
+        return PostService.publish_draft(post, reserved_date_str='')
+
+    @staticmethod
     def get_user_drafts(user: User):
         """Get all draft posts for a user."""
         return Post.objects.filter(

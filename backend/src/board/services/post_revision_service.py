@@ -99,6 +99,7 @@ class PostRevisionService:
         previous_snapshot: PostRevisionSnapshot,
         *,
         source_updated_date: datetime | None,
+        actor: User | None = None,
     ) -> EditHistory | None:
         if PostRevisionService.capture_snapshot(post) == previous_snapshot:
             return None
@@ -108,7 +109,7 @@ class PostRevisionService:
             previous_snapshot,
             change_type=EditHistory.ChangeType.EDIT,
             source_updated_date=source_updated_date,
-            actor=post.author,
+            actor=actor if actor is not None else post.author,
         )
 
     @staticmethod
