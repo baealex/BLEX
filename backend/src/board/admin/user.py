@@ -4,8 +4,11 @@ User & Profile Admin Configuration
 from typing import Any, Optional
 from django import forms
 from django.contrib import admin, messages
-from django.contrib.auth.models import User
-from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
+from django.contrib.auth.admin import (
+    GroupAdmin as BaseGroupAdmin,
+    UserAdmin as BaseUserAdmin,
+)
+from django.contrib.auth.models import Group, User
 from django.http import HttpRequest
 from django.db import transaction
 from django.db.models import Count, Exists, OuterRef, QuerySet
@@ -176,10 +179,33 @@ class ProfileInline(admin.StackedInline):
 
 
 # Django User Admin 커스터마이징
+admin.site.unregister(Group)
 admin.site.unregister(User)
+
+
+@admin.register(Group)
+class CustomGroupAdmin(BaseGroupAdmin):
+    """Keep delegated staff from changing permission bundles."""
+
+    def has_add_permission(self, request):
+        return request.user.is_superuser
+
+    def has_change_permission(self, request, obj=None):
+        return request.user.is_superuser
+
+    def has_delete_permission(self, request, obj=None):
+        return request.user.is_superuser
+
 
 @admin.register(User)
 class CustomUserAdmin(ConfirmedActionDeleteAdminMixin, BaseUserAdmin):
+    delegated_readonly_fields = (
+        'is_staff',
+        'is_superuser',
+        'groups',
+        'user_permissions',
+    )
+
     inlines = [ProfileInline, UserLinkMetaInline]
 
     list_display = ['username', 'email', 'role_badge', 'post_count', 'is_staff', 'is_active', 'date_joined']
@@ -198,8 +224,10 @@ class CustomUserAdmin(ConfirmedActionDeleteAdminMixin, BaseUserAdmin):
 
     def get_readonly_fields(self, request, obj=None):
         readonly_fields = list(super().get_readonly_fields(request, obj))
+        if not request.user.is_superuser:
+            readonly_fields.extend(self.delegated_readonly_fields)
         if obj is None:
-            return readonly_fields
+            return list(dict.fromkeys(readonly_fields))
 
         is_current_user = obj.pk == request.user.pk
         is_last_active_superuser = (
@@ -217,6 +245,30 @@ class CustomUserAdmin(ConfirmedActionDeleteAdminMixin, BaseUserAdmin):
                 'is_superuser',
             ])
         return list(dict.fromkeys(readonly_fields))
+
+    def has_change_permission(self, request, obj=None):
+        if (
+            obj is not None
+            and obj.is_superuser
+            and not request.user.is_superuser
+        ):
+            return False
+        return super().has_change_permission(request, obj)
+
+    def has_change_profile_permission(self, request):
+        return (
+            self.has_change_permission(request)
+            and request.user.has_perm('board.change_profile')
+        )
+
+    @staticmethod
+    def mutable_users(
+        request: HttpRequest,
+        queryset: QuerySet[User],
+    ) -> QuerySet[User]:
+        if request.user.is_superuser:
+            return queryset
+        return queryset.filter(is_superuser=False)
 
     def role_badge(self, obj):
         if hasattr(obj, 'profile'):
@@ -237,6 +289,7 @@ class CustomUserAdmin(ConfirmedActionDeleteAdminMixin, BaseUserAdmin):
         *,
         role: str,
     ) -> int:
+        queryset = self.mutable_users(request, queryset)
         with transaction.atomic():
             users = list(queryset.select_for_update().select_related('profile'))
             count = UserRoleService.set_users_role(queryset, role)
@@ -252,7 +305,7 @@ class CustomUserAdmin(ConfirmedActionDeleteAdminMixin, BaseUserAdmin):
 
     @admin.action(
         description='선택한 사용자를 작가로 변경',
-        permissions=['change'],
+        permissions=['change_profile'],
     )
     def make_editor(
         self,
@@ -268,7 +321,7 @@ class CustomUserAdmin(ConfirmedActionDeleteAdminMixin, BaseUserAdmin):
 
     @admin.action(
         description='선택한 사용자를 독자로 변경',
-        permissions=['change'],
+        permissions=['change_profile'],
     )
     def make_reader(
         self,
@@ -290,6 +343,12 @@ class CustomUserAdmin(ConfirmedActionDeleteAdminMixin, BaseUserAdmin):
         is_active: bool,
     ) -> Any:
         candidates = queryset.filter(is_active=not is_active)
+        protected_superuser_count = 0
+        if not request.user.is_superuser:
+            protected_superuser_count = candidates.filter(
+                is_superuser=True,
+            ).count()
+            candidates = candidates.filter(is_superuser=False)
         action_name = 'activate_users' if is_active else 'deactivate_users'
         status_label = '활성화' if is_active else '비활성화'
         if request.POST.get('confirm') != 'yes':
@@ -346,6 +405,12 @@ class CustomUserAdmin(ConfirmedActionDeleteAdminMixin, BaseUserAdmin):
             self.message_user(
                 request,
                 '마지막 활성 슈퍼유저 계정은 비활성화하지 않았습니다.',
+                level=messages.WARNING,
+            )
+        if protected_superuser_count:
+            self.message_user(
+                request,
+                f'슈퍼유저 {protected_superuser_count}명은 변경하지 않았습니다.',
                 level=messages.WARNING,
             )
         return None
