@@ -4,6 +4,7 @@ from django.contrib.auth.models import User
 from django.db import transaction
 
 from board.models import Notify
+from board.services.notification_url_service import NotificationUrlService
 
 
 class NotificationCreationService:
@@ -16,6 +17,7 @@ class NotificationCreationService:
         content: str,
         hidden_key: str | None = None,
     ) -> tuple[Notify, bool]:
+        url = NotificationUrlService.validate(url)
         key = Notify.create_hash_key(
             user=user,
             url=url,

@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import {
     BellOff,
     ChevronRight,
@@ -5,6 +6,8 @@ import {
     Send,
     Settings2
 } from '@blex/ui/icons';
+import { Button } from '~/components/shared';
+import { toast } from '~/utils/toast';
 import { SETTINGS_LIST_TITLE } from '~/styles/settingsStyles';
 import {
     SettingsEmptyState,
@@ -13,6 +16,7 @@ import {
     SettingsListItem
 } from '../../../components';
 import { markNotificationAsRead, type NotifyItem } from '~/lib/api/settings';
+import { getSafeNotificationNavigationUrl } from '../notificationNavigation';
 
 interface NotificationsSectionProps {
     notifyList: NotifyItem[];
@@ -25,16 +29,44 @@ const NotificationsSection = ({
     showTelegramIntegration,
     onOpenConfig
 }: NotificationsSectionProps) => {
+    const [locallyReadNotificationIds, setLocallyReadNotificationIds] = useState<Set<number>>(
+        () => new Set()
+    );
+    const [markingReadNotificationId, setMarkingReadNotificationId] = useState<number | null>(null);
 
-    const handleClickNotify = async (notify: NotifyItem) => {
-        if (!notify.isRead) {
-            try {
-                await markNotificationAsRead(notify.id);
-            } catch {
-                // Silently handle error
+    const isNotificationRead = (notify: NotifyItem) => {
+        return notify.isRead || locallyReadNotificationIds.has(notify.id);
+    };
+
+    const markAsRead = async (notify: NotifyItem) => {
+        if (isNotificationRead(notify)) return;
+
+        setMarkingReadNotificationId(notify.id);
+        try {
+            const { data } = await markNotificationAsRead(notify.id);
+            if (data.status === 'DONE') {
+                setLocallyReadNotificationIds((notificationIds) => {
+                    const nextNotificationIds = new Set(notificationIds);
+                    nextNotificationIds.add(notify.id);
+                    return nextNotificationIds;
+                });
+                window.dispatchEvent(new CustomEvent(
+                    'blex:notification-read',
+                    { detail: { notificationId: notify.id } }
+                ));
+            } else {
+                toast.error(data.errorMessage || '알림을 읽음으로 표시하지 못했습니다.');
             }
+        } catch {
+            toast.error('알림을 읽음으로 표시하지 못했습니다.');
+        } finally {
+            setMarkingReadNotificationId(null);
         }
-        window.location.assign(notify.url);
+    };
+
+    const handleClickNotify = async (notify: NotifyItem, targetUrl: string) => {
+        await markAsRead(notify);
+        window.location.assign(targetUrl);
     };
 
     return (
@@ -75,30 +107,54 @@ const NotificationsSection = ({
             {/* Notification list */}
             <div className="space-y-3">
                 {notifyList.length > 0 ? (
-                    notifyList.map((item) => (
-                        <SettingsListItem
-                            key={item.id}
-                            className="items-start"
-                            onClick={() => handleClickNotify(item)}
-                            actions={
-                                <div className="flex-shrink-0 self-center text-content-hint">
-                                    <ChevronRight aria-hidden="true" className="h-4 w-4" />
+                    notifyList.map((item) => {
+                        const targetUrl = getSafeNotificationNavigationUrl(
+                            item.url,
+                            window.location.href
+                        );
+                        const isRead = isNotificationRead(item);
+
+                        return (
+                            <SettingsListItem
+                                key={item.id}
+                                className="items-start"
+                                onClick={targetUrl
+                                    ? () => handleClickNotify(item, targetUrl)
+                                    : undefined}
+                                actions={
+                                    <div className="flex-shrink-0 self-center text-content-hint">
+                                        {targetUrl ? (
+                                            <ChevronRight aria-hidden="true" className="h-4 w-4" />
+                                        ) : !isRead ? (
+                                            <Button
+                                                density="compact"
+                                                variant="ghost"
+                                                size="sm"
+                                                className="min-h-11! [@media(pointer:fine)]:min-h-9!"
+                                                isLoading={markingReadNotificationId === item.id}
+                                                onClick={() => markAsRead(item)}>
+                                                읽음으로 표시
+                                            </Button>
+                                        ) : (
+                                            <span className="text-xs">링크를 열 수 없음</span>
+                                        )}
+                                    </div>
+                                }>
+                                <div className={`${SETTINGS_LIST_TITLE} ${!isRead ? 'font-semibold text-content' : 'font-medium text-content-secondary'} mb-1.5 leading-relaxed`}>
+                                    {item.content}
                                 </div>
-                            }>
-                            <div className={`${SETTINGS_LIST_TITLE} ${!item.isRead ? 'font-semibold text-content' : 'font-medium text-content-secondary'} mb-1.5 leading-relaxed`}>
-                                {item.content}
-                            </div>
-                            <div className="flex items-center gap-2 text-xs text-content-hint">
-                                <Clock aria-hidden="true" className="h-3.5 w-3.5" />
-                                <span>{item.createdDate}</span>
-                                {!item.isRead && (
-                                    <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold bg-danger-surface text-danger border border-danger-line">
-                                        NEW
-                                    </span>
-                                )}
-                            </div>
-                        </SettingsListItem>
-                    ))
+                                <div className="flex items-center gap-2 text-xs text-content-hint">
+                                    <Clock aria-hidden="true" className="h-3.5 w-3.5" />
+                                    <span>{item.createdDate}</span>
+                                    {!isRead && (
+                                        <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold bg-danger-surface text-danger border border-danger-line">
+                                            NEW
+                                        </span>
+                                    )}
+                                </div>
+                            </SettingsListItem>
+                        );
+                    })
                 ) : (
                     <SettingsEmptyState
                         icon={<BellOff aria-hidden="true" className="h-5 w-5" />}

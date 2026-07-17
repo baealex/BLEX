@@ -50,6 +50,16 @@ class SettingsViewTestCase(TestCase):
         self.assertIn('"basePath": "/settings"', body)
         self.assertIn('"canUseTelegramIntegration": false', body)
 
+    def test_notification_read_event_refreshes_header_badges(self):
+        self.client.login(username='settings-reader', password='password123')
+
+        response = self.client.get('/settings/notify')
+
+        self.assertEqual(response.status_code, 200)
+        body = self.decode_body(response)
+        self.assertEqual(body.count('blex:notification-read'), 2)
+        self.assertEqual(body.count('refreshUnreadCount();'), 2)
+
     def test_user_settings_enable_telegram_integration_when_bot_configured(self):
         setting = IntegrationSetting.get_instance()
         setting.telegram_enabled = True

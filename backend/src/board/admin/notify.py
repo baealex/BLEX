@@ -9,19 +9,21 @@ from django.contrib import admin, messages
 from django.contrib.admin.models import ADDITION, LogEntry
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
-from django.core.exceptions import PermissionDenied
+from django.core.exceptions import PermissionDenied, ValidationError
 from django.db import transaction
 from django.db.models import QuerySet
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import redirect, render
 from django.template.defaultfilters import truncatewords
 from django.urls import path
+from django.utils.html import format_html
 from django.utils import timezone
 
 from board.models import Notify
 from board.services.bulk_notification_delivery_service import (
     BulkNotificationDeliveryService,
 )
+from board.services.notification_url_service import NotificationUrlService
 
 from .action_confirmation import render_action_confirmation
 from .constants import (
@@ -41,6 +43,9 @@ class NotifyAdminForm(forms.ModelForm):
     class Meta:
         model = Notify
         fields = ['user', 'url', 'content', 'has_read']
+
+    def clean_url(self) -> str:
+        return NotificationUrlService.validate(self.cleaned_data['url'])
 
     def clean(self) -> dict[str, Any]:
         cleaned_data = super().clean()
@@ -80,6 +85,10 @@ class BulkNotificationForm(forms.Form):
         widget=forms.Textarea(attrs={'rows': 5, 'style': 'width: 100%;'}),
         help_text='모든 활성 사용자에게 전송될 알림 메시지'
     )
+
+    def clean_url(self) -> str:
+        url = self.cleaned_data['url'] or '/'
+        return NotificationUrlService.validate(url)
 
 
 @admin.register(Notify)
@@ -125,6 +134,15 @@ class NotifyAdmin(admin.ModelAdmin):
 
     readonly_fields = ['key', 'created_at', 'updated_at']
 
+    def has_bulk_send_permission(self, request: HttpRequest) -> bool:
+        """Whole-site notification delivery is reserved for superusers."""
+        return request.user.is_superuser
+
+    def changelist_view(self, request, extra_context=None):
+        extra_context = extra_context or {}
+        extra_context['can_bulk_send'] = self.has_bulk_send_permission(request)
+        return super().changelist_view(request, extra_context=extra_context)
+
     def get_queryset(self, request):
         queryset = super().get_queryset(request).select_related(
             'user',
@@ -146,7 +164,14 @@ class NotifyAdmin(admin.ModelAdmin):
     read_status.short_description = '읽음 상태'
 
     def url_link(self, obj):
-        return AdminLinkService.create_external_link(obj.url)
+        try:
+            url = NotificationUrlService.validate(obj.url)
+        except ValidationError:
+            return format_html(
+                '<span style="color: #b91c1c;">{}</span>',
+                '안전하지 않은 URL',
+            )
+        return AdminLinkService.create_external_link(url)
     url_link.short_description = 'URL'
 
     def created_at(self, obj: Notify) -> str:
@@ -345,7 +370,7 @@ class NotifyAdmin(admin.ModelAdmin):
 
     def bulk_send_view(self, request: HttpRequest) -> HttpResponse:
         """일괄 알림 발송 페이지"""
-        if not self.has_add_permission(request):
+        if not self.has_bulk_send_permission(request):
             raise PermissionDenied
 
         confirmation = False
