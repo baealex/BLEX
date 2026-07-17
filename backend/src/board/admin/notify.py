@@ -298,20 +298,31 @@ class NotifyAdmin(admin.ModelAdmin):
         if change:
             return
 
-        try:
-            obj.send_notify()
-        except Exception as error:
-            logger.error(
-                'Admin notification delivery failed notification_id=%s '
-                'exception_type=%s',
-                obj.pk,
-                type(error).__name__,
-            )
-            self.message_user(
-                request,
-                '알림은 저장했지만 외부 채널 전송을 예약하지 못했습니다.',
-                level=messages.ERROR,
-            )
+        notification_id = obj.pk
+
+        def deliver_after_commit() -> None:
+            try:
+                notification = Notify.objects.select_related('user').get(
+                    pk=notification_id,
+                )
+                notification.send_notify()
+            except Exception as error:
+                logger.error(
+                    'Admin notification delivery failed notification_id=%s '
+                    'exception_type=%s',
+                    notification_id,
+                    type(error).__name__,
+                )
+                self.message_user(
+                    request,
+                    '알림은 저장했지만 외부 채널로 전송하지 못했습니다.',
+                    level=messages.ERROR,
+                )
+
+        transaction.on_commit(
+            deliver_after_commit,
+            using=obj._state.db,
+        )
 
     def get_urls(self):
         """Custom URL 추가"""

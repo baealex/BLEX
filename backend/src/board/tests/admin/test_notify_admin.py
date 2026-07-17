@@ -7,6 +7,7 @@ from django.contrib.admin.models import ADDITION, CHANGE, LogEntry
 from django.contrib.auth.models import User
 from django.contrib.messages.storage.fallback import FallbackStorage
 from django.core.exceptions import PermissionDenied
+from django.db import transaction
 from django.template.response import TemplateResponse
 from django.test import RequestFactory, TestCase
 from django.utils import timezone
@@ -112,7 +113,7 @@ class NotifyAdminTestCase(TestCase):
             duplicate_form.non_field_errors(),
         )
 
-    def test_admin_save_dispatches_add_but_never_resends_an_edit(self):
+    def test_admin_save_dispatches_committed_add_but_never_resends_edit(self):
         request = self.admin_request('post')
         notification = Notify(
             user=self.user,
@@ -121,12 +122,14 @@ class NotifyAdminTestCase(TestCase):
         )
 
         with patch.object(Notify, 'send_notify') as send_notify:
-            self.admin_instance.save_model(
-                request,
-                notification,
-                form=None,
-                change=False,
-            )
+            with self.captureOnCommitCallbacks(execute=True) as callbacks:
+                self.admin_instance.save_model(
+                    request,
+                    notification,
+                    form=None,
+                    change=False,
+                )
+                send_notify.assert_not_called()
             notification.content = 'Edited in Admin'
             self.admin_instance.save_model(
                 request,
@@ -135,6 +138,7 @@ class NotifyAdminTestCase(TestCase):
                 change=True,
             )
 
+        self.assertEqual(len(callbacks), 1)
         send_notify.assert_called_once()
         notification.refresh_from_db()
         self.assertEqual(notification.content, 'Edited in Admin')
@@ -152,17 +156,47 @@ class NotifyAdminTestCase(TestCase):
             'send_notify',
             side_effect=RuntimeError('telegram-token-secret'),
         ):
-            self.admin_instance.save_model(
-                request,
-                notification,
-                form=None,
-                change=False,
-            )
+            with self.captureOnCommitCallbacks(execute=True):
+                self.admin_instance.save_model(
+                    request,
+                    notification,
+                    form=None,
+                    change=False,
+                )
 
         self.assertTrue(Notify.objects.filter(pk=notification.pk).exists())
         messages = self.message_text(request)
-        self.assertIn('외부 채널 전송을 예약하지 못했습니다.', messages)
+        self.assertIn('외부 채널로 전송하지 못했습니다.', messages)
         self.assertNotIn('telegram-token-secret', messages)
+
+    def test_admin_save_never_dispatches_rolled_back_notification(self):
+        request = self.admin_request('post')
+        notification = Notify(
+            user=self.user,
+            url='/admin-rolled-back',
+            content='Must never leave the transaction',
+        )
+
+        with patch.object(Notify, 'send_notify') as send_notify:
+            with self.captureOnCommitCallbacks(execute=True) as callbacks:
+                with self.assertRaisesRegex(
+                    RuntimeError,
+                    'audit transaction failed',
+                ):
+                    with transaction.atomic():
+                        self.admin_instance.save_model(
+                            request,
+                            notification,
+                            form=None,
+                            change=False,
+                        )
+                        raise RuntimeError('audit transaction failed')
+
+        self.assertEqual(callbacks, [])
+        send_notify.assert_not_called()
+        self.assertFalse(
+            Notify.objects.filter(url='/admin-rolled-back').exists(),
+        )
 
     def test_read_action_updates_timestamp_and_writes_audit_log(self):
         notification = self.create_notification()
