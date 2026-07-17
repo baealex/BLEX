@@ -9,7 +9,14 @@ from django.urls import reverse
 from django.utils import translation
 
 from board.admin.user import CustomGroupAdmin, CustomUserAdmin
-from board.models import Post, Profile
+from board.models import (
+    IntegrationSetting,
+    LoginSetting,
+    Post,
+    Profile,
+    SiteSetting,
+    StaticPage,
+)
 from board.services.user_management_service import UserManagementService
 
 
@@ -328,6 +335,55 @@ class AdminPermissionBoundaryTestCase(TestCase):
                 (permission.name, permission.codename),
                 stored_values[permission.pk],
             )
+
+    def test_product_setting_permission_labels_follow_active_language(self):
+        expected_model_labels = {
+            'en': {
+                IntegrationSetting: 'Telegram integration settings',
+                LoginSetting: 'Login and security settings',
+                SiteSetting: 'Site settings',
+                StaticPage: 'Static page',
+            },
+            'ko': {
+                IntegrationSetting: '텔레그램 연동 설정',
+                LoginSetting: '로그인·보안 설정',
+                SiteSetting: '사이트 설정',
+                StaticPage: '정적 페이지',
+            },
+        }
+        actions_by_language = {
+            'en': ['Add', 'Change', 'Delete', 'View'],
+            'ko': ['추가', '수정', '삭제', '보기'],
+        }
+        permission_actions = ('add', 'change', 'delete', 'view')
+
+        for language, labels_by_model in expected_model_labels.items():
+            with self.subTest(language=language), translation.override(language):
+                for model, model_label in labels_by_model.items():
+                    content_type = ContentType.objects.get_for_model(model)
+                    permissions = list(
+                        Permission.objects.select_related('content_type').filter(
+                            content_type=content_type,
+                            codename__in=[
+                                f'{action}_{model._meta.model_name}'
+                                for action in permission_actions
+                            ],
+                        ).order_by('codename'),
+                    )
+                    expected = [
+                        f'{model_label} {action}'
+                        if language == 'ko'
+                        else f'{action} {model_label}'
+                        for action in actions_by_language[language]
+                    ]
+
+                    with self.subTest(model=model):
+                        for field in self.permission_fields():
+                            labels = [
+                                field.label_from_instance(permission)
+                                for permission in permissions
+                            ]
+                            self.assertEqual(labels, expected)
 
     def test_custom_or_orphaned_permissions_keep_their_stored_label(self):
         content_type = ContentType.objects.create(
