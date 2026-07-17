@@ -1,10 +1,14 @@
 from django.contrib import admin
 from django.contrib.auth.models import Group, Permission, User
+from django.contrib.contenttypes.models import ContentType
+from django.db import connection
 from django.test import RequestFactory, TestCase
+from django.test.utils import CaptureQueriesContext
 from django.urls import reverse
+from django.utils import translation
 
 from board.admin.user import CustomGroupAdmin, CustomUserAdmin
-from board.models import Profile
+from board.models import Post, Profile
 
 
 class AdminPermissionBoundaryTestCase(TestCase):
@@ -45,6 +49,26 @@ class AdminPermissionBoundaryTestCase(TestCase):
         request = RequestFactory().get('/admin/')
         request.user = self.staff
         return request
+
+    def superuser_request(self):
+        request = RequestFactory().get('/admin/')
+        request.user = self.superuser
+        return request
+
+    def permission_fields(self):
+        request = self.superuser_request()
+        group_form = self.group_admin.get_form(
+            request,
+            self.group,
+        )(instance=self.group)
+        user_form = self.user_admin.get_form(
+            request,
+            self.target,
+        )(instance=self.target)
+        return (
+            group_form.fields['permissions'],
+            user_form.fields['user_permissions'],
+        )
 
     def test_delegated_staff_cannot_change_superuser_or_password(self):
         request = self.admin_request()
@@ -170,3 +194,63 @@ class AdminPermissionBoundaryTestCase(TestCase):
                 readonly_fields,
             ),
         )
+
+    def test_standard_permission_labels_follow_active_language(self):
+        content_type = ContentType.objects.get_for_model(Post)
+        permissions = [
+            Permission.objects.get(
+                content_type=content_type,
+                codename=f'{action}_post',
+            )
+            for action in ('add', 'change', 'delete', 'view')
+        ]
+        stored_values = {
+            permission.pk: (permission.name, permission.codename)
+            for permission in permissions
+        }
+
+        expected_labels = {
+            'en': ['Add Post', 'Change Post', 'Delete Post', 'View Post'],
+            'ko': ['포스트 추가', '포스트 수정', '포스트 삭제', '포스트 보기'],
+        }
+        for language, expected in expected_labels.items():
+            with self.subTest(language=language), translation.override(language):
+                for field in self.permission_fields():
+                    with CaptureQueriesContext(connection) as queries:
+                        selected_permissions = list(
+                            field.queryset.filter(
+                                pk__in=[permission.pk for permission in permissions],
+                            ).order_by('codename'),
+                        )
+                        labels = [
+                            field.label_from_instance(permission)
+                            for permission in selected_permissions
+                        ]
+
+                    self.assertEqual(len(queries), 1)
+                    self.assertEqual(labels, expected)
+
+        for permission in permissions:
+            permission.refresh_from_db()
+            self.assertEqual(
+                (permission.name, permission.codename),
+                stored_values[permission.pk],
+            )
+
+    def test_custom_or_orphaned_permissions_keep_their_stored_label(self):
+        content_type = ContentType.objects.create(
+            app_label='legacy',
+            model='retiredentry',
+        )
+        permission = Permission.objects.create(
+            content_type=content_type,
+            codename='archive_retiredentry',
+            name='Archive retired entry',
+        )
+
+        with translation.override('ko'):
+            for field in self.permission_fields():
+                self.assertEqual(
+                    field.label_from_instance(permission),
+                    str(permission),
+                )

@@ -106,20 +106,24 @@ class AdminNavigationTestCase(TestCase):
                 'Site',
             ],
         )
-        grouped_registered_models = {
-            object_name
-            for group_name, object_names in models_by_group.items()
-            if group_name != '제품 설정'
-            for object_name in object_names
-        }
-        visible_registered_models = {
-            model.__name__
+        grouped_registered_models = [
+            model['model']
+            for group in app_list
+            if group['name'] != '제품 설정'
+            for model in group['models']
+        ]
+        visible_registered_models = [
+            model
             for model, model_admin in admin.site._registry.items()
             if model_admin.has_module_permission(self.admin_request())
-        }
-        self.assertSetEqual(
+        ]
+        self.assertCountEqual(
             grouped_registered_models,
             visible_registered_models,
+        )
+        self.assertEqual(
+            len(grouped_registered_models),
+            len(set(grouped_registered_models)),
         )
 
     def test_admin_index_links_to_canonical_product_settings(self):
