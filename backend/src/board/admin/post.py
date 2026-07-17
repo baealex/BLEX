@@ -502,11 +502,34 @@ class PostAdmin(admin.ModelAdmin):
             )
 
     @admin.action(description='선택한 포스트 공개 처리')
-    def make_visible(self, request: HttpRequest, queryset: QuerySet[Post]) -> None:
+    def make_visible(self, request: HttpRequest, queryset: QuerySet[Post]) -> Any:
         """Route visibility changes through the post domain service."""
+        active_posts = self._active_posts(queryset)
+        if request.POST.get('confirm') != 'yes':
+            if not active_posts.exists():
+                self.message_user(
+                    request,
+                    '공개 처리할 활성 포스트가 없습니다.',
+                    level=messages.WARNING,
+                )
+                return None
+            return render_action_confirmation(
+                request,
+                self,
+                active_posts,
+                action_name='make_visible',
+                title='포스트 공개 확인',
+                warning=(
+                    '발행된 포스트는 즉시 외부에 노출될 수 있으며, '
+                    '임시글과 예약글의 숨김 설정도 해제됩니다.'
+                ),
+                confirm_label='공개 처리',
+                is_destructive=False,
+            )
+
         count = 0
         failed = 0
-        for post in self._active_posts(queryset).select_related('config'):
+        for post in active_posts.select_related('config'):
             try:
                 with transaction.atomic():
                     updated_post = PostService.update_post(post, is_hide=False)
@@ -528,12 +551,34 @@ class PostAdmin(admin.ModelAdmin):
             )
 
     @admin.action(description='선택한 임시글 즉시 발행')
-    def publish_drafts(self, request: HttpRequest, queryset: QuerySet[Post]) -> None:
+    def publish_drafts(self, request: HttpRequest, queryset: QuerySet[Post]) -> Any:
         """Publish drafts with validation, timestamps, and notifications."""
         drafts = PostStatusService.filter_drafts(queryset).select_related(
             'content',
             'config',
         )
+        if request.POST.get('confirm') != 'yes':
+            if not drafts.exists():
+                self.message_user(
+                    request,
+                    '즉시 발행할 임시글이 없습니다.',
+                    level=messages.WARNING,
+                )
+                return None
+            return render_action_confirmation(
+                request,
+                self,
+                drafts,
+                action_name='publish_drafts',
+                title='임시글 즉시 발행 확인',
+                warning=(
+                    '선택한 임시글은 현재 시각에 발행되며 공개 설정에 따라 '
+                    '외부 노출과 구독 알림이 발생할 수 있습니다.'
+                ),
+                confirm_label='즉시 발행',
+                is_destructive=False,
+            )
+
         count = 0
         failed = 0
         for post in drafts:
@@ -584,8 +629,31 @@ class PostAdmin(admin.ModelAdmin):
         self,
         request: HttpRequest,
         queryset: QuerySet[Post],
-    ) -> None:
-        posts = list(queryset.filter(deleted_date__isnull=False))
+    ) -> Any:
+        trashed_queryset = queryset.filter(deleted_date__isnull=False)
+        if request.POST.get('confirm') != 'yes':
+            if not trashed_queryset.exists():
+                self.message_user(
+                    request,
+                    '복원할 휴지통 포스트가 없습니다.',
+                    level=messages.WARNING,
+                )
+                return None
+            return render_action_confirmation(
+                request,
+                self,
+                trashed_queryset,
+                action_name='restore_from_trash',
+                title='휴지통 포스트 복원 확인',
+                warning=(
+                    '기존에 발행 및 공개 상태였던 포스트는 복원 즉시 '
+                    '외부에 다시 노출될 수 있습니다.'
+                ),
+                confirm_label='복원',
+                is_destructive=False,
+            )
+
+        posts = list(trashed_queryset)
         with transaction.atomic():
             for post in posts:
                 restored_post = PostTrashService.restore_post(

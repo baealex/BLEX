@@ -71,6 +71,19 @@ class AdminRequestMixin:
         request._messages = FallbackStorage(request)
         return request
 
+    @staticmethod
+    def action_selection(
+        action: str,
+        object_ids: list[int],
+    ) -> dict[str, object]:
+        return {
+            helpers.ACTION_CHECKBOX_NAME: [
+                str(object_id) for object_id in object_ids
+            ],
+            'action': action,
+            'select_across': '0',
+        }
+
     def create_post(self, *, published=True, title='Admin post'):
         published_date = timezone.now() if published else None
         post = Post.objects.create(
@@ -206,8 +219,28 @@ class PostAdminTestCase(AdminRequestMixin, TestCase):
         self.assertEqual(trashed.updated_date, original_updated_date)
         self.assertFalse(Post.objects.filter(pk=post.pk).exists())
 
+        restore_selection = self.action_selection(
+            'restore_from_trash',
+            [post.pk],
+        )
+        confirmation = self.admin_instance.restore_from_trash(
+            self.admin_request('post', restore_selection),
+            Post.all_objects.filter(pk=post.pk),
+        )
+
+        self.assertIsInstance(confirmation, TemplateResponse)
+        confirmation.render()
+        self.assertEqual(
+            confirmation.context_data['confirm_button_class'],
+            'default',
+        )
+        self.assertFalse(Post.objects.filter(pk=post.pk).exists())
+
         self.admin_instance.restore_from_trash(
-            self.admin_request('post'),
+            self.admin_request(
+                'post',
+                {**restore_selection, 'confirm': 'yes'},
+            ),
             Post.all_objects.filter(pk=post.pk),
         )
 
@@ -246,6 +279,10 @@ class PostAdminTestCase(AdminRequestMixin, TestCase):
 
         self.assertIsInstance(confirmation, TemplateResponse)
         confirmation.render()
+        self.assertEqual(
+            confirmation.context_data['confirm_button_class'],
+            'deletelink',
+        )
         self.assertTrue(Post.all_objects.filter(pk=trashed.pk).exists())
 
         confirmed_request = self.admin_request(
@@ -276,8 +313,25 @@ class PostAdminTestCase(AdminRequestMixin, TestCase):
             value=saved_reservation.isoformat(),
         )
 
+        publish_selection = self.action_selection(
+            'publish_drafts',
+            [draft.pk],
+        )
+        confirmation = self.admin_instance.publish_drafts(
+            self.admin_request('post', publish_selection),
+            Post.all_objects.filter(pk=draft.pk),
+        )
+
+        self.assertIsInstance(confirmation, TemplateResponse)
+        confirmation.render()
+        draft.refresh_from_db()
+        self.assertIsNone(draft.published_date)
+
         self.admin_instance.publish_drafts(
-            self.admin_request('post'),
+            self.admin_request(
+                'post',
+                {**publish_selection, 'confirm': 'yes'},
+            ),
             Post.all_objects.filter(pk=draft.pk),
         )
 
@@ -310,7 +364,13 @@ class PostAdminTestCase(AdminRequestMixin, TestCase):
         )
 
         self.admin_instance.publish_drafts(
-            self.admin_request('post'),
+            self.admin_request(
+                'post',
+                {
+                    **self.action_selection('publish_drafts', [draft.pk]),
+                    'confirm': 'yes',
+                },
+            ),
             Post.all_objects.filter(pk=draft.pk),
         )
 
@@ -347,6 +407,39 @@ class PostAdminTestCase(AdminRequestMixin, TestCase):
                 object_id=str(active.pk),
                 action_flag=CHANGE,
                 change_message__contains='숨김 처리',
+            ).exists(),
+        )
+
+        visible_selection = self.action_selection(
+            'make_visible',
+            [active.pk, trashed.pk],
+        )
+        confirmation = self.admin_instance.make_visible(
+            self.admin_request('post', visible_selection),
+            Post.all_objects.filter(pk__in=[active.pk, trashed.pk]),
+        )
+
+        self.assertIsInstance(confirmation, TemplateResponse)
+        active.config.refresh_from_db()
+        self.assertTrue(active.config.hide)
+
+        self.admin_instance.make_visible(
+            self.admin_request(
+                'post',
+                {**visible_selection, 'confirm': 'yes'},
+            ),
+            Post.all_objects.filter(pk__in=[active.pk, trashed.pk]),
+        )
+
+        active.config.refresh_from_db()
+        trashed.config.refresh_from_db()
+        self.assertFalse(active.config.hide)
+        self.assertFalse(trashed.config.hide)
+        self.assertTrue(
+            LogEntry.objects.filter(
+                object_id=str(active.pk),
+                action_flag=CHANGE,
+                change_message__contains='공개 처리',
             ).exists(),
         )
 
