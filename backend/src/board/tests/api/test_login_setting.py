@@ -1,5 +1,6 @@
 import json
 
+from django.contrib.admin.models import CHANGE, LogEntry
 from django.test import TestCase
 from django.test.client import Client
 
@@ -19,6 +20,12 @@ class LoginSettingAPITestCase(TestCase):
         )
         Profile.objects.create(user=cls.staff_user)
 
+        cls.superuser = User.objects.create_superuser(
+            username='login-superuser',
+            password='test',
+            email='login-superuser@test.com',
+        )
+
         cls.normal_user = User.objects.create_user(
             username='normaluser',
             password='test',
@@ -28,7 +35,9 @@ class LoginSettingAPITestCase(TestCase):
 
     def setUp(self):
         self.client = Client(HTTP_USER_AGENT='Mozilla/5.0')
-        self.client.login(username='staffuser', password='test')
+        self.client.login(username='login-superuser', password='test')
+        self.delegated_staff_client = Client(HTTP_USER_AGENT='Mozilla/5.0')
+        self.delegated_staff_client.login(username='staffuser', password='test')
 
     def test_oauth_credentials_use_one_provider_query(self):
         SocialAuthProvider.objects.update_or_create(
@@ -65,6 +74,27 @@ class LoginSettingAPITestCase(TestCase):
         content = json.loads(response.content)
         self.assertEqual(content['status'], 'ERROR')
         self.assertEqual(content['errorCode'], 'error:RJ')
+
+    def test_delegated_staff_cannot_access_login_settings(self):
+        """로그인 설정과 자격증명은 일반 staff에게 노출되지 않는다."""
+        for method, payload in (
+            ('get', None),
+            ('put', json.dumps({'welcome_notification_message': 'Unauthorized'})),
+        ):
+            with self.subTest(method=method):
+                if method == 'get':
+                    response = self.delegated_staff_client.get('/v1/login-settings')
+                else:
+                    response = self.delegated_staff_client.put(
+                        '/v1/login-settings',
+                        payload,
+                        content_type='application/json',
+                    )
+
+                self.assertEqual(response.status_code, 200)
+                content = json.loads(response.content)
+                self.assertEqual(content['status'], 'ERROR')
+                self.assertEqual(content['errorCode'], 'error:RJ')
 
     def test_get_login_settings_does_not_expose_secret_values(self):
         setting = LoginSetting.get_instance()
@@ -151,6 +181,15 @@ class LoginSettingAPITestCase(TestCase):
         )
         self.assertTrue(body_google['hasClientSecret'])
         self.assertNotIn('clientSecret', body_google)
+
+        audit_log = LogEntry.objects.get(
+            user=self.superuser,
+            action_flag=CHANGE,
+            change_message='Updated login and security settings',
+        )
+        self.assertEqual(audit_log.object_id, '1')
+        self.assertNotIn('hcaptcha-secret', audit_log.change_message)
+        self.assertNotIn('google-secret', audit_log.change_message)
 
     def test_update_social_auth_provider_keeps_existing_secret_when_blank(self):
         SocialAuthProvider.objects.update_or_create(
@@ -245,3 +284,30 @@ class LoginSettingAPITestCase(TestCase):
         content = json.loads(response.content)
         self.assertEqual(content['status'], 'ERROR')
         self.assertEqual(content['errorCode'], 'error:VA')
+
+    def test_invalid_login_setting_update_rolls_back_all_changes(self):
+        """유효하지 않은 인증 설정은 같은 요청의 다른 변경도 저장하지 않는다."""
+        setting = LoginSetting.get_instance()
+        setting.welcome_notification_message = 'Existing message'
+        setting.save()
+
+        response = self.client.put(
+            '/v1/login-settings',
+            json.dumps({
+                'welcome_notification_message': 'Should not persist',
+                'hcaptcha_enabled': True,
+                'hcaptcha_site_key': '',
+            }),
+            content_type='application/json',
+        )
+
+        self.assertEqual(response.status_code, 200)
+        content = json.loads(response.content)
+        self.assertEqual(content['status'], 'ERROR')
+        self.assertEqual(content['errorCode'], 'error:VA')
+        setting.refresh_from_db()
+        self.assertEqual(setting.welcome_notification_message, 'Existing message')
+        self.assertFalse(LogEntry.objects.filter(
+            user=self.superuser,
+            change_message='Updated login and security settings',
+        ).exists())

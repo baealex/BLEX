@@ -1,5 +1,6 @@
 from django.contrib import admin
 from django.contrib.auth.models import User
+from django.contrib.auth.models import Permission
 from django.test import RequestFactory, TestCase
 from django.urls import reverse
 from django.utils import translation
@@ -41,10 +42,21 @@ class AdminNavigationTestCase(TestCase):
             email='navigation-admin@example.com',
             password='test',
         )
+        cls.delegated_staff = User.objects.create_user(
+            username='navigation-staff',
+            email='navigation-staff@example.com',
+            password='test',
+            is_staff=True,
+        )
+        site_setting_permission = Permission.objects.get(
+            content_type__app_label='board',
+            codename='change_sitesetting',
+        )
+        cls.delegated_staff.user_permissions.add(site_setting_permission)
 
-    def admin_request(self, path='/admin/'):
+    def admin_request(self, path='/admin/', user=None):
         request = RequestFactory().get(path)
-        request.user = self.admin_user
+        request.user = user or self.admin_user
         return request
 
     def test_admin_site_groups_every_registered_model_by_operator_task(self):
@@ -152,6 +164,25 @@ class AdminNavigationTestCase(TestCase):
             reverse('admin:app_list', args=['board']),
         )
         self.assertEqual(board_index.status_code, 200)
+
+    def test_delegated_staff_only_sees_authorized_product_settings(self):
+        """Django Admin 제품 설정 탐색도 API 권한 정책을 따른다."""
+        app_list = admin.site.get_app_list(
+            self.admin_request(user=self.delegated_staff),
+        )
+        product_settings = next(
+            app for app in app_list
+            if app['app_label'] == 'blex_product-settings'
+        )
+
+        self.assertEqual(
+            [model['object_name'] for model in product_settings['models']],
+            ['ProductSiteSettings', 'ProductSeoSettings'],
+        )
+        self.assertEqual(
+            [model['admin_url'] for model in product_settings['models']],
+            ['/admin-settings/site-settings', '/admin-settings/seo-aeo'],
+        )
 
     def test_secret_provider_legacy_urls_redirect_to_canonical_settings(self):
         provider, _ = SocialAuthProvider.objects.get_or_create(key='github')

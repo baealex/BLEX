@@ -1,10 +1,12 @@
+from django.db import transaction
 from django.http import Http404
 
 from board.models import LoginSetting
 from board.modules.response import ErrorCode, StatusDone, StatusError
-from board.services.api_permission_service import ApiPermissionService
+from board.services.admin_settings_audit_service import AdminSettingsAuditService
 from board.services.api_request_body_service import ApiRequestBodyService
 from board.services.hcaptcha_service import HCaptchaConfigurationError, HCaptchaService
+from board.services.product_settings_permission_service import ProductSettingsPermissionService
 from board.services.social_auth_provider_service import SocialAuthProviderService
 
 
@@ -21,12 +23,14 @@ def serialize_login_setting(setting):
 
 def login_settings(request):
     """
-    LoginSetting GET/PUT API endpoint (staff only)
+    LoginSetting GET/PUT API endpoint.
 
     GET /v1/login-settings - Get current login settings
     PUT /v1/login-settings - Update login settings
     """
-    permission_error = ApiPermissionService.require_staff(request.user)
+    permission_error = ProductSettingsPermissionService.require_login_settings(
+        request.user,
+    )
     if permission_error:
         return permission_error
 
@@ -38,24 +42,32 @@ def login_settings(request):
     if request.method == 'PUT':
         put_data = ApiRequestBodyService.parse_json_or_empty_for_legacy_only(request)
 
-        if 'welcome_notification_message' in put_data:
-            setting.welcome_notification_message = put_data['welcome_notification_message']
-
-        if 'welcome_notification_url' in put_data:
-            setting.welcome_notification_url = put_data['welcome_notification_url']
-
-        if 'account_deletion_redirect_url' in put_data:
-            setting.account_deletion_redirect_url = put_data['account_deletion_redirect_url']
-
         try:
-            HCaptchaService.update_admin_config(setting, put_data)
+            with transaction.atomic():
+                if 'welcome_notification_message' in put_data:
+                    setting.welcome_notification_message = put_data['welcome_notification_message']
+
+                if 'welcome_notification_url' in put_data:
+                    setting.welcome_notification_url = put_data['welcome_notification_url']
+
+                if 'account_deletion_redirect_url' in put_data:
+                    setting.account_deletion_redirect_url = put_data['account_deletion_redirect_url']
+
+                HCaptchaService.update_admin_config(setting, put_data)
+
+                if 'social_auth_providers' in put_data:
+                    SocialAuthProviderService.update_admin_providers(
+                        put_data['social_auth_providers'],
+                    )
+
+                setting.save()
+                AdminSettingsAuditService.record_change(
+                    user=request.user,
+                    target=setting,
+                    change_message='Updated login and security settings',
+                )
         except HCaptchaConfigurationError as error:
             return StatusError(ErrorCode.VALIDATE, error.message)
-
-        if 'social_auth_providers' in put_data:
-            SocialAuthProviderService.update_admin_providers(put_data['social_auth_providers'])
-
-        setting.save()
 
         return StatusDone(serialize_login_setting(setting))
 

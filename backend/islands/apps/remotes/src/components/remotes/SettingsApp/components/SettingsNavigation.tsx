@@ -33,6 +33,7 @@ import {
     ENTRANCE_DURATION,
     INTERACTION_DURATION
 } from '@blex/ui/design-tokens';
+import type { AdminCapabilities } from '../SettingsApp';
 
 interface NavigationItem {
     name: string;
@@ -41,6 +42,7 @@ interface NavigationItem {
     requiresEditor?: boolean;
     requiresStaff?: boolean;
     requiresTelegramIntegration?: boolean;
+    requiresAdminCapability?: keyof AdminCapabilities;
 }
 
 interface NavigationSection {
@@ -63,6 +65,7 @@ interface SettingsRouterContext {
     settingsMode: SettingsMode;
     basePath: string;
     canUseTelegramIntegration: boolean;
+    adminCapabilities: AdminCapabilities;
 }
 
 const userNavigationSections: NavigationSection[] = [
@@ -161,19 +164,22 @@ const adminNavigationSections: NavigationSection[] = [
                 name: '블로그 커스텀',
                 path: '/site-settings',
                 icon: Palette,
-                requiresStaff: true
+                requiresStaff: true,
+                requiresAdminCapability: 'canManageSiteSettings'
             },
             {
                 name: '로그인 관리',
                 path: '/login',
                 icon: LogIn,
-                requiresStaff: true
+                requiresStaff: true,
+                requiresAdminCapability: 'canManageLoginSettings'
             },
             {
                 name: 'SEO/AEO',
                 path: '/seo-aeo',
                 icon: Bot,
-                requiresStaff: true
+                requiresStaff: true,
+                requiresAdminCapability: 'canManageSiteSettings'
             },
             {
                 name: '정적 페이지',
@@ -215,7 +221,8 @@ const adminNavigationSections: NavigationSection[] = [
                 name: '텔레그램',
                 path: '/integrations',
                 icon: Send,
-                requiresStaff: true
+                requiresStaff: true,
+                requiresAdminCapability: 'canManageIntegrationSettings'
             }
         ]
     },
@@ -253,11 +260,13 @@ const canShowItem = (
     item: NavigationItem,
     isEditor: boolean,
     isStaff: boolean,
-    canUseTelegramIntegration: boolean
+    canUseTelegramIntegration: boolean,
+    adminCapabilities: AdminCapabilities
 ) => (
     (!item.requiresEditor || isEditor)
     && (!item.requiresStaff || isStaff)
     && (!item.requiresTelegramIntegration || canUseTelegramIntegration)
+    && (!item.requiresAdminCapability || adminCapabilities[item.requiresAdminCapability])
 );
 
 const canShowSection = (section: NavigationSection, isEditor: boolean, isStaff: boolean) => (
@@ -273,16 +282,25 @@ const normalizePath = (path: string, basePath: string) => {
 const SettingsModeLink = ({
     settingsMode,
     isStaff,
+    adminCapabilities,
     mobile = false
 }: {
     settingsMode: SettingsMode;
     isStaff: boolean;
+    adminCapabilities: AdminCapabilities;
     mobile?: boolean;
 }) => {
     if (!isStaff) return null;
 
     const isAdminMode = settingsMode === 'admin';
-    const href = isAdminMode ? '/settings/notify' : '/admin-settings/site-settings';
+    const adminSettingsPath = adminCapabilities.canManageSiteSettings
+        ? '/admin-settings/site-settings'
+        : adminCapabilities.canManageLoginSettings
+            ? '/admin-settings/login'
+            : adminCapabilities.canManageIntegrationSettings
+                ? '/admin-settings/integrations'
+                : '/admin-settings/global-notices';
+    const href = isAdminMode ? '/settings/notify' : adminSettingsPath;
     const label = isAdminMode ? '내 설정으로 돌아가기' : '관리자 설정';
     const ModeIcon = isAdminMode ? ArrowLeft : Shield;
 
@@ -309,13 +327,14 @@ export const SettingsMobileNavigation = ({ currentPath }: SettingsNavigationProp
         adminUrl,
         settingsMode,
         basePath,
-        canUseTelegramIntegration
+        canUseTelegramIntegration,
+        adminCapabilities
     } = router.options.context as SettingsRouterContext;
     const settingsLabel = settingsMode === 'admin' ? '관리자 설정' : '설정';
     const navigationSections = getNavigationSections(settingsMode);
     const activeItem = navigationSections
         .flatMap(section => section.items)
-        .filter(item => canShowItem(item, isEditor, isStaff, canUseTelegramIntegration))
+        .filter(item => canShowItem(item, isEditor, isStaff, canUseTelegramIntegration, adminCapabilities))
         .find(item => (
             item.path !== 'admin'
             && normalizePath(currentPath, basePath) === normalizePath(item.path, basePath)
@@ -335,7 +354,7 @@ export const SettingsMobileNavigation = ({ currentPath }: SettingsNavigationProp
     };
 
     const renderNavItem = (item: NavigationItem) => {
-        if (!canShowItem(item, isEditor, isStaff, canUseTelegramIntegration)) return null;
+        if (!canShowItem(item, isEditor, isStaff, canUseTelegramIntegration, adminCapabilities)) return null;
 
         const isActive = item.path !== 'admin' && normalizePath(currentPath, basePath) === normalizePath(item.path, basePath);
         const baseClasses = `group flex min-h-11 items-center rounded-lg px-3 py-2.5 text-sm transition-all ${INTERACTION_DURATION} active:scale-95 motion-reduce:transform-none motion-reduce:transition-none`;
@@ -384,7 +403,9 @@ export const SettingsMobileNavigation = ({ currentPath }: SettingsNavigationProp
     const renderSection = (section: NavigationSection) => {
         if (!canShowSection(section, isEditor, isStaff)) return null;
 
-        const visibleItems = section.items.filter(item => canShowItem(item, isEditor, isStaff, canUseTelegramIntegration));
+        const visibleItems = section.items.filter(item => (
+            canShowItem(item, isEditor, isStaff, canUseTelegramIntegration, adminCapabilities)
+        ));
         if (visibleItems.length === 0) return null;
 
         return (
@@ -442,7 +463,12 @@ export const SettingsMobileNavigation = ({ currentPath }: SettingsNavigationProp
 
                             {isStaff && (
                                 <div className="-mt-5 mb-8">
-                                    <SettingsModeLink settingsMode={settingsMode} isStaff={isStaff} mobile />
+                                    <SettingsModeLink
+                                        settingsMode={settingsMode}
+                                        isStaff={isStaff}
+                                        adminCapabilities={adminCapabilities}
+                                        mobile
+                                    />
                                 </div>
                             )}
 
@@ -465,7 +491,8 @@ export const SettingsDesktopNavigation = ({ currentPath }: SettingsNavigationPro
         adminUrl,
         settingsMode,
         basePath,
-        canUseTelegramIntegration
+        canUseTelegramIntegration,
+        adminCapabilities
     } = router.options.context as SettingsRouterContext;
     const settingsLabel = settingsMode === 'admin' ? '관리자 설정' : '설정';
     const navigationSections = getNavigationSections(settingsMode);
@@ -476,7 +503,7 @@ export const SettingsDesktopNavigation = ({ currentPath }: SettingsNavigationPro
     };
 
     const renderNavItem = (item: NavigationItem) => {
-        if (!canShowItem(item, isEditor, isStaff, canUseTelegramIntegration)) return null;
+        if (!canShowItem(item, isEditor, isStaff, canUseTelegramIntegration, adminCapabilities)) return null;
 
         const isActive = item.path !== 'admin' && normalizePath(currentPath, basePath) === normalizePath(item.path, basePath);
         const baseClasses = `flex min-h-11 items-center rounded-lg px-3 text-sm transition-all ${INTERACTION_DURATION} active:scale-95 [@media(pointer:fine)]:min-h-9`;
@@ -526,7 +553,9 @@ export const SettingsDesktopNavigation = ({ currentPath }: SettingsNavigationPro
     const renderSection = (section: NavigationSection) => {
         if (!canShowSection(section, isEditor, isStaff)) return null;
 
-        const visibleItems = section.items.filter(item => canShowItem(item, isEditor, isStaff, canUseTelegramIntegration));
+        const visibleItems = section.items.filter(item => (
+            canShowItem(item, isEditor, isStaff, canUseTelegramIntegration, adminCapabilities)
+        ));
         if (visibleItems.length === 0) return null;
 
         return (
@@ -549,7 +578,11 @@ export const SettingsDesktopNavigation = ({ currentPath }: SettingsNavigationPro
                 </p>
                 {isStaff && (
                     <div className="mt-3">
-                        <SettingsModeLink settingsMode={settingsMode} isStaff={isStaff} />
+                        <SettingsModeLink
+                            settingsMode={settingsMode}
+                            isStaff={isStaff}
+                            adminCapabilities={adminCapabilities}
+                        />
                     </div>
                 )}
             </div>

@@ -46,13 +46,21 @@ const GlobalBannerEditor = lazy(() => import('./pages/GlobalBannerSetting/compon
 export interface SettingsAppProps {
     isEditor: boolean;
     isStaff: boolean;
+    isSuperuser?: boolean;
     adminUrl?: string;
     settingsMode?: SettingsMode;
     basePath?: string;
     canUseTelegramIntegration?: boolean;
+    adminCapabilities?: Partial<AdminCapabilities>;
 }
 
 type SettingsMode = 'user' | 'admin';
+
+export interface AdminCapabilities {
+    canManageSiteSettings: boolean;
+    canManageLoginSettings: boolean;
+    canManageIntegrationSettings: boolean;
+}
 
 interface SettingsRouterContext {
     isEditor: boolean;
@@ -61,7 +69,15 @@ interface SettingsRouterContext {
     settingsMode: SettingsMode;
     basePath: string;
     canUseTelegramIntegration: boolean;
+    adminCapabilities: AdminCapabilities;
 }
+
+const getAdminDefaultPath = (adminCapabilities: AdminCapabilities) => {
+    if (adminCapabilities.canManageSiteSettings) return '/site-settings';
+    if (adminCapabilities.canManageLoginSettings) return '/login';
+    if (adminCapabilities.canManageIntegrationSettings) return '/integrations';
+    return '/global-notices';
+};
 
 // Root route
 const rootRoute = createRootRoute({
@@ -81,9 +97,9 @@ const settingsRoute = createRoute({
 
 const SettingsIndexRedirect = () => {
     const router = useRouter();
-    const { settingsMode } = router.options.context as SettingsRouterContext;
+    const { settingsMode, adminCapabilities } = router.options.context as SettingsRouterContext;
 
-    return <Navigate to={settingsMode === 'admin' ? '/site-settings' : '/notify'} replace />;
+    return <Navigate to={settingsMode === 'admin' ? getAdminDefaultPath(adminCapabilities) : '/notify'} replace />;
 };
 
 const editorOnly = (Component: ElementType) => {
@@ -101,19 +117,30 @@ const editorOnly = (Component: ElementType) => {
     return EditorOnlyRoute;
 };
 
-const staffOnly = (Component: ElementType) => {
-    const StaffOnlyRoute = (props: Record<string, unknown>) => {
+const adminCapabilityOnly = (
+    capability: keyof AdminCapabilities,
+    Component: ElementType
+) => {
+    const AdminCapabilityOnlyRoute = (props: Record<string, unknown>) => {
         const router = useRouter();
-        const { isStaff, settingsMode } = router.options.context as SettingsRouterContext;
+        const {
+            isStaff,
+            settingsMode,
+            adminCapabilities
+        } = router.options.context as SettingsRouterContext;
 
         if (!isStaff) {
-            return <Navigate to={settingsMode === 'admin' ? '/site-settings' : '/notify'} replace />;
+            return <Navigate to="/notify" replace />;
+        }
+
+        if (!adminCapabilities[capability]) {
+            return <Navigate to={settingsMode === 'admin' ? getAdminDefaultPath(adminCapabilities) : '/notify'} replace />;
         }
 
         return <Component {...props} />;
     };
 
-    return StaffOnlyRoute;
+    return AdminCapabilityOnlyRoute;
 };
 
 const telegramIntegrationOnly = (Component: ElementType) => {
@@ -247,25 +274,25 @@ const globalBannersRoute = createRoute({
 const siteSettingsRoute = createRoute({
     getParentRoute: () => settingsRoute,
     path: '/site-settings',
-    component: SiteSettingSetting
+    component: adminCapabilityOnly('canManageSiteSettings', SiteSettingSetting)
 });
 
 const loginRoute = createRoute({
     getParentRoute: () => settingsRoute,
     path: '/login',
-    component: LoginSetting
+    component: adminCapabilityOnly('canManageLoginSettings', LoginSetting)
 });
 
 const adminIntegrationRoute = createRoute({
     getParentRoute: () => settingsRoute,
     path: '/integrations',
-    component: staffOnly(AdminIntegrationSetting)
+    component: adminCapabilityOnly('canManageIntegrationSettings', AdminIntegrationSetting)
 });
 
 const seoAeoRoute = createRoute({
     getParentRoute: () => settingsRoute,
     path: '/seo-aeo',
-    component: SeoAeoSetting
+    component: adminCapabilityOnly('canManageSiteSettings', SeoAeoSetting)
 });
 
 const staticPagesRoute = createRoute({
@@ -397,13 +424,27 @@ const routeTree = rootRoute.addChildren([
 const SettingsApp = ({
     isEditor,
     isStaff,
+    isSuperuser = false,
     adminUrl,
     settingsMode = 'user',
     basePath,
-    canUseTelegramIntegration = false
+    canUseTelegramIntegration = false,
+    adminCapabilities
 }: SettingsAppProps) => {
     const normalizedSettingsMode = settingsMode === 'admin' ? 'admin' : 'user';
     const normalizedBasePath = basePath ?? (normalizedSettingsMode === 'admin' ? '/admin-settings' : '/settings');
+    const legacyStaffCapabilities = adminCapabilities === undefined && isStaff;
+    const normalizedAdminCapabilities: AdminCapabilities = {
+        canManageSiteSettings: isSuperuser
+            || adminCapabilities?.canManageSiteSettings === true
+            || legacyStaffCapabilities,
+        canManageLoginSettings: isSuperuser
+            || adminCapabilities?.canManageLoginSettings === true
+            || legacyStaffCapabilities,
+        canManageIntegrationSettings: isSuperuser
+            || adminCapabilities?.canManageIntegrationSettings === true
+            || legacyStaffCapabilities
+    };
 
     const router = createRouter({
         routeTree,
@@ -413,7 +454,8 @@ const SettingsApp = ({
             adminUrl,
             settingsMode: normalizedSettingsMode,
             basePath: normalizedBasePath,
-            canUseTelegramIntegration
+            canUseTelegramIntegration,
+            adminCapabilities: normalizedAdminCapabilities
         },
         defaultPreload: 'intent',
         basepath: normalizedBasePath

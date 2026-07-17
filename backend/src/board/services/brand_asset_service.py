@@ -2,7 +2,9 @@ from __future__ import annotations
 
 import hashlib
 import json
+import logging
 import re
+from collections.abc import Callable
 from io import BytesIO
 from typing import Any
 
@@ -10,11 +12,15 @@ from defusedxml import ElementTree
 from django.conf import settings
 from django.core.files.base import ContentFile
 from django.core.files.storage import default_storage
+from django.db import transaction
 from django.http import HttpRequest
 from PIL import Image, UnidentifiedImageError
 
 from board.models import SiteSetting
 from board.services.site_url_service import SiteUrlService
+
+
+logger = logging.getLogger(__name__)
 
 
 class BrandAssetError(Exception):
@@ -201,6 +207,7 @@ class BrandAssetService:
         svg_file,
         files,
         manifest_raw: str = '',
+        on_persist: Callable[[SiteSetting], None] | None = None,
     ) -> SiteSetting:
         BrandAssetService.validate_asset_target(asset_type, theme)
 
@@ -208,8 +215,6 @@ class BrandAssetService:
             raise BrandAssetError('기본 자산을 먼저 업로드해주세요.')
 
         svg_bytes = BrandAssetService.validate_svg(svg_file)
-        asset_hash = hashlib.sha256(svg_bytes).hexdigest()[:16]
-        base_path = f'brand/{asset_type}/{theme}/{asset_hash}'
         old_paths = BrandAssetService.collect_asset_paths(setting, asset_type, theme)
         old_path_set = set(old_paths)
         new_paths: list[str] = []
@@ -223,6 +228,13 @@ class BrandAssetService:
                 field_name = f'png_{size}'
                 png_contents[size] = BrandAssetService.validate_png(files.get(field_name), size)
             ico_bytes = BrandAssetService.validate_ico(files.get('favicon_ico'))
+
+        asset_hash = BrandAssetService.build_asset_hash(
+            svg_bytes,
+            png_contents,
+            ico_bytes,
+        )
+        base_path = f'brand/{asset_type}/{theme}/{asset_hash}'
 
         try:
             svg_path = f'{base_path}/{asset_type}.svg'
@@ -250,16 +262,33 @@ class BrandAssetService:
                 }
 
             BrandAssetService.set_asset_field(setting, asset_type, theme, svg_path)
-            setting.save()
+            update_fields = [
+                BrandAssetService.asset_field_name(asset_type, theme),
+                'updated_date',
+            ]
+            if asset_type == 'icon' and theme == 'default':
+                update_fields.append('icon_manifest')
+            with transaction.atomic():
+                setting.save(update_fields=update_fields)
+                if on_persist:
+                    on_persist(setting)
         except Exception:
             BrandAssetService.delete_storage_files(path for path in new_paths if path not in old_path_set)
             raise
 
-        BrandAssetService.delete_storage_files(path for path in old_paths if path not in new_paths)
+        BrandAssetService.schedule_storage_file_deletion(
+            path for path in old_paths if path not in new_paths
+        )
         return setting
 
     @staticmethod
-    def delete_asset(setting: SiteSetting, *, asset_type: str, theme: str) -> SiteSetting:
+    def delete_asset(
+        setting: SiteSetting,
+        *,
+        asset_type: str,
+        theme: str,
+        on_persist: Callable[[SiteSetting], None] | None = None,
+    ) -> SiteSetting:
         BrandAssetService.validate_asset_target(asset_type, theme)
         old_paths = BrandAssetService.collect_asset_paths(
             setting,
@@ -280,8 +309,12 @@ class BrandAssetService:
         else:
             setting.icon_svg_dark = ''
 
-        setting.save()
-        BrandAssetService.delete_storage_files(old_paths)
+        update_fields = BrandAssetService.asset_update_fields_for_delete(asset_type, theme)
+        with transaction.atomic():
+            setting.save(update_fields=[*update_fields, 'updated_date'])
+            if on_persist:
+                on_persist(setting)
+        BrandAssetService.schedule_storage_file_deletion(old_paths)
         return setting
 
     @staticmethod
@@ -297,13 +330,47 @@ class BrandAssetService:
 
     @staticmethod
     def set_asset_field(setting: SiteSetting, asset_type: str, theme: str, path: str) -> None:
-        field_name = {
+        setattr(
+            setting,
+            BrandAssetService.asset_field_name(asset_type, theme),
+            path,
+        )
+
+    @staticmethod
+    def asset_field_name(asset_type: str, theme: str) -> str:
+        return {
             ('logo', 'default'): 'logo_svg',
             ('logo', 'dark'): 'logo_svg_dark',
             ('icon', 'default'): 'icon_svg',
             ('icon', 'dark'): 'icon_svg_dark',
         }[(asset_type, theme)]
-        setattr(setting, field_name, path)
+
+    @staticmethod
+    def asset_update_fields_for_delete(asset_type: str, theme: str) -> list[str]:
+        if asset_type == 'logo' and theme == 'default':
+            return ['logo_svg', 'logo_svg_dark']
+        if asset_type == 'icon' and theme == 'default':
+            return ['icon_svg', 'icon_svg_dark', 'icon_manifest']
+        return [BrandAssetService.asset_field_name(asset_type, theme)]
+
+    @staticmethod
+    def build_asset_hash(
+        svg_bytes: bytes,
+        png_contents: dict[int, bytes],
+        ico_bytes: bytes | None,
+    ) -> str:
+        digest = hashlib.sha256()
+        contents = [svg_bytes]
+        contents.extend(
+            png_contents[size]
+            for size in BrandAssetService.REQUIRED_ICON_PNG_SIZES
+            if size in png_contents
+        )
+        contents.append(ico_bytes or b'')
+        for content in contents:
+            digest.update(len(content).to_bytes(8, byteorder='big'))
+            digest.update(content)
+        return digest.hexdigest()[:16]
 
     @staticmethod
     def collect_asset_paths(
@@ -477,3 +544,22 @@ class BrandAssetService:
         for path in paths:
             if path and default_storage.exists(path):
                 default_storage.delete(path)
+
+    @staticmethod
+    def schedule_storage_file_deletion(paths) -> None:
+        paths_to_delete = tuple(path for path in paths if path)
+        if not paths_to_delete:
+            return
+
+        transaction.on_commit(
+            lambda: BrandAssetService.delete_storage_files_after_commit(paths_to_delete),
+        )
+
+    @staticmethod
+    def delete_storage_files_after_commit(paths) -> None:
+        for path in paths:
+            try:
+                if default_storage.exists(path):
+                    default_storage.delete(path)
+            except Exception:
+                logger.exception('Failed to remove an obsolete brand asset file after commit.')

@@ -1,5 +1,6 @@
 import json
 
+from django.contrib.admin.models import CHANGE, LogEntry
 from django.test import TestCase
 from django.test.client import Client
 
@@ -18,6 +19,12 @@ class IntegrationSettingAPITestCase(TestCase):
         )
         Profile.objects.create(user=cls.staff_user)
 
+        cls.superuser = User.objects.create_superuser(
+            username='integration-superuser',
+            password='test',
+            email='integration-superuser@test.com',
+        )
+
         cls.normal_user = User.objects.create_user(
             username='integrationnormal',
             password='test',
@@ -27,9 +34,11 @@ class IntegrationSettingAPITestCase(TestCase):
 
     def setUp(self):
         self.client = Client(HTTP_USER_AGENT='Mozilla/5.0')
-        self.client.login(username='integrationstaff', password='test')
+        self.client.login(username='integration-superuser', password='test')
+        self.delegated_staff_client = Client(HTTP_USER_AGENT='Mozilla/5.0')
+        self.delegated_staff_client.login(username='integrationstaff', password='test')
 
-    def test_get_integration_settings_requires_staff(self):
+    def test_get_integration_settings_requires_superuser(self):
         guest_client = Client(HTTP_USER_AGENT='Mozilla/5.0')
         response = guest_client.get('/v1/integration-settings')
 
@@ -41,6 +50,13 @@ class IntegrationSettingAPITestCase(TestCase):
         normal_client = Client(HTTP_USER_AGENT='Mozilla/5.0')
         normal_client.login(username='integrationnormal', password='test')
         response = normal_client.get('/v1/integration-settings')
+
+        self.assertEqual(response.status_code, 200)
+        content = json.loads(response.content)
+        self.assertEqual(content['status'], 'ERROR')
+        self.assertEqual(content['errorCode'], 'error:RJ')
+
+        response = self.delegated_staff_client.get('/v1/integration-settings')
 
         self.assertEqual(response.status_code, 200)
         content = json.loads(response.content)
@@ -72,6 +88,34 @@ class IntegrationSettingAPITestCase(TestCase):
         self.assertNotEqual(setting.telegram_bot_token, 'telegram-token')
         self.assertEqual(IntegrationSettingService.decrypt_secret(setting.telegram_bot_token), 'telegram-token')
 
+        audit_log = LogEntry.objects.get(
+            user=self.superuser,
+            action_flag=CHANGE,
+            change_message='Updated notification integration settings',
+        )
+        self.assertEqual(audit_log.object_id, '1')
+        self.assertNotIn('telegram-token', audit_log.change_message)
+
+    def test_delegated_staff_cannot_update_integration_settings(self):
+        """텔레그램 토큰 설정은 최고 관리자만 변경할 수 있다."""
+        response = self.delegated_staff_client.put(
+            '/v1/integration-settings',
+            json.dumps({
+                'telegram_enabled': True,
+                'telegram_bot_username': 'unauthorized_bot',
+                'telegram_bot_token': 'unauthorized-token',
+            }),
+            content_type='application/json',
+        )
+
+        self.assertEqual(response.status_code, 200)
+        content = json.loads(response.content)
+        self.assertEqual(content['status'], 'ERROR')
+        self.assertEqual(content['errorCode'], 'error:RJ')
+        setting = IntegrationSetting.get_instance()
+        self.assertFalse(setting.telegram_enabled)
+        self.assertEqual(setting.telegram_bot_token, '')
+
     def test_enable_telegram_requires_username_and_token(self):
         response = self.client.put(
             '/v1/integration-settings',
@@ -86,6 +130,11 @@ class IntegrationSettingAPITestCase(TestCase):
         content = json.loads(response.content)
         self.assertEqual(content['status'], 'ERROR')
         self.assertEqual(content['errorCode'], 'error:VA')
+
+        setting = IntegrationSetting.get_instance()
+        self.assertFalse(setting.telegram_enabled)
+        self.assertEqual(setting.telegram_bot_username, '')
+        self.assertEqual(setting.telegram_bot_token, '')
 
         response = self.client.put(
             '/v1/integration-settings',

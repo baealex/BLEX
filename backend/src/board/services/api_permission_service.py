@@ -40,6 +40,17 @@ class ApiPermissionService:
         return None
 
     @staticmethod
+    def require_superuser(user: User | AnonymousUser) -> Optional[HttpResponse]:
+        staff_error = ApiPermissionService.require_staff(user)
+        if staff_error:
+            return staff_error
+
+        if not user.is_superuser:
+            return StatusError(ErrorCode.REJECT, '최고 관리자 권한이 필요합니다.')
+
+        return None
+
+    @staticmethod
     def require_owner(user: User | AnonymousUser, owner: User) -> Optional[HttpResponse]:
         login_error = ApiPermissionService.require_login(user)
         if login_error:

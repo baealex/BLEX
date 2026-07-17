@@ -2,6 +2,8 @@ from django.contrib.admin import AdminSite
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 
+from board.services.product_settings_permission_service import ProductSettingsPermissionService
+
 
 class BlexAdminSite(AdminSite):
     site_header = _('BLEX administration')
@@ -70,14 +72,30 @@ class BlexAdminSite(AdminSite):
     )
 
     product_settings = (
-        ('ProductSiteSettings', _('Site settings'), '/admin-settings/site-settings'),
-        ('ProductLoginSettings', _('Login and security settings'), '/admin-settings/login'),
+        (
+            'ProductSiteSettings',
+            _('Site settings'),
+            '/admin-settings/site-settings',
+            'can_manage_site_settings',
+        ),
+        (
+            'ProductLoginSettings',
+            _('Login and security settings'),
+            '/admin-settings/login',
+            'can_manage_login_settings',
+        ),
         (
             'ProductIntegrationSettings',
             _('Notification integration settings'),
             '/admin-settings/integrations',
+            'can_manage_integration_settings',
         ),
-        ('ProductSeoSettings', _('SEO and AEO settings'), '/admin-settings/seo-aeo'),
+        (
+            'ProductSeoSettings',
+            _('SEO and AEO settings'),
+            '/admin-settings/seo-aeo',
+            'can_manage_site_settings',
+        ),
     )
 
     @staticmethod
@@ -93,7 +111,7 @@ class BlexAdminSite(AdminSite):
             'models': models,
         }
 
-    def _build_product_settings_group(self):
+    def _build_product_settings_group(self, request):
         models = [
             {
                 'name': name,
@@ -108,8 +126,12 @@ class BlexAdminSite(AdminSite):
                 'add_url': None,
                 'view_only': True,
             }
-            for object_name, name, url in self.product_settings
+            for object_name, name, url, capability in self.product_settings
+            if getattr(ProductSettingsPermissionService, capability)(request.user)
         ]
+        if not models:
+            return None
+
         return self._build_group(
             'product-settings',
             _('Product settings'),
@@ -129,7 +151,9 @@ class BlexAdminSite(AdminSite):
         for model_key, model_name in self.model_name_overrides.items():
             if model_key in available_models:
                 available_models[model_key]['name'] = model_name
-        grouped_apps = [self._build_product_settings_group()]
+        grouped_apps = []
+        if product_settings_group := self._build_product_settings_group(request):
+            grouped_apps.append(product_settings_group)
 
         for key, name, model_keys in self.navigation_groups:
             models = [

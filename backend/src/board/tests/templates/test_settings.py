@@ -1,5 +1,6 @@
 from urllib.parse import unquote
 
+from django.contrib.auth.models import Permission
 from django.test import TestCase
 from django.test.client import Client
 
@@ -76,7 +77,28 @@ class SettingsViewTestCase(TestCase):
         body = self.decode_body(response)
         self.assertIn('"settingsMode": "admin"', body)
         self.assertIn('"basePath": "/admin-settings"', body)
+        self.assertIn('"isSuperuser": false', body)
+        self.assertIn('"canManageSiteSettings": false', body)
+        self.assertIn('"canManageLoginSettings": false', body)
+        self.assertIn('"canManageIntegrationSettings": false', body)
         self.assertContains(response, '관리자 설정 | BLEX')
+
+    def test_staff_with_site_setting_permission_receives_site_capability(self):
+        """명시적 사이트 설정 권한은 Settings island에만 전달한다."""
+        permission = Permission.objects.get(
+            content_type__app_label='board',
+            codename='change_sitesetting',
+        )
+        self.staff.user_permissions.add(permission)
+        self.client.login(username='settings-staff', password='password123')
+
+        response = self.client.get('/admin-settings/site-settings')
+
+        self.assertEqual(response.status_code, 200)
+        body = self.decode_body(response)
+        self.assertIn('"canManageSiteSettings": true', body)
+        self.assertIn('"canManageLoginSettings": false', body)
+        self.assertIn('"canManageIntegrationSettings": false', body)
 
     def test_reader_gets_404_for_admin_settings_namespace(self):
         client = Client(raise_request_exception=False)
