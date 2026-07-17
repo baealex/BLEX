@@ -1,23 +1,27 @@
+from django.db import transaction
 from django.http import Http404
 
 from board.models import IntegrationSetting
 from board.modules.response import ErrorCode, StatusDone, StatusError
-from board.services.api_permission_service import ApiPermissionService
+from board.services.admin_settings_audit_service import AdminSettingsAuditService
 from board.services.api_request_body_service import ApiRequestBodyService
 from board.services.integration_setting_service import (
     IntegrationSettingConfigurationError,
     IntegrationSettingService,
 )
+from board.services.product_settings_permission_service import ProductSettingsPermissionService
 
 
 def integration_settings(request):
     """
-    IntegrationSetting GET/PUT API endpoint (staff only)
+    IntegrationSetting GET/PUT API endpoint.
 
     GET /v1/integration-settings - Get current integration settings
     PUT /v1/integration-settings - Update integration settings
     """
-    permission_error = ApiPermissionService.require_staff(request.user)
+    permission_error = ProductSettingsPermissionService.require_integration_settings(
+        request.user,
+    )
     if permission_error:
         return permission_error
 
@@ -32,11 +36,17 @@ def integration_settings(request):
             return body_error
 
         try:
-            IntegrationSettingService.update_admin_config(setting, put_data)
+            with transaction.atomic():
+                IntegrationSettingService.update_admin_config(setting, put_data)
+                setting.save()
+                AdminSettingsAuditService.record_change(
+                    user=request.user,
+                    target=setting,
+                    change_message='Updated notification integration settings',
+                )
         except IntegrationSettingConfigurationError as error:
             return StatusError(ErrorCode.VALIDATE, error.message)
 
-        setting.save()
         return StatusDone(IntegrationSettingService.serialize_admin_config(setting))
 
     raise Http404

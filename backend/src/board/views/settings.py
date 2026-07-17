@@ -5,6 +5,7 @@ from django.urls import reverse
 
 from board.services.integration_setting_service import IntegrationSettingService
 from board.services.authoring_permission_service import AuthoringPermissionService
+from board.services.product_settings_permission_service import ProductSettingsPermissionService
 
 
 ADMIN_SETTINGS_PREFIXES = (
@@ -62,10 +63,14 @@ def _build_settings_context(request, settings_mode, base_path):
     return {
         'is_editor': AuthoringPermissionService.is_active_editor(request.user),
         'is_staff': request.user.is_staff,
+        'is_superuser': request.user.is_superuser,
         'admin_url': admin_url,
         'settings_mode': settings_mode,
         'settings_base_path': base_path,
         'can_use_telegram_integration': can_use_telegram_integration,
+        'admin_capabilities': ProductSettingsPermissionService.get_capabilities(
+            request.user,
+        ),
         'settings_title': '관리자 설정' if settings_mode == 'admin' else '설정',
     }
 

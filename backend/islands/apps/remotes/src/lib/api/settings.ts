@@ -660,6 +660,7 @@ export interface SiteSettingData {
     hasCustomIconDark: boolean;
     headerScript: string;
     footerScript: string;
+    canManageScripts: boolean;
     seoEnabled: boolean;
     robotsTxtExtraRules: string;
     robotsTxtDefault: string;

@@ -328,8 +328,12 @@ const SiteSettingSetting = () => {
         event?.preventDefault();
         updateMutation.mutate({
             site_name: siteName,
-            header_script: headerScript,
-            footer_script: footerScript
+            ...(settingData.canManageScripts
+                ? {
+                    header_script: headerScript,
+                    footer_script: footerScript
+                }
+                : {})
         });
     };
 
@@ -455,69 +459,71 @@ const SiteSettingSetting = () => {
                 </div>
             </section>
 
-            <section className="space-y-4" aria-labelledby="advanced-site-settings-title">
-                <h2 id="advanced-site-settings-title" className="text-base font-semibold text-content">
-                    고급 설정
-                </h2>
-                <details
-                    className="group overflow-hidden rounded-2xl bg-surface ring-1 ring-line/60"
-                    open={isGlobalCodeOpen}
-                    onToggle={(event) => setIsGlobalCodeOpen(event.currentTarget.open)}>
-                    <summary className="flex min-h-20 cursor-pointer list-none items-center gap-4 px-6 py-5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-line-strong md:px-8 [&::-webkit-details-marker]:hidden">
-                        <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-warning-surface text-warning">
-                            <Code2 aria-hidden="true" className="h-5 w-5" />
-                        </span>
-                        <span className="min-w-0 flex-1">
-                            <span className="block text-base font-semibold text-content">전역 코드</span>
-                            <span
-                                aria-live="polite"
-                                className={`mt-1 block text-sm ${isGlobalCodeDirty ? 'text-warning' : 'text-content-secondary'}`}>
-                                {globalCodeStatus}
+            {settingData.canManageScripts && (
+                <section className="space-y-4" aria-labelledby="advanced-site-settings-title">
+                    <h2 id="advanced-site-settings-title" className="text-base font-semibold text-content">
+                        고급 설정
+                    </h2>
+                    <details
+                        className="group overflow-hidden rounded-2xl bg-surface ring-1 ring-line/60"
+                        open={isGlobalCodeOpen}
+                        onToggle={(event) => setIsGlobalCodeOpen(event.currentTarget.open)}>
+                        <summary className="flex min-h-20 cursor-pointer list-none items-center gap-4 px-6 py-5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-line-strong md:px-8 [&::-webkit-details-marker]:hidden">
+                            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-warning-surface text-warning">
+                                <Code2 aria-hidden="true" className="h-5 w-5" />
                             </span>
-                        </span>
-                        <ChevronDown
-                            aria-hidden="true"
-                            className="h-5 w-5 shrink-0 text-content-hint transition-transform group-open:rotate-180 motion-reduce:transition-none"
-                        />
-                    </summary>
+                            <span className="min-w-0 flex-1">
+                                <span className="block text-base font-semibold text-content">전역 코드</span>
+                                <span
+                                    aria-live="polite"
+                                    className={`mt-1 block text-sm ${isGlobalCodeDirty ? 'text-warning' : 'text-content-secondary'}`}>
+                                    {globalCodeStatus}
+                                </span>
+                            </span>
+                            <ChevronDown
+                                aria-hidden="true"
+                                className="h-5 w-5 shrink-0 text-content-hint transition-transform group-open:rotate-180 motion-reduce:transition-none"
+                            />
+                        </summary>
 
-                    {isGlobalCodeOpen && (
-                        <div className="space-y-6 border-t border-line px-6 py-6 md:px-8 md:py-8">
-                            <div className="flex gap-3 rounded-xl border border-warning-line bg-warning-surface p-4 text-warning">
-                                <AlertTriangle aria-hidden="true" className="mt-0.5 h-4 w-4 shrink-0" />
-                                <p className="text-xs leading-relaxed">
-                                    저장 즉시 모든 공개 페이지에 적용됩니다. 메타 태그와 먼저 불러올 코드는 {'<head>'} 안에,
-                                    나중에 불러올 스크립트는 {'</body>'} 직전에 삽입되므로 검증된 코드만 사용하세요.
-                                </p>
-                            </div>
-                            <div className="space-y-2">
-                                <div className="block text-sm font-semibold text-content">
-                                    Head 영역 코드
+                        {isGlobalCodeOpen && (
+                            <div className="space-y-6 border-t border-line px-6 py-6 md:px-8 md:py-8">
+                                <div className="flex gap-3 rounded-xl border border-warning-line bg-warning-surface p-4 text-warning">
+                                    <AlertTriangle aria-hidden="true" className="mt-0.5 h-4 w-4 shrink-0" />
+                                    <p className="text-xs leading-relaxed">
+                                        저장 즉시 모든 공개 페이지에 적용됩니다. 메타 태그와 먼저 불러올 코드는 {'<head>'} 안에,
+                                        나중에 불러올 스크립트는 {'</body>'} 직전에 삽입되므로 검증된 코드만 사용하세요.
+                                    </p>
                                 </div>
-                                <CodeEditor
-                                    ariaLabel="Head 영역 코드"
-                                    language="html"
-                                    value={headerScript}
-                                    onChange={setHeaderScript}
-                                    height="220px"
-                                />
-                            </div>
-                            <div className="space-y-2">
-                                <div className="block text-sm font-semibold text-content">
-                                    Body 하단 코드
+                                <div className="space-y-2">
+                                    <div className="block text-sm font-semibold text-content">
+                                        Head 영역 코드
+                                    </div>
+                                    <CodeEditor
+                                        ariaLabel="Head 영역 코드"
+                                        language="html"
+                                        value={headerScript}
+                                        onChange={setHeaderScript}
+                                        height="220px"
+                                    />
                                 </div>
-                                <CodeEditor
-                                    ariaLabel="Body 하단 코드"
-                                    language="html"
-                                    value={footerScript}
-                                    onChange={setFooterScript}
-                                    height="220px"
-                                />
+                                <div className="space-y-2">
+                                    <div className="block text-sm font-semibold text-content">
+                                        Body 하단 코드
+                                    </div>
+                                    <CodeEditor
+                                        ariaLabel="Body 하단 코드"
+                                        language="html"
+                                        value={footerScript}
+                                        onChange={setFooterScript}
+                                        height="220px"
+                                    />
+                                </div>
                             </div>
-                        </div>
-                    )}
-                </details>
-            </section>
+                        )}
+                    </details>
+                </section>
+            )}
 
             <div className="sticky bottom-0 z-10 -mx-4 flex justify-end bg-surface-page/95 px-4 py-3 backdrop-blur md:mx-0 md:px-0">
                 <Button
