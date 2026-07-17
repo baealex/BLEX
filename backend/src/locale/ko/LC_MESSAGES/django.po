@@ -1,0 +1,182 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: BLEX 3.1\n"
+"PO-Revision-Date: 2026-07-18 00:00+0900\n"
+"Last-Translator: BLEX contributors\n"
+"Language-Team: Korean\n"
+"Language: ko\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+
+msgid "BLEX administration"
+msgstr "BLEX 관리자"
+
+msgid "Dashboard"
+msgstr "대시보드"
+
+msgid "Users"
+msgstr "사용자"
+
+msgid "Groups"
+msgstr "그룹"
+
+msgid "Admin audit log"
+msgstr "Admin 감사 로그"
+
+msgid "Site domains"
+msgstr "사이트 도메인"
+
+msgid "Content"
+msgstr "콘텐츠"
+
+msgid "Users and permissions"
+msgstr "사용자·권한"
+
+msgid "Notifications and integrations"
+msgstr "알림·연동"
+
+msgid "Audit and operations"
+msgstr "감사·운영"
+
+msgid "Site settings"
+msgstr "사이트 기본 설정"
+
+msgid "Login and security settings"
+msgstr "로그인·보안 설정"
+
+msgid "Notification integration settings"
+msgstr "알림 연동 설정"
+
+msgid "SEO and AEO settings"
+msgstr "SEO·AEO 설정"
+
+msgid "Product settings"
+msgstr "제품 설정"
+
+msgid "Other"
+msgstr "기타"
+
+msgid "Comment"
+msgstr "댓글"
+
+msgid "Comments"
+msgstr "댓글"
+
+msgid "User setting"
+msgstr "사용자 설정"
+
+msgid "User settings"
+msgstr "사용자 설정"
+
+msgid "Post revision"
+msgstr "포스트 수정 이력"
+
+msgid "Post revisions"
+msgstr "포스트 수정 이력"
+
+msgid "Post edit request"
+msgstr "포스트 수정 요청"
+
+msgid "Post edit requests"
+msgstr "포스트 수정 요청"
+
+msgid "Email change request"
+msgstr "이메일 변경 요청"
+
+msgid "Email change requests"
+msgstr "이메일 변경 요청"
+
+msgid "User form"
+msgstr "사용자 폼"
+
+msgid "User forms"
+msgstr "사용자 폼"
+
+msgid "Image cache"
+msgstr "이미지 캐시"
+
+msgid "Image caches"
+msgstr "이미지 캐시"
+
+msgid "Notification"
+msgstr "알림"
+
+msgid "Notifications"
+msgstr "알림"
+
+msgid "Pinned post"
+msgstr "고정 포스트"
+
+msgid "Pinned posts"
+msgstr "고정 포스트"
+
+msgid "Post"
+msgstr "포스트"
+
+msgid "Posts"
+msgstr "포스트"
+
+msgid "Profile"
+msgstr "프로필"
+
+msgid "Profiles"
+msgstr "프로필"
+
+msgid "Series"
+msgstr "시리즈"
+
+msgid "Site banner"
+msgstr "사이트 배너"
+
+msgid "Site banners"
+msgstr "사이트 배너"
+
+msgid "Site notice"
+msgstr "사이트 공지"
+
+msgid "Site notices"
+msgstr "사이트 공지"
+
+msgid "Social login connection"
+msgstr "소셜 로그인 연동"
+
+msgid "Social login connections"
+msgstr "소셜 로그인 연동"
+
+msgid "Tag"
+msgstr "태그"
+
+msgid "Tags"
+msgstr "태그"
+
+msgid "Telegram connection"
+msgstr "텔레그램 연동"
+
+msgid "Telegram connections"
+msgstr "텔레그램 연동"
+
+msgid "Two-factor authentication"
+msgstr "2단계 인증"
+
+msgid "User feature setting"
+msgstr "사용자 기능 설정"
+
+msgid "User feature settings"
+msgstr "사용자 기능 설정"
+
+msgid "User link"
+msgstr "사용자 링크"
+
+msgid "User links"
+msgstr "사용자 링크"
+
+msgid "Username change history"
+msgstr "사용자명 변경 이력"
+
+msgid "Webhook subscription"
+msgstr "웹훅 구독"
+
+msgid "Webhook subscriptions"
+msgstr "웹훅 구독"

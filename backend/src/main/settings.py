@@ -208,6 +208,8 @@ TIME_ZONE = os.environ.get('TZ')
 
 USE_I18N = True
 
+LOCALE_PATHS = [os.path.join(BASE_DIR, 'locale')]
+
 USE_L10N = True
 
 USE_TZ = True

@@ -2,6 +2,8 @@ from django.contrib import admin
 from django.contrib.auth.models import User
 from django.test import RequestFactory, TestCase
 from django.urls import reverse
+from django.utils import translation
+from django.utils.functional import Promise
 
 from board.models import (
     Comment,
@@ -215,7 +217,36 @@ class AdminNavigationTestCase(TestCase):
 
         for model, expected_name in expected_names.items():
             with self.subTest(model=model.__name__):
+                self.assertIsInstance(
+                    model._meta.verbose_name_plural,
+                    Promise,
+                )
                 self.assertEqual(
                     str(model._meta.verbose_name_plural),
                     expected_name,
                 )
+
+    def test_admin_labels_resolve_from_the_active_language(self):
+        with translation.override('en'):
+            app_list = admin.site.get_app_list(self.admin_request())
+
+            self.assertEqual(
+                [str(app['name']) for app in app_list],
+                [
+                    'Product settings',
+                    'Content',
+                    'Users and permissions',
+                    'Notifications and integrations',
+                    'Audit and operations',
+                ],
+            )
+            self.assertEqual(str(Post._meta.verbose_name_plural), 'Posts')
+
+        with translation.override('ko'):
+            app_list = admin.site.get_app_list(self.admin_request())
+
+            self.assertEqual(
+                [str(app['name']) for app in app_list],
+                ['제품 설정', '콘텐츠', '사용자·권한', '알림·연동', '감사·운영'],
+            )
+            self.assertEqual(str(Post._meta.verbose_name_plural), '포스트')

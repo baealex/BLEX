@@ -50,6 +50,7 @@ coverage.xml
 # Translations
 *.mo
 *.pot
+!locale/**/LC_MESSAGES/*.mo
 
 # Django stuff:
 *.sh

@@ -6,6 +6,7 @@ from django.core.exceptions import ValidationError
 from django.db import models
 from django.urls import reverse
 from django.utils import timezone
+from django.utils.translation import gettext_lazy as _
 
 from board.constants.config_meta import CONFIG_TYPE
 from board.constants.social_auth import (
@@ -27,8 +28,8 @@ class EmailChange(models.Model):
     created_date = models.DateTimeField(default=timezone.now)
 
     class Meta:
-        verbose_name = '이메일 변경 요청'
-        verbose_name_plural = '이메일 변경 요청'
+        verbose_name = _('Email change request')
+        verbose_name_plural = _('Email change requests')
 
     def is_token_expire(self):
         seven_day_ago = timezone.now() - datetime.timedelta(days=7)
@@ -48,8 +49,8 @@ class UserConfigMeta(models.Model):
     updated_date = models.DateTimeField(default=timezone.now)
 
     class Meta:
-        verbose_name = '사용자 기능 설정'
-        verbose_name_plural = '사용자 기능 설정'
+        verbose_name = _('User feature setting')
+        verbose_name_plural = _('User feature settings')
 
     def __str__(self):
         return self.user.username
@@ -59,8 +60,8 @@ class Config(models.Model):
     user = models.OneToOneField('auth.User', on_delete=models.CASCADE)
 
     class Meta:
-        verbose_name = '사용자 설정'
-        verbose_name_plural = '사용자 설정'
+        verbose_name = _('User setting')
+        verbose_name_plural = _('User settings')
 
     def create_or_update_meta(self, config: CONFIG_TYPE, value):
         return UserConfigMetaService.create_or_update_meta(self, config, value)
@@ -92,8 +93,8 @@ class UserLinkMeta(models.Model):
     updated_date = models.DateTimeField(default=timezone.now)
 
     class Meta:
-        verbose_name = '사용자 링크'
-        verbose_name_plural = '사용자 링크'
+        verbose_name = _('User link')
+        verbose_name_plural = _('User links')
 
     def __str__(self):
         return self.user.username
@@ -125,8 +126,8 @@ class Profile(models.Model):
     )
 
     class Meta:
-        verbose_name = '프로필'
-        verbose_name_plural = '프로필'
+        verbose_name = _('Profile')
+        verbose_name_plural = _('Profiles')
 
     def is_editor(self):
         """Check if user has editor role"""
@@ -188,8 +189,8 @@ class TwoFactorAuth(models.Model):
     created_date = models.DateTimeField(default=timezone.now)
 
     class Meta:
-        verbose_name = '2단계 인증'
-        verbose_name_plural = '2단계 인증'
+        verbose_name = _('Two-factor authentication')
+        verbose_name_plural = _('Two-factor authentication')
 
     def has_been_a_day(self):
         one_day_ago = timezone.now() - datetime.timedelta(days=1)
@@ -235,8 +236,8 @@ class TwoFactorAuth(models.Model):
 
 class UsernameChangeLog(models.Model):
     class Meta:
-        verbose_name = '사용자명 변경 이력'
-        verbose_name_plural = '사용자명 변경 이력'
+        verbose_name = _('Username change history')
+        verbose_name_plural = _('Username change history')
         indexes = [
             models.Index(fields=['username']),
         ]
@@ -273,8 +274,8 @@ class SocialAuthProvider(models.Model):
 
 class SocialAuth(models.Model):
     class Meta:
-        verbose_name = '소셜 로그인 연동'
-        verbose_name_plural = '소셜 로그인 연동'
+        verbose_name = _('Social login connection')
+        verbose_name_plural = _('Social login connections')
         constraints = [
             models.UniqueConstraint(
                 fields=['provider', 'uid'],

@@ -3,6 +3,7 @@ import datetime
 from django.contrib.auth.models import User
 from django.db import models
 from django.utils import timezone
+from django.utils.translation import gettext_lazy as _
 
 from modules.hash import get_sha256
 
@@ -23,8 +24,8 @@ class Notify(models.Model):
     updated_date = models.DateTimeField(default=timezone.now)
 
     class Meta:
-        verbose_name = '알림'
-        verbose_name_plural = '알림'
+        verbose_name = _('Notification')
+        verbose_name_plural = _('Notifications')
 
     @staticmethod
     def create_hash_key(user: User, url: str, content: str, hidden_key: str = None):
@@ -56,8 +57,8 @@ class TelegramSync(models.Model):
     created_date = models.DateTimeField(default=timezone.now)
 
     class Meta:
-        verbose_name = '텔레그램 연동'
-        verbose_name_plural = '텔레그램 연동'
+        verbose_name = _('Telegram connection')
+        verbose_name_plural = _('Telegram connections')
 
     def get_decrypted_tid(self):
         return TelegramSyncEncryptionService.get_decrypted_tid(self)
@@ -196,8 +197,8 @@ class WebhookSubscription(models.Model):
     created_date = models.DateTimeField(default=timezone.now)
 
     class Meta:
-        verbose_name = '웹훅 구독'
-        verbose_name_plural = '웹훅 구독'
+        verbose_name = _('Webhook subscription')
+        verbose_name_plural = _('Webhook subscriptions')
         unique_together = ['scope', 'author', 'webhook_url']
         ordering = ['-created_date']
 
