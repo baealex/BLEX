@@ -404,7 +404,7 @@ class NotifyAdmin(admin.ModelAdmin):
                 else:
                     content_type = ContentType.objects.get_for_model(Notify)
                     with transaction.atomic():
-                        LogEntry.objects.create(
+                        audit_log = LogEntry.objects.create(
                             user=request.user,
                             content_type=content_type,
                             object_id=None,
@@ -415,11 +415,37 @@ class NotifyAdmin(admin.ModelAdmin):
                                 f'대상 {target_count}명'
                             ),
                         )
-                    BulkNotificationDeliveryService.enqueue(
-                        user_ids=user_ids,
-                        url=url,
-                        content=content,
-                    )
+
+                    try:
+                        task_id = BulkNotificationDeliveryService.enqueue(
+                            user_ids=user_ids,
+                            url=url,
+                            content=content,
+                            audit_log_id=audit_log.pk,
+                        )
+                    except Exception as error:
+                        logger.error(
+                            'Admin bulk notification enqueue failed audit_log_id=%s '
+                            'exception_type=%s',
+                            audit_log.pk,
+                            type(error).__name__,
+                        )
+                        task_id = None
+
+                    if task_id is None:
+                        LogEntry.objects.filter(pk=audit_log.pk).update(
+                            change_message=(
+                                'Admin 전체 알림 발송 예약 실패: '
+                                f'대상 {target_count}명'
+                            ),
+                        )
+                        self.message_user(
+                            request,
+                            '알림 발송 작업을 예약하지 못했습니다.',
+                            level=messages.ERROR,
+                        )
+                        return redirect('..')
+
                     self.message_user(
                         request,
                         f'{target_count}명 대상 알림 발송 작업을 예약했습니다. '

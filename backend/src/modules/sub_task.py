@@ -13,6 +13,12 @@ _task_ids = count(1)
 class SubTaskProcessor:
     @staticmethod
     def process(func: Callable, *args: Any, **kwargs: Any) -> None:
+        """Schedule a task without changing the legacy fire-and-forget contract."""
+        SubTaskProcessor.submit(func, *args, **kwargs)
+
+    @staticmethod
+    def submit(func: Callable, *args: Any, **kwargs: Any) -> str | None:
+        """Schedule a task and return its safe identifier when accepted."""
         task_id = f'background-task-{next(_task_ids)}'
         task_name, task_module, task_kind = SubTaskProcessor._get_task_metadata(func)
 
@@ -36,6 +42,9 @@ class SubTaskProcessor:
                 task_module=task_module,
                 task_kind=task_kind,
             )
+            return None
+
+        return task_id
 
     @staticmethod
     def _execute(
