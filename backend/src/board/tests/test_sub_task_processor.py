@@ -70,6 +70,17 @@ class SubTaskProcessorTestCase(SimpleTestCase):
             release.set()
             self.assertTrue(finished.wait(timeout=1))
 
+    def test_submit_returns_a_task_id_when_the_executor_accepts_it(self):
+        executor = self.create_executor()
+        completed = threading.Event()
+
+        with patch.object(sub_task_module, '_executor', executor):
+            task_id = SubTaskProcessor.submit(completed.set)
+
+        self.assertIsNotNone(task_id)
+        self.assertTrue(task_id.startswith('background-task-'))
+        self.assertTrue(completed.wait(timeout=1))
+
     def test_execution_failure_is_redacted_and_does_not_block_next_task(self):
         executor = self.create_executor()
         next_task_completed = threading.Event()
@@ -132,6 +143,19 @@ class SubTaskProcessorTestCase(SimpleTestCase):
         failure_record = captured.records[0]
         self.assertEqual(failure_record.background_task_stage, 'submit')
         self.assertEqual(failure_record.background_task_exception_type, 'RuntimeError')
+
+    def test_submit_returns_none_when_the_executor_rejects_the_task(self):
+        executor = Mock()
+        executor.submit.side_effect = RuntimeError('submission-private-error')
+
+        with patch.object(sub_task_module, '_executor', executor):
+            with self.assertLogs('board.sub_task', level='ERROR') as captured:
+                task_id = SubTaskProcessor.submit(lambda: None)
+
+        self.assertIsNone(task_id)
+        output = '\n'.join(captured.output)
+        self.assertIn('stage=submit', output)
+        self.assertNotIn('submission-private-error', output)
 
     def test_shutdown_waits_for_queued_tasks_without_cancelling_them(self):
         executor = self.create_executor()

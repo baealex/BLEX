@@ -409,21 +409,53 @@ class NotifyAdminTestCase(TestCase):
         with patch.object(
             BulkNotificationDeliveryService,
             'enqueue',
+            return_value='background-task-1',
         ) as enqueue:
             response = self.admin_instance.bulk_send_view(confirmed_request)
 
         self.assertEqual(response.status_code, 302)
+        audit_log = LogEntry.objects.get(action_flag=ADDITION)
         enqueue.assert_called_once_with(
             user_ids=active_user_ids,
             url='/admin/bulk',
             content='<script>private bulk content</script>',
+            audit_log_id=audit_log.pk,
         )
         self.assertEqual(Notify.objects.count(), 0)
-        audit_log = LogEntry.objects.get(action_flag=ADDITION)
         self.assertIsNone(audit_log.object_id)
         self.assertIn(str(len(active_user_ids)), audit_log.object_repr)
         self.assertNotIn('/admin/bulk', audit_log.change_message)
         self.assertNotIn('private bulk content', audit_log.change_message)
+
+    def test_bulk_send_marks_audit_log_when_enqueue_is_rejected(self):
+        form_data = {
+            'url': '/admin/bulk-private',
+            'content': 'Private bulk content',
+            'confirm': 'yes',
+        }
+        request = self.admin_request('post', form_data)
+
+        with patch.object(
+            BulkNotificationDeliveryService,
+            'enqueue',
+            return_value=None,
+        ) as enqueue:
+            response = self.admin_instance.bulk_send_view(request)
+
+        self.assertEqual(response.status_code, 302)
+        audit_log = LogEntry.objects.get(action_flag=ADDITION)
+        self.assertIn('예약 실패', audit_log.change_message)
+        self.assertNotIn('/admin/bulk-private', audit_log.change_message)
+        self.assertNotIn('Private bulk content', audit_log.change_message)
+        enqueue.assert_called_once_with(
+            user_ids=list(
+                User.objects.filter(is_active=True).values_list('pk', flat=True),
+            ),
+            url='/admin/bulk-private',
+            content='Private bulk content',
+            audit_log_id=audit_log.pk,
+        )
+        self.assertIn('알림 발송 작업을 예약하지 못했습니다.', self.message_text(request))
 
     def test_bulk_send_requires_add_permission(self):
         request = self.admin_request(
