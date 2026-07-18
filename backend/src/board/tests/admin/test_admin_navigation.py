@@ -79,8 +79,10 @@ class AdminNavigationTestCase(TestCase):
                 'Series',
                 'Tag',
                 'Comment',
+                'Form',
                 'PinnedPost',
                 'EditRequest',
+                'EditHistory',
                 'SiteNotice',
                 'SiteBanner',
             ],
@@ -91,6 +93,7 @@ class AdminNavigationTestCase(TestCase):
                 'User',
                 'Group',
                 'Profile',
+                'EmailChange',
                 'Config',
                 'UserConfigMeta',
                 'UserLinkMeta',
@@ -109,11 +112,9 @@ class AdminNavigationTestCase(TestCase):
         self.assertEqual(
             models_by_group['감사·운영'],
             [
-                'EditHistory',
                 'LogEntry',
-                'EmailChange',
+                'UtilityExecutionHistory',
                 'UsernameChangeLog',
-                'Form',
                 'ImageCache',
                 'Site',
             ],
@@ -121,8 +122,8 @@ class AdminNavigationTestCase(TestCase):
         grouped_registered_models = [
             model['model']
             for group in app_list
-            if group['name'] != '제품 설정'
             for model in group['models']
+            if 'model' in model
         ]
         visible_registered_models = [
             model
@@ -136,6 +137,16 @@ class AdminNavigationTestCase(TestCase):
         self.assertEqual(
             len(grouped_registered_models),
             len(set(grouped_registered_models)),
+        )
+        utility_history = next(
+            model
+            for group in app_list
+            for model in group['models']
+            if model['object_name'] == 'UtilityExecutionHistory'
+        )
+        self.assertEqual(
+            utility_history['admin_url'],
+            f"{reverse('admin:admin_logentry_changelist')}?record_type=utility",
         )
 
     def test_admin_index_links_to_canonical_product_settings(self):

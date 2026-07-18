@@ -1,11 +1,11 @@
 import json
 import os
-import tempfile
 from io import BytesIO
 from unittest.mock import patch, MagicMock
 
 from PIL import Image
-from django.test import TestCase, override_settings
+from django.conf import settings
+from django.test import TestCase
 from django.core.files.uploadedfile import SimpleUploadedFile
 
 from board.models import User, Config, Profile, ImageCache
@@ -51,7 +51,6 @@ class ImageUploadTestCase(TestCase):
         file.seek(0)
         return file
 
-    @override_settings(MEDIA_ROOT=tempfile.gettempdir())
     def test_upload_jpg_image(self):
         """JPG 이미지 업로드 테스트"""
         self.client.login(username='testuser', password='testpass')
@@ -66,7 +65,7 @@ class ImageUploadTestCase(TestCase):
         with patch('board.services.image_upload_service.make_path') as mock_make_path:
             with patch('builtins.open', create=True) as mock_open:
                 with patch('PIL.Image.open') as mock_pil:
-                    mock_make_path.return_value = tempfile.gettempdir()
+                    mock_make_path.return_value = settings.MEDIA_ROOT
                     mock_open.return_value.__enter__ = lambda s: s
                     mock_open.return_value.__exit__ = MagicMock()
                     mock_open.return_value.write = MagicMock()
@@ -83,8 +82,11 @@ class ImageUploadTestCase(TestCase):
         self.assertEqual(response.status_code, 200)
         content = json.loads(response.content)
         self.assertIn('url', content['body'])
+        self.assertEqual(
+            mock_make_path.call_args.args[0][0],
+            settings.MEDIA_ROOT,
+        )
 
-    @override_settings(MEDIA_ROOT=tempfile.gettempdir())
     def test_upload_png_image(self):
         """PNG 이미지 업로드 테스트"""
         self.client.login(username='testuser', password='testpass')
@@ -100,7 +102,7 @@ class ImageUploadTestCase(TestCase):
             with patch('builtins.open', create=True):
                 with patch('PIL.Image.open') as mock_pil:
                     with patch('os.stat') as mock_stat:
-                        mock_make_path.return_value = tempfile.gettempdir()
+                        mock_make_path.return_value = settings.MEDIA_ROOT
                         mock_stat.return_value.st_size = 1024 * 100  # 100KB
 
                         mock_img = MagicMock()
@@ -164,14 +166,13 @@ class ImageUploadTestCase(TestCase):
 
         with patch('board.services.image_upload_service.make_path') as mock_make_path:
             with patch('builtins.open', create=True):
-                mock_make_path.return_value = tempfile.gettempdir()
+                mock_make_path.return_value = settings.MEDIA_ROOT
                 response = self.client.post('/v1/image', {'image': invalid_file})
 
         content = json.loads(response.content)
         self.assertNotEqual(content['status'], 'DONE')
         self.assertIn('허용된 확장자가 아닙니다', content['errorMessage'])
 
-    @override_settings(MEDIA_ROOT=tempfile.gettempdir())
     def test_duplicate_image_uses_cache(self):
         """중복 이미지 업로드 시 캐시 사용"""
         self.client.login(username='testuser', password='testpass')
@@ -199,7 +200,6 @@ class ImageUploadTestCase(TestCase):
         content_json = json.loads(response.content)
         self.assertIn('cached/test.jpg', content_json['body']['url'])
 
-    @override_settings(MEDIA_ROOT=tempfile.gettempdir())
     @patch('subprocess.run')
     def test_upload_gif_converts_to_mp4(self, mock_subprocess):
         """GIF 업로드 시 MP4로 변환"""
@@ -216,7 +216,7 @@ class ImageUploadTestCase(TestCase):
             with patch('builtins.open', create=True):
                 with patch('PIL.Image.open') as mock_pil:
                     with patch('os.remove'):
-                        mock_make_path.return_value = tempfile.gettempdir()
+                        mock_make_path.return_value = settings.MEDIA_ROOT
 
                         mock_img = MagicMock()
                         mock_img.convert = MagicMock(return_value=mock_img)
@@ -229,7 +229,6 @@ class ImageUploadTestCase(TestCase):
 
         self.assertEqual(response.status_code, 200)
 
-    @override_settings(MEDIA_ROOT=tempfile.gettempdir())
     def test_large_png_converts_to_jpg(self):
         """큰 PNG 파일은 JPG로 변환"""
         self.client.login(username='testuser', password='testpass')
@@ -246,7 +245,7 @@ class ImageUploadTestCase(TestCase):
                 with patch('PIL.Image.open') as mock_pil:
                     with patch('os.stat') as mock_stat:
                         with patch('os.system'):
-                            mock_make_path.return_value = tempfile.gettempdir()
+                            mock_make_path.return_value = settings.MEDIA_ROOT
                             # Simulate file size > 2MB
                             mock_stat.return_value.st_size = 1024 * 1024 * 3
 
