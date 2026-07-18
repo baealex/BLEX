@@ -205,6 +205,10 @@ self.assertEqual(comment.text_md, 'Updated')
 
 ## Running Tests
 
+The Django test runner replaces `MEDIA_ROOT` with a disposable directory and
+removes it after the suite. Tests must not point `MEDIA_ROOT` back to the
+workspace or download external media; mock external downloads instead.
+
 ```bash
 # All tests
 npm run server:test

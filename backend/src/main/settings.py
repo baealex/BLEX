@@ -82,6 +82,7 @@ USE_VITE_DEV_SERVER = DEBUG and os.environ.get('USE_VITE_DEV_SERVER', 'TRUE') ==
 VITE_DEV_SERVER_URL = os.environ.get('VITE_DEV_SERVER_URL', 'http://localhost:8100')
 
 TESTING = sys.argv[1:2] == ['test']
+TEST_RUNNER = 'main.test_runner.IsolatedMediaDiscoverRunner'
 
 ALLOWED_HOSTS = get_env_list('ALLOWED_HOSTS', ['*'])
 SITE_URL_ORIGIN = get_env_http_origin('SITE_URL')

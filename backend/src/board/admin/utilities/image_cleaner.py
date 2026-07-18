@@ -5,6 +5,8 @@ import os
 import re
 import time
 import hashlib
+import tempfile
+from pathlib import Path
 from typing import List, Dict, Any, Tuple
 from itertools import chain
 
@@ -12,6 +14,10 @@ from django.conf import settings
 from django.db.models import F
 
 from board.models import Post, Comment, ImageCache, Profile, Series, StaticPage
+
+
+class UnsafeImageCleanupPathError(RuntimeError):
+    """Raised when image cleanup could mutate a non-media path."""
 
 
 class ImageCleanerService:
@@ -173,12 +179,31 @@ class ImageCleanerService:
 
         return files_info
 
+    @staticmethod
+    def require_safe_mutation_path(path: str) -> None:
+        media_root = Path(settings.MEDIA_ROOT).resolve()
+        target_path = Path(path).resolve()
+
+        if target_path != media_root and media_root not in target_path.parents:
+            raise UnsafeImageCleanupPathError(
+                'Image cleanup cannot mutate a path outside MEDIA_ROOT.',
+            )
+
+        if settings.TESTING:
+            temporary_root = Path(tempfile.gettempdir()).resolve()
+            if media_root != temporary_root and temporary_root not in media_root.parents:
+                raise UnsafeImageCleanupPathError(
+                    'Image cleanup tests require a temporary MEDIA_ROOT.',
+                )
+
     def clean_files(self, files_to_remove: List[str]) -> Tuple[int, List[str]]:
         """파일 실제 삭제"""
+        self.require_safe_mutation_path(settings.MEDIA_ROOT)
         success_count = 0
         errors = []
 
         for file_path in files_to_remove:
+            self.require_safe_mutation_path(file_path)
             try:
                 if os.path.exists(file_path):
                     os.remove(file_path)
@@ -191,6 +216,7 @@ class ImageCleanerService:
 
     def remove_empty_dirs(self, path: str) -> int:
         """빈 디렉토리 제거"""
+        self.require_safe_mutation_path(path)
         if not os.path.isdir(path):
             return 0
 
@@ -227,6 +253,8 @@ class ImageCleanerService:
 
     def find_and_remove_duplicates(self, target_dir: str, execute: bool = False) -> Tuple[int, int, List[Dict[str, Any]]]:
         """중복 파일 찾기 및 제거"""
+        if execute:
+            self.require_safe_mutation_path(target_dir)
         if not os.path.exists(target_dir):
             return 0, 0, []
 

@@ -47,8 +47,7 @@ class ImageUploadService:
 
         dt = datetime.datetime.now()
         upload_path = make_path([
-            'resources',
-            'media',
+            settings.MEDIA_ROOT,
             'images',
             'content',
             str(dt.year),
@@ -62,9 +61,11 @@ class ImageUploadService:
                 destination.write(chunk)
 
         ext = ImageUploadService.process_uploaded_file(upload_path, file_name, ext)
-        image_cache.path = upload_path.replace(
-            'resources/media/', ''
-        ) + file_name + '.' + ext
+        stored_path = os.path.join(upload_path, f'{file_name}.{ext}')
+        image_cache.path = os.path.relpath(
+            stored_path,
+            settings.MEDIA_ROOT,
+        ).replace(os.sep, '/')
         image_cache.save()
         return settings.MEDIA_URL + image_cache.path
 

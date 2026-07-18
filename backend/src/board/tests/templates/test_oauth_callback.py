@@ -41,6 +41,12 @@ class OAuthCallbackTestCase(TestCase):
     def setUp(self):
         """테스트 데이터 설정"""
         self.client = Client()
+        self.download_image_patcher = patch(
+            'board.services.auth_service.download_image',
+            return_value=None,
+        )
+        self.download_image_patcher.start()
+        self.addCleanup(self.download_image_patcher.stop)
 
     @patch('modules.oauth.auth_github', return_value=oauth.State(success=True, user={
         'node_id': 'GITHUB_NODE_ID_123',
