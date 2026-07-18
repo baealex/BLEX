@@ -27,8 +27,10 @@ class BlexAdminSite(AdminSite):
                 ('board', 'Series'),
                 ('board', 'Tag'),
                 ('board', 'Comment'),
+                ('board', 'Form'),
                 ('board', 'PinnedPost'),
                 ('board', 'EditRequest'),
+                ('board', 'EditHistory'),
                 ('board', 'SiteNotice'),
                 ('board', 'SiteBanner'),
             ),
@@ -40,6 +42,7 @@ class BlexAdminSite(AdminSite):
                 ('auth', 'User'),
                 ('auth', 'Group'),
                 ('board', 'Profile'),
+                ('board', 'EmailChange'),
                 ('board', 'Config'),
                 ('board', 'UserConfigMeta'),
                 ('board', 'UserLinkMeta'),
@@ -60,11 +63,8 @@ class BlexAdminSite(AdminSite):
             'operations',
             _('Audit and operations'),
             (
-                ('board', 'EditHistory'),
                 ('admin', 'LogEntry'),
-                ('board', 'EmailChange'),
                 ('board', 'UsernameChangeLog'),
-                ('board', 'Form'),
                 ('board', 'ImageCache'),
                 ('sites', 'Site'),
             ),
@@ -156,11 +156,24 @@ class BlexAdminSite(AdminSite):
             grouped_apps.append(product_settings_group)
 
         for key, name, model_keys in self.navigation_groups:
-            models = [
-                available_models.pop(model_key)
-                for model_key in model_keys
-                if model_key in available_models
-            ]
+            models = []
+            for model_key in model_keys:
+                if model_key not in available_models:
+                    continue
+
+                model = available_models.pop(model_key)
+                models.append(model)
+                if model_key == ('admin', 'LogEntry'):
+                    models.append({
+                        'name': _('Utility execution history'),
+                        'object_name': 'UtilityExecutionHistory',
+                        'perms': model['perms'].copy(),
+                        'admin_url': (
+                            f"{model['admin_url']}?record_type=utility"
+                        ),
+                        'add_url': None,
+                        'view_only': True,
+                    })
             if models:
                 grouped_apps.append(
                     self._build_group(key, name, models),

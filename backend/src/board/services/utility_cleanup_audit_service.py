@@ -6,6 +6,7 @@ from django.contrib.contenttypes.models import ContentType
 class UtilityCleanupAuditService:
     """Write redacted audit records for destructive utility executions."""
 
+    OBJECT_REPR = 'System utilities'
     ACTION_INTENT_MESSAGES = {
         'clean_images': 'Started unused image cleanup',
     }
@@ -41,7 +42,7 @@ class UtilityCleanupAuditService:
             user_id=user.pk,
             content_type=ContentType.objects.get_for_model(LogEntry),
             object_id=None,
-            object_repr='System utilities',
+            object_repr=UtilityCleanupAuditService.OBJECT_REPR,
             action_flag=CHANGE,
             change_message=change_message,
         )

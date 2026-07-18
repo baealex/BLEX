@@ -23,7 +23,46 @@ msgid "Groups"
 msgstr "그룹"
 
 msgid "Admin audit log"
-msgstr "Admin 감사 로그"
+msgstr "관리자 감사 로그"
+
+msgid "Utility execution history"
+msgstr "유틸리티 실행 이력"
+
+msgid "Record type"
+msgstr "기록 유형"
+
+msgid "Utility execution"
+msgstr "유틸리티 실행"
+
+msgid "Other admin activity"
+msgstr "기타 관리자 작업"
+
+msgid "System utilities"
+msgstr "시스템 유틸리티"
+
+msgid "Action details"
+msgstr "작업 내용"
+
+msgid "Detailed field changes"
+msgstr "상세 필드 변경"
+
+msgid "Target"
+msgstr "대상"
+
+msgid "Started unused image cleanup"
+msgstr "사용하지 않는 이미지 정리 시작"
+
+msgid "Executed unused tag cleanup"
+msgstr "사용하지 않는 태그 정리 실행"
+
+msgid "Executed session cleanup"
+msgstr "세션 정리 실행"
+
+msgid "Executed expired log cleanup"
+msgstr "만료 로그 정리 실행"
+
+msgid "Executed unused image cleanup"
+msgstr "사용하지 않는 이미지 정리 실행"
 
 msgid "Site domains"
 msgstr "사이트 도메인"
