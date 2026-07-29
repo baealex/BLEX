@@ -16,6 +16,7 @@ from board.constants.social_auth import (
 from board.services.profile_image_service import ProfileImageService
 from board.services.two_factor_auth_secret_service import TwoFactorAuthSecretService
 from board.services.user_config_meta_service import UserConfigMetaService
+from board.html_utils import safe_external_url
 
 from .helpers import avatar_path, cover_path
 from .posts import Post
@@ -136,10 +137,13 @@ class Profile(models.Model):
     def collect_social(self):
         socials = []
         for meta in UserLinkMeta.objects.filter(user=self.user).order_by('order'):
+            value = safe_external_url(meta.value)
+            if not value:
+                continue
             socials.append({
                 'id': meta.id,
                 'name': meta.name,
-                'value': meta.value,
+                'value': value,
                 'order': meta.order
             })
         return socials

@@ -3,7 +3,61 @@ Tests for board app utility functions
 """
 from django.test import TestCase
 
-from board.html_utils import extract_table_of_contents
+from board.html_utils import (
+    extract_table_of_contents,
+    safe_external_url,
+    sanitize_content_html,
+    sanitize_html,
+)
+
+
+class HtmlSanitizerTestCase(TestCase):
+    def test_safe_external_url_rejects_script_and_relative_urls(self):
+        self.assertEqual(safe_external_url('javascript:alert(1)'), '')
+        self.assertEqual(safe_external_url('/settings'), '')
+        self.assertEqual(safe_external_url('https://example.com/profile'), 'https://example.com/profile')
+
+    def test_sanitize_html_rejects_non_http_url_protocols_and_css_urls(self):
+        html = (
+            '<a href="vbscript:alert(1)">link</a>'
+            '<img src="data:text/html,<script>alert(1)</script>">'
+            '<div style="background:url(javascript:alert(1))">text</div>'
+        )
+
+        sanitized = sanitize_html(html)
+
+        self.assertNotIn('vbscript:', sanitized)
+        self.assertNotIn('data:text/html', sanitized)
+        self.assertNotIn('javascript:', sanitized)
+        self.assertNotIn('style=', sanitized)
+
+    def test_content_sanitizer_preserves_safe_editor_markup(self):
+        html = (
+            '<figure style="display:flex">'
+            '<img src="https://cdn.example/image.png" alt="safe">'
+            '<figcaption>Caption</figcaption>'
+            '</figure>'
+        )
+
+        sanitized = sanitize_content_html(html)
+
+        self.assertIn('<figure', sanitized)
+        self.assertIn('src="https://cdn.example/image.png"', sanitized)
+        self.assertIn('<figcaption>Caption</figcaption>', sanitized)
+
+    def test_content_sanitizer_removes_scripts_events_and_unsafe_urls(self):
+        html = (
+            '<p onclick="alert(1)">Text</p>'
+            '<iframe src="javascript:alert(1)" onload="alert(2)"></iframe>'
+            '<script>alert(3)</script>'
+        )
+
+        sanitized = sanitize_content_html(html)
+
+        self.assertNotIn('<script', sanitized)
+        self.assertNotIn('onclick=', sanitized)
+        self.assertNotIn('onload=', sanitized)
+        self.assertNotIn('javascript:', sanitized)
 
 
 class TableOfContentsTestCase(TestCase):

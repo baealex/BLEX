@@ -260,7 +260,7 @@ class OAuthCallbackTestCase(TestCase):
         # Should redirect to login page with oauth_token and next parameter
         self.assertEqual(response.status_code, 302)
         self.assertTrue(response.url.startswith('/login?oauth_token='))
-        self.assertIn('next=/setting/posts', response.url)
+        self.assertIn('next=%2Fsetting%2Fposts', response.url)
 
         # Extract oauth_token from redirect URL
         from urllib.parse import urlparse, parse_qs
@@ -326,3 +326,18 @@ class OAuthCallbackTestCase(TestCase):
         user = User.objects.get(username='usernext')
         user_from_session = self.client.session.get('_auth_user_id')
         self.assertEqual(int(user_from_session), user.id)
+
+    @patch('modules.oauth.auth_github', return_value=oauth.State(success=True, user={
+        'node_id': 'GITHUB_NODE_ID_EXTERNAL_NEXT',
+        'login': 'userexternalnext',
+        'name': 'User with External Next URL',
+        'avatar_url': 'https://avatars.githubusercontent.com/u/external-next',
+    }))
+    def test_github_oauth_callback_rejects_external_next_url(self, mock_github):
+        """OAuth 콜백은 외부 next URL로 리다이렉트하지 않는다."""
+        response = self.client.get(
+            '/login/callback/github?code=test_code&next=https://evil.example/phishing'
+        )
+
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.url, '/')

@@ -142,6 +142,31 @@ class ParseToHtmlTest(TestCase):
         self.assertIn('class="mention"', result)
         self.assertIn('href="/@author"', result)
 
+    def test_markdown_removes_unsafe_link_protocols(self):
+        result = parse_post_to_html('[unsafe](javascript:alert(1))')
+
+        self.assertNotIn('javascript:', result)
+        self.assertNotIn('href=', result)
+
+    def test_markdown_removes_unsafe_image_protocols(self):
+        result = parse_comment_to_html('![unsafe](javascript:alert(1))')
+
+        self.assertNotIn('javascript:', result)
+        self.assertNotIn('src=', result)
+        self.assertNotIn('data-src=', result)
+
+    def test_youtube_markup_rejects_attribute_injection(self):
+        result = parse_post_to_html('@youtube[abc" onload=alert(1)]')
+
+        self.assertNotIn('<iframe', result)
+
+    def test_gif_markup_rejects_attribute_injection(self):
+        result = parse_post_to_html(
+            '@gif[https://example.com/video.mp4" onerror=alert(1)]'
+        )
+
+        self.assertNotIn('<video', result)
+
     def test_parse_to_html_defaults_to_post_markdown(self):
         """Backward compatible parse_to_html should follow post rules."""
         md = '`@author`'

@@ -85,6 +85,26 @@ class CommentListServiceTestCase(TestCase):
             'can_reply': False,
         })
 
+    def test_serialize_comment_sanitizes_legacy_html(self):
+        Comment.objects.filter(id=self.parent.id).update(
+            text_html=(
+                '<p>Legacy comment</p>'
+                '<img src="javascript:alert(1)" onerror="alert(2)">'
+                '<script>alert(3)</script>'
+            ),
+        )
+
+        payload = CommentListService.serialize_post_comments(
+            self.post.url,
+            self.viewer,
+        )
+
+        rendered_content = payload['comments'][0]['rendered_content'].lower()
+        self.assertIn('legacy comment', rendered_content)
+        self.assertNotIn('<script', rendered_content)
+        self.assertNotIn('javascript:', rendered_content)
+        self.assertNotIn('onerror', rendered_content)
+
     def test_serialize_blocked_post_comment_marks_reply_permission_false(self):
         self.post.config.block_comment = True
         self.post.config.save(update_fields=['block_comment'])

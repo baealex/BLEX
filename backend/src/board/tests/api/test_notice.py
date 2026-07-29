@@ -68,6 +68,15 @@ class NoticeAPITestCase(TestCase):
         self.assertEqual(content['status'], 'DONE')
         self.assertEqual(len(content['body']['notices']), 0)
 
+    def test_get_legacy_notice_rejects_unsafe_navigation_url(self):
+        self._create_user_notice(url='javascript:alert(1)')
+
+        response = self.client.get('/v1/notices')
+
+        self.assertEqual(response.status_code, 200)
+        notice = json.loads(response.content)['body']['notices'][0]
+        self.assertEqual(notice['url'], '')
+
     def test_create_notice(self):
         """공지 생성 테스트"""
         data = {

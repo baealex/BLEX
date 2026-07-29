@@ -296,6 +296,25 @@ class AuthorPostsPageTestCase(TestCase):
         self.assertNotContains(owner_response, f'href="{edit_path}"')
         self.assertContains(owner_response, 'x-show=hasRenderedContent')
 
+    def test_author_overview_sanitizes_legacy_intro_html(self):
+        self.user.profile.about_html = (
+            '<p>Legacy intro</p>'
+            '<img src="javascript:alert(1)" onerror="alert(2)">'
+            '<script>alert(3)</script>'
+        )
+        self.user.profile.save(update_fields=['about_html'])
+
+        response = self.client.get(
+            reverse('user_profile', kwargs={'username': self.user.username})
+        )
+
+        self.assertEqual(response.status_code, 200)
+        about_html = response.context['about_html'].lower()
+        self.assertIn('legacy intro', about_html)
+        self.assertNotIn('<script', about_html)
+        self.assertNotIn('javascript:', about_html)
+        self.assertNotIn('onerror', about_html)
+
     def test_author_overview_inline_intro_editor_updates_without_reload(self):
         """소개글 인라인 편집은 저장 후 페이지 새로고침 없이 렌더 HTML을 갱신한다."""
         self.client.login(username='testauthor', password='testpass123')

@@ -9,6 +9,7 @@ from django.http import HttpResponse, JsonResponse
 from django.urls import reverse
 from django.views.decorators.http import require_GET
 
+from board.html_utils import sanitize_content_html
 from board.modules.paginator import Paginator
 from board.modules.time import time_since
 from board.services.user_service import UserService
@@ -42,7 +43,7 @@ def author_overview(request, username):
     recent_activities = UserService.get_public_author_activities(author)[:10]
 
     about_md = profile.about_md if profile else ''
-    about_html = profile.about_html if profile else ''
+    about_html = sanitize_content_html(profile.about_html) if profile else ''
 
     # Check if author is a reader (not an editor)
     is_reader = not AuthoringPermissionService.is_active_editor(author)

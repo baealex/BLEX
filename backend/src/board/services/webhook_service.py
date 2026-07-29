@@ -14,6 +14,7 @@ from django.db.models import Q
 from board.models import Post, PostConfig, WebhookSubscription, Profile, SiteContentScope
 from board.services.site_url_service import SiteUrlService
 from board.services.webhook_subscription_state_service import WebhookSubscriptionStateService
+from board.services.webhook_url_service import WebhookUrlService
 from modules.sub_task import SubTaskProcessor
 
 
@@ -40,6 +41,10 @@ class WebhookService:
         Returns:
             True if successful, False otherwise
         """
+        if not WebhookUrlService.is_safe_url(url, resolve_host=True):
+            logger.warning('Webhook delivery rejected unsafe destination')
+            return False
+
         try:
             # Detect webhook type and format payload accordingly
             if 'discord' in url.lower():
@@ -61,7 +66,8 @@ class WebhookService:
             response = requests.post(
                 url,
                 json=payload,
-                timeout=WebhookService.WEBHOOK_TIMEOUT
+                timeout=WebhookService.WEBHOOK_TIMEOUT,
+                allow_redirects=False,
             )
             response.raise_for_status()
             return True

@@ -10,6 +10,7 @@ from board.models import WebhookSubscription
 from board.services.webhook_subscription_state_service import (
     WebhookSubscriptionStateService,
 )
+from board.services.webhook_url_service import WebhookUrlService
 
 from .action_confirmation import render_action_confirmation
 from .mixins import is_admin_changelist_request
@@ -49,6 +50,8 @@ class WebhookSubscriptionAdminForm(forms.ModelForm):
     def clean_webhook_url(self) -> str:
         webhook_url = self.cleaned_data.get('webhook_url', '').strip()
         if webhook_url:
+            if not WebhookUrlService.is_safe_url(webhook_url):
+                raise forms.ValidationError('내부 네트워크를 가리키는 웹훅 URL은 사용할 수 없습니다.')
             return webhook_url
         if self.instance.pk is not None:
             return WebhookSubscription.objects.only('webhook_url').get(

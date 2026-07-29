@@ -5,7 +5,11 @@ from django.urls import reverse
 from django.utils import timezone
 from django.utils.cache import patch_vary_headers
 
-from board.html_utils import extract_table_of_contents
+from board.html_utils import (
+    extract_table_of_contents,
+    safe_external_url,
+    sanitize_content_html,
+)
 from board.models import Post
 from board.services.agent_content_service import AgentContentService
 from board.services.banner_service import BannerService
@@ -33,7 +37,9 @@ class PostDetailRenderService:
 
         author_profile = getattr(author, 'profile', None)
         author_bio = author_profile.bio.strip() if author_profile and author_profile.bio else ''
-        author_homepage = author_profile.homepage.strip() if author_profile and author_profile.homepage else ''
+        author_homepage = safe_external_url(
+            author_profile.homepage if author_profile else '',
+        )
 
         post.series_total = 0
         post.visible_series_posts = []
@@ -43,9 +49,8 @@ class PostDetailRenderService:
         if post.series and not is_post_preview:
             post.visible_series_posts = PostService.get_visible_series_posts(post)
 
-        content_html_with_ids, table_of_contents = extract_table_of_contents(
-            post.content.content_html,
-        )
+        content_html = sanitize_content_html(post.content.content_html)
+        content_html_with_ids, table_of_contents = extract_table_of_contents(content_html)
         banners = BannerService.get_all_banners_for_author(author)
 
         canonical_url = ''

@@ -10,6 +10,7 @@ from django.contrib.auth.models import User
 from django.db import transaction
 from django.db.models import F
 
+from board.html_utils import sanitize_content_html
 from board.models import Series, Post
 from board.services.authoring_permission_service import AuthoringPermissionService
 from board.services.public_post_service import PublicPostService
@@ -150,7 +151,7 @@ class SeriesService:
             owner=user,
             name=name.strip(),
             text_md=description.strip(),
-            text_html=description.strip()
+            text_html=sanitize_content_html(description.strip()),
         )
 
         if auto_generate_url:
@@ -213,7 +214,7 @@ class SeriesService:
 
         if description is not None:
             series.text_md = description.strip()
-            series.text_html = description.strip()
+            series.text_html = sanitize_content_html(description.strip())
 
         series.save()
 

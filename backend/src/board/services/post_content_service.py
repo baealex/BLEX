@@ -4,6 +4,7 @@ from urllib.parse import urlsplit, urlunsplit
 
 from django.conf import settings
 
+from board.html_utils import sanitize_content_html
 from modules.markdown import parse_post_to_html
 
 from board.modules.read_time import calc_read_time
@@ -222,7 +223,9 @@ class PostContentService:
 
     @staticmethod
     def html_input_to_content_html(html: str) -> str:
-        return PostContentService.normalize_content_html(html)
+        return sanitize_content_html(
+            PostContentService.normalize_content_html(html)
+        )
 
     @staticmethod
     def markdown_input_to_content_html(markdown_text: str) -> str:

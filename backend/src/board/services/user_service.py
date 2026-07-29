@@ -18,6 +18,7 @@ from django.db.models import (
 from django.db.models.functions import Coalesce
 from django.utils import timezone
 
+from board.html_utils import sanitize_content_html
 from board.models import (
     Profile, UsernameChangeLog, Post, PinnedPost,
     Series, Comment, Tag, PostLikes
@@ -330,7 +331,7 @@ class UserService:
         """
         return {
             'about_md': user.profile.about_md,
-            'about_html': user.profile.about_html
+            'about_html': sanitize_content_html(user.profile.about_html),
         }
 
     @staticmethod

@@ -55,7 +55,7 @@
         "eslint": "^9.39.5",
         "eslint-plugin-react-compiler": "19.1.0-rc.2",
         "glob": "^13.0.6",
-        "postcss": "^8.5.16",
+        "postcss": "^8.5.24",
         "react-grab": "^0.1.48",
         "rollup-plugin-visualizer": "^7.0.1",
         "sass": "^1.101.0",

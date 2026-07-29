@@ -1,6 +1,7 @@
 from django.shortcuts import render, get_object_or_404
 from django.http import Http404
 
+from board.html_utils import sanitize_content_html
 from board.models import Series
 from board.services.agent_content_service import AgentContentService
 from board.services.discovery_metadata_service import DiscoveryMetadataService
@@ -73,6 +74,7 @@ def series_detail(request, username, series_url):
     context = {
         'author': author,
         'series': series,
+        'series_description_html': sanitize_content_html(series.text_html),
         'posts': posts_with_numbers,
         'is_loading': False,
         'page': page,

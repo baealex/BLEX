@@ -4,6 +4,7 @@ from django.shortcuts import get_object_or_404
 
 from board.models import Post
 from board.decorators import api_editor_required
+from board.html_utils import sanitize_content_html
 from board.services.api_request_body_service import ApiRequestBodyService
 from board.services.post_service import PostService, PostValidationError
 from board.services.post_trash_service import PostTrashService
@@ -102,7 +103,7 @@ def drafts_detail(request, url):
 
     if request.method == 'GET':
         if hasattr(draft, 'content'):
-            raw_content = draft.content.content_html
+            raw_content = sanitize_content_html(draft.content.content_html)
         else:
             raw_content = ''
 

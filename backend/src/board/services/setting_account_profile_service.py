@@ -8,6 +8,7 @@ from typing import Any, Mapping
 from django.contrib.auth.models import User
 from django.core.files.uploadedfile import UploadedFile
 
+from board.html_utils import safe_external_url
 from board.models import Profile
 from board.modules.response import ErrorCode
 from board.services.auth_service import AuthService, AuthValidationError
@@ -113,8 +114,14 @@ class SettingAccountProfileService:
         homepage: str,
     ) -> None:
         profile = Profile.objects.get(user=user)
+        safe_homepage = safe_external_url(homepage or '')
+        if homepage and not safe_homepage:
+            raise SettingAccountProfileError(
+                ErrorCode.VALIDATE,
+                '홈페이지는 http 또는 https URL이어야 합니다.',
+            )
         profile.bio = bio
-        profile.homepage = homepage
+        profile.homepage = safe_homepage
         profile.save()
 
     @staticmethod

@@ -70,3 +70,22 @@ class UserSocialLinkServiceTestCase(TestCase):
         UserSocialLinkService.delete_social_links(self.user, str(other_link.id))
 
         self.assertTrue(UserLinkMeta.objects.filter(id=other_link.id).exists())
+
+    def test_collect_social_omits_unsafe_urls(self):
+        UserLinkMeta.objects.create(
+            user=self.user,
+            name='unsafe',
+            value='javascript:alert(1)',
+            order=1,
+        )
+        UserLinkMeta.objects.create(
+            user=self.user,
+            name='safe',
+            value='https://example.com',
+            order=2,
+        )
+
+        self.assertEqual(
+            [link['name'] for link in self.user.profile.collect_social()],
+            ['safe'],
+        )

@@ -168,8 +168,16 @@ class SubTaskProcessorTestCase(SimpleTestCase):
 
         self.assertEqual(completed_tasks, ['first', 'second'])
 
+    @patch(
+        'board.services.webhook_url_service.socket.getaddrinfo',
+        return_value=[(2, 1, 6, '', ('93.184.216.34', 443))],
+    )
     @patch('board.services.webhook_service.requests.post')
-    def test_webhook_request_failure_does_not_log_webhook_url(self, mock_post):
+    def test_webhook_request_failure_does_not_log_webhook_url(
+        self,
+        mock_post,
+        mock_getaddrinfo,
+    ):
         webhook_url = 'https://discord.example/webhook/private-secret'
         error_secret = 'request-error-secret'
         mock_post.side_effect = requests.RequestException(

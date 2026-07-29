@@ -71,6 +71,31 @@ class BannerAPITestCase(TestCase):
         self.assertEqual(content['status'], 'DONE')
         self.assertEqual(len(content['body']['banners']), 0)
 
+    def test_get_legacy_user_banner_sanitizes_content(self):
+        self._create_user_banner(
+            content_html='<div>Safe</div><script>alert(1)</script><img src="javascript:alert(2)">',
+        )
+
+        response = self.client.get('/v1/banners')
+
+        self.assertEqual(response.status_code, 200)
+        banner = json.loads(response.content)['body']['banners'][0]
+        self.assertIn('<div>Safe</div>', banner['contentHtml'])
+        self.assertNotIn('<script', banner['contentHtml'])
+        self.assertNotIn('javascript:', banner['contentHtml'])
+
+    def test_get_legacy_user_banner_detail_sanitizes_content(self):
+        banner = self._create_user_banner(
+            content_html='<div>Safe</div><script>alert(1)</script>',
+        )
+
+        response = self.client.get(f'/v1/banners/{banner.id}')
+
+        self.assertEqual(response.status_code, 200)
+        content_html = json.loads(response.content)['body']['contentHtml']
+        self.assertIn('<div>Safe</div>', content_html)
+        self.assertNotIn('<script', content_html)
+
     def test_create_banner(self):
         """배너 생성 테스트"""
         data = {

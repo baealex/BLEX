@@ -18,6 +18,24 @@ class AuthLoginServiceTestCase(TestCase):
 
         self.assertEqual(AuthLoginService.get_client_ip(request), '203.0.113.1')
 
+    def test_get_client_ip_ignores_forwarded_for_from_untrusted_source(self):
+        request = self.factory.post(
+            '/v1/login',
+            HTTP_X_FORWARDED_FOR='203.0.113.1',
+            REMOTE_ADDR='198.51.100.10',
+        )
+
+        self.assertEqual(AuthLoginService.get_client_ip(request), '198.51.100.10')
+
+    def test_get_client_ip_uses_rightmost_untrusted_forwarded_address(self):
+        request = self.factory.post(
+            '/v1/login',
+            HTTP_X_FORWARDED_FOR='198.51.100.10, 127.0.0.1, 203.0.113.1',
+            REMOTE_ADDR='127.0.0.1',
+        )
+
+        self.assertEqual(AuthLoginService.get_client_ip(request), '203.0.113.1')
+
     def test_login_rate_limit_allows_under_limit(self):
         request = self.factory.post('/v1/login', REMOTE_ADDR='127.0.0.1')
         for _ in range(AuthLoginService.LOGIN_ATTEMPT_LIMIT - 1):
