@@ -32,7 +32,9 @@ class CommentValidationError(Exception):
 class CommentService:
     """Service class for handling comment-related business logic"""
     MENTION_PATTERN = re.compile(
-        r'(?<![a-zA-Z0-9])@([a-z0-9]{4,15})(?![a-zA-Z0-9])'
+        r'(?<![\w@.+\-`*~])'
+        r'@([a-z0-9]{4,15})'
+        r'(?![\w+\-`*~]|(?:\.[a-zA-Z0-9]))'
     )
 
     @staticmethod

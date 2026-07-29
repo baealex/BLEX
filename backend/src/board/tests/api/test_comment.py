@@ -497,6 +497,31 @@ class CommentTestCase(TestCase):
         last_notify = Notify.objects.filter(user=viewer).last()
         self.assertTrue('@author' in last_notify.content)
 
+    def test_does_not_notify_mention_inside_email_or_code_syntax(self):
+        """이메일 주소와 코드 표기 안의 사용자명은 멘션으로 처리하지 않는다."""
+        viewer = User.objects.get(username='viewer')
+        viewer.config.create_or_update_meta(CONFIG_TYPE.NOTIFY_MENTION, 'true')
+
+        self.client.login(username='author', password='test')
+        for text in (
+            'contact@viewer.com',
+            '@viewer.com',
+            '`@viewer`',
+            '**@viewer**',
+            'foo_@viewer',
+            '@@viewer',
+        ):
+            self.client.post('/v1/comments?url=test-post', {
+                'comment_md': text,
+            })
+
+        self.assertFalse(
+            Notify.objects.filter(
+                user=viewer,
+                content__contains='태그',
+            ).exists()
+        )
+
     def test_comment_treats_markdown_and_html_as_plain_text(self):
         """댓글의 Markdown 및 HTML 문법은 실행하지 않고 텍스트로 표시한다."""
         self.client.login(username='author', password='test')
