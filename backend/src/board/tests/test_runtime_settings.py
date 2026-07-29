@@ -276,8 +276,8 @@ class RuntimeSettingsTestCase(SimpleTestCase):
 
         self.assertEqual(result.stdout.strip(), 'None')
 
-    def test_allowed_hosts_default_keeps_existing_wildcard(self):
-        """ALLOWED_HOSTS 미설정 배포는 기존처럼 와일드카드 호스트를 유지한다."""
+    def test_allowed_hosts_default_uses_site_url_host(self):
+        """ALLOWED_HOSTS 미설정 배포는 SITE_URL 호스트만 허용한다."""
         env = {
             **os.environ,
             'SECRET_KEY': 'test-secret',
@@ -302,7 +302,7 @@ class RuntimeSettingsTestCase(SimpleTestCase):
             check=True,
         )
 
-        self.assertEqual(result.stdout.strip(), "['*']")
+        self.assertEqual(result.stdout.strip(), "['blex.example']")
 
     def test_allowed_hosts_reads_comma_separated_env(self):
         """ALLOWED_HOSTS를 설정하면 쉼표 목록을 사용한다."""

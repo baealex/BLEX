@@ -6,6 +6,7 @@ from django.contrib.auth.models import User
 from django.urls import reverse
 
 from board.models import Post
+from board.html_utils import sanitize_content_html
 from board.services.agent_content_service import AgentContentService
 from board.modules.time import convert_to_localtime
 from board.services.brand_asset_service import BrandAssetService
@@ -54,7 +55,11 @@ class SitePostsFeed(Feed):
         return item.title
 
     def item_description(self, item):
-        return re.sub(r'[\x00-\x08\x0B-\x0C\x0E-\x1F]', '', item.content.content_html)
+        return re.sub(
+            r'[\x00-\x08\x0B-\x0C\x0E-\x1F]',
+            '',
+            sanitize_content_html(item.content.content_html),
+        )
 
     def item_link(self, item):
         return item.get_absolute_url()
@@ -94,7 +99,11 @@ class UserPostsFeed(Feed):
         return item.title
 
     def item_description(self, item):
-        return re.sub(r'[\x00-\x08\x0B-\x0C\x0E-\x1F]', '', item.content.content_html)
+        return re.sub(
+            r'[\x00-\x08\x0B-\x0C\x0E-\x1F]',
+            '',
+            sanitize_content_html(item.content.content_html),
+        )
 
     def item_link(self, item):
         return item.get_absolute_url()

@@ -1,9 +1,14 @@
 import re
+from html import escape
+from urllib.parse import urlsplit
+
 import markdown
 from markdown.extensions import Extension
 from markdown.treeprocessors import Treeprocessor
 from markdown.preprocessors import Preprocessor
 from markdown.extensions.toc import slugify_unicode
+
+from board.html_utils import HtmlSanitizer, sanitize_content_html
 
 class HeaderHashTreeprocessor(Treeprocessor):
     def __init__(self, md):
@@ -98,23 +103,64 @@ class CustomPreprocessor(Preprocessor):
         return new_lines
 
 class CustomPostprocessor:
+    GIF_PATTERN = re.compile(r'@gif\[([^\]\s]+)\]')
+    YOUTUBE_PATTERN = re.compile(r'@youtube\[([^\]]+)\](?:\{([^\}]+)\})?')
+    YOUTUBE_ID_PATTERN = re.compile(r'^[A-Za-z0-9_-]{1,64}$')
+    ASPECT_RATIO_PATTERN = re.compile(r'^[1-9]\d{0,2}(?::[1-9]\d{0,2})?$')
+
+    @staticmethod
+    def _is_safe_video_url(url):
+        try:
+            parsed = urlsplit(url)
+        except ValueError:
+            return False
+
+        return (
+            bool(parsed.netloc)
+            and parsed.path.lower().endswith('.mp4')
+            and HtmlSanitizer.is_safe_url(
+                url,
+                allowed_schemes={'http', 'https'},
+                allow_relative=False,
+            )
+        )
+
     @staticmethod
     def process(html_content, enable_mentions=False):
         # Custom Markdown
-        html_content = re.sub(
-            r'@gif\[.*(https?://.*\.mp4).*\]',
-            r'<video class="lazy" autoplay muted loop playsinline poster="\1.preview.jpg"><source data-src="\1" type="video/mp4"/></video>',
-            html_content
+        def gif_replace(match):
+            video_url = match.group(1)
+            if not CustomPostprocessor._is_safe_video_url(video_url):
+                return match.group(0)
+
+            escaped_url = escape(video_url, quote=True)
+            escaped_poster_url = escape(f'{video_url}.preview.jpg', quote=True)
+            return (
+                '<video class="lazy" autoplay muted loop playsinline '
+                f'poster="{escaped_poster_url}">'
+                f'<source data-src="{escaped_url}" type="video/mp4"/>'
+                '</video>'
+            )
+
+        html_content = CustomPostprocessor.GIF_PATTERN.sub(
+            gif_replace,
+            html_content,
         )
+
         # YouTube with aspect ratio: @youtube[ID]{16:9} or @youtube[ID]
         def youtube_replace(match):
             video_id = match.group(1)
-            aspect_ratio = match.group(2) if match.group(2) else '16:9'
+            aspect_ratio = match.group(2) or '16:9'
+
+            if not CustomPostprocessor.YOUTUBE_ID_PATTERN.fullmatch(video_id):
+                return match.group(0)
+            if not CustomPostprocessor.ASPECT_RATIO_PATTERN.fullmatch(aspect_ratio):
+                return match.group(0)
+
             aspect_css = aspect_ratio.replace(':', ' / ')
             return f'<figure style="text-align: center; display: flex; justify-content: center; flex-direction: column; align-items: center;"><iframe style="width: 100%; aspect-ratio: {aspect_css}; border: 0;" data-aspect-ratio="{aspect_ratio}" src="https://www.youtube.com/embed/{video_id}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></figure>'
 
-        html_content = re.sub(
-            r'@youtube\[([^\]]+)\](?:\{([^\}]+)\})?',
+        html_content = CustomPostprocessor.YOUTUBE_PATTERN.sub(
             youtube_replace,
             html_content
         )
@@ -139,7 +185,7 @@ class CustomPostprocessor:
         html_content = re.sub(r'&lt;caption&gt;(.*)&lt;/caption&gt;', r'<figcaption>\1</figcaption>', html_content)
         html_content = re.sub(r'&lt;/grid-image&gt;', '</figure>', html_content)
 
-        return html_content
+        return sanitize_content_html(html_content)
 
 def _parse_to_html(text, enable_mentions=False):
     """Parse markdown text to HTML with optional mention rendering."""

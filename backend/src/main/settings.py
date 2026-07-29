@@ -84,8 +84,14 @@ VITE_DEV_SERVER_URL = os.environ.get('VITE_DEV_SERVER_URL', 'http://localhost:81
 TESTING = sys.argv[1:2] == ['test']
 TEST_RUNNER = 'main.test_runner.IsolatedMediaDiscoverRunner'
 
-ALLOWED_HOSTS = get_env_list('ALLOWED_HOSTS', ['*'])
 SITE_URL_ORIGIN = get_env_http_origin('SITE_URL')
+site_url_host = urlsplit(SITE_URL_ORIGIN).hostname if SITE_URL_ORIGIN else None
+default_allowed_hosts = (
+    ['localhost', '127.0.0.1', '::1', 'testserver']
+    if DEBUG
+    else ([site_url_host] if site_url_host else [])
+)
+ALLOWED_HOSTS = get_env_list('ALLOWED_HOSTS', default_allowed_hosts)
 CSRF_TRUSTED_ORIGINS = get_env_list(
     'CSRF_TRUSTED_ORIGINS',
     [SITE_URL_ORIGIN] if SITE_URL_ORIGIN else [],
@@ -94,6 +100,18 @@ CSRF_TRUSTED_ORIGINS = get_env_list(
 SESSION_COOKIE_SECURE = not DEBUG
 CSRF_COOKIE_SECURE = not DEBUG
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+SECURE_SSL_REDIRECT = os.environ.get(
+    'SECURE_SSL_REDIRECT',
+    'FALSE' if DEBUG else 'TRUE',
+) == 'TRUE'
+SECURE_HSTS_SECONDS = get_env_int(
+    'SECURE_HSTS_SECONDS',
+    0 if DEBUG else 31536000,
+)
+TRUSTED_PROXY_IPS = get_env_list(
+    'TRUSTED_PROXY_IPS',
+    ['127.0.0.1', '::1'],
+)
 
 INSTALLED_APPS = [
     'main.admin_app.BlexAdminConfig',

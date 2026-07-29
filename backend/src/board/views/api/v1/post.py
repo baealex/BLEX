@@ -3,6 +3,7 @@ from django.shortcuts import get_object_or_404
 from django.utils import timezone
 
 from board.models import Post, PinnedPost
+from board.html_utils import sanitize_content_html
 from board.modules.requests import BooleanType
 from board.modules.response import StatusDone, StatusError, ErrorCode
 from board.modules.time import convert_to_localtime, time_since
@@ -85,7 +86,9 @@ def user_posts(request, username, url=None):
                 if not PostService.can_user_edit_post(request.user, post):
                     raise Http404
 
-                content_html = post.content.content_html if hasattr(post, 'content') else ''
+                content_html = sanitize_content_html(
+                    post.content.content_html if hasattr(post, 'content') else ''
+                )
 
                 return StatusDone({
                     'image': post.get_thumbnail(),
@@ -130,7 +133,7 @@ def user_posts(request, username, url=None):
                     'updated_date': convert_to_localtime(post.updated_date).strftime('%Y-%m-%d %H:%M'),
                     'author_image': str(post.author_image),
                     'author': post.author_username,
-                    'rendered_content': post.content.content_html,
+                    'rendered_content': sanitize_content_html(post.content.content_html),
                     'count_likes': post.count_likes,
                     'count_comments': post.count_comments,
                     'is_ad': post.config.advertise,

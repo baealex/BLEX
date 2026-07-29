@@ -3,7 +3,7 @@ from __future__ import annotations
 from django.contrib.auth.models import User
 from django.db.models import QuerySet
 
-from board.html_utils import sanitize_html
+from board.html_utils import safe_navigation_url, sanitize_html
 from board.models import (
     BannerPosition,
     BannerType,
@@ -74,7 +74,7 @@ class SiteContentApiService:
         return {
             'id': notice.id,
             'title': notice.title,
-            'url': notice.url,
+            'url': safe_navigation_url(notice.url),
             'is_active': notice.is_active,
             'created_date': notice.created_date.isoformat(),
             'updated_date': notice.updated_date.isoformat(),
@@ -86,6 +86,7 @@ class SiteContentApiService:
         return [
             {
                 **notice,
+                'url': safe_navigation_url(notice['url']),
                 'created_date': notice['created_date'].isoformat(),
                 'updated_date': notice['updated_date'].isoformat(),
             }
@@ -93,11 +94,20 @@ class SiteContentApiService:
         ]
 
     @staticmethod
-    def serialize_banner(banner: SiteBanner, *, include_created_by: bool = False) -> dict:
+    def serialize_banner(
+        banner: SiteBanner,
+        *,
+        include_created_by: bool = False,
+        sanitize_content: bool = False,
+    ) -> dict:
         data = {
             'id': banner.id,
             'title': banner.title,
-            'content_html': banner.content_html,
+            'content_html': (
+                sanitize_html(banner.content_html)
+                if sanitize_content
+                else banner.content_html
+            ),
             'banner_type': banner.banner_type,
             'position': banner.position,
             'is_active': banner.is_active,
@@ -114,6 +124,7 @@ class SiteContentApiService:
         queryset: QuerySet[SiteBanner],
         *,
         include_created_by: bool = False,
+        sanitize_content: bool = False,
     ) -> list[dict]:
         """Serialize banners with one lean values query, including only creator username."""
         fields = SiteContentApiService.BANNER_LIST_FIELDS
@@ -124,6 +135,8 @@ class SiteContentApiService:
         for banner in queryset.values(*fields):
             banner['created_date'] = banner['created_date'].isoformat()
             banner['updated_date'] = banner['updated_date'].isoformat()
+            if sanitize_content:
+                banner['content_html'] = sanitize_html(banner['content_html'])
             if include_created_by:
                 banner['created_by'] = banner.pop('user__username')
             result.append(banner)

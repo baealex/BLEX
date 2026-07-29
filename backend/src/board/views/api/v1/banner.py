@@ -30,7 +30,10 @@ def banner(request, banner_id=None):
     if request.method == 'GET' and banner_id is None:
         banners = queryset.order_by('order', '-created_date')
         return StatusDone({
-            'banners': SiteContentApiService.serialize_banner_list(banners),
+            'banners': SiteContentApiService.serialize_banner_list(
+                banners,
+                sanitize_content=True,
+            ),
         })
 
     if request.method == 'GET' and banner_id:
@@ -38,7 +41,12 @@ def banner(request, banner_id=None):
             queryset.only(*SiteContentApiService.BANNER_LIST_FIELDS),
             id=banner_id,
         )
-        return StatusDone(SiteContentApiService.serialize_banner(banner_item))
+        return StatusDone(
+            SiteContentApiService.serialize_banner(
+                banner_item,
+                sanitize_content=True,
+            )
+        )
 
     if request.method == 'POST':
         post_data, body_error = ApiRequestBodyService.parse_json_or_error(request)
@@ -55,7 +63,12 @@ def banner(request, banner_id=None):
         except SiteContentApiError as error:
             return _banner_error(error)
 
-        return StatusDone(SiteContentApiService.serialize_banner(banner_item))
+        return StatusDone(
+            SiteContentApiService.serialize_banner(
+                banner_item,
+                sanitize_content=True,
+            )
+        )
 
     if request.method == 'PUT' and banner_id:
         banner_item = get_object_or_404(queryset, id=banner_id)
@@ -70,7 +83,12 @@ def banner(request, banner_id=None):
         except SiteContentApiError as error:
             return _banner_error(error)
 
-        return StatusDone(SiteContentApiService.serialize_banner(banner_item))
+        return StatusDone(
+            SiteContentApiService.serialize_banner(
+                banner_item,
+                sanitize_content=True,
+            )
+        )
 
     if request.method == 'DELETE' and banner_id:
         banner_item = get_object_or_404(queryset, id=banner_id)

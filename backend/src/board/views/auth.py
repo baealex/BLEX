@@ -1,5 +1,6 @@
 from django.shortcuts import render, redirect
-from urllib.parse import urlparse, urljoin
+from urllib.parse import unquote, urlparse
+from django.utils.http import url_has_allowed_host_and_scheme
 
 from board.services.hcaptcha_service import HCaptchaService
 from board.services.initial_setup_service import InitialSetupService
@@ -16,17 +17,26 @@ def get_safe_redirect_url(request):
     if not next_url:
         return None
 
-    parsed = urlparse(next_url)
-
-    if parsed.netloc:
-        request_host = request.get_host()
-        if parsed.netloc != request_host:
-            return None
-
-    if parsed.scheme and parsed.scheme not in ['http', 'https', '']:
+    if not url_has_allowed_host_and_scheme(
+        next_url,
+        allowed_hosts={request.get_host()},
+        require_https=request.is_secure(),
+    ):
         return None
 
-    return parsed.path or '/'
+    parsed = urlparse(next_url)
+    path = parsed.path or '/'
+    decoded_path = unquote(path)
+    if (
+        not path.startswith('/')
+        or path.startswith('//')
+        or '\\' in path
+        or decoded_path.startswith('//')
+        or '\\' in decoded_path
+    ):
+        return None
+
+    return path
 
 
 def login_view(request):

@@ -83,6 +83,32 @@ class SeriesSeoMetadataTestCase(StructuredDataAssertionMixin, TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(len(response.context['posts']), 2)
 
+    def test_series_detail_sanitizes_legacy_description_html(self):
+        Series.objects.filter(id=self.series.id).update(
+            text_html=(
+                '<p>Legacy description</p>'
+                '<img src="javascript:alert(1)" onerror="alert(2)">'
+                '<script>alert(3)</script>'
+            ),
+        )
+
+        response = self.client.get(
+            reverse(
+                'series_detail',
+                kwargs={
+                    'username': self.author.username,
+                    'series_url': self.series.url,
+                },
+            )
+        )
+
+        self.assertEqual(response.status_code, 200)
+        description = response.context['series_description_html'].lower()
+        self.assertIn('legacy description', description)
+        self.assertNotIn('<script', description)
+        self.assertNotIn('javascript:', description)
+        self.assertNotIn('onerror', description)
+
 
     def test_series_detail_returns_404_for_hidden_series(self):
         self.series.hide = True

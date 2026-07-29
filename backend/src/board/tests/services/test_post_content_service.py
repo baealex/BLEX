@@ -185,3 +185,22 @@ class PostContentServiceTest(SimpleTestCase):
             PostContentService.normalize_content_html(html),
             '<img src=/resources/media/images/content/a.png>',
         )
+
+    @override_settings(
+        SITE_URL='https://blex.example',
+        MEDIA_URL='/resources/media/',
+    )
+    def test_html_input_to_content_html_sanitizes_untrusted_markup(self):
+        html = (
+            '<p onclick="alert(1)">Text</p>'
+            '<img src="javascript:alert(2)" onerror="alert(3)">'
+            '<script>alert(4)</script>'
+        )
+
+        sanitized = PostContentService.html_input_to_content_html(html)
+
+        self.assertIn('<p>Text</p>', sanitized)
+        self.assertNotIn('onclick=', sanitized)
+        self.assertNotIn('onerror=', sanitized)
+        self.assertNotIn('javascript:', sanitized)
+        self.assertNotIn('<script', sanitized)

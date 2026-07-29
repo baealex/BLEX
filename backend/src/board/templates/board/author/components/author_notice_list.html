@@ -1,3 +1,5 @@
+{% load security_tags %}
+
 <section>
     <div class="mb-4 flex items-end justify-between gap-4">
         <div>
@@ -11,7 +13,7 @@
 
     <div class="divide-y divide-line-light border-y border-line-light">
         {% for notice in notices %}
-        <a href="{{ notice.url }}" class="group block py-3.5 transition-colors duration-150 hover:bg-surface-subtle/50 active:bg-surface-subtle/70">
+        <a href="{{ notice.url|safe_navigation_url }}" class="group block py-3.5 transition-colors duration-150 hover:bg-surface-subtle/50 active:bg-surface-subtle/70">
             <div class="flex items-center justify-between gap-4 px-1">
                 <div class="min-w-0 flex-1">
                     <h3 class="truncate text-base font-semibold leading-snug text-content transition-colors group-hover:text-content-secondary">

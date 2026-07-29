@@ -309,11 +309,14 @@ def setting(request, parameter):
             return StatusDone()
 
         if parameter == 'profile':
-            SettingAccountProfileService.update_profile(
-                user,
-                bio=put.get('bio', ''),
-                homepage=put.get('homepage', ''),
-            )
+            try:
+                SettingAccountProfileService.update_profile(
+                    user,
+                    bio=put.get('bio', ''),
+                    homepage=put.get('homepage', ''),
+                )
+            except SettingAccountProfileError as error:
+                return StatusError(error.code, error.message)
             return StatusDone()
     
         if parameter == 'social':

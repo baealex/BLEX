@@ -74,6 +74,28 @@ class PostDetailViewTestCase(TestCase):
         self.assertEqual(toc[1]['text'], 'Header 2')
         self.assertEqual(toc[1]['level'], 2)
 
+    def test_post_detail_sanitizes_legacy_content_html(self):
+        PostContent.objects.filter(post=self.post).update(
+            content_html=(
+                '<h1>Legacy heading</h1>'
+                '<p>Legacy content</p>'
+                '<img src="javascript:alert(1)" onerror="alert(2)">'
+                '<script>alert(3)</script>'
+            ),
+        )
+
+        response = self.client.get(reverse('post_detail', kwargs={
+            'username': 'testauthor',
+            'post_url': 'test-post',
+        }))
+
+        self.assertEqual(response.status_code, 200)
+        rendered_content = response.context['content_html'].lower()
+        self.assertIn('legacy content', rendered_content)
+        self.assertNotIn('<script', rendered_content)
+        self.assertNotIn('javascript:', rendered_content)
+        self.assertNotIn('onerror', rendered_content)
+
     def test_post_detail_series_list_hides_drafts_and_future_posts(self):
         """본문 상세의 시리즈 목록은 공개 발행 글만 노출한다."""
         series = Series.objects.create(

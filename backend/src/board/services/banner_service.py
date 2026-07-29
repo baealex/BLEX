@@ -6,6 +6,7 @@ from typing import List, Dict
 from django.contrib.auth.models import User
 from django.db.models import Q
 
+from board.html_utils import sanitize_html
 from board.models import SiteBanner, SiteContentScope, BannerType, BannerPosition
 
 
@@ -29,7 +30,7 @@ class BannerService:
         Returns:
             List of combined banners sorted by order and created_date
         """
-        return list(
+        banners = list(
             SiteBanner.objects.filter(
                 is_active=True,
                 banner_type=banner_type,
@@ -39,6 +40,10 @@ class BannerService:
                 Q(scope=SiteContentScope.USER, user=author)
             ).select_related('user').order_by('order', '-created_date')
         )
+        for banner in banners:
+            if banner.scope == SiteContentScope.USER:
+                banner.content_html = sanitize_html(banner.content_html)
+        return banners
 
     @staticmethod
     def get_all_banners_for_author(author: User) -> Dict[str, List[SiteBanner]]:
@@ -73,6 +78,8 @@ class BannerService:
 
         for banner in banners:
             if banner.position in result:
+                if banner.scope == SiteContentScope.USER:
+                    banner.content_html = sanitize_html(banner.content_html)
                 result[banner.position].append(banner)
 
         return result

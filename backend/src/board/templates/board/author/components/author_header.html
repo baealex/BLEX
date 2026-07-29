@@ -1,6 +1,7 @@
 {% load static %}
 {% load island %}
 {% load resource %}
+{% load security_tags %}
 
 <div class="relative overflow-hidden pb-12 sm:pb-16">
     {% if author.profile.cover %}
@@ -52,23 +53,25 @@
             </p>
             {% endif %}
 
-            {% if author.profile.homepage %}
+            {% with safe_homepage=author.profile.homepage|safe_external_url %}
+            {% if safe_homepage %}
             <div class="mb-8">
-                <a href="{{ author.profile.homepage }}" target="_blank"
+                <a href="{{ safe_homepage }}" target="_blank"
                    class="group inline-flex items-center gap-2 rounded-full border border-line bg-surface px-5 py-2.5 text-sm font-semibold text-content-secondary transition-colors duration-150 hover:border-line-strong hover:text-content">
                     <i class="fas fa-link text-xs text-content-hint transition-colors group-hover:text-content"></i>
                     <span>
-                        {% if 'https://' in author.profile.homepage %}
-                            {{ author.profile.homepage|slice:"8:"|truncatechars:30 }}
-                        {% elif 'http://' in author.profile.homepage %}
-                            {{ author.profile.homepage|slice:"7:"|truncatechars:30 }}
+                        {% if 'https://' in safe_homepage %}
+                            {{ safe_homepage|slice:"8:"|truncatechars:30 }}
+                        {% elif 'http://' in safe_homepage %}
+                            {{ safe_homepage|slice:"7:"|truncatechars:30 }}
                         {% else %}
-                            {{ author.profile.homepage|truncatechars:30 }}
+                            {{ safe_homepage|truncatechars:30 }}
                         {% endif %}
                     </span>
                 </a>
             </div>
             {% endif %}
+            {% endwith %}
 
             {% with author.profile.collect_social as social_links %}
             {% if social_links %}

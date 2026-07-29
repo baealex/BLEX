@@ -78,6 +78,12 @@ class LoginViewTestCase(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.context['next_url'], '')
 
+    def test_login_page_rejects_protocol_relative_path_variants(self):
+        for next_url in ('///evil.example', '%5C%5Cevil.example'):
+            response = self.client.get(reverse('login') + f'?next={next_url}')
+            self.assertEqual(response.status_code, 200)
+            self.assertEqual(response.context['next_url'], '')
+
     def test_login_page_accepts_relative_url(self):
         """상대 URL은 허용"""
         response = self.client.get(reverse('login') + '?next=/setting/profile')

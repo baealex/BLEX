@@ -32,9 +32,9 @@
             {{ series.name }}
         </h1>
 
-        {% if series.text_html %}
+        {% if series_description_html %}
         <div class="text-lg text-content-secondary mb-8 leading-relaxed max-w-2xl mx-auto">
-            {{ series.text_html | safe }}
+            {{ series_description_html | safe }}
         </div>
         {% endif %}
 

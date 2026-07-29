@@ -13,6 +13,7 @@ from board.decorators import api_editor_required
 from board.services import WebhookService
 from board.services.api_request_body_service import ApiRequestBodyService
 from board.services.webhook_api_service import WebhookApiService
+from board.services.webhook_url_service import WebhookUrlService
 from board.modules.response import StatusDone, StatusError, ErrorCode
 
 
@@ -36,7 +37,7 @@ def _validate_webhook_payload(request):
     if not webhook_url:
         return None, None, StatusError(ErrorCode.REQUIRE, 'webhook_url is required')
 
-    if not webhook_url.startswith(('http://', 'https://')):
+    if not WebhookUrlService.is_safe_url(webhook_url):
         return None, None, StatusError(ErrorCode.VALIDATE, 'Invalid webhook URL')
 
     if len(webhook_url) > 500:
@@ -197,7 +198,7 @@ def test_channel(request):
     if not webhook_url:
         return StatusError(ErrorCode.REQUIRE, 'webhook_url is required')
 
-    if not webhook_url.startswith(('http://', 'https://')):
+    if not WebhookUrlService.is_safe_url(webhook_url):
         return StatusError(ErrorCode.VALIDATE, 'Invalid webhook URL')
 
     success = WebhookService.test_webhook(webhook_url)

@@ -9,6 +9,7 @@ from django.db.models import (
     When,
 )
 
+from board.html_utils import sanitize_content_html
 from board.models import Comment, Post
 from board.services.public_post_service import PublicPostService
 
@@ -169,7 +170,7 @@ class CommentListService:
             'is_mine': is_mine,
             'is_edited': comment.edited,
             'is_deleted': is_deleted,
-            'rendered_content': comment.get_text_html(),
+            'rendered_content': sanitize_content_html(comment.get_text_html()),
             'created_date': comment.time_since(),
             'count_likes': CommentListService.get_count_likes(comment),
             'is_liked': CommentListService.get_has_liked(comment, user_id),

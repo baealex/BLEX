@@ -1091,6 +1091,23 @@ class SettingTestCase(TestCase):
         self.assertEqual(profile.bio, 'JSON bio')
         self.assertEqual(profile.homepage, '')
 
+    def test_update_profile_rejects_unsafe_homepage_url(self):
+        self.client.login(username='test', password='test')
+
+        response = self.client.put(
+            '/v1/setting/profile',
+            'bio=Safe+bio&homepage=javascript%3Aalert%281%29',
+            content_type='application/x-www-form-urlencoded',
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json()['status'], 'ERROR')
+        self.assertEqual(response.json()['errorCode'], 'error:VA')
+        self.assertEqual(
+            Profile.objects.get(user=User.objects.get(username='test')).homepage,
+            '',
+        )
+
     def test_update_social_links(self):
         """소셜 링크 생성/수정/삭제 테스트"""
         user = User.objects.get(username='test')

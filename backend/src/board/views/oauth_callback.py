@@ -1,4 +1,5 @@
 import json
+from urllib.parse import urlencode
 
 from django.shortcuts import render, redirect
 from django.http import Http404
@@ -10,22 +11,24 @@ from board.services.auth_service import AuthService, OAuthService
 from board.services.initial_setup_service import InitialSetupService
 from board.services.social_auth_provider_service import SocialAuthProviderService
 from board.models import SocialAuth, UserLinkMeta
+from board.views.auth import get_safe_redirect_url
 
 
 def handle_oauth_auth(request, user):
     """
     Handle OAuth authentication with 2FA support
     """
-    next_url = request.GET.get('next', '')
+    next_url = get_safe_redirect_url(request) or ''
 
     if not settings.DEBUG and user.config.has_two_factor_auth():
         oauth_token = OAuthService.create_2fa_token(user.id, next_url)
 
         messages.info(request, '2차 인증이 필요합니다. 인증 앱에서 생성된 코드를 입력해주세요.')
 
-        redirect_url = f'/login?oauth_token={oauth_token}'
+        redirect_params = {'oauth_token': oauth_token}
         if next_url:
-            redirect_url += f'&next={next_url}'
+            redirect_params['next'] = next_url
+        redirect_url = f'/login?{urlencode(redirect_params)}'
         return redirect(redirect_url)
 
     auth.login(request, user)

@@ -1,3 +1,6 @@
+import ipaddress
+
+from django.conf import settings
 from django.contrib import auth
 from django.contrib.auth.models import User
 from django.core.cache import cache
@@ -20,7 +23,30 @@ class AuthLoginService:
 
     @staticmethod
     def get_client_ip(request) -> str:
-        return request.META.get('HTTP_X_FORWARDED_FOR', request.META.get('REMOTE_ADDR'))
+        remote_addr = request.META.get('REMOTE_ADDR', '')
+        trusted_proxy_ips = {
+            AuthLoginService._normalize_ip(address)
+            for address in getattr(settings, 'TRUSTED_PROXY_IPS', [])
+        }
+        trusted_proxy_ips.discard(None)
+
+        if AuthLoginService._normalize_ip(remote_addr) not in trusted_proxy_ips:
+            return remote_addr or 'unknown'
+
+        forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR', '')
+        for address in reversed(forwarded_for.split(',')):
+            normalized_address = AuthLoginService._normalize_ip(address)
+            if normalized_address and normalized_address not in trusted_proxy_ips:
+                return normalized_address
+
+        return remote_addr or 'unknown'
+
+    @staticmethod
+    def _normalize_ip(address: str):
+        try:
+            return ipaddress.ip_address(address.strip()).compressed
+        except (ValueError, AttributeError):
+            return None
 
     @staticmethod
     def get_attempt_cache_key(request) -> str:
@@ -42,11 +68,23 @@ class AuthLoginService:
     @staticmethod
     def increment_login_attempts(request) -> None:
         cache_key = AuthLoginService.get_attempt_cache_key(request)
-        cache.set(
+        if cache.add(
             cache_key,
-            cache.get(cache_key, 0) + 1,
+            1,
             AuthLoginService.LOGIN_ATTEMPT_TTL_SECONDS,
-        )
+        ):
+            return
+
+        try:
+            cache.incr(cache_key)
+        except (ValueError, NotImplementedError):
+            # Some cache backends can expire a key between add() and incr().
+            # Recreate it with the short login-attempt TTL in that case.
+            cache.set(
+                cache_key,
+                1,
+                AuthLoginService.LOGIN_ATTEMPT_TTL_SECONDS,
+            )
 
     @staticmethod
     def common_auth(request, user: User, two_factor_code=None, is_oauth=False):

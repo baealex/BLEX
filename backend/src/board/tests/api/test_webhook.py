@@ -128,6 +128,25 @@ class WebhookAPITestCase(TestCase):
         data = response.json()
         self.assertEqual(data['status'], 'ERROR')
 
+    def test_add_channel_rejects_private_network_url(self):
+        """내부 네트워크를 가리키는 웹훅 URL은 저장하지 않는다."""
+        self.client.login(username='testauthor', password='testpass123')
+
+        response = self.client.post(
+            '/v1/webhook/channels',
+            data=json.dumps({'webhook_url': 'http://127.0.0.1:8000/internal'}),
+            content_type='application/json'
+        )
+
+        data = response.json()
+        self.assertEqual(data['status'], 'ERROR')
+        self.assertFalse(
+            WebhookSubscription.objects.filter(
+                author=self.profile,
+                webhook_url='http://127.0.0.1:8000/internal',
+            ).exists()
+        )
+
     def test_add_channel_duplicate_reactivates(self):
         """비활성화된 동일 URL 채널 재추가 시 활성화"""
         self.client.login(username='testauthor', password='testpass123')
@@ -291,6 +310,20 @@ class WebhookAPITestCase(TestCase):
         data = response.json()
         self.assertEqual(data['status'], 'DONE')
         self.assertFalse(data['body']['success'])
+
+    @patch('board.services.webhook_service.WebhookService.test_webhook')
+    def test_test_webhook_rejects_private_network_url(self, mock_test):
+        self.client.login(username='testauthor', password='testpass123')
+
+        response = self.client.post(
+            '/v1/webhook/test',
+            data=json.dumps({'webhook_url': 'http://localhost:8000/admin'}),
+            content_type='application/json'
+        )
+
+        data = response.json()
+        self.assertEqual(data['status'], 'ERROR')
+        mock_test.assert_not_called()
 
 
 class GlobalWebhookAPITestCase(TestCase):
