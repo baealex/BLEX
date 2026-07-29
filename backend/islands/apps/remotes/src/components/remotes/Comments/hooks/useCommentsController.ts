@@ -20,6 +20,7 @@ import {
     mergeCommentInTree,
     updateCommentInTree
 } from '../utils/commentTree';
+import { buildReplySubmissionText } from '../utils/replyText';
 
 interface CommentsData {
     comments: Comment[];
@@ -266,18 +267,7 @@ export const useCommentsController = ({
     };
 
     const getReplySubmissionText = () => {
-        const content = replyText.trim();
-
-        if (!replyTargetAuthor) {
-            return content;
-        }
-
-        const mentionPrefix = `\`@${replyTargetAuthor}\``;
-        if (content.startsWith(mentionPrefix)) {
-            return content;
-        }
-
-        return `${mentionPrefix} ${content}`;
+        return buildReplySubmissionText(replyText, replyTargetAuthor);
     };
 
     const handleReply = async () => {

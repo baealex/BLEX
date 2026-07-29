@@ -3,6 +3,7 @@ from html import escape
 from urllib.parse import urlsplit
 
 import markdown
+from django.utils.html import linebreaks
 from markdown.extensions import Extension
 from markdown.treeprocessors import Treeprocessor
 from markdown.preprocessors import Preprocessor
@@ -221,8 +222,10 @@ def parse_post_to_html(text):
 
 
 def parse_comment_to_html(text):
-    """Parse comment markdown to HTML (mentions enabled)."""
-    return _parse_to_html(text, enable_mentions=True)
+    """Render comment text as escaped HTML with line breaks."""
+    if not text:
+        return ''
+    return str(linebreaks(text, autoescape=True))
 
 
 # For backward compatibility

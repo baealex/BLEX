@@ -394,6 +394,219 @@ def sanitize_content_html(html_content: str) -> str:
     return HtmlSanitizer.sanitize_content(html_content)
 
 
+class CommentHtmlSanitizer(HtmlSanitizer):
+    """Sanitize stored comment HTML while preserving legacy rendering."""
+
+    ALLOWED_TAGS = [
+        'div', 'p', 'span', 'a', 'img', 'h1', 'h2', 'h3', 'h4', 'h5',
+        'h6', 'ul', 'ol', 'li', 'br', 'strong', 'em', 'b', 'i', 'u',
+        'blockquote', 'code', 'pre', 'hr', 'small', 'sub', 'sup', 'mark',
+        'del', 'ins', 's', 'figure', 'figcaption', 'table', 'thead',
+        'tbody', 'tfoot', 'tr', 'th', 'td', 'video', 'source', 'iframe',
+        'input',
+    ]
+
+    ALLOWED_ATTRIBUTES = {
+        'a': ['href', 'title', 'target', 'rel', 'class'],
+        'img': [
+            'src', 'data-src', 'alt', 'title', 'width', 'height', 'class',
+            'loading',
+        ],
+        'ul': ['class'],
+        'li': ['class'],
+        'code': ['class'],
+        'pre': ['class'],
+        'figure': ['class'],
+        'th': ['colspan', 'rowspan'],
+        'td': ['colspan', 'rowspan'],
+        'video': [
+            'class', 'autoplay', 'muted', 'loop', 'playsinline', 'controls',
+            'poster',
+        ],
+        'source': ['src', 'data-src', 'type'],
+        'iframe': [
+            'src', 'title', 'allow', 'allowfullscreen', 'frameborder',
+            'loading', 'referrerpolicy',
+        ],
+        'input': ['type', 'checked', 'disabled'],
+    }
+
+    DANGEROUS_TAGS = HtmlSanitizer.DANGEROUS_TAGS | {
+        'button', 'frame', 'frameset', 'link', 'math', 'plaintext', 'select',
+        'svg', 'textarea', 'xmp',
+    }
+
+    SAFE_CLASSES = {
+        'a': {'mention'},
+        'img': {'lazy'},
+        'video': {'lazy'},
+        'ul': {'task-list'},
+        'li': {'checkbox', 'checked', 'task-list-item'},
+        'figure': {'col-1', 'col-2', 'col-3'},
+        'pre': {'highlight', 'codehilite'},
+        'code': {'highlight', 'codehilite'},
+    }
+
+    SAFE_YOUTUBE_HOSTS = {
+        'youtube.com',
+        'www.youtube.com',
+        'youtube-nocookie.com',
+        'www.youtube-nocookie.com',
+    }
+    YOUTUBE_EMBED_PATH = re.compile(r'^/embed/[a-zA-Z0-9_-]{1,64}$')
+    LANGUAGE_CLASS = re.compile(r'^(?:lang|language)-[a-zA-Z0-9_+-]{1,50}$')
+    URL_ATTRIBUTES = {'href', 'src', 'data-src', 'poster'}
+
+    @classmethod
+    def remove_dangerous_tags(cls, soup):
+        for tag_name in cls.DANGEROUS_TAGS:
+            for tag in soup.find_all(tag_name):
+                tag.decompose()
+
+    @classmethod
+    def sanitize_tag(
+        cls,
+        tag,
+        *,
+        allowed_tags=None,
+        allowed_attributes=None,
+        allow_data_attributes=False,
+    ):
+        allowed_tags = allowed_tags or cls.ALLOWED_TAGS
+        allowed_attributes = allowed_attributes or cls.ALLOWED_ATTRIBUTES
+
+        if tag.name in {'html', 'body'}:
+            return
+
+        if tag.name not in allowed_tags:
+            if tag.name in cls.DANGEROUS_TAGS:
+                tag.decompose()
+            else:
+                tag.unwrap()
+            return
+
+        if tag.name == 'iframe' and not cls.is_safe_youtube_embed(tag.get('src')):
+            tag.decompose()
+            return
+
+        if tag.name == 'source' and getattr(tag.parent, 'name', None) != 'video':
+            tag.decompose()
+            return
+
+        if tag.name == 'input' and tag.get('type') != 'checkbox':
+            tag.decompose()
+            return
+
+        super().sanitize_tag(
+            tag,
+            allowed_tags=allowed_tags,
+            allowed_attributes=allowed_attributes,
+            allow_data_attributes=allow_data_attributes,
+        )
+        cls.normalize_url_attributes(tag)
+        cls.sanitize_classes(tag)
+        cls.sanitize_special_attributes(tag)
+
+    @staticmethod
+    def normalize_url(url) -> str:
+        if not isinstance(url, str):
+            return ''
+        return re.sub(r'[\x00-\x20\x7f]+', '', url)
+
+    @classmethod
+    def is_safe_youtube_embed(cls, url) -> bool:
+        normalized_url = cls.normalize_url(url)
+        if not HtmlSanitizer.is_safe_url(
+            normalized_url,
+            allowed_schemes={'https'},
+            allow_relative=False,
+        ):
+            return False
+
+        try:
+            parsed_url = urlsplit(normalized_url)
+            hostname = parsed_url.hostname
+            port = parsed_url.port
+        except ValueError:
+            return False
+
+        return (
+            parsed_url.scheme == 'https'
+            and hostname in cls.SAFE_YOUTUBE_HOSTS
+            and port in (None, 443)
+            and not parsed_url.username
+            and not parsed_url.password
+            and cls.YOUTUBE_EMBED_PATH.fullmatch(parsed_url.path) is not None
+        )
+
+    @classmethod
+    def normalize_url_attributes(cls, tag):
+        for attr in cls.URL_ATTRIBUTES:
+            if attr in tag.attrs:
+                tag.attrs[attr] = cls.normalize_url(tag.attrs[attr])
+
+    @classmethod
+    def sanitize_classes(cls, tag):
+        if 'class' not in tag.attrs:
+            return
+
+        classes = tag.get('class', [])
+        if isinstance(classes, str):
+            classes = classes.split()
+
+        allowed_classes = cls.SAFE_CLASSES.get(tag.name, set())
+        safe_classes = [
+            class_name
+            for class_name in classes
+            if class_name in allowed_classes
+            or (
+                tag.name in {'code', 'pre'}
+                and cls.LANGUAGE_CLASS.fullmatch(class_name)
+            )
+        ]
+
+        if safe_classes:
+            tag['class'] = safe_classes
+        else:
+            del tag.attrs['class']
+
+    @classmethod
+    def sanitize_special_attributes(cls, tag):
+        if tag.name == 'a':
+            if tag.get('target') == '_blank' and tag.get('href'):
+                tag['rel'] = ['noopener', 'noreferrer']
+            else:
+                tag.attrs.pop('target', None)
+                tag.attrs.pop('rel', None)
+
+        if tag.name in {'th', 'td'}:
+            for attr in ('colspan', 'rowspan'):
+                value = tag.get(attr)
+                if value and not re.fullmatch(r'[1-9][0-9]{0,2}', str(value)):
+                    del tag.attrs[attr]
+
+        if tag.name == 'input':
+            is_checked = 'checked' in tag.attrs
+            tag.attrs = {'type': 'checkbox', 'disabled': ''}
+            if is_checked:
+                tag['checked'] = ''
+
+        if tag.name == 'iframe':
+            tag['loading'] = 'lazy'
+            tag['referrerpolicy'] = 'strict-origin-when-cross-origin'
+            tag['frameborder'] = '0'
+            tag['allow'] = (
+                'accelerometer; autoplay; encrypted-media; gyroscope; '
+                'picture-in-picture'
+            )
+            tag['allowfullscreen'] = ''
+
+
+def sanitize_comment_html(html_content: str) -> str:
+    """Sanitize stored HTML before it is rendered as comment content."""
+    return CommentHtmlSanitizer.sanitize(html_content)
+
+
 class TableOfContentsExtractor:
     """
     Extracts headings from HTML content to generate a table of contents.

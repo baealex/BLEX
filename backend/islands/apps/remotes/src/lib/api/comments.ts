@@ -55,9 +55,9 @@ export const getComments = async (postUrl: string) => {
     return http.get<CommentsResponse>(`v1/posts/${postUrl}/comments`);
 };
 
-export const createComment = async (postUrl: string, commentMarkdown: string, parentId?: number) => {
+export const createComment = async (postUrl: string, commentText: string, parentId?: number) => {
     const formData = new URLSearchParams();
-    formData.append('comment_md', commentMarkdown);
+    formData.append('comment_md', commentText);
     if (parentId) {
         formData.append('parent_id', parentId.toString());
     }
@@ -69,10 +69,10 @@ export const getComment = async (commentId: number) => {
     return http.get<CommentResponse>(`v1/comments/${commentId}`);
 };
 
-export const updateComment = async (commentId: number, commentMarkdown: string) => {
+export const updateComment = async (commentId: number, commentText: string) => {
     const formData = new URLSearchParams();
     formData.append('comment', 'true');
-    formData.append('comment_md', commentMarkdown);
+    formData.append('comment_md', commentText);
 
     return http.put<UpdateCommentResponse>(`v1/comments/${commentId}`, formData, { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } });
 };
