@@ -218,6 +218,7 @@ jobs:
           --env-file samples/.env \
           --env DEBUG=FALSE \
           --env SITE_URL=http://127.0.0.1:18080 \
+          --env SECURE_SSL_REDIRECT=FALSE \
           --publish 127.0.0.1:18080:80 \
           blex:ci
 
