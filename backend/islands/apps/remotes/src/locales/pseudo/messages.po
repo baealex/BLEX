@@ -604,6 +604,11 @@ msgid "common.add"
 msgstr ""
 
 #. js-lingui-explicit-id
+#: src/components/shared/ImageCropDialog.tsx:245
+msgid "common.apply"
+msgstr ""
+
+#. js-lingui-explicit-id
 #: src/components/remotes/Comments/components/CommentEditForm.tsx:69
 #: src/components/remotes/Comments/components/CommentForm.tsx:196
 #: src/components/remotes/PostEditor/components/PostRevisionDialog.tsx:606
@@ -613,6 +618,7 @@ msgstr ""
 #: src/components/remotes/PostEditor/NewPostEditor.tsx:397
 #: src/components/remotes/SettingsApp/pages/AccountSetting/components/TwoFactorModal.tsx:135
 #: src/components/remotes/SettingsApp/pages/PinnedPostsSetting/components/AddPinnedPostModal.tsx:220
+#: src/components/shared/ImageCropDialog.tsx:239
 msgid "common.cancel"
 msgstr ""
 
@@ -639,6 +645,7 @@ msgstr ""
 #: src/components/remotes/PostEditor/components/PostRevisionDialog.tsx:645
 #: src/components/remotes/SettingsApp/pages/AccountSetting/AccountSetting.tsx:280
 #: src/components/remotes/SettingsApp/pages/AccountSetting/components/SecuritySection.tsx:77
+#: src/components/remotes/SettingsApp/pages/ProfileSetting/ProfileSetting.tsx:233
 msgid "common.delete"
 msgstr ""
 
@@ -674,6 +681,16 @@ msgstr ""
 #: src/components/remotes/Login/Login.tsx:238
 #: src/components/remotes/Signup/Signup.tsx:256
 msgid "common.error.try_again"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/shared/ImageCropDialog.tsx:163
+msgid "common.image_crop.apply_failed"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/shared/ImageCropDialog.tsx:212
+msgid "common.image_crop.zoom"
 msgstr ""
 
 #. js-lingui-explicit-id
@@ -2977,4 +2994,187 @@ msgstr ""
 #. js-lingui-explicit-id
 #: src/components/remotes/SettingsApp/pages/PinnedPostsSetting/components/PinnedPostsPanel.tsx:280
 msgid "settings.pinned_posts.view_trash"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/ProfileSetting/ProfileSetting.tsx:306
+msgid "settings.profile.avatar.alt"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/ProfileSetting/ProfileSetting.tsx:317
+msgid "settings.profile.avatar.change"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/ProfileSetting/ProfileSetting.tsx:271
+msgid "settings.profile.avatar.crop_title"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/ProfileSetting/ProfileSetting.tsx:174
+msgid "settings.profile.avatar.save_success"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/ProfileSetting/ProfileSetting.tsx:336
+msgid "settings.profile.avatar.select_hint"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/ProfileSetting/ProfileSetting.tsx:341
+msgid "settings.profile.avatar.size_hint"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/ProfileSetting/ProfileSetting.tsx:297
+msgid "settings.profile.avatar.subtitle"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/ProfileSetting/ProfileSetting.tsx:293
+msgid "settings.profile.avatar.title"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/ProfileSetting/ProfileSetting.tsx:183
+msgid "settings.profile.avatar.update_failed"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/ProfileSetting/ProfileSetting.tsx:450
+msgid "settings.profile.basic_info.subtitle"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/ProfileSetting/ProfileSetting.tsx:446
+msgid "settings.profile.basic_info.title"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/ProfileSetting/ProfileSetting.tsx:458
+msgid "settings.profile.bio.label"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/ProfileSetting/ProfileSetting.tsx:465
+msgid "settings.profile.bio.placeholder"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/ProfileSetting/ProfileSetting.tsx:58
+msgid "settings.profile.bio.validation.max_length"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/ProfileSetting/ProfileSetting.tsx:399
+msgid "settings.profile.cover.add"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/ProfileSetting/ProfileSetting.tsx:366
+msgid "settings.profile.cover.alt"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/ProfileSetting/ProfileSetting.tsx:377
+msgid "settings.profile.cover.change"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/ProfileSetting/ProfileSetting.tsx:275
+msgid "settings.profile.cover.crop_title"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/ProfileSetting/ProfileSetting.tsx:229
+msgid "settings.profile.cover.delete_confirm"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/ProfileSetting/ProfileSetting.tsx:253
+#: src/components/remotes/SettingsApp/pages/ProfileSetting/ProfileSetting.tsx:259
+msgid "settings.profile.cover.delete_failed"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/ProfileSetting/ProfileSetting.tsx:247
+msgid "settings.profile.cover.delete_success"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/ProfileSetting/ProfileSetting.tsx:225
+#: src/components/remotes/SettingsApp/pages/ProfileSetting/ProfileSetting.tsx:426
+msgid "settings.profile.cover.delete_title"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/ProfileSetting/ProfileSetting.tsx:178
+msgid "settings.profile.cover.save_success"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/ProfileSetting/ProfileSetting.tsx:434
+msgid "settings.profile.cover.size_hint"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/ProfileSetting/ProfileSetting.tsx:355
+msgid "settings.profile.cover.subtitle"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/ProfileSetting/ProfileSetting.tsx:351
+msgid "settings.profile.cover.title"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/ProfileSetting/ProfileSetting.tsx:187
+msgid "settings.profile.cover.update_failed"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/ProfileSetting/ProfileSetting.tsx:404
+msgid "settings.profile.cover.upload_hint"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/ProfileSetting/ProfileSetting.tsx:476
+msgid "settings.profile.homepage.label"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/ProfileSetting/ProfileSetting.tsx:62
+msgid "settings.profile.homepage.validation.url"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/ProfileSetting/ProfileSetting.tsx:90
+msgid "settings.profile.load_failed"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/ProfileSetting/ProfileSetting.tsx:505
+msgid "settings.profile.save"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/ProfileSetting/ProfileSetting.tsx:501
+msgid "settings.profile.saving"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/ProfileSetting/ProfileSetting.tsx:284
+msgid "settings.profile.title"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/ProfileSetting/ProfileSetting.tsx:129
+#: src/components/remotes/SettingsApp/pages/ProfileSetting/ProfileSetting.tsx:135
+msgid "settings.profile.update_failed"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/ProfileSetting/ProfileSetting.tsx:123
+msgid "settings.profile.update_success"
 msgstr ""

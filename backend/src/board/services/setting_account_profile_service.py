@@ -119,7 +119,7 @@ class SettingAccountProfileService:
         if homepage and not safe_homepage:
             raise SettingAccountProfileError(
                 ErrorCode.VALIDATE,
-                '홈페이지는 http 또는 https URL이어야 합니다.',
+                gettext('Homepage must be an HTTP or HTTPS URL.'),
             )
         profile.bio = bio
         profile.homepage = safe_homepage

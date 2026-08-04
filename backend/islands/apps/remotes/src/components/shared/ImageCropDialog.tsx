@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import type { ChangeEvent } from 'react';
+import { Trans, useLingui } from '@lingui/react/macro';
 import Cropper from 'react-easy-crop';
 import type { Area, Point } from 'react-easy-crop';
 import { Modal } from '@blex/ui/modal';
@@ -108,6 +109,7 @@ export const ImageCropDialog = ({
     onClose,
     onComplete
 }: ImageCropDialogProps) => {
+    const { t } = useLingui();
     const [sourceUrl, setSourceUrl] = useState<string | null>(null);
     const [crop, setCrop] = useState<Point>({
         x: 0,
@@ -158,7 +160,10 @@ export const ImageCropDialog = ({
             await onComplete(croppedFile);
             onClose();
         } catch {
-            setErrorMessage('이미지를 적용하지 못했습니다.');
+            setErrorMessage(t({
+                id: 'common.image_crop.apply_failed',
+                message: 'Could not apply the image.'
+            }));
         } finally {
             setIsProcessing(false);
         }
@@ -203,7 +208,9 @@ export const ImageCropDialog = ({
 
                 <div className="space-y-2">
                     <div className="flex items-center justify-between gap-3 text-sm font-semibold text-content-secondary">
-                        <label htmlFor="image-crop-zoom">확대</label>
+                        <label htmlFor="image-crop-zoom">
+                            <Trans id="common.image_crop.zoom">Zoom</Trans>
+                        </label>
                         <span>{Math.round(zoom * 100)}%</span>
                     </div>
                     <input
@@ -229,13 +236,13 @@ export const ImageCropDialog = ({
                     variant="secondary"
                     onClick={handleClose}
                     disabled={isProcessing}>
-                    취소
+                    <Trans id="common.cancel">Cancel</Trans>
                 </Modal.FooterAction>
                 <Modal.FooterAction
                     onClick={handleApply}
                     isLoading={isProcessing}
                     disabled={!sourceUrl || !cropArea}>
-                    적용
+                    <Trans id="common.apply">Apply</Trans>
                 </Modal.FooterAction>
             </Modal.Footer>
         </Modal>

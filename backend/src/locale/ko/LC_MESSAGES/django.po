@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: BLEX 3.1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-08-05 02:09+0900\n"
+"POT-Creation-Date: 2026-08-05 02:22+0900\n"
 "PO-Revision-Date: 2026-07-18 00:00+0900\n"
 "Last-Translator: BLEX contributors\n"
 "Language-Team: Korean\n"
@@ -485,6 +485,10 @@ msgstr "비밀번호는 대문자를 포함해야 합니다."
 #: board/services/setting_account_profile_service.py:102
 msgid "Password must include a special character."
 msgstr "비밀번호는 특수문자를 포함해야 합니다."
+
+#: board/services/setting_account_profile_service.py:122
+msgid "Homepage must be an HTTP or HTTPS URL."
+msgstr "홈페이지는 http 또는 https URL이어야 합니다."
 
 #: board/services/two_factor_setup_service.py:142
 #, python-format

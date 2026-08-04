@@ -604,6 +604,11 @@ msgid "common.add"
 msgstr "추가"
 
 #. js-lingui-explicit-id
+#: src/components/shared/ImageCropDialog.tsx:245
+msgid "common.apply"
+msgstr "적용"
+
+#. js-lingui-explicit-id
 #: src/components/remotes/Comments/components/CommentEditForm.tsx:69
 #: src/components/remotes/Comments/components/CommentForm.tsx:196
 #: src/components/remotes/PostEditor/components/PostRevisionDialog.tsx:606
@@ -613,6 +618,7 @@ msgstr "추가"
 #: src/components/remotes/PostEditor/NewPostEditor.tsx:397
 #: src/components/remotes/SettingsApp/pages/AccountSetting/components/TwoFactorModal.tsx:135
 #: src/components/remotes/SettingsApp/pages/PinnedPostsSetting/components/AddPinnedPostModal.tsx:220
+#: src/components/shared/ImageCropDialog.tsx:239
 msgid "common.cancel"
 msgstr "취소"
 
@@ -639,6 +645,7 @@ msgstr "닫기"
 #: src/components/remotes/PostEditor/components/PostRevisionDialog.tsx:645
 #: src/components/remotes/SettingsApp/pages/AccountSetting/AccountSetting.tsx:280
 #: src/components/remotes/SettingsApp/pages/AccountSetting/components/SecuritySection.tsx:77
+#: src/components/remotes/SettingsApp/pages/ProfileSetting/ProfileSetting.tsx:233
 msgid "common.delete"
 msgstr "삭제"
 
@@ -675,6 +682,16 @@ msgstr "활성화"
 #: src/components/remotes/Signup/Signup.tsx:256
 msgid "common.error.try_again"
 msgstr "오류가 발생했습니다. 다시 시도해주세요."
+
+#. js-lingui-explicit-id
+#: src/components/shared/ImageCropDialog.tsx:163
+msgid "common.image_crop.apply_failed"
+msgstr "이미지를 적용하지 못했습니다."
+
+#. js-lingui-explicit-id
+#: src/components/shared/ImageCropDialog.tsx:212
+msgid "common.image_crop.zoom"
+msgstr "확대"
 
 #. js-lingui-explicit-id
 #: src/components/remotes/PostEditor/components/PostRevisionDialog.tsx:453
@@ -2978,3 +2995,186 @@ msgstr "해제"
 #: src/components/remotes/SettingsApp/pages/PinnedPostsSetting/components/PinnedPostsPanel.tsx:280
 msgid "settings.pinned_posts.view_trash"
 msgstr "휴지통 보기"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/ProfileSetting/ProfileSetting.tsx:306
+msgid "settings.profile.avatar.alt"
+msgstr "프로필 이미지"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/ProfileSetting/ProfileSetting.tsx:317
+msgid "settings.profile.avatar.change"
+msgstr "프로필 이미지 변경"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/ProfileSetting/ProfileSetting.tsx:271
+msgid "settings.profile.avatar.crop_title"
+msgstr "프로필 이미지 자르기"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/ProfileSetting/ProfileSetting.tsx:174
+msgid "settings.profile.avatar.save_success"
+msgstr "프로필 이미지가 저장되었습니다."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/ProfileSetting/ProfileSetting.tsx:336
+msgid "settings.profile.avatar.select_hint"
+msgstr "카메라 버튼에서 이미지를 선택할 수 있습니다."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/ProfileSetting/ProfileSetting.tsx:341
+msgid "settings.profile.avatar.size_hint"
+msgstr "권장 크기: 400 × 400px, 최대 5MB"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/ProfileSetting/ProfileSetting.tsx:297
+msgid "settings.profile.avatar.subtitle"
+msgstr "자르기 완료 즉시 저장됩니다."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/ProfileSetting/ProfileSetting.tsx:293
+msgid "settings.profile.avatar.title"
+msgstr "프로필 이미지"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/ProfileSetting/ProfileSetting.tsx:183
+msgid "settings.profile.avatar.update_failed"
+msgstr "프로필 이미지 업데이트에 실패했습니다."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/ProfileSetting/ProfileSetting.tsx:450
+msgid "settings.profile.basic_info.subtitle"
+msgstr "소개와 홈페이지는 저장 버튼을 눌러 반영합니다."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/ProfileSetting/ProfileSetting.tsx:446
+msgid "settings.profile.basic_info.title"
+msgstr "기본 정보"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/ProfileSetting/ProfileSetting.tsx:458
+msgid "settings.profile.bio.label"
+msgstr "소개"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/ProfileSetting/ProfileSetting.tsx:465
+msgid "settings.profile.bio.placeholder"
+msgstr "자신을 간단히 소개해 보세요. 관심사, 전문 분야, 취미 등을 알려주세요."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/ProfileSetting/ProfileSetting.tsx:58
+msgid "settings.profile.bio.validation.max_length"
+msgstr "소개는 500자 이내여야 합니다."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/ProfileSetting/ProfileSetting.tsx:399
+msgid "settings.profile.cover.add"
+msgstr "커버 이미지 추가"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/ProfileSetting/ProfileSetting.tsx:366
+msgid "settings.profile.cover.alt"
+msgstr "커버 이미지"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/ProfileSetting/ProfileSetting.tsx:377
+msgid "settings.profile.cover.change"
+msgstr "이미지 변경"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/ProfileSetting/ProfileSetting.tsx:275
+msgid "settings.profile.cover.crop_title"
+msgstr "커버 이미지 자르기"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/ProfileSetting/ProfileSetting.tsx:229
+msgid "settings.profile.cover.delete_confirm"
+msgstr "현재 커버 이미지를 삭제할까요?"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/ProfileSetting/ProfileSetting.tsx:253
+#: src/components/remotes/SettingsApp/pages/ProfileSetting/ProfileSetting.tsx:259
+msgid "settings.profile.cover.delete_failed"
+msgstr "커버 이미지 삭제에 실패했습니다."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/ProfileSetting/ProfileSetting.tsx:247
+msgid "settings.profile.cover.delete_success"
+msgstr "커버 이미지가 삭제되었습니다."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/ProfileSetting/ProfileSetting.tsx:225
+#: src/components/remotes/SettingsApp/pages/ProfileSetting/ProfileSetting.tsx:426
+msgid "settings.profile.cover.delete_title"
+msgstr "커버 이미지 삭제"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/ProfileSetting/ProfileSetting.tsx:178
+msgid "settings.profile.cover.save_success"
+msgstr "커버 이미지가 저장되었습니다."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/ProfileSetting/ProfileSetting.tsx:434
+msgid "settings.profile.cover.size_hint"
+msgstr "권장 크기: 1500 × 500px (3:1 비율), 최대 5MB"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/ProfileSetting/ProfileSetting.tsx:355
+msgid "settings.profile.cover.subtitle"
+msgstr "프로필 상단에 표시되며 자르기 완료 즉시 저장됩니다."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/ProfileSetting/ProfileSetting.tsx:351
+msgid "settings.profile.cover.title"
+msgstr "커버 이미지"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/ProfileSetting/ProfileSetting.tsx:187
+msgid "settings.profile.cover.update_failed"
+msgstr "커버 이미지 업데이트에 실패했습니다."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/ProfileSetting/ProfileSetting.tsx:404
+msgid "settings.profile.cover.upload_hint"
+msgstr "클릭하여 이미지를 업로드하세요"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/ProfileSetting/ProfileSetting.tsx:476
+msgid "settings.profile.homepage.label"
+msgstr "홈페이지"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/ProfileSetting/ProfileSetting.tsx:62
+msgid "settings.profile.homepage.validation.url"
+msgstr "유효한 URL을 입력해 주세요."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/ProfileSetting/ProfileSetting.tsx:90
+msgid "settings.profile.load_failed"
+msgstr "프로필 정보를 불러오지 못했습니다."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/ProfileSetting/ProfileSetting.tsx:505
+msgid "settings.profile.save"
+msgstr "기본 정보 저장"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/ProfileSetting/ProfileSetting.tsx:501
+msgid "settings.profile.saving"
+msgstr "저장 중..."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/ProfileSetting/ProfileSetting.tsx:284
+msgid "settings.profile.title"
+msgstr "프로필"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/ProfileSetting/ProfileSetting.tsx:129
+#: src/components/remotes/SettingsApp/pages/ProfileSetting/ProfileSetting.tsx:135
+msgid "settings.profile.update_failed"
+msgstr "프로필 업데이트에 실패했습니다."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/ProfileSetting/ProfileSetting.tsx:123
+msgid "settings.profile.update_success"
+msgstr "프로필을 업데이트했습니다."

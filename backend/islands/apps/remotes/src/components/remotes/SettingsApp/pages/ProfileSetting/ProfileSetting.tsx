@@ -1,5 +1,6 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import type { ChangeEvent } from 'react';
+import { Trans, useLingui } from '@lingui/react/macro';
 import { toast } from '~/utils/toast';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
@@ -24,13 +25,11 @@ import {
     uploadCover
 } from '~/lib/api/settings';
 
-// Define Zod schema for profile form
-const profileSchema = z.object({
-    bio: z.string().max(500, '소개는 500자 이내여야 합니다.').optional(),
-    homepage: z.string().url('유효한 URL을 입력해주세요.').optional().or(z.literal(''))
-});
+interface ProfileFormInputs {
+    bio?: string;
+    homepage?: string;
+}
 
-type ProfileFormInputs = z.infer<typeof profileSchema>;
 type ImageCropTarget = 'avatar' | 'cover';
 
 interface ImageCropState {
@@ -40,13 +39,11 @@ interface ImageCropState {
 
 const IMAGE_CROP_CONFIG = {
     avatar: {
-        title: '프로필 이미지 자르기',
         aspectRatio: 1,
         outputWidth: 400,
         outputHeight: 400
     },
     cover: {
-        title: '커버 이미지 자르기',
         aspectRatio: 3,
         outputWidth: 1500,
         outputHeight: 500
@@ -56,6 +53,17 @@ const IMAGE_CROP_CONFIG = {
 const getDefaultAvatarPath = () => getStaticPath('assets/images/default-avatar.jpg');
 
 const ProfileSetting = () => {
+    const { t } = useLingui();
+    const profileSchema = useMemo(() => z.object({
+        bio: z.string().max(500, t({
+            id: 'settings.profile.bio.validation.max_length',
+            message: 'Bio must be 500 characters or fewer.'
+        })).optional(),
+        homepage: z.string().url(t({
+            id: 'settings.profile.homepage.validation.url',
+            message: 'Enter a valid URL.'
+        })).optional().or(z.literal(''))
+    }), [t]);
     const [avatar, setAvatar] = useState(getDefaultAvatarPath);
     const [cover, setCover] = useState<string | null>(null);
     const [isLoading, setIsLoading] = useState(false);
@@ -79,7 +87,10 @@ const ProfileSetting = () => {
             if (data.status === 'DONE') {
                 return data.body;
             }
-            throw new Error('프로필 정보를 불러오는데 실패했습니다.');
+            throw new Error(t({
+                id: 'settings.profile.load_failed',
+                message: 'Could not load profile information.'
+            }));
         }
     });
 
@@ -109,13 +120,22 @@ const ProfileSetting = () => {
 
             if (data.status === 'DONE') {
                 reset(savedProfile);
-                toast.success('프로필이 업데이트 되었습니다.');
+                toast.success(t({
+                    id: 'settings.profile.update_success',
+                    message: 'Profile updated.'
+                }));
                 void refetch();
             } else {
-                toast.error('프로필 업데이트에 실패했습니다.');
+                toast.error(data.errorMessage || t({
+                    id: 'settings.profile.update_failed',
+                    message: 'Could not update the profile.'
+                }));
             }
         } catch {
-            toast.error('프로필 업데이트에 실패했습니다.');
+            toast.error(t({
+                id: 'settings.profile.update_failed',
+                message: 'Could not update the profile.'
+            }));
         } finally {
             setIsLoading(false);
         }
@@ -151,11 +171,23 @@ const ProfileSetting = () => {
 
         const isAvatarTarget = target === 'avatar';
         const successMessage = isAvatarTarget
-            ? '프로필 이미지가 저장되었습니다.'
-            : '커버 이미지가 저장되었습니다.';
+            ? t({
+                id: 'settings.profile.avatar.save_success',
+                message: 'Profile picture saved.'
+            })
+            : t({
+                id: 'settings.profile.cover.save_success',
+                message: 'Cover image saved.'
+            });
         const errorMessage = isAvatarTarget
-            ? '프로필 이미지 업데이트에 실패했습니다.'
-            : '커버 이미지 업데이트에 실패했습니다.';
+            ? t({
+                id: 'settings.profile.avatar.update_failed',
+                message: 'Could not update the profile picture.'
+            })
+            : t({
+                id: 'settings.profile.cover.update_failed',
+                message: 'Could not update the cover image.'
+            });
 
         try {
             if (isAvatarTarget) {
@@ -190,9 +222,18 @@ const ProfileSetting = () => {
         if (!cover) return;
 
         const confirmed = await confirm({
-            title: '커버 이미지 삭제',
-            message: '현재 커버 이미지를 삭제하시겠습니까?',
-            confirmText: '삭제',
+            title: t({
+                id: 'settings.profile.cover.delete_title',
+                message: 'Delete cover image'
+            }),
+            message: t({
+                id: 'settings.profile.cover.delete_confirm',
+                message: 'Delete the current cover image?'
+            }),
+            confirmText: t({
+                id: 'common.delete',
+                message: 'Delete'
+            }),
             variant: 'danger'
         });
 
@@ -203,42 +244,80 @@ const ProfileSetting = () => {
 
             if (data.status === 'DONE') {
                 setCover(null);
-                toast.success('커버 이미지가 삭제되었습니다.');
+                toast.success(t({
+                    id: 'settings.profile.cover.delete_success',
+                    message: 'Cover image deleted.'
+                }));
                 refetch();
             } else {
-                toast.error('커버 이미지 삭제에 실패했습니다.');
+                toast.error(t({
+                    id: 'settings.profile.cover.delete_failed',
+                    message: 'Could not delete the cover image.'
+                }));
             }
         } catch {
-            toast.error('커버 이미지 삭제에 실패했습니다.');
+            toast.error(t({
+                id: 'settings.profile.cover.delete_failed',
+                message: 'Could not delete the cover image.'
+            }));
         }
     };
 
     const imageCropConfig = imageCropState
         ? IMAGE_CROP_CONFIG[imageCropState.target]
         : null;
+    const imageCropTitle = imageCropState
+        ? imageCropState.target === 'avatar'
+            ? t({
+                id: 'settings.profile.avatar.crop_title',
+                message: 'Crop profile picture'
+            })
+            : t({
+                id: 'settings.profile.cover.crop_title',
+                message: 'Crop cover image'
+            })
+        : '';
 
     return (
         <div>
-            <SettingsHeader title="프로필" />
+            <SettingsHeader
+                title={t({
+                    id: 'settings.profile.title',
+                    message: 'Profile'
+                })}
+            />
 
             <div>
                 {/* Profile Image Section */}
                 <Card
-                    title="프로필 이미지"
-                    subtitle="자르기 완료 즉시 저장됩니다."
+                    title={t({
+                        id: 'settings.profile.avatar.title',
+                        message: 'Profile picture'
+                    })}
+                    subtitle={t({
+                        id: 'settings.profile.avatar.subtitle',
+                        message: 'Saved as soon as you finish cropping.'
+                    })}
                     className="mb-6">
                     <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4">
                         <div className="relative w-24 h-24 sm:w-28 sm:h-28">
                             <img
                                 src={avatar}
-                                alt="프로필 이미지"
+                                alt={t({
+                                    id: 'settings.profile.avatar.alt',
+                                    message: 'Profile picture'
+                                })}
                                 className="w-full h-full rounded-full object-cover border-4 border-line-light shadow-lg"
                             />
                             <div className="absolute -bottom-1 -right-1">
                                 <label
                                     htmlFor="avatar-input"
                                     className="group flex h-11 w-11 cursor-pointer items-center justify-center rounded-full">
-                                    <span className="sr-only">프로필 이미지 변경</span>
+                                    <span className="sr-only">
+                                        <Trans id="settings.profile.avatar.change">
+                                            Change profile picture
+                                        </Trans>
+                                    </span>
                                     <span className="flex h-8 w-8 items-center justify-center rounded-full bg-action text-content-inverted shadow-md transition-colors group-hover:bg-action-hover group-focus-within:ring-2 group-focus-within:ring-line-strong group-focus-within:ring-offset-2 group-focus-within:ring-offset-surface sm:h-10 sm:w-10">
                                         <ImagePlus aria-hidden="true" className="h-4 w-4 sm:h-5 sm:w-5" />
                                     </span>
@@ -253,16 +332,30 @@ const ProfileSetting = () => {
                             </div>
                         </div>
                         <div className="text-center sm:text-left">
-                            <p className="text-sm text-content-secondary mb-2">카메라 버튼에서 이미지를 선택할 수 있습니다.</p>
-                            <p className="text-xs text-content-hint">권장 크기: 400x400px, 최대 5MB</p>
+                            <p className="text-sm text-content-secondary mb-2">
+                                <Trans id="settings.profile.avatar.select_hint">
+                                    Select an image using the camera button.
+                                </Trans>
+                            </p>
+                            <p className="text-xs text-content-hint">
+                                <Trans id="settings.profile.avatar.size_hint">
+                                    Recommended: 400 × 400 px, up to 5 MB
+                                </Trans>
+                            </p>
                         </div>
                     </div>
                 </Card>
 
                 {/* Cover Image Section */}
                 <Card
-                    title="커버 이미지"
-                    subtitle="프로필 상단에 표시되며 자르기 완료 즉시 저장됩니다."
+                    title={t({
+                        id: 'settings.profile.cover.title',
+                        message: 'Cover image'
+                    })}
+                    subtitle={t({
+                        id: 'settings.profile.cover.subtitle',
+                        message: 'Shown at the top of your profile and saved as soon as you finish cropping.'
+                    })}
                     className="mb-6">
                     <div className="space-y-4">
                         {cover ? (
@@ -270,7 +363,10 @@ const ProfileSetting = () => {
                                 <div className="aspect-[3/1] w-full rounded-2xl overflow-hidden ring-1 ring-line/5">
                                     <img
                                         src={cover}
-                                        alt="커버 이미지"
+                                        alt={t({
+                                            id: 'settings.profile.cover.alt',
+                                            message: 'Cover image'
+                                        })}
                                         className="w-full h-full object-cover"
                                     />
                                 </div>
@@ -278,7 +374,9 @@ const ProfileSetting = () => {
                                     <label
                                         htmlFor="cover-input"
                                         className="px-6 py-3 bg-surface hover:bg-surface-subtle rounded-xl text-sm font-semibold text-content cursor-pointer transition-colors shadow-lg focus-within:ring-2 focus-within:ring-line-strong">
-                                        이미지 변경
+                                        <Trans id="settings.profile.cover.change">
+                                            Change image
+                                        </Trans>
                                         <input
                                             id="cover-input"
                                             type="file"
@@ -297,8 +395,16 @@ const ProfileSetting = () => {
                                         className="h-12 w-12 text-content-hint transition-colors group-hover:text-content-hint"
                                     />
                                     <div className="text-center">
-                                        <p className="text-sm font-semibold text-content-secondary mb-1">커버 이미지 추가</p>
-                                        <p className="text-xs text-content-hint">클릭하여 이미지를 업로드하세요</p>
+                                        <p className="text-sm font-semibold text-content-secondary mb-1">
+                                            <Trans id="settings.profile.cover.add">
+                                                Add cover image
+                                            </Trans>
+                                        </p>
+                                        <p className="text-xs text-content-hint">
+                                            <Trans id="settings.profile.cover.upload_hint">
+                                                Click to upload an image
+                                            </Trans>
+                                        </p>
                                     </div>
                                 </div>
                                 <input
@@ -317,12 +423,18 @@ const ProfileSetting = () => {
                                     onClick={handleCoverDelete}
                                     className="inline-flex min-h-11 items-center gap-2 rounded-xl border border-danger-line px-4 py-2 text-sm font-semibold text-danger transition-colors hover:bg-danger-surface [@media(pointer:fine)]:min-h-9">
                                     <Trash2 aria-hidden="true" className="h-4 w-4" />
-                                    커버 이미지 삭제
+                                    <Trans id="settings.profile.cover.delete_title">
+                                        Delete cover image
+                                    </Trans>
                                 </button>
                             </div>
                         )}
                         <div>
-                            <p className="text-xs text-content-hint">권장 크기: 1500x500px (3:1 비율), 최대 5MB</p>
+                            <p className="text-xs text-content-hint">
+                                <Trans id="settings.profile.cover.size_hint">
+                                    Recommended: 1500 × 500 px (3:1 ratio), up to 5 MB
+                                </Trans>
+                            </p>
                         </div>
                     </div>
                 </Card>
@@ -331,17 +443,29 @@ const ProfileSetting = () => {
             <form onSubmit={handleSubmit(onSubmit)}>
                 {/* Profile Information Section */}
                 <Card
-                    title="기본 정보"
-                    subtitle="소개와 홈페이지는 저장 버튼을 눌러 반영합니다."
+                    title={t({
+                        id: 'settings.profile.basic_info.title',
+                        message: 'Basic information'
+                    })}
+                    subtitle={t({
+                        id: 'settings.profile.basic_info.subtitle',
+                        message: 'Use the save button to apply changes to your bio and homepage.'
+                    })}
                     className="mb-6">
                     <div className="mb-6">
                         <Input
                             density="compact"
-                            label="소개"
+                            label={t({
+                                id: 'settings.profile.bio.label',
+                                message: 'Bio'
+                            })}
                             leftIcon={<UserRound aria-hidden="true" className="h-4 w-4" />}
                             multiline
                             rows={4}
-                            placeholder="자신을 간단히 소개해 보세요. 관심사, 전문 분야, 취미 등을 알려주세요."
+                            placeholder={t({
+                                id: 'settings.profile.bio.placeholder',
+                                message: 'Share a little about yourself, your interests, expertise, or hobbies.'
+                            })}
                             error={errors.bio?.message}
                             {...register('bio')}
                         />
@@ -349,7 +473,10 @@ const ProfileSetting = () => {
 
                     <Input
                         density="compact"
-                        label="홈페이지"
+                        label={t({
+                            id: 'settings.profile.homepage.label',
+                            message: 'Homepage'
+                        })}
                         leftIcon={<Link aria-hidden="true" className="h-4 w-4" />}
                         type="url"
                         placeholder="https://example.com"
@@ -370,7 +497,15 @@ const ProfileSetting = () => {
                         leftIcon={
                             !isLoading ? <Save aria-hidden="true" className="h-4 w-4" /> : undefined
                         }>
-                        {isLoading ? '저장 중...' : '기본 정보 저장'}
+                        {isLoading
+                            ? t({
+                                id: 'settings.profile.saving',
+                                message: 'Saving...'
+                            })
+                            : t({
+                                id: 'settings.profile.save',
+                                message: 'Save basic information'
+                            })}
                     </Button>
                 </div>
             </form>
@@ -379,7 +514,7 @@ const ProfileSetting = () => {
                 <ImageCropDialog
                     isOpen={Boolean(imageCropState)}
                     file={imageCropState?.file ?? null}
-                    title={imageCropConfig.title}
+                    title={imageCropTitle}
                     aspectRatio={imageCropConfig.aspectRatio}
                     outputWidth={imageCropConfig.outputWidth}
                     outputHeight={imageCropConfig.outputHeight}
