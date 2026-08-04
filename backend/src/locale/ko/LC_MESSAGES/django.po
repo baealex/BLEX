@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: BLEX 3.1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-08-05 06:40+0900\n"
+"POT-Creation-Date: 2026-08-05 06:44+0900\n"
 "PO-Revision-Date: 2026-07-18 00:00+0900\n"
 "Last-Translator: BLEX contributors\n"
 "Language-Team: Korean\n"
@@ -149,10 +149,92 @@ msgid "%(count)d connection was kept to preserve a login method."
 msgid_plural "%(count)d connections were kept to preserve a login method."
 msgstr[0] "%(count)d개는 로그인 수단을 보존하기 위해 해제하지 않았습니다."
 
+#: board/admin/banner.py:49
+msgid "Activate selected items"
+msgstr "선택한 항목 활성화"
+
+#: board/admin/banner.py:60
+msgid "There are no inactive items to activate."
+msgstr "활성화할 비활성 항목이 없습니다."
+
+#: board/admin/banner.py:70
+#, python-format
+msgid "Confirm activation of %(items)s"
+msgstr "%(items)s 활성화 확인"
+
+#: board/admin/banner.py:74
+#, python-format
+msgid "The selected %(items)s may become visible in the service immediately after activation."
+msgstr "선택한 %(items)s는 활성화 즉시 서비스 화면에 노출될 수 있습니다."
+
+#: board/admin/banner.py:77
+msgid "Activate"
+msgstr "활성화"
+
+#: board/admin/banner.py:85
+msgid "Activated in Admin"
+msgstr "Admin에서 활성화"
+
+#: board/admin/banner.py:90
+#, python-format
+msgid "%(count)d item was activated."
+msgid_plural "%(count)d items were activated."
+msgstr[0] "%(count)d개의 항목을 활성화했습니다."
+
+#: board/admin/banner.py:96
+msgid "Deactivate selected items"
+msgstr "선택한 항목 비활성화"
+
+#: board/admin/banner.py:106
+msgid "Deactivated in Admin"
+msgstr "Admin에서 비활성화"
+
+#: board/admin/banner.py:111
+#, python-format
+msgid "%(count)d item was deactivated."
+msgid_plural "%(count)d items were deactivated."
+msgstr[0] "%(count)d개의 항목을 비활성화했습니다."
+
+#: board/admin/banner.py:146 board/admin/banner.py:215
 #: board/admin/comment.py:54 board/admin/notify.py:127 board/admin/post.py:218
 #: board/admin/series.py:118
 msgid "Basic information"
 msgstr "기본 정보"
+
+#: board/admin/banner.py:149 board/admin/banner.py:221
+#: board/admin/comment.py:175 board/admin/notify.py:130
+#: board/admin/series.py:52 board/admin/series.py:206
+#: board/templates/board/developer_api_quickstart.html:121
+msgid "Status"
+msgstr "상태"
+
+#: board/admin/banner.py:152 board/admin/banner.py:224
+#: board/admin/notify.py:133 board/admin/series.py:131
+msgid "Metadata"
+msgstr "메타데이터"
+
+#: board/admin/banner.py:171 board/admin/banner.py:246
+msgid "Scope"
+msgstr "범위"
+
+#: board/admin/banner.py:175 board/admin/banner.py:250
+msgid "Activation status"
+msgstr "활성화 상태"
+
+#: board/admin/banner.py:179 board/admin/banner.py:254
+#: board/admin/comment.py:203 board/admin/notify.py:183 board/admin/post.py:469
+#: board/admin/series.py:271
+msgid "Created at"
+msgstr "생성일시"
+
+#: board/admin/banner.py:183 board/admin/banner.py:258
+#: board/admin/notify.py:187 board/admin/post.py:473 board/admin/series.py:275
+msgid "Updated at"
+msgstr "수정일시"
+
+#: board/admin/banner.py:218
+msgid "Banner settings"
+msgstr "배너 설정"
 
 #: board/admin/comment.py:57 board/admin/comment.py:147
 #: board/admin/notify.py:164 board/admin/series.py:124 main/admin_site.py:24
@@ -198,12 +280,6 @@ msgstr "수정됨"
 msgid "Heart"
 msgstr "하트"
 
-#: board/admin/comment.py:175 board/admin/notify.py:130
-#: board/admin/series.py:52 board/admin/series.py:206
-#: board/templates/board/developer_api_quickstart.html:121
-msgid "Status"
-msgstr "상태"
-
 #: board/admin/comment.py:182
 msgid "Deleted user"
 msgstr "삭제된 사용자"
@@ -224,11 +300,6 @@ msgstr "작성자 정보"
 #: board/admin/comment.py:199 board/admin/post.py:459
 msgid "Total likes"
 msgstr "총 좋아요 수"
-
-#: board/admin/comment.py:203 board/admin/notify.py:183 board/admin/post.py:469
-#: board/admin/series.py:271
-msgid "Created at"
-msgstr "생성일시"
 
 #: board/admin/comment.py:217
 msgid "Marked with a heart in Admin"
@@ -351,10 +422,6 @@ msgstr "알림 내용"
 msgid "Message sent to every active user"
 msgstr "모든 활성 사용자에게 전송될 알림 메시지"
 
-#: board/admin/notify.py:133 board/admin/series.py:131
-msgid "Metadata"
-msgstr "메타데이터"
-
 #: board/admin/notify.py:168
 msgid "Read status"
 msgstr "읽음 상태"
@@ -362,10 +429,6 @@ msgstr "읽음 상태"
 #: board/admin/notify.py:176
 msgid "Unsafe URL"
 msgstr "안전하지 않은 URL"
-
-#: board/admin/notify.py:187 board/admin/post.py:473 board/admin/series.py:275
-msgid "Updated at"
-msgstr "수정일시"
 
 #: board/admin/notify.py:205
 msgid "Marked as read in Admin"
@@ -1310,6 +1373,16 @@ msgstr "텔레그램 연동"
 msgid "Telegram connections"
 msgstr "텔레그램 연동"
 
+#: board/models/integrations.py:177
+msgctxt "Site content scope"
+msgid "User"
+msgstr "사용자"
+
+#: board/models/integrations.py:178
+msgctxt "Site content scope"
+msgid "Global"
+msgstr "전역"
+
 #: board/models/integrations.py:224
 msgid "Webhook subscription"
 msgstr "웹훅 구독"
@@ -1414,21 +1487,59 @@ msgstr "포스트 수정 요청"
 msgid "Post edit requests"
 msgstr "포스트 수정 요청"
 
-#: board/models/site.py:140
+#: board/models/site.py:109
+msgctxt "Banner type"
+msgid "Full-width banner (horizontal)"
+msgstr "줄배너 (가로 전체)"
+
+#: board/models/site.py:113
+msgctxt "Banner type"
+msgid "Side banner (left/right)"
+msgstr "사이드배너 (좌우 측면)"
+
+#: board/models/site.py:119
+msgctxt "Banner position"
+msgid "Top"
+msgstr "상단"
+
+#: board/models/site.py:120
+msgctxt "Banner position"
+msgid "Bottom"
+msgstr "하단"
+
+#: board/models/site.py:121
+msgctxt "Banner position"
+msgid "Left"
+msgstr "좌측"
+
+#: board/models/site.py:122
+msgctxt "Banner position"
+msgid "Right"
+msgstr "우측"
+
+#: board/models/site.py:146
 msgid "Site notice"
 msgstr "사이트 공지"
 
-#: board/models/site.py:141
+#: board/models/site.py:147
 msgid "Site notices"
 msgstr "사이트 공지"
 
-#: board/models/site.py:156
+#: board/models/site.py:162
 msgid "Site banner"
 msgstr "사이트 배너"
 
-#: board/models/site.py:157
+#: board/models/site.py:163
 msgid "Site banners"
 msgstr "사이트 배너"
+
+#: board/models/site.py:174
+msgid "Full-width banners can only be placed at the top or bottom."
+msgstr "줄배너는 상단 또는 하단에만 배치할 수 있습니다."
+
+#: board/models/site.py:182
+msgid "Side banners can only be placed on the left or right."
+msgstr "사이드배너는 좌측 또는 우측에만 배치할 수 있습니다."
 
 #: board/modules/time.py:29
 #, python-format

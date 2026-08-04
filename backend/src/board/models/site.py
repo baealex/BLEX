@@ -1,6 +1,6 @@
 from django.core.exceptions import ValidationError
 from django.db import models
-from django.utils.translation import gettext_lazy as _
+from django.utils.translation import gettext_lazy as _, pgettext_lazy
 
 from .integrations import SiteContentScope
 
@@ -104,16 +104,22 @@ class StaticPage(models.Model):
 
 class BannerType(models.TextChoices):
     """Banner type choices"""
-    HORIZONTAL = 'horizontal', '줄배너 (가로 전체)'
-    SIDEBAR = 'sidebar', '사이드배너 (좌우 측면)'
+    HORIZONTAL = 'horizontal', pgettext_lazy(
+        'Banner type',
+        'Full-width banner (horizontal)',
+    )
+    SIDEBAR = 'sidebar', pgettext_lazy(
+        'Banner type',
+        'Side banner (left/right)',
+    )
 
 
 class BannerPosition(models.TextChoices):
     """Banner position choices"""
-    TOP = 'top', '상단'
-    BOTTOM = 'bottom', '하단'
-    LEFT = 'left', '좌측'
-    RIGHT = 'right', '우측'
+    TOP = 'top', pgettext_lazy('Banner position', 'Top')
+    BOTTOM = 'bottom', pgettext_lazy('Banner position', 'Bottom')
+    LEFT = 'left', pgettext_lazy('Banner position', 'Left')
+    RIGHT = 'right', pgettext_lazy('Banner position', 'Right')
 
 
 class SiteContentBase(models.Model):
@@ -164,10 +170,15 @@ class SiteBanner(SiteContentBase):
         if self.banner_type == BannerType.HORIZONTAL:
             if self.position not in [BannerPosition.TOP, BannerPosition.BOTTOM]:
                 raise ValidationError({
-                    'position': '줄배너는 상단 또는 하단에만 배치할 수 있습니다.'
+                    'position': _(
+                        'Full-width banners can only be placed at the top or '
+                        'bottom.'
+                    )
                 })
         if self.banner_type == BannerType.SIDEBAR:
             if self.position not in [BannerPosition.LEFT, BannerPosition.RIGHT]:
                 raise ValidationError({
-                    'position': '사이드배너는 좌측 또는 우측에만 배치할 수 있습니다.'
+                    'position': _(
+                        'Side banners can only be placed on the left or right.'
+                    )
                 })

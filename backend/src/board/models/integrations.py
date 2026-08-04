@@ -3,7 +3,7 @@ import datetime
 from django.contrib.auth.models import User
 from django.db import models
 from django.utils import timezone
-from django.utils.translation import gettext_lazy as _
+from django.utils.translation import gettext_lazy as _, pgettext_lazy
 
 from modules.hash import get_sha256
 
@@ -174,8 +174,8 @@ class UtilityCleanupConfirmation(models.Model):
 
 
 class SiteContentScope(models.TextChoices):
-    USER = 'user', '사용자'
-    GLOBAL = 'global', '전역'
+    USER = 'user', pgettext_lazy('Site content scope', 'User')
+    GLOBAL = 'global', pgettext_lazy('Site content scope', 'Global')
 
 
 class WebhookSubscription(models.Model):

@@ -8,6 +8,8 @@ from django.db import transaction
 from django.db.models import QuerySet
 from django.http import HttpRequest
 from django.utils.html import format_html
+from django.utils.translation import gettext_lazy as _
+from django.utils.translation import ngettext
 
 from board.models import SiteNotice, SiteBanner
 
@@ -44,7 +46,7 @@ class SiteContentActionAdminMixin:
                 count += 1
         return count
 
-    @admin.action(description='선택한 항목 활성화')
+    @admin.action(description=_('Activate selected items'))
     def activate_items(
         self,
         request: HttpRequest,
@@ -55,7 +57,7 @@ class SiteContentActionAdminMixin:
             if not inactive_items.exists():
                 self.message_user(
                     request,
-                    '활성화할 비활성 항목이 없습니다.',
+                    _('There are no inactive items to activate.'),
                     level=messages.WARNING,
                 )
                 return None
@@ -65,12 +67,14 @@ class SiteContentActionAdminMixin:
                 self,
                 inactive_items,
                 action_name='activate_items',
-                title=f'{verbose_name} 활성화 확인',
-                warning=(
-                    f'선택한 {verbose_name}는 활성화 즉시 서비스 화면에 '
-                    '노출될 수 있습니다.'
-                ),
-                confirm_label='활성화',
+                title=_('Confirm activation of %(items)s') % {
+                    'items': verbose_name,
+                },
+                warning=_(
+                    'The selected %(items)s may become visible in the service '
+                    'immediately after activation.'
+                ) % {'items': verbose_name},
+                confirm_label=_('Activate'),
                 is_destructive=False,
             )
 
@@ -78,11 +82,18 @@ class SiteContentActionAdminMixin:
             request,
             inactive_items,
             is_active=True,
-            change_message='Admin에서 활성화',
+            change_message=_('Activated in Admin'),
         )
-        self.message_user(request, f'{count}개의 항목을 활성화했습니다.')
+        self.message_user(
+            request,
+            ngettext(
+                '%(count)d item was activated.',
+                '%(count)d items were activated.',
+                count,
+            ) % {'count': count},
+        )
 
-    @admin.action(description='선택한 항목 비활성화')
+    @admin.action(description=_('Deactivate selected items'))
     def deactivate_items(
         self,
         request: HttpRequest,
@@ -92,9 +103,16 @@ class SiteContentActionAdminMixin:
             request,
             queryset.filter(is_active=True),
             is_active=False,
-            change_message='Admin에서 비활성화',
+            change_message=_('Deactivated in Admin'),
         )
-        self.message_user(request, f'{count}개의 항목을 비활성화했습니다.')
+        self.message_user(
+            request,
+            ngettext(
+                '%(count)d item was deactivated.',
+                '%(count)d items were deactivated.',
+                count,
+            ) % {'count': count},
+        )
 
 
 @admin.register(SiteNotice)
@@ -125,13 +143,13 @@ class SiteNoticeAdmin(SiteContentActionAdminMixin, admin.ModelAdmin):
     list_per_page = LIST_PER_PAGE_DEFAULT
 
     fieldsets = (
-        ('기본 정보', {
+        (_('Basic information'), {
             'fields': ('scope', 'user', 'title', 'url')
         }),
-        ('상태', {
+        (_('Status'), {
             'fields': ('is_active', 'order')
         }),
-        ('메타데이터', {
+        (_('Metadata'), {
             'fields': ('created_at', 'updated_at'),
             'classes': ('collapse',)
         }),
@@ -150,19 +168,19 @@ class SiteNoticeAdmin(SiteContentActionAdminMixin, admin.ModelAdmin):
             '<span style="background: {}; color: white; padding: 2px 8px; border-radius: 4px; font-size: 11px;">{}</span>',
             color, obj.get_scope_display()
         )
-    scope_display.short_description = '범위'
+    scope_display.short_description = _('Scope')
 
     def active_status(self, obj: SiteNotice) -> str:
         return AdminDisplayService.active_status_badge(obj.is_active)
-    active_status.short_description = '활성화 상태'
+    active_status.short_description = _('Activation status')
 
     def created_at(self, obj: SiteNotice) -> str:
         return AdminDisplayService.date_display(obj.created_date, DATETIME_FORMAT_FULL)
-    created_at.short_description = '생성일시'
+    created_at.short_description = _('Created at')
 
     def updated_at(self, obj: SiteNotice) -> str:
         return AdminDisplayService.date_display(obj.updated_date, DATETIME_FORMAT_FULL)
-    updated_at.short_description = '수정일시'
+    updated_at.short_description = _('Updated at')
 
 @admin.register(SiteBanner)
 class SiteBannerAdmin(SiteContentActionAdminMixin, admin.ModelAdmin):
@@ -194,16 +212,16 @@ class SiteBannerAdmin(SiteContentActionAdminMixin, admin.ModelAdmin):
     list_per_page = LIST_PER_PAGE_DEFAULT
 
     fieldsets = (
-        ('기본 정보', {
+        (_('Basic information'), {
             'fields': ('scope', 'user', 'title')
         }),
-        ('배너 설정', {
+        (_('Banner settings'), {
             'fields': ('content_html', 'banner_type', 'position'),
         }),
-        ('상태', {
+        (_('Status'), {
             'fields': ('is_active', 'order')
         }),
-        ('메타데이터', {
+        (_('Metadata'), {
             'fields': ('created_at', 'updated_at'),
             'classes': ('collapse',)
         }),
@@ -225,16 +243,16 @@ class SiteBannerAdmin(SiteContentActionAdminMixin, admin.ModelAdmin):
             '<span style="background: {}; color: white; padding: 2px 8px; border-radius: 4px; font-size: 11px;">{}</span>',
             color, obj.get_scope_display()
         )
-    scope_display.short_description = '범위'
+    scope_display.short_description = _('Scope')
 
     def active_status(self, obj: SiteBanner) -> str:
         return AdminDisplayService.active_status_badge(obj.is_active)
-    active_status.short_description = '활성화 상태'
+    active_status.short_description = _('Activation status')
 
     def created_at(self, obj: SiteBanner) -> str:
         return AdminDisplayService.date_display(obj.created_date, DATETIME_FORMAT_FULL)
-    created_at.short_description = '생성일시'
+    created_at.short_description = _('Created at')
 
     def updated_at(self, obj: SiteBanner) -> str:
         return AdminDisplayService.date_display(obj.updated_date, DATETIME_FORMAT_FULL)
-    updated_at.short_description = '수정일시'
+    updated_at.short_description = _('Updated at')

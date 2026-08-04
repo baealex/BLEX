@@ -3,6 +3,7 @@ from django.core.exceptions import ValidationError
 from django.contrib.auth.models import User
 from django.db import connection
 from django.test.utils import CaptureQueriesContext
+from django.utils import translation
 
 from board.models import (
     SiteNotice, SiteBanner, SiteContentScope,
@@ -84,6 +85,24 @@ class SiteBannerModelTestCase(TestCase):
             password='test',
             email='test@test.com',
         )
+
+    def test_choices_use_locale_without_changing_stored_values(self):
+        self.assertEqual(SiteContentScope.USER.value, 'user')
+        self.assertEqual(BannerType.HORIZONTAL.value, 'horizontal')
+        self.assertEqual(BannerPosition.LEFT.value, 'left')
+
+        with translation.override('en'):
+            self.assertEqual(SiteContentScope.USER.label, 'User')
+            self.assertEqual(
+                BannerType.HORIZONTAL.label,
+                'Full-width banner (horizontal)',
+            )
+            self.assertEqual(BannerPosition.LEFT.label, 'Left')
+
+        with translation.override('ko'):
+            self.assertEqual(SiteContentScope.USER.label, '사용자')
+            self.assertEqual(BannerType.HORIZONTAL.label, '줄배너 (가로 전체)')
+            self.assertEqual(BannerPosition.LEFT.label, '좌측')
 
     def test_create_user_banner(self):
         """유저 배너 생성 테스트"""
