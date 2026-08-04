@@ -326,6 +326,21 @@ msgid "author.pinned_posts.modal_title"
 msgstr "고정 포스트 설정"
 
 #. js-lingui-explicit-id
+#: src/components/CodeEditor.tsx:26
+msgid "code_editor.loading.aria"
+msgstr "코드 편집기 불러오는 중"
+
+#. js-lingui-explicit-id
+#: src/components/CodeEditor.tsx:21
+msgid "code_editor.loading.labelled"
+msgstr "{label} 불러오는 중"
+
+#. js-lingui-explicit-id
+#: src/components/CodeEditor.tsx:43
+msgid "code_editor.loading.visible"
+msgstr "코드 편집기를 불러오는 중입니다..."
+
+#. js-lingui-explicit-id
 #: src/components/remotes/Comments/components/CommentHeader.tsx:29
 msgid "comments.author_avatar"
 msgstr "{author}님의 프로필 이미지"
@@ -627,6 +642,7 @@ msgstr "적용"
 #: src/components/remotes/SettingsApp/pages/PinnedPostsSetting/components/AddPinnedPostModal.tsx:220
 #: src/components/remotes/SettingsApp/pages/shared/NoticeSettingBase.tsx:387
 #: src/components/shared/ImageCropDialog.tsx:239
+#: src/contexts/ConfirmContext.tsx:97
 msgid "common.cancel"
 msgstr "취소"
 
@@ -647,6 +663,11 @@ msgstr "순서 변경"
 #: src/components/remotes/SettingsApp/pages/StaticPagesSetting/components/StaticPageEditor.tsx:525
 msgid "common.close"
 msgstr "닫기"
+
+#. js-lingui-explicit-id
+#: src/contexts/ConfirmContext.tsx:106
+msgid "common.confirm"
+msgstr "확인"
 
 #. js-lingui-explicit-id
 #: src/components/remotes/SettingsApp/pages/DeveloperApiSetting/DeveloperApiSetting.tsx:565
@@ -760,6 +781,12 @@ msgstr "확대"
 #: src/components/remotes/PostEditor/components/PostRevisionDialog.tsx:453
 msgid "common.load_more"
 msgstr "더 보기"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/components/SettingsLayout.tsx:23
+#: src/components/remotes/SettingsApp/SettingsApp.tsx:92
+msgid "common.loading"
+msgstr "로딩 중"
 
 #. js-lingui-explicit-id
 #: src/components/remotes/SettingsApp/pages/AccountSetting/AccountSetting.tsx:28
@@ -2112,9 +2139,20 @@ msgid "editor.validation.url_required"
 msgstr "URL 주소를 입력해주세요."
 
 #. js-lingui-explicit-id
+#: src/contexts/LoginPromptContext.tsx:63
+msgid "login_prompt.action.generic"
+msgstr "이 작업"
+
+#. js-lingui-explicit-id
 #: src/components/remotes/LoginPrompt/LoginPrompt.tsx:116
+#: src/contexts/LoginPromptContext.tsx:127
 msgid "login_prompt.cancel"
 msgstr "취소"
+
+#. js-lingui-explicit-id
+#: src/contexts/LoginPromptContext.tsx:106
+msgid "login_prompt.description.action"
+msgstr "{action}을(를) 계속하려면 로그인해주세요."
 
 #. js-lingui-explicit-id
 #: src/components/remotes/LoginPrompt/LoginPrompt.tsx:55
@@ -2138,12 +2176,14 @@ msgstr "답글을 작성하려면 로그인해주세요."
 
 #. js-lingui-explicit-id
 #: src/components/remotes/LoginPrompt/LoginPrompt.tsx:110
+#: src/contexts/LoginPromptContext.tsx:118
 msgid "login_prompt.login"
 msgstr "로그인하기"
 
 #. js-lingui-explicit-id
 #: src/components/remotes/LoginPrompt/LoginPrompt.tsx:65
 #: src/components/remotes/LoginPrompt/LoginPrompt.tsx:97
+#: src/contexts/LoginPromptContext.tsx:98
 msgid "login_prompt.title"
 msgstr "로그인이 필요해요"
 

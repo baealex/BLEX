@@ -326,6 +326,21 @@ msgid "author.pinned_posts.modal_title"
 msgstr "Manage pinned posts"
 
 #. js-lingui-explicit-id
+#: src/components/CodeEditor.tsx:26
+msgid "code_editor.loading.aria"
+msgstr "Loading code editor"
+
+#. js-lingui-explicit-id
+#: src/components/CodeEditor.tsx:21
+msgid "code_editor.loading.labelled"
+msgstr "Loading {label}"
+
+#. js-lingui-explicit-id
+#: src/components/CodeEditor.tsx:43
+msgid "code_editor.loading.visible"
+msgstr "Loading code editor..."
+
+#. js-lingui-explicit-id
 #: src/components/remotes/Comments/components/CommentHeader.tsx:29
 msgid "comments.author_avatar"
 msgstr "Profile image for {author}"
@@ -627,6 +642,7 @@ msgstr "Apply"
 #: src/components/remotes/SettingsApp/pages/PinnedPostsSetting/components/AddPinnedPostModal.tsx:220
 #: src/components/remotes/SettingsApp/pages/shared/NoticeSettingBase.tsx:387
 #: src/components/shared/ImageCropDialog.tsx:239
+#: src/contexts/ConfirmContext.tsx:97
 msgid "common.cancel"
 msgstr "Cancel"
 
@@ -647,6 +663,11 @@ msgstr "Change order"
 #: src/components/remotes/SettingsApp/pages/StaticPagesSetting/components/StaticPageEditor.tsx:525
 msgid "common.close"
 msgstr "Close"
+
+#. js-lingui-explicit-id
+#: src/contexts/ConfirmContext.tsx:106
+msgid "common.confirm"
+msgstr "Confirm"
 
 #. js-lingui-explicit-id
 #: src/components/remotes/SettingsApp/pages/DeveloperApiSetting/DeveloperApiSetting.tsx:565
@@ -760,6 +781,12 @@ msgstr "Zoom"
 #: src/components/remotes/PostEditor/components/PostRevisionDialog.tsx:453
 msgid "common.load_more"
 msgstr "Load more"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/components/SettingsLayout.tsx:23
+#: src/components/remotes/SettingsApp/SettingsApp.tsx:92
+msgid "common.loading"
+msgstr "Loading"
 
 #. js-lingui-explicit-id
 #: src/components/remotes/SettingsApp/pages/AccountSetting/AccountSetting.tsx:28
@@ -2112,9 +2139,20 @@ msgid "editor.validation.url_required"
 msgstr "Enter a post URL."
 
 #. js-lingui-explicit-id
+#: src/contexts/LoginPromptContext.tsx:63
+msgid "login_prompt.action.generic"
+msgstr "this action"
+
+#. js-lingui-explicit-id
 #: src/components/remotes/LoginPrompt/LoginPrompt.tsx:116
+#: src/contexts/LoginPromptContext.tsx:127
 msgid "login_prompt.cancel"
 msgstr "Cancel"
+
+#. js-lingui-explicit-id
+#: src/contexts/LoginPromptContext.tsx:106
+msgid "login_prompt.description.action"
+msgstr "Log in to continue with {action}."
 
 #. js-lingui-explicit-id
 #: src/components/remotes/LoginPrompt/LoginPrompt.tsx:55
@@ -2138,12 +2176,14 @@ msgstr "Log in to reply."
 
 #. js-lingui-explicit-id
 #: src/components/remotes/LoginPrompt/LoginPrompt.tsx:110
+#: src/contexts/LoginPromptContext.tsx:118
 msgid "login_prompt.login"
 msgstr "Log in"
 
 #. js-lingui-explicit-id
 #: src/components/remotes/LoginPrompt/LoginPrompt.tsx:65
 #: src/components/remotes/LoginPrompt/LoginPrompt.tsx:97
+#: src/contexts/LoginPromptContext.tsx:98
 msgid "login_prompt.title"
 msgstr "Login required"
 

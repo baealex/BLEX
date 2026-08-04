@@ -29,7 +29,7 @@ const dropdownItemDensityStyles = {
 const Dropdown = ({
     items,
     trigger,
-    triggerAriaLabel = '메뉴 열기',
+    triggerAriaLabel = 'Open menu',
     triggerClassName = '',
     align = 'end',
     density = 'default'

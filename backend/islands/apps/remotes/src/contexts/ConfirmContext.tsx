@@ -5,6 +5,7 @@ import {
     useCallback,
     type ReactNode
 } from 'react';
+import { useLingui } from '@lingui/react/macro';
 import { Modal } from '@blex/ui/modal';
 import { ConfirmContext, type ConfirmOptions } from './internal/ConfirmContextDef';
 
@@ -13,12 +14,11 @@ interface ConfirmDialogState extends ConfirmOptions {
 }
 
 export const ConfirmProvider = ({ children }: { children: ReactNode }) => {
+    const { t } = useLingui();
     const [dialogState, setDialogState] = useState<ConfirmDialogState>({
         isOpen: false,
         title: '',
         message: '',
-        confirmText: '확인',
-        cancelText: '취소',
         variant: 'default'
     });
 
@@ -47,8 +47,6 @@ export const ConfirmProvider = ({ children }: { children: ReactNode }) => {
             setDialogState({
                 isOpen: true,
                 ...options,
-                confirmText: options.confirmText || '확인',
-                cancelText: options.cancelText || '취소',
                 variant: options.variant || 'default'
             });
         });
@@ -96,13 +94,19 @@ export const ConfirmProvider = ({ children }: { children: ReactNode }) => {
                         type="button"
                         variant="secondary"
                         onClick={handleClose}>
-                        {dialogState.cancelText}
+                        {dialogState.cancelText || t({
+                            id: 'common.cancel',
+                            message: 'Cancel'
+                        })}
                     </Modal.FooterAction>
                     <Modal.FooterAction
                         type="button"
                         variant={dialogState.variant === 'danger' ? 'danger-solid' : 'primary'}
                         onClick={handleConfirm}>
-                        {dialogState.confirmText}
+                        {dialogState.confirmText || t({
+                            id: 'common.confirm',
+                            message: 'Confirm'
+                        })}
                     </Modal.FooterAction>
                 </Modal.Footer>
             </Modal>

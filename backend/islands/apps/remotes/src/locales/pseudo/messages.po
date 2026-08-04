@@ -326,6 +326,21 @@ msgid "author.pinned_posts.modal_title"
 msgstr ""
 
 #. js-lingui-explicit-id
+#: src/components/CodeEditor.tsx:26
+msgid "code_editor.loading.aria"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/CodeEditor.tsx:21
+msgid "code_editor.loading.labelled"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/CodeEditor.tsx:43
+msgid "code_editor.loading.visible"
+msgstr ""
+
+#. js-lingui-explicit-id
 #: src/components/remotes/Comments/components/CommentHeader.tsx:29
 msgid "comments.author_avatar"
 msgstr ""
@@ -627,6 +642,7 @@ msgstr ""
 #: src/components/remotes/SettingsApp/pages/PinnedPostsSetting/components/AddPinnedPostModal.tsx:220
 #: src/components/remotes/SettingsApp/pages/shared/NoticeSettingBase.tsx:387
 #: src/components/shared/ImageCropDialog.tsx:239
+#: src/contexts/ConfirmContext.tsx:97
 msgid "common.cancel"
 msgstr ""
 
@@ -646,6 +662,11 @@ msgstr ""
 #: src/components/remotes/PostEditor/components/SettingsDrawer.tsx:234
 #: src/components/remotes/SettingsApp/pages/StaticPagesSetting/components/StaticPageEditor.tsx:525
 msgid "common.close"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/contexts/ConfirmContext.tsx:106
+msgid "common.confirm"
 msgstr ""
 
 #. js-lingui-explicit-id
@@ -759,6 +780,12 @@ msgstr ""
 #. js-lingui-explicit-id
 #: src/components/remotes/PostEditor/components/PostRevisionDialog.tsx:453
 msgid "common.load_more"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/components/SettingsLayout.tsx:23
+#: src/components/remotes/SettingsApp/SettingsApp.tsx:92
+msgid "common.loading"
 msgstr ""
 
 #. js-lingui-explicit-id
@@ -2112,8 +2139,19 @@ msgid "editor.validation.url_required"
 msgstr ""
 
 #. js-lingui-explicit-id
+#: src/contexts/LoginPromptContext.tsx:63
+msgid "login_prompt.action.generic"
+msgstr ""
+
+#. js-lingui-explicit-id
 #: src/components/remotes/LoginPrompt/LoginPrompt.tsx:116
+#: src/contexts/LoginPromptContext.tsx:127
 msgid "login_prompt.cancel"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/contexts/LoginPromptContext.tsx:106
+msgid "login_prompt.description.action"
 msgstr ""
 
 #. js-lingui-explicit-id
@@ -2138,12 +2176,14 @@ msgstr ""
 
 #. js-lingui-explicit-id
 #: src/components/remotes/LoginPrompt/LoginPrompt.tsx:110
+#: src/contexts/LoginPromptContext.tsx:118
 msgid "login_prompt.login"
 msgstr ""
 
 #. js-lingui-explicit-id
 #: src/components/remotes/LoginPrompt/LoginPrompt.tsx:65
 #: src/components/remotes/LoginPrompt/LoginPrompt.tsx:97
+#: src/contexts/LoginPromptContext.tsx:98
 msgid "login_prompt.title"
 msgstr ""
 

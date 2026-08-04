@@ -8,6 +8,7 @@ import {
     useRouter
 } from '@tanstack/react-router';
 import { lazy, Suspense, type ElementType } from 'react';
+import { useLingui } from '@lingui/react/macro';
 import { SettingsLayout } from './components/SettingsLayout';
 import { LoadingState } from '../../shared';
 
@@ -80,14 +81,27 @@ const getAdminDefaultPath = (adminCapabilities: AdminCapabilities) => {
     return '/global-notices';
 };
 
-// Root route
-const rootRoute = createRootRoute({
-    component: () => (
-        <Suspense fallback={<LoadingState type="form" />}>
+const SettingsRoot = () => {
+    const { t } = useLingui();
+
+    return (
+        <Suspense
+            fallback={(
+                <LoadingState
+                    type="form"
+                    ariaLabel={t({
+                        id: 'common.loading',
+                        message: 'Loading'
+                    })}
+                />
+            )}>
             <Outlet />
         </Suspense>
-    )
-});
+    );
+};
+
+// Root route
+const rootRoute = createRootRoute({ component: SettingsRoot });
 
 // Settings layout route
 const settingsRoute = createRoute({

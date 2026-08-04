@@ -4,6 +4,7 @@ import {
     useCallback,
     type ReactNode
 } from 'react';
+import { useLingui } from '@lingui/react/macro';
 import { Modal } from '~/components/shared';
 import { LoginPromptContext } from './internal/LoginPromptContextDef';
 
@@ -13,6 +14,7 @@ interface LoginPromptDialogState {
 }
 
 export const LoginPromptProvider = ({ children }: { children: ReactNode }) => {
+    const { i18n, t } = useLingui();
     const [dialogState, setDialogState] = useState<LoginPromptDialogState>({
         isOpen: false,
         action: ''
@@ -40,7 +42,7 @@ export const LoginPromptProvider = ({ children }: { children: ReactNode }) => {
                 return;
             }
 
-            const action = event.detail?.action || '이 작업';
+            const action = event.detail?.action || '';
             showLoginPrompt(action);
         };
 
@@ -58,6 +60,10 @@ export const LoginPromptProvider = ({ children }: { children: ReactNode }) => {
         const currentPath = window.location.pathname + window.location.search;
         window.location.assign(`/login?next=${encodeURIComponent(currentPath)}`);
     };
+    const action = dialogState.action || t({
+        id: 'login_prompt.action.generic',
+        message: 'this action'
+    });
 
     return (
         <LoginPromptContext.Provider value={{ showLoginPrompt }}>
@@ -89,12 +95,19 @@ export const LoginPromptProvider = ({ children }: { children: ReactNode }) => {
 
                     {/* Title */}
                     <h3 className="text-xl font-semibold text-content mb-2">
-                        로그인이 필요해요
+                        {t({
+                            id: 'login_prompt.title',
+                            message: 'Login required'
+                        })}
                     </h3>
 
                     {/* Description */}
                     <p className="text-content-secondary mb-8">
-                        {dialogState.action}을(를) 하려면 먼저 로그인해주세요.
+                        {i18n._({
+                            id: 'login_prompt.description.action',
+                            message: 'Log in to continue with {action}.',
+                            values: { action }
+                        })}
                     </p>
                 </Modal.Body>
                 <Modal.Footer className="flex-col px-8 pt-0 pb-8 border-t-0 bg-transparent">
@@ -102,13 +115,19 @@ export const LoginPromptProvider = ({ children }: { children: ReactNode }) => {
                         variant="primary"
                         onClick={handleLogin}
                         className="w-full">
-                        로그인하기
+                        {t({
+                            id: 'login_prompt.login',
+                            message: 'Log in'
+                        })}
                     </Modal.FooterAction>
                     <Modal.FooterAction
                         variant="secondary"
                         onClick={handleClose}
                         className="w-full">
-                        취소
+                        {t({
+                            id: 'login_prompt.cancel',
+                            message: 'Cancel'
+                        })}
                     </Modal.FooterAction>
                 </Modal.Footer>
             </Modal>

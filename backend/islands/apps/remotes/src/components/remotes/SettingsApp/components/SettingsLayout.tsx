@@ -1,9 +1,11 @@
 import { Outlet, useRouterState } from '@tanstack/react-router';
 import { Suspense } from 'react';
+import { useLingui } from '@lingui/react/macro';
 import { LoadingState } from '../../../shared';
 import { SettingsMobileNavigation, SettingsDesktopNavigation } from './SettingsNavigation';
 
 export const SettingsLayout = () => {
+    const { t } = useLingui();
     const routerState = useRouterState();
     const currentPath = routerState.location.pathname;
 
@@ -14,7 +16,16 @@ export const SettingsLayout = () => {
                 <SettingsDesktopNavigation currentPath={currentPath} />
                 {/* Main Content */}
                 <div className="flex-1 min-w-0 py-6">
-                    <Suspense fallback={<LoadingState type="form" />}>
+                    <Suspense
+                        fallback={(
+                            <LoadingState
+                                type="form"
+                                ariaLabel={t({
+                                    id: 'common.loading',
+                                    message: 'Loading'
+                                })}
+                            />
+                        )}>
                         <Outlet />
                     </Suspense>
                 </div>
