@@ -205,6 +205,51 @@ class DeveloperAuthAPITestCase(TestCase):
         self.assertIn('DeveloperBearerAuth', security_schemes)
         self.assertEqual(security_schemes['DeveloperBearerAuth']['scheme'], 'bearer')
 
+    def test_developer_api_openapi_copy_follows_each_request_language(self):
+        self.client.login(username='developer', password='developer')
+        cases = (
+            (
+                'en',
+                'BLEX Developer API',
+                'List posts',
+                'Posts',
+                'Post title.',
+            ),
+            (
+                'ko',
+                'BLEX 개발자 API',
+                '포스트 목록 조회',
+                '포스트',
+                '포스트 제목입니다.',
+            ),
+            (
+                'en',
+                'BLEX Developer API',
+                'List posts',
+                'Posts',
+                'Post title.',
+            ),
+        )
+
+        for language, title, summary, tag, field_description in cases:
+            with self.subTest(language=language, expected_summary=summary):
+                response = self.client.get(
+                    '/api/developer/v1/openapi.json',
+                    HTTP_ACCEPT_LANGUAGE=language,
+                )
+
+                self.assertEqual(response.status_code, 200)
+                schema = response.json()
+                list_operation = schema['paths']['/api/developer/v1/posts']['get']
+                post_payload = schema['components']['schemas']['PostMutationPayload']
+                self.assertEqual(schema['info']['title'], title)
+                self.assertEqual(list_operation['summary'], summary)
+                self.assertEqual(list_operation['tags'], [tag])
+                self.assertEqual(
+                    post_payload['properties']['title']['description'],
+                    field_description,
+                )
+
     def test_developer_api_docs_use_local_swagger_assets(self):
         self.client.login(username='developer', password='developer')
 

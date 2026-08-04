@@ -1,5 +1,6 @@
 from typing import Any, Literal
 
+from django.utils.translation import gettext_lazy as _
 from ninja import Field, Schema
 
 CoverLayout = Literal['default', 'split', 'overlay', 'none']
@@ -94,44 +95,104 @@ class PostDetailEnvelope(Schema):
 
 
 class PostBodyPayload(Schema):
-    title: str | None = Field(None, description='포스트 제목입니다.')
-    content: str | None = Field(None, description='본문입니다. markdown 필드를 우선 사용하세요.')
-    content_html: str | None = Field(None, description='HTML 본문입니다.')
-    markdown: str | None = Field(None, description='Markdown 본문입니다. 새 클라이언트의 권장 본문 필드입니다.')
-    text_html: str | None = Field(None, description='기존 클라이언트를 위한 HTML 본문 호환 필드입니다.')
-    text_md: str | None = Field(None, description='기존 클라이언트를 위한 Markdown 본문 호환 필드입니다.')
+    title: str | None = Field(None, description=_('Post title.'))
+    content: str | None = Field(
+        None,
+        description=_('Post body. Prefer the markdown field.'),
+    )
+    content_html: str | None = Field(None, description=_('HTML body.'))
+    markdown: str | None = Field(
+        None,
+        description=_(
+            'Markdown body. This is the recommended body field for new clients.'
+        ),
+    )
+    text_html: str | None = Field(
+        None,
+        description=_('Compatibility HTML body field for existing clients.'),
+    )
+    text_md: str | None = Field(
+        None,
+        description=_('Compatibility Markdown body field for existing clients.'),
+    )
     content_type: Literal['html', 'markdown'] | None = Field(
         None,
-        description='본문 형식입니다. markdown 필드를 보내면 markdown으로 처리됩니다.',
+        description=_(
+            'Body format. When the markdown field is provided, Markdown is used.'
+        ),
     )
-    subtitle: str | None = Field(None, description='포스트 부제목입니다.')
-    description: str | None = Field(None, description='SEO/공유용 설명입니다.')
-    tags: list[str] | str | None = Field(None, description='태그 목록입니다. 문자열 또는 문자열 배열을 사용할 수 있습니다.')
-    tag: list[str] | str | None = Field(None, description='기존 클라이언트를 위한 태그 호환 필드입니다.')
-    series_id: int | None = Field(None, description='내 시리즈 ID입니다.')
-    series_url: str | None = Field(None, description='내 시리즈 URL입니다. series_id보다 직접 URL을 지정할 때 사용합니다.')
-    slug: str | None = Field(None, description='사용자 지정 포스트 URL입니다.')
-    url: str | None = Field(None, description='기존 클라이언트를 위한 포스트 URL 호환 필드입니다.')
-    is_hidden: bool | None = Field(None, description='포스트를 비공개 처리할지 여부입니다.')
-    is_hide: bool | None = Field(None, description='기존 클라이언트를 위한 비공개 호환 필드입니다.')
-    is_advertise: bool | None = Field(None, description='홍보/광고성 포스트 여부입니다.')
-    cover_layout: CoverLayout | None = Field(None, description='상세 화면 커버 배치입니다.')
-    cover_image_position: CoverImagePosition | None = Field(None, description='분할 커버에서 대표 이미지 위치입니다.')
-    cover_image_ratio: CoverImageRatio | None = Field(None, description='기본/분할 커버에서 대표 이미지 비율입니다.')
-    published_at: str | None = Field(None, description='예약 발행 시각입니다. ISO datetime 문자열을 사용합니다.')
+    subtitle: str | None = Field(None, description=_('Post subtitle.'))
+    description: str | None = Field(
+        None,
+        description=_('Description for SEO and sharing.'),
+    )
+    tags: list[str] | str | None = Field(
+        None,
+        description=_('Tags. Accepts a string or an array of strings.'),
+    )
+    tag: list[str] | str | None = Field(
+        None,
+        description=_('Compatibility tag field for existing clients.'),
+    )
+    series_id: int | None = Field(
+        None,
+        description=_('ID of one of your series.'),
+    )
+    series_url: str | None = Field(
+        None,
+        description=_(
+            'URL of one of your series. Use this to specify the URL directly '
+            'instead of series_id.'
+        ),
+    )
+    slug: str | None = Field(None, description=_('Custom post URL.'))
+    url: str | None = Field(
+        None,
+        description=_('Compatibility post URL field for existing clients.'),
+    )
+    is_hidden: bool | None = Field(
+        None,
+        description=_('Whether to hide the post.'),
+    )
+    is_hide: bool | None = Field(
+        None,
+        description=_('Compatibility hidden-state field for existing clients.'),
+    )
+    is_advertise: bool | None = Field(
+        None,
+        description=_('Whether the post is promotional or advertising content.'),
+    )
+    cover_layout: CoverLayout | None = Field(
+        None,
+        description=_('Cover layout on the post detail page.'),
+    )
+    cover_image_position: CoverImagePosition | None = Field(
+        None,
+        description=_('Featured image position in the split cover layout.'),
+    )
+    cover_image_ratio: CoverImageRatio | None = Field(
+        None,
+        description=_('Featured image ratio in the default or split cover layout.'),
+    )
+    published_at: str | None = Field(
+        None,
+        description=_('Scheduled publication time as an ISO 8601 datetime string.'),
+    )
 
 
 class PostMutationPayload(PostBodyPayload):
     status: Literal['draft', 'published', 'scheduled'] | None = Field(
         None,
-        description='생성 상태입니다. 기본값은 draft입니다.',
+        description=_('Creation status. The default is draft.'),
     )
 
 
 class PostUpdatePayload(PostBodyPayload):
     expected_updated_at: str | None = Field(
         None,
-        description='동시 수정 방지를 위한 마지막 updated_at 값입니다.',
+        description=_(
+            'Last updated_at value used to prevent concurrent updates.'
+        ),
     )
 
 

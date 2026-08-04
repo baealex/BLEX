@@ -1,5 +1,6 @@
 from django.conf import settings
 from django.db.models import Count, Q, Window
+from django.utils.translation import gettext, gettext_lazy as _
 from ninja import Body, File, NinjaAPI, Query, Status, UploadedFile
 from ninja.errors import HttpError, ValidationError
 from ninja.security import HttpBearer
@@ -54,13 +55,20 @@ class DeveloperBearerAuth(HttpBearer):
 
 
 api = NinjaAPI(
-    title='BLEX Developer API',
+    title=_('BLEX Developer API'),
     version='1.0.0',
-    description='Personal token API for managing BLEX posts from external tools.',
+    description=_(
+        'Personal token API for managing BLEX posts from external tools.'
+    ),
     auth=DeveloperBearerAuth(),
     urls_namespace='developer_api_v1',
     docs_decorator=editor_required,
 )
+
+DEVELOPER_API_TAG = _('Developer API')
+POSTS_TAG = _('Posts')
+PUBLISHING_METADATA_TAG = _('Publishing metadata')
+MEDIA_TAG = _('Media')
 
 
 ERROR_RESPONSES = {
@@ -167,7 +175,7 @@ def handle_validation_error(request, exc):
         {
             'error': {
                 'code': 'request.invalid_payload',
-                'message': '요청 값을 확인할 수 없습니다.',
+                'message': gettext('The request payload could not be validated.'),
                 'fields': {'errors': exc.errors},
             },
         },
@@ -178,7 +186,11 @@ def handle_validation_error(request, exc):
 @api.exception_handler(HttpError)
 def handle_http_error(request, exc):
     code = 'request.invalid_json' if exc.status_code == 400 else 'request.error'
-    message = 'JSON 본문을 해석할 수 없습니다.' if code == 'request.invalid_json' else exc.message
+    message = (
+        gettext('The JSON request body could not be parsed.')
+        if code == 'request.invalid_json'
+        else exc.message
+    )
     return api.create_response(
         request,
         {
@@ -195,8 +207,8 @@ def handle_http_error(request, exc):
     '/me',
     response={200: DeveloperMeEnvelope, **ERROR_RESPONSES},
     operation_id='getMe',
-    summary='토큰과 계정 확인',
-    tags=['Developer API'],
+    summary=_('Get token and account details'),
+    tags=[DEVELOPER_API_TAG],
 )
 def get_me(request):
     response = success(developer_me_data(request.auth))
@@ -208,8 +220,8 @@ def get_me(request):
     '/posts',
     response={200: PostListEnvelope, **ERROR_RESPONSES},
     operation_id='listPosts',
-    summary='포스트 목록 조회',
-    tags=['Posts'],
+    summary=_('List posts'),
+    tags=[POSTS_TAG],
 )
 def list_posts(request, status: str = '', page: int = 1, limit: int = 20):
     require_scope(request.auth, 'posts:read')
@@ -243,8 +255,8 @@ def list_posts(request, status: str = '', page: int = 1, limit: int = 20):
     '/posts',
     response={201: PostDetailEnvelope, **ERROR_RESPONSES},
     operation_id='createPost',
-    summary='포스트 생성',
-    tags=['Posts'],
+    summary=_('Create a post'),
+    tags=[POSTS_TAG],
 )
 def create_post(request, payload: PostMutationPayload):
     require_scope(request.auth, 'posts:write')
@@ -277,7 +289,9 @@ def create_post(request, payload: PostMutationPayload):
             if status == 'scheduled' and not data.get('published_at'):
                 return error_response(
                     'post.missing_published_at',
-                    'scheduled status에는 published_at이 필요합니다.',
+                    gettext(
+                        'published_at is required when status is scheduled.'
+                    ),
                     400,
                 )
 
@@ -301,7 +315,9 @@ def create_post(request, payload: PostMutationPayload):
         else:
             return error_response(
                 'post.invalid_status',
-                'status는 draft, published, scheduled 중 하나여야 합니다.',
+                gettext(
+                    'status must be one of draft, published, or scheduled.'
+                ),
                 400,
             )
     except DeveloperAuthError as error:
@@ -319,8 +335,8 @@ def create_post(request, payload: PostMutationPayload):
     '/posts/search',
     response={200: PostListEnvelope, **ERROR_RESPONSES},
     operation_id='searchPosts',
-    summary='내 포스트 검색',
-    tags=['Posts'],
+    summary=_('Search my posts'),
+    tags=[POSTS_TAG],
 )
 def search_posts(
     request,
@@ -368,8 +384,8 @@ def search_posts(
     '/posts/{post_id}',
     response={200: PostDetailEnvelope, **ERROR_RESPONSES},
     operation_id='getPost',
-    summary='포스트 상세 조회',
-    tags=['Posts'],
+    summary=_('Get post details'),
+    tags=[POSTS_TAG],
 )
 def get_post(request, post_id: int):
     require_scope(request.auth, 'posts:read')
@@ -388,8 +404,8 @@ def get_post(request, post_id: int):
     '/posts/{post_id}',
     response={200: PostDetailEnvelope, **ERROR_RESPONSES},
     operation_id='updatePost',
-    summary='포스트 수정',
-    tags=['Posts'],
+    summary=_('Update a post'),
+    tags=[POSTS_TAG],
 )
 def update_post(request, post_id: int, payload: PostUpdatePayload):
     require_scope(request.auth, 'posts:write')
@@ -405,7 +421,7 @@ def update_post(request, post_id: int, payload: PostUpdatePayload):
     if expected_updated_at and expected_updated_at != actual_updated_at:
         response = error_response(
             'post.version_conflict',
-            '포스트가 이미 다른 요청으로 수정되었습니다.',
+            gettext('The post was already updated by another request.'),
             409,
             fields={
                 'expected_updated_at': expected_updated_at,
@@ -474,8 +490,8 @@ def update_post(request, post_id: int, payload: PostUpdatePayload):
     '/posts/{post_id}',
     response={200: DeletePostEnvelope, **ERROR_RESPONSES},
     operation_id='deletePost',
-    summary='포스트 삭제',
-    tags=['Posts'],
+    summary=_('Delete a post'),
+    tags=[POSTS_TAG],
 )
 def delete_post(request, post_id: int, dry_run: bool = False):
     require_scope(request.auth, 'posts:write')
@@ -506,8 +522,8 @@ def delete_post(request, post_id: int, dry_run: bool = False):
     '/posts/{post_id}/publish',
     response={200: PostDetailEnvelope, **ERROR_RESPONSES},
     operation_id='publishPost',
-    summary='임시 포스트 발행',
-    tags=['Posts'],
+    summary=_('Publish a draft'),
+    tags=[POSTS_TAG],
 )
 def publish_post(request, post_id: int, payload: PostPublishPayload | None = Body(None)):
     require_scope(request.auth, 'posts:write')
@@ -521,7 +537,7 @@ def publish_post(request, post_id: int, payload: PostPublishPayload | None = Bod
     if not post.is_draft():
         response = error_response(
             'post.not_draft',
-            '이미 발행되었거나 예약된 포스트입니다.',
+            gettext('This post has already been published or scheduled.'),
             409,
         )
         DeveloperTokenService.record_request(request, request.auth, response.status_code)
@@ -571,8 +587,8 @@ def publish_post(request, post_id: int, payload: PostPublishPayload | None = Bod
     '/tags',
     response={200: TagListEnvelope, **ERROR_RESPONSES},
     operation_id='listTags',
-    summary='내 포스트 태그 목록',
-    tags=['Publishing Metadata'],
+    summary=_('List my post tags'),
+    tags=[PUBLISHING_METADATA_TAG],
 )
 def list_tags(request):
     require_scope(request.auth, 'posts:read')
@@ -606,8 +622,8 @@ def list_tags(request):
     '/series',
     response={200: SeriesListEnvelope, **ERROR_RESPONSES},
     operation_id='listSeries',
-    summary='내 시리즈 목록',
-    tags=['Publishing Metadata'],
+    summary=_('List my series'),
+    tags=[PUBLISHING_METADATA_TAG],
 )
 def list_series(request):
     require_scope(request.auth, 'posts:read')
@@ -639,8 +655,8 @@ def list_series(request):
     '/images',
     response={201: ImageUploadEnvelope, **ERROR_RESPONSES},
     operation_id='uploadImage',
-    summary='본문 이미지 업로드',
-    tags=['Media'],
+    summary=_('Upload a content image'),
+    tags=[MEDIA_TAG],
 )
 def upload_image(request, image: UploadedFile = File(...)):
     require_scope(request.auth, 'posts:write')
@@ -648,7 +664,9 @@ def upload_image(request, image: UploadedFile = File(...)):
     if image.size > settings.DEVELOPER_API_MAX_UPLOAD_BYTES:
         response = error_response(
             'image.too_large',
-            f'이미지 파일은 {settings.DEVELOPER_API_MAX_UPLOAD_MB}MiB 이하만 업로드할 수 있습니다.',
+            gettext('Image files must be %(max_size)s MiB or smaller.') % {
+                'max_size': settings.DEVELOPER_API_MAX_UPLOAD_MB,
+            },
             400,
         )
         DeveloperTokenService.record_request(request, request.auth, response.status_code)

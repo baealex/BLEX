@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: BLEX 3.1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-08-05 07:06+0900\n"
+"POT-Creation-Date: 2026-08-05 07:12+0900\n"
 "PO-Revision-Date: 2026-07-18 00:00+0900\n"
 "Last-Translator: BLEX contributors\n"
 "Language-Team: Korean\n"
@@ -919,6 +919,7 @@ msgstr "편집"
 #: board/templates/board/author/author_posts.html:21
 #: board/templates/board/author/components/featured_posts_section.html:9
 #: board/templates/board/author/components/tabs_nav.html:14
+#: board/views/api/developer/v1/api.py:69
 msgid "Posts"
 msgstr "포스트"
 
@@ -2183,7 +2184,8 @@ msgstr "예약 시간을 확인해주세요."
 msgid "The scheduled time must be in the future."
 msgstr "예약시간이 현재시간보다 이전입니다."
 
-#: board/services/post_service.py:295
+#: board/services/post_service.py:295 board/views/api/developer/v1/post.py:151
+#: board/views/api/developer/v1/post.py:162
 msgid "Post not found."
 msgstr "포스트를 찾을 수 없습니다."
 
@@ -3346,6 +3348,211 @@ msgstr "검색어를 입력하세요"
 #: board/templates/components/search_query_filter.html:31
 msgid "Clear search"
 msgstr "검색어 지우기"
+
+#: board/views/api/developer/v1/api.py:58
+msgid "BLEX Developer API"
+msgstr "BLEX 개발자 API"
+
+#: board/views/api/developer/v1/api.py:61
+msgid "Personal token API for managing BLEX posts from external tools."
+msgstr "외부 도구에서 BLEX 포스트를 관리하기 위한 개인 토큰 API입니다."
+
+#: board/views/api/developer/v1/api.py:68
+msgid "Developer API"
+msgstr "개발자 API"
+
+#: board/views/api/developer/v1/api.py:70
+msgid "Publishing metadata"
+msgstr "발행 메타데이터"
+
+#: board/views/api/developer/v1/api.py:71
+msgid "Media"
+msgstr "미디어"
+
+#: board/views/api/developer/v1/api.py:178
+msgid "The request payload could not be validated."
+msgstr "요청 값을 확인할 수 없습니다."
+
+#: board/views/api/developer/v1/api.py:190
+msgid "The JSON request body could not be parsed."
+msgstr "JSON 본문을 해석할 수 없습니다."
+
+#: board/views/api/developer/v1/api.py:210
+msgid "Get token and account details"
+msgstr "토큰 및 계정 정보 조회"
+
+#: board/views/api/developer/v1/api.py:223
+msgid "List posts"
+msgstr "포스트 목록 조회"
+
+#: board/views/api/developer/v1/api.py:258
+msgid "Create a post"
+msgstr "포스트 생성"
+
+#: board/views/api/developer/v1/api.py:293
+msgid "published_at is required when status is scheduled."
+msgstr "scheduled 상태에는 published_at이 필요합니다."
+
+#: board/views/api/developer/v1/api.py:319
+msgid "status must be one of draft, published, or scheduled."
+msgstr "status는 draft, published, scheduled 중 하나여야 합니다."
+
+#: board/views/api/developer/v1/api.py:338
+msgid "Search my posts"
+msgstr "내 포스트 검색"
+
+#: board/views/api/developer/v1/api.py:387
+msgid "Get post details"
+msgstr "포스트 상세 조회"
+
+#: board/views/api/developer/v1/api.py:407
+msgid "Update a post"
+msgstr "포스트 수정"
+
+#: board/views/api/developer/v1/api.py:424
+msgid "The post was already updated by another request."
+msgstr "포스트가 이미 다른 요청으로 수정되었습니다."
+
+#: board/views/api/developer/v1/api.py:493
+msgid "Delete a post"
+msgstr "포스트 삭제"
+
+#: board/views/api/developer/v1/api.py:525
+msgid "Publish a draft"
+msgstr "임시 포스트 발행"
+
+#: board/views/api/developer/v1/api.py:540
+msgid "This post has already been published or scheduled."
+msgstr "이미 발행되었거나 예약된 포스트입니다."
+
+#: board/views/api/developer/v1/api.py:590
+msgid "List my post tags"
+msgstr "내 포스트 태그 목록"
+
+#: board/views/api/developer/v1/api.py:625
+msgid "List my series"
+msgstr "내 시리즈 목록"
+
+#: board/views/api/developer/v1/api.py:658
+msgid "Upload a content image"
+msgstr "본문 이미지 업로드"
+
+#: board/views/api/developer/v1/api.py:667
+#, python-format
+msgid "Image files must be %(max_size)s MiB or smaller."
+msgstr "이미지 파일은 %(max_size)s MiB 이하여야 합니다."
+
+#: board/views/api/developer/v1/post.py:42
+msgid "content_type must be either html or markdown."
+msgstr "content_type은 html 또는 markdown이어야 합니다."
+
+#: board/views/api/developer/v1/post.py:61
+msgid "No series matches series_id."
+msgstr "series_id에 해당하는 시리즈를 찾을 수 없습니다."
+
+#: board/views/api/developer/v1/post.py:187
+msgid "Unsupported status."
+msgstr "지원하지 않는 status입니다."
+
+#: board/views/api/developer/v1/publishing.py:58
+msgid "series_id must be a number."
+msgstr "series_id는 숫자여야 합니다."
+
+#: board/views/api/developer/v1/schemas.py:98
+msgid "Post title."
+msgstr "포스트 제목입니다."
+
+#: board/views/api/developer/v1/schemas.py:101
+msgid "Post body. Prefer the markdown field."
+msgstr "본문입니다. markdown 필드를 우선 사용하세요."
+
+#: board/views/api/developer/v1/schemas.py:103
+msgid "HTML body."
+msgstr "HTML 본문입니다."
+
+#: board/views/api/developer/v1/schemas.py:107
+msgid "Markdown body. This is the recommended body field for new clients."
+msgstr "Markdown 본문입니다. 새 클라이언트의 권장 본문 필드입니다."
+
+#: board/views/api/developer/v1/schemas.py:112
+msgid "Compatibility HTML body field for existing clients."
+msgstr "기존 클라이언트를 위한 호환용 HTML 본문 필드입니다."
+
+#: board/views/api/developer/v1/schemas.py:116
+msgid "Compatibility Markdown body field for existing clients."
+msgstr "기존 클라이언트를 위한 호환용 Markdown 본문 필드입니다."
+
+#: board/views/api/developer/v1/schemas.py:121
+msgid "Body format. When the markdown field is provided, Markdown is used."
+msgstr "본문 형식입니다. markdown 필드를 보내면 Markdown으로 처리됩니다."
+
+#: board/views/api/developer/v1/schemas.py:124
+msgid "Post subtitle."
+msgstr "포스트 부제목입니다."
+
+#: board/views/api/developer/v1/schemas.py:127
+msgid "Description for SEO and sharing."
+msgstr "SEO 및 공유용 설명입니다."
+
+#: board/views/api/developer/v1/schemas.py:131
+msgid "Tags. Accepts a string or an array of strings."
+msgstr "태그 목록입니다. 문자열 또는 문자열 배열을 사용할 수 있습니다."
+
+#: board/views/api/developer/v1/schemas.py:135
+msgid "Compatibility tag field for existing clients."
+msgstr "기존 클라이언트를 위한 호환용 태그 필드입니다."
+
+#: board/views/api/developer/v1/schemas.py:139
+msgid "ID of one of your series."
+msgstr "내 시리즈 ID입니다."
+
+#: board/views/api/developer/v1/schemas.py:144
+msgid "URL of one of your series. Use this to specify the URL directly instead of series_id."
+msgstr "내 시리즈 URL입니다. series_id 대신 URL을 직접 지정할 때 사용합니다."
+
+#: board/views/api/developer/v1/schemas.py:148
+msgid "Custom post URL."
+msgstr "사용자 지정 포스트 URL입니다."
+
+#: board/views/api/developer/v1/schemas.py:151
+msgid "Compatibility post URL field for existing clients."
+msgstr "기존 클라이언트를 위한 호환용 포스트 URL 필드입니다."
+
+#: board/views/api/developer/v1/schemas.py:155
+msgid "Whether to hide the post."
+msgstr "포스트를 비공개 처리할지 여부입니다."
+
+#: board/views/api/developer/v1/schemas.py:159
+msgid "Compatibility hidden-state field for existing clients."
+msgstr "기존 클라이언트를 위한 호환용 비공개 상태 필드입니다."
+
+#: board/views/api/developer/v1/schemas.py:163
+msgid "Whether the post is promotional or advertising content."
+msgstr "홍보 또는 광고성 포스트인지 여부입니다."
+
+#: board/views/api/developer/v1/schemas.py:167
+msgid "Cover layout on the post detail page."
+msgstr "포스트 상세 화면의 커버 배치입니다."
+
+#: board/views/api/developer/v1/schemas.py:171
+msgid "Featured image position in the split cover layout."
+msgstr "분할 커버에서 대표 이미지 위치입니다."
+
+#: board/views/api/developer/v1/schemas.py:175
+msgid "Featured image ratio in the default or split cover layout."
+msgstr "기본 또는 분할 커버에서 대표 이미지 비율입니다."
+
+#: board/views/api/developer/v1/schemas.py:179
+msgid "Scheduled publication time as an ISO 8601 datetime string."
+msgstr "예약 발행 시각입니다. ISO 8601 datetime 문자열을 사용합니다."
+
+#: board/views/api/developer/v1/schemas.py:186
+msgid "Creation status. The default is draft."
+msgstr "생성 상태입니다. 기본값은 draft입니다."
+
+#: board/views/api/developer/v1/schemas.py:194
+msgid "Last updated_at value used to prevent concurrent updates."
+msgstr "동시 수정을 방지하기 위한 마지막 updated_at 값입니다."
 
 #: board/views/api/v1/auth.py:85 board/views/api/v1/auth.py:183
 msgid "Create the first administrator account before continuing."
