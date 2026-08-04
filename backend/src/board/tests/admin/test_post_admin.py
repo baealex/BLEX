@@ -10,7 +10,7 @@ from django.contrib.messages.storage.fallback import FallbackStorage
 from django.template.response import TemplateResponse
 from django.test import RequestFactory, TestCase
 from django.urls import reverse
-from django.utils import timezone
+from django.utils import timezone, translation
 
 from board.admin.post import PostAdmin
 from board.models import (
@@ -104,6 +104,21 @@ class AdminRequestMixin:
 class PostAdminTestCase(AdminRequestMixin, TestCase):
     def setUp(self):
         self.admin_instance = PostAdmin(Post, admin.site)
+
+    def test_cover_choices_use_locale_without_changing_stored_values(self):
+        self.assertEqual(PostConfig.CoverLayout.DEFAULT.value, 'default')
+        self.assertEqual(PostConfig.CoverImagePosition.RIGHT.value, 'right')
+        self.assertEqual(PostConfig.CoverImageRatio.AUTO.value, 'auto')
+
+        with translation.override('en'):
+            self.assertEqual(PostConfig.CoverLayout.DEFAULT.label, 'Default')
+            self.assertEqual(PostConfig.CoverImagePosition.RIGHT.label, 'Right')
+            self.assertEqual(PostConfig.CoverImageRatio.AUTO.label, 'Original')
+
+        with translation.override('ko'):
+            self.assertEqual(PostConfig.CoverLayout.DEFAULT.label, '기본')
+            self.assertEqual(PostConfig.CoverImagePosition.RIGHT.label, '오른쪽')
+            self.assertEqual(PostConfig.CoverImageRatio.AUTO.label, '원본')
 
     def test_url_is_not_readonly_field(self):
         request = self.admin_request()

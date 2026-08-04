@@ -268,17 +268,17 @@ class PostContent(models.Model):
 
 class PostConfig(models.Model):
     class CoverLayout(models.TextChoices):
-        DEFAULT = 'default', '기본'
-        SPLIT = 'split', '분할'
-        OVERLAY = 'overlay', '이미지 배경'
-        NONE = 'none', '커버 숨김'
+        DEFAULT = 'default', _('Default')
+        SPLIT = 'split', _('Split')
+        OVERLAY = 'overlay', _('Image background')
+        NONE = 'none', _('Hide cover')
 
     class CoverImagePosition(models.TextChoices):
-        RIGHT = 'right', '오른쪽'
-        LEFT = 'left', '왼쪽'
+        RIGHT = 'right', _('Right')
+        LEFT = 'left', _('Left')
 
     class CoverImageRatio(models.TextChoices):
-        AUTO = 'auto', '원본'
+        AUTO = 'auto', _('Original')
         WIDE = '16:9', '16:9'
         STANDARD = '4:3', '4:3'
         SQUARE = '1:1', '1:1'

@@ -18,6 +18,8 @@ from django.db.models.functions import Coalesce
 from django.http import HttpRequest
 from django.utils import timezone
 from django.utils.html import format_html
+from django.utils.translation import gettext_lazy as _
+from django.utils.translation import ngettext
 
 from board.services.post_revision_service import PostRevisionService
 from board.services.post_service import PostService, PostValidationError
@@ -48,15 +50,15 @@ from .constants import (
 
 class PublishStatusFilter(admin.SimpleListFilter):
     """발행 상태 필터 (임시글/발행됨/예약됨)"""
-    title = '발행 상태'
+    title = _('Publishing status')
     parameter_name = 'publish_status'
 
     def lookups(self, request, model_admin):
         return [
-            ('draft', '임시글'),
-            ('published', '발행됨'),
-            ('scheduled', '예약됨'),
-            ('trashed', '휴지통'),
+            ('draft', _('Draft')),
+            ('published', _('Published')),
+            ('scheduled', _('Scheduled')),
+            ('trashed', _('Trash')),
         ]
 
     def queryset(self, request, queryset):
@@ -108,12 +110,12 @@ class EditRequestAdmin(ServiceOwnedRecordAdminMixin, admin.ModelAdmin):
 
     def post_link(self, obj: EditRequest):
         return AdminLinkService.create_post_link(obj.post)
-    post_link.short_description = '포스트'
+    post_link.short_description = _('Post')
     post_link.admin_order_field = 'post__title'
 
     def user_link(self, obj: EditRequest):
         return AdminLinkService.create_user_link(obj.user)
-    user_link.short_description = '요청자'
+    user_link.short_description = _('Requester')
     user_link.admin_order_field = 'user__username'
 
 
@@ -133,12 +135,12 @@ class PinnedPostAdmin(ServiceOwnedRecordAdminMixin, admin.ModelAdmin):
 
     def post_link(self, obj: PinnedPost):
         return AdminLinkService.create_post_link(obj.post)
-    post_link.short_description = '포스트'
+    post_link.short_description = _('Post')
     post_link.admin_order_field = 'post__title'
 
     def user_link(self, obj: PinnedPost):
         return AdminLinkService.create_user_link(obj.user)
-    user_link.short_description = '사용자'
+    user_link.short_description = _('User')
     user_link.admin_order_field = 'user__username'
 
 
@@ -213,24 +215,24 @@ class PostAdmin(admin.ModelAdmin):
     ]
 
     fieldsets = (
-        ('기본 정보', {
+        (_('Basic information'), {
             'fields': ('author', 'title', 'url', 'series')
         }),
-        ('발행', {
+        (_('Publishing'), {
             'fields': (
                 'published_date',
                 'publish_status_display',
                 'deleted_at',
             ),
         }),
-        ('이미지', {
+        (_('Image'), {
             'fields': ('image', 'image_preview'),
             'classes': ('collapse',)
         }),
-        ('태그 & 메타', {
+        (_('Tags & metadata'), {
             'fields': ('tags', 'meta_description', 'read_time')
         }),
-        ('통계', {
+        (_('Statistics'), {
             'fields': ('total_likes', 'total_comments', 'created_at', 'updated_at'),
             'classes': ('collapse',)
         }),
@@ -386,20 +388,20 @@ class PostAdmin(admin.ModelAdmin):
 
     def author_link(self, obj: Post) -> str:
         return AdminLinkService.create_user_link(obj.author)
-    author_link.short_description = '작성자'
+    author_link.short_description = _('Author')
 
     def series_link(self, obj: Post) -> str:
         return AdminLinkService.create_series_link(obj.series)
-    series_link.short_description = '시리즈'
+    series_link.short_description = _('Series')
 
     def tags_preview(self, obj: Post) -> str:
         return AdminDisplayService.tags_badges(obj.tags.all())
-    tags_preview.short_description = '태그'
+    tags_preview.short_description = _('Tags')
 
     def likes_count(self, obj: Post) -> str:
         count = obj.likes_count if hasattr(obj, 'likes_count') else obj.likes.count()
         return AdminDisplayService.like_count_badge(count)
-    likes_count.short_description = '좋아요'
+    likes_count.short_description = _('Likes')
     likes_count.admin_order_field = 'likes_count'
 
     def comments_count(self, obj: Post) -> str:
@@ -416,71 +418,72 @@ class PostAdmin(admin.ModelAdmin):
         deleted_count = total_count - active_count
         return format_html(
             '💬 {} <span style="color: var(--body-quiet-color, #666);">'
-            '(삭제 {})</span>',
+            '({} {})</span>',
             active_count,
+            _('deleted'),
             deleted_count,
         )
-    comments_count.short_description = '댓글 (활성/삭제)'
+    comments_count.short_description = _('Comments (active/deleted)')
     comments_count.admin_order_field = 'comments_count'
 
     def publish_status(self, obj: Post) -> str:
         return AdminDisplayService.publish_status_badge(obj)
-    publish_status.short_description = '발행'
+    publish_status.short_description = _('Publishing')
     publish_status.admin_order_field = 'published_date'
 
     def published_date_display(self, obj: Post) -> str:
         return AdminDisplayService.date_display(obj.published_date, DATETIME_FORMAT_FULL)
-    published_date_display.short_description = '발행일'
+    published_date_display.short_description = _('Published at')
     published_date_display.admin_order_field = 'published_date'
 
     def publish_status_display(self, obj: Post) -> str:
         return AdminDisplayService.publish_status_badge(obj)
-    publish_status_display.short_description = '발행 상태'
+    publish_status_display.short_description = _('Publishing status')
 
     def status_badges(self, obj: Post) -> str:
         if hasattr(obj, 'config'):
             return AdminDisplayService.post_status_badges(obj.config)
         return AdminDisplayService.empty_placeholder()
-    status_badges.short_description = '설정'
+    status_badges.short_description = _('Settings')
 
     def image_preview(self, obj: Post) -> str:
         if obj.image:
             return AdminDisplayService.image_preview(obj.image.url, width='400px', height='auto')
-        return '이미지 없음'
-    image_preview.short_description = '이미지 미리보기'
+        return _('No image')
+    image_preview.short_description = _('Image preview')
 
     def total_likes(self, obj: Post) -> int:
         if hasattr(obj, 'likes_count'):
             return obj.likes_count
         return obj.likes.count()
-    total_likes.short_description = '총 좋아요 수'
+    total_likes.short_description = _('Total likes')
 
     def total_comments(self, obj: Post) -> int:
         if hasattr(obj, 'comments_count'):
             return obj.comments_count
         return obj.comments.count()
-    total_comments.short_description = '총 댓글 수'
+    total_comments.short_description = _('Total comments')
 
     def created_at(self, obj: Post) -> str:
         return AdminDisplayService.date_display(obj.created_date, DATETIME_FORMAT_FULL)
-    created_at.short_description = '생성일시'
+    created_at.short_description = _('Created at')
 
     def updated_at(self, obj: Post) -> str:
         return AdminDisplayService.date_display(obj.updated_date, DATETIME_FORMAT_FULL)
-    updated_at.short_description = '수정일시'
+    updated_at.short_description = _('Updated at')
 
     def deleted_at(self, obj: Post) -> str:
         return AdminDisplayService.date_display(
             obj.deleted_date,
             DATETIME_FORMAT_FULL,
         )
-    deleted_at.short_description = '휴지통 이동일시'
+    deleted_at.short_description = _('Moved to trash at')
 
     @staticmethod
     def _active_posts(queryset: QuerySet[Post]) -> QuerySet[Post]:
         return queryset.filter(deleted_date__isnull=True)
 
-    @admin.action(description='선택한 포스트 숨김 처리')
+    @admin.action(description=_('Hide selected posts'))
     def make_hidden(self, request: HttpRequest, queryset: QuerySet[Post]) -> None:
         """Route visibility changes through the post domain service."""
         count = 0
@@ -492,21 +495,32 @@ class PostAdmin(admin.ModelAdmin):
                     self.log_change(
                         request,
                         updated_post,
-                        'Admin에서 숨김 처리',
+                        _('Hidden in Admin'),
                     )
             except (PostValidationError, ObjectDoesNotExist):
                 failed += 1
                 continue
             count += 1
-        self.message_user(request, f'{count}개의 포스트를 숨김 처리했습니다.')
+        self.message_user(
+            request,
+            ngettext(
+                '%(count)d post was hidden.',
+                '%(count)d posts were hidden.',
+                count,
+            ) % {'count': count},
+        )
         if failed:
             self.message_user(
                 request,
-                f'{failed}개는 필수 설정이 없어 처리하지 못했습니다.',
+                ngettext(
+                    '%(count)d post could not be processed because required settings were missing.',
+                    '%(count)d posts could not be processed because required settings were missing.',
+                    failed,
+                ) % {'count': failed},
                 level=messages.WARNING,
             )
 
-    @admin.action(description='선택한 포스트 공개 처리')
+    @admin.action(description=_('Make selected posts public'))
     def make_visible(self, request: HttpRequest, queryset: QuerySet[Post]) -> Any:
         """Route visibility changes through the post domain service."""
         active_posts = self._active_posts(queryset)
@@ -514,7 +528,7 @@ class PostAdmin(admin.ModelAdmin):
             if not active_posts.exists():
                 self.message_user(
                     request,
-                    '공개 처리할 활성 포스트가 없습니다.',
+                    _('There are no active posts to make public.'),
                     level=messages.WARNING,
                 )
                 return None
@@ -523,12 +537,13 @@ class PostAdmin(admin.ModelAdmin):
                 self,
                 active_posts,
                 action_name='make_visible',
-                title='포스트 공개 확인',
-                warning=(
-                    '발행된 포스트는 즉시 외부에 노출될 수 있으며, '
-                    '임시글과 예약글의 숨김 설정도 해제됩니다.'
+                title=_('Confirm post publication'),
+                warning=_(
+                    'Published posts may become externally visible '
+                    'immediately. Hidden status will also be removed from '
+                    'drafts and scheduled posts.'
                 ),
-                confirm_label='공개 처리',
+                confirm_label=_('Make public'),
                 is_destructive=False,
             )
 
@@ -541,21 +556,32 @@ class PostAdmin(admin.ModelAdmin):
                     self.log_change(
                         request,
                         updated_post,
-                        'Admin에서 공개 처리',
+                        _('Made public in Admin'),
                     )
             except (PostValidationError, ObjectDoesNotExist):
                 failed += 1
                 continue
             count += 1
-        self.message_user(request, f'{count}개의 포스트를 공개 처리했습니다.')
+        self.message_user(
+            request,
+            ngettext(
+                '%(count)d post was made public.',
+                '%(count)d posts were made public.',
+                count,
+            ) % {'count': count},
+        )
         if failed:
             self.message_user(
                 request,
-                f'{failed}개는 필수 설정이 없어 처리하지 못했습니다.',
+                ngettext(
+                    '%(count)d post could not be processed because required settings were missing.',
+                    '%(count)d posts could not be processed because required settings were missing.',
+                    failed,
+                ) % {'count': failed},
                 level=messages.WARNING,
             )
 
-    @admin.action(description='선택한 임시글 즉시 발행')
+    @admin.action(description=_('Publish selected drafts now'))
     def publish_drafts(self, request: HttpRequest, queryset: QuerySet[Post]) -> Any:
         """Publish drafts with validation, timestamps, and notifications."""
         drafts = PostStatusService.filter_drafts(queryset).select_related(
@@ -566,7 +592,7 @@ class PostAdmin(admin.ModelAdmin):
             if not drafts.exists():
                 self.message_user(
                     request,
-                    '즉시 발행할 임시글이 없습니다.',
+                    _('There are no drafts to publish immediately.'),
                     level=messages.WARNING,
                 )
                 return None
@@ -575,12 +601,13 @@ class PostAdmin(admin.ModelAdmin):
                 self,
                 drafts,
                 action_name='publish_drafts',
-                title='임시글 즉시 발행 확인',
-                warning=(
-                    '선택한 임시글은 현재 시각에 발행되며 공개 설정에 따라 '
-                    '외부 노출과 구독 알림이 발생할 수 있습니다.'
+                title=_('Confirm immediate draft publication'),
+                warning=_(
+                    'Selected drafts will be published at the current time. '
+                    'Depending on visibility settings, they may become '
+                    'publicly visible and trigger subscriber notifications.'
                 ),
-                confirm_label='즉시 발행',
+                confirm_label=_('Publish now'),
                 is_destructive=False,
             )
 
@@ -593,21 +620,32 @@ class PostAdmin(admin.ModelAdmin):
                     self.log_change(
                         request,
                         published_post,
-                        'Admin에서 즉시 발행',
+                        _('Published immediately in Admin'),
                     )
             except (PostValidationError, ObjectDoesNotExist):
                 failed += 1
                 continue
             count += 1
-        self.message_user(request, f'{count}개의 임시글을 발행했습니다.')
+        self.message_user(
+            request,
+            ngettext(
+                '%(count)d draft was published.',
+                '%(count)d drafts were published.',
+                count,
+            ) % {'count': count},
+        )
         if failed:
             self.message_user(
                 request,
-                f'{failed}개는 발행 조건을 충족하지 못해 건너뛰었습니다.',
+                ngettext(
+                    '%(count)d draft was skipped because it did not meet the publishing requirements.',
+                    '%(count)d drafts were skipped because they did not meet the publishing requirements.',
+                    failed,
+                ) % {'count': failed},
                 level=messages.WARNING,
             )
 
-    @admin.action(description='선택한 포스트를 휴지통으로 이동')
+    @admin.action(description=_('Move selected posts to trash'))
     def move_to_trash(
         self,
         request: HttpRequest,
@@ -620,16 +658,21 @@ class PostAdmin(admin.ModelAdmin):
                 self.log_change(
                     request,
                     trashed_post,
-                    'Admin에서 휴지통으로 이동',
+                    _('Moved to trash in Admin'),
                 )
 
+        count = len(posts)
         self.message_user(
             request,
-            f'{len(posts)}개의 포스트를 휴지통으로 이동했습니다.',
+            ngettext(
+                '%(count)d post was moved to trash.',
+                '%(count)d posts were moved to trash.',
+                count,
+            ) % {'count': count},
             level=messages.SUCCESS,
         )
 
-    @admin.action(description='선택한 휴지통 포스트 복원')
+    @admin.action(description=_('Restore selected trashed posts'))
     def restore_from_trash(
         self,
         request: HttpRequest,
@@ -640,7 +683,7 @@ class PostAdmin(admin.ModelAdmin):
             if not trashed_queryset.exists():
                 self.message_user(
                     request,
-                    '복원할 휴지통 포스트가 없습니다.',
+                    _('There are no trashed posts to restore.'),
                     level=messages.WARNING,
                 )
                 return None
@@ -649,12 +692,13 @@ class PostAdmin(admin.ModelAdmin):
                 self,
                 trashed_queryset,
                 action_name='restore_from_trash',
-                title='휴지통 포스트 복원 확인',
-                warning=(
-                    '기존에 발행 및 공개 상태였던 포스트는 복원 즉시 '
-                    '외부에 다시 노출될 수 있습니다.'
+                title=_('Confirm restoration of trashed posts'),
+                warning=_(
+                    'Posts that were previously published and public may '
+                    'become externally visible again immediately after '
+                    'restoration.'
                 ),
-                confirm_label='복원',
+                confirm_label=_('Restore'),
                 is_destructive=False,
             )
 
@@ -668,17 +712,22 @@ class PostAdmin(admin.ModelAdmin):
                 self.log_change(
                     request,
                     restored_post,
-                    'Admin에서 휴지통 복원',
+                    _('Restored from trash in Admin'),
                 )
 
+        count = len(posts)
         self.message_user(
             request,
-            f'{len(posts)}개의 포스트를 복원했습니다.',
+            ngettext(
+                '%(count)d post was restored.',
+                '%(count)d posts were restored.',
+                count,
+            ) % {'count': count},
             level=messages.SUCCESS,
         )
 
     @admin.action(
-        description='선택한 휴지통 포스트 영구 삭제',
+        description=_('Permanently delete selected trashed posts'),
         permissions=['delete'],
     )
     def permanently_delete_trashed(
@@ -691,7 +740,7 @@ class PostAdmin(admin.ModelAdmin):
             if not trashed_queryset.exists():
                 self.message_user(
                     request,
-                    '영구 삭제할 휴지통 포스트가 없습니다.',
+                    _('There are no trashed posts to permanently delete.'),
                     level=messages.WARNING,
                 )
                 return None
@@ -700,19 +749,20 @@ class PostAdmin(admin.ModelAdmin):
                 self,
                 trashed_queryset,
                 action_name='permanently_delete_trashed',
-                title='휴지통 포스트 영구 삭제 확인',
-                warning=(
-                    '포스트와 연결된 댓글, 수정 이력 및 설정이 함께 삭제되며 '
-                    '이 작업은 되돌릴 수 없습니다.'
+                title=_('Confirm permanent deletion of trashed posts'),
+                warning=_(
+                    'Comments, revision history, and settings associated with '
+                    'the posts will also be deleted. This action cannot be '
+                    'undone.'
                 ),
-                confirm_label='영구 삭제',
+                confirm_label=_('Permanently delete'),
             )
 
         posts = list(trashed_queryset)
         if not posts:
             self.message_user(
                 request,
-                '영구 삭제할 휴지통 포스트가 없습니다.',
+                _('There are no trashed posts to permanently delete.'),
                 level=messages.WARNING,
             )
             return None
@@ -729,9 +779,14 @@ class PostAdmin(admin.ModelAdmin):
                     expected_deleted_date=post.deleted_date.isoformat(),
                 )
 
+        count = len(posts)
         self.message_user(
             request,
-            f'{len(posts)}개의 휴지통 포스트를 영구 삭제했습니다.',
+            ngettext(
+                '%(count)d trashed post was permanently deleted.',
+                '%(count)d trashed posts were permanently deleted.',
+                count,
+            ) % {'count': count},
             level=messages.SUCCESS,
         )
         return None

@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: BLEX 3.1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-08-05 06:35+0900\n"
+"POT-Creation-Date: 2026-08-05 06:40+0900\n"
 "PO-Revision-Date: 2026-07-18 00:00+0900\n"
 "Last-Translator: BLEX contributors\n"
 "Language-Team: Korean\n"
@@ -61,7 +61,7 @@ msgid "Action details"
 msgstr "작업 내용"
 
 #: board/admin/auth.py:103 board/admin/auth.py:246 board/admin/connection.py:52
-#: board/admin/form.py:46 board/admin/notify.py:160
+#: board/admin/form.py:46 board/admin/notify.py:160 board/admin/post.py:143
 msgid "User"
 msgstr "사용자"
 
@@ -149,7 +149,7 @@ msgid "%(count)d connection was kept to preserve a login method."
 msgid_plural "%(count)d connections were kept to preserve a login method."
 msgstr[0] "%(count)d개는 로그인 수단을 보존하기 위해 해제하지 않았습니다."
 
-#: board/admin/comment.py:54 board/admin/notify.py:127
+#: board/admin/comment.py:54 board/admin/notify.py:127 board/admin/post.py:218
 #: board/admin/series.py:118
 msgid "Basic information"
 msgstr "기본 정보"
@@ -164,7 +164,7 @@ msgstr "콘텐츠"
 msgid "Preview"
 msgstr "미리보기"
 
-#: board/admin/comment.py:63
+#: board/admin/comment.py:63 board/admin/post.py:235
 msgid "Statistics"
 msgstr "통계"
 
@@ -172,13 +172,13 @@ msgstr "통계"
 msgid "Text preview"
 msgstr "텍스트 미리보기"
 
-#: board/admin/comment.py:131 board/admin/series.py:155
+#: board/admin/comment.py:131 board/admin/post.py:391 board/admin/series.py:155
 #: board/templates/board/posts/post_detail.html:184
 msgid "Author"
 msgstr "작성자"
 
-#: board/admin/comment.py:135 board/admin/revision.py:156
-#: board/models/posts.py:156
+#: board/admin/comment.py:135 board/admin/post.py:113 board/admin/post.py:138
+#: board/admin/revision.py:156 board/models/posts.py:156
 msgid "Post"
 msgstr "포스트"
 
@@ -186,7 +186,7 @@ msgstr "포스트"
 msgid "Deleted"
 msgstr "삭제됨"
 
-#: board/admin/comment.py:154
+#: board/admin/comment.py:154 board/admin/post.py:404
 msgid "Likes"
 msgstr "좋아요"
 
@@ -221,11 +221,11 @@ msgstr "이메일"
 msgid "Author information"
 msgstr "작성자 정보"
 
-#: board/admin/comment.py:199
+#: board/admin/comment.py:199 board/admin/post.py:459
 msgid "Total likes"
 msgstr "총 좋아요 수"
 
-#: board/admin/comment.py:203 board/admin/notify.py:183
+#: board/admin/comment.py:203 board/admin/notify.py:183 board/admin/post.py:469
 #: board/admin/series.py:271
 msgid "Created at"
 msgstr "생성일시"
@@ -363,7 +363,7 @@ msgstr "읽음 상태"
 msgid "Unsafe URL"
 msgstr "안전하지 않은 URL"
 
-#: board/admin/notify.py:187 board/admin/series.py:275
+#: board/admin/notify.py:187 board/admin/post.py:473 board/admin/series.py:275
 msgid "Updated at"
 msgstr "수정일시"
 
@@ -524,6 +524,249 @@ msgctxt "Admin permission label"
 msgid "%(action)s %(model)s"
 msgstr "%(model)s %(action)s"
 
+#: board/admin/post.py:53 board/admin/post.py:441
+msgid "Publishing status"
+msgstr "발행 상태"
+
+#: board/admin/post.py:58 board/admin/service.py:333
+#: board/templates/board/posts/post_editor.html:4
+msgid "Draft"
+msgstr "임시저장"
+
+#: board/admin/post.py:59 board/admin/service.py:349
+msgid "Published"
+msgstr "발행됨"
+
+#: board/admin/post.py:60 board/admin/service.py:341
+msgid "Scheduled"
+msgstr "예약됨"
+
+#: board/admin/post.py:61 board/admin/revision.py:31 board/admin/series.py:181
+#: board/admin/series.py:265 board/admin/service.py:325 board/admin/tag.py:112
+msgid "Trash"
+msgstr "휴지통"
+
+#: board/admin/post.py:118
+msgid "Requester"
+msgstr "요청자"
+
+#: board/admin/post.py:221 board/admin/post.py:431
+msgid "Publishing"
+msgstr "발행"
+
+#: board/admin/post.py:228
+msgid "Image"
+msgstr "이미지"
+
+#: board/admin/post.py:232
+msgid "Tags & metadata"
+msgstr "태그 & 메타"
+
+#: board/admin/post.py:395 board/models/posts.py:377 board/models/posts.py:378
+#: board/templates/board/author/author_series.html:20
+#: board/templates/board/author/author_series.html:21
+#: board/templates/board/author/components/tabs_nav.html:22
+#: board/templates/board/posts/post_detail.html:464
+#: board/templates/board/series/series_detail.html:29
+msgid "Series"
+msgstr "시리즈"
+
+#: board/admin/post.py:399 board/models/posts.py:117
+#: board/templates/board/author/author_posts.html:32
+#: board/templates/board/tags/tag_list.html:4
+msgid "Tags"
+msgstr "태그"
+
+#: board/admin/post.py:423
+msgid "deleted"
+msgstr "삭제"
+
+#: board/admin/post.py:426
+msgid "Comments (active/deleted)"
+msgstr "댓글 (활성/삭제)"
+
+#: board/admin/post.py:436
+msgid "Published at"
+msgstr "발행일"
+
+#: board/admin/post.py:447 board/admin/series.py:121
+#: board/templates/components/header.html:101
+#: board/templates/components/header.html:289
+msgid "Settings"
+msgstr "설정"
+
+#: board/admin/post.py:452
+msgid "No image"
+msgstr "이미지 없음"
+
+#: board/admin/post.py:453
+msgid "Image preview"
+msgstr "이미지 미리보기"
+
+#: board/admin/post.py:465
+msgid "Total comments"
+msgstr "총 댓글 수"
+
+#: board/admin/post.py:480
+msgid "Moved to trash at"
+msgstr "휴지통 이동일시"
+
+#: board/admin/post.py:486
+msgid "Hide selected posts"
+msgstr "선택한 포스트 숨김 처리"
+
+#: board/admin/post.py:498 board/admin/series.py:318
+msgid "Hidden in Admin"
+msgstr "Admin에서 숨김 처리"
+
+#: board/admin/post.py:507
+#, python-format
+msgid "%(count)d post was hidden."
+msgid_plural "%(count)d posts were hidden."
+msgstr[0] "%(count)d개의 포스트를 숨김 처리했습니다."
+
+#: board/admin/post.py:516 board/admin/post.py:577
+#, python-format
+msgid "%(count)d post could not be processed because required settings were missing."
+msgid_plural "%(count)d posts could not be processed because required settings were missing."
+msgstr[0] "%(count)d개는 필수 설정이 없어 처리하지 못했습니다."
+
+#: board/admin/post.py:523
+msgid "Make selected posts public"
+msgstr "선택한 포스트 공개 처리"
+
+#: board/admin/post.py:531
+msgid "There are no active posts to make public."
+msgstr "공개 처리할 활성 포스트가 없습니다."
+
+#: board/admin/post.py:540
+msgid "Confirm post publication"
+msgstr "포스트 공개 확인"
+
+#: board/admin/post.py:542
+msgid "Published posts may become externally visible immediately. Hidden status will also be removed from drafts and scheduled posts."
+msgstr "발행된 포스트는 즉시 외부에 노출될 수 있으며, 임시글과 예약글의 숨김 설정도 해제됩니다."
+
+#: board/admin/post.py:546 board/admin/series.py:354
+msgid "Make public"
+msgstr "공개 처리"
+
+#: board/admin/post.py:559 board/admin/series.py:362
+msgid "Made public in Admin"
+msgstr "Admin에서 공개 처리"
+
+#: board/admin/post.py:568
+#, python-format
+msgid "%(count)d post was made public."
+msgid_plural "%(count)d posts were made public."
+msgstr[0] "%(count)d개의 포스트를 공개 처리했습니다."
+
+#: board/admin/post.py:584
+msgid "Publish selected drafts now"
+msgstr "선택한 임시글 즉시 발행"
+
+#: board/admin/post.py:595
+msgid "There are no drafts to publish immediately."
+msgstr "즉시 발행할 임시글이 없습니다."
+
+#: board/admin/post.py:604
+msgid "Confirm immediate draft publication"
+msgstr "임시글 즉시 발행 확인"
+
+#: board/admin/post.py:606
+msgid "Selected drafts will be published at the current time. Depending on visibility settings, they may become publicly visible and trigger subscriber notifications."
+msgstr "선택한 임시글은 현재 시각에 발행되며 공개 설정에 따라 외부 노출과 구독 알림이 발생할 수 있습니다."
+
+#: board/admin/post.py:610
+msgid "Publish now"
+msgstr "즉시 발행"
+
+#: board/admin/post.py:623
+msgid "Published immediately in Admin"
+msgstr "Admin에서 즉시 발행"
+
+#: board/admin/post.py:632
+#, python-format
+msgid "%(count)d draft was published."
+msgid_plural "%(count)d drafts were published."
+msgstr[0] "%(count)d개의 임시글을 발행했습니다."
+
+#: board/admin/post.py:641
+#, python-format
+msgid "%(count)d draft was skipped because it did not meet the publishing requirements."
+msgid_plural "%(count)d drafts were skipped because they did not meet the publishing requirements."
+msgstr[0] "%(count)d개는 발행 조건을 충족하지 못해 건너뛰었습니다."
+
+#: board/admin/post.py:648
+msgid "Move selected posts to trash"
+msgstr "선택한 포스트를 휴지통으로 이동"
+
+#: board/admin/post.py:661
+msgid "Moved to trash in Admin"
+msgstr "Admin에서 휴지통으로 이동"
+
+#: board/admin/post.py:668
+#, python-format
+msgid "%(count)d post was moved to trash."
+msgid_plural "%(count)d posts were moved to trash."
+msgstr[0] "%(count)d개의 포스트를 휴지통으로 이동했습니다."
+
+#: board/admin/post.py:675
+msgid "Restore selected trashed posts"
+msgstr "선택한 휴지통 포스트 복원"
+
+#: board/admin/post.py:686
+msgid "There are no trashed posts to restore."
+msgstr "복원할 휴지통 포스트가 없습니다."
+
+#: board/admin/post.py:695
+msgid "Confirm restoration of trashed posts"
+msgstr "휴지통 포스트 복원 확인"
+
+#: board/admin/post.py:697
+msgid "Posts that were previously published and public may become externally visible again immediately after restoration."
+msgstr "기존에 발행 및 공개 상태였던 포스트는 복원 즉시 외부에 다시 노출될 수 있습니다."
+
+#: board/admin/post.py:701
+msgid "Restore"
+msgstr "복원"
+
+#: board/admin/post.py:715
+msgid "Restored from trash in Admin"
+msgstr "Admin에서 휴지통 복원"
+
+#: board/admin/post.py:722
+#, python-format
+msgid "%(count)d post was restored."
+msgid_plural "%(count)d posts were restored."
+msgstr[0] "%(count)d개의 포스트를 복원했습니다."
+
+#: board/admin/post.py:730
+msgid "Permanently delete selected trashed posts"
+msgstr "선택한 휴지통 포스트 영구 삭제"
+
+#: board/admin/post.py:743 board/admin/post.py:765
+msgid "There are no trashed posts to permanently delete."
+msgstr "영구 삭제할 휴지통 포스트가 없습니다."
+
+#: board/admin/post.py:752
+msgid "Confirm permanent deletion of trashed posts"
+msgstr "휴지통 포스트 영구 삭제 확인"
+
+#: board/admin/post.py:754
+msgid "Comments, revision history, and settings associated with the posts will also be deleted. This action cannot be undone."
+msgstr "포스트와 연결된 댓글, 수정 이력 및 설정이 함께 삭제되며 이 작업은 되돌릴 수 없습니다."
+
+#: board/admin/post.py:758
+msgid "Permanently delete"
+msgstr "영구 삭제"
+
+#: board/admin/post.py:786
+#, python-format
+msgid "%(count)d trashed post was permanently deleted."
+msgid_plural "%(count)d trashed posts were permanently deleted."
+msgstr[0] "%(count)d개의 휴지통 포스트를 영구 삭제했습니다."
+
 #: board/admin/revision.py:25 board/templates/board/posts/post_detail.html:107
 msgid "Post status"
 msgstr "포스트 상태"
@@ -532,11 +775,6 @@ msgstr "포스트 상태"
 #: board/admin/service.py:144 board/admin/service.py:297
 msgid "Active"
 msgstr "활성"
-
-#: board/admin/revision.py:31 board/admin/series.py:181
-#: board/admin/series.py:265 board/admin/service.py:325 board/admin/tag.py:112
-msgid "Trash"
-msgstr "휴지통"
 
 #: board/admin/revision.py:85
 msgid "Revision information"
@@ -610,11 +848,6 @@ msgstr "공개"
 msgid "Edit"
 msgstr "편집"
 
-#: board/admin/series.py:121 board/templates/components/header.html:101
-#: board/templates/components/header.html:289
-msgid "Settings"
-msgstr "설정"
-
 #: board/admin/series.py:128 board/models/posts.py:157
 #: board/templates/board/author/author_posts.html:20
 #: board/templates/board/author/author_posts.html:21
@@ -659,10 +892,6 @@ msgstr "포스트 요약"
 msgid "Hide selected series"
 msgstr "선택한 시리즈 숨김 처리"
 
-#: board/admin/series.py:318
-msgid "Hidden in Admin"
-msgstr "Admin에서 숨김 처리"
-
 #: board/admin/series.py:323
 #, python-format
 msgid "%(count)d series was hidden."
@@ -684,14 +913,6 @@ msgstr "시리즈 공개 확인"
 #: board/admin/series.py:351
 msgid "Series containing public posts may become externally visible immediately."
 msgstr "공개 포스트가 포함된 시리즈는 즉시 외부에 노출될 수 있습니다."
-
-#: board/admin/series.py:354
-msgid "Make public"
-msgstr "공개 처리"
-
-#: board/admin/series.py:362
-msgid "Made public in Admin"
-msgstr "Admin에서 공개 처리"
 
 #: board/admin/series.py:367
 #, python-format
@@ -777,18 +998,6 @@ msgstr "마지막 로그인"
 #: board/admin/service.py:297
 msgid "Active status"
 msgstr "활성 상태"
-
-#: board/admin/service.py:333 board/templates/board/posts/post_editor.html:4
-msgid "Draft"
-msgstr "임시저장"
-
-#: board/admin/service.py:341
-msgid "Scheduled"
-msgstr "예약됨"
-
-#: board/admin/service.py:349
-msgid "Published"
-msgstr "발행됨"
 
 #: board/admin/service.py:375
 msgid "Comments disabled"
@@ -1141,10 +1350,33 @@ msgstr "이미지 캐시"
 msgid "Image caches"
 msgstr "이미지 캐시"
 
-#: board/models/posts.py:117 board/templates/board/author/author_posts.html:32
-#: board/templates/board/tags/tag_list.html:4
-msgid "Tags"
-msgstr "태그"
+#: board/models/posts.py:271
+msgid "Default"
+msgstr "기본"
+
+#: board/models/posts.py:272
+msgid "Split"
+msgstr "분할"
+
+#: board/models/posts.py:273
+msgid "Image background"
+msgstr "이미지 배경"
+
+#: board/models/posts.py:274
+msgid "Hide cover"
+msgstr "커버 숨김"
+
+#: board/models/posts.py:277
+msgid "Right"
+msgstr "오른쪽"
+
+#: board/models/posts.py:278
+msgid "Left"
+msgstr "왼쪽"
+
+#: board/models/posts.py:281
+msgid "Original"
+msgstr "원본"
 
 #: board/models/posts.py:321
 msgid "Pinned post"
@@ -1153,15 +1385,6 @@ msgstr "고정 포스트"
 #: board/models/posts.py:322
 msgid "Pinned posts"
 msgstr "고정 포스트"
-
-#: board/models/posts.py:377 board/models/posts.py:378
-#: board/templates/board/author/author_series.html:20
-#: board/templates/board/author/author_series.html:21
-#: board/templates/board/author/components/tabs_nav.html:22
-#: board/templates/board/posts/post_detail.html:464
-#: board/templates/board/series/series_detail.html:29
-msgid "Series"
-msgstr "시리즈"
 
 #: board/models/posts.py:416
 msgid "Before edit"
