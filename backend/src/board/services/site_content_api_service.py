@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from django.contrib.auth.models import User
 from django.db.models import QuerySet
+from django.utils.translation import gettext
 
 from board.html_utils import safe_navigation_url, sanitize_html
 from board.models import (
@@ -276,16 +277,19 @@ class SiteContentApiService:
     @staticmethod
     def validate_static_page_payload(data: dict) -> None:
         if not data.get('title', ''):
-            raise SiteContentApiError(ErrorCode.VALIDATE, '제목을 입력해주세요.')
+            raise SiteContentApiError(ErrorCode.VALIDATE, gettext('Enter a title.'))
         if not data.get('slug', ''):
-            raise SiteContentApiError(ErrorCode.VALIDATE, 'URL 슬러그를 입력해주세요.')
+            raise SiteContentApiError(ErrorCode.VALIDATE, gettext('Enter a URL slug.'))
 
     @staticmethod
     def create_static_page(user: User, data: dict) -> StaticPage:
         SiteContentApiService.validate_static_page_payload(data)
         slug = data.get('slug', '')
         if StaticPage.objects.filter(slug=slug).exists():
-            raise SiteContentApiError(ErrorCode.ALREADY_EXISTS, '이미 사용 중인 슬러그입니다.')
+            raise SiteContentApiError(
+                ErrorCode.ALREADY_EXISTS,
+                gettext('This slug is already in use.'),
+            )
 
         return StaticPage.objects.create(
             title=data.get('title', ''),
@@ -306,7 +310,10 @@ class SiteContentApiService:
         if 'slug' in data:
             new_slug = data['slug']
             if new_slug != page.slug and StaticPage.objects.filter(slug=new_slug).exists():
-                raise SiteContentApiError(ErrorCode.ALREADY_EXISTS, '이미 사용 중인 슬러그입니다.')
+                raise SiteContentApiError(
+                    ErrorCode.ALREADY_EXISTS,
+                    gettext('This slug is already in use.'),
+                )
             page.slug = new_slug
 
         for field in (

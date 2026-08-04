@@ -1,5 +1,6 @@
 from django.http import Http404
 from django.shortcuts import get_object_or_404
+from django.utils.translation import gettext
 
 from board.models import StaticPage
 from board.modules.response import StatusDone, StatusError
@@ -60,6 +61,6 @@ def static_pages(request, page_id=None):
     if request.method == 'DELETE' and page_id:
         page = get_object_or_404(StaticPage, id=page_id)
         page.delete()
-        return StatusDone({'message': '정적 페이지가 삭제되었습니다.'})
+        return StatusDone({'message': gettext('Static page deleted.')})
 
     raise Http404

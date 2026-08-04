@@ -643,6 +643,7 @@ msgstr "Change order"
 #. js-lingui-explicit-id
 #: src/components/remotes/PostEditor/components/DraftsPanel.tsx:121
 #: src/components/remotes/PostEditor/components/SettingsDrawer.tsx:234
+#: src/components/remotes/SettingsApp/pages/StaticPagesSetting/components/StaticPageEditor.tsx:525
 msgid "common.close"
 msgstr "Close"
 
@@ -664,6 +665,11 @@ msgid "common.copy_success"
 msgstr "Copied."
 
 #. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/StaticPagesSetting/components/StaticPageEditor.tsx:498
+msgid "common.create"
+msgstr "Create"
+
+#. js-lingui-explicit-id
 #: src/components/remotes/Comments/components/CommentItem.tsx:78
 #: src/components/remotes/Comments/hooks/useCommentsController.ts:270
 #: src/components/remotes/PostEditor/components/PostRevisionDialog.tsx:614
@@ -679,6 +685,10 @@ msgstr "Copied."
 #: src/components/remotes/SettingsApp/pages/SeriesSetting/components/SeriesEditor.tsx:539
 #: src/components/remotes/SettingsApp/pages/SeriesSetting/SeriesSetting.tsx:86
 #: src/components/remotes/SettingsApp/pages/SeriesSetting/SeriesSetting.tsx:135
+#: src/components/remotes/SettingsApp/pages/StaticPagesSetting/components/StaticPageEditor.tsx:274
+#: src/components/remotes/SettingsApp/pages/StaticPagesSetting/components/StaticPageEditor.tsx:462
+#: src/components/remotes/SettingsApp/pages/StaticPagesSetting/components/StaticPageList.tsx:43
+#: src/components/remotes/SettingsApp/pages/StaticPagesSetting/StaticPagesSetting.tsx:72
 #: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:590
 #: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:715
 msgid "common.delete"
@@ -698,12 +708,14 @@ msgstr "Dismiss error message"
 #. js-lingui-explicit-id
 #: src/components/remotes/PostEditor/components/SettingsDrawer.tsx:608
 #: src/components/remotes/PostEditor/utils/firstPublishTour.ts:114
+#: src/components/remotes/SettingsApp/pages/StaticPagesSetting/components/StaticPageEditor.tsx:677
 msgid "common.done"
 msgstr "Done"
 
 #. js-lingui-explicit-id
 #: src/components/remotes/Comments/components/CommentItem.tsx:70
 #: src/components/remotes/SettingsApp/pages/FormsSetting/FormsSetting.tsx:348
+#: src/components/remotes/SettingsApp/pages/StaticPagesSetting/components/StaticPageList.tsx:35
 msgid "common.edit"
 msgstr "Edit"
 
@@ -778,6 +790,11 @@ msgid "common.pagination.previous"
 msgstr "Previous page"
 
 #. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/StaticPagesSetting/components/StaticPageEditor.tsx:408
+msgid "common.preview"
+msgstr "Preview"
+
+#. js-lingui-explicit-id
 #: src/components/remotes/PostEditor/utils/firstPublishTour.ts:110
 msgid "common.previous"
 msgstr "Previous"
@@ -824,6 +841,7 @@ msgstr "Save"
 #. js-lingui-explicit-id
 #: src/components/remotes/Comments/components/CommentEditForm.tsx:76
 #: src/components/remotes/SettingsApp/pages/AdminIntegrationSetting/AdminIntegrationSetting.tsx:289
+#: src/components/remotes/SettingsApp/pages/StaticPagesSetting/components/StaticPageEditor.tsx:495
 msgid "common.saving"
 msgstr "Saving"
 
@@ -849,6 +867,11 @@ msgstr "Clear search"
 #: src/components/remotes/SettingsApp/pages/PostsSetting/components/TrashPostListContent.tsx:203
 msgid "common.untitled"
 msgstr "Untitled"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/StaticPagesSetting/components/StaticPageEditor.tsx:497
+msgid "common.update"
+msgstr "Update"
 
 #. js-lingui-explicit-id
 #: src/components/remotes/PostEditor/components/SettingsDrawer.tsx:592
@@ -4791,6 +4814,271 @@ msgstr "Select a platform for every social link."
 #: src/components/remotes/SettingsApp/pages/SocialLinksSetting/SocialLinksSetting.tsx:378
 msgid "settings.social_links.validation.url_required"
 msgstr "Enter a URL for every social link."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/StaticPagesSetting/StaticPagesSetting.tsx:106
+msgid "settings.static_pages.create"
+msgstr "Add page"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/StaticPagesSetting/StaticPagesSetting.tsx:68
+msgid "settings.static_pages.delete.confirm"
+msgstr "Delete this page?\n"
+"\n"
+"This action cannot be undone."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/StaticPagesSetting/components/StaticPageEditor.tsx:269
+#: src/components/remotes/SettingsApp/pages/StaticPagesSetting/StaticPagesSetting.tsx:63
+msgid "settings.static_pages.delete.confirm_named"
+msgstr "Delete “{title}”?\n"
+"\n"
+"This action cannot be undone."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/StaticPagesSetting/components/StaticPageEditor.tsx:206
+#: src/components/remotes/SettingsApp/pages/StaticPagesSetting/components/StaticPageEditor.tsx:221
+#: src/components/remotes/SettingsApp/pages/StaticPagesSetting/StaticPagesSetting.tsx:48
+msgid "settings.static_pages.delete.failed"
+msgstr "Could not delete the static page."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/StaticPagesSetting/components/StaticPageEditor.tsx:213
+#: src/components/remotes/SettingsApp/pages/StaticPagesSetting/StaticPagesSetting.tsx:41
+msgid "settings.static_pages.delete.success"
+msgstr "Static page deleted."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/StaticPagesSetting/components/StaticPageEditor.tsx:265
+#: src/components/remotes/SettingsApp/pages/StaticPagesSetting/StaticPagesSetting.tsx:58
+msgid "settings.static_pages.delete.title"
+msgstr "Delete static page"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/StaticPagesSetting/StaticPagesSetting.tsx:118
+msgid "settings.static_pages.description"
+msgstr "Published pages are available at /static/{slug}."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/StaticPagesSetting/components/StaticPageEditor.tsx:629
+msgid "settings.static_pages.editor.advanced_settings"
+msgstr "Advanced settings"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/StaticPagesSetting/components/StaticPageEditor.tsx:302
+msgid "settings.static_pages.editor.back_to_list"
+msgstr "Back to list"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/StaticPagesSetting/components/StaticPageEditor.tsx:385
+msgid "settings.static_pages.editor.content"
+msgstr "Content"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/StaticPagesSetting/components/StaticPageEditor.tsx:148
+#: src/components/remotes/SettingsApp/pages/StaticPagesSetting/components/StaticPageEditor.tsx:163
+msgid "settings.static_pages.editor.create_failed"
+msgstr "Could not create the static page."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/StaticPagesSetting/components/StaticPageEditor.tsx:155
+msgid "settings.static_pages.editor.create_success"
+msgstr "Static page created."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/StaticPagesSetting/components/StaticPageEditor.tsx:293
+msgid "settings.static_pages.editor.create_title"
+msgstr "Create static page"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/StaticPagesSetting/components/StaticPageEditor.tsx:292
+msgid "settings.static_pages.editor.edit_title"
+msgstr "Edit static page"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/StaticPagesSetting/components/StaticPageEditor.tsx:415
+msgid "settings.static_pages.editor.html.aria"
+msgstr "Static page HTML"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/StaticPagesSetting/components/StaticPageEditor.tsx:70
+msgid "settings.static_pages.editor.load_failed"
+msgstr "Could not load the static page."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/StaticPagesSetting/components/StaticPageEditor.tsx:611
+msgid "settings.static_pages.editor.meta_description.help"
+msgstr "Shown in search results."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/StaticPagesSetting/components/StaticPageEditor.tsx:592
+msgid "settings.static_pages.editor.meta_description.label"
+msgstr "Meta description"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/StaticPagesSetting/components/StaticPageEditor.tsx:603
+msgid "settings.static_pages.editor.meta_description.placeholder"
+msgstr "Summarize this page"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/StaticPagesSetting/components/StaticPageEditor.tsx:337
+msgid "settings.static_pages.editor.name.help"
+msgstr "Shown in the browser tab and page list."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/StaticPagesSetting/components/StaticPageEditor.tsx:325
+msgid "settings.static_pages.editor.name.label"
+msgstr "Page name"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/StaticPagesSetting/components/StaticPageEditor.tsx:331
+msgid "settings.static_pages.editor.name.placeholder"
+msgstr "e.g. Terms of Service, Privacy Policy"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/StaticPagesSetting/components/StaticPageEditor.tsx:650
+msgid "settings.static_pages.editor.order.aria"
+msgstr "Footer menu display order"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/StaticPagesSetting/components/StaticPageEditor.tsx:642
+msgid "settings.static_pages.editor.order.help"
+msgstr "Display order in the footer menu"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/StaticPagesSetting/components/StaticPageEditor.tsx:639
+msgid "settings.static_pages.editor.order.label"
+msgstr "Order"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/StaticPagesSetting/components/StaticPageEditor.tsx:428
+msgid "settings.static_pages.editor.preview.container_note"
+msgstr "This spacing and width match the default container on the published page."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/StaticPagesSetting/components/StaticPageEditor.tsx:439
+msgid "settings.static_pages.editor.preview.empty"
+msgstr "Enter HTML to see a preview."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/StaticPagesSetting/components/StaticPageEditor.tsx:541
+msgid "settings.static_pages.editor.publish_settings"
+msgstr "Publishing"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/StaticPagesSetting/components/StaticPageEditor.tsx:548
+#: src/components/remotes/SettingsApp/pages/StaticPagesSetting/components/StaticPageEditor.tsx:553
+msgid "settings.static_pages.editor.published"
+msgstr "Published"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/StaticPagesSetting/components/StaticPageEditor.tsx:584
+msgid "settings.static_pages.editor.search_appearance"
+msgstr "Search appearance"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/StaticPagesSetting/components/StaticPageEditor.tsx:473
+#: src/components/remotes/SettingsApp/pages/StaticPagesSetting/components/StaticPageEditor.tsx:477
+#: src/components/remotes/SettingsApp/pages/StaticPagesSetting/components/StaticPageEditor.tsx:518
+msgid "settings.static_pages.editor.settings"
+msgstr "Page settings"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/StaticPagesSetting/components/StaticPageEditor.tsx:562
+#: src/components/remotes/SettingsApp/pages/StaticPagesSetting/components/StaticPageEditor.tsx:569
+msgid "settings.static_pages.editor.show_in_footer"
+msgstr "Show in footer"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/StaticPagesSetting/components/StaticPageEditor.tsx:370
+msgid "settings.static_pages.editor.slug.auto"
+msgstr "Generated automatically from the page name."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/StaticPagesSetting/components/StaticPageEditor.tsx:354
+msgid "settings.static_pages.editor.slug.label"
+msgstr "URL slug"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/StaticPagesSetting/components/StaticPageEditor.tsx:104
+msgid "settings.static_pages.editor.unsaved.leave"
+msgstr "Leave"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/StaticPagesSetting/components/StaticPageEditor.tsx:100
+msgid "settings.static_pages.editor.unsaved.message"
+msgstr "Your changes have not been saved. Leave this page?"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/StaticPagesSetting/components/StaticPageEditor.tsx:96
+msgid "settings.static_pages.editor.unsaved.title"
+msgstr "Unsaved changes"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/StaticPagesSetting/components/StaticPageEditor.tsx:177
+#: src/components/remotes/SettingsApp/pages/StaticPagesSetting/components/StaticPageEditor.tsx:192
+msgid "settings.static_pages.editor.update_failed"
+msgstr "Could not update the static page."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/StaticPagesSetting/components/StaticPageEditor.tsx:184
+msgid "settings.static_pages.editor.update_success"
+msgstr "Static page updated."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/StaticPagesSetting/components/StaticPageEditor.tsx:345
+msgid "settings.static_pages.editor.url.customize"
+msgstr "Customize URL"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/StaticPagesSetting/components/StaticPageEditor.tsx:239
+msgid "settings.static_pages.editor.validation.slug"
+msgstr "Enter a URL slug."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/StaticPagesSetting/components/StaticPageEditor.tsx:232
+msgid "settings.static_pages.editor.validation.title"
+msgstr "Enter a page name."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/StaticPagesSetting/StaticPagesSetting.tsx:137
+msgid "settings.static_pages.empty"
+msgstr "No static pages yet"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/StaticPagesSetting/components/StaticPageList.tsx:27
+msgid "settings.static_pages.list.menu_label"
+msgstr "Open menu for {title}"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/StaticPagesSetting/StaticPagesSetting.tsx:31
+msgid "settings.static_pages.load_failed"
+msgstr "Could not load static pages."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/StaticPagesSetting/components/StaticPageList.tsx:66
+msgid "settings.static_pages.status.footer"
+msgstr "Footer"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/StaticPagesSetting/components/StaticPageList.tsx:62
+msgid "settings.static_pages.status.private"
+msgstr "Private"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/StaticPagesSetting/components/StaticPageList.tsx:61
+msgid "settings.static_pages.status.public"
+msgstr "Public"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/StaticPagesSetting/StaticPagesSetting.tsx:113
+msgid "settings.static_pages.title_count"
+msgstr "Static pages ({count})"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/StaticPagesSetting/StaticPagesSetting.tsx:92
+msgid "settings.static_pages.view.unpublished"
+msgstr "Private pages cannot be opened. Publish the page and try again."
 
 #. js-lingui-explicit-id
 #: src/components/remotes/SettingsApp/pages/IntegrationSetting/IntegrationSetting.tsx:146

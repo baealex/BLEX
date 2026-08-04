@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: BLEX 3.1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-08-05 04:03+0900\n"
+"POT-Creation-Date: 2026-08-05 04:17+0900\n"
 "PO-Revision-Date: 2026-07-18 00:00+0900\n"
 "Last-Translator: BLEX contributors\n"
 "Language-Team: Korean\n"
@@ -556,6 +556,7 @@ msgid "You do not have permission to write posts."
 msgstr "작성 권한이 없습니다."
 
 #: board/services/post_service.py:149
+#: board/services/site_content_api_service.py:280
 msgid "Enter a title."
 msgstr "제목을 입력해주세요."
 
@@ -658,6 +659,15 @@ msgstr "비밀번호는 특수문자를 포함해야 합니다."
 #: board/services/setting_account_profile_service.py:122
 msgid "Homepage must be an HTTP or HTTPS URL."
 msgstr "홈페이지는 http 또는 https URL이어야 합니다."
+
+#: board/services/site_content_api_service.py:282
+msgid "Enter a URL slug."
+msgstr "URL 슬러그를 입력해주세요."
+
+#: board/services/site_content_api_service.py:291
+#: board/services/site_content_api_service.py:315
+msgid "This slug is already in use."
+msgstr "이미 사용 중인 슬러그입니다."
 
 #: board/services/two_factor_setup_service.py:142
 #, python-format
@@ -1750,6 +1760,10 @@ msgstr "시리즈 순서가 변경되었습니다."
 #: board/views/api/v1/series.py:362
 msgid "Series deleted."
 msgstr "시리즈가 삭제되었습니다."
+
+#: board/views/api/v1/static_page.py:64
+msgid "Static page deleted."
+msgstr "정적 페이지가 삭제되었습니다."
 
 #: board/views/api/v1/telegram.py:38
 msgid "Telegram connected successfully."

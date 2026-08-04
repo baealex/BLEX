@@ -1,4 +1,5 @@
 import { toast } from '~/utils/toast';
+import { Trans, useLingui } from '@lingui/react/macro';
 import { useMutation, useQueryClient, useSuspenseQuery } from '@tanstack/react-query';
 import { Link, useNavigate } from '@tanstack/react-router';
 import { FileText } from '@blex/ui/icons';
@@ -15,6 +16,7 @@ import {
 import { StaticPageList } from './components/StaticPageList';
 
 const StaticPagesSetting = () => {
+    const { i18n, t } = useLingui();
     const { confirm } = useConfirm();
     const queryClient = useQueryClient();
     const navigate = useNavigate();
@@ -26,29 +28,51 @@ const StaticPagesSetting = () => {
             if (data.status === 'DONE') {
                 return data.body.pages;
             }
-            throw new Error('정적 페이지 목록을 불러오는데 실패했습니다.');
+            throw new Error(t({
+                id: 'settings.static_pages.load_failed',
+                message: 'Could not load static pages.'
+            }));
         }
     });
 
     const deleteMutation = useMutation({
         mutationFn: (id: number) => deleteStaticPage(id),
         onSuccess: () => {
-            toast.success('정적 페이지가 삭제되었습니다.');
+            toast.success(t({
+                id: 'settings.static_pages.delete.success',
+                message: 'Static page deleted.'
+            }));
             queryClient.invalidateQueries({ queryKey: ['static-pages'] });
         },
         onError: () => {
-            toast.error('정적 페이지 삭제에 실패했습니다.');
+            toast.error(t({
+                id: 'settings.static_pages.delete.failed',
+                message: 'Could not delete the static page.'
+            }));
         }
     });
 
     const handleDelete = async (id: number) => {
         const currentPage = pagesData?.find((page) => page.id === id);
         const confirmed = await confirm({
-            title: '정적 페이지 삭제',
+            title: t({
+                id: 'settings.static_pages.delete.title',
+                message: 'Delete static page'
+            }),
             message: currentPage
-                ? `"${currentPage.title}" 페이지를 삭제하시겠습니까?\n\n이 작업은 되돌릴 수 없습니다.`
-                : '정말로 이 페이지를 삭제하시겠습니까?\n\n이 작업은 되돌릴 수 없습니다.',
-            confirmText: '삭제'
+                ? i18n._({
+                    id: 'settings.static_pages.delete.confirm_named',
+                    message: 'Delete “{title}”?\n\nThis action cannot be undone.',
+                    values: { title: currentPage.title }
+                })
+                : t({
+                    id: 'settings.static_pages.delete.confirm',
+                    message: 'Delete this page?\n\nThis action cannot be undone.'
+                }),
+            confirmText: t({
+                id: 'common.delete',
+                message: 'Delete'
+            })
         });
 
         if (confirmed) {
@@ -65,7 +89,10 @@ const StaticPagesSetting = () => {
 
     const handleView = (page: StaticPageData) => {
         if (!page.isPublished) {
-            toast.info('비공개 페이지는 열 수 없습니다. 공개한 뒤 다시 시도해주세요.');
+            toast.info(t({
+                id: 'settings.static_pages.view.unpublished',
+                message: 'Private pages cannot be opened. Publish the page and try again.'
+            }));
             return;
         }
 
@@ -76,15 +103,23 @@ const StaticPagesSetting = () => {
         <Link
             to="/static-pages/create"
             className="inline-flex min-h-11 items-center justify-center rounded-lg border border-transparent bg-action px-3 py-1.5 text-xs font-semibold text-content-inverted transition-all duration-150 hover:bg-action-hover focus:outline-none focus:ring-4 focus:ring-action/20 focus:ring-offset-1 active:scale-95 [@media(pointer:fine)]:min-h-9">
-            새 페이지 추가
+            <Trans id="settings.static_pages.create">Add page</Trans>
         </Link>
     );
 
     return (
         <div className="space-y-8">
             <SettingsHeader
-                title={`정적 페이지 (${pagesData?.length || 0})`}
-                description="공개한 페이지는 /static/{slug} 주소로 제공됩니다."
+                title={i18n._({
+                    id: 'settings.static_pages.title_count',
+                    message: 'Static pages ({count})',
+                    values: { count: pagesData?.length || 0 }
+                })}
+                description={i18n._({
+                    id: 'settings.static_pages.description',
+                    message: 'Published pages are available at /static/{slug}.',
+                    values: { slug: '{slug}' }
+                })}
                 actionPosition="right"
                 action={pagesData && pagesData.length > 0 ? createAction : undefined}
             />
@@ -99,7 +134,10 @@ const StaticPagesSetting = () => {
             ) : (
                 <SettingsEmptyState
                     icon={<FileText aria-hidden="true" className="h-4 w-4" />}
-                    title="정적 페이지가 없습니다"
+                    title={t({
+                        id: 'settings.static_pages.empty',
+                        message: 'No static pages yet'
+                    })}
                     action={createAction}
                 />
             )}

@@ -1,3 +1,4 @@
+import { Trans, useLingui } from '@lingui/react/macro';
 import { Dropdown } from '~/components/shared';
 import { Pencil, Trash2 } from '@blex/ui/icons';
 import { SETTINGS_LIST_META, SETTINGS_LIST_TITLE } from '~/styles/settingsStyles';
@@ -12,6 +13,8 @@ interface StaticPageListProps {
 }
 
 export const StaticPageList = ({ pages, onView, onEdit, onDelete }: StaticPageListProps) => {
+    const { i18n, t } = useLingui();
+
     return (
         <div className="space-y-3">
             {pages.map((page) => (
@@ -21,16 +24,26 @@ export const StaticPageList = ({ pages, onView, onEdit, onDelete }: StaticPageLi
                     actions={
                         <Dropdown
                             density="compact"
-                            triggerAriaLabel={`${page.title} 페이지 메뉴 열기`}
+                            triggerAriaLabel={i18n._({
+                                id: 'settings.static_pages.list.menu_label',
+                                message: 'Open menu for {title}',
+                                values: { title: page.title }
+                            })}
                             triggerClassName="min-h-11 min-w-11 [@media(pointer:fine)]:min-h-9 [@media(pointer:fine)]:min-w-9"
                             items={[
                                 {
-                                    label: '편집',
+                                    label: t({
+                                        id: 'common.edit',
+                                        message: 'Edit'
+                                    }),
                                     icon: <Pencil aria-hidden="true" className="h-4 w-4" />,
                                     onClick: () => onEdit(page.id)
                                 },
                                 {
-                                    label: '삭제',
+                                    label: t({
+                                        id: 'common.delete',
+                                        message: 'Delete'
+                                    }),
                                     icon: <Trash2 aria-hidden="true" className="h-4 w-4" />,
                                     onClick: () => onDelete(page.id),
                                     variant: 'danger'
@@ -44,11 +57,13 @@ export const StaticPageList = ({ pages, onView, onEdit, onDelete }: StaticPageLi
                                 {page.title}
                             </h3>
                             <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium border ${page.isPublished ? 'bg-action text-content-inverted border-line-strong' : 'bg-surface-subtle text-content-secondary border-line-light'}`}>
-                                {page.isPublished ? '공개' : '비공개'}
+                                {page.isPublished
+                                    ? <Trans id="settings.static_pages.status.public">Public</Trans>
+                                    : <Trans id="settings.static_pages.status.private">Private</Trans>}
                             </span>
                             {page.showInFooter && (
                                 <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium border bg-surface-subtle text-content border-line">
-                                    푸터
+                                    <Trans id="settings.static_pages.status.footer">Footer</Trans>
                                 </span>
                             )}
                         </div>
