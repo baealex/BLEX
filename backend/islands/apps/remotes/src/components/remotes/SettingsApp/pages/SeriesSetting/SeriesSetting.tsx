@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { Trans, useLingui } from '@lingui/react/macro';
 import { toast } from '~/utils/toast';
 import type { DragEndEvent } from '@dnd-kit/core';
 import {
@@ -50,6 +51,7 @@ interface SortableSeriesItemProps {
 }
 
 const SortableSeriesItem = ({ series, username, onEdit, onDelete }: SortableSeriesItemProps) => {
+    const { i18n, t } = useLingui();
     const { confirm } = useConfirm();
     const {
         attributes,
@@ -72,9 +74,19 @@ const SortableSeriesItem = ({ series, username, onEdit, onDelete }: SortableSeri
 
     const handleDelete = async () => {
         const confirmed = await confirm({
-            title: '시리즈 삭제',
-            message: `"${series.title}" 시리즈를 정말 삭제하시겠습니까?\n\n이 작업은 되돌릴 수 없습니다.`,
-            confirmText: '삭제',
+            title: t({
+                id: 'settings.series.delete.title',
+                message: 'Delete series'
+            }),
+            message: i18n._({
+                id: 'settings.series.delete.list_confirm',
+                message: 'Delete the series "{title}"?\n\nThis action cannot be undone.',
+                values: { title: series.title }
+            }),
+            confirmText: t({
+                id: 'common.delete',
+                message: 'Delete'
+            }),
             variant: 'danger'
         });
 
@@ -90,7 +102,11 @@ const SortableSeriesItem = ({ series, username, onEdit, onDelete }: SortableSeri
                 dragHandleProps={{
                     attributes,
                     listeners,
-                    ariaLabel: `${series.title} 시리즈 순서 변경`
+                    ariaLabel: i18n._({
+                        id: 'settings.series.item.reorder',
+                        message: 'Change order of series: {title}',
+                        values: { title: series.title }
+                    })
                 }}
                 left={
                     <div className={getSettingsIconClass('default')}>
@@ -100,16 +116,26 @@ const SortableSeriesItem = ({ series, username, onEdit, onDelete }: SortableSeri
                 actions={
                     <Dropdown
                         density="compact"
-                        triggerAriaLabel={`${series.title} 시리즈 메뉴 열기`}
+                        triggerAriaLabel={i18n._({
+                            id: 'settings.series.item.open_menu',
+                            message: 'Open menu for series: {title}',
+                            values: { title: series.title }
+                        })}
                         triggerClassName="min-h-11 min-w-11 [@media(pointer:fine)]:min-h-9 [@media(pointer:fine)]:min-w-9"
                         items={[
                             {
-                                label: '시리즈 편집',
+                                label: t({
+                                    id: 'settings.series.item.edit',
+                                    message: 'Edit series'
+                                }),
                                 icon: <Pencil aria-hidden className="h-4 w-4" />,
                                 onClick: () => onEdit(series.id)
                             },
                             {
-                                label: '삭제',
+                                label: t({
+                                    id: 'common.delete',
+                                    message: 'Delete'
+                                }),
                                 icon: <Trash2 aria-hidden className="h-4 w-4" />,
                                 onClick: handleDelete,
                                 variant: 'danger'
@@ -120,7 +146,11 @@ const SortableSeriesItem = ({ series, username, onEdit, onDelete }: SortableSeri
                 <h3 className={`${SETTINGS_LIST_TITLE} mb-0.5`}>{series.title}</h3>
                 <div className={SETTINGS_LIST_META}>
                     <FileText aria-hidden className="mr-1.5 inline h-3.5 w-3.5" />
-                    {series.totalPosts}개의 포스트
+                    {i18n._({
+                        id: 'settings.series.item.post_count',
+                        message: '{count, plural, one {# post} other {# posts}}',
+                        values: { count: series.totalPosts }
+                    })}
                 </div>
             </SettingsListItem>
         </div>
@@ -128,6 +158,7 @@ const SortableSeriesItem = ({ series, username, onEdit, onDelete }: SortableSeri
 };
 
 const SeriesSetting = () => {
+    const { i18n, t } = useLingui();
     const [series, setSeries] = useState<Series[]>([]);
     const [username, setUsername] = useState<string>('');
     const navigate = useNavigate();
@@ -139,7 +170,10 @@ const SeriesSetting = () => {
             if (data.status === 'DONE') {
                 return data.body;
             }
-            throw new Error('시리즈 목록을 불러오는데 실패했습니다.');
+            throw new Error(t({
+                id: 'settings.series.load_failed',
+                message: 'Could not load series.'
+            }));
         }
     });
 
@@ -177,13 +211,24 @@ const SeriesSetting = () => {
                 const { data } = await updateSeriesOrder(orderData);
 
                 if (data.status !== 'DONE') {
-                    throw new Error('Order update failed');
+                    toast.error(data.errorMessage || t({
+                        id: 'settings.series.order.update_failed',
+                        message: 'Could not update the series order.'
+                    }));
+                    setSeries(series);
+                    return;
                 }
 
-                toast.success('시리즈 순서가 변경되었습니다.');
+                toast.success(t({
+                    id: 'settings.series.order.update_success',
+                    message: 'Series order updated.'
+                }));
             } catch {
                 setSeries(series);
-                toast.error('시리즈 순서 변경에 실패했습니다.');
+                toast.error(t({
+                    id: 'settings.series.order.update_failed',
+                    message: 'Could not update the series order.'
+                }));
             }
         }
     };
@@ -208,12 +253,21 @@ const SeriesSetting = () => {
 
             if (data.status === 'DONE') {
                 setSeries(series.filter(s => s.id !== seriesId));
-                toast.success('시리즈가 삭제되었습니다.');
+                toast.success(t({
+                    id: 'settings.series.delete.success',
+                    message: 'Series deleted.'
+                }));
             } else {
-                throw new Error('시리즈 삭제에 실패했습니다.');
+                toast.error(data.errorMessage || t({
+                    id: 'settings.series.delete.failed',
+                    message: 'Could not delete the series.'
+                }));
             }
         } catch {
-            toast.error('시리즈 삭제에 실패했습니다.');
+            toast.error(t({
+                id: 'settings.series.delete.failed',
+                message: 'Could not delete the series.'
+            }));
         }
     };
 
@@ -221,15 +275,22 @@ const SeriesSetting = () => {
         <SettingsHeaderAction
             variant="primary"
             onClick={handleCreateSeries}>
-            새 시리즈 생성
+            <Trans id="settings.series.create_new">Create series</Trans>
         </SettingsHeaderAction>
     );
 
     return (
         <div>
             <SettingsHeader
-                title={`시리즈 (${series.length})`}
-                description="드래그하여 표시 순서를 조정할 수 있습니다."
+                title={i18n._({
+                    id: 'settings.series.title_count',
+                    message: 'Series ({count})',
+                    values: { count: series.length }
+                })}
+                description={t({
+                    id: 'settings.series.description',
+                    message: 'Drag series to change the display order.'
+                })}
                 actionPosition="right"
                 action={series.length > 0 ? createAction : undefined}
             />
@@ -260,7 +321,10 @@ const SeriesSetting = () => {
             ) : (
                 <SettingsEmptyState
                     icon={<BookOpen aria-hidden className="h-5 w-5" />}
-                    title="시리즈가 없습니다"
+                    title={t({
+                        id: 'settings.series.empty',
+                        message: 'No series yet'
+                    })}
                     action={createAction}
                 />
             )}

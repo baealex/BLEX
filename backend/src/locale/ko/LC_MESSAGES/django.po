@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: BLEX 3.1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-08-05 02:22+0900\n"
+"POT-Creation-Date: 2026-08-05 02:42+0900\n"
 "PO-Revision-Date: 2026-07-18 00:00+0900\n"
 "Last-Translator: BLEX contributors\n"
 "Language-Team: Korean\n"
@@ -465,6 +465,31 @@ msgstr "임시 저장 글은 최대 %(max_drafts)s개까지 가능합니다."
 #: board/services/post_service.py:875 board/services/post_service.py:951
 msgid "Untitled"
 msgstr "제목 없음"
+
+#: board/services/series_service.py:47
+msgid "Login is required."
+msgstr "로그인이 필요합니다."
+
+#: board/services/series_service.py:53
+#: board/views/api/v1/pinned_post_errors.py:9
+msgid "Author access is required."
+msgstr "작가 권한이 필요합니다."
+
+#: board/services/series_service.py:72 board/services/series_service.py:201
+msgid "Enter a series name."
+msgstr "시리즈 이름을 입력해주세요."
+
+#: board/services/series_service.py:77 board/services/series_service.py:210
+msgid "Enter a URL."
+msgstr "URL을 입력해주세요."
+
+#: board/services/series_service.py:100
+msgid "This URL already exists."
+msgstr "이미 존재하는 URL입니다."
+
+#: board/services/series_service.py:257 board/views/api/v1/series.py:225
+msgid "Order information is required."
+msgstr "순서 정보가 필요합니다."
 
 #: board/services/setting_account_profile_service.py:73
 msgid "Password must be at least 8 characters."
@@ -1484,10 +1509,6 @@ msgstr "잘못된 형식입니다."
 msgid "This post is already pinned."
 msgstr "이미 고정된 글입니다."
 
-#: board/views/api/v1/pinned_post_errors.py:9
-msgid "Author access is required."
-msgstr "작가 권한이 필요합니다."
-
 #: board/views/api/v1/pinned_post_errors.py:10 board/views/api/v1/search.py:89
 #: board/views/api/v1/search.py:174
 msgid "Invalid page number."
@@ -1531,6 +1552,27 @@ msgstr "수정 이력 페이지 정보를 확인해주세요."
 #: board/views/api/v1/post_revision.py:194
 msgid "Check the current post version."
 msgstr "현재 포스트 버전을 확인해주세요."
+
+#: board/views/api/v1/series.py:28
+msgid "Enter a valid series ID."
+msgstr "유효한 시리즈 ID가 필요합니다."
+
+#: board/views/api/v1/series.py:34 board/views/api/v1/series.py:311
+msgid "Series not found."
+msgstr "시리즈를 찾을 수 없습니다."
+
+#: board/views/api/v1/series.py:216 board/views/api/v1/series.py:262
+#: board/views/api/v1/series.py:327
+msgid "Invalid request data."
+msgstr "잘못된 요청 데이터입니다."
+
+#: board/views/api/v1/series.py:231
+msgid "Series order updated."
+msgstr "시리즈 순서가 변경되었습니다."
+
+#: board/views/api/v1/series.py:362
+msgid "Series deleted."
+msgstr "시리즈가 삭제되었습니다."
 
 #: board/views/author.py:287
 msgid "Author-defined order"

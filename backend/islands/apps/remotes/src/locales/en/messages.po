@@ -639,6 +639,11 @@ msgid "common.close"
 msgstr "Close"
 
 #. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SeriesSetting/components/SeriesEditor.tsx:462
+msgid "common.copy"
+msgstr "Copy"
+
+#. js-lingui-explicit-id
 #: src/components/remotes/Comments/components/CommentItem.tsx:78
 #: src/components/remotes/Comments/hooks/useCommentsController.ts:270
 #: src/components/remotes/PostEditor/components/PostRevisionDialog.tsx:614
@@ -646,6 +651,10 @@ msgstr "Close"
 #: src/components/remotes/SettingsApp/pages/AccountSetting/AccountSetting.tsx:280
 #: src/components/remotes/SettingsApp/pages/AccountSetting/components/SecuritySection.tsx:77
 #: src/components/remotes/SettingsApp/pages/ProfileSetting/ProfileSetting.tsx:233
+#: src/components/remotes/SettingsApp/pages/SeriesSetting/components/SeriesEditor.tsx:307
+#: src/components/remotes/SettingsApp/pages/SeriesSetting/components/SeriesEditor.tsx:539
+#: src/components/remotes/SettingsApp/pages/SeriesSetting/SeriesSetting.tsx:86
+#: src/components/remotes/SettingsApp/pages/SeriesSetting/SeriesSetting.tsx:135
 msgid "common.delete"
 msgstr "Delete"
 
@@ -3178,6 +3187,333 @@ msgstr "Could not update the profile."
 #: src/components/remotes/SettingsApp/pages/ProfileSetting/ProfileSetting.tsx:123
 msgid "settings.profile.update_success"
 msgstr "Profile updated."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SeriesSetting/SeriesSetting.tsx:278
+msgid "settings.series.create_new"
+msgstr "Create series"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SeriesSetting/components/SeriesEditor.tsx:270
+#: src/components/remotes/SettingsApp/pages/SeriesSetting/components/SeriesEditor.tsx:289
+#: src/components/remotes/SettingsApp/pages/SeriesSetting/SeriesSetting.tsx:261
+#: src/components/remotes/SettingsApp/pages/SeriesSetting/SeriesSetting.tsx:267
+msgid "settings.series.delete.failed"
+msgstr "Could not delete the series."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SeriesSetting/SeriesSetting.tsx:81
+msgid "settings.series.delete.list_confirm"
+msgstr "Delete the series \"{title}\"?\n"
+"\n"
+"This action cannot be undone."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SeriesSetting/components/SeriesEditor.tsx:277
+#: src/components/remotes/SettingsApp/pages/SeriesSetting/SeriesSetting.tsx:256
+msgid "settings.series.delete.success"
+msgstr "Series deleted."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SeriesSetting/components/SeriesEditor.tsx:298
+#: src/components/remotes/SettingsApp/pages/SeriesSetting/SeriesSetting.tsx:77
+msgid "settings.series.delete.title"
+msgstr "Delete series"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SeriesSetting/SeriesSetting.tsx:290
+msgid "settings.series.description"
+msgstr "Drag series to change the display order."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SeriesSetting/components/SeriesEditor.tsx:364
+msgid "settings.series.editor.back_to_list"
+msgstr "Back to series"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SeriesSetting/components/SeriesEditor.tsx:563
+msgid "settings.series.editor.create"
+msgstr "Create"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SeriesSetting/components/SeriesEditor.tsx:195
+#: src/components/remotes/SettingsApp/pages/SeriesSetting/components/SeriesEditor.tsx:214
+msgid "settings.series.editor.create_failed"
+msgstr "Could not create the series."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SeriesSetting/components/SeriesEditor.tsx:202
+msgid "settings.series.editor.create_success"
+msgstr "Series created."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SeriesSetting/components/SeriesEditor.tsx:380
+msgid "settings.series.editor.create_title"
+msgstr "Create series"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SeriesSetting/components/SeriesEditor.tsx:302
+msgid "settings.series.editor.delete_confirm"
+msgstr "Deleting \"{title}\" keeps its posts but removes their series assignment.\n"
+"\n"
+"This action cannot be undone. Continue?"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SeriesSetting/components/SeriesEditor.tsx:439
+msgid "settings.series.editor.description.helper"
+msgstr "Shown at the top of the series. Optional."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SeriesSetting/components/SeriesEditor.tsx:427
+msgid "settings.series.editor.description.label"
+msgstr "Series description"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SeriesSetting/components/SeriesEditor.tsx:433
+msgid "settings.series.editor.description.placeholder"
+msgstr "Describe what this series covers."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SeriesSetting/components/SeriesEditor.tsx:73
+msgid "settings.series.editor.description.validation.max_length"
+msgstr "Series description must be 500 characters or fewer."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SeriesSetting/components/SeriesEditor.tsx:376
+msgid "settings.series.editor.edit_title"
+msgstr "Edit series"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SeriesSetting/components/SeriesEditor.tsx:124
+msgid "settings.series.editor.load_account_failed"
+msgstr "Could not load account information."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SeriesSetting/components/SeriesEditor.tsx:96
+msgid "settings.series.editor.load_detail_failed"
+msgstr "Could not load the series."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SeriesSetting/components/SeriesEditor.tsx:110
+msgid "settings.series.editor.load_posts_failed"
+msgstr "Could not load posts."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SeriesSetting/components/SeriesEditor.tsx:390
+msgid "settings.series.editor.name.label"
+msgstr "Series title"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SeriesSetting/components/SeriesEditor.tsx:399
+msgid "settings.series.editor.name.placeholder"
+msgstr "Enter a series title"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SeriesSetting/components/SeriesEditor.tsx:65
+msgid "settings.series.editor.name.validation.max_length"
+msgstr "Series title must be 50 characters or fewer."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SeriesSetting/components/SeriesEditor.tsx:61
+msgid "settings.series.editor.name.validation.required"
+msgstr "Enter a series title."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SeriesSetting/components/SeriesEditor.tsx:554
+msgid "settings.series.editor.saving"
+msgstr "Saving..."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SeriesSetting/components/SeriesEditor.tsx:169
+msgid "settings.series.editor.unsaved.leave"
+msgstr "Leave"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SeriesSetting/components/SeriesEditor.tsx:165
+msgid "settings.series.editor.unsaved.message"
+msgstr "Your changes have not been saved. Leave this page?"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SeriesSetting/components/SeriesEditor.tsx:161
+msgid "settings.series.editor.unsaved.title"
+msgstr "Unsaved changes"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SeriesSetting/components/SeriesEditor.tsx:559
+msgid "settings.series.editor.update"
+msgstr "Update"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SeriesSetting/components/SeriesEditor.tsx:235
+#: src/components/remotes/SettingsApp/pages/SeriesSetting/components/SeriesEditor.tsx:254
+msgid "settings.series.editor.update_failed"
+msgstr "Could not update the series."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SeriesSetting/components/SeriesEditor.tsx:242
+msgid "settings.series.editor.update_success"
+msgstr "Series updated."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SeriesSetting/components/SeriesEditor.tsx:518
+msgid "settings.series.editor.url.auto_helper"
+msgstr "Leave the URL empty to generate one from the title."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SeriesSetting/components/SeriesEditor.tsx:495
+msgid "settings.series.editor.url.characters_helper"
+msgstr "Use only English letters, numbers, Korean characters, and hyphens (-)."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SeriesSetting/components/SeriesEditor.tsx:347
+msgid "settings.series.editor.url.copy_failed"
+msgstr "Could not copy the series URL."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SeriesSetting/components/SeriesEditor.tsx:342
+msgid "settings.series.editor.url.copy_success"
+msgstr "Series URL copied."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SeriesSetting/components/SeriesEditor.tsx:514
+msgid "settings.series.editor.url.custom_helper"
+msgstr "The series will use your custom URL."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SeriesSetting/components/SeriesEditor.tsx:470
+msgid "settings.series.editor.url.customize"
+msgstr "Customize URL"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SeriesSetting/components/SeriesEditor.tsx:509
+msgid "settings.series.editor.url.edit_helper"
+msgstr "The URL stays the same when you edit the series title."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SeriesSetting/components/SeriesEditor.tsx:478
+msgid "settings.series.editor.url.optional_label"
+msgstr "URL (optional)"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SeriesSetting/components/SeriesEditor.tsx:450
+msgid "settings.series.editor.url.title"
+msgstr "Series URL"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SeriesSetting/components/SeriesEditor.tsx:69
+msgid "settings.series.editor.url.validation.max_length"
+msgstr "URL must be 50 characters or fewer."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SeriesSetting/SeriesSetting.tsx:324
+msgid "settings.series.empty"
+msgstr "No series yet"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SeriesSetting/SeriesSetting.tsx:127
+msgid "settings.series.item.edit"
+msgstr "Edit series"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SeriesSetting/SeriesSetting.tsx:119
+msgid "settings.series.item.open_menu"
+msgstr "Open menu for series: {title}"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SeriesSetting/SeriesSetting.tsx:149
+msgid "settings.series.item.post_count"
+msgstr "{count, plural, one {# post} other {# posts}}"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SeriesSetting/SeriesSetting.tsx:105
+msgid "settings.series.item.reorder"
+msgstr "Change order of series: {title}"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SeriesSetting/SeriesSetting.tsx:173
+msgid "settings.series.load_failed"
+msgstr "Could not load series."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SeriesSetting/SeriesSetting.tsx:214
+#: src/components/remotes/SettingsApp/pages/SeriesSetting/SeriesSetting.tsx:228
+msgid "settings.series.order.update_failed"
+msgstr "Could not update the series order."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SeriesSetting/SeriesSetting.tsx:222
+msgid "settings.series.order.update_success"
+msgstr "Series order updated."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SeriesSetting/components/PostSelector.tsx:108
+msgid "settings.series.posts.clear_search"
+msgstr "Clear search"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SeriesSetting/components/PostSelector.tsx:94
+msgid "settings.series.posts.deselect_all"
+msgstr "Deselect all"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SeriesSetting/components/PostSelector.tsx:134
+msgid "settings.series.posts.empty.description"
+msgstr "Unpublished posts and posts already assigned to another series are excluded."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SeriesSetting/components/PostSelector.tsx:130
+msgid "settings.series.posts.empty.title"
+msgstr "No posts available"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SeriesSetting/components/PostSelector.tsx:147
+msgid "settings.series.posts.no_results.description"
+msgstr "Try a different search term."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SeriesSetting/components/PostSelector.tsx:143
+msgid "settings.series.posts.no_results.title"
+msgstr "No results"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SeriesSetting/components/PostSelector.tsx:118
+msgid "settings.series.posts.result_count"
+msgstr "{count, plural, one {# result} other {# results}}"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SeriesSetting/components/PostSelector.tsx:74
+msgid "settings.series.posts.search_aria"
+msgstr "Search posts to include"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SeriesSetting/components/PostSelector.tsx:80
+msgid "settings.series.posts.search_placeholder"
+msgstr "Search post titles"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SeriesSetting/components/PostSelector.tsx:98
+msgid "settings.series.posts.select_all"
+msgstr "Select all"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SeriesSetting/components/PostSelector.tsx:177
+msgid "settings.series.posts.select_post"
+msgstr "Select post: {title}"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SeriesSetting/components/PostSelector.tsx:59
+msgid "settings.series.posts.selected_count"
+msgstr "{count, plural, one {# selected} other {# selected}}"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SeriesSetting/components/PostSelector.tsx:54
+msgid "settings.series.posts.title"
+msgstr "Select posts to include"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SeriesSetting/SeriesSetting.tsx:285
+msgid "settings.series.title_count"
+msgstr "Series ({count})"
 
 #. js-lingui-explicit-id
 #: src/components/remotes/SettingsApp/pages/SocialLinksSetting/SocialLinksSetting.tsx:514

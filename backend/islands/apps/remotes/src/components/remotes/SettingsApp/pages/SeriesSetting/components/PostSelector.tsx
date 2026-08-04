@@ -1,8 +1,11 @@
 import { useState } from 'react';
+import { Trans, useLingui } from '@lingui/react/macro';
 import { Checkbox, Input } from '~/components/shared';
 import { FileText, Search } from '@blex/ui/icons';
 import { SettingsEmptyState } from '../../../components';
 import type { AvailableSeriesPost } from '~/lib/api/settings';
+import { formatDateOnly } from '~/i18n/formatters';
+import { normalizeLocale } from '~/i18n/locale';
 
 interface PostSelectorProps {
     posts: AvailableSeriesPost[];
@@ -11,6 +14,7 @@ interface PostSelectorProps {
 }
 
 const PostSelector = ({ posts, selectedPostIds, onChange }: PostSelectorProps) => {
+    const { i18n, t } = useLingui();
     const [query, setQuery] = useState('');
 
     const safePosts = Array.isArray(posts) ? posts : [];
@@ -46,9 +50,17 @@ const PostSelector = ({ posts, selectedPostIds, onChange }: PostSelectorProps) =
     return (
         <section className="space-y-4">
             <div className="flex items-end justify-between gap-4">
-                <h2 className="text-base font-semibold text-content">포함할 포스트 선택</h2>
+                <h2 className="text-base font-semibold text-content">
+                    <Trans id="settings.series.posts.title">
+                        Select posts to include
+                    </Trans>
+                </h2>
                 <div className="rounded-full bg-surface-subtle px-3 py-1 text-xs font-medium text-content-secondary">
-                    {selectedPostIds.length}개 선택
+                    {i18n._({
+                        id: 'settings.series.posts.selected_count',
+                        message: '{count, plural, one {# selected} other {# selected}}',
+                        values: { count: selectedPostIds.length }
+                    })}
                 </div>
             </div>
 
@@ -59,10 +71,16 @@ const PostSelector = ({ posts, selectedPostIds, onChange }: PostSelectorProps) =
                             <Input
                                 density="compact"
                                 type="text"
-                                aria-label="포함할 포스트 검색"
+                                aria-label={t({
+                                    id: 'settings.series.posts.search_aria',
+                                    message: 'Search posts to include'
+                                })}
                                 value={query}
                                 onChange={(event) => setQuery(event.target.value)}
-                                placeholder="포스트 제목 검색"
+                                placeholder={t({
+                                    id: 'settings.series.posts.search_placeholder',
+                                    message: 'Search post titles'
+                                })}
                                 leftIcon={<Search aria-hidden className="h-4 w-4" />}
                             />
                         </div>
@@ -72,14 +90,24 @@ const PostSelector = ({ posts, selectedPostIds, onChange }: PostSelectorProps) =
                                 onClick={handleToggleAll}
                                 disabled={safePosts.length === 0}
                                 className="inline-flex min-h-11 items-center rounded-md px-2 text-sm font-medium text-content-secondary transition-colors duration-150 hover:text-content active:text-content disabled:cursor-not-allowed disabled:opacity-40 [@media(pointer:fine)]:min-h-9">
-                                {isAllSelected ? '전체 해제' : '전체 선택'}
+                                {isAllSelected
+                                    ? t({
+                                        id: 'settings.series.posts.deselect_all',
+                                        message: 'Deselect all'
+                                    })
+                                    : t({
+                                        id: 'settings.series.posts.select_all',
+                                        message: 'Select all'
+                                    })}
                             </button>
                             {isSearchActive && (
                                 <button
                                     type="button"
                                     onClick={() => setQuery('')}
                                     className="inline-flex min-h-11 items-center rounded-md px-2 text-sm font-medium text-content-secondary transition-colors duration-150 hover:text-content active:text-content [@media(pointer:fine)]:min-h-9">
-                                    검색 지우기
+                                    <Trans id="settings.series.posts.clear_search">
+                                        Clear search
+                                    </Trans>
                                 </button>
                             )}
                         </div>
@@ -87,7 +115,11 @@ const PostSelector = ({ posts, selectedPostIds, onChange }: PostSelectorProps) =
 
                     {isSearchActive && (
                         <p className="text-xs text-content-secondary">
-                            {filteredPosts.length}개의 검색 결과
+                            {i18n._({
+                                id: 'settings.series.posts.result_count',
+                                message: '{count, plural, one {# result} other {# results}}',
+                                values: { count: filteredPosts.length }
+                            })}
                         </p>
                     )}
                 </div>
@@ -95,15 +127,27 @@ const PostSelector = ({ posts, selectedPostIds, onChange }: PostSelectorProps) =
                 {safePosts.length === 0 ? (
                     <SettingsEmptyState
                         icon={<FileText aria-hidden className="h-5 w-5" />}
-                        title="선택 가능한 포스트가 없습니다"
-                        description="아직 게시되지 않았거나 이미 다른 시리즈에 포함된 포스트는 제외됩니다."
+                        title={t({
+                            id: 'settings.series.posts.empty.title',
+                            message: 'No posts available'
+                        })}
+                        description={t({
+                            id: 'settings.series.posts.empty.description',
+                            message: 'Unpublished posts and posts already assigned to another series are excluded.'
+                        })}
                         className="py-12"
                     />
                 ) : filteredPosts.length === 0 ? (
                     <SettingsEmptyState
                         icon={<Search aria-hidden className="h-5 w-5" />}
-                        title="검색 결과가 없습니다"
-                        description="다른 검색어로 다시 시도해주세요."
+                        title={t({
+                            id: 'settings.series.posts.no_results.title',
+                            message: 'No results'
+                        })}
+                        description={t({
+                            id: 'settings.series.posts.no_results.description',
+                            message: 'Try a different search term.'
+                        })}
                         className="py-12"
                     />
                 ) : (
@@ -130,6 +174,11 @@ const PostSelector = ({ posts, selectedPostIds, onChange }: PostSelectorProps) =
                                     <div onClick={(e) => e.stopPropagation()}>
                                         <Checkbox
                                             checked={isSelected}
+                                            aria-label={i18n._({
+                                                id: 'settings.series.posts.select_post',
+                                                message: 'Select post: {title}',
+                                                values: { title: post.title }
+                                            })}
                                             onCheckedChange={() => togglePost(post.id)}
                                         />
                                     </div>
@@ -139,7 +188,11 @@ const PostSelector = ({ posts, selectedPostIds, onChange }: PostSelectorProps) =
                                         </span>
                                         {post.publishedDate && (
                                             <span className="mt-0.5 block text-xs text-content-hint">
-                                                {post.publishedDate}
+                                                {formatDateOnly(
+                                                    post.publishedDate,
+                                                    normalizeLocale(i18n.locale),
+                                                    post.publishedDate
+                                                )}
                                             </span>
                                         )}
                                     </div>

@@ -639,6 +639,11 @@ msgid "common.close"
 msgstr "닫기"
 
 #. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SeriesSetting/components/SeriesEditor.tsx:462
+msgid "common.copy"
+msgstr "복사"
+
+#. js-lingui-explicit-id
 #: src/components/remotes/Comments/components/CommentItem.tsx:78
 #: src/components/remotes/Comments/hooks/useCommentsController.ts:270
 #: src/components/remotes/PostEditor/components/PostRevisionDialog.tsx:614
@@ -646,6 +651,10 @@ msgstr "닫기"
 #: src/components/remotes/SettingsApp/pages/AccountSetting/AccountSetting.tsx:280
 #: src/components/remotes/SettingsApp/pages/AccountSetting/components/SecuritySection.tsx:77
 #: src/components/remotes/SettingsApp/pages/ProfileSetting/ProfileSetting.tsx:233
+#: src/components/remotes/SettingsApp/pages/SeriesSetting/components/SeriesEditor.tsx:307
+#: src/components/remotes/SettingsApp/pages/SeriesSetting/components/SeriesEditor.tsx:539
+#: src/components/remotes/SettingsApp/pages/SeriesSetting/SeriesSetting.tsx:86
+#: src/components/remotes/SettingsApp/pages/SeriesSetting/SeriesSetting.tsx:135
 msgid "common.delete"
 msgstr "삭제"
 
@@ -3178,6 +3187,333 @@ msgstr "프로필 업데이트에 실패했습니다."
 #: src/components/remotes/SettingsApp/pages/ProfileSetting/ProfileSetting.tsx:123
 msgid "settings.profile.update_success"
 msgstr "프로필을 업데이트했습니다."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SeriesSetting/SeriesSetting.tsx:278
+msgid "settings.series.create_new"
+msgstr "새 시리즈 생성"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SeriesSetting/components/SeriesEditor.tsx:270
+#: src/components/remotes/SettingsApp/pages/SeriesSetting/components/SeriesEditor.tsx:289
+#: src/components/remotes/SettingsApp/pages/SeriesSetting/SeriesSetting.tsx:261
+#: src/components/remotes/SettingsApp/pages/SeriesSetting/SeriesSetting.tsx:267
+msgid "settings.series.delete.failed"
+msgstr "시리즈 삭제에 실패했습니다."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SeriesSetting/SeriesSetting.tsx:81
+msgid "settings.series.delete.list_confirm"
+msgstr "\"{title}\" 시리즈를 정말 삭제할까요?\n"
+"\n"
+"이 작업은 되돌릴 수 없습니다."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SeriesSetting/components/SeriesEditor.tsx:277
+#: src/components/remotes/SettingsApp/pages/SeriesSetting/SeriesSetting.tsx:256
+msgid "settings.series.delete.success"
+msgstr "시리즈가 삭제되었습니다."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SeriesSetting/components/SeriesEditor.tsx:298
+#: src/components/remotes/SettingsApp/pages/SeriesSetting/SeriesSetting.tsx:77
+msgid "settings.series.delete.title"
+msgstr "시리즈 삭제"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SeriesSetting/SeriesSetting.tsx:290
+msgid "settings.series.description"
+msgstr "드래그하여 표시 순서를 조정할 수 있습니다."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SeriesSetting/components/SeriesEditor.tsx:364
+msgid "settings.series.editor.back_to_list"
+msgstr "목록으로"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SeriesSetting/components/SeriesEditor.tsx:563
+msgid "settings.series.editor.create"
+msgstr "생성"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SeriesSetting/components/SeriesEditor.tsx:195
+#: src/components/remotes/SettingsApp/pages/SeriesSetting/components/SeriesEditor.tsx:214
+msgid "settings.series.editor.create_failed"
+msgstr "시리즈 생성에 실패했습니다."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SeriesSetting/components/SeriesEditor.tsx:202
+msgid "settings.series.editor.create_success"
+msgstr "시리즈가 생성되었습니다."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SeriesSetting/components/SeriesEditor.tsx:380
+msgid "settings.series.editor.create_title"
+msgstr "시리즈 생성"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SeriesSetting/components/SeriesEditor.tsx:302
+msgid "settings.series.editor.delete_confirm"
+msgstr "\"{title}\" 시리즈를 삭제하면 연결된 포스트는 유지되고 시리즈 연결만 해제됩니다.\n"
+"\n"
+"이 작업은 되돌릴 수 없습니다. 계속할까요?"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SeriesSetting/components/SeriesEditor.tsx:439
+msgid "settings.series.editor.description.helper"
+msgstr "시리즈 상단에 표시됩니다. 선택 입력입니다."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SeriesSetting/components/SeriesEditor.tsx:427
+msgid "settings.series.editor.description.label"
+msgstr "시리즈 설명"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SeriesSetting/components/SeriesEditor.tsx:433
+msgid "settings.series.editor.description.placeholder"
+msgstr "이 시리즈에서 다루는 내용을 입력해 주세요."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SeriesSetting/components/SeriesEditor.tsx:73
+msgid "settings.series.editor.description.validation.max_length"
+msgstr "시리즈 설명은 500자 이내여야 합니다."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SeriesSetting/components/SeriesEditor.tsx:376
+msgid "settings.series.editor.edit_title"
+msgstr "시리즈 수정"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SeriesSetting/components/SeriesEditor.tsx:124
+msgid "settings.series.editor.load_account_failed"
+msgstr "계정 정보를 불러오지 못했습니다."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SeriesSetting/components/SeriesEditor.tsx:96
+msgid "settings.series.editor.load_detail_failed"
+msgstr "시리즈 정보를 불러오지 못했습니다."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SeriesSetting/components/SeriesEditor.tsx:110
+msgid "settings.series.editor.load_posts_failed"
+msgstr "포스트 목록을 불러오지 못했습니다."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SeriesSetting/components/SeriesEditor.tsx:390
+msgid "settings.series.editor.name.label"
+msgstr "시리즈 제목"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SeriesSetting/components/SeriesEditor.tsx:399
+msgid "settings.series.editor.name.placeholder"
+msgstr "시리즈 제목을 입력해 주세요"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SeriesSetting/components/SeriesEditor.tsx:65
+msgid "settings.series.editor.name.validation.max_length"
+msgstr "시리즈 제목은 50자 이내여야 합니다."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SeriesSetting/components/SeriesEditor.tsx:61
+msgid "settings.series.editor.name.validation.required"
+msgstr "시리즈 제목을 입력해 주세요."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SeriesSetting/components/SeriesEditor.tsx:554
+msgid "settings.series.editor.saving"
+msgstr "저장 중..."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SeriesSetting/components/SeriesEditor.tsx:169
+msgid "settings.series.editor.unsaved.leave"
+msgstr "나가기"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SeriesSetting/components/SeriesEditor.tsx:165
+msgid "settings.series.editor.unsaved.message"
+msgstr "변경사항이 저장되지 않았습니다. 페이지를 나갈까요?"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SeriesSetting/components/SeriesEditor.tsx:161
+msgid "settings.series.editor.unsaved.title"
+msgstr "저장하지 않은 변경사항"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SeriesSetting/components/SeriesEditor.tsx:559
+msgid "settings.series.editor.update"
+msgstr "수정"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SeriesSetting/components/SeriesEditor.tsx:235
+#: src/components/remotes/SettingsApp/pages/SeriesSetting/components/SeriesEditor.tsx:254
+msgid "settings.series.editor.update_failed"
+msgstr "시리즈 수정에 실패했습니다."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SeriesSetting/components/SeriesEditor.tsx:242
+msgid "settings.series.editor.update_success"
+msgstr "시리즈가 수정되었습니다."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SeriesSetting/components/SeriesEditor.tsx:518
+msgid "settings.series.editor.url.auto_helper"
+msgstr "URL을 비워두면 제목 기반 자동 URL로 시리즈가 생성됩니다."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SeriesSetting/components/SeriesEditor.tsx:495
+msgid "settings.series.editor.url.characters_helper"
+msgstr "영문, 숫자, 한글, 하이픈(-)만 사용할 수 있습니다."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SeriesSetting/components/SeriesEditor.tsx:347
+msgid "settings.series.editor.url.copy_failed"
+msgstr "시리즈 URL 복사에 실패했습니다."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SeriesSetting/components/SeriesEditor.tsx:342
+msgid "settings.series.editor.url.copy_success"
+msgstr "시리즈 URL을 복사했습니다."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SeriesSetting/components/SeriesEditor.tsx:514
+msgid "settings.series.editor.url.custom_helper"
+msgstr "직접 입력한 URL로 시리즈가 생성됩니다."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SeriesSetting/components/SeriesEditor.tsx:470
+msgid "settings.series.editor.url.customize"
+msgstr "URL 직접 설정"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SeriesSetting/components/SeriesEditor.tsx:509
+msgid "settings.series.editor.url.edit_helper"
+msgstr "시리즈 이름을 수정해도 URL은 유지됩니다."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SeriesSetting/components/SeriesEditor.tsx:478
+msgid "settings.series.editor.url.optional_label"
+msgstr "URL (선택)"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SeriesSetting/components/SeriesEditor.tsx:450
+msgid "settings.series.editor.url.title"
+msgstr "시리즈 URL"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SeriesSetting/components/SeriesEditor.tsx:69
+msgid "settings.series.editor.url.validation.max_length"
+msgstr "URL은 50자 이내여야 합니다."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SeriesSetting/SeriesSetting.tsx:324
+msgid "settings.series.empty"
+msgstr "시리즈가 없습니다"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SeriesSetting/SeriesSetting.tsx:127
+msgid "settings.series.item.edit"
+msgstr "시리즈 편집"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SeriesSetting/SeriesSetting.tsx:119
+msgid "settings.series.item.open_menu"
+msgstr "{title} 시리즈 메뉴 열기"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SeriesSetting/SeriesSetting.tsx:149
+msgid "settings.series.item.post_count"
+msgstr "{count, plural, other {#개의 포스트}}"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SeriesSetting/SeriesSetting.tsx:105
+msgid "settings.series.item.reorder"
+msgstr "{title} 시리즈 순서 변경"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SeriesSetting/SeriesSetting.tsx:173
+msgid "settings.series.load_failed"
+msgstr "시리즈 목록을 불러오지 못했습니다."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SeriesSetting/SeriesSetting.tsx:214
+#: src/components/remotes/SettingsApp/pages/SeriesSetting/SeriesSetting.tsx:228
+msgid "settings.series.order.update_failed"
+msgstr "시리즈 순서 변경에 실패했습니다."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SeriesSetting/SeriesSetting.tsx:222
+msgid "settings.series.order.update_success"
+msgstr "시리즈 순서가 변경되었습니다."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SeriesSetting/components/PostSelector.tsx:108
+msgid "settings.series.posts.clear_search"
+msgstr "검색 지우기"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SeriesSetting/components/PostSelector.tsx:94
+msgid "settings.series.posts.deselect_all"
+msgstr "전체 해제"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SeriesSetting/components/PostSelector.tsx:134
+msgid "settings.series.posts.empty.description"
+msgstr "아직 게시되지 않았거나 이미 다른 시리즈에 포함된 포스트는 제외됩니다."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SeriesSetting/components/PostSelector.tsx:130
+msgid "settings.series.posts.empty.title"
+msgstr "선택 가능한 포스트가 없습니다"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SeriesSetting/components/PostSelector.tsx:147
+msgid "settings.series.posts.no_results.description"
+msgstr "다른 검색어로 다시 시도해 주세요."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SeriesSetting/components/PostSelector.tsx:143
+msgid "settings.series.posts.no_results.title"
+msgstr "검색 결과가 없습니다"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SeriesSetting/components/PostSelector.tsx:118
+msgid "settings.series.posts.result_count"
+msgstr "{count, plural, other {검색 결과 #개}}"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SeriesSetting/components/PostSelector.tsx:74
+msgid "settings.series.posts.search_aria"
+msgstr "포함할 포스트 검색"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SeriesSetting/components/PostSelector.tsx:80
+msgid "settings.series.posts.search_placeholder"
+msgstr "포스트 제목 검색"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SeriesSetting/components/PostSelector.tsx:98
+msgid "settings.series.posts.select_all"
+msgstr "전체 선택"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SeriesSetting/components/PostSelector.tsx:177
+msgid "settings.series.posts.select_post"
+msgstr "포스트 선택: {title}"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SeriesSetting/components/PostSelector.tsx:59
+msgid "settings.series.posts.selected_count"
+msgstr "{count, plural, other {#개 선택}}"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SeriesSetting/components/PostSelector.tsx:54
+msgid "settings.series.posts.title"
+msgstr "포함할 포스트 선택"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SeriesSetting/SeriesSetting.tsx:285
+msgid "settings.series.title_count"
+msgstr "시리즈 ({count})"
 
 #. js-lingui-explicit-id
 #: src/components/remotes/SettingsApp/pages/SocialLinksSetting/SocialLinksSetting.tsx:514
