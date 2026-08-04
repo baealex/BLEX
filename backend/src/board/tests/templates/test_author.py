@@ -275,7 +275,6 @@ class AuthorPostsPageTestCase(TestCase):
         )
 
         self.assertEqual(response.status_code, 200)
-        self.assertNotContains(response, 'About')
         self.assertNotContains(response, '아직 소개가 없습니다')
         self.assertNotContains(response, '소개글 작성')
         self.assertNotContains(response, reverse('user_about_edit', kwargs={'username': self.user.username}))
@@ -290,7 +289,6 @@ class AuthorPostsPageTestCase(TestCase):
         )
 
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, 'About')
         self.assertContains(response, '소개')
         self.assertContains(response, '아직 소개가 없습니다')
         self.assertContains(response, '소개글 작성')
@@ -307,7 +305,6 @@ class AuthorPostsPageTestCase(TestCase):
         )
 
         self.assertEqual(visitor_response.status_code, 200)
-        self.assertContains(visitor_response, 'About')
         self.assertContains(visitor_response, '소개')
         self.assertContains(visitor_response, 'Visible author intro')
         self.assertNotContains(visitor_response, '소개글 작성')

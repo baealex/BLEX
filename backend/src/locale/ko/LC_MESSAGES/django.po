@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: BLEX 3.1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-08-05 07:33+0900\n"
+"POT-Creation-Date: 2026-08-05 07:39+0900\n"
 "PO-Revision-Date: 2026-07-18 00:00+0900\n"
 "Last-Translator: BLEX contributors\n"
 "Language-Team: Korean\n"
@@ -2880,6 +2880,7 @@ msgstr "아직 소개가 없습니다"
 msgid "Write an introduction"
 msgstr "소개글 작성"
 
+#: board/templates/board/author/components/readme_section.html:75
 #: board/templates/board/author/components/readme_section.html:76
 msgid "About"
 msgstr "소개"
@@ -2924,6 +2925,11 @@ msgstr "외부 도구에서 만든 초안입니다."
 #: board/templates/board/developer_api_quickstart.html:9
 msgid "A BLEX post written with an external tool."
 msgstr "외부 도구에서 작성한 BLEX 포스트입니다."
+
+#: board/templates/board/developer_api_quickstart.html:12
+#: board/views/api/developer/v1/api.py:58
+msgid "BLEX Developer API"
+msgstr "BLEX 개발자 API"
 
 #: board/templates/board/developer_api_quickstart.html:15
 msgid "The generated API documentation covers every endpoint. This guide walks through the shortest path from creating a token to publishing a Markdown draft."
@@ -3530,10 +3536,6 @@ msgstr "검색어를 입력하세요"
 #: board/templates/components/search_query_filter.html:31
 msgid "Clear search"
 msgstr "검색어 지우기"
-
-#: board/views/api/developer/v1/api.py:58
-msgid "BLEX Developer API"
-msgstr "BLEX 개발자 API"
 
 #: board/views/api/developer/v1/api.py:61
 msgid "Personal token API for managing BLEX posts from external tools."
