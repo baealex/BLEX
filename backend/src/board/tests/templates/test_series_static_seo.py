@@ -137,6 +137,30 @@ class SeriesSeoMetadataTestCase(StructuredDataAssertionMixin, TestCase):
         self.assertContains(response, '작성자가 쓴 첫 포스트')
         self.assertNotContains(response, '최신순')
 
+    def test_generated_series_description_follows_ui_language(self):
+        self.series.text_html = ''
+        self.series.text_md = ''
+        self.series.name = '작성자가 만든 시리즈'
+        self.series.save(update_fields=['text_html', 'text_md', 'name'])
+        url = reverse(
+            'series_detail',
+            kwargs={
+                'username': self.author.username,
+                'series_url': self.series.url,
+            },
+        )
+
+        english_response = self.client.get(url, HTTP_ACCEPT_LANGUAGE='en')
+        korean_response = self.client.get(url, HTTP_ACCEPT_LANGUAGE='ko')
+
+        self.assertEqual(
+            english_response.context['meta_description'],
+            "seriesauthor's BLEX series: 작성자가 만든 시리즈",
+        )
+        self.assertEqual(
+            korean_response.context['meta_description'],
+            'seriesauthor님의 BLEX 시리즈: 작성자가 만든 시리즈',
+        )
 
     def test_series_detail_returns_404_for_hidden_series(self):
         self.series.hide = True

@@ -33,3 +33,8 @@ def convert_to_localtime(utctime):
     utc = utctime.replace(tzinfo=pytz.UTC)
     localtz = utc.astimezone(timezone.get_current_timezone())
     return localtz
+
+
+def format_local_date(value) -> str:
+    """Format a local date for display using the active UI language."""
+    return date_format(convert_to_localtime(value), 'DATE_FORMAT')

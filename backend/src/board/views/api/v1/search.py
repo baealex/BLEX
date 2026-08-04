@@ -7,7 +7,7 @@ from django.utils.translation import gettext as _
 from board.models import Post, PostContent, Profile, Tag, User
 from board.modules.paginator import Paginator
 from board.modules.response import ErrorCode, StatusDone, StatusError
-from board.modules.time import convert_to_localtime
+from board.modules.time import convert_to_localtime, format_local_date
 from board.services.public_post_service import PublicPostService
 
 
@@ -52,7 +52,7 @@ class SearchResponseBuilder:
             'image': str(post.image),
             'description': post.meta_description,
             'read_time': post.read_time,
-            'created_date': published_date.strftime('%Y년 %m월 %d일'),
+            'created_date': format_local_date(post.published_date),
             'published_date': published_date.date().isoformat(),
             'author_image': post.author_image,
             'author': post.author_username,

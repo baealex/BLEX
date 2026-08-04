@@ -1,5 +1,5 @@
 from django.test import TestCase
-from django.utils import timezone
+from django.utils import timezone, translation
 
 from board.models import Config, Post, PostConfig, PostContent, Profile, Series, User
 from board.services.series_serializer import SeriesSerializer
@@ -61,3 +61,17 @@ class SeriesSerializerTestCase(TestCase):
 
         self.assertEqual(payload['id'], self.series.id)
         self.assertEqual(payload['postCount'], 1)
+
+    def test_display_dates_follow_active_language(self):
+        with translation.override('en'):
+            english_date = SeriesSerializer.public_series_list_item(
+                self.series,
+            )['created_date']
+        with translation.override('ko'):
+            korean_date = SeriesSerializer.public_series_list_item(
+                self.series,
+            )['created_date']
+
+        self.assertNotEqual(english_date, korean_date)
+        self.assertNotIn('년', english_date)
+        self.assertIn('년', korean_date)
