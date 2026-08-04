@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
+import { Trans, useLingui } from '@lingui/react/macro';
 import { toast } from '~/utils/toast';
 import { useMutation, useQueryClient, useSuspenseQuery } from '@tanstack/react-query';
 import { Megaphone, Pencil, Power, Trash2 } from '@blex/ui/icons';
@@ -58,16 +59,11 @@ const isValidNoticeUrl = (value: string) => {
     }
 };
 
-const noticeSchema = z.object({
-    title: z.string().trim().min(1, '공지 제목을 입력해주세요.').max(200, '공지 제목은 200자 이내여야 합니다.'),
-    url: z.string().trim().min(1, 'URL을 입력해주세요.').refine(
-        isValidNoticeUrl,
-        'https://로 시작하는 절대 URL 또는 /로 시작하는 내부 경로를 입력해주세요.'
-    ),
-    isActive: z.boolean()
-});
-
-type NoticeFormInputs = z.infer<typeof noticeSchema>;
+interface NoticeFormInputs {
+    title: string;
+    url: string;
+    isActive: boolean;
+}
 
 const defaultValues: NoticeFormInputs = {
     title: '',
@@ -76,10 +72,35 @@ const defaultValues: NoticeFormInputs = {
 };
 
 const NoticeSettingBase = ({ scope }: NoticeSettingBaseProps) => {
+    const { i18n, t } = useLingui();
     const [showForm, setShowForm] = useState(false);
     const [editingNotice, setEditingNotice] = useState<NoticeItem | null>(null);
     const { confirm } = useConfirm();
     const queryClient = useQueryClient();
+    const noticeSchema = useMemo(() => z.object({
+        title: z.string().trim()
+            .min(1, t({
+                id: 'settings.notices.validation.title_required',
+                message: 'Enter a notice title.'
+            }))
+            .max(200, t({
+                id: 'settings.notices.validation.title_max_length',
+                message: 'Notice titles must be 200 characters or fewer.'
+            })),
+        url: z.string().trim()
+            .min(1, t({
+                id: 'settings.notices.validation.url_required',
+                message: 'Enter a URL.'
+            }))
+            .refine(
+                isValidNoticeUrl,
+                t({
+                    id: 'settings.notices.validation.url_invalid',
+                    message: 'Enter an absolute HTTP(S) URL or an internal path beginning with /.'
+                })
+            ),
+        isActive: z.boolean()
+    }), [t]);
     const {
         register,
         handleSubmit,
@@ -94,7 +115,6 @@ const NoticeSettingBase = ({ scope }: NoticeSettingBaseProps) => {
 
     const isGlobal = scope === 'global';
     const queryKey = isGlobal ? ['global-notices'] : ['notices'];
-    const noticeLabel = isGlobal ? '전역 공지' : '공지';
 
     const { data: noticesData } = useSuspenseQuery({
         queryKey,
@@ -103,7 +123,10 @@ const NoticeSettingBase = ({ scope }: NoticeSettingBaseProps) => {
             if (data.status === 'DONE') {
                 return data.body.notices as NoticeItem[];
             }
-            throw new Error('공지 목록을 불러오는데 실패했습니다.');
+            throw new Error(t({
+                id: 'settings.notices.load_failed',
+                message: 'Could not load notices.'
+            }));
         }
     });
 
@@ -114,12 +137,20 @@ const NoticeSettingBase = ({ scope }: NoticeSettingBaseProps) => {
                 : createNotice(data as NoticeCreateData)
         ),
         onSuccess: () => {
-            toast.success(`${noticeLabel}가 생성되었습니다.`);
+            toast.success(i18n._({
+                id: 'settings.notices.create.success',
+                message: '{scope, select, global {Global notice created.} other {Notice created.}}',
+                values: { scope }
+            }));
             queryClient.invalidateQueries({ queryKey });
             closeForm();
         },
         onError: () => {
-            toast.error(`${noticeLabel} 생성에 실패했습니다.`);
+            toast.error(i18n._({
+                id: 'settings.notices.create.failed',
+                message: '{scope, select, global {Could not create the global notice.} other {Could not create the notice.}}',
+                values: { scope }
+            }));
         }
     });
 
@@ -130,23 +161,39 @@ const NoticeSettingBase = ({ scope }: NoticeSettingBaseProps) => {
                 : updateNotice(id, data as NoticeUpdateData)
         ),
         onSuccess: () => {
-            toast.success(`${noticeLabel}가 수정되었습니다.`);
+            toast.success(i18n._({
+                id: 'settings.notices.update.success',
+                message: '{scope, select, global {Global notice updated.} other {Notice updated.}}',
+                values: { scope }
+            }));
             queryClient.invalidateQueries({ queryKey });
             closeForm();
         },
         onError: () => {
-            toast.error(`${noticeLabel} 수정에 실패했습니다.`);
+            toast.error(i18n._({
+                id: 'settings.notices.update.failed',
+                message: '{scope, select, global {Could not update the global notice.} other {Could not update the notice.}}',
+                values: { scope }
+            }));
         }
     });
 
     const deleteMutation = useMutation({
         mutationFn: (id: number) => (isGlobal ? deleteGlobalNotice(id) : deleteNotice(id)),
         onSuccess: () => {
-            toast.success(`${noticeLabel}가 삭제되었습니다.`);
+            toast.success(i18n._({
+                id: 'settings.notices.delete.success',
+                message: '{scope, select, global {Global notice deleted.} other {Notice deleted.}}',
+                values: { scope }
+            }));
             queryClient.invalidateQueries({ queryKey });
         },
         onError: () => {
-            toast.error(`${noticeLabel} 삭제에 실패했습니다.`);
+            toast.error(i18n._({
+                id: 'settings.notices.delete.failed',
+                message: '{scope, select, global {Could not delete the global notice.} other {Could not delete the notice.}}',
+                values: { scope }
+            }));
         }
     });
 
@@ -169,9 +216,20 @@ const NoticeSettingBase = ({ scope }: NoticeSettingBaseProps) => {
 
     const handleDelete = async (id: number) => {
         const confirmed = await confirm({
-            title: `${noticeLabel} 삭제`,
-            message: `정말로 이 ${noticeLabel}를 삭제하시겠습니까?`,
-            confirmText: '삭제'
+            title: i18n._({
+                id: 'settings.notices.delete.title',
+                message: '{scope, select, global {Delete global notice} other {Delete notice}}',
+                values: { scope }
+            }),
+            message: i18n._({
+                id: 'settings.notices.delete.confirm',
+                message: '{scope, select, global {Delete this global notice?} other {Delete this notice?}}',
+                values: { scope }
+            }),
+            confirmText: t({
+                id: 'common.delete',
+                message: 'Delete'
+            })
         });
 
         if (confirmed) {
@@ -213,17 +271,27 @@ const NoticeSettingBase = ({ scope }: NoticeSettingBaseProps) => {
         <SettingsHeaderAction
             onClick={handleCreate}
             variant="primary">
-            새 공지 추가
+            <Trans id="settings.notices.create_action">Add notice</Trans>
         </SettingsHeaderAction>
     );
 
     return (
         <div className="space-y-8">
             <SettingsHeader
-                title={`${noticeLabel} (${noticesData?.length || 0})`}
+                title={i18n._({
+                    id: 'settings.notices.title_count',
+                    message: '{scope, select, global {Global notices ({count})} other {Notices ({count})}}',
+                    values: {
+                        scope,
+                        count: noticesData?.length || 0
+                    }
+                })}
                 description={
                     isGlobal
-                        ? '활성 공지는 사이트 전체에 표시됩니다.'
+                        ? t({
+                            id: 'settings.notices.global.description',
+                            message: 'Active notices are shown across the entire site.'
+                        })
                         : undefined
                 }
                 actionPosition="right"
@@ -235,19 +303,32 @@ const NoticeSettingBase = ({ scope }: NoticeSettingBaseProps) => {
                     className="bg-surface-subtle border border-line rounded-2xl p-6 animate-in fade-in-0 slide-in-from-top-2 motion-interaction"
                     onSubmit={handleSubmit(onSubmit)}>
                     <h3 className="text-base font-semibold text-content mb-4">
-                        {editingNotice ? `${noticeLabel} 수정` : `새 ${noticeLabel} 만들기`}
+                        {editingNotice
+                            ? i18n._({
+                                id: 'settings.notices.form.edit_title',
+                                message: '{scope, select, global {Edit global notice} other {Edit notice}}',
+                                values: { scope }
+                            })
+                            : i18n._({
+                                id: 'settings.notices.form.create_title',
+                                message: '{scope, select, global {Create global notice} other {Create notice}}',
+                                values: { scope }
+                            })}
                     </h3>
                     <div className="space-y-4">
                         <div className="space-y-2">
                             <label
                                 htmlFor={isGlobal ? 'global-notice-title' : 'notice-title'}
                                 className="block text-sm font-medium text-content">
-                                공지 제목
+                                <Trans id="settings.notices.form.title.label">Notice title</Trans>
                             </label>
                             <Input
                                 density="compact"
                                 id={isGlobal ? 'global-notice-title' : 'notice-title'}
-                                placeholder="공지 제목을 입력하세요"
+                                placeholder={t({
+                                    id: 'settings.notices.form.title.placeholder',
+                                    message: 'Enter a notice title'
+                                })}
                                 error={errors.title?.message}
                                 {...register('title')}
                             />
@@ -267,7 +348,11 @@ const NoticeSettingBase = ({ scope }: NoticeSettingBaseProps) => {
                                 {...register('url')}
                             />
                             {!isGlobal && (
-                                <p className="text-xs text-content-secondary">공지 클릭 시 이동할 URL입니다.</p>
+                                <p className="text-xs text-content-secondary">
+                                    <Trans id="settings.notices.form.url.help">
+                                        Visitors go to this URL when they select the notice.
+                                    </Trans>
+                                </p>
                             )}
                         </div>
 
@@ -275,11 +360,17 @@ const NoticeSettingBase = ({ scope }: NoticeSettingBaseProps) => {
                             <Checkbox
                                 checked={watch('isActive')}
                                 onCheckedChange={(checked) => setValue('isActive', checked)}
-                                label="공지 활성화"
+                                label={t({
+                                    id: 'settings.notices.form.active.label',
+                                    message: 'Active'
+                                })}
                                 description={
                                     isGlobal
                                         ? undefined
-                                        : '활성화된 공지만 블로그에 표시됩니다.'
+                                        : t({
+                                            id: 'settings.notices.form.active.help',
+                                            message: 'Only active notices are shown on your blog.'
+                                        })
                                 }
                             />
                         </div>
@@ -293,7 +384,7 @@ const NoticeSettingBase = ({ scope }: NoticeSettingBaseProps) => {
                                 className="min-h-11! [@media(pointer:fine)]:min-h-10!"
                                 onClick={closeForm}
                                 disabled={isSubmitting}>
-                                취소
+                                <Trans id="common.cancel">Cancel</Trans>
                             </Button>
                             <div className="flex items-center gap-3">
                                 <Button
@@ -303,7 +394,11 @@ const NoticeSettingBase = ({ scope }: NoticeSettingBaseProps) => {
                                     size="md"
                                     className="min-h-11! [@media(pointer:fine)]:min-h-10!"
                                     isLoading={isSubmitting}>
-                                    {isSubmitting ? '저장 중...' : editingNotice ? `${noticeLabel} 수정` : `${noticeLabel} 생성`}
+                                    {isSubmitting
+                                        ? <Trans id="common.saving">Saving</Trans>
+                                        : editingNotice
+                                            ? <Trans id="common.update">Update</Trans>
+                                            : <Trans id="common.create">Create</Trans>}
                                 </Button>
                             </div>
                         </div>
@@ -319,21 +414,45 @@ const NoticeSettingBase = ({ scope }: NoticeSettingBaseProps) => {
                             actions={
                                 <Dropdown
                                     density="compact"
-                                    triggerAriaLabel={`${notice.title} ${noticeLabel} 메뉴 열기`}
+                                    triggerAriaLabel={isGlobal
+                                        ? i18n._({
+                                            id: 'settings.notices.list.global_menu_label',
+                                            message: 'Open menu for global notice “{title}”',
+                                            values: { title: notice.title }
+                                        })
+                                        : i18n._({
+                                            id: 'settings.notices.list.user_menu_label',
+                                            message: 'Open menu for notice “{title}”',
+                                            values: { title: notice.title }
+                                        })}
                                     triggerClassName="min-h-11 min-w-11 [@media(pointer:fine)]:min-h-9 [@media(pointer:fine)]:min-w-9"
                                     items={[
                                         {
-                                            label: notice.isActive ? '비활성화' : '활성화',
+                                            label: notice.isActive
+                                                ? t({
+                                                    id: 'settings.notices.action.deactivate',
+                                                    message: 'Deactivate'
+                                                })
+                                                : t({
+                                                    id: 'settings.notices.action.activate',
+                                                    message: 'Activate'
+                                                }),
                                             icon: <Power aria-hidden="true" className="h-4 w-4" />,
                                             onClick: () => handleToggleActive(notice)
                                         },
                                         {
-                                            label: '수정',
+                                            label: t({
+                                                id: 'common.edit',
+                                                message: 'Edit'
+                                            }),
                                             icon: <Pencil aria-hidden="true" className="h-4 w-4" />,
                                             onClick: () => handleEdit(notice)
                                         },
                                         {
-                                            label: '삭제',
+                                            label: t({
+                                                id: 'common.delete',
+                                                message: 'Delete'
+                                            }),
                                             icon: <Trash2 aria-hidden="true" className="h-4 w-4" />,
                                             onClick: () => handleDelete(notice.id),
                                             variant: 'danger'
@@ -345,7 +464,9 @@ const NoticeSettingBase = ({ scope }: NoticeSettingBaseProps) => {
                                 <div className="flex items-center gap-2 flex-wrap">
                                     <h3 className={`${SETTINGS_LIST_TITLE} mb-0`}>{notice.title}</h3>
                                     <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium border ${notice.isActive ? 'bg-action text-content-inverted border-line-strong' : 'bg-surface-subtle text-content-secondary border-line-light'}`}>
-                                        {notice.isActive ? '활성' : '비활성'}
+                                        {notice.isActive
+                                            ? <Trans id="settings.notices.status.active">Active</Trans>
+                                            : <Trans id="settings.notices.status.inactive">Inactive</Trans>}
                                     </span>
                                 </div>
                                 <p className="text-sm text-content-secondary truncate max-w-md">{notice.url}</p>
@@ -356,7 +477,15 @@ const NoticeSettingBase = ({ scope }: NoticeSettingBaseProps) => {
             ) : !showForm ? (
                 <SettingsEmptyState
                     icon={<Megaphone aria-hidden="true" className="h-4 w-4" />}
-                    title={isGlobal ? '전역 공지가 없습니다' : '등록된 공지가 없습니다'}
+                    title={isGlobal
+                        ? t({
+                            id: 'settings.notices.empty.global',
+                            message: 'No global notices yet'
+                        })
+                        : t({
+                            id: 'settings.notices.empty.user',
+                            message: 'No notices yet'
+                        })}
                     action={createAction}
                 />
             ) : null}

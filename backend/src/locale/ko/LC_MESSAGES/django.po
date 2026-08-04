@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: BLEX 3.1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-08-05 04:17+0900\n"
+"POT-Creation-Date: 2026-08-05 04:23+0900\n"
 "PO-Revision-Date: 2026-07-18 00:00+0900\n"
 "Last-Translator: BLEX contributors\n"
 "Language-Team: Korean\n"
@@ -556,7 +556,7 @@ msgid "You do not have permission to write posts."
 msgstr "작성 권한이 없습니다."
 
 #: board/services/post_service.py:149
-#: board/services/site_content_api_service.py:280
+#: board/services/site_content_api_service.py:283
 msgid "Enter a title."
 msgstr "제목을 입력해주세요."
 
@@ -625,6 +625,7 @@ msgid "Enter a series name."
 msgstr "시리즈 이름을 입력해주세요."
 
 #: board/services/series_service.py:77 board/services/series_service.py:210
+#: board/services/site_content_api_service.py:169
 msgid "Enter a URL."
 msgstr "URL을 입력해주세요."
 
@@ -660,12 +661,16 @@ msgstr "비밀번호는 특수문자를 포함해야 합니다."
 msgid "Homepage must be an HTTP or HTTPS URL."
 msgstr "홈페이지는 http 또는 https URL이어야 합니다."
 
-#: board/services/site_content_api_service.py:282
+#: board/services/site_content_api_service.py:166
+msgid "Enter a notice title."
+msgstr "공지 제목을 입력해주세요."
+
+#: board/services/site_content_api_service.py:285
 msgid "Enter a URL slug."
 msgstr "URL 슬러그를 입력해주세요."
 
-#: board/services/site_content_api_service.py:291
-#: board/services/site_content_api_service.py:315
+#: board/services/site_content_api_service.py:294
+#: board/services/site_content_api_service.py:318
 msgid "This slug is already in use."
 msgstr "이미 사용 중인 슬러그입니다."
 
@@ -1677,6 +1682,10 @@ msgstr "2차 인증이 활성화되었습니다."
 #: board/views/api/v1/author_invite.py:44
 msgid "Invitation link not found."
 msgstr "초대 링크를 찾을 수 없습니다."
+
+#: board/views/api/v1/global_notice.py:60 board/views/api/v1/notice.py:63
+msgid "Notice deleted."
+msgstr "공지가 삭제되었습니다."
 
 #: board/views/api/v1/pinned_post.py:42 board/views/api/v1/pinned_post.py:59
 #: board/views/api/v1/setting.py:250 board/views/api/v1/setting.py:275

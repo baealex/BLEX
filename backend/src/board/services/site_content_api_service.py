@@ -161,9 +161,12 @@ class SiteContentApiService:
     @staticmethod
     def validate_notice_payload(data: dict) -> None:
         if not data.get('title', ''):
-            raise SiteContentApiError(ErrorCode.VALIDATE, '공지 제목을 입력해주세요.')
+            raise SiteContentApiError(
+                ErrorCode.VALIDATE,
+                gettext('Enter a notice title.'),
+            )
         if not data.get('url', ''):
-            raise SiteContentApiError(ErrorCode.VALIDATE, 'URL을 입력해주세요.')
+            raise SiteContentApiError(ErrorCode.VALIDATE, gettext('Enter a URL.'))
 
     @staticmethod
     def validate_banner_payload(data: dict) -> None:

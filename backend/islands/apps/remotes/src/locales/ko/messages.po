@@ -625,6 +625,7 @@ msgstr "적용"
 #: src/components/remotes/SettingsApp/pages/AccountSetting/components/TwoFactorModal.tsx:135
 #: src/components/remotes/SettingsApp/pages/FormsSetting/FormsSetting.tsx:291
 #: src/components/remotes/SettingsApp/pages/PinnedPostsSetting/components/AddPinnedPostModal.tsx:220
+#: src/components/remotes/SettingsApp/pages/shared/NoticeSettingBase.tsx:387
 #: src/components/shared/ImageCropDialog.tsx:239
 msgid "common.cancel"
 msgstr "취소"
@@ -665,6 +666,7 @@ msgid "common.copy_success"
 msgstr "복사했습니다."
 
 #. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/shared/NoticeSettingBase.tsx:401
 #: src/components/remotes/SettingsApp/pages/StaticPagesSetting/components/StaticPageEditor.tsx:498
 msgid "common.create"
 msgstr "생성"
@@ -685,6 +687,8 @@ msgstr "생성"
 #: src/components/remotes/SettingsApp/pages/SeriesSetting/components/SeriesEditor.tsx:539
 #: src/components/remotes/SettingsApp/pages/SeriesSetting/SeriesSetting.tsx:86
 #: src/components/remotes/SettingsApp/pages/SeriesSetting/SeriesSetting.tsx:135
+#: src/components/remotes/SettingsApp/pages/shared/NoticeSettingBase.tsx:229
+#: src/components/remotes/SettingsApp/pages/shared/NoticeSettingBase.tsx:452
 #: src/components/remotes/SettingsApp/pages/StaticPagesSetting/components/StaticPageEditor.tsx:274
 #: src/components/remotes/SettingsApp/pages/StaticPagesSetting/components/StaticPageEditor.tsx:462
 #: src/components/remotes/SettingsApp/pages/StaticPagesSetting/components/StaticPageList.tsx:43
@@ -715,6 +719,7 @@ msgstr "완료"
 #. js-lingui-explicit-id
 #: src/components/remotes/Comments/components/CommentItem.tsx:70
 #: src/components/remotes/SettingsApp/pages/FormsSetting/FormsSetting.tsx:348
+#: src/components/remotes/SettingsApp/pages/shared/NoticeSettingBase.tsx:444
 #: src/components/remotes/SettingsApp/pages/StaticPagesSetting/components/StaticPageList.tsx:35
 msgid "common.edit"
 msgstr "수정"
@@ -841,6 +846,7 @@ msgstr "저장"
 #. js-lingui-explicit-id
 #: src/components/remotes/Comments/components/CommentEditForm.tsx:76
 #: src/components/remotes/SettingsApp/pages/AdminIntegrationSetting/AdminIntegrationSetting.tsx:289
+#: src/components/remotes/SettingsApp/pages/shared/NoticeSettingBase.tsx:398
 #: src/components/remotes/SettingsApp/pages/StaticPagesSetting/components/StaticPageEditor.tsx:495
 msgid "common.saving"
 msgstr "저장 중"
@@ -869,6 +875,7 @@ msgid "common.untitled"
 msgstr "제목 없음"
 
 #. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/shared/NoticeSettingBase.tsx:400
 #: src/components/remotes/SettingsApp/pages/StaticPagesSetting/components/StaticPageEditor.tsx:497
 msgid "common.update"
 msgstr "수정"
@@ -3259,6 +3266,161 @@ msgstr "유틸리티"
 #: src/components/remotes/SettingsApp/components/SettingsNavigation.tsx:185
 msgid "settings.navigation.webhook_integration"
 msgstr "웹훅 연동"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/shared/NoticeSettingBase.tsx:436
+msgid "settings.notices.action.activate"
+msgstr "활성화"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/shared/NoticeSettingBase.tsx:432
+msgid "settings.notices.action.deactivate"
+msgstr "비활성화"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/shared/NoticeSettingBase.tsx:274
+msgid "settings.notices.create_action"
+msgstr "새 공지 추가"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/shared/NoticeSettingBase.tsx:149
+msgid "settings.notices.create.failed"
+msgstr "{scope, select, global {전역 공지 생성에 실패했습니다.} other {공지 생성에 실패했습니다.}}"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/shared/NoticeSettingBase.tsx:140
+msgid "settings.notices.create.success"
+msgstr "{scope, select, global {전역 공지가 생성되었습니다.} other {공지가 생성되었습니다.}}"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/shared/NoticeSettingBase.tsx:224
+msgid "settings.notices.delete.confirm"
+msgstr "{scope, select, global {이 전역 공지를 삭제하시겠습니까?} other {이 공지를 삭제하시겠습니까?}}"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/shared/NoticeSettingBase.tsx:192
+msgid "settings.notices.delete.failed"
+msgstr "{scope, select, global {전역 공지 삭제에 실패했습니다.} other {공지 삭제에 실패했습니다.}}"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/shared/NoticeSettingBase.tsx:184
+msgid "settings.notices.delete.success"
+msgstr "{scope, select, global {전역 공지가 삭제되었습니다.} other {공지가 삭제되었습니다.}}"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/shared/NoticeSettingBase.tsx:219
+msgid "settings.notices.delete.title"
+msgstr "{scope, select, global {전역 공지 삭제} other {공지 삭제}}"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/shared/NoticeSettingBase.tsx:481
+msgid "settings.notices.empty.global"
+msgstr "전역 공지가 없습니다"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/shared/NoticeSettingBase.tsx:485
+msgid "settings.notices.empty.user"
+msgstr "등록된 공지가 없습니다"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/shared/NoticeSettingBase.tsx:370
+msgid "settings.notices.form.active.help"
+msgstr "활성화된 공지만 블로그에 표시됩니다."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/shared/NoticeSettingBase.tsx:363
+msgid "settings.notices.form.active.label"
+msgstr "공지 활성화"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/shared/NoticeSettingBase.tsx:312
+msgid "settings.notices.form.create_title"
+msgstr "{scope, select, global {새 전역 공지 만들기} other {새 공지 만들기}}"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/shared/NoticeSettingBase.tsx:307
+msgid "settings.notices.form.edit_title"
+msgstr "{scope, select, global {전역 공지 수정} other {공지 수정}}"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/shared/NoticeSettingBase.tsx:323
+msgid "settings.notices.form.title.label"
+msgstr "공지 제목"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/shared/NoticeSettingBase.tsx:328
+msgid "settings.notices.form.title.placeholder"
+msgstr "공지 제목을 입력하세요"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/shared/NoticeSettingBase.tsx:352
+msgid "settings.notices.form.url.help"
+msgstr "공지 클릭 시 이동할 URL입니다."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/shared/NoticeSettingBase.tsx:291
+msgid "settings.notices.global.description"
+msgstr "활성 공지는 사이트 전체에 표시됩니다."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/shared/NoticeSettingBase.tsx:418
+msgid "settings.notices.list.global_menu_label"
+msgstr "전역 공지 “{title}” 메뉴 열기"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/shared/NoticeSettingBase.tsx:423
+msgid "settings.notices.list.user_menu_label"
+msgstr "공지 “{title}” 메뉴 열기"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/shared/NoticeSettingBase.tsx:126
+msgid "settings.notices.load_failed"
+msgstr "공지 목록을 불러오는데 실패했습니다."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/shared/NoticeSettingBase.tsx:468
+msgid "settings.notices.status.active"
+msgstr "활성"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/shared/NoticeSettingBase.tsx:469
+msgid "settings.notices.status.inactive"
+msgstr "비활성"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/shared/NoticeSettingBase.tsx:281
+msgid "settings.notices.title_count"
+msgstr "{scope, select, global {전역 공지 ({count})} other {공지 ({count})}}"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/shared/NoticeSettingBase.tsx:173
+msgid "settings.notices.update.failed"
+msgstr "{scope, select, global {전역 공지 수정에 실패했습니다.} other {공지 수정에 실패했습니다.}}"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/shared/NoticeSettingBase.tsx:164
+msgid "settings.notices.update.success"
+msgstr "{scope, select, global {전역 공지가 수정되었습니다.} other {공지가 수정되었습니다.}}"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/shared/NoticeSettingBase.tsx:86
+msgid "settings.notices.validation.title_max_length"
+msgstr "공지 제목은 200자 이내여야 합니다."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/shared/NoticeSettingBase.tsx:82
+msgid "settings.notices.validation.title_required"
+msgstr "공지 제목을 입력해주세요."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/shared/NoticeSettingBase.tsx:97
+msgid "settings.notices.validation.url_invalid"
+msgstr "http:// 또는 https://로 시작하는 절대 URL이나 /로 시작하는 내부 경로를 입력해주세요."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/shared/NoticeSettingBase.tsx:91
+msgid "settings.notices.validation.url_required"
+msgstr "URL을 입력해주세요."
 
 #. js-lingui-explicit-id
 #: src/components/remotes/SettingsApp/pages/NotifySetting/components/NotifyConfigModal.tsx:38

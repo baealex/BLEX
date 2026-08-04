@@ -625,6 +625,7 @@ msgstr ""
 #: src/components/remotes/SettingsApp/pages/AccountSetting/components/TwoFactorModal.tsx:135
 #: src/components/remotes/SettingsApp/pages/FormsSetting/FormsSetting.tsx:291
 #: src/components/remotes/SettingsApp/pages/PinnedPostsSetting/components/AddPinnedPostModal.tsx:220
+#: src/components/remotes/SettingsApp/pages/shared/NoticeSettingBase.tsx:387
 #: src/components/shared/ImageCropDialog.tsx:239
 msgid "common.cancel"
 msgstr ""
@@ -665,6 +666,7 @@ msgid "common.copy_success"
 msgstr ""
 
 #. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/shared/NoticeSettingBase.tsx:401
 #: src/components/remotes/SettingsApp/pages/StaticPagesSetting/components/StaticPageEditor.tsx:498
 msgid "common.create"
 msgstr ""
@@ -685,6 +687,8 @@ msgstr ""
 #: src/components/remotes/SettingsApp/pages/SeriesSetting/components/SeriesEditor.tsx:539
 #: src/components/remotes/SettingsApp/pages/SeriesSetting/SeriesSetting.tsx:86
 #: src/components/remotes/SettingsApp/pages/SeriesSetting/SeriesSetting.tsx:135
+#: src/components/remotes/SettingsApp/pages/shared/NoticeSettingBase.tsx:229
+#: src/components/remotes/SettingsApp/pages/shared/NoticeSettingBase.tsx:452
 #: src/components/remotes/SettingsApp/pages/StaticPagesSetting/components/StaticPageEditor.tsx:274
 #: src/components/remotes/SettingsApp/pages/StaticPagesSetting/components/StaticPageEditor.tsx:462
 #: src/components/remotes/SettingsApp/pages/StaticPagesSetting/components/StaticPageList.tsx:43
@@ -715,6 +719,7 @@ msgstr ""
 #. js-lingui-explicit-id
 #: src/components/remotes/Comments/components/CommentItem.tsx:70
 #: src/components/remotes/SettingsApp/pages/FormsSetting/FormsSetting.tsx:348
+#: src/components/remotes/SettingsApp/pages/shared/NoticeSettingBase.tsx:444
 #: src/components/remotes/SettingsApp/pages/StaticPagesSetting/components/StaticPageList.tsx:35
 msgid "common.edit"
 msgstr ""
@@ -841,6 +846,7 @@ msgstr ""
 #. js-lingui-explicit-id
 #: src/components/remotes/Comments/components/CommentEditForm.tsx:76
 #: src/components/remotes/SettingsApp/pages/AdminIntegrationSetting/AdminIntegrationSetting.tsx:289
+#: src/components/remotes/SettingsApp/pages/shared/NoticeSettingBase.tsx:398
 #: src/components/remotes/SettingsApp/pages/StaticPagesSetting/components/StaticPageEditor.tsx:495
 msgid "common.saving"
 msgstr ""
@@ -869,6 +875,7 @@ msgid "common.untitled"
 msgstr ""
 
 #. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/shared/NoticeSettingBase.tsx:400
 #: src/components/remotes/SettingsApp/pages/StaticPagesSetting/components/StaticPageEditor.tsx:497
 msgid "common.update"
 msgstr ""
@@ -3258,6 +3265,161 @@ msgstr ""
 #. js-lingui-explicit-id
 #: src/components/remotes/SettingsApp/components/SettingsNavigation.tsx:185
 msgid "settings.navigation.webhook_integration"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/shared/NoticeSettingBase.tsx:436
+msgid "settings.notices.action.activate"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/shared/NoticeSettingBase.tsx:432
+msgid "settings.notices.action.deactivate"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/shared/NoticeSettingBase.tsx:274
+msgid "settings.notices.create_action"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/shared/NoticeSettingBase.tsx:149
+msgid "settings.notices.create.failed"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/shared/NoticeSettingBase.tsx:140
+msgid "settings.notices.create.success"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/shared/NoticeSettingBase.tsx:224
+msgid "settings.notices.delete.confirm"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/shared/NoticeSettingBase.tsx:192
+msgid "settings.notices.delete.failed"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/shared/NoticeSettingBase.tsx:184
+msgid "settings.notices.delete.success"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/shared/NoticeSettingBase.tsx:219
+msgid "settings.notices.delete.title"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/shared/NoticeSettingBase.tsx:481
+msgid "settings.notices.empty.global"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/shared/NoticeSettingBase.tsx:485
+msgid "settings.notices.empty.user"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/shared/NoticeSettingBase.tsx:370
+msgid "settings.notices.form.active.help"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/shared/NoticeSettingBase.tsx:363
+msgid "settings.notices.form.active.label"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/shared/NoticeSettingBase.tsx:312
+msgid "settings.notices.form.create_title"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/shared/NoticeSettingBase.tsx:307
+msgid "settings.notices.form.edit_title"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/shared/NoticeSettingBase.tsx:323
+msgid "settings.notices.form.title.label"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/shared/NoticeSettingBase.tsx:328
+msgid "settings.notices.form.title.placeholder"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/shared/NoticeSettingBase.tsx:352
+msgid "settings.notices.form.url.help"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/shared/NoticeSettingBase.tsx:291
+msgid "settings.notices.global.description"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/shared/NoticeSettingBase.tsx:418
+msgid "settings.notices.list.global_menu_label"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/shared/NoticeSettingBase.tsx:423
+msgid "settings.notices.list.user_menu_label"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/shared/NoticeSettingBase.tsx:126
+msgid "settings.notices.load_failed"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/shared/NoticeSettingBase.tsx:468
+msgid "settings.notices.status.active"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/shared/NoticeSettingBase.tsx:469
+msgid "settings.notices.status.inactive"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/shared/NoticeSettingBase.tsx:281
+msgid "settings.notices.title_count"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/shared/NoticeSettingBase.tsx:173
+msgid "settings.notices.update.failed"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/shared/NoticeSettingBase.tsx:164
+msgid "settings.notices.update.success"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/shared/NoticeSettingBase.tsx:86
+msgid "settings.notices.validation.title_max_length"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/shared/NoticeSettingBase.tsx:82
+msgid "settings.notices.validation.title_required"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/shared/NoticeSettingBase.tsx:97
+msgid "settings.notices.validation.url_invalid"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/shared/NoticeSettingBase.tsx:91
+msgid "settings.notices.validation.url_required"
 msgstr ""
 
 #. js-lingui-explicit-id
