@@ -1,4 +1,5 @@
 import React, { useRef, useEffect } from 'react';
+import { useLingui } from '@lingui/react/macro';
 
 interface TwoFactorCodeInputProps {
     codes: string[];
@@ -15,6 +16,7 @@ const TwoFactorCodeInput = ({
     onPaste,
     autoFocus = false
 }: TwoFactorCodeInputProps) => {
+    const { i18n } = useLingui();
     const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
 
     useEffect(() => {
@@ -55,6 +57,11 @@ const TwoFactorCodeInput = ({
                     inputMode="numeric"
                     pattern="[0-9]"
                     autoComplete="off"
+                    aria-label={i18n._({
+                        id: 'auth.two_factor.digit_label',
+                        message: 'Verification code digit {position}',
+                        values: { position: index + 1 }
+                    })}
                 />
             ))}
         </div>

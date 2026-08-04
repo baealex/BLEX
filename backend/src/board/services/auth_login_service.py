@@ -4,6 +4,7 @@ from django.conf import settings
 from django.contrib import auth
 from django.contrib.auth.models import User
 from django.core.cache import cache
+from django.utils.translation import gettext
 
 from board.modules.response import StatusDone, StatusError, ErrorCode
 from board.services.auth_service import AuthService, OAuthService
@@ -57,7 +58,10 @@ class AuthLoginService:
         attempts = cache.get(AuthLoginService.get_attempt_cache_key(request), 0)
 
         if attempts >= AuthLoginService.LOGIN_ATTEMPT_LIMIT:
-            return StatusError(ErrorCode.REJECT, '너무 많은 실패로 인해 잠시 후 다시 시도해주세요.')
+            return StatusError(
+                ErrorCode.REJECT,
+                gettext('Too many failed attempts. Please try again later.'),
+            )
 
         return None
 
@@ -96,7 +100,10 @@ class AuthLoginService:
                     return AuthLoginService.login_response(request.user)
 
                 AuthLoginService.increment_login_attempts(request)
-                return StatusError(ErrorCode.REJECT, '2차 인증 코드가 올바르지 않습니다.')
+                return StatusError(
+                    ErrorCode.REJECT,
+                    gettext('The two-factor authentication code is incorrect.'),
+                )
 
             return StatusDone({
                 'username': user.username,
@@ -115,7 +122,10 @@ class AuthLoginService:
         oauth_data = OAuthService.get_2fa_data(oauth_token)
 
         if not oauth_data:
-            return StatusError(ErrorCode.REJECT, '인증 토큰이 만료되었습니다. 다시 로그인해주세요.')
+            return StatusError(
+                ErrorCode.REJECT,
+                gettext('The authentication token has expired. Please log in again.'),
+            )
 
         try:
             user = User.objects.get(id=oauth_data['user_id'])
@@ -124,7 +134,10 @@ class AuthLoginService:
             return StatusError(ErrorCode.REJECT)
 
         if not two_factor_code:
-            return StatusError(ErrorCode.VALIDATE, '2차 인증 코드가 필요합니다.')
+            return StatusError(
+                ErrorCode.VALIDATE,
+                gettext('A two-factor authentication code is required.'),
+            )
 
         if AuthService.verify_totp_token(user, two_factor_code):
             AuthLoginService.clear_login_attempts(request)
@@ -133,7 +146,10 @@ class AuthLoginService:
             return AuthLoginService.login_response(request.user)
 
         AuthLoginService.increment_login_attempts(request)
-        return StatusError(ErrorCode.REJECT, '2차 인증 코드가 올바르지 않습니다.')
+        return StatusError(
+            ErrorCode.REJECT,
+            gettext('The two-factor authentication code is incorrect.'),
+        )
 
     @staticmethod
     def handle_password_login(request, data):

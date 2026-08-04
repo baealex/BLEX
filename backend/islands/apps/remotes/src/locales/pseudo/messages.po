@@ -14,6 +14,283 @@ msgstr ""
 "Plural-Forms: \n"
 
 #. js-lingui-explicit-id
+#: src/components/remotes/Signup/Signup.tsx:427
+msgid "auth.fields.confirm_password"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/Signup/Signup.tsx:449
+msgid "auth.fields.confirm_password_placeholder"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/Signup/Signup.tsx:346
+msgid "auth.fields.display_name"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/Signup/Signup.tsx:357
+msgid "auth.fields.display_name_placeholder"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/Signup/Signup.tsx:367
+msgid "auth.fields.email"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/Signup/Signup.tsx:378
+msgid "auth.fields.email_placeholder"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/Login/components/LoginForm.tsx:129
+#: src/components/remotes/Signup/Signup.tsx:388
+msgid "auth.fields.password"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/Signup/Signup.tsx:410
+msgid "auth.fields.password_new_placeholder"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/Login/components/LoginForm.tsx:140
+msgid "auth.fields.password_placeholder"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/Login/components/LoginForm.tsx:104
+#: src/components/remotes/Signup/Signup.tsx:304
+msgid "auth.fields.username"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/Signup/Signup.tsx:331
+#: src/components/remotes/Signup/Signup.tsx:339
+msgid "auth.fields.username_hint"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/Login/components/LoginForm.tsx:115
+msgid "auth.fields.username_placeholder"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/Login/hooks/useLoginState.ts:93
+msgid "auth.login.blocked_remaining"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/Login/hooks/useLoginState.ts:123
+msgid "auth.login.failed_blocked_remaining"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/Login/Login.tsx:147
+msgid "auth.login.invalid_credentials"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/Login/Login.tsx:309
+msgid "auth.login.no_account"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/Login/components/LoginForm.tsx:188
+msgid "auth.login.submitting"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/Login/components/LoginForm.tsx:190
+#: src/components/remotes/Login/Login.tsx:261
+#: src/components/remotes/Signup/Signup.tsx:508
+msgid "auth.login.title"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/Login/Login.tsx:268
+msgid "auth.login.welcome_back"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/Signup/Signup.tsx:506
+msgid "auth.signup.already_have_account"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/Signup/Signup.tsx:279
+#: src/components/remotes/Signup/Signup.tsx:493
+msgid "auth.signup.as_author"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/Signup/Signup.tsx:281
+#: src/components/remotes/Signup/Signup.tsx:495
+msgid "auth.signup.as_reader"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/Signup/Signup.tsx:286
+msgid "auth.signup.author_description"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/Signup/Signup.tsx:213
+msgid "auth.signup.complete_security_check"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/Signup/Signup.tsx:250
+msgid "auth.signup.failed"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/Signup/Signup.tsx:418
+msgid "auth.signup.password_strength"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/Signup/Signup.tsx:89
+msgid "auth.signup.password_strength.fair"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/Signup/Signup.tsx:93
+msgid "auth.signup.password_strength.strong"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/Signup/Signup.tsx:81
+msgid "auth.signup.password_strength.too_short"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/Signup/Signup.tsx:85
+msgid "auth.signup.password_strength.weak"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/Signup/Signup.tsx:288
+msgid "auth.signup.reader_description"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/Login/Login.tsx:311
+msgid "auth.signup.title"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SocialLogin/SocialLogin.tsx:118
+msgid "auth.social.continue_with"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SocialLogin/SocialLogin.tsx:99
+msgid "auth.social.divider"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SocialLogin/SocialLogin.tsx:38
+msgid "auth.social.not_configured"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/Login/components/TwoFactorForm.tsx:69
+msgid "auth.two_factor.back_to_login"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/Login/Login.tsx:266
+msgid "auth.two_factor.description"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/Login/components/TwoFactorCodeInput.tsx:60
+msgid "auth.two_factor.digit_label"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/Login/hooks/useLoginState.ts:139
+msgid "auth.two_factor.failed_blocked"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/Login/Login.tsx:223
+msgid "auth.two_factor.incorrect_code"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/Login/components/TwoFactorForm.tsx:46
+msgid "auth.two_factor.instruction"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/Login/Login.tsx:183
+msgid "auth.two_factor.invalid_format"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/Login/Login.tsx:211
+msgid "auth.two_factor.success_redirect"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/Login/components/TwoFactorForm.tsx:43
+#: src/components/remotes/Login/Login.tsx:259
+msgid "auth.two_factor.title"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/Login/components/TwoFactorForm.tsx:112
+msgid "auth.two_factor.verify"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/Login/components/TwoFactorForm.tsx:110
+msgid "auth.two_factor.verifying"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/Signup/Signup.tsx:179
+msgid "auth.validation.display_name_required"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/Signup/Signup.tsx:186
+msgid "auth.validation.email_required"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/Signup/Signup.tsx:200
+#: src/components/remotes/Signup/Signup.tsx:401
+#: src/components/remotes/Signup/Signup.tsx:440
+msgid "auth.validation.password_mismatch"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/Login/Login.tsx:110
+#: src/components/remotes/Signup/Signup.tsx:193
+msgid "auth.validation.password_required"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/Signup/Signup.tsx:317
+msgid "auth.validation.username_characters"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/Login/Login.tsx:103
+#: src/components/remotes/Signup/Signup.tsx:172
+msgid "auth.validation.username_required"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/Signup/Signup.tsx:322
+msgid "auth.validation.username_too_long"
+msgstr ""
+
+#. js-lingui-explicit-id
 #: src/components/remotes/Author/Heatmap.tsx:221
 msgid "author.heatmap.activity_count"
 msgstr ""
@@ -51,6 +328,18 @@ msgstr ""
 #. js-lingui-explicit-id
 #: src/components/remotes/SettingsApp/pages/PinnedPostsSetting/components/AddPinnedPostModal.tsx:220
 msgid "common.cancel"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/Login/Login.tsx:156
+#: src/components/remotes/Login/Login.tsx:238
+#: src/components/remotes/Signup/Signup.tsx:256
+msgid "common.error.try_again"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/Signup/Signup.tsx:489
+msgid "common.processing"
 msgstr ""
 
 #. js-lingui-explicit-id
@@ -95,17 +384,17 @@ msgid "pagination.first"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/PinnedPostsSetting/components/PinnablePostsPager.tsx:112
+#: src/components/remotes/SettingsApp/pages/PinnedPostsSetting/components/PinnablePostsPager.tsx:121
 msgid "pagination.last"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/PinnedPostsSetting/components/PinnablePostsPager.tsx:102
+#: src/components/remotes/SettingsApp/pages/PinnedPostsSetting/components/PinnablePostsPager.tsx:108
 msgid "pagination.next"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/PinnedPostsSetting/components/PinnablePostsPager.tsx:79
+#: src/components/remotes/SettingsApp/pages/PinnedPostsSetting/components/PinnablePostsPager.tsx:82
 msgid "pagination.previous"
 msgstr ""
 
@@ -315,8 +604,8 @@ msgid "settings.pinned_posts.available.title"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/PinnedPostsSetting/components/PinnedPostsPanel.tsx:320
-#: src/components/remotes/SettingsApp/pages/PinnedPostsSetting/components/PinnedPostsPanel.tsx:343
+#: src/components/remotes/SettingsApp/pages/PinnedPostsSetting/components/PinnedPostsPanel.tsx:323
+#: src/components/remotes/SettingsApp/pages/PinnedPostsSetting/components/PinnedPostsPanel.tsx:346
 msgid "settings.pinned_posts.description"
 msgstr ""
 
@@ -455,7 +744,7 @@ msgid "settings.pinned_posts.success.unpinned"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/PinnedPostsSetting/components/PinnedPostsPanel.tsx:337
+#: src/components/remotes/SettingsApp/pages/PinnedPostsSetting/components/PinnedPostsPanel.tsx:340
 msgid "settings.pinned_posts.title"
 msgstr ""
 

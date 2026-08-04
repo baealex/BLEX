@@ -1,10 +1,12 @@
 import React, { useEffect, useState } from 'react';
+import { Trans, useLingui } from '@lingui/react/macro';
 import { useLoginState } from './hooks/useLoginState';
 import LoginForm from './components/LoginForm';
 import TwoFactorForm from './components/TwoFactorForm';
 import { login } from '~/lib/api';
 
 const Login = () => {
+    const { t } = useLingui();
     const {
         state,
         updateState,
@@ -98,11 +100,17 @@ const Login = () => {
         const updates: Partial<typeof state> = {};
 
         if (!state.username) {
-            updates.usernameError = '사용자 이름이 필요합니다.';
+            updates.usernameError = t({
+                id: 'auth.validation.username_required',
+                message: 'Username is required.'
+            });
             hasError = true;
         }
         if (!state.password) {
-            updates.passwordError = '비밀번호가 필요합니다.';
+            updates.passwordError = t({
+                id: 'auth.validation.password_required',
+                message: 'Password is required.'
+            });
             hasError = true;
         }
 
@@ -135,11 +143,21 @@ const Login = () => {
                 }
             } else {
                 handleFailedLogin();
-                updateState({ loginError: '잘못된 사용자 이름 또는 비밀번호입니다.' });
+                updateState({
+                    loginError: t({
+                        id: 'auth.login.invalid_credentials',
+                        message: 'The username or password is incorrect.'
+                    })
+                });
             }
         } catch {
             handleFailedLogin();
-            updateState({ loginError: '오류가 발생했습니다. 다시 시도해주세요.' });
+            updateState({
+                loginError: t({
+                    id: 'common.error.try_again',
+                    message: 'Something went wrong. Please try again.'
+                })
+            });
         } finally {
             updateState({ isLoading: false });
         }
@@ -162,7 +180,10 @@ const Login = () => {
         const code = state.codes.join('');
         if (code.length !== 6 || !/^[0-9]{6}$/.test(code)) {
             updateState({
-                verificationError: '올바른 6자리 숫자 코드를 입력해주세요.',
+                verificationError: t({
+                    id: 'auth.two_factor.invalid_format',
+                    message: 'Enter a valid 6-digit code.'
+                }),
                 isTwoFactorLoading: false
             });
             return;
@@ -187,7 +208,10 @@ const Login = () => {
             if (data.status === 'DONE') {
                 updateState({
                     twoFactorFailedAttempts: 0,
-                    successMessage: '인증이 완료되었습니다. 잠시 후 홈 페이지로 이동합니다.'
+                    successMessage: t({
+                        id: 'auth.two_factor.success_redirect',
+                        message: 'Verification complete. Redirecting you to the home page.'
+                    })
                 });
                 setTimeout(() => {
                     window.location.assign(nextUrl || '/');
@@ -196,7 +220,10 @@ const Login = () => {
                 const isBlocked = handleFailedTwoFactor();
                 if (!isBlocked) {
                     updateState({
-                        verificationError: '잘못된 인증 코드입니다.',
+                        verificationError: t({
+                            id: 'auth.two_factor.incorrect_code',
+                            message: 'The verification code is incorrect.'
+                        }),
                         codes: ['', '', '', '', '', '']
                     });
                     setTimeout(() => {
@@ -207,7 +234,12 @@ const Login = () => {
             }
         } catch {
             handleFailedTwoFactor();
-            updateState({ verificationError: '오류가 발생했습니다. 다시 시도해주세요.' });
+            updateState({
+                verificationError: t({
+                    id: 'common.error.try_again',
+                    message: 'Something went wrong. Please try again.'
+                })
+            });
         } finally {
             updateState({ isTwoFactorLoading: false });
         }
@@ -223,10 +255,18 @@ const Login = () => {
                     </svg>
                 </div>
                 <h1 className="text-3xl font-bold text-content mb-3 tracking-tight">
-                    {state.showTwoFactor ? '이중 인증' : '로그인'}
+                    {state.showTwoFactor ? (
+                        <Trans id="auth.two_factor.title">Two-factor authentication</Trans>
+                    ) : (
+                        <Trans id="auth.login.title">Log in</Trans>
+                    )}
                 </h1>
                 <p className="text-content-secondary text-sm font-medium">
-                    {state.showTwoFactor ? '인증 앱에서 생성된 6자리 코드를 입력해주세요' : '돌아오신 것을 환영해요'}
+                    {state.showTwoFactor ? (
+                        <Trans id="auth.two_factor.description">Enter the 6-digit code from your authenticator app</Trans>
+                    ) : (
+                        <Trans id="auth.login.welcome_back">Welcome back</Trans>
+                    )}
                 </p>
             </div>
 
@@ -266,9 +306,9 @@ const Login = () => {
                     <div className="text-center pt-8 mt-2">
                         {!state.showTwoFactor && (
                             <p className="text-sm text-content-secondary font-medium">
-                                계정이 없으신가요?
+                                <Trans id="auth.login.no_account">Don&apos;t have an account?</Trans>
                                 <a href={`/sign${nextUrl ? '?next=' + encodeURIComponent(nextUrl) : ''}`} className="font-bold text-content hover:text-content transition-colors duration-200 ml-1">
-                                    회원가입
+                                    <Trans id="auth.signup.title">Sign up</Trans>
                                 </a>
                             </p>
                         )}

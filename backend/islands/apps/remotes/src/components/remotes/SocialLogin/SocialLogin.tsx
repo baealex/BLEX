@@ -1,3 +1,4 @@
+import { Trans, useLingui } from '@lingui/react/macro';
 import { useSocialProviders } from './hooks/useSocialProviders';
 import { toast } from '~/utils/toast';
 
@@ -8,6 +9,7 @@ interface SocialProvider {
 }
 
 const SocialLogin = () => {
+    const { i18n, t } = useLingui();
     const { providers, loading } = useSocialProviders();
 
     const handleSocialLogin = (provider: SocialProvider) => {
@@ -33,7 +35,10 @@ const SocialLogin = () => {
             const authUrl = authUrlBuilder(clientId, redirectUri);
             window.location.assign(authUrl);
         } else {
-            toast.error('소셜 로그인이 설정되지 않았습니다. 관리자에게 문의해주세요.');
+            toast.error(t({
+                id: 'auth.social.not_configured',
+                message: 'Social login is not configured. Please contact the administrator.'
+            }));
         }
     };
 
@@ -91,7 +96,7 @@ const SocialLogin = () => {
                 </div>
                 <div className="relative flex justify-center text-xs uppercase tracking-wider">
                     <span className="px-4 bg-surface/50 backdrop-blur-sm text-content-hint font-medium">
-                        또는 간편하게
+                        <Trans id="auth.social.divider">Or continue with</Trans>
                     </span>
                 </div>
             </div>
@@ -109,7 +114,13 @@ const SocialLogin = () => {
                             <DefaultIcon />
                         )}
                         </span>
-                        <span className="font-semibold text-sm">{provider.name}으로 계속하기</span>
+                        <span className="font-semibold text-sm">
+                            {i18n._({
+                                id: 'auth.social.continue_with',
+                                message: 'Continue with {providerName}',
+                                values: { providerName: provider.name }
+                            })}
+                        </span>
                     </button>
                 ))}
             </div>

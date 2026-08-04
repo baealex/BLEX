@@ -6,6 +6,7 @@ from django.db import transaction
 from django.http import Http404
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
+from django.utils.translation import gettext
 
 from board.models import (
     Config, Profile, Post,
@@ -81,7 +82,7 @@ def sign(request):
         if InitialSetupService.should_prompt_for_initial_setup():
             return StatusError(
                 ErrorCode.REJECT,
-                '첫 관리자 계정을 먼저 만들어주세요.'
+                gettext('Create the first administrator account before continuing.'),
             )
 
         username = request.POST.get('username', '')
@@ -104,9 +105,15 @@ def sign(request):
 
         if HCaptchaService.is_enabled():
             if not hcaptcha_response:
-                return StatusError(ErrorCode.VALIDATE, '보안 검증이 필요합니다.')
+                return StatusError(
+                    ErrorCode.VALIDATE,
+                    gettext('Security verification is required.'),
+                )
             if not auth_hcaptcha(hcaptcha_response):
-                return StatusError(ErrorCode.REJECT, '보안 검증에 실패했습니다.')
+                return StatusError(
+                    ErrorCode.REJECT,
+                    gettext('Security verification failed.'),
+                )
 
         try:
             with transaction.atomic():
@@ -133,7 +140,10 @@ def sign(request):
                 user=user,
                 created_date__gte=six_months_ago
             ).exists():
-                return StatusError(ErrorCode.REJECT, '6개월에 한번만 사용자 이름을 변경할 수 있습니다.')
+                return StatusError(
+                    ErrorCode.REJECT,
+                    gettext('You can change your username only once every six months.'),
+                )
 
             username = body.get('username', '')
 
@@ -170,7 +180,7 @@ def sign_social(request, social):
             if error.kind == SocialSignupErrorKind.INITIAL_SETUP_REQUIRED:
                 return StatusError(
                     ErrorCode.REJECT,
-                    '첫 관리자 계정을 먼저 만들어주세요.'
+                    gettext('Create the first administrator account before continuing.'),
                 )
             if error.kind in {
                 SocialSignupErrorKind.UNSUPPORTED_PROVIDER,
@@ -178,7 +188,10 @@ def sign_social(request, social):
             }:
                 raise Http404
             if error.kind == SocialSignupErrorKind.PROVIDER_DISABLED:
-                return StatusError(ErrorCode.REJECT, '소셜 로그인이 설정되지 않았습니다.')
+                return StatusError(
+                    ErrorCode.REJECT,
+                    gettext('Social login is not configured.'),
+                )
             return StatusError(
                 ErrorCode.REJECT,
             )
@@ -244,7 +257,9 @@ def security_verify(request):
             )
         except TwoFactorSetupError as error:
             return StatusError(error.code, error.message)
-        return StatusDone({'message': '2차 인증이 활성화되었습니다.'})
+        return StatusDone({
+            'message': gettext('Two-factor authentication has been enabled.'),
+        })
 
     raise Http404
 

@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useLingui } from '@lingui/react/macro';
 
 interface Window {
     USERNAME?: string;
@@ -36,6 +37,7 @@ export interface LoginState {
 }
 
 export const useLoginState = () => {
+    const { i18n, t } = useLingui();
     // Read oauth_token from URL if present
     const urlParams = new URLSearchParams(window.location.search);
     const oauthTokenFromUrl = urlParams.get('oauth_token');
@@ -88,7 +90,11 @@ export const useLoginState = () => {
         if (state.blockEndTime && Date.now() < state.blockEndTime) {
             const remainingTime = Math.ceil((state.blockEndTime - Date.now()) / 1000);
             updateState({
-                loginError: `너무 많은 시도로 인해 ${remainingTime}초 동안 차단되었습니다.`,
+                loginError: i18n._({
+                    id: 'auth.login.blocked_remaining',
+                    message: 'Too many attempts. Try again in {seconds, plural, one {# second} other {# seconds}}.',
+                    values: { seconds: remainingTime }
+                }),
                 isBlocked: true
             });
             return true;
@@ -114,7 +120,11 @@ export const useLoginState = () => {
 
             updates.blockEndTime = blockEndTime;
             updates.isBlocked = true;
-            updates.loginError = `너무 많은 실패로 인해 ${delaySeconds}초 동안 차단되었습니다.`;
+            updates.loginError = i18n._({
+                id: 'auth.login.failed_blocked_remaining',
+                message: 'Too many failed attempts. Try again in {seconds, plural, one {# second} other {# seconds}}.',
+                values: { seconds: delaySeconds }
+            });
         }
 
         updateState(updates);
@@ -126,7 +136,10 @@ export const useLoginState = () => {
         if (newTwoFactorFailedAttempts >= 5) {
             updateState({
                 blockEndTime: Date.now() + 300000,
-                verificationError: '너무 많은 실패로 인해 5분 동안 차단되었습니다.',
+                verificationError: t({
+                    id: 'auth.two_factor.failed_blocked',
+                    message: 'Too many failed attempts. Try again in 5 minutes.'
+                }),
                 showTwoFactor: false
             });
             goBackToLogin();

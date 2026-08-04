@@ -1,7 +1,7 @@
 {% extends 'board/base.html' %}
-{% load island %}
+{% load i18n island %}
 
-{% block title %}회원가입 - {{ site_brand.site_name }}{% endblock %}
+{% block title %}{% translate "Sign up" %} - {{ site_brand.site_name }}{% endblock %}
 
 {% block extra_styles %}
 <script src="https://js.hcaptcha.com/1/api.js" async defer></script>
