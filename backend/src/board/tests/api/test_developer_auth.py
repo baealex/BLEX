@@ -173,6 +173,23 @@ class DeveloperAuthAPITestCase(TestCase):
         self.assertIn('export BLEX_ORIGIN="https://blex.example"', body)
         self.assertIn('/api/developer/v1/posts', body)
         self.assertIn('expected_updated_at', body)
+        self.assertIn('"title": "API로 만든 첫 포스트"', body)
+
+    @override_settings(SITE_URL='https://blex.example')
+    def test_developer_api_quickstart_renders_in_english(self):
+        self.client.login(username='developer', password='developer')
+
+        response = self.client.get(
+            '/docs/developer-api/quickstart',
+            HTTP_ACCEPT_LANGUAGE='en',
+        )
+
+        self.assertEqual(response.status_code, 200)
+        body = response.content.decode()
+        self.assertIn('Developer API quickstart', body)
+        self.assertIn('Create a Markdown draft', body)
+        self.assertIn('export BLEX_ORIGIN="https://blex.example"', body)
+        self.assertIn('"title": "My first API post"', body)
 
     def test_developer_api_openapi_schema_is_available(self):
         self.client.login(username='developer', password='developer')

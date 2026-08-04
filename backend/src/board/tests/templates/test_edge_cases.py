@@ -123,3 +123,10 @@ class TemplateEdgeCaseTestCase(TestCase):
         matched = next((item for item in response.context['posts'] if item.id == post.id), None)
         self.assertIsNotNone(matched)
         self.assertIsNone(matched.series)
+
+    def test_not_found_page_renders_in_english(self):
+        response = self.client.get('/404', HTTP_ACCEPT_LANGUAGE='en')
+
+        self.assertEqual(response.status_code, 404)
+        self.assertContains(response, 'Page not found', status_code=404)
+        self.assertContains(response, 'Back to home', status_code=404)

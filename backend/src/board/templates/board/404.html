@@ -1,6 +1,7 @@
 {% extends 'board/base.html' %}
+{% load i18n %}
 
-{% block title %}404 - 페이지를 찾을 수 없습니다{% endblock %}
+{% block title %}404 - {% translate "Page not found" %}{% endblock %}
 
 {% block extra_styles %}
 <style>
@@ -40,11 +41,11 @@
 
         <!-- Message -->
         <h2 class="text-3xl sm:text-4xl font-bold text-content mb-6 tracking-tight">
-            페이지를 찾을 수 없습니다
+            {% translate "Page not found" %}
         </h2>
 
         <p class="text-lg text-content-secondary mb-12 leading-relaxed max-w-md mx-auto">
-            요청하신 페이지가 삭제되었거나, 주소가 변경되었거나, 일시적으로 사용할 수 없는 상태입니다.
+            {% translate "The page may have been removed, moved, or be temporarily unavailable." %}
         </p>
 
         <!-- Actions -->
@@ -53,7 +54,7 @@
                 @click="goBack()"
                 class="px-8 py-3.5 bg-surface-elevated text-content font-semibold rounded-full border border-line hover:border-line-strong hover:shadow-lg hover:-translate-y-0.5 transition-all duration-150 min-w-[160px]"
             >
-                뒤로 가기
+                {% translate "Go back" %}
             </button>
 
             <a
@@ -61,11 +62,11 @@
                 class="px-8 py-3.5 bg-surface-elevated text-content font-semibold rounded-full border border-line hover:border-line-strong hover:shadow-lg hover:-translate-y-0.5 transition-all duration-150 min-w-[160px]"
             >
                 <i class="fas fa-search mr-2 text-sm"></i>
-                검색
+                {% translate "Search" %}
             </a>
 
             <a href="/" class="px-8 py-3.5 bg-action text-content-inverted font-semibold rounded-full hover:bg-action-hover hover:shadow-lg hover:-translate-y-0.5 transition-all duration-150 min-w-[160px]">
-                홈으로 돌아가기
+                {% translate "Back to home" %}
             </a>
         </div>
     </div>

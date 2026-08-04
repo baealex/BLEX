@@ -1,6 +1,7 @@
 {% extends 'board/base.html' %}
+{% load i18n %}
 
-{% block title %}초기 설정 - {{ site_brand.site_name }}{% endblock %}
+{% block title %}{% translate "Initial setup" %} - {{ site_brand.site_name }}{% endblock %}
 
 {% block main_class %}min-h-[calc(100vh-10.5rem)]{% endblock %}
 
@@ -14,8 +15,12 @@
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.5 12.5l1.7 1.7 3.8-4" />
                 </svg>
             </div>
-            <h1 class="text-3xl font-bold text-content mb-3 tracking-tight">초기 설정</h1>
-            <p class="text-content-secondary text-sm font-medium">첫 관리자 계정을 만들어 {{ site_brand.site_name }}를 시작하세요.</p>
+            <h1 class="text-3xl font-bold text-content mb-3 tracking-tight">{% translate "Initial setup" %}</h1>
+            <p class="text-content-secondary text-sm font-medium">
+                {% blocktranslate trimmed with site_name=site_brand.site_name %}
+                    Create the first administrator account to get started with {{ site_name }}.
+                {% endblocktranslate %}
+            </p>
         </div>
 
         <div class="bg-surface/60 backdrop-blur-2xl rounded-[2rem] shadow-elevated border border-line/40 p-8 md:p-10 relative overflow-hidden">
@@ -25,7 +30,7 @@
                     method="post"
                     action="/setup"
                     class="space-y-5"
-                    onsubmit="const button = this.querySelector('[data-submit-button]'); if (button) { button.disabled = true; const label = button.querySelector('[data-submit-label]'); if (label) label.textContent = '처리 중...'; }"
+                    onsubmit="const button = this.querySelector('[data-submit-button]'); if (button) { button.disabled = true; const label = button.querySelector('[data-submit-label]'); if (label) label.textContent = button.dataset.processingLabel; }"
                 >
                     {% csrf_token %}
                     {% for field in form.hidden_fields %}
@@ -52,7 +57,7 @@
                                         <span>{{ field.errors|striptags }}</span>
                                     </div>
                                 {% elif field.name == 'username' %}
-                                    <p class="text-content-hint text-xs mt-1.5 font-medium">4-15자 영문 소문자와 숫자만 사용할 수 있습니다.</p>
+                                    <p class="text-content-hint text-xs mt-1.5 font-medium">{% translate "Use 4–15 lowercase letters or numbers." %}</p>
                                 {% endif %}
                             </div>
                         {% endfor %}
@@ -61,9 +66,10 @@
                     <button
                         type="submit"
                         data-submit-button
+                        data-processing-label="{% translate 'Processing...' %}"
                         class="w-full flex items-center justify-center py-3.5 px-6 bg-action hover:bg-action-hover text-content-inverted font-semibold rounded-lg shadow-floating hover:shadow-floating hover:-translate-y-0.5 active:scale-[0.98] transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none text-sm"
                     >
-                        <span data-submit-label>관리자 계정 만들기</span>
+                        <span data-submit-label>{% translate "Create administrator account" %}</span>
                     </button>
                 </form>
             </div>

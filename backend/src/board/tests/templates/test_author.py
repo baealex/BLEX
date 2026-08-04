@@ -1209,10 +1209,12 @@ class AuthorAboutPageTestCase(TestCase):
         self.client.login(username='otheruser', password='testpass123')
 
         response = self.client.get(
-            reverse('user_about_edit', kwargs={'username': self.user.username})
+            reverse('user_about_edit', kwargs={'username': self.user.username}),
+            HTTP_ACCEPT_LANGUAGE='en',
         )
         # 권한 없음
         self.assertEqual(response.status_code, 403)
+        self.assertContains(response, 'Access denied', status_code=403)
 
     def test_author_about_edit_with_correct_user(self):
         """본인의 작가 소개 편집 페이지 정상 접근"""

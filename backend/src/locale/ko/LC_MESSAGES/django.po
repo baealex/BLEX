@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: BLEX 3.1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-08-04 23:55+0900\n"
+"POT-Creation-Date: 2026-08-05 00:15+0900\n"
 "PO-Revision-Date: 2026-07-18 00:00+0900\n"
 "Last-Translator: BLEX contributors\n"
 "Language-Team: Korean\n"
@@ -65,6 +65,70 @@ msgstr "작업 내용"
 msgctxt "Admin permission label"
 msgid "%(action)s %(model)s"
 msgstr "%(model)s %(action)s"
+
+#: board/forms_initial_setup.py:24
+msgid "4–15 lowercase letters or numbers"
+msgstr "4-15자 영문 소문자, 숫자"
+
+#: board/forms_initial_setup.py:26
+msgid "Username"
+msgstr "사용자 이름"
+
+#: board/forms_initial_setup.py:33
+msgid "Name displayed on the site"
+msgstr "사이트에 표시할 이름"
+
+#: board/forms_initial_setup.py:35
+msgid "Display name"
+msgstr "표시 이름"
+
+#: board/forms_initial_setup.py:42
+msgid "Administrator email"
+msgstr "관리자 이메일"
+
+#: board/forms_initial_setup.py:44
+msgid "Email"
+msgstr "이메일"
+
+#: board/forms_initial_setup.py:50
+msgid "Enter a secure password"
+msgstr "안전한 비밀번호"
+
+#: board/forms_initial_setup.py:52
+msgid "Password"
+msgstr "비밀번호"
+
+#: board/forms_initial_setup.py:58
+msgid "Enter your password again"
+msgstr "비밀번호를 다시 입력"
+
+#: board/forms_initial_setup.py:60
+msgid "Confirm password"
+msgstr "비밀번호 확인"
+
+#: board/forms_initial_setup.py:71
+msgid "Setup token shown in the Docker logs"
+msgstr "Docker 로그에 표시된 설치 토큰"
+
+#: board/forms_initial_setup.py:78
+msgid "Setup token"
+msgstr "설치 토큰"
+
+#: board/forms_initial_setup.py:105
+msgid "Username must be 4–15 lowercase letters or numbers and must not already be in use."
+msgstr "사용자 이름은 4-15자의 영문 소문자와 숫자만 사용할 수 있고, 이미 사용 중이면 안 됩니다."
+
+#: board/forms_initial_setup.py:116 board/services/auth_service.py:141
+msgid "Enter a valid email address."
+msgstr "올바른 이메일 주소가 아닙니다."
+
+#: board/forms_initial_setup.py:125
+msgid "Passwords do not match."
+msgstr "비밀번호가 서로 일치하지 않습니다."
+
+#: board/forms_initial_setup.py:141
+msgid "The setup token is incorrect."
+msgstr "설치 토큰이 올바르지 않습니다."
 
 #: board/models/accounts.py:32
 msgid "Email change request"
@@ -270,10 +334,6 @@ msgstr "이미 사용중인 아이디입니다."
 msgid "Username must be 4–15 characters using lowercase letters and numbers only."
 msgstr "사용자 이름은 4~15자 사이의 소문자 영어, 숫자만 가능합니다."
 
-#: board/services/auth_service.py:141
-msgid "Enter a valid email address."
-msgstr "올바른 이메일 주소가 아닙니다."
-
 #: board/services/auth_service.py:369
 msgid "If you have published posts, you can change your username only once every six months."
 msgstr "작성한 포스트가 존재하는 경우 6개월에 한번만 변경할 수 있습니다."
@@ -302,6 +362,33 @@ msgstr "홈"
 #: board/templates/admin/board/notify/bulk_send.html:4
 msgid "Django site admin"
 msgstr "Django 사이트 관리자"
+
+#: board/templates/board/404.html:4 board/templates/board/404.html:44
+msgid "Page not found"
+msgstr "페이지를 찾을 수 없습니다"
+
+#: board/templates/board/404.html:48
+msgid "The page may have been removed, moved, or be temporarily unavailable."
+msgstr "요청하신 페이지가 삭제되었거나, 주소가 변경되었거나, 일시적으로 사용할 수 없는 상태입니다."
+
+#: board/templates/board/404.html:57 board/templates/board/error/403.html:88
+msgid "Go back"
+msgstr "뒤로 가기"
+
+#: board/templates/board/404.html:65
+#: board/templates/board/author/author_posts.html:27
+#: board/templates/board/author/author_series.html:27
+#: board/templates/components/header.html:123
+#: board/templates/components/header.html:199
+#: board/templates/components/quick_search.html:20
+#: board/templates/components/quick_search.html:21
+#: board/templates/components/search_query_filter.html:39
+msgid "Search"
+msgstr "검색"
+
+#: board/templates/board/404.html:69
+msgid "Back to home"
+msgstr "홈으로 돌아가기"
 
 #: board/templates/board/auth/login.html:4
 #: board/templates/components/header.html:186
@@ -379,16 +466,6 @@ msgstr "아직 공개된 포스트가 없습니다."
 #: board/templates/board/author/author_posts.html:11
 msgid "New posts will appear here when they are published."
 msgstr "새 포스트가 발행되면 이곳에 표시됩니다."
-
-#: board/templates/board/author/author_posts.html:27
-#: board/templates/board/author/author_series.html:27
-#: board/templates/components/header.html:123
-#: board/templates/components/header.html:199
-#: board/templates/components/quick_search.html:20
-#: board/templates/components/quick_search.html:21
-#: board/templates/components/search_query_filter.html:39
-msgid "Search"
-msgstr "검색"
 
 #: board/templates/board/author/author_series.html:4
 #, python-format
@@ -555,6 +632,160 @@ msgstr "개발 환경 표시"
 #: board/templates/board/base.html:134 board/templates/board/base.html:138
 msgid "Development environment"
 msgstr "개발 환경"
+
+#: board/templates/board/developer_api_quickstart.html:4
+#: board/templates/board/developer_api_quickstart.html:13
+msgid "Developer API quickstart"
+msgstr "개발자 API 빠른 시작"
+
+#: board/templates/board/developer_api_quickstart.html:7
+msgid "My first API post"
+msgstr "API로 만든 첫 포스트"
+
+#: board/templates/board/developer_api_quickstart.html:8
+msgid "This draft was created with an external tool."
+msgstr "외부 도구에서 만든 초안입니다."
+
+#: board/templates/board/developer_api_quickstart.html:9
+msgid "A BLEX post written with an external tool."
+msgstr "외부 도구에서 작성한 BLEX 포스트입니다."
+
+#: board/templates/board/developer_api_quickstart.html:15
+msgid "The generated API documentation covers every endpoint. This guide walks through the shortest path from creating a token to publishing a Markdown draft."
+msgstr "자동 API 문서는 전체 엔드포인트를 보여줍니다. 이 문서는 처음 쓰는 사람이 토큰을 만들고 Markdown 초안을 발행하는 최소 흐름만 설명합니다."
+
+#: board/templates/board/developer_api_quickstart.html:19
+msgid "Open API documentation"
+msgstr "자동 API 문서 열기"
+
+#: board/templates/board/developer_api_quickstart.html:22
+msgid "Manage tokens"
+msgstr "토큰 관리로 이동"
+
+#: board/templates/board/developer_api_quickstart.html:29
+msgid "1. Create a token"
+msgstr "1. 토큰 만들기"
+
+#: board/templates/board/developer_api_quickstart.html:31
+msgid "Log in to BLEX with an author account."
+msgstr "BLEX에 작가 계정으로 로그인합니다."
+
+#: board/templates/board/developer_api_quickstart.html:33
+msgid "Open <code class=\"rounded bg-surface-subtle px-1.5 py-0.5 text-content\">/settings/developer-api</code>."
+msgstr "<code class=\"rounded bg-surface-subtle px-1.5 py-0.5 text-content\">/settings/developer-api</code>로 이동합니다."
+
+#: board/templates/board/developer_api_quickstart.html:38
+msgid "Select both <strong class=\"text-content\">Read posts</strong> and <strong class=\"text-content\">Write posts</strong> to create and publish posts."
+msgstr "포스트를 만들고 발행하려면 <strong class=\"text-content\">포스트 읽기</strong>와 <strong class=\"text-content\">포스트 작성</strong> 권한을 모두 선택합니다."
+
+#: board/templates/board/developer_api_quickstart.html:42
+msgid "Copy the full token shown immediately after creation. It cannot be viewed again."
+msgstr "발급 직후 표시되는 전체 토큰을 복사합니다. 이 값은 다시 볼 수 없습니다."
+
+#: board/templates/board/developer_api_quickstart.html:49
+msgid "2. Verify the token"
+msgstr "2. 토큰 확인"
+
+#: board/templates/board/developer_api_quickstart.html:55
+msgid "3. Create a Markdown draft"
+msgstr "3. Markdown 초안 만들기"
+
+#: board/templates/board/developer_api_quickstart.html:67
+msgid "Keep the <code class=\"rounded bg-surface-subtle px-1.5 py-0.5 text-content\">data.id</code> and <code class=\"rounded bg-surface-subtle px-1.5 py-0.5 text-content\">data.updated_at</code> values from the response. Replace <code class=\"rounded bg-surface-subtle px-1.5 py-0.5 text-content\">123</code> in the following examples with the returned <code class=\"rounded bg-surface-subtle px-1.5 py-0.5 text-content\">data.id</code>."
+msgstr "응답의 <code class=\"rounded bg-surface-subtle px-1.5 py-0.5 text-content\">data.id</code>와 <code class=\"rounded bg-surface-subtle px-1.5 py-0.5 text-content\">data.updated_at</code>을 기억하세요. 다음 예시의 <code class=\"rounded bg-surface-subtle px-1.5 py-0.5 text-content\">123</code>은 생성 응답의 <code class=\"rounded bg-surface-subtle px-1.5 py-0.5 text-content\">data.id</code>로 바꿔 넣으면 됩니다."
+
+#: board/templates/board/developer_api_quickstart.html:80
+msgid "4. Upload an image"
+msgstr "4. 이미지 업로드"
+
+#: board/templates/board/developer_api_quickstart.html:85
+msgid "Use <code class=\"rounded bg-surface-subtle px-1.5 py-0.5 text-content\">data.url</code> from the response as the Markdown image URL."
+msgstr "응답의 <code class=\"rounded bg-surface-subtle px-1.5 py-0.5 text-content\">data.url</code>을 Markdown 이미지 주소로 사용할 수 있습니다."
+
+#: board/templates/board/developer_api_quickstart.html:92
+msgid "5. Update the draft"
+msgstr "5. 초안 수정하기"
+
+#: board/templates/board/developer_api_quickstart.html:94
+msgid "To reduce concurrent edit conflicts, send the <code class=\"rounded bg-surface-subtle px-1.5 py-0.5 text-content\">updated_at</code> value from a detail or creation response as <code class=\"rounded bg-surface-subtle px-1.5 py-0.5 text-content\">expected_updated_at</code>."
+msgstr "동시 수정 충돌을 줄이려면 상세 조회나 생성 응답의 <code class=\"rounded bg-surface-subtle px-1.5 py-0.5 text-content\">updated_at</code>을 <code class=\"rounded bg-surface-subtle px-1.5 py-0.5 text-content\">expected_updated_at</code>으로 보냅니다."
+
+#: board/templates/board/developer_api_quickstart.html:109
+msgid "6. Publish the draft"
+msgstr "6. 초안 발행하기"
+
+#: board/templates/board/developer_api_quickstart.html:117
+msgid "Common errors"
+msgstr "자주 보는 오류"
+
+#: board/templates/board/developer_api_quickstart.html:121
+msgid "Status"
+msgstr "상태"
+
+#: board/templates/board/developer_api_quickstart.html:121
+msgid "Code"
+msgstr "코드"
+
+#: board/templates/board/developer_api_quickstart.html:121
+msgid "Meaning"
+msgstr "의미"
+
+#: board/templates/board/developer_api_quickstart.html:124
+msgid "The Authorization header is missing."
+msgstr "Authorization 헤더가 없습니다."
+
+#: board/templates/board/developer_api_quickstart.html:125
+msgid "The token is invalid or has been revoked."
+msgstr "토큰이 틀렸거나 폐기되었습니다."
+
+#: board/templates/board/developer_api_quickstart.html:126
+msgid "The token does not have the required scope."
+msgstr "필요한 권한이 없습니다."
+
+#: board/templates/board/developer_api_quickstart.html:127
+msgid "Author access is required to write posts."
+msgstr "포스트 작성에는 작가 권한이 필요합니다."
+
+#: board/templates/board/developer_api_quickstart.html:128
+msgid "The post status is not supported."
+msgstr "지원하지 않는 포스트 상태입니다."
+
+#: board/templates/board/developer_api_quickstart.html:129
+msgid "A scheduled post was created without a publication time."
+msgstr "예약 발행 시간 없이 예약 포스트를 만들었습니다."
+
+#: board/templates/board/developer_api_quickstart.html:130
+msgid "The image exceeds the upload limit."
+msgstr "이미지 파일이 업로드 제한보다 큽니다."
+
+#: board/templates/board/developer_api_quickstart.html:131
+msgid "Another request has already updated the post."
+msgstr "포스트가 이미 다른 요청으로 수정되었습니다."
+
+#: board/templates/board/developer_api_quickstart.html:132
+msgid "The post is already published or scheduled."
+msgstr "이미 발행되었거나 예약된 포스트를 다시 발행하려고 했습니다."
+
+#: board/templates/board/developer_api_quickstart.html:133
+msgid "A field type or allowed value is invalid."
+msgstr "필드 타입이나 허용 값이 맞지 않습니다."
+
+#: board/templates/board/error/403.html:4
+#: board/templates/board/error/403.html:70
+msgid "Access denied"
+msgstr "접근 권한이 없습니다"
+
+#: board/templates/board/error/403.html:74
+msgid "You do not have permission to access this page."
+msgstr "이 페이지에 접근할 권한이 없습니다."
+
+#: board/templates/board/error/403.html:75
+msgid "Log in and try again."
+msgstr "로그인 후 다시 시도해주세요."
+
+#: board/templates/board/error/403.html:92
+msgid "Go to home"
+msgstr "홈으로 이동"
 
 #: board/templates/board/posts/covers/_post_meta.html:15
 #, python-format
@@ -820,6 +1051,28 @@ msgstr "오래된순"
 #: board/templates/board/series/series_detail.html:89 board/views/author.py:288
 msgid "Newest first"
 msgstr "최신순"
+
+#: board/templates/board/setup/initial_admin.html:4
+#: board/templates/board/setup/initial_admin.html:18
+msgid "Initial setup"
+msgstr "초기 설정"
+
+#: board/templates/board/setup/initial_admin.html:20
+#, python-format
+msgid "Create the first administrator account to get started with %(site_name)s."
+msgstr "첫 관리자 계정을 만들어 %(site_name)s를 시작하세요."
+
+#: board/templates/board/setup/initial_admin.html:60
+msgid "Use 4–15 lowercase letters or numbers."
+msgstr "4-15자 영문 소문자와 숫자만 사용할 수 있습니다."
+
+#: board/templates/board/setup/initial_admin.html:69
+msgid "Processing..."
+msgstr "처리 중..."
+
+#: board/templates/board/setup/initial_admin.html:72
+msgid "Create administrator account"
+msgstr "관리자 계정 만들기"
 
 #: board/templates/board/tags/tag_detail.html:7
 msgid "No posts found"
