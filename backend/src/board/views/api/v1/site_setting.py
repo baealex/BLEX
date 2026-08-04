@@ -1,5 +1,6 @@
 from django.db import transaction
 from django.http import Http404
+from django.utils.translation import gettext as _
 
 from board.models import SiteSetting
 from board.modules.response import ErrorCode, StatusDone, StatusError
@@ -63,7 +64,10 @@ def site_settings(request):
             site_name = put_data['site_name']
             normalized_site_name = site_name.strip() if isinstance(site_name, str) else ''
             if len(normalized_site_name) > 80:
-                return StatusError(ErrorCode.VALIDATE, '사이트 이름은 80자 이하여야 합니다.')
+                return StatusError(
+                    ErrorCode.VALIDATE,
+                    _('Site name must be 80 characters or fewer.'),
+                )
 
         with transaction.atomic():
             setting = SiteSetting.objects.select_for_update().get(pk=setting.pk)

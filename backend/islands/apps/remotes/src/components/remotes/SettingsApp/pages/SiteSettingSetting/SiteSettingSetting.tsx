@@ -5,6 +5,7 @@ import {
     useRef,
     useState
 } from 'react';
+import { useLingui } from '@lingui/react/macro';
 import { toast } from '~/utils/toast';
 import { useMutation, useQueryClient, useSuspenseQuery } from '@tanstack/react-query';
 import {
@@ -31,9 +32,11 @@ import {
     type SiteSettingUpdateData
 } from '~/lib/api/settings';
 import {
+    BrandAssetGenerationError,
     createIconBrandAssetFormData,
     createSvgBrandAssetFormData
 } from './brandAssetGenerator';
+import { getBrandAssetGenerationErrorMessage } from './brandAssetI18n';
 
 interface BrandAssetUploadPayload {
     assetType: BrandAssetType;
@@ -99,9 +102,9 @@ const getErrorMessage = (error: unknown, fallbackMessage: string) => {
     return fallbackMessage;
 };
 
-const syncSettingsDocumentTitle = (siteName: string) => {
+const syncSettingsDocumentTitle = (siteName: string, fallbackTitle: string) => {
     const [titlePrefix] = document.title.split('|');
-    document.title = `${titlePrefix?.trim() || '설정'} | ${siteName}`;
+    document.title = `${titlePrefix?.trim() || fallbackTitle} | ${siteName}`;
 };
 
 const getEditableSiteSettings = (data: SiteSettingData): EditableSiteSettings => ({
@@ -154,43 +157,61 @@ const BrandAssetSlot = ({
     deleteDisabled,
     onUpload,
     onDelete
-}: BrandAssetSlotProps) => (
-    <div className="space-y-3 rounded-xl bg-surface-subtle p-4">
-        <div className="flex items-center justify-between gap-3">
-            <div className="text-xs font-semibold text-content-secondary">{label}</div>
-            <div className="text-[11px] font-medium text-content-hint">
-                {hasAsset ? '커스텀' : '기본값'}
+}: BrandAssetSlotProps) => {
+    const { t } = useLingui();
+
+    return (
+        <div className="space-y-3 rounded-xl bg-surface-subtle p-4">
+            <div className="flex items-center justify-between gap-3">
+                <div className="text-xs font-semibold text-content-secondary">{label}</div>
+                <div className="text-[11px] font-medium text-content-hint">
+                    {hasAsset
+                        ? t({
+                            id: 'settings.site.brand.status.custom',
+                            message: 'Custom'
+                        })
+                        : t({
+                            id: 'settings.site.brand.status.default',
+                            message: 'Default'
+                        })}
+                </div>
+            </div>
+            <div
+                data-theme={dark ? 'dark' : 'light'}
+                className="flex h-24 items-center justify-center rounded-xl bg-surface p-4">
+                <img
+                    src={url}
+                    alt=""
+                    className={shape === 'icon' ? 'h-14 w-14 object-contain' : 'max-h-12 max-w-full object-contain'}
+                />
+            </div>
+            <div className="flex items-center gap-2">
+                <AssetUploadButton
+                    label={t({
+                        id: 'common.upload',
+                        message: 'Upload'
+                    })}
+                    disabled={uploadDisabled}
+                    onUpload={onUpload}
+                />
+                {hasAsset && (
+                    <Button
+                        density="compact"
+                        variant="danger"
+                        size="sm"
+                        disabled={deleteDisabled}
+                        className="h-11 flex-1 [@media(pointer:fine)]:h-9 sm:flex-none"
+                        onClick={onDelete}>
+                        {t({
+                            id: 'common.delete',
+                            message: 'Delete'
+                        })}
+                    </Button>
+                )}
             </div>
         </div>
-        <div
-            data-theme={dark ? 'dark' : 'light'}
-            className="flex h-24 items-center justify-center rounded-xl bg-surface p-4">
-            <img
-                src={url}
-                alt=""
-                className={shape === 'icon' ? 'h-14 w-14 object-contain' : 'max-h-12 max-w-full object-contain'}
-            />
-        </div>
-        <div className="flex items-center gap-2">
-            <AssetUploadButton
-                label="업로드"
-                disabled={uploadDisabled}
-                onUpload={onUpload}
-            />
-            {hasAsset && (
-                <Button
-                    density="compact"
-                    variant="danger"
-                    size="sm"
-                    disabled={deleteDisabled}
-                    className="h-11 flex-1 [@media(pointer:fine)]:h-9 sm:flex-none"
-                    onClick={onDelete}>
-                    삭제
-                </Button>
-            )}
-        </div>
-    </div>
-);
+    );
+};
 
 const BrandAssetPanel = ({
     title,
@@ -205,42 +226,57 @@ const BrandAssetPanel = ({
     previewShape,
     onUpload,
     onDelete
-}: BrandAssetPanelProps) => (
-    <Card
-        title={title}
-        subtitle={description}
-        icon={assetType === 'logo'
-            ? <Image aria-hidden="true" className="h-4 w-4" />
-            : <Palette aria-hidden="true" className="h-4 w-4" />}>
-        <div className="grid gap-3 sm:grid-cols-2">
-            <BrandAssetSlot
-                label="기본"
-                url={defaultUrl}
-                shape={previewShape}
-                hasAsset={hasDefaultAsset}
-                uploadDisabled={isPending}
-                deleteDisabled={isPending}
-                onUpload={onUpload(assetType, 'default')}
-                onDelete={() => onDelete(assetType, 'default')}
-            />
-            <BrandAssetSlot
-                label="다크 모드"
-                url={darkUrl}
-                shape={previewShape}
-                dark
-                hasAsset={hasDarkAsset}
-                uploadDisabled={isPending || darkUploadDisabled}
-                deleteDisabled={isPending}
-                onUpload={onUpload(assetType, 'dark')}
-                onDelete={() => onDelete(assetType, 'dark')}
-            />
-        </div>
-    </Card>
-);
+}: BrandAssetPanelProps) => {
+    const { t } = useLingui();
+
+    return (
+        <Card
+            title={title}
+            subtitle={description}
+            icon={assetType === 'logo'
+                ? <Image aria-hidden="true" className="h-4 w-4" />
+                : <Palette aria-hidden="true" className="h-4 w-4" />}>
+            <div className="grid gap-3 sm:grid-cols-2">
+                <BrandAssetSlot
+                    label={t({
+                        id: 'settings.site.brand.theme.default',
+                        message: 'Default'
+                    })}
+                    url={defaultUrl}
+                    shape={previewShape}
+                    hasAsset={hasDefaultAsset}
+                    uploadDisabled={isPending}
+                    deleteDisabled={isPending}
+                    onUpload={onUpload(assetType, 'default')}
+                    onDelete={() => onDelete(assetType, 'default')}
+                />
+                <BrandAssetSlot
+                    label={t({
+                        id: 'settings.site.brand.theme.dark',
+                        message: 'Dark mode'
+                    })}
+                    url={darkUrl}
+                    shape={previewShape}
+                    dark
+                    hasAsset={hasDarkAsset}
+                    uploadDisabled={isPending || darkUploadDisabled}
+                    deleteDisabled={isPending}
+                    onUpload={onUpload(assetType, 'dark')}
+                    onDelete={() => onDelete(assetType, 'dark')}
+                />
+            </div>
+        </Card>
+    );
+};
 
 const SiteSettingSetting = () => {
+    const { i18n, t } = useLingui();
     const queryClient = useQueryClient();
     const { confirm } = useConfirm();
+    const settingsDocumentTitle = t({
+        id: 'settings.document_title',
+        message: 'Settings'
+    });
     const hasHydratedFormRef = useRef(false);
     const savedSettingsRef = useRef<EditableSiteSettings | null>(null);
     const { data: settingData } = useSuspenseQuery({
@@ -250,7 +286,10 @@ const SiteSettingSetting = () => {
             if (data.status === 'DONE') {
                 return data.body;
             }
-            throw new Error('사이트 설정을 불러오는데 실패했습니다.');
+            throw new Error(t({
+                id: 'settings.site.load_error',
+                message: 'Failed to load site settings.'
+            }));
         }
     });
 
@@ -270,13 +309,16 @@ const SiteSettingSetting = () => {
             savedSettingsRef.current = editableSettings;
             hasHydratedFormRef.current = true;
         }
-        syncSettingsDocumentTitle(settingData.siteName);
-    }, [settingData]);
+        syncSettingsDocumentTitle(settingData.siteName, settingsDocumentTitle);
+    }, [settingData, settingsDocumentTitle]);
 
     const updateMutation = useMutation({
         mutationFn: async (data: SiteSettingUpdateData) => {
             const response = await updateSiteSettings(data);
-            return assertDone(response, '사이트 설정 저장에 실패했습니다.');
+            return assertDone(response, t({
+                id: 'settings.site.save_error',
+                message: 'Failed to save site settings.'
+            }));
         },
         onSuccess: (body: SiteSettingData) => {
             const editableSettings = getEditableSiteSettings(body);
@@ -284,12 +326,18 @@ const SiteSettingSetting = () => {
             setHeaderScript(editableSettings.headerScript);
             setFooterScript(editableSettings.footerScript);
             savedSettingsRef.current = editableSettings;
-            syncSettingsDocumentTitle(body.siteName);
+            syncSettingsDocumentTitle(body.siteName, settingsDocumentTitle);
             void queryClient.invalidateQueries({ queryKey: ['site-settings'] });
-            toast.success('사이트 설정이 저장되었습니다.');
+            toast.success(t({
+                id: 'settings.site.save_success',
+                message: 'Site settings saved.'
+            }));
         },
         onError: (error) => {
-            toast.error(getErrorMessage(error, '사이트 설정 저장에 실패했습니다.'));
+            toast.error(getErrorMessage(error, t({
+                id: 'settings.site.save_error',
+                message: 'Failed to save site settings.'
+            })));
         }
     });
 
@@ -299,28 +347,49 @@ const SiteSettingSetting = () => {
                 ? await createIconBrandAssetFormData(file)
                 : createSvgBrandAssetFormData(assetType, theme, file);
             const response = await uploadBrandAsset(formData);
-            return assertDone(response, '브랜드 자산 저장에 실패했습니다.');
+            return assertDone(response, t({
+                id: 'settings.site.brand.save_error',
+                message: 'Failed to save the brand asset.'
+            }));
         },
         onSuccess: () => {
             void queryClient.invalidateQueries({ queryKey: ['site-settings'] });
-            toast.success('브랜드 자산이 저장되었습니다.');
+            toast.success(t({
+                id: 'settings.site.brand.save_success',
+                message: 'Brand asset saved.'
+            }));
         },
         onError: (error) => {
-            toast.error(getErrorMessage(error, '브랜드 자산 저장에 실패했습니다.'));
+            const message = error instanceof BrandAssetGenerationError
+                ? i18n._(getBrandAssetGenerationErrorMessage(error))
+                : getErrorMessage(error, t({
+                    id: 'settings.site.brand.save_error',
+                    message: 'Failed to save the brand asset.'
+                }));
+            toast.error(message);
         }
     });
 
     const deleteMutation = useMutation({
         mutationFn: async ({ assetType, theme }: BrandAssetDeletePayload) => {
             const response = await deleteBrandAsset(assetType, theme);
-            return assertDone(response, '브랜드 자산 삭제에 실패했습니다.');
+            return assertDone(response, t({
+                id: 'settings.site.brand.delete_error',
+                message: 'Failed to delete the brand asset.'
+            }));
         },
         onSuccess: () => {
             void queryClient.invalidateQueries({ queryKey: ['site-settings'] });
-            toast.success('브랜드 자산이 삭제되었습니다.');
+            toast.success(t({
+                id: 'settings.site.brand.delete_success',
+                message: 'Brand asset deleted.'
+            }));
         },
         onError: (error) => {
-            toast.error(getErrorMessage(error, '브랜드 자산 삭제에 실패했습니다.'));
+            toast.error(getErrorMessage(error, t({
+                id: 'settings.site.brand.delete_error',
+                message: 'Failed to delete the brand asset.'
+            })));
         }
     });
 
@@ -356,21 +425,42 @@ const SiteSettingSetting = () => {
         const title = theme === 'default'
             ? (
                 assetType === 'icon'
-                    ? '기본 아이콘 삭제'
-                    : '기본 로고 삭제'
+                    ? t({
+                        id: 'settings.site.brand.delete.default_icon.title',
+                        message: 'Delete default icon'
+                    })
+                    : t({
+                        id: 'settings.site.brand.delete.default_logo.title',
+                        message: 'Delete default logo'
+                    })
             )
-            : '다크 모드 자산 삭제';
+            : t({
+                id: 'settings.site.brand.delete.dark.title',
+                message: 'Delete dark mode asset'
+            });
         const message = theme === 'default'
             ? (
                 assetType === 'icon'
-                    ? '기본 아이콘을 삭제하면 다크 아이콘, favicon, PNG 아이콘도 함께 삭제됩니다. 계속할까요?'
-                    : '기본 로고를 삭제하면 다크 모드 로고도 함께 삭제됩니다. 계속할까요?'
+                    ? t({
+                        id: 'settings.site.brand.delete.default_icon.message',
+                        message: 'Deleting the default icon also deletes the dark icon, favicon, and PNG icons. Continue?'
+                    })
+                    : t({
+                        id: 'settings.site.brand.delete.default_logo.message',
+                        message: 'Deleting the default logo also deletes the dark mode logo. Continue?'
+                    })
             )
-            : '다크 모드 자산을 삭제할까요?';
+            : t({
+                id: 'settings.site.brand.delete.dark.message',
+                message: 'Delete this dark mode asset?'
+            });
         const confirmed = await confirm({
             title,
             message,
-            confirmText: '삭제',
+            confirmText: t({
+                id: 'common.delete',
+                message: 'Delete'
+            }),
             variant: 'danger'
         });
         if (!confirmed) {
@@ -396,41 +486,80 @@ const SiteSettingSetting = () => {
     );
     const hasGlobalCode = Boolean(headerScript.trim() || footerScript.trim());
     const globalCodeStatus = isGlobalCodeDirty
-        ? '저장하지 않은 변경이 있습니다.'
+        ? t({
+            id: 'settings.site.global_code.status.unsaved',
+            message: 'You have unsaved changes.'
+        })
         : hasGlobalCode
-            ? '현재 모든 공개 페이지에 적용 중입니다.'
-            : '현재 설정된 코드가 없습니다.';
+            ? t({
+                id: 'settings.site.global_code.status.active',
+                message: 'Currently active on all public pages.'
+            })
+            : t({
+                id: 'settings.site.global_code.status.empty',
+                message: 'No global code is currently configured.'
+            });
     const saveDisabled = !isDirty || assetMutationPending || updateMutation.isPending;
 
     return (
         <form className="space-y-8" onSubmit={handleSave}>
-            <SettingsHeader title="블로그 커스텀" />
+            <SettingsHeader
+                title={t({
+                    id: 'settings.site.title',
+                    message: 'Blog customization'
+                })}
+            />
 
             <section className="space-y-4" aria-labelledby="basic-site-settings-title">
                 <h2 id="basic-site-settings-title" className="text-base font-semibold text-content">
-                    기본 설정
+                    {t({
+                        id: 'settings.site.basic.title',
+                        message: 'Basic settings'
+                    })}
                 </h2>
                 <Card>
                     <Input
                         density="compact"
-                        label="사이트 이름"
+                        label={t({
+                            id: 'settings.site.name.label',
+                            message: 'Site name'
+                        })}
                         maxLength={80}
                         placeholder="BLEX"
                         value={siteName}
                         onChange={(event) => setSiteName(event.target.value)}
-                        helperText="브라우저 제목, 검색 결과, RSS와 공개 문서에 표시됩니다."
+                        helperText={t({
+                            id: 'settings.site.name.help',
+                            message: 'Shown in browser titles, search results, RSS, and public documents.'
+                        })}
                     />
                 </Card>
 
                 <div className="flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between">
-                    <h3 className="text-sm font-semibold text-content">브랜드 자산</h3>
-                    <p className="text-xs text-content-secondary">업로드와 삭제는 별도 저장 없이 즉시 반영됩니다.</p>
+                    <h3 className="text-sm font-semibold text-content">
+                        {t({
+                            id: 'settings.site.brand.title',
+                            message: 'Brand assets'
+                        })}
+                    </h3>
+                    <p className="text-xs text-content-secondary">
+                        {t({
+                            id: 'settings.site.brand.immediate_help',
+                            message: 'Uploads and deletions take effect immediately without a separate save.'
+                        })}
+                    </p>
                 </div>
 
                 <div className="grid gap-4 xl:grid-cols-2">
                     <BrandAssetPanel
-                        title="로고"
-                        description="헤더와 푸터에 쓰입니다. 다크 모드 SVG는 기본 로고를 올린 뒤 선택적으로 지정합니다."
+                        title={t({
+                            id: 'settings.site.brand.logo.title',
+                            message: 'Logo'
+                        })}
+                        description={t({
+                            id: 'settings.site.brand.logo.description',
+                            message: 'Used in the header and footer. After uploading the default logo, you can optionally add a dark mode SVG.'
+                        })}
                         assetType="logo"
                         defaultUrl={settingData.logoSvgUrl}
                         darkUrl={settingData.logoSvgDarkUrl}
@@ -443,8 +572,14 @@ const SiteSettingSetting = () => {
                         onDelete={handleBrandAssetDelete}
                     />
                     <BrandAssetPanel
-                        title="아이콘"
-                        description="기본 아이콘 SVG를 올리면 브라우저에서 favicon과 PNG 아이콘을 함께 생성합니다."
+                        title={t({
+                            id: 'settings.site.brand.icon.title',
+                            message: 'Icon'
+                        })}
+                        description={t({
+                            id: 'settings.site.brand.icon.description',
+                            message: 'Uploading the default icon SVG also generates the favicon and PNG icons in your browser.'
+                        })}
                         assetType="icon"
                         defaultUrl={settingData.iconSvgUrl}
                         darkUrl={settingData.iconSvgDarkUrl}
@@ -462,7 +597,10 @@ const SiteSettingSetting = () => {
             {settingData.canManageScripts && (
                 <section className="space-y-4" aria-labelledby="advanced-site-settings-title">
                     <h2 id="advanced-site-settings-title" className="text-base font-semibold text-content">
-                        고급 설정
+                        {t({
+                            id: 'settings.site.advanced.title',
+                            message: 'Advanced settings'
+                        })}
                     </h2>
                     <details
                         className="group overflow-hidden rounded-2xl bg-surface ring-1 ring-line/60"
@@ -473,7 +611,12 @@ const SiteSettingSetting = () => {
                                 <Code2 aria-hidden="true" className="h-5 w-5" />
                             </span>
                             <span className="min-w-0 flex-1">
-                                <span className="block text-base font-semibold text-content">전역 코드</span>
+                                <span className="block text-base font-semibold text-content">
+                                    {t({
+                                        id: 'settings.site.global_code.title',
+                                        message: 'Global code'
+                                    })}
+                                </span>
                                 <span
                                     aria-live="polite"
                                     className={`mt-1 block text-sm ${isGlobalCodeDirty ? 'text-warning' : 'text-content-secondary'}`}>
@@ -491,16 +634,28 @@ const SiteSettingSetting = () => {
                                 <div className="flex gap-3 rounded-xl border border-warning-line bg-warning-surface p-4 text-warning">
                                     <AlertTriangle aria-hidden="true" className="mt-0.5 h-4 w-4 shrink-0" />
                                     <p className="text-xs leading-relaxed">
-                                        저장 즉시 모든 공개 페이지에 적용됩니다. 메타 태그와 먼저 불러올 코드는 {'<head>'} 안에,
-                                        나중에 불러올 스크립트는 {'</body>'} 직전에 삽입되므로 검증된 코드만 사용하세요.
+                                        {i18n._({
+                                            id: 'settings.site.global_code.warning',
+                                            message: 'Saved code runs immediately on every public page. Meta tags and early-loading code are inserted inside {headTag}; later scripts are inserted just before {bodyTag}. Use only code you trust.',
+                                            values: {
+                                                headTag: '<head>',
+                                                bodyTag: '</body>'
+                                            }
+                                        })}
                                     </p>
                                 </div>
                                 <div className="space-y-2">
                                     <div className="block text-sm font-semibold text-content">
-                                        Head 영역 코드
+                                        {t({
+                                            id: 'settings.site.global_code.head',
+                                            message: 'Head code'
+                                        })}
                                     </div>
                                     <CodeEditor
-                                        ariaLabel="Head 영역 코드"
+                                        ariaLabel={t({
+                                            id: 'settings.site.global_code.head',
+                                            message: 'Head code'
+                                        })}
                                         language="html"
                                         value={headerScript}
                                         onChange={setHeaderScript}
@@ -509,10 +664,16 @@ const SiteSettingSetting = () => {
                                 </div>
                                 <div className="space-y-2">
                                     <div className="block text-sm font-semibold text-content">
-                                        Body 하단 코드
+                                        {t({
+                                            id: 'settings.site.global_code.body_end',
+                                            message: 'End-of-body code'
+                                        })}
                                     </div>
                                     <CodeEditor
-                                        ariaLabel="Body 하단 코드"
+                                        ariaLabel={t({
+                                            id: 'settings.site.global_code.body_end',
+                                            message: 'End-of-body code'
+                                        })}
                                         language="html"
                                         value={footerScript}
                                         onChange={setFooterScript}
@@ -537,7 +698,15 @@ const SiteSettingSetting = () => {
                     leftIcon={!updateMutation.isPending
                         ? <Check aria-hidden="true" className="h-4 w-4" />
                         : undefined}>
-                    {updateMutation.isPending ? '저장 중...' : '사이트 설정 저장'}
+                    {updateMutation.isPending
+                        ? t({
+                            id: 'common.saving_ellipsis',
+                            message: 'Saving...'
+                        })
+                        : t({
+                            id: 'settings.site.save',
+                            message: 'Save site settings'
+                        })}
                 </Button>
             </div>
         </form>

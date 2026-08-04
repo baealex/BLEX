@@ -695,6 +695,8 @@ msgstr "생성"
 #: src/components/remotes/SettingsApp/pages/shared/BannerSettingBase.tsx:130
 #: src/components/remotes/SettingsApp/pages/shared/NoticeSettingBase.tsx:229
 #: src/components/remotes/SettingsApp/pages/shared/NoticeSettingBase.tsx:452
+#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:205
+#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:460
 #: src/components/remotes/SettingsApp/pages/StaticPagesSetting/components/StaticPageEditor.tsx:274
 #: src/components/remotes/SettingsApp/pages/StaticPagesSetting/components/StaticPageEditor.tsx:462
 #: src/components/remotes/SettingsApp/pages/StaticPagesSetting/components/StaticPageList.tsx:43
@@ -864,6 +866,7 @@ msgstr "저장 중"
 #. js-lingui-explicit-id
 #: src/components/remotes/Comments/components/CommentEditForm.tsx:87
 #: src/components/remotes/SettingsApp/pages/SeoAeoSetting/SeoAeoSetting.tsx:606
+#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:702
 msgid "common.saving_ellipsis"
 msgstr "저장 중..."
 
@@ -891,6 +894,11 @@ msgstr "제목 없음"
 #: src/components/remotes/SettingsApp/pages/StaticPagesSetting/components/StaticPageEditor.tsx:497
 msgid "common.update"
 msgstr "수정"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:190
+msgid "common.upload"
+msgstr "업로드"
 
 #. js-lingui-explicit-id
 #: src/components/remotes/PostEditor/components/SettingsDrawer.tsx:592
@@ -3335,6 +3343,11 @@ msgid "settings.developer_api.validation.scope_required"
 msgstr "최소 하나의 권한을 선택해주세요."
 
 #. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:276
+msgid "settings.document_title"
+msgstr "설정"
+
+#. js-lingui-explicit-id
 #: src/components/remotes/SettingsApp/pages/FormsSetting/FormsSetting.tsx:215
 msgid "settings.forms.add"
 msgstr "새 서식 추가"
@@ -5701,6 +5714,276 @@ msgstr "포함할 포스트 선택"
 #: src/components/remotes/SettingsApp/pages/SeriesSetting/SeriesSetting.tsx:285
 msgid "settings.series.title_count"
 msgstr "시리즈 ({count})"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:600
+msgid "settings.site.advanced.title"
+msgstr "고급 설정"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:515
+msgid "settings.site.basic.title"
+msgstr "기본 설정"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:376
+#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:389
+msgid "settings.site.brand.delete_error"
+msgstr "브랜드 자산 삭제에 실패했습니다."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:383
+msgid "settings.site.brand.delete_success"
+msgstr "브랜드 자산이 삭제되었습니다."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:453
+msgid "settings.site.brand.delete.dark.message"
+msgstr "다크 모드 자산을 삭제할까요?"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:437
+msgid "settings.site.brand.delete.dark.title"
+msgstr "다크 모드 자산 삭제"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:444
+msgid "settings.site.brand.delete.default_icon.message"
+msgstr "기본 아이콘을 삭제하면 다크 아이콘, favicon, PNG 아이콘도 함께 삭제됩니다. 계속할까요?"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:428
+msgid "settings.site.brand.delete.default_icon.title"
+msgstr "기본 아이콘 삭제"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:448
+msgid "settings.site.brand.delete.default_logo.message"
+msgstr "기본 로고를 삭제하면 다크 모드 로고도 함께 삭제됩니다. 계속할까요?"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:432
+msgid "settings.site.brand.delete.default_logo.title"
+msgstr "기본 로고 삭제"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/brandAssetI18n.ts:73
+msgid "settings.site.brand.error.favicon_png_missing"
+msgstr "favicon.ico 생성에 필요한 PNG가 없습니다."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/brandAssetI18n.ts:65
+msgid "settings.site.brand.error.icon_generation_failed"
+msgstr "아이콘 이미지를 생성할 수 없습니다."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/brandAssetI18n.ts:69
+msgid "settings.site.brand.error.png_generation_failed"
+msgstr "PNG 이미지를 생성할 수 없습니다."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/brandAssetI18n.ts:13
+msgid "settings.site.brand.error.svg_doctype"
+msgstr "SVG DOCTYPE은 허용되지 않습니다."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/brandAssetI18n.ts:37
+msgid "settings.site.brand.error.svg_event_attribute"
+msgstr "허용되지 않는 SVG 속성이 포함되어 있습니다."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/brandAssetI18n.ts:17
+msgid "settings.site.brand.error.svg_invalid"
+msgstr "올바른 SVG 파일이 아닙니다."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/brandAssetI18n.ts:33
+msgid "settings.site.brand.error.svg_invalid_namespace"
+msgstr "SVG 네임스페이스 값을 확인해주세요."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/brandAssetI18n.ts:53
+msgid "settings.site.brand.error.svg_invalid_viewbox"
+msgstr "SVG에는 유효한 viewBox가 필요합니다."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/brandAssetI18n.ts:57
+msgid "settings.site.brand.error.svg_invalid_viewbox_size"
+msgstr "SVG viewBox 크기를 확인해주세요."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/brandAssetI18n.ts:21
+msgid "settings.site.brand.error.svg_only"
+msgstr "SVG 파일만 업로드할 수 있습니다."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/brandAssetI18n.ts:61
+msgid "settings.site.brand.error.svg_preview_failed"
+msgstr "SVG 미리보기 이미지를 생성할 수 없습니다."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/brandAssetI18n.ts:9
+msgid "settings.site.brand.error.svg_processing_instruction"
+msgstr "SVG 처리 지시자는 허용되지 않습니다."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/brandAssetI18n.ts:25
+msgid "settings.site.brand.error.svg_too_complex"
+msgstr "SVG 구조가 너무 복잡합니다."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/brandAssetI18n.ts:49
+msgid "settings.site.brand.error.svg_unsafe_text"
+msgstr "SVG 텍스트에 위험한 값이 포함되어 있습니다."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/brandAssetI18n.ts:45
+msgid "settings.site.brand.error.svg_unsafe_value"
+msgstr "SVG에 외부 참조 또는 위험한 값이 포함되어 있습니다."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/brandAssetI18n.ts:41
+msgid "settings.site.brand.error.svg_unsupported_attribute"
+msgstr "허용되지 않는 SVG 속성입니다: {detail}"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/brandAssetI18n.ts:29
+msgid "settings.site.brand.error.svg_unsupported_element"
+msgstr "허용되지 않는 SVG 요소입니다: {detail}"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:579
+msgid "settings.site.brand.icon.description"
+msgstr "기본 아이콘 SVG를 올리면 브라우저에서 favicon과 PNG 아이콘을 함께 생성합니다."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:575
+msgid "settings.site.brand.icon.title"
+msgstr "아이콘"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:546
+msgid "settings.site.brand.immediate_help"
+msgstr "업로드와 삭제는 별도 저장 없이 즉시 반영됩니다."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:559
+msgid "settings.site.brand.logo.description"
+msgstr "헤더와 푸터에 쓰입니다. 다크 모드 SVG는 기본 로고를 올린 뒤 선택적으로 지정합니다."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:555
+msgid "settings.site.brand.logo.title"
+msgstr "로고"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:350
+#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:365
+msgid "settings.site.brand.save_error"
+msgstr "브랜드 자산 저장에 실패했습니다."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:357
+msgid "settings.site.brand.save_success"
+msgstr "브랜드 자산이 저장되었습니다."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:169
+msgid "settings.site.brand.status.custom"
+msgstr "커스텀"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:173
+msgid "settings.site.brand.status.default"
+msgstr "기본값"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:254
+msgid "settings.site.brand.theme.dark"
+msgstr "다크 모드"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:241
+msgid "settings.site.brand.theme.default"
+msgstr "기본"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:540
+msgid "settings.site.brand.title"
+msgstr "브랜드 자산"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:667
+#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:673
+msgid "settings.site.global_code.body_end"
+msgstr "Body 하단 코드"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:649
+#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:655
+msgid "settings.site.global_code.head"
+msgstr "Head 영역 코드"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:494
+msgid "settings.site.global_code.status.active"
+msgstr "현재 모든 공개 페이지에 적용 중입니다."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:498
+msgid "settings.site.global_code.status.empty"
+msgstr "현재 설정된 코드가 없습니다."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:489
+msgid "settings.site.global_code.status.unsaved"
+msgstr "저장하지 않은 변경이 있습니다."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:615
+msgid "settings.site.global_code.title"
+msgstr "전역 코드"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:637
+msgid "settings.site.global_code.warning"
+msgstr "저장 즉시 모든 공개 페이지에 적용됩니다. 메타 태그와 먼저 불러올 코드는 {headTag} 안에, 나중에 불러올 스크립트는 {bodyTag} 직전에 삽입되므로 검증된 코드만 사용하세요."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:289
+msgid "settings.site.load_error"
+msgstr "사이트 설정을 불러오는데 실패했습니다."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:531
+msgid "settings.site.name.help"
+msgstr "브라우저 제목, 검색 결과, RSS와 공개 문서에 표시됩니다."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:523
+msgid "settings.site.name.label"
+msgstr "사이트 이름"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:706
+msgid "settings.site.save"
+msgstr "사이트 설정 저장"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:318
+#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:337
+msgid "settings.site.save_error"
+msgstr "사이트 설정 저장에 실패했습니다."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:331
+msgid "settings.site.save_success"
+msgstr "사이트 설정이 저장되었습니다."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:507
+msgid "settings.site.title"
+msgstr "블로그 커스텀"
 
 #. js-lingui-explicit-id
 #: src/components/remotes/SettingsApp/pages/SocialLinksSetting/SocialLinksSetting.tsx:514

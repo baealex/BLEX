@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: BLEX 3.1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-08-05 04:55+0900\n"
+"POT-Creation-Date: 2026-08-05 05:19+0900\n"
 "PO-Revision-Date: 2026-07-18 00:00+0900\n"
 "Last-Translator: BLEX contributors\n"
 "Language-Team: Korean\n"
@@ -435,6 +435,116 @@ msgstr "유효하지 않은 초대 코드입니다."
 #: board/services/author_invite_service.py:114
 msgid "This invitation code has already been used or is inactive."
 msgstr "이미 사용되었거나 비활성화된 초대 코드입니다."
+
+#: board/services/brand_asset_service.py:216
+msgid "Upload the default asset first."
+msgstr "기본 자산을 먼저 업로드해주세요."
+
+#: board/services/brand_asset_service.py:324
+msgid "Check the brand asset type."
+msgstr "브랜드 자산 종류를 확인해주세요."
+
+#: board/services/brand_asset_service.py:326
+msgid "Check the brand asset theme."
+msgstr "브랜드 자산 테마를 확인해주세요."
+
+#: board/services/brand_asset_service.py:414
+#, python-format
+msgid "%(label)s file is required."
+msgstr "%(label)s 파일이 필요합니다."
+
+#: board/services/brand_asset_service.py:421
+#, python-format
+msgid "%(label)s file is too large."
+msgstr "%(label)s 파일이 너무 큽니다."
+
+#: board/services/brand_asset_service.py:425
+#, python-format
+msgid "%(label)s file is empty."
+msgstr "%(label)s 파일이 비어 있습니다."
+
+#: board/services/brand_asset_service.py:437
+msgid "SVG processing instructions are not allowed."
+msgstr "SVG 처리 지시자는 허용되지 않습니다."
+
+#: board/services/brand_asset_service.py:439
+msgid "SVG DOCTYPE declarations are not allowed."
+msgstr "SVG DOCTYPE은 허용되지 않습니다."
+
+#: board/services/brand_asset_service.py:444
+msgid "This is not a valid SVG file."
+msgstr "올바른 SVG 파일이 아닙니다."
+
+#: board/services/brand_asset_service.py:447
+msgid "Check the SVG root element."
+msgstr "SVG 루트 요소를 확인해주세요."
+
+#: board/services/brand_asset_service.py:449
+msgid "SVG files require a viewBox."
+msgstr "SVG에는 viewBox가 필요합니다."
+
+#: board/services/brand_asset_service.py:455
+msgid "The SVG structure is too complex."
+msgstr "SVG 구조가 너무 복잡합니다."
+
+#: board/services/brand_asset_service.py:460
+#, python-format
+msgid "Unsupported SVG element: %(element)s"
+msgstr "허용되지 않는 SVG 요소입니다: %(element)s"
+
+#: board/services/brand_asset_service.py:469
+msgid "The SVG contains an event handler attribute."
+msgstr "허용되지 않는 SVG 속성이 포함되어 있습니다."
+
+#: board/services/brand_asset_service.py:476
+#, python-format
+msgid "Unsupported SVG attribute: %(attribute)s"
+msgstr "허용되지 않는 SVG 속성입니다: %(attribute)s"
+
+#: board/services/brand_asset_service.py:482
+msgid "The SVG contains an external reference or unsafe value."
+msgstr "SVG에 외부 참조 또는 위험한 값이 포함되어 있습니다."
+
+#: board/services/brand_asset_service.py:486
+msgid "The SVG text contains an unsafe value."
+msgstr "SVG 텍스트에 위험한 값이 포함되어 있습니다."
+
+#: board/services/brand_asset_service.py:508
+msgid "An icon manifest is required."
+msgstr "아이콘 manifest가 필요합니다."
+
+#: board/services/brand_asset_service.py:512
+msgid "Check the icon manifest format."
+msgstr "아이콘 manifest 형식을 확인해주세요."
+
+#: board/services/brand_asset_service.py:516
+msgid "Check the PNG size list in the icon manifest."
+msgstr "아이콘 manifest의 PNG 크기 목록을 확인해주세요."
+
+#: board/services/brand_asset_service.py:518
+msgid "Check the ICO information in the icon manifest."
+msgstr "아이콘 manifest의 ICO 정보를 확인해주세요."
+
+#: board/services/brand_asset_service.py:531
+msgid "Check the PNG file format."
+msgstr "PNG 파일 형식을 확인해주세요."
+
+#: board/services/brand_asset_service.py:534
+#, python-format
+msgid "Check the dimensions of the %(size)s PNG file."
+msgstr "%(size)s PNG 크기를 확인해주세요."
+
+#: board/services/brand_asset_service.py:540
+msgid "Could not read the PNG file."
+msgstr "PNG 파일을 읽을 수 없습니다."
+
+#: board/services/brand_asset_service.py:553
+msgid "Check the ICO file format."
+msgstr "ICO 파일 형식을 확인해주세요."
+
+#: board/services/brand_asset_service.py:556
+msgid "Could not read the ICO file."
+msgstr "ICO 파일을 읽을 수 없습니다."
 
 #: board/services/comment_service.py:86 board/services/comment_service.py:183
 msgid "Log in to continue."
@@ -1830,6 +1940,10 @@ msgstr "시리즈 순서가 변경되었습니다."
 #: board/views/api/v1/series.py:362
 msgid "Series deleted."
 msgstr "시리즈가 삭제되었습니다."
+
+#: board/views/api/v1/site_setting.py:69
+msgid "Site name must be 80 characters or fewer."
+msgstr "사이트 이름은 80자 이하여야 합니다."
 
 #: board/views/api/v1/static_page.py:64
 msgid "Static page deleted."

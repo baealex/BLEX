@@ -695,6 +695,8 @@ msgstr "Create"
 #: src/components/remotes/SettingsApp/pages/shared/BannerSettingBase.tsx:130
 #: src/components/remotes/SettingsApp/pages/shared/NoticeSettingBase.tsx:229
 #: src/components/remotes/SettingsApp/pages/shared/NoticeSettingBase.tsx:452
+#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:205
+#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:460
 #: src/components/remotes/SettingsApp/pages/StaticPagesSetting/components/StaticPageEditor.tsx:274
 #: src/components/remotes/SettingsApp/pages/StaticPagesSetting/components/StaticPageEditor.tsx:462
 #: src/components/remotes/SettingsApp/pages/StaticPagesSetting/components/StaticPageList.tsx:43
@@ -864,6 +866,7 @@ msgstr "Saving"
 #. js-lingui-explicit-id
 #: src/components/remotes/Comments/components/CommentEditForm.tsx:87
 #: src/components/remotes/SettingsApp/pages/SeoAeoSetting/SeoAeoSetting.tsx:606
+#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:702
 msgid "common.saving_ellipsis"
 msgstr "Saving..."
 
@@ -891,6 +894,11 @@ msgstr "Untitled"
 #: src/components/remotes/SettingsApp/pages/StaticPagesSetting/components/StaticPageEditor.tsx:497
 msgid "common.update"
 msgstr "Update"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:190
+msgid "common.upload"
+msgstr "Upload"
 
 #. js-lingui-explicit-id
 #: src/components/remotes/PostEditor/components/SettingsDrawer.tsx:592
@@ -3335,6 +3343,11 @@ msgid "settings.developer_api.validation.scope_required"
 msgstr "Select at least one permission."
 
 #. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:276
+msgid "settings.document_title"
+msgstr "Settings"
+
+#. js-lingui-explicit-id
 #: src/components/remotes/SettingsApp/pages/FormsSetting/FormsSetting.tsx:215
 msgid "settings.forms.add"
 msgstr "Add template"
@@ -5701,6 +5714,276 @@ msgstr "Select posts to include"
 #: src/components/remotes/SettingsApp/pages/SeriesSetting/SeriesSetting.tsx:285
 msgid "settings.series.title_count"
 msgstr "Series ({count})"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:600
+msgid "settings.site.advanced.title"
+msgstr "Advanced settings"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:515
+msgid "settings.site.basic.title"
+msgstr "Basic settings"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:376
+#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:389
+msgid "settings.site.brand.delete_error"
+msgstr "Failed to delete the brand asset."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:383
+msgid "settings.site.brand.delete_success"
+msgstr "Brand asset deleted."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:453
+msgid "settings.site.brand.delete.dark.message"
+msgstr "Delete this dark mode asset?"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:437
+msgid "settings.site.brand.delete.dark.title"
+msgstr "Delete dark mode asset"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:444
+msgid "settings.site.brand.delete.default_icon.message"
+msgstr "Deleting the default icon also deletes the dark icon, favicon, and PNG icons. Continue?"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:428
+msgid "settings.site.brand.delete.default_icon.title"
+msgstr "Delete default icon"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:448
+msgid "settings.site.brand.delete.default_logo.message"
+msgstr "Deleting the default logo also deletes the dark mode logo. Continue?"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:432
+msgid "settings.site.brand.delete.default_logo.title"
+msgstr "Delete default logo"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/brandAssetI18n.ts:73
+msgid "settings.site.brand.error.favicon_png_missing"
+msgstr "No PNG image is available to create favicon.ico."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/brandAssetI18n.ts:65
+msgid "settings.site.brand.error.icon_generation_failed"
+msgstr "Could not generate the icon image."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/brandAssetI18n.ts:69
+msgid "settings.site.brand.error.png_generation_failed"
+msgstr "Could not generate the PNG image."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/brandAssetI18n.ts:13
+msgid "settings.site.brand.error.svg_doctype"
+msgstr "SVG DOCTYPE declarations are not allowed."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/brandAssetI18n.ts:37
+msgid "settings.site.brand.error.svg_event_attribute"
+msgstr "The SVG contains an event handler attribute."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/brandAssetI18n.ts:17
+msgid "settings.site.brand.error.svg_invalid"
+msgstr "This is not a valid SVG file."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/brandAssetI18n.ts:33
+msgid "settings.site.brand.error.svg_invalid_namespace"
+msgstr "Check the SVG namespace value."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/brandAssetI18n.ts:53
+msgid "settings.site.brand.error.svg_invalid_viewbox"
+msgstr "The SVG must have a valid viewBox."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/brandAssetI18n.ts:57
+msgid "settings.site.brand.error.svg_invalid_viewbox_size"
+msgstr "Check the SVG viewBox dimensions."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/brandAssetI18n.ts:21
+msgid "settings.site.brand.error.svg_only"
+msgstr "Only SVG files can be uploaded."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/brandAssetI18n.ts:61
+msgid "settings.site.brand.error.svg_preview_failed"
+msgstr "Could not generate the SVG preview image."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/brandAssetI18n.ts:9
+msgid "settings.site.brand.error.svg_processing_instruction"
+msgstr "SVG processing instructions are not allowed."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/brandAssetI18n.ts:25
+msgid "settings.site.brand.error.svg_too_complex"
+msgstr "The SVG structure is too complex."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/brandAssetI18n.ts:49
+msgid "settings.site.brand.error.svg_unsafe_text"
+msgstr "The SVG text contains an unsafe value."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/brandAssetI18n.ts:45
+msgid "settings.site.brand.error.svg_unsafe_value"
+msgstr "The SVG contains an external reference or unsafe value."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/brandAssetI18n.ts:41
+msgid "settings.site.brand.error.svg_unsupported_attribute"
+msgstr "Unsupported SVG attribute: {detail}"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/brandAssetI18n.ts:29
+msgid "settings.site.brand.error.svg_unsupported_element"
+msgstr "Unsupported SVG element: {detail}"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:579
+msgid "settings.site.brand.icon.description"
+msgstr "Uploading the default icon SVG also generates the favicon and PNG icons in your browser."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:575
+msgid "settings.site.brand.icon.title"
+msgstr "Icon"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:546
+msgid "settings.site.brand.immediate_help"
+msgstr "Uploads and deletions take effect immediately without a separate save."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:559
+msgid "settings.site.brand.logo.description"
+msgstr "Used in the header and footer. After uploading the default logo, you can optionally add a dark mode SVG."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:555
+msgid "settings.site.brand.logo.title"
+msgstr "Logo"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:350
+#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:365
+msgid "settings.site.brand.save_error"
+msgstr "Failed to save the brand asset."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:357
+msgid "settings.site.brand.save_success"
+msgstr "Brand asset saved."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:169
+msgid "settings.site.brand.status.custom"
+msgstr "Custom"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:173
+msgid "settings.site.brand.status.default"
+msgstr "Default"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:254
+msgid "settings.site.brand.theme.dark"
+msgstr "Dark mode"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:241
+msgid "settings.site.brand.theme.default"
+msgstr "Default"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:540
+msgid "settings.site.brand.title"
+msgstr "Brand assets"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:667
+#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:673
+msgid "settings.site.global_code.body_end"
+msgstr "End-of-body code"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:649
+#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:655
+msgid "settings.site.global_code.head"
+msgstr "Head code"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:494
+msgid "settings.site.global_code.status.active"
+msgstr "Currently active on all public pages."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:498
+msgid "settings.site.global_code.status.empty"
+msgstr "No global code is currently configured."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:489
+msgid "settings.site.global_code.status.unsaved"
+msgstr "You have unsaved changes."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:615
+msgid "settings.site.global_code.title"
+msgstr "Global code"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:637
+msgid "settings.site.global_code.warning"
+msgstr "Saved code runs immediately on every public page. Meta tags and early-loading code are inserted inside {headTag}; later scripts are inserted just before {bodyTag}. Use only code you trust."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:289
+msgid "settings.site.load_error"
+msgstr "Failed to load site settings."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:531
+msgid "settings.site.name.help"
+msgstr "Shown in browser titles, search results, RSS, and public documents."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:523
+msgid "settings.site.name.label"
+msgstr "Site name"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:706
+msgid "settings.site.save"
+msgstr "Save site settings"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:318
+#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:337
+msgid "settings.site.save_error"
+msgstr "Failed to save site settings."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:331
+msgid "settings.site.save_success"
+msgstr "Site settings saved."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:507
+msgid "settings.site.title"
+msgstr "Blog customization"
 
 #. js-lingui-explicit-id
 #: src/components/remotes/SettingsApp/pages/SocialLinksSetting/SocialLinksSetting.tsx:514

@@ -695,6 +695,8 @@ msgstr ""
 #: src/components/remotes/SettingsApp/pages/shared/BannerSettingBase.tsx:130
 #: src/components/remotes/SettingsApp/pages/shared/NoticeSettingBase.tsx:229
 #: src/components/remotes/SettingsApp/pages/shared/NoticeSettingBase.tsx:452
+#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:205
+#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:460
 #: src/components/remotes/SettingsApp/pages/StaticPagesSetting/components/StaticPageEditor.tsx:274
 #: src/components/remotes/SettingsApp/pages/StaticPagesSetting/components/StaticPageEditor.tsx:462
 #: src/components/remotes/SettingsApp/pages/StaticPagesSetting/components/StaticPageList.tsx:43
@@ -864,6 +866,7 @@ msgstr ""
 #. js-lingui-explicit-id
 #: src/components/remotes/Comments/components/CommentEditForm.tsx:87
 #: src/components/remotes/SettingsApp/pages/SeoAeoSetting/SeoAeoSetting.tsx:606
+#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:702
 msgid "common.saving_ellipsis"
 msgstr ""
 
@@ -890,6 +893,11 @@ msgstr ""
 #: src/components/remotes/SettingsApp/pages/shared/NoticeSettingBase.tsx:400
 #: src/components/remotes/SettingsApp/pages/StaticPagesSetting/components/StaticPageEditor.tsx:497
 msgid "common.update"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:190
+msgid "common.upload"
 msgstr ""
 
 #. js-lingui-explicit-id
@@ -3331,6 +3339,11 @@ msgid "settings.developer_api.validation.scope_required"
 msgstr ""
 
 #. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:276
+msgid "settings.document_title"
+msgstr ""
+
+#. js-lingui-explicit-id
 #: src/components/remotes/SettingsApp/pages/FormsSetting/FormsSetting.tsx:215
 msgid "settings.forms.add"
 msgstr ""
@@ -5692,6 +5705,276 @@ msgstr ""
 #. js-lingui-explicit-id
 #: src/components/remotes/SettingsApp/pages/SeriesSetting/SeriesSetting.tsx:285
 msgid "settings.series.title_count"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:600
+msgid "settings.site.advanced.title"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:515
+msgid "settings.site.basic.title"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:376
+#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:389
+msgid "settings.site.brand.delete_error"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:383
+msgid "settings.site.brand.delete_success"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:453
+msgid "settings.site.brand.delete.dark.message"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:437
+msgid "settings.site.brand.delete.dark.title"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:444
+msgid "settings.site.brand.delete.default_icon.message"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:428
+msgid "settings.site.brand.delete.default_icon.title"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:448
+msgid "settings.site.brand.delete.default_logo.message"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:432
+msgid "settings.site.brand.delete.default_logo.title"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/brandAssetI18n.ts:73
+msgid "settings.site.brand.error.favicon_png_missing"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/brandAssetI18n.ts:65
+msgid "settings.site.brand.error.icon_generation_failed"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/brandAssetI18n.ts:69
+msgid "settings.site.brand.error.png_generation_failed"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/brandAssetI18n.ts:13
+msgid "settings.site.brand.error.svg_doctype"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/brandAssetI18n.ts:37
+msgid "settings.site.brand.error.svg_event_attribute"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/brandAssetI18n.ts:17
+msgid "settings.site.brand.error.svg_invalid"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/brandAssetI18n.ts:33
+msgid "settings.site.brand.error.svg_invalid_namespace"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/brandAssetI18n.ts:53
+msgid "settings.site.brand.error.svg_invalid_viewbox"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/brandAssetI18n.ts:57
+msgid "settings.site.brand.error.svg_invalid_viewbox_size"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/brandAssetI18n.ts:21
+msgid "settings.site.brand.error.svg_only"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/brandAssetI18n.ts:61
+msgid "settings.site.brand.error.svg_preview_failed"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/brandAssetI18n.ts:9
+msgid "settings.site.brand.error.svg_processing_instruction"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/brandAssetI18n.ts:25
+msgid "settings.site.brand.error.svg_too_complex"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/brandAssetI18n.ts:49
+msgid "settings.site.brand.error.svg_unsafe_text"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/brandAssetI18n.ts:45
+msgid "settings.site.brand.error.svg_unsafe_value"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/brandAssetI18n.ts:41
+msgid "settings.site.brand.error.svg_unsupported_attribute"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/brandAssetI18n.ts:29
+msgid "settings.site.brand.error.svg_unsupported_element"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:579
+msgid "settings.site.brand.icon.description"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:575
+msgid "settings.site.brand.icon.title"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:546
+msgid "settings.site.brand.immediate_help"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:559
+msgid "settings.site.brand.logo.description"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:555
+msgid "settings.site.brand.logo.title"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:350
+#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:365
+msgid "settings.site.brand.save_error"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:357
+msgid "settings.site.brand.save_success"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:169
+msgid "settings.site.brand.status.custom"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:173
+msgid "settings.site.brand.status.default"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:254
+msgid "settings.site.brand.theme.dark"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:241
+msgid "settings.site.brand.theme.default"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:540
+msgid "settings.site.brand.title"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:667
+#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:673
+msgid "settings.site.global_code.body_end"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:649
+#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:655
+msgid "settings.site.global_code.head"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:494
+msgid "settings.site.global_code.status.active"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:498
+msgid "settings.site.global_code.status.empty"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:489
+msgid "settings.site.global_code.status.unsaved"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:615
+msgid "settings.site.global_code.title"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:637
+msgid "settings.site.global_code.warning"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:289
+msgid "settings.site.load_error"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:531
+msgid "settings.site.name.help"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:523
+msgid "settings.site.name.label"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:706
+msgid "settings.site.save"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:318
+#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:337
+msgid "settings.site.save_error"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:331
+msgid "settings.site.save_success"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:507
+msgid "settings.site.title"
 msgstr ""
 
 #. js-lingui-explicit-id
