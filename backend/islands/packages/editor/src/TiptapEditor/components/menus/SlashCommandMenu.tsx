@@ -1,6 +1,8 @@
 import React, { useEffect, useRef, useState } from 'react';
 import type { Editor } from '@tiptap/react';
 import * as Popover from '@radix-ui/react-popover';
+import { useEditorI18n } from '../../i18n';
+import type { EditorMessageKey } from '../../i18n';
 
 interface SlashCommandMenuProps {
     editor: Editor | null;
@@ -51,12 +53,17 @@ const SlashCommandMenu = ({
     onVideoUpload,
     onYoutubeUpload
 }: SlashCommandMenuProps) => {
+    const { t } = useEditorI18n();
     const [selectedIndex, setSelectedIndex] = useState(0);
     const [searchTerm, setSearchTerm] = useState('');
     const inputRef = useRef<HTMLInputElement>(null);
     const selectedItemRef = useRef<HTMLDivElement>(null);
     const [virtualAnchor, setVirtualAnchor] = useState<HTMLElement | null>(null);
     const [forms, setForms] = useState<Form[]>([]);
+    const getKeywords = (key: EditorMessageKey) => t(key)
+        .split(',')
+        .map(keyword => keyword.trim())
+        .filter(Boolean);
 
     // 서식 목록 불러오기
     useEffect(() => {
@@ -122,74 +129,74 @@ const SlashCommandMenu = ({
     const commandItems: CommandItem[] = [
         {
             id: 'heading2',
-            title: '대제목',
-            description: 'H2 헤딩',
+            title: t('slash.heading2.title'),
+            description: t('slash.heading2.description'),
             icon: 'fa fa-heading',
-            keywords: ['heading', '헤딩', '제목', 'h2'],
-            category: '텍스트',
+            keywords: getKeywords('slash.heading2.keywords'),
+            category: t('slash.category.text'),
             action: (editor) => editor.chain().focus().toggleHeading({ level: 2 }).run()
         },
         {
             id: 'heading3',
-            title: '중간제목',
-            description: 'H3 헤딩',
+            title: t('slash.heading3.title'),
+            description: t('slash.heading3.description'),
             icon: 'fa fa-heading',
-            keywords: ['heading', '헤딩', '제목', 'h3'],
-            category: '텍스트',
+            keywords: getKeywords('slash.heading3.keywords'),
+            category: t('slash.category.text'),
             action: (editor) => editor.chain().focus().toggleHeading({ level: 3 }).run()
         },
         {
             id: 'heading4',
-            title: '소제목',
-            description: 'H4 헤딩',
+            title: t('slash.heading4.title'),
+            description: t('slash.heading4.description'),
             icon: 'fa fa-heading',
-            keywords: ['heading', '헤딩', '제목', 'h4'],
-            category: '텍스트',
+            keywords: getKeywords('slash.heading4.keywords'),
+            category: t('slash.category.text'),
             action: (editor) => editor.chain().focus().toggleHeading({ level: 4 }).run()
         },
         {
             id: 'bulletList',
-            title: '순서없는 목록',
-            description: '글머리 기호 목록',
+            title: t('slash.bullet_list.title'),
+            description: t('slash.bullet_list.description'),
             icon: 'fa fa-list-ul',
-            keywords: ['list', '목록', 'bullet', '글머리'],
-            category: '텍스트',
+            keywords: getKeywords('slash.bullet_list.keywords'),
+            category: t('slash.category.text'),
             action: (editor) => editor.chain().focus().toggleBulletList().run()
         },
         {
             id: 'orderedList',
-            title: '순서있는 목록',
-            description: '번호가 있는 목록',
+            title: t('slash.ordered_list.title'),
+            description: t('slash.ordered_list.description'),
             icon: 'fa fa-list-ol',
-            keywords: ['list', '목록', 'numbered', '번호'],
-            category: '텍스트',
+            keywords: getKeywords('slash.ordered_list.keywords'),
+            category: t('slash.category.text'),
             action: (editor) => editor.chain().focus().toggleOrderedList().run()
         },
         {
             id: 'blockquote',
-            title: '인용구',
-            description: '인용문 블록',
+            title: t('slash.blockquote.title'),
+            description: t('slash.blockquote.description'),
             icon: 'fa fa-quote-left',
-            keywords: ['quote', '인용', 'blockquote'],
-            category: '블록',
+            keywords: getKeywords('slash.blockquote.keywords'),
+            category: t('slash.category.block'),
             action: (editor) => editor.chain().focus().toggleBlockquote().run()
         },
         {
             id: 'codeBlock',
-            title: '코드 블록',
-            description: '구문 강조 코드 블록',
+            title: t('slash.code_block.title'),
+            description: t('slash.code_block.description'),
             icon: 'fa fa-code',
-            keywords: ['code', '코드', 'block'],
-            category: '블록',
+            keywords: getKeywords('slash.code_block.keywords'),
+            category: t('slash.category.block'),
             action: (editor) => editor.chain().focus().toggleCodeBlock().run()
         },
         {
             id: 'table',
-            title: '표',
-            description: '3x3 표 삽입',
+            title: t('slash.table.title'),
+            description: t('slash.table.description'),
             icon: 'fa fa-table',
-            keywords: ['table', '표', '테이블'],
-            category: '블록',
+            keywords: getKeywords('slash.table.keywords'),
+            category: t('slash.category.block'),
             action: (editor) => editor.chain().focus().insertTable({
                 rows: 3,
                 cols: 3,
@@ -198,56 +205,56 @@ const SlashCommandMenu = ({
         },
         {
             id: 'divider',
-            title: '구분선',
-            description: '수평선 삽입',
+            title: t('slash.divider.title'),
+            description: t('slash.divider.description'),
             icon: 'fa fa-minus',
-            keywords: ['divider', '구분선', 'hr', '수평선'],
-            category: '블록',
+            keywords: getKeywords('slash.divider.keywords'),
+            category: t('slash.category.block'),
             action: (editor) => editor.chain().focus().setHorizontalRule().run()
         },
         {
             id: 'image',
-            title: '이미지',
-            description: '이미지 업로드',
+            title: t('slash.image.title'),
+            description: t('slash.image.description'),
             icon: 'fa fa-image',
-            keywords: ['image', '이미지', 'img', '사진'],
-            category: '미디어',
+            keywords: getKeywords('slash.image.keywords'),
+            category: t('slash.category.media'),
             action: () => onImageUpload()
         },
         {
             id: 'video',
-            title: '비디오',
-            description: 'MP4/WebM 비디오 업로드',
+            title: t('slash.video.title'),
+            description: t('slash.video.description'),
             icon: 'fa fa-video',
-            keywords: ['video', '비디오', '동영상', 'mp4', 'webm', '영상'],
-            category: '미디어',
+            keywords: getKeywords('slash.video.keywords'),
+            category: t('slash.category.media'),
             action: () => onVideoUpload()
         },
         {
             id: 'youtube',
-            title: 'YouTube',
-            description: 'YouTube 동영상 삽입',
+            title: t('slash.youtube.title'),
+            description: t('slash.youtube.description'),
             icon: 'fab fa-youtube',
-            keywords: ['youtube', '유튜브'],
-            category: '미디어',
+            keywords: getKeywords('slash.youtube.keywords'),
+            category: t('slash.category.media'),
             action: () => onYoutubeUpload()
         },
         {
             id: 'columns2',
-            title: '2단 레이아웃',
-            description: '2개의 컬럼으로 나누기',
+            title: t('slash.columns2.title'),
+            description: t('slash.columns2.description'),
             icon: 'fa fa-columns',
-            keywords: ['columns', '컬럼', '2단', '레이아웃', 'layout'],
-            category: '레이아웃',
+            keywords: getKeywords('slash.columns2.keywords'),
+            category: t('slash.category.layout'),
             action: (editor) => editor.chain().focus().setColumns('1:1').run()
         },
         {
             id: 'columns3',
-            title: '3단 레이아웃',
-            description: '3개의 컬럼으로 나누기',
+            title: t('slash.columns3.title'),
+            description: t('slash.columns3.description'),
             icon: 'fa fa-columns',
-            keywords: ['columns', '컬럼', '3단', '레이아웃', 'layout'],
-            category: '레이아웃',
+            keywords: getKeywords('slash.columns3.keywords'),
+            category: t('slash.category.layout'),
             action: (editor) => editor.chain().focus().setColumns('1:1:1').run()
         }
     ];
@@ -256,10 +263,13 @@ const SlashCommandMenu = ({
     const formItems: CommandItem[] = forms.map(form => ({
         id: `form-${form.id}`,
         title: form.title,
-        description: '저장된 서식 삽입',
+        description: t('slash.template.description'),
         icon: 'fa fa-file-alt',
-        keywords: ['서식', 'form', 'template', form.title.toLowerCase()],
-        category: '서식',
+        keywords: [
+            ...getKeywords('slash.template.keywords'),
+            form.title.toLowerCase()
+        ],
+        category: t('slash.category.template'),
         action: (editor) => {
             void editor;
             handleFormInsert(form.id);
@@ -393,7 +403,7 @@ const SlashCommandMenu = ({
                         <input
                             ref={inputRef}
                             type="text"
-                            placeholder="명령어 검색..."
+                            placeholder={t('slash.search.placeholder')}
                             className="w-full px-2 py-1 text-sm border-none outline-none"
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
@@ -436,7 +446,7 @@ const SlashCommandMenu = ({
                             })
                         ) : (
                             <div className="px-3 py-4 text-sm text-gray-500 text-center">
-                                검색 결과가 없습니다
+                                {t('slash.search.no_results')}
                             </div>
                         )}
                     </div>

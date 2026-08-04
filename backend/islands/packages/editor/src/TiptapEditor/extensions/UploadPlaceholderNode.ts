@@ -1,6 +1,13 @@
 import { Node } from '@tiptap/react';
+import { formatEditorMessage } from '../i18n';
 
-export const UploadPlaceholderNode = Node.create({
+export interface UploadPlaceholderMessages {
+    imageLabel: string;
+    videoLabel: string;
+    progressTemplate: string;
+}
+
+export const UploadPlaceholderNode = Node.create<UploadPlaceholderMessages>({
     name: 'uploadPlaceholder',
 
     group: 'block',
@@ -10,6 +17,14 @@ export const UploadPlaceholderNode = Node.create({
     selectable: false,
 
     draggable: false,
+
+    addOptions() {
+        return {
+            imageLabel: 'Image',
+            videoLabel: 'Video',
+            progressTemplate: 'Uploading {mediaType}...{fileName}'
+        };
+    },
 
     addAttributes() {
         return {
@@ -26,8 +41,14 @@ export const UploadPlaceholderNode = Node.create({
     },
 
     renderHTML({ HTMLAttributes }) {
-        const mediaType = HTMLAttributes.mediaType === 'video' ? '비디오' : '이미지';
+        const mediaType = HTMLAttributes.mediaType === 'video'
+            ? this.options.videoLabel
+            : this.options.imageLabel;
         const fileName = HTMLAttributes.fileName ? ` · ${HTMLAttributes.fileName}` : '';
+        const progressLabel = formatEditorMessage(this.options.progressTemplate, {
+            mediaType,
+            fileName
+        });
 
         return [
             'div',
@@ -37,7 +58,7 @@ export const UploadPlaceholderNode = Node.create({
                 class: 'media-upload-placeholder'
             },
             ['span', { class: 'media-upload-placeholder__spinner' }],
-            ['span', { class: 'media-upload-placeholder__text' }, `${mediaType} 업로드 중...${fileName}`]
+            ['span', { class: 'media-upload-placeholder__text' }, progressLabel]
         ];
     }
 });

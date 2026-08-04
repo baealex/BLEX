@@ -3,8 +3,10 @@ import { NodeViewWrapper } from '@tiptap/react';
 import type { NodeViewProps } from '@tiptap/react';
 import { NodeSelection } from '@tiptap/pm/state';
 import { getFigureStyle, getMediaStyle } from '../../utils/mediaStyles';
+import { useEditorI18n } from '../../i18n';
 
 export const VideoNodeView = ({ node, selected, editor, getPos }: NodeViewProps) => {
+    const { t } = useEditorI18n();
     const videoRef = useRef<HTMLVideoElement>(null);
     const {
         src,
@@ -141,7 +143,9 @@ export const VideoNodeView = ({ node, selected, editor, getPos }: NodeViewProps)
                                 color: '#fff',
                                 pointerEvents: 'none'
                             }}>
-                            {playMode === 'gif' ? '움짤' : '영상'}
+                            {playMode === 'gif'
+                                ? t('media.video.badge.gif')
+                                : t('media.video.badge.video')}
                         </div>
                     )}
                 </div>

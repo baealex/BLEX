@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Input } from '@blex/ui/input';
 import { Modal } from '@blex/ui/modal';
+import { useEditorI18n } from '../../i18n';
 
 interface YoutubeModalProps {
     isOpen: boolean;
@@ -9,6 +10,7 @@ interface YoutubeModalProps {
 }
 
 const YoutubeModal = ({ isOpen, onClose, onUpload }: YoutubeModalProps) => {
+    const { t } = useEditorI18n();
     const [youtubeId, setYoutubeId] = useState('');
 
     const handleUpload = () => {
@@ -20,12 +22,12 @@ const YoutubeModal = ({ isOpen, onClose, onUpload }: YoutubeModalProps) => {
     };
 
     return (
-        <Modal isOpen={isOpen} onClose={onClose} title="YouTube 영상 추가" maxWidth="md">
+        <Modal isOpen={isOpen} onClose={onClose} title={t('youtube.title')} maxWidth="md">
             <Modal.Body>
                 <div className="mb-4">
                     <Input
                         id="youtube-id"
-                        label="YouTube 영상 ID 또는 URL"
+                        label={t('youtube.label')}
                         type="text"
                         value={youtubeId}
                         onChange={(e) => {
@@ -38,16 +40,16 @@ const YoutubeModal = ({ isOpen, onClose, onUpload }: YoutubeModalProps) => {
                             }
                             setYoutubeId(id);
                         }}
-                        placeholder="dQw4w9WgXcQ 또는 https://www.youtube.com/watch?v=dQw4w9WgXcQ"
+                        placeholder={t('youtube.placeholder')}
                     />
                 </div>
             </Modal.Body>
             <Modal.Footer>
                 <Modal.FooterAction variant="secondary" onClick={onClose}>
-                    취소
+                    {t('youtube.cancel')}
                 </Modal.FooterAction>
                 <Modal.FooterAction variant="primary" onClick={handleUpload} disabled={!youtubeId}>
-                    추가
+                    {t('youtube.add')}
                 </Modal.FooterAction>
             </Modal.Footer>
         </Modal>

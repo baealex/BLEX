@@ -58,7 +58,7 @@ const PostForm = ({
     onEditorUploadStateChange,
     onRemoveImage
 }: PostFormProps) => {
-    const { t } = useLingui();
+    const { i18n, t } = useLingui();
     const internalFormRef = useRef<HTMLFormElement>(null);
     const formRef = externalFormRef || internalFormRef;
 
@@ -89,6 +89,7 @@ const PostForm = ({
                         <TiptapEditor
                             name="content_html"
                             content={formData.content}
+                            locale={i18n.locale}
                             onChange={onContentChange}
                             placeholder={t({
                                 id: 'editor.fields.content_placeholder',

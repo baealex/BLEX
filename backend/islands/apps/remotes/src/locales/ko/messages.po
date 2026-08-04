@@ -1256,7 +1256,7 @@ msgid "editor.fields.content"
 msgstr "본문"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostEditor/components/PostForm.tsx:93
+#: src/components/remotes/PostEditor/components/PostForm.tsx:94
 msgid "editor.fields.content_placeholder"
 msgstr "내용을 입력하세요"
 

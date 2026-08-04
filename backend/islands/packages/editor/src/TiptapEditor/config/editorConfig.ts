@@ -35,9 +35,13 @@ import { CustomImage } from '../extensions/CustomImage';
 import { CodeBlockWithLanguageSelector } from '../extensions/CodeBlockWithLanguageSelector';
 import { ColumnsNode, ColumnNode } from '../extensions/ColumnsNode';
 import { UploadPlaceholderNode } from '../extensions/UploadPlaceholderNode';
+import type { UploadPlaceholderMessages } from '../extensions/UploadPlaceholderNode';
 import { editorLowlight } from './lowlightConfig';
 
-export const getEditorExtensions = (placeholder: string) => [
+export const getEditorExtensions = (
+    placeholder: string,
+    uploadPlaceholderMessages: UploadPlaceholderMessages
+) => [
     Document,
     Paragraph,
     Text,
@@ -55,7 +59,7 @@ export const getEditorExtensions = (placeholder: string) => [
     History,
     Dropcursor,
     Gapcursor,
-    UploadPlaceholderNode,
+    UploadPlaceholderNode.configure(uploadPlaceholderMessages),
     CustomImage,
     Link.configure({ openOnClick: false }),
     Placeholder.configure({ placeholder }),

@@ -34,9 +34,9 @@ const budgets = [
     {
         entries: ['src/island.tsx'],
         label: 'on-demand island runtime',
-        maxInitialFiles: 12,
+        maxInitialFiles: 13,
         maxInitialBytes: 235 * 1024,
-        maxInitialGzipBytes: 77 * 1024,
+        maxInitialGzipBytes: 78 * 1024,
         allowedInitialNames: [
             'src/island.tsx',
             'rolldown-runtime',
@@ -44,11 +44,13 @@ const budgets = [
             'react',
             'compiler-runtime',
             'react-dom',
+            'dist', // @lingui/react runtime
             'shim',
             'IsRestoringProvider',
             'mutation',
             'QueryClientProvider',
             'preload-helper',
+            'i18n',
             'locale'
         ],
         blockedHints: [
@@ -88,14 +90,14 @@ const budgets = [
     {
         entries: ['src/island.tsx', 'src/components/remotes/SettingsApp/index.tsx'],
         label: 'settings island experience',
-        maxInitialBytes: 476 * 1024,
+        maxInitialBytes: 480 * 1024,
         maxInitialGzipBytes: 163 * 1024
     },
     {
         entries: ['src/island.tsx', 'src/components/remotes/PostEditor/index.ts'],
         label: 'post editor island experience',
-        maxInitialBytes: 1340 * 1024,
-        maxInitialGzipBytes: 435 * 1024
+        maxInitialBytes: 1350 * 1024,
+        maxInitialGzipBytes: 437 * 1024
     },
     {
         entries: ['src/island.tsx', 'src/components/remotes/Comments/index.ts'],
