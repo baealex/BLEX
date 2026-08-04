@@ -4,6 +4,7 @@ from datetime import timedelta
 
 from django.contrib.auth.models import User
 from django.utils import timezone
+from django.utils.translation import gettext
 
 from board.models import DeveloperRequestLog, DeveloperToken
 from board.services.authoring_permission_service import AuthoringPermissionService
@@ -46,14 +47,16 @@ class DeveloperTokenService:
         if invalid_scopes:
             raise DeveloperAuthError(
                 'token.invalid_scope',
-                f'지원하지 않는 scope입니다: {", ".join(sorted(invalid_scopes))}',
+                gettext('Unsupported scopes: %(scopes)s') % {
+                    'scopes': ', '.join(sorted(invalid_scopes)),
+                },
                 400,
             )
 
         if not scopes:
             raise DeveloperAuthError(
                 'token.invalid_scope',
-                '최소 하나의 scope가 필요합니다.',
+                gettext('At least one scope is required.'),
                 400,
             )
 
@@ -62,12 +65,12 @@ class DeveloperTokenService:
     @staticmethod
     def validate_user_can_create_token(user, scopes):
         if not user.is_authenticated or not user.is_active:
-            raise DeveloperAuthError('auth.need_login', '로그인이 필요합니다.', 401)
+            raise DeveloperAuthError('auth.need_login', gettext('Login required.'), 401)
 
         if not AuthoringPermissionService.is_active_editor(user):
             raise DeveloperAuthError(
                 'token.permission_denied',
-                '개발자 API는 작가 권한이 필요합니다.',
+                gettext('The Developer API requires author access.'),
                 403,
             )
 
@@ -81,14 +84,16 @@ class DeveloperTokenService:
         except (TypeError, ValueError):
             raise DeveloperAuthError(
                 'token.invalid_expiry',
-                'expires_in_days는 숫자여야 합니다.',
+                gettext('expires_in_days must be a number.'),
                 400,
             )
 
         if expires_in_days <= 0 or expires_in_days > DeveloperTokenService.MAX_EXPIRES_DAYS:
             raise DeveloperAuthError(
                 'token.invalid_expiry',
-                f'expires_in_days는 1에서 {DeveloperTokenService.MAX_EXPIRES_DAYS} 사이여야 합니다.',
+                gettext('expires_in_days must be between 1 and %(max_days)s.') % {
+                    'max_days': DeveloperTokenService.MAX_EXPIRES_DAYS,
+                },
                 400,
             )
 
@@ -108,7 +113,7 @@ class DeveloperTokenService:
 
         raise DeveloperAuthError(
             'token.prefix_collision',
-            '토큰 prefix 생성에 실패했습니다. 다시 시도해주세요.',
+            gettext('Could not generate a token prefix. Try again.'),
             500,
         )
 
@@ -137,7 +142,7 @@ class DeveloperTokenService:
         if scheme.lower() != 'bearer' or not raw_token:
             raise DeveloperAuthError(
                 'auth.missing_token',
-                'Bearer 토큰이 필요합니다.',
+                gettext('A Bearer token is required.'),
                 401,
             )
 
@@ -149,7 +154,7 @@ class DeveloperTokenService:
         if not raw_token.startswith(token_start):
             raise DeveloperAuthError(
                 'auth.invalid_token',
-                '유효하지 않은 토큰입니다.',
+                gettext('Invalid token.'),
                 401,
             )
 
@@ -158,7 +163,7 @@ class DeveloperTokenService:
         if not token_prefix or not secret:
             raise DeveloperAuthError(
                 'auth.invalid_token',
-                '유효하지 않은 토큰입니다.',
+                gettext('Invalid token.'),
                 401,
             )
 
@@ -178,35 +183,35 @@ class DeveloperTokenService:
         except DeveloperToken.DoesNotExist:
             raise DeveloperAuthError(
                 'auth.invalid_token',
-                '유효하지 않은 토큰입니다.',
+                gettext('Invalid token.'),
                 401,
             )
 
         if not secrets.compare_digest(token.token_hash, token_hash):
             raise DeveloperAuthError(
                 'auth.invalid_token',
-                '유효하지 않은 토큰입니다.',
+                gettext('Invalid token.'),
                 401,
             )
 
         if not token.is_valid():
             raise DeveloperAuthError(
                 'auth.invalid_token',
-                '만료되었거나 폐기된 토큰입니다.',
+                gettext('This token has expired or been revoked.'),
                 401,
             )
 
         if not token.user.is_active:
             raise DeveloperAuthError(
                 'auth.inactive_user',
-                '비활성 사용자입니다.',
+                gettext('This user is inactive.'),
                 401,
             )
 
         if not AuthoringPermissionService.is_active_editor(token.user):
             raise DeveloperAuthError(
                 'auth.editor_required',
-                '개발자 API는 작가 권한이 필요합니다.',
+                gettext('The Developer API requires author access.'),
                 403,
             )
 
@@ -223,7 +228,7 @@ class DeveloperTokenService:
         if not token.has_scope(scope):
             raise DeveloperAuthError(
                 'auth.insufficient_scope',
-                f'{scope} scope가 필요합니다.',
+                gettext('%(scope)s scope is required.') % {'scope': scope},
                 403,
             )
 

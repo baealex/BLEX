@@ -646,10 +646,21 @@ msgid "common.close"
 msgstr "Close"
 
 #. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/DeveloperApiSetting/DeveloperApiSetting.tsx:565
 #: src/components/remotes/SettingsApp/pages/IntegrationSetting/IntegrationSetting.tsx:263
 #: src/components/remotes/SettingsApp/pages/SeriesSetting/components/SeriesEditor.tsx:462
 msgid "common.copy"
 msgstr "Copy"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/DeveloperApiSetting/DeveloperApiSetting.tsx:368
+msgid "common.copy_failed"
+msgstr "Could not copy."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/DeveloperApiSetting/DeveloperApiSetting.tsx:363
+msgid "common.copy_success"
+msgstr "Copied."
 
 #. js-lingui-explicit-id
 #: src/components/remotes/Comments/components/CommentItem.tsx:78
@@ -733,6 +744,11 @@ msgstr "A network error occurred."
 #: src/components/remotes/PostEditor/utils/firstPublishTour.ts:106
 msgid "common.next"
 msgstr "Next"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/DeveloperApiSetting/DeveloperApiSetting.tsx:108
+msgid "common.none"
+msgstr "None"
 
 #. js-lingui-explicit-id
 #: src/components/remotes/SettingsApp/pages/PostsSetting/components/Pagination.tsx:54
@@ -2646,6 +2662,244 @@ msgstr "Telegram settings saved."
 #: src/components/remotes/SettingsApp/pages/AdminIntegrationSetting/AdminIntegrationSetting.tsx:161
 msgid "settings.admin.telegram.title"
 msgstr "Telegram"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/DeveloperApiSetting/DeveloperApiSetting.tsx:585
+msgid "settings.developer_api.active.description"
+msgstr "Review tokens that can currently be used and revoke them whenever needed."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/DeveloperApiSetting/DeveloperApiSetting.tsx:592
+msgid "settings.developer_api.active.empty"
+msgstr "There are no active tokens. Create one above when you need it."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/DeveloperApiSetting/DeveloperApiSetting.tsx:580
+msgid "settings.developer_api.active.title"
+msgstr "Active tokens ({count})"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/DeveloperApiSetting/DeveloperApiSetting.tsx:533
+msgid "settings.developer_api.create.action"
+msgstr "Create token"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/DeveloperApiSetting/DeveloperApiSetting.tsx:532
+msgid "settings.developer_api.create.creating"
+msgstr "Creating…"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/DeveloperApiSetting/DeveloperApiSetting.tsx:434
+msgid "settings.developer_api.create.description"
+msgstr "Choose a name, permissions, and expiration period for each external tool."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/DeveloperApiSetting/DeveloperApiSetting.tsx:282
+msgid "settings.developer_api.create.error"
+msgstr "An error occurred while creating the token."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/DeveloperApiSetting/DeveloperApiSetting.tsx:264
+msgid "settings.developer_api.create.failed"
+msgstr "Could not create the token."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/DeveloperApiSetting/DeveloperApiSetting.tsx:276
+msgid "settings.developer_api.create.success"
+msgstr "Developer API token created."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/DeveloperApiSetting/DeveloperApiSetting.tsx:430
+msgid "settings.developer_api.create.title"
+msgstr "Create a token"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/DeveloperApiSetting/DeveloperApiSetting.tsx:546
+msgid "settings.developer_api.created.description"
+msgstr "The full value is shown only once on this screen."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/DeveloperApiSetting/DeveloperApiSetting.tsx:542
+msgid "settings.developer_api.created.title"
+msgstr "Copy your token now"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/DeveloperApiSetting/DeveloperApiSetting.tsx:570
+msgid "settings.developer_api.created.warning"
+msgstr "You cannot view it again after refreshing or leaving this screen. If it is lost or exposed, revoke it below and create a new one immediately."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/DeveloperApiSetting/DeveloperApiSetting.tsx:184
+msgid "settings.developer_api.date.created"
+msgstr "Created"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/DeveloperApiSetting/DeveloperApiSetting.tsx:191
+msgid "settings.developer_api.date.expires"
+msgstr "Expires"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/DeveloperApiSetting/DeveloperApiSetting.tsx:198
+msgid "settings.developer_api.date.last_used"
+msgstr "Last used"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/DeveloperApiSetting/DeveloperApiSetting.tsx:410
+msgid "settings.developer_api.description"
+msgstr "Create and manage personal API tokens that let external tools read or write your posts."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/DeveloperApiSetting/DeveloperApiSetting.tsx:423
+msgid "settings.developer_api.docs"
+msgstr "API docs"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/DeveloperApiSetting/DeveloperApiSetting.tsx:495
+msgid "settings.developer_api.form.expiration_days"
+msgstr "Expires in (days)"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/DeveloperApiSetting/DeveloperApiSetting.tsx:504
+msgid "settings.developer_api.form.expiration_help"
+msgstr "Choose a value from 1 to 365 days."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/DeveloperApiSetting/DeveloperApiSetting.tsx:442
+msgid "settings.developer_api.form.name"
+msgstr "Token name"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/DeveloperApiSetting/DeveloperApiSetting.tsx:452
+msgid "settings.developer_api.form.name_help"
+msgstr "Use a name that will help you identify it later."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/DeveloperApiSetting/DeveloperApiSetting.tsx:448
+msgid "settings.developer_api.form.name_placeholder"
+msgstr "For example: Personal automation, Raycast, deploy script"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/DeveloperApiSetting/DeveloperApiSetting.tsx:462
+msgid "settings.developer_api.form.permissions"
+msgstr "Permissions"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/DeveloperApiSetting/DeveloperApiSetting.tsx:465
+msgid "settings.developer_api.form.permissions_help"
+msgstr "Select only the permissions this tool needs."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/DeveloperApiSetting/DeveloperApiSetting.tsx:608
+msgid "settings.developer_api.inactive.title"
+msgstr "Expired and revoked ({count})"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/DeveloperApiSetting/DeveloperApiSetting.tsx:245
+msgid "settings.developer_api.load_failed"
+msgstr "Could not load developer API tokens."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/DeveloperApiSetting/DeveloperApiSetting.tsx:419
+msgid "settings.developer_api.quickstart"
+msgstr "Quickstart"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/DeveloperApiSetting/DeveloperApiSetting.tsx:216
+#: src/components/remotes/SettingsApp/pages/DeveloperApiSetting/DeveloperApiSetting.tsx:386
+msgid "settings.developer_api.revoke.action"
+msgstr "Revoke"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/DeveloperApiSetting/DeveloperApiSetting.tsx:310
+msgid "settings.developer_api.revoke.error"
+msgstr "An error occurred while revoking the token."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/DeveloperApiSetting/DeveloperApiSetting.tsx:296
+msgid "settings.developer_api.revoke.failed"
+msgstr "Could not revoke the token."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/DeveloperApiSetting/DeveloperApiSetting.tsx:381
+msgid "settings.developer_api.revoke.message"
+msgstr "Revoke \"{name}\"? A revoked token cannot be used again."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/DeveloperApiSetting/DeveloperApiSetting.tsx:304
+msgid "settings.developer_api.revoke.success"
+msgstr "Developer API token revoked."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/DeveloperApiSetting/DeveloperApiSetting.tsx:377
+msgid "settings.developer_api.revoke.title"
+msgstr "Revoke API token"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/DeveloperApiSetting/DeveloperApiSetting.tsx:481
+msgid "settings.developer_api.scope.author_required"
+msgstr "Author access is required."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/DeveloperApiSetting/DeveloperApiSetting.tsx:53
+msgid "settings.developer_api.scope.posts_read.description"
+msgstr "View your post list and post details."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/DeveloperApiSetting/DeveloperApiSetting.tsx:49
+#: src/components/remotes/SettingsApp/pages/DeveloperApiSetting/DeveloperApiSetting.tsx:119
+msgid "settings.developer_api.scope.posts_read.label"
+msgstr "Read posts"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/DeveloperApiSetting/DeveloperApiSetting.tsx:64
+msgid "settings.developer_api.scope.posts_write.description"
+msgstr "Create, edit, and publish your posts."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/DeveloperApiSetting/DeveloperApiSetting.tsx:60
+#: src/components/remotes/SettingsApp/pages/DeveloperApiSetting/DeveloperApiSetting.tsx:125
+msgid "settings.developer_api.scope.posts_write.label"
+msgstr "Write posts"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/DeveloperApiSetting/DeveloperApiSetting.tsx:516
+msgid "settings.developer_api.security_notice"
+msgstr "The full token is shown only once, immediately after creation. Grant the minimum permissions, choose the shortest useful lifetime, and store it securely."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/DeveloperApiSetting/DeveloperApiSetting.tsx:145
+msgid "settings.developer_api.status.active"
+msgstr "Active"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/DeveloperApiSetting/DeveloperApiSetting.tsx:140
+msgid "settings.developer_api.status.expired"
+msgstr "Expired"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/DeveloperApiSetting/DeveloperApiSetting.tsx:134
+msgid "settings.developer_api.status.revoked"
+msgstr "Revoked"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/DeveloperApiSetting/DeveloperApiSetting.tsx:406
+msgid "settings.developer_api.title"
+msgstr "Developer API"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/DeveloperApiSetting/DeveloperApiSetting.tsx:345
+msgid "settings.developer_api.validation.expiry_range"
+msgstr "Enter an expiration period between 1 and 365 days."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/DeveloperApiSetting/DeveloperApiSetting.tsx:328
+msgid "settings.developer_api.validation.name_required"
+msgstr "Enter a token name."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/DeveloperApiSetting/DeveloperApiSetting.tsx:336
+msgid "settings.developer_api.validation.scope_required"
+msgstr "Select at least one permission."
 
 #. js-lingui-explicit-id
 #: src/components/remotes/SettingsApp/pages/FormsSetting/FormsSetting.tsx:215
