@@ -645,6 +645,7 @@ msgid "common.close"
 msgstr "닫기"
 
 #. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/IntegrationSetting/IntegrationSetting.tsx:263
 #: src/components/remotes/SettingsApp/pages/SeriesSetting/components/SeriesEditor.tsx:462
 msgid "common.copy"
 msgstr "복사"
@@ -721,6 +722,7 @@ msgstr "더 보기"
 #: src/components/remotes/SettingsApp/pages/FormsSetting/FormsSetting.tsx:111
 #: src/components/remotes/SettingsApp/pages/FormsSetting/FormsSetting.tsx:144
 #: src/components/remotes/SettingsApp/pages/FormsSetting/FormsSetting.tsx:192
+#: src/components/remotes/SettingsApp/pages/IntegrationSetting/IntegrationSetting.tsx:113
 msgid "common.network_error"
 msgstr "네트워크 오류가 발생했습니다."
 
@@ -790,6 +792,7 @@ msgstr "저장"
 
 #. js-lingui-explicit-id
 #: src/components/remotes/Comments/components/CommentEditForm.tsx:76
+#: src/components/remotes/SettingsApp/pages/AdminIntegrationSetting/AdminIntegrationSetting.tsx:289
 msgid "common.saving"
 msgstr "저장 중"
 
@@ -2563,6 +2566,83 @@ msgstr "사용자 필명은 30자 이내여야 합니다."
 #: src/components/remotes/SettingsApp/pages/AccountSetting/components/UsernameSection.tsx:24
 msgid "settings.account.username.validation.min_length"
 msgstr "사용자 필명은 3자 이상이어야 합니다."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/AdminIntegrationSetting/AdminIntegrationSetting.tsx:168
+msgid "settings.admin.telegram.bot.title"
+msgstr "봇 설정"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/AdminIntegrationSetting/AdminIntegrationSetting.tsx:268
+msgid "settings.admin.telegram.bot.token.clear_description"
+msgstr "삭제 후 텔레그램을 계속 사용하려면 새 봇 토큰을 입력해야 합니다."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/AdminIntegrationSetting/AdminIntegrationSetting.tsx:264
+msgid "settings.admin.telegram.bot.token.clear_label"
+msgstr "저장된 텔레그램 봇 토큰 삭제"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/AdminIntegrationSetting/AdminIntegrationSetting.tsx:248
+msgid "settings.admin.telegram.bot.token.helper"
+msgstr "새 값을 입력하지 않으면 기존 토큰을 유지합니다."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/AdminIntegrationSetting/AdminIntegrationSetting.tsx:237
+msgid "settings.admin.telegram.bot.token.keep_placeholder"
+msgstr "저장된 값 유지"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/AdminIntegrationSetting/AdminIntegrationSetting.tsx:224
+msgid "settings.admin.telegram.bot.token.label"
+msgstr "봇 토큰"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/AdminIntegrationSetting/AdminIntegrationSetting.tsx:217
+msgid "settings.admin.telegram.bot.username.helper"
+msgstr "@ 없이 입력해도 됩니다."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/AdminIntegrationSetting/AdminIntegrationSetting.tsx:203
+msgid "settings.admin.telegram.bot.username.label"
+msgstr "봇 사용자명"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/AdminIntegrationSetting/AdminIntegrationSetting.tsx:183
+msgid "settings.admin.telegram.enabled.description"
+msgstr "켜면 사용자가 텔레그램을 연결하고 주요 알림을 받을 수 있습니다."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/AdminIntegrationSetting/AdminIntegrationSetting.tsx:177
+#: src/components/remotes/SettingsApp/pages/AdminIntegrationSetting/AdminIntegrationSetting.tsx:193
+msgid "settings.admin.telegram.enabled.label"
+msgstr "텔레그램 사용"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/AdminIntegrationSetting/AdminIntegrationSetting.tsx:91
+msgid "settings.admin.telegram.load_failed"
+msgstr "텔레그램 설정을 불러오지 못했습니다."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/AdminIntegrationSetting/AdminIntegrationSetting.tsx:293
+msgid "settings.admin.telegram.save"
+msgstr "텔레그램 설정 저장"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/AdminIntegrationSetting/AdminIntegrationSetting.tsx:114
+#: src/components/remotes/SettingsApp/pages/AdminIntegrationSetting/AdminIntegrationSetting.tsx:130
+msgid "settings.admin.telegram.save_failed"
+msgstr "텔레그램 설정 저장에 실패했습니다."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/AdminIntegrationSetting/AdminIntegrationSetting.tsx:124
+msgid "settings.admin.telegram.save_success"
+msgstr "텔레그램 설정이 저장되었습니다."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/AdminIntegrationSetting/AdminIntegrationSetting.tsx:161
+msgid "settings.admin.telegram.title"
+msgstr "텔레그램"
 
 #. js-lingui-explicit-id
 #: src/components/remotes/SettingsApp/pages/FormsSetting/FormsSetting.tsx:215
@@ -4437,3 +4517,119 @@ msgstr "모든 소셜 링크의 플랫폼을 선택해 주세요."
 #: src/components/remotes/SettingsApp/pages/SocialLinksSetting/SocialLinksSetting.tsx:378
 msgid "settings.social_links.validation.url_required"
 msgstr "모든 소셜 링크의 주소를 입력해 주세요."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/IntegrationSetting/IntegrationSetting.tsx:146
+msgid "settings.telegram.description"
+msgstr "텔레그램 봇과 연동하여 실시간 알림을 받아보세요."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/IntegrationSetting/IntegrationSetting.tsx:81
+#: src/components/remotes/SettingsApp/pages/IntegrationSetting/IntegrationSetting.tsx:204
+msgid "settings.telegram.disconnect.action"
+msgstr "연동 해제"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/IntegrationSetting/IntegrationSetting.tsx:101
+msgid "settings.telegram.disconnect.already"
+msgstr "이미 연동이 해제된 상태입니다."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/IntegrationSetting/IntegrationSetting.tsx:200
+msgid "settings.telegram.disconnect.disconnecting"
+msgstr "해제 중..."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/IntegrationSetting/IntegrationSetting.tsx:107
+msgid "settings.telegram.disconnect.failed"
+msgstr "연동 해제에 실패했습니다."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/IntegrationSetting/IntegrationSetting.tsx:77
+msgid "settings.telegram.disconnect.message"
+msgstr "텔레그램 연동을 해제할까요?"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/IntegrationSetting/IntegrationSetting.tsx:94
+msgid "settings.telegram.disconnect.success"
+msgstr "텔레그램 연동이 해제되었습니다."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/IntegrationSetting/IntegrationSetting.tsx:73
+msgid "settings.telegram.disconnect.title"
+msgstr "텔레그램 연동 해제"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/IntegrationSetting/IntegrationSetting.tsx:226
+msgid "settings.telegram.instructions.find_bot"
+msgstr "텔레그램 앱에서 <0>@{botUsername}<1/></0>을 찾아 대화를 시작하세요."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/IntegrationSetting/IntegrationSetting.tsx:247
+msgid "settings.telegram.instructions.send_code"
+msgstr "봇에게 아래 인증 코드를 전송하세요."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/IntegrationSetting/IntegrationSetting.tsx:215
+msgid "settings.telegram.instructions.title"
+msgstr "연동 방법"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/IntegrationSetting/IntegrationSetting.tsx:33
+msgid "settings.telegram.load_failed"
+msgstr "텔레그램 연동 정보를 불러오지 못했습니다."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/IntegrationSetting/IntegrationSetting.tsx:169
+msgid "settings.telegram.status.connected"
+msgstr "연동 완료"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/IntegrationSetting/IntegrationSetting.tsx:180
+msgid "settings.telegram.status.connected_description"
+msgstr "텔레그램으로 실시간 알림을 받을 수 있습니다."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/IntegrationSetting/IntegrationSetting.tsx:173
+msgid "settings.telegram.status.paused"
+msgstr "알림 전송 일시 중지"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/IntegrationSetting/IntegrationSetting.tsx:184
+msgid "settings.telegram.status.paused_description"
+msgstr "텔레그램 알림 전송이 현재 중지되어 있습니다."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/IntegrationSetting/IntegrationSetting.tsx:154
+msgid "settings.telegram.status.title"
+msgstr "연동 상태"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/IntegrationSetting/IntegrationSetting.tsx:142
+msgid "settings.telegram.title"
+msgstr "텔레그램 연동"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/IntegrationSetting/IntegrationSetting.tsx:292
+msgid "settings.telegram.token.expiration"
+msgstr "이 코드는 일회용이며 연동 완료 또는 24시간 후 자동으로 만료됩니다. 연동 후 페이지를 새로고침하세요."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/IntegrationSetting/IntegrationSetting.tsx:280
+msgid "settings.telegram.token.generate"
+msgstr "인증 코드 생성"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/IntegrationSetting/IntegrationSetting.tsx:62
+msgid "settings.telegram.token.generate_error"
+msgstr "인증 코드를 생성하는 중 오류가 발생했습니다."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/IntegrationSetting/IntegrationSetting.tsx:55
+msgid "settings.telegram.token.generate_failed"
+msgstr "인증 코드 생성에 실패했습니다."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/IntegrationSetting/IntegrationSetting.tsx:276
+msgid "settings.telegram.token.generating"
+msgstr "생성 중..."

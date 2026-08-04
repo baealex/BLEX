@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: BLEX 3.1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-08-05 03:04+0900\n"
+"POT-Creation-Date: 2026-08-05 03:17+0900\n"
 "PO-Revision-Date: 2026-07-18 00:00+0900\n"
 "Last-Translator: BLEX contributors\n"
 "Language-Team: Korean\n"
@@ -390,6 +390,14 @@ msgstr "댓글 삭제 권한이 없습니다."
 #: board/services/comment_service.py:189
 msgid "You cannot like your own comment."
 msgstr "자신의 댓글은 추천할 수 없습니다."
+
+#: board/services/integration_setting_service.py:121
+msgid "Enter a Telegram bot username."
+msgstr "텔레그램 봇 사용자명을 입력해주세요."
+
+#: board/services/integration_setting_service.py:125
+msgid "Enter a Telegram bot token."
+msgstr "텔레그램 봇 토큰을 입력해주세요."
 
 #: board/services/post_revision_service.py:173
 msgid "The revision to restore could not be found."
@@ -1594,6 +1602,26 @@ msgstr "시리즈 순서가 변경되었습니다."
 #: board/views/api/v1/series.py:362
 msgid "Series deleted."
 msgstr "시리즈가 삭제되었습니다."
+
+#: board/views/api/v1/telegram.py:38
+msgid "Telegram connected successfully."
+msgstr "정상적으로 연동되었습니다."
+
+#: board/views/api/v1/telegram.py:46
+msgid "This token has expired. Try connecting again from the website."
+msgstr "기간이 만료된 토큰입니다. 홈페이지에서 연동을 다시 시도하십시오."
+
+#: board/views/api/v1/telegram.py:51
+msgid "Explore more from BLEX!"
+msgstr "블렉스의 다양한 정보를 살펴보세요!"
+
+#: board/views/api/v1/telegram.py:67
+msgid "The Telegram bot is not configured."
+msgstr "텔레그램 봇이 설정되지 않았습니다."
+
+#: board/views/api/v1/telegram.py:105
+msgid "Telegram is already disconnected."
+msgstr "이미 연동이 해제되었습니다."
 
 #: board/views/author.py:287
 msgid "Author-defined order"

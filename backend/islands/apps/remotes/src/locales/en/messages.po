@@ -645,6 +645,7 @@ msgid "common.close"
 msgstr "Close"
 
 #. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/IntegrationSetting/IntegrationSetting.tsx:263
 #: src/components/remotes/SettingsApp/pages/SeriesSetting/components/SeriesEditor.tsx:462
 msgid "common.copy"
 msgstr "Copy"
@@ -721,6 +722,7 @@ msgstr "Load more"
 #: src/components/remotes/SettingsApp/pages/FormsSetting/FormsSetting.tsx:111
 #: src/components/remotes/SettingsApp/pages/FormsSetting/FormsSetting.tsx:144
 #: src/components/remotes/SettingsApp/pages/FormsSetting/FormsSetting.tsx:192
+#: src/components/remotes/SettingsApp/pages/IntegrationSetting/IntegrationSetting.tsx:113
 msgid "common.network_error"
 msgstr "A network error occurred."
 
@@ -790,6 +792,7 @@ msgstr "Save"
 
 #. js-lingui-explicit-id
 #: src/components/remotes/Comments/components/CommentEditForm.tsx:76
+#: src/components/remotes/SettingsApp/pages/AdminIntegrationSetting/AdminIntegrationSetting.tsx:289
 msgid "common.saving"
 msgstr "Saving"
 
@@ -2563,6 +2566,83 @@ msgstr "Username must be 30 characters or fewer."
 #: src/components/remotes/SettingsApp/pages/AccountSetting/components/UsernameSection.tsx:24
 msgid "settings.account.username.validation.min_length"
 msgstr "Username must be at least 3 characters."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/AdminIntegrationSetting/AdminIntegrationSetting.tsx:168
+msgid "settings.admin.telegram.bot.title"
+msgstr "Bot settings"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/AdminIntegrationSetting/AdminIntegrationSetting.tsx:268
+msgid "settings.admin.telegram.bot.token.clear_description"
+msgstr "Enter a new bot token to keep using Telegram after deletion."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/AdminIntegrationSetting/AdminIntegrationSetting.tsx:264
+msgid "settings.admin.telegram.bot.token.clear_label"
+msgstr "Delete saved Telegram bot token"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/AdminIntegrationSetting/AdminIntegrationSetting.tsx:248
+msgid "settings.admin.telegram.bot.token.helper"
+msgstr "Leave this blank to keep the existing token."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/AdminIntegrationSetting/AdminIntegrationSetting.tsx:237
+msgid "settings.admin.telegram.bot.token.keep_placeholder"
+msgstr "Keep saved value"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/AdminIntegrationSetting/AdminIntegrationSetting.tsx:224
+msgid "settings.admin.telegram.bot.token.label"
+msgstr "Bot token"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/AdminIntegrationSetting/AdminIntegrationSetting.tsx:217
+msgid "settings.admin.telegram.bot.username.helper"
+msgstr "You can enter it without the @ symbol."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/AdminIntegrationSetting/AdminIntegrationSetting.tsx:203
+msgid "settings.admin.telegram.bot.username.label"
+msgstr "Bot username"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/AdminIntegrationSetting/AdminIntegrationSetting.tsx:183
+msgid "settings.admin.telegram.enabled.description"
+msgstr "Allow users to connect Telegram and receive important notifications."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/AdminIntegrationSetting/AdminIntegrationSetting.tsx:177
+#: src/components/remotes/SettingsApp/pages/AdminIntegrationSetting/AdminIntegrationSetting.tsx:193
+msgid "settings.admin.telegram.enabled.label"
+msgstr "Enable Telegram"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/AdminIntegrationSetting/AdminIntegrationSetting.tsx:91
+msgid "settings.admin.telegram.load_failed"
+msgstr "Could not load Telegram settings."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/AdminIntegrationSetting/AdminIntegrationSetting.tsx:293
+msgid "settings.admin.telegram.save"
+msgstr "Save Telegram settings"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/AdminIntegrationSetting/AdminIntegrationSetting.tsx:114
+#: src/components/remotes/SettingsApp/pages/AdminIntegrationSetting/AdminIntegrationSetting.tsx:130
+msgid "settings.admin.telegram.save_failed"
+msgstr "Could not save Telegram settings."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/AdminIntegrationSetting/AdminIntegrationSetting.tsx:124
+msgid "settings.admin.telegram.save_success"
+msgstr "Telegram settings saved."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/AdminIntegrationSetting/AdminIntegrationSetting.tsx:161
+msgid "settings.admin.telegram.title"
+msgstr "Telegram"
 
 #. js-lingui-explicit-id
 #: src/components/remotes/SettingsApp/pages/FormsSetting/FormsSetting.tsx:215
@@ -4437,3 +4517,119 @@ msgstr "Select a platform for every social link."
 #: src/components/remotes/SettingsApp/pages/SocialLinksSetting/SocialLinksSetting.tsx:378
 msgid "settings.social_links.validation.url_required"
 msgstr "Enter a URL for every social link."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/IntegrationSetting/IntegrationSetting.tsx:146
+msgid "settings.telegram.description"
+msgstr "Connect the Telegram bot to receive notifications in real time."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/IntegrationSetting/IntegrationSetting.tsx:81
+#: src/components/remotes/SettingsApp/pages/IntegrationSetting/IntegrationSetting.tsx:204
+msgid "settings.telegram.disconnect.action"
+msgstr "Disconnect"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/IntegrationSetting/IntegrationSetting.tsx:101
+msgid "settings.telegram.disconnect.already"
+msgstr "Telegram is already disconnected."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/IntegrationSetting/IntegrationSetting.tsx:200
+msgid "settings.telegram.disconnect.disconnecting"
+msgstr "Disconnecting..."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/IntegrationSetting/IntegrationSetting.tsx:107
+msgid "settings.telegram.disconnect.failed"
+msgstr "Could not disconnect Telegram."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/IntegrationSetting/IntegrationSetting.tsx:77
+msgid "settings.telegram.disconnect.message"
+msgstr "Disconnect your Telegram account?"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/IntegrationSetting/IntegrationSetting.tsx:94
+msgid "settings.telegram.disconnect.success"
+msgstr "Telegram disconnected."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/IntegrationSetting/IntegrationSetting.tsx:73
+msgid "settings.telegram.disconnect.title"
+msgstr "Disconnect Telegram"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/IntegrationSetting/IntegrationSetting.tsx:226
+msgid "settings.telegram.instructions.find_bot"
+msgstr "In Telegram, find <0>@{botUsername}<1/></0> and start a chat."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/IntegrationSetting/IntegrationSetting.tsx:247
+msgid "settings.telegram.instructions.send_code"
+msgstr "Send the verification code below to the bot."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/IntegrationSetting/IntegrationSetting.tsx:215
+msgid "settings.telegram.instructions.title"
+msgstr "How to connect"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/IntegrationSetting/IntegrationSetting.tsx:33
+msgid "settings.telegram.load_failed"
+msgstr "Could not load Telegram integration details."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/IntegrationSetting/IntegrationSetting.tsx:169
+msgid "settings.telegram.status.connected"
+msgstr "Connected"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/IntegrationSetting/IntegrationSetting.tsx:180
+msgid "settings.telegram.status.connected_description"
+msgstr "You can receive real-time notifications in Telegram."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/IntegrationSetting/IntegrationSetting.tsx:173
+msgid "settings.telegram.status.paused"
+msgstr "Notifications paused"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/IntegrationSetting/IntegrationSetting.tsx:184
+msgid "settings.telegram.status.paused_description"
+msgstr "Telegram notification delivery is currently paused."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/IntegrationSetting/IntegrationSetting.tsx:154
+msgid "settings.telegram.status.title"
+msgstr "Connection status"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/IntegrationSetting/IntegrationSetting.tsx:142
+msgid "settings.telegram.title"
+msgstr "Telegram integration"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/IntegrationSetting/IntegrationSetting.tsx:292
+msgid "settings.telegram.token.expiration"
+msgstr "This one-time code expires after you connect or after 24 hours. Refresh the page after connecting."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/IntegrationSetting/IntegrationSetting.tsx:280
+msgid "settings.telegram.token.generate"
+msgstr "Generate verification code"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/IntegrationSetting/IntegrationSetting.tsx:62
+msgid "settings.telegram.token.generate_error"
+msgstr "An error occurred while generating the verification code."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/IntegrationSetting/IntegrationSetting.tsx:55
+msgid "settings.telegram.token.generate_failed"
+msgstr "Could not generate a verification code."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/IntegrationSetting/IntegrationSetting.tsx:276
+msgid "settings.telegram.token.generating"
+msgstr "Generating..."

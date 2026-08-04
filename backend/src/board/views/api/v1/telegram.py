@@ -1,5 +1,6 @@
 from django.http import Http404
 from django.utils import timezone
+from django.utils.translation import gettext
 
 from board.models import TelegramSync
 from board.modules.response import StatusDone, StatusError, ErrorCode
@@ -34,7 +35,7 @@ def telegram(request, parameter):
                         SubTaskProcessor.process(
                             bot.send_message,
                             req_userid,
-                            '정상적으로 연동되었습니다.',
+                            gettext('Telegram connected successfully.'),
                         )
                     else:
                         telegram_sync.auth_token = ''
@@ -42,12 +43,12 @@ def telegram(request, parameter):
                         SubTaskProcessor.process(
                             bot.send_message,
                             req_userid,
-                            '기간이 만료된 토큰입니다. 홈페이지에서 연동을 다시 시도하십시오.',
+                            gettext('This token has expired. Try connecting again from the website.'),
                         )
 
             except:
                 if req_userid:
-                    message = '블렉스 다양한 정보를 살펴보세요!\n\n' + SiteUrlService.configured_absolute_url('/notion')
+                    message = gettext('Explore more from BLEX!') + '\n\n' + SiteUrlService.configured_absolute_url('/notion')
                     SubTaskProcessor.process(
                         bot.send_message,
                         req_userid,
@@ -61,7 +62,10 @@ def telegram(request, parameter):
                 return StatusError(ErrorCode.NEED_LOGIN)
 
             if not IntegrationSettingService.is_telegram_configured():
-                return StatusError(ErrorCode.NEED_TELEGRAM, '텔레그램 봇이 설정되지 않았습니다.')
+                return StatusError(
+                    ErrorCode.NEED_TELEGRAM,
+                    gettext('The Telegram bot is not configured.'),
+                )
 
             token = randstr(6)
             has_token = TelegramSync.objects.filter(auth_token=token)
@@ -96,6 +100,9 @@ def telegram(request, parameter):
                 if not telegramsync.tid == '':
                     telegramsync.delete()
                     return StatusDone()
-            return StatusError(ErrorCode.ALREADY_DISCONNECTED, '이미 연동이 해제되었습니다.')
+            return StatusError(
+                ErrorCode.ALREADY_DISCONNECTED,
+                gettext('Telegram is already disconnected.'),
+            )
 
     raise Http404

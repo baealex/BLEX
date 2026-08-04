@@ -645,6 +645,7 @@ msgid "common.close"
 msgstr ""
 
 #. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/IntegrationSetting/IntegrationSetting.tsx:263
 #: src/components/remotes/SettingsApp/pages/SeriesSetting/components/SeriesEditor.tsx:462
 msgid "common.copy"
 msgstr ""
@@ -721,6 +722,7 @@ msgstr ""
 #: src/components/remotes/SettingsApp/pages/FormsSetting/FormsSetting.tsx:111
 #: src/components/remotes/SettingsApp/pages/FormsSetting/FormsSetting.tsx:144
 #: src/components/remotes/SettingsApp/pages/FormsSetting/FormsSetting.tsx:192
+#: src/components/remotes/SettingsApp/pages/IntegrationSetting/IntegrationSetting.tsx:113
 msgid "common.network_error"
 msgstr ""
 
@@ -790,6 +792,7 @@ msgstr ""
 
 #. js-lingui-explicit-id
 #: src/components/remotes/Comments/components/CommentEditForm.tsx:76
+#: src/components/remotes/SettingsApp/pages/AdminIntegrationSetting/AdminIntegrationSetting.tsx:289
 msgid "common.saving"
 msgstr ""
 
@@ -2562,6 +2565,83 @@ msgstr ""
 #. js-lingui-explicit-id
 #: src/components/remotes/SettingsApp/pages/AccountSetting/components/UsernameSection.tsx:24
 msgid "settings.account.username.validation.min_length"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/AdminIntegrationSetting/AdminIntegrationSetting.tsx:168
+msgid "settings.admin.telegram.bot.title"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/AdminIntegrationSetting/AdminIntegrationSetting.tsx:268
+msgid "settings.admin.telegram.bot.token.clear_description"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/AdminIntegrationSetting/AdminIntegrationSetting.tsx:264
+msgid "settings.admin.telegram.bot.token.clear_label"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/AdminIntegrationSetting/AdminIntegrationSetting.tsx:248
+msgid "settings.admin.telegram.bot.token.helper"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/AdminIntegrationSetting/AdminIntegrationSetting.tsx:237
+msgid "settings.admin.telegram.bot.token.keep_placeholder"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/AdminIntegrationSetting/AdminIntegrationSetting.tsx:224
+msgid "settings.admin.telegram.bot.token.label"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/AdminIntegrationSetting/AdminIntegrationSetting.tsx:217
+msgid "settings.admin.telegram.bot.username.helper"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/AdminIntegrationSetting/AdminIntegrationSetting.tsx:203
+msgid "settings.admin.telegram.bot.username.label"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/AdminIntegrationSetting/AdminIntegrationSetting.tsx:183
+msgid "settings.admin.telegram.enabled.description"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/AdminIntegrationSetting/AdminIntegrationSetting.tsx:177
+#: src/components/remotes/SettingsApp/pages/AdminIntegrationSetting/AdminIntegrationSetting.tsx:193
+msgid "settings.admin.telegram.enabled.label"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/AdminIntegrationSetting/AdminIntegrationSetting.tsx:91
+msgid "settings.admin.telegram.load_failed"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/AdminIntegrationSetting/AdminIntegrationSetting.tsx:293
+msgid "settings.admin.telegram.save"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/AdminIntegrationSetting/AdminIntegrationSetting.tsx:114
+#: src/components/remotes/SettingsApp/pages/AdminIntegrationSetting/AdminIntegrationSetting.tsx:130
+msgid "settings.admin.telegram.save_failed"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/AdminIntegrationSetting/AdminIntegrationSetting.tsx:124
+msgid "settings.admin.telegram.save_success"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/AdminIntegrationSetting/AdminIntegrationSetting.tsx:161
+msgid "settings.admin.telegram.title"
 msgstr ""
 
 #. js-lingui-explicit-id
@@ -4432,4 +4512,120 @@ msgstr ""
 #. js-lingui-explicit-id
 #: src/components/remotes/SettingsApp/pages/SocialLinksSetting/SocialLinksSetting.tsx:378
 msgid "settings.social_links.validation.url_required"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/IntegrationSetting/IntegrationSetting.tsx:146
+msgid "settings.telegram.description"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/IntegrationSetting/IntegrationSetting.tsx:81
+#: src/components/remotes/SettingsApp/pages/IntegrationSetting/IntegrationSetting.tsx:204
+msgid "settings.telegram.disconnect.action"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/IntegrationSetting/IntegrationSetting.tsx:101
+msgid "settings.telegram.disconnect.already"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/IntegrationSetting/IntegrationSetting.tsx:200
+msgid "settings.telegram.disconnect.disconnecting"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/IntegrationSetting/IntegrationSetting.tsx:107
+msgid "settings.telegram.disconnect.failed"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/IntegrationSetting/IntegrationSetting.tsx:77
+msgid "settings.telegram.disconnect.message"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/IntegrationSetting/IntegrationSetting.tsx:94
+msgid "settings.telegram.disconnect.success"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/IntegrationSetting/IntegrationSetting.tsx:73
+msgid "settings.telegram.disconnect.title"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/IntegrationSetting/IntegrationSetting.tsx:226
+msgid "settings.telegram.instructions.find_bot"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/IntegrationSetting/IntegrationSetting.tsx:247
+msgid "settings.telegram.instructions.send_code"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/IntegrationSetting/IntegrationSetting.tsx:215
+msgid "settings.telegram.instructions.title"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/IntegrationSetting/IntegrationSetting.tsx:33
+msgid "settings.telegram.load_failed"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/IntegrationSetting/IntegrationSetting.tsx:169
+msgid "settings.telegram.status.connected"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/IntegrationSetting/IntegrationSetting.tsx:180
+msgid "settings.telegram.status.connected_description"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/IntegrationSetting/IntegrationSetting.tsx:173
+msgid "settings.telegram.status.paused"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/IntegrationSetting/IntegrationSetting.tsx:184
+msgid "settings.telegram.status.paused_description"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/IntegrationSetting/IntegrationSetting.tsx:154
+msgid "settings.telegram.status.title"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/IntegrationSetting/IntegrationSetting.tsx:142
+msgid "settings.telegram.title"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/IntegrationSetting/IntegrationSetting.tsx:292
+msgid "settings.telegram.token.expiration"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/IntegrationSetting/IntegrationSetting.tsx:280
+msgid "settings.telegram.token.generate"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/IntegrationSetting/IntegrationSetting.tsx:62
+msgid "settings.telegram.token.generate_error"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/IntegrationSetting/IntegrationSetting.tsx:55
+msgid "settings.telegram.token.generate_failed"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/IntegrationSetting/IntegrationSetting.tsx:276
+msgid "settings.telegram.token.generating"
 msgstr ""

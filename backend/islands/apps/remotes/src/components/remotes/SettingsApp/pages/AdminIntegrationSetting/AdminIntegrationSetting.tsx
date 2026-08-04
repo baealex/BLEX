@@ -1,4 +1,5 @@
 import { type FormEvent, useEffect, useRef, useState } from 'react';
+import { useLingui } from '@lingui/react/macro';
 import { useMutation, useQueryClient, useSuspenseQuery } from '@tanstack/react-query';
 import { Check, Send } from '@blex/ui/icons';
 import { Toggle } from '@blex/ui/toggle';
@@ -76,6 +77,7 @@ const hasIntegrationSettingsChanged = (
 };
 
 const AdminIntegrationSetting = () => {
+    const { t } = useLingui();
     const queryClient = useQueryClient();
     const hasHydratedFormRef = useRef(false);
     const savedIntegrationSettingsRef = useRef<SavedIntegrationSettingsForm | null>(null);
@@ -86,7 +88,10 @@ const AdminIntegrationSetting = () => {
             if (data.status === 'DONE') {
                 return data.body;
             }
-            throw new Error('텔레그램 설정을 불러오는데 실패했습니다.');
+            throw new Error(data.errorMessage || t({
+                id: 'settings.admin.telegram.load_failed',
+                message: 'Could not load Telegram settings.'
+            }));
         }
     });
 
@@ -106,17 +111,26 @@ const AdminIntegrationSetting = () => {
     const updateMutation = useMutation({
         mutationFn: async (data: IntegrationSettingUpdateData) => {
             const response = await updateIntegrationSettings(data);
-            return assertDone(response, '텔레그램 설정 저장에 실패했습니다.');
+            return assertDone(response, t({
+                id: 'settings.admin.telegram.save_failed',
+                message: 'Could not save Telegram settings.'
+            }));
         },
         onSuccess: (body: IntegrationSettingData) => {
             const integrationSettingsForm = toIntegrationSettingsForm(body);
             setIntegrationSettings(integrationSettingsForm);
             savedIntegrationSettingsRef.current = toSavedIntegrationSettingsForm(integrationSettingsForm);
             void queryClient.invalidateQueries({ queryKey: ['integration-settings'] });
-            toast.success('텔레그램 설정이 저장되었습니다.');
+            toast.success(t({
+                id: 'settings.admin.telegram.save_success',
+                message: 'Telegram settings saved.'
+            }));
         },
         onError: (error) => {
-            toast.error(getErrorMessage(error, '텔레그램 설정 저장에 실패했습니다.'));
+            toast.error(getErrorMessage(error, t({
+                id: 'settings.admin.telegram.save_failed',
+                message: 'Could not save Telegram settings.'
+            })));
         }
     });
 
@@ -143,31 +157,53 @@ const AdminIntegrationSetting = () => {
 
     return (
         <form className="space-y-8" onSubmit={handleSave} autoComplete="off">
-            <SettingsHeader title="텔레그램" />
+            <SettingsHeader
+                title={t({
+                    id: 'settings.admin.telegram.title',
+                    message: 'Telegram'
+                })}
+            />
 
             <Card
-                title="봇 설정"
+                title={t({
+                    id: 'settings.admin.telegram.bot.title',
+                    message: 'Bot settings'
+                })}
                 icon={<Send aria-hidden="true" className="h-4 w-4" />}>
                 <div className="space-y-5">
                     <div className="flex items-start justify-between gap-4 border-b border-line pb-5">
                         <div className="min-w-0 flex-1">
-                            <div className="text-sm font-semibold text-content">텔레그램 사용</div>
+                            <div className="text-sm font-semibold text-content">
+                                {t({
+                                    id: 'settings.admin.telegram.enabled.label',
+                                    message: 'Enable Telegram'
+                                })}
+                            </div>
                             <p className="mt-1 text-xs leading-relaxed text-content-secondary">
-                                켜면 사용자가 텔레그램을 연결하고 주요 알림을 받을 수 있습니다.
+                                {t({
+                                    id: 'settings.admin.telegram.enabled.description',
+                                    message: 'Allow users to connect Telegram and receive important notifications.'
+                                })}
                             </p>
                         </div>
                         <Toggle
                             checked={integrationSettings.telegramEnabled}
                             disabled={updateMutation.isPending}
                             onCheckedChange={(checked) => updateIntegrationSettingsForm({ telegramEnabled: checked })}
-                            aria-label="텔레그램 사용"
+                            aria-label={t({
+                                id: 'settings.admin.telegram.enabled.label',
+                                message: 'Enable Telegram'
+                            })}
                         />
                     </div>
 
                     <div className="grid gap-4 md:grid-cols-2">
                         <Input
                             density="compact"
-                            label="봇 사용자명"
+                            label={t({
+                                id: 'settings.admin.telegram.bot.username.label',
+                                message: 'Bot username'
+                            })}
                             name="blex_telegram_bot_public_value"
                             autoComplete="off"
                             autoCorrect="off"
@@ -178,11 +214,17 @@ const AdminIntegrationSetting = () => {
                             placeholder="your_bot"
                             value={integrationSettings.telegramBotUsername}
                             onChange={(event) => updateIntegrationSettingsForm({ telegramBotUsername: event.target.value })}
-                            helperText="@ 없이 입력해도 됩니다."
+                            helperText={t({
+                                id: 'settings.admin.telegram.bot.username.helper',
+                                message: 'You can enter it without the @ symbol.'
+                            })}
                         />
                         <Input
                             density="compact"
-                            label="봇 토큰"
+                            label={t({
+                                id: 'settings.admin.telegram.bot.token.label',
+                                message: 'Bot token'
+                            })}
                             type="password"
                             name="blex_telegram_bot_private_value"
                             autoComplete="new-password"
@@ -191,13 +233,23 @@ const AdminIntegrationSetting = () => {
                             data-1p-ignore="true"
                             data-bwignore="true"
                             data-lpignore="true"
-                            placeholder={integrationSettings.telegramHasBotToken ? '저장된 값 유지' : 'Telegram Bot Token'}
+                            placeholder={integrationSettings.telegramHasBotToken
+                                ? t({
+                                    id: 'settings.admin.telegram.bot.token.keep_placeholder',
+                                    message: 'Keep saved value'
+                                })
+                                : 'Telegram Bot Token'}
                             value={integrationSettings.telegramBotToken}
                             onChange={(event) => updateIntegrationSettingsForm({
                                 telegramBotToken: event.target.value,
                                 clearTelegramBotToken: false
                             })}
-                            helperText={integrationSettings.telegramHasBotToken ? '새 값을 입력하지 않으면 기존 토큰을 유지합니다.' : undefined}
+                            helperText={integrationSettings.telegramHasBotToken
+                                ? t({
+                                    id: 'settings.admin.telegram.bot.token.helper',
+                                    message: 'Leave this blank to keep the existing token.'
+                                })
+                                : undefined}
                         />
                     </div>
 
@@ -209,8 +261,14 @@ const AdminIntegrationSetting = () => {
                                 clearTelegramBotToken: checked,
                                 telegramBotToken: checked ? '' : integrationSettings.telegramBotToken
                             })}
-                            label="저장된 텔레그램 봇 토큰 삭제"
-                            description="삭제 후 텔레그램을 계속 사용하려면 새 봇 토큰을 입력해야 합니다."
+                            label={t({
+                                id: 'settings.admin.telegram.bot.token.clear_label',
+                                message: 'Delete saved Telegram bot token'
+                            })}
+                            description={t({
+                                id: 'settings.admin.telegram.bot.token.clear_description',
+                                message: 'Enter a new bot token to keep using Telegram after deletion.'
+                            })}
                         />
                     )}
                 </div>
@@ -227,7 +285,15 @@ const AdminIntegrationSetting = () => {
                     leftIcon={!updateMutation.isPending
                         ? <Check aria-hidden="true" className="h-4 w-4" />
                         : undefined}>
-                    {updateMutation.isPending ? '저장 중...' : '텔레그램 설정 저장'}
+                    {updateMutation.isPending
+                        ? t({
+                            id: 'common.saving',
+                            message: 'Saving'
+                        })
+                        : t({
+                            id: 'settings.admin.telegram.save',
+                            message: 'Save Telegram settings'
+                        })}
                 </Button>
             </div>
         </form>

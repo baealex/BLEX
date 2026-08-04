@@ -4,6 +4,7 @@ from typing import TYPE_CHECKING
 
 from cryptography.fernet import InvalidToken
 from django.apps import apps
+from django.utils.translation import gettext
 
 from modules.cipher import decrypt_value, encrypt_value
 
@@ -116,6 +117,10 @@ class IntegrationSettingService:
             return
 
         if not setting.telegram_bot_username.strip():
-            raise IntegrationSettingConfigurationError('텔레그램 봇 사용자명을 입력해주세요.')
+            raise IntegrationSettingConfigurationError(
+                gettext('Enter a Telegram bot username.')
+            )
         if not cls.decrypt_secret(setting.telegram_bot_token):
-            raise IntegrationSettingConfigurationError('텔레그램 봇 토큰을 입력해주세요.')
+            raise IntegrationSettingConfigurationError(
+                gettext('Enter a Telegram bot token.')
+            )
