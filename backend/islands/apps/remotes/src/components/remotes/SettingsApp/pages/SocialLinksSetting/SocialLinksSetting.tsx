@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import type { DragEndEvent } from '@dnd-kit/core';
+import { Trans, useLingui } from '@lingui/react/macro';
 import {
     DndContext,
     closestCenter,
@@ -68,6 +69,7 @@ const getPlatformIcon = (name: string): LucideIcon => {
 };
 
 const SocialLinkItem = ({ social, index, onRemove, onChange }: SocialLinkItemProps) => {
+    const { i18n, t } = useLingui();
     const {
         attributes,
         listeners,
@@ -83,44 +85,86 @@ const SocialLinkItem = ({ social, index, onRemove, onChange }: SocialLinkItemPro
 
     const platformOptions = [
         {
-            label: '아이콘 선택',
+            label: t({
+                id: 'settings.social_links.platform.select',
+                message: 'Select platform'
+            }),
             value: ''
         },
         {
-            label: '깃허브',
+            label: t({
+                id: 'settings.social_links.platform.github',
+                message: 'GitHub'
+            }),
             value: 'github'
         },
         {
-            label: '트위터',
+            label: t({
+                id: 'settings.social_links.platform.twitter',
+                message: 'Twitter'
+            }),
             value: 'twitter'
         },
         {
-            label: '페이스북',
+            label: t({
+                id: 'settings.social_links.platform.facebook',
+                message: 'Facebook'
+            }),
             value: 'facebook'
         },
         {
-            label: '텔레그램',
+            label: t({
+                id: 'settings.social_links.platform.telegram',
+                message: 'Telegram'
+            }),
             value: 'telegram'
         },
         {
-            label: '인스타그램',
+            label: t({
+                id: 'settings.social_links.platform.instagram',
+                message: 'Instagram'
+            }),
             value: 'instagram'
         },
         {
-            label: '링크드인',
+            label: t({
+                id: 'settings.social_links.platform.linkedin',
+                message: 'LinkedIn'
+            }),
             value: 'linkedin'
         },
         {
-            label: '유튜브',
+            label: t({
+                id: 'settings.social_links.platform.youtube',
+                message: 'YouTube'
+            }),
             value: 'youtube'
         },
         {
-            label: '기타',
+            label: t({
+                id: 'settings.social_links.platform.other',
+                message: 'Other'
+            }),
             value: 'other'
         }
     ];
 
     const currentPlatform = platformOptions.find(opt => opt.value === social.name);
+    const socialLinkLabel = t({
+        id: 'settings.social_links.item.label',
+        message: 'Social link'
+    });
+    const currentPlatformLabel = currentPlatform?.label || socialLinkLabel;
+    const reorderLabel = i18n._({
+        id: 'settings.social_links.item.reorder',
+        message: 'Change order of social link {position}',
+        values: { position: index + 1 }
+    });
+    const removeLabel = i18n._({
+        id: 'settings.social_links.item.remove',
+        message: 'Remove {platform}',
+        values: { platform: currentPlatformLabel }
+    });
     const PlatformIcon = getPlatformIcon(social.name);
     const platformInputId = `social-platform-${social.id}`;
     const linkInputId = `social-link-${social.id}`;
@@ -128,7 +172,7 @@ const SocialLinkItem = ({ social, index, onRemove, onChange }: SocialLinkItemPro
     return (
         <div ref={setNodeRef} style={style} className="mb-4">
             <div className="bg-surface border border-line rounded-2xl transition-all duration-300 group overflow-hidden">
-                {/* 헤더 영역 - 모든 화면 크기에서 표시 */}
+                {/* Mobile item header */}
                 <div className="flex items-center justify-between p-4 sm:hidden bg-surface-subtle border-b border-line/60">
                     <div className="flex items-center gap-3">
                         <div
@@ -136,36 +180,38 @@ const SocialLinkItem = ({ social, index, onRemove, onChange }: SocialLinkItemPro
                             style={{ touchAction: 'none' }}
                             {...attributes}
                             {...listeners}
-                            aria-label={`소셜 링크 ${index + 1} 순서 변경`}>
+                            aria-label={reorderLabel}>
                             <GripVertical aria-hidden="true" className="h-4 w-4" />
                         </div>
                         <div className="w-8 h-8 flex items-center justify-center bg-surface rounded-lg shadow-sm">
                             <PlatformIcon aria-hidden="true" className="h-4 w-4 text-content-secondary" />
                         </div>
-                        <span className="text-sm font-medium text-content">소셜 링크</span>
+                        <span className="text-sm font-medium text-content">
+                            <Trans id="settings.social_links.item.label">Social link</Trans>
+                        </span>
                     </div>
                     <button
                         type="button"
-                        aria-label={`${currentPlatform?.label || '소셜 링크'} 삭제`}
+                        aria-label={removeLabel}
                         className="flex min-h-11 min-w-11 items-center justify-center rounded-lg text-content-hint transition-all duration-200 hover:bg-surface-subtle hover:text-content-secondary"
                         onClick={() => onRemove(social.id)}>
                         <X aria-hidden="true" className="h-4 w-4" />
                     </button>
                 </div>
 
-                {/* 메인 컨텐츠 영역 */}
+                {/* Item controls */}
                 <div className="p-4 flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-3">
-                    {/* 드래그 핸들 - 데스크톱에서만 표시 */}
+                    {/* Desktop drag handle */}
                     <div
                         className="hidden min-h-11 min-w-11 flex-shrink-0 cursor-grab items-center justify-center rounded-lg text-content-hint transition-colors hover:bg-surface-subtle hover:text-content-secondary group-hover:text-content-secondary active:cursor-grabbing sm:flex [@media(pointer:fine)]:min-h-9 [@media(pointer:fine)]:min-w-9"
                         style={{ touchAction: 'none' }}
                         {...attributes}
                         {...listeners}
-                        aria-label={`소셜 링크 ${index + 1} 순서 변경`}>
+                        aria-label={reorderLabel}>
                         <GripVertical aria-hidden="true" className="h-4 w-4" />
                     </div>
 
-                    {/* 아이콘 - 데스크톱에서만 표시 */}
+                    {/* Desktop platform icon */}
                     <div className="hidden sm:flex w-10 h-10 items-center justify-center bg-gradient-to-br from-surface-subtle to-surface-subtle rounded-lg shadow-sm group-hover:from-surface-subtle group-hover:to-surface-subtle transition-all duration-200 flex-shrink-0">
                         <PlatformIcon
                             aria-hidden="true"
@@ -173,15 +219,17 @@ const SocialLinkItem = ({ social, index, onRemove, onChange }: SocialLinkItemPro
                         />
                     </div>
 
-                    {/* 플랫폼 선택 */}
+                    {/* Platform selector */}
                     <div className="w-full sm:w-44 flex-shrink-0">
-                        <label htmlFor={platformInputId} className="block text-xs font-medium text-content-secondary mb-2 sm:hidden">플랫폼 선택</label>
+                        <label htmlFor={platformInputId} className="block text-xs font-medium text-content-secondary mb-2 sm:hidden">
+                            <Trans id="settings.social_links.platform.label">Platform</Trans>
+                        </label>
                         <Dropdown
                             density="compact"
                             trigger={
                                 <button id={platformInputId} type="button" className={`${settingsCompactSelectTriggerStyles} flex items-center justify-between`}>
                                     <span className={!social.name ? 'text-content-hint' : 'text-content'}>
-                                        {currentPlatform?.label || '아이콘 선택'}
+                                        {currentPlatform?.label || platformOptions[0].label}
                                     </span>
                                     <ChevronDown aria-hidden="true" className="h-4 w-4 text-content-hint" />
                                 </button>
@@ -195,9 +243,11 @@ const SocialLinkItem = ({ social, index, onRemove, onChange }: SocialLinkItemPro
                         />
                     </div>
 
-                    {/* 링크 주소 */}
+                    {/* Link URL */}
                     <div className="flex-1">
-                        <label htmlFor={linkInputId} className="block text-xs font-medium text-content-secondary mb-2 sm:hidden">링크 주소</label>
+                        <label htmlFor={linkInputId} className="block text-xs font-medium text-content-secondary mb-2 sm:hidden">
+                            <Trans id="settings.social_links.url.label">Link URL</Trans>
+                        </label>
                         <Input
                             id={linkInputId}
                             type="url"
@@ -208,10 +258,10 @@ const SocialLinkItem = ({ social, index, onRemove, onChange }: SocialLinkItemPro
                         />
                     </div>
 
-                    {/* 삭제 버튼 - 데스크톱에서만 표시 */}
+                    {/* Desktop remove button */}
                     <button
                         type="button"
-                        aria-label={`${currentPlatform?.label || '소셜 링크'} 삭제`}
+                        aria-label={removeLabel}
                         className="hidden min-h-11 min-w-11 flex-shrink-0 items-center justify-center rounded-lg text-content-hint transition-all duration-200 hover:bg-surface-subtle hover:text-content-secondary group/btn sm:flex [@media(pointer:fine)]:min-h-9 [@media(pointer:fine)]:min-w-9"
                         onClick={() => onRemove(social.id)}>
                         <X
@@ -226,6 +276,7 @@ const SocialLinkItem = ({ social, index, onRemove, onChange }: SocialLinkItemPro
 };
 
 const SocialLinks = () => {
+    const { t } = useLingui();
     const [socials, setSocials] = useState<SocialLink[]>([]);
     const [originalSocials, setOriginalSocials] = useState<SocialLink[]>([]);
     const [isLoading, setIsLoading] = useState(false);
@@ -241,7 +292,10 @@ const SocialLinks = () => {
             if (data.status === 'DONE') {
                 return data.body.social || [];
             }
-            throw new Error('소셜 링크 정보를 불러오는데 실패했습니다.');
+            throw new Error(t({
+                id: 'settings.social_links.load_failed',
+                message: 'Could not load social links.'
+            }));
         }
     });
 
@@ -312,25 +366,37 @@ const SocialLinks = () => {
 
         try {
             if (socials.some((social) => !social.name)) {
-                toast.error('소셜 아이콘을 모두 선택해주세요.');
+                toast.error(t({
+                    id: 'settings.social_links.validation.platform_required',
+                    message: 'Select a platform for every social link.'
+                }));
                 setIsLoading(false);
                 return;
             }
 
             if (socials.some((social) => !social.value)) {
-                toast.error('소셜 주소를 모두 입력해주세요.');
+                toast.error(t({
+                    id: 'settings.social_links.validation.url_required',
+                    message: 'Enter a URL for every social link.'
+                }));
                 setIsLoading(false);
                 return;
             }
 
             if (socials.some((social) => !social.value.startsWith('https://'))) {
-                toast.error('소셜 주소는 https:// 로 시작해야 합니다.');
+                toast.error(t({
+                    id: 'settings.social_links.validation.https_required',
+                    message: 'Social link URLs must start with https://.'
+                }));
                 setIsLoading(false);
                 return;
             }
 
             if (socials.some((social) => social.value.includes(',') || social.value.includes('&'))) {
-                toast.error('소셜 주소에는 , 와 & 를 포함할 수 없습니다.');
+                toast.error(t({
+                    id: 'settings.social_links.validation.forbidden_separators',
+                    message: 'Social link URLs cannot contain commas or ampersands.'
+                }));
                 setIsLoading(false);
                 return;
             }
@@ -338,7 +404,7 @@ const SocialLinks = () => {
             const updateItems = socials.filter((social) => !social.prepare);
             const createItems = socials.filter((social) => social.prepare);
 
-            // 삭제된 아이템들 찾기
+            // Find persisted items that were removed locally.
             const deletedItems = originalSocials.filter(
                 (original) => !socials.some((current) => current.id === original.id)
             );
@@ -350,7 +416,10 @@ const SocialLinks = () => {
             });
 
             if (data.status === 'DONE') {
-                toast.success('소셜 정보가 업데이트 되었습니다.');
+                toast.success(t({
+                    id: 'settings.social_links.update_success',
+                    message: 'Social links updated.'
+                }));
                 const updatedSocials = (data.body as SocialLink[]).map((social) => ({
                     ...social,
                     prepare: false
@@ -358,10 +427,16 @@ const SocialLinks = () => {
                 setSocials(updatedSocials);
                 setOriginalSocials(updatedSocials);
             } else {
-                toast.error('소셜 정보 업데이트에 실패했습니다.');
+                toast.error(data.errorMessage || t({
+                    id: 'settings.social_links.update_failed',
+                    message: 'Could not update social links.'
+                }));
             }
         } catch {
-            toast.error('소셜 정보 업데이트에 실패했습니다.');
+            toast.error(t({
+                id: 'settings.social_links.update_failed',
+                message: 'Could not update social links.'
+            }));
         } finally {
             setIsLoading(false);
         }
@@ -370,8 +445,14 @@ const SocialLinks = () => {
     return (
         <div>
             <SettingsHeader
-                title="소셜 링크"
-                description="프로필에 표시되며 드래그하여 순서를 조정할 수 있습니다."
+                title={t({
+                    id: 'settings.social_links.title',
+                    message: 'Social links'
+                })}
+                description={t({
+                    id: 'settings.social_links.description',
+                    message: 'Displayed on your profile. Drag to change the order.'
+                })}
             />
 
             <form onSubmit={handleSubmit}>
@@ -379,7 +460,10 @@ const SocialLinks = () => {
                     {socials.length === 0 ? (
                         <SettingsEmptyState
                             icon={<Share2 aria-hidden="true" className="h-5 w-5" />}
-                            title="소셜 링크가 없습니다"
+                            title={t({
+                                id: 'settings.social_links.empty',
+                                message: 'No social links yet'
+                            })}
                             action={(
                                 <Button
                                     density="compact"
@@ -388,7 +472,9 @@ const SocialLinks = () => {
                                     size="md"
                                     className="min-h-11! [@media(pointer:fine)]:min-h-10!"
                                     onClick={handleSocialAdd}>
-                                    소셜 링크 추가하기
+                                    <Trans id="settings.social_links.add_first">
+                                        Add a social link
+                                    </Trans>
                                 </Button>
                             )}
                         />
@@ -425,7 +511,7 @@ const SocialLinks = () => {
                             leftIcon={<Plus aria-hidden="true" className="h-4 w-4" />}
                             onClick={handleSocialAdd}
                             className="min-h-11! [@media(pointer:fine)]:min-h-10! sm:w-auto">
-                            링크 추가
+                            <Trans id="settings.social_links.add">Add link</Trans>
                         </Button>
                         <Button
                             density="compact"
@@ -435,7 +521,15 @@ const SocialLinks = () => {
                             isLoading={isLoading}
                             leftIcon={!isLoading ? <Save aria-hidden="true" className="h-4 w-4" /> : undefined}
                             className="min-h-11! [@media(pointer:fine)]:min-h-10! sm:w-auto">
-                            {isLoading ? '저장 중...' : '변경사항 저장'}
+                            {isLoading
+                                ? t({
+                                    id: 'settings.social_links.saving',
+                                    message: 'Saving...'
+                                })
+                                : t({
+                                    id: 'settings.social_links.save',
+                                    message: 'Save changes'
+                                })}
                         </Button>
                     </div>
                 )}

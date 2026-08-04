@@ -3178,3 +3178,145 @@ msgstr "Could not update the profile."
 #: src/components/remotes/SettingsApp/pages/ProfileSetting/ProfileSetting.tsx:123
 msgid "settings.profile.update_success"
 msgstr "Profile updated."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SocialLinksSetting/SocialLinksSetting.tsx:514
+msgid "settings.social_links.add"
+msgstr "Add link"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SocialLinksSetting/SocialLinksSetting.tsx:475
+msgid "settings.social_links.add_first"
+msgstr "Add a social link"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SocialLinksSetting/SocialLinksSetting.tsx:452
+msgid "settings.social_links.description"
+msgstr "Displayed on your profile. Drag to change the order."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SocialLinksSetting/SocialLinksSetting.tsx:463
+msgid "settings.social_links.empty"
+msgstr "No social links yet"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SocialLinksSetting/SocialLinksSetting.tsx:153
+#: src/components/remotes/SettingsApp/pages/SocialLinksSetting/SocialLinksSetting.tsx:190
+msgid "settings.social_links.item.label"
+msgstr "Social link"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SocialLinksSetting/SocialLinksSetting.tsx:163
+msgid "settings.social_links.item.remove"
+msgstr "Remove {platform}"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SocialLinksSetting/SocialLinksSetting.tsx:158
+msgid "settings.social_links.item.reorder"
+msgstr "Change order of social link {position}"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SocialLinksSetting/SocialLinksSetting.tsx:295
+msgid "settings.social_links.load_failed"
+msgstr "Could not load social links."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SocialLinksSetting/SocialLinksSetting.tsx:109
+msgid "settings.social_links.platform.facebook"
+msgstr "Facebook"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SocialLinksSetting/SocialLinksSetting.tsx:95
+msgid "settings.social_links.platform.github"
+msgstr "GitHub"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SocialLinksSetting/SocialLinksSetting.tsx:123
+msgid "settings.social_links.platform.instagram"
+msgstr "Instagram"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SocialLinksSetting/SocialLinksSetting.tsx:225
+msgid "settings.social_links.platform.label"
+msgstr "Platform"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SocialLinksSetting/SocialLinksSetting.tsx:130
+msgid "settings.social_links.platform.linkedin"
+msgstr "LinkedIn"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SocialLinksSetting/SocialLinksSetting.tsx:144
+msgid "settings.social_links.platform.other"
+msgstr "Other"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SocialLinksSetting/SocialLinksSetting.tsx:88
+msgid "settings.social_links.platform.select"
+msgstr "Select platform"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SocialLinksSetting/SocialLinksSetting.tsx:116
+msgid "settings.social_links.platform.telegram"
+msgstr "Telegram"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SocialLinksSetting/SocialLinksSetting.tsx:102
+msgid "settings.social_links.platform.twitter"
+msgstr "Twitter"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SocialLinksSetting/SocialLinksSetting.tsx:137
+msgid "settings.social_links.platform.youtube"
+msgstr "YouTube"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SocialLinksSetting/SocialLinksSetting.tsx:529
+msgid "settings.social_links.save"
+msgstr "Save changes"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SocialLinksSetting/SocialLinksSetting.tsx:525
+msgid "settings.social_links.saving"
+msgstr "Saving..."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SocialLinksSetting/SocialLinksSetting.tsx:448
+msgid "settings.social_links.title"
+msgstr "Social links"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SocialLinksSetting/SocialLinksSetting.tsx:430
+#: src/components/remotes/SettingsApp/pages/SocialLinksSetting/SocialLinksSetting.tsx:436
+msgid "settings.social_links.update_failed"
+msgstr "Could not update social links."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SocialLinksSetting/SocialLinksSetting.tsx:419
+msgid "settings.social_links.update_success"
+msgstr "Social links updated."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SocialLinksSetting/SocialLinksSetting.tsx:249
+msgid "settings.social_links.url.label"
+msgstr "Link URL"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SocialLinksSetting/SocialLinksSetting.tsx:396
+msgid "settings.social_links.validation.forbidden_separators"
+msgstr "Social link URLs cannot contain commas or ampersands."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SocialLinksSetting/SocialLinksSetting.tsx:387
+msgid "settings.social_links.validation.https_required"
+msgstr "Social link URLs must start with https://."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SocialLinksSetting/SocialLinksSetting.tsx:369
+msgid "settings.social_links.validation.platform_required"
+msgstr "Select a platform for every social link."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SocialLinksSetting/SocialLinksSetting.tsx:378
+msgid "settings.social_links.validation.url_required"
+msgstr "Enter a URL for every social link."

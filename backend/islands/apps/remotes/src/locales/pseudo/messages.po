@@ -3178,3 +3178,145 @@ msgstr ""
 #: src/components/remotes/SettingsApp/pages/ProfileSetting/ProfileSetting.tsx:123
 msgid "settings.profile.update_success"
 msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SocialLinksSetting/SocialLinksSetting.tsx:514
+msgid "settings.social_links.add"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SocialLinksSetting/SocialLinksSetting.tsx:475
+msgid "settings.social_links.add_first"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SocialLinksSetting/SocialLinksSetting.tsx:452
+msgid "settings.social_links.description"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SocialLinksSetting/SocialLinksSetting.tsx:463
+msgid "settings.social_links.empty"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SocialLinksSetting/SocialLinksSetting.tsx:153
+#: src/components/remotes/SettingsApp/pages/SocialLinksSetting/SocialLinksSetting.tsx:190
+msgid "settings.social_links.item.label"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SocialLinksSetting/SocialLinksSetting.tsx:163
+msgid "settings.social_links.item.remove"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SocialLinksSetting/SocialLinksSetting.tsx:158
+msgid "settings.social_links.item.reorder"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SocialLinksSetting/SocialLinksSetting.tsx:295
+msgid "settings.social_links.load_failed"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SocialLinksSetting/SocialLinksSetting.tsx:109
+msgid "settings.social_links.platform.facebook"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SocialLinksSetting/SocialLinksSetting.tsx:95
+msgid "settings.social_links.platform.github"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SocialLinksSetting/SocialLinksSetting.tsx:123
+msgid "settings.social_links.platform.instagram"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SocialLinksSetting/SocialLinksSetting.tsx:225
+msgid "settings.social_links.platform.label"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SocialLinksSetting/SocialLinksSetting.tsx:130
+msgid "settings.social_links.platform.linkedin"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SocialLinksSetting/SocialLinksSetting.tsx:144
+msgid "settings.social_links.platform.other"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SocialLinksSetting/SocialLinksSetting.tsx:88
+msgid "settings.social_links.platform.select"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SocialLinksSetting/SocialLinksSetting.tsx:116
+msgid "settings.social_links.platform.telegram"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SocialLinksSetting/SocialLinksSetting.tsx:102
+msgid "settings.social_links.platform.twitter"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SocialLinksSetting/SocialLinksSetting.tsx:137
+msgid "settings.social_links.platform.youtube"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SocialLinksSetting/SocialLinksSetting.tsx:529
+msgid "settings.social_links.save"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SocialLinksSetting/SocialLinksSetting.tsx:525
+msgid "settings.social_links.saving"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SocialLinksSetting/SocialLinksSetting.tsx:448
+msgid "settings.social_links.title"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SocialLinksSetting/SocialLinksSetting.tsx:430
+#: src/components/remotes/SettingsApp/pages/SocialLinksSetting/SocialLinksSetting.tsx:436
+msgid "settings.social_links.update_failed"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SocialLinksSetting/SocialLinksSetting.tsx:419
+msgid "settings.social_links.update_success"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SocialLinksSetting/SocialLinksSetting.tsx:249
+msgid "settings.social_links.url.label"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SocialLinksSetting/SocialLinksSetting.tsx:396
+msgid "settings.social_links.validation.forbidden_separators"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SocialLinksSetting/SocialLinksSetting.tsx:387
+msgid "settings.social_links.validation.https_required"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SocialLinksSetting/SocialLinksSetting.tsx:369
+msgid "settings.social_links.validation.platform_required"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SocialLinksSetting/SocialLinksSetting.tsx:378
+msgid "settings.social_links.validation.url_required"
+msgstr ""
