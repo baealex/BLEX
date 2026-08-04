@@ -1,4 +1,5 @@
 import { Dialog } from '@blex/ui/dialog';
+import { Trans, useLingui } from '@lingui/react/macro';
 import { Select } from '@blex/ui/select';
 import { IconButton } from '@blex/ui/icon-button';
 import { Toggle } from '@blex/ui/toggle';
@@ -23,9 +24,9 @@ import { cx } from '~/lib/classnames';
 import type { Series } from '../types';
 import SchedulePicker from './SchedulePicker';
 import {
-    COVER_LAYOUT_OPTIONS,
-    COVER_POSITION_ITEMS,
-    COVER_RATIO_ITEMS,
+    getCoverLayoutOptions,
+    getCoverPositionItems,
+    getCoverRatioItems,
     getCoverRatioClass,
     supportsCoverImagePosition,
     supportsCoverImageRatio
@@ -199,7 +200,11 @@ const SettingsDrawer = ({
     onPublishNow,
     pendingScheduleAction = null
 }: SettingsDrawerProps) => {
+    const { t } = useLingui();
     const canEditSchedule = !isEdit || isScheduled;
+    const coverLayoutOptions = getCoverLayoutOptions();
+    const coverPositionItems = getCoverPositionItems();
+    const coverRatioItems = getCoverRatioItems();
 
     return (
         <Dialog.Root open={isOpen} onOpenChange={(open) => !open && onClose()}>
@@ -220,10 +225,16 @@ const SettingsDrawer = ({
                     <div className="flex items-center justify-between px-6 py-5 border-b border-line">
                         <div className="flex items-center gap-3">
                             <SlidersHorizontal className="w-5 h-5 text-content-hint" />
-                            <Dialog.Title className="text-lg font-semibold text-content">게시 설정</Dialog.Title>
+                            <Dialog.Title className="text-lg font-semibold text-content">
+                                <Trans id="editor.settings.title">Post settings</Trans>
+                            </Dialog.Title>
                         </div>
                         <Dialog.Close asChild>
-                            <IconButton aria-label="닫기">
+                            <IconButton
+                                aria-label={t({
+                                    id: 'common.close',
+                                    message: 'Close'
+                                })}>
                                 <X className="w-5 h-5" />
                             </IconButton>
                         </Dialog.Close>
@@ -236,7 +247,7 @@ const SettingsDrawer = ({
                             <div>
                                 <h3 className="text-sm font-semibold text-content mb-4 flex items-center gap-2">
                                     <FileText className="w-4 h-4" />
-                                    발행 설정
+                                    <Trans id="editor.settings.publishing">Publishing</Trans>
                                 </h3>
                                 <div className="space-y-4">
                                     {canEditSchedule && (
@@ -245,10 +256,26 @@ const SettingsDrawer = ({
                                                 <Clock className="mt-0.5 h-4 w-4 text-content-hint" />
                                                 <div>
                                                     <div className="text-sm font-medium text-content">
-                                                        {isScheduled ? '예약 시간' : '예약 발행'}
+                                                        {isScheduled
+                                                            ? t({
+                                                                id: 'editor.schedule.scheduled_time',
+                                                                message: 'Scheduled time'
+                                                            })
+                                                            : t({
+                                                                id: 'editor.schedule.publish',
+                                                                message: 'Schedule publish'
+                                                            })}
                                                     </div>
                                                     <div className="text-xs text-content-secondary">
-                                                        {isScheduled ? '예약 포스트의 발행 시각을 변경합니다' : '비워두면 즉시 발행됩니다'}
+                                                        {isScheduled
+                                                            ? t({
+                                                                id: 'editor.schedule.edit_description',
+                                                                message: 'Change when this scheduled post will be published'
+                                                            })
+                                                            : t({
+                                                                id: 'editor.schedule.empty_description',
+                                                                message: 'Leave this empty to publish immediately'
+                                                            })}
                                                     </div>
                                                 </div>
                                             </div>
@@ -267,7 +294,7 @@ const SettingsDrawer = ({
                                                         disabled={pendingScheduleAction !== null}
                                                         isLoading={pendingScheduleAction === 'cancel'}
                                                         leftIcon={<CirclePause className="h-4 w-4" />}>
-                                                        예약 취소
+                                                        <Trans id="editor.schedule.cancel">Cancel schedule</Trans>
                                                     </Button>
                                                     <Button
                                                         type="button"
@@ -277,7 +304,7 @@ const SettingsDrawer = ({
                                                         disabled={pendingScheduleAction !== null}
                                                         isLoading={pendingScheduleAction === 'publish-now'}
                                                         leftIcon={<Send className="h-4 w-4" />}>
-                                                        지금 발행
+                                                        <Trans id="editor.schedule.publish_now">Publish now</Trans>
                                                     </Button>
                                                 </div>
                                             )}
@@ -289,16 +316,29 @@ const SettingsDrawer = ({
                                             <div className="flex min-w-0 flex-1 items-center gap-3">
                                                 <EyeOff className="w-4 h-4 text-content-hint" />
                                                 <div className="min-w-0">
-                                                    <div className="text-sm font-medium text-content">비공개</div>
+                                                    <div className="text-sm font-medium text-content">
+                                                        <Trans id="editor.settings.private">Private</Trans>
+                                                    </div>
                                                     <div className="text-xs text-content-secondary">
-                                                        {formData.hide ? '본인만 볼 수 있습니다' : '누구나 볼 수 있습니다'}
+                                                        {formData.hide
+                                                            ? t({
+                                                                id: 'editor.settings.private_description',
+                                                                message: 'Only you can view this post'
+                                                            })
+                                                            : t({
+                                                                id: 'editor.settings.public_description',
+                                                                message: 'Anyone can view this post'
+                                                            })}
                                                     </div>
                                                 </div>
                                             </div>
                                             <Toggle
                                                 checked={formData.hide}
                                                 onCheckedChange={(checked) => onFormDataChange('hide', checked)}
-                                                aria-label="비공개"
+                                                aria-label={t({
+                                                    id: 'editor.settings.private',
+                                                    message: 'Private'
+                                                })}
                                             />
                                         </div>
 
@@ -306,18 +346,29 @@ const SettingsDrawer = ({
                                             <div className="flex min-w-0 flex-1 items-center gap-3">
                                                 <MessageCircle className="w-4 h-4 text-content-hint" />
                                                 <div className="min-w-0">
-                                                    <div className="text-sm font-medium text-content">댓글 허용</div>
+                                                    <div className="text-sm font-medium text-content">
+                                                        <Trans id="editor.settings.allow_comments">Allow comments</Trans>
+                                                    </div>
                                                     <div className="text-xs text-content-secondary">
                                                         {formData.allowComments
-                                                            ? '독자가 새 댓글과 답글을 작성할 수 있습니다'
-                                                            : '기존 댓글은 유지하고 새 댓글과 답글을 막습니다'}
+                                                            ? t({
+                                                                id: 'editor.settings.comments_enabled_description',
+                                                                message: 'Readers can add new comments and replies'
+                                                            })
+                                                            : t({
+                                                                id: 'editor.settings.comments_disabled_description',
+                                                                message: 'Keep existing comments but prevent new comments and replies'
+                                                            })}
                                                     </div>
                                                 </div>
                                             </div>
                                             <Toggle
                                                 checked={formData.allowComments}
                                                 onCheckedChange={(checked) => onFormDataChange('allowComments', checked)}
-                                                aria-label="댓글 허용"
+                                                aria-label={t({
+                                                    id: 'editor.settings.allow_comments',
+                                                    message: 'Allow comments'
+                                                })}
                                             />
                                         </div>
 
@@ -325,14 +376,23 @@ const SettingsDrawer = ({
                                             <div className="flex min-w-0 flex-1 items-center gap-3">
                                                 <Megaphone className="w-4 h-4 text-content-hint" />
                                                 <div className="min-w-0">
-                                                    <div className="text-sm font-medium text-content">홍보·광고성 포스트</div>
-                                                    <div className="text-xs text-content-secondary">홍보나 광고가 포함된 글임을 표시합니다</div>
+                                                    <div className="text-sm font-medium text-content">
+                                                        <Trans id="editor.settings.promotional">Promotional content</Trans>
+                                                    </div>
+                                                    <div className="text-xs text-content-secondary">
+                                                        <Trans id="editor.settings.promotional_description">
+                                                            Mark this post as containing promotion or advertising
+                                                        </Trans>
+                                                    </div>
                                                 </div>
                                             </div>
                                             <Toggle
                                                 checked={formData.advertise}
                                                 onCheckedChange={(checked) => onFormDataChange('advertise', checked)}
-                                                aria-label="홍보·광고성 포스트"
+                                                aria-label={t({
+                                                    id: 'editor.settings.promotional',
+                                                    message: 'Promotional content'
+                                                })}
                                             />
                                         </div>
                                     </div>
@@ -345,11 +405,11 @@ const SettingsDrawer = ({
                             <div>
                                 <h3 className="text-sm font-semibold text-content mb-4 flex items-center gap-2">
                                     <Tags className="w-4 h-4" />
-                                    분류
+                                    <Trans id="editor.settings.classification">Classification</Trans>
                                 </h3>
                                 <div>
                                     <label className="block text-sm font-medium text-content mb-2">
-                                        시리즈
+                                        <Trans id="editor.settings.series">Series</Trans>
                                     </label>
                                     <Select
                                         value={selectedSeries.id}
@@ -368,14 +428,20 @@ const SettingsDrawer = ({
                                         items={[
                                             {
                                                 value: '',
-                                                label: '선택 안 함'
+                                                label: t({
+                                                    id: 'editor.settings.no_series',
+                                                    message: 'No series'
+                                                })
                                             },
                                             ...seriesList.map((series) => ({
                                                 value: series.id,
                                                 label: series.name
                                             }))
                                         ]}
-                                        placeholder="선택 안 함"
+                                        placeholder={t({
+                                            id: 'editor.settings.no_series',
+                                            message: 'No series'
+                                        })}
                                     />
                                 </div>
                             </div>
@@ -386,11 +452,11 @@ const SettingsDrawer = ({
                             <div>
                                 <h3 className="text-sm font-semibold text-content mb-4 flex items-center gap-2">
                                     <Image className="w-4 h-4" />
-                                    커버 스타일
+                                    <Trans id="editor.cover.style">Cover style</Trans>
                                 </h3>
                                 <div className="space-y-4">
                                     <div className="grid grid-cols-1 gap-2">
-                                        {COVER_LAYOUT_OPTIONS.map((option) => {
+                                        {coverLayoutOptions.map((option) => {
                                             const isActive = formData.coverLayout === option.value;
                                             return (
                                                 <button
@@ -423,12 +489,12 @@ const SettingsDrawer = ({
                                     {supportsCoverImagePosition(formData.coverLayout) && (
                                         <div>
                                             <label className="block text-sm font-medium text-content mb-2">
-                                                이미지 위치
+                                                <Trans id="editor.cover.image_position">Image position</Trans>
                                             </label>
                                             <Select
                                                 value={formData.coverImagePosition}
                                                 onValueChange={(value) => onFormDataChange('coverImagePosition', value)}
-                                                items={COVER_POSITION_ITEMS}
+                                                items={coverPositionItems}
                                             />
                                         </div>
                                     )}
@@ -436,12 +502,12 @@ const SettingsDrawer = ({
                                     {supportsCoverImageRatio(formData.coverLayout) && (
                                         <div>
                                             <label className="block text-sm font-medium text-content mb-2">
-                                                이미지 비율
+                                                <Trans id="editor.cover.image_ratio">Image ratio</Trans>
                                             </label>
                                             <Select
                                                 value={formData.coverImageRatio}
                                                 onValueChange={(value) => onFormDataChange('coverImageRatio', value)}
-                                                items={COVER_RATIO_ITEMS}
+                                                items={coverRatioItems}
                                             />
                                         </div>
                                     )}
@@ -454,20 +520,28 @@ const SettingsDrawer = ({
                             <div>
                                 <h3 className="text-sm font-semibold text-content mb-4 flex items-center gap-2">
                                     <Search className="w-4 h-4" />
-                                    검색 및 공유
+                                    <Trans id="editor.settings.search_and_sharing">Search and sharing</Trans>
                                 </h3>
                                 <div className="space-y-4">
                                     {!isEdit && (
                                         <div>
                                             <Input
                                                 id="drawer-url"
-                                                label="URL"
+                                                label={t({
+                                                    id: 'editor.fields.url',
+                                                    message: 'URL'
+                                                })}
                                                 value={url}
                                                 onChange={(e) => onUrlChange(e.target.value)}
-                                                placeholder="포스트-url"
+                                                placeholder={t({
+                                                    id: 'editor.fields.url_placeholder',
+                                                    message: 'post-url'
+                                                })}
                                             />
                                             <p className="text-xs text-content-hint mt-2">
-                                                이미 사용 중인 주소는 충돌하지 않도록 자동 조정됩니다
+                                                <Trans id="editor.fields.url_collision_hint">
+                                                    Addresses already in use are adjusted automatically to avoid conflicts
+                                                </Trans>
                                             </p>
                                         </div>
                                     )}
@@ -475,16 +549,26 @@ const SettingsDrawer = ({
                                     <div>
                                         <Input
                                             id="drawer-meta"
-                                            label="검색·공유 설명"
+                                            label={t({
+                                                id: 'editor.fields.meta_description',
+                                                message: 'Search and sharing description'
+                                            })}
                                             multiline
                                             rows={4}
                                             value={metaDescription}
                                             onChange={(e) => onMetaDescriptionChange(e.target.value)}
-                                            placeholder="포스트를 소개하는 설명을 입력하세요"
+                                            placeholder={t({
+                                                id: 'editor.fields.meta_description_placeholder',
+                                                message: 'Describe this post'
+                                            })}
                                             maxLength={150}
                                         />
                                         <div className="flex items-center justify-between mt-2">
-                                            <p className="text-xs text-content-hint">검색 결과와 공유 미리보기에 사용됩니다</p>
+                                            <p className="text-xs text-content-hint">
+                                                <Trans id="editor.fields.meta_description_hint">
+                                                    Used in search results and shared previews
+                                                </Trans>
+                                            </p>
                                             <p className={`text-xs font-medium ${metaDescription.length > 140 ? 'text-danger' : 'text-content-hint'}`}>
                                                 {metaDescription.length}/150
                                             </p>
@@ -505,7 +589,7 @@ const SettingsDrawer = ({
                                             onClick={onDelete}
                                             className="!text-danger hover:!text-danger hover:!bg-danger-surface !px-0"
                                             leftIcon={<Trash2 className="w-4 h-4" />}>
-                                            포스트 삭제
+                                            <Trans id="editor.actions.delete_post">Delete post</Trans>
                                         </Button>
                                     </div>
                                 </>
@@ -521,7 +605,7 @@ const SettingsDrawer = ({
                             variant="primary"
                             size="md"
                             fullWidth>
-                            완료
+                            <Trans id="common.done">Done</Trans>
                         </Button>
                     </div>
                 </Dialog.Content>

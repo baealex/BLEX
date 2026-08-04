@@ -3,6 +3,7 @@ import { describe, test } from 'node:test';
 
 import { formatPublishedDate } from '../src/i18n/formatters.ts';
 import { normalizeLocale } from '../src/i18n/locale.ts';
+import { formatScheduleDateTime } from '../src/components/remotes/PostEditor/utils/scheduleDate.ts';
 import { buildQueryCacheKey } from '../src/lib/query-cache-key.ts';
 import { normalizeLoginPromptAction } from '../src/utils/loginPrompt.ts';
 
@@ -38,6 +39,25 @@ describe('localized publication dates', () => {
         assert.match(english, /Jan/);
         assert.match(english, /2/);
         assert.equal(formatPublishedDate('2026-02-30', 'legacy', 'en'), 'legacy');
+    });
+
+    test('formats scheduled publication times with the selected UI locale', () => {
+        const value = '2026-01-02T15:30';
+        const date = new Date(value);
+        const options = {
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit',
+            hour: '2-digit',
+            minute: '2-digit'
+        };
+        const korean = formatScheduleDateTime('2026-01-02T15:30', 'ko');
+        const english = formatScheduleDateTime('2026-01-02T15:30', 'en');
+
+        assert.notEqual(korean, english);
+        assert.equal(korean, new Intl.DateTimeFormat('ko', options).format(date));
+        assert.equal(english, new Intl.DateTimeFormat('en', options).format(date));
+        assert.equal(formatScheduleDateTime('not-a-date', 'en'), 'not-a-date');
     });
 });
 

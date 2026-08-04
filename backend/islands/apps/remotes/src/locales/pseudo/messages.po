@@ -326,16 +326,23 @@ msgid "author.pinned_posts.modal_title"
 msgstr ""
 
 #. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/components/PostCoverEditor.tsx:158
+msgid "common.add"
+msgstr ""
+
+#. js-lingui-explicit-id
 #: src/components/remotes/PostEditor/components/PostRevisionDialog.tsx:606
 #: src/components/remotes/PostEditor/components/PostRevisionDialog.tsx:624
+#: src/components/remotes/PostEditor/components/PublishChecklist.tsx:139
 #: src/components/remotes/PostEditor/EditPostEditor.tsx:386
-#: src/components/remotes/PostEditor/NewPostEditor.tsx:393
+#: src/components/remotes/PostEditor/NewPostEditor.tsx:397
 #: src/components/remotes/SettingsApp/pages/PinnedPostsSetting/components/AddPinnedPostModal.tsx:220
 msgid "common.cancel"
 msgstr ""
 
 #. js-lingui-explicit-id
 #: src/components/remotes/PostEditor/components/DraftsPanel.tsx:121
+#: src/components/remotes/PostEditor/components/SettingsDrawer.tsx:234
 msgid "common.close"
 msgstr ""
 
@@ -343,6 +350,12 @@ msgstr ""
 #: src/components/remotes/PostEditor/components/PostRevisionDialog.tsx:614
 #: src/components/remotes/PostEditor/components/PostRevisionDialog.tsx:645
 msgid "common.delete"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/components/SettingsDrawer.tsx:608
+#: src/components/remotes/PostEditor/utils/firstPublishTour.ts:114
+msgid "common.done"
 msgstr ""
 
 #. js-lingui-explicit-id
@@ -358,14 +371,40 @@ msgid "common.load_more"
 msgstr ""
 
 #. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/utils/firstPublishTour.ts:106
+msgid "common.next"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/utils/firstPublishTour.ts:110
+msgid "common.previous"
+msgstr ""
+
+#. js-lingui-explicit-id
 #: src/components/remotes/Signup/Signup.tsx:489
 msgid "common.processing"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/components/PostCoverEditor.tsx:305
+msgid "common.remove"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/components/PostCoverEditor.tsx:156
+#: src/components/remotes/PostEditor/components/PostCoverEditor.tsx:228
+msgid "common.replace"
 msgstr ""
 
 #. js-lingui-explicit-id
 #: src/components/remotes/PostEditor/components/DraftsPanel.tsx:146
 #: src/components/remotes/PostEditor/components/PostRevisionDialog.tsx:386
 msgid "common.retry"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/components/SettingsDrawer.tsx:592
+msgid "editor.actions.delete_post"
 msgstr ""
 
 #. js-lingui-explicit-id
@@ -382,7 +421,7 @@ msgid "editor.actions.save_draft"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostEditor/NewPostEditor.tsx:631
+#: src/components/remotes/PostEditor/NewPostEditor.tsx:635
 msgid "editor.actions.schedule"
 msgstr ""
 
@@ -403,7 +442,7 @@ msgstr ""
 
 #. js-lingui-explicit-id
 #: src/components/remotes/PostEditor/hooks/useAutoSave.ts:168
-#: src/components/remotes/PostEditor/NewPostEditor.tsx:424
+#: src/components/remotes/PostEditor/NewPostEditor.tsx:428
 msgid "editor.autosave.error"
 msgstr ""
 
@@ -418,7 +457,7 @@ msgid "editor.autosave.pending"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostEditor/NewPostEditor.tsx:419
+#: src/components/remotes/PostEditor/NewPostEditor.tsx:423
 msgid "editor.autosave.saved"
 msgstr ""
 
@@ -456,6 +495,137 @@ msgstr ""
 #: src/components/remotes/PostEditor/EditPostEditor.tsx:580
 #: src/components/remotes/PostEditor/hooks/useFormSubmit.ts:172
 msgid "editor.confirm.move_to_trash"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/components/PostCoverEditor.tsx:190
+#: src/components/remotes/PostEditor/components/PostCoverEditor.tsx:300
+msgid "editor.cover.add_image"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/components/PostCoverEditor.tsx:193
+msgid "editor.cover.click_to_upload"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/components/PostCoverEditor.tsx:142
+msgid "editor.cover.hidden_image_description"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/components/PostCoverEditor.tsx:146
+msgid "editor.cover.hidden_image_empty"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/components/PostCoverEditor.tsx:138
+msgid "editor.cover.image"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/components/SettingsDrawer.tsx:492
+msgid "editor.cover.image_position"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/components/SettingsDrawer.tsx:505
+msgid "editor.cover.image_ratio"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/utils/coverSettings.ts:11
+msgid "editor.cover.layout.default"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/utils/coverSettings.ts:15
+msgid "editor.cover.layout.default_description"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/utils/coverSettings.ts:44
+msgid "editor.cover.layout.hidden"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/utils/coverSettings.ts:48
+msgid "editor.cover.layout.hidden_description"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/utils/coverSettings.ts:33
+msgid "editor.cover.layout.overlay"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/utils/coverSettings.ts:37
+msgid "editor.cover.layout.overlay_description"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/utils/coverSettings.ts:22
+msgid "editor.cover.layout.split"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/utils/coverSettings.ts:26
+msgid "editor.cover.layout.split_description"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/utils/coverSettings.ts:103
+msgid "editor.cover.position.left"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/utils/coverSettings.ts:96
+msgid "editor.cover.position.right"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/utils/coverSettings.ts:58
+msgid "editor.cover.ratio.original"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/utils/coverSettings.ts:86
+msgid "editor.cover.ratio.portrait"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/utils/coverSettings.ts:79
+msgid "editor.cover.ratio.square"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/utils/coverSettings.ts:72
+msgid "editor.cover.ratio.standard"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/utils/coverSettings.ts:65
+msgid "editor.cover.ratio.wide"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/components/PostCoverEditor.tsx:235
+msgid "editor.cover.remove_image"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/components/PostCoverEditor.tsx:167
+msgid "editor.cover.remove_share_image"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/components/PostCoverEditor.tsx:298
+msgid "editor.cover.replace_image"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/components/SettingsDrawer.tsx:455
+msgid "editor.cover.style"
 msgstr ""
 
 #. js-lingui-explicit-id
@@ -502,7 +672,7 @@ msgid "editor.drafts.total"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostEditor/NewPostEditor.tsx:324
+#: src/components/remotes/PostEditor/NewPostEditor.tsx:328
 msgid "editor.error.load_draft"
 msgstr ""
 
@@ -512,7 +682,7 @@ msgid "editor.error.load_post"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostEditor/NewPostEditor.tsx:328
+#: src/components/remotes/PostEditor/NewPostEditor.tsx:332
 msgid "editor.error.load_series"
 msgstr ""
 
@@ -571,18 +741,103 @@ msgid "editor.fields.description"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostEditor/NewPostEditor.tsx:464
+#: src/components/remotes/PostEditor/components/SettingsDrawer.tsx:552
+msgid "editor.fields.meta_description"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/components/SettingsDrawer.tsx:568
+msgid "editor.fields.meta_description_hint"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/components/SettingsDrawer.tsx:560
+msgid "editor.fields.meta_description_placeholder"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/components/PostCoverEditor.tsx:77
+msgid "editor.fields.subtitle"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/components/PostCoverEditor.tsx:91
+msgid "editor.fields.subtitle_placeholder"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/components/PostCoverEditor.tsx:52
+msgid "editor.fields.title"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/components/PostCoverEditor.tsx:65
+msgid "editor.fields.title_placeholder"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/components/SettingsDrawer.tsx:530
+msgid "editor.fields.url"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/components/SettingsDrawer.tsx:542
+msgid "editor.fields.url_collision_hint"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/components/SettingsDrawer.tsx:536
+msgid "editor.fields.url_placeholder"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/utils/firstPublishTour.ts:33
+msgid "editor.guide.autosave_description"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/utils/firstPublishTour.ts:29
+msgid "editor.guide.autosave_title"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/utils/firstPublishTour.ts:119
+msgid "editor.guide.close"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/NewPostEditor.tsx:468
 msgid "editor.guide.error.load"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostEditor/NewPostEditor.tsx:578
 #: src/components/remotes/PostEditor/NewPostEditor.tsx:582
+#: src/components/remotes/PostEditor/NewPostEditor.tsx:586
 msgid "editor.guide.open"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostEditor/NewPostEditor.tsx:587
+#: src/components/remotes/PostEditor/utils/firstPublishTour.ts:63
+msgid "editor.guide.publish_description"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/utils/firstPublishTour.ts:59
+msgid "editor.guide.publish_title"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/utils/firstPublishTour.ts:48
+msgid "editor.guide.settings_description"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/utils/firstPublishTour.ts:44
+msgid "editor.guide.settings_title"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/NewPostEditor.tsx:591
 msgid "editor.guide.title"
 msgstr ""
 
@@ -594,19 +849,19 @@ msgstr ""
 #. js-lingui-explicit-id
 #: src/components/remotes/PostEditor/EditPostEditor.tsx:439
 #: src/components/remotes/PostEditor/EditPostEditor.tsx:449
-#: src/components/remotes/PostEditor/NewPostEditor.tsx:154
-#: src/components/remotes/PostEditor/NewPostEditor.tsx:164
+#: src/components/remotes/PostEditor/NewPostEditor.tsx:155
+#: src/components/remotes/PostEditor/NewPostEditor.tsx:165
 msgid "editor.media.error.upload"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostEditor/NewPostEditor.tsx:435
+#: src/components/remotes/PostEditor/NewPostEditor.tsx:439
 msgid "editor.media.wait_before_preview"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostEditor/NewPostEditor.tsx:523
-#: src/components/remotes/PostEditor/NewPostEditor.tsx:549
+#: src/components/remotes/PostEditor/NewPostEditor.tsx:527
+#: src/components/remotes/PostEditor/NewPostEditor.tsx:553
 msgid "editor.media.wait_before_publish"
 msgstr ""
 
@@ -616,13 +871,13 @@ msgid "editor.media.wait_before_revisions"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostEditor/NewPostEditor.tsx:410
+#: src/components/remotes/PostEditor/NewPostEditor.tsx:414
 msgid "editor.media.wait_before_save"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostEditor/NewPostEditor.tsx:519
-#: src/components/remotes/PostEditor/NewPostEditor.tsx:545
+#: src/components/remotes/PostEditor/NewPostEditor.tsx:523
+#: src/components/remotes/PostEditor/NewPostEditor.tsx:549
 msgid "editor.media.wait_before_schedule"
 msgstr ""
 
@@ -637,8 +892,39 @@ msgid "editor.media.wait_before_update"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostEditor/NewPostEditor.tsx:446
+#: src/components/remotes/PostEditor/components/PostPreviewDialog.tsx:132
+#: src/components/remotes/PostEditor/components/PostPreviewDialog.tsx:136
+msgid "editor.preview.close"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/components/PostPreviewDialog.tsx:82
+msgid "editor.preview.description"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/components/PostPreviewDialog.tsx:31
+msgid "editor.preview.desktop"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/NewPostEditor.tsx:450
 msgid "editor.preview.error.save_draft"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/components/PostPreviewDialog.tsx:170
+msgid "editor.preview.frame_title"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/components/PostPreviewDialog.tsx:160
+msgid "editor.preview.loading"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/components/PostPreviewDialog.tsx:38
+msgid "editor.preview.mobile"
 msgstr ""
 
 #. js-lingui-explicit-id
@@ -648,8 +934,179 @@ msgid "editor.preview.open"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostEditor/NewPostEditor.tsx:558
+#: src/components/remotes/PostEditor/components/PostPreviewDialog.tsx:117
+#: src/components/remotes/PostEditor/components/PostPreviewDialog.tsx:121
+msgid "editor.preview.refresh"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/components/PostPreviewDialog.tsx:78
+msgid "editor.preview.title"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/components/PostPreviewDialog.tsx:92
+msgid "editor.preview.viewport"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/components/PublishChecklist.tsx:60
+msgid "editor.publish.checklist_missing_description"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/components/PublishChecklist.tsx:51
+msgid "editor.publish.checklist_missing_title"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/components/PublishChecklist.tsx:56
+msgid "editor.publish.checklist_ready_description"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/components/PublishChecklist.tsx:47
+msgid "editor.publish.checklist_ready_title"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/components/PublishChecklist.tsx:102
+msgid "editor.publish.complete"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/utils/publishChecklist.ts:183
+msgid "editor.publish.confirm_publish"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/utils/publishChecklist.ts:179
+msgid "editor.publish.confirm_schedule"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/components/PublishChecklist.tsx:104
+msgid "editor.publish.empty"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/utils/publishChecklist.ts:81
+msgid "editor.publish.field.content"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/utils/publishChecklist.ts:85
+msgid "editor.publish.field.content_description"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/utils/publishChecklist.ts:120
+msgid "editor.publish.field.cover_image"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/utils/publishChecklist.ts:124
+msgid "editor.publish.field.cover_image_description"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/utils/publishChecklist.ts:94
+msgid "editor.publish.field.description"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/utils/publishChecklist.ts:98
+msgid "editor.publish.field.description_description"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/utils/publishChecklist.ts:107
+msgid "editor.publish.field.tags"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/utils/publishChecklist.ts:111
+msgid "editor.publish.field.tags_description"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/utils/publishChecklist.ts:68
+msgid "editor.publish.field.title"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/utils/publishChecklist.ts:72
+msgid "editor.publish.field.title_description"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/utils/publishChecklist.ts:192
+msgid "editor.publish.publishing"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/components/PublishChecklist.tsx:97
+msgid "editor.publish.recommended"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/components/PublishChecklist.tsx:120
+msgid "editor.publish.recommended_empty"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/components/PublishChecklist.tsx:125
+msgid "editor.publish.recommended_later"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/NewPostEditor.tsx:562
 msgid "editor.publish.recommended_missing"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/components/PublishChecklist.tsx:95
+msgid "editor.publish.required"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/utils/publishChecklist.ts:188
+msgid "editor.publish.scheduling"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/utils/publishChecklist.ts:162
+msgid "editor.publish.visibility.private_description"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/utils/publishChecklist.ts:138
+msgid "editor.publish.visibility.private_scheduled_title"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/utils/publishChecklist.ts:147
+msgid "editor.publish.visibility.private_title"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/utils/publishChecklist.ts:166
+msgid "editor.publish.visibility.public_description"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/utils/publishChecklist.ts:151
+msgid "editor.publish.visibility.public_title"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/utils/publishChecklist.ts:156
+msgid "editor.publish.visibility.scheduled_description"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/utils/publishChecklist.ts:142
+msgid "editor.publish.visibility.scheduled_title"
 msgstr ""
 
 #. js-lingui-explicit-id
@@ -897,6 +1354,7 @@ msgid "editor.revisions.version_conflict"
 msgstr ""
 
 #. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/components/SettingsDrawer.tsx:297
 #: src/components/remotes/PostEditor/EditPostEditor.tsx:683
 #: src/components/remotes/PostEditor/EditPostEditor.tsx:691
 msgid "editor.schedule.cancel"
@@ -905,6 +1363,21 @@ msgstr ""
 #. js-lingui-explicit-id
 #: src/components/remotes/PostEditor/EditPostEditor.tsx:687
 msgid "editor.schedule.cancel_description"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/components/SchedulePicker.tsx:155
+msgid "editor.schedule.clear"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/components/SettingsDrawer.tsx:271
+msgid "editor.schedule.edit_description"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/components/SettingsDrawer.tsx:275
+msgid "editor.schedule.empty_description"
 msgstr ""
 
 #. js-lingui-explicit-id
@@ -920,6 +1393,32 @@ msgid "editor.schedule.error.publish_now"
 msgstr ""
 
 #. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/components/SchedulePicker.tsx:197
+msgid "editor.schedule.hour"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/components/SchedulePicker.tsx:75
+msgid "editor.schedule.in_three_hours"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/components/SchedulePicker.tsx:216
+msgid "editor.schedule.minute"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/components/SchedulePicker.tsx:98
+msgid "editor.schedule.next_week_morning"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/components/SettingsDrawer.tsx:264
+msgid "editor.schedule.publish"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/components/SettingsDrawer.tsx:307
 #: src/components/remotes/PostEditor/EditPostEditor.tsx:731
 #: src/components/remotes/PostEditor/EditPostEditor.tsx:744
 msgid "editor.schedule.publish_now"
@@ -941,9 +1440,124 @@ msgid "editor.schedule.save_changes_first"
 msgstr ""
 
 #. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/components/ScheduleStatusNotice.tsx:20
+msgid "editor.schedule.scheduled_publish"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/components/SettingsDrawer.tsx:260
+msgid "editor.schedule.scheduled_time"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/components/SchedulePicker.tsx:139
+msgid "editor.schedule.select_time"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/components/SchedulePicker.tsx:182
+msgid "editor.schedule.time"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/components/SchedulePicker.tsx:86
+msgid "editor.schedule.tomorrow_morning"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/components/SettingsDrawer.tsx:350
+#: src/components/remotes/PostEditor/components/SettingsDrawer.tsx:368
+msgid "editor.settings.allow_comments"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/components/SettingsDrawer.tsx:408
+msgid "editor.settings.classification"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/components/SettingsDrawer.tsx:358
+msgid "editor.settings.comments_disabled_description"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/components/SettingsDrawer.tsx:354
+msgid "editor.settings.comments_enabled_description"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/components/SettingsDrawer.tsx:431
+#: src/components/remotes/PostEditor/components/SettingsDrawer.tsx:441
+msgid "editor.settings.no_series"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/components/SettingsDrawer.tsx:320
+#: src/components/remotes/PostEditor/components/SettingsDrawer.tsx:338
+msgid "editor.settings.private"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/components/SettingsDrawer.tsx:324
+msgid "editor.settings.private_description"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/components/SettingsDrawer.tsx:380
+#: src/components/remotes/PostEditor/components/SettingsDrawer.tsx:392
+msgid "editor.settings.promotional"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/components/SettingsDrawer.tsx:383
+msgid "editor.settings.promotional_description"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/components/SettingsDrawer.tsx:328
+msgid "editor.settings.public_description"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/components/SettingsDrawer.tsx:250
+msgid "editor.settings.publishing"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/components/SettingsDrawer.tsx:523
+msgid "editor.settings.search_and_sharing"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/components/SettingsDrawer.tsx:412
+msgid "editor.settings.series"
+msgstr ""
+
+#. js-lingui-explicit-id
 #: src/components/remotes/PostEditor/components/PostActions.tsx:171
 #: src/components/remotes/PostEditor/components/PostActions.tsx:175
+#: src/components/remotes/PostEditor/components/SettingsDrawer.tsx:229
 msgid "editor.settings.title"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/components/TagManager.tsx:108
+msgid "editor.tags.add"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/components/TagManager.tsx:90
+msgid "editor.tags.name_placeholder"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/components/TagManager.tsx:77
+msgid "editor.tags.new_name"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/components/TagManager.tsx:60
+msgid "editor.tags.remove"
 msgstr ""
 
 #. js-lingui-explicit-id
@@ -957,17 +1571,17 @@ msgid "editor.trash.title"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostEditor/NewPostEditor.tsx:389
+#: src/components/remotes/PostEditor/NewPostEditor.tsx:393
 msgid "editor.unsaved.switch_draft"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostEditor/NewPostEditor.tsx:385
+#: src/components/remotes/PostEditor/NewPostEditor.tsx:389
 msgid "editor.unsaved.switch_draft_description"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostEditor/NewPostEditor.tsx:381
+#: src/components/remotes/PostEditor/NewPostEditor.tsx:385
 msgid "editor.unsaved.title"
 msgstr ""
 

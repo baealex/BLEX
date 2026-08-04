@@ -1,4 +1,5 @@
 import React, { useRef } from 'react';
+import { Trans, useLingui } from '@lingui/react/macro';
 import { Button } from '@blex/ui/button';
 import { IconButton } from '@blex/ui/icon-button';
 import { Image, X } from '@blex/ui/icons';
@@ -42,58 +43,72 @@ const TitleInputs = ({
     inverted?: boolean;
     onTitleChange: (title: string) => void;
     onSubtitleChange: (subtitle: string) => void;
-}) => (
-    <div>
-        <label htmlFor="title" className="sr-only">제목</label>
-        <input
-            type="text"
-            id="title"
-            name="title"
-            value={title}
-            onChange={(event) => onTitleChange(event.target.value)}
-            maxLength={65}
-            className={cx(
-                'w-full border-0 px-0 py-0 text-2xl font-bold leading-tight text-content placeholder-content-hint focus:ring-0 sm:text-3xl lg:text-4xl',
-                inverted && 'bg-transparent text-white placeholder:text-white/65'
-            )}
-            placeholder="제목을 입력하세요"
-            required
-        />
-        {title.length > 50 && (
-            <p className={cx('mt-1 text-xs', title.length >= 65 ? 'text-danger' : inverted ? 'text-white/70' : 'text-content-hint')}>
-                {title.length}/65
-            </p>
-        )}
-        <label htmlFor="subtitle" className="sr-only">부제목</label>
-        <input
-            type="text"
-            id="subtitle"
-            name="subtitle"
-            value={subtitle}
-            onChange={(event) => onSubtitleChange(event.target.value)}
-            maxLength={120}
-            aria-describedby={subtitle.length > 100 ? 'subtitle-character-count' : undefined}
-            className={cx(
-                'mt-2 w-full border-0 px-0 py-0 text-lg leading-tight text-content-secondary placeholder-content-hint focus:ring-0 sm:text-xl',
-                inverted && 'bg-transparent text-white/85 placeholder:text-white/55'
-            )}
-            placeholder="부제목 (선택사항)"
-        />
-        {subtitle.length > 100 && (
-            <p
-                id="subtitle-character-count"
-                aria-live="polite"
+}) => {
+    const { t } = useLingui();
+
+    return (
+        <div>
+            <label htmlFor="title" className="sr-only">
+                <Trans id="editor.fields.title">Title</Trans>
+            </label>
+            <input
+                type="text"
+                id="title"
+                name="title"
+                value={title}
+                onChange={(event) => onTitleChange(event.target.value)}
+                maxLength={65}
                 className={cx(
-                    'mt-1 text-xs',
-                    subtitle.length >= 120
-                        ? 'text-danger'
-                        : inverted ? 'text-white/70' : 'text-content-hint'
-                )}>
-                {subtitle.length}/120
-            </p>
-        )}
-    </div>
-);
+                    'w-full border-0 px-0 py-0 text-2xl font-bold leading-tight text-content placeholder-content-hint focus:ring-0 sm:text-3xl lg:text-4xl',
+                    inverted && 'bg-transparent text-white placeholder:text-white/65'
+                )}
+                placeholder={t({
+                    id: 'editor.fields.title_placeholder',
+                    message: 'Enter a title'
+                })}
+                required
+            />
+            {title.length > 50 && (
+                <p className={cx('mt-1 text-xs', title.length >= 65 ? 'text-danger' : inverted ? 'text-white/70' : 'text-content-hint')}>
+                    {title.length}/65
+                </p>
+            )}
+            <label htmlFor="subtitle" className="sr-only">
+                <Trans id="editor.fields.subtitle">Subtitle</Trans>
+            </label>
+            <input
+                type="text"
+                id="subtitle"
+                name="subtitle"
+                value={subtitle}
+                onChange={(event) => onSubtitleChange(event.target.value)}
+                maxLength={120}
+                aria-describedby={subtitle.length > 100 ? 'subtitle-character-count' : undefined}
+                className={cx(
+                    'mt-2 w-full border-0 px-0 py-0 text-lg leading-tight text-content-secondary placeholder-content-hint focus:ring-0 sm:text-xl',
+                    inverted && 'bg-transparent text-white/85 placeholder:text-white/55'
+                )}
+                placeholder={t({
+                    id: 'editor.fields.subtitle_placeholder',
+                    message: 'Subtitle (optional)'
+                })}
+            />
+            {subtitle.length > 100 && (
+                <p
+                    id="subtitle-character-count"
+                    aria-live="polite"
+                    className={cx(
+                        'mt-1 text-xs',
+                        subtitle.length >= 120
+                            ? 'text-danger'
+                            : inverted ? 'text-white/70' : 'text-content-hint'
+                    )}>
+                    {subtitle.length}/120
+                </p>
+            )}
+        </div>
+    );
+};
 
 const CoverImageSlot = ({
     imagePreview,
@@ -102,6 +117,8 @@ const CoverImageSlot = ({
     onOpenFilePicker,
     onRemoveImage
 }: CoverImageSlotProps) => {
+    const { t } = useLingui();
+
     if (compact) {
         return (
             <div className="mt-6 flex items-center justify-between gap-4 rounded-lg border border-dashed border-line bg-surface-subtle p-3">
@@ -117,15 +134,29 @@ const CoverImageSlot = ({
                         )}
                     </span>
                     <span className="min-w-0">
-                        <span className="block text-sm font-medium text-content">대표 이미지</span>
+                        <span className="block text-sm font-medium text-content">
+                            <Trans id="editor.cover.image">Cover image</Trans>
+                        </span>
                         <span className="block truncate text-xs text-content-secondary">
-                            {imagePreview ? '포스트 상단에는 표시하지 않고 공유와 목록에 사용합니다' : '공유와 목록에 사용할 이미지를 추가하세요'}
+                            {imagePreview ? (
+                                <Trans id="editor.cover.hidden_image_description">
+                                    Used in shares and listings without appearing at the top of the post
+                                </Trans>
+                            ) : (
+                                <Trans id="editor.cover.hidden_image_empty">
+                                    Add an image for shares and listings
+                                </Trans>
+                            )}
                         </span>
                     </span>
                 </button>
                 <div className="flex shrink-0 items-center gap-1">
                     <Button type="button" variant="ghost" size="sm" onClick={onOpenFilePicker}>
-                        {imagePreview ? '교체' : '추가'}
+                        {imagePreview ? (
+                            <Trans id="common.replace">Replace</Trans>
+                        ) : (
+                            <Trans id="common.add">Add</Trans>
+                        )}
                     </Button>
                     {imagePreview && (
                         <IconButton
@@ -133,7 +164,10 @@ const CoverImageSlot = ({
                             size="sm"
                             rounded="full"
                             onClick={onRemoveImage}
-                            aria-label="공유 이미지 삭제">
+                            aria-label={t({
+                                id: 'editor.cover.remove_share_image',
+                                message: 'Remove sharing image'
+                            })}>
                             <X className="h-4 w-4" />
                         </IconButton>
                     )}
@@ -152,8 +186,12 @@ const CoverImageSlot = ({
                     getCoverRatioClass(imageRatio)
                 )}>
                 <Image className="mb-3 h-10 w-10 text-content-hint" />
-                <span className="text-sm text-content-secondary">대표 이미지 추가</span>
-                <span className="mt-1 text-xs text-content-hint">클릭하여 업로드</span>
+                <span className="text-sm text-content-secondary">
+                    <Trans id="editor.cover.add_image">Add cover image</Trans>
+                </span>
+                <span className="mt-1 text-xs text-content-hint">
+                    <Trans id="editor.cover.click_to_upload">Click to upload</Trans>
+                </span>
             </button>
         );
     }
@@ -181,21 +219,28 @@ const ImageActions = ({
 }: {
     onOpenFilePicker: () => void;
     onRemoveImage: () => void;
-}) => (
-    <div className="absolute right-3 top-3 flex gap-2 sm:opacity-0 sm:transition-opacity sm:duration-150 sm:group-hover:opacity-100">
-        <Button type="button" variant="secondary" size="sm" onClick={onOpenFilePicker}>
-            교체
-        </Button>
-        <IconButton
-            type="button"
-            size="sm"
-            rounded="full"
-            onClick={onRemoveImage}
-            aria-label="대표 이미지 삭제">
-            <X className="h-4 w-4" />
-        </IconButton>
-    </div>
-);
+}) => {
+    const { t } = useLingui();
+
+    return (
+        <div className="absolute right-3 top-3 flex gap-2 sm:opacity-0 sm:transition-opacity sm:duration-150 sm:group-hover:opacity-100">
+            <Button type="button" variant="secondary" size="sm" onClick={onOpenFilePicker}>
+                <Trans id="common.replace">Replace</Trans>
+            </Button>
+            <IconButton
+                type="button"
+                size="sm"
+                rounded="full"
+                onClick={onRemoveImage}
+                aria-label={t({
+                    id: 'editor.cover.remove_image',
+                    message: 'Remove cover image'
+                })}>
+                <X className="h-4 w-4" />
+            </IconButton>
+        </div>
+    );
+};
 
 const PostCoverEditor = ({
     formData,
@@ -249,11 +294,15 @@ const PostCoverEditor = ({
                         />
                         <div className="mt-6 flex flex-wrap gap-2">
                             <Button type="button" variant="secondary" size="sm" onClick={openFilePicker}>
-                                {imagePreview ? '대표 이미지 교체' : '대표 이미지 추가'}
+                                {imagePreview ? (
+                                    <Trans id="editor.cover.replace_image">Replace cover image</Trans>
+                                ) : (
+                                    <Trans id="editor.cover.add_image">Add cover image</Trans>
+                                )}
                             </Button>
                             {imagePreview && (
                                 <Button type="button" variant="secondary" size="sm" onClick={handleRemoveImage}>
-                                    제거
+                                    <Trans id="common.remove">Remove</Trans>
                                 </Button>
                             )}
                         </div>

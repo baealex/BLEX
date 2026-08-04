@@ -1,4 +1,5 @@
 import type { DriveStep } from 'driver.js';
+import { i18n } from '~/i18n';
 
 const tourTargets = {
     settings: '[data-tour="post-settings"]',
@@ -25,8 +26,14 @@ const getSteps = (): DriveStep[] => {
         {
             element: tourTargets.autosave,
             popover: {
-                title: '작성 내용은 자동으로 저장됩니다',
-                description: '잠시 멈춰도 임시 포스트로 남습니다. 바로 저장하고 싶을 때만 임시 저장을 누르세요.',
+                title: i18n._({
+                    id: 'editor.guide.autosave_title',
+                    message: 'Your work is saved automatically'
+                }),
+                description: i18n._({
+                    id: 'editor.guide.autosave_description',
+                    message: 'Your work remains as a draft even if you pause. Use Save draft only when you want to save immediately.'
+                }),
                 side: 'top',
                 align: 'center'
             }
@@ -34,8 +41,14 @@ const getSteps = (): DriveStep[] => {
         {
             element: tourTargets.settings,
             popover: {
-                title: '선택 항목은 나중에 정해도 됩니다',
-                description: 'URL, 설명, 시리즈, 비공개 여부는 여기에서 바꿉니다. 설명, 태그, 커버 이미지는 비워도 발행할 수 있습니다.',
+                title: i18n._({
+                    id: 'editor.guide.settings_title',
+                    message: 'Optional details can wait'
+                }),
+                description: i18n._({
+                    id: 'editor.guide.settings_description',
+                    message: 'Change the URL, description, series, and visibility here. You can publish without a description, tags, or cover image.'
+                }),
                 side: 'top',
                 align: 'center'
             }
@@ -43,8 +56,14 @@ const getSteps = (): DriveStep[] => {
         {
             element: tourTargets.publish,
             popover: {
-                title: '발행 전 한 번 더 확인합니다',
-                description: '제목과 본문 같은 필수 항목만 막습니다. 권장 항목은 나중에 보완해도 됩니다.',
+                title: i18n._({
+                    id: 'editor.guide.publish_title',
+                    message: 'Review once more before publishing'
+                }),
+                description: i18n._({
+                    id: 'editor.guide.publish_description',
+                    message: 'Only required fields such as the title and content block publishing. Recommended fields can be added later.'
+                }),
                 side: 'top',
                 align: 'end'
             }
@@ -84,11 +103,23 @@ export const startFirstPublishTour = async (options: StartFirstPublishTourOption
         smoothScroll: true,
         stagePadding: 8,
         stageRadius: 10,
-        nextBtnText: '다음',
-        prevBtnText: '이전',
-        doneBtnText: '끝내기',
+        nextBtnText: i18n._({
+            id: 'common.next',
+            message: 'Next'
+        }),
+        prevBtnText: i18n._({
+            id: 'common.previous',
+            message: 'Previous'
+        }),
+        doneBtnText: i18n._({
+            id: 'common.done',
+            message: 'Done'
+        }),
         onPopoverRender: (popover) => {
-            popover.closeButton.setAttribute('aria-label', '가이드 닫기');
+            popover.closeButton.setAttribute('aria-label', i18n._({
+                id: 'editor.guide.close',
+                message: 'Close guide'
+            }));
         },
         onNextClick: (_, __, { driver: activeDriver }) => {
             activeDriver.moveNext();

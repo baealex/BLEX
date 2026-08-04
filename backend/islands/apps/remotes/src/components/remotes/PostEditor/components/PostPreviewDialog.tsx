@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { Trans, useLingui } from '@lingui/react/macro';
 import { Dialog } from '@blex/ui/dialog';
 import { IconButton } from '@blex/ui/icon-button';
 import { Eye, Loader2, RotateCw, X } from '@blex/ui/icons';
@@ -14,26 +15,32 @@ interface PostPreviewDialogProps {
     onClose: () => void;
 }
 
-const viewportOptions: Array<{ value: PreviewViewport; label: string }> = [
-    {
-        value: 'desktop',
-        label: '데스크톱'
-    },
-    {
-        value: 'mobile',
-        label: '모바일'
-    }
-];
-
 const PostPreviewDialog = ({
     isOpen,
     previewUrl,
     returnFocusTo,
     onClose
 }: PostPreviewDialogProps) => {
+    const { t } = useLingui();
     const [viewport, setViewport] = useState<PreviewViewport>('desktop');
     const [refreshKey, setRefreshKey] = useState(0);
     const [isLoading, setIsLoading] = useState(true);
+    const viewportOptions: Array<{ value: PreviewViewport; label: string }> = [
+        {
+            value: 'desktop',
+            label: t({
+                id: 'editor.preview.desktop',
+                message: 'Desktop'
+            })
+        },
+        {
+            value: 'mobile',
+            label: t({
+                id: 'editor.preview.mobile',
+                message: 'Mobile'
+            })
+        }
+    ];
 
     useEffect(() => {
         if (!isOpen || !previewUrl) return;
@@ -68,11 +75,13 @@ const PostPreviewDialog = ({
                             <div className="flex items-center gap-2">
                                 <Eye className="h-5 w-5 shrink-0 text-content-hint" />
                                 <Dialog.Title className="truncate text-base font-semibold text-content sm:text-lg">
-                                    포스트 미리보기
+                                    <Trans id="editor.preview.title">Post preview</Trans>
                                 </Dialog.Title>
                             </div>
                             <Dialog.Description className="mt-1 text-xs text-content-secondary">
-                                마지막으로 저장된 임시 포스트를 실제 화면으로 표시합니다
+                                <Trans id="editor.preview.description">
+                                    Shows the last saved draft as it will appear to readers
+                                </Trans>
                             </Dialog.Description>
                         </div>
 
@@ -80,7 +89,10 @@ const PostPreviewDialog = ({
                             <div
                                 className="inline-flex rounded-xl border border-line bg-surface-subtle p-1"
                                 role="group"
-                                aria-label="미리보기 화면 크기">
+                                aria-label={t({
+                                    id: 'editor.preview.viewport',
+                                    message: 'Preview viewport'
+                                })}>
                                 {viewportOptions.map((option) => {
                                     const isActive = viewport === option.value;
                                     return (
@@ -102,14 +114,29 @@ const PostPreviewDialog = ({
                             </div>
                             <IconButton
                                 size="sm"
-                                aria-label="미리보기 새로고침"
-                                title="미리보기 새로고침"
+                                aria-label={t({
+                                    id: 'editor.preview.refresh',
+                                    message: 'Refresh preview'
+                                })}
+                                title={t({
+                                    id: 'editor.preview.refresh',
+                                    message: 'Refresh preview'
+                                })}
                                 onClick={handleRefresh}
                                 disabled={!previewUrl || isLoading}>
                                 <RotateCw className="h-4 w-4" />
                             </IconButton>
                             <Dialog.Close asChild>
-                                <IconButton size="sm" aria-label="미리보기 닫기" title="미리보기 닫기">
+                                <IconButton
+                                    size="sm"
+                                    aria-label={t({
+                                        id: 'editor.preview.close',
+                                        message: 'Close preview'
+                                    })}
+                                    title={t({
+                                        id: 'editor.preview.close',
+                                        message: 'Close preview'
+                                    })}>
                                     <X className="h-5 w-5" />
                                 </IconButton>
                             </Dialog.Close>
@@ -130,14 +157,20 @@ const PostPreviewDialog = ({
                                     <div
                                         className="absolute inset-0 z-10 flex items-center justify-center bg-surface"
                                         role="status"
-                                        aria-label="미리보기 불러오는 중">
+                                        aria-label={t({
+                                            id: 'editor.preview.loading',
+                                            message: 'Loading preview'
+                                        })}>
                                         <Loader2 className="h-6 w-6 animate-spin text-content-hint" />
                                     </div>
                                 )}
                                 <iframe
                                     key={`${previewUrl}:${refreshKey}`}
                                     src={previewUrl}
-                                    title="저장된 포스트 렌더링 미리보기"
+                                    title={t({
+                                        id: 'editor.preview.frame_title',
+                                        message: 'Preview of the saved post'
+                                    })}
                                     className="h-full w-full border-0 bg-surface"
                                     sandbox="allow-same-origin allow-scripts"
                                     referrerPolicy="same-origin"

@@ -27,6 +27,7 @@ import { getPublishChecklist } from './utils/publishChecklist';
 import { toDateTimeLocalValue } from './utils/scheduleDate';
 import { getSeries } from '~/lib/api/settings';
 import { getDraft } from '~/lib/api/posts';
+import { normalizeLocale } from '~/i18n/locale';
 import { api } from '~/components/shared';
 import type { Series } from './types';
 
@@ -241,15 +242,18 @@ const NewPostEditor = ({
 
     const { formRef, isSubmitting, submitForm } = useFormSubmit(submitOptions);
 
-    const publishChecklist = useMemo(() => getPublishChecklist({
-        title: formData.title,
-        content: formData.content,
-        description: formData.metaDescription,
-        tags,
-        hasCoverImage: Boolean(imagePreview),
-        isHidden: formData.hide,
-        scheduledAt: formData.reservedDate || undefined
-    }), [formData.title, formData.content, formData.metaDescription, formData.hide, formData.reservedDate, tags, imagePreview]);
+    const publishChecklist = useMemo(() => getPublishChecklist(
+        {
+            title: formData.title,
+            content: formData.content,
+            description: formData.metaDescription,
+            tags,
+            hasCoverImage: Boolean(imagePreview),
+            isHidden: formData.hide,
+            scheduledAt: formData.reservedDate || undefined
+        },
+        normalizeLocale(i18n.locale)
+    ), [formData.title, formData.content, formData.metaDescription, formData.hide, formData.reservedDate, tags, imagePreview, i18n.locale]);
 
     const shouldShowFirstPublishGuide = !isLoading && showFirstPublishGuide;
 

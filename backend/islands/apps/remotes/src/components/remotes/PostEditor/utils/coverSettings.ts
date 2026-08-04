@@ -1,63 +1,109 @@
 import type { CoverImageRatio, CoverLayout } from '../types';
+import { i18n } from '~/i18n';
 
-export const COVER_LAYOUT_OPTIONS: Array<{
+export const getCoverLayoutOptions = (): Array<{
     value: CoverLayout;
     label: string;
     description: string;
-}> = [
+}> => [
     {
         value: 'default',
-        label: '기본',
-        description: '제목 다음에 이미지가 자연스럽게 이어집니다.'
+        label: i18n._({
+            id: 'editor.cover.layout.default',
+            message: 'Default'
+        }),
+        description: i18n._({
+            id: 'editor.cover.layout.default_description',
+            message: 'The image follows naturally after the title.'
+        })
     },
     {
         value: 'split',
-        label: '분할',
-        description: '제목과 대표 이미지를 좌우로 배치합니다.'
+        label: i18n._({
+            id: 'editor.cover.layout.split',
+            message: 'Split'
+        }),
+        description: i18n._({
+            id: 'editor.cover.layout.split_description',
+            message: 'Place the title and cover image side by side.'
+        })
     },
     {
         value: 'overlay',
-        label: '이미지 배경',
-        description: '이미지를 넓게 깔고 제목을 이미지 위에 올립니다.'
+        label: i18n._({
+            id: 'editor.cover.layout.overlay',
+            message: 'Image background'
+        }),
+        description: i18n._({
+            id: 'editor.cover.layout.overlay_description',
+            message: 'Use a full-width image with the title over it.'
+        })
     },
     {
         value: 'none',
-        label: '커버 숨김',
-        description: '대표 이미지는 공유와 목록에만 사용하고 포스트 상단에는 보이지 않습니다.'
+        label: i18n._({
+            id: 'editor.cover.layout.hidden',
+            message: 'Hide cover'
+        }),
+        description: i18n._({
+            id: 'editor.cover.layout.hidden_description',
+            message: 'Use the cover image only in listings and shares, not at the top of the post.'
+        })
     }
 ];
 
-export const COVER_RATIO_ITEMS = [
+export const getCoverRatioItems = () => [
     {
         value: 'auto',
-        label: '원본 비율'
+        label: i18n._({
+            id: 'editor.cover.ratio.original',
+            message: 'Original ratio'
+        })
     },
     {
         value: '16:9',
-        label: '16:9 와이드'
+        label: i18n._({
+            id: 'editor.cover.ratio.wide',
+            message: '16:9 wide'
+        })
     },
     {
         value: '4:3',
-        label: '4:3 표준'
+        label: i18n._({
+            id: 'editor.cover.ratio.standard',
+            message: '4:3 standard'
+        })
     },
     {
         value: '1:1',
-        label: '1:1 정사각'
+        label: i18n._({
+            id: 'editor.cover.ratio.square',
+            message: '1:1 square'
+        })
     },
     {
         value: '3:4',
-        label: '3:4 세로형'
+        label: i18n._({
+            id: 'editor.cover.ratio.portrait',
+            message: '3:4 portrait'
+        })
     }
 ];
 
-export const COVER_POSITION_ITEMS = [
+export const getCoverPositionItems = () => [
     {
         value: 'right',
-        label: '이미지 오른쪽'
+        label: i18n._({
+            id: 'editor.cover.position.right',
+            message: 'Image on the right'
+        })
     },
     {
         value: 'left',
-        label: '이미지 왼쪽'
+        label: i18n._({
+            id: 'editor.cover.position.left',
+            message: 'Image on the left'
+        })
     }
 ];
 
