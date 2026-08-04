@@ -1,3 +1,4 @@
+import { Plural, Trans } from '@lingui/react/macro';
 import { AlertTriangle, MessageCircle, RotateCw } from '@blex/ui/icons';
 import { isLoggedIn as checkIsLoggedIn, showLoginPrompt } from '~/utils/loginPrompt';
 import { CommentList } from './components/CommentList';
@@ -17,12 +18,17 @@ const CommentsHeader = ({ count }: { count?: number }) => (
     <div className="mb-6 flex items-start justify-between gap-4 border-b border-line-light pb-4">
         <div className="min-w-0">
             <h2 id="comments-heading" className="text-lg font-bold leading-snug text-content">
-                댓글
+                <Trans id="comments.title">Comments</Trans>
             </h2>
         </div>
         {typeof count === 'number' && (
             <span className="shrink-0 text-sm font-medium leading-6 text-content-secondary">
-                {count}개
+                <Plural
+                    id="comments.count"
+                    value={count}
+                    one="# comment"
+                    other="# comments"
+                />
             </span>
         )}
     </div>
@@ -72,16 +78,16 @@ const Comments = (props: CommentsProps) => {
                         <AlertTriangle className="w-8 h-8 text-danger" />
                     </div>
                     <h3 className="text-lg font-semibold text-content mb-2">
-                        댓글을 불러올 수 없습니다
+                        <Trans id="comments.load_error_title">Could not load comments</Trans>
                     </h3>
                     <p className="text-content-secondary text-sm mb-4">
-                        잠시 후 다시 시도해 주세요.
+                        <Trans id="comments.load_error_description">Try again in a moment.</Trans>
                     </p>
                     <button
                         onClick={() => refetch()}
                         className="inline-flex items-center gap-2 px-4 py-2 bg-action text-content-inverted rounded-lg text-sm font-medium hover:bg-action-hover transition-colors active:scale-95">
                         <RotateCw className="w-3.5 h-3.5" />
-                        다시 시도
+                        <Trans id="common.retry">Try again</Trans>
                     </button>
                 </div>
             </section>
@@ -95,7 +101,9 @@ const Comments = (props: CommentsProps) => {
                 <div className="flex items-center justify-center py-16">
                     <div className="text-center space-y-4">
                         <div className="inline-block animate-spin rounded-full h-12 w-12 border-4 border-line border-t-action" />
-                        <p className="text-content-secondary text-sm font-medium">댓글을 불러오는 중...</p>
+                        <p className="text-content-secondary text-sm font-medium">
+                            <Trans id="comments.loading">Loading comments...</Trans>
+                        </p>
                     </div>
                 </div>
             </section>
@@ -134,7 +142,7 @@ const Comments = (props: CommentsProps) => {
                 <div className="border-t border-line-light pt-8 mt-8">
                     <div className="mb-6">
                         <h3 className="text-sm font-medium text-content-secondary">
-                            댓글 남기기
+                            <Trans id="comments.leave_comment">Leave a comment</Trans>
                         </h3>
                     </div>
 
@@ -151,7 +159,11 @@ const Comments = (props: CommentsProps) => {
             ) : (
                 <div className="mt-8 flex items-center gap-3 rounded-xl border border-line bg-surface-subtle px-4 py-3 text-content-secondary">
                     <MessageCircle className="h-4 w-4 shrink-0 text-content-hint" />
-                    <p className="text-sm">작성자가 새 댓글과 답글을 받지 않는 글입니다.</p>
+                    <p className="text-sm">
+                        <Trans id="comments.closed">
+                            The author is not accepting new comments or replies on this post.
+                        </Trans>
+                    </p>
                 </div>
             )}
         </section>

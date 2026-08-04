@@ -4,7 +4,8 @@ from django.conf import settings
 from django.db import models
 from django.urls import reverse
 from django.utils import timezone
-from django.utils.translation import gettext_lazy as _
+from django.utils.html import format_html
+from django.utils.translation import gettext, gettext_lazy as _
 from django.utils.text import slugify
 
 from modules.randomness import randstr
@@ -44,7 +45,10 @@ class Comment(models.Model):
 
     def get_text_html(self):
         if not self.author:
-            return '<p>삭제된 댓글입니다.</p>'
+            return format_html(
+                '<p>{}</p>',
+                gettext('This comment has been deleted.'),
+            )
         return sanitize_comment_html(self.text_html)
 
     def get_thumbnail(self):
@@ -71,7 +75,7 @@ class Comment(models.Model):
         from django.core.exceptions import ValidationError
         # 1레벨 제한: 대댓글의 대댓글 방지
         if self.parent and self.parent.parent:
-            raise ValidationError('대댓글에는 답글을 달 수 없습니다.')
+            raise ValidationError(gettext('You cannot reply to a reply.'))
 
     def __str__(self):
         return self.text_md

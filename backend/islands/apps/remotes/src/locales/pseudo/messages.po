@@ -326,11 +326,286 @@ msgid "author.pinned_posts.modal_title"
 msgstr ""
 
 #. js-lingui-explicit-id
+#: src/components/remotes/Comments/components/CommentHeader.tsx:29
+msgid "comments.author_avatar"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/Comments/components/CommentHeader.tsx:52
+msgid "comments.author_profile"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/Comments/Comments.tsx:163
+msgid "comments.closed"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/Comments/components/CommentItem.tsx:106
+msgid "comments.comment_by_author"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/Comments/Comments.tsx:26
+msgid "comments.count"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/Comments/hooks/useCommentsController.ts:184
+msgid "comments.create.error"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/Comments/hooks/useCommentsController.ts:179
+msgid "comments.create.failed"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/Comments/hooks/useCommentsController.ts:172
+msgid "comments.create.success"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/Comments/hooks/useCommentsController.ts:266
+msgid "comments.delete.confirm"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/Comments/hooks/useCommentsController.ts:300
+msgid "comments.delete.error"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/Comments/hooks/useCommentsController.ts:295
+msgid "comments.delete.failed"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/Comments/hooks/useCommentsController.ts:288
+msgid "comments.delete.success"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/Comments/hooks/useCommentsController.ts:262
+msgid "comments.delete.title"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/Comments/components/CommentHeader.tsx:21
+#: src/components/remotes/Comments/components/CommentItem.tsx:63
+msgid "comments.deleted_author"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/Comments/components/CommentEditForm.tsx:65
+msgid "comments.edit.cancel"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/Comments/components/CommentEditForm.tsx:54
+msgid "comments.edit.content_label"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/Comments/hooks/useCommentsController.ts:251
+msgid "comments.edit.error"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/Comments/hooks/useCommentsController.ts:246
+msgid "comments.edit.failed"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/Comments/hooks/useCommentsController.ts:209
+msgid "comments.edit.load_error"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/Comments/hooks/useCommentsController.ts:203
+msgid "comments.edit.load_failed"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/Comments/components/CommentEditForm.tsx:48
+msgid "comments.edit.placeholder"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/Comments/components/CommentEditForm.tsx:80
+msgid "comments.edit.save"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/Comments/hooks/useCommentsController.ts:239
+msgid "comments.edit.success"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/Comments/components/CommentHeader.tsx:79
+msgid "comments.edited"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/Comments/components/EmptyState.tsx:20
+msgid "comments.empty"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/Comments/components/CommentForm.tsx:172
+msgid "comments.form.content_label"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/Comments/components/CommentForm.tsx:33
+msgid "comments.form.placeholder"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/Comments/components/CommentForm.tsx:37
+msgid "comments.form.submit"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/Comments/components/CommentForm.tsx:208
+msgid "comments.form.submit_label"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/Comments/components/CommentForm.tsx:215
+msgid "comments.form.submitting"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/Comments/components/CommentForm.tsx:204
+msgid "comments.form.submitting_label"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/Comments/Comments.tsx:145
+msgid "comments.leave_comment"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/Comments/components/CommentActions.tsx:53
+msgid "comments.like.add"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/Comments/components/CommentActions.tsx:69
+msgid "comments.like.count"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/Comments/hooks/useCommentsController.ts:138
+msgid "comments.like.error"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/Comments/hooks/useCommentsController.ts:133
+msgid "comments.like.failed"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/Comments/components/CommentActions.tsx:49
+msgid "comments.like.remove"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/Comments/Comments.tsx:84
+msgid "comments.load_error_description"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/Comments/Comments.tsx:81
+msgid "comments.load_error_title"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/Comments/Comments.tsx:105
+msgid "comments.loading"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/Comments/components/CommentForm.tsx:152
+msgid "comments.login_required"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/Comments/components/CommentItem.tsx:118
+msgid "comments.options.open"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/Comments/components/CommentItem.tsx:101
+msgid "comments.reply_by_author"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/Comments/components/CommentActions.tsx:88
+msgid "comments.reply.action"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/Comments/hooks/useCommentsController.ts:380
+msgid "comments.reply.error"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/Comments/hooks/useCommentsController.ts:375
+msgid "comments.reply.failed"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/Comments/hooks/useCommentsController.ts:345
+msgid "comments.reply.parent_missing"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/Comments/components/CommentItem.tsx:184
+msgid "comments.reply.placeholder"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/Comments/components/CommentActions.tsx:83
+#: src/components/remotes/Comments/components/CommentItem.tsx:190
+msgid "comments.reply.submit"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/Comments/hooks/useCommentsController.ts:368
+msgid "comments.reply.success"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/Comments/components/CommentItem.tsx:170
+msgid "comments.replying_to"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/Comments/Comments.tsx:21
+msgid "comments.title"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/Comments/hooks/useCommentsController.ts:152
+#: src/components/remotes/Comments/hooks/useCommentsController.ts:223
+msgid "comments.validation.comment_required"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/Comments/hooks/useCommentsController.ts:337
+msgid "comments.validation.reply_required"
+msgstr ""
+
+#. js-lingui-explicit-id
 #: src/components/remotes/PostEditor/components/PostCoverEditor.tsx:158
 msgid "common.add"
 msgstr ""
 
 #. js-lingui-explicit-id
+#: src/components/remotes/Comments/components/CommentEditForm.tsx:69
+#: src/components/remotes/Comments/components/CommentForm.tsx:196
 #: src/components/remotes/PostEditor/components/PostRevisionDialog.tsx:606
 #: src/components/remotes/PostEditor/components/PostRevisionDialog.tsx:624
 #: src/components/remotes/PostEditor/components/PublishChecklist.tsx:139
@@ -347,15 +622,27 @@ msgid "common.close"
 msgstr ""
 
 #. js-lingui-explicit-id
+#: src/components/remotes/Comments/components/CommentItem.tsx:78
+#: src/components/remotes/Comments/hooks/useCommentsController.ts:270
 #: src/components/remotes/PostEditor/components/PostRevisionDialog.tsx:614
 #: src/components/remotes/PostEditor/components/PostRevisionDialog.tsx:645
 msgid "common.delete"
 msgstr ""
 
 #. js-lingui-explicit-id
+#: src/components/remotes/Comments/components/ErrorAlert.tsx:41
+msgid "common.dismiss_error"
+msgstr ""
+
+#. js-lingui-explicit-id
 #: src/components/remotes/PostEditor/components/SettingsDrawer.tsx:608
 #: src/components/remotes/PostEditor/utils/firstPublishTour.ts:114
 msgid "common.done"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/Comments/components/CommentItem.tsx:70
+msgid "common.edit"
 msgstr ""
 
 #. js-lingui-explicit-id
@@ -397,9 +684,25 @@ msgid "common.replace"
 msgstr ""
 
 #. js-lingui-explicit-id
+#: src/components/remotes/Comments/Comments.tsx:90
 #: src/components/remotes/PostEditor/components/DraftsPanel.tsx:146
 #: src/components/remotes/PostEditor/components/PostRevisionDialog.tsx:386
 msgid "common.retry"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/Comments/components/CommentEditForm.tsx:90
+msgid "common.save"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/Comments/components/CommentEditForm.tsx:76
+msgid "common.saving"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/Comments/components/CommentEditForm.tsx:87
+msgid "common.saving_ellipsis"
 msgstr ""
 
 #. js-lingui-explicit-id

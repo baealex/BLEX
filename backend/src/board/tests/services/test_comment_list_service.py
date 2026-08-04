@@ -1,5 +1,5 @@
 from django.test import TestCase
-from django.utils import timezone
+from django.utils import timezone, translation
 
 from board.models import Comment, Config, Post, PostConfig, PostContent, Profile, User
 from board.services.comment_list_service import CommentListService
@@ -84,6 +84,19 @@ class CommentListServiceTestCase(TestCase):
             'can_like': False,
             'can_reply': False,
         })
+
+        with translation.override('en'):
+            english_payload = CommentListService.serialize_post_comments(
+                self.post.url,
+                self.viewer,
+            )
+
+        english_comment = english_payload['comments'][0]
+        self.assertEqual(english_comment['author'], 'Ghost')
+        self.assertEqual(
+            english_comment['rendered_content'],
+            '<p>This comment has been deleted.</p>',
+        )
 
     def test_serialize_comment_sanitizes_legacy_html(self):
         Comment.objects.filter(id=self.parent.id).update(

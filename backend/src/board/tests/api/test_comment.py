@@ -345,6 +345,23 @@ class CommentTestCase(TestCase):
         self.assertIn('삭제된 댓글에는 답글을 달 수 없습니다', content['errorMessage'])
         self.assertEqual(Comment.objects.count(), initial_count)
 
+        english_response = self.client.post(
+            '/v1/comments?url=test-post',
+            {
+                'comment_md': 'Reply to deleted comment',
+                'parent_id': parent_comment.id,
+            },
+            HTTP_ACCEPT_LANGUAGE='en',
+        )
+        english_content = json.loads(english_response.content)
+        self.assertEqual(english_content['status'], 'ERROR')
+        self.assertEqual(english_content['errorCode'], 'error:RJ')
+        self.assertEqual(
+            english_content['errorMessage'],
+            'You cannot reply to a deleted comment.',
+        )
+        self.assertEqual(Comment.objects.count(), initial_count)
+
     def test_prevent_deeply_nested_comments(self):
         """대댓글의 대댓글 방지 테스트"""
         parent_comment = Comment.objects.last()

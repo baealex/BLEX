@@ -326,11 +326,286 @@ msgid "author.pinned_posts.modal_title"
 msgstr "고정 포스트 설정"
 
 #. js-lingui-explicit-id
+#: src/components/remotes/Comments/components/CommentHeader.tsx:29
+msgid "comments.author_avatar"
+msgstr "{author}님의 프로필 이미지"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/Comments/components/CommentHeader.tsx:52
+msgid "comments.author_profile"
+msgstr "{author}님의 프로필 보기"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/Comments/Comments.tsx:163
+msgid "comments.closed"
+msgstr "작성자가 이 글의 새 댓글과 답글을 받지 않습니다."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/Comments/components/CommentItem.tsx:106
+msgid "comments.comment_by_author"
+msgstr "{author}님의 댓글"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/Comments/Comments.tsx:26
+msgid "comments.count"
+msgstr "{count, plural, other {댓글 #개}}"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/Comments/hooks/useCommentsController.ts:184
+msgid "comments.create.error"
+msgstr "댓글을 작성하는 중 문제가 발생했습니다."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/Comments/hooks/useCommentsController.ts:179
+msgid "comments.create.failed"
+msgstr "댓글을 작성하지 못했습니다."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/Comments/hooks/useCommentsController.ts:172
+msgid "comments.create.success"
+msgstr "댓글을 작성했습니다."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/Comments/hooks/useCommentsController.ts:266
+msgid "comments.delete.confirm"
+msgstr "이 댓글을 삭제할까요?"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/Comments/hooks/useCommentsController.ts:300
+msgid "comments.delete.error"
+msgstr "댓글을 삭제하는 중 문제가 발생했습니다."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/Comments/hooks/useCommentsController.ts:295
+msgid "comments.delete.failed"
+msgstr "댓글을 삭제하지 못했습니다."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/Comments/hooks/useCommentsController.ts:288
+msgid "comments.delete.success"
+msgstr "댓글을 삭제했습니다."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/Comments/hooks/useCommentsController.ts:262
+msgid "comments.delete.title"
+msgstr "댓글 삭제"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/Comments/components/CommentHeader.tsx:21
+#: src/components/remotes/Comments/components/CommentItem.tsx:63
+msgid "comments.deleted_author"
+msgstr "삭제된 사용자"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/Comments/components/CommentEditForm.tsx:65
+msgid "comments.edit.cancel"
+msgstr "댓글 수정 취소"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/Comments/components/CommentEditForm.tsx:54
+msgid "comments.edit.content_label"
+msgstr "수정할 댓글 내용"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/Comments/hooks/useCommentsController.ts:251
+msgid "comments.edit.error"
+msgstr "댓글을 수정하는 중 문제가 발생했습니다."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/Comments/hooks/useCommentsController.ts:246
+msgid "comments.edit.failed"
+msgstr "댓글을 수정하지 못했습니다."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/Comments/hooks/useCommentsController.ts:209
+msgid "comments.edit.load_error"
+msgstr "댓글을 불러오는 중 문제가 발생했습니다."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/Comments/hooks/useCommentsController.ts:203
+msgid "comments.edit.load_failed"
+msgstr "댓글을 불러오지 못했습니다."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/Comments/components/CommentEditForm.tsx:48
+msgid "comments.edit.placeholder"
+msgstr "댓글을 수정하세요..."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/Comments/components/CommentEditForm.tsx:80
+msgid "comments.edit.save"
+msgstr "댓글 저장"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/Comments/hooks/useCommentsController.ts:239
+msgid "comments.edit.success"
+msgstr "댓글을 수정했습니다."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/Comments/components/CommentHeader.tsx:79
+msgid "comments.edited"
+msgstr "수정됨"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/Comments/components/EmptyState.tsx:20
+msgid "comments.empty"
+msgstr "아직 댓글이 없습니다"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/Comments/components/CommentForm.tsx:172
+msgid "comments.form.content_label"
+msgstr "댓글 내용"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/Comments/components/CommentForm.tsx:33
+msgid "comments.form.placeholder"
+msgstr "댓글을 작성하세요..."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/Comments/components/CommentForm.tsx:37
+msgid "comments.form.submit"
+msgstr "댓글 작성"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/Comments/components/CommentForm.tsx:208
+msgid "comments.form.submit_label"
+msgstr "댓글 작성"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/Comments/components/CommentForm.tsx:215
+msgid "comments.form.submitting"
+msgstr "작성 중..."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/Comments/components/CommentForm.tsx:204
+msgid "comments.form.submitting_label"
+msgstr "댓글 작성 중"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/Comments/Comments.tsx:145
+msgid "comments.leave_comment"
+msgstr "댓글 남기기"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/Comments/components/CommentActions.tsx:53
+msgid "comments.like.add"
+msgstr "좋아요"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/Comments/components/CommentActions.tsx:69
+msgid "comments.like.count"
+msgstr "{count, plural, other {좋아요 #개}}"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/Comments/hooks/useCommentsController.ts:138
+msgid "comments.like.error"
+msgstr "좋아요를 변경하는 중 문제가 발생했습니다."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/Comments/hooks/useCommentsController.ts:133
+msgid "comments.like.failed"
+msgstr "좋아요를 변경하지 못했습니다."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/Comments/components/CommentActions.tsx:49
+msgid "comments.like.remove"
+msgstr "좋아요 취소"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/Comments/Comments.tsx:84
+msgid "comments.load_error_description"
+msgstr "잠시 후 다시 시도해 주세요."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/Comments/Comments.tsx:81
+msgid "comments.load_error_title"
+msgstr "댓글을 불러오지 못했습니다"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/Comments/Comments.tsx:105
+msgid "comments.loading"
+msgstr "댓글을 불러오는 중..."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/Comments/components/CommentForm.tsx:152
+msgid "comments.login_required"
+msgstr "로그인하고 댓글 작성"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/Comments/components/CommentItem.tsx:118
+msgid "comments.options.open"
+msgstr "댓글 옵션 열기"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/Comments/components/CommentItem.tsx:101
+msgid "comments.reply_by_author"
+msgstr "{author}님의 답글"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/Comments/components/CommentActions.tsx:88
+msgid "comments.reply.action"
+msgstr "답글"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/Comments/hooks/useCommentsController.ts:380
+msgid "comments.reply.error"
+msgstr "답글을 작성하는 중 문제가 발생했습니다."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/Comments/hooks/useCommentsController.ts:375
+msgid "comments.reply.failed"
+msgstr "답글을 작성하지 못했습니다."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/Comments/hooks/useCommentsController.ts:345
+msgid "comments.reply.parent_missing"
+msgstr "답글을 남길 댓글을 찾지 못했습니다."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/Comments/components/CommentItem.tsx:184
+msgid "comments.reply.placeholder"
+msgstr "답글을 작성하세요..."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/Comments/components/CommentActions.tsx:83
+#: src/components/remotes/Comments/components/CommentItem.tsx:190
+msgid "comments.reply.submit"
+msgstr "답글 작성"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/Comments/hooks/useCommentsController.ts:368
+msgid "comments.reply.success"
+msgstr "답글을 작성했습니다."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/Comments/components/CommentItem.tsx:170
+msgid "comments.replying_to"
+msgstr "{author}님에게 답글 작성 중"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/Comments/Comments.tsx:21
+msgid "comments.title"
+msgstr "댓글"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/Comments/hooks/useCommentsController.ts:152
+#: src/components/remotes/Comments/hooks/useCommentsController.ts:223
+msgid "comments.validation.comment_required"
+msgstr "댓글을 입력해 주세요."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/Comments/hooks/useCommentsController.ts:337
+msgid "comments.validation.reply_required"
+msgstr "답글을 입력해 주세요."
+
+#. js-lingui-explicit-id
 #: src/components/remotes/PostEditor/components/PostCoverEditor.tsx:158
 msgid "common.add"
 msgstr "추가"
 
 #. js-lingui-explicit-id
+#: src/components/remotes/Comments/components/CommentEditForm.tsx:69
+#: src/components/remotes/Comments/components/CommentForm.tsx:196
 #: src/components/remotes/PostEditor/components/PostRevisionDialog.tsx:606
 #: src/components/remotes/PostEditor/components/PostRevisionDialog.tsx:624
 #: src/components/remotes/PostEditor/components/PublishChecklist.tsx:139
@@ -347,16 +622,28 @@ msgid "common.close"
 msgstr "닫기"
 
 #. js-lingui-explicit-id
+#: src/components/remotes/Comments/components/CommentItem.tsx:78
+#: src/components/remotes/Comments/hooks/useCommentsController.ts:270
 #: src/components/remotes/PostEditor/components/PostRevisionDialog.tsx:614
 #: src/components/remotes/PostEditor/components/PostRevisionDialog.tsx:645
 msgid "common.delete"
 msgstr "삭제"
 
 #. js-lingui-explicit-id
+#: src/components/remotes/Comments/components/ErrorAlert.tsx:41
+msgid "common.dismiss_error"
+msgstr "오류 메시지 닫기"
+
+#. js-lingui-explicit-id
 #: src/components/remotes/PostEditor/components/SettingsDrawer.tsx:608
 #: src/components/remotes/PostEditor/utils/firstPublishTour.ts:114
 msgid "common.done"
 msgstr "완료"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/Comments/components/CommentItem.tsx:70
+msgid "common.edit"
+msgstr "수정"
 
 #. js-lingui-explicit-id
 #: src/components/remotes/Login/Login.tsx:156
@@ -397,10 +684,26 @@ msgid "common.replace"
 msgstr "교체"
 
 #. js-lingui-explicit-id
+#: src/components/remotes/Comments/Comments.tsx:90
 #: src/components/remotes/PostEditor/components/DraftsPanel.tsx:146
 #: src/components/remotes/PostEditor/components/PostRevisionDialog.tsx:386
 msgid "common.retry"
 msgstr "다시 시도"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/Comments/components/CommentEditForm.tsx:90
+msgid "common.save"
+msgstr "저장"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/Comments/components/CommentEditForm.tsx:76
+msgid "common.saving"
+msgstr "저장 중"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/Comments/components/CommentEditForm.tsx:87
+msgid "common.saving_ellipsis"
+msgstr "저장 중..."
 
 #. js-lingui-explicit-id
 #: src/components/remotes/PostEditor/components/SettingsDrawer.tsx:592

@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: BLEX 3.1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-08-05 01:19+0900\n"
+"POT-Creation-Date: 2026-08-05 01:31+0900\n"
 "PO-Revision-Date: 2026-07-18 00:00+0900\n"
 "Last-Translator: BLEX contributors\n"
 "Language-Team: Korean\n"
@@ -211,59 +211,67 @@ msgstr "웹훅 구독"
 msgid "Webhook subscriptions"
 msgstr "웹훅 구독"
 
-#: board/models/posts.py:23
+#: board/models/posts.py:24
 msgid "Comment"
 msgstr "댓글"
 
-#: board/models/posts.py:24
+#: board/models/posts.py:25
 msgid "Comments"
 msgstr "댓글"
 
-#: board/models/posts.py:89
+#: board/models/posts.py:50 board/services/comment_service.py:195
+msgid "This comment has been deleted."
+msgstr "삭제된 댓글입니다."
+
+#: board/models/posts.py:78 board/services/comment_service.py:397
+msgid "You cannot reply to a reply."
+msgstr "대댓글에는 답글을 달 수 없습니다."
+
+#: board/models/posts.py:93
 msgid "User form"
 msgstr "사용자 폼"
 
-#: board/models/posts.py:90
+#: board/models/posts.py:94
 msgid "User forms"
 msgstr "사용자 폼"
 
-#: board/models/posts.py:103
+#: board/models/posts.py:107
 msgid "Image cache"
 msgstr "이미지 캐시"
 
-#: board/models/posts.py:104
+#: board/models/posts.py:108
 msgid "Image caches"
 msgstr "이미지 캐시"
 
-#: board/models/posts.py:112
+#: board/models/posts.py:116
 msgid "Tag"
 msgstr "태그"
 
-#: board/models/posts.py:113 board/templates/board/author/author_posts.html:32
+#: board/models/posts.py:117 board/templates/board/author/author_posts.html:32
 #: board/templates/board/tags/tag_list.html:4
 msgid "Tags"
 msgstr "태그"
 
-#: board/models/posts.py:152
+#: board/models/posts.py:156
 msgid "Post"
 msgstr "포스트"
 
-#: board/models/posts.py:153 board/templates/board/author/author_posts.html:20
+#: board/models/posts.py:157 board/templates/board/author/author_posts.html:20
 #: board/templates/board/author/author_posts.html:21
 #: board/templates/board/author/components/featured_posts_section.html:9
 #: board/templates/board/author/components/tabs_nav.html:14
 msgid "Posts"
 msgstr "포스트"
 
-#: board/models/posts.py:317
+#: board/models/posts.py:321
 msgid "Pinned post"
 msgstr "고정 포스트"
 
-#: board/models/posts.py:318
+#: board/models/posts.py:322
 msgid "Pinned posts"
 msgstr "고정 포스트"
 
-#: board/models/posts.py:373 board/models/posts.py:374
+#: board/models/posts.py:377 board/models/posts.py:378
 #: board/templates/board/author/author_series.html:20
 #: board/templates/board/author/author_series.html:21
 #: board/templates/board/author/components/tabs_nav.html:22
@@ -272,19 +280,19 @@ msgstr "고정 포스트"
 msgid "Series"
 msgstr "시리즈"
 
-#: board/models/posts.py:451
+#: board/models/posts.py:455
 msgid "Post revision"
 msgstr "포스트 수정 이력"
 
-#: board/models/posts.py:452
+#: board/models/posts.py:456
 msgid "Post revisions"
 msgstr "포스트 수정 이력"
 
-#: board/models/posts.py:471
+#: board/models/posts.py:475
 msgid "Post edit request"
 msgstr "포스트 수정 요청"
 
-#: board/models/posts.py:472
+#: board/models/posts.py:476
 msgid "Post edit requests"
 msgstr "포스트 수정 요청"
 
@@ -354,6 +362,34 @@ msgstr "유효하지 않은 초대 코드입니다."
 #: board/services/author_invite_service.py:114
 msgid "This invitation code has already been used or is inactive."
 msgstr "이미 사용되었거나 비활성화된 초대 코드입니다."
+
+#: board/services/comment_service.py:86 board/services/comment_service.py:183
+msgid "Log in to continue."
+msgstr "로그인이 필요합니다."
+
+#: board/services/comment_service.py:103
+msgid "Comments are disabled for this post."
+msgstr "댓글이 차단된 글입니다."
+
+#: board/services/comment_service.py:121
+msgid "The parent comment does not belong to this post."
+msgstr "부모 댓글이 대상 글에 속하지 않습니다."
+
+#: board/services/comment_service.py:129
+msgid "You cannot reply to a deleted comment."
+msgstr "삭제된 댓글에는 답글을 달 수 없습니다."
+
+#: board/services/comment_service.py:147
+msgid "You do not have permission to edit this comment."
+msgstr "댓글 수정 권한이 없습니다."
+
+#: board/services/comment_service.py:165
+msgid "You do not have permission to delete this comment."
+msgstr "댓글 삭제 권한이 없습니다."
+
+#: board/services/comment_service.py:189
+msgid "You cannot like your own comment."
+msgstr "자신의 댓글은 추천할 수 없습니다."
 
 #: board/services/post_revision_service.py:173
 msgid "The revision to restore could not be found."

@@ -326,11 +326,286 @@ msgid "author.pinned_posts.modal_title"
 msgstr "Manage pinned posts"
 
 #. js-lingui-explicit-id
+#: src/components/remotes/Comments/components/CommentHeader.tsx:29
+msgid "comments.author_avatar"
+msgstr "Profile image for {author}"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/Comments/components/CommentHeader.tsx:52
+msgid "comments.author_profile"
+msgstr "View profile for {author}"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/Comments/Comments.tsx:163
+msgid "comments.closed"
+msgstr "The author is not accepting new comments or replies on this post."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/Comments/components/CommentItem.tsx:106
+msgid "comments.comment_by_author"
+msgstr "Comment by {author}"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/Comments/Comments.tsx:26
+msgid "comments.count"
+msgstr "{count, plural, one {# comment} other {# comments}}"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/Comments/hooks/useCommentsController.ts:184
+msgid "comments.create.error"
+msgstr "Something went wrong while posting the comment."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/Comments/hooks/useCommentsController.ts:179
+msgid "comments.create.failed"
+msgstr "Could not post the comment."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/Comments/hooks/useCommentsController.ts:172
+msgid "comments.create.success"
+msgstr "Comment posted."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/Comments/hooks/useCommentsController.ts:266
+msgid "comments.delete.confirm"
+msgstr "Delete this comment?"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/Comments/hooks/useCommentsController.ts:300
+msgid "comments.delete.error"
+msgstr "Something went wrong while deleting the comment."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/Comments/hooks/useCommentsController.ts:295
+msgid "comments.delete.failed"
+msgstr "Could not delete the comment."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/Comments/hooks/useCommentsController.ts:288
+msgid "comments.delete.success"
+msgstr "Comment deleted."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/Comments/hooks/useCommentsController.ts:262
+msgid "comments.delete.title"
+msgstr "Delete comment"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/Comments/components/CommentHeader.tsx:21
+#: src/components/remotes/Comments/components/CommentItem.tsx:63
+msgid "comments.deleted_author"
+msgstr "Deleted user"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/Comments/components/CommentEditForm.tsx:65
+msgid "comments.edit.cancel"
+msgstr "Cancel editing"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/Comments/components/CommentEditForm.tsx:54
+msgid "comments.edit.content_label"
+msgstr "Edited comment content"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/Comments/hooks/useCommentsController.ts:251
+msgid "comments.edit.error"
+msgstr "Something went wrong while updating the comment."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/Comments/hooks/useCommentsController.ts:246
+msgid "comments.edit.failed"
+msgstr "Could not update the comment."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/Comments/hooks/useCommentsController.ts:209
+msgid "comments.edit.load_error"
+msgstr "Something went wrong while loading the comment."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/Comments/hooks/useCommentsController.ts:203
+msgid "comments.edit.load_failed"
+msgstr "Could not load the comment."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/Comments/components/CommentEditForm.tsx:48
+msgid "comments.edit.placeholder"
+msgstr "Edit your comment..."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/Comments/components/CommentEditForm.tsx:80
+msgid "comments.edit.save"
+msgstr "Save comment"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/Comments/hooks/useCommentsController.ts:239
+msgid "comments.edit.success"
+msgstr "Comment updated."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/Comments/components/CommentHeader.tsx:79
+msgid "comments.edited"
+msgstr "Edited"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/Comments/components/EmptyState.tsx:20
+msgid "comments.empty"
+msgstr "No comments yet"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/Comments/components/CommentForm.tsx:172
+msgid "comments.form.content_label"
+msgstr "Comment content"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/Comments/components/CommentForm.tsx:33
+msgid "comments.form.placeholder"
+msgstr "Write a comment..."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/Comments/components/CommentForm.tsx:37
+msgid "comments.form.submit"
+msgstr "Post comment"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/Comments/components/CommentForm.tsx:208
+msgid "comments.form.submit_label"
+msgstr "Post comment"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/Comments/components/CommentForm.tsx:215
+msgid "comments.form.submitting"
+msgstr "Posting..."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/Comments/components/CommentForm.tsx:204
+msgid "comments.form.submitting_label"
+msgstr "Posting comment"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/Comments/Comments.tsx:145
+msgid "comments.leave_comment"
+msgstr "Leave a comment"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/Comments/components/CommentActions.tsx:53
+msgid "comments.like.add"
+msgstr "Like"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/Comments/components/CommentActions.tsx:69
+msgid "comments.like.count"
+msgstr "{count, plural, one {# like} other {# likes}}"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/Comments/hooks/useCommentsController.ts:138
+msgid "comments.like.error"
+msgstr "Something went wrong while updating this like."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/Comments/hooks/useCommentsController.ts:133
+msgid "comments.like.failed"
+msgstr "Could not update this like."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/Comments/components/CommentActions.tsx:49
+msgid "comments.like.remove"
+msgstr "Remove like"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/Comments/Comments.tsx:84
+msgid "comments.load_error_description"
+msgstr "Try again in a moment."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/Comments/Comments.tsx:81
+msgid "comments.load_error_title"
+msgstr "Could not load comments"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/Comments/Comments.tsx:105
+msgid "comments.loading"
+msgstr "Loading comments..."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/Comments/components/CommentForm.tsx:152
+msgid "comments.login_required"
+msgstr "Log in to comment"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/Comments/components/CommentItem.tsx:118
+msgid "comments.options.open"
+msgstr "Open comment options"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/Comments/components/CommentItem.tsx:101
+msgid "comments.reply_by_author"
+msgstr "Reply by {author}"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/Comments/components/CommentActions.tsx:88
+msgid "comments.reply.action"
+msgstr "Reply"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/Comments/hooks/useCommentsController.ts:380
+msgid "comments.reply.error"
+msgstr "Something went wrong while posting the reply."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/Comments/hooks/useCommentsController.ts:375
+msgid "comments.reply.failed"
+msgstr "Could not post the reply."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/Comments/hooks/useCommentsController.ts:345
+msgid "comments.reply.parent_missing"
+msgstr "Could not find the comment to reply to."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/Comments/components/CommentItem.tsx:184
+msgid "comments.reply.placeholder"
+msgstr "Write a reply..."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/Comments/components/CommentActions.tsx:83
+#: src/components/remotes/Comments/components/CommentItem.tsx:190
+msgid "comments.reply.submit"
+msgstr "Post reply"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/Comments/hooks/useCommentsController.ts:368
+msgid "comments.reply.success"
+msgstr "Reply posted."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/Comments/components/CommentItem.tsx:170
+msgid "comments.replying_to"
+msgstr "Replying to {author}"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/Comments/Comments.tsx:21
+msgid "comments.title"
+msgstr "Comments"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/Comments/hooks/useCommentsController.ts:152
+#: src/components/remotes/Comments/hooks/useCommentsController.ts:223
+msgid "comments.validation.comment_required"
+msgstr "Enter a comment."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/Comments/hooks/useCommentsController.ts:337
+msgid "comments.validation.reply_required"
+msgstr "Enter a reply."
+
+#. js-lingui-explicit-id
 #: src/components/remotes/PostEditor/components/PostCoverEditor.tsx:158
 msgid "common.add"
 msgstr "Add"
 
 #. js-lingui-explicit-id
+#: src/components/remotes/Comments/components/CommentEditForm.tsx:69
+#: src/components/remotes/Comments/components/CommentForm.tsx:196
 #: src/components/remotes/PostEditor/components/PostRevisionDialog.tsx:606
 #: src/components/remotes/PostEditor/components/PostRevisionDialog.tsx:624
 #: src/components/remotes/PostEditor/components/PublishChecklist.tsx:139
@@ -347,16 +622,28 @@ msgid "common.close"
 msgstr "Close"
 
 #. js-lingui-explicit-id
+#: src/components/remotes/Comments/components/CommentItem.tsx:78
+#: src/components/remotes/Comments/hooks/useCommentsController.ts:270
 #: src/components/remotes/PostEditor/components/PostRevisionDialog.tsx:614
 #: src/components/remotes/PostEditor/components/PostRevisionDialog.tsx:645
 msgid "common.delete"
 msgstr "Delete"
 
 #. js-lingui-explicit-id
+#: src/components/remotes/Comments/components/ErrorAlert.tsx:41
+msgid "common.dismiss_error"
+msgstr "Dismiss error message"
+
+#. js-lingui-explicit-id
 #: src/components/remotes/PostEditor/components/SettingsDrawer.tsx:608
 #: src/components/remotes/PostEditor/utils/firstPublishTour.ts:114
 msgid "common.done"
 msgstr "Done"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/Comments/components/CommentItem.tsx:70
+msgid "common.edit"
+msgstr "Edit"
 
 #. js-lingui-explicit-id
 #: src/components/remotes/Login/Login.tsx:156
@@ -397,10 +684,26 @@ msgid "common.replace"
 msgstr "Replace"
 
 #. js-lingui-explicit-id
+#: src/components/remotes/Comments/Comments.tsx:90
 #: src/components/remotes/PostEditor/components/DraftsPanel.tsx:146
 #: src/components/remotes/PostEditor/components/PostRevisionDialog.tsx:386
 msgid "common.retry"
 msgstr "Try again"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/Comments/components/CommentEditForm.tsx:90
+msgid "common.save"
+msgstr "Save"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/Comments/components/CommentEditForm.tsx:76
+msgid "common.saving"
+msgstr "Saving"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/Comments/components/CommentEditForm.tsx:87
+msgid "common.saving_ellipsis"
+msgstr "Saving..."
 
 #. js-lingui-explicit-id
 #: src/components/remotes/PostEditor/components/SettingsDrawer.tsx:592

@@ -12,6 +12,7 @@ from django.contrib.auth.models import User
 from django.db import transaction
 from django.db.models import Case, Count, Exists, OuterRef, Value, When
 from django.http import Http404
+from django.utils.translation import gettext
 
 from board.constants.config_meta import CONFIG_TYPE
 from board.models import Comment, Post
@@ -82,7 +83,7 @@ class CommentService:
         if not user.is_active:
             raise CommentValidationError(
                 ErrorCode.AUTHENTICATION,
-                '로그인이 필요합니다.'
+                gettext('Log in to continue.')
             )
 
     @staticmethod
@@ -99,7 +100,7 @@ class CommentService:
         if hasattr(post, 'config') and post.config.block_comment:
             raise CommentValidationError(
                 ErrorCode.REJECT,
-                '댓글이 차단된 글입니다.'
+                gettext('Comments are disabled for this post.')
             )
 
     @staticmethod
@@ -117,7 +118,7 @@ class CommentService:
         if parent and parent.post_id != post.id:
             raise CommentValidationError(
                 ErrorCode.REJECT,
-                '부모 댓글이 대상 글에 속하지 않습니다.'
+                gettext('The parent comment does not belong to this post.')
             )
 
     @staticmethod
@@ -125,7 +126,7 @@ class CommentService:
         if parent and parent.is_deleted():
             raise CommentValidationError(
                 ErrorCode.REJECT,
-                '삭제된 댓글에는 답글을 달 수 없습니다.'
+                gettext('You cannot reply to a deleted comment.')
             )
 
     @staticmethod
@@ -143,7 +144,7 @@ class CommentService:
         if not CommentService.can_user_edit_comment(user, comment):
             raise CommentValidationError(
                 ErrorCode.AUTHENTICATION,
-                '댓글 수정 권한이 없습니다.'
+                gettext('You do not have permission to edit this comment.')
             )
 
     @staticmethod
@@ -161,7 +162,7 @@ class CommentService:
         if not CommentService.can_user_delete_comment(user, comment):
             raise CommentValidationError(
                 ErrorCode.AUTHENTICATION,
-                '댓글 삭제 권한이 없습니다.'
+                gettext('You do not have permission to delete this comment.')
             )
 
     @staticmethod
@@ -179,19 +180,19 @@ class CommentService:
         if not user.is_active:
             raise CommentValidationError(
                 ErrorCode.NEED_LOGIN,
-                '로그인이 필요합니다.'
+                gettext('Log in to continue.')
             )
 
         if user == comment.author:
             raise CommentValidationError(
                 ErrorCode.AUTHENTICATION,
-                '자신의 댓글은 추천할 수 없습니다.'
+                gettext('You cannot like your own comment.')
             )
 
         if comment.is_deleted():
             raise CommentValidationError(
                 ErrorCode.REJECT,
-                '삭제된 댓글입니다.'
+                gettext('This comment has been deleted.')
             )
 
     @staticmethod
@@ -393,7 +394,7 @@ class CommentService:
         if parent and parent.parent:
             raise CommentValidationError(
                 ErrorCode.REJECT,
-                '대댓글에는 답글을 달 수 없습니다.'
+                gettext('You cannot reply to a reply.')
             )
 
         text_html = markdown.parse_comment_to_html(text_md)
