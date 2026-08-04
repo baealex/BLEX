@@ -863,6 +863,7 @@ msgstr "Saving"
 
 #. js-lingui-explicit-id
 #: src/components/remotes/Comments/components/CommentEditForm.tsx:87
+#: src/components/remotes/SettingsApp/pages/SeoAeoSetting/SeoAeoSetting.tsx:606
 msgid "common.saving_ellipsis"
 msgstr "Saving..."
 
@@ -5092,6 +5093,287 @@ msgstr "Could not update the profile."
 #: src/components/remotes/SettingsApp/pages/ProfileSetting/ProfileSetting.tsx:123
 msgid "settings.profile.update_success"
 msgstr "Profile updated."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SeoAeoSetting/SeoAeoSetting.tsx:450
+msgid "settings.seo_aeo.aeo.disabled_description"
+msgstr "Returns 404 for AI-specific endpoints and removes discovery signals."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SeoAeoSetting/SeoAeoSetting.tsx:460
+msgid "settings.seo_aeo.aeo.enable"
+msgstr "Enable AEO visibility for AI agents"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SeoAeoSetting/SeoAeoSetting.tsx:446
+msgid "settings.seo_aeo.aeo.enabled_description"
+msgstr "Publishes llms.txt and Markdown endpoints with discovery signals."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SeoAeoSetting/SeoAeoSetting.tsx:291
+msgid "settings.seo_aeo.aeo.save_error"
+msgstr "Failed to save AEO settings."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SeoAeoSetting/SeoAeoSetting.tsx:284
+msgid "settings.seo_aeo.aeo.save_success"
+msgstr "AEO settings saved."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SeoAeoSetting/SeoAeoSetting.tsx:439
+msgid "settings.seo_aeo.aeo.title"
+msgstr "AEO · AI agents"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SeoAeoSetting/SeoAeoSetting.tsx:223
+msgid "settings.seo_aeo.load_error"
+msgstr "Failed to load SEO/AEO settings."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SeoAeoSetting/SeoAeoSetting.tsx:480
+msgid "settings.seo_aeo.robots.advanced_title"
+msgstr "Advanced robots.txt settings"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SeoAeoSetting/SeoAeoSetting.tsx:593
+msgid "settings.seo_aeo.robots.clear"
+msgstr "Clear custom rules"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SeoAeoSetting/SeoAeoSetting.tsx:533
+msgid "settings.seo_aeo.robots.editor_help"
+msgstr "Appended exactly as written after the generated defaults."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SeoAeoSetting/SeoAeoSetting.tsx:540
+msgid "settings.seo_aeo.robots.editor_label"
+msgstr "Custom robots.txt rules"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SeoAeoSetting/SeoAeoSetting.tsx:527
+msgid "settings.seo_aeo.robots.editor_title"
+msgstr "Edit custom rules"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SeoAeoSetting/SeoAeoSetting.tsx:554
+msgid "settings.seo_aeo.robots.preview_title"
+msgstr "Full robots.txt preview"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SeoAeoSetting/SeoAeoSetting.tsx:561
+msgid "settings.seo_aeo.robots.preview.custom_rules"
+msgstr "Includes custom rules"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SeoAeoSetting/SeoAeoSetting.tsx:565
+msgid "settings.seo_aeo.robots.preview.default_only"
+msgstr "Default policy only"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SeoAeoSetting/SeoAeoSetting.tsx:577
+msgid "settings.seo_aeo.robots.preview.loading"
+msgstr "Loading preview..."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SeoAeoSetting/SeoAeoSetting.tsx:501
+msgid "settings.seo_aeo.robots.quick_add"
+msgstr "Quick-add rules"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SeoAeoSetting/SeoAeoSetting.tsx:610
+msgid "settings.seo_aeo.robots.save"
+msgstr "Save robots.txt"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SeoAeoSetting/SeoAeoSetting.tsx:315
+msgid "settings.seo_aeo.robots.save_error"
+msgstr "Failed to save robots.txt settings."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SeoAeoSetting/SeoAeoSetting.tsx:308
+msgid "settings.seo_aeo.robots.save_success"
+msgstr "robots.txt settings saved."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SeoAeoSetting/SeoAeoSetting.tsx:372
+msgid "settings.seo_aeo.robots.status.active_lines"
+msgstr "{count, plural, one {# custom rule line active} other {# custom rule lines active}}"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SeoAeoSetting/SeoAeoSetting.tsx:377
+msgid "settings.seo_aeo.robots.status.default_only"
+msgstr "Default policy only"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SeoAeoSetting/SeoAeoSetting.tsx:362
+msgid "settings.seo_aeo.robots.status.save_failed"
+msgstr "Save failed · Existing rules kept"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SeoAeoSetting/SeoAeoSetting.tsx:357
+msgid "settings.seo_aeo.robots.status.saving"
+msgstr "Saving custom rules"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SeoAeoSetting/SeoAeoSetting.tsx:367
+msgid "settings.seo_aeo.robots.status.unsaved"
+msgstr "Unsaved changes"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SeoAeoSetting/SeoAeoSetting.tsx:162
+msgid "settings.seo_aeo.robots.template.add_sitemap"
+msgstr "Add a sitemap"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SeoAeoSetting/SeoAeoSetting.tsx:148
+msgid "settings.seo_aeo.robots.template.allow_path"
+msgstr "Allow a path"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SeoAeoSetting/SeoAeoSetting.tsx:155
+msgid "settings.seo_aeo.robots.template.block_crawler"
+msgstr "Block a specific crawler"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SeoAeoSetting/SeoAeoSetting.tsx:141
+msgid "settings.seo_aeo.robots.template.block_path"
+msgstr "Block a path"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SeoAeoSetting/SeoAeoSetting.tsx:414
+msgid "settings.seo_aeo.seo.disabled_description"
+msgstr "Hides the sitemap notice and adds noindex, nofollow to pages."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SeoAeoSetting/SeoAeoSetting.tsx:424
+msgid "settings.seo_aeo.seo.enable"
+msgstr "Enable SEO visibility for search engines"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SeoAeoSetting/SeoAeoSetting.tsx:410
+msgid "settings.seo_aeo.seo.enabled_description"
+msgstr "Allows pages to be indexed and advertises the sitemap in robots.txt."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SeoAeoSetting/SeoAeoSetting.tsx:269
+msgid "settings.seo_aeo.seo.save_error"
+msgstr "Failed to save SEO settings."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SeoAeoSetting/SeoAeoSetting.tsx:262
+msgid "settings.seo_aeo.seo.save_success"
+msgstr "SEO settings saved."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SeoAeoSetting/SeoAeoSetting.tsx:403
+msgid "settings.seo_aeo.seo.title"
+msgstr "SEO · Search engines"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SeoAeoSetting/SeoAeoSetting.tsx:205
+msgid "settings.seo_aeo.status.applied"
+msgstr "Current settings applied"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SeoAeoSetting/SeoAeoSetting.tsx:194
+msgid "settings.seo_aeo.status.save_failed"
+msgstr "Save failed · Try again"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SeoAeoSetting/SeoAeoSetting.tsx:182
+msgid "settings.seo_aeo.status.saving"
+msgstr "Saving settings"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SeoAeoSetting/SeoAeoSetting.tsx:76
+msgid "settings.seo_aeo.surface.custom_robots_rules"
+msgstr "Custom robots rules"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SeoAeoSetting/SeoAeoSetting.tsx:81
+msgid "settings.seo_aeo.surface.custom_robots_rules.description"
+msgstr "Applies saved rules immediately without a deployment."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SeoAeoSetting/SeoAeoSetting.tsx:115
+msgid "settings.seo_aeo.surface.discovery_headers"
+msgstr "Discovery headers"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SeoAeoSetting/SeoAeoSetting.tsx:120
+msgid "settings.seo_aeo.surface.discovery_headers.description"
+msgstr "Advertises Markdown URLs through response headers and alternate links."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SeoAeoSetting/SeoAeoSetting.tsx:91
+msgid "settings.seo_aeo.surface.llms_txt"
+msgstr "llms.txt"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SeoAeoSetting/SeoAeoSetting.tsx:96
+msgid "settings.seo_aeo.surface.llms_txt.description"
+msgstr "Publishes a site guide for AI agents."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SeoAeoSetting/SeoAeoSetting.tsx:103
+msgid "settings.seo_aeo.surface.markdown_endpoints"
+msgstr "Markdown endpoints"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SeoAeoSetting/SeoAeoSetting.tsx:108
+msgid "settings.seo_aeo.surface.markdown_endpoints.description"
+msgstr "Serves posts, series, and static pages as Markdown."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SeoAeoSetting/SeoAeoSetting.tsx:52
+msgid "settings.seo_aeo.surface.robots_meta"
+msgstr "Robots meta tag"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SeoAeoSetting/SeoAeoSetting.tsx:57
+msgid "settings.seo_aeo.surface.robots_meta.description"
+msgstr "When SEO is disabled, adds noindex, nofollow to HTML pages."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SeoAeoSetting/SeoAeoSetting.tsx:40
+#: src/components/remotes/SettingsApp/pages/SeoAeoSetting/SeoAeoSetting.tsx:127
+msgid "settings.seo_aeo.surface.robots_txt"
+msgstr "robots.txt"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SeoAeoSetting/SeoAeoSetting.tsx:132
+msgid "settings.seo_aeo.surface.robots_txt_aeo.description"
+msgstr "Serves allow or block rules for llms.txt and .md paths based on the AEO setting."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SeoAeoSetting/SeoAeoSetting.tsx:45
+msgid "settings.seo_aeo.surface.robots_txt.description"
+msgstr "Combines the default policy with your saved custom rules."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SeoAeoSetting/SeoAeoSetting.tsx:64
+msgid "settings.seo_aeo.surface.sitemap_discovery"
+msgstr "Sitemap discovery"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SeoAeoSetting/SeoAeoSetting.tsx:69
+msgid "settings.seo_aeo.surface.sitemap_discovery.description"
+msgstr "When SEO is enabled, lists the sitemap location in robots.txt."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SeoAeoSetting/SeoAeoSetting.tsx:633
+msgid "settings.seo_aeo.surfaces.summary"
+msgstr "4 SEO surfaces · 4 AEO surfaces"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SeoAeoSetting/SeoAeoSetting.tsx:627
+msgid "settings.seo_aeo.surfaces.title"
+msgstr "Public surfaces controlled by SEO and AEO"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SeoAeoSetting/SeoAeoSetting.tsx:391
+msgid "settings.seo_aeo.visibility.title"
+msgstr "Current visibility"
 
 #. js-lingui-explicit-id
 #: src/components/remotes/SettingsApp/pages/SeriesSetting/SeriesSetting.tsx:278

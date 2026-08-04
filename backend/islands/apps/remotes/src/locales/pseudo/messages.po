@@ -863,6 +863,7 @@ msgstr ""
 
 #. js-lingui-explicit-id
 #: src/components/remotes/Comments/components/CommentEditForm.tsx:87
+#: src/components/remotes/SettingsApp/pages/SeoAeoSetting/SeoAeoSetting.tsx:606
 msgid "common.saving_ellipsis"
 msgstr ""
 
@@ -5087,6 +5088,287 @@ msgstr ""
 #. js-lingui-explicit-id
 #: src/components/remotes/SettingsApp/pages/ProfileSetting/ProfileSetting.tsx:123
 msgid "settings.profile.update_success"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SeoAeoSetting/SeoAeoSetting.tsx:450
+msgid "settings.seo_aeo.aeo.disabled_description"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SeoAeoSetting/SeoAeoSetting.tsx:460
+msgid "settings.seo_aeo.aeo.enable"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SeoAeoSetting/SeoAeoSetting.tsx:446
+msgid "settings.seo_aeo.aeo.enabled_description"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SeoAeoSetting/SeoAeoSetting.tsx:291
+msgid "settings.seo_aeo.aeo.save_error"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SeoAeoSetting/SeoAeoSetting.tsx:284
+msgid "settings.seo_aeo.aeo.save_success"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SeoAeoSetting/SeoAeoSetting.tsx:439
+msgid "settings.seo_aeo.aeo.title"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SeoAeoSetting/SeoAeoSetting.tsx:223
+msgid "settings.seo_aeo.load_error"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SeoAeoSetting/SeoAeoSetting.tsx:480
+msgid "settings.seo_aeo.robots.advanced_title"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SeoAeoSetting/SeoAeoSetting.tsx:593
+msgid "settings.seo_aeo.robots.clear"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SeoAeoSetting/SeoAeoSetting.tsx:533
+msgid "settings.seo_aeo.robots.editor_help"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SeoAeoSetting/SeoAeoSetting.tsx:540
+msgid "settings.seo_aeo.robots.editor_label"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SeoAeoSetting/SeoAeoSetting.tsx:527
+msgid "settings.seo_aeo.robots.editor_title"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SeoAeoSetting/SeoAeoSetting.tsx:554
+msgid "settings.seo_aeo.robots.preview_title"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SeoAeoSetting/SeoAeoSetting.tsx:561
+msgid "settings.seo_aeo.robots.preview.custom_rules"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SeoAeoSetting/SeoAeoSetting.tsx:565
+msgid "settings.seo_aeo.robots.preview.default_only"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SeoAeoSetting/SeoAeoSetting.tsx:577
+msgid "settings.seo_aeo.robots.preview.loading"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SeoAeoSetting/SeoAeoSetting.tsx:501
+msgid "settings.seo_aeo.robots.quick_add"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SeoAeoSetting/SeoAeoSetting.tsx:610
+msgid "settings.seo_aeo.robots.save"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SeoAeoSetting/SeoAeoSetting.tsx:315
+msgid "settings.seo_aeo.robots.save_error"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SeoAeoSetting/SeoAeoSetting.tsx:308
+msgid "settings.seo_aeo.robots.save_success"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SeoAeoSetting/SeoAeoSetting.tsx:372
+msgid "settings.seo_aeo.robots.status.active_lines"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SeoAeoSetting/SeoAeoSetting.tsx:377
+msgid "settings.seo_aeo.robots.status.default_only"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SeoAeoSetting/SeoAeoSetting.tsx:362
+msgid "settings.seo_aeo.robots.status.save_failed"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SeoAeoSetting/SeoAeoSetting.tsx:357
+msgid "settings.seo_aeo.robots.status.saving"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SeoAeoSetting/SeoAeoSetting.tsx:367
+msgid "settings.seo_aeo.robots.status.unsaved"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SeoAeoSetting/SeoAeoSetting.tsx:162
+msgid "settings.seo_aeo.robots.template.add_sitemap"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SeoAeoSetting/SeoAeoSetting.tsx:148
+msgid "settings.seo_aeo.robots.template.allow_path"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SeoAeoSetting/SeoAeoSetting.tsx:155
+msgid "settings.seo_aeo.robots.template.block_crawler"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SeoAeoSetting/SeoAeoSetting.tsx:141
+msgid "settings.seo_aeo.robots.template.block_path"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SeoAeoSetting/SeoAeoSetting.tsx:414
+msgid "settings.seo_aeo.seo.disabled_description"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SeoAeoSetting/SeoAeoSetting.tsx:424
+msgid "settings.seo_aeo.seo.enable"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SeoAeoSetting/SeoAeoSetting.tsx:410
+msgid "settings.seo_aeo.seo.enabled_description"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SeoAeoSetting/SeoAeoSetting.tsx:269
+msgid "settings.seo_aeo.seo.save_error"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SeoAeoSetting/SeoAeoSetting.tsx:262
+msgid "settings.seo_aeo.seo.save_success"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SeoAeoSetting/SeoAeoSetting.tsx:403
+msgid "settings.seo_aeo.seo.title"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SeoAeoSetting/SeoAeoSetting.tsx:205
+msgid "settings.seo_aeo.status.applied"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SeoAeoSetting/SeoAeoSetting.tsx:194
+msgid "settings.seo_aeo.status.save_failed"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SeoAeoSetting/SeoAeoSetting.tsx:182
+msgid "settings.seo_aeo.status.saving"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SeoAeoSetting/SeoAeoSetting.tsx:76
+msgid "settings.seo_aeo.surface.custom_robots_rules"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SeoAeoSetting/SeoAeoSetting.tsx:81
+msgid "settings.seo_aeo.surface.custom_robots_rules.description"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SeoAeoSetting/SeoAeoSetting.tsx:115
+msgid "settings.seo_aeo.surface.discovery_headers"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SeoAeoSetting/SeoAeoSetting.tsx:120
+msgid "settings.seo_aeo.surface.discovery_headers.description"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SeoAeoSetting/SeoAeoSetting.tsx:91
+msgid "settings.seo_aeo.surface.llms_txt"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SeoAeoSetting/SeoAeoSetting.tsx:96
+msgid "settings.seo_aeo.surface.llms_txt.description"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SeoAeoSetting/SeoAeoSetting.tsx:103
+msgid "settings.seo_aeo.surface.markdown_endpoints"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SeoAeoSetting/SeoAeoSetting.tsx:108
+msgid "settings.seo_aeo.surface.markdown_endpoints.description"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SeoAeoSetting/SeoAeoSetting.tsx:52
+msgid "settings.seo_aeo.surface.robots_meta"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SeoAeoSetting/SeoAeoSetting.tsx:57
+msgid "settings.seo_aeo.surface.robots_meta.description"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SeoAeoSetting/SeoAeoSetting.tsx:40
+#: src/components/remotes/SettingsApp/pages/SeoAeoSetting/SeoAeoSetting.tsx:127
+msgid "settings.seo_aeo.surface.robots_txt"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SeoAeoSetting/SeoAeoSetting.tsx:132
+msgid "settings.seo_aeo.surface.robots_txt_aeo.description"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SeoAeoSetting/SeoAeoSetting.tsx:45
+msgid "settings.seo_aeo.surface.robots_txt.description"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SeoAeoSetting/SeoAeoSetting.tsx:64
+msgid "settings.seo_aeo.surface.sitemap_discovery"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SeoAeoSetting/SeoAeoSetting.tsx:69
+msgid "settings.seo_aeo.surface.sitemap_discovery.description"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SeoAeoSetting/SeoAeoSetting.tsx:633
+msgid "settings.seo_aeo.surfaces.summary"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SeoAeoSetting/SeoAeoSetting.tsx:627
+msgid "settings.seo_aeo.surfaces.title"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SeoAeoSetting/SeoAeoSetting.tsx:391
+msgid "settings.seo_aeo.visibility.title"
 msgstr ""
 
 #. js-lingui-explicit-id

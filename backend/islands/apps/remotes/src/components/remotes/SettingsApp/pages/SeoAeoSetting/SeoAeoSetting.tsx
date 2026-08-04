@@ -1,4 +1,7 @@
 import { useEffect, useState } from 'react';
+import type { MessageDescriptor } from '@lingui/core';
+import { msg } from '@lingui/core/macro';
+import { useLingui } from '@lingui/react/macro';
 import { useMutation, useQueryClient, useSuspenseQuery } from '@tanstack/react-query';
 import { Toggle } from '@blex/ui/toggle';
 import {
@@ -26,80 +29,140 @@ import { SettingsHeader } from '../../components';
 
 interface ExposureItem {
     icon: LucideIcon;
-    name: string;
+    name: MessageDescriptor;
     path: string;
-    description: string;
+    description: MessageDescriptor;
 }
 
 const seoExposureItems: ExposureItem[] = [
     {
         icon: Route,
-        name: 'robots.txt',
+        name: msg({
+            id: 'settings.seo_aeo.surface.robots_txt',
+            message: 'robots.txt'
+        }),
         path: '/robots.txt',
-        description: '기본 정책과 저장한 추가 규칙을 합쳐 제공합니다.'
+        description: msg({
+            id: 'settings.seo_aeo.surface.robots_txt.description',
+            message: 'Combines the default policy with your saved custom rules.'
+        })
     },
     {
         icon: Code2,
-        name: 'Robots meta',
+        name: msg({
+            id: 'settings.seo_aeo.surface.robots_meta',
+            message: 'Robots meta tag'
+        }),
         path: 'noindex, nofollow',
-        description: 'SEO가 꺼지면 HTML 페이지에 noindex,nofollow를 적용합니다.'
+        description: msg({
+            id: 'settings.seo_aeo.surface.robots_meta.description',
+            message: 'When SEO is disabled, adds noindex, nofollow to HTML pages.'
+        })
     },
     {
         icon: Layers3,
-        name: 'Sitemap 안내',
+        name: msg({
+            id: 'settings.seo_aeo.surface.sitemap_discovery',
+            message: 'Sitemap discovery'
+        }),
         path: '/sitemap.xml',
-        description: 'SEO가 켜지면 robots.txt에 sitemap 위치를 표시합니다.'
+        description: msg({
+            id: 'settings.seo_aeo.surface.sitemap_discovery.description',
+            message: 'When SEO is enabled, lists the sitemap location in robots.txt.'
+        })
     },
     {
         icon: Pencil,
-        name: '추가 robots 규칙',
+        name: msg({
+            id: 'settings.seo_aeo.surface.custom_robots_rules',
+            message: 'Custom robots rules'
+        }),
         path: 'runtime setting',
-        description: '저장한 규칙을 배포 없이 즉시 반영합니다.'
+        description: msg({
+            id: 'settings.seo_aeo.surface.custom_robots_rules.description',
+            message: 'Applies saved rules immediately without a deployment.'
+        })
     }
 ];
 
 const aeoExposureItems: ExposureItem[] = [
     {
         icon: FileText,
-        name: 'llms.txt',
+        name: msg({
+            id: 'settings.seo_aeo.surface.llms_txt',
+            message: 'llms.txt'
+        }),
         path: '/llms.txt',
-        description: 'AI 에이전트에 사이트 정보를 제공하는 공개 안내 파일입니다.'
+        description: msg({
+            id: 'settings.seo_aeo.surface.llms_txt.description',
+            message: 'Publishes a site guide for AI agents.'
+        })
     },
     {
         icon: Code2,
-        name: 'Markdown endpoint',
+        name: msg({
+            id: 'settings.seo_aeo.surface.markdown_endpoints',
+            message: 'Markdown endpoints'
+        }),
         path: '/@user/post.md, /static/page.md',
-        description: '포스트·시리즈·정적 페이지를 Markdown으로 제공합니다.'
+        description: msg({
+            id: 'settings.seo_aeo.surface.markdown_endpoints.description',
+            message: 'Serves posts, series, and static pages as Markdown.'
+        })
     },
     {
         icon: Signpost,
-        name: 'Discovery header',
+        name: msg({
+            id: 'settings.seo_aeo.surface.discovery_headers',
+            message: 'Discovery headers'
+        }),
         path: 'Link, X-Llms-Txt, rel=alternate',
-        description: '응답 헤더와 alternate 링크로 Markdown 주소를 알립니다.'
+        description: msg({
+            id: 'settings.seo_aeo.surface.discovery_headers.description',
+            message: 'Advertises Markdown URLs through response headers and alternate links.'
+        })
     },
     {
         icon: Route,
-        name: 'robots.txt',
+        name: msg({
+            id: 'settings.seo_aeo.surface.robots_txt',
+            message: 'robots.txt'
+        }),
         path: '/robots.txt',
-        description: 'AEO 상태에 따라 llms.txt와 .md 경로의 허용·차단 규칙을 제공합니다.'
+        description: msg({
+            id: 'settings.seo_aeo.surface.robots_txt_aeo.description',
+            message: 'Serves allow or block rules for llms.txt and .md paths based on the AEO setting.'
+        })
     }
 ];
 
 const robotsRuleTemplates = [
     {
-        title: '경로 차단',
+        title: msg({
+            id: 'settings.seo_aeo.robots.template.block_path',
+            message: 'Block a path'
+        }),
         snippet: 'Disallow: /private/'
     },
     {
-        title: '경로 허용',
+        title: msg({
+            id: 'settings.seo_aeo.robots.template.allow_path',
+            message: 'Allow a path'
+        }),
         snippet: 'Allow: /public/'
     },
     {
-        title: '크롤러별 차단',
+        title: msg({
+            id: 'settings.seo_aeo.robots.template.block_crawler',
+            message: 'Block a specific crawler'
+        }),
         snippet: 'User-agent: ExampleBot\nDisallow: /'
     },
     {
-        title: 'sitemap 추가',
+        title: msg({
+            id: 'settings.seo_aeo.robots.template.add_sitemap',
+            message: 'Add a sitemap'
+        }),
         snippet: 'Sitemap: https://example.com/custom-sitemap.xml'
     }
 ];
@@ -110,11 +173,16 @@ interface SaveStatusProps {
 }
 
 const SaveStatus = ({ isPending, isError }: SaveStatusProps) => {
+    const { t } = useLingui();
+
     if (isPending) {
         return (
             <p role="status" className="mt-3 flex items-center gap-1.5 text-xs font-medium text-content-secondary">
                 <Loader2 aria-hidden="true" className="h-3.5 w-3.5 animate-spin motion-reduce:animate-none" />
-                설정 저장 중
+                {t({
+                    id: 'settings.seo_aeo.status.saving',
+                    message: 'Saving settings'
+                })}
             </p>
         );
     }
@@ -123,7 +191,10 @@ const SaveStatus = ({ isPending, isError }: SaveStatusProps) => {
         return (
             <p role="alert" className="mt-3 flex items-center gap-1.5 text-xs font-medium text-danger">
                 <AlertCircle aria-hidden="true" className="h-3.5 w-3.5" />
-                저장 실패 · 다시 시도해주세요
+                {t({
+                    id: 'settings.seo_aeo.status.save_failed',
+                    message: 'Save failed · Try again'
+                })}
             </p>
         );
     }
@@ -131,12 +202,16 @@ const SaveStatus = ({ isPending, isError }: SaveStatusProps) => {
     return (
         <p role="status" className="mt-3 flex items-center gap-1.5 text-xs font-medium text-success">
             <CheckCircle aria-hidden="true" className="h-3.5 w-3.5" />
-            현재 설정 적용됨
+            {t({
+                id: 'settings.seo_aeo.status.applied',
+                message: 'Current settings applied'
+            })}
         </p>
     );
 };
 
 const SeoAeoSetting = () => {
+    const { i18n, t } = useLingui();
     const queryClient = useQueryClient();
     const { data: settingData } = useSuspenseQuery({
         queryKey: ['site-settings'],
@@ -145,7 +220,10 @@ const SeoAeoSetting = () => {
             if (data.status === 'DONE') {
                 return data.body;
             }
-            throw new Error('SEO/AEO 설정을 불러오는데 실패했습니다.');
+            throw new Error(t({
+                id: 'settings.seo_aeo.load_error',
+                message: 'Failed to load SEO/AEO settings.'
+            }));
         }
     });
 
@@ -181,11 +259,17 @@ const SeoAeoSetting = () => {
                 setRobotsTxtDefault(data.body.robotsTxtDefault);
             }
             void queryClient.invalidateQueries({ queryKey: ['site-settings'] });
-            toast.success('SEO 설정이 저장되었습니다.');
+            toast.success(t({
+                id: 'settings.seo_aeo.seo.save_success',
+                message: 'SEO settings saved.'
+            }));
         },
         onError: () => {
             setSeoEnabled(settingData.seoEnabled);
-            toast.error('SEO 설정 저장에 실패했습니다.');
+            toast.error(t({
+                id: 'settings.seo_aeo.seo.save_error',
+                message: 'Failed to save SEO settings.'
+            }));
         }
     });
 
@@ -197,11 +281,17 @@ const SeoAeoSetting = () => {
                 setRobotsTxtDefault(data.body.robotsTxtDefault);
             }
             void queryClient.invalidateQueries({ queryKey: ['site-settings'] });
-            toast.success('AEO 설정이 저장되었습니다.');
+            toast.success(t({
+                id: 'settings.seo_aeo.aeo.save_success',
+                message: 'AEO settings saved.'
+            }));
         },
         onError: () => {
             setAeoEnabled(settingData.aeoEnabled);
-            toast.error('AEO 설정 저장에 실패했습니다.');
+            toast.error(t({
+                id: 'settings.seo_aeo.aeo.save_error',
+                message: 'Failed to save AEO settings.'
+            }));
         }
     });
 
@@ -215,11 +305,17 @@ const SeoAeoSetting = () => {
             setRobotsTxtExtraRules(savedRules);
             setSavedRobotsTxtExtraRules(savedRules);
             void queryClient.invalidateQueries({ queryKey: ['site-settings'] });
-            toast.success('robots.txt 설정이 저장되었습니다.');
+            toast.success(t({
+                id: 'settings.seo_aeo.robots.save_success',
+                message: 'robots.txt settings saved.'
+            }));
         },
         onError: () => {
             setRobotsTxtExtraRules(savedRobotsTxtExtraRules);
-            toast.error('robots.txt 설정 저장에 실패했습니다.');
+            toast.error(t({
+                id: 'settings.seo_aeo.robots.save_error',
+                message: 'Failed to save robots.txt settings.'
+            }));
         }
     });
 
@@ -258,14 +354,30 @@ const SeoAeoSetting = () => {
         ? normalizedSavedRobotsTxtExtraRules.split(/\r?\n/).filter(line => line.trim()).length
         : 0;
     const robotsStatus = robotsMutation.isPending
-        ? '추가 규칙 저장 중'
+        ? t({
+            id: 'settings.seo_aeo.robots.status.saving',
+            message: 'Saving custom rules'
+        })
         : robotsMutation.isError
-            ? '저장 실패 · 기존 규칙 유지됨'
+            ? t({
+                id: 'settings.seo_aeo.robots.status.save_failed',
+                message: 'Save failed · Existing rules kept'
+            })
             : hasUnsavedRobotsChanges
-                ? '저장되지 않은 변경 있음'
+                ? t({
+                    id: 'settings.seo_aeo.robots.status.unsaved',
+                    message: 'Unsaved changes'
+                })
                 : savedRobotsRuleLineCount > 0
-                    ? `추가 규칙 ${savedRobotsRuleLineCount}줄 적용 중`
-                    : '기본 정책만 적용 중';
+                    ? i18n._({
+                        id: 'settings.seo_aeo.robots.status.active_lines',
+                        message: '{count, plural, one {# custom rule line active} other {# custom rule lines active}}',
+                        values: { count: savedRobotsRuleLineCount }
+                    })
+                    : t({
+                        id: 'settings.seo_aeo.robots.status.default_only',
+                        message: 'Default policy only'
+                    });
     const robotsTxtPreview = [
         normalizedRobotsTxtDefault,
         normalizedRobotsTxtExtraRules ? `# Custom rules\n${normalizedRobotsTxtExtraRules}` : ''
@@ -276,7 +388,10 @@ const SeoAeoSetting = () => {
             <SettingsHeader title="SEO/AEO" />
 
             <Card
-                title="현재 노출 상태"
+                title={t({
+                    id: 'settings.seo_aeo.visibility.title',
+                    message: 'Current visibility'
+                })}
                 icon={<Eye aria-hidden="true" className="h-5 w-5" />}>
                 <div className="grid gap-4 lg:grid-cols-2">
                     <section
@@ -285,19 +400,31 @@ const SeoAeoSetting = () => {
                         <div className="flex items-start justify-between gap-4">
                             <div className="min-w-0">
                                 <h3 id="seo-exposure-title" className="text-sm font-semibold text-content">
-                                    SEO · 검색엔진
+                                    {t({
+                                        id: 'settings.seo_aeo.seo.title',
+                                        message: 'SEO · Search engines'
+                                    })}
                                 </h3>
                                 <p className="mt-2 text-sm leading-relaxed text-content-secondary">
                                     {seoEnabled
-                                        ? '페이지 색인을 허용하고 robots.txt에서 sitemap 위치를 안내합니다.'
-                                        : 'sitemap 안내를 숨기고 페이지에 noindex,nofollow를 적용합니다.'}
+                                        ? t({
+                                            id: 'settings.seo_aeo.seo.enabled_description',
+                                            message: 'Allows pages to be indexed and advertises the sitemap in robots.txt.'
+                                        })
+                                        : t({
+                                            id: 'settings.seo_aeo.seo.disabled_description',
+                                            message: 'Hides the sitemap notice and adds noindex, nofollow to pages.'
+                                        })}
                                 </p>
                             </div>
                             <Toggle
                                 checked={seoEnabled}
                                 disabled={seoMutation.isPending}
                                 onCheckedChange={handleSeoChange}
-                                aria-label="SEO 검색엔진 노출 활성화"
+                                aria-label={t({
+                                    id: 'settings.seo_aeo.seo.enable',
+                                    message: 'Enable SEO visibility for search engines'
+                                })}
                             />
                         </div>
                         <SaveStatus isPending={seoMutation.isPending} isError={seoMutation.isError} />
@@ -309,19 +436,31 @@ const SeoAeoSetting = () => {
                         <div className="flex items-start justify-between gap-4">
                             <div className="min-w-0">
                                 <h3 id="aeo-exposure-title" className="text-sm font-semibold text-content">
-                                    AEO · AI 에이전트
+                                    {t({
+                                        id: 'settings.seo_aeo.aeo.title',
+                                        message: 'AEO · AI agents'
+                                    })}
                                 </h3>
                                 <p className="mt-2 text-sm leading-relaxed text-content-secondary">
                                     {aeoEnabled
-                                        ? 'llms.txt와 Markdown 주소를 공개하고 발견 신호를 제공합니다.'
-                                        : 'AI 전용 주소를 404로 숨기고 발견 신호를 제거합니다.'}
+                                        ? t({
+                                            id: 'settings.seo_aeo.aeo.enabled_description',
+                                            message: 'Publishes llms.txt and Markdown endpoints with discovery signals.'
+                                        })
+                                        : t({
+                                            id: 'settings.seo_aeo.aeo.disabled_description',
+                                            message: 'Returns 404 for AI-specific endpoints and removes discovery signals.'
+                                        })}
                                 </p>
                             </div>
                             <Toggle
                                 checked={aeoEnabled}
                                 disabled={aeoMutation.isPending}
                                 onCheckedChange={handleAeoChange}
-                                aria-label="AEO 인공지능 노출 활성화"
+                                aria-label={t({
+                                    id: 'settings.seo_aeo.aeo.enable',
+                                    message: 'Enable AEO visibility for AI agents'
+                                })}
                             />
                         </div>
                         <SaveStatus isPending={aeoMutation.isPending} isError={aeoMutation.isError} />
@@ -337,7 +476,12 @@ const SeoAeoSetting = () => {
                         <SlidersHorizontal aria-hidden="true" className="h-5 w-5" />
                     </span>
                     <span className="min-w-0 flex-1">
-                        <span className="block text-base font-semibold text-content">robots.txt 고급 설정</span>
+                        <span className="block text-base font-semibold text-content">
+                            {t({
+                                id: 'settings.seo_aeo.robots.advanced_title',
+                                message: 'Advanced robots.txt settings'
+                            })}
+                        </span>
                         <span
                             aria-live="polite"
                             className={`mt-1 block text-sm ${robotsMutation.isError ? 'text-danger' : hasUnsavedRobotsChanges ? 'text-warning' : 'text-content-secondary'}`}>
@@ -353,15 +497,22 @@ const SeoAeoSetting = () => {
                 {isRobotsAdvancedOpen && (
                     <div className="space-y-6 border-t border-line px-6 py-6 md:px-8 md:py-8">
                         <section className="space-y-3" aria-labelledby="robots-template-title">
-                            <h3 id="robots-template-title" className="text-sm font-semibold text-content">규칙 빠른 추가</h3>
+                            <h3 id="robots-template-title" className="text-sm font-semibold text-content">
+                                {t({
+                                    id: 'settings.seo_aeo.robots.quick_add',
+                                    message: 'Quick-add rules'
+                                })}
+                            </h3>
                             <div className="grid gap-2 sm:grid-cols-2">
                                 {robotsRuleTemplates.map((template) => (
                                     <button
-                                        key={template.title}
+                                        key={template.snippet}
                                         type="button"
                                         onClick={() => handleAppendRobotsSnippet(template.snippet)}
                                         className="min-h-11 rounded-lg border border-line bg-surface-elevated px-3 py-2 text-left transition-colors hover:border-line-strong hover:bg-surface-subtle focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-line-strong motion-reduce:transition-none">
-                                        <span className="block text-xs font-semibold text-content">{template.title}</span>
+                                        <span className="block text-xs font-semibold text-content">
+                                            {i18n._(template.title)}
+                                        </span>
                                         <code className="mt-1 block whitespace-pre-wrap break-all font-mono text-xs text-content-secondary">
                                             {template.snippet}
                                         </code>
@@ -372,11 +523,24 @@ const SeoAeoSetting = () => {
 
                         <section className="space-y-2" aria-labelledby="robots-editor-title">
                             <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
-                                <h3 id="robots-editor-title" className="text-sm font-semibold text-content">추가 규칙 편집</h3>
-                                <span className="text-xs text-content-secondary">기본 생성 내용 뒤에 그대로 추가됩니다.</span>
+                                <h3 id="robots-editor-title" className="text-sm font-semibold text-content">
+                                    {t({
+                                        id: 'settings.seo_aeo.robots.editor_title',
+                                        message: 'Edit custom rules'
+                                    })}
+                                </h3>
+                                <span className="text-xs text-content-secondary">
+                                    {t({
+                                        id: 'settings.seo_aeo.robots.editor_help',
+                                        message: 'Appended exactly as written after the generated defaults.'
+                                    })}
+                                </span>
                             </div>
                             <CodeEditor
-                                ariaLabel="robots.txt 추가 규칙"
+                                ariaLabel={t({
+                                    id: 'settings.seo_aeo.robots.editor_label',
+                                    message: 'Custom robots.txt rules'
+                                })}
                                 language="plaintext"
                                 value={robotsTxtExtraRules}
                                 onChange={handleRobotsRulesChange}
@@ -386,9 +550,22 @@ const SeoAeoSetting = () => {
 
                         <details className="group/preview rounded-xl border border-line bg-surface-elevated">
                             <summary className="flex min-h-11 cursor-pointer list-none items-center gap-3 px-4 py-3 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-line-strong [&::-webkit-details-marker]:hidden">
-                                <span className="min-w-0 flex-1 text-sm font-semibold text-content">robots.txt 전체 미리보기</span>
+                                <span className="min-w-0 flex-1 text-sm font-semibold text-content">
+                                    {t({
+                                        id: 'settings.seo_aeo.robots.preview_title',
+                                        message: 'Full robots.txt preview'
+                                    })}
+                                </span>
                                 <span className="text-xs text-content-secondary">
-                                    {normalizedRobotsTxtExtraRules ? '추가 규칙 포함' : '기본 정책만'}
+                                    {normalizedRobotsTxtExtraRules
+                                        ? t({
+                                            id: 'settings.seo_aeo.robots.preview.custom_rules',
+                                            message: 'Includes custom rules'
+                                        })
+                                        : t({
+                                            id: 'settings.seo_aeo.robots.preview.default_only',
+                                            message: 'Default policy only'
+                                        })}
                                 </span>
                                 <ChevronDown
                                     aria-hidden="true"
@@ -396,7 +573,12 @@ const SeoAeoSetting = () => {
                                 />
                             </summary>
                             <div className="border-t border-line p-4">
-                                <pre className="max-h-72 overflow-auto whitespace-pre-wrap break-all rounded-lg bg-surface-subtle p-4 font-mono text-xs leading-relaxed text-content-secondary">{robotsTxtPreview || '미리보기 내용을 불러오는 중입니다.'}</pre>
+                                <pre className="max-h-72 overflow-auto whitespace-pre-wrap break-all rounded-lg bg-surface-subtle p-4 font-mono text-xs leading-relaxed text-content-secondary">
+                                    {robotsTxtPreview || t({
+                                        id: 'settings.seo_aeo.robots.preview.loading',
+                                        message: 'Loading preview...'
+                                    })}
+                                </pre>
                             </div>
                         </details>
 
@@ -408,7 +590,10 @@ const SeoAeoSetting = () => {
                                 disabled={!normalizedRobotsTxtExtraRules || robotsMutation.isPending}
                                 onClick={() => handleRobotsRulesChange('')}
                                 leftIcon={<RotateCw aria-hidden="true" className="h-4 w-4" />}>
-                                추가 규칙 비우기
+                                {t({
+                                    id: 'settings.seo_aeo.robots.clear',
+                                    message: 'Clear custom rules'
+                                })}
                             </Button>
                             <Button
                                 density="compact"
@@ -417,7 +602,15 @@ const SeoAeoSetting = () => {
                                 isLoading={robotsMutation.isPending}
                                 onClick={handleRobotsSave}
                                 leftIcon={!robotsMutation.isPending ? <Save aria-hidden="true" className="h-4 w-4" /> : undefined}>
-                                {robotsMutation.isPending ? '저장 중...' : 'robots.txt 저장'}
+                                {robotsMutation.isPending
+                                    ? t({
+                                        id: 'common.saving_ellipsis',
+                                        message: 'Saving...'
+                                    })
+                                    : t({
+                                        id: 'settings.seo_aeo.robots.save',
+                                        message: 'Save robots.txt'
+                                    })}
                             </Button>
                         </div>
                     </div>
@@ -430,8 +623,18 @@ const SeoAeoSetting = () => {
                         <FileText aria-hidden="true" className="h-5 w-5" />
                     </span>
                     <span className="min-w-0 flex-1">
-                        <span className="block text-base font-semibold text-content">SEO·AEO가 제어하는 공개 노출면</span>
-                        <span className="mt-1 block text-sm text-content-secondary">SEO 4개 · AEO 4개 주소와 신호</span>
+                        <span className="block text-base font-semibold text-content">
+                            {t({
+                                id: 'settings.seo_aeo.surfaces.title',
+                                message: 'Public surfaces controlled by SEO and AEO'
+                            })}
+                        </span>
+                        <span className="mt-1 block text-sm text-content-secondary">
+                            {t({
+                                id: 'settings.seo_aeo.surfaces.summary',
+                                message: '4 SEO surfaces · 4 AEO surfaces'
+                            })}
+                        </span>
                     </span>
                     <ChevronDown
                         aria-hidden="true"
@@ -446,19 +649,21 @@ const SeoAeoSetting = () => {
                             {seoExposureItems.map((item) => {
                                 const ItemIcon = item.icon;
                                 return (
-                                    <div key={item.name} className="flex gap-4 p-4">
+                                    <div key={item.path} className="flex gap-4 p-4">
                                         <div className="mt-1 flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-surface-subtle text-content-secondary">
                                             <ItemIcon aria-hidden="true" className="h-4 w-4" />
                                         </div>
                                         <div className="min-w-0 flex-1">
                                             <div className="flex flex-col gap-1 sm:flex-row sm:items-baseline sm:justify-between">
-                                                <h4 className="text-sm font-semibold text-content">{item.name}</h4>
+                                                <h4 className="text-sm font-semibold text-content">
+                                                    {i18n._(item.name)}
+                                                </h4>
                                                 <code className="break-all rounded-md bg-surface-subtle px-2 py-1 text-xs text-content-secondary">
                                                     {item.path}
                                                 </code>
                                             </div>
                                             <p className="mt-2 text-sm leading-relaxed text-content-secondary">
-                                                {item.description}
+                                                {i18n._(item.description)}
                                             </p>
                                         </div>
                                     </div>
@@ -473,19 +678,21 @@ const SeoAeoSetting = () => {
                             {aeoExposureItems.map((item) => {
                                 const ItemIcon = item.icon;
                                 return (
-                                    <div key={item.name} className="flex gap-4 p-4">
+                                    <div key={item.path} className="flex gap-4 p-4">
                                         <div className="mt-1 flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-surface-subtle text-content-secondary">
                                             <ItemIcon aria-hidden="true" className="h-4 w-4" />
                                         </div>
                                         <div className="min-w-0 flex-1">
                                             <div className="flex flex-col gap-1 sm:flex-row sm:items-baseline sm:justify-between">
-                                                <h4 className="text-sm font-semibold text-content">{item.name}</h4>
+                                                <h4 className="text-sm font-semibold text-content">
+                                                    {i18n._(item.name)}
+                                                </h4>
                                                 <code className="break-all rounded-md bg-surface-subtle px-2 py-1 text-xs text-content-secondary">
                                                     {item.path}
                                                 </code>
                                             </div>
                                             <p className="mt-2 text-sm leading-relaxed text-content-secondary">
-                                                {item.description}
+                                                {i18n._(item.description)}
                                             </p>
                                         </div>
                                     </div>

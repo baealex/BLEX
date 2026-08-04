@@ -863,6 +863,7 @@ msgstr "저장 중"
 
 #. js-lingui-explicit-id
 #: src/components/remotes/Comments/components/CommentEditForm.tsx:87
+#: src/components/remotes/SettingsApp/pages/SeoAeoSetting/SeoAeoSetting.tsx:606
 msgid "common.saving_ellipsis"
 msgstr "저장 중..."
 
@@ -5092,6 +5093,287 @@ msgstr "프로필 업데이트에 실패했습니다."
 #: src/components/remotes/SettingsApp/pages/ProfileSetting/ProfileSetting.tsx:123
 msgid "settings.profile.update_success"
 msgstr "프로필을 업데이트했습니다."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SeoAeoSetting/SeoAeoSetting.tsx:450
+msgid "settings.seo_aeo.aeo.disabled_description"
+msgstr "AI 전용 주소를 404로 숨기고 발견 신호를 제거합니다."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SeoAeoSetting/SeoAeoSetting.tsx:460
+msgid "settings.seo_aeo.aeo.enable"
+msgstr "AI 에이전트 대상 AEO 노출 활성화"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SeoAeoSetting/SeoAeoSetting.tsx:446
+msgid "settings.seo_aeo.aeo.enabled_description"
+msgstr "llms.txt와 Markdown 주소를 공개하고 발견 신호를 제공합니다."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SeoAeoSetting/SeoAeoSetting.tsx:291
+msgid "settings.seo_aeo.aeo.save_error"
+msgstr "AEO 설정 저장에 실패했습니다."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SeoAeoSetting/SeoAeoSetting.tsx:284
+msgid "settings.seo_aeo.aeo.save_success"
+msgstr "AEO 설정이 저장되었습니다."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SeoAeoSetting/SeoAeoSetting.tsx:439
+msgid "settings.seo_aeo.aeo.title"
+msgstr "AEO · AI 에이전트"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SeoAeoSetting/SeoAeoSetting.tsx:223
+msgid "settings.seo_aeo.load_error"
+msgstr "SEO/AEO 설정을 불러오는 데 실패했습니다."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SeoAeoSetting/SeoAeoSetting.tsx:480
+msgid "settings.seo_aeo.robots.advanced_title"
+msgstr "robots.txt 고급 설정"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SeoAeoSetting/SeoAeoSetting.tsx:593
+msgid "settings.seo_aeo.robots.clear"
+msgstr "추가 규칙 비우기"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SeoAeoSetting/SeoAeoSetting.tsx:533
+msgid "settings.seo_aeo.robots.editor_help"
+msgstr "기본 생성 내용 뒤에 그대로 추가됩니다."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SeoAeoSetting/SeoAeoSetting.tsx:540
+msgid "settings.seo_aeo.robots.editor_label"
+msgstr "robots.txt 추가 규칙"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SeoAeoSetting/SeoAeoSetting.tsx:527
+msgid "settings.seo_aeo.robots.editor_title"
+msgstr "추가 규칙 편집"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SeoAeoSetting/SeoAeoSetting.tsx:554
+msgid "settings.seo_aeo.robots.preview_title"
+msgstr "robots.txt 전체 미리보기"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SeoAeoSetting/SeoAeoSetting.tsx:561
+msgid "settings.seo_aeo.robots.preview.custom_rules"
+msgstr "추가 규칙 포함"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SeoAeoSetting/SeoAeoSetting.tsx:565
+msgid "settings.seo_aeo.robots.preview.default_only"
+msgstr "기본 정책만"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SeoAeoSetting/SeoAeoSetting.tsx:577
+msgid "settings.seo_aeo.robots.preview.loading"
+msgstr "미리보기 내용을 불러오는 중입니다..."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SeoAeoSetting/SeoAeoSetting.tsx:501
+msgid "settings.seo_aeo.robots.quick_add"
+msgstr "규칙 빠른 추가"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SeoAeoSetting/SeoAeoSetting.tsx:610
+msgid "settings.seo_aeo.robots.save"
+msgstr "robots.txt 저장"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SeoAeoSetting/SeoAeoSetting.tsx:315
+msgid "settings.seo_aeo.robots.save_error"
+msgstr "robots.txt 설정 저장에 실패했습니다."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SeoAeoSetting/SeoAeoSetting.tsx:308
+msgid "settings.seo_aeo.robots.save_success"
+msgstr "robots.txt 설정이 저장되었습니다."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SeoAeoSetting/SeoAeoSetting.tsx:372
+msgid "settings.seo_aeo.robots.status.active_lines"
+msgstr "{count, plural, other {추가 규칙 #줄 적용 중}}"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SeoAeoSetting/SeoAeoSetting.tsx:377
+msgid "settings.seo_aeo.robots.status.default_only"
+msgstr "기본 정책만 적용 중"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SeoAeoSetting/SeoAeoSetting.tsx:362
+msgid "settings.seo_aeo.robots.status.save_failed"
+msgstr "저장 실패 · 기존 규칙 유지됨"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SeoAeoSetting/SeoAeoSetting.tsx:357
+msgid "settings.seo_aeo.robots.status.saving"
+msgstr "추가 규칙 저장 중"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SeoAeoSetting/SeoAeoSetting.tsx:367
+msgid "settings.seo_aeo.robots.status.unsaved"
+msgstr "저장되지 않은 변경 있음"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SeoAeoSetting/SeoAeoSetting.tsx:162
+msgid "settings.seo_aeo.robots.template.add_sitemap"
+msgstr "Sitemap 추가"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SeoAeoSetting/SeoAeoSetting.tsx:148
+msgid "settings.seo_aeo.robots.template.allow_path"
+msgstr "경로 허용"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SeoAeoSetting/SeoAeoSetting.tsx:155
+msgid "settings.seo_aeo.robots.template.block_crawler"
+msgstr "크롤러별 차단"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SeoAeoSetting/SeoAeoSetting.tsx:141
+msgid "settings.seo_aeo.robots.template.block_path"
+msgstr "경로 차단"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SeoAeoSetting/SeoAeoSetting.tsx:414
+msgid "settings.seo_aeo.seo.disabled_description"
+msgstr "Sitemap 안내를 숨기고 페이지에 noindex, nofollow를 적용합니다."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SeoAeoSetting/SeoAeoSetting.tsx:424
+msgid "settings.seo_aeo.seo.enable"
+msgstr "검색엔진 대상 SEO 노출 활성화"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SeoAeoSetting/SeoAeoSetting.tsx:410
+msgid "settings.seo_aeo.seo.enabled_description"
+msgstr "페이지 색인을 허용하고 robots.txt에서 Sitemap 위치를 안내합니다."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SeoAeoSetting/SeoAeoSetting.tsx:269
+msgid "settings.seo_aeo.seo.save_error"
+msgstr "SEO 설정 저장에 실패했습니다."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SeoAeoSetting/SeoAeoSetting.tsx:262
+msgid "settings.seo_aeo.seo.save_success"
+msgstr "SEO 설정이 저장되었습니다."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SeoAeoSetting/SeoAeoSetting.tsx:403
+msgid "settings.seo_aeo.seo.title"
+msgstr "SEO · 검색엔진"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SeoAeoSetting/SeoAeoSetting.tsx:205
+msgid "settings.seo_aeo.status.applied"
+msgstr "현재 설정 적용됨"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SeoAeoSetting/SeoAeoSetting.tsx:194
+msgid "settings.seo_aeo.status.save_failed"
+msgstr "저장 실패 · 다시 시도해주세요"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SeoAeoSetting/SeoAeoSetting.tsx:182
+msgid "settings.seo_aeo.status.saving"
+msgstr "설정 저장 중"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SeoAeoSetting/SeoAeoSetting.tsx:76
+msgid "settings.seo_aeo.surface.custom_robots_rules"
+msgstr "추가 robots 규칙"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SeoAeoSetting/SeoAeoSetting.tsx:81
+msgid "settings.seo_aeo.surface.custom_robots_rules.description"
+msgstr "저장한 규칙을 배포 없이 즉시 반영합니다."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SeoAeoSetting/SeoAeoSetting.tsx:115
+msgid "settings.seo_aeo.surface.discovery_headers"
+msgstr "Discovery 헤더"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SeoAeoSetting/SeoAeoSetting.tsx:120
+msgid "settings.seo_aeo.surface.discovery_headers.description"
+msgstr "응답 헤더와 alternate 링크로 Markdown 주소를 알립니다."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SeoAeoSetting/SeoAeoSetting.tsx:91
+msgid "settings.seo_aeo.surface.llms_txt"
+msgstr "llms.txt"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SeoAeoSetting/SeoAeoSetting.tsx:96
+msgid "settings.seo_aeo.surface.llms_txt.description"
+msgstr "AI 에이전트에 사이트 정보를 제공하는 공개 안내 파일입니다."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SeoAeoSetting/SeoAeoSetting.tsx:103
+msgid "settings.seo_aeo.surface.markdown_endpoints"
+msgstr "Markdown 엔드포인트"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SeoAeoSetting/SeoAeoSetting.tsx:108
+msgid "settings.seo_aeo.surface.markdown_endpoints.description"
+msgstr "포스트·시리즈·정적 페이지를 Markdown으로 제공합니다."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SeoAeoSetting/SeoAeoSetting.tsx:52
+msgid "settings.seo_aeo.surface.robots_meta"
+msgstr "Robots meta"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SeoAeoSetting/SeoAeoSetting.tsx:57
+msgid "settings.seo_aeo.surface.robots_meta.description"
+msgstr "SEO가 꺼지면 HTML 페이지에 noindex, nofollow를 적용합니다."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SeoAeoSetting/SeoAeoSetting.tsx:40
+#: src/components/remotes/SettingsApp/pages/SeoAeoSetting/SeoAeoSetting.tsx:127
+msgid "settings.seo_aeo.surface.robots_txt"
+msgstr "robots.txt"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SeoAeoSetting/SeoAeoSetting.tsx:132
+msgid "settings.seo_aeo.surface.robots_txt_aeo.description"
+msgstr "AEO 상태에 따라 llms.txt와 .md 경로의 허용·차단 규칙을 제공합니다."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SeoAeoSetting/SeoAeoSetting.tsx:45
+msgid "settings.seo_aeo.surface.robots_txt.description"
+msgstr "기본 정책과 저장한 추가 규칙을 합쳐 제공합니다."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SeoAeoSetting/SeoAeoSetting.tsx:64
+msgid "settings.seo_aeo.surface.sitemap_discovery"
+msgstr "Sitemap 안내"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SeoAeoSetting/SeoAeoSetting.tsx:69
+msgid "settings.seo_aeo.surface.sitemap_discovery.description"
+msgstr "SEO가 켜지면 robots.txt에 Sitemap 위치를 표시합니다."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SeoAeoSetting/SeoAeoSetting.tsx:633
+msgid "settings.seo_aeo.surfaces.summary"
+msgstr "SEO 4개 · AEO 4개 주소와 신호"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SeoAeoSetting/SeoAeoSetting.tsx:627
+msgid "settings.seo_aeo.surfaces.title"
+msgstr "SEO·AEO가 제어하는 공개 노출면"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SeoAeoSetting/SeoAeoSetting.tsx:391
+msgid "settings.seo_aeo.visibility.title"
+msgstr "현재 노출 상태"
 
 #. js-lingui-explicit-id
 #: src/components/remotes/SettingsApp/pages/SeriesSetting/SeriesSetting.tsx:278
