@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: BLEX 3.1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-08-04 23:09+0900\n"
+"POT-Creation-Date: 2026-08-04 23:31+0900\n"
 "PO-Revision-Date: 2026-07-18 00:00+0900\n"
 "Last-Translator: BLEX contributors\n"
 "Language-Team: Korean\n"
@@ -176,6 +176,7 @@ msgid "Tag"
 msgstr "태그"
 
 #: board/models/posts.py:113 board/templates/board/author/author_posts.html:32
+#: board/templates/board/tags/tag_list.html:4
 msgid "Tags"
 msgstr "태그"
 
@@ -203,6 +204,7 @@ msgstr "고정 포스트"
 #: board/templates/board/author/author_series.html:21
 #: board/templates/board/author/components/tabs_nav.html:22
 #: board/templates/board/posts/post_detail.html:464
+#: board/templates/board/series/series_detail.html:29
 msgid "Series"
 msgstr "시리즈"
 
@@ -356,6 +358,7 @@ msgid "Sort"
 msgstr "정렬"
 
 #: board/templates/board/author/author_series.html:60
+#: board/templates/board/series/series_detail.html:52
 #, python-format
 msgid "%(count)s post"
 msgid_plural "%(count)s posts"
@@ -431,6 +434,7 @@ msgstr[0] "%(count)s개"
 
 #: board/templates/board/author/components/featured_posts_section.html:3
 #: board/templates/board/posts/post_list.html:15
+#: board/templates/board/tags/tag_detail.html:8
 msgid "Write a post"
 msgstr "포스트 작성하기"
 
@@ -443,6 +447,7 @@ msgid "Recent posts"
 msgstr "최근 포스트"
 
 #: board/templates/board/author/components/featured_posts_section.html:50
+#: board/templates/board/series/series_detail.html:118
 #: board/templates/components/post_card.html:41
 #, python-format
 msgid "%(minutes)s min"
@@ -715,6 +720,7 @@ msgid "Latest posts"
 msgstr "최신 포스트"
 
 #: board/templates/board/posts/post_list.html:13
+#: board/templates/board/series/series_detail.html:23
 msgid "No posts yet"
 msgstr "아직 포스트가 없어요"
 
@@ -731,6 +737,79 @@ msgstr "검색: %(query)s - %(site_name)s"
 #, python-format
 msgid "Search - %(site_name)s"
 msgstr "검색 - %(site_name)s"
+
+#: board/templates/board/series/series_detail.html:24
+msgid "No posts have been added to this series yet."
+msgstr "이 시리즈에는 아직 포스트가 추가되지 않았습니다."
+
+#: board/templates/board/series/series_detail.html:57
+#, python-format
+msgid "Updated %(updated_date)s"
+msgstr "%(updated_date)s 수정됨"
+
+#: board/templates/board/series/series_detail.html:67
+msgid "Edit series"
+msgstr "시리즈 편집"
+
+#: board/templates/board/series/series_detail.html:86 board/views/author.py:289
+msgid "Oldest first"
+msgstr "오래된순"
+
+#: board/templates/board/series/series_detail.html:89 board/views/author.py:288
+msgid "Newest first"
+msgstr "최신순"
+
+#: board/templates/board/tags/tag_detail.html:7
+msgid "No posts found"
+msgstr "포스트가 없습니다"
+
+#: board/templates/board/tags/tag_detail.html:9
+#, python-format
+msgid "No posts have been written with #%(tag_name)s yet."
+msgstr "#%(tag_name)s 태그로 작성된 포스트가 아직 없습니다."
+
+#: board/templates/board/tags/tag_detail.html:15 board/views/author.py:178
+msgid "All tags"
+msgstr "전체 태그"
+
+#: board/templates/board/tags/tag_list.html:7 board/views/api/v1/search.py:73
+#: board/views/api/v1/search.py:80
+msgid "Enter a search term."
+msgstr "검색어를 입력하세요."
+
+#: board/templates/board/tags/tag_list.html:8
+msgid "No tags found"
+msgstr "태그가 없습니다"
+
+#: board/templates/board/tags/tag_list.html:9
+msgid "No tags match your search."
+msgstr "검색 조건에 맞는 태그가 없습니다."
+
+#: board/templates/board/tags/tag_list.html:10
+msgid "Tags added to posts will appear here."
+msgstr "포스트에 태그를 추가하면 여기에 표시됩니다."
+
+#: board/templates/board/tags/tag_list.html:14
+msgid "Tag cloud"
+msgstr "태그 클라우드"
+
+#: board/templates/board/tags/tag_list.html:15
+msgid "Browse all tags and the posts filed under each one."
+msgstr "전체 태그와 태그별 포스트를 확인할 수 있습니다"
+
+#: board/templates/board/tags/tag_list.html:21
+msgid "Search tags"
+msgstr "태그 검색"
+
+#: board/templates/board/tags/tag_list.html:26
+msgid "Sort by"
+msgstr "정렬 방식"
+
+#: board/templates/board/tags/tag_list.html:48
+#, python-format
+msgid "Tagged in %(count)s post"
+msgid_plural "Tagged in %(count)s posts"
+msgstr[0] "%(count)s개 포스트에서 태그됨"
 
 #: board/templates/components/header.html:4
 msgid "Switch to light mode"
@@ -944,29 +1023,28 @@ msgstr "고정되지 않은 글이 포함되어 있습니다: %(url)s"
 msgid "Could not update pinned posts."
 msgstr "고정 포스트를 변경하지 못했습니다."
 
-#: board/views/api/v1/search.py:73 board/views/api/v1/search.py:80
-msgid "Enter a search term."
-msgstr "검색어를 입력하세요."
-
-#: board/views/author.py:178
-msgid "All tags"
-msgstr "전체 태그"
-
 #: board/views/author.py:287
 msgid "Author-defined order"
 msgstr "작가 지정 순"
 
-#: board/views/author.py:288
-msgid "Newest first"
-msgstr "최신순"
-
-#: board/views/author.py:289
-msgid "Oldest first"
-msgstr "오래된순"
-
 #: board/views/author.py:290
 msgid "Most posts"
 msgstr "포스트 많은 순"
+
+#: board/views/tag.py:52
+msgctxt "tag sort option"
+msgid "Popular"
+msgstr "인기순"
+
+#: board/views/tag.py:53
+msgctxt "tag sort option"
+msgid "Name"
+msgstr "이름순"
+
+#: board/views/tag.py:54
+msgctxt "tag sort option"
+msgid "Newest"
+msgstr "최신순"
 
 #: main/admin_site.py:9
 msgid "BLEX administration"

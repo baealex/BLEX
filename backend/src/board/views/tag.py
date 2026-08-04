@@ -1,6 +1,7 @@
 from django.http import Http404
 from django.shortcuts import render
 from django.urls import reverse
+from django.utils.translation import pgettext
 
 from board.modules.paginator import Paginator
 
@@ -48,9 +49,9 @@ def tag_list_view(request):
         })
 
     sort_options = [
-        {'value': 'popular', 'label': '인기순'},
-        {'value': 'name', 'label': '이름순'},
-        {'value': 'recent', 'label': '최신순'},
+        {'value': 'popular', 'label': pgettext('tag sort option', 'Popular')},
+        {'value': 'name', 'label': pgettext('tag sort option', 'Name')},
+        {'value': 'recent', 'label': pgettext('tag sort option', 'Newest')},
     ]
 
     context = {

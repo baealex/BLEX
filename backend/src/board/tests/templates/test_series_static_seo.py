@@ -109,6 +109,34 @@ class SeriesSeoMetadataTestCase(StructuredDataAssertionMixin, TestCase):
         self.assertNotIn('javascript:', description)
         self.assertNotIn('onerror', description)
 
+    def test_series_detail_renders_english_ui_without_translating_authored_content(self):
+        self.series.name = '작성자가 만든 시리즈'
+        self.series.save(update_fields=['name'])
+        self.first_post.title = '작성자가 쓴 첫 포스트'
+        self.first_post.save(update_fields=['title'])
+
+        response = self.client.get(
+            reverse(
+                'series_detail',
+                kwargs={
+                    'username': self.author.username,
+                    'series_url': self.series.url,
+                },
+            ),
+            HTTP_ACCEPT_LANGUAGE='en',
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'lang=en')
+        self.assertContains(response, 'Series')
+        self.assertContains(response, '2 posts')
+        self.assertContains(response, 'Updated ')
+        self.assertContains(response, 'Oldest first')
+        self.assertContains(response, 'Newest first')
+        self.assertContains(response, '작성자가 만든 시리즈')
+        self.assertContains(response, '작성자가 쓴 첫 포스트')
+        self.assertNotContains(response, '최신순')
+
 
     def test_series_detail_returns_404_for_hidden_series(self):
         self.series.hide = True

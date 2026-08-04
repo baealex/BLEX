@@ -1,7 +1,5 @@
 {% extends 'board/base.html' %}
-{% load static %}
-{% load island %}
-{% load resource %}
+{% load i18n static island resource %}
 
 {% block title %}{{ series.name }} - {{ author.username }} | {{ site_brand.site_name }}{% endblock %}
 
@@ -22,11 +20,13 @@
 {% endblock %}
 
 {% block content %}
+{% translate "No posts yet" as empty_title %}
+{% translate "No posts have been added to this series yet." as empty_message %}
 <div class="max-w-3xl w-full mx-auto px-4 sm:px-6 py-8 sm:py-12">
     <!-- 시리즈 헤더 -->
     <div class="mb-12 text-center">
         <span class="inline-block px-3 py-1 bg-surface-subtle text-content-secondary rounded-full text-xs font-bold uppercase tracking-wider mb-4">
-            시리즈
+            {% translate "Series" %}
         </span>
         <h1 class="text-3xl sm:text-4xl font-bold text-content mb-4 leading-tight tracking-tight">
             {{ series.name }}
@@ -49,12 +49,12 @@
             <div class="w-1 h-1 bg-content-hint/70 rounded-full"></div>
             <div class="flex items-center gap-1.5">
                 <i class="far fa-file-alt text-xs"></i>
-                <span>{{ series.post_count }} 포스트</span>
+                <span>{% blocktranslate count count=series.post_count %}{{ count }} post{% plural %}{{ count }} posts{% endblocktranslate %}</span>
             </div>
             <div class="w-1 h-1 bg-content-hint/70 rounded-full"></div>
             <div class="flex items-center gap-1.5">
                 <i class="far fa-clock text-xs"></i>
-                <span>{{ series_updated_date_display }} 수정됨</span>
+                <span>{% blocktranslate with updated_date=series.updated_date|date:"DATE_FORMAT" %}Updated {{ updated_date }}{% endblocktranslate %}</span>
             </div>
         </div>
 
@@ -64,7 +64,7 @@
             <a href="/settings/series/edit/{{ series.id }}"
             class="inline-flex items-center gap-2 bg-action text-content-inverted px-5 py-2.5 rounded-full font-medium transition-all duration-150 hover:bg-action-hover active:scale-[0.98] text-sm">
                 <i class="fas fa-edit text-xs"></i>
-                <span>시리즈 편집</span>
+                <span>{% translate "Edit series" %}</span>
             </a>
         </div>
         {% endif %}
@@ -76,17 +76,17 @@
     </div>
 
     {% elif not posts %}
-    {% include 'components/empty_state.html' with empty_framed=True empty_icon_class='fas fa-layer-group' empty_title='아직 포스트가 없습니다' empty_message='이 시리즈에는 아직 포스트가 추가되지 않았습니다.' only %}
+    {% include 'components/empty_state.html' with empty_framed=True empty_icon_class='fas fa-layer-group' empty_title=empty_title empty_message=empty_message only %}
 
     {% else %}
     <!-- 정렬 컨트롤 -->
     <div class="flex justify-end mb-6">
         <div class="inline-flex bg-surface-subtle/80 backdrop-blur-sm p-1 rounded-xl ring-1 ring-line/60">
             <a href="?sort=asc" class="px-4 py-1.5 {% if sort_order == 'asc' %}bg-surface-elevated text-content shadow-sm{% else %}text-content-secondary hover:text-content{% endif %} rounded-lg text-xs font-bold transition-all duration-150">
-                오래된순
+                {% translate "Oldest first" %}
             </a>
             <a href="?sort=desc" class="px-4 py-1.5 {% if sort_order == 'desc' %}bg-surface-elevated text-content shadow-sm{% else %}text-content-secondary hover:text-content{% endif %} rounded-lg text-xs font-bold transition-all duration-150">
-                최신순
+                {% translate "Newest first" %}
             </a>
         </div>
     </div>
@@ -111,11 +111,11 @@
                     <div class="flex flex-wrap items-center gap-4 text-xs font-medium text-content-hint">
                         <div class="flex items-center gap-1.5">
                             <i class="far fa-calendar"></i>
-                            <span>{{ post.published_date_display }}</span>
+                            <time datetime="{{ post.published_date|date:'c' }}">{{ post.published_date|date:"DATE_FORMAT" }}</time>
                         </div>
                         <div class="flex items-center gap-1.5">
                             <i class="far fa-clock"></i>
-                            <span>{{ post.read_time }}분 읽기</span>
+                            <span>{% blocktranslate count minutes=post.read_time %}{{ minutes }} min{% plural %}{{ minutes }} mins{% endblocktranslate %}</span>
                         </div>
                         <div class="flex items-center gap-3 ml-auto">
                             <div class="flex items-center gap-1.5 hover:text-danger transition-colors">

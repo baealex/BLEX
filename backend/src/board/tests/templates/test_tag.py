@@ -135,6 +135,26 @@ class TagListPageTestCase(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.context['page'], 1)
 
+    def test_tag_list_renders_english_ui_without_translating_tag_names(self):
+        authored_tag = Tag.objects.create(value='작성자가 만든 태그')
+        self.create_tagged_post(
+            'Authored Tag Post',
+            'authored-tag-post',
+            authored_tag,
+            timezone.now(),
+        )
+
+        response = self.client.get(reverse('tag_list'), HTTP_ACCEPT_LANGUAGE='en')
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'lang=en')
+        self.assertContains(response, 'Tag cloud')
+        self.assertContains(response, 'Search tags')
+        self.assertContains(response, 'Sort by')
+        self.assertContains(response, 'Tagged in 1 post')
+        self.assertContains(response, '작성자가 만든 태그')
+        self.assertNotContains(response, '태그 클라우드')
+
 
 class TagDetailPageTestCase(TestCase):
     """Template tests for the tag detail page."""
@@ -225,6 +245,22 @@ class TagDetailPageTestCase(TestCase):
         response = self.client.get(reverse('tag_detail', kwargs={'name': 'python'}))
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.context['tag'], 'python')
+
+    def test_tag_detail_renders_english_ui_without_translating_post_content(self):
+        post = Post.objects.get(url='python-post-0')
+        post.title = '작성자가 쓴 태그 포스트'
+        post.save(update_fields=['title'])
+
+        response = self.client.get(
+            reverse('tag_detail', kwargs={'name': 'python'}),
+            HTTP_ACCEPT_LANGUAGE='en',
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'lang=en')
+        self.assertContains(response, 'All tags')
+        self.assertContains(response, '작성자가 쓴 태그 포스트')
+        self.assertNotContains(response, '전체 태그')
 
     def test_tag_detail_pagination(self):
         response = self.client.get(
