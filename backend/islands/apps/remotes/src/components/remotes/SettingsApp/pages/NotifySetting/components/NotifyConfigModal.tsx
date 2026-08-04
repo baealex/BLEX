@@ -1,17 +1,8 @@
 import { useEffect } from 'react';
+import { useLingui } from '@lingui/react/macro';
 import { toast } from '~/utils/toast';
 import { Modal } from '~/components/shared';
 import { updateNotifyConfig } from '~/lib/api/settings';
-
-// Notify config labels
-const NOTIFY_CONFIG_LABEL = {
-    'NOTIFY_POSTS_LIKE': '다른 사용자가 내 포스트 추천',
-    'NOTIFY_POSTS_COMMENT': '다른 사용자가 내 포스트에 댓글 작성',
-    'NOTIFY_COMMENT_LIKE': '다른 사용자가 내 댓글 추천',
-    'NOTIFY_MENTION': '다른 사용자가 댓글에서 나를 언급'
-} as const;
-
-const getNotifyLabel = (name: string) => NOTIFY_CONFIG_LABEL[name as keyof typeof NOTIFY_CONFIG_LABEL] ?? name;
 
 interface NotifyConfigModalProps {
     isOpen: boolean;
@@ -30,13 +21,44 @@ const NotifyConfigModal = ({
     isError,
     refetch
 }: NotifyConfigModalProps) => {
+    const { t } = useLingui();
+    const getNotifyLabel = (name: string) => {
+        switch (name) {
+            case 'NOTIFY_POSTS_LIKE':
+                return t({
+                    id: 'settings.notifications.config.post_likes',
+                    message: 'Someone likes one of my posts'
+                });
+            case 'NOTIFY_POSTS_COMMENT':
+                return t({
+                    id: 'settings.notifications.config.post_comments',
+                    message: 'Someone comments on one of my posts'
+                });
+            case 'NOTIFY_COMMENT_LIKE':
+                return t({
+                    id: 'settings.notifications.config.comment_likes',
+                    message: 'Someone likes one of my comments'
+                });
+            case 'NOTIFY_MENTION':
+                return t({
+                    id: 'settings.notifications.config.mentions',
+                    message: 'Someone mentions me in a comment'
+                });
+            default:
+                return name;
+        }
+    };
+
     useEffect(() => {
         if (isError) {
-            toast.error('알림 설정을 불러오는데 실패했습니다.');
+            toast.error(t({
+                id: 'settings.notifications.config.load_failed',
+                message: 'Could not load notification settings.'
+            }));
         }
-    }, [isError]);
+    }, [isError, t]);
 
-    const handleToggleConfig = async (name: keyof typeof NOTIFY_CONFIG_LABEL) => {
+    const handleToggleConfig = async (name: string) => {
         if (!notifyConfig) return;
 
         const nextState = notifyConfig.map((item) => {
@@ -59,13 +81,22 @@ const NotifyConfigModal = ({
             const { data } = await updateNotifyConfig(config);
 
             if (data.status === 'DONE') {
-                toast.success('알림 설정이 업데이트 되었습니다.');
+                toast.success(t({
+                    id: 'settings.notifications.config.update_success',
+                    message: 'Notification settings updated.'
+                }));
                 refetch();
             } else {
-                toast.error('알림 설정 업데이트에 실패했습니다.');
+                toast.error(data.errorMessage || t({
+                    id: 'settings.notifications.config.update_failed',
+                    message: 'Could not update notification settings.'
+                }));
             }
         } catch {
-            toast.error('알림 설정 업데이트에 실패했습니다.');
+            toast.error(t({
+                id: 'settings.notifications.config.update_failed',
+                message: 'Could not update notification settings.'
+            }));
         }
     };
 
@@ -73,7 +104,10 @@ const NotifyConfigModal = ({
         <Modal
             isOpen={isOpen}
             onClose={onClose}
-            title="알림 설정"
+            title={t({
+                id: 'settings.notifications.config.title',
+                message: 'Notification settings'
+            })}
             maxWidth="md">
             <div className="p-6 space-y-2">
                 {isLoading ? null : (
@@ -88,7 +122,7 @@ const NotifyConfigModal = ({
                                     aria-label={getNotifyLabel(item.name)}
                                     className="sr-only peer"
                                     checked={item.value}
-                                    onChange={() => handleToggleConfig(item.name as keyof typeof NOTIFY_CONFIG_LABEL)}
+                                    onChange={() => handleToggleConfig(item.name)}
                                 />
                                 <div className="w-11 h-6 bg-line peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-line-light after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-surface after:border-line after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-action shadow-inner transition-colors duration-200" />
                             </label>

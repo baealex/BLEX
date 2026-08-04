@@ -616,6 +616,11 @@ msgid "common.cancel"
 msgstr "취소"
 
 #. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/components/SettingsListItem.tsx:65
+msgid "common.change_order"
+msgstr "순서 변경"
+
+#. js-lingui-explicit-id
 #: src/components/remotes/PostEditor/components/DraftsPanel.tsx:121
 #: src/components/remotes/PostEditor/components/SettingsDrawer.tsx:234
 msgid "common.close"
@@ -2126,6 +2131,283 @@ msgstr "잘못된 페이지 번호입니다."
 #: src/components/remotes/SearchPage/SearchPage.tsx:273
 msgid "search.validation.query_required"
 msgstr "검색어를 입력하세요."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/components/SettingsNavigation.tsx:90
+msgid "settings.navigation.account"
+msgstr "계정"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/components/SettingsNavigation.tsx:337
+msgid "settings.navigation.admin_panel"
+msgstr "관리자 패널"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/components/SettingsNavigation.tsx:405
+#: src/components/remotes/SettingsApp/components/SettingsNavigation.tsx:439
+#: src/components/remotes/SettingsApp/components/SettingsNavigation.tsx:635
+msgid "settings.navigation.admin_settings"
+msgstr "관리자 설정"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/components/SettingsNavigation.tsx:538
+msgid "settings.navigation.aria_label"
+msgstr "{settings} 탐색"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/components/SettingsNavigation.tsx:401
+msgid "settings.navigation.back_to_personal"
+msgstr "내 설정으로 돌아가기"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/components/SettingsNavigation.tsx:159
+msgid "settings.navigation.banners"
+msgstr "배너"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/components/SettingsNavigation.tsx:589
+msgid "settings.navigation.close_menu"
+msgstr "{settings} 메뉴 닫기"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/components/SettingsNavigation.tsx:194
+msgid "settings.navigation.developer_api"
+msgstr "개발자 API"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/components/SettingsNavigation.tsx:141
+msgid "settings.navigation.forms"
+msgstr "서식"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/components/SettingsNavigation.tsx:272
+msgid "settings.navigation.global_banners"
+msgstr "전역 배너"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/components/SettingsNavigation.tsx:263
+msgid "settings.navigation.global_notices"
+msgstr "전역 공지"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/components/SettingsNavigation.tsx:281
+msgid "settings.navigation.global_webhook_integration"
+msgstr "전역 웹훅 연동"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/components/SettingsNavigation.tsx:225
+msgid "settings.navigation.login_management"
+msgstr "로그인 관리"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/components/SettingsNavigation.tsx:576
+msgid "settings.navigation.menu_title"
+msgstr "{settings} 메뉴"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/components/SettingsNavigation.tsx:150
+msgid "settings.navigation.notices"
+msgstr "공지"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/components/SettingsNavigation.tsx:82
+msgid "settings.navigation.notifications"
+msgstr "알림"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/components/SettingsNavigation.tsx:549
+msgid "settings.navigation.open_menu"
+msgstr "{settings} 메뉴 열기, 현재 페이지: {current}"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/components/SettingsNavigation.tsx:123
+msgid "settings.navigation.posts"
+msgstr "포스트"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/components/SettingsNavigation.tsx:98
+msgid "settings.navigation.profile"
+msgstr "프로필"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/components/SettingsNavigation.tsx:311
+msgid "settings.navigation.section.administration"
+msgstr "관리"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/components/SettingsNavigation.tsx:116
+msgid "settings.navigation.section.blog"
+msgstr "블로그"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/components/SettingsNavigation.tsx:170
+#: src/components/remotes/SettingsApp/components/SettingsNavigation.tsx:292
+msgid "settings.navigation.section.extensions"
+msgstr "확장"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/components/SettingsNavigation.tsx:76
+msgid "settings.navigation.section.general"
+msgstr "일반"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/components/SettingsNavigation.tsx:256
+msgid "settings.navigation.section.operations"
+msgstr "운영"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/components/SettingsNavigation.tsx:208
+msgid "settings.navigation.section.site"
+msgstr "사이트"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/components/SettingsNavigation.tsx:235
+msgid "settings.navigation.seo_aeo"
+msgstr "SEO/AEO"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/components/SettingsNavigation.tsx:132
+msgid "settings.navigation.series"
+msgstr "시리즈"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/components/SettingsNavigation.tsx:443
+#: src/components/remotes/SettingsApp/components/SettingsNavigation.tsx:639
+msgid "settings.navigation.settings"
+msgstr "설정"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/components/SettingsNavigation.tsx:215
+msgid "settings.navigation.site_customization"
+msgstr "블로그 커스텀"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/components/SettingsNavigation.tsx:106
+msgid "settings.navigation.social_links"
+msgstr "소셜 링크"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/components/SettingsNavigation.tsx:245
+msgid "settings.navigation.static_pages"
+msgstr "정적 페이지"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/components/SettingsNavigation.tsx:299
+msgid "settings.navigation.telegram"
+msgstr "텔레그램"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/components/SettingsNavigation.tsx:176
+msgid "settings.navigation.telegram_integration"
+msgstr "텔레그램 연동"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/components/SettingsNavigation.tsx:318
+msgid "settings.navigation.user_permissions"
+msgstr "사용자 권한"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/components/SettingsNavigation.tsx:327
+msgid "settings.navigation.utilities"
+msgstr "유틸리티"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/components/SettingsNavigation.tsx:185
+msgid "settings.navigation.webhook_integration"
+msgstr "웹훅 연동"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/NotifySetting/components/NotifyConfigModal.tsx:38
+msgid "settings.notifications.config.comment_likes"
+msgstr "다른 사용자가 내 댓글을 추천할 때"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/NotifySetting/components/NotifyConfigModal.tsx:54
+#: src/components/remotes/SettingsApp/pages/NotifySetting/NotifySetting.tsx:46
+msgid "settings.notifications.config.load_failed"
+msgstr "알림 설정을 불러오지 못했습니다."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/NotifySetting/components/NotifyConfigModal.tsx:43
+msgid "settings.notifications.config.mentions"
+msgstr "다른 사용자가 댓글에서 나를 언급할 때"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/NotifySetting/components/NotifyConfigModal.tsx:33
+msgid "settings.notifications.config.post_comments"
+msgstr "다른 사용자가 내 포스트에 댓글을 남길 때"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/NotifySetting/components/NotifyConfigModal.tsx:28
+msgid "settings.notifications.config.post_likes"
+msgstr "다른 사용자가 내 포스트를 추천할 때"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/NotifySetting/components/NotifyConfigModal.tsx:107
+msgid "settings.notifications.config.title"
+msgstr "알림 설정"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/NotifySetting/components/NotifyConfigModal.tsx:90
+#: src/components/remotes/SettingsApp/pages/NotifySetting/components/NotifyConfigModal.tsx:96
+msgid "settings.notifications.config.update_failed"
+msgstr "알림 설정을 업데이트하지 못했습니다."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/NotifySetting/components/NotifyConfigModal.tsx:84
+msgid "settings.notifications.config.update_success"
+msgstr "알림 설정을 업데이트했습니다."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/NotifySetting/components/NotificationsSection.tsx:93
+msgid "settings.notifications.configure"
+msgstr "설정"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/NotifySetting/components/NotificationsSection.tsx:184
+msgid "settings.notifications.empty"
+msgstr "알림이 없습니다"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/NotifySetting/components/NotificationsSection.tsx:159
+msgid "settings.notifications.link_unavailable"
+msgstr "링크를 열 수 없음"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/NotifySetting/NotifySetting.tsx:32
+msgid "settings.notifications.load_failed"
+msgstr "알림을 불러오지 못했습니다."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/NotifySetting/components/NotificationsSection.tsx:153
+msgid "settings.notifications.mark_read"
+msgstr "읽음으로 표시"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/NotifySetting/components/NotificationsSection.tsx:60
+#: src/components/remotes/SettingsApp/pages/NotifySetting/components/NotificationsSection.tsx:66
+msgid "settings.notifications.mark_read_failed"
+msgstr "알림을 읽음으로 표시하지 못했습니다."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/NotifySetting/components/NotificationsSection.tsx:174
+msgid "settings.notifications.new"
+msgstr "신규"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/NotifySetting/components/NotificationsSection.tsx:110
+msgid "settings.notifications.telegram.description"
+msgstr "텔레그램을 연결하면 새 포스트, 댓글, 팔로우 알림을 받을 수 있습니다."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/NotifySetting/components/NotificationsSection.tsx:105
+msgid "settings.notifications.telegram.title"
+msgstr "텔레그램 연동"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/NotifySetting/components/NotificationsSection.tsx:83
+msgid "settings.notifications.title"
+msgstr "알림"
 
 #. js-lingui-explicit-id
 #: src/components/remotes/SettingsApp/pages/PinnedPostsSetting/components/PinnedPostsPanel.tsx:259

@@ -95,6 +95,26 @@ class SettingTestCase(TestCase):
         self.assertEqual(len(content['body']['notify']), 2)
         self.assertEqual(content['body']['isTelegramSync'], False)
 
+    def test_get_setting_notify_preserves_stored_content_in_english_ui(self):
+        """운영자 작성 알림 본문은 영어 UI에서도 원문을 보존한다."""
+        notification = Notify.objects.filter(user__username='test').first()
+        notification.content = '운영자가 작성한 알림'
+        notification.save(update_fields=['content'])
+        self.client.login(username='test', password='test')
+
+        response = self.client.get(
+            '/v1/setting/notify',
+            HTTP_ACCEPT_LANGUAGE='en',
+        )
+
+        self.assertEqual(response.status_code, 200)
+        content = json.loads(response.content)
+        notification_contents = {
+            item['content']
+            for item in content['body']['notify']
+        }
+        self.assertIn('운영자가 작성한 알림', notification_contents)
+
     def test_get_setting_pinnable_posts_supports_limit(self):
         """설정 고정 가능 포스트 목록은 limit 개수만 반환"""
         user = User.objects.get(username='test')

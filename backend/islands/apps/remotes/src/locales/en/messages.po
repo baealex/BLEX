@@ -616,6 +616,11 @@ msgid "common.cancel"
 msgstr "Cancel"
 
 #. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/components/SettingsListItem.tsx:65
+msgid "common.change_order"
+msgstr "Change order"
+
+#. js-lingui-explicit-id
 #: src/components/remotes/PostEditor/components/DraftsPanel.tsx:121
 #: src/components/remotes/PostEditor/components/SettingsDrawer.tsx:234
 msgid "common.close"
@@ -2126,6 +2131,283 @@ msgstr "Invalid page number."
 #: src/components/remotes/SearchPage/SearchPage.tsx:273
 msgid "search.validation.query_required"
 msgstr "Enter a search term."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/components/SettingsNavigation.tsx:90
+msgid "settings.navigation.account"
+msgstr "Account"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/components/SettingsNavigation.tsx:337
+msgid "settings.navigation.admin_panel"
+msgstr "Admin panel"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/components/SettingsNavigation.tsx:405
+#: src/components/remotes/SettingsApp/components/SettingsNavigation.tsx:439
+#: src/components/remotes/SettingsApp/components/SettingsNavigation.tsx:635
+msgid "settings.navigation.admin_settings"
+msgstr "Admin settings"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/components/SettingsNavigation.tsx:538
+msgid "settings.navigation.aria_label"
+msgstr "{settings} navigation"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/components/SettingsNavigation.tsx:401
+msgid "settings.navigation.back_to_personal"
+msgstr "Back to my settings"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/components/SettingsNavigation.tsx:159
+msgid "settings.navigation.banners"
+msgstr "Banners"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/components/SettingsNavigation.tsx:589
+msgid "settings.navigation.close_menu"
+msgstr "Close {settings} menu"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/components/SettingsNavigation.tsx:194
+msgid "settings.navigation.developer_api"
+msgstr "Developer API"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/components/SettingsNavigation.tsx:141
+msgid "settings.navigation.forms"
+msgstr "Forms"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/components/SettingsNavigation.tsx:272
+msgid "settings.navigation.global_banners"
+msgstr "Global banners"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/components/SettingsNavigation.tsx:263
+msgid "settings.navigation.global_notices"
+msgstr "Global notices"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/components/SettingsNavigation.tsx:281
+msgid "settings.navigation.global_webhook_integration"
+msgstr "Global webhook integration"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/components/SettingsNavigation.tsx:225
+msgid "settings.navigation.login_management"
+msgstr "Login management"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/components/SettingsNavigation.tsx:576
+msgid "settings.navigation.menu_title"
+msgstr "{settings} menu"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/components/SettingsNavigation.tsx:150
+msgid "settings.navigation.notices"
+msgstr "Notices"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/components/SettingsNavigation.tsx:82
+msgid "settings.navigation.notifications"
+msgstr "Notifications"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/components/SettingsNavigation.tsx:549
+msgid "settings.navigation.open_menu"
+msgstr "Open {settings} menu, current page: {current}"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/components/SettingsNavigation.tsx:123
+msgid "settings.navigation.posts"
+msgstr "Posts"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/components/SettingsNavigation.tsx:98
+msgid "settings.navigation.profile"
+msgstr "Profile"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/components/SettingsNavigation.tsx:311
+msgid "settings.navigation.section.administration"
+msgstr "Administration"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/components/SettingsNavigation.tsx:116
+msgid "settings.navigation.section.blog"
+msgstr "Blog"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/components/SettingsNavigation.tsx:170
+#: src/components/remotes/SettingsApp/components/SettingsNavigation.tsx:292
+msgid "settings.navigation.section.extensions"
+msgstr "Extensions"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/components/SettingsNavigation.tsx:76
+msgid "settings.navigation.section.general"
+msgstr "General"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/components/SettingsNavigation.tsx:256
+msgid "settings.navigation.section.operations"
+msgstr "Operations"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/components/SettingsNavigation.tsx:208
+msgid "settings.navigation.section.site"
+msgstr "Site"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/components/SettingsNavigation.tsx:235
+msgid "settings.navigation.seo_aeo"
+msgstr "SEO/AEO"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/components/SettingsNavigation.tsx:132
+msgid "settings.navigation.series"
+msgstr "Series"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/components/SettingsNavigation.tsx:443
+#: src/components/remotes/SettingsApp/components/SettingsNavigation.tsx:639
+msgid "settings.navigation.settings"
+msgstr "Settings"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/components/SettingsNavigation.tsx:215
+msgid "settings.navigation.site_customization"
+msgstr "Blog customization"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/components/SettingsNavigation.tsx:106
+msgid "settings.navigation.social_links"
+msgstr "Social links"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/components/SettingsNavigation.tsx:245
+msgid "settings.navigation.static_pages"
+msgstr "Static pages"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/components/SettingsNavigation.tsx:299
+msgid "settings.navigation.telegram"
+msgstr "Telegram"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/components/SettingsNavigation.tsx:176
+msgid "settings.navigation.telegram_integration"
+msgstr "Telegram integration"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/components/SettingsNavigation.tsx:318
+msgid "settings.navigation.user_permissions"
+msgstr "User permissions"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/components/SettingsNavigation.tsx:327
+msgid "settings.navigation.utilities"
+msgstr "Utilities"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/components/SettingsNavigation.tsx:185
+msgid "settings.navigation.webhook_integration"
+msgstr "Webhook integration"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/NotifySetting/components/NotifyConfigModal.tsx:38
+msgid "settings.notifications.config.comment_likes"
+msgstr "Someone likes one of my comments"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/NotifySetting/components/NotifyConfigModal.tsx:54
+#: src/components/remotes/SettingsApp/pages/NotifySetting/NotifySetting.tsx:46
+msgid "settings.notifications.config.load_failed"
+msgstr "Could not load notification settings."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/NotifySetting/components/NotifyConfigModal.tsx:43
+msgid "settings.notifications.config.mentions"
+msgstr "Someone mentions me in a comment"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/NotifySetting/components/NotifyConfigModal.tsx:33
+msgid "settings.notifications.config.post_comments"
+msgstr "Someone comments on one of my posts"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/NotifySetting/components/NotifyConfigModal.tsx:28
+msgid "settings.notifications.config.post_likes"
+msgstr "Someone likes one of my posts"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/NotifySetting/components/NotifyConfigModal.tsx:107
+msgid "settings.notifications.config.title"
+msgstr "Notification settings"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/NotifySetting/components/NotifyConfigModal.tsx:90
+#: src/components/remotes/SettingsApp/pages/NotifySetting/components/NotifyConfigModal.tsx:96
+msgid "settings.notifications.config.update_failed"
+msgstr "Could not update notification settings."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/NotifySetting/components/NotifyConfigModal.tsx:84
+msgid "settings.notifications.config.update_success"
+msgstr "Notification settings updated."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/NotifySetting/components/NotificationsSection.tsx:93
+msgid "settings.notifications.configure"
+msgstr "Settings"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/NotifySetting/components/NotificationsSection.tsx:184
+msgid "settings.notifications.empty"
+msgstr "No notifications"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/NotifySetting/components/NotificationsSection.tsx:159
+msgid "settings.notifications.link_unavailable"
+msgstr "Link unavailable"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/NotifySetting/NotifySetting.tsx:32
+msgid "settings.notifications.load_failed"
+msgstr "Could not load notifications."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/NotifySetting/components/NotificationsSection.tsx:153
+msgid "settings.notifications.mark_read"
+msgstr "Mark as read"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/NotifySetting/components/NotificationsSection.tsx:60
+#: src/components/remotes/SettingsApp/pages/NotifySetting/components/NotificationsSection.tsx:66
+msgid "settings.notifications.mark_read_failed"
+msgstr "Could not mark the notification as read."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/NotifySetting/components/NotificationsSection.tsx:174
+msgid "settings.notifications.new"
+msgstr "New"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/NotifySetting/components/NotificationsSection.tsx:110
+msgid "settings.notifications.telegram.description"
+msgstr "Connect Telegram to receive notifications about new posts, comments, and follows."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/NotifySetting/components/NotificationsSection.tsx:105
+msgid "settings.notifications.telegram.title"
+msgstr "Connect Telegram"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/NotifySetting/components/NotificationsSection.tsx:83
+msgid "settings.notifications.title"
+msgstr "Notifications"
 
 #. js-lingui-explicit-id
 #: src/components/remotes/SettingsApp/pages/PinnedPostsSetting/components/PinnedPostsPanel.tsx:259

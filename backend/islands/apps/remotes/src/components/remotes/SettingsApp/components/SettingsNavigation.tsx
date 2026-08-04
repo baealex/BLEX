@@ -1,4 +1,7 @@
 import { useRef, useState } from 'react';
+import type { MessageDescriptor } from '@lingui/core';
+import { msg } from '@lingui/core/macro';
+import { useLingui } from '@lingui/react/macro';
 import { Link, useRouter } from '@tanstack/react-router';
 import { Dialog } from '@blex/ui/dialog';
 import {
@@ -36,7 +39,7 @@ import {
 import type { AdminCapabilities } from '../SettingsApp';
 
 interface NavigationItem {
-    name: string;
+    name: MessageDescriptor;
     path: string;
     icon: LucideIcon;
     requiresEditor?: boolean;
@@ -46,7 +49,7 @@ interface NavigationItem {
 }
 
 interface NavigationSection {
-    title: string;
+    title: MessageDescriptor;
     requiresEditor?: boolean;
     requiresStaff?: boolean;
     items: NavigationItem[];
@@ -70,60 +73,93 @@ interface SettingsRouterContext {
 
 const userNavigationSections: NavigationSection[] = [
     {
-        title: '일반',
+        title: msg({
+            id: 'settings.navigation.section.general',
+            message: 'General'
+        }),
         items: [
             {
-                name: '알림',
+                name: msg({
+                    id: 'settings.navigation.notifications',
+                    message: 'Notifications'
+                }),
                 path: '/notify',
                 icon: Bell
             },
             {
-                name: '계정',
+                name: msg({
+                    id: 'settings.navigation.account',
+                    message: 'Account'
+                }),
                 path: '/account',
                 icon: UserCog
             },
             {
-                name: '프로필',
+                name: msg({
+                    id: 'settings.navigation.profile',
+                    message: 'Profile'
+                }),
                 path: '/profile',
                 icon: UserRound
             },
             {
-                name: '소셜 링크',
+                name: msg({
+                    id: 'settings.navigation.social_links',
+                    message: 'Social links'
+                }),
                 path: '/social-links',
                 icon: Share2
             }
         ]
     },
     {
-        title: '블로그',
+        title: msg({
+            id: 'settings.navigation.section.blog',
+            message: 'Blog'
+        }),
         requiresEditor: true,
         items: [
             {
-                name: '포스트',
+                name: msg({
+                    id: 'settings.navigation.posts',
+                    message: 'Posts'
+                }),
                 path: '/posts',
                 icon: FileText,
                 requiresEditor: true
             },
             {
-                name: '시리즈',
+                name: msg({
+                    id: 'settings.navigation.series',
+                    message: 'Series'
+                }),
                 path: '/series',
                 icon: Layers3,
                 requiresEditor: true
             },
             {
-                name: '서식',
+                name: msg({
+                    id: 'settings.navigation.forms',
+                    message: 'Forms'
+                }),
                 path: '/forms',
                 icon: AlignLeft,
                 requiresEditor: true
             },
             {
-                name: '공지',
+                name: msg({
+                    id: 'settings.navigation.notices',
+                    message: 'Notices'
+                }),
                 path: '/notices',
                 icon: Megaphone,
                 requiresEditor: true
             },
             {
-                name: '배너',
+                name: msg({
+                    id: 'settings.navigation.banners',
+                    message: 'Banners'
+                }),
                 path: '/banners',
                 icon: Ad,
                 requiresEditor: true
@@ -131,22 +167,34 @@ const userNavigationSections: NavigationSection[] = [
         ]
     },
     {
-        title: '확장',
+        title: msg({
+            id: 'settings.navigation.section.extensions',
+            message: 'Extensions'
+        }),
         items: [
             {
-                name: '텔레그램 연동',
+                name: msg({
+                    id: 'settings.navigation.telegram_integration',
+                    message: 'Telegram integration'
+                }),
                 path: '/integration',
                 icon: Plug,
                 requiresTelegramIntegration: true
             },
             {
-                name: '웹훅 연동',
+                name: msg({
+                    id: 'settings.navigation.webhook_integration',
+                    message: 'Webhook integration'
+                }),
                 path: '/webhook',
                 icon: Zap,
                 requiresEditor: true
             },
             {
-                name: '개발자 API',
+                name: msg({
+                    id: 'settings.navigation.developer_api',
+                    message: 'Developer API'
+                }),
                 path: '/developer-api',
                 icon: Code,
                 requiresEditor: true
@@ -157,32 +205,47 @@ const userNavigationSections: NavigationSection[] = [
 
 const adminNavigationSections: NavigationSection[] = [
     {
-        title: '사이트',
+        title: msg({
+            id: 'settings.navigation.section.site',
+            message: 'Site'
+        }),
         requiresStaff: true,
         items: [
             {
-                name: '블로그 커스텀',
+                name: msg({
+                    id: 'settings.navigation.site_customization',
+                    message: 'Blog customization'
+                }),
                 path: '/site-settings',
                 icon: Palette,
                 requiresStaff: true,
                 requiresAdminCapability: 'canManageSiteSettings'
             },
             {
-                name: '로그인 관리',
+                name: msg({
+                    id: 'settings.navigation.login_management',
+                    message: 'Login management'
+                }),
                 path: '/login',
                 icon: LogIn,
                 requiresStaff: true,
                 requiresAdminCapability: 'canManageLoginSettings'
             },
             {
-                name: 'SEO/AEO',
+                name: msg({
+                    id: 'settings.navigation.seo_aeo',
+                    message: 'SEO/AEO'
+                }),
                 path: '/seo-aeo',
                 icon: Bot,
                 requiresStaff: true,
                 requiresAdminCapability: 'canManageSiteSettings'
             },
             {
-                name: '정적 페이지',
+                name: msg({
+                    id: 'settings.navigation.static_pages',
+                    message: 'Static pages'
+                }),
                 path: '/static-pages',
                 icon: FileText,
                 requiresStaff: true
@@ -190,23 +253,35 @@ const adminNavigationSections: NavigationSection[] = [
         ]
     },
     {
-        title: '운영',
+        title: msg({
+            id: 'settings.navigation.section.operations',
+            message: 'Operations'
+        }),
         requiresStaff: true,
         items: [
             {
-                name: '전역 공지',
+                name: msg({
+                    id: 'settings.navigation.global_notices',
+                    message: 'Global notices'
+                }),
                 path: '/global-notices',
                 icon: Megaphone,
                 requiresStaff: true
             },
             {
-                name: '전역 배너',
+                name: msg({
+                    id: 'settings.navigation.global_banners',
+                    message: 'Global banners'
+                }),
                 path: '/global-banners',
                 icon: Ad,
                 requiresStaff: true
             },
             {
-                name: '전역 웹훅 연동',
+                name: msg({
+                    id: 'settings.navigation.global_webhook_integration',
+                    message: 'Global webhook integration'
+                }),
                 path: '/global-webhook',
                 icon: Zap,
                 requiresStaff: true
@@ -214,11 +289,17 @@ const adminNavigationSections: NavigationSection[] = [
         ]
     },
     {
-        title: '확장',
+        title: msg({
+            id: 'settings.navigation.section.extensions',
+            message: 'Extensions'
+        }),
         requiresStaff: true,
         items: [
             {
-                name: '텔레그램',
+                name: msg({
+                    id: 'settings.navigation.telegram',
+                    message: 'Telegram'
+                }),
                 path: '/integrations',
                 icon: Send,
                 requiresStaff: true,
@@ -227,24 +308,36 @@ const adminNavigationSections: NavigationSection[] = [
         ]
     },
     {
-        title: '관리',
+        title: msg({
+            id: 'settings.navigation.section.administration',
+            message: 'Administration'
+        }),
         requiresStaff: true,
         items: [
             {
-                name: '사용자 권한',
+                name: msg({
+                    id: 'settings.navigation.user_permissions',
+                    message: 'User permissions'
+                }),
                 path: '/users',
                 icon: Users,
                 requiresStaff: true
             },
             {
-                name: '유틸리티',
+                name: msg({
+                    id: 'settings.navigation.utilities',
+                    message: 'Utilities'
+                }),
                 path: '/utilities',
                 icon: Wrench,
                 requiresStaff: true,
                 requiresAdminCapability: 'canManageUtilities'
             },
             {
-                name: '관리자 패널',
+                name: msg({
+                    id: 'settings.navigation.admin_panel',
+                    message: 'Admin panel'
+                }),
                 path: 'admin',
                 icon: Shield,
                 requiresStaff: true
@@ -291,6 +384,8 @@ const SettingsModeLink = ({
     adminCapabilities: AdminCapabilities;
     mobile?: boolean;
 }) => {
+    const { t } = useLingui();
+
     if (!isStaff) return null;
 
     const isAdminMode = settingsMode === 'admin';
@@ -302,7 +397,15 @@ const SettingsModeLink = ({
                 ? '/admin-settings/integrations'
                 : '/admin-settings/global-notices';
     const href = isAdminMode ? '/settings/notify' : adminSettingsPath;
-    const label = isAdminMode ? '내 설정으로 돌아가기' : '관리자 설정';
+    const label = isAdminMode
+        ? t({
+            id: 'settings.navigation.back_to_personal',
+            message: 'Back to my settings'
+        })
+        : t({
+            id: 'settings.navigation.admin_settings',
+            message: 'Admin settings'
+        });
     const ModeIcon = isAdminMode ? ArrowLeft : Shield;
 
     return (
@@ -319,6 +422,7 @@ const SettingsModeLink = ({
 };
 
 export const SettingsMobileNavigation = ({ currentPath }: SettingsNavigationProps) => {
+    const { i18n, t } = useLingui();
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
     const mobileMenuTriggerRef = useRef<HTMLButtonElement>(null);
     const router = useRouter();
@@ -331,7 +435,15 @@ export const SettingsMobileNavigation = ({ currentPath }: SettingsNavigationProp
         canUseTelegramIntegration,
         adminCapabilities
     } = router.options.context as SettingsRouterContext;
-    const settingsLabel = settingsMode === 'admin' ? '관리자 설정' : '설정';
+    const settingsLabel = settingsMode === 'admin'
+        ? t({
+            id: 'settings.navigation.admin_settings',
+            message: 'Admin settings'
+        })
+        : t({
+            id: 'settings.navigation.settings',
+            message: 'Settings'
+        });
     const navigationSections = getNavigationSections(settingsMode);
     const activeItem = navigationSections
         .flatMap(section => section.items)
@@ -340,7 +452,7 @@ export const SettingsMobileNavigation = ({ currentPath }: SettingsNavigationProp
             item.path !== 'admin'
             && normalizePath(currentPath, basePath) === normalizePath(item.path, basePath)
         ));
-    const activeItemName = activeItem?.name ?? settingsLabel;
+    const activeItemName = activeItem ? i18n._(activeItem.name) : settingsLabel;
     const handleMobileMenuOpenChange = (open: boolean) => {
         setMobileMenuOpen(open);
         if (!open) {
@@ -377,7 +489,7 @@ export const SettingsMobileNavigation = ({ currentPath }: SettingsNavigationProp
                             className={`mr-3 inline-flex w-6 shrink-0 justify-center transition-colors ${iconClasses} group-hover:text-content-secondary`}>
                             <ItemIcon className="h-4 w-4" />
                         </span>
-                        <span className="min-w-0 flex-1">{item.name}</span>
+                        <span className="min-w-0 flex-1">{i18n._(item.name)}</span>
                     </a>
                 </li>
             );
@@ -395,7 +507,7 @@ export const SettingsMobileNavigation = ({ currentPath }: SettingsNavigationProp
                         className={`mr-3 inline-flex w-6 shrink-0 justify-center transition-colors ${iconClasses} group-hover:text-content-secondary`}>
                         <ItemIcon className="h-4 w-4" />
                     </span>
-                    <span className="min-w-0 flex-1">{item.name}</span>
+                    <span className="min-w-0 flex-1">{i18n._(item.name)}</span>
                 </Link>
             </li>
         );
@@ -410,9 +522,9 @@ export const SettingsMobileNavigation = ({ currentPath }: SettingsNavigationProp
         if (visibleItems.length === 0) return null;
 
         return (
-            <div key={section.title}>
+            <div key={section.title.id}>
                 <p className="px-4 mb-1 text-xs font-bold text-content-hint uppercase tracking-wider">
-                    {section.title}
+                    {i18n._(section.title)}
                 </p>
                 <ul className="space-y-1">
                     {visibleItems.map(renderNavItem)}
@@ -422,13 +534,26 @@ export const SettingsMobileNavigation = ({ currentPath }: SettingsNavigationProp
     };
 
     return (
-        <nav aria-label={`${settingsLabel} 탐색`} className="xl:hidden pt-4">
+        <nav
+            aria-label={i18n._({
+                id: 'settings.navigation.aria_label',
+                message: '{settings} navigation',
+                values: { settings: settingsLabel }
+            })}
+            className="xl:hidden pt-4">
             <Dialog.Root open={mobileMenuOpen} onOpenChange={handleMobileMenuOpenChange}>
                 <Dialog.Trigger asChild>
                     <button
                         ref={mobileMenuTriggerRef}
                         type="button"
-                        aria-label={`${settingsLabel} 메뉴 열기, 현재 ${activeItemName}`}
+                        aria-label={i18n._({
+                            id: 'settings.navigation.open_menu',
+                            message: 'Open {settings} menu, current page: {current}',
+                            values: {
+                                settings: settingsLabel,
+                                current: activeItemName
+                            }
+                        })}
                         className={`flex min-h-11 w-full items-center justify-between gap-3 rounded-xl border border-line bg-surface px-3 text-left shadow-subtle transition-all ${INTERACTION_DURATION} hover:bg-surface-subtle active:scale-[0.99] motion-reduce:transform-none motion-reduce:transition-none`}>
                         <span className="flex min-w-0 items-center gap-2 text-sm font-semibold text-content">
                             <Settings2 aria-hidden="true" className="h-4 w-4 shrink-0" />
@@ -447,7 +572,13 @@ export const SettingsMobileNavigation = ({ currentPath }: SettingsNavigationProp
                     <Dialog.Overlay className={`fixed inset-0 ${DIM_OVERLAY_SOFT} z-40 data-[state=open]:animate-in data-[state=open]:fade-in-0 motion-reduce:animate-none`} />
                     <Dialog.Content className={`fixed z-50 bg-surface shadow-2xl transition ease-in-out data-[state=open]:animate-in data-[state=open]:slide-in-from-left ${ENTRANCE_DURATION} motion-reduce:animate-none motion-reduce:transition-none inset-y-0 left-0 h-full w-[280px] overflow-y-auto outline-none`}>
                         <div className="p-6">
-                            <Dialog.Title className="sr-only">{settingsLabel} 메뉴</Dialog.Title>
+                            <Dialog.Title className="sr-only">
+                                {i18n._({
+                                    id: 'settings.navigation.menu_title',
+                                    message: '{settings} menu',
+                                    values: { settings: settingsLabel }
+                                })}
+                            </Dialog.Title>
                             <div className="mb-6 flex items-center justify-between">
                                 <p className="text-xl font-semibold tracking-tight text-content">
                                     {settingsLabel}
@@ -455,7 +586,11 @@ export const SettingsMobileNavigation = ({ currentPath }: SettingsNavigationProp
                                 <Dialog.Close asChild>
                                     <button
                                         type="button"
-                                        aria-label={`${settingsLabel} 메뉴 닫기`}
+                                        aria-label={i18n._({
+                                            id: 'settings.navigation.close_menu',
+                                            message: 'Close {settings} menu',
+                                            values: { settings: settingsLabel }
+                                        })}
                                         className={`w-11 h-11 flex items-center justify-center rounded-full hover:bg-surface-subtle active:bg-line active:scale-95 transition-all ${INTERACTION_DURATION} motion-reduce:transform-none motion-reduce:transition-none`}>
                                         <X aria-hidden="true" className="h-5 w-5 text-content-secondary" />
                                     </button>
@@ -485,6 +620,7 @@ export const SettingsMobileNavigation = ({ currentPath }: SettingsNavigationProp
 };
 
 export const SettingsDesktopNavigation = ({ currentPath }: SettingsNavigationProps) => {
+    const { i18n, t } = useLingui();
     const router = useRouter();
     const {
         isEditor,
@@ -495,7 +631,15 @@ export const SettingsDesktopNavigation = ({ currentPath }: SettingsNavigationPro
         canUseTelegramIntegration,
         adminCapabilities
     } = router.options.context as SettingsRouterContext;
-    const settingsLabel = settingsMode === 'admin' ? '관리자 설정' : '설정';
+    const settingsLabel = settingsMode === 'admin'
+        ? t({
+            id: 'settings.navigation.admin_settings',
+            message: 'Admin settings'
+        })
+        : t({
+            id: 'settings.navigation.settings',
+            message: 'Settings'
+        });
     const navigationSections = getNavigationSections(settingsMode);
     const handleNavClick = (item: NavigationItem) => {
         if (item.path === 'admin' && adminUrl) {
@@ -527,7 +671,7 @@ export const SettingsDesktopNavigation = ({ currentPath }: SettingsNavigationPro
                             className={`mr-3 inline-flex w-5 shrink-0 justify-center transition-colors ${iconClasses} group-hover:text-content-secondary`}>
                             <ItemIcon className="h-4 w-4" />
                         </span>
-                        <span className="min-w-0 flex-1">{item.name}</span>
+                        <span className="min-w-0 flex-1">{i18n._(item.name)}</span>
                     </a>
                 </li>
             );
@@ -545,7 +689,7 @@ export const SettingsDesktopNavigation = ({ currentPath }: SettingsNavigationPro
                         className={`mr-3 inline-flex w-5 shrink-0 justify-center transition-colors ${iconClasses} group-hover:text-content-secondary`}>
                         <ItemIcon className="h-4 w-4" />
                     </span>
-                    <span className="min-w-0 flex-1">{item.name}</span>
+                    <span className="min-w-0 flex-1">{i18n._(item.name)}</span>
                 </Link>
             </li>
         );
@@ -560,9 +704,9 @@ export const SettingsDesktopNavigation = ({ currentPath }: SettingsNavigationPro
         if (visibleItems.length === 0) return null;
 
         return (
-            <div key={section.title}>
+            <div key={section.title.id}>
                 <p className="mb-1 px-3 text-xs font-semibold uppercase tracking-wider text-content-hint">
-                    {section.title}
+                    {i18n._(section.title)}
                 </p>
                 <ul className="space-y-1">
                     {visibleItems.map(renderNavItem)}
