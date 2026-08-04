@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: BLEX 3.1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-08-05 04:36+0900\n"
+"POT-Creation-Date: 2026-08-05 04:55+0900\n"
 "PO-Revision-Date: 2026-07-18 00:00+0900\n"
 "Last-Translator: BLEX contributors\n"
 "Language-Team: Korean\n"
@@ -515,6 +515,14 @@ msgstr "비활성 사용자입니다."
 msgid "%(scope)s scope is required."
 msgstr "%(scope)s scope가 필요합니다."
 
+#: board/services/hcaptcha_service.py:136
+msgid "Enter an hCaptcha Site Key."
+msgstr "hCaptcha Site Key를 입력해주세요."
+
+#: board/services/hcaptcha_service.py:138
+msgid "Enter an hCaptcha Secret Key."
+msgstr "hCaptcha Secret Key를 입력해주세요."
+
 #: board/services/integration_setting_service.py:121
 msgid "Enter a Telegram bot username."
 msgstr "텔레그램 봇 사용자명을 입력해주세요."
@@ -522,6 +530,27 @@ msgstr "텔레그램 봇 사용자명을 입력해주세요."
 #: board/services/integration_setting_service.py:125
 msgid "Enter a Telegram bot token."
 msgstr "텔레그램 봇 토큰을 입력해주세요."
+
+#: board/services/notification_url_service.py:21
+#: board/services/notification_url_service.py:32
+#: board/services/notification_url_service.py:55
+#: board/services/notification_url_service.py:58
+#: board/services/notification_url_service.py:69
+#: board/services/notification_url_service.py:77
+msgid "Enter a valid notification URL."
+msgstr "올바른 알림 URL을 입력해주세요."
+
+#: board/services/notification_url_service.py:25
+msgid "Notification URLs cannot contain control characters."
+msgstr "알림 URL에는 제어 문자를 사용할 수 없습니다."
+
+#: board/services/notification_url_service.py:27
+msgid "Notification URLs cannot contain backslashes."
+msgstr "알림 URL에는 역슬래시를 사용할 수 없습니다."
+
+#: board/services/notification_url_service.py:36
+msgid "Notification URLs must be a relative path or an HTTP(S) URL."
+msgstr "알림 URL은 상대 경로 또는 HTTP(S) URL이어야 합니다."
 
 #: board/services/post_revision_service.py:173
 msgid "The revision to restore could not be found."

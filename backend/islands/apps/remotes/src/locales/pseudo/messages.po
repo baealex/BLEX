@@ -854,6 +854,7 @@ msgstr ""
 #. js-lingui-explicit-id
 #: src/components/remotes/Comments/components/CommentEditForm.tsx:76
 #: src/components/remotes/SettingsApp/pages/AdminIntegrationSetting/AdminIntegrationSetting.tsx:289
+#: src/components/remotes/SettingsApp/pages/LoginSetting/LoginSetting.tsx:825
 #: src/components/remotes/SettingsApp/pages/shared/BannerEditorBase.tsx:577
 #: src/components/remotes/SettingsApp/pages/shared/NoticeSettingBase.tsx:398
 #: src/components/remotes/SettingsApp/pages/StaticPagesSetting/components/StaticPageEditor.tsx:495
@@ -3461,6 +3462,206 @@ msgstr ""
 #. js-lingui-explicit-id
 #: src/components/remotes/SettingsApp/pages/FormsSetting/FormsSetting.tsx:44
 msgid "settings.forms.validation.title_required"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/LoginSetting/LoginSetting.tsx:677
+msgid "settings.login.deletion_redirect_url.help"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/LoginSetting/LoginSetting.tsx:670
+msgid "settings.login.deletion_redirect_url.label"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/LoginSetting/LoginSetting.tsx:715
+#: src/components/remotes/SettingsApp/pages/LoginSetting/LoginSetting.tsx:731
+msgid "settings.login.hcaptcha.enable"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/LoginSetting/LoginSetting.tsx:721
+msgid "settings.login.hcaptcha.enable_help"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/LoginSetting/LoginSetting.tsx:758
+msgid "settings.login.hcaptcha.secret_key"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/LoginSetting/LoginSetting.tsx:799
+msgid "settings.login.hcaptcha.secret.delete"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/LoginSetting/LoginSetting.tsx:803
+msgid "settings.login.hcaptcha.secret.delete_help"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/LoginSetting/LoginSetting.tsx:741
+msgid "settings.login.hcaptcha.site_key"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/LoginSetting/LoginSetting.tsx:480
+msgid "settings.login.load_error"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/LoginSetting/LoginSetting.tsx:631
+msgid "settings.login.member_experience.title"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/LoginSetting/LoginSetting.tsx:829
+msgid "settings.login.save"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/LoginSetting/LoginSetting.tsx:505
+#: src/components/remotes/SettingsApp/pages/LoginSetting/LoginSetting.tsx:524
+msgid "settings.login.save_error"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/LoginSetting/LoginSetting.tsx:518
+msgid "settings.login.save_success"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/LoginSetting/LoginSetting.tsx:321
+#: src/components/remotes/SettingsApp/pages/LoginSetting/LoginSetting.tsx:782
+msgid "settings.login.secret.keep_help"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/LoginSetting/LoginSetting.tsx:310
+#: src/components/remotes/SettingsApp/pages/LoginSetting/LoginSetting.tsx:776
+msgid "settings.login.secret.keep_placeholder"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/LoginSetting/LoginSetting.tsx:706
+msgid "settings.login.signup_protection.title"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/LoginSetting/LoginSetting.tsx:402
+msgid "settings.login.social.callback_url"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/LoginSetting/LoginSetting.tsx:424
+msgid "settings.login.social.credentials_required_help"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/LoginSetting/LoginSetting.tsx:169
+msgid "settings.login.social.credentials.complete"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/LoginSetting/LoginSetting.tsx:441
+msgid "settings.login.social.credentials.manage"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/LoginSetting/LoginSetting.tsx:180
+msgid "settings.login.social.credentials.missing"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/LoginSetting/LoginSetting.tsx:175
+msgid "settings.login.social.credentials.partial"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/LoginSetting/LoginSetting.tsx:412
+msgid "settings.login.social.enable_provider"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/LoginSetting/LoginSetting.tsx:338
+msgid "settings.login.social.secret.delete"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/LoginSetting/LoginSetting.tsx:207
+#: src/components/remotes/SettingsApp/pages/LoginSetting/LoginSetting.tsx:252
+msgid "settings.login.social.status.credentials_required"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/LoginSetting/LoginSetting.tsx:260
+msgid "settings.login.social.status.disabled"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/LoginSetting/LoginSetting.tsx:225
+msgid "settings.login.social.status.hidden_after_save"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/LoginSetting/LoginSetting.tsx:233
+msgid "settings.login.social.status.unsaved"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/LoginSetting/LoginSetting.tsx:243
+msgid "settings.login.social.status.visible"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/LoginSetting/LoginSetting.tsx:216
+msgid "settings.login.social.status.visible_after_save"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/LoginSetting/LoginSetting.tsx:612
+msgid "settings.login.social.summary.credentials_required"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/LoginSetting/LoginSetting.tsx:616
+msgid "settings.login.social.summary.none"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/LoginSetting/LoginSetting.tsx:606
+msgid "settings.login.social.summary.visible"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/LoginSetting/LoginSetting.tsx:686
+msgid "settings.login.social.title"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/LoginSetting/LoginSetting.tsx:624
+msgid "settings.login.title"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/LoginSetting/LoginSetting.tsx:652
+msgid "settings.login.welcome_message.help"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/LoginSetting/LoginSetting.tsx:639
+msgid "settings.login.welcome_message.label"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/LoginSetting/LoginSetting.tsx:645
+msgid "settings.login.welcome_message.placeholder"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/LoginSetting/LoginSetting.tsx:660
+msgid "settings.login.welcome_url.label"
 msgstr ""
 
 #. js-lingui-explicit-id

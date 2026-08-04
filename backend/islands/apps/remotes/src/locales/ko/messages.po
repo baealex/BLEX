@@ -854,6 +854,7 @@ msgstr "저장"
 #. js-lingui-explicit-id
 #: src/components/remotes/Comments/components/CommentEditForm.tsx:76
 #: src/components/remotes/SettingsApp/pages/AdminIntegrationSetting/AdminIntegrationSetting.tsx:289
+#: src/components/remotes/SettingsApp/pages/LoginSetting/LoginSetting.tsx:825
 #: src/components/remotes/SettingsApp/pages/shared/BannerEditorBase.tsx:577
 #: src/components/remotes/SettingsApp/pages/shared/NoticeSettingBase.tsx:398
 #: src/components/remotes/SettingsApp/pages/StaticPagesSetting/components/StaticPageEditor.tsx:495
@@ -3466,6 +3467,206 @@ msgstr "제목은 100자 이내로 입력해주세요."
 #: src/components/remotes/SettingsApp/pages/FormsSetting/FormsSetting.tsx:44
 msgid "settings.forms.validation.title_required"
 msgstr "제목을 입력해주세요."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/LoginSetting/LoginSetting.tsx:677
+msgid "settings.login.deletion_redirect_url.help"
+msgstr "비워두면 홈으로 이동합니다."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/LoginSetting/LoginSetting.tsx:670
+msgid "settings.login.deletion_redirect_url.label"
+msgstr "탈퇴 후 이동 URL"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/LoginSetting/LoginSetting.tsx:715
+#: src/components/remotes/SettingsApp/pages/LoginSetting/LoginSetting.tsx:731
+msgid "settings.login.hcaptcha.enable"
+msgstr "hCaptcha 사용"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/LoginSetting/LoginSetting.tsx:721
+msgid "settings.login.hcaptcha.enable_help"
+msgstr "켜면 회원가입 요청이 hCaptcha 토큰 검증을 통과해야 합니다."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/LoginSetting/LoginSetting.tsx:758
+msgid "settings.login.hcaptcha.secret_key"
+msgstr "Secret Key"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/LoginSetting/LoginSetting.tsx:799
+msgid "settings.login.hcaptcha.secret.delete"
+msgstr "저장된 hCaptcha Secret Key 삭제"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/LoginSetting/LoginSetting.tsx:803
+msgid "settings.login.hcaptcha.secret.delete_help"
+msgstr "삭제 후 hCaptcha를 계속 사용하려면 새 Secret Key를 입력해야 합니다."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/LoginSetting/LoginSetting.tsx:741
+msgid "settings.login.hcaptcha.site_key"
+msgstr "Site Key"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/LoginSetting/LoginSetting.tsx:480
+msgid "settings.login.load_error"
+msgstr "로그인 관리 설정을 불러오는 데 실패했습니다."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/LoginSetting/LoginSetting.tsx:631
+msgid "settings.login.member_experience.title"
+msgstr "회원 안내"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/LoginSetting/LoginSetting.tsx:829
+msgid "settings.login.save"
+msgstr "로그인 관리 저장"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/LoginSetting/LoginSetting.tsx:505
+#: src/components/remotes/SettingsApp/pages/LoginSetting/LoginSetting.tsx:524
+msgid "settings.login.save_error"
+msgstr "로그인 관리 설정 저장에 실패했습니다."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/LoginSetting/LoginSetting.tsx:518
+msgid "settings.login.save_success"
+msgstr "로그인 관리 설정이 저장되었습니다."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/LoginSetting/LoginSetting.tsx:321
+#: src/components/remotes/SettingsApp/pages/LoginSetting/LoginSetting.tsx:782
+msgid "settings.login.secret.keep_help"
+msgstr "새 값을 입력하지 않으면 기존 Secret을 유지합니다."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/LoginSetting/LoginSetting.tsx:310
+#: src/components/remotes/SettingsApp/pages/LoginSetting/LoginSetting.tsx:776
+msgid "settings.login.secret.keep_placeholder"
+msgstr "저장된 값 유지"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/LoginSetting/LoginSetting.tsx:706
+msgid "settings.login.signup_protection.title"
+msgstr "회원가입 보호"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/LoginSetting/LoginSetting.tsx:402
+msgid "settings.login.social.callback_url"
+msgstr "콜백 URL"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/LoginSetting/LoginSetting.tsx:424
+msgid "settings.login.social.credentials_required_help"
+msgstr "Client ID와 Client Secret을 모두 입력하고 저장해야 로그인 화면에 표시됩니다."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/LoginSetting/LoginSetting.tsx:169
+msgid "settings.login.social.credentials.complete"
+msgstr "Client ID · Secret 설정됨"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/LoginSetting/LoginSetting.tsx:441
+msgid "settings.login.social.credentials.manage"
+msgstr "앱 키 관리"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/LoginSetting/LoginSetting.tsx:180
+msgid "settings.login.social.credentials.missing"
+msgstr "앱 키 미설정"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/LoginSetting/LoginSetting.tsx:175
+msgid "settings.login.social.credentials.partial"
+msgstr "일부 앱 키만 설정됨"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/LoginSetting/LoginSetting.tsx:412
+msgid "settings.login.social.enable_provider"
+msgstr "{providerName} 소셜 로그인 사용"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/LoginSetting/LoginSetting.tsx:338
+msgid "settings.login.social.secret.delete"
+msgstr "저장된 Client Secret 삭제"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/LoginSetting/LoginSetting.tsx:207
+#: src/components/remotes/SettingsApp/pages/LoginSetting/LoginSetting.tsx:252
+msgid "settings.login.social.status.credentials_required"
+msgstr "앱 키 설정 필요"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/LoginSetting/LoginSetting.tsx:260
+msgid "settings.login.social.status.disabled"
+msgstr "사용 안 함"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/LoginSetting/LoginSetting.tsx:225
+msgid "settings.login.social.status.hidden_after_save"
+msgstr "저장 후 숨김"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/LoginSetting/LoginSetting.tsx:233
+msgid "settings.login.social.status.unsaved"
+msgstr "변경사항 미저장"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/LoginSetting/LoginSetting.tsx:243
+msgid "settings.login.social.status.visible"
+msgstr "로그인 화면에 표시됨"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/LoginSetting/LoginSetting.tsx:216
+msgid "settings.login.social.status.visible_after_save"
+msgstr "저장 후 표시"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/LoginSetting/LoginSetting.tsx:612
+msgid "settings.login.social.summary.credentials_required"
+msgstr "사용을 켠 공급자의 앱 키를 모두 설정해야 로그인 화면에 표시됩니다."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/LoginSetting/LoginSetting.tsx:616
+msgid "settings.login.social.summary.none"
+msgstr "현재 로그인 화면에 표시되는 소셜 로그인이 없습니다."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/LoginSetting/LoginSetting.tsx:606
+msgid "settings.login.social.summary.visible"
+msgstr "로그인 화면에 표시 중: {providers}."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/LoginSetting/LoginSetting.tsx:686
+msgid "settings.login.social.title"
+msgstr "소셜 로그인"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/LoginSetting/LoginSetting.tsx:624
+msgid "settings.login.title"
+msgstr "로그인 관리"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/LoginSetting/LoginSetting.tsx:652
+msgid "settings.login.welcome_message.help"
+msgstr "{name}을 사용하면 사용자 이름으로 치환됩니다."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/LoginSetting/LoginSetting.tsx:639
+msgid "settings.login.welcome_message.label"
+msgstr "가입 환영 메시지"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/LoginSetting/LoginSetting.tsx:645
+msgid "settings.login.welcome_message.placeholder"
+msgstr "환영합니다, {name}님! BLEX에 오신 것을 환영합니다."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/LoginSetting/LoginSetting.tsx:660
+msgid "settings.login.welcome_url.label"
+msgstr "환영 알림 클릭 URL"
 
 #. js-lingui-explicit-id
 #: src/components/remotes/SettingsApp/components/SettingsNavigation.tsx:90

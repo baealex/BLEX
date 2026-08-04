@@ -854,6 +854,7 @@ msgstr "Save"
 #. js-lingui-explicit-id
 #: src/components/remotes/Comments/components/CommentEditForm.tsx:76
 #: src/components/remotes/SettingsApp/pages/AdminIntegrationSetting/AdminIntegrationSetting.tsx:289
+#: src/components/remotes/SettingsApp/pages/LoginSetting/LoginSetting.tsx:825
 #: src/components/remotes/SettingsApp/pages/shared/BannerEditorBase.tsx:577
 #: src/components/remotes/SettingsApp/pages/shared/NoticeSettingBase.tsx:398
 #: src/components/remotes/SettingsApp/pages/StaticPagesSetting/components/StaticPageEditor.tsx:495
@@ -3466,6 +3467,206 @@ msgstr "Title must be 100 characters or fewer."
 #: src/components/remotes/SettingsApp/pages/FormsSetting/FormsSetting.tsx:44
 msgid "settings.forms.validation.title_required"
 msgstr "Enter a title."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/LoginSetting/LoginSetting.tsx:677
+msgid "settings.login.deletion_redirect_url.help"
+msgstr "Leave blank to redirect to the home page."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/LoginSetting/LoginSetting.tsx:670
+msgid "settings.login.deletion_redirect_url.label"
+msgstr "Redirect URL after account deletion"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/LoginSetting/LoginSetting.tsx:715
+#: src/components/remotes/SettingsApp/pages/LoginSetting/LoginSetting.tsx:731
+msgid "settings.login.hcaptcha.enable"
+msgstr "Use hCaptcha"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/LoginSetting/LoginSetting.tsx:721
+msgid "settings.login.hcaptcha.enable_help"
+msgstr "When enabled, sign-up requests must pass hCaptcha token verification."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/LoginSetting/LoginSetting.tsx:758
+msgid "settings.login.hcaptcha.secret_key"
+msgstr "Secret Key"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/LoginSetting/LoginSetting.tsx:799
+msgid "settings.login.hcaptcha.secret.delete"
+msgstr "Delete saved hCaptcha Secret Key"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/LoginSetting/LoginSetting.tsx:803
+msgid "settings.login.hcaptcha.secret.delete_help"
+msgstr "To keep using hCaptcha after deleting it, enter a new Secret Key."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/LoginSetting/LoginSetting.tsx:741
+msgid "settings.login.hcaptcha.site_key"
+msgstr "Site Key"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/LoginSetting/LoginSetting.tsx:480
+msgid "settings.login.load_error"
+msgstr "Failed to load login settings."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/LoginSetting/LoginSetting.tsx:631
+msgid "settings.login.member_experience.title"
+msgstr "Member experience"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/LoginSetting/LoginSetting.tsx:829
+msgid "settings.login.save"
+msgstr "Save login settings"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/LoginSetting/LoginSetting.tsx:505
+#: src/components/remotes/SettingsApp/pages/LoginSetting/LoginSetting.tsx:524
+msgid "settings.login.save_error"
+msgstr "Failed to save login settings."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/LoginSetting/LoginSetting.tsx:518
+msgid "settings.login.save_success"
+msgstr "Login settings saved."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/LoginSetting/LoginSetting.tsx:321
+#: src/components/remotes/SettingsApp/pages/LoginSetting/LoginSetting.tsx:782
+msgid "settings.login.secret.keep_help"
+msgstr "Leave this blank to keep the existing secret."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/LoginSetting/LoginSetting.tsx:310
+#: src/components/remotes/SettingsApp/pages/LoginSetting/LoginSetting.tsx:776
+msgid "settings.login.secret.keep_placeholder"
+msgstr "Keep saved value"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/LoginSetting/LoginSetting.tsx:706
+msgid "settings.login.signup_protection.title"
+msgstr "Sign-up protection"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/LoginSetting/LoginSetting.tsx:402
+msgid "settings.login.social.callback_url"
+msgstr "Callback URL"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/LoginSetting/LoginSetting.tsx:424
+msgid "settings.login.social.credentials_required_help"
+msgstr "Enter and save both the Client ID and Client Secret to show this provider on the login page."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/LoginSetting/LoginSetting.tsx:169
+msgid "settings.login.social.credentials.complete"
+msgstr "Client ID and secret configured"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/LoginSetting/LoginSetting.tsx:441
+msgid "settings.login.social.credentials.manage"
+msgstr "Manage app credentials"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/LoginSetting/LoginSetting.tsx:180
+msgid "settings.login.social.credentials.missing"
+msgstr "App credentials not configured"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/LoginSetting/LoginSetting.tsx:175
+msgid "settings.login.social.credentials.partial"
+msgstr "Some app credentials configured"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/LoginSetting/LoginSetting.tsx:412
+msgid "settings.login.social.enable_provider"
+msgstr "Enable {providerName} social login"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/LoginSetting/LoginSetting.tsx:338
+msgid "settings.login.social.secret.delete"
+msgstr "Delete saved Client Secret"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/LoginSetting/LoginSetting.tsx:207
+#: src/components/remotes/SettingsApp/pages/LoginSetting/LoginSetting.tsx:252
+msgid "settings.login.social.status.credentials_required"
+msgstr "App credentials required"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/LoginSetting/LoginSetting.tsx:260
+msgid "settings.login.social.status.disabled"
+msgstr "Disabled"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/LoginSetting/LoginSetting.tsx:225
+msgid "settings.login.social.status.hidden_after_save"
+msgstr "Hidden after saving"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/LoginSetting/LoginSetting.tsx:233
+msgid "settings.login.social.status.unsaved"
+msgstr "Unsaved changes"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/LoginSetting/LoginSetting.tsx:243
+msgid "settings.login.social.status.visible"
+msgstr "Visible on login page"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/LoginSetting/LoginSetting.tsx:216
+msgid "settings.login.social.status.visible_after_save"
+msgstr "Visible after saving"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/LoginSetting/LoginSetting.tsx:612
+msgid "settings.login.social.summary.credentials_required"
+msgstr "Complete the app credentials for enabled providers to show them on the login page."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/LoginSetting/LoginSetting.tsx:616
+msgid "settings.login.social.summary.none"
+msgstr "No social login providers are currently visible on the login page."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/LoginSetting/LoginSetting.tsx:606
+msgid "settings.login.social.summary.visible"
+msgstr "Available on the login page: {providers}."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/LoginSetting/LoginSetting.tsx:686
+msgid "settings.login.social.title"
+msgstr "Social login"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/LoginSetting/LoginSetting.tsx:624
+msgid "settings.login.title"
+msgstr "Login settings"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/LoginSetting/LoginSetting.tsx:652
+msgid "settings.login.welcome_message.help"
+msgstr "{name} is replaced with the member's username."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/LoginSetting/LoginSetting.tsx:639
+msgid "settings.login.welcome_message.label"
+msgstr "Welcome message"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/LoginSetting/LoginSetting.tsx:645
+msgid "settings.login.welcome_message.placeholder"
+msgstr "Welcome, {name}! Thanks for joining BLEX."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/LoginSetting/LoginSetting.tsx:660
+msgid "settings.login.welcome_url.label"
+msgstr "Welcome notification URL"
 
 #. js-lingui-explicit-id
 #: src/components/remotes/SettingsApp/components/SettingsNavigation.tsx:90
