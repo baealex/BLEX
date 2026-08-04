@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: BLEX 3.1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-08-05 07:31+0900\n"
+"POT-Creation-Date: 2026-08-05 07:33+0900\n"
 "PO-Revision-Date: 2026-07-18 00:00+0900\n"
 "Last-Translator: BLEX contributors\n"
 "Language-Team: Korean\n"
@@ -1603,13 +1603,50 @@ msgstr "2단계 인증"
 msgid "Username change history"
 msgstr "사용자명 변경 이력"
 
-#: board/models/accounts.py:289
+#: board/models/accounts.py:275
+msgid "This social login provider is not supported."
+msgstr "지원하지 않는 소셜 로그인 제공자입니다."
+
+#: board/models/accounts.py:291
 msgid "Social login connection"
 msgstr "소셜 로그인 연동"
 
-#: board/models/accounts.py:290
+#: board/models/accounts.py:292
 msgid "Social login connections"
 msgstr "소셜 로그인 연동"
+
+#: board/models/accounts.py:319
+#, python-brace-format
+msgid "Welcome notification sent after signup. Use {name} to insert the user's name."
+msgstr "회원가입 후 발송할 환영 알림입니다. {name}을 사용해 사용자 이름을 넣을 수 있습니다."
+
+#: board/models/accounts.py:327
+msgid "URL opened from the signup notification."
+msgstr "회원가입 알림을 클릭하면 이동할 URL입니다."
+
+#: board/models/accounts.py:334
+msgid "Redirect URL after account deletion. Leave blank to use the home page."
+msgstr "회원 탈퇴 후 이동할 URL입니다. 비워두면 홈으로 이동합니다."
+
+#: board/models/accounts.py:340
+msgid "Require hCaptcha verification during signup."
+msgstr "회원가입 시 hCaptcha 인증을 요구합니다."
+
+#: board/models/accounts.py:346
+msgid "hCaptcha Site Key"
+msgstr "hCaptcha Site Key"
+
+#: board/models/accounts.py:351
+msgid "Encrypted hCaptcha Secret Key."
+msgstr "암호화해 저장하는 hCaptcha Secret Key입니다."
+
+#: board/models/accounts.py:356 board/models/accounts.py:357
+msgid "🏢 [Site operations] Login settings"
+msgstr "🏢 [사이트 운영] 로그인 관리"
+
+#: board/models/accounts.py:360
+msgid "Login settings"
+msgstr "로그인 설정"
 
 #: board/models/integrations.py:29
 msgid "Notification"
@@ -1639,13 +1676,53 @@ msgctxt "Site content scope"
 msgid "Global"
 msgstr "전역"
 
-#: board/models/integrations.py:240
+#: board/models/integrations.py:217
+msgid "Owner profile for author-specific channel (empty for global channel)"
+msgstr "작성자별 채널의 소유자 프로필입니다. 비워두면 전역 채널입니다."
+
+#: board/models/integrations.py:222
+msgid "Webhook URL (Discord, Slack, etc.)"
+msgstr "웹훅 URL입니다. (Discord, Slack 등)"
+
+#: board/models/integrations.py:227
+msgid "Optional name/description for this subscription"
+msgstr "구독을 구분할 이름이나 설명입니다."
+
+#: board/models/integrations.py:232
+msgid "Consecutive webhook delivery failures"
+msgstr "연속으로 실패한 웹훅 전송 횟수입니다."
+
+#: board/models/integrations.py:237
+msgid "Last successful webhook delivery"
+msgstr "마지막 웹훅 전송 성공 시각입니다."
+
+#: board/models/integrations.py:242
 msgid "Webhook subscription"
 msgstr "웹훅 구독"
 
-#: board/models/integrations.py:241
+#: board/models/integrations.py:243
 msgid "Webhook subscriptions"
 msgstr "웹훅 구독"
+
+#: board/models/integrations.py:270
+msgid "Enable Telegram bot integration."
+msgstr "텔레그램 봇 연동을 사용합니다."
+
+#: board/models/integrations.py:276
+msgid "Telegram bot username shown to users."
+msgstr "사용자에게 표시할 텔레그램 봇 사용자명입니다."
+
+#: board/models/integrations.py:281
+msgid "Encrypted Telegram bot token."
+msgstr "암호화해 저장하는 텔레그램 봇 토큰입니다."
+
+#: board/models/integrations.py:286 board/models/integrations.py:287
+msgid "🏢 [Site operations] Telegram"
+msgstr "🏢 [사이트 운영] 텔레그램"
+
+#: board/models/integrations.py:290
+msgid "Integration settings"
+msgstr "연동 설정"
 
 #: board/models/posts.py:24
 msgid "Comment"
@@ -1743,57 +1820,121 @@ msgstr "포스트 수정 요청"
 msgid "Post edit requests"
 msgstr "포스트 수정 요청"
 
-#: board/models/site.py:109
+#: board/models/site.py:17
+msgid "Script inserted inside the <head> element (for example, Google Analytics or Umami)."
+msgstr "Google Analytics나 Umami 같은 스크립트를 <head> 요소 안에 삽입합니다."
+
+#: board/models/site.py:23
+msgid "Script inserted before the closing </body> tag."
+msgstr "닫는 </body> 태그 앞에 스크립트를 삽입합니다."
+
+#: board/models/site.py:31
+msgid "Official site name."
+msgstr "사이트 공식 이름입니다."
+
+#: board/models/site.py:43
+msgid "Allow search-engine indexing through robots.txt and HTML noindex signals."
+msgstr "robots.txt와 HTML noindex 신호로 검색엔진 색인을 허용할지 제어합니다."
+
+#: board/models/site.py:51
+msgid "Additional runtime rules appended after the blog's default robots.txt policy."
+msgstr "블로그의 기본 robots.txt 정책 뒤에 추가할 런타임 규칙입니다."
+
+#: board/models/site.py:58
+msgid "Expose llms.txt, Markdown endpoints, and discovery headers for AI agents."
+msgstr "AI 에이전트에 llms.txt, Markdown 엔드포인트, 탐색 헤더를 공개합니다."
+
+#: board/models/site.py:67 board/models/site.py:68
+msgid "🏢 [Site operations] Site settings"
+msgstr "🏢 [사이트 운영] 사이트 설정"
+
+#: board/models/site.py:71 main/admin_site.py:77
+msgid "Site settings"
+msgstr "사이트 기본 설정"
+
+#: board/models/site.py:94
+msgid "URL path (for example, about, privacy, or terms)."
+msgstr "URL 경로입니다. (예: about, privacy, terms)"
+
+#: board/models/site.py:96
+msgid "Page title."
+msgstr "페이지 제목입니다."
+
+#: board/models/site.py:97
+msgid "Page content. HTML is supported."
+msgstr "페이지 내용입니다. HTML을 지원합니다."
+
+#: board/models/site.py:101
+msgid "SEO meta description (up to 160 characters)."
+msgstr "SEO 메타 설명입니다. 최대 160자까지 입력할 수 있습니다."
+
+#: board/models/site.py:107
+msgid "Whether the page is public."
+msgstr "페이지 공개 여부입니다."
+
+#: board/models/site.py:111
+msgid "Show a link in the footer."
+msgstr "푸터에 링크를 표시합니다."
+
+#: board/models/site.py:115
+msgid "Sort order. Lower numbers appear first."
+msgstr "정렬 순서입니다. 숫자가 낮을수록 먼저 표시됩니다."
+
+#: board/models/site.py:126 board/models/site.py:127
+msgid "🏢 [Site operations] Static pages"
+msgstr "🏢 [사이트 운영] 정적 페이지"
+
+#: board/models/site.py:140
 msgctxt "Banner type"
 msgid "Full-width banner (horizontal)"
 msgstr "줄배너 (가로 전체)"
 
-#: board/models/site.py:113
+#: board/models/site.py:144
 msgctxt "Banner type"
 msgid "Side banner (left/right)"
 msgstr "사이드배너 (좌우 측면)"
 
-#: board/models/site.py:119
+#: board/models/site.py:150
 msgctxt "Banner position"
 msgid "Top"
 msgstr "상단"
 
-#: board/models/site.py:120
+#: board/models/site.py:151
 msgctxt "Banner position"
 msgid "Bottom"
 msgstr "하단"
 
-#: board/models/site.py:121
+#: board/models/site.py:152
 msgctxt "Banner position"
 msgid "Left"
 msgstr "좌측"
 
-#: board/models/site.py:122
+#: board/models/site.py:153
 msgctxt "Banner position"
 msgid "Right"
 msgstr "우측"
 
-#: board/models/site.py:146
+#: board/models/site.py:177
 msgid "Site notice"
 msgstr "사이트 공지"
 
-#: board/models/site.py:147
+#: board/models/site.py:178
 msgid "Site notices"
 msgstr "사이트 공지"
 
-#: board/models/site.py:162
+#: board/models/site.py:193
 msgid "Site banner"
 msgstr "사이트 배너"
 
-#: board/models/site.py:163
+#: board/models/site.py:194
 msgid "Site banners"
 msgstr "사이트 배너"
 
-#: board/models/site.py:174
+#: board/models/site.py:205
 msgid "Full-width banners can only be placed at the top or bottom."
 msgstr "줄배너는 상단 또는 하단에만 배치할 수 있습니다."
 
-#: board/models/site.py:182
+#: board/models/site.py:213
 msgid "Side banners can only be placed on the left or right."
 msgstr "사이드배너는 좌측 또는 우측에만 배치할 수 있습니다."
 
@@ -3902,10 +4043,6 @@ msgstr "알림·연동"
 #: main/admin_site.py:64
 msgid "Audit and operations"
 msgstr "감사·운영"
-
-#: main/admin_site.py:77
-msgid "Site settings"
-msgstr "사이트 기본 설정"
 
 #: main/admin_site.py:83
 msgid "Login and security settings"

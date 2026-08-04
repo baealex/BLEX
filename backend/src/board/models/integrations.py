@@ -213,26 +213,28 @@ class WebhookSubscription(models.Model):
         related_name='webhook_subscribers',
         null=True,
         blank=True,
-        help_text='Owner profile for author-specific channel (empty for global channel)'
+        help_text=_(
+            'Owner profile for author-specific channel (empty for global channel)'
+        ),
     )
     webhook_url = models.URLField(
         max_length=500,
-        help_text='Webhook URL (Discord, Slack, etc.)'
+        help_text=_('Webhook URL (Discord, Slack, etc.)'),
     )
     name = models.CharField(
         max_length=100,
         blank=True,
-        help_text='Optional name/description for this subscription'
+        help_text=_('Optional name/description for this subscription'),
     )
     is_active = models.BooleanField(default=True)
     failure_count = models.PositiveSmallIntegerField(
         default=0,
-        help_text='Consecutive webhook delivery failures'
+        help_text=_('Consecutive webhook delivery failures'),
     )
     last_success_date = models.DateTimeField(
         null=True,
         blank=True,
-        help_text='Last successful webhook delivery'
+        help_text=_('Last successful webhook delivery'),
     )
     created_date = models.DateTimeField(default=timezone.now)
 
@@ -265,27 +267,27 @@ class IntegrationSetting(models.Model):
     """
     telegram_enabled = models.BooleanField(
         default=False,
-        help_text='텔레그램 봇 연동 사용 여부'
+        help_text=_('Enable Telegram bot integration.'),
     )
     telegram_bot_username = models.CharField(
         max_length=64,
         blank=True,
         default='',
-        help_text='사용자에게 안내할 텔레그램 봇 사용자명'
+        help_text=_('Telegram bot username shown to users.'),
     )
     telegram_bot_token = models.TextField(
         blank=True,
         default='',
-        help_text='암호화 저장되는 텔레그램 봇 토큰'
+        help_text=_('Encrypted Telegram bot token.'),
     )
     updated_date = models.DateTimeField(auto_now=True)
 
     class Meta:
-        verbose_name = '🏢 [사이트 운영] 텔레그램'
-        verbose_name_plural = '🏢 [사이트 운영] 텔레그램'
+        verbose_name = _('🏢 [Site operations] Telegram')
+        verbose_name_plural = _('🏢 [Site operations] Telegram')
 
     def __str__(self):
-        return 'Integration Settings'
+        return str(_('Integration settings'))
 
     def save(self, *args, **kwargs):
         self.pk = 1

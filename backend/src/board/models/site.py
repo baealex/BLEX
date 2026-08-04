@@ -11,17 +11,24 @@ class SiteSetting(models.Model):
     Only one instance should exist (singleton pattern).
     """
     # Custom scripts for site-wide analytics
-    header_script = models.TextField(blank=True,
-                                      help_text='<head> 태그 안에 삽입될 스크립트 (예: Google Analytics, Umami)')
-    footer_script = models.TextField(blank=True,
-                                      help_text='</body> 태그 전에 삽입될 스크립트')
+    header_script = models.TextField(
+        blank=True,
+        help_text=_(
+            'Script inserted inside the <head> element (for example, Google '
+            'Analytics or Umami).'
+        ),
+    )
+    footer_script = models.TextField(
+        blank=True,
+        help_text=_('Script inserted before the closing </body> tag.'),
+    )
 
     # Brand identity settings
     site_name = models.CharField(
         max_length=80,
         blank=True,
         default='BLEX',
-        help_text='사이트 공식 이름'
+        help_text=_('Official site name.'),
     )
     logo_svg = models.FileField(upload_to='brand/logo/default/', blank=True)
     logo_svg_dark = models.FileField(upload_to='brand/logo/dark/', blank=True)
@@ -32,27 +39,36 @@ class SiteSetting(models.Model):
     # Search and agent exposure settings
     seo_enabled = models.BooleanField(
         default=True,
-        help_text='검색엔진용 robots.txt 색인 허용 및 HTML noindex 신호 제어 여부'
+        help_text=_(
+            'Allow search-engine indexing through robots.txt and HTML '
+            'noindex signals.'
+        ),
     )
     robots_txt_extra_rules = models.TextField(
         blank=True,
         default='',
-        help_text='블로그가 생성하는 robots.txt 기본 정책 뒤에 추가할 런타임 규칙'
+        help_text=_(
+            "Additional runtime rules appended after the blog's default "
+            'robots.txt policy.'
+        ),
     )
     aeo_enabled = models.BooleanField(
         default=False,
-        help_text='AI 에이전트용 llms.txt, Markdown endpoint, discovery header 노출 여부'
+        help_text=_(
+            'Expose llms.txt, Markdown endpoints, and discovery headers for '
+            'AI agents.'
+        ),
     )
 
     # Metadata
     updated_date = models.DateTimeField(auto_now=True)
 
     class Meta:
-        verbose_name = '🏢 [사이트 운영] 사이트 설정'
-        verbose_name_plural = '🏢 [사이트 운영] 사이트 설정'
+        verbose_name = _('🏢 [Site operations] Site settings')
+        verbose_name_plural = _('🏢 [Site operations] Site settings')
 
     def __str__(self):
-        return 'Site Settings'
+        return str(_('Site settings'))
 
     def save(self, *args, **kwargs):
         # Ensure only one instance exists (singleton)
@@ -71,18 +87,33 @@ class StaticPage(models.Model):
     Static pages that can be created and edited from admin panel.
     Accessible via /static/<slug>/ URLs.
     """
-    slug = models.SlugField(max_length=100, unique=True, allow_unicode=True,
-                            help_text='URL 경로 (예: about, privacy, terms)')
-    title = models.CharField(max_length=200, help_text='페이지 제목')
-    content = models.TextField(help_text='페이지 내용 (HTML 지원)')
-    meta_description = models.CharField(max_length=160, blank=True,
-                                        help_text='SEO용 메타 설명 (최대 160자)')
+    slug = models.SlugField(
+        max_length=100,
+        unique=True,
+        allow_unicode=True,
+        help_text=_('URL path (for example, about, privacy, or terms).'),
+    )
+    title = models.CharField(max_length=200, help_text=_('Page title.'))
+    content = models.TextField(help_text=_('Page content. HTML is supported.'))
+    meta_description = models.CharField(
+        max_length=160,
+        blank=True,
+        help_text=_('SEO meta description (up to 160 characters).'),
+    )
 
     # Display settings
-    is_published = models.BooleanField(default=True, help_text='공개 여부')
-    show_in_footer = models.BooleanField(default=False,
-                                         help_text='푸터에 링크 표시')
-    order = models.IntegerField(default=0, help_text='정렬 순서 (낮을수록 먼저)')
+    is_published = models.BooleanField(
+        default=True,
+        help_text=_('Whether the page is public.'),
+    )
+    show_in_footer = models.BooleanField(
+        default=False,
+        help_text=_('Show a link in the footer.'),
+    )
+    order = models.IntegerField(
+        default=0,
+        help_text=_('Sort order. Lower numbers appear first.'),
+    )
 
     # Metadata
     created_date = models.DateTimeField(auto_now_add=True)
@@ -92,8 +123,8 @@ class StaticPage(models.Model):
 
     class Meta:
         ordering = ['order', 'slug']
-        verbose_name = '🏢 [사이트 운영] 정적 페이지'
-        verbose_name_plural = '🏢 [사이트 운영] 정적 페이지'
+        verbose_name = _('🏢 [Site operations] Static pages')
+        verbose_name_plural = _('🏢 [Site operations] Static pages')
 
     def __str__(self):
         return self.title
