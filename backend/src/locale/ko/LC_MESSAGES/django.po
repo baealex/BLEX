@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: BLEX 3.1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-08-05 06:25+0900\n"
+"POT-Creation-Date: 2026-08-05 06:29+0900\n"
 "PO-Revision-Date: 2026-07-18 00:00+0900\n"
 "Last-Translator: BLEX contributors\n"
 "Language-Team: Korean\n"
@@ -217,20 +217,20 @@ msgstr "알림 내용"
 msgid "Message sent to every active user"
 msgstr "모든 활성 사용자에게 전송될 알림 메시지"
 
-#: board/admin/notify.py:127
+#: board/admin/notify.py:127 board/admin/series.py:118
 msgid "Basic information"
 msgstr "기본 정보"
 
-#: board/admin/notify.py:130
+#: board/admin/notify.py:130 board/admin/series.py:52 board/admin/series.py:206
 #: board/templates/board/developer_api_quickstart.html:121
 msgid "Status"
 msgstr "상태"
 
-#: board/admin/notify.py:133
+#: board/admin/notify.py:133 board/admin/series.py:131
 msgid "Metadata"
 msgstr "메타데이터"
 
-#: board/admin/notify.py:164 main/admin_site.py:24
+#: board/admin/notify.py:164 board/admin/series.py:124 main/admin_site.py:24
 msgid "Content"
 msgstr "콘텐츠"
 
@@ -242,11 +242,11 @@ msgstr "읽음 상태"
 msgid "Unsafe URL"
 msgstr "안전하지 않은 URL"
 
-#: board/admin/notify.py:183
+#: board/admin/notify.py:183 board/admin/series.py:271
 msgid "Created at"
 msgstr "생성일시"
 
-#: board/admin/notify.py:187
+#: board/admin/notify.py:187 board/admin/series.py:275
 msgid "Updated at"
 msgstr "수정일시"
 
@@ -407,6 +407,146 @@ msgctxt "Admin permission label"
 msgid "%(action)s %(model)s"
 msgstr "%(model)s %(action)s"
 
+#: board/admin/series.py:45 board/admin/series.py:200
+#: board/admin/service.py:176 board/admin/service.py:360
+msgid "Hidden"
+msgstr "숨김"
+
+#: board/admin/series.py:50 board/admin/series.py:204
+#: board/admin/service.py:183 board/admin/service.py:365
+msgid "Public"
+msgstr "공개"
+
+#: board/admin/series.py:60 board/admin/series.py:62
+msgid "Edit"
+msgstr "편집"
+
+#: board/admin/series.py:121 board/templates/components/header.html:101
+#: board/templates/components/header.html:289
+msgid "Settings"
+msgstr "설정"
+
+#: board/admin/series.py:128 board/models/posts.py:157
+#: board/templates/board/author/author_posts.html:20
+#: board/templates/board/author/author_posts.html:21
+#: board/templates/board/author/components/featured_posts_section.html:9
+#: board/templates/board/author/components/tabs_nav.html:14
+msgid "Posts"
+msgstr "포스트"
+
+#: board/admin/series.py:155 board/templates/board/posts/post_detail.html:184
+msgid "Author"
+msgstr "작성자"
+
+#: board/admin/series.py:160 board/admin/series.py:263 board/admin/tag.py:91
+msgid "Active posts"
+msgstr "활성 포스트"
+
+#: board/admin/series.py:170 board/admin/tag.py:101
+msgid "Public posts"
+msgstr "공개 포스트"
+
+#: board/admin/series.py:181 board/admin/series.py:265
+#: board/admin/service.py:325 board/admin/tag.py:112
+msgid "Trash"
+msgstr "휴지통"
+
+#: board/admin/series.py:188
+msgid "Card"
+msgstr "카드"
+
+#: board/admin/series.py:192
+msgid "List"
+msgstr "리스트"
+
+#: board/admin/series.py:194
+msgid "Layout"
+msgstr "레이아웃"
+
+#: board/admin/series.py:253
+msgid "No posts"
+msgstr "포스트 없음"
+
+#: board/admin/series.py:264
+msgid "Publicly visible"
+msgstr "공개 노출"
+
+#: board/admin/series.py:267
+msgid "Post summary"
+msgstr "포스트 요약"
+
+#: board/admin/series.py:308
+msgid "Hide selected series"
+msgstr "선택한 시리즈 숨김 처리"
+
+#: board/admin/series.py:318
+msgid "Hidden in Admin"
+msgstr "Admin에서 숨김 처리"
+
+#: board/admin/series.py:323
+#, python-format
+msgid "%(count)d series was hidden."
+msgid_plural "%(count)d series were hidden."
+msgstr[0] "%(count)d개의 시리즈를 숨김 처리했습니다."
+
+#: board/admin/series.py:329
+msgid "Make selected series public"
+msgstr "선택한 시리즈 공개 처리"
+
+#: board/admin/series.py:340
+msgid "There are no hidden series to make public."
+msgstr "공개 처리할 숨김 시리즈가 없습니다."
+
+#: board/admin/series.py:349
+msgid "Confirm series publication"
+msgstr "시리즈 공개 확인"
+
+#: board/admin/series.py:351
+msgid "Series containing public posts may become externally visible immediately."
+msgstr "공개 포스트가 포함된 시리즈는 즉시 외부에 노출될 수 있습니다."
+
+#: board/admin/series.py:354
+msgid "Make public"
+msgstr "공개 처리"
+
+#: board/admin/series.py:362
+msgid "Made public in Admin"
+msgstr "Admin에서 공개 처리"
+
+#: board/admin/series.py:367
+#, python-format
+msgid "%(count)d series was made public."
+msgid_plural "%(count)d series were made public."
+msgstr[0] "%(count)d개의 시리즈를 공개 처리했습니다."
+
+#: board/admin/series.py:373
+msgid "Change layout to list"
+msgstr "레이아웃을 리스트로 변경"
+
+#: board/admin/series.py:383
+msgid "Changed to list layout in Admin"
+msgstr "Admin에서 리스트 레이아웃으로 변경"
+
+#: board/admin/series.py:388
+#, python-format
+msgid "%(count)d series was changed to the list layout."
+msgid_plural "%(count)d series were changed to the list layout."
+msgstr[0] "%(count)d개의 시리즈를 리스트 레이아웃으로 변경했습니다."
+
+#: board/admin/series.py:394
+msgid "Change layout to cards"
+msgstr "레이아웃을 카드로 변경"
+
+#: board/admin/series.py:404
+msgid "Changed to card layout in Admin"
+msgstr "Admin에서 카드 레이아웃으로 변경"
+
+#: board/admin/series.py:409
+#, python-format
+msgid "%(count)d series was changed to the card layout."
+msgid_plural "%(count)d series were changed to the card layout."
+msgstr[0] "%(count)d개의 시리즈를 카드 레이아웃으로 변경했습니다."
+
 #: board/admin/service.py:83
 msgid "Link"
 msgstr "링크"
@@ -439,14 +579,6 @@ msgstr "읽음"
 msgid "Unread"
 msgstr "읽지 않음"
 
-#: board/admin/service.py:176 board/admin/service.py:360
-msgid "Hidden"
-msgstr "숨김"
-
-#: board/admin/service.py:183 board/admin/service.py:365
-msgid "Public"
-msgstr "공개"
-
 #: board/admin/service.py:193 board/admin/service.py:370
 msgid "Advertisement"
 msgstr "광고"
@@ -475,10 +607,6 @@ msgstr "마지막 로그인"
 msgid "Active status"
 msgstr "활성 상태"
 
-#: board/admin/service.py:325
-msgid "Trash"
-msgstr "휴지통"
-
 #: board/admin/service.py:333 board/templates/board/posts/post_editor.html:4
 msgid "Draft"
 msgstr "임시저장"
@@ -506,6 +634,72 @@ msgstr "HTML 미리보기 펼치기/접기"
 #: board/admin/service.py:497
 msgid "Error"
 msgstr "오류"
+
+#: board/admin/tag.py:81 board/models/posts.py:116
+msgid "Tag"
+msgstr "태그"
+
+#: board/admin/tag.py:123
+msgid "Yes"
+msgstr "있음"
+
+#: board/admin/tag.py:128
+msgid "No"
+msgstr "없음"
+
+#: board/admin/tag.py:130
+msgid "Featured image"
+msgstr "대표 이미지"
+
+#: board/admin/tag.py:141
+msgid "Trash only"
+msgstr "휴지통 전용"
+
+#: board/admin/tag.py:145
+msgid "Unused"
+msgstr "미사용"
+
+#: board/admin/tag.py:150
+msgid "Low usage"
+msgstr "저빈도"
+
+#: board/admin/tag.py:155
+msgid "Medium usage"
+msgstr "중빈도"
+
+#: board/admin/tag.py:160
+msgid "High usage"
+msgstr "고빈도"
+
+#: board/admin/tag.py:162
+msgid "Usage status"
+msgstr "사용 상태"
+
+#: board/admin/tag.py:165
+msgid "Delete unused tags from the selection"
+msgstr "선택한 태그 중 미사용 태그 삭제"
+
+#: board/admin/tag.py:178
+msgid "There are no unused tags in the selection."
+msgstr "선택한 항목에 미사용 태그가 없습니다."
+
+#: board/admin/tag.py:187
+msgid "Confirm unused tag deletion"
+msgstr "미사용 태그 삭제 확인"
+
+#: board/admin/tag.py:189
+msgid "Only tags that are not referenced by any post will be deleted. Deleted tags cannot be recovered."
+msgstr "현재 어떤 포스트에서도 참조하지 않는 태그만 삭제합니다. 삭제한 태그는 복구할 수 없습니다."
+
+#: board/admin/tag.py:192
+msgid "Delete unused tags"
+msgstr "미사용 태그 삭제"
+
+#: board/admin/tag.py:226
+#, python-format
+msgid "%(count)d unused tag was deleted."
+msgid_plural "%(count)d unused tags were deleted."
+msgstr[0] "%(count)d개의 미사용 태그를 삭제했습니다."
 
 #: board/admin/webhook.py:26
 msgid "Webhook URL"
@@ -780,10 +974,6 @@ msgstr "이미지 캐시"
 msgid "Image caches"
 msgstr "이미지 캐시"
 
-#: board/models/posts.py:116
-msgid "Tag"
-msgstr "태그"
-
 #: board/models/posts.py:117 board/templates/board/author/author_posts.html:32
 #: board/templates/board/tags/tag_list.html:4
 msgid "Tags"
@@ -791,13 +981,6 @@ msgstr "태그"
 
 #: board/models/posts.py:156
 msgid "Post"
-msgstr "포스트"
-
-#: board/models/posts.py:157 board/templates/board/author/author_posts.html:20
-#: board/templates/board/author/author_posts.html:21
-#: board/templates/board/author/components/featured_posts_section.html:9
-#: board/templates/board/author/components/tabs_nav.html:14
-msgid "Posts"
 msgstr "포스트"
 
 #: board/models/posts.py:321
@@ -2001,10 +2184,6 @@ msgstr "수정하기"
 msgid "Post information"
 msgstr "포스트 정보"
 
-#: board/templates/board/posts/post_detail.html:184
-msgid "Author"
-msgstr "작성자"
-
 #: board/templates/board/posts/post_detail.html:193
 msgid "Preview date"
 msgstr "미리보기 기준"
@@ -2253,11 +2432,6 @@ msgstr "사용자 메뉴"
 #: board/templates/components/header.html:90
 msgid "Signed in as"
 msgstr "로그인한 계정"
-
-#: board/templates/components/header.html:101
-#: board/templates/components/header.html:289
-msgid "Settings"
-msgstr "설정"
 
 #: board/templates/components/header.html:110
 #: board/templates/components/header.html:298
