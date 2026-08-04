@@ -6864,6 +6864,461 @@ msgid "settings.users.title"
 msgstr ""
 
 #. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:902
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:1084
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:1164
+msgid "settings.utility.action.preview"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:814
+msgid "settings.utility.description"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:1168
+msgid "settings.utility.images.action.delete"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:791
+msgid "settings.utility.images.confirm.action"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:783
+msgid "settings.utility.images.confirm.message"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:774
+msgid "settings.utility.images.confirm.message_with_duplicates"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:769
+msgid "settings.utility.images.confirm.title"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:1117
+msgid "settings.utility.images.description"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:1155
+msgid "settings.utility.images.duplicates.description"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:1151
+msgid "settings.utility.images.duplicates.label"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:599
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:628
+msgid "settings.utility.images.error"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:610
+msgid "settings.utility.images.partial_failure"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:372
+msgid "settings.utility.images.result.duplicate_alt"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:358
+msgid "settings.utility.images.result.duplicate_files"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:301
+msgid "settings.utility.images.result.duplicates"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:386
+msgid "settings.utility.images.result.original_alt"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:272
+msgid "settings.utility.images.result.partial_failure_title"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:312
+msgid "settings.utility.images.result.saved_space"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:279
+msgid "settings.utility.images.result.success_title"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:290
+msgid "settings.utility.images.result.unused"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:337
+msgid "settings.utility.images.result.unused_files"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:329
+msgid "settings.utility.images.result.unused_files_partial"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:615
+msgid "settings.utility.images.success"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:418
+msgid "settings.utility.images.target.all"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:439
+msgid "settings.utility.images.target.avatar"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:425
+msgid "settings.utility.images.target.content"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:1126
+msgid "settings.utility.images.target.label"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:432
+msgid "settings.utility.images.target.title"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:1113
+msgid "settings.utility.images.title"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:1088
+msgid "settings.utility.logs.action.delete"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:751
+msgid "settings.utility.logs.confirm.action"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:741
+msgid "settings.utility.logs.confirm.message"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:737
+msgid "settings.utility.logs.confirm.title"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:1060
+msgid "settings.utility.logs.description"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:556
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:575
+msgid "settings.utility.logs.error"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:233
+msgid "settings.utility.logs.result.admin"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:243
+msgid "settings.utility.logs.result.developer"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:228
+msgid "settings.utility.logs.result.success_title"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:1068
+msgid "settings.utility.logs.stats.admin"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:1075
+msgid "settings.utility.logs.stats.developer"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:564
+msgid "settings.utility.logs.success"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:1056
+msgid "settings.utility.logs.title"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:116
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:224
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:264
+msgid "settings.utility.result.preview_title"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:1022
+msgid "settings.utility.sessions.all.action.delete"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:1018
+msgid "settings.utility.sessions.all.action.preview"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:718
+msgid "settings.utility.sessions.all.confirm.action"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:713
+msgid "settings.utility.sessions.all.confirm.message"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:709
+msgid "settings.utility.sessions.all.confirm.title"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:1011
+msgid "settings.utility.sessions.all.description"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:1005
+msgid "settings.utility.sessions.all.title"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:523
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:539
+msgid "settings.utility.sessions.error"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:975
+msgid "settings.utility.sessions.expired.action.delete"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:971
+msgid "settings.utility.sessions.expired.action.preview"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:690
+msgid "settings.utility.sessions.expired.confirm.action"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:685
+msgid "settings.utility.sessions.expired.confirm.message"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:681
+msgid "settings.utility.sessions.expired.confirm.title"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:964
+msgid "settings.utility.sessions.expired.description"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:958
+msgid "settings.utility.sessions.expired.title"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:188
+msgid "settings.utility.sessions.result.all_preview"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:184
+msgid "settings.utility.sessions.result.all_preview_title"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:200
+msgid "settings.utility.sessions.result.expired_preview"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:196
+msgid "settings.utility.sessions.result.expired_preview_title"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:175
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:531
+msgid "settings.utility.sessions.result.success"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:171
+msgid "settings.utility.sessions.result.success_title"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:946
+msgid "settings.utility.sessions.stats.expired"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:939
+msgid "settings.utility.sessions.stats.total"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:931
+msgid "settings.utility.sessions.title"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:856
+msgid "settings.utility.stats.comments"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:877
+msgid "settings.utility.stats.db_size"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:454
+msgid "settings.utility.stats.load_error"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:842
+msgid "settings.utility.stats.posts"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:825
+msgid "settings.utility.stats.refresh"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:863
+msgid "settings.utility.stats.series"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:870
+msgid "settings.utility.stats.sessions"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:835
+msgid "settings.utility.stats.title"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:849
+msgid "settings.utility.stats.users"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:906
+msgid "settings.utility.tags.action.delete"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:663
+msgid "settings.utility.tags.confirm.action"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:658
+msgid "settings.utility.tags.confirm.message"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:654
+msgid "settings.utility.tags.confirm.title"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:894
+msgid "settings.utility.tags.description"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:488
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:504
+msgid "settings.utility.tags.error"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:126
+msgid "settings.utility.tags.result.preview"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:151
+msgid "settings.utility.tags.result.show_names"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:138
+msgid "settings.utility.tags.result.stats"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:131
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:496
+msgid "settings.utility.tags.result.success"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:120
+msgid "settings.utility.tags.result.success_title"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:890
+msgid "settings.utility.tags.title"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:810
+msgid "settings.utility.title"
+msgstr ""
+
+#. js-lingui-explicit-id
 #: src/components/remotes/SettingsApp/components/WebhookChannelManager.tsx:513
 msgid "settings.webhooks.add"
 msgstr ""

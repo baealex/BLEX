@@ -6876,6 +6876,461 @@ msgid "settings.users.title"
 msgstr "사용자 권한"
 
 #. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:902
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:1084
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:1164
+msgid "settings.utility.action.preview"
+msgstr "삭제 대상 확인"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:814
+msgid "settings.utility.description"
+msgstr "삭제 대상을 확인한 뒤 5분 안에 정리를 실행하세요."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:1168
+msgid "settings.utility.images.action.delete"
+msgstr "대상 이미지와 캐시 삭제"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:791
+msgid "settings.utility.images.confirm.action"
+msgstr "대상 이미지와 캐시 삭제"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:783
+msgid "settings.utility.images.confirm.message"
+msgstr "미리보기에서 확인한 미사용 이미지 {count}개와 관련 캐시를 영구 삭제합니다. 예상 확보 공간: {size}MB."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:774
+msgid "settings.utility.images.confirm.message_with_duplicates"
+msgstr "미리보기에서 확인한 미사용 이미지 {unusedCount}개, 중복 타이틀 이미지 {duplicateCount}개와 관련 캐시를 영구 삭제합니다. 예상 확보 공간: {size}MB."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:769
+msgid "settings.utility.images.confirm.title"
+msgstr "이미지 파일 삭제"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:1117
+msgid "settings.utility.images.description"
+msgstr "선택한 영역에서 사용되지 않는 이미지 파일을 찾아 삭제합니다."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:1155
+msgid "settings.utility.images.duplicates.description"
+msgstr "전체 또는 타이틀 이미지 정리 시 내용이 같은 파일도 함께 삭제합니다."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:1151
+msgid "settings.utility.images.duplicates.label"
+msgstr "중복 타이틀 이미지도 삭제"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:599
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:628
+msgid "settings.utility.images.error"
+msgstr "이미지 정리에 실패했습니다."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:610
+msgid "settings.utility.images.partial_failure"
+msgstr "이미지 삭제는 끝났지만 일부 파일을 처리하지 못했습니다."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:372
+msgid "settings.utility.images.result.duplicate_alt"
+msgstr "삭제 대상"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:358
+msgid "settings.utility.images.result.duplicate_files"
+msgstr "중복 파일 ({count}개)"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:301
+msgid "settings.utility.images.result.duplicates"
+msgstr "중복 파일: {count}개 ({size}MB)"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:386
+msgid "settings.utility.images.result.original_alt"
+msgstr "유지할 원본"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:272
+msgid "settings.utility.images.result.partial_failure_title"
+msgstr "일부 이미지를 처리하지 못했습니다"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:312
+msgid "settings.utility.images.result.saved_space"
+msgstr "확보한 공간: {size}MB"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:279
+msgid "settings.utility.images.result.success_title"
+msgstr "이미지 삭제 완료"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:290
+msgid "settings.utility.images.result.unused"
+msgstr "미사용 파일: {count}개 ({size}MB)"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:337
+msgid "settings.utility.images.result.unused_files"
+msgstr "삭제 대상 이미지 ({count}개)"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:329
+msgid "settings.utility.images.result.unused_files_partial"
+msgstr "삭제 대상 이미지 ({total}개 중 {shown}개 표시)"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:615
+msgid "settings.utility.images.success"
+msgstr "이미지 {count}개를 삭제하고 {size}MB를 확보했습니다."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:418
+msgid "settings.utility.images.target.all"
+msgstr "전체 이미지"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:439
+msgid "settings.utility.images.target.avatar"
+msgstr "아바타 이미지"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:425
+msgid "settings.utility.images.target.content"
+msgstr "콘텐츠 이미지"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:1126
+msgid "settings.utility.images.target.label"
+msgstr "정리 대상"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:432
+msgid "settings.utility.images.target.title"
+msgstr "타이틀 이미지"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:1113
+msgid "settings.utility.images.title"
+msgstr "이미지 정리"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:1088
+msgid "settings.utility.logs.action.delete"
+msgstr "대상 로그 삭제"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:751
+msgid "settings.utility.logs.confirm.action"
+msgstr "{count, plural, other {로그 #개 삭제}}"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:741
+msgid "settings.utility.logs.confirm.message"
+msgstr "{adminDays}일이 지난 관리자 활동 로그 {adminCount}개와 {developerDays}일이 지난 개발자 API 요청 로그 {developerCount}개를 영구 삭제합니다."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:737
+msgid "settings.utility.logs.confirm.title"
+msgstr "시스템 로그 삭제"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:1060
+msgid "settings.utility.logs.description"
+msgstr "보존 기간이 지난 관리자 활동 로그와 개발자 API 요청 로그만 삭제합니다."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:556
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:575
+msgid "settings.utility.logs.error"
+msgstr "로그 정리에 실패했습니다."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:233
+msgid "settings.utility.logs.result.admin"
+msgstr "{days}일이 지난 관리자 활동 로그: {count}개"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:243
+msgid "settings.utility.logs.result.developer"
+msgstr "{days}일이 지난 개발자 API 요청 로그: {count}개"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:228
+msgid "settings.utility.logs.result.success_title"
+msgstr "로그 삭제 완료"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:1068
+msgid "settings.utility.logs.stats.admin"
+msgstr "관리자 로그: {count}개"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:1075
+msgid "settings.utility.logs.stats.developer"
+msgstr "API 요청 로그: {count}개"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:564
+msgid "settings.utility.logs.success"
+msgstr "만료된 관리자 활동 로그 {adminCount}개와 개발자 API 요청 로그 {developerCount}개를 삭제했습니다."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:1056
+msgid "settings.utility.logs.title"
+msgstr "로그 정리"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:116
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:224
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:264
+msgid "settings.utility.result.preview_title"
+msgstr "삭제 대상 확인 결과"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:1022
+msgid "settings.utility.sessions.all.action.delete"
+msgstr "모든 세션 삭제"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:1018
+msgid "settings.utility.sessions.all.action.preview"
+msgstr "전체 세션 확인"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:718
+msgid "settings.utility.sessions.all.confirm.action"
+msgstr "모든 세션 {count}개 삭제"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:713
+msgid "settings.utility.sessions.all.confirm.message"
+msgstr "현재 관리자 세션을 포함한 모든 세션 {count}개를 삭제합니다. 모든 사용자가 즉시 로그아웃됩니다."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:709
+msgid "settings.utility.sessions.all.confirm.title"
+msgstr "모든 사용자 세션 삭제"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:1011
+msgid "settings.utility.sessions.all.description"
+msgstr "현재 관리자를 포함한 모든 사용자를 즉시 로그아웃합니다."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:1005
+msgid "settings.utility.sessions.all.title"
+msgstr "모든 사용자 세션"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:523
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:539
+msgid "settings.utility.sessions.error"
+msgstr "세션 정리에 실패했습니다."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:975
+msgid "settings.utility.sessions.expired.action.delete"
+msgstr "만료 세션 삭제"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:971
+msgid "settings.utility.sessions.expired.action.preview"
+msgstr "만료 세션 확인"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:690
+msgid "settings.utility.sessions.expired.confirm.action"
+msgstr "{count, plural, other {만료 세션 #개 삭제}}"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:685
+msgid "settings.utility.sessions.expired.confirm.message"
+msgstr "{count, plural, other {미리보기에서 확인한 만료 세션 #개를 삭제합니다. 활성 사용자 세션은 유지합니다.}}"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:681
+msgid "settings.utility.sessions.expired.confirm.title"
+msgstr "만료 세션 삭제"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:964
+msgid "settings.utility.sessions.expired.description"
+msgstr "로그인 기한이 지난 세션만 삭제하고 활성 사용자는 유지합니다."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:958
+msgid "settings.utility.sessions.expired.title"
+msgstr "만료된 세션"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:188
+msgid "settings.utility.sessions.result.all_preview"
+msgstr "{count, plural, other {현재 관리자 세션을 포함한 세션 #개가 모두 삭제됩니다.}}"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:184
+msgid "settings.utility.sessions.result.all_preview_title"
+msgstr "모든 세션 삭제 대상"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:200
+msgid "settings.utility.sessions.result.expired_preview"
+msgstr "{count, plural, other {만료된 세션 #개가 삭제되며 활성 세션은 유지됩니다.}}"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:196
+msgid "settings.utility.sessions.result.expired_preview_title"
+msgstr "만료 세션 삭제 대상"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:175
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:531
+msgid "settings.utility.sessions.result.success"
+msgstr "{count, plural, other {세션 #개를 삭제했습니다.}}"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:171
+msgid "settings.utility.sessions.result.success_title"
+msgstr "세션 삭제 완료"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:946
+msgid "settings.utility.sessions.stats.expired"
+msgstr "만료: {count}개"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:939
+msgid "settings.utility.sessions.stats.total"
+msgstr "전체: {count}개"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:931
+msgid "settings.utility.sessions.title"
+msgstr "세션 정리"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:856
+msgid "settings.utility.stats.comments"
+msgstr "댓글"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:877
+msgid "settings.utility.stats.db_size"
+msgstr "데이터베이스 크기"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:454
+msgid "settings.utility.stats.load_error"
+msgstr "유틸리티 통계를 불러오지 못했습니다."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:842
+msgid "settings.utility.stats.posts"
+msgstr "포스트"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:825
+msgid "settings.utility.stats.refresh"
+msgstr "통계 새로고침"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:863
+msgid "settings.utility.stats.series"
+msgstr "시리즈"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:870
+msgid "settings.utility.stats.sessions"
+msgstr "세션"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:835
+msgid "settings.utility.stats.title"
+msgstr "데이터베이스 통계"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:849
+msgid "settings.utility.stats.users"
+msgstr "사용자"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:906
+msgid "settings.utility.tags.action.delete"
+msgstr "미사용 태그 삭제"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:663
+msgid "settings.utility.tags.confirm.action"
+msgstr "{count, plural, other {태그 #개 삭제}}"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:658
+msgid "settings.utility.tags.confirm.message"
+msgstr "{count, plural, other {미리보기에서 확인한 미사용 태그 #개를 영구 삭제합니다. 실행 시점에 최종 개수가 달라질 수 있습니다.}}"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:654
+msgid "settings.utility.tags.confirm.title"
+msgstr "미사용 태그 삭제"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:894
+msgid "settings.utility.tags.description"
+msgstr "어떤 포스트에서도 사용하지 않는 태그를 찾아 삭제합니다."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:488
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:504
+msgid "settings.utility.tags.error"
+msgstr "태그 정리에 실패했습니다."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:126
+msgid "settings.utility.tags.result.preview"
+msgstr "{count, plural, other {미사용 태그 #개가 삭제 대상입니다.}}"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:151
+msgid "settings.utility.tags.result.show_names"
+msgstr "{count, plural, other {미사용 태그 이름 #개 보기}}"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:138
+msgid "settings.utility.tags.result.stats"
+msgstr "전체 {total}개 · 사용 중 {used}개"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:131
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:496
+msgid "settings.utility.tags.result.success"
+msgstr "{count, plural, other {미사용 태그 #개를 삭제했습니다.}}"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:120
+msgid "settings.utility.tags.result.success_title"
+msgstr "태그 삭제 완료"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:890
+msgid "settings.utility.tags.title"
+msgstr "태그 정리"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:810
+msgid "settings.utility.title"
+msgstr "유틸리티"
+
+#. js-lingui-explicit-id
 #: src/components/remotes/SettingsApp/components/WebhookChannelManager.tsx:513
 msgid "settings.webhooks.add"
 msgstr "추가"

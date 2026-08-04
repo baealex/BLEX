@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: BLEX 3.1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-08-05 05:19+0900\n"
+"POT-Creation-Date: 2026-08-05 05:51+0900\n"
 "PO-Revision-Date: 2026-07-18 00:00+0900\n"
 "Last-Translator: BLEX contributors\n"
 "Language-Team: Korean\n"
@@ -870,6 +870,53 @@ msgstr "자기 자신의 권한은 변경할 수 없습니다."
 #: board/services/user_management_service.py:236
 msgid "Administrator roles cannot be changed from this page."
 msgstr "관리자 계정의 권한은 이 화면에서 변경할 수 없습니다."
+
+#: board/services/utility_cleanup_service.py:207
+msgid "content images"
+msgstr "콘텐츠 이미지"
+
+#: board/services/utility_cleanup_service.py:229
+msgid "title images"
+msgstr "타이틀 이미지"
+
+#: board/services/utility_cleanup_service.py:261
+msgid "avatar images"
+msgstr "아바타 이미지"
+
+#: board/services/utility_cleanup_service.py:276
+#, python-format
+msgid "Image caches ready for deletion: %(count)s."
+msgstr "이미지 캐시 %(count)s개가 삭제 대상입니다."
+
+#: board/services/utility_cleanup_service.py:278
+#, python-format
+msgid "Deleted image caches: %(count)s."
+msgstr "이미지 캐시 %(count)s개를 삭제했습니다."
+
+#: board/services/utility_cleanup_service.py:286
+#, python-format
+msgid "Deleted empty directories: %(count)s."
+msgstr "빈 디렉터리 %(count)s개를 삭제했습니다."
+
+#: board/services/utility_cleanup_service.py:319
+#, python-format
+msgid "Deleted files from %(label)s: %(count)s."
+msgstr "%(label)s %(count)s개를 삭제했습니다."
+
+#: board/services/utility_cleanup_service.py:325
+#, python-format
+msgid "Error: %(detail)s"
+msgstr "오류: %(detail)s"
+
+#: board/services/utility_cleanup_service.py:336
+#, python-format
+msgid "Duplicate title images ready for deletion: %(count)s (%(size)s MB)."
+msgstr "중복 타이틀 이미지 %(count)s개(%(size)sMB)가 삭제 대상입니다."
+
+#: board/services/utility_cleanup_service.py:338
+#, python-format
+msgid "Deleted duplicate title images: %(count)s (%(size)s MB)."
+msgstr "중복 타이틀 이미지 %(count)s개(%(size)sMB)를 삭제했습니다."
 
 #: board/services/webhook_api_service.py:23
 msgid "Profile not found."
@@ -1972,6 +2019,15 @@ msgstr "이미 연동이 해제되었습니다."
 #: board/views/api/v1/user_management.py:51
 msgid "User not found."
 msgstr "사용자를 찾을 수 없습니다."
+
+#: board/views/api/v1/utility.py:33
+msgid "Select a valid cleanup target."
+msgstr "유효한 정리 대상을 선택해주세요."
+
+#: board/views/api/v1/utility.py:57 board/views/api/v1/utility.py:78
+#: board/views/api/v1/utility.py:108
+msgid "The cleanup preview has expired or is invalid."
+msgstr "미리보기 확인이 만료되었거나 유효하지 않습니다."
 
 #: board/views/api/v1/webhook.py:29 board/views/api/v1/webhook.py:191
 msgid "Invalid JSON body."

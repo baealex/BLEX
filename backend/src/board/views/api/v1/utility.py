@@ -1,6 +1,7 @@
 import logging
 
 from django.db import transaction
+from django.utils.translation import gettext as _
 
 from board.modules.response import StatusDone, StatusError, ErrorCode
 from board.services.api_request_body_service import ApiRequestBodyService
@@ -29,7 +30,7 @@ def _run_cleanup(request, body: dict, *, action: str, cleanup):
     try:
         parameters = UtilityCleanupService.confirmation_parameters(action, body)
     except InvalidImageCleanupTargetError:
-        return StatusError(ErrorCode.VALIDATE, '유효하지 않은 대상입니다.')
+        return StatusError(ErrorCode.VALIDATE, _('Select a valid cleanup target.'))
 
     session_key = _session_key(request)
     if UtilityCleanupService.is_dry_run(body):
@@ -53,7 +54,7 @@ def _run_cleanup(request, body: dict, *, action: str, cleanup):
     except InvalidUtilityCleanupConfirmationError:
         return StatusError(
             ErrorCode.REJECT,
-            '미리보기 확인이 만료되었거나 유효하지 않습니다.',
+            _('The cleanup preview has expired or is invalid.'),
         )
 
     if action == UtilityCleanupService.ACTION_CLEAN_IMAGES:
@@ -74,7 +75,7 @@ def _run_cleanup(request, body: dict, *, action: str, cleanup):
         except InvalidUtilityCleanupConfirmationError:
             return StatusError(
                 ErrorCode.REJECT,
-                '미리보기 확인이 만료되었거나 유효하지 않습니다.',
+                _('The cleanup preview has expired or is invalid.'),
             )
         result = cleanup(body)
         try:
@@ -104,7 +105,7 @@ def _run_cleanup(request, body: dict, *, action: str, cleanup):
     except InvalidUtilityCleanupConfirmationError:
         return StatusError(
             ErrorCode.REJECT,
-            '미리보기 확인이 만료되었거나 유효하지 않습니다.',
+            _('The cleanup preview has expired or is invalid.'),
         )
 
     return StatusDone(result)

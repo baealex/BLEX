@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useLingui } from '@lingui/react/macro';
 import { toast } from '~/utils/toast';
 import { useMutation, useQueryClient, useSuspenseQuery } from '@tanstack/react-query';
 import {
@@ -84,25 +85,6 @@ const UtilityActionButtons = ({
     </div>
 );
 
-const IMAGE_TARGET_ITEMS = [
-    {
-        value: 'all',
-        label: '전체 이미지'
-    },
-    {
-        value: 'content',
-        label: '콘텐츠 이미지'
-    },
-    {
-        value: 'title',
-        label: '타이틀 이미지'
-    },
-    {
-        value: 'avatar',
-        label: '아바타 이미지'
-    }
-];
-
 const ImageThumbnail = ({ src, alt }: ImageThumbnailProps) => {
     const [hasError, setHasError] = useState(false);
 
@@ -123,86 +105,104 @@ const ImageThumbnail = ({ src, alt }: ImageThumbnailProps) => {
     );
 };
 
-interface ResultPresentation {
-    variant: 'info' | 'warning' | 'success' | 'error';
-    title: string;
-    message?: string;
-}
+const TagCleanupResult = ({ result }: { result: TagCleanResult }) => {
+    const { i18n, t } = useLingui();
 
-const getSessionResultPresentation = (result: SessionCleanResult): ResultPresentation => {
-    if (!result.dryRun) {
-        return {
-            variant: 'success',
-            title: '세션 삭제 완료',
-            message: `세션 ${result.cleanedCount}개를 삭제했습니다.`
-        };
-    }
-    if (result.cleanAll) {
-        return {
-            variant: 'warning',
-            title: '모든 세션 삭제 대상',
-            message: `현재 관리자 세션을 포함한 ${result.totalSessions}개 세션이 모두 삭제됩니다.`
-        };
-    }
-    return {
-        variant: 'info',
-        title: '만료 세션 삭제 대상',
-        message: `만료된 세션 ${result.expiredSessions}개가 삭제되며 활성 세션은 유지됩니다.`
-    };
-};
-
-const getImageResultPresentation = (result: ImageCleanResult): ResultPresentation => {
-    if (result.dryRun) {
-        return {
-            variant: 'info',
-            title: '삭제 대상 확인 결과'
-        };
-    }
-    if (result.messages.some((message) => message.startsWith('오류:'))) {
-        return {
-            variant: 'error',
-            title: '일부 이미지 처리 실패'
-        };
-    }
-    return {
-        variant: 'success',
-        title: '이미지 삭제 완료'
-    };
-};
-
-const formatImageResultMessage = (message: string, dryRun: boolean) => (
-    dryRun ? message.replace(/ 정리$/, '가 삭제 대상입니다.') : message
-);
-
-const TagCleanupResult = ({ result }: { result: TagCleanResult }) => (
-    <div aria-live="polite">
-        <Alert
-            variant={result.dryRun ? 'info' : 'success'}
-            title={result.dryRun ? '삭제 대상 확인 결과' : '태그 삭제 완료'}>
-            <p>
-                {result.dryRun
-                    ? `미사용 태그 ${result.unusedTags}개가 삭제 대상입니다.`
-                    : `미사용 태그 ${result.cleanedCount}개를 삭제했습니다.`}
-            </p>
-            <p className="mt-1 text-xs">
-                전체 {result.totalTags}개 · 사용 중 {result.usedTags}개
-            </p>
-        </Alert>
-        {result.dryRun && result.cleanedTags.length > 0 && (
-            <details className="mt-2 rounded-xl border border-line bg-surface-subtle/40">
-                <summary className="flex min-h-11 cursor-pointer list-none items-center px-4 py-2 text-xs font-semibold text-content [&::-webkit-details-marker]:hidden">
-                    미사용 태그 이름 {result.cleanedTags.length}개 보기
-                </summary>
-                <p className="border-t border-line px-4 py-3 text-xs leading-relaxed text-content-secondary">
-                    {result.cleanedTags.join(', ')}
+    return (
+        <div aria-live="polite">
+            <Alert
+                variant={result.dryRun ? 'info' : 'success'}
+                title={result.dryRun
+                    ? t({
+                        id: 'settings.utility.result.preview_title',
+                        message: 'Cleanup preview'
+                    })
+                    : t({
+                        id: 'settings.utility.tags.result.success_title',
+                        message: 'Tags deleted'
+                    })}>
+                <p>
+                    {result.dryRun
+                        ? i18n._({
+                            id: 'settings.utility.tags.result.preview',
+                            message: '{count, plural, one {# unused tag is ready for deletion.} other {# unused tags are ready for deletion.}}',
+                            values: { count: result.unusedTags }
+                        })
+                        : i18n._({
+                            id: 'settings.utility.tags.result.success',
+                            message: '{count, plural, one {Deleted # unused tag.} other {Deleted # unused tags.}}',
+                            values: { count: result.cleanedCount }
+                        })}
                 </p>
-            </details>
-        )}
-    </div>
-);
+                <p className="mt-1 text-xs">
+                    {i18n._({
+                        id: 'settings.utility.tags.result.stats',
+                        message: '{total} total · {used} in use',
+                        values: {
+                            total: result.totalTags,
+                            used: result.usedTags
+                        }
+                    })}
+                </p>
+            </Alert>
+            {result.dryRun && result.cleanedTags.length > 0 && (
+                <details className="mt-2 rounded-xl border border-line bg-surface-subtle/40">
+                    <summary className="flex min-h-11 cursor-pointer list-none items-center px-4 py-2 text-xs font-semibold text-content [&::-webkit-details-marker]:hidden">
+                        {i18n._({
+                            id: 'settings.utility.tags.result.show_names',
+                            message: '{count, plural, one {Show # unused tag name} other {Show # unused tag names}}',
+                            values: { count: result.cleanedTags.length }
+                        })}
+                    </summary>
+                    <p className="border-t border-line px-4 py-3 text-xs leading-relaxed text-content-secondary">
+                        {result.cleanedTags.join(', ')}
+                    </p>
+                </details>
+            )}
+        </div>
+    );
+};
 
 const SessionCleanupResult = ({ result }: { result: SessionCleanResult }) => {
-    const presentation = getSessionResultPresentation(result);
+    const { i18n, t } = useLingui();
+    const presentation = !result.dryRun
+        ? {
+            variant: 'success' as const,
+            title: t({
+                id: 'settings.utility.sessions.result.success_title',
+                message: 'Sessions deleted'
+            }),
+            message: i18n._({
+                id: 'settings.utility.sessions.result.success',
+                message: '{count, plural, one {Deleted # session.} other {Deleted # sessions.}}',
+                values: { count: result.cleanedCount }
+            })
+        }
+        : result.cleanAll
+            ? {
+                variant: 'warning' as const,
+                title: t({
+                    id: 'settings.utility.sessions.result.all_preview_title',
+                    message: 'All sessions ready for deletion'
+                }),
+                message: i18n._({
+                    id: 'settings.utility.sessions.result.all_preview',
+                    message: '{count, plural, one {# session, including the current administrator session, will be deleted.} other {All # sessions, including the current administrator session, will be deleted.}}',
+                    values: { count: result.totalSessions }
+                })
+            }
+            : {
+                variant: 'info' as const,
+                title: t({
+                    id: 'settings.utility.sessions.result.expired_preview_title',
+                    message: 'Expired sessions ready for deletion'
+                }),
+                message: i18n._({
+                    id: 'settings.utility.sessions.result.expired_preview',
+                    message: '{count, plural, one {# expired session will be deleted. Active sessions will be kept.} other {# expired sessions will be deleted. Active sessions will be kept.}}',
+                    values: { count: result.expiredSessions }
+                })
+            };
 
     return (
         <div aria-live="polite">
@@ -213,53 +213,132 @@ const SessionCleanupResult = ({ result }: { result: SessionCleanResult }) => {
     );
 };
 
-const LogCleanupResult = ({ result }: { result: LogCleanResult }) => (
-    <div aria-live="polite">
-        <Alert
-            variant={result.dryRun ? 'info' : 'success'}
-            title={result.dryRun ? '삭제 대상 확인 결과' : '로그 삭제 완료'}>
-            <p>
-                {result.adminAuditLogRetentionDays}일이 지난 관리자 활동 로그 {result.dryRun
-                    ? result.expiredLogCount
-                    : result.cleanedCount}개
-            </p>
-            <p className="mt-1">
-                {result.developerApiLogRetentionDays}일이 지난 개발자 API 요청 로그 {result.dryRun
-                    ? result.expiredDeveloperRequestLogCount
-                    : result.cleanedDeveloperRequestLogCount}개
-            </p>
-        </Alert>
-    </div>
-);
+const LogCleanupResult = ({ result }: { result: LogCleanResult }) => {
+    const { i18n, t } = useLingui();
+
+    return (
+        <div aria-live="polite">
+            <Alert
+                variant={result.dryRun ? 'info' : 'success'}
+                title={result.dryRun
+                    ? t({
+                        id: 'settings.utility.result.preview_title',
+                        message: 'Cleanup preview'
+                    })
+                    : t({
+                        id: 'settings.utility.logs.result.success_title',
+                        message: 'Logs deleted'
+                    })}>
+                <p>
+                    {i18n._({
+                        id: 'settings.utility.logs.result.admin',
+                        message: 'Admin activity logs older than {days} days: {count}',
+                        values: {
+                            days: result.adminAuditLogRetentionDays,
+                            count: result.dryRun ? result.expiredLogCount : result.cleanedCount
+                        }
+                    })}
+                </p>
+                <p className="mt-1">
+                    {i18n._({
+                        id: 'settings.utility.logs.result.developer',
+                        message: 'Developer API request logs older than {days} days: {count}',
+                        values: {
+                            days: result.developerApiLogRetentionDays,
+                            count: result.dryRun
+                                ? result.expiredDeveloperRequestLogCount
+                                : result.cleanedDeveloperRequestLogCount
+                        }
+                    })}
+                </p>
+            </Alert>
+        </div>
+    );
+};
 
 const ImageCleanupResult = ({ result }: { result: ImageCleanResult }) => {
-    const presentation = getImageResultPresentation(result);
+    const { i18n, t } = useLingui();
+    const presentation = result.dryRun
+        ? {
+            variant: 'info' as const,
+            title: t({
+                id: 'settings.utility.result.preview_title',
+                message: 'Cleanup preview'
+            })
+        }
+        : result.hasErrors
+            ? {
+                variant: 'error' as const,
+                title: t({
+                    id: 'settings.utility.images.result.partial_failure_title',
+                    message: 'Some images could not be processed'
+                })
+            }
+            : {
+                variant: 'success' as const,
+                title: t({
+                    id: 'settings.utility.images.result.success_title',
+                    message: 'Images deleted'
+                })
+            };
 
     return (
         <div aria-live="polite">
             <Alert variant={presentation.variant} title={presentation.title}>
                 <div className="space-y-1">
-                    <p>미사용 파일: {result.totalUnused}개 ({result.totalSizeMb} MB)</p>
+                    <p>
+                        {i18n._({
+                            id: 'settings.utility.images.result.unused',
+                            message: 'Unused files: {count} ({size} MB)',
+                            values: {
+                                count: result.totalUnused,
+                                size: result.totalSizeMb
+                            }
+                        })}
+                    </p>
                     {result.totalDuplicates > 0 && (
-                        <p>중복 파일: {result.totalDuplicates}개 ({result.totalDuplicateSizeMb} MB)</p>
+                        <p>
+                            {i18n._({
+                                id: 'settings.utility.images.result.duplicates',
+                                message: 'Duplicate files: {count} ({size} MB)',
+                                values: {
+                                    count: result.totalDuplicates,
+                                    size: result.totalDuplicateSizeMb
+                                }
+                            })}
+                        </p>
                     )}
-                    <p>절약 용량: {result.totalSavedMb} MB</p>
+                    <p>
+                        {i18n._({
+                            id: 'settings.utility.images.result.saved_space',
+                            message: 'Space reclaimed: {size} MB',
+                            values: { size: result.totalSavedMb }
+                        })}
+                    </p>
                     {result.messages.length > 0 && (
                         <ul className="mt-2 space-y-0.5 text-xs">
                             {result.messages.map((message, index) => (
-                                <li key={`${message}-${index}`}>
-                                    {formatImageResultMessage(message, result.dryRun)}
-                                </li>
+                                <li key={`${message}-${index}`}>{message}</li>
                             ))}
                         </ul>
                     )}
                     {result.dryRun && result.unusedFiles && result.unusedFiles.length > 0 && (
                         <details className="mt-3">
                             <summary className="flex min-h-11 cursor-pointer list-none items-center text-xs font-medium select-none [&::-webkit-details-marker]:hidden">
-                                삭제 대상 이미지 ({result.unusedFiles.length}
                                 {result.totalUnused > result.unusedFiles.length
-                                    ? ` / ${result.totalUnused}`
-                                    : ''}개)
+                                    ? i18n._({
+                                        id: 'settings.utility.images.result.unused_files_partial',
+                                        message: 'Images ready for deletion ({shown} of {total})',
+                                        values: {
+                                            shown: result.unusedFiles.length,
+                                            total: result.totalUnused
+                                        }
+                                    })
+                                    : i18n._({
+                                        id: 'settings.utility.images.result.unused_files',
+                                        message: 'Images ready for deletion ({count})',
+                                        values: { count: result.unusedFiles.length }
+                                    })}
                             </summary>
                             <div className="mt-3 grid max-h-80 grid-cols-3 gap-2 overflow-y-auto sm:grid-cols-4 md:grid-cols-5">
                                 {result.unusedFiles.map((file) => (
@@ -276,7 +355,11 @@ const ImageCleanupResult = ({ result }: { result: ImageCleanResult }) => {
                     {result.dryRun && result.duplicateFiles && result.duplicateFiles.length > 0 && (
                         <details className="mt-3">
                             <summary className="flex min-h-11 cursor-pointer list-none items-center text-xs font-medium select-none [&::-webkit-details-marker]:hidden">
-                                중복 파일 ({result.duplicateFiles.length}개)
+                                {i18n._({
+                                    id: 'settings.utility.images.result.duplicate_files',
+                                    message: 'Duplicate files ({count})',
+                                    values: { count: result.duplicateFiles.length }
+                                })}
                             </summary>
                             <div className="mt-3 max-h-80 space-y-2 overflow-y-auto">
                                 {result.duplicateFiles.map((duplicate) => (
@@ -286,7 +369,10 @@ const ImageCleanupResult = ({ result }: { result: ImageCleanResult }) => {
                                         <div className="h-12 w-12 flex-shrink-0 overflow-hidden rounded-lg border border-danger-line bg-surface-subtle">
                                             <img
                                                 src={duplicate.duplicateUrl}
-                                                alt="삭제 대상"
+                                                alt={t({
+                                                    id: 'settings.utility.images.result.duplicate_alt',
+                                                    message: 'Ready for deletion'
+                                                })}
                                                 loading="lazy"
                                                 className="h-full w-full object-cover"
                                             />
@@ -297,7 +383,10 @@ const ImageCleanupResult = ({ result }: { result: ImageCleanResult }) => {
                                         <div className="h-12 w-12 flex-shrink-0 overflow-hidden rounded-lg border border-line bg-surface-subtle">
                                             <img
                                                 src={duplicate.originalUrl}
-                                                alt="원본 유지"
+                                                alt={t({
+                                                    id: 'settings.utility.images.result.original_alt',
+                                                    message: 'Original to keep'
+                                                })}
                                                 loading="lazy"
                                                 className="h-full w-full object-cover"
                                             />
@@ -320,8 +409,39 @@ const ImageCleanupResult = ({ result }: { result: ImageCleanResult }) => {
 };
 
 const UtilitySetting = () => {
+    const { i18n, t } = useLingui();
     const { confirm } = useConfirm();
     const queryClient = useQueryClient();
+    const imageTargetItems = [
+        {
+            value: 'all',
+            label: t({
+                id: 'settings.utility.images.target.all',
+                message: 'All images'
+            })
+        },
+        {
+            value: 'content',
+            label: t({
+                id: 'settings.utility.images.target.content',
+                message: 'Content images'
+            })
+        },
+        {
+            value: 'title',
+            label: t({
+                id: 'settings.utility.images.target.title',
+                message: 'Title images'
+            })
+        },
+        {
+            value: 'avatar',
+            label: t({
+                id: 'settings.utility.images.target.avatar',
+                message: 'Avatar images'
+            })
+        }
+    ];
 
     // Stats
     const { data: stats, isFetching: isStatsFetching } = useSuspenseQuery({
@@ -331,7 +451,10 @@ const UtilitySetting = () => {
             if (data.status === 'DONE') {
                 return data.body;
             }
-            throw new Error('통계를 불러오는데 실패했습니다.');
+            throw new Error(t({
+                id: 'settings.utility.stats.load_error',
+                message: 'Failed to load utility statistics.'
+            }));
         }
     });
 
@@ -362,16 +485,26 @@ const UtilitySetting = () => {
         onSuccess: ({ data }, variables) => {
             if (data.status !== 'DONE') {
                 if (!variables.dryRun) setTagResult(null);
-                toast.error(data.errorMessage || '태그 정리에 실패했습니다.');
+                toast.error(data.errorMessage || t({
+                    id: 'settings.utility.tags.error',
+                    message: 'Failed to clean up tags.'
+                }));
                 return;
             }
             setTagResult(data.body);
             if (!data.body.dryRun) {
-                toast.success(`미사용 태그 ${data.body.cleanedCount}개를 삭제했습니다.`);
+                toast.success(i18n._({
+                    id: 'settings.utility.tags.result.success',
+                    message: '{count, plural, one {Deleted # unused tag.} other {Deleted # unused tags.}}',
+                    values: { count: data.body.cleanedCount }
+                }));
                 queryClient.invalidateQueries({ queryKey: ['utility-stats'] });
             }
         },
-        onError: () => toast.error('태그 정리에 실패했습니다.')
+        onError: () => toast.error(t({
+            id: 'settings.utility.tags.error',
+            message: 'Failed to clean up tags.'
+        }))
     });
 
     const sessionMutation = useMutation({
@@ -387,16 +520,26 @@ const UtilitySetting = () => {
         onSuccess: ({ data }, variables) => {
             if (data.status !== 'DONE') {
                 if (!variables.dryRun) setSessionResult(null);
-                toast.error(data.errorMessage || '세션 정리에 실패했습니다.');
+                toast.error(data.errorMessage || t({
+                    id: 'settings.utility.sessions.error',
+                    message: 'Failed to clean up sessions.'
+                }));
                 return;
             }
             setSessionResult(data.body);
             if (!data.body.dryRun) {
-                toast.success(`세션 ${data.body.cleanedCount}개를 삭제했습니다.`);
+                toast.success(i18n._({
+                    id: 'settings.utility.sessions.result.success',
+                    message: '{count, plural, one {Deleted # session.} other {Deleted # sessions.}}',
+                    values: { count: data.body.cleanedCount }
+                }));
                 queryClient.invalidateQueries({ queryKey: ['utility-stats'] });
             }
         },
-        onError: () => toast.error('세션 정리에 실패했습니다.')
+        onError: () => toast.error(t({
+            id: 'settings.utility.sessions.error',
+            message: 'Failed to clean up sessions.'
+        }))
     });
 
     const logMutation = useMutation({
@@ -410,18 +553,29 @@ const UtilitySetting = () => {
         onSuccess: ({ data }, variables) => {
             if (data.status !== 'DONE') {
                 if (!variables.dryRun) setLogResult(null);
-                toast.error(data.errorMessage || '로그 정리에 실패했습니다.');
+                toast.error(data.errorMessage || t({
+                    id: 'settings.utility.logs.error',
+                    message: 'Failed to clean up logs.'
+                }));
                 return;
             }
             setLogResult(data.body);
             if (!data.body.dryRun) {
-                toast.success(
-                    `보존 기간이 지난 관리자 활동 로그 ${data.body.cleanedCount}개와 개발자 API 요청 로그 ${data.body.cleanedDeveloperRequestLogCount}개를 삭제했습니다.`
-                );
+                toast.success(i18n._({
+                    id: 'settings.utility.logs.success',
+                    message: 'Deleted {adminCount} expired admin activity logs and {developerCount} expired developer API request logs.',
+                    values: {
+                        adminCount: data.body.cleanedCount,
+                        developerCount: data.body.cleanedDeveloperRequestLogCount
+                    }
+                }));
                 queryClient.invalidateQueries({ queryKey: ['utility-stats'] });
             }
         },
-        onError: () => toast.error('로그 정리에 실패했습니다.')
+        onError: () => toast.error(t({
+            id: 'settings.utility.logs.error',
+            message: 'Failed to clean up logs.'
+        }))
     });
 
     const imageMutation = useMutation({
@@ -442,24 +596,39 @@ const UtilitySetting = () => {
                     setImageResult(null);
                     setHasPreviewed(false);
                 }
-                toast.error(data.errorMessage || '이미지 정리에 실패했습니다.');
+                toast.error(data.errorMessage || t({
+                    id: 'settings.utility.images.error',
+                    message: 'Failed to clean up images.'
+                }));
                 return;
             }
             setImageResult(data.body);
             if (data.body.dryRun) {
                 setHasPreviewed(true);
             } else {
-                const hasErrors = data.body.messages.some((message) => message.startsWith('오류:'));
-                if (hasErrors) {
-                    toast.error('이미지 삭제는 완료됐지만 일부 파일을 처리하지 못했습니다.');
+                if (data.body.hasErrors) {
+                    toast.error(t({
+                        id: 'settings.utility.images.partial_failure',
+                        message: 'Image deletion finished, but some files could not be processed.'
+                    }));
                 } else {
-                    toast.success(`이미지 ${data.body.totalUnused + data.body.totalDuplicates}개를 삭제했습니다. (${data.body.totalSavedMb} MB)`);
+                    toast.success(i18n._({
+                        id: 'settings.utility.images.success',
+                        message: 'Deleted {count} images and reclaimed {size} MB.',
+                        values: {
+                            count: data.body.totalUnused + data.body.totalDuplicates,
+                            size: data.body.totalSavedMb
+                        }
+                    }));
                 }
                 queryClient.invalidateQueries({ queryKey: ['utility-stats'] });
                 setHasPreviewed(false);
             }
         },
-        onError: () => toast.error('이미지 정리에 실패했습니다.')
+        onError: () => toast.error(t({
+            id: 'settings.utility.images.error',
+            message: 'Failed to clean up images.'
+        }))
     });
 
     const tagPreview = tagResult?.dryRun && tagResult.confirmationToken ? tagResult : null;
@@ -482,9 +651,20 @@ const UtilitySetting = () => {
     const handleCleanTags = async () => {
         if (!tagPreview?.confirmationToken) return;
         const confirmed = await confirm({
-            title: '미사용 태그 삭제',
-            message: `미리보기에서 확인한 미사용 태그 ${tagPreview.unusedTags}개를 영구 삭제합니다. 실행 시점의 상태에 따라 실제 수량은 달라질 수 있습니다.`,
-            confirmText: `태그 ${tagPreview.unusedTags}개 삭제`,
+            title: t({
+                id: 'settings.utility.tags.confirm.title',
+                message: 'Delete unused tags'
+            }),
+            message: i18n._({
+                id: 'settings.utility.tags.confirm.message',
+                message: 'Permanently delete {count, plural, one {# unused tag} other {# unused tags}} confirmed in the preview. The final count may change before execution.',
+                values: { count: tagPreview.unusedTags }
+            }),
+            confirmText: i18n._({
+                id: 'settings.utility.tags.confirm.action',
+                message: 'Delete {count, plural, one {# tag} other {# tags}}',
+                values: { count: tagPreview.unusedTags }
+            }),
             variant: 'danger'
         });
         if (confirmed) {
@@ -498,9 +678,20 @@ const UtilitySetting = () => {
     const handleCleanExpiredSessions = async () => {
         if (!sessionPreview?.confirmationToken || sessionPreview.cleanAll) return;
         const confirmed = await confirm({
-            title: '만료된 세션 삭제',
-            message: `미리보기에서 확인한 만료 세션 ${sessionPreview.expiredSessions}개를 삭제합니다. 아직 유효한 사용자 세션은 유지됩니다.`,
-            confirmText: `만료 세션 ${sessionPreview.expiredSessions}개 삭제`,
+            title: t({
+                id: 'settings.utility.sessions.expired.confirm.title',
+                message: 'Delete expired sessions'
+            }),
+            message: i18n._({
+                id: 'settings.utility.sessions.expired.confirm.message',
+                message: 'Delete {count, plural, one {# expired session} other {# expired sessions}} confirmed in the preview. Active user sessions will be kept.',
+                values: { count: sessionPreview.expiredSessions }
+            }),
+            confirmText: i18n._({
+                id: 'settings.utility.sessions.expired.confirm.action',
+                message: 'Delete {count, plural, one {# expired session} other {# expired sessions}}',
+                values: { count: sessionPreview.expiredSessions }
+            }),
             variant: 'danger'
         });
         if (confirmed) {
@@ -515,9 +706,20 @@ const UtilitySetting = () => {
     const handleCleanAllSessions = async () => {
         if (!sessionPreview?.cleanAll || !sessionPreview.confirmationToken) return;
         const confirmed = await confirm({
-            title: '모든 사용자 세션 삭제',
-            message: `현재 관리자 세션을 포함한 모든 세션 ${sessionPreview.totalSessions}개를 삭제합니다. 실행 직후 모든 사용자가 로그아웃됩니다.`,
-            confirmText: `모든 세션 ${sessionPreview.totalSessions}개 삭제`,
+            title: t({
+                id: 'settings.utility.sessions.all.confirm.title',
+                message: 'Delete all user sessions'
+            }),
+            message: i18n._({
+                id: 'settings.utility.sessions.all.confirm.message',
+                message: 'Delete all {count} sessions, including the current administrator session. Every user will be logged out immediately.',
+                values: { count: sessionPreview.totalSessions }
+            }),
+            confirmText: i18n._({
+                id: 'settings.utility.sessions.all.confirm.action',
+                message: 'Delete all {count} sessions',
+                values: { count: sessionPreview.totalSessions }
+            }),
             variant: 'danger'
         });
         if (confirmed) {
@@ -532,9 +734,25 @@ const UtilitySetting = () => {
     const handleCleanLogs = async () => {
         if (!logPreview?.confirmationToken) return;
         const confirmed = await confirm({
-            title: '시스템 로그 삭제',
-            message: `${logPreview.adminAuditLogRetentionDays}일이 지난 관리자 활동 로그 ${logPreview.expiredLogCount}개와 ${logPreview.developerApiLogRetentionDays}일이 지난 개발자 API 요청 로그 ${logPreview.expiredDeveloperRequestLogCount}개를 영구 삭제합니다.`,
-            confirmText: `대상 로그 ${logPreviewDeleteCount}개 삭제`,
+            title: t({
+                id: 'settings.utility.logs.confirm.title',
+                message: 'Delete system logs'
+            }),
+            message: i18n._({
+                id: 'settings.utility.logs.confirm.message',
+                message: 'Permanently delete {adminCount} admin activity logs older than {adminDays} days and {developerCount} developer API request logs older than {developerDays} days.',
+                values: {
+                    adminCount: logPreview.expiredLogCount,
+                    adminDays: logPreview.adminAuditLogRetentionDays,
+                    developerCount: logPreview.expiredDeveloperRequestLogCount,
+                    developerDays: logPreview.developerApiLogRetentionDays
+                }
+            }),
+            confirmText: i18n._({
+                id: 'settings.utility.logs.confirm.action',
+                message: 'Delete {count, plural, one {# log} other {# logs}}',
+                values: { count: logPreviewDeleteCount }
+            }),
             variant: 'danger'
         });
         if (confirmed) {
@@ -547,13 +765,33 @@ const UtilitySetting = () => {
 
     const handleCleanImages = async () => {
         if (!imagePreview?.confirmationToken) return;
-        const duplicateMessage = imagePreview.totalDuplicates > 0
-            ? `, 중복 타이틀 이미지 ${imagePreview.totalDuplicates}개`
-            : '';
         const confirmed = await confirm({
-            title: '이미지 파일 삭제',
-            message: `미사용 이미지 ${imagePreview.totalUnused}개${duplicateMessage}와 미리보기에서 확인한 관련 캐시를 영구 삭제합니다. 예상 정리 용량은 ${imagePreview.totalSavedMb} MB입니다.`,
-            confirmText: '대상 이미지·캐시 삭제',
+            title: t({
+                id: 'settings.utility.images.confirm.title',
+                message: 'Delete image files'
+            }),
+            message: imagePreview.totalDuplicates > 0
+                ? i18n._({
+                    id: 'settings.utility.images.confirm.message_with_duplicates',
+                    message: 'Permanently delete {unusedCount} unused images, {duplicateCount} duplicate title images, and the related caches confirmed in the preview. Estimated space reclaimed: {size} MB.',
+                    values: {
+                        unusedCount: imagePreview.totalUnused,
+                        duplicateCount: imagePreview.totalDuplicates,
+                        size: imagePreview.totalSavedMb
+                    }
+                })
+                : i18n._({
+                    id: 'settings.utility.images.confirm.message',
+                    message: 'Permanently delete {count} unused images and the related caches confirmed in the preview. Estimated space reclaimed: {size} MB.',
+                    values: {
+                        count: imagePreview.totalUnused,
+                        size: imagePreview.totalSavedMb
+                    }
+                }),
+            confirmText: t({
+                id: 'settings.utility.images.confirm.action',
+                message: 'Delete selected images and caches'
+            }),
             variant: 'danger'
         });
         if (confirmed) {
@@ -569,8 +807,14 @@ const UtilitySetting = () => {
     return (
         <div className="space-y-8">
             <SettingsHeader
-                title="유틸리티"
-                description="삭제 대상 확인 후 5분 안에 실행하세요."
+                title={t({
+                    id: 'settings.utility.title',
+                    message: 'Utilities'
+                })}
+                description={t({
+                    id: 'settings.utility.description',
+                    message: 'Run a cleanup within five minutes of reviewing its preview.'
+                })}
                 actionPosition="right"
                 action={
                     <SettingsHeaderAction
@@ -578,22 +822,64 @@ const UtilitySetting = () => {
                         isLoading={isStatsFetching}
                         leftIcon={<RotateCw aria-hidden="true" className="h-4 w-4" />}
                         onClick={handleRefreshStats}>
-                        통계 새로고침
+                        {t({
+                            id: 'settings.utility.stats.refresh',
+                            message: 'Refresh statistics'
+                        })}
                     </SettingsHeaderAction>
                 }
             />
 
             {/* 데이터베이스 통계 */}
             <Card
-                title="데이터베이스 통계"
+                title={t({
+                    id: 'settings.utility.stats.title',
+                    message: 'Database statistics'
+                })}
                 icon={<Database aria-hidden="true" className="h-4 w-4" />}>
                 <div className="grid grid-cols-2 gap-4 md:grid-cols-3">
-                    <StatItem label="포스트" value={stats.totalPosts} />
-                    <StatItem label="사용자" value={stats.totalUsers} />
-                    <StatItem label="댓글" value={stats.totalComments} />
-                    <StatItem label="시리즈" value={stats.totalSeries} />
-                    <StatItem label="세션" value={stats.totalSessions} />
-                    <StatItem label="DB 크기" value={stats.dbSize ?? 'N/A'} />
+                    <StatItem
+                        label={t({
+                            id: 'settings.utility.stats.posts',
+                            message: 'Posts'
+                        })}
+                        value={stats.totalPosts}
+                    />
+                    <StatItem
+                        label={t({
+                            id: 'settings.utility.stats.users',
+                            message: 'Users'
+                        })}
+                        value={stats.totalUsers}
+                    />
+                    <StatItem
+                        label={t({
+                            id: 'settings.utility.stats.comments',
+                            message: 'Comments'
+                        })}
+                        value={stats.totalComments}
+                    />
+                    <StatItem
+                        label={t({
+                            id: 'settings.utility.stats.series',
+                            message: 'Series'
+                        })}
+                        value={stats.totalSeries}
+                    />
+                    <StatItem
+                        label={t({
+                            id: 'settings.utility.stats.sessions',
+                            message: 'Sessions'
+                        })}
+                        value={stats.totalSessions}
+                    />
+                    <StatItem
+                        label={t({
+                            id: 'settings.utility.stats.db_size',
+                            message: 'Database size'
+                        })}
+                        value={stats.dbSize ?? 'N/A'}
+                    />
                 </div>
             </Card>
 
@@ -601,14 +887,26 @@ const UtilitySetting = () => {
                 <div className="space-y-6">
                     {/* 태그 정리 */}
                     <Card
-                        title="태그 정리"
-                        subtitle="포스트에 사용되지 않는 태그를 찾아 삭제합니다."
+                        title={t({
+                            id: 'settings.utility.tags.title',
+                            message: 'Tag cleanup'
+                        })}
+                        subtitle={t({
+                            id: 'settings.utility.tags.description',
+                            message: 'Find and delete tags that are not used by any post.'
+                        })}
                         icon={<Tags aria-hidden="true" className="h-4 w-4" />}>
                         <div className="space-y-4">
                             {tagResult && <TagCleanupResult result={tagResult} />}
                             <UtilityActionButtons
-                                previewLabel="삭제 대상 확인"
-                                executeLabel="미사용 태그 삭제"
+                                previewLabel={t({
+                                    id: 'settings.utility.action.preview',
+                                    message: 'Review cleanup'
+                                })}
+                                executeLabel={t({
+                                    id: 'settings.utility.tags.action.delete',
+                                    message: 'Delete unused tags'
+                                })}
                                 canExecute={Boolean(tagPreview?.unusedTags)}
                                 isPending={tagMutation.isPending}
                                 isPreviewLoading={Boolean(
@@ -630,29 +928,54 @@ const UtilitySetting = () => {
 
                     {/* 세션 정리 */}
                     <Card
-                        title="세션 정리"
+                        title={t({
+                            id: 'settings.utility.sessions.title',
+                            message: 'Session cleanup'
+                        })}
                         icon={<Clock aria-hidden="true" className="h-4 w-4" />}>
                         <div className="space-y-4">
                             <div className="grid grid-cols-2 gap-3 text-sm text-content-secondary">
                                 <span className="rounded-lg bg-surface-subtle px-3 py-2">
-                                    전체 <strong className="text-content">{stats.totalSessions}개</strong>
+                                    {i18n._({
+                                        id: 'settings.utility.sessions.stats.total',
+                                        message: 'Total: {count}',
+                                        values: { count: stats.totalSessions }
+                                    })}
                                 </span>
                                 <span className="rounded-lg bg-surface-subtle px-3 py-2">
-                                    만료 <strong className="text-content">{stats.expiredSessions}개</strong>
+                                    {i18n._({
+                                        id: 'settings.utility.sessions.stats.expired',
+                                        message: 'Expired: {count}',
+                                        values: { count: stats.expiredSessions }
+                                    })}
                                 </span>
                             </div>
                             {sessionResult && <SessionCleanupResult result={sessionResult} />}
 
                             <div className="space-y-3 rounded-xl border border-line p-4">
                                 <div>
-                                    <h4 className="text-sm font-semibold text-content">만료된 세션</h4>
+                                    <h4 className="text-sm font-semibold text-content">
+                                        {t({
+                                            id: 'settings.utility.sessions.expired.title',
+                                            message: 'Expired sessions'
+                                        })}
+                                    </h4>
                                     <p className="mt-1 text-xs text-content-secondary">
-                                        로그인 기한이 지난 세션만 삭제하고 활성 사용자는 유지합니다.
+                                        {t({
+                                            id: 'settings.utility.sessions.expired.description',
+                                            message: 'Delete only expired login sessions and keep active users signed in.'
+                                        })}
                                     </p>
                                 </div>
                                 <UtilityActionButtons
-                                    previewLabel="만료 세션 확인"
-                                    executeLabel="만료 세션 삭제"
+                                    previewLabel={t({
+                                        id: 'settings.utility.sessions.expired.action.preview',
+                                        message: 'Review expired sessions'
+                                    })}
+                                    executeLabel={t({
+                                        id: 'settings.utility.sessions.expired.action.delete',
+                                        message: 'Delete expired sessions'
+                                    })}
                                     canExecute={Boolean(sessionPreview && !sessionPreview.cleanAll && sessionPreview.expiredSessions > 0)}
                                     isPending={sessionMutation.isPending}
                                     isPreviewLoading={Boolean(
@@ -678,14 +1001,28 @@ const UtilitySetting = () => {
 
                             <div className="space-y-3 rounded-xl border border-danger-line bg-danger-surface/40 p-4">
                                 <div>
-                                    <h4 className="text-sm font-semibold text-danger">모든 사용자 세션</h4>
+                                    <h4 className="text-sm font-semibold text-danger">
+                                        {t({
+                                            id: 'settings.utility.sessions.all.title',
+                                            message: 'All user sessions'
+                                        })}
+                                    </h4>
                                     <p className="mt-1 text-xs text-content-secondary">
-                                        현재 관리자까지 포함해 모든 사용자를 즉시 로그아웃합니다.
+                                        {t({
+                                            id: 'settings.utility.sessions.all.description',
+                                            message: 'Immediately log out every user, including the current administrator.'
+                                        })}
                                     </p>
                                 </div>
                                 <UtilityActionButtons
-                                    previewLabel="전체 세션 확인"
-                                    executeLabel="모든 세션 삭제"
+                                    previewLabel={t({
+                                        id: 'settings.utility.sessions.all.action.preview',
+                                        message: 'Review all sessions'
+                                    })}
+                                    executeLabel={t({
+                                        id: 'settings.utility.sessions.all.action.delete',
+                                        message: 'Delete all sessions'
+                                    })}
                                     executeVariant="danger-solid"
                                     canExecute={Boolean(sessionPreview?.cleanAll && sessionPreview.totalSessions > 0)}
                                     isPending={sessionMutation.isPending}
@@ -716,22 +1053,42 @@ const UtilitySetting = () => {
                 <div className="space-y-6">
                     {/* 로그 정리 */}
                     <Card
-                        title="로그 정리"
-                        subtitle="보존 기간이 지난 관리자 활동 로그와 개발자 API 요청 로그만 삭제합니다."
+                        title={t({
+                            id: 'settings.utility.logs.title',
+                            message: 'Log cleanup'
+                        })}
+                        subtitle={t({
+                            id: 'settings.utility.logs.description',
+                            message: 'Delete only admin activity and developer API request logs beyond their retention periods.'
+                        })}
                         icon={<ScrollText aria-hidden="true" className="h-4 w-4" />}>
                         <div className="space-y-4">
                             <div className="grid grid-cols-2 gap-3 text-sm text-content-secondary">
                                 <span className="rounded-lg bg-surface-subtle px-3 py-2">
-                                    관리자 로그 <strong className="text-content">{stats.logCount}개</strong>
+                                    {i18n._({
+                                        id: 'settings.utility.logs.stats.admin',
+                                        message: 'Admin logs: {count}',
+                                        values: { count: stats.logCount }
+                                    })}
                                 </span>
                                 <span className="rounded-lg bg-surface-subtle px-3 py-2">
-                                    API 요청 로그 <strong className="text-content">{stats.developerRequestLogCount}개</strong>
+                                    {i18n._({
+                                        id: 'settings.utility.logs.stats.developer',
+                                        message: 'API request logs: {count}',
+                                        values: { count: stats.developerRequestLogCount }
+                                    })}
                                 </span>
                             </div>
                             {logResult && <LogCleanupResult result={logResult} />}
                             <UtilityActionButtons
-                                previewLabel="삭제 대상 확인"
-                                executeLabel="대상 로그 삭제"
+                                previewLabel={t({
+                                    id: 'settings.utility.action.preview',
+                                    message: 'Review cleanup'
+                                })}
+                                executeLabel={t({
+                                    id: 'settings.utility.logs.action.delete',
+                                    message: 'Delete selected logs'
+                                })}
                                 canExecute={logPreviewDeleteCount > 0}
                                 isPending={logMutation.isPending}
                                 isPreviewLoading={Boolean(
@@ -753,13 +1110,24 @@ const UtilitySetting = () => {
 
                     {/* 이미지 정리 */}
                     <Card
-                        title="이미지 정리"
-                        subtitle="선택한 영역에서 사용되지 않는 이미지 파일을 찾아 삭제합니다."
+                        title={t({
+                            id: 'settings.utility.images.title',
+                            message: 'Image cleanup'
+                        })}
+                        subtitle={t({
+                            id: 'settings.utility.images.description',
+                            message: 'Find and delete unused image files in the selected area.'
+                        })}
                         icon={<Image aria-hidden="true" className="h-4 w-4" />}>
                         <div className="space-y-4">
                             <div className="flex flex-wrap items-start gap-4">
                                 <div className="w-full min-w-[220px] flex-1">
-                                    <label className="mb-1.5 block text-sm font-medium text-content">정리 대상</label>
+                                    <label className="mb-1.5 block text-sm font-medium text-content">
+                                        {t({
+                                            id: 'settings.utility.images.target.label',
+                                            message: 'Cleanup target'
+                                        })}
+                                    </label>
                                     <Select
                                         density="compact"
                                         value={imageTarget}
@@ -768,7 +1136,7 @@ const UtilitySetting = () => {
                                             setImageResult(null);
                                             setHasPreviewed(false);
                                         }}
-                                        items={IMAGE_TARGET_ITEMS}
+                                        items={imageTargetItems}
                                     />
                                 </div>
                                 <div className="w-full min-w-[220px] flex-1 pt-1">
@@ -780,15 +1148,27 @@ const UtilitySetting = () => {
                                             setImageResult(null);
                                             setHasPreviewed(false);
                                         }}
-                                        label="중복 타이틀 이미지도 삭제"
-                                        description="전체 또는 타이틀 이미지 대상에서 동일한 파일을 함께 삭제합니다."
+                                        label={t({
+                                            id: 'settings.utility.images.duplicates.label',
+                                            message: 'Also delete duplicate title images'
+                                        })}
+                                        description={t({
+                                            id: 'settings.utility.images.duplicates.description',
+                                            message: 'When cleaning all images or title images, also delete identical files.'
+                                        })}
                                     />
                                 </div>
                             </div>
                             {imageResult && <ImageCleanupResult result={imageResult} />}
                             <UtilityActionButtons
-                                previewLabel="삭제 대상 확인"
-                                executeLabel="대상 이미지·캐시 삭제"
+                                previewLabel={t({
+                                    id: 'settings.utility.action.preview',
+                                    message: 'Review cleanup'
+                                })}
+                                executeLabel={t({
+                                    id: 'settings.utility.images.action.delete',
+                                    message: 'Delete selected images and caches'
+                                })}
                                 canExecute={Boolean(imagePreview)}
                                 isPending={imageMutation.isPending}
                                 isPreviewLoading={imageMutation.isPending && imageMutation.variables?.dryRun === true}

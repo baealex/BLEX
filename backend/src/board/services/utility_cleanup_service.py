@@ -2,6 +2,7 @@ from django.conf import settings
 from django.contrib.admin.models import LogEntry
 from django.contrib.sessions.models import Session
 from django.utils import timezone
+from django.utils.translation import gettext as _
 
 from board.admin.utilities import (
     DatabaseStatsService,
@@ -162,7 +163,7 @@ class UtilityCleanupService:
     @staticmethod
     def validate_image_target(target: str) -> None:
         if target not in UtilityCleanupService.VALID_IMAGE_TARGETS:
-            raise InvalidImageCleanupTargetError('유효하지 않은 대상입니다.')
+            raise InvalidImageCleanupTargetError('Unsupported image cleanup target.')
 
     @staticmethod
     def clean_images(body: dict) -> dict:
@@ -176,6 +177,7 @@ class UtilityCleanupService:
 
         service = ImageCleanerService()
         messages = []
+        has_errors = False
 
         used_content = service.scan_content_images()
         used_title = service.scan_title_images()
@@ -198,12 +200,12 @@ class UtilityCleanupService:
             total_size += unused_size
 
             if not dry_run:
-                UtilityCleanupService.clean_files_with_messages(
+                has_errors = UtilityCleanupService.clean_files_with_messages(
                     service,
                     unused_content,
                     messages,
-                    '컨텐츠 이미지',
-                )
+                    _('content images'),
+                ) or has_errors
             else:
                 unused_files.extend([
                     UtilityCleanupService.to_file_info(f, 'images/content')
@@ -220,12 +222,12 @@ class UtilityCleanupService:
             total_size += unused_size
 
             if not dry_run:
-                UtilityCleanupService.clean_files_with_messages(
+                has_errors = UtilityCleanupService.clean_files_with_messages(
                     service,
                     unused_title,
                     messages,
-                    '타이틀 이미지',
-                )
+                    _('title images'),
+                ) or has_errors
             else:
                 unused_files.extend([
                     UtilityCleanupService.to_file_info(f, 'images/title')
@@ -252,12 +254,12 @@ class UtilityCleanupService:
             total_size += unused_size
 
             if not dry_run:
-                UtilityCleanupService.clean_files_with_messages(
+                has_errors = UtilityCleanupService.clean_files_with_messages(
                     service,
                     unused_avatar,
                     messages,
-                    '아바타 이미지',
-                )
+                    _('avatar images'),
+                ) or has_errors
             else:
                 unused_files.extend([
                     UtilityCleanupService.to_file_info(f, 'images/avatar')
@@ -265,14 +267,26 @@ class UtilityCleanupService:
                 ])
 
         if target in ('all', 'content'):
-            cache_count, _ = service.clean_image_cache(used_content, not dry_run)
+            cache_count, _cache_size = service.clean_image_cache(
+                used_content,
+                not dry_run,
+            )
             if cache_count > 0:
-                messages.append(f'이미지 캐시 {cache_count}개 정리')
+                cache_message = (
+                    _('Image caches ready for deletion: %(count)s.')
+                    if dry_run
+                    else _('Deleted image caches: %(count)s.')
+                )
+                messages.append(cache_message % {'count': cache_count})
 
         if not dry_run:
             empty_dirs = UtilityCleanupService.remove_empty_dirs(service, target)
             if empty_dirs > 0:
-                messages.append(f'빈 디렉토리 {empty_dirs}개 삭제')
+                messages.append(
+                    _('Deleted empty directories: %(count)s.') % {
+                        'count': empty_dirs,
+                    },
+                )
 
         return UtilityCleanupService.build_image_result(
             total_unused=total_unused,
@@ -280,6 +294,7 @@ class UtilityCleanupService:
             total_duplicates=total_duplicates,
             total_duplicate_size=total_duplicate_size,
             messages=messages,
+            has_errors=has_errors,
             dry_run=dry_run,
             unused_files=unused_files,
             duplicate_files=duplicate_files,
@@ -298,11 +313,17 @@ class UtilityCleanupService:
         files: list[dict],
         messages: list[str],
         label: str,
-    ) -> None:
+    ) -> bool:
         count, errors = service.clean_files([f['path'] for f in files])
-        messages.append(f'{label} {count}개 삭제 완료')
+        messages.append(
+            _('Deleted files from %(label)s: %(count)s.') % {
+                'label': label,
+                'count': count,
+            },
+        )
         for err in errors:
-            messages.append(f'오류: {err}')
+            messages.append(_('Error: %(detail)s') % {'detail': err})
+        return bool(errors)
 
     @staticmethod
     def handle_title_duplicates(service: ImageCleanerService, dry_run: bool, messages: list[str]) -> dict:
@@ -311,10 +332,15 @@ class UtilityCleanupService:
             not dry_run,
         )
         if dup_count > 0:
-            messages.append(
-                f'중복 타이틀 이미지 {dup_count}개 '
-                f'({round(dup_size / (1024 * 1024), 2)} MB)'
+            duplicate_message = (
+                _('Duplicate title images ready for deletion: %(count)s (%(size)s MB).')
+                if dry_run
+                else _('Deleted duplicate title images: %(count)s (%(size)s MB).')
             )
+            messages.append(duplicate_message % {
+                'count': dup_count,
+                'size': round(dup_size / (1024 * 1024), 2),
+            })
 
         files = []
         if dry_run:
@@ -362,6 +388,7 @@ class UtilityCleanupService:
         total_duplicates: int,
         total_duplicate_size: int,
         messages: list[str],
+        has_errors: bool,
         dry_run: bool,
         unused_files: list[dict],
         duplicate_files: list[dict],
@@ -375,6 +402,7 @@ class UtilityCleanupService:
             'total_duplicate_size_mb': round(total_duplicate_size / (1024 * 1024), 2),
             'total_saved_mb': round(total_saved / (1024 * 1024), 2),
             'messages': messages,
+            'has_errors': has_errors,
             'dry_run': dry_run,
         }
 

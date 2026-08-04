@@ -830,6 +830,7 @@ export interface ImageCleanResult extends CleanupConfirmation {
     totalDuplicateSizeMb: number;
     totalSavedMb: number;
     messages: string[];
+    hasErrors: boolean;
     dryRun: boolean;
     unusedFiles?: {
         path: string;

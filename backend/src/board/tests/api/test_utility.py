@@ -581,6 +581,7 @@ class UtilityAPITestCase(TestCase):
         self.assertIn('totalSizeMb', body)
         self.assertIn('totalSavedMb', body)
         self.assertIn('messages', body)
+        self.assertFalse(body['hasErrors'])
 
     def test_clean_images_dry_run_with_duplicates(self):
         """중복 제거 dry run 시 duplicateFiles 포함 확인"""
@@ -647,15 +648,22 @@ class UtilityAPITestCase(TestCase):
 
         clean_images.assert_not_called()
 
-    def test_clean_images_invalid_target(self):
-        response = self.client.post(
-            '/v1/utilities/clean-images',
-            json.dumps({'dry_run': True, 'target': 'invalid'}),
-            content_type='application/json'
-        )
-        content = json.loads(response.content)
-        self.assertEqual(content['status'], 'ERROR')
-        self.assertEqual(content['errorCode'], 'error:VA')
+    def test_clean_images_invalid_target_uses_request_locale(self):
+        for language, expected_message in (
+            ('en', 'Select a valid cleanup target.'),
+            ('ko', '유효한 정리 대상을 선택해주세요.'),
+        ):
+            with self.subTest(language=language):
+                response = self.client.post(
+                    '/v1/utilities/clean-images',
+                    json.dumps({'dry_run': True, 'target': 'invalid'}),
+                    content_type='application/json',
+                    HTTP_ACCEPT_LANGUAGE=language,
+                )
+                content = json.loads(response.content)
+                self.assertEqual(content['status'], 'ERROR')
+                self.assertEqual(content['errorCode'], 'error:VA')
+                self.assertEqual(content['errorMessage'], expected_message)
 
     def test_clean_images_specific_target(self):
         for target in ('content', 'title', 'avatar'):
