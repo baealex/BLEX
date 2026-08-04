@@ -8,6 +8,7 @@ from django.template.loader import render_to_string
 from django.http import HttpResponse, JsonResponse
 from django.urls import reverse
 from django.views.decorators.http import require_GET
+from django.utils.translation import gettext as _
 
 from board.html_utils import sanitize_content_html
 from board.modules.paginator import Paginator
@@ -174,7 +175,7 @@ def author_posts(request, username):
         public_author_tag_filter
     ).distinct().order_by('value')
 
-    tag_options = [{'value': '', 'label': '전체 태그'}]
+    tag_options = [{'value': '', 'label': _('All tags')}]
     for tag in author_tags:
         tag_options.append({'value': tag.value, 'label': tag.value})
 
@@ -283,14 +284,11 @@ def author_series(request, username):
     )
     
     series_sort_options = [
-        {'value': 'custom', 'label': '작가 지정 순'},
-        {'value': 'newest', 'label': '최신순'},
-        {'value': 'oldest', 'label': '오래된순'},
-        {'value': 'posts', 'label': '포스트 많은 순'},
+        {'value': 'custom', 'label': _('Author-defined order')},
+        {'value': 'newest', 'label': _('Newest first')},
+        {'value': 'oldest', 'label': _('Oldest first')},
+        {'value': 'posts', 'label': _('Most posts')},
     ]
-    
-    for series_item in paginated_series:
-        series_item.updated_date = series_item.updated_date.strftime('%Y-%m-%d')
 
     public_author_tag_filter = PublicPostService.build_public_filter('posts') & Q(
         posts__author=author,
@@ -360,12 +358,15 @@ def author_about_edit(request, username):
             about = UserService.update_user_about(author, new_about_md)
             return JsonResponse({
                 'status': 'success',
-                'message': '소개글을 저장했습니다.',
+                'message': _('Introduction saved.'),
                 'about_md': about['about_md'],
                 'about_html': about['about_html'],
             })
-        except Exception as e:
-            return JsonResponse({'status': 'error', 'message': str(e)}, status=500)
+        except Exception:
+            return JsonResponse({
+                'status': 'error',
+                'message': _('Could not save the introduction.'),
+            }, status=500)
 
     # GET request handling
     about_md = getattr(profile, 'about_md', '') if profile else ''

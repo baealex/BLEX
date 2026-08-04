@@ -1,10 +1,14 @@
 {% extends 'board/base.html' %}
-{% load static %}
-{% load island %}
+{% load i18n static island %}
 
 {% block title %}{{ author.username }} - {{ site_brand.site_name }}{% endblock %}
 
 {% block content %}
+{% translate "Search posts" as search_posts_placeholder %}
+{% translate "No posts match these filters" as filtered_empty_title %}
+{% translate "Try a different search term or tag." as filtered_empty_message %}
+{% translate "No published posts yet" as published_empty_title %}
+{% translate "New posts will appear here when they are published." as published_empty_message %}
 {% include 'board/author/components/author_header.html' %}
 
 <div class="max-w-6xl w-full mx-auto px-4 sm:px-6">
@@ -13,19 +17,19 @@
     {% endwith %}
 
     <div class="mb-8">
-        <p class="text-xs font-bold uppercase tracking-[0.18em] text-content-hint">Posts</p>
-        <h1 class="mt-2 text-3xl font-bold tracking-tight text-content">포스트</h1>
+        <p class="text-xs font-bold uppercase tracking-[0.18em] text-content-hint">{% translate "Posts" %}</p>
+        <h1 class="mt-2 text-3xl font-bold tracking-tight text-content">{% translate "Posts" %}</h1>
     </div>
 
     <div class="mb-12 rounded-2xl bg-surface p-4 ring-1 ring-line/60">
         <div class="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
             <div class="w-full lg:max-w-md">
-                <label class="mb-2 ml-1 block text-xs font-semibold text-content-secondary">검색</label>
-                {% include 'components/search_query_filter.html' with placeholder='포스트 검색' %}
+                <label class="mb-2 ml-1 block text-xs font-semibold text-content-secondary">{% translate "Search" %}</label>
+                {% include 'components/search_query_filter.html' with placeholder=search_posts_placeholder %}
             </div>
 
             <div class="w-full lg:w-44">
-                <label class="mb-2 ml-1 block text-xs font-semibold text-content-secondary">태그</label>
+                <label class="mb-2 ml-1 block text-xs font-semibold text-content-secondary">{% translate "Tags" %}</label>
                 {% include 'components/dropdown_filter.html' with options=tag_options param_name='tag' current_value=request.GET.tag|default:'' %}
             </div>
         </div>
@@ -35,11 +39,11 @@
         <div class="md:col-span-3">
             {% if not posts %}
                 {% if request.GET.q or request.GET.tag %}
-                    {% with empty_icon_class='far fa-file-alt' empty_title='조건에 맞는 포스트가 없습니다' empty_message='검색어나 태그를 다시 확인해주세요.' %}
+                    {% with empty_icon_class='far fa-file-alt' empty_title=filtered_empty_title empty_message=filtered_empty_message %}
                         {% include 'board/author/components/empty_state.html' %}
                     {% endwith %}
                 {% else %}
-                    {% with empty_icon_class='far fa-file-alt' empty_title='아직 공개된 포스트가 없습니다' empty_message='새 포스트가 발행되면 이곳에 표시됩니다.' %}
+                    {% with empty_icon_class='far fa-file-alt' empty_title=published_empty_title empty_message=published_empty_message %}
                         {% include 'board/author/components/empty_state.html' %}
                     {% endwith %}
                 {% endif %}

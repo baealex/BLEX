@@ -3,10 +3,6 @@
 {% load island %}
 {% load resource %}
 
-{% translate "No posts yet" as empty_posts_title %}
-{% translate "Published posts will appear here." as empty_posts_message %}
-{% translate "Write a post" as write_post_label %}
-
 {% block title %}
     {{ site_brand.site_name }} - {% translate "Latest posts" %}
 {% endblock %}
@@ -14,6 +10,9 @@
 {% block home_active %}active{% endblock %}
 
 {% block content %}
+{% translate "No posts yet" as empty_posts_title %}
+{% translate "Published posts will appear here." as empty_posts_message %}
+{% translate "Write a post" as write_post_label %}
 <div class="max-w-7xl mx-auto mt-6 px-4 md:px-6">
     {% if user.is_authenticated %}
     <div class="mb-6 flex justify-end">

@@ -2,6 +2,7 @@ import json
 
 from django.http import Http404
 from django.shortcuts import get_object_or_404
+from django.utils.translation import gettext as _
 
 from board.models import User
 from board.services import PinnedPostService
@@ -9,6 +10,7 @@ from board.services.api_permission_service import ApiPermissionService
 from board.services.api_request_body_service import ApiRequestBodyService
 from board.services.pinned_post_service import PinnedPostError
 from board.modules.response import StatusDone, StatusError, ErrorCode
+from board.views.api.v1.pinned_post_errors import pinned_post_error_response
 
 
 def pinned_posts(request, username):
@@ -35,25 +37,35 @@ def pinned_posts(request, username):
     if request.method == 'POST':
         post_url = request.POST.get('post_url', '')
         if not post_url:
-            return StatusError(ErrorCode.INVALID_PARAMETER, '포스트 URL이 필요합니다.')
+            return StatusError(
+                ErrorCode.INVALID_PARAMETER,
+                _('Post URL is required.'),
+                message_key='pinned_posts.post_url_required',
+                message_params={},
+            )
 
         try:
             PinnedPostService.add_pinned_post(user, post_url)
             return StatusDone()
         except PinnedPostError as e:
-            return StatusError(e.code, e.message)
+            return pinned_post_error_response(e)
 
     if request.method == 'DELETE':
         delete = ApiRequestBodyService.parse_json_or_querydict(request)
         post_url = delete.get('post_url', '')
         if not post_url:
-            return StatusError(ErrorCode.INVALID_PARAMETER, '포스트 URL이 필요합니다.')
+            return StatusError(
+                ErrorCode.INVALID_PARAMETER,
+                _('Post URL is required.'),
+                message_key='pinned_posts.post_url_required',
+                message_params={},
+            )
 
         try:
             PinnedPostService.remove_pinned_post(user, post_url)
             return StatusDone()
         except PinnedPostError as e:
-            return StatusError(e.code, e.message)
+            return pinned_post_error_response(e)
 
     raise Http404
 
@@ -77,16 +89,26 @@ def pinned_posts_order(request, username):
         try:
             post_urls = json.loads(post_urls_data) if isinstance(post_urls_data, str) else post_urls_data
         except (TypeError, json.JSONDecodeError):
-            return StatusError(ErrorCode.INVALID_PARAMETER, '잘못된 형식입니다.')
+            return StatusError(
+                ErrorCode.INVALID_PARAMETER,
+                _('Invalid request format.'),
+                message_key='pinned_posts.invalid_format',
+                message_params={},
+            )
 
         if not isinstance(post_urls, list):
-            return StatusError(ErrorCode.INVALID_PARAMETER, '잘못된 형식입니다.')
+            return StatusError(
+                ErrorCode.INVALID_PARAMETER,
+                _('Invalid request format.'),
+                message_key='pinned_posts.invalid_format',
+                message_params={},
+            )
 
         try:
             PinnedPostService.reorder_pinned_posts(user, post_urls)
             return StatusDone()
         except PinnedPostError as e:
-            return StatusError(e.code, e.message)
+            return pinned_post_error_response(e)
 
     raise Http404
 
@@ -119,6 +141,6 @@ def pinnable_posts(request, username):
             )
             return StatusDone(pinnable_posts)
         except PinnedPostError as e:
-            return StatusError(e.code, e.message)
+            return pinned_post_error_response(e)
 
     raise Http404

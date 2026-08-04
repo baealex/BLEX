@@ -148,6 +148,35 @@ class AuthorPostsPageTestCase(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'board/author/author_overview.html')
 
+    def test_author_pages_render_english_ui_without_translating_authored_content(self):
+        self.post.title = '작성자가 쓴 포스트 제목'
+        self.post.save(update_fields=['title'])
+        self.user.profile.about_html = '<p>작성자가 쓴 소개글</p>'
+        self.user.profile.save(update_fields=['about_html'])
+
+        overview_response = self.client.get(
+            reverse('user_profile', kwargs={'username': self.user.username}),
+            HTTP_ACCEPT_LANGUAGE='en',
+        )
+        posts_response = self.client.get(
+            reverse('user_posts', kwargs={'username': self.user.username}),
+            HTTP_ACCEPT_LANGUAGE='en',
+        )
+
+        self.assertEqual(overview_response.status_code, 200)
+        self.assertContains(overview_response, 'Overview')
+        self.assertContains(overview_response, 'Recent posts')
+        self.assertContains(overview_response, 'Yearly activity')
+        self.assertContains(overview_response, '작성자가 쓴 포스트 제목')
+        self.assertContains(overview_response, '작성자가 쓴 소개글')
+        self.assertNotContains(overview_response, '연간 활동')
+
+        self.assertEqual(posts_response.status_code, 200)
+        self.assertContains(posts_response, 'Search posts')
+        self.assertContains(posts_response, 'Tags')
+        self.assertContains(posts_response, '작성자가 쓴 포스트 제목')
+        self.assertNotContains(posts_response, '포스트 검색')
+
     def test_author_overview_loads_public_stats_without_extra_query(self):
         """작가 공개 통계는 작가 조회에 포함되어 별도 집계 쿼리를 만들지 않는다."""
         series = Series.objects.create(
@@ -366,7 +395,7 @@ class AuthorPostsPageTestCase(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, 'mx-auto max-w-4xl px-4 pt-6 sm:px-6 sm:pt-8')
         self.assertContains(response, 'relative aspect-[3/1] w-full overflow-hidden rounded-2xl ring-1 ring-line/60')
-        self.assertContains(response, f'alt="{self.user.username} cover"')
+        self.assertContains(response, f'alt="{self.user.username}님의 커버"')
         self.assertNotContains(response, 'h-44 w-full overflow-hidden sm:h-56 md:h-64')
 
     def test_author_overview_pinned_posts_setting_entrypoint_is_owner_only(self):
@@ -526,7 +555,7 @@ class AuthorPostsPageTestCase(TestCase):
         )
 
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.context['featured_posts_section']['title'], '최근 포스트')
+        self.assertEqual(response.context['featured_posts_section']['kind'], 'recent')
         recommended_urls = [post['url'] for post in response.context['pinned_posts']]
         self.assertLess(
             recommended_urls.index('newer-post'),
@@ -558,7 +587,7 @@ class AuthorPostsPageTestCase(TestCase):
         )
 
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.context['featured_posts_section']['title'], '추천 포스트')
+        self.assertEqual(response.context['featured_posts_section']['kind'], 'featured')
         recommended_urls = [post['url'] for post in response.context['pinned_posts']]
         self.assertEqual(recommended_urls, ['older-pinned-post', 'newer-pinned-post'])
 

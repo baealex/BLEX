@@ -52,7 +52,11 @@ class PinnedPostIntegrityTestCase(TestCase):
                 )
 
         self.assertEqual(raised.exception.code, ErrorCode.REJECT)
-        self.assertEqual(raised.exception.message, '이미 고정된 글입니다.')
+        self.assertEqual(
+            raised.exception.message_key,
+            'pinned_posts.already_pinned',
+        )
+        self.assertEqual(raised.exception.message_params, {})
 
     def test_unrelated_integrity_error_is_reraised(self):
         with patch.object(PinnedPost.objects, 'create', side_effect=IntegrityError):

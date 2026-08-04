@@ -1,8 +1,10 @@
+{% load i18n %}
+{% translate "No public activity yet" as no_activity_title %}
 <!-- Activity Section -->
 <section>
     <div class="mb-4">
-        <p class="mb-2 text-xs font-bold uppercase tracking-[0.18em] text-content-hint">Activity</p>
-        <h2 class="text-2xl font-bold text-content">연간 활동</h2>
+        <p class="mb-2 text-xs font-bold uppercase tracking-[0.18em] text-content-hint">{% translate "Activity" %}</p>
+        <h2 class="text-2xl font-bold text-content">{% translate "Yearly activity" %}</h2>
     </div>
 
     <!-- Heatmap -->
@@ -12,9 +14,9 @@
         {% if recent_activities %}
             <div class="mt-8 border-t border-line-light pt-6">
                 <div class="mb-3 flex items-center justify-between px-1">
-                    <h3 class="text-sm font-semibold text-content">활동 내역</h3>
+                    <h3 class="text-sm font-semibold text-content">{% translate "Recent activity" %}</h3>
                     <span class="inline-flex items-center rounded-md bg-surface-subtle px-2 py-0.5 text-[11px] font-medium text-content-secondary">
-                        {{ recent_activities|length }}개
+                        {% blocktranslate count count=recent_activities|length %}{{ count }} activity{% plural %}{{ count }} activities{% endblocktranslate %}
                     </span>
                 </div>
                 <div class="space-y-3">
@@ -36,11 +38,11 @@
                         <div class="flex-1 min-w-0">
                             <div class="flex items-center justify-between mb-1">
                                 <span class="text-xs text-content-secondary">
-                                    {% if activity.type == 'post' %}새 포스트를 작성했어요
-                                    {% elif activity.type == 'series' %}시리즈를 만들었어요
-                                    {% elif activity.type == 'comment' %}댓글을 남겼어요
-                                    {% elif activity.type == 'like' %}좋아요를 눌렀어요
-                                    {% else %}활동{% endif %}
+                                    {% if activity.type == 'post' %}{% translate "Published a new post" %}
+                                    {% elif activity.type == 'series' %}{% translate "Created a series" %}
+                                    {% elif activity.type == 'comment' %}{% translate "Left a comment" %}
+                                    {% elif activity.type == 'like' %}{% translate "Liked a post" %}
+                                    {% else %}{% translate "Activity" %}{% endif %}
                                 </span>
                                 <span class="inline-flex items-center rounded-md bg-surface-subtle px-2 py-0.5 text-[11px] text-content-secondary font-medium tabular-nums whitespace-nowrap">{{ activity.date }}</span>
                             </div>
@@ -57,7 +59,7 @@
                 </div>
             </div>
         {% else %}
-            {% include 'board/author/components/section_empty_state.html' with section_empty_embedded=True section_empty_title='표시할 활동이 없습니다' only %}
+            {% include 'board/author/components/section_empty_state.html' with section_empty_embedded=True section_empty_title=no_activity_title only %}
         {% endif %}
     </div>
 </section>

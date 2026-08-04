@@ -178,6 +178,22 @@ class PinnedPostAPITestCase(TestCase):
         self.assertEqual(content['status'], 'ERROR')
         self.assertIn('이미 고정', content['errorMessage'])
 
+    def test_pinned_post_error_localizes_copy_but_keeps_stable_key(self):
+        self.client.login(username='testuser', password='testpass')
+        PinnedPost.objects.create(user=self.user, post=self.posts[0], order=0)
+
+        response = self.client.post(
+            '/v1/users/@testuser/pinned-posts',
+            {'post_url': 'test-post-0'},
+            HTTP_ACCEPT_LANGUAGE='en',
+        )
+
+        self.assertEqual(response.status_code, 200)
+        content = response.json()
+        self.assertEqual(content['errorMessage'], 'This post is already pinned.')
+        self.assertEqual(content['messageKey'], 'pinned_posts.already_pinned')
+        self.assertEqual(content['messageParams'], {})
+
     def test_add_pinned_post_hidden_post(self):
         """숨김 글은 고정 불가"""
         self.client.login(username='testuser', password='testpass')
@@ -226,6 +242,8 @@ class PinnedPostAPITestCase(TestCase):
             'status': 'ERROR',
             'errorCode': 'error:RJ',
             'errorMessage': '발행된 포스트만 고정할 수 있습니다.',
+            'messageKey': 'pinned_posts.published_only',
+            'messageParams': {},
         })
 
     def test_add_pinned_post_nonexistent_post(self):

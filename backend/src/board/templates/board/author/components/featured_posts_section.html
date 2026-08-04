@@ -1,12 +1,15 @@
-{% load island %}
-{% load resource %}
+{% load i18n island resource %}
+{% translate "No published posts yet" as no_published_posts_title %}
+{% translate "Write a post" as write_post_label %}
 
 {% if featured_posts_section.posts or is_owner %}
 <section data-featured-posts-section data-partial-url="{% url 'user_featured_posts_partial' username=author.username %}">
     <div class="mb-4 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
         <div>
-            <p class="mb-2 text-xs font-bold uppercase tracking-[0.18em] text-content-hint">Posts</p>
-            <h2 class="text-2xl font-bold text-content">{{ featured_posts_section.title }}</h2>
+            <p class="mb-2 text-xs font-bold uppercase tracking-[0.18em] text-content-hint">{% translate "Posts" %}</p>
+            <h2 class="text-2xl font-bold text-content">
+                {% if featured_posts_section.kind == 'featured' %}{% translate "Featured posts" %}{% else %}{% translate "Recent posts" %}{% endif %}
+            </h2>
         </div>
         {% if is_owner %}
         {% url 'user_featured_posts_partial' username=author.username as featured_posts_partial_url %}
@@ -39,12 +42,12 @@
                     <div class="mt-auto flex items-center gap-3 pt-4 text-xs text-content-hint">
                         <time class="flex items-center gap-1.5">
                             <i class="far fa-calendar text-xs"></i>
-                            {{ post.published_date|date:"Y년 n월 j일" }}
+                            {{ post.published_date|date:"DATE_FORMAT" }}
                         </time>
                         <span class="h-1 w-1 rounded-full bg-content-hint/70"></span>
                         <span class="flex items-center gap-1.5">
                             <i class="far fa-clock text-xs"></i>
-                            {{ post.read_time }}분
+                            {% blocktranslate count minutes=post.read_time %}{{ minutes }} min{% plural %}{{ minutes }} mins{% endblocktranslate %}
                         </span>
                     </div>
                 </div>
@@ -53,7 +56,7 @@
         {% endfor %}
     </div>
     {% elif is_owner %}
-    {% include 'board/author/components/section_empty_state.html' with section_empty_title='아직 공개된 포스트가 없습니다.' section_empty_action_url='/write' section_empty_action_label='포스트 작성하기' section_empty_action_icon='fas fa-edit' only %}
+    {% include 'board/author/components/section_empty_state.html' with section_empty_title=no_published_posts_title section_empty_action_url='/write' section_empty_action_label=write_post_label section_empty_action_icon='fas fa-edit' only %}
     {% endif %}
 </section>
 {% endif %}

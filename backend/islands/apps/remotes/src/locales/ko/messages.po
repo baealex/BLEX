@@ -14,6 +14,46 @@ msgstr ""
 "Plural-Forms: \n"
 
 #. js-lingui-explicit-id
+#: src/components/remotes/Author/Heatmap.tsx:221
+msgid "author.heatmap.activity_count"
+msgstr "{activityCount, plural, other {#회}}"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/Author/Heatmap.tsx:239
+msgid "author.heatmap.count_label"
+msgstr "활동"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/Author/Heatmap.tsx:218
+msgid "author.heatmap.past_year"
+msgstr "지난 1년 활동"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/Author/Heatmap.tsx:230
+msgid "author.heatmap.unit"
+msgstr "단위: 활동"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/Author/PinnedPostQuickAction.tsx:99
+msgid "author.pinned_posts.action"
+msgstr "고정 포스트 설정"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/Author/PinnedPostQuickAction.tsx:115
+msgid "author.pinned_posts.loading"
+msgstr "고정 포스트를 불러오는 중..."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/Author/PinnedPostQuickAction.tsx:105
+msgid "author.pinned_posts.modal_title"
+msgstr "고정 포스트 설정"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PinnedPostsSetting/components/AddPinnedPostModal.tsx:220
+msgid "common.cancel"
+msgstr "취소"
+
+#. js-lingui-explicit-id
 #: src/components/remotes/LoginPrompt/LoginPrompt.tsx:116
 msgid "login_prompt.cancel"
 msgstr "취소"
@@ -48,6 +88,26 @@ msgstr "로그인하기"
 #: src/components/remotes/LoginPrompt/LoginPrompt.tsx:97
 msgid "login_prompt.title"
 msgstr "로그인이 필요해요"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PinnedPostsSetting/components/PinnablePostsPager.tsx:69
+msgid "pagination.first"
+msgstr "첫 페이지"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PinnedPostsSetting/components/PinnablePostsPager.tsx:112
+msgid "pagination.last"
+msgstr "마지막 페이지"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PinnedPostsSetting/components/PinnablePostsPager.tsx:102
+msgid "pagination.next"
+msgstr "다음 페이지"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PinnedPostsSetting/components/PinnablePostsPager.tsx:79
+msgid "pagination.previous"
+msgstr "이전 페이지"
 
 #. js-lingui-explicit-id
 #: src/components/remotes/RelatedPosts/RelatedPosts.tsx:172
@@ -203,3 +263,218 @@ msgstr "잘못된 페이지 번호입니다."
 #: src/components/remotes/SearchPage/SearchPage.tsx:273
 msgid "search.validation.query_required"
 msgstr "검색어를 입력하세요."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PinnedPostsSetting/components/PinnedPostsPanel.tsx:259
+msgid "settings.pinned_posts.action.limit_reached"
+msgstr "최대 개수 도달"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PinnedPostsSetting/components/PinnedPostsPanel.tsx:255
+msgid "settings.pinned_posts.action.pin_post"
+msgstr "포스트 고정하기"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PinnedPostsSetting/components/PinnablePostInlineList.tsx:53
+msgid "settings.pinned_posts.available.description"
+msgstr "오른쪽의 고정 버튼을 누르면 바로 프로필에 추가됩니다."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PinnedPostsSetting/components/PinnablePostInlineList.tsx:77
+msgid "settings.pinned_posts.available.limit_reached"
+msgstr "고정 가능한 최대 개수에 도달했습니다. 새 포스트를 고정하려면 기존 고정을 먼저 해제하세요."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PinnedPostsSetting/components/PinnablePostInlineList.tsx:84
+msgid "settings.pinned_posts.available.loading"
+msgstr "고정 가능한 포스트를 불러오는 중"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PinnedPostsSetting/components/PinnablePostInlineList.tsx:106
+msgid "settings.pinned_posts.available.no_results"
+msgstr "검색 결과가 없습니다."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PinnedPostsSetting/components/PinnablePostInlineList.tsx:110
+msgid "settings.pinned_posts.available.none_left"
+msgstr "더 고정할 수 있는 포스트가 없습니다."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PinnedPostsSetting/components/PinnablePostInlineList.tsx:60
+msgid "settings.pinned_posts.available.search_label"
+msgstr "고정 가능한 포스트 검색"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PinnedPostsSetting/components/PinnablePostInlineList.tsx:64
+msgid "settings.pinned_posts.available.search_placeholder"
+msgstr "포스트 검색"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PinnedPostsSetting/components/PinnablePostInlineList.tsx:50
+msgid "settings.pinned_posts.available.title"
+msgstr "고정 가능한 포스트"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PinnedPostsSetting/components/PinnedPostsPanel.tsx:320
+#: src/components/remotes/SettingsApp/pages/PinnedPostsSetting/components/PinnedPostsPanel.tsx:343
+msgid "settings.pinned_posts.description"
+msgstr "드래그하여 프로필에 표시되는 순서를 조정할 수 있습니다."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PinnedPostsSetting/components/PinnedPostList.tsx:69
+msgid "settings.pinned_posts.empty"
+msgstr "고정된 포스트가 없습니다"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/Author/PinnedPostQuickAction.tsx:53
+#: src/components/remotes/SettingsApp/pages/PinnedPostsSetting/components/PinnedPostsPanel.tsx:50
+msgid "settings.pinned_posts.error.load"
+msgstr "고정 포스트 목록을 불러오는데 실패했습니다."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PinnedPostsSetting/components/PinnedPostsPanel.tsx:114
+msgid "settings.pinned_posts.error.load_available"
+msgstr "포스트 목록을 불러오는데 실패했습니다."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PinnedPostsSetting/components/PinnedPostsPanel.tsx:204
+#: src/components/remotes/SettingsApp/pages/PinnedPostsSetting/components/PinnedPostsPanel.tsx:210
+msgid "settings.pinned_posts.error.pin"
+msgstr "포스트 고정에 실패했습니다."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PinnedPostsSetting/components/PinnedPostsPanel.tsx:179
+msgid "settings.pinned_posts.error.reorder"
+msgstr "순서 변경에 실패했습니다."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PinnedPostsSetting/components/PinnedPostsPanel.tsx:234
+#: src/components/remotes/SettingsApp/pages/PinnedPostsSetting/components/PinnedPostsPanel.tsx:240
+msgid "settings.pinned_posts.error.unpin"
+msgstr "고정 해제에 실패했습니다."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PinnedPostsSetting/components/PinnablePostsPager.tsx:51
+msgid "settings.pinned_posts.pagination.label"
+msgstr "고정 가능한 포스트 페이지"
+
+#. js-lingui-explicit-id
+#. placeholder {0}: pagination.totalCount
+#: src/components/remotes/SettingsApp/pages/PinnedPostsSetting/components/PinnablePostsPager.tsx:56
+msgid "settings.pinned_posts.pagination.summary"
+msgstr "총 {0}개 중 {start}–{end}개 표시"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PinnedPostsSetting/components/PinnablePostInlineList.tsx:147
+msgid "settings.pinned_posts.pin"
+msgstr "고정"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PinnedPostsSetting/components/PinnedPostItem.tsx:62
+msgid "settings.pinned_posts.reorder_label"
+msgstr "{title} 고정 포스트 순서 변경"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PinnedPostsSetting/components/AddPinnedPostModal.tsx:229
+msgid "settings.pinned_posts.select.adding"
+msgstr "추가 중..."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PinnedPostsSetting/components/AddPinnedPostModal.tsx:88
+msgid "settings.pinned_posts.select.cancel_selection"
+msgstr "선택 취소"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PinnedPostsSetting/components/AddPinnedPostModal.tsx:80
+msgid "settings.pinned_posts.select.description"
+msgstr "프로필에 보여줄 포스트를 하나 선택하세요."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PinnedPostsSetting/components/AddPinnedPostModal.tsx:143
+msgid "settings.pinned_posts.select.empty_description"
+msgstr "다른 검색어로 다시 시도해보세요."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PinnedPostsSetting/components/AddPinnedPostModal.tsx:140
+msgid "settings.pinned_posts.select.empty_title"
+msgstr "검색 결과가 없습니다"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PinnedPostsSetting/components/AddPinnedPostModal.tsx:150
+msgid "settings.pinned_posts.select.group_label"
+msgstr "고정할 포스트 선택"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PinnedPostsSetting/components/AddPinnedPostModal.tsx:97
+msgid "settings.pinned_posts.select.modal_description"
+msgstr "프로필에 표시할 포스트를 선택하세요."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PinnedPostsSetting/components/AddPinnedPostModal.tsx:251
+msgid "settings.pinned_posts.select.modal_title"
+msgstr "포스트 고정하기"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PinnedPostsSetting/components/AddPinnedPostModal.tsx:232
+msgid "settings.pinned_posts.select.pin"
+msgstr "포스트 고정"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PinnedPostsSetting/components/AddPinnedPostModal.tsx:162
+msgid "settings.pinned_posts.select.post_label"
+msgstr "고정할 포스트 선택: {title}"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PinnedPostsSetting/components/AddPinnedPostModal.tsx:103
+msgid "settings.pinned_posts.select.search_label"
+msgstr "고정할 포스트 검색"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PinnedPostsSetting/components/AddPinnedPostModal.tsx:107
+msgid "settings.pinned_posts.select.search_placeholder"
+msgstr "포스트 제목 검색..."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PinnedPostsSetting/components/AddPinnedPostModal.tsx:77
+msgid "settings.pinned_posts.select.title"
+msgstr "고정할 포스트 선택"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PinnedPostsSetting/components/PinnedPostsPanel.tsx:198
+msgid "settings.pinned_posts.success.pinned"
+msgstr "포스트가 고정되었습니다."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PinnedPostsSetting/components/PinnedPostsPanel.tsx:171
+msgid "settings.pinned_posts.success.reordered"
+msgstr "순서가 변경되었습니다."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PinnedPostsSetting/components/PinnedPostsPanel.tsx:228
+msgid "settings.pinned_posts.success.unpinned"
+msgstr "고정이 해제되었습니다."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PinnedPostsSetting/components/PinnedPostsPanel.tsx:337
+msgid "settings.pinned_posts.title"
+msgstr "고정 포스트"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PinnedPostsSetting/components/PinnedPostsPanel.tsx:315
+msgid "settings.pinned_posts.title_count"
+msgstr "고정 포스트 ({current}/{max})"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PinnedPostsSetting/components/PinnedPostsPanel.tsx:271
+msgid "settings.pinned_posts.trash_reservation"
+msgstr "{reservedCount, plural, other {휴지통의 고정 포스트 #개가 고정 한도를 유지합니다. 복원하면 다시 표시됩니다.}}"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PinnedPostsSetting/components/PinnedPostItem.tsx:90
+msgid "settings.pinned_posts.unpin"
+msgstr "해제"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PinnedPostsSetting/components/PinnedPostsPanel.tsx:280
+msgid "settings.pinned_posts.view_trash"
+msgstr "휴지통 보기"

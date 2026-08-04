@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useQueryClient, useSuspenseQuery } from '@tanstack/react-query';
+import { Plural, Trans, useLingui } from '@lingui/react/macro';
 import { Trash2 } from '@blex/ui/icons';
 import { SettingsHeader, SettingsHeaderAction } from '../../../components';
 import { toast } from '~/utils/toast';
@@ -37,6 +38,7 @@ export const PinnedPostsPanel = ({
     embedded = false,
     onPinnedPostsChange
 }: PinnedPostsPanelProps) => {
+    const { i18n, t } = useLingui();
     const queryClient = useQueryClient();
     const { data: pinnedPostsData } = useSuspenseQuery({
         queryKey: ['pinned-posts-setting'],
@@ -45,7 +47,10 @@ export const PinnedPostsPanel = ({
             if (data.status === 'DONE') {
                 return data.body;
             }
-            throw new Error('고정 포스트 목록을 불러오는데 실패했습니다.');
+            throw new Error(t({
+                id: 'settings.pinned_posts.error.load',
+                message: 'Could not load pinned posts.'
+            }));
         }
     });
 
@@ -106,14 +111,17 @@ export const PinnedPostsPanel = ({
             }
         } catch {
             if (requestSeq === pinnableRequestSeq.current) {
-                toast.error('포스트 목록을 불러오는데 실패했습니다.');
+                toast.error(t({
+                    id: 'settings.pinned_posts.error.load_available',
+                    message: 'Could not load available posts.'
+                }));
             }
         } finally {
             if (requestSeq === pinnableRequestSeq.current) {
                 setIsPinnableLoading(false);
             }
         }
-    }, []);
+    }, [t]);
 
     useEffect(() => {
         if (!embedded && !isModalOpen) return;
@@ -160,12 +168,18 @@ export const PinnedPostsPanel = ({
                 throw new Error('Order update failed');
             }
 
-            toast.success('순서가 변경되었습니다.');
+            toast.success(t({
+                id: 'settings.pinned_posts.success.reordered',
+                message: 'Pinned posts reordered.'
+            }));
             await queryClient.invalidateQueries({ queryKey: ['pinned-posts-setting'] });
             onPinnedPostsChange?.();
         } catch {
             setPinnedPosts(previousPinnedPosts);
-            toast.error('순서 변경에 실패했습니다.');
+            toast.error(t({
+                id: 'settings.pinned_posts.error.reorder',
+                message: 'Could not reorder pinned posts.'
+            }));
         }
     };
 
@@ -181,13 +195,22 @@ export const PinnedPostsPanel = ({
                 setIsModalOpen(false);
                 setPinnablePosts((posts) => posts.filter((post) => post.url !== postUrl));
                 fetchPinnablePosts(pinnableSearchQuery, pinnablePage);
-                toast.success('포스트가 고정되었습니다.');
+                toast.success(t({
+                    id: 'settings.pinned_posts.success.pinned',
+                    message: 'Post pinned.'
+                }));
                 onPinnedPostsChange?.();
             } else {
-                throw new Error(data.errorMessage || '포스트 고정에 실패했습니다.');
+                throw new Error(data.errorMessage || t({
+                    id: 'settings.pinned_posts.error.pin',
+                    message: 'Could not pin this post.'
+                }));
             }
         } catch (error) {
-            toast.error(error instanceof Error ? error.message : '포스트 고정에 실패했습니다.');
+            toast.error(error instanceof Error ? error.message : t({
+                id: 'settings.pinned_posts.error.pin',
+                message: 'Could not pin this post.'
+            }));
         } finally {
             setIsAddingPost(false);
             setAddingPostUrl(null);
@@ -202,13 +225,22 @@ export const PinnedPostsPanel = ({
                 setPinnedPosts((posts) => posts.filter(p => p.post.url !== postUrl));
                 await queryClient.invalidateQueries({ queryKey: ['pinned-posts-setting'] });
                 fetchPinnablePosts(pinnableSearchQuery, pinnablePage);
-                toast.success('고정이 해제되었습니다.');
+                toast.success(t({
+                    id: 'settings.pinned_posts.success.unpinned',
+                    message: 'Post unpinned.'
+                }));
                 onPinnedPostsChange?.();
             } else {
-                throw new Error('고정 해제에 실패했습니다.');
+                throw new Error(t({
+                    id: 'settings.pinned_posts.error.unpin',
+                    message: 'Could not unpin this post.'
+                }));
             }
         } catch {
-            toast.error('고정 해제에 실패했습니다.');
+            toast.error(t({
+                id: 'settings.pinned_posts.error.unpin',
+                message: 'Could not unpin this post.'
+            }));
         }
     };
 
@@ -219,7 +251,15 @@ export const PinnedPostsPanel = ({
             variant="primary"
             onClick={handleOpenModal}
             disabled={!canAddMore}>
-            {canAddMore ? '포스트 고정하기' : '최대 개수 도달'}
+            {canAddMore
+                ? t({
+                    id: 'settings.pinned_posts.action.pin_post',
+                    message: 'Pin a post'
+                })
+                : t({
+                    id: 'settings.pinned_posts.action.limit_reached',
+                    message: 'Pin limit reached'
+                })}
         </SettingsHeaderAction>
     );
     const list = (
@@ -228,12 +268,16 @@ export const PinnedPostsPanel = ({
                 <div className="mb-4 flex items-start gap-2 rounded-xl border border-line bg-surface-subtle px-4 py-3 text-sm text-content-secondary">
                     <Trash2 aria-hidden className="mt-0.5 h-4 w-4 shrink-0" />
                     <p>
-                        휴지통의 고정 포스트 {reservedCount}개가 고정 한도를 유지합니다.
-                        복원하면 다시 표시됩니다.{' '}
+                        <Plural
+                            id="settings.pinned_posts.trash_reservation"
+                            value={reservedCount}
+                            one="# pinned post in the trash still counts toward your limit. It will reappear when restored."
+                            other="# pinned posts in the trash still count toward your limit. They will reappear when restored."
+                        />{' '}
                         <a
                             href="/settings/posts?tab=trash"
                             className="font-medium text-content underline underline-offset-2">
-                            휴지통 보기
+                            <Trans id="settings.pinned_posts.view_trash">View trash</Trans>
                         </a>
                     </p>
                 </div>
@@ -268,8 +312,18 @@ export const PinnedPostsPanel = ({
         return (
             <div>
                 <SettingsHeader
-                    title={`고정 포스트 (${occupiedCount}/${maxCount})`}
-                    description="드래그하여 프로필에 표시되는 순서를 조정할 수 있습니다."
+                    title={i18n._({
+                        id: 'settings.pinned_posts.title_count',
+                        message: 'Pinned posts ({current}/{max})',
+                        values: {
+                            current: occupiedCount,
+                            max: maxCount
+                        }
+                    })}
+                    description={t({
+                        id: 'settings.pinned_posts.description',
+                        message: 'Drag posts to change the order shown on your profile.'
+                    })}
                     actionPosition="right"
                     action={occupiedCount > 0 ? action : undefined}
                 />
@@ -283,13 +337,13 @@ export const PinnedPostsPanel = ({
             <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                 <div className="space-y-1.5">
                     <h3 className="text-base font-semibold text-content">
-                        고정 포스트
+                        <Trans id="settings.pinned_posts.title">Pinned posts</Trans>
                         <span className="ml-2 text-sm font-medium text-content-secondary">
                             {occupiedCount}/{maxCount}
                         </span>
                     </h3>
                     <p className="text-sm leading-relaxed text-content-secondary">
-                        드래그하여 프로필에 표시되는 순서를 조정할 수 있습니다.
+                        <Trans id="settings.pinned_posts.description">Drag posts to change the order shown on your profile.</Trans>
                     </p>
                 </div>
                 <div className="flex-shrink-0">

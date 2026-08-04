@@ -213,7 +213,7 @@ class UserService:
 
         if pinned_posts:
             return {
-                'title': '추천 포스트',
+                'kind': 'featured',
                 'posts': [{
                     'url': pinned_post.post.url,
                     'title': pinned_post.post.title,
@@ -233,7 +233,7 @@ class UserService:
         ).order_by('-published_date')[:6]
 
         return {
-            'title': '최근 포스트',
+            'kind': 'recent',
             'posts': [{
                 'url': post.url,
                 'title': post.title,

@@ -14,6 +14,46 @@ msgstr ""
 "Plural-Forms: \n"
 
 #. js-lingui-explicit-id
+#: src/components/remotes/Author/Heatmap.tsx:221
+msgid "author.heatmap.activity_count"
+msgstr "{activityCount, plural, one {# activity} other {# activities}}"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/Author/Heatmap.tsx:239
+msgid "author.heatmap.count_label"
+msgstr "activity"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/Author/Heatmap.tsx:218
+msgid "author.heatmap.past_year"
+msgstr "Activity in the past year"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/Author/Heatmap.tsx:230
+msgid "author.heatmap.unit"
+msgstr "Unit: activity"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/Author/PinnedPostQuickAction.tsx:99
+msgid "author.pinned_posts.action"
+msgstr "Manage pinned posts"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/Author/PinnedPostQuickAction.tsx:115
+msgid "author.pinned_posts.loading"
+msgstr "Loading pinned posts..."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/Author/PinnedPostQuickAction.tsx:105
+msgid "author.pinned_posts.modal_title"
+msgstr "Manage pinned posts"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PinnedPostsSetting/components/AddPinnedPostModal.tsx:220
+msgid "common.cancel"
+msgstr "Cancel"
+
+#. js-lingui-explicit-id
 #: src/components/remotes/LoginPrompt/LoginPrompt.tsx:116
 msgid "login_prompt.cancel"
 msgstr "Cancel"
@@ -48,6 +88,26 @@ msgstr "Log in"
 #: src/components/remotes/LoginPrompt/LoginPrompt.tsx:97
 msgid "login_prompt.title"
 msgstr "Login required"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PinnedPostsSetting/components/PinnablePostsPager.tsx:69
+msgid "pagination.first"
+msgstr "First page"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PinnedPostsSetting/components/PinnablePostsPager.tsx:112
+msgid "pagination.last"
+msgstr "Last page"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PinnedPostsSetting/components/PinnablePostsPager.tsx:102
+msgid "pagination.next"
+msgstr "Next page"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PinnedPostsSetting/components/PinnablePostsPager.tsx:79
+msgid "pagination.previous"
+msgstr "Previous page"
 
 #. js-lingui-explicit-id
 #: src/components/remotes/RelatedPosts/RelatedPosts.tsx:172
@@ -203,3 +263,218 @@ msgstr "Invalid page number."
 #: src/components/remotes/SearchPage/SearchPage.tsx:273
 msgid "search.validation.query_required"
 msgstr "Enter a search term."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PinnedPostsSetting/components/PinnedPostsPanel.tsx:259
+msgid "settings.pinned_posts.action.limit_reached"
+msgstr "Pin limit reached"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PinnedPostsSetting/components/PinnedPostsPanel.tsx:255
+msgid "settings.pinned_posts.action.pin_post"
+msgstr "Pin a post"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PinnedPostsSetting/components/PinnablePostInlineList.tsx:53
+msgid "settings.pinned_posts.available.description"
+msgstr "Select Pin to add a post to your profile."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PinnedPostsSetting/components/PinnablePostInlineList.tsx:77
+msgid "settings.pinned_posts.available.limit_reached"
+msgstr "You've reached the pin limit. Unpin a post before adding another."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PinnedPostsSetting/components/PinnablePostInlineList.tsx:84
+msgid "settings.pinned_posts.available.loading"
+msgstr "Loading available posts"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PinnedPostsSetting/components/PinnablePostInlineList.tsx:106
+msgid "settings.pinned_posts.available.no_results"
+msgstr "No search results."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PinnedPostsSetting/components/PinnablePostInlineList.tsx:110
+msgid "settings.pinned_posts.available.none_left"
+msgstr "There are no more posts available to pin."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PinnedPostsSetting/components/PinnablePostInlineList.tsx:60
+msgid "settings.pinned_posts.available.search_label"
+msgstr "Search available posts"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PinnedPostsSetting/components/PinnablePostInlineList.tsx:64
+msgid "settings.pinned_posts.available.search_placeholder"
+msgstr "Search posts"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PinnedPostsSetting/components/PinnablePostInlineList.tsx:50
+msgid "settings.pinned_posts.available.title"
+msgstr "Available posts"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PinnedPostsSetting/components/PinnedPostsPanel.tsx:320
+#: src/components/remotes/SettingsApp/pages/PinnedPostsSetting/components/PinnedPostsPanel.tsx:343
+msgid "settings.pinned_posts.description"
+msgstr "Drag posts to change the order shown on your profile."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PinnedPostsSetting/components/PinnedPostList.tsx:69
+msgid "settings.pinned_posts.empty"
+msgstr "No pinned posts yet"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/Author/PinnedPostQuickAction.tsx:53
+#: src/components/remotes/SettingsApp/pages/PinnedPostsSetting/components/PinnedPostsPanel.tsx:50
+msgid "settings.pinned_posts.error.load"
+msgstr "Could not load pinned posts."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PinnedPostsSetting/components/PinnedPostsPanel.tsx:114
+msgid "settings.pinned_posts.error.load_available"
+msgstr "Could not load available posts."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PinnedPostsSetting/components/PinnedPostsPanel.tsx:204
+#: src/components/remotes/SettingsApp/pages/PinnedPostsSetting/components/PinnedPostsPanel.tsx:210
+msgid "settings.pinned_posts.error.pin"
+msgstr "Could not pin this post."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PinnedPostsSetting/components/PinnedPostsPanel.tsx:179
+msgid "settings.pinned_posts.error.reorder"
+msgstr "Could not reorder pinned posts."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PinnedPostsSetting/components/PinnedPostsPanel.tsx:234
+#: src/components/remotes/SettingsApp/pages/PinnedPostsSetting/components/PinnedPostsPanel.tsx:240
+msgid "settings.pinned_posts.error.unpin"
+msgstr "Could not unpin this post."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PinnedPostsSetting/components/PinnablePostsPager.tsx:51
+msgid "settings.pinned_posts.pagination.label"
+msgstr "Available posts pages"
+
+#. js-lingui-explicit-id
+#. placeholder {0}: pagination.totalCount
+#: src/components/remotes/SettingsApp/pages/PinnedPostsSetting/components/PinnablePostsPager.tsx:56
+msgid "settings.pinned_posts.pagination.summary"
+msgstr "Showing {start}–{end} of {0}"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PinnedPostsSetting/components/PinnablePostInlineList.tsx:147
+msgid "settings.pinned_posts.pin"
+msgstr "Pin"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PinnedPostsSetting/components/PinnedPostItem.tsx:62
+msgid "settings.pinned_posts.reorder_label"
+msgstr "Reorder pinned post: {title}"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PinnedPostsSetting/components/AddPinnedPostModal.tsx:229
+msgid "settings.pinned_posts.select.adding"
+msgstr "Adding..."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PinnedPostsSetting/components/AddPinnedPostModal.tsx:88
+msgid "settings.pinned_posts.select.cancel_selection"
+msgstr "Cancel selection"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PinnedPostsSetting/components/AddPinnedPostModal.tsx:80
+msgid "settings.pinned_posts.select.description"
+msgstr "Choose a post to feature on your profile."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PinnedPostsSetting/components/AddPinnedPostModal.tsx:143
+msgid "settings.pinned_posts.select.empty_description"
+msgstr "Try another search term."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PinnedPostsSetting/components/AddPinnedPostModal.tsx:140
+msgid "settings.pinned_posts.select.empty_title"
+msgstr "No search results"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PinnedPostsSetting/components/AddPinnedPostModal.tsx:150
+msgid "settings.pinned_posts.select.group_label"
+msgstr "Select a post to pin"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PinnedPostsSetting/components/AddPinnedPostModal.tsx:97
+msgid "settings.pinned_posts.select.modal_description"
+msgstr "Choose a post to display on your profile."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PinnedPostsSetting/components/AddPinnedPostModal.tsx:251
+msgid "settings.pinned_posts.select.modal_title"
+msgstr "Pin a post"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PinnedPostsSetting/components/AddPinnedPostModal.tsx:232
+msgid "settings.pinned_posts.select.pin"
+msgstr "Pin post"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PinnedPostsSetting/components/AddPinnedPostModal.tsx:162
+msgid "settings.pinned_posts.select.post_label"
+msgstr "Select post to pin: {title}"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PinnedPostsSetting/components/AddPinnedPostModal.tsx:103
+msgid "settings.pinned_posts.select.search_label"
+msgstr "Search posts to pin"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PinnedPostsSetting/components/AddPinnedPostModal.tsx:107
+msgid "settings.pinned_posts.select.search_placeholder"
+msgstr "Search by post title..."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PinnedPostsSetting/components/AddPinnedPostModal.tsx:77
+msgid "settings.pinned_posts.select.title"
+msgstr "Select a post to pin"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PinnedPostsSetting/components/PinnedPostsPanel.tsx:198
+msgid "settings.pinned_posts.success.pinned"
+msgstr "Post pinned."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PinnedPostsSetting/components/PinnedPostsPanel.tsx:171
+msgid "settings.pinned_posts.success.reordered"
+msgstr "Pinned posts reordered."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PinnedPostsSetting/components/PinnedPostsPanel.tsx:228
+msgid "settings.pinned_posts.success.unpinned"
+msgstr "Post unpinned."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PinnedPostsSetting/components/PinnedPostsPanel.tsx:337
+msgid "settings.pinned_posts.title"
+msgstr "Pinned posts"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PinnedPostsSetting/components/PinnedPostsPanel.tsx:315
+msgid "settings.pinned_posts.title_count"
+msgstr "Pinned posts ({current}/{max})"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PinnedPostsSetting/components/PinnedPostsPanel.tsx:271
+msgid "settings.pinned_posts.trash_reservation"
+msgstr "{reservedCount, plural, one {# pinned post in the trash still counts toward your limit. It will reappear when restored.} other {# pinned posts in the trash still count toward your limit. They will reappear when restored.}}"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PinnedPostsSetting/components/PinnedPostItem.tsx:90
+msgid "settings.pinned_posts.unpin"
+msgstr "Unpin"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PinnedPostsSetting/components/PinnedPostsPanel.tsx:280
+msgid "settings.pinned_posts.view_trash"
+msgstr "View trash"

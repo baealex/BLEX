@@ -7,6 +7,7 @@ import {
     useState
 } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
+import { Trans, useLingui } from '@lingui/react/macro';
 import { Modal } from '~/components/shared';
 import { getPinnedPosts } from '~/lib/api/settings';
 import { refreshPartialElement } from '~/utils/partialRefresh';
@@ -25,6 +26,7 @@ interface PinnedPostQuickActionProps {
 }
 
 const PinnedPostQuickAction = ({ partialUrl }: PinnedPostQuickActionProps) => {
+    const { t } = useLingui();
     const queryClient = useQueryClient();
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [hasChanges, setHasChanges] = useState(false);
@@ -48,11 +50,14 @@ const PinnedPostQuickAction = ({ partialUrl }: PinnedPostQuickActionProps) => {
                 if (data.status === 'DONE') {
                     return data.body;
                 }
-                throw new Error('고정 포스트 목록을 불러오는데 실패했습니다.');
+                throw new Error(t({
+                    id: 'settings.pinned_posts.error.load',
+                    message: 'Could not load pinned posts.'
+                }));
             },
             staleTime: 30_000
         });
-    }, [queryClient]);
+    }, [queryClient, t]);
 
     useEffect(() => {
         return () => cancelScheduledRefresh();
@@ -91,20 +96,23 @@ const PinnedPostQuickAction = ({ partialUrl }: PinnedPostQuickActionProps) => {
                 onPointerEnter={preloadPinnedPostsPanel}
                 className="inline-flex w-fit items-center justify-center rounded-lg bg-surface-subtle px-4 py-2 text-sm font-semibold text-content-secondary transition-colors hover:bg-surface-subtle/80 hover:text-content">
                 <i className="fas fa-thumbtack mr-2 text-xs" />
-                고정 포스트 설정
+                <Trans id="author.pinned_posts.action">Manage pinned posts</Trans>
             </button>
 
             <Modal
                 isOpen={isModalOpen}
                 onClose={handleClose}
-                title="고정 포스트 설정"
+                title={t({
+                    id: 'author.pinned_posts.modal_title',
+                    message: 'Manage pinned posts'
+                })}
                 maxWidth="3xl">
                 <Modal.Body className="h-[70vh] overflow-y-auto">
                     <Suspense
                         fallback={
                             <div className="flex h-full min-h-48 items-center justify-center text-content-secondary">
                                 <i className="fas fa-spinner fa-spin mr-2" />
-                                고정 포스트를 불러오는 중...
+                                <Trans id="author.pinned_posts.loading">Loading pinned posts...</Trans>
                             </div>
                         }>
                         <PinnedPostsPanel

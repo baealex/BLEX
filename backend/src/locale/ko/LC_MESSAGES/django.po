@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: BLEX 3.1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-08-04 22:40+0900\n"
+"POT-Creation-Date: 2026-08-04 23:09+0900\n"
 "PO-Revision-Date: 2026-07-18 00:00+0900\n"
 "Last-Translator: BLEX contributors\n"
 "Language-Team: Korean\n"
@@ -175,7 +175,7 @@ msgstr "이미지 캐시"
 msgid "Tag"
 msgstr "태그"
 
-#: board/models/posts.py:113
+#: board/models/posts.py:113 board/templates/board/author/author_posts.html:32
 msgid "Tags"
 msgstr "태그"
 
@@ -183,7 +183,10 @@ msgstr "태그"
 msgid "Post"
 msgstr "포스트"
 
-#: board/models/posts.py:153
+#: board/models/posts.py:153 board/templates/board/author/author_posts.html:20
+#: board/templates/board/author/author_posts.html:21
+#: board/templates/board/author/components/featured_posts_section.html:9
+#: board/templates/board/author/components/tabs_nav.html:14
 msgid "Posts"
 msgstr "포스트"
 
@@ -196,6 +199,9 @@ msgid "Pinned posts"
 msgstr "고정 포스트"
 
 #: board/models/posts.py:373 board/models/posts.py:374
+#: board/templates/board/author/author_series.html:20
+#: board/templates/board/author/author_series.html:21
+#: board/templates/board/author/components/tabs_nav.html:22
 #: board/templates/board/posts/post_detail.html:464
 msgid "Series"
 msgstr "시리즈"
@@ -245,6 +251,232 @@ msgstr "홈"
 msgid "Django site admin"
 msgstr "Django 사이트 관리자"
 
+#: board/templates/board/author/author_about_edit.html:4
+#, python-format
+msgid "Edit %(username)s's introduction"
+msgstr "%(username)s님의 소개글 수정"
+
+#: board/templates/board/author/author_about_edit.html:7
+msgid "Write your introduction in Markdown."
+msgstr "마크다운으로 작성해 보세요."
+
+#: board/templates/board/author/author_about_edit.html:8
+#: board/templates/board/author/components/readme_section.html:3
+#: board/views/author.py:361
+msgid "Introduction saved."
+msgstr "소개글을 저장했습니다."
+
+#: board/templates/board/author/author_about_edit.html:9
+#: board/templates/board/author/components/readme_section.html:2
+#: board/views/author.py:368
+msgid "Could not save the introduction."
+msgstr "소개글을 저장하지 못했습니다."
+
+#: board/templates/board/author/author_about_edit.html:10
+#: board/templates/board/author/components/readme_section.html:4
+msgid "A network error occurred. Please try again."
+msgstr "네트워크 오류로 저장하지 못했습니다."
+
+#: board/templates/board/author/author_about_edit.html:20
+msgid "Introduce yourself"
+msgstr "자신을 소개해 보세요."
+
+#: board/templates/board/author/author_about_edit.html:21
+msgid "Write a short introduction for your profile."
+msgstr "자신을 소개하는 글을 작성해 보세요."
+
+#: board/templates/board/author/author_about_edit.html:85
+#: board/templates/board/author/components/readme_section.html:116
+msgid "Save"
+msgstr "저장"
+
+#: board/templates/board/author/author_about_edit.html:86
+#: board/templates/board/author/components/readme_section.html:117
+msgid "Saving..."
+msgstr "저장 중..."
+
+#: board/templates/board/author/author_posts.html:7
+msgid "Search posts"
+msgstr "포스트 검색"
+
+#: board/templates/board/author/author_posts.html:8
+msgid "No posts match these filters"
+msgstr "조건에 맞는 포스트가 없습니다"
+
+#: board/templates/board/author/author_posts.html:9
+msgid "Try a different search term or tag."
+msgstr "검색어나 태그를 다시 확인해주세요."
+
+#: board/templates/board/author/author_posts.html:10
+#: board/templates/board/author/components/featured_posts_section.html:2
+msgid "No published posts yet"
+msgstr "아직 공개된 포스트가 없습니다."
+
+#: board/templates/board/author/author_posts.html:11
+msgid "New posts will appear here when they are published."
+msgstr "새 포스트가 발행되면 이곳에 표시됩니다."
+
+#: board/templates/board/author/author_posts.html:27
+#: board/templates/board/author/author_series.html:27
+#: board/templates/components/header.html:123
+#: board/templates/components/header.html:199
+#: board/templates/components/quick_search.html:20
+#: board/templates/components/quick_search.html:21
+#: board/templates/components/search_query_filter.html:39
+msgid "Search"
+msgstr "검색"
+
+#: board/templates/board/author/author_series.html:4
+#, python-format
+msgid "%(username)s's series"
+msgstr "%(username)s님의 시리즈"
+
+#: board/templates/board/author/author_series.html:7
+msgid "Search series"
+msgstr "시리즈 검색"
+
+#: board/templates/board/author/author_series.html:8
+msgid "No series match this search"
+msgstr "조건에 맞는 시리즈가 없습니다"
+
+#: board/templates/board/author/author_series.html:9
+msgid "Try a different search term."
+msgstr "검색어를 다시 확인해주세요."
+
+#: board/templates/board/author/author_series.html:10
+msgid "No public series yet"
+msgstr "아직 공개된 시리즈가 없습니다"
+
+#: board/templates/board/author/author_series.html:11
+msgid "Public series will appear here."
+msgstr "시리즈가 공개되면 이곳에 표시됩니다."
+
+#: board/templates/board/author/author_series.html:32
+msgid "Sort"
+msgstr "정렬"
+
+#: board/templates/board/author/author_series.html:60
+#, python-format
+msgid "%(count)s post"
+msgid_plural "%(count)s posts"
+msgstr[0] "%(count)s개 포스트"
+
+#: board/templates/board/author/components/activity_section.html:2
+msgid "No public activity yet"
+msgstr "표시할 활동이 없습니다"
+
+#: board/templates/board/author/components/activity_section.html:6
+#: board/templates/board/author/components/activity_section.html:45
+msgid "Activity"
+msgstr "활동"
+
+#: board/templates/board/author/components/activity_section.html:7
+msgid "Yearly activity"
+msgstr "연간 활동"
+
+#: board/templates/board/author/components/activity_section.html:17
+msgid "Recent activity"
+msgstr "활동 내역"
+
+#: board/templates/board/author/components/activity_section.html:19
+#, python-format
+msgid "%(count)s activity"
+msgid_plural "%(count)s activities"
+msgstr[0] "%(count)s개"
+
+#: board/templates/board/author/components/activity_section.html:41
+msgid "Published a new post"
+msgstr "새 포스트를 작성했어요"
+
+#: board/templates/board/author/components/activity_section.html:42
+msgid "Created a series"
+msgstr "시리즈를 만들었어요"
+
+#: board/templates/board/author/components/activity_section.html:43
+msgid "Left a comment"
+msgstr "댓글을 남겼어요"
+
+#: board/templates/board/author/components/activity_section.html:44
+msgid "Liked a post"
+msgstr "좋아요를 눌렀어요"
+
+#: board/templates/board/author/components/author_header.html:2
+#, python-format
+msgid "%(username)s's cover"
+msgstr "%(username)s님의 커버"
+
+#: board/templates/board/author/components/author_header.html:19
+msgid "Change cover"
+msgstr "커버 변경"
+
+#: board/templates/board/author/components/author_header.html:37
+#: board/templates/board/author/components/author_header.html:38
+msgid "Change profile picture"
+msgstr "프로필 이미지 변경"
+
+#: board/templates/board/author/components/author_header.html:107
+msgid "Add a social link"
+msgstr "소셜 링크 추가"
+
+#: board/templates/board/author/components/author_notice_list.html:6
+#: board/templates/board/author/components/author_notice_list.html:7
+msgid "Notices"
+msgstr "공지"
+
+#: board/templates/board/author/components/author_notice_list.html:10
+#, python-format
+msgid "%(count)s notice"
+msgid_plural "%(count)s notices"
+msgstr[0] "%(count)s개"
+
+#: board/templates/board/author/components/featured_posts_section.html:3
+#: board/templates/board/posts/post_list.html:15
+msgid "Write a post"
+msgstr "포스트 작성하기"
+
+#: board/templates/board/author/components/featured_posts_section.html:11
+msgid "Featured posts"
+msgstr "추천 포스트"
+
+#: board/templates/board/author/components/featured_posts_section.html:11
+msgid "Recent posts"
+msgstr "최근 포스트"
+
+#: board/templates/board/author/components/featured_posts_section.html:50
+#: board/templates/components/post_card.html:41
+#, python-format
+msgid "%(minutes)s min"
+msgid_plural "%(minutes)s mins"
+msgstr[0] "%(minutes)s분"
+
+#: board/templates/board/author/components/readme_section.html:5
+msgid "No introduction yet"
+msgstr "아직 소개가 없습니다"
+
+#: board/templates/board/author/components/readme_section.html:6
+msgid "Write an introduction"
+msgstr "소개글 작성"
+
+#: board/templates/board/author/components/readme_section.html:76
+msgid "About"
+msgstr "소개"
+
+#: board/templates/board/author/components/readme_section.html:98
+msgid "Edit introduction"
+msgstr "소개글 수정"
+
+#: board/templates/board/author/components/readme_section.html:109
+msgid "Write your introduction"
+msgstr "소개글을 작성하세요"
+
+#: board/templates/board/author/components/readme_section.html:113
+msgid "Cancel"
+msgstr "취소"
+
+#: board/templates/board/author/components/tabs_nav.html:8
+msgid "Overview"
+msgstr "개요"
+
 #: board/templates/board/base.html:6
 msgid "Some interactive elements could not be loaded. Please try again shortly."
 msgstr "일부 인터랙션 요소를 불러오지 못했습니다. 잠시 후 다시 시도해주세요."
@@ -281,34 +513,34 @@ msgstr "읽는 시간"
 msgid "%(minutes)s min read"
 msgstr "%(minutes)s분 소요"
 
-#: board/templates/board/posts/interested_posts.html:6
-msgid "You haven't liked any posts yet"
-msgstr "아직 관심 포스트가 없어요"
-
 #: board/templates/board/posts/interested_posts.html:7
-msgid "Posts you like will appear here."
-msgstr "추천 버튼을 눌러둔 포스트가 여기에 모입니다."
-
-#: board/templates/board/posts/interested_posts.html:8
-msgid "Explore posts"
-msgstr "포스트 둘러보기"
-
-#: board/templates/board/posts/interested_posts.html:11
-#: board/templates/board/posts/interested_posts.html:25
-#: board/templates/board/posts/post_list.html:22
+#: board/templates/board/posts/interested_posts.html:24
+#: board/templates/board/posts/post_list.html:21
 msgid "Liked posts"
 msgstr "관심 포스트"
 
-#: board/templates/board/posts/interested_posts.html:19
+#: board/templates/board/posts/interested_posts.html:11
+msgid "You haven't liked any posts yet"
+msgstr "아직 관심 포스트가 없어요"
+
+#: board/templates/board/posts/interested_posts.html:12
+msgid "Posts you like will appear here."
+msgstr "추천 버튼을 눌러둔 포스트가 여기에 모입니다."
+
+#: board/templates/board/posts/interested_posts.html:13
+msgid "Explore posts"
+msgstr "포스트 둘러보기"
+
+#: board/templates/board/posts/interested_posts.html:18
 #: board/templates/board/posts/post_detail.html:509
 msgid "All posts"
 msgstr "전체 포스트"
 
-#: board/templates/board/posts/interested_posts.html:24
+#: board/templates/board/posts/interested_posts.html:23
 msgid "Posts you want to revisit"
 msgstr "내가 다시 보고 싶은 포스트"
 
-#: board/templates/board/posts/interested_posts.html:27
+#: board/templates/board/posts/interested_posts.html:26
 msgid "Find all the posts you've liked, with your most recent likes first."
 msgstr "추천으로 관심 표시한 포스트를 최신 관심순으로 모아볼 수 있어요."
 
@@ -478,21 +710,17 @@ msgstr "목차"
 msgid "Close table of contents"
 msgstr "목차 닫기"
 
-#: board/templates/board/posts/post_list.html:6
+#: board/templates/board/posts/post_list.html:7
+msgid "Latest posts"
+msgstr "최신 포스트"
+
+#: board/templates/board/posts/post_list.html:13
 msgid "No posts yet"
 msgstr "아직 포스트가 없어요"
 
-#: board/templates/board/posts/post_list.html:7
+#: board/templates/board/posts/post_list.html:14
 msgid "Published posts will appear here."
 msgstr "공개된 포스트가 발행되면 이곳에 표시됩니다."
-
-#: board/templates/board/posts/post_list.html:8
-msgid "Write a post"
-msgstr "포스트 작성하기"
-
-#: board/templates/board/posts/post_list.html:11
-msgid "Latest posts"
-msgstr "최신 포스트"
 
 #: board/templates/board/search/search.html:6
 #, python-format
@@ -542,14 +770,6 @@ msgstr "설정"
 #: board/templates/components/header.html:298
 msgid "Log out"
 msgstr "로그아웃"
-
-#: board/templates/components/header.html:123
-#: board/templates/components/header.html:199
-#: board/templates/components/quick_search.html:20
-#: board/templates/components/quick_search.html:21
-#: board/templates/components/search_query_filter.html:39
-msgid "Search"
-msgstr "검색"
 
 #: board/templates/components/header.html:167
 #: board/templates/components/header.html:216
@@ -635,12 +855,6 @@ msgstr "다음 페이지"
 msgid "Last page"
 msgstr "마지막 페이지"
 
-#: board/templates/components/post_card.html:41
-#, python-format
-msgid "%(minutes)s min"
-msgid_plural "%(minutes)s mins"
-msgstr[0] "%(minutes)s분"
-
 #: board/templates/components/quick_search.html:2
 msgid "Quick results"
 msgstr "빠른 결과"
@@ -677,13 +891,82 @@ msgstr "검색어를 입력하세요"
 msgid "Clear search"
 msgstr "검색어 지우기"
 
+#: board/views/api/v1/pinned_post.py:42 board/views/api/v1/pinned_post.py:59
+#: board/views/api/v1/setting.py:250 board/views/api/v1/setting.py:275
+msgid "Post URL is required."
+msgstr "포스트 URL이 필요합니다."
+
+#: board/views/api/v1/pinned_post.py:94 board/views/api/v1/pinned_post.py:102
+#: board/views/api/v1/setting.py:347 board/views/api/v1/setting.py:355
+msgid "Invalid request format."
+msgstr "잘못된 형식입니다."
+
+#: board/views/api/v1/pinned_post_errors.py:8
+msgid "This post is already pinned."
+msgstr "이미 고정된 글입니다."
+
+#: board/views/api/v1/pinned_post_errors.py:9
+msgid "Author access is required."
+msgstr "작가 권한이 필요합니다."
+
+#: board/views/api/v1/pinned_post_errors.py:10 board/views/api/v1/search.py:89
+#: board/views/api/v1/search.py:174
+msgid "Invalid page number."
+msgstr "잘못된 페이지 번호입니다."
+
+#: board/views/api/v1/pinned_post_errors.py:11
+#, python-format
+msgid "You can pin up to %(count)s posts."
+msgstr "최대 %(count)s개까지 고정할 수 있습니다."
+
+#: board/views/api/v1/pinned_post_errors.py:12
+msgid "Could not find this post."
+msgstr "글을 찾을 수 없습니다."
+
+#: board/views/api/v1/pinned_post_errors.py:13
+msgid "Hidden posts cannot be pinned."
+msgstr "숨김 처리된 글은 고정할 수 없습니다."
+
+#: board/views/api/v1/pinned_post_errors.py:14
+msgid "Only published posts can be pinned."
+msgstr "발행된 포스트만 고정할 수 있습니다."
+
+#: board/views/api/v1/pinned_post_errors.py:15
+msgid "Could not find this pinned post."
+msgstr "고정된 글을 찾을 수 없습니다."
+
+#: board/views/api/v1/pinned_post_errors.py:17
+#, python-format
+msgid "The new order includes a post that is not pinned: %(url)s"
+msgstr "고정되지 않은 글이 포함되어 있습니다: %(url)s"
+
+#: board/views/api/v1/pinned_post_errors.py:27
+msgid "Could not update pinned posts."
+msgstr "고정 포스트를 변경하지 못했습니다."
+
 #: board/views/api/v1/search.py:73 board/views/api/v1/search.py:80
 msgid "Enter a search term."
 msgstr "검색어를 입력하세요."
 
-#: board/views/api/v1/search.py:89 board/views/api/v1/search.py:174
-msgid "Invalid page number."
-msgstr "잘못된 페이지 번호입니다."
+#: board/views/author.py:178
+msgid "All tags"
+msgstr "전체 태그"
+
+#: board/views/author.py:287
+msgid "Author-defined order"
+msgstr "작가 지정 순"
+
+#: board/views/author.py:288
+msgid "Newest first"
+msgstr "최신순"
+
+#: board/views/author.py:289
+msgid "Oldest first"
+msgstr "오래된순"
+
+#: board/views/author.py:290
+msgid "Most posts"
+msgstr "포스트 많은 순"
 
 #: main/admin_site.py:9
 msgid "BLEX administration"
@@ -764,10 +1047,6 @@ msgstr "영어"
 #~ msgctxt "Admin permission action"
 #~ msgid "Add"
 #~ msgstr "추가"
-
-#~ msgctxt "Admin permission action"
-#~ msgid "Change"
-#~ msgstr "수정"
 
 #~ msgctxt "Admin permission action"
 #~ msgid "Delete"

@@ -1,4 +1,5 @@
 import { Button } from '~/components/shared';
+import { Trans, useLingui } from '@lingui/react/macro';
 import { Calendar, FileText, Search } from '@blex/ui/icons';
 import {
     getSettingsIconClass,
@@ -9,6 +10,8 @@ import SettingsListItem from '../../../components/SettingsListItem';
 import { getMediaPath } from '~/modules/static.module';
 import type { PinnablePostData, PinnablePostsPaginationData } from '~/lib/api/settings';
 import { PinnablePostsPager } from './PinnablePostsPager';
+import { formatPublishedDate } from '~/i18n/formatters';
+import { normalizeLocale } from '~/i18n/locale';
 
 interface PinnablePostInlineListProps {
     posts: PinnablePostData[];
@@ -35,23 +38,33 @@ export const PinnablePostInlineList = ({
     isAdding = false,
     loadingPostUrl = null
 }: PinnablePostInlineListProps) => {
+    const { i18n, t } = useLingui();
+    const locale = normalizeLocale(i18n.locale);
     const isActionDisabled = !canAddMore || isAdding || isLoading;
 
     return (
         <div className="space-y-3">
             <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                 <div className="space-y-1">
-                    <h4 className="text-sm font-semibold text-content">고정 가능한 포스트</h4>
+                    <h4 className="text-sm font-semibold text-content">
+                        <Trans id="settings.pinned_posts.available.title">Available posts</Trans>
+                    </h4>
                     <p className="text-xs text-content-secondary">
-                        오른쪽의 고정 버튼을 누르면 바로 프로필에 추가됩니다.
+                        <Trans id="settings.pinned_posts.available.description">Select Pin to add a post to your profile.</Trans>
                     </p>
                 </div>
                 <div className="relative w-full sm:w-72">
                     <Search aria-hidden className="absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-content-hint" />
                     <input
                         type="text"
-                        aria-label="고정 가능한 포스트 검색"
-                        placeholder="포스트 검색"
+                        aria-label={t({
+                            id: 'settings.pinned_posts.available.search_label',
+                            message: 'Search available posts'
+                        })}
+                        placeholder={t({
+                            id: 'settings.pinned_posts.available.search_placeholder',
+                            message: 'Search posts'
+                        })}
                         value={searchQuery}
                         onChange={(event) => onSearchQueryChange(event.target.value)}
                         className="h-11 w-full rounded-lg border border-line bg-surface-subtle pl-9 pr-3 text-sm text-content transition-colors duration-150 placeholder:text-content-hint focus:border-line-strong focus:outline-none focus:ring-2 focus:ring-line/50"
@@ -61,12 +74,17 @@ export const PinnablePostInlineList = ({
 
             {!canAddMore && (
                 <div className="rounded-xl border border-line bg-surface-subtle px-4 py-3 text-sm text-content-secondary">
-                    고정 가능한 최대 개수에 도달했습니다. 새 포스트를 고정하려면 기존 고정을 먼저 해제하세요.
+                    <Trans id="settings.pinned_posts.available.limit_reached">You've reached the pin limit. Unpin a post before adding another.</Trans>
                 </div>
             )}
 
             {isLoading && posts.length === 0 ? (
-                <div className="space-y-3" aria-label="고정 가능한 포스트를 불러오는 중">
+                <div
+                    className="space-y-3"
+                    aria-label={t({
+                        id: 'settings.pinned_posts.available.loading',
+                        message: 'Loading available posts'
+                    })}>
                     {Array.from({ length: 3 }).map((_, index) => (
                         <div
                             key={index}
@@ -84,7 +102,15 @@ export const PinnablePostInlineList = ({
                 </div>
             ) : posts.length === 0 ? (
                 <div className="rounded-xl border border-dashed border-line bg-surface-subtle px-4 py-8 text-center text-sm text-content-secondary">
-                    {searchQuery.trim() ? '검색 결과가 없습니다.' : '더 고정할 수 있는 포스트가 없습니다.'}
+                    {searchQuery.trim()
+                        ? t({
+                            id: 'settings.pinned_posts.available.no_results',
+                            message: 'No search results.'
+                        })
+                        : t({
+                            id: 'settings.pinned_posts.available.none_left',
+                            message: 'There are no more posts available to pin.'
+                        })}
                 </div>
             ) : (
                 <div className="space-y-3" aria-busy={isLoading}>
@@ -118,14 +144,14 @@ export const PinnablePostInlineList = ({
                                         onClick={() => onAdd(post.url)}
                                         disabled={isActionDisabled || isLoading}
                                         isLoading={isLoading}>
-                                        고정
+                                        <Trans id="settings.pinned_posts.pin">Pin</Trans>
                                     </Button>
                                 }>
                                 <h3 className={`${SETTINGS_LIST_TITLE} mb-1 truncate text-content`}>{post.title}</h3>
                                 <div className={`${SETTINGS_LIST_META} flex items-center gap-2 text-xs`}>
                                     <span className="flex items-center gap-1">
                                         <Calendar aria-hidden className="h-3.5 w-3.5 text-content-hint" />
-                                        {new Date(post.createdDate).toLocaleDateString('ko-KR')}
+                                        {formatPublishedDate(post.createdDate, post.createdDate, locale)}
                                     </span>
                                 </div>
                             </SettingsListItem>

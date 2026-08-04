@@ -3,15 +3,14 @@
 {% load island %}
 {% load resource %}
 
-{% translate "You haven't liked any posts yet" as empty_liked_posts_title %}
-{% translate "Posts you like will appear here." as empty_liked_posts_message %}
-{% translate "Explore posts" as explore_posts_label %}
-
 {% block title %}
     {{ site_brand.site_name }} - {% translate "Liked posts" %}
 {% endblock %}
 
 {% block content %}
+{% translate "You haven't liked any posts yet" as empty_liked_posts_title %}
+{% translate "Posts you like will appear here." as empty_liked_posts_message %}
+{% translate "Explore posts" as explore_posts_label %}
 <div class="max-w-7xl mx-auto mt-6 px-4 md:px-6">
     <div class="mb-6 flex justify-end">
         <a href="/" class="inline-flex items-center gap-2 rounded-full bg-surface px-4 py-2 text-sm font-semibold text-content-secondary ring-1 ring-line/60 transition-colors duration-150 hover:bg-surface-subtle hover:text-content">
