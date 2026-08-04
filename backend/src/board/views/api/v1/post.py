@@ -1,6 +1,7 @@
 from django.http import Http404
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
+from django.utils.translation import gettext
 
 from board.models import Post, PinnedPost
 from board.html_utils import sanitize_content_html
@@ -228,7 +229,10 @@ def user_posts(request, username, url=None):
                 try:
                     reserved_date_str = put.get('reserved_date')
                     if not reserved_date_str:
-                        return StatusError(ErrorCode.VALIDATE, '예약 시간을 확인해주세요.')
+                        return StatusError(
+                            ErrorCode.VALIDATE,
+                            gettext('Check the scheduled time.'),
+                        )
 
                     PostService.update_post(
                         post=post,

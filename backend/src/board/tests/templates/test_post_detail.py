@@ -873,6 +873,21 @@ class PostEditorPublishRedirectTestCase(TestCase):
         self.assertEqual(body['status'], 'ERROR')
         self.assertEqual(body['errorCode'], 'error:VA')
         self.assertEqual(body['errorMessage'], '내용을 입력해주세요.')
+
+        english_response = self.client.post('/@editor/recoverable-edit/edit', {
+            'title': 'Unsaved Changed Title',
+            'subtitle': '',
+            'content_html': '',
+            'meta_description': post.meta_description,
+            'hide': 'false',
+            'advertise': 'false',
+            'block_comment': 'false',
+        }, HTTP_X_BLEX_EDITOR_SUBMIT='async', HTTP_ACCEPT_LANGUAGE='en')
+        english_body = json.loads(english_response.content)
+        self.assertEqual(english_body['status'], 'ERROR')
+        self.assertEqual(english_body['errorCode'], 'error:VA')
+        self.assertEqual(english_body['errorMessage'], 'Enter some content.')
+
         post.refresh_from_db()
         self.assertEqual(post.title, 'Recoverable Edit')
         self.assertEqual(post.content.content_html, '<p>Stored body</p>')

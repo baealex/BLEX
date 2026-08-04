@@ -17,6 +17,7 @@ from django.shortcuts import get_object_or_404
 from django.utils import timezone
 from django.utils.dateparse import parse_datetime
 from django.utils.text import slugify
+from django.utils.translation import gettext
 
 from board.models import Post, PostContent, PostConfig, PostConfigMeta, Series, PostLikes
 from board.modules.post_description import create_post_description
@@ -68,17 +69,17 @@ class PostService:
         if cover_layout is not None and cover_layout not in PostConfig.CoverLayout.values:
             raise PostValidationError(
                 ErrorCode.VALIDATE,
-                '지원하지 않는 커버 스타일입니다.'
+                gettext('This cover style is not supported.')
             )
         if cover_image_position is not None and cover_image_position not in PostConfig.CoverImagePosition.values:
             raise PostValidationError(
                 ErrorCode.VALIDATE,
-                '지원하지 않는 커버 이미지 위치입니다.'
+                gettext('This cover image position is not supported.')
             )
         if cover_image_ratio is not None and cover_image_ratio not in PostConfig.CoverImageRatio.values:
             raise PostValidationError(
                 ErrorCode.VALIDATE,
-                '지원하지 않는 커버 이미지 비율입니다.'
+                gettext('This cover image ratio is not supported.')
             )
 
         if cover_layout is not None:
@@ -121,13 +122,13 @@ class PostService:
         if not user.is_authenticated or not user.is_active:
             raise PostValidationError(
                 ErrorCode.VALIDATE,
-                '활성화되지 않은 사용자입니다.'
+                gettext('This account is not active.')
             )
 
         if not AuthoringPermissionService.is_active_editor(user):
             raise PostValidationError(
                 ErrorCode.VALIDATE,
-                '작성 권한이 없습니다.'
+                gettext('You do not have permission to write posts.')
             )
 
     @staticmethod
@@ -145,12 +146,12 @@ class PostService:
         if not title:
             raise PostValidationError(
                 ErrorCode.VALIDATE,
-                '제목을 입력해주세요.'
+                gettext('Enter a title.')
             )
         if not text_html:
             raise PostValidationError(
                 ErrorCode.VALIDATE,
-                '내용을 입력해주세요.'
+                gettext('Enter some content.')
             )
 
     @staticmethod
@@ -159,7 +160,9 @@ class PostService:
         if subtitle is not None and len(subtitle) > PostService.SUBTITLE_MAX_LENGTH:
             raise PostValidationError(
                 ErrorCode.SIZE_OVERFLOW,
-                f'부제목은 최대 {PostService.SUBTITLE_MAX_LENGTH}자까지 입력할 수 있습니다.'
+                gettext('Subtitles can be up to %(max_length)s characters.') % {
+                    'max_length': PostService.SUBTITLE_MAX_LENGTH,
+                }
             )
 
     @staticmethod
@@ -183,7 +186,7 @@ class PostService:
         if not reserved_date:
             raise PostValidationError(
                 ErrorCode.VALIDATE,
-                '예약 시간을 확인해주세요.'
+                gettext('Check the scheduled time.')
             )
 
         if timezone.is_naive(reserved_date):
@@ -195,7 +198,7 @@ class PostService:
         if reserved_date and reserved_date < timezone.now():
             raise PostValidationError(
                 ErrorCode.VALIDATE,
-                '예약시간이 현재시간보다 이전입니다.'
+                gettext('The scheduled time must be in the future.')
             )
         return reserved_date
 
@@ -289,12 +292,12 @@ class PostService:
         except Post.DoesNotExist as error:
             raise PostValidationError(
                 ErrorCode.NOT_FOUND,
-                '포스트를 찾을 수 없습니다.'
+                gettext('Post not found.')
             ) from error
         if not PostStatusService.is_scheduled(scheduled_post):
             raise PostValidationError(
                 ErrorCode.REJECT,
-                '예약 포스트에서만 사용할 수 있습니다.'
+                gettext('This action is only available for scheduled posts.')
             )
         return scheduled_post
 
@@ -624,20 +627,22 @@ class PostService:
             if not reserved_date_str:
                 raise PostValidationError(
                     ErrorCode.VALIDATE,
-                    '예약 시간을 확인해주세요.'
+                    gettext('Check the scheduled time.')
                 )
 
             if post.published_date is None or post.is_published():
                 raise PostValidationError(
                     ErrorCode.REJECT,
-                    '예약 포스트만 예약 시간을 변경할 수 있습니다.'
+                    gettext(
+                        'Only scheduled posts can have their scheduled time changed.'
+                    )
                 )
 
             reserved_date = PostService.validate_reserved_date(reserved_date_str)
             if not reserved_date:
                 raise PostValidationError(
                     ErrorCode.VALIDATE,
-                    '예약 시간을 확인해주세요.'
+                    gettext('Check the scheduled time.')
                 )
 
         should_update_config = (
@@ -859,13 +864,15 @@ class PostService:
         if draft_count >= PostService.MAX_DRAFTS_PER_USER:
             raise PostValidationError(
                 ErrorCode.SIZE_OVERFLOW,
-                f'임시 저장 글은 최대 {PostService.MAX_DRAFTS_PER_USER}개까지 가능합니다.'
+                gettext('You can save up to %(max_drafts)s drafts.') % {
+                    'max_drafts': PostService.MAX_DRAFTS_PER_USER,
+                }
             )
 
         resolved_html = PostService._resolve_content(text_html, content_type)
 
         post = Post()
-        post.title = title or '제목 없음'
+        post.title = title or gettext('Untitled')
         post.subtitle = subtitle
         post.author = user
         post.published_date = None
@@ -941,7 +948,7 @@ class PostService:
         PostService.validate_subtitle(subtitle)
 
         if title is not None:
-            post.title = title or '제목 없음'
+            post.title = title or gettext('Untitled')
 
         if subtitle is not None:
             post.subtitle = subtitle

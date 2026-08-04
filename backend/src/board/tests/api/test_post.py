@@ -294,6 +294,18 @@ class PostTestCase(TestCase):
         content = json.loads(response.content)
         self.assertEqual(content['status'], 'ERROR')
         self.assertEqual(content['errorCode'], 'error:VA')
+        self.assertEqual(content['errorMessage'], '예약 시간을 확인해주세요.')
+
+        english_response = self.client.put(
+            '/v1/users/@author/posts/scheduled-empty-reserved-date?reserved_date=1',
+            data='',
+            content_type='application/x-www-form-urlencoded',
+            HTTP_ACCEPT_LANGUAGE='en',
+        )
+        english_content = json.loads(english_response.content)
+        self.assertEqual(english_content['status'], 'ERROR')
+        self.assertEqual(english_content['errorCode'], 'error:VA')
+        self.assertEqual(english_content['errorMessage'], 'Check the scheduled time.')
 
     def test_cancel_post_schedule_returns_post_to_draft(self):
         """예약 취소는 내용과 설정을 보존한 채 포스트를 임시글로 되돌린다."""

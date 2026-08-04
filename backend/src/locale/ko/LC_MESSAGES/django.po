@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: BLEX 3.1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-08-05 00:46+0900\n"
+"POT-Creation-Date: 2026-08-05 01:19+0900\n"
 "PO-Revision-Date: 2026-07-18 00:00+0900\n"
 "Last-Translator: BLEX contributors\n"
 "Language-Team: Korean\n"
@@ -366,6 +366,69 @@ msgstr "이전 형식의 수정 이력은 안전하게 복원할 수 없습니�
 #: board/services/post_revision_service.py:185
 msgid "Another request has already changed the post. Refresh and try again."
 msgstr "포스트가 이미 다른 요청으로 수정되었습니다. 새로고침 후 다시 시도해주세요."
+
+#: board/services/post_service.py:72
+msgid "This cover style is not supported."
+msgstr "지원하지 않는 커버 스타일입니다."
+
+#: board/services/post_service.py:77
+msgid "This cover image position is not supported."
+msgstr "지원하지 않는 커버 이미지 위치입니다."
+
+#: board/services/post_service.py:82
+msgid "This cover image ratio is not supported."
+msgstr "지원하지 않는 커버 이미지 비율입니다."
+
+#: board/services/post_service.py:125
+msgid "This account is not active."
+msgstr "활성화되지 않은 사용자입니다."
+
+#: board/services/post_service.py:131
+msgid "You do not have permission to write posts."
+msgstr "작성 권한이 없습니다."
+
+#: board/services/post_service.py:149
+msgid "Enter a title."
+msgstr "제목을 입력해주세요."
+
+#: board/services/post_service.py:154
+msgid "Enter some content."
+msgstr "내용을 입력해주세요."
+
+#: board/services/post_service.py:163
+#, python-format
+msgid "Subtitles can be up to %(max_length)s characters."
+msgstr "부제목은 최대 %(max_length)s자까지 입력할 수 있습니다."
+
+#: board/services/post_service.py:189 board/services/post_service.py:630
+#: board/services/post_service.py:645 board/views/api/v1/post.py:234
+msgid "Check the scheduled time."
+msgstr "예약 시간을 확인해주세요."
+
+#: board/services/post_service.py:201
+msgid "The scheduled time must be in the future."
+msgstr "예약시간이 현재시간보다 이전입니다."
+
+#: board/services/post_service.py:295
+msgid "Post not found."
+msgstr "포스트를 찾을 수 없습니다."
+
+#: board/services/post_service.py:300
+msgid "This action is only available for scheduled posts."
+msgstr "예약 포스트에서만 사용할 수 있습니다."
+
+#: board/services/post_service.py:637
+msgid "Only scheduled posts can have their scheduled time changed."
+msgstr "예약 포스트만 예약 시간을 변경할 수 있습니다."
+
+#: board/services/post_service.py:867
+#, python-format
+msgid "You can save up to %(max_drafts)s drafts."
+msgstr "임시 저장 글은 최대 %(max_drafts)s개까지 가능합니다."
+
+#: board/services/post_service.py:875 board/services/post_service.py:951
+msgid "Untitled"
+msgstr "제목 없음"
 
 #: board/templates/admin/board/confirm_action.html:11
 msgid "Home"
