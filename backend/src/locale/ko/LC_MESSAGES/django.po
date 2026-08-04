@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: BLEX 3.1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-08-05 05:51+0900\n"
+"POT-Creation-Date: 2026-08-05 06:22+0900\n"
 "PO-Revision-Date: 2026-07-18 00:00+0900\n"
 "Last-Translator: BLEX contributors\n"
 "Language-Team: Korean\n"
@@ -60,6 +60,171 @@ msgstr "시스템 유틸리티"
 msgid "Action details"
 msgstr "작업 내용"
 
+#: board/admin/notify.py:70
+msgid "A notification with the same identity already exists."
+msgstr "이미 동일한 알림이 존재합니다."
+
+#: board/admin/notify.py:80
+#: board/templates/admin/board/notify/bulk_send.html:33
+msgid "Link URL"
+msgstr "링크 URL"
+
+#: board/admin/notify.py:84
+msgid "URL opened when the notification is clicked (default: /)"
+msgstr "알림 클릭 시 이동할 URL (기본값: /)"
+
+#: board/admin/notify.py:88
+#: board/templates/admin/board/notify/bulk_send.html:39
+msgid "Notification content"
+msgstr "알림 내용"
+
+#: board/admin/notify.py:90
+msgid "Message sent to every active user"
+msgstr "모든 활성 사용자에게 전송될 알림 메시지"
+
+#: board/admin/notify.py:127
+msgid "Basic information"
+msgstr "기본 정보"
+
+#: board/admin/notify.py:130
+#: board/templates/board/developer_api_quickstart.html:121
+msgid "Status"
+msgstr "상태"
+
+#: board/admin/notify.py:133
+msgid "Metadata"
+msgstr "메타데이터"
+
+#: board/admin/notify.py:160
+msgid "User"
+msgstr "사용자"
+
+#: board/admin/notify.py:164 main/admin_site.py:24
+msgid "Content"
+msgstr "콘텐츠"
+
+#: board/admin/notify.py:168
+msgid "Read status"
+msgstr "읽음 상태"
+
+#: board/admin/notify.py:176
+msgid "Unsafe URL"
+msgstr "안전하지 않은 URL"
+
+#: board/admin/notify.py:183
+msgid "Created at"
+msgstr "생성일시"
+
+#: board/admin/notify.py:187
+msgid "Updated at"
+msgstr "수정일시"
+
+#: board/admin/notify.py:205
+msgid "Marked as read in Admin"
+msgstr "Admin에서 읽음 상태로 변경"
+
+#: board/admin/notify.py:207
+msgid "Marked as unread in Admin"
+msgstr "Admin에서 읽지 않음 상태로 변경"
+
+#: board/admin/notify.py:220
+msgid "Mark selected notifications as read"
+msgstr "선택한 알림을 읽음으로 표시"
+
+#: board/admin/notify.py:236
+#, python-format
+msgid "%(count)d notification was marked as read."
+msgid_plural "%(count)d notifications were marked as read."
+msgstr[0] "%(count)d개의 알림을 읽음으로 표시했습니다."
+
+#: board/admin/notify.py:244
+msgid "Mark selected notifications as unread"
+msgstr "선택한 알림을 읽지 않음으로 표시"
+
+#: board/admin/notify.py:260
+#, python-format
+msgid "%(count)d notification was marked as unread."
+msgid_plural "%(count)d notifications were marked as unread."
+msgstr[0] "%(count)d개의 알림을 읽지 않음으로 표시했습니다."
+
+#: board/admin/notify.py:268
+msgid "Resend selected notifications to external channels"
+msgstr "선택한 알림을 외부 채널로 재발송"
+
+#: board/admin/notify.py:280
+msgid "There are no notifications to resend."
+msgstr "재발송할 알림이 없습니다."
+
+#: board/admin/notify.py:289
+msgid "Confirm external notification resend"
+msgstr "외부 알림 재발송 확인"
+
+#: board/admin/notify.py:291
+msgid "The selected notifications will be sent to their connected external channels again. Recipients may receive duplicates."
+msgstr "선택한 알림을 연결된 외부 채널로 다시 전송합니다. 수신자에게 중복 알림이 전달될 수 있습니다."
+
+#: board/admin/notify.py:294
+msgid "Resend notifications"
+msgstr "외부 알림 재발송"
+
+#: board/admin/notify.py:305
+msgid "Requested external notification resend in Admin"
+msgstr "Admin에서 외부 알림 재발송 요청"
+
+#: board/admin/notify.py:322
+#, python-format
+msgid "%(count)d notification was resent to external channels."
+msgid_plural "%(count)d notifications were resent to external channels."
+msgstr[0] "%(count)d개의 알림을 외부 채널로 재발송했습니다."
+
+#: board/admin/notify.py:332
+#, python-format
+msgid "%(count)d notification could not be resent."
+msgid_plural "%(count)d notifications could not be resent."
+msgstr[0] "%(count)d개의 알림은 재발송하지 못했습니다."
+
+#: board/admin/notify.py:375
+msgid "The notification was saved but could not be sent to external channels."
+msgstr "알림은 저장했지만 외부 채널로 전송하지 못했습니다."
+
+#: board/admin/notify.py:427
+msgid "There are no active users to notify."
+msgstr "발송할 활성 사용자가 없습니다."
+
+#: board/admin/notify.py:439
+#, python-format
+msgid "Bulk notification delivery (%(count)d recipient)"
+msgid_plural "Bulk notification delivery (%(count)d recipients)"
+msgstr[0] "전체 알림 발송 (%(count)d명)"
+
+#: board/admin/notify.py:445
+#, python-format
+msgid "Scheduled bulk notification delivery in Admin: %(count)d recipient"
+msgid_plural "Scheduled bulk notification delivery in Admin: %(count)d recipients"
+msgstr[0] "Admin 전체 알림 발송 예약: 대상 %(count)d명"
+
+#: board/admin/notify.py:472
+#, python-format
+msgid "Failed to schedule bulk notification delivery in Admin: %(count)d recipient"
+msgid_plural "Failed to schedule bulk notification delivery in Admin: %(count)d recipients"
+msgstr[0] "Admin 전체 알림 발송 예약 실패: 대상 %(count)d명"
+
+#: board/admin/notify.py:481
+msgid "Could not schedule the notification delivery job."
+msgstr "알림 발송 작업을 예약하지 못했습니다."
+
+#: board/admin/notify.py:489
+#, python-format
+msgid "Notification delivery was scheduled for %(count)d recipient. Duplicate notifications will be skipped."
+msgid_plural "Notification delivery was scheduled for %(count)d recipients. Duplicate notifications will be skipped."
+msgstr[0] "%(count)d명 대상 알림 발송 작업을 예약했습니다. 동일한 알림은 건너뜁니다."
+
+#: board/admin/notify.py:503
+#: board/templates/admin/board/notify/bulk_send.html:51
+#: board/templates/admin/board/notify/change_list.html:8
+msgid "Send a notification to all active users"
+msgstr "전체 활성 사용자에게 알림 발송"
+
 #: board/admin/permission_display.py:7
 msgctxt "Admin permission action"
 msgid "Add"
@@ -111,6 +276,120 @@ msgctxt "Admin permission label"
 msgid "%(action)s %(model)s"
 msgstr "%(model)s %(action)s"
 
+#: board/admin/service.py:83
+msgid "Link"
+msgstr "링크"
+
+#: board/admin/service.py:96
+msgctxt "Admin user role"
+msgid "Author"
+msgstr "작가"
+
+#: board/admin/service.py:100 board/admin/service.py:108
+msgctxt "Admin user role"
+msgid "Reader"
+msgstr "독자"
+
+#: board/admin/service.py:127 board/admin/service.py:144
+#: board/admin/service.py:297
+msgid "Active"
+msgstr "활성"
+
+#: board/admin/service.py:128 board/admin/service.py:145
+#: board/admin/service.py:297
+msgid "Inactive"
+msgstr "비활성"
+
+#: board/admin/service.py:157
+msgid "Read"
+msgstr "읽음"
+
+#: board/admin/service.py:164
+msgid "Unread"
+msgstr "읽지 않음"
+
+#: board/admin/service.py:176 board/admin/service.py:360
+msgid "Hidden"
+msgstr "숨김"
+
+#: board/admin/service.py:183 board/admin/service.py:365
+msgid "Public"
+msgstr "공개"
+
+#: board/admin/service.py:193 board/admin/service.py:370
+msgid "Advertisement"
+msgstr "광고"
+
+#: board/admin/service.py:216 board/admin/service.py:296
+#: board/admin/service.py:492
+msgid "None"
+msgstr "없음"
+
+#: board/admin/service.py:223 board/admin/service.py:232
+#: board/templates/board/posts/post_detail.html:6
+msgid "Preview"
+msgstr "미리보기"
+
+#: board/admin/service.py:255
+msgid "No cover image"
+msgstr "커버 이미지 없음"
+
+#: board/admin/service.py:259
+msgid "Cover image"
+msgstr "커버 이미지"
+
+#: board/admin/service.py:294 board/forms_initial_setup.py:44
+msgid "Email"
+msgstr "이메일"
+
+#: board/admin/service.py:295
+msgid "Date joined"
+msgstr "가입일"
+
+#: board/admin/service.py:296
+msgid "Last login"
+msgstr "마지막 로그인"
+
+#: board/admin/service.py:297
+msgid "Active status"
+msgstr "활성 상태"
+
+#: board/admin/service.py:325
+msgid "Trash"
+msgstr "휴지통"
+
+#: board/admin/service.py:333 board/templates/board/posts/post_editor.html:4
+msgid "Draft"
+msgstr "임시저장"
+
+#: board/admin/service.py:341
+msgid "Scheduled"
+msgstr "예약됨"
+
+#: board/admin/service.py:349
+msgid "Published"
+msgstr "발행됨"
+
+#: board/admin/service.py:375
+msgid "Comments disabled"
+msgstr "댓글 차단"
+
+#: board/admin/service.py:391
+msgid "No tags"
+msgstr "태그 없음"
+
+#: board/admin/service.py:439
+msgid "Expand/collapse HTML preview"
+msgstr "HTML 미리보기 펼치기/접기"
+
+#: board/admin/service.py:473
+msgid "Open"
+msgstr "열기"
+
+#: board/admin/service.py:497
+msgid "Error"
+msgstr "오류"
+
 #: board/forms_initial_setup.py:24
 msgid "4–15 lowercase letters or numbers"
 msgstr "4-15자 영문 소문자, 숫자"
@@ -130,10 +409,6 @@ msgstr "표시 이름"
 #: board/forms_initial_setup.py:42
 msgid "Administrator email"
 msgstr "관리자 이메일"
-
-#: board/forms_initial_setup.py:44
-msgid "Email"
-msgstr "이메일"
 
 #: board/forms_initial_setup.py:50
 msgid "Enter a secure password"
@@ -236,7 +511,9 @@ msgstr "소셜 로그인 연동"
 msgid "Notification"
 msgstr "알림"
 
-#: board/models/integrations.py:28 board/templates/components/header.html:144
+#: board/models/integrations.py:28
+#: board/templates/admin/board/notify/bulk_send.html:9
+#: board/templates/components/header.html:144
 msgid "Notifications"
 msgstr "알림"
 
@@ -932,12 +1209,53 @@ msgid "This is a BLEX webhook connection test."
 msgstr "BLEX 웹훅 연결 테스트입니다."
 
 #: board/templates/admin/board/confirm_action.html:11
+#: board/templates/admin/board/notify/bulk_send.html:8
 msgid "Home"
 msgstr "홈"
+
+#: board/templates/admin/board/confirm_action.html:20
+#, python-format
+msgid "Target: %(count)s object"
+msgid_plural "Target: %(count)s objects"
+msgstr[0] "대상 %(count)s개"
+
+#: board/templates/admin/board/confirm_action.html:27
+#, python-format
+msgid "and %(remaining)s more"
+msgstr "외 %(remaining)s개"
+
+#: board/templates/admin/board/confirm_action.html:41
+#: board/templates/admin/board/notify/bulk_send.html:47
+#: board/templates/admin/board/notify/bulk_send.html:77
+#: board/templates/board/author/components/readme_section.html:113
+msgid "Cancel"
+msgstr "취소"
 
 #: board/templates/admin/board/notify/bulk_send.html:4
 msgid "Django site admin"
 msgstr "Django 사이트 관리자"
+
+#: board/templates/admin/board/notify/bulk_send.html:26
+msgid "Confirm recipients"
+msgstr "발송 대상 확인"
+
+#: board/templates/admin/board/notify/bulk_send.html:28
+#, python-format
+msgid "Schedule notification delivery to the current <strong>%(count)s active user</strong>."
+msgid_plural "Schedule notification delivery to the current <strong>%(count)s active users</strong>."
+msgstr[0] "<strong>현재 활성 사용자 %(count)s명</strong>에게 알림 발송 작업을 예약합니다."
+
+#: board/templates/admin/board/notify/bulk_send.html:29
+msgid "Users who already have the same notification will be skipped."
+msgstr "이미 동일한 알림이 있는 사용자는 중복 발송하지 않고 건너뜁니다."
+
+#: board/templates/admin/board/notify/bulk_send.html:46
+msgid "Schedule delivery"
+msgstr "발송 예약"
+
+#: board/templates/admin/board/notify/bulk_send.html:76
+msgid "Review recipients"
+msgstr "발송 대상 확인"
 
 #: board/templates/board/404.html:4 board/templates/board/404.html:44
 msgid "Page not found"
@@ -1189,10 +1507,6 @@ msgstr "소개글 수정"
 msgid "Write your introduction"
 msgstr "소개글을 작성하세요"
 
-#: board/templates/board/author/components/readme_section.html:113
-msgid "Cancel"
-msgstr "취소"
-
 #: board/templates/board/author/components/tabs_nav.html:8
 msgid "Overview"
 msgstr "개요"
@@ -1293,10 +1607,6 @@ msgstr "6. 초안 발행하기"
 #: board/templates/board/developer_api_quickstart.html:117
 msgid "Common errors"
 msgstr "자주 보는 오류"
-
-#: board/templates/board/developer_api_quickstart.html:121
-msgid "Status"
-msgstr "상태"
 
 #: board/templates/board/developer_api_quickstart.html:121
 msgid "Code"
@@ -1417,10 +1727,6 @@ msgstr "내가 다시 보고 싶은 포스트"
 #: board/templates/board/posts/interested_posts.html:26
 msgid "Find all the posts you've liked, with your most recent likes first."
 msgstr "추천으로 관심 표시한 포스트를 최신 관심순으로 모아볼 수 있어요."
-
-#: board/templates/board/posts/post_detail.html:6
-msgid "Preview"
-msgstr "미리보기"
 
 #: board/templates/board/posts/post_detail.html:10
 msgid "Saved draft preview"
@@ -1584,10 +1890,6 @@ msgstr "목차"
 #: board/templates/board/posts/post_detail.html:610
 msgid "Close table of contents"
 msgstr "목차 닫기"
-
-#: board/templates/board/posts/post_editor.html:4
-msgid "Draft"
-msgstr "임시저장"
 
 #: board/templates/board/posts/post_editor.html:4
 #: board/templates/components/header.html:46
@@ -2140,10 +2442,6 @@ msgstr "관리자 감사 로그"
 #: main/admin_site.py:18
 msgid "Site domains"
 msgstr "사이트 도메인"
-
-#: main/admin_site.py:24
-msgid "Content"
-msgstr "콘텐츠"
 
 #: main/admin_site.py:40
 msgid "Users and permissions"

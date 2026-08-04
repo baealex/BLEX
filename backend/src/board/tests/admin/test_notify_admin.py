@@ -12,6 +12,7 @@ from django.template.response import TemplateResponse
 from django.test import RequestFactory, TestCase
 from django.urls import reverse
 from django.utils import timezone
+from django.utils import translation
 
 from board.admin.notify import BulkNotificationForm, NotifyAdmin, NotifyAdminForm
 from board.models import Notify
@@ -496,6 +497,16 @@ class NotifyAdminTestCase(TestCase):
         self.assertEqual(changelist.status_code, 200)
         self.assertContains(changelist, '전체 활성 사용자에게 알림 발송')
         self.assertEqual(bulk_send.status_code, 200)
+
+    def test_bulk_send_page_uses_the_active_admin_locale(self):
+        request = self.admin_request()
+
+        with translation.override('en'):
+            response = self.admin_instance.bulk_send_view(request)
+
+        self.assertContains(response, 'Send a notification to all active users')
+        self.assertContains(response, 'Review recipients')
+        self.assertNotContains(response, '전체 활성 사용자에게 알림 발송')
 
     def test_bulk_send_rejects_unsafe_url_before_confirmation(self):
         request = self.admin_request(

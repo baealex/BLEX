@@ -18,6 +18,8 @@ from django.template.defaultfilters import truncatewords
 from django.urls import path
 from django.utils.html import format_html
 from django.utils import timezone
+from django.utils.translation import gettext_lazy as _
+from django.utils.translation import ngettext
 
 from board.models import Notify
 from board.services.bulk_notification_delivery_service import (
@@ -64,7 +66,9 @@ class NotifyAdminForm(forms.ModelForm):
         if self.instance.pk is not None:
             duplicates = duplicates.exclude(pk=self.instance.pk)
         if duplicates.exists():
-            raise forms.ValidationError('이미 동일한 알림이 존재합니다.')
+            raise forms.ValidationError(
+                _('A notification with the same identity already exists.'),
+            )
 
         self.instance.key = key
         return cleaned_data
@@ -73,17 +77,17 @@ class NotifyAdminForm(forms.ModelForm):
 class BulkNotificationForm(forms.Form):
     """일괄 알림 발송 폼"""
     url = forms.CharField(
-        label='링크 URL',
+        label=_('Link URL'),
         max_length=255,
         required=False,
         initial='/',
-        help_text='알림 클릭 시 이동할 URL (기본값: /)',
+        help_text=_('URL opened when the notification is clicked (default: /)'),
         widget=forms.TextInput(attrs={'style': 'width: 100%;'})
     )
     content = forms.CharField(
-        label='알림 내용',
+        label=_('Notification content'),
         widget=forms.Textarea(attrs={'rows': 5, 'style': 'width: 100%;'}),
-        help_text='모든 활성 사용자에게 전송될 알림 메시지'
+        help_text=_('Message sent to every active user'),
     )
 
     def clean_url(self) -> str:
@@ -120,13 +124,13 @@ class NotifyAdmin(admin.ModelAdmin):
     date_hierarchy = 'created_date'
 
     fieldsets = (
-        ('기본 정보', {
+        (_('Basic information'), {
             'fields': ('user', 'url', 'content')
         }),
-        ('상태', {
+        (_('Status'), {
             'fields': ('has_read', 'key')
         }),
-        ('메타데이터', {
+        (_('Metadata'), {
             'fields': ('created_at', 'updated_at'),
             'classes': ('collapse',)
         }),
@@ -153,15 +157,15 @@ class NotifyAdmin(admin.ModelAdmin):
 
     def user_link(self, obj):
         return AdminLinkService.create_user_link(obj.user)
-    user_link.short_description = '사용자'
+    user_link.short_description = _('User')
 
     def content_preview(self, obj: Notify) -> str:
         return truncatewords(obj.content, CONTENT_PREVIEW_WORDS)
-    content_preview.short_description = '내용'
+    content_preview.short_description = _('Content')
 
     def read_status(self, obj):
         return AdminDisplayService.read_status_badge(obj.has_read)
-    read_status.short_description = '읽음 상태'
+    read_status.short_description = _('Read status')
 
     def url_link(self, obj):
         try:
@@ -169,18 +173,18 @@ class NotifyAdmin(admin.ModelAdmin):
         except ValidationError:
             return format_html(
                 '<span style="color: #b91c1c;">{}</span>',
-                '안전하지 않은 URL',
+                _('Unsafe URL'),
             )
         return AdminLinkService.create_external_link(url)
     url_link.short_description = 'URL'
 
     def created_at(self, obj: Notify) -> str:
         return AdminDisplayService.date_display(obj.created_date, DATETIME_FORMAT_FULL)
-    created_at.short_description = '생성일시'
+    created_at.short_description = _('Created at')
 
     def updated_at(self, obj: Notify) -> str:
         return AdminDisplayService.date_display(obj.updated_date, DATETIME_FORMAT_FULL)
-    updated_at.short_description = '수정일시'
+    updated_at.short_description = _('Updated at')
 
     def set_read_status(
         self,
@@ -197,19 +201,23 @@ class NotifyAdmin(admin.ModelAdmin):
                 has_read=has_read,
                 updated_date=updated_at,
             )
-            status_label = '읽음' if has_read else '읽지 않음'
+            change_message = (
+                _('Marked as read in Admin')
+                if has_read
+                else _('Marked as unread in Admin')
+            )
             for notify in notifications:
                 notify.has_read = has_read
                 notify.updated_date = updated_at
                 self.log_change(
                     request,
                     notify,
-                    f'Admin에서 {status_label} 상태로 변경',
+                    change_message,
                 )
         return count
 
     @admin.action(
-        description='선택한 알림을 읽음으로 표시',
+        description=_('Mark selected notifications as read'),
         permissions=['change'],
     )
     def mark_as_read(
@@ -224,12 +232,16 @@ class NotifyAdmin(admin.ModelAdmin):
         )
         self.message_user(
             request,
-            f'{count}개의 알림을 읽음으로 표시했습니다.',
+            ngettext(
+                '%(count)d notification was marked as read.',
+                '%(count)d notifications were marked as read.',
+                count,
+            ) % {'count': count},
             level=messages.SUCCESS,
         )
 
     @admin.action(
-        description='선택한 알림을 읽지 않음으로 표시',
+        description=_('Mark selected notifications as unread'),
         permissions=['change'],
     )
     def mark_as_unread(
@@ -244,12 +256,16 @@ class NotifyAdmin(admin.ModelAdmin):
         )
         self.message_user(
             request,
-            f'{count}개의 알림을 읽지 않음으로 표시했습니다.',
+            ngettext(
+                '%(count)d notification was marked as unread.',
+                '%(count)d notifications were marked as unread.',
+                count,
+            ) % {'count': count},
             level=messages.SUCCESS,
         )
 
     @admin.action(
-        description='선택한 알림 외부 채널로 재발송',
+        description=_('Resend selected notifications to external channels'),
         permissions=['change'],
     )
     def resend_notifications(
@@ -261,7 +277,7 @@ class NotifyAdmin(admin.ModelAdmin):
             if not queryset.exists():
                 self.message_user(
                     request,
-                    '재발송할 알림이 없습니다.',
+                    _('There are no notifications to resend.'),
                     level=messages.WARNING,
                 )
                 return None
@@ -270,12 +286,12 @@ class NotifyAdmin(admin.ModelAdmin):
                 self,
                 queryset,
                 action_name='resend_notifications',
-                title='외부 알림 재발송 확인',
-                warning=(
-                    '선택한 알림을 연결된 외부 채널로 다시 전송합니다. '
-                    '수신자에게 중복 알림이 전달될 수 있습니다.'
+                title=_('Confirm external notification resend'),
+                warning=_(
+                    'The selected notifications will be sent to their connected '
+                    'external channels again. Recipients may receive duplicates.'
                 ),
-                confirm_label='외부 알림 재발송',
+                confirm_label=_('Resend notifications'),
             )
 
         sent_count = 0
@@ -286,7 +302,7 @@ class NotifyAdmin(admin.ModelAdmin):
                     self.log_change(
                         request,
                         notify,
-                        'Admin에서 외부 알림 재발송 요청',
+                        _('Requested external notification resend in Admin'),
                     )
                 notify.send_notify()
             except Exception as error:
@@ -302,13 +318,21 @@ class NotifyAdmin(admin.ModelAdmin):
 
         self.message_user(
             request,
-            f'{sent_count}개의 알림을 외부 채널로 재발송했습니다.',
+            ngettext(
+                '%(count)d notification was resent to external channels.',
+                '%(count)d notifications were resent to external channels.',
+                sent_count,
+            ) % {'count': sent_count},
             level=messages.SUCCESS,
         )
         if failed_count:
             self.message_user(
                 request,
-                f'{failed_count}개의 알림은 재발송하지 못했습니다.',
+                ngettext(
+                    '%(count)d notification could not be resent.',
+                    '%(count)d notifications could not be resent.',
+                    failed_count,
+                ) % {'count': failed_count},
                 level=messages.ERROR,
             )
         return None
@@ -347,7 +371,10 @@ class NotifyAdmin(admin.ModelAdmin):
                 )
                 self.message_user(
                     request,
-                    '알림은 저장했지만 외부 채널로 전송하지 못했습니다.',
+                    _(
+                        'The notification was saved but could not be sent to '
+                        'external channels.'
+                    ),
                     level=messages.ERROR,
                 )
 
@@ -397,7 +424,7 @@ class NotifyAdmin(admin.ModelAdmin):
                 elif not user_ids:
                     self.message_user(
                         request,
-                        '발송할 활성 사용자가 없습니다.',
+                        _('There are no active users to notify.'),
                         level=messages.WARNING,
                     )
                     return redirect('..')
@@ -408,12 +435,19 @@ class NotifyAdmin(admin.ModelAdmin):
                             user=request.user,
                             content_type=content_type,
                             object_id=None,
-                            object_repr=f'전체 알림 발송 ({target_count}명)',
+                            object_repr=ngettext(
+                                'Bulk notification delivery (%(count)d recipient)',
+                                'Bulk notification delivery (%(count)d recipients)',
+                                target_count,
+                            ) % {'count': target_count},
                             action_flag=ADDITION,
-                            change_message=(
-                                'Admin 전체 알림 발송 예약: '
-                                f'대상 {target_count}명'
-                            ),
+                            change_message=ngettext(
+                                'Scheduled bulk notification delivery in Admin: '
+                                '%(count)d recipient',
+                                'Scheduled bulk notification delivery in Admin: '
+                                '%(count)d recipients',
+                                target_count,
+                            ) % {'count': target_count},
                         )
 
                     try:
@@ -434,22 +468,30 @@ class NotifyAdmin(admin.ModelAdmin):
 
                     if task_id is None:
                         LogEntry.objects.filter(pk=audit_log.pk).update(
-                            change_message=(
-                                'Admin 전체 알림 발송 예약 실패: '
-                                f'대상 {target_count}명'
-                            ),
+                            change_message=ngettext(
+                                'Failed to schedule bulk notification delivery '
+                                'in Admin: %(count)d recipient',
+                                'Failed to schedule bulk notification delivery '
+                                'in Admin: %(count)d recipients',
+                                target_count,
+                            ) % {'count': target_count},
                         )
                         self.message_user(
                             request,
-                            '알림 발송 작업을 예약하지 못했습니다.',
+                            _('Could not schedule the notification delivery job.'),
                             level=messages.ERROR,
                         )
                         return redirect('..')
 
                     self.message_user(
                         request,
-                        f'{target_count}명 대상 알림 발송 작업을 예약했습니다. '
-                        '동일한 알림은 건너뜁니다.',
+                        ngettext(
+                            'Notification delivery was scheduled for %(count)d '
+                            'recipient. Duplicate notifications will be skipped.',
+                            'Notification delivery was scheduled for %(count)d '
+                            'recipients. Duplicate notifications will be skipped.',
+                            target_count,
+                        ) % {'count': target_count},
                         level=messages.SUCCESS,
                     )
                     return redirect('..')
@@ -458,7 +500,7 @@ class NotifyAdmin(admin.ModelAdmin):
 
         context = {
             **self.admin_site.each_context(request),
-            'title': '전체 활성 사용자에게 알림 발송',
+            'title': _('Send a notification to all active users'),
             'form': form,
             'opts': self.model._meta,
             'confirmation': confirmation,

@@ -1,12 +1,12 @@
 {% extends "admin/base_site.html" %}
-{% load static %}
+{% load i18n static %}
 
 {% block title %}{{ title }} | {{ site_title|default:_('Django site admin') }}{% endblock %}
 
 {% block breadcrumbs %}
 <div class="breadcrumbs">
-<a href="{% url 'admin:index' %}">홈</a>
-&rsaquo; <a href="{% url 'admin:board_notify_changelist' %}">알림</a>
+<a href="{% url 'admin:index' %}">{% translate 'Home' %}</a>
+&rsaquo; <a href="{% url 'admin:board_notify_changelist' %}">{% translate 'Notifications' %}</a>
 &rsaquo; {{ title }}
 </div>
 {% endblock %}
@@ -23,32 +23,32 @@
             <input type="hidden" name="confirm" value="yes" />
 
             <fieldset class="module aligned">
-                <h2>발송 대상 확인</h2>
+                <h2>{% translate 'Confirm recipients' %}</h2>
                 <div class="form-row">
-                    <p><strong>현재 활성 사용자 {{ target_count }}명</strong>에게 알림 발송 작업을 예약합니다.</p>
-                    <p class="help">이미 동일한 알림이 있는 사용자는 중복 발송하지 않고 건너뜁니다.</p>
+                    <p>{% blocktranslate count count=target_count %}Schedule notification delivery to the current <strong>{{ count }} active user</strong>.{% plural %}Schedule notification delivery to the current <strong>{{ count }} active users</strong>.{% endblocktranslate %}</p>
+                    <p class="help">{% translate 'Users who already have the same notification will be skipped.' %}</p>
                 </div>
                 <div class="form-row">
                     <div>
-                        <label>링크 URL:</label>
+                        <label>{% translate 'Link URL' %}:</label>
                         <div class="readonly">{{ notification_url }}</div>
                     </div>
                 </div>
                 <div class="form-row">
                     <div>
-                        <label>알림 내용:</label>
+                        <label>{% translate 'Notification content' %}:</label>
                         <div class="readonly">{{ notification_content|linebreaksbr }}</div>
                     </div>
                 </div>
             </fieldset>
 
             <div class="submit-row">
-                <input type="submit" value="{{ target_count }}명에게 발송 예약" class="default" />
-                <a href="{% url 'admin:board_notify_changelist' %}" class="button cancel-link">취소</a>
+                <input type="submit" value="{% translate 'Schedule delivery' %}" class="default" />
+                <a href="{% url 'admin:board_notify_changelist' %}" class="button cancel-link">{% translate 'Cancel' %}</a>
             </div>
             {% else %}
             <fieldset class="module aligned">
-                <h2>전체 활성 사용자에게 알림 발송</h2>
+                <h2>{% translate 'Send a notification to all active users' %}</h2>
                 <div class="form-row">
                     {{ form.url.errors }}
                     <div>
@@ -73,8 +73,8 @@
             </fieldset>
 
             <div class="submit-row">
-                <input type="submit" value="발송 대상 확인" class="default" />
-                <a href="{% url 'admin:board_notify_changelist' %}" class="button cancel-link">취소</a>
+                <input type="submit" value="{% translate 'Review recipients' %}" class="default" />
+                <a href="{% url 'admin:board_notify_changelist' %}" class="button cancel-link">{% translate 'Cancel' %}</a>
             </div>
             {% endif %}
         </div>
