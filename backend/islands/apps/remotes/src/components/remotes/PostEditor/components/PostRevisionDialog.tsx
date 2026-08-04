@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { Plural, Trans, useLingui } from '@lingui/react/macro';
 import { Button } from '@blex/ui/button';
 import { Dialog } from '@blex/ui/dialog';
 import { IconButton } from '@blex/ui/icon-button';
@@ -18,6 +19,7 @@ import {
     ENTRANCE_DURATION
 } from '@blex/ui/design-tokens';
 import { cx } from '~/lib/classnames';
+import { normalizeLocale } from '~/i18n/locale';
 import {
     deletePostRevision,
     getPostRevision,
@@ -38,21 +40,6 @@ interface PostRevisionDialogProps {
     onRestored: () => void;
 }
 
-const changeTypeLabels = {
-    edit: '수정 전',
-    restore: '복원 전',
-    legacy: '이전 형식'
-} as const;
-
-const formatDateTime = (value: string) => {
-    const date = new Date(value);
-    if (Number.isNaN(date.getTime())) return value;
-    return new Intl.DateTimeFormat('ko-KR', {
-        dateStyle: 'medium',
-        timeStyle: 'short'
-    }).format(date);
-};
-
 const PostRevisionDialog = ({
     isOpen,
     username,
@@ -62,6 +49,7 @@ const PostRevisionDialog = ({
     onClose,
     onRestored
 }: PostRevisionDialogProps) => {
+    const { i18n, t } = useLingui();
     const [revisions, setRevisions] = useState<PostRevisionSummary[]>([]);
     const [selectedRevisionId, setSelectedRevisionId] = useState<number | null>(null);
     const [selectedRevision, setSelectedRevision] = useState<PostRevisionDetail | null>(null);
@@ -79,6 +67,28 @@ const PostRevisionDialog = ({
     const [errorMessage, setErrorMessage] = useState('');
     const detailRequestIdRef = useRef(0);
     const isDetailView = selectedRevisionId !== null;
+    const changeTypeLabels = {
+        edit: t({
+            id: 'editor.revisions.change_type.edit',
+            message: 'Before edit'
+        }),
+        restore: t({
+            id: 'editor.revisions.change_type.restore',
+            message: 'Before restore'
+        }),
+        legacy: t({
+            id: 'editor.revisions.change_type.legacy',
+            message: 'Legacy format'
+        })
+    } as const;
+    const formatDateTime = (value: string) => {
+        const date = new Date(value);
+        if (Number.isNaN(date.getTime())) return value;
+        return new Intl.DateTimeFormat(normalizeLocale(i18n.locale), {
+            dateStyle: 'medium',
+            timeStyle: 'short'
+        }).format(date);
+    };
 
     const handleBackToList = useCallback(() => {
         detailRequestIdRef.current += 1;
@@ -102,14 +112,20 @@ const PostRevisionDialog = ({
             const { data } = await getPostRevision(username, postUrl, revisionId);
             if (detailRequestIdRef.current !== requestId) return;
             if (data.status === 'ERROR') {
-                toast.error(data.errorMessage || '수정본을 불러오지 못했습니다.');
+                toast.error(data.errorMessage || t({
+                    id: 'editor.revisions.error.load_detail',
+                    message: 'Could not load the revision.'
+                }));
                 handleBackToList();
                 return;
             }
             setSelectedRevision(data.body.revision);
         } catch {
             if (detailRequestIdRef.current === requestId) {
-                toast.error('수정본을 불러오지 못했습니다.');
+                toast.error(t({
+                    id: 'editor.revisions.error.load_detail',
+                    message: 'Could not load the revision.'
+                }));
                 handleBackToList();
             }
         } finally {
@@ -117,7 +133,7 @@ const PostRevisionDialog = ({
                 setIsLoadingDetail(false);
             }
         }
-    }, [username, postUrl, handleBackToList]);
+    }, [username, postUrl, handleBackToList, t]);
 
     const loadFirstPage = useCallback(async () => {
         setIsLoading(true);
@@ -132,7 +148,10 @@ const PostRevisionDialog = ({
         try {
             const { data } = await getPostRevisions(username, postUrl);
             if (data.status === 'ERROR') {
-                setErrorMessage(data.errorMessage || '수정 이력을 불러오지 못했습니다.');
+                setErrorMessage(data.errorMessage || t({
+                    id: 'editor.revisions.error.load_list',
+                    message: 'Could not load revision history.'
+                }));
                 return;
             }
 
@@ -142,11 +161,14 @@ const PostRevisionDialog = ({
             setTotalCount(data.body.pagination.totalCount);
             setServerUpdatedDate(data.body.currentUpdatedDate);
         } catch {
-            setErrorMessage('수정 이력을 불러오지 못했습니다.');
+            setErrorMessage(t({
+                id: 'editor.revisions.error.load_list',
+                message: 'Could not load revision history.'
+            }));
         } finally {
             setIsLoading(false);
         }
-    }, [username, postUrl, handleBackToList]);
+    }, [username, postUrl, handleBackToList, t]);
 
     useEffect(() => {
         if (!isOpen) {
@@ -164,7 +186,10 @@ const PostRevisionDialog = ({
         try {
             const { data } = await getPostRevisions(username, postUrl, currentPage + 1);
             if (data.status === 'ERROR') {
-                toast.error(data.errorMessage || '다음 수정 이력을 불러오지 못했습니다.');
+                toast.error(data.errorMessage || t({
+                    id: 'editor.revisions.error.load_more',
+                    message: 'Could not load more revision history.'
+                }));
                 return;
             }
             setRevisions(current => [...current, ...data.body.revisions]);
@@ -173,7 +198,10 @@ const PostRevisionDialog = ({
             setTotalCount(data.body.pagination.totalCount);
             setServerUpdatedDate(data.body.currentUpdatedDate);
         } catch {
-            toast.error('다음 수정 이력을 불러오지 못했습니다.');
+            toast.error(t({
+                id: 'editor.revisions.error.load_more',
+                message: 'Could not load more revision history.'
+            }));
         } finally {
             setIsLoadingMore(false);
         }
@@ -196,14 +224,23 @@ const PostRevisionDialog = ({
                 selectedRevision.id
             );
             if (data.status === 'ERROR') {
-                toast.error(data.errorMessage || '수정 이력을 삭제하지 못했습니다.');
+                toast.error(data.errorMessage || t({
+                    id: 'editor.revisions.error.delete',
+                    message: 'Could not delete the revision.'
+                }));
                 return;
             }
 
-            toast.success('수정 이력을 삭제했습니다.');
+            toast.success(t({
+                id: 'editor.revisions.success.deleted',
+                message: 'Revision deleted.'
+            }));
             await loadFirstPage();
         } catch {
-            toast.error('수정 이력을 삭제하지 못했습니다.');
+            toast.error(t({
+                id: 'editor.revisions.error.delete',
+                message: 'Could not delete the revision.'
+            }));
         } finally {
             setIsDeleting(false);
         }
@@ -221,19 +258,31 @@ const PostRevisionDialog = ({
                 expectedUpdatedDate
             );
             if (data.status === 'ERROR') {
-                toast.error(data.errorMessage || '수정본을 복원하지 못했습니다.');
+                toast.error(data.errorMessage || t({
+                    id: 'editor.revisions.error.restore',
+                    message: 'Could not restore the revision.'
+                }));
                 return;
             }
             if (!data.body.restored) {
-                toast.info('현재 포스트가 이미 선택한 수정본과 같습니다.');
+                toast.info(t({
+                    id: 'editor.revisions.info.already_current',
+                    message: 'The current post already matches this revision.'
+                }));
                 setIsConfirmingRestore(false);
                 return;
             }
 
-            toast.success('수정본을 복원했습니다.');
+            toast.success(t({
+                id: 'editor.revisions.success.restored',
+                message: 'Revision restored.'
+            }));
             onRestored();
         } catch {
-            toast.error('수정본을 복원하지 못했습니다.');
+            toast.error(t({
+                id: 'editor.revisions.error.restore',
+                message: 'Could not restore the revision.'
+            }));
         } finally {
             setIsRestoring(false);
         }
@@ -266,8 +315,14 @@ const PostRevisionDialog = ({
                             {isDetailView && (
                                 <IconButton
                                     size="sm"
-                                    aria-label="수정 이력 목록으로"
-                                    title="수정 이력 목록으로"
+                                    aria-label={t({
+                                        id: 'editor.revisions.back_to_list',
+                                        message: 'Back to revision history'
+                                    })}
+                                    title={t({
+                                        id: 'editor.revisions.back_to_list',
+                                        message: 'Back to revision history'
+                                    })}
                                     onClick={handleBackToList}>
                                     <ArrowLeft className="h-5 w-5" />
                                 </IconButton>
@@ -278,20 +333,36 @@ const PostRevisionDialog = ({
                                         <History aria-hidden="true" className="h-5 w-5 shrink-0 text-content-hint" />
                                     )}
                                     <Dialog.Title className="truncate text-lg font-semibold text-content">
-                                        {isDetailView ? '수정본 상세' : '수정 이력'}
+                                        {isDetailView ? (
+                                            <Trans id="editor.revisions.detail_title">Revision details</Trans>
+                                        ) : (
+                                            <Trans id="editor.revisions.title">Revision history</Trans>
+                                        )}
                                     </Dialog.Title>
                                 </div>
                                 <Dialog.Description className="mt-1 text-xs leading-relaxed text-content-secondary">
-                                    {isDetailView
-                                        ? '저장된 내용을 확인하고 복원하거나 삭제할 수 있습니다'
-                                        : '내용 수정 직전 저장본을 확인할 수 있습니다'}
+                                    {isDetailView ? (
+                                        <Trans id="editor.revisions.detail_description">
+                                            Review, restore, or delete this saved revision
+                                        </Trans>
+                                    ) : (
+                                        <Trans id="editor.revisions.description">
+                                            Review snapshots saved before each content edit
+                                        </Trans>
+                                    )}
                                 </Dialog.Description>
                             </div>
                         </div>
                         <IconButton
                             size="sm"
-                            aria-label="수정 이력 닫기"
-                            title="수정 이력 닫기"
+                            aria-label={t({
+                                id: 'editor.revisions.close',
+                                message: 'Close revision history'
+                            })}
+                            title={t({
+                                id: 'editor.revisions.close',
+                                message: 'Close revision history'
+                            })}
                             onClick={onClose}>
                             <X className="h-5 w-5" />
                         </IconButton>
@@ -303,26 +374,37 @@ const PostRevisionDialog = ({
                                 {isLoading ? (
                                     <div className="flex h-full min-h-52 items-center justify-center" role="status">
                                         <Loader2 className="h-5 w-5 animate-spin text-content-hint" />
-                                        <span className="sr-only">수정 이력 불러오는 중</span>
+                                        <span className="sr-only">
+                                            <Trans id="editor.revisions.loading">Loading revision history</Trans>
+                                        </span>
                                     </div>
                                 ) : errorMessage ? (
                                     <div className="flex h-full min-h-52 flex-col items-center justify-center gap-3 px-6 text-center">
                                         <AlertTriangle className="h-8 w-8 text-danger" aria-hidden="true" />
                                         <p className="text-sm text-content-secondary">{errorMessage}</p>
                                         <Button size="sm" variant="secondary" onClick={() => void loadFirstPage()}>
-                                            다시 시도
+                                            <Trans id="common.retry">Try again</Trans>
                                         </Button>
                                     </div>
                                 ) : revisions.length === 0 ? (
                                     <div className="flex h-full min-h-52 flex-col items-center justify-center gap-2 px-6 text-center">
                                         <History className="h-8 w-8 text-content-hint" aria-hidden="true" />
-                                        <p className="text-sm font-medium text-content">아직 수정 이력이 없습니다</p>
+                                        <p className="text-sm font-medium text-content">
+                                            <Trans id="editor.revisions.empty">No revision history yet</Trans>
+                                        </p>
                                         <p className="text-xs leading-relaxed text-content-secondary">
-                                            발행된 글의 내용을 수정하면 직전 저장본이 여기에 남습니다.
+                                            <Trans id="editor.revisions.empty_description">
+                                                When you edit a published post, the previous version will appear here.
+                                            </Trans>
                                         </p>
                                     </div>
                                 ) : (
-                                    <ul className="divide-y divide-line-light" aria-label="수정본 목록">
+                                    <ul
+                                        className="divide-y divide-line-light"
+                                        aria-label={t({
+                                            id: 'editor.revisions.list_aria_label',
+                                            message: 'Revisions'
+                                        })}>
                                         {revisions.map(revision => (
                                             <li key={revision.id}>
                                                 <button
@@ -332,14 +414,20 @@ const PostRevisionDialog = ({
                                                     <div className="min-w-0 flex-1">
                                                         <div className="flex items-center gap-2">
                                                             <span className="min-w-0 truncate text-sm font-semibold text-content">
-                                                                {revision.title || '제목 없음'}
+                                                                {revision.title || t({
+                                                                    id: 'editor.common.untitled',
+                                                                    message: 'Untitled'
+                                                                })}
                                                             </span>
                                                             <span className="shrink-0 rounded-full bg-line-light px-2 py-0.5 text-[11px] font-medium text-content-secondary">
                                                                 {changeTypeLabels[revision.changeType]}
                                                             </span>
                                                         </div>
                                                         <p className="mt-1 line-clamp-2 text-xs leading-relaxed text-content-secondary">
-                                                            {revision.contentExcerpt || '본문 미리보기 없음'}
+                                                            {revision.contentExcerpt || t({
+                                                                id: 'editor.revisions.no_content_preview',
+                                                                message: 'No content preview'
+                                                            })}
                                                         </p>
                                                         <span className="mt-2 flex items-center gap-1 text-[11px] text-content-hint">
                                                             <Clock className="h-3 w-3" aria-hidden="true" />
@@ -362,7 +450,7 @@ const PostRevisionDialog = ({
                                         fullWidth
                                         isLoading={isLoadingMore}
                                         onClick={() => void handleLoadMore()}>
-                                        더 보기
+                                        <Trans id="common.load_more">Load more</Trans>
                                     </Button>
                                 )}
                                 <p
@@ -370,7 +458,12 @@ const PostRevisionDialog = ({
                                         'text-center text-xs text-content-secondary',
                                         currentPage < lastPage && 'mt-2'
                                     )}>
-                                    총 {totalCount}개의 수정 이력
+                                    <Plural
+                                        id="editor.revisions.total"
+                                        value={totalCount}
+                                        one="# revision"
+                                        other="# revisions"
+                                    />
                                 </p>
                             </footer>
                         </>
@@ -380,7 +473,9 @@ const PostRevisionDialog = ({
                                 {isLoadingDetail ? (
                                     <div className="flex min-h-52 items-center justify-center" role="status">
                                         <Loader2 className="h-5 w-5 animate-spin text-content-hint" />
-                                        <span className="sr-only">수정본 내용 불러오는 중</span>
+                                        <span className="sr-only">
+                                            <Trans id="editor.revisions.loading_detail">Loading revision</Trans>
+                                        </span>
                                     </div>
                                 ) : selectedRevision ? (
                                     <article>
@@ -389,7 +484,10 @@ const PostRevisionDialog = ({
                                                 {formatDateTime(selectedRevision.createdDate)} · {changeTypeLabels[selectedRevision.changeType]}
                                             </p>
                                             <h3 className="mt-2 break-words text-xl font-bold text-content">
-                                                {selectedRevision.title || '제목 없음'}
+                                                {selectedRevision.title || t({
+                                                    id: 'editor.common.untitled',
+                                                    message: 'Untitled'
+                                                })}
                                             </h3>
                                             {selectedRevision.subtitle && (
                                                 <p className="mt-2 break-words text-sm text-content-secondary">
@@ -397,7 +495,12 @@ const PostRevisionDialog = ({
                                                 </p>
                                             )}
                                             {selectedRevision.tags.length > 0 && (
-                                                <div className="mt-3 flex flex-wrap gap-1.5" aria-label="수정본 태그">
+                                                <div
+                                                    className="mt-3 flex flex-wrap gap-1.5"
+                                                    aria-label={t({
+                                                        id: 'editor.revisions.tags_aria_label',
+                                                        message: 'Revision tags'
+                                                    })}>
                                                     {selectedRevision.tags.map(tag => (
                                                         <span
                                                             key={tag}
@@ -411,7 +514,9 @@ const PostRevisionDialog = ({
 
                                         {selectedRevision.description && (
                                             <section className="border-b border-line py-4">
-                                                <h4 className="text-xs font-semibold uppercase tracking-wide text-content-hint">설명</h4>
+                                                <h4 className="text-xs font-semibold uppercase tracking-wide text-content-hint">
+                                                    <Trans id="editor.fields.description">Description</Trans>
+                                                </h4>
                                                 <p className="mt-2 whitespace-pre-wrap break-words text-sm leading-relaxed text-content-secondary">
                                                     {selectedRevision.description}
                                                 </p>
@@ -419,16 +524,25 @@ const PostRevisionDialog = ({
                                         )}
 
                                         <section className="py-4">
-                                            <h4 className="text-xs font-semibold uppercase tracking-wide text-content-hint">본문</h4>
+                                            <h4 className="text-xs font-semibold uppercase tracking-wide text-content-hint">
+                                                <Trans id="editor.fields.content">Content</Trans>
+                                            </h4>
                                             <p className="mt-3 whitespace-pre-wrap break-words text-sm leading-7 text-content">
-                                                {selectedRevision.contentText || '본문 내용이 없습니다.'}
+                                                {selectedRevision.contentText || t({
+                                                    id: 'editor.revisions.no_content',
+                                                    message: 'No content in this revision.'
+                                                })}
                                             </p>
                                         </section>
 
                                         {!selectedRevision.canRestore && (
                                             <div className="flex gap-2 rounded-xl border border-line bg-surface-subtle p-3 text-sm text-content-secondary">
                                                 <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" aria-hidden="true" />
-                                                <p>이전 형식으로 저장된 이력은 원문 형식을 확정할 수 없어 조회만 지원합니다.</p>
+                                                <p>
+                                                    <Trans id="editor.revisions.legacy_read_only">
+                                                        Legacy revisions are read-only because their original format cannot be verified.
+                                                    </Trans>
+                                                </p>
                                             </div>
                                         )}
                                     </article>
@@ -440,19 +554,45 @@ const PostRevisionDialog = ({
                                     {hasVersionConflict && (
                                         <div className="mb-3 flex gap-2 rounded-xl border border-danger/30 bg-danger-surface p-3 text-sm text-danger" role="alert">
                                             <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" aria-hidden="true" />
-                                            <p>이 페이지를 연 뒤 포스트가 변경되었습니다. 새로고침한 뒤 복원해주세요.</p>
+                                            <p>
+                                                <Trans id="editor.revisions.version_conflict">
+                                                    The post changed after you opened this page. Refresh before restoring.
+                                                </Trans>
+                                            </p>
                                         </div>
                                     )}
                                     {isConfirmingDelete && (
                                         <div className="mb-3 rounded-xl border border-danger/30 bg-danger-surface p-3 text-sm leading-relaxed text-danger">
-                                            <strong>‘{selectedRevision.title || '제목 없음'}’ 수정 이력을 삭제할까요?</strong>
-                                            <p className="mt-1">삭제한 수정 이력은 복구할 수 없습니다. 현재 포스트 내용은 바뀌지 않습니다.</p>
+                                            <strong>
+                                                <Trans id="editor.revisions.confirm_delete_title">
+                                                    Delete the revision “{selectedRevision.title || t({
+                                                        id: 'editor.common.untitled',
+                                                        message: 'Untitled'
+                                                    })}”?
+                                                </Trans>
+                                            </strong>
+                                            <p className="mt-1">
+                                                <Trans id="editor.revisions.confirm_delete_description">
+                                                    Deleted revisions cannot be recovered. The current post will not change.
+                                                </Trans>
+                                            </p>
                                         </div>
                                     )}
                                     {isConfirmingRestore && (
                                         <div className="mb-3 rounded-xl border border-line bg-surface-subtle p-3 text-sm leading-relaxed text-content-secondary">
-                                            <strong className="text-content">‘{selectedRevision.title || '제목 없음'}’ 수정본으로 복원할까요?</strong>
-                                            <p className="mt-1">현재 내용은 복원 직전 수정본으로 남습니다. URL과 발행·공개·댓글 설정은 바뀌지 않습니다.</p>
+                                            <strong className="text-content">
+                                                <Trans id="editor.revisions.confirm_restore_title">
+                                                    Restore the revision “{selectedRevision.title || t({
+                                                        id: 'editor.common.untitled',
+                                                        message: 'Untitled'
+                                                    })}”?
+                                                </Trans>
+                                            </strong>
+                                            <p className="mt-1">
+                                                <Trans id="editor.revisions.confirm_restore_description">
+                                                    The current content will be saved as a revision first. The URL, publication, visibility, and comment settings will not change.
+                                                </Trans>
+                                            </p>
                                         </div>
                                     )}
                                     <div className="flex items-center justify-end gap-2">
@@ -463,7 +603,7 @@ const PostRevisionDialog = ({
                                                     size="md"
                                                     disabled={isDeleting}
                                                     onClick={() => setIsConfirmingDelete(false)}>
-                                                    취소
+                                                    <Trans id="common.cancel">Cancel</Trans>
                                                 </Button>
                                                 <Button
                                                     variant="danger-solid"
@@ -471,7 +611,7 @@ const PostRevisionDialog = ({
                                                     isLoading={isDeleting}
                                                     leftIcon={<Trash2 className="h-4 w-4" />}
                                                     onClick={() => void handleDelete()}>
-                                                    삭제
+                                                    <Trans id="common.delete">Delete</Trans>
                                                 </Button>
                                             </>
                                         ) : isConfirmingRestore ? (
@@ -481,7 +621,7 @@ const PostRevisionDialog = ({
                                                     size="md"
                                                     disabled={isRestoring}
                                                     onClick={() => setIsConfirmingRestore(false)}>
-                                                    취소
+                                                    <Trans id="common.cancel">Cancel</Trans>
                                                 </Button>
                                                 <Button
                                                     size="md"
@@ -489,7 +629,7 @@ const PostRevisionDialog = ({
                                                     disabled={!selectedRevision.canRestore || hasVersionConflict}
                                                     leftIcon={<RotateCcw className="h-4 w-4" />}
                                                     onClick={() => void handleRestore()}>
-                                                    복원
+                                                    <Trans id="editor.revisions.restore">Restore</Trans>
                                                 </Button>
                                             </>
                                         ) : (
@@ -502,7 +642,7 @@ const PostRevisionDialog = ({
                                                         setIsConfirmingRestore(false);
                                                         setIsConfirmingDelete(true);
                                                     }}>
-                                                    삭제
+                                                    <Trans id="common.delete">Delete</Trans>
                                                 </Button>
                                                 <Button
                                                     size="md"
@@ -512,7 +652,7 @@ const PostRevisionDialog = ({
                                                         setIsConfirmingDelete(false);
                                                         setIsConfirmingRestore(true);
                                                     }}>
-                                                    이 수정본으로 복원
+                                                    <Trans id="editor.revisions.restore_this">Restore this revision</Trans>
                                                 </Button>
                                             </>
                                         )}

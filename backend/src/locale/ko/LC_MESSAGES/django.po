@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: BLEX 3.1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-08-05 00:15+0900\n"
+"POT-Creation-Date: 2026-08-05 00:28+0900\n"
 "PO-Revision-Date: 2026-07-18 00:00+0900\n"
 "Last-Translator: BLEX contributors\n"
 "Language-Team: Korean\n"
@@ -354,6 +354,18 @@ msgstr "유효하지 않은 초대 코드입니다."
 #: board/services/author_invite_service.py:114
 msgid "This invitation code has already been used or is inactive."
 msgstr "이미 사용되었거나 비활성화된 초대 코드입니다."
+
+#: board/services/post_revision_service.py:173
+msgid "The revision to restore could not be found."
+msgstr "복원할 수정 이력을 찾을 수 없습니다."
+
+#: board/services/post_revision_service.py:178
+msgid "Legacy revisions cannot be restored safely."
+msgstr "이전 형식의 수정 이력은 안전하게 복원할 수 없습니다."
+
+#: board/services/post_revision_service.py:185
+msgid "Another request has already changed the post. Refresh and try again."
+msgstr "포스트가 이미 다른 요청으로 수정되었습니다. 새로고침 후 다시 시도해주세요."
 
 #: board/templates/admin/board/confirm_action.html:11
 msgid "Home"
@@ -1351,6 +1363,15 @@ msgstr "고정되지 않은 글이 포함되어 있습니다: %(url)s"
 #: board/views/api/v1/pinned_post_errors.py:27
 msgid "Could not update pinned posts."
 msgstr "고정 포스트를 변경하지 못했습니다."
+
+#: board/views/api/v1/post_revision.py:127
+#: board/views/api/v1/post_revision.py:144
+msgid "Check the revision history pagination values."
+msgstr "수정 이력 페이지 정보를 확인해주세요."
+
+#: board/views/api/v1/post_revision.py:194
+msgid "Check the current post version."
+msgstr "현재 포스트 버전을 확인해주세요."
 
 #: board/views/author.py:287
 msgid "Author-defined order"

@@ -326,9 +326,22 @@ msgid "author.pinned_posts.modal_title"
 msgstr "고정 포스트 설정"
 
 #. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/components/PostRevisionDialog.tsx:606
+#: src/components/remotes/PostEditor/components/PostRevisionDialog.tsx:624
 #: src/components/remotes/SettingsApp/pages/PinnedPostsSetting/components/AddPinnedPostModal.tsx:220
 msgid "common.cancel"
 msgstr "취소"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/components/DraftsPanel.tsx:121
+msgid "common.close"
+msgstr "닫기"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/components/PostRevisionDialog.tsx:614
+#: src/components/remotes/PostEditor/components/PostRevisionDialog.tsx:645
+msgid "common.delete"
+msgstr "삭제"
 
 #. js-lingui-explicit-id
 #: src/components/remotes/Login/Login.tsx:156
@@ -338,9 +351,289 @@ msgid "common.error.try_again"
 msgstr "오류가 발생했습니다. 다시 시도해주세요."
 
 #. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/components/PostRevisionDialog.tsx:453
+msgid "common.load_more"
+msgstr "더 보기"
+
+#. js-lingui-explicit-id
 #: src/components/remotes/Signup/Signup.tsx:489
 msgid "common.processing"
 msgstr "처리 중..."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/components/DraftsPanel.tsx:146
+#: src/components/remotes/PostEditor/components/PostRevisionDialog.tsx:386
+msgid "common.retry"
+msgstr "다시 시도"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/components/DraftsPanel.tsx:169
+#: src/components/remotes/PostEditor/components/PostRevisionDialog.tsx:417
+#: src/components/remotes/PostEditor/components/PostRevisionDialog.tsx:487
+#: src/components/remotes/PostEditor/components/PostRevisionDialog.tsx:568
+#: src/components/remotes/PostEditor/components/PostRevisionDialog.tsx:585
+msgid "editor.common.untitled"
+msgstr "제목 없음"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/components/DraftsPanel.tsx:153
+msgid "editor.drafts.empty"
+msgstr "임시 저장된 포스트가 없습니다"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/components/DraftsPanel.tsx:140
+msgid "editor.drafts.error.load"
+msgstr "임시 포스트 목록을 불러오지 못했습니다"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/components/DraftsPanel.tsx:60
+msgid "editor.drafts.time.days_ago"
+msgstr "{count, plural, other {#일 전}}"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/components/DraftsPanel.tsx:53
+msgid "editor.drafts.time.hours_ago"
+msgstr "{count, plural, other {#시간 전}}"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/components/DraftsPanel.tsx:40
+msgid "editor.drafts.time.just_now"
+msgstr "방금 전"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/components/DraftsPanel.tsx:46
+msgid "editor.drafts.time.minutes_ago"
+msgstr "{count, plural, other {#분 전}}"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/components/DraftsPanel.tsx:117
+msgid "editor.drafts.title"
+msgstr "임시 포스트"
+
+#. js-lingui-explicit-id
+#. placeholder {0}: drafts.length
+#: src/components/remotes/PostEditor/components/DraftsPanel.tsx:194
+msgid "editor.drafts.total"
+msgstr "{0, plural, other {총 #개의 임시 포스트}}"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/components/PostRevisionDialog.tsx:528
+msgid "editor.fields.content"
+msgstr "본문"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/components/PostRevisionDialog.tsx:518
+msgid "editor.fields.description"
+msgstr "설명"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/components/EditRecoveryNotice.tsx:33
+msgid "editor.recovery.aria_label"
+msgstr "포스트 수정 백업"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/components/EditRecoveryNotice.tsx:68
+msgid "editor.recovery.delete_backup"
+msgstr "백업 삭제"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/components/EditRecoveryNotice.tsx:45
+msgid "editor.recovery.description"
+msgstr "이 브라우저에 남아 있는 편집 내용을 복구할 수 있습니다. 공개된 글은 아직 바뀌지 않았습니다."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/components/EditRecoveryNotice.tsx:50
+msgid "editor.recovery.last_backup"
+msgstr "마지막 백업"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/components/EditRecoveryNotice.tsx:60
+msgid "editor.recovery.recover"
+msgstr "복구"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/components/EditRecoveryNotice.tsx:40
+msgid "editor.recovery.title"
+msgstr "저장되지 않은 수정 내용이 있습니다"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/components/PostRevisionDialog.tsx:318
+#: src/components/remotes/PostEditor/components/PostRevisionDialog.tsx:322
+msgid "editor.revisions.back_to_list"
+msgstr "수정 이력 목록으로"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/components/PostRevisionDialog.tsx:71
+msgid "editor.revisions.change_type.edit"
+msgstr "수정 전"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/components/PostRevisionDialog.tsx:79
+msgid "editor.revisions.change_type.legacy"
+msgstr "이전 형식"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/components/PostRevisionDialog.tsx:75
+msgid "editor.revisions.change_type.restore"
+msgstr "복원 전"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/components/PostRevisionDialog.tsx:358
+#: src/components/remotes/PostEditor/components/PostRevisionDialog.tsx:362
+msgid "editor.revisions.close"
+msgstr "수정 이력 닫기"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/components/PostRevisionDialog.tsx:575
+msgid "editor.revisions.confirm_delete_description"
+msgstr "삭제한 수정 이력은 복구할 수 없습니다. 현재 포스트 내용은 바뀌지 않습니다."
+
+#. js-lingui-explicit-id
+#. placeholder {0}: selectedRevision.title || t({ id: 'editor.common.untitled', message: 'Untitled' })
+#: src/components/remotes/PostEditor/components/PostRevisionDialog.tsx:567
+msgid "editor.revisions.confirm_delete_title"
+msgstr "‘{0}’ 수정 이력을 삭제할까요?"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/components/PostRevisionDialog.tsx:592
+msgid "editor.revisions.confirm_restore_description"
+msgstr "현재 내용은 복원 직전 수정본으로 남습니다. URL과 발행·공개·댓글 설정은 바뀌지 않습니다."
+
+#. js-lingui-explicit-id
+#. placeholder {0}: selectedRevision.title || t({ id: 'editor.common.untitled', message: 'Untitled' })
+#: src/components/remotes/PostEditor/components/PostRevisionDialog.tsx:584
+msgid "editor.revisions.confirm_restore_title"
+msgstr "‘{0}’ 수정본으로 복원할까요?"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/components/PostRevisionDialog.tsx:349
+msgid "editor.revisions.description"
+msgstr "내용 수정 직전 저장본을 확인할 수 있습니다"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/components/PostRevisionDialog.tsx:345
+msgid "editor.revisions.detail_description"
+msgstr "저장된 내용을 확인하고 복원하거나 삭제할 수 있습니다"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/components/PostRevisionDialog.tsx:337
+msgid "editor.revisions.detail_title"
+msgstr "수정본 상세"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/components/PostRevisionDialog.tsx:393
+msgid "editor.revisions.empty"
+msgstr "아직 수정 이력이 없습니다"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/components/PostRevisionDialog.tsx:396
+msgid "editor.revisions.empty_description"
+msgstr "발행된 글의 내용을 수정하면 직전 저장본이 여기에 남습니다."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/components/PostRevisionDialog.tsx:227
+#: src/components/remotes/PostEditor/components/PostRevisionDialog.tsx:240
+msgid "editor.revisions.error.delete"
+msgstr "수정 이력을 삭제하지 못했습니다."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/components/PostRevisionDialog.tsx:115
+#: src/components/remotes/PostEditor/components/PostRevisionDialog.tsx:125
+msgid "editor.revisions.error.load_detail"
+msgstr "수정본을 불러오지 못했습니다."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/components/PostRevisionDialog.tsx:151
+#: src/components/remotes/PostEditor/components/PostRevisionDialog.tsx:164
+msgid "editor.revisions.error.load_list"
+msgstr "수정 이력을 불러오지 못했습니다."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/components/PostRevisionDialog.tsx:189
+#: src/components/remotes/PostEditor/components/PostRevisionDialog.tsx:201
+msgid "editor.revisions.error.load_more"
+msgstr "다음 수정 이력을 불러오지 못했습니다."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/components/PostRevisionDialog.tsx:261
+#: src/components/remotes/PostEditor/components/PostRevisionDialog.tsx:282
+msgid "editor.revisions.error.restore"
+msgstr "수정본을 복원하지 못했습니다."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/components/PostRevisionDialog.tsx:268
+msgid "editor.revisions.info.already_current"
+msgstr "현재 포스트가 이미 선택한 수정본과 같습니다."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/components/PostRevisionDialog.tsx:542
+msgid "editor.revisions.legacy_read_only"
+msgstr "이전 형식으로 저장된 이력은 원문 형식을 확정할 수 없어 조회만 지원합니다."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/components/PostRevisionDialog.tsx:404
+msgid "editor.revisions.list_aria_label"
+msgstr "수정본 목록"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/components/PostRevisionDialog.tsx:378
+msgid "editor.revisions.loading"
+msgstr "수정 이력 불러오는 중"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/components/PostRevisionDialog.tsx:477
+msgid "editor.revisions.loading_detail"
+msgstr "수정본 내용 불러오는 중"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/components/PostRevisionDialog.tsx:531
+msgid "editor.revisions.no_content"
+msgstr "본문 내용이 없습니다."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/components/PostRevisionDialog.tsx:427
+msgid "editor.revisions.no_content_preview"
+msgstr "본문 미리보기 없음"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/components/PostRevisionDialog.tsx:632
+msgid "editor.revisions.restore"
+msgstr "복원"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/components/PostRevisionDialog.tsx:655
+msgid "editor.revisions.restore_this"
+msgstr "이 수정본으로 복원"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/components/PostRevisionDialog.tsx:234
+msgid "editor.revisions.success.deleted"
+msgstr "수정 이력을 삭제했습니다."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/components/PostRevisionDialog.tsx:276
+msgid "editor.revisions.success.restored"
+msgstr "수정본을 복원했습니다."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/components/PostRevisionDialog.tsx:500
+msgid "editor.revisions.tags_aria_label"
+msgstr "수정본 태그"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/components/PostRevisionDialog.tsx:339
+msgid "editor.revisions.title"
+msgstr "수정 이력"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/components/PostRevisionDialog.tsx:461
+msgid "editor.revisions.total"
+msgstr "{totalCount, plural, other {총 #개의 수정 이력}}"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/components/PostRevisionDialog.tsx:558
+msgid "editor.revisions.version_conflict"
+msgstr "이 페이지를 연 뒤 포스트가 변경되었습니다. 새로고침한 뒤 복원해주세요."
 
 #. js-lingui-explicit-id
 #: src/components/remotes/LoginPrompt/LoginPrompt.tsx:116

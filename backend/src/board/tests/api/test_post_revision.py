@@ -195,6 +195,24 @@ class PostRevisionTestCase(TestCase):
         self.assertEqual(detail['contentText'], 'Previous body')
         self.assertEqual(detail['tags'], ['old-a', 'old-b'])
 
+    def test_invalid_revision_pagination_localizes_message_without_changing_code(self):
+        self.client.force_login(self.author)
+
+        response = self.client.get(
+            self.revision_url(),
+            {'page': 0},
+            HTTP_ACCEPT_LANGUAGE='en',
+        )
+
+        self.assertEqual(response.status_code, 200)
+        body = response.json()
+        self.assertEqual(body['status'], 'ERROR')
+        self.assertEqual(body['errorCode'], 'error:VA')
+        self.assertEqual(
+            body['errorMessage'],
+            'Check the revision history pagination values.',
+        )
+
     def test_revision_list_query_count_is_constant_for_many_large_revisions(self):
         revisions = [
             EditHistory(

@@ -326,8 +326,21 @@ msgid "author.pinned_posts.modal_title"
 msgstr ""
 
 #. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/components/PostRevisionDialog.tsx:606
+#: src/components/remotes/PostEditor/components/PostRevisionDialog.tsx:624
 #: src/components/remotes/SettingsApp/pages/PinnedPostsSetting/components/AddPinnedPostModal.tsx:220
 msgid "common.cancel"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/components/DraftsPanel.tsx:121
+msgid "common.close"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/components/PostRevisionDialog.tsx:614
+#: src/components/remotes/PostEditor/components/PostRevisionDialog.tsx:645
+msgid "common.delete"
 msgstr ""
 
 #. js-lingui-explicit-id
@@ -338,8 +351,288 @@ msgid "common.error.try_again"
 msgstr ""
 
 #. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/components/PostRevisionDialog.tsx:453
+msgid "common.load_more"
+msgstr ""
+
+#. js-lingui-explicit-id
 #: src/components/remotes/Signup/Signup.tsx:489
 msgid "common.processing"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/components/DraftsPanel.tsx:146
+#: src/components/remotes/PostEditor/components/PostRevisionDialog.tsx:386
+msgid "common.retry"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/components/DraftsPanel.tsx:169
+#: src/components/remotes/PostEditor/components/PostRevisionDialog.tsx:417
+#: src/components/remotes/PostEditor/components/PostRevisionDialog.tsx:487
+#: src/components/remotes/PostEditor/components/PostRevisionDialog.tsx:568
+#: src/components/remotes/PostEditor/components/PostRevisionDialog.tsx:585
+msgid "editor.common.untitled"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/components/DraftsPanel.tsx:153
+msgid "editor.drafts.empty"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/components/DraftsPanel.tsx:140
+msgid "editor.drafts.error.load"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/components/DraftsPanel.tsx:60
+msgid "editor.drafts.time.days_ago"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/components/DraftsPanel.tsx:53
+msgid "editor.drafts.time.hours_ago"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/components/DraftsPanel.tsx:40
+msgid "editor.drafts.time.just_now"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/components/DraftsPanel.tsx:46
+msgid "editor.drafts.time.minutes_ago"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/components/DraftsPanel.tsx:117
+msgid "editor.drafts.title"
+msgstr ""
+
+#. js-lingui-explicit-id
+#. placeholder {0}: drafts.length
+#: src/components/remotes/PostEditor/components/DraftsPanel.tsx:194
+msgid "editor.drafts.total"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/components/PostRevisionDialog.tsx:528
+msgid "editor.fields.content"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/components/PostRevisionDialog.tsx:518
+msgid "editor.fields.description"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/components/EditRecoveryNotice.tsx:33
+msgid "editor.recovery.aria_label"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/components/EditRecoveryNotice.tsx:68
+msgid "editor.recovery.delete_backup"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/components/EditRecoveryNotice.tsx:45
+msgid "editor.recovery.description"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/components/EditRecoveryNotice.tsx:50
+msgid "editor.recovery.last_backup"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/components/EditRecoveryNotice.tsx:60
+msgid "editor.recovery.recover"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/components/EditRecoveryNotice.tsx:40
+msgid "editor.recovery.title"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/components/PostRevisionDialog.tsx:318
+#: src/components/remotes/PostEditor/components/PostRevisionDialog.tsx:322
+msgid "editor.revisions.back_to_list"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/components/PostRevisionDialog.tsx:71
+msgid "editor.revisions.change_type.edit"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/components/PostRevisionDialog.tsx:79
+msgid "editor.revisions.change_type.legacy"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/components/PostRevisionDialog.tsx:75
+msgid "editor.revisions.change_type.restore"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/components/PostRevisionDialog.tsx:358
+#: src/components/remotes/PostEditor/components/PostRevisionDialog.tsx:362
+msgid "editor.revisions.close"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/components/PostRevisionDialog.tsx:575
+msgid "editor.revisions.confirm_delete_description"
+msgstr ""
+
+#. js-lingui-explicit-id
+#. placeholder {0}: selectedRevision.title || t({ id: 'editor.common.untitled', message: 'Untitled' })
+#: src/components/remotes/PostEditor/components/PostRevisionDialog.tsx:567
+msgid "editor.revisions.confirm_delete_title"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/components/PostRevisionDialog.tsx:592
+msgid "editor.revisions.confirm_restore_description"
+msgstr ""
+
+#. js-lingui-explicit-id
+#. placeholder {0}: selectedRevision.title || t({ id: 'editor.common.untitled', message: 'Untitled' })
+#: src/components/remotes/PostEditor/components/PostRevisionDialog.tsx:584
+msgid "editor.revisions.confirm_restore_title"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/components/PostRevisionDialog.tsx:349
+msgid "editor.revisions.description"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/components/PostRevisionDialog.tsx:345
+msgid "editor.revisions.detail_description"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/components/PostRevisionDialog.tsx:337
+msgid "editor.revisions.detail_title"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/components/PostRevisionDialog.tsx:393
+msgid "editor.revisions.empty"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/components/PostRevisionDialog.tsx:396
+msgid "editor.revisions.empty_description"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/components/PostRevisionDialog.tsx:227
+#: src/components/remotes/PostEditor/components/PostRevisionDialog.tsx:240
+msgid "editor.revisions.error.delete"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/components/PostRevisionDialog.tsx:115
+#: src/components/remotes/PostEditor/components/PostRevisionDialog.tsx:125
+msgid "editor.revisions.error.load_detail"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/components/PostRevisionDialog.tsx:151
+#: src/components/remotes/PostEditor/components/PostRevisionDialog.tsx:164
+msgid "editor.revisions.error.load_list"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/components/PostRevisionDialog.tsx:189
+#: src/components/remotes/PostEditor/components/PostRevisionDialog.tsx:201
+msgid "editor.revisions.error.load_more"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/components/PostRevisionDialog.tsx:261
+#: src/components/remotes/PostEditor/components/PostRevisionDialog.tsx:282
+msgid "editor.revisions.error.restore"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/components/PostRevisionDialog.tsx:268
+msgid "editor.revisions.info.already_current"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/components/PostRevisionDialog.tsx:542
+msgid "editor.revisions.legacy_read_only"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/components/PostRevisionDialog.tsx:404
+msgid "editor.revisions.list_aria_label"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/components/PostRevisionDialog.tsx:378
+msgid "editor.revisions.loading"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/components/PostRevisionDialog.tsx:477
+msgid "editor.revisions.loading_detail"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/components/PostRevisionDialog.tsx:531
+msgid "editor.revisions.no_content"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/components/PostRevisionDialog.tsx:427
+msgid "editor.revisions.no_content_preview"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/components/PostRevisionDialog.tsx:632
+msgid "editor.revisions.restore"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/components/PostRevisionDialog.tsx:655
+msgid "editor.revisions.restore_this"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/components/PostRevisionDialog.tsx:234
+msgid "editor.revisions.success.deleted"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/components/PostRevisionDialog.tsx:276
+msgid "editor.revisions.success.restored"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/components/PostRevisionDialog.tsx:500
+msgid "editor.revisions.tags_aria_label"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/components/PostRevisionDialog.tsx:339
+msgid "editor.revisions.title"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/components/PostRevisionDialog.tsx:461
+msgid "editor.revisions.total"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/components/PostRevisionDialog.tsx:558
+msgid "editor.revisions.version_conflict"
 msgstr ""
 
 #. js-lingui-explicit-id
