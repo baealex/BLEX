@@ -1,4 +1,5 @@
 import type { DragEndEvent } from '@dnd-kit/core';
+import { Trans, useLingui } from '@lingui/react/macro';
 import {
     DndContext,
     closestCenter,
@@ -23,6 +24,10 @@ import { Dropdown } from '~/components/shared';
 import { SETTINGS_LIST_TITLE } from '~/styles/settingsStyles';
 import { SettingsListItem } from '../../../components';
 import type { BannerData } from '~/lib/api/settings';
+import {
+    bannerPositionMessages,
+    bannerTypeMessages
+} from '../../shared/bannerI18n';
 
 interface BannerListProps {
     banners: BannerData[];
@@ -40,6 +45,7 @@ interface SortableBannerItemProps {
 }
 
 const SortableBannerItem = ({ banner, onEdit, onDelete, onToggleActive }: SortableBannerItemProps) => {
+    const { i18n, t } = useLingui();
     const {
         attributes,
         listeners,
@@ -57,20 +63,6 @@ const SortableBannerItem = ({ banner, onEdit, onDelete, onToggleActive }: Sortab
         zIndex: isDragging ? 999 : 1
     };
 
-    const getBannerTypeLabel = (type: string) => {
-        return type === 'horizontal' ? '줄배너' : '사이드배너';
-    };
-
-    const getPositionLabel = (position: string) => {
-        const labels: Record<string, string> = {
-            top: '상단',
-            bottom: '하단',
-            left: '좌측',
-            right: '우측'
-        };
-        return labels[position] || position;
-    };
-
     return (
         <div ref={setNodeRef} style={style} className="mb-3">
             <SettingsListItem
@@ -78,26 +70,48 @@ const SortableBannerItem = ({ banner, onEdit, onDelete, onToggleActive }: Sortab
                 dragHandleProps={{
                     attributes,
                     listeners,
-                    ariaLabel: `${banner.title} 배너 순서 변경`
+                    ariaLabel: i18n._({
+                        id: 'settings.banners.list.user_reorder_label',
+                        message: 'Reorder banner “{title}”',
+                        values: { title: banner.title }
+                    })
                 }}
                 actions={
                     <Dropdown
                         density="compact"
-                        triggerAriaLabel={`${banner.title} 배너 메뉴 열기`}
+                        triggerAriaLabel={i18n._({
+                            id: 'settings.banners.list.user_menu_label',
+                            message: 'Open menu for banner “{title}”',
+                            values: { title: banner.title }
+                        })}
                         triggerClassName="min-h-11 min-w-11 [@media(pointer:fine)]:min-h-9 [@media(pointer:fine)]:min-w-9"
                         items={[
                             {
-                                label: banner.isActive ? '비활성화' : '활성화',
+                                label: banner.isActive
+                                    ? t({
+                                        id: 'settings.banners.action.deactivate',
+                                        message: 'Deactivate'
+                                    })
+                                    : t({
+                                        id: 'settings.banners.action.activate',
+                                        message: 'Activate'
+                                    }),
                                 icon: <Power aria-hidden className="h-4 w-4" />,
                                 onClick: () => onToggleActive(banner)
                             },
                             {
-                                label: '수정',
+                                label: t({
+                                    id: 'common.edit',
+                                    message: 'Edit'
+                                }),
                                 icon: <Pencil aria-hidden className="h-4 w-4" />,
                                 onClick: () => onEdit(banner.id)
                             },
                             {
-                                label: '삭제',
+                                label: t({
+                                    id: 'common.delete',
+                                    message: 'Delete'
+                                }),
                                 icon: <Trash2 aria-hidden className="h-4 w-4" />,
                                 onClick: () => onDelete(banner.id),
                                 variant: 'danger'
@@ -111,13 +125,15 @@ const SortableBannerItem = ({ banner, onEdit, onDelete, onToggleActive }: Sortab
                             {banner.title}
                         </h3>
                         <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-surface-subtle text-content border border-line">
-                            {getPositionLabel(banner.position)}
+                            {i18n._(bannerPositionMessages[banner.position])}
                         </span>
                         <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-surface-subtle text-content border border-line">
-                            {getBannerTypeLabel(banner.bannerType)}
+                            {i18n._(bannerTypeMessages[banner.bannerType])}
                         </span>
                         <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium border ${banner.isActive ? 'bg-action text-content-inverted border-line-strong' : 'bg-surface-subtle text-content-secondary border-line-light'}`}>
-                            {banner.isActive ? '활성' : '비활성'}
+                            {banner.isActive
+                                ? <Trans id="settings.banners.status.active">Active</Trans>
+                                : <Trans id="settings.banners.status.inactive">Inactive</Trans>}
                         </span>
                     </div>
 

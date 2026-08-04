@@ -1,4 +1,5 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { Trans, useLingui } from '@lingui/react/macro';
 import { useNavigate, useBlocker } from '@tanstack/react-router';
 import { useMutation, useQueryClient, useSuspenseQuery } from '@tanstack/react-query';
 import { useForm, Controller } from 'react-hook-form';
@@ -26,23 +27,26 @@ import {
     type GlobalBannerUpdateData
 } from '~/lib/api/settings';
 import BannerPreviewFrame from './BannerPreviewFrame';
+import {
+    bannerPositionMessages,
+    bannerPositionOptions,
+    bannerTypeMessages,
+    type BannerPosition,
+    type BannerType
+} from './bannerI18n';
 
 type BannerScope = 'user' | 'global';
-type BannerType = 'horizontal' | 'sidebar';
-type BannerPosition = 'top' | 'bottom' | 'left' | 'right';
 type BannerCreatePayload = BannerCreateData | GlobalBannerCreateData;
 type BannerUpdatePayload = BannerUpdateData | GlobalBannerUpdateData;
 
-const bannerSchema = z.object({
-    title: z.string().trim().min(1, '배너 이름을 입력해주세요.').max(100, '배너 이름은 100자 이내여야 합니다.'),
-    contentHtml: z.string().trim().min(1, '배너 HTML을 입력해주세요.'),
-    bannerType: z.enum(['horizontal', 'sidebar']),
-    position: z.enum(['top', 'bottom', 'left', 'right']),
-    isActive: z.boolean(),
-    order: z.number().int().min(0, '노출 순서는 0 이상이어야 합니다.')
-});
-
-type BannerFormInputs = z.infer<typeof bannerSchema>;
+interface BannerFormInputs {
+    title: string;
+    contentHtml: string;
+    bannerType: BannerType;
+    position: BannerPosition;
+    isActive: boolean;
+    order: number;
+}
 
 const defaultValues: BannerFormInputs = {
     title: '',
@@ -53,33 +57,42 @@ const defaultValues: BannerFormInputs = {
     order: 0
 };
 
-const typeLabels: Record<BannerType, string> = {
-    horizontal: '줄배너',
-    sidebar: '사이드배너'
-};
-
-const positionLabels: Record<BannerPosition, string> = {
-    top: '상단',
-    bottom: '하단',
-    left: '좌측',
-    right: '우측'
-};
-const positionOptions: BannerPosition[] = ['top', 'bottom', 'left', 'right'];
-
 interface BannerEditorBaseProps {
     scope: BannerScope;
     bannerId?: number;
 }
 
 const BannerEditorBase = ({ scope, bannerId }: BannerEditorBaseProps) => {
+    const { i18n, t } = useLingui();
     const isGlobal = scope === 'global';
     const isEditMode = bannerId !== undefined;
     const navigate = useNavigate();
     const queryClient = useQueryClient();
     const { confirm } = useConfirm();
     const allowNavigationRef = useRef(false);
-    const bannerLabel = isGlobal ? '전역 배너' : '배너';
     const [hasSelectedPosition, setHasSelectedPosition] = useState(isEditMode);
+    const bannerSchema = useMemo(() => z.object({
+        title: z.string().trim()
+            .min(1, t({
+                id: 'settings.banners.validation.title_required',
+                message: 'Enter a banner name.'
+            }))
+            .max(100, t({
+                id: 'settings.banners.validation.title_max_length',
+                message: 'Banner names must be 100 characters or fewer.'
+            })),
+        contentHtml: z.string().trim().min(1, t({
+            id: 'settings.banners.validation.html_required',
+            message: 'Enter banner HTML.'
+        })),
+        bannerType: z.enum(['horizontal', 'sidebar']),
+        position: z.enum(['top', 'bottom', 'left', 'right']),
+        isActive: z.boolean(),
+        order: z.number().int().min(0, t({
+            id: 'settings.banners.validation.order_min',
+            message: 'Display order must be 0 or greater.'
+        }))
+    }), [t]);
 
     const { data: bannerDetail } = useSuspenseQuery({
         queryKey: [isGlobal ? 'global-banner-detail' : 'banner-detail', bannerId],
@@ -93,7 +106,11 @@ const BannerEditorBase = ({ scope, bannerId }: BannerEditorBaseProps) => {
                 return data.body;
             }
 
-            throw new Error(data.errorMessage || `${bannerLabel} 정보를 불러오는데 실패했습니다.`);
+            throw new Error(data.errorMessage || i18n._({
+                id: 'settings.banners.editor.load_failed',
+                message: '{scope, select, global {Could not load the global banner.} other {Could not load the banner.}}',
+                values: { scope }
+            }));
         }
     });
 
@@ -150,9 +167,18 @@ const BannerEditorBase = ({ scope, bannerId }: BannerEditorBaseProps) => {
             if (!isDirty || allowNavigationRef.current) return false;
 
             const confirmed = await confirm({
-                title: '저장하지 않은 변경사항',
-                message: '변경사항이 저장되지 않았습니다. 페이지를 나가시겠습니까?',
-                confirmText: '나가기',
+                title: t({
+                    id: 'settings.banners.editor.unsaved.title',
+                    message: 'Unsaved changes'
+                }),
+                message: t({
+                    id: 'settings.banners.editor.unsaved.message',
+                    message: 'Your changes have not been saved. Leave this page?'
+                }),
+                confirmText: t({
+                    id: 'settings.banners.editor.unsaved.leave',
+                    message: 'Leave'
+                }),
                 variant: 'danger'
             });
             return !confirmed;
@@ -173,17 +199,29 @@ const BannerEditorBase = ({ scope, bannerId }: BannerEditorBaseProps) => {
         ),
         onSuccess: ({ data }) => {
             if (data.status === 'ERROR') {
-                toast.error(data.errorMessage || `${bannerLabel} 생성에 실패했습니다.`);
+                toast.error(data.errorMessage || i18n._({
+                    id: 'settings.banners.create.failed',
+                    message: '{scope, select, global {Could not create the global banner.} other {Could not create the banner.}}',
+                    values: { scope }
+                }));
                 return;
             }
 
-            toast.success(`${bannerLabel}가 생성되었습니다.`);
+            toast.success(i18n._({
+                id: 'settings.banners.create.success',
+                message: '{scope, select, global {Global banner created.} other {Banner created.}}',
+                values: { scope }
+            }));
             invalidateQueries();
             allowNavigationRef.current = true;
             navigateToList(true);
         },
         onError: () => {
-            toast.error(`${bannerLabel} 생성에 실패했습니다.`);
+            toast.error(i18n._({
+                id: 'settings.banners.create.failed',
+                message: '{scope, select, global {Could not create the global banner.} other {Could not create the banner.}}',
+                values: { scope }
+            }));
         }
     });
 
@@ -199,17 +237,29 @@ const BannerEditorBase = ({ scope, bannerId }: BannerEditorBaseProps) => {
         },
         onSuccess: ({ data }) => {
             if (data.status === 'ERROR') {
-                toast.error(data.errorMessage || `${bannerLabel} 수정에 실패했습니다.`);
+                toast.error(data.errorMessage || i18n._({
+                    id: 'settings.banners.update.failed',
+                    message: '{scope, select, global {Could not update the global banner.} other {Could not update the banner.}}',
+                    values: { scope }
+                }));
                 return;
             }
 
-            toast.success(`${bannerLabel}가 수정되었습니다.`);
+            toast.success(i18n._({
+                id: 'settings.banners.update.success',
+                message: '{scope, select, global {Global banner updated.} other {Banner updated.}}',
+                values: { scope }
+            }));
             invalidateQueries();
             allowNavigationRef.current = true;
             navigateToList(true);
         },
         onError: () => {
-            toast.error(`${bannerLabel} 수정에 실패했습니다.`);
+            toast.error(i18n._({
+                id: 'settings.banners.update.failed',
+                message: '{scope, select, global {Could not update the global banner.} other {Could not update the banner.}}',
+                values: { scope }
+            }));
         }
     });
 
@@ -223,17 +273,29 @@ const BannerEditorBase = ({ scope, bannerId }: BannerEditorBaseProps) => {
         },
         onSuccess: ({ data }) => {
             if (data.status === 'ERROR') {
-                toast.error(data.errorMessage || `${bannerLabel} 삭제에 실패했습니다.`);
+                toast.error(data.errorMessage || i18n._({
+                    id: 'settings.banners.delete.failed',
+                    message: '{scope, select, global {Could not delete the global banner.} other {Could not delete the banner.}}',
+                    values: { scope }
+                }));
                 return;
             }
 
-            toast.success(`${bannerLabel}가 삭제되었습니다.`);
+            toast.success(i18n._({
+                id: 'settings.banners.delete.success',
+                message: '{scope, select, global {Global banner deleted.} other {Banner deleted.}}',
+                values: { scope }
+            }));
             invalidateQueries();
             allowNavigationRef.current = true;
             navigateToList(true);
         },
         onError: () => {
-            toast.error(`${bannerLabel} 삭제에 실패했습니다.`);
+            toast.error(i18n._({
+                id: 'settings.banners.delete.failed',
+                message: '{scope, select, global {Could not delete the global banner.} other {Could not delete the banner.}}',
+                values: { scope }
+            }));
         }
     });
 
@@ -245,13 +307,27 @@ const BannerEditorBase = ({ scope, bannerId }: BannerEditorBaseProps) => {
 
     const handleDelete = async () => {
         const confirmMessage = title
-            ? `"${title}" 배너를 삭제하시겠습니까?\n\n이 작업은 되돌릴 수 없습니다.`
-            : '이 배너를 삭제하시겠습니까?\n\n이 작업은 되돌릴 수 없습니다.';
+            ? i18n._({
+                id: 'settings.banners.editor.delete.confirm_named',
+                message: 'Delete banner “{title}”?\n\nThis action cannot be undone.',
+                values: { title }
+            })
+            : t({
+                id: 'settings.banners.editor.delete.confirm',
+                message: 'Delete this banner?\n\nThis action cannot be undone.'
+            });
 
         const confirmed = await confirm({
-            title: `${bannerLabel} 삭제`,
+            title: i18n._({
+                id: 'settings.banners.delete.title',
+                message: '{scope, select, global {Delete global banner} other {Delete banner}}',
+                values: { scope }
+            }),
             message: confirmMessage,
-            confirmText: '삭제',
+            confirmText: t({
+                id: 'common.delete',
+                message: 'Delete'
+            }),
             variant: 'danger'
         });
 
@@ -264,7 +340,10 @@ const BannerEditorBase = ({ scope, bannerId }: BannerEditorBaseProps) => {
 
     const onSubmit = (formData: BannerFormInputs) => {
         if (!isEditMode && !hasSelectedPosition) {
-            toast.error('배너 위치를 먼저 선택해주세요.');
+            toast.error(t({
+                id: 'settings.banners.editor.position_required',
+                message: 'Select a banner position first.'
+            }));
             return;
         }
 
@@ -298,16 +377,20 @@ const BannerEditorBase = ({ scope, bannerId }: BannerEditorBaseProps) => {
             {!isEditMode && !hasSelectedPosition && (
                 <div className="rounded-2xl border border-warning-line bg-warning-surface px-4 py-3">
                     <p className="text-base font-semibold text-warning">
-                        먼저 배너의 위치를 선택하세요.
+                        <Trans id="settings.banners.editor.position_prompt.title">
+                            Choose a banner position first.
+                        </Trans>
                     </p>
                     <p className="mt-1 text-xs font-medium text-warning">
-                        상단/하단/좌측/우측 중 하나를 누르면 타입과 위치가 자동 설정됩니다.
+                        <Trans id="settings.banners.editor.position_prompt.description">
+                            Select top, bottom, left, or right to set the type and position automatically.
+                        </Trans>
                     </p>
                 </div>
             )}
 
             <div className="flex flex-wrap items-center gap-2">
-                {positionOptions.map((slot) => {
+                {bannerPositionOptions.map((slot) => {
                     const active = hasSelectedPosition && slot === position;
                     return (
                         <button
@@ -320,7 +403,7 @@ const BannerEditorBase = ({ scope, bannerId }: BannerEditorBaseProps) => {
                                 active ? 'border-line-strong bg-action text-content-inverted' : 'border-line bg-surface text-content hover:border-line-strong',
                                 !hasSelectedPosition ? 'ring-2 ring-warning-line' : ''
                             )}>
-                            {positionLabels[slot]}
+                            {i18n._(bannerPositionMessages[slot])}
                         </button>
                     );
                 })}
@@ -329,14 +412,22 @@ const BannerEditorBase = ({ scope, bannerId }: BannerEditorBaseProps) => {
                         'text-xs',
                         hasSelectedPosition ? 'text-content-hint' : 'font-semibold text-warning'
                     )}>
-                    위치 선택 시 타입은 자동으로 맞춰집니다.
+                    <Trans id="settings.banners.editor.position_help">
+                        The banner type is set automatically when you choose a position.
+                    </Trans>
                 </span>
             </div>
 
             <Input
                 density="compact"
-                label="배너 이름"
-                placeholder="예: 메인 공지 배너"
+                label={t({
+                    id: 'settings.banners.editor.name.label',
+                    message: 'Banner name'
+                })}
+                placeholder={t({
+                    id: 'settings.banners.editor.name.placeholder',
+                    message: 'e.g. Main announcement banner'
+                })}
                 error={errors.title?.message}
                 {...register('title')}
             />
@@ -346,34 +437,48 @@ const BannerEditorBase = ({ scope, bannerId }: BannerEditorBaseProps) => {
                     density="compact"
                     type="number"
                     min={0}
-                    label="노출 순서"
+                    label={t({
+                        id: 'settings.banners.editor.order.label',
+                        message: 'Display order'
+                    })}
                     error={errors.order?.message}
                     {...register('order', { valueAsNumber: true })}
                 />
 
                 <div className="space-y-1.5">
                     <label className="ml-1 block text-sm font-medium text-content">
-                        배너 활성화
+                        <Trans id="settings.banners.editor.active.heading">Banner visibility</Trans>
                     </label>
                     <div className="min-h-12 rounded-lg border border-line bg-surface px-3 py-2">
                         <Checkbox
                             checked={isActive}
                             onCheckedChange={(checked) => setValue('isActive', checked, { shouldDirty: true })}
-                            label="노출"
-                            description="활성화된 배너만 노출"
+                            label={t({
+                                id: 'settings.banners.editor.active.label',
+                                message: 'Active'
+                            })}
+                            description={t({
+                                id: 'settings.banners.editor.active.description',
+                                message: 'Only active banners are displayed'
+                            })}
                         />
                     </div>
                 </div>
             </div>
 
             <div className="space-y-2">
-                <div className="block text-sm font-semibold text-content">배너 HTML</div>
+                <div className="block text-sm font-semibold text-content">
+                    <Trans id="settings.banners.editor.html.label">Banner HTML</Trans>
+                </div>
                 <Controller
                     name="contentHtml"
                     control={control}
                     render={({ field }) => (
                         <CodeEditor
-                            ariaLabel="배너 HTML"
+                            ariaLabel={t({
+                                id: 'settings.banners.editor.html.label',
+                                message: 'Banner HTML'
+                            })}
                             language="html"
                             value={field.value}
                             onChange={field.onChange}
@@ -384,8 +489,12 @@ const BannerEditorBase = ({ scope, bannerId }: BannerEditorBaseProps) => {
                 />
                 <p className="text-xs text-content-secondary">
                     {isGlobal
-                        ? '전역 배너는 스크립트를 포함할 수 있습니다.'
-                        : '사용자 배너는 스크립트 사용이 제한됩니다.'}
+                        ? <Trans id="settings.banners.editor.html.global_help">
+                            Global banners may include scripts.
+                        </Trans>
+                        : <Trans id="settings.banners.editor.html.user_help">
+                            Scripts are restricted in user banners.
+                        </Trans>}
                 </p>
             </div>
         </div>
@@ -401,11 +510,23 @@ const BannerEditorBase = ({ scope, bannerId }: BannerEditorBaseProps) => {
                             className="flex min-h-11 items-center gap-2 py-2 text-sm text-content-secondary transition-colors hover:text-content active:text-content-secondary [@media(pointer:fine)]:min-h-9"
                             onClick={() => navigateToList()}>
                             <ArrowLeft aria-hidden="true" className="h-4 w-4" />
-                            <span>목록으로</span>
+                            <span><Trans id="settings.banners.editor.back_to_list">Back to list</Trans></span>
                         </button>
 
                         <h1 className="text-sm font-medium text-content-secondary">
-                            {isEditMode && title ? title : isEditMode ? `${bannerLabel} 수정` : `${bannerLabel} 생성`}
+                            {isEditMode && title
+                                ? title
+                                : isEditMode
+                                    ? i18n._({
+                                        id: 'settings.banners.editor.edit_title',
+                                        message: '{scope, select, global {Edit global banner} other {Edit banner}}',
+                                        values: { scope }
+                                    })
+                                    : i18n._({
+                                        id: 'settings.banners.editor.create_title',
+                                        message: '{scope, select, global {Create global banner} other {Create banner}}',
+                                        values: { scope }
+                                    })}
                         </h1>
                     </div>
                 </div>
@@ -422,24 +543,26 @@ const BannerEditorBase = ({ scope, bannerId }: BannerEditorBaseProps) => {
 
                 <FloatingBottomBar>
                     {isEditMode && (
-                    <>
-                        <Button
-                            density="compact"
-                            type="button"
-                            variant="ghost"
-                            size="md"
-                            isLoading={deleteMutation.isPending}
-                            disabled={isSaving}
-                            onClick={handleDelete}
-                            className="!rounded-full !text-danger hover:!bg-danger-surface hover:!text-danger">
-                            삭제
-                        </Button>
-                        <div className="mx-1 h-8 w-px bg-line/60" />
-                    </>
-                )}
+                        <>
+                            <Button
+                                density="compact"
+                                type="button"
+                                variant="ghost"
+                                size="md"
+                                isLoading={deleteMutation.isPending}
+                                disabled={isSaving}
+                                onClick={handleDelete}
+                                className="!rounded-full !text-danger hover:!bg-danger-surface hover:!text-danger">
+                                <Trans id="common.delete">Delete</Trans>
+                            </Button>
+                            <div className="mx-1 h-8 w-px bg-line/60" />
+                        </>
+                    )}
 
                     <div className="hidden items-center px-1.5 text-xs text-content-secondary sm:flex">
-                        {typeLabels[bannerType]} · {positionLabels[position]}
+                        {i18n._(bannerTypeMessages[bannerType])}
+                        {' · '}
+                        {i18n._(bannerPositionMessages[position])}
                     </div>
 
                     <Button
@@ -450,7 +573,11 @@ const BannerEditorBase = ({ scope, bannerId }: BannerEditorBaseProps) => {
                         leftIcon={!isSaving ? <Send className="h-4 w-4" /> : undefined}
                         isLoading={isSaving}
                         disabled={deleteMutation.isPending}>
-                        {isSaving ? '저장 중...' : isEditMode ? '수정' : '생성'}
+                        {isSaving
+                            ? <Trans id="common.saving">Saving</Trans>
+                            : isEditMode
+                                ? <Trans id="common.update">Update</Trans>
+                                : <Trans id="common.create">Create</Trans>}
                     </Button>
                 </FloatingBottomBar>
             </form>

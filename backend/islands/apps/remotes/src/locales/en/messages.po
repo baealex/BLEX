@@ -666,6 +666,7 @@ msgid "common.copy_success"
 msgstr "Copied."
 
 #. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/shared/BannerEditorBase.tsx:580
 #: src/components/remotes/SettingsApp/pages/shared/NoticeSettingBase.tsx:401
 #: src/components/remotes/SettingsApp/pages/StaticPagesSetting/components/StaticPageEditor.tsx:498
 msgid "common.create"
@@ -680,13 +681,18 @@ msgstr "Create"
 #: src/components/remotes/SettingsApp/components/WebhookChannelManager.tsx:550
 #: src/components/remotes/SettingsApp/pages/AccountSetting/AccountSetting.tsx:280
 #: src/components/remotes/SettingsApp/pages/AccountSetting/components/SecuritySection.tsx:77
+#: src/components/remotes/SettingsApp/pages/BannerSetting/components/BannerList.tsx:111
 #: src/components/remotes/SettingsApp/pages/FormsSetting/FormsSetting.tsx:86
 #: src/components/remotes/SettingsApp/pages/FormsSetting/FormsSetting.tsx:356
+#: src/components/remotes/SettingsApp/pages/GlobalBannerSetting/components/GlobalBannerList.tsx:111
 #: src/components/remotes/SettingsApp/pages/ProfileSetting/ProfileSetting.tsx:233
 #: src/components/remotes/SettingsApp/pages/SeriesSetting/components/SeriesEditor.tsx:307
 #: src/components/remotes/SettingsApp/pages/SeriesSetting/components/SeriesEditor.tsx:539
 #: src/components/remotes/SettingsApp/pages/SeriesSetting/SeriesSetting.tsx:86
 #: src/components/remotes/SettingsApp/pages/SeriesSetting/SeriesSetting.tsx:135
+#: src/components/remotes/SettingsApp/pages/shared/BannerEditorBase.tsx:327
+#: src/components/remotes/SettingsApp/pages/shared/BannerEditorBase.tsx:556
+#: src/components/remotes/SettingsApp/pages/shared/BannerSettingBase.tsx:130
 #: src/components/remotes/SettingsApp/pages/shared/NoticeSettingBase.tsx:229
 #: src/components/remotes/SettingsApp/pages/shared/NoticeSettingBase.tsx:452
 #: src/components/remotes/SettingsApp/pages/StaticPagesSetting/components/StaticPageEditor.tsx:274
@@ -718,7 +724,9 @@ msgstr "Done"
 
 #. js-lingui-explicit-id
 #: src/components/remotes/Comments/components/CommentItem.tsx:70
+#: src/components/remotes/SettingsApp/pages/BannerSetting/components/BannerList.tsx:103
 #: src/components/remotes/SettingsApp/pages/FormsSetting/FormsSetting.tsx:348
+#: src/components/remotes/SettingsApp/pages/GlobalBannerSetting/components/GlobalBannerList.tsx:103
 #: src/components/remotes/SettingsApp/pages/shared/NoticeSettingBase.tsx:444
 #: src/components/remotes/SettingsApp/pages/StaticPagesSetting/components/StaticPageList.tsx:35
 msgid "common.edit"
@@ -846,6 +854,7 @@ msgstr "Save"
 #. js-lingui-explicit-id
 #: src/components/remotes/Comments/components/CommentEditForm.tsx:76
 #: src/components/remotes/SettingsApp/pages/AdminIntegrationSetting/AdminIntegrationSetting.tsx:289
+#: src/components/remotes/SettingsApp/pages/shared/BannerEditorBase.tsx:577
 #: src/components/remotes/SettingsApp/pages/shared/NoticeSettingBase.tsx:398
 #: src/components/remotes/SettingsApp/pages/StaticPagesSetting/components/StaticPageEditor.tsx:495
 msgid "common.saving"
@@ -875,6 +884,7 @@ msgid "common.untitled"
 msgstr "Untitled"
 
 #. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/shared/BannerEditorBase.tsx:579
 #: src/components/remotes/SettingsApp/pages/shared/NoticeSettingBase.tsx:400
 #: src/components/remotes/SettingsApp/pages/StaticPagesSetting/components/StaticPageEditor.tsx:497
 msgid "common.update"
@@ -2709,6 +2719,380 @@ msgstr "Telegram settings saved."
 #: src/components/remotes/SettingsApp/pages/AdminIntegrationSetting/AdminIntegrationSetting.tsx:161
 msgid "settings.admin.telegram.title"
 msgstr "Telegram"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/BannerSetting/components/BannerList.tsx:95
+#: src/components/remotes/SettingsApp/pages/GlobalBannerSetting/components/GlobalBannerList.tsx:95
+msgid "settings.banners.action.activate"
+msgstr "Activate"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/BannerSetting/components/BannerList.tsx:91
+#: src/components/remotes/SettingsApp/pages/GlobalBannerSetting/components/GlobalBannerList.tsx:91
+msgid "settings.banners.action.deactivate"
+msgstr "Deactivate"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/shared/BannerSettingBase.tsx:181
+msgid "settings.banners.create_action"
+msgstr "Add banner"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/shared/BannerEditorBase.tsx:202
+#: src/components/remotes/SettingsApp/pages/shared/BannerEditorBase.tsx:220
+msgid "settings.banners.create.failed"
+msgstr "{scope, select, global {Could not create the global banner.} other {Could not create the banner.}}"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/shared/BannerEditorBase.tsx:210
+msgid "settings.banners.create.success"
+msgstr "{scope, select, global {Global banner created.} other {Banner created.}}"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/shared/BannerSettingBase.tsx:125
+msgid "settings.banners.delete.confirm"
+msgstr "{scope, select, global {Delete this global banner?} other {Delete this banner?}}"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/shared/BannerEditorBase.tsx:276
+#: src/components/remotes/SettingsApp/pages/shared/BannerEditorBase.tsx:294
+#: src/components/remotes/SettingsApp/pages/shared/BannerSettingBase.tsx:89
+msgid "settings.banners.delete.failed"
+msgstr "{scope, select, global {Could not delete the global banner.} other {Could not delete the banner.}}"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/shared/BannerEditorBase.tsx:284
+#: src/components/remotes/SettingsApp/pages/shared/BannerSettingBase.tsx:81
+msgid "settings.banners.delete.success"
+msgstr "{scope, select, global {Global banner deleted.} other {Banner deleted.}}"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/shared/BannerEditorBase.tsx:321
+#: src/components/remotes/SettingsApp/pages/shared/BannerSettingBase.tsx:120
+msgid "settings.banners.delete.title"
+msgstr "{scope, select, global {Delete global banner} other {Delete banner}}"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/shared/BannerSettingBase.tsx:198
+msgid "settings.banners.description.global"
+msgstr "Active banners are shown across the entire site. Drag the list to change their display order."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/shared/BannerSettingBase.tsx:202
+msgid "settings.banners.description.user"
+msgstr "Banners appear at the top, bottom, or in a sidebar. Drag the list to change their order."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/shared/BannerEditorBase.tsx:460
+msgid "settings.banners.editor.active.description"
+msgstr "Only active banners are displayed"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/shared/BannerEditorBase.tsx:450
+msgid "settings.banners.editor.active.heading"
+msgstr "Banner visibility"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/shared/BannerEditorBase.tsx:456
+msgid "settings.banners.editor.active.label"
+msgstr "Active"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/shared/BannerEditorBase.tsx:513
+msgid "settings.banners.editor.back_to_list"
+msgstr "Back to list"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/shared/BannerEditorBase.tsx:525
+msgid "settings.banners.editor.create_title"
+msgstr "{scope, select, global {Create global banner} other {Create banner}}"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/shared/BannerEditorBase.tsx:315
+msgid "settings.banners.editor.delete.confirm"
+msgstr "Delete this banner?\n"
+"\n"
+"This action cannot be undone."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/shared/BannerEditorBase.tsx:310
+msgid "settings.banners.editor.delete.confirm_named"
+msgstr "Delete banner “{title}”?\n"
+"\n"
+"This action cannot be undone."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/shared/BannerEditorBase.tsx:520
+msgid "settings.banners.editor.edit_title"
+msgstr "{scope, select, global {Edit global banner} other {Edit banner}}"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/shared/BannerEditorBase.tsx:492
+msgid "settings.banners.editor.html.global_help"
+msgstr "Global banners may include scripts."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/shared/BannerEditorBase.tsx:471
+#: src/components/remotes/SettingsApp/pages/shared/BannerEditorBase.tsx:478
+msgid "settings.banners.editor.html.label"
+msgstr "Banner HTML"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/shared/BannerEditorBase.tsx:495
+msgid "settings.banners.editor.html.user_help"
+msgstr "Scripts are restricted in user banners."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/shared/BannerEditorBase.tsx:109
+msgid "settings.banners.editor.load_failed"
+msgstr "{scope, select, global {Could not load the global banner.} other {Could not load the banner.}}"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/shared/BannerEditorBase.tsx:423
+msgid "settings.banners.editor.name.label"
+msgstr "Banner name"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/shared/BannerEditorBase.tsx:427
+msgid "settings.banners.editor.name.placeholder"
+msgstr "e.g. Main announcement banner"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/shared/BannerEditorBase.tsx:440
+msgid "settings.banners.editor.order.label"
+msgstr "Display order"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/shared/BannerEditorBase.tsx:415
+msgid "settings.banners.editor.position_help"
+msgstr "The banner type is set automatically when you choose a position."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/shared/BannerEditorBase.tsx:385
+msgid "settings.banners.editor.position_prompt.description"
+msgstr "Select top, bottom, left, or right to set the type and position automatically."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/shared/BannerEditorBase.tsx:380
+msgid "settings.banners.editor.position_prompt.title"
+msgstr "Choose a banner position first."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/shared/BannerEditorBase.tsx:343
+msgid "settings.banners.editor.position_required"
+msgstr "Select a banner position first."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/shared/BannerEditorBase.tsx:178
+msgid "settings.banners.editor.unsaved.leave"
+msgstr "Leave"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/shared/BannerEditorBase.tsx:174
+msgid "settings.banners.editor.unsaved.message"
+msgstr "Your changes have not been saved. Leave this page?"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/shared/BannerEditorBase.tsx:170
+msgid "settings.banners.editor.unsaved.title"
+msgstr "Unsaved changes"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/shared/BannerSettingBase.tsx:237
+msgid "settings.banners.empty.global"
+msgstr "No global banners yet"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/shared/BannerSettingBase.tsx:241
+msgid "settings.banners.empty.user"
+msgstr "No banners yet"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/GlobalBannerSetting/components/GlobalBannerList.tsx:82
+msgid "settings.banners.list.global_menu_label"
+msgstr "Open menu for global banner “{title}”"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/GlobalBannerSetting/components/GlobalBannerList.tsx:73
+msgid "settings.banners.list.global_reorder_label"
+msgstr "Reorder global banner “{title}”"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/BannerSetting/components/BannerList.tsx:82
+msgid "settings.banners.list.user_menu_label"
+msgstr "Open menu for banner “{title}”"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/BannerSetting/components/BannerList.tsx:73
+msgid "settings.banners.list.user_reorder_label"
+msgstr "Reorder banner “{title}”"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/shared/BannerSettingBase.tsx:53
+msgid "settings.banners.load_failed"
+msgstr "Could not load banners."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/shared/BannerSettingBase.tsx:110
+msgid "settings.banners.order.failed"
+msgstr "{scope, select, global {Could not update global banner order.} other {Could not update banner order.}}"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/shared/BannerSettingBase.tsx:102
+msgid "settings.banners.order.success"
+msgstr "{scope, select, global {Global banner order updated.} other {Banner order updated.}}"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/shared/bannerI18n.ts:30
+msgid "settings.banners.position.bottom"
+msgstr "Bottom"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/shared/bannerI18n.ts:34
+msgid "settings.banners.position.left"
+msgstr "Left"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/shared/bannerI18n.ts:38
+msgid "settings.banners.position.right"
+msgstr "Right"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/shared/bannerI18n.ts:26
+msgid "settings.banners.position.top"
+msgstr "Top"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/shared/BannerPreviewFrame.tsx:177
+msgid "settings.banners.preview.author"
+msgstr "Author"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/shared/BannerPreviewFrame.tsx:46
+#: src/components/remotes/SettingsApp/pages/shared/BannerPreviewFrame.tsx:97
+msgid "settings.banners.preview.empty_slot"
+msgstr "{position, select, top {Enter HTML to display the banner at the top.} bottom {Enter HTML to display the banner at the bottom.} left {Enter HTML to display the banner in the left sidebar.} other {Enter HTML to display the banner in the right sidebar.}}"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/shared/BannerPreviewFrame.tsx:149
+msgid "settings.banners.preview.example_post_aria"
+msgstr "Example post"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/shared/BannerPreviewFrame.tsx:143
+msgid "settings.banners.preview.layout_aria"
+msgstr "Banner placement preview"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/shared/BannerPreviewFrame.tsx:37
+#: src/components/remotes/SettingsApp/pages/shared/BannerPreviewFrame.tsx:88
+msgid "settings.banners.preview.position_selected"
+msgstr "{position, select, top {Top position selected} bottom {Bottom position selected} left {Left position selected} other {Right position selected}}"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/shared/BannerPreviewFrame.tsx:168
+msgid "settings.banners.preview.post_subtitle"
+msgstr "Your post subtitle appears here"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/shared/BannerPreviewFrame.tsx:163
+msgid "settings.banners.preview.post_title"
+msgstr "Your post title appears here"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/shared/BannerPreviewFrame.tsx:183
+msgid "settings.banners.preview.reading_time"
+msgstr "5 min read"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/shared/BannerPreviewFrame.tsx:225
+msgid "settings.banners.preview.right_sidebar"
+msgstr "TOC / Right sidebar"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/shared/BannerPreviewFrame.tsx:70
+#: src/components/remotes/SettingsApp/pages/shared/BannerPreviewFrame.tsx:121
+msgid "settings.banners.preview.select_position"
+msgstr "{position, select, top {Select top position} bottom {Select bottom position} left {Select left position} other {Select right position}}"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/shared/BannerPreviewFrame.tsx:157
+msgid "settings.banners.preview.series"
+msgstr "Series"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/shared/BannerPreviewFrame.tsx:204
+msgid "settings.banners.preview.tag1"
+msgstr "#tag1"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/shared/BannerPreviewFrame.tsx:207
+msgid "settings.banners.preview.tag2"
+msgstr "#tag2"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/shared/BannerPreviewFrame.tsx:210
+msgid "settings.banners.preview.tag3"
+msgstr "#tag3"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/BannerSetting/components/BannerList.tsx:135
+#: src/components/remotes/SettingsApp/pages/GlobalBannerSetting/components/GlobalBannerList.tsx:135
+msgid "settings.banners.status.active"
+msgstr "Active"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/BannerSetting/components/BannerList.tsx:136
+#: src/components/remotes/SettingsApp/pages/GlobalBannerSetting/components/GlobalBannerList.tsx:136
+msgid "settings.banners.status.inactive"
+msgstr "Inactive"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/shared/BannerSettingBase.tsx:188
+msgid "settings.banners.title_count"
+msgstr "{scope, select, global {Global banners ({count})} other {Banners ({count})}}"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/shared/bannerI18n.ts:15
+msgid "settings.banners.type.horizontal"
+msgstr "Horizontal banner"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/shared/bannerI18n.ts:19
+msgid "settings.banners.type.sidebar"
+msgstr "Sidebar banner"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/shared/BannerEditorBase.tsx:240
+#: src/components/remotes/SettingsApp/pages/shared/BannerEditorBase.tsx:258
+#: src/components/remotes/SettingsApp/pages/shared/BannerSettingBase.tsx:70
+msgid "settings.banners.update.failed"
+msgstr "{scope, select, global {Could not update the global banner.} other {Could not update the banner.}}"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/shared/BannerEditorBase.tsx:248
+msgid "settings.banners.update.success"
+msgstr "{scope, select, global {Global banner updated.} other {Banner updated.}}"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/shared/BannerEditorBase.tsx:84
+msgid "settings.banners.validation.html_required"
+msgstr "Enter banner HTML."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/shared/BannerEditorBase.tsx:91
+msgid "settings.banners.validation.order_min"
+msgstr "Display order must be 0 or greater."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/shared/BannerEditorBase.tsx:80
+msgid "settings.banners.validation.title_max_length"
+msgstr "Banner names must be 100 characters or fewer."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/shared/BannerEditorBase.tsx:76
+msgid "settings.banners.validation.title_required"
+msgstr "Enter a banner name."
 
 #. js-lingui-explicit-id
 #: src/components/remotes/SettingsApp/pages/DeveloperApiSetting/DeveloperApiSetting.tsx:585

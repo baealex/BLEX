@@ -171,9 +171,15 @@ class SiteContentApiService:
     @staticmethod
     def validate_banner_payload(data: dict) -> None:
         if not data.get('title', ''):
-            raise SiteContentApiError(ErrorCode.VALIDATE, '배너 이름을 입력해주세요.')
+            raise SiteContentApiError(
+                ErrorCode.VALIDATE,
+                gettext('Enter a banner name.'),
+            )
         if not data.get('content_html', ''):
-            raise SiteContentApiError(ErrorCode.VALIDATE, '배너 내용을 입력해주세요.')
+            raise SiteContentApiError(
+                ErrorCode.VALIDATE,
+                gettext('Enter banner HTML.'),
+            )
         SiteContentApiService.validate_banner_position(
             data.get('banner_type', BannerType.HORIZONTAL),
             data.get('position', BannerPosition.TOP),
@@ -185,13 +191,19 @@ class SiteContentApiService:
             BannerPosition.TOP,
             BannerPosition.BOTTOM,
         }:
-            raise SiteContentApiError(ErrorCode.VALIDATE, '줄배너는 상단 또는 하단에만 배치할 수 있습니다.')
+            raise SiteContentApiError(
+                ErrorCode.VALIDATE,
+                gettext('Horizontal banners can only be placed at the top or bottom.'),
+            )
 
         if banner_type == BannerType.SIDEBAR and position not in {
             BannerPosition.LEFT,
             BannerPosition.RIGHT,
         }:
-            raise SiteContentApiError(ErrorCode.VALIDATE, '사이드배너는 좌측 또는 우측에만 배치할 수 있습니다.')
+            raise SiteContentApiError(
+                ErrorCode.VALIDATE,
+                gettext('Sidebar banners can only be placed on the left or right.'),
+            )
 
     @staticmethod
     def create_notice(scope: str, user: User | None, data: dict) -> SiteNotice:

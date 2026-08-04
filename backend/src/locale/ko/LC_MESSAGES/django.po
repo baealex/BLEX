@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: BLEX 3.1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-08-05 04:23+0900\n"
+"POT-Creation-Date: 2026-08-05 04:36+0900\n"
 "PO-Revision-Date: 2026-07-18 00:00+0900\n"
 "Last-Translator: BLEX contributors\n"
 "Language-Team: Korean\n"
@@ -556,7 +556,7 @@ msgid "You do not have permission to write posts."
 msgstr "작성 권한이 없습니다."
 
 #: board/services/post_service.py:149
-#: board/services/site_content_api_service.py:283
+#: board/services/site_content_api_service.py:295
 msgid "Enter a title."
 msgstr "제목을 입력해주세요."
 
@@ -665,12 +665,28 @@ msgstr "홈페이지는 http 또는 https URL이어야 합니다."
 msgid "Enter a notice title."
 msgstr "공지 제목을 입력해주세요."
 
-#: board/services/site_content_api_service.py:285
+#: board/services/site_content_api_service.py:176
+msgid "Enter a banner name."
+msgstr "배너 이름을 입력해주세요."
+
+#: board/services/site_content_api_service.py:181
+msgid "Enter banner HTML."
+msgstr "배너 HTML을 입력해주세요."
+
+#: board/services/site_content_api_service.py:196
+msgid "Horizontal banners can only be placed at the top or bottom."
+msgstr "줄배너는 상단 또는 하단에만 배치할 수 있습니다."
+
+#: board/services/site_content_api_service.py:205
+msgid "Sidebar banners can only be placed on the left or right."
+msgstr "사이드배너는 좌측 또는 우측에만 배치할 수 있습니다."
+
+#: board/services/site_content_api_service.py:297
 msgid "Enter a URL slug."
 msgstr "URL 슬러그를 입력해주세요."
 
-#: board/services/site_content_api_service.py:294
-#: board/services/site_content_api_service.py:318
+#: board/services/site_content_api_service.py:306
+#: board/services/site_content_api_service.py:330
 msgid "This slug is already in use."
 msgstr "이미 사용 중인 슬러그입니다."
 
@@ -1682,6 +1698,22 @@ msgstr "2차 인증이 활성화되었습니다."
 #: board/views/api/v1/author_invite.py:44
 msgid "Invitation link not found."
 msgstr "초대 링크를 찾을 수 없습니다."
+
+#: board/views/api/v1/banner.py:97
+msgid "Banner deleted."
+msgstr "배너가 삭제되었습니다."
+
+#: board/views/api/v1/banner.py:119
+msgid "Banner order updated."
+msgstr "배너 순서가 변경되었습니다."
+
+#: board/views/api/v1/global_banner.py:76
+msgid "Global banner deleted."
+msgstr "전역 배너가 삭제되었습니다."
+
+#: board/views/api/v1/global_banner.py:98
+msgid "Global banner order updated."
+msgstr "전역 배너 순서가 변경되었습니다."
 
 #: board/views/api/v1/global_notice.py:60 board/views/api/v1/notice.py:63
 msgid "Notice deleted."
