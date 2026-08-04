@@ -6,7 +6,7 @@ from django.core.exceptions import ValidationError
 from django.db import models
 from django.urls import reverse
 from django.utils import timezone
-from django.utils.translation import gettext_lazy as _
+from django.utils.translation import gettext_lazy as _, pgettext_lazy
 
 from board.constants.config_meta import CONFIG_TYPE
 from board.constants.social_auth import (
@@ -111,19 +111,27 @@ class Profile(models.Model):
     about_html = models.TextField(blank=True)
 
     # Analytics integration (Share URL from analytics provider)
-    analytics_share_url = models.URLField(max_length=500, blank=True,
-                                           help_text='분석 도구 공유 URL (예: Umami, Google Analytics 등)')
+    analytics_share_url = models.URLField(
+        max_length=500,
+        blank=True,
+        help_text=_(
+            'Analytics sharing URL (for example, Umami or Google Analytics)'
+        ),
+    )
 
     # User role for permission control
     class Role(models.TextChoices):
-        READER = 'READER', '독자'
-        EDITOR = 'EDITOR', '작가'
+        READER = 'READER', pgettext_lazy('User role', 'Reader')
+        EDITOR = 'EDITOR', pgettext_lazy('User role', 'Author')
 
     role = models.CharField(
         max_length=10,
         choices=Role.choices,
         default=Role.READER,
-        help_text='사용자 역할 (독자: 읽기만, 작가: 글 작성 및 통계)'
+        help_text=_(
+            'User role (Reader: read only; Author: write posts and view '
+            'analytics)'
+        ),
     )
 
     class Meta:

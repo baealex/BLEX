@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: BLEX 3.1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-08-05 06:44+0900\n"
+"POT-Creation-Date: 2026-08-05 06:48+0900\n"
 "PO-Revision-Date: 2026-07-18 00:00+0900\n"
 "Last-Translator: BLEX contributors\n"
 "Language-Team: Korean\n"
@@ -62,6 +62,7 @@ msgstr "작업 내용"
 
 #: board/admin/auth.py:103 board/admin/auth.py:246 board/admin/connection.py:52
 #: board/admin/form.py:46 board/admin/notify.py:160 board/admin/post.py:143
+#: board/admin/user.py:859
 msgid "User"
 msgstr "사용자"
 
@@ -246,7 +247,7 @@ msgstr "콘텐츠"
 msgid "Preview"
 msgstr "미리보기"
 
-#: board/admin/comment.py:63 board/admin/post.py:235
+#: board/admin/comment.py:63 board/admin/post.py:235 board/admin/user.py:785
 msgid "Statistics"
 msgstr "통계"
 
@@ -911,7 +912,7 @@ msgstr "공개"
 msgid "Edit"
 msgstr "편집"
 
-#: board/admin/series.py:128 board/models/posts.py:157
+#: board/admin/series.py:128 board/admin/user.py:884 board/models/posts.py:157
 #: board/templates/board/author/author_posts.html:20
 #: board/templates/board/author/author_posts.html:21
 #: board/templates/board/author/components/featured_posts_section.html:9
@@ -1144,6 +1145,176 @@ msgid "%(count)d unused tag was deleted."
 msgid_plural "%(count)d unused tags were deleted."
 msgstr[0] "%(count)d개의 미사용 태그를 삭제했습니다."
 
+#: board/admin/user.py:49
+msgid "Changed role to Author in Admin"
+msgstr "Admin에서 작가 역할로 변경"
+
+#: board/admin/user.py:50
+msgid "Changed role to Reader in Admin"
+msgstr "Admin에서 독자 역할로 변경"
+
+#: board/admin/user.py:193 board/admin/user.py:767
+msgid "Permission settings"
+msgstr "권한 설정"
+
+#: board/admin/user.py:196 board/admin/user.py:774
+msgid "Profile information"
+msgstr "프로필 정보"
+
+#: board/admin/user.py:199 board/admin/user.py:781
+msgid "Analytics settings"
+msgstr "통계 설정"
+
+#: board/admin/user.py:371 board/admin/user.py:863
+msgid "Role"
+msgstr "역할"
+
+#: board/admin/user.py:376
+msgid "Post count"
+msgstr "포스트 수"
+
+#: board/admin/user.py:401
+msgid "Change selected users to Authors"
+msgstr "선택한 사용자를 작가로 변경"
+
+#: board/admin/user.py:417
+#, python-format
+msgid "%(count)d user was changed to an Author."
+msgid_plural "%(count)d users were changed to Authors."
+msgstr[0] "%(count)d명의 사용자를 작가로 변경했습니다."
+
+#: board/admin/user.py:424
+msgid "Change selected users to Readers"
+msgstr "선택한 사용자를 독자로 변경"
+
+#: board/admin/user.py:440
+#, python-format
+msgid "%(count)d user was changed to a Reader."
+msgid_plural "%(count)d users were changed to Readers."
+msgstr[0] "%(count)d명의 사용자를 독자로 변경했습니다."
+
+#: board/admin/user.py:462
+msgid "There are no users to activate."
+msgstr "활성화할 사용자가 없습니다."
+
+#: board/admin/user.py:464
+msgid "Login and API access will be restored for the selected accounts."
+msgstr "선택한 계정의 로그인과 API 접근을 다시 허용합니다."
+
+#: board/admin/user.py:467
+msgid "Confirm user activation"
+msgstr "사용자 활성화 확인"
+
+#: board/admin/user.py:468
+msgid "Activate users"
+msgstr "사용자 활성화"
+
+#: board/admin/user.py:469
+msgid "Activated account in Admin"
+msgstr "Admin에서 계정 활성화"
+
+#: board/admin/user.py:471
+msgid "There are no users to deactivate."
+msgstr "비활성화할 사용자가 없습니다."
+
+#: board/admin/user.py:473
+msgid "Login and API access will be blocked immediately for the selected accounts. The current administrator and the last active superuser will be skipped."
+msgstr "선택한 계정은 즉시 로그인과 API 접근이 차단됩니다. 현재 관리자와 마지막 활성 슈퍼유저는 건너뜁니다."
+
+#: board/admin/user.py:477
+msgid "Confirm user deactivation"
+msgstr "사용자 비활성화 확인"
+
+#: board/admin/user.py:478
+msgid "Deactivate users"
+msgstr "사용자 비활성화"
+
+#: board/admin/user.py:479
+msgid "Deactivated account in Admin"
+msgstr "Admin에서 계정 비활성화"
+
+#: board/admin/user.py:516
+#, python-format
+msgid "%(count)d user was activated."
+msgid_plural "%(count)d users were activated."
+msgstr[0] "%(count)d명의 사용자를 활성화했습니다."
+
+#: board/admin/user.py:522
+#, python-format
+msgid "%(count)d user was deactivated."
+msgid_plural "%(count)d users were deactivated."
+msgstr[0] "%(count)d명의 사용자를 비활성화했습니다."
+
+#: board/admin/user.py:534
+msgid "The currently signed-in administrator was not deactivated."
+msgstr "현재 로그인한 관리자 계정은 비활성화하지 않았습니다."
+
+#: board/admin/user.py:540
+msgid "The last active superuser was not deactivated."
+msgstr "마지막 활성 슈퍼유저 계정은 비활성화하지 않았습니다."
+
+#: board/admin/user.py:547
+#, python-format
+msgid "%(count)d administrator account was not changed."
+msgid_plural "%(count)d administrator accounts were not changed."
+msgstr[0] "관리자 계정 %(count)d명은 변경하지 않았습니다."
+
+#: board/admin/user.py:556
+msgid "Activate selected users"
+msgstr "선택한 사용자 활성화"
+
+#: board/admin/user.py:571
+msgid "Deactivate selected users"
+msgstr "선택한 사용자 비활성화"
+
+#: board/admin/user.py:764 board/admin/user.py:889
+msgid "User information"
+msgstr "사용자 정보"
+
+#: board/admin/user.py:770
+msgid "EDITOR: write posts and view analytics / READER: read-only access"
+msgstr "EDITOR: 글 작성 및 통계 / READER: 읽기만 가능"
+
+#: board/admin/user.py:777
+msgid "About page"
+msgstr "소개 페이지"
+
+#: board/admin/user.py:867
+msgid "Avatar"
+msgstr "아바타"
+
+#: board/admin/user.py:871
+msgid "Cover image preview"
+msgstr "커버 이미지 미리보기"
+
+#: board/admin/user.py:879
+msgid "Analytics URL"
+msgstr "통계 URL"
+
+#: board/admin/user.py:893
+msgid "Total posts"
+msgstr "총 포스트 수"
+
+#: board/admin/user.py:916
+msgid "Change role to Author"
+msgstr "역할을 작가로 변경"
+
+#: board/admin/user.py:932
+#, python-format
+msgid "%(count)d profile was changed to an Author."
+msgid_plural "%(count)d profiles were changed to Authors."
+msgstr[0] "%(count)d명의 프로필을 작가로 변경했습니다."
+
+#: board/admin/user.py:939
+msgid "Change role to Reader"
+msgstr "역할을 독자로 변경"
+
+#: board/admin/user.py:955
+#, python-format
+msgid "%(count)d profile was changed to a Reader."
+msgid_plural "%(count)d profiles were changed to Readers."
+msgstr[0] "%(count)d명의 프로필을 독자로 변경했습니다."
+
 #: board/admin/webhook.py:26
 msgid "Webhook URL"
 msgstr "웹훅 URL"
@@ -1330,28 +1501,46 @@ msgstr "사용자 링크"
 msgid "User links"
 msgstr "사용자 링크"
 
-#: board/models/accounts.py:130 board/templates/components/header.html:97
+#: board/models/accounts.py:118
+msgid "Analytics sharing URL (for example, Umami or Google Analytics)"
+msgstr "분석 도구 공유 URL (예: Umami, Google Analytics 등)"
+
+#: board/models/accounts.py:124
+msgctxt "User role"
+msgid "Reader"
+msgstr "독자"
+
+#: board/models/accounts.py:125
+msgctxt "User role"
+msgid "Author"
+msgstr "작가"
+
+#: board/models/accounts.py:132
+msgid "User role (Reader: read only; Author: write posts and view analytics)"
+msgstr "사용자 역할 (독자: 읽기만, 작가: 글 작성 및 통계)"
+
+#: board/models/accounts.py:138 board/templates/components/header.html:97
 #: board/templates/components/header.html:285
 msgid "Profile"
 msgstr "프로필"
 
-#: board/models/accounts.py:131
+#: board/models/accounts.py:139
 msgid "Profiles"
 msgstr "프로필"
 
-#: board/models/accounts.py:196 board/models/accounts.py:197
+#: board/models/accounts.py:204 board/models/accounts.py:205
 msgid "Two-factor authentication"
 msgstr "2단계 인증"
 
-#: board/models/accounts.py:243 board/models/accounts.py:244
+#: board/models/accounts.py:251 board/models/accounts.py:252
 msgid "Username change history"
 msgstr "사용자명 변경 이력"
 
-#: board/models/accounts.py:281
+#: board/models/accounts.py:289
 msgid "Social login connection"
 msgstr "소셜 로그인 연동"
 
-#: board/models/accounts.py:282
+#: board/models/accounts.py:290
 msgid "Social login connections"
 msgstr "소셜 로그인 연동"
 
