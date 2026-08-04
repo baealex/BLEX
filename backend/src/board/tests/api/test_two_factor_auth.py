@@ -131,6 +131,26 @@ class TwoFactorAuthTestCase(TestCase):
             'errorMessage': '2FA 설정 세션이 만료되었습니다. 다시 시도해주세요.',
         })
 
+    def test_enable_2fa_expired_setup_session_uses_english_request_locale(self):
+        """setup 만료 오류는 코드 변경 없이 영어로 응답한다."""
+        self.client.login(username='test2fa', password='test2fa')
+
+        response = self.client.post(
+            '/v1/auth/security/verify',
+            data=json.dumps({'code': '123456'}),
+            content_type='application/json',
+            HTTP_ACCEPT_LANGUAGE='en',
+        )
+
+        self.assertEqual(json.loads(response.content), {
+            'status': 'ERROR',
+            'errorCode': 'error:EP',
+            'errorMessage': (
+                'Your two-factor authentication setup session has expired. '
+                'Try again.'
+            ),
+        })
+
     def test_enable_2fa_rejects_setup_session_owned_by_another_user(self):
         """다른 user_id의 setup session은 기존 인증 오류로 거부한다."""
         self.client.login(username='test2fa', password='test2fa')

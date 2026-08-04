@@ -168,7 +168,7 @@ def setting(request, parameter):
                 'username': user.username,
                 'name': user.first_name,
                 'email': user.email,
-                'created_date': convert_to_localtime(user.date_joined).strftime('%Y년 %m월 %d일'),
+                'created_date': convert_to_localtime(user.date_joined).date().isoformat(),
                 'account_deletion_redirect_url': deletion_redirect_url,
                 'has2fa': hasattr(user, 'twofactorauth'),
             })

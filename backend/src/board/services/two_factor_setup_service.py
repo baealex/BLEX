@@ -14,6 +14,7 @@ import qrcode
 
 from django.contrib.auth.models import User
 from django.db import transaction
+from django.utils.translation import gettext
 
 from board.models import TwoFactorAuth
 from board.modules.response import ErrorCode
@@ -137,7 +138,9 @@ class TwoFactorSetupService:
         except Exception as error:
             raise TwoFactorSetupError(
                 ErrorCode.REJECT,
-                f'2FA 설정 초기화에 실패했습니다: {str(error)}',
+                gettext(
+                    'Could not initialize two-factor authentication: %(error)s'
+                ) % {'error': str(error)},
             ) from error
 
     @staticmethod
@@ -154,7 +157,10 @@ class TwoFactorSetupService:
         if not two_factor_auth.has_been_a_day():
             raise TwoFactorSetupError(
                 ErrorCode.REJECT,
-                '24시간 동안 해제할 수 없습니다.',
+                gettext(
+                    'Two-factor authentication cannot be disabled during '
+                    'the first 24 hours.'
+                ),
             )
 
         two_factor_auth.delete()
@@ -172,14 +178,17 @@ class TwoFactorSetupService:
             if not raw_setup_data:
                 raise TwoFactorSetupError(
                     ErrorCode.EXPIRED,
-                    '2FA 설정 세션이 만료되었습니다. 다시 시도해주세요.',
+                    gettext(
+                        'Your two-factor authentication setup session has '
+                        'expired. Try again.'
+                    ),
                 )
 
             setup_data = cast(Mapping[str, object], raw_setup_data)
             if setup_data['user_id'] != user.id:
                 raise TwoFactorSetupError(
                     ErrorCode.AUTHENTICATION,
-                    '잘못된 세션입니다.',
+                    gettext('This setup session is invalid.'),
                 )
 
             if hasattr(user, 'twofactorauth'):
@@ -190,14 +199,14 @@ class TwoFactorSetupService:
             if not normalized_code:
                 raise TwoFactorSetupError(
                     ErrorCode.INVALID_PARAMETER,
-                    '인증 코드를 입력해주세요.',
+                    gettext('Enter the verification code.'),
                 )
 
             secret = cast(str, setup_data['secret'])
             if not pyotp.TOTP(secret).verify(normalized_code, valid_window=1):
                 raise TwoFactorSetupError(
                     ErrorCode.REJECT,
-                    '잘못된 인증 코드입니다.',
+                    gettext('The verification code is incorrect.'),
                 )
 
             two_factor_auth = TwoFactorAuth(
@@ -212,5 +221,7 @@ class TwoFactorSetupService:
         except Exception as error:
             raise TwoFactorSetupError(
                 ErrorCode.REJECT,
-                f'2FA 활성화에 실패했습니다: {str(error)}',
+                gettext(
+                    'Could not enable two-factor authentication: %(error)s'
+                ) % {'error': str(error)},
             ) from error

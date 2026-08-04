@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: BLEX 3.1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-08-05 01:31+0900\n"
+"POT-Creation-Date: 2026-08-05 02:09+0900\n"
 "PO-Revision-Date: 2026-07-18 00:00+0900\n"
 "Last-Translator: BLEX contributors\n"
 "Language-Team: Korean\n"
@@ -465,6 +465,56 @@ msgstr "임시 저장 글은 최대 %(max_drafts)s개까지 가능합니다."
 #: board/services/post_service.py:875 board/services/post_service.py:951
 msgid "Untitled"
 msgstr "제목 없음"
+
+#: board/services/setting_account_profile_service.py:73
+msgid "Password must be at least 8 characters."
+msgstr "비밀번호는 8자 이상이어야 합니다."
+
+#: board/services/setting_account_profile_service.py:79
+msgid "Password must include a number."
+msgstr "비밀번호는 숫자를 포함해야 합니다."
+
+#: board/services/setting_account_profile_service.py:85
+msgid "Password must include a lowercase letter."
+msgstr "비밀번호는 소문자를 포함해야 합니다."
+
+#: board/services/setting_account_profile_service.py:91
+msgid "Password must include an uppercase letter."
+msgstr "비밀번호는 대문자를 포함해야 합니다."
+
+#: board/services/setting_account_profile_service.py:102
+msgid "Password must include a special character."
+msgstr "비밀번호는 특수문자를 포함해야 합니다."
+
+#: board/services/two_factor_setup_service.py:142
+#, python-format
+msgid "Could not initialize two-factor authentication: %(error)s"
+msgstr "2FA 설정 초기화에 실패했습니다: %(error)s"
+
+#: board/services/two_factor_setup_service.py:161
+msgid "Two-factor authentication cannot be disabled during the first 24 hours."
+msgstr "24시간 동안 해제할 수 없습니다."
+
+#: board/services/two_factor_setup_service.py:182
+msgid "Your two-factor authentication setup session has expired. Try again."
+msgstr "2FA 설정 세션이 만료되었습니다. 다시 시도해주세요."
+
+#: board/services/two_factor_setup_service.py:191
+msgid "This setup session is invalid."
+msgstr "잘못된 세션입니다."
+
+#: board/services/two_factor_setup_service.py:202
+msgid "Enter the verification code."
+msgstr "인증 코드를 입력해주세요."
+
+#: board/services/two_factor_setup_service.py:209
+msgid "The verification code is incorrect."
+msgstr "잘못된 인증 코드입니다."
+
+#: board/services/two_factor_setup_service.py:225
+#, python-format
+msgid "Could not enable two-factor authentication: %(error)s"
+msgstr "2FA 활성화에 실패했습니다: %(error)s"
 
 #: board/templates/admin/board/confirm_action.html:11
 msgid "Home"

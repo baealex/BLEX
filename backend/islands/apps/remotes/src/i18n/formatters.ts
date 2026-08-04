@@ -2,14 +2,14 @@ import type { AppLocale } from './locale';
 
 const DATE_ONLY_PATTERN = /^(\d{4})-(\d{2})-(\d{2})$/;
 
-export const formatPublishedDate = (
-    publishedDate: string | undefined,
-    legacyDate: string,
-    locale: AppLocale
+export const formatDateOnly = (
+    value: string | undefined,
+    locale: AppLocale,
+    fallback = ''
 ): string => {
-    const match = publishedDate?.match(DATE_ONLY_PATTERN);
+    const match = value?.match(DATE_ONLY_PATTERN);
     if (!match) {
-        return legacyDate;
+        return fallback;
     }
 
     const [, year, month, day] = match;
@@ -20,7 +20,7 @@ export const formatPublishedDate = (
         || date.getUTCMonth() !== Number(month) - 1
         || date.getUTCDate() !== Number(day)
     ) {
-        return legacyDate;
+        return fallback;
     }
 
     return new Intl.DateTimeFormat(locale, {
@@ -30,3 +30,9 @@ export const formatPublishedDate = (
         timeZone: 'UTC'
     }).format(date);
 };
+
+export const formatPublishedDate = (
+    publishedDate: string | undefined,
+    legacyDate: string,
+    locale: AppLocale
+): string => formatDateOnly(publishedDate, locale, legacyDate);

@@ -1,3 +1,4 @@
+import { Trans, useLingui } from '@lingui/react/macro';
 import { AlertTriangle, ShieldCheck, Trash2 } from '@blex/ui/icons';
 import { Button, Card } from '~/components/shared';
 
@@ -8,15 +9,24 @@ interface SecuritySectionProps {
 }
 
 const SecuritySection = ({ has2fa, onToggle2FA, onDeleteAccount }: SecuritySectionProps) => {
+    const { t } = useLingui();
+
     return (
         <>
             <Card
-                title="보안 설정"
+                title={t({
+                    id: 'settings.account.security.title',
+                    message: 'Security'
+                })}
                 icon={<ShieldCheck className="h-5 w-5" />}
                 className="mb-6">
                 <div className="flex flex-col gap-4 rounded-lg border border-line bg-surface p-4 sm:flex-row sm:items-center sm:justify-between">
                     <div>
-                        <p className="font-medium text-content">2차 인증</p>
+                        <p className="font-medium text-content">
+                            <Trans id="settings.account.two_factor.title">
+                                Two-factor authentication
+                            </Trans>
+                        </p>
                     </div>
                     <Button
                         density="compact"
@@ -24,7 +34,15 @@ const SecuritySection = ({ has2fa, onToggle2FA, onDeleteAccount }: SecuritySecti
                         size="sm"
                         className="min-h-11! self-end [@media(pointer:fine)]:min-h-9! sm:self-auto"
                         onClick={() => onToggle2FA(!has2fa)}>
-                        {has2fa ? '중지' : '활성화'}
+                        {has2fa
+                            ? t({
+                                id: 'common.disable',
+                                message: 'Disable'
+                            })
+                            : t({
+                                id: 'common.enable',
+                                message: 'Enable'
+                            })}
                     </Button>
                 </div>
             </Card>
@@ -35,13 +53,19 @@ const SecuritySection = ({ has2fa, onToggle2FA, onDeleteAccount }: SecuritySecti
                 <div className="flex items-center gap-3 text-danger">
                     <AlertTriangle className="h-5 w-5" />
                     <h3 id="danger-zone-title" className="text-base font-semibold">
-                        위험 영역
+                        <Trans id="settings.account.danger_zone">Danger zone</Trans>
                     </h3>
                 </div>
                 <div className="mt-6 flex flex-col gap-4 border-t border-danger-line pt-6 sm:flex-row sm:items-center sm:justify-between">
                     <div className="min-w-0">
-                        <p className="font-medium text-content">계정 삭제</p>
-                        <p className="text-sm text-content-secondary">모든 데이터가 영구적으로 삭제되며 복구할 수 없습니다.</p>
+                        <p className="font-medium text-content">
+                            <Trans id="settings.account.delete.title">Delete account</Trans>
+                        </p>
+                        <p className="text-sm text-content-secondary">
+                            <Trans id="settings.account.delete.description">
+                                All data will be permanently deleted and cannot be recovered.
+                            </Trans>
+                        </p>
                     </div>
                     <Button
                         density="compact"
@@ -50,7 +74,7 @@ const SecuritySection = ({ has2fa, onToggle2FA, onDeleteAccount }: SecuritySecti
                         className="min-h-11! shrink-0 self-end [@media(pointer:fine)]:min-h-9! sm:self-auto"
                         leftIcon={<Trash2 className="h-4 w-4" />}
                         onClick={onDeleteAccount}>
-                        삭제
+                        <Trans id="common.delete">Delete</Trans>
                     </Button>
                 </div>
             </section>

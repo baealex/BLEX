@@ -611,8 +611,14 @@ msgstr ""
 #: src/components/remotes/PostEditor/components/PublishChecklist.tsx:139
 #: src/components/remotes/PostEditor/EditPostEditor.tsx:386
 #: src/components/remotes/PostEditor/NewPostEditor.tsx:397
+#: src/components/remotes/SettingsApp/pages/AccountSetting/components/TwoFactorModal.tsx:135
 #: src/components/remotes/SettingsApp/pages/PinnedPostsSetting/components/AddPinnedPostModal.tsx:220
 msgid "common.cancel"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/AccountSetting/AccountSetting.tsx:69
+msgid "common.change"
 msgstr ""
 
 #. js-lingui-explicit-id
@@ -631,7 +637,15 @@ msgstr ""
 #: src/components/remotes/Comments/hooks/useCommentsController.ts:270
 #: src/components/remotes/PostEditor/components/PostRevisionDialog.tsx:614
 #: src/components/remotes/PostEditor/components/PostRevisionDialog.tsx:645
+#: src/components/remotes/SettingsApp/pages/AccountSetting/AccountSetting.tsx:280
+#: src/components/remotes/SettingsApp/pages/AccountSetting/components/SecuritySection.tsx:77
 msgid "common.delete"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/AccountSetting/AccountSetting.tsx:192
+#: src/components/remotes/SettingsApp/pages/AccountSetting/components/SecuritySection.tsx:38
+msgid "common.disable"
 msgstr ""
 
 #. js-lingui-explicit-id
@@ -651,6 +665,11 @@ msgid "common.edit"
 msgstr ""
 
 #. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/AccountSetting/components/SecuritySection.tsx:42
+msgid "common.enable"
+msgstr ""
+
+#. js-lingui-explicit-id
 #: src/components/remotes/Login/Login.tsx:156
 #: src/components/remotes/Login/Login.tsx:238
 #: src/components/remotes/Signup/Signup.tsx:256
@@ -660,6 +679,11 @@ msgstr ""
 #. js-lingui-explicit-id
 #: src/components/remotes/PostEditor/components/PostRevisionDialog.tsx:453
 msgid "common.load_more"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/AccountSetting/AccountSetting.tsx:28
+msgid "common.network_error"
 msgstr ""
 
 #. js-lingui-explicit-id
@@ -2130,6 +2154,337 @@ msgstr ""
 #: src/components/remotes/SearchPage/SearchPage.tsx:204
 #: src/components/remotes/SearchPage/SearchPage.tsx:273
 msgid "search.validation.query_required"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/AccountSetting/AccountSetting.tsx:332
+msgid "settings.account.basic_info.title"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/AccountSetting/components/SecuritySection.tsx:56
+msgid "settings.account.danger_zone"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/AccountSetting/AccountSetting.tsx:276
+msgid "settings.account.delete.confirm"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/AccountSetting/components/SecuritySection.tsx:65
+msgid "settings.account.delete.description"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/AccountSetting/AccountSetting.tsx:305
+msgid "settings.account.delete.failed"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/AccountSetting/AccountSetting.tsx:293
+msgid "settings.account.delete.success"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/AccountSetting/AccountSetting.tsx:272
+#: src/components/remotes/SettingsApp/pages/AccountSetting/components/SecuritySection.tsx:62
+msgid "settings.account.delete.title"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/AccountSetting/components/AccountInfoSection.tsx:38
+msgid "settings.account.info.email"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/AccountSetting/components/AccountInfoSection.tsx:26
+msgid "settings.account.info.joined"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/AccountSetting/components/AccountInfoSection.tsx:17
+msgid "settings.account.info.title"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/AccountSetting/AccountSetting.tsx:40
+msgid "settings.account.load_failed"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/AccountSetting/components/NameSection.tsx:59
+msgid "settings.account.name.form_label"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/AccountSetting/components/NameSection.tsx:68
+msgid "settings.account.name.label"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/AccountSetting/components/NameSection.tsx:72
+msgid "settings.account.name.placeholder"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/AccountSetting/components/NameSection.tsx:95
+msgid "settings.account.name.update"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/AccountSetting/AccountSetting.tsx:124
+msgid "settings.account.name.update_failed"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/AccountSetting/AccountSetting.tsx:117
+msgid "settings.account.name.update_success"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/AccountSetting/components/NameSection.tsx:91
+msgid "settings.account.name.updating"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/AccountSetting/components/NameSection.tsx:23
+msgid "settings.account.name.validation.max_length"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/AccountSetting/components/PasswordSection.tsx:82
+#: src/components/remotes/SettingsApp/pages/AccountSetting/components/PasswordSection.tsx:88
+#: src/components/remotes/SettingsApp/pages/AccountSetting/components/PasswordSection.tsx:147
+msgid "settings.account.password.change"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/AccountSetting/components/PasswordSection.tsx:143
+msgid "settings.account.password.changing"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/AccountSetting/components/PasswordSection.tsx:118
+#: src/components/remotes/SettingsApp/pages/AccountSetting/components/PasswordSection.tsx:123
+msgid "settings.account.password.confirm"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/AccountSetting/components/PasswordSection.tsx:107
+msgid "settings.account.password.helper"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/AccountSetting/components/PasswordSection.tsx:97
+#: src/components/remotes/SettingsApp/pages/AccountSetting/components/PasswordSection.tsx:102
+msgid "settings.account.password.new"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/AccountSetting/AccountSetting.tsx:159
+msgid "settings.account.password.update_failed"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/AccountSetting/AccountSetting.tsx:152
+msgid "settings.account.password.update_success"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/AccountSetting/components/PasswordSection.tsx:28
+msgid "settings.account.password.validation.lowercase"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/AccountSetting/components/PasswordSection.tsx:24
+msgid "settings.account.password.validation.min_length"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/AccountSetting/components/PasswordSection.tsx:46
+msgid "settings.account.password.validation.mismatch"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/AccountSetting/components/PasswordSection.tsx:36
+msgid "settings.account.password.validation.number"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/AccountSetting/components/PasswordSection.tsx:40
+msgid "settings.account.password.validation.special"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/AccountSetting/components/PasswordSection.tsx:32
+msgid "settings.account.password.validation.uppercase"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/AccountSetting/components/SecuritySection.tsx:17
+msgid "settings.account.security.title"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/AccountSetting/AccountSetting.tsx:318
+msgid "settings.account.title"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/AccountSetting/components/TwoFactorModal.tsx:107
+msgid "settings.account.two_factor.code_label"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/AccountSetting/AccountSetting.tsx:188
+msgid "settings.account.two_factor.disable_confirm"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/AccountSetting/AccountSetting.tsx:227
+msgid "settings.account.two_factor.disable_failed"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/AccountSetting/AccountSetting.tsx:221
+msgid "settings.account.two_factor.disable_success"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/AccountSetting/AccountSetting.tsx:184
+msgid "settings.account.two_factor.disable_title"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/AccountSetting/AccountSetting.tsx:211
+msgid "settings.account.two_factor.enable_failed"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/AccountSetting/AccountSetting.tsx:245
+msgid "settings.account.two_factor.enable_success"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/AccountSetting/AccountSetting.tsx:255
+#: src/components/remotes/SettingsApp/pages/AccountSetting/components/TwoFactorModal.tsx:40
+msgid "settings.account.two_factor.invalid_code"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/AccountSetting/components/TwoFactorModal.tsx:74
+msgid "settings.account.two_factor.qr_code"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/AccountSetting/components/TwoFactorModal.tsx:85
+msgid "settings.account.two_factor.recovery_key"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/AccountSetting/components/TwoFactorModal.tsx:90
+msgid "settings.account.two_factor.recovery_key_description"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/AccountSetting/components/TwoFactorModal.tsx:100
+msgid "settings.account.two_factor.recovery_key_warning"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/AccountSetting/components/TwoFactorModal.tsx:67
+msgid "settings.account.two_factor.scan_qr"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/AccountSetting/components/TwoFactorModal.tsx:60
+msgid "settings.account.two_factor.setup_title"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/AccountSetting/components/SecuritySection.tsx:26
+msgid "settings.account.two_factor.title"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/AccountSetting/components/TwoFactorModal.tsx:27
+msgid "settings.account.two_factor.validation.six_digits"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/AccountSetting/components/TwoFactorModal.tsx:150
+msgid "settings.account.two_factor.verify"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/AccountSetting/components/TwoFactorModal.tsx:146
+msgid "settings.account.two_factor.verifying"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/AccountSetting/AccountSetting.tsx:65
+msgid "settings.account.username.confirm_message"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/AccountSetting/AccountSetting.tsx:61
+msgid "settings.account.username.confirm_title"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/AccountSetting/AccountSetting.tsx:49
+msgid "settings.account.username.different_required"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/AccountSetting/components/UsernameSection.tsx:64
+msgid "settings.account.username.form_label"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/AccountSetting/components/UsernameSection.tsx:82
+msgid "settings.account.username.helper"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/AccountSetting/components/UsernameSection.tsx:73
+msgid "settings.account.username.label"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/AccountSetting/components/UsernameSection.tsx:77
+msgid "settings.account.username.placeholder"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/AccountSetting/components/UsernameSection.tsx:104
+msgid "settings.account.username.update"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/AccountSetting/AccountSetting.tsx:89
+msgid "settings.account.username.update_failed"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/AccountSetting/AccountSetting.tsx:82
+msgid "settings.account.username.update_success"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/AccountSetting/components/UsernameSection.tsx:100
+msgid "settings.account.username.updating"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/AccountSetting/components/UsernameSection.tsx:28
+msgid "settings.account.username.validation.max_length"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/AccountSetting/components/UsernameSection.tsx:24
+msgid "settings.account.username.validation.min_length"
 msgstr ""
 
 #. js-lingui-explicit-id

@@ -820,6 +820,11 @@ class SettingTestCase(TestCase):
         content = json.loads(response.content)
         self.assertEqual(content['body']['username'], 'test')
         self.assertEqual(content['body']['name'], 'Test User')
+        user = User.objects.get(username='test')
+        self.assertEqual(
+            content['body']['createdDate'],
+            timezone.localtime(user.date_joined).date().isoformat(),
+        )
 
     def test_update_username(self):
         """사용자 필명 변경 테스트"""
@@ -912,6 +917,23 @@ class SettingTestCase(TestCase):
                     'errorCode': 'error:VA',
                     'errorMessage': message,
                 })
+
+    def test_update_account_localizes_password_error_for_english_request(self):
+        """비밀번호 오류는 안정 코드와 함께 요청 언어로 응답한다."""
+        self.client.login(username='test', password='test')
+
+        response = self.client.put(
+            '/v1/setting/account',
+            json.dumps({'password': 'Aa1!aaa'}),
+            content_type='application/json',
+            HTTP_ACCEPT_LANGUAGE='en',
+        )
+
+        self.assertEqual(response.json(), {
+            'status': 'ERROR',
+            'errorCode': 'error:VA',
+            'errorMessage': 'Password must be at least 8 characters.',
+        })
 
     def test_update_password_keeps_authenticated_session(self):
         """비밀번호 변경 성공 후 새 hash를 저장하고 현재 세션 로그인을 유지한다."""

@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { describe, test } from 'node:test';
 
-import { formatPublishedDate } from '../src/i18n/formatters.ts';
+import { formatDateOnly, formatPublishedDate } from '../src/i18n/formatters.ts';
 import { normalizeLocale } from '../src/i18n/locale.ts';
 import { formatScheduleDateTime } from '../src/components/remotes/PostEditor/utils/scheduleDate.ts';
 import { buildQueryCacheKey } from '../src/lib/query-cache-key.ts';
@@ -29,8 +29,8 @@ describe('locale-sensitive cache boundaries', () => {
 
 describe('localized publication dates', () => {
     test('formats date-only values without a timezone day shift', () => {
-        const korean = formatPublishedDate('2026-01-02', 'legacy', 'ko');
-        const english = formatPublishedDate('2026-01-02', 'legacy', 'en');
+        const korean = formatDateOnly('2026-01-02', 'ko', 'legacy');
+        const english = formatDateOnly('2026-01-02', 'en', 'legacy');
 
         assert.match(korean, /2026/);
         assert.match(korean, /1/);
@@ -38,7 +38,8 @@ describe('localized publication dates', () => {
         assert.match(english, /2026/);
         assert.match(english, /Jan/);
         assert.match(english, /2/);
-        assert.equal(formatPublishedDate('2026-02-30', 'legacy', 'en'), 'legacy');
+        assert.equal(formatDateOnly('2026-02-30', 'en', 'legacy'), 'legacy');
+        assert.equal(formatPublishedDate('2026-01-02', 'legacy', 'en'), english);
     });
 
     test('formats scheduled publication times with the selected UI locale', () => {

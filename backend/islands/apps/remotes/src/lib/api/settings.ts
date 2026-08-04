@@ -12,7 +12,6 @@ export interface AccountData {
 export interface AccountUpdateData {
     username?: string;
     name?: string;
-    new_password?: string;
     password?: string;
 }
 
