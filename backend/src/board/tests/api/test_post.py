@@ -706,6 +706,20 @@ class PostTestCase(TestCase):
 
         self.assertEqual(response.status_code, 403)
 
+    def test_markdown_conversion_error_follows_the_request_language(self):
+        self.client.login(username='author', password='author')
+
+        response = self.client.post(
+            '/v1/markdown',
+            data=json.dumps({'text': ''}),
+            content_type='application/json',
+            HTTP_ACCEPT_LANGUAGE='en',
+        )
+
+        content = json.loads(response.content)
+        self.assertEqual(content['errorCode'], 'error:IP')
+        self.assertEqual(content['errorMessage'], 'Text cannot be empty.')
+
     def test_create_post_markdown_mode_does_not_render_mentions(self):
         """포스트 마크다운에서는 멘션이 링크로 변환되지 않아야 함"""
         self.client.login(username='author', password='author')

@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: BLEX 3.1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-08-05 06:59+0900\n"
+"POT-Creation-Date: 2026-08-05 07:06+0900\n"
 "PO-Revision-Date: 2026-07-18 00:00+0900\n"
 "Last-Translator: BLEX contributors\n"
 "Language-Team: Korean\n"
@@ -1826,8 +1826,13 @@ msgstr "최고 관리자 권한이 필요합니다."
 
 #: board/services/api_permission_service.py:61
 #: board/services/api_permission_service.py:72
+#: board/services/user_service.py:65
 msgid "Permission denied."
 msgstr "권한이 없습니다."
+
+#: board/services/api_request_body_service.py:12
+msgid "Invalid request."
+msgstr "잘못된 요청입니다."
 
 #: board/services/auth_login_service.py:63
 msgid "Too many failed attempts. Please try again later."
@@ -2064,6 +2069,10 @@ msgstr "비활성 사용자입니다."
 msgid "%(scope)s scope is required."
 msgstr "%(scope)s scope가 필요합니다."
 
+#: board/services/email_change_service.py:25
+msgid "The email change request to cancel could not be found."
+msgstr "취소할 이메일 변경 요청을 찾을 수 없습니다."
+
 #: board/services/hcaptcha_service.py:136
 msgid "Enter an hCaptcha Site Key."
 msgstr "hCaptcha Site Key를 입력해주세요."
@@ -2071,6 +2080,24 @@ msgstr "hCaptcha Site Key를 입력해주세요."
 #: board/services/hcaptcha_service.py:138
 msgid "Enter an hCaptcha Secret Key."
 msgstr "hCaptcha Secret Key를 입력해주세요."
+
+#: board/services/image_upload_service.py:30
+msgid "No image was provided."
+msgstr "이미지가 없습니다."
+
+#: board/services/image_upload_service.py:43
+msgid "This file extension is not allowed."
+msgstr "허용된 확장자가 아닙니다."
+
+#: board/services/image_upload_service.py:117
+#: board/services/image_upload_service.py:180
+#: board/services/image_upload_service.py:202
+msgid "Image upload failed."
+msgstr "이미지 업로드에 실패했습니다."
+
+#: board/services/image_upload_service.py:145
+msgid "Video upload failed."
+msgstr "비디오 업로드에 실패했습니다."
 
 #: board/services/integration_setting_service.py:121
 msgid "Enter a Telegram bot username."
@@ -2194,7 +2221,11 @@ msgstr "휴지통 포스트를 찾을 수 없습니다."
 msgid "The trash state changed. Refresh the list and try again."
 msgstr "휴지통 상태가 바뀌었습니다. 목록을 새로고침한 뒤 다시 시도해주세요."
 
-#: board/services/series_service.py:47
+#: board/services/product_settings_permission_service.py:61
+msgid "Permission to change site settings is required."
+msgstr "사이트 설정 변경 권한이 필요합니다."
+
+#: board/services/series_service.py:47 board/services/user_service.py:59
 msgid "Login is required."
 msgstr "로그인이 필요합니다."
 
@@ -2267,6 +2298,14 @@ msgstr "URL 슬러그를 입력해주세요."
 #: board/services/site_content_api_service.py:330
 msgid "This slug is already in use."
 msgstr "이미 사용 중인 슬러그입니다."
+
+#: board/services/social_auth_connection_service.py:27
+msgid "The social login connection to disconnect could not be found."
+msgstr "해제할 소셜 로그인 연동을 찾을 수 없습니다."
+
+#: board/services/social_auth_connection_service.py:38
+msgid "This connection cannot be disconnected because the account has no usable password or another social login method."
+msgstr "사용 가능한 비밀번호나 다른 소셜 로그인 수단이 없어 이 연동을 해제할 수 없습니다."
 
 #: board/services/two_factor_setup_service.py:142
 #, python-format
@@ -3356,6 +3395,10 @@ msgstr "전역 배너 순서가 변경되었습니다."
 msgid "Notice deleted."
 msgstr "공지가 삭제되었습니다."
 
+#: board/views/api/v1/markdown.py:36
+msgid "Text cannot be empty."
+msgstr "텍스트가 비어 있습니다."
+
 #: board/views/api/v1/pinned_post.py:42 board/views/api/v1/pinned_post.py:59
 #: board/views/api/v1/setting.py:250 board/views/api/v1/setting.py:275
 msgid "Post URL is required."
@@ -3438,6 +3481,10 @@ msgstr "시리즈 순서가 변경되었습니다."
 #: board/views/api/v1/series.py:362
 msgid "Series deleted."
 msgstr "시리즈가 삭제되었습니다."
+
+#: board/views/api/v1/setting.py:293
+msgid "Notification not found."
+msgstr "알림을 찾을 수 없습니다."
 
 #: board/views/api/v1/site_setting.py:69
 msgid "Site name must be 80 characters or fewer."

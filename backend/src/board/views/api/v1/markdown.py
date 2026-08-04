@@ -1,4 +1,5 @@
 from django.http import Http404
+from django.utils.translation import gettext
 
 from modules import markdown
 from board.decorators import api_editor_required_methods
@@ -30,7 +31,10 @@ def markdown_to_html(request):
         text = request.POST.get('text', '')
 
     if not text:
-        return StatusError(ErrorCode.INVALID_PARAMETER, '텍스트가 비어있습니다.')
+        return StatusError(
+            ErrorCode.INVALID_PARAMETER,
+            gettext('Text cannot be empty.'),
+        )
 
     html = markdown.parse_post_to_html(text)
 

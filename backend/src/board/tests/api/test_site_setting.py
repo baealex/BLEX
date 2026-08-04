@@ -481,18 +481,26 @@ class SiteSettingAPITestCase(TestCase):
         ):
             with self.subTest(method=method):
                 if method == 'get':
-                    response = client.get('/v1/site-settings')
+                    response = client.get(
+                        '/v1/site-settings',
+                        HTTP_ACCEPT_LANGUAGE='en',
+                    )
                 else:
                     response = client.put(
                         '/v1/site-settings',
                         payload,
                         content_type='application/json',
+                        HTTP_ACCEPT_LANGUAGE='en',
                     )
 
                 self.assertEqual(response.status_code, 200)
                 content = json.loads(response.content)
                 self.assertEqual(content['status'], 'ERROR')
                 self.assertEqual(content['errorCode'], 'error:RJ')
+                self.assertEqual(
+                    content['errorMessage'],
+                    'Permission to change site settings is required.',
+                )
 
     def test_staff_can_upload_logo_svg(self):
         response = self.client.post('/v1/site-settings/brand-assets', {

@@ -17,6 +17,7 @@ from django.db.models import (
 )
 from django.db.models.functions import Coalesce
 from django.utils import timezone
+from django.utils.translation import gettext
 
 from board.html_utils import sanitize_content_html
 from board.models import (
@@ -55,13 +56,13 @@ class UserService:
         if not current_user.is_active:
             raise UserValidationError(
                 ErrorCode.NEED_LOGIN,
-                '로그인이 필요합니다.'
+                gettext('Login is required.'),
             )
 
         if current_user != target_user and not current_user.is_staff:
             raise UserValidationError(
                 ErrorCode.AUTHENTICATION,
-                '권한이 없습니다.'
+                gettext('Permission denied.'),
             )
 
     @staticmethod

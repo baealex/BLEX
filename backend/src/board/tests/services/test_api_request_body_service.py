@@ -1,4 +1,7 @@
+import json
+
 from django.test import RequestFactory, TestCase
+from django.utils import translation
 
 from board.services.api_request_body_service import ApiRequestBodyService
 
@@ -29,6 +32,25 @@ class ApiRequestBodyServiceTestCase(TestCase):
         self.assertIsNone(data)
         self.assertIsNotNone(error)
         self.assertEqual(error.status_code, 200)
+
+    def test_default_invalid_json_message_follows_the_active_language(self):
+        request = self.factory.post(
+            '/v1/example',
+            data=b'{invalid',
+            content_type='application/json',
+        )
+
+        for language, expected_message in (
+            ('en', 'Invalid request.'),
+            ('ko', '잘못된 요청입니다.'),
+        ):
+            with self.subTest(language=language), translation.override(language):
+                data, error = ApiRequestBodyService.parse_json_or_error(request)
+                payload = json.loads(error.content)
+
+                self.assertIsNone(data)
+                self.assertEqual(payload['errorCode'], 'error:VA')
+                self.assertEqual(payload['errorMessage'], expected_message)
 
     def test_parse_json_or_error_can_require_body(self):
         from board.modules.response import ErrorCode

@@ -290,7 +290,7 @@ def setting(request, parameter):
             id = put.get('id')
 
             if not UserNotificationService.mark_notification_as_read(user, id):
-                return StatusError(ErrorCode.NOT_FOUND, '알림을 찾을 수 없습니다.')
+                return StatusError(ErrorCode.NOT_FOUND, _('Notification not found.'))
 
             return StatusDone()
 

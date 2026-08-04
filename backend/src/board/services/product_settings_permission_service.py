@@ -4,6 +4,7 @@ from typing import Optional
 
 from django.contrib.auth.models import AnonymousUser, User
 from django.http import HttpResponse
+from django.utils.translation import gettext
 
 from board.models import SiteSetting
 from board.modules.response import ErrorCode, StatusError
@@ -55,7 +56,10 @@ class ProductSettingsPermissionService:
             return staff_error
 
         if not cls.can_manage_site_settings(user):
-            return StatusError(ErrorCode.REJECT, '사이트 설정 변경 권한이 필요합니다.')
+            return StatusError(
+                ErrorCode.REJECT,
+                gettext('Permission to change site settings is required.'),
+            )
 
         return None
 

@@ -239,13 +239,15 @@ class SettingTestCase(TestCase):
         response = self.client.put(
             '/v1/setting/notify',
             json.dumps({'id': notify.id}),
-            content_type='application/json'
+            content_type='application/json',
+            HTTP_ACCEPT_LANGUAGE='en',
         )
 
         self.assertEqual(response.status_code, 200)
         content = json.loads(response.content)
         self.assertEqual(content['status'], 'ERROR')
         self.assertEqual(content['errorCode'], 'error:NF')
+        self.assertEqual(content['errorMessage'], 'Notification not found.')
         notify.refresh_from_db()
         self.assertFalse(notify.has_read)
     
