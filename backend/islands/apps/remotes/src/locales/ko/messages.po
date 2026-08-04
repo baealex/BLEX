@@ -622,6 +622,7 @@ msgstr "적용"
 #: src/components/remotes/PostEditor/EditPostEditor.tsx:386
 #: src/components/remotes/PostEditor/NewPostEditor.tsx:397
 #: src/components/remotes/SettingsApp/pages/AccountSetting/components/TwoFactorModal.tsx:135
+#: src/components/remotes/SettingsApp/pages/FormsSetting/FormsSetting.tsx:291
 #: src/components/remotes/SettingsApp/pages/PinnedPostsSetting/components/AddPinnedPostModal.tsx:220
 #: src/components/shared/ImageCropDialog.tsx:239
 msgid "common.cancel"
@@ -655,6 +656,8 @@ msgstr "복사"
 #: src/components/remotes/PostEditor/components/PostRevisionDialog.tsx:645
 #: src/components/remotes/SettingsApp/pages/AccountSetting/AccountSetting.tsx:280
 #: src/components/remotes/SettingsApp/pages/AccountSetting/components/SecuritySection.tsx:77
+#: src/components/remotes/SettingsApp/pages/FormsSetting/FormsSetting.tsx:86
+#: src/components/remotes/SettingsApp/pages/FormsSetting/FormsSetting.tsx:356
 #: src/components/remotes/SettingsApp/pages/ProfileSetting/ProfileSetting.tsx:233
 #: src/components/remotes/SettingsApp/pages/SeriesSetting/components/SeriesEditor.tsx:307
 #: src/components/remotes/SettingsApp/pages/SeriesSetting/components/SeriesEditor.tsx:539
@@ -682,6 +685,7 @@ msgstr "완료"
 
 #. js-lingui-explicit-id
 #: src/components/remotes/Comments/components/CommentItem.tsx:70
+#: src/components/remotes/SettingsApp/pages/FormsSetting/FormsSetting.tsx:348
 msgid "common.edit"
 msgstr "수정"
 
@@ -714,6 +718,9 @@ msgstr "더 보기"
 
 #. js-lingui-explicit-id
 #: src/components/remotes/SettingsApp/pages/AccountSetting/AccountSetting.tsx:28
+#: src/components/remotes/SettingsApp/pages/FormsSetting/FormsSetting.tsx:111
+#: src/components/remotes/SettingsApp/pages/FormsSetting/FormsSetting.tsx:144
+#: src/components/remotes/SettingsApp/pages/FormsSetting/FormsSetting.tsx:192
 msgid "common.network_error"
 msgstr "네트워크 오류가 발생했습니다."
 
@@ -2556,6 +2563,141 @@ msgstr "사용자 필명은 30자 이내여야 합니다."
 #: src/components/remotes/SettingsApp/pages/AccountSetting/components/UsernameSection.tsx:24
 msgid "settings.account.username.validation.min_length"
 msgstr "사용자 필명은 3자 이상이어야 합니다."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/FormsSetting/FormsSetting.tsx:215
+msgid "settings.forms.add"
+msgstr "새 서식 추가"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/FormsSetting/FormsSetting.tsx:316
+msgid "settings.forms.create.action"
+msgstr "서식 생성"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/FormsSetting/FormsSetting.tsx:307
+msgid "settings.forms.create.creating"
+msgstr "생성 중..."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/FormsSetting/FormsSetting.tsx:185
+msgid "settings.forms.create.failed"
+msgstr "서식 생성에 실패했습니다."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/FormsSetting/FormsSetting.tsx:178
+msgid "settings.forms.create.success"
+msgstr "서식이 생성되었습니다."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/FormsSetting/FormsSetting.tsx:105
+msgid "settings.forms.delete.failed"
+msgstr "서식 삭제에 실패했습니다."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/FormsSetting/FormsSetting.tsx:81
+msgid "settings.forms.delete.message"
+msgstr "‘{title}’ 서식을 삭제할까요? 이 작업은 되돌릴 수 없습니다."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/FormsSetting/FormsSetting.tsx:99
+msgid "settings.forms.delete.success"
+msgstr "서식이 삭제되었습니다."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/FormsSetting/FormsSetting.tsx:77
+msgid "settings.forms.delete.title"
+msgstr "서식 삭제"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/FormsSetting/FormsSetting.tsx:227
+msgid "settings.forms.description"
+msgstr "새 포스트에 불러올 문구를 미리 저장합니다."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/FormsSetting/FormsSetting.tsx:245
+msgid "settings.forms.editor.add_title"
+msgstr "서식 추가"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/FormsSetting/FormsSetting.tsx:241
+msgid "settings.forms.editor.edit_title"
+msgstr "서식 편집"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/FormsSetting/FormsSetting.tsx:374
+msgid "settings.forms.empty"
+msgstr "등록된 서식이 없습니다"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/FormsSetting/FormsSetting.tsx:268
+msgid "settings.forms.fields.content"
+msgstr "내용"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/FormsSetting/FormsSetting.tsx:274
+msgid "settings.forms.fields.content_placeholder"
+msgstr "서식 내용을 입력하세요"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/FormsSetting/FormsSetting.tsx:253
+msgid "settings.forms.fields.title"
+msgstr "제목"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/FormsSetting/FormsSetting.tsx:258
+msgid "settings.forms.fields.title_placeholder"
+msgstr "서식 제목을 입력하세요"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/FormsSetting/FormsSetting.tsx:138
+msgid "settings.forms.load_detail_failed"
+msgstr "서식을 불러오지 못했습니다."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/FormsSetting/FormsSetting.tsx:340
+msgid "settings.forms.open_menu"
+msgstr "{title} 서식 메뉴 열기"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/FormsSetting/FormsSetting.tsx:222
+msgid "settings.forms.title_count"
+msgstr "서식 ({count})"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/FormsSetting/FormsSetting.tsx:312
+msgid "settings.forms.update.action"
+msgstr "서식 수정"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/FormsSetting/FormsSetting.tsx:167
+msgid "settings.forms.update.failed"
+msgstr "서식 수정에 실패했습니다."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/FormsSetting/FormsSetting.tsx:160
+msgid "settings.forms.update.success"
+msgstr "서식이 수정되었습니다."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/FormsSetting/FormsSetting.tsx:303
+msgid "settings.forms.update.updating"
+msgstr "수정 중..."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/FormsSetting/FormsSetting.tsx:52
+msgid "settings.forms.validation.content_required"
+msgstr "내용을 입력해주세요."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/FormsSetting/FormsSetting.tsx:48
+msgid "settings.forms.validation.title_max_length"
+msgstr "제목은 100자 이내로 입력해주세요."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/FormsSetting/FormsSetting.tsx:44
+msgid "settings.forms.validation.title_required"
+msgstr "제목을 입력해주세요."
 
 #. js-lingui-explicit-id
 #: src/components/remotes/SettingsApp/components/SettingsNavigation.tsx:90

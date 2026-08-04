@@ -622,6 +622,7 @@ msgstr ""
 #: src/components/remotes/PostEditor/EditPostEditor.tsx:386
 #: src/components/remotes/PostEditor/NewPostEditor.tsx:397
 #: src/components/remotes/SettingsApp/pages/AccountSetting/components/TwoFactorModal.tsx:135
+#: src/components/remotes/SettingsApp/pages/FormsSetting/FormsSetting.tsx:291
 #: src/components/remotes/SettingsApp/pages/PinnedPostsSetting/components/AddPinnedPostModal.tsx:220
 #: src/components/shared/ImageCropDialog.tsx:239
 msgid "common.cancel"
@@ -655,6 +656,8 @@ msgstr ""
 #: src/components/remotes/PostEditor/components/PostRevisionDialog.tsx:645
 #: src/components/remotes/SettingsApp/pages/AccountSetting/AccountSetting.tsx:280
 #: src/components/remotes/SettingsApp/pages/AccountSetting/components/SecuritySection.tsx:77
+#: src/components/remotes/SettingsApp/pages/FormsSetting/FormsSetting.tsx:86
+#: src/components/remotes/SettingsApp/pages/FormsSetting/FormsSetting.tsx:356
 #: src/components/remotes/SettingsApp/pages/ProfileSetting/ProfileSetting.tsx:233
 #: src/components/remotes/SettingsApp/pages/SeriesSetting/components/SeriesEditor.tsx:307
 #: src/components/remotes/SettingsApp/pages/SeriesSetting/components/SeriesEditor.tsx:539
@@ -682,6 +685,7 @@ msgstr ""
 
 #. js-lingui-explicit-id
 #: src/components/remotes/Comments/components/CommentItem.tsx:70
+#: src/components/remotes/SettingsApp/pages/FormsSetting/FormsSetting.tsx:348
 msgid "common.edit"
 msgstr ""
 
@@ -714,6 +718,9 @@ msgstr ""
 
 #. js-lingui-explicit-id
 #: src/components/remotes/SettingsApp/pages/AccountSetting/AccountSetting.tsx:28
+#: src/components/remotes/SettingsApp/pages/FormsSetting/FormsSetting.tsx:111
+#: src/components/remotes/SettingsApp/pages/FormsSetting/FormsSetting.tsx:144
+#: src/components/remotes/SettingsApp/pages/FormsSetting/FormsSetting.tsx:192
 msgid "common.network_error"
 msgstr ""
 
@@ -2555,6 +2562,141 @@ msgstr ""
 #. js-lingui-explicit-id
 #: src/components/remotes/SettingsApp/pages/AccountSetting/components/UsernameSection.tsx:24
 msgid "settings.account.username.validation.min_length"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/FormsSetting/FormsSetting.tsx:215
+msgid "settings.forms.add"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/FormsSetting/FormsSetting.tsx:316
+msgid "settings.forms.create.action"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/FormsSetting/FormsSetting.tsx:307
+msgid "settings.forms.create.creating"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/FormsSetting/FormsSetting.tsx:185
+msgid "settings.forms.create.failed"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/FormsSetting/FormsSetting.tsx:178
+msgid "settings.forms.create.success"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/FormsSetting/FormsSetting.tsx:105
+msgid "settings.forms.delete.failed"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/FormsSetting/FormsSetting.tsx:81
+msgid "settings.forms.delete.message"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/FormsSetting/FormsSetting.tsx:99
+msgid "settings.forms.delete.success"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/FormsSetting/FormsSetting.tsx:77
+msgid "settings.forms.delete.title"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/FormsSetting/FormsSetting.tsx:227
+msgid "settings.forms.description"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/FormsSetting/FormsSetting.tsx:245
+msgid "settings.forms.editor.add_title"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/FormsSetting/FormsSetting.tsx:241
+msgid "settings.forms.editor.edit_title"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/FormsSetting/FormsSetting.tsx:374
+msgid "settings.forms.empty"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/FormsSetting/FormsSetting.tsx:268
+msgid "settings.forms.fields.content"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/FormsSetting/FormsSetting.tsx:274
+msgid "settings.forms.fields.content_placeholder"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/FormsSetting/FormsSetting.tsx:253
+msgid "settings.forms.fields.title"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/FormsSetting/FormsSetting.tsx:258
+msgid "settings.forms.fields.title_placeholder"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/FormsSetting/FormsSetting.tsx:138
+msgid "settings.forms.load_detail_failed"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/FormsSetting/FormsSetting.tsx:340
+msgid "settings.forms.open_menu"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/FormsSetting/FormsSetting.tsx:222
+msgid "settings.forms.title_count"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/FormsSetting/FormsSetting.tsx:312
+msgid "settings.forms.update.action"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/FormsSetting/FormsSetting.tsx:167
+msgid "settings.forms.update.failed"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/FormsSetting/FormsSetting.tsx:160
+msgid "settings.forms.update.success"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/FormsSetting/FormsSetting.tsx:303
+msgid "settings.forms.update.updating"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/FormsSetting/FormsSetting.tsx:52
+msgid "settings.forms.validation.content_required"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/FormsSetting/FormsSetting.tsx:48
+msgid "settings.forms.validation.title_max_length"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/FormsSetting/FormsSetting.tsx:44
+msgid "settings.forms.validation.title_required"
 msgstr ""
 
 #. js-lingui-explicit-id

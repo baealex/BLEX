@@ -140,7 +140,7 @@ const userNavigationSections: NavigationSection[] = [
             {
                 name: msg({
                     id: 'settings.navigation.forms',
-                    message: 'Forms'
+                    message: 'Templates'
                 }),
                 path: '/forms',
                 icon: AlignLeft,
