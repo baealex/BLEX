@@ -919,8 +919,8 @@ class PostTestCase(TestCase):
 
         self.assertEqual(response.status_code, 404)
 
-    def test_related_posts_adds_iso_timestamp_without_replacing_display_date(self):
-        """관련 글 날짜 계약은 기존 표시값을 유지하고 ISO 시각을 추가한다."""
+    def test_related_posts_adds_iso_dates_without_replacing_display_date(self):
+        """관련 글 날짜 계약은 기존 표시값을 유지하고 기계 판독 날짜를 추가한다."""
         reference = Post.objects.get(url='test-post-1')
         candidate = Post.objects.get(url='test-post-2')
         tag = Tag.objects.create(value='related-api-contract')
@@ -939,6 +939,10 @@ class PostTestCase(TestCase):
         self.assertEqual(
             related_post['publishedAt'],
             candidate.published_date.isoformat(),
+        )
+        self.assertEqual(
+            related_post['publishedDateIso'],
+            timezone.localdate(candidate.published_date).isoformat(),
         )
 
     def test_related_posts_rejects_draft_post_for_non_owner(self):

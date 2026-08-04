@@ -1,3 +1,4 @@
+{% load i18n %}
 <div
     x-data="toc()"
     x-init="init()"
@@ -6,12 +7,12 @@
     <!-- Header -->
     <div class="px-6 py-4 border-b border-line-light sticky top-0 bg-surface z-10">
         <h2 class="text-sm font-bold text-content uppercase tracking-wider">
-            목차
+            {% translate "Table of contents" %}
         </h2>
     </div>
 
     <!-- ToC List -->
-    <nav class="px-4 py-4" aria-label="Table of Contents">
+    <nav class="px-4 py-4" aria-label="{% translate 'Table of contents' %}">
         <ul class="space-y-1">
             {% for heading in table_of_contents %}
                 <li>

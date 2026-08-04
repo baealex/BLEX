@@ -144,7 +144,7 @@ const Comments = (props: CommentsProps) => {
                         onCommentTextChange={setCommentText}
                         onSubmit={handleWrite}
                         isSubmitting={isSubmitting}
-                        onShowLoginPrompt={() => showLoginPrompt('댓글 작성')}
+                        onShowLoginPrompt={() => showLoginPrompt('comment')}
                         mentionableUsers={mentionableUsers}
                     />
                 </div>

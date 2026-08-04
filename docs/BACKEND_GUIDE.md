@@ -51,11 +51,12 @@ Python is dynamic, but our codebase shouldn't be a guessing game. Use Type Hints
 -   **Explicit > Implicit**: `get_active_user_by_email()` is better than `get_user()`.
 -   **English Only**: Code, comments, and commit messages must be in English.
 
-### Admin Label Translations
-- Keep model and Admin label source messages in stable English with `gettext_lazy`.
-- Change Korean copy in `backend/src/locale/ko/LC_MESSAGES/django.po`, not in model `Meta` options.
+### Backend Translations
+- Keep template, validation, model, and Admin source messages in stable English using the appropriate `gettext` primitive.
+- Change Korean copy in `backend/src/locale/ko/LC_MESSAGES/django.po`, not in model `Meta` options or branching logic.
 - Run `npm run server:compilemessages` and commit the updated `.po` and `.mo` files together.
 - A Korean copy edit must not create a model migration. Review `makemigrations --check` before committing.
+- Django is the document-locale authority. API fallbacks use the request locale, while stable message keys and machine-readable fields remain locale-neutral.
 
 ### Anti-Patterns to Avoid
 

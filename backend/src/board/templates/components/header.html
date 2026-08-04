@@ -1,5 +1,10 @@
 {% load static %}
 {% load resource %}
+{% load i18n %}
+{% translate "Switch to light mode" as switch_to_light_mode %}
+{% translate "Switch to dark mode" as switch_to_dark_mode %}
+{% translate "Light mode" as light_mode %}
+{% translate "Dark mode" as dark_mode %}
 <header
     class="sticky top-0 left-0 right-0 z-30 border-b border-transparent frosted-surface transition-all duration-200"
     x-data="header()"
@@ -29,8 +34,8 @@
                     <button
                         @click="toggleTheme()"
                         class="w-10 h-10 inline-flex items-center justify-center rounded-full border border-line-light text-content-secondary hover:text-content hover:bg-surface-subtle transition-all duration-150 active:scale-95"
-                        :aria-label="resolvedTheme === 'dark' ? '라이트 모드로 전환' : '다크 모드로 전환'"
-                        :title="resolvedTheme === 'dark' ? '라이트 모드' : '다크 모드'"
+                        :aria-label="resolvedTheme === 'dark' ? '{{ switch_to_light_mode|escapejs }}' : '{{ switch_to_dark_mode|escapejs }}'"
+                        :title="resolvedTheme === 'dark' ? '{{ light_mode|escapejs }}' : '{{ dark_mode|escapejs }}'"
                     >
                         <i class="fas text-sm" :class="resolvedTheme === 'dark' ? 'fa-sun' : 'fa-moon'" aria-hidden="true"></i>
                     </button>
@@ -38,7 +43,7 @@
                     {% if not is_editor_page and user.profile.is_editor %}
                     <a href="/write" class="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-action hover:bg-action-hover text-content-inverted font-medium text-sm transition-all duration-150 active:scale-95">
                         <i class="fas fa-pen text-xs"></i>
-                        <span>새 포스트</span>
+                        <span>{% translate "New post" %}</span>
                     </a>
                     {% endif %}
 
@@ -57,7 +62,7 @@
                         <button
                             @click="open = !open"
                             class="relative inline-flex items-center gap-1.5 pl-1.5 pr-2 py-1.5 hover:bg-surface-subtle rounded-full transition-all duration-150 active:scale-95 focus:outline-none"
-                            aria-label="사용자 메뉴"
+                            aria-label="{% translate 'User menu' %}"
                         >
                             <div class="w-8 h-8 bg-action rounded-full flex items-center justify-center text-content-inverted font-semibold text-xs ring-2 ring-transparent hover:ring-line-light transition-all duration-150">
                                 {{ user.username|first|upper }}
@@ -82,18 +87,18 @@
                              class="absolute right-0 mt-2 w-52 bg-surface-elevated rounded-xl shadow-lg ring-1 ring-line/50 py-1 z-50 origin-top-right">
 
                             <div class="px-4 py-3.5 border-b border-line-light">
-                                <p class="text-xs text-content-secondary">Signed in as</p>
+                                <p class="text-xs text-content-secondary">{% translate "Signed in as" %}</p>
                                 <p class="text-sm font-semibold text-content truncate mt-0.5">{{ user.username }}</p>
                             </div>
 
                             <div class="py-1">
                                 <a href="/@{{ user.username }}" class="flex items-center gap-3 px-4 py-3 text-sm text-content-secondary hover:bg-surface-subtle transition-colors duration-150">
                                     <i class="fas fa-user text-content-hint text-xs w-4"></i>
-                                    <span>프로필</span>
+                                    <span>{% translate "Profile" %}</span>
                                 </a>
                                 <a href="/settings/notify" class="flex items-center gap-3 px-4 py-3 text-sm text-content-secondary hover:bg-surface-subtle transition-colors duration-150">
                                     <i class="fas fa-cog text-content-hint text-xs w-4"></i>
-                                    <span>설정</span>
+                                    <span>{% translate "Settings" %}</span>
                                 </a>
                             </div>
 
@@ -102,7 +107,7 @@
                                     <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
                                     <button type="submit" @click.prevent="$refs.logoutForm.submit()" class="flex items-center gap-3 px-4 py-3 text-sm text-danger hover:bg-danger-surface transition-colors duration-150 w-full text-left">
                                         <i class="fas fa-sign-out-alt text-xs w-4"></i>
-                                        <span>로그아웃</span>
+                                        <span>{% translate "Log out" %}</span>
                                     </button>
                                 </form>
                             </div>
@@ -115,7 +120,7 @@
                     <a
                         href="/search"
                         class="w-11 h-11 inline-flex items-center justify-center text-content-secondary hover:text-content hover:bg-surface-subtle rounded-full transition-all duration-150 active:scale-95"
-                        aria-label="검색"
+                        aria-label="{% translate 'Search' %}"
                     >
                         <i class="fas fa-search text-base"></i>
                     </a>
@@ -136,7 +141,7 @@
                         <a
                             href="/settings/notify"
                             class="relative w-11 h-11 inline-flex items-center justify-center text-content-secondary hover:text-content hover:bg-surface-subtle rounded-full transition-all duration-150 active:scale-95"
-                            aria-label="알림"
+                            aria-label="{% translate 'Notifications' %}"
                         >
                             <i class="fas fa-bell text-base"></i>
                             <span
@@ -151,7 +156,7 @@
                     <button
                         @click="toggleTheme()"
                         class="w-11 h-11 inline-flex items-center justify-center text-content-secondary hover:text-content hover:bg-surface-subtle rounded-full transition-all duration-150 active:scale-95"
-                        :aria-label="resolvedTheme === 'dark' ? '라이트 모드로 전환' : '다크 모드로 전환'"
+                        :aria-label="resolvedTheme === 'dark' ? '{{ switch_to_light_mode|escapejs }}' : '{{ switch_to_dark_mode|escapejs }}'"
                     >
                         <i class="fas text-base" :class="resolvedTheme === 'dark' ? 'fa-sun' : 'fa-moon'" aria-hidden="true"></i>
                     </button>
@@ -159,7 +164,7 @@
                     <button
                         @click="toggleMobileMenu()"
                         class="w-11 h-11 inline-flex items-center justify-center text-content-secondary hover:text-content hover:bg-surface-subtle rounded-full transition-all duration-150 active:scale-95"
-                        aria-label="메뉴"
+                        aria-label="{% translate 'Menu' %}"
                         :aria-expanded="mobileMenuOpen"
                     >
                         <i class="fas fa-bars text-base"></i>
@@ -170,18 +175,18 @@
                     <button
                         @click="toggleTheme()"
                         class="w-10 h-10 inline-flex items-center justify-center rounded-full border border-line-light text-content-secondary hover:text-content hover:bg-surface-subtle transition-all duration-150 active:scale-95"
-                        :aria-label="resolvedTheme === 'dark' ? '라이트 모드로 전환' : '다크 모드로 전환'"
-                        :title="resolvedTheme === 'dark' ? '라이트 모드' : '다크 모드'"
+                        :aria-label="resolvedTheme === 'dark' ? '{{ switch_to_light_mode|escapejs }}' : '{{ switch_to_dark_mode|escapejs }}'"
+                        :title="resolvedTheme === 'dark' ? '{{ light_mode|escapejs }}' : '{{ dark_mode|escapejs }}'"
                     >
                         <i class="fas text-sm" :class="resolvedTheme === 'dark' ? 'fa-sun' : 'fa-moon'" aria-hidden="true"></i>
                     </button>
 
                     {% if not hide_auth_links %}
                     <a href="/login" class="inline-flex items-center px-4 py-2 text-content-secondary hover:text-content hover:bg-surface-subtle rounded-full font-medium text-sm transition-all duration-150 active:scale-95">
-                        로그인
+                        {% translate "Log in" %}
                     </a>
                     <a href="/sign" class="inline-flex items-center px-4 py-2 rounded-full bg-action hover:bg-action-hover text-content-inverted font-medium text-sm transition-all duration-150 active:scale-95">
-                        회원가입
+                        {% translate "Sign up" %}
                     </a>
                     {% endif %}
                 </nav>
@@ -191,7 +196,7 @@
                     <a
                         href="/search"
                         class="w-11 h-11 inline-flex items-center justify-center text-content-secondary hover:text-content hover:bg-surface-subtle rounded-full transition-all duration-150 active:scale-95"
-                        aria-label="검색"
+                        aria-label="{% translate 'Search' %}"
                     >
                         <i class="fas fa-search text-base"></i>
                     </a>
@@ -200,7 +205,7 @@
                     <button
                         @click="toggleTheme()"
                         class="w-11 h-11 inline-flex items-center justify-center text-content-secondary hover:text-content hover:bg-surface-subtle rounded-full transition-all duration-150 active:scale-95"
-                        :aria-label="resolvedTheme === 'dark' ? '라이트 모드로 전환' : '다크 모드로 전환'"
+                        :aria-label="resolvedTheme === 'dark' ? '{{ switch_to_light_mode|escapejs }}' : '{{ switch_to_dark_mode|escapejs }}'"
                     >
                         <i class="fas text-base" :class="resolvedTheme === 'dark' ? 'fa-sun' : 'fa-moon'" aria-hidden="true"></i>
                     </button>
@@ -208,7 +213,7 @@
                     <button
                         @click="toggleMobileMenu()"
                         class="w-11 h-11 inline-flex items-center justify-center text-content-secondary hover:text-content hover:bg-surface-subtle rounded-full transition-all duration-150 active:scale-95"
-                        aria-label="메뉴"
+                        aria-label="{% translate 'Menu' %}"
                         :aria-expanded="mobileMenuOpen"
                     >
                         <i class="fas fa-bars text-base"></i>
@@ -247,11 +252,11 @@
                 class="absolute top-0 right-0 h-full w-72 bg-surface-elevated shadow-xl flex flex-col"
             >
                 <div class="flex items-center justify-between px-4 h-14 border-b border-line-light flex-shrink-0">
-                    <span class="text-sm font-semibold text-content">메뉴</span>
+                    <span class="text-sm font-semibold text-content">{% translate "Menu" %}</span>
                     <button
                         @click="closeMobileMenu()"
                         class="w-11 h-11 inline-flex items-center justify-center text-content-secondary hover:text-content hover:bg-surface-subtle rounded-lg transition-all duration-150 active:scale-95"
-                        aria-label="닫기"
+                        aria-label="{% translate 'Close' %}"
                     >
                         <i class="fas fa-times text-base"></i>
                     </button>
@@ -272,16 +277,16 @@
                             {% if not is_editor_page and user.profile.is_editor %}
                             <a href="/write" @click="closeMobileMenu()" class="flex items-center gap-3 px-3 py-3 text-sm font-medium text-content hover:bg-surface-subtle active:bg-surface-subtle rounded-lg transition-colors duration-150">
                                 <i class="fas fa-pen text-content-secondary text-xs w-5 text-center"></i>
-                                <span>새 포스트</span>
+                                <span>{% translate "New post" %}</span>
                             </a>
                             {% endif %}
                             <a href="/@{{ user.username }}" @click="closeMobileMenu()" class="flex items-center gap-3 px-3 py-3 text-sm text-content-secondary hover:bg-surface-subtle active:bg-surface-subtle rounded-lg transition-colors duration-150">
                                 <i class="fas fa-user text-content-hint text-xs w-5 text-center"></i>
-                                <span>프로필</span>
+                                <span>{% translate "Profile" %}</span>
                             </a>
                             <a href="/settings/notify" @click="closeMobileMenu()" class="flex items-center gap-3 px-3 py-3 text-sm text-content-secondary hover:bg-surface-subtle active:bg-surface-subtle rounded-lg transition-colors duration-150">
                                 <i class="fas fa-cog text-content-hint text-xs w-5 text-center"></i>
-                                <span>설정</span>
+                                <span>{% translate "Settings" %}</span>
                             </a>
                         </div>
 
@@ -290,7 +295,7 @@
                                 <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
                                 <button type="submit" @click.prevent="$refs.mobileLogoutForm.submit()" class="flex items-center gap-3 px-3 py-3 text-sm text-danger hover:bg-danger-surface active:bg-danger-surface rounded-lg transition-colors duration-150 w-full text-left">
                                     <i class="fas fa-sign-out-alt text-xs w-5 text-center"></i>
-                                    <span>로그아웃</span>
+                                    <span>{% translate "Log out" %}</span>
                                 </button>
                             </form>
                         </div>
@@ -298,11 +303,11 @@
                         <div class="py-1 space-y-1">
                             <a href="/login" @click="closeMobileMenu()" class="flex items-center gap-3 px-3 py-3 text-sm text-content-secondary hover:bg-surface-subtle active:bg-surface-subtle rounded-lg transition-colors duration-150">
                                 <i class="fas fa-sign-in-alt text-content-hint text-xs w-5 text-center"></i>
-                                <span>로그인</span>
+                                <span>{% translate "Log in" %}</span>
                             </a>
                             <a href="/sign" @click="closeMobileMenu()" class="flex items-center gap-3 px-3 py-3 text-sm font-medium text-content hover:bg-surface-subtle active:bg-surface-subtle rounded-lg transition-colors duration-150">
                                 <i class="fas fa-user-plus text-content-secondary text-xs w-5 text-center"></i>
-                                <span>회원가입</span>
+                                <span>{% translate "Sign up" %}</span>
                             </a>
                         </div>
                     {% endif %}

@@ -1,6 +1,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: BLEX 3.1\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-08-04 22:15+0900\n"
 "PO-Revision-Date: 2026-07-18 00:00+0900\n"
 "Last-Translator: BLEX contributors\n"
 "Language-Team: Korean\n"
@@ -10,253 +12,672 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
 
-msgid "BLEX administration"
-msgstr "BLEX 관리자"
-
-msgid "Dashboard"
-msgstr "대시보드"
-
-msgid "Users"
-msgstr "사용자"
-
-msgid "Groups"
-msgstr "그룹"
-
-msgid "Admin audit log"
-msgstr "관리자 감사 로그"
-
-msgid "Utility execution history"
-msgstr "유틸리티 실행 이력"
-
+#: board/admin/__init__.py:26 board/admin/__init__.py:128
 msgid "Record type"
 msgstr "기록 유형"
 
+#: board/admin/__init__.py:31 board/admin/__init__.py:131
 msgid "Utility execution"
 msgstr "유틸리티 실행"
 
+#: board/admin/__init__.py:32
 msgid "Other admin activity"
 msgstr "기타 관리자 작업"
 
-msgid "System utilities"
-msgstr "시스템 유틸리티"
-
-msgid "Action details"
-msgstr "작업 내용"
-
-msgid "Detailed field changes"
-msgstr "상세 필드 변경"
-
-msgid "Target"
-msgstr "대상"
-
+#: board/admin/__init__.py:52
 msgid "Started unused image cleanup"
 msgstr "사용하지 않는 이미지 정리 시작"
 
+#: board/admin/__init__.py:53
 msgid "Executed unused tag cleanup"
 msgstr "사용하지 않는 태그 정리 실행"
 
+#: board/admin/__init__.py:54
 msgid "Executed session cleanup"
 msgstr "세션 정리 실행"
 
+#: board/admin/__init__.py:55
 msgid "Executed expired log cleanup"
 msgstr "만료 로그 정리 실행"
 
+#: board/admin/__init__.py:56
 msgid "Executed unused image cleanup"
 msgstr "사용하지 않는 이미지 정리 실행"
 
-msgid "Site domains"
-msgstr "사이트 도메인"
+#: board/admin/__init__.py:123
+msgid "Detailed field changes"
+msgstr "상세 필드 변경"
 
-msgid "Content"
-msgstr "콘텐츠"
+#: board/admin/__init__.py:134
+msgid "Target"
+msgstr "대상"
 
-msgid "Users and permissions"
-msgstr "사용자·권한"
+#: board/admin/__init__.py:137
+msgid "System utilities"
+msgstr "시스템 유틸리티"
 
-msgid "Notifications and integrations"
-msgstr "알림·연동"
+#: board/admin/__init__.py:140 board/admin/__init__.py:150
+msgid "Action details"
+msgstr "작업 내용"
 
-msgid "Audit and operations"
-msgstr "감사·운영"
-
-msgid "Site settings"
-msgstr "사이트 기본 설정"
-
-msgid "Login and security settings"
-msgstr "로그인·보안 설정"
-
-msgid "Notification integration settings"
-msgstr "알림 연동 설정"
-
-msgid "SEO and AEO settings"
-msgstr "SEO·AEO 설정"
-
-msgid "Product settings"
-msgstr "제품 설정"
-
-msgid "Other"
-msgstr "기타"
-
-msgid "Comment"
-msgstr "댓글"
-
-msgid "Comments"
-msgstr "댓글"
-
-msgid "User setting"
-msgstr "사용자 설정"
-
-msgid "User settings"
-msgstr "사용자 설정"
-
-msgid "Post revision"
-msgstr "포스트 수정 이력"
-
-msgid "Post revisions"
-msgstr "포스트 수정 이력"
-
-msgid "Post edit request"
-msgstr "포스트 수정 요청"
-
-msgid "Post edit requests"
-msgstr "포스트 수정 요청"
-
-msgid "Email change request"
-msgstr "이메일 변경 요청"
-
-msgid "Email change requests"
-msgstr "이메일 변경 요청"
-
-msgid "User form"
-msgstr "사용자 폼"
-
-msgid "User forms"
-msgstr "사용자 폼"
-
-msgid "Image cache"
-msgstr "이미지 캐시"
-
-msgid "Image caches"
-msgstr "이미지 캐시"
-
-msgid "Notification"
-msgstr "알림"
-
-msgid "Notifications"
-msgstr "알림"
-
-msgid "Pinned post"
-msgstr "고정 포스트"
-
-msgid "Pinned posts"
-msgstr "고정 포스트"
-
-msgid "Post"
-msgstr "포스트"
-
-msgid "Posts"
-msgstr "포스트"
-
-msgid "Profile"
-msgstr "프로필"
-
-msgid "Profiles"
-msgstr "프로필"
-
-msgid "Series"
-msgstr "시리즈"
-
-msgid "Site banner"
-msgstr "사이트 배너"
-
-msgid "Site banners"
-msgstr "사이트 배너"
-
-msgid "Site notice"
-msgstr "사이트 공지"
-
-msgid "Site notices"
-msgstr "사이트 공지"
-
-msgid "Social login connection"
-msgstr "소셜 로그인 연동"
-
-msgid "Social login connections"
-msgstr "소셜 로그인 연동"
-
-msgid "Tag"
-msgstr "태그"
-
-msgid "Tags"
-msgstr "태그"
-
-msgid "Telegram connection"
-msgstr "텔레그램 연동"
-
-msgid "Telegram connections"
-msgstr "텔레그램 연동"
-
-msgid "Two-factor authentication"
-msgstr "2단계 인증"
-
-msgid "User feature setting"
-msgstr "사용자 기능 설정"
-
-msgid "User feature settings"
-msgstr "사용자 기능 설정"
-
-msgid "User link"
-msgstr "사용자 링크"
-
-msgid "User links"
-msgstr "사용자 링크"
-
-msgid "Username change history"
-msgstr "사용자명 변경 이력"
-
-msgid "Webhook subscription"
-msgstr "웹훅 구독"
-
-msgid "Webhook subscriptions"
-msgstr "웹훅 구독"
-
+#: board/admin/permission_display.py:44
 #, python-format
 msgctxt "Admin permission label"
 msgid "%(action)s %(model)s"
 msgstr "%(model)s %(action)s"
 
-msgctxt "Admin permission action"
-msgid "Add"
-msgstr "추가"
+#: board/models/accounts.py:32
+msgid "Email change request"
+msgstr "이메일 변경 요청"
 
-msgctxt "Admin permission action"
-msgid "Change"
-msgstr "수정"
+#: board/models/accounts.py:33
+msgid "Email change requests"
+msgstr "이메일 변경 요청"
 
-msgctxt "Admin permission action"
-msgid "Delete"
-msgstr "삭제"
+#: board/models/accounts.py:53
+msgid "User feature setting"
+msgstr "사용자 기능 설정"
 
-msgctxt "Admin permission action"
-msgid "View"
-msgstr "보기"
+#: board/models/accounts.py:54
+msgid "User feature settings"
+msgstr "사용자 기능 설정"
 
-msgctxt "Admin permission model"
-msgid "Telegram integration settings"
-msgstr "텔레그램 연동 설정"
+#: board/models/accounts.py:64
+msgid "User setting"
+msgstr "사용자 설정"
 
-msgctxt "Admin permission model"
+#: board/models/accounts.py:65
+msgid "User settings"
+msgstr "사용자 설정"
+
+#: board/models/accounts.py:97
+msgid "User link"
+msgstr "사용자 링크"
+
+#: board/models/accounts.py:98
+msgid "User links"
+msgstr "사용자 링크"
+
+#: board/models/accounts.py:130 board/templates/components/header.html:97
+#: board/templates/components/header.html:285
+msgid "Profile"
+msgstr "프로필"
+
+#: board/models/accounts.py:131
+msgid "Profiles"
+msgstr "프로필"
+
+#: board/models/accounts.py:196 board/models/accounts.py:197
+msgid "Two-factor authentication"
+msgstr "2단계 인증"
+
+#: board/models/accounts.py:243 board/models/accounts.py:244
+msgid "Username change history"
+msgstr "사용자명 변경 이력"
+
+#: board/models/accounts.py:281
+msgid "Social login connection"
+msgstr "소셜 로그인 연동"
+
+#: board/models/accounts.py:282
+msgid "Social login connections"
+msgstr "소셜 로그인 연동"
+
+#: board/models/integrations.py:27
+msgid "Notification"
+msgstr "알림"
+
+#: board/models/integrations.py:28 board/templates/components/header.html:144
+msgid "Notifications"
+msgstr "알림"
+
+#: board/models/integrations.py:60
+msgid "Telegram connection"
+msgstr "텔레그램 연동"
+
+#: board/models/integrations.py:61
+msgid "Telegram connections"
+msgstr "텔레그램 연동"
+
+#: board/models/integrations.py:224
+msgid "Webhook subscription"
+msgstr "웹훅 구독"
+
+#: board/models/integrations.py:225
+msgid "Webhook subscriptions"
+msgstr "웹훅 구독"
+
+#: board/models/posts.py:23
+msgid "Comment"
+msgstr "댓글"
+
+#: board/models/posts.py:24
+msgid "Comments"
+msgstr "댓글"
+
+#: board/models/posts.py:89
+msgid "User form"
+msgstr "사용자 폼"
+
+#: board/models/posts.py:90
+msgid "User forms"
+msgstr "사용자 폼"
+
+#: board/models/posts.py:103
+msgid "Image cache"
+msgstr "이미지 캐시"
+
+#: board/models/posts.py:104
+msgid "Image caches"
+msgstr "이미지 캐시"
+
+#: board/models/posts.py:112
+msgid "Tag"
+msgstr "태그"
+
+#: board/models/posts.py:113
+msgid "Tags"
+msgstr "태그"
+
+#: board/models/posts.py:152
+msgid "Post"
+msgstr "포스트"
+
+#: board/models/posts.py:153
+msgid "Posts"
+msgstr "포스트"
+
+#: board/models/posts.py:317
+msgid "Pinned post"
+msgstr "고정 포스트"
+
+#: board/models/posts.py:318
+msgid "Pinned posts"
+msgstr "고정 포스트"
+
+#: board/models/posts.py:373 board/models/posts.py:374
+#: board/templates/board/posts/post_detail.html:464
+msgid "Series"
+msgstr "시리즈"
+
+#: board/models/posts.py:451
+msgid "Post revision"
+msgstr "포스트 수정 이력"
+
+#: board/models/posts.py:452
+msgid "Post revisions"
+msgstr "포스트 수정 이력"
+
+#: board/models/posts.py:471
+msgid "Post edit request"
+msgstr "포스트 수정 요청"
+
+#: board/models/posts.py:472
+msgid "Post edit requests"
+msgstr "포스트 수정 요청"
+
+#: board/models/site.py:140
+msgid "Site notice"
+msgstr "사이트 공지"
+
+#: board/models/site.py:141
+msgid "Site notices"
+msgstr "사이트 공지"
+
+#: board/models/site.py:156
+msgid "Site banner"
+msgstr "사이트 배너"
+
+#: board/models/site.py:157
+msgid "Site banners"
+msgstr "사이트 배너"
+
+#: board/templates/admin/board/confirm_action.html:11
+msgid "Home"
+msgstr "홈"
+
+#: board/templates/admin/board/notify/bulk_send.html:4
+msgid "Django site admin"
+msgstr "Django 사이트 관리자"
+
+#: board/templates/board/base.html:6
+msgid "Some interactive elements could not be loaded. Please try again shortly."
+msgstr "일부 인터랙션 요소를 불러오지 못했습니다. 잠시 후 다시 시도해주세요."
+
+#: board/templates/board/base.html:133
+msgid "Development environment indicator"
+msgstr "개발 환경 표시"
+
+#: board/templates/board/base.html:134 board/templates/board/base.html:138
+msgid "Development environment"
+msgstr "개발 환경"
+
+#: board/templates/board/posts/covers/_post_meta.html:15
+#, python-format
+msgid "Previewed %(date)s"
+msgstr "%(date)s 미리보기"
+
+#: board/templates/board/posts/covers/_post_meta.html:15
+#, python-format
+msgid "Published %(date)s"
+msgstr "%(date)s 발행"
+
+#: board/templates/board/posts/covers/_post_meta.html:18
+#, python-format
+msgid "Updated %(date)s"
+msgstr "%(date)s 수정"
+
+#: board/templates/board/posts/covers/_post_meta.html:21
+msgid "Reading time"
+msgstr "읽는 시간"
+
+#: board/templates/board/posts/covers/_post_meta.html:21
+#, python-format
+msgid "%(minutes)s min read"
+msgstr "%(minutes)s분 소요"
+
+#: board/templates/board/posts/post_detail.html:6
+msgid "Preview"
+msgstr "미리보기"
+
+#: board/templates/board/posts/post_detail.html:10
+msgid "Saved draft preview"
+msgstr "저장된 임시 포스트 미리보기"
+
+#: board/templates/board/posts/post_detail.html:66
+msgid "Link copied."
+msgstr "링크가 복사되었습니다."
+
+#: board/templates/board/posts/post_detail.html:67
+msgid "Could not copy the link."
+msgstr "복사에 실패했습니다."
+
+#: board/templates/board/posts/post_detail.html:68
+msgid "Agent link copied."
+msgstr "에이전트용 링크가 복사되었습니다."
+
+#: board/templates/board/posts/post_detail.html:69
+msgid "Could not share this post."
+msgstr "공유에 실패했습니다."
+
+#: board/templates/board/posts/post_detail.html:107
+msgid "Post status"
+msgstr "포스트 상태"
+
+#: board/templates/board/posts/post_detail.html:110
+msgid "This is a draft preview."
+msgstr "임시 포스트 미리보기입니다."
+
+#: board/templates/board/posts/post_detail.html:112
+msgid "This post is private."
+msgstr "비공개 포스트입니다."
+
+#: board/templates/board/posts/post_detail.html:114
+msgid "This post is scheduled."
+msgstr "예약 발행 포스트입니다."
+
+#: board/templates/board/posts/post_detail.html:119
+msgid "This page shows the latest saved draft as a post. Only the author can see it, and it does not appear in public lists or search."
+msgstr "마지막으로 저장된 내용을 실제 포스트 화면으로 표시합니다. 이 페이지는 작성자에게만 보이며 공개 목록과 검색에 노출되지 않습니다."
+
+#: board/templates/board/posts/post_detail.html:121
+msgid "Only the author can see this post. Turn off private visibility in the post settings to publish it."
+msgstr "이 포스트는 작성자만 볼 수 있습니다. 공개하려면 포스트 설정에서 비공개를 해제하세요."
+
+#: board/templates/board/posts/post_detail.html:123
+msgid "Only the author can see this post before its scheduled time. It will then appear at its public URL and in RSS, the sitemap, and the Markdown endpoint."
+msgstr "예약 시각 전에는 작성자만 볼 수 있습니다. 예약 시각이 되면 공개 URL, RSS, Sitemap, Markdown URL에 반영됩니다."
+
+#: board/templates/board/posts/post_detail.html:131
+#: board/templates/board/posts/post_detail.html:431
+msgid "Edit post"
+msgstr "수정하기"
+
+#: board/templates/board/posts/post_detail.html:180
+msgid "Post information"
+msgstr "포스트 정보"
+
+#: board/templates/board/posts/post_detail.html:184
+msgid "Author"
+msgstr "작성자"
+
+#: board/templates/board/posts/post_detail.html:193
+msgid "Preview date"
+msgstr "미리보기 기준"
+
+#: board/templates/board/posts/post_detail.html:193
+msgid "First published"
+msgstr "최초 발행"
+
+#: board/templates/board/posts/post_detail.html:200
+msgid "Updated"
+msgstr "수정일"
+
+#: board/templates/board/posts/post_detail.html:208
+msgid "Author website"
+msgstr "저자 홈페이지"
+
+#: board/templates/board/posts/post_detail.html:337
+msgid "View table of contents"
+msgstr "목차 보기"
+
+#: board/templates/board/posts/post_detail.html:351
+msgid "Share post or copy link"
+msgstr "게시물 공유 또는 링크 복사"
+
+#: board/templates/board/posts/post_detail.html:368
+msgid "Share"
+msgstr "공유"
+
+#: board/templates/board/posts/post_detail.html:376
+msgid "Regular link"
+msgstr "일반 링크"
+
+#: board/templates/board/posts/post_detail.html:377
+msgid "Address to open in a browser"
+msgstr "브라우저에서 여는 주소"
+
+#: board/templates/board/posts/post_detail.html:386
+msgid "Share on X"
+msgstr "X에 공유"
+
+#: board/templates/board/posts/post_detail.html:387
+msgid "Compose a post in a new window"
+msgstr "새 창에서 공유 포스트 작성"
+
+#: board/templates/board/posts/post_detail.html:396
+msgid "Share on LinkedIn"
+msgstr "LinkedIn에 공유"
+
+#: board/templates/board/posts/post_detail.html:397
+msgid "Share with your professional network"
+msgstr "전문 네트워크에 공유"
+
+#: board/templates/board/posts/post_detail.html:406
+msgid "Share on Facebook"
+msgstr "Facebook에 공유"
+
+#: board/templates/board/posts/post_detail.html:407
+msgid "Share to your feed or a message"
+msgstr "피드 또는 메시지로 공유"
+
+#: board/templates/board/posts/post_detail.html:418
+msgid "Agent link"
+msgstr "에이전트용 링크"
+
+#: board/templates/board/posts/post_detail.html:419
+msgid "*.md reference address"
+msgstr "*.md 참조 주소"
+
+#: board/templates/board/posts/post_detail.html:453
+msgid "This post is hidden and does not appear in the series list."
+msgstr "이 포스트는 숨김 처리되어 시리즈 목록에 표시되지 않습니다."
+
+#: board/templates/board/posts/post_detail.html:456
+msgid "View full series"
+msgstr "시리즈 전체 보기"
+
+#: board/templates/board/posts/post_detail.html:484
+msgid "Reading"
+msgstr "읽는 중"
+
+#: board/templates/board/posts/post_detail.html:499
+#: board/templates/board/posts/post_detail.html:504
+msgid "Previous"
+msgstr "이전"
+
+#: board/templates/board/posts/post_detail.html:509
+msgid "All posts"
+msgstr "전체 포스트"
+
+#: board/templates/board/posts/post_detail.html:514
+#: board/templates/board/posts/post_detail.html:519
+msgid "Next"
+msgstr "다음"
+
+#: board/templates/board/posts/post_detail.html:609
+#: board/templates/board/posts/post_detail.html:615
+#: board/templates/components/toc.html:10
+#: board/templates/components/toc.html:15
+msgid "Table of contents"
+msgstr "목차"
+
+#: board/templates/board/posts/post_detail.html:610
+msgid "Close table of contents"
+msgstr "목차 닫기"
+
+#: board/templates/board/search/search.html:6
+#, python-format
+msgid "Search: %(query)s - %(site_name)s"
+msgstr "검색: %(query)s - %(site_name)s"
+
+#: board/templates/board/search/search.html:10
+#, python-format
+msgid "Search - %(site_name)s"
+msgstr "검색 - %(site_name)s"
+
+#: board/templates/components/header.html:4
+msgid "Switch to light mode"
+msgstr "라이트 모드로 전환"
+
+#: board/templates/components/header.html:5
+msgid "Switch to dark mode"
+msgstr "다크 모드로 전환"
+
+#: board/templates/components/header.html:6
+msgid "Light mode"
+msgstr "라이트 모드"
+
+#: board/templates/components/header.html:7
+msgid "Dark mode"
+msgstr "다크 모드"
+
+#: board/templates/components/header.html:46
+#: board/templates/components/header.html:280
+msgid "New post"
+msgstr "새 포스트"
+
+#: board/templates/components/header.html:65
+msgid "User menu"
+msgstr "사용자 메뉴"
+
+#: board/templates/components/header.html:90
+msgid "Signed in as"
+msgstr "로그인한 계정"
+
+#: board/templates/components/header.html:101
+#: board/templates/components/header.html:289
+msgid "Settings"
+msgstr "설정"
+
+#: board/templates/components/header.html:110
+#: board/templates/components/header.html:298
+msgid "Log out"
+msgstr "로그아웃"
+
+#: board/templates/components/header.html:123
+#: board/templates/components/header.html:199
+#: board/templates/components/quick_search.html:20
+#: board/templates/components/quick_search.html:21
+msgid "Search"
+msgstr "검색"
+
+#: board/templates/components/header.html:167
+#: board/templates/components/header.html:216
+#: board/templates/components/header.html:255
+msgid "Menu"
+msgstr "메뉴"
+
+#: board/templates/components/header.html:186
+#: board/templates/components/header.html:306
+msgid "Log in"
+msgstr "로그인"
+
+#: board/templates/components/header.html:189
+#: board/templates/components/header.html:310
+msgid "Sign up"
+msgstr "회원가입"
+
+#: board/templates/components/header.html:259
+msgid "Close"
+msgstr "닫기"
+
+#: board/templates/components/like_button.html:11
+msgid "Unlike"
+msgstr "좋아요 취소"
+
+#: board/templates/components/like_button.html:12
+msgid "Like"
+msgstr "좋아요"
+
+#: board/templates/components/like_button.html:13
+msgid "Could not update like. Please try again."
+msgstr "좋아요 처리에 실패했습니다. 다시 시도해주세요."
+
+#: board/templates/components/quick_search.html:2
+msgid "Quick results"
+msgstr "빠른 결과"
+
+#: board/templates/components/quick_search.html:3
+msgid "Recent searches"
+msgstr "최근 검색어"
+
+#: board/templates/components/quick_search.html:52
+msgid "No recent searches."
+msgstr "최근 검색어가 없습니다."
+
+#: board/templates/components/quick_search.html:69
+msgid "Remove recent search"
+msgstr "최근 검색어 삭제"
+
+#: board/templates/components/quick_search.html:83
+msgid "Searching..."
+msgstr "빠르게 찾는 중..."
+
+#: board/templates/components/quick_search.html:87
+msgid "No quick results."
+msgstr "빠른 결과가 없습니다."
+
+#: board/templates/components/quick_search.html:122
+msgid "View all search results"
+msgstr "전체 검색 결과 보기"
+
+#: board/views/api/v1/search.py:73 board/views/api/v1/search.py:80
+msgid "Enter a search term."
+msgstr "검색어를 입력하세요."
+
+#: board/views/api/v1/search.py:89 board/views/api/v1/search.py:174
+msgid "Invalid page number."
+msgstr "잘못된 페이지 번호입니다."
+
+#: main/admin_site.py:9
+msgid "BLEX administration"
+msgstr "BLEX 관리자"
+
+#: main/admin_site.py:11
+msgid "Dashboard"
+msgstr "대시보드"
+
+#: main/admin_site.py:15
+msgid "Users"
+msgstr "사용자"
+
+#: main/admin_site.py:16
+msgid "Groups"
+msgstr "그룹"
+
+#: main/admin_site.py:17
+msgid "Admin audit log"
+msgstr "관리자 감사 로그"
+
+#: main/admin_site.py:18
+msgid "Site domains"
+msgstr "사이트 도메인"
+
+#: main/admin_site.py:24
+msgid "Content"
+msgstr "콘텐츠"
+
+#: main/admin_site.py:40
+msgid "Users and permissions"
+msgstr "사용자·권한"
+
+#: main/admin_site.py:53
+msgid "Notifications and integrations"
+msgstr "알림·연동"
+
+#: main/admin_site.py:64
+msgid "Audit and operations"
+msgstr "감사·운영"
+
+#: main/admin_site.py:77
+msgid "Site settings"
+msgstr "사이트 기본 설정"
+
+#: main/admin_site.py:83
 msgid "Login and security settings"
 msgstr "로그인·보안 설정"
 
-msgctxt "Admin permission model"
-msgid "Site settings"
-msgstr "사이트 설정"
+#: main/admin_site.py:89
+msgid "Notification integration settings"
+msgstr "알림 연동 설정"
 
-msgctxt "Admin permission model"
-msgid "Static page"
-msgstr "정적 페이지"
+#: main/admin_site.py:95
+msgid "SEO and AEO settings"
+msgstr "SEO·AEO 설정"
 
-msgctxt "Admin permission model"
-msgid "Utility cleanup confirmation"
-msgstr "유틸리티 정리 확인"
+#: main/admin_site.py:137
+msgid "Product settings"
+msgstr "제품 설정"
+
+#: main/admin_site.py:168
+msgid "Utility execution history"
+msgstr "유틸리티 실행 이력"
+
+#: main/admin_site.py:190
+msgid "Other"
+msgstr "기타"
+
+#: main/settings.py:231
+msgid "Korean"
+msgstr "한국어"
+
+#: main/settings.py:232
+msgid "English"
+msgstr "영어"
+
+#~ msgctxt "Admin permission action"
+#~ msgid "Add"
+#~ msgstr "추가"
+
+#~ msgctxt "Admin permission action"
+#~ msgid "Change"
+#~ msgstr "수정"
+
+#~ msgctxt "Admin permission action"
+#~ msgid "Delete"
+#~ msgstr "삭제"
+
+#~ msgctxt "Admin permission action"
+#~ msgid "View"
+#~ msgstr "보기"
+
+#~ msgctxt "Admin permission model"
+#~ msgid "Telegram integration settings"
+#~ msgstr "텔레그램 연동 설정"
+
+#~ msgctxt "Admin permission model"
+#~ msgid "Login and security settings"
+#~ msgstr "로그인·보안 설정"
+
+#~ msgctxt "Admin permission model"
+#~ msgid "Site settings"
+#~ msgstr "사이트 설정"
+
+#~ msgctxt "Admin permission model"
+#~ msgid "Static page"
+#~ msgstr "정적 페이지"
+
+#~ msgctxt "Admin permission model"
+#~ msgid "Utility cleanup confirmation"
+#~ msgstr "유틸리티 정리 확인"

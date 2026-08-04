@@ -1,13 +1,64 @@
 import time
 
 from django.db.models import Case, Exists, F, IntegerField, OuterRef, Q, Subquery, Value, When
-from django.http import Http404
+from django.http import Http404, JsonResponse
+from django.utils.translation import gettext as _
 
 from board.models import Post, PostContent, Profile, Tag, User
 from board.modules.paginator import Paginator
 from board.modules.response import ErrorCode, StatusDone, StatusError
 from board.modules.time import convert_to_localtime
 from board.services.public_post_service import PublicPostService
+
+
+QUERY_REQUIRED_MESSAGE_KEY = 'search.validation.query_required'
+INVALID_PAGE_MESSAGE_KEY = 'search.validation.invalid_page'
+
+
+class SearchResponseBuilder:
+    MATCH_FIELDS = (
+        ('title_score', 'title', '제목'),
+        ('description_score', 'description', '설명'),
+        ('tag_score', 'tag', '태그'),
+        ('content_score', 'content', '내용'),
+    )
+
+    @staticmethod
+    def validation_error(message: str, message_key: str) -> JsonResponse:
+        return StatusError(
+            ErrorCode.VALIDATE,
+            message,
+            message_key=message_key,
+            message_params={},
+        )
+
+    @classmethod
+    def serialize_result(cls, post: Post) -> dict[str, object]:
+        published_date = convert_to_localtime(post.published_date)
+        matched_fields = [
+            field
+            for score_attribute, field, _legacy_label in cls.MATCH_FIELDS
+            if getattr(post, score_attribute) > 0
+        ]
+        legacy_positions = [
+            legacy_label
+            for score_attribute, _field, legacy_label in cls.MATCH_FIELDS
+            if getattr(post, score_attribute) > 0
+        ]
+
+        return {
+            'url': post.url,
+            'title': post.title,
+            'image': str(post.image),
+            'description': post.meta_description,
+            'read_time': post.read_time,
+            'created_date': published_date.strftime('%Y년 %m월 %d일'),
+            'published_date': published_date.date().isoformat(),
+            'author_image': post.author_image,
+            'author': post.author_username,
+            'positions': legacy_positions,
+            'matched_fields': matched_fields,
+        }
 
 
 def search(request):
@@ -18,17 +69,26 @@ def search(request):
     username = request.GET.get('username', '').strip()
 
     if len(query) < 1:
-        return StatusError(ErrorCode.VALIDATE, '검색어를 입력하세요.')
+        return SearchResponseBuilder.validation_error(
+            _('Enter a search term.'),
+            QUERY_REQUIRED_MESSAGE_KEY,
+        )
 
     keywords = [keyword for keyword in query.split() if keyword]
     if len(keywords) < 1:
-        return StatusError(ErrorCode.VALIDATE, '검색어를 입력하세요.')
+        return SearchResponseBuilder.validation_error(
+            _('Enter a search term.'),
+            QUERY_REQUIRED_MESSAGE_KEY,
+        )
 
     page = request.GET.get('page', 1)
     try:
         page = max(1, int(page))
     except (ValueError, TypeError):
-        return StatusError(ErrorCode.VALIDATE, '잘못된 페이지 번호입니다.')
+        return SearchResponseBuilder.validation_error(
+            _('Invalid page number.'),
+            INVALID_PAGE_MESSAGE_KEY,
+        )
 
     start_time = time.perf_counter()
 
@@ -110,7 +170,10 @@ def search(request):
             page=page,
         )
     except Http404:
-        return StatusError(ErrorCode.VALIDATE, '잘못된 페이지 번호입니다.')
+        return SearchResponseBuilder.validation_error(
+            _('Invalid page number.'),
+            INVALID_PAGE_MESSAGE_KEY,
+        )
 
     elapsed_time = round(time.perf_counter() - start_time, 3)
     return StatusDone({
@@ -118,20 +181,5 @@ def search(request):
         'total_size': paginated.paginator.count,
         'last_page': paginated.paginator.num_pages,
         'query': query,
-        'results': list(map(lambda post: {
-            'url': post.url,
-            'title': post.title,
-            'image': str(post.image),
-            'description': post.meta_description,
-            'read_time': post.read_time,
-            'created_date': convert_to_localtime(post.published_date).strftime('%Y년 %m월 %d일'),
-            'author_image': post.author_image,
-            'author': post.author_username,
-            'positions': list(filter(lambda item: item, [
-                '제목' if post.title_score > 0 else '',
-                '설명' if post.description_score > 0 else '',
-                '태그' if post.tag_score > 0 else '',
-                '내용' if post.content_score > 0 else '',
-            ])),
-        }, paginated)),
+        'results': list(map(SearchResponseBuilder.serialize_result, paginated)),
     })

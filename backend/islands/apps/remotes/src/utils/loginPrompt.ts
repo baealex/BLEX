@@ -6,6 +6,16 @@
 
 const LOGIN_PROMPT_ROOT_ID = 'blex-login-prompt-root';
 
+export const LOGIN_PROMPT_ACTIONS = ['generic', 'like', 'comment', 'reply'] as const;
+export type LoginPromptAction = typeof LOGIN_PROMPT_ACTIONS[number];
+
+export const normalizeLoginPromptAction = (action: unknown): LoginPromptAction => (
+    typeof action === 'string'
+    && LOGIN_PROMPT_ACTIONS.includes(action as LoginPromptAction)
+        ? action as LoginPromptAction
+        : 'generic'
+);
+
 /**
  * Check if user is logged in
  */
@@ -13,13 +23,13 @@ export const isLoggedIn = (): boolean => {
     return !!window.configuration?.user?.username;
 };
 
-const encodeProps = (action: string) =>
+const encodeProps = (action: LoginPromptAction) =>
     encodeURIComponent(JSON.stringify({
         isOpen: true,
         action
     }));
 
-const ensureLoginPrompt = (action: string): boolean => {
+const ensureLoginPrompt = (action: LoginPromptAction): boolean => {
     if (typeof document === 'undefined') {
         return false;
     }
@@ -50,18 +60,18 @@ const ensureLoginPrompt = (action: string): boolean => {
  * Show login prompt modal via custom event
  * Can be used from Alpine.js, React, or vanilla JavaScript
  *
- * @param action - The action name to display in the prompt (e.g., '좋아요', '댓글 작성')
+ * @param action - Stable action identifier used to select a complete localized sentence.
  *
  * @example
  * // From Alpine.js
- * showLoginPrompt('좋아요');
+ * showLoginPrompt('like');
  *
  * @example
  * // From vanilla JavaScript
  * import { showLoginPrompt } from '~/utils/loginPrompt';
- * showLoginPrompt('댓글 작성');
+ * showLoginPrompt('comment');
  */
-export const showLoginPrompt = (action: string): void => {
+export const showLoginPrompt = (action: LoginPromptAction = 'generic'): void => {
     if (isLoggedIn()) {
         return;
     }

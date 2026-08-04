@@ -1,0 +1,205 @@
+msgid ""
+msgstr ""
+"POT-Creation-Date: 2026-08-04 17:50+0900\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: @lingui/cli\n"
+"Language: ko\n"
+"Project-Id-Version: \n"
+"Report-Msgid-Bugs-To: \n"
+"PO-Revision-Date: \n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"Plural-Forms: \n"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/LoginPrompt/LoginPrompt.tsx:116
+msgid "login_prompt.cancel"
+msgstr "취소"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/LoginPrompt/LoginPrompt.tsx:55
+msgid "login_prompt.description.comment"
+msgstr "댓글을 남기려면 로그인해주세요."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/LoginPrompt/LoginPrompt.tsx:47
+msgid "login_prompt.description.generic"
+msgstr "계속하려면 로그인해주세요."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/LoginPrompt/LoginPrompt.tsx:51
+msgid "login_prompt.description.like"
+msgstr "좋아요를 누르려면 로그인해주세요."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/LoginPrompt/LoginPrompt.tsx:59
+msgid "login_prompt.description.reply"
+msgstr "답글을 작성하려면 로그인해주세요."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/LoginPrompt/LoginPrompt.tsx:110
+msgid "login_prompt.login"
+msgstr "로그인하기"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/LoginPrompt/LoginPrompt.tsx:65
+#: src/components/remotes/LoginPrompt/LoginPrompt.tsx:97
+msgid "login_prompt.title"
+msgstr "로그인이 필요해요"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/RelatedPosts/RelatedPosts.tsx:172
+msgid "related_posts.empty.body"
+msgstr "프로필에서 더 많은 포스트를 확인할 수 있습니다."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/RelatedPosts/RelatedPosts.tsx:169
+msgid "related_posts.empty.title"
+msgstr "{username}의 다른 포스트 둘러보기"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/RelatedPosts/RelatedPosts.tsx:177
+msgid "related_posts.profile"
+msgstr "프로필 보기"
+
+#. js-lingui-explicit-id
+#. placeholder {0}: relatedPost.readTime
+#: src/components/remotes/RelatedPosts/RelatedPosts.tsx:80
+msgid "related_posts.read_time"
+msgstr "{0, plural, other {#분}}"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/RelatedPosts/RelatedPosts.tsx:145
+#: src/components/remotes/RelatedPosts/RelatedPosts.tsx:189
+msgid "related_posts.title"
+msgstr "관련 포스트"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SearchPage/SearchPage.tsx:410
+msgid "search.author_filter"
+msgstr "작성자 필터 적용 중: <0>@{usernameFilter}</0>"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SearchPage/SearchPage.tsx:575
+msgid "search.empty.body"
+msgstr "다른 검색어를 시도해보세요."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SearchPage/SearchPage.tsx:572
+msgid "search.empty.title"
+msgstr "검색 결과가 없습니다"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SearchPage/SearchPage.tsx:214
+msgid "search.error.generic"
+msgstr "검색 중 오류가 발생했습니다."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SearchPage/SearchPage.tsx:456
+msgid "search.error.heading"
+msgstr "검색을 완료하지 못했습니다"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SearchPage/SearchPage.tsx:223
+msgid "search.error.network"
+msgstr "검색 기능을 일시적으로 사용할 수 없습니다. 잠시 후 다시 시도해주세요."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SearchPage/SearchPage.tsx:399
+msgid "search.input.clear"
+msgstr "검색어 초기화"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SearchPage/SearchPage.tsx:386
+msgid "search.input.label"
+msgstr "포스트 검색"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SearchPage/SearchPage.tsx:382
+msgid "search.input.placeholder"
+msgstr "검색어를 입력하세요"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SearchPage/SearchPage.tsx:369
+msgid "search.loading"
+msgstr "검색 중"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SearchPage/SearchPage.tsx:342
+msgid "search.match.content"
+msgstr "내용"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SearchPage/SearchPage.tsx:334
+msgid "search.match.description"
+msgstr "설명"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SearchPage/SearchPage.tsx:338
+msgid "search.match.tag"
+msgstr "태그"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SearchPage/SearchPage.tsx:330
+msgid "search.match.title"
+msgstr "제목"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SearchPage/SearchPage.tsx:615
+msgid "search.pagination.next"
+msgstr "다음"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SearchPage/SearchPage.tsx:596
+msgid "search.pagination.page"
+msgstr "{page}페이지로 이동"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SearchPage/SearchPage.tsx:587
+msgid "search.pagination.previous"
+msgstr "이전"
+
+#. js-lingui-explicit-id
+#. placeholder {0}: result.readTime
+#: src/components/remotes/SearchPage/SearchPage.tsx:528
+msgid "search.read_time"
+msgstr "{0, plural, other {#분 읽기}}"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SearchPage/SearchPage.tsx:437
+msgid "search.recent.remove"
+msgstr "최근 검색어에서 “{query}” 삭제"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SearchPage/SearchPage.tsx:420
+msgid "search.recent.title"
+msgstr "최근 검색어"
+
+#. js-lingui-explicit-id
+#. placeholder {0}: searchResults.totalSize ?? 0
+#: src/components/remotes/SearchPage/SearchPage.tsx:469
+msgid "search.results.count"
+msgstr "{0, plural, other {#개의 포스트}}"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SearchPage/SearchPage.tsx:478
+msgid "search.results.for"
+msgstr "“{displayedQuery}” 검색 결과"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SearchPage/SearchPage.tsx:361
+msgid "search.title"
+msgstr "포스트 검색"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SearchPage/SearchPage.tsx:209
+msgid "search.validation.invalid_page"
+msgstr "잘못된 페이지 번호입니다."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SearchPage/SearchPage.tsx:204
+#: src/components/remotes/SearchPage/SearchPage.tsx:273
+msgid "search.validation.query_required"
+msgstr "검색어를 입력하세요."

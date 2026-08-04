@@ -83,6 +83,10 @@ jobs:
       run: pnpm install
       working-directory: backend/islands
 
+    - name: Check Islands translation catalogs
+      run: pnpm i18n:check
+      working-directory: backend/islands
+
     - name: Lint Islands
       run: pnpm lint
       working-directory: backend/islands
@@ -124,11 +128,12 @@ jobs:
       run: pnpm --filter @blex/remotes exec playwright install --with-deps chromium
       working-directory: backend/islands
 
-    - name: Run editor browser regression tests
+    - name: Run browser regression tests
       run: >-
         pnpm --filter @blex/remotes exec playwright test
         --config playwright.config.ts
         e2e/editor-media-upload.spec.ts
+        e2e/i18n-search.spec.ts
       working-directory: backend/islands
       env:
         BLEX_E2E_ENV_FILE: ${{ github.workspace }}/samples/.env

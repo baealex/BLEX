@@ -2,13 +2,15 @@
 
 import { QueryClient } from '@tanstack/react-query';
 import type { PersistedClient, Persister } from '@tanstack/react-query-persist-client';
+import { getDocumentLocale } from '../i18n/locale';
+import { buildQueryCacheKey } from './query-cache-key';
 
 const getCurrentUsername = () => {
     return window.configuration?.user?.username || 'anonymous';
 };
 
-const getUserCacheKey = () => {
-    return `rq-cache-${getCurrentUsername()}`;
+const getCurrentCacheKey = () => {
+    return buildQueryCacheKey(getCurrentUsername(), getDocumentLocale());
 };
 
 export const sessionStoragePersister: Persister = {
@@ -16,7 +18,7 @@ export const sessionStoragePersister: Persister = {
         if (typeof window === 'undefined') return;
 
         try {
-            const key = getUserCacheKey();
+            const key = getCurrentCacheKey();
             sessionStorage.setItem(key, JSON.stringify(client));
         } catch (error) {
             console.error('Failed to persist client:', error);
@@ -26,7 +28,7 @@ export const sessionStoragePersister: Persister = {
         if (typeof window === 'undefined') return undefined;
 
         try {
-            const key = getUserCacheKey();
+            const key = getCurrentCacheKey();
             const cached = sessionStorage.getItem(key);
             return cached ? JSON.parse(cached) : undefined;
         } catch (error) {
@@ -38,7 +40,7 @@ export const sessionStoragePersister: Persister = {
         if (typeof window === 'undefined') return;
 
         try {
-            const key = getUserCacheKey();
+            const key = getCurrentCacheKey();
             sessionStorage.removeItem(key);
         } catch (error) {
             console.error('Failed to remove client:', error);
@@ -51,7 +53,7 @@ export function cleanupOldCaches(): void {
         return;
     }
 
-    const currentCacheKey = getUserCacheKey();
+    const currentCacheKey = getCurrentCacheKey();
     const keysToRemove: string[] = [];
 
     for (let i = 0; i < sessionStorage.length; i++) {

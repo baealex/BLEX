@@ -14,6 +14,7 @@ import {
 } from '~/lib/api';
 import { toast } from '~/utils/toast';
 import { logger } from '~/utils/logger';
+import type { LoginPromptAction } from '~/utils/loginPrompt';
 import {
     appendCommentToTree,
     findRootParentId,
@@ -30,7 +31,7 @@ interface CommentsData {
 interface UseCommentsControllerOptions {
     postUrl: string;
     isLoggedIn: boolean;
-    onRequireLogin: (action: string) => void;
+    onRequireLogin: (action: LoginPromptAction) => void;
 }
 
 const getCommentsQueryKey = (postUrl: string) => [postUrl, 'comments'] as const;
@@ -106,7 +107,7 @@ export const useCommentsController = ({
 
     const handleLike = async (commentId: number) => {
         if (!isLoggedIn) {
-            onRequireLogin('좋아요');
+            onRequireLogin('like');
             return;
         }
 
@@ -135,7 +136,7 @@ export const useCommentsController = ({
 
     const handleWrite = async () => {
         if (!isLoggedIn) {
-            onRequireLogin('댓글 작성');
+            onRequireLogin('comment');
             return;
         }
 
@@ -249,7 +250,7 @@ export const useCommentsController = ({
 
     const startReplying = (commentId: number, authorUsername: string) => {
         if (!isLoggedIn) {
-            onRequireLogin('답글 작성');
+            onRequireLogin('reply');
             return;
         }
 
@@ -272,7 +273,7 @@ export const useCommentsController = ({
 
     const handleReply = async () => {
         if (!isLoggedIn) {
-            onRequireLogin('답글 작성');
+            onRequireLogin('reply');
             return;
         }
 

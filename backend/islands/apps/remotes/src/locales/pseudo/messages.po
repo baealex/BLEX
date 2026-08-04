@@ -1,0 +1,205 @@
+msgid ""
+msgstr ""
+"POT-Creation-Date: 2026-08-04 17:50+0900\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: @lingui/cli\n"
+"Language: pseudo\n"
+"Project-Id-Version: \n"
+"Report-Msgid-Bugs-To: \n"
+"PO-Revision-Date: \n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"Plural-Forms: \n"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/LoginPrompt/LoginPrompt.tsx:116
+msgid "login_prompt.cancel"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/LoginPrompt/LoginPrompt.tsx:55
+msgid "login_prompt.description.comment"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/LoginPrompt/LoginPrompt.tsx:47
+msgid "login_prompt.description.generic"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/LoginPrompt/LoginPrompt.tsx:51
+msgid "login_prompt.description.like"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/LoginPrompt/LoginPrompt.tsx:59
+msgid "login_prompt.description.reply"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/LoginPrompt/LoginPrompt.tsx:110
+msgid "login_prompt.login"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/LoginPrompt/LoginPrompt.tsx:65
+#: src/components/remotes/LoginPrompt/LoginPrompt.tsx:97
+msgid "login_prompt.title"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/RelatedPosts/RelatedPosts.tsx:172
+msgid "related_posts.empty.body"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/RelatedPosts/RelatedPosts.tsx:169
+msgid "related_posts.empty.title"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/RelatedPosts/RelatedPosts.tsx:177
+msgid "related_posts.profile"
+msgstr ""
+
+#. js-lingui-explicit-id
+#. placeholder {0}: relatedPost.readTime
+#: src/components/remotes/RelatedPosts/RelatedPosts.tsx:80
+msgid "related_posts.read_time"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/RelatedPosts/RelatedPosts.tsx:145
+#: src/components/remotes/RelatedPosts/RelatedPosts.tsx:189
+msgid "related_posts.title"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SearchPage/SearchPage.tsx:410
+msgid "search.author_filter"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SearchPage/SearchPage.tsx:575
+msgid "search.empty.body"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SearchPage/SearchPage.tsx:572
+msgid "search.empty.title"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SearchPage/SearchPage.tsx:214
+msgid "search.error.generic"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SearchPage/SearchPage.tsx:456
+msgid "search.error.heading"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SearchPage/SearchPage.tsx:223
+msgid "search.error.network"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SearchPage/SearchPage.tsx:399
+msgid "search.input.clear"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SearchPage/SearchPage.tsx:386
+msgid "search.input.label"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SearchPage/SearchPage.tsx:382
+msgid "search.input.placeholder"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SearchPage/SearchPage.tsx:369
+msgid "search.loading"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SearchPage/SearchPage.tsx:342
+msgid "search.match.content"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SearchPage/SearchPage.tsx:334
+msgid "search.match.description"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SearchPage/SearchPage.tsx:338
+msgid "search.match.tag"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SearchPage/SearchPage.tsx:330
+msgid "search.match.title"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SearchPage/SearchPage.tsx:615
+msgid "search.pagination.next"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SearchPage/SearchPage.tsx:596
+msgid "search.pagination.page"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SearchPage/SearchPage.tsx:587
+msgid "search.pagination.previous"
+msgstr ""
+
+#. js-lingui-explicit-id
+#. placeholder {0}: result.readTime
+#: src/components/remotes/SearchPage/SearchPage.tsx:528
+msgid "search.read_time"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SearchPage/SearchPage.tsx:437
+msgid "search.recent.remove"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SearchPage/SearchPage.tsx:420
+msgid "search.recent.title"
+msgstr ""
+
+#. js-lingui-explicit-id
+#. placeholder {0}: searchResults.totalSize ?? 0
+#: src/components/remotes/SearchPage/SearchPage.tsx:469
+msgid "search.results.count"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SearchPage/SearchPage.tsx:478
+msgid "search.results.for"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SearchPage/SearchPage.tsx:361
+msgid "search.title"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SearchPage/SearchPage.tsx:209
+msgid "search.validation.invalid_page"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SearchPage/SearchPage.tsx:204
+#: src/components/remotes/SearchPage/SearchPage.tsx:273
+msgid "search.validation.query_required"
+msgstr ""

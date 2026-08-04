@@ -1,4 +1,5 @@
 {% load resource %}
+{% load i18n %}
 
 <div class="flex items-center gap-4 text-sm {% if cover_meta_border %}border-b border-line-light pb-8{% endif %}" itemprop="author" itemscope itemtype="https://schema.org/Person">
     <a href="/@{{ post.author_username }}" class="group flex-shrink-0">
@@ -11,12 +12,12 @@
             {{ post.author_username }}
         </a>
         <span class="{% if cover_inverted %}text-white/55{% else %}text-line-strong{% endif %}">·</span>
-        <span class="{% if cover_inverted %}text-white/80{% else %}text-content-secondary{% endif %}" itemprop="datePublished" content="{{ post.preview_date|date:'c' }}">{{ post.created_date_display }} {% if is_post_preview %}미리보기{% else %}발행{% endif %}</span>
+        <span class="{% if cover_inverted %}text-white/80{% else %}text-content-secondary{% endif %}" itemprop="datePublished" content="{{ post.preview_date|date:'c' }}">{% if is_post_preview %}{% blocktranslate with date=post.created_date_display %}Previewed {{ date }}{% endblocktranslate %}{% else %}{% blocktranslate with date=post.created_date_display %}Published {{ date }}{% endblocktranslate %}{% endif %}</span>
         {% if show_post_updated_date %}
         <span class="{% if cover_inverted %}text-white/55{% else %}text-line-strong{% endif %}">·</span>
-        <span class="{% if cover_inverted %}text-white/80{% else %}text-content-secondary{% endif %}" itemprop="dateModified" content="{{ post.updated_date|date:'c' }}">{{ post.updated_date_display }} 수정</span>
+        <span class="{% if cover_inverted %}text-white/80{% else %}text-content-secondary{% endif %}" itemprop="dateModified" content="{{ post.updated_date|date:'c' }}">{% blocktranslate with date=post.updated_date_display %}Updated {{ date }}{% endblocktranslate %}</span>
         {% endif %}
         <span class="{% if cover_inverted %}text-white/55{% else %}text-line-strong{% endif %}">·</span>
-        <span class="{% if cover_inverted %}text-white/80{% else %}text-content-secondary{% endif %}" aria-label="읽는 시간">{{ post.read_time }}분 소요</span>
+        <span class="{% if cover_inverted %}text-white/80{% else %}text-content-secondary{% endif %}" aria-label="{% translate 'Reading time' %}">{% blocktranslate with minutes=post.read_time %}{{ minutes }} min read{% endblocktranslate %}</span>
     </div>
 </div>

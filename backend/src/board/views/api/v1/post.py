@@ -271,6 +271,7 @@ def user_post_related(request, username, url):
                 'meta_description': related_post.meta_description,
                 'read_time': related_post.read_time,
                 'published_date': time_since(related_post.published_date),
+                'published_date_iso': timezone.localdate(related_post.published_date).isoformat(),
                 'published_at': related_post.published_date.isoformat(),
                 'author_username': related_post.author_username,
                 'author_name': related_post.author_name,

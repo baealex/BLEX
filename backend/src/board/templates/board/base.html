@@ -1,8 +1,11 @@
 <!DOCTYPE html>
+{% load i18n %}
 {% load resource %}
 {% load island %}
+{% get_current_language as LANGUAGE_CODE %}
+{% translate "Some interactive elements could not be loaded. Please try again shortly." as island_failure_message %}
 <html
-    lang="ko"
+    lang="{{ LANGUAGE_CODE|default:'ko' }}"
     data-theme="{% if request.COOKIES.blex_theme == 'dark' %}dark{% else %}light{% endif %}"
     data-theme-preference="{% if request.COOKIES.blex_theme == 'dark' %}dark{% elif request.COOKIES.blex_theme == 'light' %}light{% elif request.COOKIES.blex_theme == 'system' %}system{% else %}system{% endif %}"
 >
@@ -127,12 +130,12 @@
     {% if debug %}
         <aside
             class="fixed bottom-4 right-4 z-50 rounded-xl border border-warning-line bg-surface-elevated/95 px-3.5 py-2 text-xs font-bold text-content shadow-floating backdrop-blur-sm"
-            aria-label="개발 환경 표시"
-            title="개발 환경"
+            aria-label="{% translate 'Development environment indicator' %}"
+            title="{% translate 'Development environment' %}"
         >
             <span class="inline-flex items-center gap-2">
                 <span class="h-2 w-2 rounded-full bg-warning" aria-hidden="true"></span>
-                개발 환경
+                {% translate "Development environment" %}
             </span>
         </aside>
     {% endif %}
@@ -141,6 +144,7 @@
         window.configuration = {
             media: "{% resource 'media/' %}",
             static: "{% resource '' %}",
+            locale: "{{ LANGUAGE_CODE|default:'ko'|escapejs }}",
             {% if user.is_authenticated %}
             user: {
                 isAuthenticated: "{{ user.is_authenticated }}",
@@ -182,7 +186,7 @@
                 const banner = document.createElement('div');
                 banner.id = ALERT_ID;
                 banner.setAttribute('role', 'alert');
-                banner.textContent = '일부 인터랙션 요소를 불러오지 못했습니다. 잠시 후 다시 시도해주세요.';
+                banner.textContent = '{{ island_failure_message|escapejs }}';
                 banner.style.position = 'fixed';
                 banner.style.left = '16px';
                 banner.style.right = '16px';

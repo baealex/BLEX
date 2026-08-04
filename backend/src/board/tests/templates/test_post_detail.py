@@ -312,6 +312,35 @@ class PostDetailViewTestCase(TestCase):
         self.assertContains(response, '최초 발행')
         self.assertContains(response, '/@testauthor')
 
+    def test_post_detail_translates_ui_without_translating_authored_content(self):
+        """영어 UI에서도 작성자가 입력한 제목과 본문은 원문 그대로 유지한다."""
+        self.post.title = '한국어로 작성한 제목'
+        self.post.save(update_fields=['title'])
+        PostContent.objects.filter(post=self.post).update(
+            content_html='<h1>한국어로 작성한 본문</h1>',
+        )
+
+        response = self.client.get(
+            reverse('post_detail', kwargs={
+                'username': 'testauthor',
+                'post_url': 'test-post',
+            }),
+            HTTP_ACCEPT_LANGUAGE='en-US,en;q=0.9',
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response['Content-Language'], 'en')
+        rendered = response.content.decode()
+        self.assertRegex(rendered, r'<html\b[^>]*\blang=["\']?en["\']?[\s>]')
+        self.assertRegex(rendered, r'<article\b[^>]*\blang=["\']?und["\']?[\s>]')
+        self.assertContains(response, '한국어로 작성한 제목')
+        self.assertContains(response, '한국어로 작성한 본문')
+        self.assertContains(response, 'Post information')
+        self.assertContains(response, 'First published')
+        self.assertContains(response, 'Table of contents')
+        self.assertRegex(rendered, r'\bplaceholder=["\']?Search["\']?[\s>]')
+        self.assertNotContains(response, '포스트 정보')
+
     def test_post_detail_uses_split_cover_outside_content_grid(self):
         """분할 커버는 본문 그리드 바깥에서 상세 공통 프레임으로 렌더링한다."""
         self.set_post_image_path()

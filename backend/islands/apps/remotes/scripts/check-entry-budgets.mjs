@@ -34,19 +34,22 @@ const budgets = [
     {
         entries: ['src/island.tsx'],
         label: 'on-demand island runtime',
-        maxInitialFiles: 9,
+        maxInitialFiles: 12,
         maxInitialBytes: 235 * 1024,
-        maxInitialGzipBytes: 75 * 1024,
+        maxInitialGzipBytes: 77 * 1024,
         allowedInitialNames: [
             'src/island.tsx',
             'rolldown-runtime',
             'jsx-runtime',
             'react',
+            'compiler-runtime',
             'react-dom',
+            'shim',
             'IsRestoringProvider',
             'mutation',
             'QueryClientProvider',
-            'preload-helper'
+            'preload-helper',
+            'locale'
         ],
         blockedHints: [
             '@blex/editor',
@@ -68,7 +71,7 @@ const budgets = [
         entries: ['src/island.tsx', 'src/components/remotes/Login/index.ts'],
         label: 'login island experience',
         maxInitialBytes: 350 * 1024,
-        maxInitialGzipBytes: 115 * 1024
+        maxInitialGzipBytes: 118 * 1024
     },
     {
         entries: ['src/island.tsx', 'src/components/remotes/Signup/index.ts'],
@@ -80,25 +83,25 @@ const budgets = [
         entries: ['src/island.tsx', 'src/components/remotes/SearchPage/index.tsx'],
         label: 'search island experience',
         maxInitialBytes: 310 * 1024,
-        maxInitialGzipBytes: 100 * 1024
+        maxInitialGzipBytes: 103 * 1024
     },
     {
         entries: ['src/island.tsx', 'src/components/remotes/SettingsApp/index.tsx'],
         label: 'settings island experience',
-        maxInitialBytes: 475 * 1024,
-        maxInitialGzipBytes: 155 * 1024
+        maxInitialBytes: 476 * 1024,
+        maxInitialGzipBytes: 163 * 1024
     },
     {
         entries: ['src/island.tsx', 'src/components/remotes/PostEditor/index.ts'],
         label: 'post editor island experience',
-        maxInitialBytes: 1320 * 1024,
-        maxInitialGzipBytes: 420 * 1024
+        maxInitialBytes: 1340 * 1024,
+        maxInitialGzipBytes: 435 * 1024
     },
     {
         entries: ['src/island.tsx', 'src/components/remotes/Comments/index.ts'],
         label: 'comments island experience',
         maxInitialBytes: 465 * 1024,
-        maxInitialGzipBytes: 155 * 1024
+        maxInitialGzipBytes: 157 * 1024
     },
     {
         entries: ['styles/main.scss', 'styles/tailwind.css'],

@@ -131,6 +131,7 @@ Developer API는 외부 도구에서 글을 만들고 발행하기 위한 개인
 - [Self-hosting Guide](docs/SELF_HOSTING.md)
 - [Backend Guide](docs/BACKEND_GUIDE.md)
 - [Frontend Guide](docs/FRONTEND_GUIDE.md)
+- [Translation Guide](docs/TRANSLATION_GUIDE.md)
 - [Design Guide](docs/DESIGN_GUIDE.md)
 
 ## 라이선스

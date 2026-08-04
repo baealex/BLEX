@@ -1,3 +1,6 @@
+{% load i18n %}
+{% translate "Quick results" as quick_results_label %}
+{% translate "Recent searches" as recent_searches_label %}
 <div
     class="relative {{ quick_search_width|default:'w-64 lg:w-72' }}"
     @click.away="closeQuickSearchDropdown()"
@@ -14,7 +17,8 @@
             @focus="openQuickSearchDropdown()"
             @input="onQuickSearchInput()"
             type="text"
-            placeholder="검색"
+            placeholder="{% translate 'Search' %}"
+            aria-label="{% translate 'Search' %}"
             class="flex-1 min-w-0 bg-transparent text-sm text-content placeholder:text-content-hint focus:outline-none"
             autocomplete="off"
         >
@@ -37,7 +41,7 @@
         <div class="px-3 py-2 border-b border-line-light">
             <p
                 class="text-[11px] font-semibold text-content-secondary uppercase tracking-wider"
-                x-text="quickSearchQuery.trim() ? '빠른 결과' : '최근 검색어'"
+                x-text="quickSearchQuery.trim() ? '{{ quick_results_label|escapejs }}' : '{{ recent_searches_label|escapejs }}'"
             ></p>
         </div>
 
@@ -45,7 +49,7 @@
             <template x-if="!quickSearchQuery.trim()">
                 <div class="p-2">
                     <template x-if="recentSearches.length === 0">
-                        <p class="px-3 py-8 text-center text-sm text-content-secondary">최근 검색어가 없습니다.</p>
+                        <p class="px-3 py-8 text-center text-sm text-content-secondary">{% translate "No recent searches." %}</p>
                     </template>
 
                     <template x-if="recentSearches.length > 0">
@@ -62,7 +66,7 @@
                                         type="button"
                                         @click="removeRecentSearch(search, $event)"
                                         class="w-10 h-10 rounded-lg text-content-hint hover:text-content-secondary hover:bg-surface-subtle transition-colors"
-                                        aria-label="최근 검색어 삭제"
+                                        aria-label="{% translate 'Remove recent search' %}"
                                     >
                                         <i class="fas fa-times text-xs"></i>
                                     </button>
@@ -76,11 +80,11 @@
             <template x-if="quickSearchQuery.trim()">
                 <div>
                     <template x-if="quickSearchLoading">
-                        <p class="px-3 py-8 text-center text-sm text-content-secondary">빠르게 찾는 중...</p>
+                        <p class="px-3 py-8 text-center text-sm text-content-secondary">{% translate "Searching..." %}</p>
                     </template>
 
                     <template x-if="!quickSearchLoading && quickSearchResults.length === 0">
-                        <p class="px-3 py-8 text-center text-sm text-content-secondary">빠른 결과가 없습니다.</p>
+                        <p class="px-3 py-8 text-center text-sm text-content-secondary">{% translate "No quick results." %}</p>
                     </template>
 
                     <template x-if="!quickSearchLoading && quickSearchResults.length > 0">
@@ -115,7 +119,7 @@
                     @click="submitQuickSearch()"
                     class="w-full h-10 rounded-lg bg-action text-content-inverted text-sm font-semibold hover:bg-action-hover transition-all active:scale-95"
                 >
-                    전체 검색 결과 보기
+                    {% translate "View all search results" %}
                 </button>
             </div>
         </template>

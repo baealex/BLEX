@@ -1,23 +1,30 @@
 import { useState, useEffect } from 'react';
+import { Trans, useLingui } from '@lingui/react/macro';
 import { Modal } from '~/components/shared';
+import {
+    normalizeLoginPromptAction,
+    type LoginPromptAction
+} from '~/utils/loginPrompt';
 
 interface LoginPromptProps {
     isOpen?: boolean;
-    action?: string;
+    action?: LoginPromptAction;
 }
 
 const LoginPrompt = ({
     isOpen: initialIsOpen = false,
-    action: initialAction = '이 작업'
+    action: initialAction = 'generic'
 }: LoginPromptProps) => {
+    const { t } = useLingui();
     const [isOpen, setIsOpen] = useState(initialIsOpen);
-    const [action, setAction] = useState(initialAction);
+    const [action, setAction] = useState<LoginPromptAction>(
+        normalizeLoginPromptAction(initialAction)
+    );
 
     // 전역 이벤트로 모달 열기
     useEffect(() => {
-        const handleShowLoginPrompt = (event: CustomEvent<{ action: string }>) => {
-            const actionText = event.detail?.action || '이 작업';
-            setAction(actionText);
+        const handleShowLoginPrompt = (event: CustomEvent<{ action?: unknown }>) => {
+            setAction(normalizeLoginPromptAction(event.detail?.action));
             setIsOpen(true);
         };
 
@@ -36,11 +43,35 @@ const LoginPrompt = ({
         window.location.assign(`/login?next=${encodeURIComponent(currentPath)}`);
     };
 
+    const descriptions: Record<LoginPromptAction, string> = {
+        generic: t({
+            id: 'login_prompt.description.generic',
+            message: 'Log in to continue.'
+        }),
+        like: t({
+            id: 'login_prompt.description.like',
+            message: 'Log in to like this post.'
+        }),
+        comment: t({
+            id: 'login_prompt.description.comment',
+            message: 'Log in to leave a comment.'
+        }),
+        reply: t({
+            id: 'login_prompt.description.reply',
+            message: 'Log in to reply.'
+        })
+    };
+
+    const title = t({
+        id: 'login_prompt.title',
+        message: 'Login required'
+    });
+
     return (
         <Modal
             isOpen={isOpen}
             onClose={handleClose}
-            ariaTitle="로그인이 필요해요"
+            ariaTitle={title}
             maxWidth="sm"
             showCloseButton={false}>
             <Modal.Body className="p-8 text-center">
@@ -63,12 +94,12 @@ const LoginPrompt = ({
 
                 {/* Title */}
                 <h3 className="text-xl font-semibold text-content mb-2">
-                    로그인이 필요해요
+                    <Trans id="login_prompt.title">Login required</Trans>
                 </h3>
 
                 {/* Description */}
                 <p className="text-content-secondary mb-8">
-                    {action}을(를) 하려면 먼저 로그인해주세요.
+                    {descriptions[action]}
                 </p>
             </Modal.Body>
             <Modal.Footer className="flex-col px-8 pt-0 pb-8 border-t-0 bg-transparent">
@@ -76,13 +107,13 @@ const LoginPrompt = ({
                     variant="primary"
                     onClick={handleLogin}
                     className="w-full">
-                    로그인하기
+                    <Trans id="login_prompt.login">Log in</Trans>
                 </Modal.FooterAction>
                 <Modal.FooterAction
                     variant="secondary"
                     onClick={handleClose}
                     className="w-full">
-                    취소
+                    <Trans id="login_prompt.cancel">Cancel</Trans>
                 </Modal.FooterAction>
             </Modal.Footer>
         </Modal>

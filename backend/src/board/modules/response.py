@@ -40,9 +40,21 @@ class ErrorCode(Enum):
     NOT_FOUND = 'NF'
 
 
-def StatusError(code: ErrorCode, message: str = ''):
-    return CamelizeJsonResponse({
+def StatusError(
+    code: ErrorCode,
+    message: str = '',
+    *,
+    message_key: str | None = None,
+    message_params: dict | None = None,
+):
+    payload = {
         'status': 'ERROR',
         'error_code': 'error:' + code.value,
         'error_message': message,
-    })
+    }
+
+    if message_key is not None:
+        payload['message_key'] = message_key
+        payload['message_params'] = dict(message_params or {})
+
+    return CamelizeJsonResponse(payload)

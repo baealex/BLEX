@@ -10,6 +10,8 @@ export interface ErrorResponse {
     status: 'ERROR';
     errorCode: string;
     errorMessage: string;
+    messageKey?: string;
+    messageParams?: Record<string, unknown>;
 }
 
 export type Response<T> = DoneResponse<T> | ErrorResponse;
