@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: BLEX 3.1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-08-05 06:51+0900\n"
+"POT-Creation-Date: 2026-08-05 06:59+0900\n"
 "PO-Revision-Date: 2026-07-18 00:00+0900\n"
 "Last-Translator: BLEX contributors\n"
 "Language-Team: Korean\n"
@@ -656,7 +656,7 @@ msgstr "발행일"
 
 #: board/admin/post.py:447 board/admin/series.py:121
 #: board/templates/components/header.html:101
-#: board/templates/components/header.html:289
+#: board/templates/components/header.html:289 board/views/settings.py:75
 msgid "Settings"
 msgstr "설정"
 
@@ -1474,6 +1474,10 @@ msgstr "선택한 웹훅 비활성화"
 msgid "%(count)d webhook was deactivated."
 msgid_plural "%(count)d webhooks were deactivated."
 msgstr[0] "%(count)d개의 웹훅을 비활성화했습니다."
+
+#: board/decorators.py:59
+msgid "Author access is required. Please contact an administrator."
+msgstr "작가 권한이 필요합니다. 관리자에게 문의하세요."
 
 #: board/forms_initial_setup.py:24
 msgid "4–15 lowercase letters or numbers"
@@ -3548,6 +3552,10 @@ msgstr "포스트가 생성되었습니다."
 #: board/views/post.py:269
 msgid "Draft saved."
 msgstr "포스트가 임시저장되었습니다."
+
+#: board/views/settings.py:75
+msgid "Admin settings"
+msgstr "관리자 설정"
 
 #: board/views/tag.py:52
 msgctxt "tag sort option"

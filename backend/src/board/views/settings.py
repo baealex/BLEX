@@ -2,6 +2,7 @@ from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from django.http import Http404
 from django.urls import reverse
+from django.utils.translation import gettext_lazy as _
 
 from board.services.integration_setting_service import IntegrationSettingService
 from board.services.authoring_permission_service import AuthoringPermissionService
@@ -71,7 +72,7 @@ def _build_settings_context(request, settings_mode, base_path):
         'admin_capabilities': ProductSettingsPermissionService.get_capabilities(
             request.user,
         ),
-        'settings_title': '관리자 설정' if settings_mode == 'admin' else '설정',
+        'settings_title': _('Admin settings') if settings_mode == 'admin' else _('Settings'),
     }
 
 

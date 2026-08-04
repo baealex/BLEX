@@ -1,5 +1,6 @@
 import json
 
+from django.contrib.messages import get_messages
 from django.test import TestCase, override_settings
 
 from board.models import Config, DeveloperToken, Profile, User
@@ -240,6 +241,21 @@ class DeveloperAuthAPITestCase(TestCase):
                 response = self.client.get(path)
                 self.assertEqual(response.status_code, 302)
                 self.assertEqual(response['Location'], '/')
+
+    def test_editor_requirement_message_follows_the_request_language(self):
+        self.client.login(username='reader', password='reader')
+
+        response = self.client.get(
+            '/docs/developer-api/quickstart',
+            HTTP_ACCEPT_LANGUAGE='en',
+        )
+
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response['Location'], '/')
+        self.assertEqual(
+            [str(message) for message in get_messages(response.wsgi_request)],
+            ['Author access is required. Please contact an administrator.'],
+        )
 
     def test_reader_cannot_create_developer_token(self):
         self.client.login(username='reader', password='reader')
