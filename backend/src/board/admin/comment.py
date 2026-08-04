@@ -17,6 +17,8 @@ from django.http import HttpRequest
 from django.template.defaultfilters import truncatewords
 from django.utils.html import strip_tags, format_html
 from django.utils.safestring import mark_safe
+from django.utils.translation import gettext_lazy as _
+from django.utils.translation import ngettext
 
 from board.models import Comment
 from board.services.comment_service import CommentService
@@ -49,16 +51,16 @@ class CommentAdmin(
     actions = ['mark_as_heart', 'unmark_as_heart', 'soft_delete_comments']
 
     fieldsets = (
-        ('기본 정보', {
+        (_('Basic information'), {
             'fields': ('author', 'post', 'parent', 'author_info')
         }),
-        ('내용', {
+        (_('Content'), {
             'fields': ('text_md', 'text_html', 'edited', 'heart')
         }),
-        ('미리보기', {
+        (_('Preview'), {
             'fields': ('text_html_preview',),
         }),
-        ('통계', {
+        (_('Statistics'), {
             'fields': ('likes_count', 'created_at'),
             'classes': ('collapse',),
         }),
@@ -94,7 +96,7 @@ class CommentAdmin(
             '<div style="white-space: pre-wrap;">{}</div>',
             unescape(strip_tags(content_with_breaks)).strip(),
         )
-    text_html_preview.short_description = '텍스트 미리보기'
+    text_html_preview.short_description = _('Text preview')
 
     list_display = ['id', 'content_preview', 'post_link', 'author_link', 'likes_display', 'status_badges', 'created_date']
     list_display_links = ['content_preview']
@@ -126,70 +128,79 @@ class CommentAdmin(
         if obj.author:
             return AdminLinkService.create_user_link(obj.author)
         return format_html('<span style="color: {};">Ghost</span>', COLOR_MUTED)
-    author_link.short_description = '작성자'
+    author_link.short_description = _('Author')
 
     def post_link(self, obj):
         return AdminLinkService.create_post_link(obj.post)
-    post_link.short_description = '포스트'
+    post_link.short_description = _('Post')
 
     def content_preview(self, obj):
         content = truncatewords(strip_tags(obj.get_text_html()), 8)
         if not obj.author:
-            return format_html('<span style="color: {}; font-style: italic;">[삭제됨] {}</span>', COLOR_MUTED, content)
+            return format_html(
+                '<span style="color: {}; font-style: italic;">[{}] {}</span>',
+                COLOR_MUTED,
+                _('Deleted'),
+                content,
+            )
         return content
-    content_preview.short_description = '내용'
+    content_preview.short_description = _('Content')
 
     def likes_display(self, obj):
         count = obj.likes_count_annotated if hasattr(obj, 'likes_count_annotated') else obj.likes.count()
         if count > 0:
             return format_html('❤️ {}', count)
         return format_html('<span style="color: {};">0</span>', COLOR_MUTED)
-    likes_display.short_description = '좋아요'
+    likes_display.short_description = _('Likes')
     likes_display.admin_order_field = 'likes_count_annotated'
 
     def status_badges(self, obj):
         badges = []
         if obj.edited:
             badges.append(format_html(
-                '<span style="background: {}; color: {}; padding: 2px 6px; border-radius: 4px; font-size: 10px; opacity: 0.8;">수정됨</span>',
-                COLOR_WARNING, COLOR_TEXT
+                '<span style="background: {}; color: {}; padding: 2px 6px; border-radius: 4px; font-size: 10px; opacity: 0.8;">{}</span>',
+                COLOR_WARNING, COLOR_TEXT, _('Edited')
             ))
         if obj.heart:
             badges.append(format_html(
-                '<span style="background: {}; color: {}; padding: 2px 6px; border-radius: 4px; font-size: 10px; opacity: 0.8;">❤️ 하트</span>',
-                COLOR_DANGER, COLOR_BG
+                '<span style="background: {}; color: {}; padding: 2px 6px; border-radius: 4px; font-size: 10px; opacity: 0.8;">❤️ {}</span>',
+                COLOR_DANGER, COLOR_BG, _('Heart')
             ))
         if not obj.author:
             badges.append(format_html(
-                '<span style="background: {}; color: {}; padding: 2px 6px; border-radius: 4px; font-size: 10px; opacity: 0.8;">삭제됨</span>',
-                COLOR_DARKENED_BG, COLOR_TEXT
+                '<span style="background: {}; color: {}; padding: 2px 6px; border-radius: 4px; font-size: 10px; opacity: 0.8;">{}</span>',
+                COLOR_DARKENED_BG, COLOR_TEXT, _('Deleted')
             ))
         return mark_safe(' '.join(str(b) for b in badges)) if badges else format_html('<span style="color: {};">-</span>', COLOR_MUTED)
-    status_badges.short_description = '상태'
+    status_badges.short_description = _('Status')
 
     def author_info(self, obj):
         if not obj.author:
-            return format_html('<p style="color: {};">삭제된 사용자</p>', COLOR_MUTED)
+            return format_html(
+                '<p style="color: {};">{}</p>',
+                COLOR_MUTED,
+                _('Deleted user'),
+            )
         return format_html(
             '<div style="background: {}; padding: 12px; border-radius: 6px; border: 1px solid {};">'
-            '<p style="margin: 4px 0; color: {};"><strong>사용자명:</strong> {}</p>'
-            '<p style="margin: 4px 0; color: {};"><strong>이메일:</strong> {}</p>'
+            '<p style="margin: 4px 0; color: {};"><strong>{}:</strong> {}</p>'
+            '<p style="margin: 4px 0; color: {};"><strong>{}:</strong> {}</p>'
             '</div>',
             COLOR_DARKENED_BG, COLOR_BORDER,
-            COLOR_TEXT, obj.author.username,
-            COLOR_TEXT, obj.author.email or '-'
+            COLOR_TEXT, _('Username'), obj.author.username,
+            COLOR_TEXT, _('Email'), obj.author.email or '-'
         )
-    author_info.short_description = '작성자 정보'
+    author_info.short_description = _('Author information')
 
     def likes_count(self, obj):
         if hasattr(obj, 'likes_count_annotated'):
             return obj.likes_count_annotated
         return obj.likes.count()
-    likes_count.short_description = '총 좋아요 수'
+    likes_count.short_description = _('Total likes')
 
     def created_at(self, obj):
         return obj.created_date.strftime('%Y-%m-%d %H:%M:%S')
-    created_at.short_description = '작성일시'
+    created_at.short_description = _('Created at')
 
     def set_heart_status(
         self,
@@ -202,19 +213,23 @@ class CommentAdmin(
             comments = list(
                 queryset.select_for_update().exclude(heart=heart),
             )
-            status_label = '하트 표시' if heart else '하트 해제'
+            change_message = (
+                _('Marked with a heart in Admin')
+                if heart
+                else _('Removed heart in Admin')
+            )
             for comment in comments:
                 comment.heart = heart
                 comment.save(update_fields=['heart'])
                 self.log_change(
                     request,
                     comment,
-                    f'Admin에서 {status_label}',
+                    change_message,
                 )
         return len(comments)
 
     @admin.action(
-        description='선택한 댓글을 하트로 표시',
+        description=_('Mark selected comments with a heart'),
         permissions=['change'],
     )
     def mark_as_heart(
@@ -229,12 +244,16 @@ class CommentAdmin(
         )
         self.message_user(
             request,
-            f'{count}개의 댓글을 하트로 표시했습니다.',
+            ngettext(
+                '%(count)d comment was marked with a heart.',
+                '%(count)d comments were marked with a heart.',
+                count,
+            ) % {'count': count},
             level=messages.SUCCESS,
         )
 
     @admin.action(
-        description='선택한 댓글의 하트 해제',
+        description=_('Remove hearts from selected comments'),
         permissions=['change'],
     )
     def unmark_as_heart(
@@ -249,12 +268,16 @@ class CommentAdmin(
         )
         self.message_user(
             request,
-            f'{count}개의 댓글의 하트를 해제했습니다.',
+            ngettext(
+                'The heart was removed from %(count)d comment.',
+                'The hearts were removed from %(count)d comments.',
+                count,
+            ) % {'count': count},
             level=messages.SUCCESS,
         )
 
     @admin.action(
-        description='선택한 댓글을 삭제 상태로 전환',
+        description=_('Mark selected comments as deleted'),
         permissions=['delete'],
     )
     def soft_delete_comments(
@@ -267,7 +290,7 @@ class CommentAdmin(
             if not active_comments.exists():
                 self.message_user(
                     request,
-                    '삭제 상태로 전환할 댓글이 없습니다.',
+                    _('There are no comments to mark as deleted.'),
                     level=messages.WARNING,
                 )
                 return None
@@ -281,12 +304,13 @@ class CommentAdmin(
                 self,
                 preview_comments,
                 action_name='soft_delete_comments',
-                title='댓글 삭제 상태 전환 확인',
-                warning=(
-                    '댓글 행과 답글 관계는 유지되며 공개 화면에는 삭제된 '
-                    '댓글로 표시됩니다. 작성자 연결은 복구할 수 없습니다.'
+                title=_('Confirm comment deletion'),
+                warning=_(
+                    'Comment records and reply relationships will be retained '
+                    'and shown as deleted comments on public pages. Author '
+                    'associations cannot be restored.'
                 ),
-                confirm_label='댓글 삭제 상태로 전환',
+                confirm_label=_('Mark as deleted'),
             )
 
         with transaction.atomic():
@@ -301,12 +325,17 @@ class CommentAdmin(
                 self.log_change(
                     request,
                     comment,
-                    'Admin에서 댓글 삭제 상태로 전환',
+                    _('Marked as deleted in Admin'),
                 )
 
+        count = len(comments)
         self.message_user(
             request,
-            f'{len(comments)}개의 댓글을 삭제 상태로 전환했습니다.',
+            ngettext(
+                '%(count)d comment was marked as deleted.',
+                '%(count)d comments were marked as deleted.',
+                count,
+            ) % {'count': count},
             level=messages.SUCCESS,
         )
         return None

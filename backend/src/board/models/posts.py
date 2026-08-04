@@ -413,9 +413,9 @@ class SeriesConfigMeta(models.Model):
 
 class EditHistory(models.Model):
     class ChangeType(models.TextChoices):
-        EDIT = 'edit', '수정 전'
-        RESTORE = 'restore', '복원 전'
-        LEGACY = 'legacy', '레거시'
+        EDIT = 'edit', _('Before edit')
+        RESTORE = 'restore', _('Before restore')
+        LEGACY = 'legacy', _('Legacy')
 
     post = models.ForeignKey('board.Post', on_delete=models.CASCADE)
     actor = models.ForeignKey(

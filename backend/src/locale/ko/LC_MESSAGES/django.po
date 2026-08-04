@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: BLEX 3.1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-08-05 06:29+0900\n"
+"POT-Creation-Date: 2026-08-05 06:35+0900\n"
 "PO-Revision-Date: 2026-07-18 00:00+0900\n"
 "Last-Translator: BLEX contributors\n"
 "Language-Team: Korean\n"
@@ -149,6 +149,145 @@ msgid "%(count)d connection was kept to preserve a login method."
 msgid_plural "%(count)d connections were kept to preserve a login method."
 msgstr[0] "%(count)d개는 로그인 수단을 보존하기 위해 해제하지 않았습니다."
 
+#: board/admin/comment.py:54 board/admin/notify.py:127
+#: board/admin/series.py:118
+msgid "Basic information"
+msgstr "기본 정보"
+
+#: board/admin/comment.py:57 board/admin/comment.py:147
+#: board/admin/notify.py:164 board/admin/series.py:124 main/admin_site.py:24
+msgid "Content"
+msgstr "콘텐츠"
+
+#: board/admin/comment.py:60 board/admin/image.py:70 board/admin/service.py:223
+#: board/admin/service.py:232 board/templates/board/posts/post_detail.html:6
+msgid "Preview"
+msgstr "미리보기"
+
+#: board/admin/comment.py:63
+msgid "Statistics"
+msgstr "통계"
+
+#: board/admin/comment.py:99
+msgid "Text preview"
+msgstr "텍스트 미리보기"
+
+#: board/admin/comment.py:131 board/admin/series.py:155
+#: board/templates/board/posts/post_detail.html:184
+msgid "Author"
+msgstr "작성자"
+
+#: board/admin/comment.py:135 board/admin/revision.py:156
+#: board/models/posts.py:156
+msgid "Post"
+msgstr "포스트"
+
+#: board/admin/comment.py:143 board/admin/comment.py:172
+msgid "Deleted"
+msgstr "삭제됨"
+
+#: board/admin/comment.py:154
+msgid "Likes"
+msgstr "좋아요"
+
+#: board/admin/comment.py:162
+msgid "Edited"
+msgstr "수정됨"
+
+#: board/admin/comment.py:167
+msgid "Heart"
+msgstr "하트"
+
+#: board/admin/comment.py:175 board/admin/notify.py:130
+#: board/admin/series.py:52 board/admin/series.py:206
+#: board/templates/board/developer_api_quickstart.html:121
+msgid "Status"
+msgstr "상태"
+
+#: board/admin/comment.py:182
+msgid "Deleted user"
+msgstr "삭제된 사용자"
+
+#: board/admin/comment.py:190 board/forms_initial_setup.py:26
+msgid "Username"
+msgstr "사용자 이름"
+
+#: board/admin/comment.py:191 board/admin/service.py:294
+#: board/forms_initial_setup.py:44
+msgid "Email"
+msgstr "이메일"
+
+#: board/admin/comment.py:193
+msgid "Author information"
+msgstr "작성자 정보"
+
+#: board/admin/comment.py:199
+msgid "Total likes"
+msgstr "총 좋아요 수"
+
+#: board/admin/comment.py:203 board/admin/notify.py:183
+#: board/admin/series.py:271
+msgid "Created at"
+msgstr "생성일시"
+
+#: board/admin/comment.py:217
+msgid "Marked with a heart in Admin"
+msgstr "Admin에서 하트 표시"
+
+#: board/admin/comment.py:219
+msgid "Removed heart in Admin"
+msgstr "Admin에서 하트 해제"
+
+#: board/admin/comment.py:232
+msgid "Mark selected comments with a heart"
+msgstr "선택한 댓글을 하트로 표시"
+
+#: board/admin/comment.py:248
+#, python-format
+msgid "%(count)d comment was marked with a heart."
+msgid_plural "%(count)d comments were marked with a heart."
+msgstr[0] "%(count)d개의 댓글을 하트로 표시했습니다."
+
+#: board/admin/comment.py:256
+msgid "Remove hearts from selected comments"
+msgstr "선택한 댓글의 하트 해제"
+
+#: board/admin/comment.py:272
+#, python-format
+msgid "The heart was removed from %(count)d comment."
+msgid_plural "The hearts were removed from %(count)d comments."
+msgstr[0] "%(count)d개의 댓글의 하트를 해제했습니다."
+
+#: board/admin/comment.py:280
+msgid "Mark selected comments as deleted"
+msgstr "선택한 댓글을 삭제 상태로 전환"
+
+#: board/admin/comment.py:293
+msgid "There are no comments to mark as deleted."
+msgstr "삭제 상태로 전환할 댓글이 없습니다."
+
+#: board/admin/comment.py:307
+msgid "Confirm comment deletion"
+msgstr "댓글 삭제 상태 전환 확인"
+
+#: board/admin/comment.py:309
+msgid "Comment records and reply relationships will be retained and shown as deleted comments on public pages. Author associations cannot be restored."
+msgstr "댓글 행과 답글 관계는 유지되며 공개 화면에는 삭제된 댓글로 표시됩니다. 작성자 연결은 복구할 수 없습니다."
+
+#: board/admin/comment.py:313
+msgid "Mark as deleted"
+msgstr "댓글 삭제 상태로 전환"
+
+#: board/admin/comment.py:328
+msgid "Marked as deleted in Admin"
+msgstr "Admin에서 댓글 삭제 상태로 전환"
+
+#: board/admin/comment.py:335
+#, python-format
+msgid "%(count)d comment was marked as deleted."
+msgid_plural "%(count)d comments were marked as deleted."
+msgstr[0] "%(count)d개의 댓글을 삭제 상태로 전환했습니다."
+
 #: board/admin/connection.py:57
 msgid "Connected"
 msgstr "연동됨"
@@ -186,11 +325,6 @@ msgstr "업로더"
 msgid "File size"
 msgstr "파일 크기"
 
-#: board/admin/image.py:70 board/admin/service.py:223
-#: board/admin/service.py:232 board/templates/board/posts/post_detail.html:6
-msgid "Preview"
-msgstr "미리보기"
-
 #: board/admin/image.py:75 board/admin/service.py:473
 msgid "Open"
 msgstr "열기"
@@ -217,22 +351,9 @@ msgstr "알림 내용"
 msgid "Message sent to every active user"
 msgstr "모든 활성 사용자에게 전송될 알림 메시지"
 
-#: board/admin/notify.py:127 board/admin/series.py:118
-msgid "Basic information"
-msgstr "기본 정보"
-
-#: board/admin/notify.py:130 board/admin/series.py:52 board/admin/series.py:206
-#: board/templates/board/developer_api_quickstart.html:121
-msgid "Status"
-msgstr "상태"
-
 #: board/admin/notify.py:133 board/admin/series.py:131
 msgid "Metadata"
 msgstr "메타데이터"
-
-#: board/admin/notify.py:164 board/admin/series.py:124 main/admin_site.py:24
-msgid "Content"
-msgstr "콘텐츠"
 
 #: board/admin/notify.py:168
 msgid "Read status"
@@ -241,10 +362,6 @@ msgstr "읽음 상태"
 #: board/admin/notify.py:176
 msgid "Unsafe URL"
 msgstr "안전하지 않은 URL"
-
-#: board/admin/notify.py:183 board/admin/series.py:271
-msgid "Created at"
-msgstr "생성일시"
 
 #: board/admin/notify.py:187 board/admin/series.py:275
 msgid "Updated at"
@@ -407,6 +524,78 @@ msgctxt "Admin permission label"
 msgid "%(action)s %(model)s"
 msgstr "%(model)s %(action)s"
 
+#: board/admin/revision.py:25 board/templates/board/posts/post_detail.html:107
+msgid "Post status"
+msgstr "포스트 상태"
+
+#: board/admin/revision.py:30 board/admin/service.py:127
+#: board/admin/service.py:144 board/admin/service.py:297
+msgid "Active"
+msgstr "활성"
+
+#: board/admin/revision.py:31 board/admin/series.py:181
+#: board/admin/series.py:265 board/admin/service.py:325 board/admin/tag.py:112
+msgid "Trash"
+msgstr "휴지통"
+
+#: board/admin/revision.py:85
+msgid "Revision information"
+msgstr "수정 이력 정보"
+
+#: board/admin/revision.py:93
+msgid "Previous snapshot"
+msgstr "이전 스냅샷"
+
+#: board/admin/revision.py:102
+msgid "Record timestamps"
+msgstr "기록 시점"
+
+#: board/admin/revision.py:161
+msgid "Current status"
+msgstr "현재 상태"
+
+#: board/admin/revision.py:166
+msgid "Change type"
+msgstr "변경 유형"
+
+#: board/admin/revision.py:171
+msgid "Actor"
+msgstr "작업자"
+
+#: board/admin/revision.py:175
+msgid "No content excerpt"
+msgstr "본문 요약 없음"
+
+#: board/admin/revision.py:181
+msgid "Previous content"
+msgstr "이전 내용"
+
+#: board/admin/revision.py:188
+msgid "Delete selected revisions"
+msgstr "선택한 수정 이력 삭제"
+
+#: board/admin/revision.py:200 board/admin/revision.py:222
+msgid "There are no revisions to delete."
+msgstr "삭제할 수정 이력이 없습니다."
+
+#: board/admin/revision.py:209
+msgid "Confirm revision deletion"
+msgstr "수정 이력 삭제 확인"
+
+#: board/admin/revision.py:211
+msgid "Only the selected previous snapshots will be deleted. The current post content will not change, but deleted revisions cannot be recovered."
+msgstr "선택한 이전 스냅샷만 삭제됩니다. 현재 포스트 내용은 바뀌지 않지만 삭제한 이력은 복구할 수 없습니다."
+
+#: board/admin/revision.py:215
+msgid "Delete revisions"
+msgstr "수정 이력 삭제"
+
+#: board/admin/revision.py:243
+#, python-format
+msgid "%(count)d revision was deleted."
+msgid_plural "%(count)d revisions were deleted."
+msgstr[0] "%(count)d개의 수정 이력을 삭제했습니다."
+
 #: board/admin/series.py:45 board/admin/series.py:200
 #: board/admin/service.py:176 board/admin/service.py:360
 msgid "Hidden"
@@ -434,10 +623,6 @@ msgstr "설정"
 msgid "Posts"
 msgstr "포스트"
 
-#: board/admin/series.py:155 board/templates/board/posts/post_detail.html:184
-msgid "Author"
-msgstr "작성자"
-
 #: board/admin/series.py:160 board/admin/series.py:263 board/admin/tag.py:91
 msgid "Active posts"
 msgstr "활성 포스트"
@@ -445,11 +630,6 @@ msgstr "활성 포스트"
 #: board/admin/series.py:170 board/admin/tag.py:101
 msgid "Public posts"
 msgstr "공개 포스트"
-
-#: board/admin/series.py:181 board/admin/series.py:265
-#: board/admin/service.py:325 board/admin/tag.py:112
-msgid "Trash"
-msgstr "휴지통"
 
 #: board/admin/series.py:188
 msgid "Card"
@@ -561,11 +741,6 @@ msgctxt "Admin user role"
 msgid "Reader"
 msgstr "독자"
 
-#: board/admin/service.py:127 board/admin/service.py:144
-#: board/admin/service.py:297
-msgid "Active"
-msgstr "활성"
-
 #: board/admin/service.py:128 board/admin/service.py:145
 #: board/admin/service.py:297
 msgid "Inactive"
@@ -590,10 +765,6 @@ msgstr "커버 이미지 없음"
 #: board/admin/service.py:259
 msgid "Cover image"
 msgstr "커버 이미지"
-
-#: board/admin/service.py:294 board/forms_initial_setup.py:44
-msgid "Email"
-msgstr "이메일"
 
 #: board/admin/service.py:295
 msgid "Date joined"
@@ -803,10 +974,6 @@ msgstr[0] "%(count)d개의 웹훅을 비활성화했습니다."
 msgid "4–15 lowercase letters or numbers"
 msgstr "4-15자 영문 소문자, 숫자"
 
-#: board/forms_initial_setup.py:26
-msgid "Username"
-msgstr "사용자 이름"
-
 #: board/forms_initial_setup.py:33
 msgid "Name displayed on the site"
 msgstr "사이트에 표시할 이름"
@@ -979,10 +1146,6 @@ msgstr "이미지 캐시"
 msgid "Tags"
 msgstr "태그"
 
-#: board/models/posts.py:156
-msgid "Post"
-msgstr "포스트"
-
 #: board/models/posts.py:321
 msgid "Pinned post"
 msgstr "고정 포스트"
@@ -999,6 +1162,18 @@ msgstr "고정 포스트"
 #: board/templates/board/series/series_detail.html:29
 msgid "Series"
 msgstr "시리즈"
+
+#: board/models/posts.py:416
+msgid "Before edit"
+msgstr "수정 전"
+
+#: board/models/posts.py:417
+msgid "Before restore"
+msgstr "복원 전"
+
+#: board/models/posts.py:418
+msgid "Legacy"
+msgstr "레거시"
 
 #: board/models/posts.py:455
 msgid "Post revision"
@@ -2145,10 +2320,6 @@ msgstr "에이전트용 링크가 복사되었습니다."
 #: board/templates/board/posts/post_detail.html:69
 msgid "Could not share this post."
 msgstr "공유에 실패했습니다."
-
-#: board/templates/board/posts/post_detail.html:107
-msgid "Post status"
-msgstr "포스트 상태"
 
 #: board/templates/board/posts/post_detail.html:110
 msgid "This is a draft preview."

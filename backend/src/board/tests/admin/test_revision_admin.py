@@ -8,7 +8,7 @@ from django.contrib.messages.storage.fallback import FallbackStorage
 from django.template.response import TemplateResponse
 from django.test import RequestFactory, TestCase
 from django.urls import reverse
-from django.utils import timezone
+from django.utils import timezone, translation
 
 from board.admin.revision import EditHistoryAdmin
 from board.models import EditHistory, Post
@@ -161,6 +161,28 @@ class EditHistoryAdminTestCase(TestCase):
             [revision.pk for revision in active_response.context['cl'].result_list],
             [active_revision.pk],
         )
+
+    def test_changelist_uses_active_locale_and_preserves_snapshot_content(self):
+        post = self.create_post('Localized revision post')
+        self.create_revision(
+            post,
+            title='사용자가 작성한 제목',
+            excerpt='Texte rédigé par l’utilisateur',
+        )
+        self.client.force_login(self.admin_user)
+
+        with translation.override('en'):
+            response = self.client.get(
+                reverse('admin:board_edithistory_changelist'),
+                HTTP_ACCEPT_LANGUAGE='en',
+            )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'Before edit')
+        self.assertContains(response, 'Previous content')
+        self.assertContains(response, '사용자가 작성한 제목')
+        self.assertContains(response, 'Texte rédigé par l’utilisateur')
+        self.assertNotContains(response, '수정 전')
 
     def test_snapshot_summary_escapes_stored_html(self):
         post = self.create_post('Escaped revision post')
