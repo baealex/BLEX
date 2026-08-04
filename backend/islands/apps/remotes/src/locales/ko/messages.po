@@ -604,6 +604,11 @@ msgid "common.add"
 msgstr "추가"
 
 #. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostsFilter.tsx:100
+msgid "common.all"
+msgstr "전체"
+
+#. js-lingui-explicit-id
 #: src/components/shared/ImageCropDialog.tsx:245
 msgid "common.apply"
 msgstr "적용"
@@ -718,6 +723,26 @@ msgid "common.next"
 msgstr "다음"
 
 #. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PostsSetting/components/Pagination.tsx:54
+msgid "common.pagination.first"
+msgstr "첫 페이지"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PostsSetting/components/Pagination.tsx:129
+msgid "common.pagination.last"
+msgstr "마지막 페이지"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PostsSetting/components/Pagination.tsx:117
+msgid "common.pagination.next"
+msgstr "다음 페이지"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PostsSetting/components/Pagination.tsx:66
+msgid "common.pagination.previous"
+msgstr "이전 페이지"
+
+#. js-lingui-explicit-id
 #: src/components/remotes/PostEditor/utils/firstPublishTour.ts:110
 msgid "common.previous"
 msgstr "이전"
@@ -737,6 +762,12 @@ msgstr "제거"
 #: src/components/remotes/PostEditor/components/PostCoverEditor.tsx:228
 msgid "common.replace"
 msgstr "교체"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PostsSetting/components/TrashPostListContent.tsx:103
+#: src/components/remotes/SettingsApp/pages/PostsSetting/components/TrashPostListContent.tsx:236
+msgid "common.restore"
+msgstr "복원"
 
 #. js-lingui-explicit-id
 #: src/components/remotes/Comments/Comments.tsx:90
@@ -759,6 +790,19 @@ msgstr "저장 중"
 #: src/components/remotes/Comments/components/CommentEditForm.tsx:87
 msgid "common.saving_ellipsis"
 msgstr "저장 중..."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostsFilter.tsx:140
+msgid "common.search.clear"
+msgstr "검색어 지우기"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PostsSetting/components/DraftPostListContent.tsx:112
+#: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostCard.tsx:123
+#: src/components/remotes/SettingsApp/pages/PostsSetting/components/TrashPostListContent.tsx:134
+#: src/components/remotes/SettingsApp/pages/PostsSetting/components/TrashPostListContent.tsx:203
+msgid "common.untitled"
+msgstr "제목 없음"
 
 #. js-lingui-explicit-id
 #: src/components/remotes/PostEditor/components/SettingsDrawer.tsx:592
@@ -3004,6 +3048,601 @@ msgstr "해제"
 #: src/components/remotes/SettingsApp/pages/PinnedPostsSetting/components/PinnedPostsPanel.tsx:280
 msgid "settings.pinned_posts.view_trash"
 msgstr "휴지통 보기"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostCard.tsx:241
+msgid "settings.posts.card.edit"
+msgstr "포스트 편집"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostCard.tsx:233
+msgid "settings.posts.card.open_menu"
+msgstr "{title} 포스트 메뉴 열기"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostCard.tsx:185
+msgid "settings.posts.card.read_time"
+msgstr "{minutes, plural, other {#분}}"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostCard.tsx:201
+msgid "settings.posts.card.recently_updated"
+msgstr "최근 수정"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostCard.tsx:144
+msgid "settings.posts.card.view_post"
+msgstr "{title} 포스트 보기"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostCard.tsx:278
+msgid "settings.posts.classification.close"
+msgstr "태그 및 시리즈 편집 닫기"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostCard.tsx:290
+msgid "settings.posts.classification.label"
+msgstr "태그·시리즈"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostCard.tsx:282
+msgid "settings.posts.classification.open"
+msgstr "태그 및 시리즈 편집 열기"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostCard.tsx:300
+msgid "settings.posts.classification.save_required"
+msgstr "{fields} 저장 필요"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostCard.tsx:85
+msgid "settings.posts.classification.series"
+msgstr "시리즈"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostCard.tsx:96
+msgid "settings.posts.classification.tag_count"
+msgstr "{count, plural, other {태그 #개}}"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostCard.tsx:81
+msgid "settings.posts.classification.tags"
+msgstr "태그"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostCard.tsx:76
+msgid "settings.posts.classification.tags_and_series"
+msgstr "태그·시리즈"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/DraftsSetting/DraftsSetting.tsx:20
+#: src/components/remotes/SettingsApp/pages/PostsSetting/PostsSetting.tsx:143
+msgid "settings.posts.create"
+msgstr "새 포스트 작성"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PostsSetting/components/DraftPostListContent.tsx:165
+msgid "settings.posts.drafts.last_updated"
+msgstr "마지막 수정 {date}"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PostsSetting/components/DraftPostListContent.tsx:39
+msgid "settings.posts.drafts.load_failed"
+msgstr "임시 포스트 목록을 불러오지 못했습니다."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PostsSetting/components/DraftPostListContent.tsx:140
+msgid "settings.posts.drafts.open_menu"
+msgstr "{title} 임시 포스트 메뉴 열기"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PostsSetting/components/DraftPostListContent.tsx:79
+#: src/components/remotes/SettingsApp/pages/PostsSetting/components/DraftPostListContent.tsx:85
+msgid "settings.posts.drafts.trash.failed"
+msgstr "임시 포스트를 휴지통으로 옮기지 못했습니다."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PostsSetting/components/DraftPostListContent.tsx:56
+msgid "settings.posts.drafts.trash.message"
+msgstr "이 임시 포스트를 휴지통으로 옮길까요? 나중에 복원할 수 있습니다."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PostsSetting/components/DraftPostListContent.tsx:73
+msgid "settings.posts.drafts.trash.success"
+msgstr "임시 포스트를 휴지통으로 옮겼습니다."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PostsSetting/components/DraftPostListContent.tsx:52
+msgid "settings.posts.drafts.trash.title"
+msgstr "임시 포스트를 휴지통으로 이동"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostListContent.tsx:66
+msgid "settings.posts.empty.default"
+msgstr "포스트가 없습니다"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PostsSetting/components/DraftPostListContent.tsx:100
+msgid "settings.posts.empty.drafts"
+msgstr "임시 포스트가 없습니다"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PostsSetting/PostsSetting.tsx:221
+msgid "settings.posts.empty.published"
+msgstr "발행 포스트가 없습니다"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PostsSetting/PostsSetting.tsx:235
+msgid "settings.posts.empty.scheduled"
+msgstr "예약 포스트가 없습니다"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostsFilter.tsx:205
+msgid "settings.posts.filters.applied_count"
+msgstr "{count, plural, other {#개 적용}}"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostsFilter.tsx:274
+#: src/components/remotes/SettingsApp/pages/PostsSetting/PostsSetting.tsx:153
+msgid "settings.posts.filters.clear"
+msgstr "필터 초기화"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostsFilter.tsx:194
+msgid "settings.posts.filters.collapse"
+msgstr "필터 접기"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostsFilter.tsx:198
+msgid "settings.posts.filters.expand"
+msgstr "필터 더보기"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostsFilter.tsx:157
+msgid "settings.posts.filters.order_aria"
+msgstr "포스트 정렬 방식 선택, 현재 {order}"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostsFilter.tsx:241
+msgid "settings.posts.filters.remove_series"
+msgstr "시리즈 필터 제거"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostsFilter.tsx:224
+msgid "settings.posts.filters.remove_tag"
+msgstr "{tag} 태그 필터 제거"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostsFilter.tsx:257
+msgid "settings.posts.filters.remove_visibility"
+msgstr "공개 상태 필터 제거"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostsFilter.tsx:119
+msgid "settings.posts.filters.search_aria"
+msgstr "포스트 제목 검색"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostsFilter.tsx:128
+msgid "settings.posts.filters.search_placeholder"
+msgstr "포스트 제목 검색..."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostsFilter.tsx:124
+msgid "settings.posts.filters.search_scheduled_placeholder"
+msgstr "예약 포스트 제목 검색..."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostsFilter.tsx:342
+msgid "settings.posts.filters.series"
+msgstr "시리즈"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostsFilter.tsx:333
+msgid "settings.posts.filters.series_aria"
+msgstr "시리즈 필터 선택, 현재 {series}"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostsFilter.tsx:302
+msgid "settings.posts.filters.tag"
+msgstr "태그"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostsFilter.tsx:295
+msgid "settings.posts.filters.tag_aria"
+msgstr "태그 필터 선택, 현재 {tag}"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostsFilter.tsx:389
+msgid "settings.posts.filters.visibility"
+msgstr "공개 상태"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostsFilter.tsx:385
+msgid "settings.posts.filters.visibility_after_publish"
+msgstr "발행 후 공개 상태"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostsFilter.tsx:373
+msgid "settings.posts.filters.visibility_aria"
+msgstr "공개 상태 필터 선택, 현재 {visibility}"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PostsSetting/hooks/usePostsData.ts:404
+msgid "settings.posts.load_failed"
+msgstr "포스트 목록을 불러오지 못했습니다."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PostsSetting/hooks/usePostsData.ts:300
+msgid "settings.posts.load_series_failed"
+msgstr "시리즈 목록을 불러오지 못했습니다."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PostsSetting/hooks/usePostsData.ts:286
+msgid "settings.posts.load_tags_failed"
+msgstr "태그 목록을 불러오지 못했습니다."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostsFilter.tsx:76
+msgid "settings.posts.order.label"
+msgstr "정렬 방식"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PostsSetting/hooks/usePostsData.ts:195
+msgid "settings.posts.order.least_commented"
+msgstr "댓글 적은순"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PostsSetting/hooks/usePostsData.ts:181
+msgid "settings.posts.order.least_liked"
+msgstr "좋아요 적은순"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PostsSetting/hooks/usePostsData.ts:153
+msgid "settings.posts.order.least_recently_updated"
+msgstr "오래된 수정순"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PostsSetting/hooks/usePostsData.ts:209
+msgid "settings.posts.order.longest"
+msgstr "분량 많은순"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PostsSetting/hooks/usePostsData.ts:188
+msgid "settings.posts.order.most_commented"
+msgstr "댓글 많은순"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PostsSetting/hooks/usePostsData.ts:174
+msgid "settings.posts.order.most_liked"
+msgstr "좋아요 많은순"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PostsSetting/hooks/usePostsData.ts:132
+msgid "settings.posts.order.newest_published"
+msgstr "최근 발행순"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PostsSetting/hooks/usePostsData.ts:139
+msgid "settings.posts.order.oldest_published"
+msgstr "오래된 발행순"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PostsSetting/hooks/usePostsData.ts:146
+msgid "settings.posts.order.recently_updated"
+msgstr "최근 수정순"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostsFilter.tsx:62
+msgid "settings.posts.order.scheduled_farthest"
+msgstr "예약 먼 순"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostsFilter.tsx:68
+msgid "settings.posts.order.scheduled_soonest"
+msgstr "예약 임박순"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PostsSetting/hooks/usePostsData.ts:202
+msgid "settings.posts.order.shortest"
+msgstr "분량 적은순"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PostsSetting/hooks/usePostsData.ts:160
+msgid "settings.posts.order.title_ascending"
+msgstr "제목순"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PostsSetting/hooks/usePostsData.ts:167
+msgid "settings.posts.order.title_descending"
+msgstr "제목 역순"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PostsSetting/components/Pagination.tsx:42
+msgid "settings.posts.pagination.aria"
+msgstr "포스트 페이지"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostListContent.tsx:91
+msgid "settings.posts.scheduled_for"
+msgstr "예약 {date}"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostCard.tsx:372
+#: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostCard.tsx:382
+msgid "settings.posts.series.none"
+msgstr "시리즈 선택 안 함"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostCard.tsx:397
+msgid "settings.posts.series.save"
+msgstr "시리즈 저장"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostCard.tsx:364
+msgid "settings.posts.series.select_aria"
+msgstr "{title} 시리즈 선택"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PostsSetting/hooks/usePostsActions.ts:227
+#: src/components/remotes/SettingsApp/pages/PostsSetting/hooks/usePostsActions.ts:233
+msgid "settings.posts.series.update_failed"
+msgstr "시리즈 수정에 실패했습니다."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PostsSetting/hooks/usePostsActions.ts:222
+msgid "settings.posts.series.update_success"
+msgstr "시리즈가 수정되었습니다."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PostsSetting/components/DraftPostListContent.tsx:178
+#: src/components/remotes/SettingsApp/pages/PostsSetting/components/TrashPostListContent.tsx:42
+msgid "settings.posts.status.draft"
+msgstr "임시 포스트"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PostsSetting/components/TrashPostListContent.tsx:52
+msgid "settings.posts.status.published"
+msgstr "발행 포스트"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostListContent.tsx:107
+#: src/components/remotes/SettingsApp/pages/PostsSetting/components/TrashPostListContent.tsx:47
+msgid "settings.posts.status.scheduled"
+msgstr "예약 포스트"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PostsSetting/PostsSetting.tsx:169
+msgid "settings.posts.tabs.aria"
+msgstr "포스트 상태"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/DraftsSetting/DraftsSetting.tsx:11
+#: src/components/remotes/SettingsApp/pages/PostsSetting/PostsSetting.tsx:107
+msgid "settings.posts.tabs.drafts"
+msgstr "임시 포스트"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PostsSetting/PostsSetting.tsx:91
+msgid "settings.posts.tabs.published"
+msgstr "발행 포스트"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PostsSetting/PostsSetting.tsx:99
+msgid "settings.posts.tabs.scheduled"
+msgstr "예약 포스트"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PostsSetting/PostsSetting.tsx:115
+msgid "settings.posts.tabs.trash"
+msgstr "휴지통"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostCard.tsx:324
+msgid "settings.posts.tags.input_aria"
+msgstr "{title} 태그"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostCard.tsx:329
+msgid "settings.posts.tags.placeholder"
+msgstr "태그를 입력하세요..."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostCard.tsx:346
+msgid "settings.posts.tags.save"
+msgstr "태그 저장"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PostsSetting/hooks/usePostsActions.ts:166
+#: src/components/remotes/SettingsApp/pages/PostsSetting/hooks/usePostsActions.ts:172
+msgid "settings.posts.tags.update_failed"
+msgstr "태그 수정에 실패했습니다."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PostsSetting/hooks/usePostsActions.ts:161
+msgid "settings.posts.tags.update_success"
+msgstr "태그가 수정되었습니다."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PostsSetting/PostsSetting.tsx:124
+msgid "settings.posts.title"
+msgstr "포스트"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PostsSetting/PostsSetting.tsx:128
+msgid "settings.posts.title_count"
+msgstr "포스트 ({count})"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PostsSetting/components/TrashPostListContent.tsx:148
+#: src/components/remotes/SettingsApp/pages/PostsSetting/components/TrashPostListContent.tsx:244
+msgid "settings.posts.trash.delete.confirm"
+msgstr "영구 삭제"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PostsSetting/components/TrashPostListContent.tsx:162
+#: src/components/remotes/SettingsApp/pages/PostsSetting/components/TrashPostListContent.tsx:174
+msgid "settings.posts.trash.delete.failed"
+msgstr "포스트를 영구 삭제하지 못했습니다."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PostsSetting/components/TrashPostListContent.tsx:143
+msgid "settings.posts.trash.delete.message"
+msgstr "‘{title}’ 포스트와 관련 데이터를 영구 삭제합니다. 이 작업은 되돌릴 수 없습니다."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PostsSetting/components/TrashPostListContent.tsx:168
+msgid "settings.posts.trash.delete.success"
+msgstr "포스트를 영구 삭제했습니다."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PostsSetting/components/TrashPostListContent.tsx:139
+msgid "settings.posts.trash.delete.title"
+msgstr "포스트 영구 삭제"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PostsSetting/components/TrashPostListContent.tsx:185
+msgid "settings.posts.trash.empty"
+msgstr "휴지통이 비어 있습니다"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PostsSetting/components/TrashPostListContent.tsx:77
+msgid "settings.posts.trash.load_failed"
+msgstr "휴지통을 불러오지 못했습니다."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PostsSetting/components/DraftPostListContent.tsx:60
+#: src/components/remotes/SettingsApp/pages/PostsSetting/components/DraftPostListContent.tsx:148
+#: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostCard.tsx:256
+#: src/components/remotes/SettingsApp/pages/PostsSetting/hooks/usePostsActions.ts:91
+msgid "settings.posts.trash.move.confirm"
+msgstr "휴지통으로 이동"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PostsSetting/hooks/usePostsActions.ts:111
+#: src/components/remotes/SettingsApp/pages/PostsSetting/hooks/usePostsActions.ts:117
+msgid "settings.posts.trash.move.failed"
+msgstr "포스트를 휴지통으로 옮기지 못했습니다."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PostsSetting/hooks/usePostsActions.ts:87
+msgid "settings.posts.trash.move.message"
+msgstr "이 포스트를 휴지통으로 옮길까요? 나중에 복원할 수 있습니다."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PostsSetting/hooks/usePostsActions.ts:105
+msgid "settings.posts.trash.move.success"
+msgstr "포스트를 휴지통으로 옮겼습니다."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PostsSetting/hooks/usePostsActions.ts:83
+msgid "settings.posts.trash.move.title"
+msgstr "휴지통으로 이동"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PostsSetting/components/TrashPostListContent.tsx:261
+msgid "settings.posts.trash.moved_at"
+msgstr "{date} 이동"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PostsSetting/components/TrashPostListContent.tsx:228
+msgid "settings.posts.trash.open_menu"
+msgstr "{title} 휴지통 메뉴 열기"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PostsSetting/components/TrashPostListContent.tsx:60
+msgid "settings.posts.trash.restore.elapsed_message"
+msgstr "예약 시각이 지나 복원하면 발행 상태가 됩니다. 기존 비공개 설정은 그대로 유지됩니다."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PostsSetting/components/TrashPostListContent.tsx:113
+#: src/components/remotes/SettingsApp/pages/PostsSetting/components/TrashPostListContent.tsx:126
+msgid "settings.posts.trash.restore.failed"
+msgstr "포스트를 복원하지 못했습니다."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PostsSetting/components/TrashPostListContent.tsx:65
+msgid "settings.posts.trash.restore.message"
+msgstr "{status}로 복원합니다. URL과 발행·비공개 설정은 삭제 전 상태를 유지합니다."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PostsSetting/components/TrashPostListContent.tsx:119
+msgid "settings.posts.trash.restore.success"
+msgstr "{status}로 복원했습니다."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PostsSetting/components/TrashPostListContent.tsx:98
+msgid "settings.posts.trash.restore.title"
+msgstr "포스트 복원"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PostsSetting/components/TrashPostListContent.tsx:196
+msgid "settings.posts.trash.retention"
+msgstr "휴지통의 포스트는 자동 삭제되지 않습니다."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PostsSetting/components/TrashPostListContent.tsx:286
+msgid "settings.posts.trash.schedule_elapsed"
+msgstr "예약 시각 경과"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PostsSetting/hooks/usePostsActions.ts:59
+msgid "settings.posts.visibility.changed_private"
+msgstr "포스트가 비공개로 변경되었습니다."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PostsSetting/hooks/usePostsActions.ts:63
+msgid "settings.posts.visibility.changed_public"
+msgstr "포스트가 공개로 변경되었습니다."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostCard.tsx:119
+msgid "settings.posts.visibility.make_private"
+msgstr "비공개로 변경"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostCard.tsx:115
+msgid "settings.posts.visibility.make_private_after_publish"
+msgstr "발행 시 비공개로 변경"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostCard.tsx:110
+msgid "settings.posts.visibility.make_public"
+msgstr "공개로 변경"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostCard.tsx:106
+msgid "settings.posts.visibility.make_public_after_publish"
+msgstr "발행 시 공개로 변경"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostCard.tsx:219
+#: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostsFilter.tsx:95
+#: src/components/remotes/SettingsApp/pages/PostsSetting/components/TrashPostListContent.tsx:278
+msgid "settings.posts.visibility.private"
+msgstr "비공개"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostCard.tsx:215
+#: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostsFilter.tsx:91
+msgid "settings.posts.visibility.private_after_publish"
+msgstr "발행 후 비공개"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostsFilter.tsx:86
+msgid "settings.posts.visibility.public"
+msgstr "공개"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostsFilter.tsx:82
+msgid "settings.posts.visibility.public_after_publish"
+msgstr "발행 후 공개"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PostsSetting/hooks/usePostsActions.ts:68
+#: src/components/remotes/SettingsApp/pages/PostsSetting/hooks/usePostsActions.ts:74
+msgid "settings.posts.visibility.update_failed"
+msgstr "포스트 공개 설정 변경에 실패했습니다."
 
 #. js-lingui-explicit-id
 #: src/components/remotes/SettingsApp/pages/ProfileSetting/ProfileSetting.tsx:306

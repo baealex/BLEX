@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useLingui } from '@lingui/react/macro';
 import { toast } from '~/utils/toast';
 import { useConfirm } from '~/hooks/useConfirm';
 import {
@@ -36,6 +37,7 @@ export const usePostsActions = ({
     setPosts,
     refetch
 }: UsePostsActionsProps): UsePostsActionsReturn => {
+    const { t } = useLingui();
     const { confirm } = useConfirm();
     const [savingTagPostUrls, setSavingTagPostUrls] = useState<Set<string>>(new Set());
     const [savingSeriesPostUrls, setSavingSeriesPostUrls] = useState<Set<string>>(new Set());
@@ -53,20 +55,43 @@ export const usePostsActions = ({
                         }
                         : post
                 ));
-                toast.success(`포스트가 ${data.body.isHide ? '비공개' : '공개'}로 변경되었습니다.`);
+                toast.success(data.body.isHide
+                    ? t({
+                        id: 'settings.posts.visibility.changed_private',
+                        message: 'Post is now private.'
+                    })
+                    : t({
+                        id: 'settings.posts.visibility.changed_public',
+                        message: 'Post is now public.'
+                    }));
             } else {
-                throw new Error('Failed to toggle visibility');
+                toast.error(data.errorMessage || t({
+                    id: 'settings.posts.visibility.update_failed',
+                    message: 'Could not update post visibility.'
+                }));
             }
         } catch {
-            toast.error('포스트 공개 설정 변경에 실패했습니다.');
+            toast.error(t({
+                id: 'settings.posts.visibility.update_failed',
+                message: 'Could not update post visibility.'
+            }));
         }
     };
 
     const handleDelete = async (postUrl: string) => {
         const confirmed = await confirm({
-            title: '휴지통으로 이동',
-            message: '이 포스트를 휴지통으로 옮길까요? 나중에 복원할 수 있습니다.',
-            confirmText: '휴지통으로 이동',
+            title: t({
+                id: 'settings.posts.trash.move.title',
+                message: 'Move to trash'
+            }),
+            message: t({
+                id: 'settings.posts.trash.move.message',
+                message: 'Move this post to the trash? You can restore it later.'
+            }),
+            confirmText: t({
+                id: 'settings.posts.trash.move.confirm',
+                message: 'Move to trash'
+            }),
             variant: 'danger'
         });
 
@@ -77,13 +102,22 @@ export const usePostsActions = ({
 
             if (data.status === 'DONE') {
                 clearPostClassificationDraft(username, postUrl);
-                toast.success('포스트를 휴지통으로 옮겼습니다.');
+                toast.success(t({
+                    id: 'settings.posts.trash.move.success',
+                    message: 'Post moved to trash.'
+                }));
                 refetch();
             } else {
-                throw new Error('Failed to delete post');
+                toast.error(data.errorMessage || t({
+                    id: 'settings.posts.trash.move.failed',
+                    message: 'Could not move the post to trash.'
+                }));
             }
         } catch {
-            toast.error('포스트를 휴지통으로 옮기지 못했습니다.');
+            toast.error(t({
+                id: 'settings.posts.trash.move.failed',
+                message: 'Could not move the post to trash.'
+            }));
         }
     };
 
@@ -124,12 +158,21 @@ export const usePostsActions = ({
                         hasTagChanged: tag !== persistedTag
                     };
                 }));
-                toast.success('태그가 수정되었습니다.');
+                toast.success(t({
+                    id: 'settings.posts.tags.update_success',
+                    message: 'Tags updated.'
+                }));
             } else {
-                throw new Error('Failed to update tag');
+                toast.error(data.errorMessage || t({
+                    id: 'settings.posts.tags.update_failed',
+                    message: 'Could not update tags.'
+                }));
             }
         } catch {
-            toast.error('태그 수정에 실패했습니다.');
+            toast.error(t({
+                id: 'settings.posts.tags.update_failed',
+                message: 'Could not update tags.'
+            }));
         } finally {
             setSavingTagPostUrls(prev => {
                 const next = new Set(prev);
@@ -176,12 +219,21 @@ export const usePostsActions = ({
                         hasSeriesChanged: series !== persistedSeries
                     };
                 }));
-                toast.success('시리즈가 수정되었습니다.');
+                toast.success(t({
+                    id: 'settings.posts.series.update_success',
+                    message: 'Series updated.'
+                }));
             } else {
-                throw new Error('Failed to update series');
+                toast.error(data.errorMessage || t({
+                    id: 'settings.posts.series.update_failed',
+                    message: 'Could not update the series.'
+                }));
             }
         } catch {
-            toast.error('시리즈 수정에 실패했습니다.');
+            toast.error(t({
+                id: 'settings.posts.series.update_failed',
+                message: 'Could not update the series.'
+            }));
         } finally {
             setSavingSeriesPostUrls(prev => {
                 const next = new Set(prev);

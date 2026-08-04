@@ -1,7 +1,12 @@
 import assert from 'node:assert/strict';
 import { describe, test } from 'node:test';
 
-import { formatDateOnly, formatPublishedDate } from '../src/i18n/formatters.ts';
+import {
+    formatDateOnly,
+    formatDateTime,
+    formatLocalDateTime,
+    formatPublishedDate
+} from '../src/i18n/formatters.ts';
 import { normalizeLocale } from '../src/i18n/locale.ts';
 import { formatScheduleDateTime } from '../src/components/remotes/PostEditor/utils/scheduleDate.ts';
 import { buildQueryCacheKey } from '../src/lib/query-cache-key.ts';
@@ -59,6 +64,32 @@ describe('localized publication dates', () => {
         assert.equal(korean, new Intl.DateTimeFormat('ko', options).format(date));
         assert.equal(english, new Intl.DateTimeFormat('en', options).format(date));
         assert.equal(formatScheduleDateTime('not-a-date', 'en'), 'not-a-date');
+    });
+
+    test('formats wall-clock and ISO timestamps without mixing their timezone semantics', () => {
+        const wallClock = new Date(Date.UTC(2026, 0, 2, 15, 30));
+        const wallClockOptions = {
+            dateStyle: 'medium',
+            timeStyle: 'short',
+            timeZone: 'UTC'
+        };
+
+        assert.equal(
+            formatLocalDateTime('2026-01-02 15:30', 'en', 'legacy'),
+            new Intl.DateTimeFormat('en', wallClockOptions).format(wallClock)
+        );
+        assert.equal(formatLocalDateTime('2026-02-30 15:30', 'en', 'legacy'), 'legacy');
+
+        const timestamp = '2026-01-02T15:30:00Z';
+        const timestampOptions = {
+            dateStyle: 'medium',
+            timeStyle: 'short'
+        };
+        assert.equal(
+            formatDateTime(timestamp, 'ko', 'legacy'),
+            new Intl.DateTimeFormat('ko', timestampOptions).format(new Date(timestamp))
+        );
+        assert.equal(formatDateTime('not-a-date', 'ko', 'legacy'), 'legacy');
     });
 });
 

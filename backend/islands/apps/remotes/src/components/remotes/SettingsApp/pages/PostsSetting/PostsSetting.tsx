@@ -1,4 +1,5 @@
 import { Suspense, useState } from 'react';
+import { Trans, useLingui } from '@lingui/react/macro';
 import {
     CalendarDays,
     FileText,
@@ -17,33 +18,6 @@ import {
 } from './components';
 
 type PostStatusTab = 'published' | 'scheduled' | 'drafts' | 'trash';
-
-const POST_STATUS_TABS: {
-    value: PostStatusTab;
-    label: string;
-    icon: LucideIcon;
-}[] = [
-    {
-        value: 'published',
-        label: '발행 포스트',
-        icon: FileText
-    },
-    {
-        value: 'scheduled',
-        label: '예약 포스트',
-        icon: CalendarDays
-    },
-    {
-        value: 'drafts',
-        label: '임시 포스트',
-        icon: Save
-    },
-    {
-        value: 'trash',
-        label: '휴지통',
-        icon: Trash2
-    }
-];
 
 const isPostStatusTab = (value: string | null): value is PostStatusTab => {
     return value === 'published'
@@ -76,6 +50,7 @@ const syncTabToURL = (tab: PostStatusTab) => {
 };
 
 const PostsSetting = () => {
+    const { i18n, t } = useLingui();
     const [activeTab, setActiveTab] = useState<PostStatusTab>(getInitialTab);
     const [postCounts, setPostCounts] = useState<Partial<Record<PostStatusTab, number>>>({});
     const {
@@ -106,8 +81,55 @@ const PostsSetting = () => {
         });
     };
 
+    const postStatusTabs: {
+        value: PostStatusTab;
+        label: string;
+        icon: LucideIcon;
+    }[] = [
+        {
+            value: 'published',
+            label: t({
+                id: 'settings.posts.tabs.published',
+                message: 'Published'
+            }),
+            icon: FileText
+        },
+        {
+            value: 'scheduled',
+            label: t({
+                id: 'settings.posts.tabs.scheduled',
+                message: 'Scheduled'
+            }),
+            icon: CalendarDays
+        },
+        {
+            value: 'drafts',
+            label: t({
+                id: 'settings.posts.tabs.drafts',
+                message: 'Drafts'
+            }),
+            icon: Save
+        },
+        {
+            value: 'trash',
+            label: t({
+                id: 'settings.posts.tabs.trash',
+                message: 'Trash'
+            }),
+            icon: Trash2
+        }
+    ];
     const activeCount = postCounts[activeTab];
-    const title = activeCount === undefined ? '포스트' : `포스트 (${activeCount})`;
+    const title = activeCount === undefined
+        ? t({
+            id: 'settings.posts.title',
+            message: 'Posts'
+        })
+        : i18n._({
+            id: 'settings.posts.title_count',
+            message: 'Posts ({count})',
+            values: { count: activeCount }
+        });
     const hasContentFilters = Boolean(
         filters.tag || filters.series || filters.visibility || filters.search
     );
@@ -118,7 +140,7 @@ const PostsSetting = () => {
             size="md"
             className="min-h-11! w-full [@media(pointer:fine)]:min-h-10! sm:w-auto"
             onClick={() => window.location.assign('/write')}>
-            새 포스트 작성
+            <Trans id="settings.posts.create">Write a new post</Trans>
         </Button>
     );
     const emptyPostAction = hasContentFilters ? (
@@ -128,7 +150,7 @@ const PostsSetting = () => {
             size="md"
             className="min-h-11! [@media(pointer:fine)]:min-h-10!"
             onClick={clearFilters}>
-            필터 초기화
+            <Trans id="settings.posts.filters.clear">Clear filters</Trans>
         </Button>
     ) : createPostAction;
 
@@ -144,9 +166,12 @@ const PostsSetting = () => {
                     if (isPostStatusTab(value)) handleTabChange(value);
                 }}>
                 <Tabs.List
-                    ariaLabel="포스트 상태"
+                    ariaLabel={t({
+                        id: 'settings.posts.tabs.aria',
+                        message: 'Post status'
+                    })}
                     className="mb-6 gap-1 overflow-x-auto border-line-light">
-                    {POST_STATUS_TABS.map((tab) => {
+                    {postStatusTabs.map((tab) => {
                         const TabIcon = tab.icon;
                         return (
                             <Tabs.Trigger
@@ -193,7 +218,10 @@ const PostsSetting = () => {
                                     series={series}
                                     onPageChange={(page) => handleFilterChange('page', page)}
                                     onCountChange={(count) => handleCountChange('published', count)}
-                                    emptyMessage="발행 포스트가 없습니다."
+                                    emptyMessage={t({
+                                        id: 'settings.posts.empty.published',
+                                        message: 'No published posts'
+                                    })}
                                     emptyAction={emptyPostAction}
                                 />
                             )}
@@ -204,7 +232,10 @@ const PostsSetting = () => {
                                     onPageChange={(page) => handleFilterChange('page', page)}
                                     onCountChange={(count) => handleCountChange('scheduled', count)}
                                     source="scheduled"
-                                    emptyMessage="예약 포스트가 없습니다."
+                                    emptyMessage={t({
+                                        id: 'settings.posts.empty.scheduled',
+                                        message: 'No scheduled posts'
+                                    })}
                                     emptyAction={emptyPostAction}
                                 />
                             )}

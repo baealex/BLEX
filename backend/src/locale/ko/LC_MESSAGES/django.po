@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: BLEX 3.1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-08-05 02:42+0900\n"
+"POT-Creation-Date: 2026-08-05 03:04+0900\n"
 "PO-Revision-Date: 2026-07-18 00:00+0900\n"
 "Last-Translator: BLEX contributors\n"
 "Language-Team: Korean\n"
@@ -465,6 +465,23 @@ msgstr "임시 저장 글은 최대 %(max_drafts)s개까지 가능합니다."
 #: board/services/post_service.py:875 board/services/post_service.py:951
 msgid "Untitled"
 msgstr "제목 없음"
+
+#: board/services/post_trash_service.py:91
+#: board/services/post_trash_service.py:97 board/views/api/v1/post_trash.py:29
+msgid "Check the trash page."
+msgstr "휴지통 페이지 정보를 확인해주세요."
+
+#: board/services/post_trash_service.py:114
+msgid "The post to move to trash was not found."
+msgstr "휴지통으로 옮길 포스트를 찾을 수 없습니다."
+
+#: board/services/post_trash_service.py:131
+msgid "The trashed post was not found."
+msgstr "휴지통 포스트를 찾을 수 없습니다."
+
+#: board/services/post_trash_service.py:135
+msgid "The trash state changed. Refresh the list and try again."
+msgstr "휴지통 상태가 바뀌었습니다. 목록을 새로고침한 뒤 다시 시도해주세요."
 
 #: board/services/series_service.py:47
 msgid "Login is required."
@@ -1552,6 +1569,10 @@ msgstr "수정 이력 페이지 정보를 확인해주세요."
 #: board/views/api/v1/post_revision.py:194
 msgid "Check the current post version."
 msgstr "현재 포스트 버전을 확인해주세요."
+
+#: board/views/api/v1/post_trash.py:54 board/views/api/v1/post_trash.py:101
+msgid "Check the current trash state."
+msgstr "현재 휴지통 상태를 확인해주세요."
 
 #: board/views/api/v1/series.py:28
 msgid "Enter a valid series ID."

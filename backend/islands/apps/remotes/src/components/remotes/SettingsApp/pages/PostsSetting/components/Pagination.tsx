@@ -1,4 +1,5 @@
 import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from '@blex/ui/icons';
+import { useLingui } from '@lingui/react/macro';
 
 interface PaginationProps {
     page: string;
@@ -7,6 +8,7 @@ interface PaginationProps {
 }
 
 const Pagination = ({ page, lastPage, onPageChange }: PaginationProps) => {
+    const { t } = useLingui();
     const currentPage = Number.parseInt(page, 10) || 1;
 
     if (lastPage <= 1) return null;
@@ -37,7 +39,10 @@ const Pagination = ({ page, lastPage, onPageChange }: PaginationProps) => {
     return (
         <nav
             className="pagination-nav [&_.pagination-link]:min-h-11 [&_.pagination-link]:min-w-11 [@media(pointer:fine)]:[&_.pagination-link]:min-h-9 [@media(pointer:fine)]:[&_.pagination-link]:min-w-9"
-            aria-label="포스트 페이지">
+            aria-label={t({
+                id: 'settings.posts.pagination.aria',
+                message: 'Post pages'
+            })}>
             <div className="pagination-action prev">
                 {currentPage > 1 ? (
                     <>
@@ -46,7 +51,10 @@ const Pagination = ({ page, lastPage, onPageChange }: PaginationProps) => {
                                 type="button"
                                 className="pagination-link"
                                 onClick={() => handlePageMove(1)}
-                                aria-label="첫 페이지">
+                                aria-label={t({
+                                    id: 'common.pagination.first',
+                                    message: 'First page'
+                                })}>
                                 <ChevronsLeft aria-hidden className="h-4 w-4" />
                             </button>
                         </div>
@@ -55,7 +63,10 @@ const Pagination = ({ page, lastPage, onPageChange }: PaginationProps) => {
                                 type="button"
                                 className="pagination-link"
                                 onClick={() => handlePageMove(currentPage - 1)}
-                                aria-label="이전 페이지">
+                                aria-label={t({
+                                    id: 'common.pagination.previous',
+                                    message: 'Previous page'
+                                })}>
                                 <ChevronLeft aria-hidden className="h-4 w-4" />
                             </button>
                         </div>
@@ -103,7 +114,10 @@ const Pagination = ({ page, lastPage, onPageChange }: PaginationProps) => {
                                 type="button"
                                 className="pagination-link"
                                 onClick={() => handlePageMove(currentPage + 1)}
-                                aria-label="다음 페이지">
+                                aria-label={t({
+                                    id: 'common.pagination.next',
+                                    message: 'Next page'
+                                })}>
                                 <ChevronRight aria-hidden className="h-4 w-4" />
                             </button>
                         </div>
@@ -112,7 +126,10 @@ const Pagination = ({ page, lastPage, onPageChange }: PaginationProps) => {
                                 type="button"
                                 className="pagination-link"
                                 onClick={() => handlePageMove(lastPage)}
-                                aria-label="마지막 페이지">
+                                aria-label={t({
+                                    id: 'common.pagination.last',
+                                    message: 'Last page'
+                                })}>
                                 <ChevronsRight aria-hidden className="h-4 w-4" />
                             </button>
                         </div>

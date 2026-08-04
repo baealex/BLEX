@@ -604,6 +604,11 @@ msgid "common.add"
 msgstr ""
 
 #. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostsFilter.tsx:100
+msgid "common.all"
+msgstr ""
+
+#. js-lingui-explicit-id
 #: src/components/shared/ImageCropDialog.tsx:245
 msgid "common.apply"
 msgstr ""
@@ -718,6 +723,26 @@ msgid "common.next"
 msgstr ""
 
 #. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PostsSetting/components/Pagination.tsx:54
+msgid "common.pagination.first"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PostsSetting/components/Pagination.tsx:129
+msgid "common.pagination.last"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PostsSetting/components/Pagination.tsx:117
+msgid "common.pagination.next"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PostsSetting/components/Pagination.tsx:66
+msgid "common.pagination.previous"
+msgstr ""
+
+#. js-lingui-explicit-id
 #: src/components/remotes/PostEditor/utils/firstPublishTour.ts:110
 msgid "common.previous"
 msgstr ""
@@ -736,6 +761,12 @@ msgstr ""
 #: src/components/remotes/PostEditor/components/PostCoverEditor.tsx:156
 #: src/components/remotes/PostEditor/components/PostCoverEditor.tsx:228
 msgid "common.replace"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PostsSetting/components/TrashPostListContent.tsx:103
+#: src/components/remotes/SettingsApp/pages/PostsSetting/components/TrashPostListContent.tsx:236
+msgid "common.restore"
 msgstr ""
 
 #. js-lingui-explicit-id
@@ -758,6 +789,19 @@ msgstr ""
 #. js-lingui-explicit-id
 #: src/components/remotes/Comments/components/CommentEditForm.tsx:87
 msgid "common.saving_ellipsis"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostsFilter.tsx:140
+msgid "common.search.clear"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PostsSetting/components/DraftPostListContent.tsx:112
+#: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostCard.tsx:123
+#: src/components/remotes/SettingsApp/pages/PostsSetting/components/TrashPostListContent.tsx:134
+#: src/components/remotes/SettingsApp/pages/PostsSetting/components/TrashPostListContent.tsx:203
+msgid "common.untitled"
 msgstr ""
 
 #. js-lingui-explicit-id
@@ -3003,6 +3047,601 @@ msgstr ""
 #. js-lingui-explicit-id
 #: src/components/remotes/SettingsApp/pages/PinnedPostsSetting/components/PinnedPostsPanel.tsx:280
 msgid "settings.pinned_posts.view_trash"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostCard.tsx:241
+msgid "settings.posts.card.edit"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostCard.tsx:233
+msgid "settings.posts.card.open_menu"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostCard.tsx:185
+msgid "settings.posts.card.read_time"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostCard.tsx:201
+msgid "settings.posts.card.recently_updated"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostCard.tsx:144
+msgid "settings.posts.card.view_post"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostCard.tsx:278
+msgid "settings.posts.classification.close"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostCard.tsx:290
+msgid "settings.posts.classification.label"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostCard.tsx:282
+msgid "settings.posts.classification.open"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostCard.tsx:300
+msgid "settings.posts.classification.save_required"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostCard.tsx:85
+msgid "settings.posts.classification.series"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostCard.tsx:96
+msgid "settings.posts.classification.tag_count"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostCard.tsx:81
+msgid "settings.posts.classification.tags"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostCard.tsx:76
+msgid "settings.posts.classification.tags_and_series"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/DraftsSetting/DraftsSetting.tsx:20
+#: src/components/remotes/SettingsApp/pages/PostsSetting/PostsSetting.tsx:143
+msgid "settings.posts.create"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PostsSetting/components/DraftPostListContent.tsx:165
+msgid "settings.posts.drafts.last_updated"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PostsSetting/components/DraftPostListContent.tsx:39
+msgid "settings.posts.drafts.load_failed"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PostsSetting/components/DraftPostListContent.tsx:140
+msgid "settings.posts.drafts.open_menu"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PostsSetting/components/DraftPostListContent.tsx:79
+#: src/components/remotes/SettingsApp/pages/PostsSetting/components/DraftPostListContent.tsx:85
+msgid "settings.posts.drafts.trash.failed"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PostsSetting/components/DraftPostListContent.tsx:56
+msgid "settings.posts.drafts.trash.message"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PostsSetting/components/DraftPostListContent.tsx:73
+msgid "settings.posts.drafts.trash.success"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PostsSetting/components/DraftPostListContent.tsx:52
+msgid "settings.posts.drafts.trash.title"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostListContent.tsx:66
+msgid "settings.posts.empty.default"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PostsSetting/components/DraftPostListContent.tsx:100
+msgid "settings.posts.empty.drafts"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PostsSetting/PostsSetting.tsx:221
+msgid "settings.posts.empty.published"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PostsSetting/PostsSetting.tsx:235
+msgid "settings.posts.empty.scheduled"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostsFilter.tsx:205
+msgid "settings.posts.filters.applied_count"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostsFilter.tsx:274
+#: src/components/remotes/SettingsApp/pages/PostsSetting/PostsSetting.tsx:153
+msgid "settings.posts.filters.clear"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostsFilter.tsx:194
+msgid "settings.posts.filters.collapse"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostsFilter.tsx:198
+msgid "settings.posts.filters.expand"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostsFilter.tsx:157
+msgid "settings.posts.filters.order_aria"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostsFilter.tsx:241
+msgid "settings.posts.filters.remove_series"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostsFilter.tsx:224
+msgid "settings.posts.filters.remove_tag"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostsFilter.tsx:257
+msgid "settings.posts.filters.remove_visibility"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostsFilter.tsx:119
+msgid "settings.posts.filters.search_aria"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostsFilter.tsx:128
+msgid "settings.posts.filters.search_placeholder"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostsFilter.tsx:124
+msgid "settings.posts.filters.search_scheduled_placeholder"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostsFilter.tsx:342
+msgid "settings.posts.filters.series"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostsFilter.tsx:333
+msgid "settings.posts.filters.series_aria"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostsFilter.tsx:302
+msgid "settings.posts.filters.tag"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostsFilter.tsx:295
+msgid "settings.posts.filters.tag_aria"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostsFilter.tsx:389
+msgid "settings.posts.filters.visibility"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostsFilter.tsx:385
+msgid "settings.posts.filters.visibility_after_publish"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostsFilter.tsx:373
+msgid "settings.posts.filters.visibility_aria"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PostsSetting/hooks/usePostsData.ts:404
+msgid "settings.posts.load_failed"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PostsSetting/hooks/usePostsData.ts:300
+msgid "settings.posts.load_series_failed"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PostsSetting/hooks/usePostsData.ts:286
+msgid "settings.posts.load_tags_failed"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostsFilter.tsx:76
+msgid "settings.posts.order.label"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PostsSetting/hooks/usePostsData.ts:195
+msgid "settings.posts.order.least_commented"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PostsSetting/hooks/usePostsData.ts:181
+msgid "settings.posts.order.least_liked"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PostsSetting/hooks/usePostsData.ts:153
+msgid "settings.posts.order.least_recently_updated"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PostsSetting/hooks/usePostsData.ts:209
+msgid "settings.posts.order.longest"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PostsSetting/hooks/usePostsData.ts:188
+msgid "settings.posts.order.most_commented"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PostsSetting/hooks/usePostsData.ts:174
+msgid "settings.posts.order.most_liked"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PostsSetting/hooks/usePostsData.ts:132
+msgid "settings.posts.order.newest_published"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PostsSetting/hooks/usePostsData.ts:139
+msgid "settings.posts.order.oldest_published"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PostsSetting/hooks/usePostsData.ts:146
+msgid "settings.posts.order.recently_updated"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostsFilter.tsx:62
+msgid "settings.posts.order.scheduled_farthest"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostsFilter.tsx:68
+msgid "settings.posts.order.scheduled_soonest"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PostsSetting/hooks/usePostsData.ts:202
+msgid "settings.posts.order.shortest"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PostsSetting/hooks/usePostsData.ts:160
+msgid "settings.posts.order.title_ascending"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PostsSetting/hooks/usePostsData.ts:167
+msgid "settings.posts.order.title_descending"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PostsSetting/components/Pagination.tsx:42
+msgid "settings.posts.pagination.aria"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostListContent.tsx:91
+msgid "settings.posts.scheduled_for"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostCard.tsx:372
+#: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostCard.tsx:382
+msgid "settings.posts.series.none"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostCard.tsx:397
+msgid "settings.posts.series.save"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostCard.tsx:364
+msgid "settings.posts.series.select_aria"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PostsSetting/hooks/usePostsActions.ts:227
+#: src/components/remotes/SettingsApp/pages/PostsSetting/hooks/usePostsActions.ts:233
+msgid "settings.posts.series.update_failed"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PostsSetting/hooks/usePostsActions.ts:222
+msgid "settings.posts.series.update_success"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PostsSetting/components/DraftPostListContent.tsx:178
+#: src/components/remotes/SettingsApp/pages/PostsSetting/components/TrashPostListContent.tsx:42
+msgid "settings.posts.status.draft"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PostsSetting/components/TrashPostListContent.tsx:52
+msgid "settings.posts.status.published"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostListContent.tsx:107
+#: src/components/remotes/SettingsApp/pages/PostsSetting/components/TrashPostListContent.tsx:47
+msgid "settings.posts.status.scheduled"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PostsSetting/PostsSetting.tsx:169
+msgid "settings.posts.tabs.aria"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/DraftsSetting/DraftsSetting.tsx:11
+#: src/components/remotes/SettingsApp/pages/PostsSetting/PostsSetting.tsx:107
+msgid "settings.posts.tabs.drafts"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PostsSetting/PostsSetting.tsx:91
+msgid "settings.posts.tabs.published"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PostsSetting/PostsSetting.tsx:99
+msgid "settings.posts.tabs.scheduled"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PostsSetting/PostsSetting.tsx:115
+msgid "settings.posts.tabs.trash"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostCard.tsx:324
+msgid "settings.posts.tags.input_aria"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostCard.tsx:329
+msgid "settings.posts.tags.placeholder"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostCard.tsx:346
+msgid "settings.posts.tags.save"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PostsSetting/hooks/usePostsActions.ts:166
+#: src/components/remotes/SettingsApp/pages/PostsSetting/hooks/usePostsActions.ts:172
+msgid "settings.posts.tags.update_failed"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PostsSetting/hooks/usePostsActions.ts:161
+msgid "settings.posts.tags.update_success"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PostsSetting/PostsSetting.tsx:124
+msgid "settings.posts.title"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PostsSetting/PostsSetting.tsx:128
+msgid "settings.posts.title_count"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PostsSetting/components/TrashPostListContent.tsx:148
+#: src/components/remotes/SettingsApp/pages/PostsSetting/components/TrashPostListContent.tsx:244
+msgid "settings.posts.trash.delete.confirm"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PostsSetting/components/TrashPostListContent.tsx:162
+#: src/components/remotes/SettingsApp/pages/PostsSetting/components/TrashPostListContent.tsx:174
+msgid "settings.posts.trash.delete.failed"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PostsSetting/components/TrashPostListContent.tsx:143
+msgid "settings.posts.trash.delete.message"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PostsSetting/components/TrashPostListContent.tsx:168
+msgid "settings.posts.trash.delete.success"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PostsSetting/components/TrashPostListContent.tsx:139
+msgid "settings.posts.trash.delete.title"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PostsSetting/components/TrashPostListContent.tsx:185
+msgid "settings.posts.trash.empty"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PostsSetting/components/TrashPostListContent.tsx:77
+msgid "settings.posts.trash.load_failed"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PostsSetting/components/DraftPostListContent.tsx:60
+#: src/components/remotes/SettingsApp/pages/PostsSetting/components/DraftPostListContent.tsx:148
+#: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostCard.tsx:256
+#: src/components/remotes/SettingsApp/pages/PostsSetting/hooks/usePostsActions.ts:91
+msgid "settings.posts.trash.move.confirm"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PostsSetting/hooks/usePostsActions.ts:111
+#: src/components/remotes/SettingsApp/pages/PostsSetting/hooks/usePostsActions.ts:117
+msgid "settings.posts.trash.move.failed"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PostsSetting/hooks/usePostsActions.ts:87
+msgid "settings.posts.trash.move.message"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PostsSetting/hooks/usePostsActions.ts:105
+msgid "settings.posts.trash.move.success"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PostsSetting/hooks/usePostsActions.ts:83
+msgid "settings.posts.trash.move.title"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PostsSetting/components/TrashPostListContent.tsx:261
+msgid "settings.posts.trash.moved_at"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PostsSetting/components/TrashPostListContent.tsx:228
+msgid "settings.posts.trash.open_menu"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PostsSetting/components/TrashPostListContent.tsx:60
+msgid "settings.posts.trash.restore.elapsed_message"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PostsSetting/components/TrashPostListContent.tsx:113
+#: src/components/remotes/SettingsApp/pages/PostsSetting/components/TrashPostListContent.tsx:126
+msgid "settings.posts.trash.restore.failed"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PostsSetting/components/TrashPostListContent.tsx:65
+msgid "settings.posts.trash.restore.message"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PostsSetting/components/TrashPostListContent.tsx:119
+msgid "settings.posts.trash.restore.success"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PostsSetting/components/TrashPostListContent.tsx:98
+msgid "settings.posts.trash.restore.title"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PostsSetting/components/TrashPostListContent.tsx:196
+msgid "settings.posts.trash.retention"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PostsSetting/components/TrashPostListContent.tsx:286
+msgid "settings.posts.trash.schedule_elapsed"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PostsSetting/hooks/usePostsActions.ts:59
+msgid "settings.posts.visibility.changed_private"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PostsSetting/hooks/usePostsActions.ts:63
+msgid "settings.posts.visibility.changed_public"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostCard.tsx:119
+msgid "settings.posts.visibility.make_private"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostCard.tsx:115
+msgid "settings.posts.visibility.make_private_after_publish"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostCard.tsx:110
+msgid "settings.posts.visibility.make_public"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostCard.tsx:106
+msgid "settings.posts.visibility.make_public_after_publish"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostCard.tsx:219
+#: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostsFilter.tsx:95
+#: src/components/remotes/SettingsApp/pages/PostsSetting/components/TrashPostListContent.tsx:278
+msgid "settings.posts.visibility.private"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostCard.tsx:215
+#: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostsFilter.tsx:91
+msgid "settings.posts.visibility.private_after_publish"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostsFilter.tsx:86
+msgid "settings.posts.visibility.public"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostsFilter.tsx:82
+msgid "settings.posts.visibility.public_after_publish"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PostsSetting/hooks/usePostsActions.ts:68
+#: src/components/remotes/SettingsApp/pages/PostsSetting/hooks/usePostsActions.ts:74
+msgid "settings.posts.visibility.update_failed"
 msgstr ""
 
 #. js-lingui-explicit-id
