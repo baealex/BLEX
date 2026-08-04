@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: BLEX 3.1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-08-05 07:39+0900\n"
+"POT-Creation-Date: 2026-08-05 07:47+0900\n"
 "PO-Revision-Date: 2026-07-18 00:00+0900\n"
 "Last-Translator: BLEX contributors\n"
 "Language-Team: Korean\n"
@@ -2143,7 +2143,6 @@ msgid "Admin bulk notification delivery failed: requested %(requested)d."
 msgstr "Admin 전체 알림 발송 실패: 대상 %(requested)d명."
 
 #: board/services/comment_service.py:87 board/services/comment_service.py:184
-#: board/views/post_actions.py:22
 msgid "Log in to continue."
 msgstr "로그인이 필요합니다."
 
@@ -3990,6 +3989,10 @@ msgstr "포스트가 생성되었습니다."
 #: board/views/post.py:269
 msgid "Draft saved."
 msgstr "포스트가 임시저장되었습니다."
+
+#: board/views/post_actions.py:22
+msgid "Authentication required"
+msgstr "로그인이 필요합니다."
 
 #: board/views/settings.py:75
 msgid "Admin settings"

@@ -19,7 +19,7 @@ def like_post(request, url):
     if not request.user.is_authenticated:
         return JsonResponse({
             'status': 'error',
-            'message': gettext('Log in to continue.'),
+            'message': gettext('Authentication required'),
         }, status=401)
 
     post = get_object_or_404(Post, url=url)
