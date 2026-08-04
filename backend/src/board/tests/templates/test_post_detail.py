@@ -596,6 +596,15 @@ class PostEditorPublishRedirectTestCase(TestCase):
         props = self.get_post_editor_props(response)
         self.assertTrue(props['showFirstPublishGuide'])
 
+    def test_post_editor_renders_english_document_title(self):
+        self.client.login(username='editor', password='password123')
+
+        response = self.client.get('/write', HTTP_ACCEPT_LANGUAGE='en')
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, '<title>New post - ', html=False)
+        self.assertContains(response, 'lang=en')
+
     def test_post_editor_shows_first_publish_guide_for_first_draft(self):
         """발행한 글 없이 임시 글만 있는 작성자에게 첫 발행 가이드를 노출한다."""
         draft = PostService.create_draft(

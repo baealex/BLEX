@@ -1,3 +1,4 @@
+import { Trans } from '@lingui/react/macro';
 import NewPostEditor from './NewPostEditor';
 import EditPostEditor from './EditPostEditor';
 
@@ -24,7 +25,9 @@ const PostEditor = ({
                 <div className="max-w-7xl w-full mx-auto">
                     <div className="bg-surface rounded-xl shadow-sm border border-line p-6">
                         <div className="text-center text-content-secondary">
-                            편집 모드에는 username과 postUrl이 필요합니다.
+                            <Trans id="editor.error.missing_edit_parameters">
+                                Edit mode requires a username and post URL.
+                            </Trans>
                         </div>
                     </div>
                 </div>
@@ -38,7 +41,9 @@ const PostEditor = ({
                 <div className="max-w-7xl w-full mx-auto">
                     <div className="bg-surface rounded-xl shadow-sm border border-line p-6">
                         <div className="text-center text-content-secondary">
-                            임시저장 모드에는 draftUrl과 username이 필요합니다.
+                            <Trans id="editor.error.missing_draft_parameters">
+                                Draft mode requires a draft URL and username.
+                            </Trans>
                         </div>
                     </div>
                 </div>
@@ -52,7 +57,9 @@ const PostEditor = ({
                 <div className="max-w-7xl w-full mx-auto">
                     <div className="bg-surface rounded-xl shadow-sm border border-line p-6">
                         <div className="text-center text-content-secondary">
-                            새 포스트 작성 모드에는 username이 필요합니다.
+                            <Trans id="editor.error.missing_new_parameters">
+                                New post mode requires a username.
+                            </Trans>
                         </div>
                     </div>
                 </div>
@@ -74,7 +81,9 @@ const PostEditor = ({
                     <div className="max-w-7xl w-full mx-auto">
                         <div className="bg-surface rounded-xl shadow-sm border border-line p-6">
                             <div className="text-center text-content-secondary">
-                                지원되지 않는 모드입니다: {mode}
+                                <Trans id="editor.error.unsupported_mode">
+                                    Unsupported editor mode: {mode}
+                                </Trans>
                             </div>
                         </div>
                     </div>

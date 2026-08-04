@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
+import { Trans, useLingui } from '@lingui/react/macro';
 import { toast } from '~/utils/toast';
 import { useConfirm } from '~/hooks/useConfirm';
 import PostEditorWrapper from './PostEditorWrapper';
@@ -58,6 +59,7 @@ interface DirtySnapshot {
 }
 
 const EditPostEditor = ({ username, postUrl }: EditPostEditorProps) => {
+    const { t } = useLingui();
     const { confirm } = useConfirm();
     const [isLoading, setIsLoading] = useState(true);
     const [seriesList, setSeriesList] = useState<Series[]>([]);
@@ -230,14 +232,17 @@ const EditPostEditor = ({ username, postUrl }: EditPostEditorProps) => {
                     setImageDeleted(false);
                 }
             } catch {
-                toast.error('데이터를 불러오는데 실패했습니다.');
+                toast.error(t({
+                    id: 'editor.error.load_post',
+                    message: 'Could not load the post.'
+                }));
             } finally {
                 setIsLoading(false);
             }
         };
 
         fetchData();
-    }, [username, postUrl]);
+    }, [username, postUrl, t]);
 
     const hasUnsavedChanges = useCallback(() => {
         if (!initialDataRef.current) return false;
@@ -356,17 +361,32 @@ const EditPostEditor = ({ username, postUrl }: EditPostEditorProps) => {
         setImageDeleted(recovery.imageDeleted);
         setAvailableRecovery(null);
         setRecoveryEditorRevision(revision => revision + 1);
-        toast.success('백업 내용을 복구했습니다. 수정 버튼을 눌러 저장해주세요.');
+        toast.success(t({
+            id: 'editor.recovery.success',
+            message: 'Backup recovered. Select Update to save these changes.'
+        }));
     };
 
     const handleDiscardRecovery = async () => {
         if (!availableRecovery) return;
 
         const confirmed = await confirm({
-            title: '수정 백업 삭제',
-            message: '복구하지 않은 수정 내용이 이 브라우저에서 삭제됩니다.',
-            confirmText: '백업 삭제',
-            cancelText: '취소',
+            title: t({
+                id: 'editor.recovery.confirm_delete_title',
+                message: 'Delete edit backup'
+            }),
+            message: t({
+                id: 'editor.recovery.confirm_delete_description',
+                message: 'Unrecovered edits will be deleted from this browser.'
+            }),
+            confirmText: t({
+                id: 'editor.recovery.delete_backup',
+                message: 'Delete backup'
+            }),
+            cancelText: t({
+                id: 'common.cancel',
+                message: 'Cancel'
+            }),
             variant: 'danger'
         });
         if (!confirmed) return;
@@ -376,7 +396,10 @@ const EditPostEditor = ({ username, postUrl }: EditPostEditorProps) => {
             postUrl
         });
         setAvailableRecovery(null);
-        toast.info('수정 백업을 삭제했습니다.');
+        toast.info(t({
+            id: 'editor.recovery.deleted',
+            message: 'Edit backup deleted.'
+        }));
     };
 
     const handleTitleChange = (title: string) => {
@@ -413,30 +436,45 @@ const EditPostEditor = ({ username, postUrl }: EditPostEditorProps) => {
     const handleEditorImageUpload = async (file: File) => {
         const { data } = await api.uploadImage(file).catch((error) => {
             logger.error('Image upload failed', error);
-            throw new Error('파일 업로드에 실패했습니다.');
+            throw new Error(t({
+                id: 'editor.media.error.upload',
+                message: 'File upload failed.'
+            }));
         });
 
         if (data.status === 'DONE') {
             return data.body.url;
         }
 
-        throw new Error(data.errorMessage || '파일 업로드에 실패했습니다.');
+        throw new Error(data.errorMessage || t({
+            id: 'editor.media.error.upload',
+            message: 'File upload failed.'
+        }));
     };
 
     const validateForm = () => {
         if (!formData.title.trim()) {
-            toast.error('제목을 입력해주세요.');
+            toast.error(t({
+                id: 'editor.validation.title_required',
+                message: 'Enter a title.'
+            }));
             return false;
         }
 
         if (isScheduledPost && hasReservedDateChanged()) {
             if (!parseDateTimeLocal(formData.reservedDate)) {
-                toast.error('예약 시간을 확인해주세요.');
+                toast.error(t({
+                    id: 'editor.validation.schedule_invalid',
+                    message: 'Check the scheduled time.'
+                }));
                 return false;
             }
 
             if (!isFutureDateTimeLocal(formData.reservedDate)) {
-                toast.error('예약 시간은 현재 시간 이후로 선택해주세요.');
+                toast.error(t({
+                    id: 'editor.validation.schedule_future',
+                    message: 'Choose a scheduled time in the future.'
+                }));
                 return false;
             }
         }
@@ -446,14 +484,20 @@ const EditPostEditor = ({ username, postUrl }: EditPostEditorProps) => {
 
     const submitCurrentPost = async () => {
         if (availableRecovery) {
-            toast.warning('수정 백업을 먼저 복구하거나 삭제해주세요.');
+            toast.warning(t({
+                id: 'editor.recovery.resolve_first',
+                message: 'Recover or delete the edit backup first.'
+            }));
             return;
         }
         if (!hasUnsavedChanges() || isSubmitLockedRef.current) return;
         if (!validateForm()) return;
 
         if (isEditorMediaUploading) {
-            toast.warning('파일 업로드가 끝난 뒤 수정해주세요.');
+            toast.warning(t({
+                id: 'editor.media.wait_before_update',
+                message: 'Wait for the upload to finish before updating.'
+            }));
             return;
         }
 
@@ -499,7 +543,10 @@ const EditPostEditor = ({ username, postUrl }: EditPostEditorProps) => {
             if (data.status === 'ERROR') {
                 isSubmitLockedRef.current = false;
                 setIsSubmitting(false);
-                toast.error(data.errorMessage || '포스트 수정에 실패했습니다.');
+                toast.error(data.errorMessage || t({
+                    id: 'editor.error.update',
+                    message: 'Could not update the post.'
+                }));
                 return;
             }
 
@@ -512,7 +559,10 @@ const EditPostEditor = ({ username, postUrl }: EditPostEditorProps) => {
         } catch {
             isSubmitLockedRef.current = false;
             isIntentionalSubmitRef.current = false;
-            toast.error('포스트 수정에 실패했습니다.');
+            toast.error(t({
+                id: 'editor.error.update',
+                message: 'Could not update the post.'
+            }));
             setIsSubmitting(false);
         }
     };
@@ -523,9 +573,18 @@ const EditPostEditor = ({ username, postUrl }: EditPostEditorProps) => {
 
     const handleDelete = async () => {
         const confirmed = await confirm({
-            title: '휴지통으로 이동',
-            message: '이 포스트를 휴지통으로 옮길까요? 포스트 설정에서 다시 복원할 수 있습니다.',
-            confirmText: '휴지통으로 이동',
+            title: t({
+                id: 'editor.trash.title',
+                message: 'Move to trash'
+            }),
+            message: t({
+                id: 'editor.confirm.move_to_trash',
+                message: 'Move this post to the trash? You can restore it from post settings.'
+            }),
+            confirmText: t({
+                id: 'editor.trash.confirm',
+                message: 'Move to trash'
+            }),
             variant: 'danger'
         });
 
@@ -544,22 +603,34 @@ const EditPostEditor = ({ username, postUrl }: EditPostEditorProps) => {
 
             form.submit();
         } catch {
-            toast.error('포스트를 휴지통으로 옮기지 못했습니다.');
+            toast.error(t({
+                id: 'editor.error.move_to_trash',
+                message: 'Could not move the post to the trash.'
+            }));
             setIsSubmitting(false);
         }
     };
 
     const handleOpenRevisionHistory = (event: React.MouseEvent<HTMLButtonElement>) => {
         if (availableRecovery) {
-            toast.warning('수정 백업을 먼저 복구하거나 삭제해주세요.');
+            toast.warning(t({
+                id: 'editor.recovery.resolve_first',
+                message: 'Recover or delete the edit backup first.'
+            }));
             return;
         }
         if (hasUnsavedChanges()) {
-            toast.warning('변경 사항을 먼저 수정한 뒤 수정 이력을 확인해주세요.');
+            toast.warning(t({
+                id: 'editor.revisions.save_changes_first',
+                message: 'Update your changes before opening revision history.'
+            }));
             return;
         }
         if (isEditorMediaUploading) {
-            toast.warning('파일 업로드가 끝난 뒤 수정 이력을 확인해주세요.');
+            toast.warning(t({
+                id: 'editor.media.wait_before_revisions',
+                message: 'Wait for the upload to finish before opening revision history.'
+            }));
             return;
         }
 
@@ -579,17 +650,26 @@ const EditPostEditor = ({ username, postUrl }: EditPostEditorProps) => {
 
     const canRunScheduleAction = () => {
         if (availableRecovery) {
-            toast.warning('수정 백업을 먼저 복구하거나 삭제해주세요.');
+            toast.warning(t({
+                id: 'editor.recovery.resolve_first',
+                message: 'Recover or delete the edit backup first.'
+            }));
             return false;
         }
 
         if (hasUnsavedChanges()) {
-            toast.warning('변경 사항을 먼저 수정한 뒤 예약 상태를 변경해주세요.');
+            toast.warning(t({
+                id: 'editor.schedule.save_changes_first',
+                message: 'Update your changes before changing the schedule.'
+            }));
             return false;
         }
 
         if (isEditorMediaUploading) {
-            toast.warning('파일 업로드가 끝난 뒤 예약 상태를 변경해주세요.');
+            toast.warning(t({
+                id: 'editor.media.wait_before_schedule_change',
+                message: 'Wait for the upload to finish before changing the schedule.'
+            }));
             return false;
         }
 
@@ -600,9 +680,18 @@ const EditPostEditor = ({ username, postUrl }: EditPostEditorProps) => {
         if (!canRunScheduleAction()) return;
 
         const confirmed = await confirm({
-            title: '예약 취소',
-            message: '예약을 취소하고 임시글로 되돌립니다. 내용과 설정은 유지되며 공개 화면에는 노출되지 않습니다.',
-            confirmText: '예약 취소'
+            title: t({
+                id: 'editor.schedule.cancel',
+                message: 'Cancel schedule'
+            }),
+            message: t({
+                id: 'editor.schedule.cancel_description',
+                message: 'Cancel the schedule and return this post to drafts. Its content and settings will be preserved, and it will no longer appear publicly.'
+            }),
+            confirmText: t({
+                id: 'editor.schedule.cancel',
+                message: 'Cancel schedule'
+            })
         });
         if (!confirmed) return;
 
@@ -611,7 +700,10 @@ const EditPostEditor = ({ username, postUrl }: EditPostEditorProps) => {
         try {
             const { data } = await cancelPostSchedule(username, postUrl);
             if (data.status === 'ERROR') {
-                toast.error(data.errorMessage || '예약 취소에 실패했습니다.');
+                toast.error(data.errorMessage || t({
+                    id: 'editor.schedule.error.cancel',
+                    message: 'Could not cancel the schedule.'
+                }));
                 return;
             }
 
@@ -622,7 +714,10 @@ const EditPostEditor = ({ username, postUrl }: EditPostEditorProps) => {
             isIntentionalSubmitRef.current = true;
             window.location.assign(`/write?draft=${encodeURIComponent(data.body.url)}`);
         } catch {
-            toast.error('예약 취소에 실패했습니다.');
+            toast.error(t({
+                id: 'editor.schedule.error.cancel',
+                message: 'Could not cancel the schedule.'
+            }));
         } finally {
             setPendingScheduleAction(null);
             setIsSubmitting(false);
@@ -633,11 +728,23 @@ const EditPostEditor = ({ username, postUrl }: EditPostEditorProps) => {
         if (!canRunScheduleAction()) return;
 
         const confirmed = await confirm({
-            title: '지금 발행',
+            title: t({
+                id: 'editor.schedule.publish_now',
+                message: 'Publish now'
+            }),
             message: formData.hide
-                ? '예약 시간을 기다리지 않고 비공개 상태로 발행합니다. 작성자 외에는 볼 수 없습니다.'
-                : '예약 시간을 기다리지 않고 지금 공개합니다. 연결된 알림 채널에도 발행 소식이 전송됩니다.',
-            confirmText: '지금 발행'
+                ? t({
+                    id: 'editor.schedule.publish_now_private_description',
+                    message: 'Publish now as a private post without waiting for the scheduled time. Only the author will be able to view it.'
+                })
+                : t({
+                    id: 'editor.schedule.publish_now_public_description',
+                    message: 'Publish publicly now without waiting for the scheduled time. Connected notification channels will also receive the publication update.'
+                }),
+            confirmText: t({
+                id: 'editor.schedule.publish_now',
+                message: 'Publish now'
+            })
         });
         if (!confirmed) return;
 
@@ -646,7 +753,10 @@ const EditPostEditor = ({ username, postUrl }: EditPostEditorProps) => {
         try {
             const { data } = await publishScheduledPostNow(username, postUrl);
             if (data.status === 'ERROR') {
-                toast.error(data.errorMessage || '즉시 발행에 실패했습니다.');
+                toast.error(data.errorMessage || t({
+                    id: 'editor.schedule.error.publish_now',
+                    message: 'Could not publish the post now.'
+                }));
                 return;
             }
 
@@ -657,7 +767,10 @@ const EditPostEditor = ({ username, postUrl }: EditPostEditorProps) => {
             isIntentionalSubmitRef.current = true;
             window.location.assign(`/@${encodeURIComponent(username)}/${encodeURIComponent(data.body.url)}`);
         } catch {
-            toast.error('즉시 발행에 실패했습니다.');
+            toast.error(t({
+                id: 'editor.schedule.error.publish_now',
+                message: 'Could not publish the post now.'
+            }));
         } finally {
             setPendingScheduleAction(null);
             setIsSubmitting(false);
@@ -670,7 +783,9 @@ const EditPostEditor = ({ username, postUrl }: EditPostEditorProps) => {
                 <div className="flex items-center justify-center py-32">
                     <div className="text-center space-y-4">
                         <div className="inline-block animate-spin rounded-full h-12 w-12 border-4 border-line border-t-action" />
-                        <p className="text-content-secondary text-sm font-medium">포스트를 불러오는 중...</p>
+                        <p className="text-content-secondary text-sm font-medium">
+                            <Trans id="editor.loading_post">Loading post...</Trans>
+                        </p>
                     </div>
                 </div>
             </PostEditorWrapper>

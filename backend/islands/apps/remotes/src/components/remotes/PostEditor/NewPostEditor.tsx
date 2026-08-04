@@ -7,6 +7,7 @@ import {
     useCallback
 } from 'react';
 import type { MouseEvent } from 'react';
+import { Trans, useLingui } from '@lingui/react/macro';
 import { toast } from '~/utils/toast';
 import { useConfirm } from '~/hooks/useConfirm';
 import PostEditorWrapper from './PostEditorWrapper';
@@ -55,6 +56,7 @@ const NewPostEditor = ({
     draftUrl,
     showFirstPublishGuide = false
 }: NewPostEditorProps) => {
+    const { i18n, t } = useLingui();
     const { confirm } = useConfirm();
     const [isLoading, setIsLoading] = useState(true);
     const [seriesList, setSeriesList] = useState<Series[]>([]);
@@ -149,14 +151,20 @@ const NewPostEditor = ({
 
     const handleEditorImageUpload = async (file: File) => {
         const { data } = await api.uploadImage(file).catch(() => {
-            throw new Error('파일 업로드에 실패했습니다.');
+            throw new Error(t({
+                id: 'editor.media.error.upload',
+                message: 'File upload failed.'
+            }));
         });
 
         if (data.status === 'DONE') {
             return data.body.url;
         }
 
-        throw new Error(data.errorMessage || '파일 업로드에 실패했습니다.');
+        throw new Error(data.errorMessage || t({
+            id: 'editor.media.error.upload',
+            message: 'File upload failed.'
+        }));
     };
 
     const handleAutoSaveSuccess = (url?: string) => {
@@ -312,14 +320,22 @@ const NewPostEditor = ({
                     }
                 }
             } catch {
-                toast.error(draftUrl ? '임시 포스트 데이터를 불러오는데 실패했습니다.' : '시리즈 목록을 불러오는데 실패했습니다.');
+                toast.error(draftUrl
+                    ? t({
+                        id: 'editor.error.load_draft',
+                        message: 'Could not load the draft.'
+                    })
+                    : t({
+                        id: 'editor.error.load_series',
+                        message: 'Could not load the series list.'
+                    }));
             } finally {
                 setIsLoading(false);
             }
         };
 
         fetchData();
-    }, [draftUrl, setImagePreviewUrl]);
+    }, [draftUrl, setImagePreviewUrl, t]);
 
     useEffect(() => {
         if (!isLoading && !initialDataRef.current) {
@@ -362,10 +378,22 @@ const NewPostEditor = ({
         if (hasUnsavedChanges()) {
             // Show confirmation
             const confirmed = await confirm({
-                title: '저장되지 않은 변경사항',
-                message: '현재 작성 중인 내용이 저장되지 않았습니다. 다른 임시 포스트로 이동하시겠습니까?',
-                confirmText: '이동',
-                cancelText: '취소'
+                title: t({
+                    id: 'editor.unsaved.title',
+                    message: 'Unsaved changes'
+                }),
+                message: t({
+                    id: 'editor.unsaved.switch_draft_description',
+                    message: 'Your current edits have not been saved. Switch to another draft?'
+                }),
+                confirmText: t({
+                    id: 'editor.unsaved.switch_draft',
+                    message: 'Switch draft'
+                }),
+                cancelText: t({
+                    id: 'common.cancel',
+                    message: 'Cancel'
+                })
             });
 
             if (confirmed) {
@@ -379,15 +407,24 @@ const NewPostEditor = ({
 
     const handleManualSave = async () => {
         if (isEditorMediaUploading) {
-            toast.warning('파일 업로드가 끝난 뒤 저장해주세요.');
+            toast.warning(t({
+                id: 'editor.media.wait_before_save',
+                message: 'Wait for the upload to finish before saving.'
+            }));
             return;
         }
 
         const savedDraftUrl = await manualSave();
         if (savedDraftUrl) {
-            toast.success('임시저장되었습니다.');
+            toast.success(t({
+                id: 'editor.autosave.saved',
+                message: 'Draft saved.'
+            }));
         } else {
-            toast.error('임시저장에 실패했습니다.');
+            toast.error(t({
+                id: 'editor.autosave.error',
+                message: 'Could not save the draft.'
+            }));
         }
     };
 
@@ -395,7 +432,10 @@ const NewPostEditor = ({
         previewTriggerRef.current = event.currentTarget;
 
         if (isEditorMediaUploading) {
-            toast.warning('파일 업로드가 끝난 뒤 미리보기를 열어주세요.');
+            toast.warning(t({
+                id: 'editor.media.wait_before_preview',
+                message: 'Wait for the upload to finish before opening the preview.'
+            }));
             return;
         }
 
@@ -403,7 +443,10 @@ const NewPostEditor = ({
         try {
             const savedDraftUrl = await manualSave();
             if (!savedDraftUrl) {
-                toast.error('미리보기를 위한 임시저장에 실패했습니다.');
+                toast.error(t({
+                    id: 'editor.preview.error.save_draft',
+                    message: 'Could not save the draft for preview.'
+                }));
                 return;
             }
 
@@ -418,7 +461,10 @@ const NewPostEditor = ({
         try {
             await startFirstPublishTourDriver({ returnFocusTo: firstPublishGuideButtonRef.current });
         } catch {
-            toast.error('가이드를 불러오는데 실패했습니다.');
+            toast.error(t({
+                id: 'editor.guide.error.load',
+                message: 'Could not load the guide.'
+            }));
         }
     };
 
@@ -469,7 +515,15 @@ const NewPostEditor = ({
 
     const handleSubmit = async (isDraft = false) => {
         if (isEditorMediaUploading) {
-            toast.warning(`파일 업로드가 끝난 뒤 ${formData.reservedDate ? '예약' : '발행'}해주세요.`);
+            toast.warning(formData.reservedDate
+                ? t({
+                    id: 'editor.media.wait_before_schedule',
+                    message: 'Wait for the upload to finish before scheduling.'
+                })
+                : t({
+                    id: 'editor.media.wait_before_publish',
+                    message: 'Wait for the upload to finish before publishing.'
+                }));
             return;
         }
 
@@ -487,13 +541,25 @@ const NewPostEditor = ({
 
     const handleConfirmPublish = async () => {
         if (isEditorMediaUploading) {
-            toast.warning(`파일 업로드가 끝난 뒤 ${formData.reservedDate ? '예약' : '발행'}해주세요.`);
+            toast.warning(formData.reservedDate
+                ? t({
+                    id: 'editor.media.wait_before_schedule',
+                    message: 'Wait for the upload to finish before scheduling.'
+                })
+                : t({
+                    id: 'editor.media.wait_before_publish',
+                    message: 'Wait for the upload to finish before publishing.'
+                }));
             return;
         }
 
         if (publishChecklist.missingRecommended.length > 0) {
             const labels = publishChecklist.missingRecommended.map(item => item.label).join(', ');
-            toast.warning(`권장 항목이 비어 있습니다: ${labels}`);
+            toast.warning(i18n._({
+                id: 'editor.publish.recommended_missing',
+                message: 'Recommended fields are empty: {fields}',
+                values: { fields: labels }
+            }));
         }
 
         setShowPublishChecklist(false);
@@ -509,10 +575,16 @@ const NewPostEditor = ({
                         type="button"
                         onClick={handleStartFirstPublishGuide}
                         className="inline-flex min-h-11 items-center justify-center gap-2 rounded-full border border-line bg-surface px-3.5 py-2 text-sm font-medium text-content-secondary shadow-subtle transition-all duration-150 hover:bg-surface-elevated hover:text-content active:scale-95"
-                        aria-label="첫 발행 가이드 열기"
-                        title="첫 발행 가이드 열기">
+                        aria-label={t({
+                            id: 'editor.guide.open',
+                            message: 'Open first-publish guide'
+                        })}
+                        title={t({
+                            id: 'editor.guide.open',
+                            message: 'Open first-publish guide'
+                        })}>
                         <Info className="h-4 w-4 shrink-0" />
-                        <span>첫 발행 가이드</span>
+                        <span><Trans id="editor.guide.title">First-publish guide</Trans></span>
                     </button>
                 </div>
             )}
@@ -555,7 +627,12 @@ const NewPostEditor = ({
                 onPreview={handleOpenPreview}
                 isPreviewing={isPreparingPreview}
                 onOpenSettings={() => setIsSettingsDrawerOpen(true)}
-                submitLabel={formData.reservedDate ? '예약' : undefined}
+                submitLabel={formData.reservedDate
+                    ? t({
+                        id: 'editor.actions.schedule',
+                        message: 'Schedule'
+                    })
+                    : undefined}
             />
 
             <PublishChecklist

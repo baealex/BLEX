@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: BLEX 3.1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-08-05 00:28+0900\n"
+"POT-Creation-Date: 2026-08-05 00:46+0900\n"
 "PO-Revision-Date: 2026-07-18 00:00+0900\n"
 "Last-Translator: BLEX contributors\n"
 "Language-Team: Korean\n"
@@ -908,6 +908,7 @@ msgstr "예약 시각 전에는 작성자만 볼 수 있습니다. 예약 시각
 
 #: board/templates/board/posts/post_detail.html:131
 #: board/templates/board/posts/post_detail.html:431
+#: board/templates/board/posts/post_editor.html:4
 msgid "Edit post"
 msgstr "수정하기"
 
@@ -1019,6 +1020,16 @@ msgstr "목차"
 #: board/templates/board/posts/post_detail.html:610
 msgid "Close table of contents"
 msgstr "목차 닫기"
+
+#: board/templates/board/posts/post_editor.html:4
+msgid "Draft"
+msgstr "임시저장"
+
+#: board/templates/board/posts/post_editor.html:4
+#: board/templates/components/header.html:46
+#: board/templates/components/header.html:280
+msgid "New post"
+msgstr "새 포스트"
 
 #: board/templates/board/posts/post_list.html:7
 msgid "Latest posts"
@@ -1153,11 +1164,6 @@ msgstr "라이트 모드"
 #: board/templates/components/header.html:7
 msgid "Dark mode"
 msgstr "다크 모드"
-
-#: board/templates/components/header.html:46
-#: board/templates/components/header.html:280
-msgid "New post"
-msgstr "새 포스트"
 
 #: board/templates/components/header.html:65
 msgid "User menu"
@@ -1405,6 +1411,26 @@ msgstr "Google 로그인에 실패했습니다."
 #, python-format
 msgid "An error occurred while logging in with %(provider)s."
 msgstr "%(provider)s 로그인 중 오류가 발생했습니다."
+
+#: board/views/post.py:123
+msgid "Post moved to the trash."
+msgstr "포스트를 휴지통으로 옮겼습니다."
+
+#: board/views/post.py:199
+msgid "Post updated successfully."
+msgstr "포스트가 수정되었습니다."
+
+#: board/views/post.py:234
+msgid "Post published successfully."
+msgstr "포스트가 발행되었습니다."
+
+#: board/views/post.py:263
+msgid "Post created successfully."
+msgstr "포스트가 생성되었습니다."
+
+#: board/views/post.py:269
+msgid "Draft saved."
+msgstr "포스트가 임시저장되었습니다."
 
 #: board/views/tag.py:52
 msgctxt "tag sort option"

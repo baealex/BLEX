@@ -7,6 +7,7 @@ from django.http import Http404
 from django.contrib import messages
 from django.views.decorators.clickjacking import xframe_options_sameorigin
 from django.views.decorators.http import require_GET
+from django.utils.translation import gettext
 
 from board.models import Post, Series, PostLikes
 from board.modules.response import StatusDone, StatusError
@@ -119,7 +120,7 @@ def post_editor(request, username=None, post_url=None):
     if request.method == 'POST':
         if is_edit and request.POST.get('delete') == 'true':
             PostTrashService.trash_post(post)
-            messages.success(request, '포스트를 휴지통으로 옮겼습니다.')
+            messages.success(request, gettext('Post moved to the trash.'))
             return redirect('user_profile', username=request.user.username)
 
         title = request.POST.get('title')
@@ -195,7 +196,7 @@ def post_editor(request, username=None, post_url=None):
                 messages.error(request, e.message)
                 return redirect('post_edit', username=request.user.username, post_url=post.url)
 
-            messages.success(request, 'Post has been updated successfully.')
+            messages.success(request, gettext('Post updated successfully.'))
         else:
             image = request.FILES.get('image', None)
 
@@ -230,7 +231,7 @@ def post_editor(request, username=None, post_url=None):
                         cover_image_ratio=cover_image_ratio,
                         reserved_date_str=reserved_date,
                     )
-                    messages.success(request, 'Post has been published successfully.')
+                    messages.success(request, gettext('Post published successfully.'))
                 except Post.DoesNotExist:
                     # Draft doesn't exist, create as normal post
                     post_draft_url = ''
@@ -259,13 +260,13 @@ def post_editor(request, username=None, post_url=None):
                         cover_image_ratio=cover_image_ratio,
                         reserved_date_str=reserved_date,
                     )
-                    messages.success(request, 'Post has been created successfully.')
+                    messages.success(request, gettext('Post created successfully.'))
                 except PostValidationError as e:
                     messages.error(request, e.message)
                     return redirect('post_write')
 
         if is_draft:
-            messages.success(request, '포스트가 임시저장되었습니다.')
+            messages.success(request, gettext('Draft saved.'))
             return redirect('post_edit', username=request.user.username, post_url=post.url)
 
         post_detail_url = reverse('post_detail', kwargs={

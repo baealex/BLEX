@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import type { MouseEvent } from 'react';
+import { Trans, useLingui } from '@lingui/react/macro';
 import { Button } from '@blex/ui/button';
 import { FloatingBottomBar } from '@blex/ui/floating-bottom-bar';
 import { IconButton } from '@blex/ui/icon-button';
@@ -33,15 +34,6 @@ interface PostActionsProps {
     submitLabel?: string;
 }
 
-const formatTimeSince = (date: Date): string => {
-    const seconds = Math.floor((Date.now() - date.getTime()) / 1000);
-    if (seconds < 60) return '방금 저장됨';
-    const minutes = Math.floor(seconds / 60);
-    if (minutes < 60) return `${minutes}분 전 저장됨`;
-    const hours = Math.floor(minutes / 60);
-    return `${hours}시간 전 저장됨`;
-};
-
 const PostActions = ({
     mode,
     isSaving,
@@ -61,10 +53,44 @@ const PostActions = ({
     onOpenSettings,
     submitLabel
 }: PostActionsProps) => {
+    const { i18n, t } = useLingui();
     const isEdit = mode === 'edit';
-    const actionLabel = submitLabel || (isEdit ? '수정' : '발행');
+    const actionLabel = submitLabel || (isEdit
+        ? t({
+            id: 'editor.actions.update',
+            message: 'Update'
+        })
+        : t({
+            id: 'editor.actions.publish',
+            message: 'Publish'
+        }));
     const isBusy = isSubmitting || isSaving || isMediaUploading;
     const [, setTick] = useState(0);
+    const formatTimeSince = (date: Date): string => {
+        const seconds = Math.floor((Date.now() - date.getTime()) / 1000);
+        if (seconds < 60) {
+            return t({
+                id: 'editor.autosave.saved_just_now',
+                message: 'Saved just now'
+            });
+        }
+
+        const minutes = Math.floor(seconds / 60);
+        if (minutes < 60) {
+            return i18n._({
+                id: 'editor.autosave.saved_minutes_ago',
+                message: 'Saved {count, plural, one {# minute ago} other {# minutes ago}}',
+                values: { count: minutes }
+            });
+        }
+
+        const hours = Math.floor(minutes / 60);
+        return i18n._({
+            id: 'editor.autosave.saved_hours_ago',
+            message: 'Saved {count, plural, one {# hour ago} other {# hours ago}}',
+            values: { count: hours }
+        });
+    };
 
     // Update time display every 30 seconds
     useEffect(() => {
@@ -81,8 +107,14 @@ const PostActions = ({
                     onClick={onOpenDrafts}
                     rounded="full"
                     className="shrink-0"
-                    aria-label="임시 포스트"
-                    title="임시 포스트">
+                    aria-label={t({
+                        id: 'editor.drafts.title',
+                        message: 'Drafts'
+                    })}
+                    title={t({
+                        id: 'editor.drafts.title',
+                        message: 'Drafts'
+                    })}>
                     <FileText className="w-5 h-5" />
                 </IconButton>
             )}
@@ -94,9 +126,15 @@ const PostActions = ({
                     disabled={isBusy || isPreviewing}
                     rounded="full"
                     className="shrink-0"
-                    aria-label="포스트 미리보기"
+                    aria-label={t({
+                        id: 'editor.preview.open',
+                        message: 'Preview post'
+                    })}
                     aria-busy={isPreviewing}
-                    title="포스트 미리보기">
+                    title={t({
+                        id: 'editor.preview.open',
+                        message: 'Preview post'
+                    })}>
                     {isPreviewing ? (
                         <Loader2 className="h-5 w-5 animate-spin" />
                     ) : (
@@ -112,8 +150,14 @@ const PostActions = ({
                     disabled={isBusy}
                     rounded="full"
                     className="shrink-0"
-                    aria-label="수정 이력"
-                    title="수정 이력">
+                    aria-label={t({
+                        id: 'editor.revisions.title',
+                        message: 'Revision history'
+                    })}
+                    title={t({
+                        id: 'editor.revisions.title',
+                        message: 'Revision history'
+                    })}>
                     <History className="h-5 w-5" />
                 </IconButton>
             )}
@@ -124,8 +168,14 @@ const PostActions = ({
                     onClick={onOpenSettings}
                     rounded="full"
                     className="shrink-0"
-                    aria-label="게시 설정"
-                    title="게시 설정"
+                    aria-label={t({
+                        id: 'editor.settings.title',
+                        message: 'Post settings'
+                    })}
+                    title={t({
+                        id: 'editor.settings.title',
+                        message: 'Post settings'
+                    })}
                     data-tour="post-settings">
                     <SlidersHorizontal className="w-5 h-5" />
                 </IconButton>
@@ -144,22 +194,34 @@ const PostActions = ({
                         {isSaving ? (
                             <>
                                 <div className="w-1.5 h-1.5 rounded-full bg-line-strong animate-pulse" />
-                                <span className="text-content-secondary">저장 중...</span>
+                                <span className="text-content-secondary">
+                                    <Trans id="editor.autosave.saving">Saving...</Trans>
+                                </span>
                             </>
                         ) : hasSaveError ? (
                             <>
                                 <div className="w-1.5 h-1.5 rounded-full bg-danger" />
-                                <span className="text-danger">저장 실패</span>
+                                <span className="text-danger">
+                                    <Trans id="editor.autosave.failed">Save failed</Trans>
+                                </span>
                             </>
                         ) : autoSaveCountdown !== null ? (
                             <>
                                 <div className="w-1.5 h-1.5 rounded-full bg-line-strong animate-pulse" />
-                                <span className="text-content-secondary tabular-nums">{autoSaveCountdown}초 후 저장</span>
+                                <span className="text-content-secondary tabular-nums">
+                                    {i18n._({
+                                        id: 'editor.autosave.countdown',
+                                        message: 'Save in {seconds, plural, one {# second} other {# seconds}}',
+                                        values: { seconds: autoSaveCountdown }
+                                    })}
+                                </span>
                             </>
                         ) : hasPendingChanges ? (
                             <>
                                 <div className="w-1.5 h-1.5 rounded-full bg-line-strong animate-pulse" />
-                                <span className="text-content-secondary">저장 대기 중</span>
+                                <span className="text-content-secondary">
+                                    <Trans id="editor.autosave.pending">Waiting to save</Trans>
+                                </span>
                             </>
                         ) : lastSaved ? (
                             <>
@@ -169,7 +231,7 @@ const PostActions = ({
                         ) : (
                             <>
                                 <div className="w-1.5 h-1.5 rounded-full bg-line-strong" />
-                                <span>자동 저장 켜짐</span>
+                                <span><Trans id="editor.autosave.enabled">Autosave on</Trans></span>
                             </>
                         )}
                     </div>
@@ -181,8 +243,14 @@ const PostActions = ({
                         onClick={onManualSave}
                         disabled={isBusy}
                         className="shrink-0 sm:hidden"
-                        aria-label="임시 저장"
-                        title="임시 저장">
+                        aria-label={t({
+                            id: 'editor.actions.save_draft',
+                            message: 'Save draft'
+                        })}
+                        title={t({
+                            id: 'editor.actions.save_draft',
+                            message: 'Save draft'
+                        })}>
                         <Save className="h-4 w-4" />
                     </IconButton>
                     <button
@@ -190,8 +258,11 @@ const PostActions = ({
                         onClick={onManualSave}
                         disabled={isBusy}
                         className="hidden shrink-0 items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium text-content-secondary transition-all hover:bg-surface-subtle hover:text-content active:scale-95 disabled:opacity-50 sm:flex motion-interaction"
-                        title="임시 저장">
-                        <span>임시 저장</span>
+                        title={t({
+                            id: 'editor.actions.save_draft',
+                            message: 'Save draft'
+                        })}>
+                        <span><Trans id="editor.actions.save_draft">Save draft</Trans></span>
                     </button>
                 </>
             )}

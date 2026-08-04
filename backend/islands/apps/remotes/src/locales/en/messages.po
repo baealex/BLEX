@@ -328,6 +328,8 @@ msgstr "Manage pinned posts"
 #. js-lingui-explicit-id
 #: src/components/remotes/PostEditor/components/PostRevisionDialog.tsx:606
 #: src/components/remotes/PostEditor/components/PostRevisionDialog.tsx:624
+#: src/components/remotes/PostEditor/EditPostEditor.tsx:386
+#: src/components/remotes/PostEditor/NewPostEditor.tsx:393
 #: src/components/remotes/SettingsApp/pages/PinnedPostsSetting/components/AddPinnedPostModal.tsx:220
 msgid "common.cancel"
 msgstr "Cancel"
@@ -367,13 +369,94 @@ msgid "common.retry"
 msgstr "Try again"
 
 #. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/components/PostActions.tsx:63
+msgid "editor.actions.publish"
+msgstr "Publish"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/components/PostActions.tsx:246
+#: src/components/remotes/PostEditor/components/PostActions.tsx:250
+#: src/components/remotes/PostEditor/components/PostActions.tsx:261
+#: src/components/remotes/PostEditor/components/PostActions.tsx:265
+msgid "editor.actions.save_draft"
+msgstr "Save draft"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/NewPostEditor.tsx:631
+msgid "editor.actions.schedule"
+msgstr "Schedule"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/components/PostActions.tsx:59
+msgid "editor.actions.update"
+msgstr "Update"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/components/PostActions.tsx:212
+msgid "editor.autosave.countdown"
+msgstr "Save in {seconds, plural, one {# second} other {# seconds}}"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/components/PostActions.tsx:234
+msgid "editor.autosave.enabled"
+msgstr "Autosave on"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/hooks/useAutoSave.ts:168
+#: src/components/remotes/PostEditor/NewPostEditor.tsx:424
+msgid "editor.autosave.error"
+msgstr "Could not save the draft."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/components/PostActions.tsx:205
+msgid "editor.autosave.failed"
+msgstr "Save failed"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/components/PostActions.tsx:223
+msgid "editor.autosave.pending"
+msgstr "Waiting to save"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/NewPostEditor.tsx:419
+msgid "editor.autosave.saved"
+msgstr "Draft saved."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/components/PostActions.tsx:88
+msgid "editor.autosave.saved_hours_ago"
+msgstr "Saved {count, plural, one {# hour ago} other {# hours ago}}"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/components/PostActions.tsx:72
+msgid "editor.autosave.saved_just_now"
+msgstr "Saved just now"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/components/PostActions.tsx:80
+msgid "editor.autosave.saved_minutes_ago"
+msgstr "Saved {count, plural, one {# minute ago} other {# minutes ago}}"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/components/PostActions.tsx:198
+msgid "editor.autosave.saving"
+msgstr "Saving..."
+
+#. js-lingui-explicit-id
 #: src/components/remotes/PostEditor/components/DraftsPanel.tsx:169
 #: src/components/remotes/PostEditor/components/PostRevisionDialog.tsx:417
 #: src/components/remotes/PostEditor/components/PostRevisionDialog.tsx:487
 #: src/components/remotes/PostEditor/components/PostRevisionDialog.tsx:568
 #: src/components/remotes/PostEditor/components/PostRevisionDialog.tsx:585
+#: src/components/remotes/PostEditor/hooks/useAutoSave.ts:164
 msgid "editor.common.untitled"
 msgstr "Untitled"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/EditPostEditor.tsx:580
+#: src/components/remotes/PostEditor/hooks/useFormSubmit.ts:172
+msgid "editor.confirm.move_to_trash"
+msgstr "Move this post to the trash? You can restore it from post settings."
 
 #. js-lingui-explicit-id
 #: src/components/remotes/PostEditor/components/DraftsPanel.tsx:153
@@ -407,6 +490,8 @@ msgstr "{count, plural, one {# minute ago} other {# minutes ago}}"
 
 #. js-lingui-explicit-id
 #: src/components/remotes/PostEditor/components/DraftsPanel.tsx:117
+#: src/components/remotes/PostEditor/components/PostActions.tsx:110
+#: src/components/remotes/PostEditor/components/PostActions.tsx:114
 msgid "editor.drafts.title"
 msgstr "Drafts"
 
@@ -417,9 +502,68 @@ msgid "editor.drafts.total"
 msgstr "{0, plural, one {# draft} other {# drafts}}"
 
 #. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/NewPostEditor.tsx:324
+msgid "editor.error.load_draft"
+msgstr "Could not load the draft."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/EditPostEditor.tsx:235
+msgid "editor.error.load_post"
+msgstr "Could not load the post."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/NewPostEditor.tsx:328
+msgid "editor.error.load_series"
+msgstr "Could not load the series list."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/PostEditor.tsx:44
+msgid "editor.error.missing_draft_parameters"
+msgstr "Draft mode requires a draft URL and username."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/PostEditor.tsx:28
+msgid "editor.error.missing_edit_parameters"
+msgstr "Edit mode requires a username and post URL."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/PostEditor.tsx:60
+msgid "editor.error.missing_new_parameters"
+msgstr "New post mode requires a username."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/EditPostEditor.tsx:606
+#: src/components/remotes/PostEditor/hooks/useFormSubmit.ts:192
+msgid "editor.error.move_to_trash"
+msgstr "Could not move the post to the trash."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/hooks/useFormSubmit.ts:161
+msgid "editor.error.save"
+msgstr "Could not save the post."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/PostEditor.tsx:84
+msgid "editor.error.unsupported_mode"
+msgstr "Unsupported editor mode: {mode}"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/EditPostEditor.tsx:546
+#: src/components/remotes/PostEditor/EditPostEditor.tsx:562
+#: src/components/remotes/PostEditor/hooks/useFormSubmit.ts:157
+msgid "editor.error.update"
+msgstr "Could not update the post."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/components/PostForm.tsx:83
 #: src/components/remotes/PostEditor/components/PostRevisionDialog.tsx:528
 msgid "editor.fields.content"
 msgstr "Content"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/components/PostForm.tsx:93
+msgid "editor.fields.content_placeholder"
+msgstr "Start writing..."
 
 #. js-lingui-explicit-id
 #: src/components/remotes/PostEditor/components/PostRevisionDialog.tsx:518
@@ -427,14 +571,112 @@ msgid "editor.fields.description"
 msgstr "Description"
 
 #. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/NewPostEditor.tsx:464
+msgid "editor.guide.error.load"
+msgstr "Could not load the guide."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/NewPostEditor.tsx:578
+#: src/components/remotes/PostEditor/NewPostEditor.tsx:582
+msgid "editor.guide.open"
+msgstr "Open first-publish guide"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/NewPostEditor.tsx:587
+msgid "editor.guide.title"
+msgstr "First-publish guide"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/EditPostEditor.tsx:787
+msgid "editor.loading_post"
+msgstr "Loading post..."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/EditPostEditor.tsx:439
+#: src/components/remotes/PostEditor/EditPostEditor.tsx:449
+#: src/components/remotes/PostEditor/NewPostEditor.tsx:154
+#: src/components/remotes/PostEditor/NewPostEditor.tsx:164
+msgid "editor.media.error.upload"
+msgstr "File upload failed."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/NewPostEditor.tsx:435
+msgid "editor.media.wait_before_preview"
+msgstr "Wait for the upload to finish before opening the preview."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/NewPostEditor.tsx:523
+#: src/components/remotes/PostEditor/NewPostEditor.tsx:549
+msgid "editor.media.wait_before_publish"
+msgstr "Wait for the upload to finish before publishing."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/EditPostEditor.tsx:630
+msgid "editor.media.wait_before_revisions"
+msgstr "Wait for the upload to finish before opening revision history."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/NewPostEditor.tsx:410
+msgid "editor.media.wait_before_save"
+msgstr "Wait for the upload to finish before saving."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/NewPostEditor.tsx:519
+#: src/components/remotes/PostEditor/NewPostEditor.tsx:545
+msgid "editor.media.wait_before_schedule"
+msgstr "Wait for the upload to finish before scheduling."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/EditPostEditor.tsx:669
+msgid "editor.media.wait_before_schedule_change"
+msgstr "Wait for the upload to finish before changing the schedule."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/EditPostEditor.tsx:497
+msgid "editor.media.wait_before_update"
+msgstr "Wait for the upload to finish before updating."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/NewPostEditor.tsx:446
+msgid "editor.preview.error.save_draft"
+msgstr "Could not save the draft for preview."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/components/PostActions.tsx:129
+#: src/components/remotes/PostEditor/components/PostActions.tsx:134
+msgid "editor.preview.open"
+msgstr "Preview post"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/NewPostEditor.tsx:558
+msgid "editor.publish.recommended_missing"
+msgstr "Recommended fields are empty: {fields}"
+
+#. js-lingui-explicit-id
 #: src/components/remotes/PostEditor/components/EditRecoveryNotice.tsx:33
 msgid "editor.recovery.aria_label"
 msgstr "Post edit backup"
 
 #. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/EditPostEditor.tsx:378
+msgid "editor.recovery.confirm_delete_description"
+msgstr "Unrecovered edits will be deleted from this browser."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/EditPostEditor.tsx:374
+msgid "editor.recovery.confirm_delete_title"
+msgstr "Delete edit backup"
+
+#. js-lingui-explicit-id
 #: src/components/remotes/PostEditor/components/EditRecoveryNotice.tsx:68
+#: src/components/remotes/PostEditor/EditPostEditor.tsx:382
 msgid "editor.recovery.delete_backup"
 msgstr "Delete backup"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/EditPostEditor.tsx:399
+msgid "editor.recovery.deleted"
+msgstr "Edit backup deleted."
 
 #. js-lingui-explicit-id
 #: src/components/remotes/PostEditor/components/EditRecoveryNotice.tsx:45
@@ -450,6 +692,18 @@ msgstr "Last backup"
 #: src/components/remotes/PostEditor/components/EditRecoveryNotice.tsx:60
 msgid "editor.recovery.recover"
 msgstr "Recover"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/EditPostEditor.tsx:487
+#: src/components/remotes/PostEditor/EditPostEditor.tsx:616
+#: src/components/remotes/PostEditor/EditPostEditor.tsx:653
+msgid "editor.recovery.resolve_first"
+msgstr "Recover or delete the edit backup first."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/EditPostEditor.tsx:364
+msgid "editor.recovery.success"
+msgstr "Backup recovered. Select Update to save these changes."
 
 #. js-lingui-explicit-id
 #: src/components/remotes/PostEditor/components/EditRecoveryNotice.tsx:40
@@ -606,6 +860,11 @@ msgid "editor.revisions.restore_this"
 msgstr "Restore this revision"
 
 #. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/EditPostEditor.tsx:623
+msgid "editor.revisions.save_changes_first"
+msgstr "Update your changes before opening revision history."
+
+#. js-lingui-explicit-id
 #: src/components/remotes/PostEditor/components/PostRevisionDialog.tsx:234
 msgid "editor.revisions.success.deleted"
 msgstr "Revision deleted."
@@ -621,6 +880,8 @@ msgid "editor.revisions.tags_aria_label"
 msgstr "Revision tags"
 
 #. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/components/PostActions.tsx:153
+#: src/components/remotes/PostEditor/components/PostActions.tsx:157
 #: src/components/remotes/PostEditor/components/PostRevisionDialog.tsx:339
 msgid "editor.revisions.title"
 msgstr "Revision history"
@@ -634,6 +895,109 @@ msgstr "{totalCount, plural, one {# revision} other {# revisions}}"
 #: src/components/remotes/PostEditor/components/PostRevisionDialog.tsx:558
 msgid "editor.revisions.version_conflict"
 msgstr "The post changed after you opened this page. Refresh before restoring."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/EditPostEditor.tsx:683
+#: src/components/remotes/PostEditor/EditPostEditor.tsx:691
+msgid "editor.schedule.cancel"
+msgstr "Cancel schedule"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/EditPostEditor.tsx:687
+msgid "editor.schedule.cancel_description"
+msgstr "Cancel the schedule and return this post to drafts. Its content and settings will be preserved, and it will no longer appear publicly."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/EditPostEditor.tsx:703
+#: src/components/remotes/PostEditor/EditPostEditor.tsx:717
+msgid "editor.schedule.error.cancel"
+msgstr "Could not cancel the schedule."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/EditPostEditor.tsx:756
+#: src/components/remotes/PostEditor/EditPostEditor.tsx:770
+msgid "editor.schedule.error.publish_now"
+msgstr "Could not publish the post now."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/EditPostEditor.tsx:731
+#: src/components/remotes/PostEditor/EditPostEditor.tsx:744
+msgid "editor.schedule.publish_now"
+msgstr "Publish now"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/EditPostEditor.tsx:736
+msgid "editor.schedule.publish_now_private_description"
+msgstr "Publish now as a private post without waiting for the scheduled time. Only the author will be able to view it."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/EditPostEditor.tsx:740
+msgid "editor.schedule.publish_now_public_description"
+msgstr "Publish publicly now without waiting for the scheduled time. Connected notification channels will also receive the publication update."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/EditPostEditor.tsx:661
+msgid "editor.schedule.save_changes_first"
+msgstr "Update your changes before changing the schedule."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/components/PostActions.tsx:171
+#: src/components/remotes/PostEditor/components/PostActions.tsx:175
+msgid "editor.settings.title"
+msgstr "Post settings"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/EditPostEditor.tsx:584
+msgid "editor.trash.confirm"
+msgstr "Move to trash"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/EditPostEditor.tsx:576
+msgid "editor.trash.title"
+msgstr "Move to trash"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/NewPostEditor.tsx:389
+msgid "editor.unsaved.switch_draft"
+msgstr "Switch draft"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/NewPostEditor.tsx:385
+msgid "editor.unsaved.switch_draft_description"
+msgstr "Your current edits have not been saved. Switch to another draft?"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/NewPostEditor.tsx:381
+msgid "editor.unsaved.title"
+msgstr "Unsaved changes"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/hooks/useFormSubmit.ts:58
+msgid "editor.validation.content_required"
+msgstr "Add some content."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/EditPostEditor.tsx:474
+#: src/components/remotes/PostEditor/hooks/useFormSubmit.ts:84
+msgid "editor.validation.schedule_future"
+msgstr "Choose a scheduled time in the future."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/EditPostEditor.tsx:466
+#: src/components/remotes/PostEditor/hooks/useFormSubmit.ts:76
+msgid "editor.validation.schedule_invalid"
+msgstr "Check the scheduled time."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/EditPostEditor.tsx:457
+#: src/components/remotes/PostEditor/hooks/useFormSubmit.ts:50
+msgid "editor.validation.title_required"
+msgstr "Enter a title."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/hooks/useFormSubmit.ts:67
+msgid "editor.validation.url_required"
+msgstr "Enter a post URL."
 
 #. js-lingui-explicit-id
 #: src/components/remotes/LoginPrompt/LoginPrompt.tsx:116

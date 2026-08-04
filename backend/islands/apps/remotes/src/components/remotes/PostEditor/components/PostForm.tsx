@@ -1,4 +1,5 @@
 import React, { useRef } from 'react';
+import { useLingui } from '@lingui/react/macro';
 import { TiptapEditor } from '~/components/shared';
 import { getCsrfToken } from '~/utils/csrf';
 import TagManager from './TagManager';
@@ -57,6 +58,7 @@ const PostForm = ({
     onEditorUploadStateChange,
     onRemoveImage
 }: PostFormProps) => {
+    const { t } = useLingui();
     const internalFormRef = useRef<HTMLFormElement>(null);
     const formRef = externalFormRef || internalFormRef;
 
@@ -77,13 +79,21 @@ const PostForm = ({
                 {beforeContent}
 
                 <div className="mb-8">
-                    <label htmlFor="content" className="sr-only">내용</label>
+                    <label htmlFor="content" className="sr-only">
+                        {t({
+                            id: 'editor.fields.content',
+                            message: 'Content'
+                        })}
+                    </label>
                     {!isLoading && (
                         <TiptapEditor
                             name="content_html"
                             content={formData.content}
                             onChange={onContentChange}
-                            placeholder="내용을 입력하세요"
+                            placeholder={t({
+                                id: 'editor.fields.content_placeholder',
+                                message: 'Start writing...'
+                            })}
                             onImageUpload={onEditorImageUpload}
                             onImageUploadError={onEditorImageUploadError}
                             onUploadStateChange={onEditorUploadStateChange}

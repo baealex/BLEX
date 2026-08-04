@@ -328,6 +328,8 @@ msgstr "고정 포스트 설정"
 #. js-lingui-explicit-id
 #: src/components/remotes/PostEditor/components/PostRevisionDialog.tsx:606
 #: src/components/remotes/PostEditor/components/PostRevisionDialog.tsx:624
+#: src/components/remotes/PostEditor/EditPostEditor.tsx:386
+#: src/components/remotes/PostEditor/NewPostEditor.tsx:393
 #: src/components/remotes/SettingsApp/pages/PinnedPostsSetting/components/AddPinnedPostModal.tsx:220
 msgid "common.cancel"
 msgstr "취소"
@@ -367,13 +369,94 @@ msgid "common.retry"
 msgstr "다시 시도"
 
 #. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/components/PostActions.tsx:63
+msgid "editor.actions.publish"
+msgstr "발행"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/components/PostActions.tsx:246
+#: src/components/remotes/PostEditor/components/PostActions.tsx:250
+#: src/components/remotes/PostEditor/components/PostActions.tsx:261
+#: src/components/remotes/PostEditor/components/PostActions.tsx:265
+msgid "editor.actions.save_draft"
+msgstr "임시 저장"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/NewPostEditor.tsx:631
+msgid "editor.actions.schedule"
+msgstr "예약"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/components/PostActions.tsx:59
+msgid "editor.actions.update"
+msgstr "수정"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/components/PostActions.tsx:212
+msgid "editor.autosave.countdown"
+msgstr "{seconds, plural, other {#초 후 저장}}"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/components/PostActions.tsx:234
+msgid "editor.autosave.enabled"
+msgstr "자동 저장 켜짐"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/hooks/useAutoSave.ts:168
+#: src/components/remotes/PostEditor/NewPostEditor.tsx:424
+msgid "editor.autosave.error"
+msgstr "임시저장에 실패했습니다."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/components/PostActions.tsx:205
+msgid "editor.autosave.failed"
+msgstr "저장 실패"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/components/PostActions.tsx:223
+msgid "editor.autosave.pending"
+msgstr "저장 대기 중"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/NewPostEditor.tsx:419
+msgid "editor.autosave.saved"
+msgstr "임시저장되었습니다."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/components/PostActions.tsx:88
+msgid "editor.autosave.saved_hours_ago"
+msgstr "{count, plural, other {#시간 전 저장됨}}"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/components/PostActions.tsx:72
+msgid "editor.autosave.saved_just_now"
+msgstr "방금 저장됨"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/components/PostActions.tsx:80
+msgid "editor.autosave.saved_minutes_ago"
+msgstr "{count, plural, other {#분 전 저장됨}}"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/components/PostActions.tsx:198
+msgid "editor.autosave.saving"
+msgstr "저장 중..."
+
+#. js-lingui-explicit-id
 #: src/components/remotes/PostEditor/components/DraftsPanel.tsx:169
 #: src/components/remotes/PostEditor/components/PostRevisionDialog.tsx:417
 #: src/components/remotes/PostEditor/components/PostRevisionDialog.tsx:487
 #: src/components/remotes/PostEditor/components/PostRevisionDialog.tsx:568
 #: src/components/remotes/PostEditor/components/PostRevisionDialog.tsx:585
+#: src/components/remotes/PostEditor/hooks/useAutoSave.ts:164
 msgid "editor.common.untitled"
 msgstr "제목 없음"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/EditPostEditor.tsx:580
+#: src/components/remotes/PostEditor/hooks/useFormSubmit.ts:172
+msgid "editor.confirm.move_to_trash"
+msgstr "이 포스트를 휴지통으로 옮길까요? 포스트 설정에서 다시 복원할 수 있습니다."
 
 #. js-lingui-explicit-id
 #: src/components/remotes/PostEditor/components/DraftsPanel.tsx:153
@@ -407,6 +490,8 @@ msgstr "{count, plural, other {#분 전}}"
 
 #. js-lingui-explicit-id
 #: src/components/remotes/PostEditor/components/DraftsPanel.tsx:117
+#: src/components/remotes/PostEditor/components/PostActions.tsx:110
+#: src/components/remotes/PostEditor/components/PostActions.tsx:114
 msgid "editor.drafts.title"
 msgstr "임시 포스트"
 
@@ -417,9 +502,68 @@ msgid "editor.drafts.total"
 msgstr "{0, plural, other {총 #개의 임시 포스트}}"
 
 #. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/NewPostEditor.tsx:324
+msgid "editor.error.load_draft"
+msgstr "임시 포스트 데이터를 불러오는데 실패했습니다."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/EditPostEditor.tsx:235
+msgid "editor.error.load_post"
+msgstr "데이터를 불러오는데 실패했습니다."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/NewPostEditor.tsx:328
+msgid "editor.error.load_series"
+msgstr "시리즈 목록을 불러오는데 실패했습니다."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/PostEditor.tsx:44
+msgid "editor.error.missing_draft_parameters"
+msgstr "임시저장 모드에는 draftUrl과 username이 필요합니다."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/PostEditor.tsx:28
+msgid "editor.error.missing_edit_parameters"
+msgstr "편집 모드에는 username과 postUrl이 필요합니다."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/PostEditor.tsx:60
+msgid "editor.error.missing_new_parameters"
+msgstr "새 포스트 작성 모드에는 username이 필요합니다."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/EditPostEditor.tsx:606
+#: src/components/remotes/PostEditor/hooks/useFormSubmit.ts:192
+msgid "editor.error.move_to_trash"
+msgstr "포스트를 휴지통으로 옮기지 못했습니다."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/hooks/useFormSubmit.ts:161
+msgid "editor.error.save"
+msgstr "포스트 저장에 실패했습니다."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/PostEditor.tsx:84
+msgid "editor.error.unsupported_mode"
+msgstr "지원되지 않는 모드입니다: {mode}"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/EditPostEditor.tsx:546
+#: src/components/remotes/PostEditor/EditPostEditor.tsx:562
+#: src/components/remotes/PostEditor/hooks/useFormSubmit.ts:157
+msgid "editor.error.update"
+msgstr "포스트 수정에 실패했습니다."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/components/PostForm.tsx:83
 #: src/components/remotes/PostEditor/components/PostRevisionDialog.tsx:528
 msgid "editor.fields.content"
 msgstr "본문"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/components/PostForm.tsx:93
+msgid "editor.fields.content_placeholder"
+msgstr "내용을 입력하세요"
 
 #. js-lingui-explicit-id
 #: src/components/remotes/PostEditor/components/PostRevisionDialog.tsx:518
@@ -427,14 +571,112 @@ msgid "editor.fields.description"
 msgstr "설명"
 
 #. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/NewPostEditor.tsx:464
+msgid "editor.guide.error.load"
+msgstr "가이드를 불러오는데 실패했습니다."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/NewPostEditor.tsx:578
+#: src/components/remotes/PostEditor/NewPostEditor.tsx:582
+msgid "editor.guide.open"
+msgstr "첫 발행 가이드 열기"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/NewPostEditor.tsx:587
+msgid "editor.guide.title"
+msgstr "첫 발행 가이드"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/EditPostEditor.tsx:787
+msgid "editor.loading_post"
+msgstr "포스트를 불러오는 중..."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/EditPostEditor.tsx:439
+#: src/components/remotes/PostEditor/EditPostEditor.tsx:449
+#: src/components/remotes/PostEditor/NewPostEditor.tsx:154
+#: src/components/remotes/PostEditor/NewPostEditor.tsx:164
+msgid "editor.media.error.upload"
+msgstr "파일 업로드에 실패했습니다."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/NewPostEditor.tsx:435
+msgid "editor.media.wait_before_preview"
+msgstr "파일 업로드가 끝난 뒤 미리보기를 열어주세요."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/NewPostEditor.tsx:523
+#: src/components/remotes/PostEditor/NewPostEditor.tsx:549
+msgid "editor.media.wait_before_publish"
+msgstr "파일 업로드가 끝난 뒤 발행해주세요."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/EditPostEditor.tsx:630
+msgid "editor.media.wait_before_revisions"
+msgstr "파일 업로드가 끝난 뒤 수정 이력을 확인해주세요."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/NewPostEditor.tsx:410
+msgid "editor.media.wait_before_save"
+msgstr "파일 업로드가 끝난 뒤 저장해주세요."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/NewPostEditor.tsx:519
+#: src/components/remotes/PostEditor/NewPostEditor.tsx:545
+msgid "editor.media.wait_before_schedule"
+msgstr "파일 업로드가 끝난 뒤 예약해주세요."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/EditPostEditor.tsx:669
+msgid "editor.media.wait_before_schedule_change"
+msgstr "파일 업로드가 끝난 뒤 예약 상태를 변경해주세요."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/EditPostEditor.tsx:497
+msgid "editor.media.wait_before_update"
+msgstr "파일 업로드가 끝난 뒤 수정해주세요."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/NewPostEditor.tsx:446
+msgid "editor.preview.error.save_draft"
+msgstr "미리보기를 위한 임시저장에 실패했습니다."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/components/PostActions.tsx:129
+#: src/components/remotes/PostEditor/components/PostActions.tsx:134
+msgid "editor.preview.open"
+msgstr "포스트 미리보기"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/NewPostEditor.tsx:558
+msgid "editor.publish.recommended_missing"
+msgstr "권장 항목이 비어 있습니다: {fields}"
+
+#. js-lingui-explicit-id
 #: src/components/remotes/PostEditor/components/EditRecoveryNotice.tsx:33
 msgid "editor.recovery.aria_label"
 msgstr "포스트 수정 백업"
 
 #. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/EditPostEditor.tsx:378
+msgid "editor.recovery.confirm_delete_description"
+msgstr "복구하지 않은 수정 내용이 이 브라우저에서 삭제됩니다."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/EditPostEditor.tsx:374
+msgid "editor.recovery.confirm_delete_title"
+msgstr "수정 백업 삭제"
+
+#. js-lingui-explicit-id
 #: src/components/remotes/PostEditor/components/EditRecoveryNotice.tsx:68
+#: src/components/remotes/PostEditor/EditPostEditor.tsx:382
 msgid "editor.recovery.delete_backup"
 msgstr "백업 삭제"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/EditPostEditor.tsx:399
+msgid "editor.recovery.deleted"
+msgstr "수정 백업을 삭제했습니다."
 
 #. js-lingui-explicit-id
 #: src/components/remotes/PostEditor/components/EditRecoveryNotice.tsx:45
@@ -450,6 +692,18 @@ msgstr "마지막 백업"
 #: src/components/remotes/PostEditor/components/EditRecoveryNotice.tsx:60
 msgid "editor.recovery.recover"
 msgstr "복구"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/EditPostEditor.tsx:487
+#: src/components/remotes/PostEditor/EditPostEditor.tsx:616
+#: src/components/remotes/PostEditor/EditPostEditor.tsx:653
+msgid "editor.recovery.resolve_first"
+msgstr "수정 백업을 먼저 복구하거나 삭제해주세요."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/EditPostEditor.tsx:364
+msgid "editor.recovery.success"
+msgstr "백업 내용을 복구했습니다. 수정 버튼을 눌러 저장해주세요."
 
 #. js-lingui-explicit-id
 #: src/components/remotes/PostEditor/components/EditRecoveryNotice.tsx:40
@@ -606,6 +860,11 @@ msgid "editor.revisions.restore_this"
 msgstr "이 수정본으로 복원"
 
 #. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/EditPostEditor.tsx:623
+msgid "editor.revisions.save_changes_first"
+msgstr "변경 사항을 먼저 수정한 뒤 수정 이력을 확인해주세요."
+
+#. js-lingui-explicit-id
 #: src/components/remotes/PostEditor/components/PostRevisionDialog.tsx:234
 msgid "editor.revisions.success.deleted"
 msgstr "수정 이력을 삭제했습니다."
@@ -621,6 +880,8 @@ msgid "editor.revisions.tags_aria_label"
 msgstr "수정본 태그"
 
 #. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/components/PostActions.tsx:153
+#: src/components/remotes/PostEditor/components/PostActions.tsx:157
 #: src/components/remotes/PostEditor/components/PostRevisionDialog.tsx:339
 msgid "editor.revisions.title"
 msgstr "수정 이력"
@@ -634,6 +895,109 @@ msgstr "{totalCount, plural, other {총 #개의 수정 이력}}"
 #: src/components/remotes/PostEditor/components/PostRevisionDialog.tsx:558
 msgid "editor.revisions.version_conflict"
 msgstr "이 페이지를 연 뒤 포스트가 변경되었습니다. 새로고침한 뒤 복원해주세요."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/EditPostEditor.tsx:683
+#: src/components/remotes/PostEditor/EditPostEditor.tsx:691
+msgid "editor.schedule.cancel"
+msgstr "예약 취소"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/EditPostEditor.tsx:687
+msgid "editor.schedule.cancel_description"
+msgstr "예약을 취소하고 임시글로 되돌립니다. 내용과 설정은 유지되며 공개 화면에는 노출되지 않습니다."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/EditPostEditor.tsx:703
+#: src/components/remotes/PostEditor/EditPostEditor.tsx:717
+msgid "editor.schedule.error.cancel"
+msgstr "예약 취소에 실패했습니다."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/EditPostEditor.tsx:756
+#: src/components/remotes/PostEditor/EditPostEditor.tsx:770
+msgid "editor.schedule.error.publish_now"
+msgstr "즉시 발행에 실패했습니다."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/EditPostEditor.tsx:731
+#: src/components/remotes/PostEditor/EditPostEditor.tsx:744
+msgid "editor.schedule.publish_now"
+msgstr "지금 발행"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/EditPostEditor.tsx:736
+msgid "editor.schedule.publish_now_private_description"
+msgstr "예약 시간을 기다리지 않고 비공개 상태로 발행합니다. 작성자 외에는 볼 수 없습니다."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/EditPostEditor.tsx:740
+msgid "editor.schedule.publish_now_public_description"
+msgstr "예약 시간을 기다리지 않고 지금 공개합니다. 연결된 알림 채널에도 발행 소식이 전송됩니다."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/EditPostEditor.tsx:661
+msgid "editor.schedule.save_changes_first"
+msgstr "변경 사항을 먼저 수정한 뒤 예약 상태를 변경해주세요."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/components/PostActions.tsx:171
+#: src/components/remotes/PostEditor/components/PostActions.tsx:175
+msgid "editor.settings.title"
+msgstr "게시 설정"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/EditPostEditor.tsx:584
+msgid "editor.trash.confirm"
+msgstr "휴지통으로 이동"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/EditPostEditor.tsx:576
+msgid "editor.trash.title"
+msgstr "휴지통으로 이동"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/NewPostEditor.tsx:389
+msgid "editor.unsaved.switch_draft"
+msgstr "이동"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/NewPostEditor.tsx:385
+msgid "editor.unsaved.switch_draft_description"
+msgstr "현재 작성 중인 내용이 저장되지 않았습니다. 다른 임시 포스트로 이동하시겠습니까?"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/NewPostEditor.tsx:381
+msgid "editor.unsaved.title"
+msgstr "저장되지 않은 변경사항"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/hooks/useFormSubmit.ts:58
+msgid "editor.validation.content_required"
+msgstr "내용을 입력해주세요."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/EditPostEditor.tsx:474
+#: src/components/remotes/PostEditor/hooks/useFormSubmit.ts:84
+msgid "editor.validation.schedule_future"
+msgstr "예약 시간은 현재 시간 이후로 선택해주세요."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/EditPostEditor.tsx:466
+#: src/components/remotes/PostEditor/hooks/useFormSubmit.ts:76
+msgid "editor.validation.schedule_invalid"
+msgstr "예약 시간을 확인해주세요."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/EditPostEditor.tsx:457
+#: src/components/remotes/PostEditor/hooks/useFormSubmit.ts:50
+msgid "editor.validation.title_required"
+msgstr "제목을 입력해주세요."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/hooks/useFormSubmit.ts:67
+msgid "editor.validation.url_required"
+msgstr "URL 주소를 입력해주세요."
 
 #. js-lingui-explicit-id
 #: src/components/remotes/LoginPrompt/LoginPrompt.tsx:116
