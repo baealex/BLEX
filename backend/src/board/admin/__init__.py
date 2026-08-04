@@ -17,6 +17,9 @@ from django.db.models.functions import Substr
 from django.utils.text import Truncator
 from django.utils.translation import gettext_lazy as _
 
+from board.services.bulk_notification_audit_message_service import (
+    BulkNotificationAuditMessageService,
+)
 from board.services.utility_cleanup_audit_service import UtilityCleanupAuditService
 
 from .mixins import is_admin_changelist_request
@@ -114,6 +117,11 @@ class LogEntryAdmin(admin.ModelAdmin):
 
         if utility_label := cls.utility_action_labels.get(change_message):
             return str(utility_label)
+
+        if bulk_notification_message := (
+            BulkNotificationAuditMessageService.localize(change_message)
+        ):
+            return bulk_notification_message
 
         if change_message.startswith('['):
             formatted_message = LogEntry(

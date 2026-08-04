@@ -199,11 +199,11 @@ class NotificationCreationServiceTestCase(TestCase):
             )
 
         audit_log.refresh_from_db()
-        self.assertIn('처리 완료', audit_log.change_message)
-        self.assertIn('대상 2명', audit_log.change_message)
-        self.assertIn('생성 1명', audit_log.change_message)
-        self.assertIn('중복 1명', audit_log.change_message)
-        self.assertIn('실패 0명', audit_log.change_message)
+        self.assertEqual(
+            audit_log.change_message,
+            'Admin bulk notification delivery completed: requested 2; '
+            'created 1; duplicates 1; failures 0.',
+        )
         self.assertNotIn('/bulk-private', audit_log.change_message)
         self.assertNotIn('Bulk private content', audit_log.change_message)
 
@@ -225,8 +225,10 @@ class NotificationCreationServiceTestCase(TestCase):
                     )
 
         audit_log.refresh_from_db()
-        self.assertIn('처리 실패', audit_log.change_message)
-        self.assertIn('대상 2명', audit_log.change_message)
+        self.assertEqual(
+            audit_log.change_message,
+            'Admin bulk notification delivery failed: requested 2.',
+        )
         log_output = ' '.join(logs.output)
         self.assertNotIn('private provider failure', log_output)
         self.assertNotIn('/bulk-private', log_output)

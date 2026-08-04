@@ -8,6 +8,9 @@ from django.test.utils import CaptureQueriesContext
 from django.urls import resolve, reverse
 from django.utils import translation
 
+from board.services.bulk_notification_audit_message_service import (
+    BulkNotificationAuditMessageService,
+)
 from board.services.utility_cleanup_audit_service import UtilityCleanupAuditService
 
 
@@ -92,3 +95,23 @@ class AuditLogAdminTestCase(TestCase):
 
         self.assertEqual(details, '사용하지 않는 이미지 정리 실행')
         self.assertEqual(len(queries), 0)
+
+    def test_bulk_notification_audit_copy_is_localized_at_display_time(self):
+        model_admin = admin.site._registry[LogEntry]
+        stored_message = BulkNotificationAuditMessageService.completed(
+            requested=2,
+            created=1,
+            duplicates=1,
+            failures=0,
+        )
+
+        with translation.override('en'):
+            english_message = model_admin.format_change_message(stored_message)
+        with translation.override('ko'):
+            korean_message = model_admin.format_change_message(stored_message)
+
+        self.assertEqual(english_message, stored_message)
+        self.assertEqual(
+            korean_message,
+            'Admin 전체 알림 발송 완료: 대상 2명; 생성 1명; 중복 1명; 실패 0명.',
+        )

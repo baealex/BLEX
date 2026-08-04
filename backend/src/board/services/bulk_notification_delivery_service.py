@@ -9,6 +9,9 @@ from django.contrib.auth.models import User
 
 from modules.sub_task import SubTaskProcessor
 
+from board.services.bulk_notification_audit_message_service import (
+    BulkNotificationAuditMessageService,
+)
 from board.services.notification_creation_service import (
     NotificationCreationService,
 )
@@ -122,12 +125,11 @@ class BulkNotificationDeliveryService:
         if audit_log_id is None:
             return
 
-        message = (
-            'Admin 전체 알림 발송 처리 완료: '
-            f'대상 {stats.requested_count}명, '
-            f'생성 {stats.success_count}명, '
-            f'중복 {stats.duplicate_count}명, '
-            f'실패 {stats.failure_count}명'
+        message = BulkNotificationAuditMessageService.completed(
+            requested=stats.requested_count,
+            created=stats.success_count,
+            duplicates=stats.duplicate_count,
+            failures=stats.failure_count,
         )
         BulkNotificationDeliveryService._update_audit_message(
             audit_log_id,
@@ -145,7 +147,9 @@ class BulkNotificationDeliveryService:
 
         BulkNotificationDeliveryService._update_audit_message(
             audit_log_id,
-            f'Admin 전체 알림 발송 처리 실패: 대상 {requested_count}명',
+            BulkNotificationAuditMessageService.failed(
+                requested=requested_count,
+            ),
         )
 
     @staticmethod

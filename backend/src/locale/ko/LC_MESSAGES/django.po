@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: BLEX 3.1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-08-05 07:25+0900\n"
+"POT-Creation-Date: 2026-08-05 07:31+0900\n"
 "PO-Revision-Date: 2026-07-18 00:00+0900\n"
 "Last-Translator: BLEX contributors\n"
 "Language-Team: Korean\n"
@@ -12,51 +12,51 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
 
-#: board/admin/__init__.py:26 board/admin/__init__.py:128
+#: board/admin/__init__.py:29 board/admin/__init__.py:136
 msgid "Record type"
 msgstr "기록 유형"
 
-#: board/admin/__init__.py:31 board/admin/__init__.py:131
+#: board/admin/__init__.py:34 board/admin/__init__.py:139
 msgid "Utility execution"
 msgstr "유틸리티 실행"
 
-#: board/admin/__init__.py:32
+#: board/admin/__init__.py:35
 msgid "Other admin activity"
 msgstr "기타 관리자 작업"
 
-#: board/admin/__init__.py:52
+#: board/admin/__init__.py:55
 msgid "Started unused image cleanup"
 msgstr "사용하지 않는 이미지 정리 시작"
 
-#: board/admin/__init__.py:53
+#: board/admin/__init__.py:56
 msgid "Executed unused tag cleanup"
 msgstr "사용하지 않는 태그 정리 실행"
 
-#: board/admin/__init__.py:54
+#: board/admin/__init__.py:57
 msgid "Executed session cleanup"
 msgstr "세션 정리 실행"
 
-#: board/admin/__init__.py:55
+#: board/admin/__init__.py:58
 msgid "Executed expired log cleanup"
 msgstr "만료 로그 정리 실행"
 
-#: board/admin/__init__.py:56
+#: board/admin/__init__.py:59
 msgid "Executed unused image cleanup"
 msgstr "사용하지 않는 이미지 정리 실행"
 
-#: board/admin/__init__.py:123
+#: board/admin/__init__.py:131
 msgid "Detailed field changes"
 msgstr "상세 필드 변경"
 
-#: board/admin/__init__.py:134 board/admin/webhook.py:114
+#: board/admin/__init__.py:142 board/admin/webhook.py:114
 msgid "Target"
 msgstr "대상"
 
-#: board/admin/__init__.py:137
+#: board/admin/__init__.py:145
 msgid "System utilities"
 msgstr "시스템 유틸리티"
 
-#: board/admin/__init__.py:140 board/admin/__init__.py:150
+#: board/admin/__init__.py:148 board/admin/__init__.py:158
 msgid "Action details"
 msgstr "작업 내용"
 
@@ -1621,29 +1621,29 @@ msgstr "알림"
 msgid "Notifications"
 msgstr "알림"
 
-#: board/models/integrations.py:75
+#: board/models/integrations.py:76
 msgid "Telegram connection"
 msgstr "텔레그램 연동"
 
-#: board/models/integrations.py:76
+#: board/models/integrations.py:77
 msgid "Telegram connections"
 msgstr "텔레그램 연동"
 
-#: board/models/integrations.py:192
+#: board/models/integrations.py:193
 msgctxt "Site content scope"
 msgid "User"
 msgstr "사용자"
 
-#: board/models/integrations.py:193
+#: board/models/integrations.py:194
 msgctxt "Site content scope"
 msgid "Global"
 msgstr "전역"
 
-#: board/models/integrations.py:239
+#: board/models/integrations.py:240
 msgid "Webhook subscription"
 msgstr "웹훅 구독"
 
-#: board/models/integrations.py:240
+#: board/models/integrations.py:241
 msgid "Webhook subscriptions"
 msgstr "웹훅 구독"
 
@@ -1990,6 +1990,16 @@ msgstr "ICO 파일 형식을 확인해주세요."
 #: board/services/brand_asset_service.py:556
 msgid "Could not read the ICO file."
 msgstr "ICO 파일을 읽을 수 없습니다."
+
+#: board/services/bulk_notification_audit_message_service.py:10
+#, python-format
+msgid "Admin bulk notification delivery completed: requested %(requested)d; created %(created)d; duplicates %(duplicates)d; failures %(failures)d."
+msgstr "Admin 전체 알림 발송 완료: 대상 %(requested)d명; 생성 %(created)d명; 중복 %(duplicates)d명; 실패 %(failures)d명."
+
+#: board/services/bulk_notification_audit_message_service.py:14
+#, python-format
+msgid "Admin bulk notification delivery failed: requested %(requested)d."
+msgstr "Admin 전체 알림 발송 실패: 대상 %(requested)d명."
 
 #: board/services/comment_service.py:87 board/services/comment_service.py:184
 #: board/views/post_actions.py:22
