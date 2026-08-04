@@ -82,18 +82,18 @@ class EmailChangeAdmin(
 
     def user_link(self, obj: EmailChange):
         return AdminLinkService.create_user_link(obj.user)
-    user_link.short_description = '사용자'
+    user_link.short_description = _('User')
     user_link.admin_order_field = 'user__username'
 
     def token_status(self, obj: EmailChange):
         return AdminDisplayService.boolean_badge(
             True,
-            true_text='비공개',
+            true_text=_('Private'),
         )
-    token_status.short_description = '인증 토큰'
+    token_status.short_description = _('Authentication token')
 
     @admin.action(
-        description='선택한 이메일 변경 요청 취소',
+        description=_('Cancel selected email change requests'),
         permissions=['delete'],
     )
     def cancel_email_changes(
@@ -105,7 +105,7 @@ class EmailChangeAdmin(
             if not queryset.exists():
                 self.message_user(
                     request,
-                    '취소할 이메일 변경 요청이 없습니다.',
+                    _('There are no email change requests to cancel.'),
                     level=messages.WARNING,
                 )
                 return None
@@ -114,12 +114,13 @@ class EmailChangeAdmin(
                 self,
                 queryset,
                 action_name='cancel_email_changes',
-                title='이메일 변경 요청 취소 확인',
-                warning=(
-                    '선택한 대기 요청과 인증 토큰만 삭제됩니다. 사용자의 '
-                    '현재 이메일은 바뀌지 않습니다.'
+                title=_('Confirm email change request cancellation'),
+                warning=_(
+                    'Only the selected pending requests and authentication '
+                    'tokens will be deleted. The users’ current email '
+                    'addresses will not change.'
                 ),
-                confirm_label='변경 요청 취소',
+                confirm_label=_('Cancel change requests'),
             )
 
         cancelled = 0
@@ -136,13 +137,21 @@ class EmailChangeAdmin(
 
         self.message_user(
             request,
-            f'{cancelled}개의 이메일 변경 요청을 취소했습니다.',
+            ngettext(
+                '%(count)d email change request was cancelled.',
+                '%(count)d email change requests were cancelled.',
+                cancelled,
+            ) % {'count': cancelled},
             level=messages.SUCCESS,
         )
         if failed:
             self.message_user(
                 request,
-                f'{failed}개는 이미 처리되어 취소하지 못했습니다.',
+                ngettext(
+                    '%(count)d request could not be cancelled because it had already been processed.',
+                    '%(count)d requests could not be cancelled because they had already been processed.',
+                    failed,
+                ) % {'count': failed},
                 level=messages.WARNING,
             )
         return None
@@ -166,7 +175,7 @@ class UsernameChangeLogAdmin(ReadOnlyRecordAdminMixin, admin.ModelAdmin):
 
     def user_link(self, obj: UsernameChangeLog):
         return AdminLinkService.create_user_link(obj.user)
-    user_link.short_description = '현재 사용자'
+    user_link.short_description = _('Current user')
     user_link.admin_order_field = 'user__username'
 
 
@@ -593,8 +602,8 @@ class UserConfigMetaAdmin(admin.ModelAdmin):
         )
         value = forms.ChoiceField(
             choices=[
-                ('true', '활성'),
-                ('false', '비활성'),
+                ('true', _('Active')),
+                ('false', _('Inactive')),
             ],
         )
 
@@ -623,7 +632,7 @@ class UserConfigMetaAdmin(admin.ModelAdmin):
 
     def user_link(self, obj):
         return AdminLinkService.create_user_link(obj.user)
-    user_link.short_description = 'user'
+    user_link.short_description = _('User')
 
 
 @admin.register(UserLinkMeta)
@@ -642,7 +651,7 @@ class UserLinkMetaAdmin(admin.ModelAdmin):
 
     def user_link(self, obj):
         return AdminLinkService.create_user_link(obj.user)
-    user_link.short_description = 'user'
+    user_link.short_description = _('User')
 
     def get_form(self, request, obj=None, **kwargs):
         if obj:
@@ -656,10 +665,10 @@ class ConfigAdmin(admin.ModelAdmin):
     show_full_result_count = False
 
     fieldsets = (
-        ('사용자 정보', {
+        (_('User information'), {
             'fields': ('user',),
         }),
-        ('설정 미리보기', {
+        (_('Settings preview'), {
             'fields': ('configs_preview',),
         }),
     )
@@ -668,7 +677,11 @@ class ConfigAdmin(admin.ModelAdmin):
     def configs_preview(self, obj):
         configs = obj.user.conf_meta.all()
         if not configs:
-            return format_html('<p style="color: {};">설정 없음</p>', COLOR_MUTED)
+            return format_html(
+                '<p style="color: {};">{}</p>',
+                COLOR_MUTED,
+                _('No settings'),
+            )
 
         config_items = format_html_join(
             '',
@@ -720,7 +733,7 @@ class ConfigAdmin(admin.ModelAdmin):
 
     def user_link(self, obj):
         return AdminLinkService.create_user_link(obj.user)
-    user_link.short_description = '사용자'
+    user_link.short_description = _('User')
 
     def telegram_status(self, obj):
         linked = getattr(obj, 'telegram_linked', None)
@@ -728,10 +741,10 @@ class ConfigAdmin(admin.ModelAdmin):
             linked = obj.has_telegram_id()
         return AdminDisplayService.boolean_badge(
             linked,
-            true_text='연동됨',
-            false_text='미연동'
+            true_text=_('Connected'),
+            false_text=_('Not connected')
         )
-    telegram_status.short_description = '텔레그램'
+    telegram_status.short_description = _('Telegram')
 
     def two_factor_status(self, obj):
         enabled = getattr(obj, 'two_factor_enabled', None)
@@ -739,8 +752,8 @@ class ConfigAdmin(admin.ModelAdmin):
             enabled = obj.has_two_factor_auth()
         return AdminDisplayService.boolean_badge(
             enabled,
-            true_text='활성화',
-            false_text='비활성화'
+            true_text=_('Enabled'),
+            false_text=_('Disabled')
         )
     two_factor_status.short_description = '2FA'
 

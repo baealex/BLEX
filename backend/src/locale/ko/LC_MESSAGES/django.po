@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: BLEX 3.1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-08-05 06:48+0900\n"
+"POT-Creation-Date: 2026-08-05 06:51+0900\n"
 "PO-Revision-Date: 2026-07-18 00:00+0900\n"
 "Last-Translator: BLEX contributors\n"
 "Language-Team: Korean\n"
@@ -62,11 +62,12 @@ msgstr "작업 내용"
 
 #: board/admin/auth.py:103 board/admin/auth.py:246 board/admin/connection.py:52
 #: board/admin/form.py:46 board/admin/notify.py:160 board/admin/post.py:143
-#: board/admin/user.py:859
+#: board/admin/user.py:85 board/admin/user.py:635 board/admin/user.py:654
+#: board/admin/user.py:736 board/admin/user.py:872
 msgid "User"
 msgstr "사용자"
 
-#: board/admin/auth.py:109
+#: board/admin/auth.py:109 board/admin/user.py:755
 msgid "Enabled"
 msgstr "활성화됨"
 
@@ -247,7 +248,7 @@ msgstr "콘텐츠"
 msgid "Preview"
 msgstr "미리보기"
 
-#: board/admin/comment.py:63 board/admin/post.py:235 board/admin/user.py:785
+#: board/admin/comment.py:63 board/admin/post.py:235 board/admin/user.py:798
 msgid "Statistics"
 msgstr "통계"
 
@@ -360,7 +361,7 @@ msgid "%(count)d comment was marked as deleted."
 msgid_plural "%(count)d comments were marked as deleted."
 msgstr[0] "%(count)d개의 댓글을 삭제 상태로 전환했습니다."
 
-#: board/admin/connection.py:57
+#: board/admin/connection.py:57 board/admin/user.py:744
 msgid "Connected"
 msgstr "연동됨"
 
@@ -381,7 +382,7 @@ msgstr "발급됨"
 msgid "None"
 msgstr "없음"
 
-#: board/admin/connection.py:69
+#: board/admin/connection.py:69 board/admin/user.py:93
 msgid "Authentication token"
 msgstr "인증 토큰"
 
@@ -837,6 +838,7 @@ msgstr "포스트 상태"
 
 #: board/admin/revision.py:30 board/admin/service.py:127
 #: board/admin/service.py:144 board/admin/service.py:297
+#: board/admin/user.py:605
 msgid "Active"
 msgstr "활성"
 
@@ -912,7 +914,7 @@ msgstr "공개"
 msgid "Edit"
 msgstr "편집"
 
-#: board/admin/series.py:128 board/admin/user.py:884 board/models/posts.py:157
+#: board/admin/series.py:128 board/admin/user.py:897 board/models/posts.py:157
 #: board/templates/board/author/author_posts.html:20
 #: board/templates/board/author/author_posts.html:21
 #: board/templates/board/author/components/featured_posts_section.html:9
@@ -1027,7 +1029,7 @@ msgid "Reader"
 msgstr "독자"
 
 #: board/admin/service.py:128 board/admin/service.py:145
-#: board/admin/service.py:297
+#: board/admin/service.py:297 board/admin/user.py:606
 msgid "Inactive"
 msgstr "비활성"
 
@@ -1153,163 +1155,223 @@ msgstr "Admin에서 작가 역할로 변경"
 msgid "Changed role to Reader in Admin"
 msgstr "Admin에서 독자 역할로 변경"
 
-#: board/admin/user.py:193 board/admin/user.py:767
+#: board/admin/user.py:91
+msgid "Private"
+msgstr "비공개"
+
+#: board/admin/user.py:96
+msgid "Cancel selected email change requests"
+msgstr "선택한 이메일 변경 요청 취소"
+
+#: board/admin/user.py:108
+msgid "There are no email change requests to cancel."
+msgstr "취소할 이메일 변경 요청이 없습니다."
+
+#: board/admin/user.py:117
+msgid "Confirm email change request cancellation"
+msgstr "이메일 변경 요청 취소 확인"
+
+#: board/admin/user.py:119
+msgid "Only the selected pending requests and authentication tokens will be deleted. The users’ current email addresses will not change."
+msgstr "선택한 대기 요청과 인증 토큰만 삭제됩니다. 사용자의 현재 이메일은 바뀌지 않습니다."
+
+#: board/admin/user.py:123
+msgid "Cancel change requests"
+msgstr "변경 요청 취소"
+
+#: board/admin/user.py:141
+#, python-format
+msgid "%(count)d email change request was cancelled."
+msgid_plural "%(count)d email change requests were cancelled."
+msgstr[0] "%(count)d개의 이메일 변경 요청을 취소했습니다."
+
+#: board/admin/user.py:151
+#, python-format
+msgid "%(count)d request could not be cancelled because it had already been processed."
+msgid_plural "%(count)d requests could not be cancelled because they had already been processed."
+msgstr[0] "%(count)d개는 이미 처리되어 취소하지 못했습니다."
+
+#: board/admin/user.py:178
+msgid "Current user"
+msgstr "현재 사용자"
+
+#: board/admin/user.py:202 board/admin/user.py:780
 msgid "Permission settings"
 msgstr "권한 설정"
 
-#: board/admin/user.py:196 board/admin/user.py:774
+#: board/admin/user.py:205 board/admin/user.py:787
 msgid "Profile information"
 msgstr "프로필 정보"
 
-#: board/admin/user.py:199 board/admin/user.py:781
+#: board/admin/user.py:208 board/admin/user.py:794
 msgid "Analytics settings"
 msgstr "통계 설정"
 
-#: board/admin/user.py:371 board/admin/user.py:863
+#: board/admin/user.py:380 board/admin/user.py:876
 msgid "Role"
 msgstr "역할"
 
-#: board/admin/user.py:376
+#: board/admin/user.py:385
 msgid "Post count"
 msgstr "포스트 수"
 
-#: board/admin/user.py:401
+#: board/admin/user.py:410
 msgid "Change selected users to Authors"
 msgstr "선택한 사용자를 작가로 변경"
 
-#: board/admin/user.py:417
+#: board/admin/user.py:426
 #, python-format
 msgid "%(count)d user was changed to an Author."
 msgid_plural "%(count)d users were changed to Authors."
 msgstr[0] "%(count)d명의 사용자를 작가로 변경했습니다."
 
-#: board/admin/user.py:424
+#: board/admin/user.py:433
 msgid "Change selected users to Readers"
 msgstr "선택한 사용자를 독자로 변경"
 
-#: board/admin/user.py:440
+#: board/admin/user.py:449
 #, python-format
 msgid "%(count)d user was changed to a Reader."
 msgid_plural "%(count)d users were changed to Readers."
 msgstr[0] "%(count)d명의 사용자를 독자로 변경했습니다."
 
-#: board/admin/user.py:462
+#: board/admin/user.py:471
 msgid "There are no users to activate."
 msgstr "활성화할 사용자가 없습니다."
 
-#: board/admin/user.py:464
+#: board/admin/user.py:473
 msgid "Login and API access will be restored for the selected accounts."
 msgstr "선택한 계정의 로그인과 API 접근을 다시 허용합니다."
 
-#: board/admin/user.py:467
+#: board/admin/user.py:476
 msgid "Confirm user activation"
 msgstr "사용자 활성화 확인"
 
-#: board/admin/user.py:468
+#: board/admin/user.py:477
 msgid "Activate users"
 msgstr "사용자 활성화"
 
-#: board/admin/user.py:469
+#: board/admin/user.py:478
 msgid "Activated account in Admin"
 msgstr "Admin에서 계정 활성화"
 
-#: board/admin/user.py:471
+#: board/admin/user.py:480
 msgid "There are no users to deactivate."
 msgstr "비활성화할 사용자가 없습니다."
 
-#: board/admin/user.py:473
+#: board/admin/user.py:482
 msgid "Login and API access will be blocked immediately for the selected accounts. The current administrator and the last active superuser will be skipped."
 msgstr "선택한 계정은 즉시 로그인과 API 접근이 차단됩니다. 현재 관리자와 마지막 활성 슈퍼유저는 건너뜁니다."
 
-#: board/admin/user.py:477
+#: board/admin/user.py:486
 msgid "Confirm user deactivation"
 msgstr "사용자 비활성화 확인"
 
-#: board/admin/user.py:478
+#: board/admin/user.py:487
 msgid "Deactivate users"
 msgstr "사용자 비활성화"
 
-#: board/admin/user.py:479
+#: board/admin/user.py:488
 msgid "Deactivated account in Admin"
 msgstr "Admin에서 계정 비활성화"
 
-#: board/admin/user.py:516
+#: board/admin/user.py:525
 #, python-format
 msgid "%(count)d user was activated."
 msgid_plural "%(count)d users were activated."
 msgstr[0] "%(count)d명의 사용자를 활성화했습니다."
 
-#: board/admin/user.py:522
+#: board/admin/user.py:531
 #, python-format
 msgid "%(count)d user was deactivated."
 msgid_plural "%(count)d users were deactivated."
 msgstr[0] "%(count)d명의 사용자를 비활성화했습니다."
 
-#: board/admin/user.py:534
+#: board/admin/user.py:543
 msgid "The currently signed-in administrator was not deactivated."
 msgstr "현재 로그인한 관리자 계정은 비활성화하지 않았습니다."
 
-#: board/admin/user.py:540
+#: board/admin/user.py:549
 msgid "The last active superuser was not deactivated."
 msgstr "마지막 활성 슈퍼유저 계정은 비활성화하지 않았습니다."
 
-#: board/admin/user.py:547
+#: board/admin/user.py:556
 #, python-format
 msgid "%(count)d administrator account was not changed."
 msgid_plural "%(count)d administrator accounts were not changed."
 msgstr[0] "관리자 계정 %(count)d명은 변경하지 않았습니다."
 
-#: board/admin/user.py:556
+#: board/admin/user.py:565
 msgid "Activate selected users"
 msgstr "선택한 사용자 활성화"
 
-#: board/admin/user.py:571
+#: board/admin/user.py:580
 msgid "Deactivate selected users"
 msgstr "선택한 사용자 비활성화"
 
-#: board/admin/user.py:764 board/admin/user.py:889
+#: board/admin/user.py:668 board/admin/user.py:777 board/admin/user.py:902
 msgid "User information"
 msgstr "사용자 정보"
 
-#: board/admin/user.py:770
+#: board/admin/user.py:671
+msgid "Settings preview"
+msgstr "설정 미리보기"
+
+#: board/admin/user.py:683
+msgid "No settings"
+msgstr "설정 없음"
+
+#: board/admin/user.py:745
+msgid "Not connected"
+msgstr "미연동"
+
+#: board/admin/user.py:747
+msgid "Telegram"
+msgstr "텔레그램"
+
+#: board/admin/user.py:756
+msgid "Disabled"
+msgstr "비활성화"
+
+#: board/admin/user.py:783
 msgid "EDITOR: write posts and view analytics / READER: read-only access"
 msgstr "EDITOR: 글 작성 및 통계 / READER: 읽기만 가능"
 
-#: board/admin/user.py:777
+#: board/admin/user.py:790
 msgid "About page"
 msgstr "소개 페이지"
 
-#: board/admin/user.py:867
+#: board/admin/user.py:880
 msgid "Avatar"
 msgstr "아바타"
 
-#: board/admin/user.py:871
+#: board/admin/user.py:884
 msgid "Cover image preview"
 msgstr "커버 이미지 미리보기"
 
-#: board/admin/user.py:879
+#: board/admin/user.py:892
 msgid "Analytics URL"
 msgstr "통계 URL"
 
-#: board/admin/user.py:893
+#: board/admin/user.py:906
 msgid "Total posts"
 msgstr "총 포스트 수"
 
-#: board/admin/user.py:916
+#: board/admin/user.py:929
 msgid "Change role to Author"
 msgstr "역할을 작가로 변경"
 
-#: board/admin/user.py:932
+#: board/admin/user.py:945
 #, python-format
 msgid "%(count)d profile was changed to an Author."
 msgid_plural "%(count)d profiles were changed to Authors."
 msgstr[0] "%(count)d명의 프로필을 작가로 변경했습니다."
 
-#: board/admin/user.py:939
+#: board/admin/user.py:952
 msgid "Change role to Reader"
 msgstr "역할을 독자로 변경"
 
-#: board/admin/user.py:955
+#: board/admin/user.py:968
 #, python-format
 msgid "%(count)d profile was changed to a Reader."
 msgid_plural "%(count)d profiles were changed to Readers."
