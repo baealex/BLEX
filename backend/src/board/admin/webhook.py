@@ -5,6 +5,8 @@ from django.contrib import admin, messages
 from django.db import transaction
 from django.db.models import QuerySet
 from django.http import HttpRequest
+from django.utils.translation import gettext_lazy as _
+from django.utils.translation import ngettext
 
 from board.models import WebhookSubscription
 from board.services.webhook_subscription_state_service import (
@@ -21,18 +23,18 @@ class WebhookSubscriptionAdminForm(forms.ModelForm):
     """Treat webhook URLs as write-only bearer credentials in Admin."""
 
     webhook_url = forms.URLField(
-        label='웹훅 URL',
+        label=_('Webhook URL'),
         max_length=500,
         required=False,
-        help_text=(
-            '기존 URL은 표시하지 않습니다. 변경할 때만 새 URL을 '
-            '입력하세요.'
+        help_text=_(
+            'The existing URL is not displayed. Enter a new URL only when '
+            'changing it.'
         ),
         widget=forms.PasswordInput(
             render_value=False,
             attrs={
                 'autocomplete': 'new-password',
-                'placeholder': '변경할 때만 입력',
+                'placeholder': _('Enter only to change'),
             },
         ),
     )
@@ -51,13 +53,15 @@ class WebhookSubscriptionAdminForm(forms.ModelForm):
         webhook_url = self.cleaned_data.get('webhook_url', '').strip()
         if webhook_url:
             if not WebhookUrlService.is_safe_url(webhook_url):
-                raise forms.ValidationError('내부 네트워크를 가리키는 웹훅 URL은 사용할 수 없습니다.')
+                raise forms.ValidationError(
+                    _('Webhook URLs pointing to internal networks are not allowed.'),
+                )
             return webhook_url
         if self.instance.pk is not None:
             return WebhookSubscription.objects.only('webhook_url').get(
                 pk=self.instance.pk,
             ).webhook_url
-        raise forms.ValidationError('웹훅 URL을 입력하세요.')
+        raise forms.ValidationError(_('Enter a webhook URL.'))
 
 
 @admin.register(WebhookSubscription)
@@ -105,9 +109,9 @@ class WebhookSubscriptionAdmin(admin.ModelAdmin):
 
     def author_link(self, obj: WebhookSubscription):
         if obj.author is None:
-            return AdminDisplayService.empty_placeholder('전체 사용자')
+            return AdminDisplayService.empty_placeholder(_('All users'))
         return AdminLinkService.create_user_link(obj.author.user)
-    author_link.short_description = '대상'
+    author_link.short_description = _('Target')
     author_link.admin_order_field = 'author__user__username'
 
     def get_readonly_fields(self, request, obj=None):
@@ -133,13 +137,13 @@ class WebhookSubscriptionAdmin(admin.ModelAdmin):
                     reset_failure_count=reset_failure_count,
                 )
                 if reset_failure_count:
-                    change_message = (
-                        'Admin에서 실패 횟수 초기화 및 웹훅 재활성화'
+                    change_message = _(
+                        'Reset failure count and reactivated webhook in Admin'
                     )
                 elif is_active:
-                    change_message = 'Admin에서 웹훅 활성화'
+                    change_message = _('Activated webhook in Admin')
                 else:
-                    change_message = 'Admin에서 웹훅 비활성화'
+                    change_message = _('Deactivated webhook in Admin')
                 self.log_change(
                     request,
                     subscription,
@@ -148,7 +152,7 @@ class WebhookSubscriptionAdmin(admin.ModelAdmin):
         return len(subscriptions)
 
     @admin.action(
-        description='실패 횟수 초기화 및 재활성화',
+        description=_('Reset failure count and reactivate'),
         permissions=['change'],
     )
     def reset_failure_count(
@@ -161,7 +165,7 @@ class WebhookSubscriptionAdmin(admin.ModelAdmin):
             if not targets.exists():
                 self.message_user(
                     request,
-                    '초기화하거나 재활성화할 웹훅이 없습니다.',
+                    _('There are no webhooks to reset or reactivate.'),
                     level=messages.WARNING,
                 )
                 return None
@@ -170,12 +174,12 @@ class WebhookSubscriptionAdmin(admin.ModelAdmin):
                 self,
                 targets,
                 action_name='reset_failure_count',
-                title='웹훅 실패 상태 초기화 확인',
-                warning=(
-                    '실패 횟수를 0으로 초기화하고 외부 URL 전송을 다시 '
-                    '활성화합니다.'
+                title=_('Confirm webhook failure reset'),
+                warning=_(
+                    'The failure count will be reset to zero and delivery to '
+                    'the external URL will be reactivated.'
                 ),
-                confirm_label='초기화 및 재활성화',
+                confirm_label=_('Reset and reactivate'),
             )
 
         count = self.set_subscription_state(
@@ -186,13 +190,17 @@ class WebhookSubscriptionAdmin(admin.ModelAdmin):
         )
         self.message_user(
             request,
-            f'{count}개의 웹훅을 초기화하고 재활성화했습니다.',
+            ngettext(
+                '%(count)d webhook was reset and reactivated.',
+                '%(count)d webhooks were reset and reactivated.',
+                count,
+            ) % {'count': count},
             level=messages.SUCCESS,
         )
         return None
 
     @admin.action(
-        description='선택한 웹훅 활성화',
+        description=_('Activate selected webhooks'),
         permissions=['change'],
     )
     def activate_subscriptions(
@@ -205,7 +213,7 @@ class WebhookSubscriptionAdmin(admin.ModelAdmin):
             if not targets.exists():
                 self.message_user(
                     request,
-                    '활성화할 웹훅이 없습니다.',
+                    _('There are no webhooks to activate.'),
                     level=messages.WARNING,
                 )
                 return None
@@ -214,12 +222,12 @@ class WebhookSubscriptionAdmin(admin.ModelAdmin):
                 self,
                 targets,
                 action_name='activate_subscriptions',
-                title='웹훅 활성화 확인',
-                warning=(
-                    '선택한 웹훅의 외부 URL로 다음 포스트 알림부터 '
-                    '전송을 다시 시작합니다. 실패 횟수는 유지됩니다.'
+                title=_('Confirm webhook activation'),
+                warning=_(
+                    'Delivery to the selected external webhook URLs will resume '
+                    'with the next post notification. Failure counts are kept.'
                 ),
-                confirm_label='웹훅 활성화',
+                confirm_label=_('Activate webhooks'),
             )
 
         count = self.set_subscription_state(
@@ -229,13 +237,17 @@ class WebhookSubscriptionAdmin(admin.ModelAdmin):
         )
         self.message_user(
             request,
-            f'{count}개의 웹훅을 활성화했습니다.',
+            ngettext(
+                '%(count)d webhook was activated.',
+                '%(count)d webhooks were activated.',
+                count,
+            ) % {'count': count},
             level=messages.SUCCESS,
         )
         return None
 
     @admin.action(
-        description='선택한 웹훅 비활성화',
+        description=_('Deactivate selected webhooks'),
         permissions=['change'],
     )
     def deactivate_subscriptions(
@@ -250,6 +262,10 @@ class WebhookSubscriptionAdmin(admin.ModelAdmin):
         )
         self.message_user(
             request,
-            f'{count}개의 웹훅을 비활성화했습니다.',
+            ngettext(
+                '%(count)d webhook was deactivated.',
+                '%(count)d webhooks were deactivated.',
+                count,
+            ) % {'count': count},
             level=messages.SUCCESS,
         )

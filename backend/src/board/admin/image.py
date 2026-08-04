@@ -1,5 +1,6 @@
 from django.contrib import admin
 from django.conf import settings
+from django.utils.translation import gettext_lazy as _
 
 from board.models import ImageCache
 
@@ -8,7 +9,7 @@ from .service import AdminDisplayService, AdminLinkService
 
 
 class ImageFilter(admin.SimpleListFilter):
-    title = '이미지 타입'
+    title = _('Image type')
     parameter_name = 'image_type'
 
     def lookups(self, request, model_admin):
@@ -46,7 +47,7 @@ class ImageCacheAdmin(ServiceOwnedRecordAdminMixin, admin.ModelAdmin):
 
     def user_link(self, obj):
         return AdminLinkService.create_user_link(obj.user)
-    user_link.short_description = '업로더'
+    user_link.short_description = _('Uploader')
     user_link.admin_order_field = 'user__username'
 
     def file_size(self, obj):
@@ -56,7 +57,7 @@ class ImageCacheAdmin(ServiceOwnedRecordAdminMixin, admin.ModelAdmin):
         elif size > 1024:
             return f'{round(size / 1024, 2)} KB'
         return f'{size} B'
-    file_size.short_description = '파일 크기'
+    file_size.short_description = _('File size')
     file_size.admin_order_field = 'size'
 
     def image(self, obj):
@@ -66,9 +67,9 @@ class ImageCacheAdmin(ServiceOwnedRecordAdminMixin, admin.ModelAdmin):
         if obj.path.endswith('.mp4'):
             return AdminDisplayService.video(media_path, image_size)
         return AdminDisplayService.image(media_path, image_size)
-    image.short_description = '미리보기'
+    image.short_description = _('Preview')
     image.admin_order_field = 'path'
 
     def open_image(self, obj):
         return AdminDisplayService.link(settings.MEDIA_URL + obj.path)
-    open_image.short_description = '열기'
+    open_image.short_description = _('Open')

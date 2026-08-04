@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: BLEX 3.1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-08-05 06:22+0900\n"
+"POT-Creation-Date: 2026-08-05 06:25+0900\n"
 "PO-Revision-Date: 2026-07-18 00:00+0900\n"
 "Last-Translator: BLEX contributors\n"
 "Language-Team: Korean\n"
@@ -48,7 +48,7 @@ msgstr "사용하지 않는 이미지 정리 실행"
 msgid "Detailed field changes"
 msgstr "상세 필드 변경"
 
-#: board/admin/__init__.py:134
+#: board/admin/__init__.py:134 board/admin/webhook.py:114
 msgid "Target"
 msgstr "대상"
 
@@ -59,6 +59,141 @@ msgstr "시스템 유틸리티"
 #: board/admin/__init__.py:140 board/admin/__init__.py:150
 msgid "Action details"
 msgstr "작업 내용"
+
+#: board/admin/auth.py:103 board/admin/auth.py:246 board/admin/connection.py:52
+#: board/admin/form.py:46 board/admin/notify.py:160
+msgid "User"
+msgstr "사용자"
+
+#: board/admin/auth.py:109
+msgid "Enabled"
+msgstr "활성화됨"
+
+#: board/admin/auth.py:111
+msgid "2FA status"
+msgstr "2FA 상태"
+
+#: board/admin/auth.py:114
+msgid "Disable 2FA for selected users"
+msgstr "선택한 사용자의 2FA 해제"
+
+#: board/admin/auth.py:126
+msgid "There are no 2FA settings to disable."
+msgstr "해제할 2FA 설정이 없습니다."
+
+#: board/admin/auth.py:135
+msgid "Confirm 2FA disable"
+msgstr "2FA 해제 확인"
+
+#: board/admin/auth.py:137
+msgid "The selected users' 2FA credentials will be deleted. The existing 24-hour disable restriction still applies."
+msgstr "선택한 사용자의 2FA 인증 정보가 삭제됩니다. 기존 24시간 해제 제한은 그대로 적용됩니다."
+
+#: board/admin/auth.py:140
+msgid "Disable 2FA"
+msgstr "2FA 해제"
+
+#: board/admin/auth.py:158
+#, python-format
+msgid "2FA was disabled for %(count)d user."
+msgid_plural "2FA was disabled for %(count)d users."
+msgstr[0] "%(count)d명의 2FA를 해제했습니다."
+
+#: board/admin/auth.py:168
+#, python-format
+msgid "%(count)d user could not be processed under the existing disable policy."
+msgid_plural "%(count)d users could not be processed under the existing disable policy."
+msgstr[0] "%(count)d명은 기존 해제 정책에 따라 처리하지 못했습니다."
+
+#: board/admin/auth.py:252 board/admin/auth.py:259
+msgid "Protected"
+msgstr "보호됨"
+
+#: board/admin/auth.py:254
+msgid "External identifier"
+msgstr "외부 식별자"
+
+#: board/admin/auth.py:261
+msgid "Provider raw data"
+msgstr "제공자 원본 데이터"
+
+#: board/admin/auth.py:264
+msgid "Disconnect selected social login connections"
+msgstr "선택한 소셜 로그인 연동 해제"
+
+#: board/admin/auth.py:276
+msgid "There are no social login connections to disconnect."
+msgstr "해제할 소셜 로그인 연동이 없습니다."
+
+#: board/admin/auth.py:285
+msgid "Confirm social login disconnection"
+msgstr "소셜 로그인 연동 해제 확인"
+
+#: board/admin/auth.py:287
+msgid "The selected external account connections will be deleted. Accounts without a usable password or another connection will be skipped."
+msgstr "선택한 외부 계정 연동이 삭제됩니다. 사용 가능한 비밀번호나 다른 연동이 없는 계정은 해제하지 않습니다."
+
+#: board/admin/auth.py:291
+msgid "Disconnect"
+msgstr "연동 해제"
+
+#: board/admin/auth.py:309
+#, python-format
+msgid "%(count)d social login connection was disconnected."
+msgid_plural "%(count)d social login connections were disconnected."
+msgstr[0] "%(count)d개의 소셜 로그인 연동을 해제했습니다."
+
+#: board/admin/auth.py:319
+#, python-format
+msgid "%(count)d connection was kept to preserve a login method."
+msgid_plural "%(count)d connections were kept to preserve a login method."
+msgstr[0] "%(count)d개는 로그인 수단을 보존하기 위해 해제하지 않았습니다."
+
+#: board/admin/connection.py:57
+msgid "Connected"
+msgstr "연동됨"
+
+#: board/admin/connection.py:58
+msgid "Pending connection"
+msgstr "연동 대기"
+
+#: board/admin/connection.py:60
+msgid "Connection status"
+msgstr "연동 상태"
+
+#: board/admin/connection.py:66
+msgid "Issued"
+msgstr "발급됨"
+
+#: board/admin/connection.py:67 board/admin/service.py:216
+#: board/admin/service.py:296 board/admin/service.py:492
+msgid "None"
+msgstr "없음"
+
+#: board/admin/connection.py:69
+msgid "Authentication token"
+msgstr "인증 토큰"
+
+#: board/admin/image.py:12
+msgid "Image type"
+msgstr "이미지 타입"
+
+#: board/admin/image.py:50
+msgid "Uploader"
+msgstr "업로더"
+
+#: board/admin/image.py:60
+msgid "File size"
+msgstr "파일 크기"
+
+#: board/admin/image.py:70 board/admin/service.py:223
+#: board/admin/service.py:232 board/templates/board/posts/post_detail.html:6
+msgid "Preview"
+msgstr "미리보기"
+
+#: board/admin/image.py:75 board/admin/service.py:473
+msgid "Open"
+msgstr "열기"
 
 #: board/admin/notify.py:70
 msgid "A notification with the same identity already exists."
@@ -94,10 +229,6 @@ msgstr "상태"
 #: board/admin/notify.py:133
 msgid "Metadata"
 msgstr "메타데이터"
-
-#: board/admin/notify.py:160
-msgid "User"
-msgstr "사용자"
 
 #: board/admin/notify.py:164 main/admin_site.py:24
 msgid "Content"
@@ -320,16 +451,6 @@ msgstr "공개"
 msgid "Advertisement"
 msgstr "광고"
 
-#: board/admin/service.py:216 board/admin/service.py:296
-#: board/admin/service.py:492
-msgid "None"
-msgstr "없음"
-
-#: board/admin/service.py:223 board/admin/service.py:232
-#: board/templates/board/posts/post_detail.html:6
-msgid "Preview"
-msgstr "미리보기"
-
 #: board/admin/service.py:255
 msgid "No cover image"
 msgstr "커버 이미지 없음"
@@ -382,13 +503,107 @@ msgstr "태그 없음"
 msgid "Expand/collapse HTML preview"
 msgstr "HTML 미리보기 펼치기/접기"
 
-#: board/admin/service.py:473
-msgid "Open"
-msgstr "열기"
-
 #: board/admin/service.py:497
 msgid "Error"
 msgstr "오류"
+
+#: board/admin/webhook.py:26
+msgid "Webhook URL"
+msgstr "웹훅 URL"
+
+#: board/admin/webhook.py:30
+msgid "The existing URL is not displayed. Enter a new URL only when changing it."
+msgstr "기존 URL은 표시하지 않습니다. 변경할 때만 새 URL을 입력하세요."
+
+#: board/admin/webhook.py:37
+msgid "Enter only to change"
+msgstr "변경할 때만 입력"
+
+#: board/admin/webhook.py:57
+msgid "Webhook URLs pointing to internal networks are not allowed."
+msgstr "내부 네트워크를 가리키는 웹훅 URL은 사용할 수 없습니다."
+
+#: board/admin/webhook.py:64
+msgid "Enter a webhook URL."
+msgstr "웹훅 URL을 입력하세요."
+
+#: board/admin/webhook.py:112
+msgid "All users"
+msgstr "전체 사용자"
+
+#: board/admin/webhook.py:141
+msgid "Reset failure count and reactivated webhook in Admin"
+msgstr "Admin에서 실패 횟수 초기화 및 웹훅 재활성화"
+
+#: board/admin/webhook.py:144
+msgid "Activated webhook in Admin"
+msgstr "Admin에서 웹훅 활성화"
+
+#: board/admin/webhook.py:146
+msgid "Deactivated webhook in Admin"
+msgstr "Admin에서 웹훅 비활성화"
+
+#: board/admin/webhook.py:155
+msgid "Reset failure count and reactivate"
+msgstr "실패 횟수 초기화 및 재활성화"
+
+#: board/admin/webhook.py:168
+msgid "There are no webhooks to reset or reactivate."
+msgstr "초기화하거나 재활성화할 웹훅이 없습니다."
+
+#: board/admin/webhook.py:177
+msgid "Confirm webhook failure reset"
+msgstr "웹훅 실패 상태 초기화 확인"
+
+#: board/admin/webhook.py:179
+msgid "The failure count will be reset to zero and delivery to the external URL will be reactivated."
+msgstr "실패 횟수를 0으로 초기화하고 외부 URL 전송을 다시 활성화합니다."
+
+#: board/admin/webhook.py:182
+msgid "Reset and reactivate"
+msgstr "초기화 및 재활성화"
+
+#: board/admin/webhook.py:194
+#, python-format
+msgid "%(count)d webhook was reset and reactivated."
+msgid_plural "%(count)d webhooks were reset and reactivated."
+msgstr[0] "%(count)d개의 웹훅을 초기화하고 재활성화했습니다."
+
+#: board/admin/webhook.py:203
+msgid "Activate selected webhooks"
+msgstr "선택한 웹훅 활성화"
+
+#: board/admin/webhook.py:216
+msgid "There are no webhooks to activate."
+msgstr "활성화할 웹훅이 없습니다."
+
+#: board/admin/webhook.py:225
+msgid "Confirm webhook activation"
+msgstr "웹훅 활성화 확인"
+
+#: board/admin/webhook.py:227
+msgid "Delivery to the selected external webhook URLs will resume with the next post notification. Failure counts are kept."
+msgstr "선택한 웹훅의 외부 URL로 다음 포스트 알림부터 전송을 다시 시작합니다. 실패 횟수는 유지됩니다."
+
+#: board/admin/webhook.py:230
+msgid "Activate webhooks"
+msgstr "웹훅 활성화"
+
+#: board/admin/webhook.py:241
+#, python-format
+msgid "%(count)d webhook was activated."
+msgid_plural "%(count)d webhooks were activated."
+msgstr[0] "%(count)d개의 웹훅을 활성화했습니다."
+
+#: board/admin/webhook.py:250
+msgid "Deactivate selected webhooks"
+msgstr "선택한 웹훅 비활성화"
+
+#: board/admin/webhook.py:266
+#, python-format
+msgid "%(count)d webhook was deactivated."
+msgid_plural "%(count)d webhooks were deactivated."
+msgstr[0] "%(count)d개의 웹훅을 비활성화했습니다."
 
 #: board/forms_initial_setup.py:24
 msgid "4–15 lowercase letters or numbers"
