@@ -432,6 +432,9 @@ class CommentTestCase(TestCase):
         })
 
         last_notify = Notify.objects.filter(user=author).last()
+        self.assertEqual(last_notify.message_key, 'post.commented')
+        self.assertEqual(last_notify.message_params['post_title'], 'Post')
+        self.assertEqual(last_notify.message_params['actor'], 'viewer')
         self.assertTrue(
             '@viewer' in last_notify.content and
             'Post' in last_notify.content

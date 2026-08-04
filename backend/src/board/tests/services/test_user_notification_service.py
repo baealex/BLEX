@@ -1,7 +1,7 @@
 from datetime import timedelta
 
 from django.test import TestCase
-from django.utils import timezone
+from django.utils import timezone, translation
 
 from board.constants.config_meta import CONFIG_TYPE
 from board.models import Config, Notify, Profile, User
@@ -82,6 +82,52 @@ class UserNotificationServiceTestCase(TestCase):
             for item in payload['config']
         }
         self.assertEqual(config_map[CONFIG_TYPE.NOTIFY_COMMENT_LIKE.value], True)
+
+    def test_system_copy_is_localized_without_changing_authored_copy(self):
+        system_notification = Notify.objects.create(
+            user=self.user,
+            key='system-message',
+            url='/system-message',
+            content='Stored fallback',
+            message_key='post.commented',
+            message_params={
+                'post_title': '작성자가 쓴 글',
+                'actor': 'commenter',
+                'comment_id': 42,
+            },
+        )
+        authored_notification = Notify.objects.create(
+            user=self.user,
+            key='authored-message',
+            url='/authored-message',
+            content='운영자가 직접 작성한 알림',
+        )
+
+        with translation.override('en'):
+            english_system = UserNotificationService.serialize_notification(
+                system_notification,
+            )['content']
+            english_authored = UserNotificationService.serialize_notification(
+                authored_notification,
+            )['content']
+        with translation.override('ko'):
+            korean_system = UserNotificationService.serialize_notification(
+                system_notification,
+            )['content']
+            korean_authored = UserNotificationService.serialize_notification(
+                authored_notification,
+            )['content']
+
+        self.assertEqual(
+            english_system,
+            '@commenter commented on "작성자가 쓴 글". #42',
+        )
+        self.assertEqual(
+            korean_system,
+            '"작성자가 쓴 글" 글에 @commenter님이 댓글을 남겼습니다. #42',
+        )
+        self.assertEqual(english_authored, '운영자가 직접 작성한 알림')
+        self.assertEqual(korean_authored, '운영자가 직접 작성한 알림')
 
     def test_update_settings_notify_config_skips_empty_and_converts_bool(self):
         put = type('QueryDict', (), {

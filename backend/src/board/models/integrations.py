@@ -19,6 +19,8 @@ class Notify(models.Model):
     key = models.CharField(max_length=44, unique=True)
     url = models.CharField(max_length=255)
     content = models.TextField()
+    message_key = models.CharField(max_length=64, blank=True, default='')
+    message_params = models.JSONField(blank=True, default=dict)
     has_read = models.BooleanField(default=False)
     created_date = models.DateTimeField(default=timezone.now)
     updated_date = models.DateTimeField(default=timezone.now)
@@ -38,9 +40,23 @@ class Notify(models.Model):
         return {
             'id': self.id,
             'user': self.user.username,
-            'content': self.content,
+            'content': self.localized_content(),
             'created_date': time_since(self.created_date)
         }
+
+    def localized_content(self) -> str:
+        if not self.message_key:
+            return self.content
+
+        from board.services.notification_message_service import (
+            NotificationMessageService,
+        )
+
+        return NotificationMessageService.render(
+            self.message_key,
+            self.message_params,
+            fallback=self.content,
+        )
 
     def time_since(self):
         return time_since(self.created_date)

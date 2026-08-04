@@ -29,7 +29,7 @@ class PostLikeActionTestCase(TestCase):
     def setUp(self):
         self.client.force_login(self.reader)
 
-    @patch('board.views.post_actions.create_notify')
+    @patch('board.views.post_actions.create_system_notify')
     def test_like_notifies_author_when_notification_setting_is_enabled(self, mock_notify):
         self.author_config.create_or_update_meta(CONFIG_TYPE.NOTIFY_POSTS_LIKE, 'true')
 
@@ -44,10 +44,14 @@ class PostLikeActionTestCase(TestCase):
         mock_notify.assert_called_once_with(
             user=self.author,
             url=self.post.get_absolute_url(),
-            content="'Like Action' 글을 @action-reader님께서 추천하였습니다.",
+            message_key='post.liked',
+            message_params={
+                'post_title': 'Like Action',
+                'actor': 'action-reader',
+            },
         )
 
-    @patch('board.views.post_actions.create_notify')
+    @patch('board.views.post_actions.create_system_notify')
     def test_like_does_not_notify_when_notification_setting_is_disabled(self, mock_notify):
         self.author_config.create_or_update_meta(CONFIG_TYPE.NOTIFY_POSTS_LIKE, 'false')
 
@@ -55,7 +59,7 @@ class PostLikeActionTestCase(TestCase):
 
         mock_notify.assert_not_called()
 
-    @patch('board.views.post_actions.create_notify')
+    @patch('board.views.post_actions.create_system_notify')
     def test_unlike_does_not_send_a_second_notification(self, mock_notify):
         self.author_config.create_or_update_meta(CONFIG_TYPE.NOTIFY_POSTS_LIKE, 'true')
 
@@ -69,7 +73,7 @@ class PostLikeActionTestCase(TestCase):
         })
         self.assertEqual(mock_notify.call_count, 1)
 
-    @patch('board.views.post_actions.create_notify')
+    @patch('board.views.post_actions.create_system_notify')
     def test_author_liking_own_post_does_not_notify(self, mock_notify):
         self.author_config.create_or_update_meta(CONFIG_TYPE.NOTIFY_POSTS_LIKE, 'true')
         self.client.force_login(self.author)

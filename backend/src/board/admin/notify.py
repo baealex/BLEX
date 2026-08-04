@@ -25,6 +25,7 @@ from board.models import Notify
 from board.services.bulk_notification_delivery_service import (
     BulkNotificationDeliveryService,
 )
+from board.services.notification_message_service import NotificationMessageService
 from board.services.notification_url_service import NotificationUrlService
 
 from .action_confirmation import render_action_confirmation
@@ -57,10 +58,21 @@ class NotifyAdminForm(forms.ModelForm):
         if user is None or url is None or content is None:
             return cleaned_data
 
+        if self.instance.message_key and 'content' not in self.changed_data:
+            identity = NotificationMessageService.identity(
+                self.instance.message_key,
+                self.instance.message_params,
+            )
+        else:
+            identity = content
+            if 'content' in self.changed_data:
+                self.instance.message_key = ''
+                self.instance.message_params = {}
+
         key = Notify.create_hash_key(
             user=user,
             url=url,
-            content=content,
+            content=identity,
         )
         duplicates = Notify.objects.filter(key=key)
         if self.instance.pk is not None:
@@ -160,7 +172,7 @@ class NotifyAdmin(admin.ModelAdmin):
     user_link.short_description = _('User')
 
     def content_preview(self, obj: Notify) -> str:
-        return truncatewords(obj.content, CONTENT_PREVIEW_WORDS)
+        return truncatewords(obj.localized_content(), CONTENT_PREVIEW_WORDS)
     content_preview.short_description = _('Content')
 
     def read_status(self, obj):

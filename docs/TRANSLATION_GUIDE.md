@@ -83,6 +83,19 @@ lists from `SUPPORTED_LOCALES`, so they do not need a separate update.
 - Read the result in context. Automated checks catch missing or invalid
   messages, but they cannot judge tone or natural wording.
 
+## Persisted notifications
+
+Do not store a completed, localized sentence for a system-generated
+notification. Store its stable message key and interpolation parameters through
+`create_system_notify`; the notification is rendered in the active language
+when it is read or delivered. Add new templates to
+`NotificationMessageService` using an English source sentence.
+
+Admin-authored announcements and welcome messages are content, not product
+copy. Continue to store and display them exactly as written through
+`create_notify`. Existing unstructured notifications also remain unchanged as
+fallback content.
+
 ## Required checks
 
 ```bash

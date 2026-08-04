@@ -16,8 +16,9 @@ from django.utils.translation import gettext
 
 from board.constants.config_meta import CONFIG_TYPE
 from board.models import Comment, Post
-from board.modules.notify import create_notify
+from board.modules.notify import create_system_notify
 from board.modules.response import ErrorCode
+from board.services.notification_message_service import NotificationMessageKey
 from board.services.public_post_service import PublicPostService
 from modules import markdown
 
@@ -252,15 +253,15 @@ class CommentService:
         if not post_author.config.get_meta(CONFIG_TYPE.NOTIFY_POSTS_COMMENT):
             return
 
-        send_notify_content = (
-            f"'{post.title}'글에 "
-            f"@{comment.author.username}님이 댓글을 남겼습니다. "
-            f"#{comment.pk}"
-        )
-        create_notify(
+        create_system_notify(
             user=post_author,
             url=post.get_absolute_url(),
-            content=send_notify_content
+            message_key=NotificationMessageKey.POST_COMMENTED,
+            message_params={
+                'post_title': post.title,
+                'actor': comment.author.username,
+                'comment_id': comment.pk,
+            },
         )
 
     @staticmethod
@@ -297,15 +298,15 @@ class CommentService:
             if not user.config.get_meta(CONFIG_TYPE.NOTIFY_MENTION):
                 continue
 
-            send_notify_content = (
-                f"'{post.title}' 글에서 "
-                f"@{comment.author.username}님이 "
-                f"회원님을 태그했습니다. #{comment.pk}"
-            )
-            create_notify(
+            create_system_notify(
                 user=user,
                 url=post.get_absolute_url(),
-                content=send_notify_content
+                message_key=NotificationMessageKey.COMMENT_MENTIONED,
+                message_params={
+                    'post_title': post.title,
+                    'actor': comment.author.username,
+                    'comment_id': comment.pk,
+                },
             )
 
     @staticmethod
@@ -320,15 +321,15 @@ class CommentService:
         if not comment.author.config.get_meta(CONFIG_TYPE.NOTIFY_COMMENT_LIKE):
             return
 
-        send_notify_content = (
-            f"'{comment.post.title}'글에 작성한 "
-            f"회원님의 #{comment.pk} 댓글을 "
-            f"@{liker.username}님께서 추천했습니다."
-        )
-        create_notify(
+        create_system_notify(
             user=comment.author,
             url=comment.post.get_absolute_url(),
-            content=send_notify_content
+            message_key=NotificationMessageKey.COMMENT_LIKED,
+            message_params={
+                'post_title': comment.post.title,
+                'actor': liker.username,
+                'comment_id': comment.pk,
+            },
         )
 
     @staticmethod
@@ -351,15 +352,15 @@ class CommentService:
         if not parent_author.config.get_meta(CONFIG_TYPE.NOTIFY_POSTS_COMMENT):
             return
 
-        send_notify_content = (
-            f"'{comment.post.title}'글에 작성한 "
-            f"회원님의 댓글에 @{comment.author.username}님이 "
-            f"답글을 남겼습니다. #{comment.pk}"
-        )
-        create_notify(
+        create_system_notify(
             user=parent_author,
             url=comment.post.get_absolute_url(),
-            content=send_notify_content
+            message_key=NotificationMessageKey.COMMENT_REPLIED,
+            message_params={
+                'post_title': comment.post.title,
+                'actor': comment.author.username,
+                'comment_id': comment.pk,
+            },
         )
 
     @staticmethod

@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: BLEX 3.1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-08-05 07:21+0900\n"
+"POT-Creation-Date: 2026-08-05 07:25+0900\n"
 "PO-Revision-Date: 2026-07-18 00:00+0900\n"
 "Last-Translator: BLEX contributors\n"
 "Language-Team: Korean\n"
@@ -61,7 +61,7 @@ msgid "Action details"
 msgstr "작업 내용"
 
 #: board/admin/auth.py:103 board/admin/auth.py:246 board/admin/connection.py:52
-#: board/admin/form.py:46 board/admin/notify.py:160 board/admin/post.py:143
+#: board/admin/form.py:46 board/admin/notify.py:172 board/admin/post.py:143
 #: board/admin/user.py:85 board/admin/user.py:635 board/admin/user.py:654
 #: board/admin/user.py:736 board/admin/user.py:872
 msgid "User"
@@ -198,20 +198,20 @@ msgid_plural "%(count)d items were deactivated."
 msgstr[0] "%(count)d개의 항목을 비활성화했습니다."
 
 #: board/admin/banner.py:146 board/admin/banner.py:215
-#: board/admin/comment.py:54 board/admin/notify.py:127 board/admin/post.py:218
+#: board/admin/comment.py:54 board/admin/notify.py:139 board/admin/post.py:218
 #: board/admin/series.py:118
 msgid "Basic information"
 msgstr "기본 정보"
 
 #: board/admin/banner.py:149 board/admin/banner.py:221
-#: board/admin/comment.py:175 board/admin/notify.py:130
+#: board/admin/comment.py:175 board/admin/notify.py:142
 #: board/admin/series.py:52 board/admin/series.py:206
 #: board/templates/board/developer_api_quickstart.html:121
 msgid "Status"
 msgstr "상태"
 
 #: board/admin/banner.py:152 board/admin/banner.py:224
-#: board/admin/notify.py:133 board/admin/series.py:131
+#: board/admin/notify.py:145 board/admin/series.py:131
 msgid "Metadata"
 msgstr "메타데이터"
 
@@ -224,13 +224,13 @@ msgid "Activation status"
 msgstr "활성화 상태"
 
 #: board/admin/banner.py:179 board/admin/banner.py:254
-#: board/admin/comment.py:203 board/admin/notify.py:183 board/admin/post.py:469
+#: board/admin/comment.py:203 board/admin/notify.py:195 board/admin/post.py:469
 #: board/admin/series.py:271
 msgid "Created at"
 msgstr "생성일시"
 
 #: board/admin/banner.py:183 board/admin/banner.py:258
-#: board/admin/notify.py:187 board/admin/post.py:473 board/admin/series.py:275
+#: board/admin/notify.py:199 board/admin/post.py:473 board/admin/series.py:275
 msgid "Updated at"
 msgstr "수정일시"
 
@@ -239,7 +239,7 @@ msgid "Banner settings"
 msgstr "배너 설정"
 
 #: board/admin/comment.py:57 board/admin/comment.py:147
-#: board/admin/notify.py:164 board/admin/series.py:124 main/admin_site.py:24
+#: board/admin/notify.py:176 board/admin/series.py:124 main/admin_site.py:24
 msgid "Content"
 msgstr "콘텐츠"
 
@@ -402,137 +402,137 @@ msgstr "파일 크기"
 msgid "Open"
 msgstr "열기"
 
-#: board/admin/notify.py:70
+#: board/admin/notify.py:82
 msgid "A notification with the same identity already exists."
 msgstr "이미 동일한 알림이 존재합니다."
 
-#: board/admin/notify.py:80
+#: board/admin/notify.py:92
 #: board/templates/admin/board/notify/bulk_send.html:33
 msgid "Link URL"
 msgstr "링크 URL"
 
-#: board/admin/notify.py:84
+#: board/admin/notify.py:96
 msgid "URL opened when the notification is clicked (default: /)"
 msgstr "알림 클릭 시 이동할 URL (기본값: /)"
 
-#: board/admin/notify.py:88
+#: board/admin/notify.py:100
 #: board/templates/admin/board/notify/bulk_send.html:39
 msgid "Notification content"
 msgstr "알림 내용"
 
-#: board/admin/notify.py:90
+#: board/admin/notify.py:102
 msgid "Message sent to every active user"
 msgstr "모든 활성 사용자에게 전송될 알림 메시지"
 
-#: board/admin/notify.py:168
+#: board/admin/notify.py:180
 msgid "Read status"
 msgstr "읽음 상태"
 
-#: board/admin/notify.py:176
+#: board/admin/notify.py:188
 msgid "Unsafe URL"
 msgstr "안전하지 않은 URL"
 
-#: board/admin/notify.py:205
+#: board/admin/notify.py:217
 msgid "Marked as read in Admin"
 msgstr "Admin에서 읽음 상태로 변경"
 
-#: board/admin/notify.py:207
+#: board/admin/notify.py:219
 msgid "Marked as unread in Admin"
 msgstr "Admin에서 읽지 않음 상태로 변경"
 
-#: board/admin/notify.py:220
+#: board/admin/notify.py:232
 msgid "Mark selected notifications as read"
 msgstr "선택한 알림을 읽음으로 표시"
 
-#: board/admin/notify.py:236
+#: board/admin/notify.py:248
 #, python-format
 msgid "%(count)d notification was marked as read."
 msgid_plural "%(count)d notifications were marked as read."
 msgstr[0] "%(count)d개의 알림을 읽음으로 표시했습니다."
 
-#: board/admin/notify.py:244
+#: board/admin/notify.py:256
 msgid "Mark selected notifications as unread"
 msgstr "선택한 알림을 읽지 않음으로 표시"
 
-#: board/admin/notify.py:260
+#: board/admin/notify.py:272
 #, python-format
 msgid "%(count)d notification was marked as unread."
 msgid_plural "%(count)d notifications were marked as unread."
 msgstr[0] "%(count)d개의 알림을 읽지 않음으로 표시했습니다."
 
-#: board/admin/notify.py:268
+#: board/admin/notify.py:280
 msgid "Resend selected notifications to external channels"
 msgstr "선택한 알림을 외부 채널로 재발송"
 
-#: board/admin/notify.py:280
+#: board/admin/notify.py:292
 msgid "There are no notifications to resend."
 msgstr "재발송할 알림이 없습니다."
 
-#: board/admin/notify.py:289
+#: board/admin/notify.py:301
 msgid "Confirm external notification resend"
 msgstr "외부 알림 재발송 확인"
 
-#: board/admin/notify.py:291
+#: board/admin/notify.py:303
 msgid "The selected notifications will be sent to their connected external channels again. Recipients may receive duplicates."
 msgstr "선택한 알림을 연결된 외부 채널로 다시 전송합니다. 수신자에게 중복 알림이 전달될 수 있습니다."
 
-#: board/admin/notify.py:294
+#: board/admin/notify.py:306
 msgid "Resend notifications"
 msgstr "외부 알림 재발송"
 
-#: board/admin/notify.py:305
+#: board/admin/notify.py:317
 msgid "Requested external notification resend in Admin"
 msgstr "Admin에서 외부 알림 재발송 요청"
 
-#: board/admin/notify.py:322
+#: board/admin/notify.py:334
 #, python-format
 msgid "%(count)d notification was resent to external channels."
 msgid_plural "%(count)d notifications were resent to external channels."
 msgstr[0] "%(count)d개의 알림을 외부 채널로 재발송했습니다."
 
-#: board/admin/notify.py:332
+#: board/admin/notify.py:344
 #, python-format
 msgid "%(count)d notification could not be resent."
 msgid_plural "%(count)d notifications could not be resent."
 msgstr[0] "%(count)d개의 알림은 재발송하지 못했습니다."
 
-#: board/admin/notify.py:375
+#: board/admin/notify.py:387
 msgid "The notification was saved but could not be sent to external channels."
 msgstr "알림은 저장했지만 외부 채널로 전송하지 못했습니다."
 
-#: board/admin/notify.py:427
+#: board/admin/notify.py:439
 msgid "There are no active users to notify."
 msgstr "발송할 활성 사용자가 없습니다."
 
-#: board/admin/notify.py:439
+#: board/admin/notify.py:451
 #, python-format
 msgid "Bulk notification delivery (%(count)d recipient)"
 msgid_plural "Bulk notification delivery (%(count)d recipients)"
 msgstr[0] "전체 알림 발송 (%(count)d명)"
 
-#: board/admin/notify.py:445
+#: board/admin/notify.py:457
 #, python-format
 msgid "Scheduled bulk notification delivery in Admin: %(count)d recipient"
 msgid_plural "Scheduled bulk notification delivery in Admin: %(count)d recipients"
 msgstr[0] "Admin 전체 알림 발송 예약: 대상 %(count)d명"
 
-#: board/admin/notify.py:472
+#: board/admin/notify.py:484
 #, python-format
 msgid "Failed to schedule bulk notification delivery in Admin: %(count)d recipient"
 msgid_plural "Failed to schedule bulk notification delivery in Admin: %(count)d recipients"
 msgstr[0] "Admin 전체 알림 발송 예약 실패: 대상 %(count)d명"
 
-#: board/admin/notify.py:481
+#: board/admin/notify.py:493
 msgid "Could not schedule the notification delivery job."
 msgstr "알림 발송 작업을 예약하지 못했습니다."
 
-#: board/admin/notify.py:489
+#: board/admin/notify.py:501
 #, python-format
 msgid "Notification delivery was scheduled for %(count)d recipient. Duplicate notifications will be skipped."
 msgid_plural "Notification delivery was scheduled for %(count)d recipients. Duplicate notifications will be skipped."
 msgstr[0] "%(count)d명 대상 알림 발송 작업을 예약했습니다. 동일한 알림은 건너뜁니다."
 
-#: board/admin/notify.py:503
+#: board/admin/notify.py:515
 #: board/templates/admin/board/notify/bulk_send.html:51
 #: board/templates/admin/board/notify/change_list.html:8
 msgid "Send a notification to all active users"
@@ -1611,39 +1611,39 @@ msgstr "소셜 로그인 연동"
 msgid "Social login connections"
 msgstr "소셜 로그인 연동"
 
-#: board/models/integrations.py:27
+#: board/models/integrations.py:29
 msgid "Notification"
 msgstr "알림"
 
-#: board/models/integrations.py:28
+#: board/models/integrations.py:30
 #: board/templates/admin/board/notify/bulk_send.html:9
 #: board/templates/components/header.html:144
 msgid "Notifications"
 msgstr "알림"
 
-#: board/models/integrations.py:60
+#: board/models/integrations.py:75
 msgid "Telegram connection"
 msgstr "텔레그램 연동"
 
-#: board/models/integrations.py:61
+#: board/models/integrations.py:76
 msgid "Telegram connections"
 msgstr "텔레그램 연동"
 
-#: board/models/integrations.py:177
+#: board/models/integrations.py:192
 msgctxt "Site content scope"
 msgid "User"
 msgstr "사용자"
 
-#: board/models/integrations.py:178
+#: board/models/integrations.py:193
 msgctxt "Site content scope"
 msgid "Global"
 msgstr "전역"
 
-#: board/models/integrations.py:224
+#: board/models/integrations.py:239
 msgid "Webhook subscription"
 msgstr "웹훅 구독"
 
-#: board/models/integrations.py:225
+#: board/models/integrations.py:240
 msgid "Webhook subscriptions"
 msgstr "웹훅 구독"
 
@@ -1655,11 +1655,11 @@ msgstr "댓글"
 msgid "Comments"
 msgstr "댓글"
 
-#: board/models/posts.py:50 board/services/comment_service.py:195
+#: board/models/posts.py:50 board/services/comment_service.py:196
 msgid "This comment has been deleted."
 msgstr "삭제된 댓글입니다."
 
-#: board/models/posts.py:78 board/services/comment_service.py:397
+#: board/models/posts.py:78 board/services/comment_service.py:398
 msgid "You cannot reply to a reply."
 msgstr "대댓글에는 답글을 달 수 없습니다."
 
@@ -1991,31 +1991,32 @@ msgstr "ICO 파일 형식을 확인해주세요."
 msgid "Could not read the ICO file."
 msgstr "ICO 파일을 읽을 수 없습니다."
 
-#: board/services/comment_service.py:86 board/services/comment_service.py:183
+#: board/services/comment_service.py:87 board/services/comment_service.py:184
+#: board/views/post_actions.py:22
 msgid "Log in to continue."
 msgstr "로그인이 필요합니다."
 
-#: board/services/comment_service.py:103
+#: board/services/comment_service.py:104
 msgid "Comments are disabled for this post."
 msgstr "댓글이 차단된 글입니다."
 
-#: board/services/comment_service.py:121
+#: board/services/comment_service.py:122
 msgid "The parent comment does not belong to this post."
 msgstr "부모 댓글이 대상 글에 속하지 않습니다."
 
-#: board/services/comment_service.py:129
+#: board/services/comment_service.py:130
 msgid "You cannot reply to a deleted comment."
 msgstr "삭제된 댓글에는 답글을 달 수 없습니다."
 
-#: board/services/comment_service.py:147
+#: board/services/comment_service.py:148
 msgid "You do not have permission to edit this comment."
 msgstr "댓글 수정 권한이 없습니다."
 
-#: board/services/comment_service.py:165
+#: board/services/comment_service.py:166
 msgid "You do not have permission to delete this comment."
 msgstr "댓글 삭제 권한이 없습니다."
 
-#: board/services/comment_service.py:189
+#: board/services/comment_service.py:190
 msgid "You cannot like your own comment."
 msgstr "자신의 댓글은 추천할 수 없습니다."
 
@@ -2112,6 +2113,31 @@ msgstr "텔레그램 봇 사용자명을 입력해주세요."
 #: board/services/integration_setting_service.py:125
 msgid "Enter a Telegram bot token."
 msgstr "텔레그램 봇 토큰을 입력해주세요."
+
+#: board/services/notification_message_service.py:20
+#, python-format
+msgid "@%(actor)s commented on \"%(post_title)s\". #%(comment_id)s"
+msgstr "\"%(post_title)s\" 글에 @%(actor)s님이 댓글을 남겼습니다. #%(comment_id)s"
+
+#: board/services/notification_message_service.py:23
+#, python-format
+msgid "@%(actor)s mentioned you in \"%(post_title)s\". #%(comment_id)s"
+msgstr "\"%(post_title)s\" 글에서 @%(actor)s님이 회원님을 태그했습니다. #%(comment_id)s"
+
+#: board/services/notification_message_service.py:26
+#, python-format
+msgid "@%(actor)s liked your comment #%(comment_id)s on \"%(post_title)s\"."
+msgstr "\"%(post_title)s\" 글에 작성한 회원님의 #%(comment_id)s 댓글을 @%(actor)s님이 추천했습니다."
+
+#: board/services/notification_message_service.py:29
+#, python-format
+msgid "@%(actor)s replied to your comment on \"%(post_title)s\". #%(comment_id)s"
+msgstr "\"%(post_title)s\" 글에 작성한 회원님의 댓글에 @%(actor)s님이 답글을 남겼습니다. #%(comment_id)s"
+
+#: board/services/notification_message_service.py:33
+#, python-format
+msgid "@%(actor)s liked \"%(post_title)s\"."
+msgstr "\"%(post_title)s\" 글을 @%(actor)s님이 추천했습니다."
 
 #: board/services/notification_url_service.py:21
 #: board/services/notification_url_service.py:32
