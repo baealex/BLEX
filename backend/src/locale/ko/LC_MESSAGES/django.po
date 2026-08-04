@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: BLEX 3.1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-08-04 22:15+0900\n"
+"POT-Creation-Date: 2026-08-04 22:40+0900\n"
 "PO-Revision-Date: 2026-07-18 00:00+0900\n"
 "Last-Translator: BLEX contributors\n"
 "Language-Team: Korean\n"
@@ -232,6 +232,11 @@ msgstr "사이트 배너"
 msgid "Site banners"
 msgstr "사이트 배너"
 
+#: board/modules/time.py:29
+#, python-format
+msgid "%(time)s ago"
+msgstr "%(time)s 전"
+
 #: board/templates/admin/board/confirm_action.html:11
 msgid "Home"
 msgstr "홈"
@@ -275,6 +280,37 @@ msgstr "읽는 시간"
 #, python-format
 msgid "%(minutes)s min read"
 msgstr "%(minutes)s분 소요"
+
+#: board/templates/board/posts/interested_posts.html:6
+msgid "You haven't liked any posts yet"
+msgstr "아직 관심 포스트가 없어요"
+
+#: board/templates/board/posts/interested_posts.html:7
+msgid "Posts you like will appear here."
+msgstr "추천 버튼을 눌러둔 포스트가 여기에 모입니다."
+
+#: board/templates/board/posts/interested_posts.html:8
+msgid "Explore posts"
+msgstr "포스트 둘러보기"
+
+#: board/templates/board/posts/interested_posts.html:11
+#: board/templates/board/posts/interested_posts.html:25
+#: board/templates/board/posts/post_list.html:22
+msgid "Liked posts"
+msgstr "관심 포스트"
+
+#: board/templates/board/posts/interested_posts.html:19
+#: board/templates/board/posts/post_detail.html:509
+msgid "All posts"
+msgstr "전체 포스트"
+
+#: board/templates/board/posts/interested_posts.html:24
+msgid "Posts you want to revisit"
+msgstr "내가 다시 보고 싶은 포스트"
+
+#: board/templates/board/posts/interested_posts.html:27
+msgid "Find all the posts you've liked, with your most recent likes first."
+msgstr "추천으로 관심 표시한 포스트를 최신 관심순으로 모아볼 수 있어요."
 
 #: board/templates/board/posts/post_detail.html:6
 msgid "Preview"
@@ -426,10 +462,6 @@ msgstr "읽는 중"
 msgid "Previous"
 msgstr "이전"
 
-#: board/templates/board/posts/post_detail.html:509
-msgid "All posts"
-msgstr "전체 포스트"
-
 #: board/templates/board/posts/post_detail.html:514
 #: board/templates/board/posts/post_detail.html:519
 msgid "Next"
@@ -445,6 +477,22 @@ msgstr "목차"
 #: board/templates/board/posts/post_detail.html:610
 msgid "Close table of contents"
 msgstr "목차 닫기"
+
+#: board/templates/board/posts/post_list.html:6
+msgid "No posts yet"
+msgstr "아직 포스트가 없어요"
+
+#: board/templates/board/posts/post_list.html:7
+msgid "Published posts will appear here."
+msgstr "공개된 포스트가 발행되면 이곳에 표시됩니다."
+
+#: board/templates/board/posts/post_list.html:8
+msgid "Write a post"
+msgstr "포스트 작성하기"
+
+#: board/templates/board/posts/post_list.html:11
+msgid "Latest posts"
+msgstr "최신 포스트"
 
 #: board/templates/board/search/search.html:6
 #, python-format
@@ -499,6 +547,7 @@ msgstr "로그아웃"
 #: board/templates/components/header.html:199
 #: board/templates/components/quick_search.html:20
 #: board/templates/components/quick_search.html:21
+#: board/templates/components/search_query_filter.html:39
 msgid "Search"
 msgstr "검색"
 
@@ -534,6 +583,64 @@ msgstr "좋아요"
 msgid "Could not update like. Please try again."
 msgstr "좋아요 처리에 실패했습니다. 다시 시도해주세요."
 
+#: board/templates/components/notice_carousel.html:33
+#: board/templates/components/notice_carousel.html:92
+msgctxt "Notice scope label"
+msgid "Blog notice"
+msgstr "블로그 공지"
+
+#: board/templates/components/notice_carousel.html:33
+#: board/templates/components/notice_carousel.html:92
+msgctxt "Notice scope label"
+msgid "Site notice"
+msgstr "전체 공지"
+
+#: board/templates/components/notice_carousel.html:56
+#: board/templates/components/notice_carousel.html:112
+msgid "Previous notice"
+msgstr "이전 공지"
+
+#: board/templates/components/notice_carousel.html:61
+#: board/templates/components/notice_carousel.html:117
+#, python-format
+msgid "View notice %(number)s"
+msgstr "%(number)s번째 공지 보기"
+
+#: board/templates/components/notice_carousel.html:68
+#: board/templates/components/notice_carousel.html:124
+msgid "Next notice"
+msgstr "다음 공지"
+
+#: board/templates/components/pagination.html:18
+msgid "Load more"
+msgstr "더 불러오기"
+
+#: board/templates/components/pagination.html:22
+msgid "Page navigation"
+msgstr "페이지 이동"
+
+#: board/templates/components/pagination.html:27
+msgid "First page"
+msgstr "첫 페이지"
+
+#: board/templates/components/pagination.html:33
+msgid "Previous page"
+msgstr "이전 페이지"
+
+#: board/templates/components/pagination.html:94
+msgid "Next page"
+msgstr "다음 페이지"
+
+#: board/templates/components/pagination.html:100
+msgid "Last page"
+msgstr "마지막 페이지"
+
+#: board/templates/components/post_card.html:41
+#, python-format
+msgid "%(minutes)s min"
+msgid_plural "%(minutes)s mins"
+msgstr[0] "%(minutes)s분"
+
 #: board/templates/components/quick_search.html:2
 msgid "Quick results"
 msgstr "빠른 결과"
@@ -561,6 +668,14 @@ msgstr "빠른 결과가 없습니다."
 #: board/templates/components/quick_search.html:122
 msgid "View all search results"
 msgstr "전체 검색 결과 보기"
+
+#: board/templates/components/search_query_filter.html:7
+msgid "Enter a search term"
+msgstr "검색어를 입력하세요"
+
+#: board/templates/components/search_query_filter.html:31
+msgid "Clear search"
+msgstr "검색어 지우기"
 
 #: board/views/api/v1/search.py:73 board/views/api/v1/search.py:80
 msgid "Enter a search term."
@@ -673,10 +788,6 @@ msgstr "영어"
 #~ msgctxt "Admin permission model"
 #~ msgid "Site settings"
 #~ msgstr "사이트 설정"
-
-#~ msgctxt "Admin permission model"
-#~ msgid "Static page"
-#~ msgstr "정적 페이지"
 
 #~ msgctxt "Admin permission model"
 #~ msgid "Utility cleanup confirmation"

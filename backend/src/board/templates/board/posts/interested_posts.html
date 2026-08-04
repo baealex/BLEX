@@ -1,9 +1,14 @@
 {% extends 'board/base.html' %}
+{% load i18n %}
 {% load island %}
 {% load resource %}
 
+{% translate "You haven't liked any posts yet" as empty_liked_posts_title %}
+{% translate "Posts you like will appear here." as empty_liked_posts_message %}
+{% translate "Explore posts" as explore_posts_label %}
+
 {% block title %}
-    {{ site_brand.site_name }} - 관심 포스트
+    {{ site_brand.site_name }} - {% translate "Liked posts" %}
 {% endblock %}
 
 {% block content %}
@@ -11,15 +16,15 @@
     <div class="mb-6 flex justify-end">
         <a href="/" class="inline-flex items-center gap-2 rounded-full bg-surface px-4 py-2 text-sm font-semibold text-content-secondary ring-1 ring-line/60 transition-colors duration-150 hover:bg-surface-subtle hover:text-content">
             <i class="fas fa-arrow-left text-xs text-content-hint"></i>
-            <span>전체 포스트</span>
+            <span>{% translate "All posts" %}</span>
         </a>
     </div>
 
     <div class="mb-8">
-        <p class="text-sm font-semibold text-action mb-2">내가 다시 보고 싶은 포스트</p>
-        <h1 class="text-3xl md:text-4xl font-bold text-content tracking-tight">관심 포스트</h1>
+        <p class="text-sm font-semibold text-action mb-2">{% translate "Posts you want to revisit" %}</p>
+        <h1 class="text-3xl md:text-4xl font-bold text-content tracking-tight">{% translate "Liked posts" %}</h1>
         <p class="mt-3 text-content-secondary leading-relaxed max-w-2xl">
-            추천으로 관심 표시한 포스트를 최신 관심순으로 모아볼 수 있어요.
+            {% translate "Find all the posts you've liked, with your most recent likes first." %}
         </p>
     </div>
 
@@ -34,7 +39,7 @@
         {% include 'components/pagination.html' with style='numbered' page=page_number last=page_count %}
     </div>
 {% else %}
-    {% include 'components/empty_state.html' with empty_icon_class='far fa-heart' empty_title='아직 관심 포스트가 없어요' empty_message='추천 버튼을 눌러둔 포스트가 여기에 모입니다.' empty_action_url='/' empty_action_label='포스트 둘러보기' empty_action_icon='fas fa-compass' only %}
+    {% include 'components/empty_state.html' with empty_icon_class='far fa-heart' empty_title=empty_liked_posts_title empty_message=empty_liked_posts_message empty_action_url='/' empty_action_label=explore_posts_label empty_action_icon='fas fa-compass' only %}
 {% endif %}
 </div>
 {% endblock %}

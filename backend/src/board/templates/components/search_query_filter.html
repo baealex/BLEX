@@ -3,6 +3,8 @@ Search query filter component
 Parameters:
 - placeholder: Placeholder text for the input field (optional, default: '검색어를 입력하세요')
 {% endcomment %}
+{% load i18n %}
+{% translate "Enter a search term" as default_search_placeholder %}
 
 <div x-data="search_query_filter({ query: '{{ request.GET.q|default:''|escapejs }}' })">
     <form method="get" class="relative">
@@ -18,7 +20,7 @@ Parameters:
                 type="text"
                 name="q"
                 x-model="query"
-                placeholder="{{ placeholder|default:'검색어를 입력하세요' }}"
+                placeholder="{{ placeholder|default:default_search_placeholder }}"
                 class="w-full px-4 py-2.5 pr-10 rounded-2xl bg-surface-elevated text-content placeholder:text-content-hint ring-1 ring-line/60 focus:outline-none focus:ring-2 focus:ring-line-strong/70 transition-all"
                 autocomplete="off"
             >
@@ -26,6 +28,7 @@ Parameters:
                 type="button"
                 x-show="query.length > 0"
                 @click="query = ''; $el.closest('form').submit()"
+                aria-label="{% translate 'Clear search' %}"
                 class="absolute right-3 top-1/2 -translate-y-1/2 text-content-hint hover:text-content-secondary transition-colors"
             >
                 <i class="fas fa-times"></i>
@@ -33,6 +36,7 @@ Parameters:
             <button
                 type="submit"
                 x-show="query.length === 0"
+                aria-label="{% translate 'Search' %}"
                 class="absolute right-3 top-1/2 -translate-y-1/2 text-content-hint"
             >
                 <i class="fas fa-search"></i>

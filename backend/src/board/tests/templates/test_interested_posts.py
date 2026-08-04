@@ -101,6 +101,20 @@ class InterestedPostsTemplateTestCase(TestCase):
         self.assertContains(response, 'First Interested Post')
         self.assertContains(response, 'Second Interested Post')
 
+    def test_interested_posts_renders_english_ui(self):
+        self.client.login(username='reader', password='testpass123')
+
+        response = self.client.get(
+            reverse('interested_posts'),
+            HTTP_ACCEPT_LANGUAGE='en',
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'Liked posts')
+        self.assertContains(response, 'All posts')
+        self.assertContains(response, 'First Interested Post')
+        self.assertNotContains(response, '관심 포스트')
+
 
     def test_interested_posts_keep_total_like_counts(self):
         self.client.login(username='reader', password='testpass123')

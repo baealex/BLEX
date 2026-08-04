@@ -7,6 +7,7 @@ Parameters:
 {% endcomment %}
 
 {% load static %}
+{% load i18n %}
 {% load island %}
 {% load resource %}
 
@@ -33,11 +34,11 @@ Parameters:
         <div class="text-xs text-content-secondary mb-3 flex items-center gap-3">
             <div class="flex items-center gap-1.5">
                 <i class="far fa-calendar-alt text-content-hint"></i>
-                <time datetime="{{ post.published_date|date:'c' }}">{% if post.time_display %}{{ post.time_display }}{% else %}{{ post.published_date|date:"Y년 n월 j일" }}{% endif %}</time>
+                <time datetime="{{ post.published_date|date:'c' }}">{% if post.time_display %}{{ post.time_display }}{% else %}{{ post.published_date|date:"DATE_FORMAT" }}{% endif %}</time>
             </div>
             <div class="flex items-center gap-1.5">
                 <i class="far fa-clock text-content-hint"></i>
-                <span>{{ post.read_time }}분</span>
+                <span>{% blocktranslate count minutes=post.read_time %}{{ minutes }} min{% plural %}{{ minutes }} mins{% endblocktranslate %}</span>
             </div>
         </div>
 

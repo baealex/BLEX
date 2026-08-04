@@ -1,9 +1,14 @@
 {% extends 'board/base.html' %}
+{% load i18n %}
 {% load island %}
 {% load resource %}
 
+{% translate "No posts yet" as empty_posts_title %}
+{% translate "Published posts will appear here." as empty_posts_message %}
+{% translate "Write a post" as write_post_label %}
+
 {% block title %}
-    {{ site_brand.site_name }} - 최신 포스트
+    {{ site_brand.site_name }} - {% translate "Latest posts" %}
 {% endblock %}
 
 {% block home_active %}active{% endblock %}
@@ -14,7 +19,7 @@
     <div class="mb-6 flex justify-end">
         <a href="/interests" class="inline-flex items-center gap-2 rounded-full bg-surface px-4 py-2 text-sm font-semibold text-content-secondary ring-1 ring-line/60 transition-colors duration-150 hover:bg-surface-subtle hover:text-content">
             <i class="far fa-heart text-xs text-content-hint"></i>
-            <span>관심 포스트</span>
+            <span>{% translate "Liked posts" %}</span>
         </a>
     </div>
     {% endif %}
@@ -41,9 +46,9 @@
     </div>
 {% else %}
     {% if user.is_authenticated and user.profile.is_editor %}
-        {% include 'components/empty_state.html' with empty_icon_class='fas fa-pen-nib' empty_title='아직 포스트가 없어요' empty_message='공개된 포스트가 발행되면 이곳에 표시됩니다.' empty_action_url='/write' empty_action_label='포스트 작성하기' empty_action_icon='fas fa-edit' only %}
+        {% include 'components/empty_state.html' with empty_icon_class='fas fa-pen-nib' empty_title=empty_posts_title empty_message=empty_posts_message empty_action_url='/write' empty_action_label=write_post_label empty_action_icon='fas fa-edit' only %}
     {% else %}
-        {% include 'components/empty_state.html' with empty_icon_class='fas fa-pen-nib' empty_title='아직 포스트가 없어요' empty_message='공개된 포스트가 발행되면 이곳에 표시됩니다.' only %}
+        {% include 'components/empty_state.html' with empty_icon_class='fas fa-pen-nib' empty_title=empty_posts_title empty_message=empty_posts_message only %}
     {% endif %}
 {% endif %}
 </div>
