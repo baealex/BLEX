@@ -1,21 +1,36 @@
 from django.contrib.auth.models import Permission
 from django.db.models import Model
-from django.utils.translation import pgettext
+from django.utils.translation import pgettext, pgettext_lazy
 
 
 DEFAULT_PERMISSION_ACTIONS = {
-    'add': 'Add',
-    'change': 'Change',
-    'delete': 'Delete',
-    'view': 'View',
+    'add': pgettext_lazy('Admin permission action', 'Add'),
+    'change': pgettext_lazy('Admin permission action', 'Change'),
+    'delete': pgettext_lazy('Admin permission action', 'Delete'),
+    'view': pgettext_lazy('Admin permission action', 'View'),
 }
 
 PRODUCT_PERMISSION_MODEL_LABELS = {
-    'board.integrationsetting': 'Telegram integration settings',
-    'board.loginsetting': 'Login and security settings',
-    'board.sitesetting': 'Site settings',
-    'board.staticpage': 'Static page',
-    'board.utilitycleanupconfirmation': 'Utility cleanup confirmation',
+    'board.integrationsetting': pgettext_lazy(
+        'Admin permission model',
+        'Telegram integration settings',
+    ),
+    'board.loginsetting': pgettext_lazy(
+        'Admin permission model',
+        'Login and security settings',
+    ),
+    'board.sitesetting': pgettext_lazy(
+        'Admin permission model',
+        'Site settings',
+    ),
+    'board.staticpage': pgettext_lazy(
+        'Admin permission model',
+        'Static page',
+    ),
+    'board.utilitycleanupconfirmation': pgettext_lazy(
+        'Admin permission model',
+        'Utility cleanup confirmation',
+    ),
 }
 
 
@@ -26,7 +41,7 @@ def permission_model_label(model: type[Model]) -> str:
     )
     if source_label is None:
         return str(model._meta.verbose_name)
-    return pgettext('Admin permission model', source_label)
+    return str(source_label)
 
 
 def permission_choice_label(permission: Permission) -> str:
@@ -43,10 +58,7 @@ def permission_choice_label(permission: Permission) -> str:
             'Admin permission label',
             '%(action)s %(model)s',
         ) % {
-            'action': pgettext(
-                'Admin permission action',
-                DEFAULT_PERMISSION_ACTIONS[action],
-            ),
+            'action': str(DEFAULT_PERMISSION_ACTIONS[action]),
             'model': permission_model_label(model),
         }
     return str(permission)

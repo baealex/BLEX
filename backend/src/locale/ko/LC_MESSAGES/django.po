@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: BLEX 3.1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-08-05 03:45+0900\n"
+"POT-Creation-Date: 2026-08-05 04:03+0900\n"
 "PO-Revision-Date: 2026-07-18 00:00+0900\n"
 "Last-Translator: BLEX contributors\n"
 "Language-Team: Korean\n"
@@ -60,7 +60,52 @@ msgstr "시스템 유틸리티"
 msgid "Action details"
 msgstr "작업 내용"
 
-#: board/admin/permission_display.py:44
+#: board/admin/permission_display.py:7
+msgctxt "Admin permission action"
+msgid "Add"
+msgstr "추가"
+
+#: board/admin/permission_display.py:8
+msgctxt "Admin permission action"
+msgid "Change"
+msgstr "수정"
+
+#: board/admin/permission_display.py:9
+msgctxt "Admin permission action"
+msgid "Delete"
+msgstr "삭제"
+
+#: board/admin/permission_display.py:10
+msgctxt "Admin permission action"
+msgid "View"
+msgstr "보기"
+
+#: board/admin/permission_display.py:16
+msgctxt "Admin permission model"
+msgid "Telegram integration settings"
+msgstr "텔레그램 연동 설정"
+
+#: board/admin/permission_display.py:20
+msgctxt "Admin permission model"
+msgid "Login and security settings"
+msgstr "로그인·보안 설정"
+
+#: board/admin/permission_display.py:24
+msgctxt "Admin permission model"
+msgid "Site settings"
+msgstr "사이트 설정"
+
+#: board/admin/permission_display.py:28
+msgctxt "Admin permission model"
+msgid "Static page"
+msgstr "정적 페이지"
+
+#: board/admin/permission_display.py:32
+msgctxt "Admin permission model"
+msgid "Utility cleanup confirmation"
+msgstr "유틸리티 정리 확인"
+
+#: board/admin/permission_display.py:59
 #, python-format
 msgctxt "Admin permission label"
 msgid "%(action)s %(model)s"
@@ -643,6 +688,18 @@ msgstr "잘못된 인증 코드입니다."
 #, python-format
 msgid "Could not enable two-factor authentication: %(error)s"
 msgstr "2FA 활성화에 실패했습니다: %(error)s"
+
+#: board/services/user_management_service.py:227
+msgid "This role is not supported."
+msgstr "지원하지 않는 권한입니다."
+
+#: board/services/user_management_service.py:232
+msgid "You cannot change your own role."
+msgstr "자기 자신의 권한은 변경할 수 없습니다."
+
+#: board/services/user_management_service.py:236
+msgid "Administrator roles cannot be changed from this page."
+msgstr "관리자 계정의 권한은 이 화면에서 변경할 수 없습니다."
 
 #: board/services/webhook_api_service.py:23
 msgid "Profile not found."
@@ -1607,6 +1664,10 @@ msgstr "소셜 로그인이 설정되지 않았습니다."
 msgid "Two-factor authentication has been enabled."
 msgstr "2차 인증이 활성화되었습니다."
 
+#: board/views/api/v1/author_invite.py:44
+msgid "Invitation link not found."
+msgstr "초대 링크를 찾을 수 없습니다."
+
 #: board/views/api/v1/pinned_post.py:42 board/views/api/v1/pinned_post.py:59
 #: board/views/api/v1/setting.py:250 board/views/api/v1/setting.py:275
 msgid "Post URL is required."
@@ -1709,6 +1770,10 @@ msgstr "텔레그램 봇이 설정되지 않았습니다."
 #: board/views/api/v1/telegram.py:105
 msgid "Telegram is already disconnected."
 msgstr "이미 연동이 해제되었습니다."
+
+#: board/views/api/v1/user_management.py:51
+msgid "User not found."
+msgstr "사용자를 찾을 수 없습니다."
 
 #: board/views/api/v1/webhook.py:29 board/views/api/v1/webhook.py:191
 msgid "Invalid JSON body."
@@ -1873,31 +1938,3 @@ msgstr "한국어"
 #: main/settings.py:232
 msgid "English"
 msgstr "영어"
-
-#~ msgctxt "Admin permission action"
-#~ msgid "Add"
-#~ msgstr "추가"
-
-#~ msgctxt "Admin permission action"
-#~ msgid "Delete"
-#~ msgstr "삭제"
-
-#~ msgctxt "Admin permission action"
-#~ msgid "View"
-#~ msgstr "보기"
-
-#~ msgctxt "Admin permission model"
-#~ msgid "Telegram integration settings"
-#~ msgstr "텔레그램 연동 설정"
-
-#~ msgctxt "Admin permission model"
-#~ msgid "Login and security settings"
-#~ msgstr "로그인·보안 설정"
-
-#~ msgctxt "Admin permission model"
-#~ msgid "Site settings"
-#~ msgstr "사이트 설정"
-
-#~ msgctxt "Admin permission model"
-#~ msgid "Utility cleanup confirmation"
-#~ msgstr "유틸리티 정리 확인"

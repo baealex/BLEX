@@ -1,5 +1,6 @@
 from django.contrib.auth.models import User
 from django.http import Http404
+from django.utils.translation import gettext
 
 from board.modules.response import ErrorCode, StatusDone, StatusError
 from board.services.api_permission_service import ApiPermissionService
@@ -47,6 +48,6 @@ def managed_user_role(request, user_id):
         user = UserManagementService.update_role(request.user, user_id, body.get('role'))
         return StatusDone({'user': user})
     except User.DoesNotExist:
-        return StatusError(ErrorCode.NOT_FOUND, '사용자를 찾을 수 없습니다.')
+        return StatusError(ErrorCode.NOT_FOUND, gettext('User not found.'))
     except UserManagementError as error:
         return StatusError(ErrorCode.REJECT, error.message)
