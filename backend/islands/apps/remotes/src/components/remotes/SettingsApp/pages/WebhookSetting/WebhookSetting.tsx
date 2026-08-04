@@ -1,3 +1,4 @@
+import { useLingui } from '@lingui/react/macro';
 import { WebhookChannelManager } from '../../components';
 import {
     getWebhookChannels,
@@ -7,23 +8,55 @@ import {
 } from '~/lib/api/settings';
 
 const WebhookSetting = () => {
+    const { t } = useLingui();
+
     return (
         <WebhookChannelManager
             queryKey={['webhook-channels']}
-            title="웹훅 연동"
-            description="내가 발행한 새 포스트를 Discord, Slack 또는 일반 웹훅 URL로 전송합니다."
-            formTitle="새 웹훅 추가"
-            emptyTitle="등록된 웹훅이 없습니다"
+            title={t({
+                id: 'settings.webhooks.user.title',
+                message: 'Webhook integration'
+            })}
+            description={t({
+                id: 'settings.webhooks.user.description',
+                message: 'Send your newly published posts to Discord, Slack, or a generic webhook URL.'
+            })}
+            formTitle={t({
+                id: 'settings.webhooks.user.form_title',
+                message: 'Add webhook'
+            })}
+            emptyTitle={t({
+                id: 'settings.webhooks.user.empty_title',
+                message: 'No webhooks yet'
+            })}
             fetchChannels={getWebhookChannels}
             createChannel={addWebhookChannel}
             deleteChannel={deleteWebhookChannel}
             testChannel={testWebhook}
-            confirmDeleteTitle="웹훅 삭제"
-            confirmDeleteMessage="정말 이 웹훅을 삭제할까요?"
-            addSuccessMessage="웹훅이 추가되었습니다."
-            addFailMessage="웹훅 추가 중 오류가 발생했습니다."
-            deleteSuccessMessage="웹훅이 삭제되었습니다."
-            deleteFailMessage="웹훅 삭제에 실패했습니다."
+            confirmDeleteTitle={t({
+                id: 'settings.webhooks.user.delete.title',
+                message: 'Delete webhook'
+            })}
+            confirmDeleteMessage={t({
+                id: 'settings.webhooks.user.delete.message',
+                message: 'Delete this webhook?'
+            })}
+            addSuccessMessage={t({
+                id: 'settings.webhooks.user.add.success',
+                message: 'Webhook added.'
+            })}
+            addFailMessage={t({
+                id: 'settings.webhooks.user.add.failed',
+                message: 'Could not add the webhook.'
+            })}
+            deleteSuccessMessage={t({
+                id: 'settings.webhooks.user.delete.success',
+                message: 'Webhook deleted.'
+            })}
+            deleteFailMessage={t({
+                id: 'settings.webhooks.user.delete.failed',
+                message: 'Could not delete the webhook.'
+            })}
         />
     );
 };

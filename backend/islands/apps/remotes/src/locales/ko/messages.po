@@ -621,6 +621,7 @@ msgstr "적용"
 #: src/components/remotes/PostEditor/components/PublishChecklist.tsx:139
 #: src/components/remotes/PostEditor/EditPostEditor.tsx:386
 #: src/components/remotes/PostEditor/NewPostEditor.tsx:397
+#: src/components/remotes/SettingsApp/components/WebhookChannelManager.tsx:486
 #: src/components/remotes/SettingsApp/pages/AccountSetting/components/TwoFactorModal.tsx:135
 #: src/components/remotes/SettingsApp/pages/FormsSetting/FormsSetting.tsx:291
 #: src/components/remotes/SettingsApp/pages/PinnedPostsSetting/components/AddPinnedPostModal.tsx:220
@@ -655,6 +656,8 @@ msgstr "복사"
 #: src/components/remotes/Comments/hooks/useCommentsController.ts:270
 #: src/components/remotes/PostEditor/components/PostRevisionDialog.tsx:614
 #: src/components/remotes/PostEditor/components/PostRevisionDialog.tsx:645
+#: src/components/remotes/SettingsApp/components/WebhookChannelManager.tsx:336
+#: src/components/remotes/SettingsApp/components/WebhookChannelManager.tsx:550
 #: src/components/remotes/SettingsApp/pages/AccountSetting/AccountSetting.tsx:280
 #: src/components/remotes/SettingsApp/pages/AccountSetting/components/SecuritySection.tsx:77
 #: src/components/remotes/SettingsApp/pages/FormsSetting/FormsSetting.tsx:86
@@ -4633,3 +4636,280 @@ msgstr "인증 코드 생성에 실패했습니다."
 #: src/components/remotes/SettingsApp/pages/IntegrationSetting/IntegrationSetting.tsx:276
 msgid "settings.telegram.token.generating"
 msgstr "생성 중..."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/components/WebhookChannelManager.tsx:513
+msgid "settings.webhooks.add"
+msgstr "추가"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/components/WebhookChannelManager.tsx:260
+msgid "settings.webhooks.add_destination"
+msgstr "전송 대상 추가"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/components/WebhookChannelManager.tsx:512
+msgid "settings.webhooks.adding"
+msgstr "추가 중…"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/components/WebhookChannelManager.tsx:464
+msgid "settings.webhooks.form.name"
+msgstr "표시 이름 (선택)"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/components/WebhookChannelManager.tsx:470
+msgid "settings.webhooks.form.name_placeholder"
+msgstr "예: 새 포스트 알림"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/components/WebhookChannelManager.tsx:413
+msgid "settings.webhooks.form.url"
+msgstr "웹훅 URL"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/GlobalWebhookSetting/GlobalWebhookSetting.tsx:48
+msgid "settings.webhooks.global.add.failed"
+msgstr "전역 웹훅을 추가하지 못했습니다."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/GlobalWebhookSetting/GlobalWebhookSetting.tsx:44
+msgid "settings.webhooks.global.add.success"
+msgstr "전역 웹훅이 추가되었습니다."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/GlobalWebhookSetting/GlobalWebhookSetting.tsx:56
+msgid "settings.webhooks.global.delete.failed"
+msgstr "전역 웹훅을 삭제하지 못했습니다."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/GlobalWebhookSetting/GlobalWebhookSetting.tsx:40
+msgid "settings.webhooks.global.delete.message"
+msgstr "이 전역 웹훅을 삭제할까요?"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/GlobalWebhookSetting/GlobalWebhookSetting.tsx:52
+msgid "settings.webhooks.global.delete.success"
+msgstr "전역 웹훅이 삭제되었습니다."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/GlobalWebhookSetting/GlobalWebhookSetting.tsx:36
+msgid "settings.webhooks.global.delete.title"
+msgstr "전역 웹훅 삭제"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/GlobalWebhookSetting/GlobalWebhookSetting.tsx:20
+msgid "settings.webhooks.global.description"
+msgstr "모든 작성자가 발행한 포스트를 Discord, Slack 또는 일반 웹훅 URL로 전송합니다."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/GlobalWebhookSetting/GlobalWebhookSetting.tsx:28
+msgid "settings.webhooks.global.empty_title"
+msgstr "전역 웹훅이 없습니다"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/GlobalWebhookSetting/GlobalWebhookSetting.tsx:24
+msgid "settings.webhooks.global.form_title"
+msgstr "새 전역 웹훅 추가"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/GlobalWebhookSetting/GlobalWebhookSetting.tsx:16
+msgid "settings.webhooks.global.title"
+msgstr "전역 웹훅 연동"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/components/WebhookChannelManager.tsx:245
+msgid "settings.webhooks.load_failed"
+msgstr "웹훅 전송 대상을 불러오지 못했습니다."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/components/WebhookChannelManager.tsx:542
+msgid "settings.webhooks.menu.open"
+msgstr "{name} 웹훅 메뉴 열기"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/components/WebhookChannelManager.tsx:453
+msgid "settings.webhooks.preview.json_label"
+msgstr "JSON 형식"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/components/WebhookChannelManager.tsx:79
+msgid "settings.webhooks.preview.message"
+msgstr "[baealex] 새 포스트가 발행되었어요: [BLEX 업데이트](https://blex.me/@baealex/blex-update)"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/components/WebhookChannelManager.tsx:445
+msgid "settings.webhooks.preview.message_label"
+msgstr "전송 문구"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/components/WebhookChannelManager.tsx:126
+msgid "settings.webhooks.provider.discord.description"
+msgstr "Discord 채널 웹훅 URL로 인식되었습니다."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/components/WebhookChannelManager.tsx:118
+msgid "settings.webhooks.provider.discord.title"
+msgstr "Discord 웹훅"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/components/WebhookChannelManager.tsx:164
+msgid "settings.webhooks.provider.generic.badge"
+msgstr "일반 JSON"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/components/WebhookChannelManager.tsx:168
+msgid "settings.webhooks.provider.generic.description"
+msgstr "BLEX가 이 URL로 JSON POST 요청을 보냅니다. 수신측에서 아래 필드를 처리해야 합니다."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/components/WebhookChannelManager.tsx:160
+msgid "settings.webhooks.provider.generic.title"
+msgstr "일반 웹훅 URL"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/components/WebhookChannelManager.tsx:122
+#: src/components/remotes/SettingsApp/components/WebhookChannelManager.tsx:142
+msgid "settings.webhooks.provider.official_badge"
+msgstr "공식 형식"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/components/WebhookChannelManager.tsx:96
+msgid "settings.webhooks.provider.pending.badge"
+msgstr "URL 입력 대기 중"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/components/WebhookChannelManager.tsx:100
+msgid "settings.webhooks.provider.pending.description"
+msgstr "Discord와 Slack은 각 서비스의 공식 웹훅 형식을 사용하며, 나머지 URL에는 일반 JSON을 전송합니다."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/components/WebhookChannelManager.tsx:104
+msgid "settings.webhooks.provider.pending.payload"
+msgstr "URL을 입력하면 전송 형식을 미리 볼 수 있습니다."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/components/WebhookChannelManager.tsx:92
+msgid "settings.webhooks.provider.pending.title"
+msgstr "전송 형식"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/components/WebhookChannelManager.tsx:146
+msgid "settings.webhooks.provider.slack.description"
+msgstr "Slack Incoming Webhook URL로 인식되었습니다."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/components/WebhookChannelManager.tsx:138
+msgid "settings.webhooks.provider.slack.title"
+msgstr "Slack Incoming Webhook"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/components/WebhookChannelManager.tsx:380
+msgid "settings.webhooks.status.active"
+msgstr "활성"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/components/WebhookChannelManager.tsx:370
+msgid "settings.webhooks.status.failures"
+msgstr "{count, plural, other {실패 #회}}"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/components/WebhookChannelManager.tsx:363
+msgid "settings.webhooks.status.inactive"
+msgstr "비활성"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/components/WebhookChannelManager.tsx:501
+msgid "settings.webhooks.test.action"
+msgstr "테스트"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/components/WebhookChannelManager.tsx:295
+msgid "settings.webhooks.test.error"
+msgstr "웹훅 테스트 중 오류가 발생했습니다."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/components/WebhookChannelManager.tsx:283
+#: src/components/remotes/SettingsApp/components/WebhookChannelManager.tsx:289
+msgid "settings.webhooks.test.failed"
+msgstr "웹훅 테스트에 실패했습니다. URL을 확인한 뒤 다시 시도해 주세요."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/components/WebhookChannelManager.tsx:500
+msgid "settings.webhooks.test.sending"
+msgstr "전송 중…"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/components/WebhookChannelManager.tsx:278
+msgid "settings.webhooks.test.success"
+msgstr "테스트 메시지가 전송되었습니다."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/components/WebhookChannelManager.tsx:524
+msgid "settings.webhooks.unnamed_channel"
+msgstr "이름 없는 전송 대상"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/WebhookSetting/WebhookSetting.tsx:48
+msgid "settings.webhooks.user.add.failed"
+msgstr "웹훅을 추가하지 못했습니다."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/WebhookSetting/WebhookSetting.tsx:44
+msgid "settings.webhooks.user.add.success"
+msgstr "웹훅이 추가되었습니다."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/WebhookSetting/WebhookSetting.tsx:56
+msgid "settings.webhooks.user.delete.failed"
+msgstr "웹훅을 삭제하지 못했습니다."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/WebhookSetting/WebhookSetting.tsx:40
+msgid "settings.webhooks.user.delete.message"
+msgstr "이 웹훅을 삭제할까요?"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/WebhookSetting/WebhookSetting.tsx:52
+msgid "settings.webhooks.user.delete.success"
+msgstr "웹훅이 삭제되었습니다."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/WebhookSetting/WebhookSetting.tsx:36
+msgid "settings.webhooks.user.delete.title"
+msgstr "웹훅 삭제"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/WebhookSetting/WebhookSetting.tsx:20
+msgid "settings.webhooks.user.description"
+msgstr "내가 발행한 새 포스트를 Discord, Slack 또는 일반 웹훅 URL로 전송합니다."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/WebhookSetting/WebhookSetting.tsx:28
+msgid "settings.webhooks.user.empty_title"
+msgstr "등록된 웹훅이 없습니다"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/WebhookSetting/WebhookSetting.tsx:24
+msgid "settings.webhooks.user.form_title"
+msgstr "새 웹훅 추가"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/WebhookSetting/WebhookSetting.tsx:16
+msgid "settings.webhooks.user.title"
+msgstr "웹훅 연동"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/components/WebhookChannelManager.tsx:213
+msgid "settings.webhooks.validation.name_max_length"
+msgstr "표시 이름은 100자 이하로 입력해 주세요."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/components/WebhookChannelManager.tsx:209
+msgid "settings.webhooks.validation.url_invalid"
+msgstr "올바른 URL을 입력해 주세요."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/components/WebhookChannelManager.tsx:205
+msgid "settings.webhooks.validation.url_required"
+msgstr "웹훅 URL을 입력해 주세요."

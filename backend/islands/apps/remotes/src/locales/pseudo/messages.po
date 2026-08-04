@@ -621,6 +621,7 @@ msgstr ""
 #: src/components/remotes/PostEditor/components/PublishChecklist.tsx:139
 #: src/components/remotes/PostEditor/EditPostEditor.tsx:386
 #: src/components/remotes/PostEditor/NewPostEditor.tsx:397
+#: src/components/remotes/SettingsApp/components/WebhookChannelManager.tsx:486
 #: src/components/remotes/SettingsApp/pages/AccountSetting/components/TwoFactorModal.tsx:135
 #: src/components/remotes/SettingsApp/pages/FormsSetting/FormsSetting.tsx:291
 #: src/components/remotes/SettingsApp/pages/PinnedPostsSetting/components/AddPinnedPostModal.tsx:220
@@ -655,6 +656,8 @@ msgstr ""
 #: src/components/remotes/Comments/hooks/useCommentsController.ts:270
 #: src/components/remotes/PostEditor/components/PostRevisionDialog.tsx:614
 #: src/components/remotes/PostEditor/components/PostRevisionDialog.tsx:645
+#: src/components/remotes/SettingsApp/components/WebhookChannelManager.tsx:336
+#: src/components/remotes/SettingsApp/components/WebhookChannelManager.tsx:550
 #: src/components/remotes/SettingsApp/pages/AccountSetting/AccountSetting.tsx:280
 #: src/components/remotes/SettingsApp/pages/AccountSetting/components/SecuritySection.tsx:77
 #: src/components/remotes/SettingsApp/pages/FormsSetting/FormsSetting.tsx:86
@@ -4628,4 +4631,281 @@ msgstr ""
 #. js-lingui-explicit-id
 #: src/components/remotes/SettingsApp/pages/IntegrationSetting/IntegrationSetting.tsx:276
 msgid "settings.telegram.token.generating"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/components/WebhookChannelManager.tsx:513
+msgid "settings.webhooks.add"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/components/WebhookChannelManager.tsx:260
+msgid "settings.webhooks.add_destination"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/components/WebhookChannelManager.tsx:512
+msgid "settings.webhooks.adding"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/components/WebhookChannelManager.tsx:464
+msgid "settings.webhooks.form.name"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/components/WebhookChannelManager.tsx:470
+msgid "settings.webhooks.form.name_placeholder"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/components/WebhookChannelManager.tsx:413
+msgid "settings.webhooks.form.url"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/GlobalWebhookSetting/GlobalWebhookSetting.tsx:48
+msgid "settings.webhooks.global.add.failed"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/GlobalWebhookSetting/GlobalWebhookSetting.tsx:44
+msgid "settings.webhooks.global.add.success"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/GlobalWebhookSetting/GlobalWebhookSetting.tsx:56
+msgid "settings.webhooks.global.delete.failed"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/GlobalWebhookSetting/GlobalWebhookSetting.tsx:40
+msgid "settings.webhooks.global.delete.message"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/GlobalWebhookSetting/GlobalWebhookSetting.tsx:52
+msgid "settings.webhooks.global.delete.success"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/GlobalWebhookSetting/GlobalWebhookSetting.tsx:36
+msgid "settings.webhooks.global.delete.title"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/GlobalWebhookSetting/GlobalWebhookSetting.tsx:20
+msgid "settings.webhooks.global.description"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/GlobalWebhookSetting/GlobalWebhookSetting.tsx:28
+msgid "settings.webhooks.global.empty_title"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/GlobalWebhookSetting/GlobalWebhookSetting.tsx:24
+msgid "settings.webhooks.global.form_title"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/GlobalWebhookSetting/GlobalWebhookSetting.tsx:16
+msgid "settings.webhooks.global.title"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/components/WebhookChannelManager.tsx:245
+msgid "settings.webhooks.load_failed"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/components/WebhookChannelManager.tsx:542
+msgid "settings.webhooks.menu.open"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/components/WebhookChannelManager.tsx:453
+msgid "settings.webhooks.preview.json_label"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/components/WebhookChannelManager.tsx:79
+msgid "settings.webhooks.preview.message"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/components/WebhookChannelManager.tsx:445
+msgid "settings.webhooks.preview.message_label"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/components/WebhookChannelManager.tsx:126
+msgid "settings.webhooks.provider.discord.description"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/components/WebhookChannelManager.tsx:118
+msgid "settings.webhooks.provider.discord.title"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/components/WebhookChannelManager.tsx:164
+msgid "settings.webhooks.provider.generic.badge"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/components/WebhookChannelManager.tsx:168
+msgid "settings.webhooks.provider.generic.description"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/components/WebhookChannelManager.tsx:160
+msgid "settings.webhooks.provider.generic.title"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/components/WebhookChannelManager.tsx:122
+#: src/components/remotes/SettingsApp/components/WebhookChannelManager.tsx:142
+msgid "settings.webhooks.provider.official_badge"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/components/WebhookChannelManager.tsx:96
+msgid "settings.webhooks.provider.pending.badge"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/components/WebhookChannelManager.tsx:100
+msgid "settings.webhooks.provider.pending.description"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/components/WebhookChannelManager.tsx:104
+msgid "settings.webhooks.provider.pending.payload"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/components/WebhookChannelManager.tsx:92
+msgid "settings.webhooks.provider.pending.title"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/components/WebhookChannelManager.tsx:146
+msgid "settings.webhooks.provider.slack.description"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/components/WebhookChannelManager.tsx:138
+msgid "settings.webhooks.provider.slack.title"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/components/WebhookChannelManager.tsx:380
+msgid "settings.webhooks.status.active"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/components/WebhookChannelManager.tsx:370
+msgid "settings.webhooks.status.failures"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/components/WebhookChannelManager.tsx:363
+msgid "settings.webhooks.status.inactive"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/components/WebhookChannelManager.tsx:501
+msgid "settings.webhooks.test.action"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/components/WebhookChannelManager.tsx:295
+msgid "settings.webhooks.test.error"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/components/WebhookChannelManager.tsx:283
+#: src/components/remotes/SettingsApp/components/WebhookChannelManager.tsx:289
+msgid "settings.webhooks.test.failed"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/components/WebhookChannelManager.tsx:500
+msgid "settings.webhooks.test.sending"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/components/WebhookChannelManager.tsx:278
+msgid "settings.webhooks.test.success"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/components/WebhookChannelManager.tsx:524
+msgid "settings.webhooks.unnamed_channel"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/WebhookSetting/WebhookSetting.tsx:48
+msgid "settings.webhooks.user.add.failed"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/WebhookSetting/WebhookSetting.tsx:44
+msgid "settings.webhooks.user.add.success"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/WebhookSetting/WebhookSetting.tsx:56
+msgid "settings.webhooks.user.delete.failed"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/WebhookSetting/WebhookSetting.tsx:40
+msgid "settings.webhooks.user.delete.message"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/WebhookSetting/WebhookSetting.tsx:52
+msgid "settings.webhooks.user.delete.success"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/WebhookSetting/WebhookSetting.tsx:36
+msgid "settings.webhooks.user.delete.title"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/WebhookSetting/WebhookSetting.tsx:20
+msgid "settings.webhooks.user.description"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/WebhookSetting/WebhookSetting.tsx:28
+msgid "settings.webhooks.user.empty_title"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/WebhookSetting/WebhookSetting.tsx:24
+msgid "settings.webhooks.user.form_title"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/WebhookSetting/WebhookSetting.tsx:16
+msgid "settings.webhooks.user.title"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/components/WebhookChannelManager.tsx:213
+msgid "settings.webhooks.validation.name_max_length"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/components/WebhookChannelManager.tsx:209
+msgid "settings.webhooks.validation.url_invalid"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/components/WebhookChannelManager.tsx:205
+msgid "settings.webhooks.validation.url_required"
 msgstr ""

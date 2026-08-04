@@ -1,4 +1,7 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
+import type { MessageDescriptor } from '@lingui/core';
+import { msg } from '@lingui/core/macro';
+import { Trans, useLingui } from '@lingui/react/macro';
 import type { AxiosResponse } from 'axios';
 import { useSuspenseQuery } from '@tanstack/react-query';
 import { useForm } from 'react-hook-form';
@@ -31,6 +34,8 @@ import {
 } from '.';
 import type { WebhookChannel } from '~/lib/api/settings';
 import type { Response } from '~/lib/http.module';
+import { formatDateTime } from '~/i18n/formatters';
+import { normalizeLocale } from '~/i18n/locale';
 
 type ChannelsResponse = Response<{ channels: WebhookChannel[] }>;
 type CreateResponse = Response<{ success: boolean; channelId: number }>;
@@ -38,10 +43,10 @@ type DeleteResponse = Response<{ success: boolean }>;
 type TestResponse = Response<{ success: boolean }>;
 
 interface WebhookProviderInfo {
-    title: string;
-    badge: string;
-    description: string;
-    payload: string;
+    title: MessageDescriptor;
+    badge: MessageDescriptor;
+    description: MessageDescriptor;
+    payload: string | MessageDescriptor;
     icon: LucideIcon;
     statusClassName: string;
 }
@@ -66,25 +71,40 @@ interface WebhookChannelManagerProps {
     deleteFailMessage: string;
 }
 
-const webhookSchema = z.object({
-    webhookUrl: z.string().trim().min(1, '웹훅 URL을 입력해주세요.').url('올바른 URL 형식으로 입력해주세요.'),
-    webhookName: z.string().trim().max(100, '표시 이름은 100자 이내여야 합니다.')
+interface WebhookFormInputs {
+    webhookUrl: string;
+    webhookName: string;
+}
+
+const WEBHOOK_MESSAGE_PREVIEW = msg({
+    id: 'settings.webhooks.preview.message',
+    message: '[baealex] Published a new post: [BLEX update](https://blex.me/@baealex/blex-update)'
 });
 
-type WebhookFormInputs = z.infer<typeof webhookSchema>;
-
-const WEBHOOK_MESSAGE_PREVIEW =
-    '[baealex] 새 포스트가 발행되었어요: [BLEX 업데이트](https://blex.me/@baealex/blex-update)';
-
-const getWebhookProviderInfo = (webhookUrl: string): WebhookProviderInfo => {
+const getWebhookProviderInfo = (
+    webhookUrl: string,
+    messagePreview: string
+): WebhookProviderInfo => {
     const normalizedUrl = webhookUrl.trim().toLowerCase();
 
     if (!normalizedUrl) {
         return {
-            title: '지원 방식 확인',
-            badge: 'URL 입력 전',
-            description: 'Discord, Slack은 공식 웹훅 형식으로 전송하고 그 외 주소는 일반 JSON으로 전송합니다.',
-            payload: 'URL을 입력하면 전송 형식이 표시됩니다.',
+            title: msg({
+                id: 'settings.webhooks.provider.pending.title',
+                message: 'Delivery format'
+            }),
+            badge: msg({
+                id: 'settings.webhooks.provider.pending.badge',
+                message: 'Waiting for URL'
+            }),
+            description: msg({
+                id: 'settings.webhooks.provider.pending.description',
+                message: 'Discord and Slack use their official webhook formats. Other URLs receive generic JSON.'
+            }),
+            payload: msg({
+                id: 'settings.webhooks.provider.pending.payload',
+                message: 'Enter a URL to preview the payload format.'
+            }),
             icon: Info,
             statusClassName: 'text-content-secondary'
         };
@@ -95,10 +115,19 @@ const getWebhookProviderInfo = (webhookUrl: string): WebhookProviderInfo => {
         normalizedUrl.includes('discordapp.com/api/webhooks')
     ) {
         return {
-            title: 'Discord Webhook',
-            badge: '공식 지원',
-            description: 'Discord 채널 웹훅 URL로 인식했습니다.',
-            payload: JSON.stringify({ content: WEBHOOK_MESSAGE_PREVIEW }, null, 2),
+            title: msg({
+                id: 'settings.webhooks.provider.discord.title',
+                message: 'Discord Webhook'
+            }),
+            badge: msg({
+                id: 'settings.webhooks.provider.official_badge',
+                message: 'Official format'
+            }),
+            description: msg({
+                id: 'settings.webhooks.provider.discord.description',
+                message: 'Recognized as a Discord channel webhook URL.'
+            }),
+            payload: JSON.stringify({ content: messagePreview }, null, 2),
             icon: CheckCircle,
             statusClassName: 'text-success'
         };
@@ -106,11 +135,20 @@ const getWebhookProviderInfo = (webhookUrl: string): WebhookProviderInfo => {
 
     if (normalizedUrl.includes('hooks.slack.com/services')) {
         return {
-            title: 'Slack Incoming Webhook',
-            badge: '공식 지원',
-            description: 'Slack Incoming Webhook URL로 인식했습니다.',
+            title: msg({
+                id: 'settings.webhooks.provider.slack.title',
+                message: 'Slack Incoming Webhook'
+            }),
+            badge: msg({
+                id: 'settings.webhooks.provider.official_badge',
+                message: 'Official format'
+            }),
+            description: msg({
+                id: 'settings.webhooks.provider.slack.description',
+                message: 'Recognized as a Slack Incoming Webhook URL.'
+            }),
             payload: JSON.stringify({
-                text: WEBHOOK_MESSAGE_PREVIEW,
+                text: messagePreview,
                 unfurl_links: true
             }, null, 2),
             icon: CheckCircle,
@@ -119,13 +157,22 @@ const getWebhookProviderInfo = (webhookUrl: string): WebhookProviderInfo => {
     }
 
     return {
-        title: '일반 웹훅 URL',
-        badge: '일반 JSON',
-        description: '등록한 주소로 JSON을 POST합니다. 받는 쪽에서 아래 필드를 처리해야 합니다.',
+        title: msg({
+            id: 'settings.webhooks.provider.generic.title',
+            message: 'Generic webhook URL'
+        }),
+        badge: msg({
+            id: 'settings.webhooks.provider.generic.badge',
+            message: 'Generic JSON'
+        }),
+        description: msg({
+            id: 'settings.webhooks.provider.generic.description',
+            message: 'BLEX sends a JSON POST request to this URL. The receiver must handle the fields below.'
+        }),
         payload: JSON.stringify({
-            content: WEBHOOK_MESSAGE_PREVIEW,
-            text: WEBHOOK_MESSAGE_PREVIEW,
-            message: WEBHOOK_MESSAGE_PREVIEW,
+            content: messagePreview,
+            text: messagePreview,
+            message: messagePreview,
             url: 'https://blex.me/@baealex/blex-update'
         }, null, 2),
         icon: Code2,
@@ -140,7 +187,7 @@ const WebhookChannelManager = ({
     formTitle,
     emptyTitle,
     emptyDescription,
-    addButtonLabel = '전송 대상 추가',
+    addButtonLabel,
     fetchChannels,
     createChannel,
     deleteChannel,
@@ -152,6 +199,22 @@ const WebhookChannelManager = ({
     deleteSuccessMessage,
     deleteFailMessage
 }: WebhookChannelManagerProps) => {
+    const { i18n, t } = useLingui();
+    const webhookSchema = useMemo(() => z.object({
+        webhookUrl: z.string()
+            .min(1, t({
+                id: 'settings.webhooks.validation.url_required',
+                message: 'Enter a webhook URL.'
+            }))
+            .url(t({
+                id: 'settings.webhooks.validation.url_invalid',
+                message: 'Enter a valid URL.'
+            })),
+        webhookName: z.string().max(100, t({
+            id: 'settings.webhooks.validation.name_max_length',
+            message: 'The display name must be 100 characters or fewer.'
+        }))
+    }), [t]);
     const { confirm } = useConfirm();
     const [isAdding, setIsAdding] = useState(false);
     const [isTesting, setIsTesting] = useState(false);
@@ -179,11 +242,25 @@ const WebhookChannelManager = ({
             if (data.status === 'DONE') {
                 return (data.body.channels ?? []) as WebhookChannel[];
             }
-            throw new Error('웹훅 채널 목록을 불러오는데 실패했습니다.');
+            throw new Error(data.errorMessage || t({
+                id: 'settings.webhooks.load_failed',
+                message: 'Could not load webhook destinations.'
+            }));
         }
     });
-    const webhookProvider = getWebhookProviderInfo(watch('webhookUrl'));
+    const webhookMessagePreview = i18n._(WEBHOOK_MESSAGE_PREVIEW);
+    const webhookProvider = getWebhookProviderInfo(
+        watch('webhookUrl'),
+        webhookMessagePreview
+    );
+    const webhookPayload = typeof webhookProvider.payload === 'string'
+        ? webhookProvider.payload
+        : i18n._(webhookProvider.payload);
     const WebhookProviderIcon = webhookProvider.icon;
+    const resolvedAddButtonLabel = addButtonLabel || t({
+        id: 'settings.webhooks.add_destination',
+        message: 'Add destination'
+    });
 
     const handleTest = async () => {
         const isValid = await trigger('webhookUrl');
@@ -196,13 +273,29 @@ const WebhookChannelManager = ({
         setIsTesting(true);
         try {
             const { data } = await testChannel(webhookUrl);
-            if (data.status === 'DONE' && data.body?.success) {
-                toast.success('테스트 메시지가 전송되었습니다.');
+            if (data.status === 'DONE') {
+                if (data.body?.success) {
+                    toast.success(t({
+                        id: 'settings.webhooks.test.success',
+                        message: 'Test message sent.'
+                    }));
+                } else {
+                    toast.error(t({
+                        id: 'settings.webhooks.test.failed',
+                        message: 'Webhook test failed. Check the URL and try again.'
+                    }));
+                }
             } else {
-                toast.error('웹훅 테스트에 실패했습니다. URL을 확인해주세요.');
+                toast.error(data.errorMessage || t({
+                    id: 'settings.webhooks.test.failed',
+                    message: 'Webhook test failed. Check the URL and try again.'
+                }));
             }
         } catch {
-            toast.error('웹훅 테스트 중 오류가 발생했습니다.');
+            toast.error(t({
+                id: 'settings.webhooks.test.error',
+                message: 'An error occurred while testing the webhook.'
+            }));
         } finally {
             setIsTesting(false);
         }
@@ -240,7 +333,10 @@ const WebhookChannelManager = ({
         const confirmed = await confirm({
             title: confirmDeleteTitle,
             message: confirmDeleteMessage,
-            confirmText: '삭제',
+            confirmText: t({
+                id: 'common.delete',
+                message: 'Delete'
+            }),
             variant: 'danger'
         });
 
@@ -264,20 +360,24 @@ const WebhookChannelManager = ({
         if (!channel.isActive) {
             return (
                 <span className="bg-action text-content-inverted px-2 py-0.5 rounded-md text-xs font-medium">
-                    비활성화
+                    <Trans id="settings.webhooks.status.inactive">Inactive</Trans>
                 </span>
             );
         }
         if (channel.failureCount > 0) {
             return (
                 <span className="bg-line text-content px-2 py-0.5 rounded-md text-xs font-medium">
-                    실패 {channel.failureCount}회
+                    {i18n._({
+                        id: 'settings.webhooks.status.failures',
+                        message: '{count, plural, one {# failure} other {# failures}}',
+                        values: { count: channel.failureCount }
+                    })}
                 </span>
             );
         }
         return (
             <span className="bg-surface-subtle text-content-secondary px-2 py-0.5 rounded-md text-xs font-medium">
-                활성
+                <Trans id="settings.webhooks.status.active">Active</Trans>
             </span>
         );
     };
@@ -289,7 +389,7 @@ const WebhookChannelManager = ({
                 reset();
                 setShowAddForm(true);
             }}>
-            {addButtonLabel}
+            {resolvedAddButtonLabel}
         </SettingsHeaderAction>
     );
 
@@ -310,7 +410,8 @@ const WebhookChannelManager = ({
                     <div className="space-y-4">
                         <div>
                             <label htmlFor="webhookUrl" className="block text-sm font-medium text-content mb-1">
-                                웹훅 URL <span className="text-danger">*</span>
+                                <Trans id="settings.webhooks.form.url">Webhook URL</Trans>{' '}
+                                <span className="text-danger">*</span>
                             </label>
                             <Input
                                 density="compact"
@@ -328,24 +429,30 @@ const WebhookChannelManager = ({
                                     />
                                     <div className="min-w-0 flex-1">
                                         <div className="flex flex-wrap items-center gap-2">
-                                            <p className="text-sm font-semibold text-content">{webhookProvider.title}</p>
+                                            <p className="text-sm font-semibold text-content">
+                                                {i18n._(webhookProvider.title)}
+                                            </p>
                                             <span className={`text-xs font-semibold ${webhookProvider.statusClassName}`}>
-                                                {webhookProvider.badge}
+                                                {i18n._(webhookProvider.badge)}
                                             </span>
                                         </div>
                                         <p className="mt-1 text-xs leading-relaxed text-content-secondary">
-                                            {webhookProvider.description}
+                                            {i18n._(webhookProvider.description)}
                                         </p>
                                         <div className="mt-3 space-y-2">
                                             <div>
-                                                <p className="text-[11px] font-semibold text-content-secondary">전송 문구</p>
+                                                <p className="text-[11px] font-semibold text-content-secondary">
+                                                    <Trans id="settings.webhooks.preview.message_label">Message</Trans>
+                                                </p>
                                                 <p className="mt-1 rounded-md bg-surface px-3 py-2 text-xs leading-relaxed text-content">
-                                                    {WEBHOOK_MESSAGE_PREVIEW}
+                                                    {webhookMessagePreview}
                                                 </p>
                                             </div>
                                             <div>
-                                                <p className="text-[11px] font-semibold text-content-secondary">JSON 형식</p>
-                                                <pre className="mt-1 overflow-x-auto rounded-md bg-surface px-3 py-2 text-xs leading-relaxed text-content-secondary"><code>{webhookProvider.payload}</code></pre>
+                                                <p className="text-[11px] font-semibold text-content-secondary">
+                                                    <Trans id="settings.webhooks.preview.json_label">JSON payload</Trans>
+                                                </p>
+                                                <pre className="mt-1 overflow-x-auto rounded-md bg-surface px-3 py-2 text-xs leading-relaxed text-content-secondary"><code>{webhookPayload}</code></pre>
                                             </div>
                                         </div>
                                     </div>
@@ -354,13 +461,16 @@ const WebhookChannelManager = ({
                         </div>
                         <div>
                             <label htmlFor="webhookName" className="block text-sm font-medium text-content mb-1">
-                                표시 이름 (선택)
+                                <Trans id="settings.webhooks.form.name">Display name (optional)</Trans>
                             </label>
                             <Input
                                 density="compact"
                                 id="webhookName"
                                 type="text"
-                                placeholder="예: 새 포스트 알림"
+                                placeholder={t({
+                                    id: 'settings.webhooks.form.name_placeholder',
+                                    message: 'For example: New post alerts'
+                                })}
                                 {...register('webhookName')}
                             />
                         </div>
@@ -373,7 +483,7 @@ const WebhookChannelManager = ({
                                 className="min-h-11! [@media(pointer:fine)]:min-h-10!"
                                 onClick={handleCancel}
                                 disabled={isAdding || isTesting}>
-                                취소
+                                <Trans id="common.cancel">Cancel</Trans>
                             </Button>
 
                             <div className="flex flex-wrap items-center gap-3">
@@ -386,7 +496,9 @@ const WebhookChannelManager = ({
                                     isLoading={isTesting}
                                     disabled={isAdding}
                                     onClick={handleTest}>
-                                    {isTesting ? '전송 중...' : '테스트'}
+                                    {isTesting
+                                        ? <Trans id="settings.webhooks.test.sending">Sending…</Trans>
+                                        : <Trans id="settings.webhooks.test.action">Test</Trans>}
                                 </Button>
                                 <Button
                                     density="compact"
@@ -396,7 +508,9 @@ const WebhookChannelManager = ({
                                     className="min-h-11! [@media(pointer:fine)]:min-h-10!"
                                     isLoading={isAdding}
                                     disabled={isTesting}>
-                                    {isAdding ? '추가 중...' : '추가'}
+                                    {isAdding
+                                        ? <Trans id="settings.webhooks.adding">Adding…</Trans>
+                                        : <Trans id="settings.webhooks.add">Add</Trans>}
                                 </Button>
                             </div>
                         </div>
@@ -406,47 +520,65 @@ const WebhookChannelManager = ({
 
             {channels && channels.length > 0 ? (
                 <div className="space-y-3">
-                    {channels.map((channel) => (
-                        <SettingsListItem
-                            key={channel.id}
-                            left={
-                                <div className={getSettingsIconClass('default')}>
-                                    {channel.isActive
-                                        ? <Zap aria-hidden="true" className="h-4 w-4" />
-                                        : <AlertTriangle aria-hidden="true" className="h-4 w-4" />}
+                    {channels.map((channel) => {
+                        const channelName = channel.name || t({
+                            id: 'settings.webhooks.unnamed_channel',
+                            message: 'Unnamed destination'
+                        });
+
+                        return (
+                            <SettingsListItem
+                                key={channel.id}
+                                left={
+                                    <div className={getSettingsIconClass('default')}>
+                                        {channel.isActive
+                                            ? <Zap aria-hidden="true" className="h-4 w-4" />
+                                            : <AlertTriangle aria-hidden="true" className="h-4 w-4" />}
+                                    </div>
+                                }
+                                actions={
+                                    <Dropdown
+                                        density="compact"
+                                        triggerAriaLabel={i18n._({
+                                            id: 'settings.webhooks.menu.open',
+                                            message: 'Open the webhook menu for {name}',
+                                            values: { name: channelName }
+                                        })}
+                                        triggerClassName="min-h-11 min-w-11 [@media(pointer:fine)]:min-h-9 [@media(pointer:fine)]:min-w-9"
+                                        items={[
+                                            {
+                                                label: t({
+                                                    id: 'common.delete',
+                                                    message: 'Delete'
+                                                }),
+                                                icon: <Trash2 aria-hidden="true" className="h-4 w-4" />,
+                                                onClick: () => handleDelete(channel.id),
+                                                variant: 'danger'
+                                            }
+                                        ]}
+                                    />
+                                }>
+                                <h3 className={`${SETTINGS_LIST_TITLE} mb-0.5`}>
+                                    {channelName}
+                                </h3>
+                                <div className={`${SETTINGS_LIST_META} flex flex-wrap items-center gap-3`}>
+                                    <span className="flex items-center truncate max-w-[200px]" title={channel.webhookUrl}>
+                                        <LinkIcon aria-hidden="true" className="mr-1.5 h-3.5 w-3.5 shrink-0" />
+                                        {channel.webhookUrl.replace(/^https?:\/\//, '').slice(0, 30)}...
+                                    </span>
+                                    <span className="flex items-center">
+                                        <Clock aria-hidden="true" className="mr-1.5 h-3.5 w-3.5 shrink-0" />
+                                        {formatDateTime(
+                                            channel.createdDate,
+                                            normalizeLocale(i18n.locale),
+                                            channel.createdDate
+                                        )}
+                                    </span>
+                                    {getStatusBadge(channel)}
                                 </div>
-                            }
-                            actions={
-                                <Dropdown
-                                    density="compact"
-                                    triggerAriaLabel={`${channel.name || '이름 없는 채널'} 웹훅 메뉴 열기`}
-                                    triggerClassName="min-h-11 min-w-11 [@media(pointer:fine)]:min-h-9 [@media(pointer:fine)]:min-w-9"
-                                    items={[
-                                        {
-                                            label: '삭제',
-                                            icon: <Trash2 aria-hidden="true" className="h-4 w-4" />,
-                                            onClick: () => handleDelete(channel.id),
-                                            variant: 'danger'
-                                        }
-                                    ]}
-                                />
-                            }>
-                            <h3 className={`${SETTINGS_LIST_TITLE} mb-0.5`}>
-                                {channel.name || '이름 없는 채널'}
-                            </h3>
-                            <div className={`${SETTINGS_LIST_META} flex flex-wrap items-center gap-3`}>
-                                <span className="flex items-center truncate max-w-[200px]" title={channel.webhookUrl}>
-                                    <LinkIcon aria-hidden="true" className="mr-1.5 h-3.5 w-3.5 shrink-0" />
-                                    {channel.webhookUrl.replace(/^https?:\/\//, '').slice(0, 30)}...
-                                </span>
-                                <span className="flex items-center">
-                                    <Clock aria-hidden="true" className="mr-1.5 h-3.5 w-3.5 shrink-0" />
-                                    {channel.createdDate}
-                                </span>
-                                {getStatusBadge(channel)}
-                            </div>
-                        </SettingsListItem>
-                    ))}
+                            </SettingsListItem>
+                        );
+                    })}
                 </div>
             ) : !showAddForm ? (
                 <SettingsEmptyState

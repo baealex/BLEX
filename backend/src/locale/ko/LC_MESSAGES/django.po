@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: BLEX 3.1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-08-05 03:17+0900\n"
+"POT-Creation-Date: 2026-08-05 03:31+0900\n"
 "PO-Revision-Date: 2026-07-18 00:00+0900\n"
 "Last-Translator: BLEX contributors\n"
 "Language-Team: Korean\n"
@@ -317,6 +317,33 @@ msgstr "사이트 배너"
 msgid "%(time)s ago"
 msgstr "%(time)s 전"
 
+#: board/services/api_permission_service.py:19
+#: board/services/webhook_api_service.py:13
+#: board/services/webhook_api_service.py:28
+msgid "Login required."
+msgstr "로그인이 필요합니다."
+
+#: board/services/api_permission_service.py:29
+#: board/services/api_permission_service.py:75
+#: board/services/series_service.py:53 board/services/webhook_api_service.py:20
+#: board/views/api/v1/pinned_post_errors.py:9
+msgid "Author access is required."
+msgstr "작가 권한이 필요합니다."
+
+#: board/services/api_permission_service.py:39
+#: board/services/webhook_api_service.py:30
+msgid "Administrator access is required."
+msgstr "관리자 권한이 필요합니다."
+
+#: board/services/api_permission_service.py:50
+msgid "Superuser access is required."
+msgstr "최고 관리자 권한이 필요합니다."
+
+#: board/services/api_permission_service.py:61
+#: board/services/api_permission_service.py:72
+msgid "Permission denied."
+msgstr "권한이 없습니다."
+
 #: board/services/auth_login_service.py:63
 msgid "Too many failed attempts. Please try again later."
 msgstr "너무 많은 실패로 인해 잠시 후 다시 시도해주세요."
@@ -495,11 +522,6 @@ msgstr "휴지통 상태가 바뀌었습니다. 목록을 새로고침한 뒤 �
 msgid "Login is required."
 msgstr "로그인이 필요합니다."
 
-#: board/services/series_service.py:53
-#: board/views/api/v1/pinned_post_errors.py:9
-msgid "Author access is required."
-msgstr "작가 권한이 필요합니다."
-
 #: board/services/series_service.py:72 board/services/series_service.py:201
 msgid "Enter a series name."
 msgstr "시리즈 이름을 입력해주세요."
@@ -569,6 +591,19 @@ msgstr "잘못된 인증 코드입니다."
 #, python-format
 msgid "Could not enable two-factor authentication: %(error)s"
 msgstr "2FA 활성화에 실패했습니다: %(error)s"
+
+#: board/services/webhook_api_service.py:23
+msgid "Profile not found."
+msgstr "프로필을 찾을 수 없습니다."
+
+#: board/services/webhook_service.py:162
+#, python-format
+msgid "[%(author)s] Published a new post: [%(title)s](%(url)s)"
+msgstr "[%(author)s] 새 포스트가 발행되었어요: [%(title)s](%(url)s)"
+
+#: board/services/webhook_service.py:260
+msgid "This is a BLEX webhook connection test."
+msgstr "BLEX 웹훅 연결 테스트입니다."
 
 #: board/templates/admin/board/confirm_action.html:11
 msgid "Home"
@@ -1622,6 +1657,26 @@ msgstr "텔레그램 봇이 설정되지 않았습니다."
 #: board/views/api/v1/telegram.py:105
 msgid "Telegram is already disconnected."
 msgstr "이미 연동이 해제되었습니다."
+
+#: board/views/api/v1/webhook.py:29 board/views/api/v1/webhook.py:191
+msgid "Invalid JSON body."
+msgstr "올바르지 않은 JSON 본문입니다."
+
+#: board/views/api/v1/webhook.py:39 board/views/api/v1/webhook.py:200
+msgid "Webhook URL is required."
+msgstr "웹훅 URL이 필요합니다."
+
+#: board/views/api/v1/webhook.py:42 board/views/api/v1/webhook.py:203
+msgid "Invalid webhook URL."
+msgstr "올바르지 않은 웹훅 URL입니다."
+
+#: board/views/api/v1/webhook.py:45
+msgid "Webhook URL is too long."
+msgstr "웹훅 URL이 너무 깁니다."
+
+#: board/views/api/v1/webhook.py:113 board/views/api/v1/webhook.py:171
+msgid "Webhook destination not found."
+msgstr "웹훅 전송 대상을 찾을 수 없습니다."
 
 #: board/views/author.py:287
 msgid "Author-defined order"

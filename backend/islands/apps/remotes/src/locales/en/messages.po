@@ -621,6 +621,7 @@ msgstr "Apply"
 #: src/components/remotes/PostEditor/components/PublishChecklist.tsx:139
 #: src/components/remotes/PostEditor/EditPostEditor.tsx:386
 #: src/components/remotes/PostEditor/NewPostEditor.tsx:397
+#: src/components/remotes/SettingsApp/components/WebhookChannelManager.tsx:486
 #: src/components/remotes/SettingsApp/pages/AccountSetting/components/TwoFactorModal.tsx:135
 #: src/components/remotes/SettingsApp/pages/FormsSetting/FormsSetting.tsx:291
 #: src/components/remotes/SettingsApp/pages/PinnedPostsSetting/components/AddPinnedPostModal.tsx:220
@@ -655,6 +656,8 @@ msgstr "Copy"
 #: src/components/remotes/Comments/hooks/useCommentsController.ts:270
 #: src/components/remotes/PostEditor/components/PostRevisionDialog.tsx:614
 #: src/components/remotes/PostEditor/components/PostRevisionDialog.tsx:645
+#: src/components/remotes/SettingsApp/components/WebhookChannelManager.tsx:336
+#: src/components/remotes/SettingsApp/components/WebhookChannelManager.tsx:550
 #: src/components/remotes/SettingsApp/pages/AccountSetting/AccountSetting.tsx:280
 #: src/components/remotes/SettingsApp/pages/AccountSetting/components/SecuritySection.tsx:77
 #: src/components/remotes/SettingsApp/pages/FormsSetting/FormsSetting.tsx:86
@@ -4633,3 +4636,280 @@ msgstr "Could not generate a verification code."
 #: src/components/remotes/SettingsApp/pages/IntegrationSetting/IntegrationSetting.tsx:276
 msgid "settings.telegram.token.generating"
 msgstr "Generating..."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/components/WebhookChannelManager.tsx:513
+msgid "settings.webhooks.add"
+msgstr "Add"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/components/WebhookChannelManager.tsx:260
+msgid "settings.webhooks.add_destination"
+msgstr "Add destination"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/components/WebhookChannelManager.tsx:512
+msgid "settings.webhooks.adding"
+msgstr "Adding…"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/components/WebhookChannelManager.tsx:464
+msgid "settings.webhooks.form.name"
+msgstr "Display name (optional)"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/components/WebhookChannelManager.tsx:470
+msgid "settings.webhooks.form.name_placeholder"
+msgstr "For example: New post alerts"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/components/WebhookChannelManager.tsx:413
+msgid "settings.webhooks.form.url"
+msgstr "Webhook URL"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/GlobalWebhookSetting/GlobalWebhookSetting.tsx:48
+msgid "settings.webhooks.global.add.failed"
+msgstr "Could not add the global webhook."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/GlobalWebhookSetting/GlobalWebhookSetting.tsx:44
+msgid "settings.webhooks.global.add.success"
+msgstr "Global webhook added."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/GlobalWebhookSetting/GlobalWebhookSetting.tsx:56
+msgid "settings.webhooks.global.delete.failed"
+msgstr "Could not delete the global webhook."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/GlobalWebhookSetting/GlobalWebhookSetting.tsx:40
+msgid "settings.webhooks.global.delete.message"
+msgstr "Delete this global webhook?"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/GlobalWebhookSetting/GlobalWebhookSetting.tsx:52
+msgid "settings.webhooks.global.delete.success"
+msgstr "Global webhook deleted."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/GlobalWebhookSetting/GlobalWebhookSetting.tsx:36
+msgid "settings.webhooks.global.delete.title"
+msgstr "Delete global webhook"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/GlobalWebhookSetting/GlobalWebhookSetting.tsx:20
+msgid "settings.webhooks.global.description"
+msgstr "Send posts published by any author to Discord, Slack, or a generic webhook URL."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/GlobalWebhookSetting/GlobalWebhookSetting.tsx:28
+msgid "settings.webhooks.global.empty_title"
+msgstr "No global webhooks yet"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/GlobalWebhookSetting/GlobalWebhookSetting.tsx:24
+msgid "settings.webhooks.global.form_title"
+msgstr "Add global webhook"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/GlobalWebhookSetting/GlobalWebhookSetting.tsx:16
+msgid "settings.webhooks.global.title"
+msgstr "Global webhook integration"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/components/WebhookChannelManager.tsx:245
+msgid "settings.webhooks.load_failed"
+msgstr "Could not load webhook destinations."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/components/WebhookChannelManager.tsx:542
+msgid "settings.webhooks.menu.open"
+msgstr "Open the webhook menu for {name}"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/components/WebhookChannelManager.tsx:453
+msgid "settings.webhooks.preview.json_label"
+msgstr "JSON payload"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/components/WebhookChannelManager.tsx:79
+msgid "settings.webhooks.preview.message"
+msgstr "[baealex] Published a new post: [BLEX update](https://blex.me/@baealex/blex-update)"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/components/WebhookChannelManager.tsx:445
+msgid "settings.webhooks.preview.message_label"
+msgstr "Message"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/components/WebhookChannelManager.tsx:126
+msgid "settings.webhooks.provider.discord.description"
+msgstr "Recognized as a Discord channel webhook URL."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/components/WebhookChannelManager.tsx:118
+msgid "settings.webhooks.provider.discord.title"
+msgstr "Discord Webhook"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/components/WebhookChannelManager.tsx:164
+msgid "settings.webhooks.provider.generic.badge"
+msgstr "Generic JSON"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/components/WebhookChannelManager.tsx:168
+msgid "settings.webhooks.provider.generic.description"
+msgstr "BLEX sends a JSON POST request to this URL. The receiver must handle the fields below."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/components/WebhookChannelManager.tsx:160
+msgid "settings.webhooks.provider.generic.title"
+msgstr "Generic webhook URL"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/components/WebhookChannelManager.tsx:122
+#: src/components/remotes/SettingsApp/components/WebhookChannelManager.tsx:142
+msgid "settings.webhooks.provider.official_badge"
+msgstr "Official format"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/components/WebhookChannelManager.tsx:96
+msgid "settings.webhooks.provider.pending.badge"
+msgstr "Waiting for URL"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/components/WebhookChannelManager.tsx:100
+msgid "settings.webhooks.provider.pending.description"
+msgstr "Discord and Slack use their official webhook formats. Other URLs receive generic JSON."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/components/WebhookChannelManager.tsx:104
+msgid "settings.webhooks.provider.pending.payload"
+msgstr "Enter a URL to preview the payload format."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/components/WebhookChannelManager.tsx:92
+msgid "settings.webhooks.provider.pending.title"
+msgstr "Delivery format"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/components/WebhookChannelManager.tsx:146
+msgid "settings.webhooks.provider.slack.description"
+msgstr "Recognized as a Slack Incoming Webhook URL."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/components/WebhookChannelManager.tsx:138
+msgid "settings.webhooks.provider.slack.title"
+msgstr "Slack Incoming Webhook"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/components/WebhookChannelManager.tsx:380
+msgid "settings.webhooks.status.active"
+msgstr "Active"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/components/WebhookChannelManager.tsx:370
+msgid "settings.webhooks.status.failures"
+msgstr "{count, plural, one {# failure} other {# failures}}"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/components/WebhookChannelManager.tsx:363
+msgid "settings.webhooks.status.inactive"
+msgstr "Inactive"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/components/WebhookChannelManager.tsx:501
+msgid "settings.webhooks.test.action"
+msgstr "Test"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/components/WebhookChannelManager.tsx:295
+msgid "settings.webhooks.test.error"
+msgstr "An error occurred while testing the webhook."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/components/WebhookChannelManager.tsx:283
+#: src/components/remotes/SettingsApp/components/WebhookChannelManager.tsx:289
+msgid "settings.webhooks.test.failed"
+msgstr "Webhook test failed. Check the URL and try again."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/components/WebhookChannelManager.tsx:500
+msgid "settings.webhooks.test.sending"
+msgstr "Sending…"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/components/WebhookChannelManager.tsx:278
+msgid "settings.webhooks.test.success"
+msgstr "Test message sent."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/components/WebhookChannelManager.tsx:524
+msgid "settings.webhooks.unnamed_channel"
+msgstr "Unnamed destination"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/WebhookSetting/WebhookSetting.tsx:48
+msgid "settings.webhooks.user.add.failed"
+msgstr "Could not add the webhook."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/WebhookSetting/WebhookSetting.tsx:44
+msgid "settings.webhooks.user.add.success"
+msgstr "Webhook added."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/WebhookSetting/WebhookSetting.tsx:56
+msgid "settings.webhooks.user.delete.failed"
+msgstr "Could not delete the webhook."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/WebhookSetting/WebhookSetting.tsx:40
+msgid "settings.webhooks.user.delete.message"
+msgstr "Delete this webhook?"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/WebhookSetting/WebhookSetting.tsx:52
+msgid "settings.webhooks.user.delete.success"
+msgstr "Webhook deleted."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/WebhookSetting/WebhookSetting.tsx:36
+msgid "settings.webhooks.user.delete.title"
+msgstr "Delete webhook"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/WebhookSetting/WebhookSetting.tsx:20
+msgid "settings.webhooks.user.description"
+msgstr "Send your newly published posts to Discord, Slack, or a generic webhook URL."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/WebhookSetting/WebhookSetting.tsx:28
+msgid "settings.webhooks.user.empty_title"
+msgstr "No webhooks yet"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/WebhookSetting/WebhookSetting.tsx:24
+msgid "settings.webhooks.user.form_title"
+msgstr "Add webhook"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/WebhookSetting/WebhookSetting.tsx:16
+msgid "settings.webhooks.user.title"
+msgstr "Webhook integration"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/components/WebhookChannelManager.tsx:213
+msgid "settings.webhooks.validation.name_max_length"
+msgstr "The display name must be 100 characters or fewer."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/components/WebhookChannelManager.tsx:209
+msgid "settings.webhooks.validation.url_invalid"
+msgstr "Enter a valid URL."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/components/WebhookChannelManager.tsx:205
+msgid "settings.webhooks.validation.url_required"
+msgstr "Enter a webhook URL."
