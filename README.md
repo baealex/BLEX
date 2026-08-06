@@ -8,8 +8,7 @@
 <h1 align="center">BLEX</h1>
 
 <p align="center">
-  <strong>A self-hosted publishing home for independent developers.</strong><br>
-  Write in the browser. Publish from your own domain. Stay readable everywhere.
+  A self-hosted blog application for your own domain and server.
 </p>
 
 <p align="center">
@@ -23,36 +22,57 @@
   English · <a href="README.ko.md">한국어</a>
 </p>
 
-## Your blog should be easy to own and easy to use
+## About
 
-You should not have to choose between editing Markdown in a repository and
-running a sprawling CMS just to own a blog.
+BLEX is a blog application that you run on infrastructure you control. It
+provides a browser-based editor, Docker deployment, and the settings needed to
+operate a personal blog or a small publication.
 
-BLEX sits in the middle. Bring a domain and a small server; BLEX gives you a
-focused writing desk, a public blog, and the operational tools to keep both
-running. Edit and publish without a rebuild, while keeping your content, media,
-database, and URLs on infrastructure you control.
+Public posts are available as regular web pages as well as RSS, sitemap, and
+Markdown endpoints. The default deployment uses SQLite and is configured to
+start with modest server resources.
 
-It is a good fit for personal blogs, build logs, technical writing, and small
-multi-author publications. BLEX assumes you are comfortable operating Docker
-and backups. It is not a hosted service or a zero-runtime static-site generator.
+## Features
 
-## What you get
+**Writing and publishing**
 
-| Area | Included |
-| --- | --- |
-| Writing | Tiptap rich-text editor, drafts, autosave recovery, revision history, previews, scheduled publishing, hidden posts, covers, series, and tags |
-| Public blog | Responsive post and author pages, search, comments, likes, pinned posts, notices, banners, and static pages |
-| Ownership | Your domain, SQLite database, uploaded media, branding, and deployment |
-| Discovery | RSS, sitemaps, canonical and Open Graph metadata, public Markdown URLs, and optional `/llms.txt` |
-| Automation | Personal Developer API tokens, scoped permissions, Markdown or HTML publishing, image upload, OpenAPI schema, and request logs |
-| Operations | Docker deployment, admin setup, user roles, social login, TOTP two-factor authentication, webhooks, Telegram notifications, and maintenance tools |
-| Languages | English and Korean product UI with separate, contributor-friendly translation catalogs; authored content is always preserved as written |
+- Tiptap-based rich-text editor
+- Drafts, autosave recovery, revision history, and previews
+- Scheduled publishing and hidden posts
+- Cover images, series, and tags
+- Markdown or HTML publishing through the Developer API
 
-## Try BLEX with Docker
+**Public blog**
 
-You need Git, Docker, and Docker Compose. These commands start BLEX locally
-using the published image:
+- Post, author, series, tag, search, and static pages
+- Comments, likes, and pinned posts
+- RSS, sitemaps, canonical URLs, and Open Graph metadata
+- Public Markdown URLs and optional `/llms.txt`
+
+**Operations**
+
+- Docker-based deployment
+- Initial administrator setup
+- Site name, logo, and icon settings
+- Notices, banners, notifications, webhooks, and Telegram integration
+- User roles and administration tools
+
+**Accounts and security**
+
+- GitHub and Google social login
+- TOTP two-factor authentication
+- Personal Developer API tokens with scoped permissions
+
+**Languages**
+
+- English and Korean product UI
+- Request-language negotiation when English UI support is enabled
+- Separate translation catalogs for Django, React islands, and the editor
+- Posts and other user-authored content are displayed exactly as written
+
+## Run with Docker
+
+Requirements: Git, Docker, and Docker Compose.
 
 ```bash
 git clone https://github.com/baealex/BLEX.git
@@ -64,31 +84,20 @@ docker compose up -d
 docker compose logs -f blex
 ```
 
-Open `http://localhost:20002`. The logs print an `Initial setup URL`; open it
-to create the first administrator, then write your first post at `/write`.
+Open `http://localhost:20002`. The logs include an `Initial setup URL` for
+creating the first administrator.
 
 The sample environment enables English and Korean UI negotiation. Existing
-installations can opt in by setting `ENABLE_ENGLISH_UI=TRUE`. BLEX translates
-the product interface, not posts or other author-created content.
+installations can enable it with `ENABLE_ENGLISH_UI=TRUE`.
 
-Before exposing a site publicly:
+Before a public deployment, replace the sample secrets, configure the public
+site URL and allowed hosts, place an HTTPS proxy in front of BLEX, and back up
+both the SQLite database and uploaded media. See the
+[Self-hosting Guide](docs/SELF_HOSTING.md) for details.
 
-- replace `SECRET_KEY`, `CIPHER_KEY`, and the initial setup token;
-- set `DEBUG=FALSE`, `SITE_URL`, `ALLOWED_HOSTS`, and
-  `CSRF_TRUSTED_ORIGINS`;
-- put an HTTPS reverse proxy such as Caddy, nginx, Traefik, or Cloudflare
-  Tunnel in front of BLEX;
-- back up both `backend/src/db.sqlite3` and
-  `backend/src/resources/media`.
+## Public URLs
 
-See the [Self-hosting Guide](docs/SELF_HOSTING.md) for the complete deployment
-and recovery checklist.
-
-## Publish once, stay discoverable
-
-BLEX treats the public website as more than rendered HTML.
-
-| Path | Purpose |
+| Path | Description |
 | --- | --- |
 | `/rss` | Site RSS feed |
 | `/sitemap.xml` | Sitemap index |
@@ -97,26 +106,20 @@ BLEX treats the public website as more than rendered HTML.
 | `/@{username}/{post_url}.md` | Public post as Markdown |
 | `/@{username}/series/{series_url}.md` | Public series as Markdown |
 | `/static/{slug}.md` | Public static page as Markdown |
-| `/api/developer/v1/docs` | Interactive Developer API documentation |
+| `/api/developer/v1/docs` | Developer API documentation |
 | `/api/developer/v1/openapi.json` | Developer API OpenAPI schema |
 
 Private posts, hidden posts, drafts, deleted posts, and scheduled posts that
-are not yet published stay out of RSS, sitemaps, and public Markdown surfaces.
+are not yet published are excluded from RSS, sitemaps, and public Markdown
+endpoints.
 
 ## Developer API
 
-The Developer API lets scripts, personal tools, and AI-assisted workflows
-publish without bypassing BLEX's permissions or post lifecycle.
+The Developer API supports personal tokens, scoped permissions, post and draft
+management, Markdown or HTML input, image upload, publishing, tags, and series.
 
-The usual flow is:
-
-1. create a personal token with only the scopes you need;
-2. create a Markdown or HTML draft;
-3. upload images and update publishing metadata;
-4. preview, schedule, or publish the post.
-
-Once BLEX is running, open `/docs/developer-api/quickstart` for the guided
-walkthrough or `/api/developer/v1/docs` for the full API.
+After starting BLEX, open `/docs/developer-api/quickstart` for the quickstart or
+`/api/developer/v1/docs` for the complete API documentation.
 
 ## Local development
 
@@ -132,9 +135,7 @@ npm run server:migrate
 npm run dev
 ```
 
-The setup script creates the Python virtual environment and copies the sample
-environment when needed. Open `http://localhost:8000` for Django; the React
-islands development server runs alongside it.
+Open `http://localhost:8000`.
 
 Common checks:
 
@@ -146,14 +147,6 @@ npm run islands:lint
 npm run islands:type-check
 ```
 
-## How it is built
-
-BLEX uses Django for server-rendered pages, authentication, permissions, and
-publishing workflows. React is loaded as focused islands for interaction-heavy
-areas such as the editor and settings, rather than turning the entire site into
-a client-side application. SQLite is the default database, and the production
-image runs nginx and Gunicorn together with a small-server-friendly default.
-
 ## Documentation
 
 - [Self-hosting Guide](docs/SELF_HOSTING.md)
@@ -164,10 +157,6 @@ image runs nginx and Gunicorn together with a small-server-friendly default.
 - [Testing Guide](docs/TESTING_GUIDE.md)
 - [Design Guide](docs/DESIGN_GUIDE.md)
 
-Translation contributions are especially welcome. The translation guide
-explains the separate Django, React island, and editor catalogs and how to add
-another language without changing application code.
-
 ## License
 
-BLEX is available under the [MIT License](LICENSE).
+[MIT License](LICENSE)
