@@ -232,9 +232,8 @@ SUPPORTED_UI_LANGUAGES = [
     ('en', _('English')),
 ]
 
-# English catalogs are built and tested before the product advertises English
-# support. Production negotiation remains Korean-only until a coherent user
-# journey is ready to ship.
+# Existing deployments remain Korean-only until they opt in. New installations
+# enable English negotiation through samples/.env.
 ENABLE_ENGLISH_UI = (
     DEBUG
     or TESTING
