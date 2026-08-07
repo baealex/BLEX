@@ -1,9 +1,9 @@
 interface LoadingStateProps {
     type?: 'list' | 'form' | 'spinner';
-    ariaLabel?: string;
+    ariaLabel: string;
 }
 
-const LoadingState = ({ type = 'form', ariaLabel = 'Loading' }: LoadingStateProps) => {
+const LoadingState = ({ type = 'form', ariaLabel }: LoadingStateProps) => {
     const spacing = type === 'spinner'
         ? 'p-8'
         : type === 'list'
