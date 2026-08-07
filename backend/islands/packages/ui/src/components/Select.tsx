@@ -86,7 +86,7 @@ const Select = ({
 
                 <RadixSelect.Portal>
                     <RadixSelect.Content
-                        className="z-50 bg-surface-elevated border border-line rounded-xl shadow-lg overflow-hidden animate-in fade-in-0 zoom-in-95"
+                        className="z-50 bg-surface-elevated border border-line rounded-xl shadow-lg overflow-hidden data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:zoom-in-95"
                         position="popper"
                         sideOffset={5}
                         style={{ width: 'var(--radix-select-trigger-width)' }}>

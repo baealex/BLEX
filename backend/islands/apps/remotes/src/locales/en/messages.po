@@ -717,7 +717,7 @@ msgstr "Create"
 #: src/components/remotes/SettingsApp/pages/shared/NoticeSettingBase.tsx:229
 #: src/components/remotes/SettingsApp/pages/shared/NoticeSettingBase.tsx:452
 #: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:231
-#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:492
+#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:493
 #: src/components/remotes/SettingsApp/pages/StaticPagesSetting/components/StaticPageEditor.tsx:274
 #: src/components/remotes/SettingsApp/pages/StaticPagesSetting/components/StaticPageEditor.tsx:462
 #: src/components/remotes/SettingsApp/pages/StaticPagesSetting/components/StaticPageList.tsx:43
@@ -899,7 +899,7 @@ msgstr "Saving"
 #. js-lingui-explicit-id
 #: src/components/remotes/Comments/components/CommentEditForm.tsx:87
 #: src/components/remotes/SettingsApp/pages/SeoAeoSetting/SeoAeoSetting.tsx:606
-#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:740
+#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:743
 msgid "common.saving_ellipsis"
 msgstr "Saving..."
 
@@ -3413,7 +3413,7 @@ msgid "settings.developer_api.validation.scope_required"
 msgstr "Select at least one permission."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:308
+#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:309
 msgid "settings.document_title"
 msgstr "Settings"
 
@@ -5802,53 +5802,53 @@ msgid "settings.series.title_count"
 msgstr "Series ({count})"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:638
+#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:641
 msgid "settings.site.advanced.title"
 msgstr "Advanced settings"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:549
+#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:550
 msgid "settings.site.basic.title"
 msgstr "Basic settings"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:408
-#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:421
+#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:409
+#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:422
 msgid "settings.site.brand.delete_error"
 msgstr "Failed to delete the brand asset."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:415
+#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:416
 msgid "settings.site.brand.delete_success"
 msgstr "Brand asset deleted."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:485
+#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:486
 msgid "settings.site.brand.delete.dark.message"
 msgstr "Delete this dark mode asset?"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:469
+#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:470
 msgid "settings.site.brand.delete.dark.title"
 msgstr "Delete dark mode asset"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:476
+#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:477
 msgid "settings.site.brand.delete.default_icon.message"
 msgstr "Deleting the default icon also deletes the dark icon, favicon, and PNG icons. Continue?"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:460
+#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:461
 msgid "settings.site.brand.delete.default_icon.title"
 msgstr "Delete default icon"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:480
+#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:481
 msgid "settings.site.brand.delete.default_logo.message"
 msgstr "Deleting the default logo also deletes the dark mode logo. Continue?"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:464
+#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:465
 msgid "settings.site.brand.delete.default_logo.title"
 msgstr "Delete default logo"
 
@@ -5938,38 +5938,38 @@ msgid "settings.site.brand.error.svg_unsupported_element"
 msgstr "Unsupported SVG element: {detail}"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:615
+#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:618
 msgid "settings.site.brand.icon.description"
 msgstr "Uploading the default icon SVG also generates the favicon and PNG icons in your browser."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:611
+#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:614
 msgid "settings.site.brand.icon.title"
 msgstr "Icon"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:580
+#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:583
 msgid "settings.site.brand.immediate_help"
 msgstr "Uploads and deletions take effect immediately without a separate save."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:593
+#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:596
 msgid "settings.site.brand.logo.description"
 msgstr "Used in the header and footer. After uploading the default logo, you can optionally add a dark mode SVG."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:589
+#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:592
 msgid "settings.site.brand.logo.title"
 msgstr "Logo"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:382
-#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:397
+#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:383
+#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:398
 msgid "settings.site.brand.save_error"
 msgstr "Failed to save the brand asset."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:389
+#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:390
 msgid "settings.site.brand.save_success"
 msgstr "Brand asset saved."
 
@@ -5984,90 +5984,90 @@ msgid "settings.site.brand.status.default"
 msgstr "Default"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:284
+#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:285
 msgid "settings.site.brand.theme.dark"
 msgstr "Dark mode"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:269
+#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:270
 msgid "settings.site.brand.theme.default"
 msgstr "Default"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:574
+#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:577
 msgid "settings.site.brand.title"
 msgstr "Brand assets"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:705
-#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:711
+#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:708
+#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:714
 msgid "settings.site.global_code.body_end"
 msgstr "End-of-body code"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:687
-#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:693
+#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:690
+#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:696
 msgid "settings.site.global_code.head"
 msgstr "Head code"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:528
+#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:529
 msgid "settings.site.global_code.status.active"
 msgstr "Currently active on all public pages."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:532
+#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:533
 msgid "settings.site.global_code.status.empty"
 msgstr "No global code is currently configured."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:523
+#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:524
 msgid "settings.site.global_code.status.unsaved"
 msgstr "You have unsaved changes."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:653
+#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:656
 msgid "settings.site.global_code.title"
 msgstr "Global code"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:675
+#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:678
 msgid "settings.site.global_code.warning"
 msgstr "Saved code runs immediately on every public page. Meta tags and early-loading code are inserted inside {headTag}; later scripts are inserted just before {bodyTag}. Use only code you trust."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:321
+#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:322
 msgid "settings.site.load_error"
 msgstr "Failed to load site settings."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:565
+#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:566
 msgid "settings.site.name.help"
 msgstr "Shown in browser titles, search results, RSS, and public documents."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:557
+#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:558
 msgid "settings.site.name.label"
 msgstr "Site name"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:744
+#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:747
 msgid "settings.site.save"
 msgstr "Save site settings"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:350
-#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:369
+#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:351
+#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:370
 msgid "settings.site.save_error"
 msgstr "Failed to save site settings."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:363
+#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:364
 msgid "settings.site.save_success"
 msgstr "Site settings saved."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:541
+#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:542
 msgid "settings.site.title"
 msgstr "Blog customization"
 
@@ -6938,458 +6938,458 @@ msgid "settings.users.title"
 msgstr "User roles"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:902
-#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:1084
-#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:1168
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:904
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:1086
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:1170
 msgid "settings.utility.action.preview"
 msgstr "Review cleanup"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:814
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:816
 msgid "settings.utility.description"
 msgstr "Run a cleanup within five minutes of reviewing its preview."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:1172
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:1174
 msgid "settings.utility.images.action.delete"
 msgstr "Delete selected images and caches"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:791
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:793
 msgid "settings.utility.images.confirm.action"
 msgstr "Delete selected images and caches"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:783
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:785
 msgid "settings.utility.images.confirm.message"
 msgstr "Permanently delete {count} unused images and the related caches confirmed in the preview. Estimated space reclaimed: {size} MB."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:774
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:776
 msgid "settings.utility.images.confirm.message_with_duplicates"
 msgstr "Permanently delete {unusedCount} unused images, {duplicateCount} duplicate title images, and the related caches confirmed in the preview. Estimated space reclaimed: {size} MB."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:769
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:771
 msgid "settings.utility.images.confirm.title"
 msgstr "Delete image files"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:1117
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:1119
 msgid "settings.utility.images.description"
 msgstr "Find and delete unused image files in the selected area."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:1159
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:1161
 msgid "settings.utility.images.duplicates.description"
 msgstr "When cleaning all images or title images, also delete identical files."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:1155
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:1157
 msgid "settings.utility.images.duplicates.label"
 msgstr "Also delete duplicate title images"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:599
-#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:628
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:601
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:630
 msgid "settings.utility.images.error"
 msgstr "Failed to clean up images."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:610
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:612
 msgid "settings.utility.images.partial_failure"
 msgstr "Image deletion finished, but some files could not be processed."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:372
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:374
 msgid "settings.utility.images.result.duplicate_alt"
 msgstr "Ready for deletion"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:358
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:360
 msgid "settings.utility.images.result.duplicate_files"
 msgstr "Duplicate files ({count})"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:301
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:303
 msgid "settings.utility.images.result.duplicates"
 msgstr "Duplicate files: {count} ({size} MB)"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:386
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:388
 msgid "settings.utility.images.result.original_alt"
 msgstr "Original to keep"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:272
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:274
 msgid "settings.utility.images.result.partial_failure_title"
 msgstr "Some images could not be processed"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:312
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:314
 msgid "settings.utility.images.result.saved_space"
 msgstr "Space reclaimed: {size} MB"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:279
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:281
 msgid "settings.utility.images.result.success_title"
 msgstr "Images deleted"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:290
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:292
 msgid "settings.utility.images.result.unused"
 msgstr "Unused files: {count} ({size} MB)"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:337
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:339
 msgid "settings.utility.images.result.unused_files"
 msgstr "Images ready for deletion ({count})"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:329
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:331
 msgid "settings.utility.images.result.unused_files_partial"
 msgstr "Images ready for deletion ({shown} of {total})"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:615
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:617
 msgid "settings.utility.images.success"
 msgstr "Deleted {count} images and reclaimed {size} MB."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:418
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:420
 msgid "settings.utility.images.target.all"
 msgstr "All images"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:439
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:441
 msgid "settings.utility.images.target.avatar"
 msgstr "Avatar images"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:425
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:427
 msgid "settings.utility.images.target.content"
 msgstr "Content images"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:1126
-#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:1134
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:1128
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:1136
 msgid "settings.utility.images.target.label"
 msgstr "Cleanup target"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:432
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:434
 msgid "settings.utility.images.target.title"
 msgstr "Title images"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:1113
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:1115
 msgid "settings.utility.images.title"
 msgstr "Image cleanup"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:1088
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:1090
 msgid "settings.utility.logs.action.delete"
 msgstr "Delete selected logs"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:751
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:753
 msgid "settings.utility.logs.confirm.action"
 msgstr "Delete {count, plural, one {# log} other {# logs}}"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:741
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:743
 msgid "settings.utility.logs.confirm.message"
 msgstr "Permanently delete {adminCount} admin activity logs older than {adminDays} days and {developerCount} developer API request logs older than {developerDays} days."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:737
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:739
 msgid "settings.utility.logs.confirm.title"
 msgstr "Delete system logs"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:1060
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:1062
 msgid "settings.utility.logs.description"
 msgstr "Delete only admin activity and developer API request logs beyond their retention periods."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:556
-#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:575
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:558
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:577
 msgid "settings.utility.logs.error"
 msgstr "Failed to clean up logs."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:233
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:235
 msgid "settings.utility.logs.result.admin"
 msgstr "Admin activity logs older than {days} days: {count}"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:243
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:245
 msgid "settings.utility.logs.result.developer"
 msgstr "Developer API request logs older than {days} days: {count}"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:228
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:230
 msgid "settings.utility.logs.result.success_title"
 msgstr "Logs deleted"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:1068
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:1070
 msgid "settings.utility.logs.stats.admin"
 msgstr "Admin logs: {count}"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:1075
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:1077
 msgid "settings.utility.logs.stats.developer"
 msgstr "API request logs: {count}"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:564
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:566
 msgid "settings.utility.logs.success"
 msgstr "Deleted {adminCount} expired admin activity logs and {developerCount} expired developer API request logs."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:1056
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:1058
 msgid "settings.utility.logs.title"
 msgstr "Log cleanup"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:116
-#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:224
-#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:264
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:117
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:226
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:266
 msgid "settings.utility.result.preview_title"
 msgstr "Cleanup preview"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:1022
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:1024
 msgid "settings.utility.sessions.all.action.delete"
 msgstr "Delete all sessions"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:1018
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:1020
 msgid "settings.utility.sessions.all.action.preview"
 msgstr "Review all sessions"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:718
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:720
 msgid "settings.utility.sessions.all.confirm.action"
 msgstr "Delete all {count} sessions"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:713
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:715
 msgid "settings.utility.sessions.all.confirm.message"
 msgstr "Delete all {count} sessions, including the current administrator session. Every user will be logged out immediately."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:709
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:711
 msgid "settings.utility.sessions.all.confirm.title"
 msgstr "Delete all user sessions"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:1011
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:1013
 msgid "settings.utility.sessions.all.description"
 msgstr "Immediately log out every user, including the current administrator."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:1005
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:1007
 msgid "settings.utility.sessions.all.title"
 msgstr "All user sessions"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:523
-#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:539
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:525
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:541
 msgid "settings.utility.sessions.error"
 msgstr "Failed to clean up sessions."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:975
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:977
 msgid "settings.utility.sessions.expired.action.delete"
 msgstr "Delete expired sessions"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:971
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:973
 msgid "settings.utility.sessions.expired.action.preview"
 msgstr "Review expired sessions"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:690
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:692
 msgid "settings.utility.sessions.expired.confirm.action"
 msgstr "Delete {count, plural, one {# expired session} other {# expired sessions}}"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:685
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:687
 msgid "settings.utility.sessions.expired.confirm.message"
 msgstr "Delete {count, plural, one {# expired session} other {# expired sessions}} confirmed in the preview. Active user sessions will be kept."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:681
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:683
 msgid "settings.utility.sessions.expired.confirm.title"
 msgstr "Delete expired sessions"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:964
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:966
 msgid "settings.utility.sessions.expired.description"
 msgstr "Delete only expired login sessions and keep active users signed in."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:958
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:960
 msgid "settings.utility.sessions.expired.title"
 msgstr "Expired sessions"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:188
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:189
 msgid "settings.utility.sessions.result.all_preview"
 msgstr "{count, plural, one {# session, including the current administrator session, will be deleted.} other {All # sessions, including the current administrator session, will be deleted.}}"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:184
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:185
 msgid "settings.utility.sessions.result.all_preview_title"
 msgstr "All sessions ready for deletion"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:200
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:201
 msgid "settings.utility.sessions.result.expired_preview"
 msgstr "{count, plural, one {# expired session will be deleted. Active sessions will be kept.} other {# expired sessions will be deleted. Active sessions will be kept.}}"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:196
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:197
 msgid "settings.utility.sessions.result.expired_preview_title"
 msgstr "Expired sessions ready for deletion"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:175
-#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:531
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:176
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:533
 msgid "settings.utility.sessions.result.success"
 msgstr "{count, plural, one {Deleted # session.} other {Deleted # sessions.}}"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:171
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:172
 msgid "settings.utility.sessions.result.success_title"
 msgstr "Sessions deleted"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:946
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:948
 msgid "settings.utility.sessions.stats.expired"
 msgstr "Expired: {count}"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:939
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:941
 msgid "settings.utility.sessions.stats.total"
 msgstr "Total: {count}"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:931
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:933
 msgid "settings.utility.sessions.title"
 msgstr "Session cleanup"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:856
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:858
 msgid "settings.utility.stats.comments"
 msgstr "Comments"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:877
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:879
 msgid "settings.utility.stats.db_size"
 msgstr "Database size"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:454
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:456
 msgid "settings.utility.stats.load_error"
 msgstr "Failed to load utility statistics."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:842
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:844
 msgid "settings.utility.stats.posts"
 msgstr "Posts"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:825
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:827
 msgid "settings.utility.stats.refresh"
 msgstr "Refresh statistics"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:863
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:865
 msgid "settings.utility.stats.series"
 msgstr "Series"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:870
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:872
 msgid "settings.utility.stats.sessions"
 msgstr "Sessions"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:835
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:837
 msgid "settings.utility.stats.title"
 msgstr "Database statistics"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:849
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:851
 msgid "settings.utility.stats.users"
 msgstr "Users"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:906
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:908
 msgid "settings.utility.tags.action.delete"
 msgstr "Delete unused tags"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:663
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:665
 msgid "settings.utility.tags.confirm.action"
 msgstr "Delete {count, plural, one {# tag} other {# tags}}"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:658
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:660
 msgid "settings.utility.tags.confirm.message"
 msgstr "Permanently delete {count, plural, one {# unused tag} other {# unused tags}} confirmed in the preview. The final count may change before execution."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:654
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:656
 msgid "settings.utility.tags.confirm.title"
 msgstr "Delete unused tags"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:894
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:896
 msgid "settings.utility.tags.description"
 msgstr "Find and delete tags that are not used by any post."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:488
-#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:504
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:490
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:506
 msgid "settings.utility.tags.error"
 msgstr "Failed to clean up tags."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:126
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:127
 msgid "settings.utility.tags.result.preview"
 msgstr "{count, plural, one {# unused tag is ready for deletion.} other {# unused tags are ready for deletion.}}"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:151
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:152
 msgid "settings.utility.tags.result.show_names"
 msgstr "{count, plural, one {Show # unused tag name} other {Show # unused tag names}}"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:138
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:139
 msgid "settings.utility.tags.result.stats"
 msgstr "{total} total · {used} in use"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:131
-#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:496
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:132
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:498
 msgid "settings.utility.tags.result.success"
 msgstr "{count, plural, one {Deleted # unused tag.} other {Deleted # unused tags.}}"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:120
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:121
 msgid "settings.utility.tags.result.success_title"
 msgstr "Tags deleted"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:890
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:892
 msgid "settings.utility.tags.title"
 msgstr "Tag cleanup"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:810
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:812
 msgid "settings.utility.title"
 msgstr "Utilities"
 

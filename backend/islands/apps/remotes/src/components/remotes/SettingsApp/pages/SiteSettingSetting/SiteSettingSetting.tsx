@@ -261,6 +261,7 @@ const BrandAssetPanel = ({
         <Card
             title={title}
             subtitle={description}
+            headingLevel={3}
             icon={assetType === 'logo'
                 ? <Image aria-hidden="true" className="h-4 w-4" />
                 : <Palette aria-hidden="true" className="h-4 w-4" />}>
@@ -568,14 +569,16 @@ const SiteSettingSetting = () => {
                         })}
                     />
                 </Card>
+            </section>
 
+            <section className="space-y-4" aria-labelledby="brand-assets-title">
                 <div className="flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between">
-                    <h3 className="text-sm font-semibold text-content">
+                    <h2 id="brand-assets-title" className="text-base font-semibold text-content">
                         {t({
                             id: 'settings.site.brand.title',
                             message: 'Brand assets'
                         })}
-                    </h3>
+                    </h2>
                     <p className="text-xs text-content-secondary">
                         {t({
                             id: 'settings.site.brand.immediate_help',

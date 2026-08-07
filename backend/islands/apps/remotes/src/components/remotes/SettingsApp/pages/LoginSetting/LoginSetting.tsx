@@ -387,11 +387,11 @@ const SocialAuthProviderPanel = ({
             <div className="flex items-start justify-between gap-4 p-4 sm:p-5">
                 <div className="min-w-0 flex-1">
                     <div className="flex flex-wrap items-center gap-2">
-                        <h4
+                        <h3
                             id={`provider-${provider.key}-title`}
                             className="text-sm font-semibold text-content">
                             {provider.name}
-                        </h4>
+                        </h3>
                         <span
                             aria-live="polite"
                             className={`rounded-full px-2 py-1 text-[11px] font-semibold ${status.className}`}>

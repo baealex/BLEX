@@ -22,7 +22,16 @@ const locales = [
         bannerHtml: 'Banner HTML',
         upload: 'Upload',
         uploading: 'Uploading...',
-        brandAssetSaved: 'Brand asset saved.'
+        brandAssetSaved: 'Brand asset saved.',
+        inviteDeleteDialog: 'Delete invitation link',
+        inviteDeleted: 'Invitation link deleted.',
+        delete: 'Delete',
+        roleSelect: 'Change role for reader',
+        readerRole: 'Reader',
+        authorRole: 'Author',
+        roleDialog: 'Change role',
+        change: 'Change',
+        roleChanged: "Changed reader's role to Author."
     },
     {
         browserLocale: 'ko-KR',
@@ -45,7 +54,16 @@ const locales = [
         bannerHtml: '배너 HTML',
         upload: '업로드',
         uploading: '업로드 중...',
-        brandAssetSaved: '브랜드 자산이 저장되었습니다.'
+        brandAssetSaved: '브랜드 자산이 저장되었습니다.',
+        inviteDeleteDialog: '초대 링크 삭제',
+        inviteDeleted: '초대 링크를 삭제했습니다.',
+        delete: '삭제',
+        roleSelect: 'reader 역할 변경',
+        readerRole: '독자',
+        authorRole: '작가',
+        roleDialog: '권한 변경',
+        change: '변경',
+        roleChanged: 'reader님의 권한을 작가로 변경했습니다.'
     }
 ] as const;
 
@@ -424,6 +442,147 @@ for (const locale of locales) {
             await expect(page.getByText(locale.brandAssetSaved, { exact: true })).toBeVisible();
             await expect(uploadButton).toHaveAccessibleName(locale.upload);
             await expect(uploadButton).not.toHaveAttribute('aria-busy', 'true');
+        });
+
+        test('removes closed confirmation and select portals immediately', async ({ page }) => {
+            await page.setViewportSize({ width: 1024, height: 768 });
+
+            let role = 'READER';
+            let invites = [{
+                id: 7,
+                code: 'BILINGUAL-AUDIT',
+                note: '',
+                signupUrl: '/signup?invite=BILINGUAL-AUDIT',
+                isActive: true,
+                isClaimed: false,
+                createdBy: 'admin',
+                claimedBy: '',
+                createdDate: '2026-08-07T00:00:00Z',
+                claimedDate: null
+            }];
+            const managedUser = () => ({
+                id: 2,
+                username: 'reader',
+                name: 'Reader',
+                email: 'reader@example.com',
+                role,
+                isActive: true,
+                isStaff: false,
+                isSuperuser: false,
+                canChangeRole: true,
+                postCount: 0,
+                dateJoined: '2026-08-01T00:00:00Z',
+                lastLogin: null
+            });
+
+            await page.route('**/v1/admin/users**', async (route) => {
+                if (route.request().method() === 'PATCH') {
+                    role = String(route.request().postDataJSON().role);
+                    await route.fulfill({
+                        contentType: 'application/json',
+                        body: JSON.stringify({
+                            status: 'DONE',
+                            body: { user: managedUser() }
+                        })
+                    });
+                    return;
+                }
+
+                await route.fulfill({
+                    contentType: 'application/json',
+                    body: JSON.stringify({
+                        status: 'DONE',
+                        body: {
+                            users: [managedUser()],
+                            pagination: {
+                                page: 1,
+                                pageSize: 20,
+                                total: 1,
+                                totalPages: 1,
+                                hasNext: false,
+                                hasPrevious: false
+                            },
+                            stats: {
+                                total: 1,
+                                editors: role === 'EDITOR' ? 1 : 0,
+                                readers: role === 'READER' ? 1 : 0,
+                                admins: 0
+                            }
+                        }
+                    })
+                });
+            });
+            await page.route('**/v1/admin/author-invites**', async (route) => {
+                if (route.request().method() === 'DELETE') {
+                    invites = [];
+                    await route.fulfill({
+                        contentType: 'application/json',
+                        body: JSON.stringify({
+                            status: 'DONE',
+                            body: { success: true }
+                        })
+                    });
+                    return;
+                }
+
+                await route.fulfill({
+                    contentType: 'application/json',
+                    body: JSON.stringify({
+                        status: 'DONE',
+                        body: { invites }
+                    })
+                });
+            });
+
+            const settings = await mountSettingsApp(
+                page,
+                '/admin-settings/users',
+                'admin'
+            );
+            const inviteCode = settings.getByText('BILINGUAL-AUDIT', { exact: true });
+            const inviteRow = inviteCode.locator(
+                'xpath=ancestor::div[contains(@class, "flex flex-col gap-3 px-4 py-4")][1]'
+            );
+            await inviteRow.getByRole('button', {
+                name: locale.delete,
+                exact: true
+            }).click();
+            const inviteDialog = page.getByRole('dialog', {
+                name: locale.inviteDeleteDialog,
+                exact: true
+            });
+            await inviteDialog.getByRole('button', {
+                name: locale.delete,
+                exact: true
+            }).click();
+            await expect(page.getByText(locale.inviteDeleted, { exact: true })).toBeVisible();
+            await expect(inviteDialog).toBeHidden();
+            await expect(page.locator('[role="dialog"][data-state="closed"]')).toHaveCount(0);
+
+            const roleSelect = settings.getByRole('combobox', {
+                name: locale.roleSelect,
+                exact: true
+            });
+            await expect(roleSelect).toContainText(locale.readerRole);
+            await roleSelect.click();
+            await page.getByRole('option', {
+                name: locale.authorRole,
+                exact: true
+            }).click();
+            await expect(page.getByRole('listbox')).toBeHidden();
+            await expect(page.locator('[role="listbox"][data-state="closed"]')).toHaveCount(0);
+
+            const roleDialog = page.getByRole('dialog', {
+                name: locale.roleDialog,
+                exact: true
+            });
+            await roleDialog.getByRole('button', {
+                name: locale.change,
+                exact: true
+            }).click();
+            await expect(page.getByText(locale.roleChanged, { exact: true })).toBeVisible();
+            await expect(roleDialog).toBeHidden();
+            await expect(roleSelect).toContainText(locale.authorRole);
         });
 
         test('keeps the notification dialog responsive while its options load', async ({ page }) => {

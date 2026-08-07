@@ -93,7 +93,7 @@ const Dropdown = ({
 
             <DropdownMenu.Portal>
                 <DropdownMenu.Content
-                    className="z-50 min-w-[12rem] w-[var(--radix-dropdown-menu-trigger-width)] bg-surface-elevated border border-line rounded-xl shadow-lg py-1 animate-in fade-in-0 zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=top]:slide-in-from-bottom-2 max-h-60 overflow-y-auto"
+                    className="z-50 min-w-[12rem] w-[var(--radix-dropdown-menu-trigger-width)] bg-surface-elevated border border-line rounded-xl shadow-lg py-1 data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=top]:slide-in-from-bottom-2 max-h-60 overflow-y-auto"
                     align={alignProp}
                     sideOffset={5}
                     onClick={(e) => e.stopPropagation()}>
