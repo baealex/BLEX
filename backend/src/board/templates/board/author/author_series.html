@@ -9,7 +9,7 @@
 {% translate "Try a different search term." as filtered_empty_message %}
 {% translate "No public series yet" as public_empty_title %}
 {% translate "Public series will appear here." as public_empty_message %}
-{% include 'board/author/components/author_header.html' %}
+{% include 'board/author/components/author_header.html' with author_header_is_heading=False %}
 
 <div class="max-w-6xl w-full mx-auto px-4 sm:px-6">
     {% with active_tab='series' %}

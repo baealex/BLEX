@@ -154,6 +154,10 @@ class TagListPageTestCase(TestCase):
         self.assertContains(response, 'Tagged in 1 post')
         self.assertContains(response, '작성자가 만든 태그')
         self.assertNotContains(response, '태그 클라우드')
+        self.assertRegex(
+            response.content.decode(),
+            r'<h2\b[^>]*>\s*작성자가 만든 태그\s*</h2>',
+        )
 
 
 class TagDetailPageTestCase(TestCase):
@@ -261,6 +265,10 @@ class TagDetailPageTestCase(TestCase):
         self.assertContains(response, 'All tags')
         self.assertContains(response, '작성자가 쓴 태그 포스트')
         self.assertNotContains(response, '전체 태그')
+        self.assertRegex(
+            response.content.decode(),
+            r'<h2\b[^>]*>\s*<a\b[^>]*>작성자가 쓴 태그 포스트</a>\s*</h2>',
+        )
 
     def test_tag_detail_pagination(self):
         response = self.client.get(

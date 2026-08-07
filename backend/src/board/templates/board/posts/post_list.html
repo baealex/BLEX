@@ -14,6 +14,8 @@
 {% translate "Published posts will appear here." as empty_posts_message %}
 {% translate "Write a post" as write_post_label %}
 <div class="max-w-7xl mx-auto mt-6 px-4 md:px-6">
+    <h1 class="sr-only">{% translate "Latest posts" %}</h1>
+
     {% if user.is_authenticated %}
     <div class="mb-6 flex justify-end">
         <a href="/interests" class="inline-flex items-center gap-2 rounded-full bg-surface px-4 py-2 text-sm font-semibold text-content-secondary ring-1 ring-line/60 transition-colors duration-150 hover:bg-surface-subtle hover:text-content">
@@ -35,7 +37,7 @@
     <!-- Posts Grid -->
     <div class="masonry-grid gap-6 mb-16">
         {% for post in posts %}
-            {% include 'components/post_card.html' with post=post show_author=true priority=forloop.first %}
+            {% include 'components/post_card.html' with post=post show_author=true priority=forloop.first heading_level=2 %}
         {% endfor %}
     </div>
 

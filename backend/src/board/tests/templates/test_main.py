@@ -67,6 +67,10 @@ class MainPageTemplateTestCase(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, '전체 공지')
         self.assertContains(response, 'Global Notice')
+        self.assertRegex(
+            response.content.decode(),
+            r'<h2\b[^>]*>\s*Global Notice\s*</h2>',
+        )
 
     def test_index_page_renders_english_ui_without_translating_post_content(self):
         SiteNotice.objects.create(
@@ -85,6 +89,15 @@ class MainPageTemplateTestCase(TestCase):
         self.assertContains(response, 'Test Post')
         self.assertContains(response, '작성자가 쓴 공지')
         self.assertNotContains(response, '최신 포스트')
+        rendered = response.content.decode()
+        self.assertRegex(
+            rendered,
+            r'<h1\b[^>]*\bsr-only\b[^>]*>\s*Latest posts\s*</h1>',
+        )
+        self.assertRegex(
+            rendered,
+            r'<h2\b[^>]*>\s*<a\b[^>]*>Test Post</a>\s*</h2>',
+        )
 
     def test_index_page_adds_noindex_when_seo_disabled(self):
         setting = SiteSetting.get_instance()

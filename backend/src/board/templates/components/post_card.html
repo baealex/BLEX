@@ -4,6 +4,7 @@ Parameters:
 - post: Post object with details (required)
 - show_author: Boolean to show/hide author section (default: true)
 - author_username: Author username (optional, will use post.author_username if not provided)
+- heading_level: Card title heading level, either 2 or 3 (default: 3)
 {% endcomment %}
 
 {% load static %}
@@ -27,9 +28,15 @@ Parameters:
         </div>
     {% endif %}
     <div class="p-5 flex flex-col flex-grow">
+        {% if heading_level == 2 %}
+        <h2 class="text-md font-bold text-content leading-snug mb-3 line-clamp-2">
+            <a href="/@{{ post.author }}/{{ post.url }}" class="hover:text-content-secondary transition-colors duration-150">{{ post.title }}</a>
+        </h2>
+        {% else %}
         <h3 class="text-md font-bold text-content leading-snug mb-3 line-clamp-2">
             <a href="/@{{ post.author }}/{{ post.url }}" class="hover:text-content-secondary transition-colors duration-150">{{ post.title }}</a>
         </h3>
+        {% endif %}
 
         <div class="text-xs text-content-secondary mb-3 flex items-center gap-3">
             <div class="flex items-center gap-1.5">

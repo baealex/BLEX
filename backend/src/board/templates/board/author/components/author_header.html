@@ -41,9 +41,15 @@
                 {% endif %}
             </div>
 
+            {% if author_header_is_heading == False %}
+            <p class="mb-2 text-2xl font-bold tracking-tight text-content">
+                {{ author.username }}
+            </p>
+            {% else %}
             <h1 class="mb-2 text-2xl font-bold tracking-tight text-content">
                 {{ author.username }}
             </h1>
+            {% endif %}
 
             {% if author.profile.bio %}
             <p class="mx-auto mb-6 max-w-2xl px-4 text-md font-medium leading-relaxed text-content-secondary">

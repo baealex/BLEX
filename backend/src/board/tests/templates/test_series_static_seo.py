@@ -136,6 +136,10 @@ class SeriesSeoMetadataTestCase(StructuredDataAssertionMixin, TestCase):
         self.assertContains(response, '작성자가 만든 시리즈')
         self.assertContains(response, '작성자가 쓴 첫 포스트')
         self.assertNotContains(response, '최신순')
+        self.assertRegex(
+            response.content.decode(),
+            r'<h2\b[^>]*>\s*작성자가 쓴 첫 포스트\s*</h2>',
+        )
 
     def test_generated_series_description_follows_ui_language(self):
         self.series.text_html = ''

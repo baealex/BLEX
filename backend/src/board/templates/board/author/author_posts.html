@@ -1,7 +1,7 @@
 {% extends 'board/base.html' %}
 {% load i18n static island %}
 
-{% block title %}{{ author.username }} - {{ site_brand.site_name }}{% endblock %}
+{% block title %}{% translate "Posts" %} - {{ author.username }} | {{ site_brand.site_name }}{% endblock %}
 
 {% block content %}
 {% translate "Search posts" as search_posts_placeholder %}
@@ -9,7 +9,7 @@
 {% translate "Try a different search term or tag." as filtered_empty_message %}
 {% translate "No published posts yet" as published_empty_title %}
 {% translate "New posts will appear here when they are published." as published_empty_message %}
-{% include 'board/author/components/author_header.html' %}
+{% include 'board/author/components/author_header.html' with author_header_is_heading=False %}
 
 <div class="max-w-6xl w-full mx-auto px-4 sm:px-6">
     {% with active_tab='posts' %}
@@ -49,7 +49,7 @@
             {% else %}
                 <div class="masonry-grid">
                     {% for post in posts %}
-                        {% include 'components/post_card.html' with post=post show_author=False priority=forloop.first %}
+                        {% include 'components/post_card.html' with post=post show_author=False priority=forloop.first heading_level=2 %}
                     {% endfor %}
                 </div>
             {% endif %}
