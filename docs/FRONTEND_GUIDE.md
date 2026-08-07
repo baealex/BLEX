@@ -136,7 +136,15 @@ const { register, handleSubmit } = useForm({ resolver: zodResolver(schema) });
 
 ---
 
-## 9. Performance Rules
+## 9. Internationalization
+
+- Django provides the canonical locale through `window.configuration.locale`; islands must not negotiate independently from `navigator.language`.
+- Use explicit, domain-prefixed Lingui IDs and English defaults. Product messages belong in the owning package catalog; user-authored content never does.
+- Use ICU messages for plurals and complete interpolated sentences. Format dates and numbers with the active locale instead of fixed Korean formatting.
+- The shared runtime activates its catalog before any island root renders. Do not create a second Lingui instance inside a feature.
+- Commit `.po` catalogs, not generated `.mjs` files. Run `npm run islands:i18n:check` after changing translatable copy.
+
+## 10. Performance Rules
 
 ### React 19 Compiler Handles Optimization
 
@@ -159,7 +167,7 @@ We use **React 19 with the React Compiler**. It automatically handles memoizatio
 
 ---
 
-## 10. Checklist for Frontend Work
+## 11. Checklist for Frontend Work
 
 Before marking a task as "Done":
 
@@ -175,7 +183,7 @@ Before marking a task as "Done":
 
 ---
 
-## 11. Development Workflow
+## 12. Development Workflow
 
 ```bash
 npm i        # Install dependencies (backend + frontend)

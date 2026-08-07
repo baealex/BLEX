@@ -45,6 +45,37 @@ interface GeneratedPng {
     blob: Blob;
 }
 
+export type BrandAssetGenerationErrorCode =
+    | 'svg_processing_instruction'
+    | 'svg_doctype'
+    | 'svg_invalid'
+    | 'svg_only'
+    | 'svg_too_complex'
+    | 'svg_unsupported_element'
+    | 'svg_invalid_namespace'
+    | 'svg_event_attribute'
+    | 'svg_unsupported_attribute'
+    | 'svg_unsafe_value'
+    | 'svg_unsafe_text'
+    | 'svg_invalid_viewbox'
+    | 'svg_invalid_viewbox_size'
+    | 'svg_preview_failed'
+    | 'icon_generation_failed'
+    | 'png_generation_failed'
+    | 'favicon_png_missing';
+
+export class BrandAssetGenerationError extends Error {
+    readonly code: BrandAssetGenerationErrorCode;
+    readonly detail?: string;
+
+    constructor(code: BrandAssetGenerationErrorCode, detail?: string) {
+        super(code);
+        this.name = 'BrandAssetGenerationError';
+        this.code = code;
+        this.detail = detail;
+    }
+}
+
 export const createSvgBrandAssetFormData = (
     assetType: BrandAssetType,
     theme: BrandAssetTheme,
@@ -80,21 +111,21 @@ export const createIconBrandAssetFormData = async (svgFile: File) => {
 
 const normalizeSvgForRendering = (svgText: string) => {
     if (PROCESSING_INSTRUCTION_PATTERN.test(svgText)) {
-        throw new Error('SVG 처리 지시자는 허용되지 않습니다.');
+        throw new BrandAssetGenerationError('svg_processing_instruction');
     }
     if (DOCTYPE_PATTERN.test(svgText)) {
-        throw new Error('SVG DOCTYPE은 허용되지 않습니다.');
+        throw new BrandAssetGenerationError('svg_doctype');
     }
 
     const document = new DOMParser().parseFromString(svgText, SVG_MIME_TYPE);
     const parserError = document.querySelector('parsererror');
     if (parserError) {
-        throw new Error('올바른 SVG 파일이 아닙니다.');
+        throw new BrandAssetGenerationError('svg_invalid');
     }
 
     const root = document.documentElement;
     if (root.localName !== 'svg') {
-        throw new Error('SVG 파일만 업로드할 수 있습니다.');
+        throw new BrandAssetGenerationError('svg_only');
     }
 
     validateSvgForRendering(root);
@@ -115,31 +146,31 @@ const validateSvgForRendering = (root: Element) => {
     ];
 
     if (elements.length > SVG_MAX_NODES) {
-        throw new Error('SVG 구조가 너무 복잡합니다.');
+        throw new BrandAssetGenerationError('svg_too_complex');
     }
 
     elements.forEach((element) => {
         if (!SVG_ALLOWED_TAGS.has(element.localName)) {
-            throw new Error(`허용되지 않는 SVG 요소입니다: ${element.localName}`);
+            throw new BrandAssetGenerationError('svg_unsupported_element', element.localName);
         }
 
         Array.from(element.attributes).forEach((attribute) => {
             const attributeName = attribute.name;
             if (attributeName === 'xmlns' || attributeName.startsWith('xmlns:')) {
                 if (!ALLOWED_NAMESPACE_VALUES.has(attribute.value)) {
-                    throw new Error('SVG 네임스페이스 값을 확인해주세요.');
+                    throw new BrandAssetGenerationError('svg_invalid_namespace');
                 }
                 return;
             }
 
             if (attributeName.toLowerCase().startsWith('on')) {
-                throw new Error('허용되지 않는 SVG 속성이 포함되어 있습니다.');
+                throw new BrandAssetGenerationError('svg_event_attribute');
             }
             if (!SVG_ALLOWED_ATTRIBUTES.has(attributeName) && !isSafeMetadataAttribute(attributeName)) {
-                throw new Error(`허용되지 않는 SVG 속성입니다: ${attributeName}`);
+                throw new BrandAssetGenerationError('svg_unsupported_attribute', attributeName);
             }
             if (hasDangerousValue(attribute.value)) {
-                throw new Error('SVG에 외부 참조 또는 위험한 값이 포함되어 있습니다.');
+                throw new BrandAssetGenerationError('svg_unsafe_value');
             }
         });
 
@@ -148,7 +179,7 @@ const validateSvgForRendering = (root: Element) => {
             && hasDangerousValue(node.textContent || '')
         ));
         if (hasDangerousText) {
-            throw new Error('SVG 텍스트에 위험한 값이 포함되어 있습니다.');
+            throw new BrandAssetGenerationError('svg_unsafe_text');
         }
     });
 };
@@ -164,12 +195,12 @@ const isSafeMetadataAttribute = (attributeName: string) => {
 const parseViewBox = (rawValue: string): SvgViewBox => {
     const values = rawValue.trim().split(/[\s,]+/).map(Number);
     if (values.length !== 4 || values.some((value) => !Number.isFinite(value))) {
-        throw new Error('SVG에는 유효한 viewBox가 필요합니다.');
+        throw new BrandAssetGenerationError('svg_invalid_viewbox');
     }
 
     const [minX, minY, width, height] = values;
     if (width <= 0 || height <= 0) {
-        throw new Error('SVG viewBox 크기를 확인해주세요.');
+        throw new BrandAssetGenerationError('svg_invalid_viewbox_size');
     }
     return {
         minX,
@@ -199,7 +230,7 @@ const generatePngFiles = async (normalizedSvgText: string): Promise<GeneratedPng
 const loadImage = (url: string) => new Promise<HTMLImageElement>((resolve, reject) => {
     const image = new Image();
     image.onload = () => resolve(image);
-    image.onerror = () => reject(new Error('SVG 미리보기 이미지를 생성할 수 없습니다.'));
+    image.onerror = () => reject(new BrandAssetGenerationError('svg_preview_failed'));
     image.src = url;
 });
 
@@ -210,7 +241,7 @@ const drawImageToPng = (image: HTMLImageElement, size: number) => new Promise<Bl
 
     const context = canvas.getContext('2d');
     if (!context) {
-        reject(new Error('아이콘 이미지를 생성할 수 없습니다.'));
+        reject(new BrandAssetGenerationError('icon_generation_failed'));
         return;
     }
 
@@ -226,7 +257,7 @@ const drawImageToPng = (image: HTMLImageElement, size: number) => new Promise<Bl
     context.drawImage(image, drawX, drawY, drawWidth, drawHeight);
     canvas.toBlob((blob) => {
         if (!blob) {
-            reject(new Error('PNG 이미지를 생성할 수 없습니다.'));
+            reject(new BrandAssetGenerationError('png_generation_failed'));
             return;
         }
         resolve(blob);
@@ -235,7 +266,7 @@ const drawImageToPng = (image: HTMLImageElement, size: number) => new Promise<Bl
 
 const createIcoBlob = async (entries: GeneratedPng[]) => {
     if (entries.length === 0) {
-        throw new Error('favicon.ico 생성에 필요한 PNG가 없습니다.');
+        throw new BrandAssetGenerationError('favicon_png_missing');
     }
 
     const buffers = await Promise.all(entries.map((entry) => entry.blob.arrayBuffer()));

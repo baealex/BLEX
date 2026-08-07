@@ -68,6 +68,24 @@ class MainPageTemplateTestCase(TestCase):
         self.assertContains(response, '전체 공지')
         self.assertContains(response, 'Global Notice')
 
+    def test_index_page_renders_english_ui_without_translating_post_content(self):
+        SiteNotice.objects.create(
+            scope=SiteContentScope.GLOBAL,
+            title='작성자가 쓴 공지',
+            url='/notice',
+            is_active=True,
+        )
+
+        response = self.client.get(reverse('index'), HTTP_ACCEPT_LANGUAGE='en')
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'lang=en')
+        self.assertContains(response, 'Latest posts')
+        self.assertContains(response, 'Site notice')
+        self.assertContains(response, 'Test Post')
+        self.assertContains(response, '작성자가 쓴 공지')
+        self.assertNotContains(response, '최신 포스트')
+
     def test_index_page_adds_noindex_when_seo_disabled(self):
         setting = SiteSetting.get_instance()
         setting.seo_enabled = False

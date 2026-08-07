@@ -9,6 +9,7 @@ from typing import Optional, List, Tuple
 from django.contrib.auth.models import User
 from django.db import transaction
 from django.db.models import F
+from django.utils.translation import gettext
 
 from board.html_utils import sanitize_content_html
 from board.models import Series, Post
@@ -43,13 +44,13 @@ class SeriesService:
         if not user.is_authenticated:
             raise SeriesValidationError(
                 ErrorCode.NEED_LOGIN,
-                '로그인이 필요합니다.'
+                gettext('Login is required.')
             )
 
         if not AuthoringPermissionService.is_active_editor(user):
             raise SeriesValidationError(
                 ErrorCode.REJECT,
-                '작가 권한이 필요합니다.'
+                gettext('Author access is required.')
             )
 
     @staticmethod
@@ -68,12 +69,12 @@ class SeriesService:
         if not name or not name.strip():
             raise SeriesValidationError(
                 ErrorCode.REQUIRE,
-                '시리즈 이름을 입력해주세요.'
+                gettext('Enter a series name.')
             )
         if require_url and (not url or not url.strip()):
             raise SeriesValidationError(
                 ErrorCode.REQUIRE,
-                'URL을 입력해주세요.'
+                gettext('Enter a URL.')
             )
 
     @staticmethod
@@ -96,7 +97,7 @@ class SeriesService:
         if query.exists():
             raise SeriesValidationError(
                 ErrorCode.DUPLICATE,
-                '이미 존재하는 URL입니다.'
+                gettext('This URL already exists.')
             )
 
     @staticmethod
@@ -197,7 +198,7 @@ class SeriesService:
             if not name:
                 raise SeriesValidationError(
                     ErrorCode.REQUIRE,
-                    '시리즈 이름을 입력해주세요.'
+                    gettext('Enter a series name.')
                 )
             series.name = name
 
@@ -206,7 +207,7 @@ class SeriesService:
             if not url:
                 raise SeriesValidationError(
                     ErrorCode.REQUIRE,
-                    'URL을 입력해주세요.'
+                    gettext('Enter a URL.')
                 )
 
             SeriesService.check_url_duplicate(series.owner, url, exclude_series_id=series.id)
@@ -253,7 +254,7 @@ class SeriesService:
         if not order_data:
             raise SeriesValidationError(
                 ErrorCode.INVALID_PARAMETER,
-                '순서 정보가 필요합니다.'
+                gettext('Order information is required.')
             )
 
         for series_id, new_order in order_data:

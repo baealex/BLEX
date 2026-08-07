@@ -157,6 +157,29 @@ class BannerAPITestCase(TestCase):
         content = json.loads(response.content)
         self.assertEqual(content['status'], 'ERROR')
 
+    def test_create_validation_message_follows_request_language(self):
+        expected_messages = {
+            'en': 'Enter a banner name.',
+            'ko': '배너 이름을 입력해주세요.',
+        }
+
+        for language, expected_message in expected_messages.items():
+            with self.subTest(language=language):
+                response = self.client.post(
+                    '/v1/banners',
+                    json.dumps({
+                        'content_html': f'<div>{language}</div>',
+                        'banner_type': 'horizontal',
+                        'position': 'top',
+                    }),
+                    content_type='application/json',
+                    HTTP_ACCEPT_LANGUAGE=language,
+                )
+                content = json.loads(response.content)
+
+                self.assertEqual(content['status'], 'ERROR')
+                self.assertEqual(content['errorCode'], 'error:VA')
+                self.assertEqual(content['errorMessage'], expected_message)
 
     def test_create_banner_invalid_json_returns_validate_error(self):
         response = self.client.post(

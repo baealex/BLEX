@@ -3,6 +3,7 @@ from functools import wraps
 from django.conf import settings
 from django.contrib import messages
 from django.shortcuts import redirect
+from django.utils.translation import gettext
 
 from board.services.api_permission_service import ApiPermissionService
 from board.services.authoring_permission_service import AuthoringPermissionService
@@ -53,7 +54,10 @@ def editor_required(view_func):
             return redirect('login')
 
         if not AuthoringPermissionService.is_active_editor(request.user):
-            messages.error(request, '작가 권한이 필요합니다. 관리자에게 문의하세요.')
+            messages.error(
+                request,
+                gettext('Author access is required. Please contact an administrator.'),
+            )
             return redirect('index')
 
         return view_func(request, *args, **kwargs)

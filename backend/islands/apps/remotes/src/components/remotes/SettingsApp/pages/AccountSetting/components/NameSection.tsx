@@ -1,4 +1,5 @@
-import { useEffect } from 'react';
+import { useEffect, useMemo } from 'react';
+import { useLingui } from '@lingui/react/macro';
 import { useForm } from 'react-hook-form';
 import { Save } from '@blex/ui/icons';
 import { z } from 'zod';
@@ -6,9 +7,9 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { Button, Input } from '~/components/shared';
 import type { AccountFormSubmitResult } from '../types';
 
-const nameSchema = z.object({ name: z.string().max(30, '이름은 30자 이내여야 합니다.').optional() });
-
-type NameFormInputs = z.infer<typeof nameSchema>;
+interface NameFormInputs {
+    name?: string;
+}
 
 interface NameSectionProps {
     initialName: string;
@@ -17,6 +18,13 @@ interface NameSectionProps {
 }
 
 const NameSection = ({ initialName, isLoading, onSubmit }: NameSectionProps) => {
+    const { t } = useLingui();
+    const nameSchema = useMemo(() => z.object({
+        name: z.string().max(30, t({
+            id: 'settings.account.name.validation.max_length',
+            message: 'Name must be 30 characters or fewer.'
+        })).optional()
+    }), [t]);
     const {
         register,
         handleSubmit,
@@ -48,14 +56,23 @@ const NameSection = ({ initialName, isLoading, onSubmit }: NameSectionProps) => 
 
     return (
         <form
-            aria-label="사용자 이름 변경"
+            aria-label={t({
+                id: 'settings.account.name.form_label',
+                message: 'Change name'
+            })}
             className="pt-6"
             onSubmit={handleSubmit(handleFormSubmit)}>
             <Input
                 density="compact"
                 type="text"
-                label="사용자 이름"
-                placeholder="사용자 이름"
+                label={t({
+                    id: 'settings.account.name.label',
+                    message: 'Name'
+                })}
+                placeholder={t({
+                    id: 'settings.account.name.placeholder',
+                    message: 'Your name'
+                })}
                 maxLength={30}
                 error={errors.name?.message}
                 {...register('name')}
@@ -70,7 +87,15 @@ const NameSection = ({ initialName, isLoading, onSubmit }: NameSectionProps) => 
                     disabled={!isDirty || !isValid}
                     isLoading={isLoading}
                     leftIcon={!isLoading ? <Save className="h-4 w-4" /> : undefined}>
-                    {isLoading ? '업데이트 중...' : '이름 업데이트'}
+                    {isLoading
+                        ? t({
+                            id: 'settings.account.name.updating',
+                            message: 'Updating...'
+                        })
+                        : t({
+                            id: 'settings.account.name.update',
+                            message: 'Update name'
+                        })}
                 </Button>
             </div>
         </form>

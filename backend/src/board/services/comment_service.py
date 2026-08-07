@@ -12,11 +12,13 @@ from django.contrib.auth.models import User
 from django.db import transaction
 from django.db.models import Case, Count, Exists, OuterRef, Value, When
 from django.http import Http404
+from django.utils.translation import gettext
 
 from board.constants.config_meta import CONFIG_TYPE
 from board.models import Comment, Post
-from board.modules.notify import create_notify
+from board.modules.notify import create_system_notify
 from board.modules.response import ErrorCode
+from board.services.notification_message_service import NotificationMessageKey
 from board.services.public_post_service import PublicPostService
 from modules import markdown
 
@@ -82,7 +84,7 @@ class CommentService:
         if not user.is_active:
             raise CommentValidationError(
                 ErrorCode.AUTHENTICATION,
-                '로그인이 필요합니다.'
+                gettext('Log in to continue.')
             )
 
     @staticmethod
@@ -99,7 +101,7 @@ class CommentService:
         if hasattr(post, 'config') and post.config.block_comment:
             raise CommentValidationError(
                 ErrorCode.REJECT,
-                '댓글이 차단된 글입니다.'
+                gettext('Comments are disabled for this post.')
             )
 
     @staticmethod
@@ -117,7 +119,7 @@ class CommentService:
         if parent and parent.post_id != post.id:
             raise CommentValidationError(
                 ErrorCode.REJECT,
-                '부모 댓글이 대상 글에 속하지 않습니다.'
+                gettext('The parent comment does not belong to this post.')
             )
 
     @staticmethod
@@ -125,7 +127,7 @@ class CommentService:
         if parent and parent.is_deleted():
             raise CommentValidationError(
                 ErrorCode.REJECT,
-                '삭제된 댓글에는 답글을 달 수 없습니다.'
+                gettext('You cannot reply to a deleted comment.')
             )
 
     @staticmethod
@@ -143,7 +145,7 @@ class CommentService:
         if not CommentService.can_user_edit_comment(user, comment):
             raise CommentValidationError(
                 ErrorCode.AUTHENTICATION,
-                '댓글 수정 권한이 없습니다.'
+                gettext('You do not have permission to edit this comment.')
             )
 
     @staticmethod
@@ -161,7 +163,7 @@ class CommentService:
         if not CommentService.can_user_delete_comment(user, comment):
             raise CommentValidationError(
                 ErrorCode.AUTHENTICATION,
-                '댓글 삭제 권한이 없습니다.'
+                gettext('You do not have permission to delete this comment.')
             )
 
     @staticmethod
@@ -179,19 +181,19 @@ class CommentService:
         if not user.is_active:
             raise CommentValidationError(
                 ErrorCode.NEED_LOGIN,
-                '로그인이 필요합니다.'
+                gettext('Log in to continue.')
             )
 
         if user == comment.author:
             raise CommentValidationError(
                 ErrorCode.AUTHENTICATION,
-                '자신의 댓글은 추천할 수 없습니다.'
+                gettext('You cannot like your own comment.')
             )
 
         if comment.is_deleted():
             raise CommentValidationError(
                 ErrorCode.REJECT,
-                '삭제된 댓글입니다.'
+                gettext('This comment has been deleted.')
             )
 
     @staticmethod
@@ -251,15 +253,15 @@ class CommentService:
         if not post_author.config.get_meta(CONFIG_TYPE.NOTIFY_POSTS_COMMENT):
             return
 
-        send_notify_content = (
-            f"'{post.title}'글에 "
-            f"@{comment.author.username}님이 댓글을 남겼습니다. "
-            f"#{comment.pk}"
-        )
-        create_notify(
+        create_system_notify(
             user=post_author,
             url=post.get_absolute_url(),
-            content=send_notify_content
+            message_key=NotificationMessageKey.POST_COMMENTED,
+            message_params={
+                'post_title': post.title,
+                'actor': comment.author.username,
+                'comment_id': comment.pk,
+            },
         )
 
     @staticmethod
@@ -296,15 +298,15 @@ class CommentService:
             if not user.config.get_meta(CONFIG_TYPE.NOTIFY_MENTION):
                 continue
 
-            send_notify_content = (
-                f"'{post.title}' 글에서 "
-                f"@{comment.author.username}님이 "
-                f"회원님을 태그했습니다. #{comment.pk}"
-            )
-            create_notify(
+            create_system_notify(
                 user=user,
                 url=post.get_absolute_url(),
-                content=send_notify_content
+                message_key=NotificationMessageKey.COMMENT_MENTIONED,
+                message_params={
+                    'post_title': post.title,
+                    'actor': comment.author.username,
+                    'comment_id': comment.pk,
+                },
             )
 
     @staticmethod
@@ -319,15 +321,15 @@ class CommentService:
         if not comment.author.config.get_meta(CONFIG_TYPE.NOTIFY_COMMENT_LIKE):
             return
 
-        send_notify_content = (
-            f"'{comment.post.title}'글에 작성한 "
-            f"회원님의 #{comment.pk} 댓글을 "
-            f"@{liker.username}님께서 추천했습니다."
-        )
-        create_notify(
+        create_system_notify(
             user=comment.author,
             url=comment.post.get_absolute_url(),
-            content=send_notify_content
+            message_key=NotificationMessageKey.COMMENT_LIKED,
+            message_params={
+                'post_title': comment.post.title,
+                'actor': liker.username,
+                'comment_id': comment.pk,
+            },
         )
 
     @staticmethod
@@ -350,15 +352,15 @@ class CommentService:
         if not parent_author.config.get_meta(CONFIG_TYPE.NOTIFY_POSTS_COMMENT):
             return
 
-        send_notify_content = (
-            f"'{comment.post.title}'글에 작성한 "
-            f"회원님의 댓글에 @{comment.author.username}님이 "
-            f"답글을 남겼습니다. #{comment.pk}"
-        )
-        create_notify(
+        create_system_notify(
             user=parent_author,
             url=comment.post.get_absolute_url(),
-            content=send_notify_content
+            message_key=NotificationMessageKey.COMMENT_REPLIED,
+            message_params={
+                'post_title': comment.post.title,
+                'actor': comment.author.username,
+                'comment_id': comment.pk,
+            },
         )
 
     @staticmethod
@@ -393,7 +395,7 @@ class CommentService:
         if parent and parent.parent:
             raise CommentValidationError(
                 ErrorCode.REJECT,
-                '대댓글에는 답글을 달 수 없습니다.'
+                gettext('You cannot reply to a reply.')
             )
 
         text_html = markdown.parse_comment_to_html(text_md)

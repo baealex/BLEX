@@ -1,4 +1,5 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useMemo, useRef } from 'react';
+import { Trans, useLingui } from '@lingui/react/macro';
 import { Link, useNavigate, useBlocker } from '@tanstack/react-router';
 import { useMutation, useQueryClient, useSuspenseQuery } from '@tanstack/react-query';
 import { useForm } from 'react-hook-form';
@@ -19,14 +20,12 @@ import {
 } from '~/lib/api/settings';
 import PostSelector from './PostSelector';
 
-const seriesSchema = z.object({
-    name: z.string().trim().min(1, '시리즈 제목을 입력해주세요.').max(50, '시리즈 제목은 50자 이내여야 합니다.'),
-    customUrl: z.string().max(50, 'URL은 50자 이내여야 합니다.').optional(),
-    description: z.string().trim().max(500, '시리즈 설명은 500자 이내여야 합니다.'),
-    postIds: z.array(z.number())
-});
-
-type SeriesFormInputs = z.infer<typeof seriesSchema>;
+interface SeriesFormInputs {
+    name: string;
+    customUrl?: string;
+    description: string;
+    postIds: number[];
+}
 
 const defaultValues: SeriesFormInputs = {
     name: '',
@@ -56,6 +55,27 @@ interface SeriesEditorProps {
 }
 
 const SeriesEditor = ({ seriesId }: SeriesEditorProps) => {
+    const { i18n, t } = useLingui();
+    const seriesSchema = useMemo(() => z.object({
+        name: z.string().trim()
+            .min(1, t({
+                id: 'settings.series.editor.name.validation.required',
+                message: 'Enter a series title.'
+            }))
+            .max(50, t({
+                id: 'settings.series.editor.name.validation.max_length',
+                message: 'Series title must be 50 characters or fewer.'
+            })),
+        customUrl: z.string().max(50, t({
+            id: 'settings.series.editor.url.validation.max_length',
+            message: 'URL must be 50 characters or fewer.'
+        })).optional(),
+        description: z.string().trim().max(500, t({
+            id: 'settings.series.editor.description.validation.max_length',
+            message: 'Series description must be 500 characters or fewer.'
+        })),
+        postIds: z.array(z.number())
+    }), [t]);
     const isEditMode = seriesId !== undefined;
     const navigate = useNavigate();
     const queryClient = useQueryClient();
@@ -73,7 +93,10 @@ const SeriesEditor = ({ seriesId }: SeriesEditorProps) => {
             if (data.status === 'DONE') {
                 return data.body;
             }
-            throw new Error(data.errorMessage || '시리즈 정보를 불러오는데 실패했습니다.');
+            throw new Error(data.errorMessage || t({
+                id: 'settings.series.editor.load_detail_failed',
+                message: 'Could not load the series.'
+            }));
         }
     });
 
@@ -84,7 +107,10 @@ const SeriesEditor = ({ seriesId }: SeriesEditorProps) => {
             if (data.status === 'DONE') {
                 return data.body;
             }
-            throw new Error(data.errorMessage || '포스트 목록을 불러오는데 실패했습니다.');
+            throw new Error(data.errorMessage || t({
+                id: 'settings.series.editor.load_posts_failed',
+                message: 'Could not load posts.'
+            }));
         }
     });
 
@@ -95,7 +121,10 @@ const SeriesEditor = ({ seriesId }: SeriesEditorProps) => {
             if (data.status === 'DONE') {
                 return data.body;
             }
-            throw new Error(data.errorMessage || '계정 정보를 불러오는데 실패했습니다.');
+            throw new Error(data.errorMessage || t({
+                id: 'settings.series.editor.load_account_failed',
+                message: 'Could not load account information.'
+            }));
         }
     });
 
@@ -129,9 +158,18 @@ const SeriesEditor = ({ seriesId }: SeriesEditorProps) => {
         shouldBlockFn: async () => {
             if (!isDirty || allowNavigationRef.current) return false;
             const confirmed = await confirm({
-                title: '저장하지 않은 변경사항',
-                message: '변경사항이 저장되지 않았습니다. 페이지를 나가시겠습니까?',
-                confirmText: '나가기',
+                title: t({
+                    id: 'settings.series.editor.unsaved.title',
+                    message: 'Unsaved changes'
+                }),
+                message: t({
+                    id: 'settings.series.editor.unsaved.message',
+                    message: 'Your changes have not been saved. Leave this page?'
+                }),
+                confirmText: t({
+                    id: 'settings.series.editor.unsaved.leave',
+                    message: 'Leave'
+                }),
                 variant: 'danger'
             });
             return !confirmed;
@@ -154,11 +192,17 @@ const SeriesEditor = ({ seriesId }: SeriesEditorProps) => {
         }),
         onSuccess: ({ data }) => {
             if (data.status === 'ERROR') {
-                toast.error(data.errorMessage || '시리즈 생성에 실패했습니다.');
+                toast.error(data.errorMessage || t({
+                    id: 'settings.series.editor.create_failed',
+                    message: 'Could not create the series.'
+                }));
                 return;
             }
 
-            toast.success('시리즈가 생성되었습니다.');
+            toast.success(t({
+                id: 'settings.series.editor.create_success',
+                message: 'Series created.'
+            }));
             invalidateSeriesQueries();
             allowNavigationRef.current = true;
             navigate({
@@ -167,7 +211,10 @@ const SeriesEditor = ({ seriesId }: SeriesEditorProps) => {
             });
         },
         onError: () => {
-            toast.error('시리즈 생성에 실패했습니다.');
+            toast.error(t({
+                id: 'settings.series.editor.create_failed',
+                message: 'Could not create the series.'
+            }));
         }
     });
 
@@ -185,11 +232,17 @@ const SeriesEditor = ({ seriesId }: SeriesEditorProps) => {
         },
         onSuccess: ({ data }) => {
             if (data.status === 'ERROR') {
-                toast.error(data.errorMessage || '시리즈 수정에 실패했습니다.');
+                toast.error(data.errorMessage || t({
+                    id: 'settings.series.editor.update_failed',
+                    message: 'Could not update the series.'
+                }));
                 return;
             }
 
-            toast.success('시리즈가 수정되었습니다.');
+            toast.success(t({
+                id: 'settings.series.editor.update_success',
+                message: 'Series updated.'
+            }));
             invalidateSeriesQueries();
             allowNavigationRef.current = true;
             navigate({
@@ -198,7 +251,10 @@ const SeriesEditor = ({ seriesId }: SeriesEditorProps) => {
             });
         },
         onError: () => {
-            toast.error('시리즈 수정에 실패했습니다.');
+            toast.error(t({
+                id: 'settings.series.editor.update_failed',
+                message: 'Could not update the series.'
+            }));
         }
     });
 
@@ -211,11 +267,17 @@ const SeriesEditor = ({ seriesId }: SeriesEditorProps) => {
         },
         onSuccess: ({ data }) => {
             if (data.status === 'ERROR') {
-                toast.error(data.errorMessage || '시리즈 삭제에 실패했습니다.');
+                toast.error(data.errorMessage || t({
+                    id: 'settings.series.delete.failed',
+                    message: 'Could not delete the series.'
+                }));
                 return;
             }
 
-            toast.success('시리즈가 삭제되었습니다.');
+            toast.success(t({
+                id: 'settings.series.delete.success',
+                message: 'Series deleted.'
+            }));
             invalidateSeriesQueries();
             allowNavigationRef.current = true;
             navigate({
@@ -224,15 +286,28 @@ const SeriesEditor = ({ seriesId }: SeriesEditorProps) => {
             });
         },
         onError: () => {
-            toast.error('시리즈 삭제에 실패했습니다.');
+            toast.error(t({
+                id: 'settings.series.delete.failed',
+                message: 'Could not delete the series.'
+            }));
         }
     });
 
     const handleDelete = async () => {
         const confirmed = await confirm({
-            title: '시리즈 삭제',
-            message: `"${titleValue}" 시리즈를 삭제하면 연결된 포스트는 유지되고 시리즈 연결만 해제됩니다.\n\n이 작업은 되돌릴 수 없습니다. 계속할까요?`,
-            confirmText: '삭제',
+            title: t({
+                id: 'settings.series.delete.title',
+                message: 'Delete series'
+            }),
+            message: i18n._({
+                id: 'settings.series.editor.delete_confirm',
+                message: 'Deleting "{title}" keeps its posts but removes their series assignment.\n\nThis action cannot be undone. Continue?',
+                values: { title: titleValue }
+            }),
+            confirmText: t({
+                id: 'common.delete',
+                message: 'Delete'
+            }),
             variant: 'danger'
         });
 
@@ -264,9 +339,15 @@ const SeriesEditor = ({ seriesId }: SeriesEditorProps) => {
     const handleCopySeriesUrl = async () => {
         try {
             await navigator.clipboard.writeText(`${window.location.origin}${seriesPath}`);
-            toast.success('시리즈 URL을 복사했습니다.');
+            toast.success(t({
+                id: 'settings.series.editor.url.copy_success',
+                message: 'Series URL copied.'
+            }));
         } catch {
-            toast.error('시리즈 URL 복사에 실패했습니다.');
+            toast.error(t({
+                id: 'settings.series.editor.url.copy_failed',
+                message: 'Could not copy the series URL.'
+            }));
         }
     };
 
@@ -279,7 +360,11 @@ const SeriesEditor = ({ seriesId }: SeriesEditorProps) => {
                             to="/series"
                             className="flex min-h-11 items-center gap-2 py-2 text-sm text-content-secondary transition-colors hover:text-content active:text-content-secondary [@media(pointer:fine)]:min-h-9">
                             <ArrowLeft aria-hidden className="h-4 w-4" />
-                            <span>목록으로</span>
+                            <span>
+                                <Trans id="settings.series.editor.back_to_list">
+                                    Back to series
+                                </Trans>
+                            </span>
                         </Link>
                     </div>
                 </div>
@@ -287,21 +372,34 @@ const SeriesEditor = ({ seriesId }: SeriesEditorProps) => {
                 <div className="max-w-4xl mx-auto px-4 md:px-6 pt-10 pb-10 space-y-10">
                     <section className="space-y-4">
                         <h1 className="sr-only">
-                            {isEditMode ? '시리즈 수정' : '시리즈 생성'}
+                            {isEditMode
+                                ? t({
+                                    id: 'settings.series.editor.edit_title',
+                                    message: 'Edit series'
+                                })
+                                : t({
+                                    id: 'settings.series.editor.create_title',
+                                    message: 'Create series'
+                                })}
                         </h1>
 
                         <div className="space-y-2">
                             <label
                                 htmlFor="series-name"
                                 className="ml-1 block text-sm font-medium text-content-secondary">
-                                시리즈 제목
+                                <Trans id="settings.series.editor.name.label">
+                                    Series title
+                                </Trans>
                             </label>
                             <div className="relative rounded-lg border border-line bg-surface-elevated px-3 py-3 transition-all duration-150 focus-within:border-line-strong focus-within:ring-2 focus-within:ring-line/70">
                                 <input
                                     id="series-name"
                                     type="text"
                                     maxLength={50}
-                                    placeholder="시리즈 제목을 입력해주세요"
+                                    placeholder={t({
+                                        id: 'settings.series.editor.name.placeholder',
+                                        message: 'Enter a series title'
+                                    })}
                                     className="w-full border-none bg-transparent pr-20 text-2xl font-bold text-content outline-none placeholder-content-hint"
                                     {...register('name')}
                                 />
@@ -326,20 +424,33 @@ const SeriesEditor = ({ seriesId }: SeriesEditorProps) => {
                     <section>
                         <Input
                             density="compact"
-                            label="시리즈 설명"
+                            label={t({
+                                id: 'settings.series.editor.description.label',
+                                message: 'Series description'
+                            })}
                             multiline
                             rows={5}
-                            placeholder="이 시리즈에서 다루는 내용을 입력해주세요."
+                            placeholder={t({
+                                id: 'settings.series.editor.description.placeholder',
+                                message: 'Describe what this series covers.'
+                            })}
                             maxLength={500}
                             error={errors.description?.message}
-                            helperText="시리즈 상단에 표시됩니다. 선택 입력입니다."
+                            helperText={t({
+                                id: 'settings.series.editor.description.helper',
+                                message: 'Shown at the top of the series. Optional.'
+                            })}
                             {...register('description')}
                         />
                     </section>
 
                     <section className="space-y-3 border-t border-line-light pt-5">
                         <div className="flex items-center justify-between gap-3">
-                            <h2 className="text-sm font-semibold text-content-secondary">시리즈 URL</h2>
+                            <h2 className="text-sm font-semibold text-content-secondary">
+                                <Trans id="settings.series.editor.url.title">
+                                    Series URL
+                                </Trans>
+                            </h2>
                             {isEditMode && (
                                 <Button
                                     density="compact"
@@ -348,7 +459,7 @@ const SeriesEditor = ({ seriesId }: SeriesEditorProps) => {
                                     size="sm"
                                     className="h-10 shrink-0"
                                     onClick={handleCopySeriesUrl}>
-                                    복사
+                                    <Trans id="common.copy">Copy</Trans>
                                 </Button>
                             )}
                         </div>
@@ -356,13 +467,18 @@ const SeriesEditor = ({ seriesId }: SeriesEditorProps) => {
                         {!isEditMode && (
                             <details className="group">
                                 <summary className="flex min-h-11 cursor-pointer list-none items-center text-sm text-content-secondary transition-colors hover:text-content [@media(pointer:fine)]:min-h-9">
-                                    URL 직접 설정
+                                    <Trans id="settings.series.editor.url.customize">
+                                        Customize URL
+                                    </Trans>
                                     <ChevronDown aria-hidden className="ml-2 inline h-3.5 w-3.5 transition-transform group-open:rotate-180" />
                                 </summary>
                                 <div className="mt-3 space-y-2">
                                     <Input
                                         density="compact"
-                                        label="URL (선택)"
+                                        label={t({
+                                            id: 'settings.series.editor.url.optional_label',
+                                            message: 'URL (optional)'
+                                        })}
                                         value={customUrlValue}
                                         onChange={(e) => {
                                             setValue('customUrl', normalizeSeriesUrlInput(e.target.value), {
@@ -376,7 +492,9 @@ const SeriesEditor = ({ seriesId }: SeriesEditorProps) => {
                                         <p className="text-sm text-danger">{errors.customUrl.message}</p>
                                     )}
                                     <p className="text-xs text-content-secondary">
-                                        영문/숫자/한글/하이픈(`-`)만 사용할 수 있습니다.
+                                        <Trans id="settings.series.editor.url.characters_helper">
+                                            Use only English letters, numbers, Korean characters, and hyphens (-).
+                                        </Trans>
                                     </p>
                                 </div>
                             </details>
@@ -387,7 +505,20 @@ const SeriesEditor = ({ seriesId }: SeriesEditorProps) => {
                         </div>
 
                         <p className="text-xs text-content-secondary">
-                            {isEditMode ? '시리즈 이름을 수정해도 URL은 유지됩니다.' : customSlug ? '직접 입력한 URL로 시리즈가 생성됩니다.' : 'URL을 비워두면 제목 기반 자동 URL로 시리즈가 생성됩니다.'}
+                            {isEditMode
+                                ? t({
+                                    id: 'settings.series.editor.url.edit_helper',
+                                    message: 'The URL stays the same when you edit the series title.'
+                                })
+                                : customSlug
+                                    ? t({
+                                        id: 'settings.series.editor.url.custom_helper',
+                                        message: 'The series will use your custom URL.'
+                                    })
+                                    : t({
+                                        id: 'settings.series.editor.url.auto_helper',
+                                        message: 'Leave the URL empty to generate one from the title.'
+                                    })}
                         </p>
                     </section>
 
@@ -405,7 +536,7 @@ const SeriesEditor = ({ seriesId }: SeriesEditorProps) => {
                                 disabled={isSaving}
                                 onClick={handleDelete}
                                 className="!rounded-full !text-danger hover:!text-danger hover:!bg-danger-surface">
-                                삭제
+                                <Trans id="common.delete">Delete</Trans>
                             </Button>
                             <div className="w-px h-8 bg-line/60 mx-1" />
                         </>
@@ -419,7 +550,20 @@ const SeriesEditor = ({ seriesId }: SeriesEditorProps) => {
                         leftIcon={!isSaving ? <Send className="w-4 h-4" /> : undefined}
                         isLoading={isSaving}
                         disabled={deleteMutation.isPending}>
-                        {isSaving ? '저장 중...' : isEditMode ? '수정' : '생성'}
+                        {isSaving
+                            ? t({
+                                id: 'settings.series.editor.saving',
+                                message: 'Saving...'
+                            })
+                            : isEditMode
+                                ? t({
+                                    id: 'settings.series.editor.update',
+                                    message: 'Update'
+                                })
+                                : t({
+                                    id: 'settings.series.editor.create',
+                                    message: 'Create'
+                                })}
                     </Button>
                 </FloatingBottomBar>
             </form>

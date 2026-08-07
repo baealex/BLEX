@@ -1,5 +1,8 @@
 import { useQuery } from '@tanstack/react-query';
+import { Plural, Trans, useLingui } from '@lingui/react/macro';
 import { selectVisibleRelatedPosts } from './selection';
+import { formatPublishedDate } from '~/i18n/formatters';
+import { normalizeLocale } from '~/i18n/locale';
 import { getRelatedPosts, type RelatedPost } from '~/lib/api/posts';
 
 interface RelatedPostsProps {
@@ -26,6 +29,8 @@ const SkeletonCard = () => (
 );
 
 const PostCard = ({ relatedPost }: { relatedPost: RelatedPost }) => {
+    const { i18n } = useLingui();
+    const locale = normalizeLocale(i18n.locale);
     const postUrl = `/@${relatedPost.authorUsername}/${relatedPost.url}`;
     const authorUrl = `/@${relatedPost.authorUsername}`;
 
@@ -65,9 +70,20 @@ const PostCard = ({ relatedPost }: { relatedPost: RelatedPost }) => {
 
                 <div className="text-xs text-content-secondary mb-3 flex items-center gap-3">
                     <time dateTime={relatedPost.publishedAt}>
-                        {relatedPost.publishedDate}
+                        {formatPublishedDate(
+                            relatedPost.publishedDateIso,
+                            relatedPost.publishedDate,
+                            locale
+                        )}
                     </time>
-                    <span>{relatedPost.readTime}분</span>
+                    <span>
+                        <Plural
+                            id="related_posts.read_time"
+                            value={relatedPost.readTime}
+                            one="# min"
+                            other="# mins"
+                        />
+                    </span>
                 </div>
 
                 <p className={`text-sm text-content-secondary leading-relaxed mb-4 ${hasThumbnail ? 'line-clamp-2' : 'line-clamp-3 flex-grow'}`}>
@@ -125,7 +141,9 @@ const RelatedPosts = ({ postUrl, username }: RelatedPostsProps) => {
             <div>
                 <div className="flex items-center gap-3 mb-8">
                     <div className="w-1.5 h-6 bg-action rounded-full" />
-                    <h3 className="text-xl sm:text-2xl font-bold text-content">관련 포스트</h3>
+                    <h3 className="text-xl sm:text-2xl font-bold text-content">
+                        <Trans id="related_posts.title">Related posts</Trans>
+                    </h3>
                 </div>
                 <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
                     <SkeletonCard />
@@ -148,15 +166,15 @@ const RelatedPosts = ({ postUrl, username }: RelatedPostsProps) => {
                     <i className="fas fa-compass text-2xl text-content-hint" />
                 </div>
                 <h3 className="text-lg font-semibold text-content mb-2">
-                    {username}의 다른 포스트 둘러보기
+                    <Trans id="related_posts.empty.title">Explore more posts by {username}</Trans>
                 </h3>
                 <p className="text-content-secondary text-sm mb-6">
-                    프로필에서 더 많은 포스트를 확인할 수 있습니다.
+                    <Trans id="related_posts.empty.body">Find more posts on this profile.</Trans>
                 </p>
                 <a
                     href={`/@${username}`}
                     className="inline-flex items-center gap-2 px-5 py-2.5 bg-action text-content-inverted rounded-full text-sm font-medium hover:bg-action-hover transition-colors active:scale-95">
-                    <span>프로필 보기</span>
+                    <span><Trans id="related_posts.profile">View profile</Trans></span>
                     <i className="fas fa-arrow-right text-xs opacity-70" />
                 </a>
             </div>
@@ -167,7 +185,9 @@ const RelatedPosts = ({ postUrl, username }: RelatedPostsProps) => {
         <div>
             <div className="flex items-center gap-3 mb-8">
                 <div className="w-1.5 h-6 bg-action rounded-full" />
-                <h3 className="text-xl sm:text-2xl font-bold text-content">관련 포스트</h3>
+                <h3 className="text-xl sm:text-2xl font-bold text-content">
+                    <Trans id="related_posts.title">Related posts</Trans>
+                </h3>
             </div>
 
             <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">

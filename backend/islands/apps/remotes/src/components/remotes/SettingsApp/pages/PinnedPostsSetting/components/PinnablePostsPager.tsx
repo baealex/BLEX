@@ -1,4 +1,5 @@
 import { Button } from '~/components/shared';
+import { Trans, useLingui } from '@lingui/react/macro';
 import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from '@blex/ui/icons';
 import type { PinnablePostsPaginationData } from '~/lib/api/settings';
 
@@ -29,6 +30,7 @@ export const PinnablePostsPager = ({
     onPageChange,
     isLoading = false
 }: PinnablePostsPagerProps) => {
+    const { t } = useLingui();
     if (pagination.totalCount === 0) {
         return null;
     }
@@ -46,9 +48,14 @@ export const PinnablePostsPager = ({
     return (
         <nav
             className="flex flex-col gap-3 pt-1 sm:flex-row sm:items-center sm:justify-between"
-            aria-label="고정 가능한 포스트 페이지">
+            aria-label={t({
+                id: 'settings.pinned_posts.pagination.label',
+                message: 'Available posts pages'
+            })}>
             <p className="text-xs text-content-secondary">
-                총 {pagination.totalCount}개 중 {start}-{end}개 표시
+                <Trans id="settings.pinned_posts.pagination.summary">
+                    Showing {start}–{end} of {pagination.totalCount}
+                </Trans>
             </p>
             {pagination.lastPage > 1 && (
                 <div className="flex flex-wrap items-center gap-1.5">
@@ -59,7 +66,10 @@ export const PinnablePostsPager = ({
                         className="min-h-11! min-w-11 [@media(pointer:fine)]:min-h-9! [@media(pointer:fine)]:min-w-9"
                         disabled={!pagination.hasPrevious || isLoading}
                         onClick={() => handlePageMove(1)}
-                        aria-label="첫 페이지">
+                        aria-label={t({
+                            id: 'pagination.first',
+                            message: 'First page'
+                        })}>
                         <ChevronsLeft aria-hidden className="h-4 w-4" />
                     </Button>
                     <Button
@@ -69,7 +79,10 @@ export const PinnablePostsPager = ({
                         className="min-h-11! min-w-11 [@media(pointer:fine)]:min-h-9! [@media(pointer:fine)]:min-w-9"
                         disabled={!pagination.hasPrevious || isLoading}
                         onClick={() => handlePageMove(currentPage - 1)}
-                        aria-label="이전 페이지">
+                        aria-label={t({
+                            id: 'pagination.previous',
+                            message: 'Previous page'
+                        })}>
                         <ChevronLeft aria-hidden className="h-4 w-4" />
                     </Button>
                     {visiblePages.map(page => (
@@ -92,7 +105,10 @@ export const PinnablePostsPager = ({
                         className="min-h-11! min-w-11 [@media(pointer:fine)]:min-h-9! [@media(pointer:fine)]:min-w-9"
                         disabled={!pagination.hasNext || isLoading}
                         onClick={() => handlePageMove(currentPage + 1)}
-                        aria-label="다음 페이지">
+                        aria-label={t({
+                            id: 'pagination.next',
+                            message: 'Next page'
+                        })}>
                         <ChevronRight aria-hidden className="h-4 w-4" />
                     </Button>
                     <Button
@@ -102,7 +118,10 @@ export const PinnablePostsPager = ({
                         className="min-h-11! min-w-11 [@media(pointer:fine)]:min-h-9! [@media(pointer:fine)]:min-w-9"
                         disabled={!pagination.hasNext || isLoading}
                         onClick={() => handlePageMove(pagination.lastPage)}
-                        aria-label="마지막 페이지">
+                        aria-label={t({
+                            id: 'pagination.last',
+                            message: 'Last page'
+                        })}>
                         <ChevronsRight aria-hidden className="h-4 w-4" />
                     </Button>
                 </div>

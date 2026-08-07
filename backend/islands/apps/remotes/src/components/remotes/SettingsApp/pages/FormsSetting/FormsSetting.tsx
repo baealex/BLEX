@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
+import { Trans, useLingui } from '@lingui/react/macro';
 import { toast } from '~/utils/toast';
 import { useSuspenseQuery } from '@tanstack/react-query';
 import { useForm } from 'react-hook-form';
@@ -31,14 +32,28 @@ interface FormItem {
     content?: string;
 }
 
-const formSchema = z.object({
-    title: z.string().min(1, '제목을 입력해주세요.').max(100, '제목은 100자 이내로 입력해주세요.'),
-    content: z.string().min(1, '내용을 입력해주세요.')
-});
-
-type FormInputs = z.infer<typeof formSchema>;
+interface FormInputs {
+    title: string;
+    content: string;
+}
 
 const FormsManagement = () => {
+    const { i18n, t } = useLingui();
+    const formSchema = useMemo(() => z.object({
+        title: z.string()
+            .min(1, t({
+                id: 'settings.forms.validation.title_required',
+                message: 'Enter a title.'
+            }))
+            .max(100, t({
+                id: 'settings.forms.validation.title_max_length',
+                message: 'Title must be 100 characters or fewer.'
+            })),
+        content: z.string().min(1, t({
+            id: 'settings.forms.validation.content_required',
+            message: 'Enter template content.'
+        }))
+    }), [t]);
     const { confirm } = useConfirm();
     const [showForm, setShowForm] = useState(false);
     const [editingForm, setEditingForm] = useState<FormItem | null>(null);
@@ -57,27 +72,46 @@ const FormsManagement = () => {
         }
     });
 
-    const handleDeleteForm = async (formId: number) => {
+    const handleDeleteForm = async (form: FormItem) => {
         const confirmed = await confirm({
-            title: '서식 삭제',
-            message: '정말 이 서식을 삭제할까요?',
-            confirmText: '삭제',
+            title: t({
+                id: 'settings.forms.delete.title',
+                message: 'Delete template'
+            }),
+            message: i18n._({
+                id: 'settings.forms.delete.message',
+                message: 'Delete “{title}”? This action cannot be undone.',
+                values: { title: form.title }
+            }),
+            confirmText: t({
+                id: 'common.delete',
+                message: 'Delete'
+            }),
             variant: 'danger'
         });
 
         if (!confirmed) return;
 
         try {
-            const { data } = await deleteForm(formId);
+            const { data } = await deleteForm(form.id);
 
             if (data.status === 'DONE') {
-                toast.success('서식이 삭제되었습니다.');
+                toast.success(t({
+                    id: 'settings.forms.delete.success',
+                    message: 'Template deleted.'
+                }));
                 refetch();
             } else {
-                toast.error('서식 삭제에 실패했습니다.');
+                toast.error(data.errorMessage || t({
+                    id: 'settings.forms.delete.failed',
+                    message: 'Could not delete the template.'
+                }));
             }
         } catch {
-            toast.error('네트워크 오류가 발생했습니다.');
+            toast.error(t({
+                id: 'common.network_error',
+                message: 'A network error occurred.'
+            }));
         }
     };
 
@@ -101,10 +135,16 @@ const FormsManagement = () => {
                 });
                 setShowForm(true);
             } else {
-                toast.error('서식을 불러오는데 실패했습니다.');
+                toast.error(data.errorMessage || t({
+                    id: 'settings.forms.load_detail_failed',
+                    message: 'Could not load the template.'
+                }));
             }
         } catch {
-            toast.error('네트워크 오류가 발생했습니다.');
+            toast.error(t({
+                id: 'common.network_error',
+                message: 'A network error occurred.'
+            }));
         }
     };
 
@@ -117,11 +157,17 @@ const FormsManagement = () => {
                     content: formData.content
                 });
                 if (data.status === 'DONE') {
-                    toast.success('서식이 수정되었습니다.');
+                    toast.success(t({
+                        id: 'settings.forms.update.success',
+                        message: 'Template updated.'
+                    }));
                     closeForm();
                     refetch();
                 } else {
-                    toast.error('서식 수정에 실패했습니다.');
+                    toast.error(data.errorMessage || t({
+                        id: 'settings.forms.update.failed',
+                        message: 'Could not update the template.'
+                    }));
                 }
             } else {
                 const { data } = await createForm({
@@ -129,15 +175,24 @@ const FormsManagement = () => {
                     content: formData.content
                 });
                 if (data.status === 'DONE') {
-                    toast.success('서식이 생성되었습니다.');
+                    toast.success(t({
+                        id: 'settings.forms.create.success',
+                        message: 'Template created.'
+                    }));
                     closeForm();
                     refetch();
                 } else {
-                    toast.error('서식 생성에 실패했습니다.');
+                    toast.error(data.errorMessage || t({
+                        id: 'settings.forms.create.failed',
+                        message: 'Could not create the template.'
+                    }));
                 }
             }
         } catch {
-            toast.error('네트워크 오류가 발생했습니다.');
+            toast.error(t({
+                id: 'common.network_error',
+                message: 'A network error occurred.'
+            }));
         } finally {
             setIsSubmitting(false);
         }
@@ -157,15 +212,22 @@ const FormsManagement = () => {
         <SettingsHeaderAction
             variant="primary"
             onClick={handleCreateForm}>
-            새 서식 추가
+            <Trans id="settings.forms.add">Add template</Trans>
         </SettingsHeaderAction>
     );
 
     return (
         <div>
             <SettingsHeader
-                title={`서식 (${forms.length})`}
-                description="새 포스트에 불러올 문구를 미리 저장합니다."
+                title={i18n._({
+                    id: 'settings.forms.title_count',
+                    message: 'Templates ({count})',
+                    values: { count: forms.length }
+                })}
+                description={t({
+                    id: 'settings.forms.description',
+                    message: 'Save reusable content to insert into new posts.'
+                })}
                 actionPosition="right"
                 action={forms.length > 0 ? createAction : undefined}
             />
@@ -175,24 +237,44 @@ const FormsManagement = () => {
                     className="mb-6 bg-surface-subtle border border-line rounded-2xl p-6 animate-in fade-in-0 slide-in-from-top-2 motion-interaction"
                     onSubmit={handleSubmit(onSubmit)}>
                     <h3 className="text-base font-semibold text-content mb-4">
-                        {editingForm ? '서식 편집' : '서식 추가'}
+                        {editingForm
+                            ? t({
+                                id: 'settings.forms.editor.edit_title',
+                                message: 'Edit template'
+                            })
+                            : t({
+                                id: 'settings.forms.editor.add_title',
+                                message: 'Add template'
+                            })}
                     </h3>
                     <div className="space-y-4">
                         <Input
                             density="compact"
-                            label="제목"
+                            label={t({
+                                id: 'settings.forms.fields.title',
+                                message: 'Title'
+                            })}
                             type="text"
-                            placeholder="서식 제목을 입력하세요"
+                            placeholder={t({
+                                id: 'settings.forms.fields.title_placeholder',
+                                message: 'Enter a template title'
+                            })}
                             error={errors.title?.message}
                             {...register('title')}
                         />
 
                         <Input
                             density="compact"
-                            label="내용"
+                            label={t({
+                                id: 'settings.forms.fields.content',
+                                message: 'Content'
+                            })}
                             multiline
                             rows={8}
-                            placeholder="서식 내용을 입력하세요"
+                            placeholder={t({
+                                id: 'settings.forms.fields.content_placeholder',
+                                message: 'Enter reusable content'
+                            })}
                             error={errors.content?.message}
                             {...register('content')}
                         />
@@ -206,7 +288,7 @@ const FormsManagement = () => {
                                 className="min-h-11! [@media(pointer:fine)]:min-h-10!"
                                 onClick={closeForm}
                                 disabled={isSubmitting}>
-                                취소
+                                <Trans id="common.cancel">Cancel</Trans>
                             </Button>
                             <div className="flex items-center gap-3">
                                 <Button
@@ -216,7 +298,25 @@ const FormsManagement = () => {
                                     size="md"
                                     className="min-h-11! [@media(pointer:fine)]:min-h-10!"
                                     isLoading={isSubmitting}>
-                                    {isSubmitting ? (editingForm ? '수정 중...' : '생성 중...') : (editingForm ? '서식 수정' : '서식 생성')}
+                                    {isSubmitting
+                                        ? editingForm
+                                            ? t({
+                                                id: 'settings.forms.update.updating',
+                                                message: 'Updating...'
+                                            })
+                                            : t({
+                                                id: 'settings.forms.create.creating',
+                                                message: 'Creating...'
+                                            })
+                                        : editingForm
+                                            ? t({
+                                                id: 'settings.forms.update.action',
+                                                message: 'Update template'
+                                            })
+                                            : t({
+                                                id: 'settings.forms.create.action',
+                                                message: 'Create template'
+                                            })}
                                 </Button>
                             </div>
                         </div>
@@ -237,18 +337,28 @@ const FormsManagement = () => {
                             actions={
                                 <Dropdown
                                     density="compact"
-                                    triggerAriaLabel={`${form.title} 서식 메뉴 열기`}
+                                    triggerAriaLabel={i18n._({
+                                        id: 'settings.forms.open_menu',
+                                        message: 'Open template menu: {title}',
+                                        values: { title: form.title }
+                                    })}
                                     triggerClassName="min-h-11 min-w-11 [@media(pointer:fine)]:min-h-9 [@media(pointer:fine)]:min-w-9"
                                     items={[
                                         {
-                                            label: '수정',
+                                            label: t({
+                                                id: 'common.edit',
+                                                message: 'Edit'
+                                            }),
                                             icon: <Pencil aria-hidden className="h-4 w-4" />,
                                             onClick: () => handleEditForm(form.id)
                                         },
                                         {
-                                            label: '삭제',
+                                            label: t({
+                                                id: 'common.delete',
+                                                message: 'Delete'
+                                            }),
                                             icon: <Trash2 aria-hidden className="h-4 w-4" />,
-                                            onClick: () => handleDeleteForm(form.id),
+                                            onClick: () => handleDeleteForm(form),
                                             variant: 'danger'
                                         }
                                     ]}
@@ -261,7 +371,10 @@ const FormsManagement = () => {
             ) : !showForm ? (
                 <SettingsEmptyState
                     icon={<FileText aria-hidden className="h-5 w-5" />}
-                    title="등록된 서식이 없습니다"
+                    title={t({
+                        id: 'settings.forms.empty',
+                        message: 'No templates yet'
+                    })}
                     action={createAction}
                 />
             ) : null}

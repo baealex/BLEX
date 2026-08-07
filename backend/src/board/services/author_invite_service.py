@@ -9,6 +9,7 @@ import secrets
 from django.contrib.auth.models import User
 from django.db import transaction
 from django.utils import timezone
+from django.utils.translation import gettext
 
 from board.models import AuthorInvite, Config, Profile
 from board.services.user_role_service import UserRoleService
@@ -64,7 +65,7 @@ class AuthorInviteService:
     def delete_invite(invite_id: int) -> None:
         invite = AuthorInvite.objects.select_for_update().get(pk=invite_id)
         if invite.claimed_by_id is not None:
-            raise AuthorInviteError('이미 사용된 초대 링크는 삭제할 수 없습니다.')
+            raise AuthorInviteError(gettext('A used invitation link cannot be deleted.'))
 
         invite.delete()
 
@@ -92,10 +93,12 @@ class AuthorInviteService:
         try:
             invite = AuthorInvite.objects.get(code=code)
         except AuthorInvite.DoesNotExist:
-            raise AuthorInviteError('유효하지 않은 초대 코드입니다.')
+            raise AuthorInviteError(gettext('This invitation code is invalid.'))
 
         if not invite.is_active or invite.claimed_by_id is not None:
-            raise AuthorInviteError('이미 사용되었거나 비활성화된 초대 코드입니다.')
+            raise AuthorInviteError(
+                gettext('This invitation code has already been used or is inactive.')
+            )
 
         return invite
 
@@ -107,7 +110,9 @@ class AuthorInviteService:
 
         invite = AuthorInvite.objects.select_for_update().get(pk=invite.pk)
         if not invite.is_active or invite.claimed_by_id is not None:
-            raise AuthorInviteError('이미 사용되었거나 비활성화된 초대 코드입니다.')
+            raise AuthorInviteError(
+                gettext('This invitation code has already been used or is inactive.')
+            )
 
         profile, _ = Profile.objects.get_or_create(user=user)
         UserRoleService.set_profile_role(profile, Profile.Role.EDITOR)

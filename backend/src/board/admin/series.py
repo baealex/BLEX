@@ -6,6 +6,8 @@ from django.db.models import Count, OuterRef, Q, QuerySet, Subquery
 from django.http import HttpRequest
 from django.urls import reverse
 from django.utils.html import format_html
+from django.utils.translation import gettext_lazy as _
+from django.utils.translation import ngettext
 
 from board.models import Series, Post
 from board.services.public_post_service import PublicPostService
@@ -37,14 +39,27 @@ class SeriesPostInline(admin.TabularInline):
 
     def config_hide(self, obj):
         if hasattr(obj, 'config') and obj.config.hide:
-            return format_html('<span style="color: {};">숨김</span>', COLOR_DANGER)
-        return format_html('<span style="color: {};">공개</span>', COLOR_SUCCESS)
-    config_hide.short_description = '상태'
+            return format_html(
+                '<span style="color: {};">{}</span>',
+                COLOR_DANGER,
+                _('Hidden'),
+            )
+        return format_html(
+            '<span style="color: {};">{}</span>',
+            COLOR_SUCCESS,
+            _('Public'),
+        )
+    config_hide.short_description = _('Status')
 
     def view_link(self, obj):
         url = reverse('admin:board_post_change', args=[obj.id])
-        return format_html('<a href="{}" style="color: {};">편집</a>', url, COLOR_PRIMARY)
-    view_link.short_description = '편집'
+        return format_html(
+            '<a href="{}" style="color: {};">{}</a>',
+            url,
+            COLOR_PRIMARY,
+            _('Edit'),
+        )
+    view_link.short_description = _('Edit')
 
 
 @admin.register(Series)
@@ -100,20 +115,20 @@ class SeriesAdmin(admin.ModelAdmin):
         return queryset
 
     fieldsets = (
-        ('기본 정보', {
+        (_('Basic information'), {
             'fields': ('owner', 'name', 'url'),
         }),
-        ('설정', {
+        (_('Settings'), {
             'fields': ('hide', 'layout', 'order'),
         }),
-        ('내용', {
+        (_('Content'), {
             'fields': ('text_md', 'text_html'),
             'classes': ('collapse',),
         }),
-        ('포스트 목록', {
+        (_('Posts'), {
             'fields': ('posts_summary',),
         }),
-        ('메타데이터', {
+        (_('Metadata'), {
             'fields': ('created_at', 'updated_at'),
             'classes': ('collapse',),
         }),
@@ -137,12 +152,12 @@ class SeriesAdmin(admin.ModelAdmin):
 
     def owner_link(self, obj):
         return AdminLinkService.create_user_link(obj.owner)
-    owner_link.short_description = '작성자'
+    owner_link.short_description = _('Author')
 
     def count_posts(self, obj):
         count = obj.count_posts if hasattr(obj, 'count_posts') else obj.posts.count()
         return format_html('📚 {}', count)
-    count_posts.short_description = '활성 포스트'
+    count_posts.short_description = _('Active posts')
     count_posts.admin_order_field = 'count_posts'
 
     def public_posts(self, obj):
@@ -152,7 +167,7 @@ class SeriesAdmin(admin.ModelAdmin):
                 Post.all_objects.filter(series=obj),
             ).count()
         return count
-    public_posts.short_description = '공개 포스트'
+    public_posts.short_description = _('Public posts')
     public_posts.admin_order_field = 'public_post_count'
 
     def trashed_posts(self, obj):
@@ -163,32 +178,32 @@ class SeriesAdmin(admin.ModelAdmin):
                 deleted_date__isnull=False,
             ).count()
         return count
-    trashed_posts.short_description = '휴지통'
+    trashed_posts.short_description = _('Trash')
     trashed_posts.admin_order_field = 'trashed_post_count'
 
     def layout_badge(self, obj):
         if obj.layout == 'card':
             return format_html(
-                '<span style="background: {}; color: {}; padding: 3px 8px; border-radius: 4px; font-size: 11px; opacity: 0.8;">카드</span>',
-                COLOR_INFO, COLOR_BG
+                '<span style="background: {}; color: {}; padding: 3px 8px; border-radius: 4px; font-size: 11px; opacity: 0.8;">{}</span>',
+                COLOR_INFO, COLOR_BG, _('Card')
             )
         return format_html(
-            '<span style="background: {}; color: {}; padding: 3px 8px; border-radius: 4px; font-size: 11px; opacity: 0.8;">리스트</span>',
-            COLOR_DARKENED_BG, COLOR_TEXT
+            '<span style="background: {}; color: {}; padding: 3px 8px; border-radius: 4px; font-size: 11px; opacity: 0.8;">{}</span>',
+            COLOR_DARKENED_BG, COLOR_TEXT, _('List')
         )
-    layout_badge.short_description = '레이아웃'
+    layout_badge.short_description = _('Layout')
 
     def visibility_badge(self, obj):
         if obj.hide:
             return format_html(
-                '<span style="background: {}; color: {}; padding: 3px 8px; border-radius: 4px; font-size: 11px; opacity: 0.8;">숨김</span>',
-                COLOR_DANGER, COLOR_BG
+                '<span style="background: {}; color: {}; padding: 3px 8px; border-radius: 4px; font-size: 11px; opacity: 0.8;">{}</span>',
+                COLOR_DANGER, COLOR_BG, _('Hidden')
             )
         return format_html(
-            '<span style="background: {}; color: {}; padding: 3px 8px; border-radius: 4px; font-size: 11px; opacity: 0.8;">공개</span>',
-            COLOR_SUCCESS, COLOR_BG
+            '<span style="background: {}; color: {}; padding: 3px 8px; border-radius: 4px; font-size: 11px; opacity: 0.8;">{}</span>',
+            COLOR_SUCCESS, COLOR_BG, _('Public')
         )
-    visibility_badge.short_description = '상태'
+    visibility_badge.short_description = _('Status')
 
     def thumbnail_preview(self, obj):
         thumbnail_name = getattr(obj, 'admin_thumbnail_name', None)
@@ -232,28 +247,32 @@ class SeriesAdmin(admin.ModelAdmin):
             ).count()
 
         if active_posts == 0 and trashed_posts == 0:
-            return format_html('<p style="color: {};">포스트 없음</p>', COLOR_MUTED)
+            return format_html(
+                '<p style="color: {};">{}</p>',
+                COLOR_MUTED,
+                _('No posts'),
+            )
 
         return format_html(
             '<div style="background: {}; padding: 12px; border-radius: 6px; border: 1px solid {};">'
-            '<p style="margin: 4px 0; color: {};"><strong>활성 포스트:</strong> {}</p>'
-            '<p style="margin: 4px 0; color: {};"><strong>공개 노출:</strong> <span style="color: {};">{}</span></p>'
-            '<p style="margin: 4px 0; color: {};"><strong>휴지통:</strong> <span style="color: {};">{}</span></p>'
+            '<p style="margin: 4px 0; color: {};"><strong>{}:</strong> {}</p>'
+            '<p style="margin: 4px 0; color: {};"><strong>{}:</strong> <span style="color: {};">{}</span></p>'
+            '<p style="margin: 4px 0; color: {};"><strong>{}:</strong> <span style="color: {};">{}</span></p>'
             '</div>',
             COLOR_DARKENED_BG, COLOR_BORDER,
-            COLOR_TEXT, active_posts,
-            COLOR_TEXT, COLOR_SUCCESS, public_posts,
-            COLOR_TEXT, COLOR_DANGER, trashed_posts,
+            COLOR_TEXT, _('Active posts'), active_posts,
+            COLOR_TEXT, _('Publicly visible'), COLOR_SUCCESS, public_posts,
+            COLOR_TEXT, _('Trash'), COLOR_DANGER, trashed_posts,
         )
-    posts_summary.short_description = '포스트 요약'
+    posts_summary.short_description = _('Post summary')
 
     def created_at(self, obj):
         return obj.created_date.strftime('%Y-%m-%d %H:%M:%S')
-    created_at.short_description = '생성일시'
+    created_at.short_description = _('Created at')
 
     def updated_at(self, obj):
         return obj.updated_date.strftime('%Y-%m-%d %H:%M:%S')
-    updated_at.short_description = '수정일시'
+    updated_at.short_description = _('Updated at')
 
     def _update_series_fields(
         self,
@@ -286,7 +305,7 @@ class SeriesAdmin(admin.ModelAdmin):
                 count += 1
         return count
 
-    @admin.action(description='선택한 시리즈 숨김 처리')
+    @admin.action(description=_('Hide selected series'))
     def make_hidden(
         self,
         request: HttpRequest,
@@ -296,11 +315,18 @@ class SeriesAdmin(admin.ModelAdmin):
             request,
             queryset.filter(hide=False),
             hide=True,
-            change_message='Admin에서 숨김 처리',
+            change_message=_('Hidden in Admin'),
         )
-        self.message_user(request, f'{count}개의 시리즈를 숨김 처리했습니다.')
+        self.message_user(
+            request,
+            ngettext(
+                '%(count)d series was hidden.',
+                '%(count)d series were hidden.',
+                count,
+            ) % {'count': count},
+        )
 
-    @admin.action(description='선택한 시리즈 공개 처리')
+    @admin.action(description=_('Make selected series public'))
     def make_visible(
         self,
         request: HttpRequest,
@@ -311,7 +337,7 @@ class SeriesAdmin(admin.ModelAdmin):
             if not hidden_series.exists():
                 self.message_user(
                     request,
-                    '공개 처리할 숨김 시리즈가 없습니다.',
+                    _('There are no hidden series to make public.'),
                     level=messages.WARNING,
                 )
                 return None
@@ -320,12 +346,12 @@ class SeriesAdmin(admin.ModelAdmin):
                 self,
                 hidden_series,
                 action_name='make_visible',
-                title='시리즈 공개 확인',
-                warning=(
-                    '공개 포스트가 포함된 시리즈는 즉시 외부에 노출될 수 '
-                    '있습니다.'
+                title=_('Confirm series publication'),
+                warning=_(
+                    'Series containing public posts may become externally '
+                    'visible immediately.'
                 ),
-                confirm_label='공개 처리',
+                confirm_label=_('Make public'),
                 is_destructive=False,
             )
 
@@ -333,11 +359,18 @@ class SeriesAdmin(admin.ModelAdmin):
             request,
             hidden_series,
             hide=False,
-            change_message='Admin에서 공개 처리',
+            change_message=_('Made public in Admin'),
         )
-        self.message_user(request, f'{count}개의 시리즈를 공개 처리했습니다.')
+        self.message_user(
+            request,
+            ngettext(
+                '%(count)d series was made public.',
+                '%(count)d series were made public.',
+                count,
+            ) % {'count': count},
+        )
 
-    @admin.action(description='레이아웃을 리스트로 변경')
+    @admin.action(description=_('Change layout to list'))
     def set_layout_list(
         self,
         request: HttpRequest,
@@ -347,11 +380,18 @@ class SeriesAdmin(admin.ModelAdmin):
             request,
             queryset.exclude(layout='list'),
             layout='list',
-            change_message='Admin에서 리스트 레이아웃으로 변경',
+            change_message=_('Changed to list layout in Admin'),
         )
-        self.message_user(request, f'{count}개의 시리즈를 리스트 레이아웃으로 변경했습니다.')
+        self.message_user(
+            request,
+            ngettext(
+                '%(count)d series was changed to the list layout.',
+                '%(count)d series were changed to the list layout.',
+                count,
+            ) % {'count': count},
+        )
 
-    @admin.action(description='레이아웃을 카드로 변경')
+    @admin.action(description=_('Change layout to cards'))
     def set_layout_card(
         self,
         request: HttpRequest,
@@ -361,6 +401,13 @@ class SeriesAdmin(admin.ModelAdmin):
             request,
             queryset.exclude(layout='card'),
             layout='card',
-            change_message='Admin에서 카드 레이아웃으로 변경',
+            change_message=_('Changed to card layout in Admin'),
         )
-        self.message_user(request, f'{count}개의 시리즈를 카드 레이아웃으로 변경했습니다.')
+        self.message_user(
+            request,
+            ngettext(
+                '%(count)d series was changed to the card layout.',
+                '%(count)d series were changed to the card layout.',
+                count,
+            ) % {'count': count},
+        )

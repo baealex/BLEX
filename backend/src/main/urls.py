@@ -33,6 +33,7 @@ from main.admin_path import get_admin_path
 
 urlpatterns += [
     path(f'{get_admin_path()}/', admin.site.urls),
+    path('i18n/', include('django.conf.urls.i18n')),
     path('', include('board.urls')),
 ]
 

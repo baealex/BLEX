@@ -1,4 +1,5 @@
 from django.http import Http404
+from django.utils.translation import gettext
 
 from board.models import AuthorInvite
 from board.modules.response import ErrorCode, StatusDone, StatusError
@@ -40,7 +41,7 @@ def author_invite_detail(request, invite_id: int):
         try:
             AuthorInviteService.delete_invite(invite_id)
         except AuthorInvite.DoesNotExist:
-            return StatusError(ErrorCode.NOT_FOUND, '초대 링크를 찾을 수 없습니다.')
+            return StatusError(ErrorCode.NOT_FOUND, gettext('Invitation link not found.'))
         except AuthorInviteError as error:
             return StatusError(ErrorCode.REJECT, error.message)
 

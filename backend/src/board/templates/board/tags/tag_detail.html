@@ -1,16 +1,18 @@
 {% extends 'board/base.html' %}
-{% load island %}
-{% load static %}
+{% load i18n island static %}
 
 {% block title %}{{ site_brand.site_name }} - #{{ tag }}{% endblock %}
 
 {% block content %}
+{% translate "No posts found" as empty_title %}
+{% translate "Write a post" as empty_action_label %}
+{% blocktranslate with tag_name=tag asvar tag_empty_message %}No posts have been written with #{{ tag_name }} yet.{% endblocktranslate %}
 <div class="max-w-7xl w-full mx-auto px-4 sm:px-6 py-8 sm:py-12">
     <!-- Breadcrumb Navigation -->
     <nav class="mb-8">
         <a href="/tags" class="group inline-flex items-center text-sm font-medium text-content-secondary hover:text-content transition-colors duration-200">
             <i class="fas fa-arrow-left mr-2 text-xs transition-transform duration-200 group-hover:-translate-x-0.5"></i>
-            전체 태그
+            {% translate "All tags" %}
         </a>
     </nav>
 
@@ -33,9 +35,7 @@
         </div>
     {% else %}
         {% url 'post_write' as post_write_url %}
-        {% with empty_message='#'|add:tag|add:' 태그로 작성된 포스트가 아직 없습니다.' %}
-            {% include 'components/empty_state.html' with empty_framed=True empty_icon_class='fas fa-hashtag' empty_title='포스트가 없습니다' empty_message=empty_message empty_action_url=post_write_url empty_action_label='포스트 작성하기' empty_action_icon='fas fa-pen' only %}
-        {% endwith %}
+        {% include 'components/empty_state.html' with empty_framed=True empty_icon_class='fas fa-hashtag' empty_title=empty_title empty_message=tag_empty_message empty_action_url=post_write_url empty_action_label=empty_action_label empty_action_icon='fas fa-pen' only %}
     {% endif %}
 </div>
 {% endblock %}

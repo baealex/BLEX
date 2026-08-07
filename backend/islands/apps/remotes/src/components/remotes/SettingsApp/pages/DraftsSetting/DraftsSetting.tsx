@@ -1,17 +1,23 @@
+import { Trans, useLingui } from '@lingui/react/macro';
 import { SettingsHeader, SettingsHeaderAction } from '../../components';
 import { DraftPostListContent } from '../PostsSetting/components';
 
 const DraftsSetting = () => {
+    const { t } = useLingui();
+
     return (
         <div>
             <SettingsHeader
-                title="임시 포스트"
+                title={t({
+                    id: 'settings.posts.tabs.drafts',
+                    message: 'Drafts'
+                })}
                 actionPosition="right"
                 action={
                     <SettingsHeaderAction
                         variant="primary"
                         onClick={() => window.location.assign('/write')}>
-                        새 포스트 작성
+                        <Trans id="settings.posts.create">Write a new post</Trans>
                     </SettingsHeaderAction>
                 }
             />

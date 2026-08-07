@@ -23,6 +23,7 @@
         "islands:build": "pnpm --dir backend/islands run build",
         "islands:check-entry-budgets": "pnpm --dir backend/islands run check:entry-budgets",
         "islands:e2e:smoke": "pnpm --dir backend/islands run e2e:smoke",
+        "islands:i18n:check": "pnpm --dir backend/islands run i18n:check",
         "islands:test": "pnpm --dir backend/islands run test",
         "islands:type-check": "pnpm --dir backend/islands run type-check",
         "dev": "concurrently \"npm run server:dev\" \"npm run islands:dev\""

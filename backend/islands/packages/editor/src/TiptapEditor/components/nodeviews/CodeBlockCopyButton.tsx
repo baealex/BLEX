@@ -1,10 +1,12 @@
 import { useState } from 'react';
+import { useEditorI18n } from '../../i18n';
 
 interface CodeBlockCopyButtonProps {
     code: string;
 }
 
 const CodeBlockCopyButton = ({ code }: CodeBlockCopyButtonProps) => {
+    const { t } = useEditorI18n();
     const [copied, setCopied] = useState(false);
 
     const handleCopy = async () => {
@@ -22,7 +24,7 @@ const CodeBlockCopyButton = ({ code }: CodeBlockCopyButtonProps) => {
             type="button"
             onClick={handleCopy}
             className="code-copy-button"
-            title={copied ? 'Copied!' : 'Copy code'}>
+            title={copied ? t('code.copied') : t('code.copy')}>
             {copied ? (
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />

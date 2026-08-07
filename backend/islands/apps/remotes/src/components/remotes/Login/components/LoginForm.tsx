@@ -1,4 +1,5 @@
 import React, { useEffect, useRef } from 'react';
+import { Trans, useLingui } from '@lingui/react/macro';
 import SocialLogin from '~/components/remotes/SocialLogin';
 import { useResolvedTheme } from '~/hooks/useResolvedTheme';
 import { logger } from '~/utils/logger';
@@ -46,6 +47,7 @@ const LoginForm = ({
     onSubmit,
     onCaptchaVerify
 }: LoginFormProps) => {
+    const { t } = useLingui();
     const captchaRef = useRef<HTMLDivElement>(null);
     const widgetIdRef = useRef<string | null>(null);
     const resolvedTheme = useResolvedTheme();
@@ -99,7 +101,7 @@ const LoginForm = ({
                 <div className="space-y-4">
                     <div>
                         <label htmlFor="username" className="block text-xs font-semibold text-content-secondary mb-1.5 uppercase tracking-wide">
-                            사용자 이름
+                            <Trans id="auth.fields.username">Username</Trans>
                         </label>
                         <input
                             id="username"
@@ -110,7 +112,10 @@ const LoginForm = ({
                             value={username}
                             onChange={(e) => onUsernameChange(e.target.value)}
                             className="w-full px-4 py-3.5 border border-line rounded-lg focus:ring-4 focus:ring-line/5 focus:border-line-strong/30 text-content placeholder-content-hint transition-all duration-200 bg-surface/40 text-sm font-medium"
-                            placeholder="사용자 이름을 입력하세요"
+                            placeholder={t({
+                                id: 'auth.fields.username_placeholder',
+                                message: 'Enter your username'
+                            })}
                         />
                         {usernameError && (
                             <p className="text-danger text-xs mt-1.5 font-medium flex items-center gap-1">
@@ -121,7 +126,7 @@ const LoginForm = ({
 
                     <div>
                         <label htmlFor="password" className="block text-xs font-semibold text-content-secondary mb-1.5 uppercase tracking-wide">
-                            비밀번호
+                            <Trans id="auth.fields.password">Password</Trans>
                         </label>
                         <input
                             id="password"
@@ -132,7 +137,10 @@ const LoginForm = ({
                             value={password}
                             onChange={(e) => onPasswordChange(e.target.value)}
                             className="w-full px-4 py-3.5 border border-line rounded-lg focus:ring-4 focus:ring-line/5 focus:border-line-strong/30 text-content placeholder-content-hint transition-all duration-200 bg-surface/40 text-sm font-medium"
-                            placeholder="비밀번호를 입력하세요"
+                            placeholder={t({
+                                id: 'auth.fields.password_placeholder',
+                                message: 'Enter your password'
+                            })}
                         />
                         {passwordError && (
                             <p className="text-danger text-xs mt-1.5 font-medium flex items-center gap-1">
@@ -175,7 +183,13 @@ const LoginForm = ({
                             <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
                         </svg>
                     )}
-                    <span>{isLoading ? '로그인 중...' : '로그인'}</span>
+                    <span>
+                        {isLoading ? (
+                            <Trans id="auth.login.submitting">Logging in...</Trans>
+                        ) : (
+                            <Trans id="auth.login.title">Log in</Trans>
+                        )}
+                    </span>
                 </button>
             </form>
 

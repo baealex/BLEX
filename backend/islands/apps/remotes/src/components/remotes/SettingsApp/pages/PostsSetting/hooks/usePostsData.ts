@@ -1,4 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
+import type { MessageDescriptor } from '@lingui/core';
+import { msg } from '@lingui/core/macro';
+import { useLingui } from '@lingui/react/macro';
 import { useSuspenseQuery } from '@tanstack/react-query';
 
 import { getPosts, getReservedPosts, type Post as ApiPost } from '~/lib/api/posts';
@@ -121,53 +124,92 @@ export const clearPostClassificationDraft = (
     writePostClassificationDrafts(drafts);
 };
 
-export const POSTS_ORDER = [
+export const POSTS_ORDER: {
+    label: MessageDescriptor;
+    order: string;
+}[] = [
     {
-        name: '최근 발행순',
+        label: msg({
+            id: 'settings.posts.order.newest_published',
+            message: 'Newest published'
+        }),
         order: '-published_date'
     },
     {
-        name: '오래된 발행순',
+        label: msg({
+            id: 'settings.posts.order.oldest_published',
+            message: 'Oldest published'
+        }),
         order: 'published_date'
     },
     {
-        name: '최근 수정순',
+        label: msg({
+            id: 'settings.posts.order.recently_updated',
+            message: 'Recently updated'
+        }),
         order: '-updated_date'
     },
     {
-        name: '오래된 수정순',
+        label: msg({
+            id: 'settings.posts.order.least_recently_updated',
+            message: 'Least recently updated'
+        }),
         order: 'updated_date'
     },
     {
-        name: '제목순',
+        label: msg({
+            id: 'settings.posts.order.title_ascending',
+            message: 'Title A–Z'
+        }),
         order: 'title'
     },
     {
-        name: '제목 역순',
+        label: msg({
+            id: 'settings.posts.order.title_descending',
+            message: 'Title Z–A'
+        }),
         order: '-title'
     },
     {
-        name: '좋아요 많은순',
+        label: msg({
+            id: 'settings.posts.order.most_liked',
+            message: 'Most liked'
+        }),
         order: '-count_likes'
     },
     {
-        name: '좋아요 적은순',
+        label: msg({
+            id: 'settings.posts.order.least_liked',
+            message: 'Least liked'
+        }),
         order: 'count_likes'
     },
     {
-        name: '댓글 많은순',
+        label: msg({
+            id: 'settings.posts.order.most_commented',
+            message: 'Most commented'
+        }),
         order: '-count_comments'
     },
     {
-        name: '댓글 적은순',
+        label: msg({
+            id: 'settings.posts.order.least_commented',
+            message: 'Least commented'
+        }),
         order: 'count_comments'
     },
     {
-        name: '분량 적은순',
+        label: msg({
+            id: 'settings.posts.order.shortest',
+            message: 'Shortest read'
+        }),
         order: 'read_time'
     },
     {
-        name: '분량 많은순',
+        label: msg({
+            id: 'settings.posts.order.longest',
+            message: 'Longest read'
+        }),
         order: '-read_time'
     }
 ];
@@ -185,7 +227,7 @@ const FILTER_KEYS = Object.keys(DEFAULT_FILTERS) as (keyof FilterOptions)[];
 const VALID_ORDERS = new Set(POSTS_ORDER.map(({ order }) => order));
 const VALID_VISIBILITY = new Set(['public', 'hidden']);
 
-// URL에서 필터 초기값 읽기
+// Read initial filter values from the URL.
 const getFiltersFromURL = (): FilterOptions => {
     if (typeof window === 'undefined') return DEFAULT_FILTERS;
 
@@ -204,7 +246,7 @@ const getFiltersFromURL = (): FilterOptions => {
     };
 };
 
-// 필터를 URL에 동기화
+// Keep filters in sync with the URL.
 const syncFiltersToURL = (filters: FilterOptions) => {
     if (typeof window === 'undefined') return;
 
@@ -212,7 +254,7 @@ const syncFiltersToURL = (filters: FilterOptions) => {
     FILTER_KEYS.forEach((key) => params.delete(key));
 
     Object.entries(filters).forEach(([key, value]) => {
-        // 기본값이 아닌 경우만 URL에 추가
+        // Keep the URL concise by omitting defaults.
         if (value && value !== DEFAULT_FILTERS[key as keyof FilterOptions]) {
             params.set(key, value);
         }
@@ -226,6 +268,7 @@ const syncFiltersToURL = (filters: FilterOptions) => {
 };
 
 export const usePostsFilterState = () => {
+    const { t } = useLingui();
     const [filters, setFilters] = useState<FilterOptions>(getFiltersFromURL());
     const [searchValue, setSearchValue] = useState(filters.search);
     const [isFilterExpanded, setIsFilterExpanded] = useState(
@@ -240,7 +283,10 @@ export const usePostsFilterState = () => {
             if (data.status === 'DONE') {
                 return data.body.tags;
             }
-            throw new Error('태그 목록을 불러오는데 실패했습니다.');
+            throw new Error(t({
+                id: 'settings.posts.load_tags_failed',
+                message: 'Could not load tags.'
+            }));
         }
     });
 
@@ -251,11 +297,14 @@ export const usePostsFilterState = () => {
             if (data.status === 'DONE') {
                 return data.body.series;
             }
-            throw new Error('시리즈 목록을 불러오는데 실패했습니다.');
+            throw new Error(t({
+                id: 'settings.posts.load_series_failed',
+                message: 'Could not load series.'
+            }));
         }
     });
 
-    // 필터 변경 시 URL 동기화
+    // Keep the URL in sync when filters change.
     useEffect(() => {
         syncFiltersToURL(filters);
     }, [filters]);
@@ -332,6 +381,7 @@ export const usePostsFilterState = () => {
 };
 
 export const usePostsQuery = (filters: FilterOptions, source: PostsSource = 'published') => {
+    const { t } = useLingui();
     const [posts, setPosts] = useState<Post[]>([]);
 
     const { data: postsData, refetch } = useSuspenseQuery({
@@ -351,7 +401,10 @@ export const usePostsQuery = (filters: FilterOptions, source: PostsSource = 'pub
             if (data.status === 'DONE') {
                 return data.body;
             }
-            throw new Error('포스트 목록을 불러오는데 실패했습니다.');
+            throw new Error(t({
+                id: 'settings.posts.load_failed',
+                message: 'Could not load posts.'
+            }));
         }
     });
 

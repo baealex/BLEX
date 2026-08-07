@@ -159,6 +159,37 @@ class SearchAPITestCase(TestCase):
         content = json.loads(response.content)
         self.assertEqual(content['status'], 'ERROR')
         self.assertEqual(content['errorCode'], 'error:VA')
+        self.assertEqual(content['errorMessage'], '검색어를 입력하세요.')
+        self.assertEqual(content['messageKey'], 'search.validation.query_required')
+        self.assertEqual(content['messageParams'], {})
+        self.assertEqual(response['Content-Language'], 'ko')
+
+    def test_search_empty_query_uses_negotiated_english(self):
+        response = self.client.get(
+            '/v1/search?q=   ',
+            HTTP_ACCEPT_LANGUAGE='en',
+        )
+
+        content = json.loads(response.content)
+        self.assertEqual(content['status'], 'ERROR')
+        self.assertEqual(content['errorCode'], 'error:VA')
+        self.assertEqual(content['errorMessage'], 'Enter a search term.')
+        self.assertEqual(content['messageKey'], 'search.validation.query_required')
+        self.assertEqual(content['messageParams'], {})
+        self.assertEqual(response['Content-Language'], 'en')
+
+    def test_search_invalid_page_has_a_stable_message_key(self):
+        response = self.client.get(
+            '/v1/search',
+            {'q': 'python', 'page': 'invalid'},
+            HTTP_ACCEPT_LANGUAGE='en',
+        )
+
+        content = json.loads(response.content)
+        self.assertEqual(content['status'], 'ERROR')
+        self.assertEqual(content['errorMessage'], 'Invalid page number.')
+        self.assertEqual(content['messageKey'], 'search.validation.invalid_page')
+        self.assertEqual(content['messageParams'], {})
 
     def test_search_query_length_limit_is_100(self):
         long_query = 'a' * 130
@@ -264,6 +295,13 @@ class SearchAPITestCase(TestCase):
         self.assertIsNotNone(matched)
         self.assertIn('positions', matched)
         self.assertIn('제목', matched['positions'])
+        self.assertIn('title', matched['matchedFields'])
+        self.assertTrue(set(matched['matchedFields']).issubset({
+            'title',
+            'description',
+            'tag',
+            'content',
+        }))
 
     def test_search_relevance_ordering_prefers_title_match(self):
         response = self.client.get('/v1/search', {'q': 'Python'})
@@ -293,9 +331,11 @@ class SearchAPITestCase(TestCase):
             self.assertIn('image', result)
             self.assertIn('description', result)
             self.assertIn('createdDate', result)
+            self.assertRegex(result['publishedDate'], r'^\d{4}-\d{2}-\d{2}$')
             self.assertIn('author', result)
             self.assertIn('authorImage', result)
             self.assertIn('positions', result)
+            self.assertIn('matchedFields', result)
 
     def test_search_large_result_set_uses_bounded_queries_and_lean_sql(self):
         posts = Post.objects.bulk_create([

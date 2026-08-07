@@ -12,7 +12,6 @@ export interface AccountData {
 export interface AccountUpdateData {
     username?: string;
     name?: string;
-    new_password?: string;
     password?: string;
 }
 
@@ -831,6 +830,7 @@ export interface ImageCleanResult extends CleanupConfirmation {
     totalDuplicateSizeMb: number;
     totalSavedMb: number;
     messages: string[];
+    hasErrors: boolean;
     dryRun: boolean;
     unusedFiles?: {
         path: string;

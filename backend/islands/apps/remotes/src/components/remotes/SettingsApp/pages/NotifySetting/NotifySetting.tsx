@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useLingui } from '@lingui/react/macro';
 import { useQuery, useSuspenseQuery } from '@tanstack/react-query';
 import { useRouter } from '@tanstack/react-router';
 import NotificationsSection from './components/NotificationsSection';
@@ -16,6 +17,7 @@ interface SettingsRouterContext {
 }
 
 const NotifySetting = () => {
+    const { t } = useLingui();
     const [isOpenConfig, setIsOpenConfig] = useState(false);
     const router = useRouter();
     const { canUseTelegramIntegration } = router.options.context as SettingsRouterContext;
@@ -27,7 +29,10 @@ const NotifySetting = () => {
             if (data.status === 'DONE') {
                 return data.body;
             }
-            throw new Error('알림 목록을 불러오는데 실패했습니다.');
+            throw new Error(t({
+                id: 'settings.notifications.load_failed',
+                message: 'Could not load notifications.'
+            }));
         }
     });
 
@@ -38,7 +43,10 @@ const NotifySetting = () => {
             if (data.status === 'DONE') {
                 return data.body.config;
             }
-            throw new Error('알림 설정을 불러오는데 실패했습니다.');
+            throw new Error(t({
+                id: 'settings.notifications.config.load_failed',
+                message: 'Could not load notification settings.'
+            }));
         },
         enabled: isOpenConfig
     });

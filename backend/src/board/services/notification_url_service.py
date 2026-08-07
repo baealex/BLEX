@@ -5,6 +5,7 @@ import re
 from urllib.parse import urlsplit
 
 from django.core.exceptions import ValidationError
+from django.utils.translation import gettext as _
 
 
 class NotificationUrlService:
@@ -17,22 +18,22 @@ class NotificationUrlService:
     def validate(url: str) -> str:
         """Allow relative paths and HTTP(S) URLs, but reject executable schemes."""
         if not isinstance(url, str):
-            raise ValidationError('올바른 알림 URL을 입력해주세요.')
+            raise ValidationError(_('Enter a valid notification URL.'))
 
         normalized_url = url.strip()
         if any(ord(character) < 32 for character in normalized_url):
-            raise ValidationError('알림 URL에는 제어 문자를 사용할 수 없습니다.')
+            raise ValidationError(_('Notification URLs cannot contain control characters.'))
         if '\\' in normalized_url:
-            raise ValidationError('알림 URL에는 역슬래시를 사용할 수 없습니다.')
+            raise ValidationError(_('Notification URLs cannot contain backslashes.'))
 
         try:
             parsed_url = urlsplit(normalized_url)
         except ValueError as error:
-            raise ValidationError('올바른 알림 URL을 입력해주세요.') from error
+            raise ValidationError(_('Enter a valid notification URL.')) from error
         scheme = parsed_url.scheme.lower()
         if scheme and scheme not in NotificationUrlService.ALLOWED_SCHEMES:
             raise ValidationError(
-                '알림 URL은 상대 경로 또는 HTTP(S) URL이어야 합니다.',
+                _('Notification URLs must be a relative path or an HTTP(S) URL.'),
             )
 
         if scheme:
@@ -51,10 +52,10 @@ class NotificationUrlService:
             hostname = parsed_url.hostname
             parsed_url.port
         except ValueError as error:
-            raise ValidationError('올바른 알림 URL을 입력해주세요.') from error
+            raise ValidationError(_('Enter a valid notification URL.')) from error
 
         if not hostname:
-            raise ValidationError('올바른 알림 URL을 입력해주세요.')
+            raise ValidationError(_('Enter a valid notification URL.'))
 
         try:
             ipaddress.ip_address(hostname)
@@ -65,7 +66,7 @@ class NotificationUrlService:
         try:
             ascii_hostname = hostname.encode('idna').decode('ascii')
         except UnicodeError as error:
-            raise ValidationError('올바른 알림 URL을 입력해주세요.') from error
+            raise ValidationError(_('Enter a valid notification URL.')) from error
 
         if (
             not NotificationUrlService.BROWSER_HOSTNAME_PATTERN.fullmatch(
@@ -73,4 +74,4 @@ class NotificationUrlService:
             )
             or ascii_hostname.replace('.', '').isdigit()
         ):
-            raise ValidationError('올바른 알림 URL을 입력해주세요.')
+            raise ValidationError(_('Enter a valid notification URL.'))

@@ -14,6 +14,7 @@ from django.core.files.base import ContentFile
 from django.core.files.storage import default_storage
 from django.db import transaction
 from django.http import HttpRequest
+from django.utils.translation import gettext as _
 from PIL import Image, UnidentifiedImageError
 
 from board.models import SiteSetting
@@ -212,7 +213,7 @@ class BrandAssetService:
         BrandAssetService.validate_asset_target(asset_type, theme)
 
         if theme == 'dark' and not BrandAssetService.has_default_asset(setting, asset_type):
-            raise BrandAssetError('기본 자산을 먼저 업로드해주세요.')
+            raise BrandAssetError(_('Upload the default asset first.'))
 
         svg_bytes = BrandAssetService.validate_svg(svg_file)
         old_paths = BrandAssetService.collect_asset_paths(setting, asset_type, theme)
@@ -320,9 +321,9 @@ class BrandAssetService:
     @staticmethod
     def validate_asset_target(asset_type: str, theme: str) -> None:
         if asset_type not in {'logo', 'icon'}:
-            raise BrandAssetError('브랜드 자산 종류를 확인해주세요.')
+            raise BrandAssetError(_('Check the brand asset type.'))
         if theme not in {'default', 'dark'}:
-            raise BrandAssetError('브랜드 자산 테마를 확인해주세요.')
+            raise BrandAssetError(_('Check the brand asset theme.'))
 
     @staticmethod
     def has_default_asset(setting: SiteSetting, asset_type: str) -> bool:
@@ -409,14 +410,20 @@ class BrandAssetService:
     @staticmethod
     def read_upload(uploaded_file, *, max_bytes: int, label: str) -> bytes:
         if not uploaded_file:
-            raise BrandAssetError(f'{label} 파일이 필요합니다.')
+            raise BrandAssetError(
+                _('%(label)s file is required.') % {'label': label},
+            )
 
         content = uploaded_file.read()
         uploaded_file.seek(0)
         if len(content) > max_bytes:
-            raise BrandAssetError(f'{label} 파일이 너무 큽니다.')
+            raise BrandAssetError(
+                _('%(label)s file is too large.') % {'label': label},
+            )
         if not content:
-            raise BrandAssetError(f'{label} 파일이 비어 있습니다.')
+            raise BrandAssetError(
+                _('%(label)s file is empty.') % {'label': label},
+            )
         return content
 
     @staticmethod
@@ -427,44 +434,56 @@ class BrandAssetService:
             label='SVG',
         )
         if BrandAssetService.PROCESSING_INSTRUCTION_PATTERN.search(content):
-            raise BrandAssetError('SVG 처리 지시자는 허용되지 않습니다.')
+            raise BrandAssetError(_('SVG processing instructions are not allowed.'))
         if BrandAssetService.DOCTYPE_PATTERN.search(content):
-            raise BrandAssetError('SVG DOCTYPE은 허용되지 않습니다.')
+            raise BrandAssetError(_('SVG DOCTYPE declarations are not allowed.'))
 
         try:
             root = ElementTree.fromstring(content)
         except ElementTree.ParseError as error:
-            raise BrandAssetError('올바른 SVG 파일이 아닙니다.') from error
+            raise BrandAssetError(_('This is not a valid SVG file.')) from error
 
         if BrandAssetService.local_name(root.tag) != 'svg':
-            raise BrandAssetError('SVG 루트 요소를 확인해주세요.')
+            raise BrandAssetError(_('Check the SVG root element.'))
         if not root.attrib.get('viewBox'):
-            raise BrandAssetError('SVG에는 viewBox가 필요합니다.')
+            raise BrandAssetError(_('SVG files require a viewBox.'))
 
         node_count = 0
         for element in root.iter():
             node_count += 1
             if node_count > BrandAssetService.MAX_XML_NODES:
-                raise BrandAssetError('SVG 구조가 너무 복잡합니다.')
+                raise BrandAssetError(_('The SVG structure is too complex.'))
 
             tag_name = BrandAssetService.local_name(element.tag)
             if tag_name not in BrandAssetService.SVG_ALLOWED_TAGS:
-                raise BrandAssetError(f'허용되지 않는 SVG 요소입니다: {tag_name}')
+                raise BrandAssetError(
+                    _('Unsupported SVG element: %(element)s') % {
+                        'element': tag_name,
+                    },
+                )
 
             for raw_name, value in element.attrib.items():
                 attr_name = BrandAssetService.local_name(raw_name)
                 if attr_name.lower().startswith('on'):
-                    raise BrandAssetError('허용되지 않는 SVG 속성이 포함되어 있습니다.')
+                    raise BrandAssetError(
+                        _('The SVG contains an event handler attribute.'),
+                    )
                 if (
                     attr_name not in BrandAssetService.SVG_ALLOWED_ATTRIBUTES
                     and not BrandAssetService.is_safe_metadata_attribute(attr_name)
                 ):
-                    raise BrandAssetError(f'허용되지 않는 SVG 속성입니다: {attr_name}')
+                    raise BrandAssetError(
+                        _('Unsupported SVG attribute: %(attribute)s') % {
+                            'attribute': attr_name,
+                        },
+                    )
                 if BrandAssetService.has_dangerous_value(value):
-                    raise BrandAssetError('SVG에 외부 참조 또는 위험한 값이 포함되어 있습니다.')
+                    raise BrandAssetError(
+                        _('The SVG contains an external reference or unsafe value.'),
+                    )
 
             if element.text and BrandAssetService.has_dangerous_value(element.text):
-                raise BrandAssetError('SVG 텍스트에 위험한 값이 포함되어 있습니다.')
+                raise BrandAssetError(_('The SVG text contains an unsafe value.'))
 
         return content
 
@@ -486,17 +505,17 @@ class BrandAssetService:
     @staticmethod
     def parse_icon_manifest(raw: str) -> dict[str, Any]:
         if not raw:
-            raise BrandAssetError('아이콘 manifest가 필요합니다.')
+            raise BrandAssetError(_('An icon manifest is required.'))
         try:
             manifest = json.loads(raw)
         except json.JSONDecodeError as error:
-            raise BrandAssetError('아이콘 manifest 형식을 확인해주세요.') from error
+            raise BrandAssetError(_('Check the icon manifest format.')) from error
 
         sizes = manifest.get('pngSizes')
         if sizes != list(BrandAssetService.REQUIRED_ICON_PNG_SIZES):
-            raise BrandAssetError('아이콘 manifest의 PNG 크기 목록을 확인해주세요.')
+            raise BrandAssetError(_('Check the PNG size list in the icon manifest.'))
         if manifest.get('ico') is not True:
-            raise BrandAssetError('아이콘 manifest의 ICO 정보를 확인해주세요.')
+            raise BrandAssetError(_('Check the ICO information in the icon manifest.'))
         return manifest
 
     @staticmethod
@@ -509,12 +528,16 @@ class BrandAssetService:
         try:
             with Image.open(BytesIO(content)) as image:
                 if image.format != 'PNG':
-                    raise BrandAssetError('PNG 파일 형식을 확인해주세요.')
+                    raise BrandAssetError(_('Check the PNG file format.'))
                 if image.size != (expected_size, expected_size):
-                    raise BrandAssetError(f'{expected_size}x{expected_size} PNG 크기를 확인해주세요.')
+                    raise BrandAssetError(
+                        _('Check the dimensions of the %(size)s PNG file.') % {
+                            'size': f'{expected_size}x{expected_size}',
+                        },
+                    )
                 image.load()
         except (UnidentifiedImageError, OSError) as error:
-            raise BrandAssetError('PNG 파일을 읽을 수 없습니다.') from error
+            raise BrandAssetError(_('Could not read the PNG file.')) from error
         return content
 
     @staticmethod
@@ -527,10 +550,10 @@ class BrandAssetService:
         try:
             with Image.open(BytesIO(content)) as image:
                 if image.format != 'ICO':
-                    raise BrandAssetError('ICO 파일 형식을 확인해주세요.')
+                    raise BrandAssetError(_('Check the ICO file format.'))
                 image.load()
         except (UnidentifiedImageError, OSError) as error:
-            raise BrandAssetError('ICO 파일을 읽을 수 없습니다.') from error
+            raise BrandAssetError(_('Could not read the ICO file.')) from error
         return content
 
     @staticmethod

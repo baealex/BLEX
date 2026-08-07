@@ -101,6 +101,21 @@ class SettingsViewTestCase(TestCase):
         self.assertIn('"canManageUtilities": false', body)
         self.assertContains(response, '관리자 설정 | BLEX')
 
+    def test_settings_titles_follow_the_request_language(self):
+        self.client.login(username='settings-staff', password='password123')
+
+        cases = (
+            ('/settings/account', 'Settings | BLEX'),
+            ('/admin-settings/site-settings', 'Admin settings | BLEX'),
+        )
+
+        for path, expected_title in cases:
+            with self.subTest(path=path):
+                response = self.client.get(path, HTTP_ACCEPT_LANGUAGE='en')
+
+                self.assertEqual(response.status_code, 200)
+                self.assertContains(response, expected_title)
+
     def test_staff_with_site_setting_permission_receives_site_capability(self):
         """명시적 사이트 설정 권한은 Settings island에만 전달한다."""
         permission = Permission.objects.get(

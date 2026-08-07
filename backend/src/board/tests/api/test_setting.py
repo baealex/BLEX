@@ -95,6 +95,26 @@ class SettingTestCase(TestCase):
         self.assertEqual(len(content['body']['notify']), 2)
         self.assertEqual(content['body']['isTelegramSync'], False)
 
+    def test_get_setting_notify_preserves_stored_content_in_english_ui(self):
+        """운영자 작성 알림 본문은 영어 UI에서도 원문을 보존한다."""
+        notification = Notify.objects.filter(user__username='test').first()
+        notification.content = '운영자가 작성한 알림'
+        notification.save(update_fields=['content'])
+        self.client.login(username='test', password='test')
+
+        response = self.client.get(
+            '/v1/setting/notify',
+            HTTP_ACCEPT_LANGUAGE='en',
+        )
+
+        self.assertEqual(response.status_code, 200)
+        content = json.loads(response.content)
+        notification_contents = {
+            item['content']
+            for item in content['body']['notify']
+        }
+        self.assertIn('운영자가 작성한 알림', notification_contents)
+
     def test_get_setting_pinnable_posts_supports_limit(self):
         """설정 고정 가능 포스트 목록은 limit 개수만 반환"""
         user = User.objects.get(username='test')
@@ -219,13 +239,15 @@ class SettingTestCase(TestCase):
         response = self.client.put(
             '/v1/setting/notify',
             json.dumps({'id': notify.id}),
-            content_type='application/json'
+            content_type='application/json',
+            HTTP_ACCEPT_LANGUAGE='en',
         )
 
         self.assertEqual(response.status_code, 200)
         content = json.loads(response.content)
         self.assertEqual(content['status'], 'ERROR')
         self.assertEqual(content['errorCode'], 'error:NF')
+        self.assertEqual(content['errorMessage'], 'Notification not found.')
         notify.refresh_from_db()
         self.assertFalse(notify.has_read)
     
@@ -800,6 +822,11 @@ class SettingTestCase(TestCase):
         content = json.loads(response.content)
         self.assertEqual(content['body']['username'], 'test')
         self.assertEqual(content['body']['name'], 'Test User')
+        user = User.objects.get(username='test')
+        self.assertEqual(
+            content['body']['createdDate'],
+            timezone.localtime(user.date_joined).date().isoformat(),
+        )
 
     def test_update_username(self):
         """사용자 필명 변경 테스트"""
@@ -892,6 +919,23 @@ class SettingTestCase(TestCase):
                     'errorCode': 'error:VA',
                     'errorMessage': message,
                 })
+
+    def test_update_account_localizes_password_error_for_english_request(self):
+        """비밀번호 오류는 안정 코드와 함께 요청 언어로 응답한다."""
+        self.client.login(username='test', password='test')
+
+        response = self.client.put(
+            '/v1/setting/account',
+            json.dumps({'password': 'Aa1!aaa'}),
+            content_type='application/json',
+            HTTP_ACCEPT_LANGUAGE='en',
+        )
+
+        self.assertEqual(response.json(), {
+            'status': 'ERROR',
+            'errorCode': 'error:VA',
+            'errorMessage': 'Password must be at least 8 characters.',
+        })
 
     def test_update_password_keeps_authenticated_session(self):
         """비밀번호 변경 성공 후 새 hash를 저장하고 현재 세션 로그인을 유지한다."""

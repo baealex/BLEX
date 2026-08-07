@@ -2,12 +2,14 @@ import { useEffect, useState } from 'react';
 import type { Editor } from '@tiptap/react';
 import { Popover } from '@blex/ui/popover';
 import ToolbarButton from '../ui/ToolbarButton';
+import { useEditorI18n } from '../../i18n';
 
 interface FloatingMenuBarProps {
     editor: Editor | null;
 }
 
 const FloatingMenuBar = ({ editor }: FloatingMenuBarProps) => {
+    const { t } = useEditorI18n();
     const [isOpen, setIsOpen] = useState(false);
     const [virtualElement, setVirtualElement] = useState<HTMLElement | null>(null);
 
@@ -88,31 +90,31 @@ const FloatingMenuBar = ({ editor }: FloatingMenuBarProps) => {
                         <ToolbarButton
                             onClick={() => editor.chain().focus().toggleBold().run()}
                             isActive={editor.isActive('bold')}
-                            title="볼드 (Ctrl+B)">
+                            title={t('toolbar.bold')}>
                             <i className="fa fa-bold text-sm" />
                         </ToolbarButton>
                         <ToolbarButton
                             onClick={() => editor.chain().focus().toggleItalic().run()}
                             isActive={editor.isActive('italic')}
-                            title="이텔릭 (Ctrl+I)">
+                            title={t('toolbar.italic')}>
                             <i className="fa fa-italic text-sm" />
                         </ToolbarButton>
                         <ToolbarButton
                             onClick={() => editor.chain().focus().toggleUnderline().run()}
                             isActive={editor.isActive('underline')}
-                            title="밑줄 (Ctrl+U)">
+                            title={t('toolbar.underline')}>
                             <i className="fa fa-underline text-sm" />
                         </ToolbarButton>
                         <ToolbarButton
                             onClick={() => editor.chain().focus().toggleStrike().run()}
                             isActive={editor.isActive('strike')}
-                            title="취소선">
+                            title={t('toolbar.strike')}>
                             <i className="fa fa-strikethrough text-sm" />
                         </ToolbarButton>
                         <ToolbarButton
                             onClick={() => editor.chain().focus().toggleHighlight().run()}
                             isActive={editor.isActive('highlight')}
-                            title="형광펜">
+                            title={t('toolbar.highlight')}>
                             <i className="fa fa-marker text-sm" />
                         </ToolbarButton>
 
@@ -120,13 +122,13 @@ const FloatingMenuBar = ({ editor }: FloatingMenuBarProps) => {
 
                         <ToolbarButton
                             onClick={() => {
-                                const url = window.prompt('링크 URL을 입력하세요:');
+                                const url = window.prompt(t('toolbar.link_prompt'));
                                 if (url) {
                                     editor.chain().focus().setLink({ href: url }).run();
                                 }
                             }}
                             isActive={editor.isActive('link')}
-                            title="링크 (Ctrl+K)">
+                            title={t('toolbar.link')}>
                             <i className="fa fa-link text-sm" />
                         </ToolbarButton>
                     </div>

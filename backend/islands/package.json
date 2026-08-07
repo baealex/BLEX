@@ -6,6 +6,7 @@
         "build": "turbo run build",
         "check:entry-budgets": "pnpm --filter @blex/remotes run check:entry-budgets",
         "e2e:smoke": "pnpm --filter @blex/remotes run e2e:smoke",
+        "i18n:check": "pnpm --filter @blex/remotes run i18n:check",
         "test": "pnpm --filter @blex/editor --filter @blex/remotes run test",
         "lint": "turbo run lint",
         "type-check": "turbo run type-check"

@@ -1,3 +1,4 @@
+import { Trans, useLingui } from '@lingui/react/macro';
 import { Heart, Reply } from '@blex/ui/icons';
 import type { CommentPermissions } from '~/lib/api/comments';
 
@@ -22,6 +23,7 @@ export const CommentActions = ({
     onLike,
     onReply
 }: CommentActionsProps) => {
+    const { i18n, t } = useLingui();
     const showLikeAction = !isDeleted && (permissions.canLike || !isLoggedIn);
     const showLikeCount = !isDeleted && !showLikeAction && countLikes > 0;
     const showReply = !isDeleted && !!onReply && (permissions.canReply || !isLoggedIn);
@@ -43,7 +45,15 @@ export const CommentActions = ({
                         }
                     `}
                     onClick={() => onLike(commentId)}
-                    aria-label={isLiked ? '좋아요 취소' : '좋아요'}
+                    aria-label={isLiked
+                        ? t({
+                            id: 'comments.like.remove',
+                            message: 'Remove like'
+                        })
+                        : t({
+                            id: 'comments.like.add',
+                            message: 'Like'
+                        })}
                     aria-pressed={isLiked}>
                     <Heart
                         className={`w-4 h-4 ${isLiked ? 'fill-danger' : ''}`}
@@ -56,7 +66,11 @@ export const CommentActions = ({
             {showLikeCount && (
                 <span
                     className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-md text-xs font-semibold text-content-secondary"
-                    aria-label={`좋아요 ${countLikes}개`}>
+                    aria-label={i18n._({
+                        id: 'comments.like.count',
+                        message: '{count, plural, one {# like} other {# likes}}',
+                        values: { count: countLikes }
+                    })}>
                     <Heart className="w-4 h-4" aria-hidden="true" />
                     <span>{countLikes}</span>
                 </span>
@@ -66,9 +80,12 @@ export const CommentActions = ({
                 <button
                     className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-md text-xs font-semibold text-content-secondary hover:text-content hover:bg-surface-subtle transition-colors duration-150"
                     onClick={onReply}
-                    aria-label="답글 작성">
+                    aria-label={t({
+                        id: 'comments.reply.submit',
+                        message: 'Post reply'
+                    })}>
                     <Reply className="w-4 h-4" />
-                    답글
+                    <Trans id="comments.reply.action">Reply</Trans>
                 </button>
             )}
 

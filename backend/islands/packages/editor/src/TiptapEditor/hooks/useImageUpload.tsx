@@ -11,6 +11,7 @@ import {
     ACCEPTED_VIDEO_TYPES,
     classifyTextMediaDrop
 } from '../config/mediaUpload';
+import { useEditorI18n } from '../i18n';
 import { normalizeMediaUrlForStorage } from '../utils/mediaUrls';
 
 interface UseImageUploadProps {
@@ -61,6 +62,7 @@ const createPositionTracker = (
 };
 
 export const useImageUpload = ({ editor, onImageUpload, onImageUploadError }: UseImageUploadProps) => {
+    const { t } = useEditorI18n();
     const [uploadingCount, setUploadingCount] = useState(0);
 
     const getFileExtension = (file: File) => {
@@ -80,7 +82,7 @@ export const useImageUpload = ({ editor, onImageUpload, onImageUploadError }: Us
             || ACCEPTED_VIDEO_EXTENSIONS.includes(getFileExtension(file) as typeof ACCEPTED_VIDEO_EXTENSIONS[number]);
     };
 
-    const getSupportedFileMessage = () => '지원하는 파일은 JPG, PNG, GIF, MP4, WebM입니다.';
+    const getSupportedFileMessage = () => t('upload.error.supported_files');
 
     const clampPosition = (position: number) => {
         if (!editor) return position;
@@ -240,13 +242,13 @@ export const useImageUpload = ({ editor, onImageUpload, onImageUploadError }: Us
 
         const placeholderNode = createUploadPlaceholder(file);
         if (!placeholderNode) {
-            onImageUploadError?.('파일 업로드 위치를 만들 수 없습니다.');
+            onImageUploadError?.(t('upload.error.placeholder'));
             return null;
         }
 
         const insertPosition = getDropPositionForNode(placeholderNode, position);
         if (insertPosition === null) {
-            onImageUploadError?.('이 위치에는 파일을 넣을 수 없습니다.');
+            onImageUploadError?.(t('upload.error.position'));
             return null;
         }
 
@@ -257,7 +259,7 @@ export const useImageUpload = ({ editor, onImageUpload, onImageUploadError }: Us
         if (!isPlaceholderInserted) {
             positionTracker.stop();
             placeholderTracker.stop();
-            onImageUploadError?.('파일 업로드 위치를 만들 수 없습니다.');
+            onImageUploadError?.(t('upload.error.placeholder'));
             return null;
         }
 
@@ -331,11 +333,13 @@ export const useImageUpload = ({ editor, onImageUpload, onImageUploadError }: Us
                 return nextPosition;
             } else {
                 deleteActivePlaceholder(slot);
-                onImageUploadError?.('파일 업로드에 실패했습니다.');
+                onImageUploadError?.(t('upload.error.failed'));
             }
         } catch (error) {
             deleteActivePlaceholder(slot);
-            onImageUploadError?.(error instanceof Error ? error.message : '파일 업로드에 실패했습니다.');
+            onImageUploadError?.(
+                error instanceof Error ? error.message : t('upload.error.failed')
+            );
         } finally {
             slot.positionTracker.stop();
             slot.placeholderTracker.stop();
@@ -453,7 +457,7 @@ export const useImageUpload = ({ editor, onImageUpload, onImageUploadError }: Us
             if (hasExternalMedia) {
                 event.preventDefault();
                 event.stopPropagation();
-                onImageUploadError?.('이미지나 비디오는 파일로 내려놓아 주세요.');
+                onImageUploadError?.(t('upload.error.external_media'));
                 return true;
             }
 

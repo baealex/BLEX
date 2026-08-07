@@ -1,4 +1,5 @@
 import type { KeyboardEvent, ReactNode } from 'react';
+import { useLingui } from '@lingui/react/macro';
 import type { DraggableAttributes } from '@dnd-kit/core';
 import type { SyntheticListenerMap } from '@dnd-kit/core/dist/hooks/utilities';
 import { GripVertical } from '@blex/ui/icons';
@@ -32,6 +33,8 @@ const SettingsListItem = ({
     actions,
     children
 }: SettingsListItemProps) => {
+    const { t } = useLingui();
+
     const handleKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
         if (!onClick || event.target !== event.currentTarget) return;
 
@@ -59,7 +62,10 @@ const SettingsListItem = ({
                             onClick={(e) => e.stopPropagation()}
                             {...dragHandleProps.attributes}
                             {...dragHandleProps.listeners}
-                            aria-label={dragHandleProps.ariaLabel || '순서 변경'}>
+                            aria-label={dragHandleProps.ariaLabel || t({
+                                id: 'common.change_order',
+                                message: 'Change order'
+                            })}>
                             <GripVertical aria-hidden="true" className="h-4 w-4" />
                         </div>
                     )}

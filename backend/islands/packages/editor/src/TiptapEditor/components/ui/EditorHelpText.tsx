@@ -1,6 +1,8 @@
 import { useState } from 'react';
+import { useEditorI18n } from '../../i18n';
 
 const EditorHelpText = () => {
+    const { t } = useEditorI18n();
     const [isExpanded, setIsExpanded] = useState(false);
 
     return (
@@ -14,7 +16,7 @@ const EditorHelpText = () => {
                         <i className="fa fa-magic text-content-secondary text-sm" />
                     </div>
                     <h3 className="text-sm font-semibold text-content flex items-center gap-2">
-                        ✨ 에디터 사용법
+                        {t('help.title')}
                     </h3>
                 </div>
                 <i className={`fas fa-chevron-${isExpanded ? 'up' : 'down'} text-content-hint text-sm transition-transform`} />
@@ -26,26 +28,32 @@ const EditorHelpText = () => {
                         <div className="flex items-center gap-3 text-sm text-content-secondary">
                             <div className="flex items-center gap-2">
                                 <kbd className="px-2 py-1 text-xs font-medium bg-action text-content-inverted rounded shadow-sm">/</kbd>
-                                <span className="font-medium text-content">슬래시 명령어</span>
+                                <span className="font-medium text-content">
+                                    {t('help.slash.title')}
+                                </span>
                             </div>
                             <span className="text-content-hint">→</span>
-                            <span>제목, 리스트, 코드블록 등을 쉽게 추가해요</span>
+                            <span>{t('help.slash.description')}</span>
                         </div>
                         <div className="flex items-center gap-3 text-sm text-content-secondary">
                             <div className="flex items-center gap-2">
                                 <i className="fa fa-mouse-pointer text-content-hint w-4" />
-                                <span className="font-medium text-content">텍스트 선택</span>
+                                <span className="font-medium text-content">
+                                    {t('help.selection.title')}
+                                </span>
                             </div>
                             <span className="text-content-hint">→</span>
-                            <span>볼드, 이탤릭, 하이라이트 등 서식을 적용해요</span>
+                            <span>{t('help.selection.description')}</span>
                         </div>
                         <div className="flex items-center gap-3 text-sm text-content-secondary">
                             <div className="flex items-center gap-2">
                                 <i className="fa fa-upload text-content-hint w-4" />
-                                <span className="font-medium text-content">드래그 & 드롭</span>
+                                <span className="font-medium text-content">
+                                    {t('help.drop.title')}
+                                </span>
                             </div>
                             <span className="text-content-hint">→</span>
-                            <span>이미지를 바로 끌어다 놓으면 자동으로 업로드됩니다</span>
+                            <span>{t('help.drop.description')}</span>
                         </div>
                     </div>
                 </div>

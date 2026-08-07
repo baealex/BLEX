@@ -1,4 +1,5 @@
 import { useEffect } from 'react';
+import { useLingui } from '@lingui/react/macro';
 import { X, XCircle } from '@blex/ui/icons';
 
 interface ErrorAlertProps {
@@ -14,6 +15,8 @@ export const ErrorAlert = ({
     autoDismiss = true,
     dismissDelay = 3000
 }: ErrorAlertProps) => {
+    const { t } = useLingui();
+
     useEffect(() => {
         if (autoDismiss && onDismiss) {
             const timer = setTimeout(onDismiss, dismissDelay);
@@ -35,7 +38,10 @@ export const ErrorAlert = ({
                     <button
                         onClick={onDismiss}
                         className="text-danger hover:text-danger transition-colors focus:outline-none focus:ring-2 focus:ring-danger focus:ring-offset-1 rounded-lg p-1"
-                        aria-label="오류 메시지 닫기">
+                        aria-label={t({
+                            id: 'common.dismiss_error',
+                            message: 'Dismiss error message'
+                        })}>
                         <X className="w-4 h-4" />
                     </button>
                 )}

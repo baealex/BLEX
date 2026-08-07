@@ -1,4 +1,5 @@
 from django.db import transaction
+from django.utils.translation import gettext
 
 from board.models import EmailChange
 
@@ -21,7 +22,7 @@ class EmailChangeService:
             )
         except EmailChange.DoesNotExist as error:
             raise EmailChangeCancellationError(
-                '취소할 이메일 변경 요청을 찾을 수 없습니다.',
+                gettext('The email change request to cancel could not be found.'),
             ) from error
 
         pending_change_id = pending_change.pk

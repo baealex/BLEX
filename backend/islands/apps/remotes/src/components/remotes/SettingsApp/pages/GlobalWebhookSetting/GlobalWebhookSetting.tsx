@@ -1,3 +1,4 @@
+import { useLingui } from '@lingui/react/macro';
 import { WebhookChannelManager } from '../../components';
 import {
     getGlobalWebhookChannels,
@@ -7,23 +8,55 @@ import {
 } from '~/lib/api/settings';
 
 const GlobalWebhookSetting = () => {
+    const { t } = useLingui();
+
     return (
         <WebhookChannelManager
             queryKey={['global-webhook-channels']}
-            title="전역 웹훅 연동"
-            description="모든 작성자가 발행한 포스트를 Discord, Slack 또는 일반 웹훅 URL로 전송합니다."
-            formTitle="새 전역 웹훅 추가"
-            emptyTitle="전역 웹훅이 없습니다"
+            title={t({
+                id: 'settings.webhooks.global.title',
+                message: 'Global webhook integration'
+            })}
+            description={t({
+                id: 'settings.webhooks.global.description',
+                message: 'Send posts published by any author to Discord, Slack, or a generic webhook URL.'
+            })}
+            formTitle={t({
+                id: 'settings.webhooks.global.form_title',
+                message: 'Add global webhook'
+            })}
+            emptyTitle={t({
+                id: 'settings.webhooks.global.empty_title',
+                message: 'No global webhooks yet'
+            })}
             fetchChannels={getGlobalWebhookChannels}
             createChannel={addGlobalWebhookChannel}
             deleteChannel={deleteGlobalWebhookChannel}
             testChannel={testWebhook}
-            confirmDeleteTitle="전역 웹훅 삭제"
-            confirmDeleteMessage="정말 이 전역 웹훅을 삭제할까요?"
-            addSuccessMessage="전역 웹훅이 추가되었습니다."
-            addFailMessage="전역 웹훅 추가 중 오류가 발생했습니다."
-            deleteSuccessMessage="전역 웹훅이 삭제되었습니다."
-            deleteFailMessage="전역 웹훅 삭제에 실패했습니다."
+            confirmDeleteTitle={t({
+                id: 'settings.webhooks.global.delete.title',
+                message: 'Delete global webhook'
+            })}
+            confirmDeleteMessage={t({
+                id: 'settings.webhooks.global.delete.message',
+                message: 'Delete this global webhook?'
+            })}
+            addSuccessMessage={t({
+                id: 'settings.webhooks.global.add.success',
+                message: 'Global webhook added.'
+            })}
+            addFailMessage={t({
+                id: 'settings.webhooks.global.add.failed',
+                message: 'Could not add the global webhook.'
+            })}
+            deleteSuccessMessage={t({
+                id: 'settings.webhooks.global.delete.success',
+                message: 'Global webhook deleted.'
+            })}
+            deleteFailMessage={t({
+                id: 'settings.webhooks.global.delete.failed',
+                message: 'Could not delete the global webhook.'
+            })}
         />
     );
 };

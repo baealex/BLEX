@@ -198,11 +198,13 @@ class UtilityCleanupServiceTestCase(TestCase):
             total_duplicates=0,
             total_duplicate_size=0,
             messages=[],
+            has_errors=False,
             dry_run=True,
             unused_files=[{'path': 'a.png'}],
             duplicate_files=[],
         )
 
         self.assertTrue(payload['dry_run'])
+        self.assertFalse(payload['has_errors'])
         self.assertEqual(payload['total_unused'], 1)
         self.assertIn('unused_files', payload)

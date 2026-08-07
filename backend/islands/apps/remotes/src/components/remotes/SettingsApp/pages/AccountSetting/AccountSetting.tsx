@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useLingui } from '@lingui/react/macro';
 import { UserRound } from '@blex/ui/icons';
 import { toast } from '~/utils/toast';
 import { useSuspenseQuery } from '@tanstack/react-query';
@@ -16,6 +17,7 @@ import TwoFactorModal from './components/TwoFactorModal';
 import type { AccountFormSubmitResult } from './types';
 
 const AccountSettings = () => {
+    const { t } = useLingui();
     const [isUsernameLoading, setIsUsernameLoading] = useState(false);
     const [isNameLoading, setIsNameLoading] = useState(false);
     const [isPasswordLoading, setIsPasswordLoading] = useState(false);
@@ -23,6 +25,10 @@ const AccountSettings = () => {
     const [qrCode, setQrCode] = useState<string>('');
     const [recoveryKey, setRecoveryKey] = useState<string>('');
     const { confirm } = useConfirm();
+    const networkErrorMessage = t({
+        id: 'common.network_error',
+        message: 'A network error occurred.'
+    });
 
     const { data: accountData, refetch } = useSuspenseQuery({
         queryKey: ['account-setting'],
@@ -31,13 +37,19 @@ const AccountSettings = () => {
             if (data.status === 'DONE') {
                 return data.body;
             }
-            throw new Error('계정 정보를 불러오는데 실패했습니다.');
+            throw new Error(t({
+                id: 'settings.account.load_failed',
+                message: 'Could not load account information.'
+            }));
         }
     });
 
     const handleUsernameSubmit = async (username: string): Promise<AccountFormSubmitResult> => {
         if (username === accountData?.username) {
-            const error = '변경할 아이디를 입력해주세요.';
+            const error = t({
+                id: 'settings.account.username.different_required',
+                message: 'Enter a different username.'
+            });
             toast.error(error);
             return {
                 success: false,
@@ -46,9 +58,18 @@ const AccountSettings = () => {
         }
 
         const confirmed = await confirm({
-            title: '사용자 필명 변경',
-            message: '사용자 필명을 변경하시겠습니까? 작성한 포스트가 존재하는 경우 6개월에 한번만 변경할 수 있습니다.',
-            confirmText: '변경'
+            title: t({
+                id: 'settings.account.username.confirm_title',
+                message: 'Change username'
+            }),
+            message: t({
+                id: 'settings.account.username.confirm_message',
+                message: 'Change your username? If you have published posts, you can change it only once every six months.'
+            }),
+            confirmText: t({
+                id: 'common.change',
+                message: 'Change'
+            })
         });
 
         if (!confirmed) return { success: false };
@@ -58,11 +79,17 @@ const AccountSettings = () => {
             const { data } = await updateAccountSettings({ username });
 
             if (data.status === 'DONE') {
-                toast.success('아이디가 변경되었습니다.');
+                toast.success(t({
+                    id: 'settings.account.username.update_success',
+                    message: 'Username changed.'
+                }));
                 void refetch();
                 return { success: true };
             } else {
-                const error = data.errorMessage || '아이디 변경에 실패했습니다.';
+                const error = data.errorMessage || t({
+                    id: 'settings.account.username.update_failed',
+                    message: 'Could not change the username.'
+                });
                 toast.error(error);
                 return {
                     success: false,
@@ -70,7 +97,7 @@ const AccountSettings = () => {
                 };
             }
         } catch {
-            const error = '네트워크 오류가 발생했습니다.';
+            const error = networkErrorMessage;
             toast.error(error);
             return {
                 success: false,
@@ -87,11 +114,17 @@ const AccountSettings = () => {
             const { data } = await updateAccountSettings({ name });
 
             if (data.status === 'DONE') {
-                toast.success('이름이 업데이트되었습니다.');
+                toast.success(t({
+                    id: 'settings.account.name.update_success',
+                    message: 'Name updated.'
+                }));
                 void refetch();
                 return { success: true };
             } else {
-                const error = data.errorMessage || '이름 업데이트에 실패했습니다.';
+                const error = data.errorMessage || t({
+                    id: 'settings.account.name.update_failed',
+                    message: 'Could not update the name.'
+                });
                 toast.error(error);
                 return {
                     success: false,
@@ -99,7 +132,7 @@ const AccountSettings = () => {
                 };
             }
         } catch {
-            const error = '네트워크 오류가 발생했습니다.';
+            const error = networkErrorMessage;
             toast.error(error);
             return {
                 success: false,
@@ -113,14 +146,20 @@ const AccountSettings = () => {
     const handlePasswordSubmit = async (password: string): Promise<AccountFormSubmitResult> => {
         setIsPasswordLoading(true);
         try {
-            const { data } = await updateAccountSettings({ new_password: password });
+            const { data } = await updateAccountSettings({ password });
 
             if (data.status === 'DONE') {
-                toast.success('비밀번호가 변경되었습니다.');
+                toast.success(t({
+                    id: 'settings.account.password.update_success',
+                    message: 'Password changed.'
+                }));
                 void refetch();
                 return { success: true };
             } else {
-                const error = data.errorMessage || '비밀번호 변경에 실패했습니다.';
+                const error = data.errorMessage || t({
+                    id: 'settings.account.password.update_failed',
+                    message: 'Could not change the password.'
+                });
                 toast.error(error);
                 return {
                     success: false,
@@ -128,7 +167,7 @@ const AccountSettings = () => {
                 };
             }
         } catch {
-            const error = '네트워크 오류가 발생했습니다.';
+            const error = networkErrorMessage;
             toast.error(error);
             return {
                 success: false,
@@ -142,9 +181,18 @@ const AccountSettings = () => {
     const handle2FA = async (enable: boolean) => {
         if (!enable) {
             const confirmed = await confirm({
-                title: '2차 인증 해제',
-                message: '정말 2차 인증을 해제할까요?',
-                confirmText: '해제',
+                title: t({
+                    id: 'settings.account.two_factor.disable_title',
+                    message: 'Disable two-factor authentication'
+                }),
+                message: t({
+                    id: 'settings.account.two_factor.disable_confirm',
+                    message: 'Disable two-factor authentication?'
+                }),
+                confirmText: t({
+                    id: 'common.disable',
+                    message: 'Disable'
+                }),
                 variant: 'danger'
             });
 
@@ -160,23 +208,32 @@ const AccountSettings = () => {
                     setRecoveryKey(data.body.recoveryKey);
                     setShowQRModal(true);
                 } else {
-                    const errorMsg = data.errorMessage || '2차 인증 활성화에 실패했습니다.';
+                    const errorMsg = data.errorMessage || t({
+                        id: 'settings.account.two_factor.enable_failed',
+                        message: 'Could not enable two-factor authentication.'
+                    });
                     toast.error(errorMsg);
                 }
             } else {
                 const { data } = await disable2FA();
 
                 if (data.status === 'DONE') {
-                    toast.success('2차 인증이 해제되었습니다.');
+                    toast.success(t({
+                        id: 'settings.account.two_factor.disable_success',
+                        message: 'Two-factor authentication disabled.'
+                    }));
                     setTimeout(() => location.reload(), 1000);
                 } else {
-                    const errorMsg = data.errorMessage || '2차 인증 해제에 실패했습니다.';
+                    const errorMsg = data.errorMessage || t({
+                        id: 'settings.account.two_factor.disable_failed',
+                        message: 'Could not disable two-factor authentication.'
+                    });
                     toast.error(errorMsg);
                 }
             }
         } catch {
 
-            toast.error('네트워크 오류가 발생했습니다.');
+            toast.error(networkErrorMessage);
         }
     };
 
@@ -185,30 +242,45 @@ const AccountSettings = () => {
             const { data } = await verify2FASetup(code);
 
             if (data.status === 'DONE') {
-                toast.success('2차 인증이 활성화되었습니다.');
+                toast.success(t({
+                    id: 'settings.account.two_factor.enable_success',
+                    message: 'Two-factor authentication enabled.'
+                }));
                 setShowQRModal(false);
                 setTimeout(() => location.reload(), 1000);
                 return { success: true };
             } else {
                 return {
                     success: false,
-                    error: data.errorMessage || '잘못된 인증 코드입니다.'
+                    error: data.errorMessage || t({
+                        id: 'settings.account.two_factor.invalid_code',
+                        message: 'The verification code is incorrect.'
+                    })
                 };
             }
         } catch {
 
             return {
                 success: false,
-                error: '네트워크 오류가 발생했습니다.'
+                error: networkErrorMessage
             };
         }
     };
 
     const handleDeleteAccount = async () => {
         const confirmed = await confirm({
-            title: '계정 삭제',
-            message: '정말로 계정을 삭제하시겠습니까? 모든 데이터가 영구적으로 삭제되며 복구할 수 없습니다.',
-            confirmText: '삭제',
+            title: t({
+                id: 'settings.account.delete.title',
+                message: 'Delete account'
+            }),
+            message: t({
+                id: 'settings.account.delete.confirm',
+                message: 'Delete your account? All data will be permanently deleted and cannot be recovered.'
+            }),
+            confirmText: t({
+                id: 'common.delete',
+                message: 'Delete'
+            }),
             variant: 'danger'
         });
 
@@ -218,7 +290,10 @@ const AccountSettings = () => {
             const { data } = await deleteAccount();
 
             if (data.status === 'DONE') {
-                toast.success('계정이 삭제되었습니다.');
+                toast.success(t({
+                    id: 'settings.account.delete.success',
+                    message: 'Account deleted.'
+                }));
 
                 // Use configured redirect URL from site settings, or fallback to home page
                 const redirectUrl = accountData?.accountDeletionRedirectUrl || '/';
@@ -227,16 +302,24 @@ const AccountSettings = () => {
                     window.location.assign(redirectUrl);
                 }, 1500);
             } else {
-                toast.error(data.errorMessage || '계정 삭제에 실패했습니다.');
+                toast.error(data.errorMessage || t({
+                    id: 'settings.account.delete.failed',
+                    message: 'Could not delete the account.'
+                }));
             }
         } catch {
-            toast.error('네트워크 오류가 발생했습니다.');
+            toast.error(networkErrorMessage);
         }
     };
 
     return (
         <div>
-            <SettingsHeader title="계정" />
+            <SettingsHeader
+                title={t({
+                    id: 'settings.account.title',
+                    message: 'Account'
+                })}
+            />
 
             {/* Account Info */}
             <AccountInfoSection
@@ -246,7 +329,10 @@ const AccountSettings = () => {
 
             {/* Basic Info */}
             <Card
-                title="기본 정보"
+                title={t({
+                    id: 'settings.account.basic_info.title',
+                    message: 'Basic information'
+                })}
                 icon={<UserRound className="h-5 w-5" />}
                 className="mb-6">
                 <div className="divide-y divide-line">

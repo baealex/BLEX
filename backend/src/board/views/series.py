@@ -58,8 +58,6 @@ def series_detail(request, username, series_url):
 
     posts_with_numbers = []
     for i, post in enumerate(paginated_posts):
-        post.published_date_display = post.published_date.strftime('%Y-%m-%d')
-
         if sort_order == 'desc':
             post_number = total_posts - start_idx - i
         else:
@@ -86,7 +84,6 @@ def series_detail(request, username, series_url):
         'sort_order': sort_order,
         'request': request,
         'aeo_enabled': aeo_enabled,
-        'series_updated_date_display': series.updated_date.strftime('%Y-%m-%d'),
         **DiscoveryMetadataService.build_user_rss_feed_metadata(author, request),
         **metadata,
     }

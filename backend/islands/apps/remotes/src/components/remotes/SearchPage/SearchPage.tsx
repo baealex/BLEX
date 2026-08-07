@@ -1,5 +1,8 @@
 import { type ReactNode, useCallback, useEffect, useState } from 'react';
-import { searchPosts, type SearchResult } from '~/lib/api';
+import { Plural, Trans, useLingui } from '@lingui/react/macro';
+import { formatPublishedDate } from '~/i18n/formatters';
+import { normalizeLocale } from '~/i18n/locale';
+import { searchPosts, type SearchMatchedField, type SearchResult } from '~/lib/api';
 import { getMediaPath, userResource } from '~/modules/static.module';
 import { logger } from '~/utils/logger';
 
@@ -17,6 +20,12 @@ interface SearchResultsData {
 
 const RECENT_SEARCHES_KEY = 'blex_recent_searches';
 const MAX_RECENT_SEARCHES = 8;
+const LEGACY_MATCH_FIELDS: Record<string, SearchMatchedField> = {
+    '제목': 'title',
+    '설명': 'description',
+    '태그': 'tag',
+    '내용': 'content'
+};
 
 const getRecentSearches = (): string[] => {
     try {
@@ -139,6 +148,8 @@ const getVisiblePages = (currentPage: number, lastPage: number) => {
 };
 
 const SearchPage = ({ username }: SearchPageProps) => {
+    const { i18n, t } = useLingui();
+    const locale = normalizeLocale(i18n.locale);
     const [queryInput, setQueryInput] = useState('');
     const [activeQuery, setActiveQuery] = useState('');
     const [usernameFilter, setUsernameFilter] = useState((username ?? '').trim());
@@ -187,16 +198,36 @@ const SearchPage = ({ username }: SearchPageProps) => {
                 }
             } else {
                 setSearchResults(null);
-                setErrorMessage(data.errorMessage || '검색 중 오류가 발생했습니다.');
+                if (data.errorMessage) {
+                    setErrorMessage(data.errorMessage);
+                } else if (data.messageKey === 'search.validation.query_required') {
+                    setErrorMessage(t({
+                        id: 'search.validation.query_required',
+                        message: 'Enter a search term.'
+                    }));
+                } else if (data.messageKey === 'search.validation.invalid_page') {
+                    setErrorMessage(t({
+                        id: 'search.validation.invalid_page',
+                        message: 'Invalid page number.'
+                    }));
+                } else {
+                    setErrorMessage(data.errorMessage || t({
+                        id: 'search.error.generic',
+                        message: 'Something went wrong while searching.'
+                    }));
+                }
             }
         } catch (error) {
             logger.error('Search page error:', error);
             setSearchResults(null);
-            setErrorMessage('검색 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.');
+            setErrorMessage(t({
+                id: 'search.error.network',
+                message: 'Search is temporarily unavailable. Please try again shortly.'
+            }));
         } finally {
             setIsLoading(false);
         }
-    }, []);
+    }, [t]);
 
     useEffect(() => {
         const syncFromUrl = () => {
@@ -239,7 +270,10 @@ const SearchPage = ({ username }: SearchPageProps) => {
         if (!searchQuery) {
             setSearchResults(null);
             setHasSearched(true);
-            setErrorMessage('검색어를 입력하세요.');
+            setErrorMessage(t({
+                id: 'search.validation.query_required',
+                message: 'Enter a search term.'
+            }));
             pushSearchUrl('', 1, usernameFilter);
             return;
         }
@@ -290,24 +324,69 @@ const SearchPage = ({ username }: SearchPageProps) => {
     const visiblePages = searchResults
         ? getVisiblePages(page, searchResults.lastPage)
         : [];
+    const displayedQuery = searchResults?.query || activeQuery;
+
+    const matchFieldLabels: Record<SearchMatchedField, string> = {
+        title: t({
+            id: 'search.match.title',
+            message: 'Title'
+        }),
+        description: t({
+            id: 'search.match.description',
+            message: 'Description'
+        }),
+        tag: t({
+            id: 'search.match.tag',
+            message: 'Tag'
+        }),
+        content: t({
+            id: 'search.match.content',
+            message: 'Content'
+        })
+    };
+
+    const getMatchedFieldLabels = (result: SearchResult): string[] => {
+        const fields = result.matchedFields ?? result.positions
+            ?.map((position) => LEGACY_MATCH_FIELDS[position])
+            .filter((field): field is SearchMatchedField => Boolean(field))
+            ?? [];
+
+        return fields.map((field) => matchFieldLabels[field]);
+    };
 
     return (
         <div className="space-y-6">
             <section>
-                <h1 className="text-2xl sm:text-3xl font-bold text-content tracking-tight mb-4">포스트 검색</h1>
+                <h1 className="text-2xl sm:text-3xl font-bold text-content tracking-tight mb-4">
+                    <Trans id="search.title">Search posts</Trans>
+                </h1>
 
                 <form onSubmit={handleSubmit}>
                     <div className="h-12 px-4 rounded-full border border-line bg-surface shadow-sm flex items-center gap-2 transition-all duration-150 focus-within:ring-2 focus-within:ring-line">
                         {isLoading ? (
-                            <div className="animate-spin rounded-full h-4 w-4 border-2 border-line border-t-content-secondary" />
+                            <div
+                                role="status"
+                                aria-label={t({
+                                    id: 'search.loading',
+                                    message: 'Searching'
+                                })}
+                                className="animate-spin rounded-full h-4 w-4 border-2 border-line border-t-content-secondary"
+                            />
                         ) : (
-                            <i className="fas fa-search text-sm text-content-hint" />
+                            <i className="fas fa-search text-sm text-content-hint" aria-hidden="true" />
                         )}
                         <input
                             type="text"
                             value={queryInput}
                             onChange={(event) => setQueryInput(event.target.value)}
-                            placeholder="검색어를 입력하세요"
+                            placeholder={t({
+                                id: 'search.input.placeholder',
+                                message: 'Enter a search term'
+                            })}
+                            aria-label={t({
+                                id: 'search.input.label',
+                                message: 'Search posts'
+                            })}
                             className="flex-1 bg-transparent text-sm text-content placeholder-content-hint focus:outline-none"
                             autoComplete="off"
                             autoFocus={!parseSearchParams().query}
@@ -317,22 +396,29 @@ const SearchPage = ({ username }: SearchPageProps) => {
                                 type="button"
                                 onClick={handleClear}
                                 className="w-11 h-11 min-w-11 min-h-11 rounded-full text-content-hint hover:text-content hover:bg-surface-subtle active:bg-surface-subtle active:scale-95 transition-all duration-150"
-                                aria-label="검색어 초기화">
-                                <i className="fas fa-times text-xs" />
+                                aria-label={t({
+                                    id: 'search.input.clear',
+                                    message: 'Clear search term'
+                                })}>
+                                <i className="fas fa-times text-xs" aria-hidden="true" />
                             </button>
                         )}
                     </div>
 
                     {usernameFilter && (
                         <p className="text-xs text-content-secondary mt-2">
-                            작성자 필터 적용 중: <span className="font-semibold text-content">@{usernameFilter}</span>
+                            <Trans id="search.author_filter">
+                                Filtering by author: <span className="font-semibold text-content">@{usernameFilter}</span>
+                            </Trans>
                         </p>
                     )}
                 </form>
 
                 {recentSearches.length > 0 && !hasSearched && (
                     <div className="mt-4">
-                        <p className="text-xs font-semibold text-content-secondary uppercase tracking-wider mb-2">최근 검색어</p>
+                        <p className="text-xs font-semibold text-content-secondary uppercase tracking-wider mb-2">
+                            <Trans id="search.recent.title">Recent searches</Trans>
+                        </p>
                         <div className="flex flex-wrap gap-2">
                             {recentSearches.map((recentSearch) => (
                                 <div
@@ -348,8 +434,11 @@ const SearchPage = ({ username }: SearchPageProps) => {
                                         type="button"
                                         onClick={() => handleRecentSearchRemove(recentSearch)}
                                         className="w-11 h-11 min-w-11 min-h-11 rounded-full text-content-hint hover:text-content hover:bg-line active:bg-line active:scale-95 transition-all duration-150"
-                                        aria-label={`${recentSearch} 검색어 삭제`}>
-                                        <i className="fas fa-times text-[10px]" />
+                                        aria-label={t({
+                                            id: 'search.recent.remove',
+                                            message: `Remove “${{ query: recentSearch }}” from recent searches`
+                                        })}>
+                                        <i className="fas fa-times text-[10px]" aria-hidden="true" />
                                     </button>
                                 </div>
                             ))}
@@ -361,9 +450,11 @@ const SearchPage = ({ username }: SearchPageProps) => {
             {!isLoading && errorMessage && (
                 <section className="bg-danger-surface border border-danger-line rounded-2xl p-5 animate-in fade-in-0 slide-in-from-top-2 duration-150">
                     <div className="flex items-start gap-3">
-                        <i className="fas fa-circle-exclamation text-danger mt-0.5" />
+                        <i className="fas fa-circle-exclamation text-danger mt-0.5" aria-hidden="true" />
                         <div>
-                            <h2 className="text-sm font-semibold text-danger">검색을 완료하지 못했습니다</h2>
+                            <h2 className="text-sm font-semibold text-danger">
+                                <Trans id="search.error.heading">Unable to complete search</Trans>
+                            </h2>
                             <p className="text-sm text-danger mt-1">{errorMessage}</p>
                         </div>
                     </div>
@@ -374,10 +465,17 @@ const SearchPage = ({ username }: SearchPageProps) => {
                 <section className="space-y-4 animate-in fade-in-0 slide-in-from-top-2 duration-150">
                     <div className="bg-surface-subtle rounded-2xl border border-line px-4 py-3">
                         <h2 className="text-lg font-semibold text-content">
-                            <strong className="text-content">{searchResults.totalSize ?? 0}</strong>개의 포스트
+                            <strong className="text-content">
+                                <Plural
+                                    id="search.results.count"
+                                    value={searchResults.totalSize ?? 0}
+                                    one="# post"
+                                    other="# posts"
+                                />
+                            </strong>
                         </h2>
                         <p className="text-sm text-content-secondary">
-                            "{searchResults.query || activeQuery}" 검색 결과
+                            <Trans id="search.results.for">Results for “{displayedQuery}”</Trans>
                         </p>
                     </div>
 
@@ -402,7 +500,7 @@ const SearchPage = ({ username }: SearchPageProps) => {
                                                         />
                                                     ) : (
                                                         <div className="w-full h-full flex items-center justify-center text-content-hint">
-                                                            <i className="fas fa-image text-xl" />
+                                                            <i className="fas fa-image text-xl" aria-hidden="true" />
                                                         </div>
                                                     )}
                                                 </div>
@@ -417,12 +515,23 @@ const SearchPage = ({ username }: SearchPageProps) => {
                                                         loading="lazy"
                                                     />
                                                     <span className="font-medium text-content">{result.author}</span>
-                                                    <span>·</span>
-                                                    <span>{result.createdDate}</span>
+                                                    <span aria-hidden="true">·</span>
+                                                    <span>{formatPublishedDate(
+                                                        result.publishedDate,
+                                                        result.createdDate,
+                                                        locale
+                                                    )}</span>
                                                     {result.readTime && result.readTime > 0 && (
                                                         <>
-                                                            <span>·</span>
-                                                            <span>{result.readTime}분 읽기</span>
+                                                            <span aria-hidden="true">·</span>
+                                                            <span>
+                                                                <Plural
+                                                                    id="search.read_time"
+                                                                    value={result.readTime}
+                                                                    one="# min read"
+                                                                    other="# mins read"
+                                                                />
+                                                            </span>
                                                         </>
                                                     )}
                                                 </div>
@@ -437,9 +546,9 @@ const SearchPage = ({ username }: SearchPageProps) => {
                                                     </p>
                                                 )}
 
-                                                {result.positions && result.positions.length > 0 && (
+                                                {getMatchedFieldLabels(result).length > 0 && (
                                                     <div className="mt-3 flex flex-wrap gap-2">
-                                                        {result.positions.map((position) => (
+                                                        {getMatchedFieldLabels(result).map((position) => (
                                                             <span
                                                                 key={`${result.url}-${position}`}
                                                                 className="inline-flex items-center px-2.5 py-1 rounded-md bg-surface-subtle text-content-secondary text-xs font-semibold">
@@ -457,10 +566,14 @@ const SearchPage = ({ username }: SearchPageProps) => {
                     ) : (
                         <div className="bg-surface border border-line-light rounded-2xl p-8 text-center">
                             <div className="w-12 h-12 bg-surface-subtle rounded-xl flex items-center justify-center mx-auto mb-3">
-                                <i className="fas fa-search text-lg text-content-hint" />
+                                <i className="fas fa-search text-lg text-content-hint" aria-hidden="true" />
                             </div>
-                            <h3 className="text-base font-semibold text-content mb-1">검색 결과가 없습니다</h3>
-                            <p className="text-sm text-content-secondary">다른 검색어를 시도해보세요.</p>
+                            <h3 className="text-base font-semibold text-content mb-1">
+                                <Trans id="search.empty.title">No results found</Trans>
+                            </h3>
+                            <p className="text-sm text-content-secondary">
+                                <Trans id="search.empty.body">Try a different search term.</Trans>
+                            </p>
                         </div>
                     )}
 
@@ -471,7 +584,7 @@ const SearchPage = ({ username }: SearchPageProps) => {
                                 onClick={() => handlePageChange(page - 1)}
                                 disabled={page === 1}
                                 className="h-11 min-h-11 px-4 rounded-lg border border-line bg-surface text-sm font-medium text-content disabled:opacity-50 disabled:cursor-not-allowed hover:bg-surface-subtle active:bg-surface-subtle active:scale-95 transition-all duration-150">
-                                이전
+                                <Trans id="search.pagination.previous">Previous</Trans>
                             </button>
 
                             <div className="flex items-center gap-1">
@@ -480,6 +593,11 @@ const SearchPage = ({ username }: SearchPageProps) => {
                                         key={pageNumber}
                                         type="button"
                                         onClick={() => handlePageChange(pageNumber)}
+                                        aria-label={t({
+                                            id: 'search.pagination.page',
+                                            message: `Go to page ${{ page: pageNumber }}`
+                                        })}
+                                        aria-current={pageNumber === page ? 'page' : undefined}
                                         className={`w-11 h-11 min-w-11 min-h-11 rounded-lg text-sm font-semibold transition-all duration-150 active:scale-95 ${pageNumber === page
                                             ? 'bg-action text-content-inverted hover:bg-action-hover'
                                             : 'bg-surface border border-line text-content-secondary hover:bg-surface-subtle active:bg-surface-subtle'
@@ -494,7 +612,7 @@ const SearchPage = ({ username }: SearchPageProps) => {
                                 onClick={() => handlePageChange(page + 1)}
                                 disabled={page === searchResults.lastPage}
                                 className="h-11 min-h-11 px-4 rounded-lg border border-line bg-surface text-sm font-medium text-content disabled:opacity-50 disabled:cursor-not-allowed hover:bg-surface-subtle active:bg-surface-subtle active:scale-95 transition-all duration-150">
-                                다음
+                                <Trans id="search.pagination.next">Next</Trans>
                             </button>
                         </div>
                     )}

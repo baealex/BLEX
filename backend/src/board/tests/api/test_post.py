@@ -294,6 +294,18 @@ class PostTestCase(TestCase):
         content = json.loads(response.content)
         self.assertEqual(content['status'], 'ERROR')
         self.assertEqual(content['errorCode'], 'error:VA')
+        self.assertEqual(content['errorMessage'], '예약 시간을 확인해주세요.')
+
+        english_response = self.client.put(
+            '/v1/users/@author/posts/scheduled-empty-reserved-date?reserved_date=1',
+            data='',
+            content_type='application/x-www-form-urlencoded',
+            HTTP_ACCEPT_LANGUAGE='en',
+        )
+        english_content = json.loads(english_response.content)
+        self.assertEqual(english_content['status'], 'ERROR')
+        self.assertEqual(english_content['errorCode'], 'error:VA')
+        self.assertEqual(english_content['errorMessage'], 'Check the scheduled time.')
 
     def test_cancel_post_schedule_returns_post_to_draft(self):
         """예약 취소는 내용과 설정을 보존한 채 포스트를 임시글로 되돌린다."""
@@ -694,6 +706,20 @@ class PostTestCase(TestCase):
 
         self.assertEqual(response.status_code, 403)
 
+    def test_markdown_conversion_error_follows_the_request_language(self):
+        self.client.login(username='author', password='author')
+
+        response = self.client.post(
+            '/v1/markdown',
+            data=json.dumps({'text': ''}),
+            content_type='application/json',
+            HTTP_ACCEPT_LANGUAGE='en',
+        )
+
+        content = json.loads(response.content)
+        self.assertEqual(content['errorCode'], 'error:IP')
+        self.assertEqual(content['errorMessage'], 'Text cannot be empty.')
+
     def test_create_post_markdown_mode_does_not_render_mentions(self):
         """포스트 마크다운에서는 멘션이 링크로 변환되지 않아야 함"""
         self.client.login(username='author', password='author')
@@ -919,8 +945,8 @@ class PostTestCase(TestCase):
 
         self.assertEqual(response.status_code, 404)
 
-    def test_related_posts_adds_iso_timestamp_without_replacing_display_date(self):
-        """관련 글 날짜 계약은 기존 표시값을 유지하고 ISO 시각을 추가한다."""
+    def test_related_posts_adds_iso_dates_without_replacing_display_date(self):
+        """관련 글 날짜 계약은 기존 표시값을 유지하고 기계 판독 날짜를 추가한다."""
         reference = Post.objects.get(url='test-post-1')
         candidate = Post.objects.get(url='test-post-2')
         tag = Tag.objects.create(value='related-api-contract')
@@ -939,6 +965,10 @@ class PostTestCase(TestCase):
         self.assertEqual(
             related_post['publishedAt'],
             candidate.published_date.isoformat(),
+        )
+        self.assertEqual(
+            related_post['publishedDateIso'],
+            timezone.localdate(candidate.published_date).isoformat(),
         )
 
     def test_related_posts_rejects_draft_post_for_non_owner(self):

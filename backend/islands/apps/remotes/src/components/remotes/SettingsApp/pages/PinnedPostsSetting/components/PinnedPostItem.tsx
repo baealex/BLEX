@@ -1,4 +1,5 @@
 import { useSortable } from '@dnd-kit/sortable';
+import { Trans, useLingui } from '@lingui/react/macro';
 import { CSS } from '@dnd-kit/utilities';
 import { Calendar, Pin } from '@blex/ui/icons';
 import { Button } from '~/components/shared';
@@ -10,6 +11,8 @@ import {
 import { SettingsListItem } from '../../../components';
 import { getMediaPath } from '~/modules/static.module';
 import type { PinnedPostData } from '~/lib/api/settings';
+import { formatPublishedDate } from '~/i18n/formatters';
+import { normalizeLocale } from '~/i18n/locale';
 
 interface PinnedPostItemProps {
     pinnedPost: PinnedPostData;
@@ -22,6 +25,8 @@ export const PinnedPostItem = ({
     username,
     onRemove
 }: PinnedPostItemProps) => {
+    const { i18n } = useLingui();
+    const locale = normalizeLocale(i18n.locale);
     const {
         attributes,
         listeners,
@@ -54,7 +59,11 @@ export const PinnedPostItem = ({
                 dragHandleProps={{
                     attributes,
                     listeners,
-                    ariaLabel: `${pinnedPost.post.title} 고정 포스트 순서 변경`
+                    ariaLabel: i18n._({
+                        id: 'settings.pinned_posts.reorder_label',
+                        message: 'Reorder pinned post: {title}',
+                        values: { title: pinnedPost.post.title }
+                    })
                 }}
                 left={
                     pinnedPost.post.image ? (
@@ -78,14 +87,18 @@ export const PinnedPostItem = ({
                         size="sm"
                         className="min-h-11! [@media(pointer:fine)]:min-h-9!"
                         onClick={handleRemove}>
-                        해제
+                        <Trans id="settings.pinned_posts.unpin">Unpin</Trans>
                     </Button>
                 }>
                 <h3 className={`${SETTINGS_LIST_TITLE} mb-1 truncate text-content`}>{pinnedPost.post.title}</h3>
                 <div className={`${SETTINGS_LIST_META} text-xs flex items-center gap-2`}>
                     <span className="flex items-center gap-1">
                         <Calendar aria-hidden className="h-3.5 w-3.5 text-content-hint" />
-                        {new Date(pinnedPost.post.createdDate).toLocaleDateString('ko-KR')}
+                        {formatPublishedDate(
+                            pinnedPost.post.createdDate,
+                            pinnedPost.post.createdDate,
+                            locale
+                        )}
                     </span>
                 </div>
             </SettingsListItem>

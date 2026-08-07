@@ -1,3 +1,5 @@
+import type { AppLocale } from '~/i18n/locale';
+
 const pad = (value: number) => value.toString().padStart(2, '0');
 
 export const formatDateTimeLocal = (date: Date) => {
@@ -27,17 +29,17 @@ export const toReservedDateValue = (value?: string) => {
     return date ? date.toISOString() : value || '';
 };
 
-export const formatScheduleDateTime = (value: string) => {
+export const formatScheduleDateTime = (value: string, locale: AppLocale) => {
     const date = parseDateTimeLocal(value);
     if (!date) return value;
 
-    return date.toLocaleString('ko-KR', {
+    return new Intl.DateTimeFormat(locale, {
         year: 'numeric',
         month: '2-digit',
         day: '2-digit',
         hour: '2-digit',
         minute: '2-digit'
-    });
+    }).format(date);
 };
 
 export const isFutureDateTimeLocal = (value?: string) => {

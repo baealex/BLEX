@@ -1,4 +1,5 @@
 import React from 'react';
+import { Trans } from '@lingui/react/macro';
 import TwoFactorCodeInput from './TwoFactorCodeInput';
 
 interface TwoFactorFormProps {
@@ -38,9 +39,11 @@ const TwoFactorForm = ({
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
                     </svg>
                 </div>
-                <h3 className="text-xl font-bold text-content mb-2 tracking-tight">이중 인증</h3>
+                <h3 className="text-xl font-bold text-content mb-2 tracking-tight">
+                    <Trans id="auth.two_factor.title">Two-factor authentication</Trans>
+                </h3>
                 <p className="text-sm text-content-secondary">
-                    인증 앱에서 생성된 6자리 코드를 입력하세요
+                    <Trans id="auth.two_factor.instruction">Enter the 6-digit code from your authenticator app</Trans>
                 </p>
             </div>
 
@@ -62,7 +65,8 @@ const TwoFactorForm = ({
                         type="button"
                         onClick={onGoBack}
                         className="text-xs font-medium text-content-hint hover:text-content-secondary transition-colors flex items-center justify-center gap-1 mx-auto">
-                        <i className="fas fa-arrow-left" /> 로그인 화면으로 돌아가기
+                        <i className="fas fa-arrow-left" />
+                        <Trans id="auth.two_factor.back_to_login">Back to login</Trans>
                     </button>
                 </div>
 
@@ -101,7 +105,13 @@ const TwoFactorForm = ({
                                 <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
                             </svg>
                         )}
-                        <span>{isTwoFactorLoading ? '인증 중...' : '인증하기'}</span>
+                        <span>
+                            {isTwoFactorLoading ? (
+                                <Trans id="auth.two_factor.verifying">Verifying...</Trans>
+                            ) : (
+                                <Trans id="auth.two_factor.verify">Verify</Trans>
+                            )}
+                        </span>
                     </button>
                 </div>
             </form>

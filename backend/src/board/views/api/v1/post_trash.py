@@ -1,5 +1,6 @@
 from django.http import Http404, HttpRequest, HttpResponse
 from django.shortcuts import get_object_or_404
+from django.utils.translation import gettext as _
 
 from board.decorators import api_editor_required_methods
 from board.modules.response import ErrorCode, StatusDone, StatusError
@@ -25,7 +26,7 @@ def trashed_posts(
         if page < 1:
             return StatusError(
                 ErrorCode.VALIDATE,
-                '휴지통 페이지 정보를 확인해주세요.',
+                _('Check the trash page.'),
             )
 
         try:
@@ -50,7 +51,7 @@ def trashed_posts(
         if not expected_deleted_date:
             return StatusError(
                 ErrorCode.VALIDATE,
-                '현재 휴지통 상태를 확인해주세요.',
+                _('Check the current trash state.'),
             )
 
         post = get_object_or_404(
@@ -97,7 +98,7 @@ def restore_trashed_post(
     if not isinstance(expected_deleted_date, str) or not expected_deleted_date:
         return StatusError(
             ErrorCode.VALIDATE,
-            '현재 휴지통 상태를 확인해주세요.',
+            _('Check the current trash state.'),
         )
 
     post = get_object_or_404(

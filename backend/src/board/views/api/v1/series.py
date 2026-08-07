@@ -1,6 +1,7 @@
 from django.db.models import F, Q
 from django.http import Http404
 from django.shortcuts import get_object_or_404
+from django.utils.translation import gettext as _
 
 from board.models import User, Post, Series
 from board.decorators import api_editor_required, api_editor_required_methods
@@ -22,12 +23,15 @@ def posts_can_add_series(request):
             try:
                 parsed_series_id = int(series_id)
             except (TypeError, ValueError):
-                return StatusError(ErrorCode.INVALID_PARAMETER, '유효한 시리즈 ID가 필요합니다.')
+                return StatusError(
+                    ErrorCode.INVALID_PARAMETER,
+                    _('Enter a valid series ID.'),
+                )
 
             try:
                 series = Series.objects.get(id=parsed_series_id, owner=request.user)
             except Series.DoesNotExist:
-                return StatusError(ErrorCode.NOT_FOUND, '시리즈를 찾을 수 없습니다.')
+                return StatusError(ErrorCode.NOT_FOUND, _('Series not found.'))
 
             posts = Post.objects.filter(
                 author=request.user
@@ -209,19 +213,22 @@ def series_order(request):
         body, body_error = ApiRequestBodyService.parse_json_or_error(
             request,
             error_code=ErrorCode.INVALID_PARAMETER,
-            message='잘못된 요청 데이터입니다.',
+            message=_('Invalid request data.'),
         )
         if body_error:
             return body_error
 
         order_data = body.get('order', [])
         if not order_data:
-            return StatusError(ErrorCode.INVALID_PARAMETER, '순서 정보가 필요합니다.')
+            return StatusError(
+                ErrorCode.INVALID_PARAMETER,
+                _('Order information is required.'),
+            )
 
         try:
             order_tuples = [(item[0], item[1]) for item in order_data if len(item) >= 2]
             SeriesService.update_series_order(request.user, order_tuples)
-            return StatusDone({'message': '시리즈 순서가 변경되었습니다.'})
+            return StatusDone({'message': _('Series order updated.')})
         except SeriesValidationError as e:
             return StatusError(e.code, e.message)
 
@@ -252,7 +259,7 @@ def series_create_update(request):
         body, body_error = ApiRequestBodyService.parse_json_or_error(
             request,
             error_code=ErrorCode.INVALID_PARAMETER,
-            message='잘못된 요청 데이터입니다.',
+            message=_('Invalid request data.'),
         )
         if body_error:
             return body_error
@@ -301,7 +308,7 @@ def series_detail(request, series_id):
     try:
         series = Series.objects.get(id=series_id, owner=request.user)
     except Series.DoesNotExist:
-        return StatusError(ErrorCode.NOT_FOUND, '시리즈를 찾을 수 없습니다.')
+        return StatusError(ErrorCode.NOT_FOUND, _('Series not found.'))
 
     if request.method == 'GET':
         post_ids = list(
@@ -317,7 +324,7 @@ def series_detail(request, series_id):
         body, body_error = ApiRequestBodyService.parse_json_or_error(
             request,
             error_code=ErrorCode.INVALID_PARAMETER,
-            message='잘못된 요청 데이터입니다.',
+            message=_('Invalid request data.'),
         )
         if body_error:
             return body_error
@@ -352,6 +359,6 @@ def series_detail(request, series_id):
 
     elif request.method == 'DELETE':
         SeriesService.delete_series(series)
-        return StatusDone({'message': '시리즈가 삭제되었습니다.'})
+        return StatusDone({'message': _('Series deleted.')})
 
     raise Http404

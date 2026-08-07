@@ -1,6 +1,7 @@
 {% extends 'board/base.html' %}
+{% load i18n %}
 
-{% block title %}403 - 접근 권한이 없습니다{% endblock %}
+{% block title %}403 - {% translate "Access denied" %}{% endblock %}
 
 {% block extra_styles %}
 <style>
@@ -66,12 +67,12 @@
         <!-- Error Message -->
         <div class="bg-surface-elevated rounded-2xl p-8 md:p-12 mb-8 mx-auto max-w-2xl ring-1 ring-line/60 shadow-floating">
             <h2 class="text-3xl md:text-4xl font-bold text-content mb-4">
-                접근 권한이 없습니다
+                {% translate "Access denied" %}
             </h2>
 
             <p class="text-xl text-content-secondary leading-relaxed">
-                이 페이지에 접근할 권한이 없습니다.<br>
-                로그인 후 다시 시도해주세요.
+                {% translate "You do not have permission to access this page." %}<br>
+                {% translate "Log in and try again." %}
             </p>
         </div>
 
@@ -84,11 +85,11 @@
                 <svg class="w-5 h-5 inline-block mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
                 </svg>
-                뒤로가기
+                {% translate "Go back" %}
             </button>
 
             <a href="/" class="px-8 py-4 bg-action text-content-inverted font-semibold rounded-full hover:bg-action-hover transform hover:scale-105 transition-all duration-300 min-w-[160px]">
-                홈으로 이동
+                {% translate "Go to home" %}
             </a>
         </div>
     </div>

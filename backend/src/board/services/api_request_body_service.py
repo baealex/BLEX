@@ -1,6 +1,7 @@
 import json
 
 from django.http import QueryDict
+from django.utils.translation import gettext, gettext_noop
 
 from board.modules.response import ErrorCode, StatusError
 
@@ -8,7 +9,7 @@ from board.modules.response import ErrorCode, StatusError
 class ApiRequestBodyService:
     """Helpers for parsing API request bodies consistently."""
 
-    DEFAULT_INVALID_JSON_MESSAGE = '잘못된 요청입니다.'
+    DEFAULT_INVALID_JSON_MESSAGE = gettext_noop('Invalid request.')
 
     @staticmethod
     def parse_json(request, default=None):
@@ -34,7 +35,7 @@ class ApiRequestBodyService:
         if require_body and not request.body:
             return None, StatusError(
                 error_code,
-                message or ApiRequestBodyService.DEFAULT_INVALID_JSON_MESSAGE,
+                message or gettext(ApiRequestBodyService.DEFAULT_INVALID_JSON_MESSAGE),
             )
 
         try:
@@ -42,13 +43,13 @@ class ApiRequestBodyService:
             if not isinstance(data, dict):
                 return None, StatusError(
                     error_code,
-                    message or ApiRequestBodyService.DEFAULT_INVALID_JSON_MESSAGE,
+                    message or gettext(ApiRequestBodyService.DEFAULT_INVALID_JSON_MESSAGE),
                 )
             return data, None
         except (json.JSONDecodeError, UnicodeDecodeError):
             return None, StatusError(
                 error_code,
-                message or ApiRequestBodyService.DEFAULT_INVALID_JSON_MESSAGE,
+                message or gettext(ApiRequestBodyService.DEFAULT_INVALID_JSON_MESSAGE),
             )
 
     @staticmethod

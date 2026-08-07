@@ -1,9 +1,11 @@
 import { useMemo, useState } from 'react';
+import { Trans, useLingui } from '@lingui/react/macro';
 import { Popover } from '@blex/ui/popover';
 import { Calendar, Clock, X } from '@blex/ui/icons';
 import { DayPicker } from 'react-day-picker';
-import { ko } from 'react-day-picker/locale';
+import { enUS, ko } from 'react-day-picker/locale';
 import { cx } from '~/lib/classnames';
+import { normalizeLocale } from '~/i18n/locale';
 import { formatDateTimeLocal, formatScheduleDateTime, parseDateTimeLocal } from '../utils/scheduleDate';
 
 interface SchedulePickerProps {
@@ -39,35 +41,6 @@ const parseBoundedNumber = (value: string, min: number, max: number) => {
     return Math.min(Math.max(parsed, min), max);
 };
 
-const quickOptions = [
-    {
-        label: '3시간 후',
-        getDate: () => {
-            const date = new Date();
-            date.setHours(date.getHours() + 3, 0, 0, 0);
-            return date;
-        }
-    },
-    {
-        label: '내일 09:00',
-        getDate: () => {
-            const date = new Date();
-            date.setDate(date.getDate() + 1);
-            date.setHours(9, 0, 0, 0);
-            return date;
-        }
-    },
-    {
-        label: '다음 주 09:00',
-        getDate: () => {
-            const date = new Date();
-            date.setDate(date.getDate() + 7);
-            date.setHours(9, 0, 0, 0);
-            return date;
-        }
-    }
-];
-
 const dayPickerClassNames = {
     root: 'w-full',
     months: 'flex w-full',
@@ -91,10 +64,49 @@ const dayPickerClassNames = {
 };
 
 const SchedulePicker = ({ value, onChange, allowClear = true }: SchedulePickerProps) => {
+    const { i18n, t } = useLingui();
+    const locale = normalizeLocale(i18n.locale);
     const [isOpen, setIsOpen] = useState(false);
     const selectedDate = useMemo(() => parseDateTimeLocal(value), [value]);
     const hour = selectedDate ? selectedDate.getHours() : roundToNextHour().getHours();
     const minute = selectedDate ? selectedDate.getMinutes() : 0;
+    const quickOptions = [
+        {
+            label: t({
+                id: 'editor.schedule.in_three_hours',
+                message: 'In 3 hours'
+            }),
+            getDate: () => {
+                const date = new Date();
+                date.setHours(date.getHours() + 3, 0, 0, 0);
+                return date;
+            }
+        },
+        {
+            label: t({
+                id: 'editor.schedule.tomorrow_morning',
+                message: 'Tomorrow at 9:00 AM'
+            }),
+            getDate: () => {
+                const date = new Date();
+                date.setDate(date.getDate() + 1);
+                date.setHours(9, 0, 0, 0);
+                return date;
+            }
+        },
+        {
+            label: t({
+                id: 'editor.schedule.next_week_morning',
+                message: 'Next week at 9:00 AM'
+            }),
+            getDate: () => {
+                const date = new Date();
+                date.setDate(date.getDate() + 7);
+                date.setHours(9, 0, 0, 0);
+                return date;
+            }
+        }
+    ];
 
     const handleDaySelect = (date?: Date) => {
         if (!date) return;
@@ -122,7 +134,12 @@ const SchedulePicker = ({ value, onChange, allowClear = true }: SchedulePickerPr
                             <span className="flex min-w-0 items-center gap-2">
                                 <Calendar className="h-4 w-4 shrink-0 text-content-hint" />
                                 <span className={value ? 'text-content' : 'text-content-hint'}>
-                                    {value ? formatScheduleDateTime(value) : '예약 시간 선택'}
+                                    {value
+                                        ? formatScheduleDateTime(value, locale)
+                                        : t({
+                                            id: 'editor.schedule.select_time',
+                                            message: 'Select a publish time'
+                                        })}
                                 </span>
                             </span>
                         </button>
@@ -135,7 +152,10 @@ const SchedulePicker = ({ value, onChange, allowClear = true }: SchedulePickerPr
                                 onChange('');
                             }}
                             className="absolute right-0 top-1/2 inline-flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-lg text-content-hint hover:bg-surface hover:text-content active:scale-95"
-                            aria-label="예약 해제">
+                            aria-label={t({
+                                id: 'editor.schedule.clear',
+                                message: 'Clear schedule'
+                            })}>
                             <X className="h-4 w-4" />
                         </button>
                     )}
@@ -148,7 +168,7 @@ const SchedulePicker = ({ value, onChange, allowClear = true }: SchedulePickerPr
                         className="z-[70] w-[min(22rem,calc(100vw-2rem))] rounded-2xl border border-line bg-surface-elevated p-4 shadow-2xl outline-none">
                         <DayPicker
                             mode="single"
-                            locale={ko}
+                            locale={locale === 'ko' ? ko : enUS}
                             selected={selectedDate || undefined}
                             onSelect={handleDaySelect}
                             disabled={{ before: startOfToday() }}
@@ -159,7 +179,7 @@ const SchedulePicker = ({ value, onChange, allowClear = true }: SchedulePickerPr
                         <div className="mt-4 border-t border-line-light pt-4">
                             <div className="mb-2 flex items-center gap-2 text-xs font-semibold text-content-secondary">
                                 <Clock className="h-3.5 w-3.5" />
-                                시간
+                                <Trans id="editor.schedule.time">Time</Trans>
                             </div>
                             <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-2">
                                 <input
@@ -174,7 +194,10 @@ const SchedulePicker = ({ value, onChange, allowClear = true }: SchedulePickerPr
                                         handleTimeChange(nextHour, minute);
                                     }}
                                     className="h-11 rounded-lg border border-line bg-surface px-3 text-center text-sm font-medium text-content focus:border-line-strong focus:outline-none focus:ring-2 focus:ring-line/70"
-                                    aria-label="예약 시"
+                                    aria-label={t({
+                                        id: 'editor.schedule.hour',
+                                        message: 'Scheduled hour'
+                                    })}
                                 />
                                 <span className="text-content-hint">:</span>
                                 <input
@@ -190,7 +213,10 @@ const SchedulePicker = ({ value, onChange, allowClear = true }: SchedulePickerPr
                                         handleTimeChange(hour, nextMinute);
                                     }}
                                     className="h-11 rounded-lg border border-line bg-surface px-3 text-center text-sm font-medium text-content focus:border-line-strong focus:outline-none focus:ring-2 focus:ring-line/70"
-                                    aria-label="예약 분"
+                                    aria-label={t({
+                                        id: 'editor.schedule.minute',
+                                        message: 'Scheduled minute'
+                                    })}
                                 />
                             </div>
                             <div className="mt-3 flex flex-wrap gap-2">

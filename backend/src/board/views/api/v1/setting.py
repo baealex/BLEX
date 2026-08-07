@@ -3,6 +3,7 @@ import json
 from django.contrib import auth
 from django.http import Http404, HttpRequest
 from django.shortcuts import get_object_or_404
+from django.utils.translation import gettext as _
 from board.models import (
     User, LoginSetting,
     Notify)
@@ -23,6 +24,7 @@ from board.services.setting_post_management_service import (
 )
 from board.services.user_heatmap_service import UserHeatmapService
 from board.services.user_notification_service import UserNotificationService
+from board.views.api.v1.pinned_post_errors import pinned_post_error_response
 
 
 EDITOR_SETTING_PARAMETERS = {
@@ -166,7 +168,7 @@ def setting(request, parameter):
                 'username': user.username,
                 'name': user.first_name,
                 'email': user.email,
-                'created_date': convert_to_localtime(user.date_joined).strftime('%Y년 %m월 %d일'),
+                'created_date': convert_to_localtime(user.date_joined).date().isoformat(),
                 'account_deletion_redirect_url': deletion_redirect_url,
                 'has2fa': hasattr(user, 'twofactorauth'),
             })
@@ -221,7 +223,7 @@ def setting(request, parameter):
                 )
                 return StatusDone(pinnable_posts)
             except PinnedPostError as e:
-                return StatusError(e.code, e.message)
+                return pinned_post_error_response(e)
 
     if request.method == 'POST':
         if parameter == 'avatar':
@@ -243,13 +245,18 @@ def setting(request, parameter):
         if parameter == 'pinned-posts':
             post_url = request.POST.get('post_url', '')
             if not post_url:
-                return StatusError(ErrorCode.INVALID_PARAMETER, '포스트 URL이 필요합니다.')
+                return StatusError(
+                    ErrorCode.INVALID_PARAMETER,
+                    _('Post URL is required.'),
+                    message_key='pinned_posts.post_url_required',
+                    message_params={},
+                )
 
             try:
                 PinnedPostService.add_pinned_post(user, post_url)
                 return StatusDone()
             except PinnedPostError as e:
-                return StatusError(e.code, e.message)
+                return pinned_post_error_response(e)
 
     if request.method == 'DELETE':
         if parameter == 'cover':
@@ -263,13 +270,18 @@ def setting(request, parameter):
             delete = ApiRequestBodyService.parse_json_or_querydict(request)
             post_url = delete.get('post_url', '')
             if not post_url:
-                return StatusError(ErrorCode.INVALID_PARAMETER, '포스트 URL이 필요합니다.')
+                return StatusError(
+                    ErrorCode.INVALID_PARAMETER,
+                    _('Post URL is required.'),
+                    message_key='pinned_posts.post_url_required',
+                    message_params={},
+                )
 
             try:
                 PinnedPostService.remove_pinned_post(user, post_url)
                 return StatusDone()
             except PinnedPostError as e:
-                return StatusError(e.code, e.message)
+                return pinned_post_error_response(e)
 
     if request.method == 'PUT':
         put = ApiRequestBodyService.parse_json_or_querydict(request)
@@ -278,7 +290,7 @@ def setting(request, parameter):
             id = put.get('id')
 
             if not UserNotificationService.mark_notification_as_read(user, id):
-                return StatusError(ErrorCode.NOT_FOUND, '알림을 찾을 수 없습니다.')
+                return StatusError(ErrorCode.NOT_FOUND, _('Notification not found.'))
 
             return StatusDone()
 
@@ -330,15 +342,25 @@ def setting(request, parameter):
             try:
                 post_urls = json.loads(post_urls_data) if isinstance(post_urls_data, str) else post_urls_data
             except (TypeError, json.JSONDecodeError):
-                return StatusError(ErrorCode.INVALID_PARAMETER, '잘못된 형식입니다.')
+                return StatusError(
+                    ErrorCode.INVALID_PARAMETER,
+                    _('Invalid request format.'),
+                    message_key='pinned_posts.invalid_format',
+                    message_params={},
+                )
 
             if not isinstance(post_urls, list):
-                return StatusError(ErrorCode.INVALID_PARAMETER, '잘못된 형식입니다.')
+                return StatusError(
+                    ErrorCode.INVALID_PARAMETER,
+                    _('Invalid request format.'),
+                    message_key='pinned_posts.invalid_format',
+                    message_params={},
+                )
 
             try:
                 PinnedPostService.reorder_pinned_posts(user, post_urls)
                 return StatusDone()
             except PinnedPostError as e:
-                return StatusError(e.code, e.message)
+                return pinned_post_error_response(e)
 
     raise Http404

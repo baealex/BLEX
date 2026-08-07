@@ -1,4 +1,5 @@
 import { useState, useRef } from 'react';
+import { useLingui } from '@lingui/react/macro';
 import { toast } from '~/utils/toast';
 import { hasPublishableContent } from '../utils/publishChecklist';
 import { isFutureDateTimeLocal, parseDateTimeLocal, toReservedDateValue } from '../utils/scheduleDate';
@@ -34,6 +35,7 @@ const normalizeUrlForSubmit = (value: string) => {
 };
 
 export const useFormSubmit = (options: UseFormSubmitOptions) => {
+    const { t } = useLingui();
     const [isSubmitting, setIsSubmitting] = useState(false);
     const formRef = useRef<HTMLFormElement>(null);
     const {
@@ -45,29 +47,44 @@ export const useFormSubmit = (options: UseFormSubmitOptions) => {
 
     const validateForm = (data: FormSubmitData, isEdit = false, isDraft = false) => {
         if (!data.title.trim()) {
-            toast.error('제목을 입력해주세요.');
+            toast.error(t({
+                id: 'editor.validation.title_required',
+                message: 'Enter a title.'
+            }));
             return false;
         }
 
         if (!isDraft && !hasPublishableContent(data.content)) {
-            toast.error('내용을 입력해주세요.');
+            toast.error(t({
+                id: 'editor.validation.content_required',
+                message: 'Add some content.'
+            }));
             return false;
         }
 
         const sanitizedUrl = normalizeUrlForSubmit(data.url);
         if (!isEdit && !sanitizedUrl) {
-            toast.error('URL 주소를 입력해주세요.');
+            toast.error(t({
+                id: 'editor.validation.url_required',
+                message: 'Enter a post URL.'
+            }));
             return false;
         }
 
         if (!isDraft && data.reservedDate) {
             if (!parseDateTimeLocal(data.reservedDate)) {
-                toast.error('예약 시간을 확인해주세요.');
+                toast.error(t({
+                    id: 'editor.validation.schedule_invalid',
+                    message: 'Check the scheduled time.'
+                }));
                 return false;
             }
 
             if (!isFutureDateTimeLocal(data.reservedDate)) {
-                toast.error('예약 시간은 현재 시간 이후로 선택해주세요.');
+                toast.error(t({
+                    id: 'editor.validation.schedule_future',
+                    message: 'Choose a scheduled time in the future.'
+                }));
                 return false;
             }
         }
@@ -136,7 +153,15 @@ export const useFormSubmit = (options: UseFormSubmitOptions) => {
             form.submit();
             onSubmitSuccess?.();
         } catch (error) {
-            const errorMessage = isEdit ? '포스트 수정에 실패했습니다.' : '포스트 저장에 실패했습니다.';
+            const errorMessage = isEdit
+                ? t({
+                    id: 'editor.error.update',
+                    message: 'Could not update the post.'
+                })
+                : t({
+                    id: 'editor.error.save',
+                    message: 'Could not save the post.'
+                });
             toast.error(errorMessage);
             onSubmitError?.(error as Error);
             setIsSubmitting(false);
@@ -144,7 +169,10 @@ export const useFormSubmit = (options: UseFormSubmitOptions) => {
     };
 
     const deletePost = async () => {
-        if (!confirm('이 포스트를 휴지통으로 옮길까요? 포스트 설정에서 다시 복원할 수 있습니다.')) {
+        if (!confirm(t({
+            id: 'editor.confirm.move_to_trash',
+            message: 'Move this post to the trash? You can restore it from post settings.'
+        }))) {
             return;
         }
 
@@ -161,7 +189,10 @@ export const useFormSubmit = (options: UseFormSubmitOptions) => {
 
             form.submit();
         } catch (error) {
-            toast.error('포스트를 휴지통으로 옮기지 못했습니다.');
+            toast.error(t({
+                id: 'editor.error.move_to_trash',
+                message: 'Could not move the post to the trash.'
+            }));
             onSubmitError?.(error as Error);
             setIsSubmitting(false);
         }

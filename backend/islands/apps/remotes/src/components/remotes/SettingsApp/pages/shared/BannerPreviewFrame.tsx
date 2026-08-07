@@ -1,8 +1,9 @@
 import { cx } from '~/lib/classnames';
 import type { ReactNode } from 'react';
+import { Trans, useLingui } from '@lingui/react/macro';
 import { Layers3 } from '@blex/ui/icons';
-
-type BannerPosition = 'top' | 'bottom' | 'left' | 'right';
+import { normalizeLocale } from '~/i18n/locale';
+import type { BannerPosition } from './bannerI18n';
 
 interface BannerPreviewFrameProps {
     contentHtml: string;
@@ -12,13 +13,6 @@ interface BannerPreviewFrameProps {
     editorPanel: ReactNode;
 }
 
-const positionLabels: Record<BannerPosition, string> = {
-    top: '상단',
-    bottom: '하단',
-    left: '좌측',
-    right: '우측'
-};
-
 const BannerPreviewFrame = ({
     contentHtml,
     position,
@@ -26,10 +20,11 @@ const BannerPreviewFrame = ({
     onPositionChange,
     editorPanel
 }: BannerPreviewFrameProps) => {
+    const { i18n } = useLingui();
+    const locale = normalizeLocale(i18n.locale);
     const hasHtml = contentHtml.trim().length > 0;
     const mutedPostClass = hasSelectedPosition ? 'opacity-100' : 'opacity-50';
-    const today = new Date();
-    const todayLabel = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+    const todayLabel = new Intl.DateTimeFormat(locale, { dateStyle: 'medium' }).format(new Date());
 
     const renderInlineSlot = (slot: BannerPosition) => {
         const selected = hasSelectedPosition && slot === position;
@@ -39,11 +34,21 @@ const BannerPreviewFrame = ({
                 <div
                     role="group"
                     className="min-h-11"
-                    aria-label={`${positionLabels[slot]} 위치 선택됨`}>
+                    aria-label={i18n._({
+                        id: 'settings.banners.preview.position_selected',
+                        message: '{position, select, top {Top position selected} bottom {Bottom position selected} left {Left position selected} other {Right position selected}}',
+                        values: { position: slot }
+                    })}>
                     {hasHtml ? (
                         <div dangerouslySetInnerHTML={{ __html: contentHtml }} />
                     ) : (
-                        <div className="py-2 text-xs text-content-hint">HTML을 입력하면 {positionLabels[slot]}에 배너가 표시됩니다.</div>
+                        <div className="py-2 text-xs text-content-hint">
+                            {i18n._({
+                                id: 'settings.banners.preview.empty_slot',
+                                message: '{position, select, top {Enter HTML to display the banner at the top.} bottom {Enter HTML to display the banner at the bottom.} left {Enter HTML to display the banner in the left sidebar.} other {Enter HTML to display the banner in the right sidebar.}}',
+                                values: { position: slot }
+                            })}
+                        </div>
                     )}
                 </div>
             );
@@ -62,7 +67,11 @@ const BannerPreviewFrame = ({
                             ? 'border-line text-content-hint hover:border-line hover:text-content-hint'
                             : 'border-warning-line bg-warning-surface text-warning hover:bg-warning-surface'
                     )}>
-                    {positionLabels[slot]} 위치 선택
+                    {i18n._({
+                        id: 'settings.banners.preview.select_position',
+                        message: '{position, select, top {Select top position} bottom {Select bottom position} left {Select left position} other {Select right position}}',
+                        values: { position: slot }
+                    })}
                 </div>
             </button>
         );
@@ -76,11 +85,21 @@ const BannerPreviewFrame = ({
                 <div
                     role="group"
                     className="min-h-11"
-                    aria-label={`${positionLabels[slot]} 위치 선택됨`}>
+                    aria-label={i18n._({
+                        id: 'settings.banners.preview.position_selected',
+                        message: '{position, select, top {Top position selected} bottom {Bottom position selected} left {Left position selected} other {Right position selected}}',
+                        values: { position: slot }
+                    })}>
                     {hasHtml ? (
                         <div dangerouslySetInnerHTML={{ __html: contentHtml }} />
                     ) : (
-                        <div className="py-2 text-xs text-content-hint">{positionLabels[slot]}에 배너가 표시됩니다.</div>
+                        <div className="py-2 text-xs text-content-hint">
+                            {i18n._({
+                                id: 'settings.banners.preview.empty_slot',
+                                message: '{position, select, top {Enter HTML to display the banner at the top.} bottom {Enter HTML to display the banner at the bottom.} left {Enter HTML to display the banner in the left sidebar.} other {Enter HTML to display the banner in the right sidebar.}}',
+                                values: { position: slot }
+                            })}
+                        </div>
                     )}
                 </div>
             );
@@ -99,7 +118,11 @@ const BannerPreviewFrame = ({
                             ? 'border-line text-content-hint'
                             : 'border-warning-line bg-warning-surface text-warning'
                     )}>
-                    {positionLabels[slot]} 위치 선택
+                    {i18n._({
+                        id: 'settings.banners.preview.select_position',
+                        message: '{position, select, top {Select top position} bottom {Select bottom position} left {Select left position} other {Select right position}}',
+                        values: { position: slot }
+                    })}
                 </div>
             </button>
         );
@@ -115,32 +138,50 @@ const BannerPreviewFrame = ({
                 </aside>
 
                 <div className="post-detail-main">
-                    <section className="mt-6" aria-label="배너 배치 미리보기">
-                        <article lang="ko" aria-label="예시 포스트">
+                    <section
+                        className="mt-6"
+                        aria-label={i18n._({
+                            id: 'settings.banners.preview.layout_aria',
+                            message: 'Banner placement preview'
+                        })}>
+                        <article
+                            lang={locale}
+                            aria-label={i18n._({
+                                id: 'settings.banners.preview.example_post_aria',
+                                message: 'Example post'
+                            })}>
                             <div className={cx('mb-12 transition-opacity sm:mb-16', mutedPostClass)}>
                                 <div className="mb-6 flex items-center gap-2">
                                     <span className="inline-flex items-center gap-1.5 rounded-full bg-action px-3 py-1 text-xs font-semibold text-content-inverted">
                                         <Layers3 aria-hidden="true" className="h-3 w-3 opacity-70" />
-                                        Series
+                                        <Trans id="settings.banners.preview.series">Series</Trans>
                                     </span>
                                     <span className="text-xs font-medium text-content-hint">1 / 5</span>
                                 </div>
 
                                 <h2 className="mb-3 break-words text-2xl font-bold leading-tight tracking-tight text-content sm:text-3xl lg:text-4xl">
-                                    포스트 제목이 이 위치에 표시됩니다
+                                    <Trans id="settings.banners.preview.post_title">
+                                        Your post title appears here
+                                    </Trans>
                                 </h2>
                                 <p className="mb-8 text-lg font-medium leading-relaxed text-content-secondary sm:text-xl">
-                                    포스트 서브타이틀 영역
+                                    <Trans id="settings.banners.preview.post_subtitle">
+                                        Your post subtitle appears here
+                                    </Trans>
                                 </p>
 
                                 <div className="flex items-center gap-4 border-b border-line-light pb-8 text-sm">
                                     <div className="h-10 w-10 rounded-full bg-line ring-2 ring-line-light" />
                                     <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
-                                        <span className="font-semibold text-content">작성자</span>
+                                        <span className="font-semibold text-content">
+                                            <Trans id="settings.banners.preview.author">Author</Trans>
+                                        </span>
                                         <span className="text-content-hint">·</span>
                                         <span className="text-content-secondary">{todayLabel}</span>
                                         <span className="text-content-hint">·</span>
-                                        <span className="text-content-secondary">5분 소요</span>
+                                        <span className="text-content-secondary">
+                                            <Trans id="settings.banners.preview.reading_time">5 min read</Trans>
+                                        </span>
                                     </div>
                                 </div>
                             </div>
@@ -159,9 +200,15 @@ const BannerPreviewFrame = ({
 
                             <div className={cx('mb-16 transition-opacity', mutedPostClass)}>
                                 <div className="flex flex-wrap gap-2">
-                                    <span className="inline-flex items-center rounded-full border border-line-light bg-surface-subtle px-4 py-2 text-sm font-medium text-content-secondary">#태그1</span>
-                                    <span className="inline-flex items-center rounded-full border border-line-light bg-surface-subtle px-4 py-2 text-sm font-medium text-content-secondary">#태그2</span>
-                                    <span className="inline-flex items-center rounded-full border border-line-light bg-surface-subtle px-4 py-2 text-sm font-medium text-content-secondary">#태그3</span>
+                                    <span className="inline-flex items-center rounded-full border border-line-light bg-surface-subtle px-4 py-2 text-sm font-medium text-content-secondary">
+                                        <Trans id="settings.banners.preview.tag1">#tag1</Trans>
+                                    </span>
+                                    <span className="inline-flex items-center rounded-full border border-line-light bg-surface-subtle px-4 py-2 text-sm font-medium text-content-secondary">
+                                        <Trans id="settings.banners.preview.tag2">#tag2</Trans>
+                                    </span>
+                                    <span className="inline-flex items-center rounded-full border border-line-light bg-surface-subtle px-4 py-2 text-sm font-medium text-content-secondary">
+                                        <Trans id="settings.banners.preview.tag3">#tag3</Trans>
+                                    </span>
                                 </div>
                             </div>
 
@@ -175,7 +222,9 @@ const BannerPreviewFrame = ({
                 <aside className="post-detail-sidebar">
                     <div className="sticky top-28 space-y-4">
                         <div className="text-xs text-content-hint">
-                            TOC / 우측 사이드바
+                            <Trans id="settings.banners.preview.right_sidebar">
+                                TOC / Right sidebar
+                            </Trans>
                         </div>
                         {renderSidebarSlot('right')}
                     </div>

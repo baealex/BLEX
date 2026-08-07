@@ -312,6 +312,35 @@ class PostDetailViewTestCase(TestCase):
         self.assertContains(response, '최초 발행')
         self.assertContains(response, '/@testauthor')
 
+    def test_post_detail_translates_ui_without_translating_authored_content(self):
+        """영어 UI에서도 작성자가 입력한 제목과 본문은 원문 그대로 유지한다."""
+        self.post.title = '한국어로 작성한 제목'
+        self.post.save(update_fields=['title'])
+        PostContent.objects.filter(post=self.post).update(
+            content_html='<h1>한국어로 작성한 본문</h1>',
+        )
+
+        response = self.client.get(
+            reverse('post_detail', kwargs={
+                'username': 'testauthor',
+                'post_url': 'test-post',
+            }),
+            HTTP_ACCEPT_LANGUAGE='en-US,en;q=0.9',
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response['Content-Language'], 'en')
+        rendered = response.content.decode()
+        self.assertRegex(rendered, r'<html\b[^>]*\blang=["\']?en["\']?[\s>]')
+        self.assertRegex(rendered, r'<article\b[^>]*\blang=["\']?und["\']?[\s>]')
+        self.assertContains(response, '한국어로 작성한 제목')
+        self.assertContains(response, '한국어로 작성한 본문')
+        self.assertContains(response, 'Post information')
+        self.assertContains(response, 'First published')
+        self.assertContains(response, 'Table of contents')
+        self.assertRegex(rendered, r'\bplaceholder=["\']?Search["\']?[\s>]')
+        self.assertNotContains(response, '포스트 정보')
+
     def test_post_detail_uses_split_cover_outside_content_grid(self):
         """분할 커버는 본문 그리드 바깥에서 상세 공통 프레임으로 렌더링한다."""
         self.set_post_image_path()
@@ -566,6 +595,15 @@ class PostEditorPublishRedirectTestCase(TestCase):
         self.assertTrue(response.context['show_first_publish_guide'])
         props = self.get_post_editor_props(response)
         self.assertTrue(props['showFirstPublishGuide'])
+
+    def test_post_editor_renders_english_document_title(self):
+        self.client.login(username='editor', password='password123')
+
+        response = self.client.get('/write', HTTP_ACCEPT_LANGUAGE='en')
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, '<title>New post - ', html=False)
+        self.assertContains(response, 'lang=en')
 
     def test_post_editor_shows_first_publish_guide_for_first_draft(self):
         """발행한 글 없이 임시 글만 있는 작성자에게 첫 발행 가이드를 노출한다."""
@@ -835,6 +873,21 @@ class PostEditorPublishRedirectTestCase(TestCase):
         self.assertEqual(body['status'], 'ERROR')
         self.assertEqual(body['errorCode'], 'error:VA')
         self.assertEqual(body['errorMessage'], '내용을 입력해주세요.')
+
+        english_response = self.client.post('/@editor/recoverable-edit/edit', {
+            'title': 'Unsaved Changed Title',
+            'subtitle': '',
+            'content_html': '',
+            'meta_description': post.meta_description,
+            'hide': 'false',
+            'advertise': 'false',
+            'block_comment': 'false',
+        }, HTTP_X_BLEX_EDITOR_SUBMIT='async', HTTP_ACCEPT_LANGUAGE='en')
+        english_body = json.loads(english_response.content)
+        self.assertEqual(english_body['status'], 'ERROR')
+        self.assertEqual(english_body['errorCode'], 'error:VA')
+        self.assertEqual(english_body['errorMessage'], 'Enter some content.')
+
         post.refresh_from_db()
         self.assertEqual(post.title, 'Recoverable Edit')
         self.assertEqual(post.content.content_html, '<p>Stored body</p>')

@@ -397,6 +397,31 @@ class DeveloperPostsAPITestCase(TestCase):
         )
         self.assert_developer_error(invalid_payload, 400, 'request.invalid_json')
 
+    def test_error_message_follows_language_without_changing_code(self):
+        cases = (
+            ('en', 'The JSON request body could not be parsed.'),
+            ('ko', 'JSON 본문을 해석할 수 없습니다.'),
+        )
+
+        for language, expected_message in cases:
+            with self.subTest(language=language):
+                response = self.client.post(
+                    '/api/developer/v1/posts',
+                    '{invalid json',
+                    content_type='application/json',
+                    HTTP_ACCEPT_LANGUAGE=language,
+                    **self.auth_header(),
+                )
+
+                self.assertEqual(response.status_code, 400)
+                self.assertEqual(
+                    response.json()['error'],
+                    {
+                        'code': 'request.invalid_json',
+                        'message': expected_message,
+                    },
+                )
+
     def test_create_published_post_validation_returns_bad_request(self):
         """발행 글 검증 실패는 400과 표준 오류 본문을 반환한다."""
         response = self.post_json('/api/developer/v1/posts', {

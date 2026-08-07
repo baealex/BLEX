@@ -4,9 +4,11 @@ import MenuBar from './components/menus/MenuBar';
 import { getEditorExtensions } from './config/editorConfig';
 import { classifyTextMediaDrop } from './config/mediaUpload';
 import { useImageUpload } from './hooks/useImageUpload';
+import { EditorI18nProvider, useEditorI18n } from './i18n';
+import type { EditorMessageOverrides } from './i18n';
 import { normalizeMediaUrlsInHtml } from './utils/mediaUrls';
 
-interface TiptapEditorProps {
+export interface TiptapEditorProps {
     name: string;
     content?: string;
     editable?: boolean;
@@ -16,6 +18,8 @@ interface TiptapEditorProps {
     onImageUpload?: (file: File) => Promise<string | undefined>;
     onImageUploadError?: (errorMessage: string) => void;
     onUploadStateChange?: (isUploading: boolean) => void;
+    locale?: string;
+    messages?: EditorMessageOverrides;
 }
 
 interface HandlersRef {
@@ -31,17 +35,20 @@ const removeUploadPlaceholders = (html: string) => {
     return html.replace(/<div[^>]*data-upload-placeholder="true"[^>]*>[\s\S]*?<\/div>/g, '');
 };
 
-const TiptapEditor = ({
+const TiptapEditorContent = ({
     name,
     content = '',
     editable = true,
     onChange,
     height = 'auto',
-    placeholder = '내용을 입력하세요…',
+    placeholder: placeholderOverride,
     onImageUpload,
     onImageUploadError,
     onUploadStateChange
 }: TiptapEditorProps) => {
+    const { t } = useEditorI18n();
+    const placeholder = placeholderOverride ?? t('placeholder.content');
+
     const handleChange = (html: string) => {
         if (onChange) {
             onChange(normalizeMediaUrlsInHtml(html));
@@ -55,7 +62,11 @@ const TiptapEditor = ({
     const [isMenuUploading, setIsMenuUploading] = useState(false);
 
     const editor = useEditor({
-        extensions: getEditorExtensions(placeholder),
+        extensions: getEditorExtensions(placeholder, {
+            imageLabel: t('upload.placeholder.image'),
+            videoLabel: t('upload.placeholder.video'),
+            progressTemplate: t('upload.placeholder.progress')
+        }),
         content,
         editable,
         editorProps: {
@@ -116,7 +127,7 @@ const TiptapEditor = ({
                     return handlersRef.current.handleMediaDrop(
                         event,
                         posInfo?.pos,
-                        { invalidPositionMessage: '컬럼 안쪽에 파일을 내려놓아 주세요.' }
+                        { invalidPositionMessage: t('drop.columns') }
                     );
                 }
 
@@ -243,7 +254,11 @@ const TiptapEditor = ({
                     aria-live="polite"
                     className="flex items-center gap-2 px-3 py-2 text-sm text-content-secondary bg-surface-subtle rounded-lg mt-2 animate-pulse border border-line-light">
                     <div className="w-4 h-4 border-2 border-line border-t-content-secondary rounded-full animate-spin" />
-                    <span>{uploadingCount > 1 ? `파일 ${uploadingCount}개 업로드 중...` : '파일 업로드 중...'}</span>
+                    <span>
+                        {uploadingCount > 1
+                            ? t('upload.status.multiple', { count: uploadingCount })
+                            : t('upload.status.single')}
+                    </span>
                 </div>
             )}
 
@@ -361,5 +376,11 @@ const TiptapEditor = ({
         </div>
     );
 };
+
+const TiptapEditor = (props: TiptapEditorProps) => (
+    <EditorI18nProvider locale={props.locale} messages={props.messages}>
+        <TiptapEditorContent {...props} />
+    </EditorI18nProvider>
+);
 
 export default TiptapEditor;

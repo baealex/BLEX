@@ -1,5 +1,6 @@
 import json
 
+from django.contrib.messages import get_messages
 from django.test import TestCase, override_settings
 
 from board.models import Config, DeveloperToken, Profile, User
@@ -173,6 +174,23 @@ class DeveloperAuthAPITestCase(TestCase):
         self.assertIn('export BLEX_ORIGIN="https://blex.example"', body)
         self.assertIn('/api/developer/v1/posts', body)
         self.assertIn('expected_updated_at', body)
+        self.assertIn('"title": "API로 만든 첫 포스트"', body)
+
+    @override_settings(SITE_URL='https://blex.example')
+    def test_developer_api_quickstart_renders_in_english(self):
+        self.client.login(username='developer', password='developer')
+
+        response = self.client.get(
+            '/docs/developer-api/quickstart',
+            HTTP_ACCEPT_LANGUAGE='en',
+        )
+
+        self.assertEqual(response.status_code, 200)
+        body = response.content.decode()
+        self.assertIn('Developer API quickstart', body)
+        self.assertIn('Create a Markdown draft', body)
+        self.assertIn('export BLEX_ORIGIN="https://blex.example"', body)
+        self.assertIn('"title": "My first API post"', body)
 
     def test_developer_api_openapi_schema_is_available(self):
         self.client.login(username='developer', password='developer')
@@ -186,6 +204,51 @@ class DeveloperAuthAPITestCase(TestCase):
         security_schemes = body['components']['securitySchemes']
         self.assertIn('DeveloperBearerAuth', security_schemes)
         self.assertEqual(security_schemes['DeveloperBearerAuth']['scheme'], 'bearer')
+
+    def test_developer_api_openapi_copy_follows_each_request_language(self):
+        self.client.login(username='developer', password='developer')
+        cases = (
+            (
+                'en',
+                'BLEX Developer API',
+                'List posts',
+                'Posts',
+                'Post title.',
+            ),
+            (
+                'ko',
+                'BLEX 개발자 API',
+                '포스트 목록 조회',
+                '포스트',
+                '포스트 제목입니다.',
+            ),
+            (
+                'en',
+                'BLEX Developer API',
+                'List posts',
+                'Posts',
+                'Post title.',
+            ),
+        )
+
+        for language, title, summary, tag, field_description in cases:
+            with self.subTest(language=language, expected_summary=summary):
+                response = self.client.get(
+                    '/api/developer/v1/openapi.json',
+                    HTTP_ACCEPT_LANGUAGE=language,
+                )
+
+                self.assertEqual(response.status_code, 200)
+                schema = response.json()
+                list_operation = schema['paths']['/api/developer/v1/posts']['get']
+                post_payload = schema['components']['schemas']['PostMutationPayload']
+                self.assertEqual(schema['info']['title'], title)
+                self.assertEqual(list_operation['summary'], summary)
+                self.assertEqual(list_operation['tags'], [tag])
+                self.assertEqual(
+                    post_payload['properties']['title']['description'],
+                    field_description,
+                )
 
     def test_developer_api_docs_use_local_swagger_assets(self):
         self.client.login(username='developer', password='developer')
@@ -223,6 +286,21 @@ class DeveloperAuthAPITestCase(TestCase):
                 response = self.client.get(path)
                 self.assertEqual(response.status_code, 302)
                 self.assertEqual(response['Location'], '/')
+
+    def test_editor_requirement_message_follows_the_request_language(self):
+        self.client.login(username='reader', password='reader')
+
+        response = self.client.get(
+            '/docs/developer-api/quickstart',
+            HTTP_ACCEPT_LANGUAGE='en',
+        )
+
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response['Location'], '/')
+        self.assertEqual(
+            [str(message) for message in get_messages(response.wsgi_request)],
+            ['Author access is required. Please contact an administrator.'],
+        )
 
     def test_reader_cannot_create_developer_token(self):
         self.client.login(username='reader', password='reader')

@@ -1,4 +1,5 @@
-import { useEffect } from 'react';
+import { useEffect, useMemo } from 'react';
+import { useLingui } from '@lingui/react/macro';
 import { useForm } from 'react-hook-form';
 import { Save } from '@blex/ui/icons';
 import { z } from 'zod';
@@ -6,9 +7,9 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { Button, Input } from '~/components/shared';
 import type { AccountFormSubmitResult } from '../types';
 
-const usernameSchema = z.object({ username: z.string().min(3, '아이디는 3자 이상이어야 합니다.').max(30, '아이디는 30자 이내여야 합니다.') });
-
-type UsernameFormInputs = z.infer<typeof usernameSchema>;
+interface UsernameFormInputs {
+    username: string;
+}
 
 interface UsernameSectionProps {
     initialUsername: string;
@@ -17,6 +18,18 @@ interface UsernameSectionProps {
 }
 
 const UsernameSection = ({ initialUsername, isLoading, onSubmit }: UsernameSectionProps) => {
+    const { t } = useLingui();
+    const usernameSchema = useMemo(() => z.object({
+        username: z.string()
+            .min(3, t({
+                id: 'settings.account.username.validation.min_length',
+                message: 'Username must be at least 3 characters.'
+            }))
+            .max(30, t({
+                id: 'settings.account.username.validation.max_length',
+                message: 'Username must be 30 characters or fewer.'
+            }))
+    }), [t]);
     const {
         register,
         handleSubmit,
@@ -48,16 +61,28 @@ const UsernameSection = ({ initialUsername, isLoading, onSubmit }: UsernameSecti
 
     return (
         <form
-            aria-label="사용자 필명 변경"
+            aria-label={t({
+                id: 'settings.account.username.form_label',
+                message: 'Change username'
+            })}
             className="pb-6"
             onSubmit={handleSubmit(handleFormSubmit)}>
             <Input
                 density="compact"
                 type="text"
-                label="사용자 필명"
-                placeholder="사용자 필명"
+                label={t({
+                    id: 'settings.account.username.label',
+                    message: 'Username'
+                })}
+                placeholder={t({
+                    id: 'settings.account.username.placeholder',
+                    message: 'Username'
+                })}
                 maxLength={30}
-                helperText="로그인과 주소(URL)에 사용됩니다. 포스트가 있으면 6개월에 한 번만 변경할 수 있습니다."
+                helperText={t({
+                    id: 'settings.account.username.helper',
+                    message: 'Used for sign-in and your URL. If you have published posts, you can change it only once every six months.'
+                })}
                 error={errors.username?.message}
                 {...register('username')}
             />
@@ -71,7 +96,15 @@ const UsernameSection = ({ initialUsername, isLoading, onSubmit }: UsernameSecti
                     disabled={!isDirty || !isValid}
                     isLoading={isLoading}
                     leftIcon={!isLoading ? <Save className="h-4 w-4" /> : undefined}>
-                    {isLoading ? '업데이트 중...' : '필명 업데이트'}
+                    {isLoading
+                        ? t({
+                            id: 'settings.account.username.updating',
+                            message: 'Updating...'
+                        })
+                        : t({
+                            id: 'settings.account.username.update',
+                            message: 'Update username'
+                        })}
                 </Button>
             </div>
         </form>

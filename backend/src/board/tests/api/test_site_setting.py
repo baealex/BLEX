@@ -276,6 +276,25 @@ class SiteSettingAPITestCase(TestCase):
         self.assertEqual(setting.robots_txt_extra_rules, 'User-agent: ExampleBot')
         self.assertTrue(setting.aeo_enabled)
 
+    def test_site_name_validation_uses_request_locale(self):
+        for language, expected_message in (
+            ('en', 'Site name must be 80 characters or fewer.'),
+            ('ko', '사이트 이름은 80자 이하여야 합니다.'),
+        ):
+            with self.subTest(language=language):
+                response = self.client.put(
+                    '/v1/site-settings',
+                    json.dumps({'site_name': 'x' * 81}),
+                    content_type='application/json',
+                    HTTP_ACCEPT_LANGUAGE=language,
+                )
+
+                self.assertEqual(response.status_code, 200)
+                content = json.loads(response.content)
+                self.assertEqual(content['status'], 'ERROR')
+                self.assertEqual(content['errorCode'], 'error:VA')
+                self.assertEqual(content['errorMessage'], expected_message)
+
     def test_delegated_site_update_preserves_newer_global_code(self):
         """안전 필드 저장은 오래된 전역 코드 값을 다시 쓰지 않는다."""
         setting = SiteSetting.get_instance()
@@ -462,18 +481,26 @@ class SiteSettingAPITestCase(TestCase):
         ):
             with self.subTest(method=method):
                 if method == 'get':
-                    response = client.get('/v1/site-settings')
+                    response = client.get(
+                        '/v1/site-settings',
+                        HTTP_ACCEPT_LANGUAGE='en',
+                    )
                 else:
                     response = client.put(
                         '/v1/site-settings',
                         payload,
                         content_type='application/json',
+                        HTTP_ACCEPT_LANGUAGE='en',
                     )
 
                 self.assertEqual(response.status_code, 200)
                 content = json.loads(response.content)
                 self.assertEqual(content['status'], 'ERROR')
                 self.assertEqual(content['errorCode'], 'error:RJ')
+                self.assertEqual(
+                    content['errorMessage'],
+                    'Permission to change site settings is required.',
+                )
 
     def test_staff_can_upload_logo_svg(self):
         response = self.client.post('/v1/site-settings/brand-assets', {
@@ -496,6 +523,27 @@ class SiteSettingAPITestCase(TestCase):
 
         setting = SiteSetting.get_instance()
         self.assertTrue(setting.logo_svg.name.startswith('brand/logo/default/'))
+
+    def test_brand_asset_validation_uses_request_locale(self):
+        for language, expected_message in (
+            ('en', 'SVG file is required.'),
+            ('ko', 'SVG 파일이 필요합니다.'),
+        ):
+            with self.subTest(language=language):
+                response = self.client.post(
+                    '/v1/site-settings/brand-assets',
+                    {
+                        'asset_type': 'logo',
+                        'theme': 'default',
+                    },
+                    HTTP_ACCEPT_LANGUAGE=language,
+                )
+
+                self.assertEqual(response.status_code, 200)
+                content = json.loads(response.content)
+                self.assertEqual(content['status'], 'ERROR')
+                self.assertEqual(content['errorCode'], 'error:VA')
+                self.assertEqual(content['errorMessage'], expected_message)
 
     def test_brand_asset_upload_preserves_global_code_from_stale_instance(self):
         """브랜드 자산 저장은 오래된 인스턴스의 전역 코드를 저장하지 않는다."""

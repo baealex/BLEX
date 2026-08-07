@@ -153,6 +153,15 @@ class ImageUploadTestCase(TestCase):
         self.assertNotEqual(content['status'], 'DONE')
         self.assertIn('이미지가 없습니다', content['errorMessage'])
 
+        english_response = self.client.post(
+            '/v1/image',
+            {},
+            HTTP_ACCEPT_LANGUAGE='en',
+        )
+        english_content = json.loads(english_response.content)
+        self.assertEqual(english_content['errorCode'], 'error:VA')
+        self.assertEqual(english_content['errorMessage'], 'No image was provided.')
+
     def test_upload_invalid_extension(self):
         """허용되지 않은 확장자 업로드 차단"""
         self.client.login(username='testuser', password='testpass')

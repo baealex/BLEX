@@ -5,6 +5,7 @@ from django.http import HttpRequest
 from django.urls import reverse
 from django.utils.html import strip_tags
 from django.utils.text import Truncator
+from django.utils.translation import gettext
 
 from board.models import Post, Series, SiteSetting, StaticPage
 from board.services.brand_asset_service import BrandAssetService
@@ -31,7 +32,13 @@ class DiscoveryMetadataService:
         )
         meta_description = DiscoveryMetadataService.build_meta_description(
             raw_text=series.text_html or series.text_md,
-            fallback=f'{author.username}의 {BrandAssetService.site_name()} 시리즈 {series.name}',
+            fallback=gettext(
+                "%(username)s's %(site_name)s series: %(series_name)s"
+            ) % {
+                'username': author.username,
+                'site_name': BrandAssetService.site_name(),
+                'series_name': series.name,
+            },
         )
 
         return {

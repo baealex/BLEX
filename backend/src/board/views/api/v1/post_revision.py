@@ -3,6 +3,7 @@ from math import ceil
 from django.db.models import Count, Window
 from django.http import Http404, HttpRequest, HttpResponse
 from django.shortcuts import get_object_or_404
+from django.utils.translation import gettext
 
 from board.decorators import api_editor_required_methods
 from board.models import EditHistory, Post
@@ -123,7 +124,7 @@ def post_revisions(
     if page is None or limit is None or limit > PostRevisionService.MAX_PAGE_SIZE:
         return StatusError(
             ErrorCode.VALIDATE,
-            '수정 이력 페이지 정보를 확인해주세요.',
+            gettext('Check the revision history pagination values.'),
         )
 
     start = (page - 1) * limit
@@ -140,7 +141,7 @@ def post_revisions(
     if page > last_page:
         return StatusError(
             ErrorCode.VALIDATE,
-            '수정 이력 페이지 정보를 확인해주세요.',
+            gettext('Check the revision history pagination values.'),
         )
     return StatusDone({
         'revisions': [
@@ -190,7 +191,7 @@ def restore_post_revision(
     if not isinstance(expected_updated_date, str) or not expected_updated_date:
         return StatusError(
             ErrorCode.VALIDATE,
-            '현재 포스트 버전을 확인해주세요.',
+            gettext('Check the current post version.'),
         )
 
     try:

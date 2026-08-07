@@ -7,6 +7,8 @@ from django.db import transaction
 from django.db.models import QuerySet
 from django.http import HttpRequest
 from django.utils.html import format_html
+from django.utils.translation import gettext_lazy as _
+from django.utils.translation import ngettext
 
 from board.models import EditHistory
 from board.services.post_revision_service import PostRevisionService
@@ -20,13 +22,13 @@ from .service import AdminDisplayService, AdminLinkService
 class RevisionPostStatusFilter(admin.SimpleListFilter):
     """Filter revision snapshots by the current lifecycle of their post."""
 
-    title = '포스트 상태'
+    title = _('Post status')
     parameter_name = 'post_status'
 
     def lookups(self, request, model_admin):
         return [
-            ('active', '활성'),
-            ('trashed', '휴지통'),
+            ('active', _('Active')),
+            ('trashed', _('Trash')),
         ]
 
     def queryset(self, request, queryset):
@@ -80,7 +82,7 @@ class EditHistoryAdmin(admin.ModelAdmin):
         'created_date',
     ]
     fieldsets = (
-        ('이력 정보', {
+        (_('Revision information'), {
             'fields': (
                 'post',
                 'actor',
@@ -88,7 +90,7 @@ class EditHistoryAdmin(admin.ModelAdmin):
                 'restored_from',
             ),
         }),
-        ('이전 스냅샷', {
+        (_('Previous snapshot'), {
             'fields': (
                 'title',
                 'subtitle',
@@ -97,7 +99,7 @@ class EditHistoryAdmin(admin.ModelAdmin):
                 'tags',
             ),
         }),
-        ('기록 시점', {
+        (_('Record timestamps'), {
             'fields': (
                 'content_excerpt',
                 'source_updated_date',
@@ -151,39 +153,39 @@ class EditHistoryAdmin(admin.ModelAdmin):
 
     def post_link(self, obj: EditHistory):
         return AdminLinkService.create_post_link(obj.post)
-    post_link.short_description = '포스트'
+    post_link.short_description = _('Post')
     post_link.admin_order_field = 'post__title'
 
     def post_status(self, obj: EditHistory):
         return AdminDisplayService.publish_status_badge(obj.post)
-    post_status.short_description = '현재 상태'
+    post_status.short_description = _('Current status')
     post_status.admin_order_field = 'post__deleted_date'
 
     def change_type_label(self, obj: EditHistory) -> str:
         return obj.get_change_type_display()
-    change_type_label.short_description = '변경 유형'
+    change_type_label.short_description = _('Change type')
     change_type_label.admin_order_field = 'change_type'
 
     def actor_link(self, obj: EditHistory):
         return AdminLinkService.create_user_link(obj.actor)
-    actor_link.short_description = '작업자'
+    actor_link.short_description = _('Actor')
     actor_link.admin_order_field = 'actor__username'
 
     def snapshot_summary(self, obj: EditHistory):
-        excerpt = obj.content_excerpt or '본문 요약 없음'
+        excerpt = obj.content_excerpt or _('No content excerpt')
         return format_html(
             '<strong>{}</strong><br><span>{}</span>',
             obj.title,
             excerpt,
         )
-    snapshot_summary.short_description = '이전 내용'
+    snapshot_summary.short_description = _('Previous content')
     snapshot_summary.admin_order_field = 'title'
 
     def delete_model(self, request, obj: EditHistory) -> None:
         PostRevisionService.delete_revision(obj.post, obj)
 
     @admin.action(
-        description='선택한 수정 이력 삭제',
+        description=_('Delete selected revisions'),
         permissions=['delete'],
     )
     def delete_revisions(
@@ -195,7 +197,7 @@ class EditHistoryAdmin(admin.ModelAdmin):
             if not queryset.exists():
                 self.message_user(
                     request,
-                    '삭제할 수정 이력이 없습니다.',
+                    _('There are no revisions to delete.'),
                     level=messages.WARNING,
                 )
                 return None
@@ -204,19 +206,20 @@ class EditHistoryAdmin(admin.ModelAdmin):
                 self,
                 queryset,
                 action_name='delete_revisions',
-                title='수정 이력 삭제 확인',
-                warning=(
-                    '선택한 이전 스냅샷만 삭제됩니다. 현재 포스트 내용은 '
-                    '바뀌지 않지만 삭제한 이력은 복구할 수 없습니다.'
+                title=_('Confirm revision deletion'),
+                warning=_(
+                    'Only the selected previous snapshots will be deleted. '
+                    'The current post content will not change, but deleted '
+                    'revisions cannot be recovered.'
                 ),
-                confirm_label='수정 이력 삭제',
+                confirm_label=_('Delete revisions'),
             )
 
         revisions = list(queryset.select_related('post'))
         if not revisions:
             self.message_user(
                 request,
-                '삭제할 수정 이력이 없습니다.',
+                _('There are no revisions to delete.'),
                 level=messages.WARNING,
             )
             return None
@@ -233,9 +236,14 @@ class EditHistoryAdmin(admin.ModelAdmin):
                     revision,
                 )
 
+        count = len(revisions)
         self.message_user(
             request,
-            f'{len(revisions)}개의 수정 이력을 삭제했습니다.',
+            ngettext(
+                '%(count)d revision was deleted.',
+                '%(count)d revisions were deleted.',
+                count,
+            ) % {'count': count},
             level=messages.SUCCESS,
         )
         return None

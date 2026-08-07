@@ -17,6 +17,7 @@ export default defineConfig({
     },
     use: {
         baseURL,
+        locale: 'ko-KR',
         trace: 'retain-on-failure',
         screenshot: 'only-on-failure',
         video: 'retain-on-failure'

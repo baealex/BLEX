@@ -1,5 +1,6 @@
 from django.http import Http404
 from django.shortcuts import get_object_or_404
+from django.utils.translation import gettext
 
 from board.models import SiteContentScope
 from board.modules.response import StatusDone, StatusError
@@ -56,6 +57,6 @@ def global_notices(request, notice_id=None):
     if request.method == 'DELETE' and notice_id:
         notice = get_object_or_404(queryset, id=notice_id)
         notice.delete()
-        return StatusDone({'message': '공지가 삭제되었습니다.'})
+        return StatusDone({'message': gettext('Notice deleted.')})
 
     raise Http404

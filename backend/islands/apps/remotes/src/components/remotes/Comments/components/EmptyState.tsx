@@ -1,3 +1,5 @@
+import { Trans } from '@lingui/react/macro';
+
 export const EmptyState = () => {
     return (
         <div className="py-8 text-center">
@@ -15,7 +17,7 @@ export const EmptyState = () => {
                 />
             </svg>
             <p className="text-content-secondary text-sm">
-                아직 댓글이 없습니다
+                <Trans id="comments.empty">No comments yet</Trans>
             </p>
         </div>
     );

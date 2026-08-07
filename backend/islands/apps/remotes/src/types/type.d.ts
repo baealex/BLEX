@@ -1,5 +1,6 @@
 import type Alpine from 'alpinejs';
 import 'react';
+import type { AppLocale } from '../i18n/locale';
 
 type ToastCall = (message: unknown, options?: Record<string, unknown>) => unknown;
 
@@ -32,6 +33,7 @@ declare global {
         configuration: {
             media: string;
             static: string;
+            locale: AppLocale;
             user?: {
                 isAuthenticated: boolean;
                 username: string;

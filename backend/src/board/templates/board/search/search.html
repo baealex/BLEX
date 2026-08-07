@@ -1,10 +1,15 @@
 {% extends 'board/base.html' %}
+{% load i18n %}
 
 {% block title %}
 {% if request.GET.q %}
-검색: {{ request.GET.q }} - {{ site_brand.site_name }}
+{% blocktranslate trimmed with query=request.GET.q site_name=site_brand.site_name %}
+Search: {{ query }} - {{ site_name }}
+{% endblocktranslate %}
 {% else %}
-검색 - {{ site_brand.site_name }}
+{% blocktranslate trimmed with site_name=site_brand.site_name %}
+Search - {{ site_name }}
+{% endblocktranslate %}
 {% endif %}
 {% endblock %}
 

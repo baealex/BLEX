@@ -5,6 +5,7 @@ interface LikeButtonOptions {
     count?: number;
     liked?: boolean;
     postUrl?: string;
+    errorMessage?: string;
 }
 
 interface State {
@@ -12,6 +13,7 @@ interface State {
     liked: boolean;
     loading: boolean;
     postUrl: string;
+    errorMessage: string;
 }
 
 interface Actions {
@@ -35,10 +37,11 @@ const likeButton = (options: LikeButtonOptions = {}): Alpine.AlpineComponent<Sta
     liked: options.liked ?? false,
     loading: false,
     postUrl: options.postUrl ?? '',
+    errorMessage: options.errorMessage ?? 'Could not update like. Please try again.',
 
     async handleLike() {
         if (!isLoggedIn()) {
-            showLoginPrompt('좋아요');
+            showLoginPrompt('like');
             return;
         }
 
@@ -61,7 +64,7 @@ const likeButton = (options: LikeButtonOptions = {}): Alpine.AlpineComponent<Sta
             }
         } catch (error) {
             console.error('Like failed:', error);
-            window.toast.error('좋아요 처리에 실패했습니다');
+            window.toast.error(this.errorMessage);
         } finally {
             this.loading = false;
         }

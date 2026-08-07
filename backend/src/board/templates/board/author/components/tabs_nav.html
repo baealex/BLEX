@@ -1,16 +1,17 @@
+{% load i18n %}
 {% if author.profile.is_editor %}
 <div class="relative mb-10">
     <div class="flex justify-center overflow-x-auto pb-2 sm:pb-0 hide-scrollbar">
         <div class="inline-flex bg-surface-subtle/80 backdrop-blur-sm rounded-xl p-1.5 min-w-fit">
             <a href="/@{{ author.username }}" class="relative px-6 py-2 text-sm font-bold rounded-lg transition-all duration-200 whitespace-nowrap {% if active_tab == 'overview' %}bg-surface-elevated text-content shadow-sm{% else %}text-content-secondary hover:text-content{% endif %}">
                 <span class="relative z-10 flex items-center gap-2">
-                    개요
+                    {% translate "Overview" %}
                 </span>
             </a>
             <a href="/@{{ author.username }}/posts" class="relative px-6 py-2 text-sm font-bold rounded-lg transition-all duration-200 whitespace-nowrap {% if active_tab == 'posts' %}bg-surface-elevated text-content shadow-sm{% else %}text-content-secondary hover:text-content{% endif %}">
                 <span class="relative z-10 flex items-center gap-2">
                     <span class="flex items-center gap-1.5">
-                        포스트
+                        {% translate "Posts" %}
                         <span class="text-[10px] px-1.5 py-0.5 rounded-md {% if active_tab == 'posts' %}bg-action text-content-inverted{% else %}bg-surface-elevated text-content-secondary ring-1 ring-line/80{% endif %}">{{ post_count }}</span>
                     </span>
                 </span>
@@ -18,7 +19,7 @@
             <a href="/@{{ author.username }}/series" class="relative px-6 py-2 text-sm font-bold rounded-lg transition-all duration-200 whitespace-nowrap {% if active_tab == 'series' %}bg-surface-elevated text-content shadow-sm{% else %}text-content-secondary hover:text-content{% endif %}">
                 <span class="relative z-10 flex items-center gap-2">
                     <span class="flex items-center gap-1.5">
-                        시리즈
+                        {% translate "Series" %}
                         <span class="text-[10px] px-1.5 py-0.5 rounded-md {% if active_tab == 'series' %}bg-action text-content-inverted{% else %}bg-surface-elevated text-content-secondary ring-1 ring-line/80{% endif %}">{{ series_count }}</span>
                     </span>
                 </span>

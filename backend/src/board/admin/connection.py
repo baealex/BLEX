@@ -1,5 +1,6 @@
 from django.contrib import admin
 from django.db.models import BooleanField, Case, Value, When
+from django.utils.translation import gettext_lazy as _
 
 from board.models import TelegramSync
 
@@ -48,22 +49,22 @@ class TelegramSyncAdmin(ServiceOwnedRecordAdminMixin, admin.ModelAdmin):
 
     def user_link(self, obj):
         return AdminLinkService.create_user_link(obj.user)
-    user_link.short_description = '사용자'
+    user_link.short_description = _('User')
 
     def synced(self, obj: TelegramSync):
         return AdminDisplayService.boolean_badge(
             obj.telegram_linked,
-            true_text='연동됨',
-            false_text='연동 대기',
+            true_text=_('Connected'),
+            false_text=_('Pending connection'),
         )
-    synced.short_description = '연동 상태'
+    synced.short_description = _('Connection status')
     synced.admin_order_field = 'tid'
 
     def token_status(self, obj: TelegramSync):
         return AdminDisplayService.boolean_badge(
             obj.pending_auth_token,
-            true_text='발급됨',
-            false_text='없음',
+            true_text=_('Issued'),
+            false_text=_('None'),
         )
-    token_status.short_description = '인증 토큰'
+    token_status.short_description = _('Authentication token')
     token_status.admin_order_field = 'auth_token'

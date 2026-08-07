@@ -1,10 +1,14 @@
 {% extends 'board/base.html' %}
-{% load static %}
-{% load island %}
+{% load i18n static island %}
 
-{% block title %}{{ author.username }}'s Series - {{ site_brand.site_name }}{% endblock %}
+{% block title %}{% blocktranslate with username=author.username %}{{ username }}'s series{% endblocktranslate %} - {{ site_brand.site_name }}{% endblock %}
 
 {% block content %}
+{% translate "Search series" as search_series_placeholder %}
+{% translate "No series match this search" as filtered_empty_title %}
+{% translate "Try a different search term." as filtered_empty_message %}
+{% translate "No public series yet" as public_empty_title %}
+{% translate "Public series will appear here." as public_empty_message %}
 {% include 'board/author/components/author_header.html' %}
 
 <div class="max-w-6xl w-full mx-auto px-4 sm:px-6">
@@ -13,19 +17,19 @@
     {% endwith %}
 
     <div class="mb-8">
-        <p class="text-xs font-bold uppercase tracking-[0.18em] text-content-hint">Series</p>
-        <h1 class="mt-2 text-3xl font-bold tracking-tight text-content">시리즈</h1>
+        <p class="text-xs font-bold uppercase tracking-[0.18em] text-content-hint">{% translate "Series" %}</p>
+        <h1 class="mt-2 text-3xl font-bold tracking-tight text-content">{% translate "Series" %}</h1>
     </div>
 
     <div class="mb-12 rounded-2xl bg-surface p-4 ring-1 ring-line/60">
         <div class="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
             <div class="w-full lg:max-w-md">
-                <label class="mb-2 ml-1 block text-xs font-semibold text-content-secondary">검색</label>
-                {% include 'components/search_query_filter.html' with placeholder='시리즈 검색' %}
+                <label class="mb-2 ml-1 block text-xs font-semibold text-content-secondary">{% translate "Search" %}</label>
+                {% include 'components/search_query_filter.html' with placeholder=search_series_placeholder %}
             </div>
 
             <div class="w-full lg:w-44">
-                <label class="mb-2 ml-1 block text-xs font-semibold text-content-secondary">정렬</label>
+                <label class="mb-2 ml-1 block text-xs font-semibold text-content-secondary">{% translate "Sort" %}</label>
                 {% include 'components/dropdown_filter.html' with options=series_sort_options param_name='sort' current_value=request.GET.sort|default:'custom' %}
             </div>
         </div>
@@ -35,11 +39,11 @@
         <div class="md:col-span-3">        
             {% if not series_list %}
                 {% if request.GET.q %}
-                    {% with empty_icon_class='fas fa-layer-group' empty_title='조건에 맞는 시리즈가 없습니다' empty_message='검색어를 다시 확인해주세요.' %}
+                    {% with empty_icon_class='fas fa-layer-group' empty_title=filtered_empty_title empty_message=filtered_empty_message %}
                         {% include 'board/author/components/empty_state.html' %}
                     {% endwith %}
                 {% else %}
-                    {% with empty_icon_class='fas fa-layer-group' empty_title='아직 공개된 시리즈가 없습니다' empty_message='시리즈가 공개되면 이곳에 표시됩니다.' %}
+                    {% with empty_icon_class='fas fa-layer-group' empty_title=public_empty_title empty_message=public_empty_message %}
                         {% include 'board/author/components/empty_state.html' %}
                     {% endwith %}
                 {% endif %}
@@ -53,11 +57,11 @@
                             <div class="flex justify-between items-center mt-auto pt-4 border-t border-line-light text-xs font-medium text-content-secondary">
                                 <div class="flex items-center gap-1.5">
                                     <i class="far fa-file-alt text-content-hint"></i>
-                                    <span>{{ series.post_count }} 포스트</span>
+                                    <span>{% blocktranslate count count=series.post_count %}{{ count }} post{% plural %}{{ count }} posts{% endblocktranslate %}</span>
                                 </div>
                                 <div class="flex items-center gap-1.5">
                                     <i class="far fa-clock text-content-hint"></i>
-                                    <span>{{ series.updated_date }}</span>
+                                    <time datetime="{{ series.updated_date|date:'c' }}">{{ series.updated_date|date:"DATE_FORMAT" }}</time>
                                 </div>
                             </div>
                         </div>

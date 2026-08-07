@@ -5,6 +5,7 @@ import traceback
 
 import imageio_ffmpeg
 from django.conf import settings
+from django.utils.translation import gettext
 from PIL import Image, ImageFilter
 
 from board.models import ImageCache
@@ -26,7 +27,7 @@ class ImageUploadService:
     @staticmethod
     def upload_content_image(image, user=None):
         if image is None:
-            raise ImageUploadError('image.missing', '이미지가 없습니다.')
+            raise ImageUploadError('image.missing', gettext('No image was provided.'))
 
         image_key = get_sha256(image.read())
         image.seek(0)
@@ -37,7 +38,10 @@ class ImageUploadService:
 
         ext = str(image).split('.')[-1].lower()
         if ext not in ImageUploadService.ALLOWED_EXTENSIONS:
-            raise ImageUploadError('image.invalid_extension', '허용된 확장자가 아닙니다.')
+            raise ImageUploadError(
+                'image.invalid_extension',
+                gettext('This file extension is not allowed.'),
+            )
 
         image_cache = ImageCache(
             user=user,
@@ -108,7 +112,10 @@ class ImageUploadService:
             os.remove(f'{upload_path}/{file_name}.gif')
             return 'mp4'
         except Exception:
-            raise ImageUploadError('image.upload_failed', '이미지 업로드를 실패했습니다.')
+            raise ImageUploadError(
+                'image.upload_failed',
+                gettext('Image upload failed.'),
+            )
 
     @staticmethod
     def process_video(upload_path, file_name, ext):
@@ -133,7 +140,10 @@ class ImageUploadService:
                 preview_image.save(preview_path, quality=50)
         except Exception:
             traceback.print_exc()
-            raise ImageUploadError('image.upload_failed', '비디오 업로드를 실패했습니다.')
+            raise ImageUploadError(
+                'image.upload_failed',
+                gettext('Video upload failed.'),
+            )
 
     @staticmethod
     def process_png(upload_path, file_name, ext):
@@ -165,7 +175,10 @@ class ImageUploadService:
             return ext
         except Exception:
             traceback.print_exc()
-            raise ImageUploadError('image.upload_failed', '이미지 업로드를 실패했습니다.')
+            raise ImageUploadError(
+                'image.upload_failed',
+                gettext('Image upload failed.'),
+            )
 
     @staticmethod
     def process_raster_image(upload_path, file_name, ext):
@@ -184,4 +197,7 @@ class ImageUploadService:
                 image_path + '.preview.jpg', quality=50
             )
         except Exception:
-            raise ImageUploadError('image.upload_failed', '이미지 업로드를 실패했습니다.')
+            raise ImageUploadError(
+                'image.upload_failed',
+                gettext('Image upload failed.'),
+            )

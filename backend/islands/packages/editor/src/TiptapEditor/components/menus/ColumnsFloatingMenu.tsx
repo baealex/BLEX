@@ -3,6 +3,7 @@ import type { Editor } from '@tiptap/react';
 import { Fragment } from '@tiptap/pm/model';
 import * as Popover from '@radix-ui/react-popover';
 import type { ColumnLayout } from '../../extensions/ColumnsNode';
+import { useEditorI18n } from '../../i18n';
 
 interface ColumnsFloatingMenuProps {
     editor: Editor | null;
@@ -43,6 +44,7 @@ const threeColumnLayouts: { value: ColumnLayout; label: string }[] = [
 ];
 
 const ColumnsFloatingMenu = ({ editor }: ColumnsFloatingMenuProps) => {
+    const { t } = useEditorI18n();
     const [selectedNode, setSelectedNode] = useState<{
         attrs: Record<string, unknown>;
         pos: number;
@@ -272,7 +274,7 @@ const ColumnsFloatingMenu = ({ editor }: ColumnsFloatingMenuProps) => {
                                     ? 'text-gray-300 cursor-not-allowed'
                                     : 'text-gray-600 hover:bg-gray-100 active:scale-95'}
                             `}
-                            title="위로 이동">
+                            title={t('columns.move_up')}>
                             <i className="fas fa-arrow-up text-xs" />
                         </button>
                         <button
@@ -285,14 +287,14 @@ const ColumnsFloatingMenu = ({ editor }: ColumnsFloatingMenuProps) => {
                                     ? 'text-gray-300 cursor-not-allowed'
                                     : 'text-gray-600 hover:bg-gray-100 active:scale-95'}
                             `}
-                            title="아래로 이동">
+                            title={t('columns.move_down')}>
                             <i className="fas fa-arrow-down text-xs" />
                         </button>
                         <button
                             type="button"
                             onClick={handleDeleteColumns}
                             className="w-7 h-7 rounded-md flex items-center justify-center text-gray-400 hover:text-red-500 hover:bg-red-50 transition-colors"
-                            title="레이아웃 삭제">
+                            title={t('columns.delete')}>
                             <i className="fas fa-trash-alt text-xs" />
                         </button>
                     </div>

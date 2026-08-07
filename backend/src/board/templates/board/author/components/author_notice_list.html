@@ -1,13 +1,13 @@
-{% load security_tags %}
+{% load i18n security_tags %}
 
 <section>
     <div class="mb-4 flex items-end justify-between gap-4">
         <div>
-            <p class="mb-2 text-xs font-bold uppercase tracking-[0.18em] text-content-hint">Notice</p>
-            <h2 class="text-2xl font-bold tracking-tight text-content">공지</h2>
+            <p class="mb-2 text-xs font-bold uppercase tracking-[0.18em] text-content-hint">{% translate "Notices" %}</p>
+            <h2 class="text-2xl font-bold tracking-tight text-content">{% translate "Notices" %}</h2>
         </div>
         {% if notices|length > 1 %}
-        <span class="pb-1 text-xs font-medium tabular-nums text-content-hint">{{ notices|length }}개</span>
+        <span class="pb-1 text-xs font-medium tabular-nums text-content-hint">{% blocktranslate count count=notices|length %}{{ count }} notice{% plural %}{{ count }} notices{% endblocktranslate %}</span>
         {% endif %}
     </div>
 

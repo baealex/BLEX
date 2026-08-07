@@ -19,8 +19,6 @@ from board.services.public_post_service import PublicPostService
 class TagService:
     """Service class for handling tag-related business logic"""
 
-    DEFAULT_TAG = '미분류'
-
     @staticmethod
     def parse_tags(tags: str) -> Set[str]:
         """
@@ -34,9 +32,11 @@ class TagService:
         """
         tags = tags.replace(',', '-').replace('_', '-')
         parsed = slugify(tags, allow_unicode=True).split('-')
-        if len(parsed) == 1 and parsed[0] == '':
-            return {TagService.DEFAULT_TAG}
-        return set(parsed)
+        return {
+            tag
+            for tag in parsed
+            if tag
+        }
 
     @staticmethod
     def get_or_create_tags(tag_values: Set[str]) -> Dict[str, Tag]:

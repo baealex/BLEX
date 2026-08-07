@@ -271,19 +271,26 @@ class LoginSettingAPITestCase(TestCase):
         self.assertEqual(setting.hcaptcha_secret_key, '')
 
     def test_enable_hcaptcha_requires_site_key_and_secret(self):
-        response = self.client.put(
-            '/v1/login-settings',
-            json.dumps({
-                'hcaptcha_enabled': True,
-                'hcaptcha_site_key': '',
-            }),
-            content_type='application/json'
-        )
+        for language, expected_message in (
+            ('en', 'Enter an hCaptcha Site Key.'),
+            ('ko', 'hCaptcha Site Key를 입력해주세요.'),
+        ):
+            with self.subTest(language=language):
+                response = self.client.put(
+                    '/v1/login-settings',
+                    json.dumps({
+                        'hcaptcha_enabled': True,
+                        'hcaptcha_site_key': '',
+                    }),
+                    content_type='application/json',
+                    HTTP_ACCEPT_LANGUAGE=language,
+                )
 
-        self.assertEqual(response.status_code, 200)
-        content = json.loads(response.content)
-        self.assertEqual(content['status'], 'ERROR')
-        self.assertEqual(content['errorCode'], 'error:VA')
+                self.assertEqual(response.status_code, 200)
+                content = json.loads(response.content)
+                self.assertEqual(content['status'], 'ERROR')
+                self.assertEqual(content['errorCode'], 'error:VA')
+                self.assertEqual(content['errorMessage'], expected_message)
 
     def test_invalid_login_setting_update_rolls_back_all_changes(self):
         """유효하지 않은 인증 설정은 같은 요청의 다른 변경도 저장하지 않는다."""

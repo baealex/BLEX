@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { Trans, useLingui } from '@lingui/react/macro';
 import {
     Calendar,
     Check,
@@ -10,6 +11,8 @@ import { Input, Modal } from '~/components/shared';
 import { getMediaPath } from '~/modules/static.module';
 import type { PinnablePostData, PinnablePostsPaginationData } from '~/lib/api/settings';
 import { PinnablePostsPager } from './PinnablePostsPager';
+import { formatPublishedDate } from '~/i18n/formatters';
+import { normalizeLocale } from '~/i18n/locale';
 
 interface AddPinnedPostModalProps {
     open: boolean;
@@ -38,6 +41,8 @@ export const AddPinnedPostModal = ({
     isFetchingPosts = false,
     presentation = 'modal'
 }: AddPinnedPostModalProps) => {
+    const { i18n, t } = useLingui();
+    const locale = normalizeLocale(i18n.locale);
     const [selectedPost, setSelectedPost] = useState<string | null>(null);
 
     useEffect(() => {
@@ -69,10 +74,10 @@ export const AddPinnedPostModal = ({
                 <div className="flex items-start justify-between gap-3 border-b border-line px-5 py-4">
                     <div className="space-y-1">
                         <h3 className="text-base font-semibold text-content">
-                            고정할 포스트 선택
+                            <Trans id="settings.pinned_posts.select.title">Select a post to pin</Trans>
                         </h3>
                         <p className="text-sm text-content-secondary">
-                            프로필에 보여줄 포스트를 하나 선택하세요.
+                            <Trans id="settings.pinned_posts.select.description">Choose a post to feature on your profile.</Trans>
                         </p>
                     </div>
                     <div>
@@ -80,7 +85,7 @@ export const AddPinnedPostModal = ({
                             type="button"
                             onClick={handleClose}
                             className="inline-flex min-h-11 items-center justify-center rounded-lg px-3 text-sm font-semibold text-content-secondary transition-colors duration-150 hover:bg-surface-subtle hover:text-content active:scale-95 [@media(pointer:fine)]:min-h-9">
-                            선택 취소
+                            <Trans id="settings.pinned_posts.select.cancel_selection">Cancel selection</Trans>
                         </button>
                     </div>
                 </div>
@@ -89,14 +94,20 @@ export const AddPinnedPostModal = ({
             <div className={`space-y-3 border-b border-line ${presentation === 'inline' ? 'px-5 py-4' : 'px-6 py-4'}`}>
                 {presentation === 'modal' && (
                     <p className="text-sm text-content-secondary">
-                        프로필에 표시할 포스트를 선택하세요.
+                        <Trans id="settings.pinned_posts.select.modal_description">Choose a post to display on your profile.</Trans>
                     </p>
                 )}
                 <Input
                     type="search"
                     density="compact"
-                    aria-label="고정할 포스트 검색"
-                    placeholder="포스트 제목 검색..."
+                    aria-label={t({
+                        id: 'settings.pinned_posts.select.search_label',
+                        message: 'Search posts to pin'
+                    })}
+                    placeholder={t({
+                        id: 'settings.pinned_posts.select.search_placeholder',
+                        message: 'Search by post title...'
+                    })}
                     value={searchQuery}
                     onChange={(e) => onSearchQueryChange?.(e.target.value)}
                     leftIcon={<Search aria-hidden className="h-4 w-4" />}
@@ -125,14 +136,21 @@ export const AddPinnedPostModal = ({
                         <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-surface-subtle">
                             <Search aria-hidden className="h-5 w-5 text-content-hint" />
                         </div>
-                        <p className="mb-1 text-base font-medium text-content">검색 결과가 없습니다</p>
-                        <p className="text-sm text-content-secondary">다른 검색어로 다시 시도해보세요.</p>
+                        <p className="mb-1 text-base font-medium text-content">
+                            <Trans id="settings.pinned_posts.select.empty_title">No search results</Trans>
+                        </p>
+                        <p className="text-sm text-content-secondary">
+                            <Trans id="settings.pinned_posts.select.empty_description">Try another search term.</Trans>
+                        </p>
                     </div>
                 ) : (
                     <div
                         className="grid grid-cols-1 gap-2"
                         role="radiogroup"
-                        aria-label="고정할 포스트 선택">
+                        aria-label={t({
+                            id: 'settings.pinned_posts.select.group_label',
+                            message: 'Select a post to pin'
+                        })}>
                         {pinnablePosts.map((post) => {
                             const isSelected = selectedPost === post.url;
                             return (
@@ -141,7 +159,11 @@ export const AddPinnedPostModal = ({
                                     type="button"
                                     role="radio"
                                     aria-checked={isSelected}
-                                    aria-label={`고정할 포스트 선택: ${post.title}`}
+                                    aria-label={i18n._({
+                                        id: 'settings.pinned_posts.select.post_label',
+                                        message: 'Select post to pin: {title}',
+                                        values: { title: post.title }
+                                    })}
                                     onClick={() => setSelectedPost(post.url)}
                                     className={`group relative flex w-full items-center gap-4 rounded-xl border p-4 text-left transition-all duration-150 active:scale-[0.99] ${
                                         isSelected
@@ -169,7 +191,7 @@ export const AddPinnedPostModal = ({
                                         </h4>
                                         <p className="flex items-center gap-2 text-sm text-content-secondary">
                                             <Calendar aria-hidden className="h-4 w-4" />
-                                            {new Date(post.createdDate).toLocaleDateString('ko-KR')}
+                                            {formatPublishedDate(post.createdDate, post.createdDate, locale)}
                                         </p>
                                     </div>
 
@@ -195,7 +217,7 @@ export const AddPinnedPostModal = ({
 
             <div className="flex items-center justify-end gap-3 border-t border-line bg-surface-subtle px-6 py-4">
                 <Modal.FooterAction variant="secondary" onClick={handleClose}>
-                    취소
+                    <Trans id="common.cancel">Cancel</Trans>
                 </Modal.FooterAction>
                 <Modal.FooterAction
                     variant="primary"
@@ -204,10 +226,10 @@ export const AddPinnedPostModal = ({
                     {isLoading ? (
                         <span className="flex items-center gap-2">
                             <Loader2 aria-hidden className="h-4 w-4 animate-spin" />
-                            추가 중...
+                            <Trans id="settings.pinned_posts.select.adding">Adding...</Trans>
                         </span>
                     ) : (
-                        '포스트 고정'
+                        <Trans id="settings.pinned_posts.select.pin">Pin post</Trans>
                     )}
                 </Modal.FooterAction>
             </div>
@@ -226,7 +248,10 @@ export const AddPinnedPostModal = ({
         <Modal
             isOpen={open}
             onClose={handleClose}
-            title="포스트 고정하기"
+            title={t({
+                id: 'settings.pinned_posts.select.modal_title',
+                message: 'Pin a post'
+            })}
             maxWidth="2xl">
             {content}
         </Modal>

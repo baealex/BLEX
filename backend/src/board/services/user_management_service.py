@@ -11,6 +11,7 @@ from django.contrib.auth.models import User
 from django.db import transaction
 from django.db.models import Count, IntegerField, OuterRef, Q, Subquery, Value
 from django.db.models.functions import Coalesce
+from django.utils.translation import gettext
 
 from board.models import Config, Post, Profile
 from board.services.user_role_service import UserRoleService
@@ -223,15 +224,17 @@ class UserManagementService:
     @transaction.atomic
     def update_role(actor: User, target_user_id: int, role: str) -> dict:
         if role not in UserManagementService.MUTABLE_ROLES:
-            raise UserManagementError('지원하지 않는 권한입니다.')
+            raise UserManagementError(gettext('This role is not supported.'))
 
         target = User.objects.select_for_update().select_related('profile').get(pk=target_user_id)
 
         if actor.pk == target.pk:
-            raise UserManagementError('자기 자신의 권한은 변경할 수 없습니다.')
+            raise UserManagementError(gettext('You cannot change your own role.'))
 
         if target.is_staff or target.is_superuser:
-            raise UserManagementError('관리자 계정의 권한은 이 화면에서 변경할 수 없습니다.')
+            raise UserManagementError(
+                gettext('Administrator roles cannot be changed from this page.')
+            )
 
         try:
             profile = target.profile

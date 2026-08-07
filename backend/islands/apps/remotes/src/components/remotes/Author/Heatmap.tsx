@@ -1,5 +1,6 @@
 import { useEffect, useRef } from 'react';
 import { useQuery } from '@tanstack/react-query';
+import { Plural, Trans, useLingui } from '@lingui/react/macro';
 import { Heatmap as UIHeatmap } from '@blex/ui/heatmap';
 import { getAuthorHeatmap } from '~/lib/api/author';
 import { useResolvedTheme } from '~/hooks/useResolvedTheme';
@@ -69,6 +70,7 @@ const styleHeatmapCells = (root: HTMLElement, colorScale: string[]) => {
 };
 
 const Heatmap = ({ username }: HeatmapProps) => {
+    const { t } = useLingui();
     const containerRef = useRef<HTMLDivElement>(null);
     const resolvedTheme = useResolvedTheme();
     const colorScale = resolvedTheme === 'dark' ? DARK_HEATMAP_SCALE : LIGHT_HEATMAP_SCALE;
@@ -212,13 +214,21 @@ const Heatmap = ({ username }: HeatmapProps) => {
             </style>
             <div className="mb-4 flex items-end justify-between gap-3">
                 <div>
-                    <p className="text-xs font-medium text-content-secondary">지난 1년 활동</p>
+                    <p className="text-xs font-medium text-content-secondary">
+                        <Trans id="author.heatmap.past_year">Activity in the past year</Trans>
+                    </p>
                     <p className="text-lg font-semibold text-content tabular-nums">
-                        {activityCount.toLocaleString()}
-                        <span className="ml-1 text-sm font-medium text-content-secondary">회</span>
+                        <Plural
+                            id="author.heatmap.activity_count"
+                            value={activityCount}
+                            one="# activity"
+                            other="# activities"
+                        />
                     </p>
                 </div>
-                <p className="text-xs text-content-hint">단위: 활동</p>
+                <p className="text-xs text-content-hint">
+                    <Trans id="author.heatmap.unit">Unit: activity</Trans>
+                </p>
             </div>
             <UIHeatmap
                 key={resolvedTheme}
@@ -226,7 +236,10 @@ const Heatmap = ({ username }: HeatmapProps) => {
                     dataPoints: heatmapData,
                     end: new Date()
                 }}
-                countLabel="활동"
+                countLabel={t({
+                    id: 'author.heatmap.count_label',
+                    message: 'activity'
+                })}
                 colors={colorScale}
                 className="author-heatmap-chart mx-auto w-fit"
             />

@@ -1,10 +1,11 @@
 {% extends "admin/change_list.html" %}
+{% load i18n %}
 
 {% block object-tools-items %}
     {% if can_bulk_send %}
     <li>
         <a href="bulk-send/" class="addlink">
-            전체 활성 사용자에게 알림 발송
+            {% translate 'Send a notification to all active users' %}
         </a>
     </li>
     {% endif %}

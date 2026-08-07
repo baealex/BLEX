@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import requests
 from cryptography.fernet import InvalidToken
+from django.utils.translation import gettext as _
 
 from board.models import LoginSetting
 from modules.cipher import decrypt_value, encrypt_value
@@ -132,6 +133,6 @@ class HCaptchaService:
 
         if setting.hcaptcha_enabled:
             if not setting.hcaptcha_site_key.strip():
-                raise HCaptchaConfigurationError('hCaptcha Site Key를 입력해주세요.')
+                raise HCaptchaConfigurationError(_('Enter an hCaptcha Site Key.'))
             if not cls.decrypt_secret(setting.hcaptcha_secret_key):
-                raise HCaptchaConfigurationError('hCaptcha Secret Key를 입력해주세요.')
+                raise HCaptchaConfigurationError(_('Enter an hCaptcha Secret Key.'))

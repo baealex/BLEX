@@ -2,6 +2,7 @@ import { Dropdown } from '@blex/ui/dropdown';
 import type { Editor } from '@tiptap/react';
 import type { NodeViewProps } from '@tiptap/react';
 import { SUPPORTED_LANGUAGES, getLanguageLabel } from '~/utils/languages';
+import { useEditorI18n } from '../../i18n';
 
 interface CodeBlockLanguageSelectorProps {
     editor: Editor;
@@ -13,6 +14,7 @@ const CodeBlockLanguageSelector = ({
     node,
     updateAttributes
 }: CodeBlockLanguageSelectorProps) => {
+    const { t } = useEditorI18n();
     const currentLanguage = node.attrs.language || 'plaintext';
 
     const handleLanguageChange = (language: string) => {
@@ -20,11 +22,16 @@ const CodeBlockLanguageSelector = ({
     };
 
     const getCurrentLanguageLabel = () => {
+        if (currentLanguage === 'plaintext') {
+            return t('code.language.plain_text');
+        }
         return getLanguageLabel(currentLanguage);
     };
 
     const dropdownItems = SUPPORTED_LANGUAGES.map((language) => ({
-        label: language.label,
+        label: language.value === 'plaintext'
+            ? t('code.language.plain_text')
+            : language.label,
         onClick: () => handleLanguageChange(language.value),
         checked: currentLanguage === language.value
     }));

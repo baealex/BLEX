@@ -1,4 +1,5 @@
 import { useRef, useEffect, useState } from 'react';
+import { Trans, useLingui } from '@lingui/react/macro';
 import { Loader2, Lock } from '@blex/ui/icons';
 import { MentionAutocomplete } from './MentionAutocomplete';
 import { isMentionQuery, isMentionStart } from '../utils/mentionText';
@@ -23,11 +24,20 @@ export const CommentForm = ({
     onSubmit,
     isSubmitting,
     onShowLoginPrompt,
-    placeholder = '댓글을 작성해보세요...',
+    placeholder,
     mentionableUsers = [],
     onCancel,
-    submitButtonText = '댓글 작성'
+    submitButtonText
 }: CommentFormProps) => {
+    const { t } = useLingui();
+    const resolvedPlaceholder = placeholder ?? t({
+        id: 'comments.form.placeholder',
+        message: 'Write a comment...'
+    });
+    const resolvedSubmitButtonText = submitButtonText ?? t({
+        id: 'comments.form.submit',
+        message: 'Post comment'
+    });
     const textareaRef = useRef<HTMLTextAreaElement>(null);
     const [showMentionAutocomplete, setShowMentionAutocomplete] = useState(false);
     const [mentionQuery, setMentionQuery] = useState('');
@@ -128,7 +138,7 @@ export const CommentForm = ({
             <div className="relative group cursor-pointer rounded-xl overflow-hidden" onClick={onShowLoginPrompt}>
                 <textarea
                     className="w-full p-5 border border-line rounded-xl resize-none bg-surface-subtle text-sm placeholder-content-hint pointer-events-none"
-                    placeholder={placeholder}
+                    placeholder={resolvedPlaceholder}
                     rows={3}
                     disabled
                     aria-hidden="true"
@@ -138,7 +148,9 @@ export const CommentForm = ({
                 <div className="absolute inset-0 flex items-center justify-center bg-surface/0 group-hover:bg-surface/90 transition-all duration-200 pointer-events-none">
                     <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-center gap-2">
                         <Lock className="w-5 h-5 text-content-secondary" />
-                        <span className="text-sm font-semibold text-content">로그인이 필요합니다</span>
+                        <span className="text-sm font-semibold text-content">
+                            <Trans id="comments.login_required">Log in to comment</Trans>
+                        </span>
                     </div>
                 </div>
             </div>
@@ -155,9 +167,12 @@ export const CommentForm = ({
                     onChange={handleTextChange}
                     onKeyDown={handleKeyDown}
                     disabled={isSubmitting}
-                    placeholder={placeholder}
+                    placeholder={resolvedPlaceholder}
                     rows={3}
-                    aria-label="댓글 내용"
+                    aria-label={t({
+                        id: 'comments.form.content_label',
+                        message: 'Comment content'
+                    })}
                 />
 
                 {/* 멘션 자동완성 */}
@@ -178,21 +193,29 @@ export const CommentForm = ({
                         className="px-5 py-2.5 rounded-lg text-sm text-content hover:text-content hover:bg-surface-subtle font-semibold disabled:opacity-50 transition-all duration-150"
                         onClick={onCancel}
                         disabled={isSubmitting}>
-                        취소
+                        <Trans id="common.cancel">Cancel</Trans>
                     </button>
                 )}
                 <button
                     className="px-6 py-2.5 rounded-lg bg-action hover:bg-action-hover disabled:bg-line disabled:text-content-hint text-content-inverted text-sm font-semibold disabled:cursor-not-allowed transition-all duration-150 shadow-sm hover:shadow-md"
                     onClick={onSubmit}
                     disabled={isSubmitting || !commentText.trim()}
-                    aria-label={isSubmitting ? '댓글 작성 중' : '댓글 작성하기'}>
+                    aria-label={isSubmitting
+                        ? t({
+                            id: 'comments.form.submitting_label',
+                            message: 'Posting comment'
+                        })
+                        : t({
+                            id: 'comments.form.submit_label',
+                            message: 'Post comment'
+                        })}>
                     {isSubmitting ? (
                         <span className="inline-flex items-center gap-2">
                             <Loader2 className="animate-spin w-4 h-4" />
-                            작성 중...
+                            <Trans id="comments.form.submitting">Posting...</Trans>
                         </span>
                     ) : (
-                        submitButtonText
+                        resolvedSubmitButtonText
                     )}
                 </button>
             </div>

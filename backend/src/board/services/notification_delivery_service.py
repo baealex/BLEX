@@ -33,6 +33,6 @@ class NotificationDeliveryService:
             telegram_id,
             [
                 SiteUrlService.configured_absolute_url(str(notify.url)),
-                notify.content,
+                notify.localized_content(),
             ],
         )

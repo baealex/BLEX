@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { Trans, useLingui } from '@lingui/react/macro';
 import { toast } from '~/utils/toast';
 import { useSuspenseQuery } from '@tanstack/react-query';
 import { Navigate } from '@tanstack/react-router';
@@ -16,6 +17,7 @@ import { useConfirm } from '~/hooks/useConfirm';
 import { getTelegramStatus, generateTelegramToken, disconnectTelegram as disconnectTelegramAPI } from '~/lib/api/telegram';
 
 const IntegrationSettings = () => {
+    const { t } = useLingui();
     const [telegramToken, setTelegramToken] = useState('');
     const [isGeneratingToken, setIsGeneratingToken] = useState(false);
     const [isDisconnecting, setIsDisconnecting] = useState(false);
@@ -28,7 +30,10 @@ const IntegrationSettings = () => {
             if (data.status === 'DONE') {
                 return data.body;
             }
-            throw new Error('텔레그램 연동 정보를 불러오는데 실패했습니다.');
+            throw new Error(data.errorMessage || t({
+                id: 'settings.telegram.load_failed',
+                message: 'Could not load Telegram integration details.'
+            }));
         }
     });
 
@@ -45,10 +50,19 @@ const IntegrationSettings = () => {
             if (data.status === 'DONE' && data.body.token) {
                 setTelegramToken(data.body.token);
             } else {
-                toast.error(data.status === 'ERROR' ? data.errorMessage : '토큰 생성에 실패했습니다.');
+                toast.error(
+                    (data.status === 'ERROR' && data.errorMessage)
+                    || t({
+                        id: 'settings.telegram.token.generate_failed',
+                        message: 'Could not generate a verification code.'
+                    })
+                );
             }
         } catch {
-            toast.error('토큰 생성 중 오류가 발생했습니다.');
+            toast.error(t({
+                id: 'settings.telegram.token.generate_error',
+                message: 'An error occurred while generating the verification code.'
+            }));
         } finally {
             setIsGeneratingToken(false);
         }
@@ -56,9 +70,18 @@ const IntegrationSettings = () => {
 
     const disconnectTelegram = async () => {
         const confirmed = await confirm({
-            title: '텔레그램 연동 해제',
-            message: '정말 텔레그램 연동을 해제할까요?',
-            confirmText: '연동 해제',
+            title: t({
+                id: 'settings.telegram.disconnect.title',
+                message: 'Disconnect Telegram'
+            }),
+            message: t({
+                id: 'settings.telegram.disconnect.message',
+                message: 'Disconnect your Telegram account?'
+            }),
+            confirmText: t({
+                id: 'settings.telegram.disconnect.action',
+                message: 'Disconnect'
+            }),
             variant: 'danger'
         });
 
@@ -68,31 +91,42 @@ const IntegrationSettings = () => {
         try {
             const { data } = await disconnectTelegramAPI();
             if (data.status === 'DONE') {
-                toast.success('텔레그램 연동이 해제되었습니다.');
+                toast.success(t({
+                    id: 'settings.telegram.disconnect.success',
+                    message: 'Telegram disconnected.'
+                }));
                 setTelegramToken('');
                 refetch();
             } else if (data.errorCode === 'ALREADY_DISCONNECTED') {
-                toast.info('이미 연동이 해제된 상태입니다.');
+                toast.info(t({
+                    id: 'settings.telegram.disconnect.already',
+                    message: 'Telegram is already disconnected.'
+                }));
                 refetch();
             } else {
-                toast.error(data.errorMessage || '연동 해제에 실패했습니다.');
+                toast.error(data.errorMessage || t({
+                    id: 'settings.telegram.disconnect.failed',
+                    message: 'Could not disconnect Telegram.'
+                }));
             }
         } catch {
-            toast.error('네트워크 오류가 발생했습니다.');
+            toast.error(t({
+                id: 'common.network_error',
+                message: 'A network error occurred.'
+            }));
         } finally {
             setIsDisconnecting(false);
         }
     };
 
-    // 연동 상태에 따른 토큰 관리
+    // Clear one-time tokens after the connection succeeds.
     useEffect(() => {
         if (isConnected) {
-            // 연동된 상태면 토큰 초기화
             setTelegramToken('');
         }
     }, [isConnected]);
 
-    // 연결 상태 폴링 (연결되지 않은 경우에만)
+    // Poll only while waiting for the connection.
     useEffect(() => {
         if (!isConnected) {
             const interval = setInterval(() => {
@@ -105,13 +139,22 @@ const IntegrationSettings = () => {
     return (
         <div className="space-y-8">
             <SettingsHeader
-                title="텔레그램 연동"
-                description="텔레그램 봇과 연동하여 실시간 알림을 받아보세요."
+                title={t({
+                    id: 'settings.telegram.title',
+                    message: 'Telegram integration'
+                })}
+                description={t({
+                    id: 'settings.telegram.description',
+                    message: 'Connect the Telegram bot to receive notifications in real time.'
+                })}
             />
 
             {isConnected ? (
                 <Card
-                    title="연동 상태"
+                    title={t({
+                        id: 'settings.telegram.status.title',
+                        message: 'Connection status'
+                    })}
                     icon={<Plug aria-hidden className="h-4 w-4" />}>
                     <div className="flex flex-col sm:flex-row sm:items-center gap-4">
                         <div className="flex items-center gap-4 flex-1">
@@ -122,10 +165,26 @@ const IntegrationSettings = () => {
                             </div>
                             <div>
                                 <h4 className="text-base font-semibold text-content">
-                                    {isConfigured ? '연동 완료' : '알림 전송 일시 중지'}
+                                    {isConfigured
+                                        ? t({
+                                            id: 'settings.telegram.status.connected',
+                                            message: 'Connected'
+                                        })
+                                        : t({
+                                            id: 'settings.telegram.status.paused',
+                                            message: 'Notifications paused'
+                                        })}
                                 </h4>
                                 <p className="text-sm text-content-secondary mt-1">
-                                    {isConfigured ? '텔레그램으로 실시간 알림을 받을 수 있습니다.' : '텔레그램 알림 전송이 현재 중지되어 있습니다.'}
+                                    {isConfigured
+                                        ? t({
+                                            id: 'settings.telegram.status.connected_description',
+                                            message: 'You can receive real-time notifications in Telegram.'
+                                        })
+                                        : t({
+                                            id: 'settings.telegram.status.paused_description',
+                                            message: 'Telegram notification delivery is currently paused.'
+                                        })}
                                 </p>
                             </div>
                         </div>
@@ -137,7 +196,15 @@ const IntegrationSettings = () => {
                             leftIcon={!isDisconnecting ? <Unlink aria-hidden className="h-4 w-4" /> : undefined}
                             onClick={disconnectTelegram}
                             className="flex-shrink-0">
-                            {isDisconnecting ? '해제 중...' : '연동 해제'}
+                            {isDisconnecting
+                                ? t({
+                                    id: 'settings.telegram.disconnect.disconnecting',
+                                    message: 'Disconnecting...'
+                                })
+                                : t({
+                                    id: 'settings.telegram.disconnect.action',
+                                    message: 'Disconnect'
+                                })}
                         </Button>
                     </div>
                 </Card>
@@ -145,7 +212,10 @@ const IntegrationSettings = () => {
                 <Navigate to="/notify" replace />
             ) : (
                 <Card
-                    title="연동 방법"
+                    title={t({
+                        id: 'settings.telegram.instructions.title',
+                        message: 'How to connect'
+                    })}
                     icon={<Link aria-hidden className="h-4 w-4" />}>
                     <div className="space-y-6">
                         <div className="flex items-start gap-3">
@@ -153,16 +223,18 @@ const IntegrationSettings = () => {
                                 1
                             </span>
                             <p className="text-sm text-content leading-relaxed">
-                                텔레그램 앱에서{' '}
-                                <a
-                                    href={`https://t.me/${botUsername}`}
-                                    className="inline-flex items-center text-content hover:text-content font-medium underline decoration-1 underline-offset-2"
-                                    target="_blank"
-                                    rel="noopener noreferrer">
-                                    @{botUsername}
-                                    <ExternalLink aria-hidden className="ml-1 h-3.5 w-3.5" />
-                                </a>
-                                을 찾아 대화를 시작하세요.
+                                <Trans id="settings.telegram.instructions.find_bot">
+                                    In Telegram, find{' '}
+                                    <a
+                                        href={`https://t.me/${botUsername}`}
+                                        className="inline-flex items-center text-content hover:text-content font-medium underline decoration-1 underline-offset-2"
+                                        target="_blank"
+                                        rel="noopener noreferrer">
+                                        @{botUsername}
+                                        <ExternalLink aria-hidden className="ml-1 h-3.5 w-3.5" />
+                                    </a>
+                                    {' '}and start a chat.
+                                </Trans>
                             </p>
                         </div>
 
@@ -171,7 +243,11 @@ const IntegrationSettings = () => {
                                 2
                             </span>
                             <div className="flex-1 space-y-3">
-                                <p className="text-sm text-content">봇에게 아래 인증 코드를 전송하세요.</p>
+                                <p className="text-sm text-content">
+                                    <Trans id="settings.telegram.instructions.send_code">
+                                        Send the verification code below to the bot.
+                                    </Trans>
+                                </p>
                                 {telegramToken ? (
                                     <div className="rounded-xl border border-line bg-surface-subtle p-4">
                                         <div className="flex flex-col sm:flex-row sm:items-center gap-3">
@@ -184,7 +260,7 @@ const IntegrationSettings = () => {
                                                 variant="secondary"
                                                 size="sm"
                                                 onClick={() => navigator.clipboard?.writeText(telegramToken)}>
-                                                복사
+                                                <Trans id="common.copy">Copy</Trans>
                                             </Button>
                                         </div>
                                     </div>
@@ -196,7 +272,15 @@ const IntegrationSettings = () => {
                                             size="md"
                                             isLoading={isGeneratingToken}
                                             onClick={refreshToken}>
-                                            {isGeneratingToken ? '생성 중...' : '인증 코드 생성'}
+                                            {isGeneratingToken
+                                                ? t({
+                                                    id: 'settings.telegram.token.generating',
+                                                    message: 'Generating...'
+                                                })
+                                                : t({
+                                                    id: 'settings.telegram.token.generate',
+                                                    message: 'Generate verification code'
+                                                })}
                                         </Button>
                                     </div>
                                 )}
@@ -205,7 +289,9 @@ const IntegrationSettings = () => {
 
                         {telegramToken && (
                             <div className="rounded-xl border border-line bg-surface-subtle p-4 text-sm text-content leading-relaxed">
-                                이 코드는 일회용이며 연동 완료 또는 24시간 후 자동으로 만료됩니다. 연동 후 상태를 새로고침하세요.
+                                <Trans id="settings.telegram.token.expiration">
+                                    This one-time code expires after you connect or after 24 hours. Refresh the page after connecting.
+                                </Trans>
                             </div>
                         )}
                     </div>

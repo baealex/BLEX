@@ -6,7 +6,7 @@ from board.services import UserService
 from board.services.user_service import UserValidationError
 from board.services.api_request_body_service import ApiRequestBodyService
 from board.modules.response import StatusDone, StatusError, ErrorCode
-from board.modules.time import convert_to_localtime, time_since
+from board.modules.time import format_local_date
 
 
 def users(request, username):
@@ -37,9 +37,7 @@ def check_redirect(request, username):
             return StatusDone({
                 'old_username': redirect_info['old_username'],
                 'new_username': redirect_info['new_username'],
-                'created_date': convert_to_localtime(
-                    redirect_info['created_date']
-                ).strftime('%Y년 %m월 %d일'),
+                'created_date': format_local_date(redirect_info['created_date']),
             })
 
     raise Http404

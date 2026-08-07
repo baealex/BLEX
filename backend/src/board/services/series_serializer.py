@@ -1,6 +1,6 @@
 from django.core.files.storage import default_storage
 
-from board.modules.time import convert_to_localtime
+from board.modules.time import convert_to_localtime, format_local_date
 
 
 class SeriesSerializer:
@@ -25,7 +25,7 @@ class SeriesSerializer:
             'name': series.name,
             'image': default_storage.url(thumbnail) if thumbnail else '',
             'total_posts': series.total_posts,
-            'created_date': convert_to_localtime(series.created_date).strftime('%Y년 %m월 %d일'),
+            'created_date': format_local_date(series.created_date),
             'owner': series.owner_username,
         }
 
@@ -64,7 +64,7 @@ class SeriesSerializer:
             'image': str(post.image),
             'read_time': post.read_time,
             'description': post.meta_description,
-            'created_date': convert_to_localtime(post.published_date).strftime('%Y년 %m월 %d일'),
+            'created_date': format_local_date(post.published_date),
         }
 
     @staticmethod
@@ -100,7 +100,7 @@ class SeriesSerializer:
             'name': series.name,
             'url': series.url,
             'total_posts': series.total_posts,
-            'created_date': convert_to_localtime(series.created_date).strftime('%Y년 %m월 %d일'),
+            'created_date': format_local_date(series.created_date),
         }
 
     @staticmethod

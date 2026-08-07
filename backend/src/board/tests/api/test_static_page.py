@@ -98,6 +98,26 @@ class StaticPageAPITestCase(TestCase):
         content = json.loads(response.content)
         self.assertEqual(content['status'], 'ERROR')
 
+    def test_create_validation_message_follows_request_language(self):
+        expected_messages = {
+            'en': 'Enter a title.',
+            'ko': '제목을 입력해주세요.',
+        }
+
+        for language, expected_message in expected_messages.items():
+            with self.subTest(language=language):
+                response = self.client.post(
+                    '/v1/static-pages',
+                    json.dumps({'slug': f'no-title-{language}'}),
+                    content_type='application/json',
+                    HTTP_ACCEPT_LANGUAGE=language,
+                )
+                content = json.loads(response.content)
+
+                self.assertEqual(content['status'], 'ERROR')
+                self.assertEqual(content['errorCode'], 'error:VA')
+                self.assertEqual(content['errorMessage'], expected_message)
+
     def test_create_static_page_without_slug(self):
         """슬러그 없이 정적 페이지 생성 시 에러 테스트"""
         data = {

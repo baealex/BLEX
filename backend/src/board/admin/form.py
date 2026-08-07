@@ -1,4 +1,5 @@
 from django.contrib import admin
+from django.utils.translation import gettext_lazy as _
 
 from board.models import Form
 
@@ -42,4 +43,4 @@ class FormAdmin(ReadOnlyRecordAdminMixin, admin.ModelAdmin):
 
     def user_link(self, obj):
         return AdminLinkService.create_user_link(obj.user)
-    user_link.short_description = '사용자'
+    user_link.short_description = _('User')

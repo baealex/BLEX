@@ -5,6 +5,7 @@ import django
 from urllib.parse import urlsplit
 
 from django.utils.encoding import force_str
+from django.utils.translation import gettext_lazy as _
 
 django.utils.encoding.force_text = force_str
 
@@ -138,6 +139,7 @@ SITE_ID = 1
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    'django.middleware.locale.LocaleMiddleware',
     'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -224,6 +226,20 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 LANGUAGE_CODE = 'ko'
+
+SUPPORTED_UI_LANGUAGES = [
+    ('ko', _('Korean')),
+    ('en', _('English')),
+]
+
+# Existing deployments remain Korean-only until they opt in. New installations
+# enable English negotiation through samples/.env.
+ENABLE_ENGLISH_UI = (
+    DEBUG
+    or TESTING
+    or os.environ.get('ENABLE_ENGLISH_UI', 'FALSE') == 'TRUE'
+)
+LANGUAGES = SUPPORTED_UI_LANGUAGES if ENABLE_ENGLISH_UI else SUPPORTED_UI_LANGUAGES[:1]
 
 TIME_ZONE = os.environ.get('TZ')
 

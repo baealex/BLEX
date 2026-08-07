@@ -1,3 +1,6 @@
+import { i18n } from '~/i18n';
+import type { AppLocale } from '~/i18n/locale';
+
 export type PublishChecklistSeverity = 'required' | 'recommended';
 export type PublishChecklistStatus = 'pass' | 'missing';
 
@@ -45,50 +48,83 @@ export const hasPublishableContent = (value: string) => {
     return text.length > 0;
 };
 
-const formatScheduledAt = (value: string) => {
+const formatScheduledAt = (value: string, locale: AppLocale) => {
     const date = new Date(value);
     if (Number.isNaN(date.getTime())) return value;
 
-    return date.toLocaleString('ko-KR', {
+    return new Intl.DateTimeFormat(locale, {
         dateStyle: 'medium',
         timeStyle: 'short'
-    });
+    }).format(date);
 };
 
-export const getPublishChecklist = (input: PublishChecklistInput): PublishChecklistResult => {
+export const getPublishChecklist = (
+    input: PublishChecklistInput,
+    locale: AppLocale
+): PublishChecklistResult => {
     const items: PublishChecklistItem[] = [
         {
             id: 'title',
-            label: '제목',
-            description: '독자가 포스트를 구분할 수 있는 제목이 필요합니다.',
+            label: i18n._({
+                id: 'editor.publish.field.title',
+                message: 'Title'
+            }),
+            description: i18n._({
+                id: 'editor.publish.field.title_description',
+                message: 'Readers need a title to identify this post.'
+            }),
             severity: 'required',
             status: hasText(input.title) ? 'pass' : 'missing'
         },
         {
             id: 'content',
-            label: '본문',
-            description: '발행하려면 본문 내용이 필요합니다.',
+            label: i18n._({
+                id: 'editor.publish.field.content',
+                message: 'Content'
+            }),
+            description: i18n._({
+                id: 'editor.publish.field.content_description',
+                message: 'Add some content before publishing.'
+            }),
             severity: 'required',
             status: hasPublishableContent(input.content) ? 'pass' : 'missing'
         },
         {
             id: 'description',
-            label: '설명',
-            description: '검색 결과와 공유 화면에서 포스트를 설명합니다. 비워도 발행은 가능합니다.',
+            label: i18n._({
+                id: 'editor.publish.field.description',
+                message: 'Description'
+            }),
+            description: i18n._({
+                id: 'editor.publish.field.description_description',
+                message: 'Describe the post in search results and shared links. You can still publish without it.'
+            }),
             severity: 'recommended',
             status: hasText(input.description) ? 'pass' : 'missing'
         },
         {
             id: 'tags',
-            label: '태그',
-            description: '관련 포스트를 묶고 독자가 비슷한 포스트를 찾기 쉽게 만듭니다.',
+            label: i18n._({
+                id: 'editor.publish.field.tags',
+                message: 'Tags'
+            }),
+            description: i18n._({
+                id: 'editor.publish.field.tags_description',
+                message: 'Group related posts and help readers discover similar posts.'
+            }),
             severity: 'recommended',
             status: input.tags.length > 0 ? 'pass' : 'missing'
         },
         {
             id: 'coverImage',
-            label: '커버 이미지',
-            description: '목록과 공유 카드에서 포스트의 첫인상을 만듭니다. 본문 이미지를 대신 쓰지는 않습니다.',
+            label: i18n._({
+                id: 'editor.publish.field.cover_image',
+                message: 'Cover image'
+            }),
+            description: i18n._({
+                id: 'editor.publish.field.cover_image_description',
+                message: 'Set the first impression in listings and shared cards. This does not replace images in the post.'
+            }),
             severity: 'recommended',
             status: input.hasCoverImage ? 'pass' : 'missing'
         }
@@ -96,15 +132,41 @@ export const getPublishChecklist = (input: PublishChecklistInput): PublishCheckl
 
     const missingRequired = items.filter(item => item.severity === 'required' && item.status === 'missing');
     const missingRecommended = items.filter(item => item.severity === 'recommended' && item.status === 'missing');
-    const scheduledLabel = input.scheduledAt ? formatScheduledAt(input.scheduledAt) : '';
+    const scheduledLabel = input.scheduledAt ? formatScheduledAt(input.scheduledAt, locale) : '';
     const visibilityTitle = input.scheduledAt
-        ? (input.isHidden ? '비공개 예약 포스트입니다' : '예약 발행됩니다')
-        : (input.isHidden ? '비공개로 발행됩니다' : '공개로 발행됩니다');
+        ? (input.isHidden
+            ? i18n._({
+                id: 'editor.publish.visibility.private_scheduled_title',
+                message: 'This is a private scheduled post'
+            })
+            : i18n._({
+                id: 'editor.publish.visibility.scheduled_title',
+                message: 'This post will be published on schedule'
+            }))
+        : (input.isHidden
+            ? i18n._({
+                id: 'editor.publish.visibility.private_title',
+                message: 'This post will be private'
+            })
+            : i18n._({
+                id: 'editor.publish.visibility.public_title',
+                message: 'This post will be public'
+            }));
     const visibilityDescription = input.scheduledAt
-        ? `${scheduledLabel}에 발행됩니다. 예약 시각 전에는 작성자만 볼 수 있습니다.`
+        ? i18n._({
+            id: 'editor.publish.visibility.scheduled_description',
+            message: 'This post will be published on {scheduledAt}. Only you can view it before then.',
+            values: { scheduledAt: scheduledLabel }
+        })
         : input.isHidden
-            ? '작성자만 볼 수 있으며 공개 URL, RSS, Sitemap, Markdown 노출에서 제외됩니다.'
-            : '발행 후 공개 URL에서 바로 확인할 수 있고 RSS와 Sitemap에 반영됩니다.';
+            ? i18n._({
+                id: 'editor.publish.visibility.private_description',
+                message: 'Only you can view it. It will be excluded from public URLs, RSS, sitemaps, and Markdown endpoints.'
+            })
+            : i18n._({
+                id: 'editor.publish.visibility.public_description',
+                message: 'It will be available at its public URL immediately and included in RSS and sitemaps.'
+            });
 
     return {
         items,
@@ -113,7 +175,23 @@ export const getPublishChecklist = (input: PublishChecklistInput): PublishCheckl
         canPublish: missingRequired.length === 0,
         visibilityTitle,
         visibilityDescription,
-        confirmLabel: input.scheduledAt ? '확인 후 예약' : '확인 후 발행',
-        submittingLabel: input.scheduledAt ? '예약 중...' : '발행 중...'
+        confirmLabel: input.scheduledAt
+            ? i18n._({
+                id: 'editor.publish.confirm_schedule',
+                message: 'Review and schedule'
+            })
+            : i18n._({
+                id: 'editor.publish.confirm_publish',
+                message: 'Review and publish'
+            }),
+        submittingLabel: input.scheduledAt
+            ? i18n._({
+                id: 'editor.publish.scheduling',
+                message: 'Scheduling...'
+            })
+            : i18n._({
+                id: 'editor.publish.publishing',
+                message: 'Publishing...'
+            })
     };
 };

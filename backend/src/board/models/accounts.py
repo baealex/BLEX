@@ -6,7 +6,7 @@ from django.core.exceptions import ValidationError
 from django.db import models
 from django.urls import reverse
 from django.utils import timezone
-from django.utils.translation import gettext_lazy as _
+from django.utils.translation import gettext_lazy as _, pgettext_lazy
 
 from board.constants.config_meta import CONFIG_TYPE
 from board.constants.social_auth import (
@@ -111,19 +111,27 @@ class Profile(models.Model):
     about_html = models.TextField(blank=True)
 
     # Analytics integration (Share URL from analytics provider)
-    analytics_share_url = models.URLField(max_length=500, blank=True,
-                                           help_text='분석 도구 공유 URL (예: Umami, Google Analytics 등)')
+    analytics_share_url = models.URLField(
+        max_length=500,
+        blank=True,
+        help_text=_(
+            'Analytics sharing URL (for example, Umami or Google Analytics)'
+        ),
+    )
 
     # User role for permission control
     class Role(models.TextChoices):
-        READER = 'READER', '독자'
-        EDITOR = 'EDITOR', '작가'
+        READER = 'READER', pgettext_lazy('User role', 'Reader')
+        EDITOR = 'EDITOR', pgettext_lazy('User role', 'Author')
 
     role = models.CharField(
         max_length=10,
         choices=Role.choices,
         default=Role.READER,
-        help_text='사용자 역할 (독자: 읽기만, 작가: 글 작성 및 통계)'
+        help_text=_(
+            'User role (Reader: read only; Author: write posts and view '
+            'analytics)'
+        ),
     )
 
     class Meta:
@@ -263,7 +271,9 @@ class SocialAuthProvider(models.Model):
     def clean(self):
         super().clean()
         if self.key not in SUPPORTED_SOCIAL_AUTH_PROVIDERS:
-            raise ValidationError({'key': '지원하지 않는 소셜 로그인 제공자입니다.'})
+            raise ValidationError({
+                'key': _('This social login provider is not supported.'),
+            })
 
     def save(self, *args, **kwargs):
         if self.client_secret:
@@ -305,43 +315,49 @@ class LoginSetting(models.Model):
     welcome_notification_message = models.TextField(
         blank=True,
         default='',
-        help_text='회원가입 시 발송될 환영 알림 메시지 ({name}을 사용하여 사용자 이름 삽입 가능)'
+        help_text=_(
+            "Welcome notification sent after signup. Use {name} to insert "
+            "the user's name."
+        ),
     )
     welcome_notification_url = models.CharField(
         max_length=255,
         blank=True,
         default='/',
-        help_text='회원가입 알림 클릭 시 이동할 URL'
+        help_text=_('URL opened from the signup notification.'),
     )
     account_deletion_redirect_url = models.CharField(
         max_length=500,
         blank=True,
         default='',
-        help_text='회원 탈퇴 시 리다이렉트할 URL (비워두면 메인 페이지로 이동, 설문 링크 등을 설정할 수 있습니다)'
+        help_text=_(
+            'Redirect URL after account deletion. Leave blank to use the '
+            'home page.'
+        ),
     )
     hcaptcha_enabled = models.BooleanField(
         default=False,
-        help_text='회원가입 hCaptcha 검증 사용 여부'
+        help_text=_('Require hCaptcha verification during signup.'),
     )
     hcaptcha_site_key = models.CharField(
         max_length=255,
         blank=True,
         default='',
-        help_text='hCaptcha Site Key'
+        help_text=_('hCaptcha Site Key'),
     )
     hcaptcha_secret_key = models.TextField(
         blank=True,
         default='',
-        help_text='암호화 저장되는 hCaptcha Secret Key'
+        help_text=_('Encrypted hCaptcha Secret Key.'),
     )
     updated_date = models.DateTimeField(auto_now=True)
 
     class Meta:
-        verbose_name = '🏢 [사이트 운영] 로그인 관리'
-        verbose_name_plural = '🏢 [사이트 운영] 로그인 관리'
+        verbose_name = _('🏢 [Site operations] Login settings')
+        verbose_name_plural = _('🏢 [Site operations] Login settings')
 
     def __str__(self):
-        return 'Login Settings'
+        return str(_('Login settings'))
 
     def save(self, *args, **kwargs):
         self.pk = 1

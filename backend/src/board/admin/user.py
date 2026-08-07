@@ -16,6 +16,8 @@ from django.db import transaction
 from django.db.models import Count, Exists, OuterRef, Q, QuerySet
 from django.urls import reverse
 from django.utils.html import format_html, format_html_join
+from django.utils.translation import gettext_lazy as _
+from django.utils.translation import ngettext
 
 from board.models import (
     UserConfigMeta, UserLinkMeta, Config, UsernameChangeLog,
@@ -40,6 +42,12 @@ from .permission_display import configure_permission_choice_field
 from .service import AdminDisplayService, AdminLinkService
 from .constants import COLOR_MUTED, COLOR_INFO, COLOR_BG, COLOR_TEXT
 from .constants import LIST_PER_PAGE_DEFAULT
+
+
+def _role_change_message(role: str):
+    if role == Profile.Role.EDITOR:
+        return _('Changed role to Author in Admin')
+    return _('Changed role to Reader in Admin')
 
 
 @admin.register(EmailChange)
@@ -74,18 +82,18 @@ class EmailChangeAdmin(
 
     def user_link(self, obj: EmailChange):
         return AdminLinkService.create_user_link(obj.user)
-    user_link.short_description = '사용자'
+    user_link.short_description = _('User')
     user_link.admin_order_field = 'user__username'
 
     def token_status(self, obj: EmailChange):
         return AdminDisplayService.boolean_badge(
             True,
-            true_text='비공개',
+            true_text=_('Private'),
         )
-    token_status.short_description = '인증 토큰'
+    token_status.short_description = _('Authentication token')
 
     @admin.action(
-        description='선택한 이메일 변경 요청 취소',
+        description=_('Cancel selected email change requests'),
         permissions=['delete'],
     )
     def cancel_email_changes(
@@ -97,7 +105,7 @@ class EmailChangeAdmin(
             if not queryset.exists():
                 self.message_user(
                     request,
-                    '취소할 이메일 변경 요청이 없습니다.',
+                    _('There are no email change requests to cancel.'),
                     level=messages.WARNING,
                 )
                 return None
@@ -106,12 +114,13 @@ class EmailChangeAdmin(
                 self,
                 queryset,
                 action_name='cancel_email_changes',
-                title='이메일 변경 요청 취소 확인',
-                warning=(
-                    '선택한 대기 요청과 인증 토큰만 삭제됩니다. 사용자의 '
-                    '현재 이메일은 바뀌지 않습니다.'
+                title=_('Confirm email change request cancellation'),
+                warning=_(
+                    'Only the selected pending requests and authentication '
+                    'tokens will be deleted. The users’ current email '
+                    'addresses will not change.'
                 ),
-                confirm_label='변경 요청 취소',
+                confirm_label=_('Cancel change requests'),
             )
 
         cancelled = 0
@@ -128,13 +137,21 @@ class EmailChangeAdmin(
 
         self.message_user(
             request,
-            f'{cancelled}개의 이메일 변경 요청을 취소했습니다.',
+            ngettext(
+                '%(count)d email change request was cancelled.',
+                '%(count)d email change requests were cancelled.',
+                cancelled,
+            ) % {'count': cancelled},
             level=messages.SUCCESS,
         )
         if failed:
             self.message_user(
                 request,
-                f'{failed}개는 이미 처리되어 취소하지 못했습니다.',
+                ngettext(
+                    '%(count)d request could not be cancelled because it had already been processed.',
+                    '%(count)d requests could not be cancelled because they had already been processed.',
+                    failed,
+                ) % {'count': failed},
                 level=messages.WARNING,
             )
         return None
@@ -158,7 +175,7 @@ class UsernameChangeLogAdmin(ReadOnlyRecordAdminMixin, admin.ModelAdmin):
 
     def user_link(self, obj: UsernameChangeLog):
         return AdminLinkService.create_user_link(obj.user)
-    user_link.short_description = '현재 사용자'
+    user_link.short_description = _('Current user')
     user_link.admin_order_field = 'user__username'
 
 
@@ -182,13 +199,13 @@ class ProfileInline(admin.StackedInline):
         'analytics_share_url',
     )
     fieldsets = (
-        ('권한 설정', {
+        (_('Permission settings'), {
             'fields': ('role',),
         }),
-        ('프로필 정보', {
+        (_('Profile information'), {
             'fields': ('bio', 'homepage', 'avatar', 'cover'),
         }),
-        ('통계 설정', {
+        (_('Analytics settings'), {
             'fields': ('analytics_share_url',),
         }),
     )
@@ -360,12 +377,12 @@ class CustomUserAdmin(ConfirmedActionDeleteAdminMixin, BaseUserAdmin):
         if hasattr(obj, 'profile'):
             return AdminDisplayService.role_badge(obj.profile.role)
         return AdminDisplayService.empty_placeholder()
-    role_badge.short_description = '역할'
+    role_badge.short_description = _('Role')
 
     def post_count(self, obj):
         count = obj.post_count if hasattr(obj, 'post_count') else obj.post_set.count()
         return AdminDisplayService.post_count_badge(count)
-    post_count.short_description = '포스트 수'
+    post_count.short_description = _('Post count')
     post_count.admin_order_field = 'post_count'
 
     def set_users_role(
@@ -379,18 +396,18 @@ class CustomUserAdmin(ConfirmedActionDeleteAdminMixin, BaseUserAdmin):
         with transaction.atomic():
             users = list(queryset.select_for_update().select_related('profile'))
             count = UserRoleService.set_users_role(queryset, role)
-            role_label = '작가' if role == Profile.Role.EDITOR else '독자'
+            change_message = _role_change_message(role)
             for user in users:
                 if hasattr(user, 'profile'):
                     self.log_change(
                         request,
                         user,
-                        f'Admin에서 {role_label} 역할로 변경',
+                        change_message,
                     )
         return count
 
     @admin.action(
-        description='선택한 사용자를 작가로 변경',
+        description=_('Change selected users to Authors'),
         permissions=['change_profile'],
     )
     def make_editor(
@@ -403,10 +420,17 @@ class CustomUserAdmin(ConfirmedActionDeleteAdminMixin, BaseUserAdmin):
             queryset,
             role=Profile.Role.EDITOR,
         )
-        self.message_user(request, f'{count}명의 사용자를 작가로 변경했습니다.')
+        self.message_user(
+            request,
+            ngettext(
+                '%(count)d user was changed to an Author.',
+                '%(count)d users were changed to Authors.',
+                count,
+            ) % {'count': count},
+        )
 
     @admin.action(
-        description='선택한 사용자를 독자로 변경',
+        description=_('Change selected users to Readers'),
         permissions=['change_profile'],
     )
     def make_reader(
@@ -419,7 +443,14 @@ class CustomUserAdmin(ConfirmedActionDeleteAdminMixin, BaseUserAdmin):
             queryset,
             role=Profile.Role.READER,
         )
-        self.message_user(request, f'{count}명의 사용자를 독자로 변경했습니다.')
+        self.message_user(
+            request,
+            ngettext(
+                '%(count)d user was changed to a Reader.',
+                '%(count)d users were changed to Readers.',
+                count,
+            ) % {'count': count},
+        )
 
     def set_users_active_status(
         self,
@@ -436,31 +467,41 @@ class CustomUserAdmin(ConfirmedActionDeleteAdminMixin, BaseUserAdmin):
             ).count()
             candidates = self.mutable_users(request, candidates)
         action_name = 'activate_users' if is_active else 'deactivate_users'
-        status_label = '활성화' if is_active else '비활성화'
+        if is_active:
+            empty_message = _('There are no users to activate.')
+            warning = _(
+                'Login and API access will be restored for the selected '
+                'accounts.'
+            )
+            title = _('Confirm user activation')
+            confirm_label = _('Activate users')
+            change_message = _('Activated account in Admin')
+        else:
+            empty_message = _('There are no users to deactivate.')
+            warning = _(
+                'Login and API access will be blocked immediately for the '
+                'selected accounts. The current administrator and the last '
+                'active superuser will be skipped.'
+            )
+            title = _('Confirm user deactivation')
+            confirm_label = _('Deactivate users')
+            change_message = _('Deactivated account in Admin')
         if request.POST.get('confirm') != 'yes':
             if not candidates.exists():
                 self.message_user(
                     request,
-                    f'{status_label}할 사용자가 없습니다.',
+                    empty_message,
                     level=messages.WARNING,
                 )
                 return None
-            warning = (
-                '선택한 계정의 로그인과 API 접근을 다시 허용합니다.'
-                if is_active
-                else (
-                    '선택한 계정은 즉시 로그인과 API 접근이 차단됩니다. '
-                    '현재 관리자와 마지막 활성 슈퍼유저는 건너뜁니다.'
-                )
-            )
             return render_action_confirmation(
                 request,
                 self,
                 candidates,
                 action_name=action_name,
-                title=f'사용자 {status_label} 확인',
+                title=title,
                 warning=warning,
-                confirm_label=f'사용자 {status_label}',
+                confirm_label=confirm_label,
             )
 
         with transaction.atomic():
@@ -473,38 +514,55 @@ class CustomUserAdmin(ConfirmedActionDeleteAdminMixin, BaseUserAdmin):
                 self.log_change(
                     request,
                     user,
-                    f'Admin에서 계정 {status_label}',
+                    change_message,
                 )
 
         protected_admin_count += result.skipped_protected_admin_count
 
+        changed_count = len(result.changed_users)
+        if is_active:
+            result_message = ngettext(
+                '%(count)d user was activated.',
+                '%(count)d users were activated.',
+                changed_count,
+            )
+        else:
+            result_message = ngettext(
+                '%(count)d user was deactivated.',
+                '%(count)d users were deactivated.',
+                changed_count,
+            )
         self.message_user(
             request,
-            f'{len(result.changed_users)}명의 사용자를 {status_label}했습니다.',
+            result_message % {'count': changed_count},
             level=messages.SUCCESS,
         )
         if result.skipped_self_count:
             self.message_user(
                 request,
-                '현재 로그인한 관리자 계정은 비활성화하지 않았습니다.',
+                _('The currently signed-in administrator was not deactivated.'),
                 level=messages.WARNING,
             )
         if result.skipped_last_superuser_count:
             self.message_user(
                 request,
-                '마지막 활성 슈퍼유저 계정은 비활성화하지 않았습니다.',
+                _('The last active superuser was not deactivated.'),
                 level=messages.WARNING,
             )
         if protected_admin_count:
             self.message_user(
                 request,
-                f'관리자 계정 {protected_admin_count}명은 변경하지 않았습니다.',
+                ngettext(
+                    '%(count)d administrator account was not changed.',
+                    '%(count)d administrator accounts were not changed.',
+                    protected_admin_count,
+                ) % {'count': protected_admin_count},
                 level=messages.WARNING,
             )
         return None
 
     @admin.action(
-        description='선택한 사용자 활성화',
+        description=_('Activate selected users'),
         permissions=['change'],
     )
     def activate_users(
@@ -519,7 +577,7 @@ class CustomUserAdmin(ConfirmedActionDeleteAdminMixin, BaseUserAdmin):
         )
 
     @admin.action(
-        description='선택한 사용자 비활성화',
+        description=_('Deactivate selected users'),
         permissions=['change'],
     )
     def deactivate_users(
@@ -544,8 +602,8 @@ class UserConfigMetaAdmin(admin.ModelAdmin):
         )
         value = forms.ChoiceField(
             choices=[
-                ('true', '활성'),
-                ('false', '비활성'),
+                ('true', _('Active')),
+                ('false', _('Inactive')),
             ],
         )
 
@@ -574,7 +632,7 @@ class UserConfigMetaAdmin(admin.ModelAdmin):
 
     def user_link(self, obj):
         return AdminLinkService.create_user_link(obj.user)
-    user_link.short_description = 'user'
+    user_link.short_description = _('User')
 
 
 @admin.register(UserLinkMeta)
@@ -593,7 +651,7 @@ class UserLinkMetaAdmin(admin.ModelAdmin):
 
     def user_link(self, obj):
         return AdminLinkService.create_user_link(obj.user)
-    user_link.short_description = 'user'
+    user_link.short_description = _('User')
 
     def get_form(self, request, obj=None, **kwargs):
         if obj:
@@ -607,10 +665,10 @@ class ConfigAdmin(admin.ModelAdmin):
     show_full_result_count = False
 
     fieldsets = (
-        ('사용자 정보', {
+        (_('User information'), {
             'fields': ('user',),
         }),
-        ('설정 미리보기', {
+        (_('Settings preview'), {
             'fields': ('configs_preview',),
         }),
     )
@@ -619,7 +677,11 @@ class ConfigAdmin(admin.ModelAdmin):
     def configs_preview(self, obj):
         configs = obj.user.conf_meta.all()
         if not configs:
-            return format_html('<p style="color: {};">설정 없음</p>', COLOR_MUTED)
+            return format_html(
+                '<p style="color: {};">{}</p>',
+                COLOR_MUTED,
+                _('No settings'),
+            )
 
         config_items = format_html_join(
             '',
@@ -671,7 +733,7 @@ class ConfigAdmin(admin.ModelAdmin):
 
     def user_link(self, obj):
         return AdminLinkService.create_user_link(obj.user)
-    user_link.short_description = '사용자'
+    user_link.short_description = _('User')
 
     def telegram_status(self, obj):
         linked = getattr(obj, 'telegram_linked', None)
@@ -679,10 +741,10 @@ class ConfigAdmin(admin.ModelAdmin):
             linked = obj.has_telegram_id()
         return AdminDisplayService.boolean_badge(
             linked,
-            true_text='연동됨',
-            false_text='미연동'
+            true_text=_('Connected'),
+            false_text=_('Not connected')
         )
-    telegram_status.short_description = '텔레그램'
+    telegram_status.short_description = _('Telegram')
 
     def two_factor_status(self, obj):
         enabled = getattr(obj, 'two_factor_enabled', None)
@@ -690,8 +752,8 @@ class ConfigAdmin(admin.ModelAdmin):
             enabled = obj.has_two_factor_auth()
         return AdminDisplayService.boolean_badge(
             enabled,
-            true_text='활성화',
-            false_text='비활성화'
+            true_text=_('Enabled'),
+            false_text=_('Disabled')
         )
     two_factor_status.short_description = '2FA'
 
@@ -712,25 +774,28 @@ class ProfileAdmin(admin.ModelAdmin):
     actions = ['set_role_editor', 'set_role_reader']
 
     fieldsets = (
-        ('사용자 정보', {
+        (_('User information'), {
             'fields': ('user', 'user_info')
         }),
-        ('권한 설정', {
+        (_('Permission settings'), {
             'fields': ('role',),
-            'description': 'EDITOR: 글 작성 및 통계 / READER: 읽기만 가능'
+            'description': _(
+                'EDITOR: write posts and view analytics / READER: read-only '
+                'access'
+            ),
         }),
-        ('프로필 정보', {
+        (_('Profile information'), {
             'fields': ('bio', 'homepage', 'avatar', 'avatar_preview', 'cover', 'cover_preview'),
         }),
-        ('소개 페이지', {
+        (_('About page'), {
             'fields': ('about_md', 'about_html'),
             'classes': ('collapse',),
         }),
-        ('통계 설정', {
+        (_('Analytics settings'), {
             'fields': ('analytics_share_url',),
             'classes': ('collapse',),
         }),
-        ('통계', {
+        (_('Statistics'), {
             'fields': ('total_posts',),
             'classes': ('collapse',),
         }),
@@ -804,19 +869,19 @@ class ProfileAdmin(admin.ModelAdmin):
 
     def user_link(self, obj):
         return AdminLinkService.create_user_link(obj.user)
-    user_link.short_description = '사용자'
+    user_link.short_description = _('User')
 
     def role_badge(self, obj):
         return AdminDisplayService.role_badge(obj.role)
-    role_badge.short_description = '역할'
+    role_badge.short_description = _('Role')
 
     def avatar_preview(self, obj):
         return AdminDisplayService.avatar_preview(obj.avatar)
-    avatar_preview.short_description = '아바타'
+    avatar_preview.short_description = _('Avatar')
 
     def cover_preview(self, obj):
         return AdminDisplayService.cover_preview(obj.cover)
-    cover_preview.short_description = '커버 이미지 미리보기'
+    cover_preview.short_description = _('Cover image preview')
 
     def analytics_status(self, obj):
         return AdminDisplayService.boolean_badge(
@@ -824,21 +889,21 @@ class ProfileAdmin(admin.ModelAdmin):
             true_text='',
             false_text=''
         )
-    analytics_status.short_description = '통계 URL'
+    analytics_status.short_description = _('Analytics URL')
 
     def post_count(self, obj):
         count = obj.post_count if hasattr(obj, 'post_count') else obj.user.post_set.count()
         return AdminDisplayService.post_count_badge(count)
-    post_count.short_description = '포스트'
+    post_count.short_description = _('Posts')
     post_count.admin_order_field = 'post_count'
 
     def user_info(self, obj):
         return AdminDisplayService.user_info_box(obj.user)
-    user_info.short_description = '사용자 정보'
+    user_info.short_description = _('User information')
 
     def total_posts(self, obj):
         return obj.user.post_set.count()
-    total_posts.short_description = '총 포스트 수'
+    total_posts.short_description = _('Total posts')
 
     def set_profiles_role(
         self,
@@ -851,17 +916,17 @@ class ProfileAdmin(admin.ModelAdmin):
         with transaction.atomic():
             profiles = list(queryset.select_for_update())
             count = UserRoleService.set_profiles_role(queryset, role)
-            role_label = '작가' if role == Profile.Role.EDITOR else '독자'
+            change_message = _role_change_message(role)
             for profile in profiles:
                 self.log_change(
                     request,
                     profile,
-                    f'Admin에서 {role_label} 역할로 변경',
+                    change_message,
                 )
         return count
 
     @admin.action(
-        description='역할을 작가로 변경',
+        description=_('Change role to Author'),
         permissions=['change'],
     )
     def set_role_editor(
@@ -874,10 +939,17 @@ class ProfileAdmin(admin.ModelAdmin):
             queryset,
             role=Profile.Role.EDITOR,
         )
-        self.message_user(request, f'{count}명의 프로필을 작가로 변경했습니다.')
+        self.message_user(
+            request,
+            ngettext(
+                '%(count)d profile was changed to an Author.',
+                '%(count)d profiles were changed to Authors.',
+                count,
+            ) % {'count': count},
+        )
 
     @admin.action(
-        description='역할을 독자로 변경',
+        description=_('Change role to Reader'),
         permissions=['change'],
     )
     def set_role_reader(
@@ -890,4 +962,11 @@ class ProfileAdmin(admin.ModelAdmin):
             queryset,
             role=Profile.Role.READER,
         )
-        self.message_user(request, f'{count}명의 프로필을 독자로 변경했습니다.')
+        self.message_user(
+            request,
+            ngettext(
+                '%(count)d profile was changed to a Reader.',
+                '%(count)d profiles were changed to Readers.',
+                count,
+            ) % {'count': count},
+        )

@@ -5,6 +5,8 @@ from django.db import transaction
 from django.db.models import Count, Exists, OuterRef, Q, QuerySet
 from django.http import HttpRequest
 from django.utils.html import format_html
+from django.utils.translation import gettext_lazy as _
+from django.utils.translation import ngettext
 
 from board.models import Post, Tag
 from board.services.public_post_service import PublicPostService
@@ -76,7 +78,7 @@ class TagAdmin(ConfirmedActionDeleteAdminMixin, admin.ModelAdmin):
 
     def tag_badge(self, obj):
         return obj.value
-    tag_badge.short_description = '태그'
+    tag_badge.short_description = _('Tag')
 
     def count(self, obj):
         count = obj.post_count if hasattr(obj, 'post_count') else obj.posts.count()
@@ -86,7 +88,7 @@ class TagAdmin(ConfirmedActionDeleteAdminMixin, admin.ModelAdmin):
             return format_html('<span style="color: {};">{}</span>', COLOR_WARNING, count)
         else:
             return format_html('<span style="color: {}; font-weight: 600;">{}</span>', COLOR_SUCCESS, count)
-    count.short_description = '활성 포스트'
+    count.short_description = _('Active posts')
     count.admin_order_field = 'post_count'
 
     def public_count(self, obj):
@@ -96,7 +98,7 @@ class TagAdmin(ConfirmedActionDeleteAdminMixin, admin.ModelAdmin):
                 Post.all_objects.filter(tags=obj),
             ).count()
         return count
-    public_count.short_description = '공개 포스트'
+    public_count.short_description = _('Public posts')
     public_count.admin_order_field = 'public_post_count'
 
     def trash_count(self, obj):
@@ -107,7 +109,7 @@ class TagAdmin(ConfirmedActionDeleteAdminMixin, admin.ModelAdmin):
                 deleted_date__isnull=False,
             ).count()
         return count
-    trash_count.short_description = '휴지통'
+    trash_count.short_description = _('Trash')
     trash_count.admin_order_field = 'trashed_post_count'
 
     def has_image(self, obj):
@@ -115,9 +117,17 @@ class TagAdmin(ConfirmedActionDeleteAdminMixin, admin.ModelAdmin):
         if has_image is None:
             has_image = bool(obj.get_image())
         if has_image:
-            return format_html('<span style="color: {};">✓ 있음</span>', COLOR_SUCCESS)
-        return format_html('<span style="color: {};">✗ 없음</span>', COLOR_MUTED)
-    has_image.short_description = '대표 이미지'
+            return format_html(
+                '<span style="color: {};">✓ {}</span>',
+                COLOR_SUCCESS,
+                _('Yes'),
+            )
+        return format_html(
+            '<span style="color: {};">✗ {}</span>',
+            COLOR_MUTED,
+            _('No'),
+        )
+    has_image.short_description = _('Featured image')
 
     def usage_status(self, obj):
         count = obj.post_count if hasattr(obj, 'post_count') else obj.posts.count()
@@ -125,33 +135,34 @@ class TagAdmin(ConfirmedActionDeleteAdminMixin, admin.ModelAdmin):
         if count == 0:
             if trashed_count:
                 return format_html(
-                    '<span style="background: {}; color: {}; padding: 2px 8px; border-radius: 4px; font-size: 10px; opacity: 0.8;">휴지통 전용</span>',
+                    '<span style="background: {}; color: {}; padding: 2px 8px; border-radius: 4px; font-size: 10px; opacity: 0.8;">{}</span>',
                     COLOR_WARNING,
                     COLOR_BG,
+                    _('Trash only'),
                 )
             return format_html(
-                '<span style="background: {}; color: {}; padding: 2px 8px; border-radius: 4px; font-size: 10px; opacity: 0.8;">미사용</span>',
-                COLOR_DANGER, COLOR_BG
+                '<span style="background: {}; color: {}; padding: 2px 8px; border-radius: 4px; font-size: 10px; opacity: 0.8;">{}</span>',
+                COLOR_DANGER, COLOR_BG, _('Unused')
             )
         elif count < 3:
             return format_html(
-                '<span style="background: {}; color: {}; padding: 2px 8px; border-radius: 4px; font-size: 10px; opacity: 0.8;">저빈도</span>',
-                COLOR_WARNING, COLOR_BG
+                '<span style="background: {}; color: {}; padding: 2px 8px; border-radius: 4px; font-size: 10px; opacity: 0.8;">{}</span>',
+                COLOR_WARNING, COLOR_BG, _('Low usage')
             )
         elif count < 10:
             return format_html(
-                '<span style="background: {}; color: {}; padding: 2px 8px; border-radius: 4px; font-size: 10px; opacity: 0.8;">중빈도</span>',
-                COLOR_INFO, COLOR_BG
+                '<span style="background: {}; color: {}; padding: 2px 8px; border-radius: 4px; font-size: 10px; opacity: 0.8;">{}</span>',
+                COLOR_INFO, COLOR_BG, _('Medium usage')
             )
         else:
             return format_html(
-                '<span style="background: {}; color: {}; padding: 2px 8px; border-radius: 4px; font-size: 10px; opacity: 0.8;">고빈도</span>',
-                COLOR_SUCCESS, COLOR_BG
+                '<span style="background: {}; color: {}; padding: 2px 8px; border-radius: 4px; font-size: 10px; opacity: 0.8;">{}</span>',
+                COLOR_SUCCESS, COLOR_BG, _('High usage')
             )
-    usage_status.short_description = '사용 상태'
+    usage_status.short_description = _('Usage status')
 
     @admin.action(
-        description='선택한 태그 중 미사용 태그 삭제',
+        description=_('Delete unused tags from the selection'),
         permissions=['delete'],
     )
     def clear_unused_tags(
@@ -164,7 +175,7 @@ class TagAdmin(ConfirmedActionDeleteAdminMixin, admin.ModelAdmin):
             if not unused_tags.exists():
                 self.message_user(
                     request,
-                    '선택한 항목에 미사용 태그가 없습니다.',
+                    _('There are no unused tags in the selection.'),
                     level=messages.WARNING,
                 )
                 return None
@@ -173,12 +184,12 @@ class TagAdmin(ConfirmedActionDeleteAdminMixin, admin.ModelAdmin):
                 self,
                 unused_tags,
                 action_name='clear_unused_tags',
-                title='미사용 태그 삭제 확인',
-                warning=(
-                    '현재 어떤 포스트에서도 참조하지 않는 태그만 삭제합니다. '
-                    '삭제한 태그는 복구할 수 없습니다.'
+                title=_('Confirm unused tag deletion'),
+                warning=_(
+                    'Only tags that are not referenced by any post will be '
+                    'deleted. Deleted tags cannot be recovered.'
                 ),
-                confirm_label='미사용 태그 삭제',
+                confirm_label=_('Delete unused tags'),
             )
 
         selected_ids = list(queryset.values_list('pk', flat=True))
@@ -202,7 +213,7 @@ class TagAdmin(ConfirmedActionDeleteAdminMixin, admin.ModelAdmin):
                 if tag.pk in confirmed_unused_ids
             ]
             self.log_deletions(request, deletable_tags)
-            count, _ = TagCleanerService.clean_selected_unused_tags(
+            count, _cleanup_details = TagCleanerService.clean_selected_unused_tags(
                 Tag.objects.filter(
                     pk__in=[tag.pk for tag in deletable_tags],
                 ),
@@ -211,7 +222,11 @@ class TagAdmin(ConfirmedActionDeleteAdminMixin, admin.ModelAdmin):
 
         self.message_user(
             request,
-            f'{count}개의 미사용 태그를 삭제했습니다.',
+            ngettext(
+                '%(count)d unused tag was deleted.',
+                '%(count)d unused tags were deleted.',
+                count,
+            ) % {'count': count},
             level=messages.SUCCESS,
         )
         return None

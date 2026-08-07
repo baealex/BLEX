@@ -6,6 +6,8 @@ from typing import Optional, Any
 from django.urls import reverse
 from django.utils.html import format_html
 from django.utils.safestring import mark_safe, SafeString
+from django.utils.translation import gettext_lazy as _
+from django.utils.translation import pgettext_lazy
 from django.db.models import QuerySet
 
 from board.models import Profile
@@ -66,14 +68,19 @@ class AdminLinkService:
             return format_html('<span style="color: {};">Error</span>', COLOR_MUTED)
 
     @staticmethod
-    def create_external_link(url: Optional[str], text: str = '링크') -> SafeString:
+    def create_external_link(
+        url: Optional[str],
+        text: Optional[str] = None,
+    ) -> SafeString:
         """외부 링크 생성"""
         if not url:
             return format_html('<span style="color: {};">-</span>', COLOR_MUTED)
 
         return format_html(
             '<a href="{}" target="_blank" rel="noopener noreferrer" style="color: {}; text-decoration: none;">{}</a>',
-            url, COLOR_PRIMARY, text
+            url,
+            COLOR_PRIMARY,
+            text if text is not None else _('Link'),
         )
 
 
@@ -84,11 +91,23 @@ class AdminDisplayService:
     def role_badge(role: str, profile_model: Optional[Any] = None) -> SafeString:
         """역할 뱃지 생성 (관리자/작가/독자)"""
         badge_configs = {
-            Profile.Role.EDITOR: (COLOR_SUCCESS, '작가'),
-            Profile.Role.READER: (COLOR_MUTED, '독자'),
+            Profile.Role.EDITOR: (
+                COLOR_SUCCESS,
+                pgettext_lazy('Admin user role', 'Author'),
+            ),
+            Profile.Role.READER: (
+                COLOR_MUTED,
+                pgettext_lazy('Admin user role', 'Reader'),
+            ),
         }
 
-        color, text = badge_configs.get(role, (COLOR_MUTED, '독자'))
+        color, text = badge_configs.get(
+            role,
+            (
+                COLOR_MUTED,
+                pgettext_lazy('Admin user role', 'Reader'),
+            ),
+        )
 
         return format_html(
             '<span style="background: {}; color: {}; padding: 4px 10px; '
@@ -99,20 +118,22 @@ class AdminDisplayService:
     @staticmethod
     def boolean_badge(
         value: bool,
-        true_text: str = '활성',
-        false_text: str = '비활성',
+        true_text: Optional[str] = None,
+        false_text: Optional[str] = None,
         true_color: str = None,
         false_color: str = None
     ) -> SafeString:
         """불린 값 뱃지 생성"""
+        true_label = true_text if true_text is not None else _('Active')
+        false_label = false_text if false_text is not None else _('Inactive')
         if value:
             return format_html(
                 '<span style="color: {};">✓ {}</span>',
-                true_color or COLOR_SUCCESS, true_text
+                true_color or COLOR_SUCCESS, true_label
             )
         return format_html(
             '<span style="color: {};">✗ {}</span>',
-            false_color or COLOR_MUTED, false_text
+            false_color or COLOR_MUTED, false_label
         )
 
     @staticmethod
@@ -120,8 +141,8 @@ class AdminDisplayService:
         """활성화 상태 뱃지 생성"""
         return AdminDisplayService.boolean_badge(
             is_active,
-            true_text='활성',
-            false_text='비활성'
+            true_text=_('Active'),
+            false_text=_('Inactive'),
         )
 
     @staticmethod
@@ -130,13 +151,17 @@ class AdminDisplayService:
         if is_read:
             return format_html(
                 '<span style="background: {}; color: {}; padding: 3px 8px; '
-                'border-radius: 4px; font-size: 11px;">읽음</span>',
-                COLOR_DARKENED_BG, COLOR_TEXT
+                'border-radius: 4px; font-size: 11px;">{}</span>',
+                COLOR_DARKENED_BG,
+                COLOR_TEXT,
+                _('Read'),
             )
         return format_html(
             '<span style="background: {}; color: {}; padding: 3px 8px; '
-            'border-radius: 4px; font-size: 11px;">읽지 않음</span>',
-            COLOR_PRIMARY, COLOR_BG
+            'border-radius: 4px; font-size: 11px;">{}</span>',
+            COLOR_PRIMARY,
+            COLOR_BG,
+            _('Unread'),
         )
 
     @staticmethod
@@ -145,21 +170,27 @@ class AdminDisplayService:
         if is_hidden:
             return format_html(
                 '<span style="background: {}; color: {}; padding: 3px 8px; '
-                'border-radius: 4px; font-size: 11px;">숨김</span>',
-                COLOR_DANGER, COLOR_BG
+                'border-radius: 4px; font-size: 11px;">{}</span>',
+                COLOR_DANGER,
+                COLOR_BG,
+                _('Hidden'),
             )
         return format_html(
             '<span style="background: {}; color: {}; padding: 3px 8px; '
-            'border-radius: 4px; font-size: 11px;">공개</span>',
-            COLOR_SUCCESS, COLOR_BG
+            'border-radius: 4px; font-size: 11px;">{}</span>',
+            COLOR_SUCCESS,
+            COLOR_BG,
+            _('Public'),
         )
 
     def advertise_badge() -> SafeString:
         """광고 뱃지 생성"""
         return format_html(
             '<span style="background: {}; color: {}; padding: 3px 8px; '
-            'border-radius: 4px; font-size: 11px;">광고</span>',
-            COLOR_INFO, COLOR_BG
+            'border-radius: 4px; font-size: 11px;">{}</span>',
+            COLOR_INFO,
+            COLOR_BG,
+            _('Advertisement'),
         )
 
     @staticmethod
@@ -176,20 +207,32 @@ class AdminDisplayService:
             return format_html(
                 '<div style="width: {}; height: {}; background: {}; '
                 'border-radius: {}; display: flex; align-items: center; '
-                'justify-content: center; color: {};">없음</div>',
-                width, height, COLOR_DARKENED_BG, '50%' if rounded else '8px', COLOR_MUTED
+                'justify-content: center; color: {};">{}</div>',
+                width,
+                height,
+                COLOR_DARKENED_BG,
+                '50%' if rounded else '8px',
+                COLOR_MUTED,
+                _('None'),
             )
 
         if height == 'auto':
             return format_html(
-                '<img src="{}" loading="lazy" alt="preview" style="max-width: {}; border-radius: {};" />',
-                image_url, width, '50%' if rounded else '8px'
+                '<img src="{}" loading="lazy" alt="{}" style="max-width: {}; border-radius: {};" />',
+                image_url,
+                _('Preview'),
+                width,
+                '50%' if rounded else '8px',
             )
 
         return format_html(
-            '<img src="{}" loading="lazy" alt="preview" style="width: {}; height: {}; object-fit: cover; '
+            '<img src="{}" loading="lazy" alt="{}" style="width: {}; height: {}; object-fit: cover; '
             'border-radius: {};" />',
-            image_url, width, height, '50%' if rounded else '8px'
+            image_url,
+            _('Preview'),
+            width,
+            height,
+            '50%' if rounded else '8px',
         )
 
     @staticmethod
@@ -209,10 +252,12 @@ class AdminDisplayService:
     def cover_preview(cover_obj: Optional[Any], max_width: str = COVER_MAX_WIDTH) -> str:
         """커버 이미지 미리보기 생성"""
         if not cover_obj:
-            return '커버 이미지 없음'
+            return _('No cover image')
         return format_html(
-            '<img src="{}" loading="lazy" alt="cover" style="max-width: {}; border-radius: 8px;" />',
-            cover_obj.url, max_width
+            '<img src="{}" loading="lazy" alt="{}" style="max-width: {}; border-radius: 8px;" />',
+            cover_obj.url,
+            _('Cover image'),
+            max_width,
         )
 
     @staticmethod
@@ -240,16 +285,16 @@ class AdminDisplayService:
         """사용자 정보 박스 생성"""
         return format_html(
             '<div style="background: {}; padding: 12px; border-radius: 6px; border: 1px solid {};">'
-            '<p style="margin: 4px 0; color: {};"><strong>이메일:</strong> {}</p>'
-            '<p style="margin: 4px 0; color: {};"><strong>가입일:</strong> {}</p>'
-            '<p style="margin: 4px 0; color: {};"><strong>마지막 로그인:</strong> {}</p>'
-            '<p style="margin: 4px 0; color: {};"><strong>활성 상태:</strong> {}</p>'
+            '<p style="margin: 4px 0; color: {};"><strong>{}:</strong> {}</p>'
+            '<p style="margin: 4px 0; color: {};"><strong>{}:</strong> {}</p>'
+            '<p style="margin: 4px 0; color: {};"><strong>{}:</strong> {}</p>'
+            '<p style="margin: 4px 0; color: {};"><strong>{}:</strong> {}</p>'
             '</div>',
             COLOR_DARKENED_BG, COLOR_BORDER,
-            COLOR_TEXT, user.email or '-',
-            COLOR_TEXT, user.date_joined.strftime(DATETIME_FORMAT_SHORT) if user.date_joined else '-',
-            COLOR_TEXT, user.last_login.strftime(DATETIME_FORMAT_SHORT) if user.last_login else '없음',
-            COLOR_TEXT, '활성화' if user.is_active else '비활성화'
+            COLOR_TEXT, _('Email'), user.email or '-',
+            COLOR_TEXT, _('Date joined'), user.date_joined.strftime(DATETIME_FORMAT_SHORT) if user.date_joined else '-',
+            COLOR_TEXT, _('Last login'), user.last_login.strftime(DATETIME_FORMAT_SHORT) if user.last_login else _('None'),
+            COLOR_TEXT, _('Active status'), _('Active') if user.is_active else _('Inactive'),
         )
 
     @staticmethod
@@ -274,26 +319,34 @@ class AdminDisplayService:
         if getattr(post, 'deleted_date', None) is not None:
             return format_html(
                 '<span style="background: {}; color: {}; padding: 3px 8px; '
-                'border-radius: 4px; font-size: 11px; font-weight: 600;">휴지통</span>',
-                COLOR_DANGER, COLOR_BG
+                'border-radius: 4px; font-size: 11px; font-weight: 600;">{}</span>',
+                COLOR_DANGER,
+                COLOR_BG,
+                _('Trash'),
             )
         if post.published_date is None:
             return format_html(
                 '<span style="background: {}; color: {}; padding: 3px 8px; '
-                'border-radius: 4px; font-size: 11px; font-weight: 600;">임시글</span>',
-                COLOR_MUTED, COLOR_BG
+                'border-radius: 4px; font-size: 11px; font-weight: 600;">{}</span>',
+                COLOR_MUTED,
+                COLOR_BG,
+                _('Draft'),
             )
         elif post.published_date > timezone.now():
             return format_html(
                 '<span style="background: {}; color: {}; padding: 3px 8px; '
-                'border-radius: 4px; font-size: 11px; font-weight: 600;">예약됨</span>',
-                COLOR_WARNING, COLOR_TEXT
+                'border-radius: 4px; font-size: 11px; font-weight: 600;">{}</span>',
+                COLOR_WARNING,
+                COLOR_TEXT,
+                _('Scheduled'),
             )
         else:
             return format_html(
                 '<span style="background: {}; color: {}; padding: 3px 8px; '
-                'border-radius: 4px; font-size: 11px; font-weight: 600;">발행됨</span>',
-                COLOR_SUCCESS, COLOR_BG
+                'border-radius: 4px; font-size: 11px; font-weight: 600;">{}</span>',
+                COLOR_SUCCESS,
+                COLOR_BG,
+                _('Published'),
             )
 
     @staticmethod
@@ -303,23 +356,23 @@ class AdminDisplayService:
         if hasattr(config, 'hide'):
             if config.hide:
                 badges.append(format_html(
-                    '<span style="background: {}; color: {}; padding: 2px 6px; border-radius: 4px; font-size: 10px; opacity: 0.8;">숨김</span>',
-                    COLOR_DANGER, COLOR_BG
+                    '<span style="background: {}; color: {}; padding: 2px 6px; border-radius: 4px; font-size: 10px; opacity: 0.8;">{}</span>',
+                    COLOR_DANGER, COLOR_BG, _('Hidden')
                 ))
             else:
                 badges.append(format_html(
-                    '<span style="background: {}; color: {}; padding: 2px 6px; border-radius: 4px; font-size: 10px; opacity: 0.8;">공개</span>',
-                    COLOR_SUCCESS, COLOR_BG
+                    '<span style="background: {}; color: {}; padding: 2px 6px; border-radius: 4px; font-size: 10px; opacity: 0.8;">{}</span>',
+                    COLOR_SUCCESS, COLOR_BG, _('Public')
                 ))
             if config.advertise:
                 badges.append(format_html(
-                    '<span style="background: {}; color: {}; padding: 2px 6px; border-radius: 4px; font-size: 10px; opacity: 0.8;">광고</span>',
-                    COLOR_INFO, COLOR_BG
+                    '<span style="background: {}; color: {}; padding: 2px 6px; border-radius: 4px; font-size: 10px; opacity: 0.8;">{}</span>',
+                    COLOR_INFO, COLOR_BG, _('Advertisement')
                 ))
             if config.block_comment:
                 badges.append(format_html(
-                    '<span style="background: {}; color: {}; padding: 2px 6px; border-radius: 4px; font-size: 10px; opacity: 0.8;">댓글차단</span>',
-                    COLOR_DANGER, COLOR_BG
+                    '<span style="background: {}; color: {}; padding: 2px 6px; border-radius: 4px; font-size: 10px; opacity: 0.8;">{}</span>',
+                    COLOR_DANGER, COLOR_BG, _('Comments disabled')
                 ))
         return mark_safe(' '.join(str(b) for b in badges)) if badges else format_html('<span style="color: {};">-</span>', COLOR_MUTED)
 
@@ -332,7 +385,11 @@ class AdminDisplayService:
         has_more = total_count > max_display
 
         if total_count == 0:
-            return format_html('<span style="color: {};">태그 없음</span>', COLOR_MUTED)
+            return format_html(
+                '<span style="color: {};">{}</span>',
+                COLOR_MUTED,
+                _('No tags'),
+            )
 
         # Display only max_display tags
         display_tags = tags_list[:max_display]
@@ -379,7 +436,7 @@ class AdminDisplayService:
                 <details style="margin-top: 10px;">
                     <summary style="cursor: pointer; padding: 8px; background: {COLOR_DARKENED_BG};
                                    border-radius: 4px; user-select: none; color: {COLOR_TEXT};">
-                        <strong>HTML 미리보기 펼치기/접기</strong>
+                        <strong>{_('Expand/collapse HTML preview')}</strong>
                     </summary>
                     <div style="margin-top: 10px; padding: 12px; border: 1px solid {COLOR_BORDER};
                                border-radius: 4px; max-height: 400px; overflow-y: auto; background: {COLOR_BG};">
@@ -407,11 +464,13 @@ class AdminDisplayService:
         )
 
     @staticmethod
-    def link(url: str, text: str = 'Open') -> SafeString:
+    def link(url: str, text: Optional[str] = None) -> SafeString:
         """링크 표시"""
         return format_html(
             '<a href="{}" target="_blank" rel="noopener noreferrer" style="color: {}; text-decoration: none;">{}</a>',
-            url, COLOR_PRIMARY, text
+            url,
+            COLOR_PRIMARY,
+            text if text is not None else _('Open'),
         )
 
     @staticmethod
@@ -430,9 +489,9 @@ class AdminDisplayService:
     def date_display(date_obj: Optional[Any], format: str = '%Y-%m-%d %H:%M') -> SafeString:
         """날짜 표시 (에러 처리 포함)"""
         if not date_obj:
-            return AdminDisplayService.empty_placeholder('없음')
+            return AdminDisplayService.empty_placeholder(_('None'))
 
         try:
             return SafeString(date_obj.strftime(format))
         except Exception:
-            return AdminDisplayService.empty_placeholder('오류')
+            return AdminDisplayService.empty_placeholder(_('Error'))

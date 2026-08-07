@@ -8,6 +8,7 @@ import {
     Tag as TagIcon,
     X
 } from '@blex/ui/icons';
+import { useLingui } from '@lingui/react/macro';
 import { Button, Input, Dropdown } from '~/components/shared';
 import { settingsCompactSelectTriggerStyles } from '~/styles/settingsStyles';
 import type { FilterOptions, PostsSource } from '../hooks';
@@ -45,6 +46,7 @@ const PostsFilter = ({
     tags,
     series
 }: PostsFilterProps) => {
+    const { i18n, t } = useLingui();
     const isScheduled = source === 'scheduled';
     const VisibilityIcon = filters.visibility === 'public' ? Eye : EyeOff;
     const activeDetailFilterCount = [
@@ -56,20 +58,56 @@ const PostsFilter = ({
         tag => typeof tag.name === 'string' && tag.name.trim().length > 0
     );
     const getOrderLabel = (order: string) => {
-        if (isScheduled && order === '-published_date') return '예약 먼 순';
-        if (isScheduled && order === 'published_date') return '예약 임박순';
-        return POSTS_ORDER.find(option => option.order === order)?.name || '정렬 방식';
+        if (isScheduled && order === '-published_date') {
+            return t({
+                id: 'settings.posts.order.scheduled_farthest',
+                message: 'Latest scheduled time'
+            });
+        }
+        if (isScheduled && order === 'published_date') {
+            return t({
+                id: 'settings.posts.order.scheduled_soonest',
+                message: 'Soonest scheduled time'
+            });
+        }
+        const option = POSTS_ORDER.find(item => item.order === order);
+        return option
+            ? i18n._(option.label)
+            : t({
+                id: 'settings.posts.order.label',
+                message: 'Sort order'
+            });
     };
-    const publicLabel = isScheduled ? '발행 후 공개' : '공개';
-    const hiddenLabel = isScheduled ? '발행 후 비공개' : '숨김';
+    const publicLabel = isScheduled
+        ? t({
+            id: 'settings.posts.visibility.public_after_publish',
+            message: 'Public after publishing'
+        })
+        : t({
+            id: 'settings.posts.visibility.public',
+            message: 'Public'
+        });
+    const hiddenLabel = isScheduled
+        ? t({
+            id: 'settings.posts.visibility.private_after_publish',
+            message: 'Private after publishing'
+        })
+        : t({
+            id: 'settings.posts.visibility.private',
+            message: 'Private'
+        });
     const orderLabel = getOrderLabel(filters.order);
-    const selectedTagLabel = filters.tag || '전체';
+    const allLabel = t({
+        id: 'common.all',
+        message: 'All'
+    });
+    const selectedTagLabel = filters.tag || allLabel;
     const selectedSeriesLabel = filters.series
         ? series?.find((item) => item.url === filters.series)?.title || filters.series
-        : '전체';
+        : allLabel;
     const selectedVisibilityLabel = filters.visibility === 'public'
         ? publicLabel
-        : filters.visibility === 'hidden' ? hiddenLabel : '전체';
+        : filters.visibility === 'hidden' ? hiddenLabel : allLabel;
 
     return (
         <div className="mb-6 space-y-3">
@@ -78,8 +116,19 @@ const PostsFilter = ({
                     <Input
                         type="search"
                         density="compact"
-                        aria-label="포스트 제목 검색"
-                        placeholder={isScheduled ? '예약 포스트 제목 검색...' : '포스트 제목 검색...'}
+                        aria-label={t({
+                            id: 'settings.posts.filters.search_aria',
+                            message: 'Search post titles'
+                        })}
+                        placeholder={isScheduled
+                            ? t({
+                                id: 'settings.posts.filters.search_scheduled_placeholder',
+                                message: 'Search scheduled post titles...'
+                            })
+                            : t({
+                                id: 'settings.posts.filters.search_placeholder',
+                                message: 'Search post titles...'
+                            })}
                         value={searchValue}
                         onChange={onSearchChange}
                         leftIcon={<Search aria-hidden className="h-4 w-4" />}
@@ -88,7 +137,10 @@ const PostsFilter = ({
                     {searchValue && (
                         <button
                             type="button"
-                            aria-label="검색어 지우기"
+                            aria-label={t({
+                                id: 'common.search.clear',
+                                message: 'Clear search'
+                            })}
                             onClick={() => onFilterChange('search', '')}
                             className="absolute inset-y-0 right-0 inline-flex min-w-11 items-center justify-center rounded-lg text-content-secondary transition-colors hover:bg-surface-subtle hover:text-content [@media(pointer:fine)]:min-w-9">
                             <X aria-hidden className="h-3.5 w-3.5" />
@@ -102,7 +154,11 @@ const PostsFilter = ({
                     trigger={
                         <button
                             type="button"
-                            aria-label={`포스트 정렬 방식 선택, 현재 ${orderLabel}`}
+                            aria-label={i18n._({
+                                id: 'settings.posts.filters.order_aria',
+                                message: 'Select post sort order. Current: {order}',
+                                values: { order: orderLabel }
+                            })}
                             className={`${settingsCompactSelectTriggerStyles} flex items-center justify-between text-left`}>
                             <span className="text-content font-medium">
                                 {orderLabel}
@@ -133,16 +189,30 @@ const PostsFilter = ({
                         />
                     }
                     onClick={onExpandToggle}>
-                    <span>{isExpanded ? '필터 접기' : '필터 더보기'}</span>
+                    <span>
+                        {isExpanded
+                            ? t({
+                                id: 'settings.posts.filters.collapse',
+                                message: 'Fewer filters'
+                            })
+                            : t({
+                                id: 'settings.posts.filters.expand',
+                                message: 'More filters'
+                            })}
+                    </span>
                     {activeDetailFilterCount > 0 && (
                         <span className="rounded-full bg-surface-subtle px-2 py-0.5 text-xs text-content-secondary">
-                            {activeDetailFilterCount}개 적용
+                            {i18n._({
+                                id: 'settings.posts.filters.applied_count',
+                                message: '{count, plural, one {# applied} other {# applied}}',
+                                values: { count: activeDetailFilterCount }
+                            })}
                         </span>
                     )}
                 </Button>
             </div>
 
-            {/* 활성 필터 뱃지 */}
+            {/* Active filter badges */}
             {hasDetailFilters(filters) && (
                 <div className="flex flex-wrap items-center gap-2">
                     {filters.tag && (
@@ -151,7 +221,11 @@ const PostsFilter = ({
                             <span>{filters.tag}</span>
                             <button
                                 type="button"
-                                aria-label={`${filters.tag} 태그 필터 제거`}
+                                aria-label={i18n._({
+                                    id: 'settings.posts.filters.remove_tag',
+                                    message: 'Remove tag filter: {tag}',
+                                    values: { tag: filters.tag }
+                                })}
                                 onClick={() => onFilterChange('tag', '')}
                                 className="inline-flex min-h-11 min-w-11 items-center justify-center rounded-lg text-content-secondary hover:bg-surface hover:text-content [@media(pointer:fine)]:min-h-9 [@media(pointer:fine)]:min-w-9">
                                 <X aria-hidden className="h-3.5 w-3.5" />
@@ -164,7 +238,10 @@ const PostsFilter = ({
                             <span>{series?.find((s) => s.url === filters.series)?.title || filters.series}</span>
                             <button
                                 type="button"
-                                aria-label="시리즈 필터 제거"
+                                aria-label={t({
+                                    id: 'settings.posts.filters.remove_series',
+                                    message: 'Remove series filter'
+                                })}
                                 onClick={() => onFilterChange('series', '')}
                                 className="inline-flex min-h-11 min-w-11 items-center justify-center rounded-lg text-content-secondary hover:bg-surface hover:text-content [@media(pointer:fine)]:min-h-9 [@media(pointer:fine)]:min-w-9">
                                 <X aria-hidden className="h-3.5 w-3.5" />
@@ -177,7 +254,10 @@ const PostsFilter = ({
                             <span>{filters.visibility === 'public' ? publicLabel : hiddenLabel}</span>
                             <button
                                 type="button"
-                                aria-label="공개 상태 필터 제거"
+                                aria-label={t({
+                                    id: 'settings.posts.filters.remove_visibility',
+                                    message: 'Remove visibility filter'
+                                })}
                                 onClick={() => onFilterChange('visibility', '')}
                                 className="inline-flex min-h-11 min-w-11 items-center justify-center rounded-lg text-content-secondary hover:bg-surface hover:text-content [@media(pointer:fine)]:min-h-9 [@media(pointer:fine)]:min-w-9">
                                 <X aria-hidden className="h-3.5 w-3.5" />
@@ -191,35 +271,45 @@ const PostsFilter = ({
                         className="min-h-11! [@media(pointer:fine)]:min-h-9!"
                         leftIcon={<X aria-hidden className="h-4 w-4" />}
                         onClick={onClearFilters}>
-                        필터 초기화
+                        {t({
+                            id: 'settings.posts.filters.clear',
+                            message: 'Clear filters'
+                        })}
                     </Button>
                 </div>
             )}
 
-            {/* 필터 컨트롤 */}
+            {/* Filter controls */}
             <div
                 id="posts-filter-controls"
                 hidden={!isExpanded}
                 className="rounded-2xl border border-line bg-surface-subtle p-6">
                 <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
-                    {/* 태그 필터 */}
+                    {/* Tag filter */}
                     <Dropdown
                         density="compact"
                         align="left"
                         trigger={
                             <button
                                 type="button"
-                                aria-label={`태그 필터 선택, 현재 ${selectedTagLabel}`}
+                                aria-label={i18n._({
+                                    id: 'settings.posts.filters.tag_aria',
+                                    message: 'Select tag filter. Current: {tag}',
+                                    values: { tag: selectedTagLabel }
+                                })}
                                 className={`${settingsCompactSelectTriggerStyles} flex items-center justify-between text-left`}>
                                 <span className={filters.tag ? 'text-content font-medium' : 'text-content-hint'}>
-                                    {filters.tag || '태그'}
+                                    {filters.tag || t({
+                                        id: 'settings.posts.filters.tag',
+                                        message: 'Tag'
+                                    })}
                                 </span>
                                 <ChevronDown aria-hidden className="h-4 w-4 text-content-hint" />
                             </button>
                             }
                         items={[
                                 {
-                                    label: '전체',
+                                    label: allLabel,
                                     onClick: () => onFilterChange('tag', ''),
                                     checked: filters.tag === '',
                                     className: COMPACT_DROPDOWN_ITEM_CLASS
@@ -233,24 +323,33 @@ const PostsFilter = ({
                             ]}
                     />
 
-                    {/* 시리즈 필터 */}
+                    {/* Series filter */}
                     <Dropdown
                         density="compact"
                         align="left"
                         trigger={
                             <button
                                 type="button"
-                                aria-label={`시리즈 필터 선택, 현재 ${selectedSeriesLabel}`}
+                                aria-label={i18n._({
+                                    id: 'settings.posts.filters.series_aria',
+                                    message: 'Select series filter. Current: {series}',
+                                    values: { series: selectedSeriesLabel }
+                                })}
                                 className={`${settingsCompactSelectTriggerStyles} flex items-center justify-between text-left`}>
                                 <span className={filters.series ? 'text-content font-medium' : 'text-content-hint'}>
-                                    {filters.series ? selectedSeriesLabel : '시리즈'}
+                                    {filters.series
+                                        ? selectedSeriesLabel
+                                        : t({
+                                            id: 'settings.posts.filters.series',
+                                            message: 'Series'
+                                        })}
                                 </span>
                                 <ChevronDown aria-hidden className="h-4 w-4 text-content-hint" />
                             </button>
                             }
                         items={[
                                 {
-                                    label: '전체',
+                                    label: allLabel,
                                     onClick: () => onFilterChange('series', ''),
                                     checked: filters.series === '',
                                     className: COMPACT_DROPDOWN_ITEM_CLASS
@@ -264,28 +363,40 @@ const PostsFilter = ({
                             ]}
                     />
 
-                    {/* 공개 상태 필터 */}
+                    {/* Visibility filter */}
                     <Dropdown
                         density="compact"
                         align="left"
                         trigger={
                             <button
                                 type="button"
-                                aria-label={`공개 상태 필터 선택, 현재 ${selectedVisibilityLabel}`}
+                                aria-label={i18n._({
+                                    id: 'settings.posts.filters.visibility_aria',
+                                    message: 'Select visibility filter. Current: {visibility}',
+                                    values: { visibility: selectedVisibilityLabel }
+                                })}
                                 className={`${settingsCompactSelectTriggerStyles} flex items-center justify-between text-left`}>
                                 <span className={filters.visibility ? 'text-content font-medium' : 'text-content-hint'}>
                                     {filters.visibility === 'public'
                                             ? publicLabel
                                             : filters.visibility === 'hidden'
                                                 ? hiddenLabel
-                                                : isScheduled ? '발행 후 공개 상태' : '공개 상태'}
+                                                : isScheduled
+                                                    ? t({
+                                                        id: 'settings.posts.filters.visibility_after_publish',
+                                                        message: 'Visibility after publishing'
+                                                    })
+                                                    : t({
+                                                        id: 'settings.posts.filters.visibility',
+                                                        message: 'Visibility'
+                                                    })}
                                 </span>
                                 <ChevronDown aria-hidden className="h-4 w-4 text-content-hint" />
                             </button>
                             }
                         items={[
                                 {
-                                    label: '전체',
+                                    label: allLabel,
                                     onClick: () => onFilterChange('visibility', ''),
                                     checked: filters.visibility === '',
                                     className: COMPACT_DROPDOWN_ITEM_CLASS

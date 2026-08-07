@@ -5,6 +5,8 @@ from django.db import transaction
 from django.db.models import QuerySet
 from django.http import HttpRequest
 from django.shortcuts import redirect
+from django.utils.translation import gettext_lazy as _
+from django.utils.translation import ngettext
 
 from board.models import SocialAuth, SocialAuthProvider, TwoFactorAuth
 from board.services.social_auth_connection_service import (
@@ -98,18 +100,18 @@ class TwoFactorAuthAdmin(
 
     def user_link(self, obj: TwoFactorAuth):
         return AdminLinkService.create_user_link(obj.user)
-    user_link.short_description = '사용자'
+    user_link.short_description = _('User')
     user_link.admin_order_field = 'user__username'
 
     def credential_status(self, obj: TwoFactorAuth):
         return AdminDisplayService.boolean_badge(
             True,
-            true_text='활성화됨',
+            true_text=_('Enabled'),
         )
-    credential_status.short_description = '2FA 상태'
+    credential_status.short_description = _('2FA status')
 
     @admin.action(
-        description='선택한 사용자의 2FA 해제',
+        description=_('Disable 2FA for selected users'),
         permissions=['delete'],
     )
     def disable_two_factor_auth(
@@ -121,7 +123,7 @@ class TwoFactorAuthAdmin(
             if not queryset.exists():
                 self.message_user(
                     request,
-                    '해제할 2FA 설정이 없습니다.',
+                    _('There are no 2FA settings to disable.'),
                     level=messages.WARNING,
                 )
                 return None
@@ -130,12 +132,12 @@ class TwoFactorAuthAdmin(
                 self,
                 queryset,
                 action_name='disable_two_factor_auth',
-                title='2FA 해제 확인',
-                warning=(
-                    '선택한 사용자의 2FA 인증 정보가 삭제됩니다. 기존 '
-                    '24시간 해제 제한은 그대로 적용됩니다.'
+                title=_('Confirm 2FA disable'),
+                warning=_(
+                    "The selected users' 2FA credentials will be deleted. The "
+                    'existing 24-hour disable restriction still applies.'
                 ),
-                confirm_label='2FA 해제',
+                confirm_label=_('Disable 2FA'),
             )
 
         disabled = 0
@@ -152,13 +154,23 @@ class TwoFactorAuthAdmin(
 
         self.message_user(
             request,
-            f'{disabled}명의 2FA를 해제했습니다.',
+            ngettext(
+                '2FA was disabled for %(count)d user.',
+                '2FA was disabled for %(count)d users.',
+                disabled,
+            ) % {'count': disabled},
             level=messages.SUCCESS,
         )
         if failed:
             self.message_user(
                 request,
-                f'{failed}명은 기존 해제 정책에 따라 처리하지 못했습니다.',
+                ngettext(
+                    '%(count)d user could not be processed under the existing '
+                    'disable policy.',
+                    '%(count)d users could not be processed under the existing '
+                    'disable policy.',
+                    failed,
+                ) % {'count': failed},
                 level=messages.WARNING,
             )
         return None
@@ -231,25 +243,25 @@ class SocialAuthAdmin(
 
     def user_link(self, obj: SocialAuth):
         return AdminLinkService.create_user_link(obj.user)
-    user_link.short_description = '사용자'
+    user_link.short_description = _('User')
     user_link.admin_order_field = 'user__username'
 
     def identity_status(self, obj: SocialAuth):
         return AdminDisplayService.boolean_badge(
             True,
-            true_text='보호됨',
+            true_text=_('Protected'),
         )
-    identity_status.short_description = '외부 식별자'
+    identity_status.short_description = _('External identifier')
 
     def extra_data_status(self, obj: SocialAuth):
         return AdminDisplayService.boolean_badge(
             True,
-            true_text='보호됨',
+            true_text=_('Protected'),
         )
-    extra_data_status.short_description = '제공자 원본 데이터'
+    extra_data_status.short_description = _('Provider raw data')
 
     @admin.action(
-        description='선택한 소셜 로그인 연동 해제',
+        description=_('Disconnect selected social login connections'),
         permissions=['delete'],
     )
     def disconnect_social_auth(
@@ -261,7 +273,7 @@ class SocialAuthAdmin(
             if not queryset.exists():
                 self.message_user(
                     request,
-                    '해제할 소셜 로그인 연동이 없습니다.',
+                    _('There are no social login connections to disconnect.'),
                     level=messages.WARNING,
                 )
                 return None
@@ -270,12 +282,13 @@ class SocialAuthAdmin(
                 self,
                 queryset,
                 action_name='disconnect_social_auth',
-                title='소셜 로그인 연동 해제 확인',
-                warning=(
-                    '선택한 외부 계정 연동이 삭제됩니다. 사용 가능한 '
-                    '비밀번호나 다른 연동이 없는 계정은 해제하지 않습니다.'
+                title=_('Confirm social login disconnection'),
+                warning=_(
+                    'The selected external account connections will be deleted. '
+                    'Accounts without a usable password or another connection '
+                    'will be skipped.'
                 ),
-                confirm_label='연동 해제',
+                confirm_label=_('Disconnect'),
             )
 
         disconnected = 0
@@ -292,13 +305,21 @@ class SocialAuthAdmin(
 
         self.message_user(
             request,
-            f'{disconnected}개의 소셜 로그인 연동을 해제했습니다.',
+            ngettext(
+                '%(count)d social login connection was disconnected.',
+                '%(count)d social login connections were disconnected.',
+                disconnected,
+            ) % {'count': disconnected},
             level=messages.SUCCESS,
         )
         if failed:
             self.message_user(
                 request,
-                f'{failed}개는 로그인 수단을 보존하기 위해 해제하지 않았습니다.',
+                ngettext(
+                    '%(count)d connection was kept to preserve a login method.',
+                    '%(count)d connections were kept to preserve a login method.',
+                    failed,
+                ) % {'count': failed},
                 level=messages.WARNING,
             )
         return None

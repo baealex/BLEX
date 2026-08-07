@@ -1,4 +1,5 @@
 import { useRef, useState } from 'react';
+import { useLingui } from '@lingui/react/macro';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { AxiosError } from 'axios';
 import { useConfirm } from '~/hooks/useConfirm';
@@ -14,6 +15,7 @@ import {
 } from '~/lib/api';
 import { toast } from '~/utils/toast';
 import { logger } from '~/utils/logger';
+import type { LoginPromptAction } from '~/utils/loginPrompt';
 import {
     appendCommentToTree,
     findRootParentId,
@@ -30,7 +32,7 @@ interface CommentsData {
 interface UseCommentsControllerOptions {
     postUrl: string;
     isLoggedIn: boolean;
-    onRequireLogin: (action: string) => void;
+    onRequireLogin: (action: LoginPromptAction) => void;
 }
 
 const getCommentsQueryKey = (postUrl: string) => [postUrl, 'comments'] as const;
@@ -47,6 +49,7 @@ export const useCommentsController = ({
     isLoggedIn,
     onRequireLogin
 }: UseCommentsControllerOptions) => {
+    const { t } = useLingui();
     const { confirm } = useConfirm();
     const queryClient = useQueryClient();
     const commentListRef = useRef<HTMLDivElement>(null);
@@ -106,7 +109,7 @@ export const useCommentsController = ({
 
     const handleLike = async (commentId: number) => {
         if (!isLoggedIn) {
-            onRequireLogin('좋아요');
+            onRequireLogin('like');
             return;
         }
 
@@ -127,20 +130,29 @@ export const useCommentsController = ({
                 return;
             }
 
-            toast.error(response.data.errorMessage || '좋아요 처리에 실패했습니다.');
+            toast.error(response.data.errorMessage || t({
+                id: 'comments.like.failed',
+                message: 'Could not update this like.'
+            }));
         } catch (error) {
-            toast.error(getErrorMessage(error, '좋아요 처리 중 오류가 발생했습니다.'));
+            toast.error(getErrorMessage(error, t({
+                id: 'comments.like.error',
+                message: 'Something went wrong while updating this like.'
+            })));
         }
     };
 
     const handleWrite = async () => {
         if (!isLoggedIn) {
-            onRequireLogin('댓글 작성');
+            onRequireLogin('comment');
             return;
         }
 
         if (!commentText.trim()) {
-            toast.error('댓글 내용을 입력해주세요.');
+            toast.error(t({
+                id: 'comments.validation.comment_required',
+                message: 'Enter a comment.'
+            }));
             return;
         }
 
@@ -157,13 +169,22 @@ export const useCommentsController = ({
                     createdComment
                 ));
                 scrollToLatestComment();
-                toast.success('댓글이 작성되었습니다.');
+                toast.success(t({
+                    id: 'comments.create.success',
+                    message: 'Comment posted.'
+                }));
                 return;
             }
 
-            toast.error(response.data.errorMessage || '댓글 작성에 실패했습니다.');
+            toast.error(response.data.errorMessage || t({
+                id: 'comments.create.failed',
+                message: 'Could not post the comment.'
+            }));
         } catch (error) {
-            toast.error(getErrorMessage(error, '댓글 작성 중 오류가 발생했습니다.'));
+            toast.error(getErrorMessage(error, t({
+                id: 'comments.create.error',
+                message: 'Something went wrong while posting the comment.'
+            })));
         } finally {
             setIsSubmitting(false);
         }
@@ -179,10 +200,16 @@ export const useCommentsController = ({
                 return;
             }
 
-            toast.error(data.errorMessage || '댓글 정보를 불러오는데 실패했습니다.');
+            toast.error(data.errorMessage || t({
+                id: 'comments.edit.load_failed',
+                message: 'Could not load the comment.'
+            }));
         } catch (error) {
-            logger.error('댓글 수정 오류:', error);
-            toast.error('댓글 정보를 불러오는 중 오류가 발생했습니다.');
+            logger.error('Failed to load comment for editing:', error);
+            toast.error(t({
+                id: 'comments.edit.load_error',
+                message: 'Something went wrong while loading the comment.'
+            }));
         }
     };
 
@@ -193,7 +220,10 @@ export const useCommentsController = ({
 
     const saveEdit = async (commentId: number) => {
         if (!editText.trim()) {
-            toast.error('댓글 내용을 입력해주세요.');
+            toast.error(t({
+                id: 'comments.validation.comment_required',
+                message: 'Enter a comment.'
+            }));
             return;
         }
 
@@ -206,13 +236,22 @@ export const useCommentsController = ({
                 setEditingCommentId(null);
                 setEditText('');
                 await commentsQuery.refetch();
-                toast.success('댓글이 수정되었습니다.');
+                toast.success(t({
+                    id: 'comments.edit.success',
+                    message: 'Comment updated.'
+                }));
                 return;
             }
 
-            toast.error(response.data.errorMessage || '댓글 수정에 실패했습니다.');
+            toast.error(response.data.errorMessage || t({
+                id: 'comments.edit.failed',
+                message: 'Could not update the comment.'
+            }));
         } catch (error) {
-            toast.error(getErrorMessage(error, '댓글 수정 중 오류가 발생했습니다.'));
+            toast.error(getErrorMessage(error, t({
+                id: 'comments.edit.error',
+                message: 'Something went wrong while updating the comment.'
+            })));
         } finally {
             setIsSubmitting(false);
         }
@@ -220,9 +259,18 @@ export const useCommentsController = ({
 
     const deleteComment = async (commentId: number) => {
         const confirmed = await confirm({
-            title: '댓글 삭제',
-            message: '이 댓글을 삭제하시겠습니까?',
-            confirmText: '삭제',
+            title: t({
+                id: 'comments.delete.title',
+                message: 'Delete comment'
+            }),
+            message: t({
+                id: 'comments.delete.confirm',
+                message: 'Delete this comment?'
+            }),
+            confirmText: t({
+                id: 'common.delete',
+                message: 'Delete'
+            }),
             variant: 'danger'
         });
 
@@ -237,19 +285,28 @@ export const useCommentsController = ({
                     currentComments,
                     deletedComment
                 ));
-                toast.success('댓글이 삭제되었습니다.');
+                toast.success(t({
+                    id: 'comments.delete.success',
+                    message: 'Comment deleted.'
+                }));
                 return;
             }
 
-            toast.error(response.data.errorMessage || '댓글 삭제에 실패했습니다.');
+            toast.error(response.data.errorMessage || t({
+                id: 'comments.delete.failed',
+                message: 'Could not delete the comment.'
+            }));
         } catch (error) {
-            toast.error(getErrorMessage(error, '댓글 삭제 중 오류가 발생했습니다.'));
+            toast.error(getErrorMessage(error, t({
+                id: 'comments.delete.error',
+                message: 'Something went wrong while deleting the comment.'
+            })));
         }
     };
 
     const startReplying = (commentId: number, authorUsername: string) => {
         if (!isLoggedIn) {
-            onRequireLogin('답글 작성');
+            onRequireLogin('reply');
             return;
         }
 
@@ -272,17 +329,23 @@ export const useCommentsController = ({
 
     const handleReply = async () => {
         if (!isLoggedIn) {
-            onRequireLogin('답글 작성');
+            onRequireLogin('reply');
             return;
         }
 
         if (!replyText.trim()) {
-            toast.error('답글 내용을 입력해주세요.');
+            toast.error(t({
+                id: 'comments.validation.reply_required',
+                message: 'Enter a reply.'
+            }));
             return;
         }
 
         if (!replyParentId) {
-            toast.error('답글을 작성할 댓글을 찾을 수 없습니다.');
+            toast.error(t({
+                id: 'comments.reply.parent_missing',
+                message: 'Could not find the comment to reply to.'
+            }));
             return;
         }
 
@@ -302,13 +365,22 @@ export const useCommentsController = ({
                     createdReply
                 ));
                 scrollToLatestComment();
-                toast.success('답글이 작성되었습니다.');
+                toast.success(t({
+                    id: 'comments.reply.success',
+                    message: 'Reply posted.'
+                }));
                 return;
             }
 
-            toast.error(response.data.errorMessage || '답글 작성에 실패했습니다.');
+            toast.error(response.data.errorMessage || t({
+                id: 'comments.reply.failed',
+                message: 'Could not post the reply.'
+            }));
         } catch (error) {
-            toast.error(getErrorMessage(error, '답글 작성 중 오류가 발생했습니다.'));
+            toast.error(getErrorMessage(error, t({
+                id: 'comments.reply.error',
+                message: 'Something went wrong while posting the reply.'
+            })));
         } finally {
             setIsSubmitting(false);
         }

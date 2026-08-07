@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { useLingui } from '@lingui/react/macro';
 import { createDraft, updateDraft } from '~/lib/api/posts';
 import type { Response } from '~/lib/http.module';
 
@@ -29,10 +30,14 @@ interface UseAutoSaveOptions {
     onError?: (error: Error) => void;
 }
 
-const buildDraftPayload = (data: AutoSaveData, useFormData: boolean) => {
+const buildDraftPayload = (
+    data: AutoSaveData,
+    useFormData: boolean,
+    untitledLabel: string
+) => {
     if (useFormData) {
         const formData = new FormData();
-        formData.append('title', data.title || '제목 없음');
+        formData.append('title', data.title || untitledLabel);
         formData.append('content', data.content);
         formData.append('tags', data.tags);
         if (data.subtitle) formData.append('subtitle', data.subtitle);
@@ -52,7 +57,7 @@ const buildDraftPayload = (data: AutoSaveData, useFormData: boolean) => {
     }
 
     return {
-        title: data.title || '제목 없음',
+        title: data.title || untitledLabel,
         content: data.content,
         tags: data.tags,
         subtitle: data.subtitle,
@@ -69,15 +74,19 @@ const buildDraftPayload = (data: AutoSaveData, useFormData: boolean) => {
     };
 };
 
-const ensureDraftSaved = (response: Response<{ url: string }>) => {
+const ensureDraftSaved = (
+    response: Response<{ url: string }>,
+    fallbackErrorMessage: string
+) => {
     if (response.status === 'DONE') {
         return response.body;
     }
 
-    throw new Error(response.errorMessage || '임시저장에 실패했습니다.');
+    throw new Error(response.errorMessage || fallbackErrorMessage);
 };
 
 export const useAutoSave = (data: AutoSaveData, options: UseAutoSaveOptions) => {
+    const { t } = useLingui();
     const [lastSaved, setLastSaved] = useState<Date | null>(null);
     const [isSaving, setIsSaving] = useState(false);
     const [hasSaveError, setHasSaveError] = useState(false);
@@ -152,11 +161,23 @@ export const useAutoSave = (data: AutoSaveData, options: UseAutoSaveOptions) => 
 
         setIsSaving(true);
         try {
-            const payload = buildDraftPayload(currentData, needsFormData);
+            const untitledLabel = t({
+                id: 'editor.common.untitled',
+                message: 'Untitled'
+            });
+            const fallbackErrorMessage = t({
+                id: 'editor.autosave.error',
+                message: 'Could not save the draft.'
+            });
+            const payload = buildDraftPayload(
+                currentData,
+                needsFormData,
+                untitledLabel
+            );
 
             if (draftUrlRef.current) {
                 const response = await updateDraft(draftUrlRef.current, payload);
-                const body = ensureDraftSaved(response.data);
+                const body = ensureDraftSaved(response.data, fallbackErrorMessage);
                 // Update draftUrlRef if URL changed (e.g. custom_url was applied)
                 if (body.url) {
                     const newUrl = body.url;
@@ -167,7 +188,7 @@ export const useAutoSave = (data: AutoSaveData, options: UseAutoSaveOptions) => 
                 }
             } else {
                 const response = await createDraft(payload);
-                const body = ensureDraftSaved(response.data);
+                const body = ensureDraftSaved(response.data, fallbackErrorMessage);
                 const url = body.url;
                 if (url) {
                     draftUrlRef.current = url;
@@ -191,7 +212,7 @@ export const useAutoSave = (data: AutoSaveData, options: UseAutoSaveOptions) => 
         } finally {
             setIsSaving(false);
         }
-    }, [isSaving, getDataSignature, getContentSignature]);
+    }, [isSaving, getDataSignature, getContentSignature, t]);
 
     // Auto-save effect
     useEffect(() => {

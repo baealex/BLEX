@@ -3,7 +3,7 @@ from unittest.mock import patch
 from django.db import IntegrityError, transaction
 from django.test import TestCase
 
-from board.models import Tag
+from board.models import Post, Tag, User
 from board.services.tag_service import TagService
 
 
@@ -14,8 +14,22 @@ class TagIntegrityTestCase(TestCase):
             {'python', '한글', 'tag'},
         )
 
-    def test_parse_tags_preserves_default_tag(self):
-        self.assertEqual(TagService.parse_tags(''), {'미분류'})
+    def test_parse_tags_does_not_generate_language_specific_fallback(self):
+        self.assertEqual(TagService.parse_tags(''), set())
+
+    def test_empty_tag_input_clears_tags_without_creating_a_fallback(self):
+        user = User.objects.create_user(username='tag-owner')
+        post = Post.objects.create(
+            author=user,
+            title='No generated tag',
+            url='no-generated-tag',
+        )
+        post.tags.add(Tag.objects.create(value='existing'))
+
+        TagService.set_post_tags(post, '')
+
+        self.assertFalse(post.tags.exists())
+        self.assertFalse(Tag.objects.filter(value='미분류').exists())
 
     def test_database_rejects_duplicate_value(self):
         Tag.objects.create(value='duplicate')

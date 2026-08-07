@@ -1,4 +1,5 @@
 import { AlertTriangle, CheckCircle, Info } from '@blex/ui/icons';
+import { Trans, useLingui } from '@lingui/react/macro';
 import { Modal } from '@blex/ui/modal';
 import type { PublishChecklistItem, PublishChecklistResult } from '../utils/publishChecklist';
 
@@ -9,10 +10,6 @@ interface PublishChecklistProps {
     onClose: () => void;
     onConfirm: () => void;
 }
-
-const severityLabel = (item: PublishChecklistItem) => (
-    item.severity === 'required' ? '필수' : '권장'
-);
 
 const itemClassName = (item: PublishChecklistItem) => {
     if (item.status === 'pass') {
@@ -45,10 +42,25 @@ const PublishChecklist = ({
     onClose,
     onConfirm
 }: PublishChecklistProps) => {
-    const title = result.canPublish ? '발행 전 최종 확인' : '발행 전에 꼭 채워주세요';
+    const { i18n, t } = useLingui();
+    const title = result.canPublish
+        ? t({
+            id: 'editor.publish.checklist_ready_title',
+            message: 'Final review before publishing'
+        })
+        : t({
+            id: 'editor.publish.checklist_missing_title',
+            message: 'Complete the required fields'
+        });
     const description = result.canPublish
-        ? '필수 항목은 준비되었습니다. 권장 항목은 나중에 보완할 수 있습니다.'
-        : '필수 항목을 채워주세요.';
+        ? t({
+            id: 'editor.publish.checklist_ready_description',
+            message: 'All required fields are ready. You can add recommended details later.'
+        })
+        : t({
+            id: 'editor.publish.checklist_missing_description',
+            message: 'Complete the required fields before publishing.'
+        });
 
     return (
         <Modal
@@ -79,10 +91,18 @@ const PublishChecklist = ({
                                     <div className="flex items-center gap-2">
                                         <span className="text-sm font-semibold">{item.label}</span>
                                         <span className="rounded-md border border-line px-1.5 py-0.5 text-[10px] text-content-hint">
-                                            {severityLabel(item)}
+                                            {item.severity === 'required' ? (
+                                                <Trans id="editor.publish.required">Required</Trans>
+                                            ) : (
+                                                <Trans id="editor.publish.recommended">Recommended</Trans>
+                                            )}
                                         </span>
                                         <span className="text-xs text-content-hint">
-                                            {item.status === 'pass' ? '작성됨' : '비어 있음'}
+                                            {item.status === 'pass' ? (
+                                                <Trans id="editor.publish.complete">Complete</Trans>
+                                            ) : (
+                                                <Trans id="editor.publish.empty">Empty</Trans>
+                                            )}
                                         </span>
                                     </div>
                                     <p className="mt-1 text-xs leading-relaxed text-content-secondary">
@@ -96,9 +116,17 @@ const PublishChecklist = ({
 
                 {result.missingRecommended.length > 0 && result.canPublish && (
                     <div className="rounded-xl border border-warning-line bg-warning-surface px-4 py-3">
-                        <p className="text-sm font-semibold text-warning">권장 항목이 비어 있습니다.</p>
+                        <p className="text-sm font-semibold text-warning">
+                            <Trans id="editor.publish.recommended_empty">
+                                Some recommended fields are empty.
+                            </Trans>
+                        </p>
                         <p className="mt-1 text-xs leading-relaxed text-content-secondary">
-                            {result.missingRecommended.map(item => item.label).join(', ')}은 나중에 보완할 수 있습니다.
+                            {i18n._({
+                                id: 'editor.publish.recommended_later',
+                                message: 'You can add these later: {fields}',
+                                values: { fields: result.missingRecommended.map(item => item.label).join(', ') }
+                            })}
                         </p>
                     </div>
                 )}
@@ -108,7 +136,7 @@ const PublishChecklist = ({
                     type="button"
                     variant="secondary"
                     onClick={onClose}>
-                    취소
+                    <Trans id="common.cancel">Cancel</Trans>
                 </Modal.FooterAction>
                 <Modal.FooterAction
                     type="button"

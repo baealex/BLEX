@@ -1,5 +1,6 @@
 from django.http import Http404
 from django.shortcuts import get_object_or_404
+from django.utils.translation import gettext
 
 from board.models import SiteContentScope
 from board.modules.response import StatusDone, StatusError
@@ -93,7 +94,7 @@ def banner(request, banner_id=None):
     if request.method == 'DELETE' and banner_id:
         banner_item = get_object_or_404(queryset, id=banner_id)
         banner_item.delete()
-        return StatusDone({'message': '배너가 삭제되었습니다.'})
+        return StatusDone({'message': gettext('Banner deleted.')})
 
     raise Http404
 
@@ -115,4 +116,4 @@ def banner_order(request):
         request.user,
         put_data.get('order', []),
     )
-    return StatusDone({'message': '배너 순서가 업데이트되었습니다.'})
+    return StatusDone({'message': gettext('Banner order updated.')})

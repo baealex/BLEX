@@ -64,6 +64,14 @@ class InitialSetupViewTestCase(TestCase):
         self.assertNotContains(response, 'href="/login"')
         self.assertNotContains(response, 'href="/sign"')
 
+    def test_setup_page_renders_in_english(self):
+        response = self.client.get('/setup', HTTP_ACCEPT_LANGUAGE='en')
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'Initial setup')
+        self.assertContains(response, 'Create administrator account')
+        self.assertContains(response, 'Username')
+
     def test_setup_creates_first_admin_account(self):
         """최초 설정 제출은 staff/superuser/editor 관리자를 생성하고 로그인시킨다."""
         response = self.client.post('/setup', self.setup_data)
@@ -119,6 +127,20 @@ class InitialSetupViewTestCase(TestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, '비밀번호가 서로 일치하지 않습니다.')
+        self.assertFalse(User.objects.filter(username='adminuser').exists())
+
+    def test_setup_validation_error_renders_in_english(self):
+        response = self.client.post(
+            '/setup',
+            {
+                **self.setup_data,
+                'password_check': 'DifferentPass123!',
+            },
+            HTTP_ACCEPT_LANGUAGE='en',
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'Passwords do not match.')
         self.assertFalse(User.objects.filter(username='adminuser').exists())
 
     def test_setup_rejects_weak_password(self):

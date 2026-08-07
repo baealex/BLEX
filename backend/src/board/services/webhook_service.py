@@ -10,6 +10,7 @@ import time
 import requests
 
 from django.db.models import Q
+from django.utils.translation import gettext as _
 
 from board.models import Post, PostConfig, WebhookSubscription, Profile, SiteContentScope
 from board.services.site_url_service import SiteUrlService
@@ -157,7 +158,13 @@ class WebhookService:
 
         post_url = SiteUrlService.configured_absolute_url(post.get_absolute_url())
         author_name = post.author.first_name or post.author.username
-        content = f'[{author_name}] 새 포스트가 발행되었어요: [{post.title}]({post_url})'
+        content = _(
+            '[%(author)s] Published a new post: [%(title)s](%(url)s)'
+        ) % {
+            'author': author_name,
+            'title': post.title,
+            'url': post_url,
+        }
         delay_seconds = max(0.0, WebhookService.DEFAULT_NOTIFICATION_DELAY_SECONDS)
 
         def send_all_webhooks():
@@ -250,7 +257,7 @@ class WebhookService:
         Returns:
             True if successful, False otherwise
         """
-        test_content = 'BLEX 웹훅 연결 테스트입니다.'
+        test_content = _('This is a BLEX webhook connection test.')
         return WebhookService.send_webhook(
             url=webhook_url,
             content=test_content,

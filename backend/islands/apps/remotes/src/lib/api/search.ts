@@ -1,15 +1,19 @@
 import { http, type Response } from '../http.module';
 
+export type SearchMatchedField = 'title' | 'description' | 'tag' | 'content';
+
 export interface SearchResult {
     url: string;
     title: string;
     image: string;
     description: string;
     createdDate: string;
+    publishedDate?: string;
     author: string;
     authorImage: string;
     readTime?: number;
     positions?: string[];
+    matchedFields?: SearchMatchedField[];
 }
 
 export interface SearchResponseBody {

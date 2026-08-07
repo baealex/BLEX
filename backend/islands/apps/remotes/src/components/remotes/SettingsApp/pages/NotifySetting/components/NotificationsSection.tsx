@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Trans, useLingui } from '@lingui/react/macro';
 import {
     BellOff,
     ChevronRight,
@@ -29,6 +30,7 @@ const NotificationsSection = ({
     showTelegramIntegration,
     onOpenConfig
 }: NotificationsSectionProps) => {
+    const { t } = useLingui();
     const [locallyReadNotificationIds, setLocallyReadNotificationIds] = useState<Set<number>>(
         () => new Set()
     );
@@ -55,10 +57,16 @@ const NotificationsSection = ({
                     { detail: { notificationId: notify.id } }
                 ));
             } else {
-                toast.error(data.errorMessage || '알림을 읽음으로 표시하지 못했습니다.');
+                toast.error(data.errorMessage || t({
+                    id: 'settings.notifications.mark_read_failed',
+                    message: 'Could not mark the notification as read.'
+                }));
             }
         } catch {
-            toast.error('알림을 읽음으로 표시하지 못했습니다.');
+            toast.error(t({
+                id: 'settings.notifications.mark_read_failed',
+                message: 'Could not mark the notification as read.'
+            }));
         } finally {
             setMarkingReadNotificationId(null);
         }
@@ -72,14 +80,17 @@ const NotificationsSection = ({
     return (
         <div className="space-y-8">
             <SettingsHeader
-                title="알림"
+                title={t({
+                    id: 'settings.notifications.title',
+                    message: 'Notifications'
+                })}
                 actionPosition="right"
                 action={
                     <SettingsHeaderAction
                         variant="secondary"
                         leftIcon={<Settings2 aria-hidden="true" className="h-4 w-4" />}
                         onClick={onOpenConfig}>
-                        설정
+                        <Trans id="settings.notifications.configure">Settings</Trans>
                     </SettingsHeaderAction>
                 }
             />
@@ -90,9 +101,15 @@ const NotificationsSection = ({
                     className="group relative block overflow-hidden rounded-2xl bg-surface ring-1 ring-line/60 transition-all duration-200 hover:ring-line">
                     <div className="relative p-5 sm:p-6 flex items-center justify-between">
                         <div>
-                            <h3 className="text-base font-semibold text-content mb-1.5">텔레그램 연동</h3>
+                            <h3 className="text-base font-semibold text-content mb-1.5">
+                                <Trans id="settings.notifications.telegram.title">
+                                    Connect Telegram
+                                </Trans>
+                            </h3>
                             <p className="text-content-secondary text-sm max-w-xl leading-relaxed">
-                                텔레그램을 연결하면 새 포스트, 댓글, 팔로우 알림을 받을 수 있습니다.
+                                <Trans id="settings.notifications.telegram.description">
+                                    Connect Telegram to receive notifications about new posts, comments, and follows.
+                                </Trans>
                             </p>
                         </div>
                         <div className="flex-shrink-0 ml-6">
@@ -133,10 +150,16 @@ const NotificationsSection = ({
                                                 className="min-h-11! [@media(pointer:fine)]:min-h-9!"
                                                 isLoading={markingReadNotificationId === item.id}
                                                 onClick={() => markAsRead(item)}>
-                                                읽음으로 표시
+                                                <Trans id="settings.notifications.mark_read">
+                                                    Mark as read
+                                                </Trans>
                                             </Button>
                                         ) : (
-                                            <span className="text-xs">링크를 열 수 없음</span>
+                                            <span className="text-xs">
+                                                <Trans id="settings.notifications.link_unavailable">
+                                                    Link unavailable
+                                                </Trans>
+                                            </span>
                                         )}
                                     </div>
                                 }>
@@ -148,7 +171,7 @@ const NotificationsSection = ({
                                     <span>{item.createdDate}</span>
                                     {!isRead && (
                                         <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold bg-danger-surface text-danger border border-danger-line">
-                                            NEW
+                                            <Trans id="settings.notifications.new">New</Trans>
                                         </span>
                                     )}
                                 </div>
@@ -158,7 +181,10 @@ const NotificationsSection = ({
                 ) : (
                     <SettingsEmptyState
                         icon={<BellOff aria-hidden="true" className="h-5 w-5" />}
-                        title="알림이 없습니다"
+                        title={t({
+                            id: 'settings.notifications.empty',
+                            message: 'No notifications'
+                        })}
                     />
                 )}
             </div>

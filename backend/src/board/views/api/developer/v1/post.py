@@ -1,4 +1,5 @@
 from django.utils import timezone
+from django.utils.translation import gettext
 
 from board.models import Post, Series
 from board.services.developer_token_service import DeveloperAuthError
@@ -38,7 +39,7 @@ class DeveloperPostAPI:
         if content_type not in ('html', 'markdown'):
             raise DeveloperAuthError(
                 'post.invalid_content_type',
-                'content_type은 html 또는 markdown이어야 합니다.',
+                gettext('content_type must be either html or markdown.'),
                 400,
             )
         return content_type
@@ -57,7 +58,7 @@ class DeveloperPostAPI:
         except (Series.DoesNotExist, ValueError, TypeError):
             raise DeveloperAuthError(
                 'post.series_not_found',
-                'series_id에 해당하는 시리즈를 찾을 수 없습니다.',
+                gettext('No series matches series_id.'),
                 404,
             )
         return series.url
@@ -147,7 +148,7 @@ class DeveloperPostAPI:
         except Post.DoesNotExist:
             raise DeveloperAuthError(
                 'post.not_found',
-                '글을 찾을 수 없습니다.',
+                gettext('Post not found.'),
                 404,
             )
 
@@ -158,7 +159,7 @@ class DeveloperPostAPI:
         except Post.DoesNotExist:
             raise DeveloperAuthError(
                 'post.not_found',
-                '글을 찾을 수 없습니다.',
+                gettext('Post not found.'),
                 404,
             )
 
@@ -183,7 +184,7 @@ class DeveloperPostAPI:
 
         raise DeveloperAuthError(
             'post.invalid_status',
-            '지원하지 않는 status입니다.',
+            gettext('Unsupported status.'),
             400,
         )
 

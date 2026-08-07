@@ -1,6 +1,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: BLEX 3.1\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-08-05 07:47+0900\n"
 "PO-Revision-Date: 2026-07-18 00:00+0900\n"
 "Last-Translator: BLEX contributors\n"
 "Language-Team: Korean\n"
@@ -10,253 +12,4071 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
 
-msgid "BLEX administration"
-msgstr "BLEX 관리자"
-
-msgid "Dashboard"
-msgstr "대시보드"
-
-msgid "Users"
-msgstr "사용자"
-
-msgid "Groups"
-msgstr "그룹"
-
-msgid "Admin audit log"
-msgstr "관리자 감사 로그"
-
-msgid "Utility execution history"
-msgstr "유틸리티 실행 이력"
-
+#: board/admin/__init__.py:29 board/admin/__init__.py:136
 msgid "Record type"
 msgstr "기록 유형"
 
+#: board/admin/__init__.py:34 board/admin/__init__.py:139
 msgid "Utility execution"
 msgstr "유틸리티 실행"
 
+#: board/admin/__init__.py:35
 msgid "Other admin activity"
 msgstr "기타 관리자 작업"
 
-msgid "System utilities"
-msgstr "시스템 유틸리티"
-
-msgid "Action details"
-msgstr "작업 내용"
-
-msgid "Detailed field changes"
-msgstr "상세 필드 변경"
-
-msgid "Target"
-msgstr "대상"
-
+#: board/admin/__init__.py:55
 msgid "Started unused image cleanup"
 msgstr "사용하지 않는 이미지 정리 시작"
 
+#: board/admin/__init__.py:56
 msgid "Executed unused tag cleanup"
 msgstr "사용하지 않는 태그 정리 실행"
 
+#: board/admin/__init__.py:57
 msgid "Executed session cleanup"
 msgstr "세션 정리 실행"
 
+#: board/admin/__init__.py:58
 msgid "Executed expired log cleanup"
 msgstr "만료 로그 정리 실행"
 
+#: board/admin/__init__.py:59
 msgid "Executed unused image cleanup"
 msgstr "사용하지 않는 이미지 정리 실행"
 
-msgid "Site domains"
-msgstr "사이트 도메인"
+#: board/admin/__init__.py:131
+msgid "Detailed field changes"
+msgstr "상세 필드 변경"
 
+#: board/admin/__init__.py:142 board/admin/webhook.py:114
+msgid "Target"
+msgstr "대상"
+
+#: board/admin/__init__.py:145
+msgid "System utilities"
+msgstr "시스템 유틸리티"
+
+#: board/admin/__init__.py:148 board/admin/__init__.py:158
+msgid "Action details"
+msgstr "작업 내용"
+
+#: board/admin/auth.py:103 board/admin/auth.py:246 board/admin/connection.py:52
+#: board/admin/form.py:46 board/admin/notify.py:172 board/admin/post.py:143
+#: board/admin/user.py:85 board/admin/user.py:635 board/admin/user.py:654
+#: board/admin/user.py:736 board/admin/user.py:872
+msgid "User"
+msgstr "사용자"
+
+#: board/admin/auth.py:109 board/admin/user.py:755
+msgid "Enabled"
+msgstr "활성화됨"
+
+#: board/admin/auth.py:111
+msgid "2FA status"
+msgstr "2FA 상태"
+
+#: board/admin/auth.py:114
+msgid "Disable 2FA for selected users"
+msgstr "선택한 사용자의 2FA 해제"
+
+#: board/admin/auth.py:126
+msgid "There are no 2FA settings to disable."
+msgstr "해제할 2FA 설정이 없습니다."
+
+#: board/admin/auth.py:135
+msgid "Confirm 2FA disable"
+msgstr "2FA 해제 확인"
+
+#: board/admin/auth.py:137
+msgid "The selected users' 2FA credentials will be deleted. The existing 24-hour disable restriction still applies."
+msgstr "선택한 사용자의 2FA 인증 정보가 삭제됩니다. 기존 24시간 해제 제한은 그대로 적용됩니다."
+
+#: board/admin/auth.py:140
+msgid "Disable 2FA"
+msgstr "2FA 해제"
+
+#: board/admin/auth.py:158
+#, python-format
+msgid "2FA was disabled for %(count)d user."
+msgid_plural "2FA was disabled for %(count)d users."
+msgstr[0] "%(count)d명의 2FA를 해제했습니다."
+
+#: board/admin/auth.py:168
+#, python-format
+msgid "%(count)d user could not be processed under the existing disable policy."
+msgid_plural "%(count)d users could not be processed under the existing disable policy."
+msgstr[0] "%(count)d명은 기존 해제 정책에 따라 처리하지 못했습니다."
+
+#: board/admin/auth.py:252 board/admin/auth.py:259
+msgid "Protected"
+msgstr "보호됨"
+
+#: board/admin/auth.py:254
+msgid "External identifier"
+msgstr "외부 식별자"
+
+#: board/admin/auth.py:261
+msgid "Provider raw data"
+msgstr "제공자 원본 데이터"
+
+#: board/admin/auth.py:264
+msgid "Disconnect selected social login connections"
+msgstr "선택한 소셜 로그인 연동 해제"
+
+#: board/admin/auth.py:276
+msgid "There are no social login connections to disconnect."
+msgstr "해제할 소셜 로그인 연동이 없습니다."
+
+#: board/admin/auth.py:285
+msgid "Confirm social login disconnection"
+msgstr "소셜 로그인 연동 해제 확인"
+
+#: board/admin/auth.py:287
+msgid "The selected external account connections will be deleted. Accounts without a usable password or another connection will be skipped."
+msgstr "선택한 외부 계정 연동이 삭제됩니다. 사용 가능한 비밀번호나 다른 연동이 없는 계정은 해제하지 않습니다."
+
+#: board/admin/auth.py:291
+msgid "Disconnect"
+msgstr "연동 해제"
+
+#: board/admin/auth.py:309
+#, python-format
+msgid "%(count)d social login connection was disconnected."
+msgid_plural "%(count)d social login connections were disconnected."
+msgstr[0] "%(count)d개의 소셜 로그인 연동을 해제했습니다."
+
+#: board/admin/auth.py:319
+#, python-format
+msgid "%(count)d connection was kept to preserve a login method."
+msgid_plural "%(count)d connections were kept to preserve a login method."
+msgstr[0] "%(count)d개는 로그인 수단을 보존하기 위해 해제하지 않았습니다."
+
+#: board/admin/banner.py:49
+msgid "Activate selected items"
+msgstr "선택한 항목 활성화"
+
+#: board/admin/banner.py:60
+msgid "There are no inactive items to activate."
+msgstr "활성화할 비활성 항목이 없습니다."
+
+#: board/admin/banner.py:70
+#, python-format
+msgid "Confirm activation of %(items)s"
+msgstr "%(items)s 활성화 확인"
+
+#: board/admin/banner.py:74
+#, python-format
+msgid "The selected %(items)s may become visible in the service immediately after activation."
+msgstr "선택한 %(items)s는 활성화 즉시 서비스 화면에 노출될 수 있습니다."
+
+#: board/admin/banner.py:77
+msgid "Activate"
+msgstr "활성화"
+
+#: board/admin/banner.py:85
+msgid "Activated in Admin"
+msgstr "Admin에서 활성화"
+
+#: board/admin/banner.py:90
+#, python-format
+msgid "%(count)d item was activated."
+msgid_plural "%(count)d items were activated."
+msgstr[0] "%(count)d개의 항목을 활성화했습니다."
+
+#: board/admin/banner.py:96
+msgid "Deactivate selected items"
+msgstr "선택한 항목 비활성화"
+
+#: board/admin/banner.py:106
+msgid "Deactivated in Admin"
+msgstr "Admin에서 비활성화"
+
+#: board/admin/banner.py:111
+#, python-format
+msgid "%(count)d item was deactivated."
+msgid_plural "%(count)d items were deactivated."
+msgstr[0] "%(count)d개의 항목을 비활성화했습니다."
+
+#: board/admin/banner.py:146 board/admin/banner.py:215
+#: board/admin/comment.py:54 board/admin/notify.py:139 board/admin/post.py:218
+#: board/admin/series.py:118
+msgid "Basic information"
+msgstr "기본 정보"
+
+#: board/admin/banner.py:149 board/admin/banner.py:221
+#: board/admin/comment.py:175 board/admin/notify.py:142
+#: board/admin/series.py:52 board/admin/series.py:206
+#: board/templates/board/developer_api_quickstart.html:121
+msgid "Status"
+msgstr "상태"
+
+#: board/admin/banner.py:152 board/admin/banner.py:224
+#: board/admin/notify.py:145 board/admin/series.py:131
+msgid "Metadata"
+msgstr "메타데이터"
+
+#: board/admin/banner.py:171 board/admin/banner.py:246
+msgid "Scope"
+msgstr "범위"
+
+#: board/admin/banner.py:175 board/admin/banner.py:250
+msgid "Activation status"
+msgstr "활성화 상태"
+
+#: board/admin/banner.py:179 board/admin/banner.py:254
+#: board/admin/comment.py:203 board/admin/notify.py:195 board/admin/post.py:469
+#: board/admin/series.py:271
+msgid "Created at"
+msgstr "생성일시"
+
+#: board/admin/banner.py:183 board/admin/banner.py:258
+#: board/admin/notify.py:199 board/admin/post.py:473 board/admin/series.py:275
+msgid "Updated at"
+msgstr "수정일시"
+
+#: board/admin/banner.py:218
+msgid "Banner settings"
+msgstr "배너 설정"
+
+#: board/admin/comment.py:57 board/admin/comment.py:147
+#: board/admin/notify.py:176 board/admin/series.py:124 main/admin_site.py:24
 msgid "Content"
 msgstr "콘텐츠"
 
-msgid "Users and permissions"
-msgstr "사용자·권한"
+#: board/admin/comment.py:60 board/admin/image.py:70 board/admin/service.py:223
+#: board/admin/service.py:232 board/templates/board/posts/post_detail.html:6
+msgid "Preview"
+msgstr "미리보기"
 
-msgid "Notifications and integrations"
-msgstr "알림·연동"
+#: board/admin/comment.py:63 board/admin/post.py:235 board/admin/user.py:798
+msgid "Statistics"
+msgstr "통계"
 
-msgid "Audit and operations"
-msgstr "감사·운영"
+#: board/admin/comment.py:99
+msgid "Text preview"
+msgstr "텍스트 미리보기"
 
-msgid "Site settings"
-msgstr "사이트 기본 설정"
+#: board/admin/comment.py:131 board/admin/post.py:391 board/admin/series.py:155
+#: board/templates/board/posts/post_detail.html:184
+msgid "Author"
+msgstr "작성자"
 
-msgid "Login and security settings"
-msgstr "로그인·보안 설정"
-
-msgid "Notification integration settings"
-msgstr "알림 연동 설정"
-
-msgid "SEO and AEO settings"
-msgstr "SEO·AEO 설정"
-
-msgid "Product settings"
-msgstr "제품 설정"
-
-msgid "Other"
-msgstr "기타"
-
-msgid "Comment"
-msgstr "댓글"
-
-msgid "Comments"
-msgstr "댓글"
-
-msgid "User setting"
-msgstr "사용자 설정"
-
-msgid "User settings"
-msgstr "사용자 설정"
-
-msgid "Post revision"
-msgstr "포스트 수정 이력"
-
-msgid "Post revisions"
-msgstr "포스트 수정 이력"
-
-msgid "Post edit request"
-msgstr "포스트 수정 요청"
-
-msgid "Post edit requests"
-msgstr "포스트 수정 요청"
-
-msgid "Email change request"
-msgstr "이메일 변경 요청"
-
-msgid "Email change requests"
-msgstr "이메일 변경 요청"
-
-msgid "User form"
-msgstr "사용자 폼"
-
-msgid "User forms"
-msgstr "사용자 폼"
-
-msgid "Image cache"
-msgstr "이미지 캐시"
-
-msgid "Image caches"
-msgstr "이미지 캐시"
-
-msgid "Notification"
-msgstr "알림"
-
-msgid "Notifications"
-msgstr "알림"
-
-msgid "Pinned post"
-msgstr "고정 포스트"
-
-msgid "Pinned posts"
-msgstr "고정 포스트"
-
+#: board/admin/comment.py:135 board/admin/post.py:113 board/admin/post.py:138
+#: board/admin/revision.py:156 board/models/posts.py:156
 msgid "Post"
 msgstr "포스트"
 
-msgid "Posts"
-msgstr "포스트"
+#: board/admin/comment.py:143 board/admin/comment.py:172
+msgid "Deleted"
+msgstr "삭제됨"
 
-msgid "Profile"
-msgstr "프로필"
+#: board/admin/comment.py:154 board/admin/post.py:404
+msgid "Likes"
+msgstr "좋아요"
 
-msgid "Profiles"
-msgstr "프로필"
+#: board/admin/comment.py:162
+msgid "Edited"
+msgstr "수정됨"
 
-msgid "Series"
-msgstr "시리즈"
+#: board/admin/comment.py:167
+msgid "Heart"
+msgstr "하트"
 
-msgid "Site banner"
-msgstr "사이트 배너"
+#: board/admin/comment.py:182
+msgid "Deleted user"
+msgstr "삭제된 사용자"
 
-msgid "Site banners"
-msgstr "사이트 배너"
+#: board/admin/comment.py:190 board/forms_initial_setup.py:26
+msgid "Username"
+msgstr "사용자 이름"
 
-msgid "Site notice"
-msgstr "사이트 공지"
+#: board/admin/comment.py:191 board/admin/service.py:294
+#: board/forms_initial_setup.py:44
+msgid "Email"
+msgstr "이메일"
 
-msgid "Site notices"
-msgstr "사이트 공지"
+#: board/admin/comment.py:193
+msgid "Author information"
+msgstr "작성자 정보"
 
-msgid "Social login connection"
-msgstr "소셜 로그인 연동"
+#: board/admin/comment.py:199 board/admin/post.py:459
+msgid "Total likes"
+msgstr "총 좋아요 수"
 
-msgid "Social login connections"
-msgstr "소셜 로그인 연동"
+#: board/admin/comment.py:217
+msgid "Marked with a heart in Admin"
+msgstr "Admin에서 하트 표시"
 
-msgid "Tag"
-msgstr "태그"
+#: board/admin/comment.py:219
+msgid "Removed heart in Admin"
+msgstr "Admin에서 하트 해제"
 
-msgid "Tags"
-msgstr "태그"
+#: board/admin/comment.py:232
+msgid "Mark selected comments with a heart"
+msgstr "선택한 댓글을 하트로 표시"
 
-msgid "Telegram connection"
-msgstr "텔레그램 연동"
+#: board/admin/comment.py:248
+#, python-format
+msgid "%(count)d comment was marked with a heart."
+msgid_plural "%(count)d comments were marked with a heart."
+msgstr[0] "%(count)d개의 댓글을 하트로 표시했습니다."
 
-msgid "Telegram connections"
-msgstr "텔레그램 연동"
+#: board/admin/comment.py:256
+msgid "Remove hearts from selected comments"
+msgstr "선택한 댓글의 하트 해제"
 
-msgid "Two-factor authentication"
-msgstr "2단계 인증"
+#: board/admin/comment.py:272
+#, python-format
+msgid "The heart was removed from %(count)d comment."
+msgid_plural "The hearts were removed from %(count)d comments."
+msgstr[0] "%(count)d개의 댓글의 하트를 해제했습니다."
 
-msgid "User feature setting"
-msgstr "사용자 기능 설정"
+#: board/admin/comment.py:280
+msgid "Mark selected comments as deleted"
+msgstr "선택한 댓글을 삭제 상태로 전환"
 
-msgid "User feature settings"
-msgstr "사용자 기능 설정"
+#: board/admin/comment.py:293
+msgid "There are no comments to mark as deleted."
+msgstr "삭제 상태로 전환할 댓글이 없습니다."
 
-msgid "User link"
-msgstr "사용자 링크"
+#: board/admin/comment.py:307
+msgid "Confirm comment deletion"
+msgstr "댓글 삭제 상태 전환 확인"
 
-msgid "User links"
-msgstr "사용자 링크"
+#: board/admin/comment.py:309
+msgid "Comment records and reply relationships will be retained and shown as deleted comments on public pages. Author associations cannot be restored."
+msgstr "댓글 행과 답글 관계는 유지되며 공개 화면에는 삭제된 댓글로 표시됩니다. 작성자 연결은 복구할 수 없습니다."
 
-msgid "Username change history"
-msgstr "사용자명 변경 이력"
+#: board/admin/comment.py:313
+msgid "Mark as deleted"
+msgstr "댓글 삭제 상태로 전환"
 
-msgid "Webhook subscription"
-msgstr "웹훅 구독"
+#: board/admin/comment.py:328
+msgid "Marked as deleted in Admin"
+msgstr "Admin에서 댓글 삭제 상태로 전환"
 
-msgid "Webhook subscriptions"
-msgstr "웹훅 구독"
+#: board/admin/comment.py:335
+#, python-format
+msgid "%(count)d comment was marked as deleted."
+msgid_plural "%(count)d comments were marked as deleted."
+msgstr[0] "%(count)d개의 댓글을 삭제 상태로 전환했습니다."
 
+#: board/admin/connection.py:57 board/admin/user.py:744
+msgid "Connected"
+msgstr "연동됨"
+
+#: board/admin/connection.py:58
+msgid "Pending connection"
+msgstr "연동 대기"
+
+#: board/admin/connection.py:60
+msgid "Connection status"
+msgstr "연동 상태"
+
+#: board/admin/connection.py:66
+msgid "Issued"
+msgstr "발급됨"
+
+#: board/admin/connection.py:67 board/admin/service.py:216
+#: board/admin/service.py:296 board/admin/service.py:492
+msgid "None"
+msgstr "없음"
+
+#: board/admin/connection.py:69 board/admin/user.py:93
+msgid "Authentication token"
+msgstr "인증 토큰"
+
+#: board/admin/image.py:12
+msgid "Image type"
+msgstr "이미지 타입"
+
+#: board/admin/image.py:50
+msgid "Uploader"
+msgstr "업로더"
+
+#: board/admin/image.py:60
+msgid "File size"
+msgstr "파일 크기"
+
+#: board/admin/image.py:75 board/admin/service.py:473
+msgid "Open"
+msgstr "열기"
+
+#: board/admin/notify.py:82
+msgid "A notification with the same identity already exists."
+msgstr "이미 동일한 알림이 존재합니다."
+
+#: board/admin/notify.py:92
+#: board/templates/admin/board/notify/bulk_send.html:33
+msgid "Link URL"
+msgstr "링크 URL"
+
+#: board/admin/notify.py:96
+msgid "URL opened when the notification is clicked (default: /)"
+msgstr "알림 클릭 시 이동할 URL (기본값: /)"
+
+#: board/admin/notify.py:100
+#: board/templates/admin/board/notify/bulk_send.html:39
+msgid "Notification content"
+msgstr "알림 내용"
+
+#: board/admin/notify.py:102
+msgid "Message sent to every active user"
+msgstr "모든 활성 사용자에게 전송될 알림 메시지"
+
+#: board/admin/notify.py:180
+msgid "Read status"
+msgstr "읽음 상태"
+
+#: board/admin/notify.py:188
+msgid "Unsafe URL"
+msgstr "안전하지 않은 URL"
+
+#: board/admin/notify.py:217
+msgid "Marked as read in Admin"
+msgstr "Admin에서 읽음 상태로 변경"
+
+#: board/admin/notify.py:219
+msgid "Marked as unread in Admin"
+msgstr "Admin에서 읽지 않음 상태로 변경"
+
+#: board/admin/notify.py:232
+msgid "Mark selected notifications as read"
+msgstr "선택한 알림을 읽음으로 표시"
+
+#: board/admin/notify.py:248
+#, python-format
+msgid "%(count)d notification was marked as read."
+msgid_plural "%(count)d notifications were marked as read."
+msgstr[0] "%(count)d개의 알림을 읽음으로 표시했습니다."
+
+#: board/admin/notify.py:256
+msgid "Mark selected notifications as unread"
+msgstr "선택한 알림을 읽지 않음으로 표시"
+
+#: board/admin/notify.py:272
+#, python-format
+msgid "%(count)d notification was marked as unread."
+msgid_plural "%(count)d notifications were marked as unread."
+msgstr[0] "%(count)d개의 알림을 읽지 않음으로 표시했습니다."
+
+#: board/admin/notify.py:280
+msgid "Resend selected notifications to external channels"
+msgstr "선택한 알림을 외부 채널로 재발송"
+
+#: board/admin/notify.py:292
+msgid "There are no notifications to resend."
+msgstr "재발송할 알림이 없습니다."
+
+#: board/admin/notify.py:301
+msgid "Confirm external notification resend"
+msgstr "외부 알림 재발송 확인"
+
+#: board/admin/notify.py:303
+msgid "The selected notifications will be sent to their connected external channels again. Recipients may receive duplicates."
+msgstr "선택한 알림을 연결된 외부 채널로 다시 전송합니다. 수신자에게 중복 알림이 전달될 수 있습니다."
+
+#: board/admin/notify.py:306
+msgid "Resend notifications"
+msgstr "외부 알림 재발송"
+
+#: board/admin/notify.py:317
+msgid "Requested external notification resend in Admin"
+msgstr "Admin에서 외부 알림 재발송 요청"
+
+#: board/admin/notify.py:334
+#, python-format
+msgid "%(count)d notification was resent to external channels."
+msgid_plural "%(count)d notifications were resent to external channels."
+msgstr[0] "%(count)d개의 알림을 외부 채널로 재발송했습니다."
+
+#: board/admin/notify.py:344
+#, python-format
+msgid "%(count)d notification could not be resent."
+msgid_plural "%(count)d notifications could not be resent."
+msgstr[0] "%(count)d개의 알림은 재발송하지 못했습니다."
+
+#: board/admin/notify.py:387
+msgid "The notification was saved but could not be sent to external channels."
+msgstr "알림은 저장했지만 외부 채널로 전송하지 못했습니다."
+
+#: board/admin/notify.py:439
+msgid "There are no active users to notify."
+msgstr "발송할 활성 사용자가 없습니다."
+
+#: board/admin/notify.py:451
+#, python-format
+msgid "Bulk notification delivery (%(count)d recipient)"
+msgid_plural "Bulk notification delivery (%(count)d recipients)"
+msgstr[0] "전체 알림 발송 (%(count)d명)"
+
+#: board/admin/notify.py:457
+#, python-format
+msgid "Scheduled bulk notification delivery in Admin: %(count)d recipient"
+msgid_plural "Scheduled bulk notification delivery in Admin: %(count)d recipients"
+msgstr[0] "Admin 전체 알림 발송 예약: 대상 %(count)d명"
+
+#: board/admin/notify.py:484
+#, python-format
+msgid "Failed to schedule bulk notification delivery in Admin: %(count)d recipient"
+msgid_plural "Failed to schedule bulk notification delivery in Admin: %(count)d recipients"
+msgstr[0] "Admin 전체 알림 발송 예약 실패: 대상 %(count)d명"
+
+#: board/admin/notify.py:493
+msgid "Could not schedule the notification delivery job."
+msgstr "알림 발송 작업을 예약하지 못했습니다."
+
+#: board/admin/notify.py:501
+#, python-format
+msgid "Notification delivery was scheduled for %(count)d recipient. Duplicate notifications will be skipped."
+msgid_plural "Notification delivery was scheduled for %(count)d recipients. Duplicate notifications will be skipped."
+msgstr[0] "%(count)d명 대상 알림 발송 작업을 예약했습니다. 동일한 알림은 건너뜁니다."
+
+#: board/admin/notify.py:515
+#: board/templates/admin/board/notify/bulk_send.html:51
+#: board/templates/admin/board/notify/change_list.html:8
+msgid "Send a notification to all active users"
+msgstr "전체 활성 사용자에게 알림 발송"
+
+#: board/admin/permission_display.py:7
+msgctxt "Admin permission action"
+msgid "Add"
+msgstr "추가"
+
+#: board/admin/permission_display.py:8
+msgctxt "Admin permission action"
+msgid "Change"
+msgstr "수정"
+
+#: board/admin/permission_display.py:9
+msgctxt "Admin permission action"
+msgid "Delete"
+msgstr "삭제"
+
+#: board/admin/permission_display.py:10
+msgctxt "Admin permission action"
+msgid "View"
+msgstr "보기"
+
+#: board/admin/permission_display.py:16
+msgctxt "Admin permission model"
+msgid "Telegram integration settings"
+msgstr "텔레그램 연동 설정"
+
+#: board/admin/permission_display.py:20
+msgctxt "Admin permission model"
+msgid "Login and security settings"
+msgstr "로그인·보안 설정"
+
+#: board/admin/permission_display.py:24
+msgctxt "Admin permission model"
+msgid "Site settings"
+msgstr "사이트 설정"
+
+#: board/admin/permission_display.py:28
+msgctxt "Admin permission model"
+msgid "Static page"
+msgstr "정적 페이지"
+
+#: board/admin/permission_display.py:32
+msgctxt "Admin permission model"
+msgid "Utility cleanup confirmation"
+msgstr "유틸리티 정리 확인"
+
+#: board/admin/permission_display.py:59
 #, python-format
 msgctxt "Admin permission label"
 msgid "%(action)s %(model)s"
 msgstr "%(model)s %(action)s"
 
-msgctxt "Admin permission action"
-msgid "Add"
-msgstr "추가"
+#: board/admin/post.py:53 board/admin/post.py:441
+msgid "Publishing status"
+msgstr "발행 상태"
 
-msgctxt "Admin permission action"
-msgid "Change"
-msgstr "수정"
+#: board/admin/post.py:58 board/admin/service.py:333
+#: board/templates/board/posts/post_editor.html:4
+msgid "Draft"
+msgstr "임시저장"
 
-msgctxt "Admin permission action"
-msgid "Delete"
+#: board/admin/post.py:59 board/admin/service.py:349
+msgid "Published"
+msgstr "발행됨"
+
+#: board/admin/post.py:60 board/admin/service.py:341
+msgid "Scheduled"
+msgstr "예약됨"
+
+#: board/admin/post.py:61 board/admin/revision.py:31 board/admin/series.py:181
+#: board/admin/series.py:265 board/admin/service.py:325 board/admin/tag.py:112
+msgid "Trash"
+msgstr "휴지통"
+
+#: board/admin/post.py:118
+msgid "Requester"
+msgstr "요청자"
+
+#: board/admin/post.py:221 board/admin/post.py:431
+msgid "Publishing"
+msgstr "발행"
+
+#: board/admin/post.py:228
+msgid "Image"
+msgstr "이미지"
+
+#: board/admin/post.py:232
+msgid "Tags & metadata"
+msgstr "태그 & 메타"
+
+#: board/admin/post.py:395 board/models/posts.py:377 board/models/posts.py:378
+#: board/templates/board/author/author_series.html:20
+#: board/templates/board/author/author_series.html:21
+#: board/templates/board/author/components/tabs_nav.html:22
+#: board/templates/board/posts/post_detail.html:464
+#: board/templates/board/series/series_detail.html:29
+msgid "Series"
+msgstr "시리즈"
+
+#: board/admin/post.py:399 board/models/posts.py:117
+#: board/templates/board/author/author_posts.html:32
+#: board/templates/board/tags/tag_list.html:4
+msgid "Tags"
+msgstr "태그"
+
+#: board/admin/post.py:423
+msgid "deleted"
 msgstr "삭제"
 
-msgctxt "Admin permission action"
-msgid "View"
-msgstr "보기"
+#: board/admin/post.py:426
+msgid "Comments (active/deleted)"
+msgstr "댓글 (활성/삭제)"
 
-msgctxt "Admin permission model"
-msgid "Telegram integration settings"
-msgstr "텔레그램 연동 설정"
+#: board/admin/post.py:436
+msgid "Published at"
+msgstr "발행일"
 
-msgctxt "Admin permission model"
+#: board/admin/post.py:447 board/admin/series.py:121
+#: board/templates/components/header.html:101
+#: board/templates/components/header.html:289 board/views/settings.py:75
+msgid "Settings"
+msgstr "설정"
+
+#: board/admin/post.py:452
+msgid "No image"
+msgstr "이미지 없음"
+
+#: board/admin/post.py:453
+msgid "Image preview"
+msgstr "이미지 미리보기"
+
+#: board/admin/post.py:465
+msgid "Total comments"
+msgstr "총 댓글 수"
+
+#: board/admin/post.py:480
+msgid "Moved to trash at"
+msgstr "휴지통 이동일시"
+
+#: board/admin/post.py:486
+msgid "Hide selected posts"
+msgstr "선택한 포스트 숨김 처리"
+
+#: board/admin/post.py:498 board/admin/series.py:318
+msgid "Hidden in Admin"
+msgstr "Admin에서 숨김 처리"
+
+#: board/admin/post.py:507
+#, python-format
+msgid "%(count)d post was hidden."
+msgid_plural "%(count)d posts were hidden."
+msgstr[0] "%(count)d개의 포스트를 숨김 처리했습니다."
+
+#: board/admin/post.py:516 board/admin/post.py:577
+#, python-format
+msgid "%(count)d post could not be processed because required settings were missing."
+msgid_plural "%(count)d posts could not be processed because required settings were missing."
+msgstr[0] "%(count)d개는 필수 설정이 없어 처리하지 못했습니다."
+
+#: board/admin/post.py:523
+msgid "Make selected posts public"
+msgstr "선택한 포스트 공개 처리"
+
+#: board/admin/post.py:531
+msgid "There are no active posts to make public."
+msgstr "공개 처리할 활성 포스트가 없습니다."
+
+#: board/admin/post.py:540
+msgid "Confirm post publication"
+msgstr "포스트 공개 확인"
+
+#: board/admin/post.py:542
+msgid "Published posts may become externally visible immediately. Hidden status will also be removed from drafts and scheduled posts."
+msgstr "발행된 포스트는 즉시 외부에 노출될 수 있으며, 임시글과 예약글의 숨김 설정도 해제됩니다."
+
+#: board/admin/post.py:546 board/admin/series.py:354
+msgid "Make public"
+msgstr "공개 처리"
+
+#: board/admin/post.py:559 board/admin/series.py:362
+msgid "Made public in Admin"
+msgstr "Admin에서 공개 처리"
+
+#: board/admin/post.py:568
+#, python-format
+msgid "%(count)d post was made public."
+msgid_plural "%(count)d posts were made public."
+msgstr[0] "%(count)d개의 포스트를 공개 처리했습니다."
+
+#: board/admin/post.py:584
+msgid "Publish selected drafts now"
+msgstr "선택한 임시글 즉시 발행"
+
+#: board/admin/post.py:595
+msgid "There are no drafts to publish immediately."
+msgstr "즉시 발행할 임시글이 없습니다."
+
+#: board/admin/post.py:604
+msgid "Confirm immediate draft publication"
+msgstr "임시글 즉시 발행 확인"
+
+#: board/admin/post.py:606
+msgid "Selected drafts will be published at the current time. Depending on visibility settings, they may become publicly visible and trigger subscriber notifications."
+msgstr "선택한 임시글은 현재 시각에 발행되며 공개 설정에 따라 외부 노출과 구독 알림이 발생할 수 있습니다."
+
+#: board/admin/post.py:610
+msgid "Publish now"
+msgstr "즉시 발행"
+
+#: board/admin/post.py:623
+msgid "Published immediately in Admin"
+msgstr "Admin에서 즉시 발행"
+
+#: board/admin/post.py:632
+#, python-format
+msgid "%(count)d draft was published."
+msgid_plural "%(count)d drafts were published."
+msgstr[0] "%(count)d개의 임시글을 발행했습니다."
+
+#: board/admin/post.py:641
+#, python-format
+msgid "%(count)d draft was skipped because it did not meet the publishing requirements."
+msgid_plural "%(count)d drafts were skipped because they did not meet the publishing requirements."
+msgstr[0] "%(count)d개는 발행 조건을 충족하지 못해 건너뛰었습니다."
+
+#: board/admin/post.py:648
+msgid "Move selected posts to trash"
+msgstr "선택한 포스트를 휴지통으로 이동"
+
+#: board/admin/post.py:661
+msgid "Moved to trash in Admin"
+msgstr "Admin에서 휴지통으로 이동"
+
+#: board/admin/post.py:668
+#, python-format
+msgid "%(count)d post was moved to trash."
+msgid_plural "%(count)d posts were moved to trash."
+msgstr[0] "%(count)d개의 포스트를 휴지통으로 이동했습니다."
+
+#: board/admin/post.py:675
+msgid "Restore selected trashed posts"
+msgstr "선택한 휴지통 포스트 복원"
+
+#: board/admin/post.py:686
+msgid "There are no trashed posts to restore."
+msgstr "복원할 휴지통 포스트가 없습니다."
+
+#: board/admin/post.py:695
+msgid "Confirm restoration of trashed posts"
+msgstr "휴지통 포스트 복원 확인"
+
+#: board/admin/post.py:697
+msgid "Posts that were previously published and public may become externally visible again immediately after restoration."
+msgstr "기존에 발행 및 공개 상태였던 포스트는 복원 즉시 외부에 다시 노출될 수 있습니다."
+
+#: board/admin/post.py:701
+msgid "Restore"
+msgstr "복원"
+
+#: board/admin/post.py:715
+msgid "Restored from trash in Admin"
+msgstr "Admin에서 휴지통 복원"
+
+#: board/admin/post.py:722
+#, python-format
+msgid "%(count)d post was restored."
+msgid_plural "%(count)d posts were restored."
+msgstr[0] "%(count)d개의 포스트를 복원했습니다."
+
+#: board/admin/post.py:730
+msgid "Permanently delete selected trashed posts"
+msgstr "선택한 휴지통 포스트 영구 삭제"
+
+#: board/admin/post.py:743 board/admin/post.py:765
+msgid "There are no trashed posts to permanently delete."
+msgstr "영구 삭제할 휴지통 포스트가 없습니다."
+
+#: board/admin/post.py:752
+msgid "Confirm permanent deletion of trashed posts"
+msgstr "휴지통 포스트 영구 삭제 확인"
+
+#: board/admin/post.py:754
+msgid "Comments, revision history, and settings associated with the posts will also be deleted. This action cannot be undone."
+msgstr "포스트와 연결된 댓글, 수정 이력 및 설정이 함께 삭제되며 이 작업은 되돌릴 수 없습니다."
+
+#: board/admin/post.py:758
+msgid "Permanently delete"
+msgstr "영구 삭제"
+
+#: board/admin/post.py:786
+#, python-format
+msgid "%(count)d trashed post was permanently deleted."
+msgid_plural "%(count)d trashed posts were permanently deleted."
+msgstr[0] "%(count)d개의 휴지통 포스트를 영구 삭제했습니다."
+
+#: board/admin/revision.py:25 board/templates/board/posts/post_detail.html:107
+msgid "Post status"
+msgstr "포스트 상태"
+
+#: board/admin/revision.py:30 board/admin/service.py:127
+#: board/admin/service.py:144 board/admin/service.py:297
+#: board/admin/user.py:605
+msgid "Active"
+msgstr "활성"
+
+#: board/admin/revision.py:85
+msgid "Revision information"
+msgstr "수정 이력 정보"
+
+#: board/admin/revision.py:93
+msgid "Previous snapshot"
+msgstr "이전 스냅샷"
+
+#: board/admin/revision.py:102
+msgid "Record timestamps"
+msgstr "기록 시점"
+
+#: board/admin/revision.py:161
+msgid "Current status"
+msgstr "현재 상태"
+
+#: board/admin/revision.py:166
+msgid "Change type"
+msgstr "변경 유형"
+
+#: board/admin/revision.py:171
+msgid "Actor"
+msgstr "작업자"
+
+#: board/admin/revision.py:175
+msgid "No content excerpt"
+msgstr "본문 요약 없음"
+
+#: board/admin/revision.py:181
+msgid "Previous content"
+msgstr "이전 내용"
+
+#: board/admin/revision.py:188
+msgid "Delete selected revisions"
+msgstr "선택한 수정 이력 삭제"
+
+#: board/admin/revision.py:200 board/admin/revision.py:222
+msgid "There are no revisions to delete."
+msgstr "삭제할 수정 이력이 없습니다."
+
+#: board/admin/revision.py:209
+msgid "Confirm revision deletion"
+msgstr "수정 이력 삭제 확인"
+
+#: board/admin/revision.py:211
+msgid "Only the selected previous snapshots will be deleted. The current post content will not change, but deleted revisions cannot be recovered."
+msgstr "선택한 이전 스냅샷만 삭제됩니다. 현재 포스트 내용은 바뀌지 않지만 삭제한 이력은 복구할 수 없습니다."
+
+#: board/admin/revision.py:215
+msgid "Delete revisions"
+msgstr "수정 이력 삭제"
+
+#: board/admin/revision.py:243
+#, python-format
+msgid "%(count)d revision was deleted."
+msgid_plural "%(count)d revisions were deleted."
+msgstr[0] "%(count)d개의 수정 이력을 삭제했습니다."
+
+#: board/admin/series.py:45 board/admin/series.py:200
+#: board/admin/service.py:176 board/admin/service.py:360
+msgid "Hidden"
+msgstr "숨김"
+
+#: board/admin/series.py:50 board/admin/series.py:204
+#: board/admin/service.py:183 board/admin/service.py:365
+msgid "Public"
+msgstr "공개"
+
+#: board/admin/series.py:60 board/admin/series.py:62
+msgid "Edit"
+msgstr "편집"
+
+#: board/admin/series.py:128 board/admin/user.py:897 board/models/posts.py:157
+#: board/templates/board/author/author_posts.html:20
+#: board/templates/board/author/author_posts.html:21
+#: board/templates/board/author/components/featured_posts_section.html:9
+#: board/templates/board/author/components/tabs_nav.html:14
+#: board/views/api/developer/v1/api.py:69
+msgid "Posts"
+msgstr "포스트"
+
+#: board/admin/series.py:160 board/admin/series.py:263 board/admin/tag.py:91
+msgid "Active posts"
+msgstr "활성 포스트"
+
+#: board/admin/series.py:170 board/admin/tag.py:101
+msgid "Public posts"
+msgstr "공개 포스트"
+
+#: board/admin/series.py:188
+msgid "Card"
+msgstr "카드"
+
+#: board/admin/series.py:192
+msgid "List"
+msgstr "리스트"
+
+#: board/admin/series.py:194
+msgid "Layout"
+msgstr "레이아웃"
+
+#: board/admin/series.py:253
+msgid "No posts"
+msgstr "포스트 없음"
+
+#: board/admin/series.py:264
+msgid "Publicly visible"
+msgstr "공개 노출"
+
+#: board/admin/series.py:267
+msgid "Post summary"
+msgstr "포스트 요약"
+
+#: board/admin/series.py:308
+msgid "Hide selected series"
+msgstr "선택한 시리즈 숨김 처리"
+
+#: board/admin/series.py:323
+#, python-format
+msgid "%(count)d series was hidden."
+msgid_plural "%(count)d series were hidden."
+msgstr[0] "%(count)d개의 시리즈를 숨김 처리했습니다."
+
+#: board/admin/series.py:329
+msgid "Make selected series public"
+msgstr "선택한 시리즈 공개 처리"
+
+#: board/admin/series.py:340
+msgid "There are no hidden series to make public."
+msgstr "공개 처리할 숨김 시리즈가 없습니다."
+
+#: board/admin/series.py:349
+msgid "Confirm series publication"
+msgstr "시리즈 공개 확인"
+
+#: board/admin/series.py:351
+msgid "Series containing public posts may become externally visible immediately."
+msgstr "공개 포스트가 포함된 시리즈는 즉시 외부에 노출될 수 있습니다."
+
+#: board/admin/series.py:367
+#, python-format
+msgid "%(count)d series was made public."
+msgid_plural "%(count)d series were made public."
+msgstr[0] "%(count)d개의 시리즈를 공개 처리했습니다."
+
+#: board/admin/series.py:373
+msgid "Change layout to list"
+msgstr "레이아웃을 리스트로 변경"
+
+#: board/admin/series.py:383
+msgid "Changed to list layout in Admin"
+msgstr "Admin에서 리스트 레이아웃으로 변경"
+
+#: board/admin/series.py:388
+#, python-format
+msgid "%(count)d series was changed to the list layout."
+msgid_plural "%(count)d series were changed to the list layout."
+msgstr[0] "%(count)d개의 시리즈를 리스트 레이아웃으로 변경했습니다."
+
+#: board/admin/series.py:394
+msgid "Change layout to cards"
+msgstr "레이아웃을 카드로 변경"
+
+#: board/admin/series.py:404
+msgid "Changed to card layout in Admin"
+msgstr "Admin에서 카드 레이아웃으로 변경"
+
+#: board/admin/series.py:409
+#, python-format
+msgid "%(count)d series was changed to the card layout."
+msgid_plural "%(count)d series were changed to the card layout."
+msgstr[0] "%(count)d개의 시리즈를 카드 레이아웃으로 변경했습니다."
+
+#: board/admin/service.py:83
+msgid "Link"
+msgstr "링크"
+
+#: board/admin/service.py:96
+msgctxt "Admin user role"
+msgid "Author"
+msgstr "작가"
+
+#: board/admin/service.py:100 board/admin/service.py:108
+msgctxt "Admin user role"
+msgid "Reader"
+msgstr "독자"
+
+#: board/admin/service.py:128 board/admin/service.py:145
+#: board/admin/service.py:297 board/admin/user.py:606
+msgid "Inactive"
+msgstr "비활성"
+
+#: board/admin/service.py:157
+msgid "Read"
+msgstr "읽음"
+
+#: board/admin/service.py:164
+msgid "Unread"
+msgstr "읽지 않음"
+
+#: board/admin/service.py:193 board/admin/service.py:370
+msgid "Advertisement"
+msgstr "광고"
+
+#: board/admin/service.py:255
+msgid "No cover image"
+msgstr "커버 이미지 없음"
+
+#: board/admin/service.py:259
+msgid "Cover image"
+msgstr "커버 이미지"
+
+#: board/admin/service.py:295
+msgid "Date joined"
+msgstr "가입일"
+
+#: board/admin/service.py:296
+msgid "Last login"
+msgstr "마지막 로그인"
+
+#: board/admin/service.py:297
+msgid "Active status"
+msgstr "활성 상태"
+
+#: board/admin/service.py:375
+msgid "Comments disabled"
+msgstr "댓글 차단"
+
+#: board/admin/service.py:391
+msgid "No tags"
+msgstr "태그 없음"
+
+#: board/admin/service.py:439
+msgid "Expand/collapse HTML preview"
+msgstr "HTML 미리보기 펼치기/접기"
+
+#: board/admin/service.py:497
+msgid "Error"
+msgstr "오류"
+
+#: board/admin/tag.py:81 board/models/posts.py:116
+msgid "Tag"
+msgstr "태그"
+
+#: board/admin/tag.py:123
+msgid "Yes"
+msgstr "있음"
+
+#: board/admin/tag.py:128
+msgid "No"
+msgstr "없음"
+
+#: board/admin/tag.py:130
+msgid "Featured image"
+msgstr "대표 이미지"
+
+#: board/admin/tag.py:141
+msgid "Trash only"
+msgstr "휴지통 전용"
+
+#: board/admin/tag.py:145
+msgid "Unused"
+msgstr "미사용"
+
+#: board/admin/tag.py:150
+msgid "Low usage"
+msgstr "저빈도"
+
+#: board/admin/tag.py:155
+msgid "Medium usage"
+msgstr "중빈도"
+
+#: board/admin/tag.py:160
+msgid "High usage"
+msgstr "고빈도"
+
+#: board/admin/tag.py:162
+msgid "Usage status"
+msgstr "사용 상태"
+
+#: board/admin/tag.py:165
+msgid "Delete unused tags from the selection"
+msgstr "선택한 태그 중 미사용 태그 삭제"
+
+#: board/admin/tag.py:178
+msgid "There are no unused tags in the selection."
+msgstr "선택한 항목에 미사용 태그가 없습니다."
+
+#: board/admin/tag.py:187
+msgid "Confirm unused tag deletion"
+msgstr "미사용 태그 삭제 확인"
+
+#: board/admin/tag.py:189
+msgid "Only tags that are not referenced by any post will be deleted. Deleted tags cannot be recovered."
+msgstr "현재 어떤 포스트에서도 참조하지 않는 태그만 삭제합니다. 삭제한 태그는 복구할 수 없습니다."
+
+#: board/admin/tag.py:192
+msgid "Delete unused tags"
+msgstr "미사용 태그 삭제"
+
+#: board/admin/tag.py:226
+#, python-format
+msgid "%(count)d unused tag was deleted."
+msgid_plural "%(count)d unused tags were deleted."
+msgstr[0] "%(count)d개의 미사용 태그를 삭제했습니다."
+
+#: board/admin/user.py:49
+msgid "Changed role to Author in Admin"
+msgstr "Admin에서 작가 역할로 변경"
+
+#: board/admin/user.py:50
+msgid "Changed role to Reader in Admin"
+msgstr "Admin에서 독자 역할로 변경"
+
+#: board/admin/user.py:91
+msgid "Private"
+msgstr "비공개"
+
+#: board/admin/user.py:96
+msgid "Cancel selected email change requests"
+msgstr "선택한 이메일 변경 요청 취소"
+
+#: board/admin/user.py:108
+msgid "There are no email change requests to cancel."
+msgstr "취소할 이메일 변경 요청이 없습니다."
+
+#: board/admin/user.py:117
+msgid "Confirm email change request cancellation"
+msgstr "이메일 변경 요청 취소 확인"
+
+#: board/admin/user.py:119
+msgid "Only the selected pending requests and authentication tokens will be deleted. The users’ current email addresses will not change."
+msgstr "선택한 대기 요청과 인증 토큰만 삭제됩니다. 사용자의 현재 이메일은 바뀌지 않습니다."
+
+#: board/admin/user.py:123
+msgid "Cancel change requests"
+msgstr "변경 요청 취소"
+
+#: board/admin/user.py:141
+#, python-format
+msgid "%(count)d email change request was cancelled."
+msgid_plural "%(count)d email change requests were cancelled."
+msgstr[0] "%(count)d개의 이메일 변경 요청을 취소했습니다."
+
+#: board/admin/user.py:151
+#, python-format
+msgid "%(count)d request could not be cancelled because it had already been processed."
+msgid_plural "%(count)d requests could not be cancelled because they had already been processed."
+msgstr[0] "%(count)d개는 이미 처리되어 취소하지 못했습니다."
+
+#: board/admin/user.py:178
+msgid "Current user"
+msgstr "현재 사용자"
+
+#: board/admin/user.py:202 board/admin/user.py:780
+msgid "Permission settings"
+msgstr "권한 설정"
+
+#: board/admin/user.py:205 board/admin/user.py:787
+msgid "Profile information"
+msgstr "프로필 정보"
+
+#: board/admin/user.py:208 board/admin/user.py:794
+msgid "Analytics settings"
+msgstr "통계 설정"
+
+#: board/admin/user.py:380 board/admin/user.py:876
+msgid "Role"
+msgstr "역할"
+
+#: board/admin/user.py:385
+msgid "Post count"
+msgstr "포스트 수"
+
+#: board/admin/user.py:410
+msgid "Change selected users to Authors"
+msgstr "선택한 사용자를 작가로 변경"
+
+#: board/admin/user.py:426
+#, python-format
+msgid "%(count)d user was changed to an Author."
+msgid_plural "%(count)d users were changed to Authors."
+msgstr[0] "%(count)d명의 사용자를 작가로 변경했습니다."
+
+#: board/admin/user.py:433
+msgid "Change selected users to Readers"
+msgstr "선택한 사용자를 독자로 변경"
+
+#: board/admin/user.py:449
+#, python-format
+msgid "%(count)d user was changed to a Reader."
+msgid_plural "%(count)d users were changed to Readers."
+msgstr[0] "%(count)d명의 사용자를 독자로 변경했습니다."
+
+#: board/admin/user.py:471
+msgid "There are no users to activate."
+msgstr "활성화할 사용자가 없습니다."
+
+#: board/admin/user.py:473
+msgid "Login and API access will be restored for the selected accounts."
+msgstr "선택한 계정의 로그인과 API 접근을 다시 허용합니다."
+
+#: board/admin/user.py:476
+msgid "Confirm user activation"
+msgstr "사용자 활성화 확인"
+
+#: board/admin/user.py:477
+msgid "Activate users"
+msgstr "사용자 활성화"
+
+#: board/admin/user.py:478
+msgid "Activated account in Admin"
+msgstr "Admin에서 계정 활성화"
+
+#: board/admin/user.py:480
+msgid "There are no users to deactivate."
+msgstr "비활성화할 사용자가 없습니다."
+
+#: board/admin/user.py:482
+msgid "Login and API access will be blocked immediately for the selected accounts. The current administrator and the last active superuser will be skipped."
+msgstr "선택한 계정은 즉시 로그인과 API 접근이 차단됩니다. 현재 관리자와 마지막 활성 슈퍼유저는 건너뜁니다."
+
+#: board/admin/user.py:486
+msgid "Confirm user deactivation"
+msgstr "사용자 비활성화 확인"
+
+#: board/admin/user.py:487
+msgid "Deactivate users"
+msgstr "사용자 비활성화"
+
+#: board/admin/user.py:488
+msgid "Deactivated account in Admin"
+msgstr "Admin에서 계정 비활성화"
+
+#: board/admin/user.py:525
+#, python-format
+msgid "%(count)d user was activated."
+msgid_plural "%(count)d users were activated."
+msgstr[0] "%(count)d명의 사용자를 활성화했습니다."
+
+#: board/admin/user.py:531
+#, python-format
+msgid "%(count)d user was deactivated."
+msgid_plural "%(count)d users were deactivated."
+msgstr[0] "%(count)d명의 사용자를 비활성화했습니다."
+
+#: board/admin/user.py:543
+msgid "The currently signed-in administrator was not deactivated."
+msgstr "현재 로그인한 관리자 계정은 비활성화하지 않았습니다."
+
+#: board/admin/user.py:549
+msgid "The last active superuser was not deactivated."
+msgstr "마지막 활성 슈퍼유저 계정은 비활성화하지 않았습니다."
+
+#: board/admin/user.py:556
+#, python-format
+msgid "%(count)d administrator account was not changed."
+msgid_plural "%(count)d administrator accounts were not changed."
+msgstr[0] "관리자 계정 %(count)d명은 변경하지 않았습니다."
+
+#: board/admin/user.py:565
+msgid "Activate selected users"
+msgstr "선택한 사용자 활성화"
+
+#: board/admin/user.py:580
+msgid "Deactivate selected users"
+msgstr "선택한 사용자 비활성화"
+
+#: board/admin/user.py:668 board/admin/user.py:777 board/admin/user.py:902
+msgid "User information"
+msgstr "사용자 정보"
+
+#: board/admin/user.py:671
+msgid "Settings preview"
+msgstr "설정 미리보기"
+
+#: board/admin/user.py:683
+msgid "No settings"
+msgstr "설정 없음"
+
+#: board/admin/user.py:745
+msgid "Not connected"
+msgstr "미연동"
+
+#: board/admin/user.py:747
+msgid "Telegram"
+msgstr "텔레그램"
+
+#: board/admin/user.py:756
+msgid "Disabled"
+msgstr "비활성화"
+
+#: board/admin/user.py:783
+msgid "EDITOR: write posts and view analytics / READER: read-only access"
+msgstr "EDITOR: 글 작성 및 통계 / READER: 읽기만 가능"
+
+#: board/admin/user.py:790
+msgid "About page"
+msgstr "소개 페이지"
+
+#: board/admin/user.py:880
+msgid "Avatar"
+msgstr "아바타"
+
+#: board/admin/user.py:884
+msgid "Cover image preview"
+msgstr "커버 이미지 미리보기"
+
+#: board/admin/user.py:892
+msgid "Analytics URL"
+msgstr "통계 URL"
+
+#: board/admin/user.py:906
+msgid "Total posts"
+msgstr "총 포스트 수"
+
+#: board/admin/user.py:929
+msgid "Change role to Author"
+msgstr "역할을 작가로 변경"
+
+#: board/admin/user.py:945
+#, python-format
+msgid "%(count)d profile was changed to an Author."
+msgid_plural "%(count)d profiles were changed to Authors."
+msgstr[0] "%(count)d명의 프로필을 작가로 변경했습니다."
+
+#: board/admin/user.py:952
+msgid "Change role to Reader"
+msgstr "역할을 독자로 변경"
+
+#: board/admin/user.py:968
+#, python-format
+msgid "%(count)d profile was changed to a Reader."
+msgid_plural "%(count)d profiles were changed to Readers."
+msgstr[0] "%(count)d명의 프로필을 독자로 변경했습니다."
+
+#: board/admin/webhook.py:26
+msgid "Webhook URL"
+msgstr "웹훅 URL"
+
+#: board/admin/webhook.py:30
+msgid "The existing URL is not displayed. Enter a new URL only when changing it."
+msgstr "기존 URL은 표시하지 않습니다. 변경할 때만 새 URL을 입력하세요."
+
+#: board/admin/webhook.py:37
+msgid "Enter only to change"
+msgstr "변경할 때만 입력"
+
+#: board/admin/webhook.py:57
+msgid "Webhook URLs pointing to internal networks are not allowed."
+msgstr "내부 네트워크를 가리키는 웹훅 URL은 사용할 수 없습니다."
+
+#: board/admin/webhook.py:64
+msgid "Enter a webhook URL."
+msgstr "웹훅 URL을 입력하세요."
+
+#: board/admin/webhook.py:112
+msgid "All users"
+msgstr "전체 사용자"
+
+#: board/admin/webhook.py:141
+msgid "Reset failure count and reactivated webhook in Admin"
+msgstr "Admin에서 실패 횟수 초기화 및 웹훅 재활성화"
+
+#: board/admin/webhook.py:144
+msgid "Activated webhook in Admin"
+msgstr "Admin에서 웹훅 활성화"
+
+#: board/admin/webhook.py:146
+msgid "Deactivated webhook in Admin"
+msgstr "Admin에서 웹훅 비활성화"
+
+#: board/admin/webhook.py:155
+msgid "Reset failure count and reactivate"
+msgstr "실패 횟수 초기화 및 재활성화"
+
+#: board/admin/webhook.py:168
+msgid "There are no webhooks to reset or reactivate."
+msgstr "초기화하거나 재활성화할 웹훅이 없습니다."
+
+#: board/admin/webhook.py:177
+msgid "Confirm webhook failure reset"
+msgstr "웹훅 실패 상태 초기화 확인"
+
+#: board/admin/webhook.py:179
+msgid "The failure count will be reset to zero and delivery to the external URL will be reactivated."
+msgstr "실패 횟수를 0으로 초기화하고 외부 URL 전송을 다시 활성화합니다."
+
+#: board/admin/webhook.py:182
+msgid "Reset and reactivate"
+msgstr "초기화 및 재활성화"
+
+#: board/admin/webhook.py:194
+#, python-format
+msgid "%(count)d webhook was reset and reactivated."
+msgid_plural "%(count)d webhooks were reset and reactivated."
+msgstr[0] "%(count)d개의 웹훅을 초기화하고 재활성화했습니다."
+
+#: board/admin/webhook.py:203
+msgid "Activate selected webhooks"
+msgstr "선택한 웹훅 활성화"
+
+#: board/admin/webhook.py:216
+msgid "There are no webhooks to activate."
+msgstr "활성화할 웹훅이 없습니다."
+
+#: board/admin/webhook.py:225
+msgid "Confirm webhook activation"
+msgstr "웹훅 활성화 확인"
+
+#: board/admin/webhook.py:227
+msgid "Delivery to the selected external webhook URLs will resume with the next post notification. Failure counts are kept."
+msgstr "선택한 웹훅의 외부 URL로 다음 포스트 알림부터 전송을 다시 시작합니다. 실패 횟수는 유지됩니다."
+
+#: board/admin/webhook.py:230
+msgid "Activate webhooks"
+msgstr "웹훅 활성화"
+
+#: board/admin/webhook.py:241
+#, python-format
+msgid "%(count)d webhook was activated."
+msgid_plural "%(count)d webhooks were activated."
+msgstr[0] "%(count)d개의 웹훅을 활성화했습니다."
+
+#: board/admin/webhook.py:250
+msgid "Deactivate selected webhooks"
+msgstr "선택한 웹훅 비활성화"
+
+#: board/admin/webhook.py:266
+#, python-format
+msgid "%(count)d webhook was deactivated."
+msgid_plural "%(count)d webhooks were deactivated."
+msgstr[0] "%(count)d개의 웹훅을 비활성화했습니다."
+
+#: board/decorators.py:59
+msgid "Author access is required. Please contact an administrator."
+msgstr "작가 권한이 필요합니다. 관리자에게 문의하세요."
+
+#: board/forms_initial_setup.py:24
+msgid "4–15 lowercase letters or numbers"
+msgstr "4-15자 영문 소문자, 숫자"
+
+#: board/forms_initial_setup.py:33
+msgid "Name displayed on the site"
+msgstr "사이트에 표시할 이름"
+
+#: board/forms_initial_setup.py:35
+msgid "Display name"
+msgstr "표시 이름"
+
+#: board/forms_initial_setup.py:42
+msgid "Administrator email"
+msgstr "관리자 이메일"
+
+#: board/forms_initial_setup.py:50
+msgid "Enter a secure password"
+msgstr "안전한 비밀번호"
+
+#: board/forms_initial_setup.py:52
+msgid "Password"
+msgstr "비밀번호"
+
+#: board/forms_initial_setup.py:58
+msgid "Enter your password again"
+msgstr "비밀번호를 다시 입력"
+
+#: board/forms_initial_setup.py:60
+msgid "Confirm password"
+msgstr "비밀번호 확인"
+
+#: board/forms_initial_setup.py:71
+msgid "Setup token shown in the Docker logs"
+msgstr "Docker 로그에 표시된 설치 토큰"
+
+#: board/forms_initial_setup.py:78
+msgid "Setup token"
+msgstr "설치 토큰"
+
+#: board/forms_initial_setup.py:105
+msgid "Username must be 4–15 lowercase letters or numbers and must not already be in use."
+msgstr "사용자 이름은 4-15자의 영문 소문자와 숫자만 사용할 수 있고, 이미 사용 중이면 안 됩니다."
+
+#: board/forms_initial_setup.py:116 board/services/auth_service.py:141
+msgid "Enter a valid email address."
+msgstr "올바른 이메일 주소가 아닙니다."
+
+#: board/forms_initial_setup.py:125
+msgid "Passwords do not match."
+msgstr "비밀번호가 서로 일치하지 않습니다."
+
+#: board/forms_initial_setup.py:141
+msgid "The setup token is incorrect."
+msgstr "설치 토큰이 올바르지 않습니다."
+
+#: board/models/accounts.py:32
+msgid "Email change request"
+msgstr "이메일 변경 요청"
+
+#: board/models/accounts.py:33
+msgid "Email change requests"
+msgstr "이메일 변경 요청"
+
+#: board/models/accounts.py:53
+msgid "User feature setting"
+msgstr "사용자 기능 설정"
+
+#: board/models/accounts.py:54
+msgid "User feature settings"
+msgstr "사용자 기능 설정"
+
+#: board/models/accounts.py:64
+msgid "User setting"
+msgstr "사용자 설정"
+
+#: board/models/accounts.py:65
+msgid "User settings"
+msgstr "사용자 설정"
+
+#: board/models/accounts.py:97
+msgid "User link"
+msgstr "사용자 링크"
+
+#: board/models/accounts.py:98
+msgid "User links"
+msgstr "사용자 링크"
+
+#: board/models/accounts.py:118
+msgid "Analytics sharing URL (for example, Umami or Google Analytics)"
+msgstr "분석 도구 공유 URL (예: Umami, Google Analytics 등)"
+
+#: board/models/accounts.py:124
+msgctxt "User role"
+msgid "Reader"
+msgstr "독자"
+
+#: board/models/accounts.py:125
+msgctxt "User role"
+msgid "Author"
+msgstr "작가"
+
+#: board/models/accounts.py:132
+msgid "User role (Reader: read only; Author: write posts and view analytics)"
+msgstr "사용자 역할 (독자: 읽기만, 작가: 글 작성 및 통계)"
+
+#: board/models/accounts.py:138 board/templates/components/header.html:97
+#: board/templates/components/header.html:285
+msgid "Profile"
+msgstr "프로필"
+
+#: board/models/accounts.py:139
+msgid "Profiles"
+msgstr "프로필"
+
+#: board/models/accounts.py:204 board/models/accounts.py:205
+msgid "Two-factor authentication"
+msgstr "2단계 인증"
+
+#: board/models/accounts.py:251 board/models/accounts.py:252
+msgid "Username change history"
+msgstr "사용자명 변경 이력"
+
+#: board/models/accounts.py:275
+msgid "This social login provider is not supported."
+msgstr "지원하지 않는 소셜 로그인 제공자입니다."
+
+#: board/models/accounts.py:291
+msgid "Social login connection"
+msgstr "소셜 로그인 연동"
+
+#: board/models/accounts.py:292
+msgid "Social login connections"
+msgstr "소셜 로그인 연동"
+
+#: board/models/accounts.py:319
+#, python-brace-format
+msgid "Welcome notification sent after signup. Use {name} to insert the user's name."
+msgstr "회원가입 후 발송할 환영 알림입니다. {name}을 사용해 사용자 이름을 넣을 수 있습니다."
+
+#: board/models/accounts.py:327
+msgid "URL opened from the signup notification."
+msgstr "회원가입 알림을 클릭하면 이동할 URL입니다."
+
+#: board/models/accounts.py:334
+msgid "Redirect URL after account deletion. Leave blank to use the home page."
+msgstr "회원 탈퇴 후 이동할 URL입니다. 비워두면 홈으로 이동합니다."
+
+#: board/models/accounts.py:340
+msgid "Require hCaptcha verification during signup."
+msgstr "회원가입 시 hCaptcha 인증을 요구합니다."
+
+#: board/models/accounts.py:346
+msgid "hCaptcha Site Key"
+msgstr "hCaptcha Site Key"
+
+#: board/models/accounts.py:351
+msgid "Encrypted hCaptcha Secret Key."
+msgstr "암호화해 저장하는 hCaptcha Secret Key입니다."
+
+#: board/models/accounts.py:356 board/models/accounts.py:357
+msgid "🏢 [Site operations] Login settings"
+msgstr "🏢 [사이트 운영] 로그인 관리"
+
+#: board/models/accounts.py:360
+msgid "Login settings"
+msgstr "로그인 설정"
+
+#: board/models/integrations.py:29
+msgid "Notification"
+msgstr "알림"
+
+#: board/models/integrations.py:30
+#: board/templates/admin/board/notify/bulk_send.html:9
+#: board/templates/components/header.html:144
+msgid "Notifications"
+msgstr "알림"
+
+#: board/models/integrations.py:76
+msgid "Telegram connection"
+msgstr "텔레그램 연동"
+
+#: board/models/integrations.py:77
+msgid "Telegram connections"
+msgstr "텔레그램 연동"
+
+#: board/models/integrations.py:193
+msgctxt "Site content scope"
+msgid "User"
+msgstr "사용자"
+
+#: board/models/integrations.py:194
+msgctxt "Site content scope"
+msgid "Global"
+msgstr "전역"
+
+#: board/models/integrations.py:217
+msgid "Owner profile for author-specific channel (empty for global channel)"
+msgstr "작성자별 채널의 소유자 프로필입니다. 비워두면 전역 채널입니다."
+
+#: board/models/integrations.py:222
+msgid "Webhook URL (Discord, Slack, etc.)"
+msgstr "웹훅 URL입니다. (Discord, Slack 등)"
+
+#: board/models/integrations.py:227
+msgid "Optional name/description for this subscription"
+msgstr "구독을 구분할 이름이나 설명입니다."
+
+#: board/models/integrations.py:232
+msgid "Consecutive webhook delivery failures"
+msgstr "연속으로 실패한 웹훅 전송 횟수입니다."
+
+#: board/models/integrations.py:237
+msgid "Last successful webhook delivery"
+msgstr "마지막 웹훅 전송 성공 시각입니다."
+
+#: board/models/integrations.py:242
+msgid "Webhook subscription"
+msgstr "웹훅 구독"
+
+#: board/models/integrations.py:243
+msgid "Webhook subscriptions"
+msgstr "웹훅 구독"
+
+#: board/models/integrations.py:270
+msgid "Enable Telegram bot integration."
+msgstr "텔레그램 봇 연동을 사용합니다."
+
+#: board/models/integrations.py:276
+msgid "Telegram bot username shown to users."
+msgstr "사용자에게 표시할 텔레그램 봇 사용자명입니다."
+
+#: board/models/integrations.py:281
+msgid "Encrypted Telegram bot token."
+msgstr "암호화해 저장하는 텔레그램 봇 토큰입니다."
+
+#: board/models/integrations.py:286 board/models/integrations.py:287
+msgid "🏢 [Site operations] Telegram"
+msgstr "🏢 [사이트 운영] 텔레그램"
+
+#: board/models/integrations.py:290
+msgid "Integration settings"
+msgstr "연동 설정"
+
+#: board/models/posts.py:24
+msgid "Comment"
+msgstr "댓글"
+
+#: board/models/posts.py:25
+msgid "Comments"
+msgstr "댓글"
+
+#: board/models/posts.py:50 board/services/comment_service.py:196
+msgid "This comment has been deleted."
+msgstr "삭제된 댓글입니다."
+
+#: board/models/posts.py:78 board/services/comment_service.py:398
+msgid "You cannot reply to a reply."
+msgstr "대댓글에는 답글을 달 수 없습니다."
+
+#: board/models/posts.py:93
+msgid "User form"
+msgstr "사용자 폼"
+
+#: board/models/posts.py:94
+msgid "User forms"
+msgstr "사용자 폼"
+
+#: board/models/posts.py:107
+msgid "Image cache"
+msgstr "이미지 캐시"
+
+#: board/models/posts.py:108
+msgid "Image caches"
+msgstr "이미지 캐시"
+
+#: board/models/posts.py:271
+msgid "Default"
+msgstr "기본"
+
+#: board/models/posts.py:272
+msgid "Split"
+msgstr "분할"
+
+#: board/models/posts.py:273
+msgid "Image background"
+msgstr "이미지 배경"
+
+#: board/models/posts.py:274
+msgid "Hide cover"
+msgstr "커버 숨김"
+
+#: board/models/posts.py:277
+msgid "Right"
+msgstr "오른쪽"
+
+#: board/models/posts.py:278
+msgid "Left"
+msgstr "왼쪽"
+
+#: board/models/posts.py:281
+msgid "Original"
+msgstr "원본"
+
+#: board/models/posts.py:321
+msgid "Pinned post"
+msgstr "고정 포스트"
+
+#: board/models/posts.py:322
+msgid "Pinned posts"
+msgstr "고정 포스트"
+
+#: board/models/posts.py:416
+msgid "Before edit"
+msgstr "수정 전"
+
+#: board/models/posts.py:417
+msgid "Before restore"
+msgstr "복원 전"
+
+#: board/models/posts.py:418
+msgid "Legacy"
+msgstr "레거시"
+
+#: board/models/posts.py:455
+msgid "Post revision"
+msgstr "포스트 수정 이력"
+
+#: board/models/posts.py:456
+msgid "Post revisions"
+msgstr "포스트 수정 이력"
+
+#: board/models/posts.py:475
+msgid "Post edit request"
+msgstr "포스트 수정 요청"
+
+#: board/models/posts.py:476
+msgid "Post edit requests"
+msgstr "포스트 수정 요청"
+
+#: board/models/site.py:17
+msgid "Script inserted inside the <head> element (for example, Google Analytics or Umami)."
+msgstr "Google Analytics나 Umami 같은 스크립트를 <head> 요소 안에 삽입합니다."
+
+#: board/models/site.py:23
+msgid "Script inserted before the closing </body> tag."
+msgstr "닫는 </body> 태그 앞에 스크립트를 삽입합니다."
+
+#: board/models/site.py:31
+msgid "Official site name."
+msgstr "사이트 공식 이름입니다."
+
+#: board/models/site.py:43
+msgid "Allow search-engine indexing through robots.txt and HTML noindex signals."
+msgstr "robots.txt와 HTML noindex 신호로 검색엔진 색인을 허용할지 제어합니다."
+
+#: board/models/site.py:51
+msgid "Additional runtime rules appended after the blog's default robots.txt policy."
+msgstr "블로그의 기본 robots.txt 정책 뒤에 추가할 런타임 규칙입니다."
+
+#: board/models/site.py:58
+msgid "Expose llms.txt, Markdown endpoints, and discovery headers for AI agents."
+msgstr "AI 에이전트에 llms.txt, Markdown 엔드포인트, 탐색 헤더를 공개합니다."
+
+#: board/models/site.py:67 board/models/site.py:68
+msgid "🏢 [Site operations] Site settings"
+msgstr "🏢 [사이트 운영] 사이트 설정"
+
+#: board/models/site.py:71 main/admin_site.py:77
+msgid "Site settings"
+msgstr "사이트 기본 설정"
+
+#: board/models/site.py:94
+msgid "URL path (for example, about, privacy, or terms)."
+msgstr "URL 경로입니다. (예: about, privacy, terms)"
+
+#: board/models/site.py:96
+msgid "Page title."
+msgstr "페이지 제목입니다."
+
+#: board/models/site.py:97
+msgid "Page content. HTML is supported."
+msgstr "페이지 내용입니다. HTML을 지원합니다."
+
+#: board/models/site.py:101
+msgid "SEO meta description (up to 160 characters)."
+msgstr "SEO 메타 설명입니다. 최대 160자까지 입력할 수 있습니다."
+
+#: board/models/site.py:107
+msgid "Whether the page is public."
+msgstr "페이지 공개 여부입니다."
+
+#: board/models/site.py:111
+msgid "Show a link in the footer."
+msgstr "푸터에 링크를 표시합니다."
+
+#: board/models/site.py:115
+msgid "Sort order. Lower numbers appear first."
+msgstr "정렬 순서입니다. 숫자가 낮을수록 먼저 표시됩니다."
+
+#: board/models/site.py:126 board/models/site.py:127
+msgid "🏢 [Site operations] Static pages"
+msgstr "🏢 [사이트 운영] 정적 페이지"
+
+#: board/models/site.py:140
+msgctxt "Banner type"
+msgid "Full-width banner (horizontal)"
+msgstr "줄배너 (가로 전체)"
+
+#: board/models/site.py:144
+msgctxt "Banner type"
+msgid "Side banner (left/right)"
+msgstr "사이드배너 (좌우 측면)"
+
+#: board/models/site.py:150
+msgctxt "Banner position"
+msgid "Top"
+msgstr "상단"
+
+#: board/models/site.py:151
+msgctxt "Banner position"
+msgid "Bottom"
+msgstr "하단"
+
+#: board/models/site.py:152
+msgctxt "Banner position"
+msgid "Left"
+msgstr "좌측"
+
+#: board/models/site.py:153
+msgctxt "Banner position"
+msgid "Right"
+msgstr "우측"
+
+#: board/models/site.py:177
+msgid "Site notice"
+msgstr "사이트 공지"
+
+#: board/models/site.py:178
+msgid "Site notices"
+msgstr "사이트 공지"
+
+#: board/models/site.py:193
+msgid "Site banner"
+msgstr "사이트 배너"
+
+#: board/models/site.py:194
+msgid "Site banners"
+msgstr "사이트 배너"
+
+#: board/models/site.py:205
+msgid "Full-width banners can only be placed at the top or bottom."
+msgstr "줄배너는 상단 또는 하단에만 배치할 수 있습니다."
+
+#: board/models/site.py:213
+msgid "Side banners can only be placed on the left or right."
+msgstr "사이드배너는 좌측 또는 우측에만 배치할 수 있습니다."
+
+#: board/modules/time.py:29
+#, python-format
+msgid "%(time)s ago"
+msgstr "%(time)s 전"
+
+#: board/services/api_permission_service.py:19
+#: board/services/developer_token_service.py:68
+#: board/services/webhook_api_service.py:13
+#: board/services/webhook_api_service.py:28
+msgid "Login required."
+msgstr "로그인이 필요합니다."
+
+#: board/services/api_permission_service.py:29
+#: board/services/api_permission_service.py:75
+#: board/services/series_service.py:53 board/services/webhook_api_service.py:20
+#: board/views/api/v1/pinned_post_errors.py:9
+msgid "Author access is required."
+msgstr "작가 권한이 필요합니다."
+
+#: board/services/api_permission_service.py:39
+#: board/services/webhook_api_service.py:30
+msgid "Administrator access is required."
+msgstr "관리자 권한이 필요합니다."
+
+#: board/services/api_permission_service.py:50
+msgid "Superuser access is required."
+msgstr "최고 관리자 권한이 필요합니다."
+
+#: board/services/api_permission_service.py:61
+#: board/services/api_permission_service.py:72
+#: board/services/user_service.py:65
+msgid "Permission denied."
+msgstr "권한이 없습니다."
+
+#: board/services/api_request_body_service.py:12
+msgid "Invalid request."
+msgstr "잘못된 요청입니다."
+
+#: board/services/auth_login_service.py:63
+msgid "Too many failed attempts. Please try again later."
+msgstr "너무 많은 실패로 인해 잠시 후 다시 시도해주세요."
+
+#: board/services/auth_login_service.py:105
+#: board/services/auth_login_service.py:151
+msgid "The two-factor authentication code is incorrect."
+msgstr "2차 인증 코드가 올바르지 않습니다."
+
+#: board/services/auth_login_service.py:127
+msgid "The authentication token has expired. Please log in again."
+msgstr "인증 토큰이 만료되었습니다. 다시 로그인해주세요."
+
+#: board/services/auth_login_service.py:139
+msgid "A two-factor authentication code is required."
+msgstr "2차 인증 코드가 필요합니다."
+
+#: board/services/auth_service.py:113
+msgid "This username is already in use."
+msgstr "이미 사용중인 아이디입니다."
+
+#: board/services/auth_service.py:121
+msgid "Username must be 4–15 characters using lowercase letters and numbers only."
+msgstr "사용자 이름은 4~15자 사이의 소문자 영어, 숫자만 가능합니다."
+
+#: board/services/auth_service.py:369
+msgid "If you have published posts, you can change your username only once every six months."
+msgstr "작성한 포스트가 존재하는 경우 6개월에 한번만 변경할 수 있습니다."
+
+#: board/services/auth_service.py:415
+msgid "Your current password is incorrect."
+msgstr "현재 비밀번호가 올바르지 않습니다."
+
+#: board/services/author_invite_service.py:68
+msgid "A used invitation link cannot be deleted."
+msgstr "이미 사용된 초대 링크는 삭제할 수 없습니다."
+
+#: board/services/author_invite_service.py:96
+msgid "This invitation code is invalid."
+msgstr "유효하지 않은 초대 코드입니다."
+
+#: board/services/author_invite_service.py:100
+#: board/services/author_invite_service.py:114
+msgid "This invitation code has already been used or is inactive."
+msgstr "이미 사용되었거나 비활성화된 초대 코드입니다."
+
+#: board/services/brand_asset_service.py:216
+msgid "Upload the default asset first."
+msgstr "기본 자산을 먼저 업로드해주세요."
+
+#: board/services/brand_asset_service.py:324
+msgid "Check the brand asset type."
+msgstr "브랜드 자산 종류를 확인해주세요."
+
+#: board/services/brand_asset_service.py:326
+msgid "Check the brand asset theme."
+msgstr "브랜드 자산 테마를 확인해주세요."
+
+#: board/services/brand_asset_service.py:414
+#, python-format
+msgid "%(label)s file is required."
+msgstr "%(label)s 파일이 필요합니다."
+
+#: board/services/brand_asset_service.py:421
+#, python-format
+msgid "%(label)s file is too large."
+msgstr "%(label)s 파일이 너무 큽니다."
+
+#: board/services/brand_asset_service.py:425
+#, python-format
+msgid "%(label)s file is empty."
+msgstr "%(label)s 파일이 비어 있습니다."
+
+#: board/services/brand_asset_service.py:437
+msgid "SVG processing instructions are not allowed."
+msgstr "SVG 처리 지시자는 허용되지 않습니다."
+
+#: board/services/brand_asset_service.py:439
+msgid "SVG DOCTYPE declarations are not allowed."
+msgstr "SVG DOCTYPE은 허용되지 않습니다."
+
+#: board/services/brand_asset_service.py:444
+msgid "This is not a valid SVG file."
+msgstr "올바른 SVG 파일이 아닙니다."
+
+#: board/services/brand_asset_service.py:447
+msgid "Check the SVG root element."
+msgstr "SVG 루트 요소를 확인해주세요."
+
+#: board/services/brand_asset_service.py:449
+msgid "SVG files require a viewBox."
+msgstr "SVG에는 viewBox가 필요합니다."
+
+#: board/services/brand_asset_service.py:455
+msgid "The SVG structure is too complex."
+msgstr "SVG 구조가 너무 복잡합니다."
+
+#: board/services/brand_asset_service.py:460
+#, python-format
+msgid "Unsupported SVG element: %(element)s"
+msgstr "허용되지 않는 SVG 요소입니다: %(element)s"
+
+#: board/services/brand_asset_service.py:469
+msgid "The SVG contains an event handler attribute."
+msgstr "허용되지 않는 SVG 속성이 포함되어 있습니다."
+
+#: board/services/brand_asset_service.py:476
+#, python-format
+msgid "Unsupported SVG attribute: %(attribute)s"
+msgstr "허용되지 않는 SVG 속성입니다: %(attribute)s"
+
+#: board/services/brand_asset_service.py:482
+msgid "The SVG contains an external reference or unsafe value."
+msgstr "SVG에 외부 참조 또는 위험한 값이 포함되어 있습니다."
+
+#: board/services/brand_asset_service.py:486
+msgid "The SVG text contains an unsafe value."
+msgstr "SVG 텍스트에 위험한 값이 포함되어 있습니다."
+
+#: board/services/brand_asset_service.py:508
+msgid "An icon manifest is required."
+msgstr "아이콘 manifest가 필요합니다."
+
+#: board/services/brand_asset_service.py:512
+msgid "Check the icon manifest format."
+msgstr "아이콘 manifest 형식을 확인해주세요."
+
+#: board/services/brand_asset_service.py:516
+msgid "Check the PNG size list in the icon manifest."
+msgstr "아이콘 manifest의 PNG 크기 목록을 확인해주세요."
+
+#: board/services/brand_asset_service.py:518
+msgid "Check the ICO information in the icon manifest."
+msgstr "아이콘 manifest의 ICO 정보를 확인해주세요."
+
+#: board/services/brand_asset_service.py:531
+msgid "Check the PNG file format."
+msgstr "PNG 파일 형식을 확인해주세요."
+
+#: board/services/brand_asset_service.py:534
+#, python-format
+msgid "Check the dimensions of the %(size)s PNG file."
+msgstr "%(size)s PNG 크기를 확인해주세요."
+
+#: board/services/brand_asset_service.py:540
+msgid "Could not read the PNG file."
+msgstr "PNG 파일을 읽을 수 없습니다."
+
+#: board/services/brand_asset_service.py:553
+msgid "Check the ICO file format."
+msgstr "ICO 파일 형식을 확인해주세요."
+
+#: board/services/brand_asset_service.py:556
+msgid "Could not read the ICO file."
+msgstr "ICO 파일을 읽을 수 없습니다."
+
+#: board/services/bulk_notification_audit_message_service.py:10
+#, python-format
+msgid "Admin bulk notification delivery completed: requested %(requested)d; created %(created)d; duplicates %(duplicates)d; failures %(failures)d."
+msgstr "Admin 전체 알림 발송 완료: 대상 %(requested)d명; 생성 %(created)d명; 중복 %(duplicates)d명; 실패 %(failures)d명."
+
+#: board/services/bulk_notification_audit_message_service.py:14
+#, python-format
+msgid "Admin bulk notification delivery failed: requested %(requested)d."
+msgstr "Admin 전체 알림 발송 실패: 대상 %(requested)d명."
+
+#: board/services/comment_service.py:87 board/services/comment_service.py:184
+msgid "Log in to continue."
+msgstr "로그인이 필요합니다."
+
+#: board/services/comment_service.py:104
+msgid "Comments are disabled for this post."
+msgstr "댓글이 차단된 글입니다."
+
+#: board/services/comment_service.py:122
+msgid "The parent comment does not belong to this post."
+msgstr "부모 댓글이 대상 글에 속하지 않습니다."
+
+#: board/services/comment_service.py:130
+msgid "You cannot reply to a deleted comment."
+msgstr "삭제된 댓글에는 답글을 달 수 없습니다."
+
+#: board/services/comment_service.py:148
+msgid "You do not have permission to edit this comment."
+msgstr "댓글 수정 권한이 없습니다."
+
+#: board/services/comment_service.py:166
+msgid "You do not have permission to delete this comment."
+msgstr "댓글 삭제 권한이 없습니다."
+
+#: board/services/comment_service.py:190
+msgid "You cannot like your own comment."
+msgstr "자신의 댓글은 추천할 수 없습니다."
+
+#: board/services/developer_token_service.py:50
+#, python-format
+msgid "Unsupported scopes: %(scopes)s"
+msgstr "지원하지 않는 scope입니다: %(scopes)s"
+
+#: board/services/developer_token_service.py:59
+msgid "At least one scope is required."
+msgstr "최소 하나의 scope가 필요합니다."
+
+#: board/services/developer_token_service.py:73
+#: board/services/developer_token_service.py:214
+msgid "The Developer API requires author access."
+msgstr "개발자 API는 작가 권한이 필요합니다."
+
+#: board/services/developer_token_service.py:87
+msgid "expires_in_days must be a number."
+msgstr "expires_in_days는 숫자여야 합니다."
+
+#: board/services/developer_token_service.py:94
+#, python-format
+msgid "expires_in_days must be between 1 and %(max_days)s."
+msgstr "expires_in_days는 1에서 %(max_days)s 사이여야 합니다."
+
+#: board/services/developer_token_service.py:116
+msgid "Could not generate a token prefix. Try again."
+msgstr "토큰 prefix 생성에 실패했습니다. 다시 시도해주세요."
+
+#: board/services/developer_token_service.py:145
+msgid "A Bearer token is required."
+msgstr "Bearer 토큰이 필요합니다."
+
+#: board/services/developer_token_service.py:157
+#: board/services/developer_token_service.py:166
+#: board/services/developer_token_service.py:186
+#: board/services/developer_token_service.py:193
+msgid "Invalid token."
+msgstr "유효하지 않은 토큰입니다."
+
+#: board/services/developer_token_service.py:200
+msgid "This token has expired or been revoked."
+msgstr "만료되었거나 폐기된 토큰입니다."
+
+#: board/services/developer_token_service.py:207
+msgid "This user is inactive."
+msgstr "비활성 사용자입니다."
+
+#: board/services/developer_token_service.py:231
+#, python-format
+msgid "%(scope)s scope is required."
+msgstr "%(scope)s scope가 필요합니다."
+
+#: board/services/discovery_metadata_service.py:36
+#, python-format
+msgid "%(username)s's %(site_name)s series: %(series_name)s"
+msgstr "%(username)s님의 %(site_name)s 시리즈: %(series_name)s"
+
+#: board/services/email_change_service.py:25
+msgid "The email change request to cancel could not be found."
+msgstr "취소할 이메일 변경 요청을 찾을 수 없습니다."
+
+#: board/services/hcaptcha_service.py:136
+msgid "Enter an hCaptcha Site Key."
+msgstr "hCaptcha Site Key를 입력해주세요."
+
+#: board/services/hcaptcha_service.py:138
+msgid "Enter an hCaptcha Secret Key."
+msgstr "hCaptcha Secret Key를 입력해주세요."
+
+#: board/services/image_upload_service.py:30
+msgid "No image was provided."
+msgstr "이미지가 없습니다."
+
+#: board/services/image_upload_service.py:43
+msgid "This file extension is not allowed."
+msgstr "허용된 확장자가 아닙니다."
+
+#: board/services/image_upload_service.py:117
+#: board/services/image_upload_service.py:180
+#: board/services/image_upload_service.py:202
+msgid "Image upload failed."
+msgstr "이미지 업로드에 실패했습니다."
+
+#: board/services/image_upload_service.py:145
+msgid "Video upload failed."
+msgstr "비디오 업로드에 실패했습니다."
+
+#: board/services/integration_setting_service.py:121
+msgid "Enter a Telegram bot username."
+msgstr "텔레그램 봇 사용자명을 입력해주세요."
+
+#: board/services/integration_setting_service.py:125
+msgid "Enter a Telegram bot token."
+msgstr "텔레그램 봇 토큰을 입력해주세요."
+
+#: board/services/notification_message_service.py:20
+#, python-format
+msgid "@%(actor)s commented on \"%(post_title)s\". #%(comment_id)s"
+msgstr "\"%(post_title)s\" 글에 @%(actor)s님이 댓글을 남겼습니다. #%(comment_id)s"
+
+#: board/services/notification_message_service.py:23
+#, python-format
+msgid "@%(actor)s mentioned you in \"%(post_title)s\". #%(comment_id)s"
+msgstr "\"%(post_title)s\" 글에서 @%(actor)s님이 회원님을 태그했습니다. #%(comment_id)s"
+
+#: board/services/notification_message_service.py:26
+#, python-format
+msgid "@%(actor)s liked your comment #%(comment_id)s on \"%(post_title)s\"."
+msgstr "\"%(post_title)s\" 글에 작성한 회원님의 #%(comment_id)s 댓글을 @%(actor)s님이 추천했습니다."
+
+#: board/services/notification_message_service.py:29
+#, python-format
+msgid "@%(actor)s replied to your comment on \"%(post_title)s\". #%(comment_id)s"
+msgstr "\"%(post_title)s\" 글에 작성한 회원님의 댓글에 @%(actor)s님이 답글을 남겼습니다. #%(comment_id)s"
+
+#: board/services/notification_message_service.py:33
+#, python-format
+msgid "@%(actor)s liked \"%(post_title)s\"."
+msgstr "\"%(post_title)s\" 글을 @%(actor)s님이 추천했습니다."
+
+#: board/services/notification_url_service.py:21
+#: board/services/notification_url_service.py:32
+#: board/services/notification_url_service.py:55
+#: board/services/notification_url_service.py:58
+#: board/services/notification_url_service.py:69
+#: board/services/notification_url_service.py:77
+msgid "Enter a valid notification URL."
+msgstr "올바른 알림 URL을 입력해주세요."
+
+#: board/services/notification_url_service.py:25
+msgid "Notification URLs cannot contain control characters."
+msgstr "알림 URL에는 제어 문자를 사용할 수 없습니다."
+
+#: board/services/notification_url_service.py:27
+msgid "Notification URLs cannot contain backslashes."
+msgstr "알림 URL에는 역슬래시를 사용할 수 없습니다."
+
+#: board/services/notification_url_service.py:36
+msgid "Notification URLs must be a relative path or an HTTP(S) URL."
+msgstr "알림 URL은 상대 경로 또는 HTTP(S) URL이어야 합니다."
+
+#: board/services/post_revision_service.py:173
+msgid "The revision to restore could not be found."
+msgstr "복원할 수정 이력을 찾을 수 없습니다."
+
+#: board/services/post_revision_service.py:178
+msgid "Legacy revisions cannot be restored safely."
+msgstr "이전 형식의 수정 이력은 안전하게 복원할 수 없습니다."
+
+#: board/services/post_revision_service.py:185
+msgid "Another request has already changed the post. Refresh and try again."
+msgstr "포스트가 이미 다른 요청으로 수정되었습니다. 새로고침 후 다시 시도해주세요."
+
+#: board/services/post_service.py:72
+msgid "This cover style is not supported."
+msgstr "지원하지 않는 커버 스타일입니다."
+
+#: board/services/post_service.py:77
+msgid "This cover image position is not supported."
+msgstr "지원하지 않는 커버 이미지 위치입니다."
+
+#: board/services/post_service.py:82
+msgid "This cover image ratio is not supported."
+msgstr "지원하지 않는 커버 이미지 비율입니다."
+
+#: board/services/post_service.py:125
+msgid "This account is not active."
+msgstr "활성화되지 않은 사용자입니다."
+
+#: board/services/post_service.py:131
+msgid "You do not have permission to write posts."
+msgstr "작성 권한이 없습니다."
+
+#: board/services/post_service.py:149
+#: board/services/site_content_api_service.py:295
+msgid "Enter a title."
+msgstr "제목을 입력해주세요."
+
+#: board/services/post_service.py:154
+msgid "Enter some content."
+msgstr "내용을 입력해주세요."
+
+#: board/services/post_service.py:163
+#, python-format
+msgid "Subtitles can be up to %(max_length)s characters."
+msgstr "부제목은 최대 %(max_length)s자까지 입력할 수 있습니다."
+
+#: board/services/post_service.py:189 board/services/post_service.py:630
+#: board/services/post_service.py:645 board/views/api/v1/post.py:234
+msgid "Check the scheduled time."
+msgstr "예약 시간을 확인해주세요."
+
+#: board/services/post_service.py:201
+msgid "The scheduled time must be in the future."
+msgstr "예약시간이 현재시간보다 이전입니다."
+
+#: board/services/post_service.py:295 board/views/api/developer/v1/post.py:151
+#: board/views/api/developer/v1/post.py:162
+msgid "Post not found."
+msgstr "포스트를 찾을 수 없습니다."
+
+#: board/services/post_service.py:300
+msgid "This action is only available for scheduled posts."
+msgstr "예약 포스트에서만 사용할 수 있습니다."
+
+#: board/services/post_service.py:637
+msgid "Only scheduled posts can have their scheduled time changed."
+msgstr "예약 포스트만 예약 시간을 변경할 수 있습니다."
+
+#: board/services/post_service.py:867
+#, python-format
+msgid "You can save up to %(max_drafts)s drafts."
+msgstr "임시 저장 글은 최대 %(max_drafts)s개까지 가능합니다."
+
+#: board/services/post_service.py:875 board/services/post_service.py:951
+msgid "Untitled"
+msgstr "제목 없음"
+
+#: board/services/post_trash_service.py:91
+#: board/services/post_trash_service.py:97 board/views/api/v1/post_trash.py:29
+msgid "Check the trash page."
+msgstr "휴지통 페이지 정보를 확인해주세요."
+
+#: board/services/post_trash_service.py:114
+msgid "The post to move to trash was not found."
+msgstr "휴지통으로 옮길 포스트를 찾을 수 없습니다."
+
+#: board/services/post_trash_service.py:131
+msgid "The trashed post was not found."
+msgstr "휴지통 포스트를 찾을 수 없습니다."
+
+#: board/services/post_trash_service.py:135
+msgid "The trash state changed. Refresh the list and try again."
+msgstr "휴지통 상태가 바뀌었습니다. 목록을 새로고침한 뒤 다시 시도해주세요."
+
+#: board/services/product_settings_permission_service.py:61
+msgid "Permission to change site settings is required."
+msgstr "사이트 설정 변경 권한이 필요합니다."
+
+#: board/services/series_service.py:47 board/services/user_service.py:59
+msgid "Login is required."
+msgstr "로그인이 필요합니다."
+
+#: board/services/series_service.py:72 board/services/series_service.py:201
+msgid "Enter a series name."
+msgstr "시리즈 이름을 입력해주세요."
+
+#: board/services/series_service.py:77 board/services/series_service.py:210
+#: board/services/site_content_api_service.py:169
+msgid "Enter a URL."
+msgstr "URL을 입력해주세요."
+
+#: board/services/series_service.py:100
+msgid "This URL already exists."
+msgstr "이미 존재하는 URL입니다."
+
+#: board/services/series_service.py:257 board/views/api/v1/series.py:225
+msgid "Order information is required."
+msgstr "순서 정보가 필요합니다."
+
+#: board/services/setting_account_profile_service.py:73
+msgid "Password must be at least 8 characters."
+msgstr "비밀번호는 8자 이상이어야 합니다."
+
+#: board/services/setting_account_profile_service.py:79
+msgid "Password must include a number."
+msgstr "비밀번호는 숫자를 포함해야 합니다."
+
+#: board/services/setting_account_profile_service.py:85
+msgid "Password must include a lowercase letter."
+msgstr "비밀번호는 소문자를 포함해야 합니다."
+
+#: board/services/setting_account_profile_service.py:91
+msgid "Password must include an uppercase letter."
+msgstr "비밀번호는 대문자를 포함해야 합니다."
+
+#: board/services/setting_account_profile_service.py:102
+msgid "Password must include a special character."
+msgstr "비밀번호는 특수문자를 포함해야 합니다."
+
+#: board/services/setting_account_profile_service.py:122
+msgid "Homepage must be an HTTP or HTTPS URL."
+msgstr "홈페이지는 http 또는 https URL이어야 합니다."
+
+#: board/services/site_content_api_service.py:166
+msgid "Enter a notice title."
+msgstr "공지 제목을 입력해주세요."
+
+#: board/services/site_content_api_service.py:176
+msgid "Enter a banner name."
+msgstr "배너 이름을 입력해주세요."
+
+#: board/services/site_content_api_service.py:181
+msgid "Enter banner HTML."
+msgstr "배너 HTML을 입력해주세요."
+
+#: board/services/site_content_api_service.py:196
+msgid "Horizontal banners can only be placed at the top or bottom."
+msgstr "줄배너는 상단 또는 하단에만 배치할 수 있습니다."
+
+#: board/services/site_content_api_service.py:205
+msgid "Sidebar banners can only be placed on the left or right."
+msgstr "사이드배너는 좌측 또는 우측에만 배치할 수 있습니다."
+
+#: board/services/site_content_api_service.py:297
+msgid "Enter a URL slug."
+msgstr "URL 슬러그를 입력해주세요."
+
+#: board/services/site_content_api_service.py:306
+#: board/services/site_content_api_service.py:330
+msgid "This slug is already in use."
+msgstr "이미 사용 중인 슬러그입니다."
+
+#: board/services/social_auth_connection_service.py:27
+msgid "The social login connection to disconnect could not be found."
+msgstr "해제할 소셜 로그인 연동을 찾을 수 없습니다."
+
+#: board/services/social_auth_connection_service.py:38
+msgid "This connection cannot be disconnected because the account has no usable password or another social login method."
+msgstr "사용 가능한 비밀번호나 다른 소셜 로그인 수단이 없어 이 연동을 해제할 수 없습니다."
+
+#: board/services/two_factor_setup_service.py:142
+#, python-format
+msgid "Could not initialize two-factor authentication: %(error)s"
+msgstr "2FA 설정 초기화에 실패했습니다: %(error)s"
+
+#: board/services/two_factor_setup_service.py:161
+msgid "Two-factor authentication cannot be disabled during the first 24 hours."
+msgstr "24시간 동안 해제할 수 없습니다."
+
+#: board/services/two_factor_setup_service.py:182
+msgid "Your two-factor authentication setup session has expired. Try again."
+msgstr "2FA 설정 세션이 만료되었습니다. 다시 시도해주세요."
+
+#: board/services/two_factor_setup_service.py:191
+msgid "This setup session is invalid."
+msgstr "잘못된 세션입니다."
+
+#: board/services/two_factor_setup_service.py:202
+msgid "Enter the verification code."
+msgstr "인증 코드를 입력해주세요."
+
+#: board/services/two_factor_setup_service.py:209
+msgid "The verification code is incorrect."
+msgstr "잘못된 인증 코드입니다."
+
+#: board/services/two_factor_setup_service.py:225
+#, python-format
+msgid "Could not enable two-factor authentication: %(error)s"
+msgstr "2FA 활성화에 실패했습니다: %(error)s"
+
+#: board/services/user_management_service.py:227
+msgid "This role is not supported."
+msgstr "지원하지 않는 권한입니다."
+
+#: board/services/user_management_service.py:232
+msgid "You cannot change your own role."
+msgstr "자기 자신의 권한은 변경할 수 없습니다."
+
+#: board/services/user_management_service.py:236
+msgid "Administrator roles cannot be changed from this page."
+msgstr "관리자 계정의 권한은 이 화면에서 변경할 수 없습니다."
+
+#: board/services/utility_cleanup_service.py:207
+msgid "content images"
+msgstr "콘텐츠 이미지"
+
+#: board/services/utility_cleanup_service.py:229
+msgid "title images"
+msgstr "타이틀 이미지"
+
+#: board/services/utility_cleanup_service.py:261
+msgid "avatar images"
+msgstr "아바타 이미지"
+
+#: board/services/utility_cleanup_service.py:276
+#, python-format
+msgid "Image caches ready for deletion: %(count)s."
+msgstr "이미지 캐시 %(count)s개가 삭제 대상입니다."
+
+#: board/services/utility_cleanup_service.py:278
+#, python-format
+msgid "Deleted image caches: %(count)s."
+msgstr "이미지 캐시 %(count)s개를 삭제했습니다."
+
+#: board/services/utility_cleanup_service.py:286
+#, python-format
+msgid "Deleted empty directories: %(count)s."
+msgstr "빈 디렉터리 %(count)s개를 삭제했습니다."
+
+#: board/services/utility_cleanup_service.py:319
+#, python-format
+msgid "Deleted files from %(label)s: %(count)s."
+msgstr "%(label)s %(count)s개를 삭제했습니다."
+
+#: board/services/utility_cleanup_service.py:325
+#, python-format
+msgid "Error: %(detail)s"
+msgstr "오류: %(detail)s"
+
+#: board/services/utility_cleanup_service.py:336
+#, python-format
+msgid "Duplicate title images ready for deletion: %(count)s (%(size)s MB)."
+msgstr "중복 타이틀 이미지 %(count)s개(%(size)sMB)가 삭제 대상입니다."
+
+#: board/services/utility_cleanup_service.py:338
+#, python-format
+msgid "Deleted duplicate title images: %(count)s (%(size)s MB)."
+msgstr "중복 타이틀 이미지 %(count)s개(%(size)sMB)를 삭제했습니다."
+
+#: board/services/webhook_api_service.py:23
+msgid "Profile not found."
+msgstr "프로필을 찾을 수 없습니다."
+
+#: board/services/webhook_service.py:162
+#, python-format
+msgid "[%(author)s] Published a new post: [%(title)s](%(url)s)"
+msgstr "[%(author)s] 새 포스트가 발행되었어요: [%(title)s](%(url)s)"
+
+#: board/services/webhook_service.py:260
+msgid "This is a BLEX webhook connection test."
+msgstr "BLEX 웹훅 연결 테스트입니다."
+
+#: board/templates/admin/board/confirm_action.html:11
+#: board/templates/admin/board/notify/bulk_send.html:8
+msgid "Home"
+msgstr "홈"
+
+#: board/templates/admin/board/confirm_action.html:20
+#, python-format
+msgid "Target: %(count)s object"
+msgid_plural "Target: %(count)s objects"
+msgstr[0] "대상 %(count)s개"
+
+#: board/templates/admin/board/confirm_action.html:27
+#, python-format
+msgid "and %(remaining)s more"
+msgstr "외 %(remaining)s개"
+
+#: board/templates/admin/board/confirm_action.html:41
+#: board/templates/admin/board/notify/bulk_send.html:47
+#: board/templates/admin/board/notify/bulk_send.html:77
+#: board/templates/board/author/components/readme_section.html:113
+msgid "Cancel"
+msgstr "취소"
+
+#: board/templates/admin/board/notify/bulk_send.html:4
+msgid "Django site admin"
+msgstr "Django 사이트 관리자"
+
+#: board/templates/admin/board/notify/bulk_send.html:26
+msgid "Confirm recipients"
+msgstr "발송 대상 확인"
+
+#: board/templates/admin/board/notify/bulk_send.html:28
+#, python-format
+msgid "Schedule notification delivery to the current <strong>%(count)s active user</strong>."
+msgid_plural "Schedule notification delivery to the current <strong>%(count)s active users</strong>."
+msgstr[0] "<strong>현재 활성 사용자 %(count)s명</strong>에게 알림 발송 작업을 예약합니다."
+
+#: board/templates/admin/board/notify/bulk_send.html:29
+msgid "Users who already have the same notification will be skipped."
+msgstr "이미 동일한 알림이 있는 사용자는 중복 발송하지 않고 건너뜁니다."
+
+#: board/templates/admin/board/notify/bulk_send.html:46
+msgid "Schedule delivery"
+msgstr "발송 예약"
+
+#: board/templates/admin/board/notify/bulk_send.html:76
+msgid "Review recipients"
+msgstr "발송 대상 확인"
+
+#: board/templates/board/404.html:4 board/templates/board/404.html:44
+msgid "Page not found"
+msgstr "페이지를 찾을 수 없습니다"
+
+#: board/templates/board/404.html:48
+msgid "The page may have been removed, moved, or be temporarily unavailable."
+msgstr "요청하신 페이지가 삭제되었거나, 주소가 변경되었거나, 일시적으로 사용할 수 없는 상태입니다."
+
+#: board/templates/board/404.html:57 board/templates/board/error/403.html:88
+msgid "Go back"
+msgstr "뒤로 가기"
+
+#: board/templates/board/404.html:65
+#: board/templates/board/author/author_posts.html:27
+#: board/templates/board/author/author_series.html:27
+#: board/templates/components/header.html:123
+#: board/templates/components/header.html:199
+#: board/templates/components/quick_search.html:20
+#: board/templates/components/quick_search.html:21
+#: board/templates/components/search_query_filter.html:39
+msgid "Search"
+msgstr "검색"
+
+#: board/templates/board/404.html:69
+msgid "Back to home"
+msgstr "홈으로 돌아가기"
+
+#: board/templates/board/auth/login.html:4
+#: board/templates/components/header.html:186
+#: board/templates/components/header.html:306
+msgid "Log in"
+msgstr "로그인"
+
+#: board/templates/board/auth/signup.html:4
+#: board/templates/components/header.html:189
+#: board/templates/components/header.html:310
+msgid "Sign up"
+msgstr "회원가입"
+
+#: board/templates/board/author/author_about_edit.html:4
+#, python-format
+msgid "Edit %(username)s's introduction"
+msgstr "%(username)s님의 소개글 수정"
+
+#: board/templates/board/author/author_about_edit.html:7
+msgid "Write your introduction in Markdown."
+msgstr "마크다운으로 작성해 보세요."
+
+#: board/templates/board/author/author_about_edit.html:8
+#: board/templates/board/author/components/readme_section.html:3
+#: board/views/author.py:361
+msgid "Introduction saved."
+msgstr "소개글을 저장했습니다."
+
+#: board/templates/board/author/author_about_edit.html:9
+#: board/templates/board/author/components/readme_section.html:2
+#: board/views/author.py:368
+msgid "Could not save the introduction."
+msgstr "소개글을 저장하지 못했습니다."
+
+#: board/templates/board/author/author_about_edit.html:10
+#: board/templates/board/author/components/readme_section.html:4
+msgid "A network error occurred. Please try again."
+msgstr "네트워크 오류로 저장하지 못했습니다."
+
+#: board/templates/board/author/author_about_edit.html:20
+msgid "Introduce yourself"
+msgstr "자신을 소개해 보세요."
+
+#: board/templates/board/author/author_about_edit.html:21
+msgid "Write a short introduction for your profile."
+msgstr "자신을 소개하는 글을 작성해 보세요."
+
+#: board/templates/board/author/author_about_edit.html:85
+#: board/templates/board/author/components/readme_section.html:116
+msgid "Save"
+msgstr "저장"
+
+#: board/templates/board/author/author_about_edit.html:86
+#: board/templates/board/author/components/readme_section.html:117
+msgid "Saving..."
+msgstr "저장 중..."
+
+#: board/templates/board/author/author_posts.html:7
+msgid "Search posts"
+msgstr "포스트 검색"
+
+#: board/templates/board/author/author_posts.html:8
+msgid "No posts match these filters"
+msgstr "조건에 맞는 포스트가 없습니다"
+
+#: board/templates/board/author/author_posts.html:9
+msgid "Try a different search term or tag."
+msgstr "검색어나 태그를 다시 확인해주세요."
+
+#: board/templates/board/author/author_posts.html:10
+#: board/templates/board/author/components/featured_posts_section.html:2
+msgid "No published posts yet"
+msgstr "아직 공개된 포스트가 없습니다."
+
+#: board/templates/board/author/author_posts.html:11
+msgid "New posts will appear here when they are published."
+msgstr "새 포스트가 발행되면 이곳에 표시됩니다."
+
+#: board/templates/board/author/author_series.html:4
+#, python-format
+msgid "%(username)s's series"
+msgstr "%(username)s님의 시리즈"
+
+#: board/templates/board/author/author_series.html:7
+msgid "Search series"
+msgstr "시리즈 검색"
+
+#: board/templates/board/author/author_series.html:8
+msgid "No series match this search"
+msgstr "조건에 맞는 시리즈가 없습니다"
+
+#: board/templates/board/author/author_series.html:9
+msgid "Try a different search term."
+msgstr "검색어를 다시 확인해주세요."
+
+#: board/templates/board/author/author_series.html:10
+msgid "No public series yet"
+msgstr "아직 공개된 시리즈가 없습니다"
+
+#: board/templates/board/author/author_series.html:11
+msgid "Public series will appear here."
+msgstr "시리즈가 공개되면 이곳에 표시됩니다."
+
+#: board/templates/board/author/author_series.html:32
+msgid "Sort"
+msgstr "정렬"
+
+#: board/templates/board/author/author_series.html:60
+#: board/templates/board/series/series_detail.html:52
+#, python-format
+msgid "%(count)s post"
+msgid_plural "%(count)s posts"
+msgstr[0] "%(count)s개 포스트"
+
+#: board/templates/board/author/components/activity_section.html:2
+msgid "No public activity yet"
+msgstr "표시할 활동이 없습니다"
+
+#: board/templates/board/author/components/activity_section.html:6
+#: board/templates/board/author/components/activity_section.html:45
+msgid "Activity"
+msgstr "활동"
+
+#: board/templates/board/author/components/activity_section.html:7
+msgid "Yearly activity"
+msgstr "연간 활동"
+
+#: board/templates/board/author/components/activity_section.html:17
+msgid "Recent activity"
+msgstr "활동 내역"
+
+#: board/templates/board/author/components/activity_section.html:19
+#, python-format
+msgid "%(count)s activity"
+msgid_plural "%(count)s activities"
+msgstr[0] "%(count)s개"
+
+#: board/templates/board/author/components/activity_section.html:41
+msgid "Published a new post"
+msgstr "새 포스트를 작성했어요"
+
+#: board/templates/board/author/components/activity_section.html:42
+msgid "Created a series"
+msgstr "시리즈를 만들었어요"
+
+#: board/templates/board/author/components/activity_section.html:43
+msgid "Left a comment"
+msgstr "댓글을 남겼어요"
+
+#: board/templates/board/author/components/activity_section.html:44
+msgid "Liked a post"
+msgstr "좋아요를 눌렀어요"
+
+#: board/templates/board/author/components/author_header.html:2
+#, python-format
+msgid "%(username)s's cover"
+msgstr "%(username)s님의 커버"
+
+#: board/templates/board/author/components/author_header.html:19
+msgid "Change cover"
+msgstr "커버 변경"
+
+#: board/templates/board/author/components/author_header.html:37
+#: board/templates/board/author/components/author_header.html:38
+msgid "Change profile picture"
+msgstr "프로필 이미지 변경"
+
+#: board/templates/board/author/components/author_header.html:107
+msgid "Add a social link"
+msgstr "소셜 링크 추가"
+
+#: board/templates/board/author/components/author_notice_list.html:6
+#: board/templates/board/author/components/author_notice_list.html:7
+msgid "Notices"
+msgstr "공지"
+
+#: board/templates/board/author/components/author_notice_list.html:10
+#, python-format
+msgid "%(count)s notice"
+msgid_plural "%(count)s notices"
+msgstr[0] "%(count)s개"
+
+#: board/templates/board/author/components/featured_posts_section.html:3
+#: board/templates/board/posts/post_list.html:15
+#: board/templates/board/tags/tag_detail.html:8
+msgid "Write a post"
+msgstr "포스트 작성하기"
+
+#: board/templates/board/author/components/featured_posts_section.html:11
+msgid "Featured posts"
+msgstr "추천 포스트"
+
+#: board/templates/board/author/components/featured_posts_section.html:11
+msgid "Recent posts"
+msgstr "최근 포스트"
+
+#: board/templates/board/author/components/featured_posts_section.html:50
+#: board/templates/board/series/series_detail.html:118
+#: board/templates/components/post_card.html:41
+#, python-format
+msgid "%(minutes)s min"
+msgid_plural "%(minutes)s mins"
+msgstr[0] "%(minutes)s분"
+
+#: board/templates/board/author/components/readme_section.html:5
+msgid "No introduction yet"
+msgstr "아직 소개가 없습니다"
+
+#: board/templates/board/author/components/readme_section.html:6
+msgid "Write an introduction"
+msgstr "소개글 작성"
+
+#: board/templates/board/author/components/readme_section.html:75
+#: board/templates/board/author/components/readme_section.html:76
+msgid "About"
+msgstr "소개"
+
+#: board/templates/board/author/components/readme_section.html:98
+msgid "Edit introduction"
+msgstr "소개글 수정"
+
+#: board/templates/board/author/components/readme_section.html:109
+msgid "Write your introduction"
+msgstr "소개글을 작성하세요"
+
+#: board/templates/board/author/components/tabs_nav.html:8
+msgid "Overview"
+msgstr "개요"
+
+#: board/templates/board/base.html:6
+msgid "Some interactive elements could not be loaded. Please try again shortly."
+msgstr "일부 인터랙션 요소를 불러오지 못했습니다. 잠시 후 다시 시도해주세요."
+
+#: board/templates/board/base.html:133
+msgid "Development environment indicator"
+msgstr "개발 환경 표시"
+
+#: board/templates/board/base.html:134 board/templates/board/base.html:138
+msgid "Development environment"
+msgstr "개발 환경"
+
+#: board/templates/board/developer_api_quickstart.html:4
+#: board/templates/board/developer_api_quickstart.html:13
+msgid "Developer API quickstart"
+msgstr "개발자 API 빠른 시작"
+
+#: board/templates/board/developer_api_quickstart.html:7
+msgid "My first API post"
+msgstr "API로 만든 첫 포스트"
+
+#: board/templates/board/developer_api_quickstart.html:8
+msgid "This draft was created with an external tool."
+msgstr "외부 도구에서 만든 초안입니다."
+
+#: board/templates/board/developer_api_quickstart.html:9
+msgid "A BLEX post written with an external tool."
+msgstr "외부 도구에서 작성한 BLEX 포스트입니다."
+
+#: board/templates/board/developer_api_quickstart.html:12
+#: board/views/api/developer/v1/api.py:58
+msgid "BLEX Developer API"
+msgstr "BLEX 개발자 API"
+
+#: board/templates/board/developer_api_quickstart.html:15
+msgid "The generated API documentation covers every endpoint. This guide walks through the shortest path from creating a token to publishing a Markdown draft."
+msgstr "자동 API 문서는 전체 엔드포인트를 보여줍니다. 이 문서는 처음 쓰는 사람이 토큰을 만들고 Markdown 초안을 발행하는 최소 흐름만 설명합니다."
+
+#: board/templates/board/developer_api_quickstart.html:19
+msgid "Open API documentation"
+msgstr "자동 API 문서 열기"
+
+#: board/templates/board/developer_api_quickstart.html:22
+msgid "Manage tokens"
+msgstr "토큰 관리로 이동"
+
+#: board/templates/board/developer_api_quickstart.html:29
+msgid "1. Create a token"
+msgstr "1. 토큰 만들기"
+
+#: board/templates/board/developer_api_quickstart.html:31
+msgid "Log in to BLEX with an author account."
+msgstr "BLEX에 작가 계정으로 로그인합니다."
+
+#: board/templates/board/developer_api_quickstart.html:33
+msgid "Open <code class=\"rounded bg-surface-subtle px-1.5 py-0.5 text-content\">/settings/developer-api</code>."
+msgstr "<code class=\"rounded bg-surface-subtle px-1.5 py-0.5 text-content\">/settings/developer-api</code>로 이동합니다."
+
+#: board/templates/board/developer_api_quickstart.html:38
+msgid "Select both <strong class=\"text-content\">Read posts</strong> and <strong class=\"text-content\">Write posts</strong> to create and publish posts."
+msgstr "포스트를 만들고 발행하려면 <strong class=\"text-content\">포스트 읽기</strong>와 <strong class=\"text-content\">포스트 작성</strong> 권한을 모두 선택합니다."
+
+#: board/templates/board/developer_api_quickstart.html:42
+msgid "Copy the full token shown immediately after creation. It cannot be viewed again."
+msgstr "발급 직후 표시되는 전체 토큰을 복사합니다. 이 값은 다시 볼 수 없습니다."
+
+#: board/templates/board/developer_api_quickstart.html:49
+msgid "2. Verify the token"
+msgstr "2. 토큰 확인"
+
+#: board/templates/board/developer_api_quickstart.html:55
+msgid "3. Create a Markdown draft"
+msgstr "3. Markdown 초안 만들기"
+
+#: board/templates/board/developer_api_quickstart.html:67
+msgid "Keep the <code class=\"rounded bg-surface-subtle px-1.5 py-0.5 text-content\">data.id</code> and <code class=\"rounded bg-surface-subtle px-1.5 py-0.5 text-content\">data.updated_at</code> values from the response. Replace <code class=\"rounded bg-surface-subtle px-1.5 py-0.5 text-content\">123</code> in the following examples with the returned <code class=\"rounded bg-surface-subtle px-1.5 py-0.5 text-content\">data.id</code>."
+msgstr "응답의 <code class=\"rounded bg-surface-subtle px-1.5 py-0.5 text-content\">data.id</code>와 <code class=\"rounded bg-surface-subtle px-1.5 py-0.5 text-content\">data.updated_at</code>을 기억하세요. 다음 예시의 <code class=\"rounded bg-surface-subtle px-1.5 py-0.5 text-content\">123</code>은 생성 응답의 <code class=\"rounded bg-surface-subtle px-1.5 py-0.5 text-content\">data.id</code>로 바꿔 넣으면 됩니다."
+
+#: board/templates/board/developer_api_quickstart.html:80
+msgid "4. Upload an image"
+msgstr "4. 이미지 업로드"
+
+#: board/templates/board/developer_api_quickstart.html:85
+msgid "Use <code class=\"rounded bg-surface-subtle px-1.5 py-0.5 text-content\">data.url</code> from the response as the Markdown image URL."
+msgstr "응답의 <code class=\"rounded bg-surface-subtle px-1.5 py-0.5 text-content\">data.url</code>을 Markdown 이미지 주소로 사용할 수 있습니다."
+
+#: board/templates/board/developer_api_quickstart.html:92
+msgid "5. Update the draft"
+msgstr "5. 초안 수정하기"
+
+#: board/templates/board/developer_api_quickstart.html:94
+msgid "To reduce concurrent edit conflicts, send the <code class=\"rounded bg-surface-subtle px-1.5 py-0.5 text-content\">updated_at</code> value from a detail or creation response as <code class=\"rounded bg-surface-subtle px-1.5 py-0.5 text-content\">expected_updated_at</code>."
+msgstr "동시 수정 충돌을 줄이려면 상세 조회나 생성 응답의 <code class=\"rounded bg-surface-subtle px-1.5 py-0.5 text-content\">updated_at</code>을 <code class=\"rounded bg-surface-subtle px-1.5 py-0.5 text-content\">expected_updated_at</code>으로 보냅니다."
+
+#: board/templates/board/developer_api_quickstart.html:109
+msgid "6. Publish the draft"
+msgstr "6. 초안 발행하기"
+
+#: board/templates/board/developer_api_quickstart.html:117
+msgid "Common errors"
+msgstr "자주 보는 오류"
+
+#: board/templates/board/developer_api_quickstart.html:121
+msgid "Code"
+msgstr "코드"
+
+#: board/templates/board/developer_api_quickstart.html:121
+msgid "Meaning"
+msgstr "의미"
+
+#: board/templates/board/developer_api_quickstart.html:124
+msgid "The Authorization header is missing."
+msgstr "Authorization 헤더가 없습니다."
+
+#: board/templates/board/developer_api_quickstart.html:125
+msgid "The token is invalid or has been revoked."
+msgstr "토큰이 틀렸거나 폐기되었습니다."
+
+#: board/templates/board/developer_api_quickstart.html:126
+msgid "The token does not have the required scope."
+msgstr "필요한 권한이 없습니다."
+
+#: board/templates/board/developer_api_quickstart.html:127
+msgid "Author access is required to write posts."
+msgstr "포스트 작성에는 작가 권한이 필요합니다."
+
+#: board/templates/board/developer_api_quickstart.html:128
+msgid "The post status is not supported."
+msgstr "지원하지 않는 포스트 상태입니다."
+
+#: board/templates/board/developer_api_quickstart.html:129
+msgid "A scheduled post was created without a publication time."
+msgstr "예약 발행 시간 없이 예약 포스트를 만들었습니다."
+
+#: board/templates/board/developer_api_quickstart.html:130
+msgid "The image exceeds the upload limit."
+msgstr "이미지 파일이 업로드 제한보다 큽니다."
+
+#: board/templates/board/developer_api_quickstart.html:131
+msgid "Another request has already updated the post."
+msgstr "포스트가 이미 다른 요청으로 수정되었습니다."
+
+#: board/templates/board/developer_api_quickstart.html:132
+msgid "The post is already published or scheduled."
+msgstr "이미 발행되었거나 예약된 포스트를 다시 발행하려고 했습니다."
+
+#: board/templates/board/developer_api_quickstart.html:133
+msgid "A field type or allowed value is invalid."
+msgstr "필드 타입이나 허용 값이 맞지 않습니다."
+
+#: board/templates/board/error/403.html:4
+#: board/templates/board/error/403.html:70
+msgid "Access denied"
+msgstr "접근 권한이 없습니다"
+
+#: board/templates/board/error/403.html:74
+msgid "You do not have permission to access this page."
+msgstr "이 페이지에 접근할 권한이 없습니다."
+
+#: board/templates/board/error/403.html:75
+msgid "Log in and try again."
+msgstr "로그인 후 다시 시도해주세요."
+
+#: board/templates/board/error/403.html:92
+msgid "Go to home"
+msgstr "홈으로 이동"
+
+#: board/templates/board/posts/covers/_post_meta.html:15
+#, python-format
+msgid "Previewed %(date)s"
+msgstr "%(date)s 미리보기"
+
+#: board/templates/board/posts/covers/_post_meta.html:15
+#, python-format
+msgid "Published %(date)s"
+msgstr "%(date)s 발행"
+
+#: board/templates/board/posts/covers/_post_meta.html:18
+#, python-format
+msgid "Updated %(date)s"
+msgstr "%(date)s 수정"
+
+#: board/templates/board/posts/covers/_post_meta.html:21
+msgid "Reading time"
+msgstr "읽는 시간"
+
+#: board/templates/board/posts/covers/_post_meta.html:21
+#, python-format
+msgid "%(minutes)s min read"
+msgstr "%(minutes)s분 소요"
+
+#: board/templates/board/posts/interested_posts.html:7
+#: board/templates/board/posts/interested_posts.html:24
+#: board/templates/board/posts/post_list.html:21
+msgid "Liked posts"
+msgstr "관심 포스트"
+
+#: board/templates/board/posts/interested_posts.html:11
+msgid "You haven't liked any posts yet"
+msgstr "아직 관심 포스트가 없어요"
+
+#: board/templates/board/posts/interested_posts.html:12
+msgid "Posts you like will appear here."
+msgstr "추천 버튼을 눌러둔 포스트가 여기에 모입니다."
+
+#: board/templates/board/posts/interested_posts.html:13
+msgid "Explore posts"
+msgstr "포스트 둘러보기"
+
+#: board/templates/board/posts/interested_posts.html:18
+#: board/templates/board/posts/post_detail.html:509
+msgid "All posts"
+msgstr "전체 포스트"
+
+#: board/templates/board/posts/interested_posts.html:23
+msgid "Posts you want to revisit"
+msgstr "내가 다시 보고 싶은 포스트"
+
+#: board/templates/board/posts/interested_posts.html:26
+msgid "Find all the posts you've liked, with your most recent likes first."
+msgstr "추천으로 관심 표시한 포스트를 최신 관심순으로 모아볼 수 있어요."
+
+#: board/templates/board/posts/post_detail.html:10
+msgid "Saved draft preview"
+msgstr "저장된 임시 포스트 미리보기"
+
+#: board/templates/board/posts/post_detail.html:66
+msgid "Link copied."
+msgstr "링크가 복사되었습니다."
+
+#: board/templates/board/posts/post_detail.html:67
+msgid "Could not copy the link."
+msgstr "복사에 실패했습니다."
+
+#: board/templates/board/posts/post_detail.html:68
+msgid "Agent link copied."
+msgstr "에이전트용 링크가 복사되었습니다."
+
+#: board/templates/board/posts/post_detail.html:69
+msgid "Could not share this post."
+msgstr "공유에 실패했습니다."
+
+#: board/templates/board/posts/post_detail.html:110
+msgid "This is a draft preview."
+msgstr "임시 포스트 미리보기입니다."
+
+#: board/templates/board/posts/post_detail.html:112
+msgid "This post is private."
+msgstr "비공개 포스트입니다."
+
+#: board/templates/board/posts/post_detail.html:114
+msgid "This post is scheduled."
+msgstr "예약 발행 포스트입니다."
+
+#: board/templates/board/posts/post_detail.html:119
+msgid "This page shows the latest saved draft as a post. Only the author can see it, and it does not appear in public lists or search."
+msgstr "마지막으로 저장된 내용을 실제 포스트 화면으로 표시합니다. 이 페이지는 작성자에게만 보이며 공개 목록과 검색에 노출되지 않습니다."
+
+#: board/templates/board/posts/post_detail.html:121
+msgid "Only the author can see this post. Turn off private visibility in the post settings to publish it."
+msgstr "이 포스트는 작성자만 볼 수 있습니다. 공개하려면 포스트 설정에서 비공개를 해제하세요."
+
+#: board/templates/board/posts/post_detail.html:123
+msgid "Only the author can see this post before its scheduled time. It will then appear at its public URL and in RSS, the sitemap, and the Markdown endpoint."
+msgstr "예약 시각 전에는 작성자만 볼 수 있습니다. 예약 시각이 되면 공개 URL, RSS, Sitemap, Markdown URL에 반영됩니다."
+
+#: board/templates/board/posts/post_detail.html:131
+#: board/templates/board/posts/post_detail.html:431
+#: board/templates/board/posts/post_editor.html:4
+msgid "Edit post"
+msgstr "수정하기"
+
+#: board/templates/board/posts/post_detail.html:180
+msgid "Post information"
+msgstr "포스트 정보"
+
+#: board/templates/board/posts/post_detail.html:193
+msgid "Preview date"
+msgstr "미리보기 기준"
+
+#: board/templates/board/posts/post_detail.html:193
+msgid "First published"
+msgstr "최초 발행"
+
+#: board/templates/board/posts/post_detail.html:200
+msgid "Updated"
+msgstr "수정일"
+
+#: board/templates/board/posts/post_detail.html:208
+msgid "Author website"
+msgstr "저자 홈페이지"
+
+#: board/templates/board/posts/post_detail.html:337
+msgid "View table of contents"
+msgstr "목차 보기"
+
+#: board/templates/board/posts/post_detail.html:351
+msgid "Share post or copy link"
+msgstr "게시물 공유 또는 링크 복사"
+
+#: board/templates/board/posts/post_detail.html:368
+msgid "Share"
+msgstr "공유"
+
+#: board/templates/board/posts/post_detail.html:376
+msgid "Regular link"
+msgstr "일반 링크"
+
+#: board/templates/board/posts/post_detail.html:377
+msgid "Address to open in a browser"
+msgstr "브라우저에서 여는 주소"
+
+#: board/templates/board/posts/post_detail.html:386
+msgid "Share on X"
+msgstr "X에 공유"
+
+#: board/templates/board/posts/post_detail.html:387
+msgid "Compose a post in a new window"
+msgstr "새 창에서 공유 포스트 작성"
+
+#: board/templates/board/posts/post_detail.html:396
+msgid "Share on LinkedIn"
+msgstr "LinkedIn에 공유"
+
+#: board/templates/board/posts/post_detail.html:397
+msgid "Share with your professional network"
+msgstr "전문 네트워크에 공유"
+
+#: board/templates/board/posts/post_detail.html:406
+msgid "Share on Facebook"
+msgstr "Facebook에 공유"
+
+#: board/templates/board/posts/post_detail.html:407
+msgid "Share to your feed or a message"
+msgstr "피드 또는 메시지로 공유"
+
+#: board/templates/board/posts/post_detail.html:418
+msgid "Agent link"
+msgstr "에이전트용 링크"
+
+#: board/templates/board/posts/post_detail.html:419
+msgid "*.md reference address"
+msgstr "*.md 참조 주소"
+
+#: board/templates/board/posts/post_detail.html:453
+msgid "This post is hidden and does not appear in the series list."
+msgstr "이 포스트는 숨김 처리되어 시리즈 목록에 표시되지 않습니다."
+
+#: board/templates/board/posts/post_detail.html:456
+msgid "View full series"
+msgstr "시리즈 전체 보기"
+
+#: board/templates/board/posts/post_detail.html:484
+msgid "Reading"
+msgstr "읽는 중"
+
+#: board/templates/board/posts/post_detail.html:499
+#: board/templates/board/posts/post_detail.html:504
+msgid "Previous"
+msgstr "이전"
+
+#: board/templates/board/posts/post_detail.html:514
+#: board/templates/board/posts/post_detail.html:519
+msgid "Next"
+msgstr "다음"
+
+#: board/templates/board/posts/post_detail.html:609
+#: board/templates/board/posts/post_detail.html:615
+#: board/templates/components/toc.html:10
+#: board/templates/components/toc.html:15
+msgid "Table of contents"
+msgstr "목차"
+
+#: board/templates/board/posts/post_detail.html:610
+msgid "Close table of contents"
+msgstr "목차 닫기"
+
+#: board/templates/board/posts/post_editor.html:4
+#: board/templates/components/header.html:46
+#: board/templates/components/header.html:280
+msgid "New post"
+msgstr "새 포스트"
+
+#: board/templates/board/posts/post_list.html:7
+msgid "Latest posts"
+msgstr "최신 포스트"
+
+#: board/templates/board/posts/post_list.html:13
+#: board/templates/board/series/series_detail.html:23
+msgid "No posts yet"
+msgstr "아직 포스트가 없어요"
+
+#: board/templates/board/posts/post_list.html:14
+msgid "Published posts will appear here."
+msgstr "공개된 포스트가 발행되면 이곳에 표시됩니다."
+
+#: board/templates/board/search/search.html:6
+#, python-format
+msgid "Search: %(query)s - %(site_name)s"
+msgstr "검색: %(query)s - %(site_name)s"
+
+#: board/templates/board/search/search.html:10
+#, python-format
+msgid "Search - %(site_name)s"
+msgstr "검색 - %(site_name)s"
+
+#: board/templates/board/series/series_detail.html:24
+msgid "No posts have been added to this series yet."
+msgstr "이 시리즈에는 아직 포스트가 추가되지 않았습니다."
+
+#: board/templates/board/series/series_detail.html:57
+#, python-format
+msgid "Updated %(updated_date)s"
+msgstr "%(updated_date)s 수정됨"
+
+#: board/templates/board/series/series_detail.html:67
+msgid "Edit series"
+msgstr "시리즈 편집"
+
+#: board/templates/board/series/series_detail.html:86 board/views/author.py:289
+msgid "Oldest first"
+msgstr "오래된순"
+
+#: board/templates/board/series/series_detail.html:89 board/views/author.py:288
+msgid "Newest first"
+msgstr "최신순"
+
+#: board/templates/board/setup/initial_admin.html:4
+#: board/templates/board/setup/initial_admin.html:18
+msgid "Initial setup"
+msgstr "초기 설정"
+
+#: board/templates/board/setup/initial_admin.html:20
+#, python-format
+msgid "Create the first administrator account to get started with %(site_name)s."
+msgstr "첫 관리자 계정을 만들어 %(site_name)s를 시작하세요."
+
+#: board/templates/board/setup/initial_admin.html:60
+msgid "Use 4–15 lowercase letters or numbers."
+msgstr "4-15자 영문 소문자와 숫자만 사용할 수 있습니다."
+
+#: board/templates/board/setup/initial_admin.html:69
+msgid "Processing..."
+msgstr "처리 중..."
+
+#: board/templates/board/setup/initial_admin.html:72
+msgid "Create administrator account"
+msgstr "관리자 계정 만들기"
+
+#: board/templates/board/tags/tag_detail.html:7
+msgid "No posts found"
+msgstr "포스트가 없습니다"
+
+#: board/templates/board/tags/tag_detail.html:9
+#, python-format
+msgid "No posts have been written with #%(tag_name)s yet."
+msgstr "#%(tag_name)s 태그로 작성된 포스트가 아직 없습니다."
+
+#: board/templates/board/tags/tag_detail.html:15 board/views/author.py:178
+msgid "All tags"
+msgstr "전체 태그"
+
+#: board/templates/board/tags/tag_list.html:7 board/views/api/v1/search.py:73
+#: board/views/api/v1/search.py:80
+msgid "Enter a search term."
+msgstr "검색어를 입력하세요."
+
+#: board/templates/board/tags/tag_list.html:8
+msgid "No tags found"
+msgstr "태그가 없습니다"
+
+#: board/templates/board/tags/tag_list.html:9
+msgid "No tags match your search."
+msgstr "검색 조건에 맞는 태그가 없습니다."
+
+#: board/templates/board/tags/tag_list.html:10
+msgid "Tags added to posts will appear here."
+msgstr "포스트에 태그를 추가하면 여기에 표시됩니다."
+
+#: board/templates/board/tags/tag_list.html:14
+msgid "Tag cloud"
+msgstr "태그 클라우드"
+
+#: board/templates/board/tags/tag_list.html:15
+msgid "Browse all tags and the posts filed under each one."
+msgstr "전체 태그와 태그별 포스트를 확인할 수 있습니다"
+
+#: board/templates/board/tags/tag_list.html:21
+msgid "Search tags"
+msgstr "태그 검색"
+
+#: board/templates/board/tags/tag_list.html:26
+msgid "Sort by"
+msgstr "정렬 방식"
+
+#: board/templates/board/tags/tag_list.html:48
+#, python-format
+msgid "Tagged in %(count)s post"
+msgid_plural "Tagged in %(count)s posts"
+msgstr[0] "%(count)s개 포스트에서 태그됨"
+
+#: board/templates/components/header.html:4
+msgid "Switch to light mode"
+msgstr "라이트 모드로 전환"
+
+#: board/templates/components/header.html:5
+msgid "Switch to dark mode"
+msgstr "다크 모드로 전환"
+
+#: board/templates/components/header.html:6
+msgid "Light mode"
+msgstr "라이트 모드"
+
+#: board/templates/components/header.html:7
+msgid "Dark mode"
+msgstr "다크 모드"
+
+#: board/templates/components/header.html:65
+msgid "User menu"
+msgstr "사용자 메뉴"
+
+#: board/templates/components/header.html:90
+msgid "Signed in as"
+msgstr "로그인한 계정"
+
+#: board/templates/components/header.html:110
+#: board/templates/components/header.html:298
+msgid "Log out"
+msgstr "로그아웃"
+
+#: board/templates/components/header.html:167
+#: board/templates/components/header.html:216
+#: board/templates/components/header.html:255
+msgid "Menu"
+msgstr "메뉴"
+
+#: board/templates/components/header.html:259
+msgid "Close"
+msgstr "닫기"
+
+#: board/templates/components/like_button.html:11
+msgid "Unlike"
+msgstr "좋아요 취소"
+
+#: board/templates/components/like_button.html:12
+msgid "Like"
+msgstr "좋아요"
+
+#: board/templates/components/like_button.html:13
+msgid "Could not update like. Please try again."
+msgstr "좋아요 처리에 실패했습니다. 다시 시도해주세요."
+
+#: board/templates/components/notice_carousel.html:33
+#: board/templates/components/notice_carousel.html:92
+msgctxt "Notice scope label"
+msgid "Blog notice"
+msgstr "블로그 공지"
+
+#: board/templates/components/notice_carousel.html:33
+#: board/templates/components/notice_carousel.html:92
+msgctxt "Notice scope label"
+msgid "Site notice"
+msgstr "전체 공지"
+
+#: board/templates/components/notice_carousel.html:56
+#: board/templates/components/notice_carousel.html:112
+msgid "Previous notice"
+msgstr "이전 공지"
+
+#: board/templates/components/notice_carousel.html:61
+#: board/templates/components/notice_carousel.html:117
+#, python-format
+msgid "View notice %(number)s"
+msgstr "%(number)s번째 공지 보기"
+
+#: board/templates/components/notice_carousel.html:68
+#: board/templates/components/notice_carousel.html:124
+msgid "Next notice"
+msgstr "다음 공지"
+
+#: board/templates/components/pagination.html:18
+msgid "Load more"
+msgstr "더 불러오기"
+
+#: board/templates/components/pagination.html:22
+msgid "Page navigation"
+msgstr "페이지 이동"
+
+#: board/templates/components/pagination.html:27
+msgid "First page"
+msgstr "첫 페이지"
+
+#: board/templates/components/pagination.html:33
+msgid "Previous page"
+msgstr "이전 페이지"
+
+#: board/templates/components/pagination.html:94
+msgid "Next page"
+msgstr "다음 페이지"
+
+#: board/templates/components/pagination.html:100
+msgid "Last page"
+msgstr "마지막 페이지"
+
+#: board/templates/components/quick_search.html:2
+msgid "Quick results"
+msgstr "빠른 결과"
+
+#: board/templates/components/quick_search.html:3
+msgid "Recent searches"
+msgstr "최근 검색어"
+
+#: board/templates/components/quick_search.html:52
+msgid "No recent searches."
+msgstr "최근 검색어가 없습니다."
+
+#: board/templates/components/quick_search.html:69
+msgid "Remove recent search"
+msgstr "최근 검색어 삭제"
+
+#: board/templates/components/quick_search.html:83
+msgid "Searching..."
+msgstr "빠르게 찾는 중..."
+
+#: board/templates/components/quick_search.html:87
+msgid "No quick results."
+msgstr "빠른 결과가 없습니다."
+
+#: board/templates/components/quick_search.html:122
+msgid "View all search results"
+msgstr "전체 검색 결과 보기"
+
+#: board/templates/components/search_query_filter.html:7
+msgid "Enter a search term"
+msgstr "검색어를 입력하세요"
+
+#: board/templates/components/search_query_filter.html:31
+msgid "Clear search"
+msgstr "검색어 지우기"
+
+#: board/views/api/developer/v1/api.py:61
+msgid "Personal token API for managing BLEX posts from external tools."
+msgstr "외부 도구에서 BLEX 포스트를 관리하기 위한 개인 토큰 API입니다."
+
+#: board/views/api/developer/v1/api.py:68
+msgid "Developer API"
+msgstr "개발자 API"
+
+#: board/views/api/developer/v1/api.py:70
+msgid "Publishing metadata"
+msgstr "발행 메타데이터"
+
+#: board/views/api/developer/v1/api.py:71
+msgid "Media"
+msgstr "미디어"
+
+#: board/views/api/developer/v1/api.py:178
+msgid "The request payload could not be validated."
+msgstr "요청 값을 확인할 수 없습니다."
+
+#: board/views/api/developer/v1/api.py:190
+msgid "The JSON request body could not be parsed."
+msgstr "JSON 본문을 해석할 수 없습니다."
+
+#: board/views/api/developer/v1/api.py:210
+msgid "Get token and account details"
+msgstr "토큰 및 계정 정보 조회"
+
+#: board/views/api/developer/v1/api.py:223
+msgid "List posts"
+msgstr "포스트 목록 조회"
+
+#: board/views/api/developer/v1/api.py:258
+msgid "Create a post"
+msgstr "포스트 생성"
+
+#: board/views/api/developer/v1/api.py:293
+msgid "published_at is required when status is scheduled."
+msgstr "scheduled 상태에는 published_at이 필요합니다."
+
+#: board/views/api/developer/v1/api.py:319
+msgid "status must be one of draft, published, or scheduled."
+msgstr "status는 draft, published, scheduled 중 하나여야 합니다."
+
+#: board/views/api/developer/v1/api.py:338
+msgid "Search my posts"
+msgstr "내 포스트 검색"
+
+#: board/views/api/developer/v1/api.py:387
+msgid "Get post details"
+msgstr "포스트 상세 조회"
+
+#: board/views/api/developer/v1/api.py:407
+msgid "Update a post"
+msgstr "포스트 수정"
+
+#: board/views/api/developer/v1/api.py:424
+msgid "The post was already updated by another request."
+msgstr "포스트가 이미 다른 요청으로 수정되었습니다."
+
+#: board/views/api/developer/v1/api.py:493
+msgid "Delete a post"
+msgstr "포스트 삭제"
+
+#: board/views/api/developer/v1/api.py:525
+msgid "Publish a draft"
+msgstr "임시 포스트 발행"
+
+#: board/views/api/developer/v1/api.py:540
+msgid "This post has already been published or scheduled."
+msgstr "이미 발행되었거나 예약된 포스트입니다."
+
+#: board/views/api/developer/v1/api.py:590
+msgid "List my post tags"
+msgstr "내 포스트 태그 목록"
+
+#: board/views/api/developer/v1/api.py:625
+msgid "List my series"
+msgstr "내 시리즈 목록"
+
+#: board/views/api/developer/v1/api.py:658
+msgid "Upload a content image"
+msgstr "본문 이미지 업로드"
+
+#: board/views/api/developer/v1/api.py:667
+#, python-format
+msgid "Image files must be %(max_size)s MiB or smaller."
+msgstr "이미지 파일은 %(max_size)s MiB 이하여야 합니다."
+
+#: board/views/api/developer/v1/post.py:42
+msgid "content_type must be either html or markdown."
+msgstr "content_type은 html 또는 markdown이어야 합니다."
+
+#: board/views/api/developer/v1/post.py:61
+msgid "No series matches series_id."
+msgstr "series_id에 해당하는 시리즈를 찾을 수 없습니다."
+
+#: board/views/api/developer/v1/post.py:187
+msgid "Unsupported status."
+msgstr "지원하지 않는 status입니다."
+
+#: board/views/api/developer/v1/publishing.py:58
+msgid "series_id must be a number."
+msgstr "series_id는 숫자여야 합니다."
+
+#: board/views/api/developer/v1/schemas.py:98
+msgid "Post title."
+msgstr "포스트 제목입니다."
+
+#: board/views/api/developer/v1/schemas.py:101
+msgid "Post body. Prefer the markdown field."
+msgstr "본문입니다. markdown 필드를 우선 사용하세요."
+
+#: board/views/api/developer/v1/schemas.py:103
+msgid "HTML body."
+msgstr "HTML 본문입니다."
+
+#: board/views/api/developer/v1/schemas.py:107
+msgid "Markdown body. This is the recommended body field for new clients."
+msgstr "Markdown 본문입니다. 새 클라이언트의 권장 본문 필드입니다."
+
+#: board/views/api/developer/v1/schemas.py:112
+msgid "Compatibility HTML body field for existing clients."
+msgstr "기존 클라이언트를 위한 호환용 HTML 본문 필드입니다."
+
+#: board/views/api/developer/v1/schemas.py:116
+msgid "Compatibility Markdown body field for existing clients."
+msgstr "기존 클라이언트를 위한 호환용 Markdown 본문 필드입니다."
+
+#: board/views/api/developer/v1/schemas.py:121
+msgid "Body format. When the markdown field is provided, Markdown is used."
+msgstr "본문 형식입니다. markdown 필드를 보내면 Markdown으로 처리됩니다."
+
+#: board/views/api/developer/v1/schemas.py:124
+msgid "Post subtitle."
+msgstr "포스트 부제목입니다."
+
+#: board/views/api/developer/v1/schemas.py:127
+msgid "Description for SEO and sharing."
+msgstr "SEO 및 공유용 설명입니다."
+
+#: board/views/api/developer/v1/schemas.py:131
+msgid "Tags. Accepts a string or an array of strings."
+msgstr "태그 목록입니다. 문자열 또는 문자열 배열을 사용할 수 있습니다."
+
+#: board/views/api/developer/v1/schemas.py:135
+msgid "Compatibility tag field for existing clients."
+msgstr "기존 클라이언트를 위한 호환용 태그 필드입니다."
+
+#: board/views/api/developer/v1/schemas.py:139
+msgid "ID of one of your series."
+msgstr "내 시리즈 ID입니다."
+
+#: board/views/api/developer/v1/schemas.py:144
+msgid "URL of one of your series. Use this to specify the URL directly instead of series_id."
+msgstr "내 시리즈 URL입니다. series_id 대신 URL을 직접 지정할 때 사용합니다."
+
+#: board/views/api/developer/v1/schemas.py:148
+msgid "Custom post URL."
+msgstr "사용자 지정 포스트 URL입니다."
+
+#: board/views/api/developer/v1/schemas.py:151
+msgid "Compatibility post URL field for existing clients."
+msgstr "기존 클라이언트를 위한 호환용 포스트 URL 필드입니다."
+
+#: board/views/api/developer/v1/schemas.py:155
+msgid "Whether to hide the post."
+msgstr "포스트를 비공개 처리할지 여부입니다."
+
+#: board/views/api/developer/v1/schemas.py:159
+msgid "Compatibility hidden-state field for existing clients."
+msgstr "기존 클라이언트를 위한 호환용 비공개 상태 필드입니다."
+
+#: board/views/api/developer/v1/schemas.py:163
+msgid "Whether the post is promotional or advertising content."
+msgstr "홍보 또는 광고성 포스트인지 여부입니다."
+
+#: board/views/api/developer/v1/schemas.py:167
+msgid "Cover layout on the post detail page."
+msgstr "포스트 상세 화면의 커버 배치입니다."
+
+#: board/views/api/developer/v1/schemas.py:171
+msgid "Featured image position in the split cover layout."
+msgstr "분할 커버에서 대표 이미지 위치입니다."
+
+#: board/views/api/developer/v1/schemas.py:175
+msgid "Featured image ratio in the default or split cover layout."
+msgstr "기본 또는 분할 커버에서 대표 이미지 비율입니다."
+
+#: board/views/api/developer/v1/schemas.py:179
+msgid "Scheduled publication time as an ISO 8601 datetime string."
+msgstr "예약 발행 시각입니다. ISO 8601 datetime 문자열을 사용합니다."
+
+#: board/views/api/developer/v1/schemas.py:186
+msgid "Creation status. The default is draft."
+msgstr "생성 상태입니다. 기본값은 draft입니다."
+
+#: board/views/api/developer/v1/schemas.py:194
+msgid "Last updated_at value used to prevent concurrent updates."
+msgstr "동시 수정을 방지하기 위한 마지막 updated_at 값입니다."
+
+#: board/views/api/v1/auth.py:85 board/views/api/v1/auth.py:183
+msgid "Create the first administrator account before continuing."
+msgstr "첫 관리자 계정을 먼저 만들어주세요."
+
+#: board/views/api/v1/auth.py:110
+msgid "Security verification is required."
+msgstr "보안 검증이 필요합니다."
+
+#: board/views/api/v1/auth.py:115
+msgid "Security verification failed."
+msgstr "보안 검증에 실패했습니다."
+
+#: board/views/api/v1/auth.py:145
+msgid "You can change your username only once every six months."
+msgstr "6개월에 한번만 사용자 이름을 변경할 수 있습니다."
+
+#: board/views/api/v1/auth.py:193
+msgid "Social login is not configured."
+msgstr "소셜 로그인이 설정되지 않았습니다."
+
+#: board/views/api/v1/auth.py:261
+msgid "Two-factor authentication has been enabled."
+msgstr "2차 인증이 활성화되었습니다."
+
+#: board/views/api/v1/author_invite.py:44
+msgid "Invitation link not found."
+msgstr "초대 링크를 찾을 수 없습니다."
+
+#: board/views/api/v1/banner.py:97
+msgid "Banner deleted."
+msgstr "배너가 삭제되었습니다."
+
+#: board/views/api/v1/banner.py:119
+msgid "Banner order updated."
+msgstr "배너 순서가 변경되었습니다."
+
+#: board/views/api/v1/global_banner.py:76
+msgid "Global banner deleted."
+msgstr "전역 배너가 삭제되었습니다."
+
+#: board/views/api/v1/global_banner.py:98
+msgid "Global banner order updated."
+msgstr "전역 배너 순서가 변경되었습니다."
+
+#: board/views/api/v1/global_notice.py:60 board/views/api/v1/notice.py:63
+msgid "Notice deleted."
+msgstr "공지가 삭제되었습니다."
+
+#: board/views/api/v1/markdown.py:36
+msgid "Text cannot be empty."
+msgstr "텍스트가 비어 있습니다."
+
+#: board/views/api/v1/pinned_post.py:42 board/views/api/v1/pinned_post.py:59
+#: board/views/api/v1/setting.py:250 board/views/api/v1/setting.py:275
+msgid "Post URL is required."
+msgstr "포스트 URL이 필요합니다."
+
+#: board/views/api/v1/pinned_post.py:94 board/views/api/v1/pinned_post.py:102
+#: board/views/api/v1/setting.py:347 board/views/api/v1/setting.py:355
+msgid "Invalid request format."
+msgstr "잘못된 형식입니다."
+
+#: board/views/api/v1/pinned_post_errors.py:8
+msgid "This post is already pinned."
+msgstr "이미 고정된 글입니다."
+
+#: board/views/api/v1/pinned_post_errors.py:10 board/views/api/v1/search.py:89
+#: board/views/api/v1/search.py:174
+msgid "Invalid page number."
+msgstr "잘못된 페이지 번호입니다."
+
+#: board/views/api/v1/pinned_post_errors.py:11
+#, python-format
+msgid "You can pin up to %(count)s posts."
+msgstr "최대 %(count)s개까지 고정할 수 있습니다."
+
+#: board/views/api/v1/pinned_post_errors.py:12
+msgid "Could not find this post."
+msgstr "글을 찾을 수 없습니다."
+
+#: board/views/api/v1/pinned_post_errors.py:13
+msgid "Hidden posts cannot be pinned."
+msgstr "숨김 처리된 글은 고정할 수 없습니다."
+
+#: board/views/api/v1/pinned_post_errors.py:14
+msgid "Only published posts can be pinned."
+msgstr "발행된 포스트만 고정할 수 있습니다."
+
+#: board/views/api/v1/pinned_post_errors.py:15
+msgid "Could not find this pinned post."
+msgstr "고정된 글을 찾을 수 없습니다."
+
+#: board/views/api/v1/pinned_post_errors.py:17
+#, python-format
+msgid "The new order includes a post that is not pinned: %(url)s"
+msgstr "고정되지 않은 글이 포함되어 있습니다: %(url)s"
+
+#: board/views/api/v1/pinned_post_errors.py:27
+msgid "Could not update pinned posts."
+msgstr "고정 포스트를 변경하지 못했습니다."
+
+#: board/views/api/v1/post_revision.py:127
+#: board/views/api/v1/post_revision.py:144
+msgid "Check the revision history pagination values."
+msgstr "수정 이력 페이지 정보를 확인해주세요."
+
+#: board/views/api/v1/post_revision.py:194
+msgid "Check the current post version."
+msgstr "현재 포스트 버전을 확인해주세요."
+
+#: board/views/api/v1/post_trash.py:54 board/views/api/v1/post_trash.py:101
+msgid "Check the current trash state."
+msgstr "현재 휴지통 상태를 확인해주세요."
+
+#: board/views/api/v1/series.py:28
+msgid "Enter a valid series ID."
+msgstr "유효한 시리즈 ID가 필요합니다."
+
+#: board/views/api/v1/series.py:34 board/views/api/v1/series.py:311
+msgid "Series not found."
+msgstr "시리즈를 찾을 수 없습니다."
+
+#: board/views/api/v1/series.py:216 board/views/api/v1/series.py:262
+#: board/views/api/v1/series.py:327
+msgid "Invalid request data."
+msgstr "잘못된 요청 데이터입니다."
+
+#: board/views/api/v1/series.py:231
+msgid "Series order updated."
+msgstr "시리즈 순서가 변경되었습니다."
+
+#: board/views/api/v1/series.py:362
+msgid "Series deleted."
+msgstr "시리즈가 삭제되었습니다."
+
+#: board/views/api/v1/setting.py:293
+msgid "Notification not found."
+msgstr "알림을 찾을 수 없습니다."
+
+#: board/views/api/v1/site_setting.py:69
+msgid "Site name must be 80 characters or fewer."
+msgstr "사이트 이름은 80자 이하여야 합니다."
+
+#: board/views/api/v1/static_page.py:64
+msgid "Static page deleted."
+msgstr "정적 페이지가 삭제되었습니다."
+
+#: board/views/api/v1/telegram.py:38
+msgid "Telegram connected successfully."
+msgstr "정상적으로 연동되었습니다."
+
+#: board/views/api/v1/telegram.py:46
+msgid "This token has expired. Try connecting again from the website."
+msgstr "기간이 만료된 토큰입니다. 홈페이지에서 연동을 다시 시도하십시오."
+
+#: board/views/api/v1/telegram.py:51
+msgid "Explore more from BLEX!"
+msgstr "블렉스의 다양한 정보를 살펴보세요!"
+
+#: board/views/api/v1/telegram.py:67
+msgid "The Telegram bot is not configured."
+msgstr "텔레그램 봇이 설정되지 않았습니다."
+
+#: board/views/api/v1/telegram.py:105
+msgid "Telegram is already disconnected."
+msgstr "이미 연동이 해제되었습니다."
+
+#: board/views/api/v1/user_management.py:51
+msgid "User not found."
+msgstr "사용자를 찾을 수 없습니다."
+
+#: board/views/api/v1/utility.py:33
+msgid "Select a valid cleanup target."
+msgstr "유효한 정리 대상을 선택해주세요."
+
+#: board/views/api/v1/utility.py:57 board/views/api/v1/utility.py:78
+#: board/views/api/v1/utility.py:108
+msgid "The cleanup preview has expired or is invalid."
+msgstr "미리보기 확인이 만료되었거나 유효하지 않습니다."
+
+#: board/views/api/v1/webhook.py:29 board/views/api/v1/webhook.py:191
+msgid "Invalid JSON body."
+msgstr "올바르지 않은 JSON 본문입니다."
+
+#: board/views/api/v1/webhook.py:39 board/views/api/v1/webhook.py:200
+msgid "Webhook URL is required."
+msgstr "웹훅 URL이 필요합니다."
+
+#: board/views/api/v1/webhook.py:42 board/views/api/v1/webhook.py:203
+msgid "Invalid webhook URL."
+msgstr "올바르지 않은 웹훅 URL입니다."
+
+#: board/views/api/v1/webhook.py:45
+msgid "Webhook URL is too long."
+msgstr "웹훅 URL이 너무 깁니다."
+
+#: board/views/api/v1/webhook.py:113 board/views/api/v1/webhook.py:171
+msgid "Webhook destination not found."
+msgstr "웹훅 전송 대상을 찾을 수 없습니다."
+
+#: board/views/author.py:287
+msgid "Author-defined order"
+msgstr "작가 지정 순"
+
+#: board/views/author.py:290
+msgid "Most posts"
+msgstr "포스트 많은 순"
+
+#: board/views/oauth_callback.py:30
+msgid "Two-factor authentication is required. Enter the code from your authenticator app."
+msgstr "2차 인증이 필요합니다. 인증 앱에서 생성된 코드를 입력해주세요."
+
+#: board/views/oauth_callback.py:60
+msgid "Social login is not configured. Please contact the administrator."
+msgstr "소셜 로그인이 설정되지 않았습니다. 관리자에게 문의해주세요."
+
+#: board/views/oauth_callback.py:67
+msgid "Social login failed. Please try again."
+msgstr "소셜 로그인에 실패했습니다. 다시 시도해주세요."
+
+#: board/views/oauth_callback.py:74
+msgid "GitHub login failed."
+msgstr "GitHub 로그인에 실패했습니다."
+
+#: board/views/oauth_callback.py:109
+msgid "Google login failed."
+msgstr "Google 로그인에 실패했습니다."
+
+#: board/views/oauth_callback.py:139
+#, python-format
+msgid "An error occurred while logging in with %(provider)s."
+msgstr "%(provider)s 로그인 중 오류가 발생했습니다."
+
+#: board/views/post.py:123
+msgid "Post moved to the trash."
+msgstr "포스트를 휴지통으로 옮겼습니다."
+
+#: board/views/post.py:199
+msgid "Post updated successfully."
+msgstr "포스트가 수정되었습니다."
+
+#: board/views/post.py:234
+msgid "Post published successfully."
+msgstr "포스트가 발행되었습니다."
+
+#: board/views/post.py:263
+msgid "Post created successfully."
+msgstr "포스트가 생성되었습니다."
+
+#: board/views/post.py:269
+msgid "Draft saved."
+msgstr "포스트가 임시저장되었습니다."
+
+#: board/views/post_actions.py:22
+msgid "Authentication required"
+msgstr "로그인이 필요합니다."
+
+#: board/views/settings.py:75
+msgid "Admin settings"
+msgstr "관리자 설정"
+
+#: board/views/tag.py:52
+msgctxt "tag sort option"
+msgid "Popular"
+msgstr "인기순"
+
+#: board/views/tag.py:53
+msgctxt "tag sort option"
+msgid "Name"
+msgstr "이름순"
+
+#: board/views/tag.py:54
+msgctxt "tag sort option"
+msgid "Newest"
+msgstr "최신순"
+
+#: main/admin_site.py:9
+msgid "BLEX administration"
+msgstr "BLEX 관리자"
+
+#: main/admin_site.py:11
+msgid "Dashboard"
+msgstr "대시보드"
+
+#: main/admin_site.py:15
+msgid "Users"
+msgstr "사용자"
+
+#: main/admin_site.py:16
+msgid "Groups"
+msgstr "그룹"
+
+#: main/admin_site.py:17
+msgid "Admin audit log"
+msgstr "관리자 감사 로그"
+
+#: main/admin_site.py:18
+msgid "Site domains"
+msgstr "사이트 도메인"
+
+#: main/admin_site.py:40
+msgid "Users and permissions"
+msgstr "사용자·권한"
+
+#: main/admin_site.py:53
+msgid "Notifications and integrations"
+msgstr "알림·연동"
+
+#: main/admin_site.py:64
+msgid "Audit and operations"
+msgstr "감사·운영"
+
+#: main/admin_site.py:83
 msgid "Login and security settings"
 msgstr "로그인·보안 설정"
 
-msgctxt "Admin permission model"
-msgid "Site settings"
-msgstr "사이트 설정"
+#: main/admin_site.py:89
+msgid "Notification integration settings"
+msgstr "알림 연동 설정"
 
-msgctxt "Admin permission model"
-msgid "Static page"
-msgstr "정적 페이지"
+#: main/admin_site.py:95
+msgid "SEO and AEO settings"
+msgstr "SEO·AEO 설정"
 
-msgctxt "Admin permission model"
-msgid "Utility cleanup confirmation"
-msgstr "유틸리티 정리 확인"
+#: main/admin_site.py:137
+msgid "Product settings"
+msgstr "제품 설정"
+
+#: main/admin_site.py:168
+msgid "Utility execution history"
+msgstr "유틸리티 실행 이력"
+
+#: main/admin_site.py:190
+msgid "Other"
+msgstr "기타"
+
+#: main/settings.py:231
+msgid "Korean"
+msgstr "한국어"
+
+#: main/settings.py:232
+msgid "English"
+msgstr "영어"

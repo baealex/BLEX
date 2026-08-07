@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react';
 import { useEffect } from 'react';
+import { useLingui } from '@lingui/react/macro';
 import { CalendarDays, FileText } from '@blex/ui/icons';
 import { usePostsQuery, type FilterOptions, type PostsSource } from '../hooks/usePostsData';
 import { usePostsActions } from '../hooks';
@@ -7,6 +8,8 @@ import PostCard from './PostCard';
 import Pagination from './Pagination';
 import type { Series } from '~/lib/api/settings';
 import { SettingsEmptyState } from '../../../components';
+import { formatLocalDateTime } from '~/i18n/formatters';
+import { normalizeLocale } from '~/i18n/locale';
 
 interface PostListContentProps {
     filters: FilterOptions;
@@ -24,9 +27,10 @@ export const PostListContent = ({
     onPageChange,
     onCountChange,
     source = 'published',
-    emptyMessage = '포스트가 없습니다.',
+    emptyMessage,
     emptyAction
 }: PostListContentProps) => {
+    const { i18n, t } = useLingui();
     const {
         posts,
         setPosts,
@@ -59,10 +63,14 @@ export const PostListContent = ({
     if (!postsData) return null;
 
     const isScheduled = source === 'scheduled';
+    const resolvedEmptyMessage = emptyMessage || t({
+        id: 'settings.posts.empty.default',
+        message: 'No posts'
+    });
 
     return (
         <>
-            {/* 포스트 리스트 */}
+            {/* Post list */}
             {posts.length >= 1 ? (
                 <div className="space-y-3">
                     {posts.map((post) => (
@@ -79,11 +87,28 @@ export const PostListContent = ({
                             onSeriesChange={handleSeriesChange}
                             onSeriesSubmit={handleSeriesSubmit}
                             isSeriesSaving={savingSeriesPostUrls.has(post.url)}
-                            dateDisplay={isScheduled ? `예약 ${post.createdDate}` : undefined}
+                            dateDisplay={isScheduled
+                                ? i18n._({
+                                    id: 'settings.posts.scheduled_for',
+                                    message: 'Scheduled for {date}',
+                                    values: {
+                                        date: formatLocalDateTime(
+                                            post.createdDate,
+                                            normalizeLocale(i18n.locale),
+                                            post.createdDate
+                                        )
+                                    }
+                                })
+                                : undefined}
                             dateIcon={isScheduled
                                 ? <CalendarDays aria-hidden className="h-3.5 w-3.5 text-content-hint" />
                                 : undefined}
-                            statusLabel={isScheduled ? '예약 발행' : undefined}
+                            statusLabel={isScheduled
+                                ? t({
+                                    id: 'settings.posts.status.scheduled',
+                                    message: 'Scheduled'
+                                })
+                                : undefined}
                             showUpdatedBadge={!isScheduled}
                             isScheduled={isScheduled}
                         />
@@ -94,7 +119,7 @@ export const PostListContent = ({
                     icon={isScheduled
                         ? <CalendarDays aria-hidden className="h-5 w-5" />
                         : <FileText aria-hidden className="h-5 w-5" />}
-                    title={emptyMessage}
+                    title={resolvedEmptyMessage}
                     action={emptyAction}
                 />
             )}

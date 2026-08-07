@@ -4,6 +4,7 @@ from typing import Optional
 
 from django.contrib.auth.models import AnonymousUser, User
 from django.http import HttpResponse
+from django.utils.translation import gettext as _
 
 from board.modules.response import ErrorCode, StatusError
 from board.services.authoring_permission_service import AuthoringPermissionService
@@ -15,7 +16,7 @@ class ApiPermissionService:
     @staticmethod
     def require_login(user: User | AnonymousUser) -> Optional[HttpResponse]:
         if not user.is_authenticated or not user.is_active:
-            return StatusError(ErrorCode.NEED_LOGIN, '로그인이 필요합니다.')
+            return StatusError(ErrorCode.NEED_LOGIN, _('Login required.'))
         return None
 
     @staticmethod
@@ -25,7 +26,7 @@ class ApiPermissionService:
             return login_error
 
         if not AuthoringPermissionService.is_active_editor(user):
-            return StatusError(ErrorCode.REJECT, '작가 권한이 필요합니다.')
+            return StatusError(ErrorCode.REJECT, _('Author access is required.'))
 
         return None
 
@@ -35,7 +36,7 @@ class ApiPermissionService:
             return StatusError(ErrorCode.NEED_LOGIN)
 
         if not user.is_staff:
-            return StatusError(ErrorCode.REJECT, '관리자 권한이 필요합니다.')
+            return StatusError(ErrorCode.REJECT, _('Administrator access is required.'))
 
         return None
 
@@ -46,7 +47,7 @@ class ApiPermissionService:
             return staff_error
 
         if not user.is_superuser:
-            return StatusError(ErrorCode.REJECT, '최고 관리자 권한이 필요합니다.')
+            return StatusError(ErrorCode.REJECT, _('Superuser access is required.'))
 
         return None
 
@@ -57,7 +58,7 @@ class ApiPermissionService:
             return login_error
 
         if user != owner:
-            return StatusError(ErrorCode.AUTHENTICATION, '권한이 없습니다.')
+            return StatusError(ErrorCode.AUTHENTICATION, _('Permission denied.'))
 
         return None
 
@@ -68,9 +69,9 @@ class ApiPermissionService:
             return login_error
 
         if user != owner:
-            return StatusError(ErrorCode.AUTHENTICATION, '권한이 없습니다.')
+            return StatusError(ErrorCode.AUTHENTICATION, _('Permission denied.'))
 
         if not AuthoringPermissionService.is_active_editor(user):
-            return StatusError(ErrorCode.REJECT, '작가 권한이 필요합니다.')
+            return StatusError(ErrorCode.REJECT, _('Author access is required.'))
 
         return None

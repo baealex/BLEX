@@ -7,6 +7,7 @@ from django.contrib.auth.models import User
 from django.db import transaction
 from django.db.models import QuerySet
 from django.utils import timezone
+from django.utils.translation import gettext
 
 from board.models import Post
 
@@ -87,13 +88,13 @@ class PostTrashService:
     @staticmethod
     def get_page(user: User, page: int) -> PostTrashPage:
         if page < 1:
-            raise PostTrashError('휴지통 페이지 정보를 확인해주세요.')
+            raise PostTrashError(gettext('Check the trash page.'))
 
         posts = PostTrashService.get_user_trash(user)
         total_count = posts.count()
         last_page = max(1, ceil(total_count / PostTrashService.PAGE_SIZE))
         if page > last_page:
-            raise PostTrashError('휴지통 페이지 정보를 확인해주세요.')
+            raise PostTrashError(gettext('Check the trash page.'))
 
         start = (page - 1) * PostTrashService.PAGE_SIZE
         page_posts = posts[start:start + PostTrashService.PAGE_SIZE]
@@ -110,7 +111,7 @@ class PostTrashService:
         try:
             post = Post.objects.select_for_update().get(pk=post.pk)
         except Post.DoesNotExist as error:
-            raise PostTrashError('휴지통으로 옮길 포스트를 찾을 수 없습니다.') from error
+            raise PostTrashError(gettext('The post to move to trash was not found.')) from error
 
         post.deleted_date = timezone.now()
         post.save(update_fields=['deleted_date'])
@@ -127,11 +128,11 @@ class PostTrashService:
                 deleted_date__isnull=False,
             )
         except Post.DoesNotExist as error:
-            raise PostTrashError('휴지통 포스트를 찾을 수 없습니다.') from error
+            raise PostTrashError(gettext('The trashed post was not found.')) from error
 
         if post.deleted_date.isoformat() != expected_deleted_date:
             raise PostTrashConflictError(
-                '휴지통 상태가 바뀌었습니다. 목록을 새로고침한 뒤 다시 시도해주세요.',
+                gettext('The trash state changed. Refresh the list and try again.'),
             )
         return post
 

@@ -21,10 +21,16 @@ from board.services.public_post_service import PublicPostService
 
 class PinnedPostError(Exception):
     """Custom exception for pinned post operations"""
-    def __init__(self, code: ErrorCode, message: str):
+    def __init__(
+        self,
+        code: ErrorCode,
+        message_key: str,
+        message_params: Optional[Dict[str, Any]] = None,
+    ):
         self.code = code
-        self.message = message
-        super().__init__(message)
+        self.message_key = message_key
+        self.message_params = dict(message_params or {})
+        super().__init__(message_key)
 
 
 class PinnedPostService:
@@ -56,7 +62,7 @@ class PinnedPostService:
             if PinnedPost.objects.filter(user=user, post=post).exists():
                 raise PinnedPostError(
                     ErrorCode.REJECT,
-                    '이미 고정된 글입니다.',
+                    'pinned_posts.already_pinned',
                 )
             raise
 
@@ -70,7 +76,7 @@ class PinnedPostService:
         if not AuthoringPermissionService.is_active_editor(user):
             raise PinnedPostError(
                 ErrorCode.REJECT,
-                '작가 권한이 필요합니다.',
+                'pinned_posts.editor_required',
             )
 
     @staticmethod
@@ -100,13 +106,13 @@ class PinnedPostService:
         except (TypeError, ValueError):
             raise PinnedPostError(
                 ErrorCode.INVALID_PARAMETER,
-                '잘못된 페이지입니다.',
+                'pinned_posts.invalid_page',
             )
 
         if normalized_page < 1:
             raise PinnedPostError(
                 ErrorCode.INVALID_PARAMETER,
-                '잘못된 페이지입니다.',
+                'pinned_posts.invalid_page',
             )
 
         return normalized_query, normalized_limit, normalized_page, has_pagination
@@ -273,7 +279,8 @@ class PinnedPostService:
         if current_count >= PinnedPostService.MAX_PINNED_POSTS:
             raise PinnedPostError(
                 ErrorCode.REJECT,
-                f'최대 {PinnedPostService.MAX_PINNED_POSTS}개까지 고정할 수 있습니다.'
+                'pinned_posts.limit_reached',
+                {'count': PinnedPostService.MAX_PINNED_POSTS},
             )
 
         # Get the post
@@ -285,28 +292,28 @@ class PinnedPostService:
         except Post.DoesNotExist:
             raise PinnedPostError(
                 ErrorCode.REJECT,
-                '글을 찾을 수 없습니다.'
+                'pinned_posts.post_not_found',
             )
 
         # Check if post is hidden
         if post.config.hide:
             raise PinnedPostError(
                 ErrorCode.REJECT,
-                '숨김 처리된 글은 고정할 수 없습니다.'
+                'pinned_posts.hidden_post',
             )
 
         # Draft/scheduled posts cannot be pinned
         if not PinnedPostService._is_published_post(post):
             raise PinnedPostError(
                 ErrorCode.REJECT,
-                '발행된 포스트만 고정할 수 있습니다.'
+                'pinned_posts.published_only',
             )
 
         # Check if already pinned
         if PinnedPost.objects.filter(user=user, post=post).exists():
             raise PinnedPostError(
                 ErrorCode.REJECT,
-                '이미 고정된 글입니다.'
+                'pinned_posts.already_pinned',
             )
 
         # Get the next order number
@@ -345,7 +352,7 @@ class PinnedPostService:
         except PinnedPost.DoesNotExist:
             raise PinnedPostError(
                 ErrorCode.REJECT,
-                '고정된 글을 찾을 수 없습니다.'
+                'pinned_posts.pinned_post_not_found',
             )
 
         deleted_order = pinned_post.order
@@ -376,7 +383,8 @@ class PinnedPostService:
         if len(post_urls) > PinnedPostService.MAX_PINNED_POSTS:
             raise PinnedPostError(
                 ErrorCode.REJECT,
-                f'최대 {PinnedPostService.MAX_PINNED_POSTS}개까지 고정할 수 있습니다.'
+                'pinned_posts.limit_reached',
+                {'count': PinnedPostService.MAX_PINNED_POSTS},
             )
 
         # Get all current pinned posts for the user
@@ -395,7 +403,8 @@ class PinnedPostService:
             if url not in current_pinned:
                 raise PinnedPostError(
                     ErrorCode.REJECT,
-                    f'고정되지 않은 글이 포함되어 있습니다: {url}'
+                    'pinned_posts.reorder_contains_unpinned',
+                    {'url': url},
                 )
 
         requested_urls = set(post_urls)

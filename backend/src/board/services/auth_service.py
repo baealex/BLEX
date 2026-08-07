@@ -14,6 +14,7 @@ from django.core.cache import cache
 from django.core.files import File
 from django.db import transaction
 from django.db.models import Count, Case, When, Value, Exists, OuterRef
+from django.utils.translation import gettext
 
 from board.constants.config_meta import CONFIG_TYPE
 from board.models import (
@@ -109,14 +110,17 @@ class AuthService:
         if User.objects.filter(username=username).exists():
             raise AuthValidationError(
                 ErrorCode.VALIDATE,
-                '이미 사용중인 아이디입니다.'
+                gettext('This username is already in use.'),
             )
 
         match = AuthService.USERNAME_PATTERN.match(username)
         if not match or len(match.group()) != len(username):
             raise AuthValidationError(
                 ErrorCode.VALIDATE,
-                '사용자 이름은 4~15자 사이의 소문자 영어, 숫자만 가능합니다.'
+                gettext(
+                    'Username must be 4–15 characters using lowercase letters '
+                    'and numbers only.'
+                ),
             )
 
     @staticmethod
@@ -134,7 +138,7 @@ class AuthService:
         if not match or len(match.group()) != len(email):
             raise AuthValidationError(
                 ErrorCode.VALIDATE,
-                '올바른 이메일 주소가 아닙니다.'
+                gettext('Enter a valid email address.'),
             )
 
     @staticmethod
@@ -361,7 +365,10 @@ class AuthService:
             if recent_change:
                 raise AuthValidationError(
                     ErrorCode.VALIDATE,
-                    '작성한 포스트가 존재하는 경우 6개월에 한번만 변경할 수 있습니다.'
+                    gettext(
+                        'If you have published posts, you can change your username '
+                        'only once every six months.'
+                    ),
                 )
 
     @staticmethod
@@ -405,7 +412,7 @@ class AuthService:
         if not user.check_password(old_password):
             raise AuthValidationError(
                 ErrorCode.VALIDATE,
-                '현재 비밀번호가 올바르지 않습니다.'
+                gettext('Your current password is incorrect.'),
             )
 
         user.set_password(new_password)

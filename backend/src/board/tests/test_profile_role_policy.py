@@ -1,7 +1,7 @@
 from django.contrib.admin.sites import AdminSite
 from django.contrib.auth.models import User
 from django.test import RequestFactory, TestCase
-from django.utils import timezone
+from django.utils import timezone, translation
 
 from board.admin.user import ProfileAdmin
 from board.models import Config, Post, PostConfig, PostContent, Profile
@@ -10,6 +10,18 @@ from board.sitemaps import UserSitemap
 
 
 class ProfileRolePolicyTestCase(TestCase):
+    def test_role_choices_use_locale_without_changing_stored_values(self):
+        self.assertEqual(Profile.Role.READER.value, 'READER')
+        self.assertEqual(Profile.Role.EDITOR.value, 'EDITOR')
+
+        with translation.override('en'):
+            self.assertEqual(Profile.Role.READER.label, 'Reader')
+            self.assertEqual(Profile.Role.EDITOR.label, 'Author')
+
+        with translation.override('ko'):
+            self.assertEqual(Profile.Role.READER.label, '독자')
+            self.assertEqual(Profile.Role.EDITOR.label, '작가')
+
     def create_author(self, username: str, role: str, is_staff: bool = False) -> User:
         user = User.objects.create_user(
             username=username,

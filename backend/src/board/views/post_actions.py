@@ -1,10 +1,12 @@
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404
+from django.utils.translation import gettext
 from django.views.decorators.http import require_POST
 
 from board.constants.config_meta import CONFIG_TYPE
 from board.models import Post
-from board.modules.notify import create_notify
+from board.modules.notify import create_system_notify
+from board.services.notification_message_service import NotificationMessageKey
 from board.services.post_like_service import PostLikeService
 
 
@@ -17,7 +19,7 @@ def like_post(request, url):
     if not request.user.is_authenticated:
         return JsonResponse({
             'status': 'error',
-            'message': 'Authentication required'
+            'message': gettext('Authentication required'),
         }, status=401)
 
     post = get_object_or_404(Post, url=url)
@@ -26,13 +28,15 @@ def like_post(request, url):
 
     if result.created:
         if request.user != post.author and post.author.config.get_meta(CONFIG_TYPE.NOTIFY_POSTS_LIKE):
-            send_notify_content = (
-                f"'{post.title}' 글을 "
-                f"@{request.user.username}님께서 추천하였습니다.")
-            create_notify(
+            create_system_notify(
                 user=post.author,
                 url=post.get_absolute_url(),
-                content=send_notify_content)
+                message_key=NotificationMessageKey.POST_LIKED,
+                message_params={
+                    'post_title': post.title,
+                    'actor': request.user.username,
+                },
+            )
 
     return JsonResponse({
         'status': 'done',

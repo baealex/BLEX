@@ -74,6 +74,15 @@
     - The editor is based on `tiptap`.
     - As a core feature of the project, prioritize UI and UX above all.
 
+## Internationalization Guidelines
+
+- Django owns the document locale. Templates, `<html lang>`, `Content-Language`, `window.configuration.locale`, islands, and same-origin APIs must agree.
+- Keep English as the source message and commit reviewed Korean translations. Do not translate posts, queries, usernames, or other user-authored content.
+- Django messages live in `backend/src/locale`; remotes messages live in `backend/islands/apps/remotes/src/locales`. Do not create a shared cross-runtime catalog.
+- New API contracts carry stable keys, enums, numbers, and ISO dates before localized fallback text.
+- Run `npm run server:compilemessages` after Django catalog edits and `npm run islands:i18n:check` after Islands message edits.
+- Production remains Korean-only unless `ENABLE_ENGLISH_UI=TRUE` is explicitly set after a coherent English journey is ready.
+
 ## Design Guidelines
 - **Always read `docs/DESIGN_GUIDE.md` first.**
 - For UI implementation style and scope control, read `docs/UI_CHANGE_STYLE_GUIDE.md`. This is separate from the design system.

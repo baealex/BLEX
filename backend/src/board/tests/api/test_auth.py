@@ -144,6 +144,24 @@ class AuthTestCase(TestCase):
         self.assertEqual(content['status'], 'DONE')
         self.assertEqual(content['body']['username'], 'test2')
 
+    def test_signup_validation_localizes_message_without_changing_error_code(self):
+        response = self.client.post(
+            '/v1/sign',
+            {
+                'username': 'test',
+                'password': 'test2',
+                'name': 'Test User 2',
+                'email': 'test2@test.com',
+            },
+            HTTP_ACCEPT_LANGUAGE='en',
+        )
+
+        self.assertEqual(response.status_code, 200)
+        content = json.loads(response.content)
+        self.assertEqual(content['status'], 'ERROR')
+        self.assertEqual(content['errorCode'], 'error:VA')
+        self.assertEqual(content['errorMessage'], 'This username is already in use.')
+
     def test_create_account_requires_hcaptcha_when_enabled(self):
         """hCaptcha가 켜져 있으면 회원가입에 검증 토큰이 필요하다."""
         setting = LoginSetting.get_instance()

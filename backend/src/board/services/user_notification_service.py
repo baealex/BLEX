@@ -45,7 +45,7 @@ class UserNotificationService:
             'id': item.id,
             'url': item.url,
             'is_read': item.has_read,
-            'content': item.content,
+            'content': item.localized_content(),
             'created_date': item.time_since(),
         }
 

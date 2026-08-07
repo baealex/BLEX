@@ -1,4 +1,5 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
+import { Trans, useLingui } from '@lingui/react/macro';
 import SocialLogin from '~/components/remotes/SocialLogin';
 import { useResolvedTheme } from '~/hooks/useResolvedTheme';
 
@@ -21,7 +22,7 @@ const getCsrfToken = (): string => {
 };
 
 interface PasswordStrength {
-    label: string;
+    level: 'too_short' | 'weak' | 'fair' | 'strong';
     color: string;
 }
 
@@ -29,7 +30,7 @@ const getPasswordStrength = (pw: string): PasswordStrength | null => {
     if (!pw) return null;
     if (pw.length < 6) {
         return {
-            label: '너무 짧음',
+            level: 'too_short',
             color: 'text-danger'
         };
     }
@@ -40,23 +41,24 @@ const getPasswordStrength = (pw: string): PasswordStrength | null => {
     if (/[^a-zA-Z0-9]/.test(pw)) score++;
     if (score <= 1) {
         return {
-            label: '약함',
+            level: 'weak',
             color: 'text-warning'
         };
     }
     if (score <= 2) {
         return {
-            label: '보통',
+            level: 'fair',
             color: 'text-warning'
         };
     }
     return {
-        label: '강함',
+        level: 'strong',
         color: 'text-success'
     };
 };
 
 const Signup = () => {
+    const { t } = useLingui();
     const [username, setUsername] = useState('');
     const [name, setName] = useState('');
     const [email, setEmail] = useState('');
@@ -74,6 +76,26 @@ const Signup = () => {
     const resolvedTheme = useResolvedTheme();
 
     const passwordStrength = getPasswordStrength(password);
+    const passwordStrengthLabel = passwordStrength
+        ? {
+            too_short: t({
+                id: 'auth.signup.password_strength.too_short',
+                message: 'Too short'
+            }),
+            weak: t({
+                id: 'auth.signup.password_strength.weak',
+                message: 'Weak'
+            }),
+            fair: t({
+                id: 'auth.signup.password_strength.fair',
+                message: 'Fair'
+            }),
+            strong: t({
+                id: 'auth.signup.password_strength.strong',
+                message: 'Strong'
+            })
+        }[passwordStrength.level]
+        : '';
 
     const captchaRef = useRef<HTMLDivElement>(null);
     const widgetIdRef = useRef<string | null>(null);
@@ -147,23 +169,38 @@ const Signup = () => {
 
         let hasError = false;
         if (!username) {
-            setUsernameError('사용자 이름이 필요합니다.');
+            setUsernameError(t({
+                id: 'auth.validation.username_required',
+                message: 'Username is required.'
+            }));
             hasError = true;
         }
         if (!name) {
-            setNameError('이름이 필요합니다.');
+            setNameError(t({
+                id: 'auth.validation.display_name_required',
+                message: 'Display name is required.'
+            }));
             hasError = true;
         }
         if (!email) {
-            setEmailError('이메일이 필요합니다.');
+            setEmailError(t({
+                id: 'auth.validation.email_required',
+                message: 'Email is required.'
+            }));
             hasError = true;
         }
         if (!password) {
-            setPasswordError('비밀번호가 필요합니다.');
+            setPasswordError(t({
+                id: 'auth.validation.password_required',
+                message: 'Password is required.'
+            }));
             hasError = true;
         }
         if (password !== confirmPassword) {
-            setConfirmPasswordError('비밀번호가 일치하지 않습니다.');
+            setConfirmPasswordError(t({
+                id: 'auth.validation.password_mismatch',
+                message: 'Passwords do not match.'
+            }));
             hasError = true;
         }
 
@@ -173,7 +210,10 @@ const Signup = () => {
         }
 
         if (window.HCAPTCHA_SITE_KEY && !captchaToken) {
-            setSignupError('보안 검증을 완료해주세요.');
+            setSignupError(t({
+                id: 'auth.signup.complete_security_check',
+                message: 'Complete the security check.'
+            }));
             setIsLoading(false);
             return;
         }
@@ -207,10 +247,16 @@ const Signup = () => {
             if (data.status === 'DONE') {
                 window.location.assign(window.NEXT_URL || '/');
             } else {
-                setSignupError(data.errorMessage || '회원가입에 실패했습니다.');
+                setSignupError(data.errorMessage || t({
+                    id: 'auth.signup.failed',
+                    message: 'Could not create your account.'
+                }));
             }
         } catch {
-            setSignupError('오류가 발생했습니다. 다시 시도해주세요.');
+            setSignupError(t({
+                id: 'common.error.try_again',
+                message: 'Something went wrong. Please try again.'
+            }));
         } finally {
             setIsLoading(false);
         }
@@ -229,10 +275,18 @@ const Signup = () => {
                     </svg>
                 </div>
                 <h1 className="text-3xl font-bold text-content mb-3 tracking-tight">
-                    {isInviteSignup ? '작가로 가입하기' : '독자로 가입하기'}
+                    {isInviteSignup ? (
+                        <Trans id="auth.signup.as_author">Sign up as an author</Trans>
+                    ) : (
+                        <Trans id="auth.signup.as_reader">Sign up as a reader</Trans>
+                    )}
                 </h1>
                 <p className="text-content-secondary text-sm font-medium">
-                    {isInviteSignup ? '초대받은 작가 계정을 만듭니다' : '작가들의 이야기를 읽어보세요'}
+                    {isInviteSignup ? (
+                        <Trans id="auth.signup.author_description">Create your invited author account</Trans>
+                    ) : (
+                        <Trans id="auth.signup.reader_description">Discover stories from independent authors</Trans>
+                    )}
                 </p>
             </div>
 
@@ -246,7 +300,9 @@ const Signup = () => {
 
                         <div className="space-y-4">
                             <div>
-                                <label htmlFor="username" className="block text-xs font-semibold text-content-secondary mb-1.5 uppercase tracking-wide">사용자 이름</label>
+                                <label htmlFor="username" className="block text-xs font-semibold text-content-secondary mb-1.5 uppercase tracking-wide">
+                                    <Trans id="auth.fields.username">Username</Trans>
+                                </label>
                                 <input
                                     id="username"
                                     name="username"
@@ -258,22 +314,37 @@ const Signup = () => {
                                         const val = e.target.value;
                                         setUsername(val);
                                         if (val && !/^[a-z0-9]*$/.test(val)) {
-                                            setUsernameError('영문 소문자와 숫자만 사용할 수 있습니다.');
+                                            setUsernameError(t({
+                                                id: 'auth.validation.username_characters',
+                                                message: 'Use only lowercase letters and numbers.'
+                                            }));
                                         } else if (val.length > 15) {
-                                            setUsernameError('15자를 초과할 수 없습니다.');
+                                            setUsernameError(t({
+                                                id: 'auth.validation.username_too_long',
+                                                message: 'Username cannot exceed 15 characters.'
+                                            }));
                                         } else {
                                             setUsernameError('');
                                         }
                                     }}
                                     className="w-full px-4 py-3.5 border border-line rounded-lg focus:ring-4 focus:ring-line/5 focus:border-line-strong/30 text-content placeholder-content-hint transition-all duration-200 bg-surface/40 text-sm font-medium"
-                                    placeholder="4-15자 영문 소문자, 숫자"
+                                    placeholder={t({
+                                        id: 'auth.fields.username_hint',
+                                        message: '4–15 lowercase letters or numbers'
+                                    })}
                                 />
                                 {usernameError && <p className="text-danger text-xs mt-1.5 font-medium flex items-center gap-1"><i className="fas fa-exclamation-circle" /> {usernameError}</p>}
-                                {!usernameError && <p className="text-content-hint text-xs mt-1.5 font-medium">4-15자 영문 소문자, 숫자</p>}
+                                {!usernameError && (
+                                    <p className="text-content-hint text-xs mt-1.5 font-medium">
+                                        <Trans id="auth.fields.username_hint">4–15 lowercase letters or numbers</Trans>
+                                    </p>
+                                )}
                             </div>
 
                             <div>
-                                <label htmlFor="name" className="block text-xs font-semibold text-content-secondary mb-1.5 uppercase tracking-wide">이름</label>
+                                <label htmlFor="name" className="block text-xs font-semibold text-content-secondary mb-1.5 uppercase tracking-wide">
+                                    <Trans id="auth.fields.display_name">Display name</Trans>
+                                </label>
                                 <input
                                     id="name"
                                     name="name"
@@ -283,13 +354,18 @@ const Signup = () => {
                                     value={name}
                                     onChange={(e) => setName(e.target.value)}
                                     className="w-full px-4 py-3.5 border border-line rounded-lg focus:ring-4 focus:ring-line/5 focus:border-line-strong/30 text-content placeholder-content-hint transition-all duration-200 bg-surface/40 text-sm font-medium"
-                                    placeholder="표시할 이름을 입력하세요"
+                                    placeholder={t({
+                                        id: 'auth.fields.display_name_placeholder',
+                                        message: 'Enter your display name'
+                                    })}
                                 />
                                 {nameError && <p className="text-danger text-xs mt-1.5 font-medium flex items-center gap-1"><i className="fas fa-exclamation-circle" /> {nameError}</p>}
                             </div>
 
                             <div>
-                                <label htmlFor="email" className="block text-xs font-semibold text-content-secondary mb-1.5 uppercase tracking-wide">이메일</label>
+                                <label htmlFor="email" className="block text-xs font-semibold text-content-secondary mb-1.5 uppercase tracking-wide">
+                                    <Trans id="auth.fields.email">Email</Trans>
+                                </label>
                                 <input
                                     id="email"
                                     name="email"
@@ -299,13 +375,18 @@ const Signup = () => {
                                     value={email}
                                     onChange={(e) => setEmail(e.target.value)}
                                     className="w-full px-4 py-3.5 border border-line rounded-lg focus:ring-4 focus:ring-line/5 focus:border-line-strong/30 text-content placeholder-content-hint transition-all duration-200 bg-surface/40 text-sm font-medium"
-                                    placeholder="이메일 주소를 입력하세요"
+                                    placeholder={t({
+                                        id: 'auth.fields.email_placeholder',
+                                        message: 'Enter your email address'
+                                    })}
                                 />
                                 {emailError && <p className="text-danger text-xs mt-1.5 font-medium flex items-center gap-1"><i className="fas fa-exclamation-circle" /> {emailError}</p>}
                             </div>
 
                             <div>
-                                <label htmlFor="password" className="block text-xs font-semibold text-content-secondary mb-1.5 uppercase tracking-wide">비밀번호</label>
+                                <label htmlFor="password" className="block text-xs font-semibold text-content-secondary mb-1.5 uppercase tracking-wide">
+                                    <Trans id="auth.fields.password">Password</Trans>
+                                </label>
                                 <input
                                     id="password"
                                     name="password"
@@ -317,24 +398,34 @@ const Signup = () => {
                                         const val = e.target.value;
                                         setPassword(val);
                                         if (confirmPassword && val !== confirmPassword) {
-                                            setConfirmPasswordError('비밀번호가 일치하지 않습니다.');
+                                            setConfirmPasswordError(t({
+                                                id: 'auth.validation.password_mismatch',
+                                                message: 'Passwords do not match.'
+                                            }));
                                         } else if (confirmPassword) {
                                             setConfirmPasswordError('');
                                         }
                                     }}
                                     className="w-full px-4 py-3.5 border border-line rounded-lg focus:ring-4 focus:ring-line/5 focus:border-line-strong/30 text-content placeholder-content-hint transition-all duration-200 bg-surface/40 text-sm font-medium"
-                                    placeholder="안전한 비밀번호를 입력하세요"
+                                    placeholder={t({
+                                        id: 'auth.fields.password_new_placeholder',
+                                        message: 'Enter a secure password'
+                                    })}
                                 />
                                 {passwordError && <p className="text-danger text-xs mt-1.5 font-medium flex items-center gap-1"><i className="fas fa-exclamation-circle" /> {passwordError}</p>}
                                 {!passwordError && passwordStrength && (
                                     <p className={`text-xs mt-1.5 font-medium ${passwordStrength.color}`}>
-                                        비밀번호 강도: {passwordStrength.label}
+                                        <Trans id="auth.signup.password_strength">
+                                            Password strength: {passwordStrengthLabel}
+                                        </Trans>
                                     </p>
                                 )}
                             </div>
 
                             <div>
-                                <label htmlFor="confirm-password" className="block text-xs font-semibold text-content-secondary mb-1.5 uppercase tracking-wide">비밀번호 확인</label>
+                                <label htmlFor="confirm-password" className="block text-xs font-semibold text-content-secondary mb-1.5 uppercase tracking-wide">
+                                    <Trans id="auth.fields.confirm_password">Confirm password</Trans>
+                                </label>
                                 <input
                                     id="confirm-password"
                                     name="confirm-password"
@@ -346,13 +437,19 @@ const Signup = () => {
                                         const val = e.target.value;
                                         setConfirmPassword(val);
                                         if (val && password && val !== password) {
-                                            setConfirmPasswordError('비밀번호가 일치하지 않습니다.');
+                                            setConfirmPasswordError(t({
+                                                id: 'auth.validation.password_mismatch',
+                                                message: 'Passwords do not match.'
+                                            }));
                                         } else {
                                             setConfirmPasswordError('');
                                         }
                                     }}
                                     className="w-full px-4 py-3.5 border border-line rounded-lg focus:ring-4 focus:ring-line/5 focus:border-line-strong/30 text-content placeholder-content-hint transition-all duration-200 bg-surface/40 text-sm font-medium"
-                                    placeholder="비밀번호를 다시 입력하세요"
+                                    placeholder={t({
+                                        id: 'auth.fields.confirm_password_placeholder',
+                                        message: 'Enter your password again'
+                                    })}
                                 />
                                 {confirmPasswordError && <p className="text-danger text-xs mt-1.5 font-medium flex items-center gap-1"><i className="fas fa-exclamation-circle" /> {confirmPasswordError}</p>}
                             </div>
@@ -389,10 +486,14 @@ const Signup = () => {
                                         />
                                         <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
                                     </svg>
-                                    <span>처리 중...</span>
+                                    <span><Trans id="common.processing">Processing...</Trans></span>
                                 </>
                             ) : (
-                                isInviteSignup ? '작가로 가입하기' : '독자로 가입하기'
+                                isInviteSignup ? (
+                                    <Trans id="auth.signup.as_author">Sign up as an author</Trans>
+                                ) : (
+                                    <Trans id="auth.signup.as_reader">Sign up as a reader</Trans>
+                                )
                             )}
                         </button>
                     </form>
@@ -402,9 +503,9 @@ const Signup = () => {
                     {/* Footer Links */}
                     <div className="text-center pt-6 border-t border-line-light/50">
                         <p className="text-sm text-content-secondary font-medium">
-                            이미 계정이 있으신가요?
+                            <Trans id="auth.signup.already_have_account">Already have an account?</Trans>
                             <a href={`/login${nextUrl ? '?next=' + encodeURIComponent(nextUrl) : ''}`} className="font-bold text-content hover:text-content transition-colors duration-200 ml-1 underline decoration-2 underline-offset-2">
-                                로그인
+                                <Trans id="auth.login.title">Log in</Trans>
                             </a>
                         </p>
                     </div>

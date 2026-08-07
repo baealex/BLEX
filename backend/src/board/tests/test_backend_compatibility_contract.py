@@ -930,15 +930,27 @@ class TemplateLikeCompatibilityContractTests(TestCase):
         PostContent.objects.create(post=cls.post, content_html='<p>contract</p>')
         PostConfig.objects.create(post=cls.post)
 
-    def test_like_requires_post_and_keeps_legacy_unauthenticated_error(self):
+    def test_like_requires_post_and_localizes_legacy_unauthenticated_error(self):
         get_response = self.client.get('/like/compatibility-contract')
-        post_response = self.client.post('/like/compatibility-contract')
+        english_response = self.client.post(
+            '/like/compatibility-contract',
+            HTTP_ACCEPT_LANGUAGE='en',
+        )
+        korean_response = self.client.post(
+            '/like/compatibility-contract',
+            HTTP_ACCEPT_LANGUAGE='ko',
+        )
 
         self.assertEqual(get_response.status_code, 405)
-        self.assertEqual(post_response.status_code, 401)
-        self.assertEqual(json.loads(post_response.content), {
+        self.assertEqual(english_response.status_code, 401)
+        self.assertEqual(json.loads(english_response.content), {
             'status': 'error',
             'message': 'Authentication required',
+        })
+        self.assertEqual(korean_response.status_code, 401)
+        self.assertEqual(json.loads(korean_response.content), {
+            'status': 'error',
+            'message': '로그인이 필요합니다.',
         })
 
     def test_like_toggle_keeps_snake_case_payload_and_database_state(self):

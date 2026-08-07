@@ -1,4 +1,5 @@
 from django.db.models import Exists, OuterRef, Q
+from django.utils.translation import gettext
 
 from board.models import Post
 from board.services.developer_token_service import DeveloperAuthError
@@ -54,7 +55,7 @@ class DeveloperPublishingAPI:
         except (TypeError, ValueError):
             raise DeveloperAuthError(
                 'request.invalid_series_id',
-                'series_id는 숫자여야 합니다.',
+                gettext('series_id must be a number.'),
                 400,
             )
 

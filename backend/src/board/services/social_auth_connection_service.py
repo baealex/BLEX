@@ -1,5 +1,6 @@
 from django.contrib.auth.models import User
 from django.db import transaction
+from django.utils.translation import gettext
 
 from board.models import SocialAuth
 
@@ -22,7 +23,9 @@ class SocialAuthConnectionService:
             )
         except SocialAuth.DoesNotExist as error:
             raise SocialAuthDisconnectError(
-                '해제할 소셜 로그인 연동을 찾을 수 없습니다.',
+                gettext(
+                    'The social login connection to disconnect could not be found.'
+                ),
             ) from error
 
         user = User.objects.select_for_update().get(pk=connection.user_id)
@@ -31,8 +34,10 @@ class SocialAuthConnectionService:
         ).exclude(pk=connection.pk).exists()
         if not user.has_usable_password() and not has_another_connection:
             raise SocialAuthDisconnectError(
-                '사용 가능한 비밀번호나 다른 소셜 로그인이 없어 연동을 '
-                '해제할 수 없습니다.',
+                gettext(
+                    'This connection cannot be disconnected because the account '
+                    'has no usable password or another social login method.'
+                ),
             )
 
         connection_id = connection.pk

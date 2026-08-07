@@ -36,7 +36,7 @@ const Select = ({
     onValueChange,
     items,
     ariaLabel,
-    placeholder = '선택하세요',
+    placeholder = 'Select an option',
     error,
     className = '',
     disabled = false,

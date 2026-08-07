@@ -17,6 +17,7 @@ touch backend/src/db.sqlite3
 | 값 | 기준 |
 | --- | --- |
 | `DEBUG` | 운영에서는 `FALSE` |
+| `ENABLE_ENGLISH_UI` | 새 설치의 기본값은 `TRUE`. 요청 언어에 따라 영어·한국어 UI를 제공하며, 한국어로만 운영하려면 `FALSE` |
 | `SECRET_KEY` | 샘플 값이 아닌 긴 임의 문자열 |
 | `CIPHER_KEY` | 샘플 값이 아닌 32글자 문자열 |
 | `SITE_URL` | BLEX가 외부에 공개할 기준 origin. 예: `https://blog.example.com`. 프로토콜을 포함하고, 끝의 `/`, path, query를 붙이지 않음 |

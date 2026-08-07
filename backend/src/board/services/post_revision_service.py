@@ -7,6 +7,7 @@ from django.db import transaction
 from django.template.defaultfilters import truncatechars
 from django.utils import timezone
 from django.utils.html import strip_tags
+from django.utils.translation import gettext
 
 from board.models import EditHistory, Post, PostContent
 from board.services.tag_service import TagService
@@ -169,18 +170,21 @@ class PostRevisionService:
             )
         except (Post.DoesNotExist, EditHistory.DoesNotExist) as error:
             raise PostRevisionRestoreError(
-                '복원할 수정 이력을 찾을 수 없습니다.',
+                gettext('The revision to restore could not be found.'),
             ) from error
 
         if history.change_type == EditHistory.ChangeType.LEGACY:
             raise PostRevisionRestoreError(
-                '이전 형식의 수정 이력은 안전하게 복원할 수 없습니다.',
+                gettext('Legacy revisions cannot be restored safely.'),
             )
 
         actual_updated_date = post.updated_date.isoformat()
         if expected_updated_date != actual_updated_date:
             raise PostRevisionConflictError(
-                '포스트가 이미 다른 요청으로 수정되었습니다. 새로고침 후 다시 시도해주세요.',
+                gettext(
+                    'Another request has already changed the post. Refresh and '
+                    'try again.'
+                ),
             )
 
         current_snapshot = PostRevisionService.capture_snapshot(post)

@@ -2,6 +2,7 @@ from django import forms
 from django.contrib.auth.models import User
 from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError as DjangoValidationError
+from django.utils.translation import gettext_lazy as _
 
 from board.services.auth_service import AuthService, AuthValidationError
 from board.services.initial_setup_service import InitialSetupService
@@ -20,43 +21,43 @@ class InitialAdminSetupForm(forms.Form):
         widget=forms.TextInput(attrs={
             'class': input_class,
             'autocomplete': 'username',
-            'placeholder': '4-15자 영문 소문자, 숫자',
+            'placeholder': _('4–15 lowercase letters or numbers'),
         }),
-        label='사용자 이름',
+        label=_('Username'),
     )
     display_name = forms.CharField(
         max_length=150,
         widget=forms.TextInput(attrs={
             'class': input_class,
             'autocomplete': 'name',
-            'placeholder': '사이트에 표시할 이름',
+            'placeholder': _('Name displayed on the site'),
         }),
-        label='표시 이름',
+        label=_('Display name'),
     )
     email = forms.EmailField(
         max_length=254,
         widget=forms.EmailInput(attrs={
             'class': input_class,
             'autocomplete': 'email',
-            'placeholder': '관리자 이메일',
+            'placeholder': _('Administrator email'),
         }),
-        label='이메일',
+        label=_('Email'),
     )
     password = forms.CharField(
         widget=forms.PasswordInput(attrs={
             'class': input_class,
             'autocomplete': 'new-password',
-            'placeholder': '안전한 비밀번호',
+            'placeholder': _('Enter a secure password'),
         }),
-        label='비밀번호',
+        label=_('Password'),
     )
     password_check = forms.CharField(
         widget=forms.PasswordInput(attrs={
             'class': input_class,
             'autocomplete': 'new-password',
-            'placeholder': '비밀번호를 다시 입력',
+            'placeholder': _('Enter your password again'),
         }),
-        label='비밀번호 확인',
+        label=_('Confirm password'),
     )
 
     def __init__(self, *args, setup_token: str = '', **kwargs):
@@ -67,14 +68,14 @@ class InitialAdminSetupForm(forms.Form):
             widget = forms.HiddenInput() if token_is_valid else forms.PasswordInput(attrs={
                 'class': self.input_class,
                 'autocomplete': 'off',
-                'placeholder': 'Docker 로그에 표시된 설치 토큰',
+                'placeholder': _('Setup token shown in the Docker logs'),
             })
 
             self.fields['setup_token'] = forms.CharField(
                 initial=setup_token,
                 required=True,
                 widget=widget,
-                label='설치 토큰',
+                label=_('Setup token'),
             )
             self.order_fields([
                 'setup_token',
@@ -100,7 +101,10 @@ class InitialAdminSetupForm(forms.Form):
             AuthService.validate_username(username)
         except AuthValidationError:
             raise forms.ValidationError(
-                '사용자 이름은 4-15자의 영문 소문자와 숫자만 사용할 수 있고, 이미 사용 중이면 안 됩니다.'
+                _(
+                    'Username must be 4–15 lowercase letters or numbers and '
+                    'must not already be in use.'
+                )
             )
         return username
 
@@ -109,7 +113,7 @@ class InitialAdminSetupForm(forms.Form):
         try:
             AuthService.validate_email(email)
         except AuthValidationError:
-            raise forms.ValidationError('올바른 이메일 주소를 입력해주세요.')
+            raise forms.ValidationError(_('Enter a valid email address.'))
         return email
 
     def clean(self) -> dict:
@@ -118,7 +122,7 @@ class InitialAdminSetupForm(forms.Form):
         password_check = cleaned_data.get('password_check')
 
         if password and password_check and password != password_check:
-            raise forms.ValidationError('비밀번호가 서로 일치하지 않습니다.')
+            raise forms.ValidationError(_('Passwords do not match.'))
 
         if password:
             user = User(
@@ -134,6 +138,6 @@ class InitialAdminSetupForm(forms.Form):
         if InitialSetupService.requires_setup_token():
             setup_token = cleaned_data.get('setup_token', '')
             if not InitialSetupService.is_valid_setup_token(setup_token):
-                self.add_error('setup_token', '설치 토큰이 올바르지 않습니다.')
+                self.add_error('setup_token', _('The setup token is incorrect.'))
 
         return cleaned_data

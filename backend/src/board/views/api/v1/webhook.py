@@ -7,6 +7,7 @@ When a new post is published, notifications are sent to:
 - global channels (staff-managed)
 """
 from django.views.decorators.http import require_http_methods
+from django.utils.translation import gettext as _
 
 from board.models import WebhookSubscription, SiteContentScope
 from board.decorators import api_editor_required
@@ -25,7 +26,7 @@ def _validate_webhook_payload(request):
     data, body_error = ApiRequestBodyService.parse_json_or_error(
         request,
         error_code=ErrorCode.INVALID_PARAMETER,
-        message='Invalid JSON body',
+        message=_('Invalid JSON body.'),
         require_body=True,
     )
     if body_error:
@@ -35,13 +36,13 @@ def _validate_webhook_payload(request):
     name = data.get('name', '').strip()
 
     if not webhook_url:
-        return None, None, StatusError(ErrorCode.REQUIRE, 'webhook_url is required')
+        return None, None, StatusError(ErrorCode.REQUIRE, _('Webhook URL is required.'))
 
     if not WebhookUrlService.is_safe_url(webhook_url):
-        return None, None, StatusError(ErrorCode.VALIDATE, 'Invalid webhook URL')
+        return None, None, StatusError(ErrorCode.VALIDATE, _('Invalid webhook URL.'))
 
     if len(webhook_url) > 500:
-        return None, None, StatusError(ErrorCode.SIZE_OVERFLOW, 'Webhook URL is too long')
+        return None, None, StatusError(ErrorCode.SIZE_OVERFLOW, _('Webhook URL is too long.'))
 
     return webhook_url, name, None
 
@@ -109,7 +110,7 @@ def delete_channel(request, channel_id):
         channel.delete()
         return StatusDone(WebhookApiService.delete_success())
     except WebhookSubscription.DoesNotExist:
-        return StatusError(ErrorCode.NOT_FOUND, 'Channel not found')
+        return StatusError(ErrorCode.NOT_FOUND, _('Webhook destination not found.'))
 
 
 @require_http_methods(['GET', 'POST'])
@@ -167,7 +168,7 @@ def delete_global_channel(request, channel_id):
         channel.delete()
         return StatusDone(WebhookApiService.delete_success())
     except WebhookSubscription.DoesNotExist:
-        return StatusError(ErrorCode.NOT_FOUND, 'Channel not found')
+        return StatusError(ErrorCode.NOT_FOUND, _('Webhook destination not found.'))
 
 
 @require_http_methods(['POST'])
@@ -187,7 +188,7 @@ def test_channel(request):
     data, body_error = ApiRequestBodyService.parse_json_or_error(
         request,
         error_code=ErrorCode.INVALID_PARAMETER,
-        message='Invalid JSON body',
+        message=_('Invalid JSON body.'),
         require_body=True,
     )
     if body_error:
@@ -196,10 +197,10 @@ def test_channel(request):
     webhook_url = data.get('webhook_url', '').strip()
 
     if not webhook_url:
-        return StatusError(ErrorCode.REQUIRE, 'webhook_url is required')
+        return StatusError(ErrorCode.REQUIRE, _('Webhook URL is required.'))
 
     if not WebhookUrlService.is_safe_url(webhook_url):
-        return StatusError(ErrorCode.VALIDATE, 'Invalid webhook URL')
+        return StatusError(ErrorCode.VALIDATE, _('Invalid webhook URL.'))
 
     success = WebhookService.test_webhook(webhook_url)
 

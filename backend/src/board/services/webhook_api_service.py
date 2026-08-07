@@ -1,3 +1,5 @@
+from django.utils.translation import gettext as _
+
 from board.models import Profile, WebhookSubscription, SiteContentScope
 from board.modules.response import StatusError, ErrorCode
 
@@ -8,24 +10,24 @@ class WebhookApiService:
     @staticmethod
     def get_authenticated_profile(request):
         if not request.user.is_authenticated:
-            return None, StatusError(ErrorCode.NEED_LOGIN, 'Login required')
+            return None, StatusError(ErrorCode.NEED_LOGIN, _('Login required.'))
 
         try:
             # Use the reverse one-to-one relation so the profile loaded by the
             # editor permission decorator is reused instead of queried again.
             profile = request.user.profile
             if not profile.is_editor():
-                return None, StatusError(ErrorCode.REJECT, '작가 권한이 필요합니다.')
+                return None, StatusError(ErrorCode.REJECT, _('Author access is required.'))
             return profile, None
         except Profile.DoesNotExist:
-            return None, StatusError(ErrorCode.NOT_FOUND, 'Profile not found')
+            return None, StatusError(ErrorCode.NOT_FOUND, _('Profile not found.'))
 
     @staticmethod
     def ensure_staff(request):
         if not request.user.is_authenticated:
-            return StatusError(ErrorCode.NEED_LOGIN, 'Login required')
+            return StatusError(ErrorCode.NEED_LOGIN, _('Login required.'))
         if not request.user.is_staff:
-            return StatusError(ErrorCode.REJECT, '관리자 권한이 필요합니다.')
+            return StatusError(ErrorCode.REJECT, _('Administrator access is required.'))
         return None
 
     @staticmethod

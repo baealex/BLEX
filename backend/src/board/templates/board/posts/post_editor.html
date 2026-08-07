@@ -1,8 +1,7 @@
 {% extends 'board/base.html' %}
-{% load static %}
-{% load island %}
+{% load i18n island static %}
 
-{% block title %}{% if is_edit %}포스트 수정{% elif draft_post %}임시저장{% else %}새 포스트{% endif %} - {{ site_brand.site_name }}{% endblock %}
+{% block title %}{% if is_edit %}{% translate "Edit post" %}{% elif draft_post %}{% translate "Draft" %}{% else %}{% translate "New post" %}{% endif %} - {{ site_brand.site_name }}{% endblock %}
 
 {% block footer %}{% endblock %}
 

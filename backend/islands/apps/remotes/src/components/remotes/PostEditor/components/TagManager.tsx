@@ -1,4 +1,5 @@
 import { useState, useRef } from 'react';
+import { Trans, useLingui } from '@lingui/react/macro';
 import { Hash, Plus, X } from '@blex/ui/icons';
 import { Button } from '~/components/shared';
 
@@ -8,6 +9,7 @@ interface TagManagerProps {
 }
 
 const TagManager = ({ tags, onTagsChange }: TagManagerProps) => {
+    const { i18n, t } = useLingui();
     const [newTag, setNewTag] = useState('');
     const [isAdding, setIsAdding] = useState(false);
     const inputRef = useRef<HTMLInputElement>(null);
@@ -55,7 +57,11 @@ const TagManager = ({ tags, onTagsChange }: TagManagerProps) => {
                         type="button"
                         onClick={() => handleRemoveTag(index)}
                         className="ml-1 inline-flex min-h-11 min-w-11 items-center justify-center rounded-full text-content-hint transition-colors group-hover:text-content-inverted/80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-action focus-visible:ring-offset-1"
-                        aria-label={`${tag} 태그 제거`}>
+                        aria-label={i18n._({
+                            id: 'editor.tags.remove',
+                            message: 'Remove {tag} tag',
+                            values: { tag }
+                        })}>
                         <X aria-hidden className="h-3.5 w-3.5" />
                     </button>
                 </span>
@@ -68,7 +74,10 @@ const TagManager = ({ tags, onTagsChange }: TagManagerProps) => {
                     <input
                         ref={inputRef}
                         type="text"
-                        aria-label="새 태그 이름"
+                        aria-label={t({
+                            id: 'editor.tags.new_name',
+                            message: 'New tag name'
+                        })}
                         value={newTag}
                         onChange={(e) => setNewTag(e.target.value)}
                         onKeyDown={handleKeyDown}
@@ -78,7 +87,10 @@ const TagManager = ({ tags, onTagsChange }: TagManagerProps) => {
                             }
                         }}
                         className="border-0 bg-transparent focus:ring-0 p-0 text-sm font-medium text-content placeholder-content-hint w-24"
-                        placeholder="태그명"
+                        placeholder={t({
+                            id: 'editor.tags.name_placeholder',
+                            message: 'Tag name'
+                        })}
                         autoFocus
                     />
                 </div>
@@ -93,7 +105,7 @@ const TagManager = ({ tags, onTagsChange }: TagManagerProps) => {
                     size="sm"
                     leftIcon={<Plus aria-hidden className="h-4 w-4" />}
                     className="min-h-11! rounded-full">
-                    태그 추가
+                    <Trans id="editor.tags.add">Add tag</Trans>
                 </Button>
             )}
         </div>

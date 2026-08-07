@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react';
+import { useLingui } from '@lingui/react/macro';
 import { Pin } from '@blex/ui/icons';
 import {
     DndContext,
@@ -37,6 +38,7 @@ export const PinnedPostList = ({
     onRemove,
     emptyAction
 }: PinnedPostListProps) => {
+    const { t } = useLingui();
     const sensors = useSensors(
         useSensor(PointerSensor, { activationConstraint: { distance: 8 } }),
         useSensor(TouchSensor, {
@@ -64,7 +66,10 @@ export const PinnedPostList = ({
         return (
             <SettingsEmptyState
                 icon={<Pin aria-hidden className="h-5 w-5" />}
-                title="고정된 포스트가 없습니다"
+                title={t({
+                    id: 'settings.pinned_posts.empty',
+                    message: 'No pinned posts yet'
+                })}
                 action={emptyAction}
             />
         );

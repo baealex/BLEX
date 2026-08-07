@@ -7,6 +7,7 @@ from typing import Any, Mapping
 
 from django.contrib.auth.models import User
 from django.core.files.uploadedfile import UploadedFile
+from django.utils.translation import gettext
 
 from board.html_utils import safe_external_url
 from board.models import Profile
@@ -69,25 +70,25 @@ class SettingAccountProfileService:
         if len(password) < 8:
             raise SettingAccountProfileError(
                 ErrorCode.VALIDATE,
-                '비밀번호는 8자 이상이어야 합니다.',
+                gettext('Password must be at least 8 characters.'),
             )
 
         if not any(character.isdigit() for character in password):
             raise SettingAccountProfileError(
                 ErrorCode.VALIDATE,
-                '비밀번호는 숫자를 포함해야 합니다.',
+                gettext('Password must include a number.'),
             )
 
         if not any(character.islower() for character in password):
             raise SettingAccountProfileError(
                 ErrorCode.VALIDATE,
-                '비밀번호는 소문자를 포함해야 합니다.',
+                gettext('Password must include a lowercase letter.'),
             )
 
         if not any(character.isupper() for character in password):
             raise SettingAccountProfileError(
                 ErrorCode.VALIDATE,
-                '비밀번호는 대문자를 포함해야 합니다.',
+                gettext('Password must include an uppercase letter.'),
             )
 
         if not any(
@@ -98,7 +99,7 @@ class SettingAccountProfileService:
         ):
             raise SettingAccountProfileError(
                 ErrorCode.VALIDATE,
-                '비밀번호는 특수문자를 포함해야 합니다.',
+                gettext('Password must include a special character.'),
             )
 
     @staticmethod
@@ -118,7 +119,7 @@ class SettingAccountProfileService:
         if homepage and not safe_homepage:
             raise SettingAccountProfileError(
                 ErrorCode.VALIDATE,
-                '홈페이지는 http 또는 https URL이어야 합니다.',
+                gettext('Homepage must be an HTTP or HTTPS URL.'),
             )
         profile.bio = bio
         profile.homepage = safe_homepage

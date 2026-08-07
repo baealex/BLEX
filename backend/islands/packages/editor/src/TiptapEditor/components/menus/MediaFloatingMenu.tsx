@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useId, useRef } from 'react';
 import type { Editor } from '@tiptap/react';
 import * as Popover from '@radix-ui/react-popover';
+import { useEditorI18n } from '../../i18n';
 
 interface MediaFloatingMenuProps {
     editor: Editor | null;
@@ -12,6 +13,7 @@ const dividerClassName = 'w-px h-5 bg-line';
 const mediaTypesWithStyle = ['image', 'video'];
 
 const MediaFloatingMenu = ({ editor }: MediaFloatingMenuProps) => {
+    const { t } = useEditorI18n();
     const [selectedNode, setSelectedNode] = useState<{ type: string; attrs: Record<string, unknown>; pos: number } | null>(null);
     const [isOpen, setIsOpen] = useState(false);
     const [anchorElement, setAnchorElement] = useState<HTMLElement | null>(null);
@@ -177,7 +179,8 @@ const MediaFloatingMenu = ({ editor }: MediaFloatingMenuProps) => {
                                 onClick={() => setIsOpen(true)}
                                 onMouseDown={(e) => e.preventDefault()}
                                 className="w-7 h-7 rounded-full floating-glass-surface flex items-center justify-center text-content-secondary hover:text-content transition-all"
-                                title="설정">
+                                title={t('media.settings')}
+                                aria-label={t('media.settings')}>
                                 <i className="fas fa-cog text-xs" />
                             </button>
                         </Popover.Content>
@@ -207,9 +210,9 @@ const MediaFloatingMenu = ({ editor }: MediaFloatingMenuProps) => {
                             {/* 정렬 (image, video) */}
                             {(selectedNode.type === 'image' || selectedNode.type === 'video') && (
                                 <div className="flex gap-0.5 bg-surface-subtle rounded-lg p-0.5">
-                                    <IconButton icon="fas fa-align-left" active={selectedNode.attrs.align === 'left'} onClick={(e) => handleAlignChange(e, 'left')} title="왼쪽 정렬" />
-                                    <IconButton icon="fas fa-align-center" active={selectedNode.attrs.align === 'center'} onClick={(e) => handleAlignChange(e, 'center')} title="가운데 정렬" />
-                                    <IconButton icon="fas fa-align-right" active={selectedNode.attrs.align === 'right'} onClick={(e) => handleAlignChange(e, 'right')} title="오른쪽 정렬" />
+                                    <IconButton icon="fas fa-align-left" active={selectedNode.attrs.align === 'left'} onClick={(e) => handleAlignChange(e, 'left')} title={t('media.align.left')} />
+                                    <IconButton icon="fas fa-align-center" active={selectedNode.attrs.align === 'center'} onClick={(e) => handleAlignChange(e, 'center')} title={t('media.align.center')} />
+                                    <IconButton icon="fas fa-align-right" active={selectedNode.attrs.align === 'right'} onClick={(e) => handleAlignChange(e, 'right')} title={t('media.align.right')} />
                                 </div>
                             )}
 
@@ -225,11 +228,11 @@ const MediaFloatingMenu = ({ editor }: MediaFloatingMenuProps) => {
                                             updateAttribute('sizePreset', e.target.value || null);
                                         }}
                                         className={fieldClassName}>
-                                        <option value="">원본</option>
-                                        <option value="full">본문 폭</option>
-                                        <option value="large">크게</option>
-                                        <option value="medium">보통</option>
-                                        <option value="small">작게</option>
+                                        <option value="">{t('media.size.original')}</option>
+                                        <option value="full">{t('media.size.full')}</option>
+                                        <option value="large">{t('media.size.large')}</option>
+                                        <option value="medium">{t('media.size.medium')}</option>
+                                        <option value="small">{t('media.size.small')}</option>
                                     </select>
                                 </>
                             )}
@@ -242,14 +245,14 @@ const MediaFloatingMenu = ({ editor }: MediaFloatingMenuProps) => {
                                 className={fieldClassName}>
                                 {selectedNode.type === 'iframe' ? (
                                     <>
-                                        <option value="16:9">16:9 (와이드)</option>
-                                        <option value="4:3">4:3 (표준)</option>
-                                        <option value="21:9">21:9 (시네마)</option>
-                                        <option value="1:1">1:1 (정사각)</option>
+                                        <option value="16:9">16:9 ({t('media.ratio.wide')})</option>
+                                        <option value="4:3">4:3 ({t('media.ratio.standard')})</option>
+                                        <option value="21:9">21:9 ({t('media.ratio.cinema')})</option>
+                                        <option value="1:1">1:1 ({t('media.ratio.square')})</option>
                                     </>
                                 ) : (
                                     <>
-                                        <option value="">비율</option>
+                                        <option value="">{t('media.ratio.label')}</option>
                                         <option value="16:9">16:9</option>
                                         <option value="4:3">4:3</option>
                                         <option value="2:1">2:1</option>
@@ -267,8 +270,8 @@ const MediaFloatingMenu = ({ editor }: MediaFloatingMenuProps) => {
                                         value={selectedNode.attrs.playMode as string || 'gif'}
                                         onChange={handlePlayModeChange}
                                         className={fieldClassName}>
-                                        <option value="gif">움짤</option>
-                                        <option value="video">영상</option>
+                                        <option value="gif">{t('media.play.gif')}</option>
+                                        <option value="video">{t('media.play.video')}</option>
                                     </select>
                                 </>
                             )}
@@ -281,16 +284,16 @@ const MediaFloatingMenu = ({ editor }: MediaFloatingMenuProps) => {
                                     value={selectedNode.attrs.objectFit as string || 'cover'}
                                     onChange={handleObjectFitChange}
                                     className={fieldClassName}>
-                                    <option value="cover">맞춤</option>
-                                    <option value="contain">포함</option>
-                                    <option value="fill">채움</option>
-                                    <option value="none">원본</option>
+                                    <option value="cover">{t('media.fit.cover')}</option>
+                                    <option value="contain">{t('media.fit.contain')}</option>
+                                    <option value="fill">{t('media.fit.fill')}</option>
+                                    <option value="none">{t('media.fit.original')}</option>
                                 </select>
 
                                 <div className={dividerClassName} />
                                 <div className="flex gap-0.5 bg-surface-subtle rounded-lg p-0.5">
-                                    <IconButton icon="fas fa-border-all" active={!!selectedNode.attrs.border} onClick={(e) => handleToggle(e, 'border')} title="테두리" />
-                                    <IconButton icon="fas fa-clone" active={!!selectedNode.attrs.shadow} onClick={(e) => handleToggle(e, 'shadow')} title="그림자" />
+                                    <IconButton icon="fas fa-border-all" active={!!selectedNode.attrs.border} onClick={(e) => handleToggle(e, 'border')} title={t('media.border')} />
+                                    <IconButton icon="fas fa-clone" active={!!selectedNode.attrs.shadow} onClick={(e) => handleToggle(e, 'shadow')} title={t('media.shadow')} />
                                 </div>
 
                                 <div className={dividerClassName} />
@@ -298,12 +301,12 @@ const MediaFloatingMenu = ({ editor }: MediaFloatingMenuProps) => {
                                     value={selectedNode.attrs.borderRadius as string || ''}
                                     onChange={handleBorderRadiusChange}
                                     className={fieldClassName}>
-                                    <option value="">둥글기</option>
-                                    <option value="0">각짐</option>
-                                    <option value="4">약간</option>
-                                    <option value="8">보통</option>
-                                    <option value="16">많이</option>
-                                    <option value="9999">원형</option>
+                                    <option value="">{t('media.radius.label')}</option>
+                                    <option value="0">{t('media.radius.square')}</option>
+                                    <option value="4">{t('media.radius.slight')}</option>
+                                    <option value="8">{t('media.radius.medium')}</option>
+                                    <option value="16">{t('media.radius.large')}</option>
+                                    <option value="9999">{t('media.radius.round')}</option>
                                 </select>
                             </div>
                         )}
@@ -312,12 +315,12 @@ const MediaFloatingMenu = ({ editor }: MediaFloatingMenuProps) => {
                             {selectedNode.type === 'image' && (
                                 <label htmlFor={altInputId} className="flex items-center gap-2">
                                     <span className="w-20 shrink-0 text-xs font-medium text-content-secondary">
-                                        대체 텍스트
+                                        {t('media.alt.label')}
                                     </span>
                                     <input
                                         id={altInputId}
                                         type="text"
-                                        placeholder="이미지를 설명하세요"
+                                        placeholder={t('media.alt.placeholder')}
                                         value={selectedNode.attrs.alt as string || ''}
                                         onChange={(e) => handleAltChange(e.target.value)}
                                         onKeyDown={(e) => {
@@ -332,12 +335,12 @@ const MediaFloatingMenu = ({ editor }: MediaFloatingMenuProps) => {
 
                             <label htmlFor={captionInputId} className="flex items-center gap-2">
                                 <span className="w-20 shrink-0 text-xs font-medium text-content-secondary">
-                                    캡션
+                                    {t('media.caption.label')}
                                 </span>
                                 <input
                                     id={captionInputId}
                                     type="text"
-                                    placeholder="화면에 표시할 설명"
+                                    placeholder={t('media.caption.placeholder')}
                                     value={selectedNode.attrs.caption as string || ''}
                                     onChange={(e) => handleCaptionChange(e.target.value)}
                                     onKeyDown={(e) => {

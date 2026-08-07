@@ -1,76 +1,129 @@
 <p align="center">
-  <a href="https://github.com/baealex/BLEX">
-    <img alt="BLEX Logo" src="https://user-images.githubusercontent.com/35596687/76856570-de2b8a80-6896-11ea-8827-fc2f1966fa23.png" width="340">
-  </a>
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="backend/src/resources/logow.svg">
+    <img alt="BLEX" src="backend/src/resources/logob.svg" width="108">
+  </picture>
+</p>
+
+<h1 align="center">BLEX</h1>
+
+<p align="center">
+  A self-hosted blog application for your own domain and server.
 </p>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/django-6.0.5-blue?style=flat-square" alt="Django">
-  <img src="https://img.shields.io/badge/react-19-blue?style=flat-square" alt="React">
-  <img src="https://img.shields.io/badge/license-MIT-blue?style=flat-square" alt="License">
+  <a href="https://github.com/baealex/BLEX/actions/workflows/CI.yml"><img src="https://github.com/baealex/BLEX/actions/workflows/CI.yml/badge.svg" alt="CI"></a>
+  <img src="https://img.shields.io/badge/Django-6.0-0C4B33?style=flat-square" alt="Django 6.0">
+  <img src="https://img.shields.io/badge/React-19-149ECA?style=flat-square" alt="React 19">
+  <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue?style=flat-square" alt="MIT License"></a>
 </p>
 
-<br>
+<p align="center">
+  English · <a href="README.ko.md">한국어</a>
+</p>
 
-## BLEX
+## About
 
-BLEX는 자기 도메인과 자기 서버에 올려 쓰는 블로그 앱입니다.
+BLEX is a blog application that you run on infrastructure you control. It
+provides a browser-based editor, Docker deployment, and the settings needed to
+operate a personal blog or a small publication.
 
-정적 블로그는 글을 고치기 어렵고, 설치형 블로그는 저비용 서버에서 운영하기에 부담이 생길 수 있습니다. BLEX는 저사양 서버에서도 운영할 수 있도록 글쓰기와 발행에 필요한 기능을 중심으로 구성합니다. 웹 에디터로 글을 쓰고, Docker로 운영하고, 공개 글은 HTML뿐 아니라 RSS, sitemap, Markdown URL로도 읽을 수 있게 합니다.
+Public posts are available as regular web pages as well as RSS, sitemap, and
+Markdown endpoints. The default deployment uses SQLite and is configured to
+start with modest server resources.
 
-## 주요 기능
+## Features
 
-**글쓰기**
+**Writing and publishing**
 
-- Tiptap 기반 글 작성/수정
-- 임시저장, 예약 발행, 숨김 글
-- 커버 이미지, 시리즈, 태그
-- Markdown 입력 기반 Developer API
+- Tiptap-based rich-text editor
+- Drafts, autosave recovery, revision history, and previews
+- Scheduled publishing and hidden posts
+- Cover images, series, and tags
+- Markdown or HTML publishing through the Developer API
 
-**공개 표면**
+**Public blog**
 
-- RSS
-- sitemap index와 posts/series/static pages sitemap
-- canonical URL과 Open Graph URL
-- 공개 글 Markdown URL
-- 공개 시리즈 Markdown URL
-- 공개 정적 페이지 Markdown URL
-- AI 공개 설정(AEO)이 켜진 경우 `/llms.txt`
+- Post, author, series, tag, search, and static pages
+- Comments, likes, and pinned posts
+- RSS, sitemaps, canonical URLs, and Open Graph metadata
+- Public Markdown URLs and optional `/llms.txt`
 
-**운영**
+**Operations**
 
-- Docker 기반 실행
-- 최초 관리자 생성
-- 사이트 이름, 로고, 아이콘 설정
-- 공지, 배너, 알림, webhook 관리
-- 사용자 권한 관리
+- Docker-based deployment
+- Initial administrator setup
+- Site name, logo, and icon settings
+- Notices, banners, notifications, webhooks, and Telegram integration
+- User roles and administration tools
 
-**계정과 보안**
+**Accounts and security**
 
-- GitHub, Google 소셜 로그인
-- TOTP 기반 2단계 인증
-- 개인 Developer API 토큰
-- scope 기반 API 권한
+- GitHub and Google social login
+- TOTP two-factor authentication
+- Personal Developer API tokens with scoped permissions
 
-## 공개 URL
+**Languages**
 
-| 경로 | 설명 |
+- English and Korean product UI
+- Request-language negotiation when English UI support is enabled
+- Separate translation catalogs for Django, React islands, and the editor
+- Posts and other user-authored content are displayed exactly as written
+
+## Run with Docker
+
+Requirements: Git, Docker, and Docker Compose.
+
+```bash
+git clone https://github.com/baealex/BLEX.git
+cd BLEX
+cp samples/.env backend/.env
+mkdir -p backend/src/resources/media
+touch backend/src/db.sqlite3
+docker compose up -d
+docker compose logs -f blex
+```
+
+Open `http://localhost:20002`. The logs include an `Initial setup URL` for
+creating the first administrator.
+
+The sample environment enables English and Korean UI negotiation. Existing
+installations can enable it with `ENABLE_ENGLISH_UI=TRUE`.
+
+Before a public deployment, replace the sample secrets, configure the public
+site URL and allowed hosts, place an HTTPS proxy in front of BLEX, and back up
+both the SQLite database and uploaded media. See the
+[Self-hosting Guide](docs/SELF_HOSTING.md) for details.
+
+## Public URLs
+
+| Path | Description |
 | --- | --- |
-| `/rss` | 사이트 RSS |
-| `/sitemap.xml` | sitemap index |
-| `/posts/sitemap.xml` | 공개 글 sitemap |
-| `/llms.txt` | AI 공개 설정(AEO)이 켜진 경우 AI 에이전트용 진입점 |
-| `/@{username}/{post_url}.md` | 공개 글 Markdown |
-| `/@{username}/series/{series_url}.md` | 공개 시리즈 Markdown |
-| `/static/{slug}.md` | 공개 정적 페이지 Markdown |
-| `/api/developer/v1/docs` | Developer API 문서 |
+| `/rss` | Site RSS feed |
+| `/sitemap.xml` | Sitemap index |
+| `/posts/sitemap.xml` | Public post sitemap |
+| `/llms.txt` | Agent entry point when AEO is enabled |
+| `/@{username}/{post_url}.md` | Public post as Markdown |
+| `/@{username}/series/{series_url}.md` | Public series as Markdown |
+| `/static/{slug}.md` | Public static page as Markdown |
+| `/api/developer/v1/docs` | Developer API documentation |
 | `/api/developer/v1/openapi.json` | Developer API OpenAPI schema |
 
-비공개 글, 숨김 글, 임시저장, 아직 발행되지 않은 예약 글은 RSS, sitemap, Markdown 공개 URL에 노출되지 않습니다.
+Private posts, hidden posts, drafts, deleted posts, and scheduled posts that
+are not yet published are excluded from RSS, sitemaps, and public Markdown
+endpoints.
 
-## 로컬 개발
+## Developer API
 
-요구사항:
+The Developer API supports personal tokens, scoped permissions, post and draft
+management, Markdown or HTML input, image upload, publishing, tags, and series.
+
+After starting BLEX, open `/docs/developer-api/quickstart` for the quickstart or
+`/api/developer/v1/docs` for the complete API documentation.
+
+## Local development
+
+Requirements:
 
 - Python 3.12+
 - Node.js 22.22.2, 24.15+, or 26+
@@ -78,61 +131,32 @@ BLEX는 자기 도메인과 자기 서버에 올려 쓰는 블로그 앱입니�
 
 ```bash
 npm install
-npm run server:migrate  # 최초 1회
+npm run server:migrate
 npm run dev
 ```
 
-접속: `http://localhost:8000`
+Open `http://localhost:8000`.
 
-## Docker 운영
+Common checks:
 
-Docker로 운영하려면 [Self-hosting Guide](docs/SELF_HOSTING.md)를 확인하세요.
+```bash
+npm run server:test
+npm run islands:i18n:check
+npm run islands:test
+npm run islands:lint
+npm run islands:type-check
+```
 
-Docker 이미지는 nginx와 Django를 함께 실행합니다. 기본 Gunicorn worker는 1개이며, 공개 운영에는 별도의 HTTPS 프록시가 필요합니다.
+## Documentation
 
-가이드에서 다루는 내용:
-
-- 운영 환경값
-- HTTPS 앞단 프록시
-- 최초 관리자 생성
-- 첫 글 발행
-- DB와 media 백업
-- 운영 점검표
-
-## Developer API
-
-Developer API는 외부 도구에서 글을 만들고 발행하기 위한 개인 토큰 API입니다.
-
-- 빠른 시작: `/docs/developer-api/quickstart`
-- API 문서: `/api/developer/v1/docs`
-- OpenAPI schema: `/api/developer/v1/openapi.json`
-
-기본 흐름:
-
-- 토큰과 계정 확인
-- 포스트 목록/상세 조회
-- Markdown 또는 HTML 초안 생성
-- 이미지 업로드
-- 초안 수정
-- 발행
-- 태그와 시리즈 조회
-
-## 자주 쓰는 명령어
-
-- `npm run server:dev`
-- `npm run islands:dev`
-- `npm run server:test`
-- `npm run islands:lint`
-- `npm run islands:type-check`
-
-## 관련 문서
-
-- [Development Convention](docs/DEV_CONVENTION.md)
 - [Self-hosting Guide](docs/SELF_HOSTING.md)
+- [Development Convention](docs/DEV_CONVENTION.md)
 - [Backend Guide](docs/BACKEND_GUIDE.md)
 - [Frontend Guide](docs/FRONTEND_GUIDE.md)
+- [Translation Guide](docs/TRANSLATION_GUIDE.md)
+- [Testing Guide](docs/TESTING_GUIDE.md)
 - [Design Guide](docs/DESIGN_GUIDE.md)
 
-## 라이선스
+## License
 
 [MIT License](LICENSE)

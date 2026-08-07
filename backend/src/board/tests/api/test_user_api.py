@@ -121,7 +121,8 @@ class UserAPITestCase(TestCase):
         response = self.client.put(
             '/v1/users/@testuser',
             data=data,
-            content_type='application/x-www-form-urlencoded'
+            content_type='application/x-www-form-urlencoded',
+            HTTP_ACCEPT_LANGUAGE='en',
         )
 
         # Should fail without login
@@ -129,6 +130,7 @@ class UserAPITestCase(TestCase):
         content = json.loads(response.content)
         self.assertEqual(content['status'], 'ERROR')
         self.assertEqual(content['errorCode'], 'error:NL')
+        self.assertEqual(content['errorMessage'], 'Login is required.')
 
     def test_update_about_with_empty_content(self):
         """빈 내용으로 소개 업데이트"""

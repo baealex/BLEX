@@ -1,12 +1,13 @@
 {% extends 'board/base.html' %}
 {% load resource %}
 {% load island %}
+{% load i18n %}
 
-{% block title %}{% if is_post_preview %}미리보기 · {% endif %}{{ post.title }} - {{ post.author_username }} | {{ site_brand.site_name }}{% endblock %}
+{% block title %}{% if is_post_preview %}{% translate "Preview" %} · {% endif %}{{ post.title }} - {{ post.author_username }} | {{ site_brand.site_name }}{% endblock %}
 
 {% block meta %}
 {% if is_post_preview %}
-<meta name="description" content="저장된 임시 포스트 미리보기">
+<meta name="description" content="{% translate 'Saved draft preview' %}">
 {% else %}
 <!-- Primary Meta Tags -->
 <meta name="description" content="{{ post.meta_description }}">
@@ -62,6 +63,10 @@
 {% endblock %}
 
 {% block content %}
+{% translate "Link copied." as link_copied_message %}
+{% translate "Could not copy the link." as link_copy_failed_message %}
+{% translate "Agent link copied." as agent_link_copied_message %}
+{% translate "Could not share this post." as share_failed_message %}
 <div class="relative w-full">
     {% if post_cover_is_full_bleed %}
         {% include post_cover_template %}
@@ -83,7 +88,7 @@
         <!-- Main Content Area (Original Width) -->
         <div class="post-detail-main">
             <div class="mt-6" role="main">
-                <article itemscope itemtype="https://schema.org/BlogPosting" lang="{{ LANGUAGE_CODE|default:'ko' }}">
+                <article itemscope itemtype="https://schema.org/BlogPosting" lang="und">
                     <meta itemprop="headline" content="{{ post.title }}">
                     <meta itemprop="description" content="{{ post.meta_description }}">
                     <meta itemprop="datePublished" content="{{ post.preview_date|date:'c' }}">
@@ -99,23 +104,23 @@
                         class="mb-8 rounded-lg border border-line bg-surface-subtle px-4 py-4 sm:px-5 sm:py-5">
                         <div class="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
                             <div class="min-w-0">
-                                <p class="text-xs font-semibold uppercase text-content-hint">포스트 상태</p>
+                                <p class="text-xs font-semibold uppercase text-content-hint">{% translate "Post status" %}</p>
                                 <h2 class="mt-1 text-lg font-semibold text-content">
                                     {% if post_visibility_status == 'draft' %}
-                                    임시 포스트 미리보기입니다
+                                    {% translate "This is a draft preview." %}
                                     {% elif post_visibility_status == 'hidden' %}
-                                    비공개 포스트입니다
+                                    {% translate "This post is private." %}
                                     {% else %}
-                                    예약 발행 포스트입니다
+                                    {% translate "This post is scheduled." %}
                                     {% endif %}
                                 </h2>
                                 <p class="mt-1 text-sm leading-relaxed text-content-secondary">
                                     {% if post_visibility_status == 'draft' %}
-                                    마지막으로 저장된 내용을 실제 포스트 화면으로 표시합니다. 이 페이지는 작성자에게만 보이며 공개 목록과 검색에 노출되지 않습니다.
+                                    {% translate "This page shows the latest saved draft as a post. Only the author can see it, and it does not appear in public lists or search." %}
                                     {% elif post_visibility_status == 'hidden' %}
-                                    이 포스트는 작성자만 볼 수 있습니다. 공개하려면 포스트 설정에서 비공개를 해제하세요.
+                                    {% translate "Only the author can see this post. Turn off private visibility in the post settings to publish it." %}
                                     {% else %}
-                                    예약 시각 전에는 작성자만 볼 수 있습니다. 예약 시각이 되면 공개 URL, RSS, Sitemap, Markdown URL에 반영됩니다.
+                                    {% translate "Only the author can see this post before its scheduled time. It will then appear at its public URL and in RSS, the sitemap, and the Markdown endpoint." %}
                                     {% endif %}
                                 </p>
                             </div>
@@ -123,7 +128,7 @@
                             <a
                                 href="{% url 'post_edit' post.author_username post.url %}"
                                 class="inline-flex min-h-11 items-center justify-center rounded-lg border border-line px-4 py-2 text-sm font-semibold text-content-secondary transition-all duration-150 hover:bg-surface hover:text-content active:scale-95">
-                                수정하기
+                                {% translate "Edit post" %}
                             </a>
                             {% endif %}
                         </div>
@@ -144,7 +149,7 @@
                     {% endif %}
                     
                     <!-- Content -->
-                    <div class="prose prose-lg max-w-none blog-post-content break-words mb-16" itemprop="articleBody" lang="{{ LANGUAGE_CODE|default:'ko' }}">
+                    <div class="prose prose-lg max-w-none blog-post-content break-words mb-16" itemprop="articleBody">
                         {{ content_html|safe }}
                     </div>
 
@@ -172,11 +177,11 @@
 
                     <section class="mt-16 mb-16 bg-surface rounded-2xl p-6 sm:p-8 ring-1 ring-line/60" aria-labelledby="post-info-heading">
                         <div class="mb-6 flex items-start justify-between gap-4 border-b border-line-light pb-4">
-                            <h2 id="post-info-heading" class="text-lg font-bold leading-snug text-content">포스트 정보</h2>
+                            <h2 id="post-info-heading" class="text-lg font-bold leading-snug text-content">{% translate "Post information" %}</h2>
                         </div>
                         <dl class="grid gap-4 text-sm">
                             <div class="sm:flex sm:items-start sm:gap-6">
-                                <dt class="text-xs font-medium text-content-hint sm:w-24 sm:flex-shrink-0">작성자</dt>
+                                <dt class="text-xs font-medium text-content-hint sm:w-24 sm:flex-shrink-0">{% translate "Author" %}</dt>
                                 <dd class="mt-1 min-w-0 sm:mt-0">
                                     <a href="/@{{ post.author_username }}" class="font-semibold text-content hover:text-content-secondary transition-colors">{{ post.author_username }}</a>
                                     {% if author_bio %}
@@ -185,14 +190,14 @@
                                 </dd>
                             </div>
                             <div class="sm:flex sm:items-start sm:gap-6">
-                                <dt class="text-xs font-medium text-content-hint sm:w-24 sm:flex-shrink-0">{% if is_post_preview %}미리보기 기준{% else %}최초 발행{% endif %}</dt>
+                                <dt class="text-xs font-medium text-content-hint sm:w-24 sm:flex-shrink-0">{% if is_post_preview %}{% translate "Preview date" %}{% else %}{% translate "First published" %}{% endif %}</dt>
                                 <dd class="mt-1 text-content-secondary sm:mt-0">
                                     <time datetime="{{ post.preview_date|date:'c' }}">{{ post.created_date_display }}</time>
                                 </dd>
                             </div>
                             {% if show_post_updated_date %}
                             <div class="sm:flex sm:items-start sm:gap-6">
-                                <dt class="text-xs font-medium text-content-hint sm:w-24 sm:flex-shrink-0">수정일</dt>
+                                <dt class="text-xs font-medium text-content-hint sm:w-24 sm:flex-shrink-0">{% translate "Updated" %}</dt>
                                 <dd class="mt-1 text-content-secondary sm:mt-0">
                                     <time datetime="{{ post.updated_date|date:'c' }}">{{ post.updated_date_display }}</time>
                                 </dd>
@@ -200,7 +205,7 @@
                             {% endif %}
                             {% if author_homepage %}
                             <div class="sm:flex sm:items-start sm:gap-6">
-                                <dt class="text-xs font-medium text-content-hint sm:w-24 sm:flex-shrink-0">저자 홈페이지</dt>
+                                <dt class="text-xs font-medium text-content-hint sm:w-24 sm:flex-shrink-0">{% translate "Author website" %}</dt>
                                 <dd class="mt-1 min-w-0 sm:mt-0">
                                     <a href="{{ author_homepage }}" target="_blank" rel="noopener noreferrer" class="break-words text-content-secondary hover:text-content transition-colors">{{ author_homepage }}</a>
                                 </dd>
@@ -248,7 +253,7 @@
                             this.linkCopyMenuOpen = false;
                         }, 160);
                     },
-                    async copyToClipboard(value = null, successMessage = '링크가 복사되었습니다') {
+                    async copyToClipboard(value = null, successMessage = '{{ link_copied_message|escapejs }}') {
                         try {
                             await navigator.clipboard.writeText(value || this.getPageUrl());
                             window.toast.success(successMessage);
@@ -256,7 +261,7 @@
                                 navigator.vibrate(50);
                             }
                         } catch (error) {
-                            window.toast.error('복사에 실패했습니다');
+                            window.toast.error('{{ link_copy_failed_message|escapejs }}');
                         }
                     },
                     async copyAgentLink() {
@@ -266,7 +271,7 @@
                             return;
                         }
 
-                        await this.copyToClipboard(agentUrl, '에이전트용 링크가 복사되었습니다');
+                        await this.copyToClipboard(agentUrl, '{{ agent_link_copied_message|escapejs }}');
                     },
                     openSharePopup(url) {
                         const popup = window.open(url, '_blank', 'noopener,noreferrer,width=720,height=640');
@@ -298,7 +303,7 @@
                                 }).catch(error => {
                                     if (error.name !== 'AbortError') {
                                         console.error('Error sharing:', error);
-                                        window.toast.error('공유에 실패했습니다');
+                                        window.toast.error('{{ share_failed_message|escapejs }}');
                                     }
                                 });
                                 return;
@@ -329,7 +334,7 @@
                         {% if table_of_contents %}
                         <button @click="$dispatch('toc-sheet-open')"
                             class="xl:hidden w-11 h-11 flex items-center justify-center rounded-full text-content-secondary hover:text-content hover:bg-surface-subtle/80 transition-all duration-200 active:scale-95"
-                            aria-label="목차 보기">
+                            aria-label="{% translate 'View table of contents' %}">
                             <i class="fas fa-list-ul"></i>
                         </button>
                         {% endif %}
@@ -343,7 +348,7 @@
                             @keydown.escape.window="closeLinkCopyMenu()">
                             <button @click="handleShareClick()"
                                 class="w-11 h-11 flex items-center justify-center rounded-full text-content-secondary hover:text-content hover:bg-surface-subtle/80 transition-all duration-200 active:scale-95"
-                                aria-label="게시물 공유 또는 링크 복사"
+                                aria-label="{% translate 'Share post or copy link' %}"
                                 :aria-expanded="linkCopyMenuOpen">
                                 <i class="fas fa-share-alt"></i>
                             </button>
@@ -360,7 +365,7 @@
                                 class="absolute bottom-full left-1/2 mb-3 w-72 -translate-x-1/2 rounded-xl border border-line bg-surface-elevated p-2 text-left shadow-floating z-40"
                                 style="display: none;">
                                 <div class="px-2 pb-1 text-[11px] font-bold uppercase tracking-wider text-content-hint">
-                                    공유
+                                    {% translate "Share" %}
                                 </div>
                                 <button @click="copyToClipboard(); closeLinkCopyMenu()"
                                     class="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-left text-sm text-content-secondary transition-colors duration-150 hover:bg-surface-subtle hover:text-content active:scale-[0.98]">
@@ -368,8 +373,8 @@
                                         <i class="fas fa-link"></i>
                                     </span>
                                     <span class="flex flex-col">
-                                        <span class="font-semibold">일반 링크</span>
-                                        <span class="text-xs text-content-hint">브라우저에서 여는 주소</span>
+                                        <span class="font-semibold">{% translate "Regular link" %}</span>
+                                        <span class="text-xs text-content-hint">{% translate "Address to open in a browser" %}</span>
                                     </span>
                                 </button>
                                 <button @click="shareToX(); closeLinkCopyMenu()"
@@ -378,8 +383,8 @@
                                         <i class="fab fa-x-twitter"></i>
                                     </span>
                                     <span class="flex flex-col">
-                                        <span class="font-semibold">X에 공유</span>
-                                        <span class="text-xs text-content-hint">새 창에서 공유 포스트 작성</span>
+                                        <span class="font-semibold">{% translate "Share on X" %}</span>
+                                        <span class="text-xs text-content-hint">{% translate "Compose a post in a new window" %}</span>
                                     </span>
                                 </button>
                                 <button @click="shareToLinkedIn(); closeLinkCopyMenu()"
@@ -388,8 +393,8 @@
                                         <i class="fab fa-linkedin-in"></i>
                                     </span>
                                     <span class="flex flex-col">
-                                        <span class="font-semibold">LinkedIn에 공유</span>
-                                        <span class="text-xs text-content-hint">전문 네트워크에 공유</span>
+                                        <span class="font-semibold">{% translate "Share on LinkedIn" %}</span>
+                                        <span class="text-xs text-content-hint">{% translate "Share with your professional network" %}</span>
                                     </span>
                                 </button>
                                 <button @click="shareToFacebook(); closeLinkCopyMenu()"
@@ -398,8 +403,8 @@
                                         <i class="fab fa-facebook-f"></i>
                                     </span>
                                     <span class="flex flex-col">
-                                        <span class="font-semibold">Facebook에 공유</span>
-                                        <span class="text-xs text-content-hint">피드 또는 메시지로 공유</span>
+                                        <span class="font-semibold">{% translate "Share on Facebook" %}</span>
+                                        <span class="text-xs text-content-hint">{% translate "Share to your feed or a message" %}</span>
                                     </span>
                                 </button>
                                 {% if show_agent_post_markdown %}
@@ -410,8 +415,8 @@
                                         <i class="fas fa-code"></i>
                                     </span>
                                     <span class="flex flex-col">
-                                        <span class="font-semibold">에이전트용 링크</span>
-                                        <span class="text-xs text-content-hint">*.md 참조 주소</span>
+                                        <span class="font-semibold">{% translate "Agent link" %}</span>
+                                        <span class="text-xs text-content-hint">{% translate "*.md reference address" %}</span>
                                     </span>
                                 </button>
                                 {% endif %}
@@ -423,7 +428,7 @@
                         {% if can_edit_post %}
                         <a href="{% url 'post_edit' post.author_username post.url %}"
                             class="w-11 h-11 flex items-center justify-center rounded-full text-content-secondary hover:text-content hover:bg-surface-subtle/80 transition-all duration-200 active:scale-95"
-                            aria-label="포스트 수정">
+                            aria-label="{% translate 'Edit post' %}">
                             <i class="fas fa-edit"></i>
                         </a>
                         {% endif %}
@@ -445,10 +450,10 @@
                             </a>
                         </h2>
                         <p class="text-sm text-content-secondary mb-6">
-                            이 포스트는 숨김 처리되어 시리즈 목록에 표시되지 않습니다.
+                            {% translate "This post is hidden and does not appear in the series list." %}
                         </p>
                         <a href="{% url 'series_detail' post.author_username post.series.url %}" class="inline-flex items-center px-4 py-2 bg-action text-content-inverted rounded-lg text-sm font-medium hover:bg-action-hover transition-colors">
-                            시리즈 전체 보기
+                            {% translate "View full series" %}
                             <i class="fas fa-arrow-right ml-2 opacity-60"></i>
                         </a>
                     </div>
@@ -456,7 +461,7 @@
                     <div class="flex flex-col lg:flex-row lg:items-start gap-6">
                         <div class="flex-1">
                             <div class="flex items-center gap-2 mb-3">
-                                <span class="px-2.5 py-0.5 bg-action text-content-inverted rounded-md text-[10px] font-bold uppercase tracking-widest">시리즈</span>
+                                <span class="px-2.5 py-0.5 bg-action text-content-inverted rounded-md text-[10px] font-bold uppercase tracking-widest">{% translate "Series" %}</span>
                                 <span class="text-sm text-content-secondary font-medium">{{ post.series_index }} / {{ post.series_total }}</span>
                             </div>
 
@@ -476,7 +481,7 @@
                             </div>
                             {% if series_post.url == post.url %}
                             <span class="flex-1 font-semibold text-content">{{ series_post.title }}</span>
-                            <span class="text-xs font-bold text-content-inverted px-2.5 py-1 bg-action rounded-md">읽는 중</span>
+                            <span class="text-xs font-bold text-content-inverted px-2.5 py-1 bg-action rounded-md">{% translate "Reading" %}</span>
                             {% else %}
                             <a href="{% url 'post_detail' post.author_username series_post.url %}" class="flex-1 font-medium text-content-secondary hover:text-content transition-colors">
                                 {{ series_post.title }}
@@ -491,27 +496,27 @@
                         {% if post.prev_post %}
                         <a href="{% url 'post_detail' post.author_username post.prev_post.url %}" class="flex items-center gap-2 text-sm font-medium text-content-secondary hover:text-content transition-colors">
                             <i class="fas fa-arrow-left"></i>
-                            <span>이전</span>
+                            <span>{% translate "Previous" %}</span>
                         </a>
                         {% else %}
                         <span class="flex items-center gap-2 text-sm font-medium text-line-strong cursor-not-allowed">
                             <i class="fas fa-arrow-left"></i>
-                            <span>이전</span>
+                            <span>{% translate "Previous" %}</span>
                         </span>
                         {% endif %}
 
                         <a href="{% url 'series_detail' post.author_username post.series.url %}" class="text-sm font-medium text-content-hint hover:text-content-secondary transition-colors">
-                            전체 포스트
+                            {% translate "All posts" %}
                         </a>
 
                         {% if post.next_post %}
                         <a href="{% url 'post_detail' post.author_username post.next_post.url %}" class="flex items-center gap-2 text-sm font-medium text-content-secondary hover:text-content transition-colors">
-                            <span>다음</span>
+                            <span>{% translate "Next" %}</span>
                             <i class="fas fa-arrow-right"></i>
                         </a>
                         {% else %}
                         <span class="flex items-center gap-2 text-sm font-medium text-line-strong cursor-not-allowed">
-                            <span>다음</span>
+                            <span>{% translate "Next" %}</span>
                             <i class="fas fa-arrow-right"></i>
                         </span>
                         {% endif %}
@@ -601,13 +606,13 @@ class="xl:hidden">
         </div>
         <!-- Header -->
         <div class="flex items-center justify-between px-6 pb-4 border-b border-line-light">
-            <h3 class="text-lg font-bold text-content">목차</h3>
-            <button @click="open = false" class="w-11 h-11 flex items-center justify-center rounded-full text-content-hint hover:text-content-secondary hover:bg-surface-subtle transition-all active:scale-95">
+            <h3 class="text-lg font-bold text-content">{% translate "Table of contents" %}</h3>
+            <button @click="open = false" class="w-11 h-11 flex items-center justify-center rounded-full text-content-hint hover:text-content-secondary hover:bg-surface-subtle transition-all active:scale-95" aria-label="{% translate 'Close table of contents' %}">
                 <i class="fas fa-times"></i>
             </button>
         </div>
         <!-- TOC List -->
-        <nav class="flex-1 overflow-y-auto overscroll-contain px-4 py-4" aria-label="목차">
+        <nav class="flex-1 overflow-y-auto overscroll-contain px-4 py-4" aria-label="{% translate 'Table of contents' %}">
             <ul class="space-y-1">
                 {% for heading in table_of_contents %}
                 <li>

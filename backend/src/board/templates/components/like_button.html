@@ -7,12 +7,17 @@ Alpine.js 기반 좋아요 버튼 컴포넌트
 - has_liked: 사용자가 좋아요 했는지 여부 (필수)
 - size: 'small' (카드용) 또는 생략 (상세페이지용, 기본값)
 {% endcomment %}
+{% load i18n %}
+{% translate "Unlike" as unlike_label %}
+{% translate "Like" as like_label %}
+{% translate "Could not update like. Please try again." as like_error_message %}
 
 <button
     x-data="like_button({
         count: {{ likes_count }},
         liked: {{ has_liked|yesno:'true,false' }},
-        postUrl: '{{ post_url }}'
+        postUrl: '{{ post_url }}',
+        errorMessage: '{{ like_error_message|escapejs }}'
     })"
     @click="handleLike()"
     :class="{
@@ -27,7 +32,7 @@ Alpine.js 기반 좋아요 버튼 컴포넌트
         'active:scale-95': !loading
     }"
     :disabled="loading"
-    :aria-label="liked ? '좋아요 취소 (' + count + ')' : '좋아요 (' + count + ')'"
+    :aria-label="liked ? '{{ unlike_label|escapejs }} (' + count + ')' : '{{ like_label|escapejs }} (' + count + ')'"
     :aria-pressed="liked"
     class="group inline-flex items-center justify-center transition-all duration-300 outline-none cursor-pointer select-none
     {% if size == 'small' %}

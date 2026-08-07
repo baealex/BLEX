@@ -17,14 +17,14 @@
 {% block content %}
 <div id="content-main">
   <p>{{ warning }}</p>
-  <p><strong>대상 {{ object_count }}개</strong></p>
+  <p><strong>{% blocktranslate count count=object_count %}Target: {{ count }} object{% plural %}Target: {{ count }} objects{% endblocktranslate %}</strong></p>
 
   <ul>
     {% for object in object_preview %}
       <li>{{ object }}</li>
     {% endfor %}
     {% if has_more_objects %}
-      <li>외 {{ object_count|add:"-20" }}개</li>
+      <li>{% blocktranslate with remaining=object_count|add:"-20" %}and {{ remaining }} more{% endblocktranslate %}</li>
     {% endif %}
   </ul>
 
@@ -38,7 +38,7 @@
     <input type="hidden" name="confirm" value="yes">
     <div class="submit-row">
       <input type="submit" value="{{ confirm_label }}" class="{{ confirm_button_class }}">
-      <a role="button" href="{{ cancel_url }}" class="button cancel-link">취소</a>
+      <a role="button" href="{{ cancel_url }}" class="button cancel-link">{% translate 'Cancel' %}</a>
     </div>
   </form>
 </div>
