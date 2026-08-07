@@ -79,17 +79,15 @@ const PostForm = ({
                 {beforeContent}
 
                 <div className="mb-8">
-                    <label htmlFor="content" className="sr-only">
-                        {t({
-                            id: 'editor.fields.content',
-                            message: 'Content'
-                        })}
-                    </label>
                     {!isLoading && (
                         <TiptapEditor
                             name="content_html"
                             content={formData.content}
                             locale={i18n.locale}
+                            ariaLabel={t({
+                                id: 'editor.fields.content',
+                                message: 'Content'
+                            })}
                             onChange={onContentChange}
                             placeholder={t({
                                 id: 'editor.fields.content_placeholder',

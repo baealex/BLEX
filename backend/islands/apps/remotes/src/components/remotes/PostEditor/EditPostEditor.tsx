@@ -779,7 +779,7 @@ const EditPostEditor = ({ username, postUrl }: EditPostEditorProps) => {
 
     if (isLoading) {
         return (
-            <PostEditorWrapper>
+            <PostEditorWrapper title={<Trans id="editor.heading.edit_post">Edit post</Trans>}>
                 <div className="flex items-center justify-center py-32">
                     <div className="text-center space-y-4">
                         <div className="inline-block animate-spin rounded-full h-12 w-12 border-4 border-line border-t-action" />
@@ -793,7 +793,7 @@ const EditPostEditor = ({ username, postUrl }: EditPostEditorProps) => {
     }
 
     return (
-        <PostEditorWrapper>
+        <PostEditorWrapper title={<Trans id="editor.heading.edit_post">Edit post</Trans>}>
             {availableRecovery && (
                 <EditRecoveryNotice
                     recovery={availableRecovery}

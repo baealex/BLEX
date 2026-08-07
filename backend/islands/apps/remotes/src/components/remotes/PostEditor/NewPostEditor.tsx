@@ -256,6 +256,9 @@ const NewPostEditor = ({
     ), [formData.title, formData.content, formData.metaDescription, formData.hide, formData.reservedDate, tags, imagePreview, i18n.locale]);
 
     const shouldShowFirstPublishGuide = !isLoading && showFirstPublishGuide;
+    const editorTitle = draftUrl
+        ? <Trans id="editor.heading.edit_draft">Edit draft</Trans>
+        : <Trans id="editor.heading.new_post">New post</Trans>;
 
     // Fetch series list and draft data if draftUrl exists
     useEffect(() => {
@@ -571,7 +574,7 @@ const NewPostEditor = ({
     };
 
     return (
-        <PostEditorWrapper>
+        <PostEditorWrapper title={editorTitle}>
             {shouldShowFirstPublishGuide && (
                 <div className="mb-4 flex justify-end">
                     <button

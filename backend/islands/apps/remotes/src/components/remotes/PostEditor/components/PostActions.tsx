@@ -105,6 +105,7 @@ const PostActions = ({
             {!isEdit && onOpenDrafts && (
                 <IconButton
                     onClick={onOpenDrafts}
+                    size="sm"
                     rounded="full"
                     className="shrink-0"
                     aria-label={t({
@@ -123,6 +124,7 @@ const PostActions = ({
             {onPreview && (
                 <IconButton
                     onClick={onPreview}
+                    size="sm"
                     disabled={isBusy || isPreviewing}
                     rounded="full"
                     className="shrink-0"
@@ -147,6 +149,7 @@ const PostActions = ({
             {onOpenHistory && (
                 <IconButton
                     onClick={onOpenHistory}
+                    size="sm"
                     disabled={isBusy}
                     rounded="full"
                     className="shrink-0"
@@ -166,6 +169,7 @@ const PostActions = ({
             {onOpenSettings && (
                 <IconButton
                     onClick={onOpenSettings}
+                    size="sm"
                     rounded="full"
                     className="shrink-0"
                     aria-label={t({
@@ -272,7 +276,7 @@ const PostActions = ({
                 onClick={onSubmit}
                 disabled={isBusy || isSubmitDisabled}
                 variant="primary"
-                className="min-h-11! shrink-0 !rounded-full"
+                className="min-h-11! shrink-0 !rounded-full max-[359px]:gap-1 max-[359px]:px-3 max-[359px]:text-xs"
                 leftIcon={<Send className="w-4 h-4" />}
                 data-tour="post-publish">
                 {actionLabel}

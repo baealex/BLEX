@@ -218,6 +218,15 @@ export const useAutoSave = (data: AutoSaveData, options: UseAutoSaveOptions) => 
     useEffect(() => {
         if (!options.enabled) return;
 
+        // Capture the hydrated editor state once autosave becomes available.
+        // This separates initial draft loading from the user's first change.
+        if (isInitialLoadRef.current) {
+            isInitialLoadRef.current = false;
+            prevDataStringRef.current = currentDataString;
+            prevContentStringRef.current = currentContentString;
+            return;
+        }
+
         // Check if data has actually changed
         if (prevDataStringRef.current === currentDataString) return;
 
@@ -228,21 +237,6 @@ export const useAutoSave = (data: AutoSaveData, options: UseAutoSaveOptions) => 
         }
 
         skipNextImageResetRef.current = false;
-
-        // Skip initial load trigger - when data changes from empty to loaded
-        if (isInitialLoadRef.current) {
-            const prevData = JSON.parse(prevContentStringRef.current);
-            const wasEmpty = !prevData.title && !prevData.content && !prevData.tags && !prevData.customUrl;
-
-            if (wasEmpty) {
-                isInitialLoadRef.current = false;
-                prevDataStringRef.current = currentDataString;
-                prevContentStringRef.current = currentContentString;
-                return;
-            }
-        }
-
-        isInitialLoadRef.current = false;
 
         prevDataStringRef.current = currentDataString;
         prevContentStringRef.current = currentContentString;

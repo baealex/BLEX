@@ -58,6 +58,7 @@ const TitleInputs = ({
                 value={title}
                 onChange={(event) => onTitleChange(event.target.value)}
                 maxLength={65}
+                aria-describedby={title.length > 50 ? 'title-character-count' : undefined}
                 className={cx(
                     'w-full border-0 px-0 py-0 text-2xl font-bold leading-tight text-content placeholder-content-hint focus:ring-0 sm:text-3xl lg:text-4xl',
                     inverted && 'bg-transparent text-white placeholder:text-white/65'
@@ -69,7 +70,10 @@ const TitleInputs = ({
                 required
             />
             {title.length > 50 && (
-                <p className={cx('mt-1 text-xs', title.length >= 65 ? 'text-danger' : inverted ? 'text-white/70' : 'text-content-hint')}>
+                <p
+                    id="title-character-count"
+                    aria-live="polite"
+                    className={cx('mt-1 text-xs', title.length >= 65 ? 'text-danger' : inverted ? 'text-white/70' : 'text-content-hint')}>
                     {title.length}/65
                 </p>
             )}

@@ -629,7 +629,7 @@ msgid "comments.validation.reply_required"
 msgstr "Enter a reply."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostEditor/components/PostCoverEditor.tsx:158
+#: src/components/remotes/PostEditor/components/PostCoverEditor.tsx:162
 msgid "common.add"
 msgstr "Add"
 
@@ -650,7 +650,7 @@ msgstr "Apply"
 #: src/components/remotes/PostEditor/components/PostRevisionDialog.tsx:624
 #: src/components/remotes/PostEditor/components/PublishChecklist.tsx:139
 #: src/components/remotes/PostEditor/EditPostEditor.tsx:386
-#: src/components/remotes/PostEditor/NewPostEditor.tsx:397
+#: src/components/remotes/PostEditor/NewPostEditor.tsx:400
 #: src/components/remotes/SettingsApp/components/WebhookChannelManager.tsx:486
 #: src/components/remotes/SettingsApp/pages/AccountSetting/components/TwoFactorModal.tsx:135
 #: src/components/remotes/SettingsApp/pages/FormsSetting/FormsSetting.tsx:291
@@ -754,7 +754,7 @@ msgid "common.dismiss_error"
 msgstr "Dismiss error message"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostEditor/components/SettingsDrawer.tsx:608
+#: src/components/remotes/PostEditor/components/SettingsDrawer.tsx:620
 #: src/components/remotes/PostEditor/utils/firstPublishTour.ts:114
 #: src/components/remotes/SettingsApp/pages/StaticPagesSetting/components/StaticPageEditor.tsx:677
 msgid "common.done"
@@ -862,13 +862,13 @@ msgid "common.processing"
 msgstr "Processing..."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostEditor/components/PostCoverEditor.tsx:305
+#: src/components/remotes/PostEditor/components/PostCoverEditor.tsx:309
 msgid "common.remove"
 msgstr "Remove"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostEditor/components/PostCoverEditor.tsx:156
-#: src/components/remotes/PostEditor/components/PostCoverEditor.tsx:228
+#: src/components/remotes/PostEditor/components/PostCoverEditor.tsx:160
+#: src/components/remotes/PostEditor/components/PostCoverEditor.tsx:232
 msgid "common.replace"
 msgstr "Replace"
 
@@ -943,7 +943,7 @@ msgid "common.upload"
 msgstr "Upload"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostEditor/components/SettingsDrawer.tsx:592
+#: src/components/remotes/PostEditor/components/SettingsDrawer.tsx:604
 msgid "editor.actions.delete_post"
 msgstr "Delete post"
 
@@ -953,15 +953,15 @@ msgid "editor.actions.publish"
 msgstr "Publish"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostEditor/components/PostActions.tsx:246
 #: src/components/remotes/PostEditor/components/PostActions.tsx:250
-#: src/components/remotes/PostEditor/components/PostActions.tsx:261
+#: src/components/remotes/PostEditor/components/PostActions.tsx:254
 #: src/components/remotes/PostEditor/components/PostActions.tsx:265
+#: src/components/remotes/PostEditor/components/PostActions.tsx:269
 msgid "editor.actions.save_draft"
 msgstr "Save draft"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostEditor/NewPostEditor.tsx:635
+#: src/components/remotes/PostEditor/NewPostEditor.tsx:638
 msgid "editor.actions.schedule"
 msgstr "Schedule"
 
@@ -971,33 +971,33 @@ msgid "editor.actions.update"
 msgstr "Update"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostEditor/components/PostActions.tsx:212
+#: src/components/remotes/PostEditor/components/PostActions.tsx:216
 msgid "editor.autosave.countdown"
 msgstr "Save in {seconds, plural, one {# second} other {# seconds}}"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostEditor/components/PostActions.tsx:234
+#: src/components/remotes/PostEditor/components/PostActions.tsx:238
 msgid "editor.autosave.enabled"
 msgstr "Autosave on"
 
 #. js-lingui-explicit-id
 #: src/components/remotes/PostEditor/hooks/useAutoSave.ts:168
-#: src/components/remotes/PostEditor/NewPostEditor.tsx:428
+#: src/components/remotes/PostEditor/NewPostEditor.tsx:431
 msgid "editor.autosave.error"
 msgstr "Could not save the draft."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostEditor/components/PostActions.tsx:205
+#: src/components/remotes/PostEditor/components/PostActions.tsx:209
 msgid "editor.autosave.failed"
 msgstr "Save failed"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostEditor/components/PostActions.tsx:223
+#: src/components/remotes/PostEditor/components/PostActions.tsx:227
 msgid "editor.autosave.pending"
 msgstr "Waiting to save"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostEditor/NewPostEditor.tsx:423
+#: src/components/remotes/PostEditor/NewPostEditor.tsx:426
 msgid "editor.autosave.saved"
 msgstr "Draft saved."
 
@@ -1017,7 +1017,7 @@ msgid "editor.autosave.saved_minutes_ago"
 msgstr "Saved {count, plural, one {# minute ago} other {# minutes ago}}"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostEditor/components/PostActions.tsx:198
+#: src/components/remotes/PostEditor/components/PostActions.tsx:202
 msgid "editor.autosave.saving"
 msgstr "Saving..."
 
@@ -1038,38 +1038,40 @@ msgid "editor.confirm.move_to_trash"
 msgstr "Move this post to the trash? You can restore it from post settings."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostEditor/components/PostCoverEditor.tsx:190
-#: src/components/remotes/PostEditor/components/PostCoverEditor.tsx:300
+#: src/components/remotes/PostEditor/components/PostCoverEditor.tsx:194
+#: src/components/remotes/PostEditor/components/PostCoverEditor.tsx:304
 msgid "editor.cover.add_image"
 msgstr "Add cover image"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostEditor/components/PostCoverEditor.tsx:193
+#: src/components/remotes/PostEditor/components/PostCoverEditor.tsx:197
 msgid "editor.cover.click_to_upload"
 msgstr "Click to upload"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostEditor/components/PostCoverEditor.tsx:142
+#: src/components/remotes/PostEditor/components/PostCoverEditor.tsx:146
 msgid "editor.cover.hidden_image_description"
 msgstr "Used in shares and listings without appearing at the top of the post"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostEditor/components/PostCoverEditor.tsx:146
+#: src/components/remotes/PostEditor/components/PostCoverEditor.tsx:150
 msgid "editor.cover.hidden_image_empty"
 msgstr "Add an image for shares and listings"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostEditor/components/PostCoverEditor.tsx:138
+#: src/components/remotes/PostEditor/components/PostCoverEditor.tsx:142
 msgid "editor.cover.image"
 msgstr "Cover image"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostEditor/components/SettingsDrawer.tsx:492
+#: src/components/remotes/PostEditor/components/SettingsDrawer.tsx:496
+#: src/components/remotes/PostEditor/components/SettingsDrawer.tsx:500
 msgid "editor.cover.image_position"
 msgstr "Image position"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostEditor/components/SettingsDrawer.tsx:505
+#: src/components/remotes/PostEditor/components/SettingsDrawer.tsx:513
+#: src/components/remotes/PostEditor/components/SettingsDrawer.tsx:517
 msgid "editor.cover.image_ratio"
 msgstr "Image ratio"
 
@@ -1149,22 +1151,22 @@ msgid "editor.cover.ratio.wide"
 msgstr "16:9 wide"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostEditor/components/PostCoverEditor.tsx:235
+#: src/components/remotes/PostEditor/components/PostCoverEditor.tsx:239
 msgid "editor.cover.remove_image"
 msgstr "Remove cover image"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostEditor/components/PostCoverEditor.tsx:167
+#: src/components/remotes/PostEditor/components/PostCoverEditor.tsx:171
 msgid "editor.cover.remove_share_image"
 msgstr "Remove sharing image"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostEditor/components/PostCoverEditor.tsx:298
+#: src/components/remotes/PostEditor/components/PostCoverEditor.tsx:302
 msgid "editor.cover.replace_image"
 msgstr "Replace cover image"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostEditor/components/SettingsDrawer.tsx:455
+#: src/components/remotes/PostEditor/components/SettingsDrawer.tsx:459
 msgid "editor.cover.style"
 msgstr "Cover style"
 
@@ -1200,8 +1202,8 @@ msgstr "{count, plural, one {# minute ago} other {# minutes ago}}"
 
 #. js-lingui-explicit-id
 #: src/components/remotes/PostEditor/components/DraftsPanel.tsx:117
-#: src/components/remotes/PostEditor/components/PostActions.tsx:110
-#: src/components/remotes/PostEditor/components/PostActions.tsx:114
+#: src/components/remotes/PostEditor/components/PostActions.tsx:111
+#: src/components/remotes/PostEditor/components/PostActions.tsx:115
 msgid "editor.drafts.title"
 msgstr "Drafts"
 
@@ -1212,7 +1214,7 @@ msgid "editor.drafts.total"
 msgstr "{0, plural, one {# draft} other {# drafts}}"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostEditor/NewPostEditor.tsx:328
+#: src/components/remotes/PostEditor/NewPostEditor.tsx:331
 msgid "editor.error.load_draft"
 msgstr "Could not load the draft."
 
@@ -1222,7 +1224,7 @@ msgid "editor.error.load_post"
 msgstr "Could not load the post."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostEditor/NewPostEditor.tsx:332
+#: src/components/remotes/PostEditor/NewPostEditor.tsx:335
 msgid "editor.error.load_series"
 msgstr "Could not load the series list."
 
@@ -1265,13 +1267,13 @@ msgid "editor.error.update"
 msgstr "Could not update the post."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostEditor/components/PostForm.tsx:83
+#: src/components/remotes/PostEditor/components/PostForm.tsx:87
 #: src/components/remotes/PostEditor/components/PostRevisionDialog.tsx:528
 msgid "editor.fields.content"
 msgstr "Content"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostEditor/components/PostForm.tsx:94
+#: src/components/remotes/PostEditor/components/PostForm.tsx:92
 msgid "editor.fields.content_placeholder"
 msgstr "Start writing..."
 
@@ -1281,27 +1283,27 @@ msgid "editor.fields.description"
 msgstr "Description"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostEditor/components/SettingsDrawer.tsx:552
+#: src/components/remotes/PostEditor/components/SettingsDrawer.tsx:564
 msgid "editor.fields.meta_description"
 msgstr "Search and sharing description"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostEditor/components/SettingsDrawer.tsx:568
+#: src/components/remotes/PostEditor/components/SettingsDrawer.tsx:580
 msgid "editor.fields.meta_description_hint"
 msgstr "Used in search results and shared previews"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostEditor/components/SettingsDrawer.tsx:560
+#: src/components/remotes/PostEditor/components/SettingsDrawer.tsx:572
 msgid "editor.fields.meta_description_placeholder"
 msgstr "Describe this post"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostEditor/components/PostCoverEditor.tsx:77
+#: src/components/remotes/PostEditor/components/PostCoverEditor.tsx:81
 msgid "editor.fields.subtitle"
 msgstr "Subtitle"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostEditor/components/PostCoverEditor.tsx:91
+#: src/components/remotes/PostEditor/components/PostCoverEditor.tsx:95
 msgid "editor.fields.subtitle_placeholder"
 msgstr "Subtitle (optional)"
 
@@ -1311,22 +1313,22 @@ msgid "editor.fields.title"
 msgstr "Title"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostEditor/components/PostCoverEditor.tsx:65
+#: src/components/remotes/PostEditor/components/PostCoverEditor.tsx:66
 msgid "editor.fields.title_placeholder"
 msgstr "Enter a title"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostEditor/components/SettingsDrawer.tsx:530
+#: src/components/remotes/PostEditor/components/SettingsDrawer.tsx:542
 msgid "editor.fields.url"
 msgstr "URL"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostEditor/components/SettingsDrawer.tsx:542
+#: src/components/remotes/PostEditor/components/SettingsDrawer.tsx:554
 msgid "editor.fields.url_collision_hint"
 msgstr "Addresses already in use are adjusted automatically to avoid conflicts"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostEditor/components/SettingsDrawer.tsx:536
+#: src/components/remotes/PostEditor/components/SettingsDrawer.tsx:548
 msgid "editor.fields.url_placeholder"
 msgstr "post-url"
 
@@ -1346,13 +1348,13 @@ msgid "editor.guide.close"
 msgstr "Close guide"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostEditor/NewPostEditor.tsx:468
+#: src/components/remotes/PostEditor/NewPostEditor.tsx:471
 msgid "editor.guide.error.load"
 msgstr "Could not load the guide."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostEditor/NewPostEditor.tsx:582
-#: src/components/remotes/PostEditor/NewPostEditor.tsx:586
+#: src/components/remotes/PostEditor/NewPostEditor.tsx:585
+#: src/components/remotes/PostEditor/NewPostEditor.tsx:589
 msgid "editor.guide.open"
 msgstr "Open first-publish guide"
 
@@ -1377,9 +1379,25 @@ msgid "editor.guide.settings_title"
 msgstr "Optional details can wait"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostEditor/NewPostEditor.tsx:591
+#: src/components/remotes/PostEditor/NewPostEditor.tsx:594
 msgid "editor.guide.title"
 msgstr "First-publish guide"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/NewPostEditor.tsx:260
+msgid "editor.heading.edit_draft"
+msgstr "Edit draft"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/EditPostEditor.tsx:782
+#: src/components/remotes/PostEditor/EditPostEditor.tsx:796
+msgid "editor.heading.edit_post"
+msgstr "Edit post"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/NewPostEditor.tsx:261
+msgid "editor.heading.new_post"
+msgstr "New post"
 
 #. js-lingui-explicit-id
 #: src/components/remotes/PostEditor/EditPostEditor.tsx:787
@@ -1395,13 +1413,13 @@ msgid "editor.media.error.upload"
 msgstr "File upload failed."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostEditor/NewPostEditor.tsx:439
+#: src/components/remotes/PostEditor/NewPostEditor.tsx:442
 msgid "editor.media.wait_before_preview"
 msgstr "Wait for the upload to finish before opening the preview."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostEditor/NewPostEditor.tsx:527
-#: src/components/remotes/PostEditor/NewPostEditor.tsx:553
+#: src/components/remotes/PostEditor/NewPostEditor.tsx:530
+#: src/components/remotes/PostEditor/NewPostEditor.tsx:556
 msgid "editor.media.wait_before_publish"
 msgstr "Wait for the upload to finish before publishing."
 
@@ -1411,13 +1429,13 @@ msgid "editor.media.wait_before_revisions"
 msgstr "Wait for the upload to finish before opening revision history."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostEditor/NewPostEditor.tsx:414
+#: src/components/remotes/PostEditor/NewPostEditor.tsx:417
 msgid "editor.media.wait_before_save"
 msgstr "Wait for the upload to finish before saving."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostEditor/NewPostEditor.tsx:523
-#: src/components/remotes/PostEditor/NewPostEditor.tsx:549
+#: src/components/remotes/PostEditor/NewPostEditor.tsx:526
+#: src/components/remotes/PostEditor/NewPostEditor.tsx:552
 msgid "editor.media.wait_before_schedule"
 msgstr "Wait for the upload to finish before scheduling."
 
@@ -1448,7 +1466,7 @@ msgid "editor.preview.desktop"
 msgstr "Desktop"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostEditor/NewPostEditor.tsx:450
+#: src/components/remotes/PostEditor/NewPostEditor.tsx:453
 msgid "editor.preview.error.save_draft"
 msgstr "Could not save the draft for preview."
 
@@ -1468,8 +1486,8 @@ msgid "editor.preview.mobile"
 msgstr "Mobile"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostEditor/components/PostActions.tsx:129
-#: src/components/remotes/PostEditor/components/PostActions.tsx:134
+#: src/components/remotes/PostEditor/components/PostActions.tsx:131
+#: src/components/remotes/PostEditor/components/PostActions.tsx:136
 msgid "editor.preview.open"
 msgstr "Preview post"
 
@@ -1600,7 +1618,7 @@ msgid "editor.publish.recommended_later"
 msgstr "You can add these later: {fields}"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostEditor/NewPostEditor.tsx:562
+#: src/components/remotes/PostEditor/NewPostEditor.tsx:565
 msgid "editor.publish.recommended_missing"
 msgstr "Recommended fields are empty: {fields}"
 
@@ -1877,8 +1895,8 @@ msgid "editor.revisions.tags_aria_label"
 msgstr "Revision tags"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostEditor/components/PostActions.tsx:153
-#: src/components/remotes/PostEditor/components/PostActions.tsx:157
+#: src/components/remotes/PostEditor/components/PostActions.tsx:156
+#: src/components/remotes/PostEditor/components/PostActions.tsx:160
 #: src/components/remotes/PostEditor/components/PostRevisionDialog.tsx:339
 msgid "editor.revisions.title"
 msgstr "Revision history"
@@ -1933,7 +1951,7 @@ msgid "editor.schedule.error.publish_now"
 msgstr "Could not publish the post now."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostEditor/components/SchedulePicker.tsx:197
+#: src/components/remotes/PostEditor/components/SchedulePicker.tsx:196
 msgid "editor.schedule.hour"
 msgstr "Scheduled hour"
 
@@ -1943,7 +1961,7 @@ msgid "editor.schedule.in_three_hours"
 msgstr "In 3 hours"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostEditor/components/SchedulePicker.tsx:216
+#: src/components/remotes/PostEditor/components/SchedulePicker.tsx:215
 msgid "editor.schedule.minute"
 msgstr "Scheduled minute"
 
@@ -1995,7 +2013,7 @@ msgid "editor.schedule.select_time"
 msgstr "Select a publish time"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostEditor/components/SchedulePicker.tsx:182
+#: src/components/remotes/PostEditor/components/SchedulePicker.tsx:181
 msgid "editor.schedule.time"
 msgstr "Time"
 
@@ -2026,8 +2044,8 @@ msgid "editor.settings.comments_enabled_description"
 msgstr "Readers can add new comments and replies"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostEditor/components/SettingsDrawer.tsx:431
-#: src/components/remotes/PostEditor/components/SettingsDrawer.tsx:441
+#: src/components/remotes/PostEditor/components/SettingsDrawer.tsx:435
+#: src/components/remotes/PostEditor/components/SettingsDrawer.tsx:445
 msgid "editor.settings.no_series"
 msgstr "No series"
 
@@ -2064,18 +2082,19 @@ msgid "editor.settings.publishing"
 msgstr "Publishing"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostEditor/components/SettingsDrawer.tsx:523
+#: src/components/remotes/PostEditor/components/SettingsDrawer.tsx:535
 msgid "editor.settings.search_and_sharing"
 msgstr "Search and sharing"
 
 #. js-lingui-explicit-id
 #: src/components/remotes/PostEditor/components/SettingsDrawer.tsx:412
+#: src/components/remotes/PostEditor/components/SettingsDrawer.tsx:416
 msgid "editor.settings.series"
 msgstr "Series"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostEditor/components/PostActions.tsx:171
 #: src/components/remotes/PostEditor/components/PostActions.tsx:175
+#: src/components/remotes/PostEditor/components/PostActions.tsx:179
 #: src/components/remotes/PostEditor/components/SettingsDrawer.tsx:229
 msgid "editor.settings.title"
 msgstr "Post settings"
@@ -2111,17 +2130,17 @@ msgid "editor.trash.title"
 msgstr "Move to trash"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostEditor/NewPostEditor.tsx:393
+#: src/components/remotes/PostEditor/NewPostEditor.tsx:396
 msgid "editor.unsaved.switch_draft"
 msgstr "Switch draft"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostEditor/NewPostEditor.tsx:389
+#: src/components/remotes/PostEditor/NewPostEditor.tsx:392
 msgid "editor.unsaved.switch_draft_description"
 msgstr "Your current edits have not been saved. Switch to another draft?"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostEditor/NewPostEditor.tsx:385
+#: src/components/remotes/PostEditor/NewPostEditor.tsx:388
 msgid "editor.unsaved.title"
 msgstr "Unsaved changes"
 

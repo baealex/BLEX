@@ -15,6 +15,7 @@ export interface TiptapEditorProps {
     onChange?: (value: string) => void;
     height?: string;
     placeholder?: string;
+    ariaLabel?: string;
     onImageUpload?: (file: File) => Promise<string | undefined>;
     onImageUploadError?: (errorMessage: string) => void;
     onUploadStateChange?: (isUploading: boolean) => void;
@@ -42,6 +43,7 @@ const TiptapEditorContent = ({
     onChange,
     height = 'auto',
     placeholder: placeholderOverride,
+    ariaLabel,
     onImageUpload,
     onImageUploadError,
     onUploadStateChange
@@ -70,7 +72,12 @@ const TiptapEditorContent = ({
         content,
         editable,
         editorProps: {
-            attributes: { class: 'prose prose-lg max-w-none blog-post-content' },
+            attributes: {
+                class: 'prose prose-lg max-w-none blog-post-content',
+                role: 'textbox',
+                'aria-multiline': 'true',
+                ...(ariaLabel ? { 'aria-label': ariaLabel } : {})
+            },
             handleDOMEvents: {
                 drop: (view, event) => {
                     const dataTransfer = event.dataTransfer;
