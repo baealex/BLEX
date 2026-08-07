@@ -14,7 +14,12 @@ const locales = [
         updateUsername: 'Update username',
         name: 'Name',
         updateName: 'Update name',
-        nameUpdated: 'Name updated.'
+        nameUpdated: 'Name updated.',
+        createSeries: 'Create series',
+        seriesEditorTitle: 'Create series',
+        reorderSeries: 'Change order of series: Building in Public',
+        openSeriesMenu: 'Open menu for series: Building in Public',
+        bannerHtml: 'Banner HTML'
     },
     {
         browserLocale: 'ko-KR',
@@ -29,7 +34,12 @@ const locales = [
         updateUsername: '필명 업데이트',
         name: '이름',
         updateName: '이름 업데이트',
-        nameUpdated: '이름을 업데이트했습니다.'
+        nameUpdated: '이름을 업데이트했습니다.',
+        createSeries: '새 시리즈 생성',
+        seriesEditorTitle: '시리즈 생성',
+        reorderSeries: 'Building in Public 시리즈 순서 변경',
+        openSeriesMenu: 'Building in Public 시리즈 메뉴 열기',
+        bannerHtml: '배너 HTML'
     }
 ] as const;
 
@@ -208,6 +218,110 @@ for (const locale of locales) {
 
             await expect.poll(() => submittedName).toBe('Bilingual Writer');
             await expect(page.getByText(locale.nameUpdated, { exact: true })).toBeVisible();
+        });
+
+        test('keeps series list actions and post selection semantically separate', async ({ page }) => {
+            await page.route('**/v1/setting/series', async (route) => {
+                await route.fulfill({
+                    contentType: 'application/json',
+                    body: JSON.stringify({
+                        status: 'DONE',
+                        body: {
+                            username: 'writer',
+                            series: [{
+                                id: 7,
+                                url: 'building-in-public',
+                                title: 'Building in Public',
+                                totalPosts: 2
+                            }]
+                        }
+                    })
+                });
+            });
+            await page.route('**/v1/series/valid-posts', async (route) => {
+                await route.fulfill({
+                    contentType: 'application/json',
+                    body: JSON.stringify({
+                        status: 'DONE',
+                        body: [{
+                            id: 11,
+                            title: 'First audit post',
+                            publishedDate: '2026-08-01'
+                        }]
+                    })
+                });
+            });
+            await page.route('**/v1/setting/account', async (route) => {
+                await route.fulfill({
+                    contentType: 'application/json',
+                    body: JSON.stringify({
+                        status: 'DONE',
+                        body: {
+                            username: 'writer',
+                            name: 'Writer',
+                            email: 'writer@example.com',
+                            createdDate: '2026-08-07',
+                            accountDeletionRedirectUrl: '',
+                            has2fa: false
+                        }
+                    })
+                });
+            });
+
+            const settings = await mountSettingsApp(page, '/settings/series');
+            const seriesHeading = settings.getByRole('heading', {
+                name: 'Building in Public',
+                exact: true
+            });
+            const contentAction = seriesHeading.locator('xpath=ancestor::*[@role="button"][1]');
+            await expect(contentAction).toBeVisible();
+            await expect(contentAction.getByRole('button')).toHaveCount(0);
+            await expect(settings.getByRole('button', {
+                name: locale.reorderSeries,
+                exact: true
+            })).toBeVisible();
+            await expect(settings.getByRole('button', {
+                name: locale.openSeriesMenu,
+                exact: true
+            })).toBeVisible();
+
+            const createSeries = settings.getByRole('button', {
+                name: locale.createSeries,
+                exact: true
+            });
+            await createSeries.focus();
+            await createSeries.press('Enter');
+            await expect(page).toHaveURL(/\/settings\/series\/create$/);
+            await expect(settings.getByRole('heading', {
+                name: locale.seriesEditorTitle,
+                exact: true
+            })).toBeVisible();
+
+            const postCheckbox = settings.getByRole('checkbox', {
+                name: /First audit post/
+            });
+            await expect(postCheckbox).toBeVisible();
+            await expect(settings.getByRole('button', {
+                name: /First audit post/
+            })).toHaveCount(0);
+            await postCheckbox.click();
+            await expect(postCheckbox).toBeChecked();
+        });
+
+        test('shows configuration code fields immediately as native text areas', async ({ page }) => {
+            const settings = await mountSettingsApp(page, '/settings/banners/create');
+            const editor = settings.getByRole('textbox', {
+                name: locale.bannerHtml,
+                exact: true
+            });
+
+            await expect(editor).toBeVisible();
+            expect(await editor.evaluate(element => element.tagName)).toBe('TEXTAREA');
+            await expect(editor).toHaveAttribute('data-language', 'html');
+            await expect(settings.getByRole('status')).toHaveCount(0);
+
+            await editor.fill('<div>Localized banner</div>');
+            await expect(editor).toHaveValue('<div>Localized banner</div>');
         });
 
         test('keeps the notification dialog responsive while its options load', async ({ page }) => {

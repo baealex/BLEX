@@ -341,21 +341,6 @@ msgid "author.pinned_posts.modal_title"
 msgstr "고정 포스트 설정"
 
 #. js-lingui-explicit-id
-#: src/components/CodeEditor.tsx:26
-msgid "code_editor.loading.aria"
-msgstr "코드 편집기 불러오는 중"
-
-#. js-lingui-explicit-id
-#: src/components/CodeEditor.tsx:21
-msgid "code_editor.loading.labelled"
-msgstr "{label} 불러오는 중"
-
-#. js-lingui-explicit-id
-#: src/components/CodeEditor.tsx:42
-msgid "code_editor.loading.visible"
-msgstr "코드 편집기를 불러오는 중입니다..."
-
-#. js-lingui-explicit-id
 #: src/components/remotes/Comments/components/CommentHeader.tsx:29
 msgid "comments.author_avatar"
 msgstr "{author}님의 프로필 이미지"
@@ -668,7 +653,7 @@ msgid "common.change"
 msgstr "변경"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/components/SettingsListItem.tsx:65
+#: src/components/remotes/SettingsApp/components/SettingsListItem.tsx:61
 msgid "common.change_order"
 msgstr "순서 변경"
 
@@ -2454,22 +2439,22 @@ msgid "settings.account.load_failed"
 msgstr "계정 정보를 불러오지 못했습니다."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/AccountSetting/components/NameSection.tsx:59
+#: src/components/remotes/SettingsApp/pages/AccountSetting/components/NameSection.tsx:55
 msgid "settings.account.name.form_label"
 msgstr "이름 변경"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/AccountSetting/components/NameSection.tsx:68
+#: src/components/remotes/SettingsApp/pages/AccountSetting/components/NameSection.tsx:64
 msgid "settings.account.name.label"
 msgstr "이름"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/AccountSetting/components/NameSection.tsx:72
+#: src/components/remotes/SettingsApp/pages/AccountSetting/components/NameSection.tsx:68
 msgid "settings.account.name.placeholder"
 msgstr "이름"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/AccountSetting/components/NameSection.tsx:95
+#: src/components/remotes/SettingsApp/pages/AccountSetting/components/NameSection.tsx:91
 msgid "settings.account.name.update"
 msgstr "이름 업데이트"
 
@@ -2484,7 +2469,7 @@ msgid "settings.account.name.update_success"
 msgstr "이름을 업데이트했습니다."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/AccountSetting/components/NameSection.tsx:91
+#: src/components/remotes/SettingsApp/pages/AccountSetting/components/NameSection.tsx:87
 msgid "settings.account.name.updating"
 msgstr "업데이트 중..."
 
@@ -2679,27 +2664,27 @@ msgid "settings.account.username.different_required"
 msgstr "변경할 사용자 필명을 입력해 주세요."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/AccountSetting/components/UsernameSection.tsx:64
+#: src/components/remotes/SettingsApp/pages/AccountSetting/components/UsernameSection.tsx:60
 msgid "settings.account.username.form_label"
 msgstr "사용자 필명 변경"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/AccountSetting/components/UsernameSection.tsx:82
+#: src/components/remotes/SettingsApp/pages/AccountSetting/components/UsernameSection.tsx:78
 msgid "settings.account.username.helper"
 msgstr "로그인과 주소(URL)에 사용됩니다. 포스트가 있으면 6개월에 한 번만 변경할 수 있습니다."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/AccountSetting/components/UsernameSection.tsx:73
+#: src/components/remotes/SettingsApp/pages/AccountSetting/components/UsernameSection.tsx:69
 msgid "settings.account.username.label"
 msgstr "사용자 필명"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/AccountSetting/components/UsernameSection.tsx:77
+#: src/components/remotes/SettingsApp/pages/AccountSetting/components/UsernameSection.tsx:73
 msgid "settings.account.username.placeholder"
 msgstr "사용자 필명"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/AccountSetting/components/UsernameSection.tsx:104
+#: src/components/remotes/SettingsApp/pages/AccountSetting/components/UsernameSection.tsx:100
 msgid "settings.account.username.update"
 msgstr "필명 업데이트"
 
@@ -2714,7 +2699,7 @@ msgid "settings.account.username.update_success"
 msgstr "사용자 필명을 변경했습니다."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/AccountSetting/components/UsernameSection.tsx:100
+#: src/components/remotes/SettingsApp/pages/AccountSetting/components/UsernameSection.tsx:96
 msgid "settings.account.username.updating"
 msgstr "업데이트 중..."
 
@@ -5790,11 +5775,6 @@ msgstr "포스트 제목 검색"
 #: src/components/remotes/SettingsApp/pages/SeriesSetting/components/PostSelector.tsx:98
 msgid "settings.series.posts.select_all"
 msgstr "전체 선택"
-
-#. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/SeriesSetting/components/PostSelector.tsx:177
-msgid "settings.series.posts.select_post"
-msgstr "포스트 선택: {title}"
 
 #. js-lingui-explicit-id
 #: src/components/remotes/SettingsApp/pages/SeriesSetting/components/PostSelector.tsx:59

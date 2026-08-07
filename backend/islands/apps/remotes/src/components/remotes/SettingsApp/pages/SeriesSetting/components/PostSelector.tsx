@@ -155,48 +155,24 @@ const PostSelector = ({ posts, selectedPostIds, onChange }: PostSelectorProps) =
                         {filteredPosts.map((post) => {
                             const isSelected = selectedPostIdSet.has(post.id);
                             return (
-                                <div
+                                <Checkbox
                                     key={post.id}
-                                    role="button"
-                                    tabIndex={0}
-                                    onClick={() => togglePost(post.id)}
-                                    onKeyDown={(event) => {
-                                        if (event.key === 'Enter' || event.key === ' ') {
-                                            event.preventDefault();
-                                            togglePost(post.id);
-                                        }
-                                    }}
-                                    className={`flex w-full cursor-pointer items-center px-4 py-3.5 transition-colors duration-150 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-line-strong/70 ${
+                                    checked={isSelected}
+                                    label={post.title}
+                                    description={post.publishedDate
+                                        ? formatDateOnly(
+                                            post.publishedDate,
+                                            normalizeLocale(i18n.locale),
+                                            post.publishedDate
+                                        )
+                                        : undefined}
+                                    onCheckedChange={() => togglePost(post.id)}
+                                    className={`w-full cursor-pointer px-4 py-3.5 transition-colors duration-150 ${
                                         isSelected
                                             ? 'bg-surface-subtle'
                                             : 'bg-surface hover:bg-surface-subtle/60'
-                                    }`}>
-                                    <div onClick={(e) => e.stopPropagation()}>
-                                        <Checkbox
-                                            checked={isSelected}
-                                            aria-label={i18n._({
-                                                id: 'settings.series.posts.select_post',
-                                                message: 'Select post: {title}',
-                                                values: { title: post.title }
-                                            })}
-                                            onCheckedChange={() => togglePost(post.id)}
-                                        />
-                                    </div>
-                                    <div className="ml-3 min-w-0 flex-1">
-                                        <span className="block truncate text-sm font-medium text-content">
-                                            {post.title}
-                                        </span>
-                                        {post.publishedDate && (
-                                            <span className="mt-0.5 block text-xs text-content-hint">
-                                                {formatDateOnly(
-                                                    post.publishedDate,
-                                                    normalizeLocale(i18n.locale),
-                                                    post.publishedDate
-                                                )}
-                                            </span>
-                                        )}
-                                    </div>
-                                </div>
+                                    }`}
+                                />
                             );
                         })}
                     </div>

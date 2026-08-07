@@ -341,21 +341,6 @@ msgid "author.pinned_posts.modal_title"
 msgstr "Manage pinned posts"
 
 #. js-lingui-explicit-id
-#: src/components/CodeEditor.tsx:26
-msgid "code_editor.loading.aria"
-msgstr "Loading code editor"
-
-#. js-lingui-explicit-id
-#: src/components/CodeEditor.tsx:21
-msgid "code_editor.loading.labelled"
-msgstr "Loading {label}"
-
-#. js-lingui-explicit-id
-#: src/components/CodeEditor.tsx:42
-msgid "code_editor.loading.visible"
-msgstr "Loading code editor..."
-
-#. js-lingui-explicit-id
 #: src/components/remotes/Comments/components/CommentHeader.tsx:29
 msgid "comments.author_avatar"
 msgstr "Profile image for {author}"
@@ -668,7 +653,7 @@ msgid "common.change"
 msgstr "Change"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/components/SettingsListItem.tsx:65
+#: src/components/remotes/SettingsApp/components/SettingsListItem.tsx:61
 msgid "common.change_order"
 msgstr "Change order"
 
@@ -2454,22 +2439,22 @@ msgid "settings.account.load_failed"
 msgstr "Could not load account information."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/AccountSetting/components/NameSection.tsx:59
+#: src/components/remotes/SettingsApp/pages/AccountSetting/components/NameSection.tsx:55
 msgid "settings.account.name.form_label"
 msgstr "Change name"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/AccountSetting/components/NameSection.tsx:68
+#: src/components/remotes/SettingsApp/pages/AccountSetting/components/NameSection.tsx:64
 msgid "settings.account.name.label"
 msgstr "Name"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/AccountSetting/components/NameSection.tsx:72
+#: src/components/remotes/SettingsApp/pages/AccountSetting/components/NameSection.tsx:68
 msgid "settings.account.name.placeholder"
 msgstr "Your name"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/AccountSetting/components/NameSection.tsx:95
+#: src/components/remotes/SettingsApp/pages/AccountSetting/components/NameSection.tsx:91
 msgid "settings.account.name.update"
 msgstr "Update name"
 
@@ -2484,7 +2469,7 @@ msgid "settings.account.name.update_success"
 msgstr "Name updated."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/AccountSetting/components/NameSection.tsx:91
+#: src/components/remotes/SettingsApp/pages/AccountSetting/components/NameSection.tsx:87
 msgid "settings.account.name.updating"
 msgstr "Updating..."
 
@@ -2679,27 +2664,27 @@ msgid "settings.account.username.different_required"
 msgstr "Enter a different username."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/AccountSetting/components/UsernameSection.tsx:64
+#: src/components/remotes/SettingsApp/pages/AccountSetting/components/UsernameSection.tsx:60
 msgid "settings.account.username.form_label"
 msgstr "Change username"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/AccountSetting/components/UsernameSection.tsx:82
+#: src/components/remotes/SettingsApp/pages/AccountSetting/components/UsernameSection.tsx:78
 msgid "settings.account.username.helper"
 msgstr "Used for sign-in and your URL. If you have published posts, you can change it only once every six months."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/AccountSetting/components/UsernameSection.tsx:73
+#: src/components/remotes/SettingsApp/pages/AccountSetting/components/UsernameSection.tsx:69
 msgid "settings.account.username.label"
 msgstr "Username"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/AccountSetting/components/UsernameSection.tsx:77
+#: src/components/remotes/SettingsApp/pages/AccountSetting/components/UsernameSection.tsx:73
 msgid "settings.account.username.placeholder"
 msgstr "Username"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/AccountSetting/components/UsernameSection.tsx:104
+#: src/components/remotes/SettingsApp/pages/AccountSetting/components/UsernameSection.tsx:100
 msgid "settings.account.username.update"
 msgstr "Update username"
 
@@ -2714,7 +2699,7 @@ msgid "settings.account.username.update_success"
 msgstr "Username changed."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/AccountSetting/components/UsernameSection.tsx:100
+#: src/components/remotes/SettingsApp/pages/AccountSetting/components/UsernameSection.tsx:96
 msgid "settings.account.username.updating"
 msgstr "Updating..."
 
@@ -5790,11 +5775,6 @@ msgstr "Search post titles"
 #: src/components/remotes/SettingsApp/pages/SeriesSetting/components/PostSelector.tsx:98
 msgid "settings.series.posts.select_all"
 msgstr "Select all"
-
-#. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/SeriesSetting/components/PostSelector.tsx:177
-msgid "settings.series.posts.select_post"
-msgstr "Select post: {title}"
 
 #. js-lingui-explicit-id
 #: src/components/remotes/SettingsApp/pages/SeriesSetting/components/PostSelector.tsx:59
