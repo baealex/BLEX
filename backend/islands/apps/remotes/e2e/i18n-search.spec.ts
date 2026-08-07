@@ -23,7 +23,7 @@ test('Django and the search island switch locale as one page', async ({ page, co
     const query = 'React 리액트';
     const userTitle = 'My 리액트 Post';
 
-    await page.route('**/resources/media/images/ghost.jpg', async (route) => {
+    await page.route('**/resources/assets/images/ghost.jpg', async (route) => {
         await route.fulfill({
             contentType: 'image/svg+xml',
             body: '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" />'
@@ -70,6 +70,10 @@ test('Django and the search island switch locale as one page', async ({ page, co
     await expect(page.getByText('1개의 포스트')).toBeVisible();
     await expect(page.getByRole('heading', { name: userTitle })).toBeVisible();
     await expect(page.getByText('제목', { exact: true })).toBeVisible();
+    await expect(page.getByRole('img', { name: 'writer' })).toHaveAttribute(
+        'src',
+        '/resources/assets/images/ghost.jpg'
+    );
     await expect(page).toHaveTitle(new RegExp(`검색: ${query}`));
 
     const csrfToken = await page.evaluate(() => {
