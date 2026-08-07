@@ -171,8 +171,7 @@ const TiptapEditorContent = ({
     const {
         handleDrop: handleMediaDrop,
         handlePaste: handleImagePaste,
-        isUploading,
-        uploadingCount
+        isUploading
     } = useImageUpload({
         editor,
         onImageUpload,
@@ -255,20 +254,6 @@ const TiptapEditorContent = ({
 
             <EditorContent editor={editor} />
 
-            {isEditorUploading && (
-                <div
-                    role="status"
-                    aria-live="polite"
-                    className="flex items-center gap-2 px-3 py-2 text-sm text-content-secondary bg-surface-subtle rounded-lg mt-2 animate-pulse border border-line-light">
-                    <div className="w-4 h-4 border-2 border-line border-t-content-secondary rounded-full animate-spin" />
-                    <span>
-                        {uploadingCount > 1
-                            ? t('upload.status.multiple', { count: uploadingCount })
-                            : t('upload.status.single')}
-                    </span>
-                </div>
-            )}
-
             <style>{`
                 .ProseMirror { min-height: ${height}; }
                 .ProseMirror-focused { outline: none; }
@@ -291,19 +276,16 @@ const TiptapEditorContent = ({
                 .ProseMirror .media-upload-placeholder {
                     display: flex;
                     align-items: center;
-                    gap: 8px;
-                    margin: 16px 0;
-                    padding: 14px 16px;
-                    border: 1px dashed var(--color-line);
-                    border-radius: 8px;
+                    gap: 6px;
+                    margin: 12px 0;
+                    padding: 8px 0;
                     color: var(--color-content-secondary);
-                    background: var(--color-surface-subtle);
                     font-size: 14px;
                     line-height: 1.4;
                 }
                 .ProseMirror .media-upload-placeholder__spinner {
-                    width: 16px;
-                    height: 16px;
+                    width: 14px;
+                    height: 14px;
                     flex: 0 0 auto;
                     border: 2px solid var(--color-line);
                     border-top-color: var(--color-content-secondary);

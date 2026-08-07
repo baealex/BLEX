@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: BLEX 3.1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-08-05 07:47+0900\n"
+"POT-Creation-Date: 2026-08-08 02:01+0900\n"
 "PO-Revision-Date: 2026-07-18 00:00+0900\n"
 "Last-Translator: BLEX contributors\n"
 "Language-Team: Korean\n"
@@ -629,7 +629,6 @@ msgstr "태그 & 메타"
 
 #: board/admin/post.py:395 board/models/posts.py:377 board/models/posts.py:378
 #: board/templates/board/author/author_series.html:20
-#: board/templates/board/author/author_series.html:21
 #: board/templates/board/author/components/tabs_nav.html:22
 #: board/templates/board/posts/post_detail.html:464
 #: board/templates/board/series/series_detail.html:29
@@ -637,7 +636,7 @@ msgid "Series"
 msgstr "시리즈"
 
 #: board/admin/post.py:399 board/models/posts.py:117
-#: board/templates/board/author/author_posts.html:32
+#: board/templates/board/author/author_posts.html:31
 #: board/templates/board/tags/tag_list.html:4
 msgid "Tags"
 msgstr "태그"
@@ -915,8 +914,8 @@ msgid "Edit"
 msgstr "편집"
 
 #: board/admin/series.py:128 board/admin/user.py:897 board/models/posts.py:157
+#: board/templates/board/author/author_posts.html:4
 #: board/templates/board/author/author_posts.html:20
-#: board/templates/board/author/author_posts.html:21
 #: board/templates/board/author/components/featured_posts_section.html:9
 #: board/templates/board/author/components/tabs_nav.html:14
 #: board/views/api/developer/v1/api.py:69
@@ -2611,7 +2610,7 @@ msgstr "외 %(remaining)s개"
 #: board/templates/admin/board/confirm_action.html:41
 #: board/templates/admin/board/notify/bulk_send.html:47
 #: board/templates/admin/board/notify/bulk_send.html:77
-#: board/templates/board/author/components/readme_section.html:113
+#: board/templates/board/author/components/readme_section.html:112
 msgid "Cancel"
 msgstr "취소"
 
@@ -2654,8 +2653,8 @@ msgid "Go back"
 msgstr "뒤로 가기"
 
 #: board/templates/board/404.html:65
-#: board/templates/board/author/author_posts.html:27
-#: board/templates/board/author/author_series.html:27
+#: board/templates/board/author/author_posts.html:26
+#: board/templates/board/author/author_series.html:26
 #: board/templates/components/header.html:123
 #: board/templates/components/header.html:199
 #: board/templates/components/quick_search.html:20
@@ -2673,6 +2672,14 @@ msgstr "홈으로 돌아가기"
 #: board/templates/components/header.html:306
 msgid "Log in"
 msgstr "로그인"
+
+#: board/templates/board/auth/login.html:17
+#: board/templates/board/auth/signup.html:16
+#: board/templates/board/posts/post_editor.html:14
+#: board/templates/board/search/search.html:34
+#: board/templates/board/settings.html:13
+msgid "Loading..."
+msgstr "불러오는 중..."
 
 #: board/templates/board/auth/signup.html:4
 #: board/templates/components/header.html:189
@@ -2715,12 +2722,12 @@ msgid "Write a short introduction for your profile."
 msgstr "자신을 소개하는 글을 작성해 보세요."
 
 #: board/templates/board/author/author_about_edit.html:85
-#: board/templates/board/author/components/readme_section.html:116
+#: board/templates/board/author/components/readme_section.html:115
 msgid "Save"
 msgstr "저장"
 
 #: board/templates/board/author/author_about_edit.html:86
-#: board/templates/board/author/components/readme_section.html:117
+#: board/templates/board/author/components/readme_section.html:116
 msgid "Saving..."
 msgstr "저장 중..."
 
@@ -2770,11 +2777,11 @@ msgstr "아직 공개된 시리즈가 없습니다"
 msgid "Public series will appear here."
 msgstr "시리즈가 공개되면 이곳에 표시됩니다."
 
-#: board/templates/board/author/author_series.html:32
+#: board/templates/board/author/author_series.html:31
 msgid "Sort"
 msgstr "정렬"
 
-#: board/templates/board/author/author_series.html:60
+#: board/templates/board/author/author_series.html:59
 #: board/templates/board/series/series_detail.html:52
 #, python-format
 msgid "%(count)s post"
@@ -2834,16 +2841,15 @@ msgstr "커버 변경"
 msgid "Change profile picture"
 msgstr "프로필 이미지 변경"
 
-#: board/templates/board/author/components/author_header.html:107
+#: board/templates/board/author/components/author_header.html:113
 msgid "Add a social link"
 msgstr "소셜 링크 추가"
 
 #: board/templates/board/author/components/author_notice_list.html:6
-#: board/templates/board/author/components/author_notice_list.html:7
 msgid "Notices"
 msgstr "공지"
 
-#: board/templates/board/author/components/author_notice_list.html:10
+#: board/templates/board/author/components/author_notice_list.html:9
 #, python-format
 msgid "%(count)s notice"
 msgid_plural "%(count)s notices"
@@ -2865,7 +2871,7 @@ msgstr "최근 포스트"
 
 #: board/templates/board/author/components/featured_posts_section.html:50
 #: board/templates/board/series/series_detail.html:118
-#: board/templates/components/post_card.html:41
+#: board/templates/components/post_card.html:48
 #, python-format
 msgid "%(minutes)s min"
 msgid_plural "%(minutes)s mins"
@@ -2880,15 +2886,14 @@ msgid "Write an introduction"
 msgstr "소개글 작성"
 
 #: board/templates/board/author/components/readme_section.html:75
-#: board/templates/board/author/components/readme_section.html:76
 msgid "About"
 msgstr "소개"
 
-#: board/templates/board/author/components/readme_section.html:98
+#: board/templates/board/author/components/readme_section.html:97
 msgid "Edit introduction"
 msgstr "소개글 수정"
 
-#: board/templates/board/author/components/readme_section.html:109
+#: board/templates/board/author/components/readme_section.html:108
 msgid "Write your introduction"
 msgstr "소개글을 작성하세요"
 
@@ -3089,7 +3094,7 @@ msgstr "%(minutes)s분 소요"
 
 #: board/templates/board/posts/interested_posts.html:7
 #: board/templates/board/posts/interested_posts.html:24
-#: board/templates/board/posts/post_list.html:21
+#: board/templates/board/posts/post_list.html:23
 msgid "Liked posts"
 msgstr "관심 포스트"
 
@@ -3280,6 +3285,7 @@ msgid "New post"
 msgstr "새 포스트"
 
 #: board/templates/board/posts/post_list.html:7
+#: board/templates/board/posts/post_list.html:17
 msgid "Latest posts"
 msgstr "최신 포스트"
 

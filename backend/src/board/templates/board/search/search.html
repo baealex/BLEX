@@ -15,6 +15,25 @@ Search - {{ site_name }}
 
 {% block content %}
 <div class="max-w-7xl w-full mx-auto px-4 sm:px-6 py-8 sm:py-12">
-    <island-component name="SearchPage" props="{{ search_page_props }}"></island-component>
+    <island-component
+        name="SearchPage"
+        class="block"
+        data-island-name="SearchPage"
+        data-island-status="pending"
+        props="{{ search_page_props }}"
+    >
+        <div
+            data-island-fallback
+            role="status"
+            aria-live="polite"
+            class="flex min-h-52 items-center justify-center gap-2 py-12 text-sm font-medium text-content-secondary"
+        >
+            <span
+                aria-hidden="true"
+                class="h-4 w-4 animate-spin rounded-full border-2 border-line-strong border-t-action motion-reduce:animate-none"
+            ></span>
+            <span>{% translate "Loading..." %}</span>
+        </div>
+    </island-component>
 </div>
 {% endblock %}

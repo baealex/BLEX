@@ -14,8 +14,9 @@
 {% endblock %}
 
 {% block content %}
+{% translate "Loading..." as island_loading_label %}
 <div class="flex items-center justify-center my-16 px-4 md:px-6">
-    {% island_component 'Login' %}
+    {% island_component 'Login' loading_label=island_loading_label %}
     {% csrf_token %}
 </div>
 {% endblock %}

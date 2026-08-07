@@ -118,3 +118,26 @@ class ViteDevServerTemplateTagTestCase(SimpleTestCase):
                     'http://localhost:8101/@react-refresh',
                     str(island.vite_hmr_client()),
                 )
+
+    def test_full_page_island_can_render_an_escaped_loading_fallback(self):
+        output = str(island.island_component(
+            'SettingsApp',
+            loading_label='<Loading...>',
+            settingsMode='user',
+        ))
+
+        self.assertIn('data-island-fallback', output)
+        self.assertIn('role="status"', output)
+        self.assertIn('&lt;Loading...&gt;', output)
+        self.assertNotIn('%3CLoading', output)
+
+    def test_lazy_island_does_not_render_the_eager_loading_fallback(self):
+        output = str(island.island_component(
+            'RelatedPosts',
+            lazy=True,
+            loading_label='Loading...',
+            postUrl='example',
+        ))
+
+        self.assertIn('lazy="true"', output)
+        self.assertNotIn('data-island-fallback', output)

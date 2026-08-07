@@ -1,8 +1,6 @@
 export const enEditorMessages = {
     'placeholder.content': 'Start writing...',
     'drop.columns': 'Drop files inside a column.',
-    'upload.status.single': 'Uploading file...',
-    'upload.status.multiple': 'Uploading {count} files...',
     'upload.placeholder.image': 'image',
     'upload.placeholder.video': 'video',
     'upload.placeholder.progress': 'Uploading {mediaType}...{fileName}',

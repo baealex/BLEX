@@ -1,4 +1,5 @@
 from django import template
+from django.utils.html import escape
 from django.utils.safestring import mark_safe
 from django.templatetags.static import static
 from django.conf import settings
@@ -155,7 +156,7 @@ def island_css_tag(context, entry_name):
 
 
 @register.simple_tag
-def island_component(component_name, lazy=False, **props):
+def island_component(component_name, lazy=False, loading_label=None, **props):
     """
     템플릿에서 React 컴포넌트를 렌더링하기 위한 템플릿 태그
 
@@ -173,12 +174,27 @@ def island_component(component_name, lazy=False, **props):
 
     props_json = json.dumps(props)
     lazy_attr = ' lazy="true"' if lazy else ''
+    fallback_html = ''
+    if loading_label and not lazy:
+        fallback_html = (
+            '<div data-island-fallback role="status" aria-live="polite" '
+            'class="flex min-h-52 items-center justify-center gap-2 py-12 '
+            'text-sm font-medium text-content-secondary">'
+            '<span aria-hidden="true" class="h-4 w-4 animate-spin rounded-full '
+            'border-2 border-line-strong border-t-action motion-reduce:animate-none"></span>'
+            f'<span>{escape(loading_label)}</span>'
+            '</div>'
+        )
+    fallback_class_attr = 'class="block" ' if fallback_html else ''
     html_output = (
         f'<island-component '
         f'name="{component_name}" '
         f'data-island-name="{component_name}" '
         f'data-island-status="pending" '
-        f'props="{urllib.parse.quote(props_json)}"{lazy_attr}></island-component>'
+        f'{fallback_class_attr}'
+        f'props="{urllib.parse.quote(props_json)}"{lazy_attr}>'
+        f'{fallback_html}'
+        f'</island-component>'
     )
 
     return mark_safe(html_output)

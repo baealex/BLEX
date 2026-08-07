@@ -57,7 +57,9 @@ interface EditableSiteSettings {
 
 interface AssetUploadButtonProps {
     label: string;
+    loadingLabel: string;
     disabled: boolean;
+    isLoading: boolean;
     onUpload: (event: ChangeEvent<HTMLInputElement>) => void;
 }
 
@@ -71,6 +73,8 @@ interface BrandAssetPanelProps {
     hasDarkAsset: boolean;
     darkUploadDisabled: boolean;
     isPending: boolean;
+    uploadingTheme: BrandAssetTheme | null;
+    deletingTheme: BrandAssetTheme | null;
     previewShape: 'logo' | 'icon';
     onUpload: (assetType: BrandAssetType, theme: BrandAssetTheme) => (event: ChangeEvent<HTMLInputElement>) => void;
     onDelete: (assetType: BrandAssetType, theme: BrandAssetTheme) => void;
@@ -84,6 +88,8 @@ interface BrandAssetSlotProps {
     hasAsset: boolean;
     uploadDisabled: boolean;
     deleteDisabled: boolean;
+    isUploading: boolean;
+    isDeleting: boolean;
     onUpload: (event: ChangeEvent<HTMLInputElement>) => void;
     onDelete: () => void;
 }
@@ -121,7 +127,13 @@ const hasSiteSettingsChanged = (current: EditableSiteSettings, saved: EditableSi
     ));
 };
 
-const AssetUploadButton = ({ label, disabled, onUpload }: AssetUploadButtonProps) => {
+const AssetUploadButton = ({
+    label,
+    loadingLabel,
+    disabled,
+    isLoading,
+    onUpload
+}: AssetUploadButtonProps) => {
     const inputRef = useRef<HTMLInputElement>(null);
 
     return (
@@ -139,9 +151,10 @@ const AssetUploadButton = ({ label, disabled, onUpload }: AssetUploadButtonProps
                 size="sm"
                 className="h-11 flex-1 [@media(pointer:fine)]:h-9 sm:flex-none"
                 disabled={disabled}
-                leftIcon={<Upload aria-hidden="true" className="h-3.5 w-3.5" />}
+                isLoading={isLoading}
+                leftIcon={!isLoading ? <Upload aria-hidden="true" className="h-3.5 w-3.5" /> : undefined}
                 onClick={() => inputRef.current?.click()}>
-                {label}
+                {isLoading ? loadingLabel : label}
             </Button>
         </>
     );
@@ -155,6 +168,8 @@ const BrandAssetSlot = ({
     hasAsset,
     uploadDisabled,
     deleteDisabled,
+    isUploading,
+    isDeleting,
     onUpload,
     onDelete
 }: BrandAssetSlotProps) => {
@@ -191,7 +206,12 @@ const BrandAssetSlot = ({
                         id: 'common.upload',
                         message: 'Upload'
                     })}
+                    loadingLabel={t({
+                        id: 'common.uploading',
+                        message: 'Uploading...'
+                    })}
                     disabled={uploadDisabled}
+                    isLoading={isUploading}
                     onUpload={onUpload}
                 />
                 {hasAsset && (
@@ -200,12 +220,18 @@ const BrandAssetSlot = ({
                         variant="danger"
                         size="sm"
                         disabled={deleteDisabled}
+                        isLoading={isDeleting}
                         className="h-11 flex-1 [@media(pointer:fine)]:h-9 sm:flex-none"
                         onClick={onDelete}>
-                        {t({
-                            id: 'common.delete',
-                            message: 'Delete'
-                        })}
+                        {isDeleting
+                            ? t({
+                                id: 'common.deleting',
+                                message: 'Deleting...'
+                            })
+                            : t({
+                                id: 'common.delete',
+                                message: 'Delete'
+                            })}
                     </Button>
                 )}
             </div>
@@ -223,6 +249,8 @@ const BrandAssetPanel = ({
     hasDarkAsset,
     darkUploadDisabled,
     isPending,
+    uploadingTheme,
+    deletingTheme,
     previewShape,
     onUpload,
     onDelete
@@ -247,6 +275,8 @@ const BrandAssetPanel = ({
                     hasAsset={hasDefaultAsset}
                     uploadDisabled={isPending}
                     deleteDisabled={isPending}
+                    isUploading={uploadingTheme === 'default'}
+                    isDeleting={deletingTheme === 'default'}
                     onUpload={onUpload(assetType, 'default')}
                     onDelete={() => onDelete(assetType, 'default')}
                 />
@@ -261,6 +291,8 @@ const BrandAssetPanel = ({
                     hasAsset={hasDarkAsset}
                     uploadDisabled={isPending || darkUploadDisabled}
                     deleteDisabled={isPending}
+                    isUploading={uploadingTheme === 'dark'}
+                    isDeleting={deletingTheme === 'dark'}
                     onUpload={onUpload(assetType, 'dark')}
                     onDelete={() => onDelete(assetType, 'dark')}
                 />
@@ -474,6 +506,8 @@ const SiteSettingSetting = () => {
     };
 
     const assetMutationPending = uploadMutation.isPending || deleteMutation.isPending;
+    const pendingUpload = uploadMutation.isPending ? uploadMutation.variables : null;
+    const pendingDelete = deleteMutation.isPending ? deleteMutation.variables : null;
     const currentSettings: EditableSiteSettings = {
         siteName,
         headerScript,
@@ -567,6 +601,8 @@ const SiteSettingSetting = () => {
                         hasDarkAsset={settingData.hasCustomLogoDark}
                         darkUploadDisabled={!settingData.hasCustomLogo}
                         isPending={assetMutationPending}
+                        uploadingTheme={pendingUpload?.assetType === 'logo' ? pendingUpload.theme : null}
+                        deletingTheme={pendingDelete?.assetType === 'logo' ? pendingDelete.theme : null}
                         previewShape="logo"
                         onUpload={handleBrandAssetUpload}
                         onDelete={handleBrandAssetDelete}
@@ -587,6 +623,8 @@ const SiteSettingSetting = () => {
                         hasDarkAsset={settingData.hasCustomIconDark}
                         darkUploadDisabled={!settingData.hasCustomIcon}
                         isPending={assetMutationPending}
+                        uploadingTheme={pendingUpload?.assetType === 'icon' ? pendingUpload.theme : null}
+                        deletingTheme={pendingDelete?.assetType === 'icon' ? pendingDelete.theme : null}
                         previewShape="icon"
                         onUpload={handleBrandAssetUpload}
                         onDelete={handleBrandAssetDelete}

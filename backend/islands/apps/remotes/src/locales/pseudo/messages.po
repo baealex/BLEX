@@ -716,8 +716,8 @@ msgstr ""
 #: src/components/remotes/SettingsApp/pages/shared/BannerSettingBase.tsx:130
 #: src/components/remotes/SettingsApp/pages/shared/NoticeSettingBase.tsx:229
 #: src/components/remotes/SettingsApp/pages/shared/NoticeSettingBase.tsx:452
-#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:205
-#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:460
+#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:231
+#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:492
 #: src/components/remotes/SettingsApp/pages/StaticPagesSetting/components/StaticPageEditor.tsx:274
 #: src/components/remotes/SettingsApp/pages/StaticPagesSetting/components/StaticPageEditor.tsx:462
 #: src/components/remotes/SettingsApp/pages/StaticPagesSetting/components/StaticPageList.tsx:43
@@ -725,6 +725,11 @@ msgstr ""
 #: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:595
 #: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:720
 msgid "common.delete"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:227
+msgid "common.deleting"
 msgstr ""
 
 #. js-lingui-explicit-id
@@ -894,7 +899,7 @@ msgstr ""
 #. js-lingui-explicit-id
 #: src/components/remotes/Comments/components/CommentEditForm.tsx:87
 #: src/components/remotes/SettingsApp/pages/SeoAeoSetting/SeoAeoSetting.tsx:606
-#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:702
+#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:740
 msgid "common.saving_ellipsis"
 msgstr ""
 
@@ -924,8 +929,13 @@ msgid "common.update"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:190
+#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:205
 msgid "common.upload"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:209
+msgid "common.uploading"
 msgstr ""
 
 #. js-lingui-explicit-id
@@ -3399,7 +3409,7 @@ msgid "settings.developer_api.validation.scope_required"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:276
+#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:308
 msgid "settings.document_title"
 msgstr ""
 
@@ -5784,53 +5794,53 @@ msgid "settings.series.title_count"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:600
+#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:638
 msgid "settings.site.advanced.title"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:515
+#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:549
 msgid "settings.site.basic.title"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:376
-#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:389
+#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:408
+#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:421
 msgid "settings.site.brand.delete_error"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:383
+#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:415
 msgid "settings.site.brand.delete_success"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:453
+#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:485
 msgid "settings.site.brand.delete.dark.message"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:437
+#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:469
 msgid "settings.site.brand.delete.dark.title"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:444
+#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:476
 msgid "settings.site.brand.delete.default_icon.message"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:428
+#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:460
 msgid "settings.site.brand.delete.default_icon.title"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:448
+#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:480
 msgid "settings.site.brand.delete.default_logo.message"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:432
+#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:464
 msgid "settings.site.brand.delete.default_logo.title"
 msgstr ""
 
@@ -5920,136 +5930,136 @@ msgid "settings.site.brand.error.svg_unsupported_element"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:579
+#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:615
 msgid "settings.site.brand.icon.description"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:575
+#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:611
 msgid "settings.site.brand.icon.title"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:546
+#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:580
 msgid "settings.site.brand.immediate_help"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:559
+#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:593
 msgid "settings.site.brand.logo.description"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:555
+#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:589
 msgid "settings.site.brand.logo.title"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:350
-#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:365
+#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:382
+#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:397
 msgid "settings.site.brand.save_error"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:357
+#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:389
 msgid "settings.site.brand.save_success"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:169
+#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:184
 msgid "settings.site.brand.status.custom"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:173
+#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:188
 msgid "settings.site.brand.status.default"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:254
+#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:284
 msgid "settings.site.brand.theme.dark"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:241
+#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:269
 msgid "settings.site.brand.theme.default"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:540
+#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:574
 msgid "settings.site.brand.title"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:667
-#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:673
+#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:705
+#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:711
 msgid "settings.site.global_code.body_end"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:649
-#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:655
+#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:687
+#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:693
 msgid "settings.site.global_code.head"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:494
+#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:528
 msgid "settings.site.global_code.status.active"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:498
+#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:532
 msgid "settings.site.global_code.status.empty"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:489
+#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:523
 msgid "settings.site.global_code.status.unsaved"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:615
+#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:653
 msgid "settings.site.global_code.title"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:637
+#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:675
 msgid "settings.site.global_code.warning"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:289
+#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:321
 msgid "settings.site.load_error"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:531
+#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:565
 msgid "settings.site.name.help"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:523
+#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:557
 msgid "settings.site.name.label"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:706
+#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:744
 msgid "settings.site.save"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:318
-#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:337
+#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:350
+#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:369
 msgid "settings.site.save_error"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:331
+#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:363
 msgid "settings.site.save_success"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:507
+#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:541
 msgid "settings.site.title"
 msgstr ""
 

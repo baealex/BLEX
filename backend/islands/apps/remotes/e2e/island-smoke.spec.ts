@@ -83,6 +83,7 @@ test.describe('island production smoke', () => {
 
             const island = page.locator(`island-component[name="${islandName}"]`);
             await expect(island).toHaveAttribute('data-island-status', 'mounted');
+            await expect(island.locator('[data-island-fallback]')).toHaveCount(0);
 
             expectNoRuntimeErrors(errors);
         });

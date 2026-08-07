@@ -19,7 +19,10 @@ const locales = [
         seriesEditorTitle: 'Create series',
         reorderSeries: 'Change order of series: Building in Public',
         openSeriesMenu: 'Open menu for series: Building in Public',
-        bannerHtml: 'Banner HTML'
+        bannerHtml: 'Banner HTML',
+        upload: 'Upload',
+        uploading: 'Uploading...',
+        brandAssetSaved: 'Brand asset saved.'
     },
     {
         browserLocale: 'ko-KR',
@@ -39,16 +42,23 @@ const locales = [
         seriesEditorTitle: '시리즈 생성',
         reorderSeries: 'Building in Public 시리즈 순서 변경',
         openSeriesMenu: 'Building in Public 시리즈 메뉴 열기',
-        bannerHtml: '배너 HTML'
+        bannerHtml: '배너 HTML',
+        upload: '업로드',
+        uploading: '업로드 중...',
+        brandAssetSaved: '브랜드 자산이 저장되었습니다.'
     }
 ] as const;
 
-const mountSettingsApp = async (page: Page, route: string) => {
+const mountSettingsApp = async (
+    page: Page,
+    route: string,
+    settingsMode: 'user' | 'admin' = 'user'
+) => {
     await page.goto('/login');
     await expect(page.locator('island-component[name="Login"]'))
         .toHaveAttribute('data-island-status', 'mounted');
 
-    await page.evaluate((settingsRoute) => {
+    await page.evaluate(({ route: settingsRoute, settingsMode: mode }) => {
         window.history.replaceState({}, '', settingsRoute);
 
         const settings = document.createElement('island-component');
@@ -57,11 +67,17 @@ const mountSettingsApp = async (page: Page, route: string) => {
             isEditor: true,
             isStaff: true,
             isSuperuser: true,
-            settingsMode: 'user',
-            basePath: '/settings'
+            settingsMode: mode,
+            basePath: mode === 'admin' ? '/admin-settings' : '/settings',
+            adminCapabilities: {
+                canManageSiteSettings: true,
+                canManageLoginSettings: true,
+                canManageIntegrationSettings: true,
+                canManageUtilities: true
+            }
         })));
         document.body.appendChild(settings);
-    }, route);
+    }, { route, settingsMode });
 
     const settings = page.locator('island-component[name="SettingsApp"]');
     await expect(settings).toHaveAttribute('data-island-status', 'mounted');
@@ -322,6 +338,92 @@ for (const locale of locales) {
 
             await editor.fill('<div>Localized banner</div>');
             await expect(editor).toHaveValue('<div>Localized banner</div>');
+        });
+
+        test('keeps brand file uploads visibly in progress at the selected action', async ({ page }) => {
+            let releaseUpload: () => void = () => undefined;
+            let markUploadRequested: () => void = () => undefined;
+            const uploadGate = new Promise<void>((resolve) => {
+                releaseUpload = resolve;
+            });
+            const uploadRequested = new Promise<void>((resolve) => {
+                markUploadRequested = resolve;
+            });
+            const siteSetting = {
+                siteName: 'Northstar Notes',
+                siteDescription: '',
+                logoSvgUrl: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg"/>',
+                logoSvgDarkUrl: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg"/>',
+                iconSvgUrl: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg"/>',
+                iconSvgDarkUrl: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg"/>',
+                faviconUrl: '',
+                iconPngUrls: {},
+                hasCustomLogo: false,
+                hasCustomLogoDark: false,
+                hasCustomIcon: false,
+                hasCustomIconDark: false,
+                headerScript: '',
+                footerScript: '',
+                canManageScripts: true,
+                seoEnabled: true,
+                robotsTxtExtraRules: '',
+                robotsTxtDefault: '',
+                aeoEnabled: true,
+                updatedDate: '2026-08-07T00:00:00Z'
+            };
+
+            await page.route('**/v1/site-settings**', async (route) => {
+                const request = route.request();
+                const path = new URL(request.url()).pathname;
+
+                if (path.endsWith('/brand-assets') && request.method() === 'POST') {
+                    markUploadRequested();
+                    await uploadGate;
+                    await route.fulfill({
+                        contentType: 'application/json',
+                        body: JSON.stringify({ status: 'DONE', body: siteSetting })
+                    });
+                    return;
+                }
+
+                if (path.endsWith('/site-settings') && request.method() === 'GET') {
+                    await route.fulfill({
+                        contentType: 'application/json',
+                        body: JSON.stringify({ status: 'DONE', body: siteSetting })
+                    });
+                    return;
+                }
+
+                await route.fallback();
+            });
+
+            const settings = await mountSettingsApp(
+                page,
+                '/admin-settings/site-settings',
+                'admin'
+            );
+            const fileInput = settings.locator('input[type="file"]').first();
+            const uploadButton = fileInput.locator('xpath=following-sibling::button[1]');
+            await expect(uploadButton).toBeVisible();
+            await expect(uploadButton).toHaveAccessibleName(locale.upload);
+
+            await fileInput.setInputFiles({
+                name: 'northstar.svg',
+                mimeType: 'image/svg+xml',
+                buffer: Buffer.from(
+                    '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 40"><rect width="120" height="40" fill="#111827"/></svg>'
+                )
+            });
+            await uploadRequested;
+
+            await expect(uploadButton).toHaveAccessibleName(locale.uploading);
+            await expect(uploadButton).toHaveAttribute('aria-busy', 'true');
+            await expect(uploadButton).toBeDisabled();
+
+            releaseUpload();
+            await expect(page.getByText(locale.brandAssetSaved, { exact: true })).toBeVisible();
+            await expect(uploadButton).toHaveAccessibleName(locale.upload);
+            await expect(uploadButton).not.toHaveAttribute('aria-busy', 'true');
         });
 
         test('keeps the notification dialog responsive while its options load', async ({ page }) => {
