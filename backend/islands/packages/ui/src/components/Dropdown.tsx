@@ -58,7 +58,7 @@ const Dropdown = ({
     const renderItemContent = (item: DropdownItem) => (
         <>
             {typeof item.icon === 'string' ? (
-                <i className={`${item.icon} w-4 text-center`} />
+                <i aria-hidden="true" className={`${item.icon} w-4 text-center`} />
             ) : item.icon ? (
                 <span
                     aria-hidden="true"

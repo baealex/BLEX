@@ -61,7 +61,10 @@ const likeButton = (options: LikeButtonOptions = {}): Alpine.AlpineComponent<Sta
                 const data = await response.json();
                 this.count = data.count_likes;
                 this.liked = data.has_liked;
+                return;
             }
+
+            window.toast.error(this.errorMessage);
         } catch (error) {
             console.error('Like failed:', error);
             window.toast.error(this.errorMessage);

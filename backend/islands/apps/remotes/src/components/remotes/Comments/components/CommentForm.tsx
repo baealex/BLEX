@@ -38,6 +38,10 @@ export const CommentForm = ({
         id: 'comments.form.submit',
         message: 'Post comment'
     });
+    const loginRequiredLabel = t({
+        id: 'comments.login_required',
+        message: 'Log in to comment'
+    });
     const textareaRef = useRef<HTMLTextAreaElement>(null);
     const [showMentionAutocomplete, setShowMentionAutocomplete] = useState(false);
     const [mentionQuery, setMentionQuery] = useState('');
@@ -135,25 +139,19 @@ export const CommentForm = ({
 
     if (!isLoggedIn) {
         return (
-            <div className="relative group cursor-pointer rounded-xl overflow-hidden" onClick={onShowLoginPrompt}>
-                <textarea
-                    className="w-full p-5 border border-line rounded-xl resize-none bg-surface-subtle text-sm placeholder-content-hint pointer-events-none"
-                    placeholder={resolvedPlaceholder}
-                    rows={3}
-                    disabled
-                    aria-hidden="true"
-                />
-
-                {/* Hover 시 나타나는 안내 */}
-                <div className="absolute inset-0 flex items-center justify-center bg-surface/0 group-hover:bg-surface/90 transition-all duration-200 pointer-events-none">
-                    <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-center gap-2">
-                        <Lock className="w-5 h-5 text-content-secondary" />
-                        <span className="text-sm font-semibold text-content">
-                            <Trans id="comments.login_required">Log in to comment</Trans>
-                        </span>
-                    </div>
-                </div>
-            </div>
+            <button
+                type="button"
+                onClick={onShowLoginPrompt}
+                aria-label={loginRequiredLabel}
+                className="group flex min-h-28 w-full cursor-pointer flex-col items-start justify-between gap-4 rounded-xl border border-line bg-surface-subtle p-5 text-left transition-all duration-150 hover:border-line-strong hover:bg-surface focus:outline-none focus:ring-2 focus:ring-action/20">
+                <span aria-hidden="true" className="text-sm text-content-hint">
+                    {resolvedPlaceholder}
+                </span>
+                <span className="inline-flex items-center gap-2 text-sm font-semibold text-content-secondary transition-colors group-hover:text-content">
+                    <Lock aria-hidden="true" className="h-4 w-4" />
+                    {loginRequiredLabel}
+                </span>
+            </button>
         );
     }
 

@@ -14,43 +14,43 @@ msgstr ""
 "Plural-Forms: \n"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Signup/Signup.tsx:465
+#: src/components/remotes/Signup/Signup.tsx:470
 msgid "auth.fields.confirm_password"
 msgstr "비밀번호 확인"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Signup/Signup.tsx:489
+#: src/components/remotes/Signup/Signup.tsx:494
 msgid "auth.fields.confirm_password_placeholder"
 msgstr "비밀번호를 다시 입력해 주세요"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Signup/Signup.tsx:377
+#: src/components/remotes/Signup/Signup.tsx:382
 msgid "auth.fields.display_name"
 msgstr "표시 이름"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Signup/Signup.tsx:390
+#: src/components/remotes/Signup/Signup.tsx:395
 msgid "auth.fields.display_name_placeholder"
 msgstr "표시 이름을 입력해 주세요"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Signup/Signup.tsx:400
+#: src/components/remotes/Signup/Signup.tsx:405
 msgid "auth.fields.email"
 msgstr "이메일"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Signup/Signup.tsx:413
+#: src/components/remotes/Signup/Signup.tsx:418
 msgid "auth.fields.email_placeholder"
 msgstr "이메일 주소를 입력해 주세요"
 
 #. js-lingui-explicit-id
 #: src/components/remotes/Login/components/LoginForm.tsx:131
-#: src/components/remotes/Signup/Signup.tsx:423
+#: src/components/remotes/Signup/Signup.tsx:428
 msgid "auth.fields.password"
 msgstr "비밀번호"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Signup/Signup.tsx:448
+#: src/components/remotes/Signup/Signup.tsx:453
 msgid "auth.fields.password_new_placeholder"
 msgstr "안전한 비밀번호를 입력해 주세요"
 
@@ -61,13 +61,13 @@ msgstr "비밀번호를 입력해 주세요"
 
 #. js-lingui-explicit-id
 #: src/components/remotes/Login/components/LoginForm.tsx:104
-#: src/components/remotes/Signup/Signup.tsx:333
+#: src/components/remotes/Signup/Signup.tsx:338
 msgid "auth.fields.username"
 msgstr "사용자 이름"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Signup/Signup.tsx:362
-#: src/components/remotes/Signup/Signup.tsx:370
+#: src/components/remotes/Signup/Signup.tsx:367
+#: src/components/remotes/Signup/Signup.tsx:375
 msgid "auth.fields.username_hint"
 msgstr "영문 소문자와 숫자 4~15자"
 
@@ -92,46 +92,46 @@ msgid "auth.login.invalid_credentials"
 msgstr "잘못된 사용자 이름 또는 비밀번호입니다."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Login/Login.tsx:313
+#: src/components/remotes/Login/Login.tsx:318
 msgid "auth.login.no_account"
 msgstr "계정이 없으신가요?"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Login/components/LoginForm.tsx:192
+#: src/components/remotes/Login/components/LoginForm.tsx:197
 msgid "auth.login.submitting"
 msgstr "로그인 중..."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Login/components/LoginForm.tsx:194
-#: src/components/remotes/Login/Login.tsx:265
-#: src/components/remotes/Signup/Signup.tsx:548
+#: src/components/remotes/Login/components/LoginForm.tsx:199
+#: src/components/remotes/Login/Login.tsx:270
+#: src/components/remotes/Signup/Signup.tsx:558
 msgid "auth.login.title"
 msgstr "로그인"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Login/Login.tsx:272
+#: src/components/remotes/Login/Login.tsx:277
 msgid "auth.login.welcome_back"
 msgstr "돌아오신 것을 환영해요"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Signup/Signup.tsx:546
+#: src/components/remotes/Signup/Signup.tsx:556
 msgid "auth.signup.already_have_account"
 msgstr "이미 계정이 있으신가요?"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Signup/Signup.tsx:308
-#: src/components/remotes/Signup/Signup.tsx:533
+#: src/components/remotes/Signup/Signup.tsx:313
+#: src/components/remotes/Signup/Signup.tsx:543
 msgid "auth.signup.as_author"
 msgstr "작가로 가입하기"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Signup/Signup.tsx:310
-#: src/components/remotes/Signup/Signup.tsx:535
+#: src/components/remotes/Signup/Signup.tsx:315
+#: src/components/remotes/Signup/Signup.tsx:545
 msgid "auth.signup.as_reader"
 msgstr "독자로 가입하기"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Signup/Signup.tsx:315
+#: src/components/remotes/Signup/Signup.tsx:320
 msgid "auth.signup.author_description"
 msgstr "초대받은 작가 계정을 만듭니다"
 
@@ -146,7 +146,7 @@ msgid "auth.signup.failed"
 msgstr "회원가입에 실패했습니다."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Signup/Signup.tsx:456
+#: src/components/remotes/Signup/Signup.tsx:461
 msgid "auth.signup.password_strength"
 msgstr "비밀번호 강도: {passwordStrengthLabel}"
 
@@ -171,12 +171,12 @@ msgid "auth.signup.password_strength.weak"
 msgstr "약함"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Signup/Signup.tsx:317
+#: src/components/remotes/Signup/Signup.tsx:322
 msgid "auth.signup.reader_description"
 msgstr "작가들의 이야기를 읽어 보세요"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Login/Login.tsx:315
+#: src/components/remotes/Login/Login.tsx:320
 msgid "auth.signup.title"
 msgstr "회원가입"
 
@@ -201,7 +201,7 @@ msgid "auth.two_factor.back_to_login"
 msgstr "로그인 화면으로 돌아가기"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Login/Login.tsx:270
+#: src/components/remotes/Login/Login.tsx:275
 msgid "auth.two_factor.description"
 msgstr "인증 앱에서 생성된 6자리 코드를 입력해 주세요"
 
@@ -231,17 +231,17 @@ msgid "auth.two_factor.success_redirect"
 msgstr "인증이 완료되었습니다. 잠시 후 홈 페이지로 이동합니다."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Login/Login.tsx:263
+#: src/components/remotes/Login/Login.tsx:268
 msgid "auth.two_factor.title"
 msgstr "이중 인증"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Login/components/TwoFactorForm.tsx:97
+#: src/components/remotes/Login/components/TwoFactorForm.tsx:102
 msgid "auth.two_factor.verify"
 msgstr "인증하기"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Login/components/TwoFactorForm.tsx:95
+#: src/components/remotes/Login/components/TwoFactorForm.tsx:100
 msgid "auth.two_factor.verifying"
 msgstr "인증 중..."
 
@@ -267,8 +267,8 @@ msgstr "이메일을 입력해 주세요."
 
 #. js-lingui-explicit-id
 #: src/components/remotes/Signup/Signup.tsx:229
-#: src/components/remotes/Signup/Signup.tsx:439
-#: src/components/remotes/Signup/Signup.tsx:480
+#: src/components/remotes/Signup/Signup.tsx:444
+#: src/components/remotes/Signup/Signup.tsx:485
 msgid "auth.validation.password_mismatch"
 msgstr "비밀번호가 일치하지 않습니다."
 
@@ -285,7 +285,7 @@ msgstr "비밀번호는 8자 이상이어야 합니다."
 
 #. js-lingui-explicit-id
 #: src/components/remotes/Signup/Signup.tsx:177
-#: src/components/remotes/Signup/Signup.tsx:348
+#: src/components/remotes/Signup/Signup.tsx:353
 msgid "auth.validation.username_characters"
 msgstr "영문 소문자와 숫자만 사용할 수 있습니다."
 
@@ -301,7 +301,7 @@ msgid "auth.validation.username_required"
 msgstr "사용자 이름을 입력해 주세요."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Signup/Signup.tsx:353
+#: src/components/remotes/Signup/Signup.tsx:358
 msgid "auth.validation.username_too_long"
 msgstr "15자를 초과할 수 없습니다."
 
@@ -482,7 +482,7 @@ msgid "comments.empty"
 msgstr "아직 댓글이 없습니다"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Comments/components/CommentForm.tsx:172
+#: src/components/remotes/Comments/components/CommentForm.tsx:170
 msgid "comments.form.content_label"
 msgstr "댓글 내용"
 
@@ -497,17 +497,17 @@ msgid "comments.form.submit"
 msgstr "댓글 작성"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Comments/components/CommentForm.tsx:208
+#: src/components/remotes/Comments/components/CommentForm.tsx:206
 msgid "comments.form.submit_label"
 msgstr "댓글 작성"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Comments/components/CommentForm.tsx:215
+#: src/components/remotes/Comments/components/CommentForm.tsx:213
 msgid "comments.form.submitting"
 msgstr "작성 중..."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Comments/components/CommentForm.tsx:204
+#: src/components/remotes/Comments/components/CommentForm.tsx:202
 msgid "comments.form.submitting_label"
 msgstr "댓글 작성 중"
 
@@ -557,7 +557,7 @@ msgid "comments.loading"
 msgstr "댓글을 불러오는 중..."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Comments/components/CommentForm.tsx:152
+#: src/components/remotes/Comments/components/CommentForm.tsx:41
 msgid "comments.login_required"
 msgstr "로그인하고 댓글 작성"
 
@@ -645,7 +645,7 @@ msgstr "적용"
 
 #. js-lingui-explicit-id
 #: src/components/remotes/Comments/components/CommentEditForm.tsx:69
-#: src/components/remotes/Comments/components/CommentForm.tsx:196
+#: src/components/remotes/Comments/components/CommentForm.tsx:194
 #: src/components/remotes/PostEditor/components/PostRevisionDialog.tsx:606
 #: src/components/remotes/PostEditor/components/PostRevisionDialog.tsx:624
 #: src/components/remotes/PostEditor/components/PublishChecklist.tsx:139
@@ -657,7 +657,7 @@ msgstr "적용"
 #: src/components/remotes/SettingsApp/pages/PinnedPostsSetting/components/AddPinnedPostModal.tsx:220
 #: src/components/remotes/SettingsApp/pages/shared/NoticeSettingBase.tsx:387
 #: src/components/shared/ImageCropDialog.tsx:239
-#: src/contexts/ConfirmContext.tsx:97
+#: src/contexts/ConfirmContext.tsx:98
 msgid "common.cancel"
 msgstr "취소"
 
@@ -680,7 +680,7 @@ msgid "common.close"
 msgstr "닫기"
 
 #. js-lingui-explicit-id
-#: src/contexts/ConfirmContext.tsx:106
+#: src/contexts/ConfirmContext.tsx:107
 msgid "common.confirm"
 msgstr "확인"
 
@@ -857,7 +857,7 @@ msgid "common.previous"
 msgstr "이전"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Signup/Signup.tsx:529
+#: src/components/remotes/Signup/Signup.tsx:539
 msgid "common.processing"
 msgstr "처리 중..."
 
@@ -2167,27 +2167,27 @@ msgstr "취소"
 #. js-lingui-explicit-id
 #: src/contexts/LoginPromptContext.tsx:106
 msgid "login_prompt.description.action"
-msgstr "{action}을(를) 계속하려면 로그인해주세요."
+msgstr "{action}을(를) 계속하려면 로그인해 주세요."
 
 #. js-lingui-explicit-id
 #: src/components/remotes/LoginPrompt/LoginPrompt.tsx:55
 msgid "login_prompt.description.comment"
-msgstr "댓글을 남기려면 로그인해주세요."
+msgstr "댓글을 남기려면 로그인해 주세요."
 
 #. js-lingui-explicit-id
 #: src/components/remotes/LoginPrompt/LoginPrompt.tsx:47
 msgid "login_prompt.description.generic"
-msgstr "계속하려면 로그인해주세요."
+msgstr "계속하려면 로그인해 주세요."
 
 #. js-lingui-explicit-id
 #: src/components/remotes/LoginPrompt/LoginPrompt.tsx:51
 msgid "login_prompt.description.like"
-msgstr "좋아요를 누르려면 로그인해주세요."
+msgstr "좋아요를 누르려면 로그인해 주세요."
 
 #. js-lingui-explicit-id
 #: src/components/remotes/LoginPrompt/LoginPrompt.tsx:59
 msgid "login_prompt.description.reply"
-msgstr "답글을 작성하려면 로그인해주세요."
+msgstr "답글을 작성하려면 로그인해 주세요."
 
 #. js-lingui-explicit-id
 #: src/components/remotes/LoginPrompt/LoginPrompt.tsx:110

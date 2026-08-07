@@ -3194,7 +3194,7 @@ msgstr "목차 보기"
 
 #: board/templates/board/posts/post_detail.html:351
 msgid "Share post or copy link"
-msgstr "게시물 공유 또는 링크 복사"
+msgstr "포스트 공유 또는 링크 복사"
 
 #: board/templates/board/posts/post_detail.html:368
 msgid "Share"
@@ -3446,7 +3446,7 @@ msgstr "좋아요"
 
 #: board/templates/components/like_button.html:13
 msgid "Could not update like. Please try again."
-msgstr "좋아요 처리에 실패했습니다. 다시 시도해주세요."
+msgstr "좋아요 처리에 실패했습니다. 다시 시도해 주세요."
 
 #: board/templates/components/notice_carousel.html:33
 #: board/templates/components/notice_carousel.html:92

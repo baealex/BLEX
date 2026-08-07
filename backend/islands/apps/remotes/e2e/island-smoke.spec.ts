@@ -88,6 +88,41 @@ test.describe('island production smoke', () => {
         });
     }
 
+    test('mounts a zero-height lazy island after the runtime is already active', async ({ page }) => {
+        const errors = collectRuntimeSignals(page);
+
+        await page.goto('/login');
+        await expectIslandBootstrap(page);
+        await expect(page.locator('island-component[name="Login"]'))
+            .toHaveAttribute('data-island-status', 'mounted');
+
+        await page.evaluate(() => {
+            const spacer = document.createElement('div');
+            spacer.style.height = '200vh';
+            document.body.appendChild(spacer);
+
+            const lazyIsland = document.createElement('island-component');
+            lazyIsland.id = 'lazy-island-smoke';
+            lazyIsland.setAttribute('name', 'LoginPrompt');
+            lazyIsland.setAttribute('lazy', 'true');
+            lazyIsland.setAttribute('props', encodeURIComponent(JSON.stringify({
+                isOpen: false,
+                action: 'generic'
+            })));
+            document.body.appendChild(lazyIsland);
+        });
+
+        const lazyIsland = page.locator('#lazy-island-smoke');
+        await expect(lazyIsland).toHaveAttribute('data-island-status', 'pending');
+        await page.evaluate(() => window.scrollTo({
+            top: document.documentElement.scrollHeight,
+            behavior: 'instant'
+        }));
+        await expect(lazyIsland).toHaveAttribute('data-island-status', 'mounted');
+
+        expectNoRuntimeErrors(errors);
+    });
+
     test('global toast mounts its renderer on demand', async ({ page }) => {
         const errors = collectRuntimeSignals(page);
 
