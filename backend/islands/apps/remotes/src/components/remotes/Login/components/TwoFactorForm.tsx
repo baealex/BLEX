@@ -32,23 +32,8 @@ const TwoFactorForm = ({
 }: TwoFactorFormProps) => {
     return (
         <>
-            {/* 2FA Header */}
-            <div className="text-center mb-6">
-                <div className="mx-auto h-14 w-14 bg-action rounded-2xl flex items-center justify-center mb-4 shadow-elevated">
-                    <svg className="w-7 h-7 text-content-inverted" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-                    </svg>
-                </div>
-                <h3 className="text-xl font-bold text-content mb-2 tracking-tight">
-                    <Trans id="auth.two_factor.title">Two-factor authentication</Trans>
-                </h3>
-                <p className="text-sm text-content-secondary">
-                    <Trans id="auth.two_factor.instruction">Enter the 6-digit code from your authenticator app</Trans>
-                </p>
-            </div>
-
             {/* Verification Code Form */}
-            <form className="space-y-6" onSubmit={onSubmit}>
+            <form className="space-y-6" noValidate onSubmit={onSubmit}>
                 <input type="hidden" name="csrfmiddlewaretoken" value={getCsrfToken()} />
 
                 <TwoFactorCodeInput
@@ -72,16 +57,16 @@ const TwoFactorForm = ({
 
                 {/* Error Message */}
                 {verificationError && (
-                    <div className="bg-danger-surface border border-danger-line rounded-xl p-4 flex items-center gap-3">
-                        <i className="fas fa-exclamation-triangle text-danger" />
+                    <div role="alert" className="bg-danger-surface border border-danger-line rounded-xl p-4 flex items-center gap-3">
+                        <i aria-hidden="true" className="fas fa-exclamation-triangle text-danger" />
                         <p className="text-danger text-sm font-medium">{verificationError}</p>
                     </div>
                 )}
 
                 {/* Success Message */}
                 {successMessage && (
-                    <div className="bg-success-surface border border-success-line rounded-xl p-4 flex items-center gap-3">
-                        <i className="fas fa-check-circle text-success" />
+                    <div role="status" className="bg-success-surface border border-success-line rounded-xl p-4 flex items-center gap-3">
+                        <i aria-hidden="true" className="fas fa-check-circle text-success" />
                         <p className="text-success text-sm font-medium">{successMessage}</p>
                     </div>
                 )}
@@ -93,7 +78,12 @@ const TwoFactorForm = ({
                         disabled={isTwoFactorLoading}
                         className="w-full flex items-center justify-center py-3.5 px-6 bg-action hover:bg-action-hover text-content-inverted font-semibold rounded-2xl shadow-floating hover:shadow-floating hover:-translate-y-0.5 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none text-sm">
                         {isTwoFactorLoading && (
-                            <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-content-inverted" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                            <svg
+                                aria-hidden="true"
+                                className="animate-spin -ml-1 mr-2 h-4 w-4 text-content-inverted"
+                                xmlns="http://www.w3.org/2000/svg"
+                                fill="none"
+                                viewBox="0 0 24 24">
                                 <circle
                                     className="opacity-25"
                                     cx="12"

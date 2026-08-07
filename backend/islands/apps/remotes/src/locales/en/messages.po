@@ -14,65 +14,65 @@ msgstr ""
 "Plural-Forms: \n"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Signup/Signup.tsx:427
+#: src/components/remotes/Signup/Signup.tsx:465
 msgid "auth.fields.confirm_password"
 msgstr "Confirm password"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Signup/Signup.tsx:449
+#: src/components/remotes/Signup/Signup.tsx:489
 msgid "auth.fields.confirm_password_placeholder"
 msgstr "Enter your password again"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Signup/Signup.tsx:346
+#: src/components/remotes/Signup/Signup.tsx:377
 msgid "auth.fields.display_name"
 msgstr "Display name"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Signup/Signup.tsx:357
+#: src/components/remotes/Signup/Signup.tsx:390
 msgid "auth.fields.display_name_placeholder"
 msgstr "Enter your display name"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Signup/Signup.tsx:367
+#: src/components/remotes/Signup/Signup.tsx:400
 msgid "auth.fields.email"
 msgstr "Email"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Signup/Signup.tsx:378
+#: src/components/remotes/Signup/Signup.tsx:413
 msgid "auth.fields.email_placeholder"
 msgstr "Enter your email address"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Login/components/LoginForm.tsx:129
-#: src/components/remotes/Signup/Signup.tsx:388
+#: src/components/remotes/Login/components/LoginForm.tsx:131
+#: src/components/remotes/Signup/Signup.tsx:423
 msgid "auth.fields.password"
 msgstr "Password"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Signup/Signup.tsx:410
+#: src/components/remotes/Signup/Signup.tsx:448
 msgid "auth.fields.password_new_placeholder"
 msgstr "Enter a secure password"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Login/components/LoginForm.tsx:140
+#: src/components/remotes/Login/components/LoginForm.tsx:144
 msgid "auth.fields.password_placeholder"
 msgstr "Enter your password"
 
 #. js-lingui-explicit-id
 #: src/components/remotes/Login/components/LoginForm.tsx:104
-#: src/components/remotes/Signup/Signup.tsx:304
+#: src/components/remotes/Signup/Signup.tsx:333
 msgid "auth.fields.username"
 msgstr "Username"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Signup/Signup.tsx:331
-#: src/components/remotes/Signup/Signup.tsx:339
+#: src/components/remotes/Signup/Signup.tsx:362
+#: src/components/remotes/Signup/Signup.tsx:370
 msgid "auth.fields.username_hint"
 msgstr "4–15 lowercase letters or numbers"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Login/components/LoginForm.tsx:115
+#: src/components/remotes/Login/components/LoginForm.tsx:117
 msgid "auth.fields.username_placeholder"
 msgstr "Enter your username"
 
@@ -92,61 +92,61 @@ msgid "auth.login.invalid_credentials"
 msgstr "The username or password is incorrect."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Login/Login.tsx:309
+#: src/components/remotes/Login/Login.tsx:313
 msgid "auth.login.no_account"
 msgstr "Don't have an account?"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Login/components/LoginForm.tsx:188
+#: src/components/remotes/Login/components/LoginForm.tsx:192
 msgid "auth.login.submitting"
 msgstr "Logging in..."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Login/components/LoginForm.tsx:190
-#: src/components/remotes/Login/Login.tsx:261
-#: src/components/remotes/Signup/Signup.tsx:508
+#: src/components/remotes/Login/components/LoginForm.tsx:194
+#: src/components/remotes/Login/Login.tsx:265
+#: src/components/remotes/Signup/Signup.tsx:548
 msgid "auth.login.title"
 msgstr "Log in"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Login/Login.tsx:268
+#: src/components/remotes/Login/Login.tsx:272
 msgid "auth.login.welcome_back"
 msgstr "Welcome back"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Signup/Signup.tsx:506
+#: src/components/remotes/Signup/Signup.tsx:546
 msgid "auth.signup.already_have_account"
 msgstr "Already have an account?"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Signup/Signup.tsx:279
-#: src/components/remotes/Signup/Signup.tsx:493
+#: src/components/remotes/Signup/Signup.tsx:308
+#: src/components/remotes/Signup/Signup.tsx:533
 msgid "auth.signup.as_author"
 msgstr "Sign up as an author"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Signup/Signup.tsx:281
-#: src/components/remotes/Signup/Signup.tsx:495
+#: src/components/remotes/Signup/Signup.tsx:310
+#: src/components/remotes/Signup/Signup.tsx:535
 msgid "auth.signup.as_reader"
 msgstr "Sign up as a reader"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Signup/Signup.tsx:286
+#: src/components/remotes/Signup/Signup.tsx:315
 msgid "auth.signup.author_description"
 msgstr "Create your invited author account"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Signup/Signup.tsx:213
+#: src/components/remotes/Signup/Signup.tsx:241
 msgid "auth.signup.complete_security_check"
 msgstr "Complete the security check."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Signup/Signup.tsx:250
+#: src/components/remotes/Signup/Signup.tsx:279
 msgid "auth.signup.failed"
 msgstr "Could not create your account."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Signup/Signup.tsx:418
+#: src/components/remotes/Signup/Signup.tsx:456
 msgid "auth.signup.password_strength"
 msgstr "Password strength: {passwordStrengthLabel}"
 
@@ -171,12 +171,12 @@ msgid "auth.signup.password_strength.weak"
 msgstr "Weak"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Signup/Signup.tsx:288
+#: src/components/remotes/Signup/Signup.tsx:317
 msgid "auth.signup.reader_description"
 msgstr "Discover stories from independent authors"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Login/Login.tsx:311
+#: src/components/remotes/Login/Login.tsx:315
 msgid "auth.signup.title"
 msgstr "Sign up"
 
@@ -196,12 +196,12 @@ msgid "auth.social.not_configured"
 msgstr "Social login is not configured. Please contact the administrator."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Login/components/TwoFactorForm.tsx:69
+#: src/components/remotes/Login/components/TwoFactorForm.tsx:54
 msgid "auth.two_factor.back_to_login"
 msgstr "Back to login"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Login/Login.tsx:266
+#: src/components/remotes/Login/Login.tsx:270
 msgid "auth.two_factor.description"
 msgstr "Enter the 6-digit code from your authenticator app"
 
@@ -221,11 +221,6 @@ msgid "auth.two_factor.incorrect_code"
 msgstr "The verification code is incorrect."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Login/components/TwoFactorForm.tsx:46
-msgid "auth.two_factor.instruction"
-msgstr "Enter the 6-digit code from your authenticator app"
-
-#. js-lingui-explicit-id
 #: src/components/remotes/Login/Login.tsx:183
 msgid "auth.two_factor.invalid_format"
 msgstr "Enter a valid 6-digit code."
@@ -236,57 +231,77 @@ msgid "auth.two_factor.success_redirect"
 msgstr "Verification complete. Redirecting you to the home page."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Login/components/TwoFactorForm.tsx:43
-#: src/components/remotes/Login/Login.tsx:259
+#: src/components/remotes/Login/Login.tsx:263
 msgid "auth.two_factor.title"
 msgstr "Two-factor authentication"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Login/components/TwoFactorForm.tsx:112
+#: src/components/remotes/Login/components/TwoFactorForm.tsx:97
 msgid "auth.two_factor.verify"
 msgstr "Verify"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Login/components/TwoFactorForm.tsx:110
+#: src/components/remotes/Login/components/TwoFactorForm.tsx:95
 msgid "auth.two_factor.verifying"
 msgstr "Verifying..."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Signup/Signup.tsx:179
+#: src/components/remotes/Signup/Signup.tsx:223
+msgid "auth.validation.confirm_password_required"
+msgstr "Confirm your password."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/Signup/Signup.tsx:190
 msgid "auth.validation.display_name_required"
 msgstr "Display name is required."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Signup/Signup.tsx:186
+#: src/components/remotes/Signup/Signup.tsx:203
+msgid "auth.validation.email_invalid"
+msgstr "Enter a valid email address."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/Signup/Signup.tsx:197
 msgid "auth.validation.email_required"
 msgstr "Email is required."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Signup/Signup.tsx:200
-#: src/components/remotes/Signup/Signup.tsx:401
-#: src/components/remotes/Signup/Signup.tsx:440
+#: src/components/remotes/Signup/Signup.tsx:229
+#: src/components/remotes/Signup/Signup.tsx:439
+#: src/components/remotes/Signup/Signup.tsx:480
 msgid "auth.validation.password_mismatch"
 msgstr "Passwords do not match."
 
 #. js-lingui-explicit-id
 #: src/components/remotes/Login/Login.tsx:110
-#: src/components/remotes/Signup/Signup.tsx:193
+#: src/components/remotes/Signup/Signup.tsx:210
 msgid "auth.validation.password_required"
 msgstr "Password is required."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Signup/Signup.tsx:317
+#: src/components/remotes/Signup/Signup.tsx:216
+msgid "auth.validation.password_too_short"
+msgstr "Password must be at least 8 characters."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/Signup/Signup.tsx:177
+#: src/components/remotes/Signup/Signup.tsx:348
 msgid "auth.validation.username_characters"
 msgstr "Use only lowercase letters and numbers."
 
 #. js-lingui-explicit-id
+#: src/components/remotes/Signup/Signup.tsx:183
+msgid "auth.validation.username_length"
+msgstr "Username must be 4–15 lowercase letters or numbers."
+
+#. js-lingui-explicit-id
 #: src/components/remotes/Login/Login.tsx:103
-#: src/components/remotes/Signup/Signup.tsx:172
+#: src/components/remotes/Signup/Signup.tsx:171
 msgid "auth.validation.username_required"
 msgstr "Username is required."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Signup/Signup.tsx:322
+#: src/components/remotes/Signup/Signup.tsx:353
 msgid "auth.validation.username_too_long"
 msgstr "Username cannot exceed 15 characters."
 
@@ -763,7 +778,7 @@ msgstr "Enable"
 #. js-lingui-explicit-id
 #: src/components/remotes/Login/Login.tsx:156
 #: src/components/remotes/Login/Login.tsx:238
-#: src/components/remotes/Signup/Signup.tsx:256
+#: src/components/remotes/Signup/Signup.tsx:285
 msgid "common.error.try_again"
 msgstr "Something went wrong. Please try again."
 
@@ -842,7 +857,7 @@ msgid "common.previous"
 msgstr "Previous"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Signup/Signup.tsx:489
+#: src/components/remotes/Signup/Signup.tsx:529
 msgid "common.processing"
 msgstr "Processing..."
 

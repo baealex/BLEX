@@ -95,7 +95,7 @@ const LoginForm = ({
     return (
         <>
             {/* Email Login Form */}
-            <form className="space-y-5" onSubmit={onSubmit}>
+            <form className="space-y-5" noValidate onSubmit={onSubmit}>
                 <input type="hidden" name="csrfmiddlewaretoken" value={getCsrfToken()} />
 
                 <div className="space-y-4">
@@ -109,6 +109,8 @@ const LoginForm = ({
                             type="text"
                             autoComplete="username"
                             required
+                            aria-invalid={Boolean(usernameError)}
+                            aria-describedby={usernameError ? 'login-username-error' : undefined}
                             value={username}
                             onChange={(e) => onUsernameChange(e.target.value)}
                             className="w-full px-4 py-3.5 border border-line rounded-lg focus:ring-4 focus:ring-line/5 focus:border-line-strong/30 text-content placeholder-content-hint transition-all duration-200 bg-surface/40 text-sm font-medium"
@@ -118,8 +120,8 @@ const LoginForm = ({
                             })}
                         />
                         {usernameError && (
-                            <p className="text-danger text-xs mt-1.5 font-medium flex items-center gap-1">
-                                <i className="fas fa-exclamation-circle" /> {usernameError}
+                            <p id="login-username-error" role="alert" className="text-danger text-xs mt-1.5 font-medium flex items-center gap-1">
+                                <i aria-hidden="true" className="fas fa-exclamation-circle" /> {usernameError}
                             </p>
                         )}
                     </div>
@@ -134,6 +136,8 @@ const LoginForm = ({
                             type="password"
                             autoComplete="current-password"
                             required
+                            aria-invalid={Boolean(passwordError)}
+                            aria-describedby={passwordError ? 'login-password-error' : undefined}
                             value={password}
                             onChange={(e) => onPasswordChange(e.target.value)}
                             className="w-full px-4 py-3.5 border border-line rounded-lg focus:ring-4 focus:ring-line/5 focus:border-line-strong/30 text-content placeholder-content-hint transition-all duration-200 bg-surface/40 text-sm font-medium"
@@ -143,8 +147,8 @@ const LoginForm = ({
                             })}
                         />
                         {passwordError && (
-                            <p className="text-danger text-xs mt-1.5 font-medium flex items-center gap-1">
-                                <i className="fas fa-exclamation-circle" /> {passwordError}
+                            <p id="login-password-error" role="alert" className="text-danger text-xs mt-1.5 font-medium flex items-center gap-1">
+                                <i aria-hidden="true" className="fas fa-exclamation-circle" /> {passwordError}
                             </p>
                         )}
                     </div>
@@ -159,8 +163,8 @@ const LoginForm = ({
 
                 {/* Error Message */}
                 {loginError && (
-                    <div className="bg-danger-surface border border-danger-line rounded-xl p-4 flex items-center gap-3">
-                        <i className="fas fa-exclamation-triangle text-danger" />
+                    <div role="alert" className="bg-danger-surface border border-danger-line rounded-xl p-4 flex items-center gap-3">
+                        <i aria-hidden="true" className="fas fa-exclamation-triangle text-danger" />
                         <p className="text-danger text-sm font-medium">{loginError}</p>
                     </div>
                 )}
@@ -171,7 +175,12 @@ const LoginForm = ({
                     disabled={isLoading}
                     className="w-full flex items-center justify-center py-3.5 px-6 bg-action hover:bg-action-hover text-content-inverted font-semibold rounded-lg shadow-floating hover:shadow-floating hover:-translate-y-0.5 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none text-sm">
                     {isLoading && (
-                        <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-content-inverted" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <svg
+                            aria-hidden="true"
+                            className="animate-spin -ml-1 mr-2 h-4 w-4 text-content-inverted"
+                            xmlns="http://www.w3.org/2000/svg"
+                            fill="none"
+                            viewBox="0 0 24 24">
                             <circle
                                 className="opacity-25"
                                 cx="12"
