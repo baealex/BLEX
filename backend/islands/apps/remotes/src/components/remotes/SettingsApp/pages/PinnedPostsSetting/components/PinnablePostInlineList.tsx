@@ -1,4 +1,4 @@
-import { Button } from '~/components/shared';
+import { Button, LoadingState } from '~/components/shared';
 import { Trans, useLingui } from '@lingui/react/macro';
 import { Calendar, FileText, Search } from '@blex/ui/icons';
 import {
@@ -79,27 +79,13 @@ export const PinnablePostInlineList = ({
             )}
 
             {isLoading && posts.length === 0 ? (
-                <div
-                    className="space-y-3"
-                    aria-label={t({
+                <LoadingState
+                    type="list"
+                    ariaLabel={t({
                         id: 'settings.pinned_posts.available.loading',
                         message: 'Loading available posts'
-                    })}>
-                    {Array.from({ length: 3 }).map((_, index) => (
-                        <div
-                            key={index}
-                            className="animate-pulse rounded-xl border border-line bg-surface px-4 py-3">
-                            <div className="flex items-center gap-4">
-                                <div className="h-12 w-12 rounded-lg bg-surface-subtle" />
-                                <div className="min-w-0 flex-1 space-y-2">
-                                    <div className="h-4 w-2/3 rounded bg-surface-subtle" />
-                                    <div className="h-3 w-1/3 rounded bg-surface-subtle" />
-                                </div>
-                                <div className="h-9 w-14 rounded-lg bg-surface-subtle" />
-                            </div>
-                        </div>
-                    ))}
-                </div>
+                    })}
+                />
             ) : posts.length === 0 ? (
                 <div className="rounded-xl border border-dashed border-line bg-surface-subtle px-4 py-8 text-center text-sm text-content-secondary">
                     {searchQuery.trim()

@@ -1,7 +1,6 @@
-import { useEffect } from 'react';
 import { useLingui } from '@lingui/react/macro';
 import { toast } from '~/utils/toast';
-import { Modal } from '~/components/shared';
+import { Button, LoadingState, Modal } from '~/components/shared';
 import { updateNotifyConfig } from '~/lib/api/settings';
 
 interface NotifyConfigModalProps {
@@ -48,15 +47,6 @@ const NotifyConfigModal = ({
                 return name;
         }
     };
-
-    useEffect(() => {
-        if (isError) {
-            toast.error(t({
-                id: 'settings.notifications.config.load_failed',
-                message: 'Could not load notification settings.'
-            }));
-        }
-    }, [isError, t]);
 
     const handleToggleConfig = async (name: string) => {
         if (!notifyConfig) return;
@@ -110,8 +100,36 @@ const NotifyConfigModal = ({
             })}
             maxWidth="md">
             <div className="p-6 space-y-2">
-                {isLoading ? null : (
-                    notifyConfig?.map((item) => (
+                {isLoading ? (
+                    <LoadingState
+                        type="spinner"
+                        ariaLabel={t({
+                            id: 'settings.notifications.config.loading',
+                            message: 'Loading notification settings...'
+                        })}
+                    />
+                ) : isError ? (
+                    <div role="alert" className="space-y-4 rounded-xl border border-danger-line bg-danger-surface p-4">
+                        <p className="text-sm text-content-secondary">
+                            {t({
+                                id: 'settings.notifications.config.load_failed',
+                                message: 'Could not load notification settings.'
+                            })}
+                        </p>
+                        <Button
+                            density="compact"
+                            type="button"
+                            variant="secondary"
+                            size="sm"
+                            onClick={refetch}>
+                            {t({
+                                id: 'common.retry',
+                                message: 'Try again'
+                            })}
+                        </Button>
+                    </div>
+                ) : notifyConfig && notifyConfig.length > 0 ? (
+                    notifyConfig.map((item) => (
                         <div key={item.name} className="flex items-center justify-between py-4 px-2 hover:bg-surface-subtle rounded-xl transition-colors group">
                             <span className="text-sm font-semibold text-content group-hover:text-content transition-colors">
                                 {getNotifyLabel(item.name)}
@@ -128,6 +146,13 @@ const NotifyConfigModal = ({
                             </label>
                         </div>
                     ))
+                ) : (
+                    <p role="status" className="py-8 text-center text-sm text-content-secondary">
+                        {t({
+                            id: 'settings.notifications.config.empty',
+                            message: 'No notification options are available.'
+                        })}
+                    </p>
                 )}
             </div>
         </Modal>

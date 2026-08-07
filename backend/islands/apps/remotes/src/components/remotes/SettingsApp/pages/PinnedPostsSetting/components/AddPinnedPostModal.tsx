@@ -7,7 +7,7 @@ import {
     Loader2,
     Search
 } from '@blex/ui/icons';
-import { Input, Modal } from '~/components/shared';
+import { Input, LoadingState, Modal } from '~/components/shared';
 import { getMediaPath } from '~/modules/static.module';
 import type { PinnablePostData, PinnablePostsPaginationData } from '~/lib/api/settings';
 import { PinnablePostsPager } from './PinnablePostsPager';
@@ -116,21 +116,13 @@ export const AddPinnedPostModal = ({
 
             <div className={`flex-1 overflow-y-auto bg-surface-subtle/30 ${presentation === 'inline' ? 'min-h-0 px-4 py-4' : 'p-4'}`}>
                 {isFetchingPosts && pinnablePosts.length === 0 ? (
-                    <div className="grid grid-cols-1 gap-2">
-                        {Array.from({ length: 4 }).map((_, index) => (
-                            <div
-                                key={index}
-                                className="animate-pulse rounded-xl border border-line bg-surface p-4">
-                                <div className="flex items-center gap-4">
-                                    <div className="h-16 w-16 rounded-lg bg-surface-subtle" />
-                                    <div className="min-w-0 flex-1 space-y-2">
-                                        <div className="h-5 w-2/3 rounded bg-surface-subtle" />
-                                        <div className="h-4 w-1/3 rounded bg-surface-subtle" />
-                                    </div>
-                                </div>
-                            </div>
-                        ))}
-                    </div>
+                    <LoadingState
+                        type="list"
+                        ariaLabel={t({
+                            id: 'settings.pinned_posts.available.loading',
+                            message: 'Loading available posts'
+                        })}
+                    />
                 ) : pinnablePosts.length === 0 ? (
                     <div className="flex h-full flex-col items-center justify-center py-12 text-center">
                         <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-surface-subtle">

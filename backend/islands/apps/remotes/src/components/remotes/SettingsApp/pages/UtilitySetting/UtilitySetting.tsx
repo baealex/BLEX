@@ -1122,15 +1122,19 @@ const UtilitySetting = () => {
                         <div className="space-y-4">
                             <div className="flex flex-wrap items-start gap-4">
                                 <div className="w-full min-w-[220px] flex-1">
-                                    <label className="mb-1.5 block text-sm font-medium text-content">
+                                    <span className="mb-1.5 block text-sm font-medium text-content">
                                         {t({
                                             id: 'settings.utility.images.target.label',
                                             message: 'Cleanup target'
                                         })}
-                                    </label>
+                                    </span>
                                     <Select
                                         density="compact"
                                         value={imageTarget}
+                                        ariaLabel={t({
+                                            id: 'settings.utility.images.target.label',
+                                            message: 'Cleanup target'
+                                        })}
                                         onValueChange={(value) => {
                                             setImageTarget(value);
                                             setImageResult(null);

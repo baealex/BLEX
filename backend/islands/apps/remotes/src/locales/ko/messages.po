@@ -351,7 +351,7 @@ msgid "code_editor.loading.labelled"
 msgstr "{label} 불러오는 중"
 
 #. js-lingui-explicit-id
-#: src/components/CodeEditor.tsx:43
+#: src/components/CodeEditor.tsx:42
 msgid "code_editor.loading.visible"
 msgstr "코드 편집기를 불러오는 중입니다..."
 
@@ -654,7 +654,7 @@ msgstr "적용"
 #: src/components/remotes/SettingsApp/components/WebhookChannelManager.tsx:486
 #: src/components/remotes/SettingsApp/pages/AccountSetting/components/TwoFactorModal.tsx:135
 #: src/components/remotes/SettingsApp/pages/FormsSetting/FormsSetting.tsx:291
-#: src/components/remotes/SettingsApp/pages/PinnedPostsSetting/components/AddPinnedPostModal.tsx:220
+#: src/components/remotes/SettingsApp/pages/PinnedPostsSetting/components/AddPinnedPostModal.tsx:212
 #: src/components/remotes/SettingsApp/pages/shared/NoticeSettingBase.tsx:387
 #: src/components/shared/ImageCropDialog.tsx:239
 #: src/contexts/ConfirmContext.tsx:98
@@ -663,7 +663,7 @@ msgstr "취소"
 
 #. js-lingui-explicit-id
 #: src/components/remotes/SettingsApp/pages/AccountSetting/AccountSetting.tsx:69
-#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:514
+#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:519
 msgid "common.change"
 msgstr "변경"
 
@@ -737,8 +737,8 @@ msgstr "생성"
 #: src/components/remotes/SettingsApp/pages/StaticPagesSetting/components/StaticPageEditor.tsx:462
 #: src/components/remotes/SettingsApp/pages/StaticPagesSetting/components/StaticPageList.tsx:43
 #: src/components/remotes/SettingsApp/pages/StaticPagesSetting/StaticPagesSetting.tsx:72
-#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:590
-#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:715
+#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:595
+#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:720
 msgid "common.delete"
 msgstr "삭제"
 
@@ -824,25 +824,25 @@ msgstr "없음"
 
 #. js-lingui-explicit-id
 #: src/components/remotes/SettingsApp/pages/PostsSetting/components/Pagination.tsx:54
-#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:881
+#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:899
 msgid "common.pagination.first"
 msgstr "첫 페이지"
 
 #. js-lingui-explicit-id
 #: src/components/remotes/SettingsApp/pages/PostsSetting/components/Pagination.tsx:129
-#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:928
+#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:946
 msgid "common.pagination.last"
 msgstr "마지막 페이지"
 
 #. js-lingui-explicit-id
 #: src/components/remotes/SettingsApp/pages/PostsSetting/components/Pagination.tsx:117
-#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:916
+#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:934
 msgid "common.pagination.next"
 msgstr "다음 페이지"
 
 #. js-lingui-explicit-id
 #: src/components/remotes/SettingsApp/pages/PostsSetting/components/Pagination.tsx:66
-#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:893
+#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:911
 msgid "common.pagination.previous"
 msgstr "이전 페이지"
 
@@ -873,7 +873,7 @@ msgid "common.replace"
 msgstr "교체"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:771
+#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:784
 msgid "common.reset"
 msgstr "초기화"
 
@@ -887,6 +887,7 @@ msgstr "복원"
 #: src/components/remotes/Comments/Comments.tsx:90
 #: src/components/remotes/PostEditor/components/DraftsPanel.tsx:146
 #: src/components/remotes/PostEditor/components/PostRevisionDialog.tsx:386
+#: src/components/remotes/SettingsApp/pages/NotifySetting/components/NotifyConfigModal.tsx:125
 msgid "common.retry"
 msgstr "다시 시도"
 
@@ -913,7 +914,7 @@ msgid "common.saving_ellipsis"
 msgstr "저장 중..."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:767
+#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:780
 msgid "common.search"
 msgstr "검색"
 
@@ -4096,44 +4097,54 @@ msgid "settings.notices.validation.url_required"
 msgstr "URL을 입력해주세요."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/NotifySetting/components/NotifyConfigModal.tsx:38
+#: src/components/remotes/SettingsApp/pages/NotifySetting/components/NotifyConfigModal.tsx:37
 msgid "settings.notifications.config.comment_likes"
 msgstr "다른 사용자가 내 댓글을 추천할 때"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/NotifySetting/components/NotifyConfigModal.tsx:54
+#: src/components/remotes/SettingsApp/pages/NotifySetting/components/NotifyConfigModal.tsx:151
+msgid "settings.notifications.config.empty"
+msgstr "알림 설정 항목이 없습니다."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/NotifySetting/components/NotifyConfigModal.tsx:114
 #: src/components/remotes/SettingsApp/pages/NotifySetting/NotifySetting.tsx:46
 msgid "settings.notifications.config.load_failed"
 msgstr "알림 설정을 불러오지 못했습니다."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/NotifySetting/components/NotifyConfigModal.tsx:43
+#: src/components/remotes/SettingsApp/pages/NotifySetting/components/NotifyConfigModal.tsx:106
+msgid "settings.notifications.config.loading"
+msgstr "알림 설정 불러오는 중..."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/NotifySetting/components/NotifyConfigModal.tsx:42
 msgid "settings.notifications.config.mentions"
 msgstr "다른 사용자가 댓글에서 나를 언급할 때"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/NotifySetting/components/NotifyConfigModal.tsx:33
+#: src/components/remotes/SettingsApp/pages/NotifySetting/components/NotifyConfigModal.tsx:32
 msgid "settings.notifications.config.post_comments"
 msgstr "다른 사용자가 내 포스트에 댓글을 남길 때"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/NotifySetting/components/NotifyConfigModal.tsx:28
+#: src/components/remotes/SettingsApp/pages/NotifySetting/components/NotifyConfigModal.tsx:27
 msgid "settings.notifications.config.post_likes"
 msgstr "다른 사용자가 내 포스트를 추천할 때"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/NotifySetting/components/NotifyConfigModal.tsx:107
+#: src/components/remotes/SettingsApp/pages/NotifySetting/components/NotifyConfigModal.tsx:97
 msgid "settings.notifications.config.title"
 msgstr "알림 설정"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/NotifySetting/components/NotifyConfigModal.tsx:90
-#: src/components/remotes/SettingsApp/pages/NotifySetting/components/NotifyConfigModal.tsx:96
+#: src/components/remotes/SettingsApp/pages/NotifySetting/components/NotifyConfigModal.tsx:80
+#: src/components/remotes/SettingsApp/pages/NotifySetting/components/NotifyConfigModal.tsx:86
 msgid "settings.notifications.config.update_failed"
 msgstr "알림 설정을 업데이트하지 못했습니다."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/NotifySetting/components/NotifyConfigModal.tsx:84
+#: src/components/remotes/SettingsApp/pages/NotifySetting/components/NotifyConfigModal.tsx:74
 msgid "settings.notifications.config.update_success"
 msgstr "알림 설정을 업데이트했습니다."
 
@@ -4209,17 +4220,18 @@ msgid "settings.pinned_posts.available.limit_reached"
 msgstr "고정 가능한 최대 개수에 도달했습니다. 새 포스트를 고정하려면 기존 고정을 먼저 해제하세요."
 
 #. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PinnedPostsSetting/components/AddPinnedPostModal.tsx:121
 #: src/components/remotes/SettingsApp/pages/PinnedPostsSetting/components/PinnablePostInlineList.tsx:84
 msgid "settings.pinned_posts.available.loading"
 msgstr "고정 가능한 포스트를 불러오는 중"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/PinnedPostsSetting/components/PinnablePostInlineList.tsx:106
+#: src/components/remotes/SettingsApp/pages/PinnedPostsSetting/components/PinnablePostInlineList.tsx:92
 msgid "settings.pinned_posts.available.no_results"
 msgstr "검색 결과가 없습니다."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/PinnedPostsSetting/components/PinnablePostInlineList.tsx:110
+#: src/components/remotes/SettingsApp/pages/PinnedPostsSetting/components/PinnablePostInlineList.tsx:96
 msgid "settings.pinned_posts.available.none_left"
 msgstr "더 고정할 수 있는 포스트가 없습니다."
 
@@ -4289,7 +4301,7 @@ msgid "settings.pinned_posts.pagination.summary"
 msgstr "총 {0}개 중 {start}–{end}개 표시"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/PinnedPostsSetting/components/PinnablePostInlineList.tsx:147
+#: src/components/remotes/SettingsApp/pages/PinnedPostsSetting/components/PinnablePostInlineList.tsx:133
 msgid "settings.pinned_posts.pin"
 msgstr "고정"
 
@@ -4299,7 +4311,7 @@ msgid "settings.pinned_posts.reorder_label"
 msgstr "{title} 고정 포스트 순서 변경"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/PinnedPostsSetting/components/AddPinnedPostModal.tsx:229
+#: src/components/remotes/SettingsApp/pages/PinnedPostsSetting/components/AddPinnedPostModal.tsx:221
 msgid "settings.pinned_posts.select.adding"
 msgstr "추가 중..."
 
@@ -4314,17 +4326,17 @@ msgid "settings.pinned_posts.select.description"
 msgstr "프로필에 보여줄 포스트를 하나 선택하세요."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/PinnedPostsSetting/components/AddPinnedPostModal.tsx:143
+#: src/components/remotes/SettingsApp/pages/PinnedPostsSetting/components/AddPinnedPostModal.tsx:135
 msgid "settings.pinned_posts.select.empty_description"
 msgstr "다른 검색어로 다시 시도해보세요."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/PinnedPostsSetting/components/AddPinnedPostModal.tsx:140
+#: src/components/remotes/SettingsApp/pages/PinnedPostsSetting/components/AddPinnedPostModal.tsx:132
 msgid "settings.pinned_posts.select.empty_title"
 msgstr "검색 결과가 없습니다"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/PinnedPostsSetting/components/AddPinnedPostModal.tsx:150
+#: src/components/remotes/SettingsApp/pages/PinnedPostsSetting/components/AddPinnedPostModal.tsx:142
 msgid "settings.pinned_posts.select.group_label"
 msgstr "고정할 포스트 선택"
 
@@ -4334,17 +4346,17 @@ msgid "settings.pinned_posts.select.modal_description"
 msgstr "프로필에 표시할 포스트를 선택하세요."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/PinnedPostsSetting/components/AddPinnedPostModal.tsx:251
+#: src/components/remotes/SettingsApp/pages/PinnedPostsSetting/components/AddPinnedPostModal.tsx:243
 msgid "settings.pinned_posts.select.modal_title"
 msgstr "포스트 고정하기"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/PinnedPostsSetting/components/AddPinnedPostModal.tsx:232
+#: src/components/remotes/SettingsApp/pages/PinnedPostsSetting/components/AddPinnedPostModal.tsx:224
 msgid "settings.pinned_posts.select.pin"
 msgstr "포스트 고정"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/PinnedPostsSetting/components/AddPinnedPostModal.tsx:162
+#: src/components/remotes/SettingsApp/pages/PinnedPostsSetting/components/AddPinnedPostModal.tsx:154
 msgid "settings.pinned_posts.select.post_label"
 msgstr "고정할 포스트 선택: {title}"
 
@@ -4521,12 +4533,12 @@ msgid "settings.posts.empty.drafts"
 msgstr "임시 포스트가 없습니다"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/PostsSetting/PostsSetting.tsx:221
+#: src/components/remotes/SettingsApp/pages/PostsSetting/PostsSetting.tsx:236
 msgid "settings.posts.empty.published"
 msgstr "발행 포스트가 없습니다"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/PostsSetting/PostsSetting.tsx:235
+#: src/components/remotes/SettingsApp/pages/PostsSetting/PostsSetting.tsx:250
 msgid "settings.posts.empty.scheduled"
 msgstr "예약 포스트가 없습니다"
 
@@ -4550,6 +4562,11 @@ msgstr "필터 접기"
 #: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostsFilter.tsx:198
 msgid "settings.posts.filters.expand"
 msgstr "필터 더보기"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PostsSetting/PostsSetting.tsx:195
+msgid "settings.posts.filters.loading"
+msgstr "포스트 필터 불러오는 중..."
 
 #. js-lingui-explicit-id
 #: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostsFilter.tsx:157
@@ -4620,6 +4637,11 @@ msgstr "발행 후 공개 상태"
 #: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostsFilter.tsx:373
 msgid "settings.posts.filters.visibility_aria"
 msgstr "공개 상태 필터 선택, 현재 {visibility}"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PostsSetting/PostsSetting.tsx:222
+msgid "settings.posts.list.loading"
+msgstr "포스트 불러오는 중..."
 
 #. js-lingui-explicit-id
 #: src/components/remotes/SettingsApp/pages/PostsSetting/hooks/usePostsData.ts:404
@@ -6583,7 +6605,7 @@ msgid "settings.telegram.token.generating"
 msgstr "생성 중..."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:609
+#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:614
 msgid "settings.users.description"
 msgstr "관리자 권한은 Django 관리자에서만 변경할 수 있습니다."
 
@@ -6609,35 +6631,35 @@ msgstr "이메일"
 
 #. js-lingui-explicit-id
 #: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:302
-#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:789
+#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:802
 msgid "settings.users.field.joined"
 msgstr "가입일"
 
 #. js-lingui-explicit-id
 #: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:288
-#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:810
+#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:823
 msgid "settings.users.field.no_email"
 msgstr "이메일 없음"
 
 #. js-lingui-explicit-id
 #: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:296
-#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:787
+#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:800
 msgid "settings.users.field.posts"
 msgstr "포스트"
 
 #. js-lingui-explicit-id
 #: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:312
-#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:786
+#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:799
 msgid "settings.users.field.role"
 msgstr "권한"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:788
+#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:801
 msgid "settings.users.field.status"
 msgstr "상태"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:785
+#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:798
 msgid "settings.users.field.user"
 msgstr "사용자"
 
@@ -6662,124 +6684,134 @@ msgid "settings.users.filter.readers"
 msgstr "독자만"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:691
+#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:771
+msgid "settings.users.filters.ordering_aria"
+msgstr "사용자 정렬"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:761
+msgid "settings.users.filters.role_aria"
+msgstr "사용자 역할로 필터"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:696
 msgid "settings.users.invites.claimed_by"
 msgstr "{username} 가입 완료"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:706
+#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:711
 msgid "settings.users.invites.copy_action"
 msgstr "링크 복사"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:573
+#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:578
 msgid "settings.users.invites.copy_failed"
 msgstr "초대 링크를 복사하지 못했습니다."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:568
+#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:573
 msgid "settings.users.invites.copy_success"
 msgstr "초대 링크를 복사했습니다."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:669
+#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:674
 msgid "settings.users.invites.create_action"
 msgstr "초대 링크 만들기"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:451
+#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:456
 msgid "settings.users.invites.create_and_copy_success"
 msgstr "작가 초대 링크를 만들고 클립보드에 복사했습니다."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:464
 #: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:469
+#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:474
 msgid "settings.users.invites.create_failed"
 msgstr "초대 링크를 만들지 못했습니다."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:456
+#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:461
 msgid "settings.users.invites.create_success"
 msgstr "작가 초대 링크를 만들었습니다."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:486
 #: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:491
+#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:496
 msgid "settings.users.invites.delete_failed"
 msgstr "초대 링크를 삭제하지 못했습니다."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:479
+#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:484
 msgid "settings.users.invites.delete_success"
 msgstr "초대 링크를 삭제했습니다."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:586
+#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:591
 msgid "settings.users.invites.delete.message"
 msgstr "이 초대 링크를 삭제할까요? 삭제하면 해당 링크로 가입할 수 없습니다."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:582
+#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:587
 msgid "settings.users.invites.delete.title"
 msgstr "초대 링크 삭제"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:652
+#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:657
 msgid "settings.users.invites.description"
 msgstr "초대 링크로 가입하면 즉시 작가 권한이 부여됩니다."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:723
+#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:728
 msgid "settings.users.invites.empty"
 msgstr "초대 링크가 없습니다."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:388
+#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:393
 msgid "settings.users.invites.load_failed"
 msgstr "초대 링크를 불러오지 못했습니다."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:681
+#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:686
 msgid "settings.users.invites.status.claimed"
 msgstr "사용됨"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:685
+#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:690
 msgid "settings.users.invites.status.pending"
 msgstr "대기"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:648
+#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:653
 msgid "settings.users.invites.title"
 msgstr "작가 초대"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:660
+#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:665
 msgid "settings.users.invites.usage_notice"
 msgstr "초대 링크는 한 번만 사용할 수 있으며, 사용 전에는 삭제할 수 있습니다."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:852
+#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:870
 msgid "settings.users.list.empty"
 msgstr "검색 결과가 없습니다."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:846
+#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:864
 msgid "settings.users.list.error"
 msgstr "사용자 목록을 불러오지 못했습니다. 잠시 후 다시 시도해주세요."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:731
+#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:736
 msgid "settings.users.list.title"
 msgstr "사용자 목록"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:779
+#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:792
 msgid "settings.users.list.updating"
 msgstr "사용자 목록을 업데이트하는 중입니다…"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:373
+#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:378
 msgid "settings.users.load_failed"
 msgstr "사용자 목록을 불러오지 못했습니다."
 
@@ -6814,28 +6846,28 @@ msgid "settings.users.order.username_desc"
 msgstr "아이디 내림차순"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:861
+#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:879
 msgid "settings.users.pagination.summary"
 msgstr "총 {total}명 중 {start}–{end}명 표시"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:433
 #: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:438
+#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:443
 msgid "settings.users.role_change.failed"
 msgstr "권한을 변경하지 못했습니다."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:505
+#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:510
 msgid "settings.users.role_change.message"
 msgstr "{username}님의 권한을 {currentRole}에서 {nextRole}로 변경할까요?"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:422
+#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:427
 msgid "settings.users.role_change.success"
 msgstr "{username}님의 권한을 {role}로 변경했습니다."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:501
+#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:506
 msgid "settings.users.role_change.title"
 msgstr "권한 변경"
 
@@ -6850,37 +6882,43 @@ msgid "settings.users.role.reader"
 msgstr "독자"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:739
+#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:318
+#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:835
+msgid "settings.users.role.select_aria"
+msgstr "{username} 역할 변경"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:744
 msgid "settings.users.search.label"
 msgstr "사용자 검색"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:743
+#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:748
 msgid "settings.users.search.placeholder"
 msgstr "아이디·이름·이메일 검색"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:641
+#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:646
 msgid "settings.users.stats.administrators"
 msgstr "관리자"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:629
+#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:634
 msgid "settings.users.stats.authors"
 msgstr "작가"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:616
+#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:621
 msgid "settings.users.stats.label"
 msgstr "사용자 통계"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:635
+#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:640
 msgid "settings.users.stats.readers"
 msgstr "독자"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:623
+#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:628
 msgid "settings.users.stats.total"
 msgstr "전체"
 
@@ -6905,14 +6943,14 @@ msgid "settings.users.status.superuser"
 msgstr "최고 관리자"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:605
+#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:610
 msgid "settings.users.title"
 msgstr "사용자 권한"
 
 #. js-lingui-explicit-id
 #: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:902
 #: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:1084
-#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:1164
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:1168
 msgid "settings.utility.action.preview"
 msgstr "삭제 대상 확인"
 
@@ -6922,7 +6960,7 @@ msgid "settings.utility.description"
 msgstr "삭제 대상을 확인한 뒤 5분 안에 정리를 실행하세요."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:1168
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:1172
 msgid "settings.utility.images.action.delete"
 msgstr "대상 이미지와 캐시 삭제"
 
@@ -6952,12 +6990,12 @@ msgid "settings.utility.images.description"
 msgstr "선택한 영역에서 사용되지 않는 이미지 파일을 찾아 삭제합니다."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:1155
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:1159
 msgid "settings.utility.images.duplicates.description"
 msgstr "전체 또는 타이틀 이미지 정리 시 내용이 같은 파일도 함께 삭제합니다."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:1151
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:1155
 msgid "settings.utility.images.duplicates.label"
 msgstr "중복 타이틀 이미지도 삭제"
 
@@ -7044,6 +7082,7 @@ msgstr "콘텐츠 이미지"
 
 #. js-lingui-explicit-id
 #: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:1126
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:1134
 msgid "settings.utility.images.target.label"
 msgstr "정리 대상"
 

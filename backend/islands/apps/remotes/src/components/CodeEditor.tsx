@@ -36,20 +36,13 @@ export const CodeEditor = ({ error, ...props }: CodeEditorProps) => {
                         role="status"
                         aria-live="polite"
                         aria-label={loadingLabel}
-                        className="flex flex-col items-center justify-center gap-4 rounded-lg border border-line bg-surface-subtle px-6 text-content-secondary"
+                        className="flex items-center justify-center gap-2 rounded-lg border border-line bg-surface-subtle px-6 text-sm font-medium text-content-secondary"
                         style={{ height }}>
-                        <span className="flex items-center gap-2 text-sm font-medium">
-                            <Loader2 aria-hidden="true" className="h-4 w-4 animate-spin motion-reduce:animate-none" />
-                            {t({
-                                id: 'code_editor.loading.visible',
-                                message: 'Loading code editor...'
-                            })}
-                        </span>
-                        <span aria-hidden="true" className="w-full max-w-md space-y-2">
-                            <span className="block h-2 w-full animate-pulse rounded bg-line motion-reduce:animate-none" />
-                            <span className="block h-2 w-4/5 animate-pulse rounded bg-line motion-reduce:animate-none" />
-                            <span className="block h-2 w-3/5 animate-pulse rounded bg-line motion-reduce:animate-none" />
-                        </span>
+                        <Loader2 aria-hidden="true" className="h-4 w-4 animate-spin motion-reduce:animate-none" />
+                        {t({
+                            id: 'code_editor.loading.visible',
+                            message: 'Loading code editor...'
+                        })}
                     </div>
                 }>
                 <CodeEditorMonaco {...props} />
