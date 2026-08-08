@@ -133,8 +133,10 @@ test.describe('PostEditor media drag and drop', () => {
             type: 'image/png'
         });
 
-        await expect(editor.locator('.media-upload-placeholder')).toContainText('이미지 업로드 중');
-        await expect(page.locator('[role="status"]')).toContainText('파일 업로드 중');
+        const uploadStatus = editor.locator('.media-upload-placeholder');
+        await expect(uploadStatus).toHaveAttribute('role', 'status');
+        await expect(uploadStatus).toContainText('이미지 업로드 중');
+        await expect(page.locator('[role="status"]')).toHaveCount(1);
 
         finishUpload?.();
 

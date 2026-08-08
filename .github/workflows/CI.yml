@@ -133,6 +133,7 @@ jobs:
         pnpm --filter @blex/remotes exec playwright test
         --config playwright.config.ts
         e2e/editor-media-upload.spec.ts
+        e2e/i18n-auth.spec.ts
         e2e/i18n-search.spec.ts
       working-directory: backend/islands
       env:

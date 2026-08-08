@@ -7,7 +7,7 @@ import {
     Trash2,
     type LucideIcon
 } from '@blex/ui/icons';
-import { Button, Tabs } from '~/components/shared';
+import { Button, LoadingState, Tabs } from '~/components/shared';
 import { SettingsHeader } from '../../components';
 import { usePostsFilterState } from './hooks/usePostsData';
 import {
@@ -170,16 +170,16 @@ const PostsSetting = () => {
                         id: 'settings.posts.tabs.aria',
                         message: 'Post status'
                     })}
-                    className="mb-6 gap-1 overflow-x-auto border-line-light">
+                    className="mb-6 grid grid-cols-4 gap-0 border-line-light sm:flex sm:gap-1">
                     {postStatusTabs.map((tab) => {
                         const TabIcon = tab.icon;
                         return (
                             <Tabs.Trigger
                                 key={tab.value}
                                 value={tab.value}
-                                className="inline-flex min-h-11 flex-shrink-0 items-center gap-2 px-3 py-2.5 [@media(pointer:fine)]:min-h-10">
-                                <TabIcon aria-hidden className="h-3.5 w-3.5" />
-                                {tab.label}
+                                className="inline-flex min-h-11 min-w-0 items-center justify-center gap-1 px-1 py-2.5 text-xs [@media(pointer:fine)]:min-h-10 sm:flex-shrink-0 sm:gap-2 sm:px-3 sm:text-sm">
+                                <TabIcon aria-hidden className="hidden h-3.5 w-3.5 sm:block" />
+                                <span className="truncate">{tab.label}</span>
                             </Tabs.Trigger>
                         );
                     })}
@@ -187,7 +187,18 @@ const PostsSetting = () => {
 
                 <Tabs.Content value={activeTab}>
                     {(activeTab === 'published' || activeTab === 'scheduled') && (
-                        <Suspense fallback={<div className="mb-6 h-32 animate-pulse rounded-lg bg-surface-subtle" />}>
+                        <Suspense
+                            fallback={(
+                                <div className="mb-6">
+                                    <LoadingState
+                                        type="spinner"
+                                        ariaLabel={t({
+                                            id: 'settings.posts.filters.loading',
+                                            message: 'Loading post filters...'
+                                        })}
+                                    />
+                                </div>
+                            )}>
                             <PostsFilter
                                 filters={filters}
                                 searchValue={searchValue}
@@ -205,10 +216,14 @@ const PostsSetting = () => {
 
                     <Suspense
                         fallback={
-                            <div className="mt-6 space-y-3">
-                                {[1, 2, 3].map(i => (
-                                    <div key={i} className="h-40 animate-pulse rounded-lg border border-line-light bg-surface-subtle" />
-                                ))}
+                            <div className="mt-6">
+                                <LoadingState
+                                    type="list"
+                                    ariaLabel={t({
+                                        id: 'settings.posts.list.loading',
+                                        message: 'Loading posts...'
+                                    })}
+                                />
                             </div>
                         }>
                         <div className="mt-6">

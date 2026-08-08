@@ -1,8 +1,6 @@
-import { lazy, Suspense } from 'react';
-import { useLingui } from '@lingui/react/macro';
-import { AlertCircle, Loader2 } from '@blex/ui/icons';
-
-const CodeEditorMonaco = lazy(() => import('./CodeEditor.monaco'));
+import { useId } from 'react';
+import { AlertCircle } from '@blex/ui/icons';
+import { cx } from '~/lib/classnames';
 
 interface CodeEditorProps {
     language?: 'html' | 'javascript' | 'css' | 'plaintext';
@@ -14,48 +12,46 @@ interface CodeEditorProps {
     ariaLabel?: string;
 }
 
-export const CodeEditor = ({ error, ...props }: CodeEditorProps) => {
-    const { i18n, t } = useLingui();
-    const height = props.height ?? '300px';
-    const loadingLabel = props.ariaLabel
-        ? i18n._({
-            id: 'code_editor.loading.labelled',
-            message: 'Loading {label}',
-            values: { label: props.ariaLabel }
-        })
-        : t({
-            id: 'code_editor.loading.aria',
-            message: 'Loading code editor'
-        });
+export const CodeEditor = ({
+    language = 'plaintext',
+    value,
+    onChange,
+    height = '300px',
+    error,
+    readOnly,
+    ariaLabel
+}: CodeEditorProps) => {
+    const errorId = useId();
 
     return (
         <div>
-            <Suspense
-                fallback={
-                    <div
-                        role="status"
-                        aria-live="polite"
-                        aria-label={loadingLabel}
-                        className="flex flex-col items-center justify-center gap-4 rounded-lg border border-line bg-surface-subtle px-6 text-content-secondary"
-                        style={{ height }}>
-                        <span className="flex items-center gap-2 text-sm font-medium">
-                            <Loader2 aria-hidden="true" className="h-4 w-4 animate-spin motion-reduce:animate-none" />
-                            {t({
-                                id: 'code_editor.loading.visible',
-                                message: 'Loading code editor...'
-                            })}
-                        </span>
-                        <span aria-hidden="true" className="w-full max-w-md space-y-2">
-                            <span className="block h-2 w-full animate-pulse rounded bg-line motion-reduce:animate-none" />
-                            <span className="block h-2 w-4/5 animate-pulse rounded bg-line motion-reduce:animate-none" />
-                            <span className="block h-2 w-3/5 animate-pulse rounded bg-line motion-reduce:animate-none" />
-                        </span>
-                    </div>
-                }>
-                <CodeEditorMonaco {...props} />
-            </Suspense>
+            <textarea
+                aria-label={ariaLabel}
+                aria-describedby={error ? errorId : undefined}
+                aria-invalid={error ? 'true' : undefined}
+                data-language={language}
+                value={value}
+                onChange={(event) => onChange(event.target.value)}
+                readOnly={readOnly}
+                spellCheck={false}
+                autoCapitalize="off"
+                autoComplete="off"
+                className={cx(
+                    'block w-full resize-y rounded-lg border bg-surface px-4 py-3 font-mono text-sm leading-6 text-content outline-none transition-colors',
+                    'placeholder:text-content-hint focus:border-line-strong focus:ring-2 focus:ring-line/20',
+                    'read-only:cursor-default read-only:bg-surface-subtle',
+                    error ? 'border-danger-line' : 'border-line'
+                )}
+                style={{
+                    height,
+                    minHeight: '160px'
+                }}
+            />
             {error && (
-                <div role="alert" className="mt-1.5 flex items-center gap-1.5 text-sm text-danger">
+                <div
+                    id={errorId}
+                    role="alert"
+                    className="mt-1.5 flex items-center gap-1.5 text-sm text-danger">
                     <AlertCircle aria-hidden="true" className="h-4 w-4 shrink-0" />
                     {error}
                 </div>

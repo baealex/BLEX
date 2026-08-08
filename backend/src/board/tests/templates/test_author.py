@@ -176,6 +176,16 @@ class AuthorPostsPageTestCase(TestCase):
         self.assertContains(posts_response, 'Tags')
         self.assertContains(posts_response, '작성자가 쓴 포스트 제목')
         self.assertNotContains(posts_response, '포스트 검색')
+        posts_rendered = posts_response.content.decode()
+        self.assertEqual(posts_rendered.count('<h1'), 1)
+        self.assertRegex(
+            posts_rendered,
+            r'<h1\b[^>]*>\s*Posts\s*</h1>',
+        )
+        self.assertRegex(
+            posts_rendered,
+            r'<h2\b[^>]*>\s*<a\b[^>]*>작성자가 쓴 포스트 제목</a>\s*</h2>',
+        )
 
     def test_author_overview_loads_public_stats_without_extra_query(self):
         """작가 공개 통계는 작가 조회에 포함되어 별도 집계 쿼리를 만들지 않는다."""
@@ -925,6 +935,7 @@ class AuthorSeriesPageTestCase(TestCase):
         self.assertContains(response, 'relative w-full')
         self.assertContains(response, 'flex w-full items-center justify-between')
         self.assertNotContains(response, 'sm:w-48')
+        self.assertEqual(response.content.decode().count('<h1'), 1)
 
     def test_author_series_page_uses_constant_query_count(self):
         """시리즈 수가 늘어도 목록 페이지 쿼리 수가 증가하지 않는다."""

@@ -81,6 +81,7 @@ export const ConfirmProvider = ({ children }: { children: ReactNode }) => {
             <Modal
                 isOpen={dialogState.isOpen}
                 onClose={handleClose}
+                ariaTitle={dialogState.title}
                 maxWidth="md"
                 showCloseButton={false}>
                 <Modal.Body>

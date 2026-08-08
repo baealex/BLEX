@@ -26,7 +26,7 @@
     {% if posts %}
         <div class="masonry-grid">
             {% for post in posts %}
-                {% include 'components/post_card.html' with post=post show_author=true priority=forloop.first %}
+                {% include 'components/post_card.html' with post=post show_author=true priority=forloop.first heading_level=2 %}
             {% endfor %}
         </div>
 

@@ -5,8 +5,6 @@ type EditorMessages = Record<keyof typeof enEditorMessages, string>;
 export const koEditorMessages = {
     'placeholder.content': '내용을 입력하세요…',
     'drop.columns': '컬럼 안쪽에 파일을 내려놓아 주세요.',
-    'upload.status.single': '파일 업로드 중...',
-    'upload.status.multiple': '파일 {count}개 업로드 중...',
     'upload.placeholder.image': '이미지',
     'upload.placeholder.video': '비디오',
     'upload.placeholder.progress': '{mediaType} 업로드 중...{fileName}',

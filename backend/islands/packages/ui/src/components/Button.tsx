@@ -68,12 +68,13 @@ const Button = ({
                 widthStyle,
                 className
             )}
+            aria-busy={isLoading || undefined}
             disabled={disabled || isLoading}
             type={type}
             {...props}>
             {isLoading ? (
                 <>
-                    <Loader2 className="animate-spin -ml-1 mr-2 h-4 w-4" />
+                    <Loader2 aria-hidden="true" className="-ml-1 h-4 w-4 animate-spin" />
                     {children}
                 </>
             ) : (

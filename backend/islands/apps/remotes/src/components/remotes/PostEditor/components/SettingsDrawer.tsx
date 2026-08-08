@@ -413,6 +413,10 @@ const SettingsDrawer = ({
                                     </label>
                                     <Select
                                         value={selectedSeries.id}
+                                        ariaLabel={t({
+                                            id: 'editor.settings.series',
+                                            message: 'Series'
+                                        })}
                                         onValueChange={(value) => {
                                             if (value === '') {
                                                 onSeriesChange({
@@ -493,6 +497,10 @@ const SettingsDrawer = ({
                                             </label>
                                             <Select
                                                 value={formData.coverImagePosition}
+                                                ariaLabel={t({
+                                                    id: 'editor.cover.image_position',
+                                                    message: 'Image position'
+                                                })}
                                                 onValueChange={(value) => onFormDataChange('coverImagePosition', value)}
                                                 items={coverPositionItems}
                                             />
@@ -506,6 +514,10 @@ const SettingsDrawer = ({
                                             </label>
                                             <Select
                                                 value={formData.coverImageRatio}
+                                                ariaLabel={t({
+                                                    id: 'editor.cover.image_ratio',
+                                                    message: 'Image ratio'
+                                                })}
                                                 onValueChange={(value) => onFormDataChange('coverImageRatio', value)}
                                                 items={coverRatioItems}
                                             />

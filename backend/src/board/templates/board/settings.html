@@ -1,6 +1,5 @@
 {% extends 'board/base.html' %}
-{% load static %}
-{% load island %}
+{% load i18n island static %}
 
 {% block title %}{{ settings_title }} | {{ site_brand.site_name }}{% endblock %}
 
@@ -11,7 +10,8 @@
 {% endblock %}
 
 {% block content %}
+{% translate "Loading..." as island_loading_label %}
 <div>
-    {% island_component 'SettingsApp' isEditor=is_editor isStaff=is_staff isSuperuser=is_superuser adminUrl=admin_url settingsMode=settings_mode basePath=settings_base_path canUseTelegramIntegration=can_use_telegram_integration adminCapabilities=admin_capabilities %}
+    {% island_component 'SettingsApp' loading_label=island_loading_label isEditor=is_editor isStaff=is_staff isSuperuser=is_superuser adminUrl=admin_url settingsMode=settings_mode basePath=settings_base_path canUseTelegramIntegration=can_use_telegram_integration adminCapabilities=admin_capabilities %}
 </div>
 {% endblock %}

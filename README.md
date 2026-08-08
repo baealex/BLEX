@@ -72,27 +72,37 @@ start with modest server resources.
 
 ## Run with Docker
 
-Requirements: Git, Docker, and Docker Compose.
+Requirement: Docker.
 
 ```bash
-git clone https://github.com/baealex/BLEX.git
-cd BLEX
-cp samples/.env backend/.env
-mkdir -p backend/src/resources/media
-touch backend/src/db.sqlite3
-docker compose up -d
-docker compose logs -f blex
+docker run -d \
+  --name blex \
+  --restart unless-stopped \
+  -p 20002:80 \
+  --mount source=blex-db,target=/var/lib/blex \
+  --mount source=blex-media,target=/app/resources/media \
+  -e BLEX_SQLITE_DB_PATH=/var/lib/blex/db.sqlite3 \
+  -e SECRET_KEY=local-preview-only-change-me \
+  -e CIPHER_KEY=local-only-cipher-key-32-charsxx \
+  -e DEBUG=TRUE \
+  -e ENABLE_ENGLISH_UI=TRUE \
+  -e SITE_URL=http://localhost:20002 \
+  baealex/blex:latest
+
+docker logs -f blex
 ```
 
 Open `http://localhost:20002`. The logs include an `Initial setup URL` for
-creating the first administrator.
+creating the first administrator. The `blex-db` and `blex-media` volumes keep
+the database and uploads when the container is replaced.
 
-The sample environment enables English and Korean UI negotiation. Existing
-installations can enable it with `ENABLE_ENGLISH_UI=TRUE`.
+This command is for a local trial and enables English and Korean UI
+negotiation. Existing installations can enable it with
+`ENABLE_ENGLISH_UI=TRUE`.
 
-Before a public deployment, replace the sample secrets, configure the public
-site URL and allowed hosts, place an HTTPS proxy in front of BLEX, and back up
-both the SQLite database and uploaded media. See the
+Before a public deployment, use unique secrets, set `DEBUG=FALSE`, configure
+the public site URL and allowed hosts, place an HTTPS proxy in front of BLEX,
+and back up both Docker volumes. See the
 [Self-hosting Guide](docs/SELF_HOSTING.md) for details.
 
 ## Public URLs

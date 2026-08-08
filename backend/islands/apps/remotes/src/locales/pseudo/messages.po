@@ -14,65 +14,65 @@ msgstr ""
 "Plural-Forms: \n"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Signup/Signup.tsx:427
+#: src/components/remotes/Signup/Signup.tsx:470
 msgid "auth.fields.confirm_password"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Signup/Signup.tsx:449
+#: src/components/remotes/Signup/Signup.tsx:494
 msgid "auth.fields.confirm_password_placeholder"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Signup/Signup.tsx:346
+#: src/components/remotes/Signup/Signup.tsx:382
 msgid "auth.fields.display_name"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Signup/Signup.tsx:357
+#: src/components/remotes/Signup/Signup.tsx:395
 msgid "auth.fields.display_name_placeholder"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Signup/Signup.tsx:367
+#: src/components/remotes/Signup/Signup.tsx:405
 msgid "auth.fields.email"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Signup/Signup.tsx:378
+#: src/components/remotes/Signup/Signup.tsx:418
 msgid "auth.fields.email_placeholder"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Login/components/LoginForm.tsx:129
-#: src/components/remotes/Signup/Signup.tsx:388
+#: src/components/remotes/Login/components/LoginForm.tsx:131
+#: src/components/remotes/Signup/Signup.tsx:428
 msgid "auth.fields.password"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Signup/Signup.tsx:410
+#: src/components/remotes/Signup/Signup.tsx:453
 msgid "auth.fields.password_new_placeholder"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Login/components/LoginForm.tsx:140
+#: src/components/remotes/Login/components/LoginForm.tsx:144
 msgid "auth.fields.password_placeholder"
 msgstr ""
 
 #. js-lingui-explicit-id
 #: src/components/remotes/Login/components/LoginForm.tsx:104
-#: src/components/remotes/Signup/Signup.tsx:304
+#: src/components/remotes/Signup/Signup.tsx:338
 msgid "auth.fields.username"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Signup/Signup.tsx:331
-#: src/components/remotes/Signup/Signup.tsx:339
+#: src/components/remotes/Signup/Signup.tsx:367
+#: src/components/remotes/Signup/Signup.tsx:375
 msgid "auth.fields.username_hint"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Login/components/LoginForm.tsx:115
+#: src/components/remotes/Login/components/LoginForm.tsx:117
 msgid "auth.fields.username_placeholder"
 msgstr ""
 
@@ -92,61 +92,61 @@ msgid "auth.login.invalid_credentials"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Login/Login.tsx:309
+#: src/components/remotes/Login/Login.tsx:318
 msgid "auth.login.no_account"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Login/components/LoginForm.tsx:188
+#: src/components/remotes/Login/components/LoginForm.tsx:197
 msgid "auth.login.submitting"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Login/components/LoginForm.tsx:190
-#: src/components/remotes/Login/Login.tsx:261
-#: src/components/remotes/Signup/Signup.tsx:508
+#: src/components/remotes/Login/components/LoginForm.tsx:199
+#: src/components/remotes/Login/Login.tsx:270
+#: src/components/remotes/Signup/Signup.tsx:558
 msgid "auth.login.title"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Login/Login.tsx:268
+#: src/components/remotes/Login/Login.tsx:277
 msgid "auth.login.welcome_back"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Signup/Signup.tsx:506
+#: src/components/remotes/Signup/Signup.tsx:556
 msgid "auth.signup.already_have_account"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Signup/Signup.tsx:279
-#: src/components/remotes/Signup/Signup.tsx:493
+#: src/components/remotes/Signup/Signup.tsx:313
+#: src/components/remotes/Signup/Signup.tsx:543
 msgid "auth.signup.as_author"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Signup/Signup.tsx:281
-#: src/components/remotes/Signup/Signup.tsx:495
+#: src/components/remotes/Signup/Signup.tsx:315
+#: src/components/remotes/Signup/Signup.tsx:545
 msgid "auth.signup.as_reader"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Signup/Signup.tsx:286
+#: src/components/remotes/Signup/Signup.tsx:320
 msgid "auth.signup.author_description"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Signup/Signup.tsx:213
+#: src/components/remotes/Signup/Signup.tsx:241
 msgid "auth.signup.complete_security_check"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Signup/Signup.tsx:250
+#: src/components/remotes/Signup/Signup.tsx:279
 msgid "auth.signup.failed"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Signup/Signup.tsx:418
+#: src/components/remotes/Signup/Signup.tsx:461
 msgid "auth.signup.password_strength"
 msgstr ""
 
@@ -171,12 +171,12 @@ msgid "auth.signup.password_strength.weak"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Signup/Signup.tsx:288
+#: src/components/remotes/Signup/Signup.tsx:322
 msgid "auth.signup.reader_description"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Login/Login.tsx:311
+#: src/components/remotes/Login/Login.tsx:320
 msgid "auth.signup.title"
 msgstr ""
 
@@ -196,12 +196,12 @@ msgid "auth.social.not_configured"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Login/components/TwoFactorForm.tsx:69
+#: src/components/remotes/Login/components/TwoFactorForm.tsx:54
 msgid "auth.two_factor.back_to_login"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Login/Login.tsx:266
+#: src/components/remotes/Login/Login.tsx:275
 msgid "auth.two_factor.description"
 msgstr ""
 
@@ -221,11 +221,6 @@ msgid "auth.two_factor.incorrect_code"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Login/components/TwoFactorForm.tsx:46
-msgid "auth.two_factor.instruction"
-msgstr ""
-
-#. js-lingui-explicit-id
 #: src/components/remotes/Login/Login.tsx:183
 msgid "auth.two_factor.invalid_format"
 msgstr ""
@@ -236,57 +231,77 @@ msgid "auth.two_factor.success_redirect"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Login/components/TwoFactorForm.tsx:43
-#: src/components/remotes/Login/Login.tsx:259
+#: src/components/remotes/Login/Login.tsx:268
 msgid "auth.two_factor.title"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Login/components/TwoFactorForm.tsx:112
+#: src/components/remotes/Login/components/TwoFactorForm.tsx:102
 msgid "auth.two_factor.verify"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Login/components/TwoFactorForm.tsx:110
+#: src/components/remotes/Login/components/TwoFactorForm.tsx:100
 msgid "auth.two_factor.verifying"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Signup/Signup.tsx:179
+#: src/components/remotes/Signup/Signup.tsx:223
+msgid "auth.validation.confirm_password_required"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/Signup/Signup.tsx:190
 msgid "auth.validation.display_name_required"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Signup/Signup.tsx:186
+#: src/components/remotes/Signup/Signup.tsx:203
+msgid "auth.validation.email_invalid"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/Signup/Signup.tsx:197
 msgid "auth.validation.email_required"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Signup/Signup.tsx:200
-#: src/components/remotes/Signup/Signup.tsx:401
-#: src/components/remotes/Signup/Signup.tsx:440
+#: src/components/remotes/Signup/Signup.tsx:229
+#: src/components/remotes/Signup/Signup.tsx:444
+#: src/components/remotes/Signup/Signup.tsx:485
 msgid "auth.validation.password_mismatch"
 msgstr ""
 
 #. js-lingui-explicit-id
 #: src/components/remotes/Login/Login.tsx:110
-#: src/components/remotes/Signup/Signup.tsx:193
+#: src/components/remotes/Signup/Signup.tsx:210
 msgid "auth.validation.password_required"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Signup/Signup.tsx:317
+#: src/components/remotes/Signup/Signup.tsx:216
+msgid "auth.validation.password_too_short"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/Signup/Signup.tsx:177
+#: src/components/remotes/Signup/Signup.tsx:353
 msgid "auth.validation.username_characters"
 msgstr ""
 
 #. js-lingui-explicit-id
+#: src/components/remotes/Signup/Signup.tsx:183
+msgid "auth.validation.username_length"
+msgstr ""
+
+#. js-lingui-explicit-id
 #: src/components/remotes/Login/Login.tsx:103
-#: src/components/remotes/Signup/Signup.tsx:172
+#: src/components/remotes/Signup/Signup.tsx:171
 msgid "auth.validation.username_required"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Signup/Signup.tsx:322
+#: src/components/remotes/Signup/Signup.tsx:358
 msgid "auth.validation.username_too_long"
 msgstr ""
 
@@ -323,21 +338,6 @@ msgstr ""
 #. js-lingui-explicit-id
 #: src/components/remotes/Author/PinnedPostQuickAction.tsx:105
 msgid "author.pinned_posts.modal_title"
-msgstr ""
-
-#. js-lingui-explicit-id
-#: src/components/CodeEditor.tsx:26
-msgid "code_editor.loading.aria"
-msgstr ""
-
-#. js-lingui-explicit-id
-#: src/components/CodeEditor.tsx:21
-msgid "code_editor.loading.labelled"
-msgstr ""
-
-#. js-lingui-explicit-id
-#: src/components/CodeEditor.tsx:43
-msgid "code_editor.loading.visible"
 msgstr ""
 
 #. js-lingui-explicit-id
@@ -467,7 +467,7 @@ msgid "comments.empty"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Comments/components/CommentForm.tsx:172
+#: src/components/remotes/Comments/components/CommentForm.tsx:170
 msgid "comments.form.content_label"
 msgstr ""
 
@@ -482,17 +482,17 @@ msgid "comments.form.submit"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Comments/components/CommentForm.tsx:208
+#: src/components/remotes/Comments/components/CommentForm.tsx:206
 msgid "comments.form.submit_label"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Comments/components/CommentForm.tsx:215
+#: src/components/remotes/Comments/components/CommentForm.tsx:213
 msgid "comments.form.submitting"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Comments/components/CommentForm.tsx:204
+#: src/components/remotes/Comments/components/CommentForm.tsx:202
 msgid "comments.form.submitting_label"
 msgstr ""
 
@@ -542,7 +542,7 @@ msgid "comments.loading"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Comments/components/CommentForm.tsx:152
+#: src/components/remotes/Comments/components/CommentForm.tsx:41
 msgid "comments.login_required"
 msgstr ""
 
@@ -614,7 +614,7 @@ msgid "comments.validation.reply_required"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostEditor/components/PostCoverEditor.tsx:158
+#: src/components/remotes/PostEditor/components/PostCoverEditor.tsx:162
 msgid "common.add"
 msgstr ""
 
@@ -630,30 +630,30 @@ msgstr ""
 
 #. js-lingui-explicit-id
 #: src/components/remotes/Comments/components/CommentEditForm.tsx:69
-#: src/components/remotes/Comments/components/CommentForm.tsx:196
+#: src/components/remotes/Comments/components/CommentForm.tsx:194
 #: src/components/remotes/PostEditor/components/PostRevisionDialog.tsx:606
 #: src/components/remotes/PostEditor/components/PostRevisionDialog.tsx:624
 #: src/components/remotes/PostEditor/components/PublishChecklist.tsx:139
 #: src/components/remotes/PostEditor/EditPostEditor.tsx:386
-#: src/components/remotes/PostEditor/NewPostEditor.tsx:397
+#: src/components/remotes/PostEditor/NewPostEditor.tsx:400
 #: src/components/remotes/SettingsApp/components/WebhookChannelManager.tsx:486
 #: src/components/remotes/SettingsApp/pages/AccountSetting/components/TwoFactorModal.tsx:135
 #: src/components/remotes/SettingsApp/pages/FormsSetting/FormsSetting.tsx:291
-#: src/components/remotes/SettingsApp/pages/PinnedPostsSetting/components/AddPinnedPostModal.tsx:220
+#: src/components/remotes/SettingsApp/pages/PinnedPostsSetting/components/AddPinnedPostModal.tsx:212
 #: src/components/remotes/SettingsApp/pages/shared/NoticeSettingBase.tsx:387
 #: src/components/shared/ImageCropDialog.tsx:239
-#: src/contexts/ConfirmContext.tsx:97
+#: src/contexts/ConfirmContext.tsx:98
 msgid "common.cancel"
 msgstr ""
 
 #. js-lingui-explicit-id
 #: src/components/remotes/SettingsApp/pages/AccountSetting/AccountSetting.tsx:69
-#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:514
+#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:519
 msgid "common.change"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/components/SettingsListItem.tsx:65
+#: src/components/remotes/SettingsApp/components/SettingsListItem.tsx:61
 msgid "common.change_order"
 msgstr ""
 
@@ -665,7 +665,7 @@ msgid "common.close"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/contexts/ConfirmContext.tsx:106
+#: src/contexts/ConfirmContext.tsx:107
 msgid "common.confirm"
 msgstr ""
 
@@ -716,15 +716,20 @@ msgstr ""
 #: src/components/remotes/SettingsApp/pages/shared/BannerSettingBase.tsx:130
 #: src/components/remotes/SettingsApp/pages/shared/NoticeSettingBase.tsx:229
 #: src/components/remotes/SettingsApp/pages/shared/NoticeSettingBase.tsx:452
-#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:205
-#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:460
+#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:231
+#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:493
 #: src/components/remotes/SettingsApp/pages/StaticPagesSetting/components/StaticPageEditor.tsx:274
 #: src/components/remotes/SettingsApp/pages/StaticPagesSetting/components/StaticPageEditor.tsx:462
 #: src/components/remotes/SettingsApp/pages/StaticPagesSetting/components/StaticPageList.tsx:43
 #: src/components/remotes/SettingsApp/pages/StaticPagesSetting/StaticPagesSetting.tsx:72
-#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:590
-#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:715
+#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:595
+#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:720
 msgid "common.delete"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:227
+msgid "common.deleting"
 msgstr ""
 
 #. js-lingui-explicit-id
@@ -739,7 +744,7 @@ msgid "common.dismiss_error"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostEditor/components/SettingsDrawer.tsx:608
+#: src/components/remotes/PostEditor/components/SettingsDrawer.tsx:620
 #: src/components/remotes/PostEditor/utils/firstPublishTour.ts:114
 #: src/components/remotes/SettingsApp/pages/StaticPagesSetting/components/StaticPageEditor.tsx:677
 msgid "common.done"
@@ -763,7 +768,7 @@ msgstr ""
 #. js-lingui-explicit-id
 #: src/components/remotes/Login/Login.tsx:156
 #: src/components/remotes/Login/Login.tsx:238
-#: src/components/remotes/Signup/Signup.tsx:256
+#: src/components/remotes/Signup/Signup.tsx:285
 msgid "common.error.try_again"
 msgstr ""
 
@@ -809,25 +814,25 @@ msgstr ""
 
 #. js-lingui-explicit-id
 #: src/components/remotes/SettingsApp/pages/PostsSetting/components/Pagination.tsx:54
-#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:881
+#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:899
 msgid "common.pagination.first"
 msgstr ""
 
 #. js-lingui-explicit-id
 #: src/components/remotes/SettingsApp/pages/PostsSetting/components/Pagination.tsx:129
-#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:928
+#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:946
 msgid "common.pagination.last"
 msgstr ""
 
 #. js-lingui-explicit-id
 #: src/components/remotes/SettingsApp/pages/PostsSetting/components/Pagination.tsx:117
-#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:916
+#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:934
 msgid "common.pagination.next"
 msgstr ""
 
 #. js-lingui-explicit-id
 #: src/components/remotes/SettingsApp/pages/PostsSetting/components/Pagination.tsx:66
-#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:893
+#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:911
 msgid "common.pagination.previous"
 msgstr ""
 
@@ -842,23 +847,23 @@ msgid "common.previous"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Signup/Signup.tsx:489
+#: src/components/remotes/Signup/Signup.tsx:539
 msgid "common.processing"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostEditor/components/PostCoverEditor.tsx:305
+#: src/components/remotes/PostEditor/components/PostCoverEditor.tsx:309
 msgid "common.remove"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostEditor/components/PostCoverEditor.tsx:156
-#: src/components/remotes/PostEditor/components/PostCoverEditor.tsx:228
+#: src/components/remotes/PostEditor/components/PostCoverEditor.tsx:160
+#: src/components/remotes/PostEditor/components/PostCoverEditor.tsx:232
 msgid "common.replace"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:771
+#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:784
 msgid "common.reset"
 msgstr ""
 
@@ -872,6 +877,7 @@ msgstr ""
 #: src/components/remotes/Comments/Comments.tsx:90
 #: src/components/remotes/PostEditor/components/DraftsPanel.tsx:146
 #: src/components/remotes/PostEditor/components/PostRevisionDialog.tsx:386
+#: src/components/remotes/SettingsApp/pages/NotifySetting/components/NotifyConfigModal.tsx:125
 msgid "common.retry"
 msgstr ""
 
@@ -893,12 +899,12 @@ msgstr ""
 #. js-lingui-explicit-id
 #: src/components/remotes/Comments/components/CommentEditForm.tsx:87
 #: src/components/remotes/SettingsApp/pages/SeoAeoSetting/SeoAeoSetting.tsx:606
-#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:702
+#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:743
 msgid "common.saving_ellipsis"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:767
+#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:780
 msgid "common.search"
 msgstr ""
 
@@ -923,12 +929,17 @@ msgid "common.update"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:190
+#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:205
 msgid "common.upload"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostEditor/components/SettingsDrawer.tsx:592
+#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:209
+msgid "common.uploading"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/components/SettingsDrawer.tsx:604
 msgid "editor.actions.delete_post"
 msgstr ""
 
@@ -938,15 +949,15 @@ msgid "editor.actions.publish"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostEditor/components/PostActions.tsx:246
 #: src/components/remotes/PostEditor/components/PostActions.tsx:250
-#: src/components/remotes/PostEditor/components/PostActions.tsx:261
+#: src/components/remotes/PostEditor/components/PostActions.tsx:254
 #: src/components/remotes/PostEditor/components/PostActions.tsx:265
+#: src/components/remotes/PostEditor/components/PostActions.tsx:269
 msgid "editor.actions.save_draft"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostEditor/NewPostEditor.tsx:635
+#: src/components/remotes/PostEditor/NewPostEditor.tsx:638
 msgid "editor.actions.schedule"
 msgstr ""
 
@@ -956,33 +967,33 @@ msgid "editor.actions.update"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostEditor/components/PostActions.tsx:212
+#: src/components/remotes/PostEditor/components/PostActions.tsx:216
 msgid "editor.autosave.countdown"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostEditor/components/PostActions.tsx:234
+#: src/components/remotes/PostEditor/components/PostActions.tsx:238
 msgid "editor.autosave.enabled"
 msgstr ""
 
 #. js-lingui-explicit-id
 #: src/components/remotes/PostEditor/hooks/useAutoSave.ts:168
-#: src/components/remotes/PostEditor/NewPostEditor.tsx:428
+#: src/components/remotes/PostEditor/NewPostEditor.tsx:431
 msgid "editor.autosave.error"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostEditor/components/PostActions.tsx:205
+#: src/components/remotes/PostEditor/components/PostActions.tsx:209
 msgid "editor.autosave.failed"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostEditor/components/PostActions.tsx:223
+#: src/components/remotes/PostEditor/components/PostActions.tsx:227
 msgid "editor.autosave.pending"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostEditor/NewPostEditor.tsx:423
+#: src/components/remotes/PostEditor/NewPostEditor.tsx:426
 msgid "editor.autosave.saved"
 msgstr ""
 
@@ -1002,7 +1013,7 @@ msgid "editor.autosave.saved_minutes_ago"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostEditor/components/PostActions.tsx:198
+#: src/components/remotes/PostEditor/components/PostActions.tsx:202
 msgid "editor.autosave.saving"
 msgstr ""
 
@@ -1023,38 +1034,40 @@ msgid "editor.confirm.move_to_trash"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostEditor/components/PostCoverEditor.tsx:190
-#: src/components/remotes/PostEditor/components/PostCoverEditor.tsx:300
+#: src/components/remotes/PostEditor/components/PostCoverEditor.tsx:194
+#: src/components/remotes/PostEditor/components/PostCoverEditor.tsx:304
 msgid "editor.cover.add_image"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostEditor/components/PostCoverEditor.tsx:193
+#: src/components/remotes/PostEditor/components/PostCoverEditor.tsx:197
 msgid "editor.cover.click_to_upload"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostEditor/components/PostCoverEditor.tsx:142
+#: src/components/remotes/PostEditor/components/PostCoverEditor.tsx:146
 msgid "editor.cover.hidden_image_description"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostEditor/components/PostCoverEditor.tsx:146
+#: src/components/remotes/PostEditor/components/PostCoverEditor.tsx:150
 msgid "editor.cover.hidden_image_empty"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostEditor/components/PostCoverEditor.tsx:138
+#: src/components/remotes/PostEditor/components/PostCoverEditor.tsx:142
 msgid "editor.cover.image"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostEditor/components/SettingsDrawer.tsx:492
+#: src/components/remotes/PostEditor/components/SettingsDrawer.tsx:496
+#: src/components/remotes/PostEditor/components/SettingsDrawer.tsx:500
 msgid "editor.cover.image_position"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostEditor/components/SettingsDrawer.tsx:505
+#: src/components/remotes/PostEditor/components/SettingsDrawer.tsx:513
+#: src/components/remotes/PostEditor/components/SettingsDrawer.tsx:517
 msgid "editor.cover.image_ratio"
 msgstr ""
 
@@ -1134,22 +1147,22 @@ msgid "editor.cover.ratio.wide"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostEditor/components/PostCoverEditor.tsx:235
+#: src/components/remotes/PostEditor/components/PostCoverEditor.tsx:239
 msgid "editor.cover.remove_image"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostEditor/components/PostCoverEditor.tsx:167
+#: src/components/remotes/PostEditor/components/PostCoverEditor.tsx:171
 msgid "editor.cover.remove_share_image"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostEditor/components/PostCoverEditor.tsx:298
+#: src/components/remotes/PostEditor/components/PostCoverEditor.tsx:302
 msgid "editor.cover.replace_image"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostEditor/components/SettingsDrawer.tsx:455
+#: src/components/remotes/PostEditor/components/SettingsDrawer.tsx:459
 msgid "editor.cover.style"
 msgstr ""
 
@@ -1185,8 +1198,8 @@ msgstr ""
 
 #. js-lingui-explicit-id
 #: src/components/remotes/PostEditor/components/DraftsPanel.tsx:117
-#: src/components/remotes/PostEditor/components/PostActions.tsx:110
-#: src/components/remotes/PostEditor/components/PostActions.tsx:114
+#: src/components/remotes/PostEditor/components/PostActions.tsx:111
+#: src/components/remotes/PostEditor/components/PostActions.tsx:115
 msgid "editor.drafts.title"
 msgstr ""
 
@@ -1197,7 +1210,7 @@ msgid "editor.drafts.total"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostEditor/NewPostEditor.tsx:328
+#: src/components/remotes/PostEditor/NewPostEditor.tsx:331
 msgid "editor.error.load_draft"
 msgstr ""
 
@@ -1207,7 +1220,7 @@ msgid "editor.error.load_post"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostEditor/NewPostEditor.tsx:332
+#: src/components/remotes/PostEditor/NewPostEditor.tsx:335
 msgid "editor.error.load_series"
 msgstr ""
 
@@ -1250,13 +1263,13 @@ msgid "editor.error.update"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostEditor/components/PostForm.tsx:83
+#: src/components/remotes/PostEditor/components/PostForm.tsx:87
 #: src/components/remotes/PostEditor/components/PostRevisionDialog.tsx:528
 msgid "editor.fields.content"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostEditor/components/PostForm.tsx:94
+#: src/components/remotes/PostEditor/components/PostForm.tsx:92
 msgid "editor.fields.content_placeholder"
 msgstr ""
 
@@ -1266,27 +1279,27 @@ msgid "editor.fields.description"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostEditor/components/SettingsDrawer.tsx:552
+#: src/components/remotes/PostEditor/components/SettingsDrawer.tsx:564
 msgid "editor.fields.meta_description"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostEditor/components/SettingsDrawer.tsx:568
+#: src/components/remotes/PostEditor/components/SettingsDrawer.tsx:580
 msgid "editor.fields.meta_description_hint"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostEditor/components/SettingsDrawer.tsx:560
+#: src/components/remotes/PostEditor/components/SettingsDrawer.tsx:572
 msgid "editor.fields.meta_description_placeholder"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostEditor/components/PostCoverEditor.tsx:77
+#: src/components/remotes/PostEditor/components/PostCoverEditor.tsx:81
 msgid "editor.fields.subtitle"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostEditor/components/PostCoverEditor.tsx:91
+#: src/components/remotes/PostEditor/components/PostCoverEditor.tsx:95
 msgid "editor.fields.subtitle_placeholder"
 msgstr ""
 
@@ -1296,22 +1309,22 @@ msgid "editor.fields.title"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostEditor/components/PostCoverEditor.tsx:65
+#: src/components/remotes/PostEditor/components/PostCoverEditor.tsx:66
 msgid "editor.fields.title_placeholder"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostEditor/components/SettingsDrawer.tsx:530
+#: src/components/remotes/PostEditor/components/SettingsDrawer.tsx:542
 msgid "editor.fields.url"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostEditor/components/SettingsDrawer.tsx:542
+#: src/components/remotes/PostEditor/components/SettingsDrawer.tsx:554
 msgid "editor.fields.url_collision_hint"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostEditor/components/SettingsDrawer.tsx:536
+#: src/components/remotes/PostEditor/components/SettingsDrawer.tsx:548
 msgid "editor.fields.url_placeholder"
 msgstr ""
 
@@ -1331,13 +1344,13 @@ msgid "editor.guide.close"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostEditor/NewPostEditor.tsx:468
+#: src/components/remotes/PostEditor/NewPostEditor.tsx:471
 msgid "editor.guide.error.load"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostEditor/NewPostEditor.tsx:582
-#: src/components/remotes/PostEditor/NewPostEditor.tsx:586
+#: src/components/remotes/PostEditor/NewPostEditor.tsx:585
+#: src/components/remotes/PostEditor/NewPostEditor.tsx:589
 msgid "editor.guide.open"
 msgstr ""
 
@@ -1362,8 +1375,24 @@ msgid "editor.guide.settings_title"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostEditor/NewPostEditor.tsx:591
+#: src/components/remotes/PostEditor/NewPostEditor.tsx:594
 msgid "editor.guide.title"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/NewPostEditor.tsx:260
+msgid "editor.heading.edit_draft"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/EditPostEditor.tsx:782
+#: src/components/remotes/PostEditor/EditPostEditor.tsx:796
+msgid "editor.heading.edit_post"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostEditor/NewPostEditor.tsx:261
+msgid "editor.heading.new_post"
 msgstr ""
 
 #. js-lingui-explicit-id
@@ -1380,13 +1409,13 @@ msgid "editor.media.error.upload"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostEditor/NewPostEditor.tsx:439
+#: src/components/remotes/PostEditor/NewPostEditor.tsx:442
 msgid "editor.media.wait_before_preview"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostEditor/NewPostEditor.tsx:527
-#: src/components/remotes/PostEditor/NewPostEditor.tsx:553
+#: src/components/remotes/PostEditor/NewPostEditor.tsx:530
+#: src/components/remotes/PostEditor/NewPostEditor.tsx:556
 msgid "editor.media.wait_before_publish"
 msgstr ""
 
@@ -1396,13 +1425,13 @@ msgid "editor.media.wait_before_revisions"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostEditor/NewPostEditor.tsx:414
+#: src/components/remotes/PostEditor/NewPostEditor.tsx:417
 msgid "editor.media.wait_before_save"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostEditor/NewPostEditor.tsx:523
-#: src/components/remotes/PostEditor/NewPostEditor.tsx:549
+#: src/components/remotes/PostEditor/NewPostEditor.tsx:526
+#: src/components/remotes/PostEditor/NewPostEditor.tsx:552
 msgid "editor.media.wait_before_schedule"
 msgstr ""
 
@@ -1433,7 +1462,7 @@ msgid "editor.preview.desktop"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostEditor/NewPostEditor.tsx:450
+#: src/components/remotes/PostEditor/NewPostEditor.tsx:453
 msgid "editor.preview.error.save_draft"
 msgstr ""
 
@@ -1453,8 +1482,8 @@ msgid "editor.preview.mobile"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostEditor/components/PostActions.tsx:129
-#: src/components/remotes/PostEditor/components/PostActions.tsx:134
+#: src/components/remotes/PostEditor/components/PostActions.tsx:131
+#: src/components/remotes/PostEditor/components/PostActions.tsx:136
 msgid "editor.preview.open"
 msgstr ""
 
@@ -1585,7 +1614,7 @@ msgid "editor.publish.recommended_later"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostEditor/NewPostEditor.tsx:562
+#: src/components/remotes/PostEditor/NewPostEditor.tsx:565
 msgid "editor.publish.recommended_missing"
 msgstr ""
 
@@ -1862,8 +1891,8 @@ msgid "editor.revisions.tags_aria_label"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostEditor/components/PostActions.tsx:153
-#: src/components/remotes/PostEditor/components/PostActions.tsx:157
+#: src/components/remotes/PostEditor/components/PostActions.tsx:156
+#: src/components/remotes/PostEditor/components/PostActions.tsx:160
 #: src/components/remotes/PostEditor/components/PostRevisionDialog.tsx:339
 msgid "editor.revisions.title"
 msgstr ""
@@ -1918,7 +1947,7 @@ msgid "editor.schedule.error.publish_now"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostEditor/components/SchedulePicker.tsx:197
+#: src/components/remotes/PostEditor/components/SchedulePicker.tsx:196
 msgid "editor.schedule.hour"
 msgstr ""
 
@@ -1928,7 +1957,7 @@ msgid "editor.schedule.in_three_hours"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostEditor/components/SchedulePicker.tsx:216
+#: src/components/remotes/PostEditor/components/SchedulePicker.tsx:215
 msgid "editor.schedule.minute"
 msgstr ""
 
@@ -1980,7 +2009,7 @@ msgid "editor.schedule.select_time"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostEditor/components/SchedulePicker.tsx:182
+#: src/components/remotes/PostEditor/components/SchedulePicker.tsx:181
 msgid "editor.schedule.time"
 msgstr ""
 
@@ -2011,8 +2040,8 @@ msgid "editor.settings.comments_enabled_description"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostEditor/components/SettingsDrawer.tsx:431
-#: src/components/remotes/PostEditor/components/SettingsDrawer.tsx:441
+#: src/components/remotes/PostEditor/components/SettingsDrawer.tsx:435
+#: src/components/remotes/PostEditor/components/SettingsDrawer.tsx:445
 msgid "editor.settings.no_series"
 msgstr ""
 
@@ -2049,18 +2078,19 @@ msgid "editor.settings.publishing"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostEditor/components/SettingsDrawer.tsx:523
+#: src/components/remotes/PostEditor/components/SettingsDrawer.tsx:535
 msgid "editor.settings.search_and_sharing"
 msgstr ""
 
 #. js-lingui-explicit-id
 #: src/components/remotes/PostEditor/components/SettingsDrawer.tsx:412
+#: src/components/remotes/PostEditor/components/SettingsDrawer.tsx:416
 msgid "editor.settings.series"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostEditor/components/PostActions.tsx:171
 #: src/components/remotes/PostEditor/components/PostActions.tsx:175
+#: src/components/remotes/PostEditor/components/PostActions.tsx:179
 #: src/components/remotes/PostEditor/components/SettingsDrawer.tsx:229
 msgid "editor.settings.title"
 msgstr ""
@@ -2096,17 +2126,17 @@ msgid "editor.trash.title"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostEditor/NewPostEditor.tsx:393
+#: src/components/remotes/PostEditor/NewPostEditor.tsx:396
 msgid "editor.unsaved.switch_draft"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostEditor/NewPostEditor.tsx:389
+#: src/components/remotes/PostEditor/NewPostEditor.tsx:392
 msgid "editor.unsaved.switch_draft_description"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostEditor/NewPostEditor.tsx:385
+#: src/components/remotes/PostEditor/NewPostEditor.tsx:388
 msgid "editor.unsaved.title"
 msgstr ""
 
@@ -2419,22 +2449,22 @@ msgid "settings.account.load_failed"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/AccountSetting/components/NameSection.tsx:59
+#: src/components/remotes/SettingsApp/pages/AccountSetting/components/NameSection.tsx:55
 msgid "settings.account.name.form_label"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/AccountSetting/components/NameSection.tsx:68
+#: src/components/remotes/SettingsApp/pages/AccountSetting/components/NameSection.tsx:64
 msgid "settings.account.name.label"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/AccountSetting/components/NameSection.tsx:72
+#: src/components/remotes/SettingsApp/pages/AccountSetting/components/NameSection.tsx:68
 msgid "settings.account.name.placeholder"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/AccountSetting/components/NameSection.tsx:95
+#: src/components/remotes/SettingsApp/pages/AccountSetting/components/NameSection.tsx:91
 msgid "settings.account.name.update"
 msgstr ""
 
@@ -2449,7 +2479,7 @@ msgid "settings.account.name.update_success"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/AccountSetting/components/NameSection.tsx:91
+#: src/components/remotes/SettingsApp/pages/AccountSetting/components/NameSection.tsx:87
 msgid "settings.account.name.updating"
 msgstr ""
 
@@ -2644,27 +2674,27 @@ msgid "settings.account.username.different_required"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/AccountSetting/components/UsernameSection.tsx:64
+#: src/components/remotes/SettingsApp/pages/AccountSetting/components/UsernameSection.tsx:60
 msgid "settings.account.username.form_label"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/AccountSetting/components/UsernameSection.tsx:82
+#: src/components/remotes/SettingsApp/pages/AccountSetting/components/UsernameSection.tsx:78
 msgid "settings.account.username.helper"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/AccountSetting/components/UsernameSection.tsx:73
+#: src/components/remotes/SettingsApp/pages/AccountSetting/components/UsernameSection.tsx:69
 msgid "settings.account.username.label"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/AccountSetting/components/UsernameSection.tsx:77
+#: src/components/remotes/SettingsApp/pages/AccountSetting/components/UsernameSection.tsx:73
 msgid "settings.account.username.placeholder"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/AccountSetting/components/UsernameSection.tsx:104
+#: src/components/remotes/SettingsApp/pages/AccountSetting/components/UsernameSection.tsx:100
 msgid "settings.account.username.update"
 msgstr ""
 
@@ -2679,7 +2709,7 @@ msgid "settings.account.username.update_success"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/AccountSetting/components/UsernameSection.tsx:100
+#: src/components/remotes/SettingsApp/pages/AccountSetting/components/UsernameSection.tsx:96
 msgid "settings.account.username.updating"
 msgstr ""
 
@@ -3379,7 +3409,7 @@ msgid "settings.developer_api.validation.scope_required"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:276
+#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:309
 msgid "settings.document_title"
 msgstr ""
 
@@ -4058,44 +4088,54 @@ msgid "settings.notices.validation.url_required"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/NotifySetting/components/NotifyConfigModal.tsx:38
+#: src/components/remotes/SettingsApp/pages/NotifySetting/components/NotifyConfigModal.tsx:37
 msgid "settings.notifications.config.comment_likes"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/NotifySetting/components/NotifyConfigModal.tsx:54
+#: src/components/remotes/SettingsApp/pages/NotifySetting/components/NotifyConfigModal.tsx:151
+msgid "settings.notifications.config.empty"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/NotifySetting/components/NotifyConfigModal.tsx:114
 #: src/components/remotes/SettingsApp/pages/NotifySetting/NotifySetting.tsx:46
 msgid "settings.notifications.config.load_failed"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/NotifySetting/components/NotifyConfigModal.tsx:43
+#: src/components/remotes/SettingsApp/pages/NotifySetting/components/NotifyConfigModal.tsx:106
+msgid "settings.notifications.config.loading"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/NotifySetting/components/NotifyConfigModal.tsx:42
 msgid "settings.notifications.config.mentions"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/NotifySetting/components/NotifyConfigModal.tsx:33
+#: src/components/remotes/SettingsApp/pages/NotifySetting/components/NotifyConfigModal.tsx:32
 msgid "settings.notifications.config.post_comments"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/NotifySetting/components/NotifyConfigModal.tsx:28
+#: src/components/remotes/SettingsApp/pages/NotifySetting/components/NotifyConfigModal.tsx:27
 msgid "settings.notifications.config.post_likes"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/NotifySetting/components/NotifyConfigModal.tsx:107
+#: src/components/remotes/SettingsApp/pages/NotifySetting/components/NotifyConfigModal.tsx:97
 msgid "settings.notifications.config.title"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/NotifySetting/components/NotifyConfigModal.tsx:90
-#: src/components/remotes/SettingsApp/pages/NotifySetting/components/NotifyConfigModal.tsx:96
+#: src/components/remotes/SettingsApp/pages/NotifySetting/components/NotifyConfigModal.tsx:80
+#: src/components/remotes/SettingsApp/pages/NotifySetting/components/NotifyConfigModal.tsx:86
 msgid "settings.notifications.config.update_failed"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/NotifySetting/components/NotifyConfigModal.tsx:84
+#: src/components/remotes/SettingsApp/pages/NotifySetting/components/NotifyConfigModal.tsx:74
 msgid "settings.notifications.config.update_success"
 msgstr ""
 
@@ -4171,17 +4211,18 @@ msgid "settings.pinned_posts.available.limit_reached"
 msgstr ""
 
 #. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PinnedPostsSetting/components/AddPinnedPostModal.tsx:121
 #: src/components/remotes/SettingsApp/pages/PinnedPostsSetting/components/PinnablePostInlineList.tsx:84
 msgid "settings.pinned_posts.available.loading"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/PinnedPostsSetting/components/PinnablePostInlineList.tsx:106
+#: src/components/remotes/SettingsApp/pages/PinnedPostsSetting/components/PinnablePostInlineList.tsx:92
 msgid "settings.pinned_posts.available.no_results"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/PinnedPostsSetting/components/PinnablePostInlineList.tsx:110
+#: src/components/remotes/SettingsApp/pages/PinnedPostsSetting/components/PinnablePostInlineList.tsx:96
 msgid "settings.pinned_posts.available.none_left"
 msgstr ""
 
@@ -4251,7 +4292,7 @@ msgid "settings.pinned_posts.pagination.summary"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/PinnedPostsSetting/components/PinnablePostInlineList.tsx:147
+#: src/components/remotes/SettingsApp/pages/PinnedPostsSetting/components/PinnablePostInlineList.tsx:133
 msgid "settings.pinned_posts.pin"
 msgstr ""
 
@@ -4261,7 +4302,7 @@ msgid "settings.pinned_posts.reorder_label"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/PinnedPostsSetting/components/AddPinnedPostModal.tsx:229
+#: src/components/remotes/SettingsApp/pages/PinnedPostsSetting/components/AddPinnedPostModal.tsx:221
 msgid "settings.pinned_posts.select.adding"
 msgstr ""
 
@@ -4276,17 +4317,17 @@ msgid "settings.pinned_posts.select.description"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/PinnedPostsSetting/components/AddPinnedPostModal.tsx:143
+#: src/components/remotes/SettingsApp/pages/PinnedPostsSetting/components/AddPinnedPostModal.tsx:135
 msgid "settings.pinned_posts.select.empty_description"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/PinnedPostsSetting/components/AddPinnedPostModal.tsx:140
+#: src/components/remotes/SettingsApp/pages/PinnedPostsSetting/components/AddPinnedPostModal.tsx:132
 msgid "settings.pinned_posts.select.empty_title"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/PinnedPostsSetting/components/AddPinnedPostModal.tsx:150
+#: src/components/remotes/SettingsApp/pages/PinnedPostsSetting/components/AddPinnedPostModal.tsx:142
 msgid "settings.pinned_posts.select.group_label"
 msgstr ""
 
@@ -4296,17 +4337,17 @@ msgid "settings.pinned_posts.select.modal_description"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/PinnedPostsSetting/components/AddPinnedPostModal.tsx:251
+#: src/components/remotes/SettingsApp/pages/PinnedPostsSetting/components/AddPinnedPostModal.tsx:243
 msgid "settings.pinned_posts.select.modal_title"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/PinnedPostsSetting/components/AddPinnedPostModal.tsx:232
+#: src/components/remotes/SettingsApp/pages/PinnedPostsSetting/components/AddPinnedPostModal.tsx:224
 msgid "settings.pinned_posts.select.pin"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/PinnedPostsSetting/components/AddPinnedPostModal.tsx:162
+#: src/components/remotes/SettingsApp/pages/PinnedPostsSetting/components/AddPinnedPostModal.tsx:154
 msgid "settings.pinned_posts.select.post_label"
 msgstr ""
 
@@ -4483,12 +4524,12 @@ msgid "settings.posts.empty.drafts"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/PostsSetting/PostsSetting.tsx:221
+#: src/components/remotes/SettingsApp/pages/PostsSetting/PostsSetting.tsx:236
 msgid "settings.posts.empty.published"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/PostsSetting/PostsSetting.tsx:235
+#: src/components/remotes/SettingsApp/pages/PostsSetting/PostsSetting.tsx:250
 msgid "settings.posts.empty.scheduled"
 msgstr ""
 
@@ -4511,6 +4552,11 @@ msgstr ""
 #. js-lingui-explicit-id
 #: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostsFilter.tsx:198
 msgid "settings.posts.filters.expand"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PostsSetting/PostsSetting.tsx:195
+msgid "settings.posts.filters.loading"
 msgstr ""
 
 #. js-lingui-explicit-id
@@ -4581,6 +4627,11 @@ msgstr ""
 #. js-lingui-explicit-id
 #: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostsFilter.tsx:373
 msgid "settings.posts.filters.visibility_aria"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PostsSetting/PostsSetting.tsx:222
+msgid "settings.posts.list.loading"
 msgstr ""
 
 #. js-lingui-explicit-id
@@ -5728,11 +5779,6 @@ msgid "settings.series.posts.select_all"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/SeriesSetting/components/PostSelector.tsx:177
-msgid "settings.series.posts.select_post"
-msgstr ""
-
-#. js-lingui-explicit-id
 #: src/components/remotes/SettingsApp/pages/SeriesSetting/components/PostSelector.tsx:59
 msgid "settings.series.posts.selected_count"
 msgstr ""
@@ -5748,53 +5794,53 @@ msgid "settings.series.title_count"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:600
+#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:641
 msgid "settings.site.advanced.title"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:515
+#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:550
 msgid "settings.site.basic.title"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:376
-#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:389
+#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:409
+#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:422
 msgid "settings.site.brand.delete_error"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:383
+#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:416
 msgid "settings.site.brand.delete_success"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:453
+#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:486
 msgid "settings.site.brand.delete.dark.message"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:437
+#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:470
 msgid "settings.site.brand.delete.dark.title"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:444
+#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:477
 msgid "settings.site.brand.delete.default_icon.message"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:428
+#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:461
 msgid "settings.site.brand.delete.default_icon.title"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:448
+#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:481
 msgid "settings.site.brand.delete.default_logo.message"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:432
+#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:465
 msgid "settings.site.brand.delete.default_logo.title"
 msgstr ""
 
@@ -5884,136 +5930,136 @@ msgid "settings.site.brand.error.svg_unsupported_element"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:579
+#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:618
 msgid "settings.site.brand.icon.description"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:575
+#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:614
 msgid "settings.site.brand.icon.title"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:546
+#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:583
 msgid "settings.site.brand.immediate_help"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:559
+#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:596
 msgid "settings.site.brand.logo.description"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:555
+#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:592
 msgid "settings.site.brand.logo.title"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:350
-#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:365
+#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:383
+#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:398
 msgid "settings.site.brand.save_error"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:357
+#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:390
 msgid "settings.site.brand.save_success"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:169
+#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:184
 msgid "settings.site.brand.status.custom"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:173
+#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:188
 msgid "settings.site.brand.status.default"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:254
+#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:285
 msgid "settings.site.brand.theme.dark"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:241
+#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:270
 msgid "settings.site.brand.theme.default"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:540
+#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:577
 msgid "settings.site.brand.title"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:667
-#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:673
+#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:708
+#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:714
 msgid "settings.site.global_code.body_end"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:649
-#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:655
+#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:690
+#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:696
 msgid "settings.site.global_code.head"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:494
+#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:529
 msgid "settings.site.global_code.status.active"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:498
+#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:533
 msgid "settings.site.global_code.status.empty"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:489
+#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:524
 msgid "settings.site.global_code.status.unsaved"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:615
+#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:656
 msgid "settings.site.global_code.title"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:637
+#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:678
 msgid "settings.site.global_code.warning"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:289
+#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:322
 msgid "settings.site.load_error"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:531
+#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:566
 msgid "settings.site.name.help"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:523
+#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:558
 msgid "settings.site.name.label"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:706
+#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:747
 msgid "settings.site.save"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:318
-#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:337
+#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:351
+#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:370
 msgid "settings.site.save_error"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:331
+#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:364
 msgid "settings.site.save_success"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:507
+#: src/components/remotes/SettingsApp/pages/SiteSettingSetting/SiteSettingSetting.tsx:542
 msgid "settings.site.title"
 msgstr ""
 
@@ -6537,7 +6583,7 @@ msgid "settings.telegram.token.generating"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:609
+#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:614
 msgid "settings.users.description"
 msgstr ""
 
@@ -6563,35 +6609,35 @@ msgstr ""
 
 #. js-lingui-explicit-id
 #: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:302
-#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:789
+#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:802
 msgid "settings.users.field.joined"
 msgstr ""
 
 #. js-lingui-explicit-id
 #: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:288
-#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:810
+#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:823
 msgid "settings.users.field.no_email"
 msgstr ""
 
 #. js-lingui-explicit-id
 #: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:296
-#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:787
+#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:800
 msgid "settings.users.field.posts"
 msgstr ""
 
 #. js-lingui-explicit-id
 #: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:312
-#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:786
+#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:799
 msgid "settings.users.field.role"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:788
+#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:801
 msgid "settings.users.field.status"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:785
+#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:798
 msgid "settings.users.field.user"
 msgstr ""
 
@@ -6616,124 +6662,134 @@ msgid "settings.users.filter.readers"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:691
+#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:771
+msgid "settings.users.filters.ordering_aria"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:761
+msgid "settings.users.filters.role_aria"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:696
 msgid "settings.users.invites.claimed_by"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:706
+#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:711
 msgid "settings.users.invites.copy_action"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:573
+#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:578
 msgid "settings.users.invites.copy_failed"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:568
+#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:573
 msgid "settings.users.invites.copy_success"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:669
+#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:674
 msgid "settings.users.invites.create_action"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:451
+#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:456
 msgid "settings.users.invites.create_and_copy_success"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:464
 #: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:469
+#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:474
 msgid "settings.users.invites.create_failed"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:456
+#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:461
 msgid "settings.users.invites.create_success"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:486
 #: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:491
+#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:496
 msgid "settings.users.invites.delete_failed"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:479
+#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:484
 msgid "settings.users.invites.delete_success"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:586
+#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:591
 msgid "settings.users.invites.delete.message"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:582
+#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:587
 msgid "settings.users.invites.delete.title"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:652
+#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:657
 msgid "settings.users.invites.description"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:723
+#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:728
 msgid "settings.users.invites.empty"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:388
+#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:393
 msgid "settings.users.invites.load_failed"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:681
+#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:686
 msgid "settings.users.invites.status.claimed"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:685
+#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:690
 msgid "settings.users.invites.status.pending"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:648
+#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:653
 msgid "settings.users.invites.title"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:660
+#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:665
 msgid "settings.users.invites.usage_notice"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:852
+#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:870
 msgid "settings.users.list.empty"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:846
+#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:864
 msgid "settings.users.list.error"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:731
+#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:736
 msgid "settings.users.list.title"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:779
+#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:792
 msgid "settings.users.list.updating"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:373
+#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:378
 msgid "settings.users.load_failed"
 msgstr ""
 
@@ -6768,28 +6824,28 @@ msgid "settings.users.order.username_desc"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:861
+#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:879
 msgid "settings.users.pagination.summary"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:433
 #: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:438
+#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:443
 msgid "settings.users.role_change.failed"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:505
+#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:510
 msgid "settings.users.role_change.message"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:422
+#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:427
 msgid "settings.users.role_change.success"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:501
+#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:506
 msgid "settings.users.role_change.title"
 msgstr ""
 
@@ -6804,37 +6860,43 @@ msgid "settings.users.role.reader"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:739
+#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:318
+#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:835
+msgid "settings.users.role.select_aria"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:744
 msgid "settings.users.search.label"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:743
+#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:748
 msgid "settings.users.search.placeholder"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:641
+#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:646
 msgid "settings.users.stats.administrators"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:629
+#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:634
 msgid "settings.users.stats.authors"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:616
+#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:621
 msgid "settings.users.stats.label"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:635
+#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:640
 msgid "settings.users.stats.readers"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:623
+#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:628
 msgid "settings.users.stats.total"
 msgstr ""
 
@@ -6859,462 +6921,463 @@ msgid "settings.users.status.superuser"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:605
+#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:610
 msgid "settings.users.title"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:902
-#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:1084
-#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:1164
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:904
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:1086
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:1170
 msgid "settings.utility.action.preview"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:814
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:816
 msgid "settings.utility.description"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:1168
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:1174
 msgid "settings.utility.images.action.delete"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:791
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:793
 msgid "settings.utility.images.confirm.action"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:783
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:785
 msgid "settings.utility.images.confirm.message"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:774
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:776
 msgid "settings.utility.images.confirm.message_with_duplicates"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:769
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:771
 msgid "settings.utility.images.confirm.title"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:1117
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:1119
 msgid "settings.utility.images.description"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:1155
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:1161
 msgid "settings.utility.images.duplicates.description"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:1151
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:1157
 msgid "settings.utility.images.duplicates.label"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:599
-#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:628
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:601
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:630
 msgid "settings.utility.images.error"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:610
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:612
 msgid "settings.utility.images.partial_failure"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:372
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:374
 msgid "settings.utility.images.result.duplicate_alt"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:358
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:360
 msgid "settings.utility.images.result.duplicate_files"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:301
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:303
 msgid "settings.utility.images.result.duplicates"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:386
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:388
 msgid "settings.utility.images.result.original_alt"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:272
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:274
 msgid "settings.utility.images.result.partial_failure_title"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:312
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:314
 msgid "settings.utility.images.result.saved_space"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:279
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:281
 msgid "settings.utility.images.result.success_title"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:290
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:292
 msgid "settings.utility.images.result.unused"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:337
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:339
 msgid "settings.utility.images.result.unused_files"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:329
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:331
 msgid "settings.utility.images.result.unused_files_partial"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:615
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:617
 msgid "settings.utility.images.success"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:418
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:420
 msgid "settings.utility.images.target.all"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:439
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:441
 msgid "settings.utility.images.target.avatar"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:425
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:427
 msgid "settings.utility.images.target.content"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:1126
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:1128
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:1136
 msgid "settings.utility.images.target.label"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:432
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:434
 msgid "settings.utility.images.target.title"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:1113
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:1115
 msgid "settings.utility.images.title"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:1088
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:1090
 msgid "settings.utility.logs.action.delete"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:751
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:753
 msgid "settings.utility.logs.confirm.action"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:741
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:743
 msgid "settings.utility.logs.confirm.message"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:737
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:739
 msgid "settings.utility.logs.confirm.title"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:1060
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:1062
 msgid "settings.utility.logs.description"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:556
-#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:575
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:558
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:577
 msgid "settings.utility.logs.error"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:233
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:235
 msgid "settings.utility.logs.result.admin"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:243
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:245
 msgid "settings.utility.logs.result.developer"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:228
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:230
 msgid "settings.utility.logs.result.success_title"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:1068
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:1070
 msgid "settings.utility.logs.stats.admin"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:1075
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:1077
 msgid "settings.utility.logs.stats.developer"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:564
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:566
 msgid "settings.utility.logs.success"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:1056
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:1058
 msgid "settings.utility.logs.title"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:116
-#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:224
-#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:264
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:117
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:226
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:266
 msgid "settings.utility.result.preview_title"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:1022
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:1024
 msgid "settings.utility.sessions.all.action.delete"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:1018
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:1020
 msgid "settings.utility.sessions.all.action.preview"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:718
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:720
 msgid "settings.utility.sessions.all.confirm.action"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:713
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:715
 msgid "settings.utility.sessions.all.confirm.message"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:709
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:711
 msgid "settings.utility.sessions.all.confirm.title"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:1011
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:1013
 msgid "settings.utility.sessions.all.description"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:1005
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:1007
 msgid "settings.utility.sessions.all.title"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:523
-#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:539
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:525
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:541
 msgid "settings.utility.sessions.error"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:975
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:977
 msgid "settings.utility.sessions.expired.action.delete"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:971
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:973
 msgid "settings.utility.sessions.expired.action.preview"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:690
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:692
 msgid "settings.utility.sessions.expired.confirm.action"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:685
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:687
 msgid "settings.utility.sessions.expired.confirm.message"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:681
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:683
 msgid "settings.utility.sessions.expired.confirm.title"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:964
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:966
 msgid "settings.utility.sessions.expired.description"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:958
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:960
 msgid "settings.utility.sessions.expired.title"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:188
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:189
 msgid "settings.utility.sessions.result.all_preview"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:184
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:185
 msgid "settings.utility.sessions.result.all_preview_title"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:200
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:201
 msgid "settings.utility.sessions.result.expired_preview"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:196
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:197
 msgid "settings.utility.sessions.result.expired_preview_title"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:175
-#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:531
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:176
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:533
 msgid "settings.utility.sessions.result.success"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:171
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:172
 msgid "settings.utility.sessions.result.success_title"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:946
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:948
 msgid "settings.utility.sessions.stats.expired"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:939
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:941
 msgid "settings.utility.sessions.stats.total"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:931
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:933
 msgid "settings.utility.sessions.title"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:856
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:858
 msgid "settings.utility.stats.comments"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:877
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:879
 msgid "settings.utility.stats.db_size"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:454
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:456
 msgid "settings.utility.stats.load_error"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:842
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:844
 msgid "settings.utility.stats.posts"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:825
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:827
 msgid "settings.utility.stats.refresh"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:863
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:865
 msgid "settings.utility.stats.series"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:870
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:872
 msgid "settings.utility.stats.sessions"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:835
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:837
 msgid "settings.utility.stats.title"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:849
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:851
 msgid "settings.utility.stats.users"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:906
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:908
 msgid "settings.utility.tags.action.delete"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:663
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:665
 msgid "settings.utility.tags.confirm.action"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:658
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:660
 msgid "settings.utility.tags.confirm.message"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:654
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:656
 msgid "settings.utility.tags.confirm.title"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:894
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:896
 msgid "settings.utility.tags.description"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:488
-#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:504
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:490
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:506
 msgid "settings.utility.tags.error"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:126
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:127
 msgid "settings.utility.tags.result.preview"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:151
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:152
 msgid "settings.utility.tags.result.show_names"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:138
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:139
 msgid "settings.utility.tags.result.stats"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:131
-#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:496
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:132
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:498
 msgid "settings.utility.tags.result.success"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:120
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:121
 msgid "settings.utility.tags.result.success_title"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:890
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:892
 msgid "settings.utility.tags.title"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:810
+#: src/components/remotes/SettingsApp/pages/UtilitySetting/UtilitySetting.tsx:812
 msgid "settings.utility.title"
 msgstr ""
 

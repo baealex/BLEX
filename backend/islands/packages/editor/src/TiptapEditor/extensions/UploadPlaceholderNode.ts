@@ -55,9 +55,18 @@ export const UploadPlaceholderNode = Node.create<UploadPlaceholderMessages>({
             {
                 'data-upload-placeholder': 'true',
                 'data-upload-id': HTMLAttributes.id || '',
+                role: 'status',
+                'aria-live': 'polite',
+                'aria-atomic': 'true',
                 class: 'media-upload-placeholder'
             },
-            ['span', { class: 'media-upload-placeholder__spinner' }],
+            [
+                'span',
+                {
+                    class: 'media-upload-placeholder__spinner',
+                    'aria-hidden': 'true'
+                }
+            ],
             ['span', { class: 'media-upload-placeholder__text' }, progressLabel]
         ];
     }

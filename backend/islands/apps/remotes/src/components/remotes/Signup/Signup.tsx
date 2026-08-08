@@ -28,7 +28,7 @@ interface PasswordStrength {
 
 const getPasswordStrength = (pw: string): PasswordStrength | null => {
     if (!pw) return null;
-    if (pw.length < 6) {
+    if (pw.length < 8) {
         return {
             level: 'too_short',
             color: 'text-danger'
@@ -165,27 +165,44 @@ const Signup = () => {
         setPasswordError('');
         setConfirmPasswordError('');
         setSignupError('');
-        setIsLoading(true);
 
         let hasError = false;
-        if (!username) {
+        if (!username.trim()) {
             setUsernameError(t({
                 id: 'auth.validation.username_required',
                 message: 'Username is required.'
             }));
             hasError = true;
+        } else if (!/^[a-z0-9]+$/.test(username)) {
+            setUsernameError(t({
+                id: 'auth.validation.username_characters',
+                message: 'Use only lowercase letters and numbers.'
+            }));
+            hasError = true;
+        } else if (username.length < 4 || username.length > 15) {
+            setUsernameError(t({
+                id: 'auth.validation.username_length',
+                message: 'Username must be 4–15 lowercase letters or numbers.'
+            }));
+            hasError = true;
         }
-        if (!name) {
+        if (!name.trim()) {
             setNameError(t({
                 id: 'auth.validation.display_name_required',
                 message: 'Display name is required.'
             }));
             hasError = true;
         }
-        if (!email) {
+        if (!email.trim()) {
             setEmailError(t({
                 id: 'auth.validation.email_required',
                 message: 'Email is required.'
+            }));
+            hasError = true;
+        } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+            setEmailError(t({
+                id: 'auth.validation.email_invalid',
+                message: 'Enter a valid email address.'
             }));
             hasError = true;
         }
@@ -195,8 +212,20 @@ const Signup = () => {
                 message: 'Password is required.'
             }));
             hasError = true;
+        } else if (password.length < 8) {
+            setPasswordError(t({
+                id: 'auth.validation.password_too_short',
+                message: 'Password must be at least 8 characters.'
+            }));
+            hasError = true;
         }
-        if (password !== confirmPassword) {
+        if (!confirmPassword) {
+            setConfirmPasswordError(t({
+                id: 'auth.validation.confirm_password_required',
+                message: 'Confirm your password.'
+            }));
+            hasError = true;
+        } else if (password !== confirmPassword) {
             setConfirmPasswordError(t({
                 id: 'auth.validation.password_mismatch',
                 message: 'Passwords do not match.'
@@ -205,7 +234,6 @@ const Signup = () => {
         }
 
         if (hasError) {
-            setIsLoading(false);
             return;
         }
 
@@ -214,9 +242,10 @@ const Signup = () => {
                 id: 'auth.signup.complete_security_check',
                 message: 'Complete the security check.'
             }));
-            setIsLoading(false);
             return;
         }
+
+        setIsLoading(true);
 
         try {
             const formData = new URLSearchParams({
@@ -270,7 +299,12 @@ const Signup = () => {
             {/* Logo & Title */}
             <div className="text-center mb-8">
                 <div className="mx-auto h-16 w-16 bg-action rounded-2xl flex items-center justify-center mb-6 shadow-floating ring-1 ring-line/20">
-                    <svg className="w-8 h-8 text-content-inverted" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg
+                        aria-hidden="true"
+                        className="w-8 h-8 text-content-inverted"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
                     </svg>
                 </div>
@@ -295,7 +329,7 @@ const Signup = () => {
                 <div className="absolute inset-0 bg-gradient-to-b from-surface/40 to-transparent pointer-events-none" />
                 <div className="relative z-10">
                     {/* Signup Form */}
-                    <form className="space-y-5" onSubmit={handleSubmit}>
+                    <form className="space-y-5" noValidate onSubmit={handleSubmit}>
                         <input type="hidden" name="csrfmiddlewaretoken" value={getCsrfToken()} />
 
                         <div className="space-y-4">
@@ -309,6 +343,8 @@ const Signup = () => {
                                     type="text"
                                     autoComplete="username"
                                     required
+                                    aria-invalid={Boolean(usernameError)}
+                                    aria-describedby="signup-username-help"
                                     value={username}
                                     onChange={(e) => {
                                         const val = e.target.value;
@@ -333,9 +369,9 @@ const Signup = () => {
                                         message: '4–15 lowercase letters or numbers'
                                     })}
                                 />
-                                {usernameError && <p className="text-danger text-xs mt-1.5 font-medium flex items-center gap-1"><i className="fas fa-exclamation-circle" /> {usernameError}</p>}
+                                {usernameError && <p id="signup-username-help" role="alert" className="text-danger text-xs mt-1.5 font-medium flex items-center gap-1"><i aria-hidden="true" className="fas fa-exclamation-circle" /> {usernameError}</p>}
                                 {!usernameError && (
-                                    <p className="text-content-hint text-xs mt-1.5 font-medium">
+                                    <p id="signup-username-help" className="text-content-hint text-xs mt-1.5 font-medium">
                                         <Trans id="auth.fields.username_hint">4–15 lowercase letters or numbers</Trans>
                                     </p>
                                 )}
@@ -351,6 +387,8 @@ const Signup = () => {
                                     type="text"
                                     autoComplete="name"
                                     required
+                                    aria-invalid={Boolean(nameError)}
+                                    aria-describedby={nameError ? 'signup-name-error' : undefined}
                                     value={name}
                                     onChange={(e) => setName(e.target.value)}
                                     className="w-full px-4 py-3.5 border border-line rounded-lg focus:ring-4 focus:ring-line/5 focus:border-line-strong/30 text-content placeholder-content-hint transition-all duration-200 bg-surface/40 text-sm font-medium"
@@ -359,7 +397,7 @@ const Signup = () => {
                                         message: 'Enter your display name'
                                     })}
                                 />
-                                {nameError && <p className="text-danger text-xs mt-1.5 font-medium flex items-center gap-1"><i className="fas fa-exclamation-circle" /> {nameError}</p>}
+                                {nameError && <p id="signup-name-error" role="alert" className="text-danger text-xs mt-1.5 font-medium flex items-center gap-1"><i aria-hidden="true" className="fas fa-exclamation-circle" /> {nameError}</p>}
                             </div>
 
                             <div>
@@ -372,6 +410,8 @@ const Signup = () => {
                                     type="email"
                                     autoComplete="email"
                                     required
+                                    aria-invalid={Boolean(emailError)}
+                                    aria-describedby={emailError ? 'signup-email-error' : undefined}
                                     value={email}
                                     onChange={(e) => setEmail(e.target.value)}
                                     className="w-full px-4 py-3.5 border border-line rounded-lg focus:ring-4 focus:ring-line/5 focus:border-line-strong/30 text-content placeholder-content-hint transition-all duration-200 bg-surface/40 text-sm font-medium"
@@ -380,7 +420,7 @@ const Signup = () => {
                                         message: 'Enter your email address'
                                     })}
                                 />
-                                {emailError && <p className="text-danger text-xs mt-1.5 font-medium flex items-center gap-1"><i className="fas fa-exclamation-circle" /> {emailError}</p>}
+                                {emailError && <p id="signup-email-error" role="alert" className="text-danger text-xs mt-1.5 font-medium flex items-center gap-1"><i aria-hidden="true" className="fas fa-exclamation-circle" /> {emailError}</p>}
                             </div>
 
                             <div>
@@ -393,6 +433,9 @@ const Signup = () => {
                                     type="password"
                                     autoComplete="new-password"
                                     required
+                                    minLength={8}
+                                    aria-invalid={Boolean(passwordError)}
+                                    aria-describedby={passwordError || passwordStrength ? 'signup-password-help' : undefined}
                                     value={password}
                                     onChange={(e) => {
                                         const val = e.target.value;
@@ -412,9 +455,9 @@ const Signup = () => {
                                         message: 'Enter a secure password'
                                     })}
                                 />
-                                {passwordError && <p className="text-danger text-xs mt-1.5 font-medium flex items-center gap-1"><i className="fas fa-exclamation-circle" /> {passwordError}</p>}
+                                {passwordError && <p id="signup-password-help" role="alert" className="text-danger text-xs mt-1.5 font-medium flex items-center gap-1"><i aria-hidden="true" className="fas fa-exclamation-circle" /> {passwordError}</p>}
                                 {!passwordError && passwordStrength && (
-                                    <p className={`text-xs mt-1.5 font-medium ${passwordStrength.color}`}>
+                                    <p id="signup-password-help" aria-live="polite" className={`text-xs mt-1.5 font-medium ${passwordStrength.color}`}>
                                         <Trans id="auth.signup.password_strength">
                                             Password strength: {passwordStrengthLabel}
                                         </Trans>
@@ -432,6 +475,8 @@ const Signup = () => {
                                     type="password"
                                     autoComplete="new-password"
                                     required
+                                    aria-invalid={Boolean(confirmPasswordError)}
+                                    aria-describedby={confirmPasswordError ? 'signup-confirm-password-error' : undefined}
                                     value={confirmPassword}
                                     onChange={(e) => {
                                         const val = e.target.value;
@@ -451,7 +496,7 @@ const Signup = () => {
                                         message: 'Enter your password again'
                                     })}
                                 />
-                                {confirmPasswordError && <p className="text-danger text-xs mt-1.5 font-medium flex items-center gap-1"><i className="fas fa-exclamation-circle" /> {confirmPasswordError}</p>}
+                                {confirmPasswordError && <p id="signup-confirm-password-error" role="alert" className="text-danger text-xs mt-1.5 font-medium flex items-center gap-1"><i aria-hidden="true" className="fas fa-exclamation-circle" /> {confirmPasswordError}</p>}
                             </div>
                         </div>
 
@@ -463,8 +508,8 @@ const Signup = () => {
                         )}
 
                         {signupError && (
-                            <div className="bg-danger-surface border border-danger-line rounded-xl p-4 flex items-center gap-3">
-                                <i className="fas fa-exclamation-triangle text-danger" />
+                            <div role="alert" className="bg-danger-surface border border-danger-line rounded-xl p-4 flex items-center gap-3">
+                                <i aria-hidden="true" className="fas fa-exclamation-triangle text-danger" />
                                 <p className="text-danger text-sm font-medium">{signupError}</p>
                             </div>
                         )}
@@ -475,7 +520,12 @@ const Signup = () => {
                             className="w-full flex items-center justify-center py-3.5 px-6 bg-action hover:bg-action-hover text-content-inverted font-semibold rounded-lg shadow-floating hover:shadow-floating hover:-translate-y-0.5 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none text-sm">
                             {isLoading ? (
                                 <>
-                                    <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-content-inverted" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                    <svg
+                                        aria-hidden="true"
+                                        className="animate-spin -ml-1 mr-2 h-4 w-4 text-content-inverted"
+                                        xmlns="http://www.w3.org/2000/svg"
+                                        fill="none"
+                                        viewBox="0 0 24 24">
                                         <circle
                                             className="opacity-25"
                                             cx="12"

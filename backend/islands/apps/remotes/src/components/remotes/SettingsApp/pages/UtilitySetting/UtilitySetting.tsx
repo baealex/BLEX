@@ -112,6 +112,7 @@ const TagCleanupResult = ({ result }: { result: TagCleanResult }) => {
         <div aria-live="polite">
             <Alert
                 variant={result.dryRun ? 'info' : 'success'}
+                headingLevel={3}
                 title={result.dryRun
                     ? t({
                         id: 'settings.utility.result.preview_title',
@@ -206,7 +207,7 @@ const SessionCleanupResult = ({ result }: { result: SessionCleanResult }) => {
 
     return (
         <div aria-live="polite">
-            <Alert variant={presentation.variant} title={presentation.title}>
+            <Alert variant={presentation.variant} title={presentation.title} headingLevel={3}>
                 {presentation.message}
             </Alert>
         </div>
@@ -220,6 +221,7 @@ const LogCleanupResult = ({ result }: { result: LogCleanResult }) => {
         <div aria-live="polite">
             <Alert
                 variant={result.dryRun ? 'info' : 'success'}
+                headingLevel={3}
                 title={result.dryRun
                     ? t({
                         id: 'settings.utility.result.preview_title',
@@ -284,7 +286,7 @@ const ImageCleanupResult = ({ result }: { result: ImageCleanResult }) => {
 
     return (
         <div aria-live="polite">
-            <Alert variant={presentation.variant} title={presentation.title}>
+            <Alert variant={presentation.variant} title={presentation.title} headingLevel={3}>
                 <div className="space-y-1">
                     <p>
                         {i18n._({
@@ -954,12 +956,12 @@ const UtilitySetting = () => {
 
                             <div className="space-y-3 rounded-xl border border-line p-4">
                                 <div>
-                                    <h4 className="text-sm font-semibold text-content">
+                                    <h3 className="text-sm font-semibold text-content">
                                         {t({
                                             id: 'settings.utility.sessions.expired.title',
                                             message: 'Expired sessions'
                                         })}
-                                    </h4>
+                                    </h3>
                                     <p className="mt-1 text-xs text-content-secondary">
                                         {t({
                                             id: 'settings.utility.sessions.expired.description',
@@ -1001,12 +1003,12 @@ const UtilitySetting = () => {
 
                             <div className="space-y-3 rounded-xl border border-danger-line bg-danger-surface/40 p-4">
                                 <div>
-                                    <h4 className="text-sm font-semibold text-danger">
+                                    <h3 className="text-sm font-semibold text-danger">
                                         {t({
                                             id: 'settings.utility.sessions.all.title',
                                             message: 'All user sessions'
                                         })}
-                                    </h4>
+                                    </h3>
                                     <p className="mt-1 text-xs text-content-secondary">
                                         {t({
                                             id: 'settings.utility.sessions.all.description',
@@ -1122,15 +1124,19 @@ const UtilitySetting = () => {
                         <div className="space-y-4">
                             <div className="flex flex-wrap items-start gap-4">
                                 <div className="w-full min-w-[220px] flex-1">
-                                    <label className="mb-1.5 block text-sm font-medium text-content">
+                                    <span className="mb-1.5 block text-sm font-medium text-content">
                                         {t({
                                             id: 'settings.utility.images.target.label',
                                             message: 'Cleanup target'
                                         })}
-                                    </label>
+                                    </span>
                                     <Select
                                         density="compact"
                                         value={imageTarget}
+                                        ariaLabel={t({
+                                            id: 'settings.utility.images.target.label',
+                                            message: 'Cleanup target'
+                                        })}
                                         onValueChange={(value) => {
                                             setImageTarget(value);
                                             setImageResult(null);

@@ -1,4 +1,4 @@
-import { useEffect, useMemo } from 'react';
+import { useMemo } from 'react';
 import { useLingui } from '@lingui/react/macro';
 import { useForm } from 'react-hook-form';
 import { Save } from '@blex/ui/icons';
@@ -36,10 +36,6 @@ const NameSection = ({ initialName, isLoading, onSubmit }: NameSectionProps) => 
         defaultValues: { name: initialName },
         mode: 'onChange'
     });
-
-    useEffect(() => {
-        reset({ name: initialName });
-    }, [initialName, reset]);
 
     const handleFormSubmit = async (formData: NameFormInputs) => {
         const result = await onSubmit(formData.name || '');

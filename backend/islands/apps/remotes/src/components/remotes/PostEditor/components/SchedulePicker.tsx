@@ -172,7 +172,6 @@ const SchedulePicker = ({ value, onChange, allowClear = true }: SchedulePickerPr
                             selected={selectedDate || undefined}
                             onSelect={handleDaySelect}
                             disabled={{ before: startOfToday() }}
-                            weekStartsOn={1}
                             classNames={dayPickerClassNames}
                         />
 

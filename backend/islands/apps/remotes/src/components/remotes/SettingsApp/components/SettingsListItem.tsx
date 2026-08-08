@@ -35,8 +35,8 @@ const SettingsListItem = ({
 }: SettingsListItemProps) => {
     const { t } = useLingui();
 
-    const handleKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
-        if (!onClick || event.target !== event.currentTarget) return;
+    const handleContentKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
+        if (!onClick) return;
 
         if (event.key === 'Enter' || event.key === ' ') {
             event.preventDefault();
@@ -47,12 +47,8 @@ const SettingsListItem = ({
     return (
         <div
             className={`${LIST_ITEM_SHELL}${onClick
-                ? ' cursor-pointer hover:ring-line focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-line-strong'
-                : ''}`}
-            onClick={onClick}
-            onKeyDown={handleKeyDown}
-            role={onClick ? 'button' : undefined}
-            tabIndex={onClick ? 0 : undefined}>
+                ? ' hover:ring-line'
+                : ''}`}>
             <div className={LIST_ITEM_CONTENT}>
                 <div className={`${LIST_ITEM_ROW}${className ? ` ${className}` : ''}`}>
                     {dragHandleProps && (
@@ -70,11 +66,26 @@ const SettingsListItem = ({
                         </div>
                     )}
 
-                    {left}
-
-                    <div className="flex-1 min-w-0">
-                        {children}
-                    </div>
+                    {onClick ? (
+                        <div
+                            role="button"
+                            tabIndex={0}
+                            className="flex min-w-0 flex-1 cursor-pointer items-center gap-3 rounded-lg text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-line-strong"
+                            onClick={onClick}
+                            onKeyDown={handleContentKeyDown}>
+                            {left}
+                            <div className="min-w-0 flex-1">
+                                {children}
+                            </div>
+                        </div>
+                    ) : (
+                        <>
+                            {left}
+                            <div className="flex-1 min-w-0">
+                                {children}
+                            </div>
+                        </>
+                    )}
 
                     {actions && (
                         <div className={LIST_ITEM_ACTIONS} onClick={(e) => e.stopPropagation()}>

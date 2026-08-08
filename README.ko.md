@@ -72,27 +72,36 @@ BLEX는 직접 관리하는 인프라에서 실행하는 블로그 애플리케�
 
 ## Docker로 실행
 
-요구사항: Git, Docker, Docker Compose.
+요구사항: Docker.
 
 ```bash
-git clone https://github.com/baealex/BLEX.git
-cd BLEX
-cp samples/.env backend/.env
-mkdir -p backend/src/resources/media
-touch backend/src/db.sqlite3
-docker compose up -d
-docker compose logs -f blex
+docker run -d \
+  --name blex \
+  --restart unless-stopped \
+  -p 20002:80 \
+  --mount source=blex-db,target=/var/lib/blex \
+  --mount source=blex-media,target=/app/resources/media \
+  -e BLEX_SQLITE_DB_PATH=/var/lib/blex/db.sqlite3 \
+  -e SECRET_KEY=local-preview-only-change-me \
+  -e CIPHER_KEY=local-only-cipher-key-32-charsxx \
+  -e DEBUG=TRUE \
+  -e ENABLE_ENGLISH_UI=TRUE \
+  -e SITE_URL=http://localhost:20002 \
+  baealex/blex:latest
+
+docker logs -f blex
 ```
 
 `http://localhost:20002`에 접속하세요. 로그의 `Initial setup URL`에서
-최초 관리자를 만들 수 있습니다.
+최초 관리자를 만들 수 있습니다. 컨테이너를 교체해도 `blex-db`와
+`blex-media` 볼륨에 데이터베이스와 업로드 파일이 유지됩니다.
 
-샘플 환경은 영어와 한국어 UI 협상을 활성화합니다. 기존 설치에서는
-`ENABLE_ENGLISH_UI=TRUE`를 설정해 활성화할 수 있습니다.
+이 명령은 로컬 체험용이며 영어와 한국어 UI 협상을 활성화합니다. 기존
+설치에서는 `ENABLE_ENGLISH_UI=TRUE`를 설정해 활성화할 수 있습니다.
 
-외부에 공개하기 전에는 샘플 secret을 교체하고 공개 사이트 URL과 허용
-호스트를 설정해야 합니다. BLEX 앞단에 HTTPS 프록시를 두고 SQLite DB와
-업로드 미디어를 함께 백업하세요. 자세한 내용은
+외부에 공개하기 전에는 고유한 secret을 사용하고 `DEBUG=FALSE`로 바꾼 뒤
+공개 사이트 URL과 허용 호스트를 설정해야 합니다. BLEX 앞단에 HTTPS
+프록시를 두고 두 Docker 볼륨을 함께 백업하세요. 자세한 내용은
 [셀프 호스팅 가이드](docs/SELF_HOSTING.md)를 확인하세요.
 
 ## 공개 URL

@@ -6,8 +6,7 @@
 <section data-featured-posts-section data-partial-url="{% url 'user_featured_posts_partial' username=author.username %}">
     <div class="mb-4 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
         <div>
-            <p class="mb-2 text-xs font-bold uppercase tracking-[0.18em] text-content-hint">{% translate "Posts" %}</p>
-            <h2 class="text-2xl font-bold text-content">
+            <h2 class="text-2xl font-bold tracking-tight text-content">
                 {% if featured_posts_section.kind == 'featured' %}{% translate "Featured posts" %}{% else %}{% translate "Recent posts" %}{% endif %}
             </h2>
         </div>

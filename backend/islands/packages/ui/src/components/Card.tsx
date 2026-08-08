@@ -7,6 +7,7 @@ interface CardProps {
     children: ReactNode;
     className?: string;
     noPadding?: boolean;
+    headingLevel?: 2 | 3 | 4;
 }
 
 const Card = ({
@@ -15,8 +16,11 @@ const Card = ({
  icon,
  children,
  className = '',
- noPadding = false
+ noPadding = false,
+ headingLevel = 2
 }: CardProps) => {
+    const Heading = `h${headingLevel}` as const;
+
     return (
         <div className={`bg-surface ring-1 ring-line/60 rounded-2xl ${noPadding ? '' : 'p-6 md:p-8'} ${className}`}>
             {(title || subtitle || icon) && (
@@ -28,7 +32,7 @@ const Card = ({
                             </div>
                         )}
                         <div className="flex-1 min-w-0 pt-1">
-                            {title && <h2 className="text-base font-semibold text-content">{title}</h2>}
+                            {title && <Heading className="text-base font-semibold text-content">{title}</Heading>}
                             {subtitle && <p className="text-sm text-content-secondary mt-1 leading-relaxed">{subtitle}</p>}
                         </div>
                     </div>

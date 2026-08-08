@@ -38,9 +38,9 @@
                         </span>
                         {% endif %}
                     </div>
-                    <h3 class="truncate text-base font-semibold leading-snug text-content">
+                    <h2 class="truncate text-base font-semibold leading-snug text-content">
                         {{ notice.title }}
-                    </h3>
+                    </h2>
                 </div>
                 <span class="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full text-content-hint">
                     <i class="fas fa-arrow-right text-sm"></i>
@@ -91,9 +91,9 @@
                     <div class="mb-0.5 text-[10px] font-bold tracking-wider text-content-hint">
                         {% if notice.scope == 'user' %}{% translate "Blog notice" context "Notice scope label" %}{% else %}{% translate "Site notice" context "Notice scope label" %}{% endif %}
                     </div>
-                    <h3 class="truncate text-sm font-semibold leading-tight text-content">
+                    <h2 class="truncate text-sm font-semibold leading-tight text-content">
                         {{ notice.title }}
-                    </h3>
+                    </h2>
                 </div>
                 {% if notices|length > 1 %}
                 <span class="text-[10px] font-medium tabular-nums text-content-hint">

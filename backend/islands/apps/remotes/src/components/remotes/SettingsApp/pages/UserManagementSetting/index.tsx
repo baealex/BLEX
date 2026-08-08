@@ -315,6 +315,11 @@ const MobileUserRow = ({
                             <Select
                                 density="compact"
                                 value={user.role}
+                                ariaLabel={i18n._({
+                                    id: 'settings.users.role.select_aria',
+                                    message: 'Change role for {username}',
+                                    values: { username: user.username }
+                                })}
                                 onValueChange={(value) => onRoleChange(value as ManagedUserRole)}
                                 items={localizedRoleItems}
                                 className="min-h-11 py-2"
@@ -753,12 +758,20 @@ const UserManagementSetting = () => {
                     <Select
                         density="compact"
                         value={roleFilter}
+                        ariaLabel={t({
+                            id: 'settings.users.filters.role_aria',
+                            message: 'Filter users by role'
+                        })}
                         onValueChange={handleRoleFilterChange}
                         items={localizedRoleFilterItems}
                     />
                     <Select
                         density="compact"
                         value={ordering}
+                        ariaLabel={t({
+                            id: 'settings.users.filters.ordering_aria',
+                            message: 'Sort users'
+                        })}
                         onValueChange={handleOrderingChange}
                         items={localizedOrderingItems}
                     />
@@ -819,6 +832,11 @@ const UserManagementSetting = () => {
                                             <Select
                                                 density="compact"
                                                 value={user.role}
+                                                ariaLabel={i18n._({
+                                                    id: 'settings.users.role.select_aria',
+                                                    message: 'Change role for {username}',
+                                                    values: { username: user.username }
+                                                })}
                                                 onValueChange={(value) => void handleRoleChange(user, value as ManagedUserRole)}
                                                 items={localizedRoleItems}
                                                 disabled={roleMutation.isPending && roleMutation.variables?.user.id === user.id}

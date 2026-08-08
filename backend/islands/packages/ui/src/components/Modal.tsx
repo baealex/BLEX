@@ -109,6 +109,10 @@ const ModalRoot = ({
 }: ModalProps) => {
     const accessibleTitle = title ?? ariaTitle ?? 'Dialog';
 
+    if (!isOpen) {
+        return null;
+    }
+
     // Use explicit class names for Tailwind to detect at build time
     const getMaxWidthClass = () => {
         switch (maxWidth) {
@@ -129,7 +133,7 @@ const ModalRoot = ({
                 {/* 블러 백드롭 */}
                 <Dialog.Overlay
                     className={cx(
-                        `fixed inset-0 ${DIM_OVERLAY_DEFAULT} z-[60] data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0`
+                        `fixed inset-0 ${DIM_OVERLAY_DEFAULT} z-[60] data-[state=open]:animate-in data-[state=open]:fade-in-0`
                     )}
                 />
 
@@ -147,11 +151,10 @@ const ModalRoot = ({
                         getMaxWidthClass(),
 
                         // Animations
-                        'data-[state=open]:animate-in data-[state=closed]:animate-out',
-                        'data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0',
-                        'motion-safe:max-sm:data-[state=closed]:slide-out-to-bottom motion-safe:max-sm:data-[state=open]:slide-in-from-bottom',
-                        'motion-safe:sm:data-[state=closed]:zoom-out-95 motion-safe:sm:data-[state=open]:zoom-in-95',
-                        'motion-reduce:data-[state=open]:animate-none motion-reduce:data-[state=closed]:animate-none motion-reduce:transition-none',
+                        'data-[state=open]:animate-in data-[state=open]:fade-in-0',
+                        'motion-safe:max-sm:data-[state=open]:slide-in-from-bottom',
+                        'motion-safe:sm:data-[state=open]:zoom-in-95',
+                        'motion-reduce:data-[state=open]:animate-none motion-reduce:transition-none',
                         'duration-150 motion-reduce:duration-0'
                     )}>
 

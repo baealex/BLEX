@@ -8,7 +8,7 @@
 {% translate "Introduction saved." as saved_message %}
 {% translate "Could not save the introduction." as save_error_message %}
 {% translate "A network error occurred. Please try again." as network_error_message %}
-{% include 'board/author/components/author_header.html' %}
+{% include 'board/author/components/author_header.html' with author_header_is_heading=False %}
 
 <div class="max-w-5xl w-full mx-auto px-4 sm:px-6">
     {% with active_tab='about' %}

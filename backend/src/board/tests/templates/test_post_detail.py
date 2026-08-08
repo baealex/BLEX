@@ -277,8 +277,8 @@ class PostDetailViewTestCase(TestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertFalse(response.context['show_post_updated_date'])
-        self.assertContains(response, '2026-05-30 발행')
-        self.assertNotContains(response, '2026-05-30 수정')
+        self.assertContains(response, '2026년 5월 30일 발행')
+        self.assertNotContains(response, '2026년 5월 30일 수정')
         self.assertNotContains(response, '수정일')
 
     def test_post_detail_shows_updated_date_when_display_date_differs(self):
@@ -295,8 +295,8 @@ class PostDetailViewTestCase(TestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertTrue(response.context['show_post_updated_date'])
-        self.assertContains(response, '2026-05-30 발행')
-        self.assertContains(response, '2026-05-31 수정')
+        self.assertContains(response, '2026년 5월 30일 발행')
+        self.assertContains(response, '2026년 5월 31일 수정')
         self.assertContains(response, '수정일')
 
     def test_post_detail_shows_post_info_section(self):
@@ -314,6 +314,10 @@ class PostDetailViewTestCase(TestCase):
 
     def test_post_detail_translates_ui_without_translating_authored_content(self):
         """영어 UI에서도 작성자가 입력한 제목과 본문은 원문 그대로 유지한다."""
+        self.set_post_dates(
+            timezone.make_aware(datetime.datetime(2026, 5, 30, 10, 0, 0)),
+            timezone.make_aware(datetime.datetime(2026, 5, 31, 10, 0, 0)),
+        )
         self.post.title = '한국어로 작성한 제목'
         self.post.save(update_fields=['title'])
         PostContent.objects.filter(post=self.post).update(
@@ -337,6 +341,8 @@ class PostDetailViewTestCase(TestCase):
         self.assertContains(response, '한국어로 작성한 본문')
         self.assertContains(response, 'Post information')
         self.assertContains(response, 'First published')
+        self.assertContains(response, 'Published May 30, 2026')
+        self.assertContains(response, 'Updated May 31, 2026')
         self.assertContains(response, 'Table of contents')
         self.assertRegex(rendered, r'\bplaceholder=["\']?Search["\']?[\s>]')
         self.assertNotContains(response, '포스트 정보')

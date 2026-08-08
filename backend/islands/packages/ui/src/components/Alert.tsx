@@ -7,6 +7,7 @@ interface AlertProps {
     children: ReactNode;
     icon?: ReactNode;
     className?: string;
+    headingLevel?: 3 | 4;
 }
 
 const Alert = ({
@@ -14,7 +15,8 @@ const Alert = ({
     title,
     children,
     icon,
-    className = ''
+    className = '',
+    headingLevel = 4
 }: AlertProps) => {
     const variants = {
         info: {
@@ -49,6 +51,7 @@ const Alert = ({
 
     const config = variants[variant];
     const displayIcon = icon || config.defaultIcon;
+    const Heading = `h${headingLevel}` as const;
 
     return (
         <div className={`${config.container} border rounded-xl p-4 ${className}`}>
@@ -58,9 +61,9 @@ const Alert = ({
                 </div>
                 <div className="flex-1 min-w-0">
                     {title && (
-                        <h4 className={`text-sm font-semibold ${config.titleColor} mb-1`}>
+                        <Heading className={`text-sm font-semibold ${config.titleColor} mb-1`}>
                             {title}
-                        </h4>
+                        </Heading>
                     )}
                     <div className={`text-sm ${config.textColor} ${title ? '' : 'leading-relaxed'}`}>
                         {children}

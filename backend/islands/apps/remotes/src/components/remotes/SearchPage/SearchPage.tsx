@@ -509,7 +509,7 @@ const SearchPage = ({ username }: SearchPageProps) => {
                                             <div className="flex-1 min-w-0">
                                                 <div className="flex items-center gap-2 mb-2 text-xs text-content-secondary">
                                                     <img
-                                                        src={getMediaPath(userResource(result.authorImage))}
+                                                        src={userResource(result.authorImage)}
                                                         alt={result.author}
                                                         className="w-6 h-6 rounded-full border border-line-light"
                                                         loading="lazy"

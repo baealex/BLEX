@@ -4,6 +4,7 @@ from django.shortcuts import render
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.cache import patch_vary_headers
+from django.utils.formats import date_format
 
 from board.html_utils import (
     extract_table_of_contents,
@@ -30,10 +31,12 @@ class PostDetailRenderService:
         is_post_preview: bool = False,
     ) -> dict[str, object]:
         preview_date = post.published_date or post.updated_date or post.created_date
+        preview_date_local = timezone.localtime(preview_date)
+        updated_date_local = timezone.localtime(post.updated_date)
         post.preview_date = preview_date
-        post.created_date_display = timezone.localtime(preview_date).strftime('%Y-%m-%d')
-        post.updated_date_display = timezone.localtime(post.updated_date).strftime('%Y-%m-%d')
-        show_post_updated_date = post.created_date_display != post.updated_date_display
+        post.created_date_display = date_format(preview_date_local, 'DATE_FORMAT')
+        post.updated_date_display = date_format(updated_date_local, 'DATE_FORMAT')
+        show_post_updated_date = preview_date_local.date() != updated_date_local.date()
 
         author_profile = getattr(author, 'profile', None)
         author_bio = author_profile.bio.strip() if author_profile and author_profile.bio else ''
