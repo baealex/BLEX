@@ -8,7 +8,7 @@
 <h1 align="center">BLEX</h1>
 
 <p align="center">
-  A self-hosted blog application for your own domain and server.
+  An open-source platform for writing, publishing, and running a blog.
 </p>
 
 <p align="center">
@@ -22,21 +22,25 @@
   English · <a href="README.ko.md">한국어</a>
 </p>
 
-BLEX combines a browser editor and site administration in a single Docker
-image. It stores content in SQLite and publishes through the web, RSS,
-sitemaps, Markdown, and a Developer API.
+BLEX is built around one workflow: write, organize, publish, and maintain a
+blog over time. It provides a browser editor and administration tools, with
+Docker as the supported deployment path.
 
-## Highlights
+## Project focus
 
-- Rich-text writing with drafts, autosave recovery, revision history, previews,
-  and scheduled publishing
-- Public posts organized by authors, series, tags, search, and static pages
-- Administration for branding, users, notices, integrations, social login, and
-  TOTP two-factor authentication
-- RSS, sitemaps, Open Graph metadata, public Markdown, and scoped API tokens
-- English and Korean UI without changing user-authored content
+- **Writing and publishing:** rich-text editing, drafts, autosave recovery,
+  revision history, previews, cover images, and scheduled publishing
+- **Content management:** authors, series, tags, search, static pages, comments,
+  likes, and pinned posts
+- **Blog operations:** branding, notices and banners, users and roles, webhooks,
+  and Telegram integration
+- **Open publishing:** RSS, sitemaps, canonical and Open Graph metadata, public
+  Markdown, and a Developer API with scoped tokens
 
-## Quick start
+GitHub and Google login, TOTP two-factor authentication, and English and Korean
+product UI are included. User-authored content is always displayed as written.
+
+## Run locally with Docker
 
 Requirement: Docker.
 
@@ -58,13 +62,31 @@ docker run -d \
 docker logs blex
 ```
 
-Open `http://localhost:20002`. The logs include an `Initial setup URL` for
-creating the first administrator. The `blex-db` and `blex-media` volumes keep
-the database and uploads when the container is replaced.
+The command uses `DEBUG=TRUE` so BLEX works over local HTTP. This is a
+development setting and must not be carried into a public deployment.
 
-This command is for a local trial. Before a public deployment, use unique
-secrets, set `DEBUG=FALSE`, configure the public origin and HTTPS, and back up
-both volumes. See the [Self-hosting Guide](docs/SELF_HOSTING.md).
+Open `http://localhost:20002`, then use the `Initial setup URL` from
+`docker logs blex` to create the first administrator. The `blex-db` and
+`blex-media` volumes keep the database and uploads when the container is
+replaced.
+
+### Production deployment
+
+Use unique secrets, set `DEBUG=FALSE`, and configure `SITE_URL`,
+`ALLOWED_HOSTS`, and `CSRF_TRUSTED_ORIGINS` for the public domain. Place an
+HTTPS proxy in front of BLEX and back up both volumes. The
+[Self-hosting Guide](docs/SELF_HOSTING.md) covers the complete setup and upgrade
+path.
+
+## Publishing interfaces
+
+| Path | Purpose |
+| --- | --- |
+| `/rss` | RSS feed |
+| `/sitemap.xml` | Sitemap index |
+| `/llms.txt` | Optional agent entry point |
+| `/@{username}/{post_url}.md` | Public post as Markdown |
+| `/api/developer/v1/docs` | Developer API documentation |
 
 ## Development
 

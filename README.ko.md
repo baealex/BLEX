@@ -8,7 +8,7 @@
 <h1 align="center">BLEX</h1>
 
 <p align="center">
-  자기 도메인과 서버에서 운영하는 셀프 호스팅 블로그 애플리케이션.
+  글쓰기부터 발행과 운영까지 다루는 오픈소스 블로그 플랫폼.
 </p>
 
 <p align="center">
@@ -22,22 +22,25 @@
   <a href="README.md">English</a> · 한국어
 </p>
 
-BLEX는 브라우저 에디터와 사이트 관리를 하나의 Docker 이미지로
-제공합니다. 콘텐츠는 SQLite에 저장하며 웹, RSS, sitemap, Markdown,
-Developer API로 발행할 수 있습니다.
+BLEX는 글을 쓰고, 정리하고, 발행하고, 오래 운영하는 흐름에 맞춰 만든
+오픈소스 블로그 플랫폼입니다. 브라우저 에디터와 관리 도구를 함께
+제공하며 Docker 배포를 기본으로 지원합니다.
 
-## 주요 기능
+## 프로젝트 방향
 
-- 임시저장, 자동저장 복구, 수정 이력, 미리보기, 예약 발행을 갖춘 리치
-  텍스트 에디터
-- 작가, 시리즈, 태그, 검색, 정적 페이지로 구성하는 공개 블로그
-- 브랜딩, 사용자, 공지, 연동, 소셜 로그인, TOTP 2단계 인증을 위한 관리
-  기능
-- RSS, sitemap, Open Graph 메타데이터, 공개 Markdown, 권한 범위를 지정할 수
-  있는 API 토큰
-- 작성 콘텐츠의 언어는 그대로 유지하는 영어·한국어 UI
+- **글쓰기와 발행:** 리치 텍스트 에디터, 임시저장, 자동저장 복구, 수정
+  이력, 미리보기, 커버 이미지, 예약 발행
+- **콘텐츠 관리:** 작가, 시리즈, 태그, 검색, 정적 페이지, 댓글, 좋아요,
+  고정 글
+- **블로그 운영:** 브랜딩, 공지와 배너, 사용자와 역할, webhook, 텔레그램
+  연동
+- **외부 활용:** RSS, sitemap, canonical과 Open Graph 메타데이터, 공개
+  Markdown, 권한별 토큰을 제공하는 Developer API
 
-## 빠른 시작
+GitHub 및 Google 로그인, TOTP 2단계 인증, 영어·한국어 UI도 제공합니다.
+사용자가 작성한 콘텐츠는 번역하지 않고 원문 그대로 표시합니다.
+
+## Docker로 로컬 실행
 
 요구사항: Docker.
 
@@ -59,14 +62,30 @@ docker run -d \
 docker logs blex
 ```
 
-`http://localhost:20002`에 접속하세요. 로그의 `Initial setup URL`에서
-최초 관리자를 만들 수 있습니다. 컨테이너를 교체해도 `blex-db`와
-`blex-media` 볼륨에 데이터베이스와 업로드 파일이 유지됩니다.
+위 명령은 로컬 HTTP에서 실행하기 위해 개발용 설정인 `DEBUG=TRUE`를
+사용합니다. 운영 환경에서는 이 값을 그대로 사용하면 안 됩니다.
 
-이 명령은 로컬 체험용입니다. 외부에 공개하기 전에는 고유한 비밀 키를
-사용하고 `DEBUG=FALSE`로 바꾼 뒤 공개 주소와 HTTPS를 설정하고 두 볼륨을
-백업하세요. 자세한 내용은 [셀프 호스팅 가이드](docs/SELF_HOSTING.md)를
-확인하세요.
+`http://localhost:20002`에 접속한 뒤 `docker logs blex`에 출력된
+`Initial setup URL`에서 최초 관리자를 만드세요. 컨테이너를 교체해도
+`blex-db`와 `blex-media` 볼륨에 데이터베이스와 업로드 파일이 유지됩니다.
+
+### 운영 배포
+
+고유한 비밀 키를 사용하고 `DEBUG=FALSE`로 바꾼 뒤 `SITE_URL`,
+`ALLOWED_HOSTS`, `CSRF_TRUSTED_ORIGINS`를 공개 도메인에 맞게 설정하세요.
+BLEX 앞단에는 HTTPS 프록시를 두고 두 볼륨을 함께 백업해야 합니다. 전체
+설정과 업데이트 방법은 [셀프 호스팅 가이드](docs/SELF_HOSTING.md)에서
+확인할 수 있습니다.
+
+## 발행 인터페이스
+
+| 경로 | 용도 |
+| --- | --- |
+| `/rss` | RSS 피드 |
+| `/sitemap.xml` | sitemap index |
+| `/llms.txt` | 선택형 AI 에이전트 진입점 |
+| `/@{username}/{post_url}.md` | 공개 글 Markdown |
+| `/api/developer/v1/docs` | Developer API 문서 |
 
 ## 개발
 
