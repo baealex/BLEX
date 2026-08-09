@@ -8,7 +8,7 @@
 <h1 align="center">BLEX</h1>
 
 <p align="center">
-  자기 도메인과 서버에서 운영하는 셀프 호스팅 블로그 애플리케이션.
+  글쓰기부터 발행과 운영까지 다루는 오픈소스 블로그 플랫폼.
 </p>
 
 <p align="center">
@@ -22,55 +22,25 @@
   <a href="README.md">English</a> · 한국어
 </p>
 
-## 소개
+BLEX는 글을 쓰고, 정리하고, 발행하고, 오래 운영하는 흐름에 맞춰 만든
+오픈소스 블로그 플랫폼입니다. 브라우저 에디터와 관리 도구를 함께
+제공하며 Docker 배포를 기본으로 지원합니다.
 
-BLEX는 직접 관리하는 인프라에서 실행하는 블로그 애플리케이션입니다.
-브라우저 기반 에디터와 Docker 배포, 개인 블로그나 작은 퍼블리케이션을
-운영하는 데 필요한 설정을 제공합니다.
+## 프로젝트 방향
 
-공개 글은 일반 웹페이지뿐 아니라 RSS, sitemap, Markdown endpoint로도
-제공됩니다. 기본 배포는 SQLite를 사용하며 작은 서버에서도 시작할 수
-있도록 구성되어 있습니다.
+- **글쓰기와 발행:** 리치 텍스트 에디터, 임시저장, 자동저장 복구, 수정
+  이력, 미리보기, 커버 이미지, 예약 발행
+- **콘텐츠 관리:** 작가, 시리즈, 태그, 검색, 정적 페이지, 댓글, 좋아요,
+  고정 글
+- **블로그 운영:** 브랜딩, 공지와 배너, 사용자와 역할, webhook, 텔레그램
+  연동
+- **외부 활용:** RSS, sitemap, canonical과 Open Graph 메타데이터, 공개
+  Markdown, 권한별 토큰을 제공하는 Developer API
 
-## 주요 기능
+GitHub 및 Google 로그인, TOTP 2단계 인증, 영어·한국어 UI도 제공합니다.
+사용자가 작성한 콘텐츠는 번역하지 않고 원문 그대로 표시합니다.
 
-**글쓰기와 발행**
-
-- Tiptap 기반 리치 텍스트 에디터
-- 임시저장, 자동저장 복구, 수정 이력, 미리보기
-- 예약 발행과 숨김 글
-- 커버 이미지, 시리즈, 태그
-- Developer API를 통한 Markdown 또는 HTML 발행
-
-**공개 블로그**
-
-- 글, 작가, 시리즈, 태그, 검색, 정적 페이지
-- 댓글, 좋아요, 고정 글
-- RSS, sitemap, canonical URL, Open Graph 메타데이터
-- 공개 Markdown URL과 선택형 `/llms.txt`
-
-**운영**
-
-- Docker 기반 배포
-- 최초 관리자 설정
-- 사이트 이름, 로고, 아이콘 설정
-- 공지, 배너, 알림, webhook, 텔레그램 연동
-- 사용자 역할과 관리 도구
-
-**계정과 보안**
-
-- GitHub, Google 소셜 로그인
-- TOTP 2단계 인증
-- scope 권한을 가진 개인 Developer API 토큰
-
-**언어**
-
-- 영어와 한국어 제품 UI
-- 영어 UI 지원이 활성화된 경우 요청 언어에 따른 협상
-- Django, React island, 에디터별 번역 카탈로그
-- 글과 사용자가 작성한 콘텐츠는 원문 그대로 표시
-
-## Docker로 실행
+## Docker로 로컬 실행
 
 요구사항: Docker.
 
@@ -89,52 +59,40 @@ docker run -d \
   -e SITE_URL=http://localhost:20002 \
   baealex/blex:latest
 
-docker logs -f blex
+docker logs blex
 ```
 
-`http://localhost:20002`에 접속하세요. 로그의 `Initial setup URL`에서
-최초 관리자를 만들 수 있습니다. 컨테이너를 교체해도 `blex-db`와
-`blex-media` 볼륨에 데이터베이스와 업로드 파일이 유지됩니다.
+위 명령은 로컬 HTTP에서 실행하기 위해 개발용 설정인 `DEBUG=TRUE`를
+사용합니다. 운영 환경에서는 이 값을 그대로 사용하면 안 됩니다.
 
-이 명령은 로컬 체험용이며 영어와 한국어 UI 협상을 활성화합니다. 기존
-설치에서는 `ENABLE_ENGLISH_UI=TRUE`를 설정해 활성화할 수 있습니다.
+`http://localhost:20002`에 접속한 뒤 `docker logs blex`에 출력된
+`Initial setup URL`에서 최초 관리자를 만드세요. 컨테이너를 교체해도
+`blex-db`와 `blex-media` 볼륨에 데이터베이스와 업로드 파일이 유지됩니다.
 
-외부에 공개하기 전에는 고유한 secret을 사용하고 `DEBUG=FALSE`로 바꾼 뒤
-공개 사이트 URL과 허용 호스트를 설정해야 합니다. BLEX 앞단에 HTTPS
-프록시를 두고 두 Docker 볼륨을 함께 백업하세요. 자세한 내용은
-[셀프 호스팅 가이드](docs/SELF_HOSTING.md)를 확인하세요.
+### 운영 배포
 
-## 공개 URL
+고유한 비밀 키를 사용하고 `DEBUG=FALSE`로 바꾼 뒤 `SITE_URL`,
+`ALLOWED_HOSTS`, `CSRF_TRUSTED_ORIGINS`를 공개 도메인에 맞게 설정하세요.
+BLEX 앞단에는 HTTPS 프록시를 두고 두 볼륨을 함께 백업해야 합니다. 전체
+설정과 업데이트 방법은 [셀프 호스팅 가이드](docs/SELF_HOSTING.md)에서
+확인할 수 있습니다.
 
-| 경로 | 설명 |
+## 발행 인터페이스
+
+| 경로 | 용도 |
 | --- | --- |
-| `/rss` | 사이트 RSS 피드 |
+| `/rss` | RSS 피드 |
 | `/sitemap.xml` | sitemap index |
-| `/posts/sitemap.xml` | 공개 글 sitemap |
-| `/llms.txt` | AEO가 활성화된 경우 AI 에이전트 진입점 |
+| `/llms.txt` | 선택형 AI 에이전트 진입점 |
 | `/@{username}/{post_url}.md` | 공개 글 Markdown |
-| `/@{username}/series/{series_url}.md` | 공개 시리즈 Markdown |
-| `/static/{slug}.md` | 공개 정적 페이지 Markdown |
 | `/api/developer/v1/docs` | Developer API 문서 |
-| `/api/developer/v1/openapi.json` | Developer API OpenAPI schema |
 
-비공개 글, 숨김 글, 임시저장, 삭제된 글과 아직 발행되지 않은 예약 글은
-RSS, sitemap과 공개 Markdown endpoint에서 제외됩니다.
-
-## Developer API
-
-Developer API는 개인 토큰, scope 권한, 글과 임시저장 관리, Markdown 또는
-HTML 입력, 이미지 업로드, 발행, 태그와 시리즈를 지원합니다.
-
-BLEX 실행 후 `/docs/developer-api/quickstart`에서 빠른 시작을,
-`/api/developer/v1/docs`에서 전체 API 문서를 확인할 수 있습니다.
-
-## 로컬 개발
+## 개발
 
 요구사항:
 
 - Python 3.12+
-- Node.js 22.22.2, 24.15+, or 26+
+- Node.js 22(22.22.2 이상), 24(24.15 이상) 또는 26 이상
 - npm
 
 ```bash
@@ -145,25 +103,11 @@ npm run dev
 
 `http://localhost:8000`에 접속하세요.
 
-자주 사용하는 검사 명령어:
-
-```bash
-npm run server:test
-npm run islands:i18n:check
-npm run islands:test
-npm run islands:lint
-npm run islands:type-check
-```
-
 ## 문서
 
 - [셀프 호스팅 가이드](docs/SELF_HOSTING.md)
 - [개발 규칙](docs/DEV_CONVENTION.md)
-- [백엔드 가이드](docs/BACKEND_GUIDE.md)
-- [프론트엔드 가이드](docs/FRONTEND_GUIDE.md)
 - [번역 가이드](docs/TRANSLATION_GUIDE.md)
-- [테스트 가이드](docs/TESTING_GUIDE.md)
-- [디자인 가이드](docs/DESIGN_GUIDE.md)
 
 ## 라이선스
 

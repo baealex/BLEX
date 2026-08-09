@@ -8,7 +8,7 @@
 <h1 align="center">BLEX</h1>
 
 <p align="center">
-  A self-hosted blog application for your own domain and server.
+  An open-source platform for writing, publishing, and running a blog.
 </p>
 
 <p align="center">
@@ -22,55 +22,25 @@
   English · <a href="README.ko.md">한국어</a>
 </p>
 
-## About
+BLEX is built around one workflow: write, organize, publish, and maintain a
+blog over time. It provides a browser editor and administration tools, with
+Docker as the supported deployment path.
 
-BLEX is a blog application that you run on infrastructure you control. It
-provides a browser-based editor, Docker deployment, and the settings needed to
-operate a personal blog or a small publication.
+## Project focus
 
-Public posts are available as regular web pages as well as RSS, sitemap, and
-Markdown endpoints. The default deployment uses SQLite and is configured to
-start with modest server resources.
+- **Writing and publishing:** rich-text editing, drafts, autosave recovery,
+  revision history, previews, cover images, and scheduled publishing
+- **Content management:** authors, series, tags, search, static pages, comments,
+  likes, and pinned posts
+- **Blog operations:** branding, notices and banners, users and roles, webhooks,
+  and Telegram integration
+- **Open publishing:** RSS, sitemaps, canonical and Open Graph metadata, public
+  Markdown, and a Developer API with scoped tokens
 
-## Features
+GitHub and Google login, TOTP two-factor authentication, and English and Korean
+product UI are included. User-authored content is always displayed as written.
 
-**Writing and publishing**
-
-- Tiptap-based rich-text editor
-- Drafts, autosave recovery, revision history, and previews
-- Scheduled publishing and hidden posts
-- Cover images, series, and tags
-- Markdown or HTML publishing through the Developer API
-
-**Public blog**
-
-- Post, author, series, tag, search, and static pages
-- Comments, likes, and pinned posts
-- RSS, sitemaps, canonical URLs, and Open Graph metadata
-- Public Markdown URLs and optional `/llms.txt`
-
-**Operations**
-
-- Docker-based deployment
-- Initial administrator setup
-- Site name, logo, and icon settings
-- Notices, banners, notifications, webhooks, and Telegram integration
-- User roles and administration tools
-
-**Accounts and security**
-
-- GitHub and Google social login
-- TOTP two-factor authentication
-- Personal Developer API tokens with scoped permissions
-
-**Languages**
-
-- English and Korean product UI
-- Request-language negotiation when English UI support is enabled
-- Separate translation catalogs for Django, React islands, and the editor
-- Posts and other user-authored content are displayed exactly as written
-
-## Run with Docker
+## Run locally with Docker
 
 Requirement: Docker.
 
@@ -89,54 +59,41 @@ docker run -d \
   -e SITE_URL=http://localhost:20002 \
   baealex/blex:latest
 
-docker logs -f blex
+docker logs blex
 ```
 
-Open `http://localhost:20002`. The logs include an `Initial setup URL` for
-creating the first administrator. The `blex-db` and `blex-media` volumes keep
-the database and uploads when the container is replaced.
+The command uses `DEBUG=TRUE` so BLEX works over local HTTP. This is a
+development setting and must not be carried into a public deployment.
 
-This command is for a local trial and enables English and Korean UI
-negotiation. Existing installations can enable it with
-`ENABLE_ENGLISH_UI=TRUE`.
+Open `http://localhost:20002`, then use the `Initial setup URL` from
+`docker logs blex` to create the first administrator. The `blex-db` and
+`blex-media` volumes keep the database and uploads when the container is
+replaced.
 
-Before a public deployment, use unique secrets, set `DEBUG=FALSE`, configure
-the public site URL and allowed hosts, place an HTTPS proxy in front of BLEX,
-and back up both Docker volumes. See the
-[Self-hosting Guide](docs/SELF_HOSTING.md) for details.
+### Production deployment
 
-## Public URLs
+Use unique secrets, set `DEBUG=FALSE`, and configure `SITE_URL`,
+`ALLOWED_HOSTS`, and `CSRF_TRUSTED_ORIGINS` for the public domain. Place an
+HTTPS proxy in front of BLEX and back up both volumes. The
+[Self-hosting Guide](docs/SELF_HOSTING.md) covers the complete setup and upgrade
+path.
 
-| Path | Description |
+## Publishing interfaces
+
+| Path | Purpose |
 | --- | --- |
-| `/rss` | Site RSS feed |
+| `/rss` | RSS feed |
 | `/sitemap.xml` | Sitemap index |
-| `/posts/sitemap.xml` | Public post sitemap |
-| `/llms.txt` | Agent entry point when AEO is enabled |
+| `/llms.txt` | Optional agent entry point |
 | `/@{username}/{post_url}.md` | Public post as Markdown |
-| `/@{username}/series/{series_url}.md` | Public series as Markdown |
-| `/static/{slug}.md` | Public static page as Markdown |
 | `/api/developer/v1/docs` | Developer API documentation |
-| `/api/developer/v1/openapi.json` | Developer API OpenAPI schema |
 
-Private posts, hidden posts, drafts, deleted posts, and scheduled posts that
-are not yet published are excluded from RSS, sitemaps, and public Markdown
-endpoints.
-
-## Developer API
-
-The Developer API supports personal tokens, scoped permissions, post and draft
-management, Markdown or HTML input, image upload, publishing, tags, and series.
-
-After starting BLEX, open `/docs/developer-api/quickstart` for the quickstart or
-`/api/developer/v1/docs` for the complete API documentation.
-
-## Local development
+## Development
 
 Requirements:
 
 - Python 3.12+
-- Node.js 22.22.2, 24.15+, or 26+
+- Node.js 22 (22.22.2+), 24 (24.15+), or 26+
 - npm
 
 ```bash
@@ -147,25 +104,11 @@ npm run dev
 
 Open `http://localhost:8000`.
 
-Common checks:
-
-```bash
-npm run server:test
-npm run islands:i18n:check
-npm run islands:test
-npm run islands:lint
-npm run islands:type-check
-```
-
 ## Documentation
 
 - [Self-hosting Guide](docs/SELF_HOSTING.md)
 - [Development Convention](docs/DEV_CONVENTION.md)
-- [Backend Guide](docs/BACKEND_GUIDE.md)
-- [Frontend Guide](docs/FRONTEND_GUIDE.md)
 - [Translation Guide](docs/TRANSLATION_GUIDE.md)
-- [Testing Guide](docs/TESTING_GUIDE.md)
-- [Design Guide](docs/DESIGN_GUIDE.md)
 
 ## License
 
