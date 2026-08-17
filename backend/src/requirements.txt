@@ -43,7 +43,7 @@ readtime==3.0.0
 requests==2.34.2
 six==1.17.0
 soupsieve==2.8.4
-sqlparse==0.5.5
+sqlparse==0.6.0
 text-unidecode==1.3
 typing_extensions==4.16.0
 typing-inspection==0.4.2
