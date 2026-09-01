@@ -19,4 +19,4 @@ overrides:
   linkify-it: 5.0.1
   markdown-it: 14.2.0
   minimatch: 10.2.5
-  nanoid: 3.3.17
+  nanoid: 3.3.18
