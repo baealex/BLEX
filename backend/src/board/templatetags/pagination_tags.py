@@ -37,7 +37,14 @@ def get_pagination_url(context, page_number):
         return f"?page={page_number}"
 
     query_dict = request.GET.copy()
-    query_dict['page'] = page_number
+    if int(page_number) == 1:
+        query_dict.pop('page', None)
+    else:
+        query_dict['page'] = page_number
+
+    if not query_dict:
+        return request.path
+
     return f"?{query_dict.urlencode()}"
 
 

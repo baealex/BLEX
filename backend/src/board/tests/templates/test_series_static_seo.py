@@ -2,11 +2,12 @@ import json
 import re
 
 from django.contrib.auth.models import User
-from django.test import Client, TestCase, override_settings
+from django.test import Client, RequestFactory, TestCase, override_settings
 from django.urls import reverse
 from django.utils import timezone
 
 from board.models import Post, PostConfig, PostContent, Series, SiteSetting, StaticPage
+from board.services.discovery_metadata_service import DiscoveryMetadataService
 
 
 class StructuredDataAssertionMixin:
@@ -355,7 +356,7 @@ class SeriesSeoMetadataTestCase(StructuredDataAssertionMixin, TestCase):
 
 
     @override_settings(SITE_URL='https://blex.example')
-    def test_series_detail_uses_configured_site_url_for_canonical_metadata(self):
+    def test_series_detail_omits_sort_from_canonical_metadata(self):
         response = self.client.get(
             reverse(
                 'series_detail',
@@ -369,15 +370,20 @@ class SeriesSeoMetadataTestCase(StructuredDataAssertionMixin, TestCase):
 
         self.assertEqual(response.status_code, 200)
 
-        canonical_url = 'https://blex.example/@seriesauthor/series/structured-series?sort=asc'
+        canonical_url = 'https://blex.example/@seriesauthor/series/structured-series'
         self.assertContains(
             response,
             f'<link rel="canonical" href="{canonical_url}">',
             html=True,
         )
+        self.assertNotContains(response, '?sort=desc')
 
         structured_data = self.extract_structured_data(response)
         self.assertEqual(structured_data['url'], canonical_url)
+        self.assertEqual(
+            structured_data['mainEntity']['itemListOrder'],
+            'https://schema.org/ItemListOrderAscending',
+        )
         self.assertEqual(structured_data['isPartOf']['url'], 'https://blex.example/')
         self.assertTrue(
             all(
@@ -433,6 +439,39 @@ class SeriesSeoMetadataTestCase(StructuredDataAssertionMixin, TestCase):
             response,
             '<link rel="canonical" href="http://testserver/@seriesauthor/series/structured-series">',
             html=True,
+        )
+
+    @override_settings(SITE_URL='https://blex.example')
+    def test_series_sort_variant_pages_keep_self_canonical(self):
+        """첫 페이지가 아닌 정렬 보기는 콘텐츠에 맞는 self-canonical을 유지한다."""
+        request = RequestFactory().get(
+            '/@seriesauthor/series/structured-series',
+            {'sort': 'asc', 'page': 2},
+        )
+
+        canonical_url = DiscoveryMetadataService.build_series_canonical_url(
+            series=self.series,
+            author=self.author,
+            request=request,
+            page=2,
+            sort_order='asc',
+        )
+
+        self.assertEqual(
+            canonical_url,
+            'https://blex.example/@seriesauthor/series/structured-series?sort=asc&page=2',
+        )
+
+        default_order_url = DiscoveryMetadataService.build_series_canonical_url(
+            series=self.series,
+            author=self.author,
+            request=request,
+            page=2,
+            sort_order='desc',
+        )
+        self.assertEqual(
+            default_order_url,
+            'https://blex.example/@seriesauthor/series/structured-series?page=2',
         )
 
 
