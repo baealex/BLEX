@@ -179,7 +179,7 @@ class DiscoveryMetadataService:
         )
 
         query_items: list[tuple[str, str]] = []
-        if sort_order == 'asc':
+        if sort_order == 'asc' and page > 1:
             query_items.append(('sort', 'asc'))
         if page > 1:
             query_items.append(('page', str(page)))

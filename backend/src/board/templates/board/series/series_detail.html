@@ -85,7 +85,7 @@
             <a href="?sort=asc" class="px-4 py-1.5 {% if sort_order == 'asc' %}bg-surface-elevated text-content shadow-sm{% else %}text-content-secondary hover:text-content{% endif %} rounded-lg text-xs font-bold transition-all duration-150">
                 {% translate "Oldest first" %}
             </a>
-            <a href="?sort=desc" class="px-4 py-1.5 {% if sort_order == 'desc' %}bg-surface-elevated text-content shadow-sm{% else %}text-content-secondary hover:text-content{% endif %} rounded-lg text-xs font-bold transition-all duration-150">
+            <a href="{{ request.path }}" class="px-4 py-1.5 {% if sort_order == 'desc' %}bg-surface-elevated text-content shadow-sm{% else %}text-content-secondary hover:text-content{% endif %} rounded-lg text-xs font-bold transition-all duration-150">
                 {% translate "Newest first" %}
             </a>
         </div>
