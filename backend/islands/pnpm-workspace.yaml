@@ -11,11 +11,13 @@ minimumReleaseAgeExclude:
 
 overrides:
   '@babel/core': 7.29.6
+  baseline-browser-mapping: 2.11.0
   brace-expansion: 5.0.9
+  browserslist: 4.28.7
   dompurify: 3.4.12
   esbuild: 0.28.1
   form-data: 4.0.6
-  js-yaml: 4.3.1
+  js-yaml: 4.3.2
   linkify-it: 5.0.1
   markdown-it: 14.2.0
   minimatch: 10.2.5
