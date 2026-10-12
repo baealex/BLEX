@@ -72,25 +72,26 @@ const budgets = [
     {
         entries: ['src/island.tsx', 'src/components/remotes/Login/index.ts'],
         label: 'login island experience',
-        maxInitialBytes: 350 * 1024,
-        maxInitialGzipBytes: 118 * 1024
+        // Axios 1.20 security fixes add 5.1 KiB raw / 1.7 KiB gzip to request clients.
+        maxInitialBytes: 355 * 1024,
+        maxInitialGzipBytes: 120 * 1024
     },
     {
         entries: ['src/island.tsx', 'src/components/remotes/Signup/index.ts'],
         label: 'signup island experience',
         maxInitialBytes: 350 * 1024,
-        maxInitialGzipBytes: 115 * 1024
+        maxInitialGzipBytes: 117 * 1024
     },
     {
         entries: ['src/island.tsx', 'src/components/remotes/SearchPage/index.tsx'],
         label: 'search island experience',
         maxInitialBytes: 310 * 1024,
-        maxInitialGzipBytes: 103 * 1024
+        maxInitialGzipBytes: 105 * 1024
     },
     {
         entries: ['src/island.tsx', 'src/components/remotes/SettingsApp/index.tsx'],
         label: 'settings island experience',
-        maxInitialBytes: 480 * 1024,
+        maxInitialBytes: 485 * 1024,
         maxInitialGzipBytes: 163 * 1024
     },
     {
@@ -102,8 +103,8 @@ const budgets = [
     {
         entries: ['src/island.tsx', 'src/components/remotes/Comments/index.ts'],
         label: 'comments island experience',
-        maxInitialBytes: 465 * 1024,
-        maxInitialGzipBytes: 157 * 1024
+        maxInitialBytes: 470 * 1024,
+        maxInitialGzipBytes: 159 * 1024
     },
     {
         entries: ['styles/main.scss', 'styles/tailwind.css'],

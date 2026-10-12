@@ -39,7 +39,7 @@
     },
     "homepage": "https://github.com/baealex/BLEX#readme",
     "devDependencies": {
-        "concurrently": "^10.0.4",
+        "concurrently": "^10.0.6",
         "pnpm": "11.17.0"
     }
 }
