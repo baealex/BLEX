@@ -1,0 +1,24 @@
+diff --git a/lib/parse.js b/lib/parse.js
+index 3a6988e629f52aee6609dc5ec290a5e9ff47cecb..6f29d581cfac8b7afef0b5d6c33fc99ee8c838a4 100644
+--- a/lib/parse.js
++++ b/lib/parse.js
+@@ -24,6 +24,8 @@ const {
+   CHAR_ZERO_WIDTH_NOBREAK_SPACE
+ } = require('./constants');
+ 
++const MAX_NESTING_DEPTH = 100;
++
+ /**
+  * parse
+  */
+@@ -55,6 +57,10 @@ const parse = (input, options = {}) => {
+ 
+   const advance = () => input[index++];
+   const push = node => {
++    if (node.nodes && stack.length > MAX_NESTING_DEPTH) {
++      throw new SyntaxError(`Input nesting depth exceeds maximum of ${MAX_NESTING_DEPTH}`);
++    }
++
+     if (node.type === 'text' && prev.type === 'dot') {
+       prev.type = 'text';
+     }

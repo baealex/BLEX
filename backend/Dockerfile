@@ -3,6 +3,7 @@ FROM --platform=$BUILDPLATFORM node:22-alpine AS islands-builder
 COPY ./islands/package.json /app/islands/package.json
 COPY ./islands/pnpm-lock.yaml /app/islands/pnpm-lock.yaml
 COPY ./islands/pnpm-workspace.yaml /app/islands/pnpm-workspace.yaml
+COPY ./islands/patches/ /app/islands/patches/
 COPY ./islands/apps/remotes/package.json /app/islands/apps/remotes/package.json
 COPY ./islands/packages/ui/package.json /app/islands/packages/ui/package.json
 COPY ./islands/packages/editor/package.json /app/islands/packages/editor/package.json
