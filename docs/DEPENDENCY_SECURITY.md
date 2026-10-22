@@ -7,9 +7,13 @@ development tools, and the complete Islands pnpm dependency graph.
 
 | Dependency | Version | Scope |
 | --- | --- | --- |
+| certifi | 2026.10.19 | Python TLS trust store |
+| Pillow | 13.0.0 | Python image processing |
 | soupsieve | 2.9 | Python runtime |
 | urllib3 | 2.8.0 | Python runtime |
 | axios | 1.20.0 | Browser runtime |
+| follow-redirects | 1.16.1 | Axios Node adapter dependency |
+| Vite | 8.3.5 | Development server and build tools |
 | seroval | 1.6.3 | Router dependency |
 | brace-expansion | 5.0.12 | Development tools |
 | source-map-js | 1.2.2 | Build tools |
@@ -22,6 +26,34 @@ are updated in the lockfile within their upstream version ranges. No new version
 overrides are needed for this patch set; the old brace-expansion override is also
 removed because minimatch already accepts the fixed release. CI uses the same
 pnpm 11.17.0 version as the workspace and Docker build.
+
+## October 22 review
+
+The full dependency audit found 25 Python advisories in certifi and Pillow,
+plus seven unmitigated pnpm advisories in follow-redirects and Vite. Updating
+these four packages removes those findings. The existing braces advisory below
+remains visible with its local mitigation.
+
+Certifi 2026.10.19 removes the compromised emSign trust root while retaining
+unaffected roots. Pillow 13.0.0 supplies the image parser and encoder fixes;
+its supported Python versions include the project's Python 3.12 runtime.
+See the [certifi advisory](https://github.com/certifi/python-certifi/security/advisories/GHSA-6q48-6c7w-9gw2)
+and [Pillow release notes](https://pillow.readthedocs.io/en/stable/releasenotes/13.0.0.html).
+
+Vite now requires at least 8.3.5, also selected by the lockfile within
+the existing major version. This removes five development-server advisories,
+including the bundled launch-editor command-injection fixes.
+
+Follow-redirects updates normally within Axios's existing `^1.16.0` range;
+no direct dependency or override is added. Its two credential-stripping fixes
+are covered by local HTTP redirect tests through the installed Axios dependency
+chain. The tests check array-form authorization, proxy authorization and cookie
+headers, custom sensitive headers containing `^` and `|`, and preservation of
+ordinary headers. Both tests fail with 1.16.0 and pass with 1.16.1.
+
+Prefer normal dependency and lockfile updates. Use an override only when
+upstream version constraints prevent selecting a fixed release. Do not suppress
+an advisory solely to obtain a clean audit report.
 
 ## Braces nesting protection
 
