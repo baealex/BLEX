@@ -7,9 +7,13 @@ development tools, and the complete Islands pnpm dependency graph.
 
 | Dependency | Version | Scope |
 | --- | --- | --- |
+| certifi | 2026.10.19 | Python TLS trust store |
+| Pillow | 13.0.0 | Python image processing |
 | soupsieve | 2.9 | Python runtime |
 | urllib3 | 2.8.0 | Python runtime |
 | axios | 1.20.0 | Browser runtime |
+| follow-redirects | 1.16.1 | Axios Node adapter dependency |
+| Vite | 8.3.5 | Development server and build tools |
 | seroval | 1.6.3 | Router dependency |
 | brace-expansion | 5.0.12 | Development tools |
 | source-map-js | 1.2.2 | Build tools |
