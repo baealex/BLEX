@@ -1,3 +1,6 @@
+ARG PYTHON_IMAGE=python:3.12-slim-trixie
+ARG PIP_VERSION=26.2.2
+
 FROM --platform=$BUILDPLATFORM node:22-alpine AS islands-builder
 
 COPY ./islands/package.json /app/islands/package.json
@@ -21,12 +24,15 @@ RUN pnpm build
 
 #####
 
-FROM python:3.12-slim AS backend-builder
+FROM ${PYTHON_IMAGE} AS backend-builder
+
+ARG PIP_VERSION
 
 COPY ./src/requirements.txt /app/
 
 WORKDIR /app
-RUN pip install \
+RUN python -m pip install --no-cache-dir --upgrade "pip==${PIP_VERSION}" \
+    && python -m pip install \
     --prefix=/install \
     --no-compile \
     --no-cache-dir \
@@ -41,18 +47,22 @@ RUN rm -f /runtime-src/README.md /runtime-src/requirements.txt \
 
 #####
 
-FROM python:3.12-slim
+FROM ${PYTHON_IMAGE} AS runtime
 
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
     RESOURCE_URL=""
 
 RUN apt-get update \
+    && DEBIAN_FRONTEND=noninteractive apt-get upgrade --yes --no-install-recommends \
     && DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends nginx \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/* /var/cache/apt/* /var/cache/debconf/*
 
 COPY --from=backend-builder /install /usr/local
+# Package installation belongs to the builder, not the running service.
+RUN python -m pip uninstall --yes pip \
+    && python -c "import ensurepip, shutil; shutil.rmtree(ensurepip.__path__[0])"
 COPY --from=backend-builder /runtime-src /app
 COPY nginx.conf /etc/nginx/nginx.conf
 

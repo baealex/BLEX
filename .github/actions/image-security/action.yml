@@ -1,0 +1,75 @@
+name: Container security
+description: Report all image vulnerabilities and block fixable high or critical findings
+
+inputs:
+  image:
+    description: Image reference or immutable digest to scan
+    required: true
+  platform:
+    description: Image platform to scan
+    required: true
+  category:
+    description: Stable code scanning category for this platform
+    required: true
+  image-source:
+    description: Trivy image source
+    default: remote
+
+runs:
+  using: composite
+  steps:
+    - name: Install Trivy
+      uses: aquasecurity/setup-trivy@81e514348e19b6112ce2a7e3ecbafe19c1e1f567 # v0.3.1
+      with:
+        version: v0.76.1
+        cache: true
+
+    - name: Scan all image vulnerabilities
+      id: scan
+      shell: bash
+      env:
+        SCAN_IMAGE: ${{ inputs.image }}
+        SCAN_PLATFORM: ${{ inputs.platform }}
+        SCAN_SOURCE: ${{ inputs.image-source }}
+        REPORT_CATEGORY: ${{ inputs.category }}
+      run: |
+        report_dir="${RUNNER_TEMP}/image-security/${REPORT_CATEGORY}"
+        mkdir -p "$report_dir"
+        trivy image --no-progress --scanners vuln --image-src "$SCAN_SOURCE" \
+          --platform "$SCAN_PLATFORM" --ignorefile /dev/null \
+          --format json --output "$report_dir/results.json" "$SCAN_IMAGE"
+        trivy convert --format sarif --output "$report_dir/results.sarif" "$report_dir/results.json"
+        printf 'directory=%s\n' "$report_dir" >> "$GITHUB_OUTPUT"
+        {
+          echo "### Container security: ${REPORT_CATEGORY}"
+          printf 'Image: `%s` (%s)\n\n' "$SCAN_IMAGE" "$SCAN_PLATFORM"
+          echo 'All severities, including unfixed findings, are retained in the reports.'
+          echo 'Fixable HIGH/CRITICAL findings block release promotion. Unfixed findings require review.'
+        } >> "$GITHUB_STEP_SUMMARY"
+
+    - name: Save complete security reports
+      uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6
+      with:
+        name: ${{ inputs.category }}
+        path: ${{ steps.scan.outputs.directory }}
+        retention-days: 14
+
+    - name: Report findings to GitHub Security
+      if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
+      uses: github/codeql-action/upload-sarif@9b3254085494b55a0f7c4c2b3d2d52cc712ce370 # v4
+      with:
+        sarif_file: ${{ steps.scan.outputs.directory }}/results.sarif
+        category: ${{ inputs.category }}
+        ref: ${{ startsWith(github.ref, 'refs/tags/') && 'refs/heads/main' || github.ref }}
+        sha: ${{ github.sha }}
+
+    - name: Block fixable high and critical vulnerabilities
+      shell: bash
+      env:
+        SCAN_IMAGE: ${{ inputs.image }}
+        SCAN_PLATFORM: ${{ inputs.platform }}
+        SCAN_SOURCE: ${{ inputs.image-source }}
+      run: |
+        trivy image --no-progress --scanners vuln --image-src "$SCAN_SOURCE" \
+          --platform "$SCAN_PLATFORM" --ignorefile /dev/null \
+          --severity HIGH,CRITICAL --ignore-unfixed --exit-code 1 "$SCAN_IMAGE"
