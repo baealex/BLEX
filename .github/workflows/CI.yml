@@ -205,6 +205,8 @@ jobs:
         '
         docker run --rm --entrypoint python blex:ci -c \
           'from importlib.util import find_spec; assert find_spec("pip") is None; assert find_spec("ensurepip") is None'
+        docker run --rm --entrypoint python blex:ci \
+          /usr/local/libexec/blex/check_pillow_brotli.py
 
     - name: Verify child process failure is detected
       run: |

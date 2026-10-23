@@ -27,8 +27,29 @@ RUN pnpm build
 FROM ${PYTHON_IMAGE} AS backend-builder
 
 ARG PIP_VERSION
+ARG BROTLI_VERSION=1.2.1
+ARG BROTLI_SHA256=98d35d11a78dc453aebb7d10c3748f3f73ff78c8267c0dc697b8631f67bf7e8f
+
+# Temporary native override until Pillow ships wheels with patched Brotli.
+RUN apt-get update \
+    && apt-get install --yes --no-install-recommends build-essential cmake curl patchelf \
+    && curl --fail --silent --show-error --location --retry 3 \
+        "https://github.com/google/brotli/archive/refs/tags/v${BROTLI_VERSION}.tar.gz" \
+        --output /tmp/brotli.tar.gz \
+    && echo "${BROTLI_SHA256}  /tmp/brotli.tar.gz" | sha256sum --check \
+    && mkdir /tmp/brotli \
+    && tar -xzf /tmp/brotli.tar.gz --strip-components=1 -C /tmp/brotli \
+    && cmake -S /tmp/brotli -B /tmp/brotli/build \
+        -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/opt/brotli \
+        -DCMAKE_INSTALL_LIBDIR=lib -DBROTLI_BUILD_TOOLS=OFF -DBUILD_SHARED_LIBS=ON \
+    && cmake --build /tmp/brotli/build --parallel 2 --target brotlidec brotlicommon \
+    && mkdir -p /opt/brotli/lib \
+    && cp -a /tmp/brotli/build/libbrotlidec.so* /tmp/brotli/build/libbrotlicommon.so* /opt/brotli/lib/ \
+    && cp /tmp/brotli/LICENSE /opt/brotli/LICENSE \
+    && rm -rf /tmp/brotli /tmp/brotli.tar.gz /var/lib/apt/lists/*
 
 COPY ./src/requirements.txt /app/
+COPY scripts/patch_pillow_brotli.py /tmp/patch_pillow_brotli.py
 
 WORKDIR /app
 RUN python -m pip install --no-cache-dir --upgrade "pip==${PIP_VERSION}" \
@@ -37,7 +58,8 @@ RUN python -m pip install --no-cache-dir --upgrade "pip==${PIP_VERSION}" \
     --no-compile \
     --no-cache-dir \
     --use-pep517 \
-    -r requirements.txt
+    -r requirements.txt \
+    && python /tmp/patch_pillow_brotli.py /install /opt/brotli "$BROTLI_VERSION" "$BROTLI_SHA256"
 
 COPY ./src /runtime-src
 RUN rm -f /runtime-src/README.md /runtime-src/requirements.txt \
@@ -60,6 +82,8 @@ RUN apt-get update \
     && rm -rf /var/lib/apt/lists/* /var/cache/apt/* /var/cache/debconf/*
 
 COPY --from=backend-builder /install /usr/local
+COPY scripts/check_pillow_brotli.py /usr/local/libexec/blex/check_pillow_brotli.py
+RUN python /usr/local/libexec/blex/check_pillow_brotli.py
 # Package installation belongs to the builder, not the running service.
 RUN python -m pip uninstall --yes pip \
     && python -c "import ensurepip, shutil; shutil.rmtree(ensurepip.__path__[0])"
