@@ -14,7 +14,7 @@ django-cors-headers==4.9.0
 django-ninja==1.6.2
 graphene==3.4.3
 graphene-django==3.2.3
-graphql-core==3.2.11
+graphql-core==3.2.12
 graphql-relay==3.2.0
 gunicorn==26.0.0
 h11==0.16.0
