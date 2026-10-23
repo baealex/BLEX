@@ -4,7 +4,7 @@
     "description": "BLOG EXPRESS ME",
     "packageManager": "npm@12.0.1",
     "engines": {
-        "node": "^22.22.2 || ^24.15.0 || >=26.0.0"
+        "node": "^24.22.1 || >=26.12.1"
     },
     "scripts": {
         "install": "npm run server:setup && npm run islands:setup",

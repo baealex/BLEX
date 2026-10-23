@@ -51,7 +51,7 @@ jobs:
     - name: Set up Node.js
       uses: actions/setup-node@v6
       with:
-        node-version: '22.22.2'
+        node-version: '24.22.1'
 
     - name: Install Python dependencies
       run: |
@@ -74,7 +74,7 @@ jobs:
     - name: Set up Node.js
       uses: actions/setup-node@v6
       with:
-        node-version: '22.22.2'
+        node-version: '24.22.1'
 
     - name: Install pnpm
       run: npm install --global pnpm@11.17.0
@@ -151,7 +151,7 @@ jobs:
     - name: Set up Node.js
       uses: actions/setup-node@v6
       with:
-        node-version: '22.22.2'
+        node-version: '24.22.1'
 
     - name: Install pnpm
       run: npm install --global pnpm@11.17.0

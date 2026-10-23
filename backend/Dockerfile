@@ -1,7 +1,7 @@
 ARG PYTHON_IMAGE=python:3.12-slim-trixie
 ARG PIP_VERSION=26.2.2
 
-FROM --platform=$BUILDPLATFORM node:22-alpine AS islands-builder
+FROM --platform=$BUILDPLATFORM node:24.22.1-alpine AS islands-builder
 
 COPY ./islands/package.json /app/islands/package.json
 COPY ./islands/pnpm-lock.yaml /app/islands/pnpm-lock.yaml
