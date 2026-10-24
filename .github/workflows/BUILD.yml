@@ -8,6 +8,7 @@ on:
 
 permissions:
   contents: read
+  security-events: write
 
 env:
   IMAGE: baealex/blex
@@ -78,7 +79,7 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v6
         with:
-          node-version: '22.22.2'
+          node-version: '24.22.1'
 
       - name: Install Python dependencies
         run: |
@@ -112,22 +113,58 @@ jobs:
             type=raw,value=latest,enable=${{ github.ref_type == 'tag' }}
             type=raw,value=${{ github.sha }}
 
-      - name: Build and push BLEX
+      - name: Build BLEX candidate
+        id: build
         uses: docker/build-push-action@v7
         with:
           context: ./backend
           file: ./backend/Dockerfile
           platforms: linux/amd64,linux/arm64/v8
+          pull: true
+          no-cache-filters: runtime
           push: true
-          tags: ${{ steps.meta.outputs.tags }}
+          tags: ${{ env.IMAGE }}:${{ github.sha }}
           labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
+      - name: Scan AMD64 candidate
+        uses: ./.github/actions/image-security
+        with:
+          image: ${{ env.IMAGE }}@${{ steps.build.outputs.digest }}
+          platform: linux/amd64
+          category: blex-container-amd64
+
+      - name: Scan ARM64 candidate
+        if: ${{ !cancelled() && steps.build.outcome == 'success' }}
+        uses: ./.github/actions/image-security
+        with:
+          image: ${{ env.IMAGE }}@${{ steps.build.outputs.digest }}
+          platform: linux/arm64
+          category: blex-container-arm64
+
+      - name: Publish verified release tags
+        if: github.ref_type == 'tag'
+        env:
+          RELEASE_VERSION: ${{ steps.release.outputs.version }}
+          IMAGE_DIGEST: ${{ steps.build.outputs.digest }}
+        run: |
+          docker buildx imagetools create \
+            --tag "${IMAGE}:${RELEASE_VERSION}" \
+            --tag "${IMAGE}:latest" \
+            "${IMAGE}@${IMAGE_DIGEST}"
+
       - name: Verify multi-platform release image
         if: github.ref_type == 'tag'
+        env:
+          RELEASE_VERSION: ${{ steps.release.outputs.version }}
+          IMAGE_DIGEST: ${{ steps.build.outputs.digest }}
         shell: bash
         run: |
-          manifest=$(docker buildx imagetools inspect "${IMAGE}:${{ steps.release.outputs.version }}")
+          manifest=$(docker buildx imagetools inspect "${IMAGE}:${RELEASE_VERSION}")
           grep -q 'linux/amd64' <<< "$manifest"
           grep -q 'linux/arm64' <<< "$manifest"
+          for tag in "$RELEASE_VERSION" latest; do
+            digest=$(docker buildx imagetools inspect "${IMAGE}:${tag}" | awk '/^Digest:/ { print $2 }')
+            test "$digest" = "$IMAGE_DIGEST"
+          done

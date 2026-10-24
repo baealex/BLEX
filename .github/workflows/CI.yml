@@ -51,7 +51,7 @@ jobs:
     - name: Set up Node.js
       uses: actions/setup-node@v6
       with:
-        node-version: '22.22.2'
+        node-version: '24.22.1'
 
     - name: Install Python dependencies
       run: |
@@ -74,7 +74,7 @@ jobs:
     - name: Set up Node.js
       uses: actions/setup-node@v6
       with:
-        node-version: '22.22.2'
+        node-version: '24.22.1'
 
     - name: Install pnpm
       run: npm install --global pnpm@11.17.0
@@ -141,6 +141,9 @@ jobs:
 
   container_ci:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      security-events: write
 
     steps:
     - uses: actions/checkout@v6
@@ -148,7 +151,7 @@ jobs:
     - name: Set up Node.js
       uses: actions/setup-node@v6
       with:
-        node-version: '22.22.2'
+        node-version: '24.22.1'
 
     - name: Install pnpm
       run: npm install --global pnpm@11.17.0
@@ -168,7 +171,15 @@ jobs:
       working-directory: backend/islands
 
     - name: Build unified BLEX image
-      run: docker build --tag blex:ci ./backend
+      run: docker build --pull --tag blex:ci ./backend
+
+    - name: Scan unified BLEX image
+      uses: ./.github/actions/image-security
+      with:
+        image: blex:ci
+        platform: linux/amd64
+        image-source: docker
+        category: blex-container-amd64
 
     - name: Audit unified runtime contents
       run: |
@@ -192,6 +203,10 @@ jobs:
           test -z "$(find /var/lib/apt/lists /var/cache/apt /var/cache/debconf \
             -mindepth 1 -print 2>/dev/null)"
         '
+        docker run --rm --entrypoint python blex:ci -c \
+          'from importlib.util import find_spec; assert find_spec("pip") is None; assert find_spec("ensurepip") is None'
+        docker run --rm --entrypoint python blex:ci \
+          /usr/local/libexec/blex/check_pillow_brotli.py
 
     - name: Verify child process failure is detected
       run: |

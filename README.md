@@ -93,7 +93,7 @@ path.
 Requirements:
 
 - Python 3.12+
-- Node.js 22 (22.22.2+), 24 (24.15+), or 26+
+- Node.js 24 LTS (24.22.1+) or 26 (26.12.1+)
 - npm
 
 ```bash

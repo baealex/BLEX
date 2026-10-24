@@ -41,7 +41,7 @@
         "react-easy-crop": "^6.2.2",
         "react-hook-form": "^7.81.0",
         "styled-jsx": "^5.1.7",
-        "zod": "^4.4.3"
+        "zod": "^4.6.7"
     },
     "devDependencies": {
         "@babel/core": "7.29.6",
@@ -63,7 +63,7 @@
         "babel-plugin-react-compiler": "^1.0.0",
         "chokidar": "^5.0.0",
         "eslint": "^9.39.5",
-        "eslint-plugin-react-compiler": "19.1.0-rc.2",
+        "eslint-plugin-react-hooks": "^7.1.1",
         "glob": "^13.0.6",
         "postcss": "^8.5.24",
         "react-grab": "^0.1.48",

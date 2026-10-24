@@ -1,0 +1,31 @@
+name: Container Security
+
+on:
+  schedule:
+    - cron: '17 2 * * 1'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  security-events: write
+
+concurrency:
+  group: container-security-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  scan_published_image:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        architecture: [amd64, arm64]
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Scan published image
+        uses: ./.github/actions/image-security
+        with:
+          image: baealex/blex:latest
+          platform: linux/${{ matrix.architecture }}
+          category: blex-container-${{ matrix.architecture }}

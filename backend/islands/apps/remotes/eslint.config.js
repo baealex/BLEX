@@ -1,11 +1,24 @@
 import baejino from '@baejino/eslint-config';
 import baejinoReact from '@baejino/eslint-config-react';
-import reactCompiler from 'eslint-plugin-react-compiler';
+import reactHooks from 'eslint-plugin-react-hooks';
 
 export default [
     { ignores: ['dist/**', '*.cjs'] },
     ...baejino,
-    ...baejinoReact,
+    ...baejinoReact.map((config) => ({
+        ...config,
+        plugins: { ...config.plugins, 'react-hooks': reactHooks },
+        rules: {
+            ...config.rules,
+            ...reactHooks.configs.recommended.rules,
+            // Report newly enabled compiler diagnostics while existing components migrate.
+            'react-hooks/immutability': 'warn',
+            'react-hooks/purity': 'warn',
+            'react-hooks/refs': 'warn',
+            'react-hooks/set-state-in-effect': 'warn',
+            'react-hooks/static-components': 'warn'
+        }
+    })),
     {
         files: ['**/*.{js,jsx,ts,tsx}'],
         languageOptions: {
@@ -15,12 +28,8 @@ export default [
                 node: true
             }
         },
-        plugins: {
-            'react-compiler': reactCompiler
-        },
         rules: {
             'indent': 'off',
-            'react-compiler/react-compiler': 'error',
             'no-restricted-imports': [
                 'error',
                 {
