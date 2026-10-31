@@ -8,7 +8,8 @@ from django.urls import reverse
 from django.utils import timezone
 
 from board.models import (
-    Comment, Post, PostContent, PostConfig, PostLikes, Series, Profile, Tag, PinnedPost, SiteContentScope, SiteNotice
+    Comment, Post, PostContent, PostConfig, PostLikes, Series, Profile, Tag, PinnedPost, SiteContentScope, SiteNotice,
+    UserLinkMeta
 )
 
 
@@ -540,6 +541,22 @@ class AuthorPostsPageTestCase(TestCase):
         self.assertContains(response, '소셜 링크 추가')
         self.assertContains(response, '/settings/social-links')
         self.assertNotContains(response, '소셜 링크 편집')
+
+    def test_author_overview_shows_saved_twitter_link_as_x(self):
+        """이미 twitter로 저장된 소셜 링크는 데이터 변경 없이 X로 표시한다."""
+        UserLinkMeta.objects.create(
+            user=self.user, name='twitter', value='https://x.com/testauthor', order=0
+        )
+
+        response = self.client.get(
+            reverse('user_profile', kwargs={'username': self.user.username})
+        )
+
+        self.assertEqual(response.status_code, 200)
+        content = response.content.decode()
+        self.assertIn('https://x.com/testauthor', content)
+        self.assertRegex(content, r'title="?X"?[\s>]')
+        self.assertNotRegex(content, r'title="?twitter"?[\s>]')
 
     def test_author_overview_recommended_posts_fallback_to_recent_posts(self):
         """고정 글이 없으면 추천 포스트는 좋아요 수가 아니라 최신 발행순으로 노출한다."""

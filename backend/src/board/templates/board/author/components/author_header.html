@@ -83,11 +83,15 @@
                 {% for social in social_links %}
                 <a href="{{ social.value }}" target="_blank"
                    class="flex h-10 w-10 items-center justify-center rounded-full border border-line bg-surface text-content-secondary transition-colors duration-150 hover:border-line-strong hover:text-content sm:h-11 sm:w-11"
-                   title="{{ social.name }}">
+                   title="{% if social.name|lower == 'twitter' %}X{% else %}{{ social.name }}{% endif %}">
                     {% if social.name|lower == 'github' %}
                         <i class="fab fa-github text-lg"></i>
                     {% elif social.name|lower == 'twitter' or social.name|lower == 'x' %}
-                        <i class="fab fa-twitter text-lg"></i>
+                        <i class="fab fa-x-twitter text-lg"></i>
+                    {% elif social.name|lower == 'threads' %}
+                        <i class="fab fa-threads text-lg"></i>
+                    {% elif social.name|lower == 'telegram' %}
+                        <i class="fab fa-telegram text-lg"></i>
                     {% elif social.name|lower == 'facebook' %}
                         <i class="fab fa-facebook-f text-lg"></i>
                     {% elif social.name|lower == 'instagram' %}

@@ -6072,144 +6072,149 @@ msgid "settings.site.title"
 msgstr "블로그 꾸미기"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/SocialLinksSetting/SocialLinksSetting.tsx:514
+#: src/components/remotes/SettingsApp/pages/SocialLinksSetting/SocialLinksSetting.tsx:513
 msgid "settings.social_links.add"
 msgstr "링크 추가"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/SocialLinksSetting/SocialLinksSetting.tsx:475
+#: src/components/remotes/SettingsApp/pages/SocialLinksSetting/SocialLinksSetting.tsx:474
 msgid "settings.social_links.add_first"
 msgstr "소셜 링크 추가"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/SocialLinksSetting/SocialLinksSetting.tsx:452
+#: src/components/remotes/SettingsApp/pages/SocialLinksSetting/SocialLinksSetting.tsx:451
 msgid "settings.social_links.description"
 msgstr "프로필에 표시되며 드래그하여 순서를 조정할 수 있습니다."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/SocialLinksSetting/SocialLinksSetting.tsx:463
+#: src/components/remotes/SettingsApp/pages/SocialLinksSetting/SocialLinksSetting.tsx:462
 msgid "settings.social_links.empty"
 msgstr "소셜 링크가 없습니다"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/SocialLinksSetting/SocialLinksSetting.tsx:153
-#: src/components/remotes/SettingsApp/pages/SocialLinksSetting/SocialLinksSetting.tsx:190
+#: src/components/remotes/SettingsApp/pages/SocialLinksSetting/SocialLinksSetting.tsx:152
+#: src/components/remotes/SettingsApp/pages/SocialLinksSetting/SocialLinksSetting.tsx:189
 msgid "settings.social_links.item.label"
 msgstr "소셜 링크"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/SocialLinksSetting/SocialLinksSetting.tsx:163
+#: src/components/remotes/SettingsApp/pages/SocialLinksSetting/SocialLinksSetting.tsx:162
 msgid "settings.social_links.item.remove"
 msgstr "{platform} 삭제"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/SocialLinksSetting/SocialLinksSetting.tsx:158
+#: src/components/remotes/SettingsApp/pages/SocialLinksSetting/SocialLinksSetting.tsx:157
 msgid "settings.social_links.item.reorder"
 msgstr "{position}번째 소셜 링크 순서 변경"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/SocialLinksSetting/SocialLinksSetting.tsx:295
+#: src/components/remotes/SettingsApp/pages/SocialLinksSetting/SocialLinksSetting.tsx:294
 msgid "settings.social_links.load_failed"
 msgstr "소셜 링크 정보를 불러오지 못했습니다."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/SocialLinksSetting/SocialLinksSetting.tsx:109
+#: src/components/remotes/SettingsApp/pages/SocialLinksSetting/SocialLinksSetting.tsx:108
 msgid "settings.social_links.platform.facebook"
 msgstr "페이스북"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/SocialLinksSetting/SocialLinksSetting.tsx:95
+#: src/components/remotes/SettingsApp/pages/SocialLinksSetting/SocialLinksSetting.tsx:87
 msgid "settings.social_links.platform.github"
 msgstr "깃허브"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/SocialLinksSetting/SocialLinksSetting.tsx:123
+#: src/components/remotes/SettingsApp/pages/SocialLinksSetting/SocialLinksSetting.tsx:122
 msgid "settings.social_links.platform.instagram"
 msgstr "인스타그램"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/SocialLinksSetting/SocialLinksSetting.tsx:225
+#: src/components/remotes/SettingsApp/pages/SocialLinksSetting/SocialLinksSetting.tsx:224
 msgid "settings.social_links.platform.label"
 msgstr "플랫폼"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/SocialLinksSetting/SocialLinksSetting.tsx:130
+#: src/components/remotes/SettingsApp/pages/SocialLinksSetting/SocialLinksSetting.tsx:129
 msgid "settings.social_links.platform.linkedin"
 msgstr "링크드인"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/SocialLinksSetting/SocialLinksSetting.tsx:144
+#: src/components/remotes/SettingsApp/pages/SocialLinksSetting/SocialLinksSetting.tsx:143
 msgid "settings.social_links.platform.other"
 msgstr "기타"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/SocialLinksSetting/SocialLinksSetting.tsx:88
+#: src/components/remotes/SettingsApp/pages/SocialLinksSetting/SocialLinksSetting.tsx:80
 msgid "settings.social_links.platform.select"
 msgstr "플랫폼 선택"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/SocialLinksSetting/SocialLinksSetting.tsx:116
+#: src/components/remotes/SettingsApp/pages/SocialLinksSetting/SocialLinksSetting.tsx:115
 msgid "settings.social_links.platform.telegram"
 msgstr "텔레그램"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/SocialLinksSetting/SocialLinksSetting.tsx:102
-msgid "settings.social_links.platform.twitter"
-msgstr "트위터"
+#: src/components/remotes/SettingsApp/pages/SocialLinksSetting/SocialLinksSetting.tsx:101
+msgid "settings.social_links.platform.threads"
+msgstr "스레드"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/SocialLinksSetting/SocialLinksSetting.tsx:137
+#: src/components/remotes/SettingsApp/pages/SocialLinksSetting/SocialLinksSetting.tsx:94
+msgid "settings.social_links.platform.twitter"
+msgstr "X"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SocialLinksSetting/SocialLinksSetting.tsx:136
 msgid "settings.social_links.platform.youtube"
 msgstr "유튜브"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/SocialLinksSetting/SocialLinksSetting.tsx:529
+#: src/components/remotes/SettingsApp/pages/SocialLinksSetting/SocialLinksSetting.tsx:528
 msgid "settings.social_links.save"
 msgstr "변경사항 저장"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/SocialLinksSetting/SocialLinksSetting.tsx:525
+#: src/components/remotes/SettingsApp/pages/SocialLinksSetting/SocialLinksSetting.tsx:524
 msgid "settings.social_links.saving"
 msgstr "저장 중..."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/SocialLinksSetting/SocialLinksSetting.tsx:448
+#: src/components/remotes/SettingsApp/pages/SocialLinksSetting/SocialLinksSetting.tsx:447
 msgid "settings.social_links.title"
 msgstr "소셜 링크"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/SocialLinksSetting/SocialLinksSetting.tsx:430
-#: src/components/remotes/SettingsApp/pages/SocialLinksSetting/SocialLinksSetting.tsx:436
+#: src/components/remotes/SettingsApp/pages/SocialLinksSetting/SocialLinksSetting.tsx:429
+#: src/components/remotes/SettingsApp/pages/SocialLinksSetting/SocialLinksSetting.tsx:435
 msgid "settings.social_links.update_failed"
 msgstr "소셜 링크를 업데이트하지 못했습니다."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/SocialLinksSetting/SocialLinksSetting.tsx:419
+#: src/components/remotes/SettingsApp/pages/SocialLinksSetting/SocialLinksSetting.tsx:418
 msgid "settings.social_links.update_success"
 msgstr "소셜 링크를 업데이트했습니다."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/SocialLinksSetting/SocialLinksSetting.tsx:249
+#: src/components/remotes/SettingsApp/pages/SocialLinksSetting/SocialLinksSetting.tsx:248
 msgid "settings.social_links.url.label"
 msgstr "링크 주소"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/SocialLinksSetting/SocialLinksSetting.tsx:396
+#: src/components/remotes/SettingsApp/pages/SocialLinksSetting/SocialLinksSetting.tsx:395
 msgid "settings.social_links.validation.forbidden_separators"
 msgstr "소셜 링크 주소에는 쉼표(,)와 앰퍼샌드(&)를 포함할 수 없습니다."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/SocialLinksSetting/SocialLinksSetting.tsx:387
+#: src/components/remotes/SettingsApp/pages/SocialLinksSetting/SocialLinksSetting.tsx:386
 msgid "settings.social_links.validation.https_required"
 msgstr "소셜 링크 주소는 https://로 시작해야 합니다."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/SocialLinksSetting/SocialLinksSetting.tsx:369
+#: src/components/remotes/SettingsApp/pages/SocialLinksSetting/SocialLinksSetting.tsx:368
 msgid "settings.social_links.validation.platform_required"
 msgstr "모든 소셜 링크의 플랫폼을 선택해 주세요."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/SocialLinksSetting/SocialLinksSetting.tsx:378
+#: src/components/remotes/SettingsApp/pages/SocialLinksSetting/SocialLinksSetting.tsx:377
 msgid "settings.social_links.validation.url_required"
 msgstr "모든 소셜 링크의 주소를 입력해 주세요."
 

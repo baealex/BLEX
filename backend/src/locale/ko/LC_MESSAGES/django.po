@@ -3221,6 +3221,22 @@ msgstr "X에 공유"
 msgid "Compose a post in a new window"
 msgstr "새 창에서 공유 포스트 작성"
 
+#: board/templates/board/posts/post_detail.html:405
+msgid "Share on Threads"
+msgstr "Threads에 공유"
+
+#: board/templates/board/posts/post_detail.html:406
+msgid "Share with your Threads followers"
+msgstr "Threads 팔로워에게 공유"
+
+#: board/templates/board/posts/post_detail.html:415
+msgid "Share on Bluesky"
+msgstr "Bluesky에 공유"
+
+#: board/templates/board/posts/post_detail.html:416
+msgid "Share with your Bluesky followers"
+msgstr "Bluesky 팔로워에게 공유"
+
 #: board/templates/board/posts/post_detail.html:396
 msgid "Share on LinkedIn"
 msgstr "LinkedIn에 공유"
