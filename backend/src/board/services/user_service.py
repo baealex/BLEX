@@ -59,7 +59,7 @@ class UserService:
                 gettext('Login is required.'),
             )
 
-        if current_user != target_user and not current_user.is_staff:
+        if current_user != target_user:
             raise UserValidationError(
                 ErrorCode.AUTHENTICATION,
                 gettext('Permission denied.'),

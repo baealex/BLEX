@@ -1,11 +1,12 @@
 import json
+from datetime import timedelta
 from unittest.mock import patch
 
 from django.test import TestCase
 from django.utils import timezone
 
 from board.constants.config_meta import CONFIG_TYPE
-from board.models import Config, Post, PostConfig, PostContent, Profile, User
+from board.models import Config, Post, PostConfig, PostContent, PostLikes, Profile, User
 
 
 class PostLikeActionTestCase(TestCase):
@@ -80,4 +81,23 @@ class PostLikeActionTestCase(TestCase):
 
         self.client.post('/like/like-action')
 
+        mock_notify.assert_not_called()
+
+    @patch('board.views.post_actions.create_system_notify')
+    def test_non_public_post_cannot_be_liked(self, mock_notify):
+        self.author_config.create_or_update_meta(CONFIG_TYPE.NOTIFY_POSTS_LIKE, 'true')
+        hidden = Post.objects.create(author=self.author, title='Hidden', url='hidden-post',
+                                     published_date=timezone.now())
+        PostConfig.objects.create(post=hidden, hide=True)
+        scheduled = Post.objects.create(author=self.author, title='Scheduled', url='scheduled-post',
+                                        published_date=timezone.now() + timedelta(days=1))
+        PostConfig.objects.create(post=scheduled)
+        draft = Post.objects.create(author=self.author, title='Draft', url='draft-post')
+        PostConfig.objects.create(post=draft)
+
+        for url in ('hidden-post', 'scheduled-post', 'draft-post'):
+            response = self.client.post(f'/like/{url}')
+            self.assertEqual(response.status_code, 404, url)
+
+        self.assertFalse(PostLikes.objects.exists())
         mock_notify.assert_not_called()

@@ -2008,6 +2008,10 @@ msgstr "작성한 포스트가 존재하는 경우 6개월에 한번만 변경�
 msgid "Your current password is incorrect."
 msgstr "현재 비밀번호가 올바르지 않습니다."
 
+#: board/services/auth_service.py:507
+msgid "The last administrator account cannot be deleted."
+msgstr "마지막 관리자 계정은 삭제할 수 없습니다."
+
 #: board/services/author_invite_service.py:68
 msgid "A used invitation link cannot be deleted."
 msgstr "이미 사용된 초대 링크는 삭제할 수 없습니다."

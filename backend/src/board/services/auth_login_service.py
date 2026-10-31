@@ -111,6 +111,7 @@ class AuthLoginService:
                 'is_oauth': is_oauth,
             })
 
+        AuthLoginService.clear_login_attempts(request)
         auth.login(request, user)
         return AuthLoginService.login_response(request.user)
 
@@ -161,7 +162,8 @@ class AuthLoginService:
 
         if user is not None:
             if user.is_active:
-                AuthLoginService.clear_login_attempts(request)
+                # Failed attempts reset only after the whole login succeeds,
+                # so a known password cannot reset 2FA code guessing.
                 return AuthLoginService.common_auth(
                     request,
                     user,

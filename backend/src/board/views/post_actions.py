@@ -8,6 +8,7 @@ from board.models import Post
 from board.modules.notify import create_system_notify
 from board.services.notification_message_service import NotificationMessageKey
 from board.services.post_like_service import PostLikeService
+from board.services.public_post_service import PublicPostService
 
 
 @require_POST
@@ -22,7 +23,12 @@ def like_post(request, url):
             'message': gettext('Authentication required'),
         }, status=401)
 
-    post = get_object_or_404(Post, url=url)
+    post = get_object_or_404(
+        PublicPostService.filter_public_posts(
+            Post.objects.select_related('author')
+        ),
+        url=url,
+    )
 
     result = PostLikeService.toggle(post, request.user)
 
