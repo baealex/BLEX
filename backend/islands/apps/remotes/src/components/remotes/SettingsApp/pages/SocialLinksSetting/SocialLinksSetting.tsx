@@ -20,21 +20,12 @@ import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { restrictToVerticalAxis, restrictToFirstScrollableAncestor } from '@dnd-kit/modifiers';
 import {
-    BriefcaseBusiness,
-    Camera,
     ChevronDown,
-    Code2,
     GripVertical,
-    Link,
-    MessageCircle,
-    Play,
     Plus,
     Save,
-    Send,
     Share2,
-    Users,
-    X,
-    type LucideIcon
+    X
 } from '@blex/ui/icons';
 import { toast } from '~/utils/toast';
 import { useSuspenseQuery } from '@tanstack/react-query';
@@ -54,19 +45,20 @@ interface SocialLinkItemProps {
     onChange: (index: number, field: 'name' | 'value', value: string) => void;
 }
 
-const getPlatformIcon = (name: string): LucideIcon => {
-    const iconMap: Record<string, LucideIcon> = {
-        github: Code2,
-        twitter: MessageCircle,
-        facebook: Users,
-        telegram: Send,
-        instagram: Camera,
-        linkedin: BriefcaseBusiness,
-        youtube: Play,
-        other: Link
-    };
-    return iconMap[name] || Link;
+const PLATFORM_ICON_CLASSES: Record<string, string> = {
+    github: 'fab fa-github',
+    twitter: 'fab fa-x-twitter',
+    threads: 'fab fa-threads',
+    facebook: 'fab fa-facebook-f',
+    telegram: 'fab fa-telegram',
+    instagram: 'fab fa-instagram',
+    linkedin: 'fab fa-linkedin-in',
+    youtube: 'fab fa-youtube'
 };
+
+const DEFAULT_PLATFORM_ICON_CLASS = 'fas fa-link';
+
+const getPlatformIconClass = (name: string) => PLATFORM_ICON_CLASSES[name] ?? DEFAULT_PLATFORM_ICON_CLASS;
 
 const SocialLinkItem = ({ social, index, onRemove, onChange }: SocialLinkItemProps) => {
     const { i18n, t } = useLingui();
@@ -101,9 +93,16 @@ const SocialLinkItem = ({ social, index, onRemove, onChange }: SocialLinkItemPro
         {
             label: t({
                 id: 'settings.social_links.platform.twitter',
-                message: 'Twitter'
+                message: 'X'
             }),
             value: 'twitter'
+        },
+        {
+            label: t({
+                id: 'settings.social_links.platform.threads',
+                message: 'Threads'
+            }),
+            value: 'threads'
         },
         {
             label: t({
@@ -165,7 +164,7 @@ const SocialLinkItem = ({ social, index, onRemove, onChange }: SocialLinkItemPro
         message: 'Remove {platform}',
         values: { platform: currentPlatformLabel }
     });
-    const PlatformIcon = getPlatformIcon(social.name);
+    const platformIconClass = getPlatformIconClass(social.name);
     const platformInputId = `social-platform-${social.id}`;
     const linkInputId = `social-link-${social.id}`;
 
@@ -184,7 +183,7 @@ const SocialLinkItem = ({ social, index, onRemove, onChange }: SocialLinkItemPro
                             <GripVertical aria-hidden="true" className="h-4 w-4" />
                         </div>
                         <div className="w-8 h-8 flex items-center justify-center bg-surface rounded-lg shadow-sm">
-                            <PlatformIcon aria-hidden="true" className="h-4 w-4 text-content-secondary" />
+                            <i aria-hidden="true" className={`${platformIconClass} text-base text-content-secondary`} />
                         </div>
                         <span className="text-sm font-medium text-content">
                             <Trans id="settings.social_links.item.label">Social link</Trans>
@@ -213,9 +212,9 @@ const SocialLinkItem = ({ social, index, onRemove, onChange }: SocialLinkItemPro
 
                     {/* Desktop platform icon */}
                     <div className="hidden sm:flex w-10 h-10 items-center justify-center bg-gradient-to-br from-surface-subtle to-surface-subtle rounded-lg shadow-sm group-hover:from-surface-subtle group-hover:to-surface-subtle transition-all duration-200 flex-shrink-0">
-                        <PlatformIcon
+                        <i
                             aria-hidden="true"
-                            className="h-5 w-5 text-content-secondary transition-colors group-hover:text-content-secondary"
+                            className={`${platformIconClass} text-lg text-content-secondary transition-colors group-hover:text-content-secondary`}
                         />
                     </div>
 
