@@ -543,7 +543,7 @@ class AuthorPostsPageTestCase(TestCase):
         self.assertNotContains(response, '소셜 링크 편집')
 
     def test_author_overview_shows_saved_twitter_link_as_x(self):
-        """이미 twitter로 저장된 소셜 링크는 데이터 변경 없이 X로 표시한다."""
+        """twitter로 저장된 소셜 링크의 X 표시 테스트"""
         UserLinkMeta.objects.create(
             user=self.user, name='twitter', value='https://x.com/testauthor', order=0
         )

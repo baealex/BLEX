@@ -3,7 +3,7 @@ from django.shortcuts import get_object_or_404
 from django.utils import timezone
 from django.utils.translation import gettext
 
-from board.models import Post, PinnedPost
+from board.models import Post
 from board.html_utils import sanitize_content_html
 from board.modules.requests import BooleanType
 from board.modules.response import StatusDone, StatusError, ErrorCode
@@ -129,7 +129,7 @@ def user_posts(request, username, url=None):
                     'series': {
                         'url': post.series.url,
                         'name': post.series.name,
-                    } if post.series else None,
+                    } if post.series and not post.series.hide else None,
                     'created_date': convert_to_localtime(post.published_date).strftime('%Y-%m-%d %H:%M'),
                     'updated_date': convert_to_localtime(post.updated_date).strftime('%Y-%m-%d %H:%M'),
                     'author_image': str(post.author_image),
@@ -192,10 +192,6 @@ def user_posts(request, username, url=None):
             if request.GET.get('hide', ''):
                 if not PostService.can_user_edit_post(request.user, post):
                     raise Http404
-
-                pinned_post = PinnedPost.objects.filter(post=post)
-                if pinned_post.exists():
-                    pinned_post.delete()
 
                 is_hide = not post.config.hide
                 PostService.update_post(post=post, is_hide=is_hide)

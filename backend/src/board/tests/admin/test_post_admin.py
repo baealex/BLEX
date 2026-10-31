@@ -19,6 +19,7 @@ from board.models import (
     PostConfig,
     PostConfigMeta,
     PostContent,
+    Series,
     Tag,
 )
 from board.services.post_service import PostService
@@ -129,6 +130,37 @@ class PostAdminTestCase(AdminRequestMixin, TestCase):
         )
 
         self.assertNotIn('url', readonly_fields)
+
+    def test_change_form_keeps_publish_lifecycle_and_series_ownership(self):
+        request = self.admin_request()
+        published = self.create_post(title='Published lifecycle')
+        draft = self.create_post(published=False, title='Draft lifecycle')
+
+        published_readonly = self.admin_instance.get_readonly_fields(request, obj=published)
+        draft_readonly = self.admin_instance.get_readonly_fields(request, obj=draft)
+        self.assertIn('url', published_readonly)
+        self.assertIn('published_date', published_readonly)
+        self.assertNotIn('url', draft_readonly)
+        self.assertIn('published_date', draft_readonly)
+
+        other_series = Series.objects.create(
+            owner=self.admin_user,
+            name='Other series',
+            url='other-series',
+        )
+        form_class = self.admin_instance.get_form(request, obj=published)
+        form = form_class(
+            data={
+                'author': self.author.pk,
+                'title': published.title,
+                'series': other_series.pk,
+                'meta_description': '',
+                'read_time': 0,
+            },
+            instance=published,
+        )
+        self.assertFalse(form.is_valid())
+        self.assertIn('series', form.errors)
 
     def test_queryset_includes_trash_but_autocomplete_excludes_it(self):
         active = self.create_post(title='Active post')
@@ -367,6 +399,21 @@ class PostAdminTestCase(AdminRequestMixin, TestCase):
                 change_message__contains='즉시 발행',
             ).exists(),
         )
+
+    def test_publish_drafts_keeps_hidden_and_advertise_flags(self):
+        draft = self.create_post(published=False, title='Hidden draft')
+        PostConfig.objects.filter(post=draft).update(hide=True, advertise=True)
+        publish_selection = self.action_selection('publish_drafts', [draft.pk])
+
+        self.admin_instance.publish_drafts(
+            self.admin_request('post', {**publish_selection, 'confirm': 'yes'}),
+            Post.all_objects.filter(pk=draft.pk),
+        )
+
+        published = Post.objects.select_related('config').get(pk=draft.pk)
+        self.assertIsNotNone(published.published_date)
+        self.assertTrue(published.config.hide)
+        self.assertTrue(published.config.advertise)
 
     def test_failed_immediate_publish_restores_saved_reservation(self):
         draft = self.create_post(published=False, title='Broken draft')

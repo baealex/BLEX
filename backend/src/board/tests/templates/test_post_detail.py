@@ -153,6 +153,26 @@ class PostDetailViewTestCase(TestCase):
         ]
         self.assertEqual(visible_titles, ['Test Post', 'Published Series Post'])
 
+    def test_post_detail_hides_admin_hidden_series(self):
+        """관리자가 숨긴 시리즈의 이름과 링크 미노출 테스트"""
+        series = Series.objects.create(
+            owner=self.user,
+            name='Hidden Series Name',
+            url='hidden-series',
+            hide=True,
+        )
+        self.post.series = series
+        self.post.save(update_fields=['series'])
+
+        response = self.client.get(reverse('post_detail', kwargs={
+            'username': 'testauthor',
+            'post_url': 'test-post'
+        }))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertNotContains(response, 'Hidden Series Name')
+        self.assertNotContains(response, '/series/hidden-series')
+
     def test_post_detail_rejects_draft_for_non_owner(self):
         """임시글 상세 URL을 알아도 작성자가 아니면 볼 수 없다."""
         draft = Post.objects.create(
@@ -247,7 +267,7 @@ class PostDetailViewTestCase(TestCase):
         self.assertNotContains(response, '*.md 참조 주소')
 
     def test_post_detail_share_menu_links_networks_with_escaped_title(self):
-        """공유 메뉴는 각 SNS 작성 화면으로 연결하고, 글 제목은 스크립트를 깨지 않게 넣는다."""
+        """공유 메뉴의 SNS 작성 화면 링크와 제목 이스케이프 테스트"""
         Post.objects.filter(pk=self.post.pk).update(title="Tom's </script> post")
         url = reverse('post_detail', kwargs={
             'username': 'testauthor',

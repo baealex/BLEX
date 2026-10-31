@@ -3,6 +3,7 @@ Post Admin Configuration
 """
 from typing import Any
 
+from django import forms
 from django.contrib import admin, messages
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import transaction
@@ -163,6 +164,21 @@ class PostConfigInline(admin.TabularInline):
     max_num = 1
 
 
+class PostAdminForm(forms.ModelForm):
+    class Meta:
+        model = Post
+        fields = '__all__'
+
+    def clean(self):
+        cleaned_data = super().clean()
+        series = cleaned_data.get('series')
+        author = cleaned_data.get('author')
+        author_id = author.pk if author else self.instance.author_id
+        if series is not None and series.owner_id != author_id:
+            self.add_error('series', _('Choose a series owned by the post author.'))
+        return cleaned_data
+
+
 @admin.register(Post)
 class PostAdmin(admin.ModelAdmin):
     """
@@ -174,6 +190,7 @@ class PostAdmin(admin.ModelAdmin):
 
     search_fields = ['title', 'content__content_html', 'author__username', 'series__name', 'tags__value']
     ordering = ['-created_date']
+    form = PostAdminForm
     inlines = [PostContentInline, PostConfigInline]
     autocomplete_fields = ['author', 'series', 'tags']
 
@@ -305,6 +322,15 @@ class PostAdmin(admin.ModelAdmin):
         actions.pop('delete_selected', None)
         return actions
 
+    def get_readonly_fields(self, request, obj=None):
+        readonly_fields = list(super().get_readonly_fields(request, obj))
+        if obj is not None:
+            # Publishing goes through admin actions and the post service.
+            readonly_fields.append('published_date')
+            if obj.published_date is not None:
+                readonly_fields.append('url')
+        return readonly_fields
+
     def has_change_permission(self, request, obj=None):
         if obj is not None and obj.deleted_date is not None:
             return False
@@ -330,6 +356,7 @@ class PostAdmin(admin.ModelAdmin):
     def save_related(self, request, form, formsets, change):
         super().save_related(request, form, formsets, change)
         post = form.instance
+        PinnedPost.objects.filter(post=post, post__config__hide=True).delete()
         if not change:
             PostContent.objects.get_or_create(post=post)
             PostConfig.objects.get_or_create(post=post)
