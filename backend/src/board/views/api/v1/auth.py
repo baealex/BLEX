@@ -95,6 +95,7 @@ def sign(request):
         try:
             AuthService.validate_username(username)
             AuthService.validate_email(email)
+            AuthService.validate_signup_password(password)
         except AuthValidationError as e:
             return StatusError(e.code, e.message)
 
@@ -130,6 +131,9 @@ def sign(request):
         auth.login(request, new_user)
         return AuthLoginService.login_response(request.user, is_first_login=True)
 
+    if request.method in ('PATCH', 'DELETE') and not request.user.is_authenticated:
+        return StatusError(ErrorCode.NEED_LOGIN)
+
     if request.method == 'PATCH':
         user = request.user
         body = ApiRequestBodyService.parse_json_or_querydict(request)
@@ -162,7 +166,10 @@ def sign(request):
         return StatusDone()
 
     if request.method == 'DELETE':
-        AuthService.delete_user_account(request.user)
+        try:
+            AuthService.delete_user_account(request.user)
+        except AuthValidationError as e:
+            return StatusError(e.code, e.message)
         auth.logout(request)
         return StatusDone()
 

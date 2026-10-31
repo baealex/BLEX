@@ -142,6 +142,20 @@ class AuthService:
             )
 
     @staticmethod
+    def validate_signup_password(password: str) -> None:
+        """
+        Validate a signup password with the same rule as the signup form.
+
+        Raises:
+            AuthValidationError: If validation fails
+        """
+        if len(password) < 8:
+            raise AuthValidationError(
+                ErrorCode.VALIDATE,
+                gettext('Password must be at least 8 characters.'),
+            )
+
+    @staticmethod
     def generate_unique_username(base_username: str) -> str:
         """
         Generate unique username by appending counter if needed.
@@ -475,6 +489,22 @@ class AuthService:
 
         Args:
             user: User instance to delete
+
+        Raises:
+            AuthValidationError: If the user is the last active superuser
         """
+        is_last_active_superuser = (
+            user.is_superuser
+            and user.is_active
+            and not User.objects.filter(
+                is_superuser=True,
+                is_active=True,
+            ).exclude(pk=user.pk).exists()
+        )
+        if is_last_active_superuser:
+            raise AuthValidationError(
+                ErrorCode.REJECT,
+                gettext('The last administrator account cannot be deleted.'),
+            )
 
         user.delete()

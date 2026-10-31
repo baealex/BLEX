@@ -127,7 +127,7 @@ class AuthTestCase(TestCase):
         """계정 생성 테스트"""
         response = self.client.post('/v1/sign', {
             'username': 'test2',
-            'password': 'test2',
+            'password': 'test2-password',
             'name': 'Test User 2',
             'email': 'test2@test.com'
         })
@@ -137,7 +137,7 @@ class AuthTestCase(TestCase):
 
         response = self.client.post('/v1/login', {
             'username': 'test2',
-            'password': 'test2',
+            'password': 'test2-password',
         })
         self.assertEqual(response.status_code, 200)
         content = json.loads(response.content)
@@ -149,7 +149,7 @@ class AuthTestCase(TestCase):
             '/v1/sign',
             {
                 'username': 'test',
-                'password': 'test2',
+                'password': 'test2-password',
                 'name': 'Test User 2',
                 'email': 'test2@test.com',
             },
@@ -172,7 +172,7 @@ class AuthTestCase(TestCase):
 
         response = self.client.post('/v1/sign', {
             'username': 'test2',
-            'password': 'test2',
+            'password': 'test2-password',
             'name': 'Test User 2',
             'email': 'test2@test.com',
         })
@@ -197,7 +197,7 @@ class AuthTestCase(TestCase):
 
         response = self.client.post('/v1/sign', {
             'username': 'test2',
-            'password': 'test2',
+            'password': 'test2-password',
             'name': 'Test User 2',
             'email': 'test2@test.com',
             'h-captcha-response': 'valid-token',
@@ -225,7 +225,7 @@ class AuthTestCase(TestCase):
 
         response = self.client.post('/v1/sign', {
             'username': 'test2',
-            'password': 'test2',
+            'password': 'test2-password',
             'name': 'Test User 2',
             'email': 'test2@test.com',
             'h-captcha-response': 'invalid-token',
@@ -253,6 +253,36 @@ class AuthTestCase(TestCase):
         self.assertEqual(response.status_code, 200)
         content = json.loads(response.content)
         self.assertEqual(content['status'], 'ERROR')
+
+    def test_create_account_rejects_short_password(self):
+        """8자 미만 비밀번호로 계정 생성 실패 테스트"""
+        response = self.client.post('/v1/sign', {
+            'username': 'test2',
+            'password': 'short1!',
+            'name': 'Test User 2',
+            'email': 'test2@test.com',
+        })
+
+        content = json.loads(response.content)
+        self.assertEqual(content['status'], 'ERROR')
+        self.assertEqual(content['errorCode'], 'error:VA')
+        self.assertFalse(User.objects.filter(username='test2').exists())
+
+    def test_last_administrator_cannot_delete_account(self):
+        """마지막 관리자 계정 삭제 거부 테스트"""
+        User.objects.create_superuser(
+            username='lastadmin',
+            password='test',
+            email='lastadmin@test.com',
+        )
+        self.client.login(username='lastadmin', password='test')
+
+        response = self.client.delete('/v1/sign')
+
+        content = json.loads(response.content)
+        self.assertEqual(content['status'], 'ERROR')
+        self.assertEqual(content['errorCode'], 'error:RJ')
+        self.assertTrue(User.objects.filter(username='lastadmin').exists())
 
 
     def test_disabled_social_provider_blocks_direct_signup_api(self):

@@ -115,6 +115,21 @@ class UserAPITestCase(TestCase):
         content = json.loads(response.content)
         self.assertNotEqual(content['status'], 'DONE')
 
+    def test_staff_cannot_update_someone_elses_about(self):
+        """staff도 다른 사용자의 소개는 업데이트 불가"""
+        User.objects.filter(pk=self.user.pk).update(is_staff=True)
+        self.client.login(username='testuser', password='testpass')
+
+        response = self.client.put(
+            '/v1/users/@otheruser',
+            data='about=true&about_md=Defaced',
+            content_type='application/x-www-form-urlencoded'
+        )
+
+        self.assertEqual(json.loads(response.content)['status'], 'ERROR')
+        self.other_user.profile.refresh_from_db()
+        self.assertNotIn('Defaced', self.other_user.profile.about_md)
+
     def test_update_about_requires_login(self):
         """소개 업데이트는 로그인 필요"""
         data = 'about=true&about_md=Test'

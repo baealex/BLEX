@@ -635,3 +635,33 @@ class TwoFactorAuthTestCase(TestCase):
         self.assertEqual(content['status'], 'ERROR')
         self.assertEqual(content['errorCode'], 'error:RJ')
         self.assertIn('너무 많은 실패', content['errorMessage'])
+
+    @override_settings(DEBUG=False)
+    def test_wrong_2fa_codes_with_correct_password_are_rate_limited(self):
+        """비밀번호가 맞아도 2FA 코드 5번 실패 시 rate limiting 테스트"""
+        user = User.objects.get(username='test2fa')
+        totp_secret = pyotp.random_base32()
+        TwoFactorAuth.objects.create(
+            user=user,
+            recovery_key='d' * 45,
+            totp_secret=totp_secret
+        )
+
+        for _ in range(5):
+            self.client.post('/v1/login', {
+                'username': 'test2fa',
+                'password': 'test2fa',
+                'code': '000000',
+            })
+
+        response = self.client.post('/v1/login', {
+            'username': 'test2fa',
+            'password': 'test2fa',
+            'code': pyotp.TOTP(totp_secret).now(),
+        })
+        content = json.loads(response.content)
+        self.assertEqual(content['status'], 'ERROR')
+        self.assertIn('너무 많은 실패', content['errorMessage'])
+
+        response = self.client.get('/v1/login')
+        self.assertEqual(json.loads(response.content)['status'], 'ERROR')
