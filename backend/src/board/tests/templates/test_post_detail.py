@@ -246,6 +246,26 @@ class PostDetailViewTestCase(TestCase):
         self.assertContains(response, 'Facebook에 공유')
         self.assertNotContains(response, '*.md 참조 주소')
 
+    def test_post_detail_share_menu_links_networks_with_escaped_title(self):
+        """공유 메뉴는 각 SNS 작성 화면으로 연결하고, 글 제목은 스크립트를 깨지 않게 넣는다."""
+        Post.objects.filter(pk=self.post.pk).update(title="Tom's </script> post")
+        url = reverse('post_detail', kwargs={
+            'username': 'testauthor',
+            'post_url': 'test-post'
+        })
+        response = self.client.get(url)
+
+        self.assertEqual(response.status_code, 200)
+        for compose_url in (
+            'https://twitter.com/intent/tweet?text=',
+            'https://www.threads.com/intent/post?text=',
+            'https://bsky.app/intent/compose?text=',
+            'https://www.linkedin.com/sharing/share-offsite/?url=',
+            'https://www.facebook.com/sharer/sharer.php?u=',
+        ):
+            self.assertContains(response, compose_url)
+        self.assertContains(response, "'Tom\\u0027s \\u003C/script\\u003E post'")
+
     def test_post_detail_uses_noindex_only_when_seo_disabled(self):
         setting = SiteSetting.get_instance()
         setting.seo_enabled = False

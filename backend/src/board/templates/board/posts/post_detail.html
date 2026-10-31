@@ -284,6 +284,15 @@
                         const text = encodeURIComponent('{{ post.title|escapejs }}');
                         this.openSharePopup(`https://twitter.com/intent/tweet?text=${text}&url=${url}`);
                     },
+                    shareToThreads() {
+                        const url = encodeURIComponent(this.getPageUrl());
+                        const text = encodeURIComponent('{{ post.title|escapejs }}');
+                        this.openSharePopup(`https://www.threads.com/intent/post?text=${text}&url=${url}`);
+                    },
+                    shareToBluesky() {
+                        const text = encodeURIComponent('{{ post.title|escapejs }}' + ' ' + this.getPageUrl());
+                        this.openSharePopup(`https://bsky.app/intent/compose?text=${text}`);
+                    },
                     shareToLinkedIn() {
                         const url = encodeURIComponent(this.getPageUrl());
                         this.openSharePopup(`https://www.linkedin.com/sharing/share-offsite/?url=${url}`);
@@ -385,6 +394,26 @@
                                     <span class="flex flex-col">
                                         <span class="font-semibold">{% translate "Share on X" %}</span>
                                         <span class="text-xs text-content-hint">{% translate "Compose a post in a new window" %}</span>
+                                    </span>
+                                </button>
+                                <button @click="shareToThreads(); closeLinkCopyMenu()"
+                                    class="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-left text-sm text-content-secondary transition-colors duration-150 hover:bg-surface-subtle hover:text-content active:scale-[0.98]">
+                                    <span class="flex h-8 w-8 items-center justify-center rounded-lg bg-surface-subtle text-xs">
+                                        <i class="fab fa-threads"></i>
+                                    </span>
+                                    <span class="flex flex-col">
+                                        <span class="font-semibold">{% translate "Share on Threads" %}</span>
+                                        <span class="text-xs text-content-hint">{% translate "Share with your Threads followers" %}</span>
+                                    </span>
+                                </button>
+                                <button @click="shareToBluesky(); closeLinkCopyMenu()"
+                                    class="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-left text-sm text-content-secondary transition-colors duration-150 hover:bg-surface-subtle hover:text-content active:scale-[0.98]">
+                                    <span class="flex h-8 w-8 items-center justify-center rounded-lg bg-surface-subtle text-xs">
+                                        <i class="fab fa-bluesky"></i>
+                                    </span>
+                                    <span class="flex flex-col">
+                                        <span class="font-semibold">{% translate "Share on Bluesky" %}</span>
+                                        <span class="text-xs text-content-hint">{% translate "Share with your Bluesky followers" %}</span>
                                     </span>
                                 </button>
                                 <button @click="shareToLinkedIn(); closeLinkCopyMenu()"
