@@ -145,7 +145,13 @@ class PostBodyPayload(Schema):
             'instead of series_id.'
         ),
     )
-    slug: str | None = Field(None, description=_('Custom post URL.'))
+    slug: str | None = Field(
+        None,
+        description=_(
+            'Custom post URL. It cannot be changed after the post is '
+            'published or scheduled.'
+        ),
+    )
     url: str | None = Field(
         None,
         description=_('Compatibility post URL field for existing clients.'),
@@ -202,7 +208,9 @@ class PostPublishPayload(PostBodyPayload):
 
 class DeletePostData(Schema):
     deleted: bool | None = None
+    trashed: bool | None = None
     id: int | None = None
+    deleted_at: str | None = None
     can_delete: bool | None = None
     post: PostSummary | None = None
 

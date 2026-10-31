@@ -148,6 +148,8 @@ class ActivePostManager(models.Manager):
 
 class Post(models.Model):
     DEFAULT_COVER_COUNT = 6
+    # Author page routes that would shadow a post at /@<username>/<url>.
+    RESERVED_URLS = frozenset({'about', 'posts', 'series'})
 
     objects = ActivePostManager()
     all_objects = models.Manager()
@@ -185,7 +187,7 @@ class Post(models.Model):
         if self.pk:
             post = post.exclude(pk=self.pk)
 
-        while post.exists():
+        while url in Post.RESERVED_URLS or post.exists():
             url = url + '-' + randstr(8)
             post = Post.all_objects.filter(url=url)
             if self.pk:

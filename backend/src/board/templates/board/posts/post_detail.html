@@ -466,7 +466,7 @@
                 {% endif %}
 
                 <!-- Series Card -->
-                {% if post.series and not is_post_preview %}
+                {% if post.series and not post.series.hide and not is_post_preview %}
                 <section class="mt-16 bg-surface rounded-2xl p-6 sm:p-8 mb-16 ring-1 ring-line/60" aria-labelledby="post-series-heading">
                     {% if not post.visible_series_posts %}
                     <div class="flex flex-col items-center justify-center text-center py-6">
@@ -702,7 +702,7 @@ class="xl:hidden">
   "datePublished": "{{ post.published_date|date:'c' }}",
   "dateModified": "{{ post.updated_date|date:'c' }}",
   {% if post.tags.all %}"keywords": "{% for tag in post.tags.all %}{{ tag }}{% if not forloop.last %}, {% endif %}{% endfor %}",{% endif %}
-  "articleSection": {% if post.series %}"{{ post.series.name }}"{% else %}"Blog"{% endif %}
+  "articleSection": {% if post.series and not post.series.hide %}"{{ post.series.name }}"{% else %}"Blog"{% endif %}
 }
 </script>
 {% endif %}

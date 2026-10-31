@@ -69,7 +69,7 @@ Parameters:
                 </div>
             </div>
             {% else %}
-                {% if post.series %}
+                {% if post.series and not post.series.hide %}
                 <a href="/@{{ post.author }}/series/{{ post.series.url }}" class="inline-flex items-center px-3 py-1.5 max-w-32 bg-surface-subtle text-content rounded-full text-xs font-semibold hover:bg-line-light transition-all duration-150 truncate">
                     <i class="fas fa-layer-group mr-1.5"></i>
                     <span class="truncate">{{ post.series.name }}</span>

@@ -19,7 +19,7 @@ from django.utils.dateparse import parse_datetime
 from django.utils.text import slugify
 from django.utils.translation import gettext
 
-from board.models import Post, PostContent, PostConfig, PostConfigMeta, Series, PostLikes
+from board.models import Post, PostContent, PostConfig, PostConfigMeta, PinnedPost, Series, PostLikes, Tag
 from board.modules.post_description import create_post_description
 from board.services.tag_service import TagService
 from board.modules.response import ErrorCode
@@ -45,6 +45,10 @@ class PostService:
     """Service class for handling post-related business logic"""
     DRAFT_RESERVED_DATE_META = 'draft_reserved_date'
     SUBTITLE_MAX_LENGTH = Post._meta.get_field('subtitle').max_length or 120
+    TITLE_MAX_LENGTH = Post._meta.get_field('title').max_length or 65
+    URL_MAX_LENGTH = Post._meta.get_field('url').max_length or 65
+    DESCRIPTION_MAX_LENGTH = Post._meta.get_field('meta_description').max_length or 250
+    TAG_MAX_LENGTH = Tag._meta.get_field('value').max_length or 50
 
     @staticmethod
     def normalize_cover_options(
@@ -162,6 +166,49 @@ class PostService:
                 ErrorCode.SIZE_OVERFLOW,
                 gettext('Subtitles can be up to %(max_length)s characters.') % {
                     'max_length': PostService.SUBTITLE_MAX_LENGTH,
+                }
+            )
+
+    @staticmethod
+    def validate_field_lengths(
+        title: Optional[str] = None,
+        description: Optional[str] = None,
+        custom_url: Optional[str] = None,
+        tag: Optional[str] = None,
+    ) -> None:
+        """Keep every post mutation within the model length contract."""
+        if title and len(title) > PostService.TITLE_MAX_LENGTH:
+            raise PostValidationError(
+                ErrorCode.SIZE_OVERFLOW,
+                gettext('Titles can be up to %(max_length)s characters.') % {
+                    'max_length': PostService.TITLE_MAX_LENGTH,
+                }
+            )
+
+        if description and len(description) > PostService.DESCRIPTION_MAX_LENGTH:
+            raise PostValidationError(
+                ErrorCode.SIZE_OVERFLOW,
+                gettext('Descriptions can be up to %(max_length)s characters.') % {
+                    'max_length': PostService.DESCRIPTION_MAX_LENGTH,
+                }
+            )
+
+        if custom_url and len(PostService.create_post_url('', custom_url)) > PostService.URL_MAX_LENGTH:
+            raise PostValidationError(
+                ErrorCode.SIZE_OVERFLOW,
+                gettext('Post URLs can be up to %(max_length)s characters.') % {
+                    'max_length': PostService.URL_MAX_LENGTH,
+                }
+            )
+
+        if tag and any(
+            len(tag_value) > PostService.TAG_MAX_LENGTH
+            for tag_value in TagService.parse_tags(tag)
+        ):
+            raise PostValidationError(
+                ErrorCode.SIZE_OVERFLOW,
+                gettext('Each tag can be up to %(max_length)s characters.') % {
+                    'max_length': PostService.TAG_MAX_LENGTH,
                 }
             )
 
@@ -413,6 +460,7 @@ class PostService:
 
         PostService.validate_post_data(title, text_html)
         PostService.validate_subtitle(subtitle)
+        PostService.validate_field_lengths(title, description, custom_url, tag)
 
         resolved_html = PostService._resolve_content(text_html, content_type)
 
@@ -603,7 +651,7 @@ class PostService:
             text_html: New content (optional)
             description: New description (optional)
             series_url: New series URL (optional)
-            custom_url: New custom URL (optional)
+            custom_url: Current URL (optional); published or scheduled post URLs never change
             tag: New tags (optional)
             image: New image (optional)
             is_hide: New hide flag (optional)
@@ -615,6 +663,22 @@ class PostService:
             Updated Post instance
         """
         PostService.validate_subtitle(subtitle)
+        PostService.validate_field_lengths(title, description, custom_url, tag)
+
+        if title is not None and not title:
+            raise PostValidationError(
+                ErrorCode.VALIDATE,
+                gettext('Enter a title.')
+            )
+
+        if (
+            custom_url is not None
+            and PostService.create_post_url(post.title, custom_url) != post.url
+        ):
+            raise PostValidationError(
+                ErrorCode.REJECT,
+                gettext('The URL of a published or scheduled post cannot be changed.')
+            )
 
         resolved_html = None
         if text_html is not None:
@@ -713,13 +777,6 @@ class PostService:
                 post.series = series
                 changed = True
 
-        if custom_url is not None:
-            url = PostService.create_post_url(post.title, custom_url)
-            if post.url != url:
-                previous_url = post.url
-                post.create_unique_url(url)
-                changed = changed or post.url != previous_url
-
         if tag is not None:
             current_tags = set(post.tags.values_list('value', flat=True))
             next_tags = TagService.parse_tags(tag)
@@ -747,6 +804,9 @@ class PostService:
             if is_hide is not None and post_config.hide != is_hide:
                 post_config.hide = is_hide
                 config_changed = True
+                if is_hide:
+                    # Hidden posts cannot stay pinned on any update path.
+                    PinnedPost.objects.filter(post=post).delete()
             if is_advertise is not None and post_config.advertise != is_advertise:
                 post_config.advertise = is_advertise
                 config_changed = True
@@ -856,6 +916,7 @@ class PostService:
         """
         PostService.validate_user_permissions(user)
         PostService.validate_subtitle(subtitle)
+        PostService.validate_field_lengths(title, description, custom_url, tag)
 
         draft_count = Post.objects.filter(
             author=user,
@@ -946,6 +1007,7 @@ class PostService:
             Updated Post instance
         """
         PostService.validate_subtitle(subtitle)
+        PostService.validate_field_lengths(title, description, custom_url, tag)
 
         if title is not None:
             post.title = title or gettext('Untitled')
@@ -1052,6 +1114,7 @@ class PostService:
             PostValidationError: If validation fails
         """
         PostService.validate_subtitle(subtitle)
+        PostService.validate_field_lengths(title, description, custom_url, tag)
 
         if title is not None:
             post.title = title
@@ -1133,7 +1196,12 @@ class PostService:
     def publish_draft_now(post: Post) -> Post:
         """Publish immediately without applying a saved draft reservation."""
         PostService.set_draft_reserved_date(post, '')
-        return PostService.publish_draft(post, reserved_date_str='')
+        return PostService.publish_draft(
+            post,
+            reserved_date_str='',
+            is_hide=post.config.hide,
+            is_advertise=post.config.advertise,
+        )
 
     @staticmethod
     def get_user_drafts(user: User):
@@ -1160,7 +1228,7 @@ class PostService:
         Returns:
             List of visible posts
         """
-        if not post.series:
+        if not post.series or post.series.hide:
             return []
 
         series_posts = list(PublicPostService.filter_public_posts(

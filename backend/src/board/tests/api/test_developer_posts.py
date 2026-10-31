@@ -7,9 +7,10 @@ from django.test import TestCase, override_settings
 from django.test.utils import CaptureQueriesContext
 from django.utils import timezone
 
-from board.models import Config, Post, Profile, Series, User
+from board.models import Config, PinnedPost, Post, Profile, Series, User
 from board.modules.developer_serializers import DeveloperPostSerializer
 from board.services.developer_token_service import DeveloperTokenService
+from board.services.pinned_post_service import PinnedPostService
 
 
 class DeveloperPostsAPITestCase(TestCase):
@@ -457,6 +458,98 @@ class DeveloperPostsAPITestCase(TestCase):
         self.assertEqual(fields['actual_updated_at'], draft['updated_at'])
         self.assertEqual(fields['post_id'], draft['id'])
 
+    def test_patch_published_post_keeps_url(self):
+        """발행된 글의 URL 변경 거부 테스트"""
+        created = self.post_json('/api/developer/v1/posts', {
+            'title': 'Shared Post',
+            'content': '<p>Public content</p>',
+            'content_type': 'html',
+            'status': 'published',
+            'slug': 'stable-link',
+        }).json()['data']
+
+        same_slug = self.patch_json(f"/api/developer/v1/posts/{created['id']}", {
+            'title': 'Edited Title',
+            'slug': 'stable-link',
+        })
+        self.assertEqual(same_slug.status_code, 200)
+
+        moved_slug = self.patch_json(f"/api/developer/v1/posts/{created['id']}", {
+            'title': 'Should Not Apply',
+            'slug': 'moved-link',
+        })
+        self.assert_developer_error(moved_slug, 400, 'post.rj')
+
+        post = Post.objects.get(id=created['id'])
+        self.assertEqual(post.url, 'stable-link')
+        self.assertEqual(post.title, 'Edited Title')
+
+    def test_post_fields_follow_model_length_limits(self):
+        """제목·설명·URL·태그의 모델 길이 제한 초과 시 생성 거부 테스트"""
+        oversized_fields = {
+            'title': 'A' * 66,
+            'description': 'D' * 251,
+            'slug': 's' * 66,
+            'tags': ['t' * 51],
+        }
+        for field, value in oversized_fields.items():
+            with self.subTest(field=field):
+                response = self.post_json('/api/developer/v1/posts', {
+                    'title': 'Length Limit',
+                    'content': '<p>Public content</p>',
+                    'content_type': 'html',
+                    'status': 'published',
+                    field: value,
+                })
+                self.assert_developer_error(response, 400, 'post.of')
+
+        self.assertFalse(Post.objects.exists())
+
+    def test_patch_published_post_rejects_empty_title(self):
+        """발행된 글의 제목을 빈 값으로 수정 시 거부 테스트"""
+        created = self.post_json('/api/developer/v1/posts', {
+            'title': 'Titled Post',
+            'content': '<p>Public content</p>',
+            'content_type': 'html',
+            'status': 'published',
+        }).json()['data']
+
+        response = self.patch_json(f"/api/developer/v1/posts/{created['id']}", {'title': ''})
+
+        self.assert_developer_error(response, 400, 'post.va')
+        self.assertEqual(Post.objects.get(id=created['id']).title, 'Titled Post')
+
+    def test_hiding_post_unpins_it(self):
+        """API로 글을 숨기면 고정 해제 테스트"""
+        created = self.post_json('/api/developer/v1/posts', {
+            'title': 'Pinned Post',
+            'content': '<p>Public content</p>',
+            'content_type': 'html',
+            'status': 'published',
+        }).json()['data']
+        post = Post.objects.get(id=created['id'])
+        PinnedPostService.add_pinned_post(self.author, post.url)
+
+        response = self.patch_json(f"/api/developer/v1/posts/{created['id']}", {'is_hidden': True})
+
+        self.assertEqual(response.status_code, 200)
+        self.assertFalse(PinnedPost.objects.filter(post=post).exists())
+
+    def test_reserved_author_route_slug_gets_unique_url(self):
+        """작성자 페이지 경로와 겹치는 slug에 고유 URL 부여 테스트"""
+        response = self.post_json('/api/developer/v1/posts', {
+            'title': 'About Me',
+            'content': '<p>Public content</p>',
+            'content_type': 'html',
+            'status': 'published',
+            'slug': 'about',
+        })
+
+        post = Post.objects.get(id=response.json()['data']['id'])
+        self.assertNotEqual(post.url, 'about')
+        self.assertTrue(post.url.startswith('about-'))
+        self.assertContains(self.client.get(f'/@author/{post.url}'), 'About Me')
+
     def test_publish_draft(self):
         draft = self.create_draft('Publish Draft')
 
@@ -509,7 +602,7 @@ class DeveloperPostsAPITestCase(TestCase):
         self.assertEqual(response.status_code, 403)
         self.assertEqual(response.json()['error']['code'], 'auth.insufficient_scope')
 
-    def test_delete_post_supports_dry_run(self):
+    def test_delete_post_supports_dry_run_and_moves_to_trash(self):
         draft = self.create_draft('Delete Draft')
 
         dry_run = self.client.delete(
@@ -525,7 +618,9 @@ class DeveloperPostsAPITestCase(TestCase):
         )
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json()['data']['deleted'], True)
+        self.assertEqual(response.json()['data']['trashed'], True)
         self.assertFalse(Post.objects.filter(id=draft['id']).exists())
+        self.assertIsNotNone(Post.all_objects.get(id=draft['id']).deleted_date)
 
     def test_search_posts_filters_by_query_tag_and_status(self):
         """개발자 API 글 검색은 내 글의 본문, 태그, 상태를 함께 필터링한다."""

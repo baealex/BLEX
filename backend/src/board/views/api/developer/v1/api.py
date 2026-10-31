@@ -18,6 +18,7 @@ from board.services.developer_token_service import (
 )
 from board.services.image_upload_service import ImageUploadError, ImageUploadService
 from board.services.post_service import PostService, PostValidationError
+from board.services.post_trash_service import PostTrashService
 from board.views.api.developer.v1.post import DeveloperPostAPI
 from board.views.api.developer.v1.publishing import DeveloperPublishingAPI
 from board.views.api.developer.v1.schemas import (
@@ -490,7 +491,7 @@ def update_post(request, post_id: int, payload: PostUpdatePayload):
     '/posts/{post_id}',
     response={200: DeletePostEnvelope, **ERROR_RESPONSES},
     operation_id='deletePost',
-    summary=_('Delete a post'),
+    summary=_('Move a post to the trash'),
     tags=[POSTS_TAG],
 )
 def delete_post(request, post_id: int, dry_run: bool = False):
@@ -509,10 +510,12 @@ def delete_post(request, post_id: int, dry_run: bool = False):
         DeveloperTokenService.record_request(request, request.auth, response.status_code)
         return response
 
-    PostService.delete_post(post)
+    post = PostTrashService.trash_post(post)
     response = success({
         'deleted': True,
+        'trashed': True,
         'id': post.id,
+        'deleted_at': post.deleted_date.isoformat(),
     })
     DeveloperTokenService.record_request(request, request.auth, response.status_code)
     return response

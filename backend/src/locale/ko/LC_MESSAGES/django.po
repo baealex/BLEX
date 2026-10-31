@@ -2354,10 +2354,34 @@ msgstr "제목을 입력해주세요."
 msgid "Enter some content."
 msgstr "내용을 입력해주세요."
 
-#: board/services/post_service.py:163
+#: board/services/post_service.py:167
 #, python-format
 msgid "Subtitles can be up to %(max_length)s characters."
 msgstr "부제목은 최대 %(max_length)s자까지 입력할 수 있습니다."
+
+#: board/services/post_service.py:183
+#, python-format
+msgid "Titles can be up to %(max_length)s characters."
+msgstr "제목은 최대 %(max_length)s자까지 입력할 수 있습니다."
+
+#: board/services/post_service.py:191
+#, python-format
+msgid "Descriptions can be up to %(max_length)s characters."
+msgstr "설명은 최대 %(max_length)s자까지 입력할 수 있습니다."
+
+#: board/services/post_service.py:199
+#, python-format
+msgid "Post URLs can be up to %(max_length)s characters."
+msgstr "포스트 URL은 최대 %(max_length)s자까지 입력할 수 있습니다."
+
+#: board/services/post_service.py:210
+#, python-format
+msgid "Each tag can be up to %(max_length)s characters."
+msgstr "태그는 하나당 최대 %(max_length)s자까지 입력할 수 있습니다."
+
+#: board/admin/post.py:178
+msgid "Choose a series owned by the post author."
+msgstr "포스트 작성자의 시리즈를 선택하세요."
 
 #: board/services/post_service.py:189 board/services/post_service.py:630
 #: board/services/post_service.py:645 board/views/api/v1/post.py:234
@@ -2377,7 +2401,11 @@ msgstr "포스트를 찾을 수 없습니다."
 msgid "This action is only available for scheduled posts."
 msgstr "예약 포스트에서만 사용할 수 있습니다."
 
-#: board/services/post_service.py:637
+#: board/services/post_service.py:625
+msgid "The URL of a published or scheduled post cannot be changed."
+msgstr "발행되었거나 예약된 포스트의 URL은 변경할 수 없습니다."
+
+#: board/services/post_service.py:646
 msgid "Only scheduled posts can have their scheduled time changed."
 msgstr "예약 포스트만 예약 시간을 변경할 수 있습니다."
 
@@ -3622,9 +3650,9 @@ msgstr "포스트 수정"
 msgid "The post was already updated by another request."
 msgstr "포스트가 이미 다른 요청으로 수정되었습니다."
 
-#: board/views/api/developer/v1/api.py:493
-msgid "Delete a post"
-msgstr "포스트 삭제"
+#: board/views/api/developer/v1/api.py:494
+msgid "Move a post to the trash"
+msgstr "포스트를 휴지통으로 이동"
 
 #: board/views/api/developer/v1/api.py:525
 msgid "Publish a draft"
@@ -3719,9 +3747,11 @@ msgstr "내 시리즈 ID입니다."
 msgid "URL of one of your series. Use this to specify the URL directly instead of series_id."
 msgstr "내 시리즈 URL입니다. series_id 대신 URL을 직접 지정할 때 사용합니다."
 
-#: board/views/api/developer/v1/schemas.py:148
-msgid "Custom post URL."
-msgstr "사용자 지정 포스트 URL입니다."
+#: board/views/api/developer/v1/schemas.py:151
+msgid ""
+"Custom post URL. It cannot be changed after the post is published or "
+"scheduled."
+msgstr "사용자 지정 포스트 URL입니다. 발행하거나 예약한 뒤에는 바꿀 수 없습니다."
 
 #: board/views/api/developer/v1/schemas.py:151
 msgid "Compatibility post URL field for existing clients."
