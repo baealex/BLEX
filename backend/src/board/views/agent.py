@@ -1,6 +1,8 @@
-from django.http import HttpRequest, HttpResponse
+from django.http import Http404, HttpRequest, HttpResponse
+from django.shortcuts import redirect
 
 from board.services.agent_content_service import AgentContentService
+from board.services.user_service import UserService
 
 
 def llms_txt(request: HttpRequest) -> HttpResponse:
@@ -13,7 +15,20 @@ def llms_txt(request: HttpRequest) -> HttpResponse:
 
 def post_markdown(request: HttpRequest, username: str, post_url: str) -> HttpResponse:
     AgentContentService.require_aeo_enabled(request)
-    post = AgentContentService.get_public_post(username, post_url)
+    try:
+        post = AgentContentService.get_public_post(username, post_url)
+    except Http404:
+        redirect_username = UserService.get_public_post_redirect_username(
+            username,
+            post_url,
+        )
+        if redirect_username:
+            return redirect(
+                'post_markdown',
+                username=redirect_username,
+                post_url=post_url,
+            )
+        raise
     content = AgentContentService.build_post_markdown(post, request)
     response = HttpResponse(content, content_type='text/markdown; charset=utf-8')
     response['X-Estimated-Tokens'] = str(AgentContentService.estimate_tokens(content))
@@ -22,7 +37,20 @@ def post_markdown(request: HttpRequest, username: str, post_url: str) -> HttpRes
 
 def series_markdown(request: HttpRequest, username: str, series_url: str) -> HttpResponse:
     AgentContentService.require_aeo_enabled(request)
-    series = AgentContentService.get_public_series_detail(username, series_url)
+    try:
+        series = AgentContentService.get_public_series_detail(username, series_url)
+    except Http404:
+        redirect_username = UserService.get_public_series_redirect_username(
+            username,
+            series_url,
+        )
+        if redirect_username:
+            return redirect(
+                'series_markdown',
+                username=redirect_username,
+                series_url=series_url,
+            )
+        raise
     content = AgentContentService.build_series_markdown(series, request)
     response = HttpResponse(content, content_type='text/markdown; charset=utf-8')
     response['X-Estimated-Tokens'] = str(AgentContentService.estimate_tokens(content))

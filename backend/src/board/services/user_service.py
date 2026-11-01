@@ -405,6 +405,36 @@ class UserService:
         ).values_list('author__username', flat=True).first()
 
     @staticmethod
+    def get_public_series_redirect_username(
+        old_username: str,
+        series_url: str,
+    ) -> Optional[str]:
+        """Resolve a legacy series URL only when the series remains public."""
+        return PublicSeriesService.filter_public_series_exists(
+            Series.objects.filter(
+                owner__usernamechangelog__username=old_username,
+                url=series_url,
+            )
+        ).values_list('owner__username', flat=True).first()
+
+    @staticmethod
+    def get_renamed_username(old_username: str) -> Optional[str]:
+        """Resolve a retired username to the current username of its last owner.
+
+        Returns None while someone holds the name, because author pages then
+        belong to that user.
+        """
+        if User.objects.filter(username=old_username).exists():
+            return None
+
+        return UsernameChangeLog.objects.filter(
+            username=old_username,
+        ).order_by('-created_date', '-id').values_list(
+            'user__username',
+            flat=True,
+        ).first()
+
+    @staticmethod
     def get_user_data_by_includes(user: User, includes: List[str]) -> Dict[str, Any]:
         """
         Get user data based on specified includes.
