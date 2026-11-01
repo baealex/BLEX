@@ -536,7 +536,7 @@ class PostService:
         return get_object_or_404(Post.objects.select_related(
             'config', 'content', 'series', 'author', 'author__profile'
         ).prefetch_related(
-            'tags'
+            'tags', 'author__userlinkmeta_set'
         ).annotate(
             author_username=F('author__username'),
             author_image=F('author__profile__avatar'),
