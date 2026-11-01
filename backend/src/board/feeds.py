@@ -4,7 +4,9 @@ from django.contrib.syndication.views import Feed
 from django.utils.feedgenerator import Rss201rev2Feed
 from django.contrib.auth.models import User
 from django.urls import reverse
+from django.utils.decorators import method_decorator
 
+from board.decorators import redirect_renamed_author
 from board.models import Post
 from board.html_utils import sanitize_content_html
 from board.services.agent_content_service import AgentContentService
@@ -70,6 +72,10 @@ class SitePostsFeed(Feed):
 
 class UserPostsFeed(Feed):
     feed_type = ImageRssFeedGenerator
+
+    @method_decorator(redirect_renamed_author('user_rss_feed'))
+    def __call__(self, request, *args, **kwargs):
+        return super().__call__(request, *args, **kwargs)
 
     def items(self, item):
         posts = PublicPostService.filter_public_posts(

@@ -1,4 +1,4 @@
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import render, get_object_or_404, redirect
 from django.http import Http404
 
 from board.html_utils import sanitize_content_html
@@ -6,6 +6,7 @@ from board.models import Series
 from board.services.agent_content_service import AgentContentService
 from board.services.discovery_metadata_service import DiscoveryMetadataService
 from board.services.public_series_service import PublicSeriesService
+from board.services.user_service import UserService
 
 
 def series_detail(request, username, series_url):
@@ -16,13 +17,26 @@ def series_detail(request, username, series_url):
     if sort_order not in ['asc', 'desc']:
         sort_order = 'desc'
 
-    series = get_object_or_404(
-        PublicSeriesService.filter_public_series_exists(
-            Series.objects.select_related('owner', 'owner__profile')
-        ),
-        owner__username=username,
-        url=series_url,
-    )
+    try:
+        series = get_object_or_404(
+            PublicSeriesService.filter_public_series_exists(
+                Series.objects.select_related('owner', 'owner__profile')
+            ),
+            owner__username=username,
+            url=series_url,
+        )
+    except Http404:
+        redirect_username = UserService.get_public_series_redirect_username(
+            username,
+            series_url,
+        )
+        if redirect_username:
+            return redirect(
+                'series_detail',
+                username=redirect_username,
+                series_url=series_url,
+            )
+        raise
     author = series.owner
 
     order_by = 'published_date' if sort_order == 'asc' else '-published_date'

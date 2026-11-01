@@ -10,6 +10,7 @@ from django.urls import reverse
 from django.views.decorators.http import require_GET
 from django.utils.translation import gettext as _
 
+from board.decorators import redirect_renamed_author
 from board.html_utils import sanitize_content_html
 from board.modules.paginator import Paginator
 from board.modules.time import time_since
@@ -27,6 +28,7 @@ def apply_partial_response_headers(response):
     return response
 
 
+@redirect_renamed_author('user_profile')
 def author_overview(request, username):
     """
     View for the author's overview page.
@@ -138,6 +140,7 @@ def author_about(request, username):
     return redirect('user_profile', username=username)
 
 
+@redirect_renamed_author('user_posts')
 def author_posts(request, username):
     """
     View for the author's posts page.
@@ -235,6 +238,7 @@ def author_posts(request, username):
     return render(request, 'board/author/author_posts.html', context)
 
 
+@redirect_renamed_author('user_series')
 def author_series(request, username):
     """
     View for the author's series page.
