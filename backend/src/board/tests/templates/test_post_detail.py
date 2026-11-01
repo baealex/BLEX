@@ -12,7 +12,16 @@ from django.contrib.auth.models import User
 from django.urls import reverse
 from django.utils import timezone
 
-from board.models import Config, Post, PostContent, PostConfig, Profile, Series, SiteSetting
+from board.models import (
+    Config,
+    Post,
+    PostContent,
+    PostConfig,
+    Profile,
+    Series,
+    SiteSetting,
+    UserLinkMeta,
+)
 from board.services.post_service import PostService
 
 @override_settings(SITE_URL='http://localhost:8000')
@@ -73,6 +82,24 @@ class PostDetailViewTestCase(TestCase):
         self.assertEqual(toc[0]['level'], 1)
         self.assertEqual(toc[1]['text'], 'Header 2')
         self.assertEqual(toc[1]['level'], 2)
+
+    def test_post_detail_prefetches_author_links(self):
+        """구조화 데이터용 작성자 링크 반복 조회 방지 테스트"""
+        UserLinkMeta.objects.create(
+            user=self.user,
+            name='homepage',
+            value='https://example.com',
+        )
+
+        with self.assertNumQueries(3):
+            post = PostService.get_post_detail(
+                self.user.username,
+                self.post.url,
+            )
+            first_links = list(post.author.userlinkmeta_set.all())
+            second_links = list(post.author.userlinkmeta_set.all())
+
+        self.assertEqual(first_links, second_links)
 
     def test_post_detail_sanitizes_legacy_content_html(self):
         PostContent.objects.filter(post=self.post).update(

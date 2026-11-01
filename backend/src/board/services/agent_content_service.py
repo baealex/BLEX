@@ -167,8 +167,9 @@ class AgentContentService:
     @staticmethod
     def build_llms_txt(request: HttpRequest) -> str:
         public_origin = SiteUrlService.public_origin(request)
-        site_name = BrandAssetService.site_name()
-        site_description = BrandAssetService.site_description()
+        setting = AgentContentService.get_site_setting(request)
+        site_name = BrandAssetService.site_name(setting)
+        site_description = BrandAssetService.site_description(setting)
         lines = [
             f'# {site_name}',
             '',

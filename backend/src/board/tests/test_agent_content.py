@@ -572,7 +572,8 @@ class AgentContentTestCase(TestCase):
 
     def test_llms_txt_returns_discovery_entrypoint(self):
         """/llms.txt는 공개 콘텐츠 discovery endpoint와 Markdown 규칙을 안내한다."""
-        response = self.client.get('/llms.txt')
+        with self.assertNumQueries(1):
+            response = self.client.get('/llms.txt')
 
         self.assertEqual(response.status_code, 200)
         self.assertTrue(response['Content-Type'].startswith('text/plain'))
