@@ -18,13 +18,15 @@ interface MenuBarProps {
     onImageUpload?: (file: File) => Promise<string | undefined>;
     onImageUploadError?: (errorMessage: string) => void;
     onUploadStateChange?: (isUploading: boolean) => void;
+    showPostLinkHelp?: boolean;
 }
 
 const MenuBar = ({
     editor,
     onImageUpload,
     onImageUploadError,
-    onUploadStateChange
+    onUploadStateChange,
+    showPostLinkHelp = false
 }: MenuBarProps) => {
     const [isYoutubeModalOpen, setIsYoutubeModalOpen] = useState(false);
     const imageInput = useRef<HTMLInputElement>(null);
@@ -82,7 +84,7 @@ const MenuBar = ({
                 onChange={handleVideoUpload}
             />
 
-            <EditorHelpText />
+            <EditorHelpText showPostLinkHelp={showPostLinkHelp} />
 
             <FloatingMenuBar editor={editor} />
 

@@ -6,3 +6,8 @@ export type {
     EditorMessages,
     EditorMessageValues
 } from './TiptapEditor/i18n';
+export type {
+    PostLinkCandidate,
+    PostLinkSearch,
+    PostLinkSearchOptions
+} from './TiptapEditor/config/postLink';

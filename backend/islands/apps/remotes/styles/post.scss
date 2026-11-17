@@ -143,6 +143,52 @@
         }
     }
 
+    // Links to the writer's own posts, inserted from the editor with "["
+    a.post-link {
+        padding: 1px 6px;
+        border: 1px solid var(--color-line);
+        border-radius: 6px;
+        background-color: var(--color-surface-subtle);
+        color: var(--color-content);
+        font-size: 0.9em;
+        font-weight: 500;
+        text-decoration: none;
+        box-decoration-break: clone;
+        -webkit-box-decoration-break: clone;
+        transition: background-color 150ms, border-color 150ms;
+
+        &::before {
+            content: "";
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            margin-right: 4px;
+            vertical-align: -1px;
+            background-color: currentColor;
+            opacity: 0.7;
+            -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z'/%3E%3Cpolyline points='14 2 14 8 20 8'/%3E%3C/svg%3E") center / contain no-repeat;
+            mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z'/%3E%3Cpolyline points='14 2 14 8 20 8'/%3E%3C/svg%3E") center / contain no-repeat;
+        }
+
+        &:hover {
+            color: var(--color-content);
+            border-color: var(--color-line-strong);
+            background-color: var(--color-surface);
+        }
+    }
+
+    // Let surrounding emphasis show through post links
+    mark a.post-link,
+    mark a.post-link:hover {
+        color: inherit;
+        background-color: transparent;
+    }
+
+    strong a.post-link,
+    b a.post-link {
+        font-weight: inherit;
+    }
+
     // Lists
     ul,
     ol {

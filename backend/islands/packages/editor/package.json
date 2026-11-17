@@ -64,6 +64,7 @@
         "@tiptap/extension-underline": "^3.30.5",
         "@tiptap/pm": "^3.30.5",
         "@tiptap/react": "^3.30.5",
+        "@tiptap/suggestion": "^3.30.5",
         "highlight.js": "^11.11.1",
         "lowlight": "^3.3.0"
     },
