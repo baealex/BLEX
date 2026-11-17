@@ -1,7 +1,3 @@
-if (import.meta.env.DEV) {
-    void import('react-grab');
-}
-
 import { StrictMode, useEffect } from 'react';
 import { createRoot } from 'react-dom/client';
 import { I18nProvider } from '@lingui/react';
