@@ -3,6 +3,7 @@ import { useEditor, EditorContent } from '@tiptap/react';
 import MenuBar from './components/menus/MenuBar';
 import { getEditorExtensions } from './config/editorConfig';
 import { classifyTextMediaDrop } from './config/mediaUpload';
+import type { PostLinkSearch } from './config/postLink';
 import { useImageUpload } from './hooks/useImageUpload';
 import { EditorI18nProvider, useEditorI18n } from './i18n';
 import type { EditorMessageOverrides } from './i18n';
@@ -19,6 +20,7 @@ export interface TiptapEditorProps {
     onImageUpload?: (file: File) => Promise<string | undefined>;
     onImageUploadError?: (errorMessage: string) => void;
     onUploadStateChange?: (isUploading: boolean) => void;
+    onSearchPostLinks?: PostLinkSearch;
     locale?: string;
     messages?: EditorMessageOverrides;
 }
@@ -46,7 +48,8 @@ const TiptapEditorContent = ({
     ariaLabel,
     onImageUpload,
     onImageUploadError,
-    onUploadStateChange
+    onUploadStateChange,
+    onSearchPostLinks
 }: TiptapEditorProps) => {
     const { t } = useEditorI18n();
     const placeholder = placeholderOverride ?? t('placeholder.content');
@@ -62,13 +65,27 @@ const TiptapEditorContent = ({
         handleMediaDrop: () => false
     });
     const [isMenuUploading, setIsMenuUploading] = useState(false);
+    const postLinkSearchRef = useRef(onSearchPostLinks);
+    // Extensions are fixed when the editor is created, so route searches through a ref to honor later prop changes.
+    const [postLinkSearch] = useState(() => {
+        if (!onSearchPostLinks) return undefined;
+
+        const search: PostLinkSearch = (query, options) => (
+            postLinkSearchRef.current?.(query, options) ?? Promise.resolve([])
+        );
+        return search;
+    });
+
+    useEffect(() => {
+        postLinkSearchRef.current = onSearchPostLinks;
+    }, [onSearchPostLinks]);
 
     const editor = useEditor({
         extensions: getEditorExtensions(placeholder, {
             imageLabel: t('upload.placeholder.image'),
             videoLabel: t('upload.placeholder.video'),
             progressTemplate: t('upload.placeholder.progress')
-        }),
+        }, postLinkSearch),
         content,
         editable,
         editorProps: {
@@ -249,6 +266,7 @@ const TiptapEditorContent = ({
                     onImageUpload={onImageUpload}
                     onImageUploadError={onImageUploadError}
                     onUploadStateChange={setIsMenuUploading}
+                    showPostLinkHelp={Boolean(postLinkSearch)}
                 />
             )}
 

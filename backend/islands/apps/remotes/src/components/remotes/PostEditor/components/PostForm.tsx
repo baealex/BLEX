@@ -4,6 +4,7 @@ import { TiptapEditor } from '~/components/shared';
 import { getCsrfToken } from '~/utils/csrf';
 import TagManager from './TagManager';
 import PostCoverEditor from './PostCoverEditor';
+import { searchPostLinks } from '../utils/postLinkSearch';
 
 interface PostFormData {
     title: string;
@@ -96,6 +97,10 @@ const PostForm = ({
                             onImageUpload={onEditorImageUpload}
                             onImageUploadError={onEditorImageUploadError}
                             onUploadStateChange={onEditorUploadStateChange}
+                            onSearchPostLinks={(query, { signal }) => searchPostLinks(query, {
+                                signal,
+                                currentPostUrl: formData.url
+                            })}
                         />
                     )}
                 </div>

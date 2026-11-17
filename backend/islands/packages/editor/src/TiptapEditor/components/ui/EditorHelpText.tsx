@@ -1,7 +1,11 @@
 import { useId, useState } from 'react';
 import { useEditorI18n } from '../../i18n';
 
-const EditorHelpText = () => {
+interface EditorHelpTextProps {
+    showPostLinkHelp?: boolean;
+}
+
+const EditorHelpText = ({ showPostLinkHelp = false }: EditorHelpTextProps) => {
     const { t } = useEditorI18n();
     const [isExpanded, setIsExpanded] = useState(false);
     const triggerId = useId();
@@ -44,6 +48,18 @@ const EditorHelpText = () => {
                             <span aria-hidden="true" className="text-content-hint">→</span>
                             <span>{t('help.slash.description')}</span>
                         </div>
+                        {showPostLinkHelp && (
+                            <div className="flex items-center gap-3 text-sm text-content-secondary">
+                                <div className="flex items-center gap-2">
+                                    <kbd className="px-2 py-1 text-xs font-medium bg-action text-content-inverted rounded shadow-sm">[</kbd>
+                                    <span className="font-medium text-content">
+                                        {t('help.post_link.title')}
+                                    </span>
+                                </div>
+                                <span aria-hidden="true" className="text-content-hint">→</span>
+                                <span>{t('help.post_link.description')}</span>
+                            </div>
+                        )}
                         <div className="flex items-center gap-3 text-sm text-content-secondary">
                             <div className="flex items-center gap-2">
                                 <i aria-hidden="true" className="fa fa-mouse-pointer text-content-hint w-4" />
