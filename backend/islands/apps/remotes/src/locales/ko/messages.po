@@ -1263,13 +1263,13 @@ msgid "editor.error.update"
 msgstr "포스트 수정에 실패했습니다."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostEditor/components/PostForm.tsx:87
+#: src/components/remotes/PostEditor/components/PostForm.tsx:88
 #: src/components/remotes/PostEditor/components/PostRevisionDialog.tsx:528
 msgid "editor.fields.content"
 msgstr "본문"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostEditor/components/PostForm.tsx:92
+#: src/components/remotes/PostEditor/components/PostForm.tsx:93
 msgid "editor.fields.content_placeholder"
 msgstr "내용을 입력하세요"
 

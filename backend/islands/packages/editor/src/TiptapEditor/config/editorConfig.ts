@@ -36,11 +36,14 @@ import { CodeBlockWithLanguageSelector } from '../extensions/CodeBlockWithLangua
 import { ColumnsNode, ColumnNode } from '../extensions/ColumnsNode';
 import { UploadPlaceholderNode } from '../extensions/UploadPlaceholderNode';
 import type { UploadPlaceholderMessages } from '../extensions/UploadPlaceholderNode';
+import { PostLinkSuggestion } from '../extensions/PostLinkSuggestion';
 import { editorLowlight } from './lowlightConfig';
+import type { PostLinkSearch } from './postLink';
 
 export const getEditorExtensions = (
     placeholder: string,
-    uploadPlaceholderMessages: UploadPlaceholderMessages
+    uploadPlaceholderMessages: UploadPlaceholderMessages,
+    postLinkSearch?: PostLinkSearch
 ) => [
     Document,
     Paragraph,
@@ -82,5 +85,6 @@ export const getEditorExtensions = (
     IframeNode,
     VideoNode,
     ColumnsNode,
-    ColumnNode
+    ColumnNode,
+    ...(postLinkSearch ? [PostLinkSuggestion.configure({ search: postLinkSearch })] : [])
 ];

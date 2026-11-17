@@ -39,7 +39,7 @@ export interface PostsFilters {
     page?: string | number;
 }
 
-export const getPosts = async (filters: PostsFilters = {}) => {
+export const getPosts = async (filters: PostsFilters = {}, options: { signal?: AbortSignal } = {}) => {
     const params = new URLSearchParams();
     Object.entries(filters).forEach(([key, value]) => {
         if (value !== undefined && value !== null) {
@@ -48,7 +48,10 @@ export const getPosts = async (filters: PostsFilters = {}) => {
     });
 
     const queryString = params.toString();
-    return http.get<PostsResponse>(`v1/setting/posts${queryString ? `?${queryString}` : ''}`);
+    return http.get<PostsResponse>(
+        `v1/setting/posts${queryString ? `?${queryString}` : ''}`,
+        { signal: options.signal }
+    );
 };
 
 export const getReservedPosts = async (filters: PostsFilters = {}) => {
