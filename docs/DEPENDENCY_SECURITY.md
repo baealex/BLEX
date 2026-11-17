@@ -1,7 +1,8 @@
 # Dependency Security Patches
 
-The October 2026 dependency review covers the pinned Python runtime, root npm
-development tools, and the complete Islands pnpm dependency graph.
+The November 2026 dependency review covers the pinned Python runtime, root npm
+development tools, and the complete Islands pnpm dependency graph. It builds on
+the October 2026 patch set.
 
 ## Patched versions
 
@@ -9,28 +10,34 @@ development tools, and the complete Islands pnpm dependency graph.
 | --- | --- | --- |
 | certifi | 2026.10.19 | Python TLS trust store |
 | Pillow | 13.0.0 | Python image processing |
-| soupsieve | 2.9 | Python runtime |
+| soupsieve | 4.0.1 | Python runtime |
 | urllib3 | 2.8.0 | Python runtime |
 | axios | 1.20.0 | Browser runtime |
-| follow-redirects | 1.16.1 | Axios Node adapter dependency |
+| follow-redirects | 1.16.3 | Axios Node adapter dependency |
 | Vite | 8.3.5 | Development server and build tools |
-| seroval | 1.6.3 | Router dependency |
+| seroval | 1.8.1 | Router dependency |
 | brace-expansion | 5.0.12 | Development tools |
+| minimatch | 11.0.8 | Lint and build tools |
+| glob | 14.0.6 | Build scripts |
 | source-map-js | 1.2.2 | Build tools |
 | tinypool | 2.1.2 | Translation tools |
 | concurrently | 10.0.6 | Local development runner |
 | shell-quote | 1.12.0 | Development runner dependency |
 
 Direct dependencies use patched version requirements. Transitive dependencies
-are updated in the lockfile within their upstream version ranges. No new version
-overrides are needed for this patch set; the old brace-expansion override is also
-removed because minimatch already accepts the fixed release. CI uses the same
-pnpm 11.17.0 version as the workspace and Docker build.
+are updated in the lockfile within their upstream version ranges. The existing
+minimatch override moves from 10.2.5 to 11.0.8 because no 10.x release fixes
+[GHSA-g3hv-75wg-m249](https://github.com/advisories/GHSA-g3hv-75wg-m249); the
+lint toolchain runs on the forced major version. Every resolved version passes
+the workspace `minimumReleaseAge` policy without a new exclusion, which is why
+minimatch stays on 11.0.8 instead of the newer 11.0.9. CI uses the same pnpm
+11.17.0 version as the workspace and Docker build.
 
 ## Braces nesting protection
 
 [GHSA-vfj7-8cjw-p6xm](https://github.com/advisories/GHSA-vfj7-8cjw-p6xm)
-affects braces 3.0.3. The maintainer has not published a fixed version. This
+reported unbounded nesting in braces 3.0.3, which has no fixed release. The
+advisory was withdrawn on 2026-10-23, so audits no longer report it. This
 package is used by build and translation tools; it is not a production runtime
 dependency.
 
@@ -48,9 +55,9 @@ frozen installation. `dependencySecurity.test.mjs` tests the installed package
 through the translation tool's dependency chain, including the limit boundary,
 the 4,000-level attack pattern, and ordinary glob behavior.
 
-Full `pnpm audit` still reports this advisory because the published package
-version remains 3.0.3. This finding is retained rather than suppressed.
-Replace the local patch with an upstream fixed release when one is available.
+The local patch stays in place as a defensive limit while the published
+package remains 3.0.3. Replace it with an upstream release that bounds nesting
+when one is available.
 
 ## Entry size budgets
 
@@ -81,8 +88,11 @@ pnpm audit --prod
 pnpm audit
 ```
 
-Audit the installed Python environment with `pip-audit`. The expected audit
-results for this patch set are no known Python, root npm, or production pnpm
-vulnerabilities, with the locally mitigated braces advisory in the full pnpm
-report. These results describe dependency advisories and are not a complete
-application security assessment.
+Audit the Python requirements with `pip-audit -r backend/src/requirements.txt`
+from a separate virtual environment. Installing `pip-audit` into the test
+environment also installs Pygments, which turns on syntax highlighting in
+Markdown code blocks and changes the expected output of the Markdown tests.
+
+The expected audit results for this patch set are no known Python, root npm, or
+pnpm vulnerabilities, including the full pnpm report. These results describe
+dependency advisories and are not a complete application security assessment.
