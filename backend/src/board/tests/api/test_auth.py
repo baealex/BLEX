@@ -2,6 +2,7 @@ import json
 
 from unittest.mock import patch, MagicMock
 from datetime import timedelta
+from urllib.parse import parse_qs, urlsplit
 
 from django.test import TestCase, override_settings
 from django.utils import timezone
@@ -51,6 +52,26 @@ class AuthTestCase(TestCase):
                     'client_secret': f'{key}-secret',
                 }
             )
+
+    def submit_social_code(self, provider, data):
+        response = self.client.get(f'/login/start/{provider}')
+        state = parse_qs(urlsplit(response.url).query)['state'][0]
+        return self.client.post(f'/v1/sign/{provider}', {**data, 'state': state})
+
+    def test_social_signup_requires_a_matching_login_state(self):
+        response = self.client.post('/v1/sign/github', {'code': 'provider-code'})
+        self.assertEqual(response.json()['status'], 'ERROR')
+        self.assertNotIn('_auth_user_id', self.client.session)
+
+    def test_create_account_rejects_common_password(self):
+        response = self.client.post('/v1/sign', {
+            'username': 'newperson',
+            'password': 'password',
+            'name': 'New Person',
+            'email': 'new@example.com',
+        })
+        self.assertEqual(response.json()['errorCode'], 'error:VA')
+        self.assertFalse(User.objects.filter(username='newperson').exists())
 
     def test_login_not_logged_in_user(self):
         """로그인하지 않은 사용자 테스트"""
@@ -240,6 +261,8 @@ class AuthTestCase(TestCase):
     def test_delete_account(self):
         """계정 삭제 테스트"""
         self.client.login(username='test', password='test')
+        self.assertEqual(self.client.delete('/v1/sign').json()['messageKey'], 'auth.reauthentication_required')
+        self.client.post('/reauthenticate', {'password': 'test'})
 
         response = self.client.delete('/v1/sign')
         self.assertEqual(response.status_code, 200)
@@ -276,6 +299,7 @@ class AuthTestCase(TestCase):
             email='lastadmin@test.com',
         )
         self.client.login(username='lastadmin', password='test')
+        self.client.post('/reauthenticate', {'password': 'test'})
 
         response = self.client.delete('/v1/sign')
 
@@ -289,9 +313,7 @@ class AuthTestCase(TestCase):
         """관리자가 제공자를 끄면 v1/sign 직접 호출도 막는다."""
         SocialAuthProvider.objects.filter(key='github').update(is_enabled=False)
 
-        response = self.client.post('/v1/sign/github', {
-            'code': 'SECRET_TOKEN_VALUE',
-        })
+        response = self.client.post('/v1/sign/github', {'code': 'SECRET_TOKEN_VALUE'})
 
         self.assertEqual(response.status_code, 200)
         content = json.loads(response.content)
@@ -314,7 +336,7 @@ class AuthTestCase(TestCase):
     @patch('modules.oauth.auth_github', return_value=oauth.State(success=False, user={}))
     def test_social_signup_keeps_external_auth_failure_response(self, mock_service):
         """외부 인증 실패의 상태·오류 코드·빈 메시지를 보존한다."""
-        response = self.client.post('/v1/sign/github', {
+        response = self.submit_social_code('github', {
             'code': 'INVALID_TOKEN_VALUE',
         })
 
@@ -324,7 +346,7 @@ class AuthTestCase(TestCase):
             'errorCode': 'error:RJ',
             'errorMessage': '',
         })
-        mock_service.assert_called_once_with('INVALID_TOKEN_VALUE')
+        self.assertEqual(mock_service.call_args.args[0], 'INVALID_TOKEN_VALUE')
 
     @patch('modules.oauth.requests.post')
     def test_social_signup_rejects_enabled_but_unconfigured_provider(self, mock_post):
@@ -334,15 +356,9 @@ class AuthTestCase(TestCase):
             client_secret='',
         )
 
-        response = self.client.post('/v1/sign/google', {
-            'code': 'SECRET_TOKEN_VALUE',
-        })
-
-        self.assertEqual(json.loads(response.content), {
-            'status': 'ERROR',
-            'errorCode': 'error:RJ',
-            'errorMessage': '',
-        })
+        self.assertRedirects(self.client.get('/login/start/google'), '/login', fetch_redirect_response=False)
+        response = self.client.post('/v1/sign/google', {'code': 'provider-code'})
+        self.assertEqual(response.json()['errorCode'], 'error:RJ')
         mock_post.assert_not_called()
 
     @patch('modules.oauth.auth_github', return_value=oauth.State(success=True, user={
@@ -357,7 +373,7 @@ class AuthTestCase(TestCase):
             'board.services.auth_service.download_image',
             return_value=None,
         ) as mock_download_image:
-            response = self.client.post('/v1/sign/github', {
+            response = self.submit_social_code('github', {
                 'code': 'SECRET_TOKEN_VALUE',
             })
         self.assertEqual(response.status_code, 200)
@@ -389,7 +405,7 @@ class AuthTestCase(TestCase):
 
         self.client.logout()
 
-        response = self.client.post('/v1/sign/github', {
+        response = self.submit_social_code('github', {
             'code': 'SECRET_TOKEN_VALUE',
         })
         self.assertEqual(response.status_code, 200)
@@ -410,7 +426,7 @@ class AuthTestCase(TestCase):
             'board.services.auth_service.download_image',
             return_value=None,
         ) as mock_download_image:
-            response = self.client.post('/v1/sign/google', {
+            response = self.submit_social_code('google', {
                 'code': 'SECRET_TOKEN_VALUE',
             })
         self.assertEqual(response.status_code, 200)
@@ -441,7 +457,7 @@ class AuthTestCase(TestCase):
 
         self.client.logout()
 
-        response = self.client.post('/v1/sign/google', {
+        response = self.submit_social_code('google', {
             'code': 'SECRET_TOKEN_VALUE',
         })
         self.assertEqual(response.status_code, 200)
@@ -472,7 +488,7 @@ class AuthTestCase(TestCase):
             totp_secret='JBSWY3DPEHPK3PXP',
         )
 
-        response = self.client.post('/v1/sign/github', {
+        response = self.submit_social_code('github', {
             'code': 'EXISTING_TOKEN_VALUE',
         })
 
@@ -486,7 +502,7 @@ class AuthTestCase(TestCase):
         })
         self.assertNotIn('_auth_user_id', self.client.session)
         self.assertEqual(User.objects.filter(username='oauth2fa').count(), 1)
-        mock_service.assert_called_once_with('EXISTING_TOKEN_VALUE')
+        self.assertEqual(mock_service.call_args.args[0], 'EXISTING_TOKEN_VALUE')
 
     @override_settings(DEBUG_PROPAGATE_EXCEPTIONS=True)
     @patch(
@@ -501,7 +517,7 @@ class AuthTestCase(TestCase):
     def test_social_auth_failure_rolls_back_new_google_user(self, mock_oauth, mock_create):
         """SocialAuth 저장 실패 시 User·Profile·Config가 모두 롤백된다."""
         with self.assertRaisesMessage(RuntimeError, 'social auth persistence failed'):
-            self.client.post('/v1/sign/google', {
+            self.submit_social_code('google', {
                 'code': 'ROLLBACK_TOKEN_VALUE',
             })
 
@@ -523,7 +539,7 @@ class AuthTestCase(TestCase):
     def test_github_link_failure_rolls_back_user_and_social_auth(self, mock_oauth, mock_create):
         """GitHub link 저장 실패도 전체 신규 가입 transaction을 롤백한다."""
         with self.assertRaisesMessage(RuntimeError, 'github link persistence failed'):
-            self.client.post('/v1/sign/github', {
+            self.submit_social_code('github', {
                 'code': 'ROLLBACK_TOKEN_VALUE',
             })
 

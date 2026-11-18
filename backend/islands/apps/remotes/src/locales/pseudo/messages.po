@@ -77,12 +77,12 @@ msgid "auth.fields.username_placeholder"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Login/hooks/useLoginState.ts:93
+#: src/components/remotes/Login/hooks/useLoginState.ts:88
 msgid "auth.login.blocked_remaining"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Login/hooks/useLoginState.ts:123
+#: src/components/remotes/Login/hooks/useLoginState.ts:118
 msgid "auth.login.failed_blocked_remaining"
 msgstr ""
 
@@ -92,7 +92,7 @@ msgid "auth.login.invalid_credentials"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Login/Login.tsx:318
+#: src/components/remotes/Login/Login.tsx:324
 msgid "auth.login.no_account"
 msgstr ""
 
@@ -103,13 +103,13 @@ msgstr ""
 
 #. js-lingui-explicit-id
 #: src/components/remotes/Login/components/LoginForm.tsx:199
-#: src/components/remotes/Login/Login.tsx:270
+#: src/components/remotes/Login/Login.tsx:276
 #: src/components/remotes/Signup/Signup.tsx:558
 msgid "auth.login.title"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Login/Login.tsx:277
+#: src/components/remotes/Login/Login.tsx:283
 msgid "auth.login.welcome_back"
 msgstr ""
 
@@ -176,32 +176,27 @@ msgid "auth.signup.reader_description"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Login/Login.tsx:320
+#: src/components/remotes/Login/Login.tsx:326
 msgid "auth.signup.title"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SocialLogin/SocialLogin.tsx:118
+#: src/components/remotes/SocialLogin/SocialLogin.tsx:92
 msgid "auth.social.continue_with"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SocialLogin/SocialLogin.tsx:99
+#: src/components/remotes/SocialLogin/SocialLogin.tsx:73
 msgid "auth.social.divider"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SocialLogin/SocialLogin.tsx:38
-msgid "auth.social.not_configured"
-msgstr ""
-
-#. js-lingui-explicit-id
-#: src/components/remotes/Login/components/TwoFactorForm.tsx:54
+#: src/components/remotes/Login/components/TwoFactorForm.tsx:80
 msgid "auth.two_factor.back_to_login"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Login/Login.tsx:275
+#: src/components/remotes/Login/Login.tsx:281
 msgid "auth.two_factor.description"
 msgstr ""
 
@@ -211,37 +206,57 @@ msgid "auth.two_factor.digit_label"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Login/hooks/useLoginState.ts:139
+#: src/components/remotes/Login/hooks/useLoginState.ts:134
 msgid "auth.two_factor.failed_blocked"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Login/Login.tsx:223
+#: src/components/remotes/Login/Login.tsx:229
 msgid "auth.two_factor.incorrect_code"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Login/Login.tsx:183
+#: src/components/remotes/Login/Login.tsx:186
 msgid "auth.two_factor.invalid_format"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Login/Login.tsx:211
+#: src/components/remotes/Login/Login.tsx:190
+msgid "auth.two_factor.invalid_recovery_key"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/Login/components/TwoFactorForm.tsx:43
+msgid "auth.two_factor.recovery_key"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/Login/Login.tsx:217
 msgid "auth.two_factor.success_redirect"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Login/Login.tsx:268
+#: src/components/remotes/Login/Login.tsx:274
 msgid "auth.two_factor.title"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Login/components/TwoFactorForm.tsx:102
+#: src/components/remotes/Login/components/TwoFactorForm.tsx:70
+msgid "auth.two_factor.use_authenticator"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/Login/components/TwoFactorForm.tsx:72
+msgid "auth.two_factor.use_recovery_key"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/Login/components/TwoFactorForm.tsx:128
 msgid "auth.two_factor.verify"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Login/components/TwoFactorForm.tsx:100
+#: src/components/remotes/Login/components/TwoFactorForm.tsx:126
 msgid "auth.two_factor.verifying"
 msgstr ""
 
@@ -700,7 +715,7 @@ msgstr ""
 #: src/components/remotes/PostEditor/components/PostRevisionDialog.tsx:645
 #: src/components/remotes/SettingsApp/components/WebhookChannelManager.tsx:336
 #: src/components/remotes/SettingsApp/components/WebhookChannelManager.tsx:550
-#: src/components/remotes/SettingsApp/pages/AccountSetting/AccountSetting.tsx:280
+#: src/components/remotes/SettingsApp/pages/AccountSetting/AccountSetting.tsx:283
 #: src/components/remotes/SettingsApp/pages/AccountSetting/components/SecuritySection.tsx:77
 #: src/components/remotes/SettingsApp/pages/BannerSetting/components/BannerList.tsx:111
 #: src/components/remotes/SettingsApp/pages/FormsSetting/FormsSetting.tsx:86
@@ -733,7 +748,7 @@ msgid "common.deleting"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/AccountSetting/AccountSetting.tsx:192
+#: src/components/remotes/SettingsApp/pages/AccountSetting/AccountSetting.tsx:195
 #: src/components/remotes/SettingsApp/pages/AccountSetting/components/SecuritySection.tsx:38
 msgid "common.disable"
 msgstr ""
@@ -767,7 +782,7 @@ msgstr ""
 
 #. js-lingui-explicit-id
 #: src/components/remotes/Login/Login.tsx:156
-#: src/components/remotes/Login/Login.tsx:238
+#: src/components/remotes/Login/Login.tsx:244
 #: src/components/remotes/Signup/Signup.tsx:285
 msgid "common.error.try_again"
 msgstr ""
@@ -2393,7 +2408,7 @@ msgid "search.validation.query_required"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/AccountSetting/AccountSetting.tsx:332
+#: src/components/remotes/SettingsApp/pages/AccountSetting/AccountSetting.tsx:335
 msgid "settings.account.basic_info.title"
 msgstr ""
 
@@ -2403,7 +2418,7 @@ msgid "settings.account.danger_zone"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/AccountSetting/AccountSetting.tsx:276
+#: src/components/remotes/SettingsApp/pages/AccountSetting/AccountSetting.tsx:279
 msgid "settings.account.delete.confirm"
 msgstr ""
 
@@ -2413,17 +2428,17 @@ msgid "settings.account.delete.description"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/AccountSetting/AccountSetting.tsx:305
+#: src/components/remotes/SettingsApp/pages/AccountSetting/AccountSetting.tsx:308
 msgid "settings.account.delete.failed"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/AccountSetting/AccountSetting.tsx:293
+#: src/components/remotes/SettingsApp/pages/AccountSetting/AccountSetting.tsx:296
 msgid "settings.account.delete.success"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/AccountSetting/AccountSetting.tsx:272
+#: src/components/remotes/SettingsApp/pages/AccountSetting/AccountSetting.tsx:275
 #: src/components/remotes/SettingsApp/pages/AccountSetting/components/SecuritySection.tsx:62
 msgid "settings.account.delete.title"
 msgstr ""
@@ -2489,71 +2504,76 @@ msgid "settings.account.name.validation.max_length"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/AccountSetting/components/PasswordSection.tsx:82
-#: src/components/remotes/SettingsApp/pages/AccountSetting/components/PasswordSection.tsx:88
-#: src/components/remotes/SettingsApp/pages/AccountSetting/components/PasswordSection.tsx:147
+#: src/components/remotes/SettingsApp/pages/AccountSetting/components/PasswordSection.tsx:85
+#: src/components/remotes/SettingsApp/pages/AccountSetting/components/PasswordSection.tsx:91
+#: src/components/remotes/SettingsApp/pages/AccountSetting/components/PasswordSection.tsx:159
 msgid "settings.account.password.change"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/AccountSetting/components/PasswordSection.tsx:143
+#: src/components/remotes/SettingsApp/pages/AccountSetting/components/PasswordSection.tsx:155
 msgid "settings.account.password.changing"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/AccountSetting/components/PasswordSection.tsx:118
-#: src/components/remotes/SettingsApp/pages/AccountSetting/components/PasswordSection.tsx:123
+#: src/components/remotes/SettingsApp/pages/AccountSetting/components/PasswordSection.tsx:122
+#: src/components/remotes/SettingsApp/pages/AccountSetting/components/PasswordSection.tsx:128
 msgid "settings.account.password.confirm"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/AccountSetting/components/PasswordSection.tsx:107
+#: src/components/remotes/SettingsApp/pages/AccountSetting/components/PasswordSection.tsx:111
 msgid "settings.account.password.helper"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/AccountSetting/components/PasswordSection.tsx:97
-#: src/components/remotes/SettingsApp/pages/AccountSetting/components/PasswordSection.tsx:102
+#: src/components/remotes/SettingsApp/pages/AccountSetting/components/PasswordSection.tsx:100
+#: src/components/remotes/SettingsApp/pages/AccountSetting/components/PasswordSection.tsx:106
 msgid "settings.account.password.new"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/AccountSetting/AccountSetting.tsx:159
+#: src/components/remotes/SettingsApp/pages/AccountSetting/components/PasswordSection.tsx:139
+msgid "settings.account.password.revoke_tokens"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/AccountSetting/AccountSetting.tsx:162
 msgid "settings.account.password.update_failed"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/AccountSetting/AccountSetting.tsx:152
+#: src/components/remotes/SettingsApp/pages/AccountSetting/AccountSetting.tsx:155
 msgid "settings.account.password.update_success"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/AccountSetting/components/PasswordSection.tsx:28
+#: src/components/remotes/SettingsApp/pages/AccountSetting/components/PasswordSection.tsx:29
 msgid "settings.account.password.validation.lowercase"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/AccountSetting/components/PasswordSection.tsx:24
+#: src/components/remotes/SettingsApp/pages/AccountSetting/components/PasswordSection.tsx:25
 msgid "settings.account.password.validation.min_length"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/AccountSetting/components/PasswordSection.tsx:46
+#: src/components/remotes/SettingsApp/pages/AccountSetting/components/PasswordSection.tsx:48
 msgid "settings.account.password.validation.mismatch"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/AccountSetting/components/PasswordSection.tsx:36
+#: src/components/remotes/SettingsApp/pages/AccountSetting/components/PasswordSection.tsx:37
 msgid "settings.account.password.validation.number"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/AccountSetting/components/PasswordSection.tsx:40
+#: src/components/remotes/SettingsApp/pages/AccountSetting/components/PasswordSection.tsx:41
 msgid "settings.account.password.validation.special"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/AccountSetting/components/PasswordSection.tsx:32
+#: src/components/remotes/SettingsApp/pages/AccountSetting/components/PasswordSection.tsx:33
 msgid "settings.account.password.validation.uppercase"
 msgstr ""
 
@@ -2563,7 +2583,7 @@ msgid "settings.account.security.title"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/AccountSetting/AccountSetting.tsx:318
+#: src/components/remotes/SettingsApp/pages/AccountSetting/AccountSetting.tsx:321
 msgid "settings.account.title"
 msgstr ""
 
@@ -2573,37 +2593,37 @@ msgid "settings.account.two_factor.code_label"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/AccountSetting/AccountSetting.tsx:188
+#: src/components/remotes/SettingsApp/pages/AccountSetting/AccountSetting.tsx:191
 msgid "settings.account.two_factor.disable_confirm"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/AccountSetting/AccountSetting.tsx:227
+#: src/components/remotes/SettingsApp/pages/AccountSetting/AccountSetting.tsx:230
 msgid "settings.account.two_factor.disable_failed"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/AccountSetting/AccountSetting.tsx:221
+#: src/components/remotes/SettingsApp/pages/AccountSetting/AccountSetting.tsx:224
 msgid "settings.account.two_factor.disable_success"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/AccountSetting/AccountSetting.tsx:184
+#: src/components/remotes/SettingsApp/pages/AccountSetting/AccountSetting.tsx:187
 msgid "settings.account.two_factor.disable_title"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/AccountSetting/AccountSetting.tsx:211
+#: src/components/remotes/SettingsApp/pages/AccountSetting/AccountSetting.tsx:214
 msgid "settings.account.two_factor.enable_failed"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/AccountSetting/AccountSetting.tsx:245
+#: src/components/remotes/SettingsApp/pages/AccountSetting/AccountSetting.tsx:248
 msgid "settings.account.two_factor.enable_success"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/AccountSetting/AccountSetting.tsx:255
+#: src/components/remotes/SettingsApp/pages/AccountSetting/AccountSetting.tsx:258
 #: src/components/remotes/SettingsApp/pages/AccountSetting/components/TwoFactorModal.tsx:40
 msgid "settings.account.two_factor.invalid_code"
 msgstr ""

@@ -3,16 +3,20 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+from io import BytesIO
 from typing import Any, Mapping
 
 from django.contrib.auth.models import User
-from django.core.files.uploadedfile import UploadedFile
+from django.core.files.uploadedfile import SimpleUploadedFile, UploadedFile
+from django.db import transaction
 from django.utils.translation import gettext
+from PIL import Image, ImageOps
 
 from board.html_utils import safe_external_url
 from board.models import Profile
 from board.modules.response import ErrorCode
 from board.services.auth_service import AuthService, AuthValidationError
+from board.services.developer_token_service import DeveloperTokenService
 from board.services.user_social_link_service import UserSocialLinkService
 
 
@@ -33,6 +37,37 @@ class AccountUpdateResult:
 
 class SettingAccountProfileService:
     """Apply existing account and profile mutation rules without HTTP objects."""
+
+    PROFILE_IMAGE_FORMATS = {'JPEG': 'jpg', 'PNG': 'png', 'WEBP': 'webp', 'GIF': 'gif'}
+    MAX_PROFILE_IMAGE_PIXELS = 16_000_000
+
+    @classmethod
+    def encode_profile_image(cls, upload: UploadedFile, *, preserve_animation: bool) -> UploadedFile:
+        output = BytesIO()
+        try:
+            with Image.open(upload) as image:
+                image_format = image.format
+                if (
+                    image_format not in cls.PROFILE_IMAGE_FORMATS
+                    or image.width * image.height > cls.MAX_PROFILE_IMAGE_PIXELS
+                ):
+                    raise ValueError('Invalid profile image format or dimensions.')
+                if preserve_animation and getattr(image, 'is_animated', False):
+                    if image.width * image.height * image.n_frames > cls.MAX_PROFILE_IMAGE_PIXELS:
+                        raise ValueError('Profile image animation is too large.')
+                    image.save(output, format=image_format, save_all=True)
+                else:
+                    frame = ImageOps.exif_transpose(image)
+                    if frame.mode in {'L', 'P', 'RGB'} and 'transparency' in frame.info:
+                        frame = frame.convert('RGBA')
+                    frame.info.clear()
+                    frame.save(output, format=image_format)
+        except (OSError, ValueError, EOFError, Image.DecompressionBombError) as error:
+            raise SettingAccountProfileError(
+                ErrorCode.VALIDATE, gettext('Upload a valid profile image.'),
+            ) from error
+        extension = cls.PROFILE_IMAGE_FORMATS[image_format]
+        return SimpleUploadedFile(f'profile.{extension}', output.getvalue(), Image.MIME[image_format])
 
     @staticmethod
     def prepare_account_update(
@@ -57,6 +92,10 @@ class SettingAccountProfileService:
 
         if password:
             SettingAccountProfileService.validate_password(password)
+            try:
+                AuthService.validate_signup_password(password, user)
+            except AuthValidationError as error:
+                raise SettingAccountProfileError(error.code, error.message) from error
             user.set_password(password)
             should_save = True
 
@@ -103,9 +142,14 @@ class SettingAccountProfileService:
             )
 
     @staticmethod
-    def persist_account_update(user: User, result: AccountUpdateResult) -> None:
+    @transaction.atomic
+    def persist_account_update(
+        user: User, result: AccountUpdateResult, *, revoke_tokens: bool = False,
+    ) -> None:
         if result.should_save:
             user.save()
+        if result.should_refresh_session and revoke_tokens:
+            DeveloperTokenService.revoke_user_tokens(user)
 
     @staticmethod
     def update_profile(
@@ -128,14 +172,14 @@ class SettingAccountProfileService:
     @staticmethod
     def save_avatar(user: User, avatar: UploadedFile) -> str:
         profile = Profile.objects.get(user=user)
-        profile.avatar = avatar
+        profile.avatar = SettingAccountProfileService.encode_profile_image(avatar, preserve_animation=False)
         profile.save()
         return profile.get_thumbnail()
 
     @staticmethod
     def save_cover(user: User, cover: UploadedFile) -> str | None:
         profile = Profile.objects.get(user=user)
-        profile.cover = cover
+        profile.cover = SettingAccountProfileService.encode_profile_image(cover, preserve_animation=True)
         profile.save()
         return profile.cover.url if profile.cover else None
 

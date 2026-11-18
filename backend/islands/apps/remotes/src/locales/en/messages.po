@@ -77,12 +77,12 @@ msgid "auth.fields.username_placeholder"
 msgstr "Enter your username"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Login/hooks/useLoginState.ts:93
+#: src/components/remotes/Login/hooks/useLoginState.ts:88
 msgid "auth.login.blocked_remaining"
 msgstr "Too many attempts. Try again in {seconds, plural, one {# second} other {# seconds}}."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Login/hooks/useLoginState.ts:123
+#: src/components/remotes/Login/hooks/useLoginState.ts:118
 msgid "auth.login.failed_blocked_remaining"
 msgstr "Too many failed attempts. Try again in {seconds, plural, one {# second} other {# seconds}}."
 
@@ -92,7 +92,7 @@ msgid "auth.login.invalid_credentials"
 msgstr "The username or password is incorrect."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Login/Login.tsx:318
+#: src/components/remotes/Login/Login.tsx:324
 msgid "auth.login.no_account"
 msgstr "Don't have an account?"
 
@@ -103,13 +103,13 @@ msgstr "Logging in..."
 
 #. js-lingui-explicit-id
 #: src/components/remotes/Login/components/LoginForm.tsx:199
-#: src/components/remotes/Login/Login.tsx:270
+#: src/components/remotes/Login/Login.tsx:276
 #: src/components/remotes/Signup/Signup.tsx:558
 msgid "auth.login.title"
 msgstr "Log in"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Login/Login.tsx:277
+#: src/components/remotes/Login/Login.tsx:283
 msgid "auth.login.welcome_back"
 msgstr "Welcome back"
 
@@ -176,34 +176,29 @@ msgid "auth.signup.reader_description"
 msgstr "Discover stories from independent authors"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Login/Login.tsx:320
+#: src/components/remotes/Login/Login.tsx:326
 msgid "auth.signup.title"
 msgstr "Sign up"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SocialLogin/SocialLogin.tsx:118
+#: src/components/remotes/SocialLogin/SocialLogin.tsx:92
 msgid "auth.social.continue_with"
 msgstr "Continue with {providerName}"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SocialLogin/SocialLogin.tsx:99
+#: src/components/remotes/SocialLogin/SocialLogin.tsx:73
 msgid "auth.social.divider"
 msgstr "Or continue with"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SocialLogin/SocialLogin.tsx:38
-msgid "auth.social.not_configured"
-msgstr "Social login is not configured. Please contact the administrator."
-
-#. js-lingui-explicit-id
-#: src/components/remotes/Login/components/TwoFactorForm.tsx:54
+#: src/components/remotes/Login/components/TwoFactorForm.tsx:80
 msgid "auth.two_factor.back_to_login"
 msgstr "Back to login"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Login/Login.tsx:275
+#: src/components/remotes/Login/Login.tsx:281
 msgid "auth.two_factor.description"
-msgstr "Enter the 6-digit code from your authenticator app"
+msgstr "Use your authenticator app or a recovery key to sign in."
 
 #. js-lingui-explicit-id
 #: src/components/remotes/Login/components/TwoFactorCodeInput.tsx:60
@@ -211,37 +206,57 @@ msgid "auth.two_factor.digit_label"
 msgstr "Verification code digit {position}"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Login/hooks/useLoginState.ts:139
+#: src/components/remotes/Login/hooks/useLoginState.ts:134
 msgid "auth.two_factor.failed_blocked"
 msgstr "Too many failed attempts. Try again in 5 minutes."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Login/Login.tsx:223
+#: src/components/remotes/Login/Login.tsx:229
 msgid "auth.two_factor.incorrect_code"
 msgstr "The verification code is incorrect."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Login/Login.tsx:183
+#: src/components/remotes/Login/Login.tsx:186
 msgid "auth.two_factor.invalid_format"
 msgstr "Enter a valid 6-digit code."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Login/Login.tsx:211
+#: src/components/remotes/Login/Login.tsx:190
+msgid "auth.two_factor.invalid_recovery_key"
+msgstr "Enter a valid recovery key."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/Login/components/TwoFactorForm.tsx:43
+msgid "auth.two_factor.recovery_key"
+msgstr "Recovery key"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/Login/Login.tsx:217
 msgid "auth.two_factor.success_redirect"
 msgstr "Verification complete. Redirecting you to the home page."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Login/Login.tsx:268
+#: src/components/remotes/Login/Login.tsx:274
 msgid "auth.two_factor.title"
 msgstr "Two-factor authentication"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Login/components/TwoFactorForm.tsx:102
+#: src/components/remotes/Login/components/TwoFactorForm.tsx:70
+msgid "auth.two_factor.use_authenticator"
+msgstr "Use an authenticator code"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/Login/components/TwoFactorForm.tsx:72
+msgid "auth.two_factor.use_recovery_key"
+msgstr "Use a recovery key"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/Login/components/TwoFactorForm.tsx:128
 msgid "auth.two_factor.verify"
 msgstr "Verify"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Login/components/TwoFactorForm.tsx:100
+#: src/components/remotes/Login/components/TwoFactorForm.tsx:126
 msgid "auth.two_factor.verifying"
 msgstr "Verifying..."
 
@@ -700,7 +715,7 @@ msgstr "Create"
 #: src/components/remotes/PostEditor/components/PostRevisionDialog.tsx:645
 #: src/components/remotes/SettingsApp/components/WebhookChannelManager.tsx:336
 #: src/components/remotes/SettingsApp/components/WebhookChannelManager.tsx:550
-#: src/components/remotes/SettingsApp/pages/AccountSetting/AccountSetting.tsx:280
+#: src/components/remotes/SettingsApp/pages/AccountSetting/AccountSetting.tsx:283
 #: src/components/remotes/SettingsApp/pages/AccountSetting/components/SecuritySection.tsx:77
 #: src/components/remotes/SettingsApp/pages/BannerSetting/components/BannerList.tsx:111
 #: src/components/remotes/SettingsApp/pages/FormsSetting/FormsSetting.tsx:86
@@ -733,7 +748,7 @@ msgid "common.deleting"
 msgstr "Deleting..."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/AccountSetting/AccountSetting.tsx:192
+#: src/components/remotes/SettingsApp/pages/AccountSetting/AccountSetting.tsx:195
 #: src/components/remotes/SettingsApp/pages/AccountSetting/components/SecuritySection.tsx:38
 msgid "common.disable"
 msgstr "Disable"
@@ -767,7 +782,7 @@ msgstr "Enable"
 
 #. js-lingui-explicit-id
 #: src/components/remotes/Login/Login.tsx:156
-#: src/components/remotes/Login/Login.tsx:238
+#: src/components/remotes/Login/Login.tsx:244
 #: src/components/remotes/Signup/Signup.tsx:285
 msgid "common.error.try_again"
 msgstr "Something went wrong. Please try again."
@@ -2393,7 +2408,7 @@ msgid "search.validation.query_required"
 msgstr "Enter a search term."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/AccountSetting/AccountSetting.tsx:332
+#: src/components/remotes/SettingsApp/pages/AccountSetting/AccountSetting.tsx:335
 msgid "settings.account.basic_info.title"
 msgstr "Basic information"
 
@@ -2403,7 +2418,7 @@ msgid "settings.account.danger_zone"
 msgstr "Danger zone"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/AccountSetting/AccountSetting.tsx:276
+#: src/components/remotes/SettingsApp/pages/AccountSetting/AccountSetting.tsx:279
 msgid "settings.account.delete.confirm"
 msgstr "Delete your account? All data will be permanently deleted and cannot be recovered."
 
@@ -2413,17 +2428,17 @@ msgid "settings.account.delete.description"
 msgstr "All data will be permanently deleted and cannot be recovered."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/AccountSetting/AccountSetting.tsx:305
+#: src/components/remotes/SettingsApp/pages/AccountSetting/AccountSetting.tsx:308
 msgid "settings.account.delete.failed"
 msgstr "Could not delete the account."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/AccountSetting/AccountSetting.tsx:293
+#: src/components/remotes/SettingsApp/pages/AccountSetting/AccountSetting.tsx:296
 msgid "settings.account.delete.success"
 msgstr "Account deleted."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/AccountSetting/AccountSetting.tsx:272
+#: src/components/remotes/SettingsApp/pages/AccountSetting/AccountSetting.tsx:275
 #: src/components/remotes/SettingsApp/pages/AccountSetting/components/SecuritySection.tsx:62
 msgid "settings.account.delete.title"
 msgstr "Delete account"
@@ -2489,71 +2504,76 @@ msgid "settings.account.name.validation.max_length"
 msgstr "Name must be 30 characters or fewer."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/AccountSetting/components/PasswordSection.tsx:82
-#: src/components/remotes/SettingsApp/pages/AccountSetting/components/PasswordSection.tsx:88
-#: src/components/remotes/SettingsApp/pages/AccountSetting/components/PasswordSection.tsx:147
+#: src/components/remotes/SettingsApp/pages/AccountSetting/components/PasswordSection.tsx:85
+#: src/components/remotes/SettingsApp/pages/AccountSetting/components/PasswordSection.tsx:91
+#: src/components/remotes/SettingsApp/pages/AccountSetting/components/PasswordSection.tsx:159
 msgid "settings.account.password.change"
 msgstr "Change password"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/AccountSetting/components/PasswordSection.tsx:143
+#: src/components/remotes/SettingsApp/pages/AccountSetting/components/PasswordSection.tsx:155
 msgid "settings.account.password.changing"
 msgstr "Changing..."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/AccountSetting/components/PasswordSection.tsx:118
-#: src/components/remotes/SettingsApp/pages/AccountSetting/components/PasswordSection.tsx:123
+#: src/components/remotes/SettingsApp/pages/AccountSetting/components/PasswordSection.tsx:122
+#: src/components/remotes/SettingsApp/pages/AccountSetting/components/PasswordSection.tsx:128
 msgid "settings.account.password.confirm"
 msgstr "Confirm password"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/AccountSetting/components/PasswordSection.tsx:107
+#: src/components/remotes/SettingsApp/pages/AccountSetting/components/PasswordSection.tsx:111
 msgid "settings.account.password.helper"
 msgstr "Use at least 8 characters, including lowercase and uppercase letters, a number, and a special character."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/AccountSetting/components/PasswordSection.tsx:97
-#: src/components/remotes/SettingsApp/pages/AccountSetting/components/PasswordSection.tsx:102
+#: src/components/remotes/SettingsApp/pages/AccountSetting/components/PasswordSection.tsx:100
+#: src/components/remotes/SettingsApp/pages/AccountSetting/components/PasswordSection.tsx:106
 msgid "settings.account.password.new"
 msgstr "New password"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/AccountSetting/AccountSetting.tsx:159
+#: src/components/remotes/SettingsApp/pages/AccountSetting/components/PasswordSection.tsx:139
+msgid "settings.account.password.revoke_tokens"
+msgstr "Also revoke all developer API tokens"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/AccountSetting/AccountSetting.tsx:162
 msgid "settings.account.password.update_failed"
 msgstr "Could not change the password."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/AccountSetting/AccountSetting.tsx:152
+#: src/components/remotes/SettingsApp/pages/AccountSetting/AccountSetting.tsx:155
 msgid "settings.account.password.update_success"
 msgstr "Password changed."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/AccountSetting/components/PasswordSection.tsx:28
+#: src/components/remotes/SettingsApp/pages/AccountSetting/components/PasswordSection.tsx:29
 msgid "settings.account.password.validation.lowercase"
 msgstr "Password must include a lowercase letter."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/AccountSetting/components/PasswordSection.tsx:24
+#: src/components/remotes/SettingsApp/pages/AccountSetting/components/PasswordSection.tsx:25
 msgid "settings.account.password.validation.min_length"
 msgstr "Password must be at least 8 characters."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/AccountSetting/components/PasswordSection.tsx:46
+#: src/components/remotes/SettingsApp/pages/AccountSetting/components/PasswordSection.tsx:48
 msgid "settings.account.password.validation.mismatch"
 msgstr "Passwords do not match."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/AccountSetting/components/PasswordSection.tsx:36
+#: src/components/remotes/SettingsApp/pages/AccountSetting/components/PasswordSection.tsx:37
 msgid "settings.account.password.validation.number"
 msgstr "Password must include a number."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/AccountSetting/components/PasswordSection.tsx:40
+#: src/components/remotes/SettingsApp/pages/AccountSetting/components/PasswordSection.tsx:41
 msgid "settings.account.password.validation.special"
 msgstr "Password must include a special character."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/AccountSetting/components/PasswordSection.tsx:32
+#: src/components/remotes/SettingsApp/pages/AccountSetting/components/PasswordSection.tsx:33
 msgid "settings.account.password.validation.uppercase"
 msgstr "Password must include an uppercase letter."
 
@@ -2563,7 +2583,7 @@ msgid "settings.account.security.title"
 msgstr "Security"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/AccountSetting/AccountSetting.tsx:318
+#: src/components/remotes/SettingsApp/pages/AccountSetting/AccountSetting.tsx:321
 msgid "settings.account.title"
 msgstr "Account"
 
@@ -2573,37 +2593,37 @@ msgid "settings.account.two_factor.code_label"
 msgstr "Enter the 6-digit code from your authenticator app"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/AccountSetting/AccountSetting.tsx:188
+#: src/components/remotes/SettingsApp/pages/AccountSetting/AccountSetting.tsx:191
 msgid "settings.account.two_factor.disable_confirm"
 msgstr "Disable two-factor authentication?"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/AccountSetting/AccountSetting.tsx:227
+#: src/components/remotes/SettingsApp/pages/AccountSetting/AccountSetting.tsx:230
 msgid "settings.account.two_factor.disable_failed"
 msgstr "Could not disable two-factor authentication."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/AccountSetting/AccountSetting.tsx:221
+#: src/components/remotes/SettingsApp/pages/AccountSetting/AccountSetting.tsx:224
 msgid "settings.account.two_factor.disable_success"
 msgstr "Two-factor authentication disabled."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/AccountSetting/AccountSetting.tsx:184
+#: src/components/remotes/SettingsApp/pages/AccountSetting/AccountSetting.tsx:187
 msgid "settings.account.two_factor.disable_title"
 msgstr "Disable two-factor authentication"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/AccountSetting/AccountSetting.tsx:211
+#: src/components/remotes/SettingsApp/pages/AccountSetting/AccountSetting.tsx:214
 msgid "settings.account.two_factor.enable_failed"
 msgstr "Could not enable two-factor authentication."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/AccountSetting/AccountSetting.tsx:245
+#: src/components/remotes/SettingsApp/pages/AccountSetting/AccountSetting.tsx:248
 msgid "settings.account.two_factor.enable_success"
 msgstr "Two-factor authentication enabled."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/AccountSetting/AccountSetting.tsx:255
+#: src/components/remotes/SettingsApp/pages/AccountSetting/AccountSetting.tsx:258
 #: src/components/remotes/SettingsApp/pages/AccountSetting/components/TwoFactorModal.tsx:40
 msgid "settings.account.two_factor.invalid_code"
 msgstr "The verification code is incorrect."

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Trans } from '@lingui/react/macro';
 import TwoFactorCodeInput from './TwoFactorCodeInput';
 
@@ -10,7 +10,7 @@ interface TwoFactorFormProps {
     onCodeChange: (index: number, value: string) => void;
     onKeyDown: (index: number, e: React.KeyboardEvent) => void;
     onPaste?: (pastedCode: string) => void;
-    onSubmit: (e: React.FormEvent) => void;
+    onSubmit: (e: React.FormEvent<HTMLFormElement>) => void;
     onGoBack: () => void;
 }
 
@@ -30,26 +30,52 @@ const TwoFactorForm = ({
     onSubmit,
     onGoBack
 }: TwoFactorFormProps) => {
+    const [useRecoveryKey, setUseRecoveryKey] = useState(false);
+
     return (
         <>
             {/* Verification Code Form */}
             <form className="space-y-6" noValidate onSubmit={onSubmit}>
                 <input type="hidden" name="csrfmiddlewaretoken" value={getCsrfToken()} />
 
-                <TwoFactorCodeInput
-                    codes={codes}
-                    onCodeChange={onCodeChange}
-                    onKeyDown={onKeyDown}
-                    onPaste={onPaste}
-                    autoFocus={true}
-                />
+                {useRecoveryKey ? (
+                    <label className="block space-y-2 text-sm font-medium text-content">
+                        <span><Trans id="auth.two_factor.recovery_key">Recovery key</Trans></span>
+                        <input
+                            name="recoveryKey"
+                            type="password"
+                            maxLength={64}
+                            autoComplete="off"
+                            spellCheck={false}
+                            className="h-12 w-full rounded-lg border border-line bg-surface px-3 font-mono"
+                        />
+                    </label>
+                ) : (
+                    <TwoFactorCodeInput
+                        codes={codes}
+                        onCodeChange={onCodeChange}
+                        onKeyDown={onKeyDown}
+                        onPaste={onPaste}
+                        autoFocus={true}
+                    />
+                )}
 
                 {/* Back to login button */}
-                <div className="text-center">
+                <div className="flex flex-wrap justify-center gap-x-4">
+                    <button
+                        type="button"
+                        onClick={() => setUseRecoveryKey((previous) => !previous)}
+                        className="min-h-11 text-xs font-medium text-content-secondary hover:underline">
+                        {useRecoveryKey ? (
+                            <Trans id="auth.two_factor.use_authenticator">Use an authenticator code</Trans>
+                        ) : (
+                            <Trans id="auth.two_factor.use_recovery_key">Use a recovery key</Trans>
+                        )}
+                    </button>
                     <button
                         type="button"
                         onClick={onGoBack}
-                        className="text-xs font-medium text-content-hint hover:text-content-secondary transition-colors flex items-center justify-center gap-1 mx-auto">
+                        className="inline-flex min-h-11 items-center gap-1 text-xs font-medium text-content-secondary hover:underline">
                         <i className="fas fa-arrow-left" />
                         <Trans id="auth.two_factor.back_to_login">Back to login</Trans>
                     </button>

@@ -194,6 +194,17 @@ class Profile(models.Model):
         return self.user.username
 
 
+class LoginAttempt(models.Model):
+    key = models.CharField(max_length=64, primary_key=True)
+    window = models.PositiveBigIntegerField(db_index=True)
+    count = models.PositiveSmallIntegerField(default=0)
+
+
+class OAuthAuthorization(models.Model):
+    state_hash = models.CharField(max_length=64, primary_key=True)
+    expires_at = models.DateTimeField(db_index=True)
+
+
 class TwoFactorAuth(models.Model):
     user = models.OneToOneField('auth.User', on_delete=models.CASCADE)
     recovery_key = models.CharField(max_length=64, blank=True)

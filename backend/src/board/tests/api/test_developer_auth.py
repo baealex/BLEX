@@ -53,6 +53,9 @@ class DeveloperAuthAPITestCase(TestCase):
 
     def test_editor_can_create_developer_token(self):
         self.client.login(username='developer', password='developer')
+        unverified = self.client.post('/v1/developer-tokens', {'name': 'MCP', 'scopes': ['posts:read']})
+        self.assertEqual(unverified.json()['messageKey'], 'auth.reauthentication_required')
+        self.client.post('/reauthenticate', {'password': 'developer'})
 
         response = self.client.post(
             '/v1/developer-tokens',

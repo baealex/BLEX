@@ -26,6 +26,7 @@ touch backend/src/db.sqlite3
 | `INITIAL_SETUP_TOKEN` | 최초 관리자 생성 화면 보호 토큰. 비워 두면 Docker 실행 시 자동 생성 |
 | `ALLOWED_HOSTS` | 허용할 호스트 목록. 예: `blog.example.com` |
 | `CSRF_TRUSTED_ORIGINS` | HTTPS 원본. 예: `https://blog.example.com` |
+| `TRUSTED_PROXY_IPS` | Django와 접속하는 프록시의 실제 IP 목록. 기본값은 `127.0.0.1,::1` |
 | `ADMIN_AUDIT_LOG_RETENTION_DAYS` | 유틸리티의 로그 정리에서 삭제할 관리자 활동 로그 보존 기간. 기본값 365일 |
 | `DEVELOPER_API_LOG_RETENTION_DAYS` | 유틸리티의 로그 정리에서 삭제할 개발자 API 요청 로그 보존 기간. 기본값 30일 |
 
@@ -51,7 +52,7 @@ python -c "import secrets; print(secrets.token_urlsafe(24))"
 
 ## 2. HTTPS 프록시 연결
 
-BLEX 컨테이너는 nginx와 Django를 함께 실행합니다. nginx는 컨테이너의 80 포트에서 HTTP 요청을 받고, 기본 compose는 이를 호스트의 20002 포트로 연결합니다.
+BLEX 컨테이너는 nginx와 Django를 함께 실행합니다. 기본 compose는 컨테이너의 80 포트를 호스트의 `20002` 포트에 연결합니다. HTTPS 프록시가 같은 호스트에 있으면 compose 프로젝트의 `.env`에 `BLEX_PORT_MAPPING=127.0.0.1:20002:80`을 설정해 루프백에만 연결할 수 있습니다. 다른 호스트에 프록시가 있으면 방화벽에서 프록시의 접속만 허용하세요.
 
 ```text
 인터넷
@@ -96,6 +97,8 @@ server {
 ```
 
 Caddy, Cloudflare Tunnel, Traefik을 쓰는 경우에도 원칙은 같습니다. 앞단 도구가 HTTPS를 처리하고, BLEX에는 HTTP로 넘깁니다. 이때 BLEX가 원래 요청의 HTTPS 여부를 알 수 있도록 `X-Forwarded-Proto`가 전달되어야 합니다. BLEX Docker 이미지 안의 nginx는 이 헤더가 들어오면 Django까지 보존해서 전달합니다.
+
+공개 요청은 HTTPS 프록시를 통과하도록 구성하고, 그 프록시에서 클라이언트가 보낸 `X-Forwarded-Proto`를 실제 연결 방식으로 덮어쓰세요. 로그인 시도 제한이 실제 방문자 IP를 사용하도록 컨테이너에서 관측한 앞단 프록시 IP도 `TRUSTED_PROXY_IPS`에 포함하세요. 업로드 파일을 별도 서버에서 제공할 때는 앱 쿠키가 전달되지 않는 출처를 쓰거나 BLEX nginx와 동일하게 `Content-Security-Policy: sandbox` 헤더를 적용하세요.
 
 ## 3. 실행
 

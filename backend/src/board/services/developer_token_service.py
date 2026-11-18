@@ -233,6 +233,11 @@ class DeveloperTokenService:
             )
 
     @staticmethod
+    def revoke_user_tokens(user: User) -> None:
+        now = timezone.now()
+        DeveloperToken.objects.filter(user=user, revoked_at__isnull=True).update(revoked_at=now, updated_date=now)
+
+    @staticmethod
     def revoke_token(token):
         token.revoked_at = timezone.now()
         token.updated_date = timezone.now()

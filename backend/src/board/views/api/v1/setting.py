@@ -9,6 +9,7 @@ from board.models import (
     Notify)
 from board.modules.response import StatusDone, StatusError, ErrorCode
 from board.modules.time import convert_to_localtime
+from board.services.account_reauthentication_service import AccountReauthenticationService
 from board.services.api_permission_service import ApiPermissionService
 from board.services.api_request_body_service import ApiRequestBodyService
 from board.services.integration_setting_service import IntegrationSettingService
@@ -226,21 +227,18 @@ def setting(request, parameter):
                 return pinned_post_error_response(e)
 
     if request.method == 'POST':
-        if parameter == 'avatar':
-            return StatusDone({
-                'url': SettingAccountProfileService.save_avatar(
-                    user,
-                    request.FILES['avatar'],
-                ),
-            })
-
-        if parameter == 'cover':
-            return StatusDone({
-                'url': SettingAccountProfileService.save_cover(
-                    user,
-                    request.FILES['cover'],
-                ),
-            })
+        if parameter in {'avatar', 'cover'}:
+            upload = request.FILES.get(parameter)
+            if upload is None:
+                return StatusError(ErrorCode.VALIDATE, _('Upload a valid profile image.'))
+            save_image = (
+                SettingAccountProfileService.save_avatar
+                if parameter == 'avatar' else SettingAccountProfileService.save_cover
+            )
+            try:
+                return StatusDone({'url': save_image(user, upload)})
+            except SettingAccountProfileError as error:
+                return StatusError(error.code, error.message)
 
         if parameter == 'pinned-posts':
             post_url = request.POST.get('post_url', '')
@@ -302,6 +300,12 @@ def setting(request, parameter):
             username = put.get('username', '')
             name = put.get('name', '')
             password = put.get('password', '')
+            if not isinstance(password, str):
+                return StatusError(ErrorCode.VALIDATE, _('Enter a valid password.'))
+            if password:
+                reauthentication_error = AccountReauthenticationService.require(request)
+                if reauthentication_error:
+                    return reauthentication_error
 
             try:
                 result = SettingAccountProfileService.prepare_account_update(
@@ -313,10 +317,13 @@ def setting(request, parameter):
             except SettingAccountProfileError as error:
                 return StatusError(error.code, error.message)
 
-            if result.should_refresh_session:
-                auth.login(request, user)
+            SettingAccountProfileService.persist_account_update(
+                user, result, revoke_tokens=put.get('revoke_tokens') in (True, 'true'),
+            )
 
-            SettingAccountProfileService.persist_account_update(user, result)
+            if result.should_refresh_session:
+                auth.update_session_auth_hash(request, user)
+                request.session.pop(AccountReauthenticationService.SESSION_KEY, None)
 
             return StatusDone()
 

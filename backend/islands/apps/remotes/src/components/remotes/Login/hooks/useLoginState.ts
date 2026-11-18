@@ -25,7 +25,7 @@ export interface LoginState {
     isTwoFactorLoading: boolean;
 
     // OAuth 2FA
-    oauthToken: string | null;
+    oauthPending: boolean;
 
     // Security features
     failedAttempts: number;
@@ -38,10 +38,6 @@ export interface LoginState {
 
 export const useLoginState = () => {
     const { i18n, t } = useLingui();
-    // Read oauth_token from URL if present
-    const urlParams = new URLSearchParams(window.location.search);
-    const oauthTokenFromUrl = urlParams.get('oauth_token');
-
     const [state, setState] = useState<LoginState>({
         username: window.USERNAME || '',
         password: '',
@@ -49,12 +45,12 @@ export const useLoginState = () => {
         passwordError: '',
         loginError: '',
         isLoading: false,
-        showTwoFactor: window.SHOW_2FA || !!oauthTokenFromUrl,
+        showTwoFactor: Boolean(window.SHOW_2FA),
         codes: ['', '', '', '', '', ''],
         verificationError: '',
         successMessage: '',
         isTwoFactorLoading: false,
-        oauthToken: oauthTokenFromUrl,
+        oauthPending: Boolean(window.SHOW_2FA),
         failedAttempts: 0,
         isBlocked: false,
         blockEndTime: null,
@@ -71,9 +67,8 @@ export const useLoginState = () => {
     };
 
     const goBackToLogin = () => {
-        // If OAuth token exists, redirect to login page to restart OAuth flow
-        if (state.oauthToken) {
-            window.location.assign('/login');
+        if (state.oauthPending) {
+            window.location.assign('/login?restart=1');
             return;
         }
 

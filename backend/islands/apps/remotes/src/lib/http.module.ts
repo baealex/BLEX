@@ -34,3 +34,11 @@ http.interceptors.request.use((config) => {
     config.headers.set('X-CSRFToken', getCsrfToken());
     return config;
 });
+
+http.interceptors.response.use((response) => {
+    if (response.data?.messageKey === 'auth.reauthentication_required') {
+        const query = new URLSearchParams({ next: window.location.pathname });
+        window.location.assign(`/reauthenticate?${query}`);
+    }
+    return response;
+});

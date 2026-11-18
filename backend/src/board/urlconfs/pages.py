@@ -6,7 +6,7 @@ from django.urls import path
 from board.feeds import SitePostsFeed, UserPostsFeed
 from board.sitemaps import sitemaps
 from board.views import agent, main
-from board.views.auth import login_view, signup_view
+from board.views.auth import login_view, reauthenticate_view, signup_view
 from board.views.author import (
     author_about,
     author_about_edit,
@@ -17,7 +17,7 @@ from board.views.author import (
 )
 from board.views.developer_api_docs import developer_api_docs, developer_api_quickstart
 from board.views.initial_setup import initial_setup_view
-from board.views.oauth_callback import oauth_callback
+from board.views.oauth_callback import oauth_callback, oauth_start
 from board.views.post import post_detail, post_editor, post_preview
 from board.views.post_actions import like_post
 from board.views.search import search_page
@@ -35,6 +35,8 @@ urlpatterns = [
     path('login', login_view, name='login'),
     path('sign', signup_view, name='signup'),
     path('login/callback/<str:provider>', oauth_callback, name='oauth_callback'),
+    path('login/start/<str:provider>', oauth_start, name='oauth_start'),
+    path('reauthenticate', reauthenticate_view, name='reauthenticate'),
     path('logout', auth_views.LogoutView.as_view(), name='logout'),
     path('llms.txt', agent.llms_txt, name='llms_txt'),
 
