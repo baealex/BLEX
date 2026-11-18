@@ -6,11 +6,13 @@ Extracted from views to improve testability and reusability.
 """
 
 import re
+from time import time
 from typing import Optional, Tuple, Dict, Any
 
-from django.conf import settings
 from django.contrib.auth.models import User
-from django.core.cache import cache
+from django.contrib.auth.password_validation import validate_password
+from django.contrib.sessions.backends.base import SessionBase
+from django.core.exceptions import ValidationError
 from django.core.files import File
 from django.db import transaction
 from django.db.models import Count, Case, When, Value, Exists, OuterRef
@@ -23,7 +25,6 @@ from board.models import (
 )
 from board.modules.notify import create_notify
 from board.modules.response import ErrorCode
-from modules.randomness import randnum, randstr
 from modules.scrap import download_image
 from modules.sub_task import SubTaskProcessor
 from modules.telegram import TelegramBot
@@ -40,54 +41,29 @@ class AuthValidationError(Exception):
 class OAuthService:
     """Service class for handling OAuth authentication"""
 
-    OAUTH_2FA_CACHE_TIMEOUT = 300  # 5 minutes
+    PENDING_2FA_KEY = 'oauth_pending_2fa'
+    PENDING_2FA_TIMEOUT = 300
 
-    @staticmethod
-    def create_2fa_token(user_id: int, next_url: str = '') -> str:
-        """
-        Create one-time OAuth 2FA token and store in cache.
-
-        Args:
-            user_id: User ID requiring 2FA
-            next_url: Redirect URL after successful authentication
-
-        Returns:
-            OAuth token string
-        """
-        oauth_token = randstr(32)
-        cache_key = f'oauth_2fa:{oauth_token}'
-
-        cache.set(cache_key, {
-            'user_id': user_id,
+    @classmethod
+    def set_2fa_data(cls, session: SessionBase, user: User, next_url: str) -> None:
+        session.cycle_key()
+        session[cls.PENDING_2FA_KEY] = {
+            'user_id': user.pk,
+            'username': user.username,
             'next_url': next_url,
-        }, OAuthService.OAUTH_2FA_CACHE_TIMEOUT)
+            'expires_at': time() + cls.PENDING_2FA_TIMEOUT,
+        }
 
-        return oauth_token
+    @classmethod
+    def get_2fa_data(cls, session: SessionBase) -> dict | None:
+        data = session.get(cls.PENDING_2FA_KEY)
+        if data and data['expires_at'] > time():
+            return data
+        return None
 
-    @staticmethod
-    def get_2fa_data(oauth_token: str) -> Optional[Dict[str, Any]]:
-        """
-        Retrieve OAuth 2FA token data from cache.
-
-        Args:
-            oauth_token: Token to retrieve
-
-        Returns:
-            Dictionary with user_id and next_url, or None if expired/invalid
-        """
-        cache_key = f'oauth_2fa:{oauth_token}'
-        return cache.get(cache_key)
-
-    @staticmethod
-    def delete_2fa_token(oauth_token: str) -> None:
-        """
-        Delete used OAuth 2FA token from cache.
-
-        Args:
-            oauth_token: Token to delete
-        """
-        cache_key = f'oauth_2fa:{oauth_token}'
-        cache.delete(cache_key)
+    @classmethod
+    def clear_2fa_data(cls, session: SessionBase) -> None:
+        session.pop(cls.PENDING_2FA_KEY, None)
 
 
 class AuthService:
@@ -142,9 +118,9 @@ class AuthService:
             )
 
     @staticmethod
-    def validate_signup_password(password: str) -> None:
+    def validate_signup_password(password: str, user: User | None = None) -> None:
         """
-        Validate a signup password with the same rule as the signup form.
+        Validate a password against the configured policies.
 
         Raises:
             AuthValidationError: If validation fails
@@ -154,6 +130,10 @@ class AuthService:
                 ErrorCode.VALIDATE,
                 gettext('Password must be at least 8 characters.'),
             )
+        try:
+            validate_password(password, user=user)
+        except ValidationError as error:
+            raise AuthValidationError(ErrorCode.VALIDATE, error.messages[0]) from error
 
     @staticmethod
     def generate_unique_username(base_username: str) -> str:
@@ -266,15 +246,12 @@ class AuthService:
             ),
         ).get(id=user.id)
 
+        profile = getattr(user_with_annotations, 'profile', None)
         return {
             'username': user_with_annotations.username,
             'name': user_with_annotations.first_name,
             'email': user_with_annotations.email,
-            'avatar': (
-                user_with_annotations.profile.avatar.url
-                if user_with_annotations.profile.avatar
-                else ''
-            ),
+            'avatar': profile.avatar.url if profile and profile.avatar else '',
             'notify_count': user_with_annotations.notify_count,
             'has_connected_telegram': user_with_annotations.has_connected_telegram,
             'has_connected_2fa': user_with_annotations.has_connected_2fa,
@@ -292,10 +269,7 @@ class AuthService:
         Returns:
             True if 2FA is enabled and should be checked
         """
-        if settings.DEBUG:
-            return False
-
-        return user.config.has_two_factor_auth()
+        return TwoFactorAuth.objects.filter(user=user).exists()
 
     @staticmethod
     def create_totp_secret() -> str:

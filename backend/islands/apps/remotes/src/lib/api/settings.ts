@@ -13,6 +13,7 @@ export interface AccountUpdateData {
     username?: string;
     name?: string;
     password?: string;
+    revoke_tokens?: boolean;
 }
 
 export interface ProfileData {
@@ -63,7 +64,7 @@ export const updateAccountSettings = async (data: AccountUpdateData) => {
     const formData = new URLSearchParams();
     Object.entries(data).forEach(([key, value]) => {
         if (value !== undefined && value !== null) {
-            formData.append(key, value);
+            formData.append(key, String(value));
         }
     });
 

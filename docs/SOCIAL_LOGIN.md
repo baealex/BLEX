@@ -52,7 +52,7 @@ GitHub Developer settings에서 OAuth App을 만듭니다.
 
 ## 문제 해결
 
-- `redirect_uri_mismatch`가 나오면 제공자 콘솔에 등록한 callback URL과 실제 접속 URL이 같은지 확인합니다.
+- `redirect_uri_mismatch`가 나오면 로그인에 사용한 출처의 callback URL이 제공자 콘솔에 등록된 주소와 같은지 확인합니다. HTTPS 프록시는 공개 호스트와 연결 방식이 BLEX에 전달되도록 구성하세요.
 - 버튼이 보이지 않으면 BLEX 어드민에서 제공자가 켜져 있고 Client ID가 저장되어 있는지 확인합니다.
 - 인증 후 실패하면 Client Secret이 저장되어 있는지 확인합니다.
 - 운영 환경에서는 `SITE_URL`, `ALLOWED_HOSTS`, `CSRF_TRUSTED_ORIGINS`도 실제 공개 도메인 기준으로 맞춰야 합니다.

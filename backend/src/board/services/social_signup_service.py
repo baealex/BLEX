@@ -24,6 +24,7 @@ class SocialSignupErrorKind(Enum):
     PROVIDER_DISABLED = 'provider_disabled'
     MISSING_CODE = 'missing_code'
     EXTERNAL_AUTH_FAILED = 'external_auth_failed'
+    ACCOUNT_MISMATCH = 'account_mismatch'
 
 
 class SocialSignupError(Exception):
@@ -57,7 +58,7 @@ class SocialSignupProviderAdapter(Protocol):
     provider_key: ClassVar[str]
 
     @staticmethod
-    def authenticate(code: str) -> oauth.State:
+    def authenticate(code: str, verifier: str, redirect_uri: str) -> oauth.State:
         ...
 
     @staticmethod
@@ -69,8 +70,8 @@ class GitHubSocialSignupAdapter:
     provider_key = 'github'
 
     @staticmethod
-    def authenticate(code: str) -> oauth.State:
-        return oauth.auth_github(code)
+    def authenticate(code: str, verifier: str, redirect_uri: str) -> oauth.State:
+        return oauth.auth_github(code, verifier, redirect_uri)
 
     @staticmethod
     def map_identity(user_data: Mapping[str, object]) -> SocialSignupIdentity:
@@ -79,7 +80,7 @@ class GitHubSocialSignupAdapter:
             provider_key=GitHubSocialSignupAdapter.provider_key,
             uid=cast(str, user_data.get('node_id')),
             username=username,
-            name=cast(str, user_data.get('name')),
+            name=cast(str, user_data.get('name') or ''),
             email='',
             avatar_url=cast(str | None, user_data.get('avatar_url')),
             extra_data=user_data,
@@ -92,17 +93,17 @@ class GoogleSocialSignupAdapter:
     provider_key = 'google'
 
     @staticmethod
-    def authenticate(code: str) -> oauth.State:
-        return oauth.auth_google(code)
+    def authenticate(code: str, verifier: str, redirect_uri: str) -> oauth.State:
+        return oauth.auth_google(code, verifier, redirect_uri)
 
     @staticmethod
     def map_identity(user_data: Mapping[str, object]) -> SocialSignupIdentity:
-        email = cast(str, user_data.get('email'))
+        email = cast(str, user_data.get('email') or '')
         return SocialSignupIdentity(
             provider_key=GoogleSocialSignupAdapter.provider_key,
             uid=cast(str, user_data.get('id')),
             username=email.split('@')[0],
-            name=cast(str, user_data.get('name')),
+            name=cast(str, user_data.get('name') or ''),
             email=email,
             avatar_url=cast(str | None, user_data.get('picture')),
             extra_data=user_data,
@@ -118,7 +119,10 @@ class SocialSignupService:
     }
 
     @classmethod
-    def sign_up(cls, provider_key: str, code: str | None) -> SocialSignupResult:
+    def sign_up(
+        cls, provider_key: str, code: str | None, verifier: str, redirect_uri: str,
+        *, expected_user_id: int | None = None,
+    ) -> SocialSignupResult:
         if InitialSetupService.should_prompt_for_initial_setup():
             raise SocialSignupError(SocialSignupErrorKind.INITIAL_SETUP_REQUIRED)
 
@@ -133,16 +137,22 @@ class SocialSignupService:
         if not code:
             raise SocialSignupError(SocialSignupErrorKind.MISSING_CODE)
 
-        state = adapter.authenticate(code)
+        state = adapter.authenticate(code, verifier, redirect_uri)
         if not state.success:
             raise SocialSignupError(SocialSignupErrorKind.EXTERNAL_AUTH_FAILED)
 
         identity = adapter.map_identity(cast(Mapping[str, object], state.user))
+        if not isinstance(identity.uid, str) or not identity.uid or not identity.username:
+            raise SocialSignupError(SocialSignupErrorKind.EXTERNAL_AUTH_FAILED)
         social_auth = SocialAuth.objects.filter(
             provider=provider,
             uid=identity.uid,
         ).select_related('user').first()
+        if expected_user_id is not None and (not social_auth or social_auth.user_id != expected_user_id):
+            raise SocialSignupError(SocialSignupErrorKind.ACCOUNT_MISMATCH)
         if social_auth:
+            if not social_auth.user.is_active:
+                raise SocialSignupError(SocialSignupErrorKind.EXTERNAL_AUTH_FAILED)
             return SocialSignupResult(
                 user=social_auth.user,
                 is_first_login=False,

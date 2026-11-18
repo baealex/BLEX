@@ -1,4 +1,6 @@
 from django.contrib.admin import AdminSite
+from django.http import HttpRequest, HttpResponse
+from django.shortcuts import redirect
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 
@@ -10,6 +12,9 @@ class BlexAdminSite(AdminSite):
     site_title = 'BLEX Admin'
     index_title = _('Dashboard')
     empty_value_display = '-'
+
+    def login(self, request: HttpRequest, extra_context: dict | None = None) -> HttpResponse:
+        return redirect('admin:index')
 
     model_name_overrides = {
         ('auth', 'User'): _('Users'),

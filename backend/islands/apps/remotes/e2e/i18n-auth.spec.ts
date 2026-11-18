@@ -5,6 +5,13 @@ const locales = [
         browserLocale: 'en-US',
         loginAction: 'Log in',
         signupAction: 'Sign up as a reader',
+        twoFactor: {
+            instructions: 'Use your authenticator app or a recovery key to sign in.',
+            useRecoveryKey: 'Use a recovery key',
+            recoveryKey: 'Recovery key',
+            verify: 'Verify',
+            invalidRecoveryKey: 'Enter a valid recovery key.'
+        },
         required: {
             username: 'Username is required.',
             displayName: 'Display name is required.',
@@ -22,6 +29,13 @@ const locales = [
         browserLocale: 'ko-KR',
         loginAction: '로그인',
         signupAction: '독자로 가입하기',
+        twoFactor: {
+            instructions: '인증 앱 코드 또는 복구 키로 로그인하세요.',
+            useRecoveryKey: '복구 키 사용',
+            recoveryKey: '복구 키',
+            verify: '인증하기',
+            invalidRecoveryKey: '올바른 복구 키를 입력해 주세요.'
+        },
         required: {
             username: '사용자 이름을 입력해 주세요.',
             displayName: '표시 이름을 입력해 주세요.',
@@ -40,6 +54,31 @@ const locales = [
 for (const locale of locales) {
     test.describe(`localized auth validation (${locale.browserLocale})`, () => {
         test.use({ locale: locale.browserLocale });
+
+        test('localizes the recovery key sign-in option and validation', async ({ page }) => {
+            await page.route('**/v1/login', async (route) => {
+                if (route.request().method() !== 'POST') {
+                    await route.continue();
+                    return;
+                }
+                await route.fulfill({
+                    json: {
+                        status: 'DONE',
+                        body: { security: true }
+                    }
+                });
+            });
+
+            await page.goto('/login');
+            await page.locator('#username').fill('testmember');
+            await page.locator('#password').fill('test-password');
+            await page.getByRole('button', { name: locale.loginAction, exact: true }).press('Enter');
+            await expect(page.getByText(locale.twoFactor.instructions, { exact: true })).toBeVisible();
+            await page.getByRole('button', { name: locale.twoFactor.useRecoveryKey, exact: true }).press('Enter');
+            await expect(page.getByLabel(locale.twoFactor.recoveryKey, { exact: true })).toBeVisible();
+            await page.getByRole('button', { name: locale.twoFactor.verify, exact: true }).press('Enter');
+            await expect(page.getByText(locale.twoFactor.invalidRecoveryKey, { exact: true })).toBeVisible();
+        });
 
         test('keeps login and signup validation inside the product locale', async ({ page }) => {
             await page.goto('/login');

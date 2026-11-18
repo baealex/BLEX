@@ -146,12 +146,12 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'main.middleware.AccessAdminOnlyStaff',
     'main.middleware.HTMLMinifyMiddleware',
     'main.middleware.SearchIndexingMiddleware',
 ]
 
 if not DEBUG:
-    MIDDLEWARE.append('main.middleware.AccessAdminOnlyStaff')
     MIDDLEWARE.append('main.middleware.AccessSitemapOnlyBot')
 
 if DEBUG and not TESTING:

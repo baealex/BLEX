@@ -3,6 +3,7 @@ from django.contrib.auth.decorators import login_required
 from django.http import Http404
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
+from django.views.decorators.cache import never_cache
 
 from board.services.integration_setting_service import IntegrationSettingService
 from board.services.authoring_permission_service import AuthoringPermissionService
@@ -76,6 +77,7 @@ def _build_settings_context(request, settings_mode, base_path):
     }
 
 
+@never_cache
 @login_required
 def settings(request, path=''):
     """
@@ -96,6 +98,7 @@ def settings(request, path=''):
     return render(request, 'board/settings.html', context)
 
 
+@never_cache
 @login_required
 def admin_settings(request, path=''):
     """

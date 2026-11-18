@@ -143,10 +143,13 @@ const AccountSettings = () => {
         }
     };
 
-    const handlePasswordSubmit = async (password: string): Promise<AccountFormSubmitResult> => {
+    const handlePasswordSubmit = async (password: string, revokeTokens: boolean): Promise<AccountFormSubmitResult> => {
         setIsPasswordLoading(true);
         try {
-            const { data } = await updateAccountSettings({ password });
+            const { data } = await updateAccountSettings({
+                password,
+                revoke_tokens: revokeTokens
+            });
 
             if (data.status === 'DONE') {
                 toast.success(t({

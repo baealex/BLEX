@@ -7,4 +7,4 @@ services:
       - ./backend/src/db.sqlite3:/app/db.sqlite3
       - ./backend/src/resources/media:/app/resources/media
     ports:
-      - 20002:80
+      - "${BLEX_PORT_MAPPING:-20002:80}"

@@ -163,8 +163,9 @@ const Login = () => {
         }
     };
 
-    const submitTwoFactor = async (e: React.FormEvent) => {
+    const submitTwoFactor = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
+        const recoveryKey = new FormData(e.currentTarget).get('recoveryKey');
 
         updateState({
             verificationError: '',
@@ -177,23 +178,28 @@ const Login = () => {
 
         updateState({ isTwoFactorLoading: true });
 
-        const code = state.codes.join('');
-        if (code.length !== 6 || !/^[0-9]{6}$/.test(code)) {
+        const code = typeof recoveryKey === 'string' ? recoveryKey.trim() : state.codes.join('');
+        const isValid = recoveryKey === null ? /^[0-9]{6}$/.test(code) : code.length > 6 && code.length <= 64;
+        if (!isValid) {
             updateState({
-                verificationError: t({
-                    id: 'auth.two_factor.invalid_format',
-                    message: 'Enter a valid 6-digit code.'
-                }),
+                verificationError: recoveryKey === null
+                    ? t({
+                        id: 'auth.two_factor.invalid_format',
+                        message: 'Enter a valid 6-digit code.'
+                    })
+                    : t({
+                        id: 'auth.two_factor.invalid_recovery_key',
+                        message: 'Enter a valid recovery key.'
+                    }),
                 isTwoFactorLoading: false
             });
             return;
         }
 
         try {
-            // If OAuth token exists, use it instead of username/password
-            const loginData = state.oauthToken
+            const loginData = state.oauthPending
                 ? {
-                    oauth_token: state.oauthToken,
+                    oauth_2fa: true,
                     code: code
                 }
                 : {
@@ -220,7 +226,7 @@ const Login = () => {
                 const isBlocked = handleFailedTwoFactor();
                 if (!isBlocked) {
                     updateState({
-                        verificationError: t({
+                        verificationError: data.errorMessage || t({
                             id: 'auth.two_factor.incorrect_code',
                             message: 'The verification code is incorrect.'
                         }),
@@ -272,7 +278,7 @@ const Login = () => {
                 </h1>
                 <p className="text-content-secondary text-sm font-medium">
                     {state.showTwoFactor ? (
-                        <Trans id="auth.two_factor.description">Enter the 6-digit code from your authenticator app</Trans>
+                        <Trans id="auth.two_factor.description">Use your authenticator app or a recovery key to sign in.</Trans>
                     ) : (
                         <Trans id="auth.login.welcome_back">Welcome back</Trans>
                     )}

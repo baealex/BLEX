@@ -2,7 +2,7 @@
 인증 템플릿 테스트
 URL: /login, /sign
 """
-from django.test import TestCase, Client
+from django.test import TestCase, Client, override_settings
 from django.contrib.auth.models import User
 from django.urls import reverse
 
@@ -58,6 +58,25 @@ class LoginViewTestCase(TestCase):
         response = self.client.get(reverse('login'))
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.context['next_url'], '')
+
+    def test_old_social_login_url_explains_how_to_restart(self):
+        response = self.client.get('/login', {'oauth_token': 'previous-login', 'next': '/settings/account'}, follow=True)
+
+        self.assertEqual(response.redirect_chain, [(reverse('login', query={'next': '/settings/account'}), 302)])
+        self.assertContains(response, '계속하려면 소셜 로그인을 다시 시작해 주세요.')
+        self.assertFalse(response.context['show_2fa'])
+
+    @override_settings(DEBUG=True)
+    def test_development_admin_bookmark_uses_site_login_for_standalone_admin(self):
+        admin = User.objects.create_superuser(username='standalone', password='testpass123')
+        admin_url = reverse('admin:index')
+        response = self.client.get(admin_url)
+        self.assertRedirects(response, reverse('login', query={'next': admin_url}), fetch_redirect_response=False)
+
+        response = self.client.post('/v1/login', {'username': admin.username, 'password': 'testpass123'})
+        self.assertEqual(response.json()['status'], 'DONE')
+        self.assertEqual(self.client.get(admin_url).status_code, 200)
+        self.assertRedirects(self.client.get(reverse('admin:login')), admin_url, fetch_redirect_response=False)
 
     def test_login_page_redirects_authenticated_user(self):
         """이미 로그인된 사용자는 홈으로 리다이렉트"""

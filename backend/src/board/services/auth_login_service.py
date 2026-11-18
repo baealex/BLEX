@@ -1,19 +1,38 @@
 import ipaddress
+from dataclasses import dataclass
+from time import time
 
 from django.conf import settings
 from django.contrib import auth
 from django.contrib.auth.models import User
-from django.core.cache import cache
+from django.db import transaction
+from django.db.models import F
+from django.http import HttpRequest
+from django.utils.crypto import salted_hmac
 from django.utils.translation import gettext
 
+from board.models import LoginAttempt
 from board.modules.response import StatusDone, StatusError, ErrorCode
 from board.services.auth_service import AuthService, OAuthService
+
+
+class LoginRateLimitReached(Exception):
+    pass
+
+
+@dataclass(frozen=True)
+class LoginAttemptReservation:
+    keys: tuple[str, ...]
+
+    def release(self) -> None:
+        LoginAttempt.objects.filter(key__in=self.keys, count__gt=0).update(count=F('count') - 1)
 
 
 class AuthLoginService:
     """Coordinate login, rate limit, and login-time 2FA flows."""
 
     LOGIN_ATTEMPT_LIMIT = 5
+    ACCOUNT_ATTEMPT_LIMIT = 10
     LOGIN_ATTEMPT_TTL_SECONDS = 300
 
     @staticmethod
@@ -32,7 +51,7 @@ class AuthLoginService:
         trusted_proxy_ips.discard(None)
 
         if AuthLoginService._normalize_ip(remote_addr) not in trusted_proxy_ips:
-            return remote_addr or 'unknown'
+            return AuthLoginService._normalize_ip(remote_addr) or 'unknown'
 
         forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR', '')
         for address in reversed(forwarded_for.split(',')):
@@ -40,7 +59,7 @@ class AuthLoginService:
             if normalized_address and normalized_address not in trusted_proxy_ips:
                 return normalized_address
 
-        return remote_addr or 'unknown'
+        return AuthLoginService._normalize_ip(remote_addr) or 'unknown'
 
     @staticmethod
     def _normalize_ip(address: str):
@@ -49,128 +68,93 @@ class AuthLoginService:
         except (ValueError, AttributeError):
             return None
 
-    @staticmethod
-    def get_attempt_cache_key(request) -> str:
-        return f'login_attempts:{AuthLoginService.get_client_ip(request)}'
-
-    @staticmethod
-    def check_login_rate_limit(request):
-        attempts = cache.get(AuthLoginService.get_attempt_cache_key(request), 0)
-
-        if attempts >= AuthLoginService.LOGIN_ATTEMPT_LIMIT:
-            return StatusError(
-                ErrorCode.REJECT,
-                gettext('Too many failed attempts. Please try again later.'),
-            )
-
-        return None
-
-    @staticmethod
-    def clear_login_attempts(request) -> None:
-        cache.delete(AuthLoginService.get_attempt_cache_key(request))
-
-    @staticmethod
-    def increment_login_attempts(request) -> None:
-        cache_key = AuthLoginService.get_attempt_cache_key(request)
-        if cache.add(
-            cache_key,
-            1,
-            AuthLoginService.LOGIN_ATTEMPT_TTL_SECONDS,
-        ):
-            return
-
+    @classmethod
+    def reserve_login_attempt(cls, request: HttpRequest, username: str) -> LoginAttemptReservation | None:
+        window = int(time()) // cls.LOGIN_ATTEMPT_TTL_SECONDS
+        limits = (
+            ('ip', cls.get_client_ip(request), cls.LOGIN_ATTEMPT_LIMIT),
+            ('account', User.normalize_username(username).casefold(), cls.ACCOUNT_ATTEMPT_LIMIT),
+        )
+        keys = []
         try:
-            cache.incr(cache_key)
-        except (ValueError, NotImplementedError):
-            # Some cache backends can expire a key between add() and incr().
-            # Recreate it with the short login-attempt TTL in that case.
-            cache.set(
-                cache_key,
-                1,
-                AuthLoginService.LOGIN_ATTEMPT_TTL_SECONDS,
-            )
+            with transaction.atomic():
+                LoginAttempt.objects.filter(window__lt=window - 1).delete()
+                for scope, value, limit in limits:
+                    key = salted_hmac(
+                        'blex.login-attempt', f'{window}:{scope}:{value}', algorithm='sha256',
+                    ).hexdigest()
+                    LoginAttempt.objects.bulk_create(
+                        [LoginAttempt(key=key, window=window)], ignore_conflicts=True,
+                    )
+                    updated = LoginAttempt.objects.filter(key=key, count__lt=limit).update(count=F('count') + 1)
+                    if not updated:
+                        raise LoginRateLimitReached
+                    keys.append(key)
+        except LoginRateLimitReached:
+            return None
+        return LoginAttemptReservation(tuple(keys))
 
     @staticmethod
-    def common_auth(request, user: User, two_factor_code=None, is_oauth=False):
-        if AuthService.check_two_factor_auth(user):
-            if two_factor_code:
-                if AuthService.verify_totp_token(user, two_factor_code):
-                    AuthLoginService.clear_login_attempts(request)
-                    auth.login(request, user)
-                    return AuthLoginService.login_response(request.user)
+    def rate_limit_error():
+        return StatusError(
+            ErrorCode.REJECT, gettext('Too many failed attempts. Please try again later.'),
+        )
 
-                AuthLoginService.increment_login_attempts(request)
-                return StatusError(
-                    ErrorCode.REJECT,
-                    gettext('The two-factor authentication code is incorrect.'),
-                )
-
-            return StatusDone({
-                'username': user.username,
-                'security': True,
-                'is_oauth': is_oauth,
-            })
-
-        AuthLoginService.clear_login_attempts(request)
-        auth.login(request, user)
-        return AuthLoginService.login_response(request.user)
-
-    @staticmethod
-    def handle_oauth_token_login(request, data):
-        oauth_token = data.get('oauth_token', '') or request.POST.get('oauth_token', '')
+    @classmethod
+    def handle_oauth_token_login(cls, request: HttpRequest, data: dict):
         two_factor_code = data.get('code', '') or request.POST.get('code', '')
-
-        oauth_data = OAuthService.get_2fa_data(oauth_token)
-
-        if not oauth_data:
+        oauth_data = OAuthService.get_2fa_data(request.session)
+        user = User.objects.filter(pk=oauth_data['user_id'], is_active=True).first() if oauth_data else None
+        if user is None:
             return StatusError(
                 ErrorCode.REJECT,
                 gettext('The authentication token has expired. Please log in again.'),
             )
-
-        try:
-            user = User.objects.get(id=oauth_data['user_id'])
-        except User.DoesNotExist:
-            OAuthService.delete_2fa_token(oauth_token)
-            return StatusError(ErrorCode.REJECT)
-
-        if not two_factor_code:
+        if not isinstance(two_factor_code, str) or not two_factor_code:
             return StatusError(
-                ErrorCode.VALIDATE,
-                gettext('A two-factor authentication code is required.'),
+                ErrorCode.VALIDATE, gettext('A two-factor authentication code is required.'),
             )
 
-        if AuthService.verify_totp_token(user, two_factor_code):
-            AuthLoginService.clear_login_attempts(request)
-            OAuthService.delete_2fa_token(oauth_token)
-            auth.login(request, user)
-            return AuthLoginService.login_response(request.user)
+        attempt = cls.reserve_login_attempt(request, user.username)
+        if attempt is None:
+            return cls.rate_limit_error()
+        if not AuthService.verify_totp_token(user, two_factor_code):
+            return cls.invalid_two_factor_code()
 
-        AuthLoginService.increment_login_attempts(request)
-        return StatusError(
-            ErrorCode.REJECT,
-            gettext('The two-factor authentication code is incorrect.'),
-        )
+        attempt.release()
+        OAuthService.clear_2fa_data(request.session)
+        auth.login(request, user)
+        return cls.login_response(request.user)
 
     @staticmethod
-    def handle_password_login(request, data):
+    def invalid_two_factor_code():
+        return StatusError(
+            ErrorCode.REJECT, gettext('The two-factor authentication code is incorrect.'),
+        )
+
+    @classmethod
+    def handle_password_login(cls, request: HttpRequest, data: dict):
         username = data.get('username', '') or request.POST.get('username', '')
         password = data.get('password', '') or request.POST.get('password', '')
         two_factor_code = data.get('code', '') or request.POST.get('code', '')
-
-        user = auth.authenticate(username=username, password=password)
-
-        if user is not None:
-            if user.is_active:
-                # Failed attempts reset only after the whole login succeeds,
-                # so a known password cannot reset 2FA code guessing.
-                return AuthLoginService.common_auth(
-                    request,
-                    user,
-                    two_factor_code=two_factor_code,
-                )
-        else:
-            AuthLoginService.increment_login_attempts(request)
+        if not all(isinstance(value, str) for value in (username, password, two_factor_code)):
             return StatusError(ErrorCode.AUTHENTICATION)
 
-        return None
+        attempt = cls.reserve_login_attempt(request, username)
+        if attempt is None:
+            return cls.rate_limit_error()
+        user = auth.authenticate(request, username=username, password=password)
+        if user is None:
+            return StatusError(ErrorCode.AUTHENTICATION)
+
+        if AuthService.check_two_factor_auth(user):
+            if not two_factor_code:
+                attempt.release()
+                return StatusDone({'username': user.username, 'security': True, 'is_oauth': False})
+            if not AuthService.verify_totp_token(user, two_factor_code):
+                return cls.invalid_two_factor_code()
+
+        attempt.release()
+        OAuthService.clear_2fa_data(request.session)
+        auth.login(request, user)
+        return cls.login_response(request.user)

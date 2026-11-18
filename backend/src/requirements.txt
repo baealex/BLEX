@@ -9,7 +9,7 @@ click==8.4.2
 cryptography==50.0.0
 cssselect==1.4.0
 defusedxml==0.7.1
-Django==6.0.8
+Django==6.0.10
 django-cors-headers==4.9.0
 django-ninja==1.6.2
 graphene==3.4.3

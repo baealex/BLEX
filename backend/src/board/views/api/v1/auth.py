@@ -7,12 +7,14 @@ from django.http import Http404
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
 from django.utils.translation import gettext
+from django.views.decorators.cache import never_cache
 
 from board.models import (
     Config, Profile, Post,
     UsernameChangeLog, TelegramSync)
 from board.modules.notify import create_notify
 from board.modules.response import StatusDone, StatusError, ErrorCode
+from board.services.account_reauthentication_service import AccountReauthenticationService
 from board.services.auth_login_service import AuthLoginService
 from board.services.auth_request_parser import AuthRequestParser
 from board.services.author_invite_service import AuthorInviteError, AuthorInviteService
@@ -20,6 +22,7 @@ from board.services.auth_service import AuthService, OAuthService, AuthValidatio
 from board.services.initial_setup_service import InitialSetupService
 from board.services.api_request_body_service import ApiRequestBodyService
 from board.services.hcaptcha_service import HCaptchaService
+from board.services.oauth_flow_service import OAuthFlowService
 from board.services.social_auth_provider_service import SocialAuthProviderService
 from board.services.social_signup_service import (
     SocialSignupError,
@@ -35,6 +38,7 @@ from modules.sub_task import SubTaskProcessor
 from modules.telegram import TelegramBot
 
 
+@never_cache
 def login(request):
     if request.method == 'GET':
         if request.user.is_active:
@@ -42,17 +46,23 @@ def login(request):
         return StatusError(ErrorCode.NEED_LOGIN)
 
     if request.method == 'POST':
-        rate_limit_error = AuthLoginService.check_login_rate_limit(request)
-        if rate_limit_error:
-            return rate_limit_error
-
         data = AuthRequestParser.parse_login_request(request)
 
-        oauth_token = data.get('oauth_token', '') or request.POST.get('oauth_token', '')
-        if oauth_token:
+        if (
+            data.get('oauth_2fa') is True or request.POST.get('oauth_2fa') == 'true'
+            or data.get('oauth_token') or request.POST.get('oauth_token')
+        ):
             return AuthLoginService.handle_oauth_token_login(request, data)
-        else:
-            return AuthLoginService.handle_password_login(request, data)
+
+        oauth_data = OAuthService.get_2fa_data(request.session)
+        if (
+            oauth_data
+            and (data.get('username') or request.POST.get('username')) == oauth_data['username']
+            and not (data.get('password') or request.POST.get('password'))
+            and (data.get('code') or request.POST.get('code'))
+        ):
+            return AuthLoginService.handle_oauth_token_login(request, data)
+        return AuthLoginService.handle_password_login(request, data)
 
     raise Http404
 
@@ -95,7 +105,7 @@ def sign(request):
         try:
             AuthService.validate_username(username)
             AuthService.validate_email(email)
-            AuthService.validate_signup_password(password)
+            AuthService.validate_signup_password(password, User(username=username, first_name=name, email=email))
         except AuthValidationError as e:
             return StatusError(e.code, e.message)
 
@@ -166,6 +176,9 @@ def sign(request):
         return StatusDone()
 
     if request.method == 'DELETE':
+        reauthentication_error = AccountReauthenticationService.require(request)
+        if reauthentication_error:
+            return reauthentication_error
         try:
             AuthService.delete_user_account(request.user)
         except AuthValidationError as e:
@@ -178,10 +191,23 @@ def sign(request):
 
 def sign_social(request, social):
     if request.method == 'POST':
+        if InitialSetupService.should_prompt_for_initial_setup():
+            return StatusError(
+                ErrorCode.REJECT, gettext('Create the first administrator account before continuing.'),
+            )
+        if social not in OAuthFlowService.PROVIDERS or not request.POST.get('code'):
+            raise Http404
+        if SocialAuthProviderService.get_enabled_provider(social) is None:
+            return StatusError(ErrorCode.REJECT, gettext('Social login is not configured.'))
+        flow = OAuthFlowService.consume(request, social, request.POST.get('state', ''))
+        if flow is None or flow['user_id'] is not None:
+            return StatusError(ErrorCode.REJECT, gettext('Social login failed. Please try again.'))
         try:
             result = SocialSignupService.sign_up(
                 provider_key=social,
                 code=request.POST.get('code'),
+                verifier=flow['verifier'],
+                redirect_uri=flow['redirect_uri'],
             )
         except SocialSignupError as error:
             if error.kind == SocialSignupErrorKind.INITIAL_SETUP_REQUIRED:
@@ -203,15 +229,17 @@ def sign_social(request, social):
                 ErrorCode.REJECT,
             )
 
-        if not result.is_first_login:
-            return AuthLoginService.common_auth(request, result.user, is_oauth=True)
+        if AuthService.check_two_factor_auth(result.user):
+            OAuthService.set_2fa_data(request.session, result.user, flow['next_url'])
+            return StatusDone({'username': result.user.username, 'security': True, 'is_oauth': True})
 
         auth.login(request, result.user)
-        return AuthLoginService.login_response(request.user, is_first_login=True)
+        return AuthLoginService.login_response(request.user, is_first_login=result.is_first_login)
 
     raise Http404
 
 
+@never_cache
 def security(request):
     if not request.user.is_active:
         return StatusError(ErrorCode.NEED_LOGIN)
@@ -222,9 +250,14 @@ def security(request):
         except TwoFactorSetupError as error:
             return StatusError(error.code, error.message)
         return StatusDone({
-            'qr_code': result.qr_code,
+            'is_enabled': True,
             'has_recovery_key': result.has_recovery_key,
         })
+
+    if request.method in {'POST', 'DELETE'}:
+        reauthentication_error = AccountReauthenticationService.require(request)
+        if reauthentication_error:
+            return reauthentication_error
 
     if request.method == 'POST':
         try:
@@ -242,6 +275,7 @@ def security(request):
     if request.method == 'DELETE':
         try:
             TwoFactorSetupService.disable(request.user)
+            request.session.pop(AccountReauthenticationService.SESSION_KEY, None)
         except TwoFactorSetupError as error:
             return StatusError(error.code, error.message)
         return StatusDone()
@@ -255,6 +289,9 @@ def security_verify(request):
         return StatusError(ErrorCode.NEED_LOGIN)
 
     if request.method == 'POST':
+        reauthentication_error = AccountReauthenticationService.require(request)
+        if reauthentication_error:
+            return reauthentication_error
         data = ApiRequestBodyService.parse_json_or_empty_for_legacy_only(request)
         try:
             TwoFactorSetupService.activate(
@@ -264,6 +301,7 @@ def security_verify(request):
             )
         except TwoFactorSetupError as error:
             return StatusError(error.code, error.message)
+        request.session.pop(AccountReauthenticationService.SESSION_KEY, None)
         return StatusDone({
             'message': gettext('Two-factor authentication has been enabled.'),
         })

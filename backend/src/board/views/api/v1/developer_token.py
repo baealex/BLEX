@@ -1,10 +1,12 @@
 from django.http import Http404
 from django.shortcuts import get_object_or_404
+from django.views.decorators.cache import never_cache
 
 from board.models import DeveloperToken
 from board.decorators import api_editor_required
 from board.modules.developer_serializers import DeveloperTokenSerializer
 from board.modules.response import ErrorCode, StatusDone, StatusError
+from board.services.account_reauthentication_service import AccountReauthenticationService
 from board.services.developer_token_service import (
     DeveloperAuthError,
     DeveloperTokenService,
@@ -40,6 +42,9 @@ class DeveloperTokenAPI:
 
     @staticmethod
     def create_token(request):
+        reauthentication_error = AccountReauthenticationService.require(request)
+        if reauthentication_error:
+            return reauthentication_error
         data = DeveloperTokenAPI.json_body(request)
 
         try:
@@ -68,6 +73,7 @@ class DeveloperTokenAPI:
 
 
 @api_editor_required
+@never_cache
 def developer_tokens(request, token_id=None):
     if token_id is None:
         if request.method == 'GET':

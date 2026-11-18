@@ -7,6 +7,7 @@ import io
 import secrets
 
 from dataclasses import dataclass
+from time import time
 from typing import ClassVar, Mapping, MutableMapping, TypedDict, cast
 
 import pyotp
@@ -24,6 +25,7 @@ class TwoFactorSetupSession(TypedDict):
     secret: str
     recovery_key: str
     user_id: int
+    expires_at: float
 
 
 class TwoFactorSetupError(Exception):
@@ -43,7 +45,6 @@ class TwoFactorSetupResult:
 
 @dataclass(frozen=True)
 class TwoFactorSecurityResult:
-    qr_code: str
     has_recovery_key: bool
 
 
@@ -51,6 +52,7 @@ class TwoFactorSetupService:
     """Coordinate 2FA setup state without depending on HTTP request objects."""
 
     SESSION_KEY: ClassVar[str] = 'totp_setup'
+    SETUP_VALIDITY_SECONDS = 300
     RECOVERY_KEY_ALPHABET: ClassVar[str] = (
         '0123456789abcdefghijklnmopqrstuvwxyzABCDEFGHIJKLNMOPQRSTUVWXYZ'
     )
@@ -93,16 +95,11 @@ class TwoFactorSetupService:
 
     @classmethod
     def get_security(cls, user: User) -> TwoFactorSecurityResult:
-        if not hasattr(user, 'twofactorauth'):
-            raise TwoFactorSetupError(ErrorCode.NOT_FOUND)
-
-        two_factor_auth = user.twofactorauth
-        qr_code = cls.get_totp_qr_code(user)
-        if not qr_code:
+        two_factor_auth = TwoFactorAuth.objects.filter(user=user).only('recovery_key').first()
+        if two_factor_auth is None:
             raise TwoFactorSetupError(ErrorCode.NOT_FOUND)
 
         return TwoFactorSecurityResult(
-            qr_code=qr_code,
             has_recovery_key=bool(two_factor_auth.recovery_key),
         )
 
@@ -122,6 +119,7 @@ class TwoFactorSetupService:
                 secret=secret,
                 recovery_key=recovery_key,
                 user_id=user.id,
+                expires_at=time() + cls.SETUP_VALIDITY_SECONDS,
             )
             session[cls.SESSION_KEY] = setup_session
 
@@ -175,7 +173,9 @@ class TwoFactorSetupService:
     ) -> None:
         try:
             raw_setup_data = session.get(cls.SESSION_KEY)
-            if not raw_setup_data:
+            setup_data = cast(Mapping[str, object], raw_setup_data or {})
+            if cast(float, setup_data.get('expires_at', 0)) <= time():
+                session.pop(cls.SESSION_KEY, None)
                 raise TwoFactorSetupError(
                     ErrorCode.EXPIRED,
                     gettext(
@@ -184,7 +184,6 @@ class TwoFactorSetupService:
                     ),
                 )
 
-            setup_data = cast(Mapping[str, object], raw_setup_data)
             if setup_data['user_id'] != user.id:
                 raise TwoFactorSetupError(
                     ErrorCode.AUTHENTICATION,

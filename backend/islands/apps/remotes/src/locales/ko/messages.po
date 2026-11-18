@@ -77,12 +77,12 @@ msgid "auth.fields.username_placeholder"
 msgstr "사용자 이름을 입력해 주세요"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Login/hooks/useLoginState.ts:93
+#: src/components/remotes/Login/hooks/useLoginState.ts:88
 msgid "auth.login.blocked_remaining"
 msgstr "너무 많은 시도로 인해 {seconds}초 동안 차단되었습니다."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Login/hooks/useLoginState.ts:123
+#: src/components/remotes/Login/hooks/useLoginState.ts:118
 msgid "auth.login.failed_blocked_remaining"
 msgstr "너무 많은 실패로 인해 {seconds}초 동안 차단되었습니다."
 
@@ -92,7 +92,7 @@ msgid "auth.login.invalid_credentials"
 msgstr "잘못된 사용자 이름 또는 비밀번호입니다."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Login/Login.tsx:318
+#: src/components/remotes/Login/Login.tsx:324
 msgid "auth.login.no_account"
 msgstr "계정이 없으신가요?"
 
@@ -103,13 +103,13 @@ msgstr "로그인 중..."
 
 #. js-lingui-explicit-id
 #: src/components/remotes/Login/components/LoginForm.tsx:199
-#: src/components/remotes/Login/Login.tsx:270
+#: src/components/remotes/Login/Login.tsx:276
 #: src/components/remotes/Signup/Signup.tsx:558
 msgid "auth.login.title"
 msgstr "로그인"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Login/Login.tsx:277
+#: src/components/remotes/Login/Login.tsx:283
 msgid "auth.login.welcome_back"
 msgstr "돌아오신 것을 환영해요"
 
@@ -176,34 +176,29 @@ msgid "auth.signup.reader_description"
 msgstr "작가들의 이야기를 읽어 보세요"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Login/Login.tsx:320
+#: src/components/remotes/Login/Login.tsx:326
 msgid "auth.signup.title"
 msgstr "회원가입"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SocialLogin/SocialLogin.tsx:118
+#: src/components/remotes/SocialLogin/SocialLogin.tsx:92
 msgid "auth.social.continue_with"
 msgstr "{providerName}으로 계속하기"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SocialLogin/SocialLogin.tsx:99
+#: src/components/remotes/SocialLogin/SocialLogin.tsx:73
 msgid "auth.social.divider"
 msgstr "또는 간편하게"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SocialLogin/SocialLogin.tsx:38
-msgid "auth.social.not_configured"
-msgstr "소셜 로그인이 설정되지 않았습니다. 관리자에게 문의해 주세요."
-
-#. js-lingui-explicit-id
-#: src/components/remotes/Login/components/TwoFactorForm.tsx:54
+#: src/components/remotes/Login/components/TwoFactorForm.tsx:80
 msgid "auth.two_factor.back_to_login"
 msgstr "로그인 화면으로 돌아가기"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Login/Login.tsx:275
+#: src/components/remotes/Login/Login.tsx:281
 msgid "auth.two_factor.description"
-msgstr "인증 앱에서 생성된 6자리 코드를 입력해 주세요"
+msgstr "인증 앱 코드 또는 복구 키로 로그인하세요."
 
 #. js-lingui-explicit-id
 #: src/components/remotes/Login/components/TwoFactorCodeInput.tsx:60
@@ -211,37 +206,57 @@ msgid "auth.two_factor.digit_label"
 msgstr "인증 코드 {position}번째 자리"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Login/hooks/useLoginState.ts:139
+#: src/components/remotes/Login/hooks/useLoginState.ts:134
 msgid "auth.two_factor.failed_blocked"
 msgstr "너무 많은 실패로 인해 5분 동안 차단되었습니다."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Login/Login.tsx:223
+#: src/components/remotes/Login/Login.tsx:229
 msgid "auth.two_factor.incorrect_code"
 msgstr "잘못된 인증 코드입니다."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Login/Login.tsx:183
+#: src/components/remotes/Login/Login.tsx:186
 msgid "auth.two_factor.invalid_format"
 msgstr "올바른 6자리 숫자 코드를 입력해 주세요."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Login/Login.tsx:211
+#: src/components/remotes/Login/Login.tsx:190
+msgid "auth.two_factor.invalid_recovery_key"
+msgstr "올바른 복구 키를 입력해 주세요."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/Login/components/TwoFactorForm.tsx:43
+msgid "auth.two_factor.recovery_key"
+msgstr "복구 키"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/Login/Login.tsx:217
 msgid "auth.two_factor.success_redirect"
 msgstr "인증이 완료되었습니다. 잠시 후 홈 페이지로 이동합니다."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Login/Login.tsx:268
+#: src/components/remotes/Login/Login.tsx:274
 msgid "auth.two_factor.title"
 msgstr "이중 인증"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Login/components/TwoFactorForm.tsx:102
+#: src/components/remotes/Login/components/TwoFactorForm.tsx:70
+msgid "auth.two_factor.use_authenticator"
+msgstr "인증 앱 코드 사용"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/Login/components/TwoFactorForm.tsx:72
+msgid "auth.two_factor.use_recovery_key"
+msgstr "복구 키 사용"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/Login/components/TwoFactorForm.tsx:128
 msgid "auth.two_factor.verify"
 msgstr "인증하기"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Login/components/TwoFactorForm.tsx:100
+#: src/components/remotes/Login/components/TwoFactorForm.tsx:126
 msgid "auth.two_factor.verifying"
 msgstr "인증 중..."
 
@@ -700,7 +715,7 @@ msgstr "생성"
 #: src/components/remotes/PostEditor/components/PostRevisionDialog.tsx:645
 #: src/components/remotes/SettingsApp/components/WebhookChannelManager.tsx:336
 #: src/components/remotes/SettingsApp/components/WebhookChannelManager.tsx:550
-#: src/components/remotes/SettingsApp/pages/AccountSetting/AccountSetting.tsx:280
+#: src/components/remotes/SettingsApp/pages/AccountSetting/AccountSetting.tsx:283
 #: src/components/remotes/SettingsApp/pages/AccountSetting/components/SecuritySection.tsx:77
 #: src/components/remotes/SettingsApp/pages/BannerSetting/components/BannerList.tsx:111
 #: src/components/remotes/SettingsApp/pages/FormsSetting/FormsSetting.tsx:86
@@ -733,7 +748,7 @@ msgid "common.deleting"
 msgstr "삭제 중..."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/AccountSetting/AccountSetting.tsx:192
+#: src/components/remotes/SettingsApp/pages/AccountSetting/AccountSetting.tsx:195
 #: src/components/remotes/SettingsApp/pages/AccountSetting/components/SecuritySection.tsx:38
 msgid "common.disable"
 msgstr "해제"
@@ -767,7 +782,7 @@ msgstr "활성화"
 
 #. js-lingui-explicit-id
 #: src/components/remotes/Login/Login.tsx:156
-#: src/components/remotes/Login/Login.tsx:238
+#: src/components/remotes/Login/Login.tsx:244
 #: src/components/remotes/Signup/Signup.tsx:285
 msgid "common.error.try_again"
 msgstr "오류가 발생했습니다. 다시 시도해 주세요."
@@ -2393,7 +2408,7 @@ msgid "search.validation.query_required"
 msgstr "검색어를 입력하세요."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/AccountSetting/AccountSetting.tsx:332
+#: src/components/remotes/SettingsApp/pages/AccountSetting/AccountSetting.tsx:335
 msgid "settings.account.basic_info.title"
 msgstr "기본 정보"
 
@@ -2403,7 +2418,7 @@ msgid "settings.account.danger_zone"
 msgstr "위험 영역"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/AccountSetting/AccountSetting.tsx:276
+#: src/components/remotes/SettingsApp/pages/AccountSetting/AccountSetting.tsx:279
 msgid "settings.account.delete.confirm"
 msgstr "계정을 삭제할까요? 모든 데이터가 영구적으로 삭제되며 복구할 수 없습니다."
 
@@ -2413,17 +2428,17 @@ msgid "settings.account.delete.description"
 msgstr "모든 데이터가 영구적으로 삭제되며 복구할 수 없습니다."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/AccountSetting/AccountSetting.tsx:305
+#: src/components/remotes/SettingsApp/pages/AccountSetting/AccountSetting.tsx:308
 msgid "settings.account.delete.failed"
 msgstr "계정을 삭제하지 못했습니다."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/AccountSetting/AccountSetting.tsx:293
+#: src/components/remotes/SettingsApp/pages/AccountSetting/AccountSetting.tsx:296
 msgid "settings.account.delete.success"
 msgstr "계정을 삭제했습니다."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/AccountSetting/AccountSetting.tsx:272
+#: src/components/remotes/SettingsApp/pages/AccountSetting/AccountSetting.tsx:275
 #: src/components/remotes/SettingsApp/pages/AccountSetting/components/SecuritySection.tsx:62
 msgid "settings.account.delete.title"
 msgstr "계정 삭제"
@@ -2489,71 +2504,76 @@ msgid "settings.account.name.validation.max_length"
 msgstr "이름은 30자 이내여야 합니다."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/AccountSetting/components/PasswordSection.tsx:82
-#: src/components/remotes/SettingsApp/pages/AccountSetting/components/PasswordSection.tsx:88
-#: src/components/remotes/SettingsApp/pages/AccountSetting/components/PasswordSection.tsx:147
+#: src/components/remotes/SettingsApp/pages/AccountSetting/components/PasswordSection.tsx:85
+#: src/components/remotes/SettingsApp/pages/AccountSetting/components/PasswordSection.tsx:91
+#: src/components/remotes/SettingsApp/pages/AccountSetting/components/PasswordSection.tsx:159
 msgid "settings.account.password.change"
 msgstr "비밀번호 변경"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/AccountSetting/components/PasswordSection.tsx:143
+#: src/components/remotes/SettingsApp/pages/AccountSetting/components/PasswordSection.tsx:155
 msgid "settings.account.password.changing"
 msgstr "변경 중..."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/AccountSetting/components/PasswordSection.tsx:118
-#: src/components/remotes/SettingsApp/pages/AccountSetting/components/PasswordSection.tsx:123
+#: src/components/remotes/SettingsApp/pages/AccountSetting/components/PasswordSection.tsx:122
+#: src/components/remotes/SettingsApp/pages/AccountSetting/components/PasswordSection.tsx:128
 msgid "settings.account.password.confirm"
 msgstr "비밀번호 확인"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/AccountSetting/components/PasswordSection.tsx:107
+#: src/components/remotes/SettingsApp/pages/AccountSetting/components/PasswordSection.tsx:111
 msgid "settings.account.password.helper"
 msgstr "8자 이상의 영문 대문자와 소문자, 숫자, 특수문자를 포함해 주세요."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/AccountSetting/components/PasswordSection.tsx:97
-#: src/components/remotes/SettingsApp/pages/AccountSetting/components/PasswordSection.tsx:102
+#: src/components/remotes/SettingsApp/pages/AccountSetting/components/PasswordSection.tsx:100
+#: src/components/remotes/SettingsApp/pages/AccountSetting/components/PasswordSection.tsx:106
 msgid "settings.account.password.new"
 msgstr "새 비밀번호"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/AccountSetting/AccountSetting.tsx:159
+#: src/components/remotes/SettingsApp/pages/AccountSetting/components/PasswordSection.tsx:139
+msgid "settings.account.password.revoke_tokens"
+msgstr "개발자 API 토큰도 모두 폐기"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/AccountSetting/AccountSetting.tsx:162
 msgid "settings.account.password.update_failed"
 msgstr "비밀번호를 변경하지 못했습니다."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/AccountSetting/AccountSetting.tsx:152
+#: src/components/remotes/SettingsApp/pages/AccountSetting/AccountSetting.tsx:155
 msgid "settings.account.password.update_success"
 msgstr "비밀번호를 변경했습니다."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/AccountSetting/components/PasswordSection.tsx:28
+#: src/components/remotes/SettingsApp/pages/AccountSetting/components/PasswordSection.tsx:29
 msgid "settings.account.password.validation.lowercase"
 msgstr "비밀번호는 소문자를 포함해야 합니다."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/AccountSetting/components/PasswordSection.tsx:24
+#: src/components/remotes/SettingsApp/pages/AccountSetting/components/PasswordSection.tsx:25
 msgid "settings.account.password.validation.min_length"
 msgstr "비밀번호는 8자 이상이어야 합니다."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/AccountSetting/components/PasswordSection.tsx:46
+#: src/components/remotes/SettingsApp/pages/AccountSetting/components/PasswordSection.tsx:48
 msgid "settings.account.password.validation.mismatch"
 msgstr "비밀번호가 일치하지 않습니다."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/AccountSetting/components/PasswordSection.tsx:36
+#: src/components/remotes/SettingsApp/pages/AccountSetting/components/PasswordSection.tsx:37
 msgid "settings.account.password.validation.number"
 msgstr "비밀번호는 숫자를 포함해야 합니다."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/AccountSetting/components/PasswordSection.tsx:40
+#: src/components/remotes/SettingsApp/pages/AccountSetting/components/PasswordSection.tsx:41
 msgid "settings.account.password.validation.special"
 msgstr "비밀번호는 특수문자를 포함해야 합니다."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/AccountSetting/components/PasswordSection.tsx:32
+#: src/components/remotes/SettingsApp/pages/AccountSetting/components/PasswordSection.tsx:33
 msgid "settings.account.password.validation.uppercase"
 msgstr "비밀번호는 대문자를 포함해야 합니다."
 
@@ -2563,7 +2583,7 @@ msgid "settings.account.security.title"
 msgstr "보안 설정"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/AccountSetting/AccountSetting.tsx:318
+#: src/components/remotes/SettingsApp/pages/AccountSetting/AccountSetting.tsx:321
 msgid "settings.account.title"
 msgstr "계정"
 
@@ -2573,37 +2593,37 @@ msgid "settings.account.two_factor.code_label"
 msgstr "인증 앱에 표시된 6자리 코드를 입력하세요"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/AccountSetting/AccountSetting.tsx:188
+#: src/components/remotes/SettingsApp/pages/AccountSetting/AccountSetting.tsx:191
 msgid "settings.account.two_factor.disable_confirm"
 msgstr "2차 인증을 해제할까요?"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/AccountSetting/AccountSetting.tsx:227
+#: src/components/remotes/SettingsApp/pages/AccountSetting/AccountSetting.tsx:230
 msgid "settings.account.two_factor.disable_failed"
 msgstr "2차 인증을 해제하지 못했습니다."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/AccountSetting/AccountSetting.tsx:221
+#: src/components/remotes/SettingsApp/pages/AccountSetting/AccountSetting.tsx:224
 msgid "settings.account.two_factor.disable_success"
 msgstr "2차 인증을 해제했습니다."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/AccountSetting/AccountSetting.tsx:184
+#: src/components/remotes/SettingsApp/pages/AccountSetting/AccountSetting.tsx:187
 msgid "settings.account.two_factor.disable_title"
 msgstr "2차 인증 해제"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/AccountSetting/AccountSetting.tsx:211
+#: src/components/remotes/SettingsApp/pages/AccountSetting/AccountSetting.tsx:214
 msgid "settings.account.two_factor.enable_failed"
 msgstr "2차 인증을 활성화하지 못했습니다."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/AccountSetting/AccountSetting.tsx:245
+#: src/components/remotes/SettingsApp/pages/AccountSetting/AccountSetting.tsx:248
 msgid "settings.account.two_factor.enable_success"
 msgstr "2차 인증을 활성화했습니다."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/AccountSetting/AccountSetting.tsx:255
+#: src/components/remotes/SettingsApp/pages/AccountSetting/AccountSetting.tsx:258
 #: src/components/remotes/SettingsApp/pages/AccountSetting/components/TwoFactorModal.tsx:40
 msgid "settings.account.two_factor.invalid_code"
 msgstr "잘못된 인증 코드입니다."

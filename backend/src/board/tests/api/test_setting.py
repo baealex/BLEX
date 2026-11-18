@@ -898,6 +898,7 @@ class SettingTestCase(TestCase):
     def test_update_account_preserves_password_validation_priority(self):
         """비밀번호 검증 순서와 한국어 오류 메시지를 그대로 유지한다."""
         self.client.login(username='test', password='test')
+        self.client.post('/reauthenticate', {'password': 'test'})
         cases = (
             ('Aa1!aaa', '비밀번호는 8자 이상이어야 합니다.'),
             ('Abcdefg!', '비밀번호는 숫자를 포함해야 합니다.'),
@@ -923,6 +924,7 @@ class SettingTestCase(TestCase):
     def test_update_account_localizes_password_error_for_english_request(self):
         """비밀번호 오류는 안정 코드와 함께 요청 언어로 응답한다."""
         self.client.login(username='test', password='test')
+        self.client.post('/reauthenticate', {'password': 'test'})
 
         response = self.client.put(
             '/v1/setting/account',
@@ -937,27 +939,35 @@ class SettingTestCase(TestCase):
             'errorMessage': 'Password must be at least 8 characters.',
         })
 
-    def test_update_password_keeps_authenticated_session(self):
-        """비밀번호 변경 성공 후 새 hash를 저장하고 현재 세션 로그인을 유지한다."""
+    def test_password_change_requires_reauthentication_and_invalidates_other_sessions(self):
+        from django.test import Client
+        from board.services.developer_token_service import DeveloperTokenService
+
         self.client.login(username='test', password='test')
-
-        response = self.client.put(
-            '/v1/setting/account',
-            json.dumps({'password': 'Strong123!'}),
-            content_type='application/json',
-        )
-        authenticated_response = self.client.get('/v1/setting/account')
-
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.json(), {'status': 'DONE', 'body': {}})
-        self.assertEqual(authenticated_response.status_code, 200)
-        self.assertEqual(authenticated_response.json()['status'], 'DONE')
+        other_session = Client()
+        other_session.login(username='test', password='test')
         user = User.objects.get(username='test')
-        self.assertTrue(user.check_password('Strong123!'))
+        Profile.objects.filter(user=user).update(role=Profile.Role.EDITOR)
+        _, token = DeveloperTokenService.create_token(user, scopes=['posts:read'])
+        payload = {'password': 'Strong123!', 'revoke_tokens': True}
+
+        response = self.client.put('/v1/setting/account', payload, content_type='application/json')
+        self.assertEqual(response.json()['messageKey'], 'auth.reauthentication_required')
+        self.assertTrue(User.objects.get(pk=user.pk).check_password('test'))
+        self.client.post('/reauthenticate', {'password': 'test'})
+
+        response = self.client.put('/v1/setting/account', payload, content_type='application/json')
+        self.assertEqual(response.json()['status'], 'DONE')
+        self.assertEqual(self.client.get('/v1/setting/account').json()['status'], 'DONE')
+        self.assertEqual(other_session.get('/v1/login').json()['status'], 'ERROR')
+        self.assertTrue(User.objects.get(pk=user.pk).check_password('Strong123!'))
+        token.refresh_from_db()
+        self.assertIsNotNone(token.revoked_at)
 
     def test_update_account_preserves_existing_partial_save_characteristic(self):
         """username 선행 저장 뒤 비밀번호 오류 시 기존 부분 저장 특성을 바꾸지 않는다."""
         self.client.login(username='test', password='test')
+        self.client.post('/reauthenticate', {'password': 'test'})
 
         response = self.client.put(
             '/v1/setting/account',
@@ -1010,7 +1020,12 @@ class SettingTestCase(TestCase):
         profile = Profile.objects.get(user=user)
         Profile.objects.filter(pk=profile.pk).update(avatar='images/avatar/test/old.png')
         self.client.login(username='test', password='test')
-        uploaded = SimpleUploadedFile('new.png', b'new-avatar', content_type='image/png')
+        from io import BytesIO
+        from PIL import Image
+
+        image = BytesIO()
+        Image.new('RGB', (16, 16)).save(image, 'PNG')
+        uploaded = SimpleUploadedFile('new.png', image.getvalue(), content_type='image/png')
 
         with self.settings(DEBUG_PROPAGATE_EXCEPTIONS=True), patch.object(
             Profile,
@@ -1045,6 +1060,20 @@ class SettingTestCase(TestCase):
         content = json.loads(response.content)
         self.assertEqual(content['status'], 'DONE')
         self.assertIn('url', content['body'])
+
+    def test_profile_uploads_reject_invalid_images(self):
+        self.client.login(username='test', password='test')
+        profile = Profile.objects.get(user__username='test')
+        existing_files = profile.avatar.name, profile.cover.name
+
+        for field in ('avatar', 'cover'):
+            with self.subTest(field=field):
+                upload = SimpleUploadedFile('invalid.png', b'plain text', content_type='image/png')
+                result = self.client.post(f'/v1/setting/{field}', {field: upload})
+                self.assertEqual(result.json()['errorCode'], 'error:VA')
+
+        profile.refresh_from_db()
+        self.assertEqual((profile.avatar.name, profile.cover.name), existing_files)
 
     def test_delete_cover(self):
         """커버 이미지 삭제 테스트"""

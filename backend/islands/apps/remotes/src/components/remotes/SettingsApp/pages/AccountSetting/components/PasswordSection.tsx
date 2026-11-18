@@ -10,11 +10,12 @@ import type { AccountFormSubmitResult } from '../types';
 interface PasswordFormInputs {
     newPassword: string;
     confirmPassword: string;
+    revokeTokens: boolean;
 }
 
 interface PasswordSectionProps {
     isLoading: boolean;
-    onSubmit: (password: string) => Promise<AccountFormSubmitResult>;
+    onSubmit: (password: string, revokeTokens: boolean) => Promise<AccountFormSubmitResult>;
 }
 
 const PasswordSection = ({ isLoading, onSubmit }: PasswordSectionProps) => {
@@ -41,7 +42,8 @@ const PasswordSection = ({ isLoading, onSubmit }: PasswordSectionProps) => {
                 id: 'settings.account.password.validation.special',
                 message: 'Password must include a special character.'
             })),
-        confirmPassword: z.string()
+        confirmPassword: z.string(),
+        revokeTokens: z.boolean()
     }).refine((data) => data.newPassword === data.confirmPassword, {
         message: t({
             id: 'settings.account.password.validation.mismatch',
@@ -59,13 +61,14 @@ const PasswordSection = ({ isLoading, onSubmit }: PasswordSectionProps) => {
         resolver: zodResolver(passwordSchema),
         defaultValues: {
             newPassword: '',
-            confirmPassword: ''
+            confirmPassword: '',
+            revokeTokens: false
         },
         mode: 'onChange'
     });
 
     const handleFormSubmit = async (formData: PasswordFormInputs) => {
-        const result = await onSubmit(formData.newPassword);
+        const result = await onSubmit(formData.newPassword, formData.revokeTokens);
 
         if (result.success) {
             reset();
@@ -99,6 +102,7 @@ const PasswordSection = ({ isLoading, onSubmit }: PasswordSectionProps) => {
                             message: 'New password'
                         })}
                         type="password"
+                        autoComplete="new-password"
                         placeholder={t({
                             id: 'settings.account.password.new',
                             message: 'New password'
@@ -120,6 +124,7 @@ const PasswordSection = ({ isLoading, onSubmit }: PasswordSectionProps) => {
                             message: 'Confirm password'
                         })}
                         type="password"
+                        autoComplete="new-password"
                         placeholder={t({
                             id: 'settings.account.password.confirm',
                             message: 'Confirm password'
@@ -129,6 +134,13 @@ const PasswordSection = ({ isLoading, onSubmit }: PasswordSectionProps) => {
                         {...register('confirmPassword')}
                     />
                 </div>
+                <label className="mb-4 flex min-h-11 items-center gap-3 text-sm text-content-secondary">
+                    <input type="checkbox" className="size-4 accent-action" {...register('revokeTokens')} />
+                    {t({
+                        id: 'settings.account.password.revoke_tokens',
+                        message: 'Also revoke all developer API tokens'
+                    })}
+                </label>
                 <div className="flex justify-end">
                     <Button
                         density="compact"

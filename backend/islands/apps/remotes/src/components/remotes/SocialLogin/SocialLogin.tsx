@@ -1,6 +1,5 @@
 import { Trans, useLingui } from '@lingui/react/macro';
 import { useSocialProviders } from './hooks/useSocialProviders';
-import { toast } from '~/utils/toast';
 
 interface SocialProvider {
     key: string;
@@ -9,37 +8,12 @@ interface SocialProvider {
 }
 
 const SocialLogin = () => {
-    const { i18n, t } = useLingui();
+    const { i18n } = useLingui();
     const { providers, loading } = useSocialProviders();
 
     const handleSocialLogin = (provider: SocialProvider) => {
-        const nextUrl = window.NEXT_URL || '';
-
-        const redirectUris: Record<string, string> = {
-            google: `${window.location.origin}/login/callback/google${nextUrl ? '?next=' + encodeURIComponent(nextUrl) : ''}`,
-            github: `${window.location.origin}/login/callback/github${nextUrl ? '?next=' + encodeURIComponent(nextUrl) : ''}`
-        };
-
-        const authUrls: Record<string, (clientId: string, redirectUri: string) => string> = {
-            google: (clientId, redirectUri) =>
-                `https://accounts.google.com/o/oauth2/v2/auth?client_id=${clientId}&redirect_uri=${encodeURIComponent(redirectUri)}&response_type=code&scope=openid email profile`,
-            github: (clientId, redirectUri) =>
-                `https://github.com/login/oauth/authorize?client_id=${clientId}&redirect_uri=${encodeURIComponent(redirectUri)}&scope=user:email`
-        };
-
-        const clientId = provider.clientId;
-        const redirectUri = redirectUris[provider.key];
-        const authUrlBuilder = authUrls[provider.key];
-
-        if (clientId && authUrlBuilder) {
-            const authUrl = authUrlBuilder(clientId, redirectUri);
-            window.location.assign(authUrl);
-        } else {
-            toast.error(t({
-                id: 'auth.social.not_configured',
-                message: 'Social login is not configured. Please contact the administrator.'
-            }));
-        }
+        const next = new URLSearchParams({ next: window.NEXT_URL || '/' });
+        window.location.assign(`/login/start/${encodeURIComponent(provider.key)}?${next}`);
     };
 
     const GoogleIcon = () => (
