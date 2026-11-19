@@ -655,6 +655,7 @@ msgstr "Apply"
 #: src/components/remotes/SettingsApp/pages/AccountSetting/components/TwoFactorModal.tsx:135
 #: src/components/remotes/SettingsApp/pages/FormsSetting/FormsSetting.tsx:291
 #: src/components/remotes/SettingsApp/pages/PinnedPostsSetting/components/AddPinnedPostModal.tsx:212
+#: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostShareLinksDialog.tsx:204
 #: src/components/remotes/SettingsApp/pages/shared/NoticeSettingBase.tsx:387
 #: src/components/shared/ImageCropDialog.tsx:239
 #: src/contexts/ConfirmContext.tsx:98
@@ -804,6 +805,7 @@ msgstr "Load more"
 
 #. js-lingui-explicit-id
 #: src/components/remotes/SettingsApp/components/SettingsLayout.tsx:23
+#: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostShareLinksDialog.tsx:141
 #: src/components/remotes/SettingsApp/SettingsApp.tsx:92
 msgid "common.loading"
 msgstr "Loading"
@@ -893,11 +895,13 @@ msgstr "Restore"
 #: src/components/remotes/PostEditor/components/DraftsPanel.tsx:146
 #: src/components/remotes/PostEditor/components/PostRevisionDialog.tsx:386
 #: src/components/remotes/SettingsApp/pages/NotifySetting/components/NotifyConfigModal.tsx:125
+#: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostShareLinksDialog.tsx:150
 msgid "common.retry"
 msgstr "Try again"
 
 #. js-lingui-explicit-id
 #: src/components/remotes/Comments/components/CommentEditForm.tsx:90
+#: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostShareLinksDialog.tsx:193
 msgid "common.save"
 msgstr "Save"
 
@@ -930,7 +934,7 @@ msgstr "Clear search"
 
 #. js-lingui-explicit-id
 #: src/components/remotes/SettingsApp/pages/PostsSetting/components/DraftPostListContent.tsx:112
-#: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostCard.tsx:123
+#: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostCard.tsx:127
 #: src/components/remotes/SettingsApp/pages/PostsSetting/components/TrashPostListContent.tsx:134
 #: src/components/remotes/SettingsApp/pages/PostsSetting/components/TrashPostListContent.tsx:203
 msgid "common.untitled"
@@ -4431,67 +4435,67 @@ msgid "settings.pinned_posts.view_trash"
 msgstr "View trash"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostCard.tsx:241
+#: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostCard.tsx:252
 msgid "settings.posts.card.edit"
 msgstr "Edit post"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostCard.tsx:233
+#: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostCard.tsx:244
 msgid "settings.posts.card.open_menu"
 msgstr "Open post menu: {title}"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostCard.tsx:185
+#: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostCard.tsx:196
 msgid "settings.posts.card.read_time"
 msgstr "{minutes, plural, one {# min} other {# min}}"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostCard.tsx:201
+#: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostCard.tsx:212
 msgid "settings.posts.card.recently_updated"
 msgstr "Recently updated"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostCard.tsx:144
+#: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostCard.tsx:155
 msgid "settings.posts.card.view_post"
 msgstr "View post: {title}"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostCard.tsx:278
+#: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostCard.tsx:306
 msgid "settings.posts.classification.close"
 msgstr "Close tag and series editor"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostCard.tsx:290
+#: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostCard.tsx:318
 msgid "settings.posts.classification.label"
 msgstr "Tags · Series"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostCard.tsx:282
+#: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostCard.tsx:310
 msgid "settings.posts.classification.open"
 msgstr "Open tag and series editor"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostCard.tsx:300
+#: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostCard.tsx:328
 msgid "settings.posts.classification.save_required"
 msgstr "{fields}: save required"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostCard.tsx:85
+#: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostCard.tsx:89
 msgid "settings.posts.classification.series"
 msgstr "Series"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostCard.tsx:96
+#: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostCard.tsx:100
 msgid "settings.posts.classification.tag_count"
 msgstr "{count, plural, one {# tag} other {# tags}}"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostCard.tsx:81
+#: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostCard.tsx:85
 msgid "settings.posts.classification.tags"
 msgstr "Tags"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostCard.tsx:76
+#: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostCard.tsx:80
 msgid "settings.posts.classification.tags_and_series"
 msgstr "Tags and series"
 
@@ -4759,18 +4763,18 @@ msgid "settings.posts.scheduled_for"
 msgstr "Scheduled for {date}"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostCard.tsx:372
-#: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostCard.tsx:382
+#: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostCard.tsx:400
+#: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostCard.tsx:410
 msgid "settings.posts.series.none"
 msgstr "No series"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostCard.tsx:397
+#: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostCard.tsx:425
 msgid "settings.posts.series.save"
 msgstr "Save series"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostCard.tsx:364
+#: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostCard.tsx:392
 msgid "settings.posts.series.select_aria"
 msgstr "Select series for {title}"
 
@@ -4784,6 +4788,103 @@ msgstr "Could not update the series."
 #: src/components/remotes/SettingsApp/pages/PostsSetting/hooks/usePostsActions.ts:222
 msgid "settings.posts.series.update_success"
 msgstr "Series updated."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostShareLinksDialog.tsx:93
+msgid "settings.posts.share_links.copied"
+msgstr "Share link copied."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostShareLinksDialog.tsx:246
+msgid "settings.posts.share_links.copy"
+msgstr "Copy link"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostShareLinksDialog.tsx:98
+msgid "settings.posts.share_links.copy_failed"
+msgstr "Could not copy the link. Select the address to copy it."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostShareLinksDialog.tsx:192
+msgid "settings.posts.share_links.create"
+msgstr "Create link"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostShareLinksDialog.tsx:133
+msgid "settings.posts.share_links.description"
+msgstr "Create a link for each place you share this post. Click counts are estimates."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostShareLinksDialog.tsx:211
+msgid "settings.posts.share_links.empty"
+msgstr "No share links yet."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostShareLinksDialog.tsx:147
+msgid "settings.posts.share_links.load_failed"
+msgstr "Could not load share links."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostShareLinksDialog.tsx:167
+msgid "settings.posts.share_links.name"
+msgstr "Link name"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostShareLinksDialog.tsx:171
+msgid "settings.posts.share_links.name_placeholder"
+msgstr "e.g. November newsletter"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostShareLinksDialog.tsx:179
+msgid "settings.posts.share_links.name_required"
+msgstr "Enter a link name."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostShareLinksDialog.tsx:268
+msgid "settings.posts.share_links.pause"
+msgstr "Pause"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostShareLinksDialog.tsx:221
+msgid "settings.posts.share_links.paused"
+msgstr "Paused"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostShareLinksDialog.tsx:158
+msgid "settings.posts.share_links.public_post_required"
+msgstr "Publish this post publicly to create links or open existing ones."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostShareLinksDialog.tsx:228
+msgid "settings.posts.share_links.recent"
+msgstr "Last 7 days"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostShareLinksDialog.tsx:254
+msgid "settings.posts.share_links.rename"
+msgstr "Rename"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostShareLinksDialog.tsx:267
+msgid "settings.posts.share_links.resume"
+msgstr "Resume"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostShareLinksDialog.tsx:60
+#: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostShareLinksDialog.tsx:72
+msgid "settings.posts.share_links.save_failed"
+msgstr "Could not save the share link."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostCard.tsx:260
+#: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostShareLinksDialog.tsx:124
+msgid "settings.posts.share_links.title"
+msgstr "Share links"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostShareLinksDialog.tsx:233
+msgid "settings.posts.share_links.total"
+msgstr "Total estimated clicks"
 
 #. js-lingui-explicit-id
 #: src/components/remotes/SettingsApp/pages/PostsSetting/components/DraftPostListContent.tsx:178
@@ -4829,17 +4930,17 @@ msgid "settings.posts.tabs.trash"
 msgstr "Trash"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostCard.tsx:324
+#: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostCard.tsx:352
 msgid "settings.posts.tags.input_aria"
 msgstr "Tags for {title}"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostCard.tsx:329
+#: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostCard.tsx:357
 msgid "settings.posts.tags.placeholder"
 msgstr "Enter tags..."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostCard.tsx:346
+#: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostCard.tsx:374
 msgid "settings.posts.tags.save"
 msgstr "Save tags"
 
@@ -4904,7 +5005,7 @@ msgstr "Could not load the trash."
 #. js-lingui-explicit-id
 #: src/components/remotes/SettingsApp/pages/PostsSetting/components/DraftPostListContent.tsx:60
 #: src/components/remotes/SettingsApp/pages/PostsSetting/components/DraftPostListContent.tsx:148
-#: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostCard.tsx:256
+#: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostCard.tsx:275
 #: src/components/remotes/SettingsApp/pages/PostsSetting/hooks/usePostsActions.ts:91
 msgid "settings.posts.trash.move.confirm"
 msgstr "Move to trash"
@@ -4987,34 +5088,34 @@ msgid "settings.posts.visibility.changed_public"
 msgstr "Post is now public."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostCard.tsx:119
+#: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostCard.tsx:123
 msgid "settings.posts.visibility.make_private"
 msgstr "Make private"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostCard.tsx:115
+#: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostCard.tsx:119
 msgid "settings.posts.visibility.make_private_after_publish"
 msgstr "Make private after publishing"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostCard.tsx:110
+#: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostCard.tsx:114
 msgid "settings.posts.visibility.make_public"
 msgstr "Make public"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostCard.tsx:106
+#: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostCard.tsx:110
 msgid "settings.posts.visibility.make_public_after_publish"
 msgstr "Make public after publishing"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostCard.tsx:219
+#: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostCard.tsx:230
 #: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostsFilter.tsx:95
 #: src/components/remotes/SettingsApp/pages/PostsSetting/components/TrashPostListContent.tsx:278
 msgid "settings.posts.visibility.private"
 msgstr "Private"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostCard.tsx:215
+#: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostCard.tsx:226
 #: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostsFilter.tsx:91
 msgid "settings.posts.visibility.private_after_publish"
 msgstr "Private after publishing"

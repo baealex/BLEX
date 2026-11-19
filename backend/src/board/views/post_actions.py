@@ -1,14 +1,28 @@
-from django.http import JsonResponse
+from django.http import HttpRequest, HttpResponse, HttpResponseRedirect, JsonResponse
 from django.shortcuts import get_object_or_404
 from django.utils.translation import gettext
-from django.views.decorators.http import require_POST
+from django.views.decorators.cache import never_cache
+from django.views.decorators.http import require_POST, require_safe
 
 from board.constants.config_meta import CONFIG_TYPE
 from board.models import Post
 from board.modules.notify import create_system_notify
 from board.services.notification_message_service import NotificationMessageKey
 from board.services.post_like_service import PostLikeService
+from board.services.post_share_link_service import PostShareLinkService
 from board.services.public_post_service import PublicPostService
+from board.views.static_pages import custom_404_view
+
+
+@never_cache
+@require_safe
+def post_share_link_redirect(request: HttpRequest, token: str) -> HttpResponse:
+    link = PostShareLinkService.get_public_link(token)
+    if link is None:
+        return custom_404_view(request)
+
+    PostShareLinkService.record_click(link, request)
+    return HttpResponseRedirect(link.post.get_absolute_url())
 
 
 @require_POST

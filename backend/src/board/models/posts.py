@@ -363,6 +363,29 @@ class PostLikes(models.Model):
         return str(self.post)
 
 
+class PostShareLink(models.Model):
+    post = models.ForeignKey('board.Post', related_name='share_links', on_delete=models.CASCADE)
+    token = models.CharField(max_length=22, unique=True, editable=False)
+    label = models.CharField(max_length=100)
+    is_paused = models.BooleanField(default=False)
+    created_date = models.DateTimeField(default=timezone.now)
+
+
+class PostShareLinkDailyCount(models.Model):
+    link = models.ForeignKey('board.PostShareLink', related_name='daily_counts', on_delete=models.CASCADE)
+    day = models.DateField()
+    clicks = models.PositiveBigIntegerField(default=0)
+
+    class Meta:
+        db_table = 'board_post_share_link_daily_counts'
+        constraints = [
+            models.UniqueConstraint(
+                fields=['link', 'day'],
+                name='board_postsharelink_day_uniq',
+            ),
+        ]
+
+
 class Series(models.Model):
     order = models.IntegerField(default=0)
     owner = models.ForeignKey('auth.User', on_delete=models.CASCADE)

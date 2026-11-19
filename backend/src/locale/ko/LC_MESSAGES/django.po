@@ -4172,3 +4172,10 @@ msgstr "올바른 비밀번호를 입력해주세요."
 
 msgid "Start social login again to continue."
 msgstr "계속하려면 소셜 로그인을 다시 시작해 주세요."
+
+#, python-format
+msgid "Enter a share link name of up to %(limit)s characters."
+msgstr "공유 링크 이름을 %(limit)s자 이내로 입력해 주세요."
+
+msgid "Share links can only be created for public posts."
+msgstr "공개 글에만 공유 링크를 만들 수 있어요."

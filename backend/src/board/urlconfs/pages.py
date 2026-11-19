@@ -19,7 +19,7 @@ from board.views.developer_api_docs import developer_api_docs, developer_api_qui
 from board.views.initial_setup import initial_setup_view
 from board.views.oauth_callback import oauth_callback, oauth_start
 from board.views.post import post_detail, post_editor, post_preview
-from board.views.post_actions import like_post
+from board.views.post_actions import like_post, post_share_link_redirect
 from board.views.search import search_page
 from board.views.series import series_detail
 from board.views.settings import admin_settings, settings
@@ -57,6 +57,7 @@ urlpatterns = [
 
     # Post actions
     path('like/<url>', like_post, name='like_post'),
+    path('r/<slug:token>', post_share_link_redirect, name='post_share_link_redirect'),
 
     # Author
     path('@<username>/series', author_series, name='user_series'),
