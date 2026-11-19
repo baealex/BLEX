@@ -4179,3 +4179,149 @@ msgstr "공유 링크 이름을 %(limit)s자 이내로 입력해 주세요."
 
 msgid "Share links can only be created for public posts."
 msgstr "공개 글에만 공유 링크를 만들 수 있어요."
+
+msgid "Work logs"
+msgstr "작업 일지"
+
+msgid "Work log title"
+msgstr "작업 일지 제목"
+
+msgid "New work log"
+msgstr "새 작업 일지"
+
+msgid "What are you working on?"
+msgstr "어떤 작업을 기록할까요?"
+
+msgid "Create work log"
+msgstr "일지 만들기"
+
+msgid "Private work log"
+msgstr "나만 보는 작업 일지"
+
+msgid "Add an entry"
+msgstr "기록 남기기"
+
+msgid "Entry title"
+msgstr "기록 제목"
+
+msgid "Entry text"
+msgstr "기록 내용"
+
+msgid "Title (optional)"
+msgstr "제목 (선택)"
+
+msgid "What did you try or learn?"
+msgstr "오늘 시도한 일이나 새로 알게 된 내용을 남겨 보세요."
+
+msgid "Image or video (up to 12 MB)"
+msgstr "이미지 또는 영상 (최대 12MB)"
+
+msgid "Attachment"
+msgstr "첨부 파일"
+
+msgid "Choose an attachment up to 12 MB."
+msgstr "12MB 이하의 파일을 첨부해 주세요."
+
+msgid "Choose an image up to 20 megapixels."
+msgstr "2,000만 화소 이하의 이미지를 선택해 주세요."
+
+msgid "Choose a PNG, JPEG, WebP, MP4, or WebM file."
+msgstr "PNG, JPEG, WebP, MP4, WebM 파일을 선택해 주세요."
+
+msgid "Write a note or add an attachment."
+msgstr "메모를 작성하거나 파일을 첨부해 주세요."
+
+msgid "Save entry"
+msgstr "기록 저장"
+
+msgid "Entries"
+msgstr "남긴 기록"
+
+msgid "Your entries will appear here."
+msgstr "기록을 남기면 여기에 표시돼요."
+
+msgid "Share a snapshot"
+msgstr "기록 골라 공유하기"
+
+msgid "What changed?"
+msgstr "무엇이 달라졌나요?"
+
+msgid "Entries to share"
+msgstr "공유할 기록"
+
+msgid "Anyone with the link can see the entries you select."
+msgstr "링크가 있는 사람은 누구나 선택한 기록을 볼 수 있어요."
+
+msgid "Preview share"
+msgstr "공유 화면 미리보기"
+
+msgid "Add an entry to create a share link."
+msgstr "기록을 남긴 뒤 공유 링크를 만들 수 있어요."
+
+msgid "Share links"
+msgstr "공유 링크"
+
+msgid "Stop sharing"
+msgstr "공유 중지"
+
+msgid "Share preview"
+msgstr "공유 화면 미리보기"
+
+msgid "Edit selection"
+msgstr "공유 내용 수정"
+
+msgid "Create share link"
+msgstr "공유 링크 만들기"
+
+msgid "Share link is ready"
+msgstr "공유 링크가 준비됐어요"
+
+msgid "Copy link"
+msgstr "링크 복사"
+
+msgid "Link copied"
+msgstr "링크를 복사했어요"
+
+msgid "How it came together"
+msgstr "이렇게 만들었어요"
+
+msgid "%(count)s entry"
+msgid_plural "%(count)s entries"
+msgstr[0] "기록 %(count)s개"
+
+msgid "Choose up to %(count)s entries for one link."
+msgstr "링크 하나에 기록을 최대 %(count)s개까지 담을 수 있어요."
+
+msgid "Choose entries from this work log."
+msgstr "이 작업 일지의 기록을 선택해 주세요."
+
+msgid "Choose at least one entry to share."
+msgstr "공유할 기록을 하나 이상 선택해 주세요."
+
+msgid "Newer entries"
+msgstr "최근 기록"
+
+msgid "Older entries"
+msgstr "이전 기록"
+
+msgid "%(count)s entry selected"
+msgid_plural "%(count)s entries selected"
+msgstr[0] "기록 %(count)s개 선택"
+
+msgid "No work logs yet."
+msgstr "아직 작업 일지가 없어요."
+
+msgid "Delete work log"
+msgstr "작업 일지 삭제"
+
+msgid "Delete entry"
+msgstr "기록 삭제"
+
+msgid "This removes the entry and its attachment from every share link. Links with no entries left will close."
+msgstr "모든 공유 링크에서 이 기록과 첨부가 사라져요. 이 기록만 담긴 링크는 닫혀요."
+
+msgid "This deletes all entries and attachments in this work log and closes its share links."
+msgstr "이 일지의 모든 기록과 첨부를 삭제하고 공유 링크를 닫아요."
+
+msgid "Choose file"
+msgstr "파일 선택"

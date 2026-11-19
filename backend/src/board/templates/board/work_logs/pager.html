@@ -1,0 +1,15 @@
+{% load i18n %}
+{% if pager %}
+<nav aria-label="{% translate 'Page navigation' %}" class="mt-4 flex flex-wrap gap-2 text-sm">
+    {% if pager.previous %}
+        <a href="{{ pager.previous }}{% if anchor %}#{{ anchor }}{% endif %}" class="inline-flex min-h-11 items-center rounded-lg border border-line px-3 hover:bg-surface-subtle">
+            {% translate "Previous page" %}
+        </a>
+    {% endif %}
+    {% if pager.next %}
+        <a href="{{ pager.next }}{% if anchor %}#{{ anchor }}{% endif %}" class="inline-flex min-h-11 items-center rounded-lg border border-line px-3 hover:bg-surface-subtle">
+            {% translate "Next page" %}
+        </a>
+    {% endif %}
+</nav>
+{% endif %}

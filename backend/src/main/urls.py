@@ -20,11 +20,16 @@ from django.conf import settings
 from django.conf.urls.static import static
 
 from board.views.static_pages import custom_404_view
+from main.resource_views import serve_public_resource
 
 urlpatterns = []
 
 if settings.DEBUG:
-    urlpatterns += static(settings.RESOURCE_URL, document_root=os.path.join(settings.BASE_DIR, 'resources'))
+    urlpatterns += static(
+        settings.RESOURCE_URL,
+        view=serve_public_resource,
+        document_root=os.path.join(settings.BASE_DIR, 'resources'),
+    )
     urlpatterns += [
         path('404', custom_404_view),
     ]

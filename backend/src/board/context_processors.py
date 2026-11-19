@@ -45,6 +45,7 @@ def site_settings(request):
         'site_setting': setting,
         'site_brand': BrandAssetService.public_context(setting),
         'site_rss_feed_url': SiteUrlService.absolute_url(request, reverse('site_rss_feed')),
+        'is_work_log_request': request.path_info.startswith('/work-logs/'),
     }
 
 

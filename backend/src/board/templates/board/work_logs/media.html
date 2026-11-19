@@ -1,0 +1,8 @@
+{% load i18n %}
+{% if entry.has_video %}
+    <video src="{{ media_url }}" controls playsinline preload="metadata"
+        aria-label="{{ entry.title|default:log.title }}" class="block max-h-[34rem] w-full bg-surface-subtle object-contain"></video>
+{% else %}
+    <img src="{{ media_url }}" alt="{{ entry.title|default:log.title }}"
+        {% if lazy %}loading="lazy"{% endif %} class="block max-h-[34rem] w-full bg-surface-subtle object-contain">
+{% endif %}
