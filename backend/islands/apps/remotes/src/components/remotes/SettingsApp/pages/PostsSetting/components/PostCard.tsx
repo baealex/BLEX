@@ -1,4 +1,4 @@
-import { type ReactNode, useEffect, useState } from 'react';
+import { type ReactNode, useEffect, useRef, useState } from 'react';
 import { useLingui } from '@lingui/react/macro';
 import {
     BookOpen,
@@ -10,6 +10,7 @@ import {
     EyeOff,
     FileText,
     Heart,
+    Link,
     MessageCircle,
     Pencil,
     Save,
@@ -29,6 +30,7 @@ import type { Post } from '../hooks';
 import type { Series } from '~/lib/api/settings';
 import { formatDateOnly } from '~/i18n/formatters';
 import { normalizeLocale } from '~/i18n/locale';
+import { PostShareLinksDialog } from './PostShareLinksDialog';
 
 interface PostCardProps {
     post: Post;
@@ -71,6 +73,8 @@ const PostCard = ({
 }: PostCardProps) => {
     const { i18n, t } = useLingui();
     const [isMetaEditorOpen, setIsMetaEditorOpen] = useState(false);
+    const [shareLinksOpen, setShareLinksOpen] = useState(false);
+    const actionsRef = useRef<HTMLDivElement>(null);
     const hasPendingChanges = !!post.hasTagChanged || !!post.hasSeriesChanged;
     const pendingChangeLabel = post.hasTagChanged && post.hasSeriesChanged
         ? t({
@@ -127,6 +131,13 @@ const PostCard = ({
 
     const handleEditPost = () => {
         window.location.assign(`/@${username}/${post.url}/edit`);
+    };
+
+    const handleCloseShareLinks = () => {
+        setShareLinksOpen(false);
+        window.requestAnimationFrame(() => {
+            actionsRef.current?.querySelector<HTMLButtonElement>('button[aria-haspopup="menu"]')?.focus();
+        });
     };
 
     useEffect(() => {
@@ -227,7 +238,7 @@ const PostCard = ({
                 </a>
 
                 {/* Actions */}
-                <div className="flex flex-shrink-0 items-center pr-3 sm:pr-4">
+                <div ref={actionsRef} className="flex flex-shrink-0 items-center pr-3 sm:pr-4">
                     <Dropdown
                         density="compact"
                         triggerAriaLabel={i18n._({
@@ -244,6 +255,14 @@ const PostCard = ({
                                 }),
                                 icon: <Pencil aria-hidden className="h-4 w-4" />,
                                 onClick: handleEditPost
+                            },
+                            {
+                                label: t({
+                                    id: 'settings.posts.share_links.title',
+                                    message: 'Share links'
+                                }),
+                                icon: <Link aria-hidden className="h-4 w-4" />,
+                                onClick: () => setShareLinksOpen(true)
                             },
                             {
                                 label: visibilityActionLabel,
@@ -265,6 +284,15 @@ const PostCard = ({
                     />
                 </div>
             </div>
+
+            {shareLinksOpen && (
+                <PostShareLinksDialog
+                    username={username}
+                    postUrl={post.url}
+                    postTitle={displayTitle}
+                    onClose={handleCloseShareLinks}
+                />
+            )}
 
             <div className="flex items-center gap-3 bg-surface-subtle/40 px-4 py-2.5">
                 {!isMetaEditorOpen && classificationSummary && (

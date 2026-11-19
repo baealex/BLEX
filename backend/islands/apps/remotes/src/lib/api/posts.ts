@@ -66,6 +66,39 @@ export const getReservedPosts = async (filters: PostsFilters = {}) => {
     return http.get<PostsResponse>(`v1/setting/reserved-posts${queryString ? `?${queryString}` : ''}`);
 };
 
+export interface PostShareLink {
+    id: number;
+    label: string;
+    url: string;
+    isPaused: boolean;
+    recentClicks: number;
+    totalClicks: number;
+}
+
+interface PostShareLinksResponse {
+    links: PostShareLink[];
+    canCreate: boolean;
+}
+
+const postShareLinksPath = (username: string, postUrl: string) =>
+    `v1/users/@${encodeURIComponent(username)}/posts/${encodeURIComponent(postUrl)}/share-links`;
+
+export const getPostShareLinks = (username: string, postUrl: string, signal?: AbortSignal) =>
+    http.get<Response<PostShareLinksResponse>>(postShareLinksPath(username, postUrl), { signal });
+
+export const createPostShareLink = (username: string, postUrl: string, label: string) =>
+    http.post<Response<{ id: number }>>(postShareLinksPath(username, postUrl), { label });
+
+export const updatePostShareLink = (
+    username: string,
+    postUrl: string,
+    linkId: number,
+    changes: { label: string } | { is_paused: boolean }
+) => http.patch<Response<Record<string, never>>>(
+    `${postShareLinksPath(username, postUrl)}/${linkId}`,
+    changes
+);
+
 export const togglePostVisibility = async (username: string, postUrl: string) => {
     return http.put<Response<{ isHide: boolean }>>(`v1/users/@${username}/posts/${postUrl}?hide=hide`);
 };

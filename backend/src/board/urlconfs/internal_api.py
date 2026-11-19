@@ -34,6 +34,14 @@ urlpatterns = [
     path('v1/users/@<username>', api_v1.users),
     path('v1/users/@<username>/posts/<url>', api_v1.user_posts),
     path(
+        'v1/users/@<username>/posts/<url>/share-links',
+        api_v1.post_share_links,
+    ),
+    path(
+        'v1/users/@<username>/posts/<url>/share-links/<int:link_id>',
+        api_v1.post_share_link_detail,
+    ),
+    path(
         'v1/users/@<username>/posts/<url>/revisions',
         api_v1.post_revisions,
     ),
