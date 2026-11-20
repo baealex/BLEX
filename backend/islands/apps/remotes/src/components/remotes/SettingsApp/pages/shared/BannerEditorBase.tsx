@@ -1,6 +1,11 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Trans, useLingui } from '@lingui/react/macro';
-import { useNavigate, useBlocker } from '@tanstack/react-router';
+import {
+    useBlocker,
+    useNavigate,
+    useRouter,
+    useSearch
+} from '@tanstack/react-router';
 import { useMutation, useQueryClient, useSuspenseQuery } from '@tanstack/react-query';
 import { useForm, Controller } from 'react-hook-form';
 import { z } from 'zod';
@@ -71,6 +76,7 @@ import {
     positionForTemplate,
     swapSampleCopy,
     TEMPLATE_FIELDS,
+    type BannerEditorSearch,
     type BannerSampleCopy
 } from './bannerTemplateRules';
 
@@ -154,12 +160,14 @@ const BannerEditorBase = ({ scope, bannerId }: BannerEditorBaseProps) => {
     const isGlobal = scope === 'global';
     const isEditMode = bannerId !== undefined;
     const navigate = useNavigate();
+    const router = useRouter();
+    const search: BannerEditorSearch = useSearch({ strict: false });
     const queryClient = useQueryClient();
     const { confirm } = useConfirm();
     const allowNavigationRef = useRef(false);
     const appliedSampleRef = useRef<BannerSampleCopy | null>(null);
-    const [hasChosenTemplate, setHasChosenTemplate] = useState(isEditMode);
-    const [isPickingTemplate, setIsPickingTemplate] = useState(!isEditMode);
+    const appliedTemplateRef = useRef<BannerTemplate | null>(null);
+    const pickerOpenedFromFormRef = useRef(false);
     const [preview, setPreview] = useState<PreviewState | null>(null);
     const bannerSchema = useMemo(() => z.object({
         title: z.string().trim()
@@ -322,12 +330,9 @@ const BannerEditorBase = ({ scope, bannerId }: BannerEditorBaseProps) => {
 
     useEffect(() => {
         appliedSampleRef.current = null;
+        appliedTemplateRef.current = bannerDetail?.template ?? null;
         if (!bannerDetail) {
             reset(defaultValues);
-            if (!isEditMode) {
-                setHasChosenTemplate(false);
-                setIsPickingTemplate(true);
-            }
             return;
         }
 
@@ -349,12 +354,12 @@ const BannerEditorBase = ({ scope, bannerId }: BannerEditorBaseProps) => {
             isActive: bannerDetail.isActive,
             order: bannerDetail.order
         });
-        setHasChosenTemplate(true);
-        setIsPickingTemplate(false);
-    }, [bannerDetail, isEditMode, reset]);
+    }, [bannerDetail, reset]);
 
     useBlocker({
-        shouldBlockFn: async () => {
+        shouldBlockFn: async ({ current, next }) => {
+            // Moving between the shape picker and the form stays on this page.
+            if (current.pathname === next.pathname) return false;
             if (!isDirty || allowNavigationRef.current) return false;
 
             const confirmed = await confirm({
@@ -555,11 +560,21 @@ const BannerEditorBase = ({ scope, bannerId }: BannerEditorBaseProps) => {
     const allowHtml = isGlobal || bannerDetail?.template === 'html';
     const positionOptions = bannerPositionOptions.filter((slot) => isTemplateAllowedAt(template, slot));
 
+    // The URL decides which shape is in use, so the back button returns to the picker.
+    const storedTemplate = bannerDetail?.template ?? null;
+    const urlTemplate = gallery.find((item) => item.template === search.template)?.template
+        ?? (allowHtml && search.template === 'html' ? 'html' : null);
+    const activeTemplate: BannerTemplate | null = urlTemplate ?? storedTemplate;
+    const hasChosenTemplate = activeTemplate !== null;
+    const isPickingTemplate = !hasChosenTemplate || search.step === 'shape';
+
     const sampleFor = (nextTemplate: BannerTemplate): BannerSampleCopy | null => (
         gallery.find((item) => item.template === nextTemplate)?.sample ?? null
     );
 
-    const handleTemplateChange = (nextTemplate: BannerTemplate) => {
+    const applyTemplate = (nextTemplate: BannerTemplate) => {
+        // Starter text on a new banner is not the author's work, so it does not count as an unsaved change.
+        const dirty = { shouldDirty: isEditMode };
         const nextSample = sampleFor(nextTemplate);
         if (nextSample) {
             const copy = swapSampleCopy({
@@ -570,20 +585,59 @@ const BannerEditorBase = ({ scope, bannerId }: BannerEditorBaseProps) => {
                 linkUrl: getValues('linkUrl')
             }, appliedSampleRef.current, nextSample);
             appliedSampleRef.current = nextSample;
-            setValue('eyebrow', copy.eyebrow, { shouldDirty: true });
-            setValue('headline', copy.headline, { shouldDirty: true });
-            setValue('description', copy.description, { shouldDirty: true });
-            setValue('linkLabel', copy.linkLabel, { shouldDirty: true });
-            setValue('linkUrl', copy.linkUrl, { shouldDirty: true });
+            setValue('eyebrow', copy.eyebrow, dirty);
+            setValue('headline', copy.headline, dirty);
+            setValue('description', copy.description, dirty);
+            setValue('linkLabel', copy.linkLabel, dirty);
+            setValue('linkUrl', copy.linkUrl, dirty);
         }
 
-        const nextPosition = positionForTemplate(nextTemplate, hasChosenTemplate ? position : null);
-        setValue('template', nextTemplate, { shouldDirty: true });
-        setValue('bannerType', bannerTypeForPosition(nextPosition), { shouldDirty: true });
-        setValue('position', nextPosition, { shouldDirty: true });
-        setValue('imageLayout', imageLayoutForPosition(getValues('imageLayout'), nextPosition), { shouldDirty: true });
-        setHasChosenTemplate(true);
-        setIsPickingTemplate(false);
+        const nextPosition = positionForTemplate(nextTemplate, appliedTemplateRef.current ? getValues('position') : null);
+        appliedTemplateRef.current = nextTemplate;
+        setValue('template', nextTemplate, dirty);
+        setValue('bannerType', bannerTypeForPosition(nextPosition), dirty);
+        setValue('position', nextPosition, dirty);
+        setValue('imageLayout', imageLayoutForPosition(getValues('imageLayout'), nextPosition), dirty);
+    };
+
+    useEffect(() => {
+        if (activeTemplate && activeTemplate !== appliedTemplateRef.current) {
+            applyTemplate(activeTemplate);
+        }
+    });
+
+    const previousStepRef = useRef(isPickingTemplate);
+    useEffect(() => {
+        if (previousStepRef.current !== isPickingTemplate) {
+            window.scrollTo({ top: 0 });
+            previousStepRef.current = isPickingTemplate;
+        }
+        if (!isPickingTemplate) {
+            pickerOpenedFromFormRef.current = false;
+        }
+    }, [isPickingTemplate]);
+
+    const openTemplatePicker = () => {
+        pickerOpenedFromFormRef.current = true;
+        navigate({
+            to: '.',
+            search: {
+                ...search,
+                step: 'shape'
+            }
+        });
+    };
+
+    const selectTemplate = (nextTemplate: BannerTemplate) => {
+        if (nextTemplate === activeTemplate && pickerOpenedFromFormRef.current) {
+            router.history.back();
+            return;
+        }
+
+        navigate({
+            to: '.',
+            search: isEditMode && nextTemplate === storedTemplate ? {} : { template: nextTemplate }
+        });
     };
 
     const handlePositionChange = (nextPosition: BannerPosition) => {
@@ -943,8 +997,8 @@ const BannerEditorBase = ({ scope, bannerId }: BannerEditorBaseProps) => {
                             <BannerTemplatePicker
                                 gallery={gallery}
                                 allowHtml={allowHtml}
-                                value={hasChosenTemplate ? template : null}
-                                onChange={handleTemplateChange}
+                                value={activeTemplate ?? (appliedTemplateRef.current ? template : null)}
+                                onChange={selectTemplate}
                             />
                         ) : (
                             <div className="flex items-center justify-between gap-3 rounded-xl border border-line px-4 py-2">
@@ -956,14 +1010,14 @@ const BannerEditorBase = ({ scope, bannerId }: BannerEditorBaseProps) => {
                                     type="button"
                                     variant="ghost"
                                     size="sm"
-                                    onClick={() => setIsPickingTemplate(true)}>
+                                    onClick={openTemplatePicker}>
                                     <Trans id="settings.banners.editor.template.change">Change</Trans>
                                 </Button>
                             </div>
                         )}
                     </section>
 
-                    {hasChosenTemplate && (
+                    {!isPickingTemplate && (
                         <>
                             <section>
                                 <h2 className={sectionLabelClass}>
@@ -1014,25 +1068,25 @@ const BannerEditorBase = ({ scope, bannerId }: BannerEditorBaseProps) => {
                     )}
                 </div>
 
-                <FloatingBottomBar>
-                    {isEditMode && (
-                        <>
-                            <Button
-                                density="compact"
-                                type="button"
-                                variant="ghost"
-                                size="md"
-                                isLoading={deleteMutation.isPending}
-                                disabled={isSaving}
-                                onClick={handleDelete}
-                                className="!rounded-full !text-danger hover:!bg-danger-surface hover:!text-danger">
-                                <Trans id="common.delete">Delete</Trans>
-                            </Button>
-                            <div className="mx-1 h-8 w-px bg-line/60" />
-                        </>
-                    )}
+                {!isPickingTemplate && (
+                    <FloatingBottomBar>
+                        {isEditMode && (
+                            <>
+                                <Button
+                                    density="compact"
+                                    type="button"
+                                    variant="ghost"
+                                    size="md"
+                                    isLoading={deleteMutation.isPending}
+                                    disabled={isSaving}
+                                    onClick={handleDelete}
+                                    className="!rounded-full !text-danger hover:!bg-danger-surface hover:!text-danger">
+                                    <Trans id="common.delete">Delete</Trans>
+                                </Button>
+                                <div className="mx-1 h-8 w-px bg-line/60" />
+                            </>
+                        )}
 
-                    {hasChosenTemplate && (
                         <Button
                             density="compact"
                             type="button"
@@ -1044,23 +1098,23 @@ const BannerEditorBase = ({ scope, bannerId }: BannerEditorBaseProps) => {
                             onClick={() => previewMutation.mutate(getValues())}>
                             <Trans id="settings.banners.editor.preview_action">Preview</Trans>
                         </Button>
-                    )}
 
-                    <Button
-                        density="compact"
-                        type="submit"
-                        variant="primary"
-                        className="!rounded-full"
-                        leftIcon={!isSaving ? <Send className="h-4 w-4" /> : undefined}
-                        isLoading={isSaving}
-                        disabled={deleteMutation.isPending}>
-                        {isSaving
-                            ? <Trans id="common.saving">Saving</Trans>
-                            : isEditMode
-                                ? <Trans id="common.update">Update</Trans>
-                                : <Trans id="common.create">Create</Trans>}
-                    </Button>
-                </FloatingBottomBar>
+                        <Button
+                            density="compact"
+                            type="submit"
+                            variant="primary"
+                            className="!rounded-full"
+                            leftIcon={!isSaving ? <Send className="h-4 w-4" /> : undefined}
+                            isLoading={isSaving}
+                            disabled={deleteMutation.isPending}>
+                            {isSaving
+                                ? <Trans id="common.saving">Saving</Trans>
+                                : isEditMode
+                                    ? <Trans id="common.update">Update</Trans>
+                                    : <Trans id="common.create">Create</Trans>}
+                        </Button>
+                    </FloatingBottomBar>
+                )}
             </form>
 
             {preview && (

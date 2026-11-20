@@ -3,6 +3,12 @@ import type { BannerPosition, BannerType } from './bannerI18n';
 
 export type TextBannerTemplate = Exclude<BannerTemplate, 'html'>;
 
+/** URL state of the banner editor: the chosen shape, and whether the shape picker is open. */
+export interface BannerEditorSearch {
+    template?: string;
+    step?: 'shape';
+}
+
 export interface BannerSampleCopy {
     eyebrow: string;
     headline: string;

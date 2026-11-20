@@ -10,6 +10,7 @@ import {
 import { lazy, Suspense, type ElementType } from 'react';
 import { useLingui } from '@lingui/react/macro';
 import { SettingsLayout } from './components/SettingsLayout';
+import type { BannerEditorSearch } from './pages/shared/bannerTemplateRules';
 import { LoadingState } from '../../shared';
 
 // Lazy load settings pages
@@ -363,15 +364,23 @@ const seriesEditRoute = createRoute({
     }
 });
 
+// The banner editor keeps its steps in the URL so the browser back button moves between them.
+const validateBannerEditorSearch = (search: Record<string, unknown>): BannerEditorSearch => ({
+    ...(typeof search.template === 'string' ? { template: search.template } : {}),
+    ...(search.step === 'shape' ? { step: 'shape' as const } : {})
+});
+
 const bannerCreateRoute = createRoute({
     getParentRoute: () => rootRoute,
     path: '/banners/create',
+    validateSearch: validateBannerEditorSearch,
     component: editorOnly(BannerEditor)
 });
 
 const bannerEditRoute = createRoute({
     getParentRoute: () => rootRoute,
     path: '/banners/edit/$bannerId',
+    validateSearch: validateBannerEditorSearch,
     component: () => {
         const { bannerId } = bannerEditRoute.useParams();
         return (
@@ -383,12 +392,14 @@ const bannerEditRoute = createRoute({
 const globalBannerCreateRoute = createRoute({
     getParentRoute: () => rootRoute,
     path: '/global-banners/create',
+    validateSearch: validateBannerEditorSearch,
     component: GlobalBannerEditor
 });
 
 const globalBannerEditRoute = createRoute({
     getParentRoute: () => rootRoute,
     path: '/global-banners/edit/$bannerId',
+    validateSearch: validateBannerEditorSearch,
     component: () => {
         const { bannerId } = globalBannerEditRoute.useParams();
         return (
