@@ -284,21 +284,28 @@ total: frames.length
 
     return (
         <>
-            <article className="mx-auto w-full max-w-2xl px-4 pb-72 pt-16 sm:box-content sm:pt-20 md:px-6">
-                <h1
-                    ref={titleRef}
-                    className="mb-8 break-words text-2xl font-bold leading-tight text-content sm:text-3xl lg:text-4xl"
-                />
-                <div ref={contentRef} className="prose prose-lg max-w-none blog-post-content break-words" />
-                {last < 1 && (
-                    <p className="mt-10 rounded-lg bg-surface-subtle p-4 text-sm text-content-secondary">
-                        {t({
-                            id: 'post_timelapse.empty',
-                            message: 'There are no text changes to replay yet.'
-                        })}
-                    </p>
-                )}
-            </article>
+            {/* Same layout classes as the post page, so the text wraps at the same width on every screen. */}
+            <div className="post-detail-body px-4 pb-72 pt-16 sm:pt-20 md:px-6">
+                <div className="post-detail-layout">
+                    <div aria-hidden="true" className="post-detail-sidebar" />
+                    <article className="post-detail-main">
+                        <h1
+                            ref={titleRef}
+                            className="mb-8 break-words text-2xl font-bold leading-tight text-content sm:text-3xl lg:text-4xl"
+                        />
+                        <div ref={contentRef} className="prose prose-lg max-w-none blog-post-content break-words" />
+                        {last < 1 && (
+                            <p className="mt-10 rounded-lg bg-surface-subtle p-4 text-sm text-content-secondary">
+                                {t({
+                                    id: 'post_timelapse.empty',
+                                    message: 'There are no text changes to replay yet.'
+                                })}
+                            </p>
+                        )}
+                    </article>
+                    <div aria-hidden="true" className="post-detail-sidebar" />
+                </div>
+            </div>
 
             <div className="pointer-events-none fixed inset-x-0 bottom-0 z-[90] px-4 pb-[max(1rem,env(safe-area-inset-bottom))]">
                 <section
