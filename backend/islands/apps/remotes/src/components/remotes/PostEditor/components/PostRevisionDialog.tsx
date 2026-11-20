@@ -20,6 +20,7 @@ import {
 } from '@blex/ui/design-tokens';
 import { cx } from '~/lib/classnames';
 import { normalizeLocale } from '~/i18n/locale';
+import { formatDateTime } from '~/i18n/formatters';
 import {
     deletePostRevision,
     getPostRevision,
@@ -81,14 +82,7 @@ const PostRevisionDialog = ({
             message: 'Legacy format'
         })
     } as const;
-    const formatDateTime = (value: string) => {
-        const date = new Date(value);
-        if (Number.isNaN(date.getTime())) return value;
-        return new Intl.DateTimeFormat(normalizeLocale(i18n.locale), {
-            dateStyle: 'medium',
-            timeStyle: 'short'
-        }).format(date);
-    };
+    const formatRevisionDate = (value: string) => formatDateTime(value, normalizeLocale(i18n.locale), value);
 
     const handleBackToList = useCallback(() => {
         detailRequestIdRef.current += 1;
@@ -431,7 +425,7 @@ const PostRevisionDialog = ({
                                                         </p>
                                                         <span className="mt-2 flex items-center gap-1 text-[11px] text-content-hint">
                                                             <Clock className="h-3 w-3" aria-hidden="true" />
-                                                            {formatDateTime(revision.createdDate)}
+                                                            {formatRevisionDate(revision.createdDate)}
                                                         </span>
                                                     </div>
                                                     <ChevronRight aria-hidden="true" className="h-4 w-4 shrink-0 text-content-hint" />
@@ -481,7 +475,7 @@ const PostRevisionDialog = ({
                                     <article>
                                         <div className="border-b border-line pb-4">
                                             <p className="text-xs text-content-hint">
-                                                {formatDateTime(selectedRevision.createdDate)} · {changeTypeLabels[selectedRevision.changeType]}
+                                                {formatRevisionDate(selectedRevision.createdDate)} · {changeTypeLabels[selectedRevision.changeType]}
                                             </p>
                                             <h3 className="mt-2 break-words text-xl font-bold text-content">
                                                 {selectedRevision.title || t({

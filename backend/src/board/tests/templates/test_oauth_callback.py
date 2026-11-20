@@ -152,7 +152,15 @@ class OAuthCallbackTestCase(TestCase):
     }))
     def test_github_oauth_callback_new_user(self, mock_github):
         """GitHub OAuth 콜백으로 새 사용자 생성 테스트"""
-        response = self.complete_oauth()
+        start = self.client.get(
+            '/login/start/github',
+            {'time_zone': 'America/New_York'},
+            HTTP_ACCEPT_LANGUAGE='en-US',
+        )
+        state = parse_qs(urlsplit(start.url).query)['state'][0]
+        response = self.client.get(
+            '/login/callback/github', {'code': 'test_code', 'state': state}, HTTP_ACCEPT_LANGUAGE='ko',
+        )
 
         # Should redirect to home page (no 2FA)
         self.assertEqual(response.status_code, 302)
@@ -168,6 +176,7 @@ class OAuthCallbackTestCase(TestCase):
         # Verify profile and config were created
         self.assertTrue(hasattr(user, 'profile'))
         self.assertTrue(hasattr(user, 'config'))
+        self.assertEqual((user.config.language, user.config.time_zone), ('en', 'America/New_York'))
 
         # Verify GitHub link was created
         link = UserLinkMeta.objects.filter(user=user, name='github').first()
@@ -194,7 +203,7 @@ class OAuthCallbackTestCase(TestCase):
             first_name='Existing User'
         )
         Profile.objects.create(user=user)
-        Config.objects.create(user=user)
+        Config.objects.create(user=user, language='ko', time_zone='Asia/Seoul')
         SocialAuth.objects.create(
             user=user,
             provider=SocialAuthProvider.objects.get(key='github'),
@@ -202,7 +211,13 @@ class OAuthCallbackTestCase(TestCase):
             extra_data='{}',
         )
 
-        response = self.complete_oauth()
+        start = self.client.get(
+            '/login/start/github',
+            {'time_zone': 'America/New_York'},
+            HTTP_ACCEPT_LANGUAGE='en-US',
+        )
+        state = parse_qs(urlsplit(start.url).query)['state'][0]
+        response = self.client.get('/login/callback/github', {'code': 'test_code', 'state': state})
 
         # Should redirect to home page
         self.assertEqual(response.status_code, 302)
@@ -211,6 +226,8 @@ class OAuthCallbackTestCase(TestCase):
         # Verify user is logged in
         user_from_session = self.client.session.get('_auth_user_id')
         self.assertEqual(int(user_from_session), user.id)
+        user.config.refresh_from_db()
+        self.assertEqual((user.config.language, user.config.time_zone), ('ko', 'Asia/Seoul'))
 
 
     def test_disabled_google_provider_blocks_direct_callback(self):

@@ -12,6 +12,7 @@ import AccountInfoSection from './components/AccountInfoSection';
 import UsernameSection from './components/UsernameSection';
 import NameSection from './components/NameSection';
 import PasswordSection from './components/PasswordSection';
+import RegionalPreferencesSection from './components/RegionalPreferencesSection';
 import SecuritySection from './components/SecuritySection';
 import TwoFactorModal from './components/TwoFactorModal';
 import type { AccountFormSubmitResult } from './types';
@@ -32,6 +33,7 @@ const AccountSettings = () => {
 
     const { data: accountData, refetch } = useSuspenseQuery({
         queryKey: ['account-setting'],
+        meta: { persist: false },
         queryFn: async () => {
             const { data } = await getAccountSettings();
             if (data.status === 'DONE') {
@@ -329,6 +331,8 @@ const AccountSettings = () => {
                 createdDate={accountData?.createdDate || ''}
                 email={accountData?.email || ''}
             />
+
+            <RegionalPreferencesSection preferences={accountData.regionalPreferences} />
 
             {/* Basic Info */}
             <Card

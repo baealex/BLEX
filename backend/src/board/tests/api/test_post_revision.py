@@ -241,7 +241,7 @@ class PostRevisionTestCase(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(len(response.json()['body']['revisions']), 50)
         self.assertEqual(response.json()['body']['pagination']['totalCount'], 100)
-        self.assertEqual(len(queries), 6)
+        self.assertEqual(len(queries), 7)
         revision_queries = [
             query['sql'] for query in queries
             if 'board_edithistory' in query['sql'].lower()

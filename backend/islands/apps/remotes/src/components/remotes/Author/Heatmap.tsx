@@ -4,6 +4,7 @@ import { Plural, Trans, useLingui } from '@lingui/react/macro';
 import { Heatmap as UIHeatmap } from '@blex/ui/heatmap';
 import { getAuthorHeatmap } from '~/lib/api/author';
 import { useResolvedTheme } from '~/hooks/useResolvedTheme';
+import { getDocumentTimeZone } from '~/i18n/locale';
 
 interface HeatmapProps {
     username: string;
@@ -11,6 +12,17 @@ interface HeatmapProps {
 
 const LIGHT_HEATMAP_SCALE = ['#f9fafb', '#d1d5db', '#9ca3af', '#6b7280', '#1f2937'];
 const DARK_HEATMAP_SCALE = ['#222222', '#393939', '#555555', '#737373', '#969696'];
+
+const getHeatmapEndDate = () => {
+    const parts = new Intl.DateTimeFormat('en-US', {
+        year: 'numeric',
+        month: 'numeric',
+        day: 'numeric',
+        timeZone: getDocumentTimeZone()
+    }).formatToParts();
+    const numberPart = (type: string) => Number(parts.find((part) => part.type === type)?.value);
+    return new Date(numberPart('year'), numberPart('month') - 1, numberPart('day'));
+};
 
 const styleHeatmapCells = (root: HTMLElement, colorScale: string[]) => {
     const dayCells = Array.from(root.querySelectorAll<SVGRectElement>('.author-heatmap-chart rect.day'));
@@ -234,7 +246,7 @@ const Heatmap = ({ username }: HeatmapProps) => {
                 key={resolvedTheme}
                 data={{
                     dataPoints: heatmapData,
-                    end: new Date()
+                    end: getHeatmapEndDate()
                 }}
                 countLabel={t({
                     id: 'author.heatmap.count_label',

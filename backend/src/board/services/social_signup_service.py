@@ -14,6 +14,7 @@ from django.db import transaction
 from board.models import SocialAuth, SocialAuthProvider, UserLinkMeta
 from board.services.auth_service import AuthService
 from board.services.initial_setup_service import InitialSetupService
+from board.services.regional_preferences_service import RegionalPreferencesService
 from board.services.social_auth_provider_service import SocialAuthProviderService
 from modules import oauth
 
@@ -121,7 +122,7 @@ class SocialSignupService:
     @classmethod
     def sign_up(
         cls, provider_key: str, code: str | None, verifier: str, redirect_uri: str,
-        *, expected_user_id: int | None = None,
+        *, expected_user_id: int | None = None, language: str = '', time_zone: str = '',
     ) -> SocialSignupResult:
         if InitialSetupService.should_prompt_for_initial_setup():
             raise SocialSignupError(SocialSignupErrorKind.INITIAL_SETUP_REQUIRED)
@@ -158,7 +159,7 @@ class SocialSignupService:
                 is_first_login=False,
             )
 
-        user = cls._create_social_user(provider, identity)
+        user = cls._create_social_user(provider, identity, language=language, time_zone=time_zone)
         return SocialSignupResult(user=user, is_first_login=True)
 
     @staticmethod
@@ -166,13 +167,17 @@ class SocialSignupService:
     def _create_social_user(
         provider: SocialAuthProvider,
         identity: SocialSignupIdentity,
+        *,
+        language: str,
+        time_zone: str,
     ) -> User:
-        user, _profile, _config = AuthService.create_user(
+        user, _profile, config = AuthService.create_user(
             username=identity.username,
             name=identity.name,
             email=identity.email,
             avatar_url=identity.avatar_url,
         )
+        RegionalPreferencesService.initialize(config, language, time_zone)
         SocialAuth.objects.create(
             user=user,
             provider=provider,

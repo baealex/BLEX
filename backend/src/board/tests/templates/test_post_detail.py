@@ -722,7 +722,7 @@ class PostEditorPublishRedirectTestCase(TestCase):
         )[0]
         self.client.login(username='editor', password='password123')
 
-        with self.assertNumQueries(8):
+        with self.assertNumQueries(9):
             response = self.client.get(
                 reverse(
                     'post_edit',
