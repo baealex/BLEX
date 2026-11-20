@@ -8098,31 +8098,31 @@ msgid "settings.webhooks.validation.url_required"
 msgstr "Enter a webhook URL."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SubscriptionTelegramHint/SubscriptionTelegramHint.tsx:53
+#: src/components/remotes/SubscriptionTelegramHint/SubscriptionTelegramHint.tsx:57
 msgid "subscription_telegram_hint.aria_label"
 msgstr "Telegram suggestion"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SubscriptionTelegramHint/SubscriptionTelegramHint.tsx:68
+#: src/components/remotes/SubscriptionTelegramHint/SubscriptionTelegramHint.tsx:73
 msgid "subscription_telegram_hint.close"
 msgstr "Close"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SubscriptionTelegramHint/SubscriptionTelegramHint.tsx:90
+#: src/components/remotes/SubscriptionTelegramHint/SubscriptionTelegramHint.tsx:96
 msgid "subscription_telegram_hint.connect"
 msgstr "Connect Telegram"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SubscriptionTelegramHint/SubscriptionTelegramHint.tsx:82
+#: src/components/remotes/SubscriptionTelegramHint/SubscriptionTelegramHint.tsx:87
 msgid "subscription_telegram_hint.headline"
 msgstr "Get new posts on Telegram"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SubscriptionTelegramHint/SubscriptionTelegramHint.tsx:96
+#: src/components/remotes/SubscriptionTelegramHint/SubscriptionTelegramHint.tsx:102
 msgid "subscription_telegram_hint.later"
 msgstr "Later"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SubscriptionTelegramHint/SubscriptionTelegramHint.tsx:79
+#: src/components/remotes/SubscriptionTelegramHint/SubscriptionTelegramHint.tsx:84
 msgid "subscription_telegram_hint.title"
 msgstr "Subscribed"

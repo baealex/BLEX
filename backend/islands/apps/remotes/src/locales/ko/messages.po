@@ -8098,31 +8098,31 @@ msgid "settings.webhooks.validation.url_required"
 msgstr "웹훅 URL을 입력해 주세요."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SubscriptionTelegramHint/SubscriptionTelegramHint.tsx:53
+#: src/components/remotes/SubscriptionTelegramHint/SubscriptionTelegramHint.tsx:57
 msgid "subscription_telegram_hint.aria_label"
 msgstr "텔레그램 연결 안내"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SubscriptionTelegramHint/SubscriptionTelegramHint.tsx:68
+#: src/components/remotes/SubscriptionTelegramHint/SubscriptionTelegramHint.tsx:73
 msgid "subscription_telegram_hint.close"
 msgstr "닫기"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SubscriptionTelegramHint/SubscriptionTelegramHint.tsx:90
+#: src/components/remotes/SubscriptionTelegramHint/SubscriptionTelegramHint.tsx:96
 msgid "subscription_telegram_hint.connect"
 msgstr "텔레그램 연결"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SubscriptionTelegramHint/SubscriptionTelegramHint.tsx:82
+#: src/components/remotes/SubscriptionTelegramHint/SubscriptionTelegramHint.tsx:87
 msgid "subscription_telegram_hint.headline"
 msgstr "새 글을 텔레그램으로 받아보세요"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SubscriptionTelegramHint/SubscriptionTelegramHint.tsx:96
+#: src/components/remotes/SubscriptionTelegramHint/SubscriptionTelegramHint.tsx:102
 msgid "subscription_telegram_hint.later"
 msgstr "다음에"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SubscriptionTelegramHint/SubscriptionTelegramHint.tsx:79
+#: src/components/remotes/SubscriptionTelegramHint/SubscriptionTelegramHint.tsx:84
 msgid "subscription_telegram_hint.title"
 msgstr "구독했어요"

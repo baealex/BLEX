@@ -64,6 +64,8 @@ export const showSubscriptionTelegramHint = (): boolean => {
     hint.setAttribute('props', encodeURIComponent(JSON.stringify({ raised })));
     hint.dataset.islandName = 'SubscriptionTelegramHint';
     hint.dataset.islandStatus = 'pending';
+    // Mounted after a click, so the page startup monitor must not treat it as a slow island.
+    hint.dataset.islandOnDemand = 'true';
     document.body.appendChild(hint);
 
     return true;

@@ -165,9 +165,13 @@
             let bootstrapObserved = false;
             let hasReported = false;
 
+            // Lazy islands and islands mounted later by a user action are not part of page startup.
             const getTrackedIslands = () =>
                 Array.from(document.querySelectorAll('island-component'))
-                    .filter((element) => element.getAttribute('lazy') !== 'true');
+                    .filter((element) => (
+                        element.getAttribute('lazy') !== 'true'
+                        && element.dataset.islandOnDemand !== 'true'
+                    ));
 
             const serializeIslands = (elements) =>
                 elements
