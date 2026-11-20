@@ -367,7 +367,7 @@ const seriesEditRoute = createRoute({
 // The banner editor keeps its steps in the URL so the browser back button moves between them.
 const validateBannerEditorSearch = (search: Record<string, unknown>): BannerEditorSearch => ({
     ...(typeof search.template === 'string' ? { template: search.template } : {}),
-    ...(search.step === 'shape' ? { step: 'shape' as const } : {})
+    ...(search.step === 'shape' || search.step === 'preview' ? { step: search.step } : {})
 });
 
 const bannerCreateRoute = createRoute({

@@ -3,10 +3,10 @@ import type { BannerPosition, BannerType } from './bannerI18n';
 
 export type TextBannerTemplate = Exclude<BannerTemplate, 'html'>;
 
-/** URL state of the banner editor: the chosen shape, and whether the shape picker is open. */
+/** URL state of the banner editor steps. */
 export interface BannerEditorSearch {
     template?: string;
-    step?: 'shape';
+    step?: 'shape' | 'preview';
 }
 
 export interface BannerSampleCopy {
@@ -101,6 +101,12 @@ const IMAGE_LAYOUTS: Record<BannerType, BannerImageLayout[]> = {
 };
 
 export const BANNER_TITLE_MAX_LENGTH = 100;
+
+/** Width of each real slot on the post page; previews draw banners at this width, then scale them. */
+export const BANNER_SLOT_WIDTH: Record<BannerType, number> = {
+    horizontal: 760,
+    sidebar: 256
+};
 
 export const bannerTypeForPosition = (position: BannerPosition): BannerType => (
     position === 'top' || position === 'bottom' ? 'horizontal' : 'sidebar'

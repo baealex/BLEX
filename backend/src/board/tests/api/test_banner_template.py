@@ -239,6 +239,23 @@ class BannerTemplateAPITestCase(TestCase):
         self.assertIn('href="https://example.com/subscribe"', html)
         self.assertFalse(SiteBanner.objects.exists())
 
+    def test_preview_renders_an_image_before_its_description_is_entered(self):
+        payload = self.card_payload(
+            template='image',
+            headline='',
+            image_url='/resources/media/images/banner.png',
+            link_url='ftp://example.com/unfinished',
+        )
+
+        preview = self.post_json('/v1/banners/preview', payload)
+        save = self.post_json('/v1/banners', payload)
+
+        self.assertEqual(preview['status'], 'DONE')
+        self.assertIn('src="/resources/media/images/banner.png"', preview['body']['html'])
+        self.assertNotIn('href=', preview['body']['html'])
+        self.assertEqual(save['status'], 'ERROR')
+        self.assertFalse(SiteBanner.objects.exists())
+
     def test_preview_default_link_label_follows_request_language(self):
         expected_labels = {
             'en': 'Learn more',

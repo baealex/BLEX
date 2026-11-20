@@ -264,7 +264,7 @@ class SiteContentApiService:
             )
 
     @staticmethod
-    def validate_banner_template(banner: SiteBanner) -> None:
+    def validate_banner_template(banner: SiteBanner, *, preview: bool = False) -> None:
         if banner.template not in BannerTemplate.values:
             raise SiteContentApiError(
                 ErrorCode.VALIDATE,
@@ -292,7 +292,7 @@ class SiteContentApiService:
         if banner.image_layout not in BANNER_TYPE_IMAGE_LAYOUTS[banner.banner_type]:
             # The sidebar is too narrow for a side-by-side image, so it stacks on top.
             banner.image_layout = BannerImageLayout.TOP
-        if not banner.headline:
+        if not preview and not banner.headline:
             raise SiteContentApiError(
                 ErrorCode.VALIDATE,
                 gettext('Enter the banner text.'),
@@ -310,6 +310,9 @@ class SiteContentApiService:
             limit = SiteBanner._meta.get_field(field).max_length
             if len(getattr(banner, field)) > limit:
                 raise SiteContentApiError(ErrorCode.VALIDATE, message % {'limit': limit})
+
+        if preview:
+            return
 
         if banner.link_url and not safe_navigation_url(banner.link_url):
             raise SiteContentApiError(
@@ -402,7 +405,7 @@ class SiteContentApiService:
         banner = SiteBanner(scope=scope, user=user)
         SiteContentApiService.apply_banner_data(banner, data, sanitize_content=False)
         SiteContentApiService.validate_banner_position(banner.banner_type, banner.position)
-        SiteContentApiService.validate_banner_template(banner)
+        SiteContentApiService.validate_banner_template(banner, preview=True)
         return BannerService.render_banner_html(banner, author=user)
 
     @staticmethod

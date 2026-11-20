@@ -6,7 +6,7 @@ import {
     useRouter,
     useSearch
 } from '@tanstack/react-router';
-import { useMutation, useQueryClient, useSuspenseQuery } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient, useSuspenseQuery } from '@tanstack/react-query';
 import { useForm, Controller } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -53,8 +53,9 @@ import {
     ImageLayoutSketch,
     ToneSwatch
 } from './BannerDesignOptions';
-import BannerPreviewDialog from './BannerPreviewDialog';
+import BannerPreviewDialog, { BannerPreviewContent } from './BannerPreviewDialog';
 import BannerTemplatePicker from './BannerTemplatePicker';
+import './bannerEditor.css';
 import {
     bannerAlignMessages,
     bannerImageLayoutMessages,
@@ -66,6 +67,7 @@ import {
     type BannerType
 } from './bannerI18n';
 import {
+    BANNER_SLOT_WIDTH,
     BANNER_TITLE_MAX_LENGTH,
     bannerTypeForPosition,
     imageLayoutForPosition,
@@ -144,12 +146,6 @@ const toPreviewPayload = (values: BannerFormInputs): BannerPreviewData => {
     };
 };
 
-interface PreviewState {
-    html: string;
-    position: BannerPosition;
-    bannerType: BannerType;
-}
-
 interface BannerEditorBaseProps {
     scope: BannerScope;
     bannerId?: number;
@@ -168,7 +164,7 @@ const BannerEditorBase = ({ scope, bannerId }: BannerEditorBaseProps) => {
     const appliedSampleRef = useRef<BannerSampleCopy | null>(null);
     const appliedTemplateRef = useRef<BannerTemplate | null>(null);
     const pickerOpenedFromFormRef = useRef(false);
-    const [preview, setPreview] = useState<PreviewState | null>(null);
+    const previewButtonRef = useRef<HTMLButtonElement>(null);
     const bannerSchema = useMemo(() => z.object({
         title: z.string().trim()
             .max(BANNER_TITLE_MAX_LENGTH, t({
@@ -519,42 +515,17 @@ const BannerEditorBase = ({ scope, bannerId }: BannerEditorBaseProps) => {
         }
     });
 
-    const previewMutation = useMutation({
-        mutationFn: (values: BannerFormInputs) => {
-            const payload = toPreviewPayload(values);
-            return isGlobal ? previewGlobalBanner(payload) : previewBanner(payload);
-        },
-        onSuccess: ({ data }, values) => {
-            if (data.status === 'ERROR') {
-                toast.error(data.errorMessage || t({
-                    id: 'settings.banners.preview.failed',
-                    message: 'Could not prepare the preview.'
-                }));
-                return;
-            }
-
-            setPreview({
-                html: data.body.html,
-                position: values.position,
-                bannerType: values.bannerType
-            });
-        },
-        onError: () => {
-            toast.error(t({
-                id: 'common.network_error',
-                message: 'A network error occurred.'
-            }));
-        }
-    });
-
-    const template = watch('template');
-    const bannerType = watch('bannerType');
-    const position = watch('position');
-    const title = watch('title');
-    const tone = watch('tone');
-    const imageUrl = watch('imageUrl');
-    const imageLayout = watch('imageLayout');
-    const align = watch('align');
+    const values = watch();
+    const {
+        template,
+        bannerType,
+        position,
+        title,
+        tone,
+        imageUrl,
+        imageLayout,
+        align
+    } = values;
     const isTextTemplate = template !== 'html';
     const fields = template === 'html' ? null : TEMPLATE_FIELDS[template];
     const allowHtml = isGlobal || bannerDetail?.template === 'html';
@@ -567,6 +538,71 @@ const BannerEditorBase = ({ scope, bannerId }: BannerEditorBaseProps) => {
     const activeTemplate: BannerTemplate | null = urlTemplate ?? storedTemplate;
     const hasChosenTemplate = activeTemplate !== null;
     const isPickingTemplate = !hasChosenTemplate || search.step === 'shape';
+    const isPreviewOpen = !isPickingTemplate && search.step === 'preview';
+
+    const previewPayload = JSON.stringify(toPreviewPayload(values));
+    const [livePayload, setLivePayload] = useState(previewPayload);
+    useEffect(() => {
+        const timer = window.setTimeout(() => setLivePayload(previewPayload), 200);
+        return () => window.clearTimeout(timer);
+    }, [previewPayload]);
+
+    const renderedPayload = isPreviewOpen ? previewPayload : livePayload;
+    const previewQuery = useQuery<string>({
+        queryKey: ['banner-preview', scope, renderedPayload],
+        enabled: !isPickingTemplate,
+        placeholderData: (previous) => previous,
+        staleTime: 30_000,
+        gcTime: 0,
+        retry: false,
+        meta: { persist: false },
+        queryFn: async ({ signal }) => {
+            const payload = JSON.parse(renderedPayload) as BannerPreviewData;
+            const { data } = await (isGlobal ? previewGlobalBanner(payload, signal) : previewBanner(payload, signal));
+            if (data.status === 'ERROR') {
+                throw new Error(data.errorMessage || t({
+                    id: 'settings.banners.preview.failed',
+                    message: 'Could not prepare the preview.'
+                }));
+            }
+            return data.body.html;
+        }
+    });
+
+    const previewError = previewQuery.isError ? t({
+        id: 'settings.banners.preview.failed',
+        message: 'Could not prepare the preview.'
+    }) : undefined;
+
+    const openPostPreview = () => {
+        void navigate({
+            to: '.',
+            search: {
+                ...search,
+                step: 'preview'
+            },
+            state: (previous) => ({
+                ...previous,
+                bannerPreviewFromEditor: true
+            }),
+            resetScroll: false
+        });
+    };
+
+    const closePostPreview = () => {
+        const { state } = router.state.location;
+        if ('bannerPreviewFromEditor' in state && state.bannerPreviewFromEditor === true) {
+            router.history.back();
+            return;
+        }
+
+        void navigate({
+            to: '.',
+            search: { template: search.template },
+            replace: true,
+            resetScroll: false
+        });
+    };
 
     const sampleFor = (nextTemplate: BannerTemplate): BannerSampleCopy | null => (
         gallery.find((item) => item.template === nextTemplate)?.sample ?? null
@@ -963,7 +999,7 @@ const BannerEditorBase = ({ scope, bannerId }: BannerEditorBaseProps) => {
         <div className="min-h-screen bg-surface pb-16">
             <form onSubmit={handleSubmit(onSubmit)}>
                 <div className="sticky top-0 z-10 border-b border-line bg-surface">
-                    <div className="mx-auto flex h-14 max-w-4xl items-center justify-between px-4 md:px-6">
+                    <div className="mx-auto flex h-14 max-w-7xl items-center justify-between px-4 md:px-6">
                         <button
                             type="button"
                             className="flex min-h-11 items-center gap-2 py-2 text-sm text-content-secondary transition-colors hover:text-content active:text-content-secondary [@media(pointer:fine)]:min-h-9"
@@ -988,84 +1024,109 @@ const BannerEditorBase = ({ scope, bannerId }: BannerEditorBaseProps) => {
                     </div>
                 </div>
 
-                <div className="mx-auto max-w-4xl space-y-8 px-4 pb-20 pt-8 md:px-6">
-                    <section>
-                        <h2 className={sectionLabelClass}>
-                            <Trans id="settings.banners.editor.template.heading">Template</Trans>
-                        </h2>
-                        {isPickingTemplate ? (
-                            <BannerTemplatePicker
-                                gallery={gallery}
-                                allowHtml={allowHtml}
-                                value={activeTemplate ?? (appliedTemplateRef.current ? template : null)}
-                                onChange={selectTemplate}
-                            />
-                        ) : (
-                            <div className="flex items-center justify-between gap-3 rounded-xl border border-line px-4 py-2">
-                                <span className="text-sm font-semibold text-content">
-                                    {i18n._(bannerTemplateMessages[template])}
-                                </span>
-                                <Button
-                                    density="compact"
-                                    type="button"
-                                    variant="ghost"
-                                    size="sm"
-                                    onClick={openTemplatePicker}>
-                                    <Trans id="settings.banners.editor.template.change">Change</Trans>
-                                </Button>
-                            </div>
-                        )}
-                    </section>
-
+                <div
+                    className={cx(
+                        'mx-auto max-w-7xl px-4 pb-20 pt-8 md:px-6',
+                        !isPickingTemplate && 'banner-editor-layout'
+                    )}>
                     {!isPickingTemplate && (
-                        <>
-                            <section>
-                                <h2 className={sectionLabelClass}>
-                                    <Trans id="settings.banners.editor.position.heading">Position</Trans>
-                                </h2>
-                                <div className="flex flex-wrap gap-2">
-                                    {positionOptions.map((slot) => (
-                                        <button
-                                            key={slot}
-                                            type="button"
-                                            aria-pressed={slot === position}
-                                            onClick={() => handlePositionChange(slot)}
-                                            className={cx(
-                                                'min-h-11 rounded-full border px-4 py-1 text-xs font-semibold transition-colors duration-150 active:scale-95 [@media(pointer:fine)]:min-h-9',
-                                                slot === position
-                                                    ? 'border-line-strong bg-action text-content-inverted'
-                                                    : 'border-line bg-surface text-content hover:border-line-strong'
-                                            )}>
-                                            {i18n._(bannerPositionMessages[slot])}
-                                        </button>
-                                    ))}
+                        <section
+                            aria-labelledby="banner-live-preview-heading"
+                            className="banner-editor-preview min-w-0">
+                            <h2 id="banner-live-preview-heading" className={sectionLabelClass}>
+                                <Trans id="settings.banners.editor.live_preview">Banner preview</Trans>
+                            </h2>
+                            <div
+                                aria-busy={previewQuery.isFetching || previewPayload !== livePayload}
+                                className="banner-editor-preview-frame rounded-xl border border-line bg-surface p-3">
+                                <BannerPreviewContent
+                                    html={previewQuery.data}
+                                    error={previewError}
+                                    customHtml={template === 'html'}
+                                    slotWidth={BANNER_SLOT_WIDTH[bannerType]}
+                                />
+                            </div>
+                        </section>
+                    )}
+                    <div className="banner-editor-form min-w-0 space-y-8">
+                        <section>
+                            <h2 className={sectionLabelClass}>
+                                <Trans id="settings.banners.editor.template.heading">Template</Trans>
+                            </h2>
+                            {isPickingTemplate ? (
+                                <BannerTemplatePicker
+                                    gallery={gallery}
+                                    allowHtml={allowHtml}
+                                    value={activeTemplate ?? (appliedTemplateRef.current ? template : null)}
+                                    onChange={selectTemplate}
+                                />
+                            ) : (
+                                <div className="flex items-center justify-between gap-3 rounded-xl border border-line px-4 py-2">
+                                    <span className="text-sm font-semibold text-content">
+                                        {i18n._(bannerTemplateMessages[template])}
+                                    </span>
+                                    <Button
+                                        density="compact"
+                                        type="button"
+                                        variant="ghost"
+                                        size="sm"
+                                        onClick={openTemplatePicker}>
+                                        <Trans id="settings.banners.editor.template.change">Change</Trans>
+                                    </Button>
                                 </div>
-                                {bannerType === 'sidebar' && (
-                                    <p className="mt-2 text-xs text-content-hint">
-                                        <Trans id="settings.banners.editor.position.sidebar_help">
-                                            Side banners only appear on wide screens (1280px and up).
-                                        </Trans>
-                                    </p>
-                                )}
-                            </section>
+                            )}
+                        </section>
 
-                            <section>
-                                <h2 className={sectionLabelClass}>
-                                    <Trans id="settings.banners.editor.content.heading">Content</Trans>
-                                </h2>
-                                {isTextTemplate ? textFields : htmlFields}
-                            </section>
-
-                            {designFields && (
+                        {!isPickingTemplate && (
+                            <>
                                 <section>
                                     <h2 className={sectionLabelClass}>
-                                        <Trans id="settings.banners.editor.design.heading">Design</Trans>
+                                        <Trans id="settings.banners.editor.position.heading">Position</Trans>
                                     </h2>
-                                    {designFields}
+                                    <div className="flex flex-wrap gap-2">
+                                        {positionOptions.map((slot) => (
+                                            <button
+                                                key={slot}
+                                                type="button"
+                                                aria-pressed={slot === position}
+                                                onClick={() => handlePositionChange(slot)}
+                                                className={cx(
+                                                    'min-h-11 rounded-full border px-4 py-1 text-xs font-semibold transition-colors duration-150 active:scale-95 [@media(pointer:fine)]:min-h-9',
+                                                    slot === position
+                                                        ? 'border-line-strong bg-action text-content-inverted'
+                                                        : 'border-line bg-surface text-content hover:border-line-strong'
+                                                )}>
+                                                {i18n._(bannerPositionMessages[slot])}
+                                            </button>
+                                        ))}
+                                    </div>
+                                    {bannerType === 'sidebar' && (
+                                        <p className="mt-2 text-xs text-content-hint">
+                                            <Trans id="settings.banners.editor.position.sidebar_help">
+                                                Side banners only appear on wide screens (1280px and up).
+                                            </Trans>
+                                        </p>
+                                    )}
                                 </section>
-                            )}
-                        </>
-                    )}
+
+                                <section>
+                                    <h2 className={sectionLabelClass}>
+                                        <Trans id="settings.banners.editor.content.heading">Content</Trans>
+                                    </h2>
+                                    {isTextTemplate ? textFields : htmlFields}
+                                </section>
+
+                                {designFields && (
+                                    <section>
+                                        <h2 className={sectionLabelClass}>
+                                            <Trans id="settings.banners.editor.design.heading">Design</Trans>
+                                        </h2>
+                                        {designFields}
+                                    </section>
+                                )}
+                            </>
+                        )}
+                    </div>
                 </div>
 
                 {!isPickingTemplate && (
@@ -1093,10 +1154,12 @@ const BannerEditorBase = ({ scope, bannerId }: BannerEditorBaseProps) => {
                             variant="ghost"
                             size="md"
                             className="!rounded-full"
-                            leftIcon={!previewMutation.isPending ? <Eye className="h-4 w-4" /> : undefined}
-                            isLoading={previewMutation.isPending}
-                            onClick={() => previewMutation.mutate(getValues())}>
-                            <Trans id="settings.banners.editor.preview_action">Preview</Trans>
+                            leftIcon={<Eye className="h-4 w-4" />}
+                            onClick={(event) => {
+                                previewButtonRef.current = event.currentTarget;
+                                openPostPreview();
+                            }}>
+                            <Trans id="settings.banners.editor.preview_action">Preview in post</Trans>
                         </Button>
 
                         <Button
@@ -1117,13 +1180,15 @@ const BannerEditorBase = ({ scope, bannerId }: BannerEditorBaseProps) => {
                 )}
             </form>
 
-            {preview && (
+            {isPreviewOpen && (
                 <BannerPreviewDialog
-                    isOpen
-                    onClose={() => setPreview(null)}
-                    html={preview.html}
-                    position={preview.position}
-                    bannerType={preview.bannerType}
+                    onClose={closePostPreview}
+                    onReturnFocus={() => previewButtonRef.current?.focus({ preventScroll: true })}
+                    html={previewQuery.isPlaceholderData ? undefined : previewQuery.data}
+                    error={previewError}
+                    customHtml={template === 'html'}
+                    position={position}
+                    bannerType={bannerType}
                 />
             )}
         </div>

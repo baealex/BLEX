@@ -3,18 +3,10 @@ import { Code2 } from '@blex/ui/icons';
 import { cx } from '~/lib/classnames';
 import type { BannerTemplate, BannerTemplateGalleryItem } from '~/lib/api/settings';
 import { bannerTemplateMessages } from './bannerI18n';
+import ScaledBannerHtml from './ScaledBannerHtml';
+import { BANNER_SLOT_WIDTH } from './bannerTemplateRules';
 
-/** Thumbnails render the real banner at slot width and scale it down, so the picker shows what readers see. */
-const THUMBNAIL_SCALE = {
-    horizontal: {
-        width: 640,
-        zoom: 0.38
-    },
-    sidebar: {
-        width: 256,
-        zoom: 0.5
-    }
-} as const;
+const THUMBNAIL_HEIGHT = 220;
 
 interface TemplateOptionProps {
     label: string;
@@ -32,7 +24,8 @@ const TemplateOption = ({ label, selected, onSelect, children }: TemplateOptionP
         <div
             inert
             aria-hidden="true"
-            className="pointer-events-none flex h-36 items-center justify-center overflow-hidden border-b border-line-light bg-surface px-3">
+            style={{ height: THUMBNAIL_HEIGHT }}
+            className="pointer-events-none flex items-center justify-center overflow-hidden border-b border-line-light bg-surface px-4">
             {children}
         </div>
         <div
@@ -61,7 +54,7 @@ const BannerTemplatePicker = ({ gallery, allowHtml, value, onChange }: BannerTem
     const { i18n } = useLingui();
 
     return (
-        <div className="grid gap-3 sm:grid-cols-2 md:grid-cols-3">
+        <div className="grid gap-4 sm:grid-cols-2">
             {gallery.map((item) => {
                 const kind = item.bannerTypes[0];
                 return (
@@ -70,9 +63,10 @@ const BannerTemplatePicker = ({ gallery, allowHtml, value, onChange }: BannerTem
                         label={i18n._(bannerTemplateMessages[item.template])}
                         selected={value === item.template}
                         onSelect={() => onChange(item.template)}>
-                        <div
-                            style={THUMBNAIL_SCALE[kind]}
-                            dangerouslySetInnerHTML={{ __html: item.html }}
+                        <ScaledBannerHtml
+                            html={item.html}
+                            slotWidth={BANNER_SLOT_WIDTH[kind]}
+                            maxScale={kind === 'sidebar' ? 0.7 : 1}
                         />
                     </TemplateOption>
                 );

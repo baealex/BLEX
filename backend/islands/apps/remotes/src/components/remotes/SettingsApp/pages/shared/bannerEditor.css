@@ -1,0 +1,43 @@
+/*
+ * Banner editor layout: the live banner preview stays in view while the author edits.
+ * Kept out of shared utility classes so the styles every page loads do not grow.
+ */
+.banner-editor-preview {
+    position: sticky;
+    top: 3.5rem;
+    z-index: 1;
+    margin-bottom: 1.5rem;
+    padding: 1rem 0 0.75rem;
+    background: var(--color-surface);
+}
+
+.banner-editor-preview-frame {
+    max-height: min(12rem, 30svh);
+    overflow: auto;
+}
+
+@media (min-width: 1024px) {
+    .banner-editor-layout {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+        gap: 2.5rem;
+        align-items: start;
+    }
+
+    .banner-editor-preview {
+        grid-column: 2;
+        grid-row: 1;
+        top: 4.5rem;
+        margin-bottom: 0;
+        padding: 0;
+    }
+
+    .banner-editor-preview-frame {
+        max-height: calc(100dvh - 12rem);
+    }
+
+    .banner-editor-form {
+        grid-column: 1;
+        grid-row: 1;
+    }
+}
