@@ -32,7 +32,8 @@ export interface FrameDiff {
 
 export interface ChangeSummary {
     titleChanged: boolean;
-    addedSection: string | null;
+    /** Headings first written in this save; headings that only moved are left out. */
+    addedSections: string[];
     added: number;
     removed: number;
     rewritten: number;
@@ -88,9 +89,9 @@ const pushOp = (ops: TextOp[], kind: TextOp['kind'], text: string) => {
     const last = ops[ops.length - 1];
     if (last && last.kind === kind) last.text += text;
     else ops.push({
- kind,
-text
-});
+        kind,
+        text
+    });
 };
 
 /**
@@ -111,9 +112,9 @@ const pushChangedRun = (ops: TextOp[], deleted: string, inserted: string) => {
 
 export const diffText = (beforeText: string, afterText: string): TextOp[] => {
     if (beforeText === afterText) return beforeText ? [{
- kind: 'equal',
-text: beforeText
-}] : [];
+        kind: 'equal',
+        text: beforeText
+    }] : [];
 
     const before = tokenize(beforeText);
     const after = tokenize(afterText);
@@ -125,18 +126,18 @@ text: beforeText
 
     const raw: TextOp[] = [];
     if (prefix) raw.push({
- kind: 'equal',
-text: before.slice(0, prefix).join('')
-});
+        kind: 'equal',
+        text: before.slice(0, prefix).join('')
+    });
     if (middleBefore.length * middleAfter.length > MAX_TOKEN_CELLS) {
         raw.push({
- kind: 'delete',
-text: middleBefore.join('')
-});
+            kind: 'delete',
+            text: middleBefore.join('')
+        });
         raw.push({
- kind: 'insert',
-text: middleAfter.join('')
-});
+            kind: 'insert',
+            text: middleAfter.join('')
+        });
     } else {
         const table = lcsTable(middleBefore, middleAfter, isSame);
         let i = 0;
@@ -144,36 +145,36 @@ text: middleAfter.join('')
         while (i < middleBefore.length && j < middleAfter.length) {
             if (middleBefore[i] === middleAfter[j]) {
                 raw.push({
- kind: 'equal',
-text: middleBefore[i]
-});
+                    kind: 'equal',
+                    text: middleBefore[i]
+                });
                 i++;
                 j++;
             } else if (table[i + 1][j] >= table[i][j + 1]) {
                 raw.push({
- kind: 'delete',
-text: middleBefore[i++]
-});
+                    kind: 'delete',
+                    text: middleBefore[i++]
+                });
             } else {
                 raw.push({
- kind: 'insert',
-text: middleAfter[j++]
-});
+                    kind: 'insert',
+                    text: middleAfter[j++]
+                });
             }
         }
         while (i < middleBefore.length) raw.push({
- kind: 'delete',
-text: middleBefore[i++]
-});
+            kind: 'delete',
+            text: middleBefore[i++]
+        });
         while (j < middleAfter.length) raw.push({
- kind: 'insert',
-text: middleAfter[j++]
-});
+            kind: 'insert',
+            text: middleAfter[j++]
+        });
     }
     if (suffix) raw.push({
- kind: 'equal',
-text: before.slice(before.length - suffix).join('')
-});
+        kind: 'equal',
+        text: before.slice(before.length - suffix).join('')
+    });
 
     // A lone space between two changed words belongs to the change, not to the unchanged text.
     const folded: TextOp[] = [];
@@ -184,12 +185,12 @@ text: before.slice(before.length - suffix).join('')
             && raw[index + 1].kind !== 'equal';
         if (op.kind === 'equal' && !op.text.trim() && isBetweenChanges) {
             folded.push({
- kind: 'delete',
-text: op.text
-}, {
- kind: 'insert',
-text: op.text
-});
+                kind: 'delete',
+                text: op.text
+            }, {
+                kind: 'insert',
+                text: op.text
+            });
         } else {
             folded.push(op);
         }
@@ -244,14 +245,14 @@ export const blockSimilarity = (a: TimelapseBlock, b: TimelapseBlock) => {
 
 const toChange = (before: TimelapseBlock, after: TimelapseBlock): BlockChange => {
     if (before.text === after.text) return {
- kind: 'same',
-block: after
-};
+        kind: 'same',
+        block: after
+    };
     return {
- kind: 'edit',
-block: after,
-ops: diffText(before.text, after.text)
-};
+        kind: 'edit',
+        block: after,
+        ops: diffText(before.text, after.text)
+    };
 };
 
 export const alignBlocks = (before: TimelapseBlock[], after: TimelapseBlock[]): BlockChange[] => {
@@ -287,29 +288,29 @@ export const alignBlocks = (before: TimelapseBlock[], after: TimelapseBlock[]): 
             changes.push(toChange(middleBefore[i++], middleAfter[j++]));
         } else if (score[i + 1][j] >= score[i][j + 1]) {
             changes.push({
- kind: 'delete',
-block: middleBefore[i++]
-});
+                kind: 'delete',
+                block: middleBefore[i++]
+            });
         } else {
             changes.push({
- kind: 'insert',
-block: middleAfter[j++]
-});
+                kind: 'insert',
+                block: middleAfter[j++]
+            });
         }
     }
     while (i < middleBefore.length) changes.push({
- kind: 'delete',
-block: middleBefore[i++]
-});
+        kind: 'delete',
+        block: middleBefore[i++]
+    });
     while (j < middleAfter.length) changes.push({
- kind: 'insert',
-block: middleAfter[j++]
-});
+        kind: 'insert',
+        block: middleAfter[j++]
+    });
 
     after.slice(after.length - suffix).forEach((block) => changes.push({
- kind: 'same',
-block
-}));
+        kind: 'same',
+        block
+    }));
     return changes;
 };
 
@@ -329,12 +330,40 @@ const countOps = (ops: TextOp[], kind: TextOp['kind']) => ops
     .filter((op) => op.kind === kind)
     .reduce((total, op) => total + countVisibleCharacters(op.text), 0);
 
+const blockKey = (block: TimelapseBlock) => `${block.listTag ?? ''}|${block.tag}|${block.text}`;
+
+const isBlank = (block: TimelapseBlock) => block.textual && !block.text.trim();
+
+const countKeys = (changes: BlockChange[], kind: 'insert' | 'delete') => {
+    const counts = new Map<string, number>();
+    changes
+        .filter((change) => change.kind === kind && !isBlank(change.block))
+        .forEach((change) => counts.set(blockKey(change.block), (counts.get(blockKey(change.block)) ?? 0) + 1));
+    return counts;
+};
+
+/** Takes one unit from the budget for this block; true means the block only moved. */
+const takeMoved = (budget: Map<string, number>, block: TimelapseBlock) => {
+    const key = blockKey(block);
+    const remaining = budget.get(key) ?? 0;
+    if (remaining <= 0) return false;
+    budget.set(key, remaining - 1);
+    return true;
+};
+
 export const summarizeDiff = (diff: FrameDiff): ChangeSummary => {
+    // Unchanged blocks removed in one place and added in another were moved, not written or deleted.
+    const insertedKeys = countKeys(diff.blocks, 'insert');
+    const deletedKeys = countKeys(diff.blocks, 'delete');
+    const movedInsertBudget = new Map<string, number>();
+    insertedKeys.forEach((count, key) => movedInsertBudget.set(key, Math.min(count, deletedKeys.get(key) ?? 0)));
+    const movedDeleteBudget = new Map(movedInsertBudget);
+
     const insertedByTag = new Map<string, number>();
     const deletedByTag = new Map<string, number>();
+    const addedSections: string[] = [];
     let insertedCharacters = countOps(diff.title, 'insert');
     let deletedCharacters = countOps(diff.title, 'delete');
-    let addedSection: string | null = null;
     let edited = false;
 
     for (const change of diff.blocks) {
@@ -343,13 +372,15 @@ export const summarizeDiff = (diff: FrameDiff): ChangeSummary => {
             insertedCharacters += countOps(change.ops, 'insert');
             deletedCharacters += countOps(change.ops, 'delete');
         } else if (change.kind === 'insert') {
+            if (isBlank(change.block) || takeMoved(movedInsertBudget, change.block)) continue;
             insertedCharacters += blockCharacters(change.block);
             if (HEADING_TAG.test(change.block.tag)) {
-                addedSection ??= change.block.text.trim();
+                addedSections.push(change.block.text.trim());
             } else {
                 insertedByTag.set(change.block.tag, (insertedByTag.get(change.block.tag) ?? 0) + 1);
             }
         } else if (change.kind === 'delete') {
+            if (isBlank(change.block) || takeMoved(movedDeleteBudget, change.block)) continue;
             deletedCharacters += blockCharacters(change.block);
             deletedByTag.set(change.block.tag, (deletedByTag.get(change.block.tag) ?? 0) + 1);
         }
@@ -367,7 +398,7 @@ export const summarizeDiff = (diff: FrameDiff): ChangeSummary => {
 
     return {
         titleChanged: diff.title.some((op) => op.kind !== 'equal'),
-        addedSection: addedSection || null,
+        addedSections,
         added: sum(insertedByTag),
         removed: sum(deletedByTag),
         rewritten,

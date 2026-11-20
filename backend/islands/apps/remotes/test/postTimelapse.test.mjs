@@ -118,7 +118,7 @@ describe('summarizeDiff', () => {
         };
         const summary = summarizeDiff(diffFrames(before, after));
 
-        assert.equal(summary.addedSection, '한 달 써 보니');
+        assert.deepEqual(summary.addedSections, ['한 달 써 보니']);
         assert.equal(summary.added, 1);
         assert.equal(summary.insertedCharacters, measureFrame(after) - measureFrame(before));
         assert.equal(summary.titleChanged, false);
@@ -139,5 +139,37 @@ describe('summarizeDiff', () => {
         assert.equal(summary.rewritten, 1);
         assert.equal(summary.removed, 1);
         assert.equal(summary.added, 0);
+    });
+
+    test('names every section written in one save', () => {
+        const before = {
+            title: '초안',
+            blocks: [p('시작')]
+        };
+        const after = {
+            title: '초안',
+            blocks: [p('시작'), h2('왜 옮겼나'), li('서버비'), h2('옮기면서 막힌 곳'), p('업로드 크기 제한')]
+        };
+        const summary = summarizeDiff(diffFrames(before, after));
+
+        assert.deepEqual(summary.addedSections, ['왜 옮겼나', '옮기면서 막힌 곳']);
+    });
+
+    test('does not count moved sections or removed blank paragraphs as writing', () => {
+        const before = {
+            title: '글',
+            blocks: [p('시작'), h2('왜 옮겼나'), p(''), h2('옮기면서 막힌 곳'), p('업로드 크기 제한'), li('서버비')]
+        };
+        const after = {
+            title: '글',
+            blocks: [p('시작'), h2('왜 옮겼나'), li('서버비'), h2('옮기면서 막힌 곳'), p('업로드 크기 제한'), h2('한 달 써 보니'), p('아무도 몰랐다.')]
+        };
+        const summary = summarizeDiff(diffFrames(before, after));
+
+        assert.deepEqual(summary.addedSections, ['한 달 써 보니']);
+        assert.equal(summary.removed, 0);
+        assert.equal(summary.rewritten, 0);
+        assert.equal(summary.insertedCharacters, measureFrame(after) - measureFrame(before));
+        assert.equal(summary.deletedCharacters, 0);
     });
 });

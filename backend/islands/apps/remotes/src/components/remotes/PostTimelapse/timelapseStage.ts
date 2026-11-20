@@ -109,9 +109,9 @@ export const parseFrameHtml = (title: string, html: string): ParsedFrame => {
         blocks.push(toBlock(node, tag));
     });
     return {
- title,
-blocks
-};
+        title,
+        blocks
+    };
 };
 
 const fromMarkup = (block: TimelapseBlock): HTMLElement => {
@@ -130,15 +130,15 @@ const fromMarkup = (block: TimelapseBlock): HTMLElement => {
 const createTextBlock = (block: TimelapseBlock) => {
     const element = document.createElement(block.tag);
     if (block.tag !== 'pre') return {
- element,
-host: element
-};
+        element,
+        host: element
+    };
     const code = document.createElement('code');
     element.append(code);
     return {
- element,
-host: code
-};
+        element,
+        host: code
+    };
 };
 
 const createMark = (op: TextOp, mode: 'static' | 'animate') => {
@@ -191,9 +191,9 @@ const renderChange = (change: BlockChange, mode: 'static' | 'animate'): HTMLElem
 
     const { element, host } = createTextBlock(block);
     appendOps(host, [{
- kind: change.kind,
-text: block.text
-}], mode);
+        kind: change.kind,
+        text: block.text
+    }], mode);
     if (change.kind === 'delete') {
         element.dataset.removed = '';
     } else if (mode === 'animate') {
@@ -252,9 +252,9 @@ export const focusChange = (stage: TimelapseStage, reducedMotion: boolean) => {
     const behavior: ScrollBehavior = reducedMotion ? 'auto' : 'smooth';
     if (stage.title.contains(change)) {
         stage.scroller.scrollTo({
- top: 0,
-behavior
-});
+            top: 0,
+            behavior
+        });
         return;
     }
     const anchor = visibleAnchor(change);
@@ -372,7 +372,7 @@ const typeInsertions = (stage: TimelapseStage, signal: AbortSignal, getSpeed: ()
 
 /** Plays one save-to-save step. Resolves false as soon as the signal aborts. */
 export const playStep = async ({
- stage, diff, signal, getSpeed, reducedMotion
+    stage, diff, signal, getSpeed, reducedMotion
 }: StepOptions) => {
     const pause = (ms: number) => wait(ms / getSpeed(), signal);
 

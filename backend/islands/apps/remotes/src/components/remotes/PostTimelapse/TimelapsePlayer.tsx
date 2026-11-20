@@ -49,16 +49,18 @@ const TimelapsePlayer = ({ timelapse, scrollerRef, onClose }: TimelapsePlayerPro
     const indexRef = useRef(0);
     const speedRef = useRef(1);
     const playbackRef = useRef<AbortController | null>(null);
+    const autoplayTimerRef = useRef<number | null>(null);
 
     const getStage = (): TimelapseStage | null => {
         const title = titleRef.current;
         const content = contentRef.current;
         const scroller = scrollerRef.current;
-        return title && content && scroller ? {
- title,
-content,
-scroller
-} : null;
+        if (!title || !content || !scroller) return null;
+        return {
+            title,
+            content,
+            scroller
+        };
     };
 
     const moveTo = (target: number) => {
@@ -66,7 +68,12 @@ scroller
         setIndex(target);
     };
 
+    /** Also cancels the pending autoplay, so a seek right after opening is not overridden. */
     const stopPlayback = () => {
+        if (autoplayTimerRef.current !== null) {
+            window.clearTimeout(autoplayTimerRef.current);
+            autoplayTimerRef.current = null;
+        }
         playbackRef.current?.abort();
         playbackRef.current = null;
     };
@@ -105,9 +112,9 @@ scroller
         renderFrame(stage, frames[current].title, frames[current].contentHtml);
         if (isRestart) {
             stage.scroller.scrollTo({
- top: 0,
-behavior: reducedMotion ? 'auto' : 'smooth'
-});
+                top: 0,
+                behavior: reducedMotion ? 'auto' : 'smooth'
+            });
             if (!await wait(RESTART_DELAY, controller.signal)) return;
         }
 
@@ -135,17 +142,18 @@ behavior: reducedMotion ? 'auto' : 'smooth'
     const startOnOpen = useEffectEvent(() => {
         const stage = getStage();
         if (stage) renderFrame(stage, frames[0].title, frames[0].contentHtml);
-        if (last < 1) return undefined;
-        const timer = window.setTimeout(() => void play(), AUTOPLAY_DELAY);
-        return () => window.clearTimeout(timer);
+        if (last < 1) return;
+        autoplayTimerRef.current = window.setTimeout(() => {
+            autoplayTimerRef.current = null;
+            void play();
+        }, AUTOPLAY_DELAY);
     });
 
+    const stopOnClose = useEffectEvent(() => stopPlayback());
+
     useEffect(() => {
-        const cancelAutoplay = startOnOpen();
-        return () => {
-            cancelAutoplay?.();
-            stopPlayback();
-        };
+        startOnOpen();
+        return () => stopOnClose();
     }, []);
 
     const locale = normalizeLocale(i18n.locale);
@@ -176,11 +184,18 @@ behavior: reducedMotion ? 'auto' : 'smooth'
                 message: 'Changed the title'
             }));
         }
-        if (summary.addedSection) {
+        const [firstSection] = summary.addedSections;
+        if (summary.addedSections.length > 1) {
+            parts.push(i18n._({
+                id: 'post_timelapse.change.added_sections',
+                message: '{count, plural, one {Added # section} other {Added # sections}}',
+                values: { count: summary.addedSections.length }
+            }));
+        } else if (firstSection !== undefined) {
             parts.push(i18n._({
                 id: 'post_timelapse.change.added_section',
                 message: 'Added the “{name}” section',
-                values: { name: summary.addedSection }
+                values: { name: firstSection }
             }));
         } else {
             if (summary.rewritten) {

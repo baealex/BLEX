@@ -2257,78 +2257,83 @@ msgid "pagination.previous"
 msgstr "Previous page"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostTimelapse/TimelapsePlayer.tsx:232
+#: src/components/remotes/PostTimelapse/TimelapsePlayer.tsx:247
 msgid "post_timelapse.badge.after_publishing"
 msgstr "After publishing"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostTimelapse/TimelapsePlayer.tsx:222
+#: src/components/remotes/PostTimelapse/TimelapsePlayer.tsx:237
 msgid "post_timelapse.badge.current"
 msgstr "Current post"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostTimelapse/TimelapsePlayer.tsx:227
+#: src/components/remotes/PostTimelapse/TimelapsePlayer.tsx:242
 msgid "post_timelapse.badge.draft"
 msgstr "Draft"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostTimelapse/TimelapsePlayer.tsx:194
+#: src/components/remotes/PostTimelapse/TimelapsePlayer.tsx:209
 msgid "post_timelapse.change.added_paragraphs"
 msgstr "{count, plural, one {Added # paragraph} other {Added # paragraphs}}"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostTimelapse/TimelapsePlayer.tsx:180
+#: src/components/remotes/PostTimelapse/TimelapsePlayer.tsx:195
 msgid "post_timelapse.change.added_section"
 msgstr "Added the “{name}” section"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostTimelapse/TimelapsePlayer.tsx:167
+#: src/components/remotes/PostTimelapse/TimelapsePlayer.tsx:189
+msgid "post_timelapse.change.added_sections"
+msgstr "{count, plural, one {Added # section} other {Added # sections}}"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostTimelapse/TimelapsePlayer.tsx:175
 msgid "post_timelapse.change.first_save"
 msgstr "First save"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostTimelapse/TimelapsePlayer.tsx:214
+#: src/components/remotes/PostTimelapse/TimelapsePlayer.tsx:229
 msgid "post_timelapse.change.formatting"
 msgstr "Adjusted the formatting"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostTimelapse/TimelapsePlayer.tsx:209
+#: src/components/remotes/PostTimelapse/TimelapsePlayer.tsx:224
 msgid "post_timelapse.change.polished"
 msgstr "Polished the wording"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostTimelapse/TimelapsePlayer.tsx:202
+#: src/components/remotes/PostTimelapse/TimelapsePlayer.tsx:217
 msgid "post_timelapse.change.removed_paragraphs"
 msgstr "{count, plural, one {Removed # paragraph} other {Removed # paragraphs}}"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostTimelapse/TimelapsePlayer.tsx:187
+#: src/components/remotes/PostTimelapse/TimelapsePlayer.tsx:202
 msgid "post_timelapse.change.rewrote_paragraphs"
 msgstr "{count, plural, one {Rewrote # paragraph} other {Rewrote # paragraphs}}"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostTimelapse/TimelapsePlayer.tsx:174
+#: src/components/remotes/PostTimelapse/TimelapsePlayer.tsx:182
 msgid "post_timelapse.change.title"
 msgstr "Changed the title"
 
 #. js-lingui-explicit-id
 #: src/components/remotes/PostTimelapse/TimelapseDialog.tsx:90
-#: src/components/remotes/PostTimelapse/TimelapsePlayer.tsx:353
+#: src/components/remotes/PostTimelapse/TimelapsePlayer.tsx:368
 msgid "post_timelapse.close"
 msgstr "Close"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostTimelapse/TimelapsePlayer.tsx:290
+#: src/components/remotes/PostTimelapse/TimelapsePlayer.tsx:305
 msgid "post_timelapse.controls"
 msgstr "Replay controls"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostTimelapse/TimelapsePlayer.tsx:328
+#: src/components/remotes/PostTimelapse/TimelapsePlayer.tsx:343
 msgid "post_timelapse.deleted_characters"
 msgstr "{count, plural, one {−# char} other {−# chars}}"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostTimelapse/TimelapsePlayer.tsx:280
+#: src/components/remotes/PostTimelapse/TimelapsePlayer.tsx:295
 msgid "post_timelapse.empty"
 msgstr "There are no text changes to replay yet."
 
@@ -2338,7 +2343,7 @@ msgid "post_timelapse.error.load"
 msgstr "Could not load how this post was written."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostTimelapse/TimelapsePlayer.tsx:320
+#: src/components/remotes/PostTimelapse/TimelapsePlayer.tsx:335
 msgid "post_timelapse.inserted_characters"
 msgstr "{count, plural, one {+# char} other {+# chars}}"
 
@@ -2353,22 +2358,22 @@ msgid "post_timelapse.open"
 msgstr "How it was written"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostTimelapse/TimelapsePlayer.tsx:256
+#: src/components/remotes/PostTimelapse/TimelapsePlayer.tsx:271
 msgid "post_timelapse.pause"
 msgstr "Pause"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostTimelapse/TimelapsePlayer.tsx:251
+#: src/components/remotes/PostTimelapse/TimelapsePlayer.tsx:266
 msgid "post_timelapse.play"
 msgstr "Play"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostTimelapse/TimelapsePlayer.tsx:375
+#: src/components/remotes/PostTimelapse/TimelapsePlayer.tsx:390
 msgid "post_timelapse.published_marker"
 msgstr "Published"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostTimelapse/TimelapsePlayer.tsx:261
+#: src/components/remotes/PostTimelapse/TimelapsePlayer.tsx:276
 msgid "post_timelapse.replay"
 msgstr "Replay from the first save"
 
@@ -2378,22 +2383,22 @@ msgid "post_timelapse.retry"
 msgstr "Try again"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostTimelapse/TimelapsePlayer.tsx:386
+#: src/components/remotes/PostTimelapse/TimelapsePlayer.tsx:401
 msgid "post_timelapse.sampled"
 msgstr "Showing {shown} of {total} saves"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostTimelapse/TimelapsePlayer.tsx:240
+#: src/components/remotes/PostTimelapse/TimelapsePlayer.tsx:255
 msgid "post_timelapse.save_position"
 msgstr "Save {current} of {total}"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostTimelapse/TimelapsePlayer.tsx:339
+#: src/components/remotes/PostTimelapse/TimelapsePlayer.tsx:354
 msgid "post_timelapse.speed"
 msgstr "Playback speed"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostTimelapse/TimelapsePlayer.tsx:371
+#: src/components/remotes/PostTimelapse/TimelapsePlayer.tsx:386
 msgid "post_timelapse.timeline"
 msgstr "Saved versions"
 

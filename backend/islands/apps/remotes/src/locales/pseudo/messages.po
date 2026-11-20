@@ -2257,78 +2257,83 @@ msgid "pagination.previous"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostTimelapse/TimelapsePlayer.tsx:232
+#: src/components/remotes/PostTimelapse/TimelapsePlayer.tsx:247
 msgid "post_timelapse.badge.after_publishing"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostTimelapse/TimelapsePlayer.tsx:222
+#: src/components/remotes/PostTimelapse/TimelapsePlayer.tsx:237
 msgid "post_timelapse.badge.current"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostTimelapse/TimelapsePlayer.tsx:227
+#: src/components/remotes/PostTimelapse/TimelapsePlayer.tsx:242
 msgid "post_timelapse.badge.draft"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostTimelapse/TimelapsePlayer.tsx:194
+#: src/components/remotes/PostTimelapse/TimelapsePlayer.tsx:209
 msgid "post_timelapse.change.added_paragraphs"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostTimelapse/TimelapsePlayer.tsx:180
+#: src/components/remotes/PostTimelapse/TimelapsePlayer.tsx:195
 msgid "post_timelapse.change.added_section"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostTimelapse/TimelapsePlayer.tsx:167
+#: src/components/remotes/PostTimelapse/TimelapsePlayer.tsx:189
+msgid "post_timelapse.change.added_sections"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostTimelapse/TimelapsePlayer.tsx:175
 msgid "post_timelapse.change.first_save"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostTimelapse/TimelapsePlayer.tsx:214
+#: src/components/remotes/PostTimelapse/TimelapsePlayer.tsx:229
 msgid "post_timelapse.change.formatting"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostTimelapse/TimelapsePlayer.tsx:209
+#: src/components/remotes/PostTimelapse/TimelapsePlayer.tsx:224
 msgid "post_timelapse.change.polished"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostTimelapse/TimelapsePlayer.tsx:202
+#: src/components/remotes/PostTimelapse/TimelapsePlayer.tsx:217
 msgid "post_timelapse.change.removed_paragraphs"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostTimelapse/TimelapsePlayer.tsx:187
+#: src/components/remotes/PostTimelapse/TimelapsePlayer.tsx:202
 msgid "post_timelapse.change.rewrote_paragraphs"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostTimelapse/TimelapsePlayer.tsx:174
+#: src/components/remotes/PostTimelapse/TimelapsePlayer.tsx:182
 msgid "post_timelapse.change.title"
 msgstr ""
 
 #. js-lingui-explicit-id
 #: src/components/remotes/PostTimelapse/TimelapseDialog.tsx:90
-#: src/components/remotes/PostTimelapse/TimelapsePlayer.tsx:353
+#: src/components/remotes/PostTimelapse/TimelapsePlayer.tsx:368
 msgid "post_timelapse.close"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostTimelapse/TimelapsePlayer.tsx:290
+#: src/components/remotes/PostTimelapse/TimelapsePlayer.tsx:305
 msgid "post_timelapse.controls"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostTimelapse/TimelapsePlayer.tsx:328
+#: src/components/remotes/PostTimelapse/TimelapsePlayer.tsx:343
 msgid "post_timelapse.deleted_characters"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostTimelapse/TimelapsePlayer.tsx:280
+#: src/components/remotes/PostTimelapse/TimelapsePlayer.tsx:295
 msgid "post_timelapse.empty"
 msgstr ""
 
@@ -2338,7 +2343,7 @@ msgid "post_timelapse.error.load"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostTimelapse/TimelapsePlayer.tsx:320
+#: src/components/remotes/PostTimelapse/TimelapsePlayer.tsx:335
 msgid "post_timelapse.inserted_characters"
 msgstr ""
 
@@ -2353,22 +2358,22 @@ msgid "post_timelapse.open"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostTimelapse/TimelapsePlayer.tsx:256
+#: src/components/remotes/PostTimelapse/TimelapsePlayer.tsx:271
 msgid "post_timelapse.pause"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostTimelapse/TimelapsePlayer.tsx:251
+#: src/components/remotes/PostTimelapse/TimelapsePlayer.tsx:266
 msgid "post_timelapse.play"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostTimelapse/TimelapsePlayer.tsx:375
+#: src/components/remotes/PostTimelapse/TimelapsePlayer.tsx:390
 msgid "post_timelapse.published_marker"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostTimelapse/TimelapsePlayer.tsx:261
+#: src/components/remotes/PostTimelapse/TimelapsePlayer.tsx:276
 msgid "post_timelapse.replay"
 msgstr ""
 
@@ -2378,22 +2383,22 @@ msgid "post_timelapse.retry"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostTimelapse/TimelapsePlayer.tsx:386
+#: src/components/remotes/PostTimelapse/TimelapsePlayer.tsx:401
 msgid "post_timelapse.sampled"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostTimelapse/TimelapsePlayer.tsx:240
+#: src/components/remotes/PostTimelapse/TimelapsePlayer.tsx:255
 msgid "post_timelapse.save_position"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostTimelapse/TimelapsePlayer.tsx:339
+#: src/components/remotes/PostTimelapse/TimelapsePlayer.tsx:354
 msgid "post_timelapse.speed"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostTimelapse/TimelapsePlayer.tsx:371
+#: src/components/remotes/PostTimelapse/TimelapsePlayer.tsx:386
 msgid "post_timelapse.timeline"
 msgstr ""
 
