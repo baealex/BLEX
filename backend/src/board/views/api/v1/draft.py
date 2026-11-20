@@ -1,6 +1,7 @@
 from django.http import Http404
 from django.http.multipartparser import MultiPartParser
 from django.shortcuts import get_object_or_404
+from django.utils import timezone
 
 from board.models import Post
 from board.decorators import api_editor_required
@@ -33,7 +34,7 @@ def drafts_list(request):
                 'title': draft.title,
                 'image': str(draft.image) if draft.image else None,
                 'created_date': draft.time_since(),
-                'updated_date': draft.updated_date.strftime('%Y-%m-%d'),
+                'updated_date': timezone.localdate(draft.updated_date).isoformat(),
             }, drafts)),
         })
 

@@ -669,9 +669,9 @@ class SettingTestCase(TestCase):
         self.assertEqual(posts_response.status_code, 200)
         self.assertEqual(tag_response.status_code, 200)
         self.assertEqual(series_response.status_code, 200)
-        self.assertLessEqual(len(post_queries), 9)
-        self.assertLessEqual(len(tag_queries), 6)
-        self.assertLessEqual(len(series_queries), 6)
+        self.assertLessEqual(len(post_queries), 10)
+        self.assertLessEqual(len(tag_queries), 7)
+        self.assertLessEqual(len(series_queries), 7)
 
         with CaptureQueriesContext(connection) as service_queries:
             list(SettingPostManagementService.get_post_management_queryset(user))

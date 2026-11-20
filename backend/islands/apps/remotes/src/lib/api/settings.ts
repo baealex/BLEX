@@ -6,8 +6,25 @@ export interface AccountData {
     email: string;
     has2fa: boolean;
     createdDate: string;
+    regionalPreferences: RegionalPreferences;
     accountDeletionRedirectUrl?: string;
 }
+
+export interface RegionalPreferences {
+    language: string | null;
+    timeZone: string;
+    defaultLanguage: string;
+    defaultTimeZone: string;
+    languages: { code: string; label: string }[];
+    timeZones: string[];
+}
+
+export const updateRegionalPreferences = (language: string | null, timeZone: string) => (
+    http.put<Response<Record<string, never>>>('v1/setting/regional-preferences', {
+        language,
+        time_zone: timeZone
+    })
+);
 
 export interface AccountUpdateData {
     username?: string;

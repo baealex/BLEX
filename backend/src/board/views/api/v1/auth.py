@@ -23,6 +23,7 @@ from board.services.initial_setup_service import InitialSetupService
 from board.services.api_request_body_service import ApiRequestBodyService
 from board.services.hcaptcha_service import HCaptchaService
 from board.services.oauth_flow_service import OAuthFlowService
+from board.services.regional_preferences_service import RegionalPreferencesService
 from board.services.social_auth_provider_service import SocialAuthProviderService
 from board.services.social_signup_service import (
     SocialSignupError,
@@ -128,11 +129,14 @@ def sign(request):
 
         try:
             with transaction.atomic():
-                new_user, _, _ = AuthService.create_user(
+                new_user, _, config = AuthService.create_user(
                     username=username,
                     name=name,
                     email=email,
-                    password=password
+                    password=password,
+                )
+                RegionalPreferencesService.initialize(
+                    config, request.LANGUAGE_CODE, request.POST.get('time_zone'),
                 )
                 AuthorInviteService.redeem_invite(author_invite, new_user)
         except AuthorInviteError as e:
@@ -208,6 +212,8 @@ def sign_social(request, social):
                 code=request.POST.get('code'),
                 verifier=flow['verifier'],
                 redirect_uri=flow['redirect_uri'],
+                language=flow.get('language', ''),
+                time_zone=flow.get('time_zone', ''),
             )
         except SocialSignupError as error:
             if error.kind == SocialSignupErrorKind.INITIAL_SETUP_REQUIRED:

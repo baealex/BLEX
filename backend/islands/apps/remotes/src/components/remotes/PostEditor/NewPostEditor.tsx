@@ -24,7 +24,7 @@ import { useFormSubmit } from './hooks/useFormSubmit';
 import { Info } from '@blex/ui/icons';
 import { startFirstPublishTour as startFirstPublishTourDriver } from './utils/firstPublishTour';
 import { getPublishChecklist } from './utils/publishChecklist';
-import { toDateTimeLocalValue } from './utils/scheduleDate';
+import { toReservedDateValue } from './utils/scheduleDate';
 import { getSeries } from '~/lib/api/settings';
 import { getDraft } from '~/lib/api/posts';
 import { normalizeLocale } from '~/i18n/locale';
@@ -287,7 +287,7 @@ const NewPostEditor = ({
                         const newTags = draftData.tags ? draftData.tags.split(',').filter(Boolean) : [];
                         const newSubtitle = draftData.subtitle || '';
                         const newDescription = draftData.description || '';
-                        const newReservedDate = toDateTimeLocalValue(draftData.reservedDate);
+                        const newReservedDate = toReservedDateValue(draftData.reservedDate);
 
                         setFormData(prev => ({
                             ...prev,

@@ -79,7 +79,7 @@ class PostPreviewViewTestCase(TestCase):
         with CaptureQueriesContext(connection) as captured:
             response = self.client.get(self.preview_url)
 
-        self.assertEqual(len(captured), 9)
+        self.assertEqual(len(captured), 10)
 
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'board/posts/post_detail.html')

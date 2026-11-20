@@ -2,7 +2,7 @@
 
 import { defaultShouldDehydrateQuery, QueryClient, type Query } from '@tanstack/react-query';
 import type { PersistedClient, Persister } from '@tanstack/react-query-persist-client';
-import { getDocumentLocale } from '../i18n/locale';
+import { getDocumentLocale, getDocumentTimeZone } from '../i18n/locale';
 import { buildQueryCacheKey } from './query-cache-key';
 
 const getCurrentUsername = () => {
@@ -10,7 +10,7 @@ const getCurrentUsername = () => {
 };
 
 const getCurrentCacheKey = () => {
-    return buildQueryCacheKey(getCurrentUsername(), getDocumentLocale());
+    return buildQueryCacheKey(getCurrentUsername(), getDocumentLocale(), getDocumentTimeZone());
 };
 
 /** Queries can opt out with `meta: { persist: false }` when their payload is too large for sessionStorage. */

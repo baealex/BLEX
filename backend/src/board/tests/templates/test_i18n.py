@@ -1,9 +1,14 @@
+from datetime import UTC, datetime
+
 from django.conf import settings
-from django.test import TestCase, override_settings
+from django.test import Client, TestCase, override_settings
 from django.urls import reverse
+from django.utils import timezone
+
+from board.models import Config, User
 
 
-class LocaleIntegrationTestCase(TestCase):
+class PageLocaleAssertions:
     def assert_page_locale(self, response, locale):
         content = response.content.decode()
         self.assertRegex(
@@ -15,6 +20,8 @@ class LocaleIntegrationTestCase(TestCase):
             rf'locale\s*:\s*[`"\']{locale}[`"\']',
         )
 
+
+class LocaleIntegrationTestCase(PageLocaleAssertions, TestCase):
     def test_search_page_uses_korean_consistently_by_default(self):
         response = self.client.get(reverse('search'), {'q': 'Python'})
 
@@ -78,3 +85,72 @@ class LocaleIntegrationTestCase(TestCase):
 
         self.assertEqual(response['Content-Language'], 'ko')
         self.assert_page_locale(response, 'ko')
+
+
+@override_settings(LANGUAGE_CODE='ko', LANGUAGES=[('ko', 'Korean'), ('en', 'English')], TIME_ZONE='Asia/Seoul')
+class RegionalPreferencesTestCase(PageLocaleAssertions, TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        cls.user = User.objects.create_user(username='reader', date_joined=datetime(2026, 1, 2, 1, tzinfo=UTC))
+
+    def save_preferences(self, language, time_zone):
+        return self.client.put(
+            '/v1/setting/regional-preferences',
+            {'language': language, 'time_zone': time_zone},
+            content_type='application/json',
+        )
+
+    def test_account_preferences_apply_to_pages_and_api_in_another_session(self):
+        self.client.force_login(self.user)
+        self.assertEqual(self.save_preferences('en', 'America/Los_Angeles').json()['status'], 'DONE')
+
+        other_browser = Client(HTTP_ACCEPT_LANGUAGE='ko-KR')
+        other_browser.cookies[settings.LANGUAGE_COOKIE_NAME] = 'ko'
+        other_browser.force_login(self.user)
+        page = other_browser.get(reverse('search'))
+        self.assertEqual(page['Content-Language'], 'en')
+        self.assert_page_locale(page, 'en')
+        self.assertRegex(page.content.decode(), r'timeZone\s*:\s*["\x27`]America/Los_Angeles["\x27`]')
+        self.assertIn('Cookie', page['Vary'])
+
+        account = other_browser.get('/v1/setting/account')
+        self.assertEqual(account['Content-Language'], 'en')
+        self.assertEqual(account.json()['body']['createdDate'], '2026-01-01')
+        preferences = account.json()['body']['regionalPreferences']
+        self.assertEqual((preferences['language'], preferences['timeZone']), ('en', 'America/Los_Angeles'))
+        self.assertIn('America/Los_Angeles', preferences['timeZones'])
+
+        self.assertEqual(timezone.get_current_timezone_name(), 'Asia/Seoul')
+
+    def test_existing_accounts_follow_browser_language_until_a_preference_is_saved(self):
+        self.client.force_login(self.user)
+        initial = self.client.get('/v1/setting/account', HTTP_ACCEPT_LANGUAGE='en-US')
+        self.assertEqual(initial['Content-Language'], 'en')
+        self.assertEqual(initial.json()['body']['createdDate'], '2026-01-02')
+
+        self.assertEqual(self.save_preferences('', '').json()['status'], 'DONE')
+        default_page = self.client.get('/v1/setting/account', HTTP_ACCEPT_LANGUAGE='en-US')
+        self.assertEqual(default_page['Content-Language'], 'ko')
+
+        self.assertEqual(self.save_preferences(None, '').json()['status'], 'DONE')
+        config = Config.objects.get(user=self.user)
+        self.assertEqual((config.language, config.time_zone), (None, ''))
+
+    @override_settings(LANGUAGES=[('ko', 'Korean')])
+    def test_validation_preserves_preferences_and_respects_available_languages(self):
+        Config.objects.create(user=self.user, language='en', time_zone='Asia/Tokyo')
+        self.client.force_login(self.user)
+        invalid_language = self.save_preferences('en', 'UTC')
+        invalid_zone = self.save_preferences('ko', 'Mars/Olympus')
+
+        self.assertEqual(invalid_language['Content-Language'], 'ko')
+        self.assertEqual(invalid_language.json()['messageKey'], 'settings.regional_preferences.invalid_language')
+        self.assertEqual(invalid_zone.json()['messageKey'], 'settings.regional_preferences.invalid_time_zone')
+        config = Config.objects.get(user=self.user)
+        self.assertEqual((config.language, config.time_zone), ('en', 'Asia/Tokyo'))
+
+    def test_regional_preferences_require_authentication(self):
+        response = self.save_preferences('en', 'UTC')
+
+        self.assertEqual(response.json()['errorCode'], 'error:NL')
+        self.assertFalse(Config.objects.filter(user=self.user).exists())

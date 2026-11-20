@@ -101,7 +101,7 @@ class UserManagementAPITestCase(TestCase):
             for index, user in enumerate(users)
         ])
 
-        with self.assertNumQueries(6):
+        with self.assertNumQueries(7):
             response = self.client.get('/v1/admin/users?page_size=100')
 
         self.assertEqual(response.status_code, 200)
@@ -121,7 +121,7 @@ class UserManagementAPITestCase(TestCase):
             for index in range(40)
         ])
 
-        with self.assertNumQueries(4):
+        with self.assertNumQueries(5):
             response = self.client.get('/v1/admin/author-invites')
 
         self.assertEqual(response.status_code, 200)
