@@ -328,6 +328,8 @@ const Signup = () => {
             <div className="bg-surface/60 backdrop-blur-2xl rounded-[2rem] shadow-elevated border border-line/40 p-8 md:p-10 relative overflow-hidden">
                 <div className="absolute inset-0 bg-gradient-to-b from-surface/40 to-transparent pointer-events-none" />
                 <div className="relative z-10">
+                    {!isInviteSignup && <SocialLogin showPasswordDivider />}
+
                     {/* Signup Form */}
                     <form className="space-y-5" noValidate onSubmit={handleSubmit}>
                         <input type="hidden" name="csrfmiddlewaretoken" value={getCsrfToken()} />
@@ -547,8 +549,6 @@ const Signup = () => {
                             )}
                         </button>
                     </form>
-
-                    <SocialLogin />
 
                     {/* Footer Links */}
                     <div className="text-center pt-6 border-t border-line-light/50">

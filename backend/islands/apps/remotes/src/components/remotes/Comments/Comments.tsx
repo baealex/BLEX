@@ -1,6 +1,6 @@
 import { Plural, Trans } from '@lingui/react/macro';
 import { AlertTriangle, MessageCircle, RotateCw } from '@blex/ui/icons';
-import { isLoggedIn as checkIsLoggedIn, showLoginPrompt } from '~/utils/loginPrompt';
+import { isLoggedIn as checkIsLoggedIn, showLoginPrompt, type LoginPromptAction } from '~/utils/loginPrompt';
 import { CommentList } from './components/CommentList';
 import { CommentForm } from './components/CommentForm';
 import { useCommentsController } from './hooks/useCommentsController';
@@ -9,6 +9,23 @@ import type { Comment } from '~/lib/api/comments';
 interface CommentsProps {
     postUrl: string;
 }
+
+const COMMENTS_HASH = '#post-comments';
+const REPLY_TO_PARAM = 'reply_to';
+
+const requireCommentLogin = (action: LoginPromptAction, replyTo?: number) => {
+    if (action !== 'comment' && action !== 'reply') {
+        showLoginPrompt(action);
+        return;
+    }
+
+    const url = new URL(window.location.href);
+    url.searchParams.delete(REPLY_TO_PARAM);
+    if (replyTo !== undefined) {
+        url.searchParams.set(REPLY_TO_PARAM, String(replyTo));
+    }
+    showLoginPrompt(action, `${url.pathname}${url.search}${COMMENTS_HASH}`);
+};
 
 const countComments = (comments: Comment[]): number => (
     comments.reduce((total, comment) => total + 1 + countComments(comment.replies ?? []), 0)
@@ -37,6 +54,10 @@ const CommentsHeader = ({ count }: { count?: number }) => (
 const Comments = (props: CommentsProps) => {
     const { postUrl } = props;
     const isLoggedIn = checkIsLoggedIn();
+    const returningToComments = isLoggedIn && window.location.hash === COMMENTS_HASH;
+    const initialReplyTo = returningToComments
+        ? new URLSearchParams(window.location.search).get(REPLY_TO_PARAM)
+        : null;
     const {
         comments,
         canComment,
@@ -66,7 +87,8 @@ const Comments = (props: CommentsProps) => {
     } = useCommentsController({
         postUrl,
         isLoggedIn,
-        onRequireLogin: showLoginPrompt
+        initialReplyTo: initialReplyTo ? Number(initialReplyTo) : null,
+        onRequireLogin: requireCommentLogin
     });
 
     if (isError) {
@@ -131,7 +153,7 @@ const Comments = (props: CommentsProps) => {
                     onEditTextChange={setEditText}
                     onSaveEdit={saveEdit}
                     onCancelEdit={cancelEditing}
-                    onReply={startReplying}
+                    onReply={canComment ? startReplying : undefined}
                     onReplyTextChange={setReplyText}
                     onSaveReply={handleReply}
                     onCancelReply={cancelReplying}
@@ -152,7 +174,8 @@ const Comments = (props: CommentsProps) => {
                         onCommentTextChange={setCommentText}
                         onSubmit={handleWrite}
                         isSubmitting={isSubmitting}
-                        onShowLoginPrompt={() => showLoginPrompt('comment')}
+                        onShowLoginPrompt={() => requireCommentLogin('comment')}
+                        focusOnMount={returningToComments && !initialReplyTo}
                         mentionableUsers={mentionableUsers}
                     />
                 </div>

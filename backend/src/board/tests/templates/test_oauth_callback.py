@@ -337,10 +337,11 @@ class OAuthCallbackTestCase(TestCase):
             totp_secret=totp_secret
         )
 
-        response = self.complete_oauth(next_url='/setting/posts')
+        next_url = '/@testauthor/post?reply_to=42#post-comments'
+        response = self.complete_oauth(next_url=next_url)
 
         self.assertEqual(response.url, '/login')
-        self.assertEqual(self.client.get('/login').context['next_url'], '/setting/posts')
+        self.assertEqual(self.client.get('/login').context['next_url'], next_url)
 
     @patch('modules.oauth.auth_github', return_value=oauth.State(success=False, user={}))
     def test_github_oauth_callback_failure(self, mock_github):
@@ -383,16 +384,26 @@ class OAuthCallbackTestCase(TestCase):
     }))
     def test_github_oauth_callback_with_next_url(self, mock_github):
         """GitHub OAuth 콜백 시 next URL로 리다이렉트 테스트"""
-        response = self.complete_oauth(next_url='/setting/profile')
+        next_url = '/@testauthor/post?reply_to=42#post-comments'
+        response = self.complete_oauth(next_url=next_url)
 
         # Should redirect to the next URL
         self.assertEqual(response.status_code, 302)
-        self.assertEqual(response.url, '/setting/profile')
+        self.assertEqual(response.url, next_url)
 
         # Verify user is logged in
         user = User.objects.get(username='usernext')
         user_from_session = self.client.session.get('_auth_user_id')
         self.assertEqual(int(user_from_session), user.id)
+
+    @patch('modules.oauth.auth_github', return_value=oauth.State(success=False))
+    def test_failed_oauth_preserves_next_url_for_retry(self, mock_github):
+        next_url = '/@testauthor/post?reply_to=42#post-comments'
+
+        response = self.complete_oauth(code='invalid_code', next_url=next_url)
+
+        self.assertRedirects(response, reverse('login', query={'next': next_url}))
+        self.assertEqual(self.client.get(response.url).context['next_url'], next_url)
 
     @patch('modules.oauth.auth_github', return_value=oauth.State(success=True, user={
         'node_id': 'GITHUB_NODE_ID_EXTERNAL_NEXT',

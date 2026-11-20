@@ -1,5 +1,52 @@
 import { expect, test } from '@playwright/test';
 
+test('offers social sign-in from a reply and restores the reply after signing in', async ({ page }) => {
+    const post = '/@smoke-admin/comment-smoke-test';
+    const commentNext = `${post}#post-comments`;
+    const next = `${post}?reply_to=1#post-comments`;
+    await page.setViewportSize({ width: 375, height: 812 });
+    await page.emulateMedia({ colorScheme: 'dark' });
+    await page.route('https://js.hcaptcha.com/**', (route) => route.abort());
+    await page.route('**/v1/social-providers', (route) => route.fulfill({
+        json: {
+            status: 'DONE',
+            body: [
+                { key: 'github', name: 'GitHub', client_id: 'test-github' },
+                { key: 'google', name: 'Google', client_id: 'test-google' }
+            ]
+        }
+    }));
+
+    await page.goto(commentNext);
+    await page.getByRole('button', { name: '로그인하고 댓글 작성' }).click();
+    const dialog = page.getByRole('dialog');
+    const github = dialog.getByRole('link', { name: 'GitHub로 계속하기' });
+    await expect(github).toHaveAttribute('href', `/login/start/github?${new URLSearchParams({ next: commentNext })}`);
+    await page.keyboard.press('Escape');
+    await expect(dialog).toBeHidden();
+
+    await page.locator('[data-comment-id="1"]').getByText('답글', { exact: true }).click();
+    await expect(github).toHaveAttribute('href', `/login/start/github?${new URLSearchParams({ next })}`);
+    await expect(dialog.getByRole('link', { name: 'Google로 계속하기' })).toBeVisible();
+
+    // The smoke site has no real OAuth credentials. The failed start returns to login with `next` intact.
+    await github.click();
+    await expect(page.getByRole('link', { name: 'GitHub로 계속하기' })).toHaveAttribute(
+        'href', `/login/start/github?${new URLSearchParams({ next })}`
+    );
+    await page.locator('#username').fill('smokereader');
+    await page.locator('#password').fill('smoke-reader-password');
+    await page.locator('#password').press('Enter');
+
+    await expect(page).toHaveURL((url) => url.pathname + url.search + url.hash === next);
+    const thread = page.locator('[data-comment-id="1"]');
+    const reply = thread.getByPlaceholder('답글을 작성하세요...');
+    await expect(reply).toBeFocused();
+    await reply.fill('A reply after signing in.');
+    await thread.getByRole('button', { name: '댓글 작성', exact: true }).press('Enter');
+    await expect(thread.getByText(/A reply after signing in\./)).toBeVisible();
+});
+
 const locales = [
     {
         browserLocale: 'en-US',

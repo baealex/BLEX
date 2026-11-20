@@ -14,102 +14,102 @@ msgstr ""
 "Plural-Forms: \n"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Signup/Signup.tsx:470
+#: src/components/remotes/Signup/Signup.tsx:472
 msgid "auth.fields.confirm_password"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Signup/Signup.tsx:494
+#: src/components/remotes/Signup/Signup.tsx:496
 msgid "auth.fields.confirm_password_placeholder"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Signup/Signup.tsx:382
+#: src/components/remotes/Signup/Signup.tsx:384
 msgid "auth.fields.display_name"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Signup/Signup.tsx:395
+#: src/components/remotes/Signup/Signup.tsx:397
 msgid "auth.fields.display_name_placeholder"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Signup/Signup.tsx:405
+#: src/components/remotes/Signup/Signup.tsx:407
 msgid "auth.fields.email"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Signup/Signup.tsx:418
+#: src/components/remotes/Signup/Signup.tsx:420
 msgid "auth.fields.email_placeholder"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Login/components/LoginForm.tsx:131
-#: src/components/remotes/Signup/Signup.tsx:428
+#: src/components/remotes/Login/components/LoginForm.tsx:132
+#: src/components/remotes/Signup/Signup.tsx:430
 msgid "auth.fields.password"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Signup/Signup.tsx:453
+#: src/components/remotes/Signup/Signup.tsx:455
 msgid "auth.fields.password_new_placeholder"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Login/components/LoginForm.tsx:144
+#: src/components/remotes/Login/components/LoginForm.tsx:145
 msgid "auth.fields.password_placeholder"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Login/components/LoginForm.tsx:104
-#: src/components/remotes/Signup/Signup.tsx:338
+#: src/components/remotes/Login/components/LoginForm.tsx:105
+#: src/components/remotes/Signup/Signup.tsx:340
 msgid "auth.fields.username"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Signup/Signup.tsx:367
-#: src/components/remotes/Signup/Signup.tsx:375
+#: src/components/remotes/Signup/Signup.tsx:369
+#: src/components/remotes/Signup/Signup.tsx:377
 msgid "auth.fields.username_hint"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Login/components/LoginForm.tsx:117
+#: src/components/remotes/Login/components/LoginForm.tsx:118
 msgid "auth.fields.username_placeholder"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Login/hooks/useLoginState.ts:88
+#: src/components/remotes/Login/hooks/useLoginState.ts:92
 msgid "auth.login.blocked_remaining"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Login/hooks/useLoginState.ts:118
+#: src/components/remotes/Login/hooks/useLoginState.ts:122
 msgid "auth.login.failed_blocked_remaining"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Login/Login.tsx:147
+#: src/components/remotes/Login/Login.tsx:146
 msgid "auth.login.invalid_credentials"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Login/Login.tsx:324
+#: src/components/remotes/Login/Login.tsx:323
 msgid "auth.login.no_account"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Login/components/LoginForm.tsx:197
+#: src/components/remotes/Login/components/LoginForm.tsx:198
 msgid "auth.login.submitting"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Login/components/LoginForm.tsx:199
-#: src/components/remotes/Login/Login.tsx:276
+#: src/components/remotes/Login/components/LoginForm.tsx:200
+#: src/components/remotes/Login/Login.tsx:275
 #: src/components/remotes/Signup/Signup.tsx:558
 msgid "auth.login.title"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Login/Login.tsx:283
+#: src/components/remotes/Login/Login.tsx:282
 msgid "auth.login.welcome_back"
 msgstr ""
 
@@ -120,13 +120,13 @@ msgstr ""
 
 #. js-lingui-explicit-id
 #: src/components/remotes/Signup/Signup.tsx:313
-#: src/components/remotes/Signup/Signup.tsx:543
+#: src/components/remotes/Signup/Signup.tsx:545
 msgid "auth.signup.as_author"
 msgstr ""
 
 #. js-lingui-explicit-id
 #: src/components/remotes/Signup/Signup.tsx:315
-#: src/components/remotes/Signup/Signup.tsx:545
+#: src/components/remotes/Signup/Signup.tsx:547
 msgid "auth.signup.as_reader"
 msgstr ""
 
@@ -146,7 +146,7 @@ msgid "auth.signup.failed"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Signup/Signup.tsx:461
+#: src/components/remotes/Signup/Signup.tsx:463
 msgid "auth.signup.password_strength"
 msgstr ""
 
@@ -176,18 +176,23 @@ msgid "auth.signup.reader_description"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Login/Login.tsx:326
+#: src/components/remotes/Login/Login.tsx:325
 msgid "auth.signup.title"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SocialLogin/SocialLogin.tsx:92
+#: src/components/remotes/SocialLogin/SocialLogin.tsx:75
 msgid "auth.social.continue_with"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SocialLogin/SocialLogin.tsx:73
-msgid "auth.social.divider"
+#: src/components/remotes/SocialLogin/SocialLogin.tsx:84
+msgid "auth.social.first_sign_in"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SocialLogin/SocialLogin.tsx:89
+msgid "auth.social.password_divider"
 msgstr ""
 
 #. js-lingui-explicit-id
@@ -196,7 +201,7 @@ msgid "auth.two_factor.back_to_login"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Login/Login.tsx:281
+#: src/components/remotes/Login/Login.tsx:280
 msgid "auth.two_factor.description"
 msgstr ""
 
@@ -206,22 +211,22 @@ msgid "auth.two_factor.digit_label"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Login/hooks/useLoginState.ts:134
+#: src/components/remotes/Login/hooks/useLoginState.ts:138
 msgid "auth.two_factor.failed_blocked"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Login/Login.tsx:229
+#: src/components/remotes/Login/Login.tsx:228
 msgid "auth.two_factor.incorrect_code"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Login/Login.tsx:186
+#: src/components/remotes/Login/Login.tsx:185
 msgid "auth.two_factor.invalid_format"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Login/Login.tsx:190
+#: src/components/remotes/Login/Login.tsx:189
 msgid "auth.two_factor.invalid_recovery_key"
 msgstr ""
 
@@ -231,12 +236,12 @@ msgid "auth.two_factor.recovery_key"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Login/Login.tsx:217
+#: src/components/remotes/Login/Login.tsx:216
 msgid "auth.two_factor.success_redirect"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Login/Login.tsx:274
+#: src/components/remotes/Login/Login.tsx:273
 msgid "auth.two_factor.title"
 msgstr ""
 
@@ -282,13 +287,13 @@ msgstr ""
 
 #. js-lingui-explicit-id
 #: src/components/remotes/Signup/Signup.tsx:229
-#: src/components/remotes/Signup/Signup.tsx:444
-#: src/components/remotes/Signup/Signup.tsx:485
+#: src/components/remotes/Signup/Signup.tsx:446
+#: src/components/remotes/Signup/Signup.tsx:487
 msgid "auth.validation.password_mismatch"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Login/Login.tsx:110
+#: src/components/remotes/Login/Login.tsx:109
 #: src/components/remotes/Signup/Signup.tsx:210
 msgid "auth.validation.password_required"
 msgstr ""
@@ -300,7 +305,7 @@ msgstr ""
 
 #. js-lingui-explicit-id
 #: src/components/remotes/Signup/Signup.tsx:177
-#: src/components/remotes/Signup/Signup.tsx:353
+#: src/components/remotes/Signup/Signup.tsx:355
 msgid "auth.validation.username_characters"
 msgstr ""
 
@@ -310,13 +315,13 @@ msgid "auth.validation.username_length"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Login/Login.tsx:103
+#: src/components/remotes/Login/Login.tsx:102
 #: src/components/remotes/Signup/Signup.tsx:171
 msgid "auth.validation.username_required"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Signup/Signup.tsx:358
+#: src/components/remotes/Signup/Signup.tsx:360
 msgid "auth.validation.username_too_long"
 msgstr ""
 
@@ -366,7 +371,7 @@ msgid "comments.author_profile"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Comments/Comments.tsx:163
+#: src/components/remotes/Comments/Comments.tsx:186
 msgid "comments.closed"
 msgstr ""
 
@@ -376,47 +381,47 @@ msgid "comments.comment_by_author"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Comments/Comments.tsx:26
+#: src/components/remotes/Comments/Comments.tsx:43
 msgid "comments.count"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Comments/hooks/useCommentsController.ts:184
+#: src/components/remotes/Comments/hooks/useCommentsController.ts:193
 msgid "comments.create.error"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Comments/hooks/useCommentsController.ts:179
+#: src/components/remotes/Comments/hooks/useCommentsController.ts:188
 msgid "comments.create.failed"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Comments/hooks/useCommentsController.ts:172
+#: src/components/remotes/Comments/hooks/useCommentsController.ts:181
 msgid "comments.create.success"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Comments/hooks/useCommentsController.ts:266
+#: src/components/remotes/Comments/hooks/useCommentsController.ts:275
 msgid "comments.delete.confirm"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Comments/hooks/useCommentsController.ts:300
+#: src/components/remotes/Comments/hooks/useCommentsController.ts:309
 msgid "comments.delete.error"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Comments/hooks/useCommentsController.ts:295
+#: src/components/remotes/Comments/hooks/useCommentsController.ts:304
 msgid "comments.delete.failed"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Comments/hooks/useCommentsController.ts:288
+#: src/components/remotes/Comments/hooks/useCommentsController.ts:297
 msgid "comments.delete.success"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Comments/hooks/useCommentsController.ts:262
+#: src/components/remotes/Comments/hooks/useCommentsController.ts:271
 msgid "comments.delete.title"
 msgstr ""
 
@@ -437,22 +442,22 @@ msgid "comments.edit.content_label"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Comments/hooks/useCommentsController.ts:251
+#: src/components/remotes/Comments/hooks/useCommentsController.ts:260
 msgid "comments.edit.error"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Comments/hooks/useCommentsController.ts:246
+#: src/components/remotes/Comments/hooks/useCommentsController.ts:255
 msgid "comments.edit.failed"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Comments/hooks/useCommentsController.ts:209
+#: src/components/remotes/Comments/hooks/useCommentsController.ts:218
 msgid "comments.edit.load_error"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Comments/hooks/useCommentsController.ts:203
+#: src/components/remotes/Comments/hooks/useCommentsController.ts:212
 msgid "comments.edit.load_failed"
 msgstr ""
 
@@ -467,7 +472,7 @@ msgid "comments.edit.save"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Comments/hooks/useCommentsController.ts:239
+#: src/components/remotes/Comments/hooks/useCommentsController.ts:248
 msgid "comments.edit.success"
 msgstr ""
 
@@ -482,37 +487,37 @@ msgid "comments.empty"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Comments/components/CommentForm.tsx:170
+#: src/components/remotes/Comments/components/CommentForm.tsx:178
 msgid "comments.form.content_label"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Comments/components/CommentForm.tsx:33
+#: src/components/remotes/Comments/components/CommentForm.tsx:35
 msgid "comments.form.placeholder"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Comments/components/CommentForm.tsx:37
+#: src/components/remotes/Comments/components/CommentForm.tsx:39
 msgid "comments.form.submit"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Comments/components/CommentForm.tsx:206
+#: src/components/remotes/Comments/components/CommentForm.tsx:214
 msgid "comments.form.submit_label"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Comments/components/CommentForm.tsx:213
+#: src/components/remotes/Comments/components/CommentForm.tsx:221
 msgid "comments.form.submitting"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Comments/components/CommentForm.tsx:202
+#: src/components/remotes/Comments/components/CommentForm.tsx:210
 msgid "comments.form.submitting_label"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Comments/Comments.tsx:145
+#: src/components/remotes/Comments/Comments.tsx:167
 msgid "comments.leave_comment"
 msgstr ""
 
@@ -527,12 +532,12 @@ msgid "comments.like.count"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Comments/hooks/useCommentsController.ts:138
+#: src/components/remotes/Comments/hooks/useCommentsController.ts:147
 msgid "comments.like.error"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Comments/hooks/useCommentsController.ts:133
+#: src/components/remotes/Comments/hooks/useCommentsController.ts:142
 msgid "comments.like.failed"
 msgstr ""
 
@@ -542,22 +547,22 @@ msgid "comments.like.remove"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Comments/Comments.tsx:84
+#: src/components/remotes/Comments/Comments.tsx:106
 msgid "comments.load_error_description"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Comments/Comments.tsx:81
+#: src/components/remotes/Comments/Comments.tsx:103
 msgid "comments.load_error_title"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Comments/Comments.tsx:105
+#: src/components/remotes/Comments/Comments.tsx:127
 msgid "comments.loading"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Comments/components/CommentForm.tsx:41
+#: src/components/remotes/Comments/components/CommentForm.tsx:43
 msgid "comments.login_required"
 msgstr ""
 
@@ -577,33 +582,33 @@ msgid "comments.reply.action"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Comments/hooks/useCommentsController.ts:380
+#: src/components/remotes/Comments/hooks/useCommentsController.ts:379
 msgid "comments.reply.error"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Comments/hooks/useCommentsController.ts:375
+#: src/components/remotes/Comments/hooks/useCommentsController.ts:374
 msgid "comments.reply.failed"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Comments/hooks/useCommentsController.ts:345
+#: src/components/remotes/Comments/hooks/useCommentsController.ts:346
 msgid "comments.reply.parent_missing"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Comments/components/CommentItem.tsx:184
+#: src/components/remotes/Comments/components/CommentItem.tsx:185
 msgid "comments.reply.placeholder"
 msgstr ""
 
 #. js-lingui-explicit-id
 #: src/components/remotes/Comments/components/CommentActions.tsx:83
-#: src/components/remotes/Comments/components/CommentItem.tsx:190
+#: src/components/remotes/Comments/components/CommentItem.tsx:191
 msgid "comments.reply.submit"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Comments/hooks/useCommentsController.ts:368
+#: src/components/remotes/Comments/hooks/useCommentsController.ts:367
 msgid "comments.reply.success"
 msgstr ""
 
@@ -613,18 +618,18 @@ msgid "comments.replying_to"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Comments/Comments.tsx:21
+#: src/components/remotes/Comments/Comments.tsx:38
 msgid "comments.title"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Comments/hooks/useCommentsController.ts:152
-#: src/components/remotes/Comments/hooks/useCommentsController.ts:223
+#: src/components/remotes/Comments/hooks/useCommentsController.ts:161
+#: src/components/remotes/Comments/hooks/useCommentsController.ts:232
 msgid "comments.validation.comment_required"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Comments/hooks/useCommentsController.ts:337
+#: src/components/remotes/Comments/hooks/useCommentsController.ts:338
 msgid "comments.validation.reply_required"
 msgstr ""
 
@@ -645,7 +650,7 @@ msgstr ""
 
 #. js-lingui-explicit-id
 #: src/components/remotes/Comments/components/CommentEditForm.tsx:69
-#: src/components/remotes/Comments/components/CommentForm.tsx:194
+#: src/components/remotes/Comments/components/CommentForm.tsx:202
 #: src/components/remotes/PostEditor/components/PostRevisionDialog.tsx:606
 #: src/components/remotes/PostEditor/components/PostRevisionDialog.tsx:624
 #: src/components/remotes/PostEditor/components/PublishChecklist.tsx:139
@@ -711,7 +716,7 @@ msgstr ""
 
 #. js-lingui-explicit-id
 #: src/components/remotes/Comments/components/CommentItem.tsx:78
-#: src/components/remotes/Comments/hooks/useCommentsController.ts:270
+#: src/components/remotes/Comments/hooks/useCommentsController.ts:279
 #: src/components/remotes/PostEditor/components/PostRevisionDialog.tsx:614
 #: src/components/remotes/PostEditor/components/PostRevisionDialog.tsx:645
 #: src/components/remotes/SettingsApp/components/WebhookChannelManager.tsx:336
@@ -782,8 +787,8 @@ msgid "common.enable"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Login/Login.tsx:156
-#: src/components/remotes/Login/Login.tsx:244
+#: src/components/remotes/Login/Login.tsx:155
+#: src/components/remotes/Login/Login.tsx:243
 #: src/components/remotes/Signup/Signup.tsx:285
 msgid "common.error.try_again"
 msgstr ""
@@ -864,7 +869,7 @@ msgid "common.previous"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Signup/Signup.tsx:539
+#: src/components/remotes/Signup/Signup.tsx:541
 msgid "common.processing"
 msgstr ""
 
@@ -891,7 +896,7 @@ msgid "common.restore"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Comments/Comments.tsx:90
+#: src/components/remotes/Comments/Comments.tsx:112
 #: src/components/remotes/PostEditor/components/DraftsPanel.tsx:146
 #: src/components/remotes/PostEditor/components/PostRevisionDialog.tsx:386
 #: src/components/remotes/SettingsApp/pages/NotifySetting/components/NotifyConfigModal.tsx:125
@@ -2193,7 +2198,7 @@ msgid "login_prompt.action.generic"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/LoginPrompt/LoginPrompt.tsx:116
+#: src/components/remotes/LoginPrompt/LoginPrompt.tsx:123
 #: src/contexts/LoginPromptContext.tsx:127
 msgid "login_prompt.cancel"
 msgstr ""
@@ -2204,34 +2209,34 @@ msgid "login_prompt.description.action"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/LoginPrompt/LoginPrompt.tsx:55
+#: src/components/remotes/LoginPrompt/LoginPrompt.tsx:61
 msgid "login_prompt.description.comment"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/LoginPrompt/LoginPrompt.tsx:47
+#: src/components/remotes/LoginPrompt/LoginPrompt.tsx:53
 msgid "login_prompt.description.generic"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/LoginPrompt/LoginPrompt.tsx:51
+#: src/components/remotes/LoginPrompt/LoginPrompt.tsx:57
 msgid "login_prompt.description.like"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/LoginPrompt/LoginPrompt.tsx:59
+#: src/components/remotes/LoginPrompt/LoginPrompt.tsx:65
 msgid "login_prompt.description.reply"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/LoginPrompt/LoginPrompt.tsx:110
+#: src/components/remotes/LoginPrompt/LoginPrompt.tsx:117
 #: src/contexts/LoginPromptContext.tsx:118
 msgid "login_prompt.login"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/LoginPrompt/LoginPrompt.tsx:65
-#: src/components/remotes/LoginPrompt/LoginPrompt.tsx:97
+#: src/components/remotes/LoginPrompt/LoginPrompt.tsx:71
+#: src/components/remotes/LoginPrompt/LoginPrompt.tsx:103
 #: src/contexts/LoginPromptContext.tsx:98
 msgid "login_prompt.title"
 msgstr ""
