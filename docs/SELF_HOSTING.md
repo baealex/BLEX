@@ -136,7 +136,7 @@ Initial setup URL: https://blog.example.com/setup?token=...
 
 소셜 로그인을 사용할 경우 Google/GitHub 개발자 콘솔에서 OAuth 앱을 만든 뒤 BLEX 어드민의 로그인 관리 화면에 Client ID와 Client Secret을 저장합니다. 자세한 절차는 [`SOCIAL_LOGIN.md`](./SOCIAL_LOGIN.md)를 참고하세요.
 
-텔레그램 알림을 사용할 경우 `/admin-settings/integrations`의 텔레그램 화면에서 봇 사용자명과 봇 토큰을 저장합니다.
+텔레그램 알림을 사용할 경우 텔레그램의 [@BotFather](https://t.me/BotFather)에서 `/newbot`으로 봇을 만들고, 받은 봇 토큰을 `/admin-settings/integrations`의 텔레그램 화면에 저장합니다. 저장하면 BLEX가 봇 이름을 가져오고, 사용자가 봇에게 보낸 메시지를 받을 주소(`SITE_URL` + `/v1/telegram/webHook`)를 텔레그램에 등록합니다. 텔레그램은 외부에서 접속할 수 있는 HTTPS 주소로만 메시지를 보내므로 `SITE_URL`이 공개 HTTPS 주소여야 합니다. 연결 상태는 같은 화면에 표시되며, 실패하면 이유를 확인한 뒤 `다시 연결`을 누릅니다. 텔레그램이 보내는 요청은 `SECRET_KEY`로 만든 값으로 확인하므로, `SECRET_KEY`를 바꾼 뒤에도 `다시 연결`을 한 번 눌러야 합니다. 사용자는 알림 설정의 텔레그램 화면에서 `텔레그램에서 연결하기`를 누르고 봇 대화에서 시작을 누르면 연결됩니다.
 
 ## 5. 첫 글 발행
 

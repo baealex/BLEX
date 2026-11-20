@@ -12,10 +12,10 @@ import {
     type IntegrationSettingData,
     type IntegrationSettingUpdateData
 } from '~/lib/api/settings';
+import TelegramConnectionNotice from './components/TelegramConnectionNotice';
 
 interface IntegrationSettingsForm {
     telegramEnabled: boolean;
-    telegramBotUsername: string;
     telegramBotToken: string;
     telegramHasBotToken: boolean;
     clearTelegramBotToken: boolean;
@@ -23,13 +23,15 @@ interface IntegrationSettingsForm {
 
 interface SavedIntegrationSettingsForm {
     telegramEnabled: boolean;
-    telegramBotUsername: string;
     telegramHasBotToken: boolean;
 }
 
+// The response carries live Telegram webhook status, so it is never restored from sessionStorage.
+// The key changed with that field, which keeps cached responses without it out of this screen.
+const INTEGRATION_SETTINGS_QUERY_KEY = ['integration-settings', 'telegram-connection'];
+
 const EMPTY_INTEGRATION_SETTINGS_FORM: IntegrationSettingsForm = {
     telegramEnabled: false,
-    telegramBotUsername: '',
     telegramBotToken: '',
     telegramHasBotToken: false,
     clearTelegramBotToken: false
@@ -51,7 +53,6 @@ const getErrorMessage = (error: unknown, fallbackMessage: string) => {
 
 const toIntegrationSettingsForm = (data: IntegrationSettingData): IntegrationSettingsForm => ({
     telegramEnabled: data.telegramEnabled,
-    telegramBotUsername: data.telegramBotUsername,
     telegramBotToken: '',
     telegramHasBotToken: data.telegramHasBotToken,
     clearTelegramBotToken: false
@@ -59,7 +60,6 @@ const toIntegrationSettingsForm = (data: IntegrationSettingData): IntegrationSet
 
 const toSavedIntegrationSettingsForm = (form: IntegrationSettingsForm): SavedIntegrationSettingsForm => ({
     telegramEnabled: form.telegramEnabled,
-    telegramBotUsername: form.telegramBotUsername,
     telegramHasBotToken: form.telegramHasBotToken
 });
 
@@ -70,7 +70,6 @@ const hasIntegrationSettingsChanged = (
     if (!saved) return false;
 
     return current.telegramEnabled !== saved.telegramEnabled
-        || current.telegramBotUsername !== saved.telegramBotUsername
         || current.telegramHasBotToken !== saved.telegramHasBotToken
         || current.telegramBotToken.trim().length > 0
         || current.clearTelegramBotToken;
@@ -82,7 +81,7 @@ const AdminIntegrationSetting = () => {
     const hasHydratedFormRef = useRef(false);
     const savedIntegrationSettingsRef = useRef<SavedIntegrationSettingsForm | null>(null);
     const { data: settingData } = useSuspenseQuery({
-        queryKey: ['integration-settings'],
+        queryKey: INTEGRATION_SETTINGS_QUERY_KEY,
         queryFn: async () => {
             const { data } = await getIntegrationSettings();
             if (data.status === 'DONE') {
@@ -92,7 +91,8 @@ const AdminIntegrationSetting = () => {
                 id: 'settings.admin.telegram.load_failed',
                 message: 'Could not load Telegram settings.'
             }));
-        }
+        },
+        meta: { persist: false }
     });
 
     const [integrationSettings, setIntegrationSettings] = useState<IntegrationSettingsForm>(
@@ -120,11 +120,19 @@ const AdminIntegrationSetting = () => {
             const integrationSettingsForm = toIntegrationSettingsForm(body);
             setIntegrationSettings(integrationSettingsForm);
             savedIntegrationSettingsRef.current = toSavedIntegrationSettingsForm(integrationSettingsForm);
-            void queryClient.invalidateQueries({ queryKey: ['integration-settings'] });
-            toast.success(t({
-                id: 'settings.admin.telegram.save_success',
-                message: 'Telegram settings saved.'
-            }));
+            queryClient.setQueryData(INTEGRATION_SETTINGS_QUERY_KEY, body);
+            const connectionState = body.telegramConnection.state;
+            if (connectionState === 'connected' || connectionState === 'disabled') {
+                toast.success(t({
+                    id: 'settings.admin.telegram.save_success',
+                    message: 'Telegram settings saved.'
+                }));
+            } else {
+                toast.warning(t({
+                    id: 'settings.admin.telegram.save_connection_warning',
+                    message: 'Settings saved, but Telegram is not connected yet. Check the status above.'
+                }));
+            }
         },
         onError: (error) => {
             toast.error(getErrorMessage(error, t({
@@ -145,12 +153,15 @@ const AdminIntegrationSetting = () => {
         event?.preventDefault();
         updateMutation.mutate({
             telegram_enabled: integrationSettings.telegramEnabled,
-            telegram_bot_username: integrationSettings.telegramBotUsername,
             ...(integrationSettings.telegramBotToken.trim()
                 ? { telegram_bot_token: integrationSettings.telegramBotToken }
                 : {}),
             ...(integrationSettings.clearTelegramBotToken ? { clear_telegram_bot_token: true } : {})
         });
+    };
+
+    const reconnectTelegram = () => {
+        updateMutation.mutate({ telegram_enabled: true });
     };
 
     const isDirty = hasIntegrationSettingsChanged(integrationSettings, savedIntegrationSettingsRef.current);
@@ -171,6 +182,14 @@ const AdminIntegrationSetting = () => {
                 })}
                 icon={<Send aria-hidden="true" className="h-4 w-4" />}>
                 <div className="space-y-5">
+                    <TelegramConnectionNotice
+                        connection={settingData.telegramConnection}
+                        botUsername={settingData.telegramBotUsername}
+                        isReconnecting={updateMutation.isPending}
+                        canReconnect={!isDirty && !updateMutation.isPending}
+                        onReconnect={reconnectTelegram}
+                    />
+
                     <div className="flex items-start justify-between gap-4 border-b border-line pb-5">
                         <div className="min-w-0 flex-1">
                             <div className="text-sm font-semibold text-content">
@@ -201,27 +220,6 @@ const AdminIntegrationSetting = () => {
                         <Input
                             density="compact"
                             label={t({
-                                id: 'settings.admin.telegram.bot.username.label',
-                                message: 'Bot username'
-                            })}
-                            name="blex_telegram_bot_public_value"
-                            autoComplete="off"
-                            autoCorrect="off"
-                            spellCheck={false}
-                            data-1p-ignore="true"
-                            data-bwignore="true"
-                            data-lpignore="true"
-                            placeholder="your_bot"
-                            value={integrationSettings.telegramBotUsername}
-                            onChange={(event) => updateIntegrationSettingsForm({ telegramBotUsername: event.target.value })}
-                            helperText={t({
-                                id: 'settings.admin.telegram.bot.username.helper',
-                                message: 'You can enter it without the @ symbol.'
-                            })}
-                        />
-                        <Input
-                            density="compact"
-                            label={t({
                                 id: 'settings.admin.telegram.bot.token.label',
                                 message: 'Bot token'
                             })}
@@ -249,7 +247,10 @@ const AdminIntegrationSetting = () => {
                                     id: 'settings.admin.telegram.bot.token.helper',
                                     message: 'Leave this blank to keep the existing token.'
                                 })
-                                : undefined}
+                                : t({
+                                    id: 'settings.admin.telegram.bot.token.new_helper',
+                                    message: 'Paste the token from @BotFather. BLEX finds the bot name and connects it to Telegram when you save.'
+                                })}
                         />
                     </div>
 
