@@ -13,7 +13,9 @@ from board.models import (
     SiteNotice,
     StaticPage,
 )
+from board.models.site import TEMPLATE_BANNER_TYPES, BannerTemplate, BannerTone
 from board.modules.response import ErrorCode
+from board.services.banner_service import BannerService
 
 
 class SiteContentApiError(Exception):
@@ -38,10 +40,36 @@ class SiteContentApiService:
         'content_html',
         'banner_type',
         'position',
+        'template',
+        'headline',
+        'description',
+        'link_label',
+        'link_url',
+        'tone',
         'is_active',
         'order',
         'created_date',
         'updated_date',
+    )
+    BANNER_EDITABLE_FIELDS = (
+        'title',
+        'content_html',
+        'banner_type',
+        'position',
+        'template',
+        'headline',
+        'description',
+        'link_label',
+        'link_url',
+        'tone',
+        'is_active',
+        'order',
+    )
+    BANNER_TEMPLATE_TEXT_FIELDS = (
+        'headline',
+        'description',
+        'link_label',
+        'link_url',
     )
     STATIC_PAGE_FIELDS = (
         'id',
@@ -111,6 +139,12 @@ class SiteContentApiService:
             ),
             'banner_type': banner.banner_type,
             'position': banner.position,
+            'template': banner.template,
+            'headline': banner.headline,
+            'description': banner.description,
+            'link_label': banner.link_label,
+            'link_url': safe_navigation_url(banner.link_url),
+            'tone': banner.tone,
             'is_active': banner.is_active,
             'order': banner.order,
             'created_date': banner.created_date.isoformat(),
@@ -136,6 +170,7 @@ class SiteContentApiService:
         for banner in queryset.values(*fields):
             banner['created_date'] = banner['created_date'].isoformat()
             banner['updated_date'] = banner['updated_date'].isoformat()
+            banner['link_url'] = safe_navigation_url(banner['link_url'])
             if sanitize_content:
                 banner['content_html'] = sanitize_html(banner['content_html'])
             if include_created_by:
@@ -175,7 +210,8 @@ class SiteContentApiService:
                 ErrorCode.VALIDATE,
                 gettext('Enter a banner name.'),
             )
-        if not data.get('content_html', ''):
+        template = data.get('template', BannerTemplate.HTML)
+        if template == BannerTemplate.HTML and not data.get('content_html', ''):
             raise SiteContentApiError(
                 ErrorCode.VALIDATE,
                 gettext('Enter banner HTML.'),
@@ -206,6 +242,64 @@ class SiteContentApiService:
             )
 
     @staticmethod
+    def validate_banner_template(banner: SiteBanner) -> None:
+        if banner.template not in BannerTemplate.values:
+            raise SiteContentApiError(
+                ErrorCode.VALIDATE,
+                gettext('Choose a valid banner template.'),
+            )
+        if banner.tone not in BannerTone.values:
+            raise SiteContentApiError(
+                ErrorCode.VALIDATE,
+                gettext('Choose a valid banner style.'),
+            )
+
+        template_banner_type = TEMPLATE_BANNER_TYPES.get(banner.template)
+        if template_banner_type is None:
+            return
+
+        if banner.banner_type != template_banner_type:
+            raise SiteContentApiError(
+                ErrorCode.VALIDATE,
+                gettext('This template is not available in the selected position.'),
+            )
+        if not banner.headline:
+            raise SiteContentApiError(
+                ErrorCode.VALIDATE,
+                gettext('Enter the banner text.'),
+            )
+
+        length_messages = {
+            'headline': gettext('Banner text must be %(limit)d characters or fewer.'),
+            'description': gettext('Description must be %(limit)d characters or fewer.'),
+            'link_label': gettext('Button text must be %(limit)d characters or fewer.'),
+            'link_url': gettext('Link must be %(limit)d characters or fewer.'),
+        }
+        for field, message in length_messages.items():
+            limit = SiteBanner._meta.get_field(field).max_length
+            if len(getattr(banner, field)) > limit:
+                raise SiteContentApiError(ErrorCode.VALIDATE, message % {'limit': limit})
+
+        if banner.link_url and not safe_navigation_url(banner.link_url):
+            raise SiteContentApiError(
+                ErrorCode.VALIDATE,
+                gettext('Enter a link that starts with https://, http://, or /.'),
+            )
+
+    @staticmethod
+    def apply_banner_data(banner: SiteBanner, data: dict, *, sanitize_content: bool) -> None:
+        for field in SiteContentApiService.BANNER_EDITABLE_FIELDS:
+            if field not in data:
+                continue
+
+            value = data[field]
+            if field == 'content_html' and sanitize_content:
+                value = sanitize_html(value)
+            if field in SiteContentApiService.BANNER_TEMPLATE_TEXT_FIELDS:
+                value = str(value or '').strip()
+            setattr(banner, field, value)
+
+    @staticmethod
     def create_notice(scope: str, user: User | None, data: dict) -> SiteNotice:
         SiteContentApiService.validate_notice_payload(data)
         return SiteNotice.objects.create(
@@ -233,20 +327,15 @@ class SiteContentApiService:
         sanitize_content: bool,
     ) -> SiteBanner:
         SiteContentApiService.validate_banner_payload(data)
-        content_html = data.get('content_html', '')
-        if sanitize_content:
-            content_html = sanitize_html(content_html)
-
-        return SiteBanner.objects.create(
-            scope=scope,
-            user=user,
-            title=data.get('title', ''),
-            content_html=content_html,
-            banner_type=data.get('banner_type', BannerType.HORIZONTAL),
-            position=data.get('position', BannerPosition.TOP),
-            is_active=data.get('is_active', True),
-            order=data.get('order', 0),
+        banner = SiteBanner(scope=scope, user=user)
+        SiteContentApiService.apply_banner_data(
+            banner,
+            data,
+            sanitize_content=sanitize_content,
         )
+        SiteContentApiService.validate_banner_template(banner)
+        banner.save()
+        return banner
 
     @staticmethod
     def update_banner(
@@ -255,23 +344,24 @@ class SiteContentApiService:
         *,
         sanitize_content: bool,
     ) -> SiteBanner:
-        if 'title' in data:
-            banner.title = data['title']
-        if 'content_html' in data:
-            content_html = data['content_html']
-            banner.content_html = sanitize_html(content_html) if sanitize_content else content_html
-        if 'banner_type' in data:
-            banner.banner_type = data['banner_type']
-        if 'position' in data:
-            banner.position = data['position']
-        if 'is_active' in data:
-            banner.is_active = data['is_active']
-        if 'order' in data:
-            banner.order = data['order']
-
+        SiteContentApiService.apply_banner_data(
+            banner,
+            data,
+            sanitize_content=sanitize_content,
+        )
         SiteContentApiService.validate_banner_position(banner.banner_type, banner.position)
+        SiteContentApiService.validate_banner_template(banner)
         banner.save()
         return banner
+
+    @staticmethod
+    def render_banner_preview(scope: str, user: User | None, data: dict) -> str:
+        """Render unsaved banner input exactly as post pages will display it."""
+        banner = SiteBanner(scope=scope, user=user)
+        SiteContentApiService.apply_banner_data(banner, data, sanitize_content=False)
+        SiteContentApiService.validate_banner_position(banner.banner_type, banner.position)
+        SiteContentApiService.validate_banner_template(banner)
+        return BannerService.render_banner_html(banner)
 
     @staticmethod
     def update_banner_order(scope: str, user: User | None, order_list: list) -> None:

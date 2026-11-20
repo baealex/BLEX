@@ -96,3 +96,27 @@ def global_banner_order(request):
         put_data.get('order', []),
     )
     return StatusDone({'message': gettext('Global banner order updated.')})
+
+
+def global_banner_preview(request):
+    permission_error = ApiPermissionService.require_staff(request.user)
+    if permission_error:
+        return permission_error
+
+    if request.method != 'POST':
+        raise Http404
+
+    post_data, body_error = ApiRequestBodyService.parse_json_or_error(request)
+    if body_error:
+        return body_error
+
+    try:
+        html = SiteContentApiService.render_banner_preview(
+            SiteContentScope.GLOBAL,
+            request.user,
+            post_data,
+        )
+    except SiteContentApiError as error:
+        return StatusError(error.code, error.message)
+
+    return StatusDone({'html': html})

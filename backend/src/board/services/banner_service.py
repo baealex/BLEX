@@ -5,13 +5,37 @@ Handles business logic for both user banners and global banners
 from typing import List, Dict
 from django.contrib.auth.models import User
 from django.db.models import Q
+from django.template.loader import render_to_string
+from django.utils.safestring import SafeString, mark_safe
 
-from board.html_utils import sanitize_html
-from board.models import SiteBanner, SiteContentScope, BannerType, BannerPosition
+from board.html_utils import safe_navigation_url, sanitize_html
+from board.models import SiteBanner, SiteContentScope
+from board.models.site import BannerTemplate, BannerTone
 
 
 class BannerService:
     """Service for managing and displaying banners"""
+
+    TEMPLATE_PATHS = {
+        BannerTemplate.NOTICE: 'components/banners/notice.html',
+        BannerTemplate.CARD: 'components/banners/card.html',
+        BannerTemplate.INTRO: 'components/banners/intro.html',
+    }
+
+    @staticmethod
+    def render_banner_html(banner: SiteBanner) -> SafeString:
+        """Render a banner for post pages and the settings preview with the same rules."""
+        template_path = BannerService.TEMPLATE_PATHS.get(banner.template)
+        if template_path is None:
+            if banner.scope == SiteContentScope.USER:
+                return mark_safe(sanitize_html(banner.content_html))
+            return mark_safe(banner.content_html)
+
+        return render_to_string(template_path, {
+            'banner': banner,
+            'link_url': safe_navigation_url(banner.link_url),
+            'is_emphasis': banner.tone == BannerTone.EMPHASIS,
+        })
 
     @staticmethod
     def get_combined_banners_for_position(
@@ -78,8 +102,7 @@ class BannerService:
 
         for banner in banners:
             if banner.position in result:
-                if banner.scope == SiteContentScope.USER:
-                    banner.content_html = sanitize_html(banner.content_html)
+                banner.rendered_html = BannerService.render_banner_html(banner)
                 result[banner.position].append(banner)
 
         return result

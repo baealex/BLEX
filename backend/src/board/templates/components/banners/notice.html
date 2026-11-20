@@ -1,0 +1,10 @@
+{% load i18n %}
+{% if link_url %}<a href="{{ link_url }}"{% else %}<div{% endif %} class="group flex min-h-11 items-center gap-3 rounded-2xl border px-4 py-3 transition-colors duration-150 {% if is_emphasis %}border-transparent bg-action text-content-inverted{% if link_url %} hover:bg-action-hover{% endif %}{% else %}border-line bg-surface-subtle text-content{% if link_url %} hover:border-line-strong{% endif %}{% endif %}">
+    <span class="min-w-0 flex-1 break-words text-sm font-medium leading-relaxed">{{ banner.headline }}</span>
+    {% if link_url %}
+    <span class="inline-flex flex-shrink-0 items-center gap-1.5 text-sm font-semibold {% if is_emphasis %}text-content-inverted{% else %}text-content-secondary group-hover:text-content{% endif %}">
+        {% if banner.link_label %}{{ banner.link_label }}{% else %}{% translate "Learn more" context "Banner link label" %}{% endif %}
+        <i class="fas fa-arrow-right text-xs" aria-hidden="true"></i>
+    </span>
+    {% endif %}
+{% if link_url %}</a>{% else %}</div>{% endif %}

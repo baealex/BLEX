@@ -249,7 +249,28 @@ export const deleteAccount = async () => {
 };
 
 // Banner API
-export interface BannerData {
+export type BannerTemplate = 'html' | 'notice' | 'card' | 'intro';
+export type BannerTone = 'default' | 'emphasis';
+
+interface BannerTemplateFields {
+    template: BannerTemplate;
+    headline: string;
+    description: string;
+    linkLabel: string;
+    linkUrl: string;
+    tone: BannerTone;
+}
+
+interface BannerTemplatePayload {
+    template?: BannerTemplate;
+    headline?: string;
+    description?: string;
+    link_label?: string;
+    link_url?: string;
+    tone?: BannerTone;
+}
+
+export interface BannerData extends BannerTemplateFields {
     id: number;
     title: string;
     contentHtml: string;
@@ -261,7 +282,7 @@ export interface BannerData {
     updatedDate?: string;
 }
 
-export interface BannerCreateData {
+export interface BannerCreateData extends BannerTemplatePayload {
     title: string;
     content_html: string;
     banner_type: 'horizontal' | 'sidebar';
@@ -270,7 +291,7 @@ export interface BannerCreateData {
     order?: number;
 }
 
-export interface BannerUpdateData {
+export interface BannerUpdateData extends BannerTemplatePayload {
     title?: string;
     content_html?: string;
     banner_type?: 'horizontal' | 'sidebar';
@@ -278,6 +299,8 @@ export interface BannerUpdateData {
     is_active?: boolean;
     order?: number;
 }
+
+export type BannerPreviewData = Omit<BannerCreateData, 'title' | 'is_active' | 'order'>;
 
 export const getBanners = async () => {
     return http.get<Response<{ banners: BannerData[] }>>('v1/banners');
@@ -301,6 +324,10 @@ export const deleteBanner = async (id: number) => {
 
 export const updateBannerOrder = async (order: [number, number][]) => {
     return http.put<Response<{ message: string }>>('v1/banners/order', { order }, { headers: { 'Content-Type': 'application/json' } });
+};
+
+export const previewBanner = async (data: BannerPreviewData) => {
+    return http.post<Response<{ html: string }>>('v1/banners/preview', data, { headers: { 'Content-Type': 'application/json' } });
 };
 
 // Pinned Posts API
@@ -581,7 +608,7 @@ export const deleteGlobalNotice = async (id: number) => {
 };
 
 // Global Banner API
-export interface GlobalBannerData {
+export interface GlobalBannerData extends BannerTemplateFields {
     id: number;
     title: string;
     contentHtml: string;
@@ -594,7 +621,7 @@ export interface GlobalBannerData {
     updatedDate?: string;
 }
 
-export interface GlobalBannerCreateData {
+export interface GlobalBannerCreateData extends BannerTemplatePayload {
     title: string;
     content_html: string;
     banner_type: 'horizontal' | 'sidebar';
@@ -603,7 +630,7 @@ export interface GlobalBannerCreateData {
     order?: number;
 }
 
-export interface GlobalBannerUpdateData {
+export interface GlobalBannerUpdateData extends BannerTemplatePayload {
     title?: string;
     content_html?: string;
     banner_type?: 'horizontal' | 'sidebar';
@@ -634,6 +661,10 @@ export const deleteGlobalBanner = async (id: number) => {
 
 export const updateGlobalBannerOrder = async (order: [number, number][]) => {
     return http.put<Response<{ message: string }>>('v1/global-banners/order', { order }, { headers: { 'Content-Type': 'application/json' } });
+};
+
+export const previewGlobalBanner = async (data: BannerPreviewData) => {
+    return http.post<Response<{ html: string }>>('v1/global-banners/preview', data, { headers: { 'Content-Type': 'application/json' } });
 };
 
 // Site Setting API

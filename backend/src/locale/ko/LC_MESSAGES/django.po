@@ -4329,3 +4329,84 @@ msgstr "이 일지의 모든 기록과 첨부를 삭제하고 공유 링크를 �
 
 msgid "Choose file"
 msgstr "파일 선택"
+
+#: board/admin/banner.py
+msgid "Template text"
+msgstr "템플릿 문구"
+
+#: board/models/site.py
+msgctxt "Banner template"
+msgid "Custom HTML"
+msgstr "HTML 직접 작성"
+
+#: board/models/site.py
+msgctxt "Banner template"
+msgid "Announcement bar"
+msgstr "한 줄 알림"
+
+#: board/models/site.py
+msgctxt "Banner template"
+msgid "Call-to-action card"
+msgstr "안내 카드"
+
+#: board/models/site.py
+msgctxt "Banner template"
+msgid "Introduction card"
+msgstr "소개 카드"
+
+#: board/models/site.py
+msgctxt "Banner tone"
+msgid "Default"
+msgstr "기본"
+
+#: board/models/site.py
+msgctxt "Banner tone"
+msgid "Emphasis"
+msgstr "강조"
+
+#: board/models/site.py board/services/site_content_api_service.py
+msgid "This template is not available in the selected position."
+msgstr "선택한 위치에서는 쓸 수 없는 템플릿입니다."
+
+#: board/models/site.py board/services/site_content_api_service.py
+msgid "Enter the banner text."
+msgstr "배너 문구를 입력해주세요."
+
+#: board/services/site_content_api_service.py
+msgid "Choose a valid banner template."
+msgstr "올바른 배너 템플릿을 선택해주세요."
+
+#: board/services/site_content_api_service.py
+msgid "Choose a valid banner style."
+msgstr "올바른 배너 스타일을 선택해주세요."
+
+#: board/services/site_content_api_service.py
+#, python-format
+msgid "Banner text must be %(limit)d characters or fewer."
+msgstr "배너 문구는 %(limit)d자 이하여야 합니다."
+
+#: board/services/site_content_api_service.py
+#, python-format
+msgid "Description must be %(limit)d characters or fewer."
+msgstr "설명은 %(limit)d자 이하여야 합니다."
+
+#: board/services/site_content_api_service.py
+#, python-format
+msgid "Button text must be %(limit)d characters or fewer."
+msgstr "버튼 문구는 %(limit)d자 이하여야 합니다."
+
+#: board/services/site_content_api_service.py
+#, python-format
+msgid "Link must be %(limit)d characters or fewer."
+msgstr "링크는 %(limit)d자 이하여야 합니다."
+
+#: board/services/site_content_api_service.py
+msgid "Enter a link that starts with https://, http://, or /."
+msgstr "링크는 https://, http:// 또는 /로 시작해야 합니다."
+
+#: board/templates/components/banners/card.html
+#: board/templates/components/banners/intro.html
+#: board/templates/components/banners/notice.html
+msgctxt "Banner link label"
+msgid "Learn more"
+msgstr "자세히 보기"

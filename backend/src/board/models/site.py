@@ -153,6 +153,26 @@ class BannerPosition(models.TextChoices):
     RIGHT = 'right', pgettext_lazy('Banner position', 'Right')
 
 
+class BannerTemplate(models.TextChoices):
+    """Banner layouts. Template banners are rendered from text fields by the server."""
+    HTML = 'html', pgettext_lazy('Banner template', 'Custom HTML')
+    NOTICE = 'notice', pgettext_lazy('Banner template', 'Announcement bar')
+    CARD = 'card', pgettext_lazy('Banner template', 'Call-to-action card')
+    INTRO = 'intro', pgettext_lazy('Banner template', 'Introduction card')
+
+
+class BannerTone(models.TextChoices):
+    DEFAULT = 'default', pgettext_lazy('Banner tone', 'Default')
+    EMPHASIS = 'emphasis', pgettext_lazy('Banner tone', 'Emphasis')
+
+
+TEMPLATE_BANNER_TYPES = {
+    BannerTemplate.NOTICE: BannerType.HORIZONTAL,
+    BannerTemplate.CARD: BannerType.HORIZONTAL,
+    BannerTemplate.INTRO: BannerType.SIDEBAR,
+}
+
+
 class SiteContentBase(models.Model):
     scope = models.CharField(max_length=10, choices=SiteContentScope.choices)
     user = models.ForeignKey('auth.User', on_delete=models.CASCADE, null=True, blank=True)
@@ -188,6 +208,14 @@ class SiteBanner(SiteContentBase):
                                    default=BannerType.HORIZONTAL)
     position = models.CharField(max_length=10, choices=BannerPosition.choices,
                                 default=BannerPosition.TOP)
+    template = models.CharField(max_length=20, choices=BannerTemplate.choices,
+                                default=BannerTemplate.HTML)
+    headline = models.CharField(max_length=120, blank=True, default='')
+    description = models.CharField(max_length=300, blank=True, default='')
+    link_label = models.CharField(max_length=40, blank=True, default='')
+    link_url = models.CharField(max_length=500, blank=True, default='')
+    tone = models.CharField(max_length=20, choices=BannerTone.choices,
+                            default=BannerTone.DEFAULT)
 
     class Meta(SiteContentBase.Meta):
         verbose_name = _('Site banner')
@@ -213,3 +241,12 @@ class SiteBanner(SiteContentBase):
                         'Side banners can only be placed on the left or right.'
                     )
                 })
+        template_banner_type = TEMPLATE_BANNER_TYPES.get(self.template)
+        if template_banner_type and self.banner_type != template_banner_type:
+            raise ValidationError({
+                'template': _('This template is not available in the selected position.')
+            })
+        if template_banner_type and not self.headline.strip():
+            raise ValidationError({
+                'headline': _('Enter the banner text.')
+            })

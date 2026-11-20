@@ -11,12 +11,12 @@ from .auth import (
 )
 from .author_invite import author_invite_detail, author_invites
 from .author import get_author_heatmap
-from .banner import banner, banner_order
+from .banner import banner, banner_order, banner_preview
 from .comment import comment_detail, comment_list, user_comment
 from .developer_token import developer_tokens
 from .draft import drafts_detail, drafts_list
 from .form import forms_detail, forms_list
-from .global_banner import global_banner_order, global_banners
+from .global_banner import global_banner_order, global_banner_preview, global_banners
 from .global_notice import global_notices
 from .image import image
 from .integration_setting import integration_settings
@@ -108,10 +108,12 @@ __all__ = (
     'telegram',
     'banner',
     'banner_order',
+    'banner_preview',
     'notices',
     'global_notices',
     'global_banners',
     'global_banner_order',
+    'global_banner_preview',
     'site_settings',
     'site_setting_brand_assets',
     'login_settings',

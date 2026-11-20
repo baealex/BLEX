@@ -26,8 +26,9 @@ import { SettingsListItem } from '../../../components';
 import type { GlobalBannerData } from '~/lib/api/settings';
 import {
     bannerPositionMessages,
-    bannerTypeMessages
+    bannerTemplateMessages
 } from '../../shared/bannerI18n';
+import { bannerListSummary } from '../../shared/bannerTemplateRules';
 
 interface GlobalBannerListProps {
     banners: GlobalBannerData[];
@@ -54,6 +55,7 @@ const SortableBannerItem = ({ banner, onEdit, onDelete, onToggleActive }: Sortab
         transition,
         isDragging
     } = useSortable({ id: banner.id });
+    const summary = bannerListSummary(banner);
 
     const style = {
         transform: CSS.Transform.toString(transform),
@@ -128,7 +130,7 @@ const SortableBannerItem = ({ banner, onEdit, onDelete, onToggleActive }: Sortab
                             {i18n._(bannerPositionMessages[banner.position])}
                         </span>
                         <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-surface-subtle text-content border border-line">
-                            {i18n._(bannerTypeMessages[banner.bannerType])}
+                            {i18n._(bannerTemplateMessages[banner.template])}
                         </span>
                         <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium border ${banner.isActive ? 'bg-action text-content-inverted border-line-strong' : 'bg-surface-subtle text-content-secondary border-line-light'}`}>
                             {banner.isActive
@@ -142,9 +144,11 @@ const SortableBannerItem = ({ banner, onEdit, onDelete, onToggleActive }: Sortab
                         )}
                     </div>
 
-                    <p className="text-xs text-content-secondary leading-relaxed line-clamp-2 break-all">
-                        {banner.contentHtml}
-                    </p>
+                    {summary && (
+                        <p className="text-xs text-content-secondary leading-relaxed line-clamp-2 break-all">
+                            {summary}
+                        </p>
+                    )}
                 </div>
             </SettingsListItem>
         </div>

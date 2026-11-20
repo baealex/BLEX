@@ -6,9 +6,9 @@ import { useForm, Controller } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { FloatingBottomBar } from '@blex/ui/floating-bottom-bar';
-import { ArrowLeft, Send } from '@blex/ui/icons';
+import { ArrowLeft, Eye, Send } from '@blex/ui/icons';
 import { CodeEditor } from '~/components/CodeEditor';
-import { Button, Checkbox, Input } from '~/components/shared';
+import { Button, Input } from '~/components/shared';
 import { useConfirm } from '~/hooks/useConfirm';
 import { toast } from '~/utils/toast';
 import { cx } from '~/lib/classnames';
@@ -21,19 +21,34 @@ import {
     createGlobalBanner,
     updateGlobalBanner,
     deleteGlobalBanner,
+    previewBanner,
+    previewGlobalBanner,
     type BannerCreateData,
+    type BannerPreviewData,
+    type BannerTemplate,
+    type BannerTone,
     type BannerUpdateData,
     type GlobalBannerCreateData,
     type GlobalBannerUpdateData
 } from '~/lib/api/settings';
-import BannerPreviewFrame from './BannerPreviewFrame';
+import BannerPreviewDialog from './BannerPreviewDialog';
+import BannerTemplatePicker from './BannerTemplatePicker';
 import {
     bannerPositionMessages,
     bannerPositionOptions,
-    bannerTypeMessages,
+    bannerTemplateSamples,
     type BannerPosition,
     type BannerType
 } from './bannerI18n';
+import {
+    BANNER_TITLE_MAX_LENGTH,
+    bannerTypeForPosition,
+    isTemplateAllowedAt,
+    isValidBannerLink,
+    positionForTemplate,
+    swapSampleCopy,
+    type BannerSampleCopy
+} from './bannerTemplateRules';
 
 type BannerScope = 'user' | 'global';
 type BannerCreatePayload = BannerCreateData | GlobalBannerCreateData;
@@ -41,7 +56,13 @@ type BannerUpdatePayload = BannerUpdateData | GlobalBannerUpdateData;
 
 interface BannerFormInputs {
     title: string;
+    template: BannerTemplate;
     contentHtml: string;
+    headline: string;
+    description: string;
+    linkLabel: string;
+    linkUrl: string;
+    tone: BannerTone;
     bannerType: BannerType;
     position: BannerPosition;
     isActive: boolean;
@@ -50,12 +71,39 @@ interface BannerFormInputs {
 
 const defaultValues: BannerFormInputs = {
     title: '',
+    template: 'card',
     contentHtml: '',
+    headline: '',
+    description: '',
+    linkLabel: '',
+    linkUrl: '',
+    tone: 'default',
     bannerType: 'horizontal',
-    position: 'top',
+    position: 'bottom',
     isActive: true,
     order: 0
 };
+
+const TEXT_TEMPLATES: BannerTemplate[] = ['notice', 'card', 'intro'];
+const bannerToneOptions: BannerTone[] = ['default', 'emphasis'];
+
+const toPreviewPayload = (values: BannerFormInputs): BannerPreviewData => ({
+    template: values.template,
+    content_html: values.contentHtml,
+    headline: values.headline,
+    description: values.description,
+    link_label: values.linkLabel,
+    link_url: values.linkUrl,
+    tone: values.tone,
+    banner_type: values.bannerType,
+    position: values.position
+});
+
+interface PreviewState {
+    html: string;
+    position: BannerPosition;
+    bannerType: BannerType;
+}
 
 interface BannerEditorBaseProps {
     scope: BannerScope;
@@ -70,28 +118,83 @@ const BannerEditorBase = ({ scope, bannerId }: BannerEditorBaseProps) => {
     const queryClient = useQueryClient();
     const { confirm } = useConfirm();
     const allowNavigationRef = useRef(false);
-    const [hasSelectedPosition, setHasSelectedPosition] = useState(isEditMode);
+    const appliedSampleRef = useRef<BannerSampleCopy | null>(null);
+    const [hasChosenTemplate, setHasChosenTemplate] = useState(isEditMode);
+    const [preview, setPreview] = useState<PreviewState | null>(null);
     const bannerSchema = useMemo(() => z.object({
         title: z.string().trim()
-            .min(1, t({
-                id: 'settings.banners.validation.title_required',
-                message: 'Enter a banner name.'
-            }))
-            .max(100, t({
+            .max(BANNER_TITLE_MAX_LENGTH, t({
                 id: 'settings.banners.validation.title_max_length',
                 message: 'Banner names must be 100 characters or fewer.'
             })),
-        contentHtml: z.string().trim().min(1, t({
-            id: 'settings.banners.validation.html_required',
-            message: 'Enter banner HTML.'
+        template: z.enum(['html', 'notice', 'card', 'intro']),
+        contentHtml: z.string(),
+        headline: z.string().trim().max(120, t({
+            id: 'settings.banners.validation.headline_max_length',
+            message: 'Banner text must be 120 characters or fewer.'
         })),
+        description: z.string().trim().max(300, t({
+            id: 'settings.banners.validation.description_max_length',
+            message: 'Description must be 300 characters or fewer.'
+        })),
+        linkLabel: z.string().trim().max(40, t({
+            id: 'settings.banners.validation.link_label_max_length',
+            message: 'Button text must be 40 characters or fewer.'
+        })),
+        linkUrl: z.string().trim().max(500, t({
+            id: 'settings.banners.validation.link_url_max_length',
+            message: 'Link must be 500 characters or fewer.'
+        })),
+        tone: z.enum(['default', 'emphasis']),
         bannerType: z.enum(['horizontal', 'sidebar']),
         position: z.enum(['top', 'bottom', 'left', 'right']),
         isActive: z.boolean(),
-        order: z.number().int().min(0, t({
-            id: 'settings.banners.validation.order_min',
-            message: 'Display order must be 0 or greater.'
-        }))
+        order: z.number().int().min(0)
+    }).superRefine((value, ctx) => {
+        if (value.template === 'html') {
+            if (!value.title) {
+                ctx.addIssue({
+                    code: 'custom',
+                    path: ['title'],
+                    message: t({
+                        id: 'settings.banners.validation.title_required',
+                        message: 'Enter a banner name.'
+                    })
+                });
+            }
+            if (!value.contentHtml.trim()) {
+                ctx.addIssue({
+                    code: 'custom',
+                    path: ['contentHtml'],
+                    message: t({
+                        id: 'settings.banners.validation.html_required',
+                        message: 'Enter banner HTML.'
+                    })
+                });
+            }
+            return;
+        }
+
+        if (!value.headline) {
+            ctx.addIssue({
+                code: 'custom',
+                path: ['headline'],
+                message: t({
+                    id: 'settings.banners.validation.headline_required',
+                    message: 'Enter the banner text.'
+                })
+            });
+        }
+        if (value.linkUrl && !isValidBannerLink(value.linkUrl)) {
+            ctx.addIssue({
+                code: 'custom',
+                path: ['linkUrl'],
+                message: t({
+                    id: 'settings.banners.validation.link_url_invalid',
+                    message: 'Enter a link that starts with https://, http://, or /.'
+                })
+            });
+        }
     }), [t]);
 
     const { data: bannerDetail } = useSuspenseQuery({
@@ -120,6 +223,7 @@ const BannerEditorBase = ({ scope, bannerId }: BannerEditorBaseProps) => {
         control,
         watch,
         setValue,
+        getValues,
         reset,
         formState: { errors, isDirty }
     } = useForm<BannerFormInputs>({
@@ -143,23 +247,30 @@ const BannerEditorBase = ({ scope, bannerId }: BannerEditorBaseProps) => {
     };
 
     useEffect(() => {
+        appliedSampleRef.current = null;
         if (!bannerDetail) {
             reset(defaultValues);
             if (!isEditMode) {
-                setHasSelectedPosition(false);
+                setHasChosenTemplate(false);
             }
             return;
         }
 
         reset({
             title: bannerDetail.title,
+            template: bannerDetail.template,
             contentHtml: bannerDetail.contentHtml,
+            headline: bannerDetail.headline,
+            description: bannerDetail.description,
+            linkLabel: bannerDetail.linkLabel,
+            linkUrl: bannerDetail.linkUrl,
+            tone: bannerDetail.tone,
             bannerType: bannerDetail.bannerType,
             position: bannerDetail.position,
             isActive: bannerDetail.isActive,
             order: bannerDetail.order
         });
-        setHasSelectedPosition(true);
+        setHasChosenTemplate(true);
     }, [bannerDetail, isEditMode, reset]);
 
     useBlocker({
@@ -299,11 +410,83 @@ const BannerEditorBase = ({ scope, bannerId }: BannerEditorBaseProps) => {
         }
     });
 
+    const previewMutation = useMutation({
+        mutationFn: (values: BannerFormInputs) => {
+            const payload = toPreviewPayload(values);
+            return isGlobal ? previewGlobalBanner(payload) : previewBanner(payload);
+        },
+        onSuccess: ({ data }, values) => {
+            if (data.status === 'ERROR') {
+                toast.error(data.errorMessage || t({
+                    id: 'settings.banners.preview.failed',
+                    message: 'Could not prepare the preview.'
+                }));
+                return;
+            }
+
+            setPreview({
+                html: data.body.html,
+                position: values.position,
+                bannerType: values.bannerType
+            });
+        },
+        onError: () => {
+            toast.error(t({
+                id: 'common.network_error',
+                message: 'A network error occurred.'
+            }));
+        }
+    });
+
+    const template = watch('template');
     const bannerType = watch('bannerType');
     const position = watch('position');
     const title = watch('title');
-    const contentHtml = watch('contentHtml');
-    const isActive = watch('isActive');
+    const tone = watch('tone');
+    const isTextTemplate = template !== 'html';
+    const templateOptions: BannerTemplate[] = isGlobal || bannerDetail?.template === 'html'
+        ? [...TEXT_TEMPLATES, 'html']
+        : TEXT_TEMPLATES;
+    const positionOptions = bannerPositionOptions.filter((slot) => isTemplateAllowedAt(template, slot));
+
+    const sampleFor = (nextTemplate: BannerTemplate): BannerSampleCopy | null => {
+        if (nextTemplate === 'html') {
+            return null;
+        }
+
+        const sample = bannerTemplateSamples[nextTemplate];
+        return {
+            headline: i18n._(sample.headline),
+            description: sample.description ? i18n._(sample.description) : '',
+            linkLabel: i18n._(sample.linkLabel)
+        };
+    };
+
+    const handleTemplateChange = (nextTemplate: BannerTemplate) => {
+        const nextSample = sampleFor(nextTemplate);
+        if (nextSample) {
+            const copy = swapSampleCopy({
+                headline: getValues('headline'),
+                description: getValues('description'),
+                linkLabel: getValues('linkLabel')
+            }, appliedSampleRef.current, nextSample);
+            appliedSampleRef.current = nextSample;
+            setValue('headline', copy.headline, { shouldDirty: true });
+            setValue('description', copy.description, { shouldDirty: true });
+            setValue('linkLabel', copy.linkLabel, { shouldDirty: true });
+        }
+
+        const nextPosition = positionForTemplate(nextTemplate, hasChosenTemplate ? position : null);
+        setValue('template', nextTemplate, { shouldDirty: true });
+        setValue('bannerType', bannerTypeForPosition(nextPosition), { shouldDirty: true });
+        setValue('position', nextPosition, { shouldDirty: true });
+        setHasChosenTemplate(true);
+    };
+
+    const handlePositionChange = (nextPosition: BannerPosition) => {
+        setValue('bannerType', bannerTypeForPosition(nextPosition), { shouldDirty: true });
+        setValue('position', nextPosition, { shouldDirty: true });
+    };
 
     const handleDelete = async () => {
         const confirmMessage = title
@@ -339,19 +522,19 @@ const BannerEditorBase = ({ scope, bannerId }: BannerEditorBaseProps) => {
     };
 
     const onSubmit = (formData: BannerFormInputs) => {
-        if (!isEditMode && !hasSelectedPosition) {
+        if (!isEditMode && !hasChosenTemplate) {
             toast.error(t({
-                id: 'settings.banners.editor.position_required',
-                message: 'Select a banner position first.'
+                id: 'settings.banners.editor.template_required',
+                message: 'Choose a template first.'
             }));
             return;
         }
 
         const payload: BannerCreatePayload = {
-            title: formData.title,
-            content_html: formData.contentHtml,
-            banner_type: formData.bannerType,
-            position: formData.position,
+            ...toPreviewPayload(formData),
+            title: formData.template === 'html'
+                ? formData.title
+                : formData.headline.slice(0, BANNER_TITLE_MAX_LENGTH),
             is_active: formData.isActive,
             order: formData.order
         };
@@ -364,110 +547,89 @@ const BannerEditorBase = ({ scope, bannerId }: BannerEditorBaseProps) => {
         createMutation.mutate(payload);
     };
 
-    const handlePositionChange = (value: BannerPosition) => {
-        const nextType: BannerType = value === 'top' || value === 'bottom' ? 'horizontal' : 'sidebar';
-        setValue('bannerType', nextType, { shouldDirty: true });
-        setValue('position', value, { shouldDirty: true });
-        setHasSelectedPosition(true);
-    };
-
     const isSaving = createMutation.isPending || updateMutation.isPending;
-    const editorPanel = (
-        <div className="space-y-5">
-            {!isEditMode && !hasSelectedPosition && (
-                <div className="rounded-2xl border border-warning-line bg-warning-surface px-4 py-3">
-                    <p className="text-base font-semibold text-warning">
-                        <Trans id="settings.banners.editor.position_prompt.title">
-                            Choose a banner position first.
-                        </Trans>
-                    </p>
-                    <p className="mt-1 text-xs font-medium text-warning">
-                        <Trans id="settings.banners.editor.position_prompt.description">
-                            Select top, bottom, left, or right to set the type and position automatically.
-                        </Trans>
-                    </p>
-                </div>
+    const sectionLabelClass = 'mb-3 text-sm font-semibold text-content';
+
+    const textFields = (
+        <div className="space-y-4">
+            <Input
+                density="compact"
+                label={template === 'notice'
+                    ? t({
+                        id: 'settings.banners.editor.headline.notice_label',
+                        message: 'Text'
+                    })
+                    : t({
+                        id: 'settings.banners.editor.headline.label',
+                        message: 'Title'
+                    })}
+                error={errors.headline?.message}
+                {...register('headline')}
+            />
+
+            {template !== 'notice' && (
+                <Input
+                    density="compact"
+                    multiline
+                    rows={2}
+                    label={t({
+                        id: 'settings.banners.editor.description.label',
+                        message: 'Description'
+                    })}
+                    error={errors.description?.message}
+                    {...register('description')}
+                />
             )}
 
-            <div className="flex flex-wrap items-center gap-2">
-                {bannerPositionOptions.map((slot) => {
-                    const active = hasSelectedPosition && slot === position;
-                    return (
-                        <button
-                            key={slot}
-                            type="button"
-                            aria-pressed={active}
-                            onClick={() => handlePositionChange(slot)}
-                            className={cx(
-                                'min-h-11 rounded-full border px-3 py-1 text-xs font-semibold transition-colors [@media(pointer:fine)]:min-h-9',
-                                active ? 'border-line-strong bg-action text-content-inverted' : 'border-line bg-surface text-content hover:border-line-strong',
-                                !hasSelectedPosition ? 'ring-2 ring-warning-line' : ''
-                            )}>
-                            {i18n._(bannerPositionMessages[slot])}
-                        </button>
-                    );
-                })}
-                <span
-                    className={cx(
-                        'text-xs',
-                        hasSelectedPosition ? 'text-content-hint' : 'font-semibold text-warning'
-                    )}>
-                    <Trans id="settings.banners.editor.position_help">
-                        The banner type is set automatically when you choose a position.
-                    </Trans>
-                </span>
+            <div className="grid gap-3 sm:grid-cols-[minmax(0,2fr)_minmax(0,3fr)]">
+                <Input
+                    density="compact"
+                    label={template === 'notice'
+                        ? t({
+                            id: 'settings.banners.editor.link_label.notice_label',
+                            message: 'Link text'
+                        })
+                        : t({
+                            id: 'settings.banners.editor.link_label.label',
+                            message: 'Button text'
+                        })}
+                    placeholder={t({
+                        id: 'settings.banners.editor.link_label.placeholder',
+                        message: 'Learn more'
+                    })}
+                    error={errors.linkLabel?.message}
+                    {...register('linkLabel')}
+                />
+                <Input
+                    density="compact"
+                    label={t({
+                        id: 'settings.banners.editor.link_url.label',
+                        message: 'Link'
+                    })}
+                    placeholder={t({
+                        id: 'settings.banners.editor.link_url.placeholder',
+                        message: 'https:// or /@username'
+                    })}
+                    error={errors.linkUrl?.message}
+                    {...register('linkUrl')}
+                />
             </div>
+        </div>
+    );
 
+    const htmlFields = (
+        <div className="space-y-4">
             <Input
                 density="compact"
                 label={t({
                     id: 'settings.banners.editor.name.label',
                     message: 'Banner name'
                 })}
-                placeholder={t({
-                    id: 'settings.banners.editor.name.placeholder',
-                    message: 'e.g. Main announcement banner'
-                })}
                 error={errors.title?.message}
                 {...register('title')}
             />
-
-            <div className="grid gap-3 sm:grid-cols-2">
-                <Input
-                    density="compact"
-                    type="number"
-                    min={0}
-                    label={t({
-                        id: 'settings.banners.editor.order.label',
-                        message: 'Display order'
-                    })}
-                    error={errors.order?.message}
-                    {...register('order', { valueAsNumber: true })}
-                />
-
-                <div className="space-y-1.5">
-                    <label className="ml-1 block text-sm font-medium text-content">
-                        <Trans id="settings.banners.editor.active.heading">Banner visibility</Trans>
-                    </label>
-                    <div className="min-h-12 rounded-lg border border-line bg-surface px-3 py-2">
-                        <Checkbox
-                            checked={isActive}
-                            onCheckedChange={(checked) => setValue('isActive', checked, { shouldDirty: true })}
-                            label={t({
-                                id: 'settings.banners.editor.active.label',
-                                message: 'Active'
-                            })}
-                            description={t({
-                                id: 'settings.banners.editor.active.description',
-                                message: 'Only active banners are displayed'
-                            })}
-                        />
-                    </div>
-                </div>
-            </div>
-
             <div className="space-y-2">
-                <div className="block text-sm font-semibold text-content">
+                <div className="ml-1 text-sm font-medium text-content">
                     <Trans id="settings.banners.editor.html.label">Banner HTML</Trans>
                 </div>
                 <Controller
@@ -482,18 +644,18 @@ const BannerEditorBase = ({ scope, bannerId }: BannerEditorBaseProps) => {
                             language="html"
                             value={field.value}
                             onChange={field.onChange}
-                            height="380px"
+                            height="320px"
                             error={errors.contentHtml?.message}
                         />
                     )}
                 />
-                <p className="text-xs text-content-secondary">
+                <p className="ml-1 text-xs text-content-secondary">
                     {isGlobal
                         ? <Trans id="settings.banners.editor.html.global_help">
                             Global banners may include scripts.
                         </Trans>
-                        : <Trans id="settings.banners.editor.html.user_help">
-                            Scripts are restricted in user banners.
+                        : <Trans id="settings.banners.editor.html.user_sanitized_help">
+                            Only allowed tags and attributes are kept, and scripts are removed. The preview shows what readers will see.
                         </Trans>}
                 </p>
             </div>
@@ -504,7 +666,7 @@ const BannerEditorBase = ({ scope, bannerId }: BannerEditorBaseProps) => {
         <div className="min-h-screen bg-surface pb-16">
             <form onSubmit={handleSubmit(onSubmit)}>
                 <div className="sticky top-0 z-10 border-b border-line bg-surface">
-                    <div className="mx-auto flex h-14 max-w-7xl items-center justify-between px-4 md:px-6">
+                    <div className="mx-auto flex h-14 max-w-2xl items-center justify-between px-4 md:px-6">
                         <button
                             type="button"
                             className="flex min-h-11 items-center gap-2 py-2 text-sm text-content-secondary transition-colors hover:text-content active:text-content-secondary [@media(pointer:fine)]:min-h-9"
@@ -514,31 +676,100 @@ const BannerEditorBase = ({ scope, bannerId }: BannerEditorBaseProps) => {
                         </button>
 
                         <h1 className="text-sm font-medium text-content-secondary">
-                            {isEditMode && title
-                                ? title
-                                : isEditMode
-                                    ? i18n._({
-                                        id: 'settings.banners.editor.edit_title',
-                                        message: '{scope, select, global {Edit global banner} other {Edit banner}}',
-                                        values: { scope }
-                                    })
-                                    : i18n._({
-                                        id: 'settings.banners.editor.create_title',
-                                        message: '{scope, select, global {Create global banner} other {Create banner}}',
-                                        values: { scope }
-                                    })}
+                            {isEditMode
+                                ? i18n._({
+                                    id: 'settings.banners.editor.edit_title',
+                                    message: '{scope, select, global {Edit global banner} other {Edit banner}}',
+                                    values: { scope }
+                                })
+                                : i18n._({
+                                    id: 'settings.banners.editor.create_title',
+                                    message: '{scope, select, global {Create global banner} other {Create banner}}',
+                                    values: { scope }
+                                })}
                         </h1>
                     </div>
                 </div>
 
-                <div className="mx-auto max-w-[1720px] space-y-6 px-4 pb-8 pt-6 md:px-6">
-                    <BannerPreviewFrame
-                        contentHtml={contentHtml}
-                        position={position}
-                        hasSelectedPosition={hasSelectedPosition}
-                        onPositionChange={handlePositionChange}
-                        editorPanel={editorPanel}
-                    />
+                <div className="mx-auto max-w-2xl space-y-8 px-4 pb-28 pt-8 md:px-6">
+                    <section>
+                        <h2 className={sectionLabelClass}>
+                            <Trans id="settings.banners.editor.template.heading">Template</Trans>
+                        </h2>
+                        <BannerTemplatePicker
+                            options={templateOptions}
+                            value={hasChosenTemplate ? template : null}
+                            onChange={handleTemplateChange}
+                        />
+                    </section>
+
+                    {hasChosenTemplate && (
+                        <>
+                            <section>
+                                <h2 className={sectionLabelClass}>
+                                    <Trans id="settings.banners.editor.position.heading">Position</Trans>
+                                </h2>
+                                <div className="flex flex-wrap gap-2">
+                                    {positionOptions.map((slot) => (
+                                        <button
+                                            key={slot}
+                                            type="button"
+                                            aria-pressed={slot === position}
+                                            onClick={() => handlePositionChange(slot)}
+                                            className={cx(
+                                                'min-h-11 rounded-full border px-4 py-1 text-xs font-semibold transition-colors duration-150 active:scale-95 [@media(pointer:fine)]:min-h-9',
+                                                slot === position
+                                                    ? 'border-line-strong bg-action text-content-inverted'
+                                                    : 'border-line bg-surface text-content hover:border-line-strong'
+                                            )}>
+                                            {i18n._(bannerPositionMessages[slot])}
+                                        </button>
+                                    ))}
+                                </div>
+                                {bannerType === 'sidebar' && (
+                                    <p className="mt-2 text-xs text-content-hint">
+                                        <Trans id="settings.banners.editor.position.sidebar_help">
+                                            Side banners only appear on wide screens (1280px and up).
+                                        </Trans>
+                                    </p>
+                                )}
+                            </section>
+
+                            <section>
+                                <h2 className={sectionLabelClass}>
+                                    <Trans id="settings.banners.editor.content.heading">Content</Trans>
+                                </h2>
+                                {isTextTemplate ? textFields : htmlFields}
+                            </section>
+
+                            {isTextTemplate && (
+                                <section>
+                                    <h2 className={sectionLabelClass}>
+                                        <Trans id="settings.banners.editor.tone.label">Style</Trans>
+                                    </h2>
+                                    <div className="flex flex-wrap gap-2">
+                                        {bannerToneOptions.map((option) => (
+                                            <button
+                                                key={option}
+                                                type="button"
+                                                aria-pressed={tone === option}
+                                                onClick={() => setValue('tone', option, { shouldDirty: true })}
+                                                className={cx(
+                                                    'min-h-11 rounded-full border px-4 py-1 text-xs font-semibold transition-colors duration-150 active:scale-95 [@media(pointer:fine)]:min-h-9',
+                                                    tone === option
+                                                        ? 'border-line-strong bg-action text-content-inverted'
+                                                        : 'border-line bg-surface text-content hover:border-line-strong'
+                                                )}>
+                                                {option === 'default'
+                                                    ? <Trans id="settings.banners.editor.tone.default">Default</Trans>
+                                                    : <Trans id="settings.banners.editor.tone.emphasis">Emphasis</Trans>}
+                                            </button>
+                                        ))}
+                                    </div>
+                                </section>
+                            )}
+                        </>
+                    )}
                 </div>
 
                 <FloatingBottomBar>
@@ -559,11 +790,19 @@ const BannerEditorBase = ({ scope, bannerId }: BannerEditorBaseProps) => {
                         </>
                     )}
 
-                    <div className="hidden items-center px-1.5 text-xs text-content-secondary sm:flex">
-                        {i18n._(bannerTypeMessages[bannerType])}
-                        {' · '}
-                        {i18n._(bannerPositionMessages[position])}
-                    </div>
+                    {hasChosenTemplate && (
+                        <Button
+                            density="compact"
+                            type="button"
+                            variant="ghost"
+                            size="md"
+                            className="!rounded-full"
+                            leftIcon={!previewMutation.isPending ? <Eye className="h-4 w-4" /> : undefined}
+                            isLoading={previewMutation.isPending}
+                            onClick={() => previewMutation.mutate(getValues())}>
+                            <Trans id="settings.banners.editor.preview_action">Preview</Trans>
+                        </Button>
+                    )}
 
                     <Button
                         density="compact"
@@ -581,6 +820,16 @@ const BannerEditorBase = ({ scope, bannerId }: BannerEditorBaseProps) => {
                     </Button>
                 </FloatingBottomBar>
             </form>
+
+            {preview && (
+                <BannerPreviewDialog
+                    isOpen
+                    onClose={() => setPreview(null)}
+                    html={preview.html}
+                    position={preview.position}
+                    bannerType={preview.bannerType}
+                />
+            )}
         </div>
     );
 };

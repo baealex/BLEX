@@ -117,3 +117,27 @@ def banner_order(request):
         put_data.get('order', []),
     )
     return StatusDone({'message': gettext('Banner order updated.')})
+
+
+def banner_preview(request):
+    permission_error = ApiPermissionService.require_editor(request.user)
+    if permission_error:
+        return permission_error
+
+    if request.method != 'POST':
+        raise Http404
+
+    post_data, body_error = ApiRequestBodyService.parse_json_or_error(request)
+    if body_error:
+        return body_error
+
+    try:
+        html = SiteContentApiService.render_banner_preview(
+            SiteContentScope.USER,
+            request.user,
+            post_data,
+        )
+    except SiteContentApiError as error:
+        return _banner_error(error)
+
+    return StatusDone({'html': html})
