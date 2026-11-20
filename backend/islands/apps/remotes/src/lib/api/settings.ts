@@ -366,17 +366,6 @@ export interface BannerTemplateGalleryItem {
     html: string;
 }
 
-export const getBannerTemplates = async () => {
-    return http.get<Response<{ templates: BannerTemplateGalleryItem[] }>>('v1/banners/templates');
-};
-
-export const previewBanner = async (data: BannerPreviewData, signal?: AbortSignal) => {
-    return http.post<Response<{ html: string }>>('v1/banners/preview', data, {
-        signal,
-        headers: { 'Content-Type': 'application/json' }
-    });
-};
-
 // Pinned Posts API
 export interface PinnedPostData {
     id: number;
@@ -708,17 +697,6 @@ export const deleteGlobalBanner = async (id: number) => {
 
 export const updateGlobalBannerOrder = async (order: [number, number][]) => {
     return http.put<Response<{ message: string }>>('v1/global-banners/order', { order }, { headers: { 'Content-Type': 'application/json' } });
-};
-
-export const getGlobalBannerTemplates = async () => {
-    return http.get<Response<{ templates: BannerTemplateGalleryItem[] }>>('v1/global-banners/templates');
-};
-
-export const previewGlobalBanner = async (data: BannerPreviewData, signal?: AbortSignal) => {
-    return http.post<Response<{ html: string }>>('v1/global-banners/preview', data, {
-        signal,
-        headers: { 'Content-Type': 'application/json' }
-    });
 };
 
 // Site Setting API

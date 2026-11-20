@@ -32,10 +32,6 @@ import {
     createGlobalBanner,
     updateGlobalBanner,
     deleteGlobalBanner,
-    previewBanner,
-    previewGlobalBanner,
-    getBannerTemplates,
-    getGlobalBannerTemplates,
     type BannerAlign,
     type BannerCreateData,
     type BannerImageLayout,
@@ -47,6 +43,12 @@ import {
     type GlobalBannerUpdateData
 } from '~/lib/api/settings';
 import { uploadImage } from '~/lib/api/posts';
+import {
+    getBannerTemplates,
+    getGlobalBannerTemplates,
+    previewBanner,
+    previewGlobalBanner
+} from '~/lib/api/bannerEditor';
 import {
     AlignSketch,
     DesignOptionGroup,
