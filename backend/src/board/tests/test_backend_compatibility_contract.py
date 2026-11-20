@@ -41,6 +41,32 @@ EXPECTED_ROUTE_CONTRACT = (
     ('reauthenticate', 'reauthenticate', 'board.views.auth.reauthenticate_view'),
     ('logout', 'logout', 'django.contrib.auth.views.LogoutView'),
     ('llms.txt', 'llms_txt', 'board.views.agent.llms_txt'),
+    ('work-logs/', 'work_logs', 'board.views.work_logs.work_logs'),
+    ('work-logs/<int:pk>/', 'work_log_detail', 'board.views.work_logs.work_log_detail'),
+    ('work-logs/<int:pk>/delete/', 'work_log_delete', 'board.views.work_logs.work_log_delete'),
+    ('work-logs/<int:pk>/entry/', 'work_log_add_entry', 'board.views.work_logs.work_log_add_entry'),
+    (
+        'work-logs/<int:pk>/entry/<int:entry_id>/delete/',
+        'work_log_delete_entry',
+        'board.views.work_logs.work_log_delete_entry',
+    ),
+    ('work-logs/<int:pk>/share/', 'work_log_publish_share', 'board.views.work_logs.work_log_publish_share'),
+    (
+        'work-logs/<int:pk>/share/<uuid:token>/revoke/',
+        'work_log_revoke_share',
+        'board.views.work_logs.work_log_revoke_share',
+    ),
+    (
+        'work-logs/<int:pk>/media/<int:entry_id>/',
+        'work_log_private_media',
+        'board.views.work_logs.work_log_private_media',
+    ),
+    ('work-logs/share/<uuid:token>/', 'work_log_shared', 'board.views.work_logs.work_log_shared'),
+    (
+        'work-logs/share/<uuid:token>/media/<int:entry_id>/',
+        'work_log_shared_media',
+        'board.views.work_logs.work_log_shared_media',
+    ),
     ('static/<path:slug>.md', 'static_page_markdown', 'board.views.agent.static_page_markdown'),
     ('static/<path:slug>', 'static_page', 'board.views.static_pages.static_page_view'),
     ('settings/', 'settings', 'board.views.settings.settings'),
@@ -392,6 +418,9 @@ EXPECTED_MODEL_TABLES = (
     ('SiteNotice', 'board_sitenotice'),
     ('SiteBanner', 'board_sitebanner'),
     ('AuthorInvite', 'board_authorinvite'),
+    ('WorkLog', 'board_worklog'),
+    ('WorkLogEntry', 'board_worklogentry'),
+    ('WorkLogShare', 'board_worklogshare'),
 )
 
 
@@ -436,6 +465,9 @@ EXPECTED_MODEL_REGISTRY_ORDER = (
     'StaticPage',
     'SiteNotice',
     'SiteBanner',
+    'WorkLog',
+    'WorkLogEntry',
+    'WorkLogShare',
 )
 
 
@@ -485,6 +517,9 @@ EXPECTED_MODEL_EXPORTS = (
     'UserLinkMeta',
     'UsernameChangeLog',
     'WebhookSubscription',
+    'WorkLog',
+    'WorkLogEntry',
+    'WorkLogShare',
     'avatar_path',
     'cover_path',
     'create_description',

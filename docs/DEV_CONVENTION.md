@@ -49,6 +49,7 @@
 
 ## Backend Guidelines
 - **Always read `docs/BACKEND_GUIDE.md` first.**
+- Use one migration file per PR that requires a migration. Consolidate migration drafts for that PR before review.
 - Always write test code for all development.
   - Run tests with `npm run server:test`.
   - Read `docs/TESTING_GUIDE.md` for more information.

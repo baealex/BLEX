@@ -13,7 +13,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="referrer" content="origin" />
+    <meta name="referrer" content="{% if is_work_log_request %}strict-origin{% else %}origin{% endif %}" />
     <meta name="view-transition" content="same-origin" />
     <meta name="theme-color" content="#ffffff" />
     <script>
@@ -115,7 +115,7 @@
     <meta name="msapplication-TileImage" content="{{ site_brand.icon_png_144_url }}" />
     <meta name="msapplication-TileColor" content="#000" />
     {% block extra_styles %}{% endblock %}
-    {% include 'custom/custom_head.html' %}
+    {% if not is_work_log_request %}{% include 'custom/custom_head.html' %}{% endif %}
 </head>
 
 <body class="antialiased bg-surface-page text-content selection:bg-action selection:text-content-inverted">
@@ -287,7 +287,7 @@
     <script type="module" src="{% island_entry 'src/scripts/island-loader.ts' %}"></script>
     <script type="module" src="{% island_entry 'src/scripts/lazy-loading.ts' %}"></script>
     <script type="module" src="{% island_entry 'src/scripts/alpine-loader.ts' %}"></script>
-    {% include 'custom/custom_body.html' %}
+    {% if not is_work_log_request %}{% include 'custom/custom_body.html' %}{% endif %}
 </body>
 
 </html>

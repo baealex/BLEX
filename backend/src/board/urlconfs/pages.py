@@ -5,7 +5,7 @@ from django.urls import path
 
 from board.feeds import SitePostsFeed, UserPostsFeed
 from board.sitemaps import sitemaps
-from board.views import agent, main
+from board.views import agent, main, work_logs
 from board.views.auth import login_view, reauthenticate_view, signup_view
 from board.views.author import (
     author_about,
@@ -39,6 +39,17 @@ urlpatterns = [
     path('reauthenticate', reauthenticate_view, name='reauthenticate'),
     path('logout', auth_views.LogoutView.as_view(), name='logout'),
     path('llms.txt', agent.llms_txt, name='llms_txt'),
+
+    path('work-logs/', work_logs.work_logs, name='work_logs'),
+    path('work-logs/<int:pk>/', work_logs.work_log_detail, name='work_log_detail'),
+    path('work-logs/<int:pk>/delete/', work_logs.work_log_delete, name='work_log_delete'),
+    path('work-logs/<int:pk>/entry/', work_logs.work_log_add_entry, name='work_log_add_entry'),
+    path('work-logs/<int:pk>/entry/<int:entry_id>/delete/', work_logs.work_log_delete_entry, name='work_log_delete_entry'),
+    path('work-logs/<int:pk>/share/', work_logs.work_log_publish_share, name='work_log_publish_share'),
+    path('work-logs/<int:pk>/share/<uuid:token>/revoke/', work_logs.work_log_revoke_share, name='work_log_revoke_share'),
+    path('work-logs/<int:pk>/media/<int:entry_id>/', work_logs.work_log_private_media, name='work_log_private_media'),
+    path('work-logs/share/<uuid:token>/', work_logs.work_log_shared, name='work_log_shared'),
+    path('work-logs/share/<uuid:token>/media/<int:entry_id>/', work_logs.work_log_shared_media, name='work_log_shared_media'),
 
     # Static pages
     path('static/<path:slug>.md', agent.static_page_markdown, name='static_page_markdown'),

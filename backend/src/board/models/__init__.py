@@ -64,6 +64,7 @@ from .site import (
     SiteSetting,
     StaticPage,
 )
+from .work_logs import WorkLog, WorkLogEntry, WorkLogShare
 
 
 __all__ = (
@@ -112,6 +113,9 @@ __all__ = (
     'UserLinkMeta',
     'UsernameChangeLog',
     'WebhookSubscription',
+    'WorkLog',
+    'WorkLogEntry',
+    'WorkLogShare',
     'avatar_path',
     'cover_path',
     'create_description',
@@ -170,6 +174,9 @@ _COMPAT_MODULE_EXPORTS = (
     UserLinkMeta,
     UsernameChangeLog,
     WebhookSubscription,
+    WorkLog,
+    WorkLogEntry,
+    WorkLogShare,
     avatar_path,
     cover_path,
     create_description,
