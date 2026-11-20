@@ -441,6 +441,7 @@ class EditHistory(models.Model):
         EDIT = 'edit', _('Before edit')
         RESTORE = 'restore', _('Before restore')
         LEGACY = 'legacy', _('Legacy')
+        DRAFT = 'draft', _('Draft save')
 
     post = models.ForeignKey('board.Post', on_delete=models.CASCADE)
     actor = models.ForeignKey(

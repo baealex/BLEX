@@ -1,9 +1,10 @@
 from dataclasses import dataclass
-from datetime import datetime
+from datetime import datetime, timedelta
 from html import unescape
 
 from django.contrib.auth.models import User
 from django.db import transaction
+from django.db.models import QuerySet
 from django.template.defaultfilters import truncatechars
 from django.utils import timezone
 from django.utils.html import strip_tags
@@ -33,6 +34,7 @@ class PostRevisionSnapshot:
 class PostRevisionService:
     PAGE_SIZE = 20
     MAX_PAGE_SIZE = 50
+    DRAFT_SNAPSHOT_INTERVAL = timedelta(minutes=10)
 
     @staticmethod
     def build_content_excerpt(content_html: str) -> str:
@@ -101,6 +103,7 @@ class PostRevisionService:
         *,
         source_updated_date: datetime | None,
         actor: User | None = None,
+        change_type: str = EditHistory.ChangeType.EDIT,
     ) -> EditHistory | None:
         if PostRevisionService.capture_snapshot(post) == previous_snapshot:
             return None
@@ -108,9 +111,57 @@ class PostRevisionService:
         return PostRevisionService.create_revision(
             post,
             previous_snapshot,
-            change_type=EditHistory.ChangeType.EDIT,
+            change_type=change_type,
             source_updated_date=source_updated_date,
             actor=actor if actor is not None else post.author,
+        )
+
+    @staticmethod
+    def get_editor_revisions(post: Post) -> QuerySet[EditHistory]:
+        """Revisions shown in the editor history; draft saves only feed the timelapse."""
+        return EditHistory.objects.filter(post=post).exclude(
+            change_type=EditHistory.ChangeType.DRAFT,
+        )
+
+    @staticmethod
+    def is_draft_snapshot_due(post: Post) -> bool:
+        """Autosave runs every few seconds, so keep at most one draft save per interval."""
+        latest_draft_snapshot_date = (
+            EditHistory.objects.filter(
+                post=post,
+                change_type=EditHistory.ChangeType.DRAFT,
+            )
+            .order_by('-created_date')
+            .values_list('created_date', flat=True)
+            .first()
+        )
+        if latest_draft_snapshot_date is None:
+            return True
+        return (
+            timezone.now() - latest_draft_snapshot_date
+            >= PostRevisionService.DRAFT_SNAPSHOT_INTERVAL
+        )
+
+    @staticmethod
+    def capture_draft_snapshot_if_due(post: Post) -> PostRevisionSnapshot | None:
+        if not PostRevisionService.is_draft_snapshot_due(post):
+            return None
+        return PostRevisionService.capture_snapshot(post)
+
+    @staticmethod
+    def record_draft_snapshot_if_changed(
+        post: Post,
+        previous_snapshot: PostRevisionSnapshot | None,
+        *,
+        source_updated_date: datetime | None,
+    ) -> EditHistory | None:
+        if previous_snapshot is None:
+            return None
+        return PostRevisionService.record_previous_snapshot_if_changed(
+            post,
+            previous_snapshot,
+            source_updated_date=source_updated_date,
+            change_type=EditHistory.ChangeType.DRAFT,
         )
 
     @staticmethod

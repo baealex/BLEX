@@ -54,7 +54,7 @@ def post_revisions(
 
     post = _get_editable_revision_post(request, username, url)
     revisions = (
-        EditHistory.objects.filter(post=post)
+        PostRevisionService.get_editor_revisions(post)
         .select_related('actor')
         .only(
             'id',
@@ -74,8 +74,7 @@ def post_revisions(
     if revision_id is not None:
         if request.method == 'DELETE':
             revision = get_object_or_404(
-                EditHistory.objects.only('id'),
-                post=post,
+                PostRevisionService.get_editor_revisions(post).only('id'),
                 pk=revision_id,
             )
             try:
@@ -91,7 +90,7 @@ def post_revisions(
             })
 
         revision = get_object_or_404(
-            EditHistory.objects.filter(post=post)
+            PostRevisionService.get_editor_revisions(post)
             .select_related('actor')
             .only(
                 'id',
@@ -173,8 +172,7 @@ def restore_post_revision(
 
     post = _get_editable_revision_post(request, username, url)
     revision = get_object_or_404(
-        EditHistory.objects.select_related('actor'),
-        post=post,
+        PostRevisionService.get_editor_revisions(post).select_related('actor'),
         pk=revision_id,
     )
     body, body_error = ApiRequestBodyService.parse_json_or_error(

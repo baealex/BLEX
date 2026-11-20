@@ -1009,6 +1009,9 @@ class PostService:
         PostService.validate_subtitle(subtitle)
         PostService.validate_field_lengths(title, description, custom_url, tag)
 
+        previous_draft_snapshot = PostRevisionService.capture_draft_snapshot_if_due(post)
+        previous_draft_updated_date = post.updated_date
+
         if title is not None:
             post.title = title or gettext('Untitled')
 
@@ -1079,6 +1082,11 @@ class PostService:
             post_config.save()
 
         PostService.set_draft_reserved_date(post, reserved_date_str)
+        PostRevisionService.record_draft_snapshot_if_changed(
+            post,
+            previous_draft_snapshot,
+            source_updated_date=previous_draft_updated_date,
+        )
 
         return post
 
@@ -1115,6 +1123,9 @@ class PostService:
         """
         PostService.validate_subtitle(subtitle)
         PostService.validate_field_lengths(title, description, custom_url, tag)
+
+        previous_draft_snapshot = PostRevisionService.capture_draft_snapshot_if_due(post)
+        previous_draft_updated_date = post.updated_date
 
         if title is not None:
             post.title = title
@@ -1186,6 +1197,11 @@ class PostService:
             post=post,
             name=PostService.DRAFT_RESERVED_DATE_META,
         ).delete()
+        PostRevisionService.record_draft_snapshot_if_changed(
+            post,
+            previous_draft_snapshot,
+            source_updated_date=previous_draft_updated_date,
+        )
 
         PostService.send_post_notifications(post, post_config)
 

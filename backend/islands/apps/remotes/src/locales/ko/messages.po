@@ -2257,6 +2257,157 @@ msgid "pagination.previous"
 msgstr "이전 페이지"
 
 #. js-lingui-explicit-id
+#: src/components/remotes/PostTimelapse/TimelapsePlayer.tsx:247
+msgid "post_timelapse.badge.after_publishing"
+msgstr "발행 후"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostTimelapse/TimelapsePlayer.tsx:237
+msgid "post_timelapse.badge.current"
+msgstr "현재 포스트"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostTimelapse/TimelapsePlayer.tsx:242
+msgid "post_timelapse.badge.draft"
+msgstr "초안"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostTimelapse/TimelapsePlayer.tsx:209
+msgid "post_timelapse.change.added_paragraphs"
+msgstr "{count, plural, other {문단 #개 추가}}"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostTimelapse/TimelapsePlayer.tsx:195
+msgid "post_timelapse.change.added_section"
+msgstr "‘{name}’ 섹션 추가"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostTimelapse/TimelapsePlayer.tsx:189
+msgid "post_timelapse.change.added_sections"
+msgstr "{count, plural, other {섹션 #개 추가}}"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostTimelapse/TimelapsePlayer.tsx:175
+msgid "post_timelapse.change.first_save"
+msgstr "첫 저장"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostTimelapse/TimelapsePlayer.tsx:229
+msgid "post_timelapse.change.formatting"
+msgstr "서식 조정"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostTimelapse/TimelapsePlayer.tsx:224
+msgid "post_timelapse.change.polished"
+msgstr "문장 다듬기"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostTimelapse/TimelapsePlayer.tsx:217
+msgid "post_timelapse.change.removed_paragraphs"
+msgstr "{count, plural, other {문단 #개 삭제}}"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostTimelapse/TimelapsePlayer.tsx:202
+msgid "post_timelapse.change.rewrote_paragraphs"
+msgstr "{count, plural, other {문단 #개 고쳐 쓰기}}"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostTimelapse/TimelapsePlayer.tsx:182
+msgid "post_timelapse.change.title"
+msgstr "제목 변경"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostTimelapse/TimelapseDialog.tsx:90
+#: src/components/remotes/PostTimelapse/TimelapsePlayer.tsx:375
+msgid "post_timelapse.close"
+msgstr "닫기"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostTimelapse/TimelapsePlayer.tsx:312
+msgid "post_timelapse.controls"
+msgstr "재생 조작"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostTimelapse/TimelapsePlayer.tsx:350
+msgid "post_timelapse.deleted_characters"
+msgstr "{count, plural, other {−#자}}"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostTimelapse/TimelapsePlayer.tsx:299
+msgid "post_timelapse.empty"
+msgstr "아직 다시 볼 내용 변경이 없습니다."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostTimelapse/TimelapseDialog.tsx:77
+msgid "post_timelapse.error.load"
+msgstr "쓰인 과정을 불러오지 못했습니다."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostTimelapse/TimelapsePlayer.tsx:342
+msgid "post_timelapse.inserted_characters"
+msgstr "{count, plural, other {+#자}}"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostTimelapse/TimelapseDialog.tsx:68
+msgid "post_timelapse.loading"
+msgstr "저장된 버전을 불러오는 중입니다…"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostTimelapse/PostTimelapse.tsx:32
+msgid "post_timelapse.open"
+msgstr "쓰인 과정 보기"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostTimelapse/TimelapsePlayer.tsx:271
+msgid "post_timelapse.pause"
+msgstr "일시정지"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostTimelapse/TimelapsePlayer.tsx:266
+msgid "post_timelapse.play"
+msgstr "재생"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostTimelapse/TimelapsePlayer.tsx:397
+msgid "post_timelapse.published_marker"
+msgstr "발행"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostTimelapse/TimelapsePlayer.tsx:276
+msgid "post_timelapse.replay"
+msgstr "첫 저장부터 다시 보기"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostTimelapse/TimelapseDialog.tsx:84
+msgid "post_timelapse.retry"
+msgstr "다시 시도"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostTimelapse/TimelapsePlayer.tsx:408
+msgid "post_timelapse.sampled"
+msgstr "저장 {total}번 중 {shown}개 표시"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostTimelapse/TimelapsePlayer.tsx:255
+msgid "post_timelapse.save_position"
+msgstr "저장 {current}/{total}"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostTimelapse/TimelapsePlayer.tsx:361
+msgid "post_timelapse.speed"
+msgstr "재생 속도"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostTimelapse/TimelapsePlayer.tsx:393
+msgid "post_timelapse.timeline"
+msgstr "저장된 버전"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/PostTimelapse/TimelapseDialog.tsx:56
+msgid "post_timelapse.title"
+msgstr "이 포스트가 쓰인 과정"
+
+#. js-lingui-explicit-id
 #: src/components/remotes/RelatedPosts/RelatedPosts.tsx:172
 msgid "related_posts.empty.body"
 msgstr "프로필에서 더 많은 포스트를 확인할 수 있습니다."

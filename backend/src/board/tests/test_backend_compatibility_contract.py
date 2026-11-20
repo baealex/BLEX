@@ -169,6 +169,11 @@ EXPECTED_ROUTE_CONTRACT = (
         'board.views.api.v1.post_revision.restore_post_revision',
     ),
     (
+        'v1/users/@<username>/posts/<url>/timelapse',
+        None,
+        'board.views.api.v1.post_timelapse.post_timelapse',
+    ),
+    (
         'v1/users/@<username>/posts/<url>/schedule/cancel',
         None,
         'board.views.api.v1.post_schedule.cancel_post_schedule',
@@ -331,6 +336,7 @@ EXPECTED_V1_API_EXPORTS = (
     'post_share_link_detail',
     'post_revisions',
     'restore_post_revision',
+    'post_timelapse',
     'cancel_post_schedule',
     'publish_scheduled_post_now',
     'user_post_related',
