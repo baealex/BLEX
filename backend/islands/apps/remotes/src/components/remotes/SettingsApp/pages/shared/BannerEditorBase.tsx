@@ -627,7 +627,7 @@ const BannerEditorBase = ({ scope, bannerId }: BannerEditorBaseProps) => {
                         <img
                             src={imageUrl}
                             alt=""
-                            className="max-h-56 w-full rounded-xl border border-line object-contain"
+                            className="max-h-60 w-full rounded-xl border border-line object-contain"
                         />
                     )}
                     <label
@@ -684,7 +684,7 @@ const BannerEditorBase = ({ scope, bannerId }: BannerEditorBaseProps) => {
                 />
             )}
 
-            <div className={cx('grid gap-3', fields.linkLabel && 'sm:grid-cols-[minmax(0,2fr)_minmax(0,3fr)]')}>
+            <div className={cx('grid gap-3', fields.linkLabel && 'sm:grid-cols-2')}>
                 {fields.linkLabel && (
                     <Input
                         density="compact"
@@ -796,7 +796,7 @@ const BannerEditorBase = ({ scope, bannerId }: BannerEditorBaseProps) => {
                     </div>
                 </div>
 
-                <div className="mx-auto max-w-2xl space-y-8 px-4 pb-28 pt-8 md:px-6">
+                <div className="mx-auto max-w-2xl space-y-8 px-4 pb-20 pt-8 md:px-6">
                     <section>
                         <h2 className={sectionLabelClass}>
                             <Trans id="settings.banners.editor.template.heading">Template</Trans>

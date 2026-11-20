@@ -4,7 +4,7 @@
         <div class="min-w-0">
             <p class="break-words text-lg font-bold leading-snug">{{ banner.headline }}</p>
             {% if banner.description %}
-            <p class="mt-1.5 break-words text-sm leading-relaxed {% if is_emphasis %}text-content-inverted/75{% else %}text-content-secondary{% endif %}">{{ banner.description|linebreaksbr }}</p>
+            <p class="mt-1.5 break-words text-sm leading-relaxed {% if is_emphasis %}opacity-75{% else %}text-content-secondary{% endif %}">{{ banner.description|linebreaksbr }}</p>
             {% endif %}
         </div>
         {% if link_url %}

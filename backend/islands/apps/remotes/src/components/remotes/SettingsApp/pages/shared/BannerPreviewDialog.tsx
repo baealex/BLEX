@@ -78,7 +78,7 @@ const BannerPreviewDialog = ({
                         <div className="post-detail-body px-4 md:px-6">
                             <div className="post-detail-layout">
                                 <aside className="post-detail-sidebar">
-                                    <div className="sticky top-8 mt-6 space-y-4">
+                                    <div className="sticky top-4 mt-6 space-y-4">
                                         {slot('left')}
                                     </div>
                                 </aside>
@@ -88,7 +88,7 @@ const BannerPreviewDialog = ({
                                         <div aria-hidden="true">
                                             <SkeletonLine className="mb-5 h-6 w-24" />
                                             <SkeletonLine className="mb-3 h-9 w-4/5" />
-                                            <SkeletonLine className="mb-8 h-5 w-1/2" />
+                                            <SkeletonLine className="mb-8 h-5 w-2/3" />
                                             <div className="mb-12 flex items-center gap-3 border-b border-line-light pb-8">
                                                 <div className="h-10 w-10 rounded-full bg-surface-subtle" />
                                                 <SkeletonLine className="h-4 w-48" />
@@ -100,12 +100,12 @@ const BannerPreviewDialog = ({
 
                                         <div aria-hidden="true" className="mb-16 space-y-3">
                                             <SkeletonLine className="h-4 w-full" />
-                                            <SkeletonLine className="h-4 w-11/12" />
                                             <SkeletonLine className="h-4 w-full" />
-                                            <SkeletonLine className="h-4 w-3/4" />
+                                            <SkeletonLine className="h-4 w-full" />
+                                            <SkeletonLine className="h-4 w-2/3" />
                                             <div className="h-4" />
                                             <SkeletonLine className="h-4 w-full" />
-                                            <SkeletonLine className="h-4 w-5/6" />
+                                            <SkeletonLine className="h-4 w-4/5" />
                                             <SkeletonLine className="h-4 w-2/3" />
                                         </div>
 
@@ -120,10 +120,10 @@ const BannerPreviewDialog = ({
                                 </div>
 
                                 <aside className="post-detail-sidebar">
-                                    <div className="sticky top-8 mt-6 space-y-4">
+                                    <div className="sticky top-4 mt-6 space-y-4">
                                         <div aria-hidden="true" className="space-y-2">
                                             <SkeletonLine className="h-3 w-24" />
-                                            <SkeletonLine className="h-3 w-36" />
+                                            <SkeletonLine className="h-3 w-32" />
                                             <SkeletonLine className="h-3 w-28" />
                                         </div>
                                         {slot('right')}

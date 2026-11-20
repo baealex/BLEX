@@ -44,7 +44,7 @@ const TemplateOption = ({ label, selected, onSelect, children }: TemplateOptionP
             type="button"
             aria-pressed={selected}
             onClick={onSelect}
-            className="absolute inset-0 rounded-xl focus:outline-none focus-visible:ring-2 focus-visible:ring-action/40 active:bg-surface-subtle/20">
+            className="absolute inset-0 rounded-xl focus:outline-none focus-visible:ring-2 focus-visible:ring-action/30 active:bg-surface-subtle/40">
             <span className="sr-only">{label}</span>
         </button>
     </div>

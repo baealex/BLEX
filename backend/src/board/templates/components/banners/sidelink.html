@@ -2,7 +2,7 @@
     <span class="min-w-0">
         <span class="block break-words text-sm font-semibold leading-snug">{{ banner.headline }}</span>
         {% if banner.description %}
-        <span class="mt-0.5 block break-words text-xs leading-relaxed {% if is_emphasis %}text-content-inverted/75{% else %}text-content-secondary{% endif %}">{{ banner.description }}</span>
+        <span class="mt-0.5 block break-words text-xs leading-relaxed {% if is_emphasis %}opacity-75{% else %}text-content-secondary{% endif %}">{{ banner.description }}</span>
         {% endif %}
     </span>
     {% if link_url %}
