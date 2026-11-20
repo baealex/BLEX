@@ -96,7 +96,7 @@ class PostShareLinkService:
 
     @staticmethod
     def summaries(post: Post, request: HttpRequest) -> list[PostShareLinkSummary]:
-        today = timezone.localdate()
+        today = timezone.localdate(timezone=timezone.get_default_timezone())
         start_day = today - timedelta(days=6)
         links = post.share_links.annotate(
             recent_clicks=Sum(
@@ -153,7 +153,7 @@ class PostShareLinkService:
                     VALUES (%s, %s, 1)
                     ON CONFLICT (link_id, day) DO UPDATE SET clicks = clicks + 1
                     """,
-                    [link.pk, timezone.localdate()],
+                    [link.pk, timezone.localdate(timezone=timezone.get_default_timezone())],
                 )
         except DatabaseError:
             logger.warning('Could not count click for post share link %s.', link.pk, exc_info=True)

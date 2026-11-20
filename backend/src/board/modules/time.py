@@ -1,5 +1,4 @@
 import datetime
-import pytz
 
 from django.utils import timezone
 from django.utils.formats import date_format
@@ -21,7 +20,7 @@ def time_since(date):
     one_year_ago = timezone.now() - datetime.timedelta(days=365)
 
     if date < one_year_ago:
-        return date_format(date, 'DATE_FORMAT')
+        return format_local_date(date)
 
     date_since = timesince(date)
     if ',' in date_since:
@@ -29,10 +28,10 @@ def time_since(date):
     return _('%(time)s ago') % {'time': date_since}
 
 
-def convert_to_localtime(utctime):
-    utc = utctime.replace(tzinfo=pytz.UTC)
-    localtz = utc.astimezone(timezone.get_current_timezone())
-    return localtz
+def convert_to_localtime(utctime: datetime.datetime) -> datetime.datetime:
+    if timezone.is_naive(utctime):
+        utctime = timezone.make_aware(utctime, datetime.timezone.utc)
+    return timezone.localtime(utctime)
 
 
 def format_local_date(value) -> str:

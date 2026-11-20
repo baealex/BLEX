@@ -1,5 +1,6 @@
 import { i18n } from '~/i18n';
 import type { AppLocale } from '~/i18n/locale';
+import { formatDateTime } from '~/i18n/formatters';
 
 export type PublishChecklistSeverity = 'required' | 'recommended';
 export type PublishChecklistStatus = 'pass' | 'missing';
@@ -46,16 +47,6 @@ export const hasPublishableContent = (value: string) => {
         .trim();
 
     return text.length > 0;
-};
-
-const formatScheduledAt = (value: string, locale: AppLocale) => {
-    const date = new Date(value);
-    if (Number.isNaN(date.getTime())) return value;
-
-    return new Intl.DateTimeFormat(locale, {
-        dateStyle: 'medium',
-        timeStyle: 'short'
-    }).format(date);
 };
 
 export const getPublishChecklist = (
@@ -132,7 +123,7 @@ export const getPublishChecklist = (
 
     const missingRequired = items.filter(item => item.severity === 'required' && item.status === 'missing');
     const missingRecommended = items.filter(item => item.severity === 'recommended' && item.status === 'missing');
-    const scheduledLabel = input.scheduledAt ? formatScheduledAt(input.scheduledAt, locale) : '';
+    const scheduledLabel = formatDateTime(input.scheduledAt, locale, input.scheduledAt);
     const visibilityTitle = input.scheduledAt
         ? (input.isHidden
             ? i18n._({

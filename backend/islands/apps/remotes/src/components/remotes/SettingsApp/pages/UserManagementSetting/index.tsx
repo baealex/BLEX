@@ -16,7 +16,7 @@ import { toast } from '~/utils/toast';
 import { useConfirm } from '~/hooks/useConfirm';
 import { SettingsHeader } from '../../components';
 import { Button, Card, Input, Select } from '~/components/shared';
-import { normalizeLocale } from '~/i18n/locale';
+import { getDocumentTimeZone, normalizeLocale } from '~/i18n/locale';
 import {
     createAuthorInvite,
     deleteAuthorInvite,
@@ -156,7 +156,10 @@ const formatDate = (value: string | null, locale: string) => {
     const date = new Date(value);
     if (Number.isNaN(date.getTime())) return value;
 
-    return new Intl.DateTimeFormat(locale, { dateStyle: 'medium' }).format(date);
+    return new Intl.DateTimeFormat(locale, {
+        dateStyle: 'medium',
+        timeZone: getDocumentTimeZone()
+    }).format(date);
 };
 
 const getUserStatusMessage = (user: ManagedUser): MessageDescriptor => {

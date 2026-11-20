@@ -69,6 +69,8 @@ def oauth_callback(request: HttpRequest, provider: str) -> HttpResponse:
         result = SocialSignupService.sign_up(
             provider, request.GET.get('code'), flow['verifier'], flow['redirect_uri'],
             expected_user_id=flow['user_id'],
+            language=flow.get('language', ''),
+            time_zone=flow.get('time_zone', ''),
         )
     except SocialSignupError:
         messages.error(request, gettext('Social login failed. Please try again.'))

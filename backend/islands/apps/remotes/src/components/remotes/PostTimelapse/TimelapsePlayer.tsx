@@ -4,7 +4,7 @@ import {
 import { useLingui } from '@lingui/react/macro';
 import { IconButton } from '@blex/ui/icon-button';
 import { Pause, Play, RotateCcw, X } from '@blex/ui/icons';
-import { normalizeLocale } from '~/i18n/locale';
+import { getDocumentTimeZone, normalizeLocale } from '~/i18n/locale';
 import type { PostTimelapse } from '~/lib/api/posts';
 import { diffFrames, measureFrame, summarizeDiff } from './timelapseDiff';
 import {
@@ -160,12 +160,18 @@ const TimelapsePlayer = ({ timelapse, scrollerRef, onClose }: TimelapsePlayerPro
     const formatDate = (value: string, withTime: boolean) => {
         const date = new Date(value);
         if (Number.isNaN(date.getTime())) return value;
+        const timeZone = getDocumentTimeZone();
+        const yearFormat = new Intl.DateTimeFormat(locale, {
+            year: 'numeric',
+            timeZone
+        });
         return new Intl.DateTimeFormat(locale, {
-            year: date.getFullYear() === new Date().getFullYear() ? undefined : 'numeric',
+            year: yearFormat.format(date) === yearFormat.format(new Date()) ? undefined : 'numeric',
             month: 'short',
             day: 'numeric',
             hour: withTime ? 'numeric' : undefined,
-            minute: withTime ? '2-digit' : undefined
+            minute: withTime ? '2-digit' : undefined,
+            timeZone
         }).format(date);
     };
 

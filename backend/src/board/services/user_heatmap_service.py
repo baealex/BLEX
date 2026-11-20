@@ -12,13 +12,16 @@ from board.models import Comment, Post, PostLikes
 class UserHeatmapService:
     """Build and cache private user activity heatmap data for settings."""
 
-    CACHE_KEY_TEMPLATE = 'user_heatmap_{user_id}'
+    CACHE_KEY_TEMPLATE = 'user_heatmap_{user_id}_{time_zone}'
     CACHE_TTL_SECONDS = 3600
     WINDOW_DAYS = 365
 
     @staticmethod
     def get_settings_heatmap(user: User) -> dict[str, int]:
-        cache_key = UserHeatmapService.CACHE_KEY_TEMPLATE.format(user_id=user.id)
+        cache_key = UserHeatmapService.CACHE_KEY_TEMPLATE.format(
+            user_id=user.id,
+            time_zone=timezone.get_current_timezone_name(),
+        )
         heatmap = cache.get(cache_key)
 
         if heatmap is not None:

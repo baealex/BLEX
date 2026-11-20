@@ -2,7 +2,7 @@ import { Trans, useLingui } from '@lingui/react/macro';
 import { Alert } from '@blex/ui/alert';
 import { Button } from '@blex/ui/button';
 import { RotateCw, Trash2 } from '@blex/ui/icons';
-import { normalizeLocale } from '~/i18n/locale';
+import { getDocumentTimeZone, normalizeLocale } from '~/i18n/locale';
 import type { PostEditRecovery } from '../utils/postEditRecovery';
 
 interface EditRecoveryNoticeProps {
@@ -24,7 +24,8 @@ const EditRecoveryNotice = ({
             month: 'long',
             day: 'numeric',
             hour: '2-digit',
-            minute: '2-digit'
+            minute: '2-digit',
+            timeZone: getDocumentTimeZone()
         }).format(savedDate);
 
     return (

@@ -7,7 +7,7 @@ import { AlertTriangle, Clock, FileText, X } from '@blex/ui/icons';
 import { DIM_OVERLAY_DEFAULT, ENTRANCE_DURATION } from '@blex/ui/design-tokens';
 import { getDrafts, type DraftSummary } from '~/lib/api/posts';
 import { cx } from '~/lib/classnames';
-import { normalizeLocale } from '~/i18n/locale';
+import { getDocumentTimeZone, normalizeLocale } from '~/i18n/locale';
 
 interface DraftsPanelProps {
     isOpen: boolean;
@@ -67,7 +67,8 @@ const DraftsPanel = ({
         return new Intl.DateTimeFormat(normalizeLocale(i18n.locale), {
             year: 'numeric',
             month: 'long',
-            day: 'numeric'
+            day: 'numeric',
+            timeZone: getDocumentTimeZone()
         }).format(date);
     };
 

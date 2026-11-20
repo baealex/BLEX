@@ -2,6 +2,7 @@ import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { Trans, useLingui } from '@lingui/react/macro';
 import SocialLogin from '~/components/remotes/SocialLogin';
 import { useResolvedTheme } from '~/hooks/useResolvedTheme';
+import { getBrowserTimeZone } from '~/i18n/locale';
 
 declare global {
     interface Window {
@@ -252,7 +253,8 @@ const Signup = () => {
                 'username': username,
                 'name': name,
                 'email': email,
-                'password': password
+                'password': password,
+                'time_zone': getBrowserTimeZone() || ''
             });
 
             if (window.INVITE_CODE) {

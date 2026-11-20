@@ -25,3 +25,20 @@ export const getDocumentLocale = (): AppLocale => {
         window.configuration?.locale || document.documentElement.lang
     );
 };
+
+export const getBrowserTimeZone = () => Intl.DateTimeFormat().resolvedOptions().timeZone;
+
+let documentTimeZone: string | undefined;
+
+export const getDocumentTimeZone = () => {
+    if (documentTimeZone || typeof window === 'undefined') return documentTimeZone;
+    const timeZone = window.configuration?.timeZone;
+    if (!timeZone) return undefined;
+    try {
+        new Intl.DateTimeFormat('en', { timeZone });
+        documentTimeZone = timeZone;
+    } catch {
+        documentTimeZone = 'UTC';
+    }
+    return documentTimeZone;
+};

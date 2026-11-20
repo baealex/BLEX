@@ -10,6 +10,7 @@ from django.utils import timezone
 from django.utils.crypto import constant_time_compare
 
 from board.models import OAuthAuthorization
+from board.services.regional_preferences_service import RegionalPreferencesService
 from board.services.social_auth_provider_service import SocialAuthProviderService
 
 
@@ -46,6 +47,11 @@ class OAuthFlowService:
             'next_url': next_url,
             'user_id': request.user.pk if reauthenticate else None,
         }
+        if not reauthenticate:
+            language, time_zone = RegionalPreferencesService.normalize(
+                request.LANGUAGE_CODE, request.GET.get('time_zone'),
+            )
+            flows[provider].update(language=language, time_zone=time_zone)
         request.session[cls.SESSION_KEY] = flows
 
         parameters = {

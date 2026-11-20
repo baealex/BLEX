@@ -1,4 +1,5 @@
 import { Trans, useLingui } from '@lingui/react/macro';
+import { getBrowserTimeZone } from '~/i18n/locale';
 import { useSocialProviders } from './hooks/useSocialProviders';
 
 interface SocialLoginProps {
@@ -57,7 +58,10 @@ const SocialLogin = ({ nextUrl, showPasswordDivider = false }: SocialLoginProps)
         return null;
     }
 
-    const next = new URLSearchParams({ next: nextUrl || window.NEXT_URL || '/' });
+    const params = new URLSearchParams({
+        next: nextUrl || window.NEXT_URL || '/',
+        time_zone: getBrowserTimeZone() || ''
+    });
 
     return (
         <>
@@ -65,7 +69,7 @@ const SocialLogin = ({ nextUrl, showPasswordDivider = false }: SocialLoginProps)
                 {providers.map((provider) => (
                     <a
                         key={provider.key}
-                        href={`/login/start/${encodeURIComponent(provider.key)}?${next}`}
+                        href={`/login/start/${encodeURIComponent(provider.key)}?${params}`}
                         className="flex min-h-11 w-full items-center justify-center gap-3 rounded-lg border border-line bg-surface px-4 py-3 text-sm font-semibold text-content transition-colors duration-150 hover:bg-surface-subtle focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-action focus-visible:ring-offset-1 active:scale-[0.98]">
                         <span className="shrink-0">
                             {provider.key === 'google' && <GoogleIcon />}

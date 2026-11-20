@@ -150,11 +150,16 @@ class AuthTestCase(TestCase):
             'username': 'test2',
             'password': 'test2-password',
             'name': 'Test User 2',
-            'email': 'test2@test.com'
-        })
+            'email': 'test2@test.com',
+            'time_zone': 'America/Los_Angeles',
+        }, HTTP_ACCEPT_LANGUAGE='en-US,en;q=0.9')
         self.assertEqual(response.status_code, 200)
         content = json.loads(response.content)
         self.assertEqual(content['status'], 'DONE')
+
+        config = Config.objects.get(user__username='test2')
+        self.assertEqual(config.language, 'en')
+        self.assertEqual(config.time_zone, 'America/Los_Angeles')
 
         response = self.client.post('/v1/login', {
             'username': 'test2',
@@ -164,6 +169,21 @@ class AuthTestCase(TestCase):
         content = json.loads(response.content)
         self.assertEqual(content['status'], 'DONE')
         self.assertEqual(content['body']['username'], 'test2')
+
+    @override_settings(LANGUAGES=[('ko', 'Korean')], TIME_ZONE='Asia/Seoul')
+    def test_create_account_falls_back_for_unsupported_browser_preferences(self):
+        response = self.client.post('/v1/sign', {
+            'username': 'test2',
+            'password': 'test2-password',
+            'name': 'Test User 2',
+            'email': 'test2@test.com',
+            'time_zone': 'America/Does_Not_Exist',
+        }, HTTP_ACCEPT_LANGUAGE='en-US')
+
+        self.assertEqual(response.json()['status'], 'DONE')
+        config = Config.objects.get(user__username='test2')
+        self.assertEqual((config.language, config.time_zone), ('ko', ''))
+        self.assertEqual(self.client.get('/v1/setting/account')['Content-Language'], 'ko')
 
     def test_signup_validation_localizes_message_without_changing_error_code(self):
         response = self.client.post(

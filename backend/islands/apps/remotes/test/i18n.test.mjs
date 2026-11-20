@@ -8,7 +8,7 @@ import {
     formatPublishedDate
 } from '../src/i18n/formatters.ts';
 import { normalizeLocale } from '../src/i18n/locale.ts';
-import { formatScheduleDateTime } from '../src/components/remotes/PostEditor/utils/scheduleDate.ts';
+import { formatScheduleDateTime, toReservedDateValue } from '../src/components/remotes/PostEditor/utils/scheduleDate.ts';
 import { buildQueryCacheKey } from '../src/lib/query-cache-key.ts';
 import { normalizeLoginPromptAction } from '../src/utils/loginPrompt.ts';
 
@@ -22,13 +22,14 @@ describe('locale normalization', () => {
 });
 
 describe('locale-sensitive cache boundaries', () => {
-    test('separates persisted queries by both identity and locale', () => {
-        const korean = buildQueryCacheKey('reader', 'ko');
-        const english = buildQueryCacheKey('reader', 'en');
+    test('separates persisted queries by identity, locale, and time zone', () => {
+        const korean = buildQueryCacheKey('reader', 'ko', 'Asia/Seoul');
+        const english = buildQueryCacheKey('reader', 'en', 'Asia/Seoul');
 
         assert.notEqual(korean, english);
-        assert.notEqual(korean, buildQueryCacheKey('another-reader', 'ko'));
-        assert.equal(buildQueryCacheKey(undefined, 'ko'), 'rq-cache-v2-anonymous-ko');
+        assert.notEqual(korean, buildQueryCacheKey('another-reader', 'ko', 'Asia/Seoul'));
+        assert.notEqual(korean, buildQueryCacheKey('reader', 'ko', 'UTC'));
+        assert.equal(buildQueryCacheKey(undefined, 'ko', 'UTC'), 'rq-cache-v3-anonymous-ko-UTC');
     });
 });
 
@@ -83,13 +84,30 @@ describe('localized publication dates', () => {
         const timestamp = '2026-01-02T15:30:00Z';
         const timestampOptions = {
             dateStyle: 'medium',
-            timeStyle: 'short'
+            timeStyle: 'short',
+            timeZone: 'America/Los_Angeles'
         };
         assert.equal(
-            formatDateTime(timestamp, 'ko', 'legacy'),
+            formatDateTime(timestamp, 'ko', 'legacy', 'America/Los_Angeles'),
             new Intl.DateTimeFormat('ko', timestampOptions).format(new Date(timestamp))
         );
         assert.equal(formatDateTime('not-a-date', 'ko', 'legacy'), 'legacy');
+    });
+
+    test('displays reserved instants in the chosen zone and preserves repeated-hour offsets', () => {
+        const first = '2026-11-01T01:30:00-04:00';
+        const second = '2026-11-01T01:30:00-05:00';
+
+        assert.equal(toReservedDateValue(first), '2026-11-01T05:30:00.000Z');
+        assert.equal(toReservedDateValue(second), '2026-11-01T06:30:00.000Z');
+        assert.equal(
+            formatScheduleDateTime(first, 'en', 'America/New_York'),
+            formatScheduleDateTime(second, 'en', 'America/New_York')
+        );
+        assert.notEqual(
+            formatScheduleDateTime(first, 'en', 'America/New_York'),
+            formatScheduleDateTime(first, 'en', 'UTC')
+        );
     });
 });
 

@@ -34,6 +34,7 @@ declare global {
             media: string;
             static: string;
             locale: AppLocale;
+            timeZone: string;
             user?: {
                 isAuthenticated: boolean;
                 username: string;

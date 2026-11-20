@@ -4145,6 +4145,18 @@ msgstr "한국어"
 msgid "English"
 msgstr "영어"
 
+msgid "Language"
+msgstr "언어"
+
+msgid "Time zone"
+msgstr "시간대"
+
+msgid "Choose a supported language."
+msgstr "지원하는 언어를 선택해 주세요."
+
+msgid "Choose a valid time zone."
+msgstr "올바른 시간대를 선택해 주세요."
+
 msgid "Verify your identity"
 msgstr "본인 확인"
 

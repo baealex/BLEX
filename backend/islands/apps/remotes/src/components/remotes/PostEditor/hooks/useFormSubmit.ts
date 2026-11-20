@@ -2,7 +2,7 @@ import { useState, useRef } from 'react';
 import { useLingui } from '@lingui/react/macro';
 import { toast } from '~/utils/toast';
 import { hasPublishableContent } from '../utils/publishChecklist';
-import { isFutureDateTimeLocal, parseDateTimeLocal, toReservedDateValue } from '../utils/scheduleDate';
+import { isFutureScheduleDate, parseScheduleDate, toReservedDateValue } from '../utils/scheduleDate';
 
 interface FormSubmitData {
     title: string;
@@ -72,7 +72,7 @@ export const useFormSubmit = (options: UseFormSubmitOptions) => {
         }
 
         if (!isDraft && data.reservedDate) {
-            if (!parseDateTimeLocal(data.reservedDate)) {
+            if (!parseScheduleDate(data.reservedDate)) {
                 toast.error(t({
                     id: 'editor.validation.schedule_invalid',
                     message: 'Check the scheduled time.'
@@ -80,7 +80,7 @@ export const useFormSubmit = (options: UseFormSubmitOptions) => {
                 return false;
             }
 
-            if (!isFutureDateTimeLocal(data.reservedDate)) {
+            if (!isFutureScheduleDate(data.reservedDate)) {
                 toast.error(t({
                     id: 'editor.validation.schedule_future',
                     message: 'Choose a scheduled time in the future.'
