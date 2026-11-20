@@ -2318,22 +2318,22 @@ msgstr ""
 
 #. js-lingui-explicit-id
 #: src/components/remotes/PostTimelapse/TimelapseDialog.tsx:90
-#: src/components/remotes/PostTimelapse/TimelapsePlayer.tsx:368
+#: src/components/remotes/PostTimelapse/TimelapsePlayer.tsx:375
 msgid "post_timelapse.close"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostTimelapse/TimelapsePlayer.tsx:305
+#: src/components/remotes/PostTimelapse/TimelapsePlayer.tsx:312
 msgid "post_timelapse.controls"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostTimelapse/TimelapsePlayer.tsx:343
+#: src/components/remotes/PostTimelapse/TimelapsePlayer.tsx:350
 msgid "post_timelapse.deleted_characters"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostTimelapse/TimelapsePlayer.tsx:295
+#: src/components/remotes/PostTimelapse/TimelapsePlayer.tsx:299
 msgid "post_timelapse.empty"
 msgstr ""
 
@@ -2343,7 +2343,7 @@ msgid "post_timelapse.error.load"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostTimelapse/TimelapsePlayer.tsx:335
+#: src/components/remotes/PostTimelapse/TimelapsePlayer.tsx:342
 msgid "post_timelapse.inserted_characters"
 msgstr ""
 
@@ -2368,7 +2368,7 @@ msgid "post_timelapse.play"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostTimelapse/TimelapsePlayer.tsx:390
+#: src/components/remotes/PostTimelapse/TimelapsePlayer.tsx:397
 msgid "post_timelapse.published_marker"
 msgstr ""
 
@@ -2383,7 +2383,7 @@ msgid "post_timelapse.retry"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostTimelapse/TimelapsePlayer.tsx:401
+#: src/components/remotes/PostTimelapse/TimelapsePlayer.tsx:408
 msgid "post_timelapse.sampled"
 msgstr ""
 
@@ -2393,12 +2393,12 @@ msgid "post_timelapse.save_position"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostTimelapse/TimelapsePlayer.tsx:354
+#: src/components/remotes/PostTimelapse/TimelapsePlayer.tsx:361
 msgid "post_timelapse.speed"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostTimelapse/TimelapsePlayer.tsx:386
+#: src/components/remotes/PostTimelapse/TimelapsePlayer.tsx:393
 msgid "post_timelapse.timeline"
 msgstr ""
 
