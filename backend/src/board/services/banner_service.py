@@ -57,50 +57,52 @@ class BannerService:
     @staticmethod
     def get_template_samples(user: User) -> Dict[str, Dict[str, str]]:
         """Starter text the editor fills in when a template is chosen."""
-        about = pgettext('Banner sample', 'I write down what I learn while building things.')
-        subscribe = pgettext('Banner sample', 'Subscribe')
+        # Keep starter text generic: it must not promise features or facts the author may not have.
+        learn_more = pgettext('Banner link label', 'Learn more')
+        visit_blog = pgettext('Banner sample', 'Visit the blog')
         return {
             BannerTemplate.NOTICE: {
-                'headline': pgettext('Banner sample', 'A new series has started.'),
+                'headline': pgettext('Banner sample', "There's some news to share."),
                 'description': '',
-                'link_label': pgettext('Banner sample', 'Take a look'),
+                'link_label': learn_more,
             },
             BannerTemplate.CARD: {
                 'headline': pgettext('Banner sample', 'Did this post help you?'),
-                'description': pgettext('Banner sample', 'Subscribe to get new posts first.'),
-                'link_label': subscribe,
+                'description': pgettext('Banner sample', 'Read the other posts too.'),
+                'link_label': visit_blog,
             },
             BannerTemplate.CENTERED: {
-                'headline': pgettext('Banner sample', 'Get new posts in your inbox'),
-                'description': pgettext('Banner sample', 'One short letter a week. No spam.'),
-                'link_label': subscribe,
+                'headline': pgettext('Banner sample', 'Thanks for reading'),
+                'description': pgettext('Banner sample', 'Stay tuned for the next post.'),
+                'link_label': visit_blog,
             },
             BannerTemplate.CALLOUT: {
                 'headline': pgettext('Banner sample', 'Before you read'),
                 'description': pgettext(
                     'Banner sample',
-                    'Some details may have changed since this post was written.',
+                    'This post reflects the time it was written and may be out of date.',
                 ),
-                'link_label': pgettext('Banner sample', 'See the latest'),
+                'link_label': learn_more,
             },
             BannerTemplate.IMAGE: {
-                'headline': pgettext('Banner sample', 'Banner image'),
+                # Alt text has to describe the actual image, so the author writes it.
+                'headline': '',
                 'description': '',
                 'link_label': '',
             },
             BannerTemplate.INTRO: {
-                'headline': pgettext('Banner sample', 'Hi, I write this blog.'),
-                'description': about,
+                'headline': pgettext('Banner sample', 'Welcome to my blog'),
+                'description': pgettext('Banner sample', 'Make yourself at home.'),
                 'link_label': pgettext('Banner sample', 'About me'),
             },
             BannerTemplate.PROFILE: {
                 'headline': user.username,
-                'description': about,
-                'link_label': pgettext('Banner sample', 'Visit the blog'),
+                'description': pgettext('Banner sample', 'Thanks for stopping by.'),
+                'link_label': visit_blog,
             },
             BannerTemplate.SIDELINK: {
                 'headline': pgettext('Banner sample', 'New here?'),
-                'description': pgettext('Banner sample', 'Start with the most-read posts.'),
+                'description': pgettext('Banner sample', "See what's on the blog."),
                 'link_label': '',
             },
         }

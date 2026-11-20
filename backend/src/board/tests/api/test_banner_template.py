@@ -321,10 +321,13 @@ class BannerTemplateAPITestCase(TestCase):
         for item in templates:
             with self.subTest(template=item['template']):
                 self.assertTrue(item['html'].strip())
-                self.assertTrue(item['sample']['headline'])
                 self.assertEqual(item['sample']['linkUrl'], '/@editor')
+                if item['template'] != 'image':
+                    self.assertTrue(item['sample']['headline'])
         image_item = next(item for item in templates if item['template'] == 'image')
         self.assertEqual(image_item['bannerTypes'], ['horizontal', 'sidebar'])
+        # Alt text must describe the uploaded image, so it is never prefilled.
+        self.assertEqual(image_item['sample']['headline'], '')
         self.assertFalse(SiteBanner.objects.exists())
 
     def test_template_gallery_requires_permissions(self):

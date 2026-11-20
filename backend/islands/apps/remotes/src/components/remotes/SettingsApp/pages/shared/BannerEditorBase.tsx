@@ -187,10 +187,15 @@ const BannerEditorBase = ({ scope, bannerId }: BannerEditorBaseProps) => {
             ctx.addIssue({
                 code: 'custom',
                 path: ['headline'],
-                message: t({
-                    id: 'settings.banners.validation.headline_required',
-                    message: 'Enter the banner text.'
-                })
+                message: value.template === 'image'
+                    ? t({
+                        id: 'settings.banners.validation.image_alt_required',
+                        message: 'Describe the image.'
+                    })
+                    : t({
+                        id: 'settings.banners.validation.headline_required',
+                        message: 'Enter the banner text.'
+                    })
             });
         }
         if (value.template === 'image' && !value.imageUrl) {
@@ -666,6 +671,12 @@ const BannerEditorBase = ({ scope, bannerId }: BannerEditorBaseProps) => {
                     id: 'settings.banners.editor.headline.label',
                     message: 'Title'
                 })}
+                placeholder={template === 'image'
+                    ? t({
+                        id: 'settings.banners.editor.headline.image_placeholder',
+                        message: 'Briefly describe what the image shows'
+                    })
+                    : undefined}
                 error={errors.headline?.message}
                 {...register('headline')}
             />
