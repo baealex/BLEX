@@ -8,7 +8,7 @@ import { bannerTemplateMessages } from './bannerI18n';
 const THUMBNAIL_SCALE = {
     horizontal: {
         width: 640,
-        zoom: 0.42
+        zoom: 0.38
     },
     sidebar: {
         width: 256,
@@ -61,7 +61,7 @@ const BannerTemplatePicker = ({ gallery, allowHtml, value, onChange }: BannerTem
     const { i18n } = useLingui();
 
     return (
-        <div className="grid gap-3 sm:grid-cols-2">
+        <div className="grid gap-3 sm:grid-cols-2 md:grid-cols-3">
             {gallery.map((item) => {
                 const kind = item.bannerTypes[0];
                 return (

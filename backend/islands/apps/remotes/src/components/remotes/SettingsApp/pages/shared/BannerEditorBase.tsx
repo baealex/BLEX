@@ -909,7 +909,7 @@ const BannerEditorBase = ({ scope, bannerId }: BannerEditorBaseProps) => {
         <div className="min-h-screen bg-surface pb-16">
             <form onSubmit={handleSubmit(onSubmit)}>
                 <div className="sticky top-0 z-10 border-b border-line bg-surface">
-                    <div className="mx-auto flex h-14 max-w-2xl items-center justify-between px-4 md:px-6">
+                    <div className="mx-auto flex h-14 max-w-4xl items-center justify-between px-4 md:px-6">
                         <button
                             type="button"
                             className="flex min-h-11 items-center gap-2 py-2 text-sm text-content-secondary transition-colors hover:text-content active:text-content-secondary [@media(pointer:fine)]:min-h-9"
@@ -934,7 +934,7 @@ const BannerEditorBase = ({ scope, bannerId }: BannerEditorBaseProps) => {
                     </div>
                 </div>
 
-                <div className="mx-auto max-w-2xl space-y-8 px-4 pb-20 pt-8 md:px-6">
+                <div className="mx-auto max-w-4xl space-y-8 px-4 pb-20 pt-8 md:px-6">
                     <section>
                         <h2 className={sectionLabelClass}>
                             <Trans id="settings.banners.editor.template.heading">Template</Trans>
