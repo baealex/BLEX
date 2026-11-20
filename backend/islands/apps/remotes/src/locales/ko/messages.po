@@ -704,7 +704,7 @@ msgid "common.copy_success"
 msgstr "복사했습니다."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/shared/BannerEditorBase.tsx:819
+#: src/components/remotes/SettingsApp/pages/shared/BannerEditorBase.tsx:941
 #: src/components/remotes/SettingsApp/pages/shared/NoticeSettingBase.tsx:401
 #: src/components/remotes/SettingsApp/pages/StaticPagesSetting/components/StaticPageEditor.tsx:498
 msgid "common.create"
@@ -728,8 +728,8 @@ msgstr "생성"
 #: src/components/remotes/SettingsApp/pages/SeriesSetting/components/SeriesEditor.tsx:539
 #: src/components/remotes/SettingsApp/pages/SeriesSetting/SeriesSetting.tsx:86
 #: src/components/remotes/SettingsApp/pages/SeriesSetting/SeriesSetting.tsx:135
-#: src/components/remotes/SettingsApp/pages/shared/BannerEditorBase.tsx:510
-#: src/components/remotes/SettingsApp/pages/shared/BannerEditorBase.tsx:787
+#: src/components/remotes/SettingsApp/pages/shared/BannerEditorBase.tsx:561
+#: src/components/remotes/SettingsApp/pages/shared/BannerEditorBase.tsx:909
 #: src/components/remotes/SettingsApp/pages/shared/BannerSettingBase.tsx:130
 #: src/components/remotes/SettingsApp/pages/shared/NoticeSettingBase.tsx:229
 #: src/components/remotes/SettingsApp/pages/shared/NoticeSettingBase.tsx:452
@@ -817,7 +817,8 @@ msgstr "로딩 중"
 #: src/components/remotes/SettingsApp/pages/FormsSetting/FormsSetting.tsx:144
 #: src/components/remotes/SettingsApp/pages/FormsSetting/FormsSetting.tsx:192
 #: src/components/remotes/SettingsApp/pages/IntegrationSetting/IntegrationSetting.tsx:113
-#: src/components/remotes/SettingsApp/pages/shared/BannerEditorBase.tsx:434
+#: src/components/remotes/SettingsApp/pages/shared/BannerEditorBase.tsx:463
+#: src/components/remotes/SettingsApp/pages/shared/BannerEditorBase.tsx:491
 msgid "common.network_error"
 msgstr "네트워크 오류가 발생했습니다."
 
@@ -911,7 +912,7 @@ msgstr "저장"
 #: src/components/remotes/Comments/components/CommentEditForm.tsx:76
 #: src/components/remotes/SettingsApp/pages/AdminIntegrationSetting/AdminIntegrationSetting.tsx:289
 #: src/components/remotes/SettingsApp/pages/LoginSetting/LoginSetting.tsx:825
-#: src/components/remotes/SettingsApp/pages/shared/BannerEditorBase.tsx:816
+#: src/components/remotes/SettingsApp/pages/shared/BannerEditorBase.tsx:938
 #: src/components/remotes/SettingsApp/pages/shared/NoticeSettingBase.tsx:398
 #: src/components/remotes/SettingsApp/pages/StaticPagesSetting/components/StaticPageEditor.tsx:495
 msgid "common.saving"
@@ -943,7 +944,7 @@ msgid "common.untitled"
 msgstr "제목 없음"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/shared/BannerEditorBase.tsx:818
+#: src/components/remotes/SettingsApp/pages/shared/BannerEditorBase.tsx:940
 #: src/components/remotes/SettingsApp/pages/shared/NoticeSettingBase.tsx:400
 #: src/components/remotes/SettingsApp/pages/StaticPagesSetting/components/StaticPageEditor.tsx:497
 msgid "common.update"
@@ -2995,13 +2996,13 @@ msgid "settings.banners.create_action"
 msgstr "새 배너 추가"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/shared/BannerEditorBase.tsx:313
-#: src/components/remotes/SettingsApp/pages/shared/BannerEditorBase.tsx:331
+#: src/components/remotes/SettingsApp/pages/shared/BannerEditorBase.tsx:346
+#: src/components/remotes/SettingsApp/pages/shared/BannerEditorBase.tsx:364
 msgid "settings.banners.create.failed"
 msgstr "{scope, select, global {전역 배너 생성에 실패했습니다.} other {배너 생성에 실패했습니다.}}"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/shared/BannerEditorBase.tsx:321
+#: src/components/remotes/SettingsApp/pages/shared/BannerEditorBase.tsx:354
 msgid "settings.banners.create.success"
 msgstr "{scope, select, global {전역 배너가 생성되었습니다.} other {배너가 생성되었습니다.}}"
 
@@ -3011,20 +3012,20 @@ msgid "settings.banners.delete.confirm"
 msgstr "{scope, select, global {이 전역 배너를 삭제하시겠습니까?} other {이 배너를 삭제하시겠습니까?}}"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/shared/BannerEditorBase.tsx:387
-#: src/components/remotes/SettingsApp/pages/shared/BannerEditorBase.tsx:405
+#: src/components/remotes/SettingsApp/pages/shared/BannerEditorBase.tsx:420
+#: src/components/remotes/SettingsApp/pages/shared/BannerEditorBase.tsx:438
 #: src/components/remotes/SettingsApp/pages/shared/BannerSettingBase.tsx:89
 msgid "settings.banners.delete.failed"
 msgstr "{scope, select, global {전역 배너 삭제에 실패했습니다.} other {배너 삭제에 실패했습니다.}}"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/shared/BannerEditorBase.tsx:395
+#: src/components/remotes/SettingsApp/pages/shared/BannerEditorBase.tsx:428
 #: src/components/remotes/SettingsApp/pages/shared/BannerSettingBase.tsx:81
 msgid "settings.banners.delete.success"
 msgstr "{scope, select, global {전역 배너가 삭제되었습니다.} other {배너가 삭제되었습니다.}}"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/shared/BannerEditorBase.tsx:504
+#: src/components/remotes/SettingsApp/pages/shared/BannerEditorBase.tsx:555
 #: src/components/remotes/SettingsApp/pages/shared/BannerSettingBase.tsx:120
 msgid "settings.banners.delete.title"
 msgstr "{scope, select, global {전역 배너 삭제} other {배너 삭제}}"
@@ -3040,162 +3041,202 @@ msgid "settings.banners.description.user"
 msgstr "상단·하단·사이드바에 표시되며 드래그하여 순서를 조정할 수 있습니다."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/shared/BannerEditorBase.tsx:675
+#: src/components/remotes/SettingsApp/pages/shared/BannerEditorBase.tsx:780
 msgid "settings.banners.editor.back_to_list"
 msgstr "목록으로"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/shared/BannerEditorBase.tsx:740
+#: src/components/remotes/SettingsApp/pages/shared/BannerEditorBase.tsx:862
 msgid "settings.banners.editor.content.heading"
 msgstr "내용"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/shared/BannerEditorBase.tsx:685
+#: src/components/remotes/SettingsApp/pages/shared/BannerEditorBase.tsx:790
 msgid "settings.banners.editor.create_title"
 msgstr "{scope, select, global {전역 배너 생성} other {배너 생성}}"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/shared/BannerEditorBase.tsx:498
+#: src/components/remotes/SettingsApp/pages/shared/BannerEditorBase.tsx:549
 msgid "settings.banners.editor.delete.confirm"
 msgstr "이 배너를 삭제하시겠습니까?\n"
 "\n"
 "이 작업은 되돌릴 수 없습니다."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/shared/BannerEditorBase.tsx:493
+#: src/components/remotes/SettingsApp/pages/shared/BannerEditorBase.tsx:544
 msgid "settings.banners.editor.delete.confirm_named"
 msgstr "“{title}” 배너를 삭제하시겠습니까?\n"
 "\n"
 "이 작업은 되돌릴 수 없습니다."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/shared/BannerEditorBase.tsx:575
+#: src/components/remotes/SettingsApp/pages/shared/BannerEditorBase.tsx:678
 msgid "settings.banners.editor.description.label"
 msgstr "설명"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/shared/BannerEditorBase.tsx:680
+#: src/components/remotes/SettingsApp/pages/shared/BannerEditorBase.tsx:785
 msgid "settings.banners.editor.edit_title"
 msgstr "{scope, select, global {전역 배너 수정} other {배너 수정}}"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/shared/BannerEditorBase.tsx:562
+#: src/components/remotes/SettingsApp/pages/shared/BannerEditorBase.tsx:609
+msgid "settings.banners.editor.headline.image_label"
+msgstr "이미지 설명 (대체 텍스트)"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/shared/BannerEditorBase.tsx:665
 msgid "settings.banners.editor.headline.label"
 msgstr "제목"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/shared/BannerEditorBase.tsx:558
+#: src/components/remotes/SettingsApp/pages/shared/BannerEditorBase.tsx:605
 msgid "settings.banners.editor.headline.notice_label"
 msgstr "문구"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/shared/BannerEditorBase.tsx:654
+#: src/components/remotes/SettingsApp/pages/shared/BannerEditorBase.tsx:613
+msgid "settings.banners.editor.headline.profile_label"
+msgstr "이름"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/shared/BannerEditorBase.tsx:759
 msgid "settings.banners.editor.html.global_help"
 msgstr "전역 배너는 스크립트를 포함할 수 있습니다."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/shared/BannerEditorBase.tsx:633
-#: src/components/remotes/SettingsApp/pages/shared/BannerEditorBase.tsx:640
+#: src/components/remotes/SettingsApp/pages/shared/BannerEditorBase.tsx:738
+#: src/components/remotes/SettingsApp/pages/shared/BannerEditorBase.tsx:745
 msgid "settings.banners.editor.html.label"
 msgstr "배너 HTML"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/shared/BannerEditorBase.tsx:657
+#: src/components/remotes/SettingsApp/pages/shared/BannerEditorBase.tsx:762
 msgid "settings.banners.editor.html.user_sanitized_help"
 msgstr "저장할 때 허용된 태그와 속성만 남고 스크립트는 제거됩니다. 미리보기는 실제 글에 보이는 모습입니다."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/shared/BannerEditorBase.tsx:592
+#: src/components/remotes/SettingsApp/pages/shared/BannerEditorBase.tsx:624
+msgid "settings.banners.editor.image.label"
+msgstr "이미지"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/shared/BannerEditorBase.tsx:642
+msgid "settings.banners.editor.image.replace"
+msgstr "이미지 바꾸기"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/shared/BannerEditorBase.tsx:643
+msgid "settings.banners.editor.image.upload"
+msgstr "이미지 올리기"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/shared/BannerEditorBase.tsx:640
+msgid "settings.banners.editor.image.uploading"
+msgstr "올리는 중"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/shared/BannerEditorBase.tsx:696
 msgid "settings.banners.editor.link_label.label"
 msgstr "버튼 문구"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/shared/BannerEditorBase.tsx:588
+#: src/components/remotes/SettingsApp/pages/shared/BannerEditorBase.tsx:692
 msgid "settings.banners.editor.link_label.notice_label"
 msgstr "링크 문구"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/shared/BannerEditorBase.tsx:596
+#: src/components/remotes/SettingsApp/pages/shared/BannerEditorBase.tsx:700
 msgid "settings.banners.editor.link_label.placeholder"
 msgstr "자세히 보기"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/shared/BannerEditorBase.tsx:605
+#: src/components/remotes/SettingsApp/pages/shared/BannerEditorBase.tsx:710
 msgid "settings.banners.editor.link_url.label"
 msgstr "링크"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/shared/BannerEditorBase.tsx:609
+#: src/components/remotes/SettingsApp/pages/shared/BannerEditorBase.tsx:714
 msgid "settings.banners.editor.link_url.placeholder"
 msgstr "https:// 또는 /@아이디"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/shared/BannerEditorBase.tsx:212
+#: src/components/remotes/SettingsApp/pages/shared/BannerEditorBase.tsx:230
 msgid "settings.banners.editor.load_failed"
 msgstr "{scope, select, global {전역 배너 정보를 불러오는데 실패했습니다.} other {배너 정보를 불러오는데 실패했습니다.}}"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/shared/BannerEditorBase.tsx:624
+#: src/components/remotes/SettingsApp/pages/shared/BannerEditorBase.tsx:729
 msgid "settings.banners.editor.name.label"
 msgstr "배너 이름"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/shared/BannerEditorBase.tsx:710
+#: src/components/remotes/SettingsApp/pages/shared/BannerEditorBase.tsx:832
 msgid "settings.banners.editor.position.heading"
 msgstr "위치"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/shared/BannerEditorBase.tsx:731
+#: src/components/remotes/SettingsApp/pages/shared/BannerEditorBase.tsx:853
 msgid "settings.banners.editor.position.sidebar_help"
 msgstr "사이드 배너는 화면 폭이 1280px 이상인 넓은 화면에서만 보입니다."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/shared/BannerEditorBase.tsx:803
+#: src/components/remotes/SettingsApp/pages/shared/BannerEditorBase.tsx:925
 msgid "settings.banners.editor.preview_action"
 msgstr "미리보기"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/shared/BannerEditorBase.tsx:526
+#: src/components/remotes/SettingsApp/pages/shared/BannerEditorBase.tsx:577
 msgid "settings.banners.editor.template_required"
 msgstr "먼저 템플릿을 선택해주세요."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/shared/BannerEditorBase.tsx:697
+#: src/components/remotes/SettingsApp/pages/shared/BannerEditorBase.tsx:822
+msgid "settings.banners.editor.template.change"
+msgstr "바꾸기"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/shared/BannerTemplatePicker.tsx:89
+msgid "settings.banners.editor.template.group_body"
+msgstr "본문 위·아래"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/shared/BannerTemplatePicker.tsx:95
+msgid "settings.banners.editor.template.group_sidebar"
+msgstr "사이드바"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/shared/BannerEditorBase.tsx:802
 msgid "settings.banners.editor.template.heading"
 msgstr "템플릿"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/shared/BannerTemplatePicker.tsx:27
-msgid "settings.banners.editor.template.label"
-msgstr "템플릿"
-
-#. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/shared/BannerEditorBase.tsx:764
+#: src/components/remotes/SettingsApp/pages/shared/BannerEditorBase.tsx:886
 msgid "settings.banners.editor.tone.default"
 msgstr "기본"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/shared/BannerEditorBase.tsx:765
+#: src/components/remotes/SettingsApp/pages/shared/BannerEditorBase.tsx:887
 msgid "settings.banners.editor.tone.emphasis"
 msgstr "강조"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/shared/BannerEditorBase.tsx:748
+#: src/components/remotes/SettingsApp/pages/shared/BannerEditorBase.tsx:870
 msgid "settings.banners.editor.tone.label"
 msgstr "스타일"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/shared/BannerEditorBase.tsx:289
+#: src/components/remotes/SettingsApp/pages/shared/BannerEditorBase.tsx:322
 msgid "settings.banners.editor.unsaved.leave"
 msgstr "나가기"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/shared/BannerEditorBase.tsx:285
+#: src/components/remotes/SettingsApp/pages/shared/BannerEditorBase.tsx:318
 msgid "settings.banners.editor.unsaved.message"
 msgstr "변경사항이 저장되지 않았습니다. 페이지를 나가시겠습니까?"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/shared/BannerEditorBase.tsx:281
+#: src/components/remotes/SettingsApp/pages/shared/BannerEditorBase.tsx:314
 msgid "settings.banners.editor.unsaved.title"
 msgstr "저장하지 않은 변경사항"
 
@@ -3208,6 +3249,11 @@ msgstr "전역 배너가 없습니다"
 #: src/components/remotes/SettingsApp/pages/shared/BannerSettingBase.tsx:241
 msgid "settings.banners.empty.user"
 msgstr "등록된 배너가 없습니다"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/shared/BannerEditorBase.tsx:450
+msgid "settings.banners.image.upload_failed"
+msgstr "이미지를 올리지 못했습니다."
 
 #. js-lingui-explicit-id
 #: src/components/remotes/SettingsApp/pages/GlobalBannerSetting/components/GlobalBannerList.tsx:84
@@ -3245,22 +3291,22 @@ msgid "settings.banners.order.success"
 msgstr "{scope, select, global {전역 배너 순서가 변경되었습니다.} other {배너 순서가 변경되었습니다.}}"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/shared/bannerI18n.ts:32
+#: src/components/remotes/SettingsApp/pages/shared/bannerI18n.ts:31
 msgid "settings.banners.position.bottom"
 msgstr "하단"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/shared/bannerI18n.ts:36
+#: src/components/remotes/SettingsApp/pages/shared/bannerI18n.ts:35
 msgid "settings.banners.position.left"
 msgstr "좌측"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/shared/bannerI18n.ts:40
+#: src/components/remotes/SettingsApp/pages/shared/bannerI18n.ts:39
 msgid "settings.banners.position.right"
 msgstr "우측"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/shared/bannerI18n.ts:28
+#: src/components/remotes/SettingsApp/pages/shared/bannerI18n.ts:27
 msgid "settings.banners.position.top"
 msgstr "상단"
 
@@ -3270,7 +3316,7 @@ msgid "settings.banners.preview.description"
 msgstr "예시 글에 배너를 붙여 보여 줍니다."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/shared/BannerEditorBase.tsx:420
+#: src/components/remotes/SettingsApp/pages/shared/BannerEditorBase.tsx:477
 msgid "settings.banners.preview.failed"
 msgstr "미리보기를 준비하지 못했습니다."
 
@@ -3285,46 +3331,6 @@ msgid "settings.banners.preview.sidebar_hidden"
 msgstr "사이드 배너는 화면 폭 1280px 이상에서 보입니다. 창을 넓히면 확인할 수 있습니다."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/shared/bannerI18n.ts:104
-msgid "settings.banners.sample.card.description"
-msgstr "구독하고 새 글을 가장 먼저 받아 보세요."
-
-#. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/shared/bannerI18n.ts:100
-msgid "settings.banners.sample.card.headline"
-msgstr "이 글이 도움이 되었나요?"
-
-#. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/shared/bannerI18n.ts:108
-msgid "settings.banners.sample.card.link_label"
-msgstr "구독하기"
-
-#. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/shared/bannerI18n.ts:118
-msgid "settings.banners.sample.intro.description"
-msgstr "만들면서 배운 것들을 기록합니다."
-
-#. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/shared/bannerI18n.ts:114
-msgid "settings.banners.sample.intro.headline"
-msgstr "안녕하세요, 이 블로그의 글쓴이입니다."
-
-#. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/shared/bannerI18n.ts:122
-msgid "settings.banners.sample.intro.link_label"
-msgstr "소개 보기"
-
-#. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/shared/bannerI18n.ts:90
-msgid "settings.banners.sample.notice.headline"
-msgstr "새 시리즈를 시작했습니다."
-
-#. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/shared/bannerI18n.ts:94
-msgid "settings.banners.sample.notice.link_label"
-msgstr "보러 가기"
-
-#. js-lingui-explicit-id
 #: src/components/remotes/SettingsApp/pages/BannerSetting/components/BannerList.tsx:137
 #: src/components/remotes/SettingsApp/pages/GlobalBannerSetting/components/GlobalBannerList.tsx:137
 msgid "settings.banners.status.active"
@@ -3337,44 +3343,49 @@ msgid "settings.banners.status.inactive"
 msgstr "비활성"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/shared/bannerI18n.ts:51
+#: src/components/remotes/SettingsApp/pages/shared/bannerI18n.ts:58
+msgid "settings.banners.template.callout"
+msgstr "메모 상자"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/shared/bannerI18n.ts:50
 msgid "settings.banners.template.card"
 msgstr "안내 카드"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/shared/bannerI18n.ts:70
-msgid "settings.banners.template.card.description"
-msgstr "제목, 설명, 버튼"
+#: src/components/remotes/SettingsApp/pages/shared/bannerI18n.ts:54
+msgid "settings.banners.template.centered"
+msgstr "가운데 카드"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/shared/bannerI18n.ts:59
+#: src/components/remotes/SettingsApp/pages/shared/bannerI18n.ts:78
 msgid "settings.banners.template.html"
 msgstr "HTML 직접 작성"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/shared/bannerI18n.ts:78
-msgid "settings.banners.template.html.description"
-msgstr "HTML을 직접 작성"
+#: src/components/remotes/SettingsApp/pages/shared/bannerI18n.ts:62
+msgid "settings.banners.template.image"
+msgstr "이미지 배너"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/shared/bannerI18n.ts:55
+#: src/components/remotes/SettingsApp/pages/shared/bannerI18n.ts:66
 msgid "settings.banners.template.intro"
 msgstr "소개 카드"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/shared/bannerI18n.ts:74
-msgid "settings.banners.template.intro.description"
-msgstr "사이드바에 두는 소개"
-
-#. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/shared/bannerI18n.ts:47
+#: src/components/remotes/SettingsApp/pages/shared/bannerI18n.ts:46
 msgid "settings.banners.template.notice"
 msgstr "한 줄 알림"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/shared/bannerI18n.ts:66
-msgid "settings.banners.template.notice.description"
-msgstr "짧은 문구와 링크 하나"
+#: src/components/remotes/SettingsApp/pages/shared/bannerI18n.ts:70
+msgid "settings.banners.template.profile"
+msgstr "프로필 카드"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/shared/bannerI18n.ts:74
+msgid "settings.banners.template.sidelink"
+msgstr "사이드 링크"
 
 #. js-lingui-explicit-id
 #: src/components/remotes/SettingsApp/pages/shared/BannerSettingBase.tsx:188
@@ -3382,69 +3393,74 @@ msgid "settings.banners.title_count"
 msgstr "{scope, select, global {전역 배너 ({count})} other {배너 ({count})}}"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/shared/bannerI18n.ts:17
+#: src/components/remotes/SettingsApp/pages/shared/bannerI18n.ts:16
 msgid "settings.banners.type.horizontal"
 msgstr "줄배너"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/shared/bannerI18n.ts:21
+#: src/components/remotes/SettingsApp/pages/shared/bannerI18n.ts:20
 msgid "settings.banners.type.sidebar"
 msgstr "사이드배너"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/shared/BannerEditorBase.tsx:351
-#: src/components/remotes/SettingsApp/pages/shared/BannerEditorBase.tsx:369
+#: src/components/remotes/SettingsApp/pages/shared/BannerEditorBase.tsx:384
+#: src/components/remotes/SettingsApp/pages/shared/BannerEditorBase.tsx:402
 #: src/components/remotes/SettingsApp/pages/shared/BannerSettingBase.tsx:70
 msgid "settings.banners.update.failed"
 msgstr "{scope, select, global {전역 배너 수정에 실패했습니다.} other {배너 수정에 실패했습니다.}}"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/shared/BannerEditorBase.tsx:359
+#: src/components/remotes/SettingsApp/pages/shared/BannerEditorBase.tsx:392
 msgid "settings.banners.update.success"
 msgstr "{scope, select, global {전역 배너가 수정되었습니다.} other {배너가 수정되었습니다.}}"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/shared/BannerEditorBase.tsx:136
+#: src/components/remotes/SettingsApp/pages/shared/BannerEditorBase.tsx:143
 msgid "settings.banners.validation.description_max_length"
 msgstr "설명은 300자 이하여야 합니다."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/shared/BannerEditorBase.tsx:132
+#: src/components/remotes/SettingsApp/pages/shared/BannerEditorBase.tsx:139
 msgid "settings.banners.validation.headline_max_length"
 msgstr "배너 문구는 120자 이하여야 합니다."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/shared/BannerEditorBase.tsx:182
+#: src/components/remotes/SettingsApp/pages/shared/BannerEditorBase.tsx:190
 msgid "settings.banners.validation.headline_required"
 msgstr "배너 문구를 입력해주세요."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/shared/BannerEditorBase.tsx:169
+#: src/components/remotes/SettingsApp/pages/shared/BannerEditorBase.tsx:177
 msgid "settings.banners.validation.html_required"
 msgstr "배너 HTML을 입력해주세요."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/shared/BannerEditorBase.tsx:140
+#: src/components/remotes/SettingsApp/pages/shared/BannerEditorBase.tsx:200
+msgid "settings.banners.validation.image_required"
+msgstr "배너 이미지를 올려주세요."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/shared/BannerEditorBase.tsx:147
 msgid "settings.banners.validation.link_label_max_length"
 msgstr "버튼 문구는 40자 이하여야 합니다."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/shared/BannerEditorBase.tsx:192
+#: src/components/remotes/SettingsApp/pages/shared/BannerEditorBase.tsx:210
 msgid "settings.banners.validation.link_url_invalid"
 msgstr "링크는 https://, http:// 또는 /로 시작해야 합니다."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/shared/BannerEditorBase.tsx:144
+#: src/components/remotes/SettingsApp/pages/shared/BannerEditorBase.tsx:151
 msgid "settings.banners.validation.link_url_max_length"
 msgstr "링크는 500자 이하여야 합니다."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/shared/BannerEditorBase.tsx:126
+#: src/components/remotes/SettingsApp/pages/shared/BannerEditorBase.tsx:133
 msgid "settings.banners.validation.title_max_length"
 msgstr "배너 이름은 100자 이내여야 합니다."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/shared/BannerEditorBase.tsx:159
+#: src/components/remotes/SettingsApp/pages/shared/BannerEditorBase.tsx:167
 msgid "settings.banners.validation.title_required"
 msgstr "배너 이름을 입력해주세요."
 

@@ -158,7 +158,12 @@ class BannerTemplate(models.TextChoices):
     HTML = 'html', pgettext_lazy('Banner template', 'Custom HTML')
     NOTICE = 'notice', pgettext_lazy('Banner template', 'Announcement bar')
     CARD = 'card', pgettext_lazy('Banner template', 'Call-to-action card')
+    CENTERED = 'centered', pgettext_lazy('Banner template', 'Centered card')
+    CALLOUT = 'callout', pgettext_lazy('Banner template', 'Callout')
+    IMAGE = 'image', pgettext_lazy('Banner template', 'Image banner')
     INTRO = 'intro', pgettext_lazy('Banner template', 'Introduction card')
+    PROFILE = 'profile', pgettext_lazy('Banner template', 'Profile card')
+    SIDELINK = 'sidelink', pgettext_lazy('Banner template', 'Side link')
 
 
 class BannerTone(models.TextChoices):
@@ -167,9 +172,14 @@ class BannerTone(models.TextChoices):
 
 
 TEMPLATE_BANNER_TYPES = {
-    BannerTemplate.NOTICE: BannerType.HORIZONTAL,
-    BannerTemplate.CARD: BannerType.HORIZONTAL,
-    BannerTemplate.INTRO: BannerType.SIDEBAR,
+    BannerTemplate.NOTICE: (BannerType.HORIZONTAL,),
+    BannerTemplate.CARD: (BannerType.HORIZONTAL,),
+    BannerTemplate.CENTERED: (BannerType.HORIZONTAL,),
+    BannerTemplate.CALLOUT: (BannerType.HORIZONTAL,),
+    BannerTemplate.IMAGE: (BannerType.HORIZONTAL, BannerType.SIDEBAR),
+    BannerTemplate.INTRO: (BannerType.SIDEBAR,),
+    BannerTemplate.PROFILE: (BannerType.SIDEBAR,),
+    BannerTemplate.SIDELINK: (BannerType.SIDEBAR,),
 }
 
 
@@ -214,6 +224,7 @@ class SiteBanner(SiteContentBase):
     description = models.CharField(max_length=300, blank=True, default='')
     link_label = models.CharField(max_length=40, blank=True, default='')
     link_url = models.CharField(max_length=500, blank=True, default='')
+    image_url = models.CharField(max_length=500, blank=True, default='')
     tone = models.CharField(max_length=20, choices=BannerTone.choices,
                             default=BannerTone.DEFAULT)
 
@@ -241,12 +252,16 @@ class SiteBanner(SiteContentBase):
                         'Side banners can only be placed on the left or right.'
                     )
                 })
-        template_banner_type = TEMPLATE_BANNER_TYPES.get(self.template)
-        if template_banner_type and self.banner_type != template_banner_type:
+        allowed_banner_types = TEMPLATE_BANNER_TYPES.get(self.template)
+        if allowed_banner_types and self.banner_type not in allowed_banner_types:
             raise ValidationError({
                 'template': _('This template is not available in the selected position.')
             })
-        if template_banner_type and not self.headline.strip():
+        if allowed_banner_types and not self.headline.strip():
             raise ValidationError({
                 'headline': _('Enter the banner text.')
+            })
+        if self.template == BannerTemplate.IMAGE and not self.image_url.strip():
+            raise ValidationError({
+                'image_url': _('Upload a banner image.')
             })

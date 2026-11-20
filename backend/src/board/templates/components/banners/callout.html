@@ -1,0 +1,13 @@
+{% load i18n %}
+<div class="rounded-r-xl border-l-4 bg-surface-subtle px-5 py-4 text-content {% if is_emphasis %}border-action{% else %}border-line-strong{% endif %}">
+    <p class="break-words text-sm font-semibold leading-relaxed">{{ banner.headline }}</p>
+    {% if banner.description %}
+    <p class="mt-1 break-words text-sm leading-relaxed text-content-secondary">{{ banner.description|linebreaksbr }}</p>
+    {% endif %}
+    {% if link_url %}
+    <a href="{{ link_url }}" class="mt-2 inline-flex min-h-11 items-center gap-1.5 text-sm font-semibold text-content underline decoration-line-strong underline-offset-4 transition-colors duration-150 hover:decoration-content">
+        {% if banner.link_label %}{{ banner.link_label }}{% else %}{% translate "Learn more" context "Banner link label" %}{% endif %}
+        <i class="fas fa-arrow-right text-xs" aria-hidden="true"></i>
+    </a>
+    {% endif %}
+</div>

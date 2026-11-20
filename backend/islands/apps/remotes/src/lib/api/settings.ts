@@ -249,7 +249,7 @@ export const deleteAccount = async () => {
 };
 
 // Banner API
-export type BannerTemplate = 'html' | 'notice' | 'card' | 'intro';
+export type BannerTemplate = 'html' | 'notice' | 'card' | 'centered' | 'callout' | 'image' | 'intro' | 'profile' | 'sidelink';
 export type BannerTone = 'default' | 'emphasis';
 
 interface BannerTemplateFields {
@@ -258,6 +258,7 @@ interface BannerTemplateFields {
     description: string;
     linkLabel: string;
     linkUrl: string;
+    imageUrl: string;
     tone: BannerTone;
 }
 
@@ -267,6 +268,7 @@ interface BannerTemplatePayload {
     description?: string;
     link_label?: string;
     link_url?: string;
+    image_url?: string;
     tone?: BannerTone;
 }
 
@@ -324,6 +326,22 @@ export const deleteBanner = async (id: number) => {
 
 export const updateBannerOrder = async (order: [number, number][]) => {
     return http.put<Response<{ message: string }>>('v1/banners/order', { order }, { headers: { 'Content-Type': 'application/json' } });
+};
+
+export interface BannerTemplateGalleryItem {
+    template: Exclude<BannerTemplate, 'html'>;
+    bannerTypes: ('horizontal' | 'sidebar')[];
+    sample: {
+        headline: string;
+        description: string;
+        linkLabel: string;
+        linkUrl: string;
+    };
+    html: string;
+}
+
+export const getBannerTemplates = async () => {
+    return http.get<Response<{ templates: BannerTemplateGalleryItem[] }>>('v1/banners/templates');
 };
 
 export const previewBanner = async (data: BannerPreviewData) => {
@@ -661,6 +679,10 @@ export const deleteGlobalBanner = async (id: number) => {
 
 export const updateGlobalBannerOrder = async (order: [number, number][]) => {
     return http.put<Response<{ message: string }>>('v1/global-banners/order', { order }, { headers: { 'Content-Type': 'application/json' } });
+};
+
+export const getGlobalBannerTemplates = async () => {
+    return http.get<Response<{ templates: BannerTemplateGalleryItem[] }>>('v1/global-banners/templates');
 };
 
 export const previewGlobalBanner = async (data: BannerPreviewData) => {

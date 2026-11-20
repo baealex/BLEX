@@ -11,12 +11,14 @@ import {
 const cardSample = {
     headline: 'Did this post help?',
     description: 'Get new posts first.',
-    linkLabel: 'Subscribe'
+    linkLabel: 'Subscribe',
+    linkUrl: '/@author'
 };
 const introSample = {
     headline: 'Hi, I am the author',
     description: 'I write about what I learn.',
-    linkLabel: 'About me'
+    linkLabel: 'About me',
+    linkUrl: '/@author'
 };
 
 describe('banner template placement', () => {
@@ -26,6 +28,13 @@ describe('banner template placement', () => {
         assert.equal(isTemplateAllowedAt('intro', 'right'), true);
         assert.equal(isTemplateAllowedAt('intro', 'bottom'), false);
         assert.equal(isTemplateAllowedAt('html', 'left'), true);
+        assert.equal(isTemplateAllowedAt('centered', 'right'), false);
+        assert.equal(isTemplateAllowedAt('profile', 'left'), true);
+    });
+
+    test('image banners fit both the post body and the sidebar', () => {
+        assert.equal(isTemplateAllowedAt('image', 'top'), true);
+        assert.equal(isTemplateAllowedAt('image', 'right'), true);
     });
 
     test('choosing a template keeps a compatible position and otherwise uses its default', () => {
@@ -34,6 +43,8 @@ describe('banner template placement', () => {
         assert.equal(positionForTemplate('intro', 'top'), 'right');
         assert.equal(positionForTemplate('notice', null), 'top');
         assert.equal(positionForTemplate('html', 'left'), 'left');
+        assert.equal(positionForTemplate('image', 'left'), 'left');
+        assert.equal(positionForTemplate('sidelink', 'bottom'), 'right');
     });
 });
 
@@ -42,7 +53,8 @@ describe('banner sample copy', () => {
         const emptyCopy = {
             headline: '',
             description: ' ',
-            linkLabel: ''
+            linkLabel: '',
+            linkUrl: ''
         };
 
         assert.deepEqual(swapSampleCopy(emptyCopy, null, cardSample), cardSample);
@@ -57,7 +69,8 @@ describe('banner sample copy', () => {
         assert.deepEqual(swapSampleCopy(editedCopy, cardSample, introSample), {
             headline: 'My own headline',
             description: introSample.description,
-            linkLabel: introSample.linkLabel
+            linkLabel: introSample.linkLabel,
+            linkUrl: introSample.linkUrl
         });
     });
 });

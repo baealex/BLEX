@@ -45,6 +45,7 @@ class SiteContentApiService:
         'description',
         'link_label',
         'link_url',
+        'image_url',
         'tone',
         'is_active',
         'order',
@@ -61,6 +62,7 @@ class SiteContentApiService:
         'description',
         'link_label',
         'link_url',
+        'image_url',
         'tone',
         'is_active',
         'order',
@@ -70,6 +72,7 @@ class SiteContentApiService:
         'description',
         'link_label',
         'link_url',
+        'image_url',
     )
     STATIC_PAGE_FIELDS = (
         'id',
@@ -144,6 +147,7 @@ class SiteContentApiService:
             'description': banner.description,
             'link_label': banner.link_label,
             'link_url': safe_navigation_url(banner.link_url),
+            'image_url': safe_navigation_url(banner.image_url),
             'tone': banner.tone,
             'is_active': banner.is_active,
             'order': banner.order,
@@ -171,6 +175,7 @@ class SiteContentApiService:
             banner['created_date'] = banner['created_date'].isoformat()
             banner['updated_date'] = banner['updated_date'].isoformat()
             banner['link_url'] = safe_navigation_url(banner['link_url'])
+            banner['image_url'] = safe_navigation_url(banner['image_url'])
             if sanitize_content:
                 banner['content_html'] = sanitize_html(banner['content_html'])
             if include_created_by:
@@ -254,11 +259,11 @@ class SiteContentApiService:
                 gettext('Choose a valid banner style.'),
             )
 
-        template_banner_type = TEMPLATE_BANNER_TYPES.get(banner.template)
-        if template_banner_type is None:
+        allowed_banner_types = TEMPLATE_BANNER_TYPES.get(banner.template)
+        if allowed_banner_types is None:
             return
 
-        if banner.banner_type != template_banner_type:
+        if banner.banner_type not in allowed_banner_types:
             raise SiteContentApiError(
                 ErrorCode.VALIDATE,
                 gettext('This template is not available in the selected position.'),
@@ -274,6 +279,7 @@ class SiteContentApiService:
             'description': gettext('Description must be %(limit)d characters or fewer.'),
             'link_label': gettext('Button text must be %(limit)d characters or fewer.'),
             'link_url': gettext('Link must be %(limit)d characters or fewer.'),
+            'image_url': gettext('Image link must be %(limit)d characters or fewer.'),
         }
         for field, message in length_messages.items():
             limit = SiteBanner._meta.get_field(field).max_length
@@ -285,6 +291,17 @@ class SiteContentApiService:
                 ErrorCode.VALIDATE,
                 gettext('Enter a link that starts with https://, http://, or /.'),
             )
+        if banner.template == BannerTemplate.IMAGE:
+            if not banner.image_url:
+                raise SiteContentApiError(
+                    ErrorCode.VALIDATE,
+                    gettext('Upload a banner image.'),
+                )
+            if not safe_navigation_url(banner.image_url):
+                raise SiteContentApiError(
+                    ErrorCode.VALIDATE,
+                    gettext('Use an uploaded image or an image link that starts with https://.'),
+                )
 
     @staticmethod
     def apply_banner_data(banner: SiteBanner, data: dict, *, sanitize_content: bool) -> None:
@@ -361,7 +378,7 @@ class SiteContentApiService:
         SiteContentApiService.apply_banner_data(banner, data, sanitize_content=False)
         SiteContentApiService.validate_banner_position(banner.banner_type, banner.position)
         SiteContentApiService.validate_banner_template(banner)
-        return BannerService.render_banner_html(banner)
+        return BannerService.render_banner_html(banner, author=user)
 
     @staticmethod
     def update_banner_order(scope: str, user: User | None, order_list: list) -> None:

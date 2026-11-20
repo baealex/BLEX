@@ -6,6 +6,7 @@ from board.models import SiteContentScope
 from board.modules.response import StatusDone, StatusError
 from board.services.api_permission_service import ApiPermissionService
 from board.services.api_request_body_service import ApiRequestBodyService
+from board.services.banner_service import BannerService
 from board.services.site_content_api_service import (
     SiteContentApiError,
     SiteContentApiService,
@@ -141,3 +142,16 @@ def banner_preview(request):
         return _banner_error(error)
 
     return StatusDone({'html': html})
+
+
+def banner_templates(request):
+    permission_error = ApiPermissionService.require_editor(request.user)
+    if permission_error:
+        return permission_error
+
+    if request.method != 'GET':
+        raise Http404
+
+    return StatusDone({
+        'templates': BannerService.build_template_gallery(SiteContentScope.USER, request.user),
+    })

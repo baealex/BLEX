@@ -7,18 +7,88 @@ export interface BannerSampleCopy {
     headline: string;
     description: string;
     linkLabel: string;
+    linkUrl: string;
 }
 
-export const TEMPLATE_BANNER_TYPES: Record<TextBannerTemplate, BannerType> = {
-    notice: 'horizontal',
-    card: 'horizontal',
-    intro: 'sidebar'
+interface TemplateFieldVisibility {
+    description: boolean;
+    linkLabel: boolean;
+    image: boolean;
+    tone: boolean;
+}
+
+/** Mirrors the server rule; the server stays the authority and rejects anything else. */
+export const TEMPLATE_BANNER_TYPES: Record<TextBannerTemplate, BannerType[]> = {
+    notice: ['horizontal'],
+    card: ['horizontal'],
+    centered: ['horizontal'],
+    callout: ['horizontal'],
+    image: ['horizontal', 'sidebar'],
+    intro: ['sidebar'],
+    profile: ['sidebar'],
+    sidelink: ['sidebar']
 };
 
 const TEMPLATE_DEFAULT_POSITIONS: Record<TextBannerTemplate, BannerPosition> = {
     notice: 'top',
     card: 'bottom',
-    intro: 'right'
+    centered: 'bottom',
+    callout: 'top',
+    image: 'top',
+    intro: 'right',
+    profile: 'right',
+    sidelink: 'right'
+};
+
+export const TEMPLATE_FIELDS: Record<TextBannerTemplate, TemplateFieldVisibility> = {
+    notice: {
+        description: false,
+        linkLabel: true,
+        image: false,
+        tone: true
+    },
+    card: {
+        description: true,
+        linkLabel: true,
+        image: false,
+        tone: true
+    },
+    centered: {
+        description: true,
+        linkLabel: true,
+        image: false,
+        tone: true
+    },
+    callout: {
+        description: true,
+        linkLabel: true,
+        image: false,
+        tone: true
+    },
+    image: {
+        description: false,
+        linkLabel: false,
+        image: true,
+        tone: false
+    },
+    intro: {
+        description: true,
+        linkLabel: true,
+        image: false,
+        tone: true
+    },
+    profile: {
+        description: true,
+        linkLabel: true,
+        image: false,
+        tone: true
+    },
+    sidelink: {
+        description: true,
+        linkLabel: false,
+        image: false,
+        tone: true
+    }
 };
 
 export const BANNER_TITLE_MAX_LENGTH = 100;
@@ -28,7 +98,7 @@ export const bannerTypeForPosition = (position: BannerPosition): BannerType => (
 );
 
 export const isTemplateAllowedAt = (template: BannerTemplate, position: BannerPosition) => (
-    template === 'html' || TEMPLATE_BANNER_TYPES[template] === bannerTypeForPosition(position)
+    template === 'html' || TEMPLATE_BANNER_TYPES[template].includes(bannerTypeForPosition(position))
 );
 
 export const positionForTemplate = (template: BannerTemplate, position: BannerPosition | null): BannerPosition => {
@@ -58,7 +128,8 @@ export const swapSampleCopy = (
     return {
         headline: pick('headline'),
         description: pick('description'),
-        linkLabel: pick('linkLabel')
+        linkLabel: pick('linkLabel'),
+        linkUrl: pick('linkUrl')
     };
 };
 

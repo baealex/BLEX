@@ -13,6 +13,7 @@ from board.models import (
     SiteContentScope,
     User,
 )
+from board.admin.utilities.image_cleaner import ImageCleanerService
 from board.services.banner_service import BannerService
 
 
@@ -119,6 +120,8 @@ class BannerTemplateAPITestCase(TestCase):
         cases = (
             self.card_payload(template='intro', banner_type='horizontal', position='top'),
             self.card_payload(template='notice', banner_type='sidebar', position='left'),
+            self.card_payload(template='profile', banner_type='horizontal', position='bottom'),
+            self.card_payload(template='centered', banner_type='sidebar', position='right'),
         )
 
         for payload in cases:
@@ -252,6 +255,88 @@ class BannerTemplateAPITestCase(TestCase):
         self.assertEqual(content['status'], 'DONE')
         self.assertIn('<script>loadAd()</script>', content['body']['html'])
 
+    def image_payload(self, **overrides) -> dict:
+        payload = {
+            'title': 'Image',
+            'template': 'image',
+            'headline': 'Spring sale',
+            'image_url': '/resources/media/images/content/2026/11/20/banner.png',
+            'link_url': 'https://example.com/sale',
+            'banner_type': 'horizontal',
+            'position': 'top',
+        }
+        payload.update(overrides)
+        return payload
+
+    def test_image_template_requires_a_safe_image(self):
+        for overrides in ({'image_url': ''}, {'image_url': 'javascript:alert(1)'}):
+            with self.subTest(overrides=overrides):
+                content = self.post_json('/v1/banners', self.image_payload(**overrides))
+                self.assertEqual(content['status'], 'ERROR')
+                self.assertEqual(content['errorCode'], 'error:VA')
+
+        self.assertFalse(SiteBanner.objects.exists())
+
+    def test_image_template_fits_body_and_sidebar(self):
+        top = self.post_json('/v1/banners', self.image_payload())
+        side = self.post_json('/v1/banners', self.image_payload(
+            banner_type='sidebar',
+            position='left',
+        ))
+
+        self.assertEqual(top['status'], 'DONE')
+        self.assertEqual(side['status'], 'DONE')
+        self.assertEqual(top['body']['imageUrl'], '/resources/media/images/content/2026/11/20/banner.png')
+
+    def test_image_preview_uses_headline_as_alt_text(self):
+        content = self.post_json('/v1/banners/preview', self.image_payload())
+
+        html = content['body']['html']
+        self.assertIn('src="/resources/media/images/content/2026/11/20/banner.png"', html)
+        self.assertIn('alt="Spring sale"', html)
+        self.assertIn('href="https://example.com/sale"', html)
+
+    def test_profile_preview_shows_author_avatar(self):
+        content = self.post_json('/v1/banners/preview', self.card_payload(
+            template='profile',
+            banner_type='sidebar',
+            position='right',
+            headline='editor',
+        ))
+
+        html = content['body']['html']
+        self.assertIn('default-avatar', html)
+        self.assertIn('editor', html)
+
+    def test_template_gallery_renders_every_template_with_starter_text(self):
+        response = self.client.get('/v1/banners/templates')
+
+        content = response.json()
+        self.assertEqual(content['status'], 'DONE')
+        templates = content['body']['templates']
+        self.assertEqual(
+            [item['template'] for item in templates],
+            ['notice', 'card', 'centered', 'callout', 'image', 'intro', 'profile', 'sidelink'],
+        )
+        for item in templates:
+            with self.subTest(template=item['template']):
+                self.assertTrue(item['html'].strip())
+                self.assertTrue(item['sample']['headline'])
+                self.assertEqual(item['sample']['linkUrl'], '/@editor')
+        image_item = next(item for item in templates if item['template'] == 'image')
+        self.assertEqual(image_item['bannerTypes'], ['horizontal', 'sidebar'])
+        self.assertFalse(SiteBanner.objects.exists())
+
+    def test_template_gallery_requires_permissions(self):
+        reader = Client(HTTP_USER_AGENT='Mozilla/5.0')
+        reader.login(username='reader', password='test')
+        staff = Client(HTTP_USER_AGENT='Mozilla/5.0')
+        staff.login(username='staff', password='test')
+
+        self.assertEqual(reader.get('/v1/banners/templates').json()['errorCode'], 'error:RJ')
+        self.assertEqual(self.client.get('/v1/global-banners/templates').json()['status'], 'ERROR')
+        self.assertEqual(staff.get('/v1/global-banners/templates').json()['status'], 'DONE')
+
     def test_preview_requires_permissions(self):
         reader = Client(HTTP_USER_AGENT='Mozilla/5.0')
         reader.login(username='reader', password='test')
@@ -353,3 +438,30 @@ class BannerTemplateRenderTestCase(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, 'Hi, I write about Django')
         self.assertContains(response, 'About me')
+
+
+class BannerImageCleanupTestCase(TestCase):
+    def test_banner_images_count_as_used_content_images(self):
+        author = User.objects.create_user(username='author', password='test')
+        SiteBanner.objects.create(
+            scope=SiteContentScope.USER,
+            user=author,
+            title='Image',
+            template='image',
+            headline='Sale',
+            image_url='/resources/media/images/content/2026/11/20/banner-image.png',
+            banner_type='horizontal',
+            position='top',
+        )
+        SiteBanner.objects.create(
+            scope=SiteContentScope.GLOBAL,
+            title='Legacy',
+            content_html='<img src="/resources/media/images/content/2026/11/20/legacy.preview.jpg">',
+            banner_type='horizontal',
+            position='bottom',
+        )
+
+        used_files = ImageCleanerService().scan_content_images()
+
+        self.assertIn('banner-image.png', used_files)
+        self.assertIn('legacy', used_files)

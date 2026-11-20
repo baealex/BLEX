@@ -13,7 +13,7 @@ from itertools import chain
 from django.conf import settings
 from django.db.models import F
 
-from board.models import Post, Comment, ImageCache, Profile, Series, StaticPage
+from board.models import Post, Comment, ImageCache, Profile, SiteBanner, Series, StaticPage
 
 
 class UnsafeImageCleanupPathError(RuntimeError):
@@ -94,6 +94,13 @@ class ImageCleanerService:
                 filename = path.split('/')[-1]
                 clean_name = self.get_clean_filename(filename)
                 used_files.add(clean_name)
+
+        for content_html, image_url in SiteBanner.objects.values_list('content_html', 'image_url'):
+            banner_paths = src_parser.findall(content_html or '')
+            if image_url:
+                banner_paths.append(image_url)
+            for path in banner_paths:
+                used_files.add(self.get_clean_filename(path.split('/')[-1]))
 
         return used_files
 

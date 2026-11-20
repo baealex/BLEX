@@ -1,0 +1,9 @@
+{% if link_url %}<a href="{{ link_url }}" class="group block overflow-hidden rounded-2xl border border-line"{% else %}<div class="overflow-hidden rounded-2xl border border-line"{% endif %}>
+    {% if image_url %}
+    <img src="{{ image_url }}" alt="{{ banner.headline }}" loading="lazy" decoding="async" class="block h-auto w-full transition-opacity duration-150{% if link_url %} group-hover:opacity-90{% endif %}">
+    {% else %}
+    <div class="flex h-32 items-center justify-center bg-surface-subtle text-content-hint" role="img" aria-label="{{ banner.headline }}">
+        <i class="far fa-image text-3xl" aria-hidden="true"></i>
+    </div>
+    {% endif %}
+{% if link_url %}</a>{% else %}</div>{% endif %}
