@@ -285,7 +285,7 @@ total: frames.length
     return (
         <>
             {/* Same layout classes as the post page, so the text wraps at the same width on every screen. */}
-            <div className="post-detail-body px-4 pb-72 pt-16 sm:pt-20 md:px-6">
+            <div className="post-timelapse-body post-detail-body px-4 md:px-6">
                 <div className="post-detail-layout">
                     <div aria-hidden="true" className="post-detail-sidebar" />
                     <article className="post-detail-main">
@@ -293,7 +293,7 @@ total: frames.length
                             ref={titleRef}
                             className="mb-8 break-words text-2xl font-bold leading-tight text-content sm:text-3xl lg:text-4xl"
                         />
-                        <div ref={contentRef} className="prose prose-lg max-w-none blog-post-content break-words" />
+                        <div ref={contentRef} className="post-timelapse-stage prose prose-lg max-w-none blog-post-content break-words" />
                         {last < 1 && (
                             <p className="mt-10 rounded-lg bg-surface-subtle p-4 text-sm text-content-secondary">
                                 {t({
@@ -307,13 +307,13 @@ total: frames.length
                 </div>
             </div>
 
-            <div className="pointer-events-none fixed inset-x-0 bottom-0 z-[90] px-4 pb-[max(1rem,env(safe-area-inset-bottom))]">
+            <div className="post-timelapse-dock pointer-events-none fixed inset-x-0 bottom-0 px-4">
                 <section
                     aria-label={t({
                         id: 'post_timelapse.controls',
                         message: 'Replay controls'
                     })}
-                    className="pointer-events-auto mx-auto w-full max-w-3xl rounded-2xl border border-line bg-surface px-4 pb-3 pt-4 shadow-floating animate-in fade-in-0 slide-in-from-bottom-6 duration-500 motion-reduce:animate-none sm:px-5">
+                    className="post-timelapse-bar pointer-events-auto mx-auto w-full max-w-3xl rounded-2xl border border-line bg-surface px-4 pt-4 shadow-floating sm:px-5">
                     <div className="flex items-center gap-3">
                         <button
                             type="button"
@@ -322,7 +322,7 @@ total: frames.length
                             title={playLabel}
                             onClick={() => (isPlaying ? pause() : void play())}
                             className="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-action text-content-inverted transition-all duration-150 hover:bg-action-hover active:scale-95 disabled:opacity-40">
-                            <PlayIcon aria-hidden="true" className="h-[18px] w-[18px]" fill={PlayIcon === RotateCcw ? 'none' : 'currentColor'} />
+                            <PlayIcon aria-hidden="true" className="h-5 w-5" fill={PlayIcon === RotateCcw ? 'none' : 'currentColor'} />
                         </button>
                         <div className="min-w-0 flex-1">
                             <div className="flex min-w-0 items-center gap-2">
@@ -367,7 +367,7 @@ total: frames.length
                                 speedRef.current = nextSpeed;
                                 setSpeed(nextSpeed);
                             }}
-                            className="h-9 min-w-9 shrink-0 rounded-lg px-2 text-sm font-semibold text-content-secondary tabular-nums transition-all duration-150 hover:bg-surface-subtle hover:text-content active:scale-95">
+                            className="post-timelapse-speed h-9 shrink-0 rounded-lg px-2 text-sm font-semibold text-content-secondary tabular-nums transition-all duration-150 hover:bg-surface-subtle hover:text-content active:scale-95">
                             {speed}×
                         </button>
                         <IconButton

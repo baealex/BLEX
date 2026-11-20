@@ -16,7 +16,6 @@ interface TimelapseTrackProps {
 const MAX_TICKS = 40;
 const CHART_WIDTH = 1000;
 const CHART_HEIGHT = 36;
-const TICK_CLASS = 'absolute top-9 h-2 w-2 -translate-x-1/2 -translate-y-1/2 rounded-full transition-colors duration-300';
 
 const TimelapseTrack = ({
     lengths,
@@ -87,33 +86,33 @@ const TimelapseTrack = ({
             onPointerCancel={() => {
                 isDraggingRef.current = false;
             }}
-            className="relative mx-1.5 mt-3 h-12 cursor-pointer touch-none rounded-md outline-none focus-visible:ring-2 focus-visible:ring-line-strong focus-visible:ring-offset-4 focus-visible:ring-offset-surface">
+            className="post-timelapse-track relative mt-3 h-12 cursor-pointer touch-none rounded-md">
             <svg
                 aria-hidden="true"
                 viewBox={`0 0 ${CHART_WIDTH} ${CHART_HEIGHT}`}
                 preserveAspectRatio="none"
-                className="absolute inset-x-0 top-0 h-9 w-full overflow-visible">
-                <path d={area} className="fill-surface-subtle" />
+                className="post-timelapse-chart absolute inset-x-0 top-0 h-9 w-full">
+                <path d={area} className="post-timelapse-chart-base" />
                 <g
-                    className="transition-[clip-path] duration-700 ease-out motion-reduce:transition-none"
+                    className="post-timelapse-progress"
                     style={{ clipPath: `inset(0 ${100 - percentOf(index)}% 0 0)` }}>
-                    <path d={area} className="fill-line" />
+                    <path d={area} className="post-timelapse-chart-fill" />
                     <path
                         d={outline}
                         vectorEffect="non-scaling-stroke"
                         strokeWidth={1.5}
                         strokeLinejoin="round"
-                        className="fill-none stroke-content"
+                        className="post-timelapse-chart-line"
                     />
                 </g>
             </svg>
-            <div aria-hidden="true" className="absolute inset-x-0 top-9 h-px bg-line" />
+            <div aria-hidden="true" className="post-timelapse-baseline absolute inset-x-0 h-px bg-line" />
             {publishIndex !== null && publishIndex > 0 && (
                 <div
                     aria-hidden="true"
-                    className="pointer-events-none absolute -top-1 flex -translate-x-1/2 flex-col items-center"
+                    className="post-timelapse-publish pointer-events-none absolute flex -translate-x-1/2 flex-col items-center"
                     style={{ left: `${(percentOf(publishIndex - 1) + percentOf(publishIndex)) / 2}%` }}>
-                    <span className="rounded-md bg-surface-subtle px-1.5 py-px text-[11px] font-semibold text-content-secondary">
+                    <span className="post-timelapse-publish-label rounded-md bg-surface-subtle px-1.5 text-[11px] font-semibold text-content-secondary">
                         {publishLabel}
                     </span>
                     <span className="mt-0.5 h-5 border-l border-dashed border-line-strong" />
@@ -123,13 +122,13 @@ const TimelapseTrack = ({
                 <span
                     key={frameIndex}
                     aria-hidden="true"
-                    className={`${TICK_CLASS} ${frameIndex < index ? 'bg-content' : 'bg-line-strong'}`}
+                    className={`post-timelapse-tick absolute h-2 w-2 -translate-x-1/2 -translate-y-1/2 rounded-full transition-colors duration-300 ${frameIndex < index ? 'bg-content' : 'bg-line-strong'}`}
                     style={{ left: `${percentOf(frameIndex)}%` }}
                 />
             ))}
             <span
                 aria-hidden="true"
-                className="absolute top-9 h-3.5 w-3.5 -translate-x-1/2 -translate-y-1/2 rounded-full bg-content shadow-[0_0_0_4px_var(--color-surface),0_0_0_5px_var(--color-line-strong)] transition-[left] duration-300 ease-out motion-reduce:transition-none"
+                className="post-timelapse-current absolute h-3.5 w-3.5 -translate-x-1/2 -translate-y-1/2 rounded-full bg-content"
                 style={{ left: `${percentOf(index)}%` }}
             />
         </div>

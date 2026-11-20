@@ -2353,7 +2353,7 @@ msgid "post_timelapse.loading"
 msgstr "저장된 버전을 불러오는 중입니다…"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostTimelapse/PostTimelapse.tsx:31
+#: src/components/remotes/PostTimelapse/PostTimelapse.tsx:32
 msgid "post_timelapse.open"
 msgstr "쓰인 과정 보기"
 

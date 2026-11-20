@@ -28,13 +28,13 @@ export interface StepOptions {
 const TEXT_BLOCK_TAGS = new Set(['p', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'blockquote', 'pre']);
 const MEDIA_SELECTOR = 'img, picture, video, audio, iframe, table, svg, canvas, figure, hr';
 
+/** Styles live in postTimelapse.css, which loads with this island instead of the shared stylesheet. */
 const MARK_CLASS = {
-    insert: '[[data-op=delete]+&]:ml-0.5 rounded-sm bg-success-surface shadow-[inset_0_-2px_0_var(--color-success-line)] transition-[background-color,box-shadow] duration-700 data-[settled]:bg-transparent data-[settled]:shadow-none',
-    delete: 'rounded-sm bg-danger-surface text-danger line-through decoration-danger/60 transition-all duration-300 data-[pending]:bg-transparent data-[pending]:text-inherit data-[pending]:no-underline data-[gone]:text-[length:0px] data-[gone]:opacity-0',
-    insertedMedia: 'transition-opacity duration-500 data-[pending]:opacity-0',
-    deletedMedia: 'rounded-lg opacity-60 outline-2 outline-danger-line',
-    waiting: 'data-[waiting]:hidden',
-    caret: 'ml-px inline-block h-[1.05em] w-0.5 bg-content align-[-0.14em]'
+    insert: 'post-timelapse-insert',
+    delete: 'post-timelapse-delete',
+    insertedMedia: 'post-timelapse-inserted-media',
+    deletedMedia: 'post-timelapse-deleted-media',
+    caret: 'post-timelapse-caret'
 };
 
 const TIMING = {
@@ -179,11 +179,11 @@ const renderChange = (change: BlockChange, mode: 'static' | 'animate'): HTMLElem
     if (!block.textual) {
         const element = fromMarkup(block);
         if (change.kind === 'insert') {
-            element.classList.add(...MARK_CLASS.insertedMedia.split(' '));
+            element.classList.add(MARK_CLASS.insertedMedia);
             element.dataset.insertedMedia = '';
             if (mode === 'animate') element.dataset.pending = '';
         } else {
-            element.classList.add(...MARK_CLASS.deletedMedia.split(' '));
+            element.classList.add(MARK_CLASS.deletedMedia);
             element.dataset.removed = '';
         }
         return element;
@@ -197,7 +197,6 @@ const renderChange = (change: BlockChange, mode: 'static' | 'animate'): HTMLElem
     if (change.kind === 'delete') {
         element.dataset.removed = '';
     } else if (mode === 'animate') {
-        element.classList.add(MARK_CLASS.waiting);
         element.dataset.waiting = '';
     }
     return element;

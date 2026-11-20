@@ -3,6 +3,7 @@ import { useLingui } from '@lingui/react/macro';
 import { History } from '@blex/ui/icons';
 import { cx } from '~/lib/classnames';
 import TimelapseDialog from './TimelapseDialog';
+import './postTimelapse.css';
 
 interface PostTimelapseProps {
     username: string;
@@ -18,13 +19,13 @@ const PostTimelapse = ({ username, postUrl, inverted = false }: PostTimelapsePro
 
     return (
         <span className="inline-flex items-center gap-x-2">
-            <span aria-hidden="true" className={cx('max-sm:hidden', inverted ? 'text-white/55' : 'text-line-strong')}>·</span>
+            <span aria-hidden="true" className={cx('post-timelapse-separator', inverted ? 'text-white/55' : 'text-line-strong')}>·</span>
             <button
                 ref={triggerRef}
                 type="button"
                 onClick={() => setIsOpen(true)}
                 className={cx(
-                    '-my-2 inline-flex items-center gap-1 py-2 font-medium transition-all duration-150 active:scale-95',
+                    'post-timelapse-trigger inline-flex items-center gap-1 py-2 font-medium transition-all duration-150 active:scale-95',
                     inverted ? 'text-white/80 hover:text-white' : 'text-content-secondary hover:text-content'
                 )}>
                 <History aria-hidden="true" className="h-3.5 w-3.5" />

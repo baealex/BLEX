@@ -2353,7 +2353,7 @@ msgid "post_timelapse.loading"
 msgstr ""
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostTimelapse/PostTimelapse.tsx:31
+#: src/components/remotes/PostTimelapse/PostTimelapse.tsx:32
 msgid "post_timelapse.open"
 msgstr ""
 

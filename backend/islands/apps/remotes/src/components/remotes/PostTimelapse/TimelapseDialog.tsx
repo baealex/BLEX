@@ -61,7 +61,7 @@ const TimelapseDialog = ({ username, postUrl, returnFocusRef, onClose }: Timelap
                     {data ? (
                         <TimelapsePlayer timelapse={data} scrollerRef={scrollerRef} onClose={onClose} />
                     ) : (
-                        <div className="flex min-h-full flex-col items-center justify-center gap-4 px-6 text-center">
+                        <div className="flex h-full flex-col items-center justify-center gap-4 px-6 text-center">
                             {isPending && (
                                 <p role="status" className="flex items-center gap-2 text-sm font-medium text-content-secondary">
                                     <span aria-hidden="true" className="h-4 w-4 animate-spin rounded-full border-2 border-line-strong border-t-action motion-reduce:animate-none" />
