@@ -1062,3 +1062,31 @@ export const createAuthorInvite = async (note = '') => {
 export const deleteAuthorInvite = async (inviteId: number) => {
     return http.delete<Response<{ success?: boolean }>>(`v1/admin/author-invites/${inviteId}`);
 };
+
+// Author Subscription API
+export interface AuthorSubscription {
+    username: string;
+    name: string;
+    avatar: string;
+    bio: string;
+    isPublishing: boolean;
+    subscribedDate: string;
+}
+
+export interface AuthorSubscriptionState {
+    canSubscribe: boolean;
+    isSubscribed: boolean;
+}
+
+export const getAuthorSubscriptions = async () => {
+    return http.get<Response<{
+        subscriptions: AuthorSubscription[];
+        isTelegramConnected: boolean;
+    }>>('v1/subscriptions');
+};
+
+export const unsubscribeAuthor = async (username: string) => {
+    return http.delete<Response<AuthorSubscriptionState>>(
+        `v1/users/@${encodeURIComponent(username)}/subscription`
+    );
+};

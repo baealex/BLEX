@@ -11,6 +11,7 @@ from .auth import (
 )
 from .author_invite import author_invite_detail, author_invites
 from .author import get_author_heatmap
+from .author_subscription import author_subscription, my_subscriptions
 from .banner import banner, banner_order, banner_preview, banner_templates
 from .comment import comment_detail, comment_list, user_comment
 from .developer_token import developer_tokens
@@ -87,6 +88,8 @@ __all__ = (
     'user_comment',
     'comment_detail',
     'get_author_heatmap',
+    'author_subscription',
+    'my_subscriptions',
     'users',
     'user_posts',
     'post_share_links',

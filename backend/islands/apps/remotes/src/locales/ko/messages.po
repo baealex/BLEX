@@ -812,7 +812,7 @@ msgstr "더 보기"
 #: src/components/remotes/SettingsApp/components/SettingsLayout.tsx:23
 #: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostShareLinksDialog.tsx:141
 #: src/components/remotes/SettingsApp/pages/shared/BannerPreviewDialog.tsx:61
-#: src/components/remotes/SettingsApp/SettingsApp.tsx:93
+#: src/components/remotes/SettingsApp/SettingsApp.tsx:94
 msgid "common.loading"
 msgstr "로딩 중"
 
@@ -2202,7 +2202,7 @@ msgid "login_prompt.action.generic"
 msgstr "이 작업"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/LoginPrompt/LoginPrompt.tsx:123
+#: src/components/remotes/LoginPrompt/LoginPrompt.tsx:127
 #: src/contexts/LoginPromptContext.tsx:127
 msgid "login_prompt.cancel"
 msgstr "취소"
@@ -2233,14 +2233,19 @@ msgid "login_prompt.description.reply"
 msgstr "답글을 작성하려면 로그인해 주세요."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/LoginPrompt/LoginPrompt.tsx:117
+#: src/components/remotes/LoginPrompt/LoginPrompt.tsx:69
+msgid "login_prompt.description.subscribe"
+msgstr "이 작가의 새 글 알림을 받으려면 로그인해 주세요."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/LoginPrompt/LoginPrompt.tsx:121
 #: src/contexts/LoginPromptContext.tsx:118
 msgid "login_prompt.login"
 msgstr "로그인하기"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/LoginPrompt/LoginPrompt.tsx:71
-#: src/components/remotes/LoginPrompt/LoginPrompt.tsx:103
+#: src/components/remotes/LoginPrompt/LoginPrompt.tsx:75
+#: src/components/remotes/LoginPrompt/LoginPrompt.tsx:107
 #: src/contexts/LoginPromptContext.tsx:98
 msgid "login_prompt.title"
 msgstr "로그인이 필요해요"
@@ -4196,186 +4201,191 @@ msgid "settings.login.welcome_url.label"
 msgstr "환영 알림 클릭 URL"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/components/SettingsNavigation.tsx:90
+#: src/components/remotes/SettingsApp/components/SettingsNavigation.tsx:99
 msgid "settings.navigation.account"
 msgstr "계정"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/components/SettingsNavigation.tsx:337
+#: src/components/remotes/SettingsApp/components/SettingsNavigation.tsx:346
 msgid "settings.navigation.admin_panel"
 msgstr "관리자 패널"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/components/SettingsNavigation.tsx:405
-#: src/components/remotes/SettingsApp/components/SettingsNavigation.tsx:439
-#: src/components/remotes/SettingsApp/components/SettingsNavigation.tsx:635
+#: src/components/remotes/SettingsApp/components/SettingsNavigation.tsx:414
+#: src/components/remotes/SettingsApp/components/SettingsNavigation.tsx:448
+#: src/components/remotes/SettingsApp/components/SettingsNavigation.tsx:644
 msgid "settings.navigation.admin_settings"
 msgstr "관리자 설정"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/components/SettingsNavigation.tsx:538
+#: src/components/remotes/SettingsApp/components/SettingsNavigation.tsx:547
 msgid "settings.navigation.aria_label"
 msgstr "{settings} 탐색"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/components/SettingsNavigation.tsx:401
+#: src/components/remotes/SettingsApp/components/SettingsNavigation.tsx:410
 msgid "settings.navigation.back_to_personal"
 msgstr "내 설정으로 돌아가기"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/components/SettingsNavigation.tsx:159
+#: src/components/remotes/SettingsApp/components/SettingsNavigation.tsx:168
 msgid "settings.navigation.banners"
 msgstr "배너"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/components/SettingsNavigation.tsx:589
+#: src/components/remotes/SettingsApp/components/SettingsNavigation.tsx:598
 msgid "settings.navigation.close_menu"
 msgstr "{settings} 메뉴 닫기"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/components/SettingsNavigation.tsx:194
+#: src/components/remotes/SettingsApp/components/SettingsNavigation.tsx:203
 msgid "settings.navigation.developer_api"
 msgstr "개발자 API"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/components/SettingsNavigation.tsx:141
+#: src/components/remotes/SettingsApp/components/SettingsNavigation.tsx:150
 msgid "settings.navigation.forms"
 msgstr "서식"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/components/SettingsNavigation.tsx:272
+#: src/components/remotes/SettingsApp/components/SettingsNavigation.tsx:281
 msgid "settings.navigation.global_banners"
 msgstr "전역 배너"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/components/SettingsNavigation.tsx:263
+#: src/components/remotes/SettingsApp/components/SettingsNavigation.tsx:272
 msgid "settings.navigation.global_notices"
 msgstr "전역 공지"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/components/SettingsNavigation.tsx:281
+#: src/components/remotes/SettingsApp/components/SettingsNavigation.tsx:290
 msgid "settings.navigation.global_webhook_integration"
 msgstr "전역 웹훅 연동"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/components/SettingsNavigation.tsx:225
+#: src/components/remotes/SettingsApp/components/SettingsNavigation.tsx:234
 msgid "settings.navigation.login_management"
 msgstr "로그인 관리"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/components/SettingsNavigation.tsx:576
+#: src/components/remotes/SettingsApp/components/SettingsNavigation.tsx:585
 msgid "settings.navigation.menu_title"
 msgstr "{settings} 메뉴"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/components/SettingsNavigation.tsx:150
+#: src/components/remotes/SettingsApp/components/SettingsNavigation.tsx:159
 msgid "settings.navigation.notices"
 msgstr "공지"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/components/SettingsNavigation.tsx:82
+#: src/components/remotes/SettingsApp/components/SettingsNavigation.tsx:83
 msgid "settings.navigation.notifications"
 msgstr "알림"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/components/SettingsNavigation.tsx:549
+#: src/components/remotes/SettingsApp/components/SettingsNavigation.tsx:558
 msgid "settings.navigation.open_menu"
 msgstr "{settings} 메뉴 열기, 현재 페이지: {current}"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/components/SettingsNavigation.tsx:123
+#: src/components/remotes/SettingsApp/components/SettingsNavigation.tsx:132
 msgid "settings.navigation.posts"
 msgstr "포스트"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/components/SettingsNavigation.tsx:98
+#: src/components/remotes/SettingsApp/components/SettingsNavigation.tsx:107
 msgid "settings.navigation.profile"
 msgstr "프로필"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/components/SettingsNavigation.tsx:311
+#: src/components/remotes/SettingsApp/components/SettingsNavigation.tsx:320
 msgid "settings.navigation.section.administration"
 msgstr "관리"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/components/SettingsNavigation.tsx:116
+#: src/components/remotes/SettingsApp/components/SettingsNavigation.tsx:125
 msgid "settings.navigation.section.blog"
 msgstr "블로그"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/components/SettingsNavigation.tsx:170
-#: src/components/remotes/SettingsApp/components/SettingsNavigation.tsx:292
+#: src/components/remotes/SettingsApp/components/SettingsNavigation.tsx:179
+#: src/components/remotes/SettingsApp/components/SettingsNavigation.tsx:301
 msgid "settings.navigation.section.extensions"
 msgstr "확장"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/components/SettingsNavigation.tsx:76
+#: src/components/remotes/SettingsApp/components/SettingsNavigation.tsx:77
 msgid "settings.navigation.section.general"
 msgstr "일반"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/components/SettingsNavigation.tsx:256
+#: src/components/remotes/SettingsApp/components/SettingsNavigation.tsx:265
 msgid "settings.navigation.section.operations"
 msgstr "운영"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/components/SettingsNavigation.tsx:208
+#: src/components/remotes/SettingsApp/components/SettingsNavigation.tsx:217
 msgid "settings.navigation.section.site"
 msgstr "사이트"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/components/SettingsNavigation.tsx:235
+#: src/components/remotes/SettingsApp/components/SettingsNavigation.tsx:244
 msgid "settings.navigation.seo_aeo"
 msgstr "SEO/AEO"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/components/SettingsNavigation.tsx:132
+#: src/components/remotes/SettingsApp/components/SettingsNavigation.tsx:141
 msgid "settings.navigation.series"
 msgstr "시리즈"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/components/SettingsNavigation.tsx:443
-#: src/components/remotes/SettingsApp/components/SettingsNavigation.tsx:639
+#: src/components/remotes/SettingsApp/components/SettingsNavigation.tsx:452
+#: src/components/remotes/SettingsApp/components/SettingsNavigation.tsx:648
 msgid "settings.navigation.settings"
 msgstr "설정"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/components/SettingsNavigation.tsx:215
+#: src/components/remotes/SettingsApp/components/SettingsNavigation.tsx:224
 msgid "settings.navigation.site_customization"
 msgstr "블로그 꾸미기"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/components/SettingsNavigation.tsx:106
+#: src/components/remotes/SettingsApp/components/SettingsNavigation.tsx:115
 msgid "settings.navigation.social_links"
 msgstr "소셜 링크"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/components/SettingsNavigation.tsx:245
+#: src/components/remotes/SettingsApp/components/SettingsNavigation.tsx:254
 msgid "settings.navigation.static_pages"
 msgstr "정적 페이지"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/components/SettingsNavigation.tsx:299
+#: src/components/remotes/SettingsApp/components/SettingsNavigation.tsx:91
+msgid "settings.navigation.subscriptions"
+msgstr "구독"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/components/SettingsNavigation.tsx:308
 msgid "settings.navigation.telegram"
 msgstr "텔레그램"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/components/SettingsNavigation.tsx:176
+#: src/components/remotes/SettingsApp/components/SettingsNavigation.tsx:185
 msgid "settings.navigation.telegram_integration"
 msgstr "텔레그램 연동"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/components/SettingsNavigation.tsx:318
+#: src/components/remotes/SettingsApp/components/SettingsNavigation.tsx:327
 msgid "settings.navigation.user_permissions"
 msgstr "사용자 권한"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/components/SettingsNavigation.tsx:327
+#: src/components/remotes/SettingsApp/components/SettingsNavigation.tsx:336
 msgid "settings.navigation.utilities"
 msgstr "유틸리티"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/components/SettingsNavigation.tsx:185
+#: src/components/remotes/SettingsApp/components/SettingsNavigation.tsx:194
 msgid "settings.navigation.webhook_integration"
 msgstr "웹훅 연동"
 
@@ -7060,6 +7070,66 @@ msgid "settings.static_pages.view.unpublished"
 msgstr "비공개 페이지는 열 수 없습니다. 공개한 뒤 다시 시도해주세요."
 
 #. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SubscriptionsSetting/SubscriptionsSetting.tsx:82
+msgid "settings.subscriptions.description"
+msgstr "구독한 작가가 새 글을 발행하면 알림을 보내드립니다."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SubscriptionsSetting/SubscriptionsSetting.tsx:179
+msgid "settings.subscriptions.empty.description"
+msgstr "작가 페이지나 글 하단에서 구독하면 새 글 소식을 알려드립니다."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SubscriptionsSetting/SubscriptionsSetting.tsx:175
+msgid "settings.subscriptions.empty.title"
+msgstr "아직 구독한 작가가 없습니다"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SubscriptionsSetting/SubscriptionsSetting.tsx:39
+msgid "settings.subscriptions.load_failed"
+msgstr "구독 목록을 불러오지 못했습니다."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SubscriptionsSetting/SubscriptionsSetting.tsx:162
+msgid "settings.subscriptions.not_publishing"
+msgstr "더 이상 글을 발행하지 않음"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SubscriptionsSetting/SubscriptionsSetting.tsx:154
+msgid "settings.subscriptions.subscribed_since"
+msgstr "{date}부터 구독"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SubscriptionsSetting/SubscriptionsSetting.tsx:100
+msgid "settings.subscriptions.telegram.description"
+msgstr "텔레그램을 연결하면 새 글 알림을 텔레그램으로도 받을 수 있습니다."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SubscriptionsSetting/SubscriptionsSetting.tsx:95
+msgid "settings.subscriptions.telegram.title"
+msgstr "텔레그램으로 새 글 받기"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SubscriptionsSetting/SubscriptionsSetting.tsx:78
+msgid "settings.subscriptions.title"
+msgstr "구독"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SubscriptionsSetting/SubscriptionsSetting.tsx:143
+msgid "settings.subscriptions.unsubscribe"
+msgstr "구독 해지"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SubscriptionsSetting/SubscriptionsSetting.tsx:50
+msgid "settings.subscriptions.unsubscribe_failed"
+msgstr "구독을 해지하지 못했습니다. 다시 시도해 주세요."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SubscriptionsSetting/SubscriptionsSetting.tsx:59
+msgid "settings.subscriptions.unsubscribed"
+msgstr "{username}님의 구독을 해지했습니다."
+
+#. js-lingui-explicit-id
 #: src/components/remotes/SettingsApp/pages/IntegrationSetting/components/TelegramConnectCard.tsx:55
 msgid "settings.telegram.connect.description"
 msgstr "텔레그램을 열고 봇과의 대화에서 시작을 누르세요. 연결되면 이 화면이 자동으로 바뀝니다."
@@ -8260,3 +8330,33 @@ msgstr "올바른 URL을 입력해 주세요."
 #: src/components/remotes/SettingsApp/components/WebhookChannelManager.tsx:205
 msgid "settings.webhooks.validation.url_required"
 msgstr "웹훅 URL을 입력해 주세요."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SubscriptionTelegramHint/SubscriptionTelegramHint.tsx:57
+msgid "subscription_telegram_hint.aria_label"
+msgstr "텔레그램 연결 안내"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SubscriptionTelegramHint/SubscriptionTelegramHint.tsx:73
+msgid "subscription_telegram_hint.close"
+msgstr "닫기"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SubscriptionTelegramHint/SubscriptionTelegramHint.tsx:96
+msgid "subscription_telegram_hint.connect"
+msgstr "텔레그램 연결"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SubscriptionTelegramHint/SubscriptionTelegramHint.tsx:87
+msgid "subscription_telegram_hint.headline"
+msgstr "새 글을 텔레그램으로 받아보세요"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SubscriptionTelegramHint/SubscriptionTelegramHint.tsx:102
+msgid "subscription_telegram_hint.later"
+msgstr "다음에"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SubscriptionTelegramHint/SubscriptionTelegramHint.tsx:84
+msgid "subscription_telegram_hint.title"
+msgstr "구독했어요"

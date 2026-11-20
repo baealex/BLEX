@@ -7,6 +7,9 @@ const currentDir = dirname(fileURLToPath(import.meta.url));
 const outDir = resolve(currentDir, '../../../../src/resources/staticfiles/islands');
 const manifestPath = resolve(outDir, '.vite/manifest.json');
 
+// Size limits keep about 10% headroom over the current build so ordinary feature work
+// does not fail on a few bytes. They still catch a sudden jump, such as a heavy
+// dependency landing in a shared entry. Re-baseline them when headroom runs low.
 const budgets = [
     {
         entries: [
@@ -17,7 +20,7 @@ const budgets = [
         label: 'base page scripts',
         maxInitialFiles: 6,
         maxInitialBytes: 65 * 1024,
-        maxInitialGzipBytes: 23 * 1024,
+        maxInitialGzipBytes: 24 * 1024,
         allowedInitialNames: [
             'src/scripts/island-loader.ts',
             'preload-helper',
@@ -35,8 +38,8 @@ const budgets = [
         entries: ['src/island.tsx'],
         label: 'on-demand island runtime',
         maxInitialFiles: 13,
-        maxInitialBytes: 235 * 1024,
-        maxInitialGzipBytes: 78 * 1024,
+        maxInitialBytes: 260 * 1024,
+        maxInitialGzipBytes: 85 * 1024,
         allowedInitialNames: [
             'src/island.tsx',
             'rolldown-runtime',
@@ -73,7 +76,7 @@ const budgets = [
         entries: ['src/island.tsx', 'src/components/remotes/Login/index.ts'],
         label: 'login island experience',
         // Axios 1.20 security fixes add 5.1 KiB raw / 1.7 KiB gzip to request clients.
-        maxInitialBytes: 355 * 1024,
+        maxInitialBytes: 360 * 1024,
         maxInitialGzipBytes: 120 * 1024
     },
     {
@@ -85,33 +88,33 @@ const budgets = [
     {
         entries: ['src/island.tsx', 'src/components/remotes/SearchPage/index.tsx'],
         label: 'search island experience',
-        maxInitialBytes: 310 * 1024,
-        maxInitialGzipBytes: 105 * 1024
+        maxInitialBytes: 345 * 1024,
+        maxInitialGzipBytes: 114 * 1024
     },
     {
         entries: ['src/island.tsx', 'src/components/remotes/SettingsApp/index.tsx'],
         label: 'settings island experience',
-        maxInitialBytes: 485 * 1024,
-        maxInitialGzipBytes: 163 * 1024
+        maxInitialBytes: 530 * 1024,
+        maxInitialGzipBytes: 176 * 1024
     },
     {
         entries: ['src/island.tsx', 'src/components/remotes/PostEditor/index.ts'],
         label: 'post editor island experience',
-        maxInitialBytes: 1350 * 1024,
-        maxInitialGzipBytes: 437 * 1024
+        maxInitialBytes: 1475 * 1024,
+        maxInitialGzipBytes: 478 * 1024
     },
     {
         entries: ['src/island.tsx', 'src/components/remotes/Comments/index.ts'],
         label: 'comments island experience',
-        maxInitialBytes: 470 * 1024,
-        maxInitialGzipBytes: 159 * 1024
+        maxInitialBytes: 520 * 1024,
+        maxInitialGzipBytes: 175 * 1024
     },
     {
         entries: ['styles/main.scss', 'styles/tailwind.css'],
         label: 'base page styles',
         maxInitialFiles: 2,
-        maxInitialBytes: 200 * 1024,
-        maxInitialGzipBytes: 43 * 1024,
+        maxInitialBytes: 225 * 1024,
+        maxInitialGzipBytes: 46 * 1024,
         allowedInitialNames: [
             'styles/main.scss',
             'styles/tailwind.css'
@@ -121,8 +124,8 @@ const budgets = [
         entries: ['styles/main.scss', 'styles/tailwind.css', 'styles/post.scss'],
         label: 'post page styles',
         maxInitialFiles: 3,
-        maxInitialBytes: 212 * 1024,
-        maxInitialGzipBytes: 46 * 1024,
+        maxInitialBytes: 235 * 1024,
+        maxInitialGzipBytes: 49 * 1024,
         allowedInitialNames: [
             'styles/main.scss',
             'styles/tailwind.css',

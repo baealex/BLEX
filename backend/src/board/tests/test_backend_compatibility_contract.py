@@ -141,6 +141,12 @@ EXPECTED_ROUTE_CONTRACT = (
     ('v1/comments/user', None, 'board.views.api.v1.comment.user_comment'),
     ('v1/comments/<int:id>', None, 'board.views.api.v1.comment.comment_detail'),
     ('v1/users/@<username>/heatmap', None, 'board.views.api.v1.author.get_author_heatmap'),
+    (
+        'v1/users/@<username>/subscription',
+        None,
+        'board.views.api.v1.author_subscription.author_subscription',
+    ),
+    ('v1/subscriptions', None, 'board.views.api.v1.author_subscription.my_subscriptions'),
     ('v1/users/@<username>', None, 'board.views.api.v1.user.users'),
     ('v1/users/@<username>/posts/<url>', None, 'board.views.api.v1.post.user_posts'),
     (
@@ -342,6 +348,8 @@ EXPECTED_V1_API_EXPORTS = (
     'user_comment',
     'comment_detail',
     'get_author_heatmap',
+    'author_subscription',
+    'my_subscriptions',
     'users',
     'user_posts',
     'post_share_links',
@@ -440,6 +448,8 @@ EXPECTED_MODEL_TABLES = (
     ('SiteNotice', 'board_sitenotice'),
     ('SiteBanner', 'board_sitebanner'),
     ('AuthorInvite', 'board_authorinvite'),
+    ('AuthorSubscription', 'board_authorsubscription'),
+    ('AuthorSubscriptionLog', 'board_authorsubscriptionlog'),
     ('WorkLog', 'board_worklog'),
     ('WorkLogEntry', 'board_worklogentry'),
     ('WorkLogShare', 'board_worklogshare'),
@@ -476,6 +486,8 @@ EXPECTED_MODEL_REGISTRY_ORDER = (
     'SocialAuth',
     'LoginSetting',
     'AuthorInvite',
+    'AuthorSubscription',
+    'AuthorSubscriptionLog',
     'Notify',
     'TelegramSync',
     'DeveloperToken',
@@ -495,6 +507,8 @@ EXPECTED_MODEL_REGISTRY_ORDER = (
 
 EXPECTED_MODEL_EXPORTS = (
     'AuthorInvite',
+    'AuthorSubscription',
+    'AuthorSubscriptionLog',
     'BannerPosition',
     'BannerType',
     'Comment',

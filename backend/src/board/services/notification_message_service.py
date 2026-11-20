@@ -13,6 +13,7 @@ class NotificationMessageKey(StrEnum):
     COMMENT_LIKED = 'comment.liked'
     COMMENT_REPLIED = 'comment.replied'
     POST_LIKED = 'post.liked'
+    POST_PUBLISHED = 'post.published'
 
 
 NOTIFICATION_MESSAGE_TEMPLATES = {
@@ -31,6 +32,9 @@ NOTIFICATION_MESSAGE_TEMPLATES = {
     ),
     NotificationMessageKey.POST_LIKED: gettext_noop(
         '@%(actor)s liked "%(post_title)s".'
+    ),
+    NotificationMessageKey.POST_PUBLISHED: gettext_noop(
+        '@%(actor)s published a new post: "%(post_title)s".'
     ),
 }
 

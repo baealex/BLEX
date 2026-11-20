@@ -4346,6 +4346,70 @@ msgstr "이 일지의 모든 기록과 첨부를 삭제하고 공유 링크를 �
 msgid "Choose file"
 msgstr "파일 선택"
 
+#: board/models/accounts.py
+msgid "Author subscription"
+msgstr "작가 구독"
+
+#: board/models/accounts.py
+msgid "Author subscriptions"
+msgstr "작가 구독"
+
+#: board/services/author_subscription_service.py
+msgid "You cannot subscribe to yourself."
+msgstr "자신을 구독할 수는 없습니다."
+
+#: board/services/author_subscription_service.py
+msgid "This user does not publish posts."
+msgstr "글을 발행하지 않는 사용자입니다."
+
+#: board/services/notification_message_service.py
+#, python-format
+msgid "@%(actor)s published a new post: \"%(post_title)s\"."
+msgstr "@%(actor)s님이 새 글을 발행했습니다: \"%(post_title)s\""
+
+#: board/templates/components/subscribe_button.html
+msgid "Subscribe"
+msgstr "구독"
+
+#: board/templates/components/subscribe_button.html
+msgid "Subscribed"
+msgstr "구독 중"
+
+#: board/templates/components/subscribe_button.html
+#, python-format
+msgid "Subscribe to %(username)s's new posts"
+msgstr "%(username)s님의 새 글 구독"
+
+#: board/templates/components/subscribe_button.html
+msgid "Subscribed. You will be notified about new posts."
+msgstr "구독했어요. 새 글이 올라오면 알려드릴게요."
+
+#: board/templates/components/subscribe_button.html
+msgid "Unsubscribed."
+msgstr "구독을 해지했어요."
+
+#: board/templates/components/subscribe_button.html
+msgid "Could not update the subscription. Please try again."
+msgstr "구독 처리에 실패했습니다. 다시 시도해 주세요."
+
+#: board/models/accounts.py
+msgctxt "Author subscription action"
+msgid "Subscribe"
+msgstr "구독"
+
+#: board/models/accounts.py
+msgctxt "Author subscription action"
+msgid "Unsubscribe"
+msgstr "구독 해지"
+
+#: board/models/accounts.py
+msgid "Author subscription log"
+msgstr "작가 구독 기록"
+
+#: board/models/accounts.py
+msgid "Author subscription logs"
+msgstr "작가 구독 기록"
+
 #: board/admin/banner.py
 msgid "Template text"
 msgstr "템플릿 문구"

@@ -15,6 +15,7 @@ import { LoadingState } from '../../shared';
 
 // Lazy load settings pages
 const NotifySetting = lazy(() => import('./pages/NotifySetting'));
+const SubscriptionsSetting = lazy(() => import('./pages/SubscriptionsSetting'));
 const AccountSetting = lazy(() => import('./pages/AccountSetting'));
 const ProfileSetting = lazy(() => import('./pages/ProfileSetting'));
 const SeriesSetting = lazy(() => import('./pages/SeriesSetting'));
@@ -189,6 +190,12 @@ const notifyRoute = createRoute({
     getParentRoute: () => settingsRoute,
     path: '/notify',
     component: NotifySetting
+});
+
+const subscriptionsRoute = createRoute({
+    getParentRoute: () => settingsRoute,
+    path: '/subscriptions',
+    component: SubscriptionsSetting
 });
 
 const accountRoute = createRoute({
@@ -421,6 +428,7 @@ const routeTree = rootRoute.addChildren([
     settingsRoute.addChildren([
         indexRoute,
         notifyRoute,
+        subscriptionsRoute,
         accountRoute,
         profileRoute,
         seriesRoute,

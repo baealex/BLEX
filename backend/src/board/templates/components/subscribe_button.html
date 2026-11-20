@@ -1,0 +1,40 @@
+{% comment %}
+Author subscription button (Alpine.js)
+
+Parameters:
+- author: author User (required)
+- subscription: AuthorSubscriptionState from `author_subscription_state` (required)
+- size: 'small' for compact placements, omit for the profile header
+{% endcomment %}
+{% load i18n %}
+{% if subscription.can_subscribe %}
+{% translate "Subscribe" as subscribe_label %}
+{% translate "Subscribed" as subscribed_label %}
+{% blocktranslate with username=author.username asvar subscribe_aria_label %}Subscribe to {{ username }}'s new posts{% endblocktranslate %}
+{% translate "Subscribed. You will be notified about new posts." as subscribed_message %}
+{% translate "Unsubscribed." as unsubscribed_message %}
+{% translate "Could not update the subscription. Please try again." as subscription_error_message %}
+<button
+    type="button"
+    x-data="subscribe_button({
+        username: '{{ author.username|escapejs }}',
+        subscribed: {{ subscription.is_subscribed|yesno:'true,false' }},
+        subscribedMessage: '{{ subscribed_message|escapejs }}',
+        unsubscribedMessage: '{{ unsubscribed_message|escapejs }}',
+        errorMessage: '{{ subscription_error_message|escapejs }}'
+    })"
+    @click="toggleSubscription()"
+    :disabled="loading"
+    :aria-pressed="subscribed"
+    aria-label="{{ subscribe_aria_label }}"
+    :class="{
+        'bg-action text-content-inverted border-transparent hover:bg-action-hover': !subscribed,
+        'bg-surface text-content-secondary border-line hover:border-line-strong hover:text-content': subscribed,
+        'opacity-70 cursor-not-allowed': loading,
+        'active:scale-95': !loading
+    }"
+    class="inline-flex shrink-0 items-center justify-center gap-2 rounded-full border font-semibold transition-all duration-150 select-none {% if size == 'small' %}px-3.5 py-1.5 text-xs{% else %}px-5 py-2.5 text-sm{% endif %} {% if subscription.is_subscribed %}bg-surface text-content-secondary border-line{% else %}bg-action text-content-inverted border-transparent{% endif %}">
+    <i class="fas {% if subscription.is_subscribed %}fa-check{% else %}fa-bell{% endif %} {% if size == 'small' %}text-[11px]{% else %}text-xs{% endif %}" :class="{ 'fa-check': subscribed, 'fa-bell': !subscribed }" aria-hidden="true"></i>
+    <span x-text="subscribed ? '{{ subscribed_label|escapejs }}' : '{{ subscribe_label|escapejs }}'">{% if subscription.is_subscribed %}{{ subscribed_label }}{% else %}{{ subscribe_label }}{% endif %}</span>
+</button>
+{% endif %}
