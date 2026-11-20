@@ -249,27 +249,35 @@ export const deleteAccount = async () => {
 };
 
 // Banner API
-export type BannerTemplate = 'html' | 'notice' | 'card' | 'centered' | 'callout' | 'image' | 'intro' | 'profile' | 'sidelink';
-export type BannerTone = 'default' | 'emphasis';
+export type BannerTemplate = 'html' | 'notice' | 'card' | 'callout' | 'image' | 'profile';
+export type BannerTone = 'default' | 'outline' | 'emphasis';
+export type BannerImageLayout = 'right' | 'left' | 'top' | 'cover';
+export type BannerAlign = 'left' | 'center';
 
 interface BannerTemplateFields {
     template: BannerTemplate;
+    eyebrow: string;
     headline: string;
     description: string;
     linkLabel: string;
     linkUrl: string;
     imageUrl: string;
     tone: BannerTone;
+    imageLayout: BannerImageLayout;
+    align: BannerAlign;
 }
 
 interface BannerTemplatePayload {
     template?: BannerTemplate;
+    eyebrow?: string;
     headline?: string;
     description?: string;
     link_label?: string;
     link_url?: string;
     image_url?: string;
     tone?: BannerTone;
+    image_layout?: BannerImageLayout;
+    align?: BannerAlign;
 }
 
 export interface BannerData extends BannerTemplateFields {
@@ -332,6 +340,7 @@ export interface BannerTemplateGalleryItem {
     template: Exclude<BannerTemplate, 'html'>;
     bannerTypes: ('horizontal' | 'sidebar')[];
     sample: {
+        eyebrow: string;
         headline: string;
         description: string;
         linkLabel: string;

@@ -1,16 +1,18 @@
 {% load i18n %}
-<div class="rounded-2xl border p-5 sm:p-6 {% if is_emphasis %}border-transparent bg-action text-content-inverted{% else %}border-line bg-surface-subtle text-content{% endif %}">
-    <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <div class="min-w-0">
-            <p class="break-words text-lg font-bold leading-snug">{{ banner.headline }}</p>
-            {% if banner.description %}
-            <p class="mt-1.5 break-words text-sm leading-relaxed {% if is_emphasis %}opacity-75{% else %}text-content-secondary{% endif %}">{{ banner.description|linebreaksbr }}</p>
+<div class="blex-banner blex-banner--card" data-tone="{{ banner.tone }}" data-align="{{ banner.align }}"{% if image_layout %} data-image="{{ image_layout }}"{% endif %}>
+    <div class="blex-banner__inner">
+        {% if image_layout %}
+        <div class="blex-banner__media">
+            <img src="{{ image_url }}" alt="" loading="lazy" decoding="async">
+        </div>
+        {% endif %}
+        <div class="blex-banner__body">
+            {% if banner.eyebrow %}<p class="blex-banner__eyebrow">{{ banner.eyebrow }}</p>{% endif %}
+            <p class="blex-banner__title">{{ banner.headline }}</p>
+            {% if banner.description %}<p class="blex-banner__desc">{{ banner.description|linebreaksbr }}</p>{% endif %}
+            {% if link_url %}
+            <a class="blex-banner__button" href="{{ link_url }}">{% if banner.link_label %}{{ banner.link_label }}{% else %}{% translate "Learn more" context "Banner link label" %}{% endif %}</a>
             {% endif %}
         </div>
-        {% if link_url %}
-        <a href="{{ link_url }}" class="inline-flex min-h-11 flex-shrink-0 items-center justify-center rounded-lg px-4 text-sm font-semibold transition-colors duration-150 active:scale-95 {% if is_emphasis %}bg-surface text-content hover:bg-surface-subtle{% else %}bg-action text-content-inverted hover:bg-action-hover{% endif %}">
-            {% if banner.link_label %}{{ banner.link_label }}{% else %}{% translate "Learn more" context "Banner link label" %}{% endif %}
-        </a>
-        {% endif %}
     </div>
 </div>

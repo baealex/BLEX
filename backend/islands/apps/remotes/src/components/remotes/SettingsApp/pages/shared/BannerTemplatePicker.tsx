@@ -1,14 +1,14 @@
-import { Trans, useLingui } from '@lingui/react/macro';
+import { useLingui } from '@lingui/react/macro';
 import { Code2 } from '@blex/ui/icons';
 import { cx } from '~/lib/classnames';
 import type { BannerTemplate, BannerTemplateGalleryItem } from '~/lib/api/settings';
 import { bannerTemplateMessages } from './bannerI18n';
 
-/** Thumbnails render the real banner scaled down so the picker shows what readers will see. */
+/** Thumbnails render the real banner at slot width and scale it down, so the picker shows what readers see. */
 const THUMBNAIL_SCALE = {
     horizontal: {
-        width: 460,
-        zoom: 0.6
+        width: 640,
+        zoom: 0.42
     },
     sidebar: {
         width: 256,
@@ -59,12 +59,10 @@ interface BannerTemplatePickerProps {
 
 const BannerTemplatePicker = ({ gallery, allowHtml, value, onChange }: BannerTemplatePickerProps) => {
     const { i18n } = useLingui();
-    const bodyTemplates = gallery.filter((item) => item.bannerTypes[0] === 'horizontal');
-    const sidebarTemplates = gallery.filter((item) => item.bannerTypes[0] === 'sidebar');
 
-    const renderGroup = (items: BannerTemplateGalleryItem[]) => (
+    return (
         <div className="grid gap-3 sm:grid-cols-2">
-            {items.map((item) => {
+            {gallery.map((item) => {
                 const kind = item.bannerTypes[0];
                 return (
                     <TemplateOption
@@ -79,32 +77,13 @@ const BannerTemplatePicker = ({ gallery, allowHtml, value, onChange }: BannerTem
                     </TemplateOption>
                 );
             })}
-        </div>
-    );
-
-    return (
-        <div className="space-y-5">
-            <div className="space-y-2">
-                <h3 className="text-xs font-medium text-content-hint">
-                    <Trans id="settings.banners.editor.template.group_body">Above or below the post</Trans>
-                </h3>
-                {renderGroup(bodyTemplates)}
-            </div>
-            <div className="space-y-2">
-                <h3 className="text-xs font-medium text-content-hint">
-                    <Trans id="settings.banners.editor.template.group_sidebar">Sidebar</Trans>
-                </h3>
-                {renderGroup(sidebarTemplates)}
-            </div>
             {allowHtml && (
-                <div className="grid gap-3 sm:grid-cols-2">
-                    <TemplateOption
-                        label={i18n._(bannerTemplateMessages.html)}
-                        selected={value === 'html'}
-                        onSelect={() => onChange('html')}>
-                        <Code2 className="h-8 w-8 text-content-hint" />
-                    </TemplateOption>
-                </div>
+                <TemplateOption
+                    label={i18n._(bannerTemplateMessages.html)}
+                    selected={value === 'html'}
+                    onSelect={() => onChange('html')}>
+                    <Code2 className="h-8 w-8 text-content-hint" />
+                </TemplateOption>
             )}
         </div>
     );

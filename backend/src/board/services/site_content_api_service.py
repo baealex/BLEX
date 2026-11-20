@@ -13,7 +13,14 @@ from board.models import (
     SiteNotice,
     StaticPage,
 )
-from board.models.site import TEMPLATE_BANNER_TYPES, BannerTemplate, BannerTone
+from board.models.site import (
+    BANNER_TYPE_IMAGE_LAYOUTS,
+    TEMPLATE_BANNER_TYPES,
+    BannerAlign,
+    BannerImageLayout,
+    BannerTemplate,
+    BannerTone,
+)
 from board.modules.response import ErrorCode
 from board.services.banner_service import BannerService
 
@@ -41,12 +48,15 @@ class SiteContentApiService:
         'banner_type',
         'position',
         'template',
+        'eyebrow',
         'headline',
         'description',
         'link_label',
         'link_url',
         'image_url',
         'tone',
+        'image_layout',
+        'align',
         'is_active',
         'order',
         'created_date',
@@ -58,16 +68,20 @@ class SiteContentApiService:
         'banner_type',
         'position',
         'template',
+        'eyebrow',
         'headline',
         'description',
         'link_label',
         'link_url',
         'image_url',
         'tone',
+        'image_layout',
+        'align',
         'is_active',
         'order',
     )
     BANNER_TEMPLATE_TEXT_FIELDS = (
+        'eyebrow',
         'headline',
         'description',
         'link_label',
@@ -143,12 +157,15 @@ class SiteContentApiService:
             'banner_type': banner.banner_type,
             'position': banner.position,
             'template': banner.template,
+            'eyebrow': banner.eyebrow,
             'headline': banner.headline,
             'description': banner.description,
             'link_label': banner.link_label,
             'link_url': safe_navigation_url(banner.link_url),
             'image_url': safe_navigation_url(banner.image_url),
             'tone': banner.tone,
+            'image_layout': banner.image_layout,
+            'align': banner.align,
             'is_active': banner.is_active,
             'order': banner.order,
             'created_date': banner.created_date.isoformat(),
@@ -253,7 +270,11 @@ class SiteContentApiService:
                 ErrorCode.VALIDATE,
                 gettext('Choose a valid banner template.'),
             )
-        if banner.tone not in BannerTone.values:
+        if (
+            banner.tone not in BannerTone.values
+            or banner.image_layout not in BannerImageLayout.values
+            or banner.align not in BannerAlign.values
+        ):
             raise SiteContentApiError(
                 ErrorCode.VALIDATE,
                 gettext('Choose a valid banner style.'),
@@ -268,6 +289,9 @@ class SiteContentApiService:
                 ErrorCode.VALIDATE,
                 gettext('This template is not available in the selected position.'),
             )
+        if banner.image_layout not in BANNER_TYPE_IMAGE_LAYOUTS[banner.banner_type]:
+            # The sidebar is too narrow for a side-by-side image, so it stacks on top.
+            banner.image_layout = BannerImageLayout.TOP
         if not banner.headline:
             raise SiteContentApiError(
                 ErrorCode.VALIDATE,
@@ -275,6 +299,7 @@ class SiteContentApiService:
             )
 
         length_messages = {
+            'eyebrow': gettext('Label must be %(limit)d characters or fewer.'),
             'headline': gettext('Banner text must be %(limit)d characters or fewer.'),
             'description': gettext('Description must be %(limit)d characters or fewer.'),
             'link_label': gettext('Button text must be %(limit)d characters or fewer.'),

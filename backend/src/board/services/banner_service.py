@@ -3,6 +3,7 @@ Banner Service
 Handles business logic for both user banners and global banners
 """
 from typing import List, Dict
+from django.conf import settings
 from django.contrib.auth.models import User
 from django.db.models import Q
 from django.template.loader import render_to_string
@@ -12,7 +13,7 @@ from django.utils.translation import pgettext
 
 from board.html_utils import safe_navigation_url, sanitize_html
 from board.models import SiteBanner, SiteContentScope
-from board.models.site import TEMPLATE_BANNER_TYPES, BannerTemplate, BannerTone
+from board.models.site import TEMPLATE_BANNER_TYPES, BannerTemplate
 
 
 class BannerService:
@@ -21,13 +22,13 @@ class BannerService:
     TEMPLATE_PATHS = {
         BannerTemplate.NOTICE: 'components/banners/notice.html',
         BannerTemplate.CARD: 'components/banners/card.html',
-        BannerTemplate.CENTERED: 'components/banners/centered.html',
         BannerTemplate.CALLOUT: 'components/banners/callout.html',
         BannerTemplate.IMAGE: 'components/banners/image.html',
-        BannerTemplate.INTRO: 'components/banners/intro.html',
         BannerTemplate.PROFILE: 'components/banners/profile.html',
-        BannerTemplate.SIDELINK: 'components/banners/sidelink.html',
     }
+
+    # Gallery thumbnails show where an uploaded image goes; the editor never prefills it.
+    SAMPLE_IMAGE_PATH = 'assets/images/default-cover-2.jpg'
 
     @staticmethod
     def render_banner_html(banner: SiteBanner, author: User | None = None) -> SafeString:
@@ -46,11 +47,12 @@ class BannerService:
             profile = getattr(author, 'profile', None)
             author_avatar_url = profile.get_thumbnail() if profile else ''
 
+        image_url = safe_navigation_url(banner.image_url)
         return render_to_string(template_path, {
             'banner': banner,
             'link_url': safe_navigation_url(banner.link_url),
-            'image_url': safe_navigation_url(banner.image_url),
-            'is_emphasis': banner.tone == BannerTone.EMPHASIS,
+            'image_url': image_url,
+            'image_layout': banner.image_layout if image_url else '',
             'author_avatar_url': author_avatar_url,
         })
 
@@ -62,21 +64,19 @@ class BannerService:
         visit_blog = pgettext('Banner sample', 'Visit the blog')
         return {
             BannerTemplate.NOTICE: {
+                'eyebrow': pgettext('Banner sample', 'Notice'),
                 'headline': pgettext('Banner sample', "There's some news to share."),
                 'description': '',
                 'link_label': learn_more,
             },
             BannerTemplate.CARD: {
+                'eyebrow': '',
                 'headline': pgettext('Banner sample', 'Did this post help you?'),
                 'description': pgettext('Banner sample', 'Read the other posts too.'),
                 'link_label': visit_blog,
             },
-            BannerTemplate.CENTERED: {
-                'headline': pgettext('Banner sample', 'Thanks for reading'),
-                'description': pgettext('Banner sample', 'Stay tuned for the next post.'),
-                'link_label': visit_blog,
-            },
             BannerTemplate.CALLOUT: {
+                'eyebrow': '',
                 'headline': pgettext('Banner sample', 'Before you read'),
                 'description': pgettext(
                     'Banner sample',
@@ -86,24 +86,16 @@ class BannerService:
             },
             BannerTemplate.IMAGE: {
                 # Alt text has to describe the actual image, so the author writes it.
+                'eyebrow': '',
                 'headline': '',
                 'description': '',
                 'link_label': '',
             },
-            BannerTemplate.INTRO: {
-                'headline': pgettext('Banner sample', 'Welcome to my blog'),
-                'description': pgettext('Banner sample', 'Make yourself at home.'),
-                'link_label': pgettext('Banner sample', 'About me'),
-            },
             BannerTemplate.PROFILE: {
+                'eyebrow': '',
                 'headline': user.username,
                 'description': pgettext('Banner sample', 'Thanks for stopping by.'),
                 'link_label': visit_blog,
-            },
-            BannerTemplate.SIDELINK: {
-                'headline': pgettext('Banner sample', 'New here?'),
-                'description': pgettext('Banner sample', "See what's on the blog."),
-                'link_label': '',
             },
         }
 
@@ -111,6 +103,7 @@ class BannerService:
     def build_template_gallery(scope: str, user: User) -> List[Dict]:
         """Render every template with starter text so the editor can show real thumbnails."""
         sample_link = reverse('user_profile', args=[user.username])
+        sample_image = settings.RESOURCE_URL + BannerService.SAMPLE_IMAGE_PATH
         gallery = []
         for template, sample in BannerService.get_template_samples(user).items():
             banner_types = TEMPLATE_BANNER_TYPES[template]
@@ -119,10 +112,16 @@ class BannerService:
                 user=user,
                 template=template,
                 banner_type=banner_types[0],
+                eyebrow=sample['eyebrow'],
                 headline=sample['headline'],
                 description=sample['description'],
                 link_label=sample['link_label'],
                 link_url=sample_link,
+                image_url=(
+                    sample_image
+                    if template in (BannerTemplate.CARD, BannerTemplate.IMAGE)
+                    else ''
+                ),
             )
             gallery.append({
                 'template': str(template),

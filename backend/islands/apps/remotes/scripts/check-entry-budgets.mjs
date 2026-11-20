@@ -128,6 +128,15 @@ const budgets = [
             'styles/tailwind.css',
             'styles/post.scss'
         ]
+    },
+    {
+        // Loaded only on pages that render banners.
+        entries: ['styles/banner.scss'],
+        label: 'banner styles',
+        maxInitialFiles: 1,
+        maxInitialBytes: 10 * 1024,
+        maxInitialGzipBytes: 3 * 1024,
+        allowedInitialNames: ['styles/banner.scss']
     }
 ];
 

@@ -154,32 +154,48 @@ class BannerPosition(models.TextChoices):
 
 
 class BannerTemplate(models.TextChoices):
-    """Banner layouts. Template banners are rendered from text fields by the server."""
+    """Banner shapes. Template banners are rendered from text fields by the server."""
     HTML = 'html', pgettext_lazy('Banner template', 'Custom HTML')
     NOTICE = 'notice', pgettext_lazy('Banner template', 'Announcement bar')
-    CARD = 'card', pgettext_lazy('Banner template', 'Call-to-action card')
-    CENTERED = 'centered', pgettext_lazy('Banner template', 'Centered card')
+    CARD = 'card', pgettext_lazy('Banner template', 'Card')
     CALLOUT = 'callout', pgettext_lazy('Banner template', 'Callout')
     IMAGE = 'image', pgettext_lazy('Banner template', 'Image banner')
-    INTRO = 'intro', pgettext_lazy('Banner template', 'Introduction card')
     PROFILE = 'profile', pgettext_lazy('Banner template', 'Profile card')
-    SIDELINK = 'sidelink', pgettext_lazy('Banner template', 'Side link')
 
 
 class BannerTone(models.TextChoices):
+    """Surface styles. They follow the site palette so banners stay in the blog's look."""
     DEFAULT = 'default', pgettext_lazy('Banner tone', 'Default')
+    OUTLINE = 'outline', pgettext_lazy('Banner tone', 'Outline')
     EMPHASIS = 'emphasis', pgettext_lazy('Banner tone', 'Emphasis')
 
 
+class BannerImageLayout(models.TextChoices):
+    RIGHT = 'right', pgettext_lazy('Banner image layout', 'Right')
+    LEFT = 'left', pgettext_lazy('Banner image layout', 'Left')
+    TOP = 'top', pgettext_lazy('Banner image layout', 'Top')
+    COVER = 'cover', pgettext_lazy('Banner image layout', 'Background')
+
+
+class BannerAlign(models.TextChoices):
+    LEFT = 'left', pgettext_lazy('Banner text alignment', 'Left')
+    CENTER = 'center', pgettext_lazy('Banner text alignment', 'Center')
+
+
+BOTH_BANNER_TYPES = (BannerType.HORIZONTAL, BannerType.SIDEBAR)
+
 TEMPLATE_BANNER_TYPES = {
-    BannerTemplate.NOTICE: (BannerType.HORIZONTAL,),
-    BannerTemplate.CARD: (BannerType.HORIZONTAL,),
-    BannerTemplate.CENTERED: (BannerType.HORIZONTAL,),
+    BannerTemplate.NOTICE: BOTH_BANNER_TYPES,
+    BannerTemplate.CARD: BOTH_BANNER_TYPES,
     BannerTemplate.CALLOUT: (BannerType.HORIZONTAL,),
-    BannerTemplate.IMAGE: (BannerType.HORIZONTAL, BannerType.SIDEBAR),
-    BannerTemplate.INTRO: (BannerType.SIDEBAR,),
+    BannerTemplate.IMAGE: BOTH_BANNER_TYPES,
     BannerTemplate.PROFILE: (BannerType.SIDEBAR,),
-    BannerTemplate.SIDELINK: (BannerType.SIDEBAR,),
+}
+
+# Side-by-side images need the width of the post body; the sidebar stacks them.
+BANNER_TYPE_IMAGE_LAYOUTS = {
+    BannerType.HORIZONTAL: tuple(BannerImageLayout.values),
+    BannerType.SIDEBAR: (BannerImageLayout.TOP, BannerImageLayout.COVER),
 }
 
 
@@ -220,6 +236,7 @@ class SiteBanner(SiteContentBase):
                                 default=BannerPosition.TOP)
     template = models.CharField(max_length=20, choices=BannerTemplate.choices,
                                 default=BannerTemplate.HTML)
+    eyebrow = models.CharField(max_length=30, blank=True, default='')
     headline = models.CharField(max_length=120, blank=True, default='')
     description = models.CharField(max_length=300, blank=True, default='')
     link_label = models.CharField(max_length=40, blank=True, default='')
@@ -227,6 +244,10 @@ class SiteBanner(SiteContentBase):
     image_url = models.CharField(max_length=500, blank=True, default='')
     tone = models.CharField(max_length=20, choices=BannerTone.choices,
                             default=BannerTone.DEFAULT)
+    image_layout = models.CharField(max_length=10, choices=BannerImageLayout.choices,
+                                    default=BannerImageLayout.RIGHT)
+    align = models.CharField(max_length=10, choices=BannerAlign.choices,
+                             default=BannerAlign.LEFT)
 
     class Meta(SiteContentBase.Meta):
         verbose_name = _('Site banner')

@@ -1,4 +1,5 @@
 import json
+import re
 
 from django.test import Client, TestCase
 from django.urls import reverse
@@ -109,6 +110,33 @@ class BannerTemplateAPITestCase(TestCase):
         self.assertEqual(banner['headline'], 'Subscribe to the newsletter')
         self.assertEqual(banner['linkLabel'], 'Subscribe')
 
+    def test_card_stores_design_options(self):
+        content = self.post_json('/v1/banners', self.card_payload(
+            eyebrow=' Event ',
+            image_url='/resources/media/images/banner.png',
+            image_layout='cover',
+            align='center',
+            tone='outline',
+        ))
+
+        body = content['body']
+        self.assertEqual(content['status'], 'DONE')
+        self.assertEqual(body['eyebrow'], 'Event')
+        self.assertEqual(body['imageLayout'], 'cover')
+        self.assertEqual(body['align'], 'center')
+        self.assertEqual(body['tone'], 'outline')
+
+    def test_sidebar_card_stacks_side_by_side_image_on_top(self):
+        content = self.post_json('/v1/banners', self.card_payload(
+            banner_type='sidebar',
+            position='right',
+            image_url='/resources/media/images/banner.png',
+            image_layout='left',
+        ))
+
+        self.assertEqual(content['status'], 'DONE')
+        self.assertEqual(content['body']['imageLayout'], 'top')
+
     def test_template_banner_requires_text_but_not_html(self):
         content = self.post_json('/v1/banners', self.card_payload(headline='   '))
 
@@ -118,10 +146,8 @@ class BannerTemplateAPITestCase(TestCase):
 
     def test_template_rejects_incompatible_position(self):
         cases = (
-            self.card_payload(template='intro', banner_type='horizontal', position='top'),
-            self.card_payload(template='notice', banner_type='sidebar', position='left'),
             self.card_payload(template='profile', banner_type='horizontal', position='bottom'),
-            self.card_payload(template='centered', banner_type='sidebar', position='right'),
+            self.card_payload(template='callout', banner_type='sidebar', position='right'),
         )
 
         for payload in cases:
@@ -132,8 +158,15 @@ class BannerTemplateAPITestCase(TestCase):
 
         self.assertFalse(SiteBanner.objects.exists())
 
-    def test_template_rejects_unknown_template_and_tone(self):
-        for overrides in ({'template': 'poster'}, {'tone': 'neon'}):
+    def test_template_rejects_unknown_template_and_design_options(self):
+        cases = (
+            {'template': 'poster'},
+            {'template': 'centered'},
+            {'tone': 'neon'},
+            {'image_layout': 'diagonal'},
+            {'align': 'justify'},
+        )
+        for overrides in cases:
             with self.subTest(overrides=overrides):
                 content = self.post_json('/v1/banners', self.card_payload(**overrides))
                 self.assertEqual(content['status'], 'ERROR')
@@ -145,6 +178,7 @@ class BannerTemplateAPITestCase(TestCase):
             {'headline': 'a' * 121},
             {'description': 'a' * 301},
             {'link_label': 'a' * 41},
+            {'eyebrow': 'a' * 31},
         )
 
         for overrides in cases:
@@ -156,7 +190,10 @@ class BannerTemplateAPITestCase(TestCase):
         self.assertFalse(SiteBanner.objects.exists())
 
     def test_update_validates_template_against_final_position(self):
-        banner_id = self.post_json('/v1/banners', self.card_payload())['body']['id']
+        banner_id = self.post_json(
+            '/v1/banners',
+            self.card_payload(template='callout'),
+        )['body']['id']
 
         moved = self.put_json(f'/v1/banners/{banner_id}', {
             'banner_type': 'sidebar',
@@ -165,7 +202,7 @@ class BannerTemplateAPITestCase(TestCase):
         self.assertEqual(moved['status'], 'ERROR')
 
         switched = self.put_json(f'/v1/banners/{banner_id}', {
-            'template': 'intro',
+            'template': 'card',
             'banner_type': 'sidebar',
             'position': 'right',
             'headline': 'About me',
@@ -173,7 +210,7 @@ class BannerTemplateAPITestCase(TestCase):
         self.assertEqual(switched['status'], 'DONE')
 
         banner = SiteBanner.objects.get(id=banner_id)
-        self.assertEqual(banner.template, 'intro')
+        self.assertEqual(banner.template, 'card')
         self.assertEqual(banner.position, 'right')
         self.assertEqual(banner.headline, 'About me')
         self.assertEqual(banner.link_label, 'Subscribe')
@@ -316,7 +353,7 @@ class BannerTemplateAPITestCase(TestCase):
         templates = content['body']['templates']
         self.assertEqual(
             [item['template'] for item in templates],
-            ['notice', 'card', 'centered', 'callout', 'image', 'intro', 'profile', 'sidelink'],
+            ['notice', 'card', 'callout', 'image', 'profile'],
         )
         for item in templates:
             with self.subTest(template=item['template']):
@@ -357,7 +394,7 @@ class BannerTemplateAPITestCase(TestCase):
 
     def test_preview_returns_validation_error_for_incompatible_template(self):
         content = self.post_json('/v1/banners/preview', self.card_payload(
-            template='intro',
+            template='profile',
         ))
 
         self.assertEqual(content['status'], 'ERROR')
@@ -400,6 +437,38 @@ class BannerTemplateRenderTestCase(TestCase):
         self.assertIn('<div class="x">Legacy</div>', bottom_html)
         self.assertNotIn('<script>', bottom_html)
 
+    def test_card_renders_image_layout_only_with_an_image(self):
+        with_image = self.create_banner(
+            template='card',
+            headline='Workshop',
+            image_url='/resources/media/images/banner.png',
+            image_layout='cover',
+            align='center',
+            tone='emphasis',
+        )
+        without_image = self.create_banner(
+            template='card',
+            headline='No image',
+            image_layout='cover',
+        )
+
+        html = BannerService.render_banner_html(with_image)
+        plain_html = BannerService.render_banner_html(without_image)
+
+        self.assertIn('data-image="cover"', html)
+        self.assertIn('data-align="center"', html)
+        self.assertIn('data-tone="emphasis"', html)
+        self.assertIn('src="/resources/media/images/banner.png"', html)
+        self.assertNotIn('data-image', plain_html)
+        self.assertNotIn('<img', plain_html)
+
+    def test_card_renders_label_above_title(self):
+        banner = self.create_banner(template='card', eyebrow='Event', headline='Workshop')
+
+        html = BannerService.render_banner_html(banner)
+
+        self.assertLess(html.index('Event'), html.index('Workshop'))
+
     def test_stored_unsafe_link_is_not_rendered(self):
         banner = self.create_banner(
             template='notice',
@@ -424,7 +493,7 @@ class BannerTemplateRenderTestCase(TestCase):
         PostContent.objects.create(post=post, content_html='<p>Body</p>')
         PostConfig.objects.create(post=post, hide=False)
         self.create_banner(
-            template='intro',
+            template='card',
             banner_type='sidebar',
             position='right',
             headline='Hi, I write about Django',
@@ -441,6 +510,30 @@ class BannerTemplateRenderTestCase(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, 'Hi, I write about Django')
         self.assertContains(response, 'About me')
+
+
+    def test_banner_styles_load_only_when_the_post_has_banners(self):
+        post = Post.objects.create(
+            title='Post',
+            url='post',
+            author=self.author,
+            created_date=timezone.now(),
+            published_date=timezone.now(),
+        )
+        PostContent.objects.create(post=post, content_html='<p>Body</p>')
+        PostConfig.objects.create(post=post, hide=False)
+        url = reverse('post_detail', kwargs={
+            'username': 'author',
+            'post_url': 'post',
+        })
+        banner_stylesheet = re.compile(r'styles/banner\.scss|bannerStyle\.[^"\s>]+\.css')
+
+        without_banner = self.client.get(url).content.decode()
+        self.create_banner(template='notice', headline='Hello')
+        with_banner = self.client.get(url).content.decode()
+
+        self.assertIsNone(banner_stylesheet.search(without_banner))
+        self.assertIsNotNone(banner_stylesheet.search(with_banner))
 
 
 class BannerImageCleanupTestCase(TestCase):

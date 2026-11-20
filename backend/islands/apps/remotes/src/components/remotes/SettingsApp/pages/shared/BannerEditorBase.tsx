@@ -6,7 +6,13 @@ import { useForm, Controller } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { FloatingBottomBar } from '@blex/ui/floating-bottom-bar';
-import { ArrowLeft, Eye, ImagePlus, Send } from '@blex/ui/icons';
+import {
+    ArrowLeft,
+    Eye,
+    ImagePlus,
+    Send,
+    Trash2
+} from '@blex/ui/icons';
 import { CodeEditor } from '~/components/CodeEditor';
 import { Button, Input } from '~/components/shared';
 import { useConfirm } from '~/hooks/useConfirm';
@@ -25,7 +31,9 @@ import {
     previewGlobalBanner,
     getBannerTemplates,
     getGlobalBannerTemplates,
+    type BannerAlign,
     type BannerCreateData,
+    type BannerImageLayout,
     type BannerPreviewData,
     type BannerTemplate,
     type BannerTone,
@@ -34,19 +42,31 @@ import {
     type GlobalBannerUpdateData
 } from '~/lib/api/settings';
 import { uploadImage } from '~/lib/api/posts';
+import {
+    AlignSketch,
+    DesignOptionGroup,
+    ImageLayoutSketch,
+    ToneSwatch
+} from './BannerDesignOptions';
 import BannerPreviewDialog from './BannerPreviewDialog';
 import BannerTemplatePicker from './BannerTemplatePicker';
 import {
+    bannerAlignMessages,
+    bannerImageLayoutMessages,
     bannerPositionMessages,
     bannerPositionOptions,
     bannerTemplateMessages,
+    bannerToneMessages,
     type BannerPosition,
     type BannerType
 } from './bannerI18n';
 import {
     BANNER_TITLE_MAX_LENGTH,
     bannerTypeForPosition,
+    imageLayoutForPosition,
+    imageLayoutsFor,
     isTemplateAllowedAt,
+    isToneAdjustable,
     isValidBannerLink,
     positionForTemplate,
     swapSampleCopy,
@@ -62,12 +82,15 @@ interface BannerFormInputs {
     title: string;
     template: BannerTemplate;
     contentHtml: string;
+    eyebrow: string;
     headline: string;
     description: string;
     linkLabel: string;
     linkUrl: string;
     imageUrl: string;
     tone: BannerTone;
+    imageLayout: BannerImageLayout;
+    align: BannerAlign;
     bannerType: BannerType;
     position: BannerPosition;
     isActive: boolean;
@@ -78,32 +101,42 @@ const defaultValues: BannerFormInputs = {
     title: '',
     template: 'card',
     contentHtml: '',
+    eyebrow: '',
     headline: '',
     description: '',
     linkLabel: '',
     linkUrl: '',
     imageUrl: '',
     tone: 'default',
+    imageLayout: 'right',
+    align: 'left',
     bannerType: 'horizontal',
     position: 'bottom',
     isActive: true,
     order: 0
 };
 
-const bannerToneOptions: BannerTone[] = ['default', 'emphasis'];
+const bannerToneOptions: BannerTone[] = ['default', 'outline', 'emphasis'];
+const bannerAlignOptions: BannerAlign[] = ['left', 'center'];
 
-const toPreviewPayload = (values: BannerFormInputs): BannerPreviewData => ({
-    template: values.template,
-    content_html: values.contentHtml,
-    headline: values.headline,
-    description: values.description,
-    link_label: values.linkLabel,
-    link_url: values.linkUrl,
-    image_url: values.imageUrl,
-    tone: values.tone,
-    banner_type: values.bannerType,
-    position: values.position
-});
+const toPreviewPayload = (values: BannerFormInputs): BannerPreviewData => {
+    const fields = values.template === 'html' ? null : TEMPLATE_FIELDS[values.template];
+    return {
+        template: values.template,
+        content_html: values.contentHtml,
+        eyebrow: fields?.eyebrow ? values.eyebrow : '',
+        headline: values.headline,
+        description: values.description,
+        link_label: values.linkLabel,
+        link_url: values.linkUrl,
+        image_url: fields?.image ? values.imageUrl : '',
+        tone: values.tone,
+        image_layout: values.imageLayout,
+        align: values.align,
+        banner_type: values.bannerType,
+        position: values.position
+    };
+};
 
 interface PreviewState {
     html: string;
@@ -134,8 +167,12 @@ const BannerEditorBase = ({ scope, bannerId }: BannerEditorBaseProps) => {
                 id: 'settings.banners.validation.title_max_length',
                 message: 'Banner names must be 100 characters or fewer.'
             })),
-        template: z.enum(['html', 'notice', 'card', 'centered', 'callout', 'image', 'intro', 'profile', 'sidelink']),
+        template: z.enum(['html', 'notice', 'card', 'callout', 'image', 'profile']),
         contentHtml: z.string(),
+        eyebrow: z.string().trim().max(30, t({
+            id: 'settings.banners.validation.eyebrow_max_length',
+            message: 'Labels must be 30 characters or fewer.'
+        })),
         headline: z.string().trim().max(120, t({
             id: 'settings.banners.validation.headline_max_length',
             message: 'Banner text must be 120 characters or fewer.'
@@ -153,7 +190,9 @@ const BannerEditorBase = ({ scope, bannerId }: BannerEditorBaseProps) => {
             message: 'Link must be 500 characters or fewer.'
         })),
         imageUrl: z.string().trim(),
-        tone: z.enum(['default', 'emphasis']),
+        tone: z.enum(['default', 'outline', 'emphasis']),
+        imageLayout: z.enum(['right', 'left', 'top', 'cover']),
+        align: z.enum(['left', 'center']),
         bannerType: z.enum(['horizontal', 'sidebar']),
         position: z.enum(['top', 'bottom', 'left', 'right']),
         isActive: z.boolean(),
@@ -296,12 +335,15 @@ const BannerEditorBase = ({ scope, bannerId }: BannerEditorBaseProps) => {
             title: bannerDetail.title,
             template: bannerDetail.template,
             contentHtml: bannerDetail.contentHtml,
+            eyebrow: bannerDetail.eyebrow,
             headline: bannerDetail.headline,
             description: bannerDetail.description,
             linkLabel: bannerDetail.linkLabel,
             linkUrl: bannerDetail.linkUrl,
             imageUrl: bannerDetail.imageUrl,
             tone: bannerDetail.tone,
+            imageLayout: bannerDetail.imageLayout,
+            align: bannerDetail.align,
             bannerType: bannerDetail.bannerType,
             position: bannerDetail.position,
             isActive: bannerDetail.isActive,
@@ -506,6 +548,8 @@ const BannerEditorBase = ({ scope, bannerId }: BannerEditorBaseProps) => {
     const title = watch('title');
     const tone = watch('tone');
     const imageUrl = watch('imageUrl');
+    const imageLayout = watch('imageLayout');
+    const align = watch('align');
     const isTextTemplate = template !== 'html';
     const fields = template === 'html' ? null : TEMPLATE_FIELDS[template];
     const allowHtml = isGlobal || bannerDetail?.template === 'html';
@@ -519,12 +563,14 @@ const BannerEditorBase = ({ scope, bannerId }: BannerEditorBaseProps) => {
         const nextSample = sampleFor(nextTemplate);
         if (nextSample) {
             const copy = swapSampleCopy({
+                eyebrow: getValues('eyebrow'),
                 headline: getValues('headline'),
                 description: getValues('description'),
                 linkLabel: getValues('linkLabel'),
                 linkUrl: getValues('linkUrl')
             }, appliedSampleRef.current, nextSample);
             appliedSampleRef.current = nextSample;
+            setValue('eyebrow', copy.eyebrow, { shouldDirty: true });
             setValue('headline', copy.headline, { shouldDirty: true });
             setValue('description', copy.description, { shouldDirty: true });
             setValue('linkLabel', copy.linkLabel, { shouldDirty: true });
@@ -535,6 +581,7 @@ const BannerEditorBase = ({ scope, bannerId }: BannerEditorBaseProps) => {
         setValue('template', nextTemplate, { shouldDirty: true });
         setValue('bannerType', bannerTypeForPosition(nextPosition), { shouldDirty: true });
         setValue('position', nextPosition, { shouldDirty: true });
+        setValue('imageLayout', imageLayoutForPosition(getValues('imageLayout'), nextPosition), { shouldDirty: true });
         setHasChosenTemplate(true);
         setIsPickingTemplate(false);
     };
@@ -542,6 +589,7 @@ const BannerEditorBase = ({ scope, bannerId }: BannerEditorBaseProps) => {
     const handlePositionChange = (nextPosition: BannerPosition) => {
         setValue('bannerType', bannerTypeForPosition(nextPosition), { shouldDirty: true });
         setValue('position', nextPosition, { shouldDirty: true });
+        setValue('imageLayout', imageLayoutForPosition(getValues('imageLayout'), nextPosition), { shouldDirty: true });
     };
 
     const handleDelete = async () => {
@@ -620,49 +668,79 @@ const BannerEditorBase = ({ scope, bannerId }: BannerEditorBaseProps) => {
             message: 'Name'
         })
     };
+    const usesTextLink = template === 'notice' || template === 'callout';
+
+    const imageField = fields?.image && (
+        <div className="space-y-2">
+            <div className="ml-1 text-sm font-medium text-content">
+                <Trans id="settings.banners.editor.image.label">Image</Trans>
+            </div>
+            {imageUrl && (
+                <img
+                    src={imageUrl}
+                    alt=""
+                    className="max-h-60 w-full rounded-xl border border-line object-contain"
+                />
+            )}
+            <div className="flex flex-wrap gap-2">
+                <label
+                    className={cx(
+                        'inline-flex min-h-11 cursor-pointer items-center gap-2 rounded-lg border border-line px-4 text-sm font-semibold text-content transition-colors duration-150 hover:border-line-strong active:scale-95 [@media(pointer:fine)]:min-h-10',
+                        imageUploadMutation.isPending && 'pointer-events-none opacity-60'
+                    )}>
+                    <ImagePlus aria-hidden="true" className="h-4 w-4" />
+                    {imageUploadMutation.isPending
+                        ? <Trans id="settings.banners.editor.image.uploading">Uploading</Trans>
+                        : imageUrl
+                            ? <Trans id="settings.banners.editor.image.replace">Replace image</Trans>
+                            : <Trans id="settings.banners.editor.image.upload">Upload image</Trans>}
+                    <input
+                        type="file"
+                        accept="image/*"
+                        className="sr-only"
+                        onChange={(event) => {
+                            const file = event.target.files?.[0];
+                            if (file) {
+                                imageUploadMutation.mutate(file);
+                            }
+                            event.target.value = '';
+                        }}
+                    />
+                </label>
+                {imageUrl && template !== 'image' && (
+                    <button
+                        type="button"
+                        onClick={() => setValue('imageUrl', '', { shouldDirty: true })}
+                        className="inline-flex min-h-11 items-center gap-2 rounded-lg border border-line px-4 text-sm font-semibold text-content-secondary transition-colors duration-150 hover:border-line-strong hover:text-content active:scale-95 [@media(pointer:fine)]:min-h-10">
+                        <Trash2 aria-hidden="true" className="h-4 w-4" />
+                        <Trans id="settings.banners.editor.image.remove">Remove image</Trans>
+                    </button>
+                )}
+            </div>
+            {errors.imageUrl?.message && (
+                <p className="ml-1 text-xs text-danger">{errors.imageUrl.message}</p>
+            )}
+        </div>
+    );
 
     const textFields = fields && (
         <div className="space-y-4">
-            {fields.image && (
-                <div className="space-y-2">
-                    <div className="ml-1 text-sm font-medium text-content">
-                        <Trans id="settings.banners.editor.image.label">Image</Trans>
-                    </div>
-                    {imageUrl && (
-                        <img
-                            src={imageUrl}
-                            alt=""
-                            className="max-h-60 w-full rounded-xl border border-line object-contain"
-                        />
-                    )}
-                    <label
-                        className={cx(
-                            'inline-flex min-h-11 cursor-pointer items-center gap-2 rounded-lg border border-line px-4 text-sm font-semibold text-content transition-colors duration-150 hover:border-line-strong active:scale-95 [@media(pointer:fine)]:min-h-10',
-                            imageUploadMutation.isPending && 'pointer-events-none opacity-60'
-                        )}>
-                        <ImagePlus aria-hidden="true" className="h-4 w-4" />
-                        {imageUploadMutation.isPending
-                            ? <Trans id="settings.banners.editor.image.uploading">Uploading</Trans>
-                            : imageUrl
-                                ? <Trans id="settings.banners.editor.image.replace">Replace image</Trans>
-                                : <Trans id="settings.banners.editor.image.upload">Upload image</Trans>}
-                        <input
-                            type="file"
-                            accept="image/*"
-                            className="sr-only"
-                            onChange={(event) => {
-                                const file = event.target.files?.[0];
-                                if (file) {
-                                    imageUploadMutation.mutate(file);
-                                }
-                                event.target.value = '';
-                            }}
-                        />
-                    </label>
-                    {errors.imageUrl?.message && (
-                        <p className="ml-1 text-xs text-danger">{errors.imageUrl.message}</p>
-                    )}
-                </div>
+            {template === 'image' && imageField}
+
+            {fields.eyebrow && (
+                <Input
+                    density="compact"
+                    label={t({
+                        id: 'settings.banners.editor.eyebrow.label',
+                        message: 'Label'
+                    })}
+                    placeholder={t({
+                        id: 'settings.banners.editor.eyebrow.placeholder',
+                        message: 'Short tag (optional)'
+                    })}
+                    error={errors.eyebrow?.message}
+                    {...register('eyebrow')}
+                />
             )}
 
             <Input
@@ -695,11 +773,13 @@ const BannerEditorBase = ({ scope, bannerId }: BannerEditorBaseProps) => {
                 />
             )}
 
+            {template !== 'image' && imageField}
+
             <div className={cx('grid gap-3', fields.linkLabel && 'sm:grid-cols-2')}>
                 {fields.linkLabel && (
                     <Input
                         density="compact"
-                        label={template === 'notice'
+                        label={usesTextLink
                             ? t({
                                 id: 'settings.banners.editor.link_label.notice_label',
                                 message: 'Link text'
@@ -730,6 +810,53 @@ const BannerEditorBase = ({ scope, bannerId }: BannerEditorBaseProps) => {
                     {...register('linkUrl')}
                 />
             </div>
+        </div>
+    );
+
+    const showImageLayout = Boolean(fields?.imageLayout && imageUrl);
+    const showTone = isToneAdjustable(template, imageUrl, imageLayout);
+    const showAlign = Boolean(fields?.align);
+    const designFields = (showImageLayout || showTone || showAlign) && (
+        <div className="space-y-5">
+            {showImageLayout && (
+                <DesignOptionGroup
+                    label={t({
+                        id: 'settings.banners.editor.image_layout.label',
+                        message: 'Image placement'
+                    })}
+                    options={imageLayoutsFor(position)}
+                    value={imageLayout}
+                    getLabel={(option) => i18n._(bannerImageLayoutMessages[option])}
+                    renderVisual={(option) => <ImageLayoutSketch layout={option} />}
+                    onChange={(option) => setValue('imageLayout', option, { shouldDirty: true })}
+                />
+            )}
+            {showTone && (
+                <DesignOptionGroup
+                    label={t({
+                        id: 'settings.banners.editor.tone.label',
+                        message: 'Style'
+                    })}
+                    options={bannerToneOptions}
+                    value={tone}
+                    getLabel={(option) => i18n._(bannerToneMessages[option])}
+                    renderVisual={(option) => <ToneSwatch tone={option} />}
+                    onChange={(option) => setValue('tone', option, { shouldDirty: true })}
+                />
+            )}
+            {showAlign && (
+                <DesignOptionGroup
+                    label={t({
+                        id: 'settings.banners.editor.align.label',
+                        message: 'Text alignment'
+                    })}
+                    options={bannerAlignOptions}
+                    value={align}
+                    getLabel={(option) => i18n._(bannerAlignMessages[option])}
+                    renderVisual={(option) => <AlignSketch align={option} />}
+                    onChange={(option) => setValue('align', option, { shouldDirty: true })}
+                />
+            )}
         </div>
     );
 
@@ -875,30 +1002,12 @@ const BannerEditorBase = ({ scope, bannerId }: BannerEditorBaseProps) => {
                                 {isTextTemplate ? textFields : htmlFields}
                             </section>
 
-                            {fields?.tone && (
+                            {designFields && (
                                 <section>
                                     <h2 className={sectionLabelClass}>
-                                        <Trans id="settings.banners.editor.tone.label">Style</Trans>
+                                        <Trans id="settings.banners.editor.design.heading">Design</Trans>
                                     </h2>
-                                    <div className="flex flex-wrap gap-2">
-                                        {bannerToneOptions.map((option) => (
-                                            <button
-                                                key={option}
-                                                type="button"
-                                                aria-pressed={tone === option}
-                                                onClick={() => setValue('tone', option, { shouldDirty: true })}
-                                                className={cx(
-                                                    'min-h-11 rounded-full border px-4 py-1 text-xs font-semibold transition-colors duration-150 active:scale-95 [@media(pointer:fine)]:min-h-9',
-                                                    tone === option
-                                                        ? 'border-line-strong bg-action text-content-inverted'
-                                                        : 'border-line bg-surface text-content hover:border-line-strong'
-                                                )}>
-                                                {option === 'default'
-                                                    ? <Trans id="settings.banners.editor.tone.default">Default</Trans>
-                                                    : <Trans id="settings.banners.editor.tone.emphasis">Emphasis</Trans>}
-                                            </button>
-                                        ))}
-                                    </div>
+                                    {designFields}
                                 </section>
                             )}
                         </>

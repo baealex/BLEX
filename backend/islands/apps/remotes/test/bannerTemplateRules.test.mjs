@@ -2,19 +2,23 @@ import assert from 'node:assert/strict';
 import { describe, test } from 'node:test';
 import {
     bannerListSummary,
+    imageLayoutForPosition,
     isTemplateAllowedAt,
+    isToneAdjustable,
     isValidBannerLink,
     positionForTemplate,
     swapSampleCopy
 } from '../src/components/remotes/SettingsApp/pages/shared/bannerTemplateRules.ts';
 
 const cardSample = {
+    eyebrow: '',
     headline: 'Did this post help?',
     description: 'Get new posts first.',
     linkLabel: 'Subscribe',
     linkUrl: '/@author'
 };
 const introSample = {
+    eyebrow: 'Notice',
     headline: 'Hi, I am the author',
     description: 'I write about what I learn.',
     linkLabel: 'About me',
@@ -22,35 +26,47 @@ const introSample = {
 };
 
 describe('banner template placement', () => {
-    test('text templates only fit their own slot type, custom HTML fits everywhere', () => {
+    test('each shape fits the slots it is designed for, custom HTML fits everywhere', () => {
         assert.equal(isTemplateAllowedAt('notice', 'top'), true);
-        assert.equal(isTemplateAllowedAt('card', 'left'), false);
-        assert.equal(isTemplateAllowedAt('intro', 'right'), true);
-        assert.equal(isTemplateAllowedAt('intro', 'bottom'), false);
-        assert.equal(isTemplateAllowedAt('html', 'left'), true);
-        assert.equal(isTemplateAllowedAt('centered', 'right'), false);
+        assert.equal(isTemplateAllowedAt('notice', 'right'), true);
+        assert.equal(isTemplateAllowedAt('card', 'left'), true);
+        assert.equal(isTemplateAllowedAt('callout', 'right'), false);
+        assert.equal(isTemplateAllowedAt('profile', 'bottom'), false);
         assert.equal(isTemplateAllowedAt('profile', 'left'), true);
-    });
-
-    test('image banners fit both the post body and the sidebar', () => {
-        assert.equal(isTemplateAllowedAt('image', 'top'), true);
-        assert.equal(isTemplateAllowedAt('image', 'right'), true);
+        assert.equal(isTemplateAllowedAt('html', 'left'), true);
     });
 
     test('choosing a template keeps a compatible position and otherwise uses its default', () => {
         assert.equal(positionForTemplate('card', 'top'), 'top');
-        assert.equal(positionForTemplate('card', 'left'), 'bottom');
-        assert.equal(positionForTemplate('intro', 'top'), 'right');
+        assert.equal(positionForTemplate('card', 'left'), 'left');
+        assert.equal(positionForTemplate('callout', 'right'), 'top');
+        assert.equal(positionForTemplate('profile', 'top'), 'right');
         assert.equal(positionForTemplate('notice', null), 'top');
         assert.equal(positionForTemplate('html', 'left'), 'left');
-        assert.equal(positionForTemplate('image', 'left'), 'left');
-        assert.equal(positionForTemplate('sidelink', 'bottom'), 'right');
+    });
+});
+
+describe('banner design options', () => {
+    test('side-by-side images stack on top in the narrow sidebar', () => {
+        assert.equal(imageLayoutForPosition('right', 'top'), 'right');
+        assert.equal(imageLayoutForPosition('left', 'right'), 'top');
+        assert.equal(imageLayoutForPosition('cover', 'left'), 'cover');
+        assert.equal(imageLayoutForPosition('top', 'bottom'), 'top');
+    });
+
+    test('a background image replaces the surface style', () => {
+        assert.equal(isToneAdjustable('card', '', 'cover'), true);
+        assert.equal(isToneAdjustable('card', '/media/a.png', 'right'), true);
+        assert.equal(isToneAdjustable('card', '/media/a.png', 'cover'), false);
+        assert.equal(isToneAdjustable('image', '/media/a.png', 'right'), false);
+        assert.equal(isToneAdjustable('html', '', 'right'), false);
     });
 });
 
 describe('banner sample copy', () => {
     test('fills empty fields with the chosen template sample', () => {
         const emptyCopy = {
+            eyebrow: '',
             headline: '',
             description: ' ',
             linkLabel: '',
@@ -67,6 +83,7 @@ describe('banner sample copy', () => {
         };
 
         assert.deepEqual(swapSampleCopy(editedCopy, cardSample, introSample), {
+            eyebrow: introSample.eyebrow,
             headline: 'My own headline',
             description: introSample.description,
             linkLabel: introSample.linkLabel,

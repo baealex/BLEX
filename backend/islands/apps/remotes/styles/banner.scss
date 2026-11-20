@@ -1,0 +1,389 @@
+// Banner templates rendered from board/templates/components/banners.
+// Loaded only where banners appear (post pages and settings) so shared page styles stay small.
+// Banners size themselves from their own width, so the same markup works in the post body,
+// the sidebar, on mobile, and in scaled-down editor thumbnails.
+
+$wide: 34rem;
+
+.blex-banner {
+    --banner-bg: var(--color-surface-subtle);
+    --banner-fg: var(--color-content);
+    --banner-muted: var(--color-content-secondary);
+    --banner-border: transparent;
+    --banner-chip-bg: var(--color-surface);
+    --banner-chip-fg: var(--color-content);
+    --banner-button-bg: var(--color-action);
+    --banner-button-fg: var(--color-content-inverted);
+    --banner-button-hover: var(--color-action-hover);
+    --banner-accent: var(--color-line-strong);
+
+    display: block;
+    container-type: inline-size;
+    color: var(--banner-fg);
+    text-decoration: none;
+    word-break: keep-all;
+    overflow-wrap: anywhere;
+
+    &[data-tone='outline'] {
+        --banner-bg: var(--color-surface);
+        --banner-border: var(--color-line);
+        --banner-chip-bg: var(--color-surface-subtle);
+    }
+
+    &[data-tone='emphasis'] {
+        --banner-bg: var(--color-action);
+        --banner-fg: var(--color-content-inverted);
+        --banner-muted: color-mix(in srgb, var(--color-content-inverted) 72%, transparent);
+        --banner-chip-bg: color-mix(in srgb, var(--color-content-inverted) 16%, transparent);
+        --banner-chip-fg: var(--color-content-inverted);
+        --banner-button-bg: var(--color-surface);
+        --banner-button-fg: var(--color-content);
+        --banner-button-hover: var(--color-surface-subtle);
+        --banner-accent: color-mix(in srgb, var(--color-content-inverted) 45%, transparent);
+    }
+}
+
+.blex-banner__inner {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    border: 1px solid var(--banner-border);
+    border-radius: 1.25rem;
+    background: var(--banner-bg);
+}
+
+.blex-banner__body {
+    position: relative;
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: center;
+    min-width: 0;
+    padding: 1.25rem;
+
+    [data-align='center'] & {
+        align-items: center;
+        text-align: center;
+    }
+}
+
+.blex-banner__eyebrow {
+    display: inline-flex;
+    align-items: center;
+    margin: 0 0 0.625rem;
+    padding: 0.25rem 0.625rem;
+    border-radius: 999px;
+    background: var(--banner-chip-bg);
+    color: var(--banner-chip-fg);
+    font-size: 0.75rem;
+    font-weight: 700;
+    line-height: 1.2;
+}
+
+.blex-banner__title {
+    margin: 0;
+    font-size: 1.0625rem;
+    font-weight: 800;
+    line-height: 1.4;
+    letter-spacing: -0.015em;
+}
+
+.blex-banner__desc {
+    margin: 0.375rem 0 0;
+    color: var(--banner-muted);
+    font-size: 0.875rem;
+    line-height: 1.6;
+}
+
+.blex-banner__button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 2.75rem;
+    margin-top: 1rem;
+    padding: 0 1.25rem;
+    border-radius: 999px;
+    background: var(--banner-button-bg);
+    color: var(--banner-button-fg);
+    font-size: 0.875rem;
+    font-weight: 700;
+    text-decoration: none;
+    transition: background-color 150ms ease, transform 150ms ease;
+
+    &:hover {
+        background: var(--banner-button-hover);
+    }
+
+    &:active {
+        transform: scale(0.97);
+    }
+}
+
+.blex-banner__button,
+.blex-banner__link,
+a.blex-banner {
+    &:focus-visible {
+        outline: 2px solid var(--banner-fg);
+        outline-offset: 2px;
+    }
+}
+
+// Card: optional image beside, above, or behind the text.
+
+.blex-banner__media {
+    position: relative;
+    flex-shrink: 0;
+    aspect-ratio: 16 / 9;
+    background: var(--color-line-light);
+
+    img {
+        display: block;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+}
+
+.blex-banner--card[data-image='cover'] {
+    --banner-fg: var(--color-white);
+    --banner-muted: rgb(255 255 255 / 0.84);
+    --banner-border: transparent;
+    --banner-chip-bg: rgb(255 255 255 / 0.18);
+    --banner-chip-fg: var(--color-white);
+    --banner-button-bg: var(--color-white);
+    --banner-button-fg: var(--color-gray-900);
+    --banner-button-hover: rgb(255 255 255 / 0.86);
+
+    .blex-banner__inner {
+        justify-content: flex-end;
+        min-height: 16rem;
+        background: var(--color-gray-900);
+    }
+
+    .blex-banner__media {
+        position: absolute;
+        inset: 0;
+        aspect-ratio: auto;
+
+        // Keeps white text readable on any photo.
+        &::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(0deg, rgb(0 0 0 / 0.8) 0%, rgb(0 0 0 / 0.45) 60%, rgb(0 0 0 / 0.2) 100%);
+        }
+    }
+}
+
+@container (min-width: #{$wide}) {
+    .blex-banner--card {
+        .blex-banner__body {
+            padding: 1.75rem 2rem;
+        }
+
+        .blex-banner__title {
+            font-size: 1.375rem;
+        }
+
+        .blex-banner__desc {
+            font-size: 0.9375rem;
+        }
+    }
+
+    .blex-banner--card[data-image='right'] .blex-banner__inner {
+        flex-direction: row-reverse;
+    }
+
+    .blex-banner--card[data-image='left'] .blex-banner__inner {
+        flex-direction: row;
+    }
+
+    .blex-banner--card:is([data-image='right'], [data-image='left']) .blex-banner__media {
+        width: 40%;
+        min-height: 12rem;
+        aspect-ratio: auto;
+    }
+
+    .blex-banner--card[data-image='top'] .blex-banner__media {
+        aspect-ratio: 21 / 9;
+    }
+
+    .blex-banner--card[data-image='cover'] {
+        .blex-banner__inner {
+            min-height: 18rem;
+        }
+
+        .blex-banner__body {
+            max-width: 36rem;
+            padding: 2.25rem;
+        }
+
+        .blex-banner__title {
+            font-size: 1.75rem;
+            line-height: 1.3;
+        }
+    }
+
+    .blex-banner--card[data-image='cover'][data-align='left'] .blex-banner__media::after {
+        background: linear-gradient(90deg, rgb(0 0 0 / 0.8) 0%, rgb(0 0 0 / 0.5) 55%, rgb(0 0 0 / 0.1) 100%);
+    }
+
+    .blex-banner--card[data-image='cover'][data-align='center'] {
+        .blex-banner__inner {
+            justify-content: center;
+        }
+
+        .blex-banner__body {
+            margin: 0 auto;
+        }
+
+        .blex-banner__media::after {
+            background: rgb(0 0 0 / 0.55);
+        }
+    }
+}
+
+// Announcement bar: one line that wraps in narrow slots.
+
+.blex-banner--notice {
+    .blex-banner__inner {
+        flex-flow: row wrap;
+        align-items: center;
+        gap: 0.375rem 0.75rem;
+        min-height: 3rem;
+        padding: 0.75rem 1rem;
+        border-radius: 1rem;
+    }
+
+    .blex-banner__eyebrow {
+        margin: 0;
+    }
+
+    .blex-banner__title {
+        flex: 1 1 12rem;
+        font-size: 0.875rem;
+        font-weight: 600;
+        letter-spacing: 0;
+    }
+}
+
+.blex-banner__more {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    color: var(--banner-muted);
+    font-size: 0.875rem;
+    font-weight: 600;
+    transition: color 150ms ease;
+
+    i {
+        font-size: 0.75rem;
+    }
+
+    a.blex-banner:hover & {
+        color: var(--banner-fg);
+    }
+}
+
+// Callout: a note with an accent stripe.
+
+.blex-banner--callout {
+    .blex-banner__inner {
+        flex-direction: row;
+        border-radius: 1rem;
+
+        &::before {
+            content: '';
+            flex: 0 0 0.25rem;
+            background: var(--banner-accent);
+        }
+    }
+
+    .blex-banner__body {
+        padding: 1rem 1.25rem;
+    }
+
+    .blex-banner__title {
+        font-size: 0.9375rem;
+        font-weight: 700;
+    }
+}
+
+.blex-banner__link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    min-height: 2.75rem;
+    margin-top: 0.25rem;
+    color: var(--banner-fg);
+    font-size: 0.875rem;
+    font-weight: 700;
+    text-decoration: underline;
+    text-underline-offset: 0.2em;
+    transition: color 150ms ease;
+
+    i {
+        font-size: 0.75rem;
+    }
+
+    &:hover {
+        color: var(--banner-muted);
+    }
+}
+
+// Profile: the post author's avatar with a short line.
+
+.blex-banner--profile {
+    .blex-banner__body {
+        align-items: center;
+        text-align: center;
+    }
+
+    .blex-banner__title {
+        font-size: 1rem;
+    }
+
+    .blex-banner__button {
+        width: 100%;
+    }
+}
+
+.blex-banner__avatar {
+    width: 4rem;
+    height: 4rem;
+    margin-bottom: 0.75rem;
+    border-radius: 999px;
+    object-fit: cover;
+    box-shadow: 0 0 0 2px var(--color-line-light);
+}
+
+// Image: the uploaded image as the whole banner.
+
+.blex-banner--image {
+    overflow: hidden;
+    border: 1px solid var(--color-line);
+    border-radius: 1.25rem;
+
+    img {
+        display: block;
+        width: 100%;
+        height: auto;
+    }
+
+    &:is(a) {
+        transition: opacity 150ms ease;
+
+        &:hover {
+            opacity: 0.86;
+        }
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .blex-banner,
+    .blex-banner * {
+        transition: none !important;
+    }
+}

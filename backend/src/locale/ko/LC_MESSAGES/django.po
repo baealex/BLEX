@@ -4342,17 +4342,7 @@ msgstr "HTML 직접 작성"
 #: board/models/site.py
 msgctxt "Banner template"
 msgid "Announcement bar"
-msgstr "한 줄 알림"
-
-#: board/models/site.py
-msgctxt "Banner template"
-msgid "Call-to-action card"
-msgstr "안내 카드"
-
-#: board/models/site.py
-msgctxt "Banner template"
-msgid "Introduction card"
-msgstr "소개 카드"
+msgstr "띠 배너"
 
 #: board/models/site.py
 msgctxt "Banner tone"
@@ -4413,11 +4403,6 @@ msgstr "자세히 보기"
 
 #: board/models/site.py
 msgctxt "Banner template"
-msgid "Centered card"
-msgstr "가운데 카드"
-
-#: board/models/site.py
-msgctxt "Banner template"
 msgid "Callout"
 msgstr "메모 상자"
 
@@ -4430,11 +4415,6 @@ msgstr "이미지 배너"
 msgctxt "Banner template"
 msgid "Profile card"
 msgstr "프로필 카드"
-
-#: board/models/site.py
-msgctxt "Banner template"
-msgid "Side link"
-msgstr "사이드 링크"
 
 #: board/models/site.py board/services/site_content_api_service.py
 msgid "Upload a banner image."
@@ -4518,3 +4498,57 @@ msgstr "처음 오셨나요?"
 msgctxt "Banner sample"
 msgid "See what's on the blog."
 msgstr "어떤 글이 있는지 둘러보세요."
+
+#: board/models/site.py
+msgctxt "Banner template"
+msgid "Card"
+msgstr "카드 배너"
+
+#: board/models/site.py
+msgctxt "Banner tone"
+msgid "Outline"
+msgstr "테두리"
+
+#: board/models/site.py
+msgctxt "Banner image layout"
+msgid "Right"
+msgstr "오른쪽"
+
+#: board/models/site.py
+msgctxt "Banner image layout"
+msgid "Left"
+msgstr "왼쪽"
+
+#: board/models/site.py
+msgctxt "Banner image layout"
+msgid "Top"
+msgstr "위"
+
+#: board/models/site.py
+msgctxt "Banner image layout"
+msgid "Background"
+msgstr "배경"
+
+#: board/models/site.py
+msgctxt "Banner text alignment"
+msgid "Left"
+msgstr "왼쪽"
+
+#: board/models/site.py
+msgctxt "Banner text alignment"
+msgid "Center"
+msgstr "가운데"
+
+#: board/services/banner_service.py
+msgctxt "Banner sample"
+msgid "Notice"
+msgstr "공지"
+
+#: board/services/site_content_api_service.py
+#, python-format
+msgid "Label must be %(limit)d characters or fewer."
+msgstr "라벨은 %(limit)d자 이하여야 합니다."
+
+#: board/admin/banner.py
+msgid "Template design"
+msgstr "템플릿 디자인"

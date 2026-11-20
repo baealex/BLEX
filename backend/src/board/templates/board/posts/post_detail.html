@@ -60,6 +60,9 @@
 
 {% block extra_styles %}
 <link rel="stylesheet" href="{% island_css 'styles/post.scss' %}">
+{% if banners.top or banners.bottom or banners.left or banners.right %}
+<link rel="stylesheet" href="{% island_css 'styles/banner.scss' %}">
+{% endif %}
 {% endblock %}
 
 {% block content %}

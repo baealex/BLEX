@@ -1,6 +1,11 @@
 import type { MessageDescriptor } from '@lingui/core';
 import { msg } from '@lingui/core/macro';
-import type { BannerTemplate } from '~/lib/api/settings';
+import type {
+    BannerAlign,
+    BannerImageLayout,
+    BannerTemplate,
+    BannerTone
+} from '~/lib/api/settings';
 
 export type BannerType = 'horizontal' | 'sidebar';
 export type BannerPosition = 'top' | 'bottom' | 'left' | 'right';
@@ -45,15 +50,11 @@ export const bannerPositionMessages: Record<BannerPosition, MessageDescriptor> =
 export const bannerTemplateMessages: Record<BannerTemplate, MessageDescriptor> = {
     notice: msg({
         id: 'settings.banners.template.notice',
-        message: 'One-line notice'
+        message: 'Announcement bar'
     }),
     card: msg({
         id: 'settings.banners.template.card',
-        message: 'Call-to-action card'
-    }),
-    centered: msg({
-        id: 'settings.banners.template.centered',
-        message: 'Centered card'
+        message: 'Card'
     }),
     callout: msg({
         id: 'settings.banners.template.callout',
@@ -63,20 +64,57 @@ export const bannerTemplateMessages: Record<BannerTemplate, MessageDescriptor> =
         id: 'settings.banners.template.image',
         message: 'Image banner'
     }),
-    intro: msg({
-        id: 'settings.banners.template.intro',
-        message: 'Introduction card'
-    }),
     profile: msg({
         id: 'settings.banners.template.profile',
         message: 'Profile card'
     }),
-    sidelink: msg({
-        id: 'settings.banners.template.sidelink',
-        message: 'Side link'
-    }),
     html: msg({
         id: 'settings.banners.template.html',
         message: 'Custom HTML'
+    })
+};
+
+export const bannerToneMessages: Record<BannerTone, MessageDescriptor> = {
+    default: msg({
+        id: 'settings.banners.editor.tone.default',
+        message: 'Default'
+    }),
+    outline: msg({
+        id: 'settings.banners.editor.tone.outline',
+        message: 'Outline'
+    }),
+    emphasis: msg({
+        id: 'settings.banners.editor.tone.emphasis',
+        message: 'Emphasis'
+    })
+};
+
+export const bannerImageLayoutMessages: Record<BannerImageLayout, MessageDescriptor> = {
+    right: msg({
+        id: 'settings.banners.editor.image_layout.right',
+        message: 'Right'
+    }),
+    left: msg({
+        id: 'settings.banners.editor.image_layout.left',
+        message: 'Left'
+    }),
+    top: msg({
+        id: 'settings.banners.editor.image_layout.top',
+        message: 'Top'
+    }),
+    cover: msg({
+        id: 'settings.banners.editor.image_layout.cover',
+        message: 'Background'
+    })
+};
+
+export const bannerAlignMessages: Record<BannerAlign, MessageDescriptor> = {
+    left: msg({
+        id: 'settings.banners.editor.align.left',
+        message: 'Left'
+    }),
+    center: msg({
+        id: 'settings.banners.editor.align.center',
+        message: 'Center'
     })
 };

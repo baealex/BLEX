@@ -1,9 +1,10 @@
-import type { BannerTemplate } from '~/lib/api/settings';
+import type { BannerImageLayout, BannerTemplate } from '~/lib/api/settings';
 import type { BannerPosition, BannerType } from './bannerI18n';
 
 export type TextBannerTemplate = Exclude<BannerTemplate, 'html'>;
 
 export interface BannerSampleCopy {
+    eyebrow: string;
     headline: string;
     description: string;
     linkLabel: string;
@@ -11,84 +12,86 @@ export interface BannerSampleCopy {
 }
 
 interface TemplateFieldVisibility {
+    eyebrow: boolean;
     description: boolean;
     linkLabel: boolean;
     image: boolean;
     tone: boolean;
+    imageLayout: boolean;
+    align: boolean;
 }
+
+const BOTH_BANNER_TYPES: BannerType[] = ['horizontal', 'sidebar'];
 
 /** Mirrors the server rule; the server stays the authority and rejects anything else. */
 export const TEMPLATE_BANNER_TYPES: Record<TextBannerTemplate, BannerType[]> = {
-    notice: ['horizontal'],
-    card: ['horizontal'],
-    centered: ['horizontal'],
+    notice: BOTH_BANNER_TYPES,
+    card: BOTH_BANNER_TYPES,
     callout: ['horizontal'],
-    image: ['horizontal', 'sidebar'],
-    intro: ['sidebar'],
-    profile: ['sidebar'],
-    sidelink: ['sidebar']
+    image: BOTH_BANNER_TYPES,
+    profile: ['sidebar']
 };
 
 const TEMPLATE_DEFAULT_POSITIONS: Record<TextBannerTemplate, BannerPosition> = {
     notice: 'top',
     card: 'bottom',
-    centered: 'bottom',
     callout: 'top',
     image: 'top',
-    intro: 'right',
-    profile: 'right',
-    sidelink: 'right'
+    profile: 'right'
 };
 
 export const TEMPLATE_FIELDS: Record<TextBannerTemplate, TemplateFieldVisibility> = {
     notice: {
+        eyebrow: true,
         description: false,
         linkLabel: true,
         image: false,
-        tone: true
+        tone: true,
+        imageLayout: false,
+        align: false
     },
     card: {
+        eyebrow: true,
         description: true,
         linkLabel: true,
-        image: false,
-        tone: true
-    },
-    centered: {
-        description: true,
-        linkLabel: true,
-        image: false,
-        tone: true
+        image: true,
+        tone: true,
+        imageLayout: true,
+        align: true
     },
     callout: {
+        eyebrow: false,
         description: true,
         linkLabel: true,
         image: false,
-        tone: true
+        tone: true,
+        imageLayout: false,
+        align: false
     },
     image: {
+        eyebrow: false,
         description: false,
         linkLabel: false,
         image: true,
-        tone: false
-    },
-    intro: {
-        description: true,
-        linkLabel: true,
-        image: false,
-        tone: true
+        tone: false,
+        imageLayout: false,
+        align: false
     },
     profile: {
+        eyebrow: false,
         description: true,
         linkLabel: true,
         image: false,
-        tone: true
-    },
-    sidelink: {
-        description: true,
-        linkLabel: false,
-        image: false,
-        tone: true
+        tone: true,
+        imageLayout: false,
+        align: false
     }
+};
+
+/** Side-by-side images need the post body width; the sidebar stacks them. */
+const IMAGE_LAYOUTS: Record<BannerType, BannerImageLayout[]> = {
+    horizontal: ['right', 'left', 'top', 'cover'],
+    sidebar: ['top', 'cover']
 };
 
 export const BANNER_TITLE_MAX_LENGTH = 100;
@@ -113,6 +116,20 @@ export const positionForTemplate = (template: BannerTemplate, position: BannerPo
     return TEMPLATE_DEFAULT_POSITIONS[template];
 };
 
+export const imageLayoutsFor = (position: BannerPosition) => IMAGE_LAYOUTS[bannerTypeForPosition(position)];
+
+/** Keep the chosen image layout when the slot allows it, otherwise stack the image on top. */
+export const imageLayoutForPosition = (layout: BannerImageLayout, position: BannerPosition): BannerImageLayout => (
+    imageLayoutsFor(position).includes(layout) ? layout : 'top'
+);
+
+/** A background image sets its own light-on-dark look, so the surface style no longer applies. */
+export const isToneAdjustable = (template: BannerTemplate, imageUrl: string, imageLayout: BannerImageLayout) => (
+    template !== 'html'
+    && TEMPLATE_FIELDS[template].tone
+    && !(TEMPLATE_FIELDS[template].imageLayout && imageUrl && imageLayout === 'cover')
+);
+
 /** Fill empty fields and replace untouched sample text, but never overwrite text the user wrote. */
 export const swapSampleCopy = (
     current: BannerSampleCopy,
@@ -126,6 +143,7 @@ export const swapSampleCopy = (
     };
 
     return {
+        eyebrow: pick('eyebrow'),
         headline: pick('headline'),
         description: pick('description'),
         linkLabel: pick('linkLabel'),

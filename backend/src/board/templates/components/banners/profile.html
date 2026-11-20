@@ -1,15 +1,13 @@
 {% load i18n %}
-<div class="rounded-2xl border p-5 text-center {% if is_emphasis %}border-transparent bg-action text-content-inverted{% else %}border-line bg-surface-subtle text-content{% endif %}">
-    {% if author_avatar_url %}
-    <img src="{{ author_avatar_url }}" alt="" loading="lazy" class="mx-auto h-16 w-16 rounded-full object-cover ring-2 ring-line-light">
-    {% endif %}
-    <p class="mt-3 break-words text-base font-bold leading-snug">{{ banner.headline }}</p>
-    {% if banner.description %}
-    <p class="mt-1.5 break-words text-sm leading-relaxed {% if is_emphasis %}opacity-75{% else %}text-content-secondary{% endif %}">{{ banner.description|linebreaksbr }}</p>
-    {% endif %}
-    {% if link_url %}
-    <a href="{{ link_url }}" class="mt-4 flex min-h-11 w-full items-center justify-center rounded-lg px-4 text-sm font-semibold transition-colors duration-150 active:scale-95 {% if is_emphasis %}bg-surface text-content hover:bg-surface-subtle{% else %}bg-action text-content-inverted hover:bg-action-hover{% endif %}">
-        {% if banner.link_label %}{{ banner.link_label }}{% else %}{% translate "Learn more" context "Banner link label" %}{% endif %}
-    </a>
-    {% endif %}
+<div class="blex-banner blex-banner--profile" data-tone="{{ banner.tone }}">
+    <div class="blex-banner__inner">
+        <div class="blex-banner__body">
+            {% if author_avatar_url %}<img class="blex-banner__avatar" src="{{ author_avatar_url }}" alt="" loading="lazy">{% endif %}
+            <p class="blex-banner__title">{{ banner.headline }}</p>
+            {% if banner.description %}<p class="blex-banner__desc">{{ banner.description|linebreaksbr }}</p>{% endif %}
+            {% if link_url %}
+            <a class="blex-banner__button" href="{{ link_url }}">{% if banner.link_label %}{{ banner.link_label }}{% else %}{% translate "Learn more" context "Banner link label" %}{% endif %}</a>
+            {% endif %}
+        </div>
+    </div>
 </div>
