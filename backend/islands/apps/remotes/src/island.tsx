@@ -5,7 +5,7 @@ import { PersistQueryClientProvider } from '@tanstack/react-query-persist-client
 import App from './components/App';
 import ErrorBoundary from './components/ErrorBoundary';
 import { activateDocumentLocale, i18n } from './i18n';
-import { createQueryClient, sessionStoragePersister } from './lib/query-client';
+import { createQueryClient, sessionStoragePersister, shouldPersistQuery } from './lib/query-client';
 
 const markIslandMounted = (element: HTMLElement, name: string) => {
     element.dataset.islandName = name;
@@ -126,7 +126,8 @@ if (!customElements.get('island-component')) {
                                 client={queryClient}
                                 persistOptions={{
                                     persister: sessionStoragePersister,
-                                    maxAge: 1000 * 60 * 60 * 24
+                                    maxAge: 1000 * 60 * 60 * 24,
+                                    dehydrateOptions: { shouldDehydrateQuery: shouldPersistQuery }
                                 }}>
                                 <App __name={name} __onMounted={handleMounted} {...props} />
                             </PersistQueryClientProvider>

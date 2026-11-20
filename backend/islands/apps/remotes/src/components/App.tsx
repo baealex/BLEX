@@ -12,6 +12,7 @@ const LazyComponents = {
     Comments: lazy(() => import('./remotes/Comments')),
     SocialLogin: lazy(() => import('./remotes/SocialLogin')),
     RelatedPosts: lazy(() => import('./remotes/RelatedPosts')),
+    PostTimelapse: lazy(() => import('./remotes/PostTimelapse')),
     SearchPage: lazy(() => import('./remotes/SearchPage')),
     LoginPrompt: lazy(() => import('./remotes/LoginPrompt')),
     Toaster: lazy(() => import('./remotes/Toaster')),

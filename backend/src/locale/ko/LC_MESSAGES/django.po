@@ -1803,6 +1803,10 @@ msgstr "복원 전"
 msgid "Legacy"
 msgstr "레거시"
 
+#: board/models/posts.py:444
+msgid "Draft save"
+msgstr "초안 저장"
+
 #: board/models/posts.py:455
 msgid "Post revision"
 msgstr "포스트 수정 이력"

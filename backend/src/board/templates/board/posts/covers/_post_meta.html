@@ -1,5 +1,6 @@
 {% load resource %}
 {% load i18n %}
+{% load island %}
 
 <div class="flex items-center gap-4 text-sm {% if cover_meta_border %}border-b border-line-light pb-8{% endif %}" itemprop="author" itemscope itemtype="https://schema.org/Person">
     <a href="/@{{ post.author_username }}" class="group flex-shrink-0">
@@ -19,5 +20,8 @@
         {% endif %}
         <span class="{% if cover_inverted %}text-white/55{% else %}text-line-strong{% endif %}">·</span>
         <span class="{% if cover_inverted %}text-white/80{% else %}text-content-secondary{% endif %}" aria-label="{% translate 'Reading time' %}">{% blocktranslate with minutes=post.read_time %}{{ minutes }} min read{% endblocktranslate %}</span>
+        {% if show_post_timelapse %}
+        {% island_component 'PostTimelapse' username=post.author_username postUrl=post.url inverted=cover_inverted %}
+        {% endif %}
     </div>
 </div>

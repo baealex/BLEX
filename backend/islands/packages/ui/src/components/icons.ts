@@ -52,6 +52,7 @@ export {
     Megaphone,
     MessageCircle,
     Palette,
+    Pause,
     Pencil,
     Pin,
     Play,

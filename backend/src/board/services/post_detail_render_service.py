@@ -17,6 +17,7 @@ from board.services.banner_service import BannerService
 from board.services.brand_asset_service import BrandAssetService
 from board.services.discovery_metadata_service import DiscoveryMetadataService
 from board.services.post_service import PostService
+from board.services.post_timelapse_service import PostTimelapseService
 from board.services.public_post_service import PublicPostService
 from board.services.site_url_service import SiteUrlService
 
@@ -94,6 +95,12 @@ class PostDetailRenderService:
             not is_post_preview
             and PostService.can_user_edit_post(request.user, post)
         )
+        show_post_timelapse = (
+            can_edit_post
+            and request.user == author
+            and post.published_date is not None
+            and PostTimelapseService.has_history(post)
+        )
         show_agent_post_markdown = (
             not is_post_preview
             and aeo_enabled
@@ -123,6 +130,7 @@ class PostDetailRenderService:
             'logo_url': logo_url,
             'show_post_status_notice': show_post_status_notice,
             'can_edit_post': can_edit_post,
+            'show_post_timelapse': show_post_timelapse,
             'post_visibility_status': post_visibility_status,
             'show_agent_post_markdown': show_agent_post_markdown,
             'show_post_updated_date': show_post_updated_date,

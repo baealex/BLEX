@@ -54,6 +54,10 @@ urlpatterns = [
         api_v1.restore_post_revision,
     ),
     path(
+        'v1/users/@<username>/posts/<url>/timelapse',
+        api_v1.post_timelapse,
+    ),
+    path(
         'v1/users/@<username>/posts/<url>/schedule/cancel',
         api_v1.cancel_post_schedule,
     ),

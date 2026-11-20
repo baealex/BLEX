@@ -26,6 +26,7 @@ from .markdown import markdown_to_html
 from .pinned_post import pinnable_posts, pinned_posts, pinned_posts_order
 from .post import post_comment_list, post_list, user_post_related, user_posts
 from .post_revision import post_revisions, restore_post_revision
+from .post_timelapse import post_timelapse
 from .post_schedule import cancel_post_schedule, publish_scheduled_post_now
 from .post_share_link import post_share_link_detail, post_share_links
 from .post_trash import restore_trashed_post, trashed_posts
@@ -87,6 +88,7 @@ __all__ = (
     'post_share_link_detail',
     'post_revisions',
     'restore_post_revision',
+    'post_timelapse',
     'cancel_post_schedule',
     'publish_scheduled_post_now',
     'user_post_related',

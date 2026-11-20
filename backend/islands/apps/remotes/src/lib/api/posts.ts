@@ -400,6 +400,27 @@ export const restorePostRevision = async (
     );
 };
 
+export type PostTimelapseStage = 'draft' | 'published';
+
+export interface PostTimelapseFrame {
+    title: string;
+    contentHtml: string;
+    savedAt: string;
+    stage: PostTimelapseStage;
+}
+
+export interface PostTimelapse {
+    frames: PostTimelapseFrame[];
+    totalCount: number;
+    publishedAt: string | null;
+}
+
+export const getPostTimelapse = async (username: string, postUrl: string) => {
+    return http.get<Response<PostTimelapse>>(
+        `v1/users/@${username}/posts/${postUrl}/timelapse`
+    );
+};
+
 export const uploadImage = async (file: File) => {
     const formData = new FormData();
     formData.append('image', file);
