@@ -9,6 +9,7 @@ import {
     AlignLeft,
     ArrowLeft,
     Bell,
+    BellRing,
     Bot,
     ChevronDown,
     ChevronRight,
@@ -85,6 +86,14 @@ const userNavigationSections: NavigationSection[] = [
                 }),
                 path: '/notify',
                 icon: Bell
+            },
+            {
+                name: msg({
+                    id: 'settings.navigation.subscriptions',
+                    message: 'Subscriptions'
+                }),
+                path: '/subscriptions',
+                icon: BellRing
             },
             {
                 name: msg({

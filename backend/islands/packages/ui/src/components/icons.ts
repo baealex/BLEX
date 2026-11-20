@@ -9,6 +9,7 @@ export {
     BadgeInfo,
     Bell,
     BellOff,
+    BellRing,
     Bookmark,
     Bot,
     BookOpen,

@@ -32,6 +32,8 @@ from .posts import (
 )
 from .accounts import (
     AuthorInvite,
+    AuthorSubscription,
+    AuthorSubscriptionLog,
     Config,
     EmailChange,
     LoginAttempt,
@@ -69,6 +71,8 @@ from .work_logs import WorkLog, WorkLogEntry, WorkLogShare
 
 __all__ = (
     'AuthorInvite',
+    'AuthorSubscription',
+    'AuthorSubscriptionLog',
     'BannerPosition',
     'BannerType',
     'Comment',
@@ -127,6 +131,9 @@ __all__ = (
 
 _COMPAT_MODULE_EXPORTS = (
     AuthorInvite,
+    AuthorSubscription,
+    AuthorSubscriptionLog,
+    AuthorSubscriptionLog.Action,
     BannerPosition,
     BannerType,
     Comment,

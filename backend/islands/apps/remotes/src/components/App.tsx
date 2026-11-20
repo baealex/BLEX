@@ -15,6 +15,7 @@ const LazyComponents = {
     PostTimelapse: lazy(() => import('./remotes/PostTimelapse')),
     SearchPage: lazy(() => import('./remotes/SearchPage')),
     LoginPrompt: lazy(() => import('./remotes/LoginPrompt')),
+    SubscriptionTelegramHint: lazy(() => import('./remotes/SubscriptionTelegramHint')),
     Toaster: lazy(() => import('./remotes/Toaster')),
     Heatmap: lazy(() => import('./remotes/Author/Heatmap')),
     PinnedPostQuickAction: lazy(() => import('./remotes/Author/PinnedPostQuickAction')),

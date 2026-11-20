@@ -2,6 +2,7 @@
 {% load resource %}
 {% load island %}
 {% load i18n %}
+{% load subscription_tags %}
 
 {% block title %}{% if is_post_preview %}{% translate "Preview" %} · {% endif %}{{ post.title }} - {{ post.author_username }} | {{ site_brand.site_name }}{% endblock %}
 
@@ -182,10 +183,16 @@
                         <dl class="grid gap-4 text-sm">
                             <div class="sm:flex sm:items-start sm:gap-6">
                                 <dt class="text-xs font-medium text-content-hint sm:w-24 sm:flex-shrink-0">{% translate "Author" %}</dt>
-                                <dd class="mt-1 min-w-0 sm:mt-0">
-                                    <a href="/@{{ post.author_username }}" class="font-semibold text-content hover:text-content-secondary transition-colors">{{ post.author_username }}</a>
-                                    {% if author_bio %}
-                                    <p class="mt-1 leading-relaxed text-content-secondary">{{ author_bio }}</p>
+                                <dd class="mt-1 flex min-w-0 flex-1 items-start justify-between gap-4 sm:mt-0">
+                                    <div class="min-w-0">
+                                        <a href="/@{{ post.author_username }}" class="font-semibold text-content hover:text-content-secondary transition-colors">{{ post.author_username }}</a>
+                                        {% if author_bio %}
+                                        <p class="mt-1 leading-relaxed text-content-secondary">{{ author_bio }}</p>
+                                        {% endif %}
+                                    </div>
+                                    {% if not is_post_preview %}
+                                    {% author_subscription_state post.author as author_subscription %}
+                                    {% include 'components/subscribe_button.html' with author=post.author subscription=author_subscription size='small' %}
                                     {% endif %}
                                 </dd>
                             </div>

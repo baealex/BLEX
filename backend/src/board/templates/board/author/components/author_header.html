@@ -1,4 +1,4 @@
-{% load i18n static island resource security_tags %}
+{% load i18n static island resource security_tags subscription_tags %}
 {% blocktranslate with username=author.username asvar cover_alt %}{{ username }}'s cover{% endblocktranslate %}
 
 <div class="relative overflow-hidden pb-12 sm:pb-16">
@@ -55,6 +55,13 @@
             <p class="mx-auto mb-6 max-w-2xl px-4 text-md font-medium leading-relaxed text-content-secondary">
                 {{ author.profile.bio }}
             </p>
+            {% endif %}
+
+            {% author_subscription_state author as author_subscription %}
+            {% if author_subscription.can_subscribe %}
+            <div class="mb-6">
+                {% include 'components/subscribe_button.html' with author=author subscription=author_subscription %}
+            </div>
             {% endif %}
 
             {% with safe_homepage=author.profile.homepage|safe_external_url %}
