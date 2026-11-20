@@ -219,10 +219,7 @@ class SiteBannerAdmin(SiteContentActionAdminMixin, admin.ModelAdmin):
             'fields': ('template', 'banner_type', 'position', 'content_html'),
         }),
         (_('Template text'), {
-            'fields': ('eyebrow', 'headline', 'description', 'link_label', 'link_url', 'image_url'),
-        }),
-        (_('Template design'), {
-            'fields': ('tone', 'image_layout', 'align'),
+            'fields': ('template_data',),
         }),
         (_('Status'), {
             'fields': ('is_active', 'order')

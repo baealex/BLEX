@@ -1,11 +1,11 @@
 {% load i18n %}
-{% if link_url %}<a href="{{ link_url }}"{% else %}<div{% endif %} class="blex-banner blex-banner--notice" data-tone="{{ banner.tone }}">
+{% if link_url %}<a href="{{ link_url }}"{% else %}<div{% endif %} class="blex-banner blex-banner--notice" data-tone="{{ data.tone }}">
     <span class="blex-banner__inner">
-        {% if banner.eyebrow %}<span class="blex-banner__eyebrow">{{ banner.eyebrow }}</span>{% endif %}
-        <span class="blex-banner__title">{{ banner.headline }}</span>
+        {% if data.eyebrow %}<span class="blex-banner__eyebrow">{{ data.eyebrow }}</span>{% endif %}
+        <span class="blex-banner__title">{{ data.headline }}</span>
         {% if link_url %}
         <span class="blex-banner__more">
-            {% if banner.link_label %}{{ banner.link_label }}{% else %}{% translate "Learn more" context "Banner link label" %}{% endif %}
+            {% if data.link_label %}{{ data.link_label }}{% else %}{% translate "Learn more" context "Banner link label" %}{% endif %}
             <i class="fas fa-arrow-right" aria-hidden="true"></i>
         </span>
         {% endif %}

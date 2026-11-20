@@ -47,12 +47,14 @@ class BannerService:
             profile = getattr(author, 'profile', None)
             author_avatar_url = profile.get_thumbnail() if profile else ''
 
-        image_url = safe_navigation_url(banner.image_url)
+        data = banner.template_values
+        image_url = safe_navigation_url(data['image_url'])
         return render_to_string(template_path, {
             'banner': banner,
-            'link_url': safe_navigation_url(banner.link_url),
+            'data': data,
+            'link_url': safe_navigation_url(data['link_url']),
             'image_url': image_url,
-            'image_layout': banner.image_layout if image_url else '',
+            'image_layout': data['image_layout'] if image_url else '',
             'author_avatar_url': author_avatar_url,
         })
 
@@ -112,16 +114,15 @@ class BannerService:
                 user=user,
                 template=template,
                 banner_type=banner_types[0],
-                eyebrow=sample['eyebrow'],
-                headline=sample['headline'],
-                description=sample['description'],
-                link_label=sample['link_label'],
-                link_url=sample_link,
-                image_url=(
-                    sample_image
-                    if template in (BannerTemplate.CARD, BannerTemplate.IMAGE)
-                    else ''
-                ),
+                template_data={
+                    **sample,
+                    'link_url': sample_link,
+                    'image_url': (
+                        sample_image
+                        if template in (BannerTemplate.CARD, BannerTemplate.IMAGE)
+                        else ''
+                    ),
+                },
             )
             gallery.append({
                 'template': str(template),

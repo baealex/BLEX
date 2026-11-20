@@ -16,10 +16,12 @@ from board.models import (
 from board.models.site import (
     BANNER_TYPE_IMAGE_LAYOUTS,
     TEMPLATE_BANNER_TYPES,
-    BannerAlign,
+    TEMPLATE_DATA_CHOICES,
+    TEMPLATE_DATA_DEFAULTS,
+    TEMPLATE_DATA_TEXT_LIMITS,
     BannerImageLayout,
     BannerTemplate,
-    BannerTone,
+    normalize_template_data,
 )
 from board.modules.response import ErrorCode
 from board.services.banner_service import BannerService
@@ -48,15 +50,7 @@ class SiteContentApiService:
         'banner_type',
         'position',
         'template',
-        'eyebrow',
-        'headline',
-        'description',
-        'link_label',
-        'link_url',
-        'image_url',
-        'tone',
-        'image_layout',
-        'align',
+        'template_data',
         'is_active',
         'order',
         'created_date',
@@ -68,25 +62,8 @@ class SiteContentApiService:
         'banner_type',
         'position',
         'template',
-        'eyebrow',
-        'headline',
-        'description',
-        'link_label',
-        'link_url',
-        'image_url',
-        'tone',
-        'image_layout',
-        'align',
         'is_active',
         'order',
-    )
-    BANNER_TEMPLATE_TEXT_FIELDS = (
-        'eyebrow',
-        'headline',
-        'description',
-        'link_label',
-        'link_url',
-        'image_url',
     )
     STATIC_PAGE_FIELDS = (
         'id',
@@ -157,15 +134,7 @@ class SiteContentApiService:
             'banner_type': banner.banner_type,
             'position': banner.position,
             'template': banner.template,
-            'eyebrow': banner.eyebrow,
-            'headline': banner.headline,
-            'description': banner.description,
-            'link_label': banner.link_label,
-            'link_url': safe_navigation_url(banner.link_url),
-            'image_url': safe_navigation_url(banner.image_url),
-            'tone': banner.tone,
-            'image_layout': banner.image_layout,
-            'align': banner.align,
+            **SiteContentApiService.serialize_template_values(banner.template_values),
             'is_active': banner.is_active,
             'order': banner.order,
             'created_date': banner.created_date.isoformat(),
@@ -191,14 +160,24 @@ class SiteContentApiService:
         for banner in queryset.values(*fields):
             banner['created_date'] = banner['created_date'].isoformat()
             banner['updated_date'] = banner['updated_date'].isoformat()
-            banner['link_url'] = safe_navigation_url(banner['link_url'])
-            banner['image_url'] = safe_navigation_url(banner['image_url'])
+            banner.update(SiteContentApiService.serialize_template_values(
+                normalize_template_data(banner.pop('template_data')),
+            ))
             if sanitize_content:
                 banner['content_html'] = sanitize_html(banner['content_html'])
             if include_created_by:
                 banner['created_by'] = banner.pop('user__username')
             result.append(banner)
         return result
+
+    @staticmethod
+    def serialize_template_values(values: dict) -> dict:
+        """Template data goes out as flat banner fields, with links that are safe to follow."""
+        return {
+            **values,
+            'link_url': safe_navigation_url(values['link_url']),
+            'image_url': safe_navigation_url(values['image_url']),
+        }
 
     @staticmethod
     def serialize_static_page(page: StaticPage) -> dict:
@@ -270,11 +249,8 @@ class SiteContentApiService:
                 ErrorCode.VALIDATE,
                 gettext('Choose a valid banner template.'),
             )
-        if (
-            banner.tone not in BannerTone.values
-            or banner.image_layout not in BannerImageLayout.values
-            or banner.align not in BannerAlign.values
-        ):
+        values = banner.template_values
+        if any(values[key] not in choices.values for key, choices in TEMPLATE_DATA_CHOICES.items()):
             raise SiteContentApiError(
                 ErrorCode.VALIDATE,
                 gettext('Choose a valid banner style.'),
@@ -289,10 +265,11 @@ class SiteContentApiService:
                 ErrorCode.VALIDATE,
                 gettext('This template is not available in the selected position.'),
             )
-        if banner.image_layout not in BANNER_TYPE_IMAGE_LAYOUTS[banner.banner_type]:
+        if values['image_layout'] not in BANNER_TYPE_IMAGE_LAYOUTS[banner.banner_type]:
             # The sidebar is too narrow for a side-by-side image, so it stacks on top.
-            banner.image_layout = BannerImageLayout.TOP
-        if not preview and not banner.headline:
+            values['image_layout'] = BannerImageLayout.TOP.value
+            banner.template_data = values
+        if not preview and not values['headline']:
             raise SiteContentApiError(
                 ErrorCode.VALIDATE,
                 gettext('Enter the banner text.'),
@@ -307,25 +284,25 @@ class SiteContentApiService:
             'image_url': gettext('Image link must be %(limit)d characters or fewer.'),
         }
         for field, message in length_messages.items():
-            limit = SiteBanner._meta.get_field(field).max_length
-            if len(getattr(banner, field)) > limit:
+            limit = TEMPLATE_DATA_TEXT_LIMITS[field]
+            if len(values[field]) > limit:
                 raise SiteContentApiError(ErrorCode.VALIDATE, message % {'limit': limit})
 
         if preview:
             return
 
-        if banner.link_url and not safe_navigation_url(banner.link_url):
+        if values['link_url'] and not safe_navigation_url(values['link_url']):
             raise SiteContentApiError(
                 ErrorCode.VALIDATE,
                 gettext('Enter a link that starts with https://, http://, or /.'),
             )
         if banner.template == BannerTemplate.IMAGE:
-            if not banner.image_url:
+            if not values['image_url']:
                 raise SiteContentApiError(
                     ErrorCode.VALIDATE,
                     gettext('Upload a banner image.'),
                 )
-            if not safe_navigation_url(banner.image_url):
+            if not safe_navigation_url(values['image_url']):
                 raise SiteContentApiError(
                     ErrorCode.VALIDATE,
                     gettext('Use an uploaded image or an image link that starts with https://.'),
@@ -340,9 +317,15 @@ class SiteContentApiService:
             value = data[field]
             if field == 'content_html' and sanitize_content:
                 value = sanitize_html(value)
-            if field in SiteContentApiService.BANNER_TEMPLATE_TEXT_FIELDS:
-                value = str(value or '').strip()
             setattr(banner, field, value)
+
+        # The API keeps template data as flat fields; they are stored together in one JSON column.
+        submitted = {key: data[key] for key in TEMPLATE_DATA_DEFAULTS if key in data}
+        if submitted:
+            values = banner.template_values
+            for key, value in submitted.items():
+                values[key] = str(value or '').strip()
+            banner.template_data = values
 
     @staticmethod
     def create_notice(scope: str, user: User | None, data: dict) -> SiteNotice:

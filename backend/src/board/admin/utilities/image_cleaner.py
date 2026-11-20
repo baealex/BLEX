@@ -14,6 +14,7 @@ from django.conf import settings
 from django.db.models import F
 
 from board.models import Post, Comment, ImageCache, Profile, SiteBanner, Series, StaticPage
+from board.models.site import normalize_template_data
 
 
 class UnsafeImageCleanupPathError(RuntimeError):
@@ -95,8 +96,9 @@ class ImageCleanerService:
                 clean_name = self.get_clean_filename(filename)
                 used_files.add(clean_name)
 
-        for content_html, image_url in SiteBanner.objects.values_list('content_html', 'image_url'):
+        for content_html, template_data in SiteBanner.objects.values_list('content_html', 'template_data'):
             banner_paths = src_parser.findall(content_html or '')
+            image_url = normalize_template_data(template_data)['image_url']
             if image_url:
                 banner_paths.append(image_url)
             for path in banner_paths:

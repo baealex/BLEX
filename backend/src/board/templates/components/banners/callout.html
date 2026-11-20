@@ -1,12 +1,12 @@
 {% load i18n %}
-<div class="blex-banner blex-banner--callout" data-tone="{{ banner.tone }}">
+<div class="blex-banner blex-banner--callout" data-tone="{{ data.tone }}">
     <div class="blex-banner__inner">
         <div class="blex-banner__body">
-            <p class="blex-banner__title">{{ banner.headline }}</p>
-            {% if banner.description %}<p class="blex-banner__desc">{{ banner.description|linebreaksbr }}</p>{% endif %}
+            <p class="blex-banner__title">{{ data.headline }}</p>
+            {% if data.description %}<p class="blex-banner__desc">{{ data.description|linebreaksbr }}</p>{% endif %}
             {% if link_url %}
             <a class="blex-banner__link" href="{{ link_url }}">
-                {% if banner.link_label %}{{ banner.link_label }}{% else %}{% translate "Learn more" context "Banner link label" %}{% endif %}
+                {% if data.link_label %}{{ data.link_label }}{% else %}{% translate "Learn more" context "Banner link label" %}{% endif %}
                 <i class="fas fa-arrow-right" aria-hidden="true"></i>
             </a>
             {% endif %}

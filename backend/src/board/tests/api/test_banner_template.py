@@ -15,6 +15,7 @@ from board.models import (
     User,
 )
 from board.admin.utilities.image_cleaner import ImageCleanerService
+from board.models.site import TEMPLATE_DATA_DEFAULTS, normalize_template_data
 from board.services.banner_service import BannerService
 
 
@@ -126,6 +127,30 @@ class BannerTemplateAPITestCase(TestCase):
         self.assertEqual(body['align'], 'center')
         self.assertEqual(body['tone'], 'outline')
 
+    def test_template_fields_are_stored_together(self):
+        content = self.post_json('/v1/banners', self.card_payload(eyebrow='Event'))
+
+        banner = SiteBanner.objects.get(id=content['body']['id'])
+        self.assertEqual(set(banner.template_data), set(TEMPLATE_DATA_DEFAULTS))
+        self.assertEqual(banner.template_data['eyebrow'], 'Event')
+        self.assertEqual(banner.template_data['headline'], 'Subscribe to the newsletter')
+
+    def test_update_keeps_template_fields_that_were_not_sent(self):
+        banner_id = self.post_json('/v1/banners', self.card_payload())['body']['id']
+
+        self.put_json(f'/v1/banners/{banner_id}', {'headline': 'New headline'})
+
+        values = SiteBanner.objects.get(id=banner_id).template_values
+        self.assertEqual(values['headline'], 'New headline')
+        self.assertEqual(values['link_label'], 'Subscribe')
+
+    def test_stored_template_data_falls_back_to_defaults(self):
+        self.assertEqual(normalize_template_data({'headline': 'Hi', 'tone': 3, 'extra': 'x'}), {
+            **TEMPLATE_DATA_DEFAULTS,
+            'headline': 'Hi',
+        })
+        self.assertEqual(normalize_template_data(None), TEMPLATE_DATA_DEFAULTS)
+
     def test_sidebar_card_stacks_side_by_side_image_on_top(self):
         content = self.post_json('/v1/banners', self.card_payload(
             banner_type='sidebar',
@@ -212,8 +237,8 @@ class BannerTemplateAPITestCase(TestCase):
         banner = SiteBanner.objects.get(id=banner_id)
         self.assertEqual(banner.template, 'card')
         self.assertEqual(banner.position, 'right')
-        self.assertEqual(banner.headline, 'About me')
-        self.assertEqual(banner.link_label, 'Subscribe')
+        self.assertEqual(banner.template_values['headline'], 'About me')
+        self.assertEqual(banner.template_values['link_label'], 'Subscribe')
 
     def test_legacy_html_banner_can_still_be_created_without_template(self):
         content = self.post_json('/v1/banners', {
@@ -424,12 +449,14 @@ class BannerTemplateRenderTestCase(TestCase):
         Profile.objects.create(user=self.author)
 
     def create_banner(self, **kwargs) -> SiteBanner:
+        template_data = {key: kwargs.pop(key) for key in list(kwargs) if key in TEMPLATE_DATA_DEFAULTS}
         defaults = dict(
             scope=SiteContentScope.USER,
             user=self.author,
             title='Banner',
             banner_type='horizontal',
             position='top',
+            template_data=template_data,
         )
         defaults.update(kwargs)
         return SiteBanner.objects.create(**defaults)
@@ -561,8 +588,10 @@ class BannerImageCleanupTestCase(TestCase):
             user=author,
             title='Image',
             template='image',
-            headline='Sale',
-            image_url='/resources/media/images/content/2026/11/20/banner-image.png',
+            template_data={
+                'headline': 'Sale',
+                'image_url': '/resources/media/images/content/2026/11/20/banner-image.png',
+            },
             banner_type='horizontal',
             position='top',
         )

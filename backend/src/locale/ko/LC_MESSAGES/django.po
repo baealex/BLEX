@@ -4628,7 +4628,3 @@ msgstr "공지"
 #, python-format
 msgid "Label must be %(limit)d characters or fewer."
 msgstr "라벨은 %(limit)d자 이하여야 합니다."
-
-#: board/admin/banner.py
-msgid "Template design"
-msgstr "템플릿 디자인"

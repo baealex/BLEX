@@ -198,6 +198,37 @@ BANNER_TYPE_IMAGE_LAYOUTS = {
     BannerType.SIDEBAR: (BannerImageLayout.TOP, BannerImageLayout.COVER),
 }
 
+# Text and design choices of template banners share one JSON column, so new options need no
+# schema change. The API service validates these limits and choices before saving.
+TEMPLATE_DATA_TEXT_LIMITS = {
+    'eyebrow': 30,
+    'headline': 120,
+    'description': 300,
+    'link_label': 40,
+    'link_url': 500,
+    'image_url': 500,
+}
+TEMPLATE_DATA_CHOICES = {
+    'tone': BannerTone,
+    'image_layout': BannerImageLayout,
+    'align': BannerAlign,
+}
+TEMPLATE_DATA_DEFAULTS = {
+    **{key: '' for key in TEMPLATE_DATA_TEXT_LIMITS},
+    'tone': BannerTone.DEFAULT.value,
+    'image_layout': BannerImageLayout.RIGHT.value,
+    'align': BannerAlign.LEFT.value,
+}
+
+
+def normalize_template_data(raw) -> dict:
+    """Every known key with a string value; missing or malformed values fall back to defaults."""
+    stored = raw if isinstance(raw, dict) else {}
+    return {
+        key: stored[key] if isinstance(stored.get(key), str) else default
+        for key, default in TEMPLATE_DATA_DEFAULTS.items()
+    }
+
 
 class SiteContentBase(models.Model):
     scope = models.CharField(max_length=10, choices=SiteContentScope.choices)
@@ -236,18 +267,7 @@ class SiteBanner(SiteContentBase):
                                 default=BannerPosition.TOP)
     template = models.CharField(max_length=20, choices=BannerTemplate.choices,
                                 default=BannerTemplate.HTML)
-    eyebrow = models.CharField(max_length=30, blank=True, default='')
-    headline = models.CharField(max_length=120, blank=True, default='')
-    description = models.CharField(max_length=300, blank=True, default='')
-    link_label = models.CharField(max_length=40, blank=True, default='')
-    link_url = models.CharField(max_length=500, blank=True, default='')
-    image_url = models.CharField(max_length=500, blank=True, default='')
-    tone = models.CharField(max_length=20, choices=BannerTone.choices,
-                            default=BannerTone.DEFAULT)
-    image_layout = models.CharField(max_length=10, choices=BannerImageLayout.choices,
-                                    default=BannerImageLayout.RIGHT)
-    align = models.CharField(max_length=10, choices=BannerAlign.choices,
-                             default=BannerAlign.LEFT)
+    template_data = models.JSONField(blank=True, default=dict)
 
     class Meta(SiteContentBase.Meta):
         verbose_name = _('Site banner')
@@ -256,6 +276,10 @@ class SiteBanner(SiteContentBase):
             models.Index(fields=['scope', 'is_active', 'banner_type', 'position']),
             models.Index(fields=['user', 'is_active']),
         ]
+
+    @property
+    def template_values(self) -> dict:
+        return normalize_template_data(self.template_data)
 
     def clean(self):
         if self.banner_type == BannerType.HORIZONTAL:
@@ -278,11 +302,12 @@ class SiteBanner(SiteContentBase):
             raise ValidationError({
                 'template': _('This template is not available in the selected position.')
             })
-        if allowed_banner_types and not self.headline.strip():
+        values = self.template_values
+        if allowed_banner_types and not values['headline'].strip():
             raise ValidationError({
-                'headline': _('Enter the banner text.')
+                'template_data': _('Enter the banner text.')
             })
-        if self.template == BannerTemplate.IMAGE and not self.image_url.strip():
+        if self.template == BannerTemplate.IMAGE and not values['image_url'].strip():
             raise ValidationError({
-                'image_url': _('Upload a banner image.')
+                'template_data': _('Upload a banner image.')
             })

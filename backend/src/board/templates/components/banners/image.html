@@ -1,5 +1,5 @@
 {% if image_url %}
 {% if link_url %}<a href="{{ link_url }}"{% else %}<div{% endif %} class="blex-banner blex-banner--image">
-    <img src="{{ image_url }}" alt="{{ banner.headline }}" loading="lazy" decoding="async">
+    <img src="{{ image_url }}" alt="{{ data.headline }}" loading="lazy" decoding="async">
 {% if link_url %}</a>{% else %}</div>{% endif %}
 {% endif %}
