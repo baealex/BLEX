@@ -27,7 +27,7 @@ interface CommentItemProps {
     onEditTextChange: (text: string) => void;
     onSaveEdit: (commentId: number) => void;
     onCancelEdit: () => void;
-    onReply: (commentId: number, authorUsername: string) => void;
+    onReply?: (commentId: number) => void;
     onReplyTextChange: (text: string) => void;
     onSaveReply: () => void;
     onCancelReply: () => void;
@@ -154,7 +154,7 @@ export const CommentItem = ({
                                 isLoggedIn={isLoggedIn}
                                 permissions={permissions}
                                 onLike={onLike}
-                                onReply={() => onReply(comment.id, comment.author)}
+                                onReply={onReply ? () => onReply(comment.id) : undefined}
                             />
                         </>
                     )}
@@ -176,6 +176,7 @@ export const CommentItem = ({
                     </div>
                     <CommentForm
                         isLoggedIn={true}
+                        focusOnMount
                         commentText={replyText}
                         onCommentTextChange={onReplyTextChange}
                         onSubmit={onSaveReply}

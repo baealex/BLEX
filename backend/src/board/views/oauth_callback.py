@@ -3,6 +3,7 @@ from urllib.parse import urlencode
 from django.contrib import auth, messages
 from django.http import Http404, HttpRequest, HttpResponse
 from django.shortcuts import redirect
+from django.urls import reverse
 from django.utils.translation import gettext
 from django.views.decorators.cache import never_cache
 from django.views.decorators.http import require_GET, require_http_methods
@@ -41,7 +42,7 @@ def oauth_start(request: HttpRequest, provider: str) -> HttpResponse:
     messages.error(request, gettext('Social login is not configured.'))
     if reauthenticate:
         return redirect('/reauthenticate?' + urlencode({'next': next_url}))
-    return redirect('login')
+    return redirect(reverse('login', query={'next': next_url} if next_url != '/' else None))
 
 
 @never_cache
@@ -63,6 +64,7 @@ def oauth_callback(request: HttpRequest, provider: str) -> HttpResponse:
     reauthenticate = flow['user_id'] is not None
     next_url = flow['next_url']
     verification_url = '/reauthenticate?' + urlencode({'next': next_url})
+    login_url = reverse('login', query={'next': next_url} if next_url != '/' else None)
     try:
         result = SocialSignupService.sign_up(
             provider, request.GET.get('code'), flow['verifier'], flow['redirect_uri'],
@@ -70,7 +72,7 @@ def oauth_callback(request: HttpRequest, provider: str) -> HttpResponse:
         )
     except SocialSignupError:
         messages.error(request, gettext('Social login failed. Please try again.'))
-        return redirect(verification_url if reauthenticate else 'login')
+        return redirect(verification_url if reauthenticate else login_url)
 
     if reauthenticate:
         if AuthService.check_two_factor_auth(result.user):

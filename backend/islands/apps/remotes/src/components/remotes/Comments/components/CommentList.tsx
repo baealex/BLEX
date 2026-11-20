@@ -17,7 +17,7 @@ interface CommentListProps {
     onEditTextChange: (text: string) => void;
     onSaveEdit: (commentId: number) => void;
     onCancelEdit: () => void;
-    onReply: (commentId: number, authorUsername: string) => void;
+    onReply?: (commentId: number) => void;
     onReplyTextChange: (text: string) => void;
     onSaveReply: () => void;
     onCancelReply: () => void;

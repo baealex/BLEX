@@ -12,6 +12,7 @@ interface CommentFormProps {
     isSubmitting: boolean;
     onShowLoginPrompt: () => void;
     placeholder?: string;
+    focusOnMount?: boolean;
     mentionableUsers?: string[];
     onCancel?: () => void;
     submitButtonText?: string;
@@ -25,6 +26,7 @@ export const CommentForm = ({
     isSubmitting,
     onShowLoginPrompt,
     placeholder,
+    focusOnMount = false,
     mentionableUsers = [],
     onCancel,
     submitButtonText
@@ -47,6 +49,12 @@ export const CommentForm = ({
     const [mentionQuery, setMentionQuery] = useState('');
     const [mentionStartPos, setMentionStartPos] = useState(0);
     const [selectedUserIndex, setSelectedUserIndex] = useState(0);
+
+    useEffect(() => {
+        if (focusOnMount) {
+            textareaRef.current?.focus();
+        }
+    }, [focusOnMount]);
 
     useEffect(() => {
         const textarea = textareaRef.current;

@@ -1,30 +1,38 @@
 import { useState, useEffect } from 'react';
 import { Trans, useLingui } from '@lingui/react/macro';
 import { Modal } from '~/components/shared';
+import SocialLogin from '~/components/remotes/SocialLogin';
 import {
     normalizeLoginPromptAction,
-    type LoginPromptAction
+    type LoginPromptAction,
+    type LoginPromptRequest
 } from '~/utils/loginPrompt';
 
 interface LoginPromptProps {
     isOpen?: boolean;
     action?: LoginPromptAction;
+    nextUrl?: string;
 }
 
 const LoginPrompt = ({
     isOpen: initialIsOpen = false,
-    action: initialAction = 'generic'
+    action: initialAction = 'generic',
+    nextUrl: initialNextUrl
 }: LoginPromptProps) => {
     const { t } = useLingui();
     const [isOpen, setIsOpen] = useState(initialIsOpen);
-    const [action, setAction] = useState<LoginPromptAction>(
-        normalizeLoginPromptAction(initialAction)
-    );
+    const [request, setRequest] = useState<LoginPromptRequest>({
+        action: normalizeLoginPromptAction(initialAction),
+        nextUrl: initialNextUrl
+    });
 
     // 전역 이벤트로 모달 열기
     useEffect(() => {
-        const handleShowLoginPrompt = (event: CustomEvent<{ action?: unknown }>) => {
-            setAction(normalizeLoginPromptAction(event.detail?.action));
+        const handleShowLoginPrompt = (event: CustomEvent<Partial<LoginPromptRequest>>) => {
+            setRequest({
+                action: normalizeLoginPromptAction(event.detail?.action),
+                nextUrl: event.detail?.nextUrl
+            });
             setIsOpen(true);
         };
 
@@ -38,10 +46,8 @@ const LoginPrompt = ({
         setIsOpen(false);
     };
 
-    const handleLogin = () => {
-        const currentPath = window.location.pathname + window.location.search;
-        window.location.assign(`/login?next=${encodeURIComponent(currentPath)}`);
-    };
+    const { pathname, search, hash } = window.location;
+    const nextUrl = request.nextUrl ?? (pathname + search + hash);
 
     const descriptions: Record<LoginPromptAction, string> = {
         generic: t({
@@ -98,14 +104,15 @@ const LoginPrompt = ({
                 </h3>
 
                 {/* Description */}
-                <p className="text-content-secondary mb-8">
-                    {descriptions[action]}
+                <p className="mb-4 text-content-secondary">
+                    {descriptions[request.action]}
                 </p>
+                <SocialLogin nextUrl={nextUrl} />
             </Modal.Body>
             <Modal.Footer className="flex-col px-8 pt-0 pb-8 border-t-0 bg-transparent">
                 <Modal.FooterAction
                     variant="primary"
-                    onClick={handleLogin}
+                    onClick={() => window.location.assign(`/login?next=${encodeURIComponent(nextUrl)}`)}
                     className="w-full">
                     <Trans id="login_prompt.login">Log in</Trans>
                 </Modal.FooterAction>

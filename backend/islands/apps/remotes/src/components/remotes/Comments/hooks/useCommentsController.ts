@@ -9,6 +9,7 @@ import {
     getComment,
     getCommentAuthors,
     getComments,
+    resolveCommentPermissions,
     toggleCommentLike,
     updateComment,
     type Comment
@@ -32,7 +33,8 @@ interface CommentsData {
 interface UseCommentsControllerOptions {
     postUrl: string;
     isLoggedIn: boolean;
-    onRequireLogin: (action: LoginPromptAction) => void;
+    initialReplyTo: number | null;
+    onRequireLogin: (action: LoginPromptAction, replyTo?: number) => void;
 }
 
 const getCommentsQueryKey = (postUrl: string) => [postUrl, 'comments'] as const;
@@ -47,6 +49,7 @@ const getErrorMessage = (error: unknown, fallback: string): string => {
 export const useCommentsController = ({
     postUrl,
     isLoggedIn,
+    initialReplyTo,
     onRequireLogin
 }: UseCommentsControllerOptions) => {
     const { t } = useLingui();
@@ -58,10 +61,8 @@ export const useCommentsController = ({
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [editingCommentId, setEditingCommentId] = useState<number | null>(null);
     const [editText, setEditText] = useState('');
-    const [replyingToCommentId, setReplyingToCommentId] = useState<number | null>(null);
+    const [replyTargetId, setReplyTargetId] = useState(initialReplyTo);
     const [replyText, setReplyText] = useState('');
-    const [replyParentId, setReplyParentId] = useState<number | null>(null);
-    const [replyTargetAuthor, setReplyTargetAuthor] = useState<string | null>(null);
 
     const queryKey = getCommentsQueryKey(postUrl);
     const commentsQuery = useQuery({
@@ -79,6 +80,14 @@ export const useCommentsController = ({
     const comments = commentsQuery.data?.comments ?? [];
     const canComment = commentsQuery.data?.canComment ?? true;
     const mentionableUsers = getCommentAuthors(comments);
+    const replyRootId = replyTargetId !== null && canComment
+        ? findRootParentId(replyTargetId, comments)
+        : null;
+    const replyRoot = comments.find((comment) => comment.id === replyRootId);
+    const replyTarget = replyRoot?.id === replyTargetId
+        ? replyRoot
+        : replyRoot?.replies?.find((reply) => reply.id === replyTargetId);
+    const canReply = Boolean(replyTarget && resolveCommentPermissions(replyTarget).canReply);
 
     const updateComments = (updater: (comments: Comment[]) => Comment[]) => {
         queryClient.setQueryData<CommentsData>(queryKey, (currentData) => {
@@ -304,32 +313,24 @@ export const useCommentsController = ({
         }
     };
 
-    const startReplying = (commentId: number, authorUsername: string) => {
+    const startReplying = (commentId: number) => {
         if (!isLoggedIn) {
-            onRequireLogin('reply');
+            onRequireLogin('reply', commentId);
             return;
         }
 
-        setReplyingToCommentId(commentId);
-        setReplyParentId(findRootParentId(commentId, comments));
-        setReplyTargetAuthor(authorUsername);
+        setReplyTargetId(commentId);
         setReplyText('');
     };
 
     const cancelReplying = () => {
-        setReplyingToCommentId(null);
+        setReplyTargetId(null);
         setReplyText('');
-        setReplyParentId(null);
-        setReplyTargetAuthor(null);
-    };
-
-    const getReplySubmissionText = () => {
-        return buildReplySubmissionText(replyText, replyTargetAuthor);
     };
 
     const handleReply = async () => {
         if (!isLoggedIn) {
-            onRequireLogin('reply');
+            onRequireLogin('reply', replyTargetId ?? undefined);
             return;
         }
 
@@ -341,7 +342,7 @@ export const useCommentsController = ({
             return;
         }
 
-        if (!replyParentId) {
+        if (!replyRoot || !replyTarget || !canReply) {
             toast.error(t({
                 id: 'comments.reply.parent_missing',
                 message: 'Could not find the comment to reply to.'
@@ -352,14 +353,12 @@ export const useCommentsController = ({
         setIsSubmitting(true);
 
         try {
-            const response = await createComment(postUrl, getReplySubmissionText(), replyParentId);
+            const text = buildReplySubmissionText(replyText, replyTarget.author);
+            const response = await createComment(postUrl, text, replyRoot.id);
 
             if (response.data.status === 'DONE') {
                 const createdReply = response.data.body;
-                setReplyText('');
-                setReplyingToCommentId(null);
-                setReplyParentId(null);
-                setReplyTargetAuthor(null);
+                cancelReplying();
                 updateComments((currentComments) => appendCommentToTree(
                     currentComments,
                     createdReply
@@ -400,7 +399,7 @@ export const useCommentsController = ({
         editingCommentId,
         editText,
         setEditText,
-        replyingToCommentId,
+        replyingToCommentId: canReply ? replyTargetId : null,
         replyText,
         setReplyText,
         handleLike,
