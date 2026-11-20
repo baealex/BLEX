@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import re
 from typing import TYPE_CHECKING
 
 from cryptography.fernet import InvalidToken
@@ -10,6 +11,10 @@ from modules.cipher import decrypt_value, encrypt_value
 
 if TYPE_CHECKING:
     from board.models import IntegrationSetting
+
+
+# BotFather issues tokens as "<bot id>:<secret>"; anything else would also change the Bot API URL path.
+TELEGRAM_BOT_TOKEN_PATTERN = re.compile(r'\d+:[A-Za-z0-9_-]+')
 
 
 class IntegrationSettingConfigurationError(Exception):
@@ -111,15 +116,20 @@ class IntegrationSettingService:
             setting.telegram_bot_token = ''
 
         if isinstance(payload.get('telegram_bot_token'), str) and payload['telegram_bot_token'].strip():
-            setting.telegram_bot_token = cls.encrypt_secret(payload['telegram_bot_token'])
+            bot_token = payload['telegram_bot_token'].strip()
+            if not TELEGRAM_BOT_TOKEN_PATTERN.fullmatch(bot_token):
+                raise IntegrationSettingConfigurationError(
+                    gettext('Enter a valid Telegram bot token.')
+                )
+            is_new_bot_token = bot_token != cls.decrypt_secret(setting.telegram_bot_token)
+            setting.telegram_bot_token = cls.encrypt_secret(bot_token)
+            if is_new_bot_token and 'telegram_bot_username' not in payload:
+                # A new token may belong to another bot; Telegram supplies its username on connect.
+                setting.telegram_bot_username = ''
 
         if not setting.telegram_enabled:
             return
 
-        if not setting.telegram_bot_username.strip():
-            raise IntegrationSettingConfigurationError(
-                gettext('Enter a Telegram bot username.')
-            )
         if not cls.decrypt_secret(setting.telegram_bot_token):
             raise IntegrationSettingConfigurationError(
                 gettext('Enter a Telegram bot token.')

@@ -2,11 +2,17 @@ import json
 from unittest.mock import patch, MagicMock
 from datetime import timedelta
 
-from django.test import TestCase, override_settings
+from django.test import Client, TestCase, override_settings
 from django.utils import timezone
 
 from board.models import Config, IntegrationSetting, Profile, TelegramSync, User
 from board.services.integration_setting_service import IntegrationSettingService
+from board.services.telegram_webhook_service import TelegramWebhookService
+
+
+WEBHOOK_HEADERS = {
+    'HTTP_X_TELEGRAM_BOT_API_SECRET_TOKEN': TelegramWebhookService.create_secret('test_bot_token'),
+}
 
 
 class TelegramAPITestCase(TestCase):
@@ -43,6 +49,11 @@ class TelegramAPITestCase(TestCase):
 
         self.assertIn('token', content['body'])
         self.assertEqual(len(content['body']['token']), 6)
+        self.assertEqual(
+            content['body']['link'],
+            f"https://t.me/test_bot?start={content['body']['token']}",
+        )
+        self.assertTrue(content['body']['qrCode'].startswith('data:image/png;base64,'))
 
         # Verify TelegramSync was created
         sync = TelegramSync.objects.get(user=self.user)
@@ -67,6 +78,7 @@ class TelegramAPITestCase(TestCase):
         sync = TelegramSync.objects.get(user=self.user)
         self.assertEqual(sync.auth_token, content['body']['token'])
         self.assertNotEqual(sync.auth_token, 'oldtoken')
+        self.assertEqual(sync.get_decrypted_tid(), '123456')
 
     def test_make_token_generates_unique_tokens(self):
         """여러 사용자의 토큰이 고유하게 생성됨"""
@@ -157,7 +169,8 @@ class TelegramAPITestCase(TestCase):
         response = self.client.post(
             '/v1/telegram/webHook',
             data=json.dumps(webhook_data),
-            content_type='application/json'
+            content_type='application/json',
+            **WEBHOOK_HEADERS,
         )
 
         self.assertEqual(response.status_code, 200)
@@ -181,10 +194,10 @@ class TelegramAPITestCase(TestCase):
         mock_bot = MagicMock()
         mock_telegram.return_value = mock_bot
 
-        # Create a token
         sync = TelegramSync.objects.create(
             user=self.user,
             auth_token='EXPIRED',
+            auth_token_exp=timezone.now() - timedelta(minutes=1),
         )
 
         webhook_data = {
@@ -196,14 +209,12 @@ class TelegramAPITestCase(TestCase):
             }
         }
 
-        # is_token_expire는 created_date 기준으로 체크하므로 Mock 필요
-        # (시간 기반 테스트에서 시간 Mock은 정당함)
-        with patch.object(TelegramSync, 'is_token_expire', return_value=True):
-            response = self.client.post(
-                '/v1/telegram/webHook',
-                data=json.dumps(webhook_data),
-                content_type='application/json'
-            )
+        response = self.client.post(
+            '/v1/telegram/webHook',
+            data=json.dumps(webhook_data),
+            content_type='application/json',
+            **WEBHOOK_HEADERS,
+        )
 
         self.assertEqual(response.status_code, 200)
 
@@ -232,7 +243,8 @@ class TelegramAPITestCase(TestCase):
         response = self.client.post(
             '/v1/telegram/webHook',
             data=json.dumps(webhook_data),
-            content_type='application/json'
+            content_type='application/json',
+            **WEBHOOK_HEADERS,
         )
 
         # Should handle gracefully
@@ -255,7 +267,8 @@ class TelegramAPITestCase(TestCase):
         response = self.client.post(
             '/v1/telegram/webHook',
             data=json.dumps(webhook_data),
-            content_type='application/json'
+            content_type='application/json',
+            **WEBHOOK_HEADERS,
         )
 
         # Should handle gracefully
@@ -349,9 +362,8 @@ class TelegramAPITestCase(TestCase):
         self.assertEqual(response.status_code, 200)
 
         sync = TelegramSync.objects.get(user=self.user)
-        self.assertIsNotNone(sync.auth_token_exp)
-        self.assertGreaterEqual(sync.auth_token_exp, before_time)
-        self.assertLessEqual(sync.auth_token_exp, after_time)
+        self.assertGreaterEqual(sync.auth_token_exp, before_time + timedelta(hours=24))
+        self.assertLessEqual(sync.auth_token_exp, after_time + timedelta(hours=24))
 
     @override_settings(SITE_URL='https://example.com')
     @patch('board.views.api.v1.telegram.TelegramBot')
@@ -371,7 +383,8 @@ class TelegramAPITestCase(TestCase):
         response = self.client.post(
             '/v1/telegram/webHook',
             data=json.dumps(webhook_data),
-            content_type='application/json'
+            content_type='application/json',
+            **WEBHOOK_HEADERS,
         )
 
         self.assertEqual(response.status_code, 200)
@@ -395,3 +408,141 @@ class TelegramAPITestCase(TestCase):
 
         # Should be deleted - DB 상태 검증
         self.assertFalse(TelegramSync.objects.filter(id=sync.id).exists())
+
+    @patch('board.views.api.v1.telegram.TelegramBot')
+    @patch('modules.sub_task.SubTaskProcessor.process')
+    def test_webhook_links_account_from_deep_link_start_command(self, mock_subtask, mock_telegram):
+        """딥링크로 들어와 시작을 누르면 "/start 코드"가 오고, 그대로 연동된다."""
+        sync = TelegramSync.objects.create(
+            user=self.user,
+            auth_token='ABC123',
+            auth_token_exp=timezone.now() + timedelta(minutes=5),
+        )
+
+        response = self.client.post(
+            '/v1/telegram/webHook',
+            data=json.dumps({'message': {'from': {'id': 987654321}, 'text': '/start ABC123'}}),
+            content_type='application/json',
+            **WEBHOOK_HEADERS,
+        )
+
+        self.assertEqual(response.status_code, 200)
+        sync.refresh_from_db()
+        self.assertEqual(sync.get_decrypted_tid(), '987654321')
+        self.assertEqual(sync.auth_token, '')
+
+    @patch('board.views.api.v1.telegram.TelegramBot')
+    @patch('modules.sub_task.SubTaskProcessor.process')
+    def test_webhook_bare_start_does_not_touch_connected_accounts(self, mock_subtask, mock_telegram):
+        """코드 없는 /start가 이미 연동된(auth_token이 빈) 계정을 덮어쓰지 않는다."""
+        sync = TelegramSync.objects.create(user=self.user, tid='111', auth_token='')
+
+        response = self.client.post(
+            '/v1/telegram/webHook',
+            data=json.dumps({'message': {'from': {'id': 222}, 'text': '/start'}}),
+            content_type='application/json',
+            **WEBHOOK_HEADERS,
+        )
+
+        self.assertEqual(response.status_code, 200)
+        sync.refresh_from_db()
+        self.assertEqual(sync.get_decrypted_tid(), '111')
+
+    @patch('board.views.api.v1.telegram.TelegramBot')
+    @patch('modules.sub_task.SubTaskProcessor.process')
+    def test_webhook_rejects_requests_without_telegram_secret(self, mock_subtask, mock_telegram):
+        sync = TelegramSync.objects.create(
+            user=self.user,
+            auth_token='ABC123',
+            auth_token_exp=timezone.now() + timedelta(minutes=5),
+        )
+        webhook_data = json.dumps({'message': {'from': {'id': 987654321}, 'text': 'ABC123'}})
+
+        missing = self.client.post('/v1/telegram/webHook', data=webhook_data, content_type='application/json')
+        wrong = self.client.post(
+            '/v1/telegram/webHook',
+            data=webhook_data,
+            content_type='application/json',
+            HTTP_X_TELEGRAM_BOT_API_SECRET_TOKEN='forged',
+        )
+
+        self.assertEqual(missing.status_code, 403)
+        self.assertEqual(wrong.status_code, 403)
+        sync.refresh_from_db()
+        self.assertEqual(sync.tid, '')
+        self.assertEqual(sync.auth_token, 'ABC123')
+        mock_subtask.assert_not_called()
+
+    @patch('board.views.api.v1.telegram.TelegramBot')
+    @patch('modules.sub_task.SubTaskProcessor.process')
+    def test_webhook_is_reachable_without_csrf_token(self, mock_subtask, mock_telegram):
+        """텔레그램 서버는 CSRF 토큰을 보낼 수 없으므로 웹훅은 CSRF 검사 없이 받는다."""
+        sync = TelegramSync.objects.create(
+            user=self.user,
+            auth_token='ABC123',
+            auth_token_exp=timezone.now() + timedelta(minutes=5),
+        )
+        telegram_server = Client(enforce_csrf_checks=True, HTTP_USER_AGENT='BLEX_TEST')
+
+        response = telegram_server.post(
+            '/v1/telegram/webHook',
+            data=json.dumps({'message': {'from': {'id': 987654321}, 'text': '/start ABC123'}}),
+            content_type='application/json',
+            **WEBHOOK_HEADERS,
+        )
+
+        self.assertEqual(response.status_code, 200)
+        sync.refresh_from_db()
+        self.assertEqual(sync.get_decrypted_tid(), '987654321')
+
+    def test_account_actions_still_require_csrf_token(self):
+        browser = Client(enforce_csrf_checks=True, HTTP_USER_AGENT='BLEX_TEST')
+        browser.login(username='testuser', password='testpass')
+
+        self.assertEqual(browser.post('/v1/telegram/makeToken').status_code, 403)
+        self.assertEqual(browser.post('/v1/telegram/unsync').status_code, 403)
+        self.assertFalse(TelegramSync.objects.filter(user=self.user).exists())
+
+    @patch('board.views.api.v1.telegram.TelegramBot')
+    @patch('modules.sub_task.SubTaskProcessor.process')
+    def test_new_code_works_even_if_first_attempt_was_days_ago(self, mock_subtask, mock_telegram):
+        """첫 시도가 오래전이어도 새로 발급한 코드는 만료되지 않는다."""
+        stale_sync = TelegramSync.objects.create(user=self.user, auth_token='OLD123')
+        TelegramSync.objects.filter(id=stale_sync.id).update(
+            created_date=timezone.now() - timedelta(days=3),
+        )
+        self.client.login(username='testuser', password='testpass')
+        token = json.loads(self.client.post('/v1/telegram/makeToken').content)['body']['token']
+
+        response = self.client.post(
+            '/v1/telegram/webHook',
+            data=json.dumps({'message': {'from': {'id': 987654321}, 'text': f'/start {token}'}}),
+            content_type='application/json',
+            **WEBHOOK_HEADERS,
+        )
+
+        self.assertEqual(response.status_code, 200)
+        stale_sync.refresh_from_db()
+        self.assertEqual(stale_sync.get_decrypted_tid(), '987654321')
+
+    @patch('board.views.api.v1.telegram.TelegramBot')
+    @patch('modules.sub_task.SubTaskProcessor.process')
+    def test_code_links_only_the_first_chat_that_sends_it(self, mock_subtask, mock_telegram):
+        sync = TelegramSync.objects.create(
+            user=self.user,
+            auth_token='ABC123',
+            auth_token_exp=timezone.now() + timedelta(minutes=5),
+        )
+
+        for sender_id in (111, 222):
+            self.client.post(
+                '/v1/telegram/webHook',
+                data=json.dumps({'message': {'from': {'id': sender_id}, 'text': '/start ABC123'}}),
+                content_type='application/json',
+                **WEBHOOK_HEADERS,
+            )
+
+        sync.refresh_from_db()
+        self.assertEqual(sync.get_decrypted_tid(), '111')
+        self.assertEqual(mock_subtask.call_args_list[0].args[2], '정상적으로 연동되었습니다.')
+        self.assertNotEqual(mock_subtask.call_args_list[1].args[2], '정상적으로 연동되었습니다.')

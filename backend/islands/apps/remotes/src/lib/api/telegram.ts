@@ -1,5 +1,13 @@
 import { http, type Response } from '../http.module';
 
+export const TELEGRAM_CONNECT_LINK_QUERY_KEY = ['telegram-connect-link'];
+
+export interface TelegramConnectLink {
+    token: string;
+    link: string;
+    qrCode: string;
+}
+
 export interface TelegramStatus {
     isConnected: boolean;
     isConfigured: boolean;
@@ -15,10 +23,10 @@ export const getTelegramStatus = async () => {
 };
 
 /**
- * Generate Telegram authentication token
+ * Issue a one-time Telegram deep link, its QR code, and the code it carries
  */
 export const generateTelegramToken = async () => {
-    return http.post<Response<{ token: string }>>('v1/telegram/makeToken');
+    return http.post<Response<TelegramConnectLink>>('v1/telegram/makeToken');
 };
 
 /**
