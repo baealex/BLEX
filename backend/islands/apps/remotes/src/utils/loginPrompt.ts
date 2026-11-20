@@ -6,7 +6,7 @@
 
 const LOGIN_PROMPT_ROOT_ID = 'blex-login-prompt-root';
 
-export const LOGIN_PROMPT_ACTIONS = ['generic', 'like', 'comment', 'reply'] as const;
+export const LOGIN_PROMPT_ACTIONS = ['generic', 'like', 'comment', 'reply', 'subscribe'] as const;
 export type LoginPromptAction = typeof LOGIN_PROMPT_ACTIONS[number];
 
 export interface LoginPromptRequest {

@@ -811,7 +811,7 @@ msgstr "Load more"
 #. js-lingui-explicit-id
 #: src/components/remotes/SettingsApp/components/SettingsLayout.tsx:23
 #: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostShareLinksDialog.tsx:141
-#: src/components/remotes/SettingsApp/SettingsApp.tsx:92
+#: src/components/remotes/SettingsApp/SettingsApp.tsx:93
 msgid "common.loading"
 msgstr "Loading"
 
@@ -2198,7 +2198,7 @@ msgid "login_prompt.action.generic"
 msgstr "this action"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/LoginPrompt/LoginPrompt.tsx:123
+#: src/components/remotes/LoginPrompt/LoginPrompt.tsx:127
 #: src/contexts/LoginPromptContext.tsx:127
 msgid "login_prompt.cancel"
 msgstr "Cancel"
@@ -2229,14 +2229,19 @@ msgid "login_prompt.description.reply"
 msgstr "Log in to reply."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/LoginPrompt/LoginPrompt.tsx:117
+#: src/components/remotes/LoginPrompt/LoginPrompt.tsx:69
+msgid "login_prompt.description.subscribe"
+msgstr "Log in to get notified about new posts from this author."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/LoginPrompt/LoginPrompt.tsx:121
 #: src/contexts/LoginPromptContext.tsx:118
 msgid "login_prompt.login"
 msgstr "Log in"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/LoginPrompt/LoginPrompt.tsx:71
-#: src/components/remotes/LoginPrompt/LoginPrompt.tsx:103
+#: src/components/remotes/LoginPrompt/LoginPrompt.tsx:75
+#: src/components/remotes/LoginPrompt/LoginPrompt.tsx:107
 #: src/contexts/LoginPromptContext.tsx:98
 msgid "login_prompt.title"
 msgstr "Login required"
@@ -3998,186 +4003,191 @@ msgid "settings.login.welcome_url.label"
 msgstr "Welcome notification URL"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/components/SettingsNavigation.tsx:90
+#: src/components/remotes/SettingsApp/components/SettingsNavigation.tsx:99
 msgid "settings.navigation.account"
 msgstr "Account"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/components/SettingsNavigation.tsx:337
+#: src/components/remotes/SettingsApp/components/SettingsNavigation.tsx:346
 msgid "settings.navigation.admin_panel"
 msgstr "Admin panel"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/components/SettingsNavigation.tsx:405
-#: src/components/remotes/SettingsApp/components/SettingsNavigation.tsx:439
-#: src/components/remotes/SettingsApp/components/SettingsNavigation.tsx:635
+#: src/components/remotes/SettingsApp/components/SettingsNavigation.tsx:414
+#: src/components/remotes/SettingsApp/components/SettingsNavigation.tsx:448
+#: src/components/remotes/SettingsApp/components/SettingsNavigation.tsx:644
 msgid "settings.navigation.admin_settings"
 msgstr "Admin settings"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/components/SettingsNavigation.tsx:538
+#: src/components/remotes/SettingsApp/components/SettingsNavigation.tsx:547
 msgid "settings.navigation.aria_label"
 msgstr "{settings} navigation"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/components/SettingsNavigation.tsx:401
+#: src/components/remotes/SettingsApp/components/SettingsNavigation.tsx:410
 msgid "settings.navigation.back_to_personal"
 msgstr "Back to my settings"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/components/SettingsNavigation.tsx:159
+#: src/components/remotes/SettingsApp/components/SettingsNavigation.tsx:168
 msgid "settings.navigation.banners"
 msgstr "Banners"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/components/SettingsNavigation.tsx:589
+#: src/components/remotes/SettingsApp/components/SettingsNavigation.tsx:598
 msgid "settings.navigation.close_menu"
 msgstr "Close {settings} menu"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/components/SettingsNavigation.tsx:194
+#: src/components/remotes/SettingsApp/components/SettingsNavigation.tsx:203
 msgid "settings.navigation.developer_api"
 msgstr "Developer API"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/components/SettingsNavigation.tsx:141
+#: src/components/remotes/SettingsApp/components/SettingsNavigation.tsx:150
 msgid "settings.navigation.forms"
 msgstr "Forms"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/components/SettingsNavigation.tsx:272
+#: src/components/remotes/SettingsApp/components/SettingsNavigation.tsx:281
 msgid "settings.navigation.global_banners"
 msgstr "Global banners"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/components/SettingsNavigation.tsx:263
+#: src/components/remotes/SettingsApp/components/SettingsNavigation.tsx:272
 msgid "settings.navigation.global_notices"
 msgstr "Global notices"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/components/SettingsNavigation.tsx:281
+#: src/components/remotes/SettingsApp/components/SettingsNavigation.tsx:290
 msgid "settings.navigation.global_webhook_integration"
 msgstr "Global webhook integration"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/components/SettingsNavigation.tsx:225
+#: src/components/remotes/SettingsApp/components/SettingsNavigation.tsx:234
 msgid "settings.navigation.login_management"
 msgstr "Login management"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/components/SettingsNavigation.tsx:576
+#: src/components/remotes/SettingsApp/components/SettingsNavigation.tsx:585
 msgid "settings.navigation.menu_title"
 msgstr "{settings} menu"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/components/SettingsNavigation.tsx:150
+#: src/components/remotes/SettingsApp/components/SettingsNavigation.tsx:159
 msgid "settings.navigation.notices"
 msgstr "Notices"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/components/SettingsNavigation.tsx:82
+#: src/components/remotes/SettingsApp/components/SettingsNavigation.tsx:83
 msgid "settings.navigation.notifications"
 msgstr "Notifications"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/components/SettingsNavigation.tsx:549
+#: src/components/remotes/SettingsApp/components/SettingsNavigation.tsx:558
 msgid "settings.navigation.open_menu"
 msgstr "Open {settings} menu, current page: {current}"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/components/SettingsNavigation.tsx:123
+#: src/components/remotes/SettingsApp/components/SettingsNavigation.tsx:132
 msgid "settings.navigation.posts"
 msgstr "Posts"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/components/SettingsNavigation.tsx:98
+#: src/components/remotes/SettingsApp/components/SettingsNavigation.tsx:107
 msgid "settings.navigation.profile"
 msgstr "Profile"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/components/SettingsNavigation.tsx:311
+#: src/components/remotes/SettingsApp/components/SettingsNavigation.tsx:320
 msgid "settings.navigation.section.administration"
 msgstr "Administration"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/components/SettingsNavigation.tsx:116
+#: src/components/remotes/SettingsApp/components/SettingsNavigation.tsx:125
 msgid "settings.navigation.section.blog"
 msgstr "Blog"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/components/SettingsNavigation.tsx:170
-#: src/components/remotes/SettingsApp/components/SettingsNavigation.tsx:292
+#: src/components/remotes/SettingsApp/components/SettingsNavigation.tsx:179
+#: src/components/remotes/SettingsApp/components/SettingsNavigation.tsx:301
 msgid "settings.navigation.section.extensions"
 msgstr "Extensions"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/components/SettingsNavigation.tsx:76
+#: src/components/remotes/SettingsApp/components/SettingsNavigation.tsx:77
 msgid "settings.navigation.section.general"
 msgstr "General"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/components/SettingsNavigation.tsx:256
+#: src/components/remotes/SettingsApp/components/SettingsNavigation.tsx:265
 msgid "settings.navigation.section.operations"
 msgstr "Operations"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/components/SettingsNavigation.tsx:208
+#: src/components/remotes/SettingsApp/components/SettingsNavigation.tsx:217
 msgid "settings.navigation.section.site"
 msgstr "Site"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/components/SettingsNavigation.tsx:235
+#: src/components/remotes/SettingsApp/components/SettingsNavigation.tsx:244
 msgid "settings.navigation.seo_aeo"
 msgstr "SEO/AEO"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/components/SettingsNavigation.tsx:132
+#: src/components/remotes/SettingsApp/components/SettingsNavigation.tsx:141
 msgid "settings.navigation.series"
 msgstr "Series"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/components/SettingsNavigation.tsx:443
-#: src/components/remotes/SettingsApp/components/SettingsNavigation.tsx:639
+#: src/components/remotes/SettingsApp/components/SettingsNavigation.tsx:452
+#: src/components/remotes/SettingsApp/components/SettingsNavigation.tsx:648
 msgid "settings.navigation.settings"
 msgstr "Settings"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/components/SettingsNavigation.tsx:215
+#: src/components/remotes/SettingsApp/components/SettingsNavigation.tsx:224
 msgid "settings.navigation.site_customization"
 msgstr "Blog customization"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/components/SettingsNavigation.tsx:106
+#: src/components/remotes/SettingsApp/components/SettingsNavigation.tsx:115
 msgid "settings.navigation.social_links"
 msgstr "Social links"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/components/SettingsNavigation.tsx:245
+#: src/components/remotes/SettingsApp/components/SettingsNavigation.tsx:254
 msgid "settings.navigation.static_pages"
 msgstr "Static pages"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/components/SettingsNavigation.tsx:299
+#: src/components/remotes/SettingsApp/components/SettingsNavigation.tsx:91
+msgid "settings.navigation.subscriptions"
+msgstr "Subscriptions"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/components/SettingsNavigation.tsx:308
 msgid "settings.navigation.telegram"
 msgstr "Telegram"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/components/SettingsNavigation.tsx:176
+#: src/components/remotes/SettingsApp/components/SettingsNavigation.tsx:185
 msgid "settings.navigation.telegram_integration"
 msgstr "Telegram integration"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/components/SettingsNavigation.tsx:318
+#: src/components/remotes/SettingsApp/components/SettingsNavigation.tsx:327
 msgid "settings.navigation.user_permissions"
 msgstr "User permissions"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/components/SettingsNavigation.tsx:327
+#: src/components/remotes/SettingsApp/components/SettingsNavigation.tsx:336
 msgid "settings.navigation.utilities"
 msgstr "Utilities"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/components/SettingsNavigation.tsx:185
+#: src/components/remotes/SettingsApp/components/SettingsNavigation.tsx:194
 msgid "settings.navigation.webhook_integration"
 msgstr "Webhook integration"
 
@@ -6826,6 +6836,66 @@ msgid "settings.static_pages.view.unpublished"
 msgstr "Private pages cannot be opened. Publish the page and try again."
 
 #. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SubscriptionsSetting/SubscriptionsSetting.tsx:82
+msgid "settings.subscriptions.description"
+msgstr "Get notified when authors you subscribe to publish new posts."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SubscriptionsSetting/SubscriptionsSetting.tsx:179
+msgid "settings.subscriptions.empty.description"
+msgstr "Subscribe from an author page or below a post to hear about new posts."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SubscriptionsSetting/SubscriptionsSetting.tsx:175
+msgid "settings.subscriptions.empty.title"
+msgstr "No subscriptions yet"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SubscriptionsSetting/SubscriptionsSetting.tsx:39
+msgid "settings.subscriptions.load_failed"
+msgstr "Could not load your subscriptions."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SubscriptionsSetting/SubscriptionsSetting.tsx:162
+msgid "settings.subscriptions.not_publishing"
+msgstr "No longer publishing"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SubscriptionsSetting/SubscriptionsSetting.tsx:154
+msgid "settings.subscriptions.subscribed_since"
+msgstr "Subscribed on {date}"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SubscriptionsSetting/SubscriptionsSetting.tsx:100
+msgid "settings.subscriptions.telegram.description"
+msgstr "Connect Telegram to get new post notifications there too."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SubscriptionsSetting/SubscriptionsSetting.tsx:95
+msgid "settings.subscriptions.telegram.title"
+msgstr "Get new posts on Telegram"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SubscriptionsSetting/SubscriptionsSetting.tsx:78
+msgid "settings.subscriptions.title"
+msgstr "Subscriptions"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SubscriptionsSetting/SubscriptionsSetting.tsx:143
+msgid "settings.subscriptions.unsubscribe"
+msgstr "Unsubscribe"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SubscriptionsSetting/SubscriptionsSetting.tsx:50
+msgid "settings.subscriptions.unsubscribe_failed"
+msgstr "Could not unsubscribe. Please try again."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/SubscriptionsSetting/SubscriptionsSetting.tsx:59
+msgid "settings.subscriptions.unsubscribed"
+msgstr "Unsubscribed from {username}."
+
+#. js-lingui-explicit-id
 #: src/components/remotes/SettingsApp/pages/IntegrationSetting/components/TelegramConnectCard.tsx:55
 msgid "settings.telegram.connect.description"
 msgstr "Open Telegram and tap Start in the chat with the bot. This page updates on its own once you are connected."
@@ -8026,3 +8096,33 @@ msgstr "Enter a valid URL."
 #: src/components/remotes/SettingsApp/components/WebhookChannelManager.tsx:205
 msgid "settings.webhooks.validation.url_required"
 msgstr "Enter a webhook URL."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SubscriptionTelegramHint/SubscriptionTelegramHint.tsx:53
+msgid "subscription_telegram_hint.aria_label"
+msgstr "Telegram suggestion"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SubscriptionTelegramHint/SubscriptionTelegramHint.tsx:68
+msgid "subscription_telegram_hint.close"
+msgstr "Close"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SubscriptionTelegramHint/SubscriptionTelegramHint.tsx:90
+msgid "subscription_telegram_hint.connect"
+msgstr "Connect Telegram"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SubscriptionTelegramHint/SubscriptionTelegramHint.tsx:82
+msgid "subscription_telegram_hint.headline"
+msgstr "Get new posts on Telegram"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SubscriptionTelegramHint/SubscriptionTelegramHint.tsx:96
+msgid "subscription_telegram_hint.later"
+msgstr "Later"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SubscriptionTelegramHint/SubscriptionTelegramHint.tsx:79
+msgid "subscription_telegram_hint.title"
+msgstr "Subscribed"

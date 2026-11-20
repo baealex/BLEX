@@ -23,6 +23,7 @@ from board.models import Post, PostContent, PostConfig, PostConfigMeta, PinnedPo
 from board.modules.post_description import create_post_description
 from board.services.tag_service import TagService
 from board.modules.response import ErrorCode
+from board.services.author_subscription_service import AuthorSubscriptionService
 from board.services.post_content_service import PostContentService
 from board.services.authoring_permission_service import AuthoringPermissionService
 from board.services.public_post_service import PublicPostService
@@ -318,6 +319,7 @@ class PostService:
         Send notifications for new post publication.
         - Sends to the author's active channels
         - Sends to active global channels
+        - Notifies readers who subscribed to the author
         - Runs only after DB transaction commit
 
         Args:
@@ -330,6 +332,9 @@ class PostService:
         # Ensure notifications are scheduled only after successful commit.
         transaction.on_commit(
             lambda: WebhookService.notify_channels(post, post_config)
+        )
+        transaction.on_commit(
+            lambda: AuthorSubscriptionService.notify_subscribers(post)
         )
 
     @staticmethod

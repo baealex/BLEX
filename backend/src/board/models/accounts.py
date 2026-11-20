@@ -409,3 +409,78 @@ class AuthorInvite(models.Model):
 
     def __str__(self):
         return self.code
+
+
+class AuthorSubscription(models.Model):
+    """A reader currently following an author. Unsubscribing deletes the row."""
+
+    subscriber = models.ForeignKey(
+        'auth.User',
+        on_delete=models.CASCADE,
+        related_name='author_subscriptions',
+    )
+    author = models.ForeignKey(
+        'auth.User',
+        on_delete=models.CASCADE,
+        related_name='subscriber_subscriptions',
+    )
+    created_date = models.DateTimeField(default=timezone.now)
+
+    class Meta:
+        verbose_name = _('Author subscription')
+        verbose_name_plural = _('Author subscriptions')
+        ordering = ['-created_date']
+        constraints = [
+            models.UniqueConstraint(
+                fields=['subscriber', 'author'],
+                name='board_authorsub_unique_pair',
+            ),
+            models.CheckConstraint(
+                condition=~models.Q(subscriber=models.F('author')),
+                name='board_authorsub_not_self',
+            ),
+        ]
+        indexes = [
+            models.Index(
+                fields=['author', 'created_date'],
+                name='board_authorsub_author_idx',
+            ),
+        ]
+
+    def __str__(self):
+        return f'{self.subscriber_id} -> {self.author_id}'
+
+
+class AuthorSubscriptionLog(models.Model):
+    """Append-only record of subscribe and unsubscribe events for statistics."""
+
+    class Action(models.TextChoices):
+        SUBSCRIBE = 'subscribe', pgettext_lazy('Author subscription action', 'Subscribe')
+        UNSUBSCRIBE = 'unsubscribe', pgettext_lazy('Author subscription action', 'Unsubscribe')
+
+    subscriber = models.ForeignKey(
+        'auth.User',
+        on_delete=models.CASCADE,
+        related_name='author_subscription_logs',
+    )
+    author = models.ForeignKey(
+        'auth.User',
+        on_delete=models.CASCADE,
+        related_name='subscriber_subscription_logs',
+    )
+    action = models.CharField(max_length=16, choices=Action.choices)
+    created_date = models.DateTimeField(default=timezone.now)
+
+    class Meta:
+        verbose_name = _('Author subscription log')
+        verbose_name_plural = _('Author subscription logs')
+        ordering = ['-created_date']
+        indexes = [
+            models.Index(
+                fields=['author', 'created_date'],
+                name='board_authorsublog_author_idx',
+            ),
+        ]
+
+    def __str__(self):
+        return f'{self.subscriber_id} {self.action} {self.author_id}'

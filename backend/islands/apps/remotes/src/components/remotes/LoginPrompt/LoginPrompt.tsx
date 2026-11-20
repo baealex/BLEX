@@ -65,6 +65,10 @@ const LoginPrompt = ({
         reply: t({
             id: 'login_prompt.description.reply',
             message: 'Log in to reply.'
+        }),
+        subscribe: t({
+            id: 'login_prompt.description.subscribe',
+            message: 'Log in to get notified about new posts from this author.'
         })
     };
 

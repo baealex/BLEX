@@ -31,6 +31,8 @@ urlpatterns = [
     path('v1/comments/user', api_v1.user_comment),
     path('v1/comments/<int:id>', api_v1.comment_detail),
     path('v1/users/@<username>/heatmap', api_v1.get_author_heatmap),
+    path('v1/users/@<username>/subscription', api_v1.author_subscription),
+    path('v1/subscriptions', api_v1.my_subscriptions),
     path('v1/users/@<username>', api_v1.users),
     path('v1/users/@<username>/posts/<url>', api_v1.user_posts),
     path(

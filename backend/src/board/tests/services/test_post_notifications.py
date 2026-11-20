@@ -17,8 +17,13 @@ class PostNotificationServiceTestCase(TestCase):
             password='testpass123'
         )
 
+    @patch('board.services.post_service.AuthorSubscriptionService.notify_subscribers')
     @patch('board.services.post_service.WebhookService.notify_channels')
-    def test_send_notifications_on_commit_for_published_post(self, mock_notify):
+    def test_send_notifications_on_commit_for_published_post(
+        self,
+        mock_notify,
+        mock_notify_subscribers,
+    ):
         post = Post.objects.create(
             author=self.user,
             title='Published Post',
@@ -30,11 +35,14 @@ class PostNotificationServiceTestCase(TestCase):
         with self.captureOnCommitCallbacks(execute=False) as callbacks:
             PostService.send_post_notifications(post, post_config)
 
-        self.assertEqual(len(callbacks), 1)
+        self.assertEqual(len(callbacks), 2)
         mock_notify.assert_not_called()
+        mock_notify_subscribers.assert_not_called()
 
-        callbacks[0]()
+        for callback in callbacks:
+            callback()
         mock_notify.assert_called_once_with(post, post_config)
+        mock_notify_subscribers.assert_called_once_with(post)
 
     @patch('board.services.post_service.WebhookService.notify_channels')
     def test_skip_notifications_for_hidden_post(self, mock_notify):
