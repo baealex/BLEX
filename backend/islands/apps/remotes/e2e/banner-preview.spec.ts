@@ -84,7 +84,14 @@ test('browser Back and the mobile preview action return to the current draft', a
     const button = page.getByRole('button', { name: '글에서 미리보기' });
     const dialog = page.getByRole('dialog', { name: '글 미리보기' });
     await headline.fill('아직 저장하지 않은 배너');
-    await page.evaluate(() => window.scrollTo(0, 300));
+    // Scroll only after the live preview has settled, so its height cannot move the page afterwards.
+    await expect(page.getByRole('region', { name: '배너 미리보기' }).getByText('아직 저장하지 않은 배너', { exact: true })).toBeVisible();
+    // The site scrolls smoothly, so jump instantly and read the position once it has landed.
+    await page.evaluate(() => window.scrollTo({
+        top: 300,
+        behavior: 'instant'
+    }));
+    await expect.poll(() => page.evaluate(() => window.scrollY)).toBe(300);
     const editorScroll = await page.evaluate(() => window.scrollY);
     await button.click();
     await expect(dialog).toBeVisible();

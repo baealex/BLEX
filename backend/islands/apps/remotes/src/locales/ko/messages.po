@@ -183,7 +183,7 @@ msgstr "회원가입"
 #. js-lingui-explicit-id
 #: src/components/remotes/SocialLogin/SocialLogin.tsx:79
 msgid "auth.social.continue_with"
-msgstr "{providerName}으로 계속하기"
+msgstr "{providerName}로 계속하기"
 
 #. js-lingui-explicit-id
 #: src/components/remotes/SocialLogin/SocialLogin.tsx:88
@@ -238,7 +238,7 @@ msgstr "복구 키"
 #. js-lingui-explicit-id
 #: src/components/remotes/Login/Login.tsx:216
 msgid "auth.two_factor.success_redirect"
-msgstr "인증이 완료되었습니다. 잠시 후 홈 페이지로 이동합니다."
+msgstr "인증이 완료되었습니다. 잠시 후 이동합니다."
 
 #. js-lingui-explicit-id
 #: src/components/remotes/Login/Login.tsx:273
