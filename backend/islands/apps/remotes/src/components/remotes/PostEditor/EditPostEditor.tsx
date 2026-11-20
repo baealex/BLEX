@@ -20,9 +20,8 @@ import { api } from '~/components/shared';
 import { logger } from '~/utils/logger';
 import type { Series } from './types';
 import {
-    isFutureDateTimeLocal,
-    parseDateTimeLocal,
-    toDateTimeLocalValue,
+    isFutureScheduleDate,
+    parseScheduleDate,
     toReservedDateValue
 } from './utils/scheduleDate';
 import {
@@ -166,7 +165,7 @@ const EditPostEditor = ({ username, postUrl }: EditPostEditorProps) => {
                 const { data: postResponse } = await getPostForEdit(username, postUrl);
                 if (postResponse.status === 'DONE') {
                     const postData = postResponse.body;
-                    const reservedDate = postData.isScheduled ? toDateTimeLocalValue(postData.publishedDate) : '';
+                    const reservedDate = postData.isScheduled ? toReservedDateValue(postData.publishedDate) : '';
                     const initialFormData = {
                         title: postData.title || '',
                         subtitle: postData.subtitle || '',
@@ -340,7 +339,7 @@ const EditPostEditor = ({ username, postUrl }: EditPostEditorProps) => {
             coverLayout: recovery.coverLayout,
             coverImagePosition: recovery.coverImagePosition,
             coverImageRatio: recovery.coverImageRatio,
-            reservedDate: recovery.reservedDate
+            reservedDate: toReservedDateValue(recovery.reservedDate)
         }));
         setTags([...recovery.tags]);
 
@@ -462,7 +461,7 @@ const EditPostEditor = ({ username, postUrl }: EditPostEditorProps) => {
         }
 
         if (isScheduledPost && hasReservedDateChanged()) {
-            if (!parseDateTimeLocal(formData.reservedDate)) {
+            if (!parseScheduleDate(formData.reservedDate)) {
                 toast.error(t({
                     id: 'editor.validation.schedule_invalid',
                     message: 'Check the scheduled time.'
@@ -470,7 +469,7 @@ const EditPostEditor = ({ username, postUrl }: EditPostEditorProps) => {
                 return false;
             }
 
-            if (!isFutureDateTimeLocal(formData.reservedDate)) {
+            if (!isFutureScheduleDate(formData.reservedDate)) {
                 toast.error(t({
                     id: 'editor.validation.schedule_future',
                     message: 'Choose a scheduled time in the future.'

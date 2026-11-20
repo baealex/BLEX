@@ -139,12 +139,12 @@ SITE_ID = 1
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
-    'django.middleware.locale.LocaleMiddleware',
+    'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'main.middleware.regional_preferences.RegionalPreferencesMiddleware',
     'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
     'main.middleware.work_log_upload.WorkLogUploadLimitMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
-    'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'main.middleware.AccessAdminOnlyStaff',
@@ -242,7 +242,7 @@ ENABLE_ENGLISH_UI = (
 )
 LANGUAGES = SUPPORTED_UI_LANGUAGES if ENABLE_ENGLISH_UI else SUPPORTED_UI_LANGUAGES[:1]
 
-TIME_ZONE = os.environ.get('TZ')
+TIME_ZONE = os.environ.get('TZ') or 'Asia/Seoul'
 
 USE_I18N = True
 

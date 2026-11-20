@@ -1,4 +1,4 @@
-import type { AppLocale } from './locale';
+import { getDocumentTimeZone, type AppLocale } from './locale.ts';
 
 const DATE_ONLY_PATTERN = /^(\d{4})-(\d{2})-(\d{2})$/;
 const LOCAL_DATE_TIME_PATTERN = /^(\d{4})-(\d{2})-(\d{2})[ T](\d{2}):(\d{2})$/;
@@ -77,7 +77,8 @@ export const formatLocalDateTime = (
 export const formatDateTime = (
     value: string | undefined,
     locale: AppLocale,
-    fallback = ''
+    fallback = '',
+    timeZone = getDocumentTimeZone()
 ): string => {
     if (!value) {
         return fallback;
@@ -90,6 +91,7 @@ export const formatDateTime = (
 
     return new Intl.DateTimeFormat(locale, {
         dateStyle: 'medium',
-        timeStyle: 'short'
+        timeStyle: 'short',
+        timeZone
     }).format(date);
 };

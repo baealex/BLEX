@@ -14,6 +14,7 @@ from board.services.api_permission_service import ApiPermissionService
 from board.services.api_request_body_service import ApiRequestBodyService
 from board.services.integration_setting_service import IntegrationSettingService
 from board.services.pinned_post_service import PinnedPostService, PinnedPostError
+from board.services.regional_preferences_service import RegionalPreferenceError, RegionalPreferencesService
 from board.services.setting_account_profile_service import (
     SettingAccountProfileError,
     SettingAccountProfileService,
@@ -170,6 +171,7 @@ def setting(request, parameter):
                 'name': user.first_name,
                 'email': user.email,
                 'created_date': convert_to_localtime(user.date_joined).date().isoformat(),
+                'regional_preferences': RegionalPreferencesService.serialize(getattr(user, 'config', None)),
                 'account_deletion_redirect_url': deletion_redirect_url,
                 'has2fa': hasattr(user, 'twofactorauth'),
             })
@@ -282,6 +284,18 @@ def setting(request, parameter):
                 return pinned_post_error_response(e)
 
     if request.method == 'PUT':
+        if parameter == 'regional-preferences':
+            data, error_response = ApiRequestBodyService.parse_json_or_error(request)
+            if error_response is not None:
+                return error_response
+            try:
+                RegionalPreferencesService.save(user, data.get('language', ...), data.get('time_zone'))
+            except RegionalPreferenceError as error:
+                return StatusError(
+                    ErrorCode.VALIDATE, str(error), message_key=error.message_key,
+                )
+            return StatusDone()
+
         put = ApiRequestBodyService.parse_json_or_querydict(request)
 
         if parameter == 'notify':

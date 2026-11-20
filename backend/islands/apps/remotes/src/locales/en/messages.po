@@ -14,43 +14,43 @@ msgstr ""
 "Plural-Forms: \n"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Signup/Signup.tsx:472
+#: src/components/remotes/Signup/Signup.tsx:474
 msgid "auth.fields.confirm_password"
 msgstr "Confirm password"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Signup/Signup.tsx:496
+#: src/components/remotes/Signup/Signup.tsx:498
 msgid "auth.fields.confirm_password_placeholder"
 msgstr "Enter your password again"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Signup/Signup.tsx:384
+#: src/components/remotes/Signup/Signup.tsx:386
 msgid "auth.fields.display_name"
 msgstr "Display name"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Signup/Signup.tsx:397
+#: src/components/remotes/Signup/Signup.tsx:399
 msgid "auth.fields.display_name_placeholder"
 msgstr "Enter your display name"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Signup/Signup.tsx:407
+#: src/components/remotes/Signup/Signup.tsx:409
 msgid "auth.fields.email"
 msgstr "Email"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Signup/Signup.tsx:420
+#: src/components/remotes/Signup/Signup.tsx:422
 msgid "auth.fields.email_placeholder"
 msgstr "Enter your email address"
 
 #. js-lingui-explicit-id
 #: src/components/remotes/Login/components/LoginForm.tsx:132
-#: src/components/remotes/Signup/Signup.tsx:430
+#: src/components/remotes/Signup/Signup.tsx:432
 msgid "auth.fields.password"
 msgstr "Password"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Signup/Signup.tsx:455
+#: src/components/remotes/Signup/Signup.tsx:457
 msgid "auth.fields.password_new_placeholder"
 msgstr "Enter a secure password"
 
@@ -61,13 +61,13 @@ msgstr "Enter your password"
 
 #. js-lingui-explicit-id
 #: src/components/remotes/Login/components/LoginForm.tsx:105
-#: src/components/remotes/Signup/Signup.tsx:340
+#: src/components/remotes/Signup/Signup.tsx:342
 msgid "auth.fields.username"
 msgstr "Username"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Signup/Signup.tsx:369
-#: src/components/remotes/Signup/Signup.tsx:377
+#: src/components/remotes/Signup/Signup.tsx:371
+#: src/components/remotes/Signup/Signup.tsx:379
 msgid "auth.fields.username_hint"
 msgstr "4–15 lowercase letters or numbers"
 
@@ -104,7 +104,7 @@ msgstr "Logging in..."
 #. js-lingui-explicit-id
 #: src/components/remotes/Login/components/LoginForm.tsx:200
 #: src/components/remotes/Login/Login.tsx:275
-#: src/components/remotes/Signup/Signup.tsx:558
+#: src/components/remotes/Signup/Signup.tsx:560
 msgid "auth.login.title"
 msgstr "Log in"
 
@@ -114,64 +114,64 @@ msgid "auth.login.welcome_back"
 msgstr "Welcome back"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Signup/Signup.tsx:556
+#: src/components/remotes/Signup/Signup.tsx:558
 msgid "auth.signup.already_have_account"
 msgstr "Already have an account?"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Signup/Signup.tsx:313
-#: src/components/remotes/Signup/Signup.tsx:545
+#: src/components/remotes/Signup/Signup.tsx:315
+#: src/components/remotes/Signup/Signup.tsx:547
 msgid "auth.signup.as_author"
 msgstr "Sign up as an author"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Signup/Signup.tsx:315
-#: src/components/remotes/Signup/Signup.tsx:547
+#: src/components/remotes/Signup/Signup.tsx:317
+#: src/components/remotes/Signup/Signup.tsx:549
 msgid "auth.signup.as_reader"
 msgstr "Sign up as a reader"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Signup/Signup.tsx:320
+#: src/components/remotes/Signup/Signup.tsx:322
 msgid "auth.signup.author_description"
 msgstr "Create your invited author account"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Signup/Signup.tsx:241
+#: src/components/remotes/Signup/Signup.tsx:242
 msgid "auth.signup.complete_security_check"
 msgstr "Complete the security check."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Signup/Signup.tsx:279
+#: src/components/remotes/Signup/Signup.tsx:281
 msgid "auth.signup.failed"
 msgstr "Could not create your account."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Signup/Signup.tsx:463
+#: src/components/remotes/Signup/Signup.tsx:465
 msgid "auth.signup.password_strength"
 msgstr "Password strength: {passwordStrengthLabel}"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Signup/Signup.tsx:89
+#: src/components/remotes/Signup/Signup.tsx:90
 msgid "auth.signup.password_strength.fair"
 msgstr "Fair"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Signup/Signup.tsx:93
+#: src/components/remotes/Signup/Signup.tsx:94
 msgid "auth.signup.password_strength.strong"
 msgstr "Strong"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Signup/Signup.tsx:81
+#: src/components/remotes/Signup/Signup.tsx:82
 msgid "auth.signup.password_strength.too_short"
 msgstr "Too short"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Signup/Signup.tsx:85
+#: src/components/remotes/Signup/Signup.tsx:86
 msgid "auth.signup.password_strength.weak"
 msgstr "Weak"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Signup/Signup.tsx:322
+#: src/components/remotes/Signup/Signup.tsx:324
 msgid "auth.signup.reader_description"
 msgstr "Discover stories from independent authors"
 
@@ -181,17 +181,17 @@ msgid "auth.signup.title"
 msgstr "Sign up"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SocialLogin/SocialLogin.tsx:75
+#: src/components/remotes/SocialLogin/SocialLogin.tsx:79
 msgid "auth.social.continue_with"
 msgstr "Continue with {providerName}"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SocialLogin/SocialLogin.tsx:84
+#: src/components/remotes/SocialLogin/SocialLogin.tsx:88
 msgid "auth.social.first_sign_in"
 msgstr "Your first social sign-in creates a BLEX account."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SocialLogin/SocialLogin.tsx:89
+#: src/components/remotes/SocialLogin/SocialLogin.tsx:93
 msgid "auth.social.password_divider"
 msgstr "Or use a username and password"
 
@@ -266,82 +266,82 @@ msgid "auth.two_factor.verifying"
 msgstr "Verifying..."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Signup/Signup.tsx:223
+#: src/components/remotes/Signup/Signup.tsx:224
 msgid "auth.validation.confirm_password_required"
 msgstr "Confirm your password."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Signup/Signup.tsx:190
+#: src/components/remotes/Signup/Signup.tsx:191
 msgid "auth.validation.display_name_required"
 msgstr "Display name is required."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Signup/Signup.tsx:203
+#: src/components/remotes/Signup/Signup.tsx:204
 msgid "auth.validation.email_invalid"
 msgstr "Enter a valid email address."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Signup/Signup.tsx:197
+#: src/components/remotes/Signup/Signup.tsx:198
 msgid "auth.validation.email_required"
 msgstr "Email is required."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Signup/Signup.tsx:229
-#: src/components/remotes/Signup/Signup.tsx:446
-#: src/components/remotes/Signup/Signup.tsx:487
+#: src/components/remotes/Signup/Signup.tsx:230
+#: src/components/remotes/Signup/Signup.tsx:448
+#: src/components/remotes/Signup/Signup.tsx:489
 msgid "auth.validation.password_mismatch"
 msgstr "Passwords do not match."
 
 #. js-lingui-explicit-id
 #: src/components/remotes/Login/Login.tsx:109
-#: src/components/remotes/Signup/Signup.tsx:210
+#: src/components/remotes/Signup/Signup.tsx:211
 msgid "auth.validation.password_required"
 msgstr "Password is required."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Signup/Signup.tsx:216
+#: src/components/remotes/Signup/Signup.tsx:217
 msgid "auth.validation.password_too_short"
 msgstr "Password must be at least 8 characters."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Signup/Signup.tsx:177
-#: src/components/remotes/Signup/Signup.tsx:355
+#: src/components/remotes/Signup/Signup.tsx:178
+#: src/components/remotes/Signup/Signup.tsx:357
 msgid "auth.validation.username_characters"
 msgstr "Use only lowercase letters and numbers."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Signup/Signup.tsx:183
+#: src/components/remotes/Signup/Signup.tsx:184
 msgid "auth.validation.username_length"
 msgstr "Username must be 4–15 lowercase letters or numbers."
 
 #. js-lingui-explicit-id
 #: src/components/remotes/Login/Login.tsx:102
-#: src/components/remotes/Signup/Signup.tsx:171
+#: src/components/remotes/Signup/Signup.tsx:172
 msgid "auth.validation.username_required"
 msgstr "Username is required."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Signup/Signup.tsx:360
+#: src/components/remotes/Signup/Signup.tsx:362
 msgid "auth.validation.username_too_long"
 msgstr "Username cannot exceed 15 characters."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Author/Heatmap.tsx:221
+#: src/components/remotes/Author/Heatmap.tsx:233
 msgid "author.heatmap.activity_count"
 msgstr "{activityCount, plural, one {# activity} other {# activities}}"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Author/Heatmap.tsx:239
+#: src/components/remotes/Author/Heatmap.tsx:251
 msgid "author.heatmap.count_label"
 msgstr "activity"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Author/Heatmap.tsx:218
+#: src/components/remotes/Author/Heatmap.tsx:230
 msgid "author.heatmap.past_year"
 msgstr "Activity in the past year"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Author/Heatmap.tsx:230
+#: src/components/remotes/Author/Heatmap.tsx:242
 msgid "author.heatmap.unit"
 msgstr "Unit: activity"
 
@@ -651,10 +651,10 @@ msgstr "Apply"
 #. js-lingui-explicit-id
 #: src/components/remotes/Comments/components/CommentEditForm.tsx:69
 #: src/components/remotes/Comments/components/CommentForm.tsx:202
-#: src/components/remotes/PostEditor/components/PostRevisionDialog.tsx:606
-#: src/components/remotes/PostEditor/components/PostRevisionDialog.tsx:624
+#: src/components/remotes/PostEditor/components/PostRevisionDialog.tsx:600
+#: src/components/remotes/PostEditor/components/PostRevisionDialog.tsx:618
 #: src/components/remotes/PostEditor/components/PublishChecklist.tsx:139
-#: src/components/remotes/PostEditor/EditPostEditor.tsx:386
+#: src/components/remotes/PostEditor/EditPostEditor.tsx:385
 #: src/components/remotes/PostEditor/NewPostEditor.tsx:400
 #: src/components/remotes/SettingsApp/components/WebhookChannelManager.tsx:486
 #: src/components/remotes/SettingsApp/pages/AccountSetting/components/TwoFactorModal.tsx:135
@@ -668,8 +668,8 @@ msgid "common.cancel"
 msgstr "Cancel"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/AccountSetting/AccountSetting.tsx:69
-#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:519
+#: src/components/remotes/SettingsApp/pages/AccountSetting/AccountSetting.tsx:71
+#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:522
 msgid "common.change"
 msgstr "Change"
 
@@ -679,7 +679,7 @@ msgid "common.change_order"
 msgstr "Change order"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostEditor/components/DraftsPanel.tsx:121
+#: src/components/remotes/PostEditor/components/DraftsPanel.tsx:122
 #: src/components/remotes/PostEditor/components/SettingsDrawer.tsx:234
 #: src/components/remotes/SettingsApp/pages/StaticPagesSetting/components/StaticPageEditor.tsx:525
 msgid "common.close"
@@ -717,11 +717,11 @@ msgstr "Create"
 #. js-lingui-explicit-id
 #: src/components/remotes/Comments/components/CommentItem.tsx:78
 #: src/components/remotes/Comments/hooks/useCommentsController.ts:279
-#: src/components/remotes/PostEditor/components/PostRevisionDialog.tsx:614
-#: src/components/remotes/PostEditor/components/PostRevisionDialog.tsx:645
+#: src/components/remotes/PostEditor/components/PostRevisionDialog.tsx:608
+#: src/components/remotes/PostEditor/components/PostRevisionDialog.tsx:639
 #: src/components/remotes/SettingsApp/components/WebhookChannelManager.tsx:336
 #: src/components/remotes/SettingsApp/components/WebhookChannelManager.tsx:550
-#: src/components/remotes/SettingsApp/pages/AccountSetting/AccountSetting.tsx:283
+#: src/components/remotes/SettingsApp/pages/AccountSetting/AccountSetting.tsx:285
 #: src/components/remotes/SettingsApp/pages/AccountSetting/components/SecuritySection.tsx:77
 #: src/components/remotes/SettingsApp/pages/BannerSetting/components/BannerList.tsx:111
 #: src/components/remotes/SettingsApp/pages/FormsSetting/FormsSetting.tsx:86
@@ -743,8 +743,8 @@ msgstr "Create"
 #: src/components/remotes/SettingsApp/pages/StaticPagesSetting/components/StaticPageEditor.tsx:462
 #: src/components/remotes/SettingsApp/pages/StaticPagesSetting/components/StaticPageList.tsx:43
 #: src/components/remotes/SettingsApp/pages/StaticPagesSetting/StaticPagesSetting.tsx:72
-#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:595
-#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:720
+#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:598
+#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:723
 msgid "common.delete"
 msgstr "Delete"
 
@@ -754,7 +754,7 @@ msgid "common.deleting"
 msgstr "Deleting..."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/AccountSetting/AccountSetting.tsx:195
+#: src/components/remotes/SettingsApp/pages/AccountSetting/AccountSetting.tsx:197
 #: src/components/remotes/SettingsApp/pages/AccountSetting/components/SecuritySection.tsx:38
 msgid "common.disable"
 msgstr "Disable"
@@ -789,7 +789,7 @@ msgstr "Enable"
 #. js-lingui-explicit-id
 #: src/components/remotes/Login/Login.tsx:155
 #: src/components/remotes/Login/Login.tsx:243
-#: src/components/remotes/Signup/Signup.tsx:285
+#: src/components/remotes/Signup/Signup.tsx:287
 msgid "common.error.try_again"
 msgstr "Something went wrong. Please try again."
 
@@ -804,7 +804,7 @@ msgid "common.image_crop.zoom"
 msgstr "Zoom"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostEditor/components/PostRevisionDialog.tsx:453
+#: src/components/remotes/PostEditor/components/PostRevisionDialog.tsx:447
 msgid "common.load_more"
 msgstr "Load more"
 
@@ -816,7 +816,8 @@ msgid "common.loading"
 msgstr "Loading"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/AccountSetting/AccountSetting.tsx:28
+#: src/components/remotes/SettingsApp/pages/AccountSetting/AccountSetting.tsx:29
+#: src/components/remotes/SettingsApp/pages/AccountSetting/components/RegionalPreferencesSection.tsx:38
 #: src/components/remotes/SettingsApp/pages/FormsSetting/FormsSetting.tsx:111
 #: src/components/remotes/SettingsApp/pages/FormsSetting/FormsSetting.tsx:144
 #: src/components/remotes/SettingsApp/pages/FormsSetting/FormsSetting.tsx:192
@@ -836,25 +837,25 @@ msgstr "None"
 
 #. js-lingui-explicit-id
 #: src/components/remotes/SettingsApp/pages/PostsSetting/components/Pagination.tsx:54
-#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:899
+#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:902
 msgid "common.pagination.first"
 msgstr "First page"
 
 #. js-lingui-explicit-id
 #: src/components/remotes/SettingsApp/pages/PostsSetting/components/Pagination.tsx:129
-#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:946
+#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:949
 msgid "common.pagination.last"
 msgstr "Last page"
 
 #. js-lingui-explicit-id
 #: src/components/remotes/SettingsApp/pages/PostsSetting/components/Pagination.tsx:117
-#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:934
+#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:937
 msgid "common.pagination.next"
 msgstr "Next page"
 
 #. js-lingui-explicit-id
 #: src/components/remotes/SettingsApp/pages/PostsSetting/components/Pagination.tsx:66
-#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:911
+#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:914
 msgid "common.pagination.previous"
 msgstr "Previous page"
 
@@ -869,7 +870,7 @@ msgid "common.previous"
 msgstr "Previous"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Signup/Signup.tsx:541
+#: src/components/remotes/Signup/Signup.tsx:543
 msgid "common.processing"
 msgstr "Processing..."
 
@@ -885,7 +886,7 @@ msgid "common.replace"
 msgstr "Replace"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:784
+#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:787
 msgid "common.reset"
 msgstr "Reset"
 
@@ -897,8 +898,8 @@ msgstr "Restore"
 
 #. js-lingui-explicit-id
 #: src/components/remotes/Comments/Comments.tsx:112
-#: src/components/remotes/PostEditor/components/DraftsPanel.tsx:146
-#: src/components/remotes/PostEditor/components/PostRevisionDialog.tsx:386
+#: src/components/remotes/PostEditor/components/DraftsPanel.tsx:147
+#: src/components/remotes/PostEditor/components/PostRevisionDialog.tsx:380
 #: src/components/remotes/SettingsApp/pages/NotifySetting/components/NotifyConfigModal.tsx:125
 #: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostShareLinksDialog.tsx:150
 msgid "common.retry"
@@ -906,6 +907,7 @@ msgstr "Try again"
 
 #. js-lingui-explicit-id
 #: src/components/remotes/Comments/components/CommentEditForm.tsx:90
+#: src/components/remotes/SettingsApp/pages/AccountSetting/components/RegionalPreferencesSection.tsx:100
 #: src/components/remotes/SettingsApp/pages/PostsSetting/components/PostShareLinksDialog.tsx:193
 msgid "common.save"
 msgstr "Save"
@@ -928,7 +930,7 @@ msgid "common.saving_ellipsis"
 msgstr "Saving..."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:780
+#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:783
 msgid "common.search"
 msgstr "Search"
 
@@ -1042,17 +1044,17 @@ msgid "editor.autosave.saving"
 msgstr "Saving..."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostEditor/components/DraftsPanel.tsx:169
-#: src/components/remotes/PostEditor/components/PostRevisionDialog.tsx:417
-#: src/components/remotes/PostEditor/components/PostRevisionDialog.tsx:487
-#: src/components/remotes/PostEditor/components/PostRevisionDialog.tsx:568
-#: src/components/remotes/PostEditor/components/PostRevisionDialog.tsx:585
+#: src/components/remotes/PostEditor/components/DraftsPanel.tsx:170
+#: src/components/remotes/PostEditor/components/PostRevisionDialog.tsx:411
+#: src/components/remotes/PostEditor/components/PostRevisionDialog.tsx:481
+#: src/components/remotes/PostEditor/components/PostRevisionDialog.tsx:562
+#: src/components/remotes/PostEditor/components/PostRevisionDialog.tsx:579
 #: src/components/remotes/PostEditor/hooks/useAutoSave.ts:164
 msgid "editor.common.untitled"
 msgstr "Untitled"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostEditor/EditPostEditor.tsx:580
+#: src/components/remotes/PostEditor/EditPostEditor.tsx:579
 #: src/components/remotes/PostEditor/hooks/useFormSubmit.ts:172
 msgid "editor.confirm.move_to_trash"
 msgstr "Move this post to the trash? You can restore it from post settings."
@@ -1191,12 +1193,12 @@ msgid "editor.cover.style"
 msgstr "Cover style"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostEditor/components/DraftsPanel.tsx:153
+#: src/components/remotes/PostEditor/components/DraftsPanel.tsx:154
 msgid "editor.drafts.empty"
 msgstr "No saved drafts"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostEditor/components/DraftsPanel.tsx:140
+#: src/components/remotes/PostEditor/components/DraftsPanel.tsx:141
 msgid "editor.drafts.error.load"
 msgstr "Could not load drafts"
 
@@ -1221,7 +1223,7 @@ msgid "editor.drafts.time.minutes_ago"
 msgstr "{count, plural, one {# minute ago} other {# minutes ago}}"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostEditor/components/DraftsPanel.tsx:117
+#: src/components/remotes/PostEditor/components/DraftsPanel.tsx:118
 #: src/components/remotes/PostEditor/components/PostActions.tsx:111
 #: src/components/remotes/PostEditor/components/PostActions.tsx:115
 msgid "editor.drafts.title"
@@ -1229,7 +1231,7 @@ msgstr "Drafts"
 
 #. js-lingui-explicit-id
 #. placeholder {0}: drafts.length
-#: src/components/remotes/PostEditor/components/DraftsPanel.tsx:194
+#: src/components/remotes/PostEditor/components/DraftsPanel.tsx:195
 msgid "editor.drafts.total"
 msgstr "{0, plural, one {# draft} other {# drafts}}"
 
@@ -1239,7 +1241,7 @@ msgid "editor.error.load_draft"
 msgstr "Could not load the draft."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostEditor/EditPostEditor.tsx:235
+#: src/components/remotes/PostEditor/EditPostEditor.tsx:234
 msgid "editor.error.load_post"
 msgstr "Could not load the post."
 
@@ -1264,7 +1266,7 @@ msgid "editor.error.missing_new_parameters"
 msgstr "New post mode requires a username."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostEditor/EditPostEditor.tsx:606
+#: src/components/remotes/PostEditor/EditPostEditor.tsx:605
 #: src/components/remotes/PostEditor/hooks/useFormSubmit.ts:192
 msgid "editor.error.move_to_trash"
 msgstr "Could not move the post to the trash."
@@ -1280,15 +1282,15 @@ msgid "editor.error.unsupported_mode"
 msgstr "Unsupported editor mode: {mode}"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostEditor/EditPostEditor.tsx:546
-#: src/components/remotes/PostEditor/EditPostEditor.tsx:562
+#: src/components/remotes/PostEditor/EditPostEditor.tsx:545
+#: src/components/remotes/PostEditor/EditPostEditor.tsx:561
 #: src/components/remotes/PostEditor/hooks/useFormSubmit.ts:157
 msgid "editor.error.update"
 msgstr "Could not update the post."
 
 #. js-lingui-explicit-id
 #: src/components/remotes/PostEditor/components/PostForm.tsx:88
-#: src/components/remotes/PostEditor/components/PostRevisionDialog.tsx:528
+#: src/components/remotes/PostEditor/components/PostRevisionDialog.tsx:522
 msgid "editor.fields.content"
 msgstr "Content"
 
@@ -1298,7 +1300,7 @@ msgid "editor.fields.content_placeholder"
 msgstr "Start writing..."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostEditor/components/PostRevisionDialog.tsx:518
+#: src/components/remotes/PostEditor/components/PostRevisionDialog.tsx:512
 msgid "editor.fields.description"
 msgstr "Description"
 
@@ -1409,8 +1411,8 @@ msgid "editor.heading.edit_draft"
 msgstr "Edit draft"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostEditor/EditPostEditor.tsx:782
-#: src/components/remotes/PostEditor/EditPostEditor.tsx:796
+#: src/components/remotes/PostEditor/EditPostEditor.tsx:781
+#: src/components/remotes/PostEditor/EditPostEditor.tsx:795
 msgid "editor.heading.edit_post"
 msgstr "Edit post"
 
@@ -1420,13 +1422,13 @@ msgid "editor.heading.new_post"
 msgstr "New post"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostEditor/EditPostEditor.tsx:787
+#: src/components/remotes/PostEditor/EditPostEditor.tsx:786
 msgid "editor.loading_post"
 msgstr "Loading post..."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostEditor/EditPostEditor.tsx:439
-#: src/components/remotes/PostEditor/EditPostEditor.tsx:449
+#: src/components/remotes/PostEditor/EditPostEditor.tsx:438
+#: src/components/remotes/PostEditor/EditPostEditor.tsx:448
 #: src/components/remotes/PostEditor/NewPostEditor.tsx:155
 #: src/components/remotes/PostEditor/NewPostEditor.tsx:165
 msgid "editor.media.error.upload"
@@ -1444,7 +1446,7 @@ msgid "editor.media.wait_before_publish"
 msgstr "Wait for the upload to finish before publishing."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostEditor/EditPostEditor.tsx:630
+#: src/components/remotes/PostEditor/EditPostEditor.tsx:629
 msgid "editor.media.wait_before_revisions"
 msgstr "Wait for the upload to finish before opening revision history."
 
@@ -1460,12 +1462,12 @@ msgid "editor.media.wait_before_schedule"
 msgstr "Wait for the upload to finish before scheduling."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostEditor/EditPostEditor.tsx:669
+#: src/components/remotes/PostEditor/EditPostEditor.tsx:668
 msgid "editor.media.wait_before_schedule_change"
 msgstr "Wait for the upload to finish before changing the schedule."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostEditor/EditPostEditor.tsx:497
+#: src/components/remotes/PostEditor/EditPostEditor.tsx:496
 msgid "editor.media.wait_before_update"
 msgstr "Wait for the upload to finish before updating."
 
@@ -1553,12 +1555,12 @@ msgid "editor.publish.complete"
 msgstr "Complete"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostEditor/utils/publishChecklist.ts:183
+#: src/components/remotes/PostEditor/utils/publishChecklist.ts:174
 msgid "editor.publish.confirm_publish"
 msgstr "Review and publish"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostEditor/utils/publishChecklist.ts:179
+#: src/components/remotes/PostEditor/utils/publishChecklist.ts:170
 msgid "editor.publish.confirm_schedule"
 msgstr "Review and schedule"
 
@@ -1568,57 +1570,57 @@ msgid "editor.publish.empty"
 msgstr "Empty"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostEditor/utils/publishChecklist.ts:81
+#: src/components/remotes/PostEditor/utils/publishChecklist.ts:72
 msgid "editor.publish.field.content"
 msgstr "Content"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostEditor/utils/publishChecklist.ts:85
+#: src/components/remotes/PostEditor/utils/publishChecklist.ts:76
 msgid "editor.publish.field.content_description"
 msgstr "Add some content before publishing."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostEditor/utils/publishChecklist.ts:120
+#: src/components/remotes/PostEditor/utils/publishChecklist.ts:111
 msgid "editor.publish.field.cover_image"
 msgstr "Cover image"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostEditor/utils/publishChecklist.ts:124
+#: src/components/remotes/PostEditor/utils/publishChecklist.ts:115
 msgid "editor.publish.field.cover_image_description"
 msgstr "Set the first impression in listings and shared cards. This does not replace images in the post."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostEditor/utils/publishChecklist.ts:94
+#: src/components/remotes/PostEditor/utils/publishChecklist.ts:85
 msgid "editor.publish.field.description"
 msgstr "Description"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostEditor/utils/publishChecklist.ts:98
+#: src/components/remotes/PostEditor/utils/publishChecklist.ts:89
 msgid "editor.publish.field.description_description"
 msgstr "Describe the post in search results and shared links. You can still publish without it."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostEditor/utils/publishChecklist.ts:107
+#: src/components/remotes/PostEditor/utils/publishChecklist.ts:98
 msgid "editor.publish.field.tags"
 msgstr "Tags"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostEditor/utils/publishChecklist.ts:111
+#: src/components/remotes/PostEditor/utils/publishChecklist.ts:102
 msgid "editor.publish.field.tags_description"
 msgstr "Group related posts and help readers discover similar posts."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostEditor/utils/publishChecklist.ts:68
+#: src/components/remotes/PostEditor/utils/publishChecklist.ts:59
 msgid "editor.publish.field.title"
 msgstr "Title"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostEditor/utils/publishChecklist.ts:72
+#: src/components/remotes/PostEditor/utils/publishChecklist.ts:63
 msgid "editor.publish.field.title_description"
 msgstr "Readers need a title to identify this post."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostEditor/utils/publishChecklist.ts:192
+#: src/components/remotes/PostEditor/utils/publishChecklist.ts:183
 msgid "editor.publish.publishing"
 msgstr "Publishing..."
 
@@ -1648,303 +1650,303 @@ msgid "editor.publish.required"
 msgstr "Required"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostEditor/utils/publishChecklist.ts:188
+#: src/components/remotes/PostEditor/utils/publishChecklist.ts:179
 msgid "editor.publish.scheduling"
 msgstr "Scheduling..."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostEditor/utils/publishChecklist.ts:162
+#: src/components/remotes/PostEditor/utils/publishChecklist.ts:153
 msgid "editor.publish.visibility.private_description"
 msgstr "Only you can view it. It will be excluded from public URLs, RSS, sitemaps, and Markdown endpoints."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostEditor/utils/publishChecklist.ts:138
+#: src/components/remotes/PostEditor/utils/publishChecklist.ts:129
 msgid "editor.publish.visibility.private_scheduled_title"
 msgstr "This is a private scheduled post"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostEditor/utils/publishChecklist.ts:147
+#: src/components/remotes/PostEditor/utils/publishChecklist.ts:138
 msgid "editor.publish.visibility.private_title"
 msgstr "This post will be private"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostEditor/utils/publishChecklist.ts:166
+#: src/components/remotes/PostEditor/utils/publishChecklist.ts:157
 msgid "editor.publish.visibility.public_description"
 msgstr "It will be available at its public URL immediately and included in RSS and sitemaps."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostEditor/utils/publishChecklist.ts:151
+#: src/components/remotes/PostEditor/utils/publishChecklist.ts:142
 msgid "editor.publish.visibility.public_title"
 msgstr "This post will be public"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostEditor/utils/publishChecklist.ts:156
+#: src/components/remotes/PostEditor/utils/publishChecklist.ts:147
 msgid "editor.publish.visibility.scheduled_description"
 msgstr "This post will be published on {scheduledAt}. Only you can view it before then."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostEditor/utils/publishChecklist.ts:142
+#: src/components/remotes/PostEditor/utils/publishChecklist.ts:133
 msgid "editor.publish.visibility.scheduled_title"
 msgstr "This post will be published on schedule"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostEditor/components/EditRecoveryNotice.tsx:33
+#: src/components/remotes/PostEditor/components/EditRecoveryNotice.tsx:34
 msgid "editor.recovery.aria_label"
 msgstr "Post edit backup"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostEditor/EditPostEditor.tsx:378
+#: src/components/remotes/PostEditor/EditPostEditor.tsx:377
 msgid "editor.recovery.confirm_delete_description"
 msgstr "Unrecovered edits will be deleted from this browser."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostEditor/EditPostEditor.tsx:374
+#: src/components/remotes/PostEditor/EditPostEditor.tsx:373
 msgid "editor.recovery.confirm_delete_title"
 msgstr "Delete edit backup"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostEditor/components/EditRecoveryNotice.tsx:68
-#: src/components/remotes/PostEditor/EditPostEditor.tsx:382
+#: src/components/remotes/PostEditor/components/EditRecoveryNotice.tsx:69
+#: src/components/remotes/PostEditor/EditPostEditor.tsx:381
 msgid "editor.recovery.delete_backup"
 msgstr "Delete backup"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostEditor/EditPostEditor.tsx:399
+#: src/components/remotes/PostEditor/EditPostEditor.tsx:398
 msgid "editor.recovery.deleted"
 msgstr "Edit backup deleted."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostEditor/components/EditRecoveryNotice.tsx:45
+#: src/components/remotes/PostEditor/components/EditRecoveryNotice.tsx:46
 msgid "editor.recovery.description"
 msgstr "You can recover edits saved in this browser. The published post has not changed."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostEditor/components/EditRecoveryNotice.tsx:50
+#: src/components/remotes/PostEditor/components/EditRecoveryNotice.tsx:51
 msgid "editor.recovery.last_backup"
 msgstr "Last backup"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostEditor/components/EditRecoveryNotice.tsx:60
+#: src/components/remotes/PostEditor/components/EditRecoveryNotice.tsx:61
 msgid "editor.recovery.recover"
 msgstr "Recover"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostEditor/EditPostEditor.tsx:487
-#: src/components/remotes/PostEditor/EditPostEditor.tsx:616
-#: src/components/remotes/PostEditor/EditPostEditor.tsx:653
+#: src/components/remotes/PostEditor/EditPostEditor.tsx:486
+#: src/components/remotes/PostEditor/EditPostEditor.tsx:615
+#: src/components/remotes/PostEditor/EditPostEditor.tsx:652
 msgid "editor.recovery.resolve_first"
 msgstr "Recover or delete the edit backup first."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostEditor/EditPostEditor.tsx:364
+#: src/components/remotes/PostEditor/EditPostEditor.tsx:363
 msgid "editor.recovery.success"
 msgstr "Backup recovered. Select Update to save these changes."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostEditor/components/EditRecoveryNotice.tsx:40
+#: src/components/remotes/PostEditor/components/EditRecoveryNotice.tsx:41
 msgid "editor.recovery.title"
 msgstr "You have unsaved edits"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostEditor/components/PostRevisionDialog.tsx:318
-#: src/components/remotes/PostEditor/components/PostRevisionDialog.tsx:322
+#: src/components/remotes/PostEditor/components/PostRevisionDialog.tsx:312
+#: src/components/remotes/PostEditor/components/PostRevisionDialog.tsx:316
 msgid "editor.revisions.back_to_list"
 msgstr "Back to revision history"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostEditor/components/PostRevisionDialog.tsx:71
+#: src/components/remotes/PostEditor/components/PostRevisionDialog.tsx:72
 msgid "editor.revisions.change_type.edit"
 msgstr "Before edit"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostEditor/components/PostRevisionDialog.tsx:79
+#: src/components/remotes/PostEditor/components/PostRevisionDialog.tsx:80
 msgid "editor.revisions.change_type.legacy"
 msgstr "Legacy format"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostEditor/components/PostRevisionDialog.tsx:75
+#: src/components/remotes/PostEditor/components/PostRevisionDialog.tsx:76
 msgid "editor.revisions.change_type.restore"
 msgstr "Before restore"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostEditor/components/PostRevisionDialog.tsx:358
-#: src/components/remotes/PostEditor/components/PostRevisionDialog.tsx:362
+#: src/components/remotes/PostEditor/components/PostRevisionDialog.tsx:352
+#: src/components/remotes/PostEditor/components/PostRevisionDialog.tsx:356
 msgid "editor.revisions.close"
 msgstr "Close revision history"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostEditor/components/PostRevisionDialog.tsx:575
+#: src/components/remotes/PostEditor/components/PostRevisionDialog.tsx:569
 msgid "editor.revisions.confirm_delete_description"
 msgstr "Deleted revisions cannot be recovered. The current post will not change."
 
 #. js-lingui-explicit-id
 #. placeholder {0}: selectedRevision.title || t({ id: 'editor.common.untitled', message: 'Untitled' })
-#: src/components/remotes/PostEditor/components/PostRevisionDialog.tsx:567
+#: src/components/remotes/PostEditor/components/PostRevisionDialog.tsx:561
 msgid "editor.revisions.confirm_delete_title"
 msgstr "Delete the revision “{0}”?"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostEditor/components/PostRevisionDialog.tsx:592
+#: src/components/remotes/PostEditor/components/PostRevisionDialog.tsx:586
 msgid "editor.revisions.confirm_restore_description"
 msgstr "The current content will be saved as a revision first. The URL, publication, visibility, and comment settings will not change."
 
 #. js-lingui-explicit-id
 #. placeholder {0}: selectedRevision.title || t({ id: 'editor.common.untitled', message: 'Untitled' })
-#: src/components/remotes/PostEditor/components/PostRevisionDialog.tsx:584
+#: src/components/remotes/PostEditor/components/PostRevisionDialog.tsx:578
 msgid "editor.revisions.confirm_restore_title"
 msgstr "Restore the revision “{0}”?"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostEditor/components/PostRevisionDialog.tsx:349
+#: src/components/remotes/PostEditor/components/PostRevisionDialog.tsx:343
 msgid "editor.revisions.description"
 msgstr "Review snapshots saved before each content edit"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostEditor/components/PostRevisionDialog.tsx:345
+#: src/components/remotes/PostEditor/components/PostRevisionDialog.tsx:339
 msgid "editor.revisions.detail_description"
 msgstr "Review, restore, or delete this saved revision"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostEditor/components/PostRevisionDialog.tsx:337
+#: src/components/remotes/PostEditor/components/PostRevisionDialog.tsx:331
 msgid "editor.revisions.detail_title"
 msgstr "Revision details"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostEditor/components/PostRevisionDialog.tsx:393
+#: src/components/remotes/PostEditor/components/PostRevisionDialog.tsx:387
 msgid "editor.revisions.empty"
 msgstr "No revision history yet"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostEditor/components/PostRevisionDialog.tsx:396
+#: src/components/remotes/PostEditor/components/PostRevisionDialog.tsx:390
 msgid "editor.revisions.empty_description"
 msgstr "When you edit a published post, the previous version will appear here."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostEditor/components/PostRevisionDialog.tsx:227
-#: src/components/remotes/PostEditor/components/PostRevisionDialog.tsx:240
+#: src/components/remotes/PostEditor/components/PostRevisionDialog.tsx:221
+#: src/components/remotes/PostEditor/components/PostRevisionDialog.tsx:234
 msgid "editor.revisions.error.delete"
 msgstr "Could not delete the revision."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostEditor/components/PostRevisionDialog.tsx:115
-#: src/components/remotes/PostEditor/components/PostRevisionDialog.tsx:125
+#: src/components/remotes/PostEditor/components/PostRevisionDialog.tsx:109
+#: src/components/remotes/PostEditor/components/PostRevisionDialog.tsx:119
 msgid "editor.revisions.error.load_detail"
 msgstr "Could not load the revision."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostEditor/components/PostRevisionDialog.tsx:151
-#: src/components/remotes/PostEditor/components/PostRevisionDialog.tsx:164
+#: src/components/remotes/PostEditor/components/PostRevisionDialog.tsx:145
+#: src/components/remotes/PostEditor/components/PostRevisionDialog.tsx:158
 msgid "editor.revisions.error.load_list"
 msgstr "Could not load revision history."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostEditor/components/PostRevisionDialog.tsx:189
-#: src/components/remotes/PostEditor/components/PostRevisionDialog.tsx:201
+#: src/components/remotes/PostEditor/components/PostRevisionDialog.tsx:183
+#: src/components/remotes/PostEditor/components/PostRevisionDialog.tsx:195
 msgid "editor.revisions.error.load_more"
 msgstr "Could not load more revision history."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostEditor/components/PostRevisionDialog.tsx:261
-#: src/components/remotes/PostEditor/components/PostRevisionDialog.tsx:282
+#: src/components/remotes/PostEditor/components/PostRevisionDialog.tsx:255
+#: src/components/remotes/PostEditor/components/PostRevisionDialog.tsx:276
 msgid "editor.revisions.error.restore"
 msgstr "Could not restore the revision."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostEditor/components/PostRevisionDialog.tsx:268
+#: src/components/remotes/PostEditor/components/PostRevisionDialog.tsx:262
 msgid "editor.revisions.info.already_current"
 msgstr "The current post already matches this revision."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostEditor/components/PostRevisionDialog.tsx:542
+#: src/components/remotes/PostEditor/components/PostRevisionDialog.tsx:536
 msgid "editor.revisions.legacy_read_only"
 msgstr "Legacy revisions are read-only because their original format cannot be verified."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostEditor/components/PostRevisionDialog.tsx:404
+#: src/components/remotes/PostEditor/components/PostRevisionDialog.tsx:398
 msgid "editor.revisions.list_aria_label"
 msgstr "Revisions"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostEditor/components/PostRevisionDialog.tsx:378
+#: src/components/remotes/PostEditor/components/PostRevisionDialog.tsx:372
 msgid "editor.revisions.loading"
 msgstr "Loading revision history"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostEditor/components/PostRevisionDialog.tsx:477
+#: src/components/remotes/PostEditor/components/PostRevisionDialog.tsx:471
 msgid "editor.revisions.loading_detail"
 msgstr "Loading revision"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostEditor/components/PostRevisionDialog.tsx:531
+#: src/components/remotes/PostEditor/components/PostRevisionDialog.tsx:525
 msgid "editor.revisions.no_content"
 msgstr "No content in this revision."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostEditor/components/PostRevisionDialog.tsx:427
+#: src/components/remotes/PostEditor/components/PostRevisionDialog.tsx:421
 msgid "editor.revisions.no_content_preview"
 msgstr "No content preview"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostEditor/components/PostRevisionDialog.tsx:632
+#: src/components/remotes/PostEditor/components/PostRevisionDialog.tsx:626
 msgid "editor.revisions.restore"
 msgstr "Restore"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostEditor/components/PostRevisionDialog.tsx:655
+#: src/components/remotes/PostEditor/components/PostRevisionDialog.tsx:649
 msgid "editor.revisions.restore_this"
 msgstr "Restore this revision"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostEditor/EditPostEditor.tsx:623
+#: src/components/remotes/PostEditor/EditPostEditor.tsx:622
 msgid "editor.revisions.save_changes_first"
 msgstr "Update your changes before opening revision history."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostEditor/components/PostRevisionDialog.tsx:234
+#: src/components/remotes/PostEditor/components/PostRevisionDialog.tsx:228
 msgid "editor.revisions.success.deleted"
 msgstr "Revision deleted."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostEditor/components/PostRevisionDialog.tsx:276
+#: src/components/remotes/PostEditor/components/PostRevisionDialog.tsx:270
 msgid "editor.revisions.success.restored"
 msgstr "Revision restored."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostEditor/components/PostRevisionDialog.tsx:500
+#: src/components/remotes/PostEditor/components/PostRevisionDialog.tsx:494
 msgid "editor.revisions.tags_aria_label"
 msgstr "Revision tags"
 
 #. js-lingui-explicit-id
 #: src/components/remotes/PostEditor/components/PostActions.tsx:156
 #: src/components/remotes/PostEditor/components/PostActions.tsx:160
-#: src/components/remotes/PostEditor/components/PostRevisionDialog.tsx:339
+#: src/components/remotes/PostEditor/components/PostRevisionDialog.tsx:333
 msgid "editor.revisions.title"
 msgstr "Revision history"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostEditor/components/PostRevisionDialog.tsx:461
+#: src/components/remotes/PostEditor/components/PostRevisionDialog.tsx:455
 msgid "editor.revisions.total"
 msgstr "{totalCount, plural, one {# revision} other {# revisions}}"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostEditor/components/PostRevisionDialog.tsx:558
+#: src/components/remotes/PostEditor/components/PostRevisionDialog.tsx:552
 msgid "editor.revisions.version_conflict"
 msgstr "The post changed after you opened this page. Refresh before restoring."
 
 #. js-lingui-explicit-id
 #: src/components/remotes/PostEditor/components/SettingsDrawer.tsx:297
-#: src/components/remotes/PostEditor/EditPostEditor.tsx:683
-#: src/components/remotes/PostEditor/EditPostEditor.tsx:691
+#: src/components/remotes/PostEditor/EditPostEditor.tsx:682
+#: src/components/remotes/PostEditor/EditPostEditor.tsx:690
 msgid "editor.schedule.cancel"
 msgstr "Cancel schedule"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostEditor/EditPostEditor.tsx:687
+#: src/components/remotes/PostEditor/EditPostEditor.tsx:686
 msgid "editor.schedule.cancel_description"
 msgstr "Cancel the schedule and return this post to drafts. Its content and settings will be preserved, and it will no longer appear publicly."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostEditor/components/SchedulePicker.tsx:155
+#: src/components/remotes/PostEditor/components/SchedulePicker.tsx:141
 msgid "editor.schedule.clear"
 msgstr "Clear schedule"
 
@@ -1959,34 +1961,34 @@ msgid "editor.schedule.empty_description"
 msgstr "Leave this empty to publish immediately"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostEditor/EditPostEditor.tsx:703
-#: src/components/remotes/PostEditor/EditPostEditor.tsx:717
+#: src/components/remotes/PostEditor/EditPostEditor.tsx:702
+#: src/components/remotes/PostEditor/EditPostEditor.tsx:716
 msgid "editor.schedule.error.cancel"
 msgstr "Could not cancel the schedule."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostEditor/EditPostEditor.tsx:756
-#: src/components/remotes/PostEditor/EditPostEditor.tsx:770
+#: src/components/remotes/PostEditor/EditPostEditor.tsx:755
+#: src/components/remotes/PostEditor/EditPostEditor.tsx:769
 msgid "editor.schedule.error.publish_now"
 msgstr "Could not publish the post now."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostEditor/components/SchedulePicker.tsx:196
+#: src/components/remotes/PostEditor/components/SchedulePicker.tsx:185
 msgid "editor.schedule.hour"
 msgstr "Scheduled hour"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostEditor/components/SchedulePicker.tsx:75
+#: src/components/remotes/PostEditor/components/SchedulePicker.tsx:63
 msgid "editor.schedule.in_three_hours"
 msgstr "In 3 hours"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostEditor/components/SchedulePicker.tsx:215
+#: src/components/remotes/PostEditor/components/SchedulePicker.tsx:204
 msgid "editor.schedule.minute"
 msgstr "Scheduled minute"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostEditor/components/SchedulePicker.tsx:98
+#: src/components/remotes/PostEditor/components/SchedulePicker.tsx:81
 msgid "editor.schedule.next_week_morning"
 msgstr "Next week at 9:00 AM"
 
@@ -1997,23 +1999,23 @@ msgstr "Schedule publish"
 
 #. js-lingui-explicit-id
 #: src/components/remotes/PostEditor/components/SettingsDrawer.tsx:307
-#: src/components/remotes/PostEditor/EditPostEditor.tsx:731
-#: src/components/remotes/PostEditor/EditPostEditor.tsx:744
+#: src/components/remotes/PostEditor/EditPostEditor.tsx:730
+#: src/components/remotes/PostEditor/EditPostEditor.tsx:743
 msgid "editor.schedule.publish_now"
 msgstr "Publish now"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostEditor/EditPostEditor.tsx:736
+#: src/components/remotes/PostEditor/EditPostEditor.tsx:735
 msgid "editor.schedule.publish_now_private_description"
 msgstr "Publish now as a private post without waiting for the scheduled time. Only the author will be able to view it."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostEditor/EditPostEditor.tsx:740
+#: src/components/remotes/PostEditor/EditPostEditor.tsx:739
 msgid "editor.schedule.publish_now_public_description"
 msgstr "Publish publicly now without waiting for the scheduled time. Connected notification channels will also receive the publication update."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostEditor/EditPostEditor.tsx:661
+#: src/components/remotes/PostEditor/EditPostEditor.tsx:660
 msgid "editor.schedule.save_changes_first"
 msgstr "Update your changes before changing the schedule."
 
@@ -2028,17 +2030,17 @@ msgid "editor.schedule.scheduled_time"
 msgstr "Scheduled time"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostEditor/components/SchedulePicker.tsx:139
+#: src/components/remotes/PostEditor/components/SchedulePicker.tsx:125
 msgid "editor.schedule.select_time"
 msgstr "Select a publish time"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostEditor/components/SchedulePicker.tsx:181
+#: src/components/remotes/PostEditor/components/SchedulePicker.tsx:169
 msgid "editor.schedule.time"
 msgstr "Time"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostEditor/components/SchedulePicker.tsx:86
+#: src/components/remotes/PostEditor/components/SchedulePicker.tsx:74
 msgid "editor.schedule.tomorrow_morning"
 msgstr "Tomorrow at 9:00 AM"
 
@@ -2140,12 +2142,12 @@ msgid "editor.tags.remove"
 msgstr "Remove {tag} tag"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostEditor/EditPostEditor.tsx:584
+#: src/components/remotes/PostEditor/EditPostEditor.tsx:583
 msgid "editor.trash.confirm"
 msgstr "Move to trash"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostEditor/EditPostEditor.tsx:576
+#: src/components/remotes/PostEditor/EditPostEditor.tsx:575
 msgid "editor.trash.title"
 msgstr "Move to trash"
 
@@ -2170,19 +2172,19 @@ msgid "editor.validation.content_required"
 msgstr "Add some content."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostEditor/EditPostEditor.tsx:474
+#: src/components/remotes/PostEditor/EditPostEditor.tsx:473
 #: src/components/remotes/PostEditor/hooks/useFormSubmit.ts:84
 msgid "editor.validation.schedule_future"
 msgstr "Choose a scheduled time in the future."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostEditor/EditPostEditor.tsx:466
+#: src/components/remotes/PostEditor/EditPostEditor.tsx:465
 #: src/components/remotes/PostEditor/hooks/useFormSubmit.ts:76
 msgid "editor.validation.schedule_invalid"
 msgstr "Check the scheduled time."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostEditor/EditPostEditor.tsx:457
+#: src/components/remotes/PostEditor/EditPostEditor.tsx:456
 #: src/components/remotes/PostEditor/hooks/useFormSubmit.ts:50
 msgid "editor.validation.title_required"
 msgstr "Enter a title."
@@ -2267,83 +2269,83 @@ msgid "pagination.previous"
 msgstr "Previous page"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostTimelapse/TimelapsePlayer.tsx:247
+#: src/components/remotes/PostTimelapse/TimelapsePlayer.tsx:253
 msgid "post_timelapse.badge.after_publishing"
 msgstr "After publishing"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostTimelapse/TimelapsePlayer.tsx:237
+#: src/components/remotes/PostTimelapse/TimelapsePlayer.tsx:243
 msgid "post_timelapse.badge.current"
 msgstr "Current post"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostTimelapse/TimelapsePlayer.tsx:242
+#: src/components/remotes/PostTimelapse/TimelapsePlayer.tsx:248
 msgid "post_timelapse.badge.draft"
 msgstr "Draft"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostTimelapse/TimelapsePlayer.tsx:209
+#: src/components/remotes/PostTimelapse/TimelapsePlayer.tsx:215
 msgid "post_timelapse.change.added_paragraphs"
 msgstr "{count, plural, one {Added # paragraph} other {Added # paragraphs}}"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostTimelapse/TimelapsePlayer.tsx:195
+#: src/components/remotes/PostTimelapse/TimelapsePlayer.tsx:201
 msgid "post_timelapse.change.added_section"
 msgstr "Added the “{name}” section"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostTimelapse/TimelapsePlayer.tsx:189
+#: src/components/remotes/PostTimelapse/TimelapsePlayer.tsx:195
 msgid "post_timelapse.change.added_sections"
 msgstr "{count, plural, one {Added # section} other {Added # sections}}"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostTimelapse/TimelapsePlayer.tsx:175
+#: src/components/remotes/PostTimelapse/TimelapsePlayer.tsx:181
 msgid "post_timelapse.change.first_save"
 msgstr "First save"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostTimelapse/TimelapsePlayer.tsx:229
+#: src/components/remotes/PostTimelapse/TimelapsePlayer.tsx:235
 msgid "post_timelapse.change.formatting"
 msgstr "Adjusted the formatting"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostTimelapse/TimelapsePlayer.tsx:224
+#: src/components/remotes/PostTimelapse/TimelapsePlayer.tsx:230
 msgid "post_timelapse.change.polished"
 msgstr "Polished the wording"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostTimelapse/TimelapsePlayer.tsx:217
+#: src/components/remotes/PostTimelapse/TimelapsePlayer.tsx:223
 msgid "post_timelapse.change.removed_paragraphs"
 msgstr "{count, plural, one {Removed # paragraph} other {Removed # paragraphs}}"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostTimelapse/TimelapsePlayer.tsx:202
+#: src/components/remotes/PostTimelapse/TimelapsePlayer.tsx:208
 msgid "post_timelapse.change.rewrote_paragraphs"
 msgstr "{count, plural, one {Rewrote # paragraph} other {Rewrote # paragraphs}}"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostTimelapse/TimelapsePlayer.tsx:182
+#: src/components/remotes/PostTimelapse/TimelapsePlayer.tsx:188
 msgid "post_timelapse.change.title"
 msgstr "Changed the title"
 
 #. js-lingui-explicit-id
 #: src/components/remotes/PostTimelapse/TimelapseDialog.tsx:90
-#: src/components/remotes/PostTimelapse/TimelapsePlayer.tsx:375
+#: src/components/remotes/PostTimelapse/TimelapsePlayer.tsx:381
 msgid "post_timelapse.close"
 msgstr "Close"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostTimelapse/TimelapsePlayer.tsx:312
+#: src/components/remotes/PostTimelapse/TimelapsePlayer.tsx:318
 msgid "post_timelapse.controls"
 msgstr "Replay controls"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostTimelapse/TimelapsePlayer.tsx:350
+#: src/components/remotes/PostTimelapse/TimelapsePlayer.tsx:356
 msgid "post_timelapse.deleted_characters"
 msgstr "{count, plural, one {−# char} other {−# chars}}"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostTimelapse/TimelapsePlayer.tsx:299
+#: src/components/remotes/PostTimelapse/TimelapsePlayer.tsx:305
 msgid "post_timelapse.empty"
 msgstr "There are no text changes to replay yet."
 
@@ -2353,7 +2355,7 @@ msgid "post_timelapse.error.load"
 msgstr "Could not load how this post was written."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostTimelapse/TimelapsePlayer.tsx:342
+#: src/components/remotes/PostTimelapse/TimelapsePlayer.tsx:348
 msgid "post_timelapse.inserted_characters"
 msgstr "{count, plural, one {+# char} other {+# chars}}"
 
@@ -2368,22 +2370,22 @@ msgid "post_timelapse.open"
 msgstr "How it was written"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostTimelapse/TimelapsePlayer.tsx:271
+#: src/components/remotes/PostTimelapse/TimelapsePlayer.tsx:277
 msgid "post_timelapse.pause"
 msgstr "Pause"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostTimelapse/TimelapsePlayer.tsx:266
+#: src/components/remotes/PostTimelapse/TimelapsePlayer.tsx:272
 msgid "post_timelapse.play"
 msgstr "Play"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostTimelapse/TimelapsePlayer.tsx:397
+#: src/components/remotes/PostTimelapse/TimelapsePlayer.tsx:403
 msgid "post_timelapse.published_marker"
 msgstr "Published"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostTimelapse/TimelapsePlayer.tsx:276
+#: src/components/remotes/PostTimelapse/TimelapsePlayer.tsx:282
 msgid "post_timelapse.replay"
 msgstr "Replay from the first save"
 
@@ -2393,22 +2395,22 @@ msgid "post_timelapse.retry"
 msgstr "Try again"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostTimelapse/TimelapsePlayer.tsx:408
+#: src/components/remotes/PostTimelapse/TimelapsePlayer.tsx:414
 msgid "post_timelapse.sampled"
 msgstr "Showing {shown} of {total} saves"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostTimelapse/TimelapsePlayer.tsx:255
+#: src/components/remotes/PostTimelapse/TimelapsePlayer.tsx:261
 msgid "post_timelapse.save_position"
 msgstr "Save {current} of {total}"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostTimelapse/TimelapsePlayer.tsx:361
+#: src/components/remotes/PostTimelapse/TimelapsePlayer.tsx:367
 msgid "post_timelapse.speed"
 msgstr "Playback speed"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/PostTimelapse/TimelapsePlayer.tsx:393
+#: src/components/remotes/PostTimelapse/TimelapsePlayer.tsx:399
 msgid "post_timelapse.timeline"
 msgstr "Saved versions"
 
@@ -2573,7 +2575,7 @@ msgid "search.validation.query_required"
 msgstr "Enter a search term."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/AccountSetting/AccountSetting.tsx:335
+#: src/components/remotes/SettingsApp/pages/AccountSetting/AccountSetting.tsx:339
 msgid "settings.account.basic_info.title"
 msgstr "Basic information"
 
@@ -2583,7 +2585,7 @@ msgid "settings.account.danger_zone"
 msgstr "Danger zone"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/AccountSetting/AccountSetting.tsx:279
+#: src/components/remotes/SettingsApp/pages/AccountSetting/AccountSetting.tsx:281
 msgid "settings.account.delete.confirm"
 msgstr "Delete your account? All data will be permanently deleted and cannot be recovered."
 
@@ -2593,17 +2595,17 @@ msgid "settings.account.delete.description"
 msgstr "All data will be permanently deleted and cannot be recovered."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/AccountSetting/AccountSetting.tsx:308
+#: src/components/remotes/SettingsApp/pages/AccountSetting/AccountSetting.tsx:310
 msgid "settings.account.delete.failed"
 msgstr "Could not delete the account."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/AccountSetting/AccountSetting.tsx:296
+#: src/components/remotes/SettingsApp/pages/AccountSetting/AccountSetting.tsx:298
 msgid "settings.account.delete.success"
 msgstr "Account deleted."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/AccountSetting/AccountSetting.tsx:275
+#: src/components/remotes/SettingsApp/pages/AccountSetting/AccountSetting.tsx:277
 #: src/components/remotes/SettingsApp/pages/AccountSetting/components/SecuritySection.tsx:62
 msgid "settings.account.delete.title"
 msgstr "Delete account"
@@ -2624,7 +2626,7 @@ msgid "settings.account.info.title"
 msgstr "Account information"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/AccountSetting/AccountSetting.tsx:40
+#: src/components/remotes/SettingsApp/pages/AccountSetting/AccountSetting.tsx:42
 msgid "settings.account.load_failed"
 msgstr "Could not load account information."
 
@@ -2649,12 +2651,12 @@ msgid "settings.account.name.update"
 msgstr "Update name"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/AccountSetting/AccountSetting.tsx:124
+#: src/components/remotes/SettingsApp/pages/AccountSetting/AccountSetting.tsx:126
 msgid "settings.account.name.update_failed"
 msgstr "Could not update the name."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/AccountSetting/AccountSetting.tsx:117
+#: src/components/remotes/SettingsApp/pages/AccountSetting/AccountSetting.tsx:119
 msgid "settings.account.name.update_success"
 msgstr "Name updated."
 
@@ -2703,12 +2705,12 @@ msgid "settings.account.password.revoke_tokens"
 msgstr "Also revoke all developer API tokens"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/AccountSetting/AccountSetting.tsx:162
+#: src/components/remotes/SettingsApp/pages/AccountSetting/AccountSetting.tsx:164
 msgid "settings.account.password.update_failed"
 msgstr "Could not change the password."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/AccountSetting/AccountSetting.tsx:155
+#: src/components/remotes/SettingsApp/pages/AccountSetting/AccountSetting.tsx:157
 msgid "settings.account.password.update_success"
 msgstr "Password changed."
 
@@ -2748,7 +2750,7 @@ msgid "settings.account.security.title"
 msgstr "Security"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/AccountSetting/AccountSetting.tsx:321
+#: src/components/remotes/SettingsApp/pages/AccountSetting/AccountSetting.tsx:323
 msgid "settings.account.title"
 msgstr "Account"
 
@@ -2758,37 +2760,37 @@ msgid "settings.account.two_factor.code_label"
 msgstr "Enter the 6-digit code from your authenticator app"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/AccountSetting/AccountSetting.tsx:191
+#: src/components/remotes/SettingsApp/pages/AccountSetting/AccountSetting.tsx:193
 msgid "settings.account.two_factor.disable_confirm"
 msgstr "Disable two-factor authentication?"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/AccountSetting/AccountSetting.tsx:230
+#: src/components/remotes/SettingsApp/pages/AccountSetting/AccountSetting.tsx:232
 msgid "settings.account.two_factor.disable_failed"
 msgstr "Could not disable two-factor authentication."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/AccountSetting/AccountSetting.tsx:224
+#: src/components/remotes/SettingsApp/pages/AccountSetting/AccountSetting.tsx:226
 msgid "settings.account.two_factor.disable_success"
 msgstr "Two-factor authentication disabled."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/AccountSetting/AccountSetting.tsx:187
+#: src/components/remotes/SettingsApp/pages/AccountSetting/AccountSetting.tsx:189
 msgid "settings.account.two_factor.disable_title"
 msgstr "Disable two-factor authentication"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/AccountSetting/AccountSetting.tsx:214
+#: src/components/remotes/SettingsApp/pages/AccountSetting/AccountSetting.tsx:216
 msgid "settings.account.two_factor.enable_failed"
 msgstr "Could not enable two-factor authentication."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/AccountSetting/AccountSetting.tsx:248
+#: src/components/remotes/SettingsApp/pages/AccountSetting/AccountSetting.tsx:250
 msgid "settings.account.two_factor.enable_success"
 msgstr "Two-factor authentication enabled."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/AccountSetting/AccountSetting.tsx:258
+#: src/components/remotes/SettingsApp/pages/AccountSetting/AccountSetting.tsx:260
 #: src/components/remotes/SettingsApp/pages/AccountSetting/components/TwoFactorModal.tsx:40
 msgid "settings.account.two_factor.invalid_code"
 msgstr "The verification code is incorrect."
@@ -2844,17 +2846,17 @@ msgid "settings.account.two_factor.verifying"
 msgstr "Verifying..."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/AccountSetting/AccountSetting.tsx:65
+#: src/components/remotes/SettingsApp/pages/AccountSetting/AccountSetting.tsx:67
 msgid "settings.account.username.confirm_message"
 msgstr "Change your username? If you have published posts, you can change it only once every six months."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/AccountSetting/AccountSetting.tsx:61
+#: src/components/remotes/SettingsApp/pages/AccountSetting/AccountSetting.tsx:63
 msgid "settings.account.username.confirm_title"
 msgstr "Change username"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/AccountSetting/AccountSetting.tsx:49
+#: src/components/remotes/SettingsApp/pages/AccountSetting/AccountSetting.tsx:51
 msgid "settings.account.username.different_required"
 msgstr "Enter a different username."
 
@@ -2884,12 +2886,12 @@ msgid "settings.account.username.update"
 msgstr "Update username"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/AccountSetting/AccountSetting.tsx:89
+#: src/components/remotes/SettingsApp/pages/AccountSetting/AccountSetting.tsx:91
 msgid "settings.account.username.update_failed"
 msgstr "Could not change the username."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/AccountSetting/AccountSetting.tsx:82
+#: src/components/remotes/SettingsApp/pages/AccountSetting/AccountSetting.tsx:84
 msgid "settings.account.username.update_success"
 msgstr "Username changed."
 
@@ -5551,6 +5553,42 @@ msgid "settings.profile.update_success"
 msgstr "Profile updated."
 
 #. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/AccountSetting/components/RegionalPreferencesSection.tsx:63
+msgid "settings.regional_preferences.browser_language"
+msgstr "Browser language"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/AccountSetting/components/RegionalPreferencesSection.tsx:57
+msgid "settings.regional_preferences.language"
+msgstr "Language"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/AccountSetting/components/RegionalPreferencesSection.tsx:33
+msgid "settings.regional_preferences.save_failed"
+msgstr "Could not save your regional preferences."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/AccountSetting/components/RegionalPreferencesSection.tsx:66
+msgid "settings.regional_preferences.site_default"
+msgstr "Site default ({defaultLanguageLabel})"
+
+#. js-lingui-explicit-id
+#. placeholder {0}: preferences.defaultTimeZone
+#: src/components/remotes/SettingsApp/pages/AccountSetting/components/RegionalPreferencesSection.tsx:82
+msgid "settings.regional_preferences.site_default_time_zone"
+msgstr "Site default ({0})"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/AccountSetting/components/RegionalPreferencesSection.tsx:76
+msgid "settings.regional_preferences.time_zone"
+msgstr "Time zone"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/AccountSetting/components/RegionalPreferencesSection.tsx:48
+msgid "settings.regional_preferences.title"
+msgstr "Language and time zone"
+
+#. js-lingui-explicit-id
 #: src/components/remotes/SettingsApp/pages/SeoAeoSetting/SeoAeoSetting.tsx:450
 msgid "settings.seo_aeo.aeo.disabled_description"
 msgstr "Returns 404 for AI-specific endpoints and removes discovery signals."
@@ -7022,61 +7060,61 @@ msgid "settings.telegram.token.generate_failed"
 msgstr "Could not generate a verification code."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:614
+#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:617
 msgid "settings.users.description"
 msgstr "Administrator access can only be changed in Django admin."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:228
+#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:231
 msgid "settings.users.details.collapse"
 msgstr "collapse"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:232
+#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:235
 msgid "settings.users.details.expand"
 msgstr "expand"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:244
+#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:247
 msgid "settings.users.details.toggle_label"
 msgstr "{username}, {status}, {role}, {action} details"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:285
+#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:288
 msgid "settings.users.field.email"
 msgstr "Email"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:302
-#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:802
+#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:305
+#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:805
 msgid "settings.users.field.joined"
 msgstr "Joined"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:288
-#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:823
+#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:291
+#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:826
 msgid "settings.users.field.no_email"
 msgstr "No email address"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:296
-#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:800
+#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:299
+#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:803
 msgid "settings.users.field.posts"
 msgstr "Posts"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:312
-#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:799
+#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:315
+#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:802
 msgid "settings.users.field.role"
 msgstr "Role"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:801
+#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:804
 msgid "settings.users.field.status"
 msgstr "Status"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:798
+#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:801
 msgid "settings.users.field.user"
 msgstr "User"
 
@@ -7101,134 +7139,134 @@ msgid "settings.users.filter.readers"
 msgstr "Readers only"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:771
+#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:774
 msgid "settings.users.filters.ordering_aria"
 msgstr "Sort users"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:761
+#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:764
 msgid "settings.users.filters.role_aria"
 msgstr "Filter users by role"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:696
+#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:699
 msgid "settings.users.invites.claimed_by"
 msgstr "Claimed by {username}"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:711
+#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:714
 msgid "settings.users.invites.copy_action"
 msgstr "Copy link"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:578
+#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:581
 msgid "settings.users.invites.copy_failed"
 msgstr "Could not copy the invitation link."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:573
+#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:576
 msgid "settings.users.invites.copy_success"
 msgstr "Invitation link copied."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:674
+#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:677
 msgid "settings.users.invites.create_action"
 msgstr "Create invitation link"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:456
+#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:459
 msgid "settings.users.invites.create_and_copy_success"
 msgstr "Author invitation link created and copied to the clipboard."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:469
-#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:474
+#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:472
+#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:477
 msgid "settings.users.invites.create_failed"
 msgstr "Could not create the invitation link."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:461
+#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:464
 msgid "settings.users.invites.create_success"
 msgstr "Author invitation link created."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:491
-#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:496
+#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:494
+#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:499
 msgid "settings.users.invites.delete_failed"
 msgstr "Could not delete the invitation link."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:484
+#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:487
 msgid "settings.users.invites.delete_success"
 msgstr "Invitation link deleted."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:591
+#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:594
 msgid "settings.users.invites.delete.message"
 msgstr "Delete this invitation link? New users will no longer be able to sign up with it."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:587
+#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:590
 msgid "settings.users.invites.delete.title"
 msgstr "Delete invitation link"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:657
+#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:660
 msgid "settings.users.invites.description"
 msgstr "Anyone who signs up through an invitation link receives author access immediately."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:728
+#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:731
 msgid "settings.users.invites.empty"
 msgstr "There are no invitation links."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:393
+#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:396
 msgid "settings.users.invites.load_failed"
 msgstr "Could not load invitation links."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:686
+#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:689
 msgid "settings.users.invites.status.claimed"
 msgstr "Claimed"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:690
+#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:693
 msgid "settings.users.invites.status.pending"
 msgstr "Pending"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:653
+#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:656
 msgid "settings.users.invites.title"
 msgstr "Invite authors"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:665
+#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:668
 msgid "settings.users.invites.usage_notice"
 msgstr "Each invitation link can be used once and can be deleted before it is claimed."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:870
+#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:873
 msgid "settings.users.list.empty"
 msgstr "No users match your search."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:864
+#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:867
 msgid "settings.users.list.error"
 msgstr "Could not load the user list. Try again shortly."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:736
+#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:739
 msgid "settings.users.list.title"
 msgstr "Users"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:792
+#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:795
 msgid "settings.users.list.updating"
 msgstr "Updating the user list…"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:378
+#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:381
 msgid "settings.users.load_failed"
 msgstr "Could not load the user list."
 
@@ -7263,28 +7301,28 @@ msgid "settings.users.order.username_desc"
 msgstr "Username: Z to A"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:879
+#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:882
 msgid "settings.users.pagination.summary"
 msgstr "Showing {start}–{end} of {total} users"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:438
-#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:443
+#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:441
+#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:446
 msgid "settings.users.role_change.failed"
 msgstr "Could not change the role."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:510
+#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:513
 msgid "settings.users.role_change.message"
 msgstr "Change {username}'s role from {currentRole} to {nextRole}?"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:427
+#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:430
 msgid "settings.users.role_change.success"
 msgstr "Changed {username}'s role to {role}."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:506
+#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:509
 msgid "settings.users.role_change.title"
 msgstr "Change role"
 
@@ -7299,68 +7337,68 @@ msgid "settings.users.role.reader"
 msgstr "Reader"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:318
-#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:835
+#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:321
+#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:838
 msgid "settings.users.role.select_aria"
 msgstr "Change role for {username}"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:744
+#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:747
 msgid "settings.users.search.label"
 msgstr "Search users"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:748
+#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:751
 msgid "settings.users.search.placeholder"
 msgstr "Search username, name, or email"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:646
+#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:649
 msgid "settings.users.stats.administrators"
 msgstr "Administrators"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:634
+#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:637
 msgid "settings.users.stats.authors"
 msgstr "Authors"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:621
+#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:624
 msgid "settings.users.stats.label"
 msgstr "User statistics"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:640
+#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:643
 msgid "settings.users.stats.readers"
 msgstr "Readers"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:628
+#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:631
 msgid "settings.users.stats.total"
 msgstr "Total"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:181
+#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:184
 msgid "settings.users.status.active"
 msgstr "Active"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:176
+#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:179
 msgid "settings.users.status.administrator"
 msgstr "Administrator"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:164
+#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:167
 msgid "settings.users.status.inactive"
 msgstr "Inactive"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:170
+#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:173
 msgid "settings.users.status.superuser"
 msgstr "Superuser"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:610
+#: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:613
 msgid "settings.users.title"
 msgstr "User roles"
 

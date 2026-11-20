@@ -1,12 +1,12 @@
-import { useMemo, useState } from 'react';
+import { useState } from 'react';
 import { Trans, useLingui } from '@lingui/react/macro';
 import { Popover } from '@blex/ui/popover';
 import { Calendar, Clock, X } from '@blex/ui/icons';
-import { DayPicker } from 'react-day-picker';
+import { DayPicker, TZDate } from 'react-day-picker';
 import { enUS, ko } from 'react-day-picker/locale';
 import { cx } from '~/lib/classnames';
-import { normalizeLocale } from '~/i18n/locale';
-import { formatDateTimeLocal, formatScheduleDateTime, parseDateTimeLocal } from '../utils/scheduleDate';
+import { getBrowserTimeZone, getDocumentTimeZone, normalizeLocale } from '~/i18n/locale';
+import { formatScheduleDateTime, parseScheduleDate } from '../utils/scheduleDate';
 
 interface SchedulePickerProps {
     value: string;
@@ -15,25 +15,6 @@ interface SchedulePickerProps {
 }
 
 const pad = (value: number) => value.toString().padStart(2, '0');
-
-const startOfToday = () => {
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    return today;
-};
-
-const roundToNextHour = (date = new Date()) => {
-    const next = new Date(date);
-    next.setHours(next.getHours() + 1, 0, 0, 0);
-    return next;
-};
-
-const getDateWithTime = (date: Date, source: Date | null) => {
-    const next = new Date(date);
-    const time = source || roundToNextHour();
-    next.setHours(time.getHours(), time.getMinutes(), 0, 0);
-    return next;
-};
 
 const parseBoundedNumber = (value: string, min: number, max: number) => {
     const parsed = Number.parseInt(value, 10);
@@ -66,10 +47,17 @@ const dayPickerClassNames = {
 const SchedulePicker = ({ value, onChange, allowClear = true }: SchedulePickerProps) => {
     const { i18n, t } = useLingui();
     const locale = normalizeLocale(i18n.locale);
+    const timeZone = getDocumentTimeZone() || getBrowserTimeZone() || 'UTC';
     const [isOpen, setIsOpen] = useState(false);
-    const selectedDate = useMemo(() => parseDateTimeLocal(value), [value]);
-    const hour = selectedDate ? selectedDate.getHours() : roundToNextHour().getHours();
-    const minute = selectedDate ? selectedDate.getMinutes() : 0;
+    const [referenceInstant, setReferenceInstant] = useState(() => Date.now());
+    const selectedInstant = parseScheduleDate(value);
+    const selectedDate = selectedInstant && new TZDate(selectedInstant.getTime(), timeZone);
+    const now = new TZDate(referenceInstant, timeZone);
+    const today = new TZDate(now.getFullYear(), now.getMonth(), now.getDate(), timeZone);
+    const roundedTime = new TZDate(now.getTime(), timeZone);
+    roundedTime.setHours(now.getHours() + 1, 0, 0, 0);
+    const hour = (selectedDate || roundedTime).getHours();
+    const minute = selectedDate?.getMinutes() ?? 0;
     const quickOptions = [
         {
             label: t({
@@ -77,7 +65,7 @@ const SchedulePicker = ({ value, onChange, allowClear = true }: SchedulePickerPr
                 message: 'In 3 hours'
             }),
             getDate: () => {
-                const date = new Date();
+                const date = new TZDate(Date.now(), timeZone);
                 date.setHours(date.getHours() + 3, 0, 0, 0);
                 return date;
             }
@@ -87,42 +75,40 @@ const SchedulePicker = ({ value, onChange, allowClear = true }: SchedulePickerPr
                 id: 'editor.schedule.tomorrow_morning',
                 message: 'Tomorrow at 9:00 AM'
             }),
-            getDate: () => {
-                const date = new Date();
-                date.setDate(date.getDate() + 1);
-                date.setHours(9, 0, 0, 0);
-                return date;
-            }
+            getDate: () => new TZDate(now.getFullYear(), now.getMonth(), now.getDate() + 1, 9, timeZone)
         },
         {
             label: t({
                 id: 'editor.schedule.next_week_morning',
                 message: 'Next week at 9:00 AM'
             }),
-            getDate: () => {
-                const date = new Date();
-                date.setDate(date.getDate() + 7);
-                date.setHours(9, 0, 0, 0);
-                return date;
-            }
+            getDate: () => new TZDate(now.getFullYear(), now.getMonth(), now.getDate() + 7, 9, timeZone)
         }
     ];
 
+    const selectDate = (date: Date) => onChange(new Date(date.getTime()).toISOString());
+
     const handleDaySelect = (date?: Date) => {
         if (!date) return;
-        onChange(formatDateTimeLocal(getDateWithTime(date, selectedDate)));
+        const next = new TZDate(date.getTime(), timeZone);
+        next.setHours(hour, minute, 0, 0);
+        selectDate(next);
     };
 
     const handleTimeChange = (nextHour: number, nextMinute: number) => {
-        const base = selectedDate || roundToNextHour();
-        const next = new Date(base);
+        const next = new TZDate((selectedDate || roundedTime).getTime(), timeZone);
         next.setHours(nextHour, nextMinute, 0, 0);
-        onChange(formatDateTimeLocal(next));
+        selectDate(next);
+    };
+
+    const handleOpenChange = (open: boolean) => {
+        if (open) setReferenceInstant(Date.now());
+        setIsOpen(open);
     };
 
     return (
         <div className="space-y-3">
-            <Popover.Root open={isOpen} onOpenChange={setIsOpen}>
+            <Popover.Root open={isOpen} onOpenChange={handleOpenChange}>
                 <div className="relative">
                     <Popover.Trigger asChild>
                         <button
@@ -169,9 +155,11 @@ const SchedulePicker = ({ value, onChange, allowClear = true }: SchedulePickerPr
                         <DayPicker
                             mode="single"
                             locale={locale === 'ko' ? ko : enUS}
+                            timeZone={timeZone}
+                            today={today}
                             selected={selectedDate || undefined}
                             onSelect={handleDaySelect}
-                            disabled={{ before: startOfToday() }}
+                            disabled={{ before: today }}
                             classNames={dayPickerClassNames}
                         />
 
@@ -179,6 +167,7 @@ const SchedulePicker = ({ value, onChange, allowClear = true }: SchedulePickerPr
                             <div className="mb-2 flex items-center gap-2 text-xs font-semibold text-content-secondary">
                                 <Clock className="h-3.5 w-3.5" />
                                 <Trans id="editor.schedule.time">Time</Trans>
+                                {timeZone && <span className="text-content-hint">{timeZone}</span>}
                             </div>
                             <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-2">
                                 <input
@@ -223,7 +212,7 @@ const SchedulePicker = ({ value, onChange, allowClear = true }: SchedulePickerPr
                                     <button
                                         key={option.label}
                                         type="button"
-                                        onClick={() => onChange(formatDateTimeLocal(option.getDate()))}
+                                        onClick={() => selectDate(option.getDate())}
                                         className="min-h-11 rounded-lg border border-line bg-surface px-3 py-2 text-xs font-medium text-content-secondary hover:border-line-strong hover:bg-surface-subtle hover:text-content active:scale-95">
                                         {option.label}
                                     </button>

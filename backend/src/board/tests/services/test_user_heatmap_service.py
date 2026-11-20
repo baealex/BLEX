@@ -1,3 +1,5 @@
+from datetime import timedelta
+
 from django.core.cache import cache
 from django.test import TestCase
 from django.utils import timezone
@@ -41,7 +43,7 @@ class UserHeatmapServiceTestCase(TestCase):
 
         self.assertEqual(heatmap[date_key], 3)
         self.assertEqual(
-            cache.get(f'user_heatmap_{self.user.id}'),
+            cache.get(f'user_heatmap_{self.user.id}_{timezone.get_current_timezone_name()}'),
             heatmap,
         )
 
@@ -55,3 +57,13 @@ class UserHeatmapServiceTestCase(TestCase):
 
         self.assertEqual(first_heatmap[date_key], 1)
         self.assertEqual(second_heatmap[date_key], 1)
+
+    def test_settings_heatmap_caches_days_by_time_zone(self):
+        published_at = (timezone.now() - timedelta(days=2)).replace(hour=1, minute=0, second=0, microsecond=0)
+        self.create_post('shifted-post', published_date=published_at)
+
+        with timezone.override('Asia/Seoul'):
+            self.assertEqual(UserHeatmapService.get_settings_heatmap(self.user), {published_at.date().isoformat(): 1})
+        with timezone.override('America/Los_Angeles'):
+            previous_day = published_at.date() - timedelta(days=1)
+            self.assertEqual(UserHeatmapService.get_settings_heatmap(self.user), {previous_day.isoformat(): 1})

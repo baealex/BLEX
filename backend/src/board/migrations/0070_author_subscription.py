@@ -9,7 +9,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('board', '0068_edithistory_draft_change_type'),
+        ('board', '0069_regional_preferences'),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
     ]
 

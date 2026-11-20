@@ -59,6 +59,9 @@ class UserConfigMeta(models.Model):
 
 class Config(models.Model):
     user = models.OneToOneField('auth.User', on_delete=models.CASCADE)
+    # NULL follows browser negotiation. An empty string selects the site language.
+    language = models.CharField(_('Language'), max_length=16, blank=True, null=True)
+    time_zone = models.CharField(_('Time zone'), max_length=64, blank=True)
 
     class Meta:
         verbose_name = _('User setting')

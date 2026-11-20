@@ -10,7 +10,6 @@ from board.services.developer_token_service import DeveloperTokenService
 
 class AccountSecurityMigrationTestCase(TransactionTestCase):
     previous_schema = [('board', '0064_notify_structured_message')]
-    account_security_schema = [('board', '0065_login_attempt_and_oauth_authorization')]
 
     def tearDown(self):
         executor = MigrationExecutor(connection)
@@ -18,9 +17,9 @@ class AccountSecurityMigrationTestCase(TransactionTestCase):
         super().tearDown()
 
     def test_upgrade_keeps_existing_sessions_and_credentials_usable(self):
-        MigrationExecutor(connection).migrate(self.previous_schema)
+        old_state = MigrationExecutor(connection).migrate(self.previous_schema)
         user = User.objects.create_user(username='existing-member', password='old123')
-        Config.objects.create(user=user)
+        old_state.apps.get_model('board', 'Config').objects.create(user_id=user.pk)
         profile = Profile.objects.create(user=user, role=Profile.Role.EDITOR, cover='images/avatar/old-cover.png')
         provider, _ = SocialAuthProvider.objects.get_or_create(key='github')
         link = SocialAuth.objects.create(user=user, provider=provider, uid='existing-account')
@@ -31,10 +30,14 @@ class AccountSecurityMigrationTestCase(TransactionTestCase):
         self.client.force_login(user)
         existing_session = self.client.session.session_key
 
-        MigrationExecutor(connection).migrate(self.account_security_schema)
+        executor = MigrationExecutor(connection)
+        executor.migrate(executor.loader.graph.leaf_nodes())
 
         self.assertEqual(self.client.get('/v1/login').json()['body']['username'], user.username)
         self.assertEqual(self.client.session.session_key, existing_session)
+        config = Config.objects.get(user=user)
+        self.assertIsNone(config.language)
+        self.assertEqual(config.time_zone, '')
         self.assertEqual(Profile.objects.get(pk=profile.pk).cover.name, 'images/avatar/old-cover.png')
         self.assertEqual(SocialAuth.objects.get(pk=link.pk).uid, 'existing-account')
         self.assertEqual(self.client.get('/api/developer/v1/me', HTTP_AUTHORIZATION=f'Bearer {raw_token}').status_code, 200)

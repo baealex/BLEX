@@ -2,7 +2,9 @@
 {% load i18n %}
 {% load resource %}
 {% load island %}
+{% load tz %}
 {% get_current_language as LANGUAGE_CODE %}
+{% get_current_timezone as TIME_ZONE %}
 {% translate "Some interactive elements could not be loaded. Please try again shortly." as island_failure_message %}
 <html
     lang="{{ LANGUAGE_CODE|default:'ko' }}"
@@ -145,6 +147,7 @@
             media: "{% resource 'media/' %}",
             static: "{% resource '' %}",
             locale: "{{ LANGUAGE_CODE|default:'ko'|escapejs }}",
+            timeZone: "{{ TIME_ZONE|escapejs }}",
             {% if user.is_authenticated %}
             user: {
                 isAuthenticated: "{{ user.is_authenticated }}",

@@ -464,7 +464,7 @@ class AuthorPostsPageTestCase(TestCase):
             kwargs={'username': self.user.username},
         )
 
-        with self.assertNumQueries(6):
+        with self.assertNumQueries(7):
             response = self.client.get(partial_url)
 
         self.assertEqual(response.status_code, 200)
