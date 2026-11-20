@@ -3,7 +3,7 @@ from django.contrib.auth.decorators import login_required
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import render, redirect
 from django.urls import reverse
-from urllib.parse import unquote, urlparse
+from urllib.parse import unquote, urlsplit, urlunsplit
 from django.utils.http import url_has_allowed_host_and_scheme
 from django.utils.translation import gettext
 from django.views.decorators.cache import never_cache
@@ -16,7 +16,7 @@ from board.services.initial_setup_service import InitialSetupService
 from board.services.social_auth_provider_service import SocialAuthProviderService
 
 
-def get_safe_redirect_url(request):
+def get_safe_redirect_url(request: HttpRequest) -> str | None:
     """
     Get and validate the 'next' parameter from request.
     Returns the safe redirect URL or None if invalid.
@@ -34,7 +34,7 @@ def get_safe_redirect_url(request):
     ):
         return None
 
-    parsed = urlparse(next_url)
+    parsed = urlsplit(next_url)
     path = parsed.path or '/'
     decoded_path = unquote(path)
     if (
@@ -46,7 +46,7 @@ def get_safe_redirect_url(request):
     ):
         return None
 
-    return path
+    return urlunsplit(('', '', path, parsed.query, parsed.fragment))
 
 
 @never_cache

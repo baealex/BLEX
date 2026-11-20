@@ -116,11 +116,12 @@ class LoginViewTestCase(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.context['next_url'], '/setting/profile')
 
-    def test_login_page_accepts_url_with_query_params(self):
-        """쿼리 파라미터가 있는 URL은 허용"""
-        response = self.client.get(reverse('login') + '?next=/posts/search?q=test')
+    def test_login_page_preserves_query_and_fragment_in_next_url(self):
+        next_url = '/@author/post?reply_to=42#post-comments'
+        response = self.client.get(reverse('login'), {'next': next_url})
+
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.context['next_url'], '/posts/search')
+        self.assertEqual(response.context['next_url'], next_url)
 
 
 class SignupViewTestCase(TestCase):

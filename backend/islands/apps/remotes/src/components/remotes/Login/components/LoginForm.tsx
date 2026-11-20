@@ -94,7 +94,8 @@ const LoginForm = ({
 
     return (
         <>
-            {/* Email Login Form */}
+            <SocialLogin showPasswordDivider />
+
             <form className="space-y-5" noValidate onSubmit={onSubmit}>
                 <input type="hidden" name="csrfmiddlewaretoken" value={getCsrfToken()} />
 
@@ -201,8 +202,6 @@ const LoginForm = ({
                     </span>
                 </button>
             </form>
-
-            <SocialLogin />
         </>
     );
 };

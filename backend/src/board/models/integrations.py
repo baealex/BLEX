@@ -1,5 +1,3 @@
-import datetime
-
 from django.contrib.auth.models import User
 from django.db import models
 from django.utils import timezone
@@ -80,10 +78,7 @@ class TelegramSync(models.Model):
         return TelegramSyncEncryptionService.get_decrypted_tid(self)
 
     def is_token_expire(self):
-        one_day_ago = timezone.now() - datetime.timedelta(days=1)
-        if self.created_date < one_day_ago:
-            return True
-        return False
+        return self.auth_token_exp <= timezone.now()
 
     def __str__(self):
         return self.user.username

@@ -7,6 +7,7 @@ import { login } from '~/lib/api';
 
 const Login = () => {
     const { t } = useLingui();
+    const nextUrl = window.NEXT_URL || '';
     const {
         state,
         updateState,
@@ -14,15 +15,13 @@ const Login = () => {
         checkIfBlocked,
         handleFailedLogin,
         handleFailedTwoFactor
-    } = useLoginState();
+    } = useLoginState(nextUrl);
 
     const [isVisible, setIsVisible] = useState(false);
 
     useEffect(() => {
         setIsVisible(true);
     }, []);
-
-    const nextUrl = window.NEXT_URL || '';
 
     const focusNext = (index: number) => {
         if (index < 5) {
@@ -216,7 +215,7 @@ const Login = () => {
                     twoFactorFailedAttempts: 0,
                     successMessage: t({
                         id: 'auth.two_factor.success_redirect',
-                        message: 'Verification complete. Redirecting you to the home page.'
+                        message: 'Verification complete. Redirecting...'
                     })
                 });
                 setTimeout(() => {

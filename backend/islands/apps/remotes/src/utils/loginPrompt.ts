@@ -9,6 +9,11 @@ const LOGIN_PROMPT_ROOT_ID = 'blex-login-prompt-root';
 export const LOGIN_PROMPT_ACTIONS = ['generic', 'like', 'comment', 'reply'] as const;
 export type LoginPromptAction = typeof LOGIN_PROMPT_ACTIONS[number];
 
+export interface LoginPromptRequest {
+    action: LoginPromptAction;
+    nextUrl?: string;
+}
+
 export const normalizeLoginPromptAction = (action: unknown): LoginPromptAction => (
     typeof action === 'string'
     && LOGIN_PROMPT_ACTIONS.includes(action as LoginPromptAction)
@@ -23,13 +28,13 @@ export const isLoggedIn = (): boolean => {
     return !!window.configuration?.user?.username;
 };
 
-const encodeProps = (action: LoginPromptAction) =>
+const encodeProps = (request: LoginPromptRequest) =>
     encodeURIComponent(JSON.stringify({
         isOpen: true,
-        action
+        ...request
     }));
 
-const ensureLoginPrompt = (action: LoginPromptAction): boolean => {
+const ensureLoginPrompt = (request: LoginPromptRequest): boolean => {
     if (typeof document === 'undefined') {
         return false;
     }
@@ -38,7 +43,7 @@ const ensureLoginPrompt = (action: LoginPromptAction): boolean => {
 
     if (existingLoginPrompt) {
         if (existingLoginPrompt.dataset.islandStatus !== 'mounted') {
-            existingLoginPrompt.setAttribute('props', encodeProps(action));
+            existingLoginPrompt.setAttribute('props', encodeProps(request));
             return true;
         }
 
@@ -48,7 +53,7 @@ const ensureLoginPrompt = (action: LoginPromptAction): boolean => {
     const loginPrompt = document.createElement('island-component');
     loginPrompt.id = LOGIN_PROMPT_ROOT_ID;
     loginPrompt.setAttribute('name', 'LoginPrompt');
-    loginPrompt.setAttribute('props', encodeProps(action));
+    loginPrompt.setAttribute('props', encodeProps(request));
     loginPrompt.dataset.islandName = 'LoginPrompt';
     loginPrompt.dataset.islandStatus = 'pending';
     document.body.appendChild(loginPrompt);
@@ -61,6 +66,7 @@ const ensureLoginPrompt = (action: LoginPromptAction): boolean => {
  * Can be used from Alpine.js, React, or vanilla JavaScript
  *
  * @param action - Stable action identifier used to select a complete localized sentence.
+ * @param nextUrl - Optional same-site destination after sign-in.
  *
  * @example
  * // From Alpine.js
@@ -71,15 +77,19 @@ const ensureLoginPrompt = (action: LoginPromptAction): boolean => {
  * import { showLoginPrompt } from '~/utils/loginPrompt';
  * showLoginPrompt('comment');
  */
-export const showLoginPrompt = (action: LoginPromptAction = 'generic'): void => {
+export const showLoginPrompt = (action: LoginPromptAction = 'generic', nextUrl?: string): void => {
     if (isLoggedIn()) {
         return;
     }
 
-    if (ensureLoginPrompt(action)) {
+    const request: LoginPromptRequest = {
+        action,
+        nextUrl
+    };
+    if (ensureLoginPrompt(request)) {
         return;
     }
 
-    const event = new CustomEvent('showLoginPrompt', { detail: { action } });
+    const event = new CustomEvent('showLoginPrompt', { detail: request });
     window.dispatchEvent(event);
 };

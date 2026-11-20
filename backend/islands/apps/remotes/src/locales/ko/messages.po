@@ -14,102 +14,102 @@ msgstr ""
 "Plural-Forms: \n"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Signup/Signup.tsx:470
+#: src/components/remotes/Signup/Signup.tsx:472
 msgid "auth.fields.confirm_password"
 msgstr "비밀번호 확인"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Signup/Signup.tsx:494
+#: src/components/remotes/Signup/Signup.tsx:496
 msgid "auth.fields.confirm_password_placeholder"
 msgstr "비밀번호를 다시 입력해 주세요"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Signup/Signup.tsx:382
+#: src/components/remotes/Signup/Signup.tsx:384
 msgid "auth.fields.display_name"
 msgstr "표시 이름"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Signup/Signup.tsx:395
+#: src/components/remotes/Signup/Signup.tsx:397
 msgid "auth.fields.display_name_placeholder"
 msgstr "표시 이름을 입력해 주세요"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Signup/Signup.tsx:405
+#: src/components/remotes/Signup/Signup.tsx:407
 msgid "auth.fields.email"
 msgstr "이메일"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Signup/Signup.tsx:418
+#: src/components/remotes/Signup/Signup.tsx:420
 msgid "auth.fields.email_placeholder"
 msgstr "이메일 주소를 입력해 주세요"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Login/components/LoginForm.tsx:131
-#: src/components/remotes/Signup/Signup.tsx:428
+#: src/components/remotes/Login/components/LoginForm.tsx:132
+#: src/components/remotes/Signup/Signup.tsx:430
 msgid "auth.fields.password"
 msgstr "비밀번호"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Signup/Signup.tsx:453
+#: src/components/remotes/Signup/Signup.tsx:455
 msgid "auth.fields.password_new_placeholder"
 msgstr "안전한 비밀번호를 입력해 주세요"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Login/components/LoginForm.tsx:144
+#: src/components/remotes/Login/components/LoginForm.tsx:145
 msgid "auth.fields.password_placeholder"
 msgstr "비밀번호를 입력해 주세요"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Login/components/LoginForm.tsx:104
-#: src/components/remotes/Signup/Signup.tsx:338
+#: src/components/remotes/Login/components/LoginForm.tsx:105
+#: src/components/remotes/Signup/Signup.tsx:340
 msgid "auth.fields.username"
 msgstr "사용자 이름"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Signup/Signup.tsx:367
-#: src/components/remotes/Signup/Signup.tsx:375
+#: src/components/remotes/Signup/Signup.tsx:369
+#: src/components/remotes/Signup/Signup.tsx:377
 msgid "auth.fields.username_hint"
 msgstr "영문 소문자와 숫자 4~15자"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Login/components/LoginForm.tsx:117
+#: src/components/remotes/Login/components/LoginForm.tsx:118
 msgid "auth.fields.username_placeholder"
 msgstr "사용자 이름을 입력해 주세요"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Login/hooks/useLoginState.ts:88
+#: src/components/remotes/Login/hooks/useLoginState.ts:92
 msgid "auth.login.blocked_remaining"
 msgstr "너무 많은 시도로 인해 {seconds}초 동안 차단되었습니다."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Login/hooks/useLoginState.ts:118
+#: src/components/remotes/Login/hooks/useLoginState.ts:122
 msgid "auth.login.failed_blocked_remaining"
 msgstr "너무 많은 실패로 인해 {seconds}초 동안 차단되었습니다."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Login/Login.tsx:147
+#: src/components/remotes/Login/Login.tsx:146
 msgid "auth.login.invalid_credentials"
 msgstr "잘못된 사용자 이름 또는 비밀번호입니다."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Login/Login.tsx:324
+#: src/components/remotes/Login/Login.tsx:323
 msgid "auth.login.no_account"
 msgstr "계정이 없으신가요?"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Login/components/LoginForm.tsx:197
+#: src/components/remotes/Login/components/LoginForm.tsx:198
 msgid "auth.login.submitting"
 msgstr "로그인 중..."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Login/components/LoginForm.tsx:199
-#: src/components/remotes/Login/Login.tsx:276
+#: src/components/remotes/Login/components/LoginForm.tsx:200
+#: src/components/remotes/Login/Login.tsx:275
 #: src/components/remotes/Signup/Signup.tsx:558
 msgid "auth.login.title"
 msgstr "로그인"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Login/Login.tsx:283
+#: src/components/remotes/Login/Login.tsx:282
 msgid "auth.login.welcome_back"
 msgstr "돌아오신 것을 환영해요"
 
@@ -120,13 +120,13 @@ msgstr "이미 계정이 있으신가요?"
 
 #. js-lingui-explicit-id
 #: src/components/remotes/Signup/Signup.tsx:313
-#: src/components/remotes/Signup/Signup.tsx:543
+#: src/components/remotes/Signup/Signup.tsx:545
 msgid "auth.signup.as_author"
 msgstr "작가로 가입하기"
 
 #. js-lingui-explicit-id
 #: src/components/remotes/Signup/Signup.tsx:315
-#: src/components/remotes/Signup/Signup.tsx:545
+#: src/components/remotes/Signup/Signup.tsx:547
 msgid "auth.signup.as_reader"
 msgstr "독자로 가입하기"
 
@@ -146,7 +146,7 @@ msgid "auth.signup.failed"
 msgstr "회원가입에 실패했습니다."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Signup/Signup.tsx:461
+#: src/components/remotes/Signup/Signup.tsx:463
 msgid "auth.signup.password_strength"
 msgstr "비밀번호 강도: {passwordStrengthLabel}"
 
@@ -176,19 +176,24 @@ msgid "auth.signup.reader_description"
 msgstr "작가들의 이야기를 읽어 보세요"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Login/Login.tsx:326
+#: src/components/remotes/Login/Login.tsx:325
 msgid "auth.signup.title"
 msgstr "회원가입"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SocialLogin/SocialLogin.tsx:92
+#: src/components/remotes/SocialLogin/SocialLogin.tsx:75
 msgid "auth.social.continue_with"
 msgstr "{providerName}으로 계속하기"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SocialLogin/SocialLogin.tsx:73
-msgid "auth.social.divider"
-msgstr "또는 간편하게"
+#: src/components/remotes/SocialLogin/SocialLogin.tsx:84
+msgid "auth.social.first_sign_in"
+msgstr "소셜 계정으로 처음 로그인하면 BLEX 계정이 만들어져요."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SocialLogin/SocialLogin.tsx:89
+msgid "auth.social.password_divider"
+msgstr "또는 사용자 이름과 비밀번호로 계속하기"
 
 #. js-lingui-explicit-id
 #: src/components/remotes/Login/components/TwoFactorForm.tsx:80
@@ -196,7 +201,7 @@ msgid "auth.two_factor.back_to_login"
 msgstr "로그인 화면으로 돌아가기"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Login/Login.tsx:281
+#: src/components/remotes/Login/Login.tsx:280
 msgid "auth.two_factor.description"
 msgstr "인증 앱 코드 또는 복구 키로 로그인하세요."
 
@@ -206,22 +211,22 @@ msgid "auth.two_factor.digit_label"
 msgstr "인증 코드 {position}번째 자리"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Login/hooks/useLoginState.ts:134
+#: src/components/remotes/Login/hooks/useLoginState.ts:138
 msgid "auth.two_factor.failed_blocked"
 msgstr "너무 많은 실패로 인해 5분 동안 차단되었습니다."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Login/Login.tsx:229
+#: src/components/remotes/Login/Login.tsx:228
 msgid "auth.two_factor.incorrect_code"
 msgstr "잘못된 인증 코드입니다."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Login/Login.tsx:186
+#: src/components/remotes/Login/Login.tsx:185
 msgid "auth.two_factor.invalid_format"
 msgstr "올바른 6자리 숫자 코드를 입력해 주세요."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Login/Login.tsx:190
+#: src/components/remotes/Login/Login.tsx:189
 msgid "auth.two_factor.invalid_recovery_key"
 msgstr "올바른 복구 키를 입력해 주세요."
 
@@ -231,12 +236,12 @@ msgid "auth.two_factor.recovery_key"
 msgstr "복구 키"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Login/Login.tsx:217
+#: src/components/remotes/Login/Login.tsx:216
 msgid "auth.two_factor.success_redirect"
 msgstr "인증이 완료되었습니다. 잠시 후 홈 페이지로 이동합니다."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Login/Login.tsx:274
+#: src/components/remotes/Login/Login.tsx:273
 msgid "auth.two_factor.title"
 msgstr "이중 인증"
 
@@ -282,13 +287,13 @@ msgstr "이메일을 입력해 주세요."
 
 #. js-lingui-explicit-id
 #: src/components/remotes/Signup/Signup.tsx:229
-#: src/components/remotes/Signup/Signup.tsx:444
-#: src/components/remotes/Signup/Signup.tsx:485
+#: src/components/remotes/Signup/Signup.tsx:446
+#: src/components/remotes/Signup/Signup.tsx:487
 msgid "auth.validation.password_mismatch"
 msgstr "비밀번호가 일치하지 않습니다."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Login/Login.tsx:110
+#: src/components/remotes/Login/Login.tsx:109
 #: src/components/remotes/Signup/Signup.tsx:210
 msgid "auth.validation.password_required"
 msgstr "비밀번호를 입력해 주세요."
@@ -300,7 +305,7 @@ msgstr "비밀번호는 8자 이상이어야 합니다."
 
 #. js-lingui-explicit-id
 #: src/components/remotes/Signup/Signup.tsx:177
-#: src/components/remotes/Signup/Signup.tsx:353
+#: src/components/remotes/Signup/Signup.tsx:355
 msgid "auth.validation.username_characters"
 msgstr "영문 소문자와 숫자만 사용할 수 있습니다."
 
@@ -310,13 +315,13 @@ msgid "auth.validation.username_length"
 msgstr "사용자 이름은 영문 소문자와 숫자로 4~15자여야 합니다."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Login/Login.tsx:103
+#: src/components/remotes/Login/Login.tsx:102
 #: src/components/remotes/Signup/Signup.tsx:171
 msgid "auth.validation.username_required"
 msgstr "사용자 이름을 입력해 주세요."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Signup/Signup.tsx:358
+#: src/components/remotes/Signup/Signup.tsx:360
 msgid "auth.validation.username_too_long"
 msgstr "15자를 초과할 수 없습니다."
 
@@ -366,7 +371,7 @@ msgid "comments.author_profile"
 msgstr "{author}님의 프로필 보기"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Comments/Comments.tsx:163
+#: src/components/remotes/Comments/Comments.tsx:186
 msgid "comments.closed"
 msgstr "작성자가 이 글의 새 댓글과 답글을 받지 않습니다."
 
@@ -376,47 +381,47 @@ msgid "comments.comment_by_author"
 msgstr "{author}님의 댓글"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Comments/Comments.tsx:26
+#: src/components/remotes/Comments/Comments.tsx:43
 msgid "comments.count"
 msgstr "{count, plural, other {댓글 #개}}"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Comments/hooks/useCommentsController.ts:184
+#: src/components/remotes/Comments/hooks/useCommentsController.ts:193
 msgid "comments.create.error"
 msgstr "댓글을 작성하는 중 문제가 발생했습니다."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Comments/hooks/useCommentsController.ts:179
+#: src/components/remotes/Comments/hooks/useCommentsController.ts:188
 msgid "comments.create.failed"
 msgstr "댓글을 작성하지 못했습니다."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Comments/hooks/useCommentsController.ts:172
+#: src/components/remotes/Comments/hooks/useCommentsController.ts:181
 msgid "comments.create.success"
 msgstr "댓글을 작성했습니다."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Comments/hooks/useCommentsController.ts:266
+#: src/components/remotes/Comments/hooks/useCommentsController.ts:275
 msgid "comments.delete.confirm"
 msgstr "이 댓글을 삭제할까요?"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Comments/hooks/useCommentsController.ts:300
+#: src/components/remotes/Comments/hooks/useCommentsController.ts:309
 msgid "comments.delete.error"
 msgstr "댓글을 삭제하는 중 문제가 발생했습니다."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Comments/hooks/useCommentsController.ts:295
+#: src/components/remotes/Comments/hooks/useCommentsController.ts:304
 msgid "comments.delete.failed"
 msgstr "댓글을 삭제하지 못했습니다."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Comments/hooks/useCommentsController.ts:288
+#: src/components/remotes/Comments/hooks/useCommentsController.ts:297
 msgid "comments.delete.success"
 msgstr "댓글을 삭제했습니다."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Comments/hooks/useCommentsController.ts:262
+#: src/components/remotes/Comments/hooks/useCommentsController.ts:271
 msgid "comments.delete.title"
 msgstr "댓글 삭제"
 
@@ -437,22 +442,22 @@ msgid "comments.edit.content_label"
 msgstr "수정할 댓글 내용"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Comments/hooks/useCommentsController.ts:251
+#: src/components/remotes/Comments/hooks/useCommentsController.ts:260
 msgid "comments.edit.error"
 msgstr "댓글을 수정하는 중 문제가 발생했습니다."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Comments/hooks/useCommentsController.ts:246
+#: src/components/remotes/Comments/hooks/useCommentsController.ts:255
 msgid "comments.edit.failed"
 msgstr "댓글을 수정하지 못했습니다."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Comments/hooks/useCommentsController.ts:209
+#: src/components/remotes/Comments/hooks/useCommentsController.ts:218
 msgid "comments.edit.load_error"
 msgstr "댓글을 불러오는 중 문제가 발생했습니다."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Comments/hooks/useCommentsController.ts:203
+#: src/components/remotes/Comments/hooks/useCommentsController.ts:212
 msgid "comments.edit.load_failed"
 msgstr "댓글을 불러오지 못했습니다."
 
@@ -467,7 +472,7 @@ msgid "comments.edit.save"
 msgstr "댓글 저장"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Comments/hooks/useCommentsController.ts:239
+#: src/components/remotes/Comments/hooks/useCommentsController.ts:248
 msgid "comments.edit.success"
 msgstr "댓글을 수정했습니다."
 
@@ -482,37 +487,37 @@ msgid "comments.empty"
 msgstr "아직 댓글이 없습니다"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Comments/components/CommentForm.tsx:170
+#: src/components/remotes/Comments/components/CommentForm.tsx:178
 msgid "comments.form.content_label"
 msgstr "댓글 내용"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Comments/components/CommentForm.tsx:33
+#: src/components/remotes/Comments/components/CommentForm.tsx:35
 msgid "comments.form.placeholder"
 msgstr "댓글을 작성하세요..."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Comments/components/CommentForm.tsx:37
+#: src/components/remotes/Comments/components/CommentForm.tsx:39
 msgid "comments.form.submit"
 msgstr "댓글 작성"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Comments/components/CommentForm.tsx:206
+#: src/components/remotes/Comments/components/CommentForm.tsx:214
 msgid "comments.form.submit_label"
 msgstr "댓글 작성"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Comments/components/CommentForm.tsx:213
+#: src/components/remotes/Comments/components/CommentForm.tsx:221
 msgid "comments.form.submitting"
 msgstr "작성 중..."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Comments/components/CommentForm.tsx:202
+#: src/components/remotes/Comments/components/CommentForm.tsx:210
 msgid "comments.form.submitting_label"
 msgstr "댓글 작성 중"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Comments/Comments.tsx:145
+#: src/components/remotes/Comments/Comments.tsx:167
 msgid "comments.leave_comment"
 msgstr "댓글 남기기"
 
@@ -527,12 +532,12 @@ msgid "comments.like.count"
 msgstr "{count, plural, other {좋아요 #개}}"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Comments/hooks/useCommentsController.ts:138
+#: src/components/remotes/Comments/hooks/useCommentsController.ts:147
 msgid "comments.like.error"
 msgstr "좋아요를 변경하는 중 문제가 발생했습니다."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Comments/hooks/useCommentsController.ts:133
+#: src/components/remotes/Comments/hooks/useCommentsController.ts:142
 msgid "comments.like.failed"
 msgstr "좋아요를 변경하지 못했습니다."
 
@@ -542,22 +547,22 @@ msgid "comments.like.remove"
 msgstr "좋아요 취소"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Comments/Comments.tsx:84
+#: src/components/remotes/Comments/Comments.tsx:106
 msgid "comments.load_error_description"
 msgstr "잠시 후 다시 시도해 주세요."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Comments/Comments.tsx:81
+#: src/components/remotes/Comments/Comments.tsx:103
 msgid "comments.load_error_title"
 msgstr "댓글을 불러오지 못했습니다"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Comments/Comments.tsx:105
+#: src/components/remotes/Comments/Comments.tsx:127
 msgid "comments.loading"
 msgstr "댓글을 불러오는 중..."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Comments/components/CommentForm.tsx:41
+#: src/components/remotes/Comments/components/CommentForm.tsx:43
 msgid "comments.login_required"
 msgstr "로그인하고 댓글 작성"
 
@@ -577,33 +582,33 @@ msgid "comments.reply.action"
 msgstr "답글"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Comments/hooks/useCommentsController.ts:380
+#: src/components/remotes/Comments/hooks/useCommentsController.ts:379
 msgid "comments.reply.error"
 msgstr "답글을 작성하는 중 문제가 발생했습니다."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Comments/hooks/useCommentsController.ts:375
+#: src/components/remotes/Comments/hooks/useCommentsController.ts:374
 msgid "comments.reply.failed"
 msgstr "답글을 작성하지 못했습니다."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Comments/hooks/useCommentsController.ts:345
+#: src/components/remotes/Comments/hooks/useCommentsController.ts:346
 msgid "comments.reply.parent_missing"
 msgstr "답글을 남길 댓글을 찾지 못했습니다."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Comments/components/CommentItem.tsx:184
+#: src/components/remotes/Comments/components/CommentItem.tsx:185
 msgid "comments.reply.placeholder"
 msgstr "답글을 작성하세요..."
 
 #. js-lingui-explicit-id
 #: src/components/remotes/Comments/components/CommentActions.tsx:83
-#: src/components/remotes/Comments/components/CommentItem.tsx:190
+#: src/components/remotes/Comments/components/CommentItem.tsx:191
 msgid "comments.reply.submit"
 msgstr "답글 작성"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Comments/hooks/useCommentsController.ts:368
+#: src/components/remotes/Comments/hooks/useCommentsController.ts:367
 msgid "comments.reply.success"
 msgstr "답글을 작성했습니다."
 
@@ -613,18 +618,18 @@ msgid "comments.replying_to"
 msgstr "{author}님에게 답글 작성 중"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Comments/Comments.tsx:21
+#: src/components/remotes/Comments/Comments.tsx:38
 msgid "comments.title"
 msgstr "댓글"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Comments/hooks/useCommentsController.ts:152
-#: src/components/remotes/Comments/hooks/useCommentsController.ts:223
+#: src/components/remotes/Comments/hooks/useCommentsController.ts:161
+#: src/components/remotes/Comments/hooks/useCommentsController.ts:232
 msgid "comments.validation.comment_required"
 msgstr "댓글을 입력해 주세요."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Comments/hooks/useCommentsController.ts:337
+#: src/components/remotes/Comments/hooks/useCommentsController.ts:338
 msgid "comments.validation.reply_required"
 msgstr "답글을 입력해 주세요."
 
@@ -645,7 +650,7 @@ msgstr "적용"
 
 #. js-lingui-explicit-id
 #: src/components/remotes/Comments/components/CommentEditForm.tsx:69
-#: src/components/remotes/Comments/components/CommentForm.tsx:194
+#: src/components/remotes/Comments/components/CommentForm.tsx:202
 #: src/components/remotes/PostEditor/components/PostRevisionDialog.tsx:606
 #: src/components/remotes/PostEditor/components/PostRevisionDialog.tsx:624
 #: src/components/remotes/PostEditor/components/PublishChecklist.tsx:139
@@ -687,7 +692,7 @@ msgstr "확인"
 
 #. js-lingui-explicit-id
 #: src/components/remotes/SettingsApp/pages/DeveloperApiSetting/DeveloperApiSetting.tsx:565
-#: src/components/remotes/SettingsApp/pages/IntegrationSetting/IntegrationSetting.tsx:263
+#: src/components/remotes/SettingsApp/pages/IntegrationSetting/components/TelegramConnectCard.tsx:112
 #: src/components/remotes/SettingsApp/pages/SeriesSetting/components/SeriesEditor.tsx:462
 msgid "common.copy"
 msgstr "복사"
@@ -711,7 +716,7 @@ msgstr "생성"
 
 #. js-lingui-explicit-id
 #: src/components/remotes/Comments/components/CommentItem.tsx:78
-#: src/components/remotes/Comments/hooks/useCommentsController.ts:270
+#: src/components/remotes/Comments/hooks/useCommentsController.ts:279
 #: src/components/remotes/PostEditor/components/PostRevisionDialog.tsx:614
 #: src/components/remotes/PostEditor/components/PostRevisionDialog.tsx:645
 #: src/components/remotes/SettingsApp/components/WebhookChannelManager.tsx:336
@@ -782,8 +787,8 @@ msgid "common.enable"
 msgstr "활성화"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Login/Login.tsx:156
-#: src/components/remotes/Login/Login.tsx:244
+#: src/components/remotes/Login/Login.tsx:155
+#: src/components/remotes/Login/Login.tsx:243
 #: src/components/remotes/Signup/Signup.tsx:285
 msgid "common.error.try_again"
 msgstr "오류가 발생했습니다. 다시 시도해 주세요."
@@ -816,7 +821,7 @@ msgstr "로딩 중"
 #: src/components/remotes/SettingsApp/pages/FormsSetting/FormsSetting.tsx:111
 #: src/components/remotes/SettingsApp/pages/FormsSetting/FormsSetting.tsx:144
 #: src/components/remotes/SettingsApp/pages/FormsSetting/FormsSetting.tsx:192
-#: src/components/remotes/SettingsApp/pages/IntegrationSetting/IntegrationSetting.tsx:113
+#: src/components/remotes/SettingsApp/pages/IntegrationSetting/IntegrationSetting.tsx:89
 #: src/components/remotes/SettingsApp/pages/shared/BannerEditorBase.tsx:511
 msgid "common.network_error"
 msgstr "네트워크 오류가 발생했습니다."
@@ -866,7 +871,7 @@ msgid "common.previous"
 msgstr "이전"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Signup/Signup.tsx:539
+#: src/components/remotes/Signup/Signup.tsx:541
 msgid "common.processing"
 msgstr "처리 중..."
 
@@ -893,7 +898,7 @@ msgid "common.restore"
 msgstr "복원"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/Comments/Comments.tsx:90
+#: src/components/remotes/Comments/Comments.tsx:112
 #: src/components/remotes/PostEditor/components/DraftsPanel.tsx:146
 #: src/components/remotes/PostEditor/components/PostRevisionDialog.tsx:386
 #: src/components/remotes/SettingsApp/pages/NotifySetting/components/NotifyConfigModal.tsx:125
@@ -909,7 +914,7 @@ msgstr "저장"
 
 #. js-lingui-explicit-id
 #: src/components/remotes/Comments/components/CommentEditForm.tsx:76
-#: src/components/remotes/SettingsApp/pages/AdminIntegrationSetting/AdminIntegrationSetting.tsx:289
+#: src/components/remotes/SettingsApp/pages/AdminIntegrationSetting/AdminIntegrationSetting.tsx:290
 #: src/components/remotes/SettingsApp/pages/LoginSetting/LoginSetting.tsx:825
 #: src/components/remotes/SettingsApp/pages/shared/BannerEditorBase.tsx:1174
 #: src/components/remotes/SettingsApp/pages/shared/NoticeSettingBase.tsx:398
@@ -2195,7 +2200,7 @@ msgid "login_prompt.action.generic"
 msgstr "이 작업"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/LoginPrompt/LoginPrompt.tsx:116
+#: src/components/remotes/LoginPrompt/LoginPrompt.tsx:123
 #: src/contexts/LoginPromptContext.tsx:127
 msgid "login_prompt.cancel"
 msgstr "취소"
@@ -2206,34 +2211,34 @@ msgid "login_prompt.description.action"
 msgstr "{action}을(를) 계속하려면 로그인해 주세요."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/LoginPrompt/LoginPrompt.tsx:55
+#: src/components/remotes/LoginPrompt/LoginPrompt.tsx:61
 msgid "login_prompt.description.comment"
 msgstr "댓글을 남기려면 로그인해 주세요."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/LoginPrompt/LoginPrompt.tsx:47
+#: src/components/remotes/LoginPrompt/LoginPrompt.tsx:53
 msgid "login_prompt.description.generic"
 msgstr "계속하려면 로그인해 주세요."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/LoginPrompt/LoginPrompt.tsx:51
+#: src/components/remotes/LoginPrompt/LoginPrompt.tsx:57
 msgid "login_prompt.description.like"
 msgstr "좋아요를 누르려면 로그인해 주세요."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/LoginPrompt/LoginPrompt.tsx:59
+#: src/components/remotes/LoginPrompt/LoginPrompt.tsx:65
 msgid "login_prompt.description.reply"
 msgstr "답글을 작성하려면 로그인해 주세요."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/LoginPrompt/LoginPrompt.tsx:110
+#: src/components/remotes/LoginPrompt/LoginPrompt.tsx:117
 #: src/contexts/LoginPromptContext.tsx:118
 msgid "login_prompt.login"
 msgstr "로그인하기"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/LoginPrompt/LoginPrompt.tsx:65
-#: src/components/remotes/LoginPrompt/LoginPrompt.tsx:97
+#: src/components/remotes/LoginPrompt/LoginPrompt.tsx:71
+#: src/components/remotes/LoginPrompt/LoginPrompt.tsx:103
 #: src/contexts/LoginPromptContext.tsx:98
 msgid "login_prompt.title"
 msgstr "로그인이 필요해요"
@@ -2901,79 +2906,144 @@ msgid "settings.account.username.validation.min_length"
 msgstr "사용자 필명은 3자 이상이어야 합니다."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/AdminIntegrationSetting/AdminIntegrationSetting.tsx:168
+#: src/components/remotes/SettingsApp/pages/AdminIntegrationSetting/AdminIntegrationSetting.tsx:179
 msgid "settings.admin.telegram.bot.title"
 msgstr "봇 설정"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/AdminIntegrationSetting/AdminIntegrationSetting.tsx:268
+#: src/components/remotes/SettingsApp/pages/AdminIntegrationSetting/AdminIntegrationSetting.tsx:269
 msgid "settings.admin.telegram.bot.token.clear_description"
 msgstr "삭제 후 텔레그램을 계속 사용하려면 새 봇 토큰을 입력해야 합니다."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/AdminIntegrationSetting/AdminIntegrationSetting.tsx:264
+#: src/components/remotes/SettingsApp/pages/AdminIntegrationSetting/AdminIntegrationSetting.tsx:265
 msgid "settings.admin.telegram.bot.token.clear_label"
 msgstr "저장된 텔레그램 봇 토큰 삭제"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/AdminIntegrationSetting/AdminIntegrationSetting.tsx:248
+#: src/components/remotes/SettingsApp/pages/AdminIntegrationSetting/AdminIntegrationSetting.tsx:246
 msgid "settings.admin.telegram.bot.token.helper"
 msgstr "새 값을 입력하지 않으면 기존 토큰을 유지합니다."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/AdminIntegrationSetting/AdminIntegrationSetting.tsx:237
+#: src/components/remotes/SettingsApp/pages/AdminIntegrationSetting/AdminIntegrationSetting.tsx:235
 msgid "settings.admin.telegram.bot.token.keep_placeholder"
 msgstr "저장된 값 유지"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/AdminIntegrationSetting/AdminIntegrationSetting.tsx:224
+#: src/components/remotes/SettingsApp/pages/AdminIntegrationSetting/AdminIntegrationSetting.tsx:222
 msgid "settings.admin.telegram.bot.token.label"
 msgstr "봇 토큰"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/AdminIntegrationSetting/AdminIntegrationSetting.tsx:217
-msgid "settings.admin.telegram.bot.username.helper"
-msgstr "@ 없이 입력해도 됩니다."
+#: src/components/remotes/SettingsApp/pages/AdminIntegrationSetting/AdminIntegrationSetting.tsx:250
+msgid "settings.admin.telegram.bot.token.new_helper"
+msgstr "@BotFather에서 받은 토큰을 붙여넣으세요. 저장하면 BLEX가 봇 이름을 찾아 텔레그램과 연결합니다."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/AdminIntegrationSetting/AdminIntegrationSetting.tsx:203
-msgid "settings.admin.telegram.bot.username.label"
-msgstr "봇 사용자명"
+#: src/components/remotes/SettingsApp/pages/AdminIntegrationSetting/components/TelegramConnectionNotice.tsx:35
+msgid "settings.admin.telegram.connection.connected.description"
+msgstr "사용자가 알림 설정에서 버튼 하나로 텔레그램을 연결할 수 있습니다."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/AdminIntegrationSetting/AdminIntegrationSetting.tsx:183
+#: src/components/remotes/SettingsApp/pages/AdminIntegrationSetting/components/TelegramConnectionNotice.tsx:30
+msgid "settings.admin.telegram.connection.connected.title"
+msgstr "@{botUsername}에 연결됨"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/AdminIntegrationSetting/components/TelegramConnectionNotice.tsx:88
+msgid "settings.admin.telegram.connection.delivery_failed.description"
+msgstr "다시 연결해서 이 사이트를 텔레그램에 다시 등록하세요. SECRET_KEY를 바꿨거나 BLEX 밖에서 봇을 연결했다면 필요합니다."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/AdminIntegrationSetting/components/TelegramConnectionNotice.tsx:84
+msgid "settings.admin.telegram.connection.delivery_failed.title"
+msgstr "텔레그램이 BLEX로 메시지를 전달하지 못했습니다"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/AdminIntegrationSetting/components/TelegramConnectionNotice.tsx:51
+msgid "settings.admin.telegram.connection.invalid_token.description"
+msgstr "BotFather에서 봇 토큰을 다시 확인한 뒤 여기에 저장하세요."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/AdminIntegrationSetting/components/TelegramConnectionNotice.tsx:47
+msgid "settings.admin.telegram.connection.invalid_token.title"
+msgstr "봇 토큰이 더 이상 유효하지 않습니다"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/AdminIntegrationSetting/components/TelegramConnectionNotice.tsx:66
+msgid "settings.admin.telegram.connection.not_connected.description"
+msgstr "사용자가 봇에게 보낸 메시지를 BLEX가 받을 수 있도록 다시 연결하세요."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/AdminIntegrationSetting/components/TelegramConnectionNotice.tsx:62
+msgid "settings.admin.telegram.connection.not_connected.title"
+msgstr "텔레그램이 BLEX로 메시지를 보내지 않고 있습니다"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/AdminIntegrationSetting/components/TelegramConnectionNotice.tsx:123
+msgid "settings.admin.telegram.connection.reconnect"
+msgstr "다시 연결"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/AdminIntegrationSetting/components/TelegramConnectionNotice.tsx:77
+msgid "settings.admin.telegram.connection.rejected.description"
+msgstr "텔레그램은 외부에서 접속할 수 있는 HTTPS 주소로만 메시지를 보냅니다. SITE_URL이 이 사이트의 공개 HTTPS 주소인지 확인한 뒤 다시 연결하세요."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/AdminIntegrationSetting/components/TelegramConnectionNotice.tsx:73
+msgid "settings.admin.telegram.connection.rejected.title"
+msgstr "텔레그램이 연결을 거부했습니다"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/AdminIntegrationSetting/components/TelegramConnectionNotice.tsx:99
+msgid "settings.admin.telegram.connection.unreachable.description"
+msgstr "이 서버에서 api.telegram.org에 접속할 수 없습니다. 서버 네트워크를 확인한 뒤 다시 연결하세요."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/AdminIntegrationSetting/components/TelegramConnectionNotice.tsx:95
+msgid "settings.admin.telegram.connection.unreachable.title"
+msgstr "텔레그램에 접속할 수 없습니다"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/AdminIntegrationSetting/AdminIntegrationSetting.tsx:202
 msgid "settings.admin.telegram.enabled.description"
 msgstr "켜면 사용자가 텔레그램을 연결하고 주요 알림을 받을 수 있습니다."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/AdminIntegrationSetting/AdminIntegrationSetting.tsx:177
-#: src/components/remotes/SettingsApp/pages/AdminIntegrationSetting/AdminIntegrationSetting.tsx:193
+#: src/components/remotes/SettingsApp/pages/AdminIntegrationSetting/AdminIntegrationSetting.tsx:196
+#: src/components/remotes/SettingsApp/pages/AdminIntegrationSetting/AdminIntegrationSetting.tsx:212
 msgid "settings.admin.telegram.enabled.label"
 msgstr "텔레그램 사용"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/AdminIntegrationSetting/AdminIntegrationSetting.tsx:91
+#: src/components/remotes/SettingsApp/pages/AdminIntegrationSetting/AdminIntegrationSetting.tsx:90
 msgid "settings.admin.telegram.load_failed"
 msgstr "텔레그램 설정을 불러오지 못했습니다."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/AdminIntegrationSetting/AdminIntegrationSetting.tsx:293
+#: src/components/remotes/SettingsApp/pages/AdminIntegrationSetting/AdminIntegrationSetting.tsx:294
 msgid "settings.admin.telegram.save"
 msgstr "텔레그램 설정 저장"
 
 #. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/AdminIntegrationSetting/AdminIntegrationSetting.tsx:131
+msgid "settings.admin.telegram.save_connection_warning"
+msgstr "설정은 저장했지만 아직 텔레그램과 연결되지 않았습니다. 위의 상태를 확인하세요."
+
+#. js-lingui-explicit-id
 #: src/components/remotes/SettingsApp/pages/AdminIntegrationSetting/AdminIntegrationSetting.tsx:114
-#: src/components/remotes/SettingsApp/pages/AdminIntegrationSetting/AdminIntegrationSetting.tsx:130
+#: src/components/remotes/SettingsApp/pages/AdminIntegrationSetting/AdminIntegrationSetting.tsx:138
 msgid "settings.admin.telegram.save_failed"
 msgstr "텔레그램 설정 저장에 실패했습니다."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/AdminIntegrationSetting/AdminIntegrationSetting.tsx:124
+#: src/components/remotes/SettingsApp/pages/AdminIntegrationSetting/AdminIntegrationSetting.tsx:126
 msgid "settings.admin.telegram.save_success"
 msgstr "텔레그램 설정이 저장되었습니다."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/AdminIntegrationSetting/AdminIntegrationSetting.tsx:161
+#: src/components/remotes/SettingsApp/pages/AdminIntegrationSetting/AdminIntegrationSetting.tsx:172
 msgid "settings.admin.telegram.title"
 msgstr "텔레그램"
 
@@ -6952,120 +7022,130 @@ msgid "settings.static_pages.view.unpublished"
 msgstr "비공개 페이지는 열 수 없습니다. 공개한 뒤 다시 시도해주세요."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/IntegrationSetting/IntegrationSetting.tsx:146
+#: src/components/remotes/SettingsApp/pages/IntegrationSetting/components/TelegramConnectCard.tsx:55
+msgid "settings.telegram.connect.description"
+msgstr "텔레그램을 열고 봇과의 대화에서 시작을 누르세요. 연결되면 이 화면이 자동으로 바뀝니다."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/IntegrationSetting/components/TelegramConnectCard.tsx:90
+msgid "settings.telegram.connect.manual"
+msgstr "버튼으로 텔레그램이 열리지 않으면 <0>@{botUsername}</0>에게 이 코드를 보내세요. 코드는 24시간 동안 쓸 수 있습니다."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/IntegrationSetting/components/TelegramConnectCard.tsx:78
+msgid "settings.telegram.connect.open"
+msgstr "텔레그램에서 연결하기"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/IntegrationSetting/components/TelegramConnectCard.tsx:134
+msgid "settings.telegram.connect.preparing"
+msgstr "연결 링크를 준비하고 있습니다..."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/IntegrationSetting/components/TelegramConnectCard.tsx:65
+msgid "settings.telegram.connect.qr_alt"
+msgstr "텔레그램 봇을 여는 QR 코드"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/IntegrationSetting/components/TelegramConnectCard.tsx:81
+msgid "settings.telegram.connect.qr_hint"
+msgstr "휴대폰에서 연결하려면 카메라로 QR 코드를 찍으세요."
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/IntegrationSetting/components/TelegramConnectCard.tsx:128
+msgid "settings.telegram.connect.retry"
+msgstr "다시 시도"
+
+#. js-lingui-explicit-id
+#: src/components/remotes/SettingsApp/pages/IntegrationSetting/IntegrationSetting.tsx:115
 msgid "settings.telegram.description"
 msgstr "텔레그램 봇과 연동하여 실시간 알림을 받아보세요."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/IntegrationSetting/IntegrationSetting.tsx:81
-#: src/components/remotes/SettingsApp/pages/IntegrationSetting/IntegrationSetting.tsx:204
+#: src/components/remotes/SettingsApp/pages/IntegrationSetting/IntegrationSetting.tsx:56
+#: src/components/remotes/SettingsApp/pages/IntegrationSetting/IntegrationSetting.tsx:173
 msgid "settings.telegram.disconnect.action"
 msgstr "연동 해제"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/IntegrationSetting/IntegrationSetting.tsx:101
+#: src/components/remotes/SettingsApp/pages/IntegrationSetting/IntegrationSetting.tsx:77
 msgid "settings.telegram.disconnect.already"
 msgstr "이미 연동이 해제된 상태입니다."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/IntegrationSetting/IntegrationSetting.tsx:200
+#: src/components/remotes/SettingsApp/pages/IntegrationSetting/IntegrationSetting.tsx:169
 msgid "settings.telegram.disconnect.disconnecting"
 msgstr "해제 중..."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/IntegrationSetting/IntegrationSetting.tsx:107
+#: src/components/remotes/SettingsApp/pages/IntegrationSetting/IntegrationSetting.tsx:83
 msgid "settings.telegram.disconnect.failed"
 msgstr "연동 해제에 실패했습니다."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/IntegrationSetting/IntegrationSetting.tsx:77
+#: src/components/remotes/SettingsApp/pages/IntegrationSetting/IntegrationSetting.tsx:52
 msgid "settings.telegram.disconnect.message"
 msgstr "텔레그램 연동을 해제할까요?"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/IntegrationSetting/IntegrationSetting.tsx:94
+#: src/components/remotes/SettingsApp/pages/IntegrationSetting/IntegrationSetting.tsx:69
 msgid "settings.telegram.disconnect.success"
 msgstr "텔레그램 연동이 해제되었습니다."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/IntegrationSetting/IntegrationSetting.tsx:73
+#: src/components/remotes/SettingsApp/pages/IntegrationSetting/IntegrationSetting.tsx:48
 msgid "settings.telegram.disconnect.title"
 msgstr "텔레그램 연동 해제"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/IntegrationSetting/IntegrationSetting.tsx:226
-msgid "settings.telegram.instructions.find_bot"
-msgstr "텔레그램 앱에서 <0>@{botUsername}<1/></0>을 찾아 대화를 시작하세요."
-
-#. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/IntegrationSetting/IntegrationSetting.tsx:247
-msgid "settings.telegram.instructions.send_code"
-msgstr "봇에게 아래 인증 코드를 전송하세요."
-
-#. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/IntegrationSetting/IntegrationSetting.tsx:215
+#: src/components/remotes/SettingsApp/pages/IntegrationSetting/components/TelegramConnectCard.tsx:48
 msgid "settings.telegram.instructions.title"
 msgstr "연동 방법"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/IntegrationSetting/IntegrationSetting.tsx:33
+#: src/components/remotes/SettingsApp/pages/IntegrationSetting/IntegrationSetting.tsx:35
 msgid "settings.telegram.load_failed"
 msgstr "텔레그램 연동 정보를 불러오지 못했습니다."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/IntegrationSetting/IntegrationSetting.tsx:169
+#: src/components/remotes/SettingsApp/pages/IntegrationSetting/IntegrationSetting.tsx:138
 msgid "settings.telegram.status.connected"
 msgstr "연동 완료"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/IntegrationSetting/IntegrationSetting.tsx:180
+#: src/components/remotes/SettingsApp/pages/IntegrationSetting/IntegrationSetting.tsx:149
 msgid "settings.telegram.status.connected_description"
 msgstr "텔레그램으로 실시간 알림을 받을 수 있습니다."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/IntegrationSetting/IntegrationSetting.tsx:173
+#: src/components/remotes/SettingsApp/pages/IntegrationSetting/IntegrationSetting.tsx:142
 msgid "settings.telegram.status.paused"
 msgstr "알림 전송 일시 중지"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/IntegrationSetting/IntegrationSetting.tsx:184
+#: src/components/remotes/SettingsApp/pages/IntegrationSetting/IntegrationSetting.tsx:153
 msgid "settings.telegram.status.paused_description"
 msgstr "텔레그램 알림 전송이 현재 중지되어 있습니다."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/IntegrationSetting/IntegrationSetting.tsx:154
+#: src/components/remotes/SettingsApp/pages/IntegrationSetting/IntegrationSetting.tsx:123
 msgid "settings.telegram.status.title"
 msgstr "연동 상태"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/IntegrationSetting/IntegrationSetting.tsx:142
+#: src/components/remotes/SettingsApp/pages/IntegrationSetting/IntegrationSetting.tsx:111
 msgid "settings.telegram.title"
 msgstr "텔레그램 연동"
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/IntegrationSetting/IntegrationSetting.tsx:292
-msgid "settings.telegram.token.expiration"
-msgstr "이 코드는 일회용이며 연동 완료 또는 24시간 후 자동으로 만료됩니다. 연동 후 페이지를 새로고침하세요."
-
-#. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/IntegrationSetting/IntegrationSetting.tsx:280
-msgid "settings.telegram.token.generate"
-msgstr "인증 코드 생성"
-
-#. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/IntegrationSetting/IntegrationSetting.tsx:62
+#: src/components/remotes/SettingsApp/pages/IntegrationSetting/components/TelegramConnectCard.tsx:22
 msgid "settings.telegram.token.generate_error"
 msgstr "인증 코드를 생성하는 중 오류가 발생했습니다."
 
 #. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/IntegrationSetting/IntegrationSetting.tsx:55
+#: src/components/remotes/SettingsApp/pages/IntegrationSetting/components/TelegramConnectCard.tsx:30
 msgid "settings.telegram.token.generate_failed"
 msgstr "인증 코드 생성에 실패했습니다."
-
-#. js-lingui-explicit-id
-#: src/components/remotes/SettingsApp/pages/IntegrationSetting/IntegrationSetting.tsx:276
-msgid "settings.telegram.token.generating"
-msgstr "생성 중..."
 
 #. js-lingui-explicit-id
 #: src/components/remotes/SettingsApp/pages/UserManagementSetting/index.tsx:614

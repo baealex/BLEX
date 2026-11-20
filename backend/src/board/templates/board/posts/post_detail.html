@@ -559,7 +559,7 @@
                 {% endif %}
 
                 {% if not is_post_preview %}
-                <div>
+                <div id="post-comments" class="scroll-mt-20">
                     {% island_component 'Comments' lazy=True postUrl=post.url %}
                 </div>
                 {% endif %}
@@ -673,6 +673,11 @@ class="xl:hidden">
 
 {% block extra_scripts %}
 {% if not is_post_preview %}
+<script>
+    if (window.location.hash === '#post-comments') {
+        document.querySelector('#post-comments island-component')?.removeAttribute('lazy');
+    }
+</script>
 <!-- Structured Data for Articles (JSON-LD) -->
 <script type="application/ld+json">
 {

@@ -36,7 +36,7 @@ export interface LoginState {
     twoFactorFailedAttempts: number;
 }
 
-export const useLoginState = () => {
+export const useLoginState = (nextUrl: string) => {
     const { i18n, t } = useLingui();
     const [state, setState] = useState<LoginState>({
         username: window.USERNAME || '',
@@ -68,7 +68,11 @@ export const useLoginState = () => {
 
     const goBackToLogin = () => {
         if (state.oauthPending) {
-            window.location.assign('/login?restart=1');
+            const params = new URLSearchParams({ restart: '1' });
+            if (nextUrl) {
+                params.set('next', nextUrl);
+            }
+            window.location.assign(`/login?${params}`);
             return;
         }
 

@@ -775,10 +775,23 @@ export interface LoginSettingUpdateData {
     social_auth_providers?: SocialAuthProviderUpdateData[];
 }
 
+export type TelegramConnectionState =
+    | 'disabled'
+    | 'connected'
+    | 'not_connected'
+    | 'invalid_token'
+    | 'rejected'
+    | 'delivery_failed'
+    | 'unreachable';
+
 export interface IntegrationSettingData {
     telegramEnabled: boolean;
     telegramBotUsername: string;
     telegramHasBotToken: boolean;
+    telegramConnection: {
+        state: TelegramConnectionState;
+        detail: string;
+    };
     updatedDate: string;
 }
 

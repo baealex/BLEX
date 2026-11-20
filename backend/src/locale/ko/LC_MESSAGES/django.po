@@ -2263,13 +2263,17 @@ msgstr "이미지 업로드에 실패했습니다."
 msgid "Video upload failed."
 msgstr "비디오 업로드에 실패했습니다."
 
-#: board/services/integration_setting_service.py:121
-msgid "Enter a Telegram bot username."
-msgstr "텔레그램 봇 사용자명을 입력해주세요."
+#: board/services/integration_setting_service.py:122
+msgid "Enter a valid Telegram bot token."
+msgstr "올바른 텔레그램 봇 토큰을 입력해주세요."
 
-#: board/services/integration_setting_service.py:125
+#: board/services/integration_setting_service.py:135
 msgid "Enter a Telegram bot token."
 msgstr "텔레그램 봇 토큰을 입력해주세요."
+
+#: board/views/api/v1/integration_setting.py:58
+msgid "Telegram rejected this bot token. Check the token and try again."
+msgstr "텔레그램이 이 봇 토큰을 거부했습니다. 토큰을 확인한 뒤 다시 시도해주세요."
 
 #: board/services/notification_message_service.py:20
 #, python-format
