@@ -2,6 +2,7 @@ import { createElement } from 'react';
 import type { ReactNode } from 'react';
 import type { CommentPayload, ReaderAuthorHeader, ReaderPostView } from '../reader-actions/index.js';
 import { SiteIcon } from '../appearance/shell.js';
+import { loginPromptProps } from './login-prompt.js';
 
 const h = createElement;
 
@@ -71,12 +72,6 @@ function hiddenReturnTo(returnTo: string) {
   return h('input', { type: 'hidden', name: 'return_to', value: returnTo });
 }
 
-function loginHref(returnTo: string, action?: string): string {
-  const url = new URL(returnTo, 'https://blex.local');
-  if (action) url.searchParams.set('action', action);
-  return `/login?next=${encodeURIComponent(`${url.pathname}${url.search}${url.hash}`)}`;
-}
-
 function countComments(comments: CommentPayload[]): number {
   return comments.reduce((total, comment) => total + 1 + countComments(comment.replies ?? []), 0);
 }
@@ -106,9 +101,9 @@ export function AuthorHeader(props: AuthorHeaderProps) {
           className: 'reader-action-button',
           type: 'submit',
           'aria-pressed': author.isSubscribed,
-        }, author.isSubscribed ? '구독 중 · 취소' : '새 글 구독'),
+        }, author.isSubscribed ? '구독 중' : '구독'),
       )
-      : h('a', { className: 'reader-action-button', href: loginHref(props.returnTo, 'subscribe') }, '로그인하고 구독')
+      : h('a', { ...loginPromptProps(props.returnTo, 'subscribe'), className: 'reader-action-button', 'aria-label': `${author.username} 구독` }, '구독')
     : null;
 
   return h('section', { className: 'reader-card', 'aria-label': `${author.username} 작성자 정보` },
@@ -164,7 +159,7 @@ function commentNode(comment: CommentPayload, props: ReaderActionsProps, returnT
       h('button', { type: 'submit', 'aria-pressed': comment.isLiked }, `${comment.isLiked ? '공감 취소' : '공감'} · ${comment.countLikes}`),
     )
     : !props.view.viewerAuthenticated && !comment.isMine && !comment.isDeleted
-      ? h('a', { href: loginHref(loginTarget, 'like') }, `공감 · ${comment.countLikes}`)
+      ? h('a', loginPromptProps(loginTarget, 'like'), `공감 · ${comment.countLikes}`)
       : h('span', { className: 'reader-muted', 'aria-label': `공감 ${comment.countLikes}개` }, `공감 · ${comment.countLikes}`);
   const deleteAction = comment.permissions.canDelete
     ? h('form', { method: 'post', action: `/v1/comments/${comment.id}` },
@@ -174,7 +169,7 @@ function commentNode(comment: CommentPayload, props: ReaderActionsProps, returnT
     )
     : null;
   const replyLogin = !props.view.viewerAuthenticated && props.view.canComment && !comment.isDeleted && comment.parentId === undefined
-    ? h('a', { href: loginHref(`${returnTo}#comment-${comment.id}`, 'reply') }, '로그인하고 답글')
+    ? h('a', loginPromptProps(`${returnTo}#comment-${comment.id}`, 'reply'), '답글')
     : null;
   const replies = comment.replies ?? [];
   const edit = comment.permissions.canEdit ? h('details', { className: 'blex-user-menu mt-2 text-sm', 'data-comment-edit': comment.id },
@@ -216,8 +211,8 @@ function commentsSection(props: ReaderActionsProps, returnTo: string) {
       )
       : h('div', { className: 'reader-form' },
         h('p', { className: 'mb-6 text-sm font-medium text-content-secondary' }, '댓글 남기기'),
-        h('a', { className: 'flex min-h-12 items-center gap-2 rounded-xl border border-line bg-surface-subtle px-4 text-sm text-content-secondary hover:text-content', href: loginHref(`${returnTo}#post-comments`, 'comment') },
-          h(SiteIcon, { name: 'comment' }), '로그인하고 댓글 남기기'))
+        h('a', { ...loginPromptProps(`${returnTo}#post-comments`, 'comment'), className: 'flex min-h-12 items-center gap-2 rounded-xl border border-line bg-surface-subtle px-4 text-sm text-content-secondary hover:text-content' },
+          h(SiteIcon, { name: 'comment' }), '로그인하고 댓글 작성'))
     : h('p', { className: 'reader-form reader-muted' }, '작성자가 댓글과 답글을 받지 않고 있습니다.');
 
   return h('section', { className: 'reader-card reader-comments', id: 'post-comments', 'aria-labelledby': 'reader-comments-title' },
@@ -246,7 +241,7 @@ export function ReaderActions(props: ReaderActionsProps) {
       hiddenCsrf(props.csrfToken), hiddenReturnTo(returnTo),
       h('button', { type: 'submit', 'aria-pressed': view.postLike.isLiked }, `${view.postLike.isLiked ? '좋아요 취소' : '좋아요'} · ${view.postLike.countLikes}`),
     )
-    : h('a', { href: loginHref(returnTo, 'like') }, `로그인하고 좋아요 · ${view.postLike.countLikes}`);
+    : h('a', loginPromptProps(returnTo, 'like'), `좋아요 · ${view.postLike.countLikes}`);
 
   return h('div', { className: 'reader-actions' },
     h('style', null, styles),

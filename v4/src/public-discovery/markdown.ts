@@ -23,10 +23,45 @@ export function htmlToMarkdown(html: string): string {
   return collapseBlankLines(blocks.join('\n\n'));
 }
 
+/** Splits HTML into tags and text, keeping a `>` inside a quoted attribute as part of its tag. */
+function tokenizeHtml(html: string): string[] {
+  const lastQuote = { '"': html.lastIndexOf('"'), "'": html.lastIndexOf("'") };
+  const tagEnd = (start: number): number => {
+    for (let index = start; index < html.length; index += 1) {
+      const character = html[index];
+      if (character === '>') return index + 1;
+      if (character === '"' || character === "'") {
+        if (index >= lastQuote[character]) break;
+        index = html.indexOf(character, index + 1);
+      }
+    }
+    return html.indexOf('>', start) + 1;
+  };
+  const tokens: string[] = [];
+  let at = 0;
+  while (at < html.length) {
+    let end = 0;
+    if (html[at] !== '<') {
+      const next = html.indexOf('<', at);
+      end = next < 0 ? html.length : next;
+    } else if (html.startsWith('<!--', at) && html.indexOf('-->', at + 4) >= 0) {
+      end = html.indexOf('-->', at + 4) + 3;
+    } else if (html[at + 1] === '!') {
+      end = html.indexOf('>', at) + 1;
+    } else if (/^<\/?[A-Za-z]/.test(html.slice(at, at + 3))) {
+      end = tagEnd(at + 1);
+    }
+    if (end <= at) end = at + 1;
+    tokens.push(html.slice(at, end));
+    at = end;
+  }
+  return tokens;
+}
+
 function parseHtml(html: string): HtmlNode {
   const root: HtmlNode = { tag: null, attrs: {}, children: [] };
   const stack = [root];
-  const tokens = html.match(/<!--[\s\S]*?-->|<![^>]*>|<\/?[A-Za-z][^>]*>|[^<]+|</g) ?? [];
+  const tokens = tokenizeHtml(html);
   let skippedTag: string | null = null;
 
   for (const token of tokens) {
@@ -59,9 +94,19 @@ function parseHtml(html: string): HtmlNode {
       if (!voidTags.has(tag) && !/\/\s*>$/.test(token)) stack.push(node);
       continue;
     }
-    stack.at(-1)!.children.push({ tag: null, attrs: {}, text: decodeEntities(token), children: [], parent: stack.at(-1) });
+    const text = decodeEntities(token);
+    const preservesWhitespace = stack.some((node) => node.tag === 'pre' || node.tag === 'textarea');
+    stack.at(-1)!.children.push({
+      tag: null, attrs: {}, text: preservesWhitespace ? text : collapseWhitespaceNode(text), children: [], parent: stack.at(-1),
+    });
   }
   return root;
+}
+
+/** Matches the 3.x parser, which reduces whitespace-only text between tags to one character. */
+function collapseWhitespaceNode(text: string): string {
+  if (!/^[ \n\t\f\r]+$/.test(text)) return text;
+  return text.includes('\n') ? '\n' : ' ';
 }
 
 function parseAttributes(source: string): Record<string, string> {
@@ -114,7 +159,7 @@ function htmlNodeToMarkdown(node: HtmlNode): string {
   if (name === 'pre') {
     const code = findNode(node, 'code');
     const language = code?.attrs.class?.split(/\s+/).find((value) => value.startsWith('language-'))?.slice(9) ?? '';
-    const text = textContent(node).replace(/^\n+|\n+$/g, '');
+    const text = textStrings(node).join('\n').replace(/^\n+|\n+$/g, '');
     return text ? `\`\`\`${language}\n${text}\n\`\`\`` : '';
   }
   if (name === 'ul' || name === 'ol') {
@@ -127,7 +172,7 @@ function htmlNodeToMarkdown(node: HtmlNode): string {
   }
   if (name === 'blockquote') {
     const text = childrenToMarkdown(node);
-    return text.split('\n').filter((line) => line.trim()).map((line) => `> ${line}`).join('\n');
+    return text.split(/\r\n|[\n\r\v\f\x1c\x1d\x1e\x85\u2028\u2029]/).filter((line) => line.trim()).map((line) => `> ${line}`).join('\n');
   }
   if (name === 'table') {
     if (shouldPreserveTable(node)) return rawHtml(node);
@@ -153,9 +198,9 @@ function blockChildrenToMarkdown(node: HtmlNode): string {
   return collapseBlankLines(node.children.map(htmlNodeToMarkdown).map((child) => child.trim()).filter(Boolean).join('\n\n'));
 }
 
-function textContent(node: HtmlNode): string {
-  if (node.tag === null) return node.text ?? '';
-  return node.children.map(textContent).join('');
+function textStrings(node: HtmlNode): string[] {
+  if (node.tag === null) return [node.text ?? ''];
+  return node.children.flatMap(textStrings);
 }
 
 function textSegments(node: HtmlNode, separator: string): string {

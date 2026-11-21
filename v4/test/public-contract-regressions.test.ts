@@ -1,7 +1,10 @@
 import assert from 'node:assert/strict';
+import { mkdir, writeFile } from 'node:fs/promises';
+import { join } from 'node:path';
 import test from 'node:test';
 import { buildApp } from '../src/app.js';
 import { seriesNavigation } from '../src/posts.js';
+import { htmlToMarkdown } from '../src/public-discovery/markdown.js';
 import {
   createMigratedDatabase, insertRow, seedEditor, seedPost, signIn,
   testCipherKey, testSecretKey, testSiteUrl,
@@ -135,6 +138,93 @@ test('advertises RSS feeds on listing and author pages unless SEO is off', async
   } finally {
     await closed.close();
   }
+});
+
+test('serves stored media URLs that contain duplicate slashes without opening private files', async () => {
+  const fixture = await publicApp();
+  try {
+    await mkdir(join(fixture.mediaRoot, 'images/content/2021/10/25'), { recursive: true });
+    await writeFile(join(fixture.mediaRoot, 'images/content/2021/10/25/legacy.png'), 'legacy-image');
+    await mkdir(join(fixture.mediaRoot, '_work_logs'), { recursive: true });
+    await writeFile(join(fixture.mediaRoot, '_work_logs/private.png'), 'private');
+    const image = await fixture.app.inject('/resources/media/images/content/2021/10/25//legacy.png');
+    assert.equal(image.statusCode, 200);
+    assert.equal(image.body, 'legacy-image');
+    for (const path of ['/resources/media//_work_logs/private.png', '/resources/media/_work_logs//private.png']) {
+      assert.equal((await fixture.app.inject(path)).statusCode, 404, path);
+    }
+  } finally {
+    await fixture.close();
+  }
+});
+
+test('keeps the 3.x search and feed metadata on public posts', async () => {
+  const open = await publicApp({ seo: 1, aeo: 0 });
+  try {
+    const { body } = await open.app.inject('/@writer/part-one');
+    const robots = 'index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1';
+    assert.ok(body.includes(`<meta name="robots" content="${robots}"`));
+    assert.ok(body.includes(`<meta name="googlebot" content="${robots}"`));
+    assert.ok(body.includes('href="http://site.test/rss"'));
+    assert.ok(body.includes('href="http://site.test/rss/@writer"'));
+  } finally {
+    await open.close();
+  }
+  const closed = await publicApp({ seo: 0, aeo: 0 });
+  try {
+    const { body } = await closed.app.inject('/@writer/part-one');
+    assert.ok(body.includes('<meta name="robots" content="noindex,nofollow"'));
+    assert.doesNotMatch(body, /application\/rss\+xml/);
+  } finally {
+    await closed.close();
+  }
+});
+
+test('asks anonymous readers to log in through the shared modal controls', async () => {
+  const fixture = await publicApp();
+  try {
+    seedEditor(fixture.db, 2, 'other');
+    seedPost(fixture.db, 7, 2, 'other-post', { title: 'Other post', published_date: daysAgo(1) });
+    insertRow(fixture.db, 'board_comment', { id: 1, post_id: 7, author_id: 1, text_md: 'c', text_html: 'c', created_date: daysAgo(1) });
+    const post = (await fixture.app.inject('/@other/other-post')).body;
+    for (const action of ['subscribe', 'like', 'comment', 'reply']) assert.match(post, new RegExp(`data-blex-login-prompt="${action}"`), action);
+    assert.ok(post.includes('data-blex-login-next="/@other/other-post"'));
+    assert.doesNotMatch(post, /action%3D|로그인하고 (구독|좋아요|답글)/);
+    const author = (await fixture.app.inject('/@other')).body;
+    assert.match(author, /data-blex-login-prompt="subscribe"/);
+    assert.doesNotMatch(author, /로그인하고 새 글 구독/);
+    assert.match((await fixture.app.inject('/')).body, /data-blex-login-prompt="like"/);
+  } finally {
+    await fixture.close();
+  }
+});
+
+test('keeps the stylesheet of an administrator-written static page without its attributes', async () => {
+  const fixture = await publicApp();
+  try {
+    fixture.db.prepare('UPDATE board_staticpage SET content = ? WHERE id = 1').run(
+      '<style media="x" onload="bad()">.welcome { color: red; }</style><div class="welcome">Hello</div><script>bad()</script>',
+    );
+    const { body, statusCode } = await fixture.app.inject('/static/about');
+    assert.equal(statusCode, 200);
+    assert.ok(body.includes('<style>.welcome { color: red; }</style>'));
+    assert.ok(body.includes('<div class="welcome">Hello</div>'));
+    assert.doesNotMatch(body, /onload="bad|<script>bad/);
+  } finally {
+    await fixture.close();
+  }
+});
+
+test('renders raw HTML in Markdown with the 3.x whitespace and sorted attributes', () => {
+  const html = '<div style="padding: 1px" class="box">\n    <p>Text</p>\n    <pre>  keep\n    this</pre>\n</div>';
+  assert.equal(htmlToMarkdown(html), '<div class="box" style="padding: 1px">\n<p>Text</p>\n<pre>  keep\n    this</pre>\n</div>');
+  assert.equal(htmlToMarkdown('<blockquote>one\r\ntwo</blockquote>'), '> one\n> two');
+  assert.equal(htmlToMarkdown('<pre>one<br>two</pre>'), '```\none\ntwo\n```');
+  assert.equal(htmlToMarkdown('<img alt="<ruby> tag" class="x" src="/a.png">'), '<img alt="&lt;ruby&gt; tag" class="x" src="/a.png"/>');
+  assert.equal(htmlToMarkdown('<p title=it\'s>one</p><p>two</p>'), 'one\n\ntwo');
+  const started = Date.now();
+  htmlToMarkdown('<br \'"><br \'>'.repeat(40_000));
+  assert.ok(Date.now() - started < 3_000, 'unbalanced quotes must not make parsing quadratic');
 });
 
 test('shows public yearly and recent activity on the author page', async () => {

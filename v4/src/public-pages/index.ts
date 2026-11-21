@@ -6,6 +6,7 @@ import type { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify';
 import { Prisma, type PrismaClient } from '@prisma/client';
 import { SiteFooter, SiteHeader, SiteTheme } from '../appearance/shell.js';
 import { sanitizePostHtml } from '../post-html.js';
+import { loginPromptProps } from '../reader-ui/login-prompt.js';
 import { AuthorActivitySection, readAuthorActivity } from '../public-activity.js';
 
 type SqlValue = string | number | null;
@@ -396,7 +397,7 @@ function PostCardLike({ post, likes }: { post: PostRow; likes?: CardLikes }): Re
     : 'border-line bg-surface-elevated text-content-hint hover:border-line-strong hover:bg-surface-subtle hover:text-content-secondary'}`;
   const label = `${liked ? '좋아요 취소' : '좋아요'} (${count})`;
   const content = h(Fragment, null, h('i', { className: 'fas fa-heart', 'aria-hidden': true }), h('span', null, String(count)));
-  if (!likes?.csrfToken) return h('a', { className, href: `/login?${new URLSearchParams({ next: likes?.returnTo ?? postPath(post) })}`, 'aria-label': label }, content);
+  if (!likes?.csrfToken) return h('a', { ...loginPromptProps(likes?.returnTo ?? postPath(post), 'like'), className, 'aria-label': label }, content);
   return h('form', { method: 'post', action: `/like/${encodeURIComponent(post.slug)}` },
     h('input', { type: 'hidden', name: 'csrfmiddlewaretoken', value: likes.csrfToken }),
     h('input', { type: 'hidden', name: 'return_to', value: likes.returnTo }),
@@ -742,11 +743,11 @@ function subscriptionControl(
   if (!state.canSubscribe) return null;
   const path = authorPath(author.username);
   if (!viewer) {
-    const next = new URL(path, 'https://blex.invalid');
-    next.searchParams.set('action', 'subscribe');
-    return h('a', { className: 'inline-flex items-center gap-2 rounded-full bg-action px-5 py-2.5 text-sm font-medium text-content-inverted transition-colors duration-150 hover:bg-action-hover active:scale-[0.98]', href: `/login?next=${encodeURIComponent(`${next.pathname}${next.search}`)}` },
-      h('i', { className: 'fas fa-bell text-xs', 'aria-hidden': true }), '로그인하고 새 글 구독',
-    );
+    return h('a', {
+      ...loginPromptProps(path, 'subscribe'),
+      'aria-label': `${author.username} 구독`,
+      className: 'inline-flex items-center gap-2 rounded-full bg-action px-5 py-2.5 text-sm font-semibold text-content-inverted transition-colors duration-150 hover:bg-action-hover active:scale-[0.98]',
+    }, h('i', { className: 'fas fa-bell text-xs', 'aria-hidden': true }), '구독');
   }
   return h('form', { className: 'mb-0', method: 'post', action: `/v1/users/@${encodeURIComponent(author.username)}/subscription` },
     h('input', { type: 'hidden', name: 'csrfmiddlewaretoken', value: csrfToken }),
@@ -755,7 +756,7 @@ function subscriptionControl(
     h('button', { type: 'submit', 'aria-pressed': state.isSubscribed,
       className: `inline-flex items-center justify-center gap-2 rounded-full border px-5 py-2.5 text-sm font-semibold transition-all duration-150 ${state.isSubscribed ? 'border-line bg-surface text-content-secondary hover:border-line-strong hover:text-content' : 'border-transparent bg-action text-content-inverted hover:bg-action-hover active:scale-95'}` },
       h('i', { className: `fas ${state.isSubscribed ? 'fa-check' : 'fa-bell'} text-xs`, 'aria-hidden': true }),
-      state.isSubscribed ? '구독 중 · 취소' : '새 글 구독',
+      state.isSubscribed ? '구독 중' : '구독',
     ),
   );
 }
@@ -1320,7 +1321,7 @@ export function registerPublicPages(app: FastifyInstance, db: PrismaClient, site
     reply.header('Vary', 'Cookie');
     const [globalNotices, likes] = await Promise.all([readNotices(db, 'global'), readCardLikes(db, request, viewer, posts)]);
     const meta: PageMeta = {
-      title: `${siteName} - 최신 글`,
+      title: `${siteName} - 최신 포스트`,
       description: `${siteName}에 공개된 최신 글을 둘러보세요.`,
       canonical,
       siteName,
@@ -1333,7 +1334,7 @@ export function registerPublicPages(app: FastifyInstance, db: PrismaClient, site
       meta,
       children: h(ReactFragment, null,
         h('div', { className: 'mx-auto mt-6 max-w-7xl px-4 md:px-6' },
-          h('h1', { className: 'sr-only' }, '최신 글'),
+          h('h1', { className: 'sr-only' }, '최신 포스트'),
           viewer ? h('div', { className: 'mb-6 flex justify-end' },
             h('a', { href: '/interests', className: 'inline-flex items-center gap-2 rounded-full bg-surface px-4 py-2 text-sm font-semibold text-content-secondary ring-1 ring-line/60 transition-colors duration-150 hover:bg-surface-subtle hover:text-content' },
               h('i', { className: 'far fa-heart text-xs text-content-hint', 'aria-hidden': true }),
@@ -1665,7 +1666,7 @@ export function registerPublicPages(app: FastifyInstance, db: PrismaClient, site
     const activity = await readAuthorActivity(db, author.id);
     return renderHtml(reply, PageLayout({
       meta: {
-        authorFeed: authorFeed(siteUrl, author.username),
+        authorFeed: isEditor(author) ? authorFeed(siteUrl, author.username) : undefined,
         title: `${author.username} - ${siteName}`,
         description: description(author.bio || aboutHtml, `${author.username}의 공개 글과 소개를 확인해 보세요.`),
         canonical,
@@ -1769,7 +1770,7 @@ export function registerPublicPages(app: FastifyInstance, db: PrismaClient, site
     const noindex = hasUnexpected(query, ['page', 'q', 'tag']) || Boolean(searchText || tagFilter);
     const meta: PageMeta = {
       authorFeed: authorFeed(siteUrl, author.username),
-      title: `글 - ${author.username} | ${siteName}`,
+      title: `포스트 - ${author.username} | ${siteName}`,
       description: `${author.username}님이 공개한 글을 모아봅니다.`,
       canonical: noindex ? makeAbsolute(siteUrl, path) : canonicalPageUrl(siteUrl, path, checkedPage),
       siteName,
@@ -2156,8 +2157,13 @@ export function registerPublicPages(app: FastifyInstance, db: PrismaClient, site
         structuredData,
       },
       children: h('article', { className: 'rich-content' },
-        h('div', { dangerouslySetInnerHTML: { __html: sanitizePostHtml(page.content) } }),
+        h('div', { dangerouslySetInnerHTML: { __html: `${staticPageStyles(page.content)}${sanitizePostHtml(page.content)}` } }),
       ),
     }));
   });
+}
+
+/** Static pages are written by administrators and may carry their own stylesheet, as they did in 3.x. */
+function staticPageStyles(content: string): string {
+  return [...content.matchAll(/<style\b[^>]*>([\s\S]*?)<\/style\s*>/gi)].map((match) => `<style>${match[1]}</style>`).join('');
 }

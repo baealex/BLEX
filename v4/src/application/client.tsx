@@ -12,6 +12,7 @@ import {
 } from 'react-router';
 import { useEffect, useLayoutEffect } from 'react';
 import { ApplicationFrame, type ApplicationView } from './frame.js';
+import { openLoginPromptFrom } from './login-prompt.js';
 import type { BlexNavigateDetail } from './navigation.js';
 import type { SiteHeaderProps } from '../appearance/shell.js';
 
@@ -379,7 +380,12 @@ function handleDocumentClick(event: MouseEvent): void {
   const target = event.target;
   if (!(target instanceof Element)) return;
   const anchor = target.closest<HTMLAnchorElement>('a[href]');
-  if (!anchor || shouldLeaveLinkNative(anchor)) return;
+  if (!anchor) return;
+  if (openLoginPromptFrom(anchor)) {
+    event.preventDefault();
+    return;
+  }
+  if (shouldLeaveLinkNative(anchor)) return;
 
   let destination: URL;
   try { destination = new URL(anchor.href, window.location.href); } catch { return; }

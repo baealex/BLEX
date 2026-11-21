@@ -344,14 +344,15 @@ test('renders scoped author notices, safe links, and subscription state', async 
   assert.match(anonymous.body, /Unsafe author notice/);
   assert.doesNotMatch(anonymous.body, /Reader-only notice|Newest site notice|Inactive site notice/);
   assert.doesNotMatch(anonymous.body, /href="javascript:/);
-  assert.match(anonymous.body, /로그인하고 새 글 구독/);
+  assert.match(anonymous.body, /data-blex-login-prompt="subscribe"/);
+  assert.doesNotMatch(anonymous.body, /로그인하고 새 글 구독/);
 
   const token = 'a'.repeat(43);
   const reader = await app.inject({ url: '/@writer',
     headers: { 'x-test-user': 'reader', cookie: `csrftoken=${token}` },
   });
   assert.equal(reader.statusCode, 200, reader.body);
-  assert.match(reader.body, /구독 중 · 취소/);
+  assert.match(reader.body, /구독 중<\/button>/);
   assert.match(reader.body, /name="csrfmiddlewaretoken" value="aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"/);
   assert.match(reader.body, /name="action" value="unsubscribe"/);
   assert.match(reader.headers['cache-control'] ?? '', /private, no-store/);
@@ -360,7 +361,7 @@ test('renders scoped author notices, safe links, and subscription state', async 
   const owner = await app.inject({ url: '/@writer', headers: { 'x-test-user': 'writer' } });
   assert.equal(owner.statusCode, 200, owner.body);
   assert.match(owner.body, /고정 글 관리/);
-  assert.doesNotMatch(owner.body, /새 글 구독|구독 중 · 취소/);
+  assert.doesNotMatch(owner.body, /\/subscription"|data-blex-login-prompt="subscribe"/);
   assert.match(owner.headers['cache-control'] ?? '', /private, no-store/);
 });
 

@@ -52,7 +52,7 @@ export async function buildApp(dbPath: string, siteUrl: URL, auth?: AuthConfig, 
 
   // Prisma's SQLite connector expects a literal path and uses '?' to delimit connection options.
   const db = new PrismaClient({ datasourceUrl: `file:${file}?connection_limit=1` });
-  const app = Fastify({ bodyLimit: 8 * 1024, requestTimeout: 300_000, routerOptions: { maxParamLength: 150 }, trustProxy: auth?.trustedProxies ?? false });
+  const app = Fastify({ bodyLimit: 8 * 1024, requestTimeout: 300_000, routerOptions: { ignoreDuplicateSlashes: true, maxParamLength: 150 }, trustProxy: auth?.trustedProxies ?? false });
   app.addHook('onSend', async (_request, reply, payload) => {
     const contentType = String(reply.getHeader('Content-Type') ?? '');
     if (contentType.startsWith('text/html') && isApplicationDocument(payload)) {

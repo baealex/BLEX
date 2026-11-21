@@ -188,9 +188,11 @@ test('renders accessible SSR author, like, comment and subscription controls', a
   assert.ok(anonymousView);
   const anonymousHtml = renderToStaticMarkup(ReaderActions({ view: anonymousView, csrfToken }));
   assert.match(anonymousHtml, /aria-label="writer 작성자 정보"/);
-  assert.match(anonymousHtml, /로그인하고 구독/);
-  assert.match(anonymousHtml, /로그인하고 좋아요/);
-  assert.match(anonymousHtml, /로그인하고 댓글 남기기/);
+  assert.match(anonymousHtml, /data-blex-login-prompt="subscribe"[^>]*>구독<\/a>/);
+  assert.match(anonymousHtml, /data-blex-login-prompt="like"[^>]*>좋아요 · /);
+  assert.match(anonymousHtml, /data-blex-login-prompt="comment"/);
+  assert.match(anonymousHtml, /로그인하고 댓글 작성/);
+  assert.doesNotMatch(anonymousHtml, /로그인하고 (구독|좋아요|답글)|action%3D/);
   assert.match(anonymousHtml, /Parent <strong>comment<\/strong>/);
   assert.doesNotMatch(anonymousHtml, /<script|unsafe\(\)/);
 
@@ -201,7 +203,7 @@ test('renders accessible SSR author, like, comment and subscription controls', a
   assert.match(signedInHtml, /action="\/v1\/users\/@writer\/subscription"/);
   assert.match(signedInHtml, /action="\/v1\/comments\?url=public-post"/);
   assert.match(signedInHtml, /name="csrfmiddlewaretoken" value="rrrr/);
-  assert.match(signedInHtml, /구독 중 · 취소/);
+  assert.match(signedInHtml, /aria-pressed="true">구독 중<\/button>/);
   assert.match(signedInHtml, /댓글 등록/);
   assert.match(signedInHtml, /name="action" value="delete"/);
   assert.doesNotMatch(signedInHtml, /name="parent_id" value="11"/);

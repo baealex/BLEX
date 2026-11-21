@@ -6,6 +6,7 @@ import { publicPostPath, type PostPresentation, type PostSeriesEntry, type PostS
 import type { RelatedPost } from './public-activity.js';
 import type { ReaderPostView } from './reader-actions/index.js';
 import { PostComments } from './reader-ui/index.js';
+import { loginPromptProps } from './reader-ui/login-prompt.js';
 
 function articleImage(path: string): string | undefined {
   if (!path || /[\\\u0000-\u001f\u007f]/.test(path) || path.startsWith('//')) return;
@@ -134,7 +135,7 @@ function ArticleInfo({ reader, post, postPath, authorPath, published, updated, c
         {author.isSubscribed && <input type="hidden" name="action" value="unsubscribe" />}
         <button type="submit" className="shrink-0 rounded-full border border-line px-3 py-1.5 text-xs font-semibold hover:bg-surface-subtle" aria-pressed={author.isSubscribed}>{author.isSubscribed ? '구독 중' : '구독'}</button>
       </form>
-    : <a href={`/login?${new URLSearchParams({ next: postPath })}`} className="shrink-0 rounded-full border border-line px-3 py-1.5 text-xs font-semibold hover:bg-surface-subtle">구독</a>);
+    : <a {...loginPromptProps(postPath, 'subscribe')} aria-label={`${author.username} 구독`} className="shrink-0 rounded-full border border-line px-3 py-1.5 text-xs font-semibold hover:bg-surface-subtle">구독</a>);
   const entries: Array<[string, ReactNode]> = [['작성자', <div className="flex items-start justify-between gap-4">
     <div><a href={authorPath} className="font-semibold hover:text-content-secondary">{post.username}</a>
       {author?.bio && <p className="mt-1 leading-relaxed text-content-secondary">{author.bio}</p>}</div>{subscription}
@@ -197,7 +198,7 @@ function PostDock({ reader, post, postPath, canonical, markdown, headings, csrfT
             <input type="hidden" name="csrfmiddlewaretoken" value={csrfToken} /><input type="hidden" name="return_to" value={postPath} />
             <button type="submit" className={`${dockButton} px-2 text-sm font-medium`} aria-label={reader.postLike.isLiked ? '좋아요 취소' : '좋아요'} aria-pressed={reader.postLike.isLiked}>
               <SiteIcon name="heart" className={reader.postLike.isLiked ? 'fill-current text-danger' : undefined} />{reader.postLike.countLikes}</button>
-          </form> : <a href={`/login?${new URLSearchParams({ next: postPath, action: 'like' })}`} className={`${dockButton} px-2 text-sm font-medium`} aria-label="좋아요">
+          </form> : <a {...loginPromptProps(postPath, 'like')} className={`${dockButton} px-2 text-sm font-medium`} aria-label="좋아요">
             <SiteIcon name="heart" />{reader?.postLike.countLikes ?? 0}</a>}
           <div className="post-action-divider" />
         </>}
@@ -239,7 +240,9 @@ export function renderPublicPostPage(post: PublicPost, presentation: PostPresent
   const updated = isoDate(post.updatedDate);
   const outline = postOutline(post.contentHtml);
   const markdown = presentation.aeoEnabled && post.visibility === 'public' ? `${canonical}.md` : undefined;
-  const robots = post.visibility !== 'public' ? 'noindex,nofollow,noarchive' : !presentation.seoEnabled ? 'noindex,nofollow' : undefined;
+  const robots = post.visibility !== 'public' ? 'noindex,nofollow,noarchive' : !presentation.seoEnabled ? 'noindex,nofollow'
+    : 'index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1';
+  const advertisesFeeds = post.visibility === 'public' && presentation.seoEnabled;
   const articleData = post.visibility === 'public' ? {
     '@context': 'https://schema.org', '@type': 'BlogPosting',
     mainEntityOfPage: { '@type': 'WebPage', '@id': canonical },
@@ -265,7 +268,8 @@ export function renderPublicPostPage(post: PublicPost, presentation: PostPresent
         <title>{`${post.title} - ${post.username} | ${presentation.siteName}`}</title>
         <meta name="description" content={post.description} />
         <meta name="author" content={post.username} />
-        {robots && <meta name="robots" content={robots} />}
+        <meta name="robots" content={robots} />
+        <meta name="googlebot" content={robots} />
         {presentation.tags.length > 0 && <meta name="keywords" content={presentation.tags.join(', ')} />}
         <meta property="og:type" content="article" />
         <meta property="og:title" content={post.title} />
@@ -283,7 +287,8 @@ export function renderPublicPostPage(post: PublicPost, presentation: PostPresent
         <link rel="icon" href={presentation.faviconUrl} />
         <link rel="canonical" href={canonical} />
         {markdown && <link rel="alternate" type="text/markdown" href={markdown} />}
-        {post.visibility === 'public' && <link rel="alternate" type="application/rss+xml" href={`/rss/@${encodeURIComponent(post.username)}`} />}
+        {advertisesFeeds && <link rel="alternate" type="application/rss+xml" title={`${presentation.siteName} RSS`} href={new URL('/rss', siteUrl).href} />}
+        {advertisesFeeds && <link rel="alternate" type="application/rss+xml" title={`${post.username} RSS`} href={new URL(`/rss/@${encodeURIComponent(post.username)}`, siteUrl).href} />}
         {articleData && <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: scriptJson(articleData) }} />}
         <SiteTheme />
       </head>
