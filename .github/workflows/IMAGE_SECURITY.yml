@@ -20,12 +20,29 @@ jobs:
       fail-fast: false
       matrix:
         architecture: [amd64, arm64]
+        target:
+          - { image: 'baealex/blex:latest', category: blex-container }
+          - { image: 'baealex/blex:4', category: blex-4-container }
+          - { image: 'baealex/blex:4-migration', category: blex-4-migration }
     steps:
       - uses: actions/checkout@v6
 
+      - name: Check published tag
+        id: published
+        env:
+          IMAGE: ${{ matrix.target.image }}
+        run: |
+          if docker manifest inspect "$IMAGE" >/dev/null 2>&1; then
+            echo "exists=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "::notice::$IMAGE is not published yet."
+            echo "exists=false" >> "$GITHUB_OUTPUT"
+          fi
+
       - name: Scan published image
+        if: steps.published.outputs.exists == 'true'
         uses: ./.github/actions/image-security
         with:
-          image: baealex/blex:latest
+          image: ${{ matrix.target.image }}
           platform: linux/${{ matrix.architecture }}
-          category: blex-container-${{ matrix.architecture }}
+          category: ${{ matrix.target.category }}-${{ matrix.architecture }}

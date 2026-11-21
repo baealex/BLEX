@@ -17,13 +17,15 @@ interface ColumnInfo { name: string; type: string; notnull: number; dflt_value: 
 /** Fills the NOT NULL columns Django populated in the ORM so fixtures keep the real constraints. */
 export function insertRow(db: DatabaseSync, table: string, values: Row) {
   const columns = db.prepare(`PRAGMA table_info("${table}")`).all() as unknown as ColumnInfo[];
+  const { sql } = db.prepare(`SELECT sql FROM sqlite_master WHERE type = 'table' AND name = ?`).get(table) as { sql: string };
   const row: Row = { ...values };
   for (const column of columns) {
     if (column.name in row || column.pk || !column.notnull || column.dflt_value !== null) continue;
     const type = column.type.toLowerCase();
     if (/int|bool|decimal/.test(type)) row[column.name] = 0;
     else if (/date/.test(type)) row[column.name] = legacyTimestamp;
-    else row[column.name] = column.name === 'tags' ? '[]' : '';
+    else if (sql.includes(`JSON_VALID("${column.name}")`)) row[column.name] = column.name === 'tags' ? '[]' : '{}';
+    else row[column.name] = '';
   }
   const names = Object.keys(row);
   db.prepare(`INSERT INTO "${table}" (${names.map((name) => `"${name}"`).join(', ')}) VALUES (${names.map(() => '?').join(', ')})`)

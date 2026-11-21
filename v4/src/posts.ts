@@ -28,11 +28,47 @@ interface PostBanner {
   contentHtml: string;
 }
 
+export interface PostSeriesEntry {
+  url: string;
+  title: string;
+  index: number;
+}
+
+export interface PostSeriesNavigation {
+  index: number;
+  total: number;
+  entries: PostSeriesEntry[];
+  previous: PostSeriesEntry | null;
+  next: PostSeriesEntry | null;
+}
+
+const SERIES_WINDOW = 5;
+
+/** Returns null when the current post is not part of the public series list. */
+export function seriesNavigation(
+  posts: Array<{ id: number; url: string; title: string }>,
+  postId: number,
+): PostSeriesNavigation | null {
+  const current = posts.findIndex((post) => post.id === postId);
+  if (current < 0) return null;
+  const entries = posts.map(({ url, title }, position) => ({ url, title, index: position + 1 }));
+  const lastStart = Math.max(0, entries.length - SERIES_WINDOW);
+  const start = Math.min(Math.max(0, current - 2), lastStart);
+  return {
+    index: current + 1,
+    total: entries.length,
+    entries: entries.slice(start, start + SERIES_WINDOW),
+    previous: entries[current - 1] ?? null,
+    next: entries[current + 1] ?? null,
+  };
+}
+
 export interface PostPresentation extends SiteBrand {
   aeoEnabled: boolean;
   seriesName: string | null;
   seriesUrl: string | null;
   seriesAuthor: string | null;
+  seriesNavigation?: PostSeriesNavigation | null;
   tags: string[];
   banners: PostBanner[];
 }
@@ -90,8 +126,8 @@ export async function readPublicPost(
 export async function readPostPresentation(db: PrismaClient, post: Pick<PublicPost, 'id' | 'authorId'>): Promise<PostPresentation> {
   const [brand, [metadata], tags, banners] = await Promise.all([
     readPublicSiteBrand(db),
-    db.$queryRaw<Array<{ aeoEnabled: number; seriesName: string | null; seriesUrl: string | null; seriesAuthor: string | null }>>`
-      SELECT CAST(COALESCE(site.aeo_enabled, 0) AS INTEGER) AS aeoEnabled,
+    db.$queryRaw<Array<{ aeoEnabled: number; seriesId: number | null; seriesName: string | null; seriesUrl: string | null; seriesAuthor: string | null }>>`
+      SELECT CAST(COALESCE(site.aeo_enabled, 0) AS INTEGER) AS aeoEnabled, series.id AS seriesId,
              series.name AS seriesName, series.url AS seriesUrl, author.username AS seriesAuthor
         FROM board_post AS post
         LEFT JOIN board_sitesetting AS site ON site.id = 1
@@ -110,9 +146,19 @@ export async function readPostPresentation(db: PrismaClient, post: Pick<PublicPo
        ORDER BY "order", created_date DESC, id DESC
     `,
   ]);
+  const now = new Date().toISOString().replace('T', ' ').replace('Z', '');
+  const seriesPosts = metadata?.seriesId === null || metadata?.seriesId === undefined ? [] : await db.$queryRaw<Array<{ id: number; url: string; title: string }>>`
+    SELECT post.id, post.url, post.title
+      FROM board_post AS post
+      JOIN board_postconfig AS config ON config.post_id = post.id
+     WHERE post.series_id = ${metadata.seriesId} AND post.deleted_date IS NULL
+       AND post.published_date <= ${now} AND config.hide = 0
+     ORDER BY post.published_date, post.id
+  `;
   return {
     ...brand,
     aeoEnabled: Boolean(metadata?.aeoEnabled),
+    seriesNavigation: seriesNavigation(seriesPosts.map((row) => ({ ...row, id: Number(row.id) })), Number(post.id)),
     seriesName: metadata?.seriesName ?? null,
     seriesUrl: metadata?.seriesUrl ?? null,
     seriesAuthor: metadata?.seriesAuthor ?? null,

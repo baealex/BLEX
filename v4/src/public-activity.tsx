@@ -63,6 +63,131 @@ async function heatmap(db: PrismaClient, userId: number, own: boolean) {
   return days;
 }
 
+interface RecentActivity {
+  type: 'post' | 'series' | 'comment' | 'like';
+  title: string;
+  url: string;
+  date: string;
+  sortDate: number;
+}
+
+const RECENT_ACTIVITY_DAYS = 30;
+const RECENT_ACTIVITY_LIMIT = 10;
+const activityLabels: Record<RecentActivity['type'], { label: string; icon: string }> = {
+  post: { label: '새 포스트를 작성했어요', icon: 'fa-pen-nib' },
+  series: { label: '시리즈를 만들었어요', icon: 'fa-layer-group' },
+  comment: { label: '댓글을 남겼어요', icon: 'fa-comment-alt' },
+  like: { label: '좋아요를 눌렀어요', icon: 'fa-heart' },
+};
+
+async function recentActivities(db: PrismaClient, userId: number): Promise<RecentActivity[]> {
+  const now = timestamp(new Date());
+  const cutoff = timestamp(new Date(Date.now() - RECENT_ACTIVITY_DAYS * 86_400_000));
+  type PostActivity = { title: string; slug: string; username: string; date: string };
+  const [posts, series, comments, likes] = await Promise.all([
+    db.$queryRaw<PostActivity[]>`
+      SELECT post.title, post.url AS slug, account.username, CAST(post.published_date AS TEXT) AS date
+        FROM board_post AS post JOIN board_postconfig AS config ON config.post_id = post.id
+        JOIN auth_user AS account ON account.id = post.author_id
+       WHERE post.author_id = ${userId} AND post.deleted_date IS NULL AND config.hide = 0
+         AND post.published_date >= ${cutoff} AND post.published_date <= ${now}
+       ORDER BY post.published_date DESC LIMIT 6
+    `,
+    db.$queryRaw<PostActivity[]>`
+      SELECT series.name AS title, series.url AS slug, account.username, CAST(series.created_date AS TEXT) AS date
+        FROM board_series AS series JOIN auth_user AS account ON account.id = series.owner_id
+       WHERE series.owner_id = ${userId} AND series.hide = 0
+         AND series.created_date >= ${cutoff} AND series.created_date <= ${now}
+         AND EXISTS (
+           SELECT 1 FROM board_post AS post JOIN board_postconfig AS config ON config.post_id = post.id
+            WHERE post.series_id = series.id AND post.deleted_date IS NULL AND config.hide = 0 AND post.published_date <= ${now}
+         )
+       ORDER BY series.created_date DESC LIMIT 5
+    `,
+    db.$queryRaw<PostActivity[]>`
+      SELECT post.title, post.url AS slug, account.username, CAST(comment.created_date AS TEXT) AS date
+        FROM board_comment AS comment JOIN board_post AS post ON post.id = comment.post_id
+        JOIN board_postconfig AS config ON config.post_id = post.id JOIN auth_user AS account ON account.id = post.author_id
+       WHERE comment.author_id = ${userId} AND comment.created_date >= ${cutoff}
+         AND post.deleted_date IS NULL AND config.hide = 0 AND post.published_date <= ${now}
+       ORDER BY comment.created_date DESC LIMIT 5
+    `,
+    db.$queryRaw<PostActivity[]>`
+      SELECT post.title, post.url AS slug, account.username, CAST(likes.created_date AS TEXT) AS date
+        FROM board_post_likes AS likes JOIN board_post AS post ON post.id = likes.post_id
+        JOIN board_postconfig AS config ON config.post_id = post.id JOIN auth_user AS account ON account.id = post.author_id
+       WHERE likes.user_id = ${userId} AND likes.created_date >= ${cutoff}
+         AND post.deleted_date IS NULL AND config.hide = 0 AND post.published_date <= ${now}
+       ORDER BY likes.created_date DESC LIMIT 5
+    `,
+  ]);
+  const item = (type: RecentActivity['type'], row: PostActivity, url: string): RecentActivity => ({
+    type, title: row.title, url, date: since(row.date), sortDate: storedDate(row.date).getTime(),
+  });
+  const seriesPath = (row: PostActivity) => `/@${encodeURIComponent(row.username)}/series/${encodeURIComponent(row.slug)}`;
+  return [
+    ...posts.map((row) => item('post', row, publicPostPath(row.username, row.slug))),
+    ...series.map((row) => item('series', row, seriesPath(row))),
+    ...comments.map((row) => item('comment', row, publicPostPath(row.username, row.slug))),
+    ...likes.map((row) => item('like', row, publicPostPath(row.username, row.slug))),
+  ].sort((left, right) => right.sortDate - left.sortDate).slice(0, RECENT_ACTIVITY_LIMIT);
+}
+
+export async function readAuthorActivity(db: PrismaClient, userId: number) {
+  const [days, recent] = await Promise.all([heatmap(db, userId, false), recentActivities(db, userId)]);
+  return { days, recent };
+}
+
+const heatLevels = ['bg-surface-subtle', 'bg-action/25', 'bg-action/50', 'bg-action/75', 'bg-action'];
+
+function ActivityHeatmap({ days }: { days: Record<string, number> }) {
+  const end = new Date(`${dateFormat.format(new Date())}T00:00:00Z`);
+  const start = new Date(end.getTime() - 364 * 86_400_000);
+  start.setUTCDate(start.getUTCDate() - start.getUTCDay());
+  const cells: Array<{ day: string; count: number }> = [];
+  for (let time = start.getTime(); time <= end.getTime(); time += 86_400_000) {
+    const day = new Date(time).toISOString().slice(0, 10);
+    cells.push({ day, count: days[day] ?? 0 });
+  }
+  const total = cells.reduce((sum, cell) => sum + cell.count, 0);
+  // The reversed scroll direction keeps the latest weeks visible on narrow screens.
+  return <div className="mx-auto w-fit max-w-full overflow-x-auto pb-2 [direction:rtl]">
+    <div role="img" aria-label={`최근 1년 활동 ${total}건`} className="inline-grid grid-flow-col grid-rows-7 gap-[3px] [direction:ltr]">
+      {cells.map(({ day, count }) => <span key={day} title={`${day}: ${count}`}
+        className={`size-2.5 rounded-sm ${heatLevels[Math.min(count, heatLevels.length - 1)]}`} />)}
+    </div>
+  </div>;
+}
+
+export function AuthorActivitySection({ days, recent }: Awaited<ReturnType<typeof readAuthorActivity>>) {
+  return <section>
+    <h2 className="mb-4 text-2xl font-bold tracking-tight text-content">연간 활동</h2>
+    <div className="mb-6 rounded-2xl bg-surface p-6 ring-1 ring-line/60 md:p-7">
+      <ActivityHeatmap days={days} />
+      {recent.length > 0 ? <div className="mt-8 border-t border-line-light pt-6">
+        <div className="mb-3 flex items-center justify-between px-1">
+          <h3 className="text-sm font-semibold text-content">활동 내역</h3>
+          <span className="rounded-md bg-surface-subtle px-2 py-0.5 text-[11px] font-medium text-content-secondary">{recent.length}개</span>
+        </div>
+        <div className="space-y-3">
+          {recent.map((activity) => <a key={`${activity.type}:${activity.url}:${activity.sortDate}`} href={activity.url}
+            className="flex items-center gap-4 rounded-xl bg-surface px-3 py-3 ring-1 ring-line/60 hover:ring-line-strong">
+            <span className="flex size-10 shrink-0 items-center justify-center rounded-full bg-surface-subtle text-content-secondary">
+              <i className={`fas ${activityLabels[activity.type].icon} text-sm`} aria-hidden="true" />
+            </span>
+            <span className="min-w-0 flex-1">
+              <span className="mb-1 flex items-center justify-between gap-2 text-xs text-content-secondary">
+                <span>{activityLabels[activity.type].label}</span><span>{activity.date}</span>
+              </span>
+              <span className="line-clamp-1 text-sm font-semibold text-content-secondary">{activity.title}</span>
+            </span>
+          </a>)}
+        </div>
+      </div> : <p className="mt-6 text-center text-sm text-content-secondary">표시할 활동이 없습니다</p>}
+    </div>
+  </section>;
+}
+
 export interface RelatedPost { slug: string; title: string; image: string; description: string; readTime: number; published: string; username: string; name: string; avatar: string }
 
 export async function relatedPosts(db: PrismaClient, sourceId: number, sourceAuthor: number) {

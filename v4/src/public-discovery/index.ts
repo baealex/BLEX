@@ -72,6 +72,13 @@ async function rssOrigin(db: PrismaClient, siteUrl: URL): Promise<URL> {
     !origin.search && !origin.hash ? origin : siteUrl;
 }
 
+export async function searchIndexingEnabled(db: PrismaClient): Promise<boolean> {
+  const [setting] = await db.$queryRaw<Array<{ seoEnabled: number | bigint | boolean }>>`
+    SELECT seo_enabled AS seoEnabled FROM board_sitesetting WHERE id = 1
+  `;
+  return setting ? isEnabled(setting.seoEnabled) : true;
+}
+
 export function registerPublicDiscovery(app: FastifyInstance, db: PrismaClient, siteUrl: URL): void {
   app.get('/llms.txt', async (_request, reply) => {
     const setting = await readSiteSetting(db);

@@ -1,0 +1,157 @@
+import assert from 'node:assert/strict';
+import test from 'node:test';
+import { buildApp } from '../src/app.js';
+import { seriesNavigation } from '../src/posts.js';
+import {
+  createMigratedDatabase, insertRow, seedEditor, seedPost, signIn,
+  testCipherKey, testSecretKey, testSiteUrl,
+} from './fixtures/migrated-database.js';
+
+const daysAgo = (days: number) => new Date(Date.now() - days * 86_400_000).toISOString().slice(0, -1).replace('T', ' ');
+const future = new Date(Date.now() + 30 * 86_400_000).toISOString().slice(0, -1).replace('T', ' ');
+
+async function publicApp(site: { seo: number; aeo: number } = { seo: 1, aeo: 1 }) {
+  const fixture = await createMigratedDatabase();
+  const { db } = fixture;
+  seedEditor(db, 1, 'writer');
+  insertRow(db, 'board_sitesetting', { id: 1, seo_enabled: site.seo, aeo_enabled: site.aeo });
+  insertRow(db, 'board_series', { id: 1, owner_id: 1, name: 'Guide', url: 'guide', layout: 'list', hide: 0, created_date: daysAgo(2) });
+  seedPost(db, 1, 1, 'part-one', { series_id: 1, title: 'Part one', published_date: daysAgo(3) });
+  seedPost(db, 2, 1, 'part-two', { series_id: 1, title: 'Part two', published_date: daysAgo(2) });
+  seedPost(db, 3, 1, 'part-three', { series_id: 1, title: 'Part three', published_date: daysAgo(1) });
+  seedPost(db, 4, 1, 'hidden-part', { series_id: 1, title: 'Hidden part', published_date: daysAgo(2) });
+  db.exec('UPDATE board_postconfig SET hide = 1 WHERE post_id = 4');
+  seedPost(db, 5, 1, 'later-part', { series_id: 1, title: 'Later part', published_date: future });
+  seedPost(db, 6, 1, 'trashed-part', { series_id: 1, title: 'Trashed part', published_date: daysAgo(2), deleted_date: daysAgo(1) });
+  insertRow(db, 'board_staticpage', { id: 1, slug: 'about', title: 'About', content: '<p>About</p>', is_published: 1 });
+  const app = await buildApp(fixture.path, testSiteUrl, { secretKey: testSecretKey, cipherKey: testCipherKey }, fixture.mediaRoot);
+  await app.ready();
+  return { ...fixture, app, async close() { await app.close(); await fixture.cleanup(); } };
+}
+
+test('shows the public series path on a post', async () => {
+  const fixture = await publicApp();
+  try {
+    const { body, statusCode } = await fixture.app.inject('/@writer/part-two');
+    assert.equal(statusCode, 200);
+    assert.match(body, /2 \/ 3/);
+    assert.match(body, /읽는 중/);
+    assert.ok(body.includes('href="/@writer/part-one"'));
+    assert.ok(body.includes('href="/@writer/part-three"'));
+    assert.ok(body.includes('href="/@writer/series/guide"'));
+    for (const excluded of ['Hidden part', 'Later part', 'Trashed part']) assert.ok(!body.includes(excluded), excluded);
+  } finally {
+    await fixture.close();
+  }
+});
+
+test('tells the author when a hidden post is outside the series list', async () => {
+  const fixture = await publicApp();
+  try {
+    const { body, statusCode } = await fixture.app.inject({ url: '/@writer/hidden-part', headers: signIn(fixture.db, 1) });
+    assert.equal(statusCode, 200);
+    assert.match(body, /시리즈 목록에 표시되지 않습니다/);
+    assert.ok(!body.includes('Part one'));
+  } finally {
+    await fixture.close();
+  }
+});
+
+test('keeps the 3.x five-post series window around the current post', () => {
+  const posts = Array.from({ length: 9 }, (_, index) => ({ id: index + 1, url: `p${index + 1}`, title: `P${index + 1}` }));
+  const window = (id: number) => seriesNavigation(posts, id)?.entries.map((entry) => entry.index);
+  assert.deepEqual(window(1), [1, 2, 3, 4, 5]);
+  assert.deepEqual(window(3), [1, 2, 3, 4, 5]);
+  assert.deepEqual(window(5), [3, 4, 5, 6, 7]);
+  assert.deepEqual(window(7), [5, 6, 7, 8, 9]);
+  assert.deepEqual(window(9), [5, 6, 7, 8, 9]);
+  assert.equal(seriesNavigation(posts, 1)?.previous, null);
+  assert.equal(seriesNavigation(posts, 9)?.next, null);
+  assert.equal(seriesNavigation(posts, 99), null);
+});
+
+test('marks non-HTML public responses noindex when search indexing is off', async () => {
+  const closed = await publicApp({ seo: 0, aeo: 1 });
+  try {
+    for (const url of ['/llms.txt', '/rss', '/@writer/part-one.md', '/@writer/part-one', '/']) {
+      const response = await closed.app.inject(url);
+      assert.equal(response.statusCode, 200, url);
+      assert.equal(response.headers['x-robots-tag'], 'noindex, nofollow', url);
+    }
+  } finally {
+    await closed.close();
+  }
+  const open = await publicApp({ seo: 1, aeo: 1 });
+  try {
+    for (const url of ['/llms.txt', '/rss', '/@writer/part-one.md', '/@writer/part-one']) {
+      assert.equal((await open.app.inject(url)).headers['x-robots-tag'], undefined, url);
+    }
+  } finally {
+    await open.close();
+  }
+});
+
+test('advertises Markdown for series and static pages only when AEO is on', async () => {
+  const enabled = await publicApp({ seo: 1, aeo: 1 });
+  try {
+    for (const path of ['/@writer/series/guide', '/static/about']) {
+      const response = await enabled.app.inject(path);
+      const markdown = `${testSiteUrl.origin}${path}.md`;
+      assert.equal(response.statusCode, 200, path);
+      assert.ok(String(response.headers.link).includes(`<${markdown}>; rel="alternate"; type="text/markdown"`), path);
+      assert.ok(String(response.headers.link).includes(`<${testSiteUrl.origin}/llms.txt>; rel="llms-txt"`), path);
+      assert.equal(response.headers['x-llms-txt'], `${testSiteUrl.origin}/llms.txt`);
+      assert.match(response.body, /<link rel="alternate" type="text\/markdown"/);
+      assert.equal((await enabled.app.inject(`${path}.md`)).statusCode, 200, `${path}.md`);
+    }
+  } finally {
+    await enabled.close();
+  }
+  const disabled = await publicApp({ seo: 1, aeo: 0 });
+  try {
+    const response = await disabled.app.inject('/@writer/series/guide');
+    assert.equal(response.headers.link, undefined);
+    assert.equal(response.headers['x-llms-txt'], undefined);
+    assert.doesNotMatch(response.body, /type="text\/markdown"/);
+  } finally {
+    await disabled.close();
+  }
+});
+
+test('advertises RSS feeds on listing and author pages unless SEO is off', async () => {
+  const open = await publicApp({ seo: 1, aeo: 0 });
+  try {
+    const home = await open.app.inject('/');
+    assert.match(home.body, /<link rel="alternate" type="application\/rss\+xml"[^>]+href="http:\/\/site\.test\/rss"/);
+    for (const path of ['/@writer', '/@writer/posts', '/@writer/series', '/@writer/series/guide']) {
+      assert.ok((await open.app.inject(path)).body.includes('href="http://site.test/rss/@writer"'), path);
+    }
+  } finally {
+    await open.close();
+  }
+  const closed = await publicApp({ seo: 0, aeo: 0 });
+  try {
+    assert.doesNotMatch((await closed.app.inject('/@writer')).body, /application\/rss\+xml/);
+  } finally {
+    await closed.close();
+  }
+});
+
+test('shows public yearly and recent activity on the author page', async () => {
+  const fixture = await publicApp();
+  try {
+    seedEditor(fixture.db, 2, 'reader');
+    insertRow(fixture.db, 'board_comment', { id: 1, post_id: 1, author_id: 1, text_md: 'c', text_html: 'c', created_date: daysAgo(1) });
+    insertRow(fixture.db, 'board_comment', { id: 2, post_id: 4, author_id: 1, text_md: 'c', text_html: 'c', created_date: daysAgo(1) });
+    insertRow(fixture.db, 'board_post_likes', { post_id: 3, user_id: 1, created_date: daysAgo(1) });
+    const { body, statusCode } = await fixture.app.inject('/@writer');
+    assert.equal(statusCode, 200);
+    assert.match(body, /연간 활동/);
+    assert.match(body, /활동 내역/);
+    assert.match(body, /role="img"/);
+    for (const label of ['새 포스트를 작성했어요', '시리즈를 만들었어요', '댓글을 남겼어요', '좋아요를 눌렀어요']) assert.ok(body.includes(label), label);
+    for (const excluded of ['Hidden part', 'Later part', 'Trashed part']) assert.ok(!body.includes(excluded), excluded);
+  } finally {
+    await fixture.close();
+  }
+});

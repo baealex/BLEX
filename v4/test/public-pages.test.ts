@@ -62,7 +62,7 @@ database.exec(`
   CREATE TABLE board_postconfig (id INTEGER PRIMARY KEY, post_id INTEGER NOT NULL, hide BOOLEAN NOT NULL DEFAULT 0);
   CREATE TABLE board_postcontent (id INTEGER PRIMARY KEY, post_id INTEGER NOT NULL, content_html TEXT NOT NULL DEFAULT '');
   CREATE TABLE board_post_likes (id INTEGER PRIMARY KEY, post_id INTEGER NOT NULL, user_id INTEGER NOT NULL, created_date DATETIME NOT NULL);
-  CREATE TABLE board_comment (id INTEGER PRIMARY KEY, post_id INTEGER NOT NULL, content TEXT NOT NULL DEFAULT '');
+  CREATE TABLE board_comment (id INTEGER PRIMARY KEY, post_id INTEGER NOT NULL, content TEXT NOT NULL DEFAULT '', author_id INTEGER, created_date DATETIME);
   CREATE TABLE board_series (
     id INTEGER PRIMARY KEY,
     "order" INTEGER NOT NULL DEFAULT 0,
@@ -98,7 +98,8 @@ database.exec(`
     logo_svg TEXT NOT NULL DEFAULT '',
     logo_svg_dark TEXT NOT NULL DEFAULT '',
     icon_manifest TEXT NOT NULL DEFAULT '{}',
-    seo_enabled BOOLEAN NOT NULL DEFAULT 1
+    seo_enabled BOOLEAN NOT NULL DEFAULT 1,
+    aeo_enabled BOOLEAN NOT NULL DEFAULT 0
   );
   CREATE TABLE board_sitenotice (
     id INTEGER PRIMARY KEY,

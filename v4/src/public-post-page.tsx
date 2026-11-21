@@ -2,7 +2,7 @@ import { renderApplicationDocument, scriptJson } from './application/document.js
 import type { ReactNode } from 'react';
 import { SiteFooter, SiteHeader, SiteIcon, SiteTheme, type HeaderViewer } from './appearance/shell.js';
 import { postOutline } from './post-html.js';
-import { publicPostPath, type PostPresentation, type PublicPost } from './posts.js';
+import { publicPostPath, type PostPresentation, type PostSeriesEntry, type PostSeriesNavigation, type PublicPost } from './posts.js';
 import type { RelatedPost } from './public-activity.js';
 import type { ReaderPostView } from './reader-actions/index.js';
 import { PostComments } from './reader-ui/index.js';
@@ -87,6 +87,41 @@ function OutlineLinks({ headings, mobile }: { headings: Outline; mobile?: boolea
       className={`toc-item block rounded-lg px-3 text-sm text-content-secondary transition-all duration-150 hover:bg-surface-subtle hover:text-content active:scale-95 ${mobile ? 'py-3' : 'py-2'}`}
       style={{ paddingInlineStart: heading.level * 12 + (mobile ? 16 : -6) }}>{heading.text}</a></li>,
   )}</ul></nav>;
+}
+
+function PostSeriesCard({ name, seriesPath, author, navigation }: {
+  name: string; seriesPath: string; author: string; navigation: PostSeriesNavigation | null;
+}) {
+  const allPosts = 'text-sm font-medium text-content-secondary hover:text-content';
+  if (!navigation) {
+    return <section className="mb-16 mt-16 rounded-2xl bg-surface p-6 text-center ring-1 ring-line/60 sm:p-8" aria-labelledby="post-series-heading">
+      <h2 id="post-series-heading" className="mb-2 text-lg font-bold text-content"><a href={seriesPath}>{name}</a></h2>
+      <p className="mb-6 text-sm text-content-secondary">이 포스트는 숨김 처리되어 시리즈 목록에 표시되지 않습니다.</p>
+      <a href={seriesPath} className={allPosts}>시리즈 전체 보기</a>
+    </section>;
+  }
+  const link = (entry: PostSeriesEntry) => publicPostPath(author, entry.url);
+  const step = (entry: PostSeriesEntry | null, label: string) => entry
+    ? <a href={link(entry)} rel={label === '이전' ? 'prev' : 'next'} className={allPosts}>{label}</a>
+    : <span className="text-sm font-medium text-line-strong">{label}</span>;
+  return <section className="mb-16 mt-16 rounded-2xl bg-surface p-6 ring-1 ring-line/60 sm:p-8" aria-labelledby="post-series-heading">
+    <p className="mb-3 text-sm font-medium text-content-secondary">{navigation.index} / {navigation.total}</p>
+    <h2 id="post-series-heading" className="mb-2 text-2xl font-bold text-content"><a href={seriesPath}>{name}</a></h2>
+    <ol className="mt-6 space-y-2">
+      {navigation.entries.map((entry) => <li key={entry.url} className={`flex items-center gap-4 rounded-xl p-3${entry.index === navigation.index ? ' bg-surface-subtle' : ''}`}>
+        <span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-surface-subtle text-sm font-bold text-content-secondary">{entry.index}</span>
+        {entry.index === navigation.index
+          ? <><span className="flex-1 font-semibold text-content" aria-current="page">{entry.title}</span>
+            <span className="rounded-md bg-action px-2.5 py-1 text-xs font-bold text-content-inverted">읽는 중</span></>
+          : <a href={link(entry)} className="flex-1 font-medium text-content-secondary hover:text-content">{entry.title}</a>}
+      </li>)}
+    </ol>
+    {navigation.total > 1 && <nav aria-label="시리즈 이동" className="mt-8 flex items-center justify-between gap-4 border-t border-line-light pt-6">
+      {step(navigation.previous, '이전')}
+      <a href={seriesPath} className={allPosts}>전체 포스트</a>
+      {step(navigation.next, '다음')}
+    </nav>}
+  </section>;
 }
 
 function ArticleInfo({ reader, post, postPath, authorPath, published, updated, csrfToken }: {
@@ -271,6 +306,8 @@ export function renderPublicPostPage(post: PublicPost, presentation: PostPresent
                   {presentation.banners.some((banner) => banner.position === 'bottom') && <div className="mb-16 space-y-4">{banners('bottom')}</div>}
                   <ArticleInfo {...{ reader, post, postPath, authorPath, published, updated, csrfToken }} />
                 </article>
+                {seriesLink && presentation.seriesName && <PostSeriesCard name={presentation.seriesName} seriesPath={seriesLink}
+                  author={post.username} navigation={presentation.seriesNavigation ?? null} />}
                 {reader && <PostComments view={reader} csrfToken={csrfToken} returnTo={postPath} />}
               </div>
               <aside className="post-detail-sidebar"><div className="sticky top-28 space-y-4">

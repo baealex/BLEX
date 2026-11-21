@@ -6,6 +6,7 @@ import type { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify';
 import { Prisma, type PrismaClient } from '@prisma/client';
 import { SiteFooter, SiteHeader, SiteTheme } from '../appearance/shell.js';
 import { sanitizePostHtml } from '../post-html.js';
+import { AuthorActivitySection, readAuthorActivity } from '../public-activity.js';
 
 type SqlValue = string | number | null;
 type StoredDate = string | Date;
@@ -129,6 +130,8 @@ interface PageMeta {
   structuredData?: Record<string, unknown>;
   viewer?: PublicPageViewer | null;
   searchPage?: boolean;
+  markdownUrl?: string;
+  authorFeed?: { url: string; title: string };
 }
 
 export interface PublicPageViewer {
@@ -330,6 +333,13 @@ function PageLayout({ meta, children }: { meta: PageMeta; children: ReactNode })
       h('meta', { name: 'twitter:description', content: meta.description }),
       h('link', { rel: 'icon', href: meta.brand?.faviconUrl ?? '/favicon.ico' }),
       h('link', { rel: 'canonical', href: meta.canonical }),
+      meta.markdownUrl ? h('link', { rel: 'alternate', type: 'text/markdown', href: meta.markdownUrl }) : null,
+      meta.brand?.seoEnabled === false ? null : h('link', {
+        rel: 'alternate', type: 'application/rss+xml', title: `${meta.siteName} RSS`, href: new URL('/rss', meta.canonical).href,
+      }),
+      meta.brand?.seoEnabled !== false && meta.authorFeed
+        ? h('link', { rel: 'alternate', type: 'application/rss+xml', title: meta.authorFeed.title, href: meta.authorFeed.url })
+        : null,
       robots ? h('meta', { name: 'robots', content: robots }) : null,
       robots ? h('meta', { name: 'googlebot', content: robots }) : null,
       meta.previous ? h('link', { rel: 'prev', href: meta.previous }) : null,
@@ -343,6 +353,22 @@ function PageLayout({ meta, children }: { meta: PageMeta; children: ReactNode })
       h(SiteFooter, { brand: meta.brand }),
     ),
   ));
+}
+
+function authorFeed(siteUrl: URL, username: string) {
+  return { url: makeAbsolute(siteUrl, `/rss/@${encodeURIComponent(username)}`), title: `${username} RSS` };
+}
+
+/** Sends the agent discovery headers and returns the Markdown URL when AEO is enabled. */
+async function advertiseMarkdown(reply: FastifyReply, db: PrismaClient, siteUrl: URL, path: string): Promise<string | undefined> {
+  const [site] = await db.$queryRaw<Array<{ enabled: DatabaseInteger | boolean | null }>>`
+    SELECT aeo_enabled AS enabled FROM board_sitesetting WHERE id = 1
+  `;
+  if (!site || !Number(site.enabled)) return undefined;
+  const markdown = makeAbsolute(siteUrl, `${path}.md`);
+  const llms = makeAbsolute(siteUrl, '/llms.txt');
+  reply.header('Link', `<${markdown}>; rel="alternate"; type="text/markdown", <${llms}>; rel="llms-txt"`).header('X-Llms-Txt', llms);
+  return markdown;
 }
 
 function renderHtml(reply: FastifyReply, html: string): FastifyReply {
@@ -1636,8 +1662,10 @@ export function registerPublicPages(app: FastifyInstance, db: PrismaClient, site
     const canonical = makeAbsolute(siteUrl, path);
     const aboutHtml = sanitizePostHtml(author.aboutHtml);
     const isOwner = viewer?.id === author.id;
+    const activity = await readAuthorActivity(db, author.id);
     return renderHtml(reply, PageLayout({
       meta: {
+        authorFeed: authorFeed(siteUrl, author.username),
         title: `${author.username} - ${siteName}`,
         description: description(author.bio || aboutHtml, `${author.username}의 공개 글과 소개를 확인해 보세요.`),
         canonical,
@@ -1664,6 +1692,7 @@ export function registerPublicPages(app: FastifyInstance, db: PrismaClient, site
               : EmptyState({ title: '아직 소개가 없습니다', message: '작성자 소개를 추가해 독자에게 자신을 알려주세요.', icon: 'fas fa-user-edit', actionUrl: `${authorPath(author.username)}/about/edit`, actionLabel: '소개 작성', actionIcon: 'fas fa-edit' }),
           ) : null,
           isAuthorEditor ? featuredPostsSection(author, featured, viewer?.id === author.id) : null,
+          h(AuthorActivitySection, activity),
           ),
         ),
       ),
@@ -1739,6 +1768,7 @@ export function registerPublicPages(app: FastifyInstance, db: PrismaClient, site
     const likes = await readCardLikes(db, request, viewer, posts);
     const noindex = hasUnexpected(query, ['page', 'q', 'tag']) || Boolean(searchText || tagFilter);
     const meta: PageMeta = {
+      authorFeed: authorFeed(siteUrl, author.username),
       title: `글 - ${author.username} | ${siteName}`,
       description: `${author.username}님이 공개한 글을 모아봅니다.`,
       canonical: noindex ? makeAbsolute(siteUrl, path) : canonicalPageUrl(siteUrl, path, checkedPage),
@@ -1848,6 +1878,7 @@ export function registerPublicPages(app: FastifyInstance, db: PrismaClient, site
     const noindex = hasUnexpected(query, ['page', 'q', 'sort']) || Boolean(searchText) || requestedSort !== 'custom';
     return renderHtml(reply, PageLayout({
       meta: {
+        authorFeed: authorFeed(siteUrl, author.username),
         title: `${author.username}님의 시리즈 - ${siteName}`,
         description: `${author.username}님이 공개한 시리즈를 둘러보세요.`,
         canonical: noindex ? makeAbsolute(siteUrl, path) : canonicalPageUrl(siteUrl, path, checkedPage),
@@ -2008,8 +2039,11 @@ export function registerPublicPages(app: FastifyInstance, db: PrismaClient, site
     };
     const previous = checkedPage > 1 ? new URLSearchParams({ ...(sortOrder === 'asc' ? { sort: 'asc' } : {}), ...(checkedPage > 2 ? { page: String(checkedPage - 1) } : {}) }).toString() : '';
     const next = checkedPage < pages ? new URLSearchParams({ ...(sortOrder === 'asc' ? { sort: 'asc' } : {}), page: String(checkedPage + 1) }).toString() : '';
+    const seriesMarkdown = await advertiseMarkdown(reply, db, siteUrl, seriesPath);
     return renderHtml(reply, PageLayout({
       meta: {
+        authorFeed: authorFeed(siteUrl, author.username),
+        markdownUrl: seriesMarkdown,
         title: `${series.name} - ${author.username} | ${siteName}`,
         description: metaDescription,
         canonical,
@@ -2109,8 +2143,10 @@ export function registerPublicPages(app: FastifyInstance, db: PrismaClient, site
       page.authorUsername,
       siteUrl,
     );
+    const pageMarkdown = await advertiseMarkdown(reply, db, siteUrl, path);
     return renderHtml(reply, PageLayout({
       meta: {
+        markdownUrl: pageMarkdown,
         title: `${page.title} - ${siteName}`,
         description: metaDescription,
         canonical,

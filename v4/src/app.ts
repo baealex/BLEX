@@ -27,7 +27,7 @@ import { youtubeFrameSources } from './post-html.js';
 import { registerPostShare } from './post-share.js';
 import { publicPostPath, readPostPresentation, readPublicPost } from './posts.js';
 import { registerPublicActivity, relatedPosts } from './public-activity.js';
-import { registerPublicDiscovery } from './public-discovery/index.js';
+import { registerPublicDiscovery, searchIndexingEnabled } from './public-discovery/index.js';
 import { registerPublicMedia } from './public-media.js';
 import { readPublicFeed, registerPublicPages } from './public-pages/index.js';
 import { renderPublicPostPage } from './public-post-page.js';
@@ -38,6 +38,8 @@ import { registerTelegram } from './telegram.js';
 import { registerUploadGuard } from './upload-guard.js';
 import { registerWebhooks } from './webhooks/index.js';
 import { registerWorkLogs } from './work-logs/index.js';
+
+const indexableContentType = /^(?:text\/(?:html|markdown|plain)|application\/(?:rss\+)?xml)/;
 
 export async function buildApp(dbPath: string, siteUrl: URL, auth?: AuthConfig, mediaRoot?: string) {
   const file = resolve(dbPath);
@@ -52,8 +54,13 @@ export async function buildApp(dbPath: string, siteUrl: URL, auth?: AuthConfig, 
   const db = new PrismaClient({ datasourceUrl: `file:${file}?connection_limit=1` });
   const app = Fastify({ bodyLimit: 8 * 1024, requestTimeout: 300_000, routerOptions: { maxParamLength: 150 }, trustProxy: auth?.trustedProxies ?? false });
   app.addHook('onSend', async (_request, reply, payload) => {
-    if (String(reply.getHeader('Content-Type') ?? '').startsWith('text/html') && isApplicationDocument(payload)) {
+    const contentType = String(reply.getHeader('Content-Type') ?? '');
+    if (contentType.startsWith('text/html') && isApplicationDocument(payload)) {
       reply.header('Content-Security-Policy', applicationContentSecurityPolicy);
+    }
+    if (reply.statusCode === 200 && !reply.hasHeader('X-Robots-Tag') && indexableContentType.test(contentType)
+      && !await searchIndexingEnabled(db)) {
+      reply.header('X-Robots-Tag', 'noindex, nofollow');
     }
     return payload;
   });

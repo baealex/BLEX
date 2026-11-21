@@ -14,7 +14,7 @@ BLEX 4는 Node.js 프로세스 한 개가 블로그, 관리자 화면과 API를 
 | `INITIAL_SETUP_TOKEN` | 선택 사항. 비워 두면 시작할 때 생성하고 최초 설정 URL에 표시 |
 | `BLEX_DATA` | 선택 사항. Compose에서는 기본 named volume `blex-data`. 호스트 디렉터리를 쓸 때는 절대 경로 |
 | `BLEX_PORT_MAPPING` | 선택 사항. 기본값 `127.0.0.1:20002:8040` |
-| `BLEX_TRUSTED_PROXIES` | 선택 사항. BLEX에 직접 접속하는 HTTPS 프록시의 IP 또는 CIDR을 쉼표로 구분 |
+| `BLEX_TRUSTED_PROXIES` | HTTPS 프록시 뒤에서는 필수. BLEX에 직접 접속하는 프록시의 IP 또는 CIDR을 쉼표로 구분. 값이 없으면 3.x의 `TRUSTED_PROXY_IPS`를 읽음 |
 | `DEVELOPER_API_MAX_UPLOAD_MB` | 선택 사항. 글 이미지와 동영상 업로드 상한, 기본 20MB |
 | `TZ` | 선택 사항. 지역 시간대 설정 |
 
@@ -29,10 +29,10 @@ docker compose logs blex
 
 공개 운영에서는 nginx, Caddy 등의 앞단에서 HTTPS를 종료하고 BLEX의 HTTP 포트로 전달합니다. `SITE_URL`에는 브라우저에서 쓰는 HTTPS origin을 설정합니다. 이 주소가 canonical URL, 공유 링크, OAuth 콜백, RSS와 sitemap에 사용됩니다.
 
-같은 호스트의 프록시는 기본 포트 매핑을 사용해 `127.0.0.1:20002`로 연결할 수 있습니다. 접속 IP를 사용한 로그인 제한을 위해 프록시가 전달 헤더를 실제 값으로 설정하도록 구성하고, BLEX가 관측하는 프록시 주소를 `BLEX_TRUSTED_PROXIES`에 지정합니다. 프록시의 본문 크기 제한도 업로드 상한에 맞춥니다.
+같은 호스트의 프록시는 기본 포트 매핑을 사용해 `127.0.0.1:20002`로 연결할 수 있습니다. 접속 IP를 사용한 로그인 제한을 위해 프록시가 전달 헤더를 실제 값으로 설정하도록 구성하고, BLEX가 관측하는 프록시 주소를 `BLEX_TRUSTED_PROXIES`에 지정합니다. 이 값이 없으면 모든 방문자가 하나의 로그인 제한을 함께 쓰므로, 틀린 로그인 5번에 전체 로그인이 5분간 막힐 수 있습니다. 프록시의 본문 크기 제한도 업로드 상한에 맞춥니다.
 
 ## 백업과 3.x 이관
 
 데이터 볼륨에는 `db.sqlite3`과 `media/`가 있습니다. 두 항목을 같은 시점에 백업하고 환경 파일도 보관합니다. 서비스가 DB를 사용하는 동안에는 SQLite의 백업 기능 또는 일관된 스냅샷을 사용합니다. 작업 일지 첨부는 `media/_work_logs/`에 저장되며 BLEX가 소유자나 공유 권한을 확인하고 제공합니다. 별도 정적 서버를 붙이는 경우 이 경로를 공개 경로에서 제외합니다.
 
-기존 설치는 BLEX 3.14에서 마지막 Django 마이그레이션을 적용하고 DB와 미디어 복제본을 BLEX 4에 등록합니다. 기존 비밀번호와 계정은 유지되며 브라우저에서 새로 로그인합니다. `CIPHER_KEY`와 `SECRET_KEY`를 보존합니다. [BLEX 3.x 이관 명령과 확인 절차](../v4/README.md#blex-3x-db-이관)
+기존 설치는 BLEX 3.14에서 마지막 Django 마이그레이션을 적용하고 DB와 미디어 복제본을 BLEX 4에 등록합니다. 3.x의 `backend/.env`는 저장소 루트 `.env`로 옮기고, `BLEX_DATA`에 이관한 데이터 경로를 지정합니다. 컨테이너 포트가 80에서 8040으로 바뀌었으므로 `BLEX_PORT_MAPPING=127.0.0.1:20002:80`은 `127.0.0.1:20002:8040`으로 고칩니다. Compose의 `migrate` 서비스는 포트가 맞지 않거나 3.x DB를 두고 빈 데이터로 시작하려 하면 멈춥니다. 기존 비밀번호와 계정은 유지되며 브라우저에서 새로 로그인합니다. `CIPHER_KEY`와 `SECRET_KEY`를 보존합니다. [BLEX 3.x 이관 명령과 확인 절차](../v4/README.md#blex-3x-db-이관)
