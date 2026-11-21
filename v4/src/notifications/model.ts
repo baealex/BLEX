@@ -112,7 +112,8 @@ export async function notifyPostSubscribers(tx: Prisma.TransactionClient, postId
   return delivered;
 }
 
-export async function syncPostPublication(tx: Prisma.TransactionClient, postId: number) {
+/** Keeps the publication queue current. Only a first publication may notify readers and webhooks. */
+export async function syncPostPublication(tx: Prisma.TransactionClient, postId: number, { announce = false } = {}) {
   const now = new Date().toISOString().slice(0, -1).replace('T', ' ');
   const [post] = await tx.$queryRaw<Array<{ published: string | null }>>`
     SELECT CAST(post.published_date AS TEXT) AS published FROM board_post AS post
@@ -126,7 +127,7 @@ export async function syncPostPublication(tx: Prisma.TransactionClient, postId: 
     `;
   } else {
     await tx.$executeRaw`DELETE FROM blex_scheduled_publication WHERE post_id = ${postId}`;
-    if (post?.published) {
+    if (announce && post?.published) {
       await notifyPostSubscribers(tx, postId);
       await queuePostWebhooks(tx, postId);
     }
@@ -139,6 +140,6 @@ export async function processScheduledPublications(db: PrismaClient) {
     const ready = await tx.$queryRaw<Array<{ id: number }>>`
       SELECT post_id AS id FROM blex_scheduled_publication WHERE publish_at <= ${now} ORDER BY publish_at LIMIT 20
     `;
-    for (const { id } of ready) await syncPostPublication(tx, id);
+    for (const { id } of ready) await syncPostPublication(tx, id, { announce: true });
   }, { timeout: 15_000 });
 }

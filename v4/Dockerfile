@@ -10,7 +10,9 @@ COPY src ./src
 RUN npm run build
 
 FROM build AS migration
-RUN install -d -o node -g node /var/lib/blex /var/lib/blex/media
+RUN install -d -o node -g node /var/lib/blex /var/lib/blex/media \
+    && rm -rf /usr/local/lib/node_modules/npm /usr/local/lib/node_modules/corepack \
+              /usr/local/bin/npm /usr/local/bin/npx /usr/local/bin/corepack /opt/yarn-*
 ENV DATABASE_URL=file:/var/lib/blex/db.sqlite3
 USER node
 CMD ["node", "node_modules/prisma/build/index.js", "migrate", "deploy"]
@@ -28,7 +30,9 @@ COPY --from=build /app/dist/src ./dist/src
 COPY --from=build /app/dist/client ./dist/client
 COPY data ./data
 COPY public ./public
-RUN install -d -o node -g node /var/lib/blex /var/lib/blex/media
+RUN install -d -o node -g node /var/lib/blex /var/lib/blex/media \
+    && rm -rf /usr/local/lib/node_modules/npm /usr/local/lib/node_modules/corepack \
+              /usr/local/bin/npm /usr/local/bin/npx /usr/local/bin/corepack /opt/yarn-*
 EXPOSE 8040
 USER node
 CMD ["node", "dist/src/main.js"]

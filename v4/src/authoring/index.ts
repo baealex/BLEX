@@ -773,7 +773,8 @@ async function draftReservation(db: PrismaClient, postId: number): Promise<strin
     WHERE post_id = ${postId} AND name = 'draft_reserved_date'
     ORDER BY id DESC LIMIT 1
   `;
-  return rows[0]?.value ?? '';
+  // BLEX 4 stores this value as UTC without an offset and Django stored an ISO offset.
+  return dateAsIso(rows[0]?.value ?? null) ?? '';
 }
 
 async function publicSeriesId(db: Prisma.TransactionClient, userId: number, url: string): Promise<number | null> {
@@ -1009,7 +1010,7 @@ async function createPost(
     `;
     await syncTags(tx, postId, input.tags);
     if (asDraft && input.reservedDate) await syncDraftReservation(tx, postId, input.reservedDate);
-    if (!asDraft) await syncPostPublication(tx, postId);
+    if (!asDraft) await syncPostPublication(tx, postId, { announce: true });
     return { id: postId, url: slug, publishedDate: publishAt };
   });
 }
@@ -1138,7 +1139,7 @@ async function updatePost(
       `;
     }
     if (options.publishDraft || isTrue(post.hide) !== input.hide || (isScheduledPost && Boolean(input.reservedDate))) {
-      await syncPostPublication(tx, post.id);
+      await syncPostPublication(tx, post.id, { announce: Boolean(options.publishDraft) });
     }
     const currentSnapshot = await captureEditorialSnapshot(tx, post.id);
     if (!sameEditorialSnapshot(previousSnapshot, currentSnapshot)) {
@@ -2716,7 +2717,7 @@ export function registerAuthoring(
             UPDATE board_post SET published_date = ${publishDate}, updated_date = ${updated}
             WHERE id = ${post.id} AND author_id = ${user.id}
           `;
-          await syncPostPublication(tx, post.id);
+          await syncPostPublication(tx, post.id, { announce: true });
         });
         return done(request.params.action === 'cancel'
           ? { url: post.url, status: 'draft' }
@@ -2931,7 +2932,7 @@ export function registerAuthoring(
       const updated = nowString();
       await db.$transaction(async (tx) => {
         await tx.$executeRaw`UPDATE board_post SET published_date = ${date}, updated_date = ${updated} WHERE id = ${post.id} AND author_id = ${account.id}`;
-        await syncPostPublication(tx, post.id);
+        await syncPostPublication(tx, post.id, { announce: true });
       });
       return reply.redirect(request.params.action === 'cancel' ? '/settings/posts?tab=drafts' : '/settings/posts', 303);
     });

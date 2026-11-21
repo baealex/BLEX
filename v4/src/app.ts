@@ -35,6 +35,7 @@ import { readReaderPostView, registerReaderActions } from './reader-actions/inde
 import { registerSubscriptionPage } from './reader-ui/subscriptions.js';
 import { registerSiteAssets } from './site-assets.js';
 import { registerTelegram } from './telegram.js';
+import { registerUploadGuard } from './upload-guard.js';
 import { registerWebhooks } from './webhooks/index.js';
 import { registerWorkLogs } from './work-logs/index.js';
 
@@ -49,7 +50,7 @@ export async function buildApp(dbPath: string, siteUrl: URL, auth?: AuthConfig, 
 
   // Prisma's SQLite connector expects a literal path and uses '?' to delimit connection options.
   const db = new PrismaClient({ datasourceUrl: `file:${file}?connection_limit=1` });
-  const app = Fastify({ bodyLimit: 8 * 1024, routerOptions: { maxParamLength: 150 }, trustProxy: auth?.trustedProxies ?? false });
+  const app = Fastify({ bodyLimit: 8 * 1024, requestTimeout: 300_000, routerOptions: { maxParamLength: 150 }, trustProxy: auth?.trustedProxies ?? false });
   app.addHook('onSend', async (_request, reply, payload) => {
     if (String(reply.getHeader('Content-Type') ?? '').startsWith('text/html') && isApplicationDocument(payload)) {
       reply.header('Content-Security-Policy', applicationContentSecurityPolicy);
@@ -87,6 +88,7 @@ export async function buildApp(dbPath: string, siteUrl: URL, auth?: AuthConfig, 
   const routeOptions = { currentUser, validateCsrf: (request: FastifyRequest) => validCsrf(request, siteUrl), siteUrl, mediaRoot };
   if (auth) {
     await app.register(cookie);
+    registerUploadGuard(app, currentUser);
     registerAuthentication(app, db, siteUrl, { ...auth, mediaRoot });
     registerPersonalSettings(app, db, { ...routeOptions, updatePassword: passwordUpdater(db, siteUrl, auth) });
     registerNotifications(app, db, routeOptions);

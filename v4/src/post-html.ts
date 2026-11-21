@@ -11,6 +11,13 @@ const mediaSchemes = ['http', 'https'];
 const lengthValue = /^(?:0|\d+(?:\.\d+)?(?:px|rem|em|%|vh|vw))$/i;
 const boxLengths = /^(?:0|\d+(?:\.\d+)?(?:px|rem|em|%))(?:\s+(?:0|\d+(?:\.\d+)?(?:px|rem|em|%))){0,3}$/i;
 const colorValue = /^(?:#[a-f\d]{3,8}|[a-z]{1,24}|rgba?\([\d.,% /]+\))$/i;
+const autoOrLength = /^(?:auto|0|\d+(?:\.\d+)?(?:px|rem|em|%|vh|vw))$/i;
+const gridColumns = /^\d+(?:\.\d+)?fr(?:\s+\d+(?:\.\d+)?fr){0,5}$/i;
+const themedColor = String.raw`(?:#[a-f\d]{3,8}|rgba?\([\d.,% /]+\)|var\(--color-[a-z-]+,\s*(?:#[a-f\d]{3,8}|rgba?\([\d.,% /]+\))\))`;
+const borderValue = new RegExp(String.raw`^(?:0|none|\d+px\s+(?:solid|dashed|dotted)\s+${themedColor})$`, 'i');
+const shadowValue = new RegExp(String.raw`^(?:none|(?:-?\d+px\s+){2,4}${themedColor})$`, 'i');
+const editorDataAttributes = ['data-align', 'data-aspect-ratio', 'data-border', 'data-border-radius', 'data-shadow', 'data-size'];
+const iframeFeatures = new Set(['accelerometer', 'autoplay', 'clipboard-write', 'encrypted-media', 'gyroscope', 'picture-in-picture']);
 
 function mediaUrl(value: string | undefined): string | undefined {
   const input = value?.trim();
@@ -49,19 +56,19 @@ const postHtmlOptions: sanitizeHtml.IOptions = {
   allowedAttributes: {
     '*': ['class'],
     a: ['href', 'title', 'target', 'rel'],
-    div: ['id', 'style'],
-    figure: ['style'],
+    div: ['id', 'style', 'data-type', 'data-layout'],
+    figure: ['style', ...editorDataAttributes],
     figcaption: ['style'],
     h1: ['id'], h2: ['id'], h3: ['id'], h4: ['id'], h5: ['id'], h6: ['id'],
-    iframe: ['src', 'title', 'width', 'height', 'loading', 'allowfullscreen', 'referrerpolicy'],
-    img: ['src', 'srcset', 'alt', 'title', 'width', 'height', 'loading', 'style'],
+    iframe: ['src', 'title', 'width', 'height', 'loading', 'allow', 'allowfullscreen', 'referrerpolicy', 'style', { name: 'frameborder', values: ['0', '1'] }, ...editorDataAttributes],
+    img: ['src', 'srcset', 'alt', 'title', 'width', 'height', 'loading', 'style', ...editorDataAttributes],
     ol: ['start'],
     p: ['id', 'style'],
     source: ['src', 'type'],
     span: ['id', 'style'],
     td: ['colspan', 'rowspan'],
     th: ['colspan', 'rowspan', 'scope'],
-    video: ['src', 'poster', 'width', 'height', 'controls', 'autoplay', 'muted', 'loop', 'playsinline', 'preload', 'style'],
+    video: ['src', 'poster', 'width', 'height', 'controls', 'autoplay', 'muted', 'loop', 'playsinline', 'preload', 'style', ...editorDataAttributes],
   },
   allowedStyles: {
     '*': {
@@ -74,9 +81,15 @@ const postHtmlOptions: sanitizeHtml.IOptions = {
       'justify-content': [/^(?:start|end|center|flex-start|flex-end|space-between|space-around|space-evenly)$/],
       'object-fit': [/^(?:contain|cover|fill|none|scale-down)$/],
       'text-align': [/^(?:left|right|start|end|center|justify)$/],
+      border: [borderValue],
       'border-radius': [boxLengths],
+      'box-shadow': [shadowValue],
+      gap: [lengthValue],
+      'grid-template-columns': [gridColumns],
       margin: [boxLengths],
-      'margin-right': [lengthValue],
+      'margin-left': [autoOrLength],
+      'margin-right': [autoOrLength],
+      overflow: [/^(?:auto|clip|hidden|visible)$/],
       padding: [boxLengths],
       width: [lengthValue], height: [lengthValue],
       'min-width': [lengthValue], 'max-width': [lengthValue],
@@ -103,7 +116,9 @@ const postHtmlOptions: sanitizeHtml.IOptions = {
     video: renderMedia,
     source: renderMedia,
     iframe: (tagName, attributes) => {
-      const { src, ...attribs } = attributes;
+      const { src, allow, ...attribs } = attributes;
+      const features = allow?.split(';').map((feature) => feature.trim()).filter((feature) => iframeFeatures.has(feature));
+      if (features?.length) attribs.allow = features.join('; ');
       const url = URL.parse(src ?? '');
       if (url?.protocol === 'https:' && youtubeHosts.has(url.hostname) && !url.port &&
           !url.username && !url.password && /^\/embed\/[a-zA-Z0-9_-]{1,64}$/.test(url.pathname)) {
