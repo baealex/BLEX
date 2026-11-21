@@ -13,7 +13,7 @@
 
 <p align="center">
   <a href="https://github.com/baealex/BLEX/actions/workflows/CI.yml"><img src="https://github.com/baealex/BLEX/actions/workflows/CI.yml/badge.svg" alt="CI"></a>
-  <img src="https://img.shields.io/badge/Django-6.0-0C4B33?style=flat-square" alt="Django 6.0">
+  <img src="https://img.shields.io/badge/Node.js-24-339933?style=flat-square" alt="Node.js 24">
   <img src="https://img.shields.io/badge/React-19-149ECA?style=flat-square" alt="React 19">
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue?style=flat-square" alt="MIT License"></a>
 </p>
@@ -23,12 +23,12 @@
 </p>
 
 BLEX는 글을 쓰고, 정리하고, 발행하고, 오래 운영하는 흐름에 맞춰 만든
-오픈소스 블로그 플랫폼입니다. 브라우저 에디터와 관리 도구를 함께
-제공하며 Docker 배포를 기본으로 지원합니다.
+오픈소스 블로그 플랫폼입니다. 하나의 TypeScript 서버에서 Fastify,
+React SSR, Prisma, SQLite로 블로그와 에디터, 관리 도구를 제공합니다.
 
 ## 프로젝트 방향
 
-- **글쓰기와 발행:** 리치 텍스트 에디터, 임시저장, 자동저장 복구, 수정
+- **글쓰기와 발행:** 시각 편집과 마크다운, 미리보기, 임시저장, 자동저장 복구, 수정
   이력, 미리보기, 커버 이미지, 예약 발행
 - **콘텐츠 관리:** 작가, 시리즈, 태그, 검색, 정적 페이지, 댓글, 좋아요,
   고정 글
@@ -37,45 +37,29 @@ BLEX는 글을 쓰고, 정리하고, 발행하고, 오래 운영하는 흐름에
 - **외부 활용:** RSS, sitemap, canonical과 Open Graph 메타데이터, 공개
   Markdown, 권한별 토큰을 제공하는 Developer API
 
-GitHub 및 Google 로그인, TOTP 2단계 인증, 영어·한국어 UI도 제공합니다.
+GitHub 및 Google 로그인과 TOTP 2단계 인증을 제공합니다.
 사용자가 작성한 콘텐츠는 번역하지 않고 원문 그대로 표시합니다.
 
 ## Docker로 로컬 실행
 
-요구사항: Docker.
+저장소 루트의 `.env`에 `SITE_URL=http://localhost:20002`, 충분히 긴 무작위
+`SECRET_KEY`, 32바이트 `CIPHER_KEY`를 설정하세요. `openssl rand -hex 16`으로
+32자 ASCII 암호화 키를 만들 수 있습니다.
 
 ```bash
-docker run -d \
-  --name blex \
-  --restart unless-stopped \
-  -p 20002:80 \
-  --mount source=blex-db,target=/var/lib/blex \
-  --mount source=blex-media,target=/app/resources/media \
-  -e BLEX_SQLITE_DB_PATH=/var/lib/blex/db.sqlite3 \
-  -e SECRET_KEY=local-preview-only-change-me \
-  -e CIPHER_KEY=local-only-cipher-key-32-charsxx \
-  -e DEBUG=TRUE \
-  -e ENABLE_ENGLISH_UI=TRUE \
-  -e SITE_URL=http://localhost:20002 \
-  baealex/blex:latest
-
-docker logs blex
+docker compose up --build -d
+docker compose logs blex
 ```
 
-위 명령은 로컬 HTTP에서 실행하기 위해 개발용 설정인 `DEBUG=TRUE`를
-사용합니다. 운영 환경에서는 이 값을 그대로 사용하면 안 됩니다.
-
-`http://localhost:20002`에 접속한 뒤 `docker logs blex`에 출력된
-`Initial setup URL`에서 최초 관리자를 만드세요. 컨테이너를 교체해도
-`blex-db`와 `blex-media` 볼륨에 데이터베이스와 업로드 파일이 유지됩니다.
+로그에 출력되는 `/setup` 링크에서 최초 관리자를 만드세요. 컨테이너를
+교체해도 `blex-data` 볼륨에 데이터베이스와 업로드 파일이 유지됩니다.
 
 ### 운영 배포
 
-고유한 비밀 키를 사용하고 `DEBUG=FALSE`로 바꾼 뒤 `SITE_URL`,
-`ALLOWED_HOSTS`, `CSRF_TRUSTED_ORIGINS`를 공개 도메인에 맞게 설정하세요.
-BLEX 앞단에는 HTTPS 프록시를 두고 두 볼륨을 함께 백업해야 합니다. 전체
-설정과 업데이트 방법은 [셀프 호스팅 가이드](docs/SELF_HOSTING.md)에서
-확인할 수 있습니다.
+고유한 비밀 키를 설정하고 `SITE_URL`에는 공개 HTTPS 주소를 지정하세요.
+BLEX 앞단에는 HTTPS 프록시를 두고 데이터 디렉터리를 백업합니다.
+3.x에서 업데이트할 때는 기존 SQLite와 미디어를 이관한 뒤 4.0을 실행합니다.
+[BLEX 4 설치 및 이관 가이드](v4/README.md)
 
 ## 발행 인터페이스
 
@@ -91,21 +75,21 @@ BLEX 앞단에는 HTTPS 프록시를 두고 두 볼륨을 함께 백업해야 �
 
 요구사항:
 
-- Python 3.12+
 - Node.js 24 LTS(24.22.1 이상) 또는 26(26.12.1 이상)
 - npm
+- 로컬에서 GIF 변환과 동영상 미리보기를 사용할 경우 FFmpeg
 
 ```bash
 npm install
-npm run server:migrate
 npm run dev
 ```
 
-`http://localhost:8000`에 접속하세요.
+`http://localhost:8040`에 접속하세요. 개발 명령은 `v4/.local/`에 SQLite
+DB를 초기화하고 최초 관리자 설정 링크를 출력합니다.
 
 ## 문서
 
-- [셀프 호스팅 가이드](docs/SELF_HOSTING.md)
+- [BLEX 4 설치 및 이관 가이드](v4/README.md)
 - [개발 규칙](docs/DEV_CONVENTION.md)
 - [번역 가이드](docs/TRANSLATION_GUIDE.md)
 

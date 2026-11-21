@@ -1,0 +1,192 @@
+.blex-login {
+  box-sizing: border-box;
+  display: grid;
+  min-height: calc(100svh - 10.5rem);
+  place-items: start center;
+  padding: 4rem 1rem;
+  background: var(--color-surface-page, Canvas);
+  color: var(--color-content, CanvasText);
+  font-family: inherit;
+}
+
+.blex-login *,
+.blex-login *::before,
+.blex-login *::after {
+  box-sizing: border-box;
+}
+
+.blex-login__form,
+.blex-login__providers {
+  display: grid;
+  gap: 12px;
+}
+
+.blex-login__label {
+  margin-bottom: -0.375rem;
+  font-size: 0.75rem;
+  line-height: 1rem;
+  font-weight: 600;
+  letter-spacing: 0.025em;
+  color: var(--color-content-secondary);
+}
+
+.blex-login__input + .blex-login__label { margin-top: 0.25rem; }
+
+.blex-login__input {
+  width: 100%;
+  padding: 0.875rem 1rem;
+  border: 1px solid var(--color-line, currentColor);
+  border-radius: 8px;
+  background: color-mix(in oklab, var(--color-surface, Canvas) 40%, transparent);
+  color: var(--color-content, CanvasText);
+  font: inherit;
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  font-weight: 500;
+}
+
+.blex-login__input::placeholder { color: var(--color-content-hint); }
+
+.blex-login__input:focus-visible,
+.blex-login__text-button:focus-visible,
+.blex-login__restart:focus-visible,
+.blex-login__provider:focus-visible,
+.blex-login__submit:focus-visible {
+  outline: 3px solid color-mix(in srgb, var(--color-action, CanvasText) 45%, transparent);
+  outline-offset: 3px;
+}
+
+.blex-login__hint,
+.blex-login__account {
+  margin: -4px 0 4px;
+  color: var(--color-content-secondary, CanvasText);
+  font-size: 0.9rem;
+  line-height: 1.55;
+}
+
+.blex-login__account strong {
+  color: var(--color-content, CanvasText);
+}
+
+.blex-login__submit,
+.blex-login__provider {
+  display: flex;
+  min-height: 48px;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--color-line-strong, currentColor);
+  border-radius: 8px;
+  font: inherit;
+  font-weight: 600;
+  text-align: center;
+  text-decoration: none;
+  transition: background-color 150ms ease, border-color 150ms ease, opacity 150ms ease, transform 150ms ease;
+}
+
+.blex-login__submit {
+  margin-top: 8px;
+  border-color: var(--color-action, CanvasText);
+  background: var(--color-action, CanvasText);
+  color: var(--color-content-inverted, Canvas);
+  font-size: 0.875rem;
+  cursor: pointer;
+}
+
+.blex-login__submit:hover:not(:disabled) {
+  background: var(--color-action-hover, CanvasText);
+}
+
+.blex-login__provider {
+  padding: 10px 14px;
+  background: var(--color-surface, Canvas);
+  color: var(--color-content, CanvasText);
+}
+
+.blex-login__provider:hover {
+  background: var(--color-surface-subtle, Canvas);
+}
+
+.blex-login__submit:active:not(:disabled),
+.blex-login__provider:active {
+  transform: scale(0.98);
+}
+
+.blex-login__submit:disabled,
+.blex-login__input:disabled,
+.blex-login__text-button:disabled {
+  cursor: wait;
+  opacity: 0.65;
+}
+
+.blex-login__text-button,
+.blex-login__restart {
+  width: fit-content;
+  padding: 4px 0;
+  border: 0;
+  background: transparent;
+  color: var(--color-content-secondary, CanvasText);
+  font: inherit;
+  font-size: 0.92rem;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  cursor: pointer;
+}
+
+.blex-login__restart {
+  display: inline-block;
+  margin-top: 14px;
+}
+
+.blex-login__error {
+  display: grid;
+  gap: 4px;
+  margin: 0 0 18px;
+  padding: 12px 14px;
+  border: 1px solid var(--color-danger-line, currentColor);
+  border-radius: 8px;
+  background: var(--color-danger-surface, transparent);
+  color: var(--color-danger, CanvasText);
+  line-height: 1.5;
+}
+
+.blex-login__error small {
+  opacity: 0.8;
+}
+
+.blex-login__status {
+  margin: 0;
+  color: var(--color-content-secondary, CanvasText);
+  font-size: 0.9rem;
+}
+
+.blex-login__status:empty { display: none; }
+
+.blex-login__separator {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 22px 0 14px;
+  color: var(--color-content-hint, CanvasText);
+  font-size: 0.85rem;
+}
+
+.blex-login__separator::before,
+.blex-login__separator::after {
+  height: 1px;
+  flex: 1;
+  background: var(--color-line, currentColor);
+  content: '';
+}
+
+@media (max-width: 480px) {
+  .blex-login {
+    padding-inline: 1rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .blex-login__submit,
+  .blex-login__provider {
+    transition: none;
+  }
+}

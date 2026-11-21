@@ -48,50 +48,24 @@ jobs:
         shell: bash
         run: echo "version=${GITHUB_REF_NAME#v}" >> "$GITHUB_OUTPUT"
 
-      - name: Load .env file
-        run: |
-          python3 - <<'PY'
-          from pathlib import Path
-          import os
-
-          env_file = Path('samples/.env')
-          github_env = Path(os.environ['GITHUB_ENV'])
-
-          with github_env.open('a') as output:
-              for raw_line in env_file.read_text().splitlines():
-                  line = raw_line.strip()
-                  if not line or line.startswith('#') or '=' not in line:
-                      continue
-
-                  key, value = line.split('=', 1)
-                  value = value.strip()
-                  if len(value) >= 2 and value[0] == value[-1] and value[0] in {'"', "'"}:
-                      value = value[1:-1]
-
-                  output.write(f'{key.strip()}={value}\n')
-          PY
-
-      - name: Set up Python 3.12
-        uses: actions/setup-python@v6
-        with:
-          python-version: '3.12'
-
       - name: Set up Node.js
         uses: actions/setup-node@v6
         with:
           node-version: '24.22.1'
+          cache: npm
+          cache-dependency-path: v4/package-lock.json
 
-      - name: Install Python dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install -r requirements.txt
-        working-directory: backend/src
+      - run: npm ci
+        working-directory: v4
 
-      - name: Check backend migrations
-        run: npm run server:check-migrations
+      - name: Validate Prisma schema
+        run: npx --no-install prisma validate
+        working-directory: v4
+        env:
+          DATABASE_URL: file:/tmp/blex-validation.sqlite3
 
-      - name: Test Backend
-        run: npm run server:test
+      - run: npm test
+        working-directory: v4
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v4
@@ -110,15 +84,14 @@ jobs:
           flavor: latest=false
           tags: |
             type=raw,value=${{ steps.release.outputs.version }},enable=${{ github.ref_type == 'tag' }}
-            type=raw,value=latest,enable=${{ github.ref_type == 'tag' }}
             type=raw,value=${{ github.sha }}
 
       - name: Build BLEX candidate
         id: build
         uses: docker/build-push-action@v7
         with:
-          context: ./backend
-          file: ./backend/Dockerfile
+          context: ./v4
+          file: ./v4/Dockerfile
           platforms: linux/amd64,linux/arm64/v8
           pull: true
           no-cache-filters: runtime
@@ -127,6 +100,20 @@ jobs:
           labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
+
+      - name: Build migration candidate
+        id: migration
+        uses: docker/build-push-action@v7
+        with:
+          context: ./v4
+          file: ./v4/Dockerfile
+          target: migration
+          platforms: linux/amd64,linux/arm64/v8
+          pull: true
+          push: true
+          tags: ${{ env.IMAGE }}:${{ github.sha }}-migration
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
 
       - name: Scan AMD64 candidate
         uses: ./.github/actions/image-security
@@ -143,28 +130,55 @@ jobs:
           platform: linux/arm64
           category: blex-container-arm64
 
+      - name: Scan AMD64 migration candidate
+        uses: ./.github/actions/image-security
+        with:
+          image: ${{ env.IMAGE }}@${{ steps.migration.outputs.digest }}
+          platform: linux/amd64
+          category: blex-migration-amd64
+
+      - name: Scan ARM64 migration candidate
+        if: ${{ !cancelled() && steps.migration.outcome == 'success' }}
+        uses: ./.github/actions/image-security
+        with:
+          image: ${{ env.IMAGE }}@${{ steps.migration.outputs.digest }}
+          platform: linux/arm64
+          category: blex-migration-arm64
+
       - name: Publish verified release tags
         if: github.ref_type == 'tag'
         env:
           RELEASE_VERSION: ${{ steps.release.outputs.version }}
           IMAGE_DIGEST: ${{ steps.build.outputs.digest }}
+          MIGRATION_DIGEST: ${{ steps.migration.outputs.digest }}
         run: |
+          major="${RELEASE_VERSION%%.*}"
           docker buildx imagetools create \
             --tag "${IMAGE}:${RELEASE_VERSION}" \
-            --tag "${IMAGE}:latest" \
+            --tag "${IMAGE}:${major}" \
             "${IMAGE}@${IMAGE_DIGEST}"
+          docker buildx imagetools create \
+            --tag "${IMAGE}:${RELEASE_VERSION}-migration" \
+            --tag "${IMAGE}:${major}-migration" \
+            "${IMAGE}@${MIGRATION_DIGEST}"
 
       - name: Verify multi-platform release image
         if: github.ref_type == 'tag'
         env:
           RELEASE_VERSION: ${{ steps.release.outputs.version }}
           IMAGE_DIGEST: ${{ steps.build.outputs.digest }}
+          MIGRATION_DIGEST: ${{ steps.migration.outputs.digest }}
         shell: bash
         run: |
-          manifest=$(docker buildx imagetools inspect "${IMAGE}:${RELEASE_VERSION}")
-          grep -q 'linux/amd64' <<< "$manifest"
-          grep -q 'linux/arm64' <<< "$manifest"
-          for tag in "$RELEASE_VERSION" latest; do
-            digest=$(docker buildx imagetools inspect "${IMAGE}:${tag}" | awk '/^Digest:/ { print $2 }')
-            test "$digest" = "$IMAGE_DIGEST"
+          major="${RELEASE_VERSION%%.*}"
+          for suffix in '' -migration; do
+            expected="$IMAGE_DIGEST"
+            if [[ "$suffix" == -migration ]]; then expected="$MIGRATION_DIGEST"; fi
+            for tag in "$RELEASE_VERSION$suffix" "$major$suffix"; do
+              manifest=$(docker buildx imagetools inspect "${IMAGE}:${tag}")
+              grep -q 'linux/amd64' <<< "$manifest"
+              grep -q 'linux/arm64' <<< "$manifest"
+              digest=$(awk '/^Digest:/ { print $2 }' <<< "$manifest")
+              test "$digest" = "$expected"
+            done
           done

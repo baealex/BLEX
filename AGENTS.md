@@ -4,20 +4,19 @@ AI Agents must read `docs/DEV_CONVENTION.md` before starting any development.
 
 ## Project Map
 
-- Backend Django app: `backend/src/board`
-- Backend settings and middleware: `backend/src/main`
-- Public resources: `backend/src/resources`
-- React islands: `backend/islands`
+- BLEX 4 Fastify routes and React SSR: `v4/src`
+- SQLite schema and migrations: `v4/prisma`
+- Tests and fixtures: `v4/test`
+- BLEX 3.x compatibility reference: `backend`
 - Project docs: `docs`
 
 ## Development Commands
 
-- Install dependencies: `npm i`
+- Install dependencies: `npm install`
 - Start local development: `npm run dev`
-- Run backend tests: `npm run server:test`
-- Run island unit tests: `npm run islands:test`
-- Run island lint: `npm run islands:lint`
-- Run island type checks: `npm run islands:type-check`
+- Build the application: `npm run build`
+- Run tests: `npm test`
+- Run TypeScript checks: `npm --prefix v4 run type-check`
 
 ## Agent-Readable Public Surface
 
