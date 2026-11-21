@@ -67,7 +67,7 @@ function seedDatabase() {
       (3, 'Later note', 'not in the earlier snapshot', '', '', '2025-01-03 00:00:00', 1),
       (4, 'Other log entry', 'other owner data', '', '', '2025-01-01 00:00:00', 3);
     INSERT INTO board_worklogshare VALUES
-      (1, '${shareToken}', 'Existing snapshot', '2025-01-04 00:00:00', 1);
+      (1, '${shareToken.replaceAll('-', '')}', 'Existing snapshot', '2025-01-04 00:00:00', 1);
     INSERT INTO board_worklogshare_entries VALUES (1, 1, 2);
   `);
   database.close();

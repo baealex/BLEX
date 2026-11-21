@@ -380,6 +380,7 @@ async function deleteSeries(db: PrismaClient, ownerId: number, seriesId: number)
     `;
     if (!row) return false;
     await tx.$executeRaw`UPDATE board_post SET series_id = NULL WHERE series_id = ${seriesId}`;
+    await tx.$executeRaw`DELETE FROM board_seriesconfigmeta WHERE post_id = ${seriesId}`;
     await tx.$executeRaw`DELETE FROM board_series WHERE id = ${seriesId} AND owner_id = ${ownerId}`;
     return true;
   });

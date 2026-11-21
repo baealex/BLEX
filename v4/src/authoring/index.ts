@@ -461,10 +461,37 @@ async function permanentlyDeleteTrashedPost(
   if (!post.deletedDate || comparableDate(post.deletedDate) !== comparableDate(expectedDeletedDate)) {
     throw new PostValidationError('RJ', 'The trash state changed. Refresh the list and try again.');
   }
-  const deleted = await db.$executeRaw`
-    DELETE FROM board_post WHERE id = ${post.id} AND author_id = ${author.id} AND deleted_date = ${post.deletedDate}
+  const comments = Prisma.sql`
+    WITH RECURSIVE thread(id) AS (
+      SELECT id FROM board_comment WHERE post_id = ${post.id}
+      UNION SELECT child.id FROM board_comment AS child JOIN thread ON child.parent_id = thread.id
+    ) SELECT id FROM thread
   `;
-  if (numberValue(deleted) === 0) throw new PostValidationError('RJ', 'The trash state changed. Refresh the list and try again.');
+  await db.$transaction(async (tx) => {
+    const [current] = await tx.$queryRaw<unknown[]>`
+      SELECT 1 FROM board_post WHERE id = ${post.id} AND author_id = ${author.id} AND deleted_date = ${post.deletedDate}
+    `;
+    if (!current) throw new PostValidationError('RJ', 'The trash state changed. Refresh the list and try again.');
+    // Django applied these CASCADE and SET_NULL policies in its ORM.
+    const changes = [
+      Prisma.sql`DELETE FROM board_post_share_link_daily_counts WHERE link_id IN (SELECT id FROM board_postsharelink WHERE post_id = ${post.id})`,
+      Prisma.sql`DELETE FROM board_postsharelink WHERE post_id = ${post.id}`,
+      Prisma.sql`DELETE FROM board_comment_likes WHERE comment_id IN (${comments})`,
+      Prisma.sql`DELETE FROM board_comment WHERE id IN (${comments})`,
+      Prisma.sql`DELETE FROM board_postcontent WHERE post_id = ${post.id}`,
+      Prisma.sql`DELETE FROM board_postconfig WHERE post_id = ${post.id}`,
+      Prisma.sql`DELETE FROM board_postconfigmeta WHERE post_id = ${post.id}`,
+      Prisma.sql`DELETE FROM board_post_tags WHERE post_id = ${post.id}`,
+      Prisma.sql`DELETE FROM board_pinnedpost WHERE post_id = ${post.id}`,
+      Prisma.sql`DELETE FROM board_post_likes WHERE post_id = ${post.id}`,
+      Prisma.sql`UPDATE board_edithistory SET restored_from_id = NULL
+        WHERE restored_from_id IN (SELECT id FROM board_edithistory WHERE post_id = ${post.id})`,
+      Prisma.sql`DELETE FROM board_edithistory WHERE post_id = ${post.id}`,
+      Prisma.sql`DELETE FROM board_editrequest WHERE post_id = ${post.id}`,
+      Prisma.sql`DELETE FROM board_post WHERE id = ${post.id}`,
+    ];
+    for (const command of changes) await tx.$executeRaw(command);
+  }, { timeout: 15_000 });
   return post.id;
 }
 
@@ -879,7 +906,8 @@ function comparableDate(value: DbDate): string | null {
   const epoch = Date.parse(`${match[1]}T${match[2]}${match[4] ?? 'Z'}`);
   if (Number.isNaN(epoch)) return raw;
   const second = new Date(epoch).toISOString().slice(0, 19).replace('T', ' ');
-  return `${second}.${(match[3] ?? '').padEnd(6, '0').slice(0, 6)}`;
+  // API and page tokens carry milliseconds, while Django stored microseconds.
+  return `${second}.${(match[3] ?? '').padEnd(3, '0').slice(0, 3)}`;
 }
 
 function assertExpectedUpdatedAt(actual: DbDate, expected: string | undefined): void {
@@ -1027,6 +1055,7 @@ async function updatePost(
     expectedUpdatedDate?: DbDate;
     preserveTags?: boolean;
     preserveExistingHtml?: boolean;
+    clearContent?: boolean;
   },
 ): Promise<AuthoringSaveResult> {
   const validation = validatePostInput(input, options.allowEmptyBody);
@@ -1034,7 +1063,7 @@ async function updatePost(
   const isStoredDraft = post.publishedDate === null;
   const html = options.preserveExistingHtml
     ? post.contentHtml
-    : input.text ? resolveContent(input) : null;
+    : input.text ? resolveContent(input) : options.clearContent ? '' : null;
   if (!options.allowEmptyBody && !html) throw new PostValidationError('VA', 'Enter some content.');
   if (html !== null && !options.allowEmptyBody && !html) throw new PostValidationError('VA', 'Enter some content.');
   const schedule = input.reservedDate ? scheduledDate(input.reservedDate) : { value: null, error: null };
@@ -1728,14 +1757,18 @@ function apiPostBase(post: StoredPost, contentHtml: string): Record<string, unkn
   };
 }
 
+function hasPostContent(body: Record<string, unknown>): boolean {
+  return ['content_html', 'content', 'text_html', 'text_md', 'content_markdown', 'markdown']
+    .some((key) => Object.hasOwn(body, key));
+}
+
 async function preservePostOmissions(
   db: PrismaClient,
   post: StoredPost,
   body: Record<string, unknown>,
   input: AuthoringPostInput,
 ): Promise<AuthoringPostInput> {
-  const hasText = ['content_html', 'content', 'text_html', 'text_md', 'content_markdown', 'markdown']
-    .some((key) => Object.hasOwn(body, key));
+  const hasText = hasPostContent(body);
   const tags = await postTags(db, post.id);
   const isScheduled = Boolean(dateAsIso(post.publishedDate) && new Date(dateAsIso(post.publishedDate)!).valueOf() > Date.now());
   const reservedDate = Object.hasOwn(body, 'reserved_date')
@@ -1884,8 +1917,12 @@ export async function updateAuthorPost(
   assertExpectedUpdatedAt(post.updatedDate, expectedUpdatedAt);
   const input = await preservePostOmissions(db, post, body, parseAuthoringPostInput(body));
   const isDraft = post.publishedDate === null;
+  const hasContent = hasPostContent(body);
+  if (!isDraft && Object.hasOwn(body, 'title') && !input.title) throw new PostValidationError('VA', 'Enter a title.');
+  if (!isDraft && hasContent && !input.text.trim()) throw new PostValidationError('VA', 'Enter some content.');
   return updatePost(db, author, post, input, {
-    allowEmptyBody: isDraft || !input.text,
+    allowEmptyBody: isDraft || !hasContent,
+    clearContent: isDraft && hasContent && !input.text,
     updateDraft: isDraft,
     preserveTags: !Object.hasOwn(body, 'tags') && !Object.hasOwn(body, 'tag'),
     expectedUpdatedDate: expectedUpdatedAt === undefined ? undefined : post.updatedDate,
@@ -1994,10 +2031,15 @@ async function loadRevision(
 }
 
 async function deleteRevision(db: PrismaClient, postId: number, revisionId: number): Promise<boolean> {
-  const deleted = await db.$executeRaw`
-    DELETE FROM board_edithistory WHERE post_id = ${postId} AND id = ${revisionId} AND change_type <> 'draft'
-  `;
-  return numberValue(deleted) > 0;
+  return db.$transaction(async (tx) => {
+    const [target] = await tx.$queryRaw<unknown[]>`
+      SELECT 1 FROM board_edithistory WHERE post_id = ${postId} AND id = ${revisionId} AND change_type <> 'draft'
+    `;
+    if (!target) return false;
+    await tx.$executeRaw`UPDATE board_edithistory SET restored_from_id = NULL WHERE restored_from_id = ${revisionId}`;
+    await tx.$executeRaw`DELETE FROM board_edithistory WHERE id = ${revisionId}`;
+    return true;
+  });
 }
 
 async function restoreRevision(
@@ -2441,7 +2483,10 @@ export function registerAuthoring(
           await trashPost(db, account, post);
           return reply.redirect(`/@${encodeURIComponent(account.username)}`, 302);
         }
-        const input = inputFromEditorForm(body);
+        const parsedInput = inputFromEditorForm(body);
+        // The editor form has no advertising control, so an omitted flag keeps the stored value.
+        const keepsAdvertise = !Object.hasOwn(body, 'is_advertise') && !Object.hasOwn(body, 'advertise');
+        const input = keepsAdvertise ? { ...parsedInput, advertise: isTrue(post.advertise) } : parsedInput;
         try {
           if (post.publishedDate === null && action === 'publish') {
             const saved = await updatePost(db, account, post, input, {

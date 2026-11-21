@@ -145,8 +145,8 @@ export function registerAuthorForms(app: FastifyInstance, db: PrismaClient, opti
         else {
           const timestamp = new Date().toISOString().slice(0, -1).replace('T', ' ');
           const [created] = await db.$queryRaw<Array<{ id: number }>>`
-            INSERT INTO board_form (title, content, user_id, created_date)
-            VALUES (${title}, ${content}, ${editor.id}, ${timestamp}) RETURNING id
+            INSERT INTO board_form (title, content, is_public, user_id, created_date, updated_date)
+            VALUES (${title}, ${content}, 0, ${editor.id}, ${timestamp}, ${timestamp}) RETURNING id
           `;
           if (!html) return done({ id: created.id });
         }

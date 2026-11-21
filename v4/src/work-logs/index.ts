@@ -200,7 +200,7 @@ async function readShare(db: PrismaClient, token: string): Promise<ShareRow | nu
      WHERE share.token = ${token} AND owner.is_active = 1
      LIMIT 1
   `;
-  return row ?? null;
+  return row ? { ...row, token: publicShareToken(row.token) } : null;
 }
 
 async function countEntries(db: PrismaClient, logId: number): Promise<number> {
@@ -229,13 +229,14 @@ async function readEntries(
 }
 
 async function readShares(db: PrismaClient, logId: number, page: number): Promise<WorkLogShareView[]> {
-  return db.$queryRaw<WorkLogShareView[]>`
+  const rows = await db.$queryRaw<WorkLogShareView[]>`
     SELECT share.id, share.token, share.headline, CAST(share.created_at AS TEXT) AS createdAt
       FROM board_worklogshare AS share
      WHERE share.log_id = ${logId}
      ORDER BY share.created_at DESC, share.id DESC
      LIMIT ${PAGE_SIZE} OFFSET ${(page - 1) * PAGE_SIZE}
   `;
+  return rows.map((row) => ({ ...row, token: publicShareToken(row.token) }));
 }
 
 async function readSnapshotEntries(db: PrismaClient, shareId: number, page: number): Promise<EntryRow[]> {
@@ -387,8 +388,14 @@ function csrfValid(request: FastifyRequest, options: WorkLogOptions): boolean {
   }
 }
 
-function isValidShareToken(value: string): boolean {
-  return /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(value);
+/** Django stores UUIDs as 32 hex characters in SQLite and publishes them with hyphens. */
+function storedShareToken(value: string): string | null {
+  if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(value)) return null;
+  return value.replaceAll('-', '').toLowerCase();
+}
+
+function publicShareToken(stored: string): string {
+  return stored.replace(/^(.{8})(.{4})(.{4})(.{4})(.{12})$/, '$1-$2-$3-$4-$5');
 }
 
 async function selectedEntries(db: PrismaClient, logId: number, ids: number[]): Promise<EntryRow[]> {
@@ -404,11 +411,11 @@ async function selectedEntries(db: PrismaClient, logId: number, ids: number[]): 
 }
 
 function sharePath(token: string): string {
-  return `/work-logs/share/${token}/`;
+  return `/work-logs/share/${publicShareToken(token)}/`;
 }
 
 async function createShare(db: PrismaClient, logId: number, headline: string, entries: EntryRow[]): Promise<string> {
-  const token = randomUUID();
+  const token = randomUUID().replaceAll('-', '');
   const createdAt = djangoTimestamp();
   await db.$transaction(async (transaction) => {
     await transaction.$executeRaw`
@@ -792,12 +799,18 @@ export function registerWorkLogs(app: FastifyInstance, db: PrismaClient, options
       const user = await currentUser(request, reply, options);
       if (!user) return reply;
       const logId = parseId(request.params.pk);
-      if (logId === null || !isValidShareToken(request.params.token)) return notFound(reply);
+      const shareToken = storedShareToken(request.params.token);
+      if (logId === null || !shareToken) return notFound(reply);
       const log = await readOwnedLog(db, logId, user.id);
       if (!log) return notFound(reply);
-      const deleted = await db.$executeRaw`
-        DELETE FROM board_worklogshare WHERE log_id = ${logId} AND token = ${request.params.token.toLowerCase()}
-      `;
+      const deleted = await db.$transaction(async (transaction) => {
+        await transaction.$executeRaw`
+          DELETE FROM board_worklogshare_entries WHERE worklogshare_id IN (
+            SELECT id FROM board_worklogshare WHERE log_id = ${logId} AND token = ${shareToken}
+          )
+        `;
+        return transaction.$executeRaw`DELETE FROM board_worklogshare WHERE log_id = ${logId} AND token = ${shareToken}`;
+      });
       if (deleted !== 1) return notFound(reply);
       return reply.redirect(`/work-logs/${logId}/`, 302);
     });
@@ -881,8 +894,9 @@ export function registerWorkLogs(app: FastifyInstance, db: PrismaClient, options
     });
 
     routes.get<{ Params: { token: string } }>('/work-logs/share/:token/', async (request, reply) => {
-      if (!isValidShareToken(request.params.token)) return notFound(reply);
-      const share = await readShare(db, request.params.token.toLowerCase());
+      const shareToken = storedShareToken(request.params.token);
+      if (!shareToken) return notFound(reply);
+      const share = await readShare(db, shareToken);
       if (!share) return notFound(reply);
       const total = await entryCountForShare(db, share.id);
       if (total === 0) return notFound(reply);
@@ -930,8 +944,9 @@ export function registerWorkLogs(app: FastifyInstance, db: PrismaClient, options
     });
 
     routes.get<{ Params: { token: string; entry_id: string } }>('/work-logs/share/:token/media/:entry_id/', async (request, reply) => {
-      if (!isValidShareToken(request.params.token)) return notFound(reply);
-      const share = await readShare(db, request.params.token.toLowerCase());
+      const shareToken = storedShareToken(request.params.token);
+      if (!shareToken) return notFound(reply);
+      const share = await readShare(db, shareToken);
       const entryId = parseId(request.params.entry_id);
       if (!share || entryId === null) return notFound(reply);
       const entry = await pageEntryForShareMedia(db, share.id, share.logId, entryId);

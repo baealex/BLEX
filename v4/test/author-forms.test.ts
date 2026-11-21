@@ -17,11 +17,13 @@ database.exec(`
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     title TEXT NOT NULL,
     content TEXT NOT NULL,
+    is_public BOOLEAN NOT NULL,
     user_id INTEGER NOT NULL,
-    created_date DATETIME NOT NULL
+    created_date DATETIME NOT NULL,
+    updated_date DATETIME NOT NULL
   );
-  INSERT INTO board_form (id, title, content, user_id, created_date)
-  VALUES (1, '첫 서식', '첫 번째 문단', 1, '2024-02-01 00:30:00');
+  INSERT INTO board_form (id, title, content, is_public, user_id, created_date, updated_date)
+  VALUES (1, '첫 서식', '첫 번째 문단', 0, 1, '2024-02-01 00:30:00', '2024-02-01 00:30:00');
 `);
 database.close();
 

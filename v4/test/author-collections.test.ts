@@ -27,6 +27,10 @@ function createSchema() {
       layout TEXT NOT NULL DEFAULT 'list', created_date DATETIME NOT NULL, updated_date DATETIME NOT NULL,
       owner_id INTEGER NOT NULL, name TEXT NOT NULL
     );
+    CREATE TABLE board_seriesconfigmeta (
+      id INTEGER PRIMARY KEY, name TEXT NOT NULL, value TEXT NOT NULL, created_date DATETIME NOT NULL,
+      updated_date DATETIME NOT NULL, post_id INTEGER NOT NULL
+    );
     CREATE TABLE board_post (
       id INTEGER PRIMARY KEY, url TEXT NOT NULL UNIQUE, title TEXT NOT NULL, image TEXT NOT NULL DEFAULT '',
       published_date DATETIME, deleted_date DATETIME, author_id INTEGER NOT NULL, series_id INTEGER,
