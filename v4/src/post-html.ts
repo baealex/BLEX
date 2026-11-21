@@ -136,6 +136,36 @@ export function sanitizePostHtml(html: string): string {
   return sanitizeHtml(html, postHtmlOptions);
 }
 
+const commentHtmlOptions: sanitizeHtml.IOptions = {
+  ...postHtmlOptions,
+  allowedTags: [
+    'div', 'p', 'span', 'a', 'img', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'ul', 'ol', 'li', 'br', 'strong', 'em', 'b', 'i', 'u',
+    'blockquote', 'code', 'pre', 'hr', 'small', 'sub', 'sup', 'mark', 'del', 'ins', 's', 'figure', 'figcaption', 'table', 'thead',
+    'tbody', 'tfoot', 'tr', 'th', 'td', 'video', 'source', 'iframe', 'input',
+  ],
+  allowedAttributes: {
+    a: ['href', 'title', 'target', 'rel', 'class'],
+    img: ['src', 'alt', 'title', 'width', 'height', 'class', 'loading'],
+    ul: ['class'], li: ['class'], code: ['class'], pre: ['class'], figure: ['class'],
+    th: ['colspan', 'rowspan'], td: ['colspan', 'rowspan'],
+    video: ['class', 'autoplay', 'muted', 'loop', 'playsinline', 'controls', 'poster'],
+    source: ['src', 'type'],
+    iframe: ['src', 'title', 'allow', 'allowfullscreen', 'frameborder', 'loading', 'referrerpolicy'],
+    input: ['type', 'checked', 'disabled'],
+  },
+  allowedClasses: {
+    a: ['mention'], img: ['lazy'], video: ['lazy'], ul: ['task-list'], li: ['checkbox', 'checked', 'task-list-item'],
+    figure: ['col-1', 'col-2', 'col-3'],
+    pre: ['highlight', 'codehilite', 'lang-*', 'language-*'], code: ['highlight', 'codehilite', 'lang-*', 'language-*'],
+  },
+  allowedStyles: {},
+};
+
+/** Comments keep the narrower 3.x allowlist; post layout attributes do not apply to them. */
+export function sanitizeCommentHtml(html: string): string {
+  return sanitizeHtml(html, commentHtmlOptions);
+}
+
 export function postOutline(html: string) {
   if (!/<h[1-6][\s>]/.test(html)) return { html, headings: [] };
   const document = parseDocument(html, { withStartIndices: true });

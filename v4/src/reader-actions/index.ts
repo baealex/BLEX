@@ -2,7 +2,7 @@ import formBody from '@fastify/formbody';
 import { Prisma, type PrismaClient } from '@prisma/client';
 import type { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify';
 import { createNotification } from '../notifications/model.js';
-import { sanitizePostHtml } from '../post-html.js';
+import { sanitizeCommentHtml } from '../post-html.js';
 import { publicPostPath } from '../posts.js';
 
 export interface ReaderActionUser {
@@ -127,6 +127,8 @@ export interface ReaderPostView {
 
 const DEFAULT_AVATAR = '/resources/assets/images/default-avatar.jpg';
 const DEFAULT_LANGUAGE_DELETED_COMMENT = '<p>삭제된 댓글입니다.</p>';
+// A percent-encoded Korean character takes nine bytes, so 10,000 characters need about 90 KiB.
+const commentBodyLimit = 128 * 1024;
 
 function done(body: object = {}): Record<string, unknown> {
   return { status: 'DONE', body };
@@ -201,25 +203,25 @@ function parseStoredDate(value: DbDate): Date | null {
   return Number.isNaN(date.valueOf()) ? null : date;
 }
 
-function relativeDate(value: DbDate): string {
+/** Follows the 3.x comment date: a calendar date after a year, otherwise the largest elapsed unit. */
+export function timeSince(value: DbDate, now = new Date()): string {
   const date = parseStoredDate(value);
   if (!date) return '';
-  const seconds = Math.max(0, Math.floor((Date.now() - date.valueOf()) / 1000));
-  if (seconds >= 365 * 24 * 60 * 60) {
-    const localDate = new Date(date.valueOf() + 9 * 60 * 60 * 1000);
-    return `${localDate.getUTCFullYear()}. ${localDate.getUTCMonth() + 1}. ${localDate.getUTCDate()}.`;
+  if (now.valueOf() - date.valueOf() > 365 * 24 * 60 * 60 * 1000) {
+    const local = new Date(date.valueOf() + 9 * 60 * 60 * 1000);
+    return `${local.getUTCFullYear()}년 ${local.getUTCMonth() + 1}월 ${local.getUTCDate()}일`;
   }
-  const units: Array<[number, string]> = [
-    [30 * 24 * 60 * 60, 'month'],
-    [7 * 24 * 60 * 60, 'week'],
-    [24 * 60 * 60, 'day'],
-    [60 * 60, 'hour'],
-    [60, 'minute'],
-    [1, 'second'],
-  ];
-  const [unitSeconds, unit] = units.find(([size]) => seconds >= size) ?? units.at(-1)!;
-  const amount = Math.floor(seconds / unitSeconds);
-  return `${new Intl.NumberFormat('en').format(amount)} ${unit}${amount === 1 ? '' : 's'} ago`;
+  const withinMonth = (moment: Date) => moment.valueOf() - Date.UTC(moment.getUTCFullYear(), moment.getUTCMonth(), 1);
+  const months = (now.getUTCFullYear() - date.getUTCFullYear()) * 12 + now.getUTCMonth() - date.getUTCMonth()
+    - (withinMonth(date) > withinMonth(now) ? 1 : 0);
+  if (months >= 12) return `${Math.floor(months / 12)}년 전`;
+  if (months > 0) return `${months}개월 전`;
+  const minutes = Math.max(0, Math.floor((now.valueOf() - date.valueOf()) / 60_000));
+  const units: Array<[number, string]> = [[7 * 24 * 60, '주'], [24 * 60, '일'], [60, '시간']];
+  for (const [size, label] of units) {
+    if (minutes >= size) return `${Math.floor(minutes / size)}${label} 전`;
+  }
+  return `${minutes}분 전`;
 }
 
 function localDateOnly(value: DbDate): string {
@@ -401,7 +403,7 @@ function serializeComment(
   const canReply = viewerId !== null && !deleted && canAcceptReplies;
   const content = deleted
     ? DEFAULT_LANGUAGE_DELETED_COMMENT
-    : sanitizePostHtml(comment.textHtml ?? '');
+    : sanitizeCommentHtml(comment.textHtml ?? '');
   return {
     id: comment.id,
     author: deleted ? 'Ghost' : comment.username ?? 'Ghost',
@@ -410,7 +412,7 @@ function serializeComment(
     isEdited: isTrue(comment.edited),
     isDeleted: deleted,
     renderedContent: content,
-    createdDate: relativeDate(comment.createdDate),
+    createdDate: timeSince(comment.createdDate),
     countLikes: numberValue(comment.likeCount),
     isLiked: isTrue(comment.isLiked),
     permissions: { canEdit, canDelete, canLike, canReply },
@@ -681,7 +683,7 @@ export function registerReaderActions(
       return done(await publicComments(db, request.params.url, user?.id ?? null));
     });
 
-    routes.post('/v1/comments', async (request, reply) => {
+    routes.post('/v1/comments', { bodyLimit: commentBodyLimit }, async (request, reply) => {
       if (!requestCsrfAccepted(request, options)) return forbidden(reply);
       const body = asBodyObject(request.body);
       const slug = typeof request.query === 'object' && request.query !== null
@@ -740,6 +742,7 @@ export function registerReaderActions(
     routes.route<{ Params: { id: string } }>({
       method: ['GET', 'POST', 'PUT', 'DELETE'],
       url: '/v1/comments/:id',
+      bodyLimit: commentBodyLimit,
       handler: async (request, reply) => {
         const id = Number(request.params.id);
         if (!Number.isSafeInteger(id) || id < 1) return missing(reply);

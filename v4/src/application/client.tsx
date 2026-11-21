@@ -48,7 +48,7 @@ interface ApplicationDocument {
   url: string;
   head: PageHead;
   bodyAttributes: Array<[string, string]>;
-  pageModules: Array<{ name: 'login' | 'editor'; source: string }>;
+  pageModules: Array<{ name: 'login' | 'editor' | 'comments'; source: string }>;
   needsHcaptcha: boolean;
 }
 
@@ -166,7 +166,7 @@ function pageModuleSources(source: Document): ApplicationDocument['pageModules']
     .map((script): ApplicationDocument['pageModules'][number] | null => {
       const name = script.dataset.blexPageModule;
       const src = script.getAttribute('src');
-      if ((name !== 'login' && name !== 'editor') || !src) return null;
+      if ((name !== 'login' && name !== 'editor' && name !== 'comments') || !src) return null;
       return { name, source: src };
     })
     .filter((entry): entry is ApplicationDocument['pageModules'][number] => entry !== null);

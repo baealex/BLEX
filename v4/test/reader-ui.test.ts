@@ -204,8 +204,8 @@ test('renders accessible SSR author, like, comment and subscription controls', a
   assert.match(signedInHtml, /action="\/v1\/comments\?url=public-post"/);
   assert.match(signedInHtml, /name="csrfmiddlewaretoken" value="rrrr/);
   assert.match(signedInHtml, /aria-pressed="true">구독 중<\/button>/);
-  assert.match(signedInHtml, /댓글 등록/);
-  assert.match(signedInHtml, /name="action" value="delete"/);
+  assert.match(signedInHtml, />댓글 작성<\/button>/);
+  assert.match(signedInHtml, /aria-label="댓글 옵션 열기"/);
   assert.doesNotMatch(signedInHtml, /name="parent_id" value="11"/);
 });
 
