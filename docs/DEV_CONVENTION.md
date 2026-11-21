@@ -45,7 +45,21 @@
 - `♻️ Improve settings post management UX and pinning guards`
 
 ## Environment Setup
-- Complete environment setup (backend + frontend) can be done with `npm i`.
+
+- Run `npm install` at the repository root. Use `npm run dev` for the local Node app with its separate SQLite database under `v4/.local/`.
+- Use `npm run build`, `npm test` and `npm --prefix v4 run type-check` to verify changes.
+
+## BLEX 4
+
+- Fastify routes, React SSR, and the Vite client entries live in `v4/src/`. Use `renderApplicationDocument` for app pages so direct visits receive SSR and internal links use the shared React router. Keep initial page data in the route's SSR response. Mount and clean up browser-only features with their route.
+- Keep authorization, data validation, and ownership checks in shared server services used by the routes that perform the same operation.
+- Register public GraphQL operations in `v4/src/graphql.ts`. Keep their results subject to the same visibility rules as the HTTP routes.
+- Add regression tests in `v4/test/` and run them with `npm test`. Verify migration changes on an empty SQLite database and a 3.x copy using the [upgrade guide](../v4/README.md).
+- Apply the design and UI change guides below to new React pages.
+
+## BLEX 3.x reference
+
+The remaining conventions cover changes to the historical Django app and its React islands.
 
 ## Backend Guidelines
 - **Always read `docs/BACKEND_GUIDE.md` first.**

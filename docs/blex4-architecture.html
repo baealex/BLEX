@@ -1,0 +1,423 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light">
+  <title>BLEX 4 기술 구조와 요청 흐름</title>
+  <style>
+    :root {
+      --ink: #18263a;
+      --muted: #526278;
+      --paper: #fff;
+      --canvas: #f1f4f8;
+      --line: #dce4ee;
+      --navy: #152740;
+      --blue: #244f9c;
+      --soft-blue: #eaf1fd;
+      --teal: #155b56;
+      --soft-teal: #e7f4f0;
+      --mono: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--canvas);
+      color: var(--ink);
+      font: 15px/1.68 "Pretendard", "Apple SD Gothic Neo", "Malgun Gothic", "Noto Sans KR", system-ui, sans-serif;
+      word-break: keep-all;
+      overflow-wrap: anywhere;
+    }
+    [hidden] { display: none !important; }
+    a { color: var(--blue); text-underline-offset: .22em; }
+    a:focus-visible, button:focus-visible { outline: 3px solid #3373dc; outline-offset: 4px; }
+    h1, h2, h3, h4, p, figure { margin: 0; }
+    h1, h2, h3, h4 { line-height: 1.24; letter-spacing: -.035em; }
+    code, pre { font-family: var(--mono); font-size: .87em; }
+    :not(pre) > code { background: var(--soft-blue); color: #284978; border-radius: 4px; padding: .12em .3em; }
+    .wrap { width: min(1180px, calc(100% - 72px)); margin-inline: auto; }
+    .site-header { background: var(--paper); border-bottom: 1px solid var(--line); }
+    .site-header .wrap { display: flex; min-height: 62px; align-items: center; justify-content: space-between; gap: 24px; }
+    .brand { font-size: 18px; font-weight: 830; letter-spacing: -.035em; text-decoration: none; color: var(--ink); }
+    .site-header nav { display: flex; gap: 24px; flex-wrap: wrap; }
+    .site-header nav a { color: var(--muted); font-size: 13px; font-weight: 680; text-decoration: none; }
+    .site-header nav a:hover { color: var(--blue); }
+    .hero { padding: 50px 0 30px; }
+    h1 { font-size: clamp(33px, 5vw, 59px); font-weight: 820; text-wrap: balance; }
+    .hero p { color: var(--muted); max-width: 65ch; margin-top: 16px; font-size: 16px; }
+    main section { scroll-margin-top: 20px; }
+    .section { margin-top: 39px; }
+    .section-heading { margin-bottom: 14px; }
+    h2 { font-size: 27px; margin-bottom: 5px; }
+    .section-heading p { color: var(--muted); font-size: 14px; }
+    .card { background: var(--paper); border: 1px solid var(--line); border-radius: 18px; }
+    .architecture {
+      display: grid;
+      grid-template-columns: minmax(154px, .75fr) 32px minmax(320px, 1.75fr) 32px minmax(160px, .78fr);
+      align-items: stretch;
+      padding: 19px;
+      background: #e7edf5;
+      border: 1px solid var(--line);
+      border-radius: 21px;
+    }
+    .node { background: var(--paper); border: 1px solid #d4dfec; border-radius: 14px; padding: 20px 17px; }
+    .node h3 { margin-bottom: 8px; font-size: 18px; }
+    .node p { font-size: 13px; color: var(--muted); }
+    .node p + h3 { margin-top: 18px; }
+    .node.browser { display: flex; flex-direction: column; justify-content: center; }
+    .node.storage { display: grid; align-content: center; }
+    .arrow { align-self: center; justify-self: center; font-weight: 750; color: #476385; font-size: 20px; }
+    .server { background: var(--navy); color: #fff; border-radius: 14px; padding: 17px; }
+    .server-title { display: flex; align-items: baseline; gap: 8px 12px; justify-content: space-between; flex-wrap: wrap; margin-bottom: 12px; }
+    .server-title h3 { font-size: 20px; }
+    .server-title p { color: #b9c9e2; font-size: 12px; }
+    .lanes { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 7px; }
+    .lane { background: #233a58; border: 1px solid #344c6d; padding: 9px 10px; border-radius: 8px; }
+    .lane strong { font-size: 13px; font-weight: 760; }
+    .lane p { color: #d6e0ee; font-size: 12px; line-height: 1.45; }
+    .architecture-note { margin-top: 10px; color: #3f5168; font-size: 13px; }
+    .flow-shell { padding: 16px; }
+    .tabs { display: none; flex-wrap: wrap; gap: 7px; padding: 5px; margin-bottom: 17px; background: #eef2f7; border-radius: 11px; }
+    .has-tabs .tabs { display: flex; }
+    .tabs button {
+      cursor: pointer;
+      flex: 1 1 135px;
+      min-height: 44px;
+      border: 1px solid transparent;
+      border-radius: 8px;
+      color: #465a76;
+      font: inherit;
+      font-size: 14px;
+      font-weight: 720;
+      background: transparent;
+    }
+    .tabs button:hover { background: #e2e9f4; }
+    .tabs button[aria-selected="true"] { color: var(--navy); background: #fff; border-color: var(--line); box-shadow: 0 1px 3px #15274013; }
+    .panel { display: grid; grid-template-columns: minmax(0, 1.65fr) minmax(0, 1fr); gap: 19px; padding: 10px 10px 8px; }
+    .panel + .panel { margin-top: 20px; padding-top: 20px; border-top: 1px solid var(--line); }
+    .has-tabs .panel { margin-top: 0; padding-top: 10px; border: 0; }
+    .panel h3 { font-size: 20px; margin-bottom: 5px; }
+    .panel-lead { color: var(--muted); font-size: 13px; margin-bottom: 12px; }
+    .steps { list-style: none; padding: 0; margin: 0; counter-reset: step; }
+    .steps li { position: relative; counter-increment: step; padding: 0 0 13px 42px; }
+    .steps li:last-child { padding-bottom: 0; }
+    .steps li::before {
+      content: counter(step);
+      position: absolute;
+      top: 0;
+      left: 0;
+      display: grid;
+      z-index: 1;
+      width: 28px;
+      height: 28px;
+      place-items: center;
+      border: 1px solid #cfddf5;
+      border-radius: 50%;
+      background: var(--soft-blue);
+      color: var(--blue);
+      font: 700 12px/1 var(--mono);
+    }
+    .steps li:not(:last-child)::after { content: ""; position: absolute; inset: 22px auto -2px 14px; border-left: 1px solid #cbd9ed; }
+    .steps h4 { display: flex; align-items: baseline; flex-wrap: wrap; gap: 4px 8px; font-size: 15px; padding-top: 4px; }
+    .actor { color: var(--blue); font-size: 12px; font-weight: 750; white-space: nowrap; }
+    .steps p { font-size: 13px; color: var(--muted); margin-top: 4px; }
+    .trace { border: 1px solid #d9e3f1; border-radius: 11px; background: #f3f7fc; padding: 13px; }
+    .trace h4 { margin-bottom: 8px; font-size: 14px; }
+    .trace pre {
+      margin: 0;
+      padding: 12px;
+      border-radius: 8px;
+      background: var(--navy);
+      color: #eef4ff;
+      font-size: 12px;
+      line-height: 1.62;
+      white-space: pre-wrap;
+      overflow-wrap: anywhere;
+    }
+    .trace pre strong { color: #a6dcf0; font-weight: 750; }
+    .trace p { color: var(--muted); font-size: 12px; margin-top: 9px; }
+    .trace .source { border-top: 1px solid #d9e3f1; padding-top: 8px; }
+    .grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+    .stack { padding: 14px 15px; }
+    .stack h3 { font-size: 16px; margin-bottom: 6px; }
+    .stack strong { display: block; margin-bottom: 4px; color: var(--blue); font-size: 14px; }
+    .stack p { color: var(--muted); font-size: 13px; }
+    .table { padding: 4px 17px; }
+    .table dl { margin: 0; }
+    .table .row { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1.6fr); gap: 10px 18px; padding: 10px 0; }
+    .table .row + .row { border-top: 1px solid var(--line); }
+    .table dt, .table dd { margin: 0; font-size: 13px; }
+    .table dd { color: var(--muted); }
+    .table dt a { font-family: var(--mono); }
+    .upgrade { margin-top: 14px; padding: 13px 16px; border: 1px solid #c9e8e1; border-radius: 11px; background: var(--soft-teal); color: #264e4b; font-size: 13px; }
+    .upgrade strong { color: var(--teal); margin-right: 4px; }
+    footer { margin-top: 40px; border-top: 1px solid var(--line); padding: 17px 0 30px; color: var(--muted); font-size: 12px; }
+    @media (max-width: 980px) {
+      .wrap { width: calc(100% - 42px); }
+      .architecture { grid-template-columns: minmax(120px, 1fr) 20px minmax(280px, 2fr) 20px minmax(130px, 1fr); padding: 12px; }
+      .node { padding-inline: 13px; }
+      .panel { grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr); }
+    }
+    @media (max-width: 730px) {
+      .wrap { width: calc(100% - 30px); }
+      .site-header .wrap { min-height: 56px; gap: 13px; }
+      .site-header nav { gap: 12px; }
+      .site-header nav a { font-size: 12px; }
+      .hero { padding: 30px 0 19px; }
+      .hero p { font-size: 14px; margin-top: 11px; }
+      .architecture { grid-template-columns: minmax(0, 1fr); }
+      .node { padding-block: 12px; }
+      .arrow { transform: rotate(90deg); height: 25px; line-height: 25px; }
+      .node.storage { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 2px 12px; }
+      .node.storage h3 { margin-top: 0; grid-row: 1; }
+      .node.storage p { grid-row: 2; }
+      .section { margin-top: 27px; }
+      .section-heading { margin-bottom: 11px; }
+      h2 { font-size: 23px; }
+      .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .flow-shell { padding: 10px; }
+      .panel { grid-template-columns: minmax(0, 1fr); padding-inline: 5px; }
+      .tabs button { flex-basis: calc(50% - 4px); }
+      .table .row { grid-template-columns: minmax(0, 1fr); gap: 2px; }
+    }
+    @media print {
+      body, .card, .architecture { background: #fff; }
+      .wrap { width: 100%; }
+      .site-header, .tabs { display: none !important; }
+      .hero { padding: 0 0 12px; }
+      .panel[hidden] { display: grid !important; }
+      .panel { break-inside: avoid; margin-top: 12px !important; }
+      .architecture, .stack, .table .row { break-inside: avoid; }
+      .server, .lane, .trace pre { color: #000; background: #f2f5f8; }
+      .server-title p, .lane p, .trace pre strong { color: #152740; }
+    }
+  </style>
+</head>
+<body>
+  <header class="site-header">
+    <div class="wrap">
+      <a class="brand" href="#top">BLEX 4</a>
+      <nav aria-label="문서 목차">
+        <a href="#structure">구조</a>
+        <a href="#flows">요청 흐름</a>
+        <a href="#stack">기술 스택</a>
+        <a href="#source">코드 위치</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="wrap" id="top">
+    <div class="hero">
+      <h1>BLEX 4 기술 구조와 요청 흐름</h1>
+      <p>TypeScript로 작성한 Fastify 서버 한 프로세스가 React 화면과 API, 정적 파일을 제공합니다. 주소로 직접 접속하면 완성된 HTML을 받고, 그 뒤의 내부 이동은 브라우저의 공통 React 라우터가 처리합니다.</p>
+    </div>
+
+    <section id="structure" aria-label="실행 구조">
+      <figure>
+        <div class="architecture">
+          <div class="node browser">
+            <h3>브라우저</h3>
+            <p>React 앱 · React Router<br>공통 헤더, 내부 링크, 폼, 뒤로 가기</p>
+          </div>
+          <span class="arrow" aria-hidden="true">⇄</span>
+          <div class="server">
+            <div class="server-title">
+              <h3>Node.js · Fastify</h3>
+              <p>서비스 프로세스 1개</p>
+            </div>
+            <div class="lanes">
+              <div class="lane"><strong>페이지 GET</strong><p>React SSR로 HTML 생성</p></div>
+              <div class="lane"><strong>폼 · HTTP API</strong><p>세션 검사, 설정·글·댓글 처리</p></div>
+              <div class="lane"><strong>GraphQL</strong><p>등록된 조회 실행</p></div>
+              <div class="lane"><strong>정적 자산</strong><p>Vite 번들, CSS, 미디어 제공</p></div>
+            </div>
+          </div>
+          <span class="arrow" aria-hidden="true">⇄</span>
+          <div class="node storage">
+            <h3>SQLite</h3><p>Prisma로 읽고 쓰는 DB 파일</p>
+            <h3>미디어</h3><p>업로드가 저장되는 파일 디렉터리</p>
+          </div>
+        </div>
+        <figcaption class="architecture-note">홈·글·프로필 SSR은 서버 내부의 조회 함수를 직접 호출합니다. GraphQL은 별도의 조회 API로 같은 서버 안에 있습니다.</figcaption>
+      </figure>
+    </section>
+
+    <section class="section" id="flows">
+      <div class="section-heading">
+        <h2>요청 흐름</h2>
+        <p>탭을 바꿔 브라우저와 서버가 각각 하는 일을 비교할 수 있습니다.</p>
+      </div>
+      <div class="flow-shell card">
+        <div class="tabs" role="tablist" aria-label="요청 유형">
+          <button type="button" role="tab" id="first-tab" aria-controls="first-flow" aria-selected="true">홈 첫 접속</button>
+          <button type="button" role="tab" id="link-tab" aria-controls="link-flow" aria-selected="false">홈 → 글 상세</button>
+          <button type="button" role="tab" id="form-tab" aria-controls="form-flow" aria-selected="false">계정 설정 저장</button>
+          <button type="button" role="tab" id="graphql-tab" aria-controls="graphql-flow" aria-selected="false">GraphQL 조회</button>
+        </div>
+
+        <article class="panel" id="first-flow" role="tabpanel" aria-labelledby="first-tab" tabindex="0">
+          <div>
+            <h3>주소창에서 홈을 연다</h3>
+            <p class="panel-lead">브라우저가 새 문서를 요청하는 경우</p>
+            <ol class="steps">
+              <li><h4><span class="actor">브라우저</span> 홈 주소 요청</h4><p><code>GET /</code>를 보내고, 이전에 로그인했다면 세션 쿠키를 같이 보냅니다.</p></li>
+              <li><h4><span class="actor">Fastify</span> 홈 핸들러에서 데이터 조회</h4><p>페이지 번호를 검사하고 Prisma로 사이트 설정, 공개 글 목록과 전체 글 수를 읽습니다. 세션이 있으면 사용자와 읽지 않은 알림 수를 확인합니다. 공지와 글 카드의 좋아요 정보도 조회합니다.</p></li>
+              <li><h4><span class="actor">React SSR</span> 캐시 정책과 메타데이터가 있는 HTML 응답</h4><p><code>PageLayout</code>이 헤더, 최신 글 카드, 푸터, 제목과 canonical을 담아 <code>200 text/html</code>로 보냅니다. 로그인한 사용자의 HTML에는 <code>private, no-store</code>가 적용됩니다.</p></li>
+              <li><h4><span class="actor">브라우저</span> 먼저 표시하고 공통 라우터 연결</h4><p>받은 글 목록을 바로 표시합니다. Vite가 만든 앱 스크립트가 실행되면 <code>hydrateRoot</code>가 SSR 문서에 공통 React 앱을 연결합니다.</p></li>
+            </ol>
+          </div>
+          <aside class="trace" aria-label="홈 첫 접속의 HTTP 흐름">
+            <h4>브라우저에서 보이는 요청</h4>
+            <pre><strong>GET /</strong>
+  ← 200 text/html
+     헤더 · 글 목록 · 메타데이터
+GET /assets/blex/app.js
+  ← 302 /assets/ui/assets/…
+GET /assets/ui/assets/…
+  ← Vite가 빌드한 앱 JavaScript</pre>
+            <p>검색엔진도 첫 HTML에서 본문과 메타데이터를 읽을 수 있습니다. 글 주소에는 본문과 공개 글의 <code>BlogPosting</code> JSON-LD도 들어갑니다.</p>
+            <p class="source">관련 코드 <a href="../v4/src/public-pages/index.ts">홈 라우트</a> · <a href="../v4/src/application/document.tsx">SSR 문서</a></p>
+          </aside>
+        </article>
+
+        <article class="panel" id="link-flow" role="tabpanel" aria-labelledby="link-tab" tabindex="0">
+          <div>
+            <h3>홈에서 글 제목을 누른다</h3>
+            <p class="panel-lead">앱을 실행 중인 브라우저에서 내부 링크를 누르는 경우</p>
+            <ol class="steps">
+              <li><h4><span class="actor">React Router</span> 같은 출처의 링크 처리</h4><p>공통 앱이 클릭을 받아 <code>fetch</code>로 글 주소의 HTML을 요청합니다.</p></li>
+              <li><h4><span class="actor">Fastify</span> 글 상세를 서버에서 렌더링</h4><p>직접 주소를 열 때와 같은 <code>/@:username/:slug</code> 라우트입니다. 글을 볼 수 있는지 검사하고 상세 HTML을 만듭니다.</p></li>
+              <li><h4><span class="actor">브라우저</span> 주소, 본문, 메타데이터 교체</h4><p><code>ApplicationFrame</code>이 응답 HTML에서 본문을 표시하고 라우터가 제목과 canonical 등을 갱신합니다. 현재 브라우저 문서와 공통 헤더가 이어서 사용됩니다.</p></li>
+              <li><h4><span class="actor">브라우저</span> 스크롤과 화면 도구 연결</h4><p>새 글은 처음 위치에서 열리고 뒤로 가면 저장해 둔 위치로 바로 돌아갑니다. 로그인 폼과 글 편집기는 해당 화면에서 React 모듈을 로드합니다.</p></li>
+            </ol>
+          </div>
+          <aside class="trace" aria-label="글 상세 내부 이동의 HTTP 흐름">
+            <h4>같은 문서 안에서 바뀌는 부분</h4>
+            <pre><strong>링크 클릭</strong>
+  → fetch GET /@writer/hello
+  ← 200 text/html
+     제목 · canonical · 글 본문
+  → 본문 교체 · 주소 갱신
+  → 뒤로 가기 위치 저장 및 복원</pre>
+            <p>공통 React 앱이 서버에서 만든 화면 HTML을 라우트별로 가져옵니다. 공통 헤더는 React 컴포넌트이고, 화면 본문은 SSR HTML입니다.</p>
+            <p class="source">관련 코드 <a href="../v4/src/application/client.tsx">라우터와 로더</a> · <a href="../v4/src/application/frame.tsx">공통 화면</a></p>
+          </aside>
+        </article>
+
+        <article class="panel" id="form-flow" role="tabpanel" aria-labelledby="form-tab" tabindex="0">
+          <div>
+            <h3>계정 설정에서 표시 이름을 저장한다</h3>
+            <p class="panel-lead">브라우저가 폼을 보내고 서버 결과를 같은 앱에서 표시하는 경우</p>
+            <ol class="steps">
+              <li><h4><span class="actor">브라우저</span> 폼 데이터를 POST</h4><p>공통 앱이 폼 값을 모아 <code>POST /settings/account</code>로 보냅니다. 요청에는 세션 쿠키와 CSRF 토큰이 포함됩니다.</p></li>
+              <li><h4><span class="actor">Fastify</span> 요청과 데이터 검사</h4><p>세션과 CSRF를 검사하고, <code>intent=name</code>에 맞춰 표시 이름을 검증합니다. Prisma로 해당 계정의 값을 저장합니다.</p></li>
+              <li><h4><span class="actor">Fastify</span> 저장된 화면 주소 반환</h4><p>성공하면 <code>303</code>으로 <code>/settings/account?saved=1</code>을 안내합니다. 입력이 유효하지 않으면 오류를 담은 설정 화면 HTML을 반환합니다.</p></li>
+              <li><h4><span class="actor">React Router</span> 결과 화면 반영</h4><p>브라우저의 요청이 이동 주소를 따라가 최종 HTML을 받습니다. 공통 라우터가 그 결과를 현재 앱에 표시합니다.</p></li>
+            </ol>
+          </div>
+          <aside class="trace" aria-label="계정 설정 저장의 HTTP 흐름">
+            <h4>성공했을 때의 요청과 응답</h4>
+            <pre><strong>POST /settings/account</strong>
+  intent=name · name=…
+  ← 303 See Other
+GET /settings/account?saved=1
+  ← 200 text/html
+     변경된 표시 이름 · 저장 안내</pre>
+            <p>로그인과 쓰기 권한은 서버에서 검사합니다. 관리자 설정도 같은 Fastify 서버와 React 화면을 사용합니다.</p>
+            <p class="source">관련 코드 <a href="../v4/src/personal-settings/index.ts">계정 저장</a> · <a href="../v4/src/auth/session.ts">세션 조회</a></p>
+          </aside>
+        </article>
+
+        <article class="panel" id="graphql-flow" role="tabpanel" aria-labelledby="graphql-tab" tabindex="0">
+          <div>
+            <h3>등록된 공개 피드를 API로 조회한다</h3>
+            <p class="panel-lead">화면 HTML 대신 정해진 데이터 필드가 필요한 경우</p>
+            <ol class="steps">
+              <li><h4><span class="actor">API 호출자</span> 연산 ID와 변수 전송</h4><p><code>POST /graphql</code>에 서버에 등록된 쿼리의 SHA-256 ID와 <code>limit</code>을 보냅니다.</p></li>
+              <li><h4><span class="actor">Mercurius</span> 등록 목록에서 쿼리 확인</h4><p>현재 등록된 조회는 <code>PublicFeed</code>, <code>PublicPost</code>, <code>Viewer</code>입니다. 등록된 ID만 실행하고 공개 범위나 로그인 상태는 서버의 조회 함수에서 검사합니다.</p></li>
+              <li><h4><span class="actor">Fastify</span> 조회 결과를 JSON으로 응답</h4><p><code>PublicFeed</code>는 공개 글의 작성자, 주소, 제목과 설명을 반환합니다. 이 응답은 API 호출자가 필요한 화면이나 도구에서 사용합니다.</p></li>
+            </ol>
+          </div>
+          <aside class="trace" aria-label="GraphQL 요청 예시">
+            <h4>공개 피드 요청 본문</h4>
+            <pre><strong>POST /graphql</strong>
+Content-Type: application/json
+
+{
+  "query": "f2b919ffa801e417151076059574a7eb338de1c8fcfcaa7908bf19c519943208",
+  "persisted": true,
+  "variables": { "limit": 6 }
+}</pre>
+            <p class="source">관련 코드 <a href="../v4/src/graphql.ts">연산 등록·스키마</a> · <a href="../v4/src/app.ts">리졸버와 서버 설정</a></p>
+          </aside>
+        </article>
+      </div>
+    </section>
+
+    <section class="section" id="stack">
+      <div class="section-heading">
+        <h2>기술 스택</h2>
+        <p>현재 <code>v4</code> 프로젝트 기준입니다. <a href="../v4/package-lock.json">의존성 잠금 파일</a></p>
+      </div>
+      <div class="grid">
+        <article class="stack card"><h3>언어 · 런타임</h3><strong>TypeScript 6 · Node.js 24</strong><p>서버와 웹 앱을 TypeScript로 작성합니다. 서비스는 Node 프로세스로 실행됩니다.</p></article>
+        <article class="stack card"><h3>서버 · API</h3><strong>Fastify 5 · Mercurius 16</strong><p>SSR 페이지, 폼, 기존 HTTP API와 등록된 GraphQL 조회를 제공합니다.</p></article>
+        <article class="stack card"><h3>화면 · 라우팅</h3><strong>React 19 · React Router 7</strong><p>같은 React 화면을 서버에서 렌더링하고, 브라우저의 공통 앱이 내부 이동을 처리합니다.</p></article>
+        <article class="stack card"><h3>빌드 · 편집기</h3><strong>Vite 7 · Tailwind CSS 4 · Tiptap 3</strong><p>Vite가 브라우저 자산을 빌드합니다. Sass로 화면 스타일을 보완하고, Tiptap은 글쓰기 화면에서 로드합니다.</p></article>
+        <article class="stack card"><h3>데이터 · 스키마</h3><strong>Prisma 6 · SQLite</strong><p>SQLite 파일을 사용합니다. Prisma가 스키마 변경을 관리하고, 일부 기존 테이블은 파라미터 바인딩 SQL로 읽고 씁니다.</p></article>
+        <article class="stack card"><h3>배포 · 미디어</h3><strong>Docker · Sharp · FFmpeg</strong><p>서비스 이미지는 Node 기반입니다. SQLite 파일과 업로드 디렉터리를 마운트하고 이미지·영상 처리를 같은 서비스에서 실행합니다.</p></article>
+      </div>
+      <p class="upgrade"><strong>3.x DB 이관</strong> 백업 복제본을 3.14의 마지막 Django 마이그레이션인 <code>0070_author_subscription</code>까지 올립니다. 같은 DB를 Prisma 기준선으로 등록하고 4.x 마이그레이션을 적용하면 서비스는 Node로 실행합니다. <a href="../v4/README.md">실행과 이관 가이드</a></p>
+    </section>
+
+    <section class="section" id="source">
+      <div class="section-heading"><h2>코드 위치</h2></div>
+      <div class="table card">
+        <dl>
+          <div class="row"><dt><a href="../v4/src/main.ts">v4/src/main.ts</a> · <a href="../v4/src/app.ts">app.ts</a></dt><dd>서버 시작, Prisma 연결, 페이지·API·미디어 라우트 등록</dd></div>
+          <div class="row"><dt><a href="../v4/src/public-pages/index.ts">v4/src/public-pages/index.ts</a></dt><dd>홈, 검색, 태그, 프로필 페이지 조회와 SSR</dd></div>
+          <div class="row"><dt><a href="../v4/src/application/document.tsx">v4/src/application/document.tsx</a> · <a href="../v4/src/application/client.tsx">client.tsx</a></dt><dd>공통 HTML 문서 생성, 브라우저 진입점, 내부 이동과 폼 처리</dd></div>
+          <div class="row"><dt><a href="../v4/src/auth/http.ts">v4/src/auth/http.ts</a> · <a href="../v4/src/personal-settings/index.ts">personal-settings/index.ts</a></dt><dd>로그인 API, 사용자 세션, 계정과 프로필 설정</dd></div>
+          <div class="row"><dt><a href="../v4/src/graphql.ts">v4/src/graphql.ts</a> · <a href="../v4/prisma/schema.prisma">prisma/schema.prisma</a></dt><dd>등록 GraphQL 연산, 모델과 DB 스키마</dd></div>
+          <div class="row"><dt><a href="../v4/vite.config.ts">v4/vite.config.ts</a> · <a href="../v4/Dockerfile">Dockerfile</a></dt><dd>브라우저 자산과 서비스 이미지 빌드</dd></div>
+        </dl>
+      </div>
+    </section>
+
+    <footer>BLEX 4 현재 구현 · 로컬 작업 브랜치 <code>refactor/v4-graphql-preview</code></footer>
+  </main>
+
+  <script>
+    const tablist = document.querySelector('[role="tablist"]');
+    const tabs = Array.from(tablist.querySelectorAll('[role="tab"]'));
+    const panels = tabs.map(tab => document.getElementById(tab.getAttribute('aria-controls')));
+
+    function selectTab(index) {
+      tabs.forEach((tab, position) => {
+        const selected = position === index;
+        tab.setAttribute('aria-selected', String(selected));
+        tab.tabIndex = selected ? 0 : -1;
+        panels[position].hidden = !selected;
+      });
+    }
+
+    tabs.forEach((tab, index) => {
+      tab.addEventListener('click', () => selectTab(index));
+      tab.addEventListener('keydown', event => {
+        let next;
+        if (event.key === 'ArrowRight') next = (index + 1) % tabs.length;
+        else if (event.key === 'ArrowLeft') next = (index - 1 + tabs.length) % tabs.length;
+        else if (event.key === 'Home') next = 0;
+        else if (event.key === 'End') next = tabs.length - 1;
+        else return;
+        event.preventDefault();
+        selectTab(next);
+        tabs[next].focus();
+      });
+    });
+
+    selectTab(0);
+    document.documentElement.classList.add('has-tabs');
+  </script>
+</body>
+</html>

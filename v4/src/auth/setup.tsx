@@ -1,0 +1,146 @@
+import { renderApplicationDocument } from '../application/document.js';
+import { timingSafeEqual } from 'node:crypto';
+import type { Prisma, PrismaClient } from '@prisma/client';
+import type { FastifyInstance } from 'fastify';
+import { SiteFooter, SiteHeader, SiteTheme } from '../appearance/shell.js';
+import { AuthPanel, authField, authInput, authSubmit } from '../auth-ui/panel.js';
+import { accountEmailPattern, accountUsernamePattern, describeInvalidPassword, normalizeAccountEmail } from './account-validation.js';
+import { authCookieOptions, csrfCookie, sessionCookie, setSessionCookies } from './cookies.js';
+import { formInput, validCsrf } from './csrf.js';
+import { hashDjangoPassword } from './django-password.js';
+import { createSession, createToken } from './session.js';
+
+const setupCsp = "default-src 'none'; style-src 'self' 'unsafe-inline'; script-src 'self'; img-src 'self'; font-src 'self'; connect-src 'self'; form-action 'self'; base-uri 'none'; frame-ancestors 'none'";
+
+export async function hasAdministrator(db: PrismaClient | Prisma.TransactionClient): Promise<boolean> {
+  const [admin] = await db.$queryRaw<unknown[]>`
+    SELECT 1 FROM auth_user WHERE is_staff = 1 OR is_superuser = 1 LIMIT 1
+  `;
+  return admin !== undefined;
+}
+
+interface AccountInput {
+  username: string;
+  displayName: string;
+  email: string;
+  passwordHash: string;
+  administrator?: boolean;
+  editor?: boolean;
+  language?: string;
+  timeZone?: string;
+}
+
+export async function insertAccount(db: Prisma.TransactionClient, input: AccountInput): Promise<number> {
+  const timestamp = new Date().toISOString().slice(0, -1).replace('T', ' ');
+  const admin = input.administrator ? 1 : 0;
+  const [user] = await db.$queryRaw<Array<{ id: number }>>`
+    INSERT INTO auth_user (username, password, first_name, last_name, email, date_joined, is_active, is_staff, is_superuser)
+    VALUES (${input.username}, ${input.passwordHash}, ${input.displayName}, '', ${input.email}, ${timestamp}, 1, ${admin}, ${admin})
+    RETURNING id
+  `;
+  await db.$executeRaw`
+    INSERT INTO board_profile (user_id, bio, cover, avatar, homepage, about_md, about_html, analytics_share_url, role)
+    VALUES (${user.id}, '', '', '', '', '', '', '', ${input.administrator || input.editor ? 'EDITOR' : 'READER'})
+  `;
+  await db.$executeRaw`
+    INSERT INTO board_config (user_id, language, time_zone) VALUES (${user.id}, ${input.language ?? null}, ${input.timeZone ?? ''})
+  `;
+  await db.$executeRaw`
+    INSERT INTO board_userconfigmeta (user_id, name, value, created_date, updated_date)
+    VALUES (${user.id}, 'NOTIFY_MENTION', 'true', ${timestamp}, ${timestamp}),
+           (${user.id}, 'NOTIFY_COMMENT_LIKE', 'true', ${timestamp}, ${timestamp})
+  `;
+  return user.id;
+}
+
+function matchesToken(left: string, right: string): boolean {
+  const first = Buffer.from(left, 'utf8');
+  const second = Buffer.from(right, 'utf8');
+  return first.length === second.length && timingSafeEqual(first, second);
+}
+
+function setupMarkup(csrf: string, token: string, error = ''): string {
+  return renderApplicationDocument(<html lang="ko">
+      <head>
+        <meta charSet="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <meta name="robots" content="noindex" />
+        <title>BLEX 초기 설정</title>
+        <SiteTheme />
+      </head>
+      <body className="bg-surface-page text-content antialiased"><SiteHeader hideAuthLinks />
+        <main className="flex min-h-[calc(100vh-10.5rem)] justify-center px-4 py-16 md:px-6">
+          <div className="w-full max-w-[420px]"><AuthPanel title="첫 관리자 만들기" id="setup-title" lock>
+            {error && <p role="alert" className="mb-4 rounded-xl border border-danger-line bg-danger-surface p-3 text-sm text-danger">{error}</p>}
+            <form action="/setup" method="post" className="space-y-4">
+              <input type="hidden" name="csrfmiddlewaretoken" value={csrf} />
+              {token ? <input type="hidden" name="setup_token" value={token} /> :
+                <label className={authField}>설정 토큰<input className={authInput} type="password" name="setup_token" autoComplete="off" required /></label>}
+              <label className={authField}>아이디<input className={authInput} name="username" autoComplete="username" maxLength={15} required /></label>
+              <label className={authField}>표시 이름<input className={authInput} name="display_name" autoComplete="name" maxLength={150} required /></label>
+              <label className={authField}>이메일<input className={authInput} type="email" name="email" autoComplete="email" maxLength={254} required /></label>
+              <label className={authField}>비밀번호<input className={authInput} type="password" name="password" autoComplete="new-password" required /></label>
+              <label className={authField}>비밀번호 확인<input className={authInput} type="password" name="password_check" autoComplete="new-password" required /></label>
+              <button className={authSubmit} type="submit">관리자 만들기</button>
+            </form>
+          </AuthPanel></div>
+        </main><SiteFooter />
+      </body>
+    </html>);
+}
+
+export function registerSetup(app: FastifyInstance, db: PrismaClient, siteUrl: URL, token: string, secretKey: string) {
+  app.get<{ Querystring: { token?: string } }>('/setup', async (request, reply) => {
+    if (await hasAdministrator(db)) return reply.code(404).send('Not found');
+    const csrf = createToken();
+    const provided = typeof request.query.token === 'string' ? request.query.token : '';
+    reply.setCookie(csrfCookie, csrf, authCookieOptions(siteUrl));
+    return reply.type('text/html; charset=utf-8').header('Referrer-Policy', 'strict-origin')
+      .header('Content-Security-Policy', setupCsp)
+      .send(setupMarkup(csrf, matchesToken(token, provided) ? token : ''));
+  });
+
+  app.post('/setup', async (request, reply) => {
+    if (await hasAdministrator(db)) return reply.code(404).send('Not found');
+    if (!validCsrf(request, siteUrl)) return reply.code(403).send('Forbidden');
+    const fields = formInput(request);
+    const get = (name: string) => typeof fields[name] === 'string' ? fields[name].trim() : '';
+    const username = get('username').toLowerCase();
+    const displayName = get('display_name');
+    const email = get('email');
+    const password = typeof fields?.password === 'string' ? fields.password : '';
+    const provided = get('setup_token');
+    const validToken = matchesToken(token, provided);
+    const csrf = request.cookies[csrfCookie] ?? '';
+    const fail = (message: string) => reply.type('text/html; charset=utf-8').header('Referrer-Policy', 'strict-origin')
+      .header('Content-Security-Policy', setupCsp)
+      .send(setupMarkup(csrf, validToken ? provided : '', message));
+
+    if (!validToken) return fail('설정 토큰을 확인해 주세요.');
+    if (!accountUsernamePattern.test(username)) return fail('아이디는 소문자 영문과 숫자로 4~15자를 입력해 주세요.');
+    if (!displayName || displayName.length > 150) return fail('표시 이름을 확인해 주세요.');
+    if (email.length > 254 || !accountEmailPattern.test(email)) return fail('유효한 이메일을 입력해 주세요.');
+    if (password !== fields.password_check) return fail('비밀번호가 일치하지 않습니다.');
+    const passwordError = describeInvalidPassword(password, [username, displayName, email]);
+    if (passwordError) return fail(passwordError);
+    if (await db.user.findUnique({ where: { username }, select: { id: true } })) return fail('이미 사용 중인 아이디입니다.');
+
+    const passwordHash = await hashDjangoPassword(password);
+    const userId = await db.$transaction(async (tx) => {
+      const timestamp = new Date().toISOString().slice(0, -1).replace('T', ' ');
+      await tx.$executeRaw`
+        INSERT INTO board_sitesetting (id, header_script, footer_script, updated_date, aeo_enabled, seo_enabled,
+          robots_txt_extra_rules, site_name, logo_svg, logo_svg_dark, icon_svg, icon_svg_dark, icon_manifest)
+        VALUES (1, '', '', ${timestamp}, 0, 1, '', 'BLEX', '', '', '', '', '{}') ON CONFLICT(id) DO NOTHING
+      `;
+      if (await hasAdministrator(tx)) return null;
+      return insertAccount(tx, { username, displayName, email: normalizeAccountEmail(email), passwordHash, administrator: true });
+    });
+    if (userId === null) return reply.code(404).send('Not found');
+
+    const session = await createSession(db, { userId, passwordHash }, secretKey, request.cookies[sessionCookie]);
+    if (!session) throw new Error('Could not open the initial administrator session.');
+    return setSessionCookies(reply, siteUrl, session).header('Referrer-Policy', 'strict-origin')
+      .redirect('/admin-settings/site-settings', 302);
+  });
+}

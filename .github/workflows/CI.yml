@@ -2,284 +2,87 @@ name: CI
 
 on:
   push:
-    branches:
-      - main
+    branches: [main]
   pull_request:
-    branches:
-      - main
+    branches: [main]
   workflow_dispatch:
+
+permissions:
+  contents: read
 
 concurrency:
   group: ci-${{ github.head_ref || github.ref_name }}
   cancel-in-progress: true
 
 jobs:
-  backend_ci:
+  application:
     runs-on: ubuntu-latest
-    
+    defaults:
+      run:
+        working-directory: v4
     steps:
-    - uses: actions/checkout@v6
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '24.22.1'
+          cache: npm
+          cache-dependency-path: v4/package-lock.json
+      - run: npm ci
+      - run: npm audit --omit=dev --audit-level=high
+      - run: npm test
+      - name: Validate Prisma schema
+        run: npx --no-install prisma validate
+        env:
+          DATABASE_URL: file:/tmp/blex-validation.sqlite3
 
-    - name: Load .env file
-      run: |
-        python3 - <<'PY'
-        from pathlib import Path
-        import os
-
-        env_file = Path('samples/.env')
-        github_env = Path(os.environ['GITHUB_ENV'])
-
-        with github_env.open('a') as output:
-            for raw_line in env_file.read_text().splitlines():
-                line = raw_line.strip()
-                if not line or line.startswith('#') or '=' not in line:
-                    continue
-
-                key, value = line.split('=', 1)
-                value = value.strip()
-                if len(value) >= 2 and value[0] == value[-1] and value[0] in {'"', "'"}:
-                    value = value[1:-1]
-
-                output.write(f'{key.strip()}={value}\n')
-        PY
-
-    - name: Set up Python 3.12
-      uses: actions/setup-python@v6
-      with:
-        python-version: '3.12'
-
-    - name: Set up Node.js
-      uses: actions/setup-node@v6
-      with:
-        node-version: '24.22.1'
-
-    - name: Install Python dependencies
-      run: |
-        python -m pip install --upgrade pip
-        pip install -r requirements.txt
-      working-directory: backend/src
-
-    - name: Check backend migrations
-      run: npm run server:check-migrations
-
-    - name: Test Backend
-      run: npm run server:test
-
-  islands_ci:
-    runs-on: ubuntu-latest
-    
-    steps:
-    - uses: actions/checkout@v6
-
-    - name: Set up Node.js
-      uses: actions/setup-node@v6
-      with:
-        node-version: '24.22.1'
-
-    - name: Install pnpm
-      run: npm install --global pnpm@11.17.0
-
-    - name: Install Islands dependencies
-      run: pnpm install
-      working-directory: backend/islands
-
-    - name: Check Islands translation catalogs
-      run: pnpm i18n:check
-      working-directory: backend/islands
-
-    - name: Lint Islands
-      run: pnpm lint
-      working-directory: backend/islands
-
-    - name: Type check Islands
-      run: pnpm type-check
-      working-directory: backend/islands
-
-    - name: Unit test Islands
-      run: pnpm test
-      working-directory: backend/islands
-
-    - name: Build Islands
-      run: pnpm run build
-      working-directory: backend/islands
-
-    - name: Check bootstrap entry budgets
-      run: pnpm run check:entry-budgets
-      working-directory: backend/islands
-
-    - name: Set up Python for browser smoke
-      uses: actions/setup-python@v6
-      with:
-        python-version: '3.12'
-
-    - name: Install Python dependencies for browser smoke
-      run: |
-        python -m pip install --upgrade pip
-        pip install -r requirements.txt
-      working-directory: backend/src
-
-    - name: Cache Playwright browsers
-      uses: actions/cache@v5
-      with:
-        path: ~/.cache/ms-playwright
-        key: ${{ runner.os }}-playwright-${{ hashFiles('backend/islands/pnpm-lock.yaml') }}
-
-    - name: Install Playwright Chromium
-      run: pnpm --filter @blex/remotes exec playwright install --with-deps chromium
-      working-directory: backend/islands
-
-    - name: Run browser regression tests
-      run: >-
-        pnpm --filter @blex/remotes exec playwright test
-        --config playwright.config.ts
-        e2e/editor-media-upload.spec.ts
-        e2e/i18n-auth.spec.ts
-        e2e/i18n-search.spec.ts
-      working-directory: backend/islands
-      env:
-        BLEX_E2E_ENV_FILE: ${{ github.workspace }}/samples/.env
-
-  container_ci:
+  container:
     runs-on: ubuntu-latest
     permissions:
       contents: read
       security-events: write
-
     steps:
-    - uses: actions/checkout@v6
+      - uses: actions/checkout@v6
+      - name: Build runtime and migration images
+        run: |
+          docker build --pull --target migration --tag blex-migration:ci ./v4
+          docker build --tag blex:ci ./v4
 
-    - name: Set up Node.js
-      uses: actions/setup-node@v6
-      with:
-        node-version: '24.22.1'
+      - name: Scan BLEX image
+        uses: ./.github/actions/image-security
+        with:
+          image: blex:ci
+          platform: linux/amd64
+          image-source: docker
+          category: blex-container-amd64
 
-    - name: Install pnpm
-      run: npm install --global pnpm@11.17.0
-
-    - name: Install Islands dependencies
-      run: pnpm install --frozen-lockfile
-      working-directory: backend/islands
-
-    - name: Cache Playwright browsers
-      uses: actions/cache@v5
-      with:
-        path: ~/.cache/ms-playwright
-        key: ${{ runner.os }}-playwright-${{ hashFiles('backend/islands/pnpm-lock.yaml') }}
-
-    - name: Install Playwright Chromium
-      run: pnpm --filter @blex/remotes exec playwright install --with-deps chromium
-      working-directory: backend/islands
-
-    - name: Build unified BLEX image
-      run: docker build --pull --tag blex:ci ./backend
-
-    - name: Scan unified BLEX image
-      uses: ./.github/actions/image-security
-      with:
-        image: blex:ci
-        platform: linux/amd64
-        image-source: docker
-        category: blex-container-amd64
-
-    - name: Audit unified runtime contents
-      run: |
-        docker run --rm --entrypoint sh blex:ci -c '
-          leftovers=$(find /app -xdev \
-            \( -name node_modules \
-              -o -name .turbo \
-              -o -name .cache \
-              -o -name __pycache__ \
-              -o -name "*.pyc" \
-              -o -name "*.pyo" \
-              -o -name "*.map" \
-              -o -name "*.ts" \
-              -o -name "*.tsx" \
-              -o -name "*.scss" \
-              -o -name package.json \
-              -o -name pnpm-lock.yaml \
-            \) -print)
-
-          test -z "$leftovers"
-          test -z "$(find /var/lib/apt/lists /var/cache/apt /var/cache/debconf \
-            -mindepth 1 -print 2>/dev/null)"
-        '
-        docker run --rm --entrypoint python blex:ci -c \
-          'from importlib.util import find_spec; assert find_spec("pip") is None; assert find_spec("ensurepip") is None'
-        docker run --rm --entrypoint python blex:ci \
-          /usr/local/libexec/blex/check_pillow_brotli.py
-
-    - name: Verify child process failure is detected
-      run: |
-        docker run \
-          --detach \
-          --name blex-ci-fault \
-          --env-file samples/.env \
-          --env RUN_MIGRATIONS_ON_START=false \
-          blex:ci
-
-        cleanup() {
-          docker logs blex-ci-fault || true
-          docker rm --force blex-ci-fault || true
-        }
-        trap cleanup EXIT
-
-        for attempt in $(seq 1 30); do
-          docker exec blex-ci-fault test -s /run/nginx.pid && break
-          sleep 1
-        done
-
-        docker exec blex-ci-fault nginx -s quit
-        test "$(docker wait blex-ci-fault)" = 1
-
-    - name: Run unified container smoke
-      run: |
-        docker run \
-          --detach \
-          --name blex-ci \
-          --env-file samples/.env \
-          --env DEBUG=FALSE \
-          --env SITE_URL=http://127.0.0.1:18080 \
-          --env SECURE_SSL_REDIRECT=FALSE \
-          --publish 127.0.0.1:18080:80 \
-          blex:ci
-
-        cleanup() {
-          docker logs blex-ci || true
-          docker rm --force blex-ci || true
-        }
-        trap cleanup EXIT
-
-        for attempt in $(seq 1 60); do
-          curl --fail --silent --show-error http://127.0.0.1:18080/ > /dev/null && break
-          sleep 1
-        done
-
-        curl --fail --silent --show-error \
-          http://127.0.0.1:18080/resources/staticfiles/islands/.vite/manifest.json \
-          > /dev/null
-        docker cp \
-          backend/islands/apps/remotes/e2e/fixtures/installed-site.json \
-          blex-ci:/tmp/installed-site.json
-        docker exec blex-ci python manage.py loaddata /tmp/installed-site.json
-        docker exec blex-ci python manage.py shell -c \
-          'from django.conf import settings; assert settings.DEBUG is False'
-        docker exec blex-ci python manage.py migrate --check
-        docker exec blex-ci python manage.py check
-        docker exec blex-ci nginx -t
-
-        E2E_BASE_URL=http://127.0.0.1:18080 \
-          E2E_SKIP_WEB_SERVER=1 \
-          E2E_EXPECT_PRODUCTION=1 \
-          pnpm --dir backend/islands/apps/remotes exec \
-          playwright test \
-          --config playwright.config.ts \
-          e2e/island-smoke.spec.ts
-
-        docker restart blex-ci
-        for attempt in $(seq 1 60); do
-          curl --fail --silent --show-error http://127.0.0.1:18080/ > /dev/null && break
-          sleep 1
-        done
-
-        docker stop --time 10 blex-ci
-        test "$(docker inspect blex-ci --format '{{.State.ExitCode}}')" = 0
+      - name: Verify the Node runtime and first launch with 512 MiB
+        run: |
+          docker run --rm --entrypoint sh blex:ci -ec '
+            ! command -v python
+            ! command -v python3
+            ! command -v gunicorn
+            test -f /app/dist/client/.vite/manifest.json
+            ffmpeg -version >/dev/null
+          '
+          docker volume create blex-ci-data
+          cleanup() {
+            docker logs blex-ci || true
+            docker rm -f blex-ci || true
+            docker volume rm blex-ci-data || true
+          }
+          trap cleanup EXIT
+          docker run --rm --network none -v blex-ci-data:/var/lib/blex blex-migration:ci
+          docker run -d --name blex-ci --network none --memory=512m --cpus=1 \
+            -v blex-ci-data:/var/lib/blex \
+            -e SITE_URL=http://127.0.0.1:8040 -e SECRET_KEY=ci-ephemeral-session-key \
+            -e CIPHER_KEY=0123456789abcdef0123456789abcdef blex:ci
+          docker exec blex-ci node --input-type=module -e '
+            for (let attempt = 0; attempt < 40; attempt += 1) {
+              try {
+                const response = await fetch("http://127.0.0.1:8040/setup");
+                if (response.ok && (await response.text()).includes("첫 관리자 만들기")) process.exit(0);
+              } catch {}
+              await new Promise((resolve) => setTimeout(resolve, 250));
+            }
+            throw new Error("BLEX setup page did not become ready");
+          '

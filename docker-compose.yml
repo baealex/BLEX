@@ -1,10 +1,22 @@
 services:
-  blex:
-    image: baealex/blex
-    env_file: ./backend/.env
-    restart: always
+  migrate:
+    build:
+      context: ./v4
+      target: migration
     volumes:
-      - ./backend/src/db.sqlite3:/app/db.sqlite3
-      - ./backend/src/resources/media:/app/resources/media
+      - ${BLEX_DATA:-blex-data}:/var/lib/blex
+  blex:
+    build:
+      context: ./v4
+    env_file: ${BLEX_ENV_FILE:-./.env}
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+    restart: unless-stopped
+    volumes:
+      - ${BLEX_DATA:-blex-data}:/var/lib/blex
     ports:
-      - "${BLEX_PORT_MAPPING:-20002:80}"
+      - "${BLEX_PORT_MAPPING:-127.0.0.1:20002:8040}"
+
+volumes:
+  blex-data:
