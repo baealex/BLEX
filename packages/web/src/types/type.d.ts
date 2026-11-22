@@ -42,10 +42,5 @@ declare global {
         };
         NEXT_URL: string;
         toast: LazyToast;
-        __blexIslandMonitor?: {
-            notifyBootstrap?: () => void;
-            notifyMounted?: (name: string) => void;
-            notifyFailed?: (name: string, reason: string) => void;
-        };
     }
 }

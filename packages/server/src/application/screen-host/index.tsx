@@ -4,31 +4,31 @@ import type { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify';
 import { access, readFile } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 import { renderToString } from 'react-dom/server';
-import { readAdminAccess } from '../features/site-admin/access.js';
-import { SiteFooter, SiteHeader, SiteTheme } from '../appearance/shell.js';
-import { applicationContentSecurityPolicy, scriptJson } from '../application/document.js';
-import { authCookieOptions, csrfCookie, requestCookies } from '../platform/cookies.js';
-import { decryptDjangoSecret } from '../features/auth/django-secret.js';
-import { safeReturnPath } from '../features/auth/oauth.js';
-import { createToken } from '../features/auth/session.js';
-import { hasAdministrator } from '../features/auth/setup.js';
-import { readPublicSiteBrand } from '../features/discovery/pages/index.js';
+import { readAdminAccess } from '../../features/site-admin/access.js';
+import { SiteFooter, SiteHeader, SiteTheme } from '../../appearance/shell.js';
+import { applicationContentSecurityPolicy, scriptJson } from '../document.js';
+import { authCookieOptions, csrfCookie, requestCookies } from '../../platform/cookies.js';
+import { decryptDjangoSecret } from '../../features/auth/django-secret.js';
+import { safeReturnPath } from '../../features/auth/oauth.js';
+import { createToken } from '../../features/auth/session.js';
+import { hasAdministrator } from '../../features/auth/setup.js';
+import { readPublicSiteBrand } from '../../features/discovery/pages/index.js';
 
 interface ManifestEntry { file: string }
 type Manifest = Record<string, ManifestEntry>;
 
-export interface SettingsHostOptions {
+export interface ScreenHostOptions {
   currentUser(request: FastifyRequest): Promise<{ id: number; username: string } | null>;
   siteUrl: URL;
-  islandsRoot: string;
+  webAssetsRoot: string;
   cipherKey: string;
 }
 
 const adminPrefixes = ['site-settings', 'seo-aeo', 'static-pages', 'global-notices', 'global-banners', 'global-webhook', 'integrations', 'utilities', 'users'];
 const editorPrefixes = ['posts', 'series', 'pinned-posts', 'drafts', 'forms', 'notices', 'banners', 'webhook', 'developer-api'];
-const islandAssetPrefix = '/resources/staticfiles/islands/';
+const webAssetPrefix = '/assets/web/';
 const styleEntries = ['styles/tailwind.css', 'styles/main.scss', 'styles/post.scss'];
-const loaderEntry = 'src/scripts/island-loader.ts';
+const loaderEntry = 'src/scripts/screen-loader.ts';
 
 const hasPrefix = (path: string, prefixes: string[]) => {
   const normalized = path.replace(/^\/+|\/+$/g, '');
@@ -36,10 +36,10 @@ const hasPrefix = (path: string, prefixes: string[]) => {
 };
 
 /** Finds the built 3.x screens next to the compiled server. */
-export async function resolveIslandsRoot(configured?: string): Promise<string | undefined> {
+export async function resolveWebAssetsRoot(configured?: string): Promise<string | undefined> {
   const candidates = [
     configured,
-    fileURLToPath(new URL('../../islands/', import.meta.url)),
+    fileURLToPath(new URL('../../../web/', import.meta.url)),
   ].filter((value): value is string => Boolean(value));
   for (const candidate of candidates) {
     try {
@@ -53,7 +53,7 @@ export async function resolveIslandsRoot(configured?: string): Promise<string | 
 function manifestAsset(manifest: Manifest, entry: string): string {
   const asset = manifest[entry];
   if (!asset) throw new Error(`The BLEX settings bundle is missing ${entry}.`);
-  return `${islandAssetPrefix}${asset.file}`;
+  return `${webAssetPrefix}${asset.file}`;
 }
 
 function decryptsToValue(encrypted: string, cipherKey: string): boolean {
@@ -81,8 +81,8 @@ async function readViewerState(db: PrismaClient, userId: number, cipherKey: stri
 }
 
 type ViewerState = Awaited<ReturnType<typeof readViewerState>>;
-interface IslandViewer { user: { id: number; username: string }; isStaff: boolean; state: ViewerState }
-interface IslandPage {
+interface ScreenViewer { user: { id: number; username: string }; isStaff: boolean; state: ViewerState }
+interface ScreenPage {
   component: string;
   props: Record<string, unknown>;
   title: (siteName: string) => string;
@@ -104,17 +104,17 @@ async function readCaptchaSiteKey(db: PrismaClient, cipherKey: string): Promise<
   return row?.enabled && decryptsToValue(row.secret, cipherKey) ? row.siteKey.trim() : '';
 }
 
-export function registerSettingsHost(app: FastifyInstance, db: PrismaClient, options: SettingsHostOptions) {
+export function registerScreenHost(app: FastifyInstance, db: PrismaClient, options: ScreenHostOptions) {
   let manifest: Promise<Manifest> | undefined;
-  const readManifest = () => manifest ??= readFile(`${options.islandsRoot}.vite/manifest.json`, 'utf8').then((text) => JSON.parse(text) as Manifest);
+  const readManifest = () => manifest ??= readFile(`${options.webAssetsRoot}.vite/manifest.json`, 'utf8').then((text) => JSON.parse(text) as Manifest);
 
   app.register(async (routes) => {
     await routes.register(fastifyStatic, {
-      root: options.islandsRoot, prefix: islandAssetPrefix, maxAge: '1y', immutable: true, decorateReply: false,
+      root: options.webAssetsRoot, prefix: webAssetPrefix, maxAge: '1y', immutable: true, decorateReply: false,
     });
   });
 
-  const sendDocument = async (request: FastifyRequest, reply: FastifyReply, viewer: IslandViewer | null, page: IslandPage) => {
+  const sendDocument = async (request: FastifyRequest, reply: FastifyReply, viewer: ScreenViewer | null, page: ScreenPage) => {
     const [brand, assets] = await Promise.all([readPublicSiteBrand(db), readManifest()]);
     let csrf = requestCookies(request)[csrfCookie] ?? '';
     if (!/^[A-Za-z0-9_-]{43}$/.test(csrf)) {
@@ -128,7 +128,7 @@ export function registerSettingsHost(app: FastifyInstance, db: PrismaClient, opt
       ...(viewer ? { user: { isAuthenticated: 'True', username: viewer.user.username } } : {}),
       googleClientId: '', githubClientId: '',
     };
-    const island = `<island-component name="${page.component}" data-island-name="${page.component}" data-island-status="pending" class="block" props="${encodeURIComponent(JSON.stringify(page.props))}"><div data-island-fallback role="status" aria-live="polite" class="flex min-h-52 items-center justify-center gap-2 py-12 text-sm font-medium text-content-secondary"><span aria-hidden="true" class="h-4 w-4 animate-spin rounded-full border-2 border-line-strong border-t-action motion-reduce:animate-none"></span><span>불러오는 중...</span></div></island-component>`;
+    const screen = `<div data-screen="${page.component}" data-screen-status="pending" data-screen-props="${encodeURIComponent(JSON.stringify(page.props))}"><div role="status" aria-live="polite" class="flex min-h-52 items-center justify-center gap-2 py-12 text-sm font-medium text-content-secondary"><span aria-hidden="true" class="h-4 w-4 animate-spin rounded-full border-2 border-line-strong border-t-action motion-reduce:animate-none"></span><span>불러오는 중...</span></div></div>`;
     const robots = page.robots ?? 'noindex,nofollow';
     const html = renderToString(<html lang={configuration.locale}>
       <head>
@@ -142,17 +142,17 @@ export function registerSettingsHost(app: FastifyInstance, db: PrismaClient, opt
         {page.searchPage && <link rel="alternate" type="application/rss+xml" title={`${brand.siteName} RSS`} href={new URL('/rss', options.siteUrl).href} />}
         <SiteTheme />
         {styleEntries.map((entry) => <link key={entry} rel="stylesheet" href={manifestAsset(assets, entry)} />)}
-        <script type="application/json" id="blex-island-config" dangerouslySetInnerHTML={{ __html: scriptJson(configuration) }} />
-        {page.globals && <script type="application/json" id="blex-island-globals" dangerouslySetInnerHTML={{ __html: scriptJson(page.globals) }} />}
+        <script type="application/json" id="blex-screen-config" dangerouslySetInnerHTML={{ __html: scriptJson(configuration) }} />
+        {page.globals && <script type="application/json" id="blex-screen-globals" dangerouslySetInnerHTML={{ __html: scriptJson(page.globals) }} />}
         {page.captcha && <script src="https://js.hcaptcha.com/1/api.js" async defer />}
       </head>
       <body className="antialiased bg-surface-page text-content selection:bg-action selection:text-content-inverted">
         <input type="hidden" name="csrfmiddlewaretoken" value={csrf} />
         <SiteHeader brand={brand} searchPage={page.searchPage} editorPage={page.component === 'PostEditor'}
           viewer={viewer ? { username: viewer.user.username, hasEditorRole: viewer.state.role === 'EDITOR', isStaff: viewer.isStaff, csrfToken: csrf, unreadCount: Number(viewer.state.unread) } : null} />
-        <main className="min-h-[calc(100vh-10.5rem)]"><div className={page.contentClass} dangerouslySetInnerHTML={{ __html: island }} /></main>
+        <main className="min-h-[calc(100vh-10.5rem)]"><div className={page.contentClass} dangerouslySetInnerHTML={{ __html: screen }} /></main>
         {page.footer && <SiteFooter brand={brand} />}
-        <script type="module" src="/assets/blex/island-host.js" />
+        <script type="module" src="/assets/blex/screen-host.js" />
         <script type="module" src={manifestAsset(assets, loaderEntry)} />
       </body>
     </html>);
@@ -163,7 +163,7 @@ export function registerSettingsHost(app: FastifyInstance, db: PrismaClient, opt
       .send(`<!doctype html>${html}`);
   };
 
-  const sendIsland = async (
+  const sendScreen = async (
     request: FastifyRequest, reply: FastifyReply, user: { id: number; username: string }, isStaff: boolean,
     component: string, componentProps: (isEditor: boolean, state: ViewerState) => Record<string, unknown>, pageTitle: string,
   ) => {
@@ -202,7 +202,7 @@ export function registerSettingsHost(app: FastifyInstance, db: PrismaClient, opt
   };
 
   const sendHost = (request: FastifyRequest, reply: FastifyReply, mode: 'user' | 'admin', basePath: string, user: { id: number; username: string }, isStaff: boolean, isSuperuser: boolean, canManageSiteSettings: boolean) =>
-    sendIsland(request, reply, user, isStaff, 'SettingsApp', (isEditor, state) => ({
+    sendScreen(request, reply, user, isStaff, 'SettingsApp', (isEditor, state) => ({
       isEditor, isStaff, isSuperuser, adminUrl: null, settingsMode: mode, basePath,
       canUseTelegramIntegration: state.telegramConfigured || Boolean(Number(state.telegramConnected)),
       adminCapabilities: {
@@ -227,7 +227,7 @@ export function registerSettingsHost(app: FastifyInstance, db: PrismaClient, opt
       if (username !== user.username) return undefined;
       const [post] = await db.$queryRaw<Array<{ url: string }>>`SELECT url FROM board_post WHERE author_id = ${user.id} AND url = ${slug} LIMIT 1`;
       if (!post) return undefined;
-      return sendIsland(request, reply, user, account.staff, 'PostEditor', () => ({ mode: 'edit', username, postUrl: post.url }), '수정하기 - {site}');
+      return sendScreen(request, reply, user, account.staff, 'PostEditor', () => ({ mode: 'edit', username, postUrl: post.url }), '수정하기 - {site}');
     }
     const [published] = await db.$queryRaw<Array<{ id: number }>>`SELECT id FROM board_post WHERE author_id = ${user.id} AND published_date IS NOT NULL LIMIT 1`;
     const showFirstPublishGuide = !published;
@@ -235,8 +235,8 @@ export function registerSettingsHost(app: FastifyInstance, db: PrismaClient, opt
     const [draft] = draftUrl
       ? await db.$queryRaw<Array<{ url: string }>>`SELECT url FROM board_post WHERE author_id = ${user.id} AND url = ${draftUrl} AND published_date IS NULL LIMIT 1`
       : [];
-    if (draft) return sendIsland(request, reply, user, account.staff, 'PostEditor', () => ({ mode: 'draft', username: user.username, draftUrl: draft.url, showFirstPublishGuide }), '임시저장 - {site}');
-    return sendIsland(request, reply, user, account.staff, 'PostEditor', () => ({ mode: 'new', username: user.username, showFirstPublishGuide }), '새 포스트 - {site}');
+    if (draft) return sendScreen(request, reply, user, account.staff, 'PostEditor', () => ({ mode: 'draft', username: user.username, draftUrl: draft.url, showFirstPublishGuide }), '임시저장 - {site}');
+    return sendScreen(request, reply, user, account.staff, 'PostEditor', () => ({ mode: 'new', username: user.username, showFirstPublishGuide }), '새 포스트 - {site}');
   };
 
   app.addHook('onRequest', async (request, reply) => {

@@ -28,7 +28,7 @@ export interface StepOptions {
 const TEXT_BLOCK_TAGS = new Set(['p', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'blockquote', 'pre']);
 const MEDIA_SELECTOR = 'img, picture, video, audio, iframe, table, svg, canvas, figure, hr';
 
-/** Styles live in postTimelapse.css, which loads with this island instead of the shared stylesheet. */
+/** Styles live in postTimelapse.css, which loads with this screen instead of the shared stylesheet. */
 const MARK_CLASS = {
     insert: 'post-timelapse-insert',
     delete: 'post-timelapse-delete',

@@ -10,7 +10,7 @@ import { dirname, resolve } from 'path';
 const DEFAULT_DEV_SERVER_PORT = 8100;
 const DEV_SERVER_HOST = process.env.VITE_DEV_SERVER_HOST || 'localhost';
 const DEV_SERVER_INFO_PATH = process.env.VITE_DEV_SERVER_INFO_PATH
-    || resolve(__dirname, '../server/dist/islands/.vite/dev-server.json');
+    || resolve(__dirname, '../server/dist/web/.vite/dev-server.json');
 
 const getDevServerPort = () => {
     const rawPort = process.env.VITE_DEV_SERVER_PORT;
@@ -80,17 +80,17 @@ export default defineConfig(({ mode }) => {
         },
 
         build: {
-            outDir: '../server/dist/islands',
+            outDir: '../server/dist/web',
             emptyOutDir: true,
             manifest: true,
             modulePreload: { polyfill: true },
             rolldownOptions: {
                 input: {
-                    island: resolve(__dirname, 'src/island.tsx'),
+                    screenRuntime: resolve(__dirname, 'src/screen-runtime.tsx'),
                     mainStyle: resolve(__dirname, 'styles/main.scss'),
                     tailwindStyle: resolve(__dirname, 'styles/tailwind.css'),
                     postStyle: resolve(__dirname, 'styles/post.scss'),
-                    islandLoader: resolve(__dirname, 'src/scripts/island-loader.ts')
+                    screenLoader: resolve(__dirname, 'src/scripts/screen-loader.ts')
                 },
                 output: {
                     entryFileNames: '[name].[hash].js',

@@ -78,10 +78,10 @@
     aside,
     .fixed,
     .sticky,
-    island-component[name="LoginPrompt"],
-    island-component[name="Toaster"],
-    island-component[name="Comments"],
-    island-component[name="RelatedPosts"] {
+    [data-screen="LoginPrompt"],
+    [data-screen="Toaster"],
+    [data-screen="Comments"],
+    [data-screen="RelatedPosts"] {
         display: none !important;
     }
 

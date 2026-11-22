@@ -22,7 +22,7 @@ export interface AuthConfig {
   mediaRoot?: string;
   deliverNotifications?: boolean;
   trustedProxies?: string[];
-  islandsRoot?: string;
+  webAssetsRoot?: string;
 }
 
 export function registerAuthentication(app: FastifyInstance, db: PrismaClient, siteUrl: URL, config: AuthConfig) {

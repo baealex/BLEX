@@ -4,7 +4,7 @@ import { fileURLToPath } from 'node:url';
 import { gzipSync } from 'node:zlib';
 
 const currentDir = dirname(fileURLToPath(import.meta.url));
-const outDir = resolve(currentDir, '../../server/dist/islands');
+const outDir = resolve(currentDir, '../../server/dist/web');
 const manifestPath = resolve(outDir, '.vite/manifest.json');
 
 // Size limits keep about 10% headroom over the current build so ordinary feature work
@@ -12,30 +12,30 @@ const manifestPath = resolve(outDir, '.vite/manifest.json');
 // dependency landing in a shared entry. Re-baseline them when headroom runs low.
 const budgets = [
     {
-        entries: ['src/scripts/island-loader.ts'],
+        entries: ['src/scripts/screen-loader.ts'],
         label: 'base page scripts',
         maxInitialFiles: 6,
         maxInitialBytes: 65 * 1024,
         maxInitialGzipBytes: 24 * 1024,
         allowedInitialNames: [
-            'src/scripts/island-loader.ts',
+            'src/scripts/screen-loader.ts',
             'preload-helper',
             'theme',
             'loginPrompt'
         ],
         requiredDynamicNames: [
-            'src/island.tsx',
+            'src/screen-runtime.tsx',
             'toast'
         ]
     },
     {
-        entries: ['src/island.tsx'],
-        label: 'on-demand island runtime',
+        entries: ['src/screen-runtime.tsx'],
+        label: 'on-demand screen runtime',
         maxInitialFiles: 13,
         maxInitialBytes: 260 * 1024,
         maxInitialGzipBytes: 85 * 1024,
         allowedInitialNames: [
-            'src/island.tsx',
+            'src/screen-runtime.tsx',
             'rolldown-runtime',
             'jsx-runtime',
             'react',
@@ -67,39 +67,39 @@ const budgets = [
         ]
     },
     {
-        entries: ['src/island.tsx', 'src/components/remotes/Login/index.ts'],
-        label: 'login island experience',
+        entries: ['src/screen-runtime.tsx', 'src/components/remotes/Login/index.ts'],
+        label: 'login screen experience',
         // Axios 1.20 security fixes add 5.1 KiB raw / 1.7 KiB gzip to request clients.
         maxInitialBytes: 360 * 1024,
         maxInitialGzipBytes: 120 * 1024
     },
     {
-        entries: ['src/island.tsx', 'src/components/remotes/Signup/index.ts'],
-        label: 'signup island experience',
+        entries: ['src/screen-runtime.tsx', 'src/components/remotes/Signup/index.ts'],
+        label: 'signup screen experience',
         maxInitialBytes: 350 * 1024,
         maxInitialGzipBytes: 117 * 1024
     },
     {
-        entries: ['src/island.tsx', 'src/components/remotes/SearchPage/index.tsx'],
-        label: 'search island experience',
+        entries: ['src/screen-runtime.tsx', 'src/components/remotes/SearchPage/index.tsx'],
+        label: 'search screen experience',
         maxInitialBytes: 345 * 1024,
         maxInitialGzipBytes: 114 * 1024
     },
     {
-        entries: ['src/island.tsx', 'src/components/remotes/SettingsApp/index.tsx'],
-        label: 'settings island experience',
+        entries: ['src/screen-runtime.tsx', 'src/components/remotes/SettingsApp/index.tsx'],
+        label: 'settings screen experience',
         maxInitialBytes: 530 * 1024,
         maxInitialGzipBytes: 176 * 1024
     },
     {
-        entries: ['src/island.tsx', 'src/components/remotes/PostEditor/index.ts'],
-        label: 'post editor island experience',
+        entries: ['src/screen-runtime.tsx', 'src/components/remotes/PostEditor/index.ts'],
+        label: 'post editor screen experience',
         maxInitialBytes: 1475 * 1024,
         maxInitialGzipBytes: 478 * 1024
     },
     {
-        entries: ['src/island.tsx', 'src/components/remotes/Comments/index.ts'],
-        label: 'comments island experience',
+        entries: ['src/screen-runtime.tsx', 'src/components/remotes/Comments/index.ts'],
+        label: 'comments screen experience',
         maxInitialBytes: 520 * 1024,
         maxInitialGzipBytes: 175 * 1024
     },

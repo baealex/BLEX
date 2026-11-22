@@ -60,7 +60,7 @@
 
 ## BLEX 3.x reference
 
-The remaining conventions cover the React islands in `packages/web`. Guidance about the Django app applies to the `v3.14` tag, where that code still lives.
+The remaining conventions cover the React screens in `packages/web`. Guidance about the Django app applies to the `v3.14` tag, where that code still lives.
 
 ## Backend Guidelines
 - **Always read `docs/BACKEND_GUIDE.md` first.**
@@ -77,7 +77,7 @@ The remaining conventions cover the React islands in `packages/web`. Guidance ab
 ## Frontend Guidelines
 - **Always read `docs/FRONTEND_GUIDE.md` first.**
 - Prefer `ppnpm test:web` for pure logic. Reserve Playwright E2E tests for behavior that requires browser APIs, built assets, or production runtime integration.
-- **IMPORTANT**: Lint and type checks are **ONLY** for Islands (React) work, **NOT** for template work.
+- **IMPORTANT**: Lint and type checks are **ONLY** for Screens (React) work, **NOT** for template work.
   - After development, run lint and type checks:
     - `pnpm lint` for linting
     - `pnpm type-check` for type checking
@@ -92,11 +92,11 @@ The remaining conventions cover the React islands in `packages/web`. Guidance ab
 
 ## Internationalization Guidelines
 
-- Django owns the document locale. Templates, `<html lang>`, `Content-Language`, `window.configuration.locale`, islands, and same-origin APIs must agree.
+- Django owns the document locale. Templates, `<html lang>`, `Content-Language`, `window.configuration.locale`, screens, and same-origin APIs must agree.
 - Keep English as the source message and commit reviewed Korean translations. Do not translate posts, queries, usernames, or other user-authored content.
 - Django messages live in `backend/src/locale`; remotes messages live in `packages/web/src/locales`. Do not create a shared cross-runtime catalog.
 - New API contracts carry stable keys, enums, numbers, and ISO dates before localized fallback text.
-- Run `npm run server:compilemessages` after Django catalog edits and `pnpm i18n:check` after Islands message edits.
+- Run `npm run server:compilemessages` after Django catalog edits and `pnpm i18n:check` after Screens message edits.
 - Production remains Korean-only unless `ENABLE_ENGLISH_UI=TRUE` is explicitly set after a coherent English journey is ready.
 
 ## Design Guidelines

@@ -1,7 +1,7 @@
 import { buildApp } from './app.js';
 import { createToken } from './features/auth/session.js';
 import { trustedProxiesFromEnv } from './platform/runtime-config.js';
-import { resolveIslandsRoot } from './settings-host/index.js';
+import { resolveWebAssetsRoot } from './application/screen-host/index.js';
 
 const dbPath = process.env.BLEX_V4_DB_PATH;
 if (!dbPath) throw new Error('Set BLEX_V4_DB_PATH to a migrated SQLite database.');
@@ -18,8 +18,8 @@ const trustedProxies = trustedProxiesFromEnv(process.env);
 if (!readOnly && siteUrl.protocol === 'https:' && !trustedProxies) {
   console.warn('BLEX_TRUSTED_PROXIES is not set. Behind an HTTPS proxy, every visitor shares one login rate limit.');
 }
-const islandsRoot = await resolveIslandsRoot(process.env.BLEX_ISLANDS_PATH);
-const auth = !readOnly && secretKey && cipherKey ? { secretKey, cipherKey, setupToken, trustedProxies, deliverNotifications: true, islandsRoot } : undefined;
+const webAssetsRoot = await resolveWebAssetsRoot(process.env.BLEX_WEB_ASSETS_PATH);
+const auth = !readOnly && secretKey && cipherKey ? { secretKey, cipherKey, setupToken, trustedProxies, deliverNotifications: true, webAssetsRoot } : undefined;
 const app = await buildApp(dbPath, siteUrl, auth, process.env.BLEX_V4_MEDIA_PATH);
 
 for (const signal of ['SIGINT', 'SIGTERM'] as const) {

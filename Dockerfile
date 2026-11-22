@@ -11,7 +11,7 @@ RUN npm i -g pnpm@${PNPM_VERSION} && pnpm i --frozen-lockfile --filter . --filte
 COPY packages/web ./packages/web
 COPY packages/ui ./packages/ui
 COPY packages/editor ./packages/editor
-RUN pnpm exec turbo run build --filter=@blex/web && find /app/packages/server/dist/islands -name '*.map' -delete
+RUN pnpm exec turbo run build --filter=@blex/web && find /app/packages/server/dist/web -name '*.map' -delete
 
 FROM node:24.22.1-alpine AS node-base
 WORKDIR /app
@@ -54,7 +54,7 @@ COPY --from=runtime-dependencies /app/node_modules /app/node_modules
 COPY --from=runtime-dependencies /app/packages/server/node_modules ./node_modules
 COPY --from=build /app/packages/server/dist/src ./dist/src
 COPY --from=build /app/packages/server/dist/client ./dist/client
-COPY --from=web-builder /app/packages/server/dist/islands ./dist/islands
+COPY --from=web-builder /app/packages/server/dist/web ./dist/web
 COPY packages/server/data ./data
 COPY packages/server/public ./public
 RUN install -d -o node -g node /var/lib/blex /var/lib/blex/media \

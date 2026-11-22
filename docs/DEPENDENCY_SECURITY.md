@@ -1,7 +1,7 @@
 # Dependency Security Patches
 
 The November 2026 dependency review covers the pinned Python runtime, root npm
-development tools, and the complete Islands pnpm dependency graph. It builds on
+development tools, and the complete Screens pnpm dependency graph. It builds on
 the October 2026 patch set.
 
 ## Patched versions

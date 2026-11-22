@@ -13,11 +13,11 @@ i18n framework.
 ## Catalog ownership
 
 BLEX has three catalog surfaces because its server-rendered pages, React
-islands, and reusable editor package have different runtime boundaries:
+screens, and reusable editor package have different runtime boundaries:
 
 - Django templates, validation, and server messages:
   `backend/src/locale/{locale}/LC_MESSAGES/django.po`
-- React islands:
+- React screens:
   `packages/web/src/locales/{locale}/messages.po`
 - Rich-text editor controls:
   `packages/editor/src/TiptapEditor/i18n/locales/{locale}.ts`
@@ -38,7 +38,7 @@ npm run server:compilemessages
 
 Commit both `django.po` and the compiled `django.mo` file.
 
-For React island messages:
+For React screen messages:
 
 ```bash
 pnpm --dir packages/web i18n:extract
@@ -50,7 +50,7 @@ Commit the PO catalogs. Compiled Lingui `.mjs` files are generated locally and
 ignored by Git.
 
 For editor messages, translate the values in the locale's typed catalog without
-changing keys or `{placeholders}`, then run the island tests and type checks.
+changing keys or `{placeholders}`, then run the screen tests and type checks.
 
 ## Add a language
 
@@ -67,7 +67,7 @@ Use a supported BCP 47 language code, such as `fr` or `de`.
 5. Copy the editor's `en.ts` catalog, translate its values, and register the new
    dynamic loader in `packages/editor/src/TiptapEditor/i18n/messages.ts`.
 6. Run the extraction and compile checks for every runtime.
-7. Verify one server-rendered page, one island page, and the editor in the new locale before
+7. Verify one server-rendered page, one screen page, and the editor in the new locale before
    enabling it in production.
 
 The Lingui configuration and browser configuration type derive their locale

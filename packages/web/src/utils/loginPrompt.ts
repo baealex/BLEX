@@ -1,6 +1,6 @@
 /**
  * Login Prompt Utility
- * Lazily mounts the LoginPrompt island and dispatches custom events to it.
+ * Lazily mounts the LoginPrompt screen and dispatches custom events to it.
  * Works with React and vanilla JavaScript
  */
 
@@ -42,20 +42,19 @@ const ensureLoginPrompt = (request: LoginPromptRequest): boolean => {
     const existingLoginPrompt = document.getElementById(LOGIN_PROMPT_ROOT_ID);
 
     if (existingLoginPrompt) {
-        if (existingLoginPrompt.dataset.islandStatus !== 'mounted') {
-            existingLoginPrompt.setAttribute('props', encodeProps(request));
+        if (existingLoginPrompt.dataset.screenStatus !== 'mounted') {
+            existingLoginPrompt.dataset.screenProps = encodeProps(request);
             return true;
         }
 
         return false;
     }
 
-    const loginPrompt = document.createElement('island-component');
+    const loginPrompt = document.createElement('div');
     loginPrompt.id = LOGIN_PROMPT_ROOT_ID;
-    loginPrompt.setAttribute('name', 'LoginPrompt');
-    loginPrompt.setAttribute('props', encodeProps(request));
-    loginPrompt.dataset.islandName = 'LoginPrompt';
-    loginPrompt.dataset.islandStatus = 'pending';
+    loginPrompt.dataset.screen = 'LoginPrompt';
+    loginPrompt.dataset.screenProps = encodeProps(request);
+    loginPrompt.dataset.screenStatus = 'pending';
     document.body.appendChild(loginPrompt);
 
     return true;

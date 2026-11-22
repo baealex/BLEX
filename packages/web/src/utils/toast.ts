@@ -27,11 +27,10 @@ const ensureToaster = () => {
         return existingToaster;
     }
 
-    const toaster = document.createElement('island-component');
+    const toaster = document.createElement('div');
     toaster.id = TOASTER_ROOT_ID;
-    toaster.setAttribute('name', 'Toaster');
-    toaster.dataset.islandName = 'Toaster';
-    toaster.dataset.islandStatus = 'pending';
+    toaster.dataset.screen = 'Toaster';
+    toaster.dataset.screenStatus = 'pending';
     document.body.appendChild(toaster);
 
     return toaster;
@@ -39,7 +38,7 @@ const ensureToaster = () => {
 
 const runWhenToasterReady = <T>(callback: () => T) => {
     const toaster = ensureToaster();
-    if (!toaster || toaster.dataset.islandStatus === 'mounted') {
+    if (!toaster || toaster.dataset.screenStatus === 'mounted') {
         return callback();
     }
 
@@ -60,13 +59,13 @@ const runWhenToasterReady = <T>(callback: () => T) => {
 
     if (typeof MutationObserver !== 'undefined') {
         observer = new MutationObserver(() => {
-            if (toaster.dataset.islandStatus === 'mounted') {
+            if (toaster.dataset.screenStatus === 'mounted') {
                 run();
             }
         });
         observer.observe(toaster, {
             attributes: true,
-            attributeFilter: ['data-island-status']
+            attributeFilter: ['data-screen-status']
         });
     }
 

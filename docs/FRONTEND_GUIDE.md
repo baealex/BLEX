@@ -4,13 +4,13 @@
 
 ## 1. The Core Principle
 
-The frontend is a **constellation of islands**—not a monolith. Each island is self-contained, lazy-loaded, and composable.
+The frontend is a **set of independent screens**—not a monolith. Each screen is self-contained, lazy-loaded, and composable.
 
 We prioritize **Composability** and **Performance** over complexity. Our code should load fast, render predictably, and scale elegantly.
 
 ---
 
-## 2. Architecture: Islands with Clear Boundaries
+## 2. Architecture: Screens with Clear Boundaries
 
 We organize our frontend as a **monorepo** with strict separation of concerns. Do not blur them.
 
@@ -24,8 +24,8 @@ We organize our frontend as a **monorepo** with strict separation of concerns. D
 - **`/packages/editor`**: The Tiptap editor. Isolated complexity.
   - *Why isolated*: The editor is a core feature. Complexity must not leak.
 
-- **`/packages/web`**: Islands App. React meets Django.
-  - *What it does*: Web Components wrapper (`<island-component>`), lazy loading, query caching.
+- **`/packages/web`**: Web app. React screens served by the BLEX server.
+  - *What it does*: Screen mounting (`data-screen`), lazy loading, query caching.
 
 > **"If a component could be used on a different project, it belongs in `/packages/ui`. If it's BLEX-specific, it lives in `/apps/remotes`."**
 
@@ -72,9 +72,9 @@ Build components that **compose**, not components that configure.
 <Dialog trigger="Open" content="..." />
 ```
 
-### Lazy Load Islands, Not Everything
+### Lazy Load Screens, Not Everything
 
-**Only lazy load page-level island components**. Use `React.lazy()` for islands that aren't on the critical rendering path.
+**Only lazy load page-level screen components**. Use `React.lazy()` for screens that aren't on the critical rendering path.
 
 **Don't lazy load**:
 - Components needed for initial render (above the fold)
@@ -138,10 +138,10 @@ const { register, handleSubmit } = useForm({ resolver: zodResolver(schema) });
 
 ## 9. Internationalization
 
-- Django provides the canonical locale through `window.configuration.locale`; islands must not negotiate independently from `navigator.language`.
+- Django provides the canonical locale through `window.configuration.locale`; screens must not negotiate independently from `navigator.language`.
 - Use explicit, domain-prefixed Lingui IDs and English defaults. Product messages belong in the owning package catalog; user-authored content never does.
 - Use ICU messages for plurals and complete interpolated sentences. Format dates and numbers with the active locale instead of fixed Korean formatting.
-- The shared runtime activates its catalog before any island root renders. Do not create a second Lingui instance inside a feature.
+- The shared runtime activates its catalog before any screen root renders. Do not create a second Lingui instance inside a feature.
 - Commit `.po` catalogs, not generated `.mjs` files. Run `pnpm i18n:check` after changing translatable copy.
 
 ## 10. Performance Rules
@@ -156,7 +156,7 @@ We use **React 19 with the React Compiler**. It automatically handles memoizatio
 
 ### Code Splitting
 
-- Use `React.lazy()` for **islands only** (not critical path components).
+- Use `React.lazy()` for **screens only** (not critical path components).
 - Manual bundle chunks for vendors (React, Tiptap, Zod) are already configured.
 
 ### Images
@@ -190,4 +190,4 @@ pnpm install        # Install dependencies (backend + frontend)
 pnpm dev  # Start all dev servers in parallel
 ```
 
-> **Note**: Lint and type checks are **only** for Islands (React) work, **not** for Django template work.
+> **Note**: Lint and type checks are **only** for Screens (React) work, **not** for Django template work.

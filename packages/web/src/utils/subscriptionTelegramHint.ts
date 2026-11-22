@@ -1,6 +1,6 @@
 /**
  * One-time Telegram suggestion shown right after a reader subscribes to an author.
- * The island is mounted lazily so pages without a subscription action never load it.
+ * The screen is mounted lazily so pages without a subscription action never load it.
  */
 
 const HINT_ROOT_ID = 'blex-subscription-telegram-hint-root';
@@ -57,15 +57,12 @@ export const showSubscriptionTelegramHint = (): boolean => {
 
     document.getElementById(HINT_ROOT_ID)?.remove();
 
-    const hint = document.createElement('island-component');
+    const hint = document.createElement('div');
     hint.id = HINT_ROOT_ID;
-    hint.setAttribute('name', 'SubscriptionTelegramHint');
+    hint.dataset.screen = 'SubscriptionTelegramHint';
     const raised = document.querySelector('.post-action-dock') !== null;
-    hint.setAttribute('props', encodeURIComponent(JSON.stringify({ raised })));
-    hint.dataset.islandName = 'SubscriptionTelegramHint';
-    hint.dataset.islandStatus = 'pending';
-    // Mounted after a click, so the page startup monitor must not treat it as a slow island.
-    hint.dataset.islandOnDemand = 'true';
+    hint.dataset.screenProps = encodeURIComponent(JSON.stringify({ raised }));
+    hint.dataset.screenStatus = 'pending';
     document.body.appendChild(hint);
 
     return true;

@@ -30,7 +30,7 @@ import { registerAdminSettings } from '../features/site-admin/index.js';
 import { registerWorkLogs } from '../features/work-logs/index.js';
 import { validCsrf } from '../platform/csrf.js';
 import { registerSiteAssets } from '../platform/site-assets.js';
-import { registerSettingsHost } from '../settings-host/index.js';
+import { registerScreenHost } from '../application/screen-host/index.js';
 
 type RouteContext = {
   db: PrismaClient;
@@ -47,7 +47,7 @@ export async function registerRoutes(app: FastifyInstance, { db, siteUrl, auth, 
   if (auth) {
     await app.register(cookie);
     registerUploadGuard(app, currentUser);
-    if (auth.islandsRoot) registerSettingsHost(app, db, { currentUser, siteUrl, islandsRoot: auth.islandsRoot, cipherKey: auth.cipherKey });
+    if (auth.webAssetsRoot) registerScreenHost(app, db, { currentUser, siteUrl, webAssetsRoot: auth.webAssetsRoot, cipherKey: auth.cipherKey });
     registerAuthentication(app, db, siteUrl, { ...auth, mediaRoot });
     registerPersonalSettings(app, db, { ...routeOptions, updatePassword: passwordUpdater(db, siteUrl, auth) });
     registerNotifications(app, db, routeOptions);

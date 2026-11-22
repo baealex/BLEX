@@ -8,7 +8,7 @@ interface AppProps {
 }
 
 const LazyComponents = {
-    // Island components
+    // Screen components
     Comments: lazy(() => import('./remotes/Comments')),
     SocialLogin: lazy(() => import('./remotes/SocialLogin')),
     RelatedPosts: lazy(() => import('./remotes/RelatedPosts')),

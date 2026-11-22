@@ -31,18 +31,18 @@ async function screensApp() {
   seedPost(db, 2, 1, 'trashed', { published_date: recent, deleted_date: recent });
   insertRow(db, 'board_post_tags', { post_id: 2, tag_id: 2 });
   seedPost(db, 3, 1, 'draft', { published_date: null });
-  const islandsRoot = await mkdtemp(join(tmpdir(), 'blex-v4-islands-'));
-  await mkdir(join(islandsRoot, '.vite'));
-  const manifest = Object.fromEntries(['styles/tailwind.css', 'styles/main.scss', 'styles/post.scss', 'src/scripts/island-loader.ts']
+  const webAssetsRoot = await mkdtemp(join(tmpdir(), 'blex-v4-web-'));
+  await mkdir(join(webAssetsRoot, '.vite'));
+  const manifest = Object.fromEntries(['styles/tailwind.css', 'styles/main.scss', 'styles/post.scss', 'src/scripts/screen-loader.ts']
     .map((entry) => [entry, { file: `${entry.split('/').pop()}.hash` }]));
-  await writeFile(join(islandsRoot, '.vite/manifest.json'), JSON.stringify(manifest));
-  const app = await buildApp(fixture.path, testSiteUrl, { secretKey: testSecretKey, cipherKey: testCipherKey, islandsRoot: `${islandsRoot}/` }, fixture.mediaRoot);
+  await writeFile(join(webAssetsRoot, '.vite/manifest.json'), JSON.stringify(manifest));
+  const app = await buildApp(fixture.path, testSiteUrl, { secretKey: testSecretKey, cipherKey: testCipherKey, webAssetsRoot: `${webAssetsRoot}/` }, fixture.mediaRoot);
   await app.ready();
-  return { ...fixture, app, async close() { await app.close(); await fixture.cleanup(); await rm(islandsRoot, { recursive: true, force: true }); } };
+  return { ...fixture, app, async close() { await app.close(); await fixture.cleanup(); await rm(webAssetsRoot, { recursive: true, force: true }); } };
 }
 
-function islandProps(body: string) {
-  const match = /<island-component name="([^"]+)"[^>]*props="([^"]+)"/.exec(body);
+function screenProps(body: string) {
+  const match = /<div data-screen="([^"]+)"[^>]*data-screen-props="([^"]+)"/.exec(body);
   assert.ok(match, 'the page mounts a 3.x screen');
   return { name: match[1], props: JSON.parse(decodeURIComponent(match[2])) as Record<string, unknown> };
 }
@@ -82,15 +82,15 @@ test('applies 3.x access rules before mounting settings', async () => {
     assert.equal((await fixture.app.inject({ url: '/settings/series', headers: reader })).statusCode, 404);
     assert.equal((await fixture.app.inject({ url: '/admin-settings/', headers: reader })).statusCode, 404);
     const account = await fixture.app.inject({ url: '/settings/account', headers: reader });
-    assert.equal(islandProps(account.body).name, 'SettingsApp');
-    assert.equal(islandProps(account.body).props.isEditor, false);
-    assert.equal(islandProps(account.body).props.canUseTelegramIntegration, false);
+    assert.equal(screenProps(account.body).name, 'SettingsApp');
+    assert.equal(screenProps(account.body).props.isEditor, false);
+    assert.equal(screenProps(account.body).props.canUseTelegramIntegration, false);
     const staff = signIn(fixture.db, 3);
     const moved = await fixture.app.inject({ url: '/settings/users', headers: staff });
     assert.equal(moved.statusCode, 302);
     assert.equal(moved.headers.location, '/admin-settings/users');
     const admin = await fixture.app.inject({ url: '/admin-settings/users', headers: staff });
-    assert.equal(islandProps(admin.body).props.settingsMode, 'admin');
+    assert.equal(screenProps(admin.body).props.settingsMode, 'admin');
   } finally {
     await fixture.close();
   }
@@ -100,10 +100,10 @@ test('mounts the 3.x editor for new, draft, and existing posts', async () => {
   const fixture = await screensApp();
   try {
     const headers = signIn(fixture.db, 1);
-    assert.equal(islandProps((await fixture.app.inject({ url: '/write', headers })).body).props.mode, 'new');
-    const draft = islandProps((await fixture.app.inject({ url: '/write?draft=draft', headers })).body);
+    assert.equal(screenProps((await fixture.app.inject({ url: '/write', headers })).body).props.mode, 'new');
+    const draft = screenProps((await fixture.app.inject({ url: '/write?draft=draft', headers })).body);
     assert.deepEqual([draft.name, draft.props.mode, draft.props.draftUrl], ['PostEditor', 'draft', 'draft']);
-    const edit = islandProps((await fixture.app.inject({ url: '/@writer/kept/edit', headers })).body);
+    const edit = screenProps((await fixture.app.inject({ url: '/@writer/kept/edit', headers })).body);
     assert.deepEqual([edit.props.mode, edit.props.postUrl], ['edit', 'kept']);
     assert.equal((await fixture.app.inject({ url: '/@writer/kept/edit', headers: signIn(fixture.db, 3) })).statusCode, 404);
   } finally {
@@ -115,15 +115,15 @@ test('mounts the 3.x search and signup screens', async () => {
   const fixture = await screensApp();
   try {
     const search = await fixture.app.inject('/search?q=hello&username=writer');
-    assert.equal(islandProps(search.body).name, 'SearchPage');
-    assert.deepEqual(islandProps(search.body).props, { username: 'writer' });
+    assert.equal(screenProps(search.body).name, 'SearchPage');
+    assert.deepEqual(screenProps(search.body).props, { username: 'writer' });
     assert.match(search.body, /name="robots" content="noindex,follow"/);
     assert.doesNotMatch(search.body, /data-site-search/);
     assert.doesNotMatch(search.body, /isAuthenticated/);
 
     const signup = await fixture.app.inject('/sign?invite=welcome&next=/tags');
-    assert.equal(islandProps(signup.body).name, 'Signup');
-    const globals = /id="blex-island-globals"[^>]*>([^<]+)</.exec(signup.body);
+    assert.equal(screenProps(signup.body).name, 'Signup');
+    const globals = /id="blex-screen-globals"[^>]*>([^<]+)</.exec(signup.body);
     assert.deepEqual(JSON.parse(globals?.[1] ?? '{}'), { HCAPTCHA_SITE_KEY: '', NEXT_URL: '/tags', INVITE_CODE: 'welcome' });
     assert.doesNotMatch(signup.body, /js\.hcaptcha\.com\/1\/api\.js/);
 

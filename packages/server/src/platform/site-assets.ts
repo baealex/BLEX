@@ -25,8 +25,8 @@ export function registerSiteAssets(app: FastifyInstance) {
       const { script } = await readUiAsset('src/application/client.tsx');
       return reply.header('Cache-Control', 'no-store').redirect(script, 302);
     });
-    routes.get('/assets/blex/island-host.js', async (_request, reply) => {
-      const { script } = await readUiAsset('src/settings-host/client.ts');
+    routes.get('/assets/blex/screen-host.js', async (_request, reply) => {
+      const { script } = await readUiAsset('src/application/screen-host/client.ts');
       return reply.header('Cache-Control', 'no-store').redirect(script, 302);
     });
     routes.get('/assets/blex/comments.js', async (_request, reply) => {

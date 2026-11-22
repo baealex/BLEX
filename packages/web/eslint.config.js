@@ -49,7 +49,7 @@ export default [
     },
     {
         files: [
-            'src/island.tsx',
+            'src/screen-runtime.tsx',
             'src/components/App.tsx'
         ],
         rules: {
