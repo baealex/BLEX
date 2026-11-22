@@ -5,7 +5,8 @@ import type { FastifyInstance } from 'fastify';
 import { renderWorkLogDelete, renderWorkLogIndex, renderWorkLogShared } from './pages.js';
 import { displayPage, pageChrome, pageLinks, renderDetailPage } from './detail-page.js';
 import { MAX_ATTACHMENT_SIZE, mediaResponse, removeAttachment, saveAttachment, validateAttachment } from './services/attachments.js';
-import { EntryRow, WorkLogRow, deleteEntry, deleteWorkLog, insertEntry, insertWorkLog, readEntryInput, readOwnedLog } from './services/logs.js';
+import { deleteWorkLog, deleteWorkLogEntry, revokeWorkLogShare } from './services/deletions.js';
+import { EntryRow, WorkLogRow, insertEntry, insertWorkLog, readEntryInput, readOwnedLog } from './services/logs.js';
 import { createShare, entryCountForShare, pageEntryForShareMedia, readShare, readSnapshotEntries, selectedEntries, selectedEntryIds, sharePath, storedShareToken } from './services/shares.js';
 import { MAX_REQUEST_SIZE, PAGE_SIZE, WorkLogOptions, bodyRecord, csrfCookieValue, csrfValid, currentUser, html, isActiveEditor, notAllowed, notFound, parseId, scalar, toIsoDateTime } from './shared.js';
 
@@ -215,14 +216,7 @@ export function registerWorkLogs(app: FastifyInstance, db: PrismaClient, options
       if (logId === null || !shareToken) return notFound(reply);
       const log = await readOwnedLog(db, logId, user.id);
       if (!log) return notFound(reply);
-      const deleted = await db.$transaction(async (transaction) => {
-        await transaction.$executeRaw`
-          DELETE FROM board_worklogshare_entries WHERE worklogshare_id IN (
-            SELECT id FROM board_worklogshare WHERE log_id = ${logId} AND token = ${shareToken}
-          )
-        `;
-        return transaction.$executeRaw`DELETE FROM board_worklogshare WHERE log_id = ${logId} AND token = ${shareToken}`;
-      });
+      const deleted = await revokeWorkLogShare(db, logId, shareToken, user.id);
       if (deleted !== 1) return notFound(reply);
       return reply.redirect(`/work-logs/${logId}/`, 302);
     });
@@ -282,7 +276,7 @@ export function registerWorkLogs(app: FastifyInstance, db: PrismaClient, options
       if (logId === null || entryId === null) return notFound(reply);
       const log = await readOwnedLog(db, logId, user.id);
       if (!log) return notFound(reply);
-      const attachment = await deleteEntry(db, logId, entryId);
+      const attachment = await deleteWorkLogEntry(db, logId, entryId, user.id);
       if (attachment === null) return notFound(reply);
       await removeAttachment(options.mediaRoot, attachment);
       return reply.redirect(`/work-logs/${logId}/`, 302);

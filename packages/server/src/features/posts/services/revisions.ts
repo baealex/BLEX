@@ -1,5 +1,6 @@
 import { type PrismaClient } from '@prisma/client';
 import { sanitizePostHtml } from '../post-html.js';
+import { deletePostRevisions } from './deletions.js';
 import { readingTime } from './post-content.js';
 import { EditorialSnapshot, PostValidationError, assertExpectedUpdatedAt, captureEditorialSnapshot, insertRevision, sameEditorialSnapshot } from './post-store.js';
 import { DbDate, StoredPost, UserRow, dateAsIso, nowString, numberValue } from '../shared.js';
@@ -67,15 +68,10 @@ export async function loadRevision(
 }
 
 export async function deleteRevision(db: PrismaClient, postId: number, revisionId: number): Promise<boolean> {
-  return db.$transaction(async (tx) => {
-    const [target] = await tx.$queryRaw<unknown[]>`
-      SELECT 1 FROM board_edithistory WHERE post_id = ${postId} AND id = ${revisionId} AND change_type <> 'draft'
-    `;
-    if (!target) return false;
-    await tx.$executeRaw`UPDATE board_edithistory SET restored_from_id = NULL WHERE restored_from_id = ${revisionId}`;
-    await tx.$executeRaw`DELETE FROM board_edithistory WHERE id = ${revisionId}`;
-    return true;
-  });
+  const count = await db.$transaction((tx) => deletePostRevisions(tx, {
+    post_id: postId, id: revisionId, change_type: { not: 'draft' },
+  }));
+  return count === 1;
 }
 
 export async function restoreRevision(
