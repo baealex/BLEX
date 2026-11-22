@@ -232,7 +232,7 @@ test('sends each webhook once to the right owner and stops for a removed or fail
   }
 });
 
-test('stores webhook channels under the account and never returns their URL', async () => {
+test('stores webhook channels under the account and returns their URL only to the owner', async () => {
   const { db, close } = await deliveryFixture();
   const app = Fastify();
   await app.register(cookie);
@@ -258,11 +258,13 @@ test('stores webhook channels under the account and never returns their URL', as
     assert.equal(saved.json().body.channelId, channelId);
 
     const listed = await app.inject({ url: '/v1/webhook/channels', headers });
-    assert.doesNotMatch(listed.body, /bearer-secret/);
     const [channel] = listed.json().body.channels;
-    assert.deepEqual({ name: channel.name, host: channel.host, isActive: channel.isActive, failureCount: channel.failureCount },
-      { name: 'Alerts', host: 'hooks.example.com', isActive: true, failureCount: 0 });
+    assert.deepEqual({ name: channel.name, webhookUrl: channel.webhookUrl, isActive: channel.isActive, failureCount: channel.failureCount },
+      { name: 'Alerts', webhookUrl: url, isActive: true, failureCount: 0 });
     assert.match(channel.createdDate, /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d{3})?Z$/);
+
+    const otherAccount = await app.inject({ url: '/v1/webhook/channels', headers: { 'x-user': '70' } });
+    assert.doesNotMatch(otherAccount.body, /bearer-secret/);
 
     const foreign = await app.inject({ method: 'DELETE', url: `/v1/webhook/channels/${channelId}`, headers: { 'x-user': '70' } });
     assert.equal(foreign.json().errorCode, 'error:NF');

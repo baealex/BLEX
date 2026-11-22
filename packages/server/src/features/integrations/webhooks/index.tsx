@@ -17,7 +17,6 @@ interface ChannelOptions {
 
 type Scope = 'user' | 'global';
 
-/** The URL is a bearer credential, so a response only ever names its host. */
 async function channels(db: PrismaClient, scope: Scope, owner: number | null) {
   const rows = await db.webhookChannel.findMany({
     where: { scope, ownerId: owner },
@@ -25,7 +24,7 @@ async function channels(db: PrismaClient, scope: Scope, owner: number | null) {
     select: { id: true, name: true, url: true, isActive: true, failureCount: true, createdAt: true },
   });
   return rows.map(({ url, createdAt, ...channel }) => ({
-    ...channel, host: URL.parse(url)?.hostname ?? '', createdDate: djangoJsonUtc(createdAt.toISOString()),
+    ...channel, webhookUrl: url, createdDate: djangoJsonUtc(createdAt.toISOString()),
   }));
 }
 

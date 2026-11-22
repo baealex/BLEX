@@ -562,9 +562,9 @@ const WebhookChannelManager = ({
                                     {channelName}
                                 </h3>
                                 <div className={`${SETTINGS_LIST_META} flex flex-wrap items-center gap-3`}>
-                                    <span className="flex items-center truncate max-w-[200px]" title={channel.host}>
+                                    <span className="flex items-center truncate max-w-[200px]" title={channel.webhookUrl}>
                                         <LinkIcon aria-hidden="true" className="mr-1.5 h-3.5 w-3.5 shrink-0" />
-                                        {channel.host}/...
+                                        {channel.webhookUrl.replace(/^https?:\/\//, '').slice(0, 30)}...
                                     </span>
                                     <span className="flex items-center">
                                         <Clock aria-hidden="true" className="mr-1.5 h-3.5 w-3.5 shrink-0" />

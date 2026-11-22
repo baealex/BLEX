@@ -397,7 +397,7 @@ export const updatePinnedPostsOrder = async (postUrls: string[]) => {
 export interface WebhookChannel {
     id: number;
     name: string;
-    host: string;
+    webhookUrl: string;
     isActive: boolean;
     failureCount: number;
     createdDate: string;
