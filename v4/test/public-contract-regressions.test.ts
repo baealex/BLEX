@@ -158,6 +158,16 @@ test('serves stored media URLs that contain duplicate slashes without opening pr
   }
 });
 
+test('serves the legacy deleted-user image', async () => {
+  const fixture = await publicApp();
+  try {
+    assert.equal((await fixture.app.inject('/resources/assets/images/ghost.jpg')).statusCode, 200);
+    assert.equal((await fixture.app.inject('/resources/assets/images/other.jpg')).statusCode, 404);
+  } finally {
+    await fixture.close();
+  }
+});
+
 test('keeps the 3.x search and feed metadata on public posts', async () => {
   const open = await publicApp({ seo: 1, aeo: 0 });
   try {

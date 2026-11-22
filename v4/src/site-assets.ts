@@ -49,7 +49,7 @@ export function registerSiteAssets(app: FastifyInstance) {
     });
     routes.get<{ Params: { name: string } }>('/resources/assets/images/:name', (request, reply) => {
       const { name } = request.params;
-      if (!/^default-(avatar|cover-[1-6])\.jpg$/.test(name)) return reply.code(404).send('Not found');
+      if (!/^(?:default-(?:avatar|cover-[1-6])|ghost)\.jpg$/.test(name)) return reply.code(404).send('Not found');
       return reply.sendFile(`images/${name}`);
     });
   });
