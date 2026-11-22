@@ -4,7 +4,7 @@ import { fileURLToPath } from 'node:url';
 import { gzipSync } from 'node:zlib';
 
 const currentDir = dirname(fileURLToPath(import.meta.url));
-const outDir = resolve(currentDir, '../../../../src/resources/staticfiles/islands');
+const outDir = resolve(currentDir, '../../../../dist/islands');
 const manifestPath = resolve(outDir, '.vite/manifest.json');
 
 // Size limits keep about 10% headroom over the current build so ordinary feature work

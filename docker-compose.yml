@@ -2,8 +2,6 @@ services:
   migrate:
     build:
       context: ./v4
-      additional_contexts:
-        backend: ./backend
       target: migration
     environment:
       BLEX_PORT_MAPPING: ${BLEX_PORT_MAPPING:-127.0.0.1:20002:8040}
@@ -20,8 +18,6 @@ services:
   blex:
     build:
       context: ./v4
-      additional_contexts:
-        backend: ./backend
     env_file: ${BLEX_ENV_FILE:-./.env}
     depends_on:
       migrate:

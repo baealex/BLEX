@@ -91,7 +91,6 @@ jobs:
         uses: docker/build-push-action@v7
         with:
           context: ./v4
-          build-contexts: backend=./backend
           file: ./v4/Dockerfile
           platforms: linux/amd64,linux/arm64/v8
           pull: true
@@ -107,7 +106,6 @@ jobs:
         uses: docker/build-push-action@v7
         with:
           context: ./v4
-          build-contexts: backend=./backend
           file: ./v4/Dockerfile
           target: migration
           platforms: linux/amd64,linux/arm64/v8

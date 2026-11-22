@@ -35,12 +35,11 @@ const hasPrefix = (path: string, prefixes: string[]) => {
   return prefixes.some((prefix) => normalized === prefix || normalized.startsWith(`${prefix}/`));
 };
 
-/** Finds the built 3.x screens: the image copy first, then the local workspace build. */
+/** Finds the built 3.x screens next to the compiled server. */
 export async function resolveIslandsRoot(configured?: string): Promise<string | undefined> {
   const candidates = [
     configured,
     fileURLToPath(new URL('../../islands/', import.meta.url)),
-    fileURLToPath(new URL('../../../../backend/src/resources/staticfiles/islands/', import.meta.url)),
   ].filter((value): value is string => Boolean(value));
   for (const candidate of candidates) {
     try {

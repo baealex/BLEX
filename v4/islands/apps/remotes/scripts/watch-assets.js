@@ -9,7 +9,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 // Paths
-const TEMPLATES_DIR = path.resolve(__dirname, '../../../../src/board/templates');
+const TEMPLATES_DIR = path.resolve(__dirname, '../templates');
 const SCSS_OUTPUT_FILE = path.resolve(__dirname, '../styles/forwarded.scss');
 const ALPINE_OUTPUT_FILE = path.resolve(__dirname, '../src/scripts/alpine-loader.ts');
 const runOnce = process.argv.includes('--once');

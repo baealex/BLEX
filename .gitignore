@@ -2,8 +2,8 @@
 /node_modules
 /backend/src/resources/staticfiles/
 /backend/src/resources/media/
-/backend/islands/apps/remotes/src/locales/**/*.js
-/backend/islands/apps/remotes/src/locales/**/*.mjs
+/v4/islands/apps/remotes/src/locales/**/*.js
+/v4/islands/apps/remotes/src/locales/**/*.mjs
 /frontend/**.env
 /backend/**.env
 

@@ -44,8 +44,8 @@ jobs:
       - uses: actions/checkout@v6
       - name: Build runtime and migration images
         run: |
-          docker build --pull --build-context backend=./backend --target migration --tag blex-migration:ci ./v4
-          docker build --build-context backend=./backend --tag blex:ci ./v4
+          docker build --pull --target migration --tag blex-migration:ci ./v4
+          docker build --tag blex:ci ./v4
 
       - name: Scan BLEX image
         uses: ./.github/actions/image-security

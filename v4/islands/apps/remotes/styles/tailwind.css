@@ -3,7 +3,8 @@
 
 @source "../../../**/*.{ts,tsx}";
 @source "../../../packages/**/*.{ts,tsx}";
-@source "../../../../src/board/templates/**/*.html";
+@source not "../templates";
+@source "./template-classes.txt";
 
 @theme inline {
     --color-surface: var(--color-surface);
