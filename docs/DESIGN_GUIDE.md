@@ -101,8 +101,8 @@ Dark mode is not an optional skin. It is a first-class rendering mode.
 
 ### Single Source of Truth
 
-- **Token values live only in** `backend/islands/apps/remotes/styles/variables.css`.
-- **Tailwind mapping lives in** `backend/islands/apps/remotes/styles/tailwind.css` and must stay mapping-only (`@theme inline`), not duplicate token values.
+- **Token values live only in** `v4/islands/apps/remotes/styles/variables.css`.
+- **Tailwind mapping lives in** `v4/islands/apps/remotes/styles/tailwind.css` and must stay mapping-only (`@theme inline`), not duplicate token values.
 - Legacy aliases (`--color-bg-*`, `--color-text-*`, `--color-border-*`, `--color-interactive-*`, `--glass-*`) are deprecated and must not be reintroduced.
 
 ### Theme Activation and Persistence

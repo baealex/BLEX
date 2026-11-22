@@ -1,5 +1,7 @@
 # Backend Compatibility Contract
 
+> **BLEX 3.x:** The Django code described here was removed from this branch. It remains available at the `v3.14` tag.
+
 Backend refactors must preserve observable behavior unless a separately approved change explicitly
 introduces a new contract. A refactor PR must add or update a characteristic test before moving code.
 

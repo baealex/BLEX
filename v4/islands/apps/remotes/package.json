@@ -8,7 +8,6 @@
         "watch:assets": "node scripts/watch-assets.js",
         "build": "node scripts/watch-assets.js --once && vite build",
         "check:entry-budgets": "node scripts/check-entry-budgets.mjs",
-        "e2e:smoke": "playwright test --config playwright.config.ts",
         "i18n:extract": "lingui extract --clean",
         "i18n:compile": "lingui compile --strict",
         "i18n:check": "node scripts/check-i18n.mjs",

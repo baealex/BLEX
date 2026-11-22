@@ -7,7 +7,8 @@ AI Agents must read `docs/DEV_CONVENTION.md` before starting any development.
 - BLEX 4 Fastify routes and React SSR: `v4/src`
 - SQLite schema and migrations: `v4/prisma`
 - Tests and fixtures: `v4/test`
-- BLEX 3.x compatibility reference: `backend`
+- BLEX 3.14 React screens used by BLEX 4: `v4/islands`
+- BLEX 3.x compatibility reference: git tag `v3.14`
 - Project docs: `docs`
 
 ## Development Commands

@@ -59,7 +59,7 @@
 
 ## BLEX 3.x reference
 
-The remaining conventions cover changes to the historical Django app and its React islands.
+The remaining conventions cover the React islands in `v4/islands`. Guidance about the Django app applies to the `v3.14` tag, where that code still lives.
 
 ## Backend Guidelines
 - **Always read `docs/BACKEND_GUIDE.md` first.**
@@ -70,8 +70,8 @@ The remaining conventions cover changes to the historical Django app and its Rea
 - For server-side rendering + client interactions, use `alpine`.
   - Template components should have corresponding `*.alpine.ts` scripts and `*.scss` files in the same location.
     - These are automatically mapped when running `pnpm dev`, but if not, you need to update the following files:
-      - `/backend/islands/apps/remotes/styles/forwarded.scss`
-      - `/backend/islands/apps/remotes/src/scripts/alpine-loader.ts`
+      - `/v4/islands/apps/remotes/styles/forwarded.scss`
+      - `/v4/islands/apps/remotes/src/scripts/alpine-loader.ts`
 
 ## Frontend Guidelines
 - **Always read `docs/FRONTEND_GUIDE.md` first.**
@@ -82,10 +82,10 @@ The remaining conventions cover changes to the historical Django app and its Rea
     - `npm run islands:type-check` for type checking
   - These checks have no meaning for Django template work.
 - This is a monorepo frontend architecture.
-  - Common components are located in `/backend/islands/packages/ui`.
+  - Common components are located in `/v4/islands/packages/ui`.
     - Don't reinvent the wheel—use proven libraries like `radix`.
     - Components should be highly reusable and follow the design philosophy.
-  - The editor is located in `/backend/islands/packages/editor`.
+  - The editor is located in `/v4/islands/packages/editor`.
     - The editor is based on `tiptap`.
     - As a core feature of the project, prioritize UI and UX above all.
 
@@ -93,7 +93,7 @@ The remaining conventions cover changes to the historical Django app and its Rea
 
 - Django owns the document locale. Templates, `<html lang>`, `Content-Language`, `window.configuration.locale`, islands, and same-origin APIs must agree.
 - Keep English as the source message and commit reviewed Korean translations. Do not translate posts, queries, usernames, or other user-authored content.
-- Django messages live in `backend/src/locale`; remotes messages live in `backend/islands/apps/remotes/src/locales`. Do not create a shared cross-runtime catalog.
+- Django messages live in `backend/src/locale`; remotes messages live in `v4/islands/apps/remotes/src/locales`. Do not create a shared cross-runtime catalog.
 - New API contracts carry stable keys, enums, numbers, and ISO dates before localized fallback text.
 - Run `npm run server:compilemessages` after Django catalog edits and `npm run islands:i18n:check` after Islands message edits.
 - Production remains Korean-only unless `ENABLE_ENGLISH_UI=TRUE` is explicitly set after a coherent English journey is ready.

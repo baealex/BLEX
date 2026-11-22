@@ -1,7 +1,7 @@
 <p align="center">
   <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="backend/src/resources/logow.svg">
-    <img alt="BLEX" src="backend/src/resources/logob.svg" width="108">
+    <source media="(prefers-color-scheme: dark)" srcset="v4/public/logow.svg">
+    <img alt="BLEX" src="v4/public/logob.svg" width="108">
   </picture>
 </p>
 

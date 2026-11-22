@@ -1,3 +1,0 @@
-"""
-Board API tests package
-"""

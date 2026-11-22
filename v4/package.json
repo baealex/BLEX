@@ -9,6 +9,7 @@
   "scripts": {
     "postinstall": "prisma generate",
     "build": "tsc -p tsconfig.json && vite build",
+    "build:islands": "cd islands && pnpm install --frozen-lockfile && pnpm build",
     "dev": "npm run build && node dist/src/development.js",
     "type-check": "tsc -p tsconfig.json --noEmit",
     "db:check-legacy": "node dist/src/database-baseline.js",

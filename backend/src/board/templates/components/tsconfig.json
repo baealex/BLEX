@@ -1,9 +1,0 @@
-{
-    "extends": "../../../../islands/apps/remotes/tsconfig.json",
-    "include": [
-        "."
-    ],
-    "compilerOptions": {
-        "noEmit": true
-    }
-}

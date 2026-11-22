@@ -10,6 +10,7 @@
         "install": "npm --prefix v4 ci",
         "dev": "npm --prefix v4 run dev",
         "build": "npm --prefix v4 run build",
+        "build:islands": "npm --prefix v4 run build:islands",
         "start": "npm --prefix v4 start",
         "test": "npm --prefix v4 test",
         "server:test": "npm --prefix v4 test",
