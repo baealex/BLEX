@@ -1,8 +1,8 @@
 import formBody from '@fastify/formbody';
 import type { PrismaClient } from '@prisma/client';
 import type { FastifyInstance, FastifyRequest } from 'fastify';
-import { authCookieOptions, csrfCookie, requestCookies } from '../auth/cookies.js';
-import { csrfPattern, formInput } from '../auth/csrf.js';
+import { authCookieOptions, csrfCookie, requestCookies } from '../../platform/cookies.js';
+import { csrfPattern, formInput } from '../../platform/csrf.js';
 import { createToken } from '../auth/session.js';
 import { SiteIcon } from '../../appearance/shell.js';
 import { renderSettingsShell } from '../../application/settings-shell.js';

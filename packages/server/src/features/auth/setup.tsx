@@ -5,8 +5,8 @@ import type { FastifyInstance } from 'fastify';
 import { SiteFooter, SiteHeader, SiteTheme } from '../../appearance/shell.js';
 import { AuthPanel, authField, authInput, authSubmit } from './ui/panel.js';
 import { accountEmailPattern, accountUsernamePattern, describeInvalidPassword, normalizeAccountEmail } from './account-validation.js';
-import { authCookieOptions, csrfCookie, sessionCookie, setSessionCookies } from './cookies.js';
-import { formInput, validCsrf } from './csrf.js';
+import { authCookieOptions, csrfCookie, sessionCookie, setSessionCookies } from '../../platform/cookies.js';
+import { formInput, validCsrf } from '../../platform/csrf.js';
 import { hashDjangoPassword } from './django-password.js';
 import { createSession, createToken } from './session.js';
 

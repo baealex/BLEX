@@ -1,8 +1,8 @@
 import type { PrismaClient } from '@prisma/client';
 import type { FastifyInstance, FastifyRequest } from 'fastify';
 import { SiteIcon } from '../../../appearance/shell.js';
-import { authCookieOptions, csrfCookie, requestCookies } from '../../auth/cookies.js';
-import { csrfPattern } from '../../auth/csrf.js';
+import { authCookieOptions, csrfCookie, requestCookies } from '../../../platform/cookies.js';
+import { csrfPattern } from '../../../platform/csrf.js';
 import { createToken } from '../../auth/session.js';
 import { mySubscriptions } from '../index.js';
 import { renderSettingsShell } from '../../../application/settings-shell.js';

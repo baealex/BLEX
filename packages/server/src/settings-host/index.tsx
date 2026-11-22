@@ -7,7 +7,7 @@ import { renderToString } from 'react-dom/server';
 import { readAdminAccess } from '../features/site-admin/access.js';
 import { SiteFooter, SiteHeader, SiteTheme } from '../appearance/shell.js';
 import { applicationContentSecurityPolicy, scriptJson } from '../application/document.js';
-import { authCookieOptions, csrfCookie, requestCookies } from '../features/auth/cookies.js';
+import { authCookieOptions, csrfCookie, requestCookies } from '../platform/cookies.js';
 import { decryptDjangoSecret } from '../features/auth/django-secret.js';
 import { safeReturnPath } from '../features/auth/oauth.js';
 import { createToken } from '../features/auth/session.js';

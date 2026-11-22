@@ -7,8 +7,8 @@ import { createHash, randomBytes } from 'node:crypto';
 import { mkdir, mkdtemp, realpath, rename, rm, stat, unlink, writeFile } from 'node:fs/promises';
 import { extname, isAbsolute, relative, resolve, sep } from 'node:path';
 import sharp from 'sharp';
-import { authCookieOptions, csrfCookie, requestCookies } from '../auth/cookies.js';
-import { csrfPattern } from '../auth/csrf.js';
+import { authCookieOptions, csrfCookie, requestCookies } from '../../platform/cookies.js';
+import { csrfPattern } from '../../platform/csrf.js';
 import { createToken } from '../auth/session.js';
 import { failure } from '../../platform/response.js';
 

@@ -1,5 +1,5 @@
 import type { FastifyReply, FastifyRequest } from 'fastify';
-import { createToken, SESSION_DURATION_SECONDS } from './session.js';
+import { createToken, SESSION_DURATION_SECONDS } from '../features/auth/session.js';
 
 export const sessionCookie = 'blexsessionid';
 export const csrfCookie = 'csrftoken';

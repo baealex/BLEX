@@ -1,6 +1,6 @@
 import type { Prisma, PrismaClient } from '@prisma/client';
 import type { FastifyRequest } from 'fastify';
-import { sessionCookie } from './cookies.js';
+import { sessionCookie } from '../../platform/cookies.js';
 import { credentialTag, createToken, readSession, tokenHash } from './session.js';
 
 const verificationLifetime = 300_000;

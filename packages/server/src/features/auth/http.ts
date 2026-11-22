@@ -1,8 +1,8 @@
 import formBody from '@fastify/formbody';
 import type { PrismaClient } from '@prisma/client';
 import type { FastifyInstance } from 'fastify';
-import { authCookieOptions, csrfCookie, refreshCsrf, sessionCookie, setSessionCookies } from './cookies.js';
-import { csrfPattern, formInput, validCsrf } from './csrf.js';
+import { authCookieOptions, csrfCookie, refreshCsrf, sessionCookie, setSessionCookies } from '../../platform/cookies.js';
+import { csrfPattern, formInput, validCsrf } from '../../platform/csrf.js';
 import { registerLoginPage } from './login-page.js';
 import { reserveLoginAttempt } from './login-attempts.js';
 import { consumePendingOAuth, oauthChallengeCookie, readPendingOAuth, registerOAuthRoutes } from './oauth.js';
